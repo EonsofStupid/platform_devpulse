@@ -2,7 +2,7 @@
 resolver = "2"
 members = [
     "kernel/core",
-    # "systems/*",    # Uncomment when engines are added
+    "systems/*",
     # "interfaces/*", # Uncomment when apps are added
 ]
 
