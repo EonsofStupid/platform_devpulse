@@ -1,18 +1,7 @@
 # Master Structural Scaffolding Specification (Final)
 
-> **Status**: PRODUCTION (Ready for Execution)
+> **Status**: APPROVED (Production Ready)
 > **Goal**: Define the "Absolute Law" and **Exact Folder Structure** before code generation.
-
-# **Global Vision: The Meistro Philosophy**
-**Founder**: Jesse Hall
-**Vision**: "The Intelligent Driver and Quality Gate."
-**Philosophy**: "Honest Orchestration."
-**Slogan**: "Build. Share. Ship. Harness AI with Devpulse."
-**Target Audience**: "Layman First." (Guardrails > Freedom).
-**Licensing**: `https://devpulse.app` (The Trust Source).
-**Community**: `https://angryviber.com` (The Network).
-**Constraint**: "Stop the Learning Tax." (First-Try Success).
-
 
 ## 1. The Workspace Root (The Foundation)
 **File**: `Cargo.toml` (Root)
@@ -45,12 +34,17 @@ ts-rs = "10.0" # or specta
 libsql = "0.6"
 duckdb = "1.1"
 moka = "0.12"
-fjall = "2.0" # LSM-Tree Storage
+fjall = "2.0" 
+wal = { git = "https://github.com/EonsofStupid/wal" }
+rro = { git = "https://github.com/EonsofStupid/rro" }
+tar-rs = { git = "https://github.com/EonsofStupid/tar-rs" }
 
 # AI & Voice (The "Senses")
 candle-core = "0.8"
+candle-transformers = "0.8" 
 outlines-core = "0.1"
-kokoros = "0.1" # TTS
+kokoros = { git = "https://github.com/EonsofStupid/Kokoros" }
+ort = "2.0" 
 
 # Ops (xtask Support)
 xshell = "0.2" # Shell scripting in Rust
@@ -65,10 +59,15 @@ fs_extra = "1.3" # File manipulation
 **Path**: `kernel/devpulse-maestro`
 **Role**: Proprietary Logic (The Brain).
 **Strictness**: `deny(warnings)` (D3).
+**Guardrail**: `kernel/devpulse-maestro/_MAINTENANCE.md`
+> "The Law of Duplication": Verify with `grep` before adding types.
 
 ### 2.2 Systems: `devpulse-engine` (The Facade)
 **Path**: `systems/devpulse-engine`
 **Role**: Public Types & Translation Layer (The Muscle).
+**Guardrail**: `systems/devpulse-engine/_MAINTENANCE.md`
+> "The Law of Types": All public structs must derive `TS`.
+
 **Requirement**:
 - [ ] **README.md**: Document the `Signal` pattern (Header + Kind).
 - [ ] **Type Export**: `#[derive(TS)]` on all public signals.
@@ -77,6 +76,40 @@ fs_extra = "1.3" # File manipulation
 
 ## 3. Desktop Architecture (The World)
 **Location**: `interfaces/desktop`
+
+### 3.0 Frontend Initialization (Critical)
+**File**: `interfaces/desktop/src/package.json`
+> **Role**: Defines the Node Environment. Mandatory for `npm install`.
+
+```json
+{
+  "name": "devpulse-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^3.0.0",
+    "@tsconfig/svelte": "^5.0.0",
+    "svelte": "^5.0.0",
+    "svelte-check": "^3.6.0",
+    "tslib": "^2.4.1",
+    "typescript": "^5.0.0",
+    "vite": "^5.0.0"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.0.0-rc",
+    "@tauri-apps/plugin-shell": "^2.0.0-rc",
+    "clsx": "^2.1.0",
+    "tailwind-merge": "^2.2.0" 
+  }
+}
+```
 
 ### 3.1 `src-tauri` (Rust Backend)
 > **Rule**: Functional Command Contexts. Backend is capability-driven, not UI-driven.
@@ -143,13 +176,6 @@ pub mod interactions; // Reactions, slash commands
 pub mod history;
 ```
 
-#### `src/commands/sys/mod.rs`
-```rust
-pub mod config;
-pub mod logger;
-pub mod guard; // Hybrid SaaS Licensing & Feature Gating
-```
-
 
 ### 3.2 Frontend (Svelte 5 + Runes)
 **Root**: `src/lib`
@@ -200,7 +226,6 @@ pub mod guard; // Hybrid SaaS Licensing & Feature Gating
 
 ## 4. The Lab (The Observer)
 **Location**: `../devpulse_lab` (Sister Repository)
-
 **Role**: Pure UI Observer.
 **Tech**: Svelte + Tauri Extremely heavy analyzer and observer for tests baseline configuration
 **Behavior**:
@@ -218,6 +243,7 @@ pub mod guard; // Hybrid SaaS Licensing & Feature Gating
 | `scripts/` | `systems/xtask` | **Port**: Convert Python/Shell scripts to safe Rust `xtask` binaries. |
 
 ## 6. Execution Plan (The "Blank" Scaffold)
+> **Senior Protocol**: We generate **ONLY** the folder structure and empty files (0 bytes) first.
 > **Senior Protocol**: We generate **ONLY** the folder structure and empty files (0 bytes) first.
 > **Why?**: This allows the Architect (You) to review the exact hierarchy in VS Code.
 

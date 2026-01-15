@@ -1,6 +1,6 @@
+// Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    // Keep main thin. The library handles the logic.
-    desktop_lib::run();
+    devpulse_desktop_lib::run();
 }

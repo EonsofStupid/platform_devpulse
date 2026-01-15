@@ -2,12 +2,8 @@
 name = "devpulse-engine"
 version = "0.1.0"
 edition = "2021"
-# The Facade. Public types.
 
 [dependencies]
+devpulse-maestro = { path = "../../kernel/devpulse-maestro" }
 serde = { workspace = true }
 ts-rs = { workspace = true }
-
-[lib]
-name = "devpulse_engine"
-path = "src/lib.rs"

@@ -3,7 +3,7 @@ use xshell::{cmd, Shell};
 
 #[derive(Parser)]
 #[command(name = "xtask")]
-#[command(about = "DevPulse System Orchestrator")]
+#[command(about = "DevPulse Orchestrator", long_about = None)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -11,39 +11,24 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Starts the Full System (Platform + Lab)
-    /// "ONE EMBEDDED FOR PLATFORM, ONE FOR LAB"
+    /// Start the full Platform + Lab environment
     RunDev,
-    /// Strict Release Testing
-    TestRelease,
+    /// Verify the setup (Dogfooding)
+    VerifyDogfood,
 }
 
 fn main() -> anyhow::Result<()> {
-    let args = Cli::parse();
+    let cli = Cli::parse();
     let sh = Shell::new()?;
 
-    match args.command {
+    match cli.command {
         Commands::RunDev => {
-            println!(">> [XTASK] ORCHESTRATING DEV MODE...");
-            
-            // 1. Terminate existing instances
-            // (TODO: Robust kill logic)
-
-            // 2. Launch The Lab (Observer) - Has its own Embedded DB
-            // Runs in background
-            let _lab = std::thread::spawn(move || {
-                // cmd!(sh, "cargo tauri dev --cwd ../devpulse_lab").run().unwrap();
-                println!(">> [XTASK] SPURNING LAB (Observer)...");
-            });
-
-            // 3. Launch The Platform (Maestro) - Has its own Embedded DB
-            // Runs in foreground
-            println!(">> [XTASK] LAUNCHING PLATFORM (Maestro)...");
-            cmd!(sh, "cargo tauri dev --cwd interfaces/desktop").run()?;
+            println!("🚀 Starting DevPulse Platform + Lab...");
+            // Implementation to come in Sprint 3
         }
-        Commands::TestRelease => {
-            println!(">> [XTASK] STRICT RELEASE TESTING...");
-            cmd!(sh, "cargo test --workspace").run()?;
+        Commands::VerifyDogfood => {
+            println!("🔍 Verifying Dogfood Status...");
+            // Implementation to come in Sprint 3
         }
     }
 

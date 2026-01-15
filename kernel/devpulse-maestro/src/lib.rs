@@ -1,5 +1,12 @@
-pub mod api {
-    pub fn version() -> &'static str {
-        "0.1.0-alpha.maestro"
+pub mod memory;
+pub mod reasoning;
+
+pub struct Brain {
+    // Proprietary State
+}
+
+impl Brain {
+    pub fn new() -> Self {
+        Self {}
     }
 }

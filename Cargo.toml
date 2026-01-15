@@ -23,12 +23,17 @@ ts-rs = "10.0" # or specta
 libsql = "0.6"
 duckdb = "1.1"
 moka = "0.12"
-fjall = "2.0" # LSM-Tree Storage
+fjall = "2.0" 
+wal = { git = "https://github.com/EonsofStupid/wal" }
+rro = { git = "https://github.com/EonsofStupid/rro" }
+tar-rs = { git = "https://github.com/EonsofStupid/tar-rs" }
 
 # AI & Voice (The "Senses")
 candle-core = "0.8"
+candle-transformers = "0.8" 
 outlines-core = "0.1"
-kokoros = "0.1" # TTS
+kokoros = { git = "https://github.com/EonsofStupid/Kokoros" }
+ort = "2.0" 
 
 # Ops (xtask Support)
 xshell = "0.2" # Shell scripting in Rust

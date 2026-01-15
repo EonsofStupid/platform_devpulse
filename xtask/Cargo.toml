@@ -2,9 +2,8 @@
 name = "xtask"
 version = "0.1.0"
 edition = "2021"
-# The Orchestrator. Runs the Whole System.
 
 [dependencies]
-xshell = "0.2"
-clap = { version = "4.5", features = ["derive"] }
+xshell = { workspace = true }
+clap = { workspace = true }
 anyhow = "1.0"
