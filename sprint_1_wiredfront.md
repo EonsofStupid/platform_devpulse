@@ -31,26 +31,26 @@
     *   **File:** `stores/connections.svelte.ts` (Mock state for Twitch/YT).
 *   **Route:** `src/routes/wiredfront/+page.svelte`.
 
-### Phase 2: ThinkSpace (The  Sandbox)
+### Phase 2: Thinkmaestro (The  Sandbox)
 *Goal: Safe, Ephemeral Experimentation.*
 *   **Specs:** Temp=0, 30-Day Eviction, Sandbox Mode.
-*   **Path:** `src/lib/domains/thinkspace/`
-    *   **File:** `ThinkSpaceFrame.svelte` (Visuals: "Safety Field" styling).
+*   **Path:** `src/lib/domains/thinkmaestro/`
+    *   **File:** `ThinkmaestroFrame.svelte` (Visuals: "Safety Field" styling).
     *   **File:** `ThinkDashboard.svelte` (Active Experiments, "Time to Eviction" stats).
     *   **File:** `ThinkGallery.svelte` (Debug Screenshots, Throwaway captures).
     *   **File:** `modes/Sandbox.svelte` (The Chat/Graph Canvas).
     *   **File:** `modes/Classroom.svelte` (Ladle Tutorials Overlay).
-*   **Route:** `src/routes/thinkspace/+page.svelte`.
+*   **Route:** `src/routes/thinkmaestro/+page.svelte`.
 
-### Phase 3: DevSpace (The Factory / Production)
+### Phase 3: Devmaestro (The Factory / Production)
 *Goal: Committed Work, Official Assets.*
 *   **Specs:** Git-backed, Permanent.
-*   **Path:** `src/lib/domains/devspace/`
-    *   **File:** `DevSpaceFrame.svelte` (Visuals: "Production" styling).
+*   **Path:** `src/lib/domains/devmaestro/`
+    *   **File:** `DevmaestroFrame.svelte` (Visuals: "Production" styling).
     *   **File:** `DevDashboard.svelte` (Project Status, Git State).
     *   **File:** `DevGallery.svelte` (Official Documentation Images).
     *   **File:** `tools/ShortcutManager.svelte`.
-*   **Route:** `src/routes/devspace/+page.svelte`.
+*   **Route:** `src/routes/devmaestro/+page.svelte`.
 
 ### Phase 4: PixVix & The Promotion Flow
 *Goal: The Unified Tool + "Moving Up".*
@@ -61,7 +61,7 @@
 2.  **The Hybrid Promotion Logic (Option D):**
     *   **Concept:** Context-aware saving.
     *   **File:** `src/lib/domains/shared/AssetPromoter.ts`.
-        *   *Function:* `promoteToDevSpace(assetId)` -> Moves from Temp to Perm.
+        *   *Function:* `promoteToDevmaestro(assetId)` -> Moves from Temp to Perm.
     *   **UI:** `PromotionModal.svelte` (Right-click "Promote with Details").
 
 ### Phase 5: Maestro Chat (Separate Window)
@@ -73,6 +73,6 @@
 ## 3. Verification Protocol
 - [ ] **Shell:** Background animations active. Sidebar collapses.
 - [ ] **WiredFront:** Dashboard shows "Connections", Gallery loads `wf-gallery`.
-- [ ] **ThinkSpace:** Dashboard shows "Sandbox Mode", Visual distinction is clear.
-- [ ] **DevSpace:** Dashboard shows "Production", Gallery is distinct.
+- [ ] **Thinkmaestro:** Dashboard shows "Sandbox Mode", Visual distinction is clear.
+- [ ] **Devmaestro:** Dashboard shows "Production", Gallery is distinct.
 - [ ] **PixVix:** Click "Promote" -> Mock moves asset from Think -> Dev.

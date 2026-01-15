@@ -1,0 +1,21 @@
+[package]
+name = "devpulse-maestro"
+version = "0.1.0"
+edition = "2021"
+# THE IP. proprietary.
+publish = false
+
+[dependencies]
+# Core
+serde = { workspace = true }
+uuid = { workspace = true }
+tokio = { workspace = true }
+
+# Data
+libsql = { workspace = true }
+
+# AI
+candle-core = { workspace = true }
+
+[lints.rust]
+unsafe_code = "forbid"

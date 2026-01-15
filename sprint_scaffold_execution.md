@@ -1,70 +1,57 @@
-# Sprint: The Absolute Scaffolding Execution
-**Status:** READY_TO_EXECUTE
-**Protocol:** STRICT_SCALAR_ALIGNMENT
+# Sprint: Senior Blank Scaffold Execution
 
-> **Goal**: Aggressively scaffold the "Absolute Map" for the full platform (Desktop + Kernel + Systems).
-> **Input References**: User Request Step 55 (Folder Map), User Request Step 50 (Component Details).
+> **Objective**: Create the **EXACT** file structure defined in `PRODUCTION_PLANNING.md`.
+> **Method**: Zero-byte file creation first. Validate structure. populate later.
 
-## 1. Backend Cleanup (The Foundation)
-**Reason**: Align strict definitions of IP (Maestro) vs Facade (Engine) vs Tools (xtask).
+## 1. The Workspace Root
+- [ ] `d:/localdev/platform_devpulse/Cargo.toml`
 
-### Step 1.1: Maestro Consolidation
-- **Audit**: `systems/maestro` (Active) vs `kernel/maestro` (Stub).
-- **Action**: Move all content from `systems/maestro` to `kernel/maestro`.
-- **Verify**: `systems/maestro` is empty/deleted. `kernel/maestro/Cargo.toml` exists.
+## 2. Backend Architecture
+- [ ] `d:/localdev/platform_devpulse/kernel/devpulse-maestro/Cargo.toml`
+- [ ] `d:/localdev/platform_devpulse/systems/devpulse-engine/Cargo.toml`
 
-### Step 1.2: Engine Reset
-- **Audit**: `systems/engine` is empty/drifted.
-- **Action**: Delete `systems/engine`. Initialize `kernel/engine` (The Facade).
-- **Verify**: `kernel/engine` exists.
+## 3. Operations (xtask)
+- [ ] `d:/localdev/platform_devpulse/xtask/Cargo.toml`
+- [ ] `d:/localdev/platform_devpulse/xtask/src/main.rs`
 
----
+## 4. Desktop Interface (The Mega Platform)
+### 4.1 Backend (Rust Commands)
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src-tauri/src/main.rs`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src-tauri/src/lib.rs`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src-tauri/src/commands/mod.rs`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src-tauri/src/commands/devmaestro/mod.rs`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src-tauri/src/commands/thinkmaestro/mod.rs`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src-tauri/src/commands/wiredfront/mod.rs`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src-tauri/src/commands/chat/mod.rs`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src-tauri/src/commands/chat/interactions.rs`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src-tauri/src/commands/sys/mod.rs`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src-tauri/src/commands/sys/config.rs`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src-tauri/src/commands/sys/logger.rs`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src-tauri/src/commands/sys/guard.rs` # The Security Lock
 
-## 2. Frontend Scaffolding (The Map)
-**Root**: `interfaces/desktop/src/lib`
-**Constraint**: Strict adherence to the Step 55 Folder Structure.
+### 4.2 Frontend (GlassHub UI)
+**Layouts**
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/layouts/chat/ChatDashboard.svelte`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/layouts/chat/Frame.svelte`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/layouts/chat/TopBar.svelte`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/layouts/chat/LeftSidebar.svelte`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/layouts/chat/panels/ContextPanel.svelte`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/layouts/chat/panels/HistoryPanel.svelte`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/layouts/chat/overlays/CommandPalette.svelte`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/layouts/chat/overlays/ModeSelector.svelte`
 
-### Step 2.1: Layouts (The Shell)
-- **Path**: `src/lib/layouts/`
-- **Actions**:
-    1.  Ensure `chat/` folder exists.
-    2.  Create/Verify Components:
-        -   `chat/Frame.svelte`
-        -   `chat/TopBar.svelte`
-        -   `chat/LeftSidebar.svelte`
-        -   `chat/QuickMenu.svelte`
-    3.  Ensure `dashboard/` folder exists.
-        -   Create/Verify: `dashboard/Frame.svelte`.
-    4.  **Cleanup**: Rename/Refactor strict `app` folder if it conflicts or doesn't map to these.
+**Domains**
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/devmaestro/DevmaestroFrame.svelte`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/devmaestro/DevDashboard.svelte`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/thinkmaestro/ThinkmaestroFrame.svelte`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/thinkmaestro/ThinkDashboard.svelte`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/thinkmaestro/Canvas.svelte`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/wiredfront/WiredfrontFrame.svelte`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/wiredfront/WiredDashboard.svelte`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/wiredfront/ConnectionHub.svelte`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/wiredfront/ViziWiziEditor.svelte`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/wiredfront/MediaGallery.svelte`
 
-### Step 2.2: Domains (The Functional Areas)
-- **Path**: `src/lib/domains/`
-- **Actions**: Create the following 6 folders (Strict):
-    1.  `home/` (Dashboard)
-    2.  `projects/` (General)
-    3.  `devspace/` (Production)
-    4.  `thinkspace/` (Experimental)
-    5.  `sharespace/` (Collaboration - *Migrate `wiredfront` here*)
-    6.  `system/` (Settings)
-
-### Step 2.3: Component population (Stubbing)
-- Populate the Domains with their respective "Frame" components (as defined in Step 50) but aligned to the new folder structure.
-    - `domains/home/HomeFrame.svelte`
-    - `domains/devspace/DevSpaceFrame.svelte` (from Step 50)
-    - `domains/thinkspace/ThinkSpaceFrame.svelte` (from Step 50)
-    - `domains/sharespace/WiredHubFrame.svelte` (WiredFront becomes ShareSpace hub)
-
----
-
-## 3. Platform Systems
-- **Path**: `systems/`
-- **Actions**:
-    - Ensure `userdata/` exists.
-    - Ensure `xtask/` exists.
-
-## 4. Verification Checklist
-- [ ] `kernel/maestro` contains the core IP logic.
-- [ ] `systems/engine` is GONE.
-- [ ] `src/lib/layouts/chat` exists with 4 components.
-- [ ] `src/lib/domains` has exactly 6 folders.
-- [ ] Build passes (`cargo build`, `npm run build`).
+## 5. The Lab (Sister Repository)
+*(Run manually or via xtask)*
+- [ ] Create `../devpulse_lab` structure manually first if needed.
