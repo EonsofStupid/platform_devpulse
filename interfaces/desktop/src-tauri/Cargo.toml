@@ -1,19 +1,19 @@
 [package]
-name = "devpulse-desktop-lib"
+name = "devpulse_desktop_backend"
 version = "0.0.0"
 description = "DevPulse Desktop"
 authors = ["you"]
 edition = "2021"
 
 [lib]
-name = "devpulse_desktop_lib"
+name = "devpulse_desktop_backend"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
 tauri-build = { version = "2.0.0-rc", features = [] }
 
 [dependencies]
-tauri = { version = "2.0.0-rc", features = ["shell-all"] }
+tauri = { version = "2.0.0-rc", features = [] }
 tauri-plugin-shell = "2.0.0-rc"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"

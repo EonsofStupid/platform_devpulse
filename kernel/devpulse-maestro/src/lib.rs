@@ -1,11 +1,11 @@
 pub mod memory;
 pub mod reasoning;
 
-pub struct Brain {
+pub struct Cortex {
     // Proprietary State
 }
 
-impl Brain {
+impl Cortex {
     pub fn new() -> Self {
         Self {}
     }

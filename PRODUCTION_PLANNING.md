@@ -57,7 +57,11 @@ fs_extra = "1.3" # File manipulation
 
 ### 2.1 Kernel: `devpulse-maestro` (The IP)
 **Path**: `kernel/devpulse-maestro`
-**Role**: Proprietary Logic (The Brain).
+**Role**: Proprietary Logic (The Cortex).
+> **Beta 1 Vision**: The Cortex will evolve into the **RRO** (Reasoning Ready Object).
+> - **Internal**: Uses embedded `SurrealDB` for local state/graphs.
+> - **External Lobe**: Connects to Cloud `Qdrant` (RocksDB) via encoded handshake for massive memory.
+> - **Current Scaffold**: Must expose `persistence` module to support this future dual-lobe structure.
 **Strictness**: `deny(warnings)` (D3).
 **Guardrail**: `kernel/devpulse-maestro/_MAINTENANCE.md`
 > "The Law of Duplication": Verify with `grep` before adding types.
@@ -230,7 +234,7 @@ pub mod history;
 **Tech**: Svelte + Tauri Extremely heavy analyzer and observer for tests baseline configuration
 **Behavior**:
 -   **Dependencies**: Own `libsql`, `duckdb` (for storing analysis).
--   **Observability**: Connects to Platform's `vfs` (embedded DBs) via read-only replication or socket. **It watches the Platform's brain.**
+-   **Observability**: Connects to Platform's `vfs` (embedded DBs) via read-only replication or socket. **It watches the Platform's cortex.**
 
 ## 5. Migration Strategy (The Translation)
 > **Senior Protocol**: We do not just "copy-paste". We **translate** legacy patterns to the new Standard.
@@ -262,7 +266,7 @@ If promoted to `PRODUCTION_PLANNING.md`, I will execute the following **EXACT** 
 > **Release Mode**: `cargo xtask test-release` -> Strict testing.
 
 - [ ] `xtask/Cargo.toml` (Package: `xtask`)
-- [ ] `xtask/src/main.rs` (The Build Brain)
+- [ ] `xtask/src/main.rs` (The Build Cortex)
 
 ### 5.3 Desktop Skeleton (0-Byte Files)
 > I will creating the following empty files for you to review:

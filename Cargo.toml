@@ -4,7 +4,7 @@ members = [
     "kernel/devpulse-maestro",
     "systems/devpulse-engine",
     "systems/*", 
-    "interfaces/*",
+    "interfaces/desktop/src-tauri",
     "xtask" # The Build Orchestrator
     # EXCLUDED: devpulse_lab (Strictly External)
 ]
@@ -17,7 +17,7 @@ chrono = { version = "0.4", features = ["serde"] }
 tokio = { version = "1.40", features = ["full"] }
 
 # Type Sync (D2)
-ts-rs = "10.0" # or specta
+ts-rs = { version = "10.0", features = ["uuid-impl"] } # or specta
 
 # Platform Data (The "Muscle")
 libsql = "0.6"

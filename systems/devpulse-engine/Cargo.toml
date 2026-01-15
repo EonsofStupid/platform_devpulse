@@ -7,3 +7,4 @@ edition = "2021"
 devpulse-maestro = { path = "../../kernel/devpulse-maestro" }
 serde = { workspace = true }
 ts-rs = { workspace = true }
+uuid = { workspace = true }

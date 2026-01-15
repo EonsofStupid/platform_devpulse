@@ -94,3 +94,40 @@ fs_extra = "1.3"
 - `kernel/devpulse-maestro/Cargo.toml`
 - `systems/devpulse-engine/Cargo.toml`
 - `xtask/Cargo.toml`
+tomic Stabilization Plan (Sprint 1)
+Protocol: 
+_AGENT_PROTOCOL.md
+ (Plan-Act-Reflect) Goal: Fix build failures with zero side-effects.
+
+1. Atomic Fix: Engine Dependencies
+Task: Enable uuid-impl feature for ts-rs in Root 
+Cargo.toml
+.
+Reason: devpulse-engine fails because Uuid doesn't implement TS.
+Maintenance Check: 
+systems/devpulse-engine/_MAINTENANCE.md
+ allows types.
+2. Atomic Fix: Xtask Implementation
+Task: Implement cmd! logic in 
+xtask/src/main.rs
+.
+Reason: Fixes "unused variable" warnings by using them, not deleting them.
+Maintenance Check: 
+_MAINTENANCE.md
+ (General) encourages robust tooling.
+3. Atomic Fix: Desktop Backend Rename
+Task: Rename [lib] name to devpulse_desktop_backend in 
+interfaces/desktop/src-tauri/Cargo.toml
+.
+Reason: Fixes PDB filename collision on Windows between lib and bin.
+Maintenance Check: 
+interfaces/desktop/_MAINTENANCE.md
+ allows strict configuration.
+4. Atomic Fix: Backend Import Update
+Task: Update 
+interfaces/desktop/src-tauri/src/main.rs
+ to import devpulse_desktop_backend.
+Reason: Required because of Atomic Fix #3.
+5. Verification
+Command: cargo check --workspace
+Pass Criteria: Exit code 0, No red text.

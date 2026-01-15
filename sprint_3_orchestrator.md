@@ -58,7 +58,7 @@ impl SignalRepository for DuckDbSignalRepository {
 }
 ```
 
-### Module: `cortex` (The Brain)
+### Module: `cortex` (The Cortex)
 **File:** `orchestrator/src/cortex/mod.rs`
 **Proposed Types:**
 ```rust
