@@ -113,5 +113,58 @@ uuid = { version = "1.10", features = ["v7", "serde"] }
 
 ---
 
-## 3. Technical Debt
-*(Empty)*
+## 3. The "Deep Logic" Tech Stack (Rust Backend)
+> **Philosophy**: Standard 2026. High-Performance. Zero-Copy.
+
+| Component | Technology | Purpose |
+| :--- | :--- | :--- |
+| **HMM Engine** | `karma` | "Tilt" State prediction (Baum-Welch/Forward algorithms). |
+| **Context Graph** | `llm-memory-graph` | Prompt lineage & conversation tracking (Sled/Petgraph backed). |
+| **Verification** | `stateright` | Formal verification of the 8-state Kernel (deadlock prevention). |
+| **Thought Tree** | `petgraph` | Directed graph storage for thought nodes. |
+| **Metaphysical** | `rkyv` + `bytecheck` | Zero-Copy MCP backbone (Shared RAM). |
+
+## 4. The "Deep Glass" Tech Stack (SvelteKit Frontend)
+> **Philosophy**: Bioluminescent. Fluid. "If I can't click it, it doesn't exist."
+
+| Component | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Thought Tree** | `svelte-flow` | Dynamic, interactive Persona Cards & Graph Nodes. |
+| **Metaphysical** | `threlte` | 3D visualizer for vector embeddings (GPU accelerated). |
+| **Cortex UI** | `@unovis/svelte` | Modular metrics & real-time monitoring. |
+| **CLI Guidance** | `svelte-bash` | Virtual terminal for ThinkMaestro guidance. |
+| **Icons** | `lucide-svelte` | Minimalist iconography. |
+
+## 6. OverMind Protocol (The Sandbox)
+> **Definition**: Ephemeral testing, staging, and theorycrafting.
+> **Philosophy**: "Where thinking happens". Low-Weight. Sandbox.
+
+### Key Policies
+1.  **Ephemeral**: 30-day auto-eviction unless saved.
+2.  **Low-Weight**: Uses temporary vector storage (not committed to Core Memory).
+3.  **Graduate**: Explicit action to move ideas from OverMind -> Project (Core).
+
+### The "Seamless Evolution" (Gamification)
+*   **Mechanism**: UI evolution is behind the scenes.
+*   **User Feedback**: Gamification points and animations signal when the UI has "evolved" (e.g., unlocking a new tool or dashboard layout).
+*   **Vibe**: "Leveling Up" your workspace.
+
+### Memory Tiers
+1.  **OverMind (Exploration)**: Low-weight vectors, temporary, "What if?".
+2.  **Project (Committed)**: Full vectors, persistent, "We decided to...".
+
+### UI Distinction
+*   **OverMind**: Invisible infrastructure (Planning/Verification). "The Lab".
+*   **Classroom**: Visible education (Visual lessons/tutorials). "The School".
+
+## 7. Hyper-Modular Domain Map
+> **Rule**: Every Domain is self-contained. No shared services unless optimized later.
+> **Structure**: `domain/root/ { services, components, stores, pages, utils }`
+
+| Legacy Name | **New Domain** | UI Theme | Purpose |
+| :--- | :--- | :--- | :--- |
+| **ThinkMaestro** | **`OverMind`** | Deep Teal/Purple (Bioluminescent) | Sanctuary of Knowledge. "Fun" not "Hive Mind". |
+| **DevPulse** | **`Home`** | Standard Glass | The Central Dashboard. |
+| **DevMaestro** | **`Projects`** | Technical/Clean | DevMode, Prompt Recipes. |
+| **WiredFront** | **`WiredFront`** | Media/Overlay | Screen Capture & ViziWizi (The "Face"). |
+| **User** | **`User`** | Profile | Settings & Identity. |
