@@ -1,4 +1,4 @@
 pub mod guardian;
 pub mod diary;
-pub mod agents;
+pub mod minions;
 pub mod factory;

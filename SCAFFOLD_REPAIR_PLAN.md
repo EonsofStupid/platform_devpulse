@@ -4,7 +4,7 @@
 > **Philosophy**: Folders are not just storage; they are functional components of the Agentic Lifecycle.
 
 ## 1. Cortex (`kernel/devpulse-maestro`)
-**Role**: The "Brain" (State, Reasoning, Safety).
+**Role**: The "cortex" (State, Reasoning, Safety).
 **Pattern**: Hexagonal Architecture (Ports & Adapters).
 
 ```

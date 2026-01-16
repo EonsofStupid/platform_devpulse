@@ -26,3 +26,12 @@
 cargo check
 cargo test
 ```
+[ ] Zero-Copy Compliance: Does this code utilize rkyv for internal data transfer? (Block any new JSON parsers inside the domain boundary).
+
+[ ] Signal Protocol Alignment: Does this logic emit a standard Signal to the Event Bus (iceoryx2) instead of calling other hubs directly?
+
+[ ] ADR Junction Lock: Does this implementation contradict a "Key Junction" stored in libSQL? (e.g., trying to use shadcn if the domain is locked to wgpu primitives).
+
+[ ] Dependency Ghosting: Are all new imports verified against the local verified registry?
+
+[ ] State Awareness: Does this code handle the "Tilt" state (PSF7CR)? (e.g., UI components must have a "throttled" mode).

@@ -1,13 +1,18 @@
 pub mod signals;
 
-use devpulse_maestro::Brain;
+use devpulse_maestro::Cortex;
 
 pub struct Engine {
-    brain: Brain,
+    cortex: Cortex,
 }
 
 impl Engine {
     pub fn boot() -> Self {
-        Self { brain: Brain::new() }
+        Self { cortex: Cortex::new() }
+    }
+
+    pub fn start(&self) {
+        // TODO: Initialize Cortex
+        let _ = &self.cortex;
     }
 }
