@@ -1,6 +1,6 @@
 // orchestrator/src/sub_agents/mod.rs
 
-//! Sub-agents (Experts)
+//! Sub-a gents(Experts)
 //!
 //! Each sub-agent is a specialist that implements the Expert trait.
 //! Sub-agents have manifest.toml files defining their capabilities.

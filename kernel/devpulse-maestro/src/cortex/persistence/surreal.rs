@@ -1,0 +1,1 @@
+// SurrealDB adapter (stub)

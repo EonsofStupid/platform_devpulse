@@ -1,7 +1,9 @@
 pub mod kv_cache;
 pub mod persistence;
 pub mod reasoning;
-pub mod agents;
+
+#[path = "minions"]
+pub mod minions;
 
 pub struct Cortex {
     // Brain State

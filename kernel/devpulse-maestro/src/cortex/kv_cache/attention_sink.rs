@@ -1,0 +1,1 @@
+// Attention sink mechanism (stub)

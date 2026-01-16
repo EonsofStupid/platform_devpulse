@@ -1,0 +1,1 @@
+// HMM transition matrix (stub)

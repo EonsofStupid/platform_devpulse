@@ -1,8 +1,7 @@
-pub mod memory;
-pub mod reasoning;
+pub mod cortex;
 
 pub struct Cortex {
-    // Proprietary State
+    // Main entry point
 }
 
 impl Cortex {
