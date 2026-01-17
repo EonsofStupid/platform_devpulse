@@ -27,4 +27,15 @@
 | **TanStack Table** | 🟢 **ADOPT** | Headless control for complex data grids (Projects/Memories). |
 | **Rust Native** | 🟢 **PRIORITY** | All *Storage* and *Filtration* happens in Rust (`Service::query`). Table just renders. |
 
-**Final Protocol**: "Maximize Rust for Logic. Use Svelte Runes for UI State. Use TanStack for Complex UI behaviors."
+## 5. Performance Profiling
+| Option | Verdict | Reasoning |
+| :--- | :--- | :--- |
+| **Tracy** | 🟢 **MANDATORY** | Nanosecond-precision profiling for Rust. Essential for diagnosing local AI latency. |
+
+## 6. IPC (The Nervous System)
+| Option | Verdict | Reasoning |
+| :--- | :--- | :--- |
+| **Iceoryx2** | 🟢 **MANDATORY** | True Zero-Copy shared memory. Required for video frames/vector data between Engine<->GUI. |
+| **Tauri Events** | 🟡 FALLBACK | Good for small signals, too slow for bulk data. |
+
+**Final Protocol**: "Maximize Rust for Logic. Svelte for UI. TanStack for State. Tracy for speed. Iceoryx2 for data."

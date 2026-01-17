@@ -11,11 +11,12 @@
 > **Serialization**: **rkyv** (Zero-Copy) for high-performance endpoint conversion.
 
 *   **`lib/cfg/`**
+    *   `flags.ts` (SSOT: Feature Flags & IP Protection)
     *   `devpulse/` (Home Config)
     *   `maestro/` (The AI Kernel)
         *   `minions/` (Persona, Voice, Identity)
         *   `general.ts` (Global AI Settings, MCP Config)
-    *   `overmind/` (Lab Config)
+    *   `overmind/` (The ThinkSpace - Top Level)
     *   `wiredfront/` (Media Hub)
         *   `pixvix/` (Overlay Config)
         *   `viziwizi/` (Editor Config)
@@ -46,6 +47,20 @@ class UIState {
 }
 export const ui = new UIState(); // Singleton
 ```
+
+## 3. Maestro Domain Architecture (`src/lib/domains/app/maestro/`)
+> **Goal**: The "God Mode" AI wrapper, but with a strict "Layman Safe" usage policy.
+
+*   `cortex/` (**Layman Safe / Read Only**)
+    *   *Purpose*: Friendly visualization of AI State (e.g., "I am thinking", "I am overwhelmed").
+    *   *Constraint*: **NO** exposure of raw algorithms or prompts. Transparency = "What I am doing", not "How I do it".
+*   `debug/` (**Builder Only**)
+    *   *Purpose*: The "Dynamic UI" middleware & Deep Diagnostics.
+    *   *Constraint*: Protected by `flags.DEV_MODE`.
+*   `minions/`
+    *   *Purpose*: The Chat/Voice Interface (Persona rendering).
+*   `status/`
+    *   *Purpose*: Health & Telemetry (Latency, Memory).
 
 ### The Hierarchy
 *   `lib/sys/runes/`
