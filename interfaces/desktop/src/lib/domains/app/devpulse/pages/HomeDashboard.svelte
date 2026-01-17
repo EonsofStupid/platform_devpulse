@@ -1,31 +1,50 @@
 <script lang="ts">
-    import Carousel from "../components/Carousel.svelte";
-    import Viewport from "../components/Viewport.svelte";
-
-    // Domain Items
-    const domains = [
-        { id: "overmind", label: "OverMind", icon: "🧠" }, // Sandbox
-        { id: "projects", label: "Projects", icon: "🚀" }, // Work
-        { id: "user", label: "Identity", icon: "👤" }, // Settings
-    ];
-
-    function handleSelect(item: any) {
-        console.log("Selected Domain:", item.id);
-        // wiring TODO: route to domain
-    }
+    import TabSet from "$lib/design/primitives/TabSet.svelte";
+    import Surface from "$lib/design/primitives/Surface.svelte";
 </script>
 
 <div class="home-dashboard">
-    <Viewport>
-        <section class="hero-section">
-            <h1>DevPulse</h1>
-            <p class="subtitle">The Hub</p>
-        </section>
-
-        <section class="nav-section">
-            <Carousel items={domains} onSelect={handleSelect} />
-        </section>
-    </Viewport>
+    <TabSet tabs={["Overview", "Wireless", "WAN/LAN"]}>
+        {#snippet children(activeTab: string)}
+            {#if activeTab === "Overview"}
+                <Surface variant="deep" class="panel">
+                    <h2>System Overview</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span class="stat-label">Uptime</span>
+                            <span class="stat-value">12d 4h 32m</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">CPU</span>
+                            <span class="stat-value">24%</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Memory</span>
+                            <span class="stat-value">8.2 GB</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Network</span>
+                            <span class="stat-value">1.2 Gbps</span>
+                        </div>
+                    </div>
+                </Surface>
+            {:else if activeTab === "Wireless"}
+                <Surface variant="deep" class="panel">
+                    <h2>Wireless Configuration</h2>
+                    <p class="placeholder-text">
+                        Wi-Fi settings and mesh network topology.
+                    </p>
+                </Surface>
+            {:else if activeTab === "WAN/LAN"}
+                <Surface variant="deep" class="panel">
+                    <h2>Network Configuration</h2>
+                    <p class="placeholder-text">
+                        WAN gateway, LAN segments, DHCP pools.
+                    </p>
+                </Surface>
+            {/if}
+        {/snippet}
+    </TabSet>
 </div>
 
 <style>
@@ -35,33 +54,46 @@
         flex-direction: column;
     }
 
-    .hero-section {
-        text-align: center;
-        margin-bottom: 4rem;
-        margin-top: 4rem;
+    :global(.panel) {
+        padding: 1.5rem;
     }
 
-    h1 {
-        font-size: 4rem;
-        font-weight: 200;
-        letter-spacing: 4px;
-        background: linear-gradient(135deg, #fff 0%, #aaa 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin: 0;
+    h2 {
+        margin: 0 0 1rem 0;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.9);
     }
 
-    .subtitle {
-        font-size: 1.2rem;
-        color: rgba(255, 255, 255, 0.5);
-        letter-spacing: 2px;
-        text-transform: uppercase;
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
     }
 
-    .nav-section {
-        height: 400px; /* Space for Carousel */
+    .stat-card {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 1rem;
         display: flex;
-        align-items: center;
-        justify-content: center;
+        flex-direction: column;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.5);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #00ffcc;
+        margin-top: 0.5rem;
+    }
+
+    .placeholder-text {
+        color: rgba(255, 255, 255, 0.4);
     }
 </style>

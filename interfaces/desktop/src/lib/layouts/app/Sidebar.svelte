@@ -1,139 +1,209 @@
+<!--
+    SIDEBAR.SVELTE - Icon-Only Navigation
+    ======================================
+    - 64px width (icon-only mode)
+    - Tooltip on hover (right side)
+    - 4 random interaction animations
+    - Seamless internal scroll
+-->
 <script lang="ts">
-    import { appState } from "$lib/sys/app_state.svelte";
+    interface NavItem {
+        id: string;
+        icon: string;
+        label: string;
+        active?: boolean;
+    }
 
-    // Simple Navigation Data
-    const navItems = [
-        { id: "home", label: "Home", icon: "🏠" },
-        { id: "devmaestro", label: "DevMaestro", icon: "⚡" },
-        { id: "thinkmaestro", label: "ThinkSpace", icon: "🧠" },
-        { id: "wiredfront", label: "WiredFront", icon: "📡" },
-        { id: "system", label: "System", icon: "⚙️" },
+    const navItems: NavItem[] = [
+        { id: "home", icon: "🏠", label: "Home", active: true },
+        { id: "overmind", icon: "🧠", label: "OverMind" },
+        { id: "wiredfront", icon: "📡", label: "WiredFront" },
+        { id: "settings", icon: "⚙️", label: "Settings" },
     ];
+
+    // Animation variants for icon interaction
+    const animations = ["bounce", "spin", "pulse", "shake"];
+
+    function getRandomAnimation(): string {
+        return animations[Math.floor(Math.random() * animations.length)];
+    }
+
+    let hoveredItem = $state<string | null>(null);
+    let animatingItem = $state<string | null>(null);
+    let currentAnimation = $state<string>("");
+
+    function handleMouseEnter(id: string) {
+        hoveredItem = id;
+    }
+
+    function handleMouseLeave() {
+        hoveredItem = null;
+    }
+
+    function handleClick(id: string) {
+        animatingItem = id;
+        currentAnimation = getRandomAnimation();
+        setTimeout(() => {
+            animatingItem = null;
+        }, 500);
+    }
 </script>
 
-<nav class="sidebar-nav">
-    <div
-        class="logo-area"
-        onclick={() => appState.toggleSidebar()}
-        role="button"
-        tabindex="0"
-    >
-        <!-- Activity Icon (Animated WebP) -->
-        <img
-            src={appState.activity_icon}
-            alt="DevPulse Activity"
-            class="activity-icon"
-        />
-
-        {#if appState.sidebar_expanded}
-            <span class="logo-text">DevPulse</span>
-        {/if}
-    </div>
-
+<nav class="sidebar">
     <div class="nav-list">
         {#each navItems as item}
             <button
                 class="nav-item"
-                class:active={appState.current_view === item.id}
-                onclick={() => appState.setView(item.id)}
+                class:active={item.active}
+                class:animating={animatingItem === item.id}
+                data-animation={animatingItem === item.id
+                    ? currentAnimation
+                    : ""}
+                onmouseenter={() => handleMouseEnter(item.id)}
+                onmouseleave={handleMouseLeave}
+                onclick={() => handleClick(item.id)}
             >
-                <span class="icon">{item.icon}</span>
-                {#if appState.sidebar_expanded}
-                    <span class="label">{item.label}</span>
+                <span class="nav-icon">{item.icon}</span>
+
+                {#if hoveredItem === item.id}
+                    <div class="tooltip">
+                        {item.label}
+                    </div>
                 {/if}
             </button>
         {/each}
     </div>
-
-    <div class="sidebar-footer">
-        {#if appState.sidebar_expanded}
-            <div class="status-indicator online">Online</div>
-        {/if}
-    </div>
 </nav>
 
 <style>
-    .sidebar-nav {
+    .sidebar {
         display: flex;
         flex-direction: column;
+        width: 100%;
         height: 100%;
-    }
-
-    .logo-area {
-        height: 48px;
-        display: flex;
-        align-items: center;
-        justify-content: center; /* Centered when collapsed */
-        cursor: pointer;
-        padding-top: 0.5rem;
-    }
-
-    /* When expanded, align left with padding */
-    :global(.shell-sidebar.expanded) .logo-area {
-        justify-content: flex-start;
-        padding-left: 1.5rem;
-    }
-
-    .logo-text {
-        font-weight: 700;
-        font-size: 1.2rem;
-        background: linear-gradient(90deg, #fff, #a29fff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-left: 0.8rem;
-    }
-
-    .activity-icon {
-        width: 32px;
-        height: 32px;
-        object-fit: contain;
-        filter: drop-shadow(0 0 5px rgba(100, 149, 237, 0.5));
+        padding: var(--space-2) 0;
     }
 
     .nav-list {
-        flex: 1;
-        padding: 1rem 0;
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: var(--space-1);
+        padding: 0 var(--space-2);
     }
 
     .nav-item {
-        background: transparent;
-        border: none;
-        color: rgba(255, 255, 255, 0.6);
+        position: relative;
+        width: 48px;
+        height: 48px;
         display: flex;
         align-items: center;
-        height: 40px;
-        padding: 0 1rem; /* Fixed padding */
-        cursor: pointer;
-        transition: all 0.2s;
         justify-content: center;
-    }
-
-    :global(.shell-sidebar.expanded) .nav-item {
-        justify-content: flex-start;
-        padding-left: 1.5rem;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all var(--duration-normal) var(--ease-out);
     }
 
     .nav-item:hover {
-        color: #fff;
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--surface-glass-smoke);
+        border-color: var(--bevel-light-subtle);
+        box-shadow: var(--bevel-outset-subtle);
     }
 
     .nav-item.active {
-        color: #fff;
-        background: rgba(100, 100, 255, 0.1);
-        border-left: 3px solid #8e8aff;
+        background: var(--surface-glass-frost);
+        border-color: var(--signal-teal);
+        box-shadow: var(--bevel-outset-soft), var(--shadow-glow-teal);
     }
 
-    .label {
-        margin-left: 1rem;
+    .nav-icon {
+        font-size: 20px;
+        transition: transform var(--duration-fast) var(--ease-out);
+    }
+
+    /* Interaction Animations */
+    .nav-item.animating[data-animation="bounce"] .nav-icon {
+        animation: icon-bounce 0.5s var(--ease-bounce);
+    }
+    .nav-item.animating[data-animation="spin"] .nav-icon {
+        animation: icon-spin 0.5s var(--ease-out);
+    }
+    .nav-item.animating[data-animation="pulse"] .nav-icon {
+        animation: icon-pulse 0.5s var(--ease-in-out);
+    }
+    .nav-item.animating[data-animation="shake"] .nav-icon {
+        animation: icon-shake 0.5s var(--ease-out);
+    }
+
+    @keyframes icon-bounce {
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-8px);
+        }
+    }
+    @keyframes icon-spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+    @keyframes icon-pulse {
+        0%,
+        100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.3);
+        }
+    }
+    @keyframes icon-shake {
+        0%,
+        100% {
+            transform: translateX(0);
+        }
+        25% {
+            transform: translateX(-4px);
+        }
+        75% {
+            transform: translateX(4px);
+        }
+    }
+
+    /* Tooltip */
+    .tooltip {
+        position: absolute;
+        left: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+        margin-left: var(--space-2);
+        padding: var(--space-1) var(--space-3);
+        background: var(--surface-glass-void);
+        backdrop-filter: blur(var(--blur-lg));
+        border: var(--border-soft);
+        border-radius: var(--radius-md);
+        box-shadow: var(--bevel-outset-soft), var(--shadow-z3);
+        color: var(--text-white);
+        font-size: var(--text-sm);
+        font-family: var(--font-sans);
         white-space: nowrap;
-        font-size: 0.9rem;
+        pointer-events: none;
+        z-index: 1000;
+        animation: fade-in var(--duration-fast) var(--ease-out);
     }
 
-    .style-icon {
-        font-size: 1.2rem;
+    .tooltip::before {
+        content: "";
+        position: absolute;
+        right: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+        border: 6px solid transparent;
+        border-right-color: var(--surface-glass-void);
     }
 </style>

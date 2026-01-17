@@ -11,9 +11,23 @@
     "app": {
         "windows": [
             {
+                "label": "main",
                 "title": "DevPulse",
                 "width": 1280,
-                "height": 800
+                "height": 800,
+                "transparent": true,
+                "decorations": false
+            },
+            {
+                "label": "chat",
+                "title": "Maestro Chat",
+                "url": "chat.html",
+                "width": 450,
+                "height": 600,
+                "x": 100,
+                "y": 100,
+                "decorations": false,
+                "transparent": true
             }
         ],
         "security": {

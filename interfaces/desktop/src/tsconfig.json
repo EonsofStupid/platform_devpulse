@@ -7,7 +7,12 @@
         "resolveJsonModule": true,
         "allowJs": true,
         "checkJs": true,
-        "isolatedModules": true
+        "isolatedModules": true,
+        "paths": {
+            "$lib/*": [
+                "./lib/*"
+            ]
+        }
     },
     "include": [
         "src/**/*.d.ts",

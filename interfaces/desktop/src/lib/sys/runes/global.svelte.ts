@@ -14,9 +14,16 @@ class GlobalState {
     user_id = $state<string | null>(null);
     session_active = $state(false);
 
+    // 4. UI State
+    sidebar_expanded = $state(false);
+
     // Actions (Atomic Mutations)
     toggleTheme() {
         this.theme = this.theme === 'glass-dark' ? 'glass-light' : 'glass-dark';
+    }
+
+    toggleSidebar() {
+        this.sidebar_expanded = !this.sidebar_expanded;
     }
 
     setDomain(domain: string) {
