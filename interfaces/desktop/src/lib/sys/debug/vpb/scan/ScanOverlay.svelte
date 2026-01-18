@@ -6,6 +6,7 @@
     import { vpb } from "../state/vpb.svelte";
     import { scan } from "../state/scan.svelte";
     import ScanTooltip from "./ScanTooltip.svelte";
+    import { toast } from "svelte-sonner";
 
     let overlayEl = $state<HTMLElement | null>(null);
     let highlightRect = $state<DOMRect | null>(null);
@@ -13,16 +14,26 @@
     function handleMouseMove(e: MouseEvent) {
         if (!vpb.scanActive || vpb.scanPaused) return;
 
-        // Get element under cursor (skip overlay itself)
+        // Temporarily disable overlay to detect underlying element
+        if (overlayEl) {
+            overlayEl.style.pointerEvents = "none";
+        }
+
         const target = document.elementFromPoint(
             e.clientX,
             e.clientY,
         ) as HTMLElement;
 
+        // Re-enable overlay
+        if (overlayEl) {
+            overlayEl.style.pointerEvents = "auto";
+        }
+
         if (
             target &&
             !target.closest(".vpb-overlay") &&
-            !target.closest(".vpb-panel")
+            !target.closest(".vpb-panel") &&
+            !target.closest(".vpb-tooltip")
         ) {
             scan.setHovered(target);
             highlightRect = target.getBoundingClientRect();
@@ -35,11 +46,31 @@
     function handleClick(e: MouseEvent) {
         if (!vpb.scanActive || vpb.scanPaused) return;
 
-        const target = scan.hoveredElement;
-        if (target) {
+        // Get element at click point
+        if (overlayEl) {
+            overlayEl.style.pointerEvents = "none";
+        }
+
+        const target = document.elementFromPoint(
+            e.clientX,
+            e.clientY,
+        ) as HTMLElement;
+
+        if (overlayEl) {
+            overlayEl.style.pointerEvents = "auto";
+        }
+
+        if (
+            target &&
+            !target.closest(".vpb-overlay") &&
+            !target.closest(".vpb-panel") &&
+            !target.closest(".vpb-inspector") &&
+            !target.closest(".vpb-tooltip")
+        ) {
             e.preventDefault();
             e.stopPropagation();
             scan.selectElement(target);
+            toast.success(`Selected: <${target.tagName.toLowerCase()}>`);
         }
     }
 
@@ -73,7 +104,7 @@
             ></div>
 
             <!-- Tooltip -->
-            <ScanTooltip element={scan.hoveredElement} rect={highlightRect} />
+            <ScanTooltip element={scan.hoveredElement!} rect={highlightRect!} />
         {/if}
     </div>
 {/if}

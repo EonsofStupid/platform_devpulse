@@ -1,0 +1,68 @@
+{
+    "TypeScript File Header": {
+        "scope": "typescript,javascript",
+        "prefix": [
+            "header",
+            "fileheader",
+            "fh"
+        ],
+        "body": [
+            "/**",
+            " * @fileoverview ${1:Brief description}",
+            " * @module @devpulse/${TM_FILEPATH/.*src\\/lib\\/(.*)\\.[^.]+$/$1/}",
+            " * @layer ${2|tokens,primitives,semantics,compositions,domains,plugins|}",
+            " *",
+            " * @description",
+            " * ${3:Detailed description of purpose and responsibility.}",
+            " *",
+            " * @dependencies",
+            " * - ${4:./dependency} (${5:what it provides})",
+            " *",
+            " * @consumers",
+            " * - ${6:who/uses/this/*}",
+            " *",
+            " * @vpb-editable ${7:prop1, prop2}",
+            " * @since ${8:1.0.0}",
+            " */",
+            "",
+            "$0"
+        ],
+        "description": "Insert COLD LIGHT design system file header"
+    },
+    "TypeScript Minimal Header": {
+        "scope": "typescript,javascript",
+        "prefix": [
+            "headermin",
+            "fhm"
+        ],
+        "body": [
+            "/**",
+            " * @fileoverview ${1:Brief description}",
+            " * @module @devpulse/${TM_FILEPATH/.*src\\/lib\\/(.*)\\.[^.]+$/$1/}",
+            " * @layer ${2|tokens,primitives,semantics,compositions,domains,plugins|}",
+            " * @since ${3:1.0.0}",
+            " */",
+            "",
+            "$0"
+        ],
+        "description": "Insert minimal file header"
+    },
+    "Index Barrel Export Header": {
+        "scope": "typescript,javascript",
+        "prefix": [
+            "headerindex",
+            "fhi"
+        ],
+        "body": [
+            "/**",
+            " * @fileoverview Barrel export for ${1:module name}",
+            " * @module @devpulse/${TM_FILEPATH/.*src\\/lib\\/(.*)\\.[^.]+$/$1/}",
+            " * @layer ${2|tokens,primitives,semantics,compositions,domains,plugins|}",
+            " * @since 1.0.0",
+            " */",
+            "",
+            "$0"
+        ],
+        "description": "Insert header for index.ts barrel exports"
+    }
+}

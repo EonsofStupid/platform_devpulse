@@ -1,0 +1,12 @@
+/* VPB Styles Index
+   Single import point for all VPB-specific styles.
+   Import this in app.css when VPB is needed.
+*/
+
+@import "./vpb-tokens.css";
+@import "./vpb-panel.css";
+@import "./vpb-toolbar.css";
+@import "./vpb-overlay.css";
+@import "./vpb-tabs.css";
+@import "./vpb-icon.css";
+@import "./vpb-inspector.css";

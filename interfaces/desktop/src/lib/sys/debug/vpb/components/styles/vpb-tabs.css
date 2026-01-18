@@ -9,8 +9,13 @@
 
 .vpb-tabs {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     gap: 2px;
+    padding-top: 20px;
+    /* Space for protruding tabs */
+    margin-top: -20px;
+    /* Pull up to use the space */
+    overflow: visible;
 }
 
 .vpb-tabs--collapsed {
@@ -27,10 +32,15 @@
     align-items: center;
     gap: 6px;
 
-    padding: 6px 10px;
+    /* Make tabs protrude UP above the header */
+    position: relative;
+    padding: 8px 12px 6px;
+    margin-top: -20px;
+    /* Protrude up */
 
-    border: none;
-    border-radius: var(--vpb-radius-sm) var(--vpb-radius-sm) 0 0;
+    border: 1px solid var(--vpb-panel-border);
+    border-bottom: none;
+    border-radius: var(--vpb-radius-md) var(--vpb-radius-md) 0 0;
     background: var(--vpb-surface-base);
 
     color: var(--vpb-text-secondary);
@@ -47,9 +57,11 @@
 }
 
 .vpb-tab--active {
-    background: var(--vpb-surface-raised);
+    background: var(--vpb-panel-bg);
     color: var(--vpb-text-primary);
-    border-bottom: 2px solid var(--vpb-cyber-start);
+    border-color: var(--vpb-cyber-start);
+    box-shadow: 0 -4px 12px oklch(from var(--vpb-cyber-gradient) l c h / 0.3);
+    z-index: 1;
 }
 
 .vpb-tab__label {

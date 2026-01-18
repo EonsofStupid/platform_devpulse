@@ -9,6 +9,8 @@
 <Toaster
     position="bottom-right"
     theme="dark"
+    richColors
+    expand
     toastOptions={{
         style: `
       background: var(--vpb-panel-bg);

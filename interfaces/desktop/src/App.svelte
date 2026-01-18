@@ -5,6 +5,9 @@
     // Domain Pages
     import HomeDashboard from "$lib/domains/app/devpulse/pages/HomeDashboard.svelte";
     import UIDemoPage from "$lib/domains/app/ui-demo/pages/UIDemoPage.svelte";
+
+    // VPB Debug Tool (dev-only, stripped in prod)
+    import VPB from "$lib/sys/debug/vpb/VPB.svelte";
 </script>
 
 <Frame>
@@ -24,6 +27,9 @@
         </div>
     {/key}
 </Frame>
+
+<!-- VPB Debug Tool (dev-only) -->
+<VPB />
 
 <style>
     /* Domain Swapper Animation */

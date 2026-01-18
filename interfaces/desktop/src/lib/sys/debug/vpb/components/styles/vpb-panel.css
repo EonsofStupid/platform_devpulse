@@ -29,7 +29,8 @@
     /* Layout */
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: visible;
+    /* Allow tabs to protrude above */
 
     /* Typography */
     font-family: var(--dp-font-sans, system-ui, sans-serif);
@@ -84,6 +85,8 @@
 .vpb-panel__header {
     padding: var(--vpb-space-sm) var(--vpb-space-md);
     border-bottom: 1px solid var(--vpb-btn-border);
+    overflow: visible;
+    position: relative;
 }
 
 .vpb-panel__toolbar {

@@ -16,6 +16,13 @@
 
 .vpb-overlay--active {
     pointer-events: auto;
+    cursor: crosshair;
+
+    /* Subtle tint to show scan mode is active */
+    background: linear-gradient(135deg,
+            oklch(0.9106 0.1598 126.64 / 0.03) 0%,
+            oklch(70% 0.18 195 / 0.05) 50%,
+            oklch(55% 0.20 280 / 0.03) 100%);
 }
 
 /* =============================================

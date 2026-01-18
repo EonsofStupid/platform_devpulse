@@ -7,7 +7,9 @@
         "dev": "vite dev",
         "build": "vite build",
         "preview": "vite preview",
-        "check": "svelte-check --tsconfig ./tsconfig.json"
+        "check": "svelte-check --tsconfig ./tsconfig.json",
+        "headers:check": "npx tsx ../scripts/dev/inject-headers.ts check",
+        "headers:inject": "npx tsx ../scripts/dev/inject-headers.ts inject"
     },
     "devDependencies": {
         "@sveltejs/vite-plugin-svelte": "^4.0.0-next.6",
@@ -19,6 +21,7 @@
         "svelte-check": "^3.6.0",
         "tailwindcss": "^4.1.18",
         "tslib": "^2.4.1",
+        "tsx": "^4.21.0",
         "typescript": "^5.0.0",
         "vite": "^5.0.0"
     },
