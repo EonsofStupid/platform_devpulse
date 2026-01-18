@@ -1,4 +1,25 @@
 <!--
+  @file src/lib/layouts/app/Sidebar.svelte
+  @name Sidebar.svelte
+  @module @devpulse/layouts/app/Sidebar
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
+<!--
     SIDEBAR.SVELTE - Icon-Only Navigation
     ======================================
     - 64px width (icon-only mode)

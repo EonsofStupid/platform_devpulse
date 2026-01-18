@@ -1,4 +1,25 @@
 <!--
+  @file src/lib/design/primitives/Toggle.svelte
+  @name Toggle.svelte
+  @module @devpulse/design/primitives/Toggle
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
+<!--
     Toggle.svelte - Custom ARIA Switch Primitive
     
     WAI-ARIA compliant toggle switch:

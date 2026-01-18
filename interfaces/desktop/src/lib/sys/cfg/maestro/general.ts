@@ -1,3 +1,22 @@
+/**
+ * @fileoverview general.ts
+ * @file src/lib/cfg/maestro/general.ts
+ * @module @devpulse/cfg/maestro/general
+ * @layer lib
+ *
+ * @description
+ * [TODO: Describe the purpose and responsibility of this module]
+ *
+ * @dependencies
+ * - [TODO: List imports this file depends on]
+ *
+ * @consumers
+ * - [TODO: List modules that import this file]
+ *
+ * @vpb-editable [TODO: List props VPB can modify, or 'none']
+ * @since 1.0.0
+ */
+
 // MAESTRO CONFIGURATION (The AI Kernel)
 // Persistence: SurrealDB (Embedded) + RocksDB (Connectors)
 // Serialization: Rkyv

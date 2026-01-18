@@ -1,4 +1,25 @@
 <!--
+  @file src/lib/design/primitives/Tabs.svelte
+  @name Tabs.svelte
+  @module @devpulse/design/primitives/Tabs
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
+<!--
     Tabs.svelte - Custom ARIA Tabs Primitive
     
     WAI-ARIA compliant tabs:

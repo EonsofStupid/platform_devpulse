@@ -1,3 +1,24 @@
+<!--
+  @file src/lib/layouts/app/components/Sidebar.svelte
+  @name Sidebar.svelte
+  @module @devpulse/layouts/app/components/Sidebar
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
 <script lang="ts">
     import { global } from "$lib/sys/runes/global.svelte";
 

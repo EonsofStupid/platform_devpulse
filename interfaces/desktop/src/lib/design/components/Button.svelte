@@ -1,4 +1,25 @@
 <!--
+  @file src/lib/design/components/Button.svelte
+  @name Button.svelte
+  @module @devpulse/design/components/Button
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
+<!--
     Button - Core interactive element
     ARIA: native button semantics
     Uses OKLCH tokens only

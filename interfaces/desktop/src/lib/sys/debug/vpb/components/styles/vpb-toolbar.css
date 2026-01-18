@@ -1,3 +1,18 @@
+/**
+ * @file src/lib/sys/debug/vpb/components/styles/vpb-toolbar.css
+ * @name vpb-toolbar.css
+ * @layer recipes
+ *
+ * @description
+ * [TODO: Describe what this stylesheet defines]
+ *
+ * @contents
+ * - [TODO: List major sections/categories]
+ *
+ * @vpb-editable [TODO: List token names VPB can modify, or 'all']
+ * @since 1.0.0
+ */
+
 /* ============================================
    VPB-TOOLBAR.CSS - VPB Toolbar Recipe
    Button styling for play/pause/stop and controls

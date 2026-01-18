@@ -1,3 +1,24 @@
+<!--
+  @file src/lib/domains/app/devpulse/components/Carousel.svelte
+  @name Carousel.svelte
+  @module @devpulse/domains/app/devpulse/components/Carousel
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
 <script lang="ts">
     import { run } from "svelte/legacy";
 

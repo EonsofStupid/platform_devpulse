@@ -1,4 +1,25 @@
 <!--
+  @file src/lib/design/primitives/Button.svelte
+  @name Button.svelte
+  @module @devpulse/design/primitives/Button
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
+<!--
     Button.svelte - Custom ARIA Button Primitive
     
     Headless button with proper accessibility:

@@ -1,3 +1,24 @@
+<!--
+  @file src/lib/domains/app/devpulse/components/TopBar.svelte
+  @name TopBar.svelte
+  @module @devpulse/domains/app/devpulse/components/TopBar
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
 <script lang="ts">
     import { global } from "$lib/sys/runes/global.svelte";
     import Surface from "$lib/design/primitives/Surface.svelte";

@@ -1,4 +1,25 @@
 <!--
+  @file src/lib/design/components/Input.svelte
+  @name Input.svelte
+  @module @devpulse/design/components/Input
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
+<!--
     Input - Core form element
     ARIA: native input semantics with aria-label support
     Uses OKLCH tokens only

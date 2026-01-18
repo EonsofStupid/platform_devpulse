@@ -1,3 +1,24 @@
+<!--
+  @file src/lib/domains/app/devpulse/pages/HomeDashboard.svelte
+  @name HomeDashboard.svelte
+  @module @devpulse/domains/app/devpulse/pages/HomeDashboard
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
 <script lang="ts">
     import TabSet from "$lib/design/primitives/TabSet.svelte";
     import Surface from "$lib/design/primitives/Surface.svelte";

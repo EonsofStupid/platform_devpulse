@@ -1,4 +1,25 @@
 <!--
+  @file src/lib/sys/debug/vpb/scan/ScanOverlay.svelte
+  @name ScanOverlay.svelte
+  @module @devpulse/sys/debug/vpb/scan/ScanOverlay
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
+<!--
   ScanOverlay.svelte
   Shadow DOM overlay for element scanning - uses recipes from lib/design/vpb-overlay.css
 -->

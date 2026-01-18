@@ -1,4 +1,25 @@
 <!--
+  @file src/lib/sys/debug/vpb/scan/ScanTooltip.svelte
+  @name ScanTooltip.svelte
+  @module @devpulse/sys/debug/vpb/scan/ScanTooltip
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
+<!--
   ScanTooltip.svelte
   Tooltip showing element info on hover - uses recipes from lib/design/vpb-overlay.css
 -->

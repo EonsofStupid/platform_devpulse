@@ -1,4 +1,25 @@
 <!--
+  @file src/lib/sys/debug/vpb/components/VPBToast.svelte
+  @name VPBToast.svelte
+  @module @devpulse/sys/debug/vpb/components/VPBToast
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
+<!--
   VPBToast.svelte
   Toast wrapper for VPB scope - uses svelte-sonner
 -->

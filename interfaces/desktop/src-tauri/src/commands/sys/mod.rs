@@ -1,3 +1,18 @@
+//! @file src-tauri/src/commands/sys/mod.rs
+//! @name mod.rs
+//! @layer tauri
+//!
+//! # Description
+//! [TODO: Describe this module's purpose]
+//!
+//! # Dependencies
+//! - [TODO: List crate dependencies]
+//!
+//! # Consumers
+//! - [TODO: List modules that use this]
+//!
+//! @since 1.0.0
+
 pub mod config;
 pub mod guard;
 pub mod logger;

@@ -1,4 +1,25 @@
 <!--
+  @file src/lib/design/components/Panel.svelte
+  @name Panel.svelte
+  @module @devpulse/design/components/Panel
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
+<!--
   Panel.svelte - Composable Panel Component
   Implements both Glass and Matte Inset recipes
 -->

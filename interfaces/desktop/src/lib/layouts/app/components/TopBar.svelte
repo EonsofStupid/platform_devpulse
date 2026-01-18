@@ -1,3 +1,24 @@
+<!--
+  @file src/lib/layouts/app/components/TopBar.svelte
+  @name TopBar.svelte
+  @module @devpulse/layouts/app/components/TopBar
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
 <script lang="ts">
     import { appState } from "$lib/sys/app_state.svelte";
 </script>

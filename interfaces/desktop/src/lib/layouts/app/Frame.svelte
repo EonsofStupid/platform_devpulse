@@ -1,4 +1,25 @@
 <!--
+  @file src/lib/layouts/app/Frame.svelte
+  @name Frame.svelte
+  @module @devpulse/layouts/app/Frame
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
+<!--
     FRAME.SVELTE - App Shell (SSOT)
     ================================
     Grid Layout: TopBar (100%) | Sidebar + Content | StatusBar (100%)

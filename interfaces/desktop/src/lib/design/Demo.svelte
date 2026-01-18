@@ -1,4 +1,25 @@
 <!--
+  @file src/lib/design/Demo.svelte
+  @name Demo.svelte
+  @module @devpulse/design/Demo
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
+<!--
     Design System Demo Page
     Shows all components with their variants
 -->

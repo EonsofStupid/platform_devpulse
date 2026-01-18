@@ -1,4 +1,25 @@
 <!--
+  @file src/lib/sys/debug/vpb/dnd/DraggableFrame.svelte
+  @name DraggableFrame.svelte
+  @module @devpulse/sys/debug/vpb/dnd/DraggableFrame
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
+<!--
   DraggableFrame.svelte
   Draggable wrapper using Pragmatic DnD
 -->

@@ -1,4 +1,25 @@
 <!--
+  @file src/lib/design/components/GlassPanel.svelte
+  @name GlassPanel.svelte
+  @module @devpulse/design/components/GlassPanel
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
+<!--
     GlassPanel - Core composable glass surface
     ARIA: role="region" when needed
     Uses OKLCH tokens only

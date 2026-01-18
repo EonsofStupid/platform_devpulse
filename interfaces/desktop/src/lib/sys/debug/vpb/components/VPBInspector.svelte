@@ -1,4 +1,25 @@
 <!--
+  @file src/lib/sys/debug/vpb/components/VPBInspector.svelte
+  @name VPBInspector.svelte
+  @module @devpulse/sys/debug/vpb/components/VPBInspector
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
+<!--
   VPBInspector.svelte
   Element details panel with copy buttons - uses recipes from lib/design/vpb-inspector.css
 -->

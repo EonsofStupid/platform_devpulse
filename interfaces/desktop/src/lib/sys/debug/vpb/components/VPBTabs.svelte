@@ -1,4 +1,25 @@
 <!--
+  @file src/lib/sys/debug/vpb/components/VPBTabs.svelte
+  @name VPBTabs.svelte
+  @module @devpulse/sys/debug/vpb/components/VPBTabs
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
+<!--
   VPBTabs.svelte
   Tab bar - uses recipes from lib/design/vpb-tabs.css
 -->

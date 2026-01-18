@@ -38,6 +38,7 @@
         "bits-ui": "^2.15.4",
         "clsx": "^2.1.0",
         "svelte-sonner": "^1.0.7",
-        "tailwind-merge": "^2.2.0"
+        "tailwind-merge": "^2.2.0",
+        "zod": "^4.3.5"
     }
 }

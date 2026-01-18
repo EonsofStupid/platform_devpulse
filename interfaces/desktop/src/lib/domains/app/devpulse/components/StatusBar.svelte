@@ -1,3 +1,24 @@
+<!--
+  @file src/lib/domains/app/devpulse/components/StatusBar.svelte
+  @name StatusBar.svelte
+  @module @devpulse/domains/app/devpulse/components/StatusBar
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
 <script lang="ts">
     // Telemetry and Status
 </script>

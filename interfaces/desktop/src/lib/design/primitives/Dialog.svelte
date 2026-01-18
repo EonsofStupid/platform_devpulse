@@ -1,4 +1,25 @@
 <!--
+  @file src/lib/design/primitives/Dialog.svelte
+  @name Dialog.svelte
+  @module @devpulse/design/primitives/Dialog
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
+<!--
     Dialog.svelte - Custom ARIA Dialog/Modal Primitive
     
     WAI-ARIA compliant modal:

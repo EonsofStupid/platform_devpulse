@@ -1,3 +1,24 @@
+<!--
+  @file src/lib/domains/app/devpulse/components/Viewport.svelte
+  @name Viewport.svelte
+  @module @devpulse/domains/app/devpulse/components/Viewport
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
 <script lang="ts">
     // The Viewport container that sits between TopBar and StatusBar.
     // It manages its own scroll state.

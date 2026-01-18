@@ -1,4 +1,25 @@
 <!--
+  @file src/lib/design/components/Toggle.svelte
+  @name Toggle.svelte
+  @module @devpulse/design/components/Toggle
+  @layer lib
+
+  @description
+  [TODO: Describe this component's purpose]
+
+  @props
+  - [TODO: propName]: [type] - [description]
+
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
+  @since 1.0.0
+-->
+<!--
     Toggle - Switch component
     ARIA: role="switch" with aria-checked
     Uses OKLCH tokens only
