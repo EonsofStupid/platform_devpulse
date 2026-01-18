@@ -4,9 +4,7 @@
 
     // Domain Pages
     import HomeDashboard from "$lib/domains/app/devpulse/pages/HomeDashboard.svelte";
-    import Demo from "$lib/design/Demo.svelte";
-    // Overmind Dashboard import (future proofing)
-    // import OvermindDashboard from '$lib/domains/app/overmind/OvermindDashboard.svelte';
+    import UIDemoPage from "$lib/domains/app/ui-demo/pages/UIDemoPage.svelte";
 </script>
 
 <Frame>
@@ -14,6 +12,8 @@
         <div class="domain-swapper">
             {#if global.current_domain === "devpulse"}
                 <HomeDashboard />
+            {:else if global.current_domain === "ui-demo"}
+                <UIDemoPage />
             {:else if global.current_domain === "overmind"}
                 <div class="placeholder">OverMind Dashboard (Coming Soon)</div>
             {:else if global.current_domain === "wiredfront"}

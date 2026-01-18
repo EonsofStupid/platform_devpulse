@@ -4,31 +4,30 @@
     Uses OKLCH tokens only
 -->
 <script lang="ts">
-    import type { Snippet } from 'svelte';
+    import type { Snippet } from "svelte";
 
     interface Props {
-        variant?: 'default' | 'interactive';
-        padding?: 'sm' | 'md' | 'lg';
-        glow?: 'none' | 'teal' | 'purple' | 'pink';
+        variant?: "default" | "interactive";
+        padding?: "sm" | "md" | "lg";
+        glow?: "none" | "teal" | "purple" | "pink";
         class?: string;
         children: Snippet;
     }
 
     let {
-        variant = 'default',
-        padding = 'md',
-        glow = 'none',
-        class: className = '',
-        children
+        variant = "default",
+        padding = "md",
+        glow = "none",
+        class: className = "",
+        children,
     }: Props = $props();
 </script>
 
 <article
-    class="card variant-{variant} padding-{padding}"
-    class:glow-teal={glow === 'teal'}
-    class:glow-purple={glow === 'purple'}
-    class:glow-pink={glow === 'pink'}
-    class={className}
+    class="card variant-{variant} padding-{padding} {className}"
+    class:glow-teal={glow === "teal"}
+    class:glow-purple={glow === "purple"}
+    class:glow-pink={glow === "pink"}
 >
     {@render children()}
 </article>
@@ -44,9 +43,15 @@
     }
 
     /* Padding */
-    .padding-sm { padding: var(--space-3); }
-    .padding-md { padding: var(--space-4); }
-    .padding-lg { padding: var(--space-6); }
+    .padding-sm {
+        padding: var(--space-3);
+    }
+    .padding-md {
+        padding: var(--space-4);
+    }
+    .padding-lg {
+        padding: var(--space-6);
+    }
 
     /* Interactive */
     .variant-interactive:hover {
@@ -55,7 +60,13 @@
     }
 
     /* Glows */
-    .glow-teal { box-shadow: var(--bevel-outset), var(--shadow-z2), var(--glow-teal); }
-    .glow-purple { box-shadow: var(--bevel-outset), var(--shadow-z2), var(--glow-purple); }
-    .glow-pink { box-shadow: var(--bevel-outset), var(--shadow-z2), var(--glow-pink); }
+    .glow-teal {
+        box-shadow: var(--bevel-outset), var(--shadow-z2), var(--glow-teal);
+    }
+    .glow-purple {
+        box-shadow: var(--bevel-outset), var(--shadow-z2), var(--glow-purple);
+    }
+    .glow-pink {
+        box-shadow: var(--bevel-outset), var(--shadow-z2), var(--glow-pink);
+    }
 </style>

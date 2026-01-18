@@ -4,11 +4,11 @@
     Uses OKLCH tokens only
 -->
 <script lang="ts">
-    import type { Snippet } from 'svelte';
+    import type { Snippet } from "svelte";
 
     interface Props {
-        variant?: 'primary' | 'secondary' | 'ghost';
-        size?: 'sm' | 'md' | 'lg';
+        variant?: "primary" | "secondary" | "ghost";
+        size?: "sm" | "md" | "lg";
         glow?: boolean;
         disabled?: boolean;
         class?: string;
@@ -17,20 +17,19 @@
     }
 
     let {
-        variant = 'primary',
-        size = 'md',
+        variant = "primary",
+        size = "md",
         glow = false,
         disabled = false,
-        class: className = '',
+        class: className = "",
         onclick,
-        children
+        children,
     }: Props = $props();
 </script>
 
 <button
-    class="btn variant-{variant} size-{size}"
+    class="btn variant-{variant} size-{size} {className}"
     class:glow
-    class={className}
     {disabled}
     {onclick}
 >

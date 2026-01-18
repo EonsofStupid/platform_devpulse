@@ -1,14 +1,17 @@
+<!--
+    TabSet.svelte - Legacy TabSet (uses token system)
+    Note: Prefer Tabs.svelte from primitives for new code
+-->
 <script lang="ts">
     import type { Snippet } from "svelte";
 
     interface Props {
         tabs: string[];
         activeTab?: string;
-        children: Snippet<[string]>; // Passes active tab to children
+        children: Snippet<[string]>;
     }
 
     let { tabs, activeTab, children }: Props = $props();
-    // Use $derived for reactive initial value from props
     let currentTab = $state<string | undefined>(undefined);
     const effectiveTab = $derived(currentTab ?? activeTab ?? tabs[0]);
 
@@ -31,7 +34,7 @@
     </nav>
 
     <div class="tab-content">
-        {@render children(currentTab)}
+        {@render children(effectiveTab)}
     </div>
 </div>
 
@@ -44,37 +47,38 @@
 
     .tab-nav {
         display: flex;
-        gap: 0.5rem;
-        padding: 0.5rem 1rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        background: rgba(0, 0, 0, 0.2);
+        gap: var(--dp-space-2);
+        padding: var(--dp-space-2) var(--dp-space-4);
+        border-bottom: 1px solid oklch(35% 0.05 195 / 0.3);
+        background: oklch(8% 0.03 195 / 0.6);
     }
 
     .tab-btn {
         background: transparent;
         border: none;
-        color: rgba(255, 255, 255, 0.5);
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
+        color: var(--dp-text-muted);
+        padding: var(--dp-space-2) var(--dp-space-4);
+        font-size: var(--dp-text-sm);
+        font-family: var(--dp-font-sans);
         cursor: pointer;
-        border-radius: 6px;
-        transition: all 0.2s;
+        border-radius: var(--dp-radius-sm);
+        transition: all var(--dp-transition-fast);
     }
 
     .tab-btn:hover {
-        color: rgba(255, 255, 255, 0.8);
-        background: rgba(255, 255, 255, 0.05);
+        color: var(--dp-text-secondary);
+        background: oklch(15% 0.03 195 / 0.3);
     }
 
     .tab-btn.active {
-        color: #00ffcc;
-        background: rgba(0, 255, 204, 0.1);
-        border-bottom: 2px solid #00ffcc;
+        color: var(--dp-teal-400);
+        background: oklch(65% 0.2 180 / 0.1);
+        border-bottom: 2px solid var(--dp-teal-400);
     }
 
     .tab-content {
         flex: 1;
-        padding: 1rem;
+        padding: var(--dp-space-4);
         overflow-y: auto;
     }
 </style>

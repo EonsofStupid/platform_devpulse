@@ -7,6 +7,8 @@
     - Seamless internal scroll
 -->
 <script lang="ts">
+    import { global } from "$lib/sys/runes/global.svelte";
+
     interface NavItem {
         id: string;
         icon: string;
@@ -15,7 +17,8 @@
     }
 
     const navItems: NavItem[] = [
-        { id: "home", icon: "🏠", label: "Home", active: true },
+        { id: "devpulse", icon: "🏠", label: "Home", active: true },
+        { id: "ui-demo", icon: "🎨", label: "UI Components" },
         { id: "overmind", icon: "🧠", label: "OverMind" },
         { id: "wiredfront", icon: "📡", label: "WiredFront" },
         { id: "settings", icon: "⚙️", label: "Settings" },
@@ -46,6 +49,8 @@
         setTimeout(() => {
             animatingItem = null;
         }, 500);
+        // Navigate to domain
+        global.setDomain(id);
     }
 </script>
 
