@@ -1,0 +1,8 @@
+{
+	"dependencies": {
+		"@atlaskit/pragmatic-drag-and-drop": "^1.7.7"
+	},
+	"devDependencies": {
+		"svelte-check": "^4.3.5"
+	}
+}

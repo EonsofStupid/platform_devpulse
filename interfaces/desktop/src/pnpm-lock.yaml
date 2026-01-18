@@ -14,6 +14,12 @@ importers:
       '@fontsource/jetbrains-mono':
         specifier: ^5.2.8
         version: 5.2.8
+      '@tanstack/svelte-virtual':
+        specifier: ^3.13.18
+        version: 3.13.18(svelte@5.46.4)
+      '@tanstack/table-core':
+        specifier: ^8.21.3
+        version: 8.21.3
       '@tauri-apps/api':
         specifier: ^2.0.0-rc
         version: 2.9.1
@@ -26,6 +32,9 @@ importers:
       clsx:
         specifier: ^2.1.0
         version: 2.1.1
+      svelte-sonner:
+        specifier: ^1.0.7
+        version: 1.0.7(svelte@5.46.4)
       tailwind-merge:
         specifier: ^2.2.0
         version: 2.6.0
@@ -476,6 +485,18 @@ packages:
     peerDependencies:
       vite: ^5.2.0 || ^6 || ^7
 
+  '@tanstack/svelte-virtual@3.13.18':
+    resolution: {integrity: sha512-BHh8WkFK58eE9KzLctPQkCkvCj46LnM9tIGkpwo5Unx5YaBPf0uBJBqvSdc2jMwdT8gLXLHFHtCnSujlZP69BA==}
+    peerDependencies:
+      svelte: ^3.48.0 || ^4.0.0 || ^5.0.0
+
+  '@tanstack/table-core@8.21.3':
+    resolution: {integrity: sha512-ldZXEhOBb8Is7xLs01fR3YEc3DERiz5silj8tnGkFZytt1abEvl/GhUmCE0PMLaMPTa3Jk4HbKmRlHmu+gCftg==}
+    engines: {node: '>=12'}
+
+  '@tanstack/virtual-core@3.13.18':
+    resolution: {integrity: sha512-Mx86Hqu1k39icq2Zusq+Ey2J6dDWTjDvEv43PJtRCoEYTLyfaPnxIQ6iy7YAOK0NV/qOEmZQ/uCufrppZxTgcg==}
+
   '@tauri-apps/api@2.9.1':
     resolution: {integrity: sha512-IGlhP6EivjXHepbBic618GOmiWe4URJiIeZFlB7x3czM0yDHHYviH1Xvoiv4FefdkQtn6v7TuwWCRfOGdnVUGw==}
 
@@ -827,6 +848,11 @@ packages:
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
 
+  runed@0.28.0:
+    resolution: {integrity: sha512-k2xx7RuO9hWcdd9f+8JoBeqWtYrm5CALfgpkg2YDB80ds/QE4w0qqu34A7fqiAwiBBSBQOid7TLxwxVC27ymWQ==}
+    peerDependencies:
+      svelte: ^5.7.0
+
   runed@0.35.1:
     resolution: {integrity: sha512-2F4Q/FZzbeJTFdIS/PuOoPRSm92sA2LhzTnv6FXhCoENb3huf5+fDuNOg1LNvGOouy3u/225qxmuJvcV3IZK5Q==}
     peerDependencies:
@@ -900,6 +926,11 @@ packages:
         optional: true
       typescript:
         optional: true
+
+  svelte-sonner@1.0.7:
+    resolution: {integrity: sha512-1EUFYmd7q/xfs2qCHwJzGPh9n5VJ3X6QjBN10fof2vxgy8fYE7kVfZ7uGnd7i6fQaWIr5KvXcwYXE/cmTEjk5A==}
+    peerDependencies:
+      svelte: ^5.0.0
 
   svelte-toolbelt@0.10.6:
     resolution: {integrity: sha512-YWuX+RE+CnWYx09yseAe4ZVMM7e7GRFZM6OYWpBKOb++s+SQ8RBIMMe+Bs/CznBMc0QPLjr+vDBxTAkozXsFXQ==}
@@ -1269,6 +1300,15 @@ snapshots:
       tailwindcss: 4.1.18
       vite: 5.4.21(lightningcss@1.30.2)
 
+  '@tanstack/svelte-virtual@3.13.18(svelte@5.46.4)':
+    dependencies:
+      '@tanstack/virtual-core': 3.13.18
+      svelte: 5.46.4
+
+  '@tanstack/table-core@8.21.3': {}
+
+  '@tanstack/virtual-core@3.13.18': {}
+
   '@tauri-apps/api@2.9.1': {}
 
   '@tauri-apps/plugin-shell@2.3.4':
@@ -1605,6 +1645,11 @@ snapshots:
       '@rollup/rollup-win32-x64-msvc': 4.55.1
       fsevents: 2.3.3
 
+  runed@0.28.0(svelte@5.46.4):
+    dependencies:
+      esm-env: 1.2.2
+      svelte: 5.46.4
+
   runed@0.35.1(svelte@5.46.4):
     dependencies:
       dequal: 2.0.3
@@ -1671,6 +1716,11 @@ snapshots:
     optionalDependencies:
       postcss: 8.5.6
       typescript: 5.9.3
+
+  svelte-sonner@1.0.7(svelte@5.46.4):
+    dependencies:
+      runed: 0.28.0(svelte@5.46.4)
+      svelte: 5.46.4
 
   svelte-toolbelt@0.10.6(svelte@5.46.4):
     dependencies:

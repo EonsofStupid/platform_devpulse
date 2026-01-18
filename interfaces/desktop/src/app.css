@@ -20,6 +20,15 @@
 @import "./lib/design/glass.css";
 @import "./lib/design/panels.css";
 
+/* VPB Debug Tool Recipes */
+@import "./lib/design/vpb-tokens.css";
+@import "./lib/design/vpb-panel.css";
+@import "./lib/design/vpb-toolbar.css";
+@import "./lib/design/vpb-overlay.css";
+@import "./lib/design/vpb-tabs.css";
+@import "./lib/design/vpb-icon.css";
+@import "./lib/design/vpb-inspector.css";
+
 /* =============================================
    GLOBAL RESET
    ============================================= */

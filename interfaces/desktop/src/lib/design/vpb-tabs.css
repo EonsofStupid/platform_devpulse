@@ -1,0 +1,114 @@
+/* ============================================
+   VPB-TABS.CSS - VPB Tabs Recipe
+   Tab bar styling with close buttons
+   ============================================ */
+
+/* =============================================
+   TAB LIST
+   ============================================= */
+
+.vpb-tabs {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.vpb-tabs--collapsed {
+    height: var(--vpb-tab-height);
+    overflow: hidden;
+}
+
+/* =============================================
+   TAB BUTTON
+   ============================================= */
+
+.vpb-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 6px 10px;
+
+    border: none;
+    border-radius: var(--vpb-radius-sm) var(--vpb-radius-sm) 0 0;
+    background: var(--vpb-surface-base);
+
+    color: var(--vpb-text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+
+    cursor: pointer;
+    transition: all var(--vpb-transition-fast);
+}
+
+.vpb-tab:hover {
+    background: var(--vpb-surface-raised);
+    color: var(--vpb-text-primary);
+}
+
+.vpb-tab--active {
+    background: var(--vpb-surface-raised);
+    color: var(--vpb-text-primary);
+    border-bottom: 2px solid var(--vpb-cyber-start);
+}
+
+.vpb-tab__label {
+    white-space: nowrap;
+}
+
+/* =============================================
+   TAB CLOSE BUTTON
+   ============================================= */
+
+.vpb-tab__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 16px;
+    height: 16px;
+    padding: 0;
+
+    border: none;
+    border-radius: 3px;
+    background: transparent;
+
+    color: var(--vpb-text-muted);
+    cursor: pointer;
+
+    transition: all var(--vpb-transition-fast);
+}
+
+.vpb-tab__close:hover {
+    background: oklch(from var(--vpb-action-stop) l c h / 0.3);
+    color: var(--vpb-action-stop);
+}
+
+/* =============================================
+   EXPAND/COLLAPSE TOGGLE
+   ============================================= */
+
+.vpb-tabs__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 24px;
+    height: 24px;
+    margin-left: auto;
+    padding: 0;
+
+    border: none;
+    border-radius: var(--vpb-radius-sm);
+    background: transparent;
+
+    color: var(--vpb-text-muted);
+    cursor: pointer;
+
+    transition: all var(--vpb-transition-fast);
+}
+
+.vpb-tabs__toggle:hover {
+    background: var(--vpb-surface-raised);
+    color: var(--vpb-text-primary);
+}

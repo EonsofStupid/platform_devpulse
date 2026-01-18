@@ -1,0 +1,77 @@
+/* ============================================
+   VPB-TOKENS.CSS - VPB-specific design tokens
+   Lives in design system, consumed by VPB components
+   ============================================ */
+
+:root {
+    /* =============================================
+     VPB COLOR TOKENS (OKLCH)
+     ============================================= */
+
+    /* Cyber gradient - the signature VPB scan color */
+    --vpb-cyber-gradient: oklch(0.9106 0.1598 126.64);
+    --vpb-cyber-start: oklch(70% 0.18 195);
+    --vpb-cyber-end: oklch(55% 0.20 280);
+
+    /* Panel colors */
+    --vpb-panel-bg: oklch(12% 0.04 195 / 0.95);
+    --vpb-panel-border: oklch(55% 0.12 195 / 0.6);
+    --vpb-panel-glow: oklch(60% 0.15 195 / 0.3);
+
+    /* Surface colors */
+    --vpb-surface-base: oklch(16% 0.03 195 / 0.8);
+    --vpb-surface-raised: oklch(20% 0.04 195 / 0.9);
+    --vpb-surface-sunken: oklch(10% 0.02 195 / 0.95);
+
+    /* Text colors */
+    --vpb-text-primary: oklch(95% 0.01 195);
+    --vpb-text-secondary: oklch(75% 0.03 195);
+    --vpb-text-muted: oklch(55% 0.02 195);
+
+    /* Button colors */
+    --vpb-btn-bg: oklch(18% 0.04 195 / 0.6);
+    --vpb-btn-border: oklch(50% 0.08 195 / 0.3);
+    --vpb-btn-hover: oklch(25% 0.06 195 / 0.8);
+
+    /* Action colors */
+    --vpb-action-play: oklch(75% 0.18 145);
+    --vpb-action-pause: oklch(80% 0.15 85);
+    --vpb-action-stop: oklch(70% 0.20 25);
+
+    /* Overlay colors */
+    --vpb-overlay-bg: oklch(5% 0.02 195 / 0.6);
+    --vpb-overlay-border: oklch(65% 0.18 195 / 0.8);
+
+    /* =============================================
+     VPB SIZING TOKENS (Fluid)
+     ============================================= */
+
+    --vpb-panel-width: clamp(280px, 25vw, 380px);
+    --vpb-panel-min-height: clamp(160px, 15vh, 240px);
+    --vpb-toolbar-height: 48px;
+    --vpb-tab-height: 32px;
+
+    /* Spacing */
+    --vpb-space-xs: 4px;
+    --vpb-space-sm: 8px;
+    --vpb-space-md: 12px;
+    --vpb-space-lg: 16px;
+
+    /* Radius */
+    --vpb-radius-sm: 4px;
+    --vpb-radius-md: 8px;
+    --vpb-radius-lg: 12px;
+
+    /* =============================================
+     VPB EFFECT TOKENS
+     ============================================= */
+
+    --vpb-blur: blur(20px) saturate(180%);
+    --vpb-shadow:
+        0 0 20px var(--vpb-panel-glow),
+        0 8px 32px oklch(5% 0.02 280 / 0.5);
+
+    /* Transition */
+    --vpb-transition-fast: 100ms ease-out;
+    --vpb-transition-normal: 200ms ease-out;
+}

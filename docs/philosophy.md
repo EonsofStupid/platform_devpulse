@@ -50,3 +50,60 @@ Diary: Session continuity so the user never has to re-explain their project.
 Psych: Detecting frustration to adjust tone and provide helpful bridges.
 
 WiredFront: The protocol for building, sharing, and bragging within the AngryViber network.
+
+llama-cpp-2: Do not use the high-level wrappers. Use the llama-cpp-2 bindings for the most granular control over GGUF metadata, KV-cache shifting, and batching. This is how you "assign" a model to a minion by managing the LlamaContext.
+
+candle-transformers: Specifically for your SigLIP 2 implementation. Candle is the only way to build a custom encoder in Rust that stays lightweight.
+
+ort (ONNX Runtime): Essential for your custom encoder's first iteration. It allows you to export your training from Python/PyTorch and run it with zero-copy in Rust via DirectML (Windows) or CoreML (Mac).
+
+image + ndarray: For the PixVix-to-SigLIP pipeline. You need to convert raw screenshots into the exact tensor shapes SigLIP 2 expects.
+
+2. The "Minion" Orchestrator (State & Lifecycle)
+You need to manage the "Hot/Cold" state of 8 different agents without leaking VRAM.
+
+deadpool: Usually for DB connections, but "Elite" devs use it to manage Model Pools. Use this to keep a "Hot" pool of sub-agents and swap them to "Cold" storage (Fjall/Disk) when the user isn't in a high-intensity coding state.
+
+statig: A hierarchical state machine crate. Perfect for your 8-state Kernel. It allows "State Transitions" (e.g., Healthy -> Tilt) to trigger side effects like throttling the LLM.
+
+crossbeam-channel: For high-throughput communication between the Engine (facade) and the Maestro (logic).
+
+3. The Windows/OS Bridge (Local App Control)
+Since Maestro needs to "actually control local applications" and PixVix needs to be a global overlay.
+
+windows (Microsoft's official crate): This is the heavy hitter. You need this to use Windows UI Automation (UIA). This allows Maestro to "read" the text inside VS Code or a Browser even if there is no API.
+
+accesskit: A cross-platform abstraction for accessibility trees. Use this to let Maestro "see" the structural layout of other apps (ideal for your Senior Dev tips like "you have an unused import on line 42").
+
+enigo: For the execution layer. This is how Maestro simulates the "Copy/Paste" or "Execute" keystrokes into the user's IDE.
+
+sysinfo: To monitor the health of the IDE. If the AI coder hangs the IDE, Maestro detects the process spike and intervenes.
+
+4. Data Fabric (Tri-DB & Rkyv)
+For the "Binary Handshake" and the "Internal Journey Recorder."
+
+rkyv + bytecheck: Since you are doing binary context, you MUST have bytecheck to ensure that when a monthly SME update happens, your rkyv archives are validated before they hit the CPU.
+
+fjall: You already have it, but ensure you use its LSM-tree properties for the LAB recorder. It's the best crate for high-frequency "event-sourced" logging.
+
+tokio-util: Use the Framed codecs to stream your rkyv binary data from Rust to the SvelteKit frontend via Tauri's IPC without the overhead of strings.
+
+5. SvelteKit "Deep Glass" UI Gems
+To make the UI "evolve" and show Maestro's thinking visually.
+
+bits-ui: Headless primitives for Svelte. You use these to build the logic of your "Guardrail CLI," then skin them with your Deep Glass CSS.
+
+svelte-flow: For the Thought Tree. This is the standard for 2026. It allows the user to see the one-way/bi-directional arrows between minions in a zoomable, interactive canvas.
+
+shiki: For the "Senior Dev Practice" highlighter. Shiki allows you to inject custom "Gutter" elements—perfect for showing a "!" icon next to duplicated code that Maestro wants to refactor.
+
+layerchart: Built on D3, use this for the DuckDB Analytics view. It’s the most "Technical/Scientist" looking chart library for Svelte.
+
+6. The Middleware Logic (Senior Dev Micro-Gaps)
+This is the "Glue" that bridges the gap.
+
+syn + quote: The absolute "Senior" move. Your Rust backend should use these to parse the user's actual source code.
+
+Usage: When the AI suggests deleting code, syn checks if that code is actually "Unused." If it finds a reference elsewhere, it halts the execution. This is how you provide "middleware safety."
+
+Set your rkyv to use SharedMemory (via iceoryx2). This allows ViziWizi to broadcast a video frame while Maestro is analyzing the same frame in SigLIP 2 simultaneously, with zero memory copies. This is the 2026 standard.

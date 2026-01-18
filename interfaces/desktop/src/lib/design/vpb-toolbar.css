@@ -1,0 +1,115 @@
+/* ============================================
+   VPB-TOOLBAR.CSS - VPB Toolbar Recipe
+   Button styling for play/pause/stop and controls
+   ============================================ */
+
+/* =============================================
+   TOOLBAR CONTAINER
+   ============================================= */
+
+.vpb-toolbar {
+    display: flex;
+    align-items: center;
+    gap: var(--vpb-space-xs);
+}
+
+/* =============================================
+   BASE BUTTON
+   ============================================= */
+
+.vpb-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 32px;
+    height: 32px;
+    padding: 0;
+
+    border: 1px solid var(--vpb-btn-border);
+    border-radius: var(--vpb-radius-sm);
+    background: var(--vpb-btn-bg);
+
+    color: var(--vpb-text-secondary);
+    cursor: pointer;
+
+    transition: all var(--vpb-transition-fast);
+}
+
+.vpb-btn:hover:not(:disabled) {
+    background: var(--vpb-btn-hover);
+    border-color: var(--vpb-panel-border);
+    color: var(--vpb-text-primary);
+}
+
+.vpb-btn:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+.vpb-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* =============================================
+   ACTION BUTTON VARIANTS
+   ============================================= */
+
+.vpb-btn--play:hover:not(:disabled) {
+    color: var(--vpb-action-play);
+    border-color: var(--vpb-action-play);
+}
+
+.vpb-btn--pause:hover:not(:disabled) {
+    color: var(--vpb-action-pause);
+    border-color: var(--vpb-action-pause);
+}
+
+.vpb-btn--stop:hover:not(:disabled) {
+    color: var(--vpb-action-stop);
+    border-color: var(--vpb-action-stop);
+}
+
+.vpb-btn--close:hover:not(:disabled) {
+    color: var(--vpb-action-stop);
+    border-color: var(--vpb-action-stop);
+}
+
+/* Active state for play button when scanning */
+.vpb-btn--play[data-active="true"] {
+    background: oklch(from var(--vpb-action-play) l c h / 0.2);
+    color: var(--vpb-action-play);
+    border-color: var(--vpb-action-play);
+}
+
+/* =============================================
+   SEPARATOR
+   ============================================= */
+
+.vpb-toolbar__separator {
+    width: 1px;
+    height: 24px;
+    background: var(--vpb-btn-border);
+    margin: 0 var(--vpb-space-xs);
+}
+
+/* =============================================
+   BUTTON GROUP
+   ============================================= */
+
+.vpb-btn-group {
+    display: flex;
+    gap: 2px;
+}
+
+.vpb-btn-group .vpb-btn {
+    border-radius: 0;
+}
+
+.vpb-btn-group .vpb-btn:first-child {
+    border-radius: var(--vpb-radius-sm) 0 0 var(--vpb-radius-sm);
+}
+
+.vpb-btn-group .vpb-btn:last-child {
+    border-radius: 0 var(--vpb-radius-sm) var(--vpb-radius-sm) 0;
+}
