@@ -1,6 +1,6 @@
 <!--
     UIDemoPage - Design System Showcase
-    Demonstrates glass recipes and ARIA primitives
+    Demonstrates panel recipes and ARIA primitives
 -->
 <script lang="ts">
     import {
@@ -11,14 +11,15 @@
         Dialog,
     } from "$lib/design/primitives";
     import type { AccordionItem, TabItem } from "$lib/design/primitives";
+    import Panel from "$lib/design/components/Panel.svelte";
 
     // Accordion items
     const accordionItems: AccordionItem[] = [
         {
-            id: "glass",
-            title: "Glass Recipes",
+            id: "panels",
+            title: "Panel Recipes",
             content:
-                "Composable glass utilities with blur, saturate, and glow borders.",
+                "Glass (flush dual-tint) and Matte Inset (sunken content area) panels.",
         },
         {
             id: "tokens",
@@ -47,61 +48,85 @@
 <div class="demo-page">
     <header class="demo-header">
         <h1 class="demo-title">DevPulse Design System</h1>
-        <p class="demo-subtitle">Deep Glass • ARIA Primitives • OKLCH</p>
+        <p class="demo-subtitle">Panel Recipes • ARIA Primitives • OKLCH</p>
     </header>
 
-    <!-- Glass Containers -->
+    <!-- NEW: Panel Recipes -->
     <section class="demo-section">
-        <h2 class="section-title">Glass Containers</h2>
-        <div class="demo-grid">
-            <div class="glass demo-panel">
-                <p class="panel-title">Base Glass</p>
-                <p class="panel-sub">blur(16px) saturate(180%)</p>
-            </div>
-            <div class="glass-deep demo-panel">
-                <p class="panel-title">Deep Glass</p>
-                <p class="panel-sub">blur(20px) saturate(200%)</p>
-            </div>
-            <div class="glass-intense demo-panel">
-                <p class="panel-title">Intense Glass</p>
-                <p class="panel-sub">With outer glow</p>
-            </div>
-            <div class="glass-glow demo-panel">
-                <p class="panel-title">Glow Glass</p>
-                <p class="panel-sub">Animated pulse</p>
-            </div>
+        <h2 class="section-title">Panel Recipes</h2>
+        <p class="section-desc">
+            Two composable recipes: Glass (flush) and Matte Inset (sunken)
+        </p>
+
+        <div class="demo-compare">
+            <Panel variant="glass">
+                <div class="panel-content">
+                    <p class="panel-title">Glass Panel</p>
+                    <p class="panel-sub">Flush surface, dual-tint gradient</p>
+                    <p class="panel-sub">
+                        Teal (top-left) → Purple (bottom-right)
+                    </p>
+                </div>
+            </Panel>
+
+            <Panel variant="matte">
+                <div class="panel-content">
+                    <p class="panel-title">Matte Inset Panel</p>
+                    <p class="panel-sub">Sunken content, stamped edges</p>
+                    <p class="panel-sub">Laser border, purple fade at bottom</p>
+                </div>
+            </Panel>
         </div>
     </section>
 
-    <!-- Glow Border -->
+    <!-- Panel Size Variants -->
     <section class="demo-section">
-        <h2 class="section-title">Glow Border (Animated)</h2>
-        <div class="glass-glow-border demo-panel demo-panel-lg">
-            <p class="panel-title">Rotating Gradient Border</p>
-            <p class="panel-sub">conic-gradient with filter: blur</p>
+        <h2 class="section-title">Panel Sizes</h2>
+        <div class="demo-grid-3">
+            <Panel variant="glass" size="sm">
+                <div class="panel-content">
+                    <p class="panel-title">Small</p>
+                    <p class="panel-sub">Tight gap</p>
+                </div>
+            </Panel>
+            <Panel variant="glass" size="md">
+                <div class="panel-content">
+                    <p class="panel-title">Medium</p>
+                    <p class="panel-sub">Default gap</p>
+                </div>
+            </Panel>
+            <Panel variant="glass" size="lg">
+                <div class="panel-content">
+                    <p class="panel-title">Large</p>
+                    <p class="panel-sub">Wide gap</p>
+                </div>
+            </Panel>
         </div>
     </section>
 
-    <!-- Tint Variants -->
+    <!-- Matte Panel Variants -->
     <section class="demo-section">
-        <h2 class="section-title">Tint Variants</h2>
-        <div class="demo-grid">
-            <div class="glass glass-tint-teal demo-panel">
-                <p class="panel-title">Teal</p>
-            </div>
-            <div class="glass glass-tint-purple demo-panel">
-                <p class="panel-title">Purple</p>
-            </div>
-            <div class="glass glass-tint-gold demo-panel">
-                <p class="panel-title">Gold</p>
-            </div>
-            <div class="glass glass-tint-coral demo-panel">
-                <p class="panel-title">Coral</p>
-            </div>
+        <h2 class="section-title">Matte Inset Sizes</h2>
+        <div class="demo-grid-3">
+            <Panel variant="matte" size="sm">
+                <div class="panel-content">
+                    <p class="panel-title">Small Matte</p>
+                </div>
+            </Panel>
+            <Panel variant="matte" size="md">
+                <div class="panel-content">
+                    <p class="panel-title">Medium Matte</p>
+                </div>
+            </Panel>
+            <Panel variant="matte" size="lg">
+                <div class="panel-content">
+                    <p class="panel-title">Large Matte</p>
+                </div>
+            </Panel>
         </div>
     </section>
 
-    <!-- Glass Buttons -->
+    <!-- Glass Buttons (keep existing) -->
     <section class="demo-section">
         <h2 class="section-title">Glass Buttons</h2>
         <div class="demo-row">
@@ -144,28 +169,32 @@
     <!-- ARIA Toggle -->
     <section class="demo-section">
         <h2 class="section-title">ARIA Toggle</h2>
-        <div class="demo-row glass demo-panel" style="width: fit-content;">
-            <Toggle bind:checked={toggleChecked} label="Enable feature" />
-            <span class="panel-sub">Checked: {toggleChecked}</span>
-        </div>
+        <Panel variant="glass" size="sm">
+            <div class="demo-row">
+                <Toggle bind:checked={toggleChecked} label="Enable feature" />
+                <span class="panel-sub">Checked: {toggleChecked}</span>
+            </div>
+        </Panel>
     </section>
 
     <!-- ARIA Accordion -->
     <section class="demo-section">
         <h2 class="section-title">ARIA Accordion</h2>
-        <div class="glass demo-panel">
+        <Panel variant="matte">
             <Accordion items={accordionItems} />
-        </div>
+        </Panel>
     </section>
 
     <!-- ARIA Tabs -->
     <section class="demo-section">
         <h2 class="section-title">ARIA Tabs</h2>
-        <div class="glass demo-panel">
+        <Panel variant="glass">
             <Tabs tabs={tabItems}>
                 {#snippet children({ activeTab })}
                     {#if activeTab === "containers"}
-                        <p>Glass containers with blur and glow effects.</p>
+                        <p>
+                            Glass and Matte panel recipes with composable depth.
+                        </p>
                     {:else if activeTab === "buttons"}
                         <p>Interactive buttons with hover states.</p>
                     {:else if activeTab === "forms"}
@@ -173,7 +202,7 @@
                     {/if}
                 {/snippet}
             </Tabs>
-        </div>
+        </Panel>
     </section>
 
     <!-- ARIA Dialog -->
@@ -197,22 +226,6 @@
                 >Close</Button
             >
         </Dialog>
-    </section>
-
-    <!-- Effects -->
-    <section class="demo-section">
-        <h2 class="section-title">Effects</h2>
-        <div class="demo-grid">
-            <div class="glass glass-pulse demo-panel">
-                <p class="panel-title">Pulse</p>
-            </div>
-            <div class="glass glass-electric demo-panel">
-                <p class="panel-title">Electric</p>
-            </div>
-            <div class="glass glass-scanlines demo-panel">
-                <p class="panel-title">Scanlines</p>
-            </div>
-        </div>
     </section>
 </div>
 
@@ -258,14 +271,26 @@
         font-size: var(--dp-text-xl);
         font-weight: var(--dp-font-semibold);
         color: var(--dp-text-secondary);
-        margin-bottom: var(--dp-space-4);
+        margin-bottom: var(--dp-space-3);
         text-transform: uppercase;
         letter-spacing: 0.05em;
     }
 
-    .demo-grid {
+    .section-desc {
+        font-size: var(--dp-text-sm);
+        color: var(--dp-text-muted);
+        margin-bottom: var(--dp-space-4);
+    }
+
+    .demo-compare {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        grid-template-columns: 1fr 1fr;
+        gap: var(--dp-space-4);
+    }
+
+    .demo-grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
         gap: var(--dp-space-4);
     }
 
@@ -276,12 +301,8 @@
         align-items: center;
     }
 
-    .demo-panel {
-        padding: var(--dp-space-4);
-    }
-
-    .demo-panel-lg {
-        padding: var(--dp-space-6);
+    .panel-content {
+        padding: var(--dp-space-2);
     }
 
     .panel-title {

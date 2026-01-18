@@ -1,154 +1,133 @@
 /* ============================================
    TOKENS.CSS - Design System SSOT
-   DevPulse Glass System Foundation
+   All values OKLCH, token-based, VPB-ready
    ============================================ */
 
 :root {
-    /* =============================================
-       BASE HUE - The foundation of the tint system
-       ============================================= */
-    --dp-hue: 195;
+   /* =============================================
+     COLOR SYSTEM - OKLCH (Hue-based tokens)
+     VPB will manipulate these base hues
+     ============================================= */
 
-    /* =============================================
-       CORE COLORS - OKLCH (Static values)
-       ============================================= */
+   /* Base Hues (the source of truth) */
+   --dp-hue-teal: 195;
+   --dp-hue-purple: 280;
+   --dp-hue-matte: 200;
 
-    /* Void Scale (Deep teal-blue base) */
-    --dp-void-950: oklch(5% 0.04 195);
-    --dp-void-900: oklch(7% 0.035 195);
-    --dp-void-800: oklch(10% 0.03 195);
-    --dp-void-700: oklch(15% 0.025 195);
-    --dp-void-600: oklch(20% 0.02 195);
+   /* Derived Colors - Primary (Teal family) */
+   --dp-teal-100: oklch(95% 0.05 var(--dp-hue-teal));
+   --dp-teal-200: oklch(85% 0.08 var(--dp-hue-teal));
+   --dp-teal-300: oklch(75% 0.12 var(--dp-hue-teal));
+   --dp-teal-400: oklch(65% 0.16 var(--dp-hue-teal));
+   --dp-teal-500: oklch(55% 0.18 var(--dp-hue-teal));
+   --dp-teal-600: oklch(45% 0.16 var(--dp-hue-teal));
+   --dp-teal-700: oklch(35% 0.12 var(--dp-hue-teal));
+   --dp-teal-800: oklch(25% 0.08 var(--dp-hue-teal));
+   --dp-teal-900: oklch(15% 0.05 var(--dp-hue-teal));
 
-    /* Teal Accent */
-    --dp-teal-600: oklch(55% 0.18 180);
-    --dp-teal-500: oklch(65% 0.2 180);
-    --dp-teal-400: oklch(75% 0.18 180);
-    --dp-teal-300: oklch(82% 0.14 180);
+   /* Derived Colors - Secondary (Purple family) */
+   --dp-purple-100: oklch(95% 0.05 var(--dp-hue-purple));
+   --dp-purple-200: oklch(85% 0.10 var(--dp-hue-purple));
+   --dp-purple-300: oklch(75% 0.15 var(--dp-hue-purple));
+   --dp-purple-400: oklch(65% 0.20 var(--dp-hue-purple));
+   --dp-purple-500: oklch(55% 0.22 var(--dp-hue-purple));
+   --dp-purple-600: oklch(45% 0.20 var(--dp-hue-purple));
+   --dp-purple-700: oklch(35% 0.15 var(--dp-hue-purple));
+   --dp-purple-800: oklch(25% 0.10 var(--dp-hue-purple));
+   --dp-purple-900: oklch(15% 0.05 var(--dp-hue-purple));
 
-    /* Purple Accent */
-    --dp-purple-600: oklch(35% 0.2 280);
-    --dp-purple-500: oklch(48% 0.24 280);
-    --dp-purple-400: oklch(60% 0.22 280);
-    --dp-purple-300: oklch(72% 0.18 280);
+   /* Derived Colors - Matte Surface (Deep teal-blue) */
+   --dp-matte-dark: oklch(8% 0.04 var(--dp-hue-matte));
+   --dp-matte-mid: oklch(12% 0.05 var(--dp-hue-matte));
+   --dp-matte-light: oklch(18% 0.06 var(--dp-hue-matte));
 
-    /* Blue Accent */
-    --dp-blue-600: oklch(30% 0.12 230);
-    --dp-blue-500: oklch(45% 0.15 230);
-    --dp-blue-400: oklch(58% 0.14 230);
+   /* Glass Tints (Semi-transparent for layering) */
+   --dp-glass-tint-teal: oklch(50% 0.12 var(--dp-hue-teal) / 0.15);
+   --dp-glass-tint-purple: oklch(45% 0.15 var(--dp-hue-purple) / 0.15);
+   --dp-glass-base: oklch(10% 0.03 var(--dp-hue-teal) / 0.85);
 
-    /* Coral/Orange Accent */
-    --dp-coral-500: oklch(65% 0.18 25);
-    --dp-coral-400: oklch(75% 0.16 25);
+   /* Text */
+   --dp-text-primary: oklch(95% 0.01 var(--dp-hue-teal));
+   --dp-text-secondary: oklch(75% 0.02 var(--dp-hue-teal));
+   --dp-text-muted: oklch(55% 0.03 var(--dp-hue-teal));
 
-    /* Gold Accent */
-    --dp-gold-500: oklch(70% 0.15 75);
-    --dp-gold-400: oklch(80% 0.12 75);
+   /* =============================================
+     SPACING - Fluid clamp() based
+     ============================================= */
+   --dp-space-1: clamp(2px, 0.25vw, 4px);
+   --dp-space-2: clamp(4px, 0.5vw, 8px);
+   --dp-space-3: clamp(8px, 0.75vw, 12px);
+   --dp-space-4: clamp(12px, 1vw, 16px);
+   --dp-space-5: clamp(16px, 1.25vw, 20px);
+   --dp-space-6: clamp(20px, 1.5vw, 24px);
+   --dp-space-8: clamp(28px, 2vw, 32px);
 
-    /* Text Colors */
-    --dp-text-primary: oklch(95% 0.015 195);
-    --dp-text-secondary: oklch(78% 0.02 195);
-    --dp-text-muted: oklch(55% 0.025 195);
+   /* Gap for panel structure */
+   --dp-panel-gap: clamp(3px, 0.4vw, 6px);
 
-    /* =============================================
-       GLASS BASE VARIABLES
-       These are used by glass.css
-       ============================================= */
+   /* =============================================
+     BORDERS & RADIUS - Fluid
+     ============================================= */
+   --dp-radius-sm: clamp(4px, 0.5vw, 6px);
+   --dp-radius-md: clamp(6px, 0.75vw, 10px);
+   --dp-radius-lg: clamp(10px, 1vw, 14px);
+   --dp-radius-xl: clamp(14px, 1.25vw, 20px);
 
-    /* Glass backgrounds - semi-transparent with tint */
-    --dp-glass-bg: oklch(8% 0.03 var(--dp-hue) / 0.85);
-    --dp-glass-bg-intense: oklch(6% 0.04 var(--dp-hue) / 0.92);
+   --dp-border-thin: 1px;
+   --dp-border-medium: 2px;
+   --dp-border-thick: 3px;
 
-    /* Glass shadow - COLORED, not black */
-    --dp-glass-shadow: oklch(5% 0.02 250 / 0.4);
+   /* =============================================
+     EFFECTS - Blur, Glow, Shadow
+     ============================================= */
+   --dp-blur-sm: 8px;
+   --dp-blur-md: 16px;
+   --dp-blur-lg: 24px;
+   --dp-blur-xl: 32px;
 
-    /* Accent color for interactions */
-    --dp-accent-primary: oklch(65% 0.2 180);
+   --dp-glow-color: oklch(70% 0.18 var(--dp-hue-teal));
+   --dp-glow-sm: 0 0 8px;
+   --dp-glow-md: 0 0 16px;
+   --dp-glow-lg: 0 0 24px;
 
-    /* =============================================
-       SPACING
-       ============================================= */
-    --dp-space-1: 4px;
-    --dp-space-2: 8px;
-    --dp-space-3: 12px;
-    --dp-space-4: 16px;
-    --dp-space-5: 20px;
-    --dp-space-6: 24px;
-    --dp-space-8: 32px;
-    --dp-space-10: 40px;
-    --dp-space-12: 48px;
+   /* =============================================
+     DEPTH - Bevel & Shadow tokens
+     ============================================= */
+   /* Light edge (top-left highlight) */
+   --dp-bevel-light: oklch(80% 0.06 var(--dp-hue-teal) / 0.3);
+   --dp-bevel-light-strong: oklch(90% 0.08 var(--dp-hue-teal) / 0.5);
 
-    /* =============================================
-       RADIUS
-       ============================================= */
-    --dp-radius-sm: 4px;
-    --dp-radius: 8px;
-    --dp-radius-md: 10px;
-    --dp-radius-lg: 14px;
-    --dp-radius-xl: 20px;
-    --dp-radius-full: 9999px;
+   /* Dark edge (bottom-right shadow) */
+   --dp-bevel-dark: oklch(15% 0.04 var(--dp-hue-purple) / 0.5);
+   --dp-bevel-dark-strong: oklch(8% 0.06 var(--dp-hue-purple) / 0.7);
 
-    /* =============================================
-       TYPOGRAPHY
-       ============================================= */
-    --dp-font-sans: 'Inter', system-ui, sans-serif;
-    --dp-font-mono: 'JetBrains Mono', monospace;
+   /* Inset (stamped) bevels */
+   --dp-inset-light: oklch(25% 0.03 var(--dp-hue-matte) / 0.3);
+   --dp-inset-dark: oklch(5% 0.02 var(--dp-hue-matte) / 0.6);
 
-    --dp-font-regular: 400;
-    --dp-font-medium: 500;
-    --dp-font-semibold: 600;
-    --dp-font-bold: 700;
-    --dp-font-extrabold: 800;
+   /* Drop shadows */
+   --dp-shadow-sm: 0 2px 8px oklch(5% 0.02 var(--dp-hue-purple) / 0.3);
+   --dp-shadow-md: 0 4px 16px oklch(5% 0.02 var(--dp-hue-purple) / 0.4);
+   --dp-shadow-lg: 0 8px 32px oklch(5% 0.02 var(--dp-hue-purple) / 0.5);
 
-    /* Fluid typography (clamp) */
-    --dp-text-xs: clamp(0.625rem, 1vw, 0.75rem);
-    --dp-text-sm: clamp(0.75rem, 1.2vw, 0.875rem);
-    --dp-text-base: clamp(0.875rem, 1.4vw, 1rem);
-    --dp-text-lg: clamp(1rem, 1.6vw, 1.125rem);
-    --dp-text-xl: clamp(1.125rem, 1.8vw, 1.25rem);
-    --dp-text-2xl: clamp(1.25rem, 2vw, 1.5rem);
-    --dp-text-3xl: clamp(1.5rem, 2.5vw, 1.875rem);
-    --dp-text-4xl: clamp(2rem, 3vw, 2.5rem);
-    --dp-text-5xl: clamp(2.5rem, 4vw, 3rem);
+   /* =============================================
+     TYPOGRAPHY - Fluid
+     ============================================= */
+   --dp-font-sans: 'Inter', system-ui, sans-serif;
+   --dp-font-mono: 'JetBrains Mono', monospace;
 
-    /* =============================================
-       TRANSITIONS
-       ============================================= */
-    --dp-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-    --dp-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+   --dp-text-xs: clamp(0.65rem, 1vw, 0.75rem);
+   --dp-text-sm: clamp(0.75rem, 1.1vw, 0.875rem);
+   --dp-text-base: clamp(0.875rem, 1.25vw, 1rem);
+   --dp-text-lg: clamp(1rem, 1.5vw, 1.125rem);
+   --dp-text-xl: clamp(1.125rem, 1.75vw, 1.25rem);
+   --dp-text-2xl: clamp(1.25rem, 2vw, 1.5rem);
 
-    --dp-duration-fast: 150ms;
-    --dp-duration-normal: 300ms;
-    --dp-duration-slow: 500ms;
-
-    --dp-transition-fast: var(--dp-duration-fast) var(--dp-ease-out);
-    --dp-transition-normal: var(--dp-duration-normal) var(--dp-ease-out);
-    --dp-transition-slow: var(--dp-duration-slow) var(--dp-ease-out);
-
-    /* =============================================
-       GRADIENTS (Animated backgrounds)
-       Visible: 10-18% lightness, higher chroma
-       ============================================= */
-    --dp-gradient-bg-1: linear-gradient(135deg,
-            oklch(12% 0.08 280) 0%,
-            oklch(10% 0.07 195) 35%,
-            oklch(14% 0.08 180) 65%,
-            oklch(12% 0.08 280) 100%);
-
-    --dp-gradient-bg-2: linear-gradient(225deg,
-            oklch(15% 0.07 180) 0%,
-            oklch(10% 0.06 230) 40%,
-            oklch(14% 0.08 280) 80%,
-            oklch(12% 0.06 195) 100%);
-
-    /* =============================================
-       Z-INDEX LAYERS
-       ============================================= */
-    --dp-z-base: 0;
-    --dp-z-dropdown: 100;
-    --dp-z-sticky: 200;
-    --dp-z-overlay: 300;
-    --dp-z-modal: 400;
-    --dp-z-popover: 500;
-    --dp-z-tooltip: 600;
+   /* =============================================
+     TRANSITIONS
+     ============================================= */
+   --dp-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+   --dp-duration-fast: 150ms;
+   --dp-duration-normal: 300ms;
+   --dp-duration-slow: 500ms;
 }
