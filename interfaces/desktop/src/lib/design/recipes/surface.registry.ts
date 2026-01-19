@@ -1,14 +1,7 @@
 /**
- * @fileoverview Surfaces - Material Recipes Registry (SSOT)
- * @file src/lib/design/surfaces/index.ts
- * @module @devpulse/design/surfaces
- * @layer surfaces
- *
- * @description
- * TIER 4: Surface registry - THIS IS THE SSOT.
- * Defines capabilities, allowed controls, and dependencies for each surface.
- * CSS recipes live in recipes/*.surface.css
- *
+ * @file src/lib/design/recipes/surface.registry.ts
+ * @layer recipes
+ * @description Surface registry - capabilities, controls, dependencies (SSOT)
  * @since 1.0.0
  */
 
@@ -131,35 +124,28 @@ export const SurfaceRegistry = {
   },
 } as const satisfies Record<string, SurfaceRegistryEntry>;
 
+export type SurfaceId = keyof typeof SurfaceRegistry;
+
 // ===========================================
 // REGISTRY ACCESS HELPERS
 // ===========================================
 
-/**
- * Check if a surface is allowed for a component
- */
 export function isSurfaceAllowed(surface: SurfaceToken, componentName: string): boolean {
-  const entry = SurfaceRegistry[surface as keyof typeof SurfaceRegistry];
+  const entry = SurfaceRegistry[surface as SurfaceId];
   if (!entry) return false;
   if (entry.allowedComponents.includes("*")) return true;
   return entry.allowedComponents.includes(componentName);
 }
 
-/**
- * Get allowed controls for a surface (for VPB dropdowns)
- */
 export function getAllowedControls(surface: SurfaceToken): SurfaceAllowedControls {
-  const entry = SurfaceRegistry[surface as keyof typeof SurfaceRegistry];
+  const entry = SurfaceRegistry[surface as SurfaceId];
   return entry?.allowedControls ?? {};
 }
 
-/**
- * Check if a surface supports a capability
- */
 export function hasCapability(
-  surface: SurfaceToken, 
+  surface: SurfaceToken,
   capability: keyof SurfaceCapabilities
 ): boolean {
-  const entry = SurfaceRegistry[surface as keyof typeof SurfaceRegistry];
+  const entry = SurfaceRegistry[surface as SurfaceId];
   return entry?.capabilities[capability] ?? false;
 }

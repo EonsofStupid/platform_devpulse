@@ -254,4 +254,56 @@
   /* Accents / Signals (Generic) */
   --dp-accent-cyber: oklch(0.9106 0.1598 126.64); /* Neon Scan/Highlight */
   --dp-accent-tint: oklch(0.9106 0.1598 126.64 / 0.15); /* Overlay Tint */
+
+  /* =============================================
+     COMPONENT TOKENS - Glass Button
+     ============================================= */
+  --dp-glass-btn-bg: oklch(15% 0.03 195 / 0.6);
+  --dp-glass-btn-bg-hover: oklch(20% 0.05 195 / 0.7);
+  --dp-glass-btn-bg-primary: oklch(45% 0.15 195 / 0.8);
+  --dp-glass-btn-bg-primary-hover: oklch(50% 0.18 195 / 0.9);
+  --dp-glass-btn-border: oklch(50% 0.10 195 / 0.3);
+  --dp-glass-btn-border-hover: oklch(60% 0.15 195 / 0.5);
+  --dp-glass-btn-border-primary: oklch(60% 0.18 195 / 0.6);
+  --dp-glass-btn-glow-hover: oklch(60% 0.15 195 / 0.3);
+  --dp-glass-btn-shadow: oklch(5% 0.02 280 / 0.3);
+
+  /* =============================================
+     COMPONENT TOKENS - Glass Input
+     ============================================= */
+  --dp-glass-input-bg: oklch(8% 0.02 200 / 0.8);
+  --dp-glass-input-border: oklch(40% 0.08 195 / 0.3);
+  --dp-glass-input-border-focus: oklch(60% 0.15 195 / 0.6);
+  --dp-glass-input-glow-focus: oklch(60% 0.15 195 / 0.3);
+
+  /* =============================================
+     COMPONENT TOKENS - Glass Tints
+     ============================================= */
+  --dp-glass-tint-teal: oklch(55% 0.15 195 / 0.4);
+  --dp-glass-tint-purple: oklch(50% 0.18 280 / 0.4);
+  --dp-glass-tint-purple-bg: oklch(15% 0.04 280 / 0.6);
+  --dp-glass-tint-gold: oklch(60% 0.15 50 / 0.4);
+  --dp-glass-tint-gold-bg: oklch(18% 0.05 50 / 0.6);
+  --dp-glass-tint-coral: oklch(55% 0.18 25 / 0.4);
+  --dp-glass-tint-coral-bg: oklch(15% 0.05 25 / 0.6);
+
+  /* =============================================
+     COMPONENT TOKENS - Glass Scrim
+     ============================================= */
+  --dp-glass-scrim-bg: oklch(5% 0.02 195 / 0.7);
+
+  /* =============================================
+     COMPONENT TOKENS - Panel
+     ============================================= */
+  --dp-panel-outer-border: oklch(50% 0.10 195 / 0.4);
+  --dp-panel-outer-border-hover: oklch(60% 0.14 195 / 0.5);
+  --dp-panel-outer-glow: oklch(60% 0.15 195 / 0.2);
+  --dp-panel-inner-border: oklch(60% 0.08 195 / 0.2);
+  --dp-panel-inner-gradient-teal-start: oklch(65% 0.15 195 / 0.25);
+  --dp-panel-inner-gradient-teal-mid: oklch(55% 0.12 195 / 0.12);
+  --dp-panel-inner-gradient-purple-start: oklch(55% 0.18 280 / 0.25);
+  --dp-panel-inner-gradient-purple-mid: oklch(45% 0.15 280 / 0.12);
+  --dp-panel-inner-base: oklch(12% 0.04 195 / 0.9);
+  --dp-panel-focus-ring: oklch(65% 0.18 195 / 0.5);
+  --dp-panel-focus-glow: oklch(60% 0.15 195 / 0.3);
 }

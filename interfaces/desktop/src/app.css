@@ -16,8 +16,8 @@
 
 /* Design System SSOT (order matters) */
 @import "./lib/design/tokens/tokens.css";
-@import "./lib/design/motion/keyframes.css";
-@import "./lib/design/surfaces/recipes/index.css";
+@import "./lib/design/recipes/css/keyframes.css";
+@import "./lib/design/recipes/css/surfaces.gen.css";
 
 /* =============================================
    GLOBAL RESET

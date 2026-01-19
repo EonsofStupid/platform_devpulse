@@ -1,9 +1,0 @@
-/**
- * @file surfaces/recipes/index.css
- * @layer surfaces
- * @description Surface recipe bundle - imports all surface CSS recipes
- * @since 1.0.0
- */
-
-@import "./glass.surface.css";
-@import "./panels.surface.css";

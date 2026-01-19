@@ -1,38 +1,26 @@
 /**
- * @fileoverview Recipe Actions Registry
  * @file src/lib/design/recipes/actions/index.ts
- * @module @devpulse/design/recipes/actions
  * @layer recipes
- *
- * @description
- * Svelte actions for recipe effects. Actions are declared in recipe.requires
- * and auto-attached by renderers.
- *
+ * @description Action registry for recipe-required Svelte actions (SSOT)
  * @since 1.0.0
  */
 
-import type { Action } from "svelte/action";
-import type { RecipeDefinition } from "../index";
+// Re-export behavior types and configs
+export * from "./types";
 
 // ===========================================
 // ACTION TYPES
 // ===========================================
 
-export type ActionId = "glowTrack" | "ripple" | "tilt" | "focusTrap";
+export type ActionCleanup = { destroy(): void; update?: (next: unknown) => void };
 
-export interface ActionResult {
-  destroy?: () => void;
-  update?: (params: unknown) => void;
-}
+export type ActionFactory<P = unknown> = (node: HTMLElement, params?: P) => ActionCleanup;
 
 // ===========================================
-// GLOW TRACK ACTION
+// ACTION IMPLEMENTATIONS
 // ===========================================
 
-/**
- * Tracks mouse position and updates CSS custom properties for glow effects.
- */
-export const glowTrack: Action<HTMLElement, void> = (node) => {
+const glowTrack: ActionFactory = (node) => {
   const handleMouseMove = (e: MouseEvent) => {
     const rect = node.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -57,14 +45,7 @@ export const glowTrack: Action<HTMLElement, void> = (node) => {
   };
 };
 
-// ===========================================
-// RIPPLE ACTION
-// ===========================================
-
-/**
- * Creates ripple effect on click.
- */
-export const ripple: Action<HTMLElement, void> = (node) => {
+const ripple: ActionFactory = (node) => {
   const handleClick = (e: MouseEvent) => {
     const rect = node.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -101,17 +82,7 @@ export const ripple: Action<HTMLElement, void> = (node) => {
   };
 };
 
-// ===========================================
-// TILT ACTION
-// ===========================================
-
-/**
- * 3D tilt effect on hover.
- */
-export const tilt: Action<HTMLElement, { maxAngle?: number; scale?: number }> = (
-  node,
-  params = {}
-) => {
+const tilt: ActionFactory<{ maxAngle?: number; scale?: number }> = (node, params = {}) => {
   const maxAngle = params.maxAngle ?? 5;
   const scale = params.scale ?? 1.02;
 
@@ -143,14 +114,7 @@ export const tilt: Action<HTMLElement, { maxAngle?: number; scale?: number }> = 
   };
 };
 
-// ===========================================
-// FOCUS TRAP ACTION
-// ===========================================
-
-/**
- * Traps keyboard focus within element.
- */
-export const focusTrap: Action<HTMLElement, void> = (node) => {
+const focusTrap: ActionFactory = (node) => {
   const focusableSelector =
     'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
@@ -179,56 +143,126 @@ export const focusTrap: Action<HTMLElement, void> = (node) => {
   };
 };
 
-// ===========================================
-// ACTION REGISTRY
-// ===========================================
-
-export const actionRegistry = {
-  glowTrack,
-  ripple,
-  tilt,
-  focusTrap,
-} as const;
-
-// ===========================================
-// RECIPE ACTION COMPOSER
-// ===========================================
-
-/**
- * Svelte action that auto-attaches all actions declared in recipe.requires.
- * Use: <div use:applyRecipeActions={recipe}>
- */
-export const applyRecipeActions: Action<HTMLElement, RecipeDefinition> = (
-  node,
-  recipe
-) => {
-  const cleanups: (() => void)[] = [];
-
-  const attach = (r: RecipeDefinition) => {
-    // Clean up previous
-    cleanups.forEach((fn) => fn());
-    cleanups.length = 0;
-
-    // Attach new
-    for (const actionId of r.requires ?? []) {
-      const action = actionRegistry[actionId as keyof typeof actionRegistry];
-      if (action) {
-        const result = action(node);
-        if (result?.destroy) {
-          cleanups.push(result.destroy);
-        }
-      }
+const clickOutside: ActionFactory<{ onClickOutside: () => void }> = (node, params) => {
+  const handleClick = (e: MouseEvent) => {
+    if (!node.contains(e.target as Node)) {
+      params?.onClickOutside?.();
     }
   };
 
-  attach(recipe);
+  document.addEventListener("click", handleClick, true);
 
   return {
-    update(newRecipe: RecipeDefinition) {
-      attach(newRecipe);
+    destroy() {
+      document.removeEventListener("click", handleClick, true);
     },
+  };
+};
+
+const hoverIntent: ActionFactory<{ delay?: number; onIntent: () => void; onLeave?: () => void }> = (
+  node,
+  params = { onIntent: () => {} }
+) => {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+  const delay = params.delay ?? 100;
+
+  const handleMouseEnter = () => {
+    timeout = setTimeout(() => {
+      params.onIntent();
+    }, delay);
+  };
+
+  const handleMouseLeave = () => {
+    if (timeout) {
+      clearTimeout(timeout);
+      timeout = null;
+    }
+    params.onLeave?.();
+  };
+
+  node.addEventListener("mouseenter", handleMouseEnter);
+  node.addEventListener("mouseleave", handleMouseLeave);
+
+  return {
+    destroy() {
+      if (timeout) clearTimeout(timeout);
+      node.removeEventListener("mouseenter", handleMouseEnter);
+      node.removeEventListener("mouseleave", handleMouseLeave);
+    },
+  };
+};
+
+const pressFeedback: ActionFactory<{ scale?: number; duration?: number }> = (node, params = {}) => {
+  const scale = params.scale ?? 0.97;
+  const duration = params.duration ?? 100;
+
+  const handleMouseDown = () => {
+    node.style.transition = `transform ${duration}ms ease-out`;
+    node.style.transform = `scale(${scale})`;
+  };
+
+  const handleMouseUp = () => {
+    node.style.transform = "";
+  };
+
+  node.addEventListener("mousedown", handleMouseDown);
+  node.addEventListener("mouseup", handleMouseUp);
+  node.addEventListener("mouseleave", handleMouseUp);
+
+  return {
+    destroy() {
+      node.removeEventListener("mousedown", handleMouseDown);
+      node.removeEventListener("mouseup", handleMouseUp);
+      node.removeEventListener("mouseleave", handleMouseUp);
+    },
+  };
+};
+
+// ===========================================
+// ACTION REGISTRY (SSOT)
+// ===========================================
+
+/** SSOT: all actions live here */
+export const actionRegistry = {
+  glowTrack: { create: glowTrack },
+  ripple: { create: ripple },
+  tilt: { create: tilt },
+  focusTrap: { create: focusTrap },
+  clickOutside: { create: clickOutside },
+  hoverIntent: { create: hoverIntent },
+  pressFeedback: { create: pressFeedback },
+} as const;
+
+/** Derived union = no drift */
+export type ActionId = keyof typeof actionRegistry;
+
+// ===========================================
+// RUNTIME HELPERS
+// ===========================================
+
+/** Get action by ID */
+export function getAction(id: ActionId) {
+  return actionRegistry[id];
+}
+
+/** Apply all actions required by a recipe */
+export function applyRecipeActions(
+  node: HTMLElement,
+  requires: readonly ActionId[]
+): ActionCleanup {
+  const cleanups: (() => void)[] = [];
+
+  for (const actionId of requires) {
+    const action = actionRegistry[actionId];
+    if (action) {
+      const result = action.create(node);
+      cleanups.push(result.destroy);
+    }
+  }
+
+  return {
     destroy() {
       cleanups.forEach((fn) => fn());
     },
   };
-};
+}

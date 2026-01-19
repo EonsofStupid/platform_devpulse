@@ -1,0 +1,150 @@
+/**
+ * @file src/lib/design/recipes/css/keyframes.css
+ * @layer recipes
+ * @description Token-safe keyframes - motion only, no visual values
+ * @since 1.0.0
+ */
+
+/* ============================================
+   RULES:
+   ✅ transform, opacity, filter (token-driven), background-position
+   ❌ NO colors, shadows, hardcoded sizes inside keyframes
+   Element carries visual values via tokens.
+   ============================================ */
+
+/* ============================================
+   OPACITY ANIMATIONS
+   ============================================ */
+
+@keyframes dp-fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes dp-fade-out {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes dp-glow-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.65; }
+}
+
+@keyframes dp-subtle-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.92; }
+}
+
+@keyframes dp-breathe-opacity {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+/* ============================================
+   TRANSFORM ANIMATIONS
+   ============================================ */
+
+@keyframes dp-fade-in-up {
+  0% { opacity: 0; transform: translateY(1rem); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes dp-fade-out-down {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(1rem); }
+}
+
+@keyframes dp-slide-up {
+  0% { transform: translateY(100%); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes dp-slide-down {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(100%); }
+}
+
+@keyframes dp-scale-in {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes dp-scale-out {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.95); }
+}
+
+@keyframes dp-hover-lift {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-2px); }
+}
+
+@keyframes dp-press-down {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(1px); }
+}
+
+@keyframes dp-breathe-scale {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+@keyframes dp-rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ============================================
+   BACKGROUND POSITION (gradient shift)
+   ============================================ */
+
+@keyframes dp-gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes dp-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes dp-scanline {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 100%; }
+}
+
+/* ============================================
+   FILTER (token-driven only)
+   ============================================ */
+
+@keyframes dp-blur-in {
+  0% { filter: blur(var(--dp-blur-md)); opacity: 0; }
+  100% { filter: blur(0); opacity: 1; }
+}
+
+@keyframes dp-blur-out {
+  0% { filter: blur(0); opacity: 1; }
+  100% { filter: blur(var(--dp-blur-md)); opacity: 0; }
+}
+
+/* ============================================
+   RIPPLE (for action use)
+   ============================================ */
+
+@keyframes dp-ripple-expand {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(4); opacity: 0; }
+}
+
+/* ============================================
+   PARASITE LOGO
+   ============================================ */
+
+@keyframes dp-parasite-sweep {
+  0% { transform: translateX(-100%); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}

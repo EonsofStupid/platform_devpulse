@@ -12,12 +12,11 @@
  */
 
 import type { BlockKind } from "../taxonomy/kinds";
+import type { ActionId } from "./actions";
 
 // ===========================================
 // RECIPE TYPES
 // ===========================================
-
-export type ActionId = "glowTrack" | "ripple" | "tilt" | "focusTrap";
 
 export interface RecipeDefinition {
   /** Unique recipe ID */
@@ -194,3 +193,4 @@ export function prefersReducedMotion(): boolean {
 // RE-EXPORTS
 // ===========================================
 export * from "./actions";
+export * from "./surface.registry";

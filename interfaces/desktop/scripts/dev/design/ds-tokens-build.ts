@@ -45,6 +45,12 @@ import {
   code,
   surface,
   accent,
+  // Component tokens
+  glassButton,
+  glassInput,
+  glassTint,
+  glassScrim,
+  panel,
   // Token arrays for types.ts
   accentTokens,
   glowKeys,
@@ -331,6 +337,68 @@ function generateCSS(): string {
   /* Accents / Signals (Generic) */
   --dp-accent-cyber: oklch(${accent.cyber.l} ${accent.cyber.c} ${accent.cyber.h}); /* Neon Scan/Highlight */
   --dp-accent-tint: oklch(${accent.tint.l} ${accent.tint.c} ${accent.tint.h} / ${accent.tint.a}); /* Overlay Tint */`);
+
+  // Glass Button tokens
+  lines.push(`
+  /* =============================================
+     COMPONENT TOKENS - Glass Button
+     ============================================= */`);
+  lines.push(`  --dp-glass-btn-bg: ${oklchToCSS(glassButton.bg)};`);
+  lines.push(`  --dp-glass-btn-bg-hover: ${oklchToCSS(glassButton.bgHover)};`);
+  lines.push(`  --dp-glass-btn-bg-primary: ${oklchToCSS(glassButton.bgPrimary)};`);
+  lines.push(`  --dp-glass-btn-bg-primary-hover: ${oklchToCSS(glassButton.bgPrimaryHover)};`);
+  lines.push(`  --dp-glass-btn-border: ${oklchToCSS(glassButton.border)};`);
+  lines.push(`  --dp-glass-btn-border-hover: ${oklchToCSS(glassButton.borderHover)};`);
+  lines.push(`  --dp-glass-btn-border-primary: ${oklchToCSS(glassButton.borderPrimary)};`);
+  lines.push(`  --dp-glass-btn-glow-hover: ${oklchToCSS(glassButton.glowHover)};`);
+  lines.push(`  --dp-glass-btn-shadow: ${oklchToCSS(glassButton.shadowBase)};`);
+
+  // Glass Input tokens
+  lines.push(`
+  /* =============================================
+     COMPONENT TOKENS - Glass Input
+     ============================================= */`);
+  lines.push(`  --dp-glass-input-bg: ${oklchToCSS(glassInput.bg)};`);
+  lines.push(`  --dp-glass-input-border: ${oklchToCSS(glassInput.border)};`);
+  lines.push(`  --dp-glass-input-border-focus: ${oklchToCSS(glassInput.borderFocus)};`);
+  lines.push(`  --dp-glass-input-glow-focus: ${oklchToCSS(glassInput.glowFocus)};`);
+
+  // Glass Tint tokens
+  lines.push(`
+  /* =============================================
+     COMPONENT TOKENS - Glass Tints
+     ============================================= */`);
+  lines.push(`  --dp-glass-tint-teal: ${oklchToCSS(glassTint.teal)};`);
+  lines.push(`  --dp-glass-tint-purple: ${oklchToCSS(glassTint.purple)};`);
+  lines.push(`  --dp-glass-tint-purple-bg: ${oklchToCSS(glassTint.purpleBg)};`);
+  lines.push(`  --dp-glass-tint-gold: ${oklchToCSS(glassTint.gold)};`);
+  lines.push(`  --dp-glass-tint-gold-bg: ${oklchToCSS(glassTint.goldBg)};`);
+  lines.push(`  --dp-glass-tint-coral: ${oklchToCSS(glassTint.coral)};`);
+  lines.push(`  --dp-glass-tint-coral-bg: ${oklchToCSS(glassTint.coralBg)};`);
+
+  // Glass Scrim tokens
+  lines.push(`
+  /* =============================================
+     COMPONENT TOKENS - Glass Scrim
+     ============================================= */`);
+  lines.push(`  --dp-glass-scrim-bg: ${oklchToCSS(glassScrim.bg)};`);
+
+  // Panel tokens
+  lines.push(`
+  /* =============================================
+     COMPONENT TOKENS - Panel
+     ============================================= */`);
+  lines.push(`  --dp-panel-outer-border: ${oklchToCSS(panel.outerBorder)};`);
+  lines.push(`  --dp-panel-outer-border-hover: ${oklchToCSS(panel.outerBorderHover)};`);
+  lines.push(`  --dp-panel-outer-glow: ${oklchToCSS(panel.outerGlow)};`);
+  lines.push(`  --dp-panel-inner-border: ${oklchToCSS(panel.innerBorder)};`);
+  lines.push(`  --dp-panel-inner-gradient-teal-start: ${oklchToCSS(panel.innerGradientTeal.start)};`);
+  lines.push(`  --dp-panel-inner-gradient-teal-mid: ${oklchToCSS(panel.innerGradientTeal.mid)};`);
+  lines.push(`  --dp-panel-inner-gradient-purple-start: ${oklchToCSS(panel.innerGradientPurple.start)};`);
+  lines.push(`  --dp-panel-inner-gradient-purple-mid: ${oklchToCSS(panel.innerGradientPurple.mid)};`);
+  lines.push(`  --dp-panel-inner-base: ${oklchToCSS(panel.innerBase)};`);
+  lines.push(`  --dp-panel-focus-ring: ${oklchToCSS(panel.focusRing)};`);
+  lines.push(`  --dp-panel-focus-glow: ${oklchToCSS(panel.focusGlow)};`);
 
   lines.push(`}`);
 
@@ -716,15 +784,310 @@ export default dpPreset;
 }
 
 // ===========================================
+// RECIPE CSS GENERATOR
+// ===========================================
+
+function generateRecipeCSS(): string {
+  return `/**
+ * @file src/lib/design/recipes/css/surfaces.gen.css
+ * @layer recipes
+ *
+ * @description
+ * AUTO-GENERATED - DO NOT EDIT
+ * Generated from tokens.ts by ds-tokens-build.ts
+ *
+ * Recipe CSS that ONLY references var(--dp-*) tokens.
+ * No raw values. No magic numbers. No drift.
+ *
+ * Run \`pnpm ds:tokens:build\` to regenerate.
+ *
+ * @since 1.0.0
+ */
+
+/* ============================================
+   BASE SURFACE RECIPE
+   ============================================ */
+
+.dp-surface {
+  position: relative;
+  transition: all var(--dp-transition-normal);
+}
+
+/* ============================================
+   GLASS SURFACE
+   ============================================ */
+
+.dp-surface[data-surface="glass"] {
+  background: var(--dp-glass-deep);
+  backdrop-filter: blur(var(--dp-blur-md));
+  border: var(--dp-border-thin) solid var(--dp-glass-btn-border);
+  border-radius: var(--dp-radius-md);
+  box-shadow: var(--dp-shadow-z1);
+}
+
+.dp-surface[data-surface="glass"]:hover {
+  border-color: var(--dp-glass-btn-border-hover);
+  box-shadow: var(--dp-shadow-z2), 0 0 20px var(--dp-glass-btn-glow-hover);
+}
+
+.dp-surface[data-surface="glass"]:focus-within {
+  border-color: var(--dp-panel-focus-ring);
+  box-shadow: var(--dp-shadow-z2), 0 0 16px var(--dp-panel-focus-glow);
+  outline: none;
+}
+
+/* ============================================
+   GLASS SURFACE - BUTTON ROLE
+   ============================================ */
+
+.dp-surface[data-surface="glass"][data-role="button"] {
+  background: var(--dp-glass-btn-bg);
+  border-color: var(--dp-glass-btn-border);
+  cursor: pointer;
+  user-select: none;
+}
+
+.dp-surface[data-surface="glass"][data-role="button"]:hover {
+  background: var(--dp-glass-btn-bg-hover);
+  border-color: var(--dp-glass-btn-border-hover);
+  box-shadow: var(--dp-shadow-z2), 0 0 16px var(--dp-glass-btn-glow-hover);
+  transform: translateY(-1px);
+}
+
+.dp-surface[data-surface="glass"][data-role="button"]:active {
+  transform: translateY(0);
+  box-shadow: var(--dp-shadow-z1);
+}
+
+.dp-surface[data-surface="glass"][data-role="button"][data-variant="primary"] {
+  background: var(--dp-glass-btn-bg-primary);
+  border-color: var(--dp-glass-btn-border-primary);
+}
+
+.dp-surface[data-surface="glass"][data-role="button"][data-variant="primary"]:hover {
+  background: var(--dp-glass-btn-bg-primary-hover);
+}
+
+/* ============================================
+   GLASS SURFACE - INPUT ROLE
+   ============================================ */
+
+.dp-surface[data-surface="glass"][data-role="input"] {
+  background: var(--dp-glass-input-bg);
+  border-color: var(--dp-glass-input-border);
+}
+
+.dp-surface[data-surface="glass"][data-role="input"]:focus-within {
+  border-color: var(--dp-glass-input-border-focus);
+  box-shadow: 0 0 12px var(--dp-glass-input-glow-focus);
+}
+
+/* ============================================
+   GLASS SURFACE - PANEL ROLE
+   ============================================ */
+
+.dp-surface[data-surface="glass"][data-role="panel"] {
+  background: var(--dp-panel-inner-base);
+  border-color: var(--dp-panel-outer-border);
+}
+
+.dp-surface[data-surface="glass"][data-role="panel"]:hover {
+  border-color: var(--dp-panel-outer-border-hover);
+  box-shadow: var(--dp-shadow-z2), 0 0 24px var(--dp-panel-outer-glow);
+}
+
+/* Inner gradient overlay for panels */
+.dp-surface[data-surface="glass"][data-role="panel"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    var(--dp-panel-inner-gradient-teal-start) 0%,
+    var(--dp-panel-inner-gradient-teal-mid) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.dp-surface[data-surface="glass"][data-role="panel"][data-accent="purple"]::before {
+  background: linear-gradient(
+    135deg,
+    var(--dp-panel-inner-gradient-purple-start) 0%,
+    var(--dp-panel-inner-gradient-purple-mid) 50%,
+    transparent 100%
+  );
+}
+
+/* ============================================
+   GLASS SURFACE - SCRIM ROLE
+   ============================================ */
+
+.dp-surface[data-surface="glass"][data-role="scrim"] {
+  background: var(--dp-glass-scrim-bg);
+  backdrop-filter: blur(var(--dp-blur-lg));
+}
+
+/* ============================================
+   GLASS VARIANTS (darkness levels)
+   ============================================ */
+
+.dp-surface[data-surface="glass"][data-variant="void"] {
+  background: var(--dp-glass-void);
+}
+
+.dp-surface[data-surface="glass"][data-variant="deep"] {
+  background: var(--dp-glass-deep);
+}
+
+.dp-surface[data-surface="glass"][data-variant="smoke"] {
+  background: var(--dp-glass-smoke);
+}
+
+.dp-surface[data-surface="glass"][data-variant="frost"] {
+  background: var(--dp-glass-frost);
+}
+
+/* ============================================
+   GLASS TINTS (accent colors)
+   ============================================ */
+
+.dp-surface[data-surface="glass"][data-tint="teal"] {
+  border-color: var(--dp-glass-tint-teal);
+}
+
+.dp-surface[data-surface="glass"][data-tint="purple"] {
+  background: var(--dp-glass-tint-purple-bg);
+  border-color: var(--dp-glass-tint-purple);
+}
+
+.dp-surface[data-surface="glass"][data-tint="gold"] {
+  background: var(--dp-glass-tint-gold-bg);
+  border-color: var(--dp-glass-tint-gold);
+}
+
+.dp-surface[data-surface="glass"][data-tint="coral"] {
+  background: var(--dp-glass-tint-coral-bg);
+  border-color: var(--dp-glass-tint-coral);
+}
+
+/* ============================================
+   MATTE SURFACE
+   ============================================ */
+
+.dp-surface[data-surface="matte"] {
+  background: var(--dp-matte-dark);
+  border: var(--dp-border-thin) solid var(--dp-matte-mid);
+  border-radius: var(--dp-radius-md);
+  box-shadow: var(--dp-bevel-outset);
+}
+
+.dp-surface[data-surface="matte"][data-variant="mid"] {
+  background: var(--dp-matte-mid);
+}
+
+.dp-surface[data-surface="matte"][data-variant="light"] {
+  background: var(--dp-matte-light);
+}
+
+/* ============================================
+   SOLID SURFACE
+   ============================================ */
+
+.dp-surface[data-surface="solid"] {
+  background: var(--dp-surface-2);
+  border: var(--dp-border-thin) solid var(--dp-surface-3);
+  border-radius: var(--dp-radius-md);
+  box-shadow: var(--dp-shadow-z1);
+}
+
+.dp-surface[data-surface="solid"][data-depth="1"] {
+  background: var(--dp-surface-1);
+}
+
+.dp-surface[data-surface="solid"][data-depth="2"] {
+  background: var(--dp-surface-2);
+}
+
+.dp-surface[data-surface="solid"][data-depth="3"] {
+  background: var(--dp-surface-3);
+}
+
+.dp-surface[data-surface="solid"][data-depth="4"] {
+  background: var(--dp-surface-4);
+}
+
+/* ============================================
+   BEVEL MODIFIERS
+   ============================================ */
+
+.dp-surface[data-bevel="subtle"] {
+  box-shadow: var(--dp-bevel-outset);
+}
+
+.dp-surface[data-bevel="soft"] {
+  box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z1);
+}
+
+.dp-surface[data-bevel="medium"] {
+  box-shadow: var(--dp-bevel-imprint), var(--dp-shadow-z2);
+}
+
+.dp-surface[data-bevel="inset"] {
+  box-shadow: var(--dp-bevel-inset);
+}
+
+.dp-surface[data-bevel="deep"] {
+  box-shadow: var(--dp-bevel-deep);
+}
+
+.dp-surface[data-bevel="pressed"] {
+  box-shadow: var(--dp-bevel-pressed);
+}
+
+/* ============================================
+   GLOW MODIFIERS
+   ============================================ */
+
+.dp-surface[data-glow="teal"] {
+  box-shadow: var(--dp-glow-teal);
+}
+
+.dp-surface[data-glow="purple"] {
+  box-shadow: var(--dp-glow-purple);
+}
+
+.dp-surface[data-glow="magenta"] {
+  box-shadow: var(--dp-glow-magenta);
+}
+
+.dp-surface[data-glow="ember"] {
+  box-shadow: var(--dp-glow-ember);
+}
+
+.dp-surface[data-glow="frost"] {
+  box-shadow: var(--dp-glow-frost);
+}
+`;
+}
+
+// ===========================================
 // MAIN
 // ===========================================
 
 function main() {
   const tokensDir = path.resolve(__dirname, "../../../src/lib/design/tokens");
+  const recipesDir = path.resolve(__dirname, "../../../src/lib/design/recipes/css");
   const args = process.argv.slice(2);
   const dryRun = args.includes("--dry-run");
 
-  // Generate CSS
+  // Ensure recipes/css directory exists
+  if (!fs.existsSync(recipesDir)) {
+    fs.mkdirSync(recipesDir, { recursive: true });
+  }
+
+  // Generate tokens CSS
   const css = generateCSS();
   const cssPath = path.join(tokensDir, dryRun ? "tokens.generated.css" : "tokens.css");
   fs.writeFileSync(cssPath, css, "utf-8");
@@ -741,6 +1104,12 @@ function main() {
   const presetPath = path.join(tokensDir, "tailwind.preset.ts");
   fs.writeFileSync(presetPath, preset, "utf-8");
   console.log(`✅ Generated ${path.basename(presetPath)}`);
+
+  // Generate recipe CSS
+  const recipeCSS = generateRecipeCSS();
+  const recipePath = path.join(recipesDir, "surfaces.gen.css");
+  fs.writeFileSync(recipePath, recipeCSS, "utf-8");
+  console.log(`✅ Generated surfaces.gen.css`);
 
   console.log("\n🎉 Token generation complete!");
 

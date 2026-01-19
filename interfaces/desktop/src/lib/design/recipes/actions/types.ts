@@ -1,12 +1,13 @@
 /**
- * @fileoverview Behaviors - Interaction Modules
- * @file src/lib/design/behaviors/index.ts
- * @module @devpulse/design/behaviors
- * @layer behaviors
+ * @fileoverview Behavior Types & Configs
+ * @file src/lib/design/recipes/actions/types.ts
+ * @module @devpulse/design/recipes/actions/types
+ * @layer recipes
  *
  * @description
- * TIER 6: Interaction behaviors - not effects, but interaction modules.
- * These are declared + constrained, not raw event handlers.
+ * Interaction behaviors - declared + constrained, not raw event handlers.
+ * These types define WHAT behaviors exist and HOW they're configured.
+ * Implementations live in index.ts as Svelte actions.
  *
  * @since 1.0.0
  */
@@ -56,6 +57,23 @@ export interface ZoneFocusConfig {
   dimOthers: boolean;      // Dim sibling zones
 }
 
+export interface ClickOutsideConfig {
+  enabled: boolean;     // Toggle behavior
+}
+
+export interface DragHandleConfig {
+  axis: "x" | "y" | "both"; // Constrain drag axis
+  bounds?: DOMRect;     // Optional bounds constraint
+}
+
+export interface ResizeHandleConfig {
+  minWidth: number;
+  minHeight: number;
+  maxWidth?: number;
+  maxHeight?: number;
+  handles: ("n" | "s" | "e" | "w" | "ne" | "nw" | "se" | "sw")[];
+}
+
 // ===========================================
 // BEHAVIOR PRESETS
 // ===========================================
@@ -97,4 +115,19 @@ export const BehaviorConstraints = {
   maxTiltAngle: 15,
   minHoverDelay: 50,
   maxParallaxElements: 5,
+} as const;
+
+// ===========================================
+// ACTION ID MAPPING
+// ===========================================
+
+/**
+ * Maps semantic behavior types to their Svelte action implementations.
+ * Not all behaviors have actions yet - expand as needed.
+ */
+export const BehaviorToActionMap: Partial<Record<BehaviorType, string>> = {
+  "pointer-tracking": "glowTrack",
+  "parallax-tilt": "tilt",
+  "focus-trap": "focusTrap",
+  "press-feedback": "ripple",
 } as const;

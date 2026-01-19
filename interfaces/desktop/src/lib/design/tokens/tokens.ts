@@ -368,6 +368,63 @@ export const code = {
 export type CodeColorKey = keyof typeof code;
 
 // ===========================================
+// GLASS COMPONENT TOKENS
+// ===========================================
+export const glassButton = {
+  bg: { l: 0.15, c: 0.03, h: hues.teal, a: 0.6 },
+  bgHover: { l: 0.20, c: 0.05, h: hues.teal, a: 0.7 },
+  bgPrimary: { l: 0.45, c: 0.15, h: hues.teal, a: 0.8 },
+  bgPrimaryHover: { l: 0.50, c: 0.18, h: hues.teal, a: 0.9 },
+  border: { l: 0.50, c: 0.10, h: hues.teal, a: 0.3 },
+  borderHover: { l: 0.60, c: 0.15, h: hues.teal, a: 0.5 },
+  borderPrimary: { l: 0.60, c: 0.18, h: hues.teal, a: 0.6 },
+  glowHover: { l: 0.60, c: 0.15, h: hues.teal, a: 0.3 },
+  shadowBase: { l: 0.05, c: 0.02, h: hues.purple, a: 0.3 },
+} as const;
+
+export const glassInput = {
+  bg: { l: 0.08, c: 0.02, h: hues.matte, a: 0.8 },
+  border: { l: 0.40, c: 0.08, h: hues.teal, a: 0.3 },
+  borderFocus: { l: 0.60, c: 0.15, h: hues.teal, a: 0.6 },
+  glowFocus: { l: 0.60, c: 0.15, h: hues.teal, a: 0.3 },
+} as const;
+
+export const glassTint = {
+  teal: { l: 0.55, c: 0.15, h: hues.teal, a: 0.4 },
+  purple: { l: 0.50, c: 0.18, h: hues.purple, a: 0.4 },
+  purpleBg: { l: 0.15, c: 0.04, h: hues.purple, a: 0.6 },
+  gold: { l: 0.60, c: 0.15, h: 50, a: 0.4 },
+  goldBg: { l: 0.18, c: 0.05, h: 50, a: 0.6 },
+  coral: { l: 0.55, c: 0.18, h: 25, a: 0.4 },
+  coralBg: { l: 0.15, c: 0.05, h: 25, a: 0.6 },
+} as const;
+
+export const glassScrim = {
+  bg: { l: 0.05, c: 0.02, h: hues.teal, a: 0.7 },
+} as const;
+
+// ===========================================
+// PANEL COMPONENT TOKENS
+// ===========================================
+export const panel = {
+  outerBorder: { l: 0.50, c: 0.10, h: hues.teal, a: 0.4 },
+  outerBorderHover: { l: 0.60, c: 0.14, h: hues.teal, a: 0.5 },
+  outerGlow: { l: 0.60, c: 0.15, h: hues.teal, a: 0.2 },
+  innerBorder: { l: 0.60, c: 0.08, h: hues.teal, a: 0.2 },
+  innerGradientTeal: {
+    start: { l: 0.65, c: 0.15, h: hues.teal, a: 0.25 },
+    mid: { l: 0.55, c: 0.12, h: hues.teal, a: 0.12 },
+  },
+  innerGradientPurple: {
+    start: { l: 0.55, c: 0.18, h: hues.purple, a: 0.25 },
+    mid: { l: 0.45, c: 0.15, h: hues.purple, a: 0.12 },
+  },
+  innerBase: { l: 0.12, c: 0.04, h: hues.teal, a: 0.9 },
+  focusRing: { l: 0.65, c: 0.18, h: hues.teal, a: 0.5 },
+  focusGlow: { l: 0.60, c: 0.15, h: hues.teal, a: 0.3 },
+} as const;
+
+// ===========================================
 // SEMANTIC SURFACES
 // ===========================================
 export const surface = {
