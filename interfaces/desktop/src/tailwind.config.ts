@@ -43,8 +43,25 @@ export default {
                 warning: "oklch(75% 0.2 85)",
                 error: "oklch(60% 0.25 25)",
             },
-            // Glass surfaces
+            // Content Hierarchy
+            textColor: {
+                primary: "var(--dp-text-primary)",
+                secondary: "var(--dp-text-secondary)",
+                muted: "var(--dp-text-muted)",
+            },
+            // Surfaces
             backgroundColor: {
+                // Semantic mapping to tokens.css
+                base: "var(--dp-surface-1)",
+                sunken: "var(--dp-surface-2)",
+                raised: "var(--dp-surface-3)",
+                overlay: "var(--dp-surface-4)",
+                
+                // Accents
+                cyber: "var(--dp-accent-cyber)",
+                "cyber-tint": "var(--dp-accent-tint)",
+                
+                // Legacy/Glass (keep for GlassPanel)
                 "glass-void": "oklch(6% 0.02 195 / 0.8)",
                 "glass-deep": "oklch(8% 0.02 195 / 0.7)",
                 "glass-smoke": "oklch(12% 0.02 195 / 0.6)",

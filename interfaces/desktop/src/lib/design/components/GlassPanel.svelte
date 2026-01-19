@@ -29,6 +29,8 @@
         glow?: "off" | "teal" | "purple" | "magenta" | "ember" | "frost";
         /** Border radius (VPB dropdown) */
         radius?: "sm" | "md" | "lg" | "xl";
+        /** Internal padding (VPB dropdown) */
+        padding?: "none" | "sm" | "md" | "lg";
         /** Additional CSS classes */
         class?: string;
         /** Content slot */
@@ -40,6 +42,7 @@
         blur = "lg",
         glow = "off",
         radius = "md",
+        padding = "md",
         class: className = "",
         children,
     }: Props = $props();
@@ -51,6 +54,7 @@
     data-blur={blur}
     data-glow={glow}
     data-radius={radius}
+    data-padding={padding}
 >
     {@render children()}
 </div>
@@ -114,18 +118,37 @@
         /* No additional glow */
     }
     .dp-glass-panel[data-glow="teal"] {
-        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2), var(--dp-glow-teal);
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2),
+            var(--dp-glow-teal);
     }
     .dp-glass-panel[data-glow="purple"] {
-        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2), var(--dp-glow-purple);
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2),
+            var(--dp-glow-purple);
     }
     .dp-glass-panel[data-glow="magenta"] {
-        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2), var(--dp-glow-magenta);
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2),
+            var(--dp-glow-magenta);
     }
     .dp-glass-panel[data-glow="ember"] {
-        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2), var(--dp-glow-ember);
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2),
+            var(--dp-glow-ember);
     }
     .dp-glass-panel[data-glow="frost"] {
-        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2), var(--dp-glow-frost);
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2),
+            var(--dp-glow-frost);
+    }
+
+    /* Padding */
+    .dp-glass-panel[data-padding="none"] {
+        padding: 0;
+    }
+    .dp-glass-panel[data-padding="sm"] {
+        padding: var(--dp-space-2);
+    }
+    .dp-glass-panel[data-padding="md"] {
+        padding: var(--dp-space-4);
+    }
+    .dp-glass-panel[data-padding="lg"] {
+        padding: var(--dp-space-6);
     }
 </style>

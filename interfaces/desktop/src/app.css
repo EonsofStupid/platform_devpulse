@@ -19,9 +19,6 @@
 @import "./lib/design/motion/keyframes.css";
 @import "./lib/design/surfaces/recipes/index.css";
 
-/* VPB Debug Tool Styles (dev-only) */
-@import "./lib/domains/plugins/vpb/components/styles/index.css";
-
 /* =============================================
    GLOBAL RESET
    ============================================= */
