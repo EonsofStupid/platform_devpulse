@@ -5,45 +5,39 @@
   @layer lib
 
   @description
-  [TODO: Describe this component's purpose]
-
-  @props
-  - [TODO: propName]: [type] - [description]
+  Root VPB component.
+  Mounts:
+  - VPBPanel (Controller)
+  - VPBInspector (Floating Window)
+  - ScanOverlay (Interaction Layer)
+  - VPBToast (Notifications)
 
   @dependencies
-  - [TODO: List imports]
-
-  @consumers
-  - [TODO: List who uses this component]
-
-  @vpb-editable [TODO: List editable props]
-  @since 1.0.0
--->
-<!--
-  VPB.svelte
-  Root VPB component - feature-gated, mounts all VPB sub-components
+  - VPBPanel
+  - VPBInspector
+  - VPBToast
+  - ScanOverlay
+  - vpb.state.ts
 -->
 <script lang="ts">
-    import { __DEV__ } from "../DEBUG_FLAG";
-    import { vpb } from "./state/vpb.svelte";
-    import VPBPanel from "./components/VPBPanel.svelte";
-    import VPBToast from "./components/VPBToast.svelte";
-    import VPBInspector from "./components/VPBInspector.svelte";
-    import ScanOverlay from "./scan/ScanOverlay.svelte";
+  import { __DEV__ } from "../DEBUG_FLAG";
+  import { vpb } from "./state/vpb.svelte";
+  import VPBPanel from "./components/VPBPanel.svelte";
+  import VPBToast from "./components/VPBToast.svelte";
+  import VPBInspector from "./components/VPBInspector.svelte";
+  import ScanOverlay from "./scan/ScanOverlay.svelte";
 </script>
 
 {#if __DEV__}
-    <!-- Toast notifications -->
-    <VPBToast />
+  <!-- Toast notifications -->
+  <VPBToast />
 
-    <!-- Scan overlay (when active) -->
-    <ScanOverlay />
+  <!-- Scan overlay (when active) -->
+  <ScanOverlay />
 
-    <!-- Main panel or minimized icon -->
-    <VPBPanel />
+  <!-- Main Controller Panel -->
+  <VPBPanel />
 
-    <!-- Inspector (when element selected) -->
-    {#if vpb.mode !== "minimized"}
-        <VPBInspector />
-    {/if}
+  <!-- Independent Inspector Window (Appears on Selection) -->
+  <VPBInspector />
 {/if}

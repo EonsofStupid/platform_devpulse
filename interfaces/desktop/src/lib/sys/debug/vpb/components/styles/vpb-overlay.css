@@ -1,73 +1,69 @@
 /**
- * @file src/lib/sys/debug/vpb/components/styles/vpb-overlay.css
- * @name vpb-overlay.css
- * @layer recipes
- *
- * @description
- * [TODO: Describe what this stylesheet defines]
- *
- * @contents
- * - [TODO: List major sections/categories]
- *
- * @vpb-editable [TODO: List token names VPB can modify, or 'all']
+ * @file vpb-overlay.css
+ * @layer vpb
+ * @description VPB Scan Overlay - Gradient BORDER with TINTED interior
  * @since 1.0.0
  */
 
-/* ============================================
-   VPB-OVERLAY.CSS - Scan Overlay Recipe
-   Shadow DOM overlay with cyber gradient hover
-   ============================================ */
-
-/* =============================================
-   OVERLAY CONTAINER
-   ============================================= */
+/* =================================================================
+   Overlay Container - Full viewport
+   ================================================================= */
 
 .vpb-overlay {
     position: fixed;
     inset: 0;
-    z-index: 999998;
+    z-index: var(--dp-vpb-z-overlay);
     pointer-events: none;
 }
+
+/* =================================================================
+   ACTIVE Scan Mode - Gradient border + tinted interior
+   ================================================================= */
 
 .vpb-overlay--active {
     pointer-events: auto;
     cursor: crosshair;
 
-    /* Subtle tint to show scan mode is active */
+    /* GRADIENT BORDER - cyber green/yellow */
+    border: 4px solid var(--dp-vpb-cyber-gradient);
+    border-radius: 4px;
+
+    /* TINTED INTERIOR - VISIBLE cyber tint (highlighter effect) */
     background: linear-gradient(135deg,
-            oklch(0.9106 0.1598 126.64 / 0.03) 0%,
-            oklch(70% 0.18 195 / 0.05) 50%,
-            oklch(55% 0.20 280 / 0.03) 100%);
+            oklch(0.9106 0.1598 126.64 / 0.20) 0%,
+            oklch(70% 0.18 195 / 0.25) 50%,
+            oklch(55% 0.20 280 / 0.15) 100%);
+
+    /* Inner glow effect - STRONGER */
+    box-shadow:
+        inset 0 0 80px oklch(0.9106 0.1598 126.64 / 0.30),
+        inset 0 0 160px oklch(70% 0.18 195 / 0.20);
 }
 
-/* =============================================
-   ELEMENT HIGHLIGHT
-   Shown on hover during scan mode
-   ============================================= */
+/* =================================================================
+   Element Highlight - On hover during scan
+   ================================================================= */
 
 .vpb-highlight {
     position: absolute;
     pointer-events: none;
 
     /* Cyber gradient border */
-    border: 2px solid var(--vpb-cyber-gradient);
-    border-radius: var(--vpb-radius-sm);
+    border: 3px solid var(--dp-vpb-cyber-gradient);
+    border-radius: 4px;
 
-    /* Gradient background tint */
-    background: linear-gradient(135deg,
-            oklch(from var(--vpb-cyber-start) l c h / 0.1) 0%,
-            oklch(from var(--vpb-cyber-end) l c h / 0.1) 100%);
+    /* HIGHLIGHTER FILL - visible tint inside */
+    background: oklch(0.9106 0.1598 126.64 / 0.30);
 
-    /* Glow effect */
+    /* Strong glow */
     box-shadow:
-        0 0 0 1px oklch(from var(--vpb-cyber-gradient) l c h / 0.3),
-        0 0 20px oklch(from var(--vpb-cyber-gradient) l c h / 0.4),
-        inset 0 0 20px oklch(from var(--vpb-cyber-gradient) l c h / 0.1);
+        0 0 0 2px oklch(0.9106 0.1598 126.64 / 0.5),
+        0 0 30px oklch(0.9106 0.1598 126.64 / 0.6);
 
-    transition: all var(--vpb-transition-fast);
+    transition: all var(--dp-vpb-transition-fast);
 }
 
-/* Pulsing animation when element is hovered */
+/* Pulsing animation */
 .vpb-highlight--pulse {
     animation: vpb-pulse 1.5s ease-in-out infinite;
 }
@@ -77,73 +73,67 @@
     0%,
     100% {
         box-shadow:
-            0 0 0 1px oklch(from var(--vpb-cyber-gradient) l c h / 0.3),
-            0 0 20px oklch(from var(--vpb-cyber-gradient) l c h / 0.4);
+            0 0 0 1px oklch(0.9106 0.1598 126.64 / 0.3),
+            0 0 20px oklch(0.9106 0.1598 126.64 / 0.4);
     }
 
     50% {
         box-shadow:
-            0 0 0 2px oklch(from var(--vpb-cyber-gradient) l c h / 0.5),
-            0 0 30px oklch(from var(--vpb-cyber-gradient) l c h / 0.6);
+            0 0 0 2px oklch(0.9106 0.1598 126.64 / 0.5),
+            0 0 30px oklch(0.9106 0.1598 126.64 / 0.6);
     }
 }
 
-/* =============================================
-   TOOLTIP
-   Shown on mouseover with element info
-   ============================================= */
+/* =================================================================
+   Scan Tooltip - Follows cursor
+   ================================================================= */
 
 .vpb-tooltip {
     position: absolute;
-    z-index: 999999;
+    z-index: calc(var(--dp-vpb-z-popover) + 1);
 
-    padding: var(--vpb-space-sm) var(--vpb-space-md);
+    padding: 8px 12px;
 
     /* Glass effect */
-    background: var(--vpb-panel-bg);
-    backdrop-filter: var(--vpb-blur);
-    -webkit-backdrop-filter: var(--vpb-blur);
+    background: var(--dp-vpb-panel-bg);
+    backdrop-filter: var(--dp-vpb-blur);
+    -webkit-backdrop-filter: var(--dp-vpb-blur);
 
-    /* Cyber gradient border */
-    border: 1px solid var(--vpb-cyber-gradient);
-    border-radius: var(--vpb-radius-md);
+    /* Cyber border */
+    border: 1px solid var(--dp-vpb-cyber-gradient);
+    border-radius: 8px;
 
-    /* Shadow */
+    /* Shadow with glow */
     box-shadow:
-        0 0 16px oklch(from var(--vpb-cyber-gradient) l c h / 0.3),
+        0 0 16px oklch(0.9106 0.1598 126.64 / 0.3),
         0 4px 16px oklch(5% 0.02 280 / 0.5);
 
     /* Typography */
-    font-family: var(--dp-font-mono, monospace);
+    font-family: monospace;
     font-size: 12px;
-    color: var(--vpb-text-primary);
+    color: var(--dp-vpb-text-primary);
 
-    /* Layout */
     display: flex;
     flex-direction: column;
     gap: 2px;
-
-    /* No wrap */
     white-space: nowrap;
-
-    /* Pointer */
     pointer-events: none;
 }
 
 .vpb-tooltip__tag {
-    color: var(--vpb-cyber-start);
+    color: var(--dp-vpb-cyber-gradient);
     font-weight: 600;
 }
 
 .vpb-tooltip__class {
-    color: var(--vpb-text-secondary);
+    color: var(--dp-vpb-text-secondary);
 }
 
 .vpb-tooltip__id {
-    color: var(--vpb-action-pause);
+    color: var(--dp-vpb-action-pause);
 }
 
-/* Tooltip arrow (points down) */
+/* Tooltip arrow */
 .vpb-tooltip::after {
     content: '';
     position: absolute;
@@ -153,13 +143,12 @@
 
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
-    border-top: 6px solid var(--vpb-cyber-gradient);
+    border-top: 6px solid var(--dp-vpb-cyber-gradient);
 }
 
-/* Arrow pointing up when tooltip is below element */
 .vpb-tooltip--below::after {
     bottom: auto;
     top: -6px;
     border-top: none;
-    border-bottom: 6px solid var(--vpb-cyber-gradient);
+    border-bottom: 6px solid var(--dp-vpb-cyber-gradient);
 }

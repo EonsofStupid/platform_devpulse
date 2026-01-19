@@ -5,23 +5,15 @@
   @layer lib
 
   @description
-  [TODO: Describe this component's purpose]
-
-  @props
-  - [TODO: propName]: [type] - [description]
+  FAB Mode - 3D "V" Icon (Minimized State).
+  Provides a quick menu to restore panel or enable scanning.
 
   @dependencies
-  - [TODO: List imports]
+  - vpb-icon.css (global)
+  - vpb.state.ts
+  - svelte-sonner
 
-  @consumers
-  - [TODO: List who uses this component]
-
-  @vpb-editable [TODO: List editable props]
   @since 1.0.0
--->
-<!--
-  VPBIcon.svelte
-  3D V icon - uses recipes from lib/design/vpb-icon.css
 -->
 <script lang="ts">
     import { vpb } from "../state/vpb.svelte";
@@ -36,14 +28,14 @@
     function restore() {
         vpb.dock();
         showMenu = false;
-        toast.success("VPB restored");
+        toast.info("VPB restored");
     }
 
     function enableScan() {
         vpb.dock();
         vpb.startScan();
         showMenu = false;
-        toast.info("Scan enabled");
+        toast.success("Scan enabled - Hover to inspect");
     }
 
     function handleClickOutside(e: MouseEvent) {
@@ -73,11 +65,8 @@
                     x2="100%"
                     y2="100%"
                 >
-                    <stop offset="0%" style="stop-color: oklch(70% 0.15 195)" />
-                    <stop
-                        offset="100%"
-                        style="stop-color: oklch(55% 0.18 280)"
-                    />
+                    <stop offset="0%" stop-color="var(--dp-vpb-cyber-start)" />
+                    <stop offset="100%" stop-color="var(--dp-vpb-cyber-end)" />
                 </linearGradient>
             </defs>
             <!-- V shape -->
@@ -89,15 +78,16 @@
                 stroke-linejoin="round"
                 fill="none"
             />
-            <!-- 3D shadow -->
+            <!-- 3D shadow (offset) -->
             <path
                 d="M9 9 L16 23 L23 9"
-                stroke="oklch(30% 0.05 195 / 0.5)"
+                stroke="var(--dp-vpb-panel-glow)"
                 stroke-width="3"
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 fill="none"
                 transform="translate(1, 1)"
+                style="opacity: 0.5; filter: blur(1px);"
             />
         </svg>
     </button>

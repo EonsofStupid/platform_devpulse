@@ -1,36 +1,23 @@
 /**
- * @file src/lib/sys/debug/vpb/components/styles/vpb-toolbar.css
- * @name vpb-toolbar.css
- * @layer recipes
- *
- * @description
- * [TODO: Describe what this stylesheet defines]
- *
- * @contents
- * - [TODO: List major sections/categories]
- *
- * @vpb-editable [TODO: List token names VPB can modify, or 'all']
+ * @file vpb-toolbar.css
+ * @layer vpb
+ * @description VPB Toolbar - Play/Pause/Stop with proper action colors
  * @since 1.0.0
  */
 
-/* ============================================
-   VPB-TOOLBAR.CSS - VPB Toolbar Recipe
-   Button styling for play/pause/stop and controls
-   ============================================ */
-
-/* =============================================
-   TOOLBAR CONTAINER
-   ============================================= */
+/* =================================================================
+   Toolbar Container
+   ================================================================= */
 
 .vpb-toolbar {
     display: flex;
     align-items: center;
-    gap: var(--vpb-space-xs);
+    gap: 4px;
 }
 
-/* =============================================
-   BASE BUTTON
-   ============================================= */
+/* =================================================================
+   Base Button
+   ================================================================= */
 
 .vpb-btn {
     display: flex;
@@ -41,20 +28,20 @@
     height: 32px;
     padding: 0;
 
-    border: 1px solid var(--vpb-btn-border);
-    border-radius: var(--vpb-radius-sm);
-    background: var(--vpb-btn-bg);
+    border: 1px solid var(--dp-vpb-btn-border);
+    border-radius: 4px;
+    background: var(--dp-vpb-btn-bg);
 
-    color: var(--vpb-text-secondary);
+    color: var(--dp-vpb-text-secondary);
     cursor: pointer;
 
-    transition: all var(--vpb-transition-fast);
+    transition: all var(--dp-vpb-transition-fast);
 }
 
 .vpb-btn:hover:not(:disabled) {
-    background: var(--vpb-btn-hover);
-    border-color: var(--vpb-panel-border);
-    color: var(--vpb-text-primary);
+    background: var(--dp-vpb-btn-hover);
+    border-color: var(--dp-vpb-panel-border);
+    color: var(--dp-vpb-text-primary);
 }
 
 .vpb-btn:active:not(:disabled) {
@@ -66,51 +53,47 @@
     cursor: not-allowed;
 }
 
-/* =============================================
-   ACTION BUTTON VARIANTS
-   ============================================= */
+/* =================================================================
+   Action Variants - Play/Pause/Stop
+   ================================================================= */
 
 .vpb-btn--play:hover:not(:disabled) {
-    color: var(--vpb-action-play);
-    border-color: var(--vpb-action-play);
+    color: var(--dp-vpb-action-play);
+    border-color: var(--dp-vpb-action-play);
 }
 
 .vpb-btn--pause:hover:not(:disabled) {
-    color: var(--vpb-action-pause);
-    border-color: var(--vpb-action-pause);
+    color: var(--dp-vpb-action-pause);
+    border-color: var(--dp-vpb-action-pause);
 }
 
-.vpb-btn--stop:hover:not(:disabled) {
-    color: var(--vpb-action-stop);
-    border-color: var(--vpb-action-stop);
-}
-
+.vpb-btn--stop:hover:not(:disabled),
 .vpb-btn--close:hover:not(:disabled) {
-    color: var(--vpb-action-stop);
-    border-color: var(--vpb-action-stop);
+    color: var(--dp-vpb-action-stop);
+    border-color: var(--dp-vpb-action-stop);
 }
 
-/* Active state for play button when scanning */
+/* ACTIVE state - when scan is running */
 .vpb-btn--play[data-active="true"] {
-    background: oklch(from var(--vpb-action-play) l c h / 0.2);
-    color: var(--vpb-action-play);
-    border-color: var(--vpb-action-play);
+    background: oklch(0.75 0.18 145 / 0.2);
+    color: var(--dp-vpb-action-play);
+    border-color: var(--dp-vpb-action-play);
 }
 
-/* =============================================
-   SEPARATOR
-   ============================================= */
+/* =================================================================
+   Separator
+   ================================================================= */
 
 .vpb-toolbar__separator {
     width: 1px;
     height: 24px;
-    background: var(--vpb-btn-border);
-    margin: 0 var(--vpb-space-xs);
+    background: var(--dp-vpb-btn-border);
+    margin: 0 4px;
 }
 
-/* =============================================
-   BUTTON GROUP
-   ============================================= */
+/* =================================================================
+   Button Group
+   ================================================================= */
 
 .vpb-btn-group {
     display: flex;
@@ -122,9 +105,9 @@
 }
 
 .vpb-btn-group .vpb-btn:first-child {
-    border-radius: var(--vpb-radius-sm) 0 0 var(--vpb-radius-sm);
+    border-radius: 4px 0 0 4px;
 }
 
 .vpb-btn-group .vpb-btn:last-child {
-    border-radius: 0 var(--vpb-radius-sm) var(--vpb-radius-sm) 0;
+    border-radius: 0 4px 4px 0;
 }

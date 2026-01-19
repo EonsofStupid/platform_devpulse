@@ -5,23 +5,15 @@
   @layer lib
 
   @description
-  [TODO: Describe this component's purpose]
-
-  @props
-  - [TODO: propName]: [type] - [description]
+  VPB Toolbar - Play/Pause/Stop and Float/Dock controls.
+  No window controls (moved to Tabs header per strict user requirement).
 
   @dependencies
-  - [TODO: List imports]
+  - vpb-toolbar.css (global)
+  - vpb.state.ts
+  - svelte-sonner
 
-  @consumers
-  - [TODO: List who uses this component]
-
-  @vpb-editable [TODO: List editable props]
   @since 1.0.0
--->
-<!--
-  VPBToolbar.svelte
-  Play/Pause/Stop controls - uses recipes from lib/design/vpb-toolbar.css
 -->
 <script lang="ts">
     import { vpb } from "../state/vpb.svelte";
@@ -67,16 +59,6 @@
             vpb.float();
             toast.info("Panel floating - drag to move");
         }
-    }
-
-    function handleMinimize() {
-        vpb.minimize();
-        toast.info("VPB minimized - click V icon to restore");
-    }
-
-    function handleClose() {
-        vpb.stopScan();
-        vpb.minimize();
     }
 </script>
 
@@ -139,35 +121,6 @@
                     d="M2 2v5h2V4h3V2H2zm9 0v2h3v3h2V2h-5zM4 10v2h3v2H2v-5h2v1zm10-1v5h-5v-2h3v-3h2z"
                 />
             {/if}
-        </svg>
-    </button>
-
-    <!-- Minimize -->
-    <button
-        class="vpb-btn"
-        onclick={handleMinimize}
-        aria-label="Minimize panel"
-        title="Minimize panel"
-    >
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-            <rect x="2" y="7" width="12" height="2" />
-        </svg>
-    </button>
-
-    <!-- Close -->
-    <button
-        class="vpb-btn vpb-btn--close"
-        onclick={handleClose}
-        aria-label="Close panel"
-        title="Close panel"
-    >
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-            <path
-                d="M3.5 3.5l9 9m0-9l-9 9"
-                stroke="currentColor"
-                stroke-width="2"
-                fill="none"
-            />
         </svg>
     </button>
 </div>

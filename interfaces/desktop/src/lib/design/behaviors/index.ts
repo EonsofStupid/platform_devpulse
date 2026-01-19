@@ -24,6 +24,7 @@ export const BehaviorTypes = [
   "click-outside",     // Detect clicks outside element
   "drag-handle",       // Draggable element
   "resize-handle",     // Resizable element
+  "zone-focus",        // Activate zone on mouse enter (section highlighting)
 ] as const;
 
 export type BehaviorType = typeof BehaviorTypes[number];
@@ -48,6 +49,13 @@ export interface TiltConfig {
   scale: number;        // Scale on hover
 }
 
+export interface ZoneFocusConfig {
+  activateDelay: number;   // ms before zone activates
+  deactivateDelay: number; // ms before zone deactivates
+  glowIntensity: "soft" | "hard"; // Glow effect when active
+  dimOthers: boolean;      // Dim sibling zones
+}
+
 // ===========================================
 // BEHAVIOR PRESETS
 // ===========================================
@@ -67,6 +75,11 @@ export const BehaviorPresets = {
   },
   modal: {
     behaviors: ["focus-trap", "click-outside"] as const,
+  },
+  zone: {
+    behaviors: ["zone-focus", "hover-intent"] as const,
+    zoneFocus: { activateDelay: 50, deactivateDelay: 150, glowIntensity: "soft", dimOthers: true },
+    hoverIntent: { delay: 50, exitDelay: 100 },
   },
 } as const;
 

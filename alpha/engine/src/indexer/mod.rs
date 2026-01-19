@@ -18,7 +18,7 @@ use orchestrator::infra::{
     persistence::analytics::Analytics,
     embedding::embedder::EmbedderBackend,
     persistence::sql::Database,
-    persistence::vector::{collections, VectorPoint, VectorStore},
+    persistence::vector::{databanks, VectorPoint, VectorStore},
 };
 use serde::{Deserialize, Serialize};
 use tracing::{debug, info, warn};
@@ -320,10 +320,10 @@ impl ProjectIndexer {
             chunks_processed: stats.chunks_created,
         });
 
-        // Ensure collection exists
+        // Ensure databank exists
         let dimension = embedder.dimension() as u64;
-        if let Err(e) = rro.create_collection(collections::CODE, dimension).await {
-            let msg = format!("Failed to create collection: {}", e);
+        if let Err(e) = rro.create_databank(databanks::CODE, dimension).await {
+            let msg = format!("Failed to create databank: {}", e);
             warn!("{}", msg);
             stats.errors.push(msg);
         }
@@ -331,7 +331,7 @@ impl ProjectIndexer {
         // Batch upload in chunks of 100
         let batch_size = 100;
         for (batch_idx, batch) in points.chunks(batch_size).enumerate() {
-            match rro.upsert(collections::CODE, batch.to_vec()).await {
+            match rro.upsert(databanks::CODE, batch.to_vec()).await {
                 Ok(_) => {
                     stats.points_uploaded += batch.len() as u32;
                 }

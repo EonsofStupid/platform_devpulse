@@ -16,7 +16,7 @@
 
 /* Design System SSOT (order matters) */
 @import "./lib/design/tokens/tokens.css";
-@import "./lib/design/keyframes.css";
+@import "./lib/design/motion/keyframes.css";
 @import "./lib/design/surfaces/recipes/index.css";
 
 /* VPB Debug Tool Styles (dev-only) */

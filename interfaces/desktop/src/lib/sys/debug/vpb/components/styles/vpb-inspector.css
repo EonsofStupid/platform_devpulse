@@ -1,172 +1,161 @@
 /**
- * @file src/lib/sys/debug/vpb/components/styles/vpb-inspector.css
- * @name vpb-inspector.css
- * @layer recipes
- *
- * @description
- * [TODO: Describe what this stylesheet defines]
- *
- * @contents
- * - [TODO: List major sections/categories]
- *
- * @vpb-editable [TODO: List token names VPB can modify, or 'all']
- * @since 1.0.0
+ * @file vpb-inspector.css
+ * @layer vpb
+ * @description VPB Inspector Window - Floating Cyber Glass
  */
 
-/* ============================================
-   VPB-INSPECTOR.CSS - Element Inspector Recipe
-   Panel showing element details with copy buttons
-   ============================================ */
-
-/* =============================================
-   INSPECTOR PANEL
-   ============================================= */
-
 .vpb-inspector {
+    /* Dimensions */
+    width: 300px;
+    max-height: 500px;
+    overflow-y: auto;
+
+    /* Layout Context */
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    /* Default center-ish, but overridden by drag */
+    transform: translateX(-50%);
+    z-index: 10001;
+    /* Must be > vpb-panel (9999) */
+
+    /* Appearance - Cyber Glass */
+    background: var(--dp-vpb-panel-bg);
+    border: 1px solid var(--dp-vpb-panel-border);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    /* Stronger shadow */
+    backdrop-filter: var(--dp-vpb-blur);
+    -webkit-backdrop-filter: var(--dp-vpb-blur);
+
+    /* Content Layout */
     display: flex;
     flex-direction: column;
-    gap: var(--vpb-space-md);
+    gap: 0;
+    /* Header separates content */
+
+    /* Fade In */
+    animation: vpb-fade-in 0.2s ease-out;
 }
 
-/* =============================================
-   INSPECTOR ROW
-   ============================================= */
+@keyframes vpb-fade-in {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 10px);
+    }
 
-.vpb-inspector__row {
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+/* Header (Draggable) */
+.vpb-inspector__header {
+    padding: 12px;
+    background: var(--dp-vpb-surface-raised);
+    border-bottom: 1px solid var(--dp-vpb-panel-border);
+    border-radius: 12px 12px 0 0;
+
     display: flex;
-    align-items: flex-start;
-    gap: var(--vpb-space-sm);
+    justify-content: space-between;
+    align-items: center;
+
+    cursor: grab;
+    user-select: none;
+}
+
+.vpb-inspector__header:active {
+    cursor: grabbing;
+}
+
+.vpb-inspector__title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--dp-vpb-text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Rows */
+.vpb-inspector__row {
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--dp-vpb-surface-sunken);
+    font-size: 12px;
 }
 
 .vpb-inspector__label {
-    flex-shrink: 0;
-    width: 60px;
-
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-
-    color: var(--vpb-text-muted);
+    color: var(--dp-vpb-text-muted);
 }
 
 .vpb-inspector__value {
-    flex: 1;
-    min-width: 0;
-
-    font-family: var(--dp-font-mono, monospace);
-    font-size: 12px;
-    color: var(--vpb-text-primary);
-
-    word-break: break-all;
+    color: var(--dp-vpb-text-secondary);
+    font-family: monospace;
+    max-width: 180px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .vpb-inspector__value--file {
-    color: var(--vpb-cyber-start);
-}
-
-.vpb-inspector__value--lines {
-    color: var(--vpb-action-pause);
-}
-
-/* =============================================
-   COPY BUTTON
-   ============================================= */
-
-.vpb-copy-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    flex-shrink: 0;
-    width: 24px;
-    height: 24px;
-    padding: 0;
-
-    border: 1px solid var(--vpb-btn-border);
-    border-radius: var(--vpb-radius-sm);
-    background: var(--vpb-btn-bg);
-
-    color: var(--vpb-text-muted);
+    color: var(--dp-vpb-cyber-gradient);
     cursor: pointer;
+}
 
-    transition: all var(--vpb-transition-fast);
+.vpb-inspector__value--file:hover {
+    text-decoration: underline;
+}
+
+/* Actions */
+.vpb-copy-btn {
+    background: transparent;
+    border: none;
+    color: var(--dp-vpb-text-muted);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s;
 }
 
 .vpb-copy-btn:hover {
-    background: var(--vpb-btn-hover);
-    color: var(--vpb-text-primary);
-    border-color: var(--vpb-panel-border);
+    background: var(--dp-vpb-surface-hover);
+    color: var(--dp-vpb-text-primary);
 }
 
 .vpb-copy-btn--copied {
-    background: oklch(from var(--vpb-action-play) l c h / 0.2);
-    color: var(--vpb-action-play);
-    border-color: var(--vpb-action-play);
+    color: var(--dp-vpb-action-play);
+    /* Green */
 }
 
-/* =============================================
-   CSS CHAIN LIST
-   ============================================= */
-
-.vpb-css-chain {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.vpb-css-chain__item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-
-    font-family: var(--dp-font-mono, monospace);
-    font-size: 11px;
-    color: var(--vpb-text-secondary);
-}
-
-.vpb-css-chain__item::before {
-    content: '•';
-    color: var(--vpb-text-muted);
-}
-
-/* =============================================
-   COPY ALL BUTTON
-   ============================================= */
-
+/* Footer Action */
 .vpb-copy-all {
+    margin: 12px;
+    padding: 8px;
+    background: rgba(var(--dp-vpb-cyber-rgb), 0.1);
+    border: 1px solid var(--dp-vpb-cyber-gradient);
+    border-radius: 6px;
+    color: var(--dp-vpb-text-primary);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--vpb-space-sm);
-
-    width: 100%;
-    padding: var(--vpb-space-sm) var(--vpb-space-md);
-    margin-top: var(--vpb-space-sm);
-
-    border: 1px solid var(--vpb-cyber-start);
-    border-radius: var(--vpb-radius-md);
-    background: oklch(from var(--vpb-cyber-start) l c h / 0.1);
-
-    color: var(--vpb-cyber-start);
-    font-size: 12px;
-    font-weight: 500;
-
-    cursor: pointer;
-    transition: all var(--vpb-transition-fast);
+    gap: 8px;
+    transition: all 0.2s;
 }
 
 .vpb-copy-all:hover {
-    background: oklch(from var(--vpb-cyber-start) l c h / 0.2);
-    box-shadow: 0 0 12px oklch(from var(--vpb-cyber-start) l c h / 0.3);
+    background: rgba(var(--dp-vpb-cyber-rgb), 0.2);
+    box-shadow: 0 0 12px rgba(var(--dp-vpb-cyber-rgb), 0.3);
 }
 
 .vpb-copy-all--copied {
-    background: oklch(from var(--vpb-action-play) l c h / 0.2);
-    border-color: var(--vpb-action-play);
-    color: var(--vpb-action-play);
+    border-color: var(--dp-vpb-action-play);
+    color: var(--dp-vpb-action-play);
 }

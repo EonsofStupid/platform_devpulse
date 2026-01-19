@@ -139,7 +139,7 @@ DevPulse is the tool that manages projects. When DevPulse "dogfoods" itself:
 ```
 .devpulse/
 ├── .devpulse.self         # Config for dogfooding (project_id, domains, signals)
-├── collections/           # RRO collection metadata
+├── databanks/           # RRO databank metadata
 ├── sessions/              # Session history
 ├── artifacts/             # Generated artifacts (COSTAR+ specs, etc.)
 ├── hooks/                 # Lefthook templates that DevPulse applies

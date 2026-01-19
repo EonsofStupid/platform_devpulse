@@ -5,23 +5,13 @@
   @layer lib
 
   @description
-  [TODO: Describe this component's purpose]
-
-  @props
-  - [TODO: propName]: [type] - [description]
+  Independent Floating Inspector Window.
+  Appears on scan selection. Draggable and dismissible.
 
   @dependencies
-  - [TODO: List imports]
-
-  @consumers
-  - [TODO: List who uses this component]
-
-  @vpb-editable [TODO: List editable props]
-  @since 1.0.0
--->
-<!--
-  VPBInspector.svelte
-  Element details panel with copy buttons - uses recipes from lib/design/vpb-inspector.css
+  - vpb-inspector.css
+  - scan.state.ts
+  - element-parser.ts
 -->
 <script lang="ts">
     import { scan } from "../state/scan.svelte";
@@ -32,19 +22,66 @@
     } from "../scan/element-parser";
     import { toast } from "svelte-sonner";
 
+    // Draggable Position State - Initialize with last click or default
+    let position = $state(
+        scan.clickPosition.x > 0
+            ? scan.clickPosition
+            : { x: window.innerWidth - 340, y: 100 },
+    );
+
+    // Update position if new click happens while open (optional, but good for re-clicking)
+    $effect(() => {
+        if (scan.inspectorOpen && scan.clickPosition.x > 0) {
+            // Basic bounds check to prevent off-screen
+            const safeX = Math.min(
+                scan.clickPosition.x + 20,
+                window.innerWidth - 320,
+            );
+            const safeY = Math.min(
+                scan.clickPosition.y + 20,
+                window.innerHeight - 400,
+            );
+            position = { x: safeX, y: safeY };
+        }
+    });
+
+    let isDragging = $state(false);
+    let dragOffset = $state({ x: 0, y: 0 });
+
     let copiedField = $state<string | null>(null);
 
-    // Parse selected element
+    // Derived info
     const info = $derived<ParsedElement | null>(
         scan.selectedElement ? parseElement(scan.selectedElement) : null,
     );
 
+    // Drag Handlers
+    function onDragStart(e: MouseEvent) {
+        isDragging = true;
+        dragOffset = {
+            x: e.clientX - position.x,
+            y: e.clientY - position.y,
+        };
+    }
+
+    function onDragMove(e: MouseEvent) {
+        if (!isDragging) return;
+        position = {
+            x: e.clientX - dragOffset.x,
+            y: e.clientY - dragOffset.y,
+        };
+    }
+
+    function onDragEnd() {
+        isDragging = false;
+    }
+
+    // Actions
     async function copyToClipboard(text: string, field: string) {
         try {
             await navigator.clipboard.writeText(text);
             copiedField = field;
             toast.success(`Copied ${field}`);
-
             setTimeout(() => {
                 copiedField = null;
             }, 2000);
@@ -55,7 +92,6 @@
 
     async function copyAll() {
         if (!info) return;
-
         const text = formatForAI(info);
         await copyToClipboard(text, "all");
     }
@@ -65,22 +101,39 @@
     }
 </script>
 
+<svelte:window onmousemove={onDragMove} onmouseup={onDragEnd} />
+
 {#if scan.inspectorOpen && info}
-    <div class="vpb-inspector">
-        <!-- Header -->
-        <div class="vpb-inspector__header">
-            <h3 class="vpb-inspector__title">Element Inspector</h3>
+    <div
+        class="vpb-inspector"
+        style="left: {position.x}px; top: {position.y}px; transform: none; margin: 0;"
+    >
+        <!-- Header (Drag Handle) -->
+        <div
+            class="vpb-inspector__header"
+            onmousedown={onDragStart}
+            role="presentation"
+            aria-label="Drag inspector window"
+        >
+            <h3 class="vpb-inspector__title">
+                <span style="font-size: 16px;">🔍</span> Element Inspector
+            </h3>
             <button
-                class="vpb-btn vpb-btn--close"
+                class="vpb-tabs__control vpb-tabs__control--close"
                 onclick={close}
                 aria-label="Close inspector"
             >
-                <svg width="12" height="12" viewBox="0 0 12 12">
+                <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 14 14"
+                    fill="currentColor"
+                >
                     <path
-                        d="M2 2l8 8m0-8l-8 8"
+                        d="M11 3L3 11M3 3l8 8"
                         stroke="currentColor"
                         stroke-width="1.5"
-                        fill="none"
+                        stroke-linecap="round"
                     />
                 </svg>
             </button>
@@ -101,26 +154,9 @@
                     class="vpb-copy-btn"
                     class:vpb-copy-btn--copied={copiedField === "id"}
                     onclick={() => copyToClipboard(info.id!, "id")}
-                    aria-label="Copy ID"
+                    title="Copy ID"
                 >
-                    <svg width="12" height="12" viewBox="0 0 12 12">
-                        <rect
-                            x="3"
-                            y="3"
-                            width="6"
-                            height="8"
-                            stroke="currentColor"
-                            fill="none"
-                        />
-                        <rect
-                            x="1"
-                            y="1"
-                            width="6"
-                            height="8"
-                            stroke="currentColor"
-                            fill="none"
-                        />
-                    </svg>
+                    📋
                 </button>
             </div>
         {/if}
@@ -137,100 +173,20 @@
                     class:vpb-copy-btn--copied={copiedField === "classes"}
                     onclick={() =>
                         copyToClipboard(info.classList.join(" "), "classes")}
-                    aria-label="Copy classes"
+                    title="Copy classes"
                 >
-                    <svg width="12" height="12" viewBox="0 0 12 12">
-                        <rect
-                            x="3"
-                            y="3"
-                            width="6"
-                            height="8"
-                            stroke="currentColor"
-                            fill="none"
-                        />
-                        <rect
-                            x="1"
-                            y="1"
-                            width="6"
-                            height="8"
-                            stroke="currentColor"
-                            fill="none"
-                        />
-                    </svg>
+                    📋
                 </button>
             </div>
         {/if}
 
-        <!-- Source File -->
+        <!-- Source File (Mock) -->
         {#if info.sourceFile}
             <div class="vpb-inspector__row">
                 <span class="vpb-inspector__label">File</span>
                 <span class="vpb-inspector__value vpb-inspector__value--file"
                     >{info.sourceFile}</span
                 >
-                <button
-                    class="vpb-copy-btn"
-                    class:vpb-copy-btn--copied={copiedField === "file"}
-                    onclick={() => copyToClipboard(info.sourceFile!, "file")}
-                    aria-label="Copy file path"
-                >
-                    <svg width="12" height="12" viewBox="0 0 12 12">
-                        <rect
-                            x="3"
-                            y="3"
-                            width="6"
-                            height="8"
-                            stroke="currentColor"
-                            fill="none"
-                        />
-                        <rect
-                            x="1"
-                            y="1"
-                            width="6"
-                            height="8"
-                            stroke="currentColor"
-                            fill="none"
-                        />
-                    </svg>
-                </button>
-            </div>
-        {/if}
-
-        <!-- CSS Chain -->
-        {#if info.cssChain.length > 0}
-            <div class="vpb-inspector__section">
-                <span class="vpb-inspector__label">CSS Chain</span>
-                <ul class="vpb-css-chain">
-                    {#each info.cssChain as file}
-                        <li class="vpb-css-chain__item">{file}</li>
-                    {/each}
-                </ul>
-                <button
-                    class="vpb-copy-btn"
-                    class:vpb-copy-btn--copied={copiedField === "css"}
-                    onclick={() =>
-                        copyToClipboard(info.cssChain.join("\n"), "css")}
-                    aria-label="Copy CSS chain"
-                >
-                    <svg width="12" height="12" viewBox="0 0 12 12">
-                        <rect
-                            x="3"
-                            y="3"
-                            width="6"
-                            height="8"
-                            stroke="currentColor"
-                            fill="none"
-                        />
-                        <rect
-                            x="1"
-                            y="1"
-                            width="6"
-                            height="8"
-                            stroke="currentColor"
-                            fill="none"
-                        />
-                    </svg>
-                </button>
             </div>
         {/if}
 
@@ -240,47 +196,7 @@
             class:vpb-copy-all--copied={copiedField === "all"}
             onclick={copyAll}
         >
-            <svg width="14" height="14" viewBox="0 0 14 14">
-                <rect
-                    x="4"
-                    y="4"
-                    width="7"
-                    height="9"
-                    stroke="currentColor"
-                    fill="none"
-                />
-                <rect
-                    x="2"
-                    y="2"
-                    width="7"
-                    height="9"
-                    stroke="currentColor"
-                    fill="none"
-                />
-            </svg>
             <span>Copy All for AI Context</span>
         </button>
     </div>
 {/if}
-
-<style>
-    .vpb-inspector__header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: var(--vpb-space-md);
-    }
-
-    .vpb-inspector__title {
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--vpb-text-primary);
-        margin: 0;
-    }
-
-    .vpb-inspector__section {
-        display: flex;
-        flex-direction: column;
-        gap: var(--vpb-space-xs);
-    }
-</style>

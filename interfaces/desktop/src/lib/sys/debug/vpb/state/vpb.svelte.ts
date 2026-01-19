@@ -5,24 +5,13 @@
  * @layer lib
  *
  * @description
- * [TODO: Describe the purpose and responsibility of this module]
+ * VPB State Management - Runes-powered state for VPB modes, position, and active tab.
  *
- * @dependencies
- * - [TODO: List imports this file depends on]
- *
- * @consumers
- * - [TODO: List modules that import this file]
- *
- * @vpb-editable [TODO: List props VPB can modify, or 'none']
  * @since 1.0.0
  */
 
-/**
- * VPB State Management
- * Runes-powered state for VPB modes and position.
- */
-
 export type VPBMode = 'docked' | 'floating' | 'minimized';
+export type VPBTab = 'inspector' | 'tokens';
 
 interface Position {
   x: number;
@@ -41,6 +30,9 @@ class VPBManager {
   
   /** Scan mode paused (can browse without overlay) */
   scanPaused = $state(false);
+
+  /** Active Tab */
+  activeTab = $state<VPBTab>('inspector');
   
   // ─────────────────────────────────────────────────────────────
   // Mode Methods
@@ -65,6 +57,11 @@ class VPBManager {
   setPosition(x: number, y: number): void {
     this.position = { x, y };
   }
+
+  /** Set active tab */
+  setActiveTab(tab: VPBTab): void {
+    this.activeTab = tab;
+  }
   
   // ─────────────────────────────────────────────────────────────
   // Scan Methods
@@ -82,6 +79,8 @@ class VPBManager {
   startScan(): void {
     this.scanActive = true;
     this.scanPaused = false;
+    // Auto-switch to inspector when scanning starts
+    this.activeTab = 'inspector';
   }
   
   /** Stop scan mode (graceful) */

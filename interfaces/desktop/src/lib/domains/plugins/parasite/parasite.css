@@ -1,0 +1,174 @@
+/**
+ * @file parasite.css
+ * @layer plugins
+ * @description Parasite effect - composable ink-creep animation using COLD LIGHT tokens
+ * @since 1.0.0
+ */
+
+/* =================================================================
+   Parasite - Glass Typography with Ink Creep
+   ALL VALUES USE COLD LIGHT TOKENS - NO HARDCODED VALUES
+   ================================================================= */
+
+/* Base Container */
+.parasite {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--dp-space-1);
+    font-family: var(--dp-font-sans);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    position: relative;
+    overflow: visible;
+}
+
+/* Deep Glass Bevel Effect on Each Letter */
+.parasite-letter {
+    display: inline-block;
+    position: relative;
+    /* Glass bevel: dark shadow behind, light highlight top-left, soft depth */
+    text-shadow:
+        var(--dp-space-1) var(--dp-space-1) 0px var(--dp-bevel-dark-strong),
+        calc(-1 * var(--dp-space-1)) calc(-1 * var(--dp-space-1)) 0px var(--dp-bevel-light),
+        var(--dp-space-1) var(--dp-space-1) var(--dp-space-2) var(--dp-inset-dark),
+        0 0 var(--dp-space-4) var(--dp-glass-tint-teal);
+    /* Crisp dark border via stroke */
+    -webkit-text-stroke: 0.5px var(--dp-matte-dark);
+}
+
+/* Base color uses teal token */
+.parasite-letter {
+    color: var(--dp-teal-400);
+    /* Ultra-slow ink bleeding transition */
+    transition: color 2.5s var(--dp-ease-out);
+}
+
+/* Staggered animation delays for each letter */
+.parasite-letter:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.parasite-letter:nth-child(2) {
+    animation-delay: 0.3s;
+}
+
+.parasite-letter:nth-child(3) {
+    animation-delay: 0.6s;
+}
+
+.parasite-letter:nth-child(4) {
+    animation-delay: 0.9s;
+}
+
+.parasite-letter:nth-child(5) {
+    animation-delay: 1.2s;
+}
+
+.parasite-letter:nth-child(6) {
+    animation-delay: 1.5s;
+}
+
+.parasite-letter:nth-child(7) {
+    animation-delay: 1.8s;
+}
+
+.parasite-letter:nth-child(8) {
+    animation-delay: 2.1s;
+}
+
+/* Ink Creep Keyframes - 4 Cyber Colors using COLD LIGHT hues */
+@keyframes ink-creep {
+
+    0%,
+    100% {
+        color: oklch(70% 0.18 var(--dp-hue-teal));
+    }
+
+    25% {
+        color: oklch(65% 0.22 var(--dp-hue-purple));
+    }
+
+    50% {
+        color: oklch(75% 0.20 var(--dp-hue-electric));
+    }
+
+    75% {
+        color: oklch(70% 0.25 var(--dp-hue-magenta));
+    }
+}
+
+/* Apply ink-creep animation to letters when active */
+.parasite[data-animate="true"] .parasite-letter {
+    animation: ink-creep 10s var(--dp-ease-out) infinite;
+}
+
+/* =================================================================
+   Sporadic Pulse Overlay
+   ================================================================= */
+
+.parasite::after {
+    content: '';
+    position: absolute;
+    inset: calc(-1 * var(--dp-space-3));
+    border-radius: var(--dp-radius-md);
+    background: linear-gradient(135deg,
+            var(--dp-glass-tint-teal) 0%,
+            var(--dp-glass-tint-purple) 100%);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.parasite[data-pulse="true"]::after {
+    animation: sporadic-pulse var(--dp-duration-slow) var(--dp-ease-out) forwards;
+}
+
+@keyframes sporadic-pulse {
+    0% {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    50% {
+        opacity: 0.8;
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.05);
+    }
+}
+
+/* =================================================================
+   Size Variants
+   ================================================================= */
+
+.parasite[data-size="sm"] {
+    font-size: var(--dp-text-lg);
+}
+
+.parasite[data-size="md"] {
+    font-size: var(--dp-text-2xl);
+}
+
+.parasite[data-size="lg"] {
+    font-size: clamp(2rem, 4vw, 3.5rem);
+}
+
+.parasite[data-size="hero"] {
+    font-size: clamp(3rem, 8vw, 6rem);
+}
+
+/* =================================================================
+   Reduced Motion
+   ================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .parasite-letter,
+    .parasite::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}

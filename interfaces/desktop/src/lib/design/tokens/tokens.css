@@ -28,6 +28,10 @@
   --dp-hue-teal: 195;
   --dp-hue-purple: 280;
   --dp-hue-matte: 200;
+  --dp-hue-electric: 220;
+  /* Electric blue for cyber accent */
+  --dp-hue-magenta: 330;
+  /* Magenta for cyber accent */
 
   /* Derived Colors - Primary (Teal family) */
   --dp-teal-100: oklch(95% 0.05 var(--dp-hue-teal));
@@ -145,4 +149,70 @@
   --dp-duration-fast: 150ms;
   --dp-duration-normal: 300ms;
   --dp-duration-slow: 500ms;
+
+  /* =============================================
+     VPB (Visual Page Builder) - Dev Tool Tokens
+     COMPLETE TOKEN SET - ALL VPB COLORS
+     ============================================= */
+
+  /* Cyber gradient - THE SIGNATURE VPB SCAN COLOR */
+  --dp-vpb-cyber-gradient: oklch(0.9106 0.1598 126.64);
+  --dp-vpb-cyber-start: oklch(70% 0.18 195);
+  --dp-vpb-cyber-end: oklch(55% 0.20 280);
+
+  /* Panel surfaces */
+  --dp-vpb-panel-bg: oklch(12% 0.04 195 / 0.6);
+  /* GLASS: Reduced alpha from 0.95 */
+  --dp-vpb-panel-border: oklch(55% 0.12 195 / 0.4);
+  --dp-vpb-panel-glow: oklch(60% 0.15 195 / 0.3);
+
+  /* Surface colors */
+  --dp-vpb-surface-base: oklch(16% 0.03 195 / 0.8);
+  --dp-vpb-surface-raised: oklch(20% 0.04 195 / 0.9);
+  --dp-vpb-surface-sunken: oklch(10% 0.02 195 / 0.95);
+
+  /* Text colors */
+  --dp-vpb-text-primary: oklch(95% 0.01 195);
+  --dp-vpb-text-secondary: oklch(75% 0.03 195);
+  --dp-vpb-text-muted: oklch(55% 0.02 195);
+
+  /* Button colors */
+  --dp-vpb-btn-bg: oklch(18% 0.04 195 / 0.6);
+  --dp-vpb-btn-border: oklch(50% 0.08 195 / 0.3);
+  --dp-vpb-btn-hover: oklch(25% 0.06 195 / 0.8);
+
+  /* Action colors */
+  --dp-vpb-action-play: oklch(75% 0.18 145);
+  --dp-vpb-action-pause: oklch(80% 0.15 85);
+  --dp-vpb-action-stop: oklch(70% 0.20 25);
+
+  /* Overlay colors */
+  --dp-vpb-overlay-bg: oklch(5% 0.02 195 / 0.6);
+  --dp-vpb-overlay-border: oklch(65% 0.18 195 / 0.8);
+  --dp-vpb-overlay-tint: oklch(0.9106 0.1598 126.64 / 0.15);
+
+  /* Tabs */
+  --dp-vpb-tab-bg: oklch(16% 0.03 195 / 0.8);
+  --dp-vpb-tab-active: oklch(12% 0.04 195 / 0.95);
+  --dp-vpb-tab-hover: oklch(20% 0.04 195 / 0.9);
+
+  /* Sizing (fluid) */
+  --dp-vpb-panel-width: clamp(280px, 25vw, 380px);
+  --dp-vpb-panel-min-height: clamp(160px, 15vh, 240px);
+  --dp-vpb-toolbar-height: 48px;
+  --dp-vpb-tab-height: 32px;
+
+  /* Effects */
+  --dp-vpb-blur: blur(20px) saturate(180%);
+  --dp-vpb-shadow: 0 0 20px var(--dp-vpb-panel-glow), 0 8px 32px oklch(5% 0.02 280 / 0.5);
+
+  /* Z-index */
+  --dp-vpb-z-overlay: 999998;
+  --dp-vpb-z-panel: 999999;
+  --dp-vpb-z-popover: 1000000;
+  --dp-vpb-z-fab: 999997;
+
+  /* Transitions */
+  --dp-vpb-transition-fast: 100ms ease-out;
+  --dp-vpb-transition-normal: 200ms ease-out;
 }
