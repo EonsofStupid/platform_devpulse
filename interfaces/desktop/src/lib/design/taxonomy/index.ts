@@ -1,26 +1,95 @@
 /**
- * @fileoverview Taxonomy - Category Definitions
+ * @fileoverview Taxonomy - Block Kinds, Contracts, and Slots
  * @file src/lib/design/taxonomy/index.ts
  * @module @devpulse/design/taxonomy
  * @layer taxonomy
  *
  * @description
- * TIER 1: Defines WHAT CATEGORIES EXIST in the design system.
- * A new category must first exist here before it can have tokens.
+ * TIER 1: Defines WHAT BLOCKS EXIST and their constraints.
+ * - kinds.ts: Block kind definitions (panel, shell, widget, chat)
+ * - contracts.ts: Prop schemas for each kind (DsSurfaceProps base)
+ * - slots.ts: Slot definitions and child constraints
  *
  * @since 1.0.0
  */
 
 // ===========================================
-// CATEGORY DEFINITIONS
+// BLOCK KINDS
+// ===========================================
+export {
+  blockKinds,
+  blockKindKeys,
+  shellKinds,
+  surfaceKinds,
+  widgetKinds,
+  chatKinds,
+  getKindDefinition,
+  requiresGridLayout,
+  getKindSlots,
+  type BlockKind,
+  type BlockKindDefinition,
+  type LayoutMode,
+} from "./kinds";
+
+// ===========================================
+// PROP CONTRACTS
+// ===========================================
+export {
+  // Base contract
+  DsSurfacePropsSchema,
+  type DsSurfaceProps,
+
+  // Config schemas
+  DsColorConfigSchema,
+  DsSurfaceConfigSchema,
+  DsFrameConfigSchema,
+  DsDepthConfigSchema,
+  DsFxConfigSchema,
+  DsMotionConfigSchema,
+
+  // Kind-specific contracts
+  PanelPropsSchema,
+  ShellPropsSchema,
+  ChatDockPropsSchema,
+  WidgetPropsSchema,
+  type PanelProps,
+  type ShellProps,
+  type ChatDockProps,
+  type WidgetProps,
+
+  // Contract registry
+  kindContracts,
+  getKindSchema,
+  validateKindProps,
+  getDefaultProps,
+  type KindContract,
+} from "./contracts";
+
+// ===========================================
+// SLOT DEFINITIONS
+// ===========================================
+export {
+  DsSlotConfigSchema,
+  type DsSlotConfig,
+  panelSlots,
+  shellSlots,
+  threeColumnSlots,
+  chatSlots,
+  kindSlots,
+  getKindSlots as getSlotConfig,
+  isChildAllowed,
+} from "./slots";
+
+// ===========================================
+// LEGACY CATEGORY DEFINITIONS
 // ===========================================
 
 /**
  * All valid design system categories.
- * A new category (e.g., "slime") must be added here FIRST.
+ * @deprecated Use blockKinds for block-level taxonomy.
  */
 export const DesignCategories = [
-  "surface",   // Material types: glass, solid, matte, slime
+  "surface",   // Material types: glass, solid, matte
   "tone",      // Color temperature: cold, neutral, warm
   "glow",      // Glow effect: off, soft, hard
   "radius",    // Border radius ramp
@@ -35,35 +104,8 @@ export const DesignCategories = [
 
 export type DesignCategory = typeof DesignCategories[number];
 
-// ===========================================
-// CATEGORY TIER REQUIREMENTS
-// ===========================================
-
 /**
- * When adding a new value to a category, which tiers must be updated?
- * This is the "dependency checklist" for each category.
- */
-export const CategoryTierRequirements: Record<DesignCategory, string[]> = {
-  surface: ["tokens", "surfaces", "components", "blocks"],
-  tone: ["tokens", "surfaces"],
-  glow: ["tokens", "surfaces"],
-  radius: ["tokens", "foundations"],
-  accent: ["tokens", "surfaces"],
-  space: ["tokens", "foundations"],
-  blur: ["tokens", "surfaces"],
-  depth: ["tokens", "surfaces"],
-  text: ["tokens", "foundations"],
-  motion: ["motion"],
-  behavior: ["behaviors"],
-};
-
-// ===========================================
-// COMPONENT CAPABILITY DECLARATIONS
-// ===========================================
-
-/**
- * Which surfaces a component supports.
- * Components declare their capabilities, VPB shows only valid options.
+ * @deprecated Use kindContracts for kind-level capabilities.
  */
 export interface ComponentCapabilities {
   supportedSurfaces?: readonly string[];

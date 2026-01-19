@@ -15,28 +15,38 @@
 import { z } from "zod";
 import {
   SurfaceTokens,
-  ToneTokens,
   GlowTokens,
   RadiusTokens,
   AccentTokens,
   SpaceTokens,
   BlurTokens,
   DepthTokens,
-  TextTokens,
+  TextSizeTokens,
+  GlassVariantTokens,
+  BevelTokens,
+  ImprintTokens,
+  ShellDepthTokens,
+  SizeTokens,
+  PaddingTokens,
 } from "./types";
 
 // ===========================================
 // INDIVIDUAL TOKEN SCHEMAS
 // ===========================================
 export const SurfaceSchema = z.enum(SurfaceTokens);
-export const ToneSchema = z.enum(ToneTokens);
 export const GlowSchema = z.enum(GlowTokens);
 export const RadiusSchema = z.enum(RadiusTokens);
 export const AccentSchema = z.enum(AccentTokens);
 export const SpaceSchema = z.enum(SpaceTokens);
 export const BlurSchema = z.enum(BlurTokens);
 export const DepthSchema = z.enum(DepthTokens);
-export const TextSchema = z.enum(TextTokens);
+export const TextSizeSchema = z.enum(TextSizeTokens);
+export const GlassVariantSchema = z.enum(GlassVariantTokens);
+export const BevelSchema = z.enum(BevelTokens);
+export const ImprintSchema = z.enum(ImprintTokens);
+export const ShellDepthSchema = z.enum(ShellDepthTokens);
+export const SizeSchema = z.enum(SizeTokens);
+export const PaddingSchema = z.enum(PaddingTokens);
 
 // ===========================================
 // COMPOSITE SCHEMAS (for component props)
@@ -47,10 +57,12 @@ export const TextSchema = z.enum(TextTokens);
  */
 export const SurfacePropsSchema = z.object({
   surface: SurfaceSchema.optional().default("solid"),
-  tone: ToneSchema.optional().default("cold"),
+  glassVariant: GlassVariantSchema.optional().default("deep"),
   glow: GlowSchema.optional().default("off"),
-  radius: RadiusSchema.optional().default("r2"),
+  radius: RadiusSchema.optional().default("md"),
   accent: AccentSchema.optional().default("teal"),
+  bevel: BevelSchema.optional().default("off"),
+  depth: DepthSchema.optional().default(0),
 });
 
 /**

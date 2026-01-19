@@ -1,14 +1,20 @@
 /**
- * @fileoverview Tokens Barrel Export (SSOT)
+ * @fileoverview Tokens Barrel Export
  * @file src/lib/design/tokens/index.ts
  * @module @devpulse/design/tokens
  * @layer tokens
  *
  * @description
- * TIER 2: Token system - THIS IS THE SSOT.
- * types.ts contains the const arrays + union types.
- * schema.ts contains Zod validators for boundaries.
- * tokens.css contains CSS variable definitions.
+ * TIER 2: Token system barrel export.
+ *
+ * Files:
+ * - tokens.ts: SSOT - canonical token definitions (DO NOT EDIT OTHERS)
+ * - tokens.css: GENERATED - CSS custom properties
+ * - types.ts: GENERATED - TypeScript types + runtime arrays
+ * - tailwind.preset.ts: GENERATED - Tailwind theme mapping
+ * - schema.ts: Zod validators for runtime validation
+ *
+ * Run `pnpm ds:tokens:build` to regenerate from tokens.ts.
  *
  * @consumers
  * - All components
@@ -17,8 +23,14 @@
  * @since 1.0.0
  */
 
-// TypeScript types (const arrays + union types) - SSOT
+// SSOT token definitions (source of truth)
+export * from "./tokens";
+
+// TypeScript types (GENERATED - const arrays + union types)
 export * from "./types";
 
 // Zod schemas (runtime validation at boundaries)
 export * from "./schema";
+
+// Tailwind preset
+export { dpPreset } from "./tailwind.preset";

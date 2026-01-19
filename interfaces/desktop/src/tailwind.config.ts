@@ -1,93 +1,104 @@
 import type { Config } from "tailwindcss";
+import { dpPreset } from "./lib/design/tokens/tailwind.preset";
 
+/**
+ * Tailwind CSS Configuration
+ *
+ * Uses dpPreset from the design system tokens for:
+ * - Colors (dp-teal, dp-purple, etc.)
+ * - Spacing (dp-1 through dp-8)
+ * - Radius, blur, shadows, glows
+ * - Grid utilities for shell layouts
+ *
+ * Additional app-specific utilities are defined below.
+ */
 export default {
-    content: ["./index.html", "./src/**/*.{svelte,js,ts,jsx,tsx}", "./**/*.svelte"],
+    content: [
+        "./index.html",
+        "./src/**/*.{svelte,js,ts,jsx,tsx}",
+        "./**/*.svelte",
+        // CRITICAL: Include recipe files for Tailwind JIT
+        "./lib/design/recipes/**/*.ts",
+    ],
     theme: {
         extend: {
-            // OKLCH Color System
+            // Spread the design system preset
+            ...dpPreset.theme?.extend,
+
+            // App-specific extensions (not in preset)
             colors: {
-                // Void/Background
+                // Spread preset colors
+                ...dpPreset.theme?.extend?.colors,
+
+                // Legacy void/obsidian (migration period)
                 void: {
                     950: "oklch(6% 0.02 195)",
                     900: "oklch(8% 0.02 195)",
                     800: "oklch(12% 0.02 195)",
                 },
-                // Obsidian (deeper blacks)
                 obsidian: {
                     950: "oklch(4% 0.01 195)",
                     900: "oklch(6% 0.02 195)",
                 },
-                // Accent Teal (Primary)
-                teal: {
-                    500: "oklch(70% 0.2 195)",
-                    400: "oklch(75% 0.2 195)",
-                    300: "oklch(80% 0.18 195)",
-                },
-                // Accent Cyan
-                cyan: {
-                    500: "oklch(75% 0.15 200)",
-                    400: "oklch(80% 0.15 200)",
-                },
-                // Accent Purple
-                purple: {
-                    500: "oklch(55% 0.25 300)",
-                    400: "oklch(60% 0.25 300)",
-                },
-                // Accent Orange (Ember)
-                ember: {
-                    500: "oklch(70% 0.2 45)",
-                    400: "oklch(75% 0.2 45)",
-                },
-                // Signals
+
+                // Signals (semantic)
                 success: "oklch(70% 0.2 145)",
                 warning: "oklch(75% 0.2 85)",
                 error: "oklch(60% 0.25 25)",
             },
-            // Content Hierarchy
+
+            // Legacy text colors (use dp-text-* from preset)
             textColor: {
                 primary: "var(--dp-text-primary)",
                 secondary: "var(--dp-text-secondary)",
                 muted: "var(--dp-text-muted)",
             },
-            // Surfaces
+
+            // Legacy background (use dp-surface-* or dp-glass-* from preset)
             backgroundColor: {
-                // Semantic mapping to tokens.css
                 base: "var(--dp-surface-1)",
                 sunken: "var(--dp-surface-2)",
                 raised: "var(--dp-surface-3)",
                 overlay: "var(--dp-surface-4)",
-                
-                // Accents
                 cyber: "var(--dp-accent-cyber)",
                 "cyber-tint": "var(--dp-accent-tint)",
-                
-                // Legacy/Glass (keep for GlassPanel)
+
+                // Legacy glass (use bg-dp-glass-* instead)
                 "glass-void": "oklch(6% 0.02 195 / 0.8)",
                 "glass-deep": "oklch(8% 0.02 195 / 0.7)",
                 "glass-smoke": "oklch(12% 0.02 195 / 0.6)",
                 "glass-frost": "oklch(18% 0.02 195 / 0.5)",
             },
-            // Blur scale
+
+            // Additional blur scale
             blur: {
+                ...dpPreset.theme?.extend?.blur,
                 xs: "2px",
                 "2xl": "32px",
                 "3xl": "48px",
             },
-            // Font families
+
+            // Legacy font families (use font-dp-sans, font-dp-mono)
             fontFamily: {
+                ...dpPreset.theme?.extend?.fontFamily,
                 sans: ["Inter", "system-ui", "sans-serif"],
                 mono: ["JetBrains Mono", "Fira Code", "monospace"],
             },
-            // Spacing (fluid-ready)
+
+            // Additional spacing
             spacing: {
+                ...dpPreset.theme?.extend?.spacing,
                 "18": "4.5rem",
                 "22": "5.5rem",
             },
-            // Border radius
+
+            // Additional border radius
             borderRadius: {
+                ...dpPreset.theme?.extend?.borderRadius,
                 "2xl": "1rem",
                 "3xl": "1.5rem",
             },
+
             // Animations
             animation: {
                 "pulse-glow": "pulse-glow 4s ease-in-out infinite",
@@ -110,6 +121,10 @@ export default {
                     "50%": { opacity: "1" },
                 },
             },
+
+            // Grid utilities from preset
+            gridTemplateColumns: dpPreset.theme?.extend?.gridTemplateColumns,
+            gridTemplateRows: dpPreset.theme?.extend?.gridTemplateRows,
         },
     },
     plugins: [],

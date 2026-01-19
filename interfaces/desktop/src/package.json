@@ -9,7 +9,9 @@
         "preview": "vite preview",
         "check": "svelte-check --tsconfig ./tsconfig.json",
         "headers:check": "npx tsx ../scripts/dev/inject-headers.ts check",
-        "headers:inject": "npx tsx ../scripts/dev/inject-headers.ts inject"
+        "headers:inject": "npx tsx ../scripts/dev/inject-headers.ts inject",
+        "ds:tokens:build": "npx tsx ../scripts/dev/design/ds-tokens-build.ts",
+        "ds:tokens:watch": "npx tsx --watch ../scripts/dev/design/ds-tokens-build.ts"
     },
     "devDependencies": {
         "@sveltejs/vite-plugin-svelte": "^4.0.0-next.6",
