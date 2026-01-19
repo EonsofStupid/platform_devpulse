@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(pnpm ds:tokens:build:*)",
-      "Bash(pnpm check:*)"
+      "Bash(pnpm check:*)",
+      "Bash(pnpm tsx:*)"
     ]
   }
 }
