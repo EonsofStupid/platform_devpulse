@@ -1,30 +1,19 @@
 <!--
-  @file src/lib/sys/debug/vpb/scan/ScanOverlay.svelte
-  @name ScanOverlay.svelte
-  @module @devpulse/sys/debug/vpb/scan/ScanOverlay
+  @file src/lib/sys/debug/vpb/components/inspector/ScanOverlay.svelte
   @layer lib
-
-  @description
-  Shadow DOM overlay for element scanning.
-  Handles visual highlighting and click capture.
-  No toasts - silent selection that updates scan state.
-
-  @dependencies
-  - scan.state.ts
-  - vpb.state.ts
-  - ScanTooltip.svelte
-  - vpb-overlay.css
+  @description Shadow DOM overlay for element scanning with Data-State architecture.
+  @since 1.0.0
 -->
 <script lang="ts">
-    import { vpb } from "../state/vpb.svelte";
-    import { scan } from "../state/scan.svelte";
+    import { vpb } from "../../state/vpb.svelte";
+    import { scan } from "./state";
     import ScanTooltip from "./ScanTooltip.svelte";
 
     let overlayEl = $state<HTMLElement | null>(null);
     let highlightRect = $state<DOMRect | null>(null);
 
     function handleMouseMove(e: MouseEvent) {
-        if (!vpb.scanActive || vpb.scanPaused) return;
+        if (!vpb.scanActive || vpb.scanActive === false) return; // Strict boolean check needed?
 
         // Temporarily disable pointer events to detect underlying element
         if (overlayEl) overlayEl.style.pointerEvents = "none";
@@ -37,10 +26,9 @@
         if (overlayEl) overlayEl.style.pointerEvents = "auto";
 
         const isVpbInterface =
-            target?.closest(".vpb-panel") ||
-            target?.closest(".vpb-overlay") ||
+            target?.closest(".vpb-shell") ||
             target?.closest("[data-radix-popper-content-wrapper]") ||
-            target?.closest(".vpb-fab");
+            target?.closest(".vpb-tooltip");
 
         if (target && !isVpbInterface) {
             scan.setHovered(target);
@@ -52,7 +40,7 @@
     }
 
     function handleClick(e: MouseEvent) {
-        if (!vpb.scanActive || vpb.scanPaused) return;
+        if (!vpb.scanActive) return;
 
         if (overlayEl) overlayEl.style.pointerEvents = "none";
         const target = document.elementFromPoint(
@@ -62,10 +50,7 @@
         if (overlayEl) overlayEl.style.pointerEvents = "auto";
 
         const isVpbInterface =
-            target?.closest(".vpb-panel") ||
-            target?.closest(".vpb-overlay") ||
-            target?.closest("[data-radix-popper-content-wrapper]") ||
-            target?.closest(".vpb-fab");
+            target?.closest(".vpb-shell") || target?.closest(".vpb-tooltip");
 
         if (target && !isVpbInterface) {
             e.preventDefault();
@@ -77,7 +62,9 @@
             // Select the element in state (Inspector will react)
             scan.selectElement(target);
 
-            // Note: No toast here. Status is shown in Panel Footer.
+            // Auto-open Inspector Tab in Shell
+            vpb.setDomain("inspector");
+            if (vpb.mode === "minimized") vpb.mode = "docked";
         }
     }
 </script>
@@ -85,15 +72,17 @@
 <svelte:window
     onkeydown={(e) => {
         if (e.key === "Escape" && vpb.scanActive) {
-            vpb.stopScan();
+            // vpb.stopScan(); // Add stopScan to vpb state if needed, or toggle
+            vpb.scanActive = false;
         }
     }}
 />
 
-{#if vpb.scanActive && !vpb.scanPaused}
-    <!-- Overlay Container -->
+{#if vpb.scanActive}
+    <!-- Overlay Container: purely functional, no visual styles unless debugging -->
     <div
-        class="vpb-overlay vpb-overlay--active"
+        class="vpb-overlay"
+        data-state="active"
         bind:this={overlayEl}
         onmousemove={handleMouseMove}
         onclick={handleClick}
@@ -103,7 +92,8 @@
         <!-- Highlight Box (Gradient Border + Tint) -->
         {#if highlightRect && scan.hoveredElement}
             <div
-                class="vpb-highlight vpb-highlight--pulse"
+                class="vpb-highlight"
+                data-state="pulse"
                 style="
                     left: {highlightRect.left}px;
                     top: {highlightRect.top}px;
@@ -120,3 +110,29 @@
         {/if}
     </div>
 {/if}
+
+<style>
+    .vpb-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: var(--dp-vpb-z-overlay);
+        pointer-events: auto; /* Catch events */
+        cursor: crosshair;
+        /* background: rgba(0,0,0,0.1); Optional debug tint */
+    }
+
+    .vpb-highlight {
+        position: fixed;
+        pointer-events: none;
+        border: 2px solid var(--dp-vpb-action-play);
+        background: oklch(from var(--dp-vpb-action-play) l c h / 0.2);
+        transition: all 0.1s ease-out;
+        z-index: var(--dp-vpb-z-highlight);
+        border-radius: 4px; /* Slight radius */
+    }
+
+    /* Data-State Modifier */
+    .vpb-highlight[data-state="pulse"] {
+        box-shadow: 0 0 0 4px oklch(from var(--dp-vpb-action-play) l c h / 0.1);
+    }
+</style>

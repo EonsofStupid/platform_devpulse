@@ -1,93 +1,94 @@
 <!--
   @file src/lib/design/components/Card.svelte
-  @name Card.svelte
-  @module @devpulse/design/components/Card
-  @layer lib
+  @layer components
 
   @description
-  [TODO: Describe this component's purpose]
+  Content container component for COLD LIGHT design system.
+  Renders a glass surface card with optional glow and interactivity.
+  Uses data-* attributes for styling (Bits UI pattern).
 
   @props
-  - [TODO: propName]: [type] - [description]
+  - variant: "default" | "interactive" - Card behavior
+  - padding: "sm" | "md" | "lg" - Inner padding
+  - glow: "off" | "teal" | "purple" | "magenta" | "ember" - Glow color
+  - class: string - Additional CSS classes
 
-  @dependencies
-  - [TODO: List imports]
-
-  @consumers
-  - [TODO: List who uses this component]
-
-  @vpb-editable [TODO: List editable props]
+  @vpb-editable variant, padding, glow
   @since 1.0.0
--->
-<!--
-    Card - Content container
-    ARIA: article role when semantic
-    Uses OKLCH tokens only
 -->
 <script lang="ts">
     import type { Snippet } from "svelte";
 
     interface Props {
+        /** Card behavior variant (VPB dropdown) */
         variant?: "default" | "interactive";
+        /** Inner padding (VPB dropdown) */
         padding?: "sm" | "md" | "lg";
-        glow?: "none" | "teal" | "purple" | "pink";
+        /** Glow color (VPB dropdown) */
+        glow?: "off" | "teal" | "purple" | "magenta" | "ember";
+        /** Additional CSS classes */
         class?: string;
+        /** Content slot */
         children: Snippet;
     }
 
     let {
         variant = "default",
         padding = "md",
-        glow = "none",
+        glow = "off",
         class: className = "",
         children,
     }: Props = $props();
 </script>
 
 <article
-    class="card variant-{variant} padding-{padding} {className}"
-    class:glow-teal={glow === "teal"}
-    class:glow-purple={glow === "purple"}
-    class:glow-pink={glow === "pink"}
+    class="dp-card {className}"
+    data-variant={variant}
+    data-padding={padding}
+    data-glow={glow}
 >
     {@render children()}
 </article>
 
 <style>
-    .card {
-        background: var(--glass-void);
-        backdrop-filter: blur(var(--blur-lg));
-        border: var(--border-soft);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--bevel-outset), var(--shadow-z2);
-        transition: all var(--duration-normal) var(--ease-out);
+    .dp-card {
+        background: var(--dp-glass-void);
+        backdrop-filter: blur(var(--dp-blur-lg));
+        -webkit-backdrop-filter: blur(var(--dp-blur-lg));
+        border: var(--dp-border-soft);
+        border-radius: var(--dp-radius-lg);
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2);
+        transition: all var(--dp-transition-normal);
     }
 
     /* Padding */
-    .padding-sm {
-        padding: var(--space-3);
+    .dp-card[data-padding="sm"] {
+        padding: var(--dp-space-3);
     }
-    .padding-md {
-        padding: var(--space-4);
+    .dp-card[data-padding="md"] {
+        padding: var(--dp-space-4);
     }
-    .padding-lg {
-        padding: var(--space-6);
+    .dp-card[data-padding="lg"] {
+        padding: var(--dp-space-6);
     }
 
     /* Interactive */
-    .variant-interactive:hover {
+    .dp-card[data-variant="interactive"]:hover {
         transform: translateY(-2px);
-        box-shadow: var(--bevel-outset), var(--shadow-z4);
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z4);
     }
 
     /* Glows */
-    .glow-teal {
-        box-shadow: var(--bevel-outset), var(--shadow-z2), var(--glow-teal);
+    .dp-card[data-glow="teal"] {
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2), var(--dp-glow-teal);
     }
-    .glow-purple {
-        box-shadow: var(--bevel-outset), var(--shadow-z2), var(--glow-purple);
+    .dp-card[data-glow="purple"] {
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2), var(--dp-glow-purple);
     }
-    .glow-pink {
-        box-shadow: var(--bevel-outset), var(--shadow-z2), var(--glow-pink);
+    .dp-card[data-glow="magenta"] {
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2), var(--dp-glow-magenta);
+    }
+    .dp-card[data-glow="ember"] {
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2), var(--dp-glow-ember);
     }
 </style>

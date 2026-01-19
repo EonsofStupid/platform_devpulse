@@ -1,49 +1,42 @@
 <!--
   @file src/lib/design/primitives/Surface.svelte
-  @name Surface.svelte
-  @module @devpulse/design/primitives/Surface
-  @layer lib
+  @layer primitives
 
   @description
-  [TODO: Describe this component's purpose]
+  Base surface primitive for COLD LIGHT design system.
+  Provides configurable glass/solid surfaces with bevel, shadow, blur, and glow.
+  Uses data-* attributes for styling (Bits UI pattern).
 
   @props
-  - [TODO: propName]: [type] - [description]
+  - variant: "glass" | "solid" | "matte" - Surface material
+  - bevel: "off" | "subtle" | "soft" | "medium" - Bevel intensity
+  - depth: 0 | 1 | 2 | 3 | 4 - Shadow depth level
+  - blur: "off" | "sm" | "md" | "lg" | "xl" - Backdrop blur
+  - glow: "off" | "teal" | "purple" | "magenta" | "ember" - Glow color
+  - radius: "none" | "sm" | "md" | "lg" | "xl" | "full" - Border radius
 
-  @dependencies
-  - [TODO: List imports]
-
-  @consumers
-  - [TODO: List who uses this component]
-
-  @vpb-editable [TODO: List editable props]
+  @vpb-editable variant, bevel, depth, blur, glow, radius
   @since 1.0.0
 -->
 <script lang="ts">
     import type { Snippet } from "svelte";
 
     interface Props {
-        /** Surface material */
-        variant?: "glass" | "solid" | "mode";
-        /** Bevel intensity */
-        bevel?: "none" | "subtle" | "soft" | "medium" | "thick";
-        /** Shadow depth (0-5) */
-        depth?: 0 | 1 | 2 | 3 | 4 | 5;
-        /** Backdrop blur */
-        blur?: "none" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl";
-        /** Border style */
-        border?: "none" | "subtle" | "soft" | "medium" | "strong" | "mode";
-        /** Glow effect */
-        glow?: "none" | "mode" | "teal" | "purple" | "ember";
-        /** Animation */
-        animate?: "none" | "pulse" | "breathe";
-        /** Border radius */
-        radius?: "none" | "sm" | "md" | "lg" | "xl" | "2xl" | "full";
-        /** Pass-through class */
+        /** Surface material (VPB dropdown) */
+        variant?: "glass" | "solid" | "matte";
+        /** Bevel intensity (VPB dropdown) */
+        bevel?: "off" | "subtle" | "soft" | "medium";
+        /** Shadow depth level (VPB dropdown) */
+        depth?: 0 | 1 | 2 | 3 | 4;
+        /** Backdrop blur (VPB dropdown) */
+        blur?: "off" | "sm" | "md" | "lg" | "xl";
+        /** Glow color (VPB dropdown) */
+        glow?: "off" | "teal" | "purple" | "magenta" | "ember";
+        /** Border radius (VPB dropdown) */
+        radius?: "none" | "sm" | "md" | "lg" | "xl" | "full";
+        /** Additional CSS classes */
         class?: string;
-        /** Mode color override (HSL) */
-        modeColor?: string;
-        /** Content */
+        /** Content slot */
         children: Snippet;
     }
 
@@ -51,139 +44,131 @@
         variant = "glass",
         bevel = "soft",
         depth = 2,
-        blur = "xl",
-        border = "subtle",
-        glow = "none",
-        animate = "none",
+        blur = "lg",
+        glow = "off",
         radius = "lg",
-        modeColor,
         class: className = "",
         children,
     }: Props = $props();
-
-    // Token mapping
-    const bevelMap: Record<string, string> = {
-        none: "none",
-        subtle: "var(--bevel-outset-subtle)",
-        soft: "var(--bevel-outset-soft)",
-        medium: "var(--bevel-outset-medium)",
-        thick: "var(--bevel-outset-thick)",
-    };
-
-    const depthMap: Record<number, string> = {
-        0: "var(--shadow-z0)",
-        1: "var(--shadow-z1)",
-        2: "var(--shadow-z2)",
-        3: "var(--shadow-z3)",
-        4: "var(--shadow-z4)",
-        5: "var(--shadow-z5)",
-    };
-
-    const blurMap: Record<string, string> = {
-        none: "var(--blur-none)",
-        xs: "var(--blur-xs)",
-        sm: "var(--blur-sm)",
-        md: "var(--blur-md)",
-        lg: "var(--blur-lg)",
-        xl: "var(--blur-xl)",
-        "2xl": "var(--blur-2xl)",
-    };
-
-    const borderMap: Record<string, string> = {
-        none: "none",
-        subtle: "var(--border-subtle)",
-        soft: "var(--border-soft)",
-        medium: "var(--border-medium)",
-        strong: "var(--border-strong)",
-        mode: "var(--border-mode-glow)",
-    };
-
-    const glowMap: Record<string, string> = {
-        none: "none",
-        mode: "var(--shadow-glow-mode)",
-        teal: "var(--shadow-glow-teal)",
-        purple: "var(--shadow-glow-purple)",
-        ember: "var(--shadow-glow-ember)",
-    };
-
-    const radiusMap: Record<string, string> = {
-        none: "var(--radius-none)",
-        sm: "var(--radius-sm)",
-        md: "var(--radius-md)",
-        lg: "var(--radius-lg)",
-        xl: "var(--radius-xl)",
-        "2xl": "var(--radius-2xl)",
-        full: "var(--radius-full)",
-    };
-
-    // Compute combined shadow (reactive)
-    const computedShadow = $derived(
-        glow !== "none"
-            ? `${bevelMap[bevel]}, ${depthMap[depth]}, ${glowMap[glow]}`
-            : `${bevelMap[bevel]}, ${depthMap[depth]}`,
-    );
 </script>
 
 <div
-    class="surface {variant} {animate !== 'none'
-        ? `animate-${animate}`
-        : ''} {className}"
-    style:--mode-color={modeColor}
-    style:--surface-blur={blurMap[blur]}
-    style:--surface-shadow={computedShadow}
-    style:--surface-border={borderMap[border]}
-    style:--surface-radius={radiusMap[radius]}
+    class="dp-surface {className}"
+    data-variant={variant}
+    data-bevel={bevel}
+    data-depth={depth}
+    data-blur={blur}
+    data-glow={glow}
+    data-radius={radius}
 >
-    <div class="content">
+    <div class="dp-surface__content">
         {@render children()}
     </div>
 </div>
 
 <style>
-    .surface {
+    .dp-surface {
         position: relative;
         isolation: isolate;
-        border-radius: var(--surface-radius);
-        border: var(--surface-border);
-        box-shadow: var(--surface-shadow);
-        transition: all var(--duration-normal) var(--ease-out);
+        border: var(--dp-border-soft);
+        transition: all var(--dp-transition-normal);
         overflow: hidden;
     }
 
-    /* Glass Variant */
-    .surface.glass {
-        background: var(--surface-glass-void);
-        backdrop-filter: blur(var(--surface-blur));
+    /* Variants */
+    .dp-surface[data-variant="glass"] {
+        background: var(--dp-glass-void);
+    }
+    .dp-surface[data-variant="solid"] {
+        background: var(--dp-matte-dark);
+    }
+    .dp-surface[data-variant="matte"] {
+        background: var(--dp-matte-mid);
+        border: var(--dp-border-matte);
     }
 
-    /* Solid Variant */
-    .surface.solid {
-        background: var(--surface-solid-void);
+    /* Blur */
+    .dp-surface[data-blur="sm"] {
+        backdrop-filter: blur(var(--dp-blur-sm));
+        -webkit-backdrop-filter: blur(var(--dp-blur-sm));
+    }
+    .dp-surface[data-blur="md"] {
+        backdrop-filter: blur(var(--dp-blur-md));
+        -webkit-backdrop-filter: blur(var(--dp-blur-md));
+    }
+    .dp-surface[data-blur="lg"] {
+        backdrop-filter: blur(var(--dp-blur-lg));
+        -webkit-backdrop-filter: blur(var(--dp-blur-lg));
+    }
+    .dp-surface[data-blur="xl"] {
+        backdrop-filter: blur(var(--dp-blur-xl));
+        -webkit-backdrop-filter: blur(var(--dp-blur-xl));
     }
 
-    /* Mode Variant (Color-Reactive) */
-    .surface.mode {
-        background: color-mix(
-            in oklch,
-            var(--mode-color) 10%,
-            var(--surface-glass-void)
-        );
-        backdrop-filter: blur(var(--surface-blur));
+    /* Bevel */
+    .dp-surface[data-bevel="subtle"] {
+        box-shadow: inset 1px 1px 0 var(--dp-bevel-light);
+    }
+    .dp-surface[data-bevel="soft"] {
+        box-shadow: var(--dp-bevel-outset);
+    }
+    .dp-surface[data-bevel="medium"] {
+        box-shadow: inset 2px 2px 0 var(--dp-bevel-light-strong), inset -2px -2px 0 var(--dp-bevel-dark-strong);
     }
 
-    /* Content Layer */
-    .content {
+    /* Depth (adds to existing shadows) */
+    .dp-surface[data-depth="1"] {
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z1);
+    }
+    .dp-surface[data-depth="2"] {
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2);
+    }
+    .dp-surface[data-depth="3"] {
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z3);
+    }
+    .dp-surface[data-depth="4"] {
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z4);
+    }
+
+    /* Glow */
+    .dp-surface[data-glow="teal"] {
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2), var(--dp-glow-teal);
+    }
+    .dp-surface[data-glow="purple"] {
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2), var(--dp-glow-purple);
+    }
+    .dp-surface[data-glow="magenta"] {
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2), var(--dp-glow-magenta);
+    }
+    .dp-surface[data-glow="ember"] {
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2), var(--dp-glow-ember);
+    }
+
+    /* Radius */
+    .dp-surface[data-radius="none"] {
+        border-radius: var(--dp-radius-none);
+    }
+    .dp-surface[data-radius="sm"] {
+        border-radius: var(--dp-radius-sm);
+    }
+    .dp-surface[data-radius="md"] {
+        border-radius: var(--dp-radius-md);
+    }
+    .dp-surface[data-radius="lg"] {
+        border-radius: var(--dp-radius-lg);
+    }
+    .dp-surface[data-radius="xl"] {
+        border-radius: var(--dp-radius-xl);
+    }
+    .dp-surface[data-radius="full"] {
+        border-radius: var(--dp-radius-full);
+    }
+
+    /* Content layer */
+    .dp-surface__content {
         position: relative;
         z-index: 1;
         width: 100%;
         height: 100%;
-    }
-
-    /* Animations */
-    .animate-pulse {
-        animation: pulse-glow var(--duration-pulse) infinite ease-in-out;
-    }
-    .animate-breathe {
-        animation: breathe 3s infinite ease-in-out;
     }
 </style>

@@ -1,98 +1,140 @@
 /**
- * @fileoverview Generated Token Types
  * @file src/lib/design/tokens/types.ts
- * @module @devpulse/design/tokens/types
  * @layer tokens
  *
  * @description
- * Auto-generated from tokens.json - DO NOT EDIT MANUALLY
- * Provides TypeScript types + runtime arrays for all token categories.
+ * TypeScript types + runtime arrays for all COLD LIGHT design system tokens.
+ * Used by VPB for prop enumeration and type checking.
+ * SSOT: These arrays define both types and runtime values.
  *
  * @since 1.0.0
  */
 
 // ===========================================
-// SURFACE TOKENS
+// ACCENT TOKENS (color accents for VPB dropdown)
 // ===========================================
-export const SurfaceTokens = ["glass", "solid", "matte", "slime"] as const;
-export type SurfaceToken = typeof SurfaceTokens[number];
+export const AccentTokens = ["teal", "purple", "magenta", "ember", "frost"] as const;
+export type AccentToken = (typeof AccentTokens)[number];
 
 // ===========================================
-// TONE TOKENS
+// GLOW TOKENS (glow color for VPB dropdown)
 // ===========================================
-export const ToneTokens = ["cold", "neutral", "warm"] as const;
-export type ToneToken = typeof ToneTokens[number];
+export const GlowTokens = ["off", "teal", "purple", "magenta", "ember", "frost"] as const;
+export type GlowToken = (typeof GlowTokens)[number];
 
 // ===========================================
-// GLOW TOKENS
+// SURFACE TOKENS (material type)
 // ===========================================
-export const GlowTokens = ["off", "soft", "hard"] as const;
-export type GlowToken = typeof GlowTokens[number];
+export const SurfaceTokens = ["glass", "solid", "matte"] as const;
+export type SurfaceToken = (typeof SurfaceTokens)[number];
 
 // ===========================================
-// RADIUS TOKENS
+// GLASS VARIANT TOKENS (glass surface darkness)
 // ===========================================
-export const RadiusTokens = ["r0", "r1", "r2", "r3", "r4"] as const;
-export type RadiusToken = typeof RadiusTokens[number];
+export const GlassVariantTokens = ["void", "deep", "smoke", "frost"] as const;
+export type GlassVariantToken = (typeof GlassVariantTokens)[number];
 
 // ===========================================
-// ACCENT TOKENS
+// SIZE TOKENS (component sizing)
 // ===========================================
-export const AccentTokens = ["teal", "purple", "neutral"] as const;
-export type AccentToken = typeof AccentTokens[number];
+export const SizeTokens = ["sm", "md", "lg"] as const;
+export type SizeToken = (typeof SizeTokens)[number];
 
 // ===========================================
-// SPACE TOKENS
+// RADIUS TOKENS (border radius)
 // ===========================================
-export const SpaceTokens = ["s0", "s1", "s2", "s3", "s4", "s5", "s6", "s8"] as const;
-export type SpaceToken = typeof SpaceTokens[number];
+export const RadiusTokens = ["none", "sm", "md", "lg", "xl", "full"] as const;
+export type RadiusToken = (typeof RadiusTokens)[number];
 
 // ===========================================
-// BLUR TOKENS
+// BLUR TOKENS (backdrop blur)
 // ===========================================
-export const BlurTokens = ["b0", "b1", "b2", "b3"] as const;
-export type BlurToken = typeof BlurTokens[number];
+export const BlurTokens = ["off", "sm", "md", "lg", "xl"] as const;
+export type BlurToken = (typeof BlurTokens)[number];
 
 // ===========================================
-// DEPTH TOKENS
+// DEPTH TOKENS (shadow depth level)
 // ===========================================
-export const DepthTokens = ["d0", "d1", "d2", "d3"] as const;
-export type DepthToken = typeof DepthTokens[number];
+export const DepthTokens = [0, 1, 2, 3, 4] as const;
+export type DepthToken = (typeof DepthTokens)[number];
 
 // ===========================================
-// TEXT TOKENS
+// BEVEL TOKENS (bevel intensity)
 // ===========================================
-export const TextTokens = ["xs", "sm", "base", "lg", "xl", "2xl"] as const;
-export type TextToken = typeof TextTokens[number];
+export const BevelTokens = ["off", "subtle", "soft", "medium"] as const;
+export type BevelToken = (typeof BevelTokens)[number];
+
+// ===========================================
+// IMPRINT TOKENS (bevel imprint intensity for shell)
+// ===========================================
+export const ImprintTokens = ["subtle", "medium", "strong"] as const;
+export type ImprintToken = (typeof ImprintTokens)[number];
+
+// ===========================================
+// SHELL DEPTH TOKENS (shell layer depth)
+// ===========================================
+export const ShellDepthTokens = ["shallow", "standard", "deep"] as const;
+export type ShellDepthToken = (typeof ShellDepthTokens)[number];
+
+// ===========================================
+// SPACE TOKENS (spacing scale)
+// ===========================================
+export const SpaceTokens = ["1", "2", "3", "4", "5", "6", "8"] as const;
+export type SpaceToken = (typeof SpaceTokens)[number];
+
+// ===========================================
+// TEXT SIZE TOKENS (typography scale)
+// ===========================================
+export const TextSizeTokens = ["xs", "sm", "base", "lg", "xl", "2xl"] as const;
+export type TextSizeToken = (typeof TextSizeTokens)[number];
+
+// ===========================================
+// PADDING TOKENS (component padding)
+// ===========================================
+export const PaddingTokens = ["sm", "md", "lg"] as const;
+export type PaddingToken = (typeof PaddingTokens)[number];
+
+// ===========================================
+// TOKEN CATEGORIES INTERFACE
+// ===========================================
+export interface TokenCategories {
+  accent: AccentToken;
+  glow: GlowToken;
+  surface: SurfaceToken;
+  glassVariant: GlassVariantToken;
+  size: SizeToken;
+  radius: RadiusToken;
+  blur: BlurToken;
+  depth: DepthToken;
+  bevel: BevelToken;
+  imprint: ImprintToken;
+  shellDepth: ShellDepthToken;
+  space: SpaceToken;
+  textSize: TextSizeToken;
+  padding: PaddingToken;
+}
 
 // ===========================================
 // TOKEN ID HELPER TYPE
 // ===========================================
 export type TokenId<T extends keyof TokenCategories> = TokenCategories[T];
 
-export interface TokenCategories {
-  surface: SurfaceToken;
-  tone: ToneToken;
-  glow: GlowToken;
-  radius: RadiusToken;
-  accent: AccentToken;
-  space: SpaceToken;
-  blur: BlurToken;
-  depth: DepthToken;
-  text: TextToken;
-}
-
 // ===========================================
-// ALL TOKEN ARRAYS (for runtime iteration)
+// ALL TOKEN ARRAYS (for runtime iteration / VPB)
 // ===========================================
 export const TokenArrays = {
-  surface: SurfaceTokens,
-  tone: ToneTokens,
-  glow: GlowTokens,
-  radius: RadiusTokens,
   accent: AccentTokens,
-  space: SpaceTokens,
+  glow: GlowTokens,
+  surface: SurfaceTokens,
+  glassVariant: GlassVariantTokens,
+  size: SizeTokens,
+  radius: RadiusTokens,
   blur: BlurTokens,
   depth: DepthTokens,
-  text: TextTokens,
+  bevel: BevelTokens,
+  imprint: ImprintTokens,
+  shellDepth: ShellDepthTokens,
+  space: SpaceTokens,
+  textSize: TextSizeTokens,
+  padding: PaddingTokens,
 } as const;

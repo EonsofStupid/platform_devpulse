@@ -1,39 +1,39 @@
 <!--
   @file src/lib/design/components/Toggle.svelte
-  @name Toggle.svelte
-  @module @devpulse/design/components/Toggle
-  @layer lib
+  @layer components
 
   @description
-  [TODO: Describe this component's purpose]
+  Switch/toggle component for COLD LIGHT design system.
+  Binary on/off control with gradient active state and glow.
+  Uses data-* attributes for styling (Bits UI pattern).
 
   @props
-  - [TODO: propName]: [type] - [description]
+  - checked: boolean - Toggle state (bindable)
+  - size: "sm" | "md" | "lg" - Toggle size
+  - disabled: boolean - Disabled state
+  - label: string - Accessible label
+  - onchange: (checked: boolean) => void - Change handler
 
-  @dependencies
-  - [TODO: List imports]
-
-  @consumers
-  - [TODO: List who uses this component]
-
-  @vpb-editable [TODO: List editable props]
+  @vpb-editable size
   @since 1.0.0
--->
-<!--
-    Toggle - Switch component
-    ARIA: role="switch" with aria-checked
-    Uses OKLCH tokens only
 -->
 <script lang="ts">
     interface Props {
+        /** Toggle state (bindable) */
         checked?: boolean;
+        /** Toggle size (VPB dropdown) */
+        size?: "sm" | "md" | "lg";
+        /** Disabled state */
         disabled?: boolean;
+        /** Accessible label */
         label?: string;
+        /** Change handler */
         onchange?: (checked: boolean) => void;
     }
 
     let {
         checked = $bindable(false),
+        size = "md",
         disabled = false,
         label,
         onchange,
@@ -48,51 +48,90 @@
 </script>
 
 <button
+    type="button"
     role="switch"
     aria-checked={checked}
     aria-label={label}
     {disabled}
-    class="toggle"
-    class:checked
+    class="dp-toggle"
+    data-checked={checked}
+    data-size={size}
     onclick={toggle}
 >
-    <span class="toggle-thumb"></span>
+    <span class="dp-toggle__thumb"></span>
 </button>
 
 <style>
-    .toggle {
+    .dp-toggle {
         position: relative;
-        width: 44px;
-        height: 24px;
         padding: 2px;
-        background: var(--glass-deep);
-        border: var(--border-soft);
-        border-radius: var(--radius-full);
+        background: var(--dp-glass-deep);
+        border: var(--dp-border-soft);
+        border-radius: var(--dp-radius-full);
         cursor: pointer;
-        transition: all var(--duration-fast) var(--ease-out);
+        transition: all var(--dp-transition-fast);
     }
 
-    .toggle:disabled {
+    /* Sizes */
+    .dp-toggle[data-size="sm"] {
+        width: 36px;
+        height: 20px;
+    }
+    .dp-toggle[data-size="md"] {
+        width: 44px;
+        height: 24px;
+    }
+    .dp-toggle[data-size="lg"] {
+        width: 56px;
+        height: 30px;
+    }
+
+    .dp-toggle:disabled {
         opacity: 0.5;
         cursor: not-allowed;
     }
 
-    .toggle.checked {
-        background: linear-gradient(135deg, var(--teal-500), var(--cyan-500));
-        box-shadow: var(--glow-teal);
+    .dp-toggle[data-checked="true"] {
+        background: linear-gradient(135deg, var(--dp-teal-500), var(--dp-teal-400));
+        box-shadow: var(--dp-glow-teal);
     }
 
-    .toggle-thumb {
+    .dp-toggle__thumb {
         display: block;
+        background: var(--dp-text-primary);
+        border-radius: var(--dp-radius-full);
+        box-shadow: var(--dp-shadow-z2);
+        transition: transform var(--dp-duration-fast) var(--dp-ease-bounce);
+    }
+
+    /* Thumb sizes */
+    .dp-toggle[data-size="sm"] .dp-toggle__thumb {
+        width: 16px;
+        height: 16px;
+    }
+    .dp-toggle[data-size="md"] .dp-toggle__thumb {
         width: 20px;
         height: 20px;
-        background: var(--text-primary);
-        border-radius: var(--radius-full);
-        box-shadow: var(--shadow-z2);
-        transition: transform var(--duration-fast) var(--ease-bounce);
+    }
+    .dp-toggle[data-size="lg"] .dp-toggle__thumb {
+        width: 26px;
+        height: 26px;
     }
 
-    .toggle.checked .toggle-thumb {
+    /* Thumb translate */
+    .dp-toggle[data-size="sm"][data-checked="true"] .dp-toggle__thumb {
+        transform: translateX(16px);
+    }
+    .dp-toggle[data-size="md"][data-checked="true"] .dp-toggle__thumb {
         transform: translateX(20px);
+    }
+    .dp-toggle[data-size="lg"][data-checked="true"] .dp-toggle__thumb {
+        transform: translateX(26px);
+    }
+
+    /* Focus */
+    .dp-toggle:focus-visible {
+        outline: 2px solid var(--dp-teal-400);
+        outline-offset: 2px;
     }
 </style>

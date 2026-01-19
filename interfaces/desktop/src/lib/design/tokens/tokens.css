@@ -55,6 +55,41 @@
   --dp-purple-800: oklch(25% 0.10 var(--dp-hue-purple));
   --dp-purple-900: oklch(15% 0.05 var(--dp-hue-purple));
 
+  /* Derived Colors - Magenta (Cyber pink-red accent) */
+  --dp-magenta-100: oklch(95% 0.05 var(--dp-hue-magenta));
+  --dp-magenta-200: oklch(85% 0.12 var(--dp-hue-magenta));
+  --dp-magenta-300: oklch(75% 0.18 var(--dp-hue-magenta));
+  --dp-magenta-400: oklch(65% 0.22 var(--dp-hue-magenta));
+  --dp-magenta-500: oklch(55% 0.24 var(--dp-hue-magenta));
+  --dp-magenta-600: oklch(45% 0.22 var(--dp-hue-magenta));
+  --dp-magenta-700: oklch(35% 0.18 var(--dp-hue-magenta));
+  --dp-magenta-800: oklch(25% 0.12 var(--dp-hue-magenta));
+  --dp-magenta-900: oklch(15% 0.06 var(--dp-hue-magenta));
+
+  /* Derived Colors - Ember (Warning/Active orange) */
+  --dp-hue-ember: 35;
+  --dp-ember-100: oklch(95% 0.05 var(--dp-hue-ember));
+  --dp-ember-200: oklch(85% 0.12 var(--dp-hue-ember));
+  --dp-ember-300: oklch(75% 0.18 var(--dp-hue-ember));
+  --dp-ember-400: oklch(68% 0.20 var(--dp-hue-ember));
+  --dp-ember-500: oklch(60% 0.22 var(--dp-hue-ember));
+  --dp-ember-600: oklch(50% 0.20 var(--dp-hue-ember));
+  --dp-ember-700: oklch(40% 0.16 var(--dp-hue-ember));
+  --dp-ember-800: oklch(30% 0.10 var(--dp-hue-ember));
+  --dp-ember-900: oklch(20% 0.05 var(--dp-hue-ember));
+
+  /* Derived Colors - Frost (Neutral white/ice) */
+  --dp-hue-frost: 210;
+  --dp-frost-100: oklch(98% 0.01 var(--dp-hue-frost));
+  --dp-frost-200: oklch(95% 0.02 var(--dp-hue-frost));
+  --dp-frost-300: oklch(90% 0.03 var(--dp-hue-frost));
+  --dp-frost-400: oklch(82% 0.04 var(--dp-hue-frost));
+  --dp-frost-500: oklch(70% 0.04 var(--dp-hue-frost));
+  --dp-frost-600: oklch(55% 0.03 var(--dp-hue-frost));
+  --dp-frost-700: oklch(40% 0.02 var(--dp-hue-frost));
+  --dp-frost-800: oklch(25% 0.01 var(--dp-hue-frost));
+  --dp-frost-900: oklch(12% 0.01 var(--dp-hue-frost));
+
   /* Derived Colors - Matte Surface (Deep teal-blue) */
   --dp-matte-dark: oklch(8% 0.04 var(--dp-hue-matte));
   --dp-matte-mid: oklch(12% 0.05 var(--dp-hue-matte));
@@ -65,10 +100,17 @@
   --dp-glass-tint-purple: oklch(45% 0.15 var(--dp-hue-purple) / 0.15);
   --dp-glass-base: oklch(10% 0.03 var(--dp-hue-teal) / 0.85);
 
+  /* Glass Surface Variants (VPB selectable) */
+  --dp-glass-void: oklch(6% 0.02 var(--dp-hue-teal) / 0.92);
+  --dp-glass-deep: oklch(10% 0.04 var(--dp-hue-teal) / 0.88);
+  --dp-glass-smoke: oklch(15% 0.03 var(--dp-hue-matte) / 0.82);
+  --dp-glass-frost: oklch(25% 0.02 var(--dp-hue-frost) / 0.75);
+
   /* Text */
   --dp-text-primary: oklch(95% 0.01 var(--dp-hue-teal));
   --dp-text-secondary: oklch(75% 0.02 var(--dp-hue-teal));
   --dp-text-muted: oklch(55% 0.03 var(--dp-hue-teal));
+  --dp-text-white: oklch(98% 0.01 var(--dp-hue-frost));
 
   /* =============================================
      SPACING - Fluid clamp() based
@@ -87,10 +129,12 @@
   /* =============================================
      BORDERS & RADIUS - Fluid
      ============================================= */
+  --dp-radius-none: 0;
   --dp-radius-sm: clamp(4px, 0.5vw, 6px);
   --dp-radius-md: clamp(6px, 0.75vw, 10px);
   --dp-radius-lg: clamp(10px, 1vw, 14px);
   --dp-radius-xl: clamp(14px, 1.25vw, 20px);
+  --dp-radius-full: 9999px;
 
   --dp-border-thin: 1px;
   --dp-border-medium: 2px;
@@ -108,6 +152,13 @@
   --dp-glow-sm: 0 0 8px;
   --dp-glow-md: 0 0 16px;
   --dp-glow-lg: 0 0 24px;
+
+  /* Composed Glow Tokens (VPB selectable, box-shadow ready) */
+  --dp-glow-teal: 0 0 20px oklch(60% 0.18 var(--dp-hue-teal) / 0.5), 0 0 40px oklch(55% 0.15 var(--dp-hue-teal) / 0.25);
+  --dp-glow-purple: 0 0 20px oklch(55% 0.20 var(--dp-hue-purple) / 0.5), 0 0 40px oklch(50% 0.18 var(--dp-hue-purple) / 0.25);
+  --dp-glow-magenta: 0 0 20px oklch(60% 0.22 var(--dp-hue-magenta) / 0.5), 0 0 40px oklch(55% 0.20 var(--dp-hue-magenta) / 0.25);
+  --dp-glow-ember: 0 0 20px oklch(65% 0.20 var(--dp-hue-ember) / 0.5), 0 0 40px oklch(60% 0.18 var(--dp-hue-ember) / 0.25);
+  --dp-glow-frost: 0 0 20px oklch(85% 0.03 var(--dp-hue-frost) / 0.4), 0 0 40px oklch(80% 0.02 var(--dp-hue-frost) / 0.2);
 
   /* =============================================
      DEPTH - Bevel & Shadow tokens
@@ -129,6 +180,31 @@
   --dp-shadow-md: 0 4px 16px oklch(5% 0.02 var(--dp-hue-purple) / 0.4);
   --dp-shadow-lg: 0 8px 32px oklch(5% 0.02 var(--dp-hue-purple) / 0.5);
 
+  /* Shadow Z-Levels (elevation system) */
+  --dp-shadow-z1: 0 1px 4px oklch(5% 0.02 var(--dp-hue-purple) / 0.2);
+  --dp-shadow-z2: 0 4px 12px oklch(5% 0.02 var(--dp-hue-purple) / 0.35);
+  --dp-shadow-z3: 0 8px 24px oklch(5% 0.02 var(--dp-hue-purple) / 0.45);
+  --dp-shadow-z4: 0 16px 48px oklch(5% 0.02 var(--dp-hue-purple) / 0.55);
+
+  /* Bevel Presets (composed box-shadows) */
+  --dp-bevel-outset: inset 1px 1px 0 var(--dp-bevel-light), inset -1px -1px 0 var(--dp-bevel-dark);
+  --dp-bevel-inset: inset -1px -1px 0 var(--dp-bevel-light), inset 1px 1px 0 var(--dp-bevel-dark);
+  --dp-bevel-deep: inset 2px 2px 4px var(--dp-inset-dark), inset -1px -1px 2px var(--dp-inset-light);
+
+  /* Bevel Imprint (embossed edge for shell layers) */
+  --dp-bevel-imprint: inset 0 1px 0 var(--dp-bevel-light-strong), inset 0 -1px 0 var(--dp-bevel-dark-strong), inset 1px 0 0 oklch(40% 0.05 var(--dp-hue-teal) / 0.3), inset -1px 0 0 oklch(20% 0.03 var(--dp-hue-purple) / 0.4);
+  --dp-bevel-pressed: inset 2px 2px 6px var(--dp-inset-dark), inset -1px -1px 3px var(--dp-inset-light), inset 0 0 12px var(--dp-inset-dark);
+
+  /* Imprint Intensity (VPB selectable) */
+  --dp-imprint-subtle: 0.3;
+  --dp-imprint-medium: 0.5;
+  --dp-imprint-strong: 0.8;
+
+  /* Border Presets (VPB selectable) */
+  --dp-border-soft: var(--dp-border-thin) solid oklch(50% 0.08 var(--dp-hue-teal) / 0.3);
+  --dp-border-glow: var(--dp-border-thin) solid oklch(60% 0.15 var(--dp-hue-teal) / 0.5);
+  --dp-border-matte: var(--dp-border-thin) solid oklch(30% 0.04 var(--dp-hue-matte) / 0.4);
+
   /* =============================================
      TYPOGRAPHY - Fluid
      ============================================= */
@@ -146,9 +222,26 @@
      TRANSITIONS
      ============================================= */
   --dp-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dp-ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
   --dp-duration-fast: 150ms;
   --dp-duration-normal: 300ms;
   --dp-duration-slow: 500ms;
+
+  /* Composed Transitions */
+  --dp-transition-fast: var(--dp-duration-fast) var(--dp-ease-out);
+  --dp-transition-normal: var(--dp-duration-normal) var(--dp-ease-out);
+
+  /* =============================================
+     Z-INDEX SYSTEM
+     ============================================= */
+  --dp-z-base: 0;
+  --dp-z-dropdown: 100;
+  --dp-z-sticky: 200;
+  --dp-z-modal: 300;
+  --dp-z-popover: 400;
+  --dp-z-tooltip: 500;
+  --dp-z-toast: 600;
+  --dp-z-overlay: 700;
 
   /* =============================================
      VPB (Visual Page Builder) - Dev Tool Tokens

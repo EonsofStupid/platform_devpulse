@@ -1,38 +1,23 @@
 <!--
   @file src/lib/design/primitives/ParasiteLogo.svelte
-  @name ParasiteLogo.svelte
-  @module @devpulse/design/primitives/ParasiteLogo
-  @layer lib
+  @layer primitives
 
   @description
-  [TODO: Describe this component's purpose]
+  DevPulse brand typography component with animated letter color shifts.
+  Features random color shifts (teal/ember/purple) and sporadic pulse sweep.
+  Uses COLD LIGHT design system tokens.
 
   @props
-  - [TODO: propName]: [type] - [description]
+  - size: "sm" | "md" | "lg" - Logo size
 
-  @dependencies
-  - [TODO: List imports]
-
-  @consumers
-  - [TODO: List who uses this component]
-
-  @vpb-editable [TODO: List editable props]
+  @vpb-editable size
   @since 1.0.0
 -->
 <script lang="ts">
-    /**
-     * ParasiteLogo - DevPulse Brand Typography
-     *
-     * Features (from alpha pattern):
-     * - Letters randomly shift colors (ice/fire/cyan/purple)
-     * - Sporadic pulse line sweeps through text
-     * - Deep glass container
-     *
-     * Uses composable tokens from design system.
-     */
     import { onMount } from "svelte";
 
     interface Props {
+        /** Logo size (VPB dropdown) */
         size?: "sm" | "md" | "lg";
     }
 
@@ -50,7 +35,7 @@
         "base",
     ]);
     const letters = ["D", "E", "V", "P", "U", "L", "S", "E"];
-    const colorClasses = ["ice", "fire", "cyan", "purple", "base"];
+    const colorClasses = ["teal", "ember", "cyan", "purple", "base"];
 
     // Pulse line state
     let pulseActive = $state(false);
@@ -105,112 +90,97 @@
     });
 </script>
 
-<div class="parasite-logo size-{size}">
-    <div class="logo-text-container">
-        <span class="logo-text">
+<div class="dp-parasite-logo" data-size={size}>
+    <div class="dp-parasite-logo__text-container">
+        <span class="dp-parasite-logo__text">
             {#each letters as letter, i}
                 <span
-                    class="letter"
-                    class:ice={letterColors[i] === "ice"}
-                    class:fire={letterColors[i] === "fire"}
-                    class:cyan={letterColors[i] === "cyan"}
-                    class:purple={letterColors[i] === "purple"}>{letter}</span
-                >
+                    class="dp-parasite-logo__letter"
+                    data-color={letterColors[i]}
+                >{letter}</span>
             {/each}
         </span>
 
         <!-- Pulse overlay -->
-        <div class="pulse-line" class:active={pulseActive}></div>
+        <div class="dp-parasite-logo__pulse" data-active={pulseActive}></div>
     </div>
 </div>
 
 <style>
-    /* Container - Deep glass (uses design system tokens) */
-    .parasite-logo {
+    /* Container - Deep glass */
+    .dp-parasite-logo {
         display: inline-flex;
         align-items: center;
         position: relative;
-
-        /* Glass surface - composable */
-        background: var(--surface-glass-void);
-        backdrop-filter: blur(var(--blur-lg));
-        border: var(--border-soft);
-        border-radius: var(--radius-md);
-        box-shadow: var(--bevel-outset-soft), var(--shadow-z2);
-
-        padding: var(--space-1) var(--space-3);
+        background: var(--dp-glass-void);
+        backdrop-filter: blur(var(--dp-blur-lg));
+        -webkit-backdrop-filter: blur(var(--dp-blur-lg));
+        border: var(--dp-border-soft);
+        border-radius: var(--dp-radius-md);
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2);
     }
 
     /* Size variants */
-    .size-sm {
-        padding: var(--space-1) var(--space-2);
+    .dp-parasite-logo[data-size="sm"] {
+        padding: var(--dp-space-1) var(--dp-space-2);
     }
-    .size-md {
-        padding: var(--space-1) var(--space-3);
+    .dp-parasite-logo[data-size="md"] {
+        padding: var(--dp-space-1) var(--dp-space-3);
     }
-    .size-lg {
-        padding: var(--space-2) var(--space-4);
+    .dp-parasite-logo[data-size="lg"] {
+        padding: var(--dp-space-2) var(--dp-space-4);
     }
 
     /* Text container */
-    .logo-text-container {
+    .dp-parasite-logo__text-container {
         position: relative;
         overflow: hidden;
     }
 
-    .logo-text {
+    .dp-parasite-logo__text {
         display: flex;
         font-weight: 800;
         letter-spacing: 0.15em;
-        font-family: var(--font-sans);
+        font-family: var(--dp-font-sans);
     }
 
-    .size-sm .logo-text {
-        font-size: clamp(0.875rem, 1.5vw, 1rem);
+    .dp-parasite-logo[data-size="sm"] .dp-parasite-logo__text {
+        font-size: var(--dp-text-sm);
     }
-    .size-md .logo-text {
-        font-size: clamp(1rem, 2vw, 1.25rem);
+    .dp-parasite-logo[data-size="md"] .dp-parasite-logo__text {
+        font-size: var(--dp-text-base);
     }
-    .size-lg .logo-text {
-        font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+    .dp-parasite-logo[data-size="lg"] .dp-parasite-logo__text {
+        font-size: var(--dp-text-xl);
     }
 
     /* Individual letters - base state */
-    .letter {
+    .dp-parasite-logo__letter {
         display: inline-block;
-        transition:
-            color var(--duration-normal) var(--ease-out),
-            text-shadow var(--duration-normal) var(--ease-out);
-        color: var(--text-white);
+        transition: color var(--dp-transition-normal), text-shadow var(--dp-transition-normal);
+        color: var(--dp-text-white);
     }
 
-    /* Color states - OKLCH (aligned to design system signals) */
-    .letter.ice {
-        /* Ice = teal family (signal-teal) */
-        color: oklch(75% 0.15 195);
-        text-shadow: 0 0 12px oklch(70% 0.2 195 / 0.8);
+    /* Color states - using design system hues */
+    .dp-parasite-logo__letter[data-color="teal"] {
+        color: var(--dp-teal-300);
+        text-shadow: 0 0 12px oklch(70% 0.18 var(--dp-hue-teal) / 0.8);
     }
-
-    .letter.fire {
-        /* Fire = ember family (signal-ember) */
-        color: oklch(75% 0.2 45);
-        text-shadow: 0 0 12px oklch(70% 0.25 45 / 0.8);
+    .dp-parasite-logo__letter[data-color="ember"] {
+        color: var(--dp-ember-300);
+        text-shadow: 0 0 12px oklch(70% 0.20 var(--dp-hue-ember) / 0.8);
     }
-
-    .letter.cyan {
-        /* Cyan = lighter teal */
-        color: oklch(80% 0.15 190);
-        text-shadow: 0 0 12px oklch(75% 0.2 190 / 0.8);
+    .dp-parasite-logo__letter[data-color="cyan"] {
+        color: var(--dp-teal-200);
+        text-shadow: 0 0 12px oklch(75% 0.15 var(--dp-hue-teal) / 0.8);
     }
-
-    .letter.purple {
-        /* Purple = signal-purple */
-        color: oklch(70% 0.2 280);
-        text-shadow: 0 0 12px oklch(65% 0.25 280 / 0.8);
+    .dp-parasite-logo__letter[data-color="purple"] {
+        color: var(--dp-purple-300);
+        text-shadow: 0 0 12px oklch(65% 0.20 var(--dp-hue-purple) / 0.8);
     }
 
     /* Pulse line overlay */
-    .pulse-line {
+    .dp-parasite-logo__pulse {
         position: absolute;
         top: 0;
         left: 0;
@@ -219,27 +189,25 @@
         pointer-events: none;
         opacity: 0;
         transform: translateX(-100%);
-
         background: linear-gradient(
             90deg,
             transparent 0%,
-            oklch(75% 0.25 45 / 0.6) 30%,
-            oklch(90% 0.2 195 / 1) 50%,
-            oklch(75% 0.25 195 / 0.6) 70%,
+            oklch(75% 0.20 var(--dp-hue-ember) / 0.6) 30%,
+            oklch(90% 0.15 var(--dp-hue-teal) / 1) 50%,
+            oklch(75% 0.20 var(--dp-hue-teal) / 0.6) 70%,
             transparent 100%
         );
-
         box-shadow:
-            0 0 15px oklch(80% 0.2 195 / 0.8),
-            0 0 30px oklch(70% 0.15 195 / 0.4);
+            0 0 15px oklch(80% 0.18 var(--dp-hue-teal) / 0.8),
+            0 0 30px oklch(70% 0.15 var(--dp-hue-teal) / 0.4);
     }
 
-    .pulse-line.active {
+    .dp-parasite-logo__pulse[data-active="true"] {
         opacity: 1;
-        animation: pulse-sweep 1s var(--ease-out) forwards;
+        animation: dp-pulse-sweep 1s var(--dp-ease-out) forwards;
     }
 
-    @keyframes pulse-sweep {
+    @keyframes dp-pulse-sweep {
         0% {
             transform: translateX(-100%);
             opacity: 0;

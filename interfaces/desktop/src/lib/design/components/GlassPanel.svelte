@@ -1,45 +1,44 @@
 <!--
   @file src/lib/design/components/GlassPanel.svelte
-  @name GlassPanel.svelte
-  @module @devpulse/design/components/GlassPanel
-  @layer lib
+  @layer components
 
   @description
-  [TODO: Describe this component's purpose]
+  Core glass surface component for COLD LIGHT design system.
+  Renders a translucent panel with backdrop blur, bevel effects, and optional glow.
+  Uses data-* attributes for styling (Bits UI pattern).
 
   @props
-  - [TODO: propName]: [type] - [description]
+  - variant: "void" | "deep" | "smoke" | "frost" - Glass surface darkness
+  - blur: "sm" | "md" | "lg" | "xl" - Backdrop blur intensity
+  - glow: "off" | "teal" | "purple" | "magenta" | "ember" | "frost" - Outer glow color
+  - radius: "sm" | "md" | "lg" | "xl" - Border radius
+  - class: string - Additional CSS classes
 
-  @dependencies
-  - [TODO: List imports]
-
-  @consumers
-  - [TODO: List who uses this component]
-
-  @vpb-editable [TODO: List editable props]
+  @vpb-editable variant, blur, glow, radius
   @since 1.0.0
--->
-<!--
-    GlassPanel - Core composable glass surface
-    ARIA: role="region" when needed
-    Uses OKLCH tokens only
 -->
 <script lang="ts">
     import type { Snippet } from "svelte";
 
     interface Props {
+        /** Glass surface variant (VPB dropdown) */
         variant?: "void" | "deep" | "smoke" | "frost";
+        /** Backdrop blur intensity (VPB dropdown) */
         blur?: "sm" | "md" | "lg" | "xl";
-        glow?: "none" | "teal" | "purple" | "pink" | "ember";
+        /** Outer glow color (VPB dropdown) */
+        glow?: "off" | "teal" | "purple" | "magenta" | "ember" | "frost";
+        /** Border radius (VPB dropdown) */
         radius?: "sm" | "md" | "lg" | "xl";
+        /** Additional CSS classes */
         class?: string;
+        /** Content slot */
         children: Snippet;
     }
 
     let {
         variant = "void",
         blur = "lg",
-        glow = "none",
+        glow = "off",
         radius = "md",
         class: className = "",
         children,
@@ -47,76 +46,86 @@
 </script>
 
 <div
-    class="glass-panel variant-{variant} blur-{blur} radius-{radius} {className}"
-    class:glow-teal={glow === "teal"}
-    class:glow-purple={glow === "purple"}
-    class:glow-pink={glow === "pink"}
-    class:glow-ember={glow === "ember"}
+    class="dp-glass-panel {className}"
+    data-variant={variant}
+    data-blur={blur}
+    data-glow={glow}
+    data-radius={radius}
 >
     {@render children()}
 </div>
 
 <style>
-    .glass-panel {
+    .dp-glass-panel {
         position: relative;
-        border: var(--border-soft);
-        box-shadow: var(--bevel-outset), var(--shadow-z2);
-        transition: all var(--duration-normal) var(--ease-out);
+        border: var(--dp-border-soft);
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2);
+        transition: all var(--dp-transition-normal);
     }
 
     /* Variants */
-    .variant-void {
-        background: var(--glass-void);
+    .dp-glass-panel[data-variant="void"] {
+        background: var(--dp-glass-void);
     }
-    .variant-deep {
-        background: var(--glass-deep);
+    .dp-glass-panel[data-variant="deep"] {
+        background: var(--dp-glass-deep);
     }
-    .variant-smoke {
-        background: var(--glass-smoke);
+    .dp-glass-panel[data-variant="smoke"] {
+        background: var(--dp-glass-smoke);
     }
-    .variant-frost {
-        background: var(--glass-frost);
+    .dp-glass-panel[data-variant="frost"] {
+        background: var(--dp-glass-frost);
     }
 
     /* Blur */
-    .blur-sm {
-        backdrop-filter: blur(var(--blur-sm));
+    .dp-glass-panel[data-blur="sm"] {
+        backdrop-filter: blur(var(--dp-blur-sm));
+        -webkit-backdrop-filter: blur(var(--dp-blur-sm));
     }
-    .blur-md {
-        backdrop-filter: blur(var(--blur-md));
+    .dp-glass-panel[data-blur="md"] {
+        backdrop-filter: blur(var(--dp-blur-md));
+        -webkit-backdrop-filter: blur(var(--dp-blur-md));
     }
-    .blur-lg {
-        backdrop-filter: blur(var(--blur-lg));
+    .dp-glass-panel[data-blur="lg"] {
+        backdrop-filter: blur(var(--dp-blur-lg));
+        -webkit-backdrop-filter: blur(var(--dp-blur-lg));
     }
-    .blur-xl {
-        backdrop-filter: blur(var(--blur-xl));
+    .dp-glass-panel[data-blur="xl"] {
+        backdrop-filter: blur(var(--dp-blur-xl));
+        -webkit-backdrop-filter: blur(var(--dp-blur-xl));
     }
 
     /* Radius */
-    .radius-sm {
-        border-radius: var(--radius-sm);
+    .dp-glass-panel[data-radius="sm"] {
+        border-radius: var(--dp-radius-sm);
     }
-    .radius-md {
-        border-radius: var(--radius-md);
+    .dp-glass-panel[data-radius="md"] {
+        border-radius: var(--dp-radius-md);
     }
-    .radius-lg {
-        border-radius: var(--radius-lg);
+    .dp-glass-panel[data-radius="lg"] {
+        border-radius: var(--dp-radius-lg);
     }
-    .radius-xl {
-        border-radius: var(--radius-xl);
+    .dp-glass-panel[data-radius="xl"] {
+        border-radius: var(--dp-radius-xl);
     }
 
     /* Glows */
-    .glow-teal {
-        box-shadow: var(--bevel-outset), var(--shadow-z2), var(--glow-teal);
+    .dp-glass-panel[data-glow="off"] {
+        /* No additional glow */
     }
-    .glow-purple {
-        box-shadow: var(--bevel-outset), var(--shadow-z2), var(--glow-purple);
+    .dp-glass-panel[data-glow="teal"] {
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2), var(--dp-glow-teal);
     }
-    .glow-pink {
-        box-shadow: var(--bevel-outset), var(--shadow-z2), var(--glow-pink);
+    .dp-glass-panel[data-glow="purple"] {
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2), var(--dp-glow-purple);
     }
-    .glow-ember {
-        box-shadow: var(--bevel-outset), var(--shadow-z2), var(--glow-ember);
+    .dp-glass-panel[data-glow="magenta"] {
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2), var(--dp-glow-magenta);
+    }
+    .dp-glass-panel[data-glow="ember"] {
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2), var(--dp-glow-ember);
+    }
+    .dp-glass-panel[data-glow="frost"] {
+        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2), var(--dp-glow-frost);
     }
 </style>

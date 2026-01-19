@@ -50,6 +50,9 @@ class ScanManager {
   
   /** Parsed info for selected element */
   elementInfo = $state<ElementInfo | null>(null);
+
+  /** Position of the click that triggered selection */
+  clickPosition = $state<{ x: number; y: number }>({ x: 0, y: 0 });
   
   /** Whether inspector panel is open */
   inspectorOpen = $state(false);
@@ -61,6 +64,14 @@ class ScanManager {
   /** Set hovered element (for tooltip) */
   setHovered(el: HTMLElement | null): void {
     this.hoveredElement = el;
+    if (el) {
+        this.elementInfo = this.parseElement(el);
+    } else {
+        // Only clear if not selected
+        if (!this.selectedElement) {
+            this.elementInfo = null;
+        }
+    }
   }
   
   /** Select element (for inspection) */

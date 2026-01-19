@@ -65,8 +65,8 @@
             <GlassPanel glow="purple" class="demo-panel">
                 <p>Purple Glow</p>
             </GlassPanel>
-            <GlassPanel glow="pink" class="demo-panel">
-                <p>Pink Glow</p>
+            <GlassPanel glow="magenta" class="demo-panel">
+                <p>Magenta Glow</p>
             </GlassPanel>
             <GlassPanel glow="ember" class="demo-panel">
                 <p>Ember Glow</p>
@@ -81,7 +81,7 @@
             <Button variant="primary">Primary</Button>
             <Button variant="secondary">Secondary</Button>
             <Button variant="ghost">Ghost</Button>
-            <Button variant="primary" glow>With Glow</Button>
+            <Button variant="primary" glow="teal">With Glow</Button>
         </div>
         <div class="demo-row">
             <Button size="sm">Small</Button>
@@ -142,7 +142,7 @@
         <div class="demo-row">
             <Badge variant="teal">Teal</Badge>
             <Badge variant="purple">Purple</Badge>
-            <Badge variant="pink">Pink</Badge>
+            <Badge variant="magenta">Magenta</Badge>
             <Badge variant="ember">Ember</Badge>
             <Badge variant="muted">Muted</Badge>
         </div>
@@ -151,21 +151,21 @@
 
 <style>
     .demo-page {
-        padding: var(--space-8);
+        padding: var(--dp-space-8);
         min-height: 100vh;
-        background: var(--void-950);
-        color: var(--text-primary);
+        background: var(--dp-matte-void);
+        color: var(--dp-text-primary);
     }
 
     .demo-title {
-        font-size: var(--text-3xl);
+        font-size: var(--dp-text-3xl);
         font-weight: 800;
-        margin-bottom: var(--space-2);
+        margin-bottom: var(--dp-space-2);
         background: linear-gradient(
             135deg,
-            var(--teal-400),
-            var(--purple-400),
-            var(--pink-400)
+            var(--dp-teal-400),
+            var(--dp-purple-400),
+            var(--dp-magenta-400)
         );
         background-clip: text;
         -webkit-background-clip: text;
@@ -173,48 +173,48 @@
     }
 
     .demo-subtitle {
-        font-family: var(--font-mono);
-        color: var(--text-muted);
-        margin-bottom: var(--space-8);
+        font-family: var(--dp-font-mono);
+        color: var(--dp-text-muted);
+        margin-bottom: var(--dp-space-8);
     }
 
     .demo-section {
-        margin-bottom: var(--space-8);
+        margin-bottom: var(--dp-space-8);
     }
 
     .demo-section h2 {
-        font-size: var(--text-xl);
-        color: var(--text-secondary);
-        margin-bottom: var(--space-4);
+        font-size: var(--dp-text-xl);
+        color: var(--dp-text-secondary);
+        margin-bottom: var(--dp-space-4);
         text-transform: uppercase;
         letter-spacing: 0.1em;
     }
 
     .demo-section h3 {
-        font-size: var(--text-lg);
-        margin-bottom: var(--space-2);
+        font-size: var(--dp-text-lg);
+        margin-bottom: var(--dp-space-2);
     }
 
     .demo-section p {
-        color: var(--text-secondary);
+        color: var(--dp-text-secondary);
     }
 
     .demo-row {
         display: flex;
         flex-wrap: wrap;
-        gap: var(--space-4);
+        gap: var(--dp-space-4);
         align-items: center;
-        margin-bottom: var(--space-4);
+        margin-bottom: var(--dp-space-4);
     }
 
     .demo-panel {
-        padding: var(--space-4);
+        padding: var(--dp-space-4);
         min-width: 120px;
         text-align: center;
     }
 
     .demo-label {
-        font-family: var(--font-mono);
-        color: var(--text-muted);
+        font-family: var(--dp-font-mono);
+        color: var(--dp-text-muted);
     }
 </style>

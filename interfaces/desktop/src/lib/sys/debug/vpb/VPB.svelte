@@ -24,8 +24,7 @@
   import { vpb } from "./state/vpb.svelte";
   import VPBPanel from "./components/VPBPanel.svelte";
   import VPBToast from "./components/VPBToast.svelte";
-  import VPBInspector from "./components/VPBInspector.svelte";
-  import ScanOverlay from "./scan/ScanOverlay.svelte";
+  import ScanOverlay from "./components/inspector/ScanOverlay.svelte";
 </script>
 
 {#if __DEV__}
@@ -37,7 +36,4 @@
 
   <!-- Main Controller Panel -->
   <VPBPanel />
-
-  <!-- Independent Inspector Window (Appears on Selection) -->
-  <VPBInspector />
 {/if}
