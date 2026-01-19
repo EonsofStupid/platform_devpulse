@@ -4,8 +4,8 @@
 
 ## Color Primitives
 ```css
---color-black: hsl(240, 20%, 4%);
---color-void:  hsl(240, 15%, 6%);
+--color-black: hsla(187, 66%, 10%, 1.00);
+--color-void:  hsla(249, 43%, 25%, 0.72);
 --signal-teal: hsl(168, 100%, 50%);
 --signal-purple: hsl(275, 100%, 50%);
 --mode-color: var(--signal-teal); /* Dynamic */
