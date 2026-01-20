@@ -1,218 +1,193 @@
-✅ UPDATED README.md (drop-in replacement)
-# COLD LIGHT Design System (ColdLight / Maestro)
+# COLD LIGHT Design System
 
-> Enterprise-grade, token-governed, registry-first, VPB-composable design system for DevPulse.  
-> Built for **SvelteKit 5 + TypeScript + Tailwind + Bits UI**, with strict enforcement and zero drift.
-
----
-
-## 🛑 BEFORE WRITING ANY CODE
-
-**Read [.agent/INSTRUCTIONS.md](./.agent/INSTRUCTIONS.md) first.**  
-If you skip it, you will generate drift and violate the system.
+> Enterprise NO-CODE visual design system for DevPulse.
+> **SvelteKit 5 + Bits UI + Tailwind CSS + VPB (Visual Page Builder)**
 
 ---
 
-## Core Concept (Do Not Misinterpret)
+## Quick Start
 
-You are NOT “building components first.”
-
-You are building a **registry-driven visual system**:
-
-
-
-Tokens (SSOT) → Taxonomy (kinds/contracts) → Recipes (visuals) → VPB Blocks → Renderers (.svelte)
-
-
-- **VPB stores structure** (BlockNodes)
-- **Recipes produce visuals** (Tailwind classes + required actions)
-- **Tokens provide values** (root-scoped semantic variables)
-- **Renderers apply recipes** (no styling decisions inside renderers)
+**Before writing ANY code:**
+1. Read [.claude/CLAUDE.md](./.claude/CLAUDE.md) — comprehensive system context
+2. Read [.agent/INSTRUCTIONS.md](./.agent/INSTRUCTIONS.md) — enforcement rules
 
 ---
 
-## ⚠️ HARD RULES (Non-Negotiable)
+## System Architecture
 
-| Rule | Correct | Forbidden |
-|------|---------|-----------|
-| **One Theme Identity** | ColdLight is the brand | Per-component “themes” |
-| **Theme Variants** | Swap token VALUES only | Changing token NAMES per variant |
-| **BlockNode Storage** | `{kind, recipe, props, slots}` | Colors / CSS vars / Tailwind classnames |
-| **Bits UI** | Import ONLY in `design/primitives/` | Import in renderers/domains/vpb |
-| **Styling Ownership** | Styling decisions live ONLY in `design/recipes/` | “Self-styling” `.svelte` components |
-| **Token SSOT** | `tokens.ts` is SSOT → generates CSS | Hand-editing `tokens.css` |
-| **Tailwind** | Use preset + recipe outputs | Arbitrary values `[...]`, raw colors |
-| **Shell Layout** | CSS Grid required | Flexbox scaffolding |
-| **Toasts** | `svelte-sonner` via `domains/notify` | toastify/svelte-toast/native alerts |
-
----
-
-## ✅ Registry-First Gate (NO `.svelte` until this passes)
-
-Before creating any new **design renderers**:
-
-### Stage 0 — Intent
-- [ ] Kind name exists (`panel`, `widget`, `chatDock`, etc.)
-- [ ] Slots defined (`root`, `header`, `body`, etc.)
-
-### Stage 1 — Tokens
-- [ ] Tokens exist in `design/tokens/tokens.ts` (SSOT)
-- [ ] `pnpm ds:tokens:build` run and generated files are updated
-
-### Stage 2 — Taxonomy
-- [ ] Kind registered in `design/taxonomy/kinds.ts`
-- [ ] Props schema exists in `design/taxonomy/contracts.ts`
-- [ ] Slots + allowed children defined in `design/taxonomy/slots.ts`
-
-### Stage 3 — Recipes
-- [ ] Recipe exists in `design/recipes/*`
-- [ ] Recipe ID registered in `design/recipes/index.ts`
-- [ ] If JS visuals needed → recipe declares `requires: [...]`
-
-### Stage 4 — VPB Blocks
-- [ ] Block appears in VPB palette
-- [ ] Default props + default recipe set
-- [ ] Inspector shows enums only (no raw text color inputs)
-
-### Stage 5 — Renderers Allowed
-Only now:
-- [ ] Add renderer `.svelte` file under `design/renderers/`
-- [ ] Renderer applies recipe output to slots (no styling decisions)
-
-If any checkbox fails: **STOP. Fix registries first.**
+```
+tokens.ts (SSOT)
+    ↓ pnpm ds:tokens:build
+    ↓
+├── tokens.css (CSS custom properties)
+├── types.ts (TypeScript types)
+├── tailwind.preset.ts (Tailwind theme mapping)
+└── surfaces.gen.css (Recipe CSS)
+    ↓
+Components apply data-* attributes
+    ↓
+Generated CSS rules match and apply styles
+```
 
 ---
 
-## Design Registries (SSOT)
+## Core Concepts
 
-### 1) Tokens (SSOT → generated)
+### 1. Registry-First Architecture
+Nothing exists until registries define it:
+```
+Tokens → Taxonomy → Recipes → VPB Blocks → Renderers
+```
 
+### 2. Recipes are REUSABLE PRESETS
+Recipes are a **library of visual presets** that ANY element can use.
+Components CONSUME recipes via `data-*` attributes — they don't own effects.
 
-src/lib/design/tokens/
-├── tokens.ts # ✅ SSOT
-├── tokens.css # ✅ GENERATED (never edit manually)
-├── types.ts # ✅ GENERATED types
-├── schema.ts # runtime validators
-├── tailwind.preset.ts # ✅ GENERATED mapping (optional but recommended)
-└── generate.ts # generator entry
+```svelte
+<!-- Component uses recipes, doesn't own them -->
+<button
+  class="dp-surface"
+  data-surface="glass"
+  data-glow="cyber"
+  data-effect="glitch-pulse"
+>
+```
 
-
-Commands:
+### 3. Token Pipeline
 ```bash
+# Edit tokens.ts (SSOT), then:
 pnpm ds:tokens:build
-pnpm ds:tokens:watch
+```
 
+### 4. VPB (Visual Page Builder)
+NO-CODE tool for composing UI. Users select blocks, recipes, and props from dropdowns.
+- Stores BlockNodes (kind + recipe + props + slots)
+- NEVER stores CSS, colors, or classnames
 
-Rule: tokens.css is generated output only.
+---
 
-2) Taxonomy (what exists + contracts)
-src/lib/design/taxonomy/
-├── kinds.ts
-├── contracts.ts
-└── slots.ts
+## File Rules
 
+### ✅ Can Edit
+| File | Purpose |
+|------|---------|
+| `tokens/tokens.ts` | SSOT for all design values |
+| `recipes/css/keyframes.css` | ONLY manually written CSS (motion only) |
+| `taxonomy/*.ts` | Block kinds, contracts, slots |
+| `recipes/*.ts` | Recipe definitions |
+| `recipes/actions/*.ts` | Svelte actions for effects |
+| `primitives/*.svelte` | Bits UI wrappers ONLY |
+| `components/*.svelte` | Styled compositions |
+| `renderers/*.svelte` | VPB block renderers |
 
-Taxonomy defines:
+### ❌ Never Edit (Generated)
+| File | Generated From |
+|------|---------------|
+| `tokens/tokens.css` | tokens.ts |
+| `tokens/types.ts` | tokens.ts |
+| `tokens/tailwind.preset.ts` | tokens.ts |
+| `recipes/css/surfaces.gen.css` | tokens.ts |
 
-what kinds exist
+---
 
-allowed slots + allowed children
+## Data Attribute Pattern
 
-prop schemas (enumerable union literals)
+Styling is driven by `data-*` attributes:
 
-3) Recipes (how it looks)
-src/lib/design/recipes/
-├── index.ts
-├── surface.recipe.ts
-├── panel.recipe.ts
-├── shell.recipe.ts
-├── chat.recipe.ts
-└── actions/
-    ├── index.ts
-    ├── glowTrack.ts
-    └── ripple.ts
+```svelte
+<div
+  class="dp-surface"
+  data-surface="glass"      <!-- glass | matte | solid -->
+  data-variant="deep"       <!-- void | deep | smoke | frost -->
+  data-role="panel"         <!-- button | input | panel | card -->
+  data-tint="teal"          <!-- teal | purple | gold | coral -->
+  data-glow="cyber"         <!-- off | teal | purple | cyber | etc. -->
+  data-bevel="subtle"       <!-- off | subtle | soft | medium -->
+  data-size="md"            <!-- sm | md | lg -->
+  data-effect="glitch-pulse"
+>
+```
 
+---
 
-Recipes are the ONLY place allowed to decide styling output.
+## Folder Structure
 
-Each recipe MUST include:
-
-id
-
-classes(props) -> slotClassMap
-
-optional requires[] for actions
-
-4) VPB (composition + inspector)
-src/lib/sys/debug/vpb/
-├── components/builder/
-├── components/inspector/
-├── state/
-└── types/
-
-
-VPB stores:
-
-BlockNodes (typed props only)
-
-recipe selection
-
-slots/children composition
-
-VPB never stores:
-
-Tailwind classnames
-
-CSS
-
-raw colors
-
-theme values
-
-File Structure (Current Target)
+```
 src/lib/design/
+├── .claude/              # Claude AI context
+│   ├── CLAUDE.md         # Comprehensive documentation
+│   └── settings.json     # Quick reference
+├── .agent/               # AI agent instructions
+│   └── INSTRUCTIONS.md   # Enforcement rules
 ├── tokens/
+│   ├── tokens.ts         # ✅ SSOT
+│   ├── tokens.css        # ❌ Generated
+│   ├── types.ts          # ❌ Generated
+│   └── tailwind.preset.ts # ❌ Generated
 ├── taxonomy/
+│   ├── kinds.ts          # Block kinds
+│   ├── contracts.ts      # Prop schemas
+│   └── slots.ts          # Slot definitions
 ├── recipes/
-├── primitives/     # Bits UI wrappers only
-├── renderers/      # DS render shells (apply recipes)
-└── plugins/        # optional extensions
+│   ├── index.ts          # Registry
+│   ├── css/
+│   │   ├── keyframes.css # ✅ Only manual CSS
+│   │   └── surfaces.gen.css # ❌ Generated
+│   └── actions/          # Svelte actions
+├── primitives/           # Bits UI wrappers ONLY
+├── components/           # Styled compositions
+├── renderers/            # VPB block renderers
+└── plugins/              # Special plugins (Parasite, etc.)
+```
 
-src/lib/sys/debug/vpb/     # VPB dev-tool
-src/lib/domains/notify/    # svelte-sonner wrapper
-src/scripts/dev/design/    # enforcement scripts
+---
 
-Key Commands
-Dev
-pnpm dev
-pnpm ds:tokens:watch
+## Commands
 
-Token Pipeline
-pnpm ds:tokens:build
-pnpm ds:tokens:watch
+```bash
+# Token pipeline
+pnpm ds:tokens:build      # Generate token outputs
+pnpm ds:tokens:watch      # Watch mode
 
-Enforcement (Kill Switch)
+# Verification
 pnpm tsx src/scripts/dev/design/scan-violations.ts
-pnpm tsx src/scripts/dev/design/verify-kinds.ts
-pnpm tsx src/scripts/dev/design/verify-recipes.ts
-pnpm tsx src/scripts/dev/design/verify-tokens-sync.ts
+```
 
-Post-Code Verification Checklist
+---
 
-After making changes:
+## The 8 Rules
 
- No raw colors (#, oklch(, rgb(, hsl()
+1. **tokens.ts is SSOT** — edit this, run generator
+2. **keyframes.css is ONLY manual CSS** — motion only, no colors
+3. **data-* attributes drive styling** — not class manipulation
+4. **Bits UI only in primitives/** — nowhere else
+5. **VPB never stores CSS** — only kind + recipe + props
+6. **No arbitrary Tailwind** — no `[...]` brackets
+7. **Recipes are REUSABLE** — library of presets
+8. **Components CONSUME recipes** — don't own effects
 
- No Tailwind arbitrary values ([...])
+---
 
- No component theme vars (--dp-* in .svelte)
+## Forbidden Patterns
 
- No Bits UI imports outside primitives/
+```svelte
+❌ class="bg-[#00ff00]"           <!-- Arbitrary Tailwind -->
+❌ style="color: oklch(...)"      <!-- Inline colors -->
+❌ import { X } from "bits-ui"    <!-- Outside primitives/ -->
+❌ onmousemove for glow           <!-- Should be action -->
+```
 
- All new kinds registered in taxonomy
+---
 
- All new recipes registered in recipe registry
+## Quick Decision Tree
 
- VPB palette + defaults updated for new kinds
+**Adding a visual effect?**
+1. New color/value? → Add to `tokens.ts`, run generator
+2. Animation? → Add keyframe to `keyframes.css` (motion only)
+3. Triggered by interaction? → Create action in `recipes/actions/`
+4. Component applies `data-effect="my-effect"`
 
- Enforcement scripts run clean
+**Creating a component?**
+- Wraps Bits UI? → `primitives/`
+- Composes primitives + recipes? → `components/`
+- VPB block renderer? → `renderers/`

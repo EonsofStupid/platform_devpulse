@@ -1,284 +1,391 @@
-# COLD LIGHT Design System — AI Agent Instructions (Registry-First)
+# COLD LIGHT Design System — AI Agent Instructions
 
-> READ THIS BEFORE WRITING ANY CODE IN THIS DESIGN SYSTEM.
-> If you violate this file, you create drift and your work is rejected.
-
----
-
-## 🛑 MANDATORY PRE-CODE SEQUENCE (Registry Gate)
-
-You are NOT allowed to write new `.svelte` renderers until registries exist.
-
-**Registry order is strict:**
-Tokens (SSOT) → Taxonomy → Recipes → VPB Blocks → Renderers (.svelte)
-
-yaml
-Copy code
-
-If any step fails: **STOP** and fix registries first.
+> **READ THIS ENTIRE FILE BEFORE TOUCHING ANY CODE.**
+> Violations = immediate rejection. No exceptions.
 
 ---
 
-## ✅ STEP 0 — Identify What You Are Adding
+## WHAT IS THIS SYSTEM?
 
-You must identify ONE of these targets:
+**DevPulse is an enterprise SaaS platform with a NO-CODE visual design system.**
 
-- **Token Key / Value** (theme values, semantic tokens)
-- **Block Kind** (taxonomy kind + contract + slots)
-- **Recipe** (style output + required actions)
-- **VPB Block** (palette + defaults + inspector)
-- **Renderer** (applies recipe classes only)
+| Layer | Technology | Purpose |
+|-------|------------|---------|
+| **Framework** | SvelteKit 5 | App framework, routing, SSR, runes |
+| **Behavior** | Bits UI | Headless primitives (accessibility, keyboard, focus) |
+| **Styling** | Tailwind CSS | Utility classes, JIT compilation |
+| **Values SSOT** | `tokens.ts` | Colors, spacing, shadows - SINGLE SOURCE OF TRUTH |
+| **Visual Composition** | VPB (Visual Page Builder) | No-code tool that composes BlockNodes |
 
-If you cannot name the target, you do not understand the change yet. STOP.
+**This is NOT:**
+- A portable design system
+- A component library for external consumption
+- Framework-agnostic
+
+**This IS:**
+- DevPulse's internal design system
+- Tightly coupled to SvelteKit 5 + Bits UI + Tailwind
+- Driven by VPB for no-code visual editing
 
 ---
 
-## ✅ STEP 1 — Tokens Check (SSOT = tokens.ts)
+## THE CSS RULES (NON-NEGOTIABLE)
 
-### RULE: `tokens.ts` is SSOT. `tokens.css` is GENERATED OUTPUT.
-- You NEVER hand-edit `tokens.css`
-- You ALWAYS edit `tokens.ts` and run the generator
+### ✅ ALLOWED TO MANUALLY EDIT:
+```
+src/lib/design/recipes/css/keyframes.css  ← ONLY THIS CSS FILE
+```
 
-Commands:
-```bash
-pnpm ds:tokens:build
-pnpm ds:tokens:watch
-Token existence check
-Search token keys in tokens.ts (SSOT), not tokens.css:
+### ❌ NEVER MANUALLY EDIT (GENERATED):
+```
+src/lib/design/tokens/tokens.css          ← Generated from tokens.ts
+src/lib/design/recipes/css/surfaces.gen.css ← Generated from tokens.ts
+src/lib/design/tokens/types.ts            ← Generated from tokens.ts
+src/lib/design/tokens/tailwind.preset.ts  ← Generated from tokens.ts
+```
 
-bash
-Copy code
-grep -r "dp-" src/lib/design/tokens/tokens.ts
-If a required token key does not exist:
-✅ Add it to tokens.ts → run pnpm ds:tokens:build
+### HOW STYLING WORKS:
+1. **tokens.ts** = Define values (colors, spacing, etc.)
+2. **Run generator** = `pnpm ds:tokens:build`
+3. **surfaces.gen.css** = Uses `data-*` attribute selectors
+4. **Components** = Apply `data-surface`, `data-variant`, `data-glow`, etc.
+5. **Tailwind** = Layout utilities (flex, grid, padding, etc.)
 
-✅ STEP 2 — Taxonomy Contract (Kinds + Props + Slots)
-If you are adding OR changing a block kind:
+**Example correct component:**
+```svelte
+<div
+  class="dp-surface p-4 flex items-center gap-2"
+  data-surface="glass"
+  data-variant="deep"
+  data-glow="teal"
+>
+  Content
+</div>
+```
 
-Required files:
+**Example WRONG component:**
+```svelte
+<!-- ❌ NEVER DO THIS -->
+<div class="bg-[#00ff00] text-[12px]">
+<div style="background: oklch(...)">
+```
 
-src/lib/design/taxonomy/kinds.ts
+---
 
-src/lib/design/taxonomy/contracts.ts
+## REGISTRY-FIRST ARCHITECTURE
 
-src/lib/design/taxonomy/slots.ts
+**Nothing exists until registries define it.**
 
-Rules:
+```
+tokens.ts (SSOT)
+    ↓
+taxonomy/kinds.ts (what blocks exist)
+    ↓
+taxonomy/contracts.ts (prop schemas)
+    ↓
+recipes/index.ts (how it looks)
+    ↓
+VPB registration (palette + defaults)
+    ↓
+renderers/*.svelte (LAST - applies recipe classes only)
+```
 
-Props MUST be union-literal enums (VPB enumerable)
+### THE 6-STAGE GATE
 
-Slots MUST be explicitly defined
+Before ANY renderer `.svelte` can be created:
 
-Allowed children per slot MUST be defined
+| Stage | Check | Location |
+|-------|-------|----------|
+| 0 | Name + Intent defined | Documentation |
+| 1 | Tokens exist in `tokens.ts` | `src/lib/design/tokens/tokens.ts` |
+| 2 | Kind + Contract defined | `src/lib/design/taxonomy/` |
+| 3 | Recipe defined | `src/lib/design/recipes/` |
+| 4 | VPB palette + defaults | `src/lib/sys/debug/vpb/` |
+| 5 | THEN create renderer | `src/lib/design/renderers/` |
+| 6 | CI enforcement passes | Build scripts |
 
-Shell kinds MUST declare grid constraint
+**If any stage fails: STOP. Fix registries first.**
 
-Example constraint:
+---
 
-layoutMode: "grid" for appShell, dock, dashboards, panels
+## VPB (VISUAL PAGE BUILDER)
 
-If taxonomy entry is missing: STOP.
-
-✅ STEP 3 — Recipe Authoring (Only place visuals exist)
-RULE: Recipes are the only place allowed to decide styling outputs.
-No renderer is allowed to style itself.
-
-Recipes live here:
-
-swift
-Copy code
-src/lib/design/recipes/
-Each recipe MUST include:
-
-id
-
-classes(props) -> slotClassMap
-
-optional requires: ActionId[]
-
-Example:
-
-ts
-Copy code
-"panel.glass.glow": {
-  classes: (props) => ({ root: "..." }),
-  requires: ["glowTrack"]
-}
-Tailwind constraint
-Recipe output MUST be composed from known Tailwind utilities / preset utilities.
-No raw color functions or arbitrary values.
-
-✅ STEP 4 — Action Attachment (No manual JS)
-If a visual effect requires JS (glow tracking, ripple, etc):
-
-✅ Recipe declares requires: ["glowTrack"]
-✅ Renderer auto-attaches required actions
-❌ No manual handler wiring in renderers for visual tracking
-
-Allowed action folder:
-
-swift
-Copy code
-src/lib/design/recipes/actions/
-✅ STEP 5 — VPB Registration (Composition Rules)
-If a kind or recipe exists, VPB must be able to use it.
-
-VPB must:
-
-list block kind in palette
-
-assign default recipe id
-
-assign default typed props
-
-restrict inspector to enum controls only
-
-VPB lives here:
-
-swift
-Copy code
+VPB is the NO-CODE tool for visual composition. It lives at:
+```
 src/lib/sys/debug/vpb/
-If VPB cannot create the block legally: STOP.
+```
 
-✅ STEP 6 — Renderer Permission (LAST)
-Renderers exist ONLY after registries exist.
+**VPB composes BlockNodes:**
+```typescript
+type BlockNode<K extends BlockKind> = {
+  id: string;
+  kind: K;                    // From taxonomy
+  recipe: AllowedRecipe<K>;   // From recipes registry
+  props: KindProps<K>;        // From contracts
+  slots?: Record<SlotName<K>, BlockNode[]>;
+}
+```
 
-Renderers live here:
+**VPB NEVER stores:**
+- CSS classnames
+- Raw color values
+- Inline styles
 
-swift
-Copy code
-src/lib/design/renderers/
-Renderer rules:
+**VPB inspector shows:**
+- Enum dropdowns (from token arrays)
+- Recipe selectors
+- Slot composition
 
-Receives BlockNode (kind + recipe + props + slots)
+---
 
-Calls recipe registry to resolve classes
+## COMPONENT LOCATIONS
 
-Applies classes per slot
+| Type | Location | Purpose |
+|------|----------|---------|
+| **Primitives** | `src/lib/design/primitives/` | Bits UI wrappers ONLY |
+| **Components** | `src/lib/design/components/` | Styled compositions (use primitives + recipes) |
+| **Renderers** | `src/lib/design/renderers/` | VPB block renderers |
+| **Plugins** | `src/lib/design/plugins/` | Special branded components (Parasite logo, etc.) |
 
-Auto-attaches recipe actions
+### BITS UI IMPORT RULE
+```typescript
+// ✅ ALLOWED - only in primitives/
+import { Button } from "bits-ui";
 
-Uses NO theme values inside component
+// ❌ FORBIDDEN - anywhere else
+import { Dialog } from "bits-ui"; // NOT in components, renderers, domains
+```
 
-Does NOT contain styling logic
+---
 
-🚫 FORBIDDEN PATTERNS (Auto-Reject)
-1) No hand editing generated files
-❌ Edit tokens.css
-❌ Edit types.ts
-❌ Edit tailwind.preset.ts (if generated)
+## DATA ATTRIBUTE PATTERN
 
-Generated files are OUTPUT ONLY.
+Styling is driven by `data-*` attributes, NOT class manipulation:
 
-2) No hardcoded visual values anywhere in DS renderers/recipes
-Forbidden patterns:
+```svelte
+<div
+  class="dp-surface"
+  data-surface="glass"      <!-- glass | matte | solid -->
+  data-variant="deep"       <!-- void | deep | smoke | frost -->
+  data-role="panel"         <!-- button | input | panel | card -->
+  data-tint="teal"          <!-- teal | purple | gold | coral -->
+  data-glow="teal"          <!-- teal | purple | magenta | ember | frost -->
+  data-bevel="subtle"       <!-- off | subtle | soft | medium -->
+  data-size="md"            <!-- sm | md | lg -->
+  data-state={isOpen ? "open" : "closed"}
+>
+```
 
-raw colors: #, oklch(, rgb(, hsl(
+**CSS in surfaces.gen.css:**
+```css
+.dp-surface[data-surface="glass"][data-variant="deep"] {
+  background: var(--dp-glass-deep);
+  /* ... */
+}
+```
 
-raw spacing: 12px, 1rem
+---
 
-inline styles: style="..."
+## TOKEN PIPELINE
 
-✅ Use token-backed Tailwind classes from recipes/preset.
+```
+tokens.ts (EDIT THIS)
+    ↓ pnpm ds:tokens:build
+    ↓
+├── tokens.css (CSS custom properties)
+├── types.ts (TypeScript types)
+├── tailwind.preset.ts (Tailwind theme)
+└── surfaces.gen.css (Recipe CSS)
+```
 
-3) No Tailwind arbitrary values
-❌ Any class containing [...] is banned.
-Examples:
+### Adding a new token:
+1. Edit `src/lib/design/tokens/tokens.ts`
+2. Run `pnpm ds:tokens:build`
+3. Use in recipes via `var(--dp-your-token)`
 
-bg-[#00ff00]
+### Token naming convention:
+```typescript
+// In tokens.ts
+export const myCategory = {
+  myToken: { l: 0.50, c: 0.15, h: 195 },  // OKLCH
+} as const;
 
-text-[12px]
+// Generates:
+// --dp-my-category-my-token: oklch(50% 0.15 195);
+```
 
-grid-cols-[auto,1fr]
+---
 
-If you need a custom layout utility:
-✅ add a named utility via preset/plugin instead.
+## FORBIDDEN PATTERNS
 
-4) No Bits UI imports outside primitives/
-Bits UI is ONLY allowed in:
+### 1. No hardcoded values
+```svelte
+❌ class="bg-[#00ff00]"
+❌ style="color: red"
+❌ oklch(0.5 0.1 200) anywhere in .svelte
+```
 
-swift
-Copy code
-src/lib/design/primitives/
-Everywhere else:
-❌ import ... from "bits-ui"
+### 2. No arbitrary Tailwind values
+```svelte
+❌ class="text-[12px]"
+❌ class="grid-cols-[auto,1fr]"
+❌ ANY [...] bracket pattern
+```
 
-5) No component-level theme variable chains
-Forbidden:
+### 3. No CSS custom properties in components
+```svelte
+❌ style="--my-color: blue"
+❌ var(--dp-*) in component code (only in generated CSS)
+```
 
---dp-panel--vpb-panel
+### 4. No Bits UI outside primitives/
+```typescript
+❌ import { Dialog } from "bits-ui" // in components/
+```
 
-component-scoped theme vars
+### 5. No visual event handlers without recipe.requires
+```svelte
+❌ onmousemove for glow tracking (use action)
+✅ onclick for behavior (allowed)
+```
 
-per-component token naming
+---
 
-Tokens must be root-scoped and semantic.
+## KEYFRAMES RULES
 
-6) No “visual tracking” event handlers without recipe.requires
-Renderers must not contain glow/ripple tracking logic.
-That belongs to recipe actions.
+`keyframes.css` is the ONLY manually written CSS.
 
-Allowed behavior handlers:
+**ALLOWED in keyframes:**
+- `transform` (translateX, scale, rotate)
+- `opacity`
+- `filter` with token vars only
+- `background-position`
 
-click/submit/keydown for real app behavior
-Forbidden visual tracking handlers unless via action:
+**FORBIDDEN in keyframes:**
+- Colors (`#fff`, `oklch()`, `rgb()`)
+- Shadows
+- Hardcoded sizes
+- Any visual value
 
-mousemove/pointermove/scroll tracking for visuals
+**Example:**
+```css
+/* ✅ Correct */
+@keyframes dp-fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
 
-✅ Import Boundary Rules (Updated)
-Area	CAN Import	CANNOT Import
-design/tokens/	none (SSOT)	app code
-design/taxonomy/	tokens/types	VPB state
-design/recipes/	tokens + taxonomy types	Bits UI
-design/primitives/	Bits UI + tokens	VPB internal state
-design/renderers/	taxonomy + recipes	Bits UI
-sys/debug/vpb/	taxonomy + recipes	Bits UI
-domains/*	notify + services	Bits UI
+/* ❌ Wrong */
+@keyframes dp-glow {
+  0% { box-shadow: 0 0 10px #00ff00; }
+}
+```
 
-Svelte State Pattern (Data Attributes)
-Use data-* attributes for stateful styling:
+---
 
-✅ Correct:
+## SELF-CHECK COMMANDS
 
-svelte
-Copy code
-<div data-state={open ? "open" : "closed"} />
-CSS:
+Run these before ANY commit:
 
-css
-Copy code
-[data-state="open"] { ... }
-Common attributes:
+```bash
+# 1) No raw colors in design system
+grep -rE "(#[0-9a-fA-F]{3,}|oklch\\(|rgb\\(|hsl\\()" src/lib/design --include="*.ts" --include="*.svelte"
 
-data-state (active/inactive/open/closed)
-
-data-mode (docked/floating/minimized)
-
-data-variant (primary/ghost)
-
-data-size (sm/md/lg)
-
-File Header Requirement
-All files MUST include the header template from STYLE_GUIDE.md.
-
-Missing headers = reject.
-
-Self-Check Before Committing (Kill Switch)
-Run these commands and ensure output is EMPTY:
-
-bash
-Copy code
-# 1) No raw colors
-grep -rE "(#|oklch\\(|rgb\\(|hsl\\()" src/lib/design --include="*.ts" --include="*.svelte" --include="*.css"
-
-# 2) No arbitrary Tailwind values (brackets)
+# 2) No arbitrary Tailwind values
 grep -rE "\\[[^\\]]+\\]" src/lib/design --include="*.ts" --include="*.svelte"
 
-# 3) No bits-ui imports outside primitives
-grep -r "from 'bits-ui'" src/lib --include="*.ts" --include="*.svelte" | grep -v "src/lib/design/primitives"
+# 3) No bits-ui outside primitives
+grep -r "from ['\"]bits-ui['\"]" src/lib --include="*.ts" --include="*.svelte" | grep -v "primitives"
 
-# 4) No dp/ds vars in svelte components
-grep -rE "var\\(--(dp|ds)-" src/lib/design --include="*.svelte"
-
-# 5) Tokens pipeline must be clean
+# 4) Tokens pipeline clean
 pnpm ds:tokens:build
+```
+
+**All commands MUST return empty or succeed.**
+
+---
+
+## QUICK REFERENCE
+
+| I want to... | Do this |
+|--------------|---------|
+| Add a color | Edit `tokens.ts` → run generator |
+| Add a keyframe | Edit `keyframes.css` |
+| Add a surface variant | Edit `tokens.ts` + generator updates `surfaces.gen.css` |
+| Create a component | Use `data-*` attributes + Tailwind layout classes |
+| Wrap Bits UI | Only in `primitives/` folder |
+| Add block to VPB | Taxonomy → Recipe → VPB palette → Renderer |
+
+---
+
+## RECIPES ARE REUSABLE PRESETS (CRITICAL)
+
+**Recipes are NOT component-specific. They are a LIBRARY of visual presets.**
+
+### Example: Glitch Pulse Effect
+```
+WRONG: Build glitch effect directly into VPB FAB component
+RIGHT: Create "glitch-pulse" RECIPE that ANY entity can use
+```
+
+### Recipe Library Concept
+```typescript
+// Recipes are presets that can be applied to ANY element:
+recipes = {
+  "effect.glitch-pulse": {
+    // Sporadic glitch that randomly triggers
+    animation: "dp-glitch-pulse",
+    trigger: "sporadic",  // random interval
+  },
+  "effect.cyber-glow": {
+    // Cyber green glow on interaction
+    glow: "cyber",
+    trigger: "hover" | "click",
+  },
+  "surface.glass.deep": {
+    // Deep glass surface preset
+    surface: "glass",
+    variant: "deep",
+  }
+}
+```
+
+### How Components Use Recipes
+```svelte
+<!-- VPB FAB uses recipes, doesn't own them -->
+<button
+  class="dp-surface"
+  data-surface="glass"
+  data-effect="glitch-pulse"    <!-- Recipe preset -->
+  data-glow="cyber"             <!-- Recipe preset -->
+>
+```
+
+### Building the Recipe Library
+When you need an effect:
+1. **Check if recipe exists** - search recipes/
+2. **If missing, CREATE THE RECIPE FIRST** - not in the component
+3. **Add keyframe to keyframes.css** - if animation needed
+4. **Add tokens to tokens.ts** - if new values needed
+5. **Component just applies data-* attributes**
+
+### What Goes Where
+| Visual Effect | Location | NOT Here |
+|--------------|----------|----------|
+| Glitch animation | `recipes/` + `keyframes.css` | Component |
+| Cyber glow color | `tokens.ts` | Component |
+| Pulse timing | `recipes/` | Component |
+| Sporadic trigger | `recipes/actions/` | Component |
+
+---
+
+## REMEMBER
+
+1. **tokens.ts is SSOT** - edit this, run generator
+2. **keyframes.css is ONLY manual CSS** - motion only, no visuals
+3. **data-* attributes** - how styling is applied
+4. **Bits UI only in primitives/** - nowhere else
+5. **VPB never stores CSS** - only kind + recipe + props
+6. **No arbitrary Tailwind** - no `[...]` brackets ever
+7. **Recipes are REUSABLE** - effects belong in recipe library, not components
+8. **Components CONSUME recipes** - they don't own visual effects

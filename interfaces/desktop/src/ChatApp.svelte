@@ -1,63 +1,80 @@
 <script>
-    import Surface from "$lib/design/primitives/Surface.svelte";
+    import GlassPanel from "$lib/design/components/GlassPanel.svelte";
 </script>
 
-<Surface variant="deep" class="chat-window">
-    <div class="header">
-        <span class="title">MAESTRO</span>
-        <div class="status">ONLINE</div>
-    </div>
+<div class="chat-window">
+    <GlassPanel variant="deep" padding="none" class="chat-panel">
+        <div class="header">
+            <span class="title">MAESTRO</span>
+            <div class="status">ONLINE</div>
+        </div>
 
-    <div class="messages">
-        <!-- Messages will go here -->
-        <div class="msg ai">Hello. I am listening.</div>
-    </div>
+        <div class="messages">
+            <!-- Messages will go here -->
+            <div class="msg ai">Hello. I am listening.</div>
+        </div>
 
-    <div class="input-area">
-        <Surface variant="metallic" class="chat-input-surface">
-            <input type="text" placeholder="Send a signal..." />
-        </Surface>
-    </div>
-</Surface>
+        <div class="input-area">
+            <div class="dp-surface chat-input-surface" data-surface="glass" data-variant="smoke">
+                <input type="text" placeholder="Send a signal..." />
+            </div>
+        </div>
+    </GlassPanel>
+</div>
 
 <style>
     :global(body) {
         background: transparent;
     }
 
-    /* Outer Container matches Window Size */
-    :global(.chat-window) {
+    .chat-window {
         width: 100vw;
         height: 100vh;
+    }
+
+    :global(.chat-panel) {
+        width: 100%;
+        height: 100%;
         display: flex;
         flex-direction: column;
-        border-radius: 12px; /* Smooth corners for the floating window */
+        border-radius: var(--radius-lg);
     }
 
     .header {
         height: 48px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: var(--border-subtle);
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 1rem;
+        padding: 0 var(--space-4);
         font-weight: bold;
         letter-spacing: 1px;
+        color: var(--text-white);
+    }
+
+    .status {
+        font-size: var(--text-xs);
+        color: var(--signal-teal);
     }
 
     .messages {
         flex: 1;
-        padding: 1rem;
-        color: rgba(255, 255, 255, 0.8);
+        padding: var(--space-4);
+        color: var(--text-secondary);
+    }
+
+    .msg.ai {
+        color: var(--signal-teal);
     }
 
     .input-area {
-        padding: 1rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding: var(--space-4);
+        border-top: var(--border-subtle);
     }
 
-    :global(.chat-input-surface) {
+    .chat-input-surface {
         height: 40px;
+        border-radius: var(--radius-md);
     }
 
     input {
@@ -65,8 +82,12 @@
         height: 100%;
         background: transparent;
         border: none;
-        color: white;
-        padding: 0 1rem;
+        color: var(--text-white);
+        padding: 0 var(--space-4);
         outline: none;
+    }
+
+    input::placeholder {
+        color: var(--text-muted);
     }
 </style>

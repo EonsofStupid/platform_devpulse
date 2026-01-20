@@ -3,7 +3,8 @@
     "allow": [
       "Bash(pnpm ds:tokens:build:*)",
       "Bash(pnpm check:*)",
-      "Bash(pnpm tsx:*)"
+      "Bash(pnpm tsx:*)",
+      "Bash(npx svelte-check:*)"
     ]
   }
 }

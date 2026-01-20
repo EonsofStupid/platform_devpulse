@@ -28,7 +28,7 @@
     - NO padding from frame edges
 -->
 <script lang="ts">
-    import ParasiteLogo from "$lib/design/primitives/ParasiteLogo.svelte";
+    import { Parasite } from "$lib/design/plugins/parasite";
 
     let searchOpen = $state(false);
     let searchQuery = $state("");
@@ -42,7 +42,7 @@
 <div class="topbar">
     <!-- Left: ParasiteLogo -->
     <div class="topbar-left">
-        <ParasiteLogo />
+        <Parasite />
     </div>
 
     <!-- Center: Spacer -->

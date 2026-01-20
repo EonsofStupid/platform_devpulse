@@ -1,30 +1,40 @@
+<!--
+  @file src/lib/sys/debug/vpb/shell/frame.svelte
+  @description VPB main frame container
+
+  Uses dp-surface + data-* attributes for styling.
+  Renders Builder and Inspector components based on active tab.
+
+  @since 1.0.0
+-->
 <script lang="ts">
     import { vpb } from "../state/vpb.svelte";
     import Topbar from "./topbar.svelte";
     import Tabs from "./tabs.svelte";
     import Toolbar from "./toolbar.svelte";
-
-    // Placeholder content
     import Inspector from "../components/inspector/Inspector.svelte";
     import Builder from "../components/builder/Builder.svelte";
 </script>
 
 {#if vpb.isOpen}
     <div
-        class="fixed bottom-5 right-5 z-[9999] flex flex-col w-[380px] h-[500px] bg-surface-base border border-white/10 rounded-xl backdrop-blur-xl shadow-2xl overflow-hidden transition-all duration-200"
+        class="dp-surface fixed bottom-5 right-5 z-[9999] flex flex-col w-[380px] h-[500px] rounded-xl overflow-hidden transition-all duration-200"
+        data-surface="glass"
+        data-variant="deep"
+        data-role="panel"
     >
         <!-- Header Zone (Draggable) -->
-        <div class="flex flex-col bg-surface-sunken border-b border-white/5">
+        <div class="dp-surface flex flex-col border-b border-white/5" data-surface="matte" data-variant="sunken">
             <Topbar />
             <Tabs />
         </div>
 
         <!-- Content Zone -->
-        <div class="flex-1 overflow-auto bg-surface-base relative">
+        <div class="flex-1 overflow-hidden relative">
             {#if vpb.activeTab === "inspector"}
-                <div class="p-4 text-muted">Inspector Placeholder</div>
+                <Inspector />
             {:else}
-                <div class="p-4 text-muted">Builder Placeholder</div>
+                <Builder />
             {/if}
         </div>
 
