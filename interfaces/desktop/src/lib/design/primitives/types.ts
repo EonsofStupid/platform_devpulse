@@ -28,27 +28,17 @@ export const DATA_ATTRS = {
 // ============================================
 
 /**
- * Omit 'style' prop from HTML attributes to prevent inline style injection.
- * This enforces "no inline styles" at the type level.
+ * Omit 'style' and 'children' props from HTML attributes.
+ * - style: enforces "no inline styles" at the type level
+ * - children: allows primitives to define custom Snippet signatures
  */
-export type OmitStyle<T extends HTMLElement> = Omit<HTMLAttributes<T>, "style">;
+export type OmitStyle<T extends HTMLElement> = Omit<HTMLAttributes<T>, "style" | "children">;
 
 /**
  * Base props for primitives that EXTEND OmitStyle<HTMLElement>.
  * These already get `class` from HTMLAttributes - do NOT redefine it here.
  */
 export interface BaseProps {
-  /** User-defined stable ID for tooling */
-  "data-id"?: string;
-}
-
-/**
- * Props for standalone primitives that do NOT extend OmitStyle.
- * Used by: Portal, Presence, Toast, Typography
- */
-export interface StandalonePrimitiveProps {
-  /** CSS class string */
-  class?: string;
   /** User-defined stable ID for tooling */
   "data-id"?: string;
 }

@@ -14,9 +14,9 @@
 
 <script lang="ts">
   import { Toaster } from "svelte-sonner";
-  import type { BaseProps } from "./types.js";
+  import type { OmitStyle, BaseProps } from "./types.js";
 
-  interface Props extends BaseProps {
+  interface Props extends OmitStyle<HTMLDivElement>, BaseProps {
     /** Position of toasts */
     position?: "top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right";
     /** Expand toasts by default */

@@ -112,7 +112,7 @@
 </script>
 
 <div
-  role="region"
+  role="group"
   aria-roledescription="carousel"
   aria-label={ariaLabel}
   class={className}

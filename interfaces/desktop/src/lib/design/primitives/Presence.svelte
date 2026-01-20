@@ -13,9 +13,9 @@
 
 <script lang="ts">
   import type { Snippet } from "svelte";
-  import type { BaseProps } from "./types.js";
+  import type { OmitStyle, BaseProps } from "./types.js";
 
-  interface Props extends BaseProps {
+  interface Props extends OmitStyle<HTMLDivElement>, BaseProps {
     /** Whether content should be present */
     present: boolean;
     /** Content to render when present */
@@ -32,8 +32,8 @@
     "data-id": id,
   }: Props = $props();
 
-  // Track lifecycle state
-  let state = $state<PresenceState>(present ? "entered" : "removed");
+  // Track lifecycle state - initialize based on present prop
+  let state: PresenceState = $state(present ? "entered" : "removed");
   let node: HTMLDivElement | undefined = $state();
 
   // Check reduced motion preference (SSR-safe)

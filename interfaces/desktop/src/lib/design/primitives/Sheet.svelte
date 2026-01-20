@@ -64,9 +64,6 @@
 
 <Dialog.Root
   bind:open
-  {closeOnOutsideClick}
-  {closeOnEscape}
-  {preventScroll}
   {onOpenChange}
 >
   {#if trigger}
@@ -79,7 +76,7 @@
     </Dialog.Trigger>
   {/if}
 
-  <Dialog.Portal target={portalTarget}>
+  <Dialog.Portal to={portalTarget}>
     <Dialog.Overlay
       class={overlayClass}
       data-kind="primitive"
@@ -88,6 +85,9 @@
     />
     <Dialog.Content
       class="{contentClass} {className}"
+      interactOutsideBehavior={closeOnOutsideClick ? "close" : "ignore"}
+      escapeKeydownBehavior={closeOnEscape ? "close" : "ignore"}
+      {preventScroll}
       data-kind="primitive"
       data-name="Sheet"
       data-part="content"

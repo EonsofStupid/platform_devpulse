@@ -8,9 +8,9 @@
 <script lang="ts">
   import { Portal as BitsPortal } from "bits-ui";
   import type { Snippet } from "svelte";
-  import type { BaseProps } from "./types.js";
+  import type { OmitStyle, BaseProps } from "./types.js";
 
-  interface Props extends BaseProps {
+  interface Props extends OmitStyle<HTMLDivElement>, BaseProps {
     /** Portal target (CSS selector or element). Defaults to body. */
     to?: string | HTMLElement;
     /** Disable portal (render in place) */

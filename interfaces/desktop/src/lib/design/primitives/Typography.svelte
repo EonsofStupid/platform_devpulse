@@ -7,12 +7,12 @@
 -->
 <script lang="ts">
   import type { Snippet } from "svelte";
-  import type { BaseProps } from "./types.js";
+  import type { OmitStyle, BaseProps } from "./types.js";
   import { stripStyleProp } from "./types.js";
 
   type Variant = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p" | "span" | "lead" | "small" | "muted";
 
-  interface Props extends BaseProps {
+  interface Props extends OmitStyle<HTMLElement>, BaseProps {
     /** Typography variant */
     variant?: Variant;
     /** Override the HTML element */
@@ -47,7 +47,7 @@
     muted: "span",
   };
 
-  const element = as ?? elementMap[variant] ?? "p";
+  const element = $derived(as ?? elementMap[variant] ?? "p");
 </script>
 
 <svelte:element
