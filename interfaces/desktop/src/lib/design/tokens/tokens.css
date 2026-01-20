@@ -154,6 +154,7 @@
   --dp-glow-magenta: 0 0 20px oklch(60% 0.22 var(--dp-hue-magenta) / 0.5), 0 0 40px oklch(55% 0.20 var(--dp-hue-magenta) / 0.25);
   --dp-glow-ember: 0 0 20px oklch(65% 0.20 var(--dp-hue-ember) / 0.5), 0 0 40px oklch(60% 0.18 var(--dp-hue-ember) / 0.25);
   --dp-glow-frost: 0 0 20px oklch(85% 0.03 var(--dp-hue-frost) / 0.4), 0 0 40px oklch(80% 0.02 var(--dp-hue-frost) / 0.2);
+  --dp-glow-cyber: 0 0 20px oklch(91% 0.16 var(--dp-hue-cyber) / 0.5), 0 0 40px oklch(85% 0.14 var(--dp-hue-cyber) / 0.25);
 
   /* =============================================
      DEPTH - Bevel & Shadow tokens
@@ -237,6 +238,8 @@
   --dp-z-tooltip: 500;
   --dp-z-toast: 600;
   --dp-z-overlay: 700;
+  --dp-z-vpb: 800;
+  --dp-z-vpbFab: 900;
 
   /* Data/Code Colors (Generic) */
   --dp-code-str: oklch(80% 0.15 85);

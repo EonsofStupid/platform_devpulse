@@ -52,19 +52,9 @@ const ripple: ActionFactory = (node) => {
     const y = e.clientY - rect.top;
 
     const rippleEl = document.createElement("span");
-    rippleEl.className = "ripple-effect";
-    rippleEl.style.cssText = `
-      position: absolute;
-      left: ${x}px;
-      top: ${y}px;
-      transform: translate(-50%, -50%) scale(0);
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      background: oklch(100% 0 0 / 0.2);
-      pointer-events: none;
-      animation: ripple-expand 0.6s ease-out forwards;
-    `;
+    rippleEl.className = "dp-ripple-effect";
+    rippleEl.style.left = `${x}px`;
+    rippleEl.style.top = `${y}px`;
 
     node.style.position = "relative";
     node.style.overflow = "hidden";

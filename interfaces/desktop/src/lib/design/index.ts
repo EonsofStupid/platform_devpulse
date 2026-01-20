@@ -1,63 +1,36 @@
 /**
- * @fileoverview COLD LIGHT Design System - Master Export
- * @file src/lib/design/index.ts
- * @module @devpulse/design
- * @layer design
+ * @file index.ts
+ * @package @devpulse/coldlight
  *
- * @description
- * Master barrel export for the 8-tier design system.
- * 
- * TIER HIERARCHY:
- * 1. Taxonomy   - Category definitions (what exists)
- * 2. Tokens     - Values + ramps + runtime types
- * 3. Foundations - Typography, density, spacing, z-index
- * 4. Surfaces   - Material recipes (glass/solid/matte/slime)
- * 5. Motion     - Keyframes + presets + budgets
- * 6. Behaviors  - Interaction modules + constraints
- * 7. Components - Primitives + semantics + variants
- * 8. Blocks     - VPB compositions + inspector controls
+ * ColdLight Design System - Master Export
  *
- * @since 1.0.0
+ * Liquid surface design system. Particle effects, metal, glass, molten aesthetics.
+ * Named for Tesla's cold light gas tubes (1870s).
+ *
+ * @author Jesse "Hades" Hall <jessay@angryvibers.com>
+ * @license MIT
  */
 
 // ===========================================
-// TIER 1: TAXONOMY
+// TOKENS (SSOT values)
 // ===========================================
-export * from "./taxonomy";
-
-// ===========================================
-// TIER 2: TOKENS
-// ===========================================
+export * from "./tokens/tokens";
 export * from "./tokens/types";
 export * from "./tokens/schema";
 
 // ===========================================
-// TIER 3: FOUNDATIONS
+// TAXONOMY (block definitions)
 // ===========================================
-export * from "./foundations";
+export * from "./taxonomy/kinds";
+export * from "./taxonomy/contracts";
 
 // ===========================================
-// TIER 4: SURFACES
+// RECIPES (style composition)
 // ===========================================
-export * from "./surfaces";
+export * from "./recipes";
+export * from "./recipes/actions";
 
 // ===========================================
-// TIER 5: MOTION
+// VITE PLUGIN
 // ===========================================
-export * from "./motion";
-
-// ===========================================
-// TIER 6: BEHAVIORS
-// ===========================================
-export * from "./behaviors";
-
-// ===========================================
-// TIER 7: COMPONENTS
-// ===========================================
-// Components are imported individually from ./components/
-// Not re-exported here to allow tree-shaking
-
-// ===========================================
-// TIER 8: BLOCKS (VPB)
-// ===========================================
-export * from "./blocks";
+export { coldlight } from "./vite-plugin";

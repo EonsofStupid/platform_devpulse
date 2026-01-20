@@ -239,10 +239,14 @@ export const glowComposed = {
     inner: { l: 0.85, c: 0.03, h: hues.frost, a: 0.4, spread: 20 },
     outer: { l: 0.80, c: 0.02, h: hues.frost, a: 0.2, spread: 40 },
   },
+  cyber: {
+    inner: { l: 0.91, c: 0.16, h: 127, a: 0.5, spread: 20 },
+    outer: { l: 0.85, c: 0.14, h: 127, a: 0.25, spread: 40 },
+  },
 } as const;
 
 export type GlowKey = keyof typeof glowComposed | "off";
-export const glowKeys = ["off", "teal", "purple", "magenta", "ember", "frost"] as const;
+export const glowKeys = ["off", "teal", "purple", "magenta", "ember", "frost", "cyber"] as const;
 
 // ===========================================
 // DEPTH / BEVEL / SHADOW
@@ -350,6 +354,8 @@ export const zIndex = {
   tooltip: 500,
   toast: 600,
   overlay: 700,
+  vpb: 800,
+  vpbFab: 900,
 } as const;
 
 export type ZIndexKey = keyof typeof zIndex;
@@ -445,6 +451,17 @@ export const accent = {
 } as const;
 
 export type AccentKey = keyof typeof accent;
+
+// ===========================================
+// FX (Effects)
+// ===========================================
+export const fx = {
+  ripple: { l: 1, c: 0, h: 0, a: 0.2 }, // White with 20% alpha
+  shimmer: { l: 1, c: 0, h: 0, a: 0.1 }, // White with 10% alpha for shimmer
+  glow: { l: 0.91, c: 0.16, h: 127, a: 0.6 }, // Cyber glow for effects
+} as const;
+
+export type FxKey = keyof typeof fx;
 
 // ===========================================
 // VPB TOKEN CATEGORIES (for dropdowns)

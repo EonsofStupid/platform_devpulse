@@ -23,7 +23,7 @@ export type AccentToken = (typeof AccentTokens)[number];
 // ===========================================
 // GLOW TOKENS (glow color for VPB dropdown)
 // ===========================================
-export const GlowTokens = ["off","teal","purple","magenta","ember","frost"] as const;
+export const GlowTokens = ["off","teal","purple","magenta","ember","frost","cyber"] as const;
 export type GlowToken = (typeof GlowTokens)[number];
 
 // ===========================================
