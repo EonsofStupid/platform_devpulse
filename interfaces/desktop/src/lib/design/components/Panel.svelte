@@ -1,36 +1,34 @@
 <!--
   @file src/lib/design/components/Panel.svelte
-  @name Panel.svelte
-  @module @devpulse/design/components/Panel
-  @layer lib
+  @layer components
 
   @description
-  [TODO: Describe this component's purpose]
+  Composable panel component for COLD LIGHT design system.
+  Implements both glass (flush dual-tint) and matte (sunken content) recipes.
+  Uses dp-surface + data-* attributes for recipe-driven styling.
 
   @props
-  - [TODO: propName]: [type] - [description]
+  - variant: "glass" | "matte" - Panel surface type
+  - padding: "none" | "sm" | "md" | "lg" - Inner padding
+  - blur: "sm" | "md" | "lg" | "xl" - Backdrop blur intensity
+  - radius: "sm" | "md" | "lg" | "xl" - Border radius
+  - class: string - Additional CSS classes
 
-  @dependencies
-  - [TODO: List imports]
-
-  @consumers
-  - [TODO: List who uses this component]
-
-  @vpb-editable [TODO: List editable props]
+  @vpb-editable variant, padding, blur, radius
   @since 1.0.0
--->
-<!--
-  Panel.svelte - Composable Panel Component
-  Implements both Glass and Matte Inset recipes
 -->
 <script lang="ts">
     import type { Snippet } from "svelte";
 
     interface Props {
-        /** Panel recipe: 'glass' (flush dual-tint) or 'matte' (sunken content) */
+        /** Panel surface type (VPB dropdown) */
         variant?: "glass" | "matte";
-        /** Size variant: 'sm', 'md', 'lg' */
-        size?: "sm" | "md" | "lg";
+        /** Inner padding (VPB dropdown) */
+        padding?: "none" | "sm" | "md" | "lg";
+        /** Backdrop blur intensity (VPB dropdown) */
+        blur?: "sm" | "md" | "lg" | "xl";
+        /** Border radius (VPB dropdown) */
+        radius?: "sm" | "md" | "lg" | "xl";
         /** Additional CSS classes */
         class?: string;
         /** Content slot */
@@ -39,34 +37,22 @@
 
     let {
         variant = "glass",
-        size = "md",
+        padding = "md",
+        blur = "md",
+        radius = "md",
         class: className = "",
         children,
     }: Props = $props();
 </script>
 
 <div
-    class="dp-panel dp-panel--{variant} {size !== 'md'
-        ? `dp-panel--${size}`
-        : ''} {className}"
+    class="dp-surface {className}"
+    data-surface={variant}
+    data-role="panel"
+    data-padding={padding}
+    data-blur={blur}
+    data-radius={radius}
     role="region"
 >
-    <div class="dp-panel__content">
-        {@render children()}
-    </div>
+    {@render children()}
 </div>
-
-<style>
-    /* Component-scoped styles that enhance the base CSS */
-    .dp-panel {
-        /* Ensure grid works properly */
-        min-width: 0;
-        min-height: 0;
-    }
-
-    :global(.dp-panel__content) {
-        /* Content fills the grid cell */
-        display: flex;
-        flex-direction: column;
-    }
-</style>

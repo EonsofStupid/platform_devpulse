@@ -5,7 +5,7 @@
   @description
   Form input component for COLD LIGHT design system.
   Glass-styled text input with inset bevel and focus glow.
-  Uses data-* attributes for styling (Bits UI pattern).
+  Uses dp-surface + data-* attributes for recipe-driven styling.
 
   @props
   - type: "text" | "email" | "password" | "search" - Input type
@@ -53,52 +53,8 @@
     bind:value
     {disabled}
     aria-label={label}
-    class="dp-input {className}"
+    class="dp-surface {className}"
+    data-surface="glass"
+    data-role="input"
     data-size={size}
 />
-
-<style>
-    .dp-input {
-        width: 100%;
-        font-family: var(--dp-font-sans);
-        color: var(--dp-text-primary);
-        background: var(--dp-glass-deep);
-        backdrop-filter: blur(var(--dp-blur-md));
-        -webkit-backdrop-filter: blur(var(--dp-blur-md));
-        border: var(--dp-border-soft);
-        box-shadow: var(--dp-bevel-inset);
-        outline: none;
-        transition: all var(--dp-transition-fast);
-    }
-
-    /* Sizes */
-    .dp-input[data-size="sm"] {
-        padding: var(--dp-space-1) var(--dp-space-2);
-        font-size: var(--dp-text-sm);
-        border-radius: var(--dp-radius-sm);
-    }
-    .dp-input[data-size="md"] {
-        padding: var(--dp-space-2) var(--dp-space-3);
-        font-size: var(--dp-text-base);
-        border-radius: var(--dp-radius-md);
-    }
-    .dp-input[data-size="lg"] {
-        padding: var(--dp-space-3) var(--dp-space-4);
-        font-size: var(--dp-text-lg);
-        border-radius: var(--dp-radius-lg);
-    }
-
-    .dp-input::placeholder {
-        color: var(--dp-text-muted);
-    }
-
-    .dp-input:focus {
-        border-color: var(--dp-teal-500);
-        box-shadow: var(--dp-bevel-inset), var(--dp-glow-teal);
-    }
-
-    .dp-input:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-</style>

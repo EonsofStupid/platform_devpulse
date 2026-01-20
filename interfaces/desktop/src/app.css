@@ -14,10 +14,8 @@
 /* Tailwind v4 */
 @import "tailwindcss";
 
-/* Design System SSOT (order matters) */
-@import "./lib/design/tokens/tokens.css";
-@import "./lib/design/recipes/css/keyframes.css";
-@import "./lib/design/recipes/css/surfaces.gen.css";
+/* Design System - Single entry point (Rule G) */
+@import "./lib/design/index.css";
 
 /* =============================================
    GLOBAL RESET

@@ -1,0 +1,20 @@
+/**
+ * @file src/lib/design/index.css
+ * @layer design-system
+ *
+ * SSOT CSS Entry Point for COLD LIGHT Design System
+ *
+ * This is the ONLY design system CSS file that app.css should import.
+ * Import order matters - tokens first, then keyframes, then surfaces.
+ *
+ * @since 1.0.0
+ */
+
+/* 1. Tokens - CSS custom properties (SSOT values) */
+@import "./tokens/tokens.css";
+
+/* 2. Keyframes - Token-safe animations */
+@import "./recipes/css/keyframes.css";
+
+/* 3. Surfaces - Generated recipe CSS (data-* attribute styling) */
+@import "./recipes/css/surfaces.gen.css";

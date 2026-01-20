@@ -5,7 +5,7 @@
   @description
   Content container component for COLD LIGHT design system.
   Renders a glass surface card with optional glow and interactivity.
-  Uses data-* attributes for styling (Bits UI pattern).
+  Uses dp-surface + data-* attributes for recipe-driven styling.
 
   @props
   - variant: "default" | "interactive" - Card behavior
@@ -42,53 +42,12 @@
 </script>
 
 <article
-    class="dp-card {className}"
-    data-variant={variant}
+    class="dp-surface {className}"
+    data-surface="glass"
+    data-role="card"
     data-padding={padding}
-    data-glow={glow}
+    data-glow={glow === "off" ? undefined : glow}
+    data-interactive={variant === "interactive" ? "true" : undefined}
 >
     {@render children()}
 </article>
-
-<style>
-    .dp-card {
-        background: var(--dp-glass-void);
-        backdrop-filter: blur(var(--dp-blur-lg));
-        -webkit-backdrop-filter: blur(var(--dp-blur-lg));
-        border: var(--dp-border-soft);
-        border-radius: var(--dp-radius-lg);
-        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2);
-        transition: all var(--dp-transition-normal);
-    }
-
-    /* Padding */
-    .dp-card[data-padding="sm"] {
-        padding: var(--dp-space-3);
-    }
-    .dp-card[data-padding="md"] {
-        padding: var(--dp-space-4);
-    }
-    .dp-card[data-padding="lg"] {
-        padding: var(--dp-space-6);
-    }
-
-    /* Interactive */
-    .dp-card[data-variant="interactive"]:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z4);
-    }
-
-    /* Glows */
-    .dp-card[data-glow="teal"] {
-        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2), var(--dp-glow-teal);
-    }
-    .dp-card[data-glow="purple"] {
-        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2), var(--dp-glow-purple);
-    }
-    .dp-card[data-glow="magenta"] {
-        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2), var(--dp-glow-magenta);
-    }
-    .dp-card[data-glow="ember"] {
-        box-shadow: var(--dp-bevel-outset), var(--dp-shadow-z2), var(--dp-glow-ember);
-    }
-</style>
