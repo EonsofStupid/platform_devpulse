@@ -33,6 +33,9 @@
     "dependencies": {
         "@fontsource/inter": "^5.2.8",
         "@fontsource/jetbrains-mono": "^5.2.8",
+        "@sveltejs/kit": "^2.50.0",
+        "@tanstack/svelte-query": "^6.0.17",
+        "@tanstack/svelte-table": "^8.21.3",
         "@tanstack/svelte-virtual": "^3.13.18",
         "@tanstack/table-core": "^8.21.3",
         "@tauri-apps/api": "^2.0.0-rc",

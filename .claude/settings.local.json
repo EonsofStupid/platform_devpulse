@@ -4,7 +4,10 @@
       "Bash(pnpm ds:tokens:build:*)",
       "Bash(pnpm check:*)",
       "Bash(pnpm tsx:*)",
-      "Bash(npx svelte-check:*)"
+      "Bash(npx svelte-check:*)",
+      "Bash(node -e:*)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm svelte-check:*)"
     ]
   }
 }
