@@ -1,0 +1,37 @@
+<!--
+  @file primitives/popover/Root.svelte
+  @layer primitives
+
+  Popover root - manages open/closed state.
+
+  Data Attributes:
+  - data-primitive="popover"
+  - data-slot="root"
+  - data-state="open" | "closed"
+-->
+<script lang="ts">
+  import { Popover } from "bits-ui";
+  import type { PopoverRootProps, PopoverState } from "./types.js";
+
+  let {
+    open = $bindable(false),
+    onOpenChange,
+    children,
+    "data-id": dataId,
+  }: PopoverRootProps = $props();
+
+  const dataState: PopoverState = $derived(open ? "open" : "closed");
+</script>
+
+<div
+  data-primitive="popover"
+  data-slot="root"
+  data-state={dataState}
+  data-id={dataId}
+>
+  <Popover.Root bind:open {onOpenChange}>
+    {#if children}
+      {@render children()}
+    {/if}
+  </Popover.Root>
+</div>

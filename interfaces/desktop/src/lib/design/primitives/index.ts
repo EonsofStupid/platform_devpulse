@@ -91,7 +91,22 @@ export { Label } from "./Label.js";
 export { Menubar } from "./Menubar.js";
 export { NavigationMenu } from "./NavigationMenu.js";
 export { Pagination } from "./Pagination.js";
-export { Popover } from "./Popover.js";
+// Popover - ColdLight wrapped primitive (nested folder)
+export * as Popover from "./popover/index.js";
+export type {
+  PopoverRootProps,
+  PopoverTriggerProps,
+  PopoverPortalProps,
+  PopoverOverlayProps,
+  PopoverContentProps,
+  PopoverCloseProps,
+  PopoverArrowProps,
+  PopoverState,
+  PopoverSlot,
+  PopoverSide,
+  PopoverAlign,
+} from "./popover/index.js";
+export { PopoverSlots } from "./popover/index.js";
 export { Progress } from "./Progress.js";
 export { RadioGroup } from "./RadioGroup.js";
 export { ScrollArea } from "./ScrollArea.js";

@@ -7,7 +7,8 @@
       "Bash(npx svelte-check:*)",
       "Bash(node -e:*)",
       "Bash(pnpm install:*)",
-      "Bash(pnpm svelte-check:*)"
+      "Bash(pnpm svelte-check:*)",
+      "Bash(pnpm audit:primitives:*)"
     ]
   }
 }
