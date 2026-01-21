@@ -245,12 +245,117 @@ Runtime enforcement via `stripStyleProp(rest, "ComponentName")` in development.
 
 ---
 
+## ADR-007: Tooltip Provider Context Requirement
+
+**Date:** 2026-01-21
+**Status:** Accepted
+**Context:** Bits UI Tooltip requires Provider context that differs from other floating primitives.
+
+### Discovery
+
+When implementing Tooltip, tests failed with:
+
+```
+Error: Context "Tooltip.Provider" not found
+```
+
+**Root Cause** (from `bits-ui/dist/bits/tooltip/tooltip.svelte.js`):
+- `TooltipRootState` expects `TooltipProviderState` context from parent
+- Unlike Popover, Tooltip REQUIRES explicit Provider wrapping
+
+| Primitive | Provider Required | Behavior |
+|-----------|------------------|----------|
+| Popover | No | Works standalone |
+| Tooltip | **Yes** | Requires `Tooltip.Provider` ancestor |
+
+### Decision
+
+ColdLight `Tooltip.Root` includes implicit Provider wrapper:
+
+```svelte
+<!-- tooltip/Root.svelte -->
+<div data-primitive="tooltip" data-slot="root" data-state={dataState}>
+  <Tooltip.Provider delayDuration={openDelay} {closeDelay}>
+    <Tooltip.Root bind:open {onOpenChange} {openDelay} {closeDelay}>
+      {@render children?.()}
+    </Tooltip.Root>
+  </Tooltip.Provider>
+</div>
+```
+
+### Rationale
+
+1. **User convenience**: Users shouldn't need to remember Provider
+2. **Consistent with Bits UI examples**: Their docs show Provider + Root together
+3. **Delay propagation**: Provider sets default delays for grouped tooltips
+
+### Consequences
+
+- ColdLight `Tooltip.Root` is self-contained (includes Provider)
+- Users CAN use `Tooltip.Provider` separately for grouped tooltips with shared delays
+- Pre-flight check MUST verify Provider requirements for future primitives
+
+---
+
+## ADR-008: Manual ARIA Role Attribution
+
+**Date:** 2026-01-21
+**Status:** Accepted
+**Context:** Not all Bits UI components add their ARIA roles automatically.
+
+### Discovery
+
+Tooltip tests failed:
+
+```typescript
+await expect.element(content).toHaveAttribute("role", "tooltip");
+// Failed: element has no 'role' attribute
+```
+
+**Root Cause**: Bits UI Tooltip does NOT add `role="tooltip"` to Content.
+
+| Primitive | Role Added by Bits UI | Manual Addition |
+|-----------|----------------------|-----------------|
+| Dialog | `role="dialog"` | ✅ Automatic |
+| AlertDialog | `role="alertdialog"` | ✅ Automatic |
+| Popover | No role (non-modal) | N/A - correct |
+| Tooltip | **No** `role="tooltip"` | ❌ Must add manually |
+
+### Decision
+
+ColdLight adds `role="tooltip"` explicitly in Content.svelte:
+
+```svelte
+<!-- tooltip/Content.svelte -->
+{#snippet child({ props, open })}
+  <div
+    {...props}
+    role="tooltip"           <!-- MANUAL: Bits UI doesn't add this -->
+    class={cn(props.class, className)}
+    data-primitive="tooltip"
+    data-slot="content"
+    data-state={dataState}
+  >
+```
+
+### Rationale
+
+1. **WAI-ARIA compliance**: Tooltip Pattern requires `role="tooltip"`
+2. **Screen reader support**: Announces tooltip content correctly
+3. **`aria-describedby` linkage**: Bits UI links trigger to content via ID
+
+### Consequences
+
+- Pre-flight check MUST verify which roles Bits UI adds automatically
+- ColdLight adds missing roles where WAI-ARIA requires them
+- Document in a11y.md which roles are ColdLight-provided vs Bits UI-provided
+
+---
+
 ## FUTURE ADRs
 
 Space for future decisions:
 
-### ADR-007: [Reserved]
-### ADR-008: [Reserved]
 ### ADR-009: [Reserved]
 ### ADR-010: [Reserved]
 

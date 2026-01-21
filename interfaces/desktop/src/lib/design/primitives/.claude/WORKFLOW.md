@@ -26,7 +26,9 @@
 3. **Read the existing completed primitive closest to your target:**
    - Modal? → Read `dialog/`
    - Non-modal floating? → Read `popover/`
+   - Hover-triggered hint? → Read `tooltip/`
    - Tab navigation? → Read `tabs/`
+   - Dropdown selection? → Read Bits UI docs (Select is next)
 
 ---
 
@@ -87,6 +89,46 @@ const content = screen.container.querySelector('[data-slot="content"]');
 ```typescript
 const content = document.querySelector('[data-slot="content"]');
 await expect.element(content).toHaveAttribute("data-state", "open");
+```
+
+---
+
+### Tooltip Provider Context (ADR-007)
+
+**Problem:** Bits UI Tooltip requires `Tooltip.Provider` context (unlike Popover).
+
+**Solution:** ColdLight `Tooltip.Root` includes implicit Provider wrapper:
+
+```svelte
+<!-- tooltip/Root.svelte -->
+<Tooltip.Provider delayDuration={openDelay} {closeDelay}>
+  <Tooltip.Root bind:open ...>
+    {@render children?.()}
+  </Tooltip.Root>
+</Tooltip.Provider>
+```
+
+---
+
+### Manual ARIA Role Attribution (ADR-008)
+
+**Problem:** Bits UI doesn't add all ARIA roles automatically.
+
+| Primitive | Role Added by Bits UI |
+|-----------|----------------------|
+| Dialog | `role="dialog"` ✅ |
+| AlertDialog | `role="alertdialog"` ✅ |
+| Tooltip | `role="tooltip"` ❌ Must add manually |
+
+**Solution:** ColdLight adds missing roles:
+
+```svelte
+<!-- tooltip/Content.svelte -->
+<div
+  {...props}
+  role="tooltip"  <!-- MANUAL: Bits UI doesn't add this -->
+  ...
+>
 ```
 
 ---

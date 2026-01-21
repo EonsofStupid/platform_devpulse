@@ -130,7 +130,21 @@ export { TabsSlots } from "./tabs/index.js";
 export { TimeField } from "./TimeField.js";
 export { Toggle } from "./Toggle.js";
 export { ToggleGroup } from "./ToggleGroup.js";
-export { Tooltip } from "./Tooltip.js";
+// Tooltip - ColdLight wrapped primitive (nested folder)
+export * as Tooltip from "./tooltip/index.js";
+export type {
+  TooltipRootProps,
+  TooltipProviderProps,
+  TooltipTriggerProps,
+  TooltipPortalProps,
+  TooltipContentProps,
+  TooltipArrowProps,
+  TooltipState,
+  TooltipSlot,
+  TooltipSide,
+  TooltipAlign,
+} from "./tooltip/index.js";
+export { TooltipSlots } from "./tooltip/index.js";
 
 // ============================================
 // CUSTOM ARIA PRIMITIVES

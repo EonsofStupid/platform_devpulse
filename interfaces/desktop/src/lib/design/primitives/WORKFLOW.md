@@ -1,8 +1,8 @@
 # ColdLight Primitives — Development Workflow
 
 > **Last Updated:** 2026-01-21
-> **Completed:** Button, Dialog, Sheet, Tabs, AlertDialog, Popover (6 primitives)
-> **Next:** Tooltip (Sprint 6)
+> **Completed:** Button, Dialog, Sheet, Tabs, AlertDialog, Popover, Tooltip (7 primitives)
+> **Next:** Select (Sprint 7)
 
 ---
 
@@ -269,24 +269,39 @@ data-id="{user-defined}"    # Stable ID for testing/tooling
   - Portal testing: Use `document.querySelector` not `screen.container`
   - Arrow component for visual indicator
 
+### Tooltip (Sprint 6)
+- **Tests:** 28 passing
+- **Pattern:** Hover-triggered floating content with Provider
+- **Key Learning:**
+  - **ADR-007**: Bits UI Tooltip REQUIRES `Tooltip.Provider` context — Root includes implicit Provider
+  - **ADR-008**: Bits UI does NOT add `role="tooltip"` — must add manually in Content.svelte
+  - Default `side="top"` (unlike Popover's `side="bottom"`)
+  - No Close button needed — auto-closes on mouse leave/blur
+  - `aria-describedby` links trigger to content (Bits UI handles this)
+  - Slots: `root`, `provider`, `trigger`, `portal`, `content`, `arrow`
+
 ---
 
-## NEXT PRIMITIVE: Tooltip
+## NEXT PRIMITIVE: Select
 
-**Sprint 6** — Hover-triggered floating content
+**Sprint 7** — Dropdown selection
 
 **Pre-flight:**
-- Based on Popover pattern
-- `role="tooltip"` (not dialog)
-- Hover-only by default (no click trigger)
-- Simpler API than Popover (no close button needed)
+- Based on Popover positioning + Listbox ARIA
+- `role="listbox"` for content, `role="option"` for items
+- Click-to-open by default
+- Single or multiple selection modes
 
-**Slots expected:** `root`, `trigger`, `content`, `arrow`
+**Slots expected:** `root`, `trigger`, `value`, `portal`, `content`, `group`, `label`, `item`, `separator`
 
 **Key differences from Popover:**
-- Default `openOnHover=true`
-- No Close button
-- Content is purely informational
+- Listbox semantics (not disclosure)
+- Selection state management
+- Typeahead search support
+- `aria-selected` on options
+- Keyboard: Arrow keys navigate, Enter selects
+
+**VPB Use Case:** Enum property dropdowns, font selectors, component type pickers
 
 ---
 
@@ -327,3 +342,5 @@ See: Tabs pattern (ADR-003)
 | 2026-01-21 | Props-based state extraction | Bits UI snippetProps gap workaround |
 | 2026-01-21 | Portal testing with document.querySelector | Portal renders outside container |
 | 2026-01-21 | WORKFLOW.md + .claude directives | Self-documenting workflow for autonomy |
+| 2026-01-21 | Tooltip requires implicit Provider (ADR-007) | Bits UI Tooltip needs Provider context |
+| 2026-01-21 | Manual role attribution (ADR-008) | Bits UI doesn't add all ARIA roles |

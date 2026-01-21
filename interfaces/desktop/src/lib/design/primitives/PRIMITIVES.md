@@ -39,6 +39,7 @@
 | sheet | ✅ | ✅ | ✅ | 32 | ✅ |
 | tabs | ✅ | ✅ | ✅ | 48 | ✅ |
 | tanstack | ✅ | ❌ | ❌ | ❌ | 🔄 |
+| tooltip | ✅ | ✅ | ✅ | 28 | ✅ |
 <!-- END:AUDIT_TABLE -->
 
 **Monolithic (pending conversion):** Run `pnpm audit:primitives` for current count.
