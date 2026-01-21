@@ -12,7 +12,19 @@
   "exports": {
     ".": {
       "types": "./index.d.ts",
-      "import": "./index.js"
+      "import": "./index.ts"
+    },
+    "./config": {
+      "types": "./coldlight.config.d.ts",
+      "import": "./coldlight.config.ts"
+    },
+    "./manifest": {
+      "types": "./manifest.d.ts",
+      "import": "./manifest.ts"
+    },
+    "./constraints": {
+      "types": "./constraints.d.ts",
+      "import": "./constraints.ts"
     },
     "./tokens": {
       "types": "./tokens/types.ts",
@@ -48,6 +60,10 @@
     "primitives/",
     "index.ts",
     "index.css",
+    "coldlight.config.ts",
+    "manifest.ts",
+    "constraints.ts",
+    "CHANGELOG.md",
     "vite-plugin.ts"
   ],
   "keywords": [

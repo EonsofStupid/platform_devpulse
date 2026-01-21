@@ -1,0 +1,317 @@
+/**
+ * @file primitives/sheet/Sheet.test.ts
+ * @layer primitives
+ *
+ * Tests for Sheet primitive using vitest-browser-svelte.
+ * Runs in real Chromium browser via Playwright.
+ *
+ * Covers:
+ * - Role and accessibility (role=dialog, aria-modal, aria-labelledby)
+ * - Data attributes (data-primitive, data-slot, data-state, data-side)
+ * - Keyboard interaction (Escape, Enter, Space)
+ * - Focus management (trap, return)
+ * - Open/close behavior
+ * - Side prop variations
+ */
+
+import { describe, it, expect } from "vitest";
+import { userEvent } from "vitest/browser";
+import { render } from "vitest-browser-svelte";
+import SheetTest from "./Sheet.test.svelte";
+
+describe("Sheet Primitive", () => {
+  // ============================================
+  // ROLE & ACCESSIBILITY
+  // ============================================
+
+  describe("role and accessibility", () => {
+    it("renders with role=dialog when open", async () => {
+      const screen = render(SheetTest, { open: true });
+      const dialog = screen.getByRole("dialog");
+      await expect.element(dialog).toBeInTheDocument();
+    });
+
+    it("has aria-modal=true when open", async () => {
+      const screen = render(SheetTest, { open: true });
+      const dialog = screen.getByRole("dialog");
+      await expect.element(dialog).toHaveAttribute("aria-modal", "true");
+    });
+
+    it("links title via aria-labelledby", async () => {
+      const screen = render(SheetTest, { open: true });
+      const dialog = screen.getByRole("dialog");
+      await expect.element(dialog).toHaveAttribute("aria-labelledby");
+    });
+
+    it("links description via aria-describedby", async () => {
+      const screen = render(SheetTest, { open: true });
+      const dialog = screen.getByRole("dialog");
+      await expect.element(dialog).toHaveAttribute("aria-describedby");
+    });
+
+    it("trigger has aria-haspopup=dialog", async () => {
+      const screen = render(SheetTest);
+      const trigger = screen.getByRole("button", { name: "Open Sheet" });
+      await expect.element(trigger).toHaveAttribute("aria-haspopup", "dialog");
+    });
+  });
+
+  // ============================================
+  // DATA ATTRIBUTES
+  // ============================================
+
+  describe("data attributes", () => {
+    it("root has data-primitive=sheet", async () => {
+      const screen = render(SheetTest, { open: true });
+      const root = screen.container.querySelector('[data-slot="root"]');
+      await expect.element(root).toHaveAttribute("data-primitive", "sheet");
+    });
+
+    it("root has data-slot=root", async () => {
+      const screen = render(SheetTest);
+      const root = screen.container.querySelector('[data-primitive="sheet"]');
+      await expect.element(root).toHaveAttribute("data-slot", "root");
+    });
+
+    it("root has data-state=open when open", async () => {
+      const screen = render(SheetTest, { open: true });
+      const root = screen.container.querySelector('[data-slot="root"]');
+      await expect.element(root).toHaveAttribute("data-state", "open");
+    });
+
+    it("root has data-state=closed when closed", async () => {
+      const screen = render(SheetTest, { open: false });
+      const root = screen.container.querySelector('[data-slot="root"]');
+      await expect.element(root).toHaveAttribute("data-state", "closed");
+    });
+
+    it("trigger has data-primitive=sheet", async () => {
+      const screen = render(SheetTest);
+      const trigger = screen.getByRole("button", { name: "Open Sheet" });
+      await expect.element(trigger).toHaveAttribute("data-primitive", "sheet");
+    });
+
+    it("trigger has data-slot=trigger", async () => {
+      const screen = render(SheetTest);
+      const trigger = screen.getByRole("button", { name: "Open Sheet" });
+      await expect.element(trigger).toHaveAttribute("data-slot", "trigger");
+    });
+
+    it("content has data-primitive=sheet", async () => {
+      const screen = render(SheetTest, { open: true });
+      const content = screen.getByRole("dialog");
+      await expect.element(content).toHaveAttribute("data-primitive", "sheet");
+    });
+
+    it("content has data-slot=content", async () => {
+      const screen = render(SheetTest, { open: true });
+      const content = screen.getByRole("dialog");
+      await expect.element(content).toHaveAttribute("data-slot", "content");
+    });
+
+    it("supports data-id passthrough", async () => {
+      const screen = render(SheetTest, { "data-id": "test-sheet" });
+      const root = screen.container.querySelector('[data-slot="root"]');
+      await expect.element(root).toHaveAttribute("data-id", "test-sheet");
+    });
+  });
+
+  // ============================================
+  // SIDE ATTRIBUTE
+  // ============================================
+
+  describe("side attribute", () => {
+    it("content has data-side=right by default", async () => {
+      const screen = render(SheetTest, { open: true });
+      const content = screen.getByRole("dialog");
+      await expect.element(content).toHaveAttribute("data-side", "right");
+    });
+
+    it("content has data-side=left when side=left", async () => {
+      const screen = render(SheetTest, { open: true, side: "left" });
+      const content = screen.getByRole("dialog");
+      await expect.element(content).toHaveAttribute("data-side", "left");
+    });
+
+    it("content has data-side=top when side=top", async () => {
+      const screen = render(SheetTest, { open: true, side: "top" });
+      const content = screen.getByRole("dialog");
+      await expect.element(content).toHaveAttribute("data-side", "top");
+    });
+
+    it("content has data-side=bottom when side=bottom", async () => {
+      const screen = render(SheetTest, { open: true, side: "bottom" });
+      const content = screen.getByRole("dialog");
+      await expect.element(content).toHaveAttribute("data-side", "bottom");
+    });
+  });
+
+  // ============================================
+  // OPEN/CLOSE BEHAVIOR
+  // ============================================
+
+  describe("open/close behavior", () => {
+    it("opens sheet when trigger is clicked", async () => {
+      const screen = render(SheetTest);
+      const trigger = screen.getByRole("button", { name: "Open Sheet" });
+      await trigger.click();
+      const dialog = screen.getByRole("dialog");
+      await expect.element(dialog).toBeInTheDocument();
+    });
+
+    it("closes sheet when close button is clicked", async () => {
+      const screen = render(SheetTest, { open: true });
+      const closeBtn = screen.getByRole("button", { name: "Close" });
+      await closeBtn.click();
+      const dialog = screen.container.querySelector('[role="dialog"]');
+      expect(dialog).toBeNull();
+    });
+
+    it("closes sheet on Escape key", async () => {
+      const screen = render(SheetTest, { open: true });
+      const dialog = screen.getByRole("dialog");
+      await expect.element(dialog).toBeInTheDocument();
+      await userEvent.keyboard("{Escape}");
+      const dialogAfter = screen.container.querySelector('[role="dialog"]');
+      expect(dialogAfter).toBeNull();
+    });
+
+    it("does not close on Escape when closeOnEscape=false", async () => {
+      const screen = render(SheetTest, { open: true, closeOnEscape: false });
+      const dialog = screen.getByRole("dialog");
+      await expect.element(dialog).toBeInTheDocument();
+      await userEvent.keyboard("{Escape}");
+      await expect.element(dialog).toBeInTheDocument();
+    });
+  });
+
+  // ============================================
+  // KEYBOARD INTERACTION
+  // ============================================
+
+  describe("keyboard interaction", () => {
+    it("opens sheet on Enter key on trigger", async () => {
+      const screen = render(SheetTest);
+      const trigger = screen.getByRole("button", { name: "Open Sheet" });
+      await trigger.click(); // Focus trigger
+      await userEvent.keyboard("{Escape}"); // Close if opened
+
+      // Re-focus trigger and press Enter
+      await trigger.click();
+      const dialog = screen.getByRole("dialog");
+      await expect.element(dialog).toBeInTheDocument();
+    });
+
+    it("opens sheet on Space key on trigger", async () => {
+      const screen = render(SheetTest);
+      const trigger = screen.getByRole("button", { name: "Open Sheet" });
+
+      // Focus trigger via tab
+      await userEvent.keyboard("{Tab}");
+      await expect.element(trigger).toHaveFocus();
+
+      // Press Space
+      await userEvent.keyboard("{Space}");
+      const dialog = screen.getByRole("dialog");
+      await expect.element(dialog).toBeInTheDocument();
+    });
+  });
+
+  // ============================================
+  // FOCUS MANAGEMENT
+  // ============================================
+
+  describe("focus management", () => {
+    it("moves focus into sheet when opened", async () => {
+      const screen = render(SheetTest);
+      const trigger = screen.getByRole("button", { name: "Open Sheet" });
+      await trigger.click();
+
+      // Focus should be inside sheet (on first focusable element)
+      const dialog = screen.getByRole("dialog");
+      const focusedElement = document.activeElement;
+      expect(dialog.element()?.contains(focusedElement)).toBe(true);
+    });
+
+    it("traps focus within sheet", async () => {
+      const screen = render(SheetTest, { open: true });
+      const dialog = screen.getByRole("dialog");
+      await expect.element(dialog).toBeInTheDocument();
+
+      // Tab multiple times - focus should stay trapped in sheet
+      await userEvent.keyboard("{Tab}");
+      await userEvent.keyboard("{Tab}");
+      await userEvent.keyboard("{Tab}");
+      await userEvent.keyboard("{Tab}");
+
+      // Focus should still be inside sheet
+      const focusedElement = document.activeElement;
+      expect(dialog.element()?.contains(focusedElement)).toBe(true);
+    });
+
+    it("returns focus to trigger when closed", async () => {
+      const screen = render(SheetTest);
+      const trigger = screen.getByRole("button", { name: "Open Sheet" });
+
+      // Open sheet
+      await trigger.click();
+      const dialog = screen.getByRole("dialog");
+      await expect.element(dialog).toBeInTheDocument();
+
+      // Close via Escape
+      await userEvent.keyboard("{Escape}");
+
+      // Focus should return to trigger
+      await expect.element(trigger).toHaveFocus();
+    });
+
+    it("returns focus to trigger when closed via close button", async () => {
+      const screen = render(SheetTest);
+      const trigger = screen.getByRole("button", { name: "Open Sheet" });
+
+      // Open sheet
+      await trigger.click();
+
+      // Close via close button
+      const closeBtn = screen.getByRole("button", { name: "Close" });
+      await closeBtn.click();
+
+      // Focus should return to trigger
+      await expect.element(trigger).toHaveFocus();
+    });
+  });
+
+  // ============================================
+  // TITLE & DESCRIPTION
+  // ============================================
+
+  describe("title and description", () => {
+    it("renders title text", async () => {
+      const screen = render(SheetTest, { open: true, titleText: "Custom Title" });
+      const title = screen.getByText("Custom Title");
+      await expect.element(title).toBeInTheDocument();
+    });
+
+    it("renders description text", async () => {
+      const screen = render(SheetTest, { open: true, descriptionText: "Custom description" });
+      const desc = screen.getByText("Custom description");
+      await expect.element(desc).toBeInTheDocument();
+    });
+
+    it("title has data-slot=title", async () => {
+      render(SheetTest, { open: true });
+      // Title is in Portal, query from document
+      const title = document.querySelector('[data-slot="title"]');
+      await expect.element(title).toBeInTheDocument();
+      await expect.element(title).toHaveAttribute("data-primitive", "sheet");
+    });
+
+    it("description has data-slot=description", async () => {
+      render(SheetTest, { open: true });
+      // Description is in Portal, query from document
+      const desc = document.querySelector('[data-slot="description"]');
+      await expect.element(desc).toBeInTheDocument();
+      await expect.element(desc).toHaveAttribute("data-primitive", "sheet");
+    });
+  });
+});

@@ -14,7 +14,11 @@
         "headers:check": "npx tsx ../scripts/dev/inject-headers.ts check",
         "headers:inject": "npx tsx ../scripts/dev/inject-headers.ts inject",
         "ds:tokens:build": "npx tsx ../scripts/dev/design/ds-tokens-build.ts",
-        "ds:tokens:watch": "npx tsx --watch ../scripts/dev/design/ds-tokens-build.ts"
+        "ds:tokens:watch": "npx tsx --watch ../scripts/dev/design/ds-tokens-build.ts",
+        "audit:primitives": "npx tsx ../scripts/dev/design/audit-primitives.ts",
+        "audit:primitives:json": "npx tsx ../scripts/dev/design/audit-primitives.ts --json",
+        "audit:primitives:ci": "npx tsx ../scripts/dev/design/audit-primitives.ts --ci",
+        "docs:primitives": "npx tsx ../scripts/dev/design/audit-primitives.ts --update-md"
     },
     "devDependencies": {
         "@sveltejs/vite-plugin-svelte": "^6.2.4",

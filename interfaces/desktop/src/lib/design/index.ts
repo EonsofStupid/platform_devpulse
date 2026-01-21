@@ -12,6 +12,24 @@
  */
 
 // ===========================================
+// CORE CONFIGURATION
+// ===========================================
+export * from "./coldlight.config";
+export { default as config } from "./coldlight.config";
+
+// ===========================================
+// COMPONENT MANIFEST
+// ===========================================
+export * from "./manifest";
+export { default as MANIFEST } from "./manifest";
+
+// ===========================================
+// CONSTRAINT SYSTEM
+// ===========================================
+export * from "./constraints";
+export { default as constraints } from "./constraints";
+
+// ===========================================
 // TOKENS (SSOT values)
 // ===========================================
 export * from "./tokens/tokens";

@@ -170,4 +170,20 @@ export {
 // INTEGRATION PRIMITIVES
 // ============================================
 export { default as Toast, toast } from "./Toast.svelte";
-export { default as Sheet, type SheetSide } from "./Sheet.svelte";
+
+// Sheet - ColdLight wrapped primitive (nested folder)
+export * as Sheet from "./sheet/index.js";
+export type {
+  SheetRootProps,
+  SheetTriggerProps,
+  SheetPortalProps,
+  SheetOverlayProps,
+  SheetContentProps,
+  SheetTitleProps,
+  SheetDescriptionProps,
+  SheetCloseProps,
+  SheetState,
+  SheetSlot,
+  SheetSide,
+} from "./sheet/index.js";
+export { SheetSlots } from "./sheet/index.js";
