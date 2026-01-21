@@ -1,0 +1,44 @@
+# lefthook.yml
+# Git hooks for DevPulse - runs before commits/pushes
+
+pre-commit:
+  parallel: true
+  commands:
+    # Rust formatting
+    rust-fmt:
+      glob: "*.rs"
+      run: cargo fmt --all -- --check
+      
+    # Rust linting (quick check, not full clippy)
+    rust-check:
+      glob: "*.rs"
+      run: cargo check --workspace --quiet
+      
+    # Svelte check
+    svelte-check:
+      glob: "*.svelte"
+      root: "interfaces/desktop"
+      run: pnpm exec svelte-check --threshold error
+
+commit-msg:
+  commands:
+    # Conventional commit format validation
+    commitlint:
+      run: npx --no -- commitlint --edit {1}
+
+pre-push:
+  parallel: true
+  commands:
+    # Full Rust lint on push
+    clippy:
+      glob: "*.rs"
+      run: cargo clippy --workspace -- -D warnings
+      
+    # Security audit
+    cargo-deny:
+      run: cargo deny check advisories
+      
+    # Svelte type check
+    svelte-typecheck:
+      root: "interfaces/desktop"
+      run: pnpm exec svelte-check

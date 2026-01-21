@@ -32,9 +32,12 @@
 <!-- BEGIN:AUDIT_TABLE -->
 | Primitive | index | types | a11y | tests | Status |
 |-----------|-------|-------|------|-------|--------|
+| alert-dialog | ✅ | ✅ | ✅ | 41 | ✅ |
 | button | ✅ | ✅ | ✅ | 19 | ✅ |
 | dialog | ✅ | ✅ | ✅ | 28 | ✅ |
+| popover | ✅ | ✅ | ✅ | 35 | ✅ |
 | sheet | ✅ | ✅ | ✅ | 32 | ✅ |
+| tabs | ✅ | ✅ | ✅ | 48 | ✅ |
 | tanstack | ✅ | ❌ | ❌ | ❌ | 🔄 |
 <!-- END:AUDIT_TABLE -->
 

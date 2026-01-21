@@ -1,0 +1,200 @@
+# project.manifest.yml
+# DevPulse Single Source of Truth Manifest
+# This file is the root input for documentation generators
+
+$schema: "https://devpulse.app/schemas/manifest.v1.json"
+
+# ============================================
+# PROJECT IDENTITY
+# ============================================
+project:
+  name: devpulse
+  display_name: "DevPulse Platform"
+  version: "0.1.0"
+  description: "The ultimate middleware/platform hub for vibe coders"
+  license: MIT
+  repository: "https://github.com/EonsofStupid/platform_devpulse"
+
+# ============================================
+# OWNERSHIP
+# ============================================
+owner:
+  username: Hades
+  name: "Jesse Hall"
+  email: jessay@angryvibers.com
+
+organizations:
+  professional:
+    - id: devpulse-app
+      name: "DevPULSE.app"
+      url: "https://devpulse.app"
+    - id: rrflow-ai
+      name: "RRFlow.ai"
+      url: "https://rrflow.ai"
+  community:
+    - id: angrygaming
+      name: "AngryGaming.com"
+    - id: angryvibes
+      name: "AngryVibes.com"
+    - id: angryvibers
+      name: "AngryVibers.com"
+
+# ============================================
+# HUBS (Domain Modules)
+# ============================================
+hubs:
+  - id: maestro-ai
+    name: "MaestroAI"
+    slug: maestro-ai
+    path: kernel/devpulse-maestro
+    type: core
+    description: "AI orchestration kernel"
+    
+  - id: wiredfront
+    name: "WiredFront"
+    slug: wiredfront
+    path: interfaces/desktop/src/lib/domains/wiredfront
+    type: media
+    description: "Media hub - streaming, capture, editing"
+    children:
+      - id: pixvix
+        name: "PixVix"
+        slug: pixvix
+        type: tool
+        description: "Screen capture (Snagit alternative)"
+      - id: viziwizi
+        name: "ViziWizi"
+        slug: viziwizi
+        type: tool
+        description: "Image and video editor"
+        
+  - id: devmaestro
+    name: "DevMaestro"
+    slug: devmaestro
+    path: interfaces/desktop/src/lib/domains/devmaestro
+    type: dev-tools
+    description: "Developer tools and debugging"
+    
+  - id: overmind
+    name: "OverMind"
+    slug: overmind
+    path: interfaces/desktop/src/lib/domains/thinkmaestro
+    type: planning
+    description: "Planning, research, and ideation"
+    
+  - id: devpulse-core
+    name: "DevPulse"
+    slug: devpulse
+    path: interfaces/desktop/src/lib/domains/home
+    type: core
+    description: "Central dashboard and hub"
+    
+  - id: community
+    name: "Community"
+    slug: community
+    path: interfaces/desktop/src/lib/domains/community
+    type: social
+    description: "Community features"
+
+# ============================================
+# SERVICES
+# ============================================
+services:
+  - id: desktop
+    name: "Desktop App"
+    path: interfaces/desktop
+    tech:
+      - tauri-2.0
+      - sveltekit-5
+      - svelte-5
+    entry: src-tauri/src/main.rs
+    
+  - id: engine
+    name: "Engine"
+    path: systems/devpulse-engine
+    tech:
+      - rust
+    description: "Public API facade"
+    
+  - id: maestro
+    name: "Maestro Kernel"
+    path: kernel/devpulse-maestro
+    tech:
+      - rust
+    description: "Proprietary AI orchestration"
+
+# ============================================
+# DESIGN SYSTEM
+# ============================================
+design_system:
+  name: ColdLight
+  package: "@devpulse/coldlight"
+  path: interfaces/desktop/src/lib/design
+  status: internal
+  version: "0.1.0"
+  dependencies:
+    - bits-ui
+    - tailwindcss
+
+# ============================================
+# GOLDEN PATHS (Standard Commands)
+# ============================================
+golden_paths:
+  dev: "cargo xtask run-dev"
+  build: "cargo xtask build-release"
+  test: "cargo xtask test-all"
+  lint: "cargo clippy --workspace"
+  format: "cargo fmt --all"
+  docs: "cargo xtask docs"
+  changelog: "git-cliff -o CHANGELOG.md"
+
+# ============================================
+# DATASTORES
+# ============================================
+datastores:
+  - id: global
+    name: "Global DB"
+    type: libsql
+    path: vfs/global.db
+    description: "Cross-project persistent data"
+    
+  - id: project
+    name: "Project DB"
+    type: libsql
+    path: vfs/project.db
+    description: "Per-project data"
+    
+  - id: supabase
+    name: "Supabase Cloud"
+    type: postgres
+    url: "https://supabase.com/dashboard/project/devpulse"
+    description: "Remote cloud database"
+
+# ============================================
+# ENVIRONMENTS
+# ============================================
+environments:
+  - name: local
+    type: development
+    
+  - name: staging
+    type: preview
+    
+  - name: production
+    type: release
+
+# ============================================
+# DIAGRAM SEEDS (for Structurizr)
+# ============================================
+diagram_seeds:
+  - type: c4-context
+    scope: devpulse-platform
+    description: "System context diagram"
+    
+  - type: c4-container
+    scope: desktop
+    description: "Desktop app containers"
+    
+  - type: c4-container
+    scope: wiredfront
+    description: "WiredFront hub structure"
