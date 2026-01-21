@@ -11,7 +11,7 @@
 -->
 <script lang="ts">
     import { Tabs } from "bits-ui";
-    import GlassPanel from "$lib/design/components/GlassPanel.svelte";
+    import GlassPanel from "$lib/design/block_library/GlassPanel.svelte";
 
     let activeTab = $state("overview");
     const tabs = [

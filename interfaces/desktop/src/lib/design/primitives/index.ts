@@ -42,7 +42,22 @@ export { default as Presence, type PresenceState } from "./Presence.svelte";
 //        <Dialog.Root>, <Dialog.Trigger>, <Dialog.Content>, etc.
 
 export { Accordion } from "./Accordion.js";
-export { AlertDialog } from "./AlertDialog.js";
+// AlertDialog - ColdLight wrapped primitive (nested folder)
+export * as AlertDialog from "./alert-dialog/index.js";
+export type {
+  AlertDialogRootProps,
+  AlertDialogTriggerProps,
+  AlertDialogPortalProps,
+  AlertDialogOverlayProps,
+  AlertDialogContentProps,
+  AlertDialogTitleProps,
+  AlertDialogDescriptionProps,
+  AlertDialogActionProps,
+  AlertDialogCancelProps,
+  AlertDialogState,
+  AlertDialogSlot,
+} from "./alert-dialog/index.js";
+export { AlertDialogSlots } from "./alert-dialog/index.js";
 export { AspectRatio } from "./AspectRatio.js";
 export { Avatar } from "./Avatar.js";
 // Button - ColdLight wrapped primitive (nested folder)
@@ -84,7 +99,19 @@ export { Select } from "./Select.js";
 export { Separator } from "./Separator.js";
 export { Slider } from "./Slider.js";
 export { Switch } from "./Switch.js";
-export { Tabs } from "./Tabs.js";
+// Tabs - ColdLight wrapped primitive (nested folder)
+export * as Tabs from "./tabs/index.js";
+export type {
+	TabsRootProps,
+	TabsListProps,
+	TabsTriggerProps,
+	TabsContentProps,
+	TabsState,
+	TabsSlot,
+	TabsOrientation,
+	TabsActivationMode,
+} from "./tabs/index.js";
+export { TabsSlots } from "./tabs/index.js";
 export { TimeField } from "./TimeField.js";
 export { Toggle } from "./Toggle.js";
 export { ToggleGroup } from "./ToggleGroup.js";

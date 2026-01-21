@@ -158,8 +158,8 @@ function auditPrimitive(name: string): AuditResult {
   const hasA11y = fs.existsSync(path.join(folder, "a11y.md"));
 
   // Find test files
-  const testTsPath = path.join(folder, `${capitalize(name)}.test.ts`);
-  const testSveltePath = path.join(folder, `${capitalize(name)}.test.svelte`);
+  const testTsPath = path.join(folder, `${toPascalCase(name)}.test.ts`);
+  const testSveltePath = path.join(folder, `${toPascalCase(name)}.test.svelte`);
   const hasTests = fs.existsSync(testTsPath);
   const hasTestSvelte = fs.existsSync(testSveltePath);
   const testCount = hasTests ? countTests(testTsPath) : 0;
@@ -183,10 +183,14 @@ function auditPrimitive(name: string): AuditResult {
 }
 
 /**
- * Capitalize first letter.
+ * Convert folder name to PascalCase for test file lookup.
+ * Handles hyphenated names: "alert-dialog" -> "AlertDialog"
  */
-function capitalize(s: string): string {
-  return s.charAt(0).toUpperCase() + s.slice(1);
+function toPascalCase(s: string): string {
+  return s
+    .split("-")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join("");
 }
 
 // ============================================
