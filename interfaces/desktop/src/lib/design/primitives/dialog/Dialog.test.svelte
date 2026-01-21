@@ -9,8 +9,8 @@
   import * as Dialog from "./index.js";
 
   interface Props {
-    /** Start with dialog open */
-    defaultOpen?: boolean;
+    /** Dialog open state (bindable) */
+    open?: boolean;
     /** Trigger button text */
     triggerText?: string;
     /** Dialog title text */
@@ -28,7 +28,7 @@
   }
 
   let {
-    defaultOpen = false,
+    open = $bindable(false),
     triggerText = "Open Dialog",
     titleText = "Dialog Title",
     descriptionText = "Dialog description text.",
@@ -37,8 +37,6 @@
     closeOnOutsideClick = true,
     "data-id": dataId,
   }: Props = $props();
-
-  let open = $state(defaultOpen);
 </script>
 
 <Dialog.Root bind:open data-id={dataId}>

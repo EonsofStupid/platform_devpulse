@@ -24,7 +24,7 @@
 <script lang="ts">
   import { Dialog } from "bits-ui";
   import type { DialogContentProps, DialogState } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+  import { stripStyleProp, cn } from "../types.js";
 
   let {
     children,
@@ -53,19 +53,22 @@
 </script>
 
 <Dialog.Content
-  class={className}
   onEscapeKeydown={handleEscapeKeydown}
   onInteractOutside={handleInteractOutside}
   {trapFocus}
   {preventScroll}
-  data-primitive="dialog"
-  data-slot="content"
-  data-id={dataId}
   {...rest}
 >
-  {#snippet child({ open })}
+  {#snippet child({ props, open })}
     {@const dataState: DialogState = open ? "open" : "closed"}
-    <div data-state={dataState}>
+    <div
+      {...props}
+      class={cn(props.class, className)}
+      data-primitive="dialog"
+      data-slot="content"
+      data-state={dataState}
+      data-id={dataId}
+    >
       {#if typeof children === "function" && children.length > 0}
         {@render children({ open })}
       {:else if children}

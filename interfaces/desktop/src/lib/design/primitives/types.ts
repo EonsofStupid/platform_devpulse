@@ -9,6 +9,8 @@
 /// <reference types="vite/client" />
 
 import type { HTMLAttributes } from "svelte/elements";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 // ============================================
 // NAMESPACE-READY DATA ATTRIBUTES
@@ -98,4 +100,20 @@ export function stripStyleProp(
     );
     delete rest.style;
   }
+}
+
+// ============================================
+// CLASS UTILITIES
+// ============================================
+
+/**
+ * Merge class names with Tailwind-aware deduplication.
+ * Uses clsx for conditional classes + tailwind-merge for specificity.
+ *
+ * @example
+ * cn("px-2 py-1", "px-4") // => "py-1 px-4" (px-4 wins)
+ * cn("text-red-500", props.class, className) // => merged result
+ */
+export function cn(...inputs: ClassValue[]): string {
+  return twMerge(clsx(inputs));
 }

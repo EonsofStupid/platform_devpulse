@@ -12,7 +12,7 @@
 <script lang="ts">
   import { Dialog } from "bits-ui";
   import type { DialogOverlayProps, DialogState } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+  import { stripStyleProp, cn } from "../types.js";
 
   let {
     children,
@@ -24,16 +24,17 @@
   stripStyleProp(rest, "Dialog.Overlay");
 </script>
 
-<Dialog.Overlay
-  class={className}
-  data-primitive="dialog"
-  data-slot="overlay"
-  data-id={dataId}
-  {...rest}
->
-  {#snippet child({ open })}
+<Dialog.Overlay {...rest}>
+  {#snippet child({ props, open })}
     {@const dataState: DialogState = open ? "open" : "closed"}
-    <div data-state={dataState}>
+    <div
+      {...props}
+      class={cn(props.class, className)}
+      data-primitive="dialog"
+      data-slot="overlay"
+      data-state={dataState}
+      data-id={dataId}
+    >
       {#if children}
         {@render children({ open })}
       {/if}

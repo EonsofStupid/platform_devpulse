@@ -25,25 +25,25 @@ describe("Dialog Primitive", () => {
 
   describe("role and accessibility", () => {
     it("renders with role=dialog when open", async () => {
-      const screen = render(DialogTest, { defaultOpen: true });
+      const screen = render(DialogTest, { open: true });
       const dialog = screen.getByRole("dialog");
       await expect.element(dialog).toBeInTheDocument();
     });
 
     it("has aria-modal=true when open", async () => {
-      const screen = render(DialogTest, { defaultOpen: true });
+      const screen = render(DialogTest, { open: true });
       const dialog = screen.getByRole("dialog");
       await expect.element(dialog).toHaveAttribute("aria-modal", "true");
     });
 
     it("links title via aria-labelledby", async () => {
-      const screen = render(DialogTest, { defaultOpen: true });
+      const screen = render(DialogTest, { open: true });
       const dialog = screen.getByRole("dialog");
       await expect.element(dialog).toHaveAttribute("aria-labelledby");
     });
 
     it("links description via aria-describedby", async () => {
-      const screen = render(DialogTest, { defaultOpen: true });
+      const screen = render(DialogTest, { open: true });
       const dialog = screen.getByRole("dialog");
       await expect.element(dialog).toHaveAttribute("aria-describedby");
     });
@@ -61,7 +61,7 @@ describe("Dialog Primitive", () => {
 
   describe("data attributes", () => {
     it("root has data-primitive=dialog", async () => {
-      const screen = render(DialogTest, { defaultOpen: true });
+      const screen = render(DialogTest, { open: true });
       const root = screen.container.querySelector('[data-slot="root"]');
       await expect.element(root).toHaveAttribute("data-primitive", "dialog");
     });
@@ -73,13 +73,13 @@ describe("Dialog Primitive", () => {
     });
 
     it("root has data-state=open when open", async () => {
-      const screen = render(DialogTest, { defaultOpen: true });
+      const screen = render(DialogTest, { open: true });
       const root = screen.container.querySelector('[data-slot="root"]');
       await expect.element(root).toHaveAttribute("data-state", "open");
     });
 
     it("root has data-state=closed when closed", async () => {
-      const screen = render(DialogTest, { defaultOpen: false });
+      const screen = render(DialogTest, { open: false });
       const root = screen.container.querySelector('[data-slot="root"]');
       await expect.element(root).toHaveAttribute("data-state", "closed");
     });
@@ -97,13 +97,13 @@ describe("Dialog Primitive", () => {
     });
 
     it("content has data-primitive=dialog", async () => {
-      const screen = render(DialogTest, { defaultOpen: true });
+      const screen = render(DialogTest, { open: true });
       const content = screen.getByRole("dialog");
       await expect.element(content).toHaveAttribute("data-primitive", "dialog");
     });
 
     it("content has data-slot=content", async () => {
-      const screen = render(DialogTest, { defaultOpen: true });
+      const screen = render(DialogTest, { open: true });
       const content = screen.getByRole("dialog");
       await expect.element(content).toHaveAttribute("data-slot", "content");
     });
@@ -129,7 +129,7 @@ describe("Dialog Primitive", () => {
     });
 
     it("closes dialog when close button is clicked", async () => {
-      const screen = render(DialogTest, { defaultOpen: true });
+      const screen = render(DialogTest, { open: true });
       const closeBtn = screen.getByRole("button", { name: "Close" });
       await closeBtn.click();
       const dialog = screen.container.querySelector('[role="dialog"]');
@@ -137,7 +137,7 @@ describe("Dialog Primitive", () => {
     });
 
     it("closes dialog on Escape key", async () => {
-      const screen = render(DialogTest, { defaultOpen: true });
+      const screen = render(DialogTest, { open: true });
       const dialog = screen.getByRole("dialog");
       await expect.element(dialog).toBeInTheDocument();
       await userEvent.keyboard("{Escape}");
@@ -146,7 +146,7 @@ describe("Dialog Primitive", () => {
     });
 
     it("does not close on Escape when closeOnEscape=false", async () => {
-      const screen = render(DialogTest, { defaultOpen: true, closeOnEscape: false });
+      const screen = render(DialogTest, { open: true, closeOnEscape: false });
       const dialog = screen.getByRole("dialog");
       await expect.element(dialog).toBeInTheDocument();
       await userEvent.keyboard("{Escape}");
@@ -203,20 +203,17 @@ describe("Dialog Primitive", () => {
     });
 
     it("traps focus within dialog", async () => {
-      const screen = render(DialogTest, { defaultOpen: true });
-      const closeBtn = screen.getByRole("button", { name: "Close" });
+      const screen = render(DialogTest, { open: true });
+      const dialog = screen.getByRole("dialog");
+      await expect.element(dialog).toBeInTheDocument();
 
-      // Focus close button
-      await closeBtn.click();
-      await expect.element(closeBtn).toHaveFocus();
-
-      // Tab multiple times - should stay in dialog
+      // Tab multiple times - focus should stay trapped in dialog
+      await userEvent.keyboard("{Tab}");
       await userEvent.keyboard("{Tab}");
       await userEvent.keyboard("{Tab}");
       await userEvent.keyboard("{Tab}");
 
       // Focus should still be inside dialog
-      const dialog = screen.getByRole("dialog");
       const focusedElement = document.activeElement;
       expect(dialog.element()?.contains(focusedElement)).toBe(true);
     });
@@ -259,27 +256,29 @@ describe("Dialog Primitive", () => {
 
   describe("title and description", () => {
     it("renders title text", async () => {
-      const screen = render(DialogTest, { defaultOpen: true, titleText: "Custom Title" });
+      const screen = render(DialogTest, { open: true, titleText: "Custom Title" });
       const title = screen.getByText("Custom Title");
       await expect.element(title).toBeInTheDocument();
     });
 
     it("renders description text", async () => {
-      const screen = render(DialogTest, { defaultOpen: true, descriptionText: "Custom description" });
+      const screen = render(DialogTest, { open: true, descriptionText: "Custom description" });
       const desc = screen.getByText("Custom description");
       await expect.element(desc).toBeInTheDocument();
     });
 
     it("title has data-slot=title", async () => {
-      const screen = render(DialogTest, { defaultOpen: true });
-      const title = screen.container.querySelector('[data-slot="title"]');
+      render(DialogTest, { open: true });
+      // Title is in Portal, query from document
+      const title = document.querySelector('[data-slot="title"]');
       await expect.element(title).toBeInTheDocument();
       await expect.element(title).toHaveAttribute("data-primitive", "dialog");
     });
 
     it("description has data-slot=description", async () => {
-      const screen = render(DialogTest, { defaultOpen: true });
-      const desc = screen.container.querySelector('[data-slot="description"]');
+      render(DialogTest, { open: true });
+      // Description is in Portal, query from document
+      const desc = document.querySelector('[data-slot="description"]');
       await expect.element(desc).toBeInTheDocument();
       await expect.element(desc).toHaveAttribute("data-primitive", "dialog");
     });
