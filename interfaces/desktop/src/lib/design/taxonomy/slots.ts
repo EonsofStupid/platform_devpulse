@@ -2,176 +2,233 @@
  * @file src/lib/design/taxonomy/slots.ts
  * @layer taxonomy
  *
- * @description
  * Slot definitions and constraints for block composition.
- *
- * @since 1.0.0
+ * Uses const arrays with derived types for compile-time validation.
  */
 
 import { z } from "zod";
 import type { BlockKind } from "./kinds";
 
 // ===========================================
-// SLOT CONFIGURATION
+// SLOT CONFIGURATION SCHEMA
 // ===========================================
 
-/**
- * Slot configuration schema.
- */
 export const DsSlotConfigSchema = z.object({
-  /** Whether this slot is required */
   required: z.boolean().default(false),
-  /** Maximum number of children allowed (0 = unlimited) */
   maxChildren: z.number().default(0),
-  /** Allowed child kinds (empty = any) */
   allowedKinds: z.array(z.string()).default([]),
-  /** Default recipe for children in this slot */
   defaultChildRecipe: z.string().optional(),
 });
 
 export type DsSlotConfig = z.infer<typeof DsSlotConfigSchema>;
 
 // ===========================================
-// COMMON SLOT DEFINITIONS
+// SLOT NAME CONSTANTS (SSOT)
 // ===========================================
 
-/**
- * Standard panel slots.
- */
-export const panelSlots = {
-  header: {
-    required: false,
-    maxChildren: 1,
-    allowedKinds: [],
-    defaultChildRecipe: undefined,
-  },
-  body: {
-    required: true,
-    maxChildren: 0, // unlimited
-    allowedKinds: [],
-    defaultChildRecipe: undefined,
-  },
-  footer: {
-    required: false,
-    maxChildren: 1,
-    allowedKinds: [],
-    defaultChildRecipe: undefined,
-  },
-} satisfies Record<string, DsSlotConfig>;
+// -----------------------------------------
+// SHELL SLOTS
+// -----------------------------------------
 
-/**
- * Shell slots (5-layer structure).
- */
-export const shellSlots = {
-  topBar: {
-    required: false,
-    maxChildren: 1,
-    allowedKinds: ["topBar"],
-    defaultChildRecipe: "shell.topBar.default",
-  },
-  sideNav: {
-    required: false,
-    maxChildren: 1,
-    allowedKinds: ["sideNav"],
-    defaultChildRecipe: "shell.sideNav.default",
-  },
-  main: {
-    required: true,
-    maxChildren: 0,
-    allowedKinds: ["panel", "widget"],
-    defaultChildRecipe: "panel.glass.deep",
-  },
-  statusBar: {
-    required: false,
-    maxChildren: 1,
-    allowedKinds: ["statusBar"],
-    defaultChildRecipe: "shell.statusBar.default",
-  },
-  dock: {
-    required: false,
-    maxChildren: 1,
-    allowedKinds: ["dock", "chatDock"],
-    defaultChildRecipe: "chat.dock.default",
-  },
-} satisfies Record<string, DsSlotConfig>;
+export const AppShellSlots = ["topBar", "sideNav", "main", "statusBar", "dock"] as const;
+export const TopBarSlots = ["left", "center", "right"] as const;
+export const SideNavSlots = ["header", "body", "footer"] as const;
+export const StatusBarSlots = ["left", "center", "right"] as const;
+export const DockSlots = ["content"] as const;
 
-/**
- * Three-column slots (for topBar, statusBar).
- */
-export const threeColumnSlots = {
-  left: {
-    required: false,
-    maxChildren: 0,
-    allowedKinds: [],
-    defaultChildRecipe: undefined,
-  },
-  center: {
-    required: false,
-    maxChildren: 0,
-    allowedKinds: [],
-    defaultChildRecipe: undefined,
-  },
-  right: {
-    required: false,
-    maxChildren: 0,
-    allowedKinds: [],
-    defaultChildRecipe: undefined,
-  },
-} satisfies Record<string, DsSlotConfig>;
+// -----------------------------------------
+// SURFACE SLOTS
+// -----------------------------------------
 
-/**
- * Chat slots.
- */
-export const chatSlots = {
-  header: {
-    required: false,
-    maxChildren: 1,
-    allowedKinds: [],
-    defaultChildRecipe: undefined,
-  },
-  messages: {
-    required: true,
-    maxChildren: 0,
-    allowedKinds: ["chatThread", "chatBubble"],
-    defaultChildRecipe: "chat.bubble.user",
-  },
-  input: {
-    required: true,
-    maxChildren: 1,
-    allowedKinds: ["inputFrame"],
-    defaultChildRecipe: "input.glass.default",
-  },
-} satisfies Record<string, DsSlotConfig>;
+export const PanelSlots = ["header", "body", "footer"] as const;
+export const CardSlots = ["header", "body", "footer"] as const;
+export const ModalSlots = ["header", "body", "footer"] as const;
+export const GlassFrameSlots = ["content"] as const;
+
+// -----------------------------------------
+// WIDGET SLOTS
+// -----------------------------------------
+
+export const WidgetSlots = ["header", "body"] as const;
+export const StatMeterSlots = ["value", "label"] as const;
+export const ChartSlots = ["header", "chart"] as const;
+
+// -----------------------------------------
+// CHAT SLOTS
+// -----------------------------------------
+
+export const ChatDockSlots = ["header", "messages", "input"] as const;
+export const ChatThreadSlots = ["messages"] as const;
+export const ChatBubbleSlots = ["content", "meta"] as const;
+
+// ===========================================
+// DERIVED TYPES
+// ===========================================
+
+export type AppShellSlot = (typeof AppShellSlots)[number];
+export type TopBarSlot = (typeof TopBarSlots)[number];
+export type SideNavSlot = (typeof SideNavSlots)[number];
+export type StatusBarSlot = (typeof StatusBarSlots)[number];
+export type DockSlot = (typeof DockSlots)[number];
+
+export type PanelSlot = (typeof PanelSlots)[number];
+export type CardSlot = (typeof CardSlots)[number];
+export type ModalSlot = (typeof ModalSlots)[number];
+export type GlassFrameSlot = (typeof GlassFrameSlots)[number];
+
+export type WidgetSlot = (typeof WidgetSlots)[number];
+export type StatMeterSlot = (typeof StatMeterSlots)[number];
+export type ChartSlot = (typeof ChartSlots)[number];
+
+export type ChatDockSlot = (typeof ChatDockSlots)[number];
+export type ChatThreadSlot = (typeof ChatThreadSlots)[number];
+export type ChatBubbleSlot = (typeof ChatBubbleSlots)[number];
+
+// ===========================================
+// SLOT CONFIGURATIONS
+// ===========================================
+
+export const appShellSlotConfig: Record<AppShellSlot, DsSlotConfig> = {
+  topBar: { required: false, maxChildren: 1, allowedKinds: ["topBar"], defaultChildRecipe: "shell.topBar.default" },
+  sideNav: { required: false, maxChildren: 1, allowedKinds: ["sideNav"], defaultChildRecipe: "shell.sideNav.default" },
+  main: { required: true, maxChildren: 0, allowedKinds: ["panel", "widget"], defaultChildRecipe: "panel.glass.deep" },
+  statusBar: { required: false, maxChildren: 1, allowedKinds: ["statusBar"], defaultChildRecipe: "shell.statusBar.default" },
+  dock: { required: false, maxChildren: 1, allowedKinds: ["dock", "chatDock"], defaultChildRecipe: "chat.dock.default" },
+};
+
+export const topBarSlotConfig: Record<TopBarSlot, DsSlotConfig> = {
+  left: { required: false, maxChildren: 0, allowedKinds: [] },
+  center: { required: false, maxChildren: 0, allowedKinds: [] },
+  right: { required: false, maxChildren: 0, allowedKinds: [] },
+};
+
+export const sideNavSlotConfig: Record<SideNavSlot, DsSlotConfig> = {
+  header: { required: false, maxChildren: 1, allowedKinds: [] },
+  body: { required: true, maxChildren: 0, allowedKinds: [] },
+  footer: { required: false, maxChildren: 1, allowedKinds: [] },
+};
+
+export const statusBarSlotConfig: Record<StatusBarSlot, DsSlotConfig> = {
+  left: { required: false, maxChildren: 0, allowedKinds: [] },
+  center: { required: false, maxChildren: 0, allowedKinds: [] },
+  right: { required: false, maxChildren: 0, allowedKinds: [] },
+};
+
+export const dockSlotConfig: Record<DockSlot, DsSlotConfig> = {
+  content: { required: true, maxChildren: 0, allowedKinds: [] },
+};
+
+export const panelSlotConfig: Record<PanelSlot, DsSlotConfig> = {
+  header: { required: false, maxChildren: 1, allowedKinds: [] },
+  body: { required: true, maxChildren: 0, allowedKinds: [] },
+  footer: { required: false, maxChildren: 1, allowedKinds: [] },
+};
+
+export const cardSlotConfig: Record<CardSlot, DsSlotConfig> = {
+  header: { required: false, maxChildren: 1, allowedKinds: [] },
+  body: { required: true, maxChildren: 0, allowedKinds: [] },
+  footer: { required: false, maxChildren: 1, allowedKinds: [] },
+};
+
+export const modalSlotConfig: Record<ModalSlot, DsSlotConfig> = {
+  header: { required: false, maxChildren: 1, allowedKinds: [] },
+  body: { required: true, maxChildren: 0, allowedKinds: [] },
+  footer: { required: false, maxChildren: 1, allowedKinds: [] },
+};
+
+export const glassFrameSlotConfig: Record<GlassFrameSlot, DsSlotConfig> = {
+  content: { required: true, maxChildren: 0, allowedKinds: [] },
+};
+
+export const widgetSlotConfig: Record<WidgetSlot, DsSlotConfig> = {
+  header: { required: false, maxChildren: 1, allowedKinds: [] },
+  body: { required: true, maxChildren: 0, allowedKinds: [] },
+};
+
+export const statMeterSlotConfig: Record<StatMeterSlot, DsSlotConfig> = {
+  value: { required: true, maxChildren: 1, allowedKinds: [] },
+  label: { required: false, maxChildren: 1, allowedKinds: [] },
+};
+
+export const chartSlotConfig: Record<ChartSlot, DsSlotConfig> = {
+  header: { required: false, maxChildren: 1, allowedKinds: [] },
+  chart: { required: true, maxChildren: 1, allowedKinds: [] },
+};
+
+export const chatDockSlotConfig: Record<ChatDockSlot, DsSlotConfig> = {
+  header: { required: false, maxChildren: 1, allowedKinds: [] },
+  messages: { required: true, maxChildren: 0, allowedKinds: ["chatThread", "chatBubble"], defaultChildRecipe: "chat.bubble.user" },
+  input: { required: true, maxChildren: 1, allowedKinds: ["inputFrame"], defaultChildRecipe: "input.glass.default" },
+};
+
+export const chatThreadSlotConfig: Record<ChatThreadSlot, DsSlotConfig> = {
+  messages: { required: true, maxChildren: 0, allowedKinds: ["chatBubble"], defaultChildRecipe: "chat.bubble.user" },
+};
+
+export const chatBubbleSlotConfig: Record<ChatBubbleSlot, DsSlotConfig> = {
+  content: { required: true, maxChildren: 1, allowedKinds: [] },
+  meta: { required: false, maxChildren: 1, allowedKinds: [] },
+};
 
 // ===========================================
 // SLOT REGISTRY
 // ===========================================
 
-/**
- * Maps block kinds to their slot configurations.
- */
 export const kindSlots: Partial<Record<BlockKind, Record<string, DsSlotConfig>>> = {
   // Shell kinds
-  appShell: shellSlots,
-  topBar: threeColumnSlots,
-  sideNav: panelSlots,
-  statusBar: threeColumnSlots,
-  dock: { content: { required: true, maxChildren: 0, allowedKinds: [], defaultChildRecipe: undefined } },
+  appShell: appShellSlotConfig,
+  topBar: topBarSlotConfig,
+  sideNav: sideNavSlotConfig,
+  statusBar: statusBarSlotConfig,
+  dock: dockSlotConfig,
 
   // Surface kinds
-  panel: panelSlots,
-  card: panelSlots,
-  modal: panelSlots,
-  glassFrame: { content: { required: true, maxChildren: 0, allowedKinds: [], defaultChildRecipe: undefined } },
+  panel: panelSlotConfig,
+  card: cardSlotConfig,
+  modal: modalSlotConfig,
+  glassFrame: glassFrameSlotConfig,
+
+  // Widget kinds
+  widget: widgetSlotConfig,
+  statMeter: statMeterSlotConfig,
+  chart: chartSlotConfig,
 
   // Chat kinds
-  chatDock: chatSlots,
-  chatThread: { messages: { required: true, maxChildren: 0, allowedKinds: ["chatBubble"], defaultChildRecipe: "chat.bubble.user" } },
-  chatBubble: {
-    content: { required: true, maxChildren: 1, allowedKinds: [], defaultChildRecipe: undefined },
-    meta: { required: false, maxChildren: 1, allowedKinds: [], defaultChildRecipe: undefined },
-  },
+  chatDock: chatDockSlotConfig,
+  chatThread: chatThreadSlotConfig,
+  chatBubble: chatBubbleSlotConfig,
 };
+
+// ===========================================
+// SLOT LOOKUP BY KIND
+// ===========================================
+
+/**
+ * Maps block kinds to their slot arrays for compile-time validation.
+ */
+export const SlotsByKind = {
+  appShell: AppShellSlots,
+  topBar: TopBarSlots,
+  sideNav: SideNavSlots,
+  statusBar: StatusBarSlots,
+  dock: DockSlots,
+  panel: PanelSlots,
+  card: CardSlots,
+  modal: ModalSlots,
+  glassFrame: GlassFrameSlots,
+  widget: WidgetSlots,
+  statMeter: StatMeterSlots,
+  chart: ChartSlots,
+  chatDock: ChatDockSlots,
+  chatThread: ChatThreadSlots,
+  chatBubble: ChatBubbleSlots,
+} as const;
+
+export type SlotName<K extends keyof typeof SlotsByKind> = (typeof SlotsByKind)[K][number];
+
+// ===========================================
+// HELPERS
+// ===========================================
 
 /**
  * Get slot configuration for a kind.
@@ -185,11 +242,19 @@ export function getKindSlots(kind: BlockKind): Record<string, DsSlotConfig> | un
  */
 export function isChildAllowed(parentKind: BlockKind, slotName: string, childKind: BlockKind): boolean {
   const slots = kindSlots[parentKind];
-  if (!slots) return true; // No constraints
-
+  if (!slots) return true;
   const slot = slots[slotName];
-  if (!slot) return false; // Slot doesn't exist
-
-  if (slot.allowedKinds.length === 0) return true; // Any kind allowed
+  if (!slot) return false;
+  if (slot.allowedKinds.length === 0) return true;
   return slot.allowedKinds.includes(childKind);
+}
+
+/**
+ * Type-safe slot validator for a specific kind.
+ */
+export function isValidSlotForKind<K extends keyof typeof SlotsByKind>(
+  kind: K,
+  slot: string
+): slot is SlotName<K> {
+  return (SlotsByKind[kind] as readonly string[]).includes(slot);
 }

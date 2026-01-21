@@ -71,14 +71,91 @@ export {
 export {
   DsSlotConfigSchema,
   type DsSlotConfig,
-  panelSlots,
-  shellSlots,
-  threeColumnSlots,
-  chatSlots,
+
+  // Slot name constants (SSOT)
+  AppShellSlots,
+  TopBarSlots,
+  SideNavSlots,
+  StatusBarSlots,
+  DockSlots,
+  PanelSlots,
+  CardSlots,
+  ModalSlots,
+  GlassFrameSlots,
+  WidgetSlots,
+  StatMeterSlots,
+  ChartSlots,
+  ChatDockSlots,
+  ChatThreadSlots,
+  ChatBubbleSlots,
+
+  // Derived types
+  type AppShellSlot,
+  type TopBarSlot,
+  type SideNavSlot,
+  type StatusBarSlot,
+  type DockSlot,
+  type PanelSlot,
+  type CardSlot,
+  type ModalSlot,
+  type GlassFrameSlot,
+  type WidgetSlot,
+  type StatMeterSlot,
+  type ChartSlot,
+  type ChatDockSlot,
+  type ChatThreadSlot,
+  type ChatBubbleSlot,
+
+  // Slot configs
+  appShellSlotConfig,
+  topBarSlotConfig,
+  sideNavSlotConfig,
+  statusBarSlotConfig,
+  dockSlotConfig,
+  panelSlotConfig,
+  cardSlotConfig,
+  modalSlotConfig,
+  glassFrameSlotConfig,
+  widgetSlotConfig,
+  statMeterSlotConfig,
+  chartSlotConfig,
+  chatDockSlotConfig,
+  chatThreadSlotConfig,
+  chatBubbleSlotConfig,
+
+  // Registry and helpers
   kindSlots,
+  SlotsByKind,
+  type SlotName,
   getKindSlots as getSlotConfig,
   isChildAllowed,
+  isValidSlotForKind,
 } from "./slots";
+
+// ===========================================
+// PRIMITIVE KINDS
+// ===========================================
+export {
+  PrimitiveKinds,
+  PrimitiveCategories,
+  type PrimitiveKind,
+  isPrimitiveKind,
+  assertPrimitiveKind,
+} from "./primitiveKinds";
+
+// ===========================================
+// PRIMITIVE REGISTRY
+// ===========================================
+export {
+  PrimitiveSlots,
+  PrimitiveMetadata,
+  type PrimitiveSlotsMap,
+  type SlotsFor,
+  type PrimitiveMetadata as PrimitiveMetadataType,
+  getPrimitiveSlots,
+  getPrimitiveMetadata,
+  isValidSlot,
+} from "./primitiveRegistry";
 
 // ===========================================
 // LEGACY CATEGORY DEFINITIONS

@@ -1,5 +1,6 @@
 import { defineConfig } from "vitest/config";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
+import { playwright } from "@vitest/browser-playwright";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
@@ -14,13 +15,12 @@ export default defineConfig({
   },
   test: {
     include: ["lib/**/*.{test,spec}.{js,ts}"],
-    environment: "jsdom",
-    globals: true,
-    setupFiles: ["lib/test/setup.ts"],
-    coverage: {
-      provider: "v8",
-      reporter: ["text", "html", "json-summary"],
-      reportsDirectory: "./coverage",
+    setupFiles: ["vitest-browser-svelte"],
+    browser: {
+      enabled: true,
+      provider: playwright(),
+      instances: [{ browser: "chromium" }],
+      headless: false,
     },
   },
 });

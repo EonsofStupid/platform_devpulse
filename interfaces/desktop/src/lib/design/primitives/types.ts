@@ -16,12 +16,48 @@ import type { HTMLAttributes } from "svelte/elements";
 // Single source of truth. Change NS to add prefix later if collisions arise.
 const NS = ""; // Empty now, can become "cl-" later
 
+/**
+ * Stable data attributes emitted by all primitives.
+ * CSS recipes target these selectors.
+ *
+ * - primitive: identifies the primitive type (e.g., "button", "dialog")
+ * - slot: identifies the part within a primitive (e.g., "trigger", "content")
+ * - state: tracks interactive state (e.g., "open", "closed", "checked")
+ * - id: user-defined stable ID for tooling
+ */
 export const DATA_ATTRS = {
-  part: `data-${NS}part`,
-  name: `data-${NS}name`,
-  kind: `data-${NS}kind`,
+  primitive: `data-${NS}primitive`,
+  slot: `data-${NS}slot`,
+  state: `data-${NS}state`,
   id: `data-${NS}id`,
 } as const;
+
+// ============================================
+// PRIMITIVE STATE VALUES
+// ============================================
+
+/**
+ * Common state values for primitives.
+ * Used with data-state attribute.
+ */
+export const PrimitiveStates = [
+  "open",
+  "closed",
+  "checked",
+  "unchecked",
+  "indeterminate",
+  "active",
+  "inactive",
+  "on",
+  "off",
+  "pressed",
+  "loading",
+  "disabled",
+  "focused",
+  "selected",
+] as const;
+
+export type PrimitiveState = (typeof PrimitiveStates)[number];
 
 // ============================================
 // TYPE UTILITIES

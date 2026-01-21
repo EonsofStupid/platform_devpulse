@@ -16,6 +16,8 @@ export {
   type OmitStyle,
   type BaseProps,
   DATA_ATTRS,
+  PrimitiveStates,
+  type PrimitiveState,
   stripStyleProp,
 } from "./types.js";
 
@@ -43,7 +45,8 @@ export { Accordion } from "./Accordion.js";
 export { AlertDialog } from "./AlertDialog.js";
 export { AspectRatio } from "./AspectRatio.js";
 export { Avatar } from "./Avatar.js";
-export { Button } from "./Button.js";
+// Button - ColdLight wrapped primitive (nested folder)
+export { Button, type ButtonProps, type ButtonState, type ButtonSlot, ButtonSlots } from "./button/index.js";
 export { Calendar } from "./Calendar.js";
 export { Checkbox } from "./Checkbox.js";
 export { Collapsible } from "./Collapsible.js";
@@ -52,7 +55,21 @@ export { Command } from "./Command.js";
 export { ContextMenu } from "./ContextMenu.js";
 export { DateField } from "./DateField.js";
 export { DatePicker } from "./DatePicker.js";
-export { Dialog } from "./Dialog.js";
+// Dialog - ColdLight wrapped primitive (nested folder)
+export * as Dialog from "./dialog/index.js";
+export type {
+  DialogRootProps,
+  DialogTriggerProps,
+  DialogPortalProps,
+  DialogOverlayProps,
+  DialogContentProps,
+  DialogTitleProps,
+  DialogDescriptionProps,
+  DialogCloseProps,
+  DialogState,
+  DialogSlot,
+} from "./dialog/index.js";
+export { DialogSlots } from "./dialog/index.js";
 export { DropdownMenu } from "./DropdownMenu.js";
 export { HoverCard } from "./HoverCard.js";
 export { Label } from "./Label.js";
