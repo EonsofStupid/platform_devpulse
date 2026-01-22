@@ -9,7 +9,8 @@
       "Bash(pnpm install:*)",
       "Bash(pnpm svelte-check:*)",
       "Bash(pnpm audit:primitives:*)",
-      "Bash(pnpm docs:primitives:*)"
+      "Bash(pnpm docs:primitives:*)",
+      "Bash(git add:*)"
     ]
   }
 }

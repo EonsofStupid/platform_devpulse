@@ -1,0 +1,99 @@
+/* File: C:/Users/jessa/Downloads/makers/makers/client/src/domains/common/features/Bootloader/types/errorboundary/styles/errorboundary.module.css */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+  background: var(--bg-body-default);
+  font-family: var(--font-sans);
+  color: var(--text-color-primary);
+}
+
+.box {
+  text-align: center;
+  padding: var(--spacing-6);
+  border-radius: var(--border-radius-xl);
+  border: var(--border-default);
+  background-color: var(--bg-card-default);
+  box-shadow: var(--shadow-xl);
+  max-width: 500px;
+}
+
+.header {
+  font-size: var(--text-4xl);
+  font-weight: var(--font-bold);
+  margin-bottom: var(--spacing-4);
+  color: var(--color-error);
+}
+
+.message {
+  font-size: var(--text-lg);
+  line-height: var(--line-height-lg);
+  margin-bottom: var(--spacing-6);
+}
+
+.button {
+  padding: var(--spacing-3) var(--spacing-6);
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  color: var(--color-on-error);
+  background-color: var(--color-error);
+  border: none;
+  border-radius: var(--border-radius-lg);
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.button:hover {
+  background-color: var(--color-error-hover);
+}
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+  background: var(--bg-body-default);
+  font-family: var(--font-sans);
+  color: var(--text-color-primary);
+}
+
+.box {
+  text-align: center;
+  padding: var(--spacing-6);
+  border-radius: var(--border-radius-xl);
+  border: var(--border-default);
+  background-color: var(--bg-card-default);
+  box-shadow: var(--shadow-xl);
+  max-width: 500px;
+}
+
+.header {
+  font-size: var(--text-4xl);
+  font-weight: var(--font-bold);
+  margin-bottom: var(--spacing-4);
+  color: var(--color-error);
+}
+
+.message {
+  font-size: var(--text-lg);
+  line-height: var(--line-height-lg);
+  margin-bottom: var(--spacing-6);
+}
+
+.button {
+  padding: var(--spacing-3) var(--spacing-6);
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  color: var(--color-on-error);
+  background-color: var(--color-error);
+  border: none;
+  border-radius: var(--border-radius-lg);
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.button:hover {
+  background-color: var(--color-error-hover);
+}

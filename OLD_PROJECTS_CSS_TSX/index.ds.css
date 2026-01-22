@@ -1,0 +1,117 @@
+/* PulseOS DS v2 — Enterprise Organized CSS Architecture
+   NOTE: This is the single entry imported by the app.
+   Tailwind v4 CSS-first. Preflight OFF (managed elsewhere).
+   IMPORTANT: @import "tailwindcss" MUST be first!
+   
+   ORGANIZATION:
+   - 00-config: Design tokens (CSS variables)
+   - 10-base: Base resets and typography
+   - 15-motion: Motion tokens and keyframes
+   - 20-effects: Custom effect classes (glass, neon, hero, interactive, animations)
+   - 30-zones: Layout zones (sidebar, topbar, layout variables)
+   - 30-presets: Component presets (buttons, cards, chips)
+   - 40-components: Reusable components (toast, scrollbar)
+   - 24-effects: Legacy effect files (keeping for now)
+   - zones/web: Web zone specifics
+   - 98-inbox: Feature-specific (to be reorganized)
+*/
+
+/* Tailwind v4 - MUST be imported FIRST (before all other imports) */
+@import "tailwindcss";
+
+/* 00 — Design Tokens (Canonical PulseOS Tokens) */
+/* IMPORTANT: Canonical token file must be imported FIRST to establish --pulseos-* tokens */
+@import './00-config/pulseos-tokens.ds.css';
+
+/* NOTE: Legacy token files (impulse-tokens.css, pulseos.ds.css) are NOT imported.
+ * All code must use --pulseos-* tokens from pulseos-tokens.ds.css.
+ * When dumping CSS from old projects, use dp migrate:tokens to convert to --pulseos-* format.
+ */
+
+/* 10 — Base Styles */
+@import './10-base/pulseos-base.ds.css';
+@import './10-base/pulseos-typography.ds.css';
+
+/* 12 — Zones (Legacy) */
+@import './12-zones/pulseos-zones.ds.css';
+
+/* 15 — Motion & Animations */
+/* DELETED: Motion token files removed - motion utilities now in 20-utilities/pulseos-motion.ds.css */
+
+/* 20 — Utilities */
+@import './20-utilities/pulseos-shadow.ds.css';
+@import './20-utilities/pulseos-border.ds.css';
+@import './20-utilities/pulseos-glow.ds.css';
+@import './20-utilities/pulseos-hover.ds.css';
+@import './20-utilities/pulseos-glass-utilities.ds.css';
+@import './20-utilities/pulseos-text-color.ds.css';
+@import './20-utilities/pulseos-shape.ds.css';
+@import './20-utilities/pulseos-backdrop.ds.css';
+@import './20-utilities/pulseos-color.ds.css';
+@import './20-utilities/pulseos-layout.ds.css';
+@import './20-utilities/pulseos-space.ds.css';
+@import './20-utilities/pulseos-surface.ds.css';
+@import './20-utilities/pulseos-typography.ds.css';
+
+/* 24 — Effects (Canonical) */
+@import './24-effects/pulseos-effect-layered-glass.ds.css';
+@import './24-effects/pulseos-effect-neon.ds.css';
+@import './24-effects/pulseos-effect-hero.ds.css';
+@import './24-effects/pulseos-effect-gradient.ds.css';
+@import './24-effects/pulseos-effect-shadow.ds.css';
+@import './24-effects/pulseos-effect-outline.ds.css';
+@import './24-effects/pulseos-effect-noise.ds.css';
+@import './24-effects/pulseos-effect-scanlines.ds.css';
+@import './24-effects/pulseos-effect-holo.ds.css';
+
+/* 30 — Component Presets */
+@import './30-presets/pulseos-comp-button.ds.css';
+@import './30-presets/pulseos-comp-card.ds.css';
+@import './30-presets/pulseos-comp-chip.ds.css';
+@import './30-presets/pulseos-comp-bootloader.ds.css';
+@import './30-presets/pulseos-comp-toast.ds.css';
+@import './30-presets/pulseos-comp-maestro-toast.ds.css';
+@import './30-presets/pulseos-comp-alerts.ds.css';
+@import './30-presets/pulseos-comp-profile.ds.css';
+@import './30-presets/pulseos-comp-form.ds.css';
+@import './30-presets/pulseos-comp-input.ds.css';
+@import './30-presets/pulseos-comp-tabs.ds.css';
+@import './30-presets/pulseos-comp-divider.ds.css';
+@import './30-presets/pulseos-comp-error.ds.css';
+
+/* 30 — Layout Zones */
+/* DELETED: Layout vars file removed - layout utilities now in 20-utilities/pulseos-layout.ds.css */
+
+/* Patterns — Reusable UI Patterns */
+@import './patterns/index.ds.css';
+
+/* 40 — Components */
+@import './40-components/scrollbar/pulseos-scrollbar.ds.css';
+
+/* Utilities Layer - Must load BEFORE zones/web (features use @apply) */
+/* Glass Effects: Import directly (file has its own @layer utilities wrapper) */
+@import './24-effects/pulseos-effect-glass.ds.css';
+
+/* Other utilities in @layer block */
+@layer utilities {
+  @import './20-utilities/pulseos-motion.ds.css';
+  @import './20-utilities/pulseos-util-loader.ds.css';
+  @import './20-utilities/pulseos-neon-text.ds.css';
+  @import './20-utilities/pulseos-text-glow.ds.css';
+  @import './20-utilities/pulseos-glass-typography.ds.css';
+  @import './20-utilities/pulseos-glass-layout.ds.css';
+  @import './20-utilities/pulseos-animation.ds.css';
+  @import './20-utilities/pulseos-responsive.ds.css';
+}
+
+/* zones/web — Web Zone (SSOT barrel: effects → layout → features) */
+@import './zones/web/index.ds.css';
+
+/* 98 — Inbox: DELETED
+ * PROMOTED: profile.ds.css → 30-presets/pulseos-comp-profile.ds.css
+ * PROMOTED: alerts.ds.css → 30-presets/pulseos-comp-alerts.ds.css
+ * All other files were duplicates of zones/web/ or unused - deleted
+ */
+
+/* Tailwind v4 - MUST be imported first (before other CSS imports) */
+/* Note: Moved to top of file to ensure proper v4 processing */
