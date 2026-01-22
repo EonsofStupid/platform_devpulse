@@ -5,7 +5,7 @@
   Dialog close - button that closes the dialog.
 
   Data Attributes:
-  - data-primitive="dialog"
+  - data-kind="dialog"
   - data-slot="close"
 -->
 <script lang="ts">
@@ -25,7 +25,7 @@
 
 <Dialog.Close
   class={className}
-  data-primitive="dialog"
+  data-kind="dialog"
   data-slot="close"
   data-id={dataId}
   {...rest}

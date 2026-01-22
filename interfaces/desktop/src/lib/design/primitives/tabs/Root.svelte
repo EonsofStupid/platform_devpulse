@@ -5,7 +5,7 @@
   Tabs root - manages active tab state.
 
   Data Attributes:
-  - data-primitive="tabs"
+  - data-kind="tabs"
   - data-slot="root"
   - data-orientation="horizontal" | "vertical"
 -->
@@ -43,7 +43,7 @@
 		<div
 			{...props}
 			class={cn(props.class, className)}
-			data-primitive="tabs"
+			data-kind="tabs"
 			data-slot="root"
 			data-orientation={orientation}
 			data-id={dataId}

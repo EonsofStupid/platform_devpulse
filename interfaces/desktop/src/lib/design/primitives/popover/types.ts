@@ -161,6 +161,8 @@ export interface PopoverCloseProps extends Omit<HTMLButtonAttributes, "style" | 
 // ============================================
 
 export interface PopoverArrowProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
+  /** Reference to the arrow element (bindable) */
+  ref?: HTMLElement | null;
   /** Arrow width in pixels (default: 8) */
   width?: number;
   /** Arrow height in pixels (default: 8) */

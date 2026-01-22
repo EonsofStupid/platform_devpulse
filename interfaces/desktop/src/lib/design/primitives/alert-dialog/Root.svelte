@@ -5,7 +5,7 @@
   AlertDialog root - manages open/closed state for confirmation dialogs.
 
   Data Attributes:
-  - data-primitive="alert-dialog"
+  - data-kind="alert-dialog"
   - data-slot="root"
   - data-state="open" | "closed"
 -->
@@ -24,7 +24,7 @@
 </script>
 
 <div
-  data-primitive="alert-dialog"
+  data-kind="alert-dialog"
   data-slot="root"
   data-state={dataState}
   data-id={dataId}

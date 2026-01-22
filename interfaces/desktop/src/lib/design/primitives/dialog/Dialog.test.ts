@@ -7,7 +7,7 @@
  *
  * Covers:
  * - Role and accessibility (role=dialog, aria-modal, aria-labelledby)
- * - Data attributes (data-primitive, data-slot, data-state)
+ * - Data attributes (data-kind, data-slot, data-state)
  * - Keyboard interaction (Escape, Enter, Space)
  * - Focus management (trap, return)
  * - Open/close behavior
@@ -60,15 +60,15 @@ describe("Dialog Primitive", () => {
   // ============================================
 
   describe("data attributes", () => {
-    it("root has data-primitive=dialog", async () => {
+    it("root has data-kind=dialog", async () => {
       const screen = render(DialogTest, { open: true });
       const root = screen.container.querySelector('[data-slot="root"]');
-      await expect.element(root).toHaveAttribute("data-primitive", "dialog");
+      await expect.element(root).toHaveAttribute("data-kind", "dialog");
     });
 
     it("root has data-slot=root", async () => {
       const screen = render(DialogTest);
-      const root = screen.container.querySelector('[data-primitive="dialog"]');
+      const root = screen.container.querySelector('[data-kind="dialog"]');
       await expect.element(root).toHaveAttribute("data-slot", "root");
     });
 
@@ -84,10 +84,10 @@ describe("Dialog Primitive", () => {
       await expect.element(root).toHaveAttribute("data-state", "closed");
     });
 
-    it("trigger has data-primitive=dialog", async () => {
+    it("trigger has data-kind=dialog", async () => {
       const screen = render(DialogTest);
       const trigger = screen.getByRole("button", { name: "Open Dialog" });
-      await expect.element(trigger).toHaveAttribute("data-primitive", "dialog");
+      await expect.element(trigger).toHaveAttribute("data-kind", "dialog");
     });
 
     it("trigger has data-slot=trigger", async () => {
@@ -96,10 +96,10 @@ describe("Dialog Primitive", () => {
       await expect.element(trigger).toHaveAttribute("data-slot", "trigger");
     });
 
-    it("content has data-primitive=dialog", async () => {
+    it("content has data-kind=dialog", async () => {
       const screen = render(DialogTest, { open: true });
       const content = screen.getByRole("dialog");
-      await expect.element(content).toHaveAttribute("data-primitive", "dialog");
+      await expect.element(content).toHaveAttribute("data-kind", "dialog");
     });
 
     it("content has data-slot=content", async () => {
@@ -272,7 +272,7 @@ describe("Dialog Primitive", () => {
       // Title is in Portal, query from document
       const title = document.querySelector('[data-slot="title"]');
       await expect.element(title).toBeInTheDocument();
-      await expect.element(title).toHaveAttribute("data-primitive", "dialog");
+      await expect.element(title).toHaveAttribute("data-kind", "dialog");
     });
 
     it("description has data-slot=description", async () => {
@@ -280,7 +280,7 @@ describe("Dialog Primitive", () => {
       // Description is in Portal, query from document
       const desc = document.querySelector('[data-slot="description"]');
       await expect.element(desc).toBeInTheDocument();
-      await expect.element(desc).toHaveAttribute("data-primitive", "dialog");
+      await expect.element(desc).toHaveAttribute("data-kind", "dialog");
     });
   });
 });

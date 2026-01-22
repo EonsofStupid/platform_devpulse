@@ -5,7 +5,7 @@
   Dialog root - manages open/closed state.
 
   Data Attributes:
-  - data-primitive="dialog"
+  - data-kind="dialog"
   - data-slot="root"
   - data-state="open" | "closed"
 -->
@@ -24,7 +24,7 @@
 </script>
 
 <div
-  data-primitive="dialog"
+  data-kind="dialog"
   data-slot="root"
   data-state={dataState}
   data-id={dataId}

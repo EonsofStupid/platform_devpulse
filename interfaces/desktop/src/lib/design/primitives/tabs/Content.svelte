@@ -10,7 +10,7 @@
   - tabindex="0" (focusable)
 
   Data Attributes:
-  - data-primitive="tabs"
+  - data-kind="tabs"
   - data-slot="content"
   - data-state="active" | "inactive"
   - data-value="{value}"
@@ -37,7 +37,7 @@
 		<div
 			{...props}
 			class={cn(props.class, className)}
-			data-primitive="tabs"
+			data-kind="tabs"
 			data-slot="content"
 			data-state={dataState}
 			data-value={value}

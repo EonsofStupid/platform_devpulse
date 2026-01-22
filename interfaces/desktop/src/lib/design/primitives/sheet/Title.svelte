@@ -6,7 +6,7 @@
   Automatically linked to Content via aria-labelledby.
 
   Data Attributes:
-  - data-primitive="sheet"
+  - data-kind="sheet"
   - data-slot="title"
 -->
 <script lang="ts">
@@ -28,7 +28,7 @@
 <Dialog.Title
   {level}
   class={className}
-  data-primitive="sheet"
+  data-kind="sheet"
   data-slot="title"
   data-id={dataId}
   {...rest}

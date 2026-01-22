@@ -9,7 +9,7 @@
   - aria-orientation
 
   Data Attributes:
-  - data-primitive="tabs"
+  - data-kind="tabs"
   - data-slot="list"
 -->
 <script lang="ts">
@@ -32,7 +32,7 @@
 		<div
 			{...props}
 			class={cn(props.class, className)}
-			data-primitive="tabs"
+			data-kind="tabs"
 			data-slot="list"
 			data-id={dataId}
 		>

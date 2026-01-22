@@ -6,7 +6,7 @@
   Note: Popovers typically don't use overlays, but included for completeness.
 
   Data Attributes:
-  - data-primitive="popover"
+  - data-kind="popover"
   - data-slot="overlay"
   - data-state="open" | "closed"
 -->
@@ -31,7 +31,7 @@
     <div
       {...props}
       class={cn(props.class, className)}
-      data-primitive="popover"
+      data-kind="popover"
       data-slot="overlay"
       data-state={dataState}
       data-id={dataId}

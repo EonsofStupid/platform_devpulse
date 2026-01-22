@@ -10,7 +10,7 @@
   - aria-hidden when closed (Bits UI)
 
   Data Attributes:
-  - data-primitive="tooltip"
+  - data-kind="tooltip"
   - data-slot="content"
   - data-state="open" | "closed"
   - data-side (from Bits UI)
@@ -59,7 +59,7 @@
       {...props}
       role="tooltip"
       class={cn(props.class, className)}
-      data-primitive="tooltip"
+      data-kind="tooltip"
       data-slot="content"
       data-state={dataState}
       data-id={dataId}

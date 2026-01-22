@@ -9,7 +9,7 @@
   - aria-expanded="true/false"
 
   Data Attributes:
-  - data-primitive="sheet"
+  - data-kind="sheet"
   - data-slot="trigger"
 -->
 <script lang="ts">
@@ -29,7 +29,7 @@
 
 <Dialog.Trigger
   class={className}
-  data-primitive="sheet"
+  data-kind="sheet"
   data-slot="trigger"
   data-id={dataId}
   {...rest}

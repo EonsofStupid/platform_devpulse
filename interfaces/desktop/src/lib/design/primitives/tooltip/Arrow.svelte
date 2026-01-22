@@ -5,15 +5,17 @@
   Tooltip arrow - visual indicator pointing to trigger.
 
   Data Attributes:
-  - data-primitive="tooltip"
+  - data-kind="tooltip"
   - data-slot="arrow"
+  - data-tooltip-arrow=""
 -->
 <script lang="ts">
-  import { Tooltip } from "bits-ui";
+  import { FloatingLayerArrow } from "../_internal/index.js";
   import type { TooltipArrowProps } from "./types.js";
   import { stripStyleProp } from "../types.js";
 
   let {
+    ref = $bindable(null),
     class: className = "",
     "data-id": dataId,
     width = 8,
@@ -24,12 +26,14 @@
   stripStyleProp(rest, "Tooltip.Arrow");
 </script>
 
-<Tooltip.Arrow
+<FloatingLayerArrow
+  bind:ref
   class={className}
-  data-primitive="tooltip"
+  data-kind="tooltip"
   data-slot="arrow"
   data-id={dataId}
   {width}
   {height}
   {...rest}
+  data-tooltip-arrow=""
 />

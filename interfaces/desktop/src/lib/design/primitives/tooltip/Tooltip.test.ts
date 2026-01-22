@@ -7,7 +7,7 @@
  *
  * Covers:
  * - ARIA accessibility (role="tooltip", aria-describedby)
- * - Data attributes (data-primitive, data-slot, data-state)
+ * - Data attributes (data-kind, data-slot, data-state)
  * - Positioning (side, align, sideOffset)
  * - Hover interaction (default trigger mechanism)
  * - Keyboard interaction (focus shows tooltip)
@@ -57,15 +57,15 @@ describe("Tooltip Primitive", () => {
   // ============================================
 
   describe("data attributes", () => {
-    it("root has data-primitive=tooltip", async () => {
+    it("root has data-kind=tooltip", async () => {
       const screen = render(TooltipTest);
       const root = screen.container.querySelector('[data-slot="root"]');
-      await expect.element(root).toHaveAttribute("data-primitive", "tooltip");
+      await expect.element(root).toHaveAttribute("data-kind", "tooltip");
     });
 
     it("root has data-slot=root", async () => {
       const screen = render(TooltipTest);
-      const root = screen.container.querySelector('[data-primitive="tooltip"]');
+      const root = screen.container.querySelector('[data-kind="tooltip"]');
       await expect.element(root).toHaveAttribute("data-slot", "root");
     });
 
@@ -81,10 +81,10 @@ describe("Tooltip Primitive", () => {
       await expect.element(root).toHaveAttribute("data-state", "closed");
     });
 
-    it("trigger has data-primitive=tooltip", async () => {
+    it("trigger has data-kind=tooltip", async () => {
       const screen = render(TooltipTest);
       const trigger = screen.getByRole("button", { name: "Hover me" });
-      await expect.element(trigger).toHaveAttribute("data-primitive", "tooltip");
+      await expect.element(trigger).toHaveAttribute("data-kind", "tooltip");
     });
 
     it("trigger has data-slot=trigger", async () => {
@@ -93,11 +93,11 @@ describe("Tooltip Primitive", () => {
       await expect.element(trigger).toHaveAttribute("data-slot", "trigger");
     });
 
-    it("content has data-primitive=tooltip", async () => {
+    it("content has data-kind=tooltip", async () => {
       render(TooltipTest, { open: true });
       // Portal renders content to document.body
       const content = document.querySelector('[data-slot="content"]');
-      await expect.element(content).toHaveAttribute("data-primitive", "tooltip");
+      await expect.element(content).toHaveAttribute("data-kind", "tooltip");
     });
 
     it("content has data-slot=content", async () => {
@@ -280,11 +280,11 @@ describe("Tooltip Primitive", () => {
       await expect.element(arrow).toBeInTheDocument();
     });
 
-    it("arrow has data-primitive=tooltip", async () => {
+    it("arrow has data-kind=tooltip", async () => {
       render(TooltipTest, { open: true, showArrow: true });
       // Portal renders arrow to document.body (inside content)
       const arrow = document.querySelector('[data-slot="arrow"]');
-      await expect.element(arrow).toHaveAttribute("data-primitive", "tooltip");
+      await expect.element(arrow).toHaveAttribute("data-kind", "tooltip");
     });
 
     it("does not render arrow when showArrow=false", async () => {

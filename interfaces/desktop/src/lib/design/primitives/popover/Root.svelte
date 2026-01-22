@@ -5,7 +5,7 @@
   Popover root - manages open/closed state.
 
   Data Attributes:
-  - data-primitive="popover"
+  - data-kind="popover"
   - data-slot="root"
   - data-state="open" | "closed"
 -->
@@ -24,7 +24,7 @@
 </script>
 
 <div
-  data-primitive="popover"
+  data-kind="popover"
   data-slot="root"
   data-state={dataState}
   data-id={dataId}

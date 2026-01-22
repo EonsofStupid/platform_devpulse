@@ -5,7 +5,7 @@
   AlertDialog portal - renders children outside DOM hierarchy.
 
   Data Attributes:
-  - data-primitive="alert-dialog"
+  - data-kind="alert-dialog"
   - data-slot="portal"
 -->
 <script lang="ts">
@@ -22,7 +22,7 @@
 
 <AlertDialog.Portal {to} {disabled}>
   <div
-    data-primitive="alert-dialog"
+    data-kind="alert-dialog"
     data-slot="portal"
     data-id={dataId}
   >

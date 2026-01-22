@@ -11,7 +11,7 @@
   - tabindex (roving tabindex pattern)
 
   Data Attributes:
-  - data-primitive="tabs"
+  - data-kind="tabs"
   - data-slot="trigger"
   - data-state="active" | "inactive"
   - data-value="{value}"
@@ -39,7 +39,7 @@
 		<button
 			{...props}
 			class={cn(props.class, className)}
-			data-primitive="tabs"
+			data-kind="tabs"
 			data-slot="trigger"
 			data-state={dataState}
 			data-value={value}

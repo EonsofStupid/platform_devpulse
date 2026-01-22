@@ -8,7 +8,7 @@
   - aria-describedby (points to content when open)
 
   Data Attributes:
-  - data-primitive="tooltip"
+  - data-kind="tooltip"
   - data-slot="trigger"
 -->
 <script lang="ts">
@@ -28,7 +28,7 @@
 
 <Tooltip.Trigger
   class={className}
-  data-primitive="tooltip"
+  data-kind="tooltip"
   data-slot="trigger"
   data-id={dataId}
   {...rest}

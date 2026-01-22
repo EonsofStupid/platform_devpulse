@@ -81,7 +81,7 @@ function countTests(testFilePath: string): number {
 }
 
 /**
- * Check if svelte files contain correct data-primitive attribute.
+ * Check if svelte files contain correct data-kind attribute.
  */
 function checkDataPrimitive(folder: string, name: string): boolean {
   try {
@@ -94,7 +94,7 @@ function checkDataPrimitive(folder: string, name: string): boolean {
 
     for (const file of svelteFiles) {
       const content = fs.readFileSync(file, "utf-8");
-      if (!content.includes(`data-primitive="${name}"`)) {
+      if (!content.includes(`data-kind="${name}"`)) {
         return false;
       }
     }

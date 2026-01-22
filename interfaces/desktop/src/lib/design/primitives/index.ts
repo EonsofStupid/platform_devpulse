@@ -110,7 +110,30 @@ export { PopoverSlots } from "./popover/index.js";
 export { Progress } from "./Progress.js";
 export { RadioGroup } from "./RadioGroup.js";
 export { ScrollArea } from "./ScrollArea.js";
-export { Select } from "./Select.js";
+// Select - ColdLight wrapped primitive (nested folder)
+export * as Select from "./select/index.js";
+export type {
+  SelectRootProps,
+  SelectTriggerProps,
+  SelectPortalProps,
+  SelectContentProps,
+  SelectViewportProps,
+  SelectItemProps,
+  SelectItemTextProps,
+  SelectItemGroupProps,
+  SelectGroupLabelProps,
+  SelectSeparatorProps,
+  SelectScrollUpProps,
+  SelectScrollDownProps,
+  SelectArrowProps,
+  SelectState,
+  SelectSlot,
+  SelectType,
+  SelectSide,
+  SelectAlign,
+  SelectItem,
+} from "./select/index.js";
+export { SelectSlots } from "./select/index.js";
 export { Separator } from "./Separator.js";
 export { Slider } from "./Slider.js";
 export { Switch } from "./Switch.js";

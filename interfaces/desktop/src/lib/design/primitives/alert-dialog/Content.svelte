@@ -17,7 +17,7 @@
   - Scroll lock
 
   Data Attributes:
-  - data-primitive="alert-dialog"
+  - data-kind="alert-dialog"
   - data-slot="content"
   - data-state="open" | "closed"
 -->
@@ -58,7 +58,7 @@
     <div
       {...props}
       class={cn(props.class, className)}
-      data-primitive="alert-dialog"
+      data-kind="alert-dialog"
       data-slot="content"
       data-state={dataState}
       data-id={dataId}

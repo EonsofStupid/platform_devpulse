@@ -6,7 +6,7 @@
   Used for aborting the action (Cancel, Nevermind, etc.)
 
   Data Attributes:
-  - data-primitive="alert-dialog"
+  - data-kind="alert-dialog"
   - data-slot="cancel"
 -->
 <script lang="ts">
@@ -26,7 +26,7 @@
 
 <AlertDialog.Cancel
   class={className}
-  data-primitive="alert-dialog"
+  data-kind="alert-dialog"
   data-slot="cancel"
   data-id={dataId}
   {...rest}

@@ -5,7 +5,7 @@
   Sheet close - button that closes the sheet.
 
   Data Attributes:
-  - data-primitive="sheet"
+  - data-kind="sheet"
   - data-slot="close"
 -->
 <script lang="ts">
@@ -25,7 +25,7 @@
 
 <Dialog.Close
   class={className}
-  data-primitive="sheet"
+  data-kind="sheet"
   data-slot="close"
   data-id={dataId}
   {...rest}

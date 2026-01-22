@@ -5,7 +5,7 @@
   Sheet portal - renders children outside DOM hierarchy.
 
   Data Attributes:
-  - data-primitive="sheet"
+  - data-kind="sheet"
   - data-slot="portal"
 -->
 <script lang="ts">
@@ -22,7 +22,7 @@
 
 <Dialog.Portal {to} {disabled}>
   <div
-    data-primitive="sheet"
+    data-kind="sheet"
     data-slot="portal"
     data-id={dataId}
   >

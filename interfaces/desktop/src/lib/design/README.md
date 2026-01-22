@@ -1,7 +1,25 @@
 # COLD LIGHT Design System
 
-> Enterprise NO-CODE visual design system for DevPulse.
-> **SvelteKit 5 + Bits UI + Tailwind CSS + VPB (Visual Page Builder)**
+> Named after Nikola Tesla's Cold Light demonstration — heatless luminescence, pure efficiency.
+> Enterprise design system for DevPulse with explicit accessibility ownership.
+
+**Stack**: SvelteKit 5 + Svelte 5 Runes + bits-ui (behavior engine) + Tailwind CSS 4 + VPB
+
+---
+
+## Why ColdLight Exists
+
+Design systems today are compromised:
+- **Radix** got acquired by Salesforce/Workforce, maintenance is slow, accessibility is an afterthought
+- **Most systems** delegate accessibility to their underlying library and hope for the best
+- **No control** over ARIA contracts — you inherit whatever the library decides
+
+**ColdLight solves this:**
+- ColdLight **explicitly owns all ARIA** — `role`, `aria-*` attributes are set by us
+- bits-ui provides **behavior only** — positioning, focus trapping, keyboard handling
+- Platform-portable — swap `_internal` provider to target React/Next.js later
+- DTCG v4 / Style Dictionary v4 compliant token system
+- VPB (Visual Page Builder) for no-code composition
 
 ---
 
@@ -13,8 +31,27 @@
 
 ---
 
-## System Architecture
+## Layer Architecture
 
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  RENDERERS    Dynamic VPB block rendering                       │
+├─────────────────────────────────────────────────────────────────┤
+│  BLOCKS       Page-level compositions (Dashboard, CAG, etc.)    │
+├─────────────────────────────────────────────────────────────────┤
+│  COMPONENTS   Styled primitives + recipes (GlassPanel, etc.)    │
+├─────────────────────────────────────────────────────────────────┤
+│  RECIPES      Styling patterns applied via class/data-*         │
+├─────────────────────────────────────────────────────────────────┤
+│  PRIMITIVES   Unstyled, accessible components                   │
+│               └── ColdLight OWNS: ARIA, data-*, props contract  │
+│               └── bits-ui PROVIDES: behavior engine only        │
+├─────────────────────────────────────────────────────────────────┤
+│  TOKENS       DTCG v4 compliant design tokens                   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Token Pipeline
 ```
 tokens.ts (SSOT)
     ↓ pnpm ds:tokens:build
@@ -23,11 +60,15 @@ tokens.ts (SSOT)
 ├── types.ts (TypeScript types)
 ├── tailwind.preset.ts (Tailwind theme mapping)
 └── surfaces.gen.css (Recipe CSS)
-    ↓
-Components apply data-* attributes
-    ↓
-Generated CSS rules match and apply styles
 ```
+
+### Ownership Contract
+
+| Layer | ColdLight Owns | External Provides |
+|-------|----------------|-------------------|
+| Primitives | ARIA (`role`, `aria-*`), data attributes, props types | bits-ui: positioning, focus, keyboard |
+| Recipes | Class patterns, data-* styling | Tailwind: utility classes |
+| Tokens | DTCG structure, semantic names | Style Dictionary: transforms |
 
 ---
 
@@ -66,6 +107,43 @@ NO-CODE tool for composing UI. Users select blocks, recipes, and props from drop
 
 ---
 
+## _internal Provider Abstraction
+
+The `primitives/_internal/` folder is the **only place** that imports from bits-ui internal paths.
+
+### Purpose
+- Isolate bits-ui dependency to one location
+- When forking to Next.js/React, only rewrite `_internal/` to map to React Aria or similar
+- Protect against bits-ui internal path changes between versions
+
+### What _internal Provides
+```typescript
+// Stable public API
+export { Portal, IsUsingKeyboard, useId, mergeProps } from "bits-ui";
+
+// Internal utilities (paths may change)
+export { FloatingLayerArrow } from "bits-ui/dist/bits/utilities/...";
+export { PresenceLayer } from "bits-ui/dist/bits/utilities/...";
+export { FocusScope } from "bits-ui/dist/bits/utilities/...";
+export { DismissibleLayer } from "bits-ui/dist/bits/utilities/...";
+// etc.
+```
+
+### Rule
+**Primitives import from `_internal/`, NEVER directly from bits-ui internal paths.**
+
+```typescript
+// ✅ CORRECT
+import { FloatingLayerArrow } from "../_internal/index.js";
+
+// ❌ WRONG
+import FloatingLayerArrow from "bits-ui/dist/bits/utilities/...";
+```
+
+See `_internal/bits-ui-api.md` for verified API reference.
+
+---
+
 ## File Rules
 
 ### ✅ Can Edit
@@ -76,7 +154,8 @@ NO-CODE tool for composing UI. Users select blocks, recipes, and props from drop
 | `taxonomy/*.ts` | Block kinds, contracts, slots |
 | `recipes/*.ts` | Recipe definitions |
 | `recipes/actions/*.ts` | Svelte actions for effects |
-| `primitives/*.svelte` | Bits UI wrappers ONLY |
+| `primitives/*.svelte` | Accessible components (ColdLight owns ARIA) |
+| `primitives/_internal/*` | Provider abstraction (bits-ui mapping) |
 | `components/*.svelte` | Styled compositions |
 | `renderers/*.svelte` | VPB block renderers |
 
@@ -134,7 +213,14 @@ src/lib/design/
 │   │   ├── keyframes.css # ✅ Only manual CSS
 │   │   └── surfaces.gen.css # ❌ Generated
 │   └── actions/          # Svelte actions
-├── primitives/           # Bits UI wrappers ONLY
+├── primitives/           # Accessible components
+│   ├── _internal/        # Provider abstraction layer
+│   │   ├── index.ts      # Re-exports bits-ui utilities
+│   │   └── bits-ui-api.md # Verified API reference
+│   ├── dialog/           # Dialog primitive
+│   ├── select/           # Select primitive
+│   ├── tooltip/          # Tooltip primitive
+│   └── ...               # Other primitives
 ├── components/           # Styled compositions
 ├── renderers/            # VPB block renderers
 └── plugins/              # Special plugins (Parasite, etc.)

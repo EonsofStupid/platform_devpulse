@@ -9,7 +9,7 @@
   <AlertDialog.Action onclick={() => { deleteItem(); open = false; }}>
 
   Data Attributes:
-  - data-primitive="alert-dialog"
+  - data-kind="alert-dialog"
   - data-slot="action"
 -->
 <script lang="ts">
@@ -29,7 +29,7 @@
 
 <AlertDialog.Action
   class={className}
-  data-primitive="alert-dialog"
+  data-kind="alert-dialog"
   data-slot="action"
   data-id={dataId}
   {...rest}

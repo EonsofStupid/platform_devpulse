@@ -5,7 +5,7 @@
   AlertDialog overlay - backdrop behind alert dialog content.
 
   Data Attributes:
-  - data-primitive="alert-dialog"
+  - data-kind="alert-dialog"
   - data-slot="overlay"
   - data-state="open" | "closed"
 -->
@@ -30,7 +30,7 @@
     <div
       {...props}
       class={cn(props.class, className)}
-      data-primitive="alert-dialog"
+      data-kind="alert-dialog"
       data-slot="overlay"
       data-state={dataState}
       data-id={dataId}

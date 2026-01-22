@@ -49,7 +49,7 @@
 All primitives emit these attributes for CSS targeting:
 
 ```
-data-primitive="{name}"     # Primitive type (button, dialog, sheet)
+data-kind="{name}"     # Primitive type (button, dialog, sheet)
 data-slot="{slot}"          # Slot within primitive (root, trigger, content)
 data-state="{state}"        # Current state (open, closed, pressed, disabled)
 data-id="{user-defined}"    # Stable ID for testing/tooling
@@ -99,7 +99,7 @@ Every primitive MUST have ALL of the following before marked complete:
 - `{name}/{Name}.test.ts` — vitest-browser-svelte tests
 
 ### Required Standards
-- Data attributes: `data-primitive`, `data-slot`, `data-state`, `data-id`
+- Data attributes: `data-kind`, `data-slot`, `data-state`, `data-id`
 - No `style` prop (enforced via `Omit<..., "style">` + `stripStyleProp`)
 - Bits UI ARIA spreads correctly (`{...props}` in child snippets)
 - All tests pass
@@ -124,7 +124,7 @@ pnpm check              # Type check
 <BitsButton.Root
   {disabled}
   class={className}
-  data-primitive="button"
+  data-kind="button"
   data-slot="root"
   data-state={dataState}
   data-id={dataId}
@@ -142,7 +142,7 @@ pnpm check              # Type check
     <div
       {...props}
       class={cn(props.class, className)}
-      data-primitive="dialog"
+      data-kind="dialog"
       data-slot="content"
       data-state={open ? "open" : "closed"}
     >

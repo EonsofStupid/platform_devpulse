@@ -9,7 +9,7 @@
   - aria-expanded="true/false"
 
   Data Attributes:
-  - data-primitive="alert-dialog"
+  - data-kind="alert-dialog"
   - data-slot="trigger"
 -->
 <script lang="ts">
@@ -29,7 +29,7 @@
 
 <AlertDialog.Trigger
   class={className}
-  data-primitive="alert-dialog"
+  data-kind="alert-dialog"
   data-slot="trigger"
   data-id={dataId}
   {...rest}

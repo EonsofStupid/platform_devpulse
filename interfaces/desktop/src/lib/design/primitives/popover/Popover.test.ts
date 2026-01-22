@@ -7,7 +7,7 @@
  *
  * Covers:
  * - ARIA accessibility (aria-haspopup, aria-expanded, aria-controls)
- * - Data attributes (data-primitive, data-slot, data-state)
+ * - Data attributes (data-kind, data-slot, data-state)
  * - Positioning (side, align, sideOffset)
  * - Interact outside behavior (closes by default)
  * - Keyboard interaction (Escape, Enter, Space)
@@ -69,15 +69,15 @@ describe("Popover Primitive", () => {
   // ============================================
 
   describe("data attributes", () => {
-    it("root has data-primitive=popover", async () => {
+    it("root has data-kind=popover", async () => {
       const screen = render(PopoverTest);
       const root = screen.container.querySelector('[data-slot="root"]');
-      await expect.element(root).toHaveAttribute("data-primitive", "popover");
+      await expect.element(root).toHaveAttribute("data-kind", "popover");
     });
 
     it("root has data-slot=root", async () => {
       const screen = render(PopoverTest);
-      const root = screen.container.querySelector('[data-primitive="popover"]');
+      const root = screen.container.querySelector('[data-kind="popover"]');
       await expect.element(root).toHaveAttribute("data-slot", "root");
     });
 
@@ -93,10 +93,10 @@ describe("Popover Primitive", () => {
       await expect.element(root).toHaveAttribute("data-state", "closed");
     });
 
-    it("trigger has data-primitive=popover", async () => {
+    it("trigger has data-kind=popover", async () => {
       const screen = render(PopoverTest);
       const trigger = screen.getByRole("button", { name: "Open Popover" });
-      await expect.element(trigger).toHaveAttribute("data-primitive", "popover");
+      await expect.element(trigger).toHaveAttribute("data-kind", "popover");
     });
 
     it("trigger has data-slot=trigger", async () => {
@@ -105,11 +105,11 @@ describe("Popover Primitive", () => {
       await expect.element(trigger).toHaveAttribute("data-slot", "trigger");
     });
 
-    it("content has data-primitive=popover", async () => {
+    it("content has data-kind=popover", async () => {
       render(PopoverTest, { open: true });
       // Portal renders content to document.body
       const content = document.querySelector('[data-slot="content"]');
-      await expect.element(content).toHaveAttribute("data-primitive", "popover");
+      await expect.element(content).toHaveAttribute("data-kind", "popover");
     });
 
     it("content has data-slot=content", async () => {
@@ -131,7 +131,7 @@ describe("Popover Primitive", () => {
       // Portal renders close to document.body
       const close = document.querySelector('[data-slot="close"]');
       await expect.element(close).toBeInTheDocument();
-      await expect.element(close).toHaveAttribute("data-primitive", "popover");
+      await expect.element(close).toHaveAttribute("data-kind", "popover");
     });
 
     it("supports data-id passthrough", async () => {
@@ -367,11 +367,11 @@ describe("Popover Primitive", () => {
       await expect.element(arrow).toBeInTheDocument();
     });
 
-    it("arrow has data-primitive=popover", async () => {
+    it("arrow has data-kind=popover", async () => {
       render(PopoverTest, { open: true, showArrow: true });
       // Portal renders arrow to document.body (inside content)
       const arrow = document.querySelector('[data-slot="arrow"]');
-      await expect.element(arrow).toHaveAttribute("data-primitive", "popover");
+      await expect.element(arrow).toHaveAttribute("data-kind", "popover");
     });
 
     it("does not render arrow when showArrow=false", async () => {

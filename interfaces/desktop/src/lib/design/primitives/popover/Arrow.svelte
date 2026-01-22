@@ -5,15 +5,17 @@
   Popover arrow - visual indicator pointing to trigger.
 
   Data Attributes:
-  - data-primitive="popover"
+  - data-kind="popover"
   - data-slot="arrow"
+  - data-popover-arrow=""
 -->
 <script lang="ts">
-  import { Popover } from "bits-ui";
+  import { FloatingLayerArrow } from "../_internal/index.js";
   import type { PopoverArrowProps } from "./types.js";
   import { stripStyleProp } from "../types.js";
 
   let {
+    ref = $bindable(null),
     class: className = "",
     "data-id": dataId,
     width = 8,
@@ -24,12 +26,14 @@
   stripStyleProp(rest, "Popover.Arrow");
 </script>
 
-<Popover.Arrow
+<FloatingLayerArrow
+  bind:ref
   class={className}
-  data-primitive="popover"
+  data-kind="popover"
   data-slot="arrow"
   data-id={dataId}
   {width}
   {height}
   {...rest}
+  data-popover-arrow=""
 />

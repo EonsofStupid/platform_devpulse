@@ -5,7 +5,7 @@
   Dialog portal - renders children outside DOM hierarchy.
 
   Data Attributes:
-  - data-primitive="dialog"
+  - data-kind="dialog"
   - data-slot="portal"
 -->
 <script lang="ts">
@@ -22,7 +22,7 @@
 
 <Dialog.Portal {to} {disabled}>
   <div
-    data-primitive="dialog"
+    data-kind="dialog"
     data-slot="portal"
     data-id={dataId}
   >

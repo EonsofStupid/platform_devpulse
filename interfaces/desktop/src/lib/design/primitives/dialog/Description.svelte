@@ -6,7 +6,7 @@
   Automatically linked to Content via aria-describedby.
 
   Data Attributes:
-  - data-primitive="dialog"
+  - data-kind="dialog"
   - data-slot="description"
 -->
 <script lang="ts">
@@ -26,7 +26,7 @@
 
 <Dialog.Description
   class={className}
-  data-primitive="dialog"
+  data-kind="dialog"
   data-slot="description"
   data-id={dataId}
   {...rest}

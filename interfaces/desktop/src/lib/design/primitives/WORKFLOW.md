@@ -1,8 +1,8 @@
 # ColdLight Primitives — Development Workflow
 
 > **Last Updated:** 2026-01-21
-> **Completed:** Button, Dialog, Sheet, Tabs, AlertDialog, Popover, Tooltip (7 primitives)
-> **Next:** Select (Sprint 7)
+> **Completed:** Button, Dialog, Sheet, Tabs, AlertDialog, Popover, Tooltip, Select (8 primitives)
+> **Next:** Combobox (Sprint 8)
 
 ---
 
@@ -63,7 +63,7 @@ Create each slot component following the established pattern:
 ```svelte
 <Bits{Name}.{Slot}
   class={className}
-  data-primitive="{name}"
+  data-kind="{name}"
   data-slot="{slot}"
   data-id={dataId}
   {...rest}
@@ -79,7 +79,7 @@ Create each slot component following the established pattern:
     <div
       {...props}
       class={cn(props.class, className)}
-      data-primitive="{name}"
+      data-kind="{name}"
       data-slot="content"
       data-state={open ? "open" : "closed"}
       data-id={dataId}
@@ -137,7 +137,7 @@ Create `{name}/{Name}.test.svelte` (test wrapper) and `{name}/{Name}.test.ts`.
 | Category | Min Tests | What to Cover |
 |----------|-----------|---------------|
 | ARIA roles | 3-5 | `role`, `aria-*` attributes |
-| Data attributes | 6-10 | `data-primitive`, `data-slot`, `data-state` |
+| Data attributes | 6-10 | `data-kind`, `data-slot`, `data-state` |
 | Keyboard | 4-8 | All keys per a11y.md |
 | State | 3-5 | Transitions, callbacks |
 | Edge cases | 2-4 | Disabled, controlled mode |
@@ -208,7 +208,7 @@ Before marking ANY primitive complete, verify ALL of these:
 - [ ] `{name}/a11y.md` — Accessibility contract documented
 - [ ] `{name}/{Name}.test.svelte` — Test wrapper exists
 - [ ] `{name}/{Name}.test.ts` — Tests exist and pass
-- [ ] All `.svelte` files have `data-primitive="{name}"`
+- [ ] All `.svelte` files have `data-kind="{name}"`
 - [ ] Child snippets spread `{...props}` for ARIA
 - [ ] `primitives/index.ts` exports the primitive
 - [ ] Old monolithic file deleted (if applicable)
@@ -222,7 +222,7 @@ Before marking ANY primitive complete, verify ALL of these:
 All primitives MUST emit:
 
 ```
-data-primitive="{name}"     # Identifies primitive type
+data-kind="{name}"     # Identifies primitive type
 data-slot="{slot}"          # Identifies slot within primitive
 data-state="{state}"        # Current state
 data-id="{user-defined}"    # Stable ID for testing/tooling
@@ -280,28 +280,39 @@ data-id="{user-defined}"    # Stable ID for testing/tooling
   - `aria-describedby` links trigger to content (Bits UI handles this)
   - Slots: `root`, `provider`, `trigger`, `portal`, `content`, `arrow`
 
+### Select (Sprint 7)
+- **Tests:** ~50 passing
+- **Pattern:** Popover positioning + Listbox ARIA
+- **Key Learning:**
+  - Generic `<T>` type for type-safe values
+  - `data-selected` + `data-highlighted` as presence attributes (not data-state values)
+  - Viewport required as explicit scroll container
+  - `ItemGroup` + `GroupLabel` naming (not Group + GroupHeading)
+  - `ScrollUp` + `ScrollDown` naming
+  - No Provider required (unlike Tooltip)
+  - Bits UI adds `role="listbox"` and `role="option"` automatically
+  - `items` prop on Root for typeahead label lookup
+  - Slots: `root`, `trigger`, `portal`, `content`, `viewport`, `item`, `item-text`, `item-group`, `group-label`, `separator`, `scroll-up`, `scroll-down`, `arrow`
+
 ---
 
-## NEXT PRIMITIVE: Select
+## NEXT PRIMITIVE: Combobox
 
-**Sprint 7** — Dropdown selection
+**Sprint 8** — Searchable dropdown selection
 
 **Pre-flight:**
-- Based on Popover positioning + Listbox ARIA
-- `role="listbox"` for content, `role="option"` for items
-- Click-to-open by default
-- Single or multiple selection modes
+- Based on Select + text input
+- Typeahead with filtering
+- `role="combobox"` for input, `role="listbox"` for options
 
-**Slots expected:** `root`, `trigger`, `value`, `portal`, `content`, `group`, `label`, `item`, `separator`
+**Slots expected:** `root`, `input`, `trigger`, `portal`, `content`, `viewport`, `item`, `empty`, `group`, `label`, `separator`
 
-**Key differences from Popover:**
-- Listbox semantics (not disclosure)
-- Selection state management
-- Typeahead search support
-- `aria-selected` on options
-- Keyboard: Arrow keys navigate, Enter selects
+**Key differences from Select:**
+- Input field for filtering
+- Combobox semantics
+- Empty state when no matches
 
-**VPB Use Case:** Enum property dropdowns, font selectors, component type pickers
+**VPB Use Case:** Component search, property autocomplete, icon picker
 
 ---
 
@@ -321,7 +332,7 @@ See: Tabs pattern (ADR-003)
 **Fix:** Always `{...props}` first, then your attributes:
 ```svelte
 {#snippet child({ props })}
-  <div {...props} class={cn(props.class, className)} data-primitive="...">
+  <div {...props} class={cn(props.class, className)} data-kind="...">
 ```
 
 ### "Type errors on Snippet"

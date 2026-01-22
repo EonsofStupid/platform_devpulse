@@ -5,7 +5,7 @@
   Sheet overlay - backdrop behind sheet content.
 
   Data Attributes:
-  - data-primitive="sheet"
+  - data-kind="sheet"
   - data-slot="overlay"
   - data-state="open" | "closed"
 -->
@@ -30,7 +30,7 @@
     <div
       {...props}
       class={cn(props.class, className)}
-      data-primitive="sheet"
+      data-kind="sheet"
       data-slot="overlay"
       data-state={dataState}
       data-id={dataId}

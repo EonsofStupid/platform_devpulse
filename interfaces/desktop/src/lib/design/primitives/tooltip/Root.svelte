@@ -9,7 +9,7 @@
   Users don't need to wrap in Provider manually.
 
   Data Attributes:
-  - data-primitive="tooltip"
+  - data-kind="tooltip"
   - data-slot="root"
   - data-state="open" | "closed"
 -->
@@ -20,8 +20,12 @@
   let {
     open = $bindable(false),
     onOpenChange,
-    openDelay = 700,
-    closeDelay = 300,
+    onOpenChangeComplete,
+    delayDuration = 700,
+    disableHoverableContent = false,
+    disableCloseOnTriggerClick = false,
+    disabled = false,
+    ignoreNonKeyboardFocus = false,
     children,
     "data-id": dataId,
   }: TooltipRootProps = $props();
@@ -30,13 +34,13 @@
 </script>
 
 <div
-  data-primitive="tooltip"
+  data-kind="tooltip"
   data-slot="root"
   data-state={dataState}
   data-id={dataId}
 >
-  <Tooltip.Provider delayDuration={openDelay} {closeDelay}>
-    <Tooltip.Root bind:open {onOpenChange} {openDelay} {closeDelay}>
+  <Tooltip.Provider {delayDuration} {disableHoverableContent} {disableCloseOnTriggerClick} {disabled} {ignoreNonKeyboardFocus}>
+    <Tooltip.Root bind:open {onOpenChange} {onOpenChangeComplete} {delayDuration} {disableHoverableContent} {disableCloseOnTriggerClick} {disabled} {ignoreNonKeyboardFocus}>
       {#if children}
         {@render children()}
       {/if}

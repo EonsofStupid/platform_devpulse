@@ -198,7 +198,7 @@ export type Layer = keyof typeof LAYERS;
  */
 export const DATA_ATTRIBUTES = {
   /** Identifies the primitive type (button, dialog, sheet) */
-  primitive: "data-primitive",
+  primitive: "data-kind",
   /** Identifies the slot within a primitive (root, trigger, content) */
   slot: "data-slot",
   /** Current state (open, closed, pressed, disabled) */

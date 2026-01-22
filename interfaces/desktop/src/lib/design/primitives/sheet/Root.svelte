@@ -5,7 +5,7 @@
   Sheet root - manages open/closed state.
 
   Data Attributes:
-  - data-primitive="sheet"
+  - data-kind="sheet"
   - data-slot="root"
   - data-state="open" | "closed"
 -->
@@ -24,7 +24,7 @@
 </script>
 
 <div
-  data-primitive="sheet"
+  data-kind="sheet"
   data-slot="root"
   data-state={dataState}
   data-id={dataId}

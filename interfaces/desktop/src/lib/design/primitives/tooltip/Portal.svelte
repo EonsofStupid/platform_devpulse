@@ -5,7 +5,7 @@
   Tooltip portal - renders content to document.body.
 
   Data Attributes:
-  - data-primitive="tooltip"
+  - data-kind="tooltip"
   - data-slot="portal"
 -->
 <script lang="ts">
@@ -21,7 +21,7 @@
 </script>
 
 <div
-  data-primitive="tooltip"
+  data-kind="tooltip"
   data-slot="portal"
   data-id={dataId}
 >

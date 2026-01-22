@@ -7,7 +7,7 @@
  *
  * Covers:
  * - Role and accessibility (role=alertdialog, aria-modal, aria-labelledby)
- * - Data attributes (data-primitive, data-slot, data-state)
+ * - Data attributes (data-kind, data-slot, data-state)
  * - Interact outside behavior (does NOT close by default)
  * - Action/Cancel button behavior
  * - Keyboard interaction (Escape, Enter, Space)
@@ -61,15 +61,15 @@ describe("AlertDialog Primitive", () => {
   // ============================================
 
   describe("data attributes", () => {
-    it("root has data-primitive=alert-dialog", async () => {
+    it("root has data-kind=alert-dialog", async () => {
       const screen = render(AlertDialogTest, { open: true });
       const root = screen.container.querySelector('[data-slot="root"]');
-      await expect.element(root).toHaveAttribute("data-primitive", "alert-dialog");
+      await expect.element(root).toHaveAttribute("data-kind", "alert-dialog");
     });
 
     it("root has data-slot=root", async () => {
       const screen = render(AlertDialogTest);
-      const root = screen.container.querySelector('[data-primitive="alert-dialog"]');
+      const root = screen.container.querySelector('[data-kind="alert-dialog"]');
       await expect.element(root).toHaveAttribute("data-slot", "root");
     });
 
@@ -85,10 +85,10 @@ describe("AlertDialog Primitive", () => {
       await expect.element(root).toHaveAttribute("data-state", "closed");
     });
 
-    it("trigger has data-primitive=alert-dialog", async () => {
+    it("trigger has data-kind=alert-dialog", async () => {
       const screen = render(AlertDialogTest);
       const trigger = screen.getByRole("button", { name: "Delete Item" });
-      await expect.element(trigger).toHaveAttribute("data-primitive", "alert-dialog");
+      await expect.element(trigger).toHaveAttribute("data-kind", "alert-dialog");
     });
 
     it("trigger has data-slot=trigger", async () => {
@@ -97,10 +97,10 @@ describe("AlertDialog Primitive", () => {
       await expect.element(trigger).toHaveAttribute("data-slot", "trigger");
     });
 
-    it("content has data-primitive=alert-dialog", async () => {
+    it("content has data-kind=alert-dialog", async () => {
       const screen = render(AlertDialogTest, { open: true });
       const content = screen.getByRole("alertdialog");
-      await expect.element(content).toHaveAttribute("data-primitive", "alert-dialog");
+      await expect.element(content).toHaveAttribute("data-kind", "alert-dialog");
     });
 
     it("content has data-slot=content", async () => {
@@ -113,14 +113,14 @@ describe("AlertDialog Primitive", () => {
       render(AlertDialogTest, { open: true });
       const action = document.querySelector('[data-slot="action"]');
       await expect.element(action).toBeInTheDocument();
-      await expect.element(action).toHaveAttribute("data-primitive", "alert-dialog");
+      await expect.element(action).toHaveAttribute("data-kind", "alert-dialog");
     });
 
     it("cancel button has data-slot=cancel", async () => {
       render(AlertDialogTest, { open: true });
       const cancel = document.querySelector('[data-slot="cancel"]');
       await expect.element(cancel).toBeInTheDocument();
-      await expect.element(cancel).toHaveAttribute("data-primitive", "alert-dialog");
+      await expect.element(cancel).toHaveAttribute("data-kind", "alert-dialog");
     });
 
     it("supports data-id passthrough", async () => {
@@ -464,7 +464,7 @@ describe("AlertDialog Primitive", () => {
       // Title is in Portal, query from document
       const title = document.querySelector('[data-slot="title"]');
       await expect.element(title).toBeInTheDocument();
-      await expect.element(title).toHaveAttribute("data-primitive", "alert-dialog");
+      await expect.element(title).toHaveAttribute("data-kind", "alert-dialog");
     });
 
     it("description has data-slot=description", async () => {
@@ -472,7 +472,7 @@ describe("AlertDialog Primitive", () => {
       // Description is in Portal, query from document
       const desc = document.querySelector('[data-slot="description"]');
       await expect.element(desc).toBeInTheDocument();
-      await expect.element(desc).toHaveAttribute("data-primitive", "alert-dialog");
+      await expect.element(desc).toHaveAttribute("data-kind", "alert-dialog");
     });
   });
 });

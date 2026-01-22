@@ -6,7 +6,7 @@
   Optional - use when you need consistent delays across multiple tooltips.
 
   Data Attributes:
-  - data-primitive="tooltip"
+  - data-kind="tooltip"
   - data-slot="provider"
 -->
 <script lang="ts">
@@ -15,26 +15,28 @@
 
   let {
     delayDuration = 700,
-    closeDelay = 300,
+    skipDelayDuration = 300,
     disableCloseOnTriggerClick = false,
-    skipDelayDuration,
     disableHoverableContent = false,
+    disabled = false,
+    ignoreNonKeyboardFocus = false,
     children,
     "data-id": dataId,
   }: TooltipProviderProps = $props();
 </script>
 
 <div
-  data-primitive="tooltip"
+  data-kind="tooltip"
   data-slot="provider"
   data-id={dataId}
 >
   <Tooltip.Provider
     {delayDuration}
-    {closeDelay}
-    {disableCloseOnTriggerClick}
     {skipDelayDuration}
+    {disableCloseOnTriggerClick}
     {disableHoverableContent}
+    {disabled}
+    {ignoreNonKeyboardFocus}
   >
     {#if children}
       {@render children()}

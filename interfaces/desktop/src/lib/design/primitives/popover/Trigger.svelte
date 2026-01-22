@@ -11,7 +11,7 @@
   - aria-controls (when open)
 
   Data Attributes:
-  - data-primitive="popover"
+  - data-kind="popover"
   - data-slot="trigger"
 -->
 <script lang="ts">
@@ -34,7 +34,7 @@
 
 <Popover.Trigger
   class={className}
-  data-primitive="popover"
+  data-kind="popover"
   data-slot="trigger"
   data-id={dataId}
   {openOnHover}

@@ -5,7 +5,7 @@
   Popover close - button that closes the popover.
 
   Data Attributes:
-  - data-primitive="popover"
+  - data-kind="popover"
   - data-slot="close"
 -->
 <script lang="ts">
@@ -25,7 +25,7 @@
 
 <Popover.Close
   class={className}
-  data-primitive="popover"
+  data-kind="popover"
   data-slot="close"
   data-id={dataId}
   {...rest}

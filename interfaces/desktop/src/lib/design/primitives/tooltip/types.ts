@@ -45,16 +45,18 @@ export type TooltipAlign = "start" | "center" | "end";
 // ============================================
 
 export interface TooltipProviderProps {
-  /** Default delay before showing tooltip in ms (default: 700) */
+  /** Delay before showing tooltip in ms (default: 700) */
   delayDuration?: number;
-  /** Default delay before hiding after mouse leaves in ms (default: 300) */
-  closeDelay?: number;
+  /** How much time user has to enter another trigger without delay (default: 300) */
+  skipDelayDuration?: number;
   /** Prevent tooltip from staying open when trigger is clicked (default: false) */
   disableCloseOnTriggerClick?: boolean;
-  /** Skip delay when hovering over consecutive triggers (default: true) */
-  skipDelayDuration?: number;
   /** Disable hover behaviors entirely */
   disableHoverableContent?: boolean;
+  /** Disable the provider */
+  disabled?: boolean;
+  /** Prevent tooltip from opening if focus wasn't from keyboard */
+  ignoreNonKeyboardFocus?: boolean;
   /** Children tooltips */
   children?: Snippet;
   /** User-defined stable ID */
@@ -70,10 +72,18 @@ export interface TooltipRootProps {
   open?: boolean;
   /** Callback when open state changes */
   onOpenChange?: (open: boolean) => void;
+  /** Callback when open state change animation completes */
+  onOpenChangeComplete?: (open: boolean) => void;
   /** Delay before showing tooltip in ms (overrides provider, default: 700) */
-  openDelay?: number;
-  /** Delay before hiding after mouse leaves in ms (overrides provider, default: 300) */
-  closeDelay?: number;
+  delayDuration?: number;
+  /** Prevent tooltip from staying open when hovering content */
+  disableHoverableContent?: boolean;
+  /** Prevent tooltip from staying open when trigger is clicked */
+  disableCloseOnTriggerClick?: boolean;
+  /** Disable the tooltip */
+  disabled?: boolean;
+  /** Prevent tooltip from opening if focus wasn't from keyboard */
+  ignoreNonKeyboardFocus?: boolean;
   /** Children (Trigger, Portal) */
   children?: Snippet;
   /** User-defined stable ID */
@@ -145,6 +155,8 @@ export interface TooltipContentProps extends Omit<HTMLAttributes<HTMLDivElement>
 // ============================================
 
 export interface TooltipArrowProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
+  /** Reference to the arrow element (bindable) */
+  ref?: HTMLElement | null;
   /** Arrow width in pixels (default: 8) */
   width?: number;
   /** Arrow height in pixels (default: 8) */

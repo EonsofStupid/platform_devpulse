@@ -7,7 +7,7 @@
  *
  * Covers:
  * - Role and accessibility (role=tablist, tab, tabpanel)
- * - Data attributes (data-primitive, data-slot, data-state, data-value)
+ * - Data attributes (data-kind, data-slot, data-state, data-value)
  * - Keyboard interaction (Arrow keys, Home, End)
  * - Focus management (roving tabindex, no trap)
  * - State management (active/inactive)
@@ -68,15 +68,15 @@ describe("Tabs Primitive", () => {
 	// ============================================
 
 	describe("data attributes", () => {
-		it("root has data-primitive=tabs", async () => {
+		it("root has data-kind=tabs", async () => {
 			const screen = render(TabsTest);
 			const root = screen.container.querySelector('[data-slot="root"]');
-			await expect.element(root).toHaveAttribute("data-primitive", "tabs");
+			await expect.element(root).toHaveAttribute("data-kind", "tabs");
 		});
 
 		it("root has data-slot=root", async () => {
 			const screen = render(TabsTest);
-			const root = screen.container.querySelector('[data-primitive="tabs"]');
+			const root = screen.container.querySelector('[data-kind="tabs"]');
 			await expect.element(root).toHaveAttribute("data-slot", "root");
 		});
 
@@ -92,10 +92,10 @@ describe("Tabs Primitive", () => {
 			await expect.element(root).toHaveAttribute("data-orientation", "vertical");
 		});
 
-		it("list has data-primitive=tabs", async () => {
+		it("list has data-kind=tabs", async () => {
 			const screen = render(TabsTest);
 			const list = screen.getByRole("tablist");
-			await expect.element(list).toHaveAttribute("data-primitive", "tabs");
+			await expect.element(list).toHaveAttribute("data-kind", "tabs");
 		});
 
 		it("list has data-slot=list", async () => {
@@ -104,10 +104,10 @@ describe("Tabs Primitive", () => {
 			await expect.element(list).toHaveAttribute("data-slot", "list");
 		});
 
-		it("trigger has data-primitive=tabs", async () => {
+		it("trigger has data-kind=tabs", async () => {
 			const screen = render(TabsTest);
 			const trigger = screen.getByRole("tab", { name: "Tab 1" });
-			await expect.element(trigger).toHaveAttribute("data-primitive", "tabs");
+			await expect.element(trigger).toHaveAttribute("data-kind", "tabs");
 		});
 
 		it("trigger has data-slot=trigger", async () => {
@@ -136,10 +136,10 @@ describe("Tabs Primitive", () => {
 			await expect.element(tab2).toHaveAttribute("data-value", "tab2");
 		});
 
-		it("content has data-primitive=tabs", async () => {
+		it("content has data-kind=tabs", async () => {
 			const screen = render(TabsTest, { value: "tab1" });
 			const content = screen.getByRole("tabpanel");
-			await expect.element(content).toHaveAttribute("data-primitive", "tabs");
+			await expect.element(content).toHaveAttribute("data-kind", "tabs");
 		});
 
 		it("content has data-slot=content", async () => {

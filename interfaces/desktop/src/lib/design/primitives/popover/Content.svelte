@@ -11,7 +11,7 @@
   - Click outside dismissal
 
   Data Attributes:
-  - data-primitive="popover"
+  - data-kind="popover"
   - data-slot="content"
   - data-state="open" | "closed"
   - data-side (from Bits UI)
@@ -82,7 +82,7 @@
     <div
       {...props}
       class={cn(props.class, className)}
-      data-primitive="popover"
+      data-kind="popover"
       data-slot="content"
       data-state={dataState}
       data-id={dataId}

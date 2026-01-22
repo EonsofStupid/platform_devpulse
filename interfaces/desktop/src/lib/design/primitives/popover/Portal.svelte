@@ -5,7 +5,7 @@
   Popover portal - renders children outside DOM hierarchy.
 
   Data Attributes:
-  - data-primitive="popover"
+  - data-kind="popover"
   - data-slot="portal"
 -->
 <script lang="ts">
@@ -22,7 +22,7 @@
 
 <Popover.Portal {to} {disabled}>
   <div
-    data-primitive="popover"
+    data-kind="popover"
     data-slot="portal"
     data-id={dataId}
   >

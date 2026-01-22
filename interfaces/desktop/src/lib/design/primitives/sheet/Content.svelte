@@ -17,7 +17,7 @@
   - Scroll lock
 
   Data Attributes:
-  - data-primitive="sheet"
+  - data-kind="sheet"
   - data-slot="content"
   - data-state="open" | "closed"
   - data-side="left" | "right" | "top" | "bottom"
@@ -66,7 +66,7 @@
     <div
       {...props}
       class={cn(props.class, className)}
-      data-primitive="sheet"
+      data-kind="sheet"
       data-slot="content"
       data-state={dataState}
       data-side={side}

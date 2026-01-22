@@ -43,7 +43,7 @@
   <div
     {...props}                    <!-- FIRST: Contains role, aria-*, ids -->
     class={cn(props.class, className)}
-    data-primitive="{name}"
+    data-kind="{name}"
     data-slot="content"
     data-state={open ? "open" : "closed"}
   >

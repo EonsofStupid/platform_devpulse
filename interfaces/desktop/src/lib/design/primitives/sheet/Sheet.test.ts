@@ -7,7 +7,7 @@
  *
  * Covers:
  * - Role and accessibility (role=dialog, aria-modal, aria-labelledby)
- * - Data attributes (data-primitive, data-slot, data-state, data-side)
+ * - Data attributes (data-kind, data-slot, data-state, data-side)
  * - Keyboard interaction (Escape, Enter, Space)
  * - Focus management (trap, return)
  * - Open/close behavior
@@ -61,15 +61,15 @@ describe("Sheet Primitive", () => {
   // ============================================
 
   describe("data attributes", () => {
-    it("root has data-primitive=sheet", async () => {
+    it("root has data-kind=sheet", async () => {
       const screen = render(SheetTest, { open: true });
       const root = screen.container.querySelector('[data-slot="root"]');
-      await expect.element(root).toHaveAttribute("data-primitive", "sheet");
+      await expect.element(root).toHaveAttribute("data-kind", "sheet");
     });
 
     it("root has data-slot=root", async () => {
       const screen = render(SheetTest);
-      const root = screen.container.querySelector('[data-primitive="sheet"]');
+      const root = screen.container.querySelector('[data-kind="sheet"]');
       await expect.element(root).toHaveAttribute("data-slot", "root");
     });
 
@@ -85,10 +85,10 @@ describe("Sheet Primitive", () => {
       await expect.element(root).toHaveAttribute("data-state", "closed");
     });
 
-    it("trigger has data-primitive=sheet", async () => {
+    it("trigger has data-kind=sheet", async () => {
       const screen = render(SheetTest);
       const trigger = screen.getByRole("button", { name: "Open Sheet" });
-      await expect.element(trigger).toHaveAttribute("data-primitive", "sheet");
+      await expect.element(trigger).toHaveAttribute("data-kind", "sheet");
     });
 
     it("trigger has data-slot=trigger", async () => {
@@ -97,10 +97,10 @@ describe("Sheet Primitive", () => {
       await expect.element(trigger).toHaveAttribute("data-slot", "trigger");
     });
 
-    it("content has data-primitive=sheet", async () => {
+    it("content has data-kind=sheet", async () => {
       const screen = render(SheetTest, { open: true });
       const content = screen.getByRole("dialog");
-      await expect.element(content).toHaveAttribute("data-primitive", "sheet");
+      await expect.element(content).toHaveAttribute("data-kind", "sheet");
     });
 
     it("content has data-slot=content", async () => {
@@ -303,7 +303,7 @@ describe("Sheet Primitive", () => {
       // Title is in Portal, query from document
       const title = document.querySelector('[data-slot="title"]');
       await expect.element(title).toBeInTheDocument();
-      await expect.element(title).toHaveAttribute("data-primitive", "sheet");
+      await expect.element(title).toHaveAttribute("data-kind", "sheet");
     });
 
     it("description has data-slot=description", async () => {
@@ -311,7 +311,7 @@ describe("Sheet Primitive", () => {
       // Description is in Portal, query from document
       const desc = document.querySelector('[data-slot="description"]');
       await expect.element(desc).toBeInTheDocument();
-      await expect.element(desc).toHaveAttribute("data-primitive", "sheet");
+      await expect.element(desc).toHaveAttribute("data-kind", "sheet");
     });
   });
 });

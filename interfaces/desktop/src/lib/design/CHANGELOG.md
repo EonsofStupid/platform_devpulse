@@ -8,13 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Core configuration file (`coldlight.config.ts`)
-- Component manifest with status tracking (`manifest.ts`)
-- Constraint validation system (`constraints.ts`)
-- This changelog
+- `primitives/_internal/` provider abstraction layer
+- `primitives/_internal/bits-ui-api.md` - Verified bits-ui v2.15.4 API reference
+- `primitives/PRIMITIVE_CONTRACT.md` - Strict rules for primitive development
+- Explicit ARIA ownership documentation
 
 ### Changed
-- Nothing yet
+- README.md updated with layer architecture and ownership contract
+- Primitives now use `_internal/` for bits-ui utility imports (FloatingLayerArrow, etc.)
+- Arrow components (Select, Popover, Tooltip) standardized to use FloatingLayerArrow
+
+### Fixed
+- Identified type incompatibilities: bits-ui requires `undefined` not `null`
+- Identified API mismatches: `textValue` → `label`, `openDelay` → `delayDuration`
+- Select.ItemText now ColdLight-owned (bits-ui doesn't export it)
 
 ### Deprecated
 - Nothing yet
@@ -87,7 +94,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Data Attribute Contract
 All primitives emit canonical data attributes:
 ```
-data-primitive="{name}"     # button, dialog, sheet
+data-kind="{name}"     # button, dialog, sheet
 data-slot="{slot}"          # root, trigger, content
 data-state="{state}"        # open, closed, pressed
 data-id="{user-defined}"    # testing/tooling
@@ -119,7 +126,7 @@ If you were using ColdLight before 0.1.0:
 
 1. **Data Attributes Changed**
    - Old: `data-kind`, `data-name`, `data-part`
-   - New: `data-primitive`, `data-slot`, `data-state`
+   - New: `data-kind`, `data-slot`, `data-state`
 
    Update any CSS selectors or tests that reference the old attributes.
 

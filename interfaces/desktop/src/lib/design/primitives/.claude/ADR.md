@@ -17,14 +17,14 @@ All primitives emit these data attributes:
 
 | Attribute | Purpose | Example |
 |-----------|---------|---------|
-| `data-primitive` | Identifies primitive type | `"dialog"`, `"popover"` |
+| `data-kind` | Identifies primitive type | `"dialog"`, `"popover"` |
 | `data-slot` | Identifies slot within primitive | `"root"`, `"content"`, `"trigger"` |
 | `data-state` | Current state | `"open"`, `"closed"`, `"active"` |
 | `data-id` | User-defined stable ID | `"my-dialog"` |
 
 ### Rationale
 
-1. **Predictable CSS selectors**: `[data-primitive="dialog"][data-state="open"]`
+1. **Predictable CSS selectors**: `[data-kind="dialog"][data-state="open"]`
 2. **Testing stability**: `data-id` provides stable selectors that don't change with styling
 3. **No style prop**: Forces recipe-based styling via class prop
 4. **Namespace-ready**: Can prefix if needed (`data-cl-primitive`)
@@ -33,7 +33,7 @@ All primitives emit these data attributes:
 
 - All components must include these attributes
 - Tests should verify data attributes exist
-- Recipes target via `[data-primitive][data-slot][data-state]`
+- Recipes target via `[data-kind][data-slot][data-state]`
 - **DEPRECATED:** `data-kind`, `data-name`, `data-part` (old pattern)
 
 ---
@@ -54,7 +54,7 @@ For components needing custom rendering (Content, Overlay), use child snippets a
     <div
       {...props}
       class={cn(props.class, className)}
-      data-primitive="dialog"
+      data-kind="dialog"
       data-slot="content"
       data-state={open ? "open" : "closed"}
     >
@@ -274,7 +274,7 @@ ColdLight `Tooltip.Root` includes implicit Provider wrapper:
 
 ```svelte
 <!-- tooltip/Root.svelte -->
-<div data-primitive="tooltip" data-slot="root" data-state={dataState}>
+<div data-kind="tooltip" data-slot="root" data-state={dataState}>
   <Tooltip.Provider delayDuration={openDelay} {closeDelay}>
     <Tooltip.Root bind:open {onOpenChange} {openDelay} {closeDelay}>
       {@render children?.()}
@@ -332,7 +332,7 @@ ColdLight adds `role="tooltip"` explicitly in Content.svelte:
     {...props}
     role="tooltip"           <!-- MANUAL: Bits UI doesn't add this -->
     class={cn(props.class, className)}
-    data-primitive="tooltip"
+    data-kind="tooltip"
     data-slot="content"
     data-state={dataState}
   >

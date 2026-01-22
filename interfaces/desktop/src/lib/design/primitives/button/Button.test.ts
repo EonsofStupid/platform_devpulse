@@ -31,11 +31,11 @@ describe("Button Primitive", () => {
       await expect.element(button).toBeInTheDocument();
     });
 
-    it("emits data-primitive=button attribute", async () => {
+    it("emits data-kind=button attribute", async () => {
       const screen = render(ButtonWithChildren, { label: "Test" });
 
       const button = screen.getByRole("button");
-      await expect.element(button).toHaveAttribute("data-primitive", "button");
+      await expect.element(button).toHaveAttribute("data-kind", "button");
     });
 
     it("emits data-slot=root attribute", async () => {

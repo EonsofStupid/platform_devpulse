@@ -6,7 +6,7 @@
   Automatically linked to Content via aria-labelledby.
 
   Data Attributes:
-  - data-primitive="alert-dialog"
+  - data-kind="alert-dialog"
   - data-slot="title"
 -->
 <script lang="ts">
@@ -28,7 +28,7 @@
 <AlertDialog.Title
   {level}
   class={className}
-  data-primitive="alert-dialog"
+  data-kind="alert-dialog"
   data-slot="title"
   data-id={dataId}
   {...rest}

@@ -5,7 +5,7 @@
   Dialog overlay - backdrop behind dialog content.
 
   Data Attributes:
-  - data-primitive="dialog"
+  - data-kind="dialog"
   - data-slot="overlay"
   - data-state="open" | "closed"
 -->
@@ -30,7 +30,7 @@
     <div
       {...props}
       class={cn(props.class, className)}
-      data-primitive="dialog"
+      data-kind="dialog"
       data-slot="overlay"
       data-state={dataState}
       data-id={dataId}

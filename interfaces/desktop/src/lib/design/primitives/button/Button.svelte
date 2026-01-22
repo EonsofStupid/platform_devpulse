@@ -11,7 +11,7 @@
   - Focus visible by default
 
   Data Attributes:
-  - data-primitive="button"
+  - data-kind="button"
   - data-slot="root"
   - data-state="pressed" | "disabled" | undefined
   - data-id (user-defined)
@@ -54,7 +54,7 @@
   {type}
   {disabled}
   class={className}
-  data-primitive="button"
+  data-kind="button"
   data-slot="root"
   data-state={dataState}
   data-id={dataId}
