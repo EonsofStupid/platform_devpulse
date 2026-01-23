@@ -18,3 +18,6 @@
 
 /* 3. Surfaces - Generated recipe CSS (data-* attribute styling) */
 @import "./recipes/css/surfaces.gen.css";
+
+/* 4. Depth System - Multi-layer shadows, neumorphism, liquid metal */
+@import "./recipes/css/surfaces-depth.css";

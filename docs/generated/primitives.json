@@ -1,0 +1,1919 @@
+{
+  "generated": "2026-01-23T02:50:40.668Z",
+  "version": "0.1.0",
+  "primitives": [
+    {
+      "name": "D:",
+      "path": "D:/localdev/platform_devpulse/interfaces/desktop/src/lib/design/primitives/types.ts",
+      "interfaces": [
+        {
+          "name": "BaseProps",
+          "description": "Base props for primitives that EXTEND OmitStyle<HTMLElement>.\nThese already get `class` from HTMLAttributes - do NOT redefine it here.",
+          "props": [
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID for tooling"
+            }
+          ]
+        }
+      ],
+      "layer": "primitives"
+    },
+    {
+      "name": "D:",
+      "path": "D:/localdev/platform_devpulse/interfaces/desktop/src/lib/design/primitives/tooltip/types.ts",
+      "description": "Tooltip primitive",
+      "interfaces": [
+        {
+          "name": "TooltipProviderProps",
+          "props": [
+            {
+              "name": "delayDuration",
+              "type": "number",
+              "required": false,
+              "default": "700",
+              "description": "Delay before showing tooltip in ms (default: 700)"
+            },
+            {
+              "name": "skipDelayDuration",
+              "type": "number",
+              "required": false,
+              "default": "300",
+              "description": "How much time user has to enter another trigger without delay (default: 300)"
+            },
+            {
+              "name": "disableCloseOnTriggerClick",
+              "type": "boolean",
+              "required": false,
+              "default": "false",
+              "description": "Prevent tooltip from staying open when trigger is clicked (default: false)"
+            },
+            {
+              "name": "disableHoverableContent",
+              "type": "boolean",
+              "required": false,
+              "description": "Disable hover behaviors entirely"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "required": false,
+              "description": "Disable the provider"
+            },
+            {
+              "name": "ignoreNonKeyboardFocus",
+              "type": "boolean",
+              "required": false,
+              "description": "Prevent tooltip from opening if focus wasn't from keyboard"
+            },
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Children tooltips"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "TooltipRootProps",
+          "props": [
+            {
+              "name": "open",
+              "type": "boolean",
+              "required": false,
+              "description": "Controlled open state (bindable)"
+            },
+            {
+              "name": "onOpenChange",
+              "type": "(open: boolean) => void",
+              "required": false,
+              "description": "Callback when open state changes"
+            },
+            {
+              "name": "onOpenChangeComplete",
+              "type": "(open: boolean) => void",
+              "required": false,
+              "description": "Callback when open state change animation completes"
+            },
+            {
+              "name": "delayDuration",
+              "type": "number",
+              "required": false,
+              "default": "700",
+              "description": "Delay before showing tooltip in ms (overrides provider, default: 700)"
+            },
+            {
+              "name": "disableHoverableContent",
+              "type": "boolean",
+              "required": false,
+              "description": "Prevent tooltip from staying open when hovering content"
+            },
+            {
+              "name": "disableCloseOnTriggerClick",
+              "type": "boolean",
+              "required": false,
+              "description": "Prevent tooltip from staying open when trigger is clicked"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "required": false,
+              "description": "Disable the tooltip"
+            },
+            {
+              "name": "ignoreNonKeyboardFocus",
+              "type": "boolean",
+              "required": false,
+              "description": "Prevent tooltip from opening if focus wasn't from keyboard"
+            },
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Children (Trigger, Portal)"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "TooltipTriggerProps",
+          "extends": [
+            "Omit<HTMLButtonAttributes, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Trigger content"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "TooltipPortalProps",
+          "props": [
+            {
+              "name": "to",
+              "type": "string | HTMLElement",
+              "required": false,
+              "default": "body",
+              "description": "Portal target selector or element (default: body)"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "required": false,
+              "description": "Disable portal rendering"
+            },
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Children (Content)"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "TooltipContentProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLDivElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet<[{ open: boolean }]> | Snippet",
+              "required": false,
+              "description": "Snippet receives { open } for animations"
+            },
+            {
+              "name": "side",
+              "type": "TooltipSide",
+              "required": false,
+              "default": "\"top\"",
+              "description": "Side of anchor to position against (default: \"top\")"
+            },
+            {
+              "name": "sideOffset",
+              "type": "number",
+              "required": false,
+              "default": "4",
+              "description": "Distance from anchor in pixels (default: 4)"
+            },
+            {
+              "name": "align",
+              "type": "TooltipAlign",
+              "required": false,
+              "default": "\"center\"",
+              "description": "Alignment relative to anchor (default: \"center\")"
+            },
+            {
+              "name": "alignOffset",
+              "type": "number",
+              "required": false,
+              "description": "Offset from alignment in pixels"
+            },
+            {
+              "name": "arrowPadding",
+              "type": "number",
+              "required": false,
+              "description": "Padding between arrow and content edges"
+            },
+            {
+              "name": "avoidCollisions",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": "Override side/align to avoid collisions (default: true)"
+            },
+            {
+              "name": "collisionPadding",
+              "type": "number | Partial<Record<TooltipSide, number>>",
+              "required": false,
+              "default": "8",
+              "description": "Padding around viewport for collision detection (default: 8)"
+            },
+            {
+              "name": "sticky",
+              "type": "\"partial\" | \"always\"",
+              "required": false,
+              "description": "Sticky behavior: \"partial\" or \"always\""
+            },
+            {
+              "name": "hideWhenDetached",
+              "type": "boolean",
+              "required": false,
+              "description": "Hide when detached from anchor"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "TooltipArrowProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLDivElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "ref",
+              "type": "HTMLElement | null",
+              "required": false,
+              "description": "Reference to the arrow element (bindable)"
+            },
+            {
+              "name": "width",
+              "type": "number",
+              "required": false,
+              "default": "8",
+              "description": "Arrow width in pixels (default: 8)"
+            },
+            {
+              "name": "height",
+              "type": "number",
+              "required": false,
+              "default": "8",
+              "description": "Arrow height in pixels (default: 8)"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        }
+      ],
+      "layer": "primitives"
+    },
+    {
+      "name": "D:",
+      "path": "D:/localdev/platform_devpulse/interfaces/desktop/src/lib/design/primitives/tabs/types.ts",
+      "description": "Tabs primitive",
+      "interfaces": [
+        {
+          "name": "TabsRootProps",
+          "description": "Props for Tabs.Root component.\nControls active tab state and provides context to children.",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLDivElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "value",
+              "type": "string",
+              "required": false,
+              "description": "Active tab value (bindable).\nMust match a Trigger's `value` prop."
+            },
+            {
+              "name": "onValueChange",
+              "type": "(value: string) => void",
+              "required": false,
+              "description": "Callback when active tab changes."
+            },
+            {
+              "name": "orientation",
+              "type": "TabsOrientation",
+              "required": false,
+              "default": "\"horizontal\"",
+              "description": "Tab orientation for keyboard navigation.",
+              "tags": {
+                "default": "\"horizontal\""
+              }
+            },
+            {
+              "name": "activationMode",
+              "type": "TabsActivationMode",
+              "required": false,
+              "default": "\"automatic\"",
+              "description": "How tabs are activated.",
+              "tags": {
+                "default": "\"automatic\""
+              }
+            },
+            {
+              "name": "loop",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": "Whether keyboard navigation loops at ends.",
+              "tags": {
+                "default": "true"
+              }
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "required": false,
+              "default": "false",
+              "description": "Disable all tabs.",
+              "tags": {
+                "default": "false"
+              }
+            },
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Children (List, Content)."
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "Stable ID for tooling/testing."
+            }
+          ]
+        },
+        {
+          "name": "TabsListProps",
+          "description": "Props for Tabs.List component.\nContainer for tab triggers with role=\"tablist\".",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLDivElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Tab trigger children."
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "Stable ID for tooling/testing."
+            }
+          ]
+        },
+        {
+          "name": "TabsTriggerProps",
+          "description": "Props for Tabs.Trigger component.\nIndividual tab button with role=\"tab\".",
+          "extends": [
+            "Omit<HTMLButtonAttributes, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "value",
+              "type": "string",
+              "required": true,
+              "description": "Tab value (required).\nLinks this trigger to a Content with matching value."
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "required": false,
+              "default": "false",
+              "description": "Disable this specific tab.",
+              "tags": {
+                "default": "false"
+              }
+            },
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Trigger content."
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "Stable ID for tooling/testing."
+            }
+          ]
+        },
+        {
+          "name": "TabsContentProps",
+          "description": "Props for Tabs.Content component.\nTab panel with role=\"tabpanel\".",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLDivElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "value",
+              "type": "string",
+              "required": true,
+              "description": "Tab value (required).\nLinks this content to a Trigger with matching value."
+            },
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Content to render when tab is active."
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "Stable ID for tooling/testing."
+            }
+          ]
+        }
+      ],
+      "layer": "primitives"
+    },
+    {
+      "name": "D:",
+      "path": "D:/localdev/platform_devpulse/interfaces/desktop/src/lib/design/primitives/select/types.ts",
+      "description": "Select primitive",
+      "interfaces": [
+        {
+          "name": "SelectRootProps",
+          "props": [
+            {
+              "name": "open",
+              "type": "boolean",
+              "required": false,
+              "description": "Controlled open state (bindable)"
+            },
+            {
+              "name": "onOpenChange",
+              "type": "(open: boolean) => void",
+              "required": false,
+              "description": "Callback when open state changes"
+            },
+            {
+              "name": "value",
+              "type": "string | string[]",
+              "required": false,
+              "description": "Selected value (bindable) - string for single, string[] for multiple"
+            },
+            {
+              "name": "onValueChange",
+              "type": "(value: string | string[]) => void",
+              "required": false,
+              "description": "Callback when value changes"
+            },
+            {
+              "name": "type",
+              "type": "SelectType",
+              "required": false,
+              "description": "Selection mode"
+            },
+            {
+              "name": "items",
+              "type": "SelectItem[]",
+              "required": false,
+              "description": "Items array for typeahead and label lookup"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "required": false,
+              "description": "Disable the entire select"
+            },
+            {
+              "name": "loop",
+              "type": "boolean",
+              "required": false,
+              "description": "Loop keyboard navigation"
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "required": false,
+              "description": "Form field name for native submission"
+            },
+            {
+              "name": "required",
+              "type": "boolean",
+              "required": false,
+              "description": "Form field required validation"
+            },
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Children (Trigger, Portal)"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "SelectTriggerProps",
+          "extends": [
+            "Omit<HTMLButtonAttributes, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Button content"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "required": false,
+              "description": "Disable the trigger"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "SelectPortalProps",
+          "props": [
+            {
+              "name": "to",
+              "type": "string | HTMLElement",
+              "required": false,
+              "default": "body",
+              "description": "Portal target selector or element (default: body)"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "required": false,
+              "description": "Disable portal rendering"
+            },
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Children (Content)"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "SelectContentProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLDivElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet<[{ open: boolean }]> | Snippet",
+              "required": false,
+              "description": "Snippet receives { open } for animations"
+            },
+            {
+              "name": "side",
+              "type": "SelectSide",
+              "required": false,
+              "default": "\"bottom\"",
+              "description": "Side of anchor to position against (default: \"bottom\")"
+            },
+            {
+              "name": "sideOffset",
+              "type": "number",
+              "required": false,
+              "default": "4",
+              "description": "Distance from anchor in pixels (default: 4)"
+            },
+            {
+              "name": "align",
+              "type": "SelectAlign",
+              "required": false,
+              "default": "\"start\"",
+              "description": "Alignment relative to anchor (default: \"start\")"
+            },
+            {
+              "name": "alignOffset",
+              "type": "number",
+              "required": false,
+              "description": "Offset from alignment in pixels"
+            },
+            {
+              "name": "arrowPadding",
+              "type": "number",
+              "required": false,
+              "description": "Padding between arrow and content edges"
+            },
+            {
+              "name": "avoidCollisions",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": "Override side/align to avoid collisions (default: true)"
+            },
+            {
+              "name": "collisionPadding",
+              "type": "number | Partial<Record<SelectSide, number>>",
+              "required": false,
+              "default": "8",
+              "description": "Padding around viewport for collision detection (default: 8)"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "SelectViewportProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLDivElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Children (Items, Groups, Separators)"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "SelectItemProps",
+          "props": [
+            {
+              "name": "value",
+              "type": "string",
+              "required": true,
+              "description": "Item value (bits-ui requires string)"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "required": false,
+              "description": "Disable this item"
+            },
+            {
+              "name": "label",
+              "type": "string",
+              "required": false,
+              "description": "Label for typeahead search (defaults to textContent)"
+            },
+            {
+              "name": "class",
+              "type": "string",
+              "required": false,
+              "description": "Additional CSS classes"
+            },
+            {
+              "name": "children",
+              "type": "Snippet<[{ selected: boolean; highlighted: boolean }]> | Snippet",
+              "required": false,
+              "description": "Snippet receives { selected, highlighted } for conditional rendering"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "SelectItemTextProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLSpanElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Text content"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "SelectItemGroupProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLDivElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Children (GroupLabel, Items)"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "SelectGroupLabelProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLDivElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Label content"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "SelectSeparatorProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLDivElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "SelectScrollUpProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLDivElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Button content"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "SelectScrollDownProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLDivElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Button content"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "SelectArrowProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLDivElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "ref",
+              "type": "HTMLElement | null",
+              "required": false,
+              "description": "Reference to the arrow element (bindable)"
+            },
+            {
+              "name": "width",
+              "type": "number",
+              "required": false,
+              "default": "8",
+              "description": "Arrow width in pixels (default: 8)"
+            },
+            {
+              "name": "height",
+              "type": "number",
+              "required": false,
+              "default": "8",
+              "description": "Arrow height in pixels (default: 8)"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        }
+      ],
+      "layer": "primitives"
+    },
+    {
+      "name": "D:",
+      "path": "D:/localdev/platform_devpulse/interfaces/desktop/src/lib/design/primitives/popover/types.ts",
+      "description": "Popover primitive",
+      "interfaces": [
+        {
+          "name": "PopoverRootProps",
+          "props": [
+            {
+              "name": "open",
+              "type": "boolean",
+              "required": false,
+              "description": "Controlled open state (bindable)"
+            },
+            {
+              "name": "onOpenChange",
+              "type": "(open: boolean) => void",
+              "required": false,
+              "description": "Callback when open state changes"
+            },
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Children (Trigger, Portal)"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "PopoverTriggerProps",
+          "extends": [
+            "Omit<HTMLButtonAttributes, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Button content"
+            },
+            {
+              "name": "openOnHover",
+              "type": "boolean",
+              "required": false,
+              "default": "false",
+              "description": "Open popover on hover (default: false)"
+            },
+            {
+              "name": "openDelay",
+              "type": "number",
+              "required": false,
+              "default": "700",
+              "description": "Delay before opening on hover in ms (default: 700)"
+            },
+            {
+              "name": "closeDelay",
+              "type": "number",
+              "required": false,
+              "default": "300",
+              "description": "Delay before closing after hover ends in ms (default: 300)"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "PopoverPortalProps",
+          "props": [
+            {
+              "name": "to",
+              "type": "string | HTMLElement",
+              "required": false,
+              "default": "body",
+              "description": "Portal target selector or element (default: body)"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "required": false,
+              "description": "Disable portal rendering"
+            },
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Children (Overlay, Content)"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "PopoverOverlayProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLDivElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet<[{ open: boolean }]>",
+              "required": false,
+              "description": "Snippet receives { open } for animations"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "PopoverContentProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLDivElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet<[{ open: boolean }]> | Snippet",
+              "required": false,
+              "description": "Snippet receives { open } for animations"
+            },
+            {
+              "name": "side",
+              "type": "PopoverSide",
+              "required": false,
+              "default": "\"bottom\"",
+              "description": "Side of anchor to position against (default: \"bottom\")"
+            },
+            {
+              "name": "sideOffset",
+              "type": "number",
+              "required": false,
+              "default": "0",
+              "description": "Distance from anchor in pixels (default: 0)"
+            },
+            {
+              "name": "align",
+              "type": "PopoverAlign",
+              "required": false,
+              "default": "\"center\"",
+              "description": "Alignment relative to anchor (default: \"center\")"
+            },
+            {
+              "name": "alignOffset",
+              "type": "number",
+              "required": false,
+              "description": "Offset from alignment in pixels"
+            },
+            {
+              "name": "arrowPadding",
+              "type": "number",
+              "required": false,
+              "description": "Padding between arrow and content edges"
+            },
+            {
+              "name": "avoidCollisions",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": "Override side/align to avoid collisions (default: true)"
+            },
+            {
+              "name": "collisionPadding",
+              "type": "number | Partial<Record<PopoverSide, number>>",
+              "required": false,
+              "default": "8",
+              "description": "Padding around viewport for collision detection (default: 8)"
+            },
+            {
+              "name": "sticky",
+              "type": "\"partial\" | \"always\"",
+              "required": false,
+              "description": "Sticky behavior: \"partial\" or \"always\""
+            },
+            {
+              "name": "hideWhenDetached",
+              "type": "boolean",
+              "required": false,
+              "description": "Hide when detached from anchor"
+            },
+            {
+              "name": "closeOnEscape",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": "Close on escape key (default: true)"
+            },
+            {
+              "name": "closeOnOutsideClick",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": "Close on click outside (default: true)"
+            },
+            {
+              "name": "trapFocus",
+              "type": "boolean",
+              "required": false,
+              "default": "true when interacted",
+              "description": "Trap focus inside popover (default: true when interacted)"
+            },
+            {
+              "name": "preventScroll",
+              "type": "boolean",
+              "required": false,
+              "description": "Prevent body scroll when open"
+            },
+            {
+              "name": "customAnchor",
+              "type": "string | HTMLElement | null",
+              "required": false,
+              "description": "Custom anchor element (overrides trigger)"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "PopoverCloseProps",
+          "extends": [
+            "Omit<HTMLButtonAttributes, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Button content"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "PopoverArrowProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLDivElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "ref",
+              "type": "HTMLElement | null",
+              "required": false,
+              "description": "Reference to the arrow element (bindable)"
+            },
+            {
+              "name": "width",
+              "type": "number",
+              "required": false,
+              "default": "8",
+              "description": "Arrow width in pixels (default: 8)"
+            },
+            {
+              "name": "height",
+              "type": "number",
+              "required": false,
+              "default": "8",
+              "description": "Arrow height in pixels (default: 8)"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        }
+      ],
+      "layer": "primitives"
+    },
+    {
+      "name": "D:",
+      "path": "D:/localdev/platform_devpulse/interfaces/desktop/src/lib/design/primitives/dialog/types.ts",
+      "description": "Dialog primitive",
+      "interfaces": [
+        {
+          "name": "DialogRootProps",
+          "props": [
+            {
+              "name": "open",
+              "type": "boolean",
+              "required": false,
+              "description": "Controlled open state (bindable)"
+            },
+            {
+              "name": "onOpenChange",
+              "type": "(open: boolean) => void",
+              "required": false,
+              "description": "Callback when open state changes"
+            },
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Children (Trigger, Portal)"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "DialogTriggerProps",
+          "extends": [
+            "Omit<HTMLButtonAttributes, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Button content"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "DialogPortalProps",
+          "props": [
+            {
+              "name": "to",
+              "type": "string | HTMLElement",
+              "required": false,
+              "default": "body",
+              "description": "Portal target selector or element (default: body)"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "required": false,
+              "description": "Disable portal rendering"
+            },
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Children (Overlay, Content)"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "DialogOverlayProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLDivElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet<[{ open: boolean }]>",
+              "required": false,
+              "description": "Snippet receives { open } for animations"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "DialogContentProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLDivElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet<[{ open: boolean }]> | Snippet",
+              "required": false,
+              "description": "Snippet receives { open } for animations"
+            },
+            {
+              "name": "closeOnEscape",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": "Close on escape key (default: true)"
+            },
+            {
+              "name": "closeOnOutsideClick",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": "Close on click outside (default: true)"
+            },
+            {
+              "name": "trapFocus",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": "Trap focus inside dialog (default: true)"
+            },
+            {
+              "name": "preventScroll",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": "Prevent body scroll (default: true)"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "DialogTitleProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLHeadingElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "level",
+              "type": "1 | 2 | 3 | 4 | 5 | 6",
+              "required": false,
+              "default": "2",
+              "description": "Heading level 1-6 (default: 2)"
+            },
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Title content"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "DialogDescriptionProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLParagraphElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Description content"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "DialogCloseProps",
+          "extends": [
+            "Omit<HTMLButtonAttributes, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Button content"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        }
+      ],
+      "layer": "primitives"
+    },
+    {
+      "name": "D:",
+      "path": "D:/localdev/platform_devpulse/interfaces/desktop/src/lib/design/primitives/alert-dialog/types.ts",
+      "description": "AlertDialog primitive",
+      "interfaces": [
+        {
+          "name": "AlertDialogRootProps",
+          "props": [
+            {
+              "name": "open",
+              "type": "boolean",
+              "required": false,
+              "description": "Controlled open state (bindable)"
+            },
+            {
+              "name": "onOpenChange",
+              "type": "(open: boolean) => void",
+              "required": false,
+              "description": "Callback when open state changes"
+            },
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Children (Trigger, Portal)"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "AlertDialogTriggerProps",
+          "extends": [
+            "Omit<HTMLButtonAttributes, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Button content"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "AlertDialogPortalProps",
+          "props": [
+            {
+              "name": "to",
+              "type": "string | HTMLElement",
+              "required": false,
+              "default": "body",
+              "description": "Portal target selector or element (default: body)"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "required": false,
+              "description": "Disable portal rendering"
+            },
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Children (Overlay, Content)"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "AlertDialogOverlayProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLDivElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet<[{ open: boolean }]>",
+              "required": false,
+              "description": "Snippet receives { open } for animations"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "AlertDialogContentProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLDivElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet<[{ open: boolean }]> | Snippet",
+              "required": false,
+              "description": "Snippet receives { open } for animations"
+            },
+            {
+              "name": "closeOnEscape",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": "Close on escape key (default: true)\nNote: Consider setting to false for critical confirmations"
+            },
+            {
+              "name": "interactOutsideBehavior",
+              "type": "\"close\" | \"ignore\"",
+              "required": false,
+              "default": "\"ignore\"",
+              "description": "Behavior when interacting outside (default: \"ignore\")\nCRITICAL: AlertDialog defaults to \"ignore\" unlike Dialog\nThis forces explicit user action (Action or Cancel button)"
+            },
+            {
+              "name": "trapFocus",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": "Trap focus inside alert dialog (default: true)"
+            },
+            {
+              "name": "preventScroll",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": "Prevent body scroll (default: true)"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "AlertDialogTitleProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLHeadingElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "level",
+              "type": "1 | 2 | 3 | 4 | 5 | 6",
+              "required": false,
+              "default": "2",
+              "description": "Heading level 1-6 (default: 2)"
+            },
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Title content"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "AlertDialogDescriptionProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLParagraphElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Description content"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "AlertDialogActionProps",
+          "description": "Action button - does NOT auto-close the dialog.\nUsed for destructive/confirming actions (Delete, Confirm, etc.)\nThe consumer is responsible for closing the dialog after the action.",
+          "extends": [
+            "Omit<HTMLButtonAttributes, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Button content"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "AlertDialogCancelProps",
+          "description": "Cancel button - auto-closes the dialog.\nUsed for aborting the action (Cancel, Nevermind, etc.)",
+          "extends": [
+            "Omit<HTMLButtonAttributes, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Button content"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        }
+      ],
+      "layer": "primitives"
+    },
+    {
+      "name": "D:",
+      "path": "D:/localdev/platform_devpulse/interfaces/desktop/src/lib/design/primitives/sheet/types.ts",
+      "description": "Sheet primitive",
+      "interfaces": [
+        {
+          "name": "SheetRootProps",
+          "props": [
+            {
+              "name": "open",
+              "type": "boolean",
+              "required": false,
+              "description": "Controlled open state (bindable)"
+            },
+            {
+              "name": "onOpenChange",
+              "type": "(open: boolean) => void",
+              "required": false,
+              "description": "Callback when open state changes"
+            },
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Children (Trigger, Portal)"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "SheetTriggerProps",
+          "extends": [
+            "Omit<HTMLButtonAttributes, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Button content"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "SheetPortalProps",
+          "props": [
+            {
+              "name": "to",
+              "type": "string | HTMLElement",
+              "required": false,
+              "default": "body",
+              "description": "Portal target selector or element (default: body)"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "required": false,
+              "description": "Disable portal rendering"
+            },
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Children (Overlay, Content)"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "SheetOverlayProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLDivElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet<[{ open: boolean }]>",
+              "required": false,
+              "description": "Snippet receives { open } for animations"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "SheetContentProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLDivElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "side",
+              "type": "SheetSide",
+              "required": false,
+              "default": "\"right\"",
+              "description": "Side the sheet slides in from (default: \"right\")"
+            },
+            {
+              "name": "children",
+              "type": "Snippet<[{ open: boolean }]> | Snippet",
+              "required": false,
+              "description": "Snippet receives { open } for animations"
+            },
+            {
+              "name": "closeOnEscape",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": "Close on escape key (default: true)"
+            },
+            {
+              "name": "closeOnOutsideClick",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": "Close on click outside (default: true)"
+            },
+            {
+              "name": "trapFocus",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": "Trap focus inside sheet (default: true)"
+            },
+            {
+              "name": "preventScroll",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": "Prevent body scroll (default: true)"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "SheetTitleProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLHeadingElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "level",
+              "type": "1 | 2 | 3 | 4 | 5 | 6",
+              "required": false,
+              "default": "2",
+              "description": "Heading level 1-6 (default: 2)"
+            },
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Title content"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "SheetDescriptionProps",
+          "extends": [
+            "Omit<HTMLAttributes<HTMLParagraphElement>, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Description content"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        },
+        {
+          "name": "SheetCloseProps",
+          "extends": [
+            "Omit<HTMLButtonAttributes, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Button content"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID"
+            }
+          ]
+        }
+      ],
+      "layer": "primitives"
+    },
+    {
+      "name": "D:",
+      "path": "D:/localdev/platform_devpulse/interfaces/desktop/src/lib/design/primitives/button/types.ts",
+      "description": "Button primitive",
+      "interfaces": [
+        {
+          "name": "ButtonProps",
+          "description": "Props for the Button primitive.\n\nExtends native HTMLButtonAttributes minus `style` (enforced no inline styles).\nInherits: disabled, type, name, value, form, formAction, etc.",
+          "extends": [
+            "Omit<HTMLButtonAttributes, \"style\" | \"children\">"
+          ],
+          "props": [
+            {
+              "name": "children",
+              "type": "Snippet",
+              "required": false,
+              "description": "Button content (Svelte 5 snippet)"
+            },
+            {
+              "name": "\"data-id\"",
+              "type": "string",
+              "required": false,
+              "description": "User-defined stable ID for tooling/testing"
+            }
+          ]
+        }
+      ],
+      "layer": "primitives"
+    }
+  ]
+}

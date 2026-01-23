@@ -12,6 +12,80 @@ The Contract System enforces type safety and schema validation across the entire
 2. **Props are validated at every boundary**
 3. **Surface props are only allowed on surface-capable kinds**
 4. **VPB cannot create invalid nodes**
+5. **Schemas are GENERATED from Taxonomy, never handwritten**
+6. **UI prevents invalid state at creation time**
+
+---
+
+## Taxonomy Integration
+
+Contracts are generated from the Taxonomy registry. The flow:
+
+```
+Taxonomy (SSOT) → Generate Zod Schemas → VPB UI Consumes → Invalid State Impossible
+```
+
+### Schema Generation
+
+Zod schemas are AUTO-GENERATED from taxonomy definitions:
+
+```typescript
+// taxonomy/zod/generated/focus.schema.ts
+// AUTO-GENERATED — DO NOT EDIT
+import { z } from "zod";
+
+export const FocusLevelSchema = z.enum(["low", "medium", "high", "critical"]);
+export type FocusLevel = z.infer<typeof FocusLevelSchema>;
+```
+
+```typescript
+// taxonomy/zod/generated/material.schema.ts
+// AUTO-GENERATED — DO NOT EDIT
+import { z } from "zod";
+
+export const MaterialIdSchema = z.enum(["glass", "solid", "metal", "holo", "liquid", "void"]);
+export type MaterialId = z.infer<typeof MaterialIdSchema>;
+```
+
+### Why Generated Schemas
+
+| Problem | Solution |
+|---------|----------|
+| Types drift from implementation | Generate both from same source |
+| Handwritten schemas have typos | Machine-generated, no typos |
+| Schema doesn't match UI options | UI reads from same generated schema |
+| Validation happens too late | UI prevents invalid at creation |
+
+---
+
+## Shift-Left Validation
+
+**Invalid state is prevented at creation time, not validated after.**
+
+```
+WRONG: User creates config → Save → Validate → Show error
+RIGHT: User opens UI → UI shows only valid options → Invalid state impossible
+```
+
+### VPB Consumes Schemas
+
+```typescript
+// VPB reads generated schemas to build UI
+import { MaterialIdSchema, FocusLevelSchema } from "$lib/design/taxonomy/zod/generated";
+
+// Dropdown options come from schema
+const materialOptions = MaterialIdSchema.options; // ["glass", "solid", "metal", ...]
+const focusOptions = FocusLevelSchema.options;    // ["low", "medium", "high", "critical"]
+```
+
+### Validation at Boundaries
+
+Even with shift-left, validate at every boundary:
+
+1. **VPB creation** — UI prevents invalid (primary)
+2. **DB load** — Validate JSON from database (defense in depth)
+3. **API boundary** — Validate incoming requests
+4. **Renderer** — Final validation before render
 
 ---
 

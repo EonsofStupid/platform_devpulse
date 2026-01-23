@@ -502,6 +502,383 @@ export interface TokenCategories {
 }
 
 // ===========================================
+// BODY GRADIENT BACKGROUNDS
+// Animated gradient backgrounds for app shell
+// ===========================================
+export const bodyGradient = {
+  /** Primary gradient - deep void with teal/purple accents */
+  bg1: {
+    stops: [
+      { l: 0.04, c: 0.02, h: hues.purple },  // Deep purple-void
+      { l: 0.06, c: 0.03, h: hues.teal },    // Teal-void
+      { l: 0.03, c: 0.02, h: hues.matte },   // Near-black
+      { l: 0.05, c: 0.025, h: hues.purple }, // Purple-void
+    ],
+  },
+  /** Secondary gradient - complementary layer */
+  bg2: {
+    stops: [
+      { l: 0.08, c: 0.04, h: hues.teal },    // Slightly brighter teal
+      { l: 0.04, c: 0.02, h: hues.magenta }, // Magenta whisper
+      { l: 0.06, c: 0.03, h: hues.purple },  // Purple accent
+      { l: 0.03, c: 0.015, h: hues.teal },   // Deep teal
+    ],
+  },
+} as const;
+
+// ===========================================
+// MULTI-LAYER SHADOW SYSTEM (True Depth)
+// 5 layers: ambient, key, fill, contact, rim
+// ===========================================
+export const depthShadow = {
+  /** Layer 1: Ambient - large, soft, omnidirectional */
+  ambient: {
+    y: 0,
+    blur: 80,
+    spread: -20,
+    color: { l: 0.03, c: 0.02, h: hues.purple, a: 0.25 },
+  },
+  /** Layer 2: Key - directional from top-left light source */
+  key: {
+    x: -4,
+    y: 8,
+    blur: 24,
+    spread: -4,
+    color: { l: 0.02, c: 0.015, h: hues.purple, a: 0.45 },
+  },
+  /** Layer 3: Fill - softer opposite fill light */
+  fill: {
+    x: 2,
+    y: 4,
+    blur: 16,
+    spread: -2,
+    color: { l: 0.05, c: 0.02, h: hues.teal, a: 0.2 },
+  },
+  /** Layer 4: Contact - sharp ground contact shadow */
+  contact: {
+    y: 2,
+    blur: 4,
+    spread: -1,
+    color: { l: 0.01, c: 0.01, h: hues.matte, a: 0.6 },
+  },
+  /** Layer 5: Rim - subtle color bleed for realism */
+  rim: {
+    y: -1,
+    blur: 12,
+    spread: 2,
+    color: { l: 0.15, c: 0.08, h: hues.teal, a: 0.15 },
+  },
+} as const;
+
+/** Composed 5-layer depth shadow presets */
+export const depthLayers = {
+  /** Subtle elevation - cards, inputs */
+  float: ["ambient", "contact"] as const,
+  /** Medium elevation - panels, dropdowns */
+  raised: ["ambient", "key", "contact"] as const,
+  /** High elevation - modals, popovers */
+  elevated: ["ambient", "key", "fill", "contact"] as const,
+  /** Maximum elevation - critical overlays */
+  lifted: ["ambient", "key", "fill", "contact", "rim"] as const,
+} as const;
+
+export type DepthLayerKey = keyof typeof depthLayers;
+export const depthLayerKeys = ["float", "raised", "elevated", "lifted"] as const;
+
+// ===========================================
+// THICK NEUMORPHISM (True Soft UI)
+// Soft rounded shadows for pressed/extruded
+// ===========================================
+export const neumorphism = {
+  /** Light source (top-left) */
+  light: {
+    x: -6,
+    y: -6,
+    blur: 16,
+    color: { l: 0.25, c: 0.04, h: hues.teal, a: 0.35 },
+  },
+  /** Shadow (bottom-right) */
+  shadow: {
+    x: 6,
+    y: 6,
+    blur: 16,
+    color: { l: 0.02, c: 0.02, h: hues.purple, a: 0.5 },
+  },
+  /** Inner light (for inset) */
+  innerLight: {
+    x: -3,
+    y: -3,
+    blur: 8,
+    inset: true,
+    color: { l: 0.18, c: 0.03, h: hues.teal, a: 0.25 },
+  },
+  /** Inner shadow (for inset) */
+  innerShadow: {
+    x: 3,
+    y: 3,
+    blur: 8,
+    inset: true,
+    color: { l: 0.01, c: 0.015, h: hues.purple, a: 0.4 },
+  },
+  /** Thick outset - button, card extruded */
+  thick: {
+    light: { x: -8, y: -8, blur: 24, color: { l: 0.22, c: 0.04, h: hues.teal, a: 0.4 } },
+    shadow: { x: 8, y: 8, blur: 24, color: { l: 0.01, c: 0.02, h: hues.purple, a: 0.55 } },
+  },
+  /** Pillow - soft rounded extruded */
+  pillow: {
+    light: { x: -12, y: -12, blur: 32, color: { l: 0.20, c: 0.03, h: hues.frost, a: 0.3 } },
+    shadow: { x: 12, y: 12, blur: 32, color: { l: 0.02, c: 0.02, h: hues.purple, a: 0.45 } },
+  },
+} as const;
+
+export const neumorphismKeys = ["flat", "outset", "inset", "thick", "pillow"] as const;
+export type NeumorphismKey = (typeof neumorphismKeys)[number];
+
+// ===========================================
+// LIQUID METAL SURFACE
+// Chrome/mercury reflective surfaces
+// ===========================================
+export const liquidMetal = {
+  /** Base chrome/mercury surface */
+  base: { l: 0.35, c: 0.06, h: hues.matte },
+  /** Highlight bands */
+  highlight: { l: 0.85, c: 0.03, h: hues.frost, a: 0.9 },
+  /** Mid-tone reflection */
+  midtone: { l: 0.55, c: 0.05, h: hues.teal, a: 0.7 },
+  /** Dark reflection band */
+  dark: { l: 0.12, c: 0.04, h: hues.purple, a: 0.8 },
+  /** Specular hot spot */
+  specular: { l: 0.98, c: 0.01, h: hues.frost, a: 1 },
+  /** Edge fresnel */
+  fresnel: { l: 0.70, c: 0.08, h: hues.teal, a: 0.6 },
+  /** Gradient stops for conic metal sheen */
+  sheen: [
+    { l: 0.20, c: 0.04, h: hues.purple, a: 0.9 },
+    { l: 0.75, c: 0.02, h: hues.frost, a: 0.95 },
+    { l: 0.40, c: 0.05, h: hues.teal, a: 0.85 },
+    { l: 0.85, c: 0.01, h: hues.frost, a: 0.98 },
+    { l: 0.25, c: 0.04, h: hues.matte, a: 0.9 },
+  ],
+} as const;
+
+export const liquidMetalKeys = ["chrome", "mercury", "gunmetal", "copper"] as const;
+export type LiquidMetalKey = (typeof liquidMetalKeys)[number];
+
+/** Metal tint variants */
+export const metalTint = {
+  chrome: hues.frost,
+  mercury: hues.matte,
+  gunmetal: hues.purple,
+  copper: hues.ember,
+} as const;
+
+// ===========================================
+// HOLOGRAPHIC / IRIDESCENT
+// Rainbow shift and prismatic effects
+// ===========================================
+export const holographic = {
+  /** Base prismatic angles */
+  angles: [0, 60, 120, 180, 240, 300] as const,
+  /** Iridescent gradient stops */
+  iridescent: [
+    { l: 0.75, c: 0.20, h: 330 }, // Magenta
+    { l: 0.80, c: 0.18, h: 280 }, // Purple
+    { l: 0.85, c: 0.16, h: 195 }, // Teal
+    { l: 0.80, c: 0.15, h: 127 }, // Cyber green
+    { l: 0.75, c: 0.18, h: 50 },  // Gold
+    { l: 0.70, c: 0.20, h: 330 }, // Back to magenta
+  ],
+  /** Oil slick variant (more saturated) */
+  oilSlick: [
+    { l: 0.50, c: 0.25, h: 280 },
+    { l: 0.55, c: 0.22, h: 195 },
+    { l: 0.60, c: 0.20, h: 127 },
+    { l: 0.55, c: 0.22, h: 50 },
+    { l: 0.50, c: 0.25, h: 330 },
+    { l: 0.48, c: 0.24, h: 280 },
+  ],
+  /** Subtle pearl */
+  pearl: [
+    { l: 0.92, c: 0.04, h: 280, a: 0.6 },
+    { l: 0.95, c: 0.03, h: 195, a: 0.5 },
+    { l: 0.93, c: 0.04, h: 127, a: 0.6 },
+    { l: 0.94, c: 0.03, h: 50, a: 0.5 },
+    { l: 0.92, c: 0.04, h: 330, a: 0.6 },
+  ],
+} as const;
+
+export const holographicKeys = ["off", "iridescent", "oilSlick", "pearl"] as const;
+export type HolographicKey = (typeof holographicKeys)[number];
+
+// ===========================================
+// TYPOGRAPHY BEVEL (Text Shadows)
+// Embossed and debossed text effects
+// ===========================================
+export const textBevel = {
+  /** Subtle emboss - raised text */
+  emboss: {
+    highlight: { x: 0, y: 1, blur: 0, color: { l: 0.40, c: 0.04, h: hues.teal, a: 0.5 } },
+    shadow: { x: 0, y: -1, blur: 1, color: { l: 0.02, c: 0.02, h: hues.purple, a: 0.7 } },
+  },
+  /** Deboss - pressed into surface */
+  deboss: {
+    highlight: { x: 0, y: -1, blur: 0, color: { l: 0.30, c: 0.03, h: hues.teal, a: 0.4 } },
+    shadow: { x: 0, y: 1, blur: 1, color: { l: 0.01, c: 0.015, h: hues.purple, a: 0.6 } },
+  },
+  /** Sharp chisel - hard edge emboss */
+  chisel: {
+    highlight: { x: 1, y: 1, blur: 0, color: { l: 0.50, c: 0.05, h: hues.teal, a: 0.6 } },
+    shadow: { x: -1, y: -1, blur: 0, color: { l: 0.01, c: 0.02, h: hues.purple, a: 0.8 } },
+  },
+  /** Soft pillow text */
+  pillow: {
+    highlight: { x: -1, y: -1, blur: 2, color: { l: 0.35, c: 0.04, h: hues.teal, a: 0.4 } },
+    shadow: { x: 1, y: 1, blur: 2, color: { l: 0.02, c: 0.02, h: hues.purple, a: 0.5 } },
+  },
+  /** Glow text - neon effect */
+  glow: {
+    layers: [
+      { x: 0, y: 0, blur: 4, color: { l: 0.70, c: 0.18, h: hues.teal, a: 0.8 } },
+      { x: 0, y: 0, blur: 12, color: { l: 0.60, c: 0.15, h: hues.teal, a: 0.5 } },
+      { x: 0, y: 0, blur: 24, color: { l: 0.50, c: 0.12, h: hues.teal, a: 0.3 } },
+    ],
+  },
+} as const;
+
+export const textBevelKeys = ["none", "emboss", "deboss", "chisel", "pillow", "glow"] as const;
+export type TextBevelKey = (typeof textBevelKeys)[number];
+
+// ===========================================
+// RIM LIGHT / EDGE GLOW
+// Edge highlighting for depth perception
+// ===========================================
+export const rimLight = {
+  /** Subtle edge highlight */
+  subtle: {
+    width: 1,
+    blur: 8,
+    color: { l: 0.65, c: 0.12, h: hues.teal, a: 0.3 },
+  },
+  /** Medium rim light */
+  medium: {
+    width: 2,
+    blur: 12,
+    color: { l: 0.70, c: 0.15, h: hues.teal, a: 0.45 },
+  },
+  /** Strong rim light - hero elements */
+  strong: {
+    width: 2,
+    blur: 16,
+    color: { l: 0.75, c: 0.18, h: hues.teal, a: 0.6 },
+  },
+  /** Accent rim - purple variant */
+  accentPurple: {
+    width: 2,
+    blur: 14,
+    color: { l: 0.60, c: 0.20, h: hues.purple, a: 0.5 },
+  },
+  /** Warning rim - ember */
+  warning: {
+    width: 2,
+    blur: 14,
+    color: { l: 0.65, c: 0.20, h: hues.ember, a: 0.5 },
+  },
+} as const;
+
+export const rimLightKeys = ["off", "subtle", "medium", "strong", "accentPurple", "warning"] as const;
+export type RimLightKey = (typeof rimLightKeys)[number];
+
+// ===========================================
+// FOCUS LEVEL ATTENTION SYSTEM
+// Cascading attention weights for UI hierarchy
+// ===========================================
+export const focusLevel = {
+  /** Low attention - background, tertiary */
+  low: {
+    opacity: 0.6,
+    saturation: 0.7,  // Desaturate
+    blur: 0,
+    scale: 1,
+    glow: "off" as GlowKey,
+    rimLight: "off" as RimLightKey,
+  },
+  /** Medium attention - secondary elements */
+  medium: {
+    opacity: 0.85,
+    saturation: 0.9,
+    blur: 0,
+    scale: 1,
+    glow: "off" as GlowKey,
+    rimLight: "subtle" as RimLightKey,
+  },
+  /** High attention - primary elements */
+  high: {
+    opacity: 1,
+    saturation: 1,
+    blur: 0,
+    scale: 1,
+    glow: "teal" as GlowKey,
+    rimLight: "medium" as RimLightKey,
+  },
+  /** Critical attention - alerts, active focus */
+  critical: {
+    opacity: 1,
+    saturation: 1.1,  // Slightly boost
+    blur: 0,
+    scale: 1.02,
+    glow: "ember" as GlowKey,
+    rimLight: "strong" as RimLightKey,
+  },
+} as const;
+
+export const focusLevelKeys = ["low", "medium", "high", "critical"] as const;
+export type FocusLevelKey = (typeof focusLevelKeys)[number];
+
+// ===========================================
+// SHELL LAYOUT GRID SYSTEM
+// CSS Grid track definitions for app shell
+// ===========================================
+export const shellGrid = {
+  /** Top bar height */
+  topBar: { min: 40, preferred: 48, max: 56 },
+  /** Side nav collapsed width */
+  sideNavCollapsed: { min: 48, preferred: 56, max: 64 },
+  /** Side nav expanded width */
+  sideNavExpanded: { min: 200, preferred: 240, max: 280 },
+  /** Status bar height */
+  statusBar: { min: 24, preferred: 28, max: 32 },
+  /** Dock height */
+  dock: { min: 56, preferred: 64, max: 72 },
+  /** Panel min width */
+  panelMin: 280,
+  /** Panel max width */
+  panelMax: 480,
+  /** Content area min */
+  contentMin: 400,
+} as const;
+
+export const shellRegionKeys = ["topBar", "sideNav", "content", "statusBar", "dock", "panel"] as const;
+export type ShellRegionKey = (typeof shellRegionKeys)[number];
+
+// ===========================================
+// VOID SURFACE (Deep Background)
+// The absolute darkness beneath everything
+// ===========================================
+export const voidSurface = {
+  /** Absolute void - deepest black */
+  900: { l: 0.02, c: 0.01, h: hues.purple },
+  /** Deep void */
+  800: { l: 0.04, c: 0.015, h: hues.purple },
+  /** Void with teal whisper */
+  700: { l: 0.06, c: 0.02, h: hues.teal },
+  /** Elevated void */
+  600: { l: 0.08, c: 0.025, h: hues.matte },
+} as const;
+
+export type VoidKey = keyof typeof voidSurface;
+
+// ===========================================
 // ALL TOKEN ARRAYS (for VPB dropdowns)
 // ===========================================
 export const TokenArrays = {
@@ -519,4 +896,27 @@ export const TokenArrays = {
   space: spacingKeys,
   textSize: textSizeKeys,
   padding: paddingTokens,
+  // New depth system arrays
+  depthLayer: depthLayerKeys,
+  neumorphism: neumorphismKeys,
+  liquidMetal: liquidMetalKeys,
+  holographic: holographicKeys,
+  textBevel: textBevelKeys,
+  rimLight: rimLightKeys,
+  focusLevel: focusLevelKeys,
+  shellRegion: shellRegionKeys,
 } as const;
+
+// ===========================================
+// EXTENDED TOKEN CATEGORIES (for VPB)
+// ===========================================
+export interface ExtendedTokenCategories extends TokenCategories {
+  depthLayer: DepthLayerKey;
+  neumorphism: NeumorphismKey;
+  liquidMetal: LiquidMetalKey;
+  holographic: HolographicKey;
+  textBevel: TextBevelKey;
+  rimLight: RimLightKey;
+  focusLevel: FocusLevelKey;
+  shellRegion: ShellRegionKey;
+}

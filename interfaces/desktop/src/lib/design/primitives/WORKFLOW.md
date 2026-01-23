@@ -1,8 +1,44 @@
 # ColdLight Primitives — Development Workflow
 
-> **Last Updated:** 2026-01-21
+> **Last Updated:** 2026-01-22
 > **Completed:** Button, Dialog, Sheet, Tabs, AlertDialog, Popover, Tooltip, Select (8 primitives)
 > **Next:** Combobox (Sprint 8)
+
+---
+
+## ARCHITECTURE OVERVIEW
+
+**See:** `TAXONOMY.md`, `CLASS_COMPOSITION.md`, `sys/api/_internal/README.md`
+
+### Key Principles
+
+1. **Taxonomy Registration** — Every primitive is a "kind" in the taxonomy
+2. **ColdLight Owns ARIA** — We add all accessibility attributes, not Bits UI
+3. **`data-kind` Attribute** — All primitives emit `data-kind="{name}"`
+4. **Bits UI = Behavior Only** — State management, focus, keyboard nav
+5. **_internal Adapter** — Primitives import from `sys/api/_internal`, not `bits-ui`
+
+### ARIA Ownership (CRITICAL)
+
+**ColdLight owns ALL accessibility attributes. Bits UI provides behavior ONLY.**
+
+```svelte
+<!-- CURRENT PATTERN (spreading Bits props for ARIA) -->
+<BitsDialog.Content>
+  {#snippet child({ props, open })}
+    <div {...props}>  <!-- props contains ARIA from Bits UI -->
+
+<!-- TARGET PATTERN (ColdLight owns ARIA) -->
+<BitsDialog.Content>
+  {#snippet child({ open })}
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+    >
+```
+
+**Migration Note:** Existing primitives spread `{...props}` which includes Bits UI's ARIA. As we migrate to full ARIA ownership, we'll extract only behavioral state (`open`, `selected`, `highlighted`) and add ARIA ourselves.
 
 ---
 
@@ -90,7 +126,9 @@ Create each slot component following the established pattern:
 </Bits{Name}.Content>
 ```
 
-**CRITICAL:** `{...props}` MUST spread in child snippets — contains ARIA attributes.
+**CURRENT:** `{...props}` spreads in child snippets — contains ARIA from Bits UI.
+
+**FUTURE (ARIA Ownership):** Extract only `open`/`selected`/`highlighted` state, add ARIA manually. See Architecture Overview above.
 
 **Verification:**
 ```bash

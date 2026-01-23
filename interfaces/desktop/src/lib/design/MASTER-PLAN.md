@@ -30,6 +30,179 @@
 2. **Variants change VALUES only** - Never change token NAMES across variants.
 3. **BlockNodes never store theme values** - No colors, no CSS vars, no classnames in BlockNode.props.
 4. **Separation of Concerns** - Theme system (tokens) is independent of Layout system (blocks).
+5. **Taxonomy is the Type System** - Every entity registers against taxonomy with typed IDs.
+6. **ColdLight Owns ARIA** - Bits UI provides behavior only. All accessibility attributes are ColdLight's responsibility.
+7. **UI Prevents Invalid State** - Zod schemas at boundaries, not after-the-fact validation.
+
+---
+
+## TAXONOMY (Global Registry)
+
+The Taxonomy is ColdLight's mandatory type system. Every entity must register.
+
+**See:** `TAXONOMY.md` for complete documentation.
+
+### Hierarchy
+
+| Level | Category | What It Contains |
+|-------|----------|------------------|
+| 0 | **Tokens** | Raw values (blur, timing, depth, colors) |
+| 1 | **Intent** | Semantic meaning (FOCUS levels, depth intent) |
+| 2 | **Recipe** | Physics blueprints (glass-medium, metal-chrome) |
+| 3 | **Context** | Environment (mode, platform, motion, FOCUS) |
+
+### FOCUS System (Global Attention Weights)
+
+FOCUS is a global context that cascades to all children:
+
+| Level | Blur | Shadow | Saturation | Timing |
+|-------|------|--------|------------|--------|
+| `low` | 8px | subtle | 150% | slow |
+| `medium` | 12px | elevated | 180% | normal |
+| `high` | 20px | deep | 200% | fast |
+| `critical` | 24px | glow+deep | 200% | instant |
+
+```svelte
+<FocusProvider level="high">
+  <!-- All children inherit intensified materials -->
+</FocusProvider>
+```
+
+### Kind Registry
+
+Every UI entity registers as a "kind" with minimal required props:
+
+```typescript
+KindRegistry.panel = {
+  kind: "panel",
+  materials: ["glass", "solid", "metal"],
+  defaultRecipe: "glass-medium",
+  slots: ["header", "content", "footer"],
+  minimalProps: ["intent"],
+}
+```
+
+### Material Registry
+
+Materials define what visual properties are available:
+
+```typescript
+MaterialRegistry.glass = {
+  recipes: ["glass-subtle", "glass-medium", "glass-intense", "glass-ultra"],
+  requiredTokens: ["blur", "saturation", "bg", "border"],
+  optionalLayers: ["shadow", "inset", "pseudo"],
+}
+```
+
+---
+
+## ARIA OWNERSHIP (Critical)
+
+**ColdLight owns ALL accessibility attributes. Bits UI provides behavior ONLY.**
+
+### What Bits UI Provides (Behavior)
+- Open/closed state management
+- Focus trapping
+- Keyboard navigation
+- Click outside detection
+- Portal rendering
+
+### What ColdLight Provides (Everything Else)
+- `role` attributes
+- `aria-*` attributes
+- `data-kind`, `data-slot`, `data-state`
+- All styling
+- All visual output
+
+### Adapter Pattern
+
+Primitives import from `_internal`, never directly from `bits-ui`:
+
+```svelte
+<!-- CORRECT -->
+<script>
+  import { BitsDialogContent } from "$lib/design/sys/api/_internal";
+</script>
+
+<BitsDialogContent>
+  {#snippet child({ open })}
+    <div
+      role="dialog"
+      aria-modal="true"
+      data-kind="dialog"
+      data-slot="content"
+      data-state={open ? "open" : "closed"}
+    >
+      {@render children?.()}
+    </div>
+  {/snippet}
+</BitsDialogContent>
+```
+
+**See:** `sys/api/_internal/README.md` for complete adapter documentation.
+
+---
+
+## CLASS COMPOSITION PATTERN
+
+Classes follow a layered composition pattern:
+
+```
+base + semantic + recipe + modifiers
+```
+
+### Example
+
+```html
+<button class="btn btn-primary v-cyber s-glass e-2 sz-md">
+```
+
+### Class Categories
+
+| Prefix | Purpose | Example |
+|--------|---------|---------|
+| (none) | Base component | `.btn`, `.panel` |
+| `-{intent}` | Semantic intent | `.btn-primary` |
+| `v-` | Recipe variant | `.v-cyber` |
+| `s-` | Surface material | `.s-glass` |
+| `e-` | Elevation | `.e-2` |
+| `sz-` | Size | `.sz-md` |
+
+### Internal Classes (System-Applied)
+
+These are never in markup - system applies them:
+
+| Prefix | Applied When |
+|--------|--------------|
+| `_motion-` | Motion context enabled |
+| `_blend-` | Blend mode selected |
+| `_focus-` | FOCUS context cascades |
+
+**See:** `CLASS_COMPOSITION.md` for complete documentation.
+
+---
+
+## DATA ATTRIBUTES
+
+All primitives emit consistent data attributes:
+
+```html
+<div
+  data-kind="dialog"     <!-- Kind from taxonomy -->
+  data-slot="content"    <!-- Slot within kind -->
+  data-state="open"      <!-- Current state -->
+  data-id="user-defined" <!-- Stable ID for testing -->
+>
+```
+
+### Attribute Contract
+
+| Attribute | Purpose | Values |
+|-----------|---------|--------|
+| `data-kind` | Identifies the kind | `dialog`, `panel`, `button`, etc. |
+| `data-slot` | Identifies slot within kind | `root`, `trigger`, `content`, etc. |
+| `data-state` | Current state | `open`/`closed`, `active`/`inactive` |
+| `data-id` | User-defined stable ID | Any string |
 
 ---
 

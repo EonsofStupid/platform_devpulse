@@ -1,0 +1,61 @@
+# Release automation using release-please
+# Generates changelogs and GitHub releases from conventional commits
+
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      releases_created: ${{ steps.release.outputs.releases_created }}
+      coldlight_released: ${{ steps.release.outputs['interfaces/desktop/src/lib/design--release_created'] }}
+      engine_released: ${{ steps.release.outputs['systems/devpulse-engine--release_created'] }}
+      maestro_released: ${{ steps.release.outputs['kernel/devpulse-maestro--release_created'] }}
+      desktop_released: ${{ steps.release.outputs['interfaces/desktop--release_created'] }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  # Build and publish ColdLight docs when released
+  publish-coldlight-docs:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.coldlight_released == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: 'tools/docgen/pnpm-lock.yaml'
+
+      - name: Install docgen dependencies
+        working-directory: tools/docgen
+        run: pnpm install
+
+      - name: Extract primitives documentation
+        working-directory: tools/docgen
+        run: pnpm extract:primitives
+
+      - name: Upload docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coldlight-docs
+          path: docs/generated/

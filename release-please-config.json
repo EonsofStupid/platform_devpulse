@@ -1,0 +1,57 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    "interfaces/desktop/src/lib/design": {
+      "release-type": "node",
+      "package-name": "@devpulse/coldlight",
+      "component": "coldlight",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": true,
+      "tag-separator": "-",
+      "changelog-sections": [
+        { "type": "feat", "section": "Features", "hidden": false },
+        { "type": "fix", "section": "Bug Fixes", "hidden": false },
+        { "type": "perf", "section": "Performance", "hidden": false },
+        { "type": "docs", "section": "Documentation", "hidden": false },
+        { "type": "refactor", "section": "Refactoring", "hidden": true },
+        { "type": "chore", "section": "Maintenance", "hidden": true }
+      ],
+      "extra-files": [
+        "manifest.ts"
+      ]
+    },
+    "interfaces/desktop": {
+      "release-type": "node",
+      "package-name": "@devpulse/desktop",
+      "component": "devpulse-desktop",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": true,
+      "tag-separator": "-"
+    },
+    "systems/devpulse-engine": {
+      "release-type": "rust",
+      "package-name": "devpulse-engine",
+      "component": "devpulse-engine",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": true,
+      "tag-separator": "-"
+    },
+    "kernel/devpulse-maestro": {
+      "release-type": "rust",
+      "package-name": "devpulse-maestro",
+      "component": "devpulse-maestro",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": true,
+      "tag-separator": "-"
+    }
+  },
+  "separate-pull-requests": true,
+  "group-pull-request-title-pattern": "chore: release ${component} ${version}",
+  "pull-request-title-pattern": "chore(${component}): release ${version}",
+  "changelog-sections": [
+    { "type": "feat", "section": "Features", "hidden": false },
+    { "type": "fix", "section": "Bug Fixes", "hidden": false },
+    { "type": "perf", "section": "Performance", "hidden": false },
+    { "type": "docs", "section": "Documentation", "hidden": false }
+  ]
+}

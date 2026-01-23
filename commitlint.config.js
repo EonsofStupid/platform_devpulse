@@ -29,6 +29,7 @@ module.exports = {
         
         // Design System
         'coldlight',
+        'primitives',
         'tokens',
         'recipes',
         'taxonomy',
@@ -45,6 +46,7 @@ module.exports = {
         'ci',
         'deps',
         'config',
+        'lab',
         
         // Docs
         'docs',
