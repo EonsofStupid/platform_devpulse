@@ -9,11 +9,11 @@
 
 # ColdLight OWNS EVERYTHING.
 
-bits-ui is a behavior engine. Nothing more.
+melt-ui is a behavior engine. Nothing more.
 
 ---
 
-## WHAT BITS-UI PROVIDES (AND NOTHING ELSE)
+## WHAT MELT-UI PROVIDES (AND NOTHING ELSE)
 
 | Behavior | Description |
 |----------|-------------|
@@ -48,8 +48,8 @@ bits-ui is a behavior engine. Nothing more.
 
 ```svelte
 <script lang="ts">
-  import { Dialog } from "bits-ui";
-  import { useId } from "bits-ui";
+  import { Dialog } from "melt-ui";
+  import { useId } from "melt-ui";
   import { getContext } from "svelte";
   import type { DialogContentProps } from "./types.js";
 
@@ -77,7 +77,7 @@ bits-ui is a behavior engine. Nothing more.
   {#snippet child({ open })}
     <!--
       ColdLight sets EVERY attribute.
-      We do NOT spread bits-ui props.
+      We do NOT spread melt-ui props.
     -->
     <div
       id={contentId}
@@ -102,8 +102,8 @@ bits-ui is a behavior engine. Nothing more.
 
 ```svelte
 <script lang="ts">
-  import { Dialog } from "bits-ui";
-  import { useId } from "bits-ui";
+  import { Dialog } from "melt-ui";
+  import { useId } from "melt-ui";
   import { setContext } from "svelte";
 
   const titleId = useId();
@@ -129,11 +129,11 @@ bits-ui is a behavior engine. Nothing more.
 
 ## WHAT WE NEVER DO
 
-- ❌ NEVER spread `{...props}` from bits-ui
-- ❌ NEVER rely on bits-ui for `role` attributes
-- ❌ NEVER rely on bits-ui for `aria-*` attributes
-- ❌ NEVER rely on bits-ui for `id` attributes
-- ❌ NEVER rely on bits-ui for ID linking
+- ❌ NEVER spread `{...props}` from melt-ui
+- ❌ NEVER rely on melt-ui for `role` attributes
+- ❌ NEVER rely on melt-ui for `aria-*` attributes
+- ❌ NEVER rely on melt-ui for `id` attributes
+- ❌ NEVER rely on melt-ui for ID linking
 
 ---
 
@@ -144,7 +144,7 @@ bits-ui is a behavior engine. Nothing more.
 - ✅ ALWAYS set `aria-*` explicitly
 - ✅ ALWAYS set `data-kind`, `data-slot`, `data-state`
 - ✅ ALWAYS link IDs via Svelte context
-- ✅ ALWAYS use bits-ui ONLY for behavior
+- ✅ ALWAYS use melt-ui ONLY for behavior
 
 ---
 
@@ -272,7 +272,7 @@ Before writing ANY code for a primitive:
 - [ ] Read WAI-ARIA APG for this pattern
 - [ ] Document ALL required ARIA attributes in a11y.md
 - [ ] Document ID linking requirements
-- [ ] Understand what bits-ui behavior we need
+- [ ] Understand what melt-ui behavior we need
 - [ ] Plan context structure for ID sharing
 
 ---
@@ -311,7 +311,7 @@ Before marking complete:
 2. Does ColdLight set ALL `role` attributes? **YES/NO**
 3. Does ColdLight set ALL `aria-*` attributes? **YES/NO**
 4. Does ColdLight link IDs via context? **YES/NO**
-5. Is bits-ui used ONLY for behavior? **YES/NO**
+5. Is melt-ui used ONLY for behavior? **YES/NO**
 6. Do ALL tests pass? **YES/NO**
 
 **All must be YES.**

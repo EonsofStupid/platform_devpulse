@@ -343,7 +343,7 @@ Current test coverage for all primitives.
 docs/
 ├── adr/
 │   ├── index.md              # Auto-generated index
-│   ├── 0001-bits-ui-adapter.md
+│   ├── 0001-melt-ui-adapter.md
 │   ├── 0002-aria-ownership.md
 │   ├── 0003-tabs-snippetprops-gap.md
 │   ├── 0007-tooltip-provider.md
@@ -780,7 +780,7 @@ DTCG Tokens (SSOT)
 
 | Layer | Responsibility |
 |-------|----------------|
-| Provider | State/behavior only (bits-ui internals) |
+| Provider | State/behavior only (melt-ui internals) |
 | Primitives | ARIA attributes, data-kind, data-slot, data-state |
 | ColdLight | ALL visual output, only ColdLight selectors |
 | DTCG | Source of truth for all values |
@@ -856,7 +856,7 @@ Is _internals a thin adapter layer like:
 
 
 // _internals/dialog.ts
-export { Dialog } from "bits-ui";  // Re-export with our types
+export { Dialog } from "melt-ui";  // Re-export with our types
 Or does it wrap/transform Bits UI components?
 
 ARIA Ownership
@@ -912,7 +912,7 @@ tech_refs Setup
 
 You want me to fetch the Bits UI repo to tech_refs/. Should I:
 
-A) Clone the full repo from your fork EonsofStupid/Bits-UI?
+A) Clone the full repo from your fork EonsofStupid/Melt-UI?
 B) Just fetch key API files (types, component exports)?
 C) Create a summary document of Bits UI's API for reference?
 Once you answer these 9 questions, I'll have complete clarity to write documentation that won't drift or contradict itself.
@@ -1268,7 +1268,7 @@ Analysis:
 Let me analyze this conversation chronologically:
 
 1. **Context from Previous Session (via compaction summary)**:
-   - Working on ColdLight design system with bits-ui as behavior engine
+   - Working on ColdLight design system with melt-ui as behavior engine
    - User asked me to analyze their OLD_PROJECTS_CSS_TSX folder to identify recurring patterns
    - I identified 13 major patterns from their old CSS/TSX files
    - Key patterns: HSL triple + alpha separation, multi-layer glass, three-tier intensity, status colors, layman/technical mode toggle, etc.
@@ -1376,7 +1376,7 @@ Key technical concepts from this conversation:
 - Internal vs external classes
 - VPB (Visual Prop Builder)
 - ColdLight design system
-- bits-ui as behavior engine
+- melt-ui as behavior engine
 - Provider isolation
 - Primitives own ARIA
 
@@ -1419,7 +1419,7 @@ Key architectural decisions the user wants documented:
   - `sz-md` = size
 - **Internal vs External classes**: Motion/blend are internal (system applies), user only sees semantic classes
 - **VPB (Visual Prop Builder)** - Consumes schemas, only shows valid options
-- **Provider isolation** - bits-ui internals handle state, ColdLight handles ALL visuals
+- **Provider isolation** - melt-ui internals handle state, ColdLight handles ALL visuals
 - **Primitives own ARIA** - Accessibility attributes managed by primitives layer
 - **Shift-left validation** - UI prevents invalid configurations at creation, not validation after
 

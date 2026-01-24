@@ -394,12 +394,12 @@ All primitives MUST emit:
 
 ## MIGRATION NOTES
 
-Existing bits-ui primitives will be migrated to Melt UI. The changes are:
+Existing melt-ui primitives will be migrated to Melt UI. The changes are:
 
-| bits-ui Pattern | Melt UI Pattern |
+| melt-ui Pattern | Melt UI Pattern |
 |-----------------|-----------------|
 | `{...props}` spreading | `use:melt={$element}` action |
-| `useId()` from bits-ui | Melt generates IDs internally |
+| `useId()` from melt-ui | Melt generates IDs internally |
 | Child snippet `{ props, open }` | Builder `states.open` store |
 | Manual ARIA overrides | Melt handles all ARIA |
 

@@ -91,7 +91,7 @@ tokio-util: Use the Framed codecs to stream your rkyv binary data from Rust to t
 5. SvelteKit "Deep Glass" UI Gems
 To make the UI "evolve" and show Maestro's thinking visually.
 
-bits-ui: Headless primitives for Svelte. You use these to build the logic of your "Guardrail CLI," then skin them with your Deep Glass CSS.
+melt-ui: Headless primitives for Svelte. You use these to build the logic of your "Guardrail CLI," then skin them with your Deep Glass CSS.
 
 svelte-flow: For the Thought Tree. This is the standard for 2026. It allows the user to see the one-way/bi-directional arrows between minions in a zoomable, interactive canvas.
 

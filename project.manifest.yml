@@ -133,7 +133,7 @@ design_system:
   status: internal
   version: "0.1.0"
   dependencies:
-    - bits-ui
+    - melt-ui
     - tailwindcss
 
 # ============================================

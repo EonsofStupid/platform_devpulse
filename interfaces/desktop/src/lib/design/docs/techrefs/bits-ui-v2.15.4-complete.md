@@ -1,4 +1,4 @@
-# bits-ui v2.15.4 Complete API Reference
+# melt-ui v2.15.4 Complete API Reference
 
 > **Extracted**: 2026-01-21
 > **Source**: `node_modules/bits-ui/dist/`
@@ -24,7 +24,7 @@
 ## Main Exports
 
 ```typescript
-// bits-ui/dist/index.d.ts
+// melt-ui/dist/index.d.ts
 export {
   Accordion,
   AlertDialog,
@@ -84,7 +84,7 @@ export * from "./types.js";
 ## Shared Exports
 
 ```typescript
-// bits-ui/dist/shared/index.d.ts
+// melt-ui/dist/shared/index.d.ts
 
 // Pin Input Patterns
 export {
@@ -137,13 +137,13 @@ export * from "./types.js";
 ### WithChild Pattern (CRITICAL)
 
 ```typescript
-// bits-ui/dist/internal/types.d.ts
+// melt-ui/dist/internal/types.d.ts
 
 export type OnChangeFn<T> = (value: T) => void;
 export type ElementRef = Box<HTMLElement | null>;
 
 /**
- * The core pattern for bits-ui component props.
+ * The core pattern for melt-ui component props.
  *
  * @template Props - Component-specific props
  * @template SnippetProps - Props passed to child/children snippets
@@ -207,7 +207,7 @@ export type Arrayable<T> = T[] | T;
 ### Primitive Attributes
 
 ```typescript
-// bits-ui/dist/shared/attributes.d.ts
+// melt-ui/dist/shared/attributes.d.ts
 
 // bits-ui removes `id`, `style`, `children` from HTML attributes
 // id is required internally, style is typed differently, children uses snippets
@@ -230,7 +230,7 @@ export type BitsPrimitiveSpanAttributes = BitsPrimitive<HTMLSpanAttributes>;
 ### Directory Structure
 
 ```
-bits-ui/dist/bits/utilities/
+melt-ui/dist/bits/utilities/
 ├── arrow/                    # Arrow component for floating elements
 ├── config/                   # BitsConfig provider
 ├── dismissible-layer/        # Outside click/interaction handling
@@ -257,7 +257,7 @@ bits-ui/dist/bits/utilities/
 ### FloatingLayer
 
 ```typescript
-// Export path: bits-ui/dist/bits/utilities/floating-layer/index.d.ts
+// Export path: melt-ui/dist/bits/utilities/floating-layer/index.d.ts
 export * as FloatingLayer from "./components/index.js";
 
 // Components:
@@ -326,7 +326,7 @@ export type PresenceLayerImplProps = PresenceLayerProps & {
 ### FocusScope
 
 ```typescript
-// Export path: bits-ui/dist/bits/utilities/focus-scope/index.d.ts
+// Export path: melt-ui/dist/bits/utilities/focus-scope/index.d.ts
 export { default as FocusScope } from "./focus-scope.svelte";
 export type { FocusScopeProps } from "./types.js";
 
@@ -341,7 +341,7 @@ export type FocusScopeProps = {
 ### DismissibleLayer
 
 ```typescript
-// Export path: bits-ui/dist/bits/utilities/dismissible-layer/index.d.ts
+// Export path: melt-ui/dist/bits/utilities/dismissible-layer/index.d.ts
 export { default as DismissibleLayer } from "./dismissible-layer.svelte";
 export type { DismissibleLayerProps } from "./types.js";
 
@@ -362,7 +362,7 @@ export type DismissibleLayerProps = {
 ### EscapeLayer
 
 ```typescript
-// Export path: bits-ui/dist/bits/utilities/escape-layer/index.d.ts
+// Export path: melt-ui/dist/bits/utilities/escape-layer/index.d.ts
 export { default as EscapeLayer } from "./escape-layer.svelte";
 export type { EscapeLayerProps } from "./types.js";
 
@@ -382,7 +382,7 @@ export type EscapeLayerProps = {
 ### Portal
 
 ```typescript
-// Export path: bits-ui/dist/bits/utilities/portal/index.d.ts
+// Export path: melt-ui/dist/bits/utilities/portal/index.d.ts
 export { default as Portal } from "./portal.svelte";
 export type { PortalProps } from "./types.js";
 
@@ -403,7 +403,7 @@ export type PortalProps = {
 #### Exports
 
 ```typescript
-// bits-ui/dist/bits/select/exports.d.ts
+// melt-ui/dist/bits/select/exports.d.ts
 
 export { default as Root } from "./components/select.svelte";
 export { default as Content } from "./components/select-content.svelte";
@@ -501,7 +501,7 @@ export type SelectScrollButtonPropsWithoutHTML = WithChild<{
 #### Exports
 
 ```typescript
-// bits-ui/dist/bits/tooltip/exports.d.ts
+// melt-ui/dist/bits/tooltip/exports.d.ts
 
 export { default as Root } from "./components/tooltip.svelte";
 export { default as Content } from "./components/tooltip-content.svelte";
@@ -565,7 +565,7 @@ export type TooltipArrowPropsWithoutHTML = ArrowPropsWithoutHTML;
 #### Exports
 
 ```typescript
-// bits-ui/dist/bits/dialog/exports.d.ts
+// melt-ui/dist/bits/dialog/exports.d.ts
 
 export { default as Root } from "./components/dialog.svelte";
 export { default as Title } from "./components/dialog-title.svelte";
@@ -635,7 +635,7 @@ export type DialogDescriptionPropsWithoutHTML = WithChild;
 #### Exports
 
 ```typescript
-// bits-ui/dist/bits/popover/exports.d.ts
+// melt-ui/dist/bits/popover/exports.d.ts
 
 export { default as Root } from "./components/popover.svelte";
 export { default as Arrow } from "./components/popover-arrow.svelte";
@@ -694,7 +694,7 @@ export type PopoverOverlayPropsWithoutHTML = WithChild<
 #### Exports
 
 ```typescript
-// bits-ui/dist/bits/tabs/exports.d.ts
+// melt-ui/dist/bits/tabs/exports.d.ts
 
 export { default as Root } from "./components/tabs.svelte";
 export { default as Content } from "./components/tabs-content.svelte";

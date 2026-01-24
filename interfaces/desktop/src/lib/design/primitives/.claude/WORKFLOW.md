@@ -18,7 +18,7 @@
 
 2. **Check Bits UI API** (Phase 0):
    ```bash
-   cat node_modules/bits-ui/dist/bits/{primitive}/{primitive}.svelte.js | grep -A10 "snippetProps"
+   cat node_modules/melt-ui/dist/bits/{primitive}/{primitive}.svelte.js | grep -A10 "snippetProps"
    ```
    - If `snippetProps` found → child snippet provides state (Dialog pattern)
    - If NOT found → extract state from props (Tabs pattern)
@@ -215,6 +215,6 @@ This builds institutional knowledge for future primitives.
 ## WHEN UNSURE
 
 1. **Read existing primitives** — Dialog is the reference implementation
-2. **Check Bits UI docs** — https://bits-ui.com/docs/components/{name}
+2. **Check Bits UI docs** — https://melt-ui.com/docs/components/{name}
 3. **Check WAI-ARIA APG** — https://www.w3.org/WAI/ARIA/apg/patterns/
 4. **Ask user** — Don't guess on architectural decisions

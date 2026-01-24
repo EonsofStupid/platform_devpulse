@@ -6,7 +6,7 @@
   SSR-safe: No-op on server, activates only in browser.
 -->
 <script lang="ts">
-  import { Portal as BitsPortal } from "bits-ui";
+  import { Portal as BitsPortal } from "melt-ui";
   import type { Snippet } from "svelte";
   import type { OmitStyle, BaseProps } from "./types.js";
 

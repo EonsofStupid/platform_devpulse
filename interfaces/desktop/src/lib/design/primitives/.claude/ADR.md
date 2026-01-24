@@ -44,7 +44,7 @@ All primitives emit these data attributes:
 **Status:** ~~Accepted~~ **SUPERSEDED by ADR-009**
 **Superseded by:** ADR-009 (Melt UI as ARIA Provider)
 
-### Original Decision (bits-ui)
+### Original Decision (melt-ui)
 
 For components needing custom rendering, use child snippets and spread `{...props}`.
 
@@ -60,7 +60,7 @@ ColdLight now uses Melt UI as the ARIA provider. The `use:melt` action replaces 
 **Status:** ~~Accepted~~ **SUPERSEDED by ADR-009**
 **Superseded by:** ADR-009 (Melt UI as ARIA Provider)
 
-### Original Decision (bits-ui)
+### Original Decision (melt-ui)
 
 Extract state from `props` object when not in child snippet.
 
@@ -183,7 +183,7 @@ Runtime enforcement via `stripStyleProp(rest, "ComponentName")` in development.
 **Status:** ~~Accepted~~ **SUPERSEDED by ADR-009**
 **Superseded by:** ADR-009 (Melt UI as ARIA Provider)
 
-### Original Decision (bits-ui)
+### Original Decision (melt-ui)
 
 ColdLight `Tooltip.Root` includes implicit Provider wrapper.
 
@@ -199,7 +199,7 @@ Melt UI Tooltip uses builder pattern. Provider handled differently.
 **Status:** ~~Accepted~~ **SUPERSEDED by ADR-009**
 **Superseded by:** ADR-009 (Melt UI as ARIA Provider)
 
-### Original Decision (bits-ui)
+### Original Decision (melt-ui)
 
 ColdLight adds missing ARIA roles manually.
 
@@ -296,7 +296,7 @@ Melt UI handles all ARIA via `use:melt` action. ColdLight does not manage ARIA.
 - ColdLight does NOT set: `role`, `aria-*`, `id` (for ARIA linking)
 - ColdLight DOES set: `data-kind`, `data-slot`, `data-state`, `data-id`, `class`
 - Tests verify Melt's ARIA is present AND ColdLight's data attributes are present
-- Existing bits-ui primitives will be migrated
+- Existing melt-ui primitives will be migrated
 
 ---
 

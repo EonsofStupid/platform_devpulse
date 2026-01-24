@@ -8,7 +8,7 @@
 
 **ColdLight explicitly owns all accessibility.**
 
-bits-ui is a behavior engine. It provides:
+melt-ui is a behavior engine. It provides:
 - Positioning (Floating UI)
 - Focus trapping
 - Keyboard navigation
@@ -16,7 +16,7 @@ bits-ui is a behavior engine. It provides:
 - Escape key handling
 - Portal rendering
 
-bits-ui does NOT own:
+melt-ui does NOT own:
 - ARIA attributes (we set them)
 - Data attributes (we set them)
 - Props interface (we define it)
@@ -51,9 +51,9 @@ Every primitive component MUST set these attributes:
 |-----------|---------|
 | `data-id` | User-defined stable ID for testing/styling |
 
-### Legacy Attributes (for bits-ui compatibility)
+### Legacy Attributes (for melt-ui compatibility)
 
-Some bits-ui CSS relies on these. Include them but consider deprecated:
+Some melt-ui CSS relies on these. Include them but consider deprecated:
 - `data-select-arrow=""`, `data-popover-arrow=""`, etc.
 
 ---
@@ -84,7 +84,7 @@ interface PrimitiveProps {
 // ❌ NEVER in ColdLight props
 interface Forbidden {
   style?: never;        // No inline styles - use class
-  id?: never;           // Use data-id instead (bits-ui manages id)
+  id?: never;           // Use data-id instead (melt-ui manages id)
   ref?: never;          // Only on specific components that need it
 }
 ```
@@ -110,7 +110,7 @@ export interface SelectTriggerProps extends HTMLButtonAttributes {
 
 ## ARIA Ownership
 
-ColdLight sets ARIA attributes explicitly. We do NOT rely on bits-ui spreading them.
+ColdLight sets ARIA attributes explicitly. We do NOT rely on melt-ui spreading them.
 
 ### Pattern for Content Components
 
@@ -159,7 +159,7 @@ primitives/
 │   ├── Trigger.svelte
 │   ├── Content.svelte
 │   ├── Item.svelte
-│   ├── ItemText.svelte       # ColdLight-owned (no bits-ui equivalent)
+│   ├── ItemText.svelte       # ColdLight-owned (no melt-ui equivalent)
 │   ├── ItemGroup.svelte
 │   ├── GroupLabel.svelte
 │   ├── Separator.svelte
@@ -192,7 +192,7 @@ primitives/
   - aria-[attribute]="[value]"
 -->
 <script lang="ts">
-  import { [BitsComponent] } from "bits-ui";
+  import { [BitsComponent] } from "melt-ui";
   import type { [Props] } from "./types.js";
 
   let {
@@ -251,8 +251,8 @@ Every primitive MUST have:
 - [ ] Create `types.ts` with explicit props (no HTML attribute extension)
 - [ ] Create all slot components
 - [ ] Every component has `data-kind` and `data-slot`
-- [ ] ARIA attributes are explicitly set (not inherited from bits-ui)
-- [ ] Uses `_internal` for any bits-ui utilities
+- [ ] ARIA attributes are explicitly set (not inherited from melt-ui)
+- [ ] Uses `_internal` for any melt-ui utilities
 - [ ] Create `a11y.md` documenting accessibility features
 - [ ] Create `index.ts` re-exporting all components
 - [ ] Create tests

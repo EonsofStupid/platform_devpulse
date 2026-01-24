@@ -10,7 +10,7 @@
   - data-slot="cancel"
 -->
 <script lang="ts">
-  import { AlertDialog } from "bits-ui";
+  import { AlertDialog } from "melt-ui";
   import type { AlertDialogCancelProps } from "./types.js";
   import { stripStyleProp } from "../types.js";
 

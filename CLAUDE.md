@@ -42,7 +42,7 @@ Location: `interfaces/desktop/src/lib/design/`
 6. **Renderers** - Dynamic block rendering
 
 ### Key Dependencies
-- bits-ui ^2.15.4
+- melt-ui ^2.15.4
 - svelte-sonner ^1.0.7
 - @tanstack/svelte-table ^8.21.3
 - @tanstack/svelte-query ^6.0.17

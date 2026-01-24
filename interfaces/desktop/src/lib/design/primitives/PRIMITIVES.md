@@ -45,7 +45,7 @@
 | tooltip | ✅ | ✅ | ✅ | 28 | 🔄 MIGRATE |
 <!-- END:AUDIT_TABLE -->
 
-**Migration Status:** Existing primitives use bits-ui and will be migrated to Melt UI.
+**Migration Status:** Existing primitives use melt-ui and will be migrated to Melt UI.
 
 ## Architecture
 
@@ -220,9 +220,9 @@ pnpm check              # Type check
 
 ## Migration Plan
 
-Existing bits-ui primitives will be migrated to Melt UI:
+Existing melt-ui primitives will be migrated to Melt UI:
 
-| Primitive | bits-ui Status | Melt UI Status |
+| Primitive | melt-ui Status | Melt UI Status |
 |-----------|----------------|----------------|
 | Button | ✅ Complete | 🔄 Migrate |
 | Dialog | ✅ Complete | 🔄 Migrate |
@@ -236,6 +236,6 @@ Existing bits-ui primitives will be migrated to Melt UI:
 
 Migration involves:
 1. Replace `{...props}` spreading with `use:melt={$element}`
-2. Replace bits-ui imports with Melt UI builders
+2. Replace melt-ui imports with Melt UI builders
 3. Update context to share builder instead of IDs
 4. Update tests to verify Melt ARIA presence
