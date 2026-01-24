@@ -12,6 +12,20 @@ Recipes are CSS rules that style surfaces via data attributes. They consume toke
 
 ---
 
+## Architecture
+
+```
+Primitives (behavior) + Recipes (appearance) = Styled UI
+```
+
+| Layer | What It Does |
+|-------|-------------|
+| **Primitives** | ARIA, focus, keyboard (via Melt UI) |
+| **Recipes** | Visual styling via CSS |
+| **Semantics** | Combined primitive + recipe |
+
+---
+
 ## Base Pattern
 
 Every styled surface uses the `dp-surface` class:
@@ -36,7 +50,7 @@ Semi-transparent with backdrop blur. The default ColdLight surface.
 </div>
 ```
 
-**Variants** (darkness levels):
+**Variants** (clarity levels):
 
 | Variant | Attribute | Description |
 |---------|-----------|-------------|
@@ -44,12 +58,6 @@ Semi-transparent with backdrop blur. The default ColdLight surface.
 | Deep | `data-variant="deep"` | Default depth |
 | Smoke | `data-variant="smoke"` | Slightly lighter |
 | Frost | `data-variant="frost"` | Lightest, frosted |
-
-```svelte
-<div class="dp-surface" data-surface="glass" data-variant="frost">
-  Frosted glass
-</div>
-```
 
 ### Matte
 
@@ -63,11 +71,11 @@ Solid, non-transparent surface with subtle depth.
 
 **Variants**:
 
-| Variant | Attribute | Description |
-|---------|-----------|-------------|
-| Dark | (default) | Darkest matte |
-| Mid | `data-variant="mid"` | Medium matte |
-| Light | `data-variant="light"` | Lightest matte |
+| Variant | Description |
+|---------|-------------|
+| Dark | Darkest matte (default) |
+| Mid | Medium matte |
+| Light | Lightest matte |
 
 ### Solid
 
@@ -81,79 +89,12 @@ Opaque surface using the surface scale.
 
 **Depth levels**:
 
-| Depth | Attribute | Description |
-|-------|-----------|-------------|
-| 1 | `data-depth="1"` | Deepest/base |
-| 2 | `data-depth="2"` | Panel/sunken |
-| 3 | `data-depth="3"` | Raised/card |
-| 4 | `data-depth="4"` | Overlay/pop |
-
----
-
-## Role Modifiers
-
-Roles define the semantic function of a surface.
-
-### Button
-
-```svelte
-<button class="dp-surface" data-surface="glass" data-role="button">
-  Click me
-</button>
-```
-
-- Adds cursor pointer
-- Hover lift effect
-- Active press effect
-
-**Button variants**:
-
-| Variant | Attribute | Description |
-|---------|-----------|-------------|
-| Default | (none) | Standard button |
-| Primary | `data-variant="primary"` | Primary action |
-
-### Input
-
-```svelte
-<div class="dp-surface" data-surface="glass" data-role="input">
-  <input type="text" />
-</div>
-```
-
-- Focus glow effect
-- Distinct border styling
-
-### Panel
-
-```svelte
-<div class="dp-surface" data-surface="glass" data-role="panel">
-  Panel content
-</div>
-```
-
-- Gradient overlay
-- Hover border glow
-- Inner gradient (teal by default)
-
-**Panel accent**:
-
-```svelte
-<div class="dp-surface" data-surface="glass" data-role="panel" data-accent="purple">
-  Purple gradient panel
-</div>
-```
-
-### Scrim
-
-```svelte
-<div class="dp-surface" data-surface="glass" data-role="scrim">
-  Modal backdrop
-</div>
-```
-
-- Heavy backdrop blur
-- Used for modal overlays
+| Depth | Description |
+|-------|-------------|
+| 1 | Deepest/base |
+| 2 | Panel/sunken |
+| 3 | Raised/card |
+| 4 | Overlay/pop |
 
 ---
 
@@ -171,7 +112,7 @@ Add accent glow to any surface.
 | Cyber | `data-glow="cyber"` | Neon green glow |
 
 ```svelte
-<button class="dp-surface" data-surface="glass" data-role="button" data-glow="cyber">
+<button class="dp-surface" data-surface="glass" data-glow="cyber">
   Cyber glow button
 </button>
 ```
@@ -182,14 +123,14 @@ Add accent glow to any surface.
 
 Add depth via inset/outset edges.
 
-| Bevel | Attribute | Effect |
-|-------|-----------|--------|
-| Subtle | `data-bevel="subtle"` | Light outset |
-| Soft | `data-bevel="soft"` | Outset + shadow |
-| Medium | `data-bevel="medium"` | Imprint + shadow |
-| Inset | `data-bevel="inset"` | Sunken edges |
-| Deep | `data-bevel="deep"` | Strong inset |
-| Pressed | `data-bevel="pressed"` | Active/pressed look |
+| Bevel | Effect |
+|-------|--------|
+| Subtle | Light outset |
+| Soft | Outset + shadow |
+| Medium | Imprint + shadow |
+| Inset | Sunken edges |
+| Deep | Strong inset |
+| Pressed | Active/pressed look |
 
 ```svelte
 <div class="dp-surface" data-surface="matte" data-bevel="deep">
@@ -207,7 +148,6 @@ Modifiers can be combined:
 <div
   class="dp-surface"
   data-surface="glass"
-  data-role="panel"
   data-variant="deep"
   data-glow="teal"
   data-bevel="subtle"
@@ -224,28 +164,24 @@ Some recipes require JavaScript actions for interactive effects.
 
 ### Ripple Effect
 
-Add ripple on click:
-
 ```svelte
 <script>
-  import { ripple } from '@devpulse/coldlight/recipes/actions';
+  import { ripple } from '$lib/design/recipes/actions';
 </script>
 
-<button use:ripple class="dp-surface" data-surface="glass" data-role="button">
+<button use:ripple class="dp-surface" data-surface="glass">
   Ripple button
 </button>
 ```
 
 ### Glow Tracking
 
-Track mouse for dynamic glow position:
-
 ```svelte
 <script>
-  import { glowTrack } from '@devpulse/coldlight/recipes/actions';
+  import { glowTrack } from '$lib/design/recipes/actions';
 </script>
 
-<div use:glowTrack class="dp-surface" data-surface="glass" data-role="panel">
+<div use:glowTrack class="dp-surface" data-surface="glass">
   Glow follows cursor
 </div>
 ```
@@ -262,9 +198,30 @@ Recipe CSS is generated from `tokens.ts` by the Vite plugin.
 
 ---
 
+## File Structure
+
+```
+recipes/
+├── index.ts              # Recipe registry
+├── css/
+│   ├── keyframes.css     # Animation keyframes (ONLY manual CSS)
+│   └── surfaces.gen.css  # GENERATED from tokens
+├── actions/
+│   ├── index.ts          # Action exports
+│   ├── ripple.ts         # Ripple effect
+│   └── glowTrack.ts      # Glow tracking
+└── readme.md             # Documentation
+```
+
+---
+
 ## Adding New Recipes
 
-1. Define the pattern in the Vite plugin's `generateRecipeCSS()` function
+1. Define the pattern in Vite plugin's `generateRecipeCSS()` function
 2. Reference only `var(--dp-*)` tokens
 3. Use `data-*` attributes for variants
-4. Document in this file
+4. Document in `docs/recipes.md`
+
+---
+
+**This is the canonical recipe reference.**

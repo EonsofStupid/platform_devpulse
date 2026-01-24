@@ -20,7 +20,7 @@
 | Behavior | **Bits UI** | Headless primitives (accessibility, keyboard, focus) |
 | Styling | **Tailwind CSS** | Utility classes, JIT compilation |
 | Values | **tokens.ts** | SINGLE SOURCE OF TRUTH for all design values |
-| Generation | **Style Dictionary v4** | DTCG-compliant token transformation |
+` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` | Generation | **Style Dictionary v4** | DTCG-compliant token transformation |
 | Composition | **VPB** | Visual Page Builder - NO-CODE driven composition |
 
 ---

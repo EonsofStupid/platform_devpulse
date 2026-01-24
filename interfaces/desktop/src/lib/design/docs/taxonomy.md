@@ -1,217 +1,140 @@
 # ColdLight Taxonomy
 
-> Block kind and contract reference for @devpulse/coldlight
+> Block kind, primitive, and contract reference for @devpulse/coldlight
 
 ---
 
 ## Overview
 
-Taxonomy defines **what blocks exist** and **what props they accept**. It's the schema layer that VPB uses to compose valid UIs.
+Taxonomy is the **spine of ColdLight**. It defines:
+
+1. **What primitives exist** — registered in `primitiveKinds.ts`
+2. **What slots each primitive has** — registered in `primitiveRegistry.ts`
+3. **What blocks can be composed** — defined in `kinds.ts`
+4. **What props are valid** — enforced via Zod in `contracts.ts`
+
+```
+Taxonomy = Registry + Validation + Enforcement
+```
+
+---
+
+## Taxonomy First Principle
+
+**Before writing ANY primitive code:**
+
+1. Verify kind exists in `taxonomy/primitiveKinds.ts`
+2. Verify slots exist in `taxonomy/primitiveRegistry.ts`
+3. Verify state enum exists (if stateful)
+4. THEN write the primitive
+
+This ensures:
+- Consistent naming
+- Required structure
+- Required attributes
+- Required slots
+- Predictable output
+
+---
+
+## File Structure
+
+```
+taxonomy/
+├── index.ts              # SSOT export funnel
+├── primitiveKinds.ts     # All data-kind values (43 primitives)
+├── primitiveRegistry.ts  # Slots + metadata per primitive
+├── kinds.ts              # Block kinds (shell, surface, widget)
+├── contracts.ts          # Prop schemas (Zod)
+└── slots.ts              # Block slot definitions
+```
+
+---
+
+## Primitive Kinds
+
+All primitive kinds registered in `primitiveKinds.ts`:
+
+### Buttons & Toggles
+- `button`, `toggle`, `toggleGroup`, `switch`
+
+### Inputs & Forms
+- `checkbox`, `radioGroup`, `slider`, `label`, `input`, `textarea`, `select`, `combobox`
+
+### Date & Time
+- `calendar`, `dateField`, `datePicker`, `timeField`
+
+### Dialogs & Overlays
+- `dialog`, `alertDialog`, `popover`, `hoverCard`, `tooltip`, `contextMenu`, `dropdownMenu`
+
+### Navigation
+- `tabs`, `accordion`, `collapsible`, `navigationMenu`, `menubar`, `pagination`, `breadcrumb`
+
+### Layout & Display
+- `aspectRatio`, `avatar`, `separator`, `scrollArea`, `progress`
+
+### Feedback
+- `toast`, `alert`, `badge`, `skeleton`, `spinner`
+
+### Utilities
+- `portal`, `presence`, `focusTrap`, `visuallyHidden`, `liveStatus`, `kbd`
+
+---
+
+## Primitive Slots
+
+Each primitive has defined slots in `primitiveRegistry.ts`:
+
+| Primitive | Slots |
+|-----------|-------|
+| `button` | `root` |
+| `dialog` | `root`, `trigger`, `portal`, `overlay`, `content`, `header`, `title`, `description`, `footer`, `close` |
+| `select` | `root`, `trigger`, `value`, `content`, `viewport`, `item`, `label`, `separator` |
+| `tabs` | `root`, `list`, `trigger`, `content` |
+| `popover` | `root`, `trigger`, `content`, `arrow`, `close` |
+| `tooltip` | `root`, `trigger`, `content`, `arrow` |
 
 ---
 
 ## Block Kinds
 
-A "kind" is a type of composable block. Each kind has:
+Block kinds define what can be composed in VPB:
 
-- **Description** — What it is
-- **Layout mode** — `grid`, `flex`, or `none`
-- **Slots** — Named positions for children
-- **Recipe prefix** — Which recipes apply
+### Shell Kinds (CSS Grid required)
 
----
+| Kind | Slots |
+|------|-------|
+| `appShell` | `topBar`, `sideNav`, `main`, `statusBar`, `dock` |
+| `topBar` | `left`, `center`, `right` |
+| `sideNav` | `header`, `body`, `footer` |
+| `statusBar` | `left`, `center`, `right` |
+| `dock` | `content` |
 
-## Shell Kinds
+### Surface Kinds
 
-Shell kinds make up the application chrome. They **require CSS Grid**.
+| Kind | Slots |
+|------|-------|
+| `panel` | `header`, `body`, `footer` |
+| `card` | `header`, `body`, `footer` |
+| `modal` | `header`, `body`, `footer` |
+| `glassFrame` | `content` |
+| `inputFrame` | `prefix`, `input`, `suffix` |
 
-### appShell
+### Widget Kinds
 
-Root application shell.
+| Kind | Slots |
+|------|-------|
+| `widget` | `header`, `body` |
+| `statMeter` | `value`, `label` |
+| `chart` | `header`, `chart` |
 
-| Property | Value |
-|----------|-------|
-| Layout | `grid` |
-| Slots | `topBar`, `sideNav`, `main`, `statusBar`, `dock` |
-| Recipe prefix | `shell` |
+### Chat Kinds
 
-```svelte
-<div class="grid grid-rows-shell">
-  <slot name="topBar" />
-  <slot name="sideNav" />
-  <slot name="main" />
-  <slot name="statusBar" />
-  <slot name="dock" />
-</div>
-```
-
-### topBar
-
-Top navigation bar.
-
-| Property | Value |
-|----------|-------|
-| Layout | `grid` |
-| Slots | `left`, `center`, `right` |
-| Recipe prefix | `shell.topBar` |
-
-### sideNav
-
-Side navigation panel.
-
-| Property | Value |
-|----------|-------|
-| Layout | `grid` |
-| Slots | `header`, `body`, `footer` |
-| Recipe prefix | `shell.sideNav` |
-
-### statusBar
-
-Bottom status bar.
-
-| Property | Value |
-|----------|-------|
-| Layout | `grid` |
-| Slots | `left`, `center`, `right` |
-| Recipe prefix | `shell.statusBar` |
-
-### dock
-
-Floating dock container.
-
-| Property | Value |
-|----------|-------|
-| Layout | `grid` |
-| Slots | `content` |
-| Recipe prefix | `shell.dock` |
-
----
-
-## Surface Kinds
-
-General-purpose containers.
-
-### panel
-
-Generic container panel.
-
-| Property | Value |
-|----------|-------|
-| Layout | `none` |
-| Slots | `header`, `body`, `footer` |
-| Recipe prefix | `panel` |
-
-### card
-
-Card surface for content.
-
-| Property | Value |
-|----------|-------|
-| Layout | `none` |
-| Slots | `header`, `body`, `footer` |
-| Recipe prefix | `card` |
-
-### modal
-
-Modal overlay.
-
-| Property | Value |
-|----------|-------|
-| Layout | `none` |
-| Slots | `header`, `body`, `footer` |
-| Recipe prefix | `modal` |
-
-### glassFrame
-
-Glass frame container.
-
-| Property | Value |
-|----------|-------|
-| Layout | `none` |
-| Slots | `content` |
-| Recipe prefix | `glass` |
-
-### inputFrame
-
-Input field container.
-
-| Property | Value |
-|----------|-------|
-| Layout | `none` |
-| Slots | `prefix`, `input`, `suffix` |
-| Recipe prefix | `input` |
-
----
-
-## Widget Kinds
-
-Dashboard widgets.
-
-### widget
-
-Dashboard widget container.
-
-| Property | Value |
-|----------|-------|
-| Layout | `grid` |
-| Slots | `header`, `body` |
-| Recipe prefix | `widget` |
-
-### statMeter
-
-Stat display widget.
-
-| Property | Value |
-|----------|-------|
-| Layout | `none` |
-| Slots | `value`, `label` |
-| Recipe prefix | `widget.stat` |
-
-### chart
-
-Chart widget.
-
-| Property | Value |
-|----------|-------|
-| Layout | `none` |
-| Slots | `header`, `chart` |
-| Recipe prefix | `widget.chart` |
-
----
-
-## Chat Kinds
-
-Chat interface blocks.
-
-### chatDock
-
-Chat dock panel.
-
-| Property | Value |
-|----------|-------|
-| Layout | `grid` |
-| Slots | `header`, `messages`, `input` |
-| Recipe prefix | `chat.dock` |
-
-### chatThread
-
-Chat message thread.
-
-| Property | Value |
-|----------|-------|
-| Layout | `none` |
-| Slots | `messages` |
-| Recipe prefix | `chat.thread` |
-
-### chatBubble
-
-Single chat message bubble.
-
-| Property | Value |
-|----------|-------|
-| Layout | `none` |
-| Slots | `content`, `meta` |
-| Recipe prefix | `chat.bubble` |
+| Kind | Slots |
+|------|-------|
+| `chatDock` | `header`, `messages`, `input` |
+| `chatThread` | `messages` |
+| `chatBubble` | `content`, `meta` |
 
 ---
 
@@ -227,25 +150,17 @@ All surface kinds extend this:
 interface DsSurfaceProps {
   color: {
     mode: "mono" | "duo";
-    a: AccentToken;        // "teal" | "purple" | "magenta" | "ember" | "frost"
+    a: AccentToken;
     b?: AccentToken;
-    blend?: {
-      type: "none" | "dissipate";
-      direction: "top" | "bottom" | "left" | "right" | "radial";
-      softness: "sharp" | "soft" | "diffuse";
-      bias: "start" | "center" | "end";
-      strength: "subtle" | "medium" | "strong";
-    };
   };
   surface: {
     finish: "glass" | "matte" | "solid";
-    texture?: "none" | "noise" | "grain" | "scan";
+    texture?: "none" | "noise" | "grain";
     clarity?: "void" | "deep" | "smoke" | "frost";
   };
   frame: {
-    mode: "none" | "solid" | "glow" | "gradient";
+    mode: "none" | "solid" | "glow";
     width: "thin" | "medium" | "thick";
-    treatment: "flat" | "beveled" | "rounded";
     glow: GlowToken | "off";
   };
   depth: {
@@ -255,72 +170,10 @@ interface DsSurfaceProps {
       style: "outset" | "inset" | "imprint";
     };
   };
-  fx?: {
-    rimLight?: "off" | "subtle" | "medium" | "strong";
-    innerGlow?: "off" | "subtle" | "medium" | "strong";
-    sparkle?: "off" | "subtle" | "medium";
-    noiseOverlay?: "off" | "subtle" | "medium";
-  };
-  motion?: {
-    idle?: "none" | "breathe" | "pulse" | "scan";
-    hover?: "none" | "glow" | "lift" | "highlight";
-    press?: "none" | "sink" | "flash";
-    focus?: "none" | "ring" | "glow";
-  };
 }
 ```
 
-### Kind-Specific Contracts
-
-**PanelProps** (extends DsSurfaceProps):
-
-```typescript
-interface PanelProps extends DsSurfaceProps {
-  panel: {
-    padding: PaddingToken;  // "none" | "sm" | "md" | "lg" | "xl"
-    scrollable: boolean;
-  };
-}
-```
-
-**ShellProps** (extends DsSurfaceProps):
-
-```typescript
-interface ShellProps extends DsSurfaceProps {
-  chrome: {
-    level: "appShell" | "panel" | "overlay";
-    insetGrid: boolean;
-    safeArea: boolean;
-  };
-}
-```
-
-**ChatDockProps** (extends DsSurfaceProps):
-
-```typescript
-interface ChatDockProps extends DsSurfaceProps {
-  dock: {
-    side: "left" | "right" | "floating";
-    state: "open" | "minimized" | "closed";
-  };
-  header: {
-    mode: "compact" | "full";
-  };
-  presence: "offline" | "active" | "busy";
-}
-```
-
-**WidgetProps** (extends DsSurfaceProps):
-
-```typescript
-interface WidgetProps extends DsSurfaceProps {
-  widget: {
-    type: "chart" | "stat" | "list" | "meter";
-    title: string;
-    intent: "neutral" | "info" | "warn" | "critical";
-  };
-}
-```
+Props use **enum values only** — never raw colors or CSS.
 
 ---
 
@@ -332,7 +185,7 @@ interface WidgetProps extends DsSurfaceProps {
 | `flex` | Can use flexbox | Inline content |
 | `none` | No constraint | Leaf nodes |
 
-**Shell kinds MUST use CSS Grid.** This is enforced by the Vite plugin.
+**Shell kinds MUST use CSS Grid.** This is enforced.
 
 ---
 
@@ -341,7 +194,7 @@ interface WidgetProps extends DsSurfaceProps {
 Props are validated at runtime using Zod:
 
 ```typescript
-import { validateKindProps } from '@devpulse/coldlight/taxonomy';
+import { validateKindProps } from '$lib/design/taxonomy';
 
 const result = validateKindProps('panel', props);
 if (!result.success) {
@@ -353,8 +206,23 @@ if (!result.success) {
 
 ## Adding New Kinds
 
-1. Add kind definition to `taxonomy/kinds.ts`
+1. Add kind to `taxonomy/kinds.ts`
 2. Add contract to `taxonomy/contracts.ts`
 3. Define slots in `taxonomy/slots.ts`
 4. Create recipes with matching prefix
 5. Document here
+
+---
+
+## Adding New Primitives
+
+1. Add kind to `taxonomy/primitiveKinds.ts`
+2. Add slots to `taxonomy/primitiveRegistry.ts`
+3. Create primitive folder
+4. Implement components
+5. Write tests
+6. Document in `a11y.md`
+
+---
+
+**This is the canonical taxonomy reference.**

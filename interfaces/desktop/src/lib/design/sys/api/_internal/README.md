@@ -1,17 +1,19 @@
 # ColdLight _internal API Layer
 
-> **The adapter between behavioral providers (Bits UI) and ColdLight SSOT.**
+> **The integration point between Melt UI (ARIA provider) and ColdLight (design system).**
+>
+> **Architecture:** See ADR-009 (Melt UI as ARIA Provider)
 
 ---
 
 ## Purpose
 
-The `_internal` layer is the ONLY place where external provider APIs are consumed. This provides:
+The `_internal` layer is the integration point for external behavioral providers. With Melt UI:
 
-1. **Single integration point** — Provider changes only affect this layer
-2. **Type enforcement** — Zod validation at the boundary
-3. **ARIA ownership** — ColdLight adds ALL accessibility attributes
-4. **Clean separation** — Bits UI = behavior, ColdLight = everything else
+1. **Builder types** — TypeScript types for Melt builders
+2. **Helper functions** — State extraction, prop transformation
+3. **Validation** — Zod schemas at the boundary
+4. **Documentation** — What Melt provides vs what ColdLight provides
 
 ---
 
@@ -20,253 +22,205 @@ The `_internal` layer is the ONLY place where external provider APIs are consume
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                         ColdLight                                │
-│  (Taxonomy, Tokens, Recipes, ARIA, Styling, Data Attributes)    │
+│  (Taxonomy, Tokens, Recipes, Data Attributes, Type System)      │
+│                                                                  │
+│  Primitives use: data-kind, data-slot, data-state, data-id      │
 └─────────────────────────────────────────────────────────────────┘
                               │
-                              │ consumes
+                              │ primitives import
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                    sys/api/_internal                             │
-│  (Typed adapters, Zod validation, State extraction)             │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              │ wraps
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                         Bits UI                                  │
-│  (Behavioral state ONLY: open/closed, focus, keyboard nav)      │
+│                         Melt UI                                  │
+│  (ARIA Provider: roles, aria-*, IDs, focus, keyboard)           │
+│                                                                  │
+│  Primitives use: use:melt={$element} action                     │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
----
+**Key Change from bits-ui:**
 
-## What Bits UI Provides (Behavior Only)
-
-| Capability | Example |
-|------------|---------|
-| Open/closed state | Dialog, Popover, Tooltip |
-| Focus management | Trap focus in modal |
-| Keyboard navigation | Arrow keys in menus |
-| Roving tabindex | Tab panels |
-| Click outside detection | Close on outside click |
-| Escape key handling | Close on Escape |
-| Portal rendering | Render to body |
-
-**Bits UI does NOT provide:**
-- ARIA attributes (we add them)
-- Styling (we own CSS)
-- Data attributes (we add `data-kind`, `data-slot`, `data-state`)
-- Visual output (we own all rendering)
+With Melt UI, primitives import directly from `@melt-ui/svelte`. The `_internal` layer provides:
+- Helper types for builder return values
+- State extraction utilities
+- Prop validation schemas
 
 ---
 
-## Adapter Pattern
+## What Melt UI Provides (ARIA Provider)
 
-Each primitive has an adapter in `_internal`:
+| Capability | How | ColdLight's Role |
+|------------|-----|------------------|
+| ARIA attributes | `use:melt={$element}` | Accept, don't override |
+| ID generation | Internal to builder | Accept Melt's IDs |
+| ID linking | aria-labelledby, aria-controls | Automatic via builder |
+| Focus management | Trap focus in modals | Pass config to builder |
+| Keyboard navigation | Arrow keys, Home, End, Escape | Automatic |
+| Click outside | Close popover/dialog | Pass config to builder |
+| Floating positioning | Floating UI integration | Pass positioning props |
+| Portal rendering | Melt portals | Configure if needed |
 
-```typescript
-// sys/api/_internal/dialog.ts
-import { Dialog as BitsDialog } from "bits-ui";
-import { z } from "zod";
-import type { DialogState } from "$lib/design/taxonomy/kinds/dialog.js";
+**ColdLight does NOT provide:**
+- ARIA attributes (Melt handles via `use:melt`)
+- ID generation (Melt handles internally)
+- Focus trapping logic (Melt handles)
+- Keyboard handling logic (Melt handles)
 
-/**
- * Dialog adapter - extracts behavioral state from Bits UI
- *
- * Bits UI provides: open state, focus trap, portal
- * ColdLight adds: ARIA, data-kind, data-slot, data-state, styling
- */
-
-// Re-export component parts for internal use only
-export const BitsDialogRoot = BitsDialog.Root;
-export const BitsDialogTrigger = BitsDialog.Trigger;
-export const BitsDialogPortal = BitsDialog.Portal;
-export const BitsDialogOverlay = BitsDialog.Overlay;
-export const BitsDialogContent = BitsDialog.Content;
-export const BitsDialogTitle = BitsDialog.Title;
-export const BitsDialogDescription = BitsDialog.Description;
-export const BitsDialogClose = BitsDialog.Close;
-
-// State extraction helper
-export function extractDialogState(open: boolean): DialogState {
-  return open ? "open" : "closed";
-}
-
-// Zod validation for props
-export const DialogPropsSchema = z.object({
-  open: z.boolean().optional(),
-  onOpenChange: z.function().args(z.boolean()).returns(z.void()).optional(),
-  closeOnOutsideClick: z.boolean().optional().default(true),
-  closeOnEscape: z.boolean().optional().default(true),
-});
-```
+**ColdLight DOES provide:**
+- `data-kind` (primitive taxonomy)
+- `data-slot` (slot identification)
+- `data-state` (visual state for CSS)
+- `data-id` (user-controlled stable ID)
+- `class` (recipe-based styling)
+- Type system (props interfaces)
 
 ---
 
-## ARIA Ownership
+## Integration Pattern
 
-ColdLight owns ALL ARIA attributes. We do NOT spread `{...props}` from Bits UI:
+### Primitives Import Melt Directly
 
 ```svelte
-<!-- WRONG - letting Bits UI control ARIA -->
-<BitsDialog.Content {...rest}>
-  {#snippet child({ props })}
-    <div {...props}>  <!-- NO! Bits props may include ARIA -->
-      {children}
-    </div>
-  {/snippet}
-</BitsDialog.Content>
+<script lang="ts">
+  // Primitives import Melt UI directly
+  import { createDialog, melt } from '@melt-ui/svelte';
+  import { setContext } from 'svelte';
+  import { DIALOG_CONTEXT_KEY } from './types.js';
 
-<!-- CORRECT - ColdLight owns ARIA -->
-<BitsDialog.Content {...behaviorProps}>
-  {#snippet child({ open })}
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby={titleId}
-      aria-describedby={descriptionId}
-      data-kind="dialog"
-      data-slot="content"
-      data-state={open ? "open" : "closed"}
-      class={className}
-    >
-      {children}
-    </div>
-  {/snippet}
-</BitsDialog.Content>
+  // Create builder
+  const dialog = createDialog({
+    defaultOpen: open,
+    onOpenChange: (details) => {
+      open = details.open;
+      onOpenChange?.(details.open);
+    },
+  });
+
+  // Share via context
+  setContext(DIALOG_CONTEXT_KEY, dialog);
+</script>
+
+<div
+  data-kind="dialog"
+  data-slot="root"
+  data-state={dataState}
+  data-id={dataId}
+>
+  {@render children?.()}
+</div>
+```
+
+### Child Components Use Builder
+
+```svelte
+<script lang="ts">
+  import { melt } from '@melt-ui/svelte';
+  import { getContext } from 'svelte';
+  import { DIALOG_CONTEXT_KEY } from './types.js';
+
+  const dialog = getContext(DIALOG_CONTEXT_KEY);
+  const { elements: { content }, states: { open } } = dialog;
+</script>
+
+<!-- use:melt applies all ARIA -->
+<div
+  use:melt={$content}
+  class={className}
+  data-kind="dialog"
+  data-slot="content"
+  data-state={$open ? 'open' : 'closed'}
+  data-id={dataId}
+>
+  {@render children?.({ open: $open })}
+</div>
 ```
 
 ---
 
-## What We Extract from Bits UI Child Snippets
+## Helper Types
 
-Bits UI child snippets provide behavioral state. We extract ONLY what we need:
+```typescript
+// sys/api/_internal/melt-types.ts
 
-| Component | Extract | Ignore |
-|-----------|---------|--------|
-| Dialog.Content | `open` | `props` |
-| Popover.Content | `open` | `props` |
-| Tooltip.Content | `open` | `props` |
-| Select.Content | `open` | `props` |
-| Select.Item | `selected`, `highlighted` | `props` |
-| Tabs.Trigger | — | `props['data-state']` |
-| Tabs.Content | — | `props['data-state']` |
+import type { CreateDialogReturn } from '@melt-ui/svelte';
 
-**Note:** For Tabs, Bits UI doesn't expose state in snippets. We extract from `props['data-state']` or `props['aria-selected']`.
+/**
+ * Type for Dialog builder return value.
+ * Used for context typing.
+ */
+export type DialogBuilder = CreateDialogReturn;
+
+/**
+ * Type for builder elements store.
+ */
+export type BuilderElements<T> = T extends { elements: infer E } ? E : never;
+
+/**
+ * Type for builder states store.
+ */
+export type BuilderStates<T> = T extends { states: infer S } ? S : never;
+```
 
 ---
 
-## State Extraction Helpers
+## State Extraction
 
 ```typescript
 // sys/api/_internal/state.ts
 
 /**
- * Extract open/closed state
+ * Extract open/closed state string for data-state attribute
  */
-export function extractOpenState(open: boolean): "open" | "closed" {
-  return open ? "open" : "closed";
+export function extractOpenState(open: boolean): 'open' | 'closed' {
+  return open ? 'open' : 'closed';
 }
 
 /**
- * Extract selected state from Tabs (snippetProps gap workaround)
+ * Extract active/inactive state for tabs
  */
-export function extractTabState(props: Record<string, unknown>): "active" | "inactive" {
-  // Bits UI Tabs doesn't expose selected in child snippets
-  // Must extract from data-state attribute
-  return props["data-state"] === "active" ? "active" : "inactive";
+export function extractActiveState(active: boolean): 'active' | 'inactive' {
+  return active ? 'active' : 'inactive';
 }
 
 /**
- * Extract selected state from aria-selected
+ * Extract selected state for items
  */
-export function extractAriaSelected(props: Record<string, unknown>): boolean {
-  return props["aria-selected"] === "true" || props["aria-selected"] === true;
+export function extractSelectedState(selected: boolean): boolean {
+  return selected;
 }
 ```
 
 ---
 
-## Adapter Index
+## Prop Validation
 
 ```typescript
-// sys/api/_internal/index.ts
+// sys/api/_internal/schemas.ts
+import { z } from 'zod';
 
-// Dialog
-export * from "./dialog.js";
-
-// Popover
-export * from "./popover.js";
-
-// Tooltip
-export * from "./tooltip.js";
-
-// Select
-export * from "./select.js";
-
-// Tabs
-export * from "./tabs.js";
-
-// Alert Dialog
-export * from "./alert-dialog.js";
-
-// Sheet (uses Dialog)
-export * from "./sheet.js";
-
-// State helpers
-export * from "./state.js";
-```
-
----
-
-## Usage in Primitives
-
-Primitives import from `_internal`, never directly from `bits-ui`:
-
-```svelte
-<!-- primitives/dialog/Content.svelte -->
-<script lang="ts">
-  // CORRECT - import from _internal
-  import { BitsDialogContent, extractOpenState } from "$lib/design/sys/api/_internal/index.js";
-
-  // WRONG - never import bits-ui directly in primitives
-  // import { Dialog } from "bits-ui";
-</script>
-
-<BitsDialogContent>
-  {#snippet child({ open })}
-    <div
-      role="dialog"
-      aria-modal="true"
-      data-kind="dialog"
-      data-slot="content"
-      data-state={extractOpenState(open)}
-    >
-      {@render children?.({ open })}
-    </div>
-  {/snippet}
-</BitsDialogContent>
-```
-
----
-
-## Zod Validation at Boundary
-
-Props are validated when entering ColdLight:
-
-```typescript
-// sys/api/_internal/dialog.ts
-import { z } from "zod";
-
-export const DialogRootPropsSchema = z.object({
+/**
+ * Common open/close props schema
+ */
+export const OpenStatePropsSchema = z.object({
   open: z.boolean().optional(),
   onOpenChange: z.function().args(z.boolean()).returns(z.void()).optional(),
-  closeOnOutsideClick: z.boolean().default(true),
-  closeOnEscape: z.boolean().default(true),
-}).strict();
+});
 
-// In component
-const validatedProps = DialogRootPropsSchema.parse(incomingProps);
+/**
+ * Positioning props schema (for floating primitives)
+ */
+export const PositioningPropsSchema = z.object({
+  side: z.enum(['top', 'right', 'bottom', 'left']).optional(),
+  sideOffset: z.number().optional(),
+  align: z.enum(['start', 'center', 'end']).optional(),
+  alignOffset: z.number().optional(),
+});
+
+/**
+ * Validate props at boundary
+ */
+export function validateProps<T>(schema: z.ZodSchema<T>, props: unknown): T {
+  return schema.parse(props);
+}
 ```
 
 ---
@@ -277,14 +231,55 @@ const validatedProps = DialogRootPropsSchema.parse(incomingProps);
 sys/api/_internal/
 ├── README.md           # This file
 ├── index.ts            # Barrel export
+├── melt-types.ts       # Melt builder types
 ├── state.ts            # State extraction helpers
-├── dialog.ts           # Dialog adapter
-├── popover.ts          # Popover adapter
-├── tooltip.ts          # Tooltip adapter
-├── select.ts           # Select adapter
-├── tabs.ts             # Tabs adapter
-├── alert-dialog.ts     # AlertDialog adapter
-└── sheet.ts            # Sheet adapter (extends Dialog)
+├── schemas.ts          # Zod validation schemas
+└── deprecated/         # Old bits-ui adapters (to be removed)
+```
+
+---
+
+## Migration from bits-ui
+
+The previous pattern used an adapter layer to wrap bits-ui. With Melt UI:
+
+| bits-ui Pattern | Melt UI Pattern |
+|-----------------|-----------------|
+| Import from `_internal` | Import from `@melt-ui/svelte` |
+| Re-export components | Use builders directly |
+| `{...props}` spreading | `use:melt={$element}` action |
+| Manual ARIA | Melt handles ARIA |
+| `useId()` from bits-ui | Melt generates IDs |
+| Child snippet `{ props, open }` | Builder `states.open` store |
+
+### Old Pattern (bits-ui - DEPRECATED)
+
+```svelte
+<!-- DON'T DO THIS -->
+<script>
+  import { BitsDialogContent } from '$lib/design/sys/api/_internal';
+</script>
+
+<BitsDialogContent>
+  {#snippet child({ props, open })}
+    <div {...props} role="dialog">  <!-- Fighting the library -->
+```
+
+### New Pattern (Melt UI)
+
+```svelte
+<!-- DO THIS -->
+<script>
+  import { melt } from '@melt-ui/svelte';
+  const { elements: { content }, states: { open } } = getContext(DIALOG_CONTEXT_KEY);
+</script>
+
+<div
+  use:melt={$content}
+  data-kind="dialog"
+  data-slot="content"
+  data-state={$open ? 'open' : 'closed'}
+>
 ```
 
 ---
@@ -293,20 +288,23 @@ sys/api/_internal/
 
 | Guarantee | Mechanism |
 |-----------|-----------|
-| Single integration point | All Bits UI imports in `_internal` |
-| Zod validation | Props validated at boundary |
-| ARIA ownership | ColdLight adds all a11y |
-| Behavioral isolation | Only state extracted from snippets |
+| ARIA correctness | Melt UI via `use:melt` |
+| ID linking | Melt handles internally |
 | Type safety | TypeScript + Zod schemas |
+| Clean separation | Melt = ARIA, ColdLight = design |
+| Swappable provider | Builder pattern allows future changes |
 
 ---
 
 ## Core Truth
 
-**Bits UI is a behavioral state machine. ColdLight is everything else.**
+**Melt UI is the ARIA provider. ColdLight is the design system.**
 
-The `_internal` layer is the firewall that ensures this separation.
+The integration is via:
+- `use:melt={$element}` — applies all ARIA and behavior
+- Svelte context — shares builder between components
+- ColdLight data attributes — `data-kind`, `data-slot`, `data-state`, `data-id`
 
 ---
 
-**This is the canonical _internal adapter pattern.**
+**This is the canonical Melt UI integration pattern.**

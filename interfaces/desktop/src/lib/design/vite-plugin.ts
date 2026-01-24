@@ -12,6 +12,7 @@
 import type { Plugin, ResolvedConfig } from "vite";
 import * as fs from "fs";
 import * as path from "path";
+import * as esbuild from "esbuild";
 
 // ===========================================
 // TYPES
@@ -85,8 +86,9 @@ function kebabCase(str: string): string {
 // ===========================================
 
 async function generateFromTokens(tokensPath: string, outputDir: string): Promise<void> {
-  // Dynamically import tokens.ts
-  const tokens = await import(tokensPath);
+  // Dynamically import tokens.ts - convert to file URL for Windows compatibility
+  const tokensUrl = pathToFileURL(tokensPath).href;
+  const tokens = await import(tokensUrl);
 
   const cssLines: string[] = [];
   const presetColors: Record<string, Record<string, string>> = {};
@@ -952,7 +954,8 @@ export function coldlight(options: ColdLightOptions = {}): Plugin {
     configResolved(resolvedConfig) {
       config = resolvedConfig;
       // Auto-detect design directory
-      designDir = path.resolve(config.root, "src/lib/design");
+      // config.root is already the src/ directory when running from interfaces/desktop/src
+      designDir = path.resolve(config.root, "lib/design");
       tokensPath = options.tokensPath || path.join(designDir, "tokens/tokens.ts");
     },
 

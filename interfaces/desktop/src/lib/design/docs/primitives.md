@@ -1,21 +1,29 @@
 # ColdLight Primitives
 
-> Bits UI wrapper reference for @devpulse/coldlight
+> Melt UI wrappers with ColdLight taxonomy for @devpulse/coldlight
 
 ---
 
 ## Overview
 
-Primitives are **thin wrappers around Bits UI** components. They handle behavior (focus, keyboard, accessibility) with **no styling**.
+Primitives are **thin wrappers around Melt UI** builders. They handle:
 
-Styling comes from recipes applied via `class` and `data-*` attributes.
+| Melt UI Provides | ColdLight Provides |
+|-----------------|-------------------|
+| ARIA attributes (`role`, `aria-*`) | `data-kind` (primitive identity) |
+| Focus management | `data-slot` (slot identification) |
+| Keyboard navigation | `data-state` (visual state) |
+| ID generation | `data-id` (user-controlled) |
+| Event handlers | Type system (Props interfaces) |
+
+**Styling comes from recipes**, not primitives.
 
 ---
 
 ## Principle
 
 ```
-Primitives = Behavior (Bits UI)
+Primitives = Behavior (Melt UI) + Taxonomy (ColdLight)
 Recipes = Appearance (CSS)
 ```
 
@@ -23,69 +31,163 @@ Primitives don't import CSS, don't define styles, don't have `<style>` blocks.
 
 ---
 
-## Available Primitives
+## File Structure
 
-### Button
+Every primitive follows this structure:
 
-Wraps Bits UI Button for click interactions.
-
-```svelte
-<script>
-  import { Button } from '@devpulse/coldlight/primitives';
-</script>
-
-<Button class="dp-surface" data-surface="glass" data-role="button">
-  Click me
-</Button>
+```
+primitives/{name}/
+├── {name}.svelte           # Main component
+├── {name}.trigger.svelte   # Trigger slot (if applicable)
+├── {name}.content.svelte   # Content slot (if applicable)
+├── {name}.{slot}.svelte    # Other slots
+├── index.ts                # Barrel export (imports/exports ONLY)
+├── types.ts                # Type definitions
+├── a11y.md                 # Accessibility contract
+└── {name}.test.ts          # Tests
 ```
 
-**Props**: Inherits all Bits UI Button props.
+---
+
+## Integration Pattern
+
+### Root Component
+
+```svelte
+<script lang="ts">
+  import { createDialog, melt } from '@melt-ui/svelte';
+  import { setContext } from 'svelte';
+  import { DIALOG_CONTEXT_KEY, type DialogRootProps, type DialogState } from './types.js';
+
+  let {
+    open = $bindable(false),
+    onOpenChange,
+    children,
+    "data-id": dataId,
+  }: DialogRootProps = $props();
+
+  // Create Melt builder
+  const dialog = createDialog({
+    defaultOpen: open,
+    onOpenChange: (details) => {
+      open = details.open;
+      onOpenChange?.(details.open);
+    },
+  });
+
+  // Share via context
+  setContext(DIALOG_CONTEXT_KEY, dialog);
+
+  // ColdLight state
+  const dataState: DialogState = $derived(open ? 'open' : 'closed');
+</script>
+
+<div
+  data-kind="dialog"
+  data-slot="root"
+  data-state={dataState}
+  data-id={dataId}
+>
+  {#if children}
+    {@render children()}
+  {/if}
+</div>
+```
+
+### Content Component (with use:melt)
+
+```svelte
+<script lang="ts">
+  import { melt } from '@melt-ui/svelte';
+  import { getContext } from 'svelte';
+  import { DIALOG_CONTEXT_KEY, type DialogContentProps, type DialogState } from './types.js';
+
+  let {
+    children,
+    class: className = '',
+    "data-id": dataId,
+    ...rest
+  }: DialogContentProps = $props();
+
+  // Get builder from context
+  const dialog = getContext(DIALOG_CONTEXT_KEY);
+  const { elements: { content }, states: { open } } = dialog;
+
+  // ColdLight state
+  const dataState: DialogState = $derived($open ? 'open' : 'closed');
+</script>
+
+<!-- use:melt applies all ARIA -->
+<div
+  use:melt={$content}
+  class={className}
+  data-kind="dialog"
+  data-slot="content"
+  data-state={dataState}
+  data-id={dataId}
+  {...rest}
+>
+  {#if children}
+    {@render children({ open: $open })}
+  {/if}
+</div>
+```
+
+---
+
+## Available Primitives
 
 ### Dialog
 
-Wraps Bits UI Dialog for modal overlays.
+Modal dialog with focus trap and overlay.
 
 ```svelte
 <script>
-  import { Dialog } from '@devpulse/coldlight/primitives';
+  import { Dialog } from '$lib/design/primitives';
 </script>
 
-<Dialog.Root>
-  <Dialog.Trigger class="dp-surface" data-surface="glass" data-role="button">
+<Dialog.Root bind:open>
+  <Dialog.Trigger class="dp-surface" data-surface="glass">
     Open
   </Dialog.Trigger>
   <Dialog.Portal>
-    <Dialog.Overlay class="dp-surface" data-surface="glass" data-role="scrim" />
-    <Dialog.Content class="dp-surface" data-surface="glass" data-role="panel">
+    <Dialog.Overlay class="dp-surface" data-surface="glass" />
+    <Dialog.Content class="dp-surface" data-surface="glass">
       <Dialog.Title>Title</Dialog.Title>
       <Dialog.Description>Content</Dialog.Description>
+      <Dialog.Close>Close</Dialog.Close>
     </Dialog.Content>
   </Dialog.Portal>
 </Dialog.Root>
 ```
 
-### Toggle
+### Select
 
-Wraps Bits UI Toggle for boolean switches.
+Dropdown selection with typeahead.
 
 ```svelte
 <script>
-  import { Toggle } from '@devpulse/coldlight/primitives';
-  let pressed = $state(false);
+  import { Select } from '$lib/design/primitives';
 </script>
 
-<Toggle bind:pressed class="dp-surface" data-surface="glass" data-role="button">
-  {pressed ? 'On' : 'Off'}
-</Toggle>
+<Select.Root bind:value>
+  <Select.Trigger class="dp-surface" data-surface="glass">
+    <Select.Value placeholder="Select..." />
+  </Select.Trigger>
+  <Select.Content class="dp-surface" data-surface="glass">
+    <Select.Item value="a">Option A</Select.Item>
+    <Select.Item value="b">Option B</Select.Item>
+  </Select.Content>
+</Select.Root>
 ```
 
 ### Tabs
 
-Wraps Bits UI Tabs for tab navigation.
+Tabbed interface navigation.
 
 ```svelte
 <script>
-  import { Tabs } from '@devpulse/coldlight/primitives';
+  import { Tabs } from '$lib/design/primitives';
 </script>
 
 <Tabs.Root value="tab1">
@@ -98,72 +200,53 @@ Wraps Bits UI Tabs for tab navigation.
 </Tabs.Root>
 ```
 
-### Accordion
-
-Wraps Bits UI Accordion for collapsible sections.
-
-```svelte
-<script>
-  import { Accordion } from '@devpulse/coldlight/primitives';
-</script>
-
-<Accordion.Root>
-  <Accordion.Item value="item1">
-    <Accordion.Trigger class="dp-surface" data-surface="glass" data-role="button">
-      Section 1
-    </Accordion.Trigger>
-    <Accordion.Content>Content 1</Accordion.Content>
-  </Accordion.Item>
-</Accordion.Root>
-```
-
 ### Popover
 
-Wraps Bits UI Popover for floating content.
+Floating content anchored to trigger.
 
 ```svelte
 <script>
-  import { Popover } from '@devpulse/coldlight/primitives';
+  import { Popover } from '$lib/design/primitives';
 </script>
 
 <Popover.Root>
-  <Popover.Trigger class="dp-surface" data-surface="glass" data-role="button">
+  <Popover.Trigger class="dp-surface" data-surface="glass">
     Open popover
   </Popover.Trigger>
-  <Popover.Content class="dp-surface" data-surface="glass" data-role="panel">
+  <Popover.Content class="dp-surface" data-surface="glass">
     Popover content
+    <Popover.Arrow />
   </Popover.Content>
 </Popover.Root>
 ```
 
-### Select
+### Tooltip
 
-Wraps Bits UI Select for dropdown selection.
+Non-modal informational popup.
 
 ```svelte
 <script>
-  import { Select } from '@devpulse/coldlight/primitives';
+  import { Tooltip } from '$lib/design/primitives';
 </script>
 
-<Select.Root>
-  <Select.Trigger class="dp-surface" data-surface="glass" data-role="button">
-    <Select.Value placeholder="Select..." />
-  </Select.Trigger>
-  <Select.Content class="dp-surface" data-surface="glass" data-role="panel">
-    <Select.Item value="a">Option A</Select.Item>
-    <Select.Item value="b">Option B</Select.Item>
-  </Select.Content>
-</Select.Root>
+<Tooltip.Root>
+  <Tooltip.Trigger>Hover me</Tooltip.Trigger>
+  <Tooltip.Content class="dp-surface" data-surface="glass">
+    Tooltip text
+    <Tooltip.Arrow />
+  </Tooltip.Content>
+</Tooltip.Root>
 ```
 
 ---
 
-## Why Primitives?
+## Why This Pattern?
 
-1. **Accessibility built-in** — Bits UI handles ARIA, focus management, keyboard navigation
+1. **ARIA correctness** — Melt UI handles all accessibility
 2. **Separation of concerns** — Behavior is reusable, styling is swappable
-3. **Consistency** — Same interaction patterns everywhere
-4. **Maintenance** — Bits UI updates don't break our styles
+3. **Taxonomy enforcement** — Every element has data-kind/slot/state
+4. **Type safety** — Full TypeScript coverage
+5. **Testability** — data-id for stable test selectors
 
 ---
 
@@ -177,22 +260,41 @@ To get a "ColdLight button," combine:
 
 ```svelte
 <!-- Primitive (behavior) + Recipe (appearance) -->
-<Button class="dp-surface" data-surface="glass" data-role="button">
+<button
+  use:melt={$trigger}
+  class="dp-surface"
+  data-kind="dialog"
+  data-slot="trigger"
+  data-surface="glass"
+>
   ColdLight Button
-</Button>
+</button>
 ```
 
 ---
 
 ## Adding New Primitives
 
-1. Check if Bits UI has the component
-2. Create wrapper in `primitives/`
-3. Export from `primitives/index.ts`
-4. Document here
+**TAXONOMY FIRST:**
 
-**Rules**:
+1. Verify kind exists in `taxonomy/primitiveKinds.ts`
+2. Verify slots exist in `taxonomy/primitiveRegistry.ts`
+3. Check Melt UI has the builder
+4. Create folder `primitives/{name}/`
+5. Implement all slot components
+6. Write tests (minimum counts enforced)
+7. Document accessibility in `a11y.md`
+8. Export from `primitives/index.ts`
+
+**Rules:**
+
+- File naming: `{name}.svelte`, `{name}.{slot}.svelte`
 - No `<style>` blocks
 - No CSS imports
-- No direct styling logic
-- Only re-export Bits UI with ColdLight API
+- `index.ts` is imports/exports only
+- Every element has `data-kind`, `data-slot`
+- Stateful elements have `data-state`
+
+---
+
+**This is the canonical primitives reference.**

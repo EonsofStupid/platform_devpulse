@@ -1,17 +1,20 @@
 /**
- * @file src/lib/design/primitives/index.ts
+ * @file primitives/index.ts
  * @layer primitives
  *
- * Barrel export for ColdLight primitives.
- * All primitives are pure behavior/accessibility components with NO styling.
- * Styling comes from recipe classes applied by components/renderers.
+ * ColdLight Primitives — Barrel Export
  *
- * @since 1.0.0
+ * Architecture:
+ * - Melt UI = ARIA Provider (roles, aria-*, IDs, focus, keyboard)
+ * - ColdLight = Design System (data-kind, data-slot, data-state, class, types)
+ *
+ * See CHECKLIST.md for implementation requirements.
  */
 
 // ============================================
 // FOUNDATION
 // ============================================
+
 export {
   type OmitStyle,
   type BaseProps,
@@ -19,6 +22,7 @@ export {
   PrimitiveStates,
   type PrimitiveState,
   stripStyleProp,
+  cn,
 } from "./types.js";
 
 export {
@@ -29,210 +33,22 @@ export {
 } from "./route-metadata.js";
 
 // ============================================
-// UTILITY PRIMITIVES
+// MELT UI PRIMITIVES
 // ============================================
-export { default as VisuallyHidden } from "./VisuallyHidden.svelte";
-export { default as Portal } from "./Portal.svelte";
-export { default as Presence, type PresenceState } from "./Presence.svelte";
+// Will be added as implemented:
+// - Dialog
+// - AlertDialog
+// - Sheet
+// - Popover
+// - Tooltip
+// - Tabs
+// - Select
+// - Button
 
 // ============================================
-// BITS UI NAMESPACE RE-EXPORTS
+// TANSTACK
 // ============================================
-// Usage: import { Dialog } from "$lib/design/primitives";
-//        <Dialog.Root>, <Dialog.Trigger>, <Dialog.Content>, etc.
 
-export { Accordion } from "./Accordion.js";
-// AlertDialog - ColdLight wrapped primitive (nested folder)
-export * as AlertDialog from "./alert-dialog/index.js";
-export type {
-  AlertDialogRootProps,
-  AlertDialogTriggerProps,
-  AlertDialogPortalProps,
-  AlertDialogOverlayProps,
-  AlertDialogContentProps,
-  AlertDialogTitleProps,
-  AlertDialogDescriptionProps,
-  AlertDialogActionProps,
-  AlertDialogCancelProps,
-  AlertDialogState,
-  AlertDialogSlot,
-} from "./alert-dialog/index.js";
-export { AlertDialogSlots } from "./alert-dialog/index.js";
-export { AspectRatio } from "./AspectRatio.js";
-export { Avatar } from "./Avatar.js";
-// Button - ColdLight wrapped primitive (nested folder)
-export { Button, type ButtonProps, type ButtonState, type ButtonSlot, ButtonSlots } from "./button/index.js";
-export { Calendar } from "./Calendar.js";
-export { Checkbox } from "./Checkbox.js";
-export { Collapsible } from "./Collapsible.js";
-export { Combobox } from "./Combobox.js";
-export { Command } from "./Command.js";
-export { ContextMenu } from "./ContextMenu.js";
-export { DateField } from "./DateField.js";
-export { DatePicker } from "./DatePicker.js";
-// Dialog - ColdLight wrapped primitive (nested folder)
-export * as Dialog from "./dialog/index.js";
-export type {
-  DialogRootProps,
-  DialogTriggerProps,
-  DialogPortalProps,
-  DialogOverlayProps,
-  DialogContentProps,
-  DialogTitleProps,
-  DialogDescriptionProps,
-  DialogCloseProps,
-  DialogState,
-  DialogSlot,
-} from "./dialog/index.js";
-export { DialogSlots } from "./dialog/index.js";
-export { DropdownMenu } from "./DropdownMenu.js";
-export { HoverCard } from "./HoverCard.js";
-export { Label } from "./Label.js";
-export { Menubar } from "./Menubar.js";
-export { NavigationMenu } from "./NavigationMenu.js";
-export { Pagination } from "./Pagination.js";
-// Popover - ColdLight wrapped primitive (nested folder)
-export * as Popover from "./popover/index.js";
-export type {
-  PopoverRootProps,
-  PopoverTriggerProps,
-  PopoverPortalProps,
-  PopoverOverlayProps,
-  PopoverContentProps,
-  PopoverCloseProps,
-  PopoverArrowProps,
-  PopoverState,
-  PopoverSlot,
-  PopoverSide,
-  PopoverAlign,
-} from "./popover/index.js";
-export { PopoverSlots } from "./popover/index.js";
-export { Progress } from "./Progress.js";
-export { RadioGroup } from "./RadioGroup.js";
-export { ScrollArea } from "./ScrollArea.js";
-// Select - ColdLight wrapped primitive (nested folder)
-export * as Select from "./select/index.js";
-export type {
-  SelectRootProps,
-  SelectTriggerProps,
-  SelectPortalProps,
-  SelectContentProps,
-  SelectViewportProps,
-  SelectItemProps,
-  SelectItemTextProps,
-  SelectItemGroupProps,
-  SelectGroupLabelProps,
-  SelectSeparatorProps,
-  SelectScrollUpProps,
-  SelectScrollDownProps,
-  SelectArrowProps,
-  SelectState,
-  SelectSlot,
-  SelectType,
-  SelectSide,
-  SelectAlign,
-  SelectItem,
-} from "./select/index.js";
-export { SelectSlots } from "./select/index.js";
-export { Separator } from "./Separator.js";
-export { Slider } from "./Slider.js";
-export { Switch } from "./Switch.js";
-// Tabs - ColdLight wrapped primitive (nested folder)
-export * as Tabs from "./tabs/index.js";
-export type {
-	TabsRootProps,
-	TabsListProps,
-	TabsTriggerProps,
-	TabsContentProps,
-	TabsState,
-	TabsSlot,
-	TabsOrientation,
-	TabsActivationMode,
-} from "./tabs/index.js";
-export { TabsSlots } from "./tabs/index.js";
-export { TimeField } from "./TimeField.js";
-export { Toggle } from "./Toggle.js";
-export { ToggleGroup } from "./ToggleGroup.js";
-// Tooltip - ColdLight wrapped primitive (nested folder)
-export * as Tooltip from "./tooltip/index.js";
-export type {
-  TooltipRootProps,
-  TooltipProviderProps,
-  TooltipTriggerProps,
-  TooltipPortalProps,
-  TooltipContentProps,
-  TooltipArrowProps,
-  TooltipState,
-  TooltipSlot,
-  TooltipSide,
-  TooltipAlign,
-} from "./tooltip/index.js";
-export { TooltipSlots } from "./tooltip/index.js";
-
-// ============================================
-// CUSTOM ARIA PRIMITIVES
-// ============================================
-export { default as Alert } from "./Alert.svelte";
-export { default as Badge } from "./Badge.svelte";
-export { default as ButtonGroup } from "./ButtonGroup.svelte";
-export { default as Card } from "./Card.svelte";
-export { default as Chart } from "./Chart.svelte";
-export { default as Empty } from "./Empty.svelte";
-export { default as Field } from "./Field.svelte";
-export { default as FocusTrap } from "./FocusTrap.svelte";
-export { default as Form } from "./Form.svelte";
-export { default as InputEmail } from "./InputEmail.svelte";
-export { default as InputGroup } from "./InputGroup.svelte";
-export { default as InputNumber } from "./InputNumber.svelte";
-export { default as InputOTP } from "./InputOTP.svelte";
-export { default as InputPassword } from "./InputPassword.svelte";
-export { default as InputText } from "./InputText.svelte";
-export { default as Kbd } from "./Kbd.svelte";
-export { default as LiveStatus } from "./LiveStatus.svelte";
-export { default as NativeSelect } from "./NativeSelect.svelte";
-export { default as Skeleton } from "./Skeleton.svelte";
-export { default as Spinner } from "./Spinner.svelte";
-export { default as Table } from "./Table.svelte";
-export { default as Textarea } from "./Textarea.svelte";
-export { default as Typography } from "./Typography.svelte";
-
-// ============================================
-// SMART/ROUTE-AWARE PRIMITIVES
-// ============================================
-export {
-  default as Breadcrumb,
-  type BreadcrumbItem,
-} from "./Breadcrumb.svelte";
-
-export {
-  default as Sidebar,
-  type SidebarItem,
-} from "./Sidebar.svelte";
-
-export {
-  default as NavMenu,
-  type NavMenuItem,
-} from "./NavMenu.svelte";
-
-export {
-  default as Carousel,
-  type CarouselItem,
-} from "./Carousel.svelte";
-
-// ============================================
-// FEATURE PRIMITIVES
-// ============================================
-export {
-  default as DataTable,
-  type Table as DataTableInstance,
-  type ColumnDef,
-  type Row,
-  type Header,
-  type Cell,
-  type SortDirection,
-} from "./DataTable.svelte";
-
-// TanStack Table Svelte 5 Adapter
 export {
   createSvelteTable,
   renderComponent,
@@ -244,25 +60,3 @@ export {
   getPaginationRowModel,
   createColumnHelper,
 } from "./tanstack/index.js";
-
-// ============================================
-// INTEGRATION PRIMITIVES
-// ============================================
-export { default as Toast, toast } from "./Toast.svelte";
-
-// Sheet - ColdLight wrapped primitive (nested folder)
-export * as Sheet from "./sheet/index.js";
-export type {
-  SheetRootProps,
-  SheetTriggerProps,
-  SheetPortalProps,
-  SheetOverlayProps,
-  SheetContentProps,
-  SheetTitleProps,
-  SheetDescriptionProps,
-  SheetCloseProps,
-  SheetState,
-  SheetSlot,
-  SheetSide,
-} from "./sheet/index.js";
-export { SheetSlots } from "./sheet/index.js";

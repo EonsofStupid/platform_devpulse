@@ -11,7 +11,9 @@
       "Bash(pnpm audit:primitives:*)",
       "Bash(pnpm docs:primitives:*)",
       "Bash(git add:*)",
-      "Bash(git commit --no-verify -m \"$\\(cat <<''EOF''\nchore: stage work-in-progress for ColdLight architecture overhaul\n\nIncludes:\n- OLD_PROJECTS_CSS_TSX reference files for pattern analysis\n- design/sys/ folder structure \\(api/_internal, cfg\\)\n- tech_refs/ folder for Bits UI API reference\n- temp_docs/ Docusaurus setup\n- Primitives work \\(tooltip, select, popover updates\\)\n- Documentation updates in progress\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+      "Bash(git commit --no-verify -m \"$\\(cat <<''EOF''\nchore: stage work-in-progress for ColdLight architecture overhaul\n\nIncludes:\n- OLD_PROJECTS_CSS_TSX reference files for pattern analysis\n- design/sys/ folder structure \\(api/_internal, cfg\\)\n- tech_refs/ folder for Bits UI API reference\n- temp_docs/ Docusaurus setup\n- Primitives work \\(tooltip, select, popover updates\\)\n- Documentation updates in progress\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git checkout:*)",
+      "Bash(git commit:*)"
     ]
   }
 }

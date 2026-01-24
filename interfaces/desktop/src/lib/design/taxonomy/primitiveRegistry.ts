@@ -89,13 +89,13 @@ export type SlotsFor<K extends PrimitiveKind> = PrimitiveSlotsMap[K][number];
 export interface PrimitiveMetadata {
   /** Human-readable description */
   description: string;
-  /** Bits UI source component (if wrapping Bits UI) */
-  bitsUiSource?: string;
-  /** Whether this primitive is custom (not wrapping Bits UI) */
+  /** Melt UI builder function name */
+  meltBuilder?: string;
+  /** Whether this primitive is custom (not wrapping Melt UI) */
   isCustom?: boolean;
-  /** ARIA role for the root element */
+  /** ARIA role for the root element (provided by Melt UI) */
   ariaRole?: string;
-  /** Whether this primitive manages focus */
+  /** Whether this primitive manages focus (handled by Melt UI) */
   managesFocus?: boolean;
   /** Whether this primitive supports controlled/uncontrolled modes */
   supportsControlled?: boolean;
@@ -103,64 +103,64 @@ export interface PrimitiveMetadata {
 
 export const PrimitiveMetadata: Record<PrimitiveKind, PrimitiveMetadata> = {
   // Buttons & Toggles
-  button: { description: "Interactive button element", bitsUiSource: "Button", ariaRole: "button", managesFocus: true },
-  toggle: { description: "Two-state toggle button", bitsUiSource: "Toggle", ariaRole: "button", supportsControlled: true },
-  toggleGroup: { description: "Group of toggle buttons", bitsUiSource: "ToggleGroup", ariaRole: "group" },
-  switch: { description: "On/off switch control", bitsUiSource: "Switch", ariaRole: "switch", supportsControlled: true },
+  button: { description: "Interactive button element", isCustom: true, ariaRole: "button", managesFocus: true },
+  toggle: { description: "Two-state toggle button", meltBuilder: "createToggle", ariaRole: "button", supportsControlled: true },
+  toggleGroup: { description: "Group of toggle buttons", meltBuilder: "createToggleGroup", ariaRole: "group" },
+  switch: { description: "On/off switch control", meltBuilder: "createSwitch", ariaRole: "switch", supportsControlled: true },
 
   // Inputs & Forms
-  checkbox: { description: "Checkbox input", bitsUiSource: "Checkbox", ariaRole: "checkbox", supportsControlled: true },
-  radioGroup: { description: "Radio button group", bitsUiSource: "RadioGroup", ariaRole: "radiogroup", supportsControlled: true },
-  slider: { description: "Numeric slider input", bitsUiSource: "Slider", ariaRole: "slider", supportsControlled: true },
-  label: { description: "Form label element", bitsUiSource: "Label", ariaRole: "label" },
+  checkbox: { description: "Checkbox input", meltBuilder: "createCheckbox", ariaRole: "checkbox", supportsControlled: true },
+  radioGroup: { description: "Radio button group", meltBuilder: "createRadioGroup", ariaRole: "radiogroup", supportsControlled: true },
+  slider: { description: "Numeric slider input", meltBuilder: "createSlider", ariaRole: "slider", supportsControlled: true },
+  label: { description: "Form label element", meltBuilder: "createLabel", ariaRole: "label" },
   input: { description: "Text input field", isCustom: true, ariaRole: "textbox" },
   textarea: { description: "Multi-line text input", isCustom: true, ariaRole: "textbox" },
-  select: { description: "Select dropdown", bitsUiSource: "Select", ariaRole: "listbox", supportsControlled: true, managesFocus: true },
-  combobox: { description: "Autocomplete input", bitsUiSource: "Combobox", ariaRole: "combobox", supportsControlled: true, managesFocus: true },
+  select: { description: "Select dropdown", meltBuilder: "createSelect", ariaRole: "listbox", supportsControlled: true, managesFocus: true },
+  combobox: { description: "Autocomplete input", meltBuilder: "createCombobox", ariaRole: "combobox", supportsControlled: true, managesFocus: true },
 
   // Date & Time
-  calendar: { description: "Calendar date picker", bitsUiSource: "Calendar", ariaRole: "grid", managesFocus: true },
-  dateField: { description: "Date input field", bitsUiSource: "DateField", supportsControlled: true },
-  datePicker: { description: "Date picker with calendar", bitsUiSource: "DatePicker", supportsControlled: true, managesFocus: true },
-  timeField: { description: "Time input field", bitsUiSource: "TimeField", supportsControlled: true },
+  calendar: { description: "Calendar date picker", meltBuilder: "createCalendar", ariaRole: "grid", managesFocus: true },
+  dateField: { description: "Date input field", meltBuilder: "createDateField", supportsControlled: true },
+  datePicker: { description: "Date picker with calendar", meltBuilder: "createDatePicker", supportsControlled: true, managesFocus: true },
+  timeField: { description: "Time input field", isCustom: true, supportsControlled: true },
 
   // Dialogs & Overlays
-  dialog: { description: "Modal dialog", bitsUiSource: "Dialog", ariaRole: "dialog", managesFocus: true, supportsControlled: true },
-  alertDialog: { description: "Alert dialog requiring action", bitsUiSource: "AlertDialog", ariaRole: "alertdialog", managesFocus: true, supportsControlled: true },
-  popover: { description: "Popover overlay", bitsUiSource: "Popover", managesFocus: true, supportsControlled: true },
-  hoverCard: { description: "Hover-triggered card", bitsUiSource: "HoverCard", supportsControlled: true },
-  tooltip: { description: "Tooltip overlay", bitsUiSource: "Tooltip", ariaRole: "tooltip", supportsControlled: true },
-  contextMenu: { description: "Right-click context menu", bitsUiSource: "ContextMenu", ariaRole: "menu", managesFocus: true },
-  dropdownMenu: { description: "Dropdown menu", bitsUiSource: "DropdownMenu", ariaRole: "menu", managesFocus: true },
+  dialog: { description: "Modal dialog", meltBuilder: "createDialog", ariaRole: "dialog", managesFocus: true, supportsControlled: true },
+  alertDialog: { description: "Alert dialog requiring action", meltBuilder: "createDialog", ariaRole: "alertdialog", managesFocus: true, supportsControlled: true },
+  popover: { description: "Popover overlay", meltBuilder: "createPopover", managesFocus: true, supportsControlled: true },
+  hoverCard: { description: "Hover-triggered card", meltBuilder: "createLinkPreview", supportsControlled: true },
+  tooltip: { description: "Tooltip overlay", meltBuilder: "createTooltip", ariaRole: "tooltip", supportsControlled: true },
+  contextMenu: { description: "Right-click context menu", meltBuilder: "createContextMenu", ariaRole: "menu", managesFocus: true },
+  dropdownMenu: { description: "Dropdown menu", meltBuilder: "createDropdownMenu", ariaRole: "menu", managesFocus: true },
 
   // Navigation
-  tabs: { description: "Tabbed interface", bitsUiSource: "Tabs", ariaRole: "tablist", managesFocus: true, supportsControlled: true },
-  accordion: { description: "Expandable accordion", bitsUiSource: "Accordion", managesFocus: true, supportsControlled: true },
-  collapsible: { description: "Collapsible content", bitsUiSource: "Collapsible", supportsControlled: true },
-  navigationMenu: { description: "Navigation menu", bitsUiSource: "NavigationMenu", ariaRole: "navigation", managesFocus: true },
-  menubar: { description: "Horizontal menu bar", bitsUiSource: "Menubar", ariaRole: "menubar", managesFocus: true },
-  pagination: { description: "Pagination controls", bitsUiSource: "Pagination", ariaRole: "navigation" },
+  tabs: { description: "Tabbed interface", meltBuilder: "createTabs", ariaRole: "tablist", managesFocus: true, supportsControlled: true },
+  accordion: { description: "Expandable accordion", meltBuilder: "createAccordion", managesFocus: true, supportsControlled: true },
+  collapsible: { description: "Collapsible content", meltBuilder: "createCollapsible", supportsControlled: true },
+  navigationMenu: { description: "Navigation menu", isCustom: true, ariaRole: "navigation", managesFocus: true },
+  menubar: { description: "Horizontal menu bar", meltBuilder: "createMenubar", ariaRole: "menubar", managesFocus: true },
+  pagination: { description: "Pagination controls", meltBuilder: "createPagination", ariaRole: "navigation" },
   breadcrumb: { description: "Breadcrumb navigation", isCustom: true, ariaRole: "navigation" },
 
   // Layout & Display
-  aspectRatio: { description: "Aspect ratio container", bitsUiSource: "AspectRatio" },
-  avatar: { description: "User avatar display", bitsUiSource: "Avatar", ariaRole: "img" },
-  separator: { description: "Visual separator", bitsUiSource: "Separator", ariaRole: "separator" },
-  scrollArea: { description: "Custom scrollable area", bitsUiSource: "ScrollArea" },
-  progress: { description: "Progress indicator", bitsUiSource: "Progress", ariaRole: "progressbar" },
+  aspectRatio: { description: "Aspect ratio container", isCustom: true },
+  avatar: { description: "User avatar display", meltBuilder: "createAvatar", ariaRole: "img" },
+  separator: { description: "Visual separator", meltBuilder: "createSeparator", ariaRole: "separator" },
+  scrollArea: { description: "Custom scrollable area", meltBuilder: "createScrollArea" },
+  progress: { description: "Progress indicator", meltBuilder: "createProgress", ariaRole: "progressbar" },
 
   // Search & Commands
-  command: { description: "Command palette", bitsUiSource: "Command", ariaRole: "listbox", managesFocus: true },
+  command: { description: "Command palette", isCustom: true, ariaRole: "listbox", managesFocus: true },
 
   // Feedback
-  toast: { description: "Toast notification", isCustom: true, ariaRole: "status" },
+  toast: { description: "Toast notification", meltBuilder: "createToaster", ariaRole: "status" },
   alert: { description: "Inline alert message", isCustom: true, ariaRole: "alert" },
   badge: { description: "Status badge", isCustom: true },
   skeleton: { description: "Loading skeleton", isCustom: true },
   spinner: { description: "Loading spinner", isCustom: true, ariaRole: "status" },
 
   // Utilities
-  portal: { description: "Portal for rendering outside DOM hierarchy", bitsUiSource: "Portal" },
+  portal: { description: "Portal for rendering outside DOM hierarchy", isCustom: true },
   presence: { description: "Presence animation wrapper", isCustom: true },
   focusTrap: { description: "Focus trap container", isCustom: true, managesFocus: true },
   visuallyHidden: { description: "Screen reader only content", isCustom: true },

@@ -53,7 +53,7 @@
         "@tanstack/table-core": "^8.21.3",
         "@tauri-apps/api": "^2.0.0-rc",
         "@tauri-apps/plugin-shell": "^2.0.0-rc",
-        "bits-ui": "^2.15.4",
+        "@melt-ui/svelte": "^0.86.3",
         "clsx": "^2.1.0",
         "svelte-sonner": "^1.0.7",
         "tailwind-merge": "^2.2.0",

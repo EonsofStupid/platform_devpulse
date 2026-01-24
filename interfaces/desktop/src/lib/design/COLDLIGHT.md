@@ -2,7 +2,7 @@
 
 > **@devpulse/coldlight** — Liquid surface design system. Particle effects, metal, glass, molten aesthetics.
 >
-> Named for Nikola Tesla's cold light gas tubes — PBS documented this phenomenon in the 1890 as "cold light."
+> Named for Nikola Tesla's cold light gas tubes — documented as "cold light" in the 1890s.
 
 ---
 
@@ -21,18 +21,51 @@
 
 ## What ColdLight Is
 
-ColdLight is a **token-first, recipe-driven design system** built for:
+ColdLight is a **token-first, taxonomy-driven design system** built for:
 
 - **SvelteKit 5** — Framework
-- **Bits UI** — Headless primitives (accessibility, keyboard, focus)
-- **Tailwind CSS** — Utility classes, JIT compilation
+- **Melt UI** — ARIA provider (accessibility, keyboard, focus)
+- **Tailwind CSS 4** — Utility classes, JIT compilation
+- **DaisyUI** — UI quality via recipes
 - **Vite** — Build-time enforcement and generation
 
 ColdLight is **NOT**:
 
-- A portable/framework-agnostic system
+- A portable/framework-agnostic system (Svelte-first)
 - A CSS-in-JS solution
-- A component library (it ships primitives + surfaces, not styled components)
+- A component library (it ships primitives + surfaces + semantics)
+
+---
+
+## Core Architecture (Locked)
+
+### Provider Model
+
+| Provider | Responsibility |
+|----------|---------------|
+| **Melt UI** | ARIA attributes, focus management, keyboard navigation |
+| **ColdLight** | Taxonomy, data attributes, type system, recipes |
+
+### Primitive Contract
+
+Every primitive is identified via:
+
+```
+data-kind   = primitive identity (dialog, select, button)
+data-slot   = slot within primitive (root, trigger, content)
+data-state  = state machine output (open, closed, active)
+```
+
+### Layer Model
+
+| Layer | Folder | Description | Example |
+|-------|--------|-------------|---------|
+| 0 | `tokens/` | Design tokens (SSOT) | `tokens.ts` |
+| 2 | `recipes/` | Style compositions | `data-surface="glass"` |
+| 3 | `primitives/` | Melt UI wrappers | `dialog.svelte` |
+| 4 | `semantics/` | Primitives + Recipes | `GlassButton.svelte` |
+| 5 | `patterns/` | Multiple semantics | `LoginForm.svelte` |
+| 6 | `blocks/` | Page sections | `HeroGlass.svelte` |
 
 ---
 
@@ -49,8 +82,6 @@ ColdLight produces interfaces with:
 - **Beveled depth** — Inset/outset edges for tactile dimension
 - **Dark-first** — Dark variant only (light variant planned for future)
 
-Reference aesthetic: Tesla's gas tube experiments, liquid metal interfaces, particle physics visualizations, molten glass formations.
-
 ---
 
 ## Architecture
@@ -62,15 +93,20 @@ Reference aesthetic: Tesla's gas tube experiments, liquid metal interfaces, part
 │   ├── tokens.css    # GENERATED
 │   ├── types.ts      # GENERATED
 │   └── schema.ts     # Zod validators
-├── taxonomy/         # Block definitions
-│   ├── kinds.ts      # Block kinds (panel, card, shell, etc.)
-│   ├── contracts.ts  # Prop schemas per kind
+├── taxonomy/         # SSOT registries
+│   ├── primitiveKinds.ts   # All data-kind values
+│   ├── primitiveRegistry.ts # Slots + metadata
+│   ├── kinds.ts      # Block kinds (shell, surface, widget)
+│   ├── contracts.ts  # Prop schemas (Zod)
 │   └── slots.ts      # Slot definitions
+├── sys/api/_internal/ # Provider mapping layer
+│   └── melt/         # Melt UI integration
 ├── recipes/          # Style composition
 │   ├── index.ts      # Recipe registry
 │   ├── actions/      # Svelte actions (glowTrack, ripple)
-│   └── css/          # GENERATED recipe CSS
-├── primitives/       # Bits UI wrappers (no styling)
+│   └── css/          # Generated recipe CSS
+├── primitives/       # Melt UI wrappers (data-kind/slot/state)
+│   └── {name}/       # Each primitive in its own folder
 └── vite-plugin.ts    # Build-time generation + enforcement
 ```
 
@@ -78,53 +114,66 @@ Reference aesthetic: Tesla's gas tube experiments, liquid metal interfaces, part
 
 ## The Rules (Non-Negotiable)
 
-### Rule 1: tokens.ts is the ONLY source of truth
+### Rule 1: Melt UI is the ARIA provider
 
-All token values live in `tokens/tokens.ts`. Everything else is generated:
+ColdLight does NOT set:
+- `role` attributes
+- `aria-*` attributes
+- `tabindex`
+- Focus trap logic
+- Keyboard handlers
 
-- `tokens.css` — Generated CSS custom properties
-- `types.ts` — Generated TypeScript types
-- `tailwind.preset.ts` — Generated Tailwind theme mapping
-- `surfaces.gen.css` — Generated recipe CSS
+Melt UI handles all of this via `use:melt={$element}`.
 
-**Never hand-edit generated files.**
+### Rule 2: Taxonomy first
 
-### Rule 2: Components cannot contain colors or CSS
+Before writing ANY primitive:
+1. Verify kind exists in `taxonomy/primitiveKinds.ts`
+2. Verify slots exist in `taxonomy/primitiveRegistry.ts`
+3. Verify state enum exists (if stateful)
+4. THEN write the primitive
+
+### Rule 3: `{name}.svelte` naming
+
+```
+✅ dialog.svelte, dialog.trigger.svelte
+❌ Dialog.svelte, DialogTrigger.svelte
+```
+
+### Rule 4: `index.ts` is clean
+
+```typescript
+// ✅ CORRECT
+export { default as Dialog } from './dialog.svelte';
+export type { DialogRootProps } from './types.js';
+
+// ❌ WRONG - no logic in index.ts
+import { something } from 'somewhere';
+const computed = something();
+```
+
+### Rule 5: Three data attributes
+
+Every primitive element emits:
+
+| Attribute | Required | Example |
+|-----------|----------|---------|
+| `data-kind` | ALWAYS | `"dialog"` |
+| `data-slot` | ALWAYS | `"content"` |
+| `data-state` | If stateful | `"open"` |
+| `data-id` | If user provides | `"my-dialog"` |
+
+### Rule 6: Components cannot contain colors
 
 Components use:
-
 - Token references (`var(--dp-*)`)
 - Recipe classes (`dp-surface`)
 - Data attributes (`data-surface="glass"`)
 
 Components **never** contain:
-
 - Raw color values (`#fff`, `oklch()`, `rgb()`)
 - Arbitrary Tailwind values (`bg-[#000]`, `text-[12px]`)
 - Inline styles (`style="color: red"`)
-- CSS custom property definitions (`--my-var: value`)
-
-### Rule 3: Recipes are the only place styling decisions happen
-
-Recipes map (kind + variant + modifiers) → CSS classes.
-
-Components don't "style themselves" — they apply recipe output.
-
-### Rule 4: Vite plugin enforces at build time
-
-The Vite plugin:
-
-1. **Generates** — Runs token generator on build/HMR
-2. **Validates** — Checks all .svelte files in scope
-3. **Fails** — Hard error with file:line on violation
-
-No manual scripts. No CI checks. Build-time enforcement only.
-
-### Rule 5: Dark variant first
-
-Build the dark variant completely before adding light.
-
-Theme variants change **values only**, never token **names** or component **structure**.
 
 ---
 
@@ -162,171 +211,45 @@ Recipes are CSS rules that style surfaces via data attributes:
 .dp-surface[data-surface="matte"] { ... }
 .dp-surface[data-surface="solid"] { ... }
 
-/* Role modifier */
-.dp-surface[data-role="button"] { ... }
-.dp-surface[data-role="input"] { ... }
-.dp-surface[data-role="panel"] { ... }
-
-/* Variant modifier */
-.dp-surface[data-variant="void"] { ... }
-.dp-surface[data-variant="deep"] { ... }
-
-/* Glow modifier */
+/* Modifiers */
 .dp-surface[data-glow="teal"] { ... }
-.dp-surface[data-glow="purple"] { ... }
-
-/* Bevel modifier */
 .dp-surface[data-bevel="subtle"] { ... }
-.dp-surface[data-bevel="deep"] { ... }
 ```
 
 ### Using Recipes
 
 ```svelte
-<!-- Glass button with teal glow -->
-<button class="dp-surface" data-surface="glass" data-role="button" data-glow="teal">
-  Click me
+<!-- Primitive (behavior) + Recipe (appearance) -->
+<button
+  use:melt={$trigger}
+  class="dp-surface"
+  data-kind="dialog"
+  data-slot="trigger"
+  data-surface="glass"
+  data-glow="teal"
+>
+  Open Dialog
 </button>
-
-<!-- Deep glass panel -->
-<div class="dp-surface" data-surface="glass" data-role="panel" data-variant="deep">
-  Content
-</div>
 ```
 
 ---
 
 ## Primitives
 
-Primitives are **Bits UI wrappers** with no styling:
+Primitives are **Melt UI wrappers** with data-kind/slot/state:
 
-| Primitive | Wraps | Purpose |
-|-----------|-------|---------|
-| `Button` | Bits UI Button | Click interaction |
-| `Dialog` | Bits UI Dialog | Modal overlay |
-| `Toggle` | Bits UI Toggle | Boolean switch |
-| `Tabs` | Bits UI Tabs | Tab navigation |
-| `Accordion` | Bits UI Accordion | Collapsible sections |
-| `Popover` | Bits UI Popover | Floating content |
-| `Select` | Bits UI Select | Dropdown selection |
+| Primitive | Melt Builder | Purpose |
+|-----------|-------------|---------|
+| `dialog` | `createDialog` | Modal dialog |
+| `alertDialog` | `createDialog` (role: alertdialog) | Alert requiring action |
+| `popover` | `createPopover` | Floating content |
+| `tooltip` | `createTooltip` | Information popup |
+| `tabs` | `createTabs` | Tab navigation |
+| `select` | `createSelect` | Dropdown selection |
+| `button` | — | Click interaction |
 
-Primitives handle **behavior** (focus, keyboard, accessibility).
-Recipes handle **appearance** (colors, shadows, borders).
-
----
-
-## Vite Plugin
-
-### Installation
-
-```typescript
-// vite.config.ts
-import { coldlight } from '@devpulse/coldlight/vite-plugin';
-
-export default defineConfig({
-  plugins: [
-    coldlight(),
-    // ... other plugins
-  ],
-});
-```
-
-### What It Does
-
-1. **On build start**: Generates all CSS/TS from tokens.ts
-2. **On HMR**: Regenerates when tokens.ts changes
-3. **On transform**: Validates .svelte files for violations
-4. **On violation**: Fails build with detailed error
-
-### Violation Errors
-
-```
-[coldlight] VIOLATION in src/components/MyButton.svelte:42
-  Found arbitrary Tailwind value: bg-[#ff0000]
-  Use a token instead: bg-dp-ember-500
-
-[coldlight] VIOLATION in src/components/Panel.svelte:18
-  Found CSS custom property definition: --my-color
-  Component-scoped CSS variables are not allowed
-```
-
----
-
-## Block Kinds (Taxonomy)
-
-Kinds define what can be composed in VPB:
-
-### Shell Kinds (CSS Grid required)
-
-| Kind | Description | Slots |
-|------|-------------|-------|
-| `appShell` | Root application shell | topBar, sideNav, main, statusBar, dock |
-| `topBar` | Top navigation bar | left, center, right |
-| `sideNav` | Side navigation panel | header, body, footer |
-| `statusBar` | Bottom status bar | left, center, right |
-| `dock` | Floating dock container | content |
-
-### Surface Kinds
-
-| Kind | Description | Slots |
-|------|-------------|-------|
-| `panel` | Generic container | header, body, footer |
-| `card` | Card surface | header, body, footer |
-| `modal` | Modal overlay | header, body, footer |
-| `glassFrame` | Glass frame | content |
-| `inputFrame` | Input container | prefix, input, suffix |
-
-### Widget Kinds
-
-| Kind | Description | Slots |
-|------|-------------|-------|
-| `widget` | Dashboard widget | header, body |
-| `statMeter` | Stat display | value, label |
-| `chart` | Chart widget | header, chart |
-
-### Chat Kinds
-
-| Kind | Description | Slots |
-|------|-------------|-------|
-| `chatDock` | Chat dock panel | header, messages, input |
-| `chatThread` | Message thread | messages |
-| `chatBubble` | Single message | content, meta |
-
----
-
-## Contracts (Prop Schemas)
-
-Every kind has a Zod schema defining its props:
-
-```typescript
-// Base surface props (all surfaces extend this)
-interface DsSurfaceProps {
-  color: {
-    mode: "mono" | "duo";
-    a: AccentToken;
-    b?: AccentToken;
-  };
-  surface: {
-    finish: "glass" | "matte" | "solid";
-    texture?: "none" | "noise" | "grain";
-    clarity?: "void" | "deep" | "smoke" | "frost";
-  };
-  frame: {
-    mode: "none" | "solid" | "glow";
-    width: "thin" | "medium" | "thick";
-    glow: GlowToken | "off";
-  };
-  depth: {
-    intent: "flat" | "raised" | "sunken" | "floating";
-    bevel: {
-      level: "off" | "subtle" | "soft" | "medium";
-      style: "outset" | "inset" | "imprint";
-    };
-  };
-}
-```
-
-Props use **enum values only** — never raw colors or CSS.
+Primitives handle **ARIA and behavior** (via Melt UI).
+Recipes handle **appearance** (via CSS).
 
 ---
 
@@ -334,69 +257,87 @@ Props use **enum values only** — never raw colors or CSS.
 
 ```
 interfaces/desktop/src/lib/design/
-├── COLDLIGHT.md              # This document (canonical spec)
-├── package.json              # Package manifest
+├── COLDLIGHT.md              # This document
+├── README.md                 # Quick start guide
 ├── index.ts                  # Main barrel export
 ├── index.css                 # CSS entry point
 ├── vite-plugin.ts            # Vite plugin
-├── tokens/
+│
+├── tokens/                   # Layer 0: Design Tokens
+│   ├── README.md             # Token checklist
 │   ├── tokens.ts             # SSOT (hand-edited)
 │   ├── tokens.css            # GENERATED
 │   ├── types.ts              # GENERATED
-│   ├── tailwind.preset.ts    # GENERATED
-│   └── schema.ts             # Zod validators
-├── taxonomy/
-│   ├── kinds.ts              # Block kind definitions
+│   └── tailwind.preset.ts    # GENERATED
+│
+├── taxonomy/                 # SSOT Registries
+│   ├── README.md             # Taxonomy checklist
+│   ├── primitiveKinds.ts     # All primitive kinds
+│   ├── primitiveRegistry.ts  # Slots + metadata
+│   ├── kinds.ts              # Block kinds
 │   ├── contracts.ts          # Prop schemas
 │   └── slots.ts              # Slot definitions
-├── recipes/
+│
+├── recipes/                  # Layer 2: Style Compositions
+│   ├── README.md             # Recipe checklist
 │   ├── index.ts              # Recipe registry
-│   ├── actions/
-│   │   ├── index.ts          # Action registry
-│   │   ├── glowTrack.ts      # Mouse glow tracking
-│   │   └── ripple.ts         # Ripple effect
-│   └── css/
-│       ├── keyframes.css     # Animation keyframes
-│       └── surfaces.gen.css  # GENERATED recipe CSS
-├── primitives/
-│   ├── Button.svelte         # Bits UI Button
-│   ├── Dialog.svelte         # Bits UI Dialog
-│   ├── Toggle.svelte         # Bits UI Toggle
-│   ├── Tabs.svelte           # Bits UI Tabs
-│   ├── Accordion.svelte      # Bits UI Accordion
-│   ├── Popover.svelte        # Bits UI Popover
-│   └── Select.svelte         # Bits UI Select
-└── docs/
-    ├── tokens.md             # Token documentation
-    ├── recipes.md            # Recipe documentation
-    ├── primitives.md         # Primitive documentation
-    └── taxonomy.md           # Taxonomy documentation
+│   ├── actions/              # Svelte actions
+│   └── css/                  # GENERATED CSS
+│
+├── primitives/               # Layer 3: Melt UI Wrappers
+│   ├── README.md             # Primitive checklist
+│   └── {name}/               # Each primitive folder
+│
+├── semantics/                # Layer 4: Styled Components
+│   ├── README.md             # Semantics checklist
+│   ├── index.ts              # SSOT export
+│   ├── buttons/              # Button semantics
+│   ├── inputs/               # Input semantics
+│   ├── panels/               # Panel semantics
+│   └── cards/                # Card semantics
+│
+├── patterns/                 # Layer 5: Composed Patterns
+│   ├── README.md             # Patterns checklist
+│   ├── index.ts              # SSOT export
+│   ├── forms/                # Form patterns
+│   ├── search/               # Search patterns
+│   └── data/                 # Data display patterns
+│
+├── blocks/                   # Layer 6: Page Sections
+│   ├── README.md             # Blocks checklist
+│   ├── index.ts              # SSOT export
+│   ├── heroes/               # Hero sections
+│   ├── features/             # Feature grids
+│   ├── dashboards/           # Dashboard layouts
+│   ├── chat/                 # Chat interfaces
+│   ├── cta/                  # Call-to-action
+│   ├── carousels/            # Carousel sections
+│   └── navigation/           # Nav sections
+│
+└── docs/                     # Documentation
+    ├── TERMINOLOGY.md        # Industry terms
+    ├── tokens.md
+    ├── recipes.md
+    ├── primitives.md
+    └── taxonomy.md
 ```
-
----
-
-## Related Packages
-
-| Package | Purpose | Relationship |
-|---------|---------|--------------|
-| `@devpulse/coldlight` | Design system | This package |
-| `@devpulse/vpb` | Visual Page Builder | Consumes coldlight, separate package |
-
-VPB composes BlockNodes using ColdLight's taxonomy, contracts, and recipes.
 
 ---
 
 ## Commands
 
 ```bash
-# Development (handled by Vite plugin)
-pnpm dev                    # Starts dev server, plugin auto-generates
+# Development
+pnpm dev                    # Starts dev server
 
-# Manual generation (if needed)
-pnpm coldlight:generate     # One-shot token generation
+# Token generation
+pnpm ds:tokens:build        # Generate token outputs
 
-# Validation
-pnpm coldlight:check        # Check for violations without building
+# Type checking
+pnpm check                  # TypeScript check
+
+# Tests
+pnpm test:run primitives/   # Run primitive tests
 ```
 
 ---
@@ -405,11 +346,12 @@ pnpm coldlight:check        # Check for violations without building
 
 ### 0.1.0 (In Development)
 
-- Initial token system (OKLCH)
+- Melt UI as ARIA provider (replacing bits-ui)
+- Taxonomy-first architecture
+- Three-tier model (Primitive → Semantic → Compound)
+- `{name}.svelte` file naming convention
+- Token system (OKLCH)
 - Glass/matte/solid surface recipes
-- Glow and bevel modifiers
-- Bits UI primitive wrappers
-- Vite plugin for generation and enforcement
 - Dark variant only
 
 ---
@@ -424,3 +366,7 @@ MIT © Jesse "Hades" Hall
 
 - **Author**: Jesse "Hades" Hall <jessay@angryvibers.com>
 - **Team**: team@devpulse.app
+
+---
+
+**This is the canonical ColdLight specification.**

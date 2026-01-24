@@ -1,44 +1,51 @@
 # ColdLight Primitives — Development Workflow
 
-> **Last Updated:** 2026-01-22
-> **Completed:** Button, Dialog, Sheet, Tabs, AlertDialog, Popover, Tooltip, Select (8 primitives)
-> **Next:** Combobox (Sprint 8)
+> **Last Updated:** 2026-01-23
+> **ARIA Provider:** Melt UI
+> **Architecture:** See ADR-009, ADR-010, ADR-011
 
 ---
 
 ## ARCHITECTURE OVERVIEW
 
-**See:** `TAXONOMY.md`, `CLASS_COMPOSITION.md`, `sys/api/_internal/README.md`
+### Responsibility Split
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Melt UI (ARIA Provider)                                    │
+│  ───────────────────────                                    │
+│  • ARIA attributes (role, aria-*)                           │
+│  • ID generation and linking                                │
+│  • Focus management                                         │
+│  • Keyboard navigation                                      │
+│  • Event handlers                                           │
+│  • Floating positioning                                     │
+│  • Portal rendering                                         │
+│  Delivery: use:melt={$element} action                       │
+└─────────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────────┐
+│  ColdLight (Design System)                                  │
+│  ─────────────────────────                                  │
+│  • data-kind          (primitive taxonomy)                  │
+│  • data-slot          (slot identification)                 │
+│  • data-state         (visual state for CSS)                │
+│  • data-id            (user-controlled stable ID)           │
+│  • class              (recipe-based styling)                │
+│  • Type system        (props interfaces, validation)        │
+│  • Registry           (kind/material/recipe registration)   │
+│  • Audit              (diagram generation, JSDOC)           │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ### Key Principles
 
-1. **Taxonomy Registration** — Every primitive is a "kind" in the taxonomy
-2. **ColdLight Owns ARIA** — We add all accessibility attributes, not Bits UI
+1. **Melt UI = ARIA Provider** — All accessibility via `use:melt`
+2. **ColdLight = Design System** — Taxonomy, types, styling, audit
 3. **`data-kind` Attribute** — All primitives emit `data-kind="{name}"`
-4. **Bits UI = Behavior Only** — State management, focus, keyboard nav
-5. **_internal Adapter** — Primitives import from `sys/api/_internal`, not `bits-ui`
-
-### ARIA Ownership (CRITICAL)
-
-**ColdLight owns ALL accessibility attributes. Bits UI provides behavior ONLY.**
-
-```svelte
-<!-- CURRENT PATTERN (spreading Bits props for ARIA) -->
-<BitsDialog.Content>
-  {#snippet child({ props, open })}
-    <div {...props}>  <!-- props contains ARIA from Bits UI -->
-
-<!-- TARGET PATTERN (ColdLight owns ARIA) -->
-<BitsDialog.Content>
-  {#snippet child({ open })}
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby={titleId}
-    >
-```
-
-**Migration Note:** Existing primitives spread `{...props}` which includes Bits UI's ARIA. As we migrate to full ARIA ownership, we'll extract only behavioral state (`open`, `selected`, `highlighted`) and add ARIA ourselves.
+4. **Robust Tests** — Foundation-level test coverage, not minimal
+5. **Builder Context Pattern** — Root creates builder, shares via context
 
 ---
 
@@ -48,19 +55,20 @@ Every primitive MUST follow these phases in order. No skipping.
 
 ### Phase 0: Pre-Flight Check (MANDATORY)
 
-Before writing ANY code, verify the Bits UI API:
+Before writing ANY code, check the Melt UI builder API:
 
 ```bash
-# Check if component exposes state in child snippets
-cat node_modules/bits-ui/dist/bits/{primitive}/{primitive}.svelte.js | grep -A10 "snippetProps"
+# Reference the tech_refs documentation
+cat tech_refs/melt-ui/builders/{primitive}.md
 ```
 
-| If `snippetProps` EXISTS | If `snippetProps` MISSING |
-|--------------------------|---------------------------|
-| Destructure: `{ props, open }` | Extract from props: `props['data-state']` |
-| Follow Dialog pattern | Follow Tabs pattern |
+Verify:
+- [ ] Builder exists: `create{Name}` from `@melt-ui/svelte`
+- [ ] Elements available: `elements: { trigger, content, ... }`
+- [ ] States available: `states: { open, ... }`
+- [ ] Builder options match your props needs
 
-**Why this matters:** Bits UI v2.15.4 has inconsistent APIs. Dialog exposes `open` in child snippets, but Tabs does NOT expose `selected`. Skipping this check causes test failures.
+**Why this matters:** Each Melt builder has different options, elements, and states. Knowing the API upfront prevents rework.
 
 ---
 
@@ -68,20 +76,25 @@ cat node_modules/bits-ui/dist/bits/{primitive}/{primitive}.svelte.js | grep -A10
 
 Create `{name}/types.ts` with:
 
-1. **Slots array** (const for type inference)
+**1. Slots array** (const for type inference)
 ```typescript
-export const {Name}Slots = ["root", "trigger", "content", ...] as const;
+export const {Name}Slots = ['root', 'trigger', 'content', ...] as const;
 export type {Name}Slot = (typeof {Name}Slots)[number];
 ```
 
-2. **State type**
+**2. State type**
 ```typescript
-export type {Name}State = "open" | "closed";
+export type {Name}State = 'open' | 'closed';
 ```
 
-3. **Props interfaces** (one per slot)
-- Always `Omit<HTML*Attributes, "style" | "children">`
-- Always include `"data-id"?: string`
+**3. Context key**
+```typescript
+export const {NAME}_CONTEXT_KEY = 'coldlight-{name}';
+```
+
+**4. Props interfaces** (one per slot)
+- Always `Omit<HTML*Attributes, 'style' | 'children'>`
+- Always include `'data-id'?: string`
 - Snippet types for children
 
 **Verification:**
@@ -91,72 +104,114 @@ pnpm check  # No errors in {name}/types.ts
 
 ---
 
-### Phase 2: Components
+### Phase 2: Root Component
 
-Create each slot component following the established pattern:
+Root creates the Melt builder and shares via Svelte context:
 
-**Simple slots** (Trigger, Close, Title, Description):
 ```svelte
-<Bits{Name}.{Slot}
-  class={className}
+<script lang="ts">
+  import { create{Name} } from '@melt-ui/svelte';
+  import { setContext } from 'svelte';
+  import { {NAME}_CONTEXT_KEY } from './types.js';
+
+  // Create builder with controlled props
+  const {name} = create{Name}({
+    defaultOpen: open,
+    onOpenChange: (details) => {
+      open = details.open;
+      onOpenChange?.(details.open);
+    },
+  });
+
+  // Share builder via context
+  setContext({NAME}_CONTEXT_KEY, {name});
+</script>
+
+<div
   data-kind="{name}"
-  data-slot="{slot}"
+  data-slot="root"
+  data-state={dataState}
   data-id={dataId}
-  {...rest}
 >
   {@render children?.()}
-</Bits{Name}.{Slot}>
+</div>
 ```
-
-**Complex slots** (Content, Overlay) - MUST use child snippet:
-```svelte
-<Bits{Name}.Content {...rest}>
-  {#snippet child({ props, open })}
-    <div
-      {...props}
-      class={cn(props.class, className)}
-      data-kind="{name}"
-      data-slot="content"
-      data-state={open ? "open" : "closed"}
-      data-id={dataId}
-    >
-      {@render children?.({ open })}
-    </div>
-  {/snippet}
-</Bits{Name}.Content>
-```
-
-**CURRENT:** `{...props}` spreads in child snippets — contains ARIA from Bits UI.
-
-**FUTURE (ARIA Ownership):** Extract only `open`/`selected`/`highlighted` state, add ARIA manually. See Architecture Overview above.
 
 **Verification:**
 ```bash
-pnpm check  # No errors in {name}/*.svelte
+pnpm check  # No errors in Root.svelte
 ```
 
 ---
 
-### Phase 3: Barrel Export
+### Phase 3: Child Components
+
+Children get builder from context and use `use:melt`:
+
+```svelte
+<script lang="ts">
+  import { melt } from '@melt-ui/svelte';
+  import { getContext } from 'svelte';
+  import { {NAME}_CONTEXT_KEY } from './types.js';
+
+  const {name} = getContext({NAME}_CONTEXT_KEY);
+  const { elements: { content }, states: { open } } = {name};
+</script>
+
+<div
+  use:melt={$content}
+  class={className}
+  data-kind="{name}"
+  data-slot="content"
+  data-state={$open ? 'open' : 'closed'}
+  data-id={dataId}
+>
+  {@render children?.({ open: $open })}
+</div>
+```
+
+**Pattern for each slot type:**
+
+| Slot Type | use:melt | data-state |
+|-----------|----------|------------|
+| Root | No (wrapper only) | Yes |
+| Trigger | Yes (`$trigger`) | Optional |
+| Content | Yes (`$content`) | Yes |
+| Overlay | Yes (`$overlay`) | Yes |
+| Title | Yes (`$title`) | No |
+| Description | Yes (`$description`) | No |
+| Close | Yes (`$close`) | No |
+| Portal | No (container only) | No |
+| Arrow | Yes (`$arrow`) | No |
+
+**Verification:**
+```bash
+pnpm check  # No errors in *.svelte files
+```
+
+---
+
+### Phase 4: Barrel Export
 
 Create `{name}/index.ts`:
 
 ```typescript
 // Components
-export { default as Root } from "./Root.svelte";
-export { default as Trigger } from "./Trigger.svelte";
+export { default as Root } from './Root.svelte';
+export { default as Trigger } from './Trigger.svelte';
+export { default as Content } from './Content.svelte';
 // ... all slots
 
 // Types
-export type { {Name}RootProps, ... } from "./types.js";
-export { {Name}Slots } from "./types.js";
+export type { {Name}RootProps, ... } from './types.js';
+export { {Name}Slots, {NAME}_CONTEXT_KEY } from './types.js';
 ```
 
 Update `primitives/index.ts`:
 ```typescript
-export * as {Name} from "./{name}/index.js";
-export type { ... } from "./{name}/index.js";
-export { {Name}Slots } from "./{name}/index.js";
+export * as {Name} from './{name}/index.js';
+export type { ... } from './{name}/index.js';
+export { {Name}Slots } from './{name}/index.js';
 ```
 
 **Verification:**
@@ -166,25 +221,55 @@ pnpm check  # No import errors
 
 ---
 
-### Phase 4: Tests
+### Phase 5: Tests (ROBUST)
 
 Create `{name}/{Name}.test.svelte` (test wrapper) and `{name}/{Name}.test.ts`.
 
-**Test categories (minimum coverage):**
+**Test structure:**
 
-| Category | Min Tests | What to Cover |
-|----------|-----------|---------------|
-| ARIA roles | 3-5 | `role`, `aria-*` attributes |
-| Data attributes | 6-10 | `data-kind`, `data-slot`, `data-state` |
-| Keyboard | 4-8 | All keys per a11y.md |
-| State | 3-5 | Transitions, callbacks |
-| Edge cases | 2-4 | Disabled, controlled mode |
+```typescript
+describe('{Name} Primitive', () => {
+  describe('ARIA (Melt UI)', () => {
+    // Verify Melt's ARIA attributes are present
+  });
 
-**Portal content testing pattern:**
+  describe('Data Attributes (ColdLight)', () => {
+    // Verify data-kind, data-slot, data-state, data-id
+  });
+
+  describe('Keyboard Navigation', () => {
+    // Full keyboard interaction per WAI-ARIA pattern
+  });
+
+  describe('Focus Management', () => {
+    // Focus trap, return, initial focus
+  });
+
+  describe('State Management', () => {
+    // Controlled mode, callbacks, bindable
+  });
+
+  describe('Edge Cases', () => {
+    // Disabled, nested, dynamic content
+  });
+});
+```
+
+**Minimum test counts:**
+
+| Primitive Type | Minimum |
+|----------------|---------|
+| Simple | 15+ |
+| Modal | 35+ |
+| Selection | 50+ |
+| Navigation | 40+ |
+| Floating | 30+ |
+
+**Portal content testing:**
 ```typescript
 // Portal renders to document.body, NOT screen.container
 const content = document.querySelector('[data-slot="content"]');
-await expect.element(content).toHaveAttribute("data-state", "open");
+await expect.element(content).toHaveAttribute('data-state', 'open');
 ```
 
 **Verification:**
@@ -194,13 +279,13 @@ pnpm test:run lib/design/primitives/{name}/  # All tests pass
 
 ---
 
-### Phase 5: Documentation
+### Phase 6: Documentation
 
 Create `{name}/a11y.md` covering:
-- ARIA behavior table
+- ARIA attributes (what Melt provides)
 - Keyboard interaction table
 - Focus management rules
-- Data attributes table
+- Data attributes (what ColdLight provides)
 
 **Verification:**
 ```bash
@@ -220,16 +305,16 @@ cd interfaces/desktop/src
 # After Phase 1 (Types)
 pnpm check
 
-# After Phase 2 (Components)
+# After Phase 2-3 (Components)
 pnpm check
 
-# After Phase 3 (Exports)
+# After Phase 4 (Exports)
 pnpm check
 
-# After Phase 4 (Tests)
+# After Phase 5 (Tests)
 pnpm test:run lib/design/primitives/{name}/
 
-# After Phase 5 (Docs)
+# After Phase 6 (Docs)
 pnpm audit:primitives
 pnpm docs:primitives
 ```
@@ -240,18 +325,35 @@ pnpm docs:primitives
 
 Before marking ANY primitive complete, verify ALL of these:
 
+### Structure
 - [ ] `{name}/index.ts` — Barrel export exists
-- [ ] `{name}/types.ts` — Has `{Name}Slots`, `{Name}State`, all props interfaces
+- [ ] `{name}/types.ts` — Has Slots, State, Context key, all Props
 - [ ] `{name}/*.svelte` — All slot components exist
 - [ ] `{name}/a11y.md` — Accessibility contract documented
 - [ ] `{name}/{Name}.test.svelte` — Test wrapper exists
 - [ ] `{name}/{Name}.test.ts` — Tests exist and pass
-- [ ] All `.svelte` files have `data-kind="{name}"`
-- [ ] Child snippets spread `{...props}` for ARIA
+
+### Implementation
+- [ ] Root creates Melt builder
+- [ ] Root shares builder via `setContext()`
+- [ ] Children get builder via `getContext()`
+- [ ] Interactive elements use `use:melt={$element}`
+- [ ] All components have `data-kind="{name}"`
+- [ ] All components have `data-slot="{slot}"`
 - [ ] `primitives/index.ts` exports the primitive
-- [ ] Old monolithic file deleted (if applicable)
+
+### Tests
+- [ ] Minimum test count met
+- [ ] ARIA presence tests
+- [ ] Data attribute tests
+- [ ] Keyboard tests
+- [ ] Focus tests
+- [ ] State tests
+- [ ] ALL TESTS PASS
+
+### Quality
 - [ ] `pnpm audit:primitives` shows ✅
-- [ ] `pnpm check` passes (for this primitive)
+- [ ] `pnpm check` passes
 
 ---
 
@@ -259,98 +361,14 @@ Before marking ANY primitive complete, verify ALL of these:
 
 All primitives MUST emit:
 
-```
-data-kind="{name}"     # Identifies primitive type
-data-slot="{slot}"          # Identifies slot within primitive
-data-state="{state}"        # Current state
-data-id="{user-defined}"    # Stable ID for testing/tooling
-```
+| Attribute | Purpose | Example |
+|-----------|---------|---------|
+| `data-kind` | Primitive type | `"dialog"`, `"select"` |
+| `data-slot` | Slot within primitive | `"root"`, `"content"` |
+| `data-state` | Current state (if stateful) | `"open"`, `"closed"` |
+| `data-id` | User-controlled stable ID | `"my-dialog"` |
 
-**DEPRECATED:** `data-kind`, `data-name`, `data-part` (old pattern)
-
----
-
-## COMPLETED PRIMITIVES
-
-### Button (Sprint 0)
-- **Tests:** 19 passing
-- **Pattern:** Simple primitive (single component)
-- **Key Learning:** Direct Bits UI wrapper, `stripStyleProp()` for style prop enforcement
-
-### Dialog (Sprint 1)
-- **Tests:** 28 passing
-- **Pattern:** Compound primitive with child snippets
-- **Key Learning:** Child snippet `{ props, open }` — MUST spread `{...props}` for ARIA
-
-### Sheet (Sprint 2)
-- **Tests:** 32 passing
-- **Pattern:** Dialog + `side` prop
-- **Key Learning:** Added `data-side` attribute, otherwise identical to Dialog
-
-### Tabs (Sprint 3)
-- **Tests:** 48 passing
-- **Pattern:** Tab navigation with roving tabindex
-- **Key Learning:** **CRITICAL** — Bits UI Tabs does NOT expose `selected` in child snippets. Must extract from `props['aria-selected']` or `props['data-state']`. This is the "snippetProps gap."
-
-### AlertDialog (Sprint 4)
-- **Tests:** 41 passing
-- **Pattern:** Dialog variant with `role="alertdialog"`
-- **Key Learning:** Action button does NOT auto-close (unlike Dialog.Close). Cancel auto-closes. `interactOutsideBehavior="ignore"` by default.
-
-### Popover (Sprint 5)
-- **Tests:** 35 passing
-- **Pattern:** Non-modal floating content
-- **Key Learning:**
-  - No `aria-modal` (non-modal)
-  - Positioning props: `side`, `sideOffset`, `align`, `alignOffset`
-  - Hover support: `openOnHover`, `openDelay`, `closeDelay`
-  - Portal testing: Use `document.querySelector` not `screen.container`
-  - Arrow component for visual indicator
-
-### Tooltip (Sprint 6)
-- **Tests:** 28 passing
-- **Pattern:** Hover-triggered floating content with Provider
-- **Key Learning:**
-  - **ADR-007**: Bits UI Tooltip REQUIRES `Tooltip.Provider` context — Root includes implicit Provider
-  - **ADR-008**: Bits UI does NOT add `role="tooltip"` — must add manually in Content.svelte
-  - Default `side="top"` (unlike Popover's `side="bottom"`)
-  - No Close button needed — auto-closes on mouse leave/blur
-  - `aria-describedby` links trigger to content (Bits UI handles this)
-  - Slots: `root`, `provider`, `trigger`, `portal`, `content`, `arrow`
-
-### Select (Sprint 7)
-- **Tests:** ~50 passing
-- **Pattern:** Popover positioning + Listbox ARIA
-- **Key Learning:**
-  - Generic `<T>` type for type-safe values
-  - `data-selected` + `data-highlighted` as presence attributes (not data-state values)
-  - Viewport required as explicit scroll container
-  - `ItemGroup` + `GroupLabel` naming (not Group + GroupHeading)
-  - `ScrollUp` + `ScrollDown` naming
-  - No Provider required (unlike Tooltip)
-  - Bits UI adds `role="listbox"` and `role="option"` automatically
-  - `items` prop on Root for typeahead label lookup
-  - Slots: `root`, `trigger`, `portal`, `content`, `viewport`, `item`, `item-text`, `item-group`, `group-label`, `separator`, `scroll-up`, `scroll-down`, `arrow`
-
----
-
-## NEXT PRIMITIVE: Combobox
-
-**Sprint 8** — Searchable dropdown selection
-
-**Pre-flight:**
-- Based on Select + text input
-- Typeahead with filtering
-- `role="combobox"` for input, `role="listbox"` for options
-
-**Slots expected:** `root`, `input`, `trigger`, `portal`, `content`, `viewport`, `item`, `empty`, `group`, `label`, `separator`
-
-**Key differences from Select:**
-- Input field for filtering
-- Combobox semantics
-- Empty state when no matches
-
-**VPB Use Case:** Component search, property autocomplete, icon picker
+**DEPRECATED:** `data-primitive`, `data-name`, `data-part`
 
 ---
 
@@ -360,24 +378,45 @@ data-id="{user-defined}"    # Stable ID for testing/tooling
 **Cause:** Portal renders content to `document.body`, not `screen.container`
 **Fix:** Use `document.querySelector('[data-slot="content"]')` instead of `screen.container.querySelector()`
 
-### "data-state always shows wrong value"
-**Cause:** Bits UI component doesn't expose state in child snippet
-**Fix:** Extract from props: `props['data-state']` or `props['aria-selected']`
-See: Tabs pattern (ADR-003)
+### "Melt builder not found in context"
+**Cause:** Child component not wrapped in Root
+**Fix:** Ensure Root creates and sets context, child gets from same context key
 
 ### "ARIA attributes missing"
-**Cause:** Forgot to spread `{...props}` in child snippet
-**Fix:** Always `{...props}` first, then your attributes:
-```svelte
-{#snippet child({ props })}
-  <div {...props} class={cn(props.class, className)} data-kind="...">
-```
+**Cause:** Missing `use:melt` on element
+**Fix:** Add `use:melt={$elementName}` to the element
 
-### "Type errors on Snippet"
-**Cause:** Wrong snippet type for children
-**Fix:** Check if children receive state:
-- No state: `children?: Snippet`
-- With state: `children?: Snippet<[{ open: boolean }]>`
+### "Type errors on builder"
+**Cause:** Wrong builder options or elements
+**Fix:** Check `tech_refs/melt-ui/builders/{primitive}.md` for correct API
+
+---
+
+## MIGRATION NOTES
+
+Existing bits-ui primitives will be migrated to Melt UI. The changes are:
+
+| bits-ui Pattern | Melt UI Pattern |
+|-----------------|-----------------|
+| `{...props}` spreading | `use:melt={$element}` action |
+| `useId()` from bits-ui | Melt generates IDs internally |
+| Child snippet `{ props, open }` | Builder `states.open` store |
+| Manual ARIA overrides | Melt handles all ARIA |
+
+---
+
+## BUILDER QUICK REFERENCE
+
+| Primitive | Builder | Key Elements | Key States |
+|-----------|---------|--------------|------------|
+| Dialog | `createDialog` | trigger, content, overlay, title, description, close | open |
+| Popover | `createPopover` | trigger, content, arrow | open |
+| Tooltip | `createTooltip` | trigger, content, arrow | open |
+| Select | `createSelect` | trigger, menu, option | open, selected |
+| Tabs | `createTabs` | list, trigger, content | value |
+| Accordion | `createAccordion` | item, trigger, content | value |
+
+See `tech_refs/melt-ui/` for complete builder documentation.
 
 ---
 
@@ -385,11 +424,8 @@ See: Tabs pattern (ADR-003)
 
 | Date | Decision | Rationale |
 |------|----------|-----------|
-| 2026-01-20 | Audit script before Sheet | Automate tracking first |
-| 2026-01-20 | Compound folders for all | Scalable, testable, documentable |
-| 2026-01-20 | Custom audit over Storybook | Svelte 5 ecosystem fragmented |
-| 2026-01-21 | Props-based state extraction | Bits UI snippetProps gap workaround |
+| 2026-01-20 | Compound folders for all primitives | Scalable, testable, documentable |
 | 2026-01-21 | Portal testing with document.querySelector | Portal renders outside container |
-| 2026-01-21 | WORKFLOW.md + .claude directives | Self-documenting workflow for autonomy |
-| 2026-01-21 | Tooltip requires implicit Provider (ADR-007) | Bits UI Tooltip needs Provider context |
-| 2026-01-21 | Manual role attribution (ADR-008) | Bits UI doesn't add all ARIA roles |
+| 2026-01-23 | **Melt UI as ARIA provider (ADR-009)** | Stop fighting library, accept ARIA delegation |
+| 2026-01-23 | Builder context pattern (ADR-010) | Share builder between compound components |
+| 2026-01-23 | Robust test requirements (ADR-011) | Foundation quality, not minimal coverage |

@@ -19,19 +19,38 @@ import { twMerge } from "tailwind-merge";
 const NS = ""; // Empty now, can become "cl-" later
 
 /**
- * Stable data attributes emitted by all primitives.
- * CSS recipes target these selectors.
+ * ColdLight Data Attribute Vocabulary — SINGLE SOURCE OF TRUTH
  *
- * - primitive: identifies the primitive type (e.g., "button", "dialog")
- * - slot: identifies the part within a primitive (e.g., "trigger", "content")
- * - state: tracks interactive state (e.g., "open", "closed", "checked")
- * - id: user-defined stable ID for tooling
+ * PRIMITIVES (behavior/accessibility):
+ * - kind: identifies the primitive type (e.g., "button", "dialog", "select")
+ * - slot: identifies the part within a primitive (e.g., "trigger", "content", "item")
+ * - state: tracks interactive state (e.g., "open", "closed", "active", "inactive")
+ * - id: user-defined stable ID for testing/tooling
+ *
+ * RECIPES (visual styling):
+ * - surface: background treatment (glass, matte, solid)
+ * - material: texture/depth (void, deep, smoke, frost)
+ * - motion: animation behavior (subtle, smooth, energetic)
+ * - transition: state change animation (fade, slide, scale)
+ * - focus: attention/emphasis level (low, medium, high, critical)
+ * - layers: z-index layer (base, overlay, modal, toast)
+ *
+ * See README.md and PRIMITIVE_CONTRACT.md for usage patterns.
  */
 export const DATA_ATTRS = {
-  primitive: `data-${NS}primitive`,
+  // Primitives (behavior)
+  kind: `data-${NS}kind`,
   slot: `data-${NS}slot`,
   state: `data-${NS}state`,
   id: `data-${NS}id`,
+
+  // Recipes (visual)
+  surface: `data-${NS}surface`,
+  material: `data-${NS}material`,
+  motion: `data-${NS}motion`,
+  transition: `data-${NS}transition`,
+  focus: `data-${NS}focus`,
+  layers: `data-${NS}layers`,
 } as const;
 
 // ============================================
