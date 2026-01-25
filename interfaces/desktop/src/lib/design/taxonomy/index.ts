@@ -158,6 +158,26 @@ export {
 } from "./primitiveRegistry";
 
 // ===========================================
+// PROVIDER REGISTRY (Ports & Adapters)
+// ===========================================
+export type {
+  ProviderId,
+  ProviderInfo,
+  BuilderCapabilities,
+  ProviderContract,
+} from "./provider";
+
+export {
+  BUILDER_MAP,
+  getBuilderName,
+  isMeltPrimitive,
+  MELT_INFO,
+  MELT_CAPABILITIES,
+  MELT_PROVIDER,
+  ACTIVE_PROVIDER,
+} from "./provider";
+
+// ===========================================
 // LEGACY CATEGORY DEFINITIONS
 // ===========================================
 

@@ -31,7 +31,6 @@ ColdLight is a **token-first, taxonomy-driven design system** built for:
 
 ColdLight is **NOT**:
 
-- A portable/framework-agnostic system (Svelte-first)
 - A CSS-in-JS solution
 - A component library (it ships primitives + surfaces + semantics)
 

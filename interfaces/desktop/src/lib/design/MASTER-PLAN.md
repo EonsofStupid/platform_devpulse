@@ -15,12 +15,12 @@
 | **Composition** | VPB | Selects enums + recipes, outputs BlockNodes |
 
 **BANNED:**
-- ❌ Framework-agnostic abstractions
+- ❌ Premature framework abstractions (token layer IS portable via DTCG)
 - ❌ Custom headless primitive implementations
 - ❌ CSS-in-JS libraries
 - ❌ Any other UI framework
 
-**This is NOT a portable design system. This is DevPulse's design system built on SvelteKit 5.**
+**Svelte-first implementation. Token layer portable via DTCG. Architecture supports future framework forks.**
 
 ---
 
@@ -287,7 +287,7 @@ Renderer does: resolve recipe → Tailwind classes → render Svelte component
 - **VPB** = Composition tool (selects enums + recipes)
 
 **BANNED PATTERNS:**
-- ❌ "Framework-agnostic" abstractions
+- ❌ Premature framework abstractions (token layer IS portable via DTCG)
 - ❌ Custom accessibility implementations (use Bits UI)
 - ❌ Reinventing headless primitives
 - ❌ CSS-in-JS solutions
