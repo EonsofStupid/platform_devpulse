@@ -1,0 +1,710 @@
+// lib/design/tokens/tokens.ts
+var hues = {
+  teal: 195,
+  purple: 280,
+  matte: 200,
+  electric: 220,
+  magenta: 330,
+  ember: 35,
+  frost: 210
+};
+var colorScales = {
+  teal: {
+    100: { l: 0.95, c: 0.05, h: hues.teal },
+    200: { l: 0.85, c: 0.08, h: hues.teal },
+    300: { l: 0.75, c: 0.12, h: hues.teal },
+    400: { l: 0.65, c: 0.16, h: hues.teal },
+    500: { l: 0.55, c: 0.18, h: hues.teal },
+    600: { l: 0.45, c: 0.16, h: hues.teal },
+    700: { l: 0.35, c: 0.12, h: hues.teal },
+    800: { l: 0.25, c: 0.08, h: hues.teal },
+    900: { l: 0.15, c: 0.05, h: hues.teal }
+  },
+  purple: {
+    100: { l: 0.95, c: 0.05, h: hues.purple },
+    200: { l: 0.85, c: 0.1, h: hues.purple },
+    300: { l: 0.75, c: 0.15, h: hues.purple },
+    400: { l: 0.65, c: 0.2, h: hues.purple },
+    500: { l: 0.55, c: 0.22, h: hues.purple },
+    600: { l: 0.45, c: 0.2, h: hues.purple },
+    700: { l: 0.35, c: 0.15, h: hues.purple },
+    800: { l: 0.25, c: 0.1, h: hues.purple },
+    900: { l: 0.15, c: 0.05, h: hues.purple }
+  },
+  magenta: {
+    100: { l: 0.95, c: 0.05, h: hues.magenta },
+    200: { l: 0.85, c: 0.12, h: hues.magenta },
+    300: { l: 0.75, c: 0.18, h: hues.magenta },
+    400: { l: 0.65, c: 0.22, h: hues.magenta },
+    500: { l: 0.55, c: 0.24, h: hues.magenta },
+    600: { l: 0.45, c: 0.22, h: hues.magenta },
+    700: { l: 0.35, c: 0.18, h: hues.magenta },
+    800: { l: 0.25, c: 0.12, h: hues.magenta },
+    900: { l: 0.15, c: 0.06, h: hues.magenta }
+  },
+  ember: {
+    100: { l: 0.95, c: 0.05, h: hues.ember },
+    200: { l: 0.85, c: 0.12, h: hues.ember },
+    300: { l: 0.75, c: 0.18, h: hues.ember },
+    400: { l: 0.68, c: 0.2, h: hues.ember },
+    500: { l: 0.6, c: 0.22, h: hues.ember },
+    600: { l: 0.5, c: 0.2, h: hues.ember },
+    700: { l: 0.4, c: 0.16, h: hues.ember },
+    800: { l: 0.3, c: 0.1, h: hues.ember },
+    900: { l: 0.2, c: 0.05, h: hues.ember }
+  },
+  frost: {
+    100: { l: 0.98, c: 0.01, h: hues.frost },
+    200: { l: 0.95, c: 0.02, h: hues.frost },
+    300: { l: 0.9, c: 0.03, h: hues.frost },
+    400: { l: 0.82, c: 0.04, h: hues.frost },
+    500: { l: 0.7, c: 0.04, h: hues.frost },
+    600: { l: 0.55, c: 0.03, h: hues.frost },
+    700: { l: 0.4, c: 0.02, h: hues.frost },
+    800: { l: 0.25, c: 0.01, h: hues.frost },
+    900: { l: 0.12, c: 0.01, h: hues.frost }
+  }
+};
+var matte = {
+  dark: { l: 0.08, c: 0.04, h: hues.matte },
+  mid: { l: 0.12, c: 0.05, h: hues.matte },
+  light: { l: 0.18, c: 0.06, h: hues.matte }
+};
+var glass = {
+  tintTeal: { l: 0.5, c: 0.12, h: hues.teal, a: 0.15 },
+  tintPurple: { l: 0.45, c: 0.15, h: hues.purple, a: 0.15 },
+  base: { l: 0.1, c: 0.03, h: hues.teal, a: 0.85 },
+  void: { l: 0.06, c: 0.02, h: hues.teal, a: 0.92 },
+  deep: { l: 0.1, c: 0.04, h: hues.teal, a: 0.88 },
+  smoke: { l: 0.15, c: 0.03, h: hues.matte, a: 0.82 },
+  frost: { l: 0.25, c: 0.02, h: hues.frost, a: 0.75 }
+};
+var text = {
+  primary: { l: 0.95, c: 0.01, h: hues.teal },
+  secondary: { l: 0.75, c: 0.02, h: hues.teal },
+  muted: { l: 0.55, c: 0.03, h: hues.teal },
+  white: { l: 0.98, c: 0.01, h: hues.frost }
+};
+var spacing = {
+  1: { min: 2, preferred: 0.25, max: 4 },
+  2: { min: 4, preferred: 0.5, max: 8 },
+  3: { min: 8, preferred: 0.75, max: 12 },
+  4: { min: 12, preferred: 1, max: 16 },
+  5: { min: 16, preferred: 1.25, max: 20 },
+  6: { min: 20, preferred: 1.5, max: 24 },
+  8: { min: 28, preferred: 2, max: 32 }
+};
+var spacingKeys = ["1", "2", "3", "4", "5", "6", "8"];
+var panelGap = { min: 3, preferred: 0.4, max: 6 };
+var radius = {
+  none: "0",
+  sm: { min: 4, preferred: 0.5, max: 6 },
+  md: { min: 6, preferred: 0.75, max: 10 },
+  lg: { min: 10, preferred: 1, max: 14 },
+  xl: { min: 14, preferred: 1.25, max: 20 },
+  full: "9999px"
+};
+var radiusKeys = ["none", "sm", "md", "lg", "xl", "full"];
+var borderWidth = {
+  thin: "1px",
+  medium: "2px",
+  thick: "3px"
+};
+var blur = {
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32
+};
+var blurKeys = ["off", "sm", "md", "lg", "xl"];
+var glowBase = {
+  color: { l: 0.7, c: 0.18, h: hues.teal },
+  sm: "0 0 8px",
+  md: "0 0 16px",
+  lg: "0 0 24px"
+};
+var glowComposed = {
+  teal: {
+    inner: { l: 0.6, c: 0.18, h: hues.teal, a: 0.5, spread: 20 },
+    outer: { l: 0.55, c: 0.15, h: hues.teal, a: 0.25, spread: 40 }
+  },
+  purple: {
+    inner: { l: 0.55, c: 0.2, h: hues.purple, a: 0.5, spread: 20 },
+    outer: { l: 0.5, c: 0.18, h: hues.purple, a: 0.25, spread: 40 }
+  },
+  magenta: {
+    inner: { l: 0.6, c: 0.22, h: hues.magenta, a: 0.5, spread: 20 },
+    outer: { l: 0.55, c: 0.2, h: hues.magenta, a: 0.25, spread: 40 }
+  },
+  ember: {
+    inner: { l: 0.65, c: 0.2, h: hues.ember, a: 0.5, spread: 20 },
+    outer: { l: 0.6, c: 0.18, h: hues.ember, a: 0.25, spread: 40 }
+  },
+  frost: {
+    inner: { l: 0.85, c: 0.03, h: hues.frost, a: 0.4, spread: 20 },
+    outer: { l: 0.8, c: 0.02, h: hues.frost, a: 0.2, spread: 40 }
+  },
+  cyber: {
+    inner: { l: 0.91, c: 0.16, h: 127, a: 0.5, spread: 20 },
+    outer: { l: 0.85, c: 0.14, h: 127, a: 0.25, spread: 40 }
+  }
+};
+var glowKeys = ["off", "teal", "purple", "magenta", "ember", "frost", "cyber"];
+var bevel = {
+  light: { l: 0.8, c: 0.06, h: hues.teal, a: 0.3 },
+  lightStrong: { l: 0.9, c: 0.08, h: hues.teal, a: 0.5 },
+  dark: { l: 0.15, c: 0.04, h: hues.purple, a: 0.5 },
+  darkStrong: { l: 0.08, c: 0.06, h: hues.purple, a: 0.7 }
+};
+var inset = {
+  light: { l: 0.25, c: 0.03, h: hues.matte, a: 0.3 },
+  dark: { l: 0.05, c: 0.02, h: hues.matte, a: 0.6 }
+};
+var shadow = {
+  sm: { y: 2, blur: 8, color: { l: 0.05, c: 0.02, h: hues.purple, a: 0.3 } },
+  md: { y: 4, blur: 16, color: { l: 0.05, c: 0.02, h: hues.purple, a: 0.4 } },
+  lg: { y: 8, blur: 32, color: { l: 0.05, c: 0.02, h: hues.purple, a: 0.5 } }
+};
+var shadowZ = {
+  z1: { y: 1, blur: 4, color: { l: 0.05, c: 0.02, h: hues.purple, a: 0.2 } },
+  z2: { y: 4, blur: 12, color: { l: 0.05, c: 0.02, h: hues.purple, a: 0.35 } },
+  z3: { y: 8, blur: 24, color: { l: 0.05, c: 0.02, h: hues.purple, a: 0.45 } },
+  z4: { y: 16, blur: 48, color: { l: 0.05, c: 0.02, h: hues.purple, a: 0.55 } }
+};
+var imprint = {
+  subtle: 0.3,
+  medium: 0.5,
+  strong: 0.8
+};
+var imprintKeys = ["subtle", "medium", "strong"];
+var bevelKeys = ["off", "subtle", "soft", "medium"];
+var depthKeys = [0, 1, 2, 3, 4];
+var shellDepthKeys = ["shallow", "standard", "deep"];
+var fontFamily = {
+  sans: "'Inter', system-ui, sans-serif",
+  mono: "'JetBrains Mono', monospace"
+};
+var textSize = {
+  xs: { min: 0.65, preferred: 1, max: 0.75 },
+  sm: { min: 0.75, preferred: 1.1, max: 0.875 },
+  base: { min: 0.875, preferred: 1.25, max: 1 },
+  lg: { min: 1, preferred: 1.5, max: 1.125 },
+  xl: { min: 1.125, preferred: 1.75, max: 1.25 },
+  "2xl": { min: 1.25, preferred: 2, max: 1.5 }
+};
+var textSizeKeys = ["xs", "sm", "base", "lg", "xl", "2xl"];
+var easing = {
+  out: "cubic-bezier(0.16, 1, 0.3, 1)",
+  bounce: "cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+};
+var duration = {
+  fast: 150,
+  normal: 300,
+  slow: 500
+};
+var zIndex = {
+  base: 0,
+  dropdown: 100,
+  sticky: 200,
+  modal: 300,
+  popover: 400,
+  tooltip: 500,
+  toast: 600,
+  overlay: 700,
+  vpb: 800,
+  vpbFab: 900
+};
+var code = {
+  str: { l: 0.8, c: 0.15, h: 85 },
+  num: { l: 0.75, c: 0.18, h: 35 },
+  kw: { l: 0.75, c: 0.15, h: 330 },
+  fn: { l: 0.8, c: 0.12, h: 195 },
+  cmt: { l: 0.55, c: 0.05, h: 195 }
+};
+var glassButton = {
+  bg: { l: 0.15, c: 0.03, h: hues.teal, a: 0.6 },
+  bgHover: { l: 0.2, c: 0.05, h: hues.teal, a: 0.7 },
+  bgPrimary: { l: 0.45, c: 0.15, h: hues.teal, a: 0.8 },
+  bgPrimaryHover: { l: 0.5, c: 0.18, h: hues.teal, a: 0.9 },
+  border: { l: 0.5, c: 0.1, h: hues.teal, a: 0.3 },
+  borderHover: { l: 0.6, c: 0.15, h: hues.teal, a: 0.5 },
+  borderPrimary: { l: 0.6, c: 0.18, h: hues.teal, a: 0.6 },
+  glowHover: { l: 0.6, c: 0.15, h: hues.teal, a: 0.3 },
+  shadowBase: { l: 0.05, c: 0.02, h: hues.purple, a: 0.3 }
+};
+var glassInput = {
+  bg: { l: 0.08, c: 0.02, h: hues.matte, a: 0.8 },
+  border: { l: 0.4, c: 0.08, h: hues.teal, a: 0.3 },
+  borderFocus: { l: 0.6, c: 0.15, h: hues.teal, a: 0.6 },
+  glowFocus: { l: 0.6, c: 0.15, h: hues.teal, a: 0.3 }
+};
+var glassTint = {
+  teal: { l: 0.55, c: 0.15, h: hues.teal, a: 0.4 },
+  purple: { l: 0.5, c: 0.18, h: hues.purple, a: 0.4 },
+  purpleBg: { l: 0.15, c: 0.04, h: hues.purple, a: 0.6 },
+  gold: { l: 0.6, c: 0.15, h: 50, a: 0.4 },
+  goldBg: { l: 0.18, c: 0.05, h: 50, a: 0.6 },
+  coral: { l: 0.55, c: 0.18, h: 25, a: 0.4 },
+  coralBg: { l: 0.15, c: 0.05, h: 25, a: 0.6 }
+};
+var glassScrim = {
+  bg: { l: 0.05, c: 0.02, h: hues.teal, a: 0.7 }
+};
+var panel = {
+  outerBorder: { l: 0.5, c: 0.1, h: hues.teal, a: 0.4 },
+  outerBorderHover: { l: 0.6, c: 0.14, h: hues.teal, a: 0.5 },
+  outerGlow: { l: 0.6, c: 0.15, h: hues.teal, a: 0.2 },
+  innerBorder: { l: 0.6, c: 0.08, h: hues.teal, a: 0.2 },
+  innerGradientTeal: {
+    start: { l: 0.65, c: 0.15, h: hues.teal, a: 0.25 },
+    mid: { l: 0.55, c: 0.12, h: hues.teal, a: 0.12 }
+  },
+  innerGradientPurple: {
+    start: { l: 0.55, c: 0.18, h: hues.purple, a: 0.25 },
+    mid: { l: 0.45, c: 0.15, h: hues.purple, a: 0.12 }
+  },
+  innerBase: { l: 0.12, c: 0.04, h: hues.teal, a: 0.9 },
+  focusRing: { l: 0.65, c: 0.18, h: hues.teal, a: 0.5 },
+  focusGlow: { l: 0.6, c: 0.15, h: hues.teal, a: 0.3 }
+};
+var surface = {
+  1: { l: 0.06, c: 0.02, h: 195, a: 0.95 },
+  // Deepest/Base
+  2: { l: 0.1, c: 0.03, h: 195, a: 0.9 },
+  // Panel/Sunken
+  3: { l: 0.14, c: 0.04, h: 195, a: 0.85 },
+  // Raised/Card
+  4: { l: 0.18, c: 0.05, h: 195, a: 0.8 }
+  // Overlay/Pop
+};
+var accent = {
+  cyber: { l: 0.9106, c: 0.1598, h: 126.64 },
+  tint: { l: 0.9106, c: 0.1598, h: 126.64, a: 0.15 }
+};
+var fx = {
+  ripple: { l: 1, c: 0, h: 0, a: 0.2 },
+  // White with 20% alpha
+  shimmer: { l: 1, c: 0, h: 0, a: 0.1 },
+  // White with 10% alpha for shimmer
+  glow: { l: 0.91, c: 0.16, h: 127, a: 0.6 }
+  // Cyber glow for effects
+};
+var accentTokens = ["teal", "purple", "magenta", "ember", "frost"];
+var surfaceTokens = ["glass", "solid", "matte"];
+var glassVariantTokens = ["void", "deep", "smoke", "frost"];
+var sizeTokens = ["sm", "md", "lg"];
+var paddingTokens = ["sm", "md", "lg"];
+var bodyGradient = {
+  /** Primary gradient - deep void with teal/purple accents */
+  bg1: {
+    stops: [
+      { l: 0.04, c: 0.02, h: hues.purple },
+      // Deep purple-void
+      { l: 0.06, c: 0.03, h: hues.teal },
+      // Teal-void
+      { l: 0.03, c: 0.02, h: hues.matte },
+      // Near-black
+      { l: 0.05, c: 0.025, h: hues.purple }
+      // Purple-void
+    ]
+  },
+  /** Secondary gradient - complementary layer */
+  bg2: {
+    stops: [
+      { l: 0.08, c: 0.04, h: hues.teal },
+      // Slightly brighter teal
+      { l: 0.04, c: 0.02, h: hues.magenta },
+      // Magenta whisper
+      { l: 0.06, c: 0.03, h: hues.purple },
+      // Purple accent
+      { l: 0.03, c: 0.015, h: hues.teal }
+      // Deep teal
+    ]
+  }
+};
+var depthShadow = {
+  /** Layer 1: Ambient - large, soft, omnidirectional */
+  ambient: {
+    y: 0,
+    blur: 80,
+    spread: -20,
+    color: { l: 0.03, c: 0.02, h: hues.purple, a: 0.25 }
+  },
+  /** Layer 2: Key - directional from top-left light source */
+  key: {
+    x: -4,
+    y: 8,
+    blur: 24,
+    spread: -4,
+    color: { l: 0.02, c: 0.015, h: hues.purple, a: 0.45 }
+  },
+  /** Layer 3: Fill - softer opposite fill light */
+  fill: {
+    x: 2,
+    y: 4,
+    blur: 16,
+    spread: -2,
+    color: { l: 0.05, c: 0.02, h: hues.teal, a: 0.2 }
+  },
+  /** Layer 4: Contact - sharp ground contact shadow */
+  contact: {
+    y: 2,
+    blur: 4,
+    spread: -1,
+    color: { l: 0.01, c: 0.01, h: hues.matte, a: 0.6 }
+  },
+  /** Layer 5: Rim - subtle color bleed for realism */
+  rim: {
+    y: -1,
+    blur: 12,
+    spread: 2,
+    color: { l: 0.15, c: 0.08, h: hues.teal, a: 0.15 }
+  }
+};
+var depthLayers = {
+  /** Subtle elevation - cards, inputs */
+  float: ["ambient", "contact"],
+  /** Medium elevation - panels, dropdowns */
+  raised: ["ambient", "key", "contact"],
+  /** High elevation - modals, popovers */
+  elevated: ["ambient", "key", "fill", "contact"],
+  /** Maximum elevation - critical overlays */
+  lifted: ["ambient", "key", "fill", "contact", "rim"]
+};
+var depthLayerKeys = ["float", "raised", "elevated", "lifted"];
+var neumorphism = {
+  /** Light source (top-left) */
+  light: {
+    x: -6,
+    y: -6,
+    blur: 16,
+    color: { l: 0.25, c: 0.04, h: hues.teal, a: 0.35 }
+  },
+  /** Shadow (bottom-right) */
+  shadow: {
+    x: 6,
+    y: 6,
+    blur: 16,
+    color: { l: 0.02, c: 0.02, h: hues.purple, a: 0.5 }
+  },
+  /** Inner light (for inset) */
+  innerLight: {
+    x: -3,
+    y: -3,
+    blur: 8,
+    inset: true,
+    color: { l: 0.18, c: 0.03, h: hues.teal, a: 0.25 }
+  },
+  /** Inner shadow (for inset) */
+  innerShadow: {
+    x: 3,
+    y: 3,
+    blur: 8,
+    inset: true,
+    color: { l: 0.01, c: 0.015, h: hues.purple, a: 0.4 }
+  },
+  /** Thick outset - button, card extruded */
+  thick: {
+    light: { x: -8, y: -8, blur: 24, color: { l: 0.22, c: 0.04, h: hues.teal, a: 0.4 } },
+    shadow: { x: 8, y: 8, blur: 24, color: { l: 0.01, c: 0.02, h: hues.purple, a: 0.55 } }
+  },
+  /** Pillow - soft rounded extruded */
+  pillow: {
+    light: { x: -12, y: -12, blur: 32, color: { l: 0.2, c: 0.03, h: hues.frost, a: 0.3 } },
+    shadow: { x: 12, y: 12, blur: 32, color: { l: 0.02, c: 0.02, h: hues.purple, a: 0.45 } }
+  }
+};
+var neumorphismKeys = ["flat", "outset", "inset", "thick", "pillow"];
+var liquidMetal = {
+  /** Base chrome/mercury surface */
+  base: { l: 0.35, c: 0.06, h: hues.matte },
+  /** Highlight bands */
+  highlight: { l: 0.85, c: 0.03, h: hues.frost, a: 0.9 },
+  /** Mid-tone reflection */
+  midtone: { l: 0.55, c: 0.05, h: hues.teal, a: 0.7 },
+  /** Dark reflection band */
+  dark: { l: 0.12, c: 0.04, h: hues.purple, a: 0.8 },
+  /** Specular hot spot */
+  specular: { l: 0.98, c: 0.01, h: hues.frost, a: 1 },
+  /** Edge fresnel */
+  fresnel: { l: 0.7, c: 0.08, h: hues.teal, a: 0.6 },
+  /** Gradient stops for conic metal sheen */
+  sheen: [
+    { l: 0.2, c: 0.04, h: hues.purple, a: 0.9 },
+    { l: 0.75, c: 0.02, h: hues.frost, a: 0.95 },
+    { l: 0.4, c: 0.05, h: hues.teal, a: 0.85 },
+    { l: 0.85, c: 0.01, h: hues.frost, a: 0.98 },
+    { l: 0.25, c: 0.04, h: hues.matte, a: 0.9 }
+  ]
+};
+var liquidMetalKeys = ["chrome", "mercury", "gunmetal", "copper"];
+var metalTint = {
+  chrome: hues.frost,
+  mercury: hues.matte,
+  gunmetal: hues.purple,
+  copper: hues.ember
+};
+var holographic = {
+  /** Base prismatic angles */
+  angles: [0, 60, 120, 180, 240, 300],
+  /** Iridescent gradient stops */
+  iridescent: [
+    { l: 0.75, c: 0.2, h: 330 },
+    // Magenta
+    { l: 0.8, c: 0.18, h: 280 },
+    // Purple
+    { l: 0.85, c: 0.16, h: 195 },
+    // Teal
+    { l: 0.8, c: 0.15, h: 127 },
+    // Cyber green
+    { l: 0.75, c: 0.18, h: 50 },
+    // Gold
+    { l: 0.7, c: 0.2, h: 330 }
+    // Back to magenta
+  ],
+  /** Oil slick variant (more saturated) */
+  oilSlick: [
+    { l: 0.5, c: 0.25, h: 280 },
+    { l: 0.55, c: 0.22, h: 195 },
+    { l: 0.6, c: 0.2, h: 127 },
+    { l: 0.55, c: 0.22, h: 50 },
+    { l: 0.5, c: 0.25, h: 330 },
+    { l: 0.48, c: 0.24, h: 280 }
+  ],
+  /** Subtle pearl */
+  pearl: [
+    { l: 0.92, c: 0.04, h: 280, a: 0.6 },
+    { l: 0.95, c: 0.03, h: 195, a: 0.5 },
+    { l: 0.93, c: 0.04, h: 127, a: 0.6 },
+    { l: 0.94, c: 0.03, h: 50, a: 0.5 },
+    { l: 0.92, c: 0.04, h: 330, a: 0.6 }
+  ]
+};
+var holographicKeys = ["off", "iridescent", "oilSlick", "pearl"];
+var textBevel = {
+  /** Subtle emboss - raised text */
+  emboss: {
+    highlight: { x: 0, y: 1, blur: 0, color: { l: 0.4, c: 0.04, h: hues.teal, a: 0.5 } },
+    shadow: { x: 0, y: -1, blur: 1, color: { l: 0.02, c: 0.02, h: hues.purple, a: 0.7 } }
+  },
+  /** Deboss - pressed into surface */
+  deboss: {
+    highlight: { x: 0, y: -1, blur: 0, color: { l: 0.3, c: 0.03, h: hues.teal, a: 0.4 } },
+    shadow: { x: 0, y: 1, blur: 1, color: { l: 0.01, c: 0.015, h: hues.purple, a: 0.6 } }
+  },
+  /** Sharp chisel - hard edge emboss */
+  chisel: {
+    highlight: { x: 1, y: 1, blur: 0, color: { l: 0.5, c: 0.05, h: hues.teal, a: 0.6 } },
+    shadow: { x: -1, y: -1, blur: 0, color: { l: 0.01, c: 0.02, h: hues.purple, a: 0.8 } }
+  },
+  /** Soft pillow text */
+  pillow: {
+    highlight: { x: -1, y: -1, blur: 2, color: { l: 0.35, c: 0.04, h: hues.teal, a: 0.4 } },
+    shadow: { x: 1, y: 1, blur: 2, color: { l: 0.02, c: 0.02, h: hues.purple, a: 0.5 } }
+  },
+  /** Glow text - neon effect */
+  glow: {
+    layers: [
+      { x: 0, y: 0, blur: 4, color: { l: 0.7, c: 0.18, h: hues.teal, a: 0.8 } },
+      { x: 0, y: 0, blur: 12, color: { l: 0.6, c: 0.15, h: hues.teal, a: 0.5 } },
+      { x: 0, y: 0, blur: 24, color: { l: 0.5, c: 0.12, h: hues.teal, a: 0.3 } }
+    ]
+  }
+};
+var textBevelKeys = ["none", "emboss", "deboss", "chisel", "pillow", "glow"];
+var rimLight = {
+  /** Subtle edge highlight */
+  subtle: {
+    width: 1,
+    blur: 8,
+    color: { l: 0.65, c: 0.12, h: hues.teal, a: 0.3 }
+  },
+  /** Medium rim light */
+  medium: {
+    width: 2,
+    blur: 12,
+    color: { l: 0.7, c: 0.15, h: hues.teal, a: 0.45 }
+  },
+  /** Strong rim light - hero elements */
+  strong: {
+    width: 2,
+    blur: 16,
+    color: { l: 0.75, c: 0.18, h: hues.teal, a: 0.6 }
+  },
+  /** Accent rim - purple variant */
+  accentPurple: {
+    width: 2,
+    blur: 14,
+    color: { l: 0.6, c: 0.2, h: hues.purple, a: 0.5 }
+  },
+  /** Warning rim - ember */
+  warning: {
+    width: 2,
+    blur: 14,
+    color: { l: 0.65, c: 0.2, h: hues.ember, a: 0.5 }
+  }
+};
+var rimLightKeys = ["off", "subtle", "medium", "strong", "accentPurple", "warning"];
+var focusLevel = {
+  /** Low attention - background, tertiary */
+  low: {
+    opacity: 0.6,
+    saturation: 0.7,
+    // Desaturate
+    blur: 0,
+    scale: 1,
+    glow: "off",
+    rimLight: "off"
+  },
+  /** Medium attention - secondary elements */
+  medium: {
+    opacity: 0.85,
+    saturation: 0.9,
+    blur: 0,
+    scale: 1,
+    glow: "off",
+    rimLight: "subtle"
+  },
+  /** High attention - primary elements */
+  high: {
+    opacity: 1,
+    saturation: 1,
+    blur: 0,
+    scale: 1,
+    glow: "teal",
+    rimLight: "medium"
+  },
+  /** Critical attention - alerts, active focus */
+  critical: {
+    opacity: 1,
+    saturation: 1.1,
+    // Slightly boost
+    blur: 0,
+    scale: 1.02,
+    glow: "ember",
+    rimLight: "strong"
+  }
+};
+var focusLevelKeys = ["low", "medium", "high", "critical"];
+var shellGrid = {
+  /** Top bar height */
+  topBar: { min: 40, preferred: 48, max: 56 },
+  /** Side nav collapsed width */
+  sideNavCollapsed: { min: 48, preferred: 56, max: 64 },
+  /** Side nav expanded width */
+  sideNavExpanded: { min: 200, preferred: 240, max: 280 },
+  /** Status bar height */
+  statusBar: { min: 24, preferred: 28, max: 32 },
+  /** Dock height */
+  dock: { min: 56, preferred: 64, max: 72 },
+  /** Panel min width */
+  panelMin: 280,
+  /** Panel max width */
+  panelMax: 480,
+  /** Content area min */
+  contentMin: 400
+};
+var shellRegionKeys = ["topBar", "sideNav", "content", "statusBar", "dock", "panel"];
+var voidSurface = {
+  /** Absolute void - deepest black */
+  900: { l: 0.02, c: 0.01, h: hues.purple },
+  /** Deep void */
+  800: { l: 0.04, c: 0.015, h: hues.purple },
+  /** Void with teal whisper */
+  700: { l: 0.06, c: 0.02, h: hues.teal },
+  /** Elevated void */
+  600: { l: 0.08, c: 0.025, h: hues.matte }
+};
+var TokenArrays = {
+  accent: accentTokens,
+  glow: glowKeys,
+  surface: surfaceTokens,
+  glassVariant: glassVariantTokens,
+  size: sizeTokens,
+  radius: radiusKeys,
+  blur: blurKeys,
+  depth: depthKeys,
+  bevel: bevelKeys,
+  imprint: imprintKeys,
+  shellDepth: shellDepthKeys,
+  space: spacingKeys,
+  textSize: textSizeKeys,
+  padding: paddingTokens,
+  // New depth system arrays
+  depthLayer: depthLayerKeys,
+  neumorphism: neumorphismKeys,
+  liquidMetal: liquidMetalKeys,
+  holographic: holographicKeys,
+  textBevel: textBevelKeys,
+  rimLight: rimLightKeys,
+  focusLevel: focusLevelKeys,
+  shellRegion: shellRegionKeys
+};
+export {
+  TokenArrays,
+  accent,
+  accentTokens,
+  bevel,
+  bevelKeys,
+  blur,
+  blurKeys,
+  bodyGradient,
+  borderWidth,
+  code,
+  colorScales,
+  depthKeys,
+  depthLayerKeys,
+  depthLayers,
+  depthShadow,
+  duration,
+  easing,
+  focusLevel,
+  focusLevelKeys,
+  fontFamily,
+  fx,
+  glass,
+  glassButton,
+  glassInput,
+  glassScrim,
+  glassTint,
+  glassVariantTokens,
+  glowBase,
+  glowComposed,
+  glowKeys,
+  holographic,
+  holographicKeys,
+  hues,
+  imprint,
+  imprintKeys,
+  inset,
+  liquidMetal,
+  liquidMetalKeys,
+  matte,
+  metalTint,
+  neumorphism,
+  neumorphismKeys,
+  paddingTokens,
+  panel,
+  panelGap,
+  radius,
+  radiusKeys,
+  rimLight,
+  rimLightKeys,
+  shadow,
+  shadowZ,
+  shellDepthKeys,
+  shellGrid,
+  shellRegionKeys,
+  sizeTokens,
+  spacing,
+  spacingKeys,
+  surface,
+  surfaceTokens,
+  text,
+  textBevel,
+  textBevelKeys,
+  textSize,
+  textSizeKeys,
+  voidSurface,
+  zIndex
+};

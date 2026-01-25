@@ -1,0 +1,40 @@
+%% Core Data Flow Diagram Template
+%% Shows the flow from routes through domains to system layer
+
+flowchart LR
+    subgraph Routes["Route Layer"]
+        direction TB
+        R1["+page.svelte"]
+        R2["+page.ts"]
+    end
+
+    subgraph Domains["Domain Layer"]
+        direction TB
+        subgraph Domain["domain/"]
+            P["Page Component<br/>*.page.svelte"]
+            S["State Module<br/>*.state.svelte.ts"]
+            SVC["Service<br/>*.svc.ts"]
+        end
+    end
+
+    subgraph System["System Layer"]
+        direction TB
+        REG["Registries<br/>*.registry.ts"]
+        GEN["Generated<br/>ROUTES.ts"]
+        STR["Streams<br/>sys/streams/"]
+    end
+
+    R1 --> P
+    R2 --> SVC
+    P --> S
+    P --> SVC
+    SVC --> REG
+    S -.-> STR
+    R1 -.-> GEN
+
+    style Routes fill:#e3f2fd,stroke:#1976d2
+    style Domains fill:#e8f5e9,stroke:#388e3c
+    style System fill:#fff3e0,stroke:#f57c00
+
+    linkStyle 0,1,2,3,4 stroke:#333,stroke-width:2px
+    linkStyle 5,6 stroke:#999,stroke-width:1px,stroke-dasharray: 5 5

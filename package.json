@@ -1,4 +1,16 @@
 {
+	"scripts": {
+		"docs:scan": "cd scripts/docs && pnpm scan",
+		"docs:validate": "cd scripts/docs && pnpm validate",
+		"docs:preflight:check": "cd scripts/docs && pnpm preflight:check",
+		"docs:preflight:fix": "cd scripts/docs && pnpm preflight:fix",
+		"docs:preflight:dry-run": "cd scripts/docs && pnpm preflight:dry-run",
+		"docs:extract": "cd scripts/docs && pnpm extract",
+		"docs:stage": "cd scripts/docs && pnpm stage",
+		"docs:lock": "cd scripts/docs && pnpm lock",
+		"docs:verify": "cd scripts/docs && pnpm verify",
+		"docs:check": "cd scripts/docs && pnpm check"
+	},
 	"devDependencies": {
 		"@commitlint/cli": "^20.3.1",
 		"@commitlint/config-conventional": "^20.3.1"

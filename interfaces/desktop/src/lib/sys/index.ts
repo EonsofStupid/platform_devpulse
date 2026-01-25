@@ -1,32 +1,28 @@
 /**
- * @fileoverview index.ts
- * @file src/lib/sys/index.ts
- * @module @devpulse/sys/index
- * @layer lib
- *
- * @description
- * [TODO: Describe the purpose and responsibility of this module]
- *
- * @dependencies
- * - [TODO: List imports this file depends on]
- *
- * @consumers
- * - [TODO: List modules that import this file]
- *
- * @vpb-editable [TODO: List props VPB can modify, or 'none']
- * @since 1.0.0
+ * @file sys/index.ts
+ * @module @devpulse/sys
+ * @description System layer barrel export
  */
 
-/**
- * Sys Module
- * Barrel export for all system modules.
- */
+// Contracts (types only)
+export type * from './contracts/index.js';
 
-// App State
-export { appState } from './app_state.svelte';
+// Domain contracts (values - for registration)
+export { APP_DOMAINS, DEVPULSE_DOMAIN, UIDEMO_DOMAIN, OVERMIND_DOMAIN, WIREDFRONT_DOMAIN, DEVFORGE_DOMAIN, MAESTRO_DOMAIN } from './contracts/index.js';
 
-// Runes (global state)
-export { global } from './runes/global.svelte';
+// Registries (singleton instances)
+export { BaseRegistry, domainRegistry, routesRegistry, stateRegistry, streamsRegistry } from './registries/index.js';
+
+// Initialization
+export { initSys, isSysInitialized } from './init.js';
+
+// Existing exports
+export { appState } from './app_state.svelte.js';
+export { flags } from './cfg/flags.js';
+export type { FeatureFlags } from './cfg/flags.js';
+
+// Global state
+export { global } from './global/runes/global.svelte.js';
 
 // Debug tools (dev-only)
-export * from './debug';
+export * from './debug/index.js';

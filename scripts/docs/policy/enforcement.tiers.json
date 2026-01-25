@@ -1,0 +1,63 @@
+{
+  "$schema": "./schemas/enforcement.schema.json",
+  "version": "1.0.0",
+  "description": "Enforcement tier definitions - determines how violations are handled",
+  "tiers": {
+    "1": {
+      "name": "Critical",
+      "description": "Architecture violations - blocks commit",
+      "behavior": {
+        "preCommit": "block",
+        "prePush": "block",
+        "ci": "fail",
+        "interactive": "error"
+      },
+      "rules": [
+        "thin-routes",
+        "domain-boundaries",
+        "typed-routes",
+        "state-vs-streams"
+      ]
+    },
+    "2": {
+      "name": "Standard",
+      "description": "Convention violations - warns but allows commit",
+      "behavior": {
+        "preCommit": "warn",
+        "prePush": "warn",
+        "ci": "warn",
+        "interactive": "warning"
+      },
+      "rules": [
+        "naming-conventions"
+      ]
+    },
+    "3": {
+      "name": "Advisory",
+      "description": "Best practices - info only",
+      "behavior": {
+        "preCommit": "info",
+        "prePush": "info",
+        "ci": "info",
+        "interactive": "info"
+      },
+      "rules": []
+    }
+  },
+  "modes": {
+    "strict": {
+      "description": "All tiers treated as blocking",
+      "overrides": {
+        "2": { "preCommit": "block", "ci": "fail" },
+        "3": { "preCommit": "warn", "ci": "warn" }
+      }
+    },
+    "lenient": {
+      "description": "Only tier 1 blocks, rest are info",
+      "overrides": {
+        "2": { "preCommit": "info", "ci": "info" },
+        "3": { "preCommit": "info", "ci": "info" }
+      }
+    }
+  }
+}

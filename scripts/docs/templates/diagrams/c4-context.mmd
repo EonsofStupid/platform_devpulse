@@ -1,0 +1,36 @@
+%% C4 Context Diagram Template
+%% Customize for your system
+
+graph TB
+    subgraph Users["Users"]
+        Dev[Developer]
+        Admin[Administrator]
+    end
+
+    subgraph DevPulse["DevPulse Platform"]
+        Desktop[Desktop App<br/>SvelteKit + Tauri]
+        Engine[Engine<br/>Rust]
+        Maestro[Maestro Kernel<br/>AI Orchestrator]
+    end
+
+    subgraph External["External Systems"]
+        API[External APIs]
+        DB[(Databases)]
+        AI[AI Services]
+    end
+
+    Dev --> Desktop
+    Admin --> Desktop
+    Desktop --> Engine
+    Engine --> Maestro
+    Maestro --> AI
+    Engine --> DB
+    Desktop --> API
+
+    classDef user fill:#08427b,stroke:#052e56,color:#fff
+    classDef internal fill:#1168bd,stroke:#0b4884,color:#fff
+    classDef external fill:#999999,stroke:#666666,color:#fff
+
+    class Dev,Admin user
+    class Desktop,Engine,Maestro internal
+    class API,DB,AI external

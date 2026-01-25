@@ -3,7 +3,7 @@
     import Frame from "$lib/layouts/app/Frame.svelte";
 
     // Domain Pages
-    import HomeDashboard from "$lib/domains/app/devpulse/pages/HomeDashboard.svelte";
+    import HomeDashboard from "$lib/domains/app/devpulse/features/dashboard/pages/DevPulseDashboard.svelte";
     import UIDemoPage from "$lib/domains/app/ui-demo/pages/UIDemoPage.svelte";
 
     // VPB Debug Tool (dev-only, stripped in prod)

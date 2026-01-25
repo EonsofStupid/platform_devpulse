@@ -1,17 +1,17 @@
-# Sprint 04: StatusBar.svelte CSS Rewrite
+# Sprint 04: StatusBar.svelte - HUD STATUS INDICATORS
 
 > **Target**: `layouts/app/StatusBar.svelte`
-> **Goal**: Replace broken tokens. Crisp glass panel. Status dot with glow. Mono text.
+> **Vision**: HUD status indicators with NEON GLOW. System monitor aesthetic. Mono text.
+> **References**: DASHBOARD-REFERENCE-01.png (bottom status area)
 
 ---
 
-## Current State
+## Design Patterns
 
-Script is minimal (good):
-- Hardcoded status object (TODO: connect to actual system state)
-- No runes needed yet (will use when connected to engine)
-
-CSS has broken tokens that must be replaced.
+- **Status indicators**: NEON GLOW dots with pulse animation
+- **HUD text**: Monospace, uppercase, muted with hover brighten
+- **Glass panel**: Matches Frame's statusbar (already handled by Frame)
+- **Color coding**: Cyan = online, Red = offline, Amber = warning
 
 ---
 
@@ -21,6 +21,9 @@ Replace the entire `<style>` block with:
 
 ```css
 <style>
+    /* =============================================
+       STATUSBAR - HUD SYSTEM MONITOR
+       ============================================= */
     .statusbar {
         display: flex;
         align-items: center;
@@ -36,7 +39,7 @@ Replace the entire `<style>` block with:
     .statusbar-right {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
     }
 
     .statusbar-left {
@@ -52,68 +55,147 @@ Replace the entire `<style>` block with:
         flex: 0 0 auto;
     }
 
-    /* Status Indicator Dot */
+    /* =============================================
+       STATUS INDICATOR DOT - NEON GLOW
+       ============================================= */
     .status-indicator {
         width: 8px;
         height: 8px;
         border-radius: 9999px;
-        background: rgba(255, 255, 255, 0.4);
+        background: hsl(0 0% 60%);
         transition: all 0.3s ease;
     }
 
-    /* Online - Green glow */
+    /* Online - CYAN NEON GLOW (matches theme) */
     .status-indicator.online {
-        background: rgba(34, 197, 94, 1);
+        background: hsl(191 100% 60%);
         box-shadow:
-            0 0 8px rgba(34, 197, 94, 0.8),
-            0 0 16px rgba(34, 197, 94, 0.4);
-        animation: pulse-glow 2s ease-in-out infinite;
+            0 0 8px hsl(191 100% 60% / 0.9),
+            0 0 16px hsl(191 100% 60% / 0.5),
+            0 0 24px hsl(191 100% 60% / 0.3);
+        animation: status-pulse 2s ease-in-out infinite;
     }
 
-    /* Offline - Red, no glow */
+    /* Offline - RED with subtle glow */
     .status-indicator.offline {
-        background: rgba(239, 68, 68, 1);
-        box-shadow: none;
+        background: hsl(0 100% 60%);
+        box-shadow:
+            0 0 6px hsl(0 100% 60% / 0.6);
     }
 
-    @keyframes pulse-glow {
+    /* Warning - AMBER glow */
+    .status-indicator.warning {
+        background: hsl(43 100% 55%);
+        box-shadow:
+            0 0 8px hsl(43 100% 55% / 0.8),
+            0 0 16px hsl(43 100% 55% / 0.4);
+        animation: status-pulse-amber 1.5s ease-in-out infinite;
+    }
+
+    /* Processing - CYAN with faster pulse */
+    .status-indicator.processing {
+        background: hsl(191 100% 60%);
+        box-shadow:
+            0 0 8px hsl(191 100% 60% / 0.9),
+            0 0 16px hsl(191 100% 60% / 0.5);
+        animation: status-pulse 0.8s ease-in-out infinite;
+    }
+
+    @keyframes status-pulse {
         0%, 100% {
             box-shadow:
-                0 0 8px rgba(34, 197, 94, 0.8),
-                0 0 16px rgba(34, 197, 94, 0.4);
+                0 0 8px hsl(191 100% 60% / 0.9),
+                0 0 16px hsl(191 100% 60% / 0.5),
+                0 0 24px hsl(191 100% 60% / 0.3);
         }
         50% {
             box-shadow:
-                0 0 12px rgba(34, 197, 94, 1),
-                0 0 24px rgba(34, 197, 94, 0.6);
+                0 0 12px hsl(191 100% 60% / 1),
+                0 0 24px hsl(191 100% 60% / 0.7),
+                0 0 36px hsl(191 100% 60% / 0.4);
         }
     }
 
-    /* Status Text - Mono font */
+    @keyframes status-pulse-amber {
+        0%, 100% {
+            box-shadow:
+                0 0 8px hsl(43 100% 55% / 0.8),
+                0 0 16px hsl(43 100% 55% / 0.4);
+        }
+        50% {
+            box-shadow:
+                0 0 12px hsl(43 100% 55% / 1),
+                0 0 24px hsl(43 100% 55% / 0.6);
+        }
+    }
+
+    /* =============================================
+       STATUS TEXT - HUD MONOSPACE
+       ============================================= */
     .status-text {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         font-family: "JetBrains Mono", "Fira Code", monospace;
-        color: rgba(255, 255, 255, 0.7);
+        color: hsl(0 0% 65%);
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.08em;
+        transition: color 0.2s ease;
     }
 
     .status-text.muted {
-        color: rgba(255, 255, 255, 0.4);
+        color: hsl(0 0% 45%);
     }
 
-    /* Hover effect on status items */
+    .status-text.bright {
+        color: hsl(191 100% 75%);
+    }
+
+    /* Hover brightens text + intensifies glow */
     .statusbar-left:hover .status-text,
     .statusbar-center:hover .status-text,
     .statusbar-right:hover .status-text {
-        color: rgba(255, 255, 255, 0.9);
-        transition: color 0.2s ease;
+        color: hsl(0 0% 90%);
     }
 
     .statusbar-left:hover .status-indicator.online {
         box-shadow:
-            0 0 12px rgba(34, 197, 94, 1),
-            0 0 24px rgba(34, 197, 94, 0.6);
+            0 0 12px hsl(191 100% 60% / 1),
+            0 0 24px hsl(191 100% 60% / 0.7),
+            0 0 36px hsl(191 100% 60% / 0.4);
+    }
+
+    /* =============================================
+       STATUS GROUP - VISUAL SEPARATION
+       ============================================= */
+    .status-group {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 8px;
+        background: hsl(222 60% 8% / 0.5);
+        border-radius: 4px;
+        border: 1px solid hsl(191 100% 60% / 0.1);
+        transition:
+            background 0.2s ease,
+            border-color 0.2s ease;
+    }
+
+    .status-group:hover {
+        background: hsl(222 55% 10% / 0.7);
+        border-color: hsl(191 100% 60% / 0.25);
+    }
+
+    /* =============================================
+       DIVIDER - SUBTLE SEPARATOR
+       ============================================= */
+    .status-divider {
+        width: 1px;
+        height: 16px;
+        background: linear-gradient(
+            180deg,
+            transparent 0%,
+            hsl(191 100% 60% / 0.3) 50%,
+            transparent 100%
+        );
     }
 </style>
 ```
@@ -122,33 +204,36 @@ Replace the entire `<style>` block with:
 
 ## Status Indicator States
 
-| State | Color | Glow | Animation |
-|-------|-------|------|-----------|
-| Online | `rgba(34, 197, 94, 1)` (green) | Yes, pulsing | `pulse-glow 2s` |
-| Offline | `rgba(239, 68, 68, 1)` (red) | No | None |
-| Default | `rgba(255, 255, 255, 0.4)` | No | None |
+| State | Color (HSL) | Glow | Animation |
+|-------|-------------|------|-----------|
+| Online | `hsl(191 100% 60%)` cyan | 3-layer, bright | `status-pulse 2s` |
+| Offline | `hsl(0 100% 60%)` red | Subtle 1-layer | None |
+| Warning | `hsl(43 100% 55%)` amber | 2-layer | `status-pulse-amber 1.5s` |
+| Processing | `hsl(191 100% 60%)` cyan | 2-layer | `status-pulse 0.8s` |
 
 ---
 
-## Typography
+## Typography (HUD Style)
 
-| Element | Font | Size | Color |
-|---------|------|------|-------|
-| Status text | JetBrains Mono | 0.75rem | `rgba(255,255,255,0.7)` |
-| Muted text | JetBrains Mono | 0.75rem | `rgba(255,255,255,0.4)` |
-| Hover | JetBrains Mono | 0.75rem | `rgba(255,255,255,0.9)` |
+| Element | Font | Size | Color | Transform |
+|---------|------|------|-------|-----------|
+| Default | JetBrains Mono | 0.7rem | `hsl(0 0% 65%)` | UPPERCASE |
+| Muted | JetBrains Mono | 0.7rem | `hsl(0 0% 45%)` | UPPERCASE |
+| Bright | JetBrains Mono | 0.7rem | `hsl(191 100% 75%)` | UPPERCASE |
+| Hover | JetBrains Mono | 0.7rem | `hsl(0 0% 90%)` | UPPERCASE |
 
 ---
 
 ## Verification
 
 1. [ ] `pnpm check` passes
-2. [ ] Status dot is green when online
-3. [ ] Green dot has pulsing glow animation
-4. [ ] Text uses monospace font
-5. [ ] Muted text is dimmer
-6. [ ] Hover brightens text
-7. [ ] Hover intensifies online glow
+2. [ ] Status dot is CYAN with NEON GLOW when online
+3. [ ] Cyan dot has visible pulsing animation
+4. [ ] Text uses monospace font, uppercase
+5. [ ] Muted text is clearly dimmer
+6. [ ] Hover brightens text to near-white
+7. [ ] Hover intensifies online glow (more layers visible)
+8. [ ] Status groups have subtle glass background
 
 ---
 
@@ -175,5 +260,5 @@ $effect(() => {
 ## Execution Command
 
 ```
-Read StatusBar.svelte → Replace <style> block → Run pnpm check → Visual verify
+Read StatusBar.svelte -> Replace <style> block -> Run pnpm check -> Visual verify
 ```

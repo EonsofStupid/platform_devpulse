@@ -1,0 +1,81 @@
+# AI Checklist Pipeline
+# Used by AI assistants to validate changes before committing
+
+version: "1.0.0"
+description: "Pre-commit checklist for AI-assisted development"
+
+phases:
+  - name: "Architecture Compliance"
+    checks:
+      - id: "thin-routes"
+        question: "Are all route files adapter-only (no feature logic)?"
+        severity: "error"
+        autoCheck: true
+
+      - id: "domain-boundaries"
+        question: "Do routes only import from domain index.ts or pages/**?"
+        severity: "error"
+        autoCheck: true
+
+      - id: "typed-routes"
+        question: "Are all navigation paths using typed route helpers?"
+        severity: "error"
+        autoCheck: true
+
+  - name: "State Management"
+    checks:
+      - id: "state-location"
+        question: "Is all rune state in *.state.svelte.ts under domains/**/state/?"
+        severity: "error"
+        autoCheck: true
+
+      - id: "streams-boundary"
+        question: "Are all subscription/stream contracts in sys/streams/**?"
+        severity: "error"
+        autoCheck: true
+
+  - name: "Naming Conventions"
+    checks:
+      - id: "page-naming"
+        question: "Do page components follow *.page.svelte pattern?"
+        severity: "warning"
+        autoCheck: true
+
+      - id: "service-naming"
+        question: "Do services follow *.svc.ts pattern?"
+        severity: "warning"
+        autoCheck: true
+
+      - id: "contract-naming"
+        question: "Do contracts follow *.contract.ts pattern?"
+        severity: "warning"
+        autoCheck: true
+
+  - name: "Documentation"
+    checks:
+      - id: "jsdoc-present"
+        question: "Do new exports have JSDoc comments?"
+        severity: "warning"
+        autoCheck: true
+
+      - id: "domain-index"
+        question: "Does each domain have an index.ts with public API?"
+        severity: "error"
+        autoCheck: true
+
+  - name: "Security"
+    checks:
+      - id: "no-secrets"
+        question: "Are there no hardcoded secrets or API keys?"
+        severity: "error"
+        autoCheck: false
+
+      - id: "sanitized-input"
+        question: "Is user input properly sanitized?"
+        severity: "error"
+        autoCheck: false
+
+commands:
+  check: "pnpm docs:preflight:check"
+  fix: "pnpm docs:preflight:fix"
+  dryRun: "pnpm docs:preflight:dry-run"

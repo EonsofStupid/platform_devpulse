@@ -8,17 +8,22 @@ pre-commit:
     rust-fmt:
       glob: "*.rs"
       run: cargo fmt --all -- --check
-      
+
     # Rust linting (quick check, not full clippy)
     rust-check:
       glob: "*.rs"
       run: cargo check --workspace --quiet
-      
+
     # Svelte check
     svelte-check:
       glob: "*.svelte"
       root: "interfaces/desktop"
       run: pnpm exec svelte-check --threshold error
+
+    # Documentation preflight checks
+    docs-preflight:
+      glob: "interfaces/desktop/src/**/*.{ts,svelte}"
+      run: cd scripts/docs && pnpm preflight:check
 
 commit-msg:
   commands:

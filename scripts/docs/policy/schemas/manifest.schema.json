@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://devpulse.app/schemas/manifest.schema.json",
+  "title": "DevPulse Domain Manifest Schema",
+  "description": "Schema for domain manifest files",
+  "type": "object",
+  "required": ["name", "version", "kind"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Domain identifier"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "kind": {
+      "type": "string",
+      "enum": ["domain", "route", "component", "state", "service"]
+    },
+    "description": {
+      "type": "string"
+    },
+    "exports": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "type"],
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "properties": {
+        "internal": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "external": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "pages": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "features": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "state": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "services": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

@@ -10,7 +10,14 @@ export default defineConfig({
       $lib: path.resolve("./lib"),
     },
   },
-  plugins: [coldlight(), tailwindcss(), svelte()],
+  plugins: [
+    // 1. ColdLight generates tokens FIRST
+    coldlight(),
+    // 2. Tailwind (source paths defined in app.css via @source)
+    tailwindcss(),
+    // 3. Svelte compiles last
+    svelte(),
+  ],
   clearScreen: false,
   server: {
     port: 1420,

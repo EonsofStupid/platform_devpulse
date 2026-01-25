@@ -56,8 +56,32 @@ Primary dev work: `interfaces/desktop/src/`
 ## Commands
 
 ```bash
-cd interfaces/desktop/src
+cd interfaces/desktop
 pnpm dev          # Start dev server
 pnpm build        # Build
-pnpm check        # TypeScript check
+pnpm svelte-check # TypeScript check
 ```
+
+## Sprint Process
+
+All sprints are in `scripts/docs/sprints/`.
+
+**Sprint tracking:**
+- Master plan: `scripts/docs/.claude/MASTER_SPRINT_PLAN.md`
+- Research decisions: `scripts/docs/.claude/RESEARCH_DECISIONS.md`
+- Individual sprints: `scripts/docs/sprints/SPRINT-XX-name.md`
+
+**Before executing a sprint:**
+1. Read the sprint file completely
+2. Verify prerequisites are met
+3. Check current state audit is accurate
+
+**During execution:**
+1. Follow tasks in order
+2. Verify each task compiles before moving on
+3. At compact checkpoints, pause and verify with user
+
+**Code patterns (verified to compile):**
+- Use `forEach` for Set iteration (not `for...of`)
+- Use `.js` extensions in TypeScript imports
+- Export singletons directly (not classes)

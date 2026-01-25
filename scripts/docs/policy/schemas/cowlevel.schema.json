@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://devpulse.app/schemas/cowlevel.schema.json",
+  "title": "DevPulse Cowlevel Policy Schema",
+  "description": "Schema for cowlevel.policy.json - the main enforcement policy",
+  "type": "object",
+  "required": ["version", "rules", "kindMatrix"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "description": {
+      "type": "string"
+    },
+    "targetPath": {
+      "type": "string",
+      "description": "Root path for enforcement relative to platform root"
+    },
+    "rules": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/rule"
+      }
+    },
+    "kindMatrix": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/kind"
+      }
+    }
+  },
+  "$defs": {
+    "rule": {
+      "type": "object",
+      "required": ["description", "tier", "scope", "enforcement"],
+      "properties": {
+        "description": { "type": "string" },
+        "tier": { "type": "integer", "minimum": 1, "maximum": 3 },
+        "scope": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "enforcement": {
+          "type": "string",
+          "enum": ["error", "warning", "info"]
+        },
+        "autofix": { "type": "boolean" },
+        "allowedImports": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "allowlist": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "patterns": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "kind": {
+      "type": "object",
+      "required": ["lifecycle"],
+      "properties": {
+        "lifecycle": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "requiredDocs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "requiredExports": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "forbiddenPatterns": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "patterns": {
+          "oneOf": [
+            { "type": "array", "items": { "type": "string" } },
+            { "type": "object", "additionalProperties": { "type": "string" } }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -13,6 +13,7 @@ import type { Plugin, ResolvedConfig } from "vite";
 import * as fs from "fs";
 import * as path from "path";
 import * as esbuild from "esbuild";
+import { pathToFileURL } from "url";
 
 // ===========================================
 // TYPES
@@ -86,9 +87,22 @@ function kebabCase(str: string): string {
 // ===========================================
 
 async function generateFromTokens(tokensPath: string, outputDir: string): Promise<void> {
-  // Dynamically import tokens.ts - convert to file URL for Windows compatibility
-  const tokensUrl = pathToFileURL(tokensPath).href;
-  const tokens = await import(tokensUrl);
+  // Transpile tokens.ts to JavaScript using esbuild, then dynamically import it
+  const result = await esbuild.build({
+    entryPoints: [tokensPath],
+    bundle: true,
+    write: false,
+    format: "esm",
+    platform: "node",
+  });
+
+  // Write the transpiled code to a temp file and import it
+  const tempFile = path.join(outputDir, "tokens/.tokens.gen.mjs");
+  fs.writeFileSync(tempFile, result.outputFiles[0].text, "utf-8");
+
+  // Import the transpiled module
+  const tokensUrl = pathToFileURL(tempFile).href;
+  const tokens = await import(`${tokensUrl}?t=${Date.now()}`);
 
   const cssLines: string[] = [];
   const presetColors: Record<string, Record<string, string>> = {};

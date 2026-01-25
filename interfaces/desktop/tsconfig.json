@@ -1,0 +1,17 @@
+{
+  "extends": "./src/tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "src"
+  },
+  "include": [
+    "src/**/*.d.ts",
+    "src/**/*.ts",
+    "src/**/*.js",
+    "src/**/*.svelte"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/node_modules",
+    "src/lib/design/primitives/_archive/**"
+  ]
+}

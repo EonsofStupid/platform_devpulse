@@ -1,9 +1,9 @@
 <script>
-    import GlassPanel from "$lib/design/components/GlassPanel.svelte";
+    import GlassPanel from "$lib/design/block_library/Panel.svelte";
 </script>
 
 <div class="chat-window">
-    <GlassPanel variant="deep" padding="none" class="chat-panel">
+    <GlassPanel variant="glass" padding="none" class="chat-panel">
         <div class="header">
             <span class="title">MAESTRO</span>
             <div class="status">ONLINE</div>

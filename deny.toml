@@ -12,7 +12,7 @@ db-urls = ["https://github.com/rustsec/advisory-db"]
 ignore = []
 
 [licenses]
-unlicensed = "deny"
+version = 2
 allow = [
     "MIT",
     "Apache-2.0",
@@ -25,7 +25,7 @@ allow = [
     "Unicode-3.0",
     "Unicode-DFS-2016",
 ]
-copyleft = "warn"
+# Crates with licenses not in the allow list are denied by default in v2
 
 [bans]
 multiple-versions = "warn"

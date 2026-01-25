@@ -24,13 +24,13 @@
  */
 
 // SSOT token definitions (source of truth)
-export * from "./tokens";
+
 
 // TypeScript types (GENERATED - const arrays + union types)
-export * from "./types";
+
 
 // Zod schemas (runtime validation at boundaries)
-export * from "./schema";
+
 
 // Tailwind preset
 export { dpPreset } from "./tailwind.preset";

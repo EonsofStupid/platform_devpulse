@@ -1,0 +1,42 @@
+{
+  "$schema": "./schemas/doc-coverage.schema.json",
+  "version": "1.0.0",
+  "description": "Documentation coverage gates - drift detection thresholds",
+  "gates": {
+    "minimum": {
+      "description": "Minimum acceptable coverage for CI pass",
+      "thresholds": {
+        "domains": 80,
+        "routes": 100,
+        "components": 70,
+        "services": 90,
+        "contracts": 100
+      }
+    },
+    "target": {
+      "description": "Target coverage for healthy codebase",
+      "thresholds": {
+        "domains": 95,
+        "routes": 100,
+        "components": 90,
+        "services": 100,
+        "contracts": 100
+      }
+    }
+  },
+  "drift": {
+    "allowedRegression": 5,
+    "lockfile": ".doc-coverage.lock.json",
+    "reportPath": ".doc-coverage-report.json"
+  },
+  "exemptions": {
+    "paths": [
+      "src/lib/sys/generated/**",
+      "**/*.test.ts",
+      "**/*.spec.ts"
+    ],
+    "patterns": [
+      "*.d.ts"
+    ]
+  }
+}

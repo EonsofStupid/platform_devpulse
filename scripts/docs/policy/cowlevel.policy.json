@@ -1,0 +1,90 @@
+{
+  "$schema": "./schemas/cowlevel.schema.json",
+  "version": "1.0.0",
+  "description": "DevPulse Enterprise Documentation Policy - Requirements Matrix",
+  "targetPath": "interfaces/desktop/src",
+  "rules": {
+    "thin-routes": {
+      "description": "Routes must be adapters only - no feature logic",
+      "tier": 1,
+      "scope": ["routes/**/*.svelte", "routes/**/*.ts"],
+      "enforcement": "error",
+      "autofix": false
+    },
+    "domain-boundaries": {
+      "description": "Routes import only from domain index.ts or pages/",
+      "tier": 1,
+      "scope": ["routes/**/*.svelte", "routes/**/*.ts"],
+      "enforcement": "error",
+      "autofix": false,
+      "allowedImports": [
+        "$lib/domains/{ns}/{domain}/index.ts",
+        "$lib/domains/{ns}/{domain}/pages/",
+        "$lib/sys/",
+        "$app/",
+        "svelte/"
+      ]
+    },
+    "typed-routes": {
+      "description": "No raw string routes - must use typed route helpers",
+      "tier": 1,
+      "scope": ["**/*.svelte", "**/*.ts"],
+      "enforcement": "error",
+      "autofix": false,
+      "allowlist": [
+        "lib/sys/generated/"
+      ]
+    },
+    "state-vs-streams": {
+      "description": "State in *.state.svelte.ts, streams in sys/streams/",
+      "tier": 1,
+      "scope": ["lib/**/*.ts", "lib/**/*.svelte.ts"],
+      "enforcement": "error",
+      "autofix": false
+    },
+    "naming-conventions": {
+      "description": "Enforce naming patterns per file type",
+      "tier": 2,
+      "scope": ["lib/**/*"],
+      "enforcement": "warning",
+      "autofix": true,
+      "patterns": {
+        "pages": "*.page.svelte",
+        "state": "*.state.svelte.ts",
+        "services": "*.svc.ts",
+        "contracts": "*.contract.ts",
+        "registries": "*.registry.ts"
+      }
+    }
+  },
+  "kindMatrix": {
+    "route": {
+      "lifecycle": ["load", "action", "render"],
+      "requiredDocs": ["@description"],
+      "forbiddenPatterns": ["useState", "createStore", "writable"]
+    },
+    "domain": {
+      "lifecycle": ["init", "ready", "destroy"],
+      "requiredDocs": ["@description", "@module"],
+      "requiredExports": ["index.ts"]
+    },
+    "component": {
+      "lifecycle": ["mount", "update", "destroy"],
+      "requiredDocs": ["@description", "@props"],
+      "patterns": {
+        "page": "*.page.svelte",
+        "feature": "*.svelte"
+      }
+    },
+    "state": {
+      "lifecycle": ["create", "update", "subscribe"],
+      "requiredDocs": ["@description"],
+      "patterns": ["*.state.svelte.ts"]
+    },
+    "service": {
+      "lifecycle": ["init", "call", "dispose"],
+      "requiredDocs": ["@description", "@param", "@returns"],
+      "patterns": ["*.svc.ts"]
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "@devpulse/docs-enforcement",
+  "version": "1.0.0",
+  "description": "Documentation enforcement system for DevPulse platform",
+  "type": "module",
+  "scripts": {
+    "preflight:check": "tsx preflight/engine/preflight.ts --check",
+    "preflight:fix": "tsx preflight/engine/preflight.ts --fix",
+    "preflight:dry-run": "tsx preflight/engine/preflight.ts --dry-run",
+    "scan": "tsx pipeline/scan.ts",
+    "validate": "tsx pipeline/validate.ts",
+    "extract": "tsx pipeline/extract/typedoc.ts",
+    "stage": "tsx pipeline/stage.ts",
+    "lock": "tsx pipeline/lock.ts",
+    "verify": "tsx pipeline/verify.ts",
+    "check": "pnpm scan && pnpm validate && pnpm preflight:check"
+  },
+  "dependencies": {
+    "ts-morph": "^24.0.0",
+    "glob": "^11.0.0",
+    "yaml": "^2.4.0",
+    "ajv": "^8.17.0",
+    "chalk": "^5.3.0",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.0",
+    "@types/node": "^22.0.0",
+    "@types/prompts": "^2.4.9"
+  }
+}
