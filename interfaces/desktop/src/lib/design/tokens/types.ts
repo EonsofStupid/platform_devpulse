@@ -36,6 +36,9 @@ export type DepthToken = (typeof DepthTokens)[number];
 export const BevelTokens = ["off","subtle","soft","medium"] as const;
 export type BevelToken = (typeof BevelTokens)[number];
 
+export const ToneTokens = ["cold","neutral","warm"] as const;
+export type ToneToken = (typeof ToneTokens)[number];
+
 export const ImprintTokens = ["subtle","medium","strong"] as const;
 export type ImprintToken = (typeof ImprintTokens)[number];
 
@@ -61,6 +64,7 @@ export const TokenArrays = {
   blur: BlurTokens,
   depth: DepthTokens,
   bevel: BevelTokens,
+  tone: ToneTokens,
   imprint: ImprintTokens,
   shellDepth: ShellDepthTokens,
   space: SpaceTokens,

@@ -18,7 +18,7 @@
     - URL-driven navigation via <a> tags
 -->
 <script lang="ts">
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
 
     interface NavItem {
         id: string;
@@ -64,7 +64,7 @@
     }
 
     function isActive(href: string): boolean {
-        return $page.url.pathname.startsWith(href);
+        return page.url.pathname.startsWith(href);
     }
 </script>
 

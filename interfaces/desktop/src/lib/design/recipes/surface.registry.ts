@@ -55,9 +55,9 @@ export const SurfaceRegistry = {
     allowedComponents: ["Panel", "Card", "Modal", "Popover", "Drawer"],
     allowedControls: {
       tone: ["cold", "neutral", "warm"],
-      glow: ["off", "soft", "hard"],
-      radius: ["r1", "r2", "r3", "r4"],
-      blur: ["b1", "b2", "b3"],
+      glow: ["off", "teal", "purple", "cyber"],
+      radius: ["sm", "md", "lg", "xl"],
+      blur: ["off", "sm", "md", "lg"],
     },
     dependencies: {
       tokens: ["dp-glass-base", "dp-glass-tint-*", "dp-blur-*"],
@@ -76,7 +76,7 @@ export const SurfaceRegistry = {
     allowedComponents: ["Panel", "Sidebar", "Drawer", "Frame"],
     allowedControls: {
       tone: ["cold", "neutral"],
-      radius: ["r0", "r1", "r2"],
+      radius: ["none", "sm", "md"],
     },
     dependencies: {
       tokens: ["dp-matte-*", "dp-bevel-*", "dp-inset-*"],
@@ -95,7 +95,7 @@ export const SurfaceRegistry = {
     allowedComponents: ["*"],
     allowedControls: {
       tone: ["cold", "neutral", "warm"],
-      radius: ["r0", "r1", "r2", "r3", "r4"],
+      radius: ["none", "sm", "md", "lg", "xl"],
     },
     dependencies: {
       tokens: ["dp-matte-*"],
@@ -114,7 +114,7 @@ export const SurfaceRegistry = {
     allowedComponents: ["*"],
     allowedControls: {
       tone: ["cold", "neutral"],
-      radius: ["r0", "r1", "r2"],
+      radius: ["none", "sm", "md"],
     },
     dependencies: {
       tokens: ["dp-matte-*", "dp-inset-*"],
