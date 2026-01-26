@@ -14,12 +14,7 @@
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
         "verbatimModuleSyntax": true,
-        "types": ["node"],
-        "baseUrl": ".",
-        "paths": {
-            "$lib/*": ["./src/lib/*"],
-            "$app/*": ["./.svelte-kit/runtime/app/*", "./node_modules/@sveltejs/kit/src/runtime/app/*"]
-        }
+        "types": ["node"]
     },
     "include": [
         "**/*.d.ts",
