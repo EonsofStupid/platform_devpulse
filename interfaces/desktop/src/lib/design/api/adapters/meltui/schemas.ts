@@ -1,5 +1,5 @@
 /**
- * @file sys/api/_internal/melt/schemas.ts
+ * @file design/api/adapters/meltui/schemas.ts
  * @layer internal
  *
  * Zod validation schemas for props.

@@ -91,7 +91,7 @@ taxonomy/
 
 ## Provider Mapping Layer
 
-**Location:** `src/lib/design/sys/api/_internal/melt/`
+**Location:** `src/lib/design/design/api/adapters/meltui/`
 
 ```
 sys/api/_internal/

@@ -1,5 +1,5 @@
 /**
- * @file sys/api/_internal/melt/assertions.ts
+ * @file design/api/adapters/meltui/assertions.ts
  * @layer internal
  *
  * RUNTIME ENFORCEMENT.

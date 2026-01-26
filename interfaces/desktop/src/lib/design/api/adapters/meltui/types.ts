@@ -1,5 +1,5 @@
 /**
- * @file sys/api/_internal/melt/types.ts
+ * @file design/api/adapters/meltui/types.ts
  * @layer internal
  *
  * Melt UI builder return type aliases.

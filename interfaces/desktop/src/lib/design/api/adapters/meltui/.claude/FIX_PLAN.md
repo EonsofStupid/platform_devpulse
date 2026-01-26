@@ -40,7 +40,7 @@ createToolbar        createTooltip        createTreeView
 
 ## STEP 1: Fix types.ts
 
-File: `sys/api/_internal/melt/types.ts`
+File: `design/api/adapters/meltui/types.ts`
 
 - [x] 1.1 Add `createTreeView` to imports (line 39-40)
 - [x] 1.2 Change `TreeBuilder` to `TreeViewBuilder` (line 89-90)
@@ -48,7 +48,7 @@ File: `sys/api/_internal/melt/types.ts`
 
 **Verification command:**
 ```bash
-cd interfaces/desktop/src && pnpm exec tsc --noEmit lib/design/sys/api/_internal/melt/types.ts
+cd interfaces/desktop/src && pnpm exec tsc --noEmit lib/design/design/api/adapters/meltui/types.ts
 ```
 
 ---
@@ -65,7 +65,7 @@ File: `sys/api/_internal/index.ts`
 
 ## STEP 3: Fix melt/index.ts barrel
 
-File: `sys/api/_internal/melt/index.ts`
+File: `design/api/adapters/meltui/index.ts`
 
 - [x] 3.1 Read file to confirm current state
 - [x] 3.2 Change `TreeBuilder` to `TreeViewBuilder` in type exports (line 43)
@@ -75,7 +75,7 @@ File: `sys/api/_internal/melt/index.ts`
 
 ## STEP 4: Fix schemas.ts
 
-File: `sys/api/_internal/melt/schemas.ts`
+File: `design/api/adapters/meltui/schemas.ts`
 
 - [x] 4.1 Read file to confirm current state
 - [x] 4.2 Fix line 17: `z.function().args()` → `z.function()`
@@ -97,7 +97,7 @@ File: `.claude/CHECKLIST.md`
 ## STEP 6: Full Verification
 
 - [x] 6.1 Run `pnpm check` from `interfaces/desktop/src`
-- [x] 6.2 Confirm zero errors in `sys/api/_internal/melt/` files
+- [x] 6.2 Confirm zero errors in `design/api/adapters/meltui/` files
 - [x] 6.3 Mark sprint COMPLETE
 
 ---

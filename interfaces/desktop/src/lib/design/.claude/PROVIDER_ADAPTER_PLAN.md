@@ -11,7 +11,7 @@ Build a **provider abstraction layer** so ColdLight primitives can swap backends
 
 ## CURRENT STATE
 
-### What Exists (`sys/api/_internal/melt/`)
+### What Exists (`design/api/adapters/meltui/`)
 ```
 melt/
 ├── types.ts       ✓ 31 builder type aliases
@@ -193,7 +193,7 @@ export function getProviderName(): string {
 
 ### STEP 4: Implement Melt Adapter
 
-**File: `sys/api/_internal/melt/adapter.ts`**
+**File: `design/api/adapters/meltui/adapter.ts`**
 ```typescript
 import type { IProviderAdapter } from '../contract.js';
 import { createTabs, createAccordion, createDialog } from '@melt-ui/svelte';
@@ -225,7 +225,7 @@ export const MeltAdapter: IProviderAdapter = {
 **File: `sys/init.ts`**
 ```typescript
 import { registerProvider } from '$lib/design/sys/api/_internal/registry.js';
-import { MeltAdapter } from '$lib/design/sys/api/_internal/melt/adapter.js';
+import { MeltAdapter } from '$lib/design/design/api/adapters/meltui/adapter.js';
 
 export function initColdLight(): void {
   registerProvider(MeltAdapter);
@@ -242,8 +242,8 @@ export function initColdLight(): void {
 4. `taxonomy/index.ts`
 5. `sys/api/_internal/contract.ts`
 6. `sys/api/_internal/registry.ts`
-7. `sys/api/_internal/melt/adapter.ts`
-8. Update `sys/api/_internal/melt/index.ts`
+7. `design/api/adapters/meltui/adapter.ts`
+8. Update `design/api/adapters/meltui/index.ts`
 9. Update `sys/api/_internal/index.ts`
 
 ---

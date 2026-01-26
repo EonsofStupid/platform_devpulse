@@ -1,5 +1,5 @@
 /**
- * @file sys/api/_internal/melt/index.ts
+ * @file design/api/adapters/meltui/index.ts
  * @layer internal
  *
  * Melt UI binding layer barrel.

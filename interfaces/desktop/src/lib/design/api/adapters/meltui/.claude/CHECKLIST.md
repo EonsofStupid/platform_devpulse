@@ -99,7 +99,7 @@ Location: `taxonomy/provider/types.ts`
 
 ## STATE EXTRACTORS
 
-Location: `sys/api/_internal/melt/state.ts`
+Location: `design/api/adapters/meltui/state.ts`
 
 - [x] `extractOpenState(open: boolean): 'open' | 'closed'`
 - [x] `extractCheckedState(checked): 'checked' | 'unchecked' | 'indeterminate'`
@@ -115,7 +115,7 @@ Location: `sys/api/_internal/melt/state.ts`
 
 ## SCHEMAS
 
-Location: `sys/api/_internal/melt/schemas.ts`
+Location: `design/api/adapters/meltui/schemas.ts`
 
 - [x] `OpenStatePropsSchema`
 - [x] `CheckedStatePropsSchema`
@@ -132,7 +132,7 @@ Location: `sys/api/_internal/melt/schemas.ts`
 
 ## ASSERTIONS
 
-Location: `sys/api/_internal/melt/assertions.ts`
+Location: `design/api/adapters/meltui/assertions.ts`
 
 - [x] `assertKindRegistered(kind, component)`
 - [x] `assertSlotValid(kind, slot, component)`
@@ -145,7 +145,7 @@ Location: `sys/api/_internal/melt/assertions.ts`
 
 ## BARREL EXPORTS
 
-### `sys/api/_internal/melt/index.ts`
+### `design/api/adapters/meltui/index.ts`
 - [x] Re-exports `melt` action from `@melt-ui/svelte`
 - [x] Re-exports all 31 builder types
 - [x] Re-exports all state extractors
@@ -179,7 +179,7 @@ cd interfaces/desktop/src
 pnpm check
 
 # Verify files exist
-ls lib/design/sys/api/_internal/melt/
+ls lib/design/design/api/adapters/meltui/
 # Expected: types.ts state.ts assertions.ts schemas.ts index.ts
 
 ls lib/design/taxonomy/provider/
@@ -199,7 +199,7 @@ Before marking complete:
 5. Assertions complete? **YES**
 6. Barrel exports wired? **YES**
 7. taxonomy/index.ts wired? **YES**
-8. `pnpm check` passes? **YES** (zero errors in sys/api/_internal/melt/)
+8. `pnpm check` passes? **YES** (zero errors in design/api/adapters/meltui/)
 
 ---
 

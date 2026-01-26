@@ -1,5 +1,5 @@
 /**
- * @file sys/api/_internal/melt/state.ts
+ * @file design/api/adapters/meltui/state.ts
  * @layer internal
  *
  * State extraction for ColdLight data-state attributes.

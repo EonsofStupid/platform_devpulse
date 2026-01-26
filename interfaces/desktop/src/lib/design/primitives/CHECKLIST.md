@@ -132,7 +132,7 @@ export const PrimitiveMetadata: Record<PrimitiveKind, PrimitiveMetadata> = {
 
 ## STEP 1: PROVIDER LAYER (_internal/melt/)
 
-The `sys/api/_internal/melt/` folder isolates Melt UI integration.
+The `design/api/adapters/meltui/` folder isolates Melt UI integration.
 
 ### Required Files
 

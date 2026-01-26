@@ -34,7 +34,7 @@
                           │
                           ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  LAYER 2: BINDING (sys/api/_internal/melt/)                 │
+│  LAYER 2: BINDING (design/api/adapters/meltui/)                 │
 │  ──────────────────────────────────────────                 │
 │  • types.ts              ❌ TO CREATE (31 builder types)    │
 │  • state.ts              ❌ TO CREATE (extractors)          │
@@ -307,11 +307,11 @@ mkdir -p sys/api/_internal/melt
 
 ---
 
-### 1.2 Create `sys/api/_internal/melt/types.ts`
+### 1.2 Create `design/api/adapters/meltui/types.ts`
 
 ```typescript
 /**
- * @file sys/api/_internal/melt/types.ts
+ * @file design/api/adapters/meltui/types.ts
  * @layer internal
  *
  * Melt UI builder return type aliases.
@@ -420,11 +420,11 @@ export type BuilderOptions<T> = T extends { options: infer O } ? O : never;
 
 ---
 
-### 1.3 Create `sys/api/_internal/melt/state.ts`
+### 1.3 Create `design/api/adapters/meltui/state.ts`
 
 ```typescript
 /**
- * @file sys/api/_internal/melt/state.ts
+ * @file design/api/adapters/meltui/state.ts
  * @layer internal
  *
  * State extraction for ColdLight data-state attributes.
@@ -482,11 +482,11 @@ export const extractDisabled = extractPresence;
 
 ---
 
-### 1.4 Create `sys/api/_internal/melt/assertions.ts`
+### 1.4 Create `design/api/adapters/meltui/assertions.ts`
 
 ```typescript
 /**
- * @file sys/api/_internal/melt/assertions.ts
+ * @file design/api/adapters/meltui/assertions.ts
  * @layer internal
  *
  * RUNTIME ENFORCEMENT.
@@ -587,11 +587,11 @@ export function assertDataState(element: Element | null, expectedState: string):
 
 ---
 
-### 1.5 Create `sys/api/_internal/melt/schemas.ts`
+### 1.5 Create `design/api/adapters/meltui/schemas.ts`
 
 ```typescript
 /**
- * @file sys/api/_internal/melt/schemas.ts
+ * @file design/api/adapters/meltui/schemas.ts
  * @layer internal
  *
  * Zod validation schemas for props.
@@ -690,11 +690,11 @@ export function validateProps<T>(
 
 ---
 
-### 1.6 Create `sys/api/_internal/melt/index.ts`
+### 1.6 Create `design/api/adapters/meltui/index.ts`
 
 ```typescript
 /**
- * @file sys/api/_internal/melt/index.ts
+ * @file design/api/adapters/meltui/index.ts
  * @layer internal
  *
  * Melt UI binding layer barrel.
@@ -852,17 +852,17 @@ cd interfaces/desktop/src
 pnpm check
 
 # Verify files exist
-ls -la lib/design/sys/api/_internal/melt/
+ls -la lib/design/design/api/adapters/meltui/
 
 # Test import works
 echo "import * from '\$lib/design/sys/api/_internal';" > /tmp/test.ts
 ```
 
-- [ ] `sys/api/_internal/melt/types.ts` EXISTS
-- [ ] `sys/api/_internal/melt/state.ts` EXISTS
-- [ ] `sys/api/_internal/melt/assertions.ts` EXISTS
-- [ ] `sys/api/_internal/melt/schemas.ts` EXISTS
-- [ ] `sys/api/_internal/melt/index.ts` EXISTS
+- [ ] `design/api/adapters/meltui/types.ts` EXISTS
+- [ ] `design/api/adapters/meltui/state.ts` EXISTS
+- [ ] `design/api/adapters/meltui/assertions.ts` EXISTS
+- [ ] `design/api/adapters/meltui/schemas.ts` EXISTS
+- [ ] `design/api/adapters/meltui/index.ts` EXISTS
 - [ ] `sys/api/_internal/index.ts` EXISTS
 - [ ] `pnpm check` passes
 
@@ -972,7 +972,7 @@ pnpm check
 ls lib/design/taxonomy/provider/
 # MUST: types.ts melt.ts index.ts
 
-ls lib/design/sys/api/_internal/melt/
+ls lib/design/design/api/adapters/meltui/
 # MUST: types.ts state.ts assertions.ts schemas.ts index.ts
 
 # 3. Run verification script
@@ -990,11 +990,11 @@ npx tsx scripts/verify-primitives.ts
 - [ ] `taxonomy/provider/index.ts` — Exports + ACTIVE_PROVIDER
 
 ### Sprint 1: Binding Layer
-- [ ] `sys/api/_internal/melt/types.ts` — 31 builder type aliases
-- [ ] `sys/api/_internal/melt/state.ts` — State extractors
-- [ ] `sys/api/_internal/melt/assertions.ts` — Runtime enforcement
-- [ ] `sys/api/_internal/melt/schemas.ts` — Zod validation
-- [ ] `sys/api/_internal/melt/index.ts` — Barrel
+- [ ] `design/api/adapters/meltui/types.ts` — 31 builder type aliases
+- [ ] `design/api/adapters/meltui/state.ts` — State extractors
+- [ ] `design/api/adapters/meltui/assertions.ts` — Runtime enforcement
+- [ ] `design/api/adapters/meltui/schemas.ts` — Zod validation
+- [ ] `design/api/adapters/meltui/index.ts` — Barrel
 - [ ] `sys/api/_internal/index.ts` — Top barrel
 
 ### Sprint 2: Verification

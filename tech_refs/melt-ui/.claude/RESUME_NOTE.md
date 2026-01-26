@@ -29,10 +29,10 @@
 - [ ] `taxonomy/provider/index.ts` — Barrel export
 
 ### Sprint 1: _internal/melt/ Binding Layer
-- [ ] `sys/api/_internal/melt/types.ts` — All 31 builder type aliases
-- [ ] `sys/api/_internal/melt/state.ts` — State extraction helpers
-- [ ] `sys/api/_internal/melt/schemas.ts` — Zod validation schemas
-- [ ] `sys/api/_internal/melt/index.ts` — Barrel export
+- [ ] `design/api/adapters/meltui/types.ts` — All 31 builder type aliases
+- [ ] `design/api/adapters/meltui/state.ts` — State extraction helpers
+- [ ] `design/api/adapters/meltui/schemas.ts` — Zod validation schemas
+- [ ] `design/api/adapters/meltui/index.ts` — Barrel export
 - [ ] `sys/api/_internal/index.ts` — Top-level barrel
 
 ### Sprint 2: Update README
@@ -44,7 +44,7 @@
 
 - **31 Melt UI builders** mapped 1:1 to ColdLight primitives
 - **Provider port contract** allows swapping Melt for Ark UI, etc.
-- **Binding layer** at `sys/api/_internal/melt/` provides:
+- **Binding layer** at `design/api/adapters/meltui/` provides:
   - Type aliases for all builder returns
   - State extraction helpers (data-state values)
   - Zod schemas for prop validation
