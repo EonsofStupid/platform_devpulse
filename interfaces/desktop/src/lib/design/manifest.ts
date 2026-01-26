@@ -2,17 +2,16 @@
  * @file manifest.ts
  * @package @devpulse/coldlight
  *
- * ColdLight Component Manifest
+ * ColdLight Component Manifest (SSOT)
  *
- * This is the centralized registry of ALL components in ColdLight.
- * Unlike shadcn's flat JSON, this is TypeScript with:
- * - Type-safe status tracking
- * - Version history
- * - Dependency graphs
- * - Migration guides
- * - Breaking change tracking
+ * Contract rules:
+ * - ColdLight is the public SSOT API surface.
+ * - Provider behavior (ARIA/state/interaction) is internal and never the public identity.
+ * - Component IDs are camelCase (example: alertDialog).
+ * - Dependency graphs are by ID (not by name).
+ * - providerKey is REQUIRED for every entry (internal binding key).
  *
- * @author Jesse "Hades" Hall <jessay@angryvibers.com>
+ * @author Jesse "Hades" Hall
  * @license MIT
  * @since 1.0.0
  */
@@ -20,172 +19,172 @@
 import { VERSION } from "./coldlight.config";
 
 // ============================================
-// COMPONENT STATUS
+// ID ENFORCEMENT
 // ============================================
 
 /**
- * Component lifecycle status.
+ * ColdLight component ID format:
+ * - MUST be camelCase
+ * - MUST start with a lowercase letter
+ * - Letters/numbers only (no underscores/dashes/spaces)
+ *
+ * Valid: button, dialog, alertDialog, datePicker
+ * Invalid: AlertDialog, alert-dialog, alert_dialog, 1button
  */
+const COMPONENT_ID_RE = /^[a-z][a-zA-Z0-9]*$/;
+
+export type ComponentId = string & { readonly __brand: "ComponentId" };
+
+export function isComponentId(id: string): id is ComponentId {
+  return COMPONENT_ID_RE.test(id);
+}
+
+export function asComponentId(id: string): ComponentId {
+  if (!isComponentId(id)) {
+    throw new Error(
+      `[ColdLight] Invalid component id "${id}". Must be camelCase (example: alertDialog).`,
+    );
+  }
+  return id;
+}
+
+// ============================================
+// COMPONENT STATUS
+// ============================================
+
 export const ComponentStatus = {
-  /** In development, not ready for use */
   experimental: "experimental",
-  /** Ready for use, API may change */
   beta: "beta",
-  /** Stable, production-ready */
   stable: "stable",
-  /** Still works but will be removed */
   deprecated: "deprecated",
-  /** Removed, use migration guide */
   removed: "removed",
 } as const;
 
-export type ComponentStatusType = (typeof ComponentStatus)[keyof typeof ComponentStatus];
+export type ComponentStatusType =
+  (typeof ComponentStatus)[keyof typeof ComponentStatus];
 
 // ============================================
 // COMPONENT CATEGORIES
 // ============================================
 
-/**
- * Component categories for organization.
- */
 export const ComponentCategory = {
-  /** Core primitives (Button, Dialog, etc.) */
   primitive: "primitive",
-  /** Form inputs (Input, Select, etc.) */
   form: "form",
-  /** Navigation (Tabs, Breadcrumb, etc.) */
   navigation: "navigation",
-  /** Data display (Table, Chart, etc.) */
   data: "data",
-  /** Feedback (Toast, Alert, etc.) */
   feedback: "feedback",
-  /** Layout (Portal, ScrollArea, etc.) */
   layout: "layout",
-  /** Overlay (Dialog, Popover, etc.) */
   overlay: "overlay",
-  /** Utility (VisuallyHidden, FocusTrap, etc.) */
   utility: "utility",
 } as const;
 
-export type ComponentCategoryType = (typeof ComponentCategory)[keyof typeof ComponentCategory];
+export type ComponentCategoryType =
+  (typeof ComponentCategory)[keyof typeof ComponentCategory];
 
 // ============================================
 // COMPONENT STRUCTURE
 // ============================================
 
 /**
- * How the component is structured.
+ * Structure describes ColdLight’s file organization.
+ * It does NOT describe the provider.
  */
 export const ComponentStructure = {
-  /** Single file component (Button.svelte) */
+  /** Single-file export (Alert.svelte) */
   monolithic: "monolithic",
-  /** Folder with multiple slot components (dialog/) */
+  /** Foldered compound API (dialog/*, sheet/*) */
   compound: "compound",
-  /** Re-export from bits-ui (AspectRatio.js) */
-  reexport: "reexport",
+  /**
+   * Adapter-backed (provider behavior lives in sys/api/_internal/*),
+   * but ColdLight remains the public identity.
+   */
+  adapter: "adapter",
 } as const;
 
-export type ComponentStructureType = (typeof ComponentStructure)[keyof typeof ComponentStructure];
+export type ComponentStructureType =
+  (typeof ComponentStructure)[keyof typeof ComponentStructure];
 
 // ============================================
-// COMPONENT ENTRY
+// COMPONENT ENTRY TYPES
 // ============================================
 
-/**
- * Full component manifest entry.
- */
-export interface ComponentEntry {
-  /** Component name (e.g., "Button", "Dialog") */
-  name: string;
-
-  /** Lowercase identifier (e.g., "button", "dialog") */
-  id: string;
-
-  /** Current status */
-  status: ComponentStatusType;
-
-  /** Category for organization */
-  category: ComponentCategoryType;
-
-  /** File structure */
-  structure: ComponentStructureType;
-
-  /** Version this component was added */
-  since: string;
-
-  /** Version this component was deprecated (if applicable) */
-  deprecatedIn?: string;
-
-  /** Version this component was removed (if applicable) */
-  removedIn?: string;
-
-  /** Human-readable description */
-  description: string;
-
-  /** Import path from primitives index */
-  importPath: string;
-
-  /** File path(s) relative to primitives/ */
-  files: string[];
-
-  /** Test file path (if exists) */
-  testFile?: string;
-
-  /** Dependencies on other ColdLight components */
-  dependencies: string[];
-
-  /** Components that depend on this one */
-  dependents: string[];
-
-  /** Bits UI component being wrapped (if any) */
-  bitsUiSource?: string;
-
-  /** Whether this is a ColdLight-wrapped primitive (vs re-export) */
-  isWrapped: boolean;
-
-  /** Whether tests exist */
-  haTests: boolean;
-
-  /** Number of tests */
-  testCount: number;
-
-  /** Whether a11y.md documentation exists */
-  hasA11yDocs: boolean;
-
-  /** Breaking changes history */
-  breakingChanges: BreakingChange[];
-
-  /** Migration notes */
-  migrationNotes?: string;
-}
-
-/**
- * Breaking change record.
- */
 export interface BreakingChange {
-  /** Version where change occurred */
   version: string;
-  /** Description of the change */
   description: string;
-  /** Migration guide */
   migration: string;
 }
 
+/**
+ * Full component manifest entry.
+ *
+ * providerKey:
+ * - REQUIRED for every component
+ * - Used by internal adapters (_internals mapping) to bind behavior/state/ARIA
+ * - Must never be treated as the public identity
+ */
+export interface ComponentEntry {
+  /** Public component name (Button, Dialog, etc.) */
+  name: string;
+
+  /** Enforced camelCase identity (alertDialog, datePicker, etc.) */
+  id: ComponentId;
+
+  status: ComponentStatusType;
+  category: ComponentCategoryType;
+  structure: ComponentStructureType;
+
+  /** Version introduced */
+  since: string;
+
+  deprecatedIn?: string;
+  removedIn?: string;
+
+  description: string;
+
+  /** Import symbol consumers use from ColdLight exports */
+  importPath: string;
+
+  /** File path(s) relative to primitives/ (or matching your layout) */
+  files: string[];
+
+  testFile?: string;
+
+  /**
+   * Dependency graph is ALWAYS by component id.
+   * This is what makes it mechanically reliable.
+   */
+  dependencies: ComponentId[];
+  dependents: ComponentId[];
+
+  /**
+   * Internal binding key resolved by sys/api/_internal/**/_internals.
+   * REQUIRED for all components.
+   */
+  providerKey: string;
+
+  /** ColdLight-wrapped = ColdLight SSOT wrapper exists */
+  isWrapped: boolean;
+
+  hasTests: boolean;
+  testCount: number;
+
+  hasA11yDocs: boolean;
+
+  breakingChanges: BreakingChange[];
+  migrationNotes?: string;
+}
+
 // ============================================
-// COMPONENT MANIFEST
+// MANIFEST (SSOT)
 // ============================================
 
-/**
- * The complete component manifest.
- * This is the SSOT for all ColdLight components.
- */
-export const MANIFEST: ComponentEntry[] = [
+export const MANIFEST: readonly ComponentEntry[] = [
   // ==========================================
-  // WRAPPED PRIMITIVES (Compound Structure)
+  // WRAPPED PRIMITIVES (ColdLight SSOT wrappers)
   // ==========================================
   {
     name: "Button",
-    id: "button",
+    id: asComponentId("button"),
     status: ComponentStatus.stable,
     category: ComponentCategory.primitive,
     structure: ComponentStructure.compound,
@@ -195,17 +194,21 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["button/index.ts", "button/types.ts", "button/Button.svelte"],
     testFile: "button/Button.test.ts",
     dependencies: [],
-    dependents: ["Dialog", "Sheet", "AlertDialog"],
-    bitsUiSource: "Button",
+    dependents: [
+      asComponentId("dialog"),
+      asComponentId("sheet"),
+      asComponentId("alertDialog"),
+    ],
+    providerKey: "Button",
     isWrapped: true,
-    haTests: true,
+    hasTests: true,
     testCount: 19,
     hasA11yDocs: true,
     breakingChanges: [],
   },
   {
     name: "Dialog",
-    id: "dialog",
+    id: asComponentId("dialog"),
     status: ComponentStatus.stable,
     category: ComponentCategory.overlay,
     structure: ComponentStructure.compound,
@@ -225,18 +228,18 @@ export const MANIFEST: ComponentEntry[] = [
       "dialog/Close.svelte",
     ],
     testFile: "dialog/Dialog.test.ts",
-    dependencies: ["Portal"],
-    dependents: ["Sheet", "AlertDialog"],
-    bitsUiSource: "Dialog",
+    dependencies: [asComponentId("portal")],
+    dependents: [asComponentId("sheet"), asComponentId("alertDialog")],
+    providerKey: "Dialog",
     isWrapped: true,
-    haTests: true,
+    hasTests: true,
     testCount: 28,
     hasA11yDocs: true,
     breakingChanges: [],
   },
   {
     name: "Sheet",
-    id: "sheet",
+    id: asComponentId("sheet"),
     status: ComponentStatus.stable,
     category: ComponentCategory.overlay,
     structure: ComponentStructure.compound,
@@ -256,615 +259,623 @@ export const MANIFEST: ComponentEntry[] = [
       "sheet/Close.svelte",
     ],
     testFile: "sheet/Sheet.test.ts",
-    dependencies: ["Dialog", "Portal"],
+    dependencies: [asComponentId("dialog"), asComponentId("portal")],
     dependents: [],
-    bitsUiSource: "Dialog",
+    providerKey: "Dialog",
     isWrapped: true,
-    haTests: true,
+    hasTests: true,
     testCount: 32,
     hasA11yDocs: true,
     breakingChanges: [],
   },
 
   // ==========================================
-  // BITS UI RE-EXPORTS
+  // ADAPTER-BACKED (provider behavior is internal)
   // ==========================================
   {
     name: "Accordion",
-    id: "accordion",
+    id: asComponentId("accordion"),
     status: ComponentStatus.beta,
     category: ComponentCategory.navigation,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Expandable accordion sections",
     importPath: "Accordion",
     files: ["Accordion.js"],
     dependencies: [],
     dependents: [],
-    bitsUiSource: "Accordion",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "Accordion",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "AlertDialog",
-    id: "alertDialog",
+    id: asComponentId("alertDialog"),
     status: ComponentStatus.beta,
     category: ComponentCategory.overlay,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Alert dialog requiring user action",
     importPath: "AlertDialog",
     files: ["AlertDialog.js"],
-    dependencies: ["Dialog"],
+    dependencies: [asComponentId("dialog")],
     dependents: [],
-    bitsUiSource: "AlertDialog",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "AlertDialog",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "AspectRatio",
-    id: "aspectRatio",
+    id: asComponentId("aspectRatio"),
     status: ComponentStatus.beta,
     category: ComponentCategory.layout,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Maintain aspect ratio for child content",
     importPath: "AspectRatio",
     files: ["AspectRatio.js"],
     dependencies: [],
     dependents: [],
-    bitsUiSource: "AspectRatio",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "AspectRatio",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Avatar",
-    id: "avatar",
+    id: asComponentId("avatar"),
     status: ComponentStatus.beta,
     category: ComponentCategory.data,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "User avatar with image and fallback",
     importPath: "Avatar",
     files: ["Avatar.js"],
     dependencies: [],
     dependents: [],
-    bitsUiSource: "Avatar",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "Avatar",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Calendar",
-    id: "calendar",
+    id: asComponentId("calendar"),
     status: ComponentStatus.beta,
     category: ComponentCategory.form,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Calendar for date selection",
     importPath: "Calendar",
     files: ["Calendar.js"],
     dependencies: [],
-    dependents: ["DatePicker"],
-    bitsUiSource: "Calendar",
-    isWrapped: false,
-    haTests: false,
+    dependents: [asComponentId("datePicker")],
+    providerKey: "Calendar",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Checkbox",
-    id: "checkbox",
+    id: asComponentId("checkbox"),
     status: ComponentStatus.beta,
     category: ComponentCategory.form,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Checkbox input with indeterminate support",
     importPath: "Checkbox",
     files: ["Checkbox.js"],
     dependencies: [],
     dependents: [],
-    bitsUiSource: "Checkbox",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "Checkbox",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Collapsible",
-    id: "collapsible",
+    id: asComponentId("collapsible"),
     status: ComponentStatus.beta,
     category: ComponentCategory.layout,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Collapsible content section",
     importPath: "Collapsible",
     files: ["Collapsible.js"],
     dependencies: [],
-    dependents: ["Accordion"],
-    bitsUiSource: "Collapsible",
-    isWrapped: false,
-    haTests: false,
+    dependents: [asComponentId("accordion")],
+    providerKey: "Collapsible",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Combobox",
-    id: "combobox",
+    id: asComponentId("combobox"),
     status: ComponentStatus.beta,
     category: ComponentCategory.form,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Autocomplete input with suggestions",
     importPath: "Combobox",
     files: ["Combobox.js"],
-    dependencies: ["Popover"],
+    dependencies: [asComponentId("popover")],
     dependents: [],
-    bitsUiSource: "Combobox",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "Combobox",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Command",
-    id: "command",
+    id: asComponentId("command"),
     status: ComponentStatus.beta,
     category: ComponentCategory.navigation,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Command palette with search",
     importPath: "Command",
     files: ["Command.js"],
     dependencies: [],
     dependents: [],
-    bitsUiSource: "Command",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "Command",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "ContextMenu",
-    id: "contextMenu",
+    id: asComponentId("contextMenu"),
     status: ComponentStatus.beta,
     category: ComponentCategory.overlay,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Right-click context menu",
     importPath: "ContextMenu",
     files: ["ContextMenu.js"],
     dependencies: [],
     dependents: [],
-    bitsUiSource: "ContextMenu",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "ContextMenu",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "DateField",
-    id: "dateField",
+    id: asComponentId("dateField"),
     status: ComponentStatus.beta,
     category: ComponentCategory.form,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Segmented date input field",
     importPath: "DateField",
     files: ["DateField.js"],
     dependencies: [],
-    dependents: ["DatePicker"],
-    bitsUiSource: "DateField",
-    isWrapped: false,
-    haTests: false,
+    dependents: [asComponentId("datePicker")],
+    providerKey: "DateField",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "DatePicker",
-    id: "datePicker",
+    id: asComponentId("datePicker"),
     status: ComponentStatus.beta,
     category: ComponentCategory.form,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Date picker with calendar popup",
     importPath: "DatePicker",
     files: ["DatePicker.js"],
-    dependencies: ["Calendar", "DateField", "Popover"],
+    dependencies: [
+      asComponentId("calendar"),
+      asComponentId("dateField"),
+      asComponentId("popover"),
+    ],
     dependents: [],
-    bitsUiSource: "DatePicker",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "DatePicker",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "DropdownMenu",
-    id: "dropdownMenu",
+    id: asComponentId("dropdownMenu"),
     status: ComponentStatus.beta,
     category: ComponentCategory.overlay,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Dropdown menu triggered by button",
     importPath: "DropdownMenu",
     files: ["DropdownMenu.js"],
     dependencies: [],
     dependents: [],
-    bitsUiSource: "DropdownMenu",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "DropdownMenu",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "HoverCard",
-    id: "hoverCard",
+    id: asComponentId("hoverCard"),
     status: ComponentStatus.beta,
     category: ComponentCategory.overlay,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Hover-triggered content card",
     importPath: "HoverCard",
     files: ["HoverCard.js"],
     dependencies: [],
     dependents: [],
-    bitsUiSource: "HoverCard",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "HoverCard",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Label",
-    id: "label",
+    id: asComponentId("label"),
     status: ComponentStatus.beta,
     category: ComponentCategory.form,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Accessible form label",
     importPath: "Label",
     files: ["Label.js"],
     dependencies: [],
     dependents: [],
-    bitsUiSource: "Label",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "Label",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Menubar",
-    id: "menubar",
+    id: asComponentId("menubar"),
     status: ComponentStatus.beta,
     category: ComponentCategory.navigation,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Horizontal menu bar",
     importPath: "Menubar",
     files: ["Menubar.js"],
     dependencies: [],
     dependents: [],
-    bitsUiSource: "Menubar",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "Menubar",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "NavigationMenu",
-    id: "navigationMenu",
+    id: asComponentId("navigationMenu"),
     status: ComponentStatus.beta,
     category: ComponentCategory.navigation,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Navigation menu with submenus",
     importPath: "NavigationMenu",
     files: ["NavigationMenu.js"],
     dependencies: [],
     dependents: [],
-    bitsUiSource: "NavigationMenu",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "NavigationMenu",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Pagination",
-    id: "pagination",
+    id: asComponentId("pagination"),
     status: ComponentStatus.beta,
     category: ComponentCategory.navigation,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Pagination controls",
     importPath: "Pagination",
     files: ["Pagination.js"],
     dependencies: [],
     dependents: [],
-    bitsUiSource: "Pagination",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "Pagination",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Popover",
-    id: "popover",
+    id: asComponentId("popover"),
     status: ComponentStatus.beta,
     category: ComponentCategory.overlay,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Popover overlay with positioning",
     importPath: "Popover",
     files: ["Popover.js"],
     dependencies: [],
-    dependents: ["Combobox", "DatePicker", "Select"],
-    bitsUiSource: "Popover",
-    isWrapped: false,
-    haTests: false,
+    dependents: [
+      asComponentId("combobox"),
+      asComponentId("datePicker"),
+      asComponentId("select"),
+    ],
+    providerKey: "Popover",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Progress",
-    id: "progress",
+    id: asComponentId("progress"),
     status: ComponentStatus.beta,
     category: ComponentCategory.feedback,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Progress bar indicator",
     importPath: "Progress",
     files: ["Progress.js"],
     dependencies: [],
     dependents: [],
-    bitsUiSource: "Progress",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "Progress",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "RadioGroup",
-    id: "radioGroup",
+    id: asComponentId("radioGroup"),
     status: ComponentStatus.beta,
     category: ComponentCategory.form,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Radio button group",
     importPath: "RadioGroup",
     files: ["RadioGroup.js"],
     dependencies: [],
     dependents: [],
-    bitsUiSource: "RadioGroup",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "RadioGroup",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "ScrollArea",
-    id: "scrollArea",
+    id: asComponentId("scrollArea"),
     status: ComponentStatus.beta,
     category: ComponentCategory.layout,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Custom scrollable area",
     importPath: "ScrollArea",
     files: ["ScrollArea.js"],
     dependencies: [],
     dependents: [],
-    bitsUiSource: "ScrollArea",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "ScrollArea",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Select",
-    id: "select",
+    id: asComponentId("select"),
     status: ComponentStatus.beta,
     category: ComponentCategory.form,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Select dropdown input",
     importPath: "Select",
     files: ["Select.js"],
-    dependencies: ["Popover"],
+    dependencies: [asComponentId("popover")],
     dependents: [],
-    bitsUiSource: "Select",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "Select",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Separator",
-    id: "separator",
+    id: asComponentId("separator"),
     status: ComponentStatus.beta,
     category: ComponentCategory.layout,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Visual separator line",
     importPath: "Separator",
     files: ["Separator.js"],
     dependencies: [],
     dependents: [],
-    bitsUiSource: "Separator",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "Separator",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Slider",
-    id: "slider",
+    id: asComponentId("slider"),
     status: ComponentStatus.beta,
     category: ComponentCategory.form,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Range slider input",
     importPath: "Slider",
     files: ["Slider.js"],
     dependencies: [],
     dependents: [],
-    bitsUiSource: "Slider",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "Slider",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Switch",
-    id: "switch",
+    id: asComponentId("switch"),
     status: ComponentStatus.beta,
     category: ComponentCategory.form,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Toggle switch control",
     importPath: "Switch",
     files: ["Switch.js"],
     dependencies: [],
     dependents: [],
-    bitsUiSource: "Switch",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "Switch",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Tabs",
-    id: "tabs",
+    id: asComponentId("tabs"),
     status: ComponentStatus.beta,
     category: ComponentCategory.navigation,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Tabbed interface",
     importPath: "Tabs",
     files: ["Tabs.js"],
     dependencies: [],
     dependents: [],
-    bitsUiSource: "Tabs",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "Tabs",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "TimeField",
-    id: "timeField",
+    id: asComponentId("timeField"),
     status: ComponentStatus.beta,
     category: ComponentCategory.form,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Segmented time input field",
     importPath: "TimeField",
     files: ["TimeField.js"],
     dependencies: [],
     dependents: [],
-    bitsUiSource: "TimeField",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "TimeField",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Toggle",
-    id: "toggle",
+    id: asComponentId("toggle"),
     status: ComponentStatus.beta,
     category: ComponentCategory.form,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Toggle button",
     importPath: "Toggle",
     files: ["Toggle.js"],
     dependencies: [],
-    dependents: ["ToggleGroup"],
-    bitsUiSource: "Toggle",
-    isWrapped: false,
-    haTests: false,
+    dependents: [asComponentId("toggleGroup")],
+    providerKey: "Toggle",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "ToggleGroup",
-    id: "toggleGroup",
+    id: asComponentId("toggleGroup"),
     status: ComponentStatus.beta,
     category: ComponentCategory.form,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Group of toggle buttons",
     importPath: "ToggleGroup",
     files: ["ToggleGroup.js"],
-    dependencies: ["Toggle"],
+    dependencies: [asComponentId("toggle")],
     dependents: [],
-    bitsUiSource: "ToggleGroup",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "ToggleGroup",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Tooltip",
-    id: "tooltip",
+    id: asComponentId("tooltip"),
     status: ComponentStatus.beta,
     category: ComponentCategory.overlay,
-    structure: ComponentStructure.reexport,
+    structure: ComponentStructure.adapter,
     since: "0.1.0",
     description: "Tooltip overlay",
     importPath: "Tooltip",
     files: ["Tooltip.js"],
     dependencies: [],
     dependents: [],
-    bitsUiSource: "Tooltip",
-    isWrapped: false,
-    haTests: false,
+    providerKey: "Tooltip",
+    isWrapped: true,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
 
   // ==========================================
-  // CUSTOM PRIMITIVES (Monolithic)
+  // CUSTOM PRIMITIVES (ColdLight-owned)
   // ==========================================
   {
     name: "Alert",
-    id: "alert",
+    id: asComponentId("alert"),
     status: ComponentStatus.beta,
     category: ComponentCategory.feedback,
     structure: ComponentStructure.monolithic,
@@ -874,15 +885,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["Alert.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "Alert",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Badge",
-    id: "badge",
+    id: asComponentId("badge"),
     status: ComponentStatus.beta,
     category: ComponentCategory.data,
     structure: ComponentStructure.monolithic,
@@ -892,15 +904,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["Badge.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "Badge",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Breadcrumb",
-    id: "breadcrumb",
+    id: asComponentId("breadcrumb"),
     status: ComponentStatus.beta,
     category: ComponentCategory.navigation,
     structure: ComponentStructure.monolithic,
@@ -910,15 +923,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["Breadcrumb.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "Breadcrumb",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "ButtonGroup",
-    id: "buttonGroup",
+    id: asComponentId("buttonGroup"),
     status: ComponentStatus.beta,
     category: ComponentCategory.primitive,
     structure: ComponentStructure.monolithic,
@@ -926,17 +940,18 @@ export const MANIFEST: ComponentEntry[] = [
     description: "Group of related buttons",
     importPath: "ButtonGroup",
     files: ["ButtonGroup.svelte"],
-    dependencies: ["Button"],
+    dependencies: [asComponentId("button")],
     dependents: [],
+    providerKey: "ButtonGroup",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Card",
-    id: "card",
+    id: asComponentId("card"),
     status: ComponentStatus.beta,
     category: ComponentCategory.layout,
     structure: ComponentStructure.monolithic,
@@ -946,15 +961,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["Card.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "Card",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Carousel",
-    id: "carousel",
+    id: asComponentId("carousel"),
     status: ComponentStatus.beta,
     category: ComponentCategory.layout,
     structure: ComponentStructure.monolithic,
@@ -964,15 +980,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["Carousel.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "Carousel",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Chart",
-    id: "chart",
+    id: asComponentId("chart"),
     status: ComponentStatus.experimental,
     category: ComponentCategory.data,
     structure: ComponentStructure.monolithic,
@@ -982,15 +999,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["Chart.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "Chart",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "DataTable",
-    id: "dataTable",
+    id: asComponentId("dataTable"),
     status: ComponentStatus.beta,
     category: ComponentCategory.data,
     structure: ComponentStructure.monolithic,
@@ -1000,15 +1018,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["DataTable.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "DataTable",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Empty",
-    id: "empty",
+    id: asComponentId("empty"),
     status: ComponentStatus.beta,
     category: ComponentCategory.feedback,
     structure: ComponentStructure.monolithic,
@@ -1018,15 +1037,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["Empty.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "Empty",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Field",
-    id: "field",
+    id: asComponentId("field"),
     status: ComponentStatus.beta,
     category: ComponentCategory.form,
     structure: ComponentStructure.monolithic,
@@ -1036,15 +1056,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["Field.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "Field",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "FocusTrap",
-    id: "focusTrap",
+    id: asComponentId("focusTrap"),
     status: ComponentStatus.beta,
     category: ComponentCategory.utility,
     structure: ComponentStructure.monolithic,
@@ -1053,16 +1074,17 @@ export const MANIFEST: ComponentEntry[] = [
     importPath: "FocusTrap",
     files: ["FocusTrap.svelte"],
     dependencies: [],
-    dependents: ["Dialog", "Sheet"],
+    dependents: [asComponentId("dialog"), asComponentId("sheet")],
+    providerKey: "FocusTrap",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Form",
-    id: "form",
+    id: asComponentId("form"),
     status: ComponentStatus.beta,
     category: ComponentCategory.form,
     structure: ComponentStructure.monolithic,
@@ -1072,15 +1094,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["Form.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "Form",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "InputEmail",
-    id: "inputEmail",
+    id: asComponentId("inputEmail"),
     status: ComponentStatus.beta,
     category: ComponentCategory.form,
     structure: ComponentStructure.monolithic,
@@ -1090,15 +1113,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["InputEmail.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "InputEmail",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "InputGroup",
-    id: "inputGroup",
+    id: asComponentId("inputGroup"),
     status: ComponentStatus.beta,
     category: ComponentCategory.form,
     structure: ComponentStructure.monolithic,
@@ -1108,15 +1132,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["InputGroup.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "InputGroup",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "InputNumber",
-    id: "inputNumber",
+    id: asComponentId("inputNumber"),
     status: ComponentStatus.beta,
     category: ComponentCategory.form,
     structure: ComponentStructure.monolithic,
@@ -1126,15 +1151,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["InputNumber.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "InputNumber",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "InputOTP",
-    id: "inputOTP",
+    id: asComponentId("inputOTP"),
     status: ComponentStatus.beta,
     category: ComponentCategory.form,
     structure: ComponentStructure.monolithic,
@@ -1144,15 +1170,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["InputOTP.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "InputOTP",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "InputPassword",
-    id: "inputPassword",
+    id: asComponentId("inputPassword"),
     status: ComponentStatus.beta,
     category: ComponentCategory.form,
     structure: ComponentStructure.monolithic,
@@ -1162,15 +1189,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["InputPassword.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "InputPassword",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "InputText",
-    id: "inputText",
+    id: asComponentId("inputText"),
     status: ComponentStatus.beta,
     category: ComponentCategory.form,
     structure: ComponentStructure.monolithic,
@@ -1180,15 +1208,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["InputText.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "InputText",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Kbd",
-    id: "kbd",
+    id: asComponentId("kbd"),
     status: ComponentStatus.beta,
     category: ComponentCategory.data,
     structure: ComponentStructure.monolithic,
@@ -1198,15 +1227,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["Kbd.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "Kbd",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "LiveStatus",
-    id: "liveStatus",
+    id: asComponentId("liveStatus"),
     status: ComponentStatus.beta,
     category: ComponentCategory.utility,
     structure: ComponentStructure.monolithic,
@@ -1216,15 +1246,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["LiveStatus.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "LiveStatus",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "NavMenu",
-    id: "navMenu",
+    id: asComponentId("navMenu"),
     status: ComponentStatus.beta,
     category: ComponentCategory.navigation,
     structure: ComponentStructure.monolithic,
@@ -1234,15 +1265,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["NavMenu.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "NavMenu",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "NativeSelect",
-    id: "nativeSelect",
+    id: asComponentId("nativeSelect"),
     status: ComponentStatus.beta,
     category: ComponentCategory.form,
     structure: ComponentStructure.monolithic,
@@ -1252,15 +1284,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["NativeSelect.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "NativeSelect",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Portal",
-    id: "portal",
+    id: asComponentId("portal"),
     status: ComponentStatus.stable,
     category: ComponentCategory.utility,
     structure: ComponentStructure.monolithic,
@@ -1269,16 +1302,21 @@ export const MANIFEST: ComponentEntry[] = [
     importPath: "Portal",
     files: ["Portal.svelte"],
     dependencies: [],
-    dependents: ["Dialog", "Sheet", "Popover"],
+    dependents: [
+      asComponentId("dialog"),
+      asComponentId("sheet"),
+      asComponentId("popover"),
+    ],
+    providerKey: "Portal",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Presence",
-    id: "presence",
+    id: asComponentId("presence"),
     status: ComponentStatus.stable,
     category: ComponentCategory.utility,
     structure: ComponentStructure.monolithic,
@@ -1287,16 +1325,17 @@ export const MANIFEST: ComponentEntry[] = [
     importPath: "Presence",
     files: ["Presence.svelte"],
     dependencies: [],
-    dependents: ["Dialog", "Sheet"],
+    dependents: [asComponentId("dialog"), asComponentId("sheet")],
+    providerKey: "Presence",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Sidebar",
-    id: "sidebar",
+    id: asComponentId("sidebar"),
     status: ComponentStatus.beta,
     category: ComponentCategory.navigation,
     structure: ComponentStructure.monolithic,
@@ -1306,15 +1345,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["Sidebar.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "Sidebar",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Skeleton",
-    id: "skeleton",
+    id: asComponentId("skeleton"),
     status: ComponentStatus.beta,
     category: ComponentCategory.feedback,
     structure: ComponentStructure.monolithic,
@@ -1324,15 +1364,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["Skeleton.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "Skeleton",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Spinner",
-    id: "spinner",
+    id: asComponentId("spinner"),
     status: ComponentStatus.beta,
     category: ComponentCategory.feedback,
     structure: ComponentStructure.monolithic,
@@ -1342,15 +1383,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["Spinner.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "Spinner",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Table",
-    id: "table",
+    id: asComponentId("table"),
     status: ComponentStatus.beta,
     category: ComponentCategory.data,
     structure: ComponentStructure.monolithic,
@@ -1359,16 +1401,17 @@ export const MANIFEST: ComponentEntry[] = [
     importPath: "Table",
     files: ["Table.svelte"],
     dependencies: [],
-    dependents: ["DataTable"],
+    dependents: [asComponentId("dataTable")],
+    providerKey: "Table",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Textarea",
-    id: "textarea",
+    id: asComponentId("textarea"),
     status: ComponentStatus.beta,
     category: ComponentCategory.form,
     structure: ComponentStructure.monolithic,
@@ -1378,15 +1421,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["Textarea.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "Textarea",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Toast",
-    id: "toast",
+    id: asComponentId("toast"),
     status: ComponentStatus.stable,
     category: ComponentCategory.feedback,
     structure: ComponentStructure.monolithic,
@@ -1396,15 +1440,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["Toast.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "Toast",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "Typography",
-    id: "typography",
+    id: asComponentId("typography"),
     status: ComponentStatus.beta,
     category: ComponentCategory.data,
     structure: ComponentStructure.monolithic,
@@ -1414,15 +1459,16 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["Typography.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "Typography",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
   {
     name: "VisuallyHidden",
-    id: "visuallyHidden",
+    id: asComponentId("visuallyHidden"),
     status: ComponentStatus.stable,
     category: ComponentCategory.utility,
     structure: ComponentStructure.monolithic,
@@ -1432,78 +1478,52 @@ export const MANIFEST: ComponentEntry[] = [
     files: ["VisuallyHidden.svelte"],
     dependencies: [],
     dependents: [],
+    providerKey: "VisuallyHidden",
     isWrapped: false,
-    haTests: false,
+    hasTests: false,
     testCount: 0,
     hasA11yDocs: false,
     breakingChanges: [],
   },
-];
+] as const;
 
 // ============================================
-// MANIFEST HELPERS
+// HELPERS
 // ============================================
 
-/**
- * Get a component by ID.
- */
-export function getComponent(id: string): ComponentEntry | undefined {
+export function getComponent(id: ComponentId): ComponentEntry | undefined {
   return MANIFEST.find((c) => c.id === id);
 }
 
-/**
- * Get all components by status.
- */
 export function getComponentsByStatus(status: ComponentStatusType): ComponentEntry[] {
   return MANIFEST.filter((c) => c.status === status);
 }
 
-/**
- * Get all components by category.
- */
 export function getComponentsByCategory(category: ComponentCategoryType): ComponentEntry[] {
   return MANIFEST.filter((c) => c.category === category);
 }
 
-/**
- * Get all components by structure.
- */
 export function getComponentsByStructure(structure: ComponentStructureType): ComponentEntry[] {
   return MANIFEST.filter((c) => c.structure === structure);
 }
 
-/**
- * Get stable components only.
- */
 export function getStableComponents(): ComponentEntry[] {
   return getComponentsByStatus(ComponentStatus.stable);
 }
 
-/**
- * Get wrapped primitives (ColdLight-enhanced).
- */
-export function getWrappedPrimitives(): ComponentEntry[] {
+export function getWrappedComponents(): ComponentEntry[] {
   return MANIFEST.filter((c) => c.isWrapped);
 }
 
-/**
- * Get components with tests.
- */
 export function getTestedComponents(): ComponentEntry[] {
-  return MANIFEST.filter((c) => c.haTests);
+  return MANIFEST.filter((c) => c.hasTests);
 }
 
-/**
- * Get total test count.
- */
 export function getTotalTestCount(): number {
   return MANIFEST.reduce((sum, c) => sum + c.testCount, 0);
 }
 
-/**
- * Get component dependencies (what it depends on).
- */
-export function getDependencies(id: string): ComponentEntry[] {
+export function getDependencies(id: ComponentId): ComponentEntry[] {
   const component = getComponent(id);
   if (!component) return [];
   return component.dependencies
@@ -1511,10 +1531,7 @@ export function getDependencies(id: string): ComponentEntry[] {
     .filter((c): c is ComponentEntry => c !== undefined);
 }
 
-/**
- * Get component dependents (what depends on it).
- */
-export function getDependents(id: string): ComponentEntry[] {
+export function getDependents(id: ComponentId): ComponentEntry[] {
   const component = getComponent(id);
   if (!component) return [];
   return component.dependents
@@ -1523,8 +1540,41 @@ export function getDependents(id: string): ComponentEntry[] {
 }
 
 /**
- * Generate summary statistics.
+ * Hard validation for tests/CI:
+ * - unique ids
+ * - all dependency ids exist
+ * - providerKey required and non-empty
  */
+export function validateManifest(manifest: readonly ComponentEntry[] = MANIFEST) {
+  const ids = new Set<string>();
+
+  for (const c of manifest) {
+    if (!c.providerKey || c.providerKey.trim().length === 0) {
+      throw new Error(`[ColdLight] Missing providerKey for component: ${c.id}`);
+    }
+
+    if (ids.has(c.id)) throw new Error(`[ColdLight] Duplicate component id: ${c.id}`);
+    ids.add(c.id);
+  }
+
+  const exists = (id: ComponentId) => manifest.some((c) => c.id === id);
+
+  for (const c of manifest) {
+    for (const dep of c.dependencies) {
+      if (!exists(dep)) {
+        throw new Error(`[ColdLight] ${c.id} depends on missing component: ${dep}`);
+      }
+    }
+    for (const dep of c.dependents) {
+      if (!exists(dep)) {
+        throw new Error(`[ColdLight] ${c.id} lists missing dependent component: ${dep}`);
+      }
+    }
+  }
+
+  return true;
+}
+
 export function getManifestStats() {
   const total = MANIFEST.length;
   const byStatus = {
@@ -1532,13 +1582,14 @@ export function getManifestStats() {
     beta: getComponentsByStatus(ComponentStatus.beta).length,
     experimental: getComponentsByStatus(ComponentStatus.experimental).length,
     deprecated: getComponentsByStatus(ComponentStatus.deprecated).length,
+    removed: getComponentsByStatus(ComponentStatus.removed).length,
   };
   const byStructure = {
     compound: getComponentsByStructure(ComponentStructure.compound).length,
     monolithic: getComponentsByStructure(ComponentStructure.monolithic).length,
-    reexport: getComponentsByStructure(ComponentStructure.reexport).length,
+    adapter: getComponentsByStructure(ComponentStructure.adapter).length,
   };
-  const wrapped = getWrappedPrimitives().length;
+  const wrapped = getWrappedComponents().length;
   const tested = getTestedComponents().length;
   const totalTests = getTotalTestCount();
 
