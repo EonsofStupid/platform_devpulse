@@ -20,7 +20,8 @@ const STATE_PATTERNS = [
   { pattern: /\$effect\s*\(/, name: '$effect' },
   { pattern: /writable\s*\(/, name: 'writable store' },
   { pattern: /readable\s*\(/, name: 'readable store' },
-  { pattern: /derived\s*\(/, name: 'derived store' },
+  // Match derived( but NOT $derived( - use word boundary
+  { pattern: /(?<!\$)derived\s*\(/, name: 'derived store' },
 ];
 
 /** Stream patterns that should only be in sys/streams */
@@ -56,6 +57,11 @@ function extractScriptContent(svelteContent: string): string {
   return scriptMatch.map(s => s.replace(/<\/?script[^>]*>/g, '')).join('\n');
 }
 
+function isCommentLine(line: string): boolean {
+  const trimmed = line.trim();
+  return trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*');
+}
+
 function checkFile(filePath: string, content: string): CheckResult[] {
   const results: CheckResult[] = [];
   const lines = content.split('\n');
@@ -63,6 +69,9 @@ function checkFile(filePath: string, content: string): CheckResult[] {
   // Check for state patterns in wrong locations
   for (const { pattern, name } of STATE_PATTERNS) {
     for (let i = 0; i < lines.length; i++) {
+      // Skip comment lines to avoid false positives
+      if (isCommentLine(lines[i])) continue;
+
       if (pattern.test(lines[i])) {
         // $state/$derived in components is OK for local component state
         // But in route files it's not allowed
@@ -98,6 +107,9 @@ function checkFile(filePath: string, content: string): CheckResult[] {
   // Check for stream patterns in wrong locations
   for (const { pattern, name } of STREAM_PATTERNS) {
     for (let i = 0; i < lines.length; i++) {
+      // Skip comment lines
+      if (isCommentLine(lines[i])) continue;
+
       if (pattern.test(lines[i])) {
         if (!isStreamsModule(filePath)) {
           // .subscribe() in Svelte components is OK for consuming

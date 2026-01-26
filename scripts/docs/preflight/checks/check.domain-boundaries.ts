@@ -2,12 +2,17 @@
  * @file preflight/checks/check.domain-boundaries.ts
  * @description Verify domain API boundaries are respected
  *
- * RULE: Routes can only import from:
- *   - $lib/domains/{namespace}/{domain}/index.ts (public API)
- *   - $lib/domains/{namespace}/{domain}/pages/* (page components)
- *   - $lib/sys/* (system utilities)
- *   - $app/* (SvelteKit)
- *   - svelte/* (Svelte core)
+ * RULE (SvelteKit 2 + Svelte 5 Best Practices):
+ *   - Pages ONLY exist in src/routes/ (file-based routing)
+ *   - $lib/domains/ contains business logic, NOT pages
+ *   - Routes can import from:
+ *     - $lib/domains/{namespace}/{domain}/index.ts (public API)
+ *     - $lib/domains/{namespace}/{domain}/features/** (feature components)
+ *     - $lib/sys/* (system utilities)
+ *     - $lib/design/* (design system)
+ *     - $app/* (SvelteKit)
+ *     - svelte/* (Svelte core)
+ *     - Relative imports (co-located route files)
  */
 
 import { Project, SyntaxKind } from 'ts-morph';
@@ -22,8 +27,8 @@ const ALLOWED_IMPORTS = [
   /^\$lib\/domains\/[^/]+\/[^/]+\/index(\.js|\.ts)?$/,
   /^\$lib\/domains\/[^/]+\/[^/]+$/,  // Implicit index.ts
 
-  // Explicit page imports
-  /^\$lib\/domains\/.*\/pages\//,
+  // Feature components (widgets, modals, forms - NOT pages)
+  /^\$lib\/domains\/.*\/features\//,
 
   // System layer
   /^\$lib\/sys\//,
@@ -36,7 +41,7 @@ const ALLOWED_IMPORTS = [
   // Svelte
   /^svelte/,
 
-  // Relative imports within routes (for shared route utilities)
+  // Relative imports within routes (co-located components)
   /^\.\.\//,
   /^\.\//,
 
@@ -44,10 +49,10 @@ const ALLOWED_IMPORTS = [
   /^\$lib\/design\//,
 ];
 
-/** Forbidden import patterns - direct domain internals */
+/** Forbidden import patterns - things that should NOT exist or be imported */
 const FORBIDDEN_IMPORTS = [
-  // Direct feature imports (bypassing index.ts)
-  /^\$lib\/domains\/.*\/features\//,
+  // Pages in lib/domains is WRONG - pages belong in routes/
+  /^\$lib\/domains\/.*\/pages\//,
   // Direct state imports (should go through index.ts)
   /^\$lib\/domains\/.*\/state\//,
   // Direct service imports (should go through index.ts)
@@ -109,8 +114,8 @@ function isAllowedImport(importPath: string): boolean {
 function isForbiddenImport(importPath: string): { forbidden: boolean; reason?: string } {
   for (const pattern of FORBIDDEN_IMPORTS) {
     if (pattern.test(importPath)) {
-      if (importPath.includes('/features/')) {
-        return { forbidden: true, reason: 'Direct feature import bypasses domain API' };
+      if (importPath.includes('/pages/')) {
+        return { forbidden: true, reason: 'Pages belong in src/routes/, not $lib/domains/. Move page to routes/' };
       }
       if (importPath.includes('/state/')) {
         return { forbidden: true, reason: 'State should be accessed through domain index.ts' };

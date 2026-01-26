@@ -1,10 +1,6 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
-  import { onMount } from 'svelte';
-
-  onMount(() => {
-    goto('/devpulse');
-  });
+  // Server-side redirect handles navigation to /devpulse
+  // This page only renders briefly during SSR hydration
 </script>
 
 <div class="loading">Loading...</div>

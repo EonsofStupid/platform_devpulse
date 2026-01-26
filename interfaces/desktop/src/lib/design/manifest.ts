@@ -157,7 +157,7 @@ export interface ComponentEntry {
   dependents: ComponentId[];
 
   /**
-   * Internal binding key resolved by sys/api/_internal/**/_internals.
+   * Internal binding key resolved by sys/api/_internal/[kind]/_internals.
    * REQUIRED for all components.
    */
   providerKey: string;

@@ -1,5 +1,20 @@
 <script lang="ts">
-  import DevPulseDashboard from '$lib/domains/app/devpulse/features/dashboard/pages/DevPulseDashboard.svelte';
+  // DevPulse Dashboard - main entry point
+  // Feature components are imported from $lib/domains/app/devpulse/features/
 </script>
 
-<DevPulseDashboard />
+<div class="dashboard">
+  <h1>DevPulse Dashboard</h1>
+  <p>Dashboard content will be implemented here.</p>
+</div>
+
+<style>
+  .dashboard {
+    padding: 2rem;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  h1 {
+    margin-bottom: 1rem;
+  }
+</style>

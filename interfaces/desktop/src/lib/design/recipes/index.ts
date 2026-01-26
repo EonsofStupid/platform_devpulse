@@ -64,4 +64,4 @@ export function prefersReducedMotion(): boolean {
 // RE-EXPORTS (these are SSOT, not generated)
 // ===========================================
 export * from "./actions";
-export * from "./surface.registry";
+

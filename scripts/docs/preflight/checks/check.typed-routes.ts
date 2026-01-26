@@ -22,14 +22,18 @@ const RAW_ROUTE_PATTERNS = [
   /href\s*=\s*["']\/[^"']*["']/g,
   // goto with string literal
   /goto\s*\(\s*["']\/[^"']*["']/g,
-  // redirect with string literal
-  /redirect\s*\(\s*\d+\s*,\s*["']\/[^"']*["']/g,
   // push/replace with string literal
   /\.push\s*\(\s*["']\/[^"']*["']/g,
   /\.replace\s*\(\s*["']\/[^"']*["']/g,
   // navigate with string literal
   /navigate\s*\(\s*["']\/[^"']*["']/g,
 ];
+
+/**
+ * Server-side redirects are exempt - they're infrastructure, not navigation.
+ * SvelteKit's redirect() in +page.server.ts/+layout.server.ts is OK.
+ */
+const SERVER_REDIRECT_EXEMPT = /\+page\.server\.ts$|\+layout\.server\.ts$|\+server\.ts$/;
 
 /** Patterns that are allowed (route helper usage) */
 const ALLOWED_PATTERNS = [
@@ -52,6 +56,11 @@ const EXEMPT_PATTERNS = [
 function isExempt(filePath: string, allowlist?: string[]): boolean {
   // Check built-in exemptions
   if (EXEMPT_PATTERNS.some(p => p.test(filePath))) {
+    return true;
+  }
+
+  // Server-side files are exempt (redirects are infrastructure)
+  if (SERVER_REDIRECT_EXEMPT.test(filePath)) {
     return true;
   }
 
