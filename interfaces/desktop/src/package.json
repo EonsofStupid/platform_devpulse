@@ -29,6 +29,7 @@
         "@testing-library/user-event": "^14.6.1",
         "@tsconfig/svelte": "^5.0.0",
         "@types/node": "^25.0.9",
+        "@typescript-eslint/types": "^8.53.1",
         "@vitest/browser-playwright": "^4.0.17",
         "@vitest/coverage-v8": "^4.0.17",
         "autoprefixer": "^10.4.23",

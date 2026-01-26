@@ -152,6 +152,8 @@ pnpm dev
 
 - [x] Task 0.1: Fix tsconfig.json extends ✓ DONE
 - [x] Task 0.2: Clear .svelte-kit if needed ✓ DONE
+- [ ] Task 0.3: Fix package.json versions (Vite 5.x, vite-plugin-svelte 4.x)
+- [ ] Task 0.4: pnpm install
 - [x] Task 1.2: Fix Sidebar.svelte to use $app/state ✓ DONE
 - [ ] Task 2.1: Dev server starts without errors
 - [ ] Task 2.2: URL navigation works
