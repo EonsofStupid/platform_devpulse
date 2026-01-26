@@ -18,7 +18,6 @@ export const WIREDFRONT_DOMAIN: DomainMetadata = {
   label: 'WiredFront',
   icon: '📡',
   status: 'coming-soon',
-  pageModule: '$lib/domains/app/wiredfront/pages/WiredDashboard.svelte',
   defaultFeature: 'dashboard',
   order: 3,
 };

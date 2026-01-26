@@ -6,12 +6,10 @@ import type { Config } from "tailwindcss";
  */
 export default {
   content: [
-    "./index.html",
-    "./App.svelte",
-    "./routes/**/*.svelte",
-    "./lib/layouts/**/*.svelte",
-    "./lib/domains/**/*.svelte",
-    "./lib/sys/**/*.svelte",
+    "./src/routes/**/*.svelte",
+    "./src/lib/layouts/**/*.svelte",
+    "./src/lib/domains/**/*.svelte",
+    "./src/lib/sys/**/*.svelte",
   ],
   theme: {
     extend: {

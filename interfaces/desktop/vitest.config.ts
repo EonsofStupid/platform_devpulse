@@ -10,11 +10,11 @@ export default defineConfig({
   plugins: [svelte()],
   resolve: {
     alias: {
-      $lib: resolve(__dirname, "./lib"),
+      $lib: resolve(__dirname, "./src/lib"),
     },
   },
   test: {
-    include: ["lib/**/*.{test,spec}.{js,ts}"],
+    include: ["src/lib/**/*.{test,spec}.{js,ts}"],
     setupFiles: ["vitest-browser-svelte"],
     browser: {
       enabled: true,

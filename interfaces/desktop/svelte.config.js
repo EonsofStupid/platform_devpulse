@@ -13,7 +13,7 @@ const config = {
       strict: true
     }),
     alias: {
-      $lib: './lib'
+      $lib: './src/lib'
     }
   }
 };

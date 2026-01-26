@@ -6,7 +6,7 @@
  * These functions throw if patterns are violated.
  */
 
-import { isPrimitiveKind, type PrimitiveKind } from '$lib/design/taxonomy/primitiveKinds.js';
+import { isPrimitiveKind, type PrimitiveKind } from '$lib/design/taxonomy/kind/primitives/primitiveKind.js';
 import { isValidSlot, getPrimitiveSlots } from '$lib/design/taxonomy/primitiveRegistry.js';
 import { isMeltPrimitive, getBuilderName } from '$lib/design/taxonomy/provider/types.js';
 

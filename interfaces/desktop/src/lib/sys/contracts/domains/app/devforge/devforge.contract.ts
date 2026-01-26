@@ -11,6 +11,5 @@ export const DEVFORGE_DOMAIN: DomainMetadata = {
   label: 'DevForge',
   icon: '🔧',
   status: 'hidden',
-  pageModule: '$lib/domains/app/devforge/pages/DevDashboard.svelte',
   order: 10,
 };

@@ -11,6 +11,5 @@ export const MAESTRO_DOMAIN: DomainMetadata = {
   label: 'Maestro',
   icon: '🎭',
   status: 'hidden',
-  pageModule: '$lib/domains/app/maestro/MaestroDashboard.svelte',
   order: 11,
 };

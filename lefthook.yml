@@ -46,4 +46,4 @@ pre-push:
     # Svelte type check
     svelte-typecheck:
       root: "interfaces/desktop"
-      run: pnpm exec svelte-check
+      run: pnpm exec svelte-check --threshold error

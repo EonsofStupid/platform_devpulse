@@ -9,9 +9,9 @@ import type { Registry } from '../core/registry.contract.js';
 /** Domain status for navigation */
 export type DomainStatus = 'active' | 'coming-soon' | 'hidden';
 
-/** Domain metadata for registry */
+/** Domain metadata for registry (sidebar metadata only - URL-driven routing) */
 export interface DomainMetadata {
-  /** Domain identifier (e.g., "devpulse") */
+  /** Domain identifier (e.g., "devpulse") - matches route path */
   id: string;
   /** Human-readable label */
   label: string;
@@ -19,8 +19,8 @@ export interface DomainMetadata {
   icon: string;
   /** Domain status */
   status: DomainStatus;
-  /** Import path for main page component */
-  pageModule: string;
+  /** Route path (defaults to /{id}) */
+  route?: string;
   /** Default feature to show */
   defaultFeature?: string;
   /** Order in navigation (lower = first) */

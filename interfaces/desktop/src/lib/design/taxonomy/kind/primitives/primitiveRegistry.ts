@@ -6,7 +6,7 @@
  * Enforces that every primitive is registered and provides metadata.
  */
 
-import type { PrimitiveKind } from "./primitiveKinds";
+import type { PrimitiveKind } from "./primitives/primitiveKind";
 
 // ============================================
 // PRIMITIVE SLOT DEFINITIONS

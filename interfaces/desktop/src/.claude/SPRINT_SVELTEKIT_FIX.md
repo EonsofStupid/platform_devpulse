@@ -46,6 +46,25 @@ If error persists after tsconfig fix, clear `.svelte-kit` cache:
 rm -rf .svelte-kit && pnpm dev
 ```
 
+### Task 0.3: Fix svelte.config.js files paths
+
+**Problem**: SvelteKit defaults to looking for `src/app.html`, but your structure has `app.html` at config root level.
+
+**Fix**: Add `files` config to svelte.config.js:
+
+```js
+kit: {
+  // ... existing config
+  files: {
+    appTemplate: 'app.html',
+    routes: 'routes',
+    lib: 'lib'
+  }
+}
+```
+
+**Status**: ✓ DONE
+
 ---
 
 ## Phase 1: Align with SPRINT 1B - URL-Driven Routing
@@ -152,8 +171,7 @@ pnpm dev
 
 - [x] Task 0.1: Fix tsconfig.json extends ✓ DONE
 - [x] Task 0.2: Clear .svelte-kit if needed ✓ DONE
-- [ ] Task 0.3: Fix package.json versions (Vite 5.x, vite-plugin-svelte 4.x)
-- [ ] Task 0.4: pnpm install
+- [x] Task 0.3: Fix svelte.config.js files paths ✓ DONE (app.html at root, not src/)
 - [x] Task 1.2: Fix Sidebar.svelte to use $app/state ✓ DONE
 - [ ] Task 2.1: Dev server starts without errors
 - [ ] Task 2.2: URL navigation works

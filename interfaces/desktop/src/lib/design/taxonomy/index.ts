@@ -141,7 +141,7 @@ export {
   type PrimitiveKind,
   isPrimitiveKind,
   assertPrimitiveKind,
-} from "./primitiveKinds";
+} from "./kind/primitives/primitiveKind";
 
 // ===========================================
 // PRIMITIVE REGISTRY

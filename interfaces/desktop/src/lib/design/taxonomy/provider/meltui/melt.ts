@@ -5,7 +5,7 @@
  * Melt UI provider implementation.
  */
 
-import type { ProviderContract, BuilderCapabilities, ProviderInfo } from './types.js';
+import type { ProviderContract, BuilderCapabilities, ProviderInfo } from '../types.js';
 
 export const MELT_INFO: ProviderInfo = {
   id: 'melt-ui',

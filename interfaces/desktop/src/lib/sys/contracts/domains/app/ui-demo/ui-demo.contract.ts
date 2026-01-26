@@ -11,6 +11,5 @@ export const UIDEMO_DOMAIN: DomainMetadata = {
   label: 'UI Components',
   icon: '🎨',
   status: 'active',
-  pageModule: '$lib/domains/app/ui-demo/pages/UIDemoPage.svelte',
   order: 1,
 };

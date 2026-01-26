@@ -18,7 +18,6 @@ export const DEVPULSE_DOMAIN: DomainMetadata = {
   label: 'DevPulse',
   icon: '🏠',
   status: 'active',
-  pageModule: '$lib/domains/app/devpulse/features/dashboard/pages/DevPulseDashboard.svelte',
   defaultFeature: 'dashboard',
   order: 0,
 };

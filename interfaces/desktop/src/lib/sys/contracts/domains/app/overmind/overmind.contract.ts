@@ -11,6 +11,5 @@ export const OVERMIND_DOMAIN: DomainMetadata = {
   label: 'OverMind',
   icon: '🧠',
   status: 'coming-soon',
-  pageModule: '$lib/domains/app/overmind/OvermindDashboard.svelte',
   order: 2,
 };
