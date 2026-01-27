@@ -23,5 +23,5 @@ export * from "@tanstack/table-core";
 
 // Svelte 5 adapter exports
 export { default as FlexRender } from "./flex-render.svelte";
-export { renderComponent, renderSnippet } from "./render-component.js";
-export { createSvelteTable } from "./table.svelte.js";
+export { renderComponent, renderSnippet } from "./render-component";
+export { createSvelteTable } from "./table.svelte";

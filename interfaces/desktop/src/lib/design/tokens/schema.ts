@@ -26,7 +26,7 @@ import {
   ShellDepthTokens,
   PaddingTokens,
   ToneTokens,
-} from "./types.js";
+} from "./types";
 
 // Token Schemas
 export const AccentSchema = z.enum(AccentTokens);

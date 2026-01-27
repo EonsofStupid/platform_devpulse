@@ -10,7 +10,7 @@
  */
 
 // Category exports (SSOT)
-export * from "./buttons/index.js";
-export * from "./inputs/index.js";
-export * from "./panels/index.js";
-export * from "./cards/index.js";
+export * from "./buttons";
+export * from "./inputs";
+export * from "./panels";
+export * from "./cards";

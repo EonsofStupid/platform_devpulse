@@ -19,10 +19,10 @@
  */
 
 // Category exports (SSOT - namespace imports)
-export * as Heroes from "./heroes/index.js";
-export * as Features from "./features/index.js";
-export * as Dashboards from "./dashboards/index.js";
-export * as Chat from "./chat/index.js";
-export * as CTA from "./cta/index.js";
-export * as Carousels from "./carousels/index.js";
-export * as Navigation from "./navigation/index.js";
+export * as Heroes from "./heroes";
+export * as Features from "./features";
+export * as Dashboards from "./dashboards";
+export * as Chat from "./chat";
+export * as CTA from "./cta";
+export * as Carousels from "./carousels";
+export * as Navigation from "./navigation";

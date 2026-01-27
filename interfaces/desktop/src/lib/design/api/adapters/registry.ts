@@ -6,7 +6,7 @@ export interface AdapterRegistry {
   ssot: "coldlight";
   
   // Currently assigned behavior provider
-  activeProvider: "meltui" | "coldlight_native" |; 
+  activeProvider: "meltui" | "coldlight_native"; 
 
   // Mapping of ColdLight Primitives to Provider Methods
   mappings: {

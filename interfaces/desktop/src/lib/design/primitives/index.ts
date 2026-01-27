@@ -23,14 +23,14 @@ export {
   type PrimitiveState,
   stripStyleProp,
   cn,
-} from "./types.js";
+} from "./types";
 
 export {
   type RouteMetadata,
   getRouteMetadata,
   setRouteRegistry,
   clearRouteRegistry,
-} from "./route-metadata.js";
+} from "./route-metadata";
 
 // ============================================
 // MELT UI PRIMITIVES
@@ -59,4 +59,4 @@ export {
   getFilteredRowModel,
   getPaginationRowModel,
   createColumnHelper,
-} from "./tanstack/index.js";
+} from "./tanstack";

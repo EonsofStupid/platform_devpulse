@@ -40,7 +40,6 @@ export * from "./tokens/schema";
 // TAXONOMY (block definitions)
 // ===========================================
 export * from "./taxonomy/kind/kinds";
-export * from "./taxonomy/contracts";
 
 // ===========================================
 // RECIPES (style composition)

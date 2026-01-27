@@ -10,8 +10,8 @@
  * @since 1.0.0
  */
 
-// Temporarily re-export from block_library during migration
-export { default as Button } from "../../block_library/Button.svelte";
+// Re-export from blocks
+export { default as Button } from "../../blocks/Button.svelte";
 
 // Future: Export from local files
 // export { default as GlassButton } from "./GlassButton.svelte";

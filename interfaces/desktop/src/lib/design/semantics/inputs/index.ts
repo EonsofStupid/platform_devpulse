@@ -10,9 +10,9 @@
  * @since 1.0.0
  */
 
-// Temporarily re-export from block_library during migration
-export { default as Input } from "../../block_library/Input.svelte";
-export { default as Toggle } from "../../block_library/Toggle.svelte";
+// Re-export from blocks
+export { default as Input } from "../../blocks/Input.svelte";
+export { default as Toggle } from "../../blocks/Toggle.svelte";
 
 // Future: Export from local files
 // export { default as GlassInput } from "./GlassInput.svelte";

@@ -15,6 +15,6 @@
  */
 
 // Category exports (SSOT)
-export * from "./forms/index.js";
-export * from "./search/index.js";
-export * from "./data/index.js";
+export * from "./forms";
+export * from "./search";
+export * from "./data";
