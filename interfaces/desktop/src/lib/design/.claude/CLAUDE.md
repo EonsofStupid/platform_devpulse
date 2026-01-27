@@ -10,14 +10,14 @@
 **What is this?**
 - DevPulse is an **enterprise SaaS platform**
 - This is DevPulse's **internal design system** called "COLD LIGHT" (also "Maestro")
-- It is **NOT** a portable component library for external use
-- It is **NOT** framework-agnostic
+- It is **WILL BE**a portable component library for external use
+- It is **WILL BE** framework-agnostic DTCG compliant visual dictionary 4 compliant.
 
 **Technology Stack (LOCKED - NO SUBSTITUTIONS):**
 | Layer | Technology | Purpose |
 |-------|------------|---------|
 | Framework | **SvelteKit 5** | App framework, SSR, runes ($state, $derived, $props) |
-| Behavior | **Bits UI** | Headless primitives (accessibility, keyboard, focus) |
+| Behavior | **MeltUI** | Headless primitives (accessibility, keyboard, focus) |
 | Styling | **Tailwind CSS** | Utility classes, JIT compilation |
 | Values | **tokens.ts** | SINGLE SOURCE OF TRUTH for all design values |
 ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` | Generation | **Style Dictionary v4** | DTCG-compliant token transformation |
@@ -125,7 +125,7 @@ src/lib/design/recipes/css/keyframes.css ← ONLY manually written CSS (motion o
 src/lib/design/taxonomy/*.ts             ← Kind definitions
 src/lib/design/recipes/*.ts              ← Recipe definitions
 src/lib/design/recipes/actions/*.ts      ← Svelte actions for effects
-src/lib/design/primitives/*.svelte       ← Bits UI wrappers ONLY
+src/lib/design/primitives/*.svelte       ← MeltUI wrappers ONLY
 src/lib/design/components/*.svelte       ← Styled compositions
 src/lib/design/renderers/*.svelte        ← VPB block renderers
 ```
@@ -299,7 +299,7 @@ type BlockNode<K extends BlockKind> = {
 
 ---
 
-## BITS UI IMPORT RULE
+## MELTUI IMPORT RULE
 
 ### ALLOWED — only in `primitives/`
 ```typescript
@@ -350,7 +350,7 @@ src/lib/design/
 │       ├── glowTrack.ts
 │       ├── ripple.ts
 │       └── sporadicPulse.ts
-├── primitives/             # Bits UI wrappers ONLY
+├── primitives/             # MeltUI wrappers ONLY
 ├── components/             # Styled compositions
 └── renderers/              # VPB block renderers
 ```
@@ -405,7 +405,7 @@ Non-negotiable foundation requirements:
 → Then: Component applies `data-effect="my-effect"`
 
 **"I need to create a component"**
-→ Does it wrap Bits UI? → Put in `primitives/`
+→ Does it wrap MeltUI? → Put in `primitives/`
 → Does it compose primitives + recipes? → Put in `components/`
 → Is it a VPB block renderer? → Put in `renderers/`
 
@@ -422,7 +422,7 @@ Non-negotiable foundation requirements:
 1. **tokens.ts is SSOT** — edit this, run `pnpm ds:tokens:build`
 2. **keyframes.css is ONLY manual CSS** — motion only, no visual values
 3. **data-* attributes drive styling** — not class manipulation
-4. **Bits UI only in primitives/** — nowhere else
+4. **MeltUI only in primitives/** — nowhere else
 5. **VPB never stores CSS** — only kind + recipe + props
 6. **No arbitrary Tailwind** — no `[...]` brackets ever
 7. **Recipes are REUSABLE** — effects belong in recipe library, not components

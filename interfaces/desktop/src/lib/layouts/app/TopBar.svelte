@@ -3,277 +3,250 @@
   @name TopBar.svelte
   @module @devpulse/layouts/app/TopBar
   @layer lib
-
-  @description
-  [TODO: Describe this component's purpose]
-
-  @props
-  - [TODO: propName]: [type] - [description]
-
-  @dependencies
-  - [TODO: List imports]
-
-  @consumers
-  - [TODO: List who uses this component]
-
-  @vpb-editable [TODO: List editable props]
-  @since 1.0.0
--->
-<!--
-    TOPBAR.SVELTE - Persistent Header (100% width)
-    ===============================================
-    - ParasiteLogo (pure typography with glass effect)
-    - Search icon → overlay input
-    - True depth: thick bevel, gradient, tokens
-    - NO padding from frame edges
 -->
 <script lang="ts">
-    import { Parasite } from "$lib/design/plugins/parasite";
+  import { tick } from "svelte";
+  import { Parasite } from "$lib/design/plugins/parasite";
 
-    let searchOpen = $state(false);
-    let searchQuery = $state("");
+  let searchOpen = $state(false);
+  let searchQuery = $state("");
+  let inputEl: HTMLInputElement | null = null;
 
-    function toggleSearch() {
-        searchOpen = !searchOpen;
-        if (!searchOpen) searchQuery = "";
-    }
+  function toggleSearch() {
+    searchOpen = !searchOpen;
+    if (!searchOpen) searchQuery = "";
+  }
+
+  $effect(async () => {
+    if (!searchOpen) return;
+    await tick();
+    inputEl?.focus();
+  });
+
+  function track(e: PointerEvent) {
+    const el = e.currentTarget as HTMLElement | null;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const x = ((e.clientX - r.left) / r.width) * 100;
+    const y = ((e.clientY - r.top) / r.height) * 100;
+    el.style.setProperty("--mx", `${x}%`);
+    el.style.setProperty("--my", `${y}%`);
+    el.style.setProperty("--mouse-x", `${x}%`);
+    el.style.setProperty("--mouse-y", `${y}%`);
+  }
+
+  function onKey(e: KeyboardEvent) {
+    if (e.key === "Escape" && searchOpen) toggleSearch();
+  }
 </script>
 
-<div class="topbar">
-    <!-- Left: ParasiteLogo -->
-    <div class="topbar-left">
-        <Parasite />
-    </div>
+<div class="topbar" onkeydown={onKey}>
+  <div class="topbar-left">
+    <Parasite />
+  </div>
 
-    <!-- Center: Spacer -->
-    <div class="topbar-center"></div>
+  <div class="topbar-center"></div>
 
-    <!-- Right: Search Icon + Controls -->
-    <div class="topbar-right">
-        <button class="topbar-icon" onclick={toggleSearch} aria-label="Search">
-            <span class="icon">🔍</span>
-        </button>
+  <div class="topbar-right">
+    <span class="tooltipWrap" data-tooltip="Search">
+      <button class="iconBtn" type="button" aria-label="Search" onclick={toggleSearch} onpointermove={track}>
+        <span class="iconGlyph" aria-hidden="true">🔍</span>
+      </button>
+    </span>
 
-        {#if searchOpen}
-            <div class="search-overlay">
-                <input
-                    type="text"
-                    bind:value={searchQuery}
-                    placeholder="Search..."
-                    class="search-input"
-                />
-            </div>
-        {/if}
-    </div>
+    {#if searchOpen}
+      <div class="search-overlay" role="dialog" aria-label="Search">
+        <input
+          bind:this={inputEl}
+          class="search-input"
+          type="text"
+          bind:value={searchQuery}
+          placeholder="Search…"
+        />
+      </div>
+    {/if}
+  </div>
 </div>
+Append these sections to src/lib/layouts/app/styles/layout.css
+You already have helpers; these are the missing “actual sidebar item” + “status dot states” + “micro-animations” layers.
 
-<style>
-    /* =============================================
-       TOPBAR - NEON ICONS + LIQUID GLASS
-       Pattern: pulseos-glass-interactive-button
-       ============================================= */
-    .topbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        width: 100%;
-        height: 100%;
-        padding: 0 16px;
-        box-sizing: border-box;
-    }
+css
+Copy code
+/* ---------- Sidebar Nav Item Skin (scoped) ---------- */
+.app-frame .navItem {
+  --mx: 50%;
+  --my: 50%;
 
-    .topbar-left {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
+  width: 100%;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 
-    .topbar-center {
-        flex: 1;
-    }
+  padding: 0 10px;
+  border-radius: 14px;
 
-    .topbar-right {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        position: relative;
-    }
+  text-decoration: none;
+  color: oklch(0.94 0.01 260 / 0.92);
 
-    /* =============================================
-       ICON BUTTON - NEON GLOW + MOUSE TRACKING
-       ============================================= */
-    .topbar-icon {
-        position: relative;
-        width: 36px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        /* Glass base */
-        background: hsl(222 48% 13% / 0.8);
-        border: 1px solid hsl(191 100% 60% / 0.25);
-        border-radius: 8px;
-        cursor: pointer;
-        /* Mouse position CSS vars for gradient tracking */
-        --mouse-x: 50%;
-        --mouse-y: 50%;
-        /* Multi-layer shadow */
-        box-shadow:
-            /* Crisp bevel */
-            inset 1px 1px 0 hsl(0 0% 100% / 0.1),
-            inset -1px -1px 0 hsl(0 0% 0% / 0.3),
-            /* Subtle neon glow */
-            0 0 8px hsl(191 100% 60% / 0.15),
-            /* Elevation */
-            0 2px 8px hsl(0 0% 0% / 0.3);
-        transition:
-            transform 0.3s cubic-bezier(0.33, 1, 0.68, 1),
-            background 0.2s ease,
-            border-color 0.2s ease,
-            box-shadow 0.2s ease;
-        overflow: hidden;
-    }
+  background:
+    linear-gradient(180deg,
+      oklch(0.18 0.04 240 / 0.78) 0%,
+      oklch(0.14 0.04 240 / 0.72) 100%);
+  border: 1px solid oklch(0.74 0.18 195 / 0.16);
 
-    /* Mouse-following gradient overlay */
-    .topbar-icon::before {
-        content: '';
-        position: absolute;
-        top: var(--mouse-y, 50%);
-        left: var(--mouse-x, 50%);
-        width: 150%;
-        height: 150%;
-        background: radial-gradient(
-            circle at center,
-            hsl(191 100% 60% / 0.2) 0%,
-            transparent 70%
-        );
-        transform: translate(-50%, -50%);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        pointer-events: none;
-        z-index: 0;
-    }
+  box-shadow:
+    inset 1px 1px 0 oklch(0.98 0.01 260 / 0.10),
+    inset -1px -1px 0 oklch(0.08 0.02 240 / 0.40),
+    0 0 12px oklch(0.78 0.18 195 / 0.06),
+    0 6px 18px oklch(0.08 0.02 240 / 0.35);
 
-    /* Hover - SWELL + NEON GLOW */
-    .topbar-icon:hover {
-        transform: scale(1.1);
-        background: hsl(222 40% 16% / 0.9);
-        border-color: hsl(191 100% 60% / 0.5);
-        box-shadow:
-            /* Enhanced bevel */
-            inset 1px 1px 0 hsl(0 0% 100% / 0.15),
-            inset -1px -1px 0 hsl(0 0% 0% / 0.25),
-            /* NEON GLOW - bright */
-            0 0 20px hsl(191 100% 60% / 0.4),
-            0 0 40px hsl(191 100% 60% / 0.2),
-            /* Elevation */
-            0 4px 16px hsl(0 0% 0% / 0.4);
-    }
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
 
-    .topbar-icon:hover::before {
-        opacity: 1;
-    }
+  position: relative;
+  overflow: hidden;
 
-    /* Icon element - glow on hover */
-    .topbar-icon .icon {
-        position: relative;
-        z-index: 1;
-        font-size: 14px;
-        color: hsl(0 0% 90%);
-        transition:
-            filter 0.3s ease,
-            color 0.3s ease;
-    }
+  transition:
+    transform 180ms cubic-bezier(0.33, 1, 0.68, 1),
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
 
-    .topbar-icon:hover .icon {
-        color: hsl(191 100% 80%);
-        filter: drop-shadow(0 0 6px hsl(191 100% 60% / 0.8));
-    }
+.app-frame .navItem::before {
+  content: "";
+  position: absolute;
+  inset: -45%;
+  pointer-events: none;
+  opacity: 0;
 
-    /* Gradual return on mouse leave */
-    .topbar-icon:not(:hover) {
-        transition:
-            transform 0.5s cubic-bezier(0.33, 1, 0.68, 1),
-            background 0.3s ease,
-            border-color 0.3s ease,
-            box-shadow 0.3s ease;
-    }
+  background:
+    radial-gradient(240px 180px at var(--mx) var(--my),
+      oklch(0.82 0.18 195 / 0.20) 0%,
+      transparent 65%);
+  transition: opacity 180ms ease;
+}
 
-    /* =============================================
-       SEARCH OVERLAY - DEEP GLASS PANEL
-       ============================================= */
-    .search-overlay {
-        position: absolute;
-        top: 100%;
-        right: 0;
-        margin-top: 8px;
-        /* Deep glass */
-        background: hsl(222 50% 9% / 0.95);
-        backdrop-filter: blur(24px) saturate(180%);
-        -webkit-backdrop-filter: blur(24px) saturate(180%);
-        /* Neon border */
-        border: 1px solid hsl(191 100% 60% / 0.35);
-        border-radius: 12px;
-        /* Multi-layer shadow for depth */
-        box-shadow:
-            /* Crisp bevel */
-            inset 2px 2px 0 hsl(0 0% 100% / 0.08),
-            inset -2px -2px 0 hsl(0 0% 0% / 0.3),
-            /* Neon glow */
-            0 0 24px hsl(191 100% 60% / 0.2),
-            /* Elevation */
-            0 8px 32px hsl(0 0% 0% / 0.5),
-            0 2px 8px hsl(0 0% 0% / 0.3);
-        padding: 12px;
-        min-width: 300px;
-        animation: search-reveal 200ms cubic-bezier(0.33, 1, 0.68, 1);
-        z-index: 1000;
-    }
+.app-frame .navItem::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 
-    @keyframes search-reveal {
-        from {
-            opacity: 0;
-            transform: translateY(-8px) scale(0.95);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-    }
+  background: linear-gradient(
+    135deg,
+    transparent 0%,
+    oklch(0.92 0.02 260 / 0.10) 35%,
+    transparent 60%
+  );
+  opacity: 0.30;
+}
 
-    /* =============================================
-       SEARCH INPUT - RECESSED GLASS
-       ============================================= */
-    .search-input {
-        width: 100%;
-        /* Recessed glass */
-        background: hsl(222 60% 6% / 0.9);
-        border: 1px solid hsl(191 100% 60% / 0.2);
-        border-radius: 8px;
-        padding: 10px 14px;
-        color: hsl(0 0% 95%);
-        font-family: "Rajdhani", "Inter", system-ui, sans-serif;
-        font-size: 0.9rem;
-        outline: none;
-        /* Inset shadow for recessed look */
-        box-shadow:
-            inset 2px 2px 6px hsl(0 0% 0% / 0.5),
-            inset -1px -1px 3px hsl(0 0% 100% / 0.03);
-        transition:
-            border-color 0.2s ease,
-            box-shadow 0.2s ease;
-    }
+.app-frame .navItem:hover {
+  transform: translateY(-1px);
+  border-color: oklch(0.78 0.18 195 / 0.34);
+  box-shadow:
+    inset 1px 1px 0 oklch(0.98 0.01 260 / 0.12),
+    inset -1px -1px 0 oklch(0.08 0.02 240 / 0.34),
+    0 0 18px oklch(0.78 0.18 195 / 0.16),
+    0 0 42px oklch(0.72 0.22 330 / 0.08),
+    0 10px 22px oklch(0.08 0.02 240 / 0.45);
+}
+.app-frame .navItem:hover::before { opacity: 1; }
 
-    .search-input::placeholder {
-        color: hsl(0 0% 50%);
-    }
+.app-frame .navItem:active {
+  transform: translateY(0px) scale(0.99);
+  box-shadow:
+    inset 2px 2px 10px oklch(0.06 0.02 240 / 0.55),
+    inset -1px -1px 0 oklch(0.98 0.01 260 / 0.06),
+    0 0 12px oklch(0.78 0.18 195 / 0.10);
+}
 
-    .search-input:focus {
-        border-color: hsl(191 100% 60% / 0.6);
-        box-shadow:
-            inset 2px 2px 6px hsl(0 0% 0% / 0.5),
-            inset -1px -1px 3px hsl(0 0% 100% / 0.03),
-            /* Focus neon glow */
-            0 0 16px hsl(191 100% 60% / 0.3);
-    }
-</style>
+.app-frame .navItem.active {
+  border-color: oklch(0.82 0.18 195 / 0.52);
+  box-shadow:
+    inset 1px 1px 0 oklch(0.98 0.01 260 / 0.14),
+    inset -1px -1px 0 oklch(0.08 0.02 240 / 0.34),
+    0 0 22px oklch(0.82 0.18 195 / 0.22),
+    0 10px 22px oklch(0.08 0.02 240 / 0.45);
+}
+
+.app-frame .navIcon {
+  width: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  line-height: 1;
+  filter: drop-shadow(0 0 8px oklch(0.78 0.18 195 / 0.10));
+}
+
+/* spacer pushes toggle to bottom */
+.app-frame .sidebarSpacer { flex: 1; }
+
+/* toggle can share same look; just slightly different */
+.app-frame .navToggle { justify-content: flex-start; }
+
+/* ---------- Micro-animations (triggered by data-animation) ---------- */
+.app-frame .navItem.animating[data-animation="bounce"] { animation: dp-bounce 420ms cubic-bezier(0.33, 1, 0.68, 1); }
+.app-frame .navItem.animating[data-animation="spin"]   { animation: dp-spin 420ms cubic-bezier(0.33, 1, 0.68, 1); }
+.app-frame .navItem.animating[data-animation="pulse"]  { animation: dp-pulse 420ms cubic-bezier(0.33, 1, 0.68, 1); }
+.app-frame .navItem.animating[data-animation="shake"]  { animation: dp-shake 420ms cubic-bezier(0.33, 1, 0.68, 1); }
+
+@keyframes dp-bounce {
+  0% { transform: translateY(0); }
+  35% { transform: translateY(-2px); }
+  100% { transform: translateY(0); }
+}
+@keyframes dp-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(3deg); }
+}
+@keyframes dp-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+@keyframes dp-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-1px); }
+  75% { transform: translateX(1px); }
+}
+
+/* ---------- Status Dot states (scoped) ---------- */
+.app-frame .statusDot[data-state="online"] {
+  background: oklch(0.82 0.18 195 / 0.92);
+  box-shadow:
+    0 0 10px oklch(0.82 0.18 195 / 0.35),
+    0 0 18px oklch(0.82 0.18 195 / 0.18);
+}
+.app-frame .statusDot[data-state="offline"] {
+  background: oklch(0.62 0.22 25 / 0.90);
+  box-shadow: 0 0 10px oklch(0.62 0.22 25 / 0.25);
+}
+.app-frame .statusDot[data-state="warning"] {
+  background: oklch(0.80 0.18 80 / 0.92);
+  box-shadow:
+    0 0 10px oklch(0.80 0.18 80 / 0.30),
+    0 0 18px oklch(0.80 0.18 80 / 0.16);
+}
+.app-frame .statusDot[data-state="processing"] {
+  background: oklch(0.82 0.18 195 / 0.92);
+  box-shadow:
+    0 0 10px oklch(0.82 0.18 195 / 0.35),
+    0 0 18px oklch(0.82 0.18 195 / 0.18);
+  animation: dp-status-pulse 900ms ease-in-out infinite;
+}
+
+@keyframes dp-status-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+
+/* optional: status text class used by StatusBar.svelte */
+.app-frame .statusText {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: oklch(0.92 0.01 260 / 0.85);
+}

@@ -35,7 +35,7 @@ Location: `interfaces/desktop/src/lib/design/`
 
 ### Layers
 1. **Tokens** - Design tokens (colors, spacing, typography)
-2. **Primitives** - Unstyled, accessible components (Bits UI + custom ARIA)
+2. **Primitives** - Unstyled, accessible components (MeltUI + custom ARIA)
 3. **Recipes** - Styling patterns applied via class prop
 4. **Components** - Composed primitives with recipes
 5. **Blocks** - Page-level compositions

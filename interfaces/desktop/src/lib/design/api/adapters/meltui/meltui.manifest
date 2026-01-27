@@ -1,0 +1,26 @@
+/**
+ * src/lib/design/taxonomy/kinds/primitive/manifest.ts
+ */
+export const ColdLightPrimitiveManifest = {
+  version: "2026.1",
+  primitives: {
+    button: {
+      kind: "button",
+      slots: ["root", "icon", "spinner"],
+      // NEW: Defaults object for the UI Wizard
+      defaults: {
+        recipe: "v-s1z1l1t1m1",
+        material: "glass",
+        depth: "2d",
+      },
+      // The Contract pointer
+      contractRef: "$lib/design/taxonomy/kinds/primitive/button/contract",
+      // Adapter instructions
+      adapter: {
+        mapTo: "meltui",
+        internal: "$lib/design/api/adapter/meltui/_internal/button"
+      }
+    }
+    // ... repeat for all 49+ primitives
+  }
+} as const;

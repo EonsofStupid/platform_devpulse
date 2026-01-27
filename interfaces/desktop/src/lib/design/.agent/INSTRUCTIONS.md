@@ -12,7 +12,7 @@
 | Layer | Technology | Purpose |
 |-------|------------|---------|
 | **Framework** | SvelteKit 5 | App framework, routing, SSR, runes |
-| **Behavior** | Bits UI | Headless primitives (accessibility, keyboard, focus) |
+| **Behavior** | MeltUI | Headless primitives (accessibility, keyboard, focus) |
 | **Styling** | Tailwind CSS | Utility classes, JIT compilation |
 | **Values SSOT** | `tokens.ts` | Colors, spacing, shadows - SINGLE SOURCE OF TRUTH |
 | **Visual Composition** | VPB (Visual Page Builder) | No-code tool that composes BlockNodes |
@@ -24,7 +24,7 @@
 
 **This IS:**
 - DevPulse's internal design system
-- Tightly coupled to SvelteKit 5 + Bits UI + Tailwind
+- Tightly coupled to SvelteKit 5 + MeltUI + Tailwind
 - Driven by VPB for no-code visual editing
 
 ---
@@ -142,12 +142,12 @@ type BlockNode<K extends BlockKind> = {
 
 | Type | Location | Purpose |
 |------|----------|---------|
-| **Primitives** | `src/lib/design/primitives/` | Bits UI wrappers ONLY |
+| **Primitives** | `src/lib/design/primitives/` | MeltUI wrappers ONLY |
 | **Components** | `src/lib/design/components/` | Styled compositions (use primitives + recipes) |
 | **Renderers** | `src/lib/design/renderers/` | VPB block renderers |
 | **Plugins** | `src/lib/design/plugins/` | Special branded components (Parasite logo, etc.) |
 
-### BITS UI IMPORT RULE
+### MELTUI IMPORT RULE
 ```typescript
 // ✅ ALLOWED - only in primitives/
 import { Button } from "bits-ui";
@@ -238,7 +238,7 @@ export const myCategory = {
 ❌ var(--dp-*) in component code (only in generated CSS)
 ```
 
-### 4. No Bits UI outside primitives/
+### 4. No MeltUI outside primitives/
 ```typescript
 ❌ import { Dialog } from "bits-ui" // in components/
 ```
@@ -313,7 +313,7 @@ pnpm ds:tokens:build
 | Add a keyframe | Edit `keyframes.css` |
 | Add a surface variant | Edit `tokens.ts` + generator updates `surfaces.gen.css` |
 | Create a component | Use `data-*` attributes + Tailwind layout classes |
-| Wrap Bits UI | Only in `primitives/` folder |
+| Wrap MeltUI | Only in `primitives/` folder |
 | Add block to VPB | Taxonomy → Recipe → VPB palette → Renderer |
 
 ---
@@ -384,7 +384,7 @@ When you need an effect:
 1. **tokens.ts is SSOT** - edit this, run generator
 2. **keyframes.css is ONLY manual CSS** - motion only, no visuals
 3. **data-* attributes** - how styling is applied
-4. **Bits UI only in primitives/** - nowhere else
+4. **MeltUI only in primitives/** - nowhere else
 5. **VPB never stores CSS** - only kind + recipe + props
 6. **No arbitrary Tailwind** - no `[...]` brackets ever
 7. **Recipes are REUSABLE** - effects belong in recipe library, not components

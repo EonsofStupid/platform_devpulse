@@ -10,7 +10,7 @@
 | Layer | Pattern | Technology | Status |
 |-------|---------|------------|--------|
 | **Values** | Design Tokens | `tokens.ts` → generator | ✅ EXISTS |
-| **Behavior** | Headless UI | Bits UI (primitives/) | ✅ EXISTS |
+| **Behavior** | Headless UI | MeltUI (primitives/) | ✅ EXISTS |
 | **Styling** | Recipe Pattern | `data-*` → CSS selectors | ✅ EXISTS |
 | **Validation** | Compound Variants | Zod schemas | ✅ EXISTS |
 | **Composition** | Block-Based Editor | VPB BlockNodes | 🔲 INCOMPLETE |

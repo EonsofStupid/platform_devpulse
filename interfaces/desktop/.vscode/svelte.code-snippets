@@ -60,7 +60,7 @@
             "  @layer primitives",
             "  @aria ${1|button,tab,dialog,popover,menu|}",
             "",
-            "  ${2:Headless component description}. Uses Bits UI for behavior.",
+            "  ${2:Headless component description}. Uses MeltUI for behavior.",
             "",
             "  Props:",
             "  - variant: ${3:\"default\" | \"primary\"} - Visual variant",

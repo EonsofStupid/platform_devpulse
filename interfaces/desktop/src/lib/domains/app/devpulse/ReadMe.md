@@ -53,7 +53,7 @@ The **DevPulse Hub** is the global overview and entry point. Community engagemen
 | Layer | Technology | Purpose |
 |-------|------------|---------|
 | **Framework** | SvelteKit 5 | App framework, routing, SSR |
-| **Behavior** | Bits UI | Headless primitives (accessibility, keyboard, focus) |
+| **Behavior** | MeltUI | Headless primitives (accessibility, keyboard, focus) |
 | **Styling** | Tailwind CSS | Utility classes, JIT compilation |
 | **Values** | tokens.ts -> CSS | SSOT for colors, spacing, shadows |
 | **Composition** | VPB | Selects enums + recipes, outputs BlockNodes |
@@ -190,7 +190,7 @@ base + semantic + recipe + modifiers
 ### Why Adapters
 
 - ColdLight owns ALL accessibility attributes
-- Bits UI provides behavior only (open/close, focus trap, keyboard)
+- MeltUI provides behavior only (open/close, focus trap, keyboard)
 - Adapter adds `data-kind`, `data-slot`, `data-state`, ARIA
 
 ---

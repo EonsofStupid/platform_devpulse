@@ -42,7 +42,7 @@ Example: `v-s1z2l3t1m2`
 |-------|------|-------|
 | Tokens | Design tokens | JSON (DTCG) |
 | Recipes | CSS appearance | CSS classes |
-| Primitives | Behavior only | Svelte (Bits UI) |
+| Primitives | Behavior only | Svelte (MeltUI) |
 | Semantics | Primitive + Recipe | Svelte |
 | Blueprints | Prebuilt assembly | TypeScript |
 | Patterns | Guidance | Docs only |
@@ -53,10 +53,10 @@ Example: `v-s1z2l3t1m2`
 ## Provider Model
 
 ```
-Bits UI (ARIA + behavior) → _internal (mapping) → ColdLight Primitive
+MeltUI (ARIA + behavior) → _internal (mapping) → ColdLight Primitive
 ```
 
-- **Bits UI owns**: `role`, `aria-*`, `tabindex`, focus, keyboard
+- **MeltUI owns**: `role`, `aria-*`, `tabindex`, focus, keyboard
 - **ColdLight owns**: `data-kind`, `data-slot`, `data-state`, `class`
 
 Primitives import from `_internal`, NEVER from bits-ui directly.

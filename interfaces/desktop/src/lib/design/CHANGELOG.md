@@ -67,7 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Button** - Compound primitive with 19 tests (stable)
 - **Dialog** - Compound primitive with 28 tests (stable)
 - **Sheet** - Compound primitive with 32 tests (stable)
-- 30+ Bits UI re-exports (beta)
+- 30+ MeltUI re-exports (beta)
 - 20+ Custom ARIA primitives (beta)
 
 #### Recipe System

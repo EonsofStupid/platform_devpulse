@@ -77,7 +77,7 @@ interfaces/desktop/
 │   │   ├── cfg/              # Configuration
 │   │   ├── design/           # COLD LIGHT Design System
 │   │   │   ├── tokens/       # CSS tokens (SSOT)
-│   │   │   ├── primitives/   # Bits UI components
+│   │   │   ├── primitives/   # MeltUI components
 │   │   │   ├── semantics/    # Styled tokens
 │   │   │   ├── compositions/ # Combined primitives
 │   │   │   ├── components/   # (Legacy)
@@ -269,7 +269,7 @@ xtask/
 |------------|---------|---------|
 | **SvelteKit** | 5.x | Framework |
 | **Svelte 5** | 5.x | UI with Runes |
-| **Bits UI** | 2.x | Accessible primitives |
+| **MeltUI** | 2.x | Accessible primitives |
 | **OKLCH** | CSS | Color system |
 | **CSS Grid** | Native | Layouts |
 | **svelte-sonner** | 1.x | Toast notifications |
