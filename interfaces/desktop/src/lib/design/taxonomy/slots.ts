@@ -7,7 +7,7 @@
  */
 
 import { z } from "zod";
-import type { BlockKind } from "./kinds";
+import type { BlockKind } from "./kind/kinds";
 
 // ===========================================
 // SLOT CONFIGURATION SCHEMA

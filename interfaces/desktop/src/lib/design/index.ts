@@ -39,7 +39,7 @@ export * from "./tokens/schema";
 // ===========================================
 // TAXONOMY (block definitions)
 // ===========================================
-export * from "./taxonomy/kinds";
+export * from "./taxonomy/kind/kinds";
 export * from "./taxonomy/contracts";
 
 // ===========================================

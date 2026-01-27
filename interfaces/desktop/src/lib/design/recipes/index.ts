@@ -16,7 +16,7 @@
  * @since 1.0.0
  */
 
-import type { BlockKind } from "../taxonomy/kinds";
+import type { BlockKind } from "../taxonomy/kind/kinds";
 import type { ActionId } from "./actions";
 
 // ===========================================
