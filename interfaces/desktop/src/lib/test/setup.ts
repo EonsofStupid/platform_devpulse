@@ -14,5 +14,4 @@ class ResizeObserverMock {
   disconnect() {}
 }
 
-// @ts-expect-error - test env polyfill
 global.ResizeObserver ??= ResizeObserverMock;

@@ -10,6 +10,9 @@
  * @since 1.0.0
  */
 
+// Stub - no exports yet
+export {};
+
 // Future: Export form patterns
 // export { default as LoginForm } from "./LoginForm.svelte";
 // export { default as SignupForm } from "./SignupForm.svelte";

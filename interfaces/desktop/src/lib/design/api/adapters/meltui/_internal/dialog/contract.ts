@@ -6,7 +6,7 @@
  * ColdLight adds data attributes for CSS targeting.
  */
 
-import type { DialogSlot } from "$lib/design/taxonomy/primitives/dialog/contract";
+import type { DialogSlot } from "$lib/design/taxonomy/kinds/primitives/dialog/contract";
 
 // =============================================================================
 // IDENTIFIERS

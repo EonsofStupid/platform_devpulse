@@ -18,7 +18,7 @@ import {
   chatKinds,
   getKindDefinition,
   type BlockKindDefinition,
-} from "$lib/design/taxonomy/kinds";
+} from "$lib/design/taxonomy/vpb";
 import { getRecipesForKind, type RecipeDefinition } from "$lib/design/recipes";
 
 // ===========================================

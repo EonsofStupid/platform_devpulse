@@ -15,13 +15,11 @@ import {
   blockKindKeys,
   getKindDefinition,
   getKindSlots,
-} from "$lib/design/taxonomy/kinds";
-import {
   type KindContract,
   kindContracts,
   getKindSchema,
-} from "$lib/design/taxonomy/contracts";
-import { isChildAllowed } from "$lib/design/taxonomy/slots";
+  isChildAllowed,
+} from "$lib/design/taxonomy/vpb";
 
 // ===========================================
 // BLOCK NODE SCHEMA
@@ -115,9 +113,9 @@ export const BlockNodeSchema: z.ZodType<BlockNode> = z.lazy(() =>
     id: z.string().min(1),
     kind: z.enum(blockKindKeys as [BlockKind, ...BlockKind[]]),
     recipe: z.string().min(1),
-    props: z.record(z.unknown()),
-    slots: z.record(z.array(BlockNodeSchema)).optional(),
-    binds: z.record(z.string()).optional(),
+    props: z.record(z.string(), z.unknown()),
+    slots: z.record(z.string(), z.array(BlockNodeSchema)).optional(),
+    binds: z.record(z.string(), z.string()).optional(),
     meta: BlockMetadataSchema.optional(),
   })
 );
@@ -272,16 +270,35 @@ export function generateBlockId(kind: BlockKind): string {
 }
 
 /**
- * Create a new BlockNode with defaults.
- * Props are initialized from the kind's default schema.
+ * Block creation options.
  */
-export function createBlockNode<K extends BlockKind>(
+export interface CreateBlockOptions {
+  /** Recipe ID (falls back to kind.default) */
+  recipe?: string;
+  /** Props to merge with defaults */
+  props?: Record<string, unknown>;
+  /** Pre-populated slots */
+  slots?: Record<string, BlockNode[]>;
+  /** Data bindings */
+  binds?: Record<string, string>;
+  /** Editor metadata */
+  meta?: BlockMetadata;
+}
+
+/**
+ * Create a BlockNode.
+ *
+ * Single factory function - handles defaults automatically.
+ * If recipe not specified, uses `{kind}.default`.
+ * Props are merged with schema defaults.
+ */
+export function createBlock<K extends BlockKind>(
   kind: K,
-  recipe: string,
-  overrides?: Partial<Omit<BlockNode<K>, "id" | "kind">>
+  options?: CreateBlockOptions
 ): BlockNode<K> {
+  // Get schema defaults
   const kindSchema = getKindSchema(kind as KindContract);
-  const defaultProps = kindSchema ? kindSchema.parse({}) : {};
+  const schemaDefaults = kindSchema ? kindSchema.parse({}) : {};
 
   // Initialize empty slots for this kind
   const kindDef = getKindDefinition(kind);
@@ -290,14 +307,20 @@ export function createBlockNode<K extends BlockKind>(
     emptySlots[slot] = [];
   }
 
+  // Merge props: schema defaults < user overrides
+  const mergedProps = {
+    ...(schemaDefaults as object),
+    ...(options?.props ?? {}),
+  };
+
   return {
     id: generateBlockId(kind),
     kind,
-    recipe,
-    props: { ...defaultProps, ...overrides?.props },
-    slots: { ...emptySlots, ...overrides?.slots },
-    binds: overrides?.binds,
-    meta: overrides?.meta,
+    recipe: options?.recipe ?? `${kind}.default`,
+    props: mergedProps,
+    slots: { ...emptySlots, ...(options?.slots ?? {}) },
+    binds: options?.binds,
+    meta: options?.meta,
   } as BlockNode<K>;
 }
 
@@ -315,7 +338,7 @@ export type KindProps<K extends BlockKind> = K extends KindContract
 /**
  * Extract allowed slot names for a kind (as type).
  */
-export type KindSlots<K extends BlockKind> = (typeof import("$lib/design/taxonomy/kinds").blockKinds)[K]["slots"][number];
+export type KindSlots<K extends BlockKind> = (typeof import("$lib/design/taxonomy/vpb").blockKinds)[K]["slots"][number];
 
 /**
  * Type guard for checking if a node is a specific kind.

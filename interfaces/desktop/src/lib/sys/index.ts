@@ -4,25 +4,16 @@
  * @description System layer barrel export
  */
 
-// Contracts (types only)
-export type * from './contracts/index.js';
-
-// Domain contracts (values - for registration)
-export { APP_DOMAINS, DEVPULSE_DOMAIN, UIDEMO_DOMAIN, OVERMIND_DOMAIN, WIREDFRONT_DOMAIN, DEVFORGE_DOMAIN, MAESTRO_DOMAIN } from './contracts/index.js';
-
-// Registries (singleton instances)
-export { BaseRegistry, domainRegistry, routesRegistry, stateRegistry, streamsRegistry } from './registries/index.js';
-
 // Initialization
-export { initSys, isSysInitialized } from './init.js';
+export { initSys, isSysInitialized } from './init';
 
 // Existing exports
-export { appState } from './app_state.svelte.js';
-export { flags } from './cfg/flags.js';
-export type { FeatureFlags } from './cfg/flags.js';
+export { appState } from './app_state.svelte';
+export { flags } from './cfg/flags';
+export type { FeatureFlags } from './cfg/flags';
 
 // Global state
-export { global } from './global/runes/global.svelte.js';
+export { global } from './runes/global.svelte';
 
 // Debug tools (dev-only)
-export * from './debug/index.js';
+export * from './debug/index';

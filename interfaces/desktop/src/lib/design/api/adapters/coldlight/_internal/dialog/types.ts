@@ -6,7 +6,7 @@
  * All props, slot props, and re-exported taxonomy types live here.
  */
 
-import type { DialogSlot, DialogState } from "$lib/design/taxonomy/primitives/dialog/contract";
+import type { DialogSlot, DialogState } from "$lib/design/taxonomy/kinds/primitives/dialog/contract";
 
 // =============================================================================
 // RE-EXPORTS FROM TAXONOMY

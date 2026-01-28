@@ -11,4 +11,4 @@ export {
   dialogSlots,
   dialogStates,
   dialogSlotStates,
-} from "$lib/design/taxonomy/primitives/dialog";
+} from "$lib/design/taxonomy/kinds/primitives/dialog";

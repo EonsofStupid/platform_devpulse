@@ -18,7 +18,9 @@
         "audit:primitives": "npx tsx scripts/dev/design/audit-primitives.ts",
         "audit:primitives:json": "npx tsx scripts/dev/design/audit-primitives.ts --json",
         "audit:primitives:ci": "npx tsx scripts/dev/design/audit-primitives.ts --ci",
-        "docs:primitives": "npx tsx scripts/dev/design/audit-primitives.ts --update-md"
+        "docs:primitives": "npx tsx scripts/dev/design/audit-primitives.ts --update-md",
+        "coldlight:generate": "npx tsx scripts/coldlight/generate-manifest.ts",
+        "coldlight:verify": "npx tsx scripts/coldlight/verify-manifest.ts"
     },
     "devDependencies": {
         "@commitlint/cli": "^20.3.1",

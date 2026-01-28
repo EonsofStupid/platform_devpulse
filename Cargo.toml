@@ -20,13 +20,18 @@ tokio = { version = "1.40", features = ["full"] }
 ts-rs = { version = "10.0", features = ["uuid-impl"] } # or specta
 
 # Platform Data (The "Muscle")
-libsql = "0.6"
+libsql = "0.9"
 duckdb = "1.1"
+surrealdb = { version = "2.6", default-features = false, features = ["kv-mem", "kv-rocksdb"] }
 moka = "0.12"
-fjall = "2.0" 
+fjall = "2.0"
 wal = { git = "https://github.com/EonsofStupid/wal" }
 rro = { git = "https://github.com/EonsofStupid/rro" }
 tar-rs = { git = "https://github.com/EonsofStupid/tar-rs" }
+
+# Error Handling
+anyhow = "1.0"
+thiserror = "2.0"
 
 # AI & Voice (The "Senses")
 candle-core = "0.8"

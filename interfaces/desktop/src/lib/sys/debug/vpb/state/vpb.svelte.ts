@@ -8,8 +8,8 @@
  * @since 1.0.0
  */
 
-import type { BlockKind } from "$lib/design/taxonomy/kinds";
-import { isChildAllowed } from "$lib/design/taxonomy/slots";
+import type { BlockKind } from "$lib/design/taxonomy/vpb";
+import { isChildAllowed } from "$lib/design/taxonomy/vpb";
 import { getRecipe } from "$lib/design/recipes";
 import type {
   VPBTab,
@@ -21,8 +21,8 @@ import type {
 import {
   type BlockNode,
   generateBlockId,
+  createBlock,
 } from "../components/builder/schema";
-import { createDefaultBlock } from "../components/builder/defaults";
 
 // ===========================================
 // CONSTANTS
@@ -289,7 +289,7 @@ class VPBStore {
    * Add a new block to the tree.
    */
   addBlock(kind: BlockKind, parentId: string | null, slotName: string, recipe?: string) {
-    const block = createDefaultBlock(kind, { recipe });
+    const block = createBlock(kind, { recipe });
 
     // Validate child is allowed
     if (parentId) {
@@ -344,14 +344,14 @@ class VPBStore {
   /**
    * Update block props.
    */
-  updateProps(blockId: string, props: Partial<BlockNode["props"]>) {
+  updateProps(blockId: string, props: Record<string, unknown>) {
     const found = findBlockById(this.tree, blockId);
     if (!found) return;
 
     this.pushHistory(`Update ${found.block.kind} props`);
     this.tree = updateBlockInTree(this.tree, blockId, (block) => ({
       ...block,
-      props: { ...block.props, ...props },
+      props: { ...(block.props as Record<string, unknown>), ...props },
     }));
   }
 

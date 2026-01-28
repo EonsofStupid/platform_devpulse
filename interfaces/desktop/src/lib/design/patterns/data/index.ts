@@ -10,6 +10,9 @@
  * @since 1.0.0
  */
 
+// Stub - no exports yet
+export {};
+
 // Future: Export data patterns
 // export { default as DataGrid } from "./DataGrid.svelte";
 // export { default as DataTable } from "./DataTable.svelte";

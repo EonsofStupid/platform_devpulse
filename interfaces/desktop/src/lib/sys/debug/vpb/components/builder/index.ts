@@ -8,6 +8,7 @@
 export {
   type BlockNode,
   type BlockMetadata,
+  type CreateBlockOptions,
   type ValidationResult,
   type KindProps,
   type KindSlots,
@@ -17,7 +18,7 @@ export {
   validateBlockNode,
   validateBlockTree,
   generateBlockId,
-  createBlockNode,
+  createBlock,
   isBlockKind,
 } from "./schema";
 
@@ -38,12 +39,8 @@ export {
   isRecipeValidForKind,
 } from "./palette";
 
-// Defaults
+// Templates
 export {
-  defaultRecipes,
-  getDefaultRecipe,
-  getKindDefaultProps,
-  createDefaultBlock,
   type BlockTemplate,
   blockTemplates,
   getTemplate,

@@ -1,20 +1,22 @@
 /**
  * @file sys/init.ts
- * @description Initialize sys layer - register all domains
+ * @description Initialize sys layer
+ *
+ * SvelteKit handles routing via file system.
+ * Domain discovery is automatic from routes/(app)/ structure.
  */
 
-import { domainRegistry } from './registries/index.js';
-import { APP_DOMAINS } from './contracts/domains/app/index.js';
+let initialized = false;
 
 /** Initialize the sys layer */
 export function initSys(): void {
-  // Register all app domains
-  APP_DOMAINS.forEach(domain => {
-    domainRegistry.register(domain.id, domain);
-  });
+  if (initialized) return;
+  initialized = true;
+  // SvelteKit handles routing automatically
+  // No manual domain registration needed
 }
 
 /** Check if sys is initialized */
 export function isSysInitialized(): boolean {
-  return domainRegistry.getIds().length > 0;
+  return initialized;
 }

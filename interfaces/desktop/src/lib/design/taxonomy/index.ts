@@ -1,19 +1,32 @@
 /**
  * @file Taxonomy Barrel Export
- * @description The declarative foundation layer
+ * @package @devpulse/coldlight
  *
  * Taxonomy is the SSOT for:
- * - Adapter declarations (coldlight, meltui)
+ * - Core types (StateToken, PrimitiveContract, etc.)
  * - Primitive contracts (slots, states, ARIA, keyboard)
- * - Registry that scans and enforces parity
+ * - Scanner (build-time parity checking)
+ * - Registry (runtime manifest access)
  */
 
-// Adapter system (scan-based)
-export * from "./adapters";
+// Core types
+export * from "./types";
 
 // Primitive contracts
-export * from "./primitives";
+export * from "./kinds";
 
-// Note: slots.ts has broken imports (kind/kinds doesn't exist)
-// Re-enable when kind/ folder is created:
-// export * from "./slots.js";
+// Build-time scanner
+export { scanColdLight, scanPrimitiveKinds, scanPrimitive } from "./scanner";
+export type { FsLike, ImportLike } from "./scanner";
+
+// Runtime registry
+export {
+  getManifest,
+  getAdapterIds,
+  getActiveAdapterId,
+  setActiveAdapterId,
+  getPrimitiveKinds,
+  hasPrimitiveKind,
+  getPrimitive,
+  getPrimitiveOrUndefined,
+} from "./registry";

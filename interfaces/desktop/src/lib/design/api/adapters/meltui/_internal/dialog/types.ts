@@ -9,7 +9,7 @@
 import type {
   DialogSlot,
   DialogState,
-} from "$lib/design/taxonomy/primitives/dialog/contract";
+} from "$lib/design/taxonomy/kinds/primitives/dialog/contract";
 
 // =============================================================================
 // MELTUI ELEMENTS → COLDLIGHT SLOTS

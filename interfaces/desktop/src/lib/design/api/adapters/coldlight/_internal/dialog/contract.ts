@@ -17,7 +17,7 @@ export {
   dialogSlotStates,
   type DialogSlot,
   type DialogState,
-} from "$lib/design/taxonomy/primitives/dialog";
+} from "$lib/design/taxonomy/kinds/primitives/dialog";
 
 // =============================================================================
 // COLDLIGHT CONSTANTS

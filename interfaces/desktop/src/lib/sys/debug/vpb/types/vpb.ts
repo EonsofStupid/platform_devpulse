@@ -4,7 +4,7 @@
  * @since 1.0.0
  */
 
-import type { BlockKind } from "$lib/design/taxonomy/kinds";
+import type { BlockKind } from "$lib/design/taxonomy/vpb";
 import type { BlockNode } from "../components/builder/schema";
 
 // ===========================================

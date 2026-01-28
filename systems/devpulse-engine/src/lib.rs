@@ -1,18 +1,42 @@
 pub mod signals;
 
-use devpulse_maestro::Cortex;
+use signals::{Signal, SignalRouter, SignalSource, SignalVariant, SystemPayload, SystemStatus};
 
+/// The Engine - signal router and public API.
+///
+/// Engine owns the signal router. This is the public facade.
+/// Maestro subscribes to signals for internal processing.
 pub struct Engine {
-    cortex: Cortex,
+    router: SignalRouter,
 }
 
 impl Engine {
+    /// Boot the engine.
     pub fn boot() -> Self {
-        Self { cortex: Cortex::new() }
+        Self {
+            router: SignalRouter::new(),
+        }
     }
 
+    /// Start the engine and emit ready signal.
     pub fn start(&self) {
-        // TODO: Initialize Cortex
-        let _ = &self.cortex;
+        let signal = Signal::new(
+            SignalSource::System,
+            SignalVariant::System(SystemPayload {
+                status: SystemStatus::Ready,
+                message: "Engine started".to_string(),
+            }),
+        );
+        self.router.emit(signal);
+    }
+
+    /// Get a reference to the signal router.
+    pub fn router(&self) -> &SignalRouter {
+        &self.router
+    }
+
+    /// Emit a signal through the router.
+    pub fn emit(&self, signal: Signal) -> usize {
+        self.router.emit(signal)
     }
 }

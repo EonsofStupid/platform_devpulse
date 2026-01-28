@@ -10,6 +10,9 @@
  * @since 1.0.0
  */
 
+// Stub - no exports yet
+export {};
+
 // Future: Export search patterns
 // export { default as SearchBar } from "./SearchBar.svelte";
 // export { default as SearchWithFilters } from "./SearchWithFilters.svelte";

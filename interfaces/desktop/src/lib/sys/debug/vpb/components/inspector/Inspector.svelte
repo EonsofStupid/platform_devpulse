@@ -11,7 +11,7 @@
 <script lang="ts">
     import { vpb } from "../../state/vpb.svelte";
     import { getPaletteItem, getRecipesForPaletteItem } from "../builder/palette";
-    import { getKindDefinition } from "$lib/design/taxonomy/kinds";
+    import { getKindDefinition } from "$lib/design/taxonomy/vpb";
     import {
         TokenArrays,
         AccentTokens,
@@ -55,7 +55,7 @@
 
         // Parse path and create nested update
         const parts = path.split(".");
-        const newProps = { ...block.props };
+        const newProps = { ...(block.props as Record<string, unknown>) };
 
         let current: Record<string, unknown> = newProps;
         for (let i = 0; i < parts.length - 1; i++) {
