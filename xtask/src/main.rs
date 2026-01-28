@@ -30,8 +30,8 @@ fn main() -> anyhow::Result<()> {
         }
         Commands::VerifyDogfood => {
             println!("🔍 Verifying Dogfood Status...");
-             let _status = cmd!(sh, "echo 'Dogfood Status: OK'").read()?;
-             println!("{}", _status);
+            let _status = cmd!(sh, "echo 'Dogfood Status: OK'").read()?;
+            println!("{}", _status);
         }
     }
 

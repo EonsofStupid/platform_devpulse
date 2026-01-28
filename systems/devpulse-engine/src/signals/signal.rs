@@ -5,38 +5,50 @@
 
 use std::sync::Arc;
 
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use ts_rs::TS;
 
 use super::header::{SignalHeader, SignalSource};
 use super::variants::SignalVariant;
 
-/// The complete signal packet for broadcast.
-///
-/// Uses Arc for zero-copy fanout to multiple subscribers.
-#[derive(Clone, Debug, Serialize, Deserialize, TS)]
-#[ts(export)]
-pub struct Signal {
-    /// The 4 atomic metadata fields
-    pub header: SignalHeader,
-    /// The typed payload (Arc for zero-copy)
-    #[serde(serialize_with = "serialize_arc", deserialize_with = "deserialize_arc")]
-    #[ts(type = "SignalVariant")]
-    pub payload: Arc<SignalVariant>,
-}
+// =============================================================================
+// ARC SERIALIZATION HELPERS
+// =============================================================================
 
-fn serialize_arc<S>(arc: &Arc<SignalVariant>, serializer: S) -> Result<S::Ok, S::Error>
+/// Serialize Arc<T> by serializing the inner value.
+fn serialize_arc<S, T>(arc: &Arc<T>, serializer: S) -> Result<S::Ok, S::Error>
 where
-    S: serde::Serializer,
+    S: Serializer,
+    T: Serialize,
 {
     arc.as_ref().serialize(serializer)
 }
 
-fn deserialize_arc<'de, D>(deserializer: D) -> Result<Arc<SignalVariant>, D::Error>
+/// Deserialize into Arc<T> by deserializing T and wrapping.
+fn deserialize_arc<'de, D, T>(deserializer: D) -> Result<Arc<T>, D::Error>
 where
-    D: serde::Deserializer<'de>,
+    D: Deserializer<'de>,
+    T: Deserialize<'de>,
 {
-    Ok(Arc::new(SignalVariant::deserialize(deserializer)?))
+    Ok(Arc::new(T::deserialize(deserializer)?))
+}
+
+// =============================================================================
+// SIGNAL
+// =============================================================================
+
+/// The complete signal packet for broadcast.
+///
+/// Uses `Arc<SignalVariant>` for zero-copy fanout to multiple subscribers.
+#[derive(Clone, Debug, Serialize, Deserialize, TS)]
+#[ts(export)]
+pub struct Signal {
+    /// The 4 atomic metadata fields.
+    pub header: SignalHeader,
+    /// The typed payload (Arc-wrapped for zero-copy).
+    #[serde(serialize_with = "serialize_arc", deserialize_with = "deserialize_arc")]
+    #[ts(type = "SignalVariant")]
+    pub payload: Arc<SignalVariant>,
 }
 
 impl Signal {

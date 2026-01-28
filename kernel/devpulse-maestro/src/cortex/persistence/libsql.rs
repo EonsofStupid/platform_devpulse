@@ -21,8 +21,7 @@ impl LibSqlAdapter {
     pub async fn open(path: &Path) -> Result<Self> {
         // Ensure parent directory exists
         if let Some(parent) = path.parent() {
-            std::fs::create_dir_all(parent)
-                .context("Failed to create database directory")?;
+            std::fs::create_dir_all(parent).context("Failed to create database directory")?;
         }
 
         let db = libsql::Builder::new_local(path)
@@ -30,7 +29,8 @@ impl LibSqlAdapter {
             .await
             .context("Failed to open LibSQL database")?;
 
-        let conn = db.connect()
+        let conn = db
+            .connect()
             .context("Failed to connect to LibSQL database")?;
 
         let adapter = Self {
@@ -74,7 +74,10 @@ impl PersistenceAdapter for LibSqlAdapter {
     async fn get(&self, key: &str) -> Result<Option<Vec<u8>>> {
         let conn = self.conn.read().await;
         let mut rows = conn
-            .query("SELECT value FROM kv_store WHERE key = ?", libsql::params![key])
+            .query(
+                "SELECT value FROM kv_store WHERE key = ?",
+                libsql::params![key],
+            )
             .await
             .context("Failed to query LibSQL")?;
 

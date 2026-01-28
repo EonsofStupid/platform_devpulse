@@ -7,7 +7,7 @@
 import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
-import { Project, SyntaxKind } from 'ts-morph';
+import { Project, SyntaxKind, VariableDeclarationKind } from 'ts-morph';
 
 interface ModuleDoc {
   name: string;
@@ -166,7 +166,7 @@ async function extractModuleDocs(filePath: string, platformRoot: string): Promis
       ? extractJSDocDescription(jsdocs[0].getText())
       : undefined;
 
-    const isConst = statement.getDeclarationKind() === 0; // VariableDeclarationKind.Const
+    const isConst = statement.getDeclarationKind() === VariableDeclarationKind.Const;
 
     moduleDoc.exports.push({
       name,

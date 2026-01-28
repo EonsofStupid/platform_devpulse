@@ -19,12 +19,10 @@ impl DuckDbAdapter {
     pub fn open(path: &Path) -> Result<Self> {
         // Ensure parent directory exists
         if let Some(parent) = path.parent() {
-            std::fs::create_dir_all(parent)
-                .context("Failed to create database directory")?;
+            std::fs::create_dir_all(parent).context("Failed to create database directory")?;
         }
 
-        let conn = duckdb::Connection::open(path)
-            .context("Failed to open DuckDB database")?;
+        let conn = duckdb::Connection::open(path).context("Failed to open DuckDB database")?;
 
         let adapter = Self {
             conn: Arc::new(Mutex::new(conn)),
@@ -38,8 +36,8 @@ impl DuckDbAdapter {
 
     /// Open in-memory database for testing
     pub fn open_in_memory() -> Result<Self> {
-        let conn = duckdb::Connection::open_in_memory()
-            .context("Failed to open in-memory DuckDB")?;
+        let conn =
+            duckdb::Connection::open_in_memory().context("Failed to open in-memory DuckDB")?;
 
         let adapter = Self {
             conn: Arc::new(Mutex::new(conn)),

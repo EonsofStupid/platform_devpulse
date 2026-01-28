@@ -1,7 +1,7 @@
 pub mod kv_cache;
+pub mod minions;
 pub mod persistence;
 pub mod reasoning;
-pub mod minions;
 
 pub struct Cortex {
     // Brain State

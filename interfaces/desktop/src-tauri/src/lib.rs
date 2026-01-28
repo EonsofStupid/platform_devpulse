@@ -22,7 +22,6 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             // Chat
             commands::chat::send_message,
-            
             // Sys
             commands::sys::config::get_settings,
         ])

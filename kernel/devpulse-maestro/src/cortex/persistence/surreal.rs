@@ -25,8 +25,7 @@ impl SurrealAdapter {
     pub async fn open(path: &Path) -> Result<Self> {
         // Ensure directory exists
         if let Some(parent) = path.parent() {
-            std::fs::create_dir_all(parent)
-                .context("Failed to create SurrealDB directory")?;
+            std::fs::create_dir_all(parent).context("Failed to create SurrealDB directory")?;
         }
 
         let db = Surreal::new::<RocksDb>(path)

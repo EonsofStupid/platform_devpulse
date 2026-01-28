@@ -104,8 +104,8 @@ async function main() {
   const totalFiles = scan.files.length;
   const coverage = (totalDocs / totalFiles) * 100;
 
-  const minThreshold = Object.values(coverageGates.gates.minimum.thresholds)
-    .reduce((a: number, b: number) => a + b, 0) / Object.keys(coverageGates.gates.minimum.thresholds).length;
+  const thresholdValues = Object.values(coverageGates.gates.minimum.thresholds) as number[];
+  const minThreshold = thresholdValues.reduce((a, b) => a + b, 0) / thresholdValues.length;
 
   if (coverage < minThreshold) {
     result.warnings.push({

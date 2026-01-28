@@ -15,6 +15,6 @@
 
 pub mod chat;
 pub mod devmaestro;
+pub mod sys;
 pub mod thinkmaestro;
 pub mod wiredfront;
-pub mod sys;

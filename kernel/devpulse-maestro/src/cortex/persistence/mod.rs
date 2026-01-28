@@ -12,16 +12,18 @@ pub mod config;
 pub mod traits;
 
 // Database adapters
-pub mod libsql;
 pub mod duckdb;
+pub mod libsql;
 pub mod surreal;
 
 // Re-exports for convenience
 pub use config::{PersistenceConfig, StoreKind, SurrealNamespace};
-pub use traits::{AnalyticsAdapter, GraphAdapter, PersistenceAdapter, SqlAdapter, TypedPersistence};
-pub use libsql::LibSqlAdapter;
 pub use duckdb::DuckDbAdapter;
+pub use libsql::LibSqlAdapter;
 pub use surreal::SurrealAdapter;
+pub use traits::{
+    AnalyticsAdapter, GraphAdapter, PersistenceAdapter, SqlAdapter, TypedPersistence,
+};
 
 use anyhow::Result;
 use std::sync::Arc;

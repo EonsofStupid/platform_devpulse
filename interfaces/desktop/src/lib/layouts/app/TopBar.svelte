@@ -3,6 +3,21 @@
   @name TopBar.svelte
   @module @devpulse/layouts/app/TopBar
   @layer lib
+
+  @description
+  Top navigation bar with search functionality and action buttons.
+
+  @props
+  - (none)
+
+  @dependencies
+  - Parasite: Plugin component for extension points
+
+  @consumers
+  - Frame.svelte: Main app layout
+
+  @vpb-editable (none)
+  @since 1.0.0
 -->
 <script lang="ts">
   import { Parasite } from "$lib/design/plugins/parasite";

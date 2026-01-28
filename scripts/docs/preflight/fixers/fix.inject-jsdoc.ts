@@ -39,13 +39,39 @@ function generateJSDoc(template: JSDocTemplate): string {
 
 function getFileJSDocHeader(filePath: string, kind: string): string {
   const basename = path.basename(filePath);
-  const dirname = path.dirname(filePath);
-  const modulePath = dirname.replace(/.*src\/lib\//, '$lib/').replace(/\\/g, '/');
+  const relativePath = filePath.replace(/\\/g, '/').replace(/.*?(src\/)/, '$1');
+
+  // Extract path after src/lib/ or src/
+  const match = filePath.match(/src\/(lib\/)?(.+)$/);
+  const modulePath = match
+    ? `@devpulse/${match[2].replace(/\\/g, '/').replace(/\.(ts|js)$/, '').replace(/\/index$/, '')}`
+    : `@devpulse/${basename.replace(/\.(ts|js)$/, '')}`;
+
+  // Determine layer
+  let layer = 'lib';
+  if (filePath.includes('/sys/')) layer = 'sys';
+  else if (filePath.includes('/routes/')) layer = 'routes';
+  else if (filePath.includes('/test/')) layer = 'test';
 
   return `/**
- * @file ${basename}
- * @module ${modulePath}/${basename.replace(/\.(ts|svelte)$/, '')}
- * @description [TODO: Describe this ${kind}]
+ * @file ${relativePath}
+ * @name ${basename}
+ * @module ${modulePath}
+ * @layer ${layer}
+ *
+ * @description
+ * [TODO: Describe this ${kind}]
+ *
+ * @exports
+ * - [TODO: List exports]
+ *
+ * @dependencies
+ * - [TODO: List imports]
+ *
+ * @consumers
+ * - [TODO: List who uses this module]
+ *
+ * @since 1.0.0
  */`;
 }
 
@@ -74,19 +100,30 @@ function injectJSDocIntoTs(filePath: string, platformRoot: string): { modified: 
   let modified = false;
   const changes: string[] = [];
 
-  // Check for file-level JSDoc
+  // Check for file-level JSDoc with complete header
   const firstStatement = sourceFile.getStatements()[0];
-  if (firstStatement && !firstStatement.getLeadingCommentRanges().some(c =>
-    c.getText().startsWith('/**')
-  )) {
+  const hasCompleteHeader = firstStatement?.getLeadingCommentRanges().some(c => {
+    const text = c.getText();
+    return text.startsWith('/**') &&
+      text.includes('@file') &&
+      text.includes('@name') &&
+      text.includes('@module') &&
+      text.includes('@layer') &&
+      text.includes('@description');
+  }) ?? false;
+
+  if (!hasCompleteHeader) {
     // Determine file kind
     let kind = 'module';
-    if (filePath.includes('/services/')) kind = 'service';
-    else if (filePath.includes('/state/')) kind = 'state module';
-    else if (filePath.includes('/contracts/')) kind = 'contract';
+    if (filePath.includes('/services/') || filePath.endsWith('.svc.ts')) kind = 'service';
+    else if (filePath.includes('/state/') || filePath.endsWith('.state.svelte.ts')) kind = 'state module';
+    else if (filePath.includes('/contracts/') || filePath.endsWith('.contract.ts')) kind = 'contract';
+    else if (filePath.includes('/registry/') || filePath.endsWith('.registry.ts')) kind = 'registry';
+    else if (filePath.includes('/types/') || filePath.endsWith('.types.ts')) kind = 'types';
+    else if (filePath.includes('/manifest/') || filePath.endsWith('.manifest.ts')) kind = 'manifest';
 
     const header = getFileJSDocHeader(filePath, kind);
-    changes.push(`+ File header JSDoc`);
+    changes.push(`+ File header JSDoc (complete)`);
     modified = true;
   }
 
@@ -131,34 +168,89 @@ function injectJSDocIntoTs(filePath: string, platformRoot: string): { modified: 
   };
 }
 
+/**
+ * Determine the layer based on file path.
+ */
+function determineLayer(filePath: string): string {
+  if (filePath.includes('/routes/')) return 'routes';
+  if (filePath.includes('/lib/')) return 'lib';
+  if (filePath.includes('/sys/')) return 'sys';
+  return 'app';
+}
+
+/**
+ * Determine component kind based on file path.
+ */
+function determineComponentKind(filePath: string): string {
+  if (filePath.includes('/pages/')) return 'page';
+  if (filePath.includes('/features/')) return 'feature';
+  if (filePath.includes('/components/')) return 'component';
+  if (filePath.includes('/layouts/')) return 'layout';
+  if (filePath.includes('/primitives/')) return 'primitive';
+  if (filePath.includes('/blocks/')) return 'block';
+  return 'component';
+}
+
+/**
+ * Generate @devpulse/ module path from file path.
+ */
+function generateModulePath(filePath: string, basename: string): string {
+  // Extract path after src/lib/ or src/routes/
+  const match = filePath.match(/src\/(lib|routes)\/(.+)$/);
+  if (!match) {
+    return `@devpulse/${basename.replace(/\.(ts|svelte)$/, '')}`;
+  }
+
+  const [, root, rest] = match;
+  const modulePath = rest
+    .replace(/\\/g, '/')
+    .replace(/\.(ts|svelte)$/, '')
+    .replace(/\/index$/, '');
+
+  return `@devpulse/${modulePath}`;
+}
+
 function injectJSDocIntoSvelte(filePath: string, platformRoot: string): { modified: boolean; diff: string } {
   const absolutePath = path.join(platformRoot, filePath);
   const content = fs.readFileSync(absolutePath, 'utf-8');
 
-  // Check if file has a component header comment
-  const hasHeader = content.includes('@file') || content.includes('@description');
+  // Check if file has a complete component header
+  const hasCompleteHeader = content.includes('@file') &&
+    content.includes('@name') &&
+    content.includes('@module') &&
+    content.includes('@layer') &&
+    content.includes('@description');
 
-  if (hasHeader) {
-    return { modified: false, diff: 'Component already has header documentation' };
+  if (hasCompleteHeader) {
+    return { modified: false, diff: 'Component already has complete header documentation' };
   }
 
   // Generate header for Svelte component
   const basename = path.basename(filePath);
-  const dirname = path.dirname(filePath);
-  const componentName = basename.replace('.svelte', '').replace('.page', '');
-
-  let kind = 'component';
-  if (filePath.includes('/pages/')) kind = 'page component';
-  else if (filePath.includes('/features/')) kind = 'feature component';
+  const relativePath = filePath.replace(/\\/g, '/').replace(/.*?(src\/)/, '$1');
+  const layer = determineLayer(filePath);
+  const kind = determineComponentKind(filePath);
+  const modulePath = generateModulePath(filePath, basename);
 
   const header = `<!--
-  @file ${basename}
-  @module ${dirname.replace(/.*src\//, '').replace(/\\/g, '/')}
-  @description [TODO: Describe this ${kind}]
+  @file ${relativePath}
+  @name ${basename}
+  @module ${modulePath}
+  @layer ${layer}
+
+  @description
+  [TODO: Describe this ${kind}]
 
   @props
-  - [TODO: List props]
+  - [TODO: propName]: [type] - [description]
 
+  @dependencies
+  - [TODO: List imports]
+
+  @consumers
+  - [TODO: List who uses this component]
+
+  @vpb-editable [TODO: List editable props]
   @since 1.0.0
 -->`;
 
