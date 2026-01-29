@@ -1,9 +1,6 @@
 /**
  * @file ColdLight Dialog
- * @description Main dialog implementation file.
- *
- * This is the named file for the dialog primitive in ColdLight.
- * It consolidates exports from types and contract for the barrel.
+ * @description Consolidates exports from types, contract, and adapter for the barrel.
  */
 
 // =============================================================================
@@ -24,9 +21,19 @@ export type {
 export {
   contract,
   dialogSlots,
-  dialogStates,
+  dialogStateTokens,
   dialogSlotStates,
   ADAPTER_ID,
   KIND,
   DATA_ATTRS,
 } from "./contract";
+
+// =============================================================================
+// ADAPTER (runtime factory)
+// =============================================================================
+
+export {
+  createDialogBuilder,
+  type DialogBuilderInstance,
+  type DialogBuilderConfig,
+} from "./adapter";

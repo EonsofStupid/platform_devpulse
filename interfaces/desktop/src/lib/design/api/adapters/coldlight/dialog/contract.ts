@@ -3,7 +3,7 @@
  * @description Links ColdLight dialog to the taxonomy SSOT.
  *
  * This file re-exports the taxonomy contract and adds ColdLight-specific
- * constants like data attribute names.
+ * constants like data attribute names. Zero MeltUI leakage.
  */
 
 // =============================================================================
@@ -13,7 +13,7 @@
 export {
   contract,
   dialogSlots,
-  dialogStates,
+  dialogStateTokens,
   dialogSlotStates,
   type DialogSlot,
   type DialogState,

@@ -1,30 +1,10 @@
 /**
  * @file Dialog Primitive Contract
- * @description Full contract for modal dialog - one of the most complex primitives
- *
- * Dialog requires:
- * - Portal rendering (escape DOM hierarchy)
- * - Focus trap (keyboard navigation contained)
- * - Scroll lock (body scroll disabled when open)
- * - Overlay (backdrop click to close)
- * - Animation states (enter/exit transitions)
- * - ARIA: dialog role, modal=true, labelledby, describedby
+ * @description Taxonomy SSOT contract for dialog kind
  */
 
-import type { PrimitiveContract, StateToken, SlotStateMap } from "$lib/design/taxonomy/types";
+import type { PrimitiveContract, SlotStateMap } from "$lib/design/taxonomy/types";
 
-/**
- * Dialog Slots
- *
- * root      - Logical container (manages open state)
- * trigger   - Element that opens the dialog
- * portal    - Renders content outside DOM hierarchy
- * overlay   - Backdrop behind dialog (click to close)
- * content   - The dialog panel itself
- * title     - Dialog heading (aria-labelledby target)
- * description - Dialog description (aria-describedby target)
- * close     - Close button
- */
 export const dialogSlots = [
   "root",
   "trigger",
@@ -38,31 +18,7 @@ export const dialogSlots = [
 
 export type DialogSlot = (typeof dialogSlots)[number];
 
-/**
- * Dialog States
- *
- * Presence: Controls visibility and DOM presence
- * - hidden: Not visible, may be removed from DOM
- * - visible: Rendered and visible
- * - inert: Rendered but non-interactive (during transitions)
- *
- * Primary: Core dialog state
- * - open: Dialog is open/active
- *
- * Focus: Focus management
- * - focused: Has focus
- * - focus-visible: Keyboard focus indicator
- * - focus-within: Contains focused element
- *
- * Interaction: User interaction feedback
- * - hover: Mouse over
- * - active: Being activated (mousedown/keydown)
- *
- * Animation: Transition states
- * - entering: Opening animation in progress
- * - exiting: Closing animation in progress
- */
-export const dialogStates = [
+export const dialogStateTokens = [
   // Presence
   "hidden",
   "visible",
@@ -79,14 +35,10 @@ export const dialogStates = [
   // Animation
   "entering",
   "exiting",
-] as const satisfies readonly StateToken[];
+] as const;
 
-export type DialogState = (typeof dialogStates)[number];
+export type DialogState = (typeof dialogStateTokens)[number];
 
-/**
- * Slot-specific allowed states
- * Each slot can only have certain states applied
- */
 export const dialogSlotStates: SlotStateMap<DialogSlot, DialogState> = {
   root: ["open"],
   trigger: ["focused", "focus-visible", "hover", "active"],
@@ -96,25 +48,61 @@ export const dialogSlotStates: SlotStateMap<DialogSlot, DialogState> = {
   title: [],
   description: [],
   close: ["focused", "focus-visible", "hover", "active"],
-};
+} as const;
 
-/**
- * The full dialog contract
- */
-export const contract: PrimitiveContract = {
-  kind: "dialog",
-  slots: dialogSlots,
-  requiredSlots: ["root", "content"],
-  states: dialogStates,
+type DialogCollectionKey = "aria" | "keyboard";
+
+const DIALOG_COLLECTIONS = {
   aria: {
     role: "dialog",
-    requiredAttrs: ["aria-modal", "aria-labelledby"],
+    requiredAttrs: ["aria-modal", "aria-labelledby"] as const,
+    optionalAttrs: ["aria-describedby"] as const,
   },
-  keyboard: [
-    "Escape",  // Close dialog
-    "Tab",     // Navigate within (trapped)
-  ],
-  provider: "meltui",
+  keyboard: ["Escape", "Tab"] as const,
+} as const;
+
+export const contract: PrimitiveContract<
+  "dialog",
+  DialogSlot,
+  DialogState,
+  DialogCollectionKey
+> = {
+  kind: "dialog",
+
+  // Locked-in: manifest must know who provides ARIA+state builders deterministically
+  ariaStateProvider: "meltui",
+
+  slots: {
+    required: ["root", "content"],
+    optional: ["trigger", "portal", "overlay", "title", "description", "close"],
+    forbidden: [],
+  },
+
+  states: {
+    shared: ["focused", "focus-visible", "focus-within", "hover", "active"],
+    specific: ["hidden", "visible", "inert", "open", "entering", "exiting"],
+  },
+
+  slotStates: dialogSlotStates,
+
+  // Multi-action per slot (declare even if empty right now)
+  slotActions: {
+    root: [],
+    trigger: [],
+    portal: [],
+    overlay: [],
+    content: [],
+    title: [],
+    description: [],
+    close: [],
+  },
+
+  // Metadata/inventories must be accessed via get(key)
+  collections: {
+    get(key) {
+      return DIALOG_COLLECTIONS[key];
+    },
+  },
 };
 
 export default contract;

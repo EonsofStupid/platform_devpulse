@@ -4,6 +4,7 @@
  *
  * These types define what consumers of the dialog primitive receive.
  * All props, slot props, and re-exported taxonomy types live here.
+ * Zero MeltUI references.
  */
 
 import type { DialogSlot, DialogState } from "$lib/design/taxonomy/kinds/primitives/dialog/contract";

@@ -10,17 +10,17 @@
 export {
   contract as dialogContract,
   dialogSlots,
-  dialogStates,
+  dialogStateTokens,
   dialogSlotStates,
   type DialogSlot,
   type DialogState,
 } from "./dialog/index.js";
 
-// Button (Custom ARIA)
+// Button (ColdLight custom ARIA)
 export {
   contract as buttonContract,
   buttonSlots,
-  buttonStates,
+  buttonStateTokens,
   buttonSlotStates,
   type ButtonSlot,
   type ButtonState,
@@ -30,7 +30,7 @@ export {
 export {
   contract as tabsContract,
   tabsSlots,
-  tabsStates,
+  tabsStateTokens,
   tabsSlotStates,
   type TabsSlot,
   type TabsState,

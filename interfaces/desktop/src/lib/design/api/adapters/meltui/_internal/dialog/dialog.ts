@@ -1,8 +1,6 @@
 /**
  * @file MeltUI Dialog
- * @description Main dialog implementation file for MeltUI adapter.
- *
- * Consolidates exports from types and contract for the barrel.
+ * @description Consolidates exports from types, contract, and factory for the barrel.
  */
 
 // =============================================================================
@@ -30,3 +28,13 @@ export {
   COLDLIGHT_ADDS,
   SLOTS,
 } from "./contract";
+
+// =============================================================================
+// FACTORY
+// =============================================================================
+
+export {
+  createMeltDialog,
+  type MeltDialogInstance,
+  type MeltDialogConfig,
+} from "./factory";

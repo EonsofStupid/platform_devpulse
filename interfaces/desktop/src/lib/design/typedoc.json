@@ -1,0 +1,41 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["./index.ts"],
+  "out": "./.cowlevel/typedoc",
+  "json": "./.cowlevel/typedoc.json",
+  "name": "@devpulse/coldlight",
+  "includeVersion": true,
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "plugin": ["typedoc-plugin-markdown"],
+  "readme": "./README.md",
+  "validation": {
+    "notExported": true,
+    "invalidLink": true,
+    "notDocumented": false
+  },
+  "categorizeByGroup": true,
+  "categoryOrder": [
+    "Tokens",
+    "Taxonomy",
+    "Recipes",
+    "Primitives",
+    "Patterns",
+    "Blocks",
+    "*"
+  ],
+  "sort": ["source-order"],
+  "kindSortOrder": [
+    "Reference",
+    "Project",
+    "Module",
+    "Namespace",
+    "Enum",
+    "EnumMember",
+    "Class",
+    "Interface",
+    "TypeAlias",
+    "Function",
+    "Variable"
+  ]
+}

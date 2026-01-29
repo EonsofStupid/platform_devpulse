@@ -3,12 +3,12 @@
   @description Dialog root component.
 
   This is the root of the dialog primitive. It:
-  - Creates the MeltUI dialog builder
+  - Creates the dialog builder via ColdLight adapter (no direct MeltUI import)
   - Shares state via Svelte context
-  - Renders the root slot with data attributes
+  - Renders the root slot with ColdLight data attributes
 -->
 <script lang="ts">
-  import { createDialog } from "@melt-ui/svelte";
+  import { createDialogBuilder } from "$lib/design/api/adapters/coldlight/dialog";
   import { setDialogContext } from "./context";
   import type { DialogProps } from "./types";
 
@@ -30,10 +30,10 @@
   }: Props = $props();
 
   // ===========================================================================
-  // MELTUI DIALOG
+  // DIALOG BUILDER (via ColdLight adapter - MeltUI is internal)
   // ===========================================================================
 
-  const dialog = createDialog({
+  const dialog = createDialogBuilder({
     defaultOpen: open,
     closeOnOutsideClick,
     escapeBehavior: closeOnEscape ? "close" : "ignore",

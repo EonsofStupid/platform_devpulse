@@ -22,9 +22,7 @@ export type { FsLike, ImportLike } from "./scanner";
 // Runtime registry
 export {
   getManifest,
-  getAdapterIds,
-  getActiveAdapterId,
-  setActiveAdapterId,
+  getDsAdapter,
   getPrimitiveKinds,
   hasPrimitiveKind,
   getPrimitive,

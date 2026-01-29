@@ -2,9 +2,7 @@
   "version": "1.0.0",
   "generatedAt": "2026-01-28T00:00:00.000Z",
   "adapters": {
-    "enabled": ["meltui"],
-    "defaultActive": "meltui",
-    "ariaStateProvider": "meltui"
+    "dsAdapter": "meltui"
   },
   "categories": {
     "primitives": {

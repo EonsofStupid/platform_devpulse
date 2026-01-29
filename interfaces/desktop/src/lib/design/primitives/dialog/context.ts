@@ -2,12 +2,15 @@
  * @file Dialog Context
  * @description Svelte context for sharing dialog state between compound components.
  *
- * The root Dialog component creates the MeltUI dialog and shares it via context.
- * Child components (Trigger, Content, etc.) access it to render their slots.
+ * The root Dialog component creates the dialog builder instance and shares
+ * it via context. Child components (Trigger, Content, etc.) access it
+ * to render their slots.
+ *
+ * Imports from ColdLight public adapter surface ONLY - no @melt-ui/svelte.
  */
 
 import { getContext, setContext } from "svelte";
-import type { createDialog } from "@melt-ui/svelte";
+import type { DialogBuilderInstance } from "$lib/design/api/adapters/coldlight/dialog";
 
 // =============================================================================
 // CONTEXT KEY
@@ -20,9 +23,10 @@ const DIALOG_CTX = Symbol("dialog");
 // =============================================================================
 
 /**
- * Dialog context type - the return value of MeltUI's createDialog.
+ * Dialog context type - the builder instance from the adapter layer.
+ * Opaque to consumers - they don't need to know it's MeltUI underneath.
  */
-export type DialogContext = ReturnType<typeof createDialog>;
+export type DialogContext = DialogBuilderInstance;
 
 // =============================================================================
 // CONTEXT API

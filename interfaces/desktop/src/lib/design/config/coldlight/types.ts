@@ -6,12 +6,6 @@
 export type ColdLightSystemId = "coldlight";
 
 /**
- * AdapterId is derived from the adapter map keys (not const arrays).
- * Add new adapters by adding keys to ADAPTERS in adapters.cfg.ts.
- */
-export type AdapterId = string & { readonly __brand: "AdapterId" };
-
-/**
  * CategoryId is the hub grouping (primitives/semantics/composites).
  * Individual things inside a category are "kinds" (e.g., dialog, tabs).
  */
@@ -35,14 +29,11 @@ export type ColdLightConfig = Readonly<{
 
   adapters: Readonly<{
     /**
-     * Enabled adapters for this project. Start with meltui only.
-     * Additional adapters are enabled later by adding them to ADAPTERS and listing them here.
+     * The design-system adapter providing ARIA + state behavior
+     * under ColdLight's public surface.
+     * ColdLight is always the SSOT — not listed here.
      */
-    enabled: readonly string[];
-    /** Default active adapter at runtime (initial selection) */
-    defaultActive: string;
-    /** Adapter providing ARIA + state builders (meltui now) */
-    ariaStateProvider: string;
+    dsAdapter: string;
   }>;
 
   generation: Readonly<{

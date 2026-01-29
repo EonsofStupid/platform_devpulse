@@ -5,7 +5,7 @@ export {
   contract,
   contract as default,
   buttonSlots,
-  buttonStates,
+  buttonStateTokens,
   buttonSlotStates,
   type ButtonSlot,
   type ButtonState,

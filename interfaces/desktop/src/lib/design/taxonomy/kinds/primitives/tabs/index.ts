@@ -5,7 +5,7 @@ export {
   contract,
   contract as default,
   tabsSlots,
-  tabsStates,
+  tabsStateTokens,
   tabsSlotStates,
   type TabsSlot,
   type TabsState,

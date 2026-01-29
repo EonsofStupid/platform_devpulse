@@ -1,8 +1,6 @@
 /**
  * @file Dialog Primitive
- * @description Main dialog implementation file.
- *
- * Consolidates exports from context, types, and contract for the barrel.
+ * @description Consolidates exports from context, types, and contract for the barrel.
  */
 
 // =============================================================================
@@ -30,6 +28,6 @@ export type {
 export {
   contract,
   dialogSlots,
-  dialogStates,
+  dialogStateTokens,
   dialogSlotStates,
 } from "./contract";

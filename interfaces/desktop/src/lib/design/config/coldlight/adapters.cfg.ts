@@ -2,23 +2,13 @@
  * @file ColdLight Adapters
  * @package @devpulse/coldlight
  *
- * SSOT adapters map (not const arrays).
- * Keys are AdapterIds.
+ * dsAdapter declares the design-system adapter that secretly provides
+ * ARIA + state behavior under ColdLight's public surface.
  *
- * Start with meltui only, because that's what exists today.
+ * ColdLight is always the SSOT — it is the system, not an adapter.
+ * Only the behavior provider is configurable.
  */
 
-import type { AdapterId } from "./types.js";
-
 export const ADAPTERS = {
-  meltui: {
-    id: "meltui",
-    label: "Melt UI",
-    role: "aria+state",
-  },
+  dsAdapter: "meltui",
 } as const;
-
-export type AdapterKey = keyof typeof ADAPTERS;
-
-/** Brand AdapterId from keys (keeps AdapterId strict without array unions). */
-export const asAdapterId = (id: AdapterKey): AdapterId => id as unknown as AdapterId;

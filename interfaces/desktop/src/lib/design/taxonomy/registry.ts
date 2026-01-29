@@ -29,12 +29,6 @@ const primitiveIndex = new Map<string, ManifestPrimitive>(
 );
 
 // =============================================================================
-// ACTIVE ADAPTER STATE
-// =============================================================================
-
-let activeAdapterId: string = manifest.adapters.defaultActive;
-
-// =============================================================================
 // REGISTRY API
 // =============================================================================
 
@@ -46,28 +40,10 @@ export function getManifest(): ColdLightManifest {
 }
 
 /**
- * Get enabled adapter IDs.
+ * Get the dsAdapter declared in config (the behavior provider under ColdLight).
  */
-export function getAdapterIds(): readonly string[] {
-  return manifest.adapters.enabled;
-}
-
-/**
- * Get the currently active adapter ID.
- */
-export function getActiveAdapterId(): string {
-  return activeAdapterId;
-}
-
-/**
- * Set the active adapter ID.
- * Throws if adapter is not enabled.
- */
-export function setActiveAdapterId(next: string): void {
-  if (!manifest.adapters.enabled.includes(next)) {
-    throw new Error(`[ColdLight] Adapter not enabled: ${next}`);
-  }
-  activeAdapterId = next;
+export function getDsAdapter(): string {
+  return manifest.adapters.dsAdapter;
 }
 
 /**

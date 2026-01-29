@@ -5,7 +5,7 @@ export {
   contract,
   contract as default,
   dialogSlots,
-  dialogStates,
+  dialogStateTokens,
   dialogSlotStates,
   type DialogSlot,
   type DialogState,

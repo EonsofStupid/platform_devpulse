@@ -1,9 +1,9 @@
 /**
- * @file MeltUI Dialog Contract
- * @description Defines what MeltUI provides vs what ColdLight adds.
+ * @file MeltUI Dialog Adapter Contract
+ * @description Defines what MeltUI provides vs what ColdLight adds for dialog.
  *
- * MeltUI handles ARIA and keyboard behavior.
- * ColdLight adds data attributes for CSS targeting.
+ * MeltUI handles ARIA and keyboard behavior via createDialog builder.
+ * ColdLight adds data attributes for CSS targeting on top.
  */
 
 import type { DialogSlot } from "$lib/design/taxonomy/kinds/primitives/dialog/contract";
@@ -27,7 +27,7 @@ export const KIND = "dialog" as const;
 
 /**
  * Attributes MeltUI handles - do not override these.
- * MeltUI manages all ARIA and accessibility attributes.
+ * MeltUI manages all ARIA and accessibility attributes for dialog.
  */
 export const MELT_HANDLES = [
   "role",
@@ -54,12 +54,10 @@ export const COLDLIGHT_ADDS = [
 
 /**
  * Slot categorization for the dialog primitive.
+ * Mirrors taxonomy contract slots structure.
  */
 export const SLOTS = {
-  /** Slots that must always be rendered */
   required: ["root", "content"] as const satisfies readonly DialogSlot[],
-
-  /** Slots that are optional based on use case */
   optional: [
     "trigger",
     "portal",

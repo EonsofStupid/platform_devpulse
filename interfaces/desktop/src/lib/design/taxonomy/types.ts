@@ -10,11 +10,15 @@
 // ADAPTER TYPES
 // =============================================================================
 
-/** Adapter providers supported by ColdLight */
-export type AdapterProvider = "meltui" | "custom";
+/** Who provides ARIA + state behavior for a primitive */
+export type AriaStateProvider = "meltui" | "coldlight";
 
-/** Branded adapter identifier */
-export type AdapterId = "coldlight" | "meltui";
+/**
+ * Design-system adapter identifier.
+ * These are the behavior providers that run under ColdLight.
+ * ColdLight itself is the SSOT system, not an adapter.
+ */
+export type DsAdapterId = "meltui";
 
 // =============================================================================
 // STATE TOKENS
@@ -73,39 +77,56 @@ export type SlotStateMap<
 > = Record<TSlot, readonly TState[]>;
 
 // =============================================================================
-// PRIMITIVE CONTRACT
+// PRIMITIVE CONTRACT (Generic)
 // =============================================================================
 
 /**
  * The shape of a primitive contract.
- * Each primitive declares its slots, states, ARIA, and keyboard requirements.
+ *
+ * Generic parameters:
+ *   TKind          - Literal kind identifier ("dialog", "button", "tabs")
+ *   TSlot          - Union of slot names for this primitive
+ *   TState         - Union of state tokens for this primitive
+ *   TCollectionKey - Union of collection keys ("aria" | "keyboard" etc)
+ *
+ * ariaStateProvider declares WHO provides ARIA+state builders.
+ * MeltUI-backed primitives: "meltui"
+ * ColdLight custom ARIA:   "coldlight"
  */
-export interface PrimitiveContract {
-  /** Unique kind identifier (e.g., "dialog", "button", "tabs") */
-  readonly kind: string;
+export interface PrimitiveContract<
+  TKind extends string = string,
+  TSlot extends string = string,
+  TState extends StateToken = StateToken,
+  TCollectionKey extends string = string
+> {
+  readonly kind: TKind;
 
-  /** All slots this primitive exposes */
-  readonly slots: readonly string[];
+  /** Locked-in: who provides ARIA+state builders deterministically */
+  readonly ariaStateProvider: AriaStateProvider;
 
-  /** Slots that MUST be rendered for accessibility */
-  readonly requiredSlots: readonly string[];
-
-  /** All states this primitive can be in */
-  readonly states: readonly StateToken[];
-
-  /** ARIA requirements */
-  readonly aria: {
-    /** Primary ARIA role */
-    readonly role: string;
-    /** Required ARIA attributes */
-    readonly requiredAttrs: readonly string[];
+  /** Slot inventory: required / optional / forbidden */
+  readonly slots: {
+    readonly required: readonly TSlot[];
+    readonly optional: readonly TSlot[];
+    readonly forbidden: readonly string[];
   };
 
-  /** Keyboard interactions this primitive handles */
-  readonly keyboard: readonly string[];
+  /** State inventory: shared across many primitives / specific to this one */
+  readonly states: {
+    readonly shared: readonly TState[];
+    readonly specific: readonly TState[];
+  };
 
-  /** Which adapter provides behavior */
-  readonly provider: AdapterProvider;
+  /** Per-slot allowed state map */
+  readonly slotStates: SlotStateMap<TSlot, TState>;
+
+  /** Per-slot action declarations (even if empty right now) */
+  readonly slotActions: Record<TSlot, readonly string[]>;
+
+  /** Metadata/inventories accessed via get(key) */
+  readonly collections: {
+    get(key: TCollectionKey): unknown;
+  };
 }
 
 // =============================================================================
@@ -114,16 +135,27 @@ export interface PrimitiveContract {
 
 /**
  * Primitive entry in the generated manifest.
+ * Flattened from PrimitiveContract for JSON serialization.
+ * collections.get() is unwound into concrete aria/keyboard fields.
  */
 export interface ManifestPrimitive {
   readonly kind: string;
-  readonly provider: AdapterProvider;
-  readonly slots: readonly string[];
-  readonly requiredSlots: readonly string[];
-  readonly states: readonly string[];
+  readonly ariaStateProvider: AriaStateProvider;
+  readonly slots: {
+    readonly required: readonly string[];
+    readonly optional: readonly string[];
+    readonly forbidden: readonly string[];
+  };
+  readonly states: {
+    readonly shared: readonly string[];
+    readonly specific: readonly string[];
+  };
+  readonly slotStates: Record<string, readonly string[]>;
+  readonly slotActions: Record<string, readonly string[]>;
   readonly aria: {
     readonly role: string;
     readonly requiredAttrs: readonly string[];
+    readonly optionalAttrs: readonly string[];
   };
   readonly keyboard: readonly string[];
 }
@@ -136,9 +168,7 @@ export interface ColdLightManifest {
   readonly version: string;
   readonly generatedAt: string;
   readonly adapters: {
-    readonly enabled: readonly string[];
-    readonly defaultActive: string;
-    readonly ariaStateProvider: string;
+    readonly dsAdapter: string;
   };
   readonly categories: {
     readonly primitives: {
@@ -172,8 +202,9 @@ export interface ScanError {
 export interface PrimitiveScanResult {
   readonly kind: string;
   readonly hasContract: boolean;
+  readonly hasColdlight: boolean;
   readonly hasSvelteComponent: boolean;
-  readonly missingAdapters: readonly AdapterId[];
+  readonly missingAdapters: readonly DsAdapterId[];
   readonly hasParity: boolean;
 }
 

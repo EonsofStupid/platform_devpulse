@@ -19,9 +19,7 @@ export const coldlightConfig = {
   roots: ROOTS,
 
   adapters: {
-    enabled: Object.keys(ADAPTERS),
-    defaultActive: "meltui",
-    ariaStateProvider: "meltui",
+    dsAdapter: ADAPTERS.dsAdapter,
   },
 
   generation: GENERATION,

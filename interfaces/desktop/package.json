@@ -20,7 +20,8 @@
         "audit:primitives:ci": "npx tsx scripts/dev/design/audit-primitives.ts --ci",
         "docs:primitives": "npx tsx scripts/dev/design/audit-primitives.ts --update-md",
         "coldlight:generate": "npx tsx scripts/coldlight/generate-manifest.ts",
-        "coldlight:verify": "npx tsx scripts/coldlight/verify-manifest.ts"
+        "coldlight:verify": "npx tsx scripts/coldlight/verify-manifest.ts",
+        "coldlight:docs": "npx typedoc --options src/lib/design/typedoc.json"
     },
     "devDependencies": {
         "@commitlint/cli": "^20.3.1",

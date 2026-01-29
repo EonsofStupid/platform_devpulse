@@ -1,9 +1,9 @@
 /**
  * @file Button Primitive Contract
- * @description Custom ARIA button - NOT backed by MeltUI
+ * @description Taxonomy SSOT contract for button kind
  *
- * Button is one of the custom ARIA primitives that ColdLight owns directly.
- * MeltUI doesn't provide a button builder, so we implement full ARIA ourselves.
+ * Button is a ColdLight custom ARIA primitive - NOT backed by MeltUI.
+ * ColdLight owns ARIA behavior directly for this kind.
  *
  * Requirements:
  * - Native <button> element preferred (free accessibility)
@@ -14,15 +14,8 @@
  * - Loading state with aria-busy
  */
 
-import type { PrimitiveContract, StateToken, SlotStateMap } from "$lib/design/taxonomy/types";
+import type { PrimitiveContract, SlotStateMap } from "$lib/design/taxonomy/types";
 
-/**
- * Button Slots
- *
- * root  - The button element itself
- * icon  - Optional icon (leading or trailing)
- * label - Text content
- */
 export const buttonSlots = [
   "root",
   "icon",
@@ -31,26 +24,7 @@ export const buttonSlots = [
 
 export type ButtonSlot = (typeof buttonSlots)[number];
 
-/**
- * Button States
- *
- * Primary: Toggle button state
- * - pressed: Toggle is on (aria-pressed="true")
- *
- * Focus: Focus management
- * - focused: Has focus
- * - focus-visible: Keyboard focus indicator
- *
- * Interaction: User interaction feedback
- * - hover: Mouse over
- * - active: Being activated (mousedown/keydown)
- *
- * Availability: Disabled/loading states
- * - disabled: Cannot interact (aria-disabled="true")
- * - loading: Async operation in progress
- * - busy: aria-busy="true" for screen readers
- */
-export const buttonStates = [
+export const buttonStateTokens = [
   // Primary
   "pressed",
   // Focus
@@ -63,36 +37,62 @@ export const buttonStates = [
   "disabled",
   "loading",
   "busy",
-] as const satisfies readonly StateToken[];
+] as const;
 
-export type ButtonState = (typeof buttonStates)[number];
+export type ButtonState = (typeof buttonStateTokens)[number];
 
-/**
- * Slot-specific allowed states
- */
 export const buttonSlotStates: SlotStateMap<ButtonSlot, ButtonState> = {
   root: ["pressed", "focused", "focus-visible", "hover", "active", "disabled", "loading", "busy"],
-  icon: ["loading"],  // Icon can show loading spinner
+  icon: ["loading"],
   label: [],
-};
+} as const;
 
-/**
- * The full button contract
- */
-export const contract: PrimitiveContract = {
-  kind: "button",
-  slots: buttonSlots,
-  requiredSlots: ["root"],
-  states: buttonStates,
+type ButtonCollectionKey = "aria" | "keyboard";
+
+const BUTTON_COLLECTIONS = {
   aria: {
     role: "button",
-    requiredAttrs: ["aria-pressed", "aria-disabled"],
+    requiredAttrs: ["aria-pressed", "aria-disabled"] as const,
+    optionalAttrs: ["aria-busy", "aria-label"] as const,
   },
-  keyboard: [
-    "Enter",  // Activate button
-    "Space",  // Activate button
-  ],
-  provider: "custom",  // NOT MeltUI - ColdLight custom ARIA
+  keyboard: ["Enter", "Space"] as const,
+} as const;
+
+export const contract: PrimitiveContract<
+  "button",
+  ButtonSlot,
+  ButtonState,
+  ButtonCollectionKey
+> = {
+  kind: "button",
+
+  // ColdLight owns ARIA directly for button (no MeltUI builder)
+  ariaStateProvider: "coldlight",
+
+  slots: {
+    required: ["root"],
+    optional: ["icon", "label"],
+    forbidden: [],
+  },
+
+  states: {
+    shared: ["focused", "focus-visible", "hover", "active", "disabled"],
+    specific: ["pressed", "loading", "busy"],
+  },
+
+  slotStates: buttonSlotStates,
+
+  slotActions: {
+    root: [],
+    icon: [],
+    label: [],
+  },
+
+  collections: {
+    get(key) {
+      return BUTTON_COLLECTIONS[key];
+    },
+  },
 };
 
 export default contract;
