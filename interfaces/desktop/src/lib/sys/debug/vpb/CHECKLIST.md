@@ -33,7 +33,7 @@
 - [ ] `scan-violations.ts` - THE KILL SWITCH
   - Scans for raw `oklch()`, `#hex`, `rgb()` in .svelte
   - Scans for arbitrary Tailwind `[...]` brackets
-  - Scans for `bits-ui` imports outside primitives/
+  - Scans for `meltui` imports outside primitives/
   - Scans for inline `style=` with visual values
   - **Build FAILS if any violations found**
 - [ ] `verify-recipes.ts` - All recipe IDs are registered
@@ -237,7 +237,7 @@ From reference images, these visual effects are required:
 ```svelte
 ❌ class="bg-[#00ff00]"           // Arbitrary Tailwind
 ❌ style="color: oklch(...)"      // Inline OKLCH
-❌ import { X } from "bits-ui"    // Outside primitives/
+❌ import { X } from "meltui"    // Outside primitives/
 ❌ onmousemove={handleGlow}       // Manual effect handlers
 ❌ --custom-var: value            // Component-scoped vars
 ```

@@ -9,7 +9,7 @@
   - aria-expanded="true/false"
   - aria-controls={contentId}
 
-  bits-ui provides ONLY behavior:
+  meltui provides ONLY behavior:
   - Click handler to open dialog
   - Keyboard handler (Enter/Space) to open dialog
 
@@ -18,7 +18,7 @@
   - data-slot="trigger"
 -->
 <script lang="ts">
-  import { Dialog } from "bits-ui";
+  import { Dialog } from "meltui";
   import { getContext } from "svelte";
   import type { DialogTriggerProps, DialogContext } from "./types.js";
   import { DIALOG_CONTEXT_KEY } from "./types.js";
@@ -40,13 +40,13 @@
 </script>
 
 <!--
-  bits-ui Dialog.Trigger provides ONLY behavior:
+  meltui Dialog.Trigger provides ONLY behavior:
   - Click handler to open dialog
   - Keyboard handler (Enter/Space) to open dialog
 
   We render our own button via child snippet.
   ColdLight sets ALL ARIA attributes explicitly.
-  NO {...props} spreading from bits-ui.
+  NO {...props} spreading from meltui.
 -->
 <Dialog.Trigger {disabled}>
   {#snippet child({ props }: { props: { onclick?: (e: MouseEvent) => void; onkeydown?: (e: KeyboardEvent) => void } })}

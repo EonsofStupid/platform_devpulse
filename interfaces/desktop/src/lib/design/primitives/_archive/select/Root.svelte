@@ -9,7 +9,7 @@
   - ALL ARIA state (open, highlighted, selected)
   - ALL data attributes
 
-  bits-ui provides ONLY:
+  meltui provides ONLY:
   - Keyboard navigation handlers
   - Click handlers
   - Positioning logic
@@ -25,7 +25,7 @@
   - data-state="open" | "closed"
 -->
 <script lang="ts">
-  import { Select, useId } from "bits-ui";
+  import { Select, useId } from "meltui";
   import { setContext } from "svelte";
   import type {
     SelectRootProps,
@@ -115,9 +115,9 @@
   const dataState: SelectState = $derived(open ? "open" : "closed");
 
   // ========================================
-  // SYNC HIGHLIGHTED STATE FROM BITS-UI
+  // SYNC HIGHLIGHTED STATE FROM MELTUI
   // ========================================
-  // bits-ui manages keyboard navigation internally.
+  // meltui manages keyboard navigation internally.
   // We listen for highlight changes via the highlightedItem callback
   // and sync to ColdLight's state.
   function handleHighlight(item: { value: string } | undefined) {

@@ -10,7 +10,7 @@
   - data-state="open" | "closed"
 -->
 <script lang="ts">
-  import { Popover } from "bits-ui";
+  import { Popover } from "meltui";
   import type { PopoverRootProps, PopoverState } from "./types.js";
 
   let {

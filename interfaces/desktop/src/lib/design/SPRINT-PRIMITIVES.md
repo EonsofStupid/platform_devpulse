@@ -6,7 +6,7 @@
 
 ## CURRENT STATE
 
-- **31 `.ts` files** — bare re-exports: `export { X } from "bits-ui"`
+- **31 `.ts` files** — bare re-exports: `export { X } from "meltui"`
 - **33 `.svelte` files** — custom primitives with ColdLight pattern
 
 **Problem:** The `.ts` re-exports have NO ColdLight pattern. No `data-kind`, `data-name`, `data-part`. No `OmitStyle`. No `stripStyleProp`.
@@ -27,7 +27,7 @@ Convert each `.ts` re-export to a proper `.svelte` wrapper.
   Bits UI Button with ColdLight pattern.
 -->
 <script lang="ts">
-  import { Button as BitsButton } from "bits-ui";
+  import { Button as BitsButton } from "meltui";
   import type { Snippet } from "svelte";
   import type { OmitStyle, BaseProps } from "./types.js";
   import { stripStyleProp } from "./types.js";

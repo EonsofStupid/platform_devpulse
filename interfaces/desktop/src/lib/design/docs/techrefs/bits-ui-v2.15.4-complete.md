@@ -1,7 +1,7 @@
 # melt-ui v2.15.4 Complete API Reference
 
 > **Extracted**: 2026-01-21
-> **Source**: `node_modules/bits-ui/dist/`
+> **Source**: `node_modules/meltui/dist/`
 > **Purpose**: Authoritative reference for ColdLight primitive development
 
 ---
@@ -209,11 +209,11 @@ export type Arrayable<T> = T[] | T;
 ```typescript
 // melt-ui/dist/shared/attributes.d.ts
 
-// bits-ui removes `id`, `style`, `children` from HTML attributes
+// meltui removes `id`, `style`, `children` from HTML attributes
 // id is required internally, style is typed differently, children uses snippets
 
 type BitsPrimitive<T> = Omit<T, "style" | "id" | "children"> & {
-  id?: string;  // NOT null - bits-ui requires string | undefined
+  id?: string;  // NOT null - meltui requires string | undefined
 };
 
 export type BitsPrimitiveButtonAttributes = BitsPrimitive<HTMLButtonAttributes>;
@@ -291,7 +291,7 @@ export type FloatingLayerContentProps = {
 ### Arrow
 
 ```typescript
-// Export path: bits-ui/dist/bits/utilities/arrow/index.d.ts
+// Export path: meltui/dist/bits/utilities/arrow/index.d.ts
 export { default as Arrow } from "./arrow.svelte";
 export type { ArrowProps } from "./types.js";
 
@@ -307,7 +307,7 @@ export type ArrowProps = ArrowPropsWithoutHTML & BitsPrimitiveSpanAttributes;
 ### PresenceLayer
 
 ```typescript
-// Export path: bits-ui/dist/bits/utilities/presence-layer/index.d.ts
+// Export path: meltui/dist/bits/utilities/presence-layer/index.d.ts
 export { default as PresenceLayer } from "./presence-layer.svelte";
 export type { PresenceLayerProps } from "./types.js";
 
@@ -738,11 +738,11 @@ export type TabsContentPropsWithoutHTML = WithChild<{
 
 ### 1. Props Pattern
 
-bits-ui uses `Without<HTMLAttributes, ComponentProps>` to merge HTML attributes with component props while preventing conflicts. The component props always take precedence.
+meltui uses `Without<HTMLAttributes, ComponentProps>` to merge HTML attributes with component props while preventing conflicts. The component props always take precedence.
 
 ### 2. `id` Constraint
 
-bits-ui requires `id` to be `string | undefined`, NOT `string | null`. This is because bits-ui uses IDs internally for element references.
+meltui requires `id` to be `string | undefined`, NOT `string | null`. This is because meltui uses IDs internally for element references.
 
 ### 3. `child` vs `children`
 
@@ -751,14 +751,14 @@ bits-ui requires `id` to be `string | undefined`, NOT `string | null`. This is b
 
 ### 4. Missing Components
 
-The following are NOT exported by bits-ui and must be provided by ColdLight:
+The following are NOT exported by meltui and must be provided by ColdLight:
 - `Select.ItemText` - just a span wrapper
 - `Select.Separator` - a div with role="separator"
 - `Select.Arrow` - must use `utilities/arrow` or `FloatingLayer.Arrow`
 
 ### 5. Prop Naming
 
-| ColdLight Assumed | bits-ui Actual | Component |
+| ColdLight Assumed | meltui Actual | Component |
 |-------------------|----------------|-----------|
 | `openDelay` | `delayDuration` | Tooltip |
 | `closeDelay` | N/A (doesn't exist) | Tooltip |
@@ -769,23 +769,23 @@ The following are NOT exported by bits-ui and must be provided by ColdLight:
 
 ```typescript
 // Public API
-import { Select, Tooltip, Dialog } from "bits-ui";
+import { Select, Tooltip, Dialog } from "meltui";
 
 // Utilities (internal paths - may change between versions)
-import { FloatingLayer } from "bits-ui/dist/bits/utilities/floating-layer/index.js";
-import { Arrow } from "bits-ui/dist/bits/utilities/arrow/index.js";
-import { PresenceLayer } from "bits-ui/dist/bits/utilities/presence-layer/index.js";
-import { FocusScope } from "bits-ui/dist/bits/utilities/focus-scope/index.js";
-import { DismissibleLayer } from "bits-ui/dist/bits/utilities/dismissible-layer/index.js";
-import { EscapeLayer } from "bits-ui/dist/bits/utilities/escape-layer/index.js";
-import { Portal } from "bits-ui/dist/bits/utilities/portal/index.js";
+import { FloatingLayer } from "meltui/dist/bits/utilities/floating-layer/index.js";
+import { Arrow } from "meltui/dist/bits/utilities/arrow/index.js";
+import { PresenceLayer } from "meltui/dist/bits/utilities/presence-layer/index.js";
+import { FocusScope } from "meltui/dist/bits/utilities/focus-scope/index.js";
+import { DismissibleLayer } from "meltui/dist/bits/utilities/dismissible-layer/index.js";
+import { EscapeLayer } from "meltui/dist/bits/utilities/escape-layer/index.js";
+import { Portal } from "meltui/dist/bits/utilities/portal/index.js";
 ```
 
 ---
 
 ## Data Attributes
 
-bits-ui adds these data attributes automatically:
+meltui adds these data attributes automatically:
 
 | Attribute | Values | Components |
 |-----------|--------|------------|
@@ -809,4 +809,4 @@ bits-ui adds these data attributes automatically:
 
 ---
 
-*This document was extracted directly from `node_modules/bits-ui/dist/` type definitions.*
+*This document was extracted directly from `node_modules/meltui/dist/` type definitions.*

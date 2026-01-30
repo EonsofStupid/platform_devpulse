@@ -119,15 +119,15 @@
 | Content | ✅ | ✅ |
 | Item | ✅ | ✅ |
 
-### ARIA from bits-ui
+### ARIA from meltui
 
 | Element | Attribute | Source |
 |---------|-----------|--------|
-| Trigger | `aria-haspopup="listbox"` | bits-ui |
-| Trigger | `aria-expanded` | bits-ui |
-| Content | `role="listbox"` | bits-ui |
-| Item | `role="option"` | bits-ui |
-| Item | `aria-selected` | bits-ui |
+| Trigger | `aria-haspopup="listbox"` | meltui |
+| Trigger | `aria-expanded` | meltui |
+| Content | `role="listbox"` | meltui |
+| Item | `role="option"` | meltui |
+| Item | `aria-selected` | meltui |
 
 ### ColdLight-Owned ARIA
 
@@ -248,7 +248,7 @@
    - `SelectItem` is not generic in types.ts
 
 2. **Arrow.svelte:38** - Legacy attribute `data-select-arrow=""` present
-   - Per PRIMITIVE_CONTRACT.md, this is acceptable for bits-ui CSS compatibility
+   - Per PRIMITIVE_CONTRACT.md, this is acceptable for meltui CSS compatibility
 
 ---
 

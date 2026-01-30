@@ -3,7 +3,7 @@
   @layer primitives
 
   Select arrow - visual indicator pointing to trigger.
-  ColdLight-owned component (bits-ui Select doesn't export Arrow).
+  ColdLight-owned component (meltui Select doesn't export Arrow).
 
   Data Attributes:
   - data-kind="select"

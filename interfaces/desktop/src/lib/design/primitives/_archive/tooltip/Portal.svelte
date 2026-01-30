@@ -9,7 +9,7 @@
   - data-slot="portal"
 -->
 <script lang="ts">
-  import { Tooltip } from "bits-ui";
+  import { Tooltip } from "meltui";
   import type { TooltipPortalProps } from "./types.js";
 
   let {

@@ -16,7 +16,7 @@
   - data-align (from Bits UI)
 -->
 <script lang="ts">
-  import { Select } from "bits-ui";
+  import { Select } from "meltui";
   import type { SelectContentProps, SelectState } from "./types.js";
   import { stripStyleProp, cn } from "../types.js";
 

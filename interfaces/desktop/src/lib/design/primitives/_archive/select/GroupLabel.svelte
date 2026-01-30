@@ -9,7 +9,7 @@
   - data-slot="group-label"
 -->
 <script lang="ts">
-  import { Select } from "bits-ui";
+  import { Select } from "meltui";
   import type { SelectGroupLabelProps } from "./types.js";
   import { stripStyleProp } from "../types.js";
 

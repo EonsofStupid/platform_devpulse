@@ -9,19 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - `primitives/_internal/` provider abstraction layer
-- `primitives/_internal/bits-ui-api.md` - Verified bits-ui v2.15.4 API reference
+- `primitives/_internal/meltui-api.md` - Verified meltui v2.15.4 API reference
 - `primitives/PRIMITIVE_CONTRACT.md` - Strict rules for primitive development
 - Explicit ARIA ownership documentation
 
 ### Changed
 - README.md updated with layer architecture and ownership contract
-- Primitives now use `_internal/` for bits-ui utility imports (FloatingLayerArrow, etc.)
+- Primitives now use `_internal/` for meltui utility imports (FloatingLayerArrow, etc.)
 - Arrow components (Select, Popover, Tooltip) standardized to use FloatingLayerArrow
 
 ### Fixed
-- Identified type incompatibilities: bits-ui requires `undefined` not `null`
+- Identified type incompatibilities: meltui requires `undefined` not `null`
 - Identified API mismatches: `textValue` → `label`, `openDelay` → `delayDuration`
-- Select.ItemText now ColdLight-owned (bits-ui doesn't export it)
+- Select.ItemText now ColdLight-owned (meltui doesn't export it)
 
 ### Deprecated
 - Nothing yet

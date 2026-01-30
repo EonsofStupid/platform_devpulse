@@ -17,7 +17,7 @@
   - data-disabled (presence attribute when disabled)
 -->
 <script lang="ts">
-  import { Select } from "bits-ui";
+  import { Select } from "meltui";
   import type { SelectItemProps } from "./types.js";
   import { cn } from "../types.js";
 
@@ -34,9 +34,9 @@
 <Select.Item {value} {disabled} {label}>
   {#snippet child({ props, selected, highlighted })}
     <!--
-      bits-ui provides selected and highlighted booleans via child snippet.
+      meltui provides selected and highlighted booleans via child snippet.
       We set data-highlighted and data-selected explicitly using these values.
-      props provides ARIA attributes and other bits-ui-managed attributes.
+      props provides ARIA attributes and other meltui-managed attributes.
     -->
     <div
       {...props}

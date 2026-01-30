@@ -9,7 +9,7 @@
   - data-slot="scroll-down"
 -->
 <script lang="ts">
-  import { Select } from "bits-ui";
+  import { Select } from "meltui";
   import type { SelectScrollDownProps } from "./types.js";
   import { stripStyleProp } from "../types.js";
 

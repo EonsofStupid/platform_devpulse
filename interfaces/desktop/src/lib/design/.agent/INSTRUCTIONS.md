@@ -150,10 +150,10 @@ type BlockNode<K extends BlockKind> = {
 ### MELTUI IMPORT RULE
 ```typescript
 // ✅ ALLOWED - only in primitives/
-import { Button } from "bits-ui";
+import { Button } from "meltui";
 
 // ❌ FORBIDDEN - anywhere else
-import { Dialog } from "bits-ui"; // NOT in components, renderers, domains
+import { Dialog } from "meltui"; // NOT in components, renderers, domains
 ```
 
 ---
@@ -240,7 +240,7 @@ export const myCategory = {
 
 ### 4. No MeltUI outside primitives/
 ```typescript
-❌ import { Dialog } from "bits-ui" // in components/
+❌ import { Dialog } from "meltui" // in components/
 ```
 
 ### 5. No visual event handlers without recipe.requires
@@ -294,8 +294,8 @@ grep -rE "(#[0-9a-fA-F]{3,}|oklch\\(|rgb\\(|hsl\\()" src/lib/design --include="*
 # 2) No arbitrary Tailwind values
 grep -rE "\\[[^\\]]+\\]" src/lib/design --include="*.ts" --include="*.svelte"
 
-# 3) No bits-ui outside primitives
-grep -r "from ['\"]bits-ui['\"]" src/lib --include="*.ts" --include="*.svelte" | grep -v "primitives"
+# 3) No meltui outside primitives
+grep -r "from ['\"]meltui['\"]" src/lib --include="*.ts" --include="*.svelte" | grep -v "primitives"
 
 # 4) Tokens pipeline clean
 pnpm ds:tokens:build

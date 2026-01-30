@@ -13,7 +13,7 @@
   - data-slot="list"
 -->
 <script lang="ts">
-	import { Tabs } from "bits-ui";
+	import { Tabs } from "meltui";
 	import type { TabsListProps } from "./types.js";
 	import { stripStyleProp, cn } from "../types.js";
 

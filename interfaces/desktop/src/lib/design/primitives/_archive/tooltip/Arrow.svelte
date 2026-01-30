@@ -10,7 +10,7 @@
   - data-tooltip-arrow=""
 -->
 <script lang="ts">
-  import { Tooltip } from "bits-ui";
+  import { Tooltip } from "meltui";
   import type { TooltipArrowProps } from "./types.js";
   import { stripStyleProp } from "../types.js";
 

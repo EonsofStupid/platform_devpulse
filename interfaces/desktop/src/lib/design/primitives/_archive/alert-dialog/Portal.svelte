@@ -9,7 +9,7 @@
   - data-slot="portal"
 -->
 <script lang="ts">
-  import { AlertDialog } from "bits-ui";
+  import { AlertDialog } from "meltui";
   import type { AlertDialogPortalProps } from "./types.js";
 
   let {

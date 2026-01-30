@@ -12,7 +12,7 @@
   - aria-describedby={descriptionId}
   - tabindex={-1}
 
-  bits-ui provides ONLY behavior:
+  meltui provides ONLY behavior:
   - Focus trapping
   - Escape key dismissal
   - Click outside dismissal
@@ -24,7 +24,7 @@
   - data-state="open" | "closed"
 -->
 <script lang="ts">
-  import { Dialog } from "bits-ui";
+  import { Dialog } from "meltui";
   import { getContext } from "svelte";
   import type { DialogContentProps, DialogState, DialogContext } from "./types.js";
   import { DIALOG_CONTEXT_KEY } from "./types.js";
@@ -63,7 +63,7 @@
 </script>
 
 <!--
-  bits-ui Dialog.Content provides ONLY behavior:
+  meltui Dialog.Content provides ONLY behavior:
   - Focus trapping (trapFocus)
   - Escape handling (onEscapeKeydown)
   - Click outside (onInteractOutside)
@@ -83,7 +83,7 @@
   {#snippet child({ props, open }: { props: Record<string, unknown>; open: boolean })}
     {@const dataState: DialogState = open ? "open" : "closed"}
     <!--
-      Spread bits-ui props FIRST (for ref attachment/focus),
+      Spread meltui props FIRST (for ref attachment/focus),
       then ColdLight OVERRIDES all ARIA attributes.
       ColdLight is SSOT - our values come last and win.
     -->

@@ -14,7 +14,7 @@
   - data-state="open" | "closed"
 -->
 <script lang="ts">
-  import { Tooltip } from "bits-ui";
+  import { Tooltip } from "meltui";
   import type { TooltipRootProps, TooltipState } from "./types.js";
 
   let {

@@ -10,7 +10,7 @@
   - data-slot="description"
 -->
 <script lang="ts">
-  import { Dialog } from "bits-ui";
+  import { Dialog } from "meltui";
   import type { SheetDescriptionProps } from "./types.js";
   import { stripStyleProp } from "../types.js";
 

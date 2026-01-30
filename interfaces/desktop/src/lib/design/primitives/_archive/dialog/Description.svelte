@@ -8,7 +8,7 @@
   - id={descriptionId} (from context, linked to Content's aria-describedby)
   - Native <p> element
 
-  bits-ui provides NOTHING for Description - pure ColdLight element.
+  meltui provides NOTHING for Description - pure ColdLight element.
 
   Data Attributes:
   - data-kind="dialog"
@@ -35,7 +35,7 @@
 <!--
   ColdLight renders native paragraph element.
   ID is set explicitly by ColdLight, linked to Content's aria-describedby.
-  NO bits-ui involvement - pure native element.
+  NO meltui involvement - pure native element.
 -->
 <p
   id={descriptionId}

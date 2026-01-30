@@ -10,7 +10,7 @@
   - data-slot="provider"
 -->
 <script lang="ts">
-  import { Tooltip } from "bits-ui";
+  import { Tooltip } from "meltui";
   import type { TooltipProviderProps } from "./types.js";
 
   let {

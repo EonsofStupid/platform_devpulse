@@ -13,7 +13,7 @@
   - data-slot="trigger"
 -->
 <script lang="ts">
-  import { Dialog } from "bits-ui";
+  import { Dialog } from "meltui";
   import type { SheetTriggerProps } from "./types.js";
   import { stripStyleProp } from "../types.js";
 

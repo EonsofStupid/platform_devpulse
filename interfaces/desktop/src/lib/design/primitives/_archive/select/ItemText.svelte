@@ -3,7 +3,7 @@
   @layer primitives
 
   Select item text - text wrapper for custom item content.
-  ColdLight owns this component - no bits-ui equivalent.
+  ColdLight owns this component - no meltui equivalent.
 
   Data Attributes:
   - data-kind="select"

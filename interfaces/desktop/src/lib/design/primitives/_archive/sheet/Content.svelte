@@ -23,7 +23,7 @@
   - data-side="left" | "right" | "top" | "bottom"
 -->
 <script lang="ts">
-  import { Dialog } from "bits-ui";
+  import { Dialog } from "meltui";
   import type { SheetContentProps, SheetState } from "./types.js";
   import { stripStyleProp, cn } from "../types.js";
 

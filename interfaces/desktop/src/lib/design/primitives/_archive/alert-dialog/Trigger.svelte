@@ -13,7 +13,7 @@
   - data-slot="trigger"
 -->
 <script lang="ts">
-  import { AlertDialog } from "bits-ui";
+  import { AlertDialog } from "meltui";
   import type { AlertDialogTriggerProps } from "./types.js";
   import { stripStyleProp } from "../types.js";
 

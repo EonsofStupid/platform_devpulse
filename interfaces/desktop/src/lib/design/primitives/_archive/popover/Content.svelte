@@ -18,7 +18,7 @@
   - data-align (from Bits UI)
 -->
 <script lang="ts">
-  import { Popover } from "bits-ui";
+  import { Popover } from "meltui";
   import type { PopoverContentProps, PopoverState } from "./types.js";
   import { stripStyleProp, cn } from "../types.js";
 

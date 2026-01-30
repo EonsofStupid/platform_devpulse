@@ -8,7 +8,7 @@
   - Native div element
   - All data attributes
 
-  bits-ui provides ONLY behavior:
+  meltui provides ONLY behavior:
   - Presence management (mount/unmount)
 
   Data Attributes:
@@ -17,7 +17,7 @@
   - data-state="open" | "closed"
 -->
 <script lang="ts">
-  import { Dialog } from "bits-ui";
+  import { Dialog } from "meltui";
   import type { DialogOverlayProps, DialogState } from "./types.js";
 
   let {
@@ -28,7 +28,7 @@
 </script>
 
 <!--
-  bits-ui Dialog.Overlay provides ONLY behavior:
+  meltui Dialog.Overlay provides ONLY behavior:
   - Presence management (mount/unmount animations)
   - Ref attachment
 

@@ -15,7 +15,7 @@
   - data-slot="trigger"
 -->
 <script lang="ts">
-  import { Popover } from "bits-ui";
+  import { Popover } from "meltui";
   import type { PopoverTriggerProps } from "./types.js";
   import { stripStyleProp } from "../types.js";
 

@@ -7,7 +7,7 @@
   ColdLight OWNS:
   - Native button element
 
-  bits-ui provides ONLY behavior:
+  meltui provides ONLY behavior:
   - Click handler to close dialog
   - Keyboard handler (Enter/Space) to close dialog
 
@@ -16,7 +16,7 @@
   - data-slot="close"
 -->
 <script lang="ts">
-  import { Dialog } from "bits-ui";
+  import { Dialog } from "meltui";
   import type { DialogCloseProps } from "./types.js";
 
   let {
@@ -28,7 +28,7 @@
 </script>
 
 <!--
-  bits-ui Dialog.Close provides ONLY behavior:
+  meltui Dialog.Close provides ONLY behavior:
   - Click handler to close dialog
   - Keyboard handler (Enter/Space) to close dialog
 

@@ -59,7 +59,7 @@ MeltUI (ARIA + behavior) → _internal (mapping) → ColdLight Primitive
 - **MeltUI owns**: `role`, `aria-*`, `tabindex`, focus, keyboard
 - **ColdLight owns**: `data-kind`, `data-slot`, `data-state`, `class`
 
-Primitives import from `_internal`, NEVER from bits-ui directly.
+Primitives import from `_internal`, NEVER from meltui directly.
 
 ---
 

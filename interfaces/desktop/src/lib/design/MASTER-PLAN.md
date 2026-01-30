@@ -116,7 +116,7 @@ MaterialRegistry.glass = {
 
 ### Adapter Pattern
 
-Primitives import from `_internal`, never directly from `bits-ui`:
+Primitives import from `_internal`, never directly from `meltui`:
 
 ```svelte
 <!-- CORRECT -->

@@ -109,7 +109,7 @@ interface DsSurfaceProps {
 3. **VPB Writes Code** - It's a code generator, not just a previewer
 4. **Token IDs, Not Strings** - Components accept constrained enums, VPB can enumerate
 5. **SSOT in TypeScript** - `index.ts` files ARE the single source of truth
-6. **Bits UI Boundary** - Only `primitives/` imports from `bits-ui`
+6. **Bits UI Boundary** - Only `primitives/` imports from `meltui`
 7. **Validate at Boundaries** - VPB load, API response, not every render
 8. **Vite Plugin Enforces** - Violations block builds. No exceptions.
 

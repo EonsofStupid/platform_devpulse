@@ -44,7 +44,7 @@ export type SelectState = "open" | "closed";
 /**
  * Context for ColdLight-owned Select state.
  * ColdLight is the SINGLE SOURCE OF TRUTH for all IDs and ARIA state.
- * bits-ui is ONLY used for behavior (keyboard handling, positioning, portal).
+ * meltui is ONLY used for behavior (keyboard handling, positioning, portal).
  *
  * WAI-ARIA Combobox Pattern Requirements (W3C APG):
  * - Trigger: role="combobox", aria-haspopup="listbox", aria-expanded, aria-controls, aria-activedescendant
@@ -107,7 +107,7 @@ export type SelectAlign = "start" | "center" | "end";
 
 /** Item definition for typeahead lookup */
 export interface SelectItem {
-  /** Unique value for this item (bits-ui requires string) */
+  /** Unique value for this item (meltui requires string) */
   value: string;
   /** Display label for typeahead and lookup */
   label: string;
@@ -220,7 +220,7 @@ export interface SelectViewportProps extends Omit<HTMLAttributes<HTMLDivElement>
 // ============================================
 
 export interface SelectItemProps {
-  /** Item value (bits-ui requires string) */
+  /** Item value (meltui requires string) */
   value: string;
   /** Disable this item */
   disabled?: boolean;

@@ -10,7 +10,7 @@
   - data-state="open" | "closed"
 -->
 <script lang="ts">
-  import { Dialog } from "bits-ui";
+  import { Dialog } from "meltui";
   import type { SheetOverlayProps, SheetState } from "./types.js";
   import { stripStyleProp, cn } from "../types.js";
 

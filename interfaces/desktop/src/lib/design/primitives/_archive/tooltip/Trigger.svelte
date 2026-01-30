@@ -12,7 +12,7 @@
   - data-slot="trigger"
 -->
 <script lang="ts">
-  import { Tooltip } from "bits-ui";
+  import { Tooltip } from "meltui";
   import type { TooltipTriggerProps } from "./types.js";
   import { stripStyleProp } from "../types.js";
 

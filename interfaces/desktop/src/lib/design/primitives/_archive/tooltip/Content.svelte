@@ -17,7 +17,7 @@
   - data-align (from Bits UI)
 -->
 <script lang="ts">
-  import { Tooltip } from "bits-ui";
+  import { Tooltip } from "meltui";
   import type { TooltipContentProps, TooltipState } from "./types.js";
   import { stripStyleProp, cn } from "../types.js";
 

@@ -10,7 +10,7 @@
   - data-slot="description"
 -->
 <script lang="ts">
-  import { AlertDialog } from "bits-ui";
+  import { AlertDialog } from "meltui";
   import type { AlertDialogDescriptionProps } from "./types.js";
   import { stripStyleProp } from "../types.js";
 

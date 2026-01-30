@@ -62,7 +62,7 @@ The **DevPulse Hub** is the global overview and entry point. Community engagemen
 - Framework-agnostic abstractions
 - Custom headless primitive implementations
 - CSS-in-JS libraries
-- Direct bits-ui imports (use `$lib/design/sys/api/_internal`)
+- Direct meltui imports (use `$lib/design/sys/api/_internal`)
 
 ---
 
@@ -173,12 +173,12 @@ base + semantic + recipe + modifiers
 
 ## Adapter Pattern (CRITICAL)
 
-**NEVER import directly from bits-ui. Use the adapter layer.**
+**NEVER import directly from meltui. Use the adapter layer.**
 
 ```svelte
 <!-- WRONG -->
 <script>
-  import { Button } from "bits-ui";
+  import { Button } from "meltui";
 </script>
 
 <!-- CORRECT -->

@@ -37,7 +37,7 @@ export type DialogState = "open" | "closed";
 
 /**
  * Context for sharing ColdLight-generated IDs between Dialog components.
- * ColdLight owns ALL IDs - bits-ui is NOT used for ID generation.
+ * ColdLight owns ALL IDs - meltui is NOT used for ID generation.
  */
 export interface DialogContext {
   /** ID for the Content element - used for aria-controls on Trigger */

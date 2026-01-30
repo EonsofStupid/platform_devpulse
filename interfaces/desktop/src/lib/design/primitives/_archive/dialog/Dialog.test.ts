@@ -23,7 +23,7 @@ describe("Dialog Primitive", () => {
   // COLDLIGHT ARIA OWNERSHIP (MANDATORY)
   // ============================================
   // These tests verify ColdLight owns ALL ARIA attributes.
-  // bits-ui is used ONLY for behavior, NOT for ARIA.
+  // meltui is used ONLY for behavior, NOT for ARIA.
 
   describe("ColdLight ARIA ownership", () => {
     it("ColdLight sets role=dialog", async () => {

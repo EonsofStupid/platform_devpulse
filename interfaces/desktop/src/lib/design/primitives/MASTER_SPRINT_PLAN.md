@@ -1,7 +1,7 @@
 # ColdLight Primitives — Master Sprint Plan
 
 > **Senior Dev Protocol**: No code without a plan. No plan without requirements.
-> **Source**: docs/notes.md, PRIMITIVE_CONTRACT.md, bits-ui source (tech_refs/bits-ui)
+> **Source**: docs/notes.md, PRIMITIVE_CONTRACT.md, meltui source (tech_refs/meltui)
 > **Created**: 2026-01-22
 > **Status**: ACTIVE
 
@@ -11,7 +11,7 @@
 
 ### Core Principle: ColdLight Owns ARIA
 
-bits-ui is a **behavior engine only**. It provides:
+meltui is a **behavior engine only**. It provides:
 - Positioning (Floating UI)
 - Focus trapping
 - Keyboard navigation
@@ -27,14 +27,14 @@ bits-ui is a **behavior engine only**. It provides:
 
 ### The _internal Abstraction
 
-All bits-ui imports MUST go through `_internal/index.ts`:
+All meltui imports MUST go through `_internal/index.ts`:
 
 ```typescript
 // CORRECT
 import { FloatingLayerArrow } from "./_internal/index.js";
 
 // WRONG
-import FloatingLayerArrow from "bits-ui/dist/bits/utilities/...";
+import FloatingLayerArrow from "meltui/dist/bits/utilities/...";
 ```
 
 ### Data Attribute Contract
@@ -53,7 +53,7 @@ Every component MUST have:
 
 ### Tier 1: Core Interactions (COMPLETE - Audit Required)
 
-| Sprint | Primitive | Status | bits-ui Mapping | ARIA Owner |
+| Sprint | Primitive | Status | meltui Mapping | ARIA Owner |
 |--------|-----------|--------|-----------------|------------|
 | 1 | Button | EXISTS | Button | ColdLight |
 | 2 | Dialog | EXISTS | Dialog | ColdLight |
@@ -66,7 +66,7 @@ Every component MUST have:
 
 ### Tier 2: Form Controls (TODO)
 
-| Sprint | Primitive | Status | bits-ui Mapping | ARIA Owner |
+| Sprint | Primitive | Status | meltui Mapping | ARIA Owner |
 |--------|-----------|--------|-----------------|------------|
 | 9 | Checkbox | TODO | Checkbox | ColdLight |
 | 10 | Switch | TODO | Switch | ColdLight |
@@ -77,7 +77,7 @@ Every component MUST have:
 
 ### Tier 3: Navigation (TODO)
 
-| Sprint | Primitive | Status | bits-ui Mapping | ARIA Owner |
+| Sprint | Primitive | Status | meltui Mapping | ARIA Owner |
 |--------|-----------|--------|-----------------|------------|
 | 15 | DropdownMenu | TODO | DropdownMenu | ColdLight |
 | 16 | ContextMenu | TODO | ContextMenu | ColdLight |
@@ -88,7 +88,7 @@ Every component MUST have:
 
 ### Tier 4: Data Display (TODO)
 
-| Sprint | Primitive | Status | bits-ui Mapping | ARIA Owner |
+| Sprint | Primitive | Status | meltui Mapping | ARIA Owner |
 |--------|-----------|--------|-----------------|------------|
 | 21 | Progress | TODO | Progress | ColdLight |
 | 22 | Meter | TODO | Meter | ColdLight |
@@ -98,7 +98,7 @@ Every component MUST have:
 
 ### Tier 5: Date/Time (TODO)
 
-| Sprint | Primitive | Status | bits-ui Mapping | ARIA Owner |
+| Sprint | Primitive | Status | meltui Mapping | ARIA Owner |
 |--------|-----------|--------|-----------------|------------|
 | 26 | Calendar | TODO | Calendar | ColdLight |
 | 27 | DatePicker | TODO | DatePicker | ColdLight |
@@ -107,7 +107,7 @@ Every component MUST have:
 
 ### Tier 6: Complex (TODO)
 
-| Sprint | Primitive | Status | bits-ui Mapping | ARIA Owner |
+| Sprint | Primitive | Status | meltui Mapping | ARIA Owner |
 |--------|-----------|--------|-----------------|------------|
 | 30 | Combobox | TODO | Combobox | ColdLight |
 | 31 | Command | TODO | Command | ColdLight |
@@ -116,11 +116,11 @@ Every component MUST have:
 
 ---
 
-## bits-ui → ColdLight COMPONENT MAPPING
+## meltui → ColdLight COMPONENT MAPPING
 
 ### Select
 
-| bits-ui Export | ColdLight Name | Notes |
+| meltui Export | ColdLight Name | Notes |
 |----------------|----------------|-------|
 | `Select.Root` | `Select.Root` | Direct |
 | `Select.Trigger` | `Select.Trigger` | Direct |
@@ -139,7 +139,7 @@ Every component MUST have:
 
 ### Tooltip
 
-| bits-ui Export | ColdLight Name | Notes |
+| meltui Export | ColdLight Name | Notes |
 |----------------|----------------|-------|
 | `Tooltip.Provider` | Implicit in Root | ColdLight wraps |
 | `Tooltip.Root` | `Tooltip.Root` | Includes Provider |
@@ -150,7 +150,7 @@ Every component MUST have:
 
 ### Dialog
 
-| bits-ui Export | ColdLight Name | Notes |
+| meltui Export | ColdLight Name | Notes |
 |----------------|----------------|-------|
 | `Dialog.Root` | `Dialog.Root` | Direct |
 | `Dialog.Trigger` | `Dialog.Trigger` | Direct |
@@ -163,7 +163,7 @@ Every component MUST have:
 
 ### Popover
 
-| bits-ui Export | ColdLight Name | Notes |
+| meltui Export | ColdLight Name | Notes |
 |----------------|----------------|-------|
 | `Popover.Root` | `Popover.Root` | Direct |
 | `Popover.Trigger` | `Popover.Trigger` | Direct |
@@ -175,7 +175,7 @@ Every component MUST have:
 
 ### Tabs
 
-| bits-ui Export | ColdLight Name | Notes |
+| meltui Export | ColdLight Name | Notes |
 |----------------|----------------|-------|
 | `Tabs.Root` | `Tabs.Root` | Direct |
 | `Tabs.List` | `Tabs.List` | **ADDS role="tablist"** |
@@ -189,11 +189,11 @@ Every component MUST have:
 ### Sprint N: {Primitive}
 
 **Pre-Flight Checklist**:
-- [ ] Read bits-ui source: `tech_refs/bits-ui/packages/bits-ui/src/lib/bits/{name}/`
+- [ ] Read meltui source: `tech_refs/meltui/packages/meltui/src/lib/bits/{name}/`
 - [ ] Identify all exports from `exports.ts`
 - [ ] Check if child snippet provides state (grep for `snippetProps`)
-- [ ] Document ARIA attributes bits-ui provides vs ColdLight must add
-- [ ] Map bits-ui names to ColdLight names
+- [ ] Document ARIA attributes meltui provides vs ColdLight must add
+- [ ] Map meltui names to ColdLight names
 
 **Files to Create**:
 ```
@@ -230,20 +230,20 @@ pnpm audit:primitives                         # Shows complete
 |-----------|------|----------------|-------|-------|
 | Dialog | Content | `role="dialog"` | ColdLight | Manual |
 | Dialog | Content | `aria-modal="true"` | ColdLight | Manual |
-| Dialog | Content | `aria-labelledby` | bits-ui | From props |
-| Dialog | Content | `aria-describedby` | bits-ui | From props |
+| Dialog | Content | `aria-labelledby` | meltui | From props |
+| Dialog | Content | `aria-describedby` | meltui | From props |
 | AlertDialog | Content | `role="alertdialog"` | ColdLight | Manual |
 | AlertDialog | Content | `aria-modal="true"` | ColdLight | Manual |
-| Tooltip | Content | `role="tooltip"` | ColdLight | **bits-ui doesn't add** |
-| Select | Trigger | `role="combobox"` | bits-ui | From props |
-| Select | Trigger | `aria-haspopup="listbox"` | bits-ui | From props |
-| Select | Content | `role="listbox"` | bits-ui | From props |
-| Select | Item | `role="option"` | bits-ui | From props |
-| Select | Item | `aria-selected` | bits-ui | From props |
+| Tooltip | Content | `role="tooltip"` | ColdLight | **meltui doesn't add** |
+| Select | Trigger | `role="combobox"` | meltui | From props |
+| Select | Trigger | `aria-haspopup="listbox"` | meltui | From props |
+| Select | Content | `role="listbox"` | meltui | From props |
+| Select | Item | `role="option"` | meltui | From props |
+| Select | Item | `aria-selected` | meltui | From props |
 | Tabs | List | `role="tablist"` | ColdLight | Manual |
-| Tabs | Trigger | `role="tab"` | bits-ui | From props |
-| Tabs | Trigger | `aria-selected` | bits-ui | From props |
-| Tabs | Content | `role="tabpanel"` | bits-ui | From props |
+| Tabs | Trigger | `role="tab"` | meltui | From props |
+| Tabs | Trigger | `aria-selected` | meltui | From props |
+| Tabs | Content | `role="tabpanel"` | meltui | From props |
 | Popover | Content | No role | N/A | Non-modal disclosure |
 | Separator | - | `role="separator"` | ColdLight | Manual |
 
@@ -276,7 +276,7 @@ Audit all 8 existing primitives against PRIMITIVE_CONTRACT.md.
 4. **ARIA**
    - [ ] All required ARIA attributes present
    - [ ] ColdLight-owned ARIA set explicitly
-   - [ ] bits-ui ARIA spread via `{...props}`
+   - [ ] meltui ARIA spread via `{...props}`
 
 5. **Tests**
    - [ ] Test file exists
@@ -340,9 +340,9 @@ Notes:
 
 ## REFERENCE
 
-### bits-ui Source Location
+### meltui Source Location
 ```
-tech_refs/bits-ui/packages/bits-ui/src/lib/bits/{primitive}/
+tech_refs/meltui/packages/meltui/src/lib/bits/{primitive}/
 ├── index.ts           # Re-exports exports.ts
 ├── exports.ts         # Public component exports
 ├── types.ts           # Type definitions
@@ -359,7 +359,7 @@ tech_refs/bits-ui/packages/bits-ui/src/lib/bits/{primitive}/
 ### Quick API Check
 ```bash
 # Check if component exposes state in child snippet
-grep -A10 "snippetProps" tech_refs/bits-ui/packages/bits-ui/src/lib/bits/{name}/{name}.svelte.ts
+grep -A10 "snippetProps" tech_refs/meltui/packages/meltui/src/lib/bits/{name}/{name}.svelte.ts
 ```
 
 ---

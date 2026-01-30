@@ -17,7 +17,7 @@
   - data-id (user-defined)
 -->
 <script lang="ts">
-  import { Button as BitsButton } from "bits-ui";
+  import { Button as BitsButton } from "meltui";
   import type { ButtonProps } from "./types.js";
   import { stripStyleProp } from "../types.js";
 

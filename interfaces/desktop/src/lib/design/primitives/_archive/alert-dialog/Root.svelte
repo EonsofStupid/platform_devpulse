@@ -10,7 +10,7 @@
   - data-state="open" | "closed"
 -->
 <script lang="ts">
-  import { AlertDialog } from "bits-ui";
+  import { AlertDialog } from "meltui";
   import type { AlertDialogRootProps, AlertDialogState } from "./types.js";
 
   let {

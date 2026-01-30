@@ -9,7 +9,7 @@
   - data-slot="viewport"
 -->
 <script lang="ts">
-  import { Select } from "bits-ui";
+  import { Select } from "meltui";
   import type { SelectViewportProps } from "./types.js";
   import { stripStyleProp } from "../types.js";
 

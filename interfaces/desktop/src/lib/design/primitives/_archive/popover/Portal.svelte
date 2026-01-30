@@ -9,7 +9,7 @@
   - data-slot="portal"
 -->
 <script lang="ts">
-  import { Popover } from "bits-ui";
+  import { Popover } from "meltui";
   import type { PopoverPortalProps } from "./types.js";
 
   let {

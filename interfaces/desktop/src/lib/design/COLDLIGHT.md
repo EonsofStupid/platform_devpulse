@@ -345,7 +345,7 @@ pnpm test:run primitives/   # Run primitive tests
 
 ### 0.1.0 (In Development)
 
-- Melt UI as ARIA provider (replacing bits-ui)
+- Melt UI as ARIA provider (replacing meltui)
 - Taxonomy-first architecture
 - Three-tier model (Primitive → Semantic → Compound)
 - `{name}.svelte` file naming convention

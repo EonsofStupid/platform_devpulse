@@ -16,7 +16,7 @@
   - data-value="{value}"
 -->
 <script lang="ts">
-	import { Tabs } from "bits-ui";
+	import { Tabs } from "meltui";
 	import type { TabsContentProps, TabsState } from "./types.js";
 	import { stripStyleProp, cn } from "../types.js";
 

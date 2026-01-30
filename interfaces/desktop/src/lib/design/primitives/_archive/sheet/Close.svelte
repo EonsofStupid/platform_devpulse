@@ -9,7 +9,7 @@
   - data-slot="close"
 -->
 <script lang="ts">
-  import { Dialog } from "bits-ui";
+  import { Dialog } from "meltui";
   import type { SheetCloseProps } from "./types.js";
   import { stripStyleProp } from "../types.js";
 

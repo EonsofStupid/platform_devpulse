@@ -14,7 +14,7 @@
   - data-slot="trigger"
 -->
 <script lang="ts">
-  import { Select } from "bits-ui";
+  import { Select } from "meltui";
   import type { SelectTriggerProps } from "./types.js";
   import { stripStyleProp } from "../types.js";
 

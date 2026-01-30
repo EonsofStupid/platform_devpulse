@@ -2,8 +2,8 @@
 
 > **LAW. NO EXCEPTIONS. NO SHORTCUTS. NO HACKS.**
 >
-> **Melt UI** = ARIA Provider (roles, aria-*, IDs, focus, keyboard)
-> **ColdLight** = Design System (data-kind, data-slot, data-state, types, registry, audit)
+> **MeltUI** = dsAdapter. Behavior + ARIA provider (roles, aria-*, IDs, focus, keyboard) via `use:melt`
+> **ColdLight** = Design System SSOT (data-kind, data-slot, data-state, types, contracts, registry, audit)
 
 ---
 
@@ -11,9 +11,10 @@
 
 | Decision | Value |
 |----------|-------|
-| **Provider** | Melt UI is the behavior + ARIA provider |
+| **dsAdapter** | MeltUI is the active behavior + ARIA provider, declared in `config/coldlight/adapters.cfg.ts` |
 | **Ownership** | ColdLight owns API boundary + structure + taxonomy |
-| **ARIA** | Handled by Melt UI via `use:melt={$element}` |
+| **ARIA** | Handled by MeltUI via `use:melt={$element}` on slot components |
+| **Imports** | All dsAdapter imports go through the import cloak (`taxonomy/.generated/imports.gen.ts`) |
 
 ---
 
@@ -21,7 +22,7 @@
 
 | Tier | Description | Example |
 |------|-------------|---------|
-| **A) Primitive** | Melt UI wrapper. Emits data-kind/slot/state. ARIA via Melt. | `dialog.svelte` |
+| **A) Primitive** | Structure + data attributes. dsAdapter behavior via `use:melt`. | `Dialog.svelte` |
 | **B) Semantic** | Styled component from primitives + recipes. User-facing API. | `MainButton.svelte` |
 | **C) Compound** | Structured assembly from semantics. Forms, panels, flows. | `LoginForm.svelte` |
 
@@ -49,26 +50,29 @@ Nothing else is required at the primitive boundary.
 
 ## FILE NAMING CONVENTION (LOCKED)
 
-Primitives use **literal naming**:
+Primitives use **PascalCase naming**:
 
 ```
-primitives/{name}/
-├── {name}.svelte              # Main component
-├── {name}.trigger.svelte      # Trigger slot
-├── {name}.content.svelte      # Content slot
-├── {name}.{slot}.svelte       # Other slots
-├── index.ts                   # Barrel export (imports/exports ONLY)
+primitives/{kind}/
+├── {Kind}.svelte              # Root component
+├── {Kind}Trigger.svelte       # Trigger slot
+├── {Kind}Content.svelte       # Content slot
+├── {Kind}{Slot}.svelte        # Other slots
+├── contract.ts                # Re-exports taxonomy contract
+├── context.ts                 # Svelte context for child slots
 ├── types.ts                   # Type definitions
+├── index.ts                   # Barrel export (imports/exports ONLY)
 ├── a11y.md                    # Accessibility contract
-├── {name}.test.svelte         # Test wrapper
-└── {name}.test.ts             # Tests (vitest-browser-svelte)
+├── {Kind}.test.svelte         # Test wrapper
+└── {Kind}.test.ts             # Tests (vitest-browser-svelte)
 ```
 
 **Rules:**
-- Folder name == primitive name
-- Main file is always `{name}.svelte`
-- Sub-slots are `{name}.{slot}.svelte`
+- Folder name == kind name (lowercase)
+- Root component is `{Kind}.svelte` (PascalCase)
+- Slot components are `{Kind}{Slot}.svelte` (PascalCase, kind-prefixed)
 - `index.ts` is clean import/export only (NO LOGIC)
+- `contract.ts` re-exports from `taxonomy/kinds/primitives/{kind}/contract.ts`
 
 ---
 
@@ -76,129 +80,185 @@ primitives/{name}/
 
 **BEFORE writing ANY primitive code:**
 
-### 0.1 Verify Kind Exists
+### 0.1 Create Colocated Contract
 
 ```typescript
-// taxonomy/primitiveKinds.ts
-export const PrimitiveKinds = [
-  // ...
-  "dialog",  // ← Must exist
-  // ...
+// taxonomy/kinds/primitives/{kind}/contract.ts
+
+import type { PrimitiveContract, SlotStateMap } from "$lib/design/taxonomy/types";
+
+export const dialogSlots = [
+  "root",
+  "trigger",
+  "portal",
+  "overlay",
+  "content",
+  "title",
+  "description",
+  "close",
 ] as const;
-```
 
-- [ ] Kind registered in `taxonomy/primitiveKinds.ts`
-- [ ] `isPrimitiveKind()` validates it
+export type DialogSlot = (typeof dialogSlots)[number];
 
-### 0.2 Verify Slots Exist
+export const dialogStateTokens = [
+  "hidden", "visible", "open",
+  "focused", "focus-visible", "focus-within",
+  "hover", "active",
+  "entering", "exiting",
+] as const;
 
-```typescript
-// taxonomy/primitiveRegistry.ts
-export const PrimitiveSlots = {
-  dialog: ["root", "trigger", "portal", "overlay", "content", "header", "title", "description", "footer", "close"] as const,
-};
-```
+export type DialogState = (typeof dialogStateTokens)[number];
 
-- [ ] Slots registered in `taxonomy/primitiveRegistry.ts`
-- [ ] All required slots defined
+export const dialogSlotStates: SlotStateMap<DialogSlot, DialogState> = {
+  root: ["open"],
+  trigger: ["focused", "focus-visible", "hover", "active"],
+  portal: ["hidden", "visible"],
+  overlay: ["visible", "entering", "exiting", "hover"],
+  content: ["open", "focus-within", "entering", "exiting"],
+  title: [],
+  description: [],
+  close: ["focused", "focus-visible", "hover", "active"],
+} as const;
 
-### 0.3 Verify Metadata
+export const contract: PrimitiveContract<
+  "dialog",
+  DialogSlot,
+  DialogState,
+  "aria" | "keyboard"
+> = {
+  kind: "dialog",
+  ariaStateProvider: "meltui",  // or "coldlight" for native elements
 
-```typescript
-// taxonomy/primitiveRegistry.ts
-export const PrimitiveMetadata: Record<PrimitiveKind, PrimitiveMetadata> = {
-  dialog: {
-    description: "Modal dialog",
-    meltBuilder: "createDialog",  // ← Melt UI builder name
-    ariaRole: "dialog",
-    managesFocus: true,
-    supportsControlled: true,
+  slots: {
+    required: ["root", "content"],
+    optional: ["trigger", "portal", "overlay", "title", "description", "close"],
+    forbidden: [],
+  },
+
+  states: {
+    shared: ["focused", "focus-visible", "focus-within", "hover", "active"],
+    specific: ["hidden", "visible", "open", "entering", "exiting"],
+  },
+
+  slotStates: dialogSlotStates,
+
+  slotActions: {
+    root: [], trigger: [], portal: [], overlay: [],
+    content: [], title: [], description: [], close: [],
+  },
+
+  collections: {
+    get(key) {
+      return {
+        aria: {
+          role: "dialog",
+          requiredAttrs: ["aria-modal", "aria-labelledby"],
+          optionalAttrs: ["aria-describedby"],
+        },
+        keyboard: ["Escape", "Tab"],
+      }[key];
+    },
   },
 };
+
+export default contract;
 ```
 
-- [ ] Metadata entry exists
-- [ ] `meltBuilder` references correct Melt UI builder
-- [ ] ARIA role documented
-- [ ] Focus management documented
+- [ ] Contract created at `taxonomy/kinds/primitives/{kind}/contract.ts`
+- [ ] Uses `PrimitiveContract` type from `taxonomy/types.ts`
+- [ ] `ariaStateProvider` set correctly (`"meltui"` or `"coldlight"`)
+- [ ] All slots declared
+- [ ] All states declared
+- [ ] `SlotStateMap` maps each slot to its valid states
+- [ ] Barrel index at `taxonomy/kinds/primitives/{kind}/index.ts`
 
-### 0.4 Verify State Enum (if stateful)
+### 0.2 Verify ariaStateProvider
 
-- [ ] State type exists (e.g., `DialogState = "open" | "closed"`)
+| Value | Meaning | Example |
+|-------|---------|---------|
+| `"meltui"` | dsAdapter provides ARIA via `use:melt`. 3-folder parity (taxonomy + adapter + primitive). | dialog, tabs, select |
+| `"coldlight"` | Native HTML handles ARIA. 2-folder parity (taxonomy + primitive). No adapter factory needed. | button, badge, kbd |
+
+- [ ] `ariaStateProvider` matches the kind's ARIA strategy
 
 **DO NOT proceed to Step 1 until Step 0 is complete.**
 
 ---
 
-## STEP 1: PROVIDER LAYER (_internal/melt/)
+## STEP 1: dsADAPTER FACTORY (if ariaStateProvider = "meltui")
 
-The `design/api/adapters/meltui/` folder isolates Melt UI integration.
+The `api/adapters/meltui/_internal/{kind}/` folder isolates MeltUI integration.
+
+**Skip this step if `ariaStateProvider: "coldlight"`.**
 
 ### Required Files
 
 ```
-sys/api/_internal/
-├── README.md           # Integration documentation
-├── index.ts            # Barrel export
-└── melt/
-    ├── index.ts        # Melt-specific barrel
-    ├── types.ts        # Builder return types
-    ├── state.ts        # State extraction helpers
-    └── schemas.ts      # Zod validation schemas
+api/adapters/meltui/_internal/{kind}/
+├── factory.ts          # Wraps MeltUI builder
+├── types.ts            # Element → slot mapping, state → token mapping
+├── {kind}.ts           # Consolidates exports
+└── index.ts            # Barrel
 ```
 
-### 1.1 types.ts
+### 1.1 factory.ts
 
 ```typescript
-import type { CreateDialogReturn, CreateSelectReturn } from '@melt-ui/svelte';
+// api/adapters/meltui/_internal/dialog/factory.ts
 
-/** Dialog builder return type for context */
-export type DialogBuilder = CreateDialogReturn;
+import { createDialog, type CreateDialogProps } from "@melt-ui/svelte";
 
-/** Extract elements from builder */
-export type BuilderElements<T> = T extends { elements: infer E } ? E : never;
+export type MeltDialogInstance = ReturnType<typeof createDialog>;
+export type MeltDialogConfig = CreateDialogProps;
 
-/** Extract states from builder */
-export type BuilderStates<T> = T extends { states: infer S } ? S : never;
-```
-
-### 1.2 state.ts
-
-```typescript
-/** Extract open/closed state string */
-export function extractOpenState(open: boolean): 'open' | 'closed' {
-  return open ? 'open' : 'closed';
-}
-
-/** Extract active/inactive state string */
-export function extractActiveState(active: boolean): 'active' | 'inactive' {
-  return active ? 'active' : 'inactive';
+export function createMeltDialog(config: MeltDialogConfig): MeltDialogInstance {
+  return createDialog(config);
 }
 ```
 
-### 1.3 schemas.ts
+### 1.2 types.ts
 
 ```typescript
-import { z } from 'zod';
+// api/adapters/meltui/_internal/dialog/types.ts
 
-export const OpenStatePropsSchema = z.object({
-  open: z.boolean().optional(),
-  onOpenChange: z.function().args(z.boolean()).returns(z.void()).optional(),
-});
+import type { DialogSlot, DialogState }
+  from "$lib/design/taxonomy/kinds/primitives/dialog/contract";
 
-export const PositioningPropsSchema = z.object({
-  side: z.enum(['top', 'right', 'bottom', 'left']).optional(),
-  sideOffset: z.number().optional(),
-  align: z.enum(['start', 'center', 'end']).optional(),
-  alignOffset: z.number().optional(),
-});
+export const MELT_ELEMENTS = [
+  "trigger", "overlay", "content", "title",
+  "description", "close", "portalled",
+] as const;
+
+export type MeltDialogElement = (typeof MELT_ELEMENTS)[number];
+
+export const ELEMENT_TO_SLOT: Record<MeltDialogElement, DialogSlot> = {
+  trigger: "trigger",
+  overlay: "overlay",
+  content: "content",
+  title: "title",
+  description: "description",
+  close: "close",
+  portalled: "portal",
+} as const;
 ```
 
-- [ ] `_internal/melt/` folder exists
-- [ ] `types.ts` exports builder types
-- [ ] `state.ts` exports state helpers
-- [ ] `schemas.ts` exports validation schemas
-- [ ] `index.ts` barrel exports all
+### 1.3 Import Cloak Entry
+
+The factory is exposed via the import cloak at `taxonomy/.generated/imports.gen.ts`:
+
+```typescript
+// AUTO-GENERATED — DO NOT EDIT
+export { createMeltDialog as createDialog }
+  from "$lib/design/api/adapters/meltui/_internal/dialog/factory";
+export { melt } from "@melt-ui/svelte";
+```
+
+Primitives NEVER import from `@melt-ui/svelte` directly. All imports go through the cloak.
+
+- [ ] Factory wraps MeltUI builder
+- [ ] Types map MeltUI elements → ColdLight slots
+- [ ] Import cloak updated in `taxonomy/.generated/imports.gen.ts`
+- [ ] Barrel exports all
 
 ---
 
@@ -210,24 +270,16 @@ Every primitive MUST have a `types.ts` with:
 
 ```typescript
 export const DialogSlots = [
-  'root',
-  'trigger',
-  'portal',
-  'overlay',
-  'content',
-  'header',
-  'title',
-  'description',
-  'footer',
-  'close',
+  'root', 'trigger', 'portal', 'overlay',
+  'content', 'title', 'description', 'close',
 ] as const;
 
 export type DialogSlot = (typeof DialogSlots)[number];
 ```
 
-- [ ] `{Name}Slots` array exported
-- [ ] `{Name}Slot` type exported
-- [ ] Matches `taxonomy/primitiveRegistry.ts`
+- [ ] `{Kind}Slots` array exported
+- [ ] `{Kind}Slot` type exported
+- [ ] Matches taxonomy contract
 
 ### 2.2 State Type (if stateful)
 
@@ -235,7 +287,7 @@ export type DialogSlot = (typeof DialogSlots)[number];
 export type DialogState = 'open' | 'closed';
 ```
 
-- [ ] `{Name}State` type exported
+- [ ] `{Kind}State` type exported
 
 ### 2.3 Context Key (REQUIRED)
 
@@ -243,7 +295,7 @@ export type DialogState = 'open' | 'closed';
 export const DIALOG_CONTEXT_KEY = 'coldlight-dialog';
 ```
 
-- [ ] `{NAME}_CONTEXT_KEY` exported
+- [ ] `{KIND}_CONTEXT_KEY` exported
 - [ ] Prefixed with `coldlight-`
 
 ### 2.4 Props Interfaces (ONE PER SLOT)
@@ -276,18 +328,18 @@ export interface DialogContentProps
 
 ---
 
-## STEP 3: COMPONENT FILES ({name}.svelte)
+## STEP 3: COMPONENT FILES
 
-### 3.1 Main Component ({name}.svelte)
+### 3.1 Root Component ({Kind}.svelte)
 
 ```svelte
 <!--
-  @file primitives/dialog/dialog.svelte
+  @file primitives/dialog/Dialog.svelte
   @layer primitives
 
-  Dialog root - creates Melt builder and shares via context.
+  Dialog root - creates dsAdapter builder via import cloak, shares via context.
 
-  Melt UI provides:
+  dsAdapter (MeltUI) provides:
   - State management (open/closed)
   - Builder for child elements
 
@@ -302,7 +354,7 @@ export interface DialogContentProps
   - data-state="open" | "closed"
 -->
 <script lang="ts">
-  import { createDialog } from '@melt-ui/svelte';
+  import { createDialog } from '$lib/design/taxonomy/.generated/imports.gen';
   import { setContext } from 'svelte';
   import type { DialogRootProps, DialogState } from './types.js';
   import { DIALOG_CONTEXT_KEY } from './types.js';
@@ -315,7 +367,7 @@ export interface DialogContentProps
   }: DialogRootProps = $props();
 
   // ============================================
-  // MELT UI BUILDER
+  // dsADAPTER BUILDER (via import cloak)
   // ============================================
   const dialog = createDialog({
     defaultOpen: open,
@@ -348,21 +400,22 @@ export interface DialogContentProps
 </div>
 ```
 
-- [ ] File header documents Melt/ColdLight responsibilities
-- [ ] Creates Melt builder
+- [ ] File header documents dsAdapter/ColdLight responsibilities
+- [ ] Imports from import cloak (NOT from `@melt-ui/svelte`)
+- [ ] Creates dsAdapter builder
 - [ ] Shares builder via `setContext()`
 - [ ] Has `data-kind`, `data-slot`, `data-state`
 
-### 3.2 Interactive Slot Components ({name}.{slot}.svelte)
+### 3.2 Slot Components ({Kind}{Slot}.svelte)
 
 ```svelte
 <!--
-  @file primitives/dialog/dialog.content.svelte
+  @file primitives/dialog/DialogContent.svelte
   @layer primitives
 
-  Dialog content - main container with Melt ARIA.
+  Dialog content - main container.
 
-  Melt UI provides:
+  dsAdapter (MeltUI) provides via use:melt:
   - role="dialog", aria-modal, aria-labelledby, aria-describedby
   - Focus trapping
   - Escape key handling
@@ -377,7 +430,7 @@ export interface DialogContentProps
   - data-state="open" | "closed"
 -->
 <script lang="ts">
-  import { melt } from '@melt-ui/svelte';
+  import { melt } from '$lib/design/taxonomy/.generated/imports.gen';
   import { getContext } from 'svelte';
   import type { DialogContentProps, DialogState } from './types.js';
   import { DIALOG_CONTEXT_KEY } from './types.js';
@@ -390,7 +443,7 @@ export interface DialogContentProps
     ...rest
   }: DialogContentProps = $props();
 
-  stripStyleProp(rest, 'Dialog.Content');
+  stripStyleProp(rest, 'DialogContent');
 
   // ============================================
   // GET BUILDER FROM CONTEXT
@@ -404,15 +457,6 @@ export interface DialogContentProps
   const dataState: DialogState = $derived($open ? 'open' : 'closed');
 </script>
 
-<!--
-  use:melt applies:
-  - role="dialog"
-  - aria-modal="true"
-  - aria-labelledby (linked to title)
-  - aria-describedby (linked to description)
-  - Focus trap
-  - Event handlers
--->
 <div
   use:melt={$content}
   class={className}
@@ -429,7 +473,8 @@ export interface DialogContentProps
 ```
 
 - [ ] Gets builder via `getContext()`
-- [ ] Uses `use:melt={$element}` for ARIA
+- [ ] Imports `melt` from import cloak (NOT from `@melt-ui/svelte`)
+- [ ] Uses `use:melt={$element}` for dsAdapter behavior
 - [ ] Has `data-kind`, `data-slot`, `data-state`
 - [ ] `{...rest}` for passthrough props
 
@@ -446,14 +491,14 @@ export interface DialogContentProps
  */
 
 // Components
-export { default as Root } from './dialog.svelte';
-export { default as Trigger } from './dialog.trigger.svelte';
-export { default as Portal } from './dialog.portal.svelte';
-export { default as Overlay } from './dialog.overlay.svelte';
-export { default as Content } from './dialog.content.svelte';
-export { default as Title } from './dialog.title.svelte';
-export { default as Description } from './dialog.description.svelte';
-export { default as Close } from './dialog.close.svelte';
+export { default as Root } from './Dialog.svelte';
+export { default as Trigger } from './DialogTrigger.svelte';
+export { default as Portal } from './DialogPortal.svelte';
+export { default as Overlay } from './DialogOverlay.svelte';
+export { default as Content } from './DialogContent.svelte';
+export { default as Title } from './DialogTitle.svelte';
+export { default as Description } from './DialogDescription.svelte';
+export { default as Close } from './DialogClose.svelte';
 
 // Types
 export type {
@@ -474,7 +519,7 @@ export { DialogSlots, DIALOG_CONTEXT_KEY } from './types.js';
 
 - [ ] `index.ts` is imports/exports ONLY
 - [ ] NO logic in index.ts
-- [ ] All slot components exported
+- [ ] All slot components exported (PascalCase filenames)
 - [ ] All types exported
 - [ ] Slots array and context key exported
 
@@ -485,7 +530,7 @@ export { DialogSlots, DIALOG_CONTEXT_KEY } from './types.js';
 ```typescript
 // primitives/index.ts
 
-// Dialog - ColdLight wrapped primitive
+// Dialog - ColdLight primitive
 export * as Dialog from "./dialog/index.js";
 export type {
   DialogRootProps,
@@ -511,16 +556,16 @@ export { DialogSlots, DIALOG_CONTEXT_KEY } from "./dialog/index.js";
 > Modal dialog for focused user interaction.
 > Based on [WAI-ARIA Dialog Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/).
 
-## ARIA Behavior
+## ARIA Behavior (provided by dsAdapter via use:melt)
 
 | Attribute | Element | Value | Source |
 |-----------|---------|-------|--------|
-| `role` | Content | `"dialog"` | Melt UI |
-| `aria-modal` | Content | `"true"` | Melt UI |
-| `aria-labelledby` | Content | Title ID | Melt UI |
-| `aria-describedby` | Content | Description ID | Melt UI |
-| `aria-haspopup` | Trigger | `"dialog"` | Melt UI |
-| `aria-expanded` | Trigger | `"true"/"false"` | Melt UI |
+| `role` | Content | `"dialog"` | MeltUI |
+| `aria-modal` | Content | `"true"` | MeltUI |
+| `aria-labelledby` | Content | Title ID | MeltUI |
+| `aria-describedby` | Content | Description ID | MeltUI |
+| `aria-haspopup` | Trigger | `"dialog"` | MeltUI |
+| `aria-expanded` | Trigger | `"true"/"false"` | MeltUI |
 
 ## Keyboard Interaction
 
@@ -541,11 +586,11 @@ export { DialogSlots, DIALOG_CONTEXT_KEY } from "./dialog/index.js";
 - [ ] ARIA behavior documented
 - [ ] Keyboard interaction documented
 - [ ] Focus management documented
-- [ ] Sources correctly attributed (Melt UI vs ColdLight)
+- [ ] Sources correctly attributed (dsAdapter vs ColdLight)
 
 ---
 
-## STEP 7: TESTS ({name}.test.ts)
+## STEP 7: TESTS ({Kind}.test.ts)
 
 ### Minimum Test Counts (ENFORCED)
 
@@ -562,9 +607,9 @@ export { DialogSlots, DIALOG_CONTEXT_KEY } from "./dialog/index.js";
 ```typescript
 describe('Dialog Primitive', () => {
   // ============================================
-  // ARIA (Melt UI provides)
+  // ARIA (dsAdapter provides via use:melt)
   // ============================================
-  describe('ARIA (Melt UI)', () => {
+  describe('ARIA (dsAdapter)', () => {
     it('content has role="dialog"', async () => {});
     it('content has aria-modal="true"', async () => {});
     it('content has aria-labelledby linked to title', async () => {});
@@ -627,7 +672,7 @@ describe('Dialog Primitive', () => {
 
 - [ ] Test file exists
 - [ ] Minimum test count met
-- [ ] ARIA presence tests (verify Melt)
+- [ ] ARIA presence tests (verify dsAdapter)
 - [ ] Data attribute tests (verify ColdLight)
 - [ ] Keyboard navigation tests
 - [ ] Focus management tests
@@ -639,60 +684,62 @@ describe('Dialog Primitive', () => {
 ## STEP 8: VERIFICATION
 
 ```bash
-cd interfaces/desktop/src
+cd interfaces/desktop
 
 # Type check
-pnpm check
+pnpm svelte-check
 
 # Run tests for primitive
-pnpm test:run lib/design/primitives/{name}/
+pnpm test:run lib/design/primitives/{kind}/
 
 # Run all primitive tests
 pnpm test:run lib/design/primitives/
 
-# Audit primitives
-pnpm audit:primitives
+# Scanner validation
+pnpm coldlight:verify
 ```
 
-- [ ] `pnpm check` passes (no type errors)
+- [ ] `pnpm svelte-check` passes (no type errors)
 - [ ] All tests pass
-- [ ] Audit shows primitive complete
+- [ ] Scanner validates parity
 
 ---
 
 ## SIGN-OFF CHECKLIST
 
 ### Taxonomy (Step 0)
-- [ ] Kind registered in `primitiveKinds.ts`
-- [ ] Slots registered in `primitiveRegistry.ts`
-- [ ] Metadata entry exists with `meltBuilder`
-- [ ] State type exists (if stateful)
+- [ ] Contract at `taxonomy/kinds/primitives/{kind}/contract.ts`
+- [ ] `ariaStateProvider` set correctly
+- [ ] All slots and states declared
+- [ ] Barrel index at `taxonomy/kinds/primitives/{kind}/index.ts`
 
-### Provider Layer (Step 1)
-- [ ] `_internal/melt/` folder structured
-- [ ] Builder types exported
-- [ ] State helpers exported
+### dsAdapter Factory (Step 1 — meltui kinds only)
+- [ ] Factory at `api/adapters/meltui/_internal/{kind}/factory.ts`
+- [ ] Types map MeltUI elements → ColdLight slots
+- [ ] Import cloak updated
+- [ ] Barrel exports all
 
 ### Types (Step 2)
-- [ ] `{Name}Slots` array exported
-- [ ] `{Name}Slot` type exported
-- [ ] `{Name}State` type exported (if stateful)
-- [ ] `{NAME}_CONTEXT_KEY` exported
+- [ ] `{Kind}Slots` array exported
+- [ ] `{Kind}Slot` type exported
+- [ ] `{Kind}State` type exported (if stateful)
+- [ ] `{KIND}_CONTEXT_KEY` exported
 - [ ] Props interface for EVERY slot
 - [ ] Every Props has `"data-id"?: string`
 - [ ] JSDoc on all interfaces
 
 ### Components (Step 3)
-- [ ] `{name}.svelte` file for every slot
-- [ ] File naming: `{name}.{slot}.svelte`
+- [ ] `{Kind}.svelte` root component
+- [ ] `{Kind}{Slot}.svelte` for every slot (PascalCase)
 - [ ] Every `.svelte` has file header
-- [ ] Root creates Melt builder
+- [ ] Root creates dsAdapter builder via import cloak
 - [ ] Root shares builder via `setContext()`
 - [ ] Children get builder via `getContext()`
-- [ ] Interactive elements use `use:melt={$element}`
+- [ ] Slot components use `use:melt={$element}` for dsAdapter behavior
+- [ ] NO direct imports from `@melt-ui/svelte` — import cloak only
 
 ### Data Attributes (Steps 3-4)
-- [ ] Every component has `data-kind="{name}"`
+- [ ] Every component has `data-kind="{kind}"`
 - [ ] Every component has `data-slot="{slot}"`
 - [ ] Stateful components have `data-state`
 - [ ] `data-id` passed through when provided
@@ -705,7 +752,7 @@ pnpm audit:primitives
 
 ### Documentation (Step 6)
 - [ ] `a11y.md` exists
-- [ ] ARIA behavior documented
+- [ ] ARIA behavior documented with source attribution
 - [ ] Keyboard interaction documented
 - [ ] Focus management documented
 
@@ -719,57 +766,61 @@ pnpm audit:primitives
 - [ ] ALL TESTS PASS
 
 ### Verification (Step 8)
-- [ ] `pnpm check` passes
+- [ ] `pnpm svelte-check` passes
 - [ ] All tests pass
-- [ ] Audit shows complete
+- [ ] Scanner validates parity
 
 ---
 
-## WHAT MELT UI PROVIDES
+## WHAT MeltUI (dsAdapter) PROVIDES
 
-ColdLight does NOT set these — Melt handles them via `use:melt`:
+ColdLight does NOT set these — the dsAdapter handles them via `use:melt`:
 
-| Attribute | Melt Sets | ColdLight Sets |
-|-----------|-----------|----------------|
-| `role` | ✅ | ❌ |
-| `aria-*` | ✅ | ❌ |
-| `id` (ARIA linking) | ✅ | ❌ |
-| `tabindex` | ✅ | ❌ |
-| `data-melt-*` | ✅ | ❌ (ignore) |
-| `data-kind` | ❌ | ✅ |
-| `data-slot` | ❌ | ✅ |
-| `data-state` | ❌ | ✅ |
-| `data-id` | ❌ | ✅ |
-| `class` | ❌ | ✅ |
+| Attribute | dsAdapter Sets | ColdLight Sets |
+|-----------|----------------|----------------|
+| `role` | Yes | No |
+| `aria-*` | Yes | No |
+| `id` (ARIA linking) | Yes | No |
+| `tabindex` | Yes | No |
+| `data-melt-*` | Yes | No (ignore) |
+| `data-kind` | No | Yes |
+| `data-slot` | No | Yes |
+| `data-state` | No | Yes |
+| `data-id` | No | Yes |
+| `class` | No | Yes |
 
 ---
 
 ## SUMMARY
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  Melt UI OWNS:                                              │
-│  • ARIA attributes (role, aria-*)                           │
-│  • ID generation and linking                                │
-│  • Focus management                                         │
-│  • Keyboard navigation                                      │
-│  • Event handlers                                           │
-│  • Floating positioning                                     │
-│  • Portal rendering                                         │
-└─────────────────────────────────────────────────────────────┘
++-----------------------------------------------------------------+
+|  dsAdapter (MeltUI) OWNS:                                       |
+|  - ARIA attributes (role, aria-*)                               |
+|  - ID generation and linking                                    |
+|  - Focus management                                             |
+|  - Keyboard navigation                                          |
+|  - Event handlers                                               |
+|  - Floating positioning                                         |
+|  - Portal rendering                                             |
+|  - Applied via use:melt on slot components                      |
+|  - Hidden behind import cloak (taxonomy/.generated/imports.gen) |
++-----------------------------------------------------------------+
 
-┌─────────────────────────────────────────────────────────────┐
-│  ColdLight OWNS:                                            │
-│  • data-kind (taxonomy)                                     │
-│  • data-slot (slot identification)                          │
-│  • data-state (visual state)                                │
-│  • data-id (user-controlled)                                │
-│  • class (recipe styling)                                   │
-│  • Type system (props interfaces)                           │
-│  • Registry (taxonomy alignment)                            │
-│  • Tests (robust, minimum counts)                           │
-│  • Documentation (a11y.md)                                  │
-└─────────────────────────────────────────────────────────────┘
++-----------------------------------------------------------------+
+|  ColdLight OWNS:                                                |
+|  - data-kind (taxonomy)                                         |
+|  - data-slot (slot identification)                              |
+|  - data-state (visual state)                                    |
+|  - data-id (user-controlled)                                    |
+|  - class (recipe styling)                                       |
+|  - Type system (props interfaces)                               |
+|  - Contracts (colocated at taxonomy/kinds/primitives/{kind}/)   |
+|  - Registry (runtime manifest lookup)                           |
+|  - Scanner (build-time validation)                              |
+|  - Tests (robust, minimum counts)                               |
+|  - Documentation (a11y.md)                                      |
++-----------------------------------------------------------------+
 ```
 
 ---

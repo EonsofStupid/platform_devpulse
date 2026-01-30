@@ -8,7 +8,7 @@
   - id={titleId} (from context, linked to Content's aria-labelledby)
   - Native heading element (<h1>-<h6>) based on level prop
 
-  bits-ui provides NOTHING for Title - pure ColdLight element.
+  meltui provides NOTHING for Title - pure ColdLight element.
 
   Data Attributes:
   - data-kind="dialog"
@@ -36,7 +36,7 @@
 <!--
   ColdLight renders native heading element.
   ID is set explicitly by ColdLight, linked to Content's aria-labelledby.
-  NO bits-ui involvement - pure native element.
+  NO meltui involvement - pure native element.
 -->
 {#if level === 1}
   <h1

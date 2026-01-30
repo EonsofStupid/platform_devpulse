@@ -9,7 +9,7 @@
   - data-slot="close"
 -->
 <script lang="ts">
-  import { Popover } from "bits-ui";
+  import { Popover } from "meltui";
   import type { PopoverCloseProps } from "./types.js";
   import { stripStyleProp } from "../types.js";
 
