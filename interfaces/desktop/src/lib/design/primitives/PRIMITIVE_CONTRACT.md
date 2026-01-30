@@ -1,260 +1,93 @@
-# ColdLight Primitive Contract
+﻿# Primitive Contract
 
-> **NO WIGGLE ROOM** — These rules are absolute.
-
----
-
-## Core Principle
-
-**ColdLight explicitly owns all accessibility.**
-
-melt-ui is a behavior engine. It provides:
-- Positioning (Floating UI)
-- Focus trapping
-- Keyboard navigation
-- Click outside detection
-- Escape key handling
-- Portal rendering
-
-melt-ui does NOT own:
-- ARIA attributes (we set them)
-- Data attributes (we set them)
-- Props interface (we define it)
-- Rendered markup structure (we control it)
+> **How primitives bind to taxonomy contracts.**
 
 ---
 
-## Data Attribute Contract
+## The Binding
 
-Every primitive component MUST set these attributes:
+Every primitive folder contains a `contract.ts` that re-exports the taxonomy contract:
 
-### Required Attributes
+`	ypescript
+// primitives/tabs/contract.ts
+export { contract } from '/design/taxonomy/kinds/primitives/tabs/contract';
+`
 
-| Attribute | Purpose | Example |
-|-----------|---------|---------|
-| `data-kind` | Identifies the primitive family | `"select"`, `"dialog"`, `"tooltip"` |
-| `data-slot` | Identifies the slot within primitive | `"trigger"`, `"content"`, `"item"` |
-
-### Conditional Attributes
-
-| Attribute | When | Values |
-|-----------|------|--------|
-| `data-state` | Component has open/closed or active/inactive state | `"open"`, `"closed"`, `"active"`, `"inactive"` |
-| `data-selected` | Item can be selected | Present when selected, absent when not |
-| `data-highlighted` | Item can be highlighted/focused | Present when highlighted, absent when not |
-| `data-disabled` | Component can be disabled | Present when disabled, absent when not |
-| `data-side` | Positioned content (popover, tooltip) | `"top"`, `"right"`, `"bottom"`, `"left"` |
-
-### Optional Attributes
-
-| Attribute | Purpose |
-|-----------|---------|
-| `data-id` | User-defined stable ID for testing/styling |
-
-### Legacy Attributes (for melt-ui compatibility)
-
-Some melt-ui CSS relies on these. Include them but consider deprecated:
-- `data-select-arrow=""`, `data-popover-arrow=""`, etc.
+This creates a binding between:
+- The SSOT contract in taxonomy
+- The implementation in primitives
 
 ---
 
-## Props Contract
+## What the Contract Declares
 
-### What ColdLight Props Include
+| Field | Purpose | Used By |
+|-------|---------|---------|
+| kind | Primitive identity | Scanner, registry |
+| ariaStateProvider | Which dsAdapter fulfills behavior | Scanner, blocks |
+| slots | Required/optional/forbidden slots | Scanner, components |
+| states | Shared and kind-specific states | Components |
+| slotStates | Which states apply to which slots | Components |
+| collections.aria | ARIA requirements | Blocks (at render) |
+| collections.keyboard | Keyboard requirements | Blocks (at render) |
 
-```typescript
-interface PrimitiveProps {
-  // Class for styling
-  class?: string;
+---
 
-  // User-defined stable ID
-  "data-id"?: string;
+## Primitives Do NOT Apply ARIA
 
-  // Children snippet
-  children?: Snippet;
+The contract DECLARES ARIA requirements.
+The contract does NOT apply ARIA.
 
-  // Component-specific props (documented per primitive)
+ARIA is applied at BLOCK RENDER TIME where context is known.
+
+Primitives only provide:
+- data-kind
+- data-slot
+- data-state
+
+---
+
+## ariaStateProvider
+
+| Value | Meaning |
+|-------|---------|
+| meltui | MeltUI provides state management. ARIA applied at block level. |
+| coldlight | ColdLight handles natively (e.g., native button). |
+
+---
+
+## Example
+
+`	ypescript
+// taxonomy/kinds/primitives/tabs/contract.ts (SSOT)
+export const contract = {
+  kind: "tabs",
+  ariaStateProvider: "meltui",
+  slots: { required: ["root", "list", "trigger", "content"] },
   // ...
-}
-```
+};
+`
 
-### What ColdLight Props EXCLUDE
+`	ypescript
+// primitives/tabs/contract.ts (binding)
+export { contract } from '/design/taxonomy/kinds/primitives/tabs/contract';
+`
 
-```typescript
-// ❌ NEVER in ColdLight props
-interface Forbidden {
-  style?: never;        // No inline styles - use class
-  id?: never;           // Use data-id instead (melt-ui manages id)
-  ref?: never;          // Only on specific components that need it
-}
-```
+`svelte
+<!-- primitives/tabs/Tabs.svelte (implementation) -->
+<div data-kind="tabs" data-slot="root">
+  <!-- NO ARIA here -->
+  {@render children?.()}
+</div>
+`
 
-### Type Pattern
-
-```typescript
-// ✅ CORRECT - Explicit props, no HTML attribute spreading
-export interface SelectTriggerProps {
-  class?: string;
-  "data-id"?: string;
-  disabled?: boolean;
-  children?: Snippet;
-}
-
-// ❌ WRONG - Extends HTML attributes (causes null vs undefined issues)
-export interface SelectTriggerProps extends HTMLButtonAttributes {
-  // ...
-}
-```
+`svelte
+<!-- blocks/settings/SettingsTabs.svelte (ARIA applied) -->
+<Tabs {...aria.root}>
+  <!-- ARIA applied here at block level -->
+</Tabs>
+`
 
 ---
 
-## ARIA Ownership
-
-ColdLight sets ARIA attributes explicitly. We do NOT rely on melt-ui spreading them.
-
-### Pattern for Content Components
-
-```svelte
-<BitsComponent {...rest}>
-  {#snippet child({ props, open })}
-    <div
-      {...props}
-      role="dialog"              <!-- ColdLight sets this -->
-      aria-modal="true"          <!-- ColdLight sets this -->
-      aria-labelledby={titleId}  <!-- ColdLight sets this -->
-      data-kind="dialog"
-      data-slot="content"
-      data-state={open ? "open" : "closed"}
-    >
-      {@render children()}
-    </div>
-  {/snippet}
-</BitsComponent>
-```
-
-### ARIA Reference by Primitive
-
-| Primitive | Slot | ARIA |
-|-----------|------|------|
-| Dialog | content | `role="dialog"`, `aria-modal="true"`, `aria-labelledby`, `aria-describedby` |
-| AlertDialog | content | `role="alertdialog"`, `aria-modal="true"`, `aria-labelledby`, `aria-describedby` |
-| Select | trigger | `role="combobox"`, `aria-expanded`, `aria-haspopup="listbox"` |
-| Select | content | `role="listbox"` |
-| Select | item | `role="option"`, `aria-selected` |
-| Tooltip | content | `role="tooltip"` |
-| Tabs | list | `role="tablist"` |
-| Tabs | trigger | `role="tab"`, `aria-selected`, `aria-controls` |
-| Tabs | content | `role="tabpanel"`, `aria-labelledby` |
-
----
-
-## File Structure per Primitive
-
-```
-primitives/
-├── select/
-│   ├── index.ts              # Re-exports all components
-│   ├── types.ts              # Type definitions
-│   ├── Root.svelte
-│   ├── Trigger.svelte
-│   ├── Content.svelte
-│   ├── Item.svelte
-│   ├── ItemText.svelte       # ColdLight-owned (no melt-ui equivalent)
-│   ├── ItemGroup.svelte
-│   ├── GroupLabel.svelte
-│   ├── Separator.svelte
-│   ├── ScrollUp.svelte
-│   ├── ScrollDown.svelte
-│   ├── Arrow.svelte          # Uses FloatingLayerArrow from _internal
-│   ├── Portal.svelte
-│   ├── a11y.md               # Accessibility documentation
-│   └── [Primitive].test.ts   # Tests
-```
-
----
-
-## Component Template
-
-```svelte
-<!--
-  @file primitives/[primitive]/[Slot].svelte
-  @layer primitives
-
-  [Description of component purpose]
-
-  Data Attributes:
-  - data-kind="[primitive]"
-  - data-slot="[slot]"
-  - data-state="[states if applicable]"
-
-  ARIA:
-  - role="[role]"
-  - aria-[attribute]="[value]"
--->
-<script lang="ts">
-  import { [BitsComponent] } from "melt-ui";
-  import type { [Props] } from "./types.js";
-
-  let {
-    class: className = "",
-    "data-id": dataId,
-    children,
-    ...rest
-  }: [Props] = $props();
-</script>
-
-<[BitsComponent] {...rest}>
-  {#snippet child({ props, [state] })}
-    <[element]
-      {...props}
-      class={className}
-      role="[role]"
-      aria-[attribute]="[value]"
-      data-kind="[primitive]"
-      data-slot="[slot]"
-      data-state={[state]}
-      data-id={dataId}
-    >
-      {#if children}
-        {@render children()}
-      {/if}
-    </[element]>
-  {/snippet}
-</[BitsComponent]>
-```
-
----
-
-## Testing Requirements
-
-Every primitive MUST have:
-
-1. **Unit tests** (`[Primitive].test.ts`)
-   - Renders without error
-   - Has correct data attributes
-   - Has correct ARIA attributes
-   - Keyboard navigation works
-
-2. **Accessibility tests**
-   - aXe or similar a11y audit passes
-   - Screen reader announcement is correct
-
-3. **Visual test** (`[Primitive].test.svelte`)
-   - Renders all states
-   - Used for visual regression
-
----
-
-## Checklist for New Primitive
-
-- [ ] Create folder `primitives/[name]/`
-- [ ] Create `types.ts` with explicit props (no HTML attribute extension)
-- [ ] Create all slot components
-- [ ] Every component has `data-kind` and `data-slot`
-- [ ] ARIA attributes are explicitly set (not inherited from melt-ui)
-- [ ] Uses `_internal` for any melt-ui utilities
-- [ ] Create `a11y.md` documenting accessibility features
-- [ ] Create `index.ts` re-exporting all components
-- [ ] Create tests
-- [ ] Add to `primitives/index.ts` barrel export
-- [ ] Document in `primitives/PRIMITIVES.md`
+**Contract declares. Primitive implements structure. Block applies ARIA.**

@@ -17,11 +17,7 @@ import { ATTRIBUTES } from "./config/coldlight/attributes.cfg.js";
 export const coldlightConfig = {
   identity: IDENTITY,
   roots: ROOTS,
-
-  adapters: {
-    dsAdapter: ADAPTERS.dsAdapter,
-  },
-
+  adapters: ADAPTERS,
   generation: GENERATION,
   enforcement: ENFORCEMENT,
   attributes: ATTRIBUTES,

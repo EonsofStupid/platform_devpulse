@@ -1,564 +1,181 @@
-# COLD LIGHT Contract System
+﻿# Contract System
 
-> **Authoritative reference for prop contracts, kind schemas, and validation architecture.**
-
----
-
-## Overview
-
-The Contract System enforces type safety and schema validation across the entire design system. It ensures:
-
-1. **Every block kind has a defined schema**
-2. **Props are validated at every boundary**
-3. **Surface props are only allowed on surface-capable kinds**
-4. **VPB cannot create invalid nodes**
-5. **Schemas are GENERATED from Taxonomy, never handwritten**
-6. **UI prevents invalid state at creation time**
+> **One contract per kind. Taxonomy is truth.**
 
 ---
 
-## Taxonomy Integration
+## Core Principle
 
-Contracts are generated from the Taxonomy registry. The flow:
+Every kind has exactly ONE contract. It lives in taxonomy.
 
-```
-Taxonomy (SSOT) → Generate Zod Schemas → VPB UI Consumes → Invalid State Impossible
-```
-
-### Schema Generation
-
-Zod schemas are AUTO-GENERATED from taxonomy definitions:
-
-```typescript
-// taxonomy/zod/generated/focus.schema.ts
-// AUTO-GENERATED — DO NOT EDIT
-import { z } from "zod";
-
-export const FocusLevelSchema = z.enum(["low", "medium", "high", "critical"]);
-export type FocusLevel = z.infer<typeof FocusLevelSchema>;
-```
-
-```typescript
-// taxonomy/zod/generated/material.schema.ts
-// AUTO-GENERATED — DO NOT EDIT
-import { z } from "zod";
-
-export const MaterialIdSchema = z.enum(["glass", "solid", "metal", "holo", "liquid", "void"]);
-export type MaterialId = z.infer<typeof MaterialIdSchema>;
-```
-
-### Why Generated Schemas
-
-| Problem | Solution |
-|---------|----------|
-| Types drift from implementation | Generate both from same source |
-| Handwritten schemas have typos | Machine-generated, no typos |
-| Schema doesn't match UI options | UI reads from same generated schema |
-| Validation happens too late | UI prevents invalid at creation |
+`
+taxonomy/kinds/primitives/{kind}/contract.ts   <- THE contract
+primitives/{kind}/contract.ts                  <- Re-exports for platform binding
+`
 
 ---
 
-## Shift-Left Validation
-
-**Invalid state is prevented at creation time, not validated after.**
-
-```
-WRONG: User creates config → Save → Validate → Show error
-RIGHT: User opens UI → UI shows only valid options → Invalid state impossible
-```
-
-### VPB Consumes Schemas
-
-```typescript
-// VPB reads generated schemas to build UI
-import { MaterialIdSchema, FocusLevelSchema } from "$lib/design/taxonomy/zod/generated";
-
-// Dropdown options come from schema
-const materialOptions = MaterialIdSchema.options; // ["glass", "solid", "metal", ...]
-const focusOptions = FocusLevelSchema.options;    // ["low", "medium", "high", "critical"]
-```
-
-### Validation at Boundaries
-
-Even with shift-left, validate at every boundary:
-
-1. **VPB creation** — UI prevents invalid (primary)
-2. **DB load** — Validate JSON from database (defense in depth)
-3. **API boundary** — Validate incoming requests
-4. **Renderer** — Final validation before render
-
----
-
-## Contract Architecture (Three Tiers)
-
-| Tier | Scope | What It Contains |
-|------|-------|------------------|
-| **DsCoreProps** | Universal — safe on EVERY block kind | intent, state, density, visibility, interaction, a11y |
-| **DsSurfaceProps** | Surface-capable kinds ONLY | glass/metal/holo, tint/clarity/noise, bevel/depth, frame/ring |
-| **Kind-Specific** | Only where they belong | Shell (layout), Input (validation), Chart (data density) |
-
----
-
-## DsCoreProps (Universal Contract)
-
-These props are safe on **every** block kind. They support accessibility, state, density, and deterministic behavior.
-
-```typescript
-// design/taxonomy/props/core.props.ts
-export type DsIntent = "neutral" | "info" | "success" | "warning" | "danger";
-export type DsTone = "app" | "chat" | "maestro";
-export type DsState =
-  | "default"
-  | "hover"
-  | "active"
-  | "focus"
-  | "disabled"
-  | "loading"
-  | "readonly";
-export type DsDensity = "comfortable" | "compact" | "dense";
-
-export interface DsCoreProps {
-  intent: DsIntent;
-  tone: DsTone;
-  state: DsState;
-  density: DsDensity;
-
-  importance?: "standard" | "elevated" | "critical";
-  visibility?: "visible" | "hidden" | "collapsed";
-
-  interaction?: {
-    cursor?:
-      | "default"
-      | "pointer"
-      | "text"
-      | "grab"
-      | "grabbing"
-      | "wait"
-      | "notAllowed"
-      | "crosshair";
-    pointerEvents?: "auto" | "none";
-    userSelect?: "auto" | "none" | "text" | "all";
-  };
-
-  a11y?: {
-    ariaLabel?: string;
-    role?:
-      | "region"
-      | "button"
-      | "dialog"
-      | "status"
-      | "navigation"
-      | "article";
-    tabIndex?: -1 | 0;
-  };
-}
-```
-
-**Why this is correct:** These props exist everywhere without allowing "CSS injection" or breaking layout semantics.
-
----
-
-## DsSurfaceProps (Material Contract)
-
-Surface props are for **container/material kinds only**. They do NOT apply to text-only or leaf elements.
-
-```typescript
-// design/taxonomy/props/surface.props.ts
-export type MaterialFamily =
-  | "solid"
-  | "glass"
-  | "acrylic"
-  | "metal"
-  | "holo"
-  | "liquid"
-  | "void";
-
-export type Clarity = "clear" | "clean" | "mist" | "frosted" | "heavyFrost";
-export type TintMode = "none" | "mono" | "duo" | "iridescent";
-export type NoiseLevel = "off" | "subtle" | "medium" | "heavy";
-export type SmudgeLevel = "off" | "subtle" | "film";
-export type VignetteLevel = "off" | "subtle" | "strong";
-
-export type BlurStep = "0" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl";
-export type Radius = "none" | "sm" | "md" | "lg" | "xl" | "pill";
-export type BorderWidth = "none" | "hairline" | "thin" | "normal" | "thick";
-export type BorderStyle = "solid" | "dashed" | "dotted";
-export type BorderTone = "subtle" | "normal" | "strong";
-
-export type BevelLevel = "none" | "sm" | "md" | "lg" | "xl";
-export type BevelStyle = "inset" | "outset" | "hybrid";
-export type EdgeGlow = "off" | "soft" | "medium" | "hot";
-
-export type Elevation = "0" | "1" | "2" | "3" | "4" | "5";
-export type ShadowStyle = "none" | "soft" | "crisp" | "cinematic" | "neon";
-export type InnerShadow = "off" | "subtle" | "strong";
-export type AmbientOcclusion = "off" | "subtle" | "strong";
-
-export type GlowLevel = "off" | "subtle" | "medium" | "strong" | "nuclear";
-export type Sparkle = "off" | "rare" | "normal" | "heavy";
-export type Scanlines = "off" | "subtle" | "retro" | "heavy";
-export type PulseMode = "off" | "idle" | "hover" | "alert";
-export type Specular = "off" | "soft" | "sharp";
-
-// Quantized slider (0..100 but only specific steps)
-export type Q100 = 0 | 15 | 30 | 45 | 60 | 75 | 90 | 100;
-
-export interface DsSurfaceProps {
-  materialFamily?: MaterialFamily;
-  clarity?: Clarity;
-
-  tintMode?: TintMode;
-  tintStrength?: Q100;
-
-  noise?: NoiseLevel;
-  smudge?: SmudgeLevel;
-  vignette?: VignetteLevel;
-
-  // Material knobs (NOT "transparency")
-  transmittance?: Q100;      // background show-through strength
-  diffusionStrength?: Q100;  // milkiness / scatter
-  backdropBlur?: BlurStep;   // discrete blur radius step
-
-  radius?: Radius;
-  borderWidth?: BorderWidth;
-  borderStyle?: BorderStyle;
-  borderTone?: BorderTone;
-
-  bevelLevel?: BevelLevel;
-  bevelStyle?: BevelStyle;
-  edgeGlow?: EdgeGlow;
-
-  elevation?: Elevation;
-  shadowStyle?: ShadowStyle;
-  innerShadow?: InnerShadow;
-  ambientOcclusion?: AmbientOcclusion;
-
-  // ColdLight "alive" layer
-  rimLight?: GlowLevel;
-  innerGlow?: GlowLevel;
-  outerGlow?: GlowLevel;
-  sparkle?: Sparkle;
-  scanlines?: Scanlines;
-  pulse?: PulseMode;
-  specularHighlight?: Specular;
-}
-```
-
----
-
-## Terminology Corrections (Industry 2026)
-
-| Term | What It Is | CSS Driver |
-|------|------------|------------|
-| **opacity** | Layer alpha — how much the element itself fades | `opacity: 0..1` or color alpha |
-| **transmittance** | How much of the background makes it through the material | Material knob (NOT generic style) |
-| **diffusion** | How scattered/smeared the background becomes | `backdrop-filter: blur()` + noise overlay |
-
-**BANNED: "transparency"** — It's a perceived result, not a controllable primitive.
-
-**Frost is a MATERIAL PRESET, not a single slider:**
-- Low clarity + high diffusion + moderate blur + subtle noise + reduced transmittance
-
----
-
-## Zod Schemas (Strict, Composable)
-
-### Core Schema
-
-```typescript
-// design/taxonomy/zod/core.schema.ts
-import { z } from "zod";
-
-export const zDsCoreProps = z.object({
-  intent: z.enum(["neutral", "info", "success", "warning", "danger"]),
-  tone: z.enum(["app", "chat", "maestro"]),
-  state: z.enum(["default","hover","active","focus","disabled","loading","readonly"]),
-  density: z.enum(["comfortable","compact","dense"]),
-
-  importance: z.enum(["standard","elevated","critical"]).optional(),
-  visibility: z.enum(["visible","hidden","collapsed"]).optional(),
-
-  interaction: z.object({
-    cursor: z.enum([
-      "default","pointer","text","grab","grabbing","wait","notAllowed","crosshair"
-    ]).optional(),
-    pointerEvents: z.enum(["auto","none"]).optional(),
-    userSelect: z.enum(["auto","none","text","all"]).optional(),
-  }).strict().optional(),
-
-  a11y: z.object({
-    ariaLabel: z.string().optional(),
-    role: z.enum(["region","button","dialog","status","navigation","article"]).optional(),
-    tabIndex: z.union([z.literal(-1), z.literal(0)]).optional(),
-  }).strict().optional(),
-}).strict();
-```
-
-### Surface Schema
-
-```typescript
-// design/taxonomy/zod/surface.schema.ts
-import { z } from "zod";
-
-const zQ100 = z.union([
-  z.literal(0), z.literal(15), z.literal(30), z.literal(45),
-  z.literal(60), z.literal(75), z.literal(90), z.literal(100),
-]);
-
-export const zDsSurfaceProps = z.object({
-  materialFamily: z.enum(["solid","glass","acrylic","metal","holo","liquid","void"]).optional(),
-
-  clarity: z.enum(["clear","clean","mist","frosted","heavyFrost"]).optional(),
-
-  tintMode: z.enum(["none","mono","duo","iridescent"]).optional(),
-  tintStrength: zQ100.optional(),
-
-  noise: z.enum(["off","subtle","medium","heavy"]).optional(),
-  smudge: z.enum(["off","subtle","film"]).optional(),
-  vignette: z.enum(["off","subtle","strong"]).optional(),
-
-  transmittance: zQ100.optional(),
-  diffusionStrength: zQ100.optional(),
-  backdropBlur: z.enum(["0","xs","sm","md","lg","xl","2xl"]).optional(),
-
-  radius: z.enum(["none","sm","md","lg","xl","pill"]).optional(),
-  borderWidth: z.enum(["none","hairline","thin","normal","thick"]).optional(),
-  borderStyle: z.enum(["solid","dashed","dotted"]).optional(),
-  borderTone: z.enum(["subtle","normal","strong"]).optional(),
-
-  bevelLevel: z.enum(["none","sm","md","lg","xl"]).optional(),
-  bevelStyle: z.enum(["inset","outset","hybrid"]).optional(),
-  edgeGlow: z.enum(["off","soft","medium","hot"]).optional(),
-
-  elevation: z.enum(["0","1","2","3","4","5"]).optional(),
-  shadowStyle: z.enum(["none","soft","crisp","cinematic","neon"]).optional(),
-  innerShadow: z.enum(["off","subtle","strong"]).optional(),
-  ambientOcclusion: z.enum(["off","subtle","strong"]).optional(),
-
-  rimLight: z.enum(["off","subtle","medium","strong","nuclear"]).optional(),
-  innerGlow: z.enum(["off","subtle","medium","strong","nuclear"]).optional(),
-  outerGlow: z.enum(["off","subtle","medium","strong","nuclear"]).optional(),
-  sparkle: z.enum(["off","rare","normal","heavy"]).optional(),
-  scanlines: z.enum(["off","subtle","retro","heavy"]).optional(),
-  pulse: z.enum(["off","idle","hover","alert"]).optional(),
-  specularHighlight: z.enum(["off","soft","sharp"]).optional(),
-}).strict();
-```
-
----
-
-## Kind Schema Composition
-
-### Surface-Capable Kind (Panel)
-
-```typescript
-// design/taxonomy/kinds/panel.kind.ts
-import { z } from "zod";
-import { zDsCoreProps } from "../zod/core.schema";
-import { zDsSurfaceProps } from "../zod/surface.schema";
-
-export const zPanelProps = z.object({
-  core: zDsCoreProps,
-  surface: zDsSurfaceProps.optional(),  // allowed but not forced
-  layout: z.object({
-    overflowX: z.enum(["visible","hidden","clip","scroll","auto"]).optional(),
-    overflowY: z.enum(["visible","hidden","clip","scroll","auto"]).optional(),
-  }).strict().optional(),
-}).strict();
-```
-
-### Leaf Kind (Label) — No Surface
-
-```typescript
-// design/taxonomy/kinds/label.kind.ts
-import { z } from "zod";
-import { zDsCoreProps } from "../zod/core.schema";
-
-export const zLabelProps = z.object({
-  core: zDsCoreProps,
-  text: z.object({
-    size: z.enum(["xs","sm","md","lg","xl","2xl","3xl"]),
-    tone: z.enum(["primary","secondary","muted","subtle","inverse"]),
-  }).strict(),
-}).strict(); // surface is NOT legal here
-```
-
----
-
-## Kind Registry with SurfacePolicy
-
-```typescript
-// design/taxonomy/kinds/kind.registry.ts
-export type SurfacePolicy = "none" | "optional" | "required";
-
-export interface KindRegistryEntry {
-  kind: string;
-  label: string;
-  surfacePolicy: SurfacePolicy;
-  schema: unknown; // Zod schema
-  allowedRecipes: string[];
-  slots: string[];
-}
-
-export const KindRegistry = {
-  panel: {
-    kind: "panel",
-    label: "Panel",
-    surfacePolicy: "optional",   // allowed but not forced
-    schema: zPanelProps,
-    allowedRecipes: ["panel.glass","panel.metal","panel.solid"],
-    slots: ["header","content","footer"],
+## Contract Structure
+
+`	ypescript
+// taxonomy/kinds/primitives/tabs/contract.ts
+
+import type { PrimitiveContract, SlotStateMap } from "/design/taxonomy/types";
+
+export const tabsSlots = ["root", "list", "trigger", "content"] as const;
+export type TabsSlot = (typeof tabsSlots)[number];
+
+export const tabsStateTokens = [
+  "hidden", "visible", "selected", "focused", "hover", "active", "disabled"
+] as const;
+export type TabsState = (typeof tabsStateTokens)[number];
+
+export const tabsSlotStates: SlotStateMap<TabsSlot, TabsState> = {
+  root: ["focus-within"],
+  list: [],
+  trigger: ["selected", "focused", "hover", "active", "disabled"],
+  content: ["hidden", "visible", "selected"],
+};
+
+export const contract: PrimitiveContract<"tabs", TabsSlot, TabsState> = {
+  kind: "tabs",
+  ariaStateProvider: "meltui",
+  
+  slots: {
+    required: ["root", "list", "trigger", "content"],
+    optional: [],
+    forbidden: [],
   },
-  label: {
-    kind: "label",
-    label: "Label",
-    surfacePolicy: "none",       // VPB hides surface category entirely
-    schema: zLabelProps,
-    allowedRecipes: ["text.label"],
-    slots: [],
+  
+  states: {
+    shared: ["focused", "hover", "active", "disabled"],
+    specific: ["hidden", "visible", "selected"],
   },
-  // ... other kinds
-} as const;
-```
+  
+  slotStates: tabsSlotStates,
+  
+  slotActions: {
+    root: [],
+    list: [],
+    trigger: [],
+    content: [],
+  },
+  
+  collections: {
+    get(key) {
+      return {
+        aria: {
+          role: "tablist",
+          requiredAttrs: ["aria-orientation"],
+          optionalAttrs: ["aria-label"],
+        },
+        keyboard: ["ArrowLeft", "ArrowRight", "Home", "End", "Enter", "Space"],
+      }[key];
+    },
+  },
+};
+
+export default contract;
+`
 
 ---
 
-## Surface-Capable vs Non-Surface Kinds
+## Contract Fields
 
-### Surface-Capable Kinds
-- shell, container, panel, card, modal, widget, toast, chatBubble, chart, graph, dock
-
-### Non-Surface Kinds (Leaf Nodes)
-- icon, label, badge, text, svg-only elements
-
----
-
-## VPB Behavior by SurfacePolicy
-
-| SurfacePolicy | VPB Behavior |
-|---------------|--------------|
-| `"none"` | Surface UI is hidden entirely |
-| `"optional"` | Surface shown only in Advanced mode (or toggleable) |
-| `"required"` | Force at least `materialFamily` default |
-
-This is the junior/advanced split in the inspector UI.
+| Field | Purpose |
+|-------|---------|
+| kind | Primitive identity |
+| ariaStateProvider | Which dsAdapter fulfills behavior (meltui or coldlight) |
+| slots.required | Slots that MUST exist |
+| slots.optional | Slots that MAY exist |
+| slots.forbidden | Slots that MUST NOT exist |
+| states.shared | States common across primitives |
+| states.specific | States unique to this kind |
+| slotStates | Which states apply to which slots |
+| slotActions | Actions per slot (future) |
+| collections | ARIA requirements, keyboard bindings |
 
 ---
 
-## Validation at Boundaries
+## Contract Binding
 
-### VPB Creates Only Legal Nodes
+The contract binds to implementation via folder naming:
 
-When user adds a block:
-1. VPB reads `KindRegistry[kind]`
-2. Offers only legal recipes
-3. Generates props from defaults/presets
-4. Validates props with Zod schema
-5. If invalid → VPB refuses to create the node
+`
+taxonomy/kinds/primitives/tabs/contract.ts
+    kind: "tabs"
+    ariaStateProvider: "meltui"
+           |
+     +-----+-----+
+     |           |
+     v           v
+primitives/     api/adapters/meltui/
+tabs/           _internal/tabs/
+`
 
-### Renderer Also Validates (Defense in Depth)
-
-Renderers are a runtime boundary. DB gives you JSON. So renderers must validate and fail safe.
-
-```typescript
-// When loading BlockNode trees from DB, ALWAYS validate:
-async function loadLayoutTree(layoutVersionId: string): Promise<BlockNode[]> {
-  const { tree_json } = await db.ds_block_tree.findUnique({ layout_version_id: layoutVersionId });
-
-  const validated = BlockNodeArraySchema.safeParse(tree_json);
-  if (!validated.success) {
-    console.error('Invalid block tree from DB:', validated.errors);
-    throw new BlockTreeValidationError(validated.errors);
-  }
-
-  return validated.data;
-}
-```
+No explicit wiring. Folder name = kind name = binding.
 
 ---
 
-## Kind-Specific Contracts
+## ariaStateProvider
 
-### Shell Kinds (appShell, topBar, sideNav, dock, statusBar)
+| Value | Meaning | Parity |
+|-------|---------|--------|
+| meltui | MeltUI provides behavior + ARIA | 3-folder |
+| coldlight | ColdLight handles ARIA natively | 2-folder |
 
-```typescript
-interface ShellLayoutProps {
-  layout: {
-    mode: "grid"; // hard constraint
-    template: "shell" | "shell-nav" | "shell-nav-aside";
-    safeArea: "on" | "off";
-    insetGrid: "on" | "off";
-  };
-}
-```
-
-### Input Kinds (inputFrame, searchBox)
-
-```typescript
-interface InputProps {
-  input: {
-    size: "sm" | "md" | "lg";
-    placeholderTone: "quiet" | "normal";
-    validation: "none" | "valid" | "invalid";
-  };
-}
-```
-
-### Data Viz Kinds (chart, graphNetwork, timeline)
-
-```typescript
-interface ChartProps {
-  chart: {
-    type: "line" | "bar" | "area" | "scatter" | "heatmap";
-    density: "low" | "med" | "high";
-    gridlines: "off" | "soft" | "full";
-    tooltip: "off" | "hover" | "pinned";
-  };
-}
-```
+3-folder parity: taxonomy/kinds + primitives + api/adapters
+2-folder parity: taxonomy/kinds + primitives
 
 ---
 
-## Non-Negotiable Rules
+## Platform Binding
 
-1. **Zod `.strict()` on ALL schemas** — No passthrough, no unknown keys
-2. **Surface props only on surface-capable kinds** — Enforced by SurfacePolicy
-3. **VPB cannot create invalid nodes** — Validation happens before creation
-4. **Renderers validate at runtime** — Defense in depth for DB data
-5. **No "optional garbage"** — Every prop has a defined type or is explicitly optional
+Each primitive re-exports the taxonomy contract:
 
----
+`	ypescript
+// primitives/tabs/contract.ts
+export { contract } from '/design/taxonomy/kinds/primitives/tabs/contract';
+`
 
-## File Organization
-
-```
-src/lib/design/taxonomy/
-├── props/
-│   ├── core.props.ts       # DsCoreProps interface + types
-│   └── surface.props.ts    # DsSurfaceProps interface + types
-├── zod/
-│   ├── core.schema.ts      # zDsCoreProps Zod schema
-│   └── surface.schema.ts   # zDsSurfaceProps Zod schema
-└── kinds/
-    ├── kind.registry.ts    # KindRegistry with SurfacePolicy
-    ├── panel.kind.ts       # Surface-capable kind
-    └── label.kind.ts       # Leaf kind (no surface)
-```
+This ensures the primitive is contractually bound to taxonomy SSOT.
 
 ---
 
-## Guarantees
+## Scanner Validation
 
-| Guarantee | Mechanism |
-|-----------|-----------|
-| One DsSurfaceProps SSOT | Universal interface, single definition |
-| Allowed only on specific kinds | `surfacePolicy` in KindRegistry |
-| Optional even when allowed | `surface: zDsSurfaceProps.optional()` |
-| Strict Zod boundaries stop garbage | `.strict()` on all schemas |
-| Presets + safe knobs for junior UX | `ui.tier` + `ui.safeKnobs` |
-| Recipes assemble visuals | `classes()` function pattern |
-| Renderers stay dumb | Only apply recipe output, no styling |
+Scanner reads contracts and validates:
+
+1. Contract exists in taxonomy
+2. Primitive folder exists
+3. If ariaStateProvider = meltui:
+   - Adapter implementation folder exists
+   - Factory.ts exists
+4. All required slots have corresponding components
 
 ---
 
-**This is the canonical contract system.**
+## Collections
+
+The collections field provides metadata via get():
+
+`	ypescript
+collections: {
+  get(key) {
+    return {
+      aria: {
+        role: "tablist",
+        requiredAttrs: ["aria-orientation"],
+        optionalAttrs: ["aria-label"],
+      },
+      keyboard: ["ArrowLeft", "ArrowRight", "Home", "End"],
+    }[key];
+  },
+},
+`
+
+This is READ by dsAdapter at block render time to apply ARIA.
+
+---
+
+**One contract. In taxonomy. Everything chains to it.**

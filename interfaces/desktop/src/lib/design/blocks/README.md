@@ -1,35 +1,132 @@
-# Blocks
+﻿# Blocks
 
-> Layer 6: Page-Level Compositions
+> **Layer 6: The Accessible Unit. ARIA applied here.**
 
 ---
 
-## Definition
+## The Core Principle
 
-Blocks are complete page sections ready for visual page builder (VPB).
+**Blocks are where ARIA gets applied.**
 
-```svelte
-<!-- Block = Full page section -->
-<HeroGlass>
-  <slot name="headline">Welcome to DevPulse</slot>
-  <slot name="cta"><Button>Get Started</Button></slot>
-  <slot name="visual"><ParticleBackground /></slot>
-</HeroGlass>
-```
+Primitives provide structure + state.
+dsAdapter provides behavior + ARIA capabilities.
+Blocks compose primitives and apply ARIA at render time.
+
+---
+
+## Why ARIA at Block Level?
+
+Primitives do not know their context:
+
+| Primitive | Context A | Context B | ARIA Needed |
+|-----------|-----------|-----------|-------------|
+| dialog | Modal | Alert | role=dialog vs alertdialog |
+| button | Form submit | Toolbar toggle | button vs aria-pressed |
+| panel | Sidebar | Disclosure | complementary vs expanded |
+
+**The block knows the context. The primitive does not.**
+
+---
+
+## Block Responsibilities
+
+| Responsibility | Block Provides |
+|----------------|----------------|
+| Compose primitives | Yes |
+| Apply ARIA attributes | Yes |
+| Apply keyboard handlers | Yes |
+| Apply focus management | Yes |
+| VPB-editable props | Yes |
+| Context awareness | Yes |
+
+---
+
+## How ARIA Gets Applied
+
+dsAdapter reads the contract and auto-applies at block render:
+
+`svelte
+<!-- blocks/settings/SettingsTabs.svelte -->
+<script>
+  import { Tabs, TabsList, TabsTrigger, TabsContent } from "/design/primitives/tabs";
+  import { applyAria } from "/design/taxonomy/.generated/aria.gen";
+  
+  // dsAdapter applies ARIA based on contract + context
+  const aria = applyAria("tabs", { context: "settings-panel" });
+</script>
+
+<Tabs {...aria.root}>
+  <TabsList {...aria.list}>
+    <TabsTrigger {...aria.trigger} value="general">General</TabsTrigger>
+    <TabsTrigger {...aria.trigger} value="security">Security</TabsTrigger>
+  </TabsList>
+  <TabsContent {...aria.content} value="general">...</TabsContent>
+  <TabsContent {...aria.content} value="security">...</TabsContent>
+</Tabs>
+`
 
 ---
 
 ## Categories
 
-| Category | Description | Status |
-|----------|-------------|--------|
-| [heroes/](./heroes/) | Hero sections | Pending |
-| [features/](./features/) | Feature grids | Pending |
-| [dashboards/](./dashboards/) | Dashboard layouts | Pending |
-| [chat/](./chat/) | Chat interfaces | Pending |
-| [cta/](./cta/) | Call-to-action sections | Pending |
-| [carousels/](./carousels/) | Carousel/slider sections | Pending |
-| [navigation/](./navigation/) | Navigation sections | Pending |
+| Category | Description | Purpose |
+|----------|-------------|---------|
+| heroes/ | Hero sections | Landing page hero blocks |
+| features/ | Feature grids | Feature showcase blocks |
+| dashboards/ | Dashboard layouts | Dashboard widget blocks |
+| chat/ | Chat interfaces | Chat UI blocks |
+| cta/ | Call-to-action | CTA blocks |
+| carousels/ | Carousel/slider | Content carousel blocks |
+| navigation/ | Navigation | Nav blocks |
+
+---
+
+## File Structure
+
+`
+blocks/{category}/
++-- {Name}.svelte            # Block component
++-- {name}.preset.ts         # Default recipe preset (if applicable)
++-- README.md                # Category documentation
+`
+
+---
+
+## VPB Integration
+
+Blocks are the unit that Visual Page Builder works with:
+
+1. User drags block onto canvas
+2. VPB reads contract for ARIA requirements
+3. dsAdapter applies ARIA at render
+4. Accessibility is enforced by architecture
+
+### VPB-Editable Props
+
+`svelte
+<!-- @vpb-editable -->
+<script>
+  /**
+   * @vpb-prop headline - Main headline text
+   * @vpb-prop cta - Call to action button text
+   * @vpb-prop variant - Visual variant (glass, solid, gradient)
+   */
+  let { headline, cta, variant = "glass" }: HeroProps = ();
+</script>
+`
+
+---
+
+## Block Contract (TO BE BUILT)
+
+Each block will have a contract in taxonomy:
+
+`
+taxonomy/kinds/blocks/{name}/contract.ts
+    - uses: which primitives/composites
+    - context: what ARIA context applies
+    - vpbProps: editable properties
+`
 
 ---
 
@@ -37,71 +134,27 @@ Blocks are complete page sections ready for visual page builder (VPB).
 
 ### Before Adding a Block
 
-- [ ] Verify block kind exists in `taxonomy/kinds.ts`
-- [ ] Verify slots defined for kind
-- [ ] Verify required patterns/semantics exist
+- [ ] Primitives exist for all composed components
 - [ ] Determine correct category folder
-- [ ] Create preset in `recipes/presets/`
+- [ ] Identify ARIA context for this block
 
 ### File Requirements
 
-- [ ] `{Name}.svelte` — Block component (PascalCase)
-- [ ] `{name}.preset.ts` — Default preset
-- [ ] Category `index.ts` updated with export
-- [ ] Root `index.ts` updated if new category
-- [ ] Follows block kind contract from taxonomy
-- [ ] VPB-editable props documented
-
-### Auto-Documentation
-
-When block is committed:
-1. Vite plugin scans `blocks/**/*.svelte`
-2. Extracts `@description`, `@kind`, `@slots`, `@vpb-editable`
-3. Registers block in VPB block picker
-4. Updates category README with block list
-5. Updates root README with category stats
+- [ ] `{Name}.svelte` block component
+- [ ] VPB-editable props documented with @vpb-prop
+- [ ] ARIA applied via dsAdapter
+- [ ] Category README updated
 
 ---
 
-## SSOT
+## Current Status
 
-This folder's SSOT is `blocks/index.ts`.
+Block infrastructure is being built. Current categories are placeholders.
 
-All imports should go through:
-```typescript
-import { HeroGlass, FeatureGrid } from "$lib/design/blocks";
-// Or by category:
-import * as Heroes from "$lib/design/blocks/heroes";
-```
+The key architectural decision is confirmed:
+- **Primitives = structure + state**
+- **Blocks = accessible unit with ARIA**
 
 ---
 
-## Block Kind Mapping
-
-| Category | Block Kinds |
-|----------|-------------|
-| heroes | `panel`, `glassFrame` |
-| features | `card`, `widget` |
-| dashboards | `widget`, `statMeter`, `chart` |
-| chat | `chatDock`, `chatThread`, `chatBubble` |
-| cta | `panel`, `card` |
-| carousels | `panel`, `card` |
-| navigation | `topBar`, `sideNav` |
-
----
-
-## Adding a New Block
-
-1. Identify category (heroes, features, dashboards, etc.)
-2. Verify block kind in `taxonomy/kinds.ts`
-3. Create preset: `recipes/presets/{category}/{name}.preset.ts`
-4. Create file: `{category}/{Name}.svelte`
-5. Add file header with `@description`, `@kind`, `@slots`, `@vpb-editable`
-6. Export from category `index.ts`
-7. Export from root `index.ts`
-8. Run `pnpm check` to verify types
-9. Commit when passing
-
----
-
-**This folder contains Layer 6 of ColdLight.**
+**Blocks are where accessibility happens.**

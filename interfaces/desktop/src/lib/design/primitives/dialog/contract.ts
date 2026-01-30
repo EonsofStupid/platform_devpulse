@@ -1,9 +1,6 @@
 /**
  * @file Dialog Primitive Contract
- * @description Re-exports contract from ColdLight public API surface.
- *
- * This links the Svelte primitive back to the taxonomy contract
- * via ColdLight, ensuring no MeltUI leakage.
+ * @description Re-exports contract from taxonomy SSOT.
  */
 
 export {
@@ -11,4 +8,4 @@ export {
   dialogSlots,
   dialogStateTokens,
   dialogSlotStates,
-} from "$lib/design/api/adapters/coldlight/dialog";
+} from "$lib/design/taxonomy/kinds/primitives/dialog";

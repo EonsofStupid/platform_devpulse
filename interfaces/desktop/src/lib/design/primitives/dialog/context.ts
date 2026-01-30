@@ -6,11 +6,11 @@
  * it via context. Child components (Trigger, Content, etc.) access it
  * to render their slots.
  *
- * Imports from ColdLight public adapter surface ONLY - no @melt-ui/svelte.
+ * Imports from ColdLight cloak — zero adapter awareness.
  */
 
 import { getContext, setContext } from "svelte";
-import type { DialogBuilderInstance } from "$lib/design/api/adapters/coldlight/dialog";
+import type { DialogInstance } from "$lib/design/taxonomy/.generated/imports.gen";
 
 // =============================================================================
 // CONTEXT KEY
@@ -26,7 +26,7 @@ const DIALOG_CTX = Symbol("dialog");
  * Dialog context type - the builder instance from the adapter layer.
  * Opaque to consumers - they don't need to know it's MeltUI underneath.
  */
-export type DialogContext = DialogBuilderInstance;
+export type DialogContext = DialogInstance;
 
 // =============================================================================
 // CONTEXT API

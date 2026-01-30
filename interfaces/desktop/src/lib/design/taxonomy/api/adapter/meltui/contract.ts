@@ -6,7 +6,7 @@
  * without pulling in Melt itself. The scanner uses this to:
  *   - Know which adapter IDs exist
  *   - Know which primitives MeltUI backs (builder inventory)
- *   - Enforce naming/folder rules for _internal mapping folders
+ *   - Enforce naming/folder rules for adapter mapping folders
  *   - Validate that every meltui-backed primitive has a 1:1 mapping on disk
  */
 
@@ -49,7 +49,7 @@ export const MANAGED_ATTRS: readonly MeltManagedAttr[] = [
 
 /**
  * Canonical builder inventory - every MeltUI-backed primitive and its builder.
- * Scanner uses this to validate _internal mapping folder completeness.
+ * Scanner uses this to validate adapter mapping folder completeness.
  */
 export const BUILDER_INVENTORY: readonly MeltBuilderEntry[] = [
   { kind: "accordion", builder: "createAccordion", manages: ["aria-expanded", "aria-controls", "id"] },
@@ -99,17 +99,17 @@ export const SUPPORTED_PRIMITIVES: readonly MeltPrimitive[] =
 // =============================================================================
 
 /**
- * Rules the scanner enforces for meltui _internal folders.
+ * Rules the scanner enforces for meltui adapter folders.
  * Every meltui-backed kind must have these files.
  */
-export const INTERNAL_REQUIRED_FILES = [
-  "contract.ts",
-  "types.ts",
+export const REQUIRED_FILES = [
+  "factory.ts",
+  "mapping.ts",
   "index.ts",
 ] as const;
 
-/** Internal mapping folder path pattern */
-export const INTERNAL_PATH_PATTERN = "api/adapters/meltui/_internal/<kind>/" as const;
+/** Adapter folder path pattern */
+export const PATH_PATTERN = "api/adapters/meltui/<kind>/" as const;
 
 // =============================================================================
 // ASSEMBLED CONTRACT
@@ -124,7 +124,7 @@ export const contract = {
   builderInventory: BUILDER_INVENTORY,
   builderIndex: BUILDER_INDEX,
   folderRules: {
-    pathPattern: INTERNAL_PATH_PATTERN,
-    requiredFiles: INTERNAL_REQUIRED_FILES,
+    pathPattern: PATH_PATTERN,
+    requiredFiles: REQUIRED_FILES,
   },
 } as const;

@@ -1,12 +1,12 @@
-# Taxonomy
+﻿# Taxonomy
 
-> **The SSOT backbone. Everything derives from here.**
+> **The SSOT backbone. All contracts live here.**
 
 ---
 
 ## The One Rule
 
-> **If taxonomy doesn't know about it, it doesn't exist in ColdLight.**
+> **If taxonomy does not have a contract for it, it does not exist in ColdLight.**
 
 ---
 
@@ -14,111 +14,196 @@
 
 Taxonomy is the **single source of truth** for:
 
-1. **Primitive Kinds** — All `data-kind` values
-2. **Primitive Slots** — Slots per primitive
-3. **State Enums** — Valid `data-state` values
-4. **Blueprint Registry** — All prebuilt assemblies
-5. **Contracts** — Zod schemas for prop validation
-6. **Variant Keys** — Allowed surfaces, materials, layers
+1. **Contracts** - Declarations for all kinds (primitives, semantics, composites, blocks)
+2. **Adapter Declarations** - What dsAdapters exist and their capabilities
+3. **Scanner** - Build-time validation of contract chain
+4. **Registry** - Runtime lookup from generated manifest
+5. **VPB Types** - Block definitions for Visual Page Builder
 
 ---
 
-## Generator Role
+## Folder Structure
 
-Taxonomy is **machine-readable**. It generates:
-
-| Output | Generated From |
-|--------|----------------|
-| Registry manifest | `primitiveKinds.ts` + `primitiveRegistry.ts` |
-| API documentation | Taxonomy + JSDoc |
-| Type definitions | `contracts.ts` |
-| Diagrams | Taxonomy structure |
-| Validation rules | Contracts + registries |
-
-**Taxonomy → Vite Plugin → Generated Files**
-
----
-
-## Files
-
-| File | Purpose | Editable? |
-|------|---------|-----------|
-| `primitiveKinds.ts` | All primitive kind values | ✅ SSOT |
-| `primitiveRegistry.ts` | Slots + metadata per primitive | ✅ SSOT |
-| `blueprintRegistry.ts` | All blueprint definitions | ✅ SSOT |
-| `variantKeys.ts` | Allowed s/z/l/t/m values | ✅ SSOT |
-| `contracts.ts` | Prop schemas (Zod) | ✅ SSOT |
-| `kinds.ts` | Block kind definitions | ✅ SSOT |
-| `slots.ts` | Block slot definitions | ✅ SSOT |
-| `index.ts` | Barrel export (SSOT) | ✅ Export only |
-
----
-
-## Taxonomy First Principle
-
-**Before writing ANY code:**
-
-1. ✅ Verify kind exists in `primitiveKinds.ts`
-2. ✅ Verify slots exist in `primitiveRegistry.ts`
-3. ✅ Verify state enum exists (if stateful)
-4. ✅ THEN write the component
-
-**Violation = Audit failure at commit time.**
+`
+taxonomy/
++-- api/
+|   +-- adapter/
+|       +-- meltui/
+|           +-- contract.ts      <- Adapter-wide inventory
+|           +-- types.ts
+|           +-- index.ts
+|
++-- kinds/
+|   +-- primitives/
+|   |   +-- button/
+|   |   |   +-- contract.ts      <- ColdLight button contract
+|   |   +-- tabs/
+|   |   |   +-- contract.ts      <- ColdLight tabs contract
+|   |   +-- dialog/
+|   |       +-- contract.ts      <- ColdLight dialog contract
+|   +-- semantics/               <- TO BE BUILT
+|   +-- composites/              <- TO BE BUILT
+|   +-- blocks/                  <- TO BE BUILT
+|
++-- vpb/
+|   +-- kinds.ts                 <- VPB block kinds
+|   +-- contracts.ts             <- VPB block schemas
+|   +-- slots.ts                 <- VPB slot constraints
+|   +-- index.ts
+|
++-- .generated/
+|   +-- coldlight.manifest.json  <- Scanner output
+|   +-- imports.gen.ts           <- Import cloak
+|
++-- scanner.ts                   <- Build-time validation
++-- registry.ts                  <- Runtime lookup
++-- types.ts                     <- Shared types
++-- index.ts                     <- Barrel export
+`
 
 ---
 
-## Primitive Kinds (43 total)
+## Contract Model
 
-### Buttons & Toggles
-`button`, `toggle`, `toggleGroup`, `switch`
+### One Contract Per Kind
 
-### Inputs & Forms
-`checkbox`, `radioGroup`, `slider`, `label`, `input`, `textarea`, `select`, `combobox`
+Every kind has exactly one contract in taxonomy. This is the SSOT.
 
-### Date & Time
-`calendar`, `dateField`, `datePicker`, `timeField`
+`	ypescript
+// taxonomy/kinds/primitives/tabs/contract.ts
 
-### Dialogs & Overlays
-`dialog`, `alertDialog`, `popover`, `hoverCard`, `tooltip`, `contextMenu`, `dropdownMenu`
+export const contract: PrimitiveContract<"tabs", TabsSlot, TabsState> = {
+  kind: "tabs",
+  ariaStateProvider: "meltui",
+  
+  slots: {
+    required: ["root", "list", "trigger", "content"],
+    optional: [],
+    forbidden: [],
+  },
+  
+  states: {
+    shared: ["focused", "hover", "active", "disabled"],
+    specific: ["hidden", "visible", "selected"],
+  },
+  
+  slotStates: {
+    root: ["focus-within"],
+    list: [],
+    trigger: ["selected", "focused", "hover", "active", "disabled"],
+    content: ["hidden", "visible", "selected"],
+  },
+  
+  slotActions: {
+    root: [],
+    list: [],
+    trigger: [],
+    content: [],
+  },
+  
+  collections: {
+    get(key) {
+      return {
+        aria: {
+          role: "tablist",
+          requiredAttrs: ["aria-orientation"],
+          optionalAttrs: ["aria-label"],
+        },
+        keyboard: ["ArrowLeft", "ArrowRight", "Home", "End"],
+      }[key];
+    },
+  },
+};
+`
 
-### Navigation
-`tabs`, `accordion`, `collapsible`, `navigationMenu`, `menubar`, `pagination`, `breadcrumb`
+### Contract Binding
 
-### Layout & Display
-`aspectRatio`, `avatar`, `separator`, `scrollArea`, `progress`
+The contract binds to:
 
-### Feedback
-`toast`, `alert`, `badge`, `skeleton`, `spinner`
+1. **primitives/{kind}/** - The ColdLight component (structure + state)
+2. **api/adapters/{dsAdapter}/_internal/{kind}/** - The behavior provider (ARIA + keyboard)
 
-### Utilities
-`portal`, `presence`, `focusTrap`, `visuallyHidden`, `liveStatus`, `kbd`
-
-### Data Display
-`dataTable`, `chart`, `command`
+Binding is through:
+- Config declares dsAdapter
+- Contract declares ariaStateProvider
+- Folder naming convention matches kind
 
 ---
 
-## Variant Key Registry
+## Adapter Declaration
 
-Taxonomy owns allowed values for variant encoding.
+Adapter-wide contract declares capabilities:
 
-```typescript
-// taxonomy/variantKeys.ts
+`	ypescript
+// taxonomy/api/adapter/meltui/contract.ts
 
-export const SurfaceValues = [1, 2, 3, 4, 5] as const;
-export const MaterialValues = [1, 2, 3, 4, 5] as const;
-export const LayerValues = [1, 2, 3, 4, 5] as const;
-export const TransitionValues = [0, 1, 2, 3] as const;
-export const MotionValues = [0, 1, 2, 3] as const;
+export const ADAPTER_ID = "meltui" as const;
+export const ADAPTER_SOURCE = "@melt-ui/svelte" as const;
 
-export type Surface = typeof SurfaceValues[number];
-export type Material = typeof MaterialValues[number];
-export type Layers = typeof LayerValues[number];
-export type Transition = typeof TransitionValues[number];
-export type Motion = typeof MotionValues[number];
-```
+export const MANAGED_ATTRS = [
+  "role", "aria-modal", "aria-labelledby", "aria-describedby",
+  "aria-selected", "aria-expanded", "aria-disabled", "tabindex", "id"
+];
 
-Codegen validates against these. Invalid variants fail at build.
+export const BUILDER_INVENTORY = [
+  { kind: "dialog", builder: "createDialog" },
+  { kind: "tabs", builder: "createTabs" },
+  { kind: "accordion", builder: "createAccordion" },
+  // ...
+];
+
+export const SUPPORTED_PRIMITIVES = BUILDER_INVENTORY.map(e => e.kind);
+`
+
+---
+
+## Scanner
+
+`taxonomy/scanner.ts` validates the contract chain at build time:
+
+1. Reads config roots and dsAdapter
+2. Scans `taxonomy/kinds/primitives/` for contracts
+3. For each contract with `ariaStateProvider: {dsAdapter}`:
+   - Validates `api/adapters/{dsAdapter}/_internal/{kind}/` exists
+   - Validates factory.ts exists
+4. Validates adapter inventory matches supported primitives
+5. Emits manifest + import cloak
+
+### Parity Modes
+
+| ariaStateProvider | Parity | Folders Required |
+|-------------------|--------|------------------|
+| meltui            | 3-folder | taxonomy/kinds + primitives + api/adapters |
+| coldlight         | 2-folder | taxonomy/kinds + primitives |
+
+---
+
+## Registry
+
+`taxonomy/registry.ts` reads the generated manifest at runtime:
+
+`	ypescript
+getManifest()           // Full manifest
+getDsAdapter()          // Active adapter name
+getPrimitiveKinds()     // All registered kinds
+getPrimitive(kind)      // Single kind data
+hasPrimitiveKind(kind)  // Existence check
+`
+
+**No filesystem access. No scanning. Pure data lookup.**
+
+---
+
+## Generated Files
+
+Scanner outputs to `.generated/`:
+
+| File | Purpose |
+|------|---------|
+| `coldlight.manifest.json` | Registry reads this |
+| `imports.gen.ts` | Import cloak - maps adapter factories to ColdLight names |
+
+**Never hand-edit generated files.**
 
 ---
 
@@ -126,108 +211,26 @@ Codegen validates against these. Invalid variants fail at build.
 
 ### Before Adding a Primitive Kind
 
-- [ ] Kind name is lowercase, camelCase
-- [ ] Added to `primitiveKinds.ts`
-- [ ] Slots defined in `primitiveRegistry.ts`
-- [ ] Metadata added (description, meltBuilder, etc.)
-- [ ] State enum created if stateful
-- [ ] Contract added to `contracts.ts`
+- [ ] Create `taxonomy/kinds/primitives/{kind}/contract.ts`
+- [ ] Define all required slots
+- [ ] Define all states (shared + specific)
+- [ ] Define slotStates mapping
+- [ ] Define ARIA requirements in collections
+- [ ] Define keyboard requirements in collections
+- [ ] Set ariaStateProvider (meltui or coldlight)
 
-### Before Adding a Blueprint
+### If ariaStateProvider is meltui
 
-- [ ] Primitive exists and is registered
-- [ ] Blueprint ID is unique (`kind.variant` format)
-- [ ] Added to `blueprintRegistry.ts`
-- [ ] Variant key is valid
-
-### Before Adding Variant Values
-
-- [ ] Added to `variantKeys.ts`
-- [ ] Recipe CSS supports the value
-- [ ] Documented in TERMINOLOGY.md
+- [ ] Verify kind in adapter inventory
+- [ ] Create `api/adapters/meltui/_internal/{kind}/factory.ts`
+- [ ] Factory must satisfy contract slots/states
 
 ### Validation
 
-- [ ] `pnpm check` passes
-- [ ] `pnpm audit:taxonomy` passes
-- [ ] No duplicate kind names
-- [ ] All slots are unique per kind
+- [ ] Run scanner: `pnpm coldlight:scan`
+- [ ] Scanner passes with no errors
+- [ ] Manifest generated
 
 ---
 
-## Audit Pipeline
-
-```bash
-# Run taxonomy audit
-pnpm audit:taxonomy
-
-# Checks:
-# ✅ All primitives have kinds
-# ✅ All kinds have slots
-# ✅ All blueprints reference valid primitives
-# ✅ All variant keys are valid
-# ✅ No orphaned files
-```
-
-Audit runs automatically via lefthook at commit time.
-
----
-
-## Auto-Documentation
-
-When taxonomy changes:
-
-1. Audit scans registry files
-2. Validates all primitives have metadata
-3. Generates `docs/api/taxonomy.md`
-4. Updates diagrams
-5. Docusaurus picks up changes
-
-**No manual documentation edits.**
-
----
-
-## Index Export Pattern
-
-```typescript
-// taxonomy/index.ts
-
-// Kinds
-export { PrimitiveKinds } from './primitiveKinds.js';
-export type { PrimitiveKind } from './primitiveKinds.js';
-
-// Registry
-export { PrimitiveRegistry } from './primitiveRegistry.js';
-export type { PrimitiveEntry, SlotEntry } from './primitiveRegistry.js';
-
-// Blueprints
-export { BlueprintRegistry } from './blueprintRegistry.js';
-export type { Blueprint, BlueprintId } from './blueprintRegistry.js';
-
-// Variants
-export { SurfaceValues, MaterialValues, LayerValues, TransitionValues, MotionValues } from './variantKeys.js';
-export type { Surface, Material, Layers, Transition, Motion } from './variantKeys.js';
-
-// Contracts
-export { DialogPropsSchema, ButtonPropsSchema } from './contracts.js';
-
-// Block kinds
-export { BlockKinds } from './kinds.js';
-export { BlockSlots } from './slots.js';
-```
-
----
-
-## Forbidden Patterns
-
-| Pattern | Why Forbidden |
-|---------|---------------|
-| Bypass taxonomy import | Creates orphaned components |
-| Hand-edit generated files | Overwrites on next build |
-| Duplicate kind names | Audit failure |
-| Invalid variant keys | Build failure |
-| Missing slot definitions | Runtime errors |
-
----
-
-**Taxonomy is the spine of ColdLight. Everything else is derived.**
+**Taxonomy is the spine of ColdLight. Contracts are the bones.**

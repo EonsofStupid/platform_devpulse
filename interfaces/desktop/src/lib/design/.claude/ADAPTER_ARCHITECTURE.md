@@ -1,264 +1,152 @@
-# ColdLight Adapter Architecture
+﻿# Adapter Architecture
 
-## STATUS: NOTHING IS TESTED OR APPROVED YET
-
-All 49+ primitives need to be faithfully implemented following this architecture.
-Current Svelte components are NOT tested, NOT approved, NOT real yet.
+> **How dsAdapters work in ColdLight.**
 
 ---
 
-## The Two-Layer System
+## Core Principle
 
-### Layer 1: TAXONOMY (Declaration)
-
-Location: `src/lib/design/taxonomy/`
-
-**Adapter declarations:**
-```
-taxonomy/api/adapters/
-├── meltui/
-│   ├── types.ts        # Type declarations for MeltUI adapter
-│   └── contract.ts     # Contract declaring MeltUI adapter capabilities
-└── coldlight/
-    ├── types.ts        # Type declarations for ColdLight adapter
-    └── contract.ts     # Contract declaring ColdLight adapter capabilities
-```
-
-**Primitive declarations:**
-```
-taxonomy/kinds/primitives/
-├── accordion/contract.ts
-├── alert-dialog/contract.ts
-├── avatar/contract.ts
-├── button/contract.ts
-├── calendar/contract.ts
-├── checkbox/contract.ts
-├── collapsible/contract.ts
-├── combobox/contract.ts
-├── context-menu/contract.ts
-├── date-field/contract.ts
-├── date-picker/contract.ts
-├── date-range-field/contract.ts
-├── date-range-picker/contract.ts
-├── dialog/contract.ts
-├── dropdown-menu/contract.ts
-├── label/contract.ts
-├── link-preview/contract.ts
-├── menubar/contract.ts
-├── pagination/contract.ts
-├── pin-input/contract.ts
-├── popover/contract.ts
-├── progress/contract.ts
-├── radio-group/contract.ts
-├── range-calendar/contract.ts
-├── scroll-area/contract.ts
-├── select/contract.ts
-├── separator/contract.ts
-├── slider/contract.ts
-├── switch/contract.ts
-├── table-of-contents/contract.ts
-├── tabs/contract.ts
-├── tags-input/contract.ts
-├── toggle/contract.ts
-├── toggle-group/contract.ts
-├── toolbar/contract.ts
-├── tooltip/contract.ts
-├── tree/contract.ts
-└── ... (49+ total)
-```
-
-Each contract declares:
-- `kind` - primitive name
-- `slots` - all slots this primitive has
-- `requiredSlots` - slots that MUST be rendered
-- `states` - all possible states
-- `aria` - role and required attributes
-- `keyboard` - keyboard interactions
-
-**NO PROVIDER IN CONTRACTS** - that's implementation detail
+**ColdLight = public API. Always.**
+**dsAdapter = internal behavior provider. Hidden.**
 
 ---
 
-### Layer 2: API (Implementation)
+## What is a dsAdapter?
 
-Location: `src/lib/design/api/adapter/`
+A dsAdapter provides:
+- State management (open, selected, expanded)
+- ARIA attributes (role, aria-*, tabindex)
+- Keyboard handlers (ArrowLeft, Home, End)
+- Focus management (trap, restore, roving)
 
-**MeltUI adapter implementations:**
-```
-api/adapter/meltui/
-├── accordion/
-│   ├── contract.ts
-│   ├── types.ts
-│   ├── accordion.ts
-│   └── index.ts
-├── alert-dialog/
-├── avatar/
-├── button/
-├── calendar/
-├── checkbox/
-├── collapsible/
-├── combobox/
-├── context-menu/
-├── date-field/
-├── date-picker/
-├── date-range-field/
-├── date-range-picker/
-├── dialog/
-├── dropdown-menu/
-├── label/
-├── link-preview/
-├── menubar/
-├── pagination/
-├── pin-input/
-├── popover/
-├── progress/
-├── radio-group/
-├── range-calendar/
-├── scroll-area/
-├── select/
-├── separator/
-├── slider/
-├── switch/
-├── table-of-contents/
-├── tabs/
-├── tags-input/
-├── toggle/
-├── toggle-group/
-├── toolbar/
-├── tooltip/
-├── tree/
-└── ... (matching taxonomy 1:1)
-```
-
-**ColdLight adapter implementations:**
-```
-api/adapter/coldlight/
-├── accordion/
-├── alert-dialog/
-├── avatar/
-├── button/
-├── calendar/
-├── checkbox/
-├── collapsible/
-├── combobox/
-├── context-menu/
-├── date-field/
-├── date-picker/
-├── date-range-field/
-├── date-range-picker/
-├── dialog/
-├── dropdown-menu/
-├── label/
-├── link-preview/
-├── menubar/
-├── pagination/
-├── pin-input/
-├── popover/
-├── progress/
-├── radio-group/
-├── range-calendar/
-├── scroll-area/
-├── select/
-├── separator/
-├── slider/
-├── switch/
-├── table-of-contents/
-├── tabs/
-├── tags-input/
-├── toggle/
-├── toggle-group/
-├── toolbar/
-├── tooltip/
-├── tree/
-└── ... (matching taxonomy 1:1)
-```
+Currently: MeltUI
+Next: React ARIA
 
 ---
 
-### Layer 3: PRIMITIVES (Svelte Components)
+## Adapter Declaration
 
-Location: `src/lib/design/primitives/`
+### Adapter-Wide Contract
 
-```
-primitives/
-├── accordion/
-│   ├── Accordion.svelte
-│   ├── Accordion.test.ts
-│   └── README.md          # Auto-generated with diagrams
-├── alert-dialog/
-├── avatar/
-├── button/
-├── calendar/
-├── checkbox/
-├── collapsible/
-├── combobox/
-├── context-menu/
-├── date-field/
-├── date-picker/
-├── date-range-field/
-├── date-range-picker/
-├── dialog/
-├── dropdown-menu/
-├── label/
-├── link-preview/
-├── menubar/
-├── pagination/
-├── pin-input/
-├── popover/
-├── progress/
-├── radio-group/
-├── range-calendar/
-├── scroll-area/
-├── select/
-├── separator/
-├── slider/
-├── switch/
-├── table-of-contents/
-├── tabs/
-├── tags-input/
-├── toggle/
-├── toggle-group/
-├── toolbar/
-├── tooltip/
-├── tree/
-└── ... (matching taxonomy 1:1)
-```
+Location: `taxonomy/api/adapter/{adapter}/contract.ts`
 
-Each primitive:
-- Uses ColdLight adapter (agnostic public API)
-- ARIA baked in
-- Tests required
-- Documentation auto-generated as we code
+`	ypescript
+export const ADAPTER_ID = "meltui" as const;
+export const ADAPTER_SOURCE = "@melt-ui/svelte" as const;
+
+export const MANAGED_ATTRS = [
+  "role", "aria-modal", "aria-labelledby", 
+  "aria-selected", "aria-expanded", "tabindex", "id"
+];
+
+export const BUILDER_INVENTORY = [
+  { kind: "dialog", builder: "createDialog" },
+  { kind: "tabs", builder: "createTabs" },
+];
+
+export const SUPPORTED_PRIMITIVES = BUILDER_INVENTORY.map(e => e.kind);
+`
+
+### Adapter Implementation
+
+Location: `api/adapters/{adapter}/_internal/{kind}/`
+
+`
+api/adapters/meltui/_internal/tabs/
++-- factory.ts    <- Creates builder instance
++-- types.ts      <- Type definitions
++-- index.ts      <- Barrel export
+`
 
 ---
 
-## WHY THIS ARCHITECTURE
+## Binding Mechanism
 
-1. **ColdLight = agnostic public API** - can add providers beyond meltui
-2. **ColdLight = reusable** - use across ALL projects
-3. **Taxonomy = WHAT** - declarations only, no implementation
-4. **API = HOW** - implementations per provider
-5. **Primitives = USE** - consume ColdLight, not meltui directly
+1. Config declares: `dsAdapter: "meltui"`
+2. Primitive contract declares: `ariaStateProvider: "meltui"`
+3. Scanner validates: `api/adapters/meltui/_internal/{kind}/` exists
+4. Folder name = kind name = binding
 
----
-
-## WORKFLOW
-
-1. Add primitive contract to `taxonomy/kinds/primitives/{name}/contract.ts`
-2. Add meltui implementation to `api/adapter/meltui/{name}/`
-3. Add coldlight implementation to `api/adapter/coldlight/{name}/`
-4. Create Svelte component in `primitives/{name}/`
-5. Write tests
-6. Documentation auto-generates
+**No separate adapter-kind contracts needed.**
 
 ---
 
-## CURRENT STATE
+## Import Cloak
 
-- [ ] Taxonomy adapter contracts: NOT DONE
-- [ ] Primitive contracts: 3 done (button, dialog, tabs), 46+ pending
-- [ ] MeltUI adapter implementations: dialog only, NOT TESTED
-- [ ] ColdLight adapter implementations: dialog only, NOT TESTED
-- [ ] Svelte primitives: NONE APPROVED
-- [ ] Tests: NONE
-- [ ] Documentation: NONE
+Scanner generates `taxonomy/.generated/imports.gen.ts`:
+
+`	ypescript
+// Primitives import from here, NOT from adapter directly
+export { createMeltTabs as createTabs } from "api/adapters/meltui/_internal/tabs/factory";
+export { createMeltDialog as createDialog } from "api/adapters/meltui/_internal/dialog/factory";
+`
+
+Primitives see ColdLight names. Adapter is invisible.
+
+---
+
+## ARIA Application
+
+ARIA is NOT baked into primitives.
+ARIA is applied at BLOCK RENDER TIME.
+
+`
+PRIMITIVE (structure + state)
+       |
+       v
+BLOCK instantiates primitive
+       |
+       v
+dsAdapter auto-applies:
+  - ARIA from contract
+  - Keyboard from contract
+  - Focus management
+       |
+       v
+ACCESSIBLE COMPONENT
+`
+
+---
+
+## Adding a New Adapter
+
+1. Create `taxonomy/api/adapter/{adapter}/contract.ts`
+   - ADAPTER_ID
+   - MANAGED_ATTRS
+   - BUILDER_INVENTORY
+   - SUPPORTED_PRIMITIVES
+
+2. Create `api/adapters/{adapter}/_internal/{kind}/` for each supported kind
+   - factory.ts
+   - types.ts
+   - index.ts
+
+3. Update config if switching adapters:
+   `	ypescript
+   // config/coldlight/adapters.cfg.ts
+   export const ADAPTERS = {
+     active: "reactaria",  // changed
+   };
+   `
+
+4. Run scanner - it regenerates import cloak
+
+5. Primitives and blocks unchanged
+
+---
+
+## Adapter Swappability
+
+The whole point of this architecture:
+
+| Change Adapter | Impact |
+|----------------|--------|
+| Taxonomy contracts | Unchanged |
+| Primitives | Unchanged |
+| Blocks | Unchanged |
+| Import cloak | Regenerated |
+| Adapter folder | New implementation |
+
+---
+
+**Adapters are plumbing. Users never see them.**

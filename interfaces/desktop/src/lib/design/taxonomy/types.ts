@@ -185,7 +185,8 @@ export interface ColdLightManifest {
 export type ScanErrorCode =
   | "PARITY_MISSING_FOLDER"
   | "CONTRACT_LOAD_FAILED"
-  | "CONTRACT_INVALID";
+  | "CONTRACT_INVALID"
+  | "SPINE_MISMATCH";
 
 /**
  * Error from scanner.
@@ -201,8 +202,8 @@ export interface ScanError {
  */
 export interface PrimitiveScanResult {
   readonly kind: string;
+  readonly ariaStateProvider: AriaStateProvider;
   readonly hasContract: boolean;
-  readonly hasColdlight: boolean;
   readonly hasSvelteComponent: boolean;
   readonly missingAdapters: readonly DsAdapterId[];
   readonly hasParity: boolean;

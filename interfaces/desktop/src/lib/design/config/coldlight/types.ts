@@ -3,7 +3,7 @@
  * @package @devpulse/coldlight
  */
 
-export type ColdLightSystemId = "coldlight";
+export type SystemId = "coldlight";
 
 /**
  * CategoryId is the hub grouping (primitives/semantics/composites).
@@ -11,9 +11,16 @@ export type ColdLightSystemId = "coldlight";
  */
 export type CategoryId = "primitives" | "semantics" | "composites";
 
+/**
+ * Design-system adapter identifier.
+ * These are the behavior providers that run under ColdLight.
+ * ColdLight itself is the SSOT system, not an adapter.
+ */
+export type AdapterId = "meltui";
+
 export type ColdLightConfig = Readonly<{
   identity: Readonly<{
-    systemId: ColdLightSystemId;
+    systemId: SystemId;
     packageName: string;
     version: string;
   }>;
@@ -22,26 +29,26 @@ export type ColdLightConfig = Readonly<{
     /** Absolute or repo-relative base used by build tools */
     designRoot: string;
     taxonomyRoot: string;
-    apiAdaptersRoot: string;
+    /** The api/ folder (adapters live under api/adapters/) */
+    apiRoot: string;
     primitivesRoot: string;
     generatedRoot: string;
   }>;
 
   adapters: Readonly<{
-    /**
-     * The design-system adapter providing ARIA + state behavior
-     * under ColdLight's public surface.
-     * ColdLight is always the SSOT — not listed here.
-     */
-    dsAdapter: string;
+    /** Which adapters are enabled */
+    enabled: Readonly<Record<AdapterId, true>>;
+    /** The active adapter providing ARIA + state behavior */
+    active: AdapterId;
+    /** Who provides ARIA state builders */
+    ariaStateProvider: AdapterId;
   }>;
 
   generation: Readonly<{
     categories: Readonly<Record<CategoryId, { enabled: boolean }>>;
     outputs: Readonly<{
-      manifestJsonPath: string;
-      importsPath: string;
-      cssPath: string;
+      manifestJson: string;
+      importsTs: string;
     }>;
   }>;
 
@@ -51,7 +58,7 @@ export type ColdLightConfig = Readonly<{
     failOnContractLoad: true;
     lefthook: Readonly<{
       enabled: boolean;
-      verifyScript: string;
+      verifyCmd: string;
     }>;
   }>;
 

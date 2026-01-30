@@ -9,6 +9,6 @@ export const ENFORCEMENT = {
   failOnContractLoad: true,
   lefthook: {
     enabled: true,
-    verifyScript: "pnpm coldlight:verify",
+    verifyCmd: "pnpm coldlight:verify",
   },
 } as const;

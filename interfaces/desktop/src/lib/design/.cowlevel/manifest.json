@@ -1,0 +1,31 @@
+{
+  "generatedAt": "2026-01-30T21:17:24.982Z",
+  "package": "@devpulse/coldlight",
+  "version": "0.1.0",
+  "entryPoints": [
+    {
+      "export": ".",
+      "file": "./index.ts"
+    },
+    {
+      "export": "./tokens",
+      "file": "./tokens/tokens.ts"
+    },
+    {
+      "export": "./taxonomy",
+      "file": "./taxonomy/index.ts"
+    },
+    {
+      "export": "./recipes",
+      "file": "./recipes/index.ts"
+    },
+    {
+      "export": "./primitives",
+      "file": "./primitives/index.ts"
+    }
+  ],
+  "outputs": {
+    "html": "D:/localdev/platform_devpulse/interfaces/desktop/src/lib/design/.cowlevel/typedoc",
+    "json": "D:/localdev/platform_devpulse/interfaces/desktop/src/lib/design/.cowlevel/api.json"
+  }
+}

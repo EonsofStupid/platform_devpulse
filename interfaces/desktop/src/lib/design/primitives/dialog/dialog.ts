@@ -7,8 +7,8 @@
 // CONTEXT
 // =============================================================================
 
-export type { DialogContext } from "./context";
-export { setDialogContext, getDialogContext } from "./context";
+export type { DialogContext } from "./context.js";
+export { setDialogContext, getDialogContext } from "./context.js";
 
 // =============================================================================
 // TYPES
@@ -19,15 +19,15 @@ export type {
   DialogSlotProps,
   DialogSlot,
   DialogState,
-} from "./types";
+} from "./types.js";
 
 // =============================================================================
 // CONTRACT
 // =============================================================================
 
 export {
-  contract,
+  contract as dialogContract,
   dialogSlots,
   dialogStateTokens,
   dialogSlotStates,
-} from "./contract";
+} from "./contract.js";

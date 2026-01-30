@@ -33,17 +33,12 @@ export {
 } from "./route-metadata";
 
 // ============================================
-// MELT UI PRIMITIVES
+// PRIMITIVES
 // ============================================
-// Will be added as implemented:
-// - Dialog
-// - AlertDialog
-// - Sheet
-// - Popover
-// - Tooltip
-// - Tabs
-// - Select
-// - Button
+
+export * from "./dialog/index.js";
+export * from "./button/index.js";
+export * from "./tabs/index.js";
 
 // ============================================
 // TANSTACK

@@ -10,27 +10,26 @@
 
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { fileURLToPath } from "node:url";
+import { pathToFileURL } from "node:url";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const DESKTOP_ROOT = path.resolve(__dirname, "../..");
 const DESIGN_ROOT = path.resolve(DESKTOP_ROOT, "src/lib/design");
 
 async function main() {
   console.log("[ColdLight] Verifying manifest...");
 
-  // Dynamic import to handle ES modules
-  const { coldlightConfig } = await import(
-    path.resolve(DESIGN_ROOT, "coldlight.config.js")
-  );
-  const { scanColdLight } = await import(
-    path.resolve(DESIGN_ROOT, "taxonomy/scanner.js")
-  );
+  // Dynamic import with pathToFileURL for Windows ESM compatibility
+  const configPath = pathToFileURL(path.resolve(DESIGN_ROOT, "coldlight.config.js")).href;
+  const scannerPath = pathToFileURL(path.resolve(DESIGN_ROOT, "taxonomy/scanner.js")).href;
+
+  const { coldlightConfig } = await import(configPath);
+  const { scanColdLight } = await import(scannerPath);
 
   // Build import function that resolves relative to design root
   const importFn = async (p: string) => {
     const fullPath = path.resolve(DESKTOP_ROOT, p);
-    return import(fullPath);
+    return import(pathToFileURL(fullPath).href);
   };
 
   const result = await scanColdLight(fs, importFn, coldlightConfig);
@@ -46,7 +45,7 @@ async function main() {
   // Check if manifest file exists
   const manifestPath = path.resolve(
     DESKTOP_ROOT,
-    coldlightConfig.generation.outputs.manifestJsonPath
+    coldlightConfig.generation.outputs.manifestJson
   );
 
   if (!fs.existsSync(manifestPath)) {

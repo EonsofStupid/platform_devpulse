@@ -1,16 +1,38 @@
 <!--
   @file Dialog.svelte
-  @description Dialog root component.
+  @layer primitives
+  @kind dialog
+  @slot root
 
-  This is the root of the dialog primitive. It:
-  - Creates the dialog builder via ColdLight adapter (no direct MeltUI import)
-  - Shares state via Svelte context
-  - Renders the root slot with ColdLight data attributes
+  Dialog root — manages open/closed state and shares builder via context.
+
+  ColdLight OWNS:
+  - data-kind="dialog", data-slot="root", data-state
+  - Svelte context sharing (child slots access builder instance)
+
+  Adapter (via cloak):
+  - State management (open/close coordination)
+  - Builder instance creation
+
+  @example
+  ```svelte
+  <Dialog bind:open>
+    <DialogTrigger>Open</DialogTrigger>
+    <DialogPortal>
+      <DialogOverlay />
+      <DialogContent>
+        <DialogTitle>Title</DialogTitle>
+        <DialogDescription>Description</DialogDescription>
+        <DialogClose>Close</DialogClose>
+      </DialogContent>
+    </DialogPortal>
+  </Dialog>
+  ```
 -->
 <script lang="ts">
-  import { createDialogBuilder } from "$lib/design/api/adapters/coldlight/dialog";
-  import { setDialogContext } from "./context";
-  import type { DialogProps } from "./types";
+  import { createDialog } from "$lib/design/taxonomy/.generated/imports.gen";
+  import { setDialogContext } from "./context.js";
+  import type { DialogProps } from "./types.js";
 
   // ===========================================================================
   // PROPS
@@ -30,15 +52,12 @@
   }: Props = $props();
 
   // ===========================================================================
-  // DIALOG BUILDER (via ColdLight adapter - MeltUI is internal)
+  // DIALOG FACTORY (via ColdLight cloak — adapter is invisible)
   // ===========================================================================
 
-  const dialog = createDialogBuilder({
+  const dialog = createDialog({
     defaultOpen: open,
-    closeOnOutsideClick,
-    escapeBehavior: closeOnEscape ? "close" : "ignore",
     forceVisible: true,
-    preventScroll,
   });
 
   const {
@@ -46,7 +65,24 @@
   } = dialog;
 
   // ===========================================================================
-  // STATE SYNC
+  // REACTIVE OPTION SYNC
+  // Fixes state_referenced_locally warnings — props flow INTO MeltUI stores.
+  // ===========================================================================
+
+  $effect(() => {
+    dialog.options.closeOnOutsideClick.set(closeOnOutsideClick);
+  });
+
+  $effect(() => {
+    dialog.options.escapeBehavior.set(closeOnEscape ? "close" : "ignore");
+  });
+
+  $effect(() => {
+    dialog.options.preventScroll.set(preventScroll);
+  });
+
+  // ===========================================================================
+  // STATE SYNC (adapter → ColdLight)
   // ===========================================================================
 
   $effect(() => {
@@ -58,13 +94,13 @@
   });
 
   // ===========================================================================
-  // CONTEXT
+  // CONTEXT — child slot components access the builder instance
   // ===========================================================================
 
   setDialogContext(dialog);
 </script>
 
 <!-- Root slot with ColdLight data attributes -->
-<div data-kind="dialog" data-slot="root" data-state={open ? "open" : ""}>
+<div data-kind="dialog" data-slot="root" data-state={open ? "open" : "closed"}>
   {@render children?.()}
 </div>

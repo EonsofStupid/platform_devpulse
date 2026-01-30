@@ -21,7 +21,7 @@
         "docs:primitives": "npx tsx scripts/dev/design/audit-primitives.ts --update-md",
         "coldlight:generate": "npx tsx scripts/coldlight/generate-manifest.ts",
         "coldlight:verify": "npx tsx scripts/coldlight/verify-manifest.ts",
-        "coldlight:docs": "npx typedoc --options src/lib/design/typedoc.json"
+        "coldlight:docs": "npx tsx scripts/coldlight/generate-docs.ts"
     },
     "devDependencies": {
         "@commitlint/cli": "^20.3.1",
@@ -47,6 +47,8 @@
         "tailwindcss": "^4.1.18",
         "tslib": "^2.4.1",
         "tsx": "^4.21.0",
+        "typedoc": "^0.28.16",
+        "typedoc-plugin-markdown": "^4.9.0",
         "typescript": "^5.0.0",
         "vite": "^7.3.1",
         "vitest": "^4.0.17",
