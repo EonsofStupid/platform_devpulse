@@ -10,3 +10,4 @@ export * from "./adapters.cfg.js";
 export * from "./generation.cfg.js";
 export * from "./enforcement.cfg.js";
 export * from "./attributes.cfg.js";
+export * from "./vocabularies.cfg.js";

@@ -384,7 +384,7 @@ When you need an effect:
 1. **tokens.ts is SSOT** - edit this, run generator
 2. **keyframes.css is ONLY manual CSS** - motion only, no visuals
 3. **data-* attributes** - how styling is applied
-4. **MeltUI only in primitives/** - nowhere else
+4. **MeltUI only internal/** - nowhere else
 5. **VPB never stores CSS** - only kind + recipe + props
 6. **No arbitrary Tailwind** - no `[...]` brackets ever
 7. **Recipes are REUSABLE** - effects belong in recipe library, not components

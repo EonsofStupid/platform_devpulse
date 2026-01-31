@@ -1,112 +1,79 @@
 /**
- * @file Tabs Primitive Contract
- * @description Taxonomy SSOT contract for tabs kind
+ * @file Tabs Taxonomy Contract
+ * @description ColdLight SSOT contract for the tabs primitive.
  *
- * Tabs provide a way to switch between different views/content panels.
- * Backed by MeltUI createTabs builder.
+ * ariaStateProvider: "meltui" — dsAdapter provides ARIA + state machinery.
+ * 3-folder parity: taxonomy + adapter + primitive.
  *
- * Requirements:
- * - tablist role on list container
- * - tab role on triggers
- * - tabpanel role on content panels
- * - aria-selected on active tab
- * - Arrow key navigation between tabs
- * - Automatic or manual activation modes
+ * CRITICAL: MeltUI tabs trigger/content are parameterized builders.
+ * trigger(value) and content(value) return stores, unlike dialog where
+ * all elements are direct stores. This affects primitive implementation.
  */
 
-import type { PrimitiveContract, SlotStateMap } from "$lib/design/taxonomy/types";
+import type { PrimitiveContract, SlotStateMap, StateToken } from "../../../types.js";
 
-export const tabsSlots = [
-  "root",
-  "list",
-  "trigger",
-  "content",
-] as const;
+// ─── SLOT TYPES ─────────────────────────────────────────────────────────────
 
+/** All slot names for the tabs primitive */
+export const tabsSlots = ["root", "list", "trigger", "content"] as const;
+
+/** Union of tabs slot names */
 export type TabsSlot = (typeof tabsSlots)[number];
 
-export const tabsStateTokens = [
-  // Presence
-  "hidden",
-  "visible",
-  // Primary
-  "selected",
-  // Focus
-  "focused",
-  "focus-visible",
-  "focus-within",
-  // Interaction
-  "hover",
-  "active",
-  // Availability
-  "disabled",
-] as const;
+// ─── STATE TYPES ────────────────────────────────────────────────────────────
 
+/** All state tokens applicable to the tabs primitive */
+export const tabsStateTokens = [
+	"focused",
+	"focus-visible",
+	"focus-within",
+	"hover",
+	"active",
+	"disabled",
+	"hidden",
+	"visible",
+	"selected",
+] as const satisfies readonly StateToken[];
+
+/** Union of tabs state tokens */
 export type TabsState = (typeof tabsStateTokens)[number];
 
-export const tabsSlotStates: SlotStateMap<TabsSlot, TabsState> = {
-  root: ["focus-within"],
-  list: [],
-  trigger: ["selected", "focused", "focus-visible", "hover", "active", "disabled"],
-  content: ["hidden", "visible", "selected"],
-} as const;
+// ─── SLOT STATE MAP ─────────────────────────────────────────────────────────
 
-type TabsCollectionKey = "aria" | "keyboard";
+/** Per-slot allowed states for tabs */
+export const tabsSlotStates = {
+	root: [],
+	list: ["focus-within"],
+	trigger: ["selected", "focused", "focus-visible", "hover", "active", "disabled"],
+	content: ["hidden", "visible"],
+} as const satisfies SlotStateMap<TabsSlot, TabsState>;
 
-const TABS_COLLECTIONS = {
-  aria: {
-    role: "tablist",
-    requiredAttrs: ["aria-orientation"] as const,
-    optionalAttrs: ["aria-label"] as const,
-  },
-  keyboard: [
-    "ArrowLeft",
-    "ArrowRight",
-    "ArrowUp",
-    "ArrowDown",
-    "Home",
-    "End",
-    "Enter",
-    "Space",
-  ] as const,
-} as const;
+// ─── CONTRACT ───────────────────────────────────────────────────────────────
 
-export const contract: PrimitiveContract<
-  "tabs",
-  TabsSlot,
-  TabsState,
-  TabsCollectionKey
-> = {
-  kind: "tabs",
-
-  // MeltUI provides ARIA+state via createTabs builder
-  ariaStateProvider: "meltui",
-
-  slots: {
-    required: ["root", "list", "trigger", "content"],
-    optional: [],
-    forbidden: [],
-  },
-
-  states: {
-    shared: ["focused", "focus-visible", "focus-within", "hover", "active", "disabled"],
-    specific: ["hidden", "visible", "selected"],
-  },
-
-  slotStates: tabsSlotStates,
-
-  slotActions: {
-    root: [],
-    list: [],
-    trigger: [],
-    content: [],
-  },
-
-  collections: {
-    get(key) {
-      return TABS_COLLECTIONS[key];
-    },
-  },
+/** Tabs primitive contract — ColdLight SSOT */
+export const contract: PrimitiveContract<"tabs", TabsSlot, TabsState> = {
+	kind: "tabs",
+	ariaStateProvider: "meltui",
+	slots: {
+		required: ["root", "list", "trigger", "content"],
+		optional: [],
+		forbidden: [],
+	},
+	states: {
+		shared: ["focused", "focus-visible", "focus-within", "hover", "active", "disabled"],
+		specific: ["hidden", "visible", "selected"],
+	},
+	slotStates: tabsSlotStates,
+	slotActions: {
+		root: [],
+		list: [],
+		trigger: [],
+		content: [],
+	},
+	aria: {
+		role: "tablist",
+		requiredAttrs: ["aria-orientation"],
+		optionalAttrs: [],
+	},
+	keyboard: ["ArrowLeft", "ArrowRight", "Home", "End", "Enter", "Space"],
 };
-
-export default contract;

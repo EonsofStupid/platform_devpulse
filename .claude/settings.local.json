@@ -20,7 +20,10 @@
       "Bash(git mv:*)",
       "Bash(pnpm exec svelte-check:*)",
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:deepwiki.com)"
+      "WebFetch(domain:deepwiki.com)",
+      "Bash(ls -la \"d:\\\\localdev\\\\platform_devpulse\\\\interfaces\\\\desktop\\\\src\\\\lib\\\\design\\\\taxonomy\\\\kinds\"\" 2>/dev/null || ls -la \"d:/localdev/platform_devpulse/interfaces/desktop/src/lib/design/taxonomy/kinds/\" 2>/dev/null || echo \"Directory not found \")",
+      "Bash(git diff-index:*)",
+      "Bash(ls -la \"d:\\\\localdev\\\\platform_devpulse\\\\interfaces\\\\desktop\\\\src\\\\lib\\\\design\\\\primitives\"\" 2>/dev/null || dir /B \"d:localdevplatform_devpulseinterfacesdesktopsrclibdesignprimitives \")"
     ]
   }
 }

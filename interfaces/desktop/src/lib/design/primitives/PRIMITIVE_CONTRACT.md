@@ -1,4 +1,4 @@
-﻿# Primitive Contract
+# Primitive Contract
 
 > **How primitives bind to taxonomy contracts.**
 
@@ -8,14 +8,14 @@
 
 Every primitive folder contains a `contract.ts` that re-exports the taxonomy contract:
 
-`	ypescript
+```typescript
 // primitives/tabs/contract.ts
-export { contract } from '/design/taxonomy/kinds/primitives/tabs/contract';
-`
+export { contract } from '$lib/design/taxonomy/kinds/primitives/tabs/contract';
+```
 
 This creates a binding between:
-- The SSOT contract in taxonomy
-- The implementation in primitives
+- The SSOT contract in taxonomy (`taxonomy/kinds/primitives/{kind}/contract.ts`)
+- The implementation in primitives (`primitives/{kind}/`)
 
 ---
 
@@ -23,13 +23,14 @@ This creates a binding between:
 
 | Field | Purpose | Used By |
 |-------|---------|---------|
-| kind | Primitive identity | Scanner, registry |
-| ariaStateProvider | Which dsAdapter fulfills behavior | Scanner, blocks |
-| slots | Required/optional/forbidden slots | Scanner, components |
-| states | Shared and kind-specific states | Components |
-| slotStates | Which states apply to which slots | Components |
-| collections.aria | ARIA requirements | Blocks (at render) |
-| collections.keyboard | Keyboard requirements | Blocks (at render) |
+| `kind` | Primitive identity | Scanner, registry |
+| `ariaStateProvider` | Which dsAdapter fulfills behavior | Scanner, blocks |
+| `slots` | Required/optional/forbidden slots | Scanner, components |
+| `states` | Shared and kind-specific states | Components |
+| `slotStates` | Which states apply to which slots | Components |
+| `slotActions` | Actions per slot | Components |
+| `collections.aria` | ARIA requirements | Blocks (at render) |
+| `collections.keyboard` | Keyboard requirements | Blocks (at render) |
 
 ---
 
@@ -41,24 +42,24 @@ The contract does NOT apply ARIA.
 ARIA is applied at BLOCK RENDER TIME where context is known.
 
 Primitives only provide:
-- data-kind
-- data-slot
-- data-state
+- `data-kind`
+- `data-slot`
+- `data-state`
 
 ---
 
 ## ariaStateProvider
 
-| Value | Meaning |
-|-------|---------|
-| meltui | MeltUI provides state management. ARIA applied at block level. |
-| coldlight | ColdLight handles natively (e.g., native button). |
+| Value | Meaning | Parity |
+|-------|---------|--------|
+| `"meltui"` | dsAdapter provides state + ARIA machinery. Applied at blocks. | 3-folder: taxonomy + adapter + primitive |
+| `"coldlight"` | Kind handles ARIA natively (e.g., native `<button>`). No adapter needed. | 2-folder: taxonomy + primitive |
 
 ---
 
 ## Example
 
-`	ypescript
+```typescript
 // taxonomy/kinds/primitives/tabs/contract.ts (SSOT)
 export const contract = {
   kind: "tabs",
@@ -66,27 +67,27 @@ export const contract = {
   slots: { required: ["root", "list", "trigger", "content"] },
   // ...
 };
-`
+```
 
-`	ypescript
+```typescript
 // primitives/tabs/contract.ts (binding)
-export { contract } from '/design/taxonomy/kinds/primitives/tabs/contract';
-`
+export { contract } from '$lib/design/taxonomy/kinds/primitives/tabs/contract';
+```
 
-`svelte
+```svelte
 <!-- primitives/tabs/Tabs.svelte (implementation) -->
 <div data-kind="tabs" data-slot="root">
   <!-- NO ARIA here -->
   {@render children?.()}
 </div>
-`
+```
 
-`svelte
+```svelte
 <!-- blocks/settings/SettingsTabs.svelte (ARIA applied) -->
 <Tabs {...aria.root}>
   <!-- ARIA applied here at block level -->
 </Tabs>
-`
+```
 
 ---
 

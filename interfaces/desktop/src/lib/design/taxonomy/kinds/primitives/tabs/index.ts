@@ -1,12 +1,12 @@
 /**
- * @file Tabs Contract Barrel
+ * @file Tabs Taxonomy Barrel
+ * @description Re-exports tabs contract. Zero logic.
  */
 export {
-  contract,
-  contract as default,
-  tabsSlots,
-  tabsStateTokens,
-  tabsSlotStates,
-  type TabsSlot,
-  type TabsState,
+	contract,
+	tabsSlots,
+	tabsStateTokens,
+	tabsSlotStates,
+	type TabsSlot,
+	type TabsState,
 } from "./contract.js";

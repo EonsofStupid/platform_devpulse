@@ -4,11 +4,9 @@
  *
  * ColdLight Primitives — Barrel Export
  *
- * Architecture:
- * - Melt UI = ARIA Provider (roles, aria-*, IDs, focus, keyboard)
- * - ColdLight = Design System (data-kind, data-slot, data-state, class, types)
- *
- * See CHECKLIST.md for implementation requirements.
+ * Headless structural shells. Contract-aligned.
+ * data-kind, data-slot, data-state, typed props, snippet children.
+ * Zero adapter awareness. Zero behavior imports.
  */
 
 // ============================================

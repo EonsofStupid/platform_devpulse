@@ -1,10 +1,9 @@
 # ColdLight Primitives
 
 > Living specification for ColdLight UI primitives.
-> Auto-updated by `pnpm docs:primitives`.
 >
-> **ARIA Provider:** Melt UI
-> **Architecture:** See ADR-009, ADR-010, ADR-011
+> **dsAdapter:** MeltUI (declared in `config/coldlight/adapters.cfg.ts`)
+> **Architecture:** Contract declares → Primitive structures → Block applies ARIA
 
 ## Quick Start
 
@@ -13,10 +12,10 @@
   import { Button, Dialog } from "$lib/design/primitives";
 </script>
 
-<!-- Simple primitive -->
+<!-- Simple primitive (ariaStateProvider: coldlight) -->
 <Button>Click me</Button>
 
-<!-- Compound primitive -->
+<!-- Compound primitive (ariaStateProvider: meltui) -->
 <Dialog.Root>
   <Dialog.Trigger>Open</Dialog.Trigger>
   <Dialog.Portal>
@@ -30,47 +29,49 @@
 </Dialog.Root>
 ```
 
-## Completion Status
+## Current State (2026-01-30)
 
-<!-- BEGIN:AUDIT_TABLE -->
-| Primitive | index | types | a11y | tests | Status |
-|-----------|-------|-------|------|-------|--------|
-| alert-dialog | ✅ | ✅ | ✅ | 41 | 🔄 MIGRATE |
-| button | ✅ | ✅ | ✅ | 19 | 🔄 MIGRATE |
-| dialog | ✅ | ✅ | ✅ | 28 | 🔄 MIGRATE |
-| popover | ✅ | ✅ | ✅ | 35 | 🔄 MIGRATE |
-| sheet | ✅ | ✅ | ✅ | 32 | 🔄 MIGRATE |
-| tabs | ✅ | ✅ | ✅ | 48 | 🔄 MIGRATE |
-| tanstack | ✅ | ❌ | ❌ | ❌ | 🔄 |
-| tooltip | ✅ | ✅ | ✅ | 28 | 🔄 MIGRATE |
-<!-- END:AUDIT_TABLE -->
-
-**Migration Status:** Existing primitives use melt-ui and will be migrated to Melt UI.
+| Kind | Contract | Adapter | Primitive | ariaStateProvider | Status |
+|------|----------|---------|-----------|-------------------|--------|
+| button | ✅ | N/A | 🔨 BUILD | `coldlight` | In progress |
+| dialog | ✅ | ✅ | 🔨 BUILD | `meltui` | In progress |
+| tabs | ✅ | ✅ | 🔨 BUILD | `meltui` | In progress |
 
 ## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  Melt UI (ARIA Provider)                                    │
-│  • ARIA attributes (role, aria-*)                           │
-│  • ID generation and linking                                │
-│  • Focus management                                         │
-│  • Keyboard navigation                                      │
-│  • Event handlers                                           │
-│  Delivery: use:melt={$element} action                       │
+│  Taxonomy Contract (SSOT)                                    │
+│  • kind, slots, states, slotStates                          │
+│  • ariaStateProvider ("meltui" or "coldlight")              │
+│  • collections.aria (ARIA requirements)                      │
+│  • collections.keyboard (keyboard requirements)              │
+│  Location: taxonomy/kinds/primitives/{kind}/contract.ts      │
 └─────────────────────────────────────────────────────────────┘
                           │
                           ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  ColdLight (Design System)                                  │
-│  • data-kind          (primitive taxonomy)                  │
-│  • data-slot          (slot identification)                 │
-│  • data-state         (visual state for CSS)                │
-│  • data-id            (user-controlled stable ID)           │
-│  • class              (recipe-based styling)                │
-│  • Type system        (props interfaces)                    │
-│  • Registry           (kind/material/recipe)                │
-│  • Audit              (diagram, JSDOC)                      │
+│  dsAdapter (MeltUI) — behavior engine                        │
+│  • Positioning (Floating UI)                                │
+│  • Focus trapping                                            │
+│  • Keyboard navigation                                       │
+│  • Click outside detection                                   │
+│  • Escape key handling                                       │
+│  • Portal rendering                                          │
+│  Access: import cloak (taxonomy/.generated/imports.gen.ts)    │
+│  Delivery: use:melt={$element} on slot components            │
+└─────────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────────┐
+│  ColdLight Primitive (structure + data attributes)           │
+│  • data-kind          (primitive taxonomy)                   │
+│  • data-slot          (slot identification)                  │
+│  • data-state         (visual state for CSS)                 │
+│  • data-id            (user-controlled stable ID)            │
+│  • class              (recipe-based styling)                 │
+│  • Type system        (props interfaces)                     │
+│  • NO ARIA            (declared in contract, applied at blocks) │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -80,7 +81,7 @@ All primitives emit these attributes for CSS targeting:
 
 | Attribute | Purpose | Example |
 |-----------|---------|---------|
-| `data-kind` | Primitive type | `"dialog"`, `"select"` |
+| `data-kind` | Primitive type | `"dialog"`, `"button"` |
 | `data-slot` | Slot within primitive | `"root"`, `"content"` |
 | `data-state` | Current state | `"open"`, `"closed"` |
 | `data-id` | User-controlled stable ID | `"my-dialog"` |
@@ -91,92 +92,116 @@ All primitives emit these attributes for CSS targeting:
 
 ```
 primitives/
-├── types.ts           # Foundation: DATA_ATTRS, cn(), stripStyleProp()
-├── index.ts           # Barrel exports
-├── PRIMITIVES.md      # This file (living spec)
-├── CHECKLIST.md       # Implementation checklist
-├── WORKFLOW.md        # Development workflow
-├── button/            # Simple primitive
+├── types.ts                    # Foundation: DATA_ATTRS, cn(), stripStyleProp()
+├── index.ts                    # Barrel exports
+├── PRIMITIVES.md               # This file (living spec)
+├── CHECKLIST.md                # Implementation law
+├── MASTER_SPRINT_PLAN.md       # Sprint priorities
+├── PRIMITIVE_CONTRACT.md       # Contract binding spec
+├── button/                     # Simple primitive (ariaStateProvider: coldlight)
 │   ├── index.ts
+│   ├── contract.ts             # Re-exports taxonomy contract
 │   ├── types.ts
 │   ├── Button.svelte
-│   ├── Button.test.ts
-│   └── a11y.md
-├── dialog/            # Compound primitive
+│   ├── Button.test.svelte
+│   └── Button.test.ts
+├── dialog/                     # Compound primitive (ariaStateProvider: meltui)
 │   ├── index.ts
+│   ├── contract.ts
+│   ├── context.ts
 │   ├── types.ts
-│   ├── Root.svelte
-│   ├── Trigger.svelte
-│   ├── Portal.svelte
-│   ├── Overlay.svelte
-│   ├── Content.svelte
-│   ├── Title.svelte
-│   ├── Description.svelte
-│   ├── Close.svelte
+│   ├── Dialog.svelte
+│   ├── DialogTrigger.svelte
+│   ├── DialogPortal.svelte
+│   ├── DialogOverlay.svelte
+│   ├── DialogContent.svelte
+│   ├── DialogTitle.svelte
+│   ├── DialogDescription.svelte
+│   ├── DialogClose.svelte
 │   ├── Dialog.test.svelte
-│   ├── Dialog.test.ts
-│   └── a11y.md
-└── ...
+│   └── Dialog.test.ts
+├── tabs/                       # Compound primitive (ariaStateProvider: meltui)
+│   ├── index.ts
+│   ├── contract.ts
+│   ├── context.ts
+│   ├── types.ts
+│   ├── Tabs.svelte
+│   ├── TabsList.svelte
+│   ├── TabsTrigger.svelte
+│   ├── TabsContent.svelte
+│   ├── Tabs.test.svelte
+│   └── Tabs.test.ts
+└── tanstack/                   # TanStack table integration
 ```
-
-## Primitive Completion Checklist
-
-Every primitive MUST have ALL of the following:
-
-### Required Files
-- `{name}/index.ts` — Barrel export
-- `{name}/types.ts` — Slots array, State type, Context key, Props interfaces
-- `{name}/*.svelte` — Component files (1 for simple, N for compound)
-- `{name}/a11y.md` — ARIA contract, keyboard, focus, data attributes
-- `{name}/{Name}.test.svelte` — Test wrapper component
-- `{name}/{Name}.test.ts` — vitest-browser-svelte tests
-
-### Required Standards
-- Data attributes: `data-kind`, `data-slot`, `data-state`, `data-id`
-- No `style` prop (enforced via `Omit<..., "style">` + `stripStyleProp`)
-- Interactive elements use `use:melt={$element}` for ARIA
-- Robust tests (see minimum counts in CHECKLIST.md)
-- All tests pass
-- Type check passes
 
 ## Key Patterns
 
-### Pattern A: Root Component (Creates Builder)
+### Pattern A: Simple Primitive (ariaStateProvider: coldlight)
+
+Native HTML handles ARIA. No dsAdapter builder needed.
 
 ```svelte
 <script lang="ts">
-  import { createDialog } from '@melt-ui/svelte';
+  import type { ButtonProps } from './types.js';
+  import { stripStyleProp } from '../types.js';
+
+  let {
+    children,
+    class: className = '',
+    "data-id": dataId,
+    ...rest
+  }: ButtonProps = $props();
+
+  stripStyleProp(rest, 'Button');
+</script>
+
+<button
+  class={className}
+  data-kind="button"
+  data-slot="root"
+  data-id={dataId}
+  {...rest}
+>
+  {#if children}
+    {@render children()}
+  {/if}
+</button>
+```
+
+### Pattern B: Compound Root (ariaStateProvider: meltui)
+
+Creates dsAdapter builder via import cloak, shares via context.
+
+```svelte
+<script lang="ts">
+  import { createDialog } from '$lib/design/taxonomy/.generated/imports.gen';
   import { setContext } from 'svelte';
+  import type { DialogRootProps } from './types.js';
   import { DIALOG_CONTEXT_KEY } from './types.js';
 
-  const dialog = createDialog({
-    defaultOpen: open,
-    onOpenChange: (details) => {
-      open = details.open;
-      onOpenChange?.(details.open);
-    },
-  });
+  let { open = $bindable(false), children, "data-id": dataId }: DialogRootProps = $props();
 
+  const dialog = createDialog({ defaultOpen: open });
   setContext(DIALOG_CONTEXT_KEY, dialog);
 </script>
 
-<div
-  data-kind="dialog"
-  data-slot="root"
-  data-state={dataState}
-  data-id={dataId}
->
-  {@render children?.()}
+<div data-kind="dialog" data-slot="root" data-state={open ? 'open' : 'closed'} data-id={dataId}>
+  {#if children}{@render children()}{/if}
 </div>
 ```
 
-### Pattern B: Child Component (Uses Builder)
+### Pattern C: Compound Slot (uses dsAdapter builder from context)
 
 ```svelte
 <script lang="ts">
-  import { melt } from '@melt-ui/svelte';
+  import { melt } from '$lib/design/taxonomy/.generated/imports.gen';
   import { getContext } from 'svelte';
+  import type { DialogContentProps } from './types.js';
   import { DIALOG_CONTEXT_KEY } from './types.js';
+  import { stripStyleProp } from '../types.js';
+
+  let { children, class: className = '', "data-id": dataId, ...rest }: DialogContentProps = $props();
+  stripStyleProp(rest, 'DialogContent');
 
   const dialog = getContext(DIALOG_CONTEXT_KEY);
   const { elements: { content }, states: { open } } = dialog;
@@ -189,14 +214,17 @@ Every primitive MUST have ALL of the following:
   data-slot="content"
   data-state={$open ? 'open' : 'closed'}
   data-id={dataId}
+  {...rest}
 >
-  {@render children?.({ open: $open })}
+  {#if children}{@render children({ open: $open })}{/if}
 </div>
 ```
 
 **Key points:**
-- `use:melt={$content}` applies all ARIA (role, aria-modal, aria-labelledby, etc.)
-- ColdLight adds `data-kind`, `data-slot`, `data-state`, `data-id`, `class`
+- `use:melt={$content}` applies dsAdapter behavior (ARIA, focus, keyboard)
+- Imports from import cloak ONLY — never from `@melt-ui/svelte`
+- Primitives emit `data-kind`, `data-slot`, `data-state` — NO manual ARIA
+- ARIA requirements are declared in the contract, applied at block level
 
 ## Foundation Imports
 
@@ -207,35 +235,18 @@ import { DATA_ATTRS, stripStyleProp, cn } from "../types.js";
 import type { OmitStyle, BaseProps } from "../types.js";
 ```
 
-## Maintenance
+## Verification
 
 After completing any primitive:
 
 ```bash
-pnpm docs:primitives    # Updates completion table
-pnpm audit:primitives   # Verify completeness
-pnpm test:run lib/design/primitives/{name}/
-pnpm check              # Type check
+cd interfaces/desktop
+pnpm svelte-check                                    # Types pass
+pnpm test:run src/lib/design/primitives/{kind}/      # Tests pass
 ```
 
-## Migration Plan
+---
 
-Existing melt-ui primitives will be migrated to Melt UI:
-
-| Primitive | melt-ui Status | Melt UI Status |
-|-----------|----------------|----------------|
-| Button | ✅ Complete | 🔄 Migrate |
-| Dialog | ✅ Complete | 🔄 Migrate |
-| Sheet | ✅ Complete | 🔄 Migrate |
-| Tabs | ✅ Complete | 🔄 Migrate |
-| AlertDialog | ✅ Complete | 🔄 Migrate |
-| Popover | ✅ Complete | 🔄 Migrate |
-| Tooltip | ✅ Complete | 🔄 Migrate |
-| Select | 🔄 In Progress | Pending |
-| Combobox | Pending | Pending |
-
-Migration involves:
-1. Replace `{...props}` spreading with `use:melt={$element}`
-2. Replace melt-ui imports with Melt UI builders
-3. Update context to share builder instead of IDs
-4. Update tests to verify Melt ARIA presence
+**See CHECKLIST.md for the full implementation law.**
+**See MASTER_SPRINT_PLAN.md for sprint priorities.**
+**See PRIMITIVE_CONTRACT.md for contract binding specification.**

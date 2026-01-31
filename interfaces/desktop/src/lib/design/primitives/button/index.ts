@@ -1,0 +1,5 @@
+/**
+ * @file Button Primitive Barrel
+ */
+export { default as Button } from "./Button.svelte";
+export type { ButtonProps } from "./types.js";

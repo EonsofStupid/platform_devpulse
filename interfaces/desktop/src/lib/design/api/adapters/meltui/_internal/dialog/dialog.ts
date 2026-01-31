@@ -1,40 +1,19 @@
 /**
- * @file MeltUI Dialog
- * @description Consolidates exports from types, contract, and factory for the barrel.
+ * @file MeltUI Dialog Adapter Barrel
+ * @description Exports types and factory. No adapter-level contract — contracts live in taxonomy.
  */
 
-// =============================================================================
-// TYPES
-// =============================================================================
-
-export type { MeltDialogElement, MeltDialogState } from "./types";
+export type { MeltDialogElement, MeltDialogState } from "./types.js";
 
 export {
-  MELT_ELEMENTS,
-  ELEMENT_TO_SLOT,
-  MELT_STATES,
-  STATE_TO_TOKEN,
-} from "./types";
-
-// =============================================================================
-// CONTRACT
-// =============================================================================
+	MELT_ELEMENTS,
+	ELEMENT_TO_SLOT,
+	MELT_STATES,
+	STATE_TO_TOKEN,
+} from "./types.js";
 
 export {
-  MELT_BUILDER,
-  ADAPTER_ID,
-  KIND,
-  MELT_HANDLES,
-  COLDLIGHT_ADDS,
-  SLOTS,
-} from "./contract";
-
-// =============================================================================
-// FACTORY
-// =============================================================================
-
-export {
-  createMeltDialog,
-  type MeltDialogInstance,
-  type MeltDialogConfig,
-} from "./factory";
+	createMeltDialog,
+	type MeltDialogInstance,
+	type MeltDialogConfig,
+} from "./factory.js";
