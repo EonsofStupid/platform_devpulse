@@ -9,7 +9,7 @@
 import type {
   TabsSlot,
   TabsState,
-} from "$lib/design/taxonomy/kinds/primitives/tabs/contract";
+} from "$lib/design/taxonomy/kinds/primitives/tabs/types";
 
 // =============================================================================
 // MELTUI ELEMENTS → COLDLIGHT SLOTS

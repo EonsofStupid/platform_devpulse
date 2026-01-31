@@ -1,12 +1,13 @@
 /**
  * @file Dialog Taxonomy Barrel
- * @description Re-exports dialog contract. Zero logic.
+ * @description Re-exports dialog types + contract. Zero logic.
  */
 export {
-	contract,
 	dialogSlots,
 	dialogStateTokens,
 	dialogSlotStates,
 	type DialogSlot,
 	type DialogState,
-} from "./contract.js";
+} from "./types.js";
+
+export { contract } from "./contract.js";

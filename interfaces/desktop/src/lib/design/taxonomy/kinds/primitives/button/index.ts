@@ -1,12 +1,13 @@
 /**
  * @file Button Taxonomy Barrel
- * @description Re-exports button contract. Zero logic.
+ * @description Re-exports button types + contract. Zero logic.
  */
 export {
-	contract,
 	buttonSlots,
 	buttonStateTokens,
 	buttonSlotStates,
 	type ButtonSlot,
 	type ButtonState,
-} from "./contract.js";
+} from "./types.js";
+
+export { contract } from "./contract.js";

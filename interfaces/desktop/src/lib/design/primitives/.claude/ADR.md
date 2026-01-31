@@ -1,7 +1,9 @@
-# Architecture Decision Records — Primitives
+# Architecture Decision Records — ColdLight Primitives
 
-> Captured decisions and rationale for ColdLight primitives architecture.
-> These inform future primitive development.
+> Living decisions for the ColdLight design system primitive layer.
+> ColdLight is architecturally similar to Ark UI's relationship with Zag.js —
+> except ColdLight uses **dsAdapters** instead of a single state machine library,
+> giving us flexibility to swap or layer behavior providers.
 
 ---
 
@@ -9,7 +11,7 @@
 
 **Date:** 2026-01-20
 **Status:** Accepted
-**Context:** Need consistent CSS targeting across all primitives.
+**Context:** Need consistent, predictable CSS targeting across all primitives.
 
 ### Decision
 
@@ -17,445 +19,591 @@ All primitives emit these data attributes:
 
 | Attribute | Purpose | Example |
 |-----------|---------|---------|
-| `data-kind` | Identifies primitive type | `"dialog"`, `"popover"` |
-| `data-slot` | Identifies slot within primitive | `"root"`, `"content"`, `"trigger"` |
-| `data-state` | Current state | `"open"`, `"closed"`, `"active"` |
-| `data-id` | User-defined stable ID | `"my-dialog"` |
+| `data-kind` | Primitive type from taxonomy | `"dialog"`, `"button"` |
+| `data-slot` | Slot within the primitive | `"root"`, `"content"`, `"trigger"` |
+| `data-state` | Visual state for CSS targeting | `"open"`, `"closed"` |
+| `data-id` | User-defined stable ID for testing | `"my-dialog"` |
 
 ### Rationale
 
-1. **Predictable CSS selectors**: `[data-kind="dialog"][data-state="open"]`
-2. **Testing stability**: `data-id` provides stable selectors that don't change with styling
-3. **No style prop**: Forces recipe-based styling via class prop
-4. **Namespace-ready**: Can prefix if needed (`data-cl-kind`)
+1. **Predictable CSS**: `[data-kind="dialog"][data-slot="content"][data-state="open"]`
+2. **Testing stability**: `data-id` survives class/style refactors
+3. **Recipe targeting**: Recipes bind to `[data-kind][data-slot]` selectors
+4. **Namespace-ready**: `DATA_ATTRS` const in `primitives/types.ts` can add `cl-` prefix if collisions arise
 
 ### Consequences
 
-- All components must include these attributes
-- Tests should verify data attributes exist
-- Recipes target via `[data-kind][data-slot][data-state]`
-- **DEPRECATED:** `data-primitive`, `data-name`, `data-part` (old pattern)
+- Every `.svelte` component MUST emit `data-kind` and `data-slot`
+- `data-state` only on slots that have state (from taxonomy contract's `slotStates` map)
+- **DEPRECATED:** `data-primitive`, `data-name`, `data-part`
 
 ---
 
-## ADR-002: Child Snippet Pattern for ARIA Props
+## ADR-002–003, 007–008: Superseded
 
-**Date:** 2026-01-20
-**Status:** ~~Accepted~~ **SUPERSEDED by ADR-009**
-**Superseded by:** ADR-009 (Melt UI as ARIA Provider)
+**Status:** Superseded — collapsed for brevity.
 
-### Original Decision (melt-ui)
-
-For components needing custom rendering, use child snippets and spread `{...props}`.
-
-### Why Superseded
-
-ColdLight now uses Melt UI as the ARIA provider. The `use:melt` action replaces `{...props}` spreading.
+These covered early melt-ui integration patterns (child snippet ARIA spreading, props-based state extraction, tooltip provider, manual ARIA roles). All superseded by the dsAdapter model (ADR-009). The primitive layer no longer touches ARIA at all.
 
 ---
 
-## ADR-003: Props-Based State Extraction (SnippetProps Gap)
-
-**Date:** 2026-01-21
-**Status:** ~~Accepted~~ **SUPERSEDED by ADR-009**
-**Superseded by:** ADR-009 (Melt UI as ARIA Provider)
-
-### Original Decision (melt-ui)
-
-Extract state from `props` object when not in child snippet.
-
-### Why Superseded
-
-Melt UI builders return state directly via `states` object. No extraction needed.
-
----
-
-## ADR-004: Portal Content Testing Pattern
+## ADR-004: Portal Content Testing
 
 **Date:** 2026-01-21
 **Status:** Accepted
-**Context:** Portal-rendered content not found in test container.
+**Context:** Portal-rendered content is outside the test container's DOM scope.
 
 ### Decision
 
 Use `document.querySelector` for portal-rendered content:
 
 ```typescript
-// Open the component first
 await userEvent.click(trigger);
-
-// Query document directly for portal content
 const content = document.querySelector('[data-slot="content"]');
 await expect.element(content).toHaveAttribute("data-state", "open");
 ```
 
-### Rationale
-
-1. **Portal behavior**: Portal renders children to `document.body` (or specified target)
-2. **Test container scope**: `screen.container` only includes directly rendered content
-3. **Consistent pattern**: Works for all portal-based primitives
-
 ### Consequences
 
-- Tests must use correct query method based on where content renders
-- Trigger is in container: `screen.getByRole("button")`
-- Content is in document: `document.querySelector('[data-slot="content"]')`
+- Trigger queries: `screen.getByRole("button")` (in container)
+- Portal content queries: `document.querySelector('[data-slot="..."]')` (in document)
 
 ---
 
-## ADR-005: Compound Folder Structure
+## ADR-005: Primitive Folder Structure
 
 **Date:** 2026-01-20
-**Status:** Accepted
-**Context:** Primitives need consistent, scalable organization.
+**Updated:** 2026-01-31
+**Status:** Accepted (revised)
+**Context:** Every primitive needs a consistent, auditable folder structure.
 
 ### Decision
 
-Every primitive (except truly simple ones like Button) uses folder structure:
+**Simple primitive** (e.g., Button — single slot, no compound children):
 
 ```
-{name}/
-├── index.ts           # Barrel export
-├── types.ts           # All types for this primitive
-├── Root.svelte        # State container
-├── Trigger.svelte     # Opens/activates
-├── Content.svelte     # Main content
-├── [Other].svelte     # Other slots as needed
-├── a11y.md            # Accessibility contract
-├── {Name}.test.svelte # Test wrapper component
-└── {Name}.test.ts     # vitest-browser tests
+button/
+├── types.ts           # Prop interfaces (OmitStyle<T> + BaseProps)
+├── Button.svelte      # Structural shell
+├── Button.test.svelte # Test harness
+├── Button.test.ts     # vitest-browser tests
+└── index.ts           # Barrel
 ```
 
-### Rationale
+**Compound primitive** (e.g., Dialog — multiple slots coordinated by context):
 
-1. **Colocated types**: Types right next to components
-2. **Isolated tests**: Each primitive has own test file
-3. **Documented a11y**: Contract captured per-primitive
-4. **Namespace exports**: `import { Dialog } from "$lib/design/primitives"` → `Dialog.Root`, `Dialog.Content`
+```
+dialog/
+├── types.ts              # All prop interfaces
+├── context.ts            # Symbol-keyed get/set context
+├── Dialog.svelte         # Root — context provider, no DOM
+├── DialogTrigger.svelte  # Trigger slot
+├── DialogPortal.svelte   # Portal slot
+├── DialogOverlay.svelte  # Overlay slot
+├── DialogContent.svelte  # Content slot
+├── DialogTitle.svelte    # Title slot
+├── DialogDescription.svelte
+├── DialogClose.svelte    # Close slot
+├── Dialog.test.svelte    # Test harness
+├── Dialog.test.ts        # vitest-browser tests
+└── index.ts              # Barrel
+```
+
+### Key rules
+
+- **Kind-prefixed names**: `DialogTrigger.svelte`, NOT `Trigger.svelte`
+- **Context in `context.ts`**: NOT in `types.ts`
+- **No `a11y.md` per-primitive**: ARIA contract lives in the taxonomy contract
+- **No behavior files**: No `.ts` logic files beyond types/context. Primitives are structural shells.
 
 ### Consequences
 
-- All new primitives follow this structure
-- Audit script checks for structure completeness
-- Index exports must use `export * as {Name} from "./{name}/index.js"`
+- Audit script checks: every folder has `types.ts`, `index.ts`, at least one `.svelte`
+- Compound primitives additionally require `context.ts`
+- All files kind-prefixed to avoid ambiguity when importing across primitives
 
 ---
 
 ## ADR-006: No Style Prop
 
 **Date:** 2026-01-20
-**Status:** Accepted
-**Context:** Need to enforce recipe-based styling.
+**Updated:** 2026-01-31
+**Status:** Accepted (revised)
+**Context:** Enforce recipe-based styling. No inline styles at the primitive level.
 
 ### Decision
 
-All primitive props use `Omit<HTML*Attributes, "style" | "children">`:
+All primitive prop interfaces use `OmitStyle<T>` + `BaseProps`:
 
 ```typescript
-export interface DialogContentProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
-  children?: Snippet<[{ open: boolean }]>;
-  "data-id"?: string;
+import type { Snippet } from "svelte";
+import type { OmitStyle, BaseProps } from "../types.js";
+
+export interface DialogContentProps extends OmitStyle<HTMLDivElement>, BaseProps {
+	children?: Snippet;
 }
 ```
 
-Runtime enforcement via `stripStyleProp(rest, "ComponentName")` in development.
+Where `OmitStyle<T>` = `Omit<HTMLAttributes<T>, "style" | "children">` and `BaseProps` = `{ "data-id"?: string }`.
 
-### Rationale
+Runtime enforcement in DEV:
 
-1. **Recipe enforcement**: Styling must go through class prop + recipes
-2. **Consistency**: All components styled the same way
-3. **VPB compatibility**: Visual Page Builder generates class-based styles
-4. **Dev warning**: `stripStyleProp` warns but doesn't break
+```typescript
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "DialogContent");
+```
 
 ### Consequences
 
-- No inline styles on primitives
-- Styling via `class` prop + Tailwind/recipes
-- TypeScript error if trying to pass `style`
-- Dev console warning if bypassed via `any`
+- TypeScript blocks `style` at compile time
+- `stripStyleProp()` catches `any`-typed bypasses at runtime in DEV
+- All visual styling goes through `class` prop + `cn()` utility
+- `cn()` uses `clsx` + `tailwind-merge` for Tailwind-aware deduplication
 
 ---
 
-## ADR-007: Tooltip Provider Context Requirement
-
-**Date:** 2026-01-21
-**Status:** ~~Accepted~~ **SUPERSEDED by ADR-009**
-**Superseded by:** ADR-009 (Melt UI as ARIA Provider)
-
-### Original Decision (melt-ui)
-
-ColdLight `Tooltip.Root` includes implicit Provider wrapper.
-
-### Why Superseded
-
-Melt UI Tooltip uses builder pattern. Provider handled differently.
-
----
-
-## ADR-008: Manual ARIA Role Attribution
-
-**Date:** 2026-01-21
-**Status:** ~~Accepted~~ **SUPERSEDED by ADR-009**
-**Superseded by:** ADR-009 (Melt UI as ARIA Provider)
-
-### Original Decision (melt-ui)
-
-ColdLight adds missing ARIA roles manually.
-
-### Why Superseded
-
-Melt UI handles all ARIA via `use:melt` action. ColdLight does not manage ARIA.
-
----
-
-## ADR-009: Melt UI as ARIA Provider
+## ADR-009: dsAdapter Model (Ark/Zag Pattern)
 
 **Date:** 2026-01-23
-**Status:** Accepted
-**Context:** ColdLight needs accessible primitives without fighting library ARIA ownership.
+**Updated:** 2026-01-31
+**Status:** Accepted (revised)
+**Context:** ColdLight needs accessible, behavioral components without coupling primitives to any specific behavior library.
 
 ### Decision
 
-**Melt UI is the ARIA provider. ColdLight owns everything else.**
+ColdLight follows the same architectural pattern as **Ark UI + Zag.js**, but with a pluggable adapter layer instead of a single state machine library.
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  Melt UI (ARIA Provider)                                    │
-│  ───────────────────────                                    │
-│  • ARIA attributes (role, aria-*)                           │
-│  • ID generation and linking                                │
-│  • Focus management                                         │
-│  • Keyboard navigation                                      │
-│  • Event handlers                                           │
-│  • Floating positioning                                     │
-│  • Portal rendering                                         │
-│  Delivery: use:melt={$element} action                       │
-└─────────────────────────────────────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────────┐
-│  ColdLight (Design System)                                  │
-│  ─────────────────────────                                  │
-│  • data-kind          (primitive taxonomy)                  │
-│  • data-slot          (slot identification)                 │
-│  • data-state         (visual state for CSS)                │
-│  • data-id            (user-controlled stable ID)           │
-│  • class              (recipe-based styling)                │
-│  • Type system        (props interfaces, validation)        │
-│  • Registry           (kind/material/recipe registration)   │
-│  • Audit              (diagram generation, JSDOC)           │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────┐
+│  LAYER 3: Components                                 │
+│  Compose primitives + dsAdapter behavior.            │
+│  This is where ARIA, focus, keyboard, melt live.     │
+└───────────────────────┬──────────────────────────────┘
+                        │ imports
+┌───────────────────────┴──────────────────────────────┐
+│  LAYER 2: Primitives (this layer)                    │
+│  Pure structural shells. ZERO behavior.              │
+│  data-kind, data-slot, data-state, class, children.  │
+│  No ARIA. No roles. No IDs. No melt. No keyboard.   │
+└───────────────────────┬──────────────────────────────┘
+                        │ defined by
+┌───────────────────────┴──────────────────────────────┐
+│  LAYER 1: Taxonomy                                   │
+│  Contracts define WHAT a primitive IS.                │
+│  Slots, states, ARIA requirements, keyboard spec.    │
+│  The DNA that could generate any framework target.   │
+└──────────────────────────────────────────────────────┘
+
+         ┌─────────────────────────────────┐
+         │  dsAdapter (currently MeltUI)    │
+         │  Behavior engine. Runs UNDER    │
+         │  ColdLight, not alongside it.   │
+         │  Declared in adapters.cfg.ts.   │
+         │  Accessed via import cloak at   │
+         │  taxonomy/.generated/imports.gen│
+         └─────────────────────────────────┘
 ```
 
-### Pattern
+### What lives WHERE
 
-```svelte
-<script lang="ts">
-  import { createDialog, melt } from '@melt-ui/svelte';
+| Concern | Layer | NOT in |
+|---------|-------|--------|
+| `data-kind`, `data-slot`, `data-state` | Primitive | — |
+| `class`, `cn()`, `{...rest}` | Primitive | — |
+| `children` snippet, typed props | Primitive | — |
+| `stripStyleProp()` DEV guard | Primitive | — |
+| `role`, `aria-*`, `id` linking | Component (via dsAdapter) | NOT Primitive |
+| Focus trapping, keyboard nav | Component (via dsAdapter) | NOT Primitive |
+| `use:melt`, builder factories | Component (via import cloak) | NOT Primitive |
+| Portal teleportation, scroll lock | Component (via dsAdapter) | NOT Primitive |
 
-  const dialog = createDialog();
-  const { elements: { trigger, content }, states: { open } } = dialog;
-</script>
+### The Ark analogy
 
-<!-- Melt: ARIA, focus, keyboard -->
-<!-- ColdLight: data-kind, data-slot, class -->
-<button
-  use:melt={$trigger}
-  class={triggerClass}
-  data-kind="dialog"
-  data-slot="trigger"
->
-  Open
-</button>
+| Ark UI | ColdLight |
+|--------|-----------|
+| Zag.js (state machines) | dsAdapter (currently MeltUI) |
+| `anatomy` (part definitions) | Taxonomy contracts |
+| Component parts (`Dialog.Content`) | Primitives (`DialogContent.svelte`) |
+| Composed components | Components layer |
 
-{#if $open}
-  <div
-    use:melt={$content}
-    class={contentClass}
-    data-kind="dialog"
-    data-slot="content"
-    data-state={$open ? "open" : "closed"}
-  >
-    Content
-  </div>
-{/if}
-```
+### ariaStateProvider per-contract
 
-### Rationale
+Each taxonomy contract declares its `ariaStateProvider`:
 
-1. **No fighting**: Accept Melt's ARIA instead of overriding
-2. **Correctness**: Melt handles complex ARIA linking (aria-labelledby, aria-describedby, aria-controls)
-3. **Maintainability**: Melt updates ARIA patterns, ColdLight benefits automatically
-4. **Separation**: Clear boundary between behavior (Melt) and design (ColdLight)
-5. **Senior dev pattern**: This is how design systems use headless libraries
+- `"meltui"` — dsAdapter provides ARIA + state. **3-folder parity**: taxonomy + adapter + primitive.
+- `"coldlight"` — kind handles ARIA natively (e.g., `<button>` is inherently accessible). **2-folder parity**: taxonomy + primitive.
+
+This is a **contract property**, not a primitive category. There is no concept of "ARIA primitives" vs "non-ARIA primitives."
 
 ### Consequences
 
-- `use:melt={$element}` on all interactive elements
-- ColdLight does NOT set: `role`, `aria-*`, `id` (for ARIA linking)
-- ColdLight DOES set: `data-kind`, `data-slot`, `data-state`, `data-id`, `class`
-- Tests verify Melt's ARIA is present AND ColdLight's data attributes are present
-- Existing melt-ui primitives will be migrated
+- Primitives NEVER import from `@melt-ui/svelte` or any adapter directly
+- Components import adapter factories via the import cloak: `taxonomy/.generated/imports.gen.ts`
+- Swapping MeltUI for another library means changing `adapters.cfg.ts` and the adapter layer — primitives are untouched
+- Tests at the primitive level verify structure (data attributes, props, rendering)
+- Tests at the component level verify behavior (ARIA, keyboard, focus)
 
 ---
 
-## ADR-010: Builder Context Pattern
+## ADR-010: Compound Primitive Context
 
 **Date:** 2026-01-23
-**Status:** Accepted
-**Context:** Need to share Melt UI builder between compound primitive components.
+**Updated:** 2026-01-31
+**Status:** Accepted (revised)
+**Context:** Compound primitives need to share state between root and sub-components.
 
 ### Decision
 
-Root component creates builder, shares via Svelte context:
+Dedicated `context.ts` file with Symbol-keyed, typed get/set functions:
 
-```svelte
-<!-- Root.svelte -->
-<script lang="ts">
-  import { createDialog } from '@melt-ui/svelte';
-  import { setContext } from 'svelte';
-  import { DIALOG_CONTEXT_KEY } from './types.js';
+```typescript
+// context.ts
+import { getContext, setContext } from "svelte";
 
-  const dialog = createDialog({
-    // Pass through controlled props
-  });
+const CTX_KEY = Symbol("coldlight:dialog");
 
-  // Share entire builder with children
-  setContext(DIALOG_CONTEXT_KEY, dialog);
-</script>
+export type DialogContext = {
+	readonly open: boolean;
+};
+
+export function setDialogContext(ctx: DialogContext): void {
+	setContext(CTX_KEY, ctx);
+}
+
+export function getDialogContext(): DialogContext {
+	return getContext<DialogContext>(CTX_KEY);
+}
 ```
 
-```svelte
-<!-- Content.svelte -->
-<script lang="ts">
-  import { melt } from '@melt-ui/svelte';
-  import { getContext } from 'svelte';
-  import { DIALOG_CONTEXT_KEY } from './types.js';
+Root component sets context with reactive getter:
 
-  const dialog = getContext(DIALOG_CONTEXT_KEY);
-  const { elements: { content }, states: { open } } = dialog;
+```svelte
+<!-- Dialog.svelte -->
+<script lang="ts">
+	import type { DialogProps } from "./types.js";
+	import { setDialogContext } from "./context.js";
+
+	let { open = $bindable(false), children }: DialogProps = $props();
+
+	setDialogContext({
+		get open() {
+			return open;
+		},
+	});
+</script>
+
+{@render children?.()}
+```
+
+Sub-components read context:
+
+```svelte
+<!-- DialogContent.svelte -->
+<script lang="ts">
+	import { cn, stripStyleProp } from "../types.js";
+	import type { DialogContentProps } from "./types.js";
+	import { getDialogContext } from "./context.js";
+
+	let { children, class: className, ...rest }: DialogContentProps = $props();
+
+	const ctx = getDialogContext();
+
+	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "DialogContent");
 </script>
 
 <div
-  use:melt={$content}
-  data-kind="dialog"
-  data-slot="content"
-  data-state={$open ? "open" : "closed"}
+	{...rest}
+	data-kind="dialog"
+	data-slot="content"
+	data-state={ctx.open ? "open" : "closed"}
+	class={cn(className)}
 >
+	{@render children?.()}
+</div>
 ```
 
-### Rationale
+### Key rules
 
-1. **Single builder**: One builder instance per primitive tree
-2. **Linked elements**: All elements from same builder share ARIA linking
-3. **Svelte pattern**: Context is idiomatic for compound components
-4. **Type safety**: Context key is typed constant
+- Symbol key: `Symbol("coldlight:{kind}")` — collision-proof
+- Context type is readonly — sub-components read, never write
+- Reactive via getter pattern — `get open() { return open; }` keeps Svelte 5 reactivity alive through context
+- Context lives in `context.ts`, NOT `types.ts`
 
 ### Consequences
 
-- Each primitive defines `{NAME}_CONTEXT_KEY` in types.ts
-- Root creates builder and sets context
-- Children get context and destructure needed elements/states
-- No ID management needed — Melt handles internally
+- Every compound primitive has a `context.ts`
+- Simple primitives (Button, Separator) do NOT need context
+- Context shape is minimal — only what sub-components need for `data-state` derivation
+- Shape varies per-kind: `{ open: boolean }` for dialog/sheet, `{ value: string }` for tabs, `{ checked: boolean | "indeterminate" }` for checkbox, `{ value: number; max: number }` for progress
+- The principle: include ONLY what sub-components need to render the correct `data-state`
+- Behavior-level context (melt builders, ARIA linking) is a COMPONENT concern, not primitive
 
 ---
 
-## ADR-011: Robust Test Requirements
+## ADR-011: Test Requirements
 
 **Date:** 2026-01-23
 **Status:** Accepted
-**Context:** Primitives are foundation — tests must be comprehensive, not minimal.
+**Context:** Primitives are the foundation. Tests must be comprehensive.
 
 ### Decision
 
-Every primitive must have robust tests covering:
+**Primitive-level tests** verify structure:
 
-| Category | Description | Minimum |
-|----------|-------------|---------|
-| **ARIA presence** | Verify Melt's ARIA attributes exist | 5+ tests |
-| **Data attributes** | Verify ColdLight's data-kind, data-slot, data-state | 6+ tests |
-| **Keyboard navigation** | Full keyboard interaction per WAI-ARIA pattern | 8+ tests |
-| **Focus management** | Focus trap, focus return, initial focus | 4+ tests |
-| **State management** | Controlled mode, callbacks, bindable | 5+ tests |
-| **Edge cases** | Disabled, nested, dynamic content | 3+ tests |
+| Category | What to verify |
+|----------|----------------|
+| **Data attributes** | `data-kind`, `data-slot`, `data-state` present and correct |
+| **Props** | `class` forwarding via `cn()`, `{...rest}` spread, `data-id` passthrough |
+| **Rendering** | Children snippet renders, conditional rendering works |
+| **Style guard** | `stripStyleProp` warns in DEV when style prop passed |
+| **Context** | Compound sub-components read context correctly |
 
-### Test Count Requirements
+**Component-level tests** (separate layer) verify behavior:
 
-| Primitive Type | Minimum Tests |
-|----------------|---------------|
+| Category | What to verify |
+|----------|----------------|
+| **ARIA** | Roles, aria attributes, ID linking |
+| **Keyboard** | Full WAI-ARIA keyboard pattern |
+| **Focus** | Trapping, return, initial focus |
+| **Interaction** | Open/close, select, dismiss |
+
+### Test count minimums
+
+| Primitive Type | Minimum |
+|----------------|---------|
 | Simple (Button, Separator) | 15+ |
 | Modal (Dialog, AlertDialog, Sheet) | 35+ |
 | Selection (Select, Combobox) | 50+ |
 | Navigation (Tabs, Accordion) | 40+ |
 | Floating (Popover, Tooltip, DropdownMenu) | 30+ |
 
-### Test File Structure
+### Test infrastructure
 
-```typescript
-/**
- * @file primitives/{name}/{Name}.test.ts
- * @layer primitives
- *
- * Tests for {Name} primitive.
- * Runs in real Chromium browser via vitest-browser-svelte.
- */
-
-describe("{Name} Primitive", () => {
-  describe("ARIA (Melt UI)", () => {
-    // Verify Melt's ARIA attributes are applied
-  });
-
-  describe("Data Attributes (ColdLight)", () => {
-    // Verify ColdLight's taxonomy attributes
-  });
-
-  describe("Keyboard Navigation", () => {
-    // Full keyboard interaction
-  });
-
-  describe("Focus Management", () => {
-    // Focus trap, return, initial
-  });
-
-  describe("State Management", () => {
-    // Controlled, callbacks, bindable
-  });
-
-  describe("Edge Cases", () => {
-    // Disabled, nested, dynamic
-  });
-});
-```
-
-### Rationale
-
-1. **Foundation quality**: Primitives are base of entire design system
-2. **Regression prevention**: Comprehensive tests catch breaking changes
-3. **Documentation**: Tests serve as usage documentation
-4. **Confidence**: Robust tests enable fearless refactoring
-
-### Consequences
-
-- No primitive is complete without meeting test minimums
-- Audit script verifies test counts
-- PRs must maintain or increase test coverage
-- Tests are real browser tests (vitest-browser-svelte), not jsdom
+- **Runner**: vitest-browser-svelte (real Chromium, not jsdom)
+- **Harness**: `{Name}.test.svelte` — minimal wrapper component
+- **Tests**: `{Name}.test.ts` — actual test cases
 
 ---
 
-## FUTURE ADRs
+## ADR-012: Taxonomy 3-File Stack
 
-Space for future decisions:
+**Date:** 2026-01-31
+**Status:** Accepted
+**Context:** Every primitive kind needs a consistent, auditable taxonomy definition.
 
-### ADR-012: [Reserved]
-### ADR-013: [Reserved]
+### Decision
+
+Every kind at `taxonomy/kinds/primitives/{kind}/` has exactly 3 files:
+
+**`types.ts`** — Type vocabulary. `as const` arrays, derived type unions, slot-state map:
+
+```typescript
+import type { StateToken, SlotStateMap } from "../../../types.js";
+
+export const buttonSlots = ["root", "icon", "label"] as const;
+export type ButtonSlot = (typeof buttonSlots)[number];
+
+export const buttonStateTokens = [
+	"focused", "focus-visible", "hover", "active",
+	"disabled", "pressed", "loading", "busy",
+] as const satisfies readonly StateToken[];
+export type ButtonState = (typeof buttonStateTokens)[number];
+
+export const buttonSlotStates = {
+	root: ["focused", "focus-visible", "hover", "active", "disabled", "pressed", "loading", "busy"],
+	icon: [],
+	label: [],
+} as const satisfies SlotStateMap<ButtonSlot, ButtonState>;
+```
+
+**`contract.ts`** — Imports from `types.ts`, exports the `PrimitiveContract`:
+
+```typescript
+import type { PrimitiveContract } from "../../../types.js";
+import { buttonSlotStates, type ButtonSlot, type ButtonState } from "./types.js";
+
+export const contract: PrimitiveContract<"button", ButtonSlot, ButtonState> = {
+	kind: "button",
+	ariaStateProvider: "coldlight",
+	slots: { required: ["root"], optional: ["icon", "label"], forbidden: [] },
+	states: { shared: [...], specific: [...] },
+	slotStates: buttonSlotStates,
+	slotActions: { root: [], icon: [], label: [] },
+	aria: { role: "button", requiredAttrs: [], optionalAttrs: ["aria-pressed", "aria-disabled"] },
+	keyboard: ["Enter", "Space"],
+};
+```
+
+**`index.ts`** — Barrel. Re-exports from both:
+
+```typescript
+export {
+	buttonSlots, buttonStateTokens, buttonSlotStates,
+	type ButtonSlot, type ButtonState,
+} from "./types.js";
+export { contract } from "./contract.js";
+```
+
+### Key rules
+
+- Types ALWAYS in `types.ts`, contract ALWAYS imports from `types.ts`
+- Contract declares `ariaStateProvider`, `aria`, `keyboard` — these are SPECIFICATIONS, not implementations
+- The contract is the DNA. It says WHAT a primitive needs. It does NOT provide behavior.
+- Scanner reads contracts at build time, validates parity, emits manifest
+
+### Consequences
+
+- Audit script verifies every kind folder has all 3 files
+- Adding a new primitive kind starts here — taxonomy first, always
+- Adapter and primitive layers reference the contract as their source of truth
+
+---
+
+## ADR-013: Primitive Structural Shell Pattern
+
+**Date:** 2026-01-31
+**Status:** Accepted
+**Context:** Need a strict, repeatable pattern for every primitive component.
+
+### Decision
+
+Every primitive `.svelte` file follows this exact golden standard:
+
+```svelte
+<!--
+	@component {Kind}{Slot}
+	@description Structural {description} for {kind}.
+	Contract: kind="{kind}", slot="{slot}"
+-->
+<script lang="ts">
+	import { cn, stripStyleProp } from "../types.js";
+	import type { {Kind}{Slot}Props } from "./types.js";
+
+	let {
+		children,
+		class: className,
+		...rest
+	}: {Kind}{Slot}Props = $props();
+
+	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "{Kind}{Slot}");
+</script>
+
+<{element}
+	{...rest}
+	data-kind="{kind}"
+	data-slot="{slot}"
+	class={cn(className)}
+>
+	{@render children?.()}
+</{element}>
+```
+
+### Strict rules — ZERO exceptions
+
+1. **Imports**: Only `cn`, `stripStyleProp` from `../types.js` and own `./types.js`
+2. **No behavior imports**: No `@melt-ui/svelte`, no adapter, no external library
+3. **No ARIA**: No `role`, no `aria-*`, no `id` generation
+4. **No event handlers**: No `onclick`, `onkeydown`, etc.
+5. **`$props()` destructure**: Always destructure `children`, `class: className`, `...rest`
+6. **`{...rest}` spread first** on the element
+7. **`data-kind` and `data-slot`**: Always present, values from taxonomy contract
+8. **`class={cn(className)}`**: Always through `cn()` utility
+9. **`{@render children?.()}`**: Always optional chaining
+10. **`stripStyleProp` in DEV**: Always present
+
+### Compound root exception
+
+Root components (e.g., `Dialog.svelte`) that provide context but render no DOM:
+
+```svelte
+<script lang="ts">
+	import type { DialogProps } from "./types.js";
+	import { setDialogContext } from "./context.js";
+
+	let { open = $bindable(false), children }: DialogProps = $props();
+
+	setDialogContext({
+		get open() { return open; },
+	});
+</script>
+
+{@render children?.()}
+```
+
+No DOM element, no `data-kind`, no `stripStyleProp`. Just context setup and children rendering.
+
+### Consequences
+
+- Every primitive is auditable against this template
+- Lefthook/CI can grep for violations (melt imports, role attributes, style props)
+- Swapping dsAdapter or framework target NEVER touches primitives
+- The structural shell IS the primitive. Behavior is composed on top.
+
+---
+
+## ADR-014: Contract-Driven Generation
+
+**Date:** 2026-01-31
+**Status:** Proposed
+**Context:** Taxonomy contracts define the complete specification of a primitive. This specification could drive automated generation of framework-specific output.
+
+### Decision
+
+The taxonomy contract is the **DNA** of a primitive. Today it drives:
+- Scanner validation (parity checks)
+- Manifest generation (registry data)
+- Type derivation (slot unions, state tokens)
+
+Future: the contract drives **code generation**:
+
+```
+taxonomy/kinds/primitives/dialog/contract.ts
+    │
+    ├──► generate ──► primitives/dialog/*.svelte  (Svelte 5)
+    ├──► generate ──► primitives/dialog/*.tsx      (React)
+    ├──► generate ──► primitives/dialog/*.vue      (Vue)
+    └──► generate ──► primitives/dialog/*.ts       (Lit)
+```
+
+The contract declares slots, states, element types, ARIA requirements. A generator reads the contract and emits structural shells in any target framework. The primitive Svelte files we write today ARE the Svelte generation target — written by hand now, generated later.
+
+### Consequences
+
+- Contracts must be complete and accurate — they're the generation source
+- Primitive Svelte files must be mechanically derivable from the contract (no magic, no special cases)
+- Generation script lives in `scripts/coldlight/` when built
+- This is why the pattern is so strict — it MUST be automatable
+
+---
+
+## ADR-015: Config-Driven System
+
+**Date:** 2026-01-31
+**Status:** Accepted
+**Context:** ColdLight's behavior is configured, not hardcoded.
+
+### Decision
+
+Configuration files drive the system:
+
+| File | Purpose |
+|------|---------|
+| `coldlight.config.ts` | Root config — scanner entry, output paths |
+| `config/coldlight/adapters.cfg.ts` | Declares active dsAdapter (currently MeltUI) |
+| `config/coldlight/enforcement.cfg.ts` | Scanner strictness, parity rules |
+| `config/coldlight/generation.cfg.ts` | Generation targets, output paths |
+| `config/coldlight/roots.cfg.ts` | Filesystem roots for scanning |
+| `config/coldlight/types.ts` | Config type definitions |
+
+### Consequences
+
+- Changing the dsAdapter means editing `adapters.cfg.ts`, not refactoring primitives
+- Scanner behavior is configurable (strict/warn/skip parity checks)
+- Generation targets are declarative
+- All config is typed — no magic strings
 
 ---
 
 ## TEMPLATE
-
-When adding new ADR:
 
 ```markdown
 ## ADR-XXX: [Title]
@@ -465,14 +613,11 @@ When adding new ADR:
 **Context:** [What prompted this decision?]
 
 ### Decision
-
 [What was decided]
 
 ### Rationale
-
 [Why this decision was made]
 
 ### Consequences
-
 [What are the implications?]
 ```

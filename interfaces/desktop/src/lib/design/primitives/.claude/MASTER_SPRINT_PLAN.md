@@ -1,1009 +1,497 @@
-# MASTER SPRINT PLAN — Melt UI Integration
+# MASTER SPRINT PLAN — ColdLight Primitives
 
-> **ENFORCEMENT MODE. NO HANDWAVING. ACTUAL CODE.**
-> **Every step has verification. Every file has content.**
-
----
-
-## CURRENT STATE (VERIFIED)
-
-| Path | Status | Notes |
-|------|--------|-------|
-| `taxonomy/primitiveKinds.ts` | ✅ EXISTS | 46 kinds registered |
-| `taxonomy/primitiveRegistry.ts` | ✅ EXISTS | Slots + metadata with `meltBuilder` |
-| `taxonomy/provider/` | ❌ EMPTY | Folder exists, no files |
-| `sys/api/_internal/` | ❌ INCOMPLETE | Only README.md, no melt/ folder |
-| `primitives/` | ❌ INCOMPLETE | Documentation only, no actual primitives |
+> **Primitives are headless structural shells. ZERO behavior. ZERO ARIA.**
+> **Behavior and ARIA are composed at the component layer via dsAdapter.**
+> **See CHECKLIST.md for golden standard patterns. See ADR.md for rationale.**
 
 ---
 
-## ENFORCEMENT ARCHITECTURE
+## ARCHITECTURE REFERENCE
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  LAYER 1: TAXONOMY (taxonomy/)                              │
-│  ───────────────────────────────                            │
-│  • primitiveKinds.ts     ✅ 46 kinds                        │
-│  • primitiveRegistry.ts  ✅ Slots + metadata                │
-│  • provider/types.ts     ❌ TO CREATE                       │
-│  • provider/melt.ts      ❌ TO CREATE                       │
-│  • provider/index.ts     ❌ TO CREATE                       │
-│                                                             │
-│  ENFORCES: Kind registration before primitive exists        │
-└─────────────────────────────────────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────────┐
-│  LAYER 2: BINDING (design/api/adapters/meltui/)                 │
-│  ──────────────────────────────────────────                 │
-│  • types.ts              ❌ TO CREATE (31 builder types)    │
-│  • state.ts              ❌ TO CREATE (extractors)          │
-│  • schemas.ts            ❌ TO CREATE (Zod validation)      │
-│  • assertions.ts         ❌ TO CREATE (runtime checks)      │
-│  • index.ts              ❌ TO CREATE (barrel)              │
-│                                                             │
-│  ENFORCES: Type-safe builder usage, runtime validation      │
-└─────────────────────────────────────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────────┐
-│  LAYER 3: PRIMITIVES (primitives/{name}/)                   │
-│  ────────────────────────────────────────                   │
-│  Must import from _internal, must pass assertions           │
-│                                                             │
-│  ENFORCES: Cannot create primitive without binding layer    │
-└─────────────────────────────────────────────────────────────┘
+LAYER 3: Components ─── ARIA, roles, IDs, focus, keyboard, melt
+LAYER 2: Primitives ─── data-kind, data-slot, data-state, class, children (THIS PLAN)
+LAYER 1: Taxonomy ───── Contracts: slots, states, ARIA spec, keyboard spec (THIS PLAN)
 ```
+
+Primitives own structure. Components own behavior. Taxonomy owns the DNA.
 
 ---
 
-## SPRINT 0: PROVIDER CONTRACT
+## CURRENT STATE
 
-### 0.1 Create `taxonomy/provider/types.ts`
+### Golden Standards (complete, verified)
 
-```typescript
-/**
- * @file taxonomy/provider/types.ts
- * @layer taxonomy
- *
- * Provider port contract — ENFORCEMENT TYPES.
- * Any ARIA provider must implement this contract.
- */
+| Kind | Taxonomy | Primitive | Parity | Notes |
+|------|----------|-----------|--------|-------|
+| button | ✅ | ✅ | coldlight (2-folder) | Simple primitive, no context |
+| dialog | ✅ | ✅ | meltui (3-folder) | Compound, 8 sub-components |
+| tabs | ✅ | ✅ | meltui (3-folder) | Compound, 3 sub-components |
 
-import type { Action } from 'svelte/action';
-import type { Readable, Writable } from 'svelte/store';
-import type { PrimitiveKind } from '../primitiveKinds.js';
+### Partial (taxonomy exists, primitive needs work)
 
-// ============================================
-// PROVIDER IDENTITY
-// ============================================
+| Kind | Taxonomy | Primitive | Status |
+|------|----------|-----------|--------|
+| sheet | ✅ | ✅ created | Verify against golden standard |
+| alert-dialog | ✅ | ❌ | Taxonomy only |
+| popover | ✅ | ❌ | Taxonomy only |
+| tooltip | ✅ | ❌ | Taxonomy only |
+| select | ✅ | ❌ | Taxonomy only |
 
-export type ProviderId = 'melt-ui' | 'ark-ui' | 'custom';
+### Not Started (no taxonomy, no primitive)
 
-export interface ProviderInfo {
-  readonly id: ProviderId;
-  readonly name: string;
-  readonly version: string;
-}
-
-// ============================================
-// BUILDER CAPABILITIES (ENFORCEMENT)
-// ============================================
-
-export interface BuilderCapabilities {
-  /** Handles ARIA via action */
-  readonly aria: boolean;
-  /** Handles focus management */
-  readonly focus: boolean;
-  /** Handles keyboard navigation */
-  readonly keyboard: boolean;
-  /** Handles click outside */
-  readonly clickOutside: boolean;
-  /** Handles escape key */
-  readonly escape: boolean;
-  /** Handles scroll lock */
-  readonly scrollLock: boolean;
-  /** Handles floating positioning */
-  readonly floating: boolean;
-  /** Handles portal rendering */
-  readonly portal: boolean;
-  /** Handles typeahead */
-  readonly typeahead: boolean;
-}
-
-// ============================================
-// BUILDER MAPPING (ENFORCEMENT)
-// ============================================
-
-/**
- * Maps PrimitiveKind to Melt UI builder name.
- * THIS IS THE SOURCE OF TRUTH.
- */
-export const BUILDER_MAP: Partial<Record<PrimitiveKind, string>> = {
-  // Buttons & Toggles
-  toggle: 'createToggle',
-  toggleGroup: 'createToggleGroup',
-  switch: 'createSwitch',
-
-  // Inputs & Forms
-  checkbox: 'createCheckbox',
-  radioGroup: 'createRadioGroup',
-  slider: 'createSlider',
-  label: 'createLabel',
-  select: 'createSelect',
-  combobox: 'createCombobox',
-
-  // Date & Time
-  calendar: 'createCalendar',
-  dateField: 'createDateField',
-  datePicker: 'createDatePicker',
-
-  // Dialogs & Overlays
-  dialog: 'createDialog',
-  alertDialog: 'createDialog', // same builder, role=alertdialog
-  popover: 'createPopover',
-  hoverCard: 'createLinkPreview',
-  tooltip: 'createTooltip',
-  contextMenu: 'createContextMenu',
-  dropdownMenu: 'createDropdownMenu',
-
-  // Navigation
-  tabs: 'createTabs',
-  accordion: 'createAccordion',
-  collapsible: 'createCollapsible',
-  menubar: 'createMenubar',
-  pagination: 'createPagination',
-
-  // Layout & Display
-  avatar: 'createAvatar',
-  separator: 'createSeparator',
-  scrollArea: 'createScrollArea',
-  progress: 'createProgress',
-
-  // Feedback
-  toast: 'createToaster',
-} as const;
-
-/**
- * Get the Melt builder name for a primitive kind.
- * Returns undefined for custom primitives.
- */
-export function getBuilderName(kind: PrimitiveKind): string | undefined {
-  return BUILDER_MAP[kind];
-}
-
-/**
- * Check if a kind uses Melt UI.
- */
-export function isMeltPrimitive(kind: PrimitiveKind): boolean {
-  return kind in BUILDER_MAP;
-}
-
-// ============================================
-// PROVIDER CONTRACT
-// ============================================
-
-export interface ProviderContract {
-  readonly info: ProviderInfo;
-  readonly capabilities: BuilderCapabilities;
-  readonly actionName: string;
-  readonly importPath: string;
-}
-```
-
-**VERIFICATION:**
-```bash
-pnpm check 2>&1 | grep -E "(error|provider/types)"
-# Must show: no errors
-```
+Everything in Sprints 2–7 below.
 
 ---
 
-### 0.2 Create `taxonomy/provider/melt.ts`
+## PER-KIND WORKFLOW
 
-```typescript
-/**
- * @file taxonomy/provider/melt.ts
- * @layer taxonomy
- *
- * Melt UI provider implementation.
- */
+Every primitive follows this exact sequence. No skipping. No reordering.
 
-import type { ProviderContract, BuilderCapabilities, ProviderInfo } from './types.js';
+### Step 1: Taxonomy 3-File Stack
 
-export const MELT_INFO: ProviderInfo = {
-  id: 'melt-ui',
-  name: 'Melt UI',
-  version: '>=0.80.0',
-} as const;
-
-export const MELT_CAPABILITIES: BuilderCapabilities = {
-  aria: true,
-  focus: true,
-  keyboard: true,
-  clickOutside: true,
-  escape: true,
-  scrollLock: true,
-  floating: true,
-  portal: true,
-  typeahead: true,
-} as const;
-
-export const MELT_PROVIDER: ProviderContract = {
-  info: MELT_INFO,
-  capabilities: MELT_CAPABILITIES,
-  actionName: 'melt',
-  importPath: '@melt-ui/svelte',
-} as const;
+```
+taxonomy/kinds/primitives/{kind}/
+├── types.ts      ← as const arrays, derived type unions, slotStates map
+├── contract.ts   ← imports types, exports PrimitiveContract
+└── index.ts      ← barrel re-exports
 ```
 
----
+### Step 2: Primitive Stack
 
-### 0.3 Create `taxonomy/provider/index.ts`
-
-```typescript
-/**
- * @file taxonomy/provider/index.ts
- * @layer taxonomy
- *
- * Provider exports.
- */
-
-export type {
-  ProviderId,
-  ProviderInfo,
-  BuilderCapabilities,
-  ProviderContract,
-} from './types.js';
-
-export {
-  BUILDER_MAP,
-  getBuilderName,
-  isMeltPrimitive,
-} from './types.js';
-
-export {
-  MELT_INFO,
-  MELT_CAPABILITIES,
-  MELT_PROVIDER,
-} from './melt.js';
-
-// Active provider
-export { MELT_PROVIDER as ACTIVE_PROVIDER } from './melt.js';
+```
+primitives/{kind}/
+├── types.ts      ← prop interfaces: OmitStyle<T> + BaseProps
+├── context.ts    ← Symbol-keyed get/set (compound only)
+├── {Kind}.svelte ← root component
+├── {Kind}{Slot}.svelte  ← per sub-component (compound only)
+└── index.ts      ← barrel exports
 ```
 
----
+### Step 3: Wire Up
 
-**SPRINT 0 VERIFICATION:**
-```bash
-cd interfaces/desktop/src
-pnpm check
-# MUST pass with zero errors
+- Add exports to `primitives/index.ts`
+- Add exports to `taxonomy/kinds/primitives/index.ts`
 
-# Verify exports work
-node -e "
-  const fs = require('fs');
-  const types = fs.readFileSync('lib/design/taxonomy/provider/types.ts', 'utf8');
-  const melt = fs.readFileSync('lib/design/taxonomy/provider/melt.ts', 'utf8');
-  const index = fs.readFileSync('lib/design/taxonomy/provider/index.ts', 'utf8');
-  console.log('FILES EXIST:', types.length > 0, melt.length > 0, index.length > 0);
-"
-```
+### Step 4: Verify
 
-- [ ] `taxonomy/provider/types.ts` EXISTS and passes check
-- [ ] `taxonomy/provider/melt.ts` EXISTS and passes check
-- [ ] `taxonomy/provider/index.ts` EXISTS and passes check
-- [ ] `pnpm check` passes
+- `pnpm svelte-check` — 0 errors
+- Every `.svelte` has: `data-kind`, `data-slot`, `class={cn(className)}`, `{@render children?.()}`
+- Every `.svelte` has: `{...rest}` spread, DEV `stripStyleProp` guard
+- ZERO: `@melt-ui/svelte` imports, `role`, `aria-*`, `id`, event handlers
+- Types use `OmitStyle<T>` + `BaseProps`
+- Barrel exports all components + types + context
 
 ---
 
-## SPRINT 1: BINDING LAYER
+## SPRINT 1: Current Core
 
-### 1.1 Create folder structure
+Complete the primitives that already have taxonomy contracts.
 
-```bash
-mkdir -p sys/api/_internal/melt
-```
+### 1.1 Sheet — verify existing
 
----
+- [ ] Verify all `.svelte` files match golden standard
+- [ ] Verify types.ts uses `OmitStyle<T>` + `BaseProps`
+- [ ] Verify context.ts uses Symbol-keyed pattern
+- [ ] Verify index.ts barrel is complete
+- [ ] Verify ZERO ARIA, ZERO behavior, ZERO melt
+- [ ] Add to `primitives/index.ts` barrel
 
-### 1.2 Create `design/api/adapters/meltui/types.ts`
+### 1.2 AlertDialog
 
-```typescript
-/**
- * @file design/api/adapters/meltui/types.ts
- * @layer internal
- *
- * Melt UI builder return type aliases.
- * These are the EXACT types from @melt-ui/svelte.
- */
+Compound. Shares dialog's slot structure with `role="alertdialog"` at component layer.
 
-import type {
-  createDialog,
-  createPopover,
-  createTooltip,
-  createSelect,
-  createCombobox,
-  createTabs,
-  createAccordion,
-  createDropdownMenu,
-  createContextMenu,
-  createCheckbox,
-  createSwitch,
-  createRadioGroup,
-  createCollapsible,
-  createSeparator,
-  createProgress,
-  createToggle,
-  createToggleGroup,
-  createSlider,
-  createLabel,
-  createPagination,
-  createToaster,
-  createCalendar,
-  createDateField,
-  createDatePicker,
-  createAvatar,
-  createPinInput,
-  createTagsInput,
-  createLinkPreview,
-  createMenubar,
-  createScrollArea,
-  createTree,
-} from '@melt-ui/svelte';
+**Slots:** root, trigger, portal, overlay, content, title, description, action, cancel
+**Context:** `{ open: boolean }`
+**Elements:** root=none, trigger=button, portal=div, overlay=div, content=div, title=h2, description=p, action=button, cancel=button
 
-// ============================================
-// BUILDER RETURN TYPE ALIASES
-// ============================================
+- [ ] Taxonomy: types.ts, contract.ts, index.ts
+- [ ] Primitive: types.ts, context.ts
+- [ ] Primitive: AlertDialog.svelte (root, context provider)
+- [ ] Primitive: AlertDialogTrigger.svelte, AlertDialogPortal.svelte, AlertDialogOverlay.svelte
+- [ ] Primitive: AlertDialogContent.svelte, AlertDialogTitle.svelte, AlertDialogDescription.svelte
+- [ ] Primitive: AlertDialogAction.svelte, AlertDialogCancel.svelte
+- [ ] Primitive: index.ts
+- [ ] Verify
 
-// Overlay / Floating
-export type DialogBuilder = ReturnType<typeof createDialog>;
-export type PopoverBuilder = ReturnType<typeof createPopover>;
-export type TooltipBuilder = ReturnType<typeof createTooltip>;
-export type LinkPreviewBuilder = ReturnType<typeof createLinkPreview>;
-export type ToasterBuilder = ReturnType<typeof createToaster>;
+### 1.3 Popover
 
-// Selection
-export type SelectBuilder = ReturnType<typeof createSelect>;
-export type ComboboxBuilder = ReturnType<typeof createCombobox>;
-export type CheckboxBuilder = ReturnType<typeof createCheckbox>;
-export type SwitchBuilder = ReturnType<typeof createSwitch>;
-export type RadioGroupBuilder = ReturnType<typeof createRadioGroup>;
-export type ToggleBuilder = ReturnType<typeof createToggle>;
-export type ToggleGroupBuilder = ReturnType<typeof createToggleGroup>;
+Compound. Floating content anchored to a trigger.
 
-// Navigation
-export type TabsBuilder = ReturnType<typeof createTabs>;
-export type AccordionBuilder = ReturnType<typeof createAccordion>;
-export type DropdownMenuBuilder = ReturnType<typeof createDropdownMenu>;
-export type ContextMenuBuilder = ReturnType<typeof createContextMenu>;
-export type MenubarBuilder = ReturnType<typeof createMenubar>;
-export type PaginationBuilder = ReturnType<typeof createPagination>;
+**Slots:** root, trigger, portal, content, close, arrow
+**Context:** `{ open: boolean }`
+**Elements:** root=none, trigger=button, portal=div, content=div, close=button, arrow=div
 
-// Form Inputs
-export type PinInputBuilder = ReturnType<typeof createPinInput>;
-export type TagsInputBuilder = ReturnType<typeof createTagsInput>;
-export type SliderBuilder = ReturnType<typeof createSlider>;
-export type LabelBuilder = ReturnType<typeof createLabel>;
+- [ ] Taxonomy: types.ts, contract.ts, index.ts
+- [ ] Primitive: types.ts, context.ts
+- [ ] Primitive: Popover.svelte, PopoverTrigger.svelte, PopoverPortal.svelte
+- [ ] Primitive: PopoverContent.svelte, PopoverClose.svelte, PopoverArrow.svelte
+- [ ] Primitive: index.ts
+- [ ] Verify
 
-// Date/Time
-export type CalendarBuilder = ReturnType<typeof createCalendar>;
-export type DateFieldBuilder = ReturnType<typeof createDateField>;
-export type DatePickerBuilder = ReturnType<typeof createDatePicker>;
+### 1.4 Tooltip
 
-// Layout / Display
-export type CollapsibleBuilder = ReturnType<typeof createCollapsible>;
-export type SeparatorBuilder = ReturnType<typeof createSeparator>;
-export type ProgressBuilder = ReturnType<typeof createProgress>;
-export type AvatarBuilder = ReturnType<typeof createAvatar>;
-export type ScrollAreaBuilder = ReturnType<typeof createScrollArea>;
+Compound. Hover/focus content.
 
-// Tree / Hierarchy
-export type TreeBuilder = ReturnType<typeof createTree>;
+**Slots:** root, trigger, portal, content, arrow
+**Context:** `{ open: boolean }`
+**Elements:** root=none, trigger=button, portal=div, content=div, arrow=div
 
-// ============================================
-// TYPE EXTRACTION UTILITIES
-// ============================================
+- [ ] Taxonomy: types.ts, contract.ts, index.ts
+- [ ] Primitive: types.ts, context.ts
+- [ ] Primitive: Tooltip.svelte, TooltipTrigger.svelte, TooltipPortal.svelte
+- [ ] Primitive: TooltipContent.svelte, TooltipArrow.svelte
+- [ ] Primitive: index.ts
+- [ ] Verify
 
-/** Extract elements from a builder. */
-export type BuilderElements<T> = T extends { elements: infer E } ? E : never;
+### 1.5 Select
 
-/** Extract states from a builder. */
-export type BuilderStates<T> = T extends { states: infer S } ? S : never;
+Compound. Dropdown selection.
 
-/** Extract helpers from a builder. */
-export type BuilderHelpers<T> = T extends { helpers: infer H } ? H : never;
+**Slots:** root, trigger, value, portal, content, viewport, item, item-text, item-indicator, group, group-label, separator, scroll-up, scroll-down, arrow
+**Context:** `{ open: boolean }`
+**Elements:** root=none, trigger=button, value=span, portal=div, content=div, viewport=div, item=div, item-text=span, item-indicator=span, group=div, group-label=div, separator=div, scroll-up=div, scroll-down=div, arrow=div
 
-/** Extract options from a builder. */
-export type BuilderOptions<T> = T extends { options: infer O } ? O : never;
-```
+- [ ] Taxonomy: types.ts, contract.ts, index.ts
+- [ ] Primitive: types.ts, context.ts
+- [ ] Primitive: Select.svelte, SelectTrigger.svelte, SelectValue.svelte, SelectPortal.svelte
+- [ ] Primitive: SelectContent.svelte, SelectViewport.svelte, SelectItem.svelte
+- [ ] Primitive: SelectItemText.svelte, SelectItemIndicator.svelte
+- [ ] Primitive: SelectGroup.svelte, SelectGroupLabel.svelte, SelectSeparator.svelte
+- [ ] Primitive: SelectScrollUp.svelte, SelectScrollDown.svelte, SelectArrow.svelte
+- [ ] Primitive: index.ts
+- [ ] Verify
+
+### Sprint 1 Gate
+
+- [ ] `pnpm svelte-check` — 0 errors
+- [ ] All 5 kinds pass sign-off checklist
+- [ ] `primitives/index.ts` exports all Sprint 1 kinds
+- [ ] `taxonomy/kinds/primitives/index.ts` exports all Sprint 1 contracts
 
 ---
 
-### 1.3 Create `design/api/adapters/meltui/state.ts`
+## SPRINT 2: Layout & Structure
 
-```typescript
-/**
- * @file design/api/adapters/meltui/state.ts
- * @layer internal
- *
- * State extraction for ColdLight data-state attributes.
- * These functions convert Melt state to data-state strings.
- */
+### 2.1 Accordion
 
-// ============================================
-// STATE TYPES
-// ============================================
+Compound. Expandable sections.
 
-export type OpenState = 'open' | 'closed';
-export type CheckedState = 'checked' | 'unchecked' | 'indeterminate';
-export type ActiveState = 'active' | 'inactive';
-export type OnOffState = 'on' | 'off';
-export type ProgressState = 'loading' | 'complete' | 'error';
+**Slots:** root, item, trigger, header, content
+**Context:** `{ value: string[] }` (which items are open)
 
-// ============================================
-// EXTRACTORS
-// ============================================
+- [ ] Taxonomy 3-file stack
+- [ ] Primitive stack (types, context, svelte files, index)
+- [ ] Verify
 
-export function extractOpenState(open: boolean): OpenState {
-  return open ? 'open' : 'closed';
-}
+### 2.2 Separator
 
-export function extractCheckedState(checked: boolean | 'indeterminate'): CheckedState {
-  if (checked === 'indeterminate') return 'indeterminate';
-  return checked ? 'checked' : 'unchecked';
-}
+Simple. Visual divider.
 
-export function extractActiveState(active: boolean): ActiveState {
-  return active ? 'active' : 'inactive';
-}
+**Slots:** root
+**Element:** div (or hr)
 
-export function extractOnOffState(on: boolean): OnOffState {
-  return on ? 'on' : 'off';
-}
+- [ ] Taxonomy 3-file stack
+- [ ] Primitive stack (types, Separator.svelte, index)
+- [ ] Verify
 
-export function extractProgressState(value: number, max: number, hasError = false): ProgressState {
-  if (hasError) return 'error';
-  return value >= max ? 'complete' : 'loading';
-}
+### 2.3 AspectRatio
 
-// ============================================
-// PRESENCE EXTRACTORS (for data-* presence attributes)
-// ============================================
+Simple. Constrains child to aspect ratio via CSS.
 
-export function extractPresence(value: boolean): '' | undefined {
-  return value ? '' : undefined;
-}
+**Slots:** root
+**Element:** div
+**Note:** `ariaStateProvider: "coldlight"` — pure CSS, no adapter needed
 
-export const extractSelected = extractPresence;
-export const extractHighlighted = extractPresence;
-export const extractDisabled = extractPresence;
-```
+- [ ] Taxonomy 3-file stack
+- [ ] Primitive stack (types, AspectRatio.svelte, index)
+- [ ] Verify
 
----
+### 2.4 Collapsible
 
-### 1.4 Create `design/api/adapters/meltui/assertions.ts`
+Compound. Single expandable region.
 
-```typescript
-/**
- * @file design/api/adapters/meltui/assertions.ts
- * @layer internal
- *
- * RUNTIME ENFORCEMENT.
- * These functions throw if patterns are violated.
- */
+**Slots:** root, trigger, content
+**Context:** `{ open: boolean }`
 
-import { dev } from '$app/environment';
-import { isPrimitiveKind, type PrimitiveKind } from '$lib/design/taxonomy/primitiveKinds.js';
-import { isValidSlot, getPrimitiveSlots } from '$lib/design/taxonomy/primitiveRegistry.js';
-import { isMeltPrimitive, getBuilderName } from '$lib/design/taxonomy/provider/types.js';
+- [ ] Taxonomy 3-file stack
+- [ ] Primitive stack (types, context, svelte files, index)
+- [ ] Verify
 
-// ============================================
-// ASSERTION FUNCTIONS
-// ============================================
+### 2.5 ScrollArea
 
-/**
- * Assert that a kind is registered in taxonomy.
- * Throws in development if not registered.
- */
-export function assertKindRegistered(kind: string, component: string): asserts kind is PrimitiveKind {
-  if (!isPrimitiveKind(kind)) {
-    const msg = `[ColdLight] Invalid kind "${kind}" in ${component}. ` +
-      `Register in taxonomy/primitiveKinds.ts first.`;
-    if (dev) throw new Error(msg);
-    console.error(msg);
-  }
-}
+Compound. Custom scrollbar region.
 
-/**
- * Assert that a slot is valid for the kind.
- * Throws in development if not registered.
- */
-export function assertSlotValid(kind: PrimitiveKind, slot: string, component: string): void {
-  if (!isValidSlot(kind, slot)) {
-    const validSlots = getPrimitiveSlots(kind);
-    const msg = `[ColdLight] Invalid slot "${slot}" for kind "${kind}" in ${component}. ` +
-      `Valid slots: ${validSlots.join(', ')}`;
-    if (dev) throw new Error(msg);
-    console.error(msg);
-  }
-}
+**Slots:** root, viewport, scrollbar, thumb, corner
+**Context:** TBD
 
-/**
- * Assert that a Melt primitive has a builder.
- * Throws in development if builder not mapped.
- */
-export function assertBuilderExists(kind: PrimitiveKind, component: string): void {
-  if (isMeltPrimitive(kind) && !getBuilderName(kind)) {
-    const msg = `[ColdLight] Kind "${kind}" is marked as Melt primitive but has no builder in BUILDER_MAP. ` +
-      `Add mapping in taxonomy/provider/types.ts.`;
-    if (dev) throw new Error(msg);
-    console.error(msg);
-  }
-}
+- [ ] Taxonomy 3-file stack
+- [ ] Primitive stack (types, context, svelte files, index)
+- [ ] Verify
 
-/**
- * Assert that data-kind attribute exists on element.
- * For use in tests.
- */
-export function assertDataKind(element: Element | null, expectedKind: string): void {
-  if (!element) {
-    throw new Error(`[ColdLight Test] Element is null`);
-  }
-  const kind = element.getAttribute('data-kind');
-  if (kind !== expectedKind) {
-    throw new Error(`[ColdLight Test] Expected data-kind="${expectedKind}", got "${kind}"`);
-  }
-}
+### 2.6 Toolbar
 
-/**
- * Assert that data-slot attribute exists on element.
- * For use in tests.
- */
-export function assertDataSlot(element: Element | null, expectedSlot: string): void {
-  if (!element) {
-    throw new Error(`[ColdLight Test] Element is null`);
-  }
-  const slot = element.getAttribute('data-slot');
-  if (slot !== expectedSlot) {
-    throw new Error(`[ColdLight Test] Expected data-slot="${expectedSlot}", got "${slot}"`);
-  }
-}
+Compound. Grouping for toolbar controls.
 
-/**
- * Assert that data-state attribute has expected value.
- * For use in tests.
- */
-export function assertDataState(element: Element | null, expectedState: string): void {
-  if (!element) {
-    throw new Error(`[ColdLight Test] Element is null`);
-  }
-  const state = element.getAttribute('data-state');
-  if (state !== expectedState) {
-    throw new Error(`[ColdLight Test] Expected data-state="${expectedState}", got "${state}"`);
-  }
-}
-```
+**Slots:** root, group, item, separator, link
+**Context:** TBD
+
+- [ ] Taxonomy 3-file stack
+- [ ] Primitive stack (types, context, svelte files, index)
+- [ ] Verify
+
+### Sprint 2 Gate
+
+- [ ] `pnpm svelte-check` — 0 errors
+- [ ] All 6 kinds pass sign-off
+- [ ] Barrel exports updated
 
 ---
 
-### 1.5 Create `design/api/adapters/meltui/schemas.ts`
+## SPRINT 3: Input & Form
 
-```typescript
-/**
- * @file design/api/adapters/meltui/schemas.ts
- * @layer internal
- *
- * Zod validation schemas for props.
- */
+### 3.1 Checkbox
 
-import { z } from 'zod';
+Compound. Checkable control.
 
-// ============================================
-// STATE PROPS
-// ============================================
+**Slots:** root, indicator
+**Context:** `{ checked: boolean | "indeterminate" }`
 
-export const OpenStatePropsSchema = z.object({
-  open: z.boolean().optional(),
-  defaultOpen: z.boolean().optional(),
-  onOpenChange: z.function().args(z.boolean()).returns(z.void()).optional(),
-});
-export type OpenStateProps = z.infer<typeof OpenStatePropsSchema>;
+### 3.2 Combobox
 
-export const CheckedStatePropsSchema = z.object({
-  checked: z.union([z.boolean(), z.literal('indeterminate')]).optional(),
-  defaultChecked: z.union([z.boolean(), z.literal('indeterminate')]).optional(),
-  onCheckedChange: z.function().optional(),
-});
-export type CheckedStateProps = z.infer<typeof CheckedStatePropsSchema>;
+Compound. Searchable select.
 
-// ============================================
-// POSITIONING
-// ============================================
+**Slots:** root, input, trigger, portal, content, item, item-indicator, group, group-label, empty
 
-export const SideSchema = z.enum(['top', 'right', 'bottom', 'left']);
-export const AlignSchema = z.enum(['start', 'center', 'end']);
+### 3.3 Label
 
-export const PlacementSchema = z.enum([
-  'top', 'top-start', 'top-end',
-  'right', 'right-start', 'right-end',
-  'bottom', 'bottom-start', 'bottom-end',
-  'left', 'left-start', 'left-end',
-]);
+Simple. Form label.
 
-export const FloatingPropsSchema = z.object({
-  placement: PlacementSchema.optional(),
-  strategy: z.enum(['absolute', 'fixed']).optional(),
-  gutter: z.number().optional(),
-  flip: z.boolean().optional(),
-  sameWidth: z.boolean().optional(),
-});
-export type FloatingProps = z.infer<typeof FloatingPropsSchema>;
+**Slots:** root
+**Element:** label
 
-// ============================================
-// BEHAVIOR
-// ============================================
+### 3.4 RadioGroup
 
-export const EscapeBehaviorSchema = z.enum([
-  'close',
-  'ignore',
-  'defer-otherwise-close',
-  'defer-otherwise-ignore',
-]);
-export type EscapeBehavior = z.infer<typeof EscapeBehaviorSchema>;
+Compound. Exclusive selection group.
 
-export const ModalBehaviorPropsSchema = z.object({
-  escapeBehavior: EscapeBehaviorSchema.optional(),
-  closeOnOutsideClick: z.boolean().optional(),
-  preventScroll: z.boolean().optional(),
-});
-export type ModalBehaviorProps = z.infer<typeof ModalBehaviorPropsSchema>;
+**Slots:** root, item, indicator
 
-// ============================================
-// FORM
-// ============================================
+### 3.5 Slider
 
-export const FormFieldPropsSchema = z.object({
-  name: z.string().optional(),
-  required: z.boolean().optional(),
-  disabled: z.boolean().optional(),
-});
-export type FormFieldProps = z.infer<typeof FormFieldPropsSchema>;
+Compound. Range input.
 
-// ============================================
-// VALIDATION
-// ============================================
+**Slots:** root, track, range, thumb
 
-export function validateProps<T>(
-  schema: z.ZodSchema<T>,
-  props: unknown,
-  context?: string
-): T {
-  const result = schema.safeParse(props);
-  if (!result.success) {
-    const issues = result.error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join(', ');
-    throw new Error(`[ColdLight] Invalid props${context ? ` in ${context}` : ''}: ${issues}`);
-  }
-  return result.data;
-}
-```
+### 3.6 Switch
+
+Compound. Toggle switch.
+
+**Slots:** root, thumb
+**Context:** `{ checked: boolean }`
+
+### 3.7 TagsInput
+
+Compound. Multi-value text input.
+
+**Slots:** root, input, item, item-text, item-delete, clear
+
+### 3.8 PinInput
+
+Compound. One-character-per-field input.
+
+**Slots:** root, input
 
 ---
 
-### 1.6 Create `design/api/adapters/meltui/index.ts`
+Per kind: taxonomy 3-file stack → primitive stack → verify.
 
-```typescript
-/**
- * @file design/api/adapters/meltui/index.ts
- * @layer internal
- *
- * Melt UI binding layer barrel.
- */
+### Sprint 3 Gate
 
-// Re-export melt action
-export { melt } from '@melt-ui/svelte';
-
-// Types
-export type {
-  DialogBuilder,
-  PopoverBuilder,
-  TooltipBuilder,
-  SelectBuilder,
-  ComboboxBuilder,
-  CheckboxBuilder,
-  SwitchBuilder,
-  RadioGroupBuilder,
-  ToggleBuilder,
-  ToggleGroupBuilder,
-  TabsBuilder,
-  AccordionBuilder,
-  DropdownMenuBuilder,
-  ContextMenuBuilder,
-  CollapsibleBuilder,
-  SeparatorBuilder,
-  ProgressBuilder,
-  SliderBuilder,
-  LabelBuilder,
-  PaginationBuilder,
-  ToasterBuilder,
-  CalendarBuilder,
-  DateFieldBuilder,
-  DatePickerBuilder,
-  AvatarBuilder,
-  PinInputBuilder,
-  TagsInputBuilder,
-  LinkPreviewBuilder,
-  MenubarBuilder,
-  ScrollAreaBuilder,
-  TreeBuilder,
-  BuilderElements,
-  BuilderStates,
-  BuilderHelpers,
-  BuilderOptions,
-} from './types.js';
-
-// State extraction
-export {
-  extractOpenState,
-  extractCheckedState,
-  extractActiveState,
-  extractOnOffState,
-  extractProgressState,
-  extractPresence,
-  extractSelected,
-  extractHighlighted,
-  extractDisabled,
-  type OpenState,
-  type CheckedState,
-  type ActiveState,
-  type OnOffState,
-  type ProgressState,
-} from './state.js';
-
-// Assertions (runtime enforcement)
-export {
-  assertKindRegistered,
-  assertSlotValid,
-  assertBuilderExists,
-  assertDataKind,
-  assertDataSlot,
-  assertDataState,
-} from './assertions.js';
-
-// Schemas
-export {
-  OpenStatePropsSchema,
-  CheckedStatePropsSchema,
-  SideSchema,
-  AlignSchema,
-  PlacementSchema,
-  FloatingPropsSchema,
-  EscapeBehaviorSchema,
-  ModalBehaviorPropsSchema,
-  FormFieldPropsSchema,
-  validateProps,
-  type OpenStateProps,
-  type CheckedStateProps,
-  type FloatingProps,
-  type EscapeBehavior,
-  type ModalBehaviorProps,
-  type FormFieldProps,
-} from './schemas.js';
-```
+- [ ] `pnpm svelte-check` — 0 errors
+- [ ] All 8 kinds pass sign-off
+- [ ] Barrel exports updated
 
 ---
 
-### 1.7 Create `sys/api/_internal/index.ts`
+## SPRINT 4: Navigation
 
-```typescript
-/**
- * @file sys/api/_internal/index.ts
- * @layer internal
- *
- * Internal API barrel.
- */
+### 4.1 ContextMenu
 
-// Melt UI integration
-export * from './melt/index.js';
+Compound. Right-click menu.
 
-// Re-export Melt creators for convenience
-export {
-  createDialog,
-  createPopover,
-  createTooltip,
-  createSelect,
-  createCombobox,
-  createTabs,
-  createAccordion,
-  createDropdownMenu,
-  createContextMenu,
-  createCheckbox,
-  createSwitch,
-  createRadioGroup,
-  createCollapsible,
-  createSeparator,
-  createProgress,
-  createToggle,
-  createToggleGroup,
-  createSlider,
-  createLabel,
-  createPagination,
-  createToaster,
-  createCalendar,
-  createDateField,
-  createDatePicker,
-  createAvatar,
-  createPinInput,
-  createTagsInput,
-  createLinkPreview,
-  createMenubar,
-  createScrollArea,
-  createTree,
-} from '@melt-ui/svelte';
-```
+**Slots:** root, trigger, portal, content, item, sub, sub-trigger, sub-content, group, group-label, separator, checkbox-item, radio-group, radio-item, item-indicator
+
+### 4.2 DropdownMenu
+
+Compound. Click-triggered menu. Same slot structure as ContextMenu.
+
+### 4.3 Menubar
+
+Compound. Horizontal menu bar.
+
+**Slots:** root, menu, trigger, portal, content, item, sub, sub-trigger, sub-content, group, group-label, separator, checkbox-item, radio-group, radio-item, item-indicator
+
+### 4.4 Pagination
+
+Compound. Page navigation.
+
+**Slots:** root, previous, next, list, item, ellipsis
+
+### 4.5 NavigationMenu
+
+Compound. Site navigation.
+
+**Slots:** root, list, item, trigger, content, link, viewport, indicator
+
+### Sprint 4 Gate
+
+- [ ] `pnpm svelte-check` — 0 errors
+- [ ] All 5 kinds pass sign-off
+- [ ] Barrel exports updated
 
 ---
 
-**SPRINT 1 VERIFICATION:**
-```bash
-cd interfaces/desktop/src
+## SPRINT 5: Feedback & Status
 
-# Type check
-pnpm check
+### 5.1 Progress
 
-# Verify files exist
-ls -la lib/design/design/api/adapters/meltui/
+Simple (or compound with label). Progress indicator.
 
-# Test import works
-echo "import * from '\$lib/design/sys/api/_internal';" > /tmp/test.ts
-```
+**Slots:** root, indicator
+**Context:** `{ value: number; max: number }`
 
-- [ ] `design/api/adapters/meltui/types.ts` EXISTS
-- [ ] `design/api/adapters/meltui/state.ts` EXISTS
-- [ ] `design/api/adapters/meltui/assertions.ts` EXISTS
-- [ ] `design/api/adapters/meltui/schemas.ts` EXISTS
-- [ ] `design/api/adapters/meltui/index.ts` EXISTS
-- [ ] `sys/api/_internal/index.ts` EXISTS
-- [ ] `pnpm check` passes
+### 5.2 Toast
 
----
+Compound. Notification system.
 
-## SPRINT 2: VERIFICATION SCRIPT
+**Slots:** root, viewport, action, close, title, description
 
-### 2.1 Create `scripts/verify-primitives.ts`
+### 5.3 Avatar
 
-This script ENFORCES the architecture:
+Compound. User avatar with fallback.
 
-```typescript
-/**
- * @file scripts/verify-primitives.ts
- *
- * ENFORCEMENT SCRIPT.
- * Verifies that all primitives follow the architecture.
- * Run with: npx tsx scripts/verify-primitives.ts
- */
+**Slots:** root, image, fallback
+**Context:** `{ loaded: boolean }`
 
-import * as fs from 'fs';
-import * as path from 'path';
+### 5.4 Badge
 
-const DESIGN_DIR = 'lib/design';
-const PRIMITIVES_DIR = path.join(DESIGN_DIR, 'primitives');
-const TAXONOMY_DIR = path.join(DESIGN_DIR, 'taxonomy');
-const INTERNAL_DIR = path.join(DESIGN_DIR, 'sys/api/_internal');
+Simple. Status indicator.
 
-let errors: string[] = [];
-let warnings: string[] = [];
+**Slots:** root
+**Element:** span
+**Note:** `ariaStateProvider: "coldlight"` — pure semantic element
 
-function error(msg: string) {
-  errors.push(`ERROR: ${msg}`);
-}
+### Sprint 5 Gate
 
-function warn(msg: string) {
-  warnings.push(`WARN: ${msg}`);
-}
-
-function checkFileExists(filePath: string, description: string): boolean {
-  if (!fs.existsSync(filePath)) {
-    error(`${description} missing: ${filePath}`);
-    return false;
-  }
-  return true;
-}
-
-// ============================================
-// CHECK TAXONOMY
-// ============================================
-
-console.log('\n=== CHECKING TAXONOMY ===\n');
-
-checkFileExists(path.join(TAXONOMY_DIR, 'primitiveKinds.ts'), 'primitiveKinds.ts');
-checkFileExists(path.join(TAXONOMY_DIR, 'primitiveRegistry.ts'), 'primitiveRegistry.ts');
-checkFileExists(path.join(TAXONOMY_DIR, 'provider/types.ts'), 'provider/types.ts');
-checkFileExists(path.join(TAXONOMY_DIR, 'provider/melt.ts'), 'provider/melt.ts');
-checkFileExists(path.join(TAXONOMY_DIR, 'provider/index.ts'), 'provider/index.ts');
-
-// ============================================
-// CHECK INTERNAL LAYER
-// ============================================
-
-console.log('\n=== CHECKING _INTERNAL ===\n');
-
-checkFileExists(path.join(INTERNAL_DIR, 'melt/types.ts'), 'melt/types.ts');
-checkFileExists(path.join(INTERNAL_DIR, 'melt/state.ts'), 'melt/state.ts');
-checkFileExists(path.join(INTERNAL_DIR, 'melt/assertions.ts'), 'melt/assertions.ts');
-checkFileExists(path.join(INTERNAL_DIR, 'melt/schemas.ts'), 'melt/schemas.ts');
-checkFileExists(path.join(INTERNAL_DIR, 'melt/index.ts'), 'melt/index.ts');
-checkFileExists(path.join(INTERNAL_DIR, 'index.ts'), '_internal/index.ts');
-
-// ============================================
-// RESULTS
-// ============================================
-
-console.log('\n=== RESULTS ===\n');
-
-if (warnings.length > 0) {
-  console.log('WARNINGS:');
-  warnings.forEach(w => console.log(`  ${w}`));
-}
-
-if (errors.length > 0) {
-  console.log('\nERRORS:');
-  errors.forEach(e => console.log(`  ${e}`));
-  console.log(`\n❌ FAILED: ${errors.length} errors\n`);
-  process.exit(1);
-} else {
-  console.log('✅ ALL CHECKS PASSED\n');
-  process.exit(0);
-}
-```
+- [ ] `pnpm svelte-check` — 0 errors
+- [ ] All 4 kinds pass sign-off
+- [ ] Barrel exports updated
 
 ---
 
-## COMPLETE VERIFICATION
+## SPRINT 6: Data & Date
 
-```bash
-cd interfaces/desktop/src
+### 6.1 Calendar
 
-# 1. Type check
-pnpm check
-# MUST: Zero errors
+Compound. Date grid.
 
-# 2. Verify files exist
-ls lib/design/taxonomy/provider/
-# MUST: types.ts melt.ts index.ts
+**Slots:** root, header, heading, grid, grid-head, grid-body, head-cell, cell, day
 
-ls lib/design/design/api/adapters/meltui/
-# MUST: types.ts state.ts assertions.ts schemas.ts index.ts
+### 6.2 DatePicker
 
-# 3. Run verification script
-npx tsx scripts/verify-primitives.ts
-# MUST: ALL CHECKS PASSED
-```
+Compound. Calendar + input combination.
+
+**Slots:** root, input, trigger, portal, content, calendar (embeds Calendar)
+
+### 6.3 DateRangePicker
+
+Compound. Range variant of DatePicker.
+
+**Slots:** Same as DatePicker + range-specific (start, end)
+
+### 6.4 RangeCalendar
+
+Compound. Range variant of Calendar.
+
+**Slots:** Same as Calendar
+
+### 6.5 Table
+
+Compound. Data table structure.
+
+**Slots:** root, header, body, footer, row, head, cell, caption
+**Note:** `ariaStateProvider: "coldlight"` — native table elements provide semantics. TanStack handles logic externally.
+
+### 6.6 Tree
+
+Compound. Hierarchical list.
+
+**Slots:** root, item, group, indicator
+
+### Sprint 6 Gate
+
+- [ ] `pnpm svelte-check` — 0 errors
+- [ ] All 6 kinds pass sign-off
+- [ ] Barrel exports updated
 
 ---
 
-## CHECKLIST
+## SPRINT 7: Utilities
 
-### Sprint 0: Provider Contract
-- [ ] `taxonomy/provider/types.ts` — BUILDER_MAP, getBuilderName, isMeltPrimitive
-- [ ] `taxonomy/provider/melt.ts` — MELT_INFO, MELT_CAPABILITIES, MELT_PROVIDER
-- [ ] `taxonomy/provider/index.ts` — Exports + ACTIVE_PROVIDER
+### 7.1 Toggle
 
-### Sprint 1: Binding Layer
-- [ ] `design/api/adapters/meltui/types.ts` — 31 builder type aliases
-- [ ] `design/api/adapters/meltui/state.ts` — State extractors
-- [ ] `design/api/adapters/meltui/assertions.ts` — Runtime enforcement
-- [ ] `design/api/adapters/meltui/schemas.ts` — Zod validation
-- [ ] `design/api/adapters/meltui/index.ts` — Barrel
-- [ ] `sys/api/_internal/index.ts` — Top barrel
+Simple. Pressed/unpressed control.
 
-### Sprint 2: Verification
-- [ ] `scripts/verify-primitives.ts` — Enforcement script
+**Slots:** root
+**Element:** button
+**Context:** `{ pressed: boolean }`
 
-### Final
-- [ ] `pnpm check` passes
-- [ ] Verification script passes
+### 7.2 ToggleGroup
+
+Compound. Group of toggles with single/multi selection.
+
+**Slots:** root, item
+
+### 7.3 LinkPreview
+
+Compound. Hover preview card.
+
+**Slots:** root, trigger, portal, content, arrow
+
+### 7.4 Command
+
+Compound. Command palette (cmdk pattern).
+
+**Slots:** root, input, list, group, item, separator, empty
+**Note:** `ariaStateProvider: "coldlight"` — custom implementation
+
+### Sprint 7 Gate
+
+- [ ] `pnpm svelte-check` — 0 errors
+- [ ] All 4 kinds pass sign-off
+- [ ] Barrel exports updated
 
 ---
 
-**THIS PLAN IS LAW. EXECUTE IN ORDER. VERIFY EACH STEP.**
+## FINAL GATE
+
+- [ ] ALL primitives pass sign-off (CHECKLIST.md §SIGN-OFF)
+- [ ] `pnpm svelte-check` — 0 errors across entire project
+- [ ] `primitives/index.ts` exports every kind
+- [ ] `taxonomy/kinds/primitives/index.ts` exports every contract
+- [ ] ZERO `@melt-ui/svelte` imports in `primitives/` tree
+- [ ] ZERO `role`, `aria-*`, `id` attributes in `primitives/` tree
+- [ ] ZERO event handlers in `primitives/` tree
+- [ ] Scanner parity check passes for all kinds
+
+---
+
+## RULES
+
+1. **Taxonomy first.** No primitive without a contract.
+2. **Golden standard only.** Every `.svelte` follows CHECKLIST.md patterns exactly.
+3. **Verify after every kind.** `pnpm svelte-check` before moving on.
+4. **No ARIA in primitives.** The contract DECLARES what ARIA is needed. The component layer PROVIDES it. Primitives are structure.
+5. **No behavior in primitives.** No event handlers, no focus management, no keyboard nav, no melt.
+6. **Kind-prefixed names.** `DialogTrigger.svelte` not `Trigger.svelte`.
+7. **Ask when uncertain.** If a slot list, element type, or context shape is unclear — stop and clarify before writing.

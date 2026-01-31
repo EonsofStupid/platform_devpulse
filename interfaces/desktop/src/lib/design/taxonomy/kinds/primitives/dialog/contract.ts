@@ -6,58 +6,8 @@
  * 3-folder parity: taxonomy + adapter + primitive.
  */
 
-import type { PrimitiveContract, SlotStateMap, StateToken } from "../../../types.js";
-
-// ─── SLOT TYPES ─────────────────────────────────────────────────────────────
-
-/** All slot names for the dialog primitive */
-export const dialogSlots = [
-	"root",
-	"trigger",
-	"portal",
-	"overlay",
-	"content",
-	"title",
-	"description",
-	"close",
-] as const;
-
-/** Union of dialog slot names */
-export type DialogSlot = (typeof dialogSlots)[number];
-
-// ─── STATE TYPES ────────────────────────────────────────────────────────────
-
-/** All state tokens applicable to the dialog primitive */
-export const dialogStateTokens = [
-	"focused",
-	"focus-visible",
-	"focus-within",
-	"hover",
-	"active",
-	"hidden",
-	"visible",
-	"inert",
-	"open",
-	"entering",
-	"exiting",
-] as const satisfies readonly StateToken[];
-
-/** Union of dialog state tokens */
-export type DialogState = (typeof dialogStateTokens)[number];
-
-// ─── SLOT STATE MAP ─────────────────────────────────────────────────────────
-
-/** Per-slot allowed states for dialog */
-export const dialogSlotStates = {
-	root: ["open"],
-	trigger: ["focused", "focus-visible", "hover", "active"],
-	portal: ["hidden", "visible"],
-	overlay: ["visible", "entering", "exiting", "hover"],
-	content: ["open", "focus-within", "entering", "exiting"],
-	title: [],
-	description: [],
-	close: ["focused", "focus-visible", "hover", "active"],
-} as const satisfies SlotStateMap<DialogSlot, DialogState>;
+import type { PrimitiveContract } from "../../../types.js";
+import { dialogSlotStates, type DialogSlot, type DialogState } from "./types.js";
 
 // ─── CONTRACT ───────────────────────────────────────────────────────────────
 
