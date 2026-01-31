@@ -35,3 +35,53 @@ export {
   type TabsSlot,
   type TabsState,
 } from "./tabs/index.js";
+
+// Sheet (MeltUI)
+export {
+  contract as sheetContract,
+  sheetSlots,
+  sheetStateTokens,
+  sheetSlotStates,
+  type SheetSlot,
+  type SheetState,
+} from "./sheet/index.js";
+
+// AlertDialog (MeltUI)
+export {
+  contract as alertDialogContract,
+  alertDialogSlots,
+  alertDialogStateTokens,
+  alertDialogSlotStates,
+  type AlertDialogSlot,
+  type AlertDialogState,
+} from "./alert-dialog/index.js";
+
+// Popover (MeltUI)
+export {
+  contract as popoverContract,
+  popoverSlots,
+  popoverStateTokens,
+  popoverSlotStates,
+  type PopoverSlot,
+  type PopoverState,
+} from "./popover/index.js";
+
+// Tooltip (MeltUI)
+export {
+  contract as tooltipContract,
+  tooltipSlots,
+  tooltipStateTokens,
+  tooltipSlotStates,
+  type TooltipSlot,
+  type TooltipState,
+} from "./tooltip/index.js";
+
+// Select (MeltUI)
+export {
+  contract as selectContract,
+  selectSlots,
+  selectStateTokens,
+  selectSlotStates,
+  type SelectSlot,
+  type SelectState,
+} from "./select/index.js";
