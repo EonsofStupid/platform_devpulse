@@ -26,14 +26,24 @@ export const contract: PrimitiveContract<"button", ButtonSlot, ButtonState> = {
 	},
 	slotStates: buttonSlotStates,
 	slotActions: {
-		root: [],
+		root: ["submit", "reset", "toggle"],
 		icon: [],
 		label: [],
 	},
 	aria: {
 		role: "button",
 		requiredAttrs: [],
-		optionalAttrs: ["aria-pressed", "aria-disabled", "aria-busy"],
+		optionalAttrs: [
+			"aria-pressed",
+			"aria-disabled",
+			"aria-busy",
+			"aria-expanded",
+			"aria-haspopup",
+			"aria-controls",
+			"aria-label",
+			"aria-labelledby",
+			"aria-describedby",
+		],
 	},
 	keyboard: ["Enter", "Space"],
 };

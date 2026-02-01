@@ -28,19 +28,23 @@ export const contract: PrimitiveContract<"alert-dialog", AlertDialogSlot, AlertD
 	slotStates: alertDialogSlotStates,
 	slotActions: {
 		root: [],
-		trigger: [],
+		trigger: ["open"],
 		portal: [],
 		overlay: [],
 		content: [],
 		title: [],
 		description: [],
-		cancel: [],
-		action: [],
+		cancel: ["dismiss"],
+		action: ["close"],
 	},
 	aria: {
 		role: "alertdialog",
 		requiredAttrs: ["aria-modal", "aria-labelledby", "aria-describedby"],
-		optionalAttrs: [],
+		optionalAttrs: [
+			"aria-label",
+			"aria-hidden",
+			"aria-busy",
+		],
 	},
 	keyboard: ["Tab"],
 };

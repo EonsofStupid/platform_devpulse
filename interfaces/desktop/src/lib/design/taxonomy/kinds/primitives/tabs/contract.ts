@@ -32,13 +32,20 @@ export const contract: PrimitiveContract<"tabs", TabsSlot, TabsState> = {
 	slotActions: {
 		root: [],
 		list: [],
-		trigger: [],
+		trigger: ["select"],
 		content: [],
 	},
 	aria: {
 		role: "tablist",
 		requiredAttrs: ["aria-orientation"],
-		optionalAttrs: [],
+		optionalAttrs: [
+			"aria-label",
+			"aria-labelledby",
+			"aria-disabled",
+			"aria-describedby",
+			"aria-selected",
+			"aria-controls",
+		],
 	},
 	keyboard: ["ArrowLeft", "ArrowRight", "Home", "End", "Enter", "Space"],
 };

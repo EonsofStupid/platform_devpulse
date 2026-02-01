@@ -28,11 +28,11 @@ export const contract: PrimitiveContract<"select", SelectSlot, SelectState> = {
 	slotStates: selectSlotStates,
 	slotActions: {
 		root: [],
-		trigger: [],
+		trigger: ["open"],
 		value: [],
 		content: [],
 		viewport: [],
-		item: [],
+		item: ["select"],
 		"item-text": [],
 		group: [],
 		label: [],
@@ -41,7 +41,14 @@ export const contract: PrimitiveContract<"select", SelectSlot, SelectState> = {
 	aria: {
 		role: "listbox",
 		requiredAttrs: ["aria-expanded", "aria-selected", "aria-controls"],
-		optionalAttrs: ["aria-activedescendant"],
+		optionalAttrs: [
+			"aria-activedescendant",
+			"aria-label",
+			"aria-labelledby",
+			"aria-disabled",
+			"aria-describedby",
+			"aria-orientation",
+		],
 	},
 	keyboard: ["ArrowUp", "ArrowDown", "Enter", "Space", "Escape", "Home", "End"],
 };

@@ -8,10 +8,19 @@
 import type { Snippet } from "svelte";
 import type { OmitStyle, BaseProps } from "../types.js";
 
-/** Button primitive props — structural shell */
+/** Button root — interactive command element */
 export interface ButtonProps extends OmitStyle<HTMLButtonElement>, BaseProps {
 	/** HTML disabled state */
 	disabled?: boolean;
-	/** Content */
+	children?: Snippet;
+}
+
+/** Button icon — decorative icon wrapper */
+export interface ButtonIconProps extends OmitStyle<HTMLSpanElement>, BaseProps {
+	children?: Snippet;
+}
+
+/** Button label — text label wrapper */
+export interface ButtonLabelProps extends OmitStyle<HTMLSpanElement>, BaseProps {
 	children?: Snippet;
 }

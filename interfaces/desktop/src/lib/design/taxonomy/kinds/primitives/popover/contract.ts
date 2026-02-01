@@ -28,15 +28,21 @@ export const contract: PrimitiveContract<"popover", PopoverSlot, PopoverState> =
 	slotStates: popoverSlotStates,
 	slotActions: {
 		root: [],
-		trigger: [],
+		trigger: ["toggle"],
 		content: [],
 		arrow: [],
-		close: [],
+		close: ["close"],
 	},
 	aria: {
 		role: "dialog",
 		requiredAttrs: ["aria-expanded", "aria-controls"],
-		optionalAttrs: ["aria-haspopup"],
+		optionalAttrs: [
+			"aria-haspopup",
+			"aria-label",
+			"aria-labelledby",
+			"aria-describedby",
+			"aria-hidden",
+		],
 	},
 	keyboard: ["Escape", "Tab"],
 };

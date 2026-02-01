@@ -14,10 +14,12 @@ export type TabsContext = {
 	readonly value: string;
 };
 
+/** Set tabs context (called by Tabs root) */
 export function setTabsContext(ctx: TabsContext): void {
 	setContext(CTX_KEY, ctx);
 }
 
+/** Get tabs context (called by tabs sub-components) */
 export function getTabsContext(): TabsContext {
 	return getContext<TabsContext>(CTX_KEY);
 }

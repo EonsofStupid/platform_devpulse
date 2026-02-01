@@ -40,7 +40,14 @@ export const contract: PrimitiveContract<
 	aria: {
 		role: "region",
 		requiredAttrs: [],
-		optionalAttrs: ["aria-label", "aria-orientation"],
+		optionalAttrs: [
+			"aria-label",
+			"aria-orientation",
+			"aria-valuenow",
+			"aria-valuemin",
+			"aria-valuemax",
+			"aria-controls",
+		],
 	},
 	keyboard: [
 		"ArrowUp",
