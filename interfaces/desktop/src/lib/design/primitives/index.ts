@@ -42,6 +42,16 @@ export * from "./alert-dialog/index.js";
 export * from "./popover/index.js";
 export * from "./tooltip/index.js";
 export * from "./select/index.js";
+export * from "./separator/index.js";
+export * from "./collapsible/index.js";
+export * from "./accordion/index.js";
+export * from "./scroll-area/index.js";
+export * from "./toolbar/index.js";
+export * from "./label/index.js";
+export * from "./badge/index.js";
+export * from "./input/index.js";
+export * from "./textarea/index.js";
+export * from "./toggle/index.js";
 
 // ============================================
 // TANSTACK

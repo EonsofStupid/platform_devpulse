@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm dev:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm check:*)",
+      "Bash(pnpm svelte-check:*)",
+      "Bash(pnpm exec svelte-check:*)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm audit:*)",
+      "Bash(pnpm ds:tokens:build:*)",
+      "Bash(npx svelte-check:*)",
+      "Bash(cargo build:*)",
+      "Bash(cargo check:*)",
+      "Bash(cargo clippy:*)",
+      "Bash(cargo test:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git diff-index:*)",
+      "Bash(git status:*)",
+      "Bash(git branch:*)",
+      "Bash(ls:*)"
+    ],
+    "deny": [
+      "Bash(rm -rf /*)",
+      "Bash(git push --force:*)",
+      "Bash(git reset --hard:*)"
+    ]
+  }
+}
