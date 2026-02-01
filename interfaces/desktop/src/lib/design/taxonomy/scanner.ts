@@ -293,12 +293,17 @@ function contractToManifest(contract: PrimitiveContract): ManifestPrimitive {
 		},
 		slotStates,
 		slotActions,
+		slotSpec: contract.slotSpec as Record<string, ManifestPrimitive["slotSpec"][string]>,
 		aria: {
 			role: contract.aria.role,
 			requiredAttrs: [...contract.aria.requiredAttrs],
 			optionalAttrs: [...contract.aria.optionalAttrs],
 		},
 		keyboard: [...contract.keyboard],
+		focusStrategy: contract.focusStrategy,
+		compound: contract.compound,
+		...(contract.orientation != null ? { orientation: contract.orientation } : {}),
+		...(contract.dismissBehavior != null ? { dismissBehavior: contract.dismissBehavior } : {}),
 	};
 }
 

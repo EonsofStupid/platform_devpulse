@@ -16,6 +16,13 @@ export const contract: PrimitiveContract<"input", InputSlot, InputState> = {
 	kind: "input",
 	ariaStateProvider: "coldlight",
 	slots: { required: ["root"], optional: [], forbidden: [] },
+	slotSpec: {
+		root: {
+			element: "input",
+			children: "self-closing",
+			aria: { role: "textbox", required: [], optional: ["aria-label", "aria-labelledby", "aria-describedby", "aria-required", "aria-invalid", "aria-errormessage", "aria-disabled", "aria-readonly", "aria-placeholder", "aria-autocomplete"] },
+		},
+	},
 	states: {
 		shared: ["focused", "focus-visible", "hover", "active", "disabled"],
 		specific: ["readonly", "invalid", "valid", "required"],
@@ -27,13 +34,18 @@ export const contract: PrimitiveContract<"input", InputSlot, InputState> = {
 		requiredAttrs: [],
 		optionalAttrs: [
 			"aria-label",
+			"aria-labelledby",
 			"aria-describedby",
 			"aria-invalid",
+			"aria-errormessage",
 			"aria-required",
 			"aria-disabled",
 			"aria-placeholder",
 			"aria-readonly",
+			"aria-autocomplete",
 		],
 	},
 	keyboard: [],
+	focusStrategy: "none",
+	compound: false,
 };

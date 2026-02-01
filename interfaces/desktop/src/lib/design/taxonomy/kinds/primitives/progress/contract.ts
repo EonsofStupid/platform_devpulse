@@ -21,6 +21,18 @@ export const contract: PrimitiveContract<"progress", ProgressSlot, ProgressState
 	kind: "progress",
 	ariaStateProvider: "coldlight",
 	slots: { required: ["root", "indicator"], optional: [], forbidden: [] },
+	slotSpec: {
+		root: {
+			element: "div",
+			children: "snippet",
+			aria: { role: "progressbar", required: [], optional: ["aria-valuenow", "aria-valuemin", "aria-valuemax", "aria-valuetext", "aria-label", "aria-labelledby", "aria-describedby", "aria-busy"] },
+		},
+		indicator: {
+			element: "div",
+			children: "snippet",
+			aria: { required: [], optional: [] },
+		},
+	},
 	states: {
 		shared: ["hover", "active", "disabled"],
 		specific: ["indeterminate", "loading"],
@@ -42,4 +54,6 @@ export const contract: PrimitiveContract<"progress", ProgressSlot, ProgressState
 		],
 	},
 	keyboard: [],
+	focusStrategy: "none",
+	compound: false,
 };

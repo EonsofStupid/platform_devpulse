@@ -28,6 +28,13 @@ export const contract: PrimitiveContract<
 		optional: ["scrollbar", "thumb", "corner"],
 		forbidden: [],
 	},
+	slotSpec: {
+		root: { element: "div", children: "snippet", aria: { required: [], optional: [] } },
+		viewport: { element: "div", children: "snippet", aria: { required: [], optional: [] } },
+		scrollbar: { element: "div", children: "snippet", aria: { role: "scrollbar", required: ["aria-controls", "aria-valuenow", "aria-valuemin", "aria-valuemax"], optional: ["aria-orientation"] } },
+		thumb: { element: "div", children: "snippet", aria: { required: [], optional: [] } },
+		corner: { element: "div", children: "snippet", aria: { required: [], optional: [] } },
+	},
 	states: { shared: ["hover", "active"], specific: ["visible", "hidden"] },
 	slotStates: scrollAreaSlotStates,
 	slotActions: {
@@ -59,4 +66,7 @@ export const contract: PrimitiveContract<
 		"Home",
 		"End",
 	],
+	focusStrategy: "none",
+	compound: false,
+	orientation: "both",
 };

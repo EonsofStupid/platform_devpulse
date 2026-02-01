@@ -11,5 +11,7 @@ import type { OmitStyle, BaseProps } from "../types.js";
 
 /** Toggle root — pressable button with on/off state */
 export interface ToggleProps extends OmitStyle<HTMLButtonElement>, BaseProps {
+	/** Pressed state (bindable) */
+	pressed?: boolean;
 	children?: Snippet;
 }

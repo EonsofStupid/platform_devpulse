@@ -24,6 +24,12 @@ export const contract: PrimitiveContract<"tabs", TabsSlot, TabsState> = {
 		optional: [],
 		forbidden: [],
 	},
+	slotSpec: {
+		root: { element: "div", children: "snippet", aria: { required: [], optional: [] } },
+		list: { element: "div", children: "snippet", aria: { role: "tablist", required: ["aria-orientation"], optional: ["aria-label", "aria-labelledby"] } },
+		trigger: { element: "button", children: "snippet", aria: { role: "tab", required: ["aria-selected", "aria-controls"], optional: ["aria-disabled"] } },
+		content: { element: "div", children: "snippet", aria: { role: "tabpanel", required: ["aria-labelledby"], optional: ["aria-hidden"] } },
+	},
 	states: {
 		shared: ["focused", "focus-visible", "focus-within", "hover", "active", "disabled"],
 		specific: ["hidden", "visible", "selected"],
@@ -48,4 +54,7 @@ export const contract: PrimitiveContract<"tabs", TabsSlot, TabsState> = {
 		],
 	},
 	keyboard: ["ArrowLeft", "ArrowRight", "Home", "End", "Enter", "Space"],
+	focusStrategy: "roving",
+	compound: true,
+	orientation: "horizontal",
 };

@@ -57,6 +57,11 @@ export * from "./progress/index.js";
 export * from "./alert/index.js";
 export * from "./avatar/index.js";
 export * from "./card/index.js";
+export * from "./switch/index.js";
+export * from "./checkbox/index.js";
+export * from "./radio-group/index.js";
+export * from "./visually-hidden/index.js";
+export * from "./spinner/index.js";
 
 // ============================================
 // TANSTACK

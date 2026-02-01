@@ -24,6 +24,13 @@ export const contract: PrimitiveContract<
 	kind: "separator",
 	ariaStateProvider: "coldlight",
 	slots: { required: ["root"], optional: [], forbidden: [] },
+	slotSpec: {
+		root: {
+			element: "div",
+			children: "snippet",
+			aria: { role: "separator", required: [], optional: ["aria-orientation", "aria-label", "aria-labelledby", "aria-disabled", "aria-valuemin", "aria-valuemax", "aria-valuenow", "aria-valuetext"] },
+		},
+	},
 	states: {
 		shared: ["focused", "focus-visible", "hover", "active", "disabled"],
 		specific: [],
@@ -35,6 +42,8 @@ export const contract: PrimitiveContract<
 		requiredAttrs: [],
 		optionalAttrs: [
 			"aria-orientation",
+			"aria-label",
+			"aria-labelledby",
 			"aria-disabled",
 			"aria-valuemin",
 			"aria-valuemax",
@@ -50,4 +59,6 @@ export const contract: PrimitiveContract<
 		"Home",
 		"End",
 	],
+	focusStrategy: "none",
+	compound: false,
 };

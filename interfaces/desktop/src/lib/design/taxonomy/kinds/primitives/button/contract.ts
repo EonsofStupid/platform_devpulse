@@ -20,6 +20,23 @@ export const contract: PrimitiveContract<"button", ButtonSlot, ButtonState> = {
 		optional: ["icon", "label"],
 		forbidden: [],
 	},
+	slotSpec: {
+		root: {
+			element: "button",
+			children: "snippet",
+			aria: { role: "button", required: [], optional: ["aria-pressed", "aria-disabled", "aria-busy", "aria-expanded", "aria-haspopup", "aria-controls", "aria-label", "aria-labelledby", "aria-describedby"] },
+		},
+		icon: {
+			element: "span",
+			children: "snippet",
+			aria: { required: [], optional: ["aria-hidden"] },
+		},
+		label: {
+			element: "span",
+			children: "snippet",
+			aria: { required: [], optional: [] },
+		},
+	},
 	states: {
 		shared: ["focused", "focus-visible", "hover", "active", "disabled"],
 		specific: ["pressed", "loading", "busy"],
@@ -46,4 +63,6 @@ export const contract: PrimitiveContract<"button", ButtonSlot, ButtonState> = {
 		],
 	},
 	keyboard: ["Enter", "Space"],
+	focusStrategy: "none",
+	compound: false,
 };

@@ -21,6 +21,17 @@ export const contract: PrimitiveContract<"alert-dialog", AlertDialogSlot, AlertD
 		optional: ["trigger", "portal", "overlay", "cancel", "action"],
 		forbidden: [],
 	},
+	slotSpec: {
+		root: { element: "fragment", children: "renderless", aria: { required: [], optional: [] } },
+		trigger: { element: "button", children: "snippet", aria: { role: "button", required: ["aria-haspopup", "aria-expanded"], optional: ["aria-controls", "aria-label"] } },
+		portal: { element: "div", children: "snippet", aria: { required: [], optional: [] } },
+		overlay: { element: "div", children: "snippet", aria: { required: [], optional: ["aria-hidden"] } },
+		content: { element: "div", children: "snippet", aria: { role: "alertdialog", required: ["aria-modal", "aria-labelledby", "aria-describedby"], optional: ["aria-label"] } },
+		title: { element: "h2", children: "snippet", aria: { required: [], optional: [] } },
+		description: { element: "p", children: "snippet", aria: { required: [], optional: [] } },
+		cancel: { element: "button", children: "snippet", aria: { role: "button", required: [], optional: ["aria-label"] } },
+		action: { element: "button", children: "snippet", aria: { role: "button", required: [], optional: ["aria-label"] } },
+	},
 	states: {
 		shared: ["focused", "focus-visible", "focus-within", "hover", "active"],
 		specific: ["hidden", "visible", "open", "entering", "exiting"],
@@ -47,4 +58,7 @@ export const contract: PrimitiveContract<"alert-dialog", AlertDialogSlot, AlertD
 		],
 	},
 	keyboard: ["Tab"],
+	focusStrategy: "trap",
+	compound: true,
+	dismissBehavior: { escape: false, outsideClick: false },
 };

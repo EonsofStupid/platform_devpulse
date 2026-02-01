@@ -28,6 +28,13 @@ export const contract: PrimitiveContract<
 		optional: ["group", "item", "separator", "link"],
 		forbidden: [],
 	},
+	slotSpec: {
+		root: { element: "div", children: "snippet", aria: { role: "toolbar", required: [], optional: ["aria-label", "aria-labelledby", "aria-orientation"] } },
+		group: { element: "div", children: "snippet", aria: { role: "group", required: [], optional: ["aria-label"] } },
+		item: { element: "button", children: "snippet", aria: { role: "button", required: [], optional: ["aria-disabled", "aria-pressed", "aria-label"] } },
+		separator: { element: "div", children: "snippet", aria: { role: "separator", required: [], optional: ["aria-orientation"] } },
+		link: { element: "a", children: "snippet", aria: { role: "link", required: [], optional: ["aria-label", "aria-disabled"] } },
+	},
 	states: {
 		shared: ["focused", "focus-visible", "hover", "active", "disabled"],
 		specific: [],
@@ -46,4 +53,7 @@ export const contract: PrimitiveContract<
 		optionalAttrs: ["aria-orientation", "aria-controls", "aria-disabled"],
 	},
 	keyboard: ["ArrowLeft", "ArrowRight", "Home", "End", "Tab"],
+	focusStrategy: "roving",
+	compound: false,
+	orientation: "horizontal",
 };

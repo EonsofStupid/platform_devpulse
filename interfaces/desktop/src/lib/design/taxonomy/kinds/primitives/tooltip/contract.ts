@@ -21,6 +21,12 @@ export const contract: PrimitiveContract<"tooltip", TooltipSlot, TooltipState> =
 		optional: ["arrow"],
 		forbidden: [],
 	},
+	slotSpec: {
+		root: { element: "fragment", children: "renderless", aria: { required: [], optional: [] } },
+		trigger: { element: "button", children: "snippet", aria: { required: ["aria-describedby"], optional: [] } },
+		content: { element: "div", children: "snippet", aria: { role: "tooltip", required: [], optional: ["aria-label"] } },
+		arrow: { element: "div", children: "snippet", aria: { required: [], optional: [] } },
+	},
 	states: {
 		shared: ["focused", "focus-visible", "hover"],
 		specific: ["open", "hidden", "visible", "entering", "exiting"],
@@ -38,4 +44,7 @@ export const contract: PrimitiveContract<"tooltip", TooltipSlot, TooltipState> =
 		optionalAttrs: ["aria-describedby"],
 	},
 	keyboard: ["Escape"],
+	focusStrategy: "none",
+	compound: true,
+	dismissBehavior: { escape: true, outsideClick: false },
 };

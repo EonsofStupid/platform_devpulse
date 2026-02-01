@@ -16,6 +16,13 @@ export const contract: PrimitiveContract<"skeleton", SkeletonSlot, SkeletonState
 	kind: "skeleton",
 	ariaStateProvider: "coldlight",
 	slots: { required: ["root"], optional: [], forbidden: [] },
+	slotSpec: {
+		root: {
+			element: "div",
+			children: "snippet",
+			aria: { role: "status", required: [], optional: ["aria-busy", "aria-label", "aria-hidden"] },
+		},
+	},
 	states: {
 		shared: [],
 		specific: ["loading", "busy", "visible", "hidden"],
@@ -28,4 +35,6 @@ export const contract: PrimitiveContract<"skeleton", SkeletonSlot, SkeletonState
 		optionalAttrs: ["aria-busy", "aria-label", "aria-hidden"],
 	},
 	keyboard: [],
+	focusStrategy: "none",
+	compound: false,
 };

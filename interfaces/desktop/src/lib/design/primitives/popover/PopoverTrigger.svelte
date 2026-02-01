@@ -6,8 +6,10 @@
 <script lang="ts">
 	import { cn, stripStyleProp } from "../types.js";
 	import type { PopoverTriggerProps } from "./types.js";
+	import { getPopoverContext } from "./context.js";
 
 	let { children, class: className, ...rest }: PopoverTriggerProps = $props();
+	const ctx = getPopoverContext();
 
 	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "PopoverTrigger");
 </script>
@@ -16,6 +18,7 @@
 	{...rest}
 	data-kind="popover"
 	data-slot="trigger"
+	data-state={ctx.open ? "open" : "closed"}
 	class={cn(className)}
 >
 	{@render children?.()}

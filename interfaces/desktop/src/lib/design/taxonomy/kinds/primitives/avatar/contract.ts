@@ -24,6 +24,23 @@ export const contract: PrimitiveContract<"avatar", AvatarSlot, AvatarState> = {
 		optional: ["image", "fallback"],
 		forbidden: [],
 	},
+	slotSpec: {
+		root: {
+			element: "span",
+			children: "snippet",
+			aria: { role: "img", required: [], optional: ["aria-label", "aria-hidden"] },
+		},
+		image: {
+			element: "img",
+			children: "self-closing",
+			aria: { required: [], optional: [] },
+		},
+		fallback: {
+			element: "span",
+			children: "snippet",
+			aria: { required: [], optional: ["aria-hidden"] },
+		},
+	},
 	states: {
 		shared: ["hover", "active"],
 		specific: ["loading", "hidden", "visible"],
@@ -36,4 +53,6 @@ export const contract: PrimitiveContract<"avatar", AvatarSlot, AvatarState> = {
 		optionalAttrs: ["aria-label", "aria-hidden"],
 	},
 	keyboard: [],
+	focusStrategy: "none",
+	compound: false,
 };

@@ -39,6 +39,7 @@ export const dialogStateTokens = [
 	"visible",
 	"inert",
 	"open",
+	"closed",
 	"entering",
 	"exiting",
 ] as const satisfies readonly StateToken[];
@@ -50,11 +51,11 @@ export type DialogState = (typeof dialogStateTokens)[number];
 
 /** Per-slot allowed states for dialog */
 export const dialogSlotStates = {
-	root: ["open"],
+	root: ["open", "closed"],
 	trigger: ["focused", "focus-visible", "hover", "active"],
 	portal: ["hidden", "visible"],
 	overlay: ["visible", "entering", "exiting", "hover"],
-	content: ["open", "focus-within", "entering", "exiting"],
+	content: ["open", "closed", "focus-within", "entering", "exiting"],
 	title: [],
 	description: [],
 	close: ["focused", "focus-visible", "hover", "active"],

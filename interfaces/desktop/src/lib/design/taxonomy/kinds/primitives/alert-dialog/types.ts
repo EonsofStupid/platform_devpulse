@@ -40,6 +40,7 @@ export const alertDialogStateTokens = [
 	"hidden",
 	"visible",
 	"open",
+	"closed",
 	"entering",
 	"exiting",
 ] as const satisfies readonly StateToken[];
@@ -51,11 +52,11 @@ export type AlertDialogState = (typeof alertDialogStateTokens)[number];
 
 /** Per-slot allowed states for alert-dialog */
 export const alertDialogSlotStates = {
-	root: ["open"],
+	root: ["open", "closed"],
 	trigger: ["focused", "focus-visible", "hover", "active"],
 	portal: ["hidden", "visible"],
 	overlay: ["visible", "entering", "exiting"],
-	content: ["open", "focus-within", "entering", "exiting"],
+	content: ["open", "closed", "focus-within", "entering", "exiting"],
 	title: [],
 	description: [],
 	cancel: ["focused", "focus-visible", "hover", "active"],

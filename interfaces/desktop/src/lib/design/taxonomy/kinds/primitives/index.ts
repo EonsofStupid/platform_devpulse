@@ -235,3 +235,53 @@ export {
 	type CardSlot,
 	type CardState,
 } from "./card/index.js";
+
+// Switch (ColdLight)
+export {
+	contract as switchContract,
+	switchSlots,
+	switchStateTokens,
+	switchSlotStates,
+	type SwitchSlot,
+	type SwitchState,
+} from "./switch/index.js";
+
+// Checkbox (ColdLight)
+export {
+	contract as checkboxContract,
+	checkboxSlots,
+	checkboxStateTokens,
+	checkboxSlotStates,
+	type CheckboxSlot,
+	type CheckboxState,
+} from "./checkbox/index.js";
+
+// RadioGroup (ColdLight)
+export {
+	contract as radioGroupContract,
+	radioGroupSlots,
+	radioGroupStateTokens,
+	radioGroupSlotStates,
+	type RadioGroupSlot,
+	type RadioGroupState,
+} from "./radio-group/index.js";
+
+// VisuallyHidden (ColdLight utility)
+export {
+	contract as visuallyHiddenContract,
+	visuallyHiddenSlots,
+	visuallyHiddenStateTokens,
+	visuallyHiddenSlotStates,
+	type VisuallyHiddenSlot,
+	type VisuallyHiddenState,
+} from "./visually-hidden/index.js";
+
+// Spinner (ColdLight)
+export {
+	contract as spinnerContract,
+	spinnerSlots,
+	spinnerStateTokens,
+	spinnerSlotStates,
+	type SpinnerSlot,
+	type SpinnerState,
+} from "./spinner/index.js";

@@ -24,6 +24,23 @@ export const contract: PrimitiveContract<"alert", AlertSlot, AlertState> = {
 		optional: ["title", "description"],
 		forbidden: [],
 	},
+	slotSpec: {
+		root: {
+			element: "div",
+			children: "snippet",
+			aria: { role: "alert", required: [], optional: ["aria-live", "aria-atomic", "aria-label", "aria-labelledby", "aria-describedby"] },
+		},
+		title: {
+			element: "h5",
+			children: "snippet",
+			aria: { required: [], optional: [] },
+		},
+		description: {
+			element: "div",
+			children: "snippet",
+			aria: { required: [], optional: [] },
+		},
+	},
 	states: {
 		shared: ["hover", "active"],
 		specific: ["visible", "hidden"],
@@ -42,4 +59,6 @@ export const contract: PrimitiveContract<"alert", AlertSlot, AlertState> = {
 		],
 	},
 	keyboard: ["Escape"],
+	focusStrategy: "none",
+	compound: false,
 };

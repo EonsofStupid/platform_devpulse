@@ -40,6 +40,7 @@ export const selectStateTokens = [
 	"active",
 	"disabled",
 	"open",
+	"closed",
 	"selected",
 	"hidden",
 	"visible",
@@ -52,10 +53,10 @@ export type SelectState = (typeof selectStateTokens)[number];
 
 /** Per-slot allowed states for select */
 export const selectSlotStates = {
-	root: ["open"],
-	trigger: ["focused", "focus-visible", "hover", "active", "disabled"],
+	root: ["open", "closed"],
+	trigger: ["focused", "focus-visible", "hover", "active", "disabled", "open", "closed"],
 	value: [],
-	content: ["open", "focus-within"],
+	content: ["open", "closed", "focus-within"],
 	viewport: [],
 	item: ["focused", "hover", "active", "disabled", "selected"],
 	"item-text": [],

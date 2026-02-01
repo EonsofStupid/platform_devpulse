@@ -16,6 +16,13 @@ export const contract: PrimitiveContract<"label", LabelSlot, LabelState> = {
 	kind: "label",
 	ariaStateProvider: "coldlight",
 	slots: { required: ["root"], optional: [], forbidden: [] },
+	slotSpec: {
+		root: {
+			element: "label",
+			children: "snippet",
+			aria: { required: [], optional: [] },
+		},
+	},
 	states: {
 		shared: ["focused", "focus-visible", "hover", "active", "disabled"],
 		specific: [],
@@ -28,4 +35,6 @@ export const contract: PrimitiveContract<"label", LabelSlot, LabelState> = {
 		optionalAttrs: [],
 	},
 	keyboard: [],
+	focusStrategy: "none",
+	compound: false,
 };

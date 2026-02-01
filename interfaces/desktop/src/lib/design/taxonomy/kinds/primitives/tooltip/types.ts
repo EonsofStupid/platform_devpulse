@@ -31,6 +31,7 @@ export const tooltipStateTokens = [
 	"focus-visible",
 	"hover",
 	"open",
+	"closed",
 	"hidden",
 	"visible",
 	"entering",
@@ -44,8 +45,8 @@ export type TooltipState = (typeof tooltipStateTokens)[number];
 
 /** Per-slot allowed states for tooltip */
 export const tooltipSlotStates = {
-	root: ["open"],
-	trigger: ["focused", "focus-visible", "hover"],
-	content: ["visible", "entering", "exiting"],
+	root: ["open", "closed"],
+	trigger: ["focused", "focus-visible", "hover", "open", "closed"],
+	content: ["open", "closed", "visible", "entering", "exiting"],
 	arrow: [],
 } as const satisfies SlotStateMap<TooltipSlot, TooltipState>;

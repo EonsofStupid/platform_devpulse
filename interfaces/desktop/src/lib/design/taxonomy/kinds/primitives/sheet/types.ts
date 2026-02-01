@@ -41,6 +41,7 @@ export const sheetStateTokens = [
 	"hidden",
 	"visible",
 	"open",
+	"closed",
 	"entering",
 	"exiting",
 ] as const satisfies readonly StateToken[];
@@ -52,11 +53,11 @@ export type SheetState = (typeof sheetStateTokens)[number];
 
 /** Per-slot allowed states for sheet */
 export const sheetSlotStates = {
-	root: ["open"],
+	root: ["open", "closed"],
 	trigger: ["focused", "focus-visible", "hover", "active"],
 	portal: ["hidden", "visible"],
 	overlay: ["visible", "entering", "exiting", "hover"],
-	content: ["open", "focus-within", "entering", "exiting"],
+	content: ["open", "closed", "focus-within", "entering", "exiting"],
 	header: [],
 	footer: [],
 	title: [],

@@ -16,6 +16,13 @@ export const contract: PrimitiveContract<"textarea", TextareaSlot, TextareaState
 	kind: "textarea",
 	ariaStateProvider: "coldlight",
 	slots: { required: ["root"], optional: [], forbidden: [] },
+	slotSpec: {
+		root: {
+			element: "textarea",
+			children: "self-closing",
+			aria: { role: "textbox", required: [], optional: ["aria-label", "aria-labelledby", "aria-describedby", "aria-required", "aria-invalid", "aria-errormessage", "aria-disabled", "aria-readonly", "aria-placeholder", "aria-multiline"] },
+		},
+	},
 	states: {
 		shared: ["focused", "focus-visible", "hover", "active", "disabled"],
 		specific: ["readonly", "invalid", "valid", "required"],
@@ -27,8 +34,10 @@ export const contract: PrimitiveContract<"textarea", TextareaSlot, TextareaState
 		requiredAttrs: [],
 		optionalAttrs: [
 			"aria-label",
+			"aria-labelledby",
 			"aria-describedby",
 			"aria-invalid",
+			"aria-errormessage",
 			"aria-required",
 			"aria-disabled",
 			"aria-placeholder",
@@ -37,4 +46,6 @@ export const contract: PrimitiveContract<"textarea", TextareaSlot, TextareaState
 		],
 	},
 	keyboard: [],
+	focusStrategy: "none",
+	compound: false,
 };

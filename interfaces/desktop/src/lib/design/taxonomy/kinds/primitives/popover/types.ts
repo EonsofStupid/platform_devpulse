@@ -34,6 +34,7 @@ export const popoverStateTokens = [
 	"hover",
 	"active",
 	"open",
+	"closed",
 	"hidden",
 	"visible",
 	"entering",
@@ -47,9 +48,9 @@ export type PopoverState = (typeof popoverStateTokens)[number];
 
 /** Per-slot allowed states for popover */
 export const popoverSlotStates = {
-	root: ["open"],
-	trigger: ["focused", "focus-visible", "hover", "active"],
-	content: ["open", "focus-within", "entering", "exiting"],
+	root: ["open", "closed"],
+	trigger: ["focused", "focus-visible", "hover", "active", "open", "closed"],
+	content: ["open", "closed", "focus-within", "entering", "exiting"],
 	arrow: [],
 	close: ["focused", "focus-visible", "hover", "active"],
 } as const satisfies SlotStateMap<PopoverSlot, PopoverState>;

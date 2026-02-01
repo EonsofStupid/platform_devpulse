@@ -38,6 +38,6 @@ export type CollapsibleState = (typeof collapsibleStateTokens)[number];
 /** Per-slot allowed states for collapsible */
 export const collapsibleSlotStates = {
 	root: ["open", "closed", "disabled"],
-	trigger: ["focused", "focus-visible", "hover", "active", "disabled"],
+	trigger: ["focused", "focus-visible", "hover", "active", "disabled", "open", "closed"],
 	content: ["open", "closed"],
 } as const satisfies SlotStateMap<CollapsibleSlot, CollapsibleState>;

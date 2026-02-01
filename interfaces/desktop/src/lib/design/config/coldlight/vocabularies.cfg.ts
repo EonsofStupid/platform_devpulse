@@ -217,6 +217,64 @@ export const SLOT_ACTIONS = [
 export const ARIA_STATE_PROVIDERS = ["meltui", "coldlight"] as const;
 
 // =============================================================================
+// HTML ELEMENTS — Standard HTML element tags for slot rendering
+// =============================================================================
+
+export const HTML_ELEMENTS = [
+	// Structural
+	"div", "span", "section", "article", "aside", "nav",
+	"header", "footer", "main",
+	// Interactive
+	"button", "a", "input", "textarea", "select", "label",
+	// Semantic
+	"h1", "h2", "h3", "h4", "h5", "h6", "p", "hr",
+	// Lists
+	"ul", "ol", "li", "dl", "dt", "dd",
+	// Media
+	"img", "figure", "figcaption",
+	// Tables
+	"table", "thead", "tbody", "tfoot", "tr", "th", "td",
+	// Forms
+	"form", "fieldset", "legend", "output", "progress", "meter",
+	// Disclosure
+	"details", "summary", "dialog",
+	// Virtual (no DOM element)
+	"fragment",
+] as const;
+
+// =============================================================================
+// FOCUS STRATEGIES — How focus is managed for a primitive
+// =============================================================================
+
+export const FOCUS_STRATEGIES = [
+	"trap",              // Focus locked inside (dialog, sheet, alert-dialog)
+	"roving",            // Roving tabindex (tabs, toolbar, radiogroup)
+	"activedescendant",  // aria-activedescendant (select, combobox)
+	"redirect",          // Focus moved to specific target (popover → content)
+	"none",              // No special focus management
+] as const;
+
+// =============================================================================
+// SLOT CHILDREN MODES — How a slot renders its content
+// =============================================================================
+
+export const SLOT_CHILDREN_MODES = [
+	"snippet",       // Accepts Snippet children, rendered with {@render}
+	"self-closing",  // No children (img, input)
+	"renderless",    // No DOM element, only renders children (context providers)
+] as const;
+
+// =============================================================================
+// ORIENTATIONS — Primary axis for directional navigation
+// =============================================================================
+
+export const ORIENTATIONS = [
+	"horizontal",
+	"vertical",
+	"both",
+] as const;
+
+// =============================================================================
 // SCAN ERROR CODES — Scanner error taxonomy
 // =============================================================================
 

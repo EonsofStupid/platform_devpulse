@@ -21,6 +21,13 @@ export const contract: PrimitiveContract<"popover", PopoverSlot, PopoverState> =
 		optional: ["arrow", "close"],
 		forbidden: [],
 	},
+	slotSpec: {
+		root: { element: "fragment", children: "renderless", aria: { required: [], optional: [] } },
+		trigger: { element: "button", children: "snippet", aria: { role: "button", required: ["aria-haspopup", "aria-expanded"], optional: ["aria-controls", "aria-label"] } },
+		content: { element: "div", children: "snippet", aria: { required: [], optional: ["aria-label", "aria-labelledby", "aria-describedby"] } },
+		arrow: { element: "div", children: "snippet", aria: { required: [], optional: [] } },
+		close: { element: "button", children: "snippet", aria: { role: "button", required: [], optional: ["aria-label"] } },
+	},
 	states: {
 		shared: ["focused", "focus-visible", "focus-within", "hover", "active"],
 		specific: ["open", "hidden", "visible", "entering", "exiting"],
@@ -45,4 +52,7 @@ export const contract: PrimitiveContract<"popover", PopoverSlot, PopoverState> =
 		],
 	},
 	keyboard: ["Escape", "Tab"],
+	focusStrategy: "redirect",
+	compound: true,
+	dismissBehavior: { escape: true, outsideClick: true },
 };
