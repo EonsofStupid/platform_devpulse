@@ -62,6 +62,19 @@ export * from "./checkbox/index.js";
 export * from "./radio-group/index.js";
 export * from "./visually-hidden/index.js";
 export * from "./spinner/index.js";
+export * from "./toggle-group/index.js";
+export * from "./slider/index.js";
+export * from "./hover-card/index.js";
+export * from "./pin-input/index.js";
+export * from "./breadcrumb/index.js";
+export * from "./navigation-menu/index.js";
+export * from "./command/index.js";
+export * from "./menubar/index.js";
+export * from "./context-menu/index.js";
+export * from "./dropdown-menu/index.js";
+export * from "./combobox/index.js";
+export * from "./pagination/index.js";
+export * from "./aspect-ratio/index.js";
 
 // ============================================
 // TANSTACK

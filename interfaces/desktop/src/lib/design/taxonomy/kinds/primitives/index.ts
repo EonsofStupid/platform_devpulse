@@ -285,3 +285,123 @@ export {
 	type SpinnerSlot,
 	type SpinnerState,
 } from "./spinner/index.js";
+
+// ToggleGroup (MeltUI)
+export {
+	contract as toggleGroupContract,
+	toggleGroupSlots,
+	toggleGroupStateTokens,
+	toggleGroupSlotStates,
+	type ToggleGroupSlot,
+	type ToggleGroupState,
+} from "./toggle-group/index.js";
+
+// Slider (MeltUI)
+export {
+	contract as sliderContract,
+	sliderSlots,
+	sliderStateTokens,
+	sliderSlotStates,
+	type SliderSlot,
+	type SliderState,
+} from "./slider/index.js";
+
+// HoverCard (MeltUI)
+export {
+	contract as hoverCardContract,
+	hoverCardSlots,
+	hoverCardStateTokens,
+	hoverCardSlotStates,
+	type HoverCardSlot,
+	type HoverCardState,
+} from "./hover-card/index.js";
+
+// PinInput (MeltUI)
+export {
+	contract as pinInputContract,
+	pinInputSlots,
+	pinInputStateTokens,
+	pinInputSlotStates,
+	type PinInputSlot,
+	type PinInputState,
+} from "./pin-input/index.js";
+
+// Breadcrumb (ColdLight)
+export {
+	contract as breadcrumbContract,
+	breadcrumbSlots,
+	breadcrumbStateTokens,
+	breadcrumbSlotStates,
+	type BreadcrumbSlot,
+	type BreadcrumbState,
+} from "./breadcrumb/index.js";
+
+// NavigationMenu (ColdLight)
+export {
+	contract as navigationMenuContract,
+	navigationMenuSlots,
+	navigationMenuStateTokens,
+	navigationMenuSlotStates,
+	type NavigationMenuSlot,
+	type NavigationMenuState,
+} from "./navigation-menu/index.js";
+
+// Command (ColdLight)
+export {
+	contract as commandContract,
+	commandSlots,
+	commandStateTokens,
+	commandSlotStates,
+	type CommandSlot,
+	type CommandState,
+} from "./command/index.js";
+
+// Menubar (MeltUI)
+export {
+	contract as menubarContract,
+	menubarSlots,
+	menubarStateTokens,
+	menubarSlotStates,
+	type MenubarSlot,
+	type MenubarState,
+} from "./menubar/index.js";
+
+// ContextMenu (MeltUI)
+export {
+	contract as contextMenuContract,
+	contextMenuSlots,
+	contextMenuStateTokens,
+	contextMenuSlotStates,
+	type ContextMenuSlot,
+	type ContextMenuState,
+} from "./context-menu/index.js";
+
+// DropdownMenu (MeltUI)
+export {
+	contract as dropdownMenuContract,
+	dropdownMenuSlots,
+	dropdownMenuStateTokens,
+	dropdownMenuSlotStates,
+	type DropdownMenuSlot,
+	type DropdownMenuState,
+} from "./dropdown-menu/index.js";
+
+// Combobox (MeltUI)
+export {
+	contract as comboboxContract,
+	comboboxSlots,
+	comboboxStateTokens,
+	comboboxSlotStates,
+	type ComboboxSlot,
+	type ComboboxState,
+} from "./combobox/index.js";
+
+// Pagination (MeltUI)
+export {
+	contract as paginationContract,
+	paginationSlots,
+	paginationStateTokens,
+	paginationSlotStates,
+	type PaginationSlot,
+	type PaginationState,
+} from "./pagination/index.js";

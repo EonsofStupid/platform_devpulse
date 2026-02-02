@@ -24,7 +24,16 @@
       "Bash(ls -la \"d:\\\\localdev\\\\platform_devpulse\\\\interfaces\\\\desktop\\\\src\\\\lib\\\\design\\\\taxonomy\\\\kinds\"\" 2>/dev/null || ls -la \"d:/localdev/platform_devpulse/interfaces/desktop/src/lib/design/taxonomy/kinds/\" 2>/dev/null || echo \"Directory not found \")",
       "Bash(git diff-index:*)",
       "Bash(ls -la \"d:\\\\localdev\\\\platform_devpulse\\\\interfaces\\\\desktop\\\\src\\\\lib\\\\design\\\\primitives\"\" 2>/dev/null || dir /B \"d:localdevplatform_devpulseinterfacesdesktopsrclibdesignprimitives \")",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(for dir in accordion alert alert-dialog avatar badge button card checkbox collapsible dialog input label popover progress radio-group scroll-area select separator sheet skeleton spinner switch tabs textarea toggle toolbar tooltip visually-hidden)",
+      "Bash(do echo \"=== TAXONOMY: $dir ===\" ls -la \"d:\\\\localdev\\\\platform_devpulse\\\\interfaces\\\\desktop\\\\src\\\\lib\\\\design\\\\taxonomy\\\\kinds\\\\primitives$dir\")",
+      "WebFetch(domain:ark-ui.com)",
+      "Bash(pnpm add:*)",
+      "Bash(npx playwright:*)",
+      "Bash(test -f:*)",
+      "Bash(gh api:*)",
+      "Bash(curl:*)",
+      "Bash(python3:*)"
     ]
   }
 }
