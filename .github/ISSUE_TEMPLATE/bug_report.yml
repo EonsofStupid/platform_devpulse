@@ -1,0 +1,65 @@
+name: Bug Report
+description: Report a bug in DevPulse
+labels: ["bug", "triage"]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Desktop App
+        - Engine (Rust)
+        - Maestro Kernel
+        - ColdLight Design System
+        - CI/Tooling
+    validations:
+      required: true
+
+  - type: dropdown
+    id: hub
+    attributes:
+      label: Hub (if applicable)
+      options:
+        - N/A
+        - DevPulse
+        - DevForge
+        - Maestro
+        - Overmind
+        - WiredFront
+    validations:
+      required: false
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      placeholder: Describe the bug clearly.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      placeholder: What should have happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to ...
+        2. Click on ...
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs or screenshots
+      placeholder: Paste error output, console logs, or attach screenshots.
+    validations:
+      required: false

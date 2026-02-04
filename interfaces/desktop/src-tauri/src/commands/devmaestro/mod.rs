@@ -13,4 +13,5 @@
 //!
 //! @since 1.0.0
 
+#[tauri::command]
 pub fn get_status() {}

@@ -4,16 +4,11 @@
  * @description System layer barrel export
  */
 
-// Initialization
-export { initSys, isSysInitialized } from './init';
+export type { FeatureFlags } from "./cfg/flags.js";
 
-// Existing exports
-export { appState } from './app_state.svelte';
-export { flags } from './cfg/flags';
-export type { FeatureFlags } from './cfg/flags';
-
-// Global state
-export { global } from './runes/global.svelte';
-
+// Feature flags
+export { flags } from "./cfg/flags.js";
 // Debug tools (dev-only)
-export * from './debug/index';
+export * from "./debug/index.js";
+// Initialization
+export { initSys, isSysInitialized } from "./init.js";

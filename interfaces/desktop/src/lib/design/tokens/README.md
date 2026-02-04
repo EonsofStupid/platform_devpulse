@@ -4,13 +4,13 @@
 
 ---
 
-## Definition
-
-Tokens are **atomic, immutable values** that define the visual language.
+## Pipeline
 
 ```
-tokens.ts (SSOT) → Vite Plugin → tokens.css, types.ts, tailwind.preset.ts
+tokens.ts (SSOT) --> ds-tokens-build.ts --> tokens.css, types.ts, tailwind.preset.ts
 ```
+
+**Command**: `pnpm ds:tokens:build`
 
 ---
 
@@ -19,31 +19,34 @@ tokens.ts (SSOT) → Vite Plugin → tokens.css, types.ts, tailwind.preset.ts
 | File | Type | Description |
 |------|------|-------------|
 | `tokens.ts` | SSOT | Hand-edited source of truth |
-| `tokens.css` | GENERATED | CSS custom properties |
-| `types.ts` | GENERATED | TypeScript types |
-| `tailwind.preset.ts` | GENERATED | Tailwind theme |
-| `schema.ts` | Manual | Zod validators |
+| `tokens.css` | GENERATED | CSS custom properties (`--dp-*`) |
+| `types.ts` | GENERATED | TypeScript union types + runtime arrays |
+| `tailwind.preset.ts` | GENERATED | Tailwind theme extension via CSS var refs |
+
+**NEVER edit generated files.** Only edit `tokens.ts`, then run `pnpm ds:tokens:build`.
 
 ---
 
 ## Token Categories
 
-| Category | Prefix | Example |
-|----------|--------|---------|
-| Hues | `--dp-hue-*` | `--dp-hue-teal` |
-| Color Scales | `--dp-{color}-{step}` | `--dp-teal-500` |
-| Glass | `--dp-glass-*` | `--dp-glass-deep` |
-| Matte | `--dp-matte-*` | `--dp-matte-dark` |
-| Text | `--dp-text-*` | `--dp-text-primary` |
-| Spacing | `--dp-space-*` | `--dp-space-4` |
-| Radius | `--dp-radius-*` | `--dp-radius-md` |
-| Blur | `--dp-blur-*` | `--dp-blur-md` |
-| Glow | `--dp-glow-*` | `--dp-glow-teal` |
-| Shadow | `--dp-shadow-*` | `--dp-shadow-z2` |
-| Bevel | `--dp-bevel-*` | `--dp-bevel-outset` |
-| Z-Index | `--dp-z-*` | `--dp-z-modal` |
-| Duration | `--dp-duration-*` | `--dp-duration-fast` |
-| Easing | `--dp-ease-*` | `--dp-ease-out` |
+| Category | CSS Prefix | Example | tokens.ts export |
+|----------|------------|---------|------------------|
+| Hues | `--dp-hue-*` | `--dp-hue-teal` | `hue` |
+| Color Scales | `--dp-color-{name}-{step}` | `--dp-color-teal-500` | `color` |
+| Glass | `--dp-glass-*` | `--dp-glass-deep` | `glass` |
+| Matte | `--dp-matte-*` | `--dp-matte-dark` | `matte` |
+| Text | `--dp-text-*` | `--dp-text-primary` | `text` |
+| Spacing | `--dp-space-*` | `--dp-space-4` | `space` |
+| Radius | `--dp-radius-*` | `--dp-radius-md` | `radius` |
+| Blur | `--dp-blur-*` | `--dp-blur-md` | `blur` |
+| Glow | `--dp-glow-*` | `--dp-glow-teal` | `glow` |
+| Shadow | `--dp-shadow-*` | `--dp-shadow-z2` | `shadow` |
+| Bevel | `--dp-bevel-*` | `--dp-bevel-subtle` | `bevel` |
+| Z-Index | `--dp-z-*` | `--dp-z-modal` | `z` |
+| Duration | `--dp-duration-*` | `--dp-duration-fast` | `duration` |
+| Easing | `--dp-ease-*` | `--dp-ease-out` | `ease` |
+| Text Size | `--dp-text-size-*` | `--dp-text-size-base` | `textSize` |
+| Padding | `--dp-padding-*` | `--dp-padding-md` | `padding` |
 
 ---
 
@@ -51,10 +54,11 @@ tokens.ts (SSOT) → Vite Plugin → tokens.css, types.ts, tailwind.preset.ts
 
 ### Before Adding Tokens
 
-- [ ] Category exists or needs creation
+- [ ] Category exists or needs creation in `tokens.ts`
 - [ ] Naming follows `--dp-{category}-{name}` pattern
 - [ ] Values use OKLCH for colors
-- [ ] Added to `tokens.ts` SSOT
+- [ ] Added to the correct export in `tokens.ts`
+- [ ] If new category, added to `enums` and to `generateCss()` in `ds-tokens-build.ts`
 
 ### After Adding Tokens
 
@@ -63,23 +67,6 @@ tokens.ts (SSOT) → Vite Plugin → tokens.css, types.ts, tailwind.preset.ts
 - [ ] Verify `types.ts` updated
 - [ ] Verify `tailwind.preset.ts` updated
 - [ ] `pnpm check` passes
-
-### Rules
-
-- [ ] NEVER edit `tokens.css` directly
-- [ ] NEVER edit `types.ts` directly
-- [ ] NEVER edit `tailwind.preset.ts` directly
-- [ ] Only edit `tokens.ts`
-
----
-
-## Auto-Documentation
-
-When tokens change:
-1. Vite plugin generates CSS/types
-2. Audit validates token coverage
-3. Updates docs/tokens.md
-4. Docusaurus generates token reference
 
 ---
 

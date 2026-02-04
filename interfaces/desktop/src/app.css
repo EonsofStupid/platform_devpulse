@@ -1,6 +1,52 @@
-/* MINIMAL TEST - Tailwind only */
+/* === DevPulse Desktop — Global Styles === */
+
+/* Tailwind v4 (includes preflight + utilities) */
 @import "tailwindcss";
 
-/* Reset */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { width: 100%; height: 100%; }
+/* Fonts */
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/jetbrains-mono/500.css";
+
+/* Design tokens (generated — do not hand-edit tokens.css) */
+/* @import "$lib/design/tokens/tokens.css"; */
+/* ^ Uncomment after running pnpm ds:tokens:build with real SSOT values */
+
+/* Tailwind v4 @theme — migrated from dead tailwind.config.ts */
+@theme {
+	--font-sans: "Inter", system-ui, sans-serif;
+	--font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+	--color-void-950: oklch(6% 0.02 195);
+	--color-void-900: oklch(8% 0.02 195);
+	--color-void-800: oklch(12% 0.02 195);
+	--color-obsidian-950: oklch(4% 0.01 195);
+	--color-obsidian-900: oklch(6% 0.02 195);
+	--color-success: oklch(70% 0.2 145);
+	--color-warning: oklch(75% 0.2 85);
+	--color-error: oklch(60% 0.25 25);
+
+	--animate-pulse-glow: pulse-glow 4s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+	0%,
+	100% {
+		opacity: 0.8;
+	}
+	50% {
+		opacity: 1;
+	}
+}
+
+/* Base */
+html,
+body {
+	width: 100%;
+	height: 100%;
+	background-color: var(--color-void-950);
+	color: white;
+}

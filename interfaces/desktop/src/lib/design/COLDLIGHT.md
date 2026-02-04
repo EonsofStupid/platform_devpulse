@@ -1,8 +1,8 @@
 # ColdLight Design System
 
-> **@devpulse/coldlight** — Liquid surface design system. Particle effects, metal, glass, molten aesthetics.
+> **@devpulse/coldlight** -- Liquid surface design system. Particle effects, metal, glass, molten aesthetics.
 >
-> Named for Nikola Tesla's cold light gas tubes — documented as "cold light" in the 1890s.
+> Named for Nikola Tesla's cold light gas tubes -- documented as "cold light" in the 1890s.
 
 ---
 
@@ -23,16 +23,17 @@
 
 ColdLight is a **token-first, taxonomy-driven design system** built for:
 
-- **SvelteKit 5** — Framework
-- **Melt UI** — ARIA provider (accessibility, keyboard, focus)
-- **Tailwind CSS 4** — Utility classes, JIT compilation
-- **DaisyUI** — UI quality via recipes
-- **Vite** — Build-time enforcement and generation
+- **SvelteKit 5** -- Framework
+- **Svelte 5 Runes** -- Reactivity ($state, $derived, $effect, $bindable)
+- **Tailwind CSS 4** -- Utility classes via @tailwindcss/vite
+- **dsAdapters** -- ARIA provider (accessibility, keyboard, focus) -- planned for adapter-backed primitives
 
-ColdLight is **NOT**:
+ColdLight is **supports**:
 
 - A CSS-in-JS solution
-- A component library (it ships primitives + surfaces + semantics)
+- A component library 
+- recipes 
+- it generates best practice organized CSS real world seniorpatterns 
 
 ---
 
@@ -42,8 +43,15 @@ ColdLight is **NOT**:
 
 | Provider | Responsibility |
 |----------|---------------|
-| **Melt UI** | ARIA attributes, focus management, keyboard navigation |
-| **ColdLight** | Taxonomy, data attributes, type system, recipes |
+| **Melt UI** | ARIA attributes, focus management, keyboard navigation (adapter-backed primitives) |
+| **ColdLight** | Taxonomy, data attributes, type system, recipes, structural primitives |
+| **ReactAria**
+
+### Two Primitive Archetypes
+
+**Archetype A: ColdLight-Owned** -- Component renders its own DOM with ARIA set directly. No adapter needed. Examples: button, badge, skeleton, progress, alert, avatar, card, label, input, separator, textarea.
+
+**Archetype B: Adapter-Backed** -- Uses MeltUI adapter bridged through transport chain. Root creates adapter + context. Sub-components consume from context. Examples (planned): dialog, tabs, select, popover, tooltip, sheet, accordion, collapsible.
 
 ### Primitive Contract
 
@@ -61,7 +69,7 @@ data-state  = state machine output (open, closed, active)
 |-------|--------|-------------|---------|
 | 0 | `tokens/` | Design tokens (SSOT) | `tokens.ts` |
 | 2 | `recipes/` | Style compositions | `data-surface="glass"` |
-| 3 | `primitives/` | Melt UI wrappers | `dialog.svelte` |
+| 3 | `primitives/` | Structural + behavioral wrappers | `Dialog.svelte` |
 | 4 | `semantics/` | Primitives + Recipes | `GlassButton.svelte` |
 | 5 | `patterns/` | Multiple semantics | `LoginForm.svelte` |
 | 6 | `blocks/` | Page sections | `HeroGlass.svelte` |
@@ -72,14 +80,14 @@ data-state  = state machine output (open, closed, active)
 
 ColdLight produces interfaces with:
 
-- **Liquid surfaces** — Fluid, flowing aesthetics with depth and motion
-- **Particle effects** — Shimmer, scan lines, noise overlays
-- **Metal finishes** — Brushed, polished, oxidized surface treatments
-- **Glass layers** — Semi-transparent with backdrop blur and refraction
-- **Molten accents** — Glowing edges, ember trails, heat signatures
-- **OKLCH color system** — Perceptually uniform, wide-gamut colors
-- **Beveled depth** — Inset/outset edges for tactile dimension
-- **Dark-first** — Dark variant only (light variant planned for future)
+- **Liquid surfaces** -- Fluid, flowing aesthetics with depth and motion
+- **Particle effects** -- Shimmer, scan lines, noise overlays
+- **Metal finishes** -- Brushed, polished, oxidized surface treatments
+- **Glass layers** -- Semi-transparent with backdrop blur and refraction
+- **Molten accents** -- Glowing edges, ember trails, heat signatures
+- **OKLCH color system** -- Perceptually uniform, wide-gamut colors
+- **Beveled depth** -- Inset edges for tactile dimension
+- **Dark-first** -- Dark variant only (light variant planned for future)
 
 ---
 
@@ -91,38 +99,39 @@ ColdLight produces interfaces with:
 │   ├── tokens.ts     # Source of truth (hand-edited)
 │   ├── tokens.css    # GENERATED
 │   ├── types.ts      # GENERATED
-│   └── schema.ts     # Zod validators
+│   └── tailwind.preset.ts  # GENERATED
 ├── taxonomy/         # SSOT registries
 │   ├── primitiveKinds.ts   # All data-kind values
 │   ├── primitiveRegistry.ts # Slots + metadata
 │   ├── kinds.ts      # Block kinds (shell, surface, widget)
-│   ├── contracts.ts  # Prop schemas (Zod)
+│   ├── contracts.ts  # Prop schemas
 │   └── slots.ts      # Slot definitions
-├── sys/api/_internal/ # Provider mapping layer
-│   └── melt/         # Melt UI integration
 ├── recipes/          # Style composition
 │   ├── index.ts      # Recipe registry
 │   ├── actions/      # Svelte actions (glowTrack, ripple)
 │   └── css/          # Generated recipe CSS
-├── primitives/       # Melt UI wrappers (data-kind/slot/state)
-│   └── {name}/       # Each primitive in its own folder
-└── vite-plugin.ts    # Build-time generation + enforcement
+├── primitives/       # Structural + behavioral wrappers
+│   └── {name}/       # PascalCase: Button/, Dialog/, Tabs/
+│       ├── {Name}.svelte       # Root component
+│       ├── {Name}{Sub}.svelte  # Sub-components
+│       ├── types.ts            # Props interfaces
+│       ├── context.ts          # Symbol-keyed context (if compound)
+│       └── index.ts            # Barrel export
+├── semantics/        # Primitives + Recipes
+├── patterns/         # Multi-semantic compositions
+├── blocks/           # Page sections
+└── docs/             # Documentation
 ```
 
 ---
 
 ## The Rules (Non-Negotiable)
 
-### Rule 1: Melt UI is the ARIA provider
+### Rule 1: Two Primitive Archetypes
 
-ColdLight does NOT set:
-- `role` attributes
-- `aria-*` attributes
-- `tabindex`
-- Focus trap logic
-- Keyboard handlers
+**Archetype A (ColdLight-owned)**: Component renders native HTML with ARIA props directly. Used for simple/self-contained primitives.
 
-Melt UI handles all of this via `use:melt={$element}`.
+**Archetype B (Adapter-backed)**: Uses MeltUI through transport chain. Components never import `@melt-ui/svelte` directly. Transport chain cloaks the dependency.
 
 ### Rule 2: Taxonomy first
 
@@ -132,21 +141,21 @@ Before writing ANY primitive:
 3. Verify state enum exists (if stateful)
 4. THEN write the primitive
 
-### Rule 3: `{name}.svelte` naming
+### Rule 3: PascalCase file naming
 
 ```
-✅ dialog.svelte, dialog.trigger.svelte
-❌ Dialog.svelte, DialogTrigger.svelte
+-- Button.svelte, ButtonIcon.svelte, ButtonLabel.svelte
+-- DialogTrigger.svelte, DialogContent.svelte
 ```
 
 ### Rule 4: `index.ts` is clean
 
 ```typescript
-// ✅ CORRECT
-export { default as Dialog } from './dialog.svelte';
+// CORRECT
+export { default as Dialog } from './Dialog.svelte';
 export type { DialogRootProps } from './types.js';
 
-// ❌ WRONG - no logic in index.ts
+// WRONG - no logic in index.ts
 import { something } from 'somewhere';
 const computed = something();
 ```
@@ -181,7 +190,7 @@ Components **never** contain:
 | Category | Prefix | Example |
 |----------|--------|---------|
 | Hues | `--dp-hue-*` | `--dp-hue-teal` |
-| Color Scales | `--dp-{color}-{step}` | `--dp-teal-500` |
+| Color Scales | `--dp-color-{name}-{step}` | `--dp-color-teal-500` |
 | Glass | `--dp-glass-*` | `--dp-glass-deep` |
 | Matte | `--dp-matte-*` | `--dp-matte-dark` |
 | Text | `--dp-text-*` | `--dp-text-primary` |
@@ -190,10 +199,12 @@ Components **never** contain:
 | Blur | `--dp-blur-*` | `--dp-blur-md` |
 | Glow | `--dp-glow-*` | `--dp-glow-teal` |
 | Shadow | `--dp-shadow-*` | `--dp-shadow-z2` |
-| Bevel | `--dp-bevel-*` | `--dp-bevel-outset` |
+| Bevel | `--dp-bevel-*` | `--dp-bevel-subtle` |
 | Z-Index | `--dp-z-*` | `--dp-z-modal` |
 | Duration | `--dp-duration-*` | `--dp-duration-fast` |
 | Easing | `--dp-ease-*` | `--dp-ease-out` |
+| Text Size | `--dp-text-size-*` | `--dp-text-size-base` |
+| Padding | `--dp-padding-*` | `--dp-padding-md` |
 
 ---
 
@@ -220,105 +231,14 @@ Recipes are CSS rules that style surfaces via data attributes:
 ```svelte
 <!-- Primitive (behavior) + Recipe (appearance) -->
 <button
-  use:melt={$trigger}
   class="dp-surface"
-  data-kind="dialog"
-  data-slot="trigger"
+  data-kind="button"
+  data-slot="root"
   data-surface="glass"
   data-glow="teal"
 >
-  Open Dialog
+  Click me
 </button>
-```
-
----
-
-## Primitives
-
-Primitives are **Melt UI wrappers** with data-kind/slot/state:
-
-| Primitive | Melt Builder | Purpose |
-|-----------|-------------|---------|
-| `dialog` | `createDialog` | Modal dialog |
-| `alertDialog` | `createDialog` (role: alertdialog) | Alert requiring action |
-| `popover` | `createPopover` | Floating content |
-| `tooltip` | `createTooltip` | Information popup |
-| `tabs` | `createTabs` | Tab navigation |
-| `select` | `createSelect` | Dropdown selection |
-| `button` | — | Click interaction |
-
-Primitives handle **ARIA and behavior** (via Melt UI).
-Recipes handle **appearance** (via CSS).
-
----
-
-## File Structure
-
-```
-interfaces/desktop/src/lib/design/
-├── COLDLIGHT.md              # This document
-├── README.md                 # Quick start guide
-├── index.ts                  # Main barrel export
-├── index.css                 # CSS entry point
-├── vite-plugin.ts            # Vite plugin
-│
-├── tokens/                   # Layer 0: Design Tokens
-│   ├── README.md             # Token checklist
-│   ├── tokens.ts             # SSOT (hand-edited)
-│   ├── tokens.css            # GENERATED
-│   ├── types.ts              # GENERATED
-│   └── tailwind.preset.ts    # GENERATED
-│
-├── taxonomy/                 # SSOT Registries
-│   ├── README.md             # Taxonomy checklist
-│   ├── primitiveKinds.ts     # All primitive kinds
-│   ├── primitiveRegistry.ts  # Slots + metadata
-│   ├── kinds.ts              # Block kinds
-│   ├── contracts.ts          # Prop schemas
-│   └── slots.ts              # Slot definitions
-│
-├── recipes/                  # Layer 2: Style Compositions
-│   ├── README.md             # Recipe checklist
-│   ├── index.ts              # Recipe registry
-│   ├── actions/              # Svelte actions
-│   └── css/                  # GENERATED CSS
-│
-├── primitives/               # Layer 3: Melt UI Wrappers
-│   ├── README.md             # Primitive checklist
-│   └── {name}/               # Each primitive folder
-│
-├── semantics/                # Layer 4: Styled Components
-│   ├── README.md             # Semantics checklist
-│   ├── index.ts              # SSOT export
-│   ├── buttons/              # Button semantics
-│   ├── inputs/               # Input semantics
-│   ├── panels/               # Panel semantics
-│   └── cards/                # Card semantics
-│
-├── patterns/                 # Layer 5: Composed Patterns
-│   ├── README.md             # Patterns checklist
-│   ├── index.ts              # SSOT export
-│   ├── forms/                # Form patterns
-│   ├── search/               # Search patterns
-│   └── data/                 # Data display patterns
-│
-├── blocks/                   # Layer 6: Page Sections
-│   ├── README.md             # Blocks checklist
-│   ├── index.ts              # SSOT export
-│   ├── heroes/               # Hero sections
-│   ├── features/             # Feature grids
-│   ├── dashboards/           # Dashboard layouts
-│   ├── chat/                 # Chat interfaces
-│   ├── cta/                  # Call-to-action
-│   ├── carousels/            # Carousel sections
-│   └── navigation/           # Nav sections
-│
-└── docs/                     # Documentation
-    ├── TERMINOLOGY.md        # Industry terms
-    ├── tokens.md
-    ├── recipes.md
-    ├── primitives.md
-    └── taxonomy.md
 ```
 
 ---
@@ -345,19 +265,19 @@ pnpm test:run primitives/   # Run primitive tests
 
 ### 0.1.0 (In Development)
 
-- Melt UI as ARIA provider (replacing meltui)
 - Taxonomy-first architecture
-- Three-tier model (Primitive → Semantic → Compound)
-- `{name}.svelte` file naming convention
-- Token system (OKLCH)
+- PascalCase primitive file naming
+- Two archetype model (ColdLight-owned + adapter-backed)
+- Token system (OKLCH, `--dp-*` prefix)
 - Glass/matte/solid surface recipes
 - Dark variant only
+- 40+ primitives implemented (structural)
 
 ---
 
 ## License
 
-MIT © Jesse "Hades" Hall
+MIT (c) Jesse "Hades" Hall
 
 ---
 

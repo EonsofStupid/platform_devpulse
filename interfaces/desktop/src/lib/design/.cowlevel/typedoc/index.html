@@ -13,29 +13,31 @@
 </thead>
 <tbody>
 <tr>
-<td><a href="media/DESIGN_BOOK.md">Design Book</a></td>
+<td><a href="media/COLDLIGHT.md">COLDLIGHT.md</a></td>
 <td><strong>START HERE</strong> - Canonical specification</td>
 </tr>
 <tr>
-<td><a href="media/LAWS.md">Laws</a></td>
-<td>Frozen non-negotiable rules</td>
+<td><a href="media/TOKEN_PIPELINE.md">TOKEN_PIPELINE.md</a></td>
+<td>Token generation pipeline</td>
 </tr>
 <tr>
-<td><a href="media/TERMINOLOGY.md">Terminology</a></td>
-<td>Canonical vocabulary</td>
+<td><a href="media/tokens.md">docs/tokens.md</a></td>
+<td>Token reference (all values)</td>
 </tr>
 </tbody>
 </table>
 <hr>
 <h2 id="architecture" class="tsd-anchor-link">Architecture<a href="#architecture" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
-<p><code>CONFIG (config/coldlight/)     |     v TAXONOMY (taxonomy/) &lt;- ALL CONTRACTS LIVE HERE     |     +--- kinds/primitives/{kind}/contract.ts     +--- api/adapter/{adapter}/contract.ts     |     v PRIMITIVES (primitives/) &lt;- Structure + State     |     v BLOCKS (blocks/) &lt;- ARIA APPLIED HERE</code></p>
+<pre><code><span class="hl-0">TOKENS</span><span class="hl-1"> (</span><span class="hl-2">tokens</span><span class="hl-1">/)</span><br/><span class="hl-1">    </span><span class="hl-2">tokens</span><span class="hl-1">.</span><span class="hl-0">ts</span><span class="hl-1"> (</span><span class="hl-3">SSOT</span><span class="hl-1">) --&gt; </span><span class="hl-2">ds</span><span class="hl-1">-</span><span class="hl-2">tokens</span><span class="hl-1">-</span><span class="hl-2">build</span><span class="hl-1">.</span><span class="hl-2">ts</span><span class="hl-1"> --&gt; </span><span class="hl-2">tokens</span><span class="hl-1">.</span><span class="hl-2">css</span><span class="hl-1">, </span><span class="hl-2">types</span><span class="hl-1">.</span><span class="hl-2">ts</span><span class="hl-1">, </span><span class="hl-2">tailwind</span><span class="hl-1">.</span><span class="hl-2">preset</span><span class="hl-1">.</span><span class="hl-2">ts</span><br/><span class="hl-1">    |</span><br/><span class="hl-1">    </span><span class="hl-2">v</span><br/><span class="hl-0">TAXONOMY</span><span class="hl-1"> (</span><span class="hl-2">taxonomy</span><span class="hl-1">/) &lt;-- </span><span class="hl-3">ALL</span><span class="hl-1"> </span><span class="hl-3">CONTRACTS</span><span class="hl-1"> </span><span class="hl-3">LIVE</span><span class="hl-1"> </span><span class="hl-3">HERE</span><br/><span class="hl-1">    |</span><br/><span class="hl-1">    +--- </span><span class="hl-2">primitiveKinds</span><span class="hl-1">.</span><span class="hl-2">ts</span><span class="hl-1">, </span><span class="hl-2">primitiveRegistry</span><span class="hl-1">.</span><span class="hl-2">ts</span><br/><span class="hl-1">    +--- </span><span class="hl-2">contracts</span><span class="hl-1">.</span><span class="hl-2">ts</span><span class="hl-1">, </span><span class="hl-2">slots</span><span class="hl-1">.</span><span class="hl-2">ts</span><br/><span class="hl-1">    |</span><br/><span class="hl-1">    </span><span class="hl-2">v</span><br/><span class="hl-0">PRIMITIVES</span><span class="hl-1"> (</span><span class="hl-2">primitives</span><span class="hl-1">/) &lt;-- </span><span class="hl-2">Two</span><span class="hl-1"> </span><span class="hl-4">archetypes</span><span class="hl-1">:</span><br/><span class="hl-1">    |                         </span><span class="hl-4">A</span><span class="hl-1">: </span><span class="hl-2">ColdLight</span><span class="hl-1">-</span><span class="hl-0">owned</span><span class="hl-1"> (</span><span class="hl-2">structural</span><span class="hl-1">, </span><span class="hl-2">native</span><span class="hl-1"> </span><span class="hl-3">ARIA</span><span class="hl-1">)</span><br/><span class="hl-1">    |                         </span><span class="hl-4">B</span><span class="hl-1">: </span><span class="hl-2">Adapter</span><span class="hl-1">-</span><span class="hl-0">backed</span><span class="hl-1"> (</span><span class="hl-2">MeltUI</span><span class="hl-1"> </span><span class="hl-2">via</span><span class="hl-1"> </span><span class="hl-2">transport</span><span class="hl-1"> </span><span class="hl-2">chain</span><span class="hl-1">)</span><br/><span class="hl-1">    </span><span class="hl-2">v</span><br/><span class="hl-0">RECIPES</span><span class="hl-1"> (</span><span class="hl-2">recipes</span><span class="hl-1">/) &lt;-- </span><span class="hl-2">Appearance</span><span class="hl-1"> </span><span class="hl-2">via</span><span class="hl-1"> </span><span class="hl-2">data</span><span class="hl-1"> </span><span class="hl-2">attributes</span><br/><span class="hl-1">    |</span><br/><span class="hl-1">    </span><span class="hl-2">v</span><br/><span class="hl-0">SEMANTICS</span><span class="hl-1"> (</span><span class="hl-2">semantics</span><span class="hl-1">/) &lt;-- </span><span class="hl-2">Primitives</span><span class="hl-1"> + </span><span class="hl-2">Recipes</span><br/><span class="hl-1">    |</span><br/><span class="hl-1">    </span><span class="hl-2">v</span><br/><span class="hl-0">BLOCKS</span><span class="hl-1"> (</span><span class="hl-2">blocks</span><span class="hl-1">/) &lt;-- </span><span class="hl-2">Page</span><span class="hl-1"> </span><span class="hl-2">sections</span>
+</code><button>Copy</button></pre>
+
 <hr>
 <h2 id="key-principles" class="tsd-anchor-link">Key Principles<a href="#key-principles" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
 <ol>
 <li><strong>Taxonomy is truth</strong> - All contracts in taxonomy/</li>
 <li><strong>One contract per kind</strong> - No duplicates, no scattered declarations</li>
-<li><strong>ARIA at block level</strong> - Primitives have no ARIA baked in</li>
-<li><strong>dsAdapter abstraction</strong> - MeltUI hidden behind import cloak</li>
+<li><strong>Two archetypes</strong> - ColdLight-owned (native ARIA) or adapter-backed (MeltUI)</li>
+<li><strong>Token prefix: <code>--dp-*</code></strong> - All CSS custom properties use DevPulse prefix</li>
 </ol>
 <hr>
 <h2 id="folders" class="tsd-anchor-link">Folders<a href="#folders" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
@@ -48,8 +50,8 @@
 </thead>
 <tbody>
 <tr>
-<td>config/</td>
-<td>Configuration (adapters, roots, enforcement)</td>
+<td>tokens/</td>
+<td>Design tokens (SSOT + generated outputs)</td>
 </tr>
 <tr>
 <td>taxonomy/</td>
@@ -57,45 +59,33 @@
 </tr>
 <tr>
 <td>primitives/</td>
-<td>ColdLight components (structure + state)</td>
-</tr>
-<tr>
-<td>api/adapters/</td>
-<td>dsAdapter implementations</td>
-</tr>
-<tr>
-<td>blocks/</td>
-<td>Accessible units (ARIA applied here)</td>
-</tr>
-<tr>
-<td>semantics/</td>
-<td>Primitives + recipes</td>
-</tr>
-<tr>
-<td>tokens/</td>
-<td>Design tokens</td>
+<td>Structural + behavioral components</td>
 </tr>
 <tr>
 <td>recipes/</td>
-<td>Appearance system</td>
+<td>Appearance system (data-attribute driven)</td>
 </tr>
 <tr>
-<td>patterns/</td>
-<td>Documentation guidance</td>
+<td>semantics/</td>
+<td>Primitives + recipes composed</td>
+</tr>
+<tr>
+<td>blocks/</td>
+<td>Page-level compositions</td>
 </tr>
 <tr>
 <td>docs/</td>
-<td>Design Book and reference docs</td>
+<td>Reference documentation</td>
 </tr>
 </tbody>
 </table>
 <hr>
 <h2 id="quick-start" class="tsd-anchor-link">Quick Start<a href="#quick-start" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
 <ol>
-<li>Read the <a href="media/DESIGN_BOOK.md">Design Book</a></li>
-<li>Understand the <a href="media/CONTRACT_SYSTEM.md">Contract System</a></li>
-<li>Check existing <a href="media/README.md">Primitives</a></li>
-<li>See how <a href="media/README-1.md">Blocks</a> apply ARIA</li>
+<li>Read <a href="media/COLDLIGHT.md">COLDLIGHT.md</a></li>
+<li>Check <a href="media/tokens.md">Token Reference</a></li>
+<li>See existing <a href="media/primitives">Primitives</a></li>
+<li>Understand the <a href="media/TOKEN_PIPELINE.md">Token Pipeline</a></li>
 </ol>
 <hr>
 <p><strong>ColdLight is the public API. Users never see adapters.</strong></p>

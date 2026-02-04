@@ -1,1 +1,181 @@
-/* STUBBED */
+/**
+ * AUTO-GENERATED — DO NOT EDIT
+ * Generated from tokens.ts via pnpm ds:tokens:build
+ */
+
+:root {
+	/* Hues */
+	--dp-hue-teal: 180;
+	--dp-hue-purple: 280;
+	--dp-hue-magenta: 330;
+	--dp-hue-ember: 25;
+	--dp-hue-frost: 220;
+	--dp-hue-cyber: 160;
+
+	/* Colors */
+	--dp-color-teal-50: oklch(0.97 0.02 180);
+	--dp-color-teal-100: oklch(0.92 0.04 180);
+	--dp-color-teal-200: oklch(0.84 0.08 180);
+	--dp-color-teal-300: oklch(0.74 0.12 180);
+	--dp-color-teal-400: oklch(0.64 0.16 180);
+	--dp-color-teal-500: oklch(0.55 0.18 180);
+	--dp-color-teal-600: oklch(0.48 0.16 180);
+	--dp-color-teal-700: oklch(0.40 0.13 180);
+	--dp-color-teal-800: oklch(0.32 0.10 180);
+	--dp-color-teal-900: oklch(0.24 0.07 180);
+	--dp-color-purple-50: oklch(0.97 0.02 280);
+	--dp-color-purple-100: oklch(0.92 0.04 280);
+	--dp-color-purple-200: oklch(0.84 0.08 280);
+	--dp-color-purple-300: oklch(0.74 0.12 280);
+	--dp-color-purple-400: oklch(0.64 0.16 280);
+	--dp-color-purple-500: oklch(0.55 0.18 280);
+	--dp-color-purple-600: oklch(0.48 0.16 280);
+	--dp-color-purple-700: oklch(0.40 0.13 280);
+	--dp-color-purple-800: oklch(0.32 0.10 280);
+	--dp-color-purple-900: oklch(0.24 0.07 280);
+	--dp-color-magenta-50: oklch(0.97 0.02 330);
+	--dp-color-magenta-100: oklch(0.92 0.05 330);
+	--dp-color-magenta-200: oklch(0.84 0.10 330);
+	--dp-color-magenta-300: oklch(0.74 0.14 330);
+	--dp-color-magenta-400: oklch(0.64 0.18 330);
+	--dp-color-magenta-500: oklch(0.55 0.20 330);
+	--dp-color-magenta-600: oklch(0.48 0.18 330);
+	--dp-color-magenta-700: oklch(0.40 0.14 330);
+	--dp-color-magenta-800: oklch(0.32 0.10 330);
+	--dp-color-magenta-900: oklch(0.24 0.07 330);
+	--dp-color-ember-50: oklch(0.97 0.02 25);
+	--dp-color-ember-100: oklch(0.92 0.05 25);
+	--dp-color-ember-200: oklch(0.84 0.10 25);
+	--dp-color-ember-300: oklch(0.74 0.14 25);
+	--dp-color-ember-400: oklch(0.64 0.16 25);
+	--dp-color-ember-500: oklch(0.55 0.18 25);
+	--dp-color-ember-600: oklch(0.48 0.16 25);
+	--dp-color-ember-700: oklch(0.40 0.13 25);
+	--dp-color-ember-800: oklch(0.32 0.10 25);
+	--dp-color-ember-900: oklch(0.24 0.07 25);
+	--dp-color-frost-50: oklch(0.98 0.01 220);
+	--dp-color-frost-100: oklch(0.94 0.02 220);
+	--dp-color-frost-200: oklch(0.88 0.04 220);
+	--dp-color-frost-300: oklch(0.78 0.06 220);
+	--dp-color-frost-400: oklch(0.68 0.08 220);
+	--dp-color-frost-500: oklch(0.58 0.10 220);
+	--dp-color-frost-600: oklch(0.50 0.08 220);
+	--dp-color-frost-700: oklch(0.42 0.06 220);
+	--dp-color-frost-800: oklch(0.34 0.04 220);
+	--dp-color-frost-900: oklch(0.26 0.03 220);
+	--dp-color-neutral-50: oklch(0.97 0 0);
+	--dp-color-neutral-100: oklch(0.92 0 0);
+	--dp-color-neutral-200: oklch(0.84 0 0);
+	--dp-color-neutral-300: oklch(0.70 0 0);
+	--dp-color-neutral-400: oklch(0.56 0 0);
+	--dp-color-neutral-500: oklch(0.44 0 0);
+	--dp-color-neutral-600: oklch(0.36 0 0);
+	--dp-color-neutral-700: oklch(0.28 0 0);
+	--dp-color-neutral-800: oklch(0.20 0 0);
+	--dp-color-neutral-900: oklch(0.14 0 0);
+
+	/* Glass */
+	--dp-glass-void: oklch(0.08 0.005 250 / 0.85);
+	--dp-glass-deep: oklch(0.11 0.01 250 / 0.75);
+	--dp-glass-smoke: oklch(0.16 0.005 0 / 0.60);
+	--dp-glass-frost: oklch(0.92 0.01 220 / 0.40);
+
+	/* Matte */
+	--dp-matte-dark: oklch(0.14 0.005 250);
+	--dp-matte-medium: oklch(0.22 0.005 250);
+	--dp-matte-light: oklch(0.30 0.005 250);
+
+	/* Text */
+	--dp-text-primary: oklch(0.95 0.01 250);
+	--dp-text-secondary: oklch(0.75 0.01 250);
+	--dp-text-muted: oklch(0.55 0.005 250);
+	--dp-text-inverted: oklch(0.10 0 0);
+	--dp-text-link: oklch(0.70 0.14 180);
+	--dp-text-error: oklch(0.65 0.20 25);
+	--dp-text-success: oklch(0.70 0.16 160);
+
+	/* Spacing */
+	--dp-space-1: 0.25rem;
+	--dp-space-2: 0.5rem;
+	--dp-space-3: 0.75rem;
+	--dp-space-4: 1rem;
+	--dp-space-5: 1.25rem;
+	--dp-space-6: 1.5rem;
+	--dp-space-8: 2rem;
+
+	/* Radius */
+	--dp-radius-none: 0;
+	--dp-radius-sm: 0.25rem;
+	--dp-radius-md: 0.5rem;
+	--dp-radius-lg: 0.75rem;
+	--dp-radius-xl: 1rem;
+	--dp-radius-full: 9999px;
+
+	/* Blur */
+	--dp-blur-off: 0;
+	--dp-blur-sm: 4px;
+	--dp-blur-md: 8px;
+	--dp-blur-lg: 16px;
+	--dp-blur-xl: 24px;
+
+	/* Glow */
+	--dp-glow-off: none;
+	--dp-glow-teal: 0 0 12px oklch(0.55 0.18 180 / 0.4);
+	--dp-glow-purple: 0 0 12px oklch(0.55 0.18 280 / 0.4);
+	--dp-glow-magenta: 0 0 12px oklch(0.55 0.20 330 / 0.4);
+	--dp-glow-ember: 0 0 12px oklch(0.55 0.18 25 / 0.4);
+	--dp-glow-frost: 0 0 12px oklch(0.58 0.10 220 / 0.4);
+	--dp-glow-cyber: 0 0 12px oklch(0.55 0.18 160 / 0.4);
+
+	/* Shadow */
+	--dp-shadow-z0: none;
+	--dp-shadow-z1: 0 1px 3px oklch(0 0 0 / 0.12), 0 1px 2px oklch(0 0 0 / 0.24);
+	--dp-shadow-z2: 0 3px 6px oklch(0 0 0 / 0.15), 0 2px 4px oklch(0 0 0 / 0.12);
+	--dp-shadow-z3: 0 10px 20px oklch(0 0 0 / 0.15), 0 3px 6px oklch(0 0 0 / 0.10);
+	--dp-shadow-z4: 0 15px 25px oklch(0 0 0 / 0.15), 0 5px 10px oklch(0 0 0 / 0.05);
+
+	/* Bevel */
+	--dp-bevel-off: none;
+	--dp-bevel-subtle: inset 0 1px 0 oklch(1 0 0 / 0.05);
+	--dp-bevel-soft: inset 0 1px 1px oklch(1 0 0 / 0.08), inset 0 -1px 1px oklch(0 0 0 / 0.08);
+	--dp-bevel-medium: inset 0 2px 2px oklch(1 0 0 / 0.10), inset 0 -2px 2px oklch(0 0 0 / 0.10);
+
+	/* Z-Index */
+	--dp-z-base: 0;
+	--dp-z-raised: 10;
+	--dp-z-dropdown: 100;
+	--dp-z-sticky: 200;
+	--dp-z-overlay: 300;
+	--dp-z-modal: 400;
+	--dp-z-popover: 500;
+	--dp-z-toast: 600;
+	--dp-z-tooltip: 700;
+
+	/* Duration */
+	--dp-duration-instant: 50ms;
+	--dp-duration-fast: 150ms;
+	--dp-duration-normal: 250ms;
+	--dp-duration-slow: 400ms;
+	--dp-duration-glacial: 700ms;
+
+	/* Easing */
+	--dp-ease-linear: linear;
+	--dp-ease-in: cubic-bezier(0.4, 0, 1, 1);
+	--dp-ease-out: cubic-bezier(0, 0, 0.2, 1);
+	--dp-ease-inOut: cubic-bezier(0.4, 0, 0.2, 1);
+	--dp-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+	/* Text Size */
+	--dp-text-size-xs: 0.75rem;
+	--dp-text-size-sm: 0.875rem;
+	--dp-text-size-base: 1rem;
+	--dp-text-size-lg: 1.125rem;
+	--dp-text-size-xl: 1.25rem;
+	--dp-text-size-2xl: 1.5rem;
+
+	/* Padding */
+	--dp-padding-sm: 0.375rem 0.75rem;
+	--dp-padding-md: 0.5rem 1rem;
+	--dp-padding-lg: 0.75rem 1.5rem;
+
+}

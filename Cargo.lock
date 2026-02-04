@@ -1707,6 +1707,7 @@ dependencies = [
 name = "devpulse_desktop_backend"
 version = "0.0.0"
 dependencies = [
+ "devpulse-engine",
  "serde",
  "serde_json",
  "tauri",

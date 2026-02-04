@@ -3,29 +3,33 @@
  *
  * ColdLight Import Cloak
  * Maps adapter-specific factories to ColdLight-generic names.
- * Primitives import ONLY from this file. Zero adapter awareness.
+ * Components import ONLY from this file. Zero adapter awareness.
  *
- * Active adapter: meltui
+ * Active adapters: coldlight (dialog), meltui (tabs, combobox)
  */
 
 // =============================================================================
-// dialog
+// dialog — ColdLight-native
 // =============================================================================
 
-export { createMeltDialog as createDialog } from "$lib/design/api/adapters/meltui/_internal/dialog/factory";
-export type { MeltDialogInstance as DialogInstance } from "$lib/design/api/adapters/meltui/_internal/dialog/factory";
-export type { MeltDialogConfig as DialogConfig } from "$lib/design/api/adapters/meltui/_internal/dialog/factory";
+export { createDialogTransport as createDialog } from "$lib/design/api/adapters/coldlight/_internal/dialog/_transport/factory.js";
+export type { DialogTransport as DialogInstance } from "$lib/design/api/adapters/coldlight/_internal/dialog/_transport/types.js";
+export type { DialogTransportConfig as DialogConfig } from "$lib/design/api/adapters/coldlight/_internal/dialog/_transport/types.js";
+export type { DialogAttachments } from "$lib/design/api/adapters/coldlight/_internal/dialog/_transport/types.js";
 
 // =============================================================================
-// tabs
+// tabs — meltui
 // =============================================================================
 
-export { createMeltTabs as createTabs } from "$lib/design/api/adapters/meltui/_internal/tabs/factory";
-export type { MeltTabsInstance as TabsInstance } from "$lib/design/api/adapters/meltui/_internal/tabs/factory";
-export type { MeltTabsConfig as TabsConfig } from "$lib/design/api/adapters/meltui/_internal/tabs/factory";
+export { createMeltTabs as createTabs } from "$lib/design/api/adapters/meltui/_internal/tabs/factory.js";
+export type { MeltTabsInstance as TabsInstance } from "$lib/design/api/adapters/meltui/_internal/tabs/factory.js";
+export type { MeltTabsConfig as TabsConfig } from "$lib/design/api/adapters/meltui/_internal/tabs/factory.js";
 
 // =============================================================================
-// melt action (adapter rendering utility)
+// combobox — meltui (melt v0.44+)
 // =============================================================================
 
-export { melt } from "@melt-ui/svelte";
+export { createComboboxTransport as createCombobox } from "$lib/design/api/adapters/meltui/_internal/combobox/_transport/factory.js";
+export type { ComboboxTransport as ComboboxInstance } from "$lib/design/api/adapters/meltui/_internal/combobox/_transport/types.js";
+export type { ComboboxTransportConfig as ComboboxConfig } from "$lib/design/api/adapters/meltui/_internal/combobox/_transport/types.js";
+export type { ComboboxActions } from "$lib/design/api/adapters/meltui/_internal/combobox/_transport/types.js";

@@ -35,11 +35,15 @@ module.exports = {
         'taxonomy',
         
         // Hubs
+        'devpulse',
+        'devforge',
         'wiredfront',
-        'pixvix',
-        'viziwizi',
-        'devmaestro',
         'overmind',
+        'ui-demo',
+        'pixvix',
+
+        // Domains
+        'chat',
         
         // Infrastructure
         'xtask',

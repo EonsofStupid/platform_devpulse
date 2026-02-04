@@ -190,7 +190,9 @@ class VPBStore {
     const block = this.selectedBlock;
     if (!block) return null;
     const recipe = getRecipe(block.recipe);
-    return recipe?.classes ?? null;
+    if (!recipe) return null;
+    const defaults = recipe.defaults as import("$lib/design/recipes/types.js").DsSurfaceProps;
+    return recipe.classes(defaults);
   }
 
   // ===========================================

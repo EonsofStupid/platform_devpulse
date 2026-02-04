@@ -1,0 +1,17 @@
+# DevPulse CODEOWNERS
+# These paths require review from the listed owners before merging.
+
+# IP-protected kernel — always requires owner review
+/kernel/ @EonsofStupid
+
+# Engine public facade — signal types affect all consumers
+/systems/devpulse-engine/ @EonsofStupid
+
+# Design system contracts — breaking changes cascade to all hubs
+/interfaces/desktop/src/lib/design/taxonomy/ @EonsofStupid
+/interfaces/desktop/src/lib/design/tokens/ @EonsofStupid
+
+# CI and release — misconfiguration blocks everyone
+/.github/ @EonsofStupid
+/lefthook.yml @EonsofStupid
+/deny.toml @EonsofStupid

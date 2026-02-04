@@ -1,35 +1,22 @@
 /**
- * @file design/recipes/index.ts
- * @description Recipe registry - styling patterns for blocks
- *
- * Recipes map block kinds to CSS class compositions.
- * TODO: Implement recipe system
+ * @file Recipe Registry
+ * @description Central registry for ColdLight styling recipes.
  */
 
-import type { BlockKind } from "$lib/design/taxonomy/vpb";
+import type { RecipeDefinition } from "./types.js";
 
-/** Recipe definition */
-export interface RecipeDefinition {
-  id: string;
-  kind: BlockKind;
-  label: string;
-  classes: Record<string, string>;
-}
-
-/** Recipe registry (stub) */
 const recipes = new Map<string, RecipeDefinition>();
 
-/** Get recipe by ID */
+export function registerRecipe(recipe: RecipeDefinition): void {
+  recipes.set(recipe.id, recipe);
+}
+
 export function getRecipe(id: string): RecipeDefinition | undefined {
   return recipes.get(id);
 }
 
-/** Get all recipes for a kind */
-export function getRecipesForKind(kind: BlockKind): RecipeDefinition[] {
+export function getRecipesForKind(kind: string): RecipeDefinition[] {
   return Array.from(recipes.values()).filter((r) => r.kind === kind);
 }
 
-/** Register a recipe */
-export function registerRecipe(recipe: RecipeDefinition): void {
-  recipes.set(recipe.id, recipe);
-}
+export type { RecipeDefinition, DsSurfaceProps } from "./types.js";

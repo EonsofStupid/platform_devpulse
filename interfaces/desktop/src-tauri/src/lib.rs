@@ -22,8 +22,18 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             // Chat
             commands::chat::send_message,
+            commands::chat::history::load_recent,
+            commands::chat::interactions::post_reaction,
             // Sys
             commands::sys::config::get_settings,
+            commands::sys::guard::verify,
+            commands::sys::logger::log,
+            // Maestro
+            commands::devmaestro::get_status,
+            // ThinkMaestro
+            commands::thinkmaestro::create_canvas,
+            // WiredFront
+            commands::wiredfront::connect_peer,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -13,6 +13,7 @@
 //!
 //! @since 1.0.0
 
+pub mod history;
 pub mod interactions;
 
 #[tauri::command]

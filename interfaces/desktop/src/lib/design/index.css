@@ -17,7 +17,9 @@
 
 
 /* 3. Surfaces - Generated recipe CSS (data-* attribute styling) */
-
+@import "./molecules/glass.css";
+@import "./molecules/glow.css";
+@import "./molecules/bevel.css";
 
 /* 4. Depth System - Multi-layer shadows, neumorphism, liquid metal */
 

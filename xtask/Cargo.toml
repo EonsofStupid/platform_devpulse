@@ -6,4 +6,7 @@ edition = "2021"
 [dependencies]
 xshell = { workspace = true }
 clap = { workspace = true }
-anyhow = "1.0"
+anyhow = { workspace = true }
+
+[lints]
+workspace = true
