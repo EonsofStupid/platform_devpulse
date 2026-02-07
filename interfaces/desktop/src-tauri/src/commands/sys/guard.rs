@@ -13,5 +13,6 @@
 //!
 //! @since 1.0.0
 
+/// Verify system guard checks.
 #[tauri::command]
 pub fn verify() {}

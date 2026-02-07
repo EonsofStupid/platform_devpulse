@@ -4,11 +4,11 @@
  */
 
 export const ENFORCEMENT = {
-  mode: "strict",
-  failOnParity: true,
-  failOnContractLoad: true,
-  lefthook: {
-    enabled: true,
-    verifyCmd: "pnpm coldlight:verify",
-  },
+	mode: "strict",
+	failOnParity: true,
+	failOnContractLoad: true,
+	lefthook: {
+		enabled: true,
+		verifyCmd: "pnpm coldlight:verify",
+	},
 } as const;

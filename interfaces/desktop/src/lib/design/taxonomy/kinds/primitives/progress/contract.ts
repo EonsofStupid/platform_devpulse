@@ -5,19 +5,19 @@
  * ariaStateProvider: "coldlight" — native range widget, direct ARIA application.
  * 2-folder parity: taxonomy + primitive.
  *
+ * Reference: W3C WAI-ARIA APG Meter Pattern
+ * https://www.w3.org/WAI/ARIA/apg/patterns/meter/
+ *
  * WAI-ARIA: progressbar is a read-only range widget.
  * aria-valuenow required unless indeterminate.
  * aria-valuemin defaults to 0, aria-valuemax defaults to 100.
  * Accessible name required. Children are presentational.
  */
 
-import type { PrimitiveContract } from "../../../types.js";
-import { progressSlotStates, type ProgressSlot, type ProgressState } from "./types.js";
+import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { progressSlotStates } from "./types.js";
 
-// ─── CONTRACT ───────────────────────────────────────────────────────────────
-
-/** Progress primitive contract — ColdLight SSOT */
-export const contract: PrimitiveContract<"progress", ProgressSlot, ProgressState> = {
+const rawContract = {
 	kind: "progress",
 	ariaStateProvider: "coldlight",
 	slots: { required: ["root", "indicator"], optional: [], forbidden: [] },
@@ -25,7 +25,20 @@ export const contract: PrimitiveContract<"progress", ProgressSlot, ProgressState
 		root: {
 			element: "div",
 			children: "snippet",
-			aria: { role: "progressbar", required: [], optional: ["aria-valuenow", "aria-valuemin", "aria-valuemax", "aria-valuetext", "aria-label", "aria-labelledby", "aria-describedby", "aria-busy"] },
+			aria: {
+				role: "progressbar",
+				required: [],
+				optional: [
+					"aria-valuenow",
+					"aria-valuemin",
+					"aria-valuemax",
+					"aria-valuetext",
+					"aria-label",
+					"aria-labelledby",
+					"aria-describedby",
+					"aria-busy",
+				],
+			},
 		},
 		indicator: {
 			element: "div",
@@ -54,6 +67,9 @@ export const contract: PrimitiveContract<"progress", ProgressSlot, ProgressState
 		],
 	},
 	keyboard: [],
+	keyboardMap: [],
 	focusStrategy: "none",
 	compound: false,
-};
+} as const;
+
+export const contract: PrimitiveContract = parseContract(rawContract);

@@ -4,12 +4,12 @@
 	Contract: kind="menubar", slot="checkbox-item"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { MenubarCheckboxItemProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { MenubarCheckboxItemProps } from "./types.js";
 
-	let { children, class: className, ...rest }: MenubarCheckboxItemProps = $props();
+let { children, class: className, ...rest }: MenubarCheckboxItemProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "MenubarCheckboxItem");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "MenubarCheckboxItem");
 </script>
 
 <div

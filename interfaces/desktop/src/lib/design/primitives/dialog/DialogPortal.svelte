@@ -5,12 +5,12 @@
 	Component layer handles actual teleportation to document.body.
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { DialogPortalProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { DialogPortalProps } from "./types.js";
 
-	let { children, class: className, ...rest }: DialogPortalProps = $props();
+let { children, class: className, ...rest }: DialogPortalProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "DialogPortal");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "DialogPortal");
 </script>
 
 <div

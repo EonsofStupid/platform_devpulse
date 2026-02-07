@@ -4,19 +4,19 @@
 	Contract: kind="switch", slot="root", ariaStateProvider="coldlight"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { SwitchProps } from "./types.js";
-	import { setSwitchContext } from "./context.js";
+import { cn, stripStyleProp } from "../types.js";
+import { setSwitchContext } from "./context.js";
+import type { SwitchProps } from "./types.js";
 
-	let { checked = $bindable(false), children, class: className, ...rest }: SwitchProps = $props();
+let { checked = $bindable(false), children, class: className, ...rest }: SwitchProps = $props();
 
-	setSwitchContext({
-		get checked() {
-			return checked;
-		},
-	});
+setSwitchContext({
+	get checked() {
+		return checked;
+	},
+});
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "Switch");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "Switch");
 </script>
 
 <button

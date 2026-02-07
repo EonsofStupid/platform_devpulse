@@ -1,4 +1,4 @@
-//! Typed payloads for each SignalVariant.
+//! Typed payloads for each `SignalVariant`.
 //!
 //! These are the actual data payloads that signals carry.
 //! All payloads derive `TS` for TypeScript generation via ts-rs.
@@ -27,8 +27,11 @@ pub struct ChatPayload {
 #[derive(Clone, Debug, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub enum ChatRole {
+    /// Human user message.
     User,
+    /// AI assistant response.
     Assistant,
+    /// System instruction or context.
     System,
 }
 
@@ -40,7 +43,7 @@ pub enum ChatRole {
 #[derive(Clone, Debug, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct AnalyticsPayload {
-    /// Event classification (e.g., "page_view", "feature_used", "error").
+    /// Event classification (e.g., `page_view`, `feature_used`, `error`).
     pub event_type: AnalyticsEventType,
     /// Structured event properties.
     pub properties: AnalyticsProperties,
@@ -76,7 +79,7 @@ pub struct AnalyticsProperties {
     pub target: Option<String>,
     /// Action taken (e.g., "click", "submit", "navigate").
     pub action: Option<String>,
-    /// Numeric value (e.g., duration_ms, count).
+    /// Numeric value (e.g., `duration_ms`, count).
     pub value: Option<f64>,
     /// Additional context label.
     pub label: Option<String>,

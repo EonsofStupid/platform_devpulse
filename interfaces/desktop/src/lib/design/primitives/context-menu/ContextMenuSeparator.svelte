@@ -4,12 +4,12 @@
 	Contract: kind="context-menu", slot="separator"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { ContextMenuSeparatorProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { ContextMenuSeparatorProps } from "./types.js";
 
-	let { children, class: className, ...rest }: ContextMenuSeparatorProps = $props();
+let { children, class: className, ...rest }: ContextMenuSeparatorProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ContextMenuSeparator");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ContextMenuSeparator");
 </script>
 
 <div

@@ -10,18 +10,18 @@
   - data-state="open" | "closed"
 -->
 <script lang="ts">
-  import { AlertDialog } from "meltui";
-  import type { AlertDialogOverlayProps, AlertDialogState } from "./types.js";
-  import { stripStyleProp, cn } from "../types.js";
+import { AlertDialog } from "meltui";
+import { cn, stripStyleProp } from "../types.js";
+import type { AlertDialogOverlayProps, AlertDialogState } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: AlertDialogOverlayProps = $props();
+let {
+	children,
+	class: className = "",
+	"data-id": dataId,
+	...rest
+}: AlertDialogOverlayProps = $props();
 
-  stripStyleProp(rest, "AlertDialog.Overlay");
+stripStyleProp(rest, "AlertDialog.Overlay");
 </script>
 
 <AlertDialog.Overlay {...rest}>

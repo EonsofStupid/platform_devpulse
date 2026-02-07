@@ -4,15 +4,14 @@
  *
  * ariaStateProvider: "coldlight" — presentational placeholder, no complex state machine.
  * 2-folder parity: taxonomy + primitive.
+ *
+ * WAI-ARIA: role="status" with aria-busy for loading indication.
  */
 
-import type { PrimitiveContract } from "../../../types.js";
-import { skeletonSlotStates, type SkeletonSlot, type SkeletonState } from "./types.js";
+import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { skeletonSlotStates } from "./types.js";
 
-// ─── CONTRACT ───────────────────────────────────────────────────────────────
-
-/** Skeleton primitive contract — ColdLight SSOT */
-export const contract: PrimitiveContract<"skeleton", SkeletonSlot, SkeletonState> = {
+const rawContract = {
 	kind: "skeleton",
 	ariaStateProvider: "coldlight",
 	slots: { required: ["root"], optional: [], forbidden: [] },
@@ -35,6 +34,9 @@ export const contract: PrimitiveContract<"skeleton", SkeletonSlot, SkeletonState
 		optionalAttrs: ["aria-busy", "aria-label", "aria-hidden"],
 	},
 	keyboard: [],
+	keyboardMap: [],
 	focusStrategy: "none",
 	compound: false,
-};
+} as const;
+
+export const contract: PrimitiveContract = parseContract(rawContract);

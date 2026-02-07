@@ -4,12 +4,12 @@
 	Contract: kind="navigation-menu", slot="item", ariaStateProvider="coldlight"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { NavigationMenuItemProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { NavigationMenuItemProps } from "./types.js";
 
-	let { children, class: className, ...rest }: NavigationMenuItemProps = $props();
+let { children, class: className, ...rest }: NavigationMenuItemProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "NavigationMenuItem");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "NavigationMenuItem");
 </script>
 
 <li

@@ -13,18 +13,13 @@
   - data-slot="list"
 -->
 <script lang="ts">
-	import { Tabs } from "meltui";
-	import type { TabsListProps } from "./types.js";
-	import { stripStyleProp, cn } from "../types.js";
+import { Tabs } from "meltui";
+import { cn, stripStyleProp } from "../types.js";
+import type { TabsListProps } from "./types.js";
 
-	let {
-		children,
-		class: className = "",
-		"data-id": dataId,
-		...rest
-	}: TabsListProps = $props();
+let { children, class: className = "", "data-id": dataId, ...rest }: TabsListProps = $props();
 
-	stripStyleProp(rest, "Tabs.List");
+stripStyleProp(rest, "Tabs.List");
 </script>
 
 <Tabs.List {...rest}>

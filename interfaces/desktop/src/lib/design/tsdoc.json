@@ -1,75 +1,75 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/tsdoc/v0/tsdoc.schema.json",
-  "extends": ["@microsoft/api-extractor/extends/tsdoc-base.json"],
-  "noStandardTags": false,
-  "tagDefinitions": [
-    {
-      "tagName": "@layer",
-      "syntaxKind": "modifier",
-      "allowMultiple": false
-    },
-    {
-      "tagName": "@kind",
-      "syntaxKind": "modifier",
-      "allowMultiple": false
-    },
-    {
-      "tagName": "@slot",
-      "syntaxKind": "modifier",
-      "allowMultiple": false
-    },
-    {
-      "tagName": "@primitive",
-      "syntaxKind": "modifier",
-      "allowMultiple": false
-    },
-    {
-      "tagName": "@aria",
-      "syntaxKind": "block",
-      "allowMultiple": true
-    },
-    {
-      "tagName": "@keyboard",
-      "syntaxKind": "block",
-      "allowMultiple": true
-    },
-    {
-      "tagName": "@dataattr",
-      "syntaxKind": "block",
-      "allowMultiple": true
-    },
-    {
-      "tagName": "@recipe",
-      "syntaxKind": "modifier",
-      "allowMultiple": false
-    },
-    {
-      "tagName": "@material",
-      "syntaxKind": "modifier",
-      "allowMultiple": false
-    },
-    {
-      "tagName": "@focus",
-      "syntaxKind": "modifier",
-      "allowMultiple": false
-    },
-    {
-      "tagName": "@taxonomy",
-      "syntaxKind": "modifier",
-      "allowMultiple": false
-    }
-  ],
-  "supportForTags": {
-    "@layer": true,
-    "@kind": true,
-    "@slot": true,
-    "@primitive": true,
-    "@aria": true,
-    "@keyboard": true,
-    "@dataattr": true,
-    "@recipe": true,
-    "@material": true,
-    "@focus": true,
-    "@taxonomy": true
-  }
+	"$schema": "https://developer.microsoft.com/json-schemas/tsdoc/v0/tsdoc.schema.json",
+	"extends": ["@microsoft/api-extractor/extends/tsdoc-base.json"],
+	"noStandardTags": false,
+	"tagDefinitions": [
+		{
+			"tagName": "@layer",
+			"syntaxKind": "modifier",
+			"allowMultiple": false
+		},
+		{
+			"tagName": "@kind",
+			"syntaxKind": "modifier",
+			"allowMultiple": false
+		},
+		{
+			"tagName": "@slot",
+			"syntaxKind": "modifier",
+			"allowMultiple": false
+		},
+		{
+			"tagName": "@primitive",
+			"syntaxKind": "modifier",
+			"allowMultiple": false
+		},
+		{
+			"tagName": "@aria",
+			"syntaxKind": "block",
+			"allowMultiple": true
+		},
+		{
+			"tagName": "@keyboard",
+			"syntaxKind": "block",
+			"allowMultiple": true
+		},
+		{
+			"tagName": "@dataattr",
+			"syntaxKind": "block",
+			"allowMultiple": true
+		},
+		{
+			"tagName": "@recipe",
+			"syntaxKind": "modifier",
+			"allowMultiple": false
+		},
+		{
+			"tagName": "@material",
+			"syntaxKind": "modifier",
+			"allowMultiple": false
+		},
+		{
+			"tagName": "@focus",
+			"syntaxKind": "modifier",
+			"allowMultiple": false
+		},
+		{
+			"tagName": "@taxonomy",
+			"syntaxKind": "modifier",
+			"allowMultiple": false
+		}
+	],
+	"supportForTags": {
+		"@layer": true,
+		"@kind": true,
+		"@slot": true,
+		"@primitive": true,
+		"@aria": true,
+		"@keyboard": true,
+		"@dataattr": true,
+		"@recipe": true,
+		"@material": true,
+		"@focus": true,
+		"@taxonomy": true
+	}
 }

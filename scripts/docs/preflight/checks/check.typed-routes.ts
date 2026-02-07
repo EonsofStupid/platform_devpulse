@@ -67,7 +67,9 @@ function isExempt(filePath: string, allowlist?: string[]): boolean {
   // Check policy allowlist
   if (allowlist) {
     for (const pattern of allowlist) {
-      const regex = new RegExp(pattern.replace(/\*/g, '.*'));
+      // Escape regex special chars except *, then replace * with .*
+      const escaped = pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*');
+      const regex = new RegExp(escaped);
       if (regex.test(filePath)) {
         return true;
       }

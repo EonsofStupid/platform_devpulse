@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** Breadcrumb root — navigation landmark */
 export interface BreadcrumbProps extends OmitStyle<HTMLElement>, BaseProps {

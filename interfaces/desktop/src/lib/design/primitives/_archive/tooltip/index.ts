@@ -29,26 +29,26 @@
  * ```
  */
 
+export { default as Arrow } from "./Arrow.svelte";
+export { default as Content } from "./Content.svelte";
+export { default as Portal } from "./Portal.svelte";
+export { default as Provider } from "./Provider.svelte";
 // Components
 export { default as Root } from "./Root.svelte";
-export { default as Provider } from "./Provider.svelte";
 export { default as Trigger } from "./Trigger.svelte";
-export { default as Portal } from "./Portal.svelte";
-export { default as Content } from "./Content.svelte";
-export { default as Arrow } from "./Arrow.svelte";
 
 // Types
 export type {
-  TooltipRootProps,
-  TooltipProviderProps,
-  TooltipTriggerProps,
-  TooltipPortalProps,
-  TooltipContentProps,
-  TooltipArrowProps,
-  TooltipState,
-  TooltipSlot,
-  TooltipSide,
-  TooltipAlign,
+	TooltipAlign,
+	TooltipArrowProps,
+	TooltipContentProps,
+	TooltipPortalProps,
+	TooltipProviderProps,
+	TooltipRootProps,
+	TooltipSide,
+	TooltipSlot,
+	TooltipState,
+	TooltipTriggerProps,
 } from "./types.js";
 
 export { TooltipSlots } from "./types.js";

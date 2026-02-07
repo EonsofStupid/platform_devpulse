@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** Avatar root — container for image + fallback */
 export interface AvatarProps extends OmitStyle<HTMLSpanElement>, BaseProps {

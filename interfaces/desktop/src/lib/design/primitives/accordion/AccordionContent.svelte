@@ -4,14 +4,14 @@
 	Contract: kind="accordion", slot="content"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { AccordionContentProps } from "./types.js";
-	import { getAccordionItemContext } from "./context.js";
+import { cn, stripStyleProp } from "../types.js";
+import { getAccordionItemContext } from "./context.js";
+import type { AccordionContentProps } from "./types.js";
 
-	let { children, class: className, ...rest }: AccordionContentProps = $props();
-	const ctx = getAccordionItemContext();
+let { children, class: className, ...rest }: AccordionContentProps = $props();
+const ctx = getAccordionItemContext();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "AccordionContent");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "AccordionContent");
 </script>
 
 <div

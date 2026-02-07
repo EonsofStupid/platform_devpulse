@@ -1,45 +1,38 @@
 {
-    "CSS File Header": {
-        "scope": "css",
-        "prefix": [
-            "header",
-            "fileheader",
-            "fh"
-        ],
-        "body": [
-            "/**",
-            " * @file ${TM_FILEPATH/.*src\\/lib\\/(.*)$/$1/}",
-            " * @layer ${1|tokens,recipes,effects|}",
-            " * @description ${2:Brief description}",
-            " *",
-            " * Contents:",
-            " * - ${3:Category 1}",
-            " * - ${4:Category 2}",
-            " *",
-            " * @vpb-editable ${5:all}",
-            " * @since ${6:1.0.0}",
-            " */",
-            "",
-            "$0"
-        ],
-        "description": "Insert COLD LIGHT CSS file header"
-    },
-    "CSS Minimal Header": {
-        "scope": "css",
-        "prefix": [
-            "headermin",
-            "fhm"
-        ],
-        "body": [
-            "/**",
-            " * @file ${TM_FILEPATH/.*src\\/lib\\/(.*)$/$1/}",
-            " * @layer ${1|tokens,recipes,effects|}",
-            " * @description ${2:Brief description}",
-            " * @since 1.0.0",
-            " */",
-            "",
-            "$0"
-        ],
-        "description": "Insert minimal CSS header"
-    }
+	"CSS File Header": {
+		"scope": "css",
+		"prefix": ["header", "fileheader", "fh"],
+		"body": [
+			"/**",
+			" * @file ${TM_FILEPATH/.*src\\/lib\\/(.*)$/$1/}",
+			" * @layer ${1|tokens,recipes,effects|}",
+			" * @description ${2:Brief description}",
+			" *",
+			" * Contents:",
+			" * - ${3:Category 1}",
+			" * - ${4:Category 2}",
+			" *",
+			" * @vpb-editable ${5:all}",
+			" * @since ${6:1.0.0}",
+			" */",
+			"",
+			"$0"
+		],
+		"description": "Insert COLD LIGHT CSS file header"
+	},
+	"CSS Minimal Header": {
+		"scope": "css",
+		"prefix": ["headermin", "fhm"],
+		"body": [
+			"/**",
+			" * @file ${TM_FILEPATH/.*src\\/lib\\/(.*)$/$1/}",
+			" * @layer ${1|tokens,recipes,effects|}",
+			" * @description ${2:Brief description}",
+			" * @since 1.0.0",
+			" */",
+			"",
+			"$0"
+		],
+		"description": "Insert minimal CSS header"
+	}
 }

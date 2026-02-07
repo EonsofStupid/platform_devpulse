@@ -4,12 +4,12 @@
 	Contract: kind="context-menu", slot="item"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { ContextMenuItemProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { ContextMenuItemProps } from "./types.js";
 
-	let { children, class: className, ...rest }: ContextMenuItemProps = $props();
+let { children, class: className, ...rest }: ContextMenuItemProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ContextMenuItem");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ContextMenuItem");
 </script>
 
 <div

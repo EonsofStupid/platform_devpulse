@@ -4,15 +4,15 @@
 	Contract: kind="tabs", slot="content"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { TabsContentProps } from "./types.js";
-	import { getTabsContext } from "./context.js";
+import { cn, stripStyleProp } from "../types.js";
+import { getTabsContext } from "./context.js";
+import type { TabsContentProps } from "./types.js";
 
-	let { value, children, class: className, ...rest }: TabsContentProps = $props();
+let { value, children, class: className, ...rest }: TabsContentProps = $props();
 
-	const ctx = getTabsContext();
+const ctx = getTabsContext();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "TabsContent");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "TabsContent");
 </script>
 
 <div

@@ -4,18 +4,18 @@
 	Contract: kind="separator", slot="root"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { SeparatorProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { SeparatorProps } from "./types.js";
 
-	let {
-		orientation = "horizontal",
-		decorative = true,
-		children,
-		class: className,
-		...rest
-	}: SeparatorProps = $props();
+let {
+	orientation = "horizontal",
+	decorative = true,
+	children,
+	class: className,
+	...rest
+}: SeparatorProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "Separator");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "Separator");
 </script>
 
 <div

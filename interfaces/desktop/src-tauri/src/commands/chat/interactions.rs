@@ -13,5 +13,6 @@
 //!
 //! @since 1.0.0
 
+/// Post a reaction to a chat message.
 #[tauri::command]
 pub fn post_reaction() {}

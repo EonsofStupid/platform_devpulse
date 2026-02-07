@@ -30,32 +30,32 @@
 // COMPONENTS
 // ============================================
 
-export { default as Root } from "./Root.svelte";
-export { default as Trigger } from "./Trigger.svelte";
-export { default as Portal } from "./Portal.svelte";
-export { default as Overlay } from "./Overlay.svelte";
-export { default as Content } from "./Content.svelte";
-export { default as Title } from "./Title.svelte";
-export { default as Description } from "./Description.svelte";
 export { default as Action } from "./Action.svelte";
 export { default as Cancel } from "./Cancel.svelte";
+export { default as Content } from "./Content.svelte";
+export { default as Description } from "./Description.svelte";
+export { default as Overlay } from "./Overlay.svelte";
+export { default as Portal } from "./Portal.svelte";
+export { default as Root } from "./Root.svelte";
+export { default as Title } from "./Title.svelte";
+export { default as Trigger } from "./Trigger.svelte";
 
 // ============================================
 // TYPES
 // ============================================
 
 export type {
-  AlertDialogRootProps,
-  AlertDialogTriggerProps,
-  AlertDialogPortalProps,
-  AlertDialogOverlayProps,
-  AlertDialogContentProps,
-  AlertDialogTitleProps,
-  AlertDialogDescriptionProps,
-  AlertDialogActionProps,
-  AlertDialogCancelProps,
-  AlertDialogState,
-  AlertDialogSlot,
+	AlertDialogActionProps,
+	AlertDialogCancelProps,
+	AlertDialogContentProps,
+	AlertDialogDescriptionProps,
+	AlertDialogOverlayProps,
+	AlertDialogPortalProps,
+	AlertDialogRootProps,
+	AlertDialogSlot,
+	AlertDialogState,
+	AlertDialogTitleProps,
+	AlertDialogTriggerProps,
 } from "./types.js";
 
 export { AlertDialogSlots } from "./types.js";

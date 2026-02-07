@@ -4,12 +4,12 @@
 	Contract: kind="sheet", slot="portal"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { SheetPortalProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { SheetPortalProps } from "./types.js";
 
-	let { children, class: className, ...rest }: SheetPortalProps = $props();
+let { children, class: className, ...rest }: SheetPortalProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SheetPortal");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SheetPortal");
 </script>
 
 <div

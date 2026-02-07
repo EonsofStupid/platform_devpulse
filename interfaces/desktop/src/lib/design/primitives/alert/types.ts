@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** Alert root — live region container for important messages */
 export interface AlertProps extends OmitStyle<HTMLDivElement>, BaseProps {

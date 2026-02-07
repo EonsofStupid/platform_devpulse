@@ -4,20 +4,20 @@
 	Contract: kind="checkbox", slot="indicator", ariaStateProvider="coldlight"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { CheckboxIndicatorProps } from "./types.js";
-	import { getCheckboxContext } from "./context.js";
+import { cn, stripStyleProp } from "../types.js";
+import { getCheckboxContext } from "./context.js";
+import type { CheckboxIndicatorProps } from "./types.js";
 
-	let { children, class: className, ...rest }: CheckboxIndicatorProps = $props();
-	const ctx = getCheckboxContext();
+let { children, class: className, ...rest }: CheckboxIndicatorProps = $props();
+const ctx = getCheckboxContext();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "CheckboxIndicator");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "CheckboxIndicator");
 
-	function dataState(): string | undefined {
-		if (ctx.indeterminate) return "indeterminate";
-		if (ctx.checked) return "checked";
-		return undefined;
-	}
+function dataState(): string | undefined {
+	if (ctx.indeterminate) return "indeterminate";
+	if (ctx.checked) return "checked";
+	return undefined;
+}
 </script>
 
 <span

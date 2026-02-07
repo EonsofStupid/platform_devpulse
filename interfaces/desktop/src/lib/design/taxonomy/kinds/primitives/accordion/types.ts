@@ -7,7 +7,7 @@
  * ariaStateProvider: "coldlight" — native HTML handles semantics.
  */
 
-import type { StateToken, SlotStateMap } from "../../../types.js";
+import type { SlotStateMap, StateToken } from "../../../types.js";
 
 // ─── SLOT TYPES ─────────────────────────────────────────────────────────────
 

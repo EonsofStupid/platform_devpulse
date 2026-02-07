@@ -4,14 +4,14 @@
 	Contract: kind="toggle-group", slot="item", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { ToggleGroupItemProps } from "./types.js";
-	import { getToggleGroupContext } from "./context.js";
+import { cn, stripStyleProp } from "../types.js";
+import { getToggleGroupContext } from "./context.js";
+import type { ToggleGroupItemProps } from "./types.js";
 
-	let { value, children, class: className, ...rest }: ToggleGroupItemProps = $props();
-	const ctx = getToggleGroupContext();
+let { value, children, class: className, ...rest }: ToggleGroupItemProps = $props();
+const ctx = getToggleGroupContext();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ToggleGroupItem");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ToggleGroupItem");
 </script>
 
 <button

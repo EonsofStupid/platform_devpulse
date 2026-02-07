@@ -23,35 +23,35 @@
   - data-side="left" | "right" | "top" | "bottom"
 -->
 <script lang="ts">
-  import { Dialog } from "meltui";
-  import type { SheetContentProps, SheetState } from "./types.js";
-  import { stripStyleProp, cn } from "../types.js";
+import { Dialog } from "meltui";
+import { cn, stripStyleProp } from "../types.js";
+import type { SheetContentProps, SheetState } from "./types.js";
 
-  let {
-    side = "right",
-    children,
-    closeOnEscape = true,
-    closeOnOutsideClick = true,
-    trapFocus = true,
-    preventScroll = true,
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: SheetContentProps = $props();
+let {
+	side = "right",
+	children,
+	closeOnEscape = true,
+	closeOnOutsideClick = true,
+	trapFocus = true,
+	preventScroll = true,
+	class: className = "",
+	"data-id": dataId,
+	...rest
+}: SheetContentProps = $props();
 
-  stripStyleProp(rest, "Sheet.Content");
+stripStyleProp(rest, "Sheet.Content");
 
-  function handleEscapeKeydown(e: KeyboardEvent) {
-    if (!closeOnEscape) {
-      e.preventDefault();
-    }
-  }
+function handleEscapeKeydown(e: KeyboardEvent) {
+	if (!closeOnEscape) {
+		e.preventDefault();
+	}
+}
 
-  function handleInteractOutside(e: Event) {
-    if (!closeOnOutsideClick) {
-      e.preventDefault();
-    }
-  }
+function handleInteractOutside(e: Event) {
+	if (!closeOnOutsideClick) {
+		e.preventDefault();
+	}
+}
 </script>
 
 <Dialog.Content

@@ -9,7 +9,7 @@
  */
 
 export const ADAPTERS = {
-  enabled: { meltui: true },
-  active: "meltui",
-  ariaStateProvider: "meltui",
+	enabled: { meltui: true },
+	active: "meltui",
+	ariaStateProvider: "meltui",
 } as const;

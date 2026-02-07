@@ -4,12 +4,12 @@
 	Contract: kind="combobox", slot="empty", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { ComboboxEmptyProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { ComboboxEmptyProps } from "./types.js";
 
-	let { children, class: className, ...rest }: ComboboxEmptyProps = $props();
+let { children, class: className, ...rest }: ComboboxEmptyProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ComboboxEmpty");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ComboboxEmpty");
 </script>
 
 <div

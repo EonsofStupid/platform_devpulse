@@ -10,25 +10,18 @@
   A11y Acceptance: Column sort state announced on sort change
 -->
 <script lang="ts" module>
-  import type {
-    Table,
-    ColumnDef,
-    Row,
-    Header,
-    Cell,
-    SortDirection,
-  } from "@tanstack/table-core";
+import type { Cell, ColumnDef, Header, Row, SortDirection, Table } from "@tanstack/table-core";
 
-  export type { Table, ColumnDef, Row, Header, Cell, SortDirection };
+export type { Table, ColumnDef, Row, Header, Cell, SortDirection };
 
-  export interface DataTableProps<TData> {
-    /** TanStack Table instance */
-    table: Table<TData>;
-    /** Table caption (required for accessibility) */
-    caption?: string;
-    /** Hide caption visually (still read by SR) */
-    captionHidden?: boolean;
-  }
+export interface DataTableProps<TData> {
+	/** TanStack Table instance */
+	table: Table<TData>;
+	/** Table caption (required for accessibility) */
+	caption?: string;
+	/** Hide caption visually (still read by SR) */
+	captionHidden?: boolean;
+}
 </script>
 
 <script lang="ts" generics="TData">

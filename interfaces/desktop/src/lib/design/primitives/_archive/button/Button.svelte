@@ -17,37 +17,35 @@
   - data-id (user-defined)
 -->
 <script lang="ts">
-  import { Button as BitsButton } from "meltui";
-  import type { ButtonProps } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+import { Button as BitsButton } from "meltui";
+import { stripStyleProp } from "../types.js";
+import type { ButtonProps } from "./types.js";
 
-  let {
-    children,
-    disabled = false,
-    type = "button",
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: ButtonProps = $props();
+let {
+	children,
+	disabled = false,
+	type = "button",
+	class: className = "",
+	"data-id": dataId,
+	...rest
+}: ButtonProps = $props();
 
-  // DEV-only: warn if style prop is passed
-  stripStyleProp(rest, "Button");
+// DEV-only: warn if style prop is passed
+stripStyleProp(rest, "Button");
 
-  // Track pressed state for data-state
-  let isPressed = $state(false);
+// Track pressed state for data-state
+let isPressed = $state(false);
 
-  function handlePointerDown() {
-    if (!disabled) isPressed = true;
-  }
+function handlePointerDown() {
+	if (!disabled) isPressed = true;
+}
 
-  function handlePointerUp() {
-    isPressed = false;
-  }
+function handlePointerUp() {
+	isPressed = false;
+}
 
-  // Compute data-state
-  const dataState = $derived(
-    disabled ? "disabled" : isPressed ? "pressed" : undefined
-  );
+// Compute data-state
+const dataState = $derived(disabled ? "disabled" : isPressed ? "pressed" : undefined);
 </script>
 
 <BitsButton.Root

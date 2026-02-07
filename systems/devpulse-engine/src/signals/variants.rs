@@ -1,4 +1,4 @@
-//! SignalVariant - the master enum of all output payload types.
+//! `SignalVariant` - the master enum of all output payload types.
 //!
 //! This is what gets broadcast. Each variant carries a typed payload.
 
@@ -6,7 +6,9 @@ use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
 use super::kinds::SinkKind;
-use super::payloads::*;
+use super::payloads::{
+    AnalyticsPayload, ChatPayload, ContextPayload, InferencePayload, SystemPayload,
+};
 
 /// The master enum of all signal output types.
 ///

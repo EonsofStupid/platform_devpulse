@@ -4,12 +4,12 @@
 	Contract: kind="dropdown-menu", slot="separator", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { DropdownMenuSeparatorProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { DropdownMenuSeparatorProps } from "./types.js";
 
-	let { children, class: className, ...rest }: DropdownMenuSeparatorProps = $props();
+let { children, class: className, ...rest }: DropdownMenuSeparatorProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "DropdownMenuSeparator");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "DropdownMenuSeparator");
 </script>
 
 <div

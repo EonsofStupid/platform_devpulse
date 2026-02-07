@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** ToggleGroup root — container for a group of toggle buttons */
 export interface ToggleGroupProps extends OmitStyle<HTMLDivElement>, BaseProps {

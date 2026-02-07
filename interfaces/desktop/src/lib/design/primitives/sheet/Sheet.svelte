@@ -4,16 +4,16 @@
 	Contract: kind="sheet", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import type { SheetProps } from "./types.js";
-	import { setSheetContext } from "./context.js";
+import { setSheetContext } from "./context.js";
+import type { SheetProps } from "./types.js";
 
-	let { open = $bindable(false), children }: SheetProps = $props();
+let { open = $bindable(false), children }: SheetProps = $props();
 
-	setSheetContext({
-		get open() {
-			return open;
-		},
-	});
+setSheetContext({
+	get open() {
+		return open;
+	},
+});
 </script>
 
 {@render children?.()}

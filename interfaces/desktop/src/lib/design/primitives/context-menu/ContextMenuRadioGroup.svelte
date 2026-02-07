@@ -4,12 +4,12 @@
 	Contract: kind="context-menu", slot="radio-group"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { ContextMenuRadioGroupProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { ContextMenuRadioGroupProps } from "./types.js";
 
-	let { children, class: className, ...rest }: ContextMenuRadioGroupProps = $props();
+let { children, class: className, ...rest }: ContextMenuRadioGroupProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ContextMenuRadioGroup");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ContextMenuRadioGroup");
 </script>
 
 <div

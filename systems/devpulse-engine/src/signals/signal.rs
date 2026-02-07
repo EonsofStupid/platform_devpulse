@@ -1,6 +1,6 @@
 //! Signal - the complete broadcast packet.
 //!
-//! Signal = SignalHeader + Arc<SignalVariant>
+//! Signal = `SignalHeader` + `Arc<SignalVariant>`
 //! This is what gets emitted and broadcast.
 
 use std::sync::Arc;
@@ -65,7 +65,7 @@ impl Signal {
     /// Create a signal caused by another signal.
     ///
     /// Use this for signals that are reactions to other signals.
-    /// The correlation_id links back to the parent.
+    /// The `correlation_id` links back to the parent.
     pub fn caused_by(parent: &Signal, payload: SignalVariant) -> Self {
         Self {
             header: SignalHeader::child_of(parent.header.id, SignalSource::Expert),

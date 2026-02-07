@@ -6,13 +6,10 @@
  * 2-folder parity: taxonomy + primitive.
  */
 
-import type { PrimitiveContract } from "../../../types.js";
-import { textareaSlotStates, type TextareaSlot, type TextareaState } from "./types.js";
+import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { textareaSlotStates } from "./types.js";
 
-// ─── CONTRACT ───────────────────────────────────────────────────────────────
-
-/** Textarea primitive contract — ColdLight SSOT */
-export const contract: PrimitiveContract<"textarea", TextareaSlot, TextareaState> = {
+const rawContract = {
 	kind: "textarea",
 	ariaStateProvider: "coldlight",
 	slots: { required: ["root"], optional: [], forbidden: [] },
@@ -20,7 +17,22 @@ export const contract: PrimitiveContract<"textarea", TextareaSlot, TextareaState
 		root: {
 			element: "textarea",
 			children: "self-closing",
-			aria: { role: "textbox", required: [], optional: ["aria-label", "aria-labelledby", "aria-describedby", "aria-required", "aria-invalid", "aria-errormessage", "aria-disabled", "aria-readonly", "aria-placeholder", "aria-multiline"] },
+			aria: {
+				role: "textbox",
+				required: [],
+				optional: [
+					"aria-label",
+					"aria-labelledby",
+					"aria-describedby",
+					"aria-required",
+					"aria-invalid",
+					"aria-errormessage",
+					"aria-disabled",
+					"aria-readonly",
+					"aria-placeholder",
+					"aria-multiline",
+				],
+			},
 		},
 	},
 	states: {
@@ -48,4 +60,6 @@ export const contract: PrimitiveContract<"textarea", TextareaSlot, TextareaState
 	keyboard: [],
 	focusStrategy: "none",
 	compound: false,
-};
+} as const;
+
+export const contract: PrimitiveContract = parseContract(rawContract);

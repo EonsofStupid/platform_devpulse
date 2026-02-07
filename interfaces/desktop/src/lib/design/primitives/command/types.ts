@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** Command root — combobox container for filtered list interaction */
 export interface CommandProps extends OmitStyle<HTMLDivElement>, BaseProps {

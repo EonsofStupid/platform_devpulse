@@ -7,7 +7,7 @@
  * ariaStateProvider: "meltui" — createMenubar provides roving tabindex + menu management.
  */
 
-import type { StateToken, SlotStateMap } from "../../../types.js";
+import type { SlotStateMap, StateToken } from "../../../types.js";
 
 // ─── SLOT TYPES ─────────────────────────────────────────────────────────────
 
@@ -60,7 +60,15 @@ export const menubarSlotStates = {
 	content: ["open", "closed"],
 	group: [],
 	item: ["hover", "active", "focused", "focus-visible", "disabled"],
-	"checkbox-item": ["hover", "active", "focused", "focus-visible", "disabled", "checked", "indeterminate"],
+	"checkbox-item": [
+		"hover",
+		"active",
+		"focused",
+		"focus-visible",
+		"disabled",
+		"checked",
+		"indeterminate",
+	],
 	"radio-group": [],
 	"radio-item": ["hover", "active", "focused", "focus-visible", "disabled", "checked"],
 	label: [],

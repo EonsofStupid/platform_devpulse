@@ -2,11 +2,12 @@
  * @file Spinner Taxonomy Barrel
  * @description Re-exports spinner types + contract. Zero logic.
  */
+
+export { contract } from "./contract.js";
 export {
-	spinnerSlots,
-	spinnerStateTokens,
-	spinnerSlotStates,
 	type SpinnerSlot,
 	type SpinnerState,
+	spinnerSlotStates,
+	spinnerSlots,
+	spinnerStateTokens,
 } from "./types.js";
-export { contract } from "./contract.js";

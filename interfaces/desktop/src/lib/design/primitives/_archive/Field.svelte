@@ -8,60 +8,64 @@
   A11y Acceptance: Input ALWAYS linked to error/help by aria-describedby
 -->
 <script lang="ts">
-  import type { Snippet } from "svelte";
-  import type { OmitStyle, BaseProps } from "./types.js";
-  import { stripStyleProp } from "./types.js";
+import type { Snippet } from "svelte";
+import type { BaseProps, OmitStyle } from "./types.js";
+import { stripStyleProp } from "./types.js";
 
-  interface Props extends Omit<OmitStyle<HTMLDivElement>, "children">, BaseProps {
-    /** Field name (used for ID generation) */
-    name: string;
-    /** Error message */
-    error?: string;
-    /** Help/description text */
-    description?: string;
-    /** Label slot */
-    label?: Snippet<[{ id: string; htmlFor: string }]>;
-    /** Input slot - receives IDs for ARIA linking */
-    children?: Snippet<[{
-      inputId: string;
-      describedBy: string;
-      invalid: boolean;
-    }]>;
-    /** Error slot */
-    errorSlot?: Snippet<[{ id: string; message: string }]>;
-    /** Description slot */
-    descriptionSlot?: Snippet<[{ id: string; text: string }]>;
-  }
+interface Props extends Omit<OmitStyle<HTMLDivElement>, "children">, BaseProps {
+	/** Field name (used for ID generation) */
+	name: string;
+	/** Error message */
+	error?: string;
+	/** Help/description text */
+	description?: string;
+	/** Label slot */
+	label?: Snippet<[{ id: string; htmlFor: string }]>;
+	/** Input slot - receives IDs for ARIA linking */
+	children?: Snippet<
+		[
+			{
+				inputId: string;
+				describedBy: string;
+				invalid: boolean;
+			},
+		]
+	>;
+	/** Error slot */
+	errorSlot?: Snippet<[{ id: string; message: string }]>;
+	/** Description slot */
+	descriptionSlot?: Snippet<[{ id: string; text: string }]>;
+}
 
-  let {
-    name,
-    error,
-    description,
-    label,
-    children,
-    errorSlot,
-    descriptionSlot,
-    class: className = "",
-    "data-id": id,
-    ...rest
-  }: Props = $props();
+let {
+	name,
+	error,
+	description,
+	label,
+	children,
+	errorSlot,
+	descriptionSlot,
+	class: className = "",
+	"data-id": id,
+	...rest
+}: Props = $props();
 
-  stripStyleProp(rest, "Field");
+stripStyleProp(rest, "Field");
 
-  // Generate stable IDs (reactive to name prop)
-  const inputId = $derived(`field-${name}-input`);
-  const errorId = $derived(`field-${name}-error`);
-  const descriptionId = $derived(`field-${name}-description`);
+// Generate stable IDs (reactive to name prop)
+const inputId = $derived(`field-${name}-input`);
+const errorId = $derived(`field-${name}-error`);
+const descriptionId = $derived(`field-${name}-description`);
 
-  // Build describedBy string
-  let describedBy = $derived.by(() => {
-    const ids: string[] = [];
-    if (error) ids.push(errorId);
-    if (description) ids.push(descriptionId);
-    return ids.join(" ") || undefined;
-  });
+// Build describedBy string
+let describedBy = $derived.by(() => {
+	const ids: string[] = [];
+	if (error) ids.push(errorId);
+	if (description) ids.push(descriptionId);
+	return ids.join(" ") || undefined;
+});
 
-  const hasError = $derived(!!error);
+const hasError = $derived(!!error);
 </script>
 
 <div

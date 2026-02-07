@@ -8,17 +8,12 @@
  * Non-interactive informational popup on hover/focus.
  */
 
-import type { StateToken, SlotStateMap } from "../../../types.js";
+import type { SlotStateMap, StateToken } from "../../../types.js";
 
 // ─── SLOT TYPES ─────────────────────────────────────────────────────────────
 
 /** All slot names for the tooltip primitive */
-export const tooltipSlots = [
-	"root",
-	"trigger",
-	"content",
-	"arrow",
-] as const;
+export const tooltipSlots = ["root", "trigger", "content", "arrow"] as const;
 
 /** Union of tooltip slot names */
 export type TooltipSlot = (typeof tooltipSlots)[number];

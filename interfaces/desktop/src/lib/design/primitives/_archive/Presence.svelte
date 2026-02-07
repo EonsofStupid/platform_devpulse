@@ -8,7 +8,7 @@
   Never leaves ghost nodes in DOM.
 -->
 <script lang="ts" module>
-  export type PresenceState = "entered" | "exiting" | "removed";
+export type PresenceState = "entered" | "exiting" | "removed";
 </script>
 
 <script lang="ts">

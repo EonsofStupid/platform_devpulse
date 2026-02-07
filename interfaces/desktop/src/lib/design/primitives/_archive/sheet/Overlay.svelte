@@ -10,18 +10,13 @@
   - data-state="open" | "closed"
 -->
 <script lang="ts">
-  import { Dialog } from "meltui";
-  import type { SheetOverlayProps, SheetState } from "./types.js";
-  import { stripStyleProp, cn } from "../types.js";
+import { Dialog } from "meltui";
+import { cn, stripStyleProp } from "../types.js";
+import type { SheetOverlayProps, SheetState } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: SheetOverlayProps = $props();
+let { children, class: className = "", "data-id": dataId, ...rest }: SheetOverlayProps = $props();
 
-  stripStyleProp(rest, "Sheet.Overlay");
+stripStyleProp(rest, "Sheet.Overlay");
 </script>
 
 <Dialog.Overlay {...rest}>

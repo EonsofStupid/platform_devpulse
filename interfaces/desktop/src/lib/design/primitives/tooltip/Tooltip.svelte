@@ -4,16 +4,16 @@
 	Contract: kind="tooltip", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import type { TooltipProps } from "./types.js";
-	import { setTooltipContext } from "./context.js";
+import { setTooltipContext } from "./context.js";
+import type { TooltipProps } from "./types.js";
 
-	let { open = $bindable(false), children }: TooltipProps = $props();
+let { open = $bindable(false), children }: TooltipProps = $props();
 
-	setTooltipContext({
-		get open() {
-			return open;
-		},
-	});
+setTooltipContext({
+	get open() {
+		return open;
+	},
+});
 </script>
 
 {@render children?.()}

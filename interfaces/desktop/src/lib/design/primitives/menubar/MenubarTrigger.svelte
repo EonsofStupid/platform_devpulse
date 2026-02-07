@@ -4,14 +4,14 @@
 	Contract: kind="menubar", slot="trigger"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { MenubarTriggerProps } from "./types.js";
-	import { getMenubarMenuContext } from "./context.js";
+import { cn, stripStyleProp } from "../types.js";
+import { getMenubarMenuContext } from "./context.js";
+import type { MenubarTriggerProps } from "./types.js";
 
-	let { children, class: className, ...rest }: MenubarTriggerProps = $props();
-	const ctx = getMenubarMenuContext();
+let { children, class: className, ...rest }: MenubarTriggerProps = $props();
+const ctx = getMenubarMenuContext();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "MenubarTrigger");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "MenubarTrigger");
 </script>
 
 <button

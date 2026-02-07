@@ -23,21 +23,16 @@
     GlassCard - Interactive card with glass and colored shadows
 -->
 <script lang="ts">
-    import type { Snippet } from "svelte";
+import type { Snippet } from "svelte";
 
-    interface Props {
-        interactive?: boolean;
-        glow?: "none" | "teal" | "purple" | "blue";
-        padding?: "sm" | "md" | "lg";
-        children: Snippet;
-    }
+interface Props {
+	interactive?: boolean;
+	glow?: "none" | "teal" | "purple" | "blue";
+	padding?: "sm" | "md" | "lg";
+	children: Snippet;
+}
 
-    let {
-        interactive = false,
-        glow = "none",
-        padding = "md",
-        children,
-    }: Props = $props();
+let { interactive = false, glow = "none", padding = "md", children }: Props = $props();
 </script>
 
 <article class="glass-card padding-{padding} glow-{glow}" class:interactive>

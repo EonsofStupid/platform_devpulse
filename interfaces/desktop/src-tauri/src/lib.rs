@@ -15,6 +15,11 @@
 
 pub mod commands;
 
+/// Bootstrap and run the Tauri application.
+///
+/// # Panics
+/// Panics if the Tauri runtime fails to start.
+#[allow(clippy::expect_used)]
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()

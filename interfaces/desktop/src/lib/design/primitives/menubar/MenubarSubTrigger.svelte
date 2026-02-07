@@ -4,12 +4,12 @@
 	Contract: kind="menubar", slot="sub-trigger"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { MenubarSubTriggerProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { MenubarSubTriggerProps } from "./types.js";
 
-	let { children, class: className, ...rest }: MenubarSubTriggerProps = $props();
+let { children, class: className, ...rest }: MenubarSubTriggerProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "MenubarSubTrigger");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "MenubarSubTrigger");
 </script>
 
 <div

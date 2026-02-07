@@ -4,12 +4,12 @@
 	Contract: kind="menubar", slot="label"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { MenubarLabelProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { MenubarLabelProps } from "./types.js";
 
-	let { children, class: className, ...rest }: MenubarLabelProps = $props();
+let { children, class: className, ...rest }: MenubarLabelProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "MenubarLabel");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "MenubarLabel");
 </script>
 
 <div

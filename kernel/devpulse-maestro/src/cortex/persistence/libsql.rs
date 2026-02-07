@@ -1,4 +1,4 @@
-//! LibSQL adapter for relational data
+//! `LibSQL` adapter for relational data
 //!
 //! Handles: users, settings, projects, sessions, messages, decisions
 //! This is the "clean" queryable layer for UI and cross-project data.
@@ -9,7 +9,7 @@ use std::path::Path;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-/// LibSQL database adapter
+/// `LibSQL` database adapter.
 pub struct LibSqlAdapter {
     #[allow(dead_code)] // Kept for potential reconnection
     db: Arc<libsql::Database>,
@@ -17,7 +17,10 @@ pub struct LibSqlAdapter {
 }
 
 impl LibSqlAdapter {
-    /// Open or create database at path
+    /// Open or create database at path.
+    ///
+    /// # Errors
+    /// Returns error if the database cannot be opened or schema initialization fails.
     pub async fn open(path: &Path) -> Result<Self> {
         // Ensure parent directory exists
         if let Some(parent) = path.parent() {
@@ -118,7 +121,7 @@ impl SqlAdapter for LibSqlAdapter {
         // Convert params to libsql format
         let params: Vec<libsql::Value> = params
             .iter()
-            .map(|s| libsql::Value::from(s.to_string()))
+            .map(|s| libsql::Value::from((*s).to_string()))
             .collect();
 
         let mut rows = conn
@@ -146,7 +149,7 @@ impl SqlAdapter for LibSqlAdapter {
 
         let params: Vec<libsql::Value> = params
             .iter()
-            .map(|s| libsql::Value::from(s.to_string()))
+            .map(|s| libsql::Value::from((*s).to_string()))
             .collect();
 
         let affected = conn
@@ -165,9 +168,9 @@ impl SqlAdapter for LibSqlAdapter {
     }
 }
 
-/// Core schema for LibSQL
-/// KV store for signal-based access + structured tables
-const CORE_SCHEMA: &str = r#"
+/// Core schema for `LibSQL`.
+/// KV store for signal-based access + structured tables.
+const CORE_SCHEMA: &str = r"
 -- Key-value store for signal-based access
 CREATE TABLE IF NOT EXISTS kv_store (
     key TEXT PRIMARY KEY,
@@ -228,4 +231,4 @@ CREATE TABLE IF NOT EXISTS user_config (
     category TEXT NOT NULL,
     updated_at INTEGER DEFAULT (unixepoch())
 );
-"#;
+";

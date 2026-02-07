@@ -4,12 +4,12 @@
 	Contract: kind="avatar", slot="image", ariaStateProvider="coldlight"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { AvatarImageProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { AvatarImageProps } from "./types.js";
 
-	let { class: className, ...rest }: AvatarImageProps = $props();
+let { class: className, ...rest }: AvatarImageProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "AvatarImage");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "AvatarImage");
 </script>
 
 <img

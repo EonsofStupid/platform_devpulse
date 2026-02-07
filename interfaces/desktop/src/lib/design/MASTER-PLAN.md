@@ -80,7 +80,8 @@ Examples: dialog, tabs, select, popover, tooltip, sheet, alert-dialog, accordion
 | ColdLight attributes: `data-kind`, `data-slot`, `data-state` | **Locked** |
 | manifest.ts: `id` is camelCase, `ariaStateProvider` key required | **Locked** |
 | PascalCase file naming: `Button.svelte`, `DialogTrigger.svelte` | **Locked** |
-| Token prefix: `--dp-*` (DevPulse) | **Locked** |
+| Token NONE ** LOCKED**
+(DevPulse) | **Locked** |
 | No shadcn | **Locked** |
 | Biome for lint/format | **Locked** |
 | svelte-sonner for notifications | **Locked** |
@@ -253,22 +254,22 @@ The build script composes `oklch()` strings from objects. CSS output is identica
 
 | Category | Prefix | Format | Example |
 |----------|--------|--------|---------|
-| Hues | `--dp-hue-*` | number | `--dp-hue-teal: 180` |
-| Color Scales | `--dp-color-{name}-{step}` | oklch | `--dp-color-teal-500: oklch(0.55 0.18 180)` |
-| Glass | `--dp-glass-*` | oklch/alpha | `--dp-glass-deep: oklch(0.11 0.01 250 / 0.75)` |
-| Matte | `--dp-matte-*` | oklch | `--dp-matte-dark: oklch(0.14 0.005 250)` |
-| Text | `--dp-text-*` | oklch | `--dp-text-primary: oklch(0.95 0.01 250)` |
-| Spacing | `--dp-space-*` | rem | `--dp-space-4: 1rem` |
-| Radius | `--dp-radius-*` | rem/px | `--dp-radius-md: 0.5rem` |
-| Blur | `--dp-blur-*` | px | `--dp-blur-md: 8px` |
-| Glow | `--dp-glow-*` | box-shadow | `--dp-glow-teal: 0 0 12px oklch(...)` |
-| Shadow | `--dp-shadow-*` | box-shadow | `--dp-shadow-z2: 0 3px 6px oklch(...)` |
-| Bevel | `--dp-bevel-*` | inset shadow | `--dp-bevel-subtle: inset 0 1px 0 oklch(...)` |
-| Z-Index | `--dp-z-*` | integer | `--dp-z-modal: 400` |
-| Duration | `--dp-duration-*` | ms | `--dp-duration-fast: 150ms` |
-| Easing | `--dp-ease-*` | cubic-bezier | `--dp-ease-out: cubic-bezier(0, 0, 0.2, 1)` |
-| Text Size | `--dp-text-size-*` | rem | `--dp-text-size-base: 1rem` |
-| Padding | `--dp-padding-*` | shorthand | `--dp-padding-md: 0.5rem 1rem` |
+| Hues | `--hue-*` | number | `--hue-teal: 180` |
+| Color Scales | `--color-{name}-{step}` | oklch | `--color-teal-500: oklch(0.55 0.18 180)` |
+| Glass | `--glass-*` | oklch/alpha | `--glass-deep: oklch(0.11 0.01 250 / 0.75)` |
+| Matte | `--matte-*` | oklch | `--matte-dark: oklch(0.14 0.005 250)` |
+| Text | `--text-*` | oklch | `--text-primary: oklch(0.95 0.01 250)` |
+| Spacing | `--space-*` | rem | `--space-4: 1rem` |
+| Radius | `--radius-*` | rem/px | `--radius-md: 0.5rem` |
+| Blur | `--blur-*` | px | `--blur-md: 8px` |
+| Glow | `--glow-*` | box-shadow | `--glow-teal: 0 0 12px oklch(...)` |
+| Shadow | `--shadow-*` | box-shadow | `--shadow-z2: 0 3px 6px oklch(...)` |
+| Bevel | `--bevel-*` | inset shadow | `--bevel-subtle: inset 0 1px 0 oklch(...)` |
+| Z-Index | `--z-*` | integer | `--z-modal: 400` |
+| Duration | `--duration-*` | ms | `--duration-fast: 150ms` |
+| Easing | `--ease-*` | cubic-bezier | `--ease-out: cubic-bezier(0, 0, 0.2, 1)` |
+| Text Size | `---text-size-*` | rem | `--text-size-base: 1rem` |
+| Padding | `--padding-*` | shorthand | `--padding-md: 0.5rem 1rem` |
 
 ### Zod Token Validation (`schema.ts`)
 

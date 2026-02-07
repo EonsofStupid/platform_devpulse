@@ -10,18 +10,18 @@
   - data-slot="description"
 -->
 <script lang="ts">
-  import { AlertDialog } from "meltui";
-  import type { AlertDialogDescriptionProps } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+import { AlertDialog } from "meltui";
+import { stripStyleProp } from "../types.js";
+import type { AlertDialogDescriptionProps } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: AlertDialogDescriptionProps = $props();
+let {
+	children,
+	class: className = "",
+	"data-id": dataId,
+	...rest
+}: AlertDialogDescriptionProps = $props();
 
-  stripStyleProp(rest, "AlertDialog.Description");
+stripStyleProp(rest, "AlertDialog.Description");
 </script>
 
 <AlertDialog.Description

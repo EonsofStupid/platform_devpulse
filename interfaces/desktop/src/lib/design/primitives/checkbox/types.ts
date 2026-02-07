@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** Checkbox root — checkable button with tri-state support */
 export interface CheckboxProps extends OmitStyle<HTMLButtonElement>, BaseProps {

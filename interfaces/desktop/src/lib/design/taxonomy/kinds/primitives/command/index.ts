@@ -2,11 +2,12 @@
  * @file Command Taxonomy Barrel
  * @description Re-exports command types + contract. Zero logic.
  */
+
+export { contract } from "./contract.js";
 export {
-	commandSlots,
-	commandStateTokens,
-	commandSlotStates,
 	type CommandSlot,
 	type CommandState,
+	commandSlotStates,
+	commandSlots,
+	commandStateTokens,
 } from "./types.js";
-export { contract } from "./contract.js";

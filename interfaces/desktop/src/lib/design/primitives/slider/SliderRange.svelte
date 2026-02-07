@@ -4,12 +4,12 @@
 	Contract: kind="slider", slot="range", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { SliderRangeProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { SliderRangeProps } from "./types.js";
 
-	let { children, class: className, ...rest }: SliderRangeProps = $props();
+let { children, class: className, ...rest }: SliderRangeProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SliderRange");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SliderRange");
 </script>
 
 <div

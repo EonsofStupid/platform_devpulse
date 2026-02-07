@@ -4,15 +4,15 @@
  *
  * ariaStateProvider: "coldlight" — Native <button> handles ARIA.
  * No dsAdapter factory required. 2-folder parity: taxonomy + primitive.
+ *
+ * Reference: W3C WAI-ARIA APG Button Pattern
+ * https://www.w3.org/WAI/ARIA/apg/patterns/button/
  */
 
-import type { PrimitiveContract } from "../../../types.js";
-import { buttonSlotStates, type ButtonSlot, type ButtonState } from "./types.js";
+import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { buttonSlotStates } from "./types.js";
 
-// ─── CONTRACT ───────────────────────────────────────────────────────────────
-
-/** Button primitive contract — ColdLight SSOT */
-export const contract: PrimitiveContract<"button", ButtonSlot, ButtonState> = {
+const rawContract = {
 	kind: "button",
 	ariaStateProvider: "coldlight",
 	slots: {
@@ -24,7 +24,21 @@ export const contract: PrimitiveContract<"button", ButtonSlot, ButtonState> = {
 		root: {
 			element: "button",
 			children: "snippet",
-			aria: { role: "button", required: [], optional: ["aria-pressed", "aria-disabled", "aria-busy", "aria-expanded", "aria-haspopup", "aria-controls", "aria-label", "aria-labelledby", "aria-describedby"] },
+			aria: {
+				role: "button",
+				required: [],
+				optional: [
+					"aria-pressed",
+					"aria-disabled",
+					"aria-busy",
+					"aria-expanded",
+					"aria-haspopup",
+					"aria-controls",
+					"aria-label",
+					"aria-labelledby",
+					"aria-describedby",
+				],
+			},
 		},
 		icon: {
 			element: "span",
@@ -63,6 +77,24 @@ export const contract: PrimitiveContract<"button", ButtonSlot, ButtonState> = {
 		],
 	},
 	keyboard: ["Enter", "Space"],
+	keyboardMap: [
+		{
+			orientation: "both",
+			focusLocation: "root",
+			key: "Enter",
+			action: "activate",
+			required: true,
+		},
+		{
+			orientation: "both",
+			focusLocation: "root",
+			key: "Space",
+			action: "activate",
+			required: true,
+		},
+	],
 	focusStrategy: "none",
 	compound: false,
-};
+} as const;
+
+export const contract: PrimitiveContract = parseContract(rawContract);

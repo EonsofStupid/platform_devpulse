@@ -4,12 +4,12 @@
 	Contract: kind="combobox", slot="trigger", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { ComboboxTriggerProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { ComboboxTriggerProps } from "./types.js";
 
-	let { children, class: className, ...rest }: ComboboxTriggerProps = $props();
+let { children, class: className, ...rest }: ComboboxTriggerProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ComboboxTrigger");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ComboboxTrigger");
 </script>
 
 <button

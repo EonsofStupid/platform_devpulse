@@ -4,19 +4,19 @@
 	Contract: kind="tabs", slot="root"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { TabsProps } from "./types.js";
-	import { setTabsContext } from "./context.js";
+import { cn, stripStyleProp } from "../types.js";
+import { setTabsContext } from "./context.js";
+import type { TabsProps } from "./types.js";
 
-	let { value = $bindable(""), children, class: className, ...rest }: TabsProps = $props();
+let { value = $bindable(""), children, class: className, ...rest }: TabsProps = $props();
 
-	setTabsContext({
-		get value() {
-			return value;
-		},
-	});
+setTabsContext({
+	get value() {
+		return value;
+	},
+});
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "Tabs");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "Tabs");
 </script>
 
 <div

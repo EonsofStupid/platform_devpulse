@@ -4,12 +4,12 @@
 	Contract: kind="dropdown-menu", slot="group", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { DropdownMenuGroupProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { DropdownMenuGroupProps } from "./types.js";
 
-	let { children, class: className, ...rest }: DropdownMenuGroupProps = $props();
+let { children, class: className, ...rest }: DropdownMenuGroupProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "DropdownMenuGroup");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "DropdownMenuGroup");
 </script>
 
 <div

@@ -17,17 +17,17 @@ export const VERSION = "0.1.0" as const;
 // =============================================================================
 
 export const FEATURES = {
-  oklch: true,
-  glass: true,
-  particles: true,
-  motion: true,
-  reducedMotion: true,
-  darkMode: true,
-  lightMode: false,
-  highContrast: false,
-  rtl: false,
-  strictValidation: true,
-  devWarnings: true,
+	oklch: true,
+	glass: true,
+	particles: true,
+	motion: true,
+	reducedMotion: true,
+	darkMode: true,
+	lightMode: false,
+	highContrast: false,
+	rtl: false,
+	strictValidation: true,
+	devWarnings: true,
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURES;
@@ -40,9 +40,9 @@ export const SURFACES = ["glass", "matte", "solid"] as const;
 export type Surface = (typeof SURFACES)[number];
 
 export const SURFACE_VARIANTS = {
-  glass: ["void", "deep", "smoke", "frost"] as const,
-  matte: ["charcoal", "slate", "graphite"] as const,
-  solid: ["primary", "secondary", "accent"] as const,
+	glass: ["void", "deep", "smoke", "frost"] as const,
+	matte: ["charcoal", "slate", "graphite"] as const,
+	solid: ["primary", "secondary", "accent"] as const,
 } as const;
 
 export type GlassVariant = (typeof SURFACE_VARIANTS.glass)[number];
@@ -57,22 +57,22 @@ export type SurfaceRole = (typeof SURFACE_ROLES)[number];
 // =============================================================================
 
 export const PRIMITIVE_STATES = [
-  "open",
-  "closed",
-  "checked",
-  "unchecked",
-  "indeterminate",
-  "active",
-  "inactive",
-  "on",
-  "off",
-  "pressed",
-  "loading",
-  "disabled",
-  "focused",
-  "selected",
-  "expanded",
-  "collapsed",
+	"open",
+	"closed",
+	"checked",
+	"unchecked",
+	"indeterminate",
+	"active",
+	"inactive",
+	"on",
+	"off",
+	"pressed",
+	"loading",
+	"disabled",
+	"focused",
+	"selected",
+	"expanded",
+	"collapsed",
 ] as const;
 
 export type PrimitiveState = (typeof PRIMITIVE_STATES)[number];

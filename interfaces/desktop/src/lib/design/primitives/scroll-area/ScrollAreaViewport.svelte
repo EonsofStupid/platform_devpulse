@@ -4,12 +4,12 @@
 	Contract: kind="scroll-area", slot="viewport"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { ScrollAreaViewportProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { ScrollAreaViewportProps } from "./types.js";
 
-	let { children, class: className, ...rest }: ScrollAreaViewportProps = $props();
+let { children, class: className, ...rest }: ScrollAreaViewportProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ScrollAreaViewport");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ScrollAreaViewport");
 </script>
 
 <div

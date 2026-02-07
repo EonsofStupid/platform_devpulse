@@ -7,22 +7,22 @@
  */
 
 import type { Snippet } from "svelte";
-import type { HTMLButtonAttributes, HTMLAttributes } from "svelte/elements";
+import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
 
 // ============================================
 // ALERT DIALOG SLOTS
 // ============================================
 
 export const AlertDialogSlots = [
-  "root",
-  "trigger",
-  "portal",
-  "overlay",
-  "content",
-  "title",
-  "description",
-  "action",
-  "cancel",
+	"root",
+	"trigger",
+	"portal",
+	"overlay",
+	"content",
+	"title",
+	"description",
+	"action",
+	"cancel",
 ] as const;
 
 export type AlertDialogSlot = (typeof AlertDialogSlots)[number];
@@ -38,14 +38,14 @@ export type AlertDialogState = "open" | "closed";
 // ============================================
 
 export interface AlertDialogRootProps {
-  /** Controlled open state (bindable) */
-  open?: boolean;
-  /** Callback when open state changes */
-  onOpenChange?: (open: boolean) => void;
-  /** Children (Trigger, Portal) */
-  children?: Snippet;
-  /** User-defined stable ID */
-  "data-id"?: string;
+	/** Controlled open state (bindable) */
+	open?: boolean;
+	/** Callback when open state changes */
+	onOpenChange?: (open: boolean) => void;
+	/** Children (Trigger, Portal) */
+	children?: Snippet;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
@@ -53,10 +53,10 @@ export interface AlertDialogRootProps {
 // ============================================
 
 export interface AlertDialogTriggerProps extends Omit<HTMLButtonAttributes, "style" | "children"> {
-  /** Button content */
-  children?: Snippet;
-  /** User-defined stable ID */
-  "data-id"?: string;
+	/** Button content */
+	children?: Snippet;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
@@ -64,75 +64,79 @@ export interface AlertDialogTriggerProps extends Omit<HTMLButtonAttributes, "sty
 // ============================================
 
 export interface AlertDialogPortalProps {
-  /** Portal target selector or element (default: body) */
-  to?: string | HTMLElement;
-  /** Disable portal rendering */
-  disabled?: boolean;
-  /** Children (Overlay, Content) */
-  children?: Snippet;
-  /** User-defined stable ID */
-  "data-id"?: string;
+	/** Portal target selector or element (default: body) */
+	to?: string | HTMLElement;
+	/** Disable portal rendering */
+	disabled?: boolean;
+	/** Children (Overlay, Content) */
+	children?: Snippet;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
 // OVERLAY PROPS
 // ============================================
 
-export interface AlertDialogOverlayProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
-  /** Snippet receives { open } for animations */
-  children?: Snippet<[{ open: boolean }]>;
-  /** User-defined stable ID */
-  "data-id"?: string;
+export interface AlertDialogOverlayProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
+	/** Snippet receives { open } for animations */
+	children?: Snippet<[{ open: boolean }]>;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
 // CONTENT PROPS
 // ============================================
 
-export interface AlertDialogContentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
-  /** Snippet receives { open } for animations */
-  children?: Snippet<[{ open: boolean }]> | Snippet;
-  /**
-   * Close on escape key (default: true)
-   * Note: Consider setting to false for critical confirmations
-   */
-  closeOnEscape?: boolean;
-  /**
-   * Behavior when interacting outside (default: "ignore")
-   * CRITICAL: AlertDialog defaults to "ignore" unlike Dialog
-   * This forces explicit user action (Action or Cancel button)
-   */
-  interactOutsideBehavior?: "close" | "ignore";
-  /** Trap focus inside alert dialog (default: true) */
-  trapFocus?: boolean;
-  /** Prevent body scroll (default: true) */
-  preventScroll?: boolean;
-  /** User-defined stable ID */
-  "data-id"?: string;
+export interface AlertDialogContentProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
+	/** Snippet receives { open } for animations */
+	children?: Snippet<[{ open: boolean }]> | Snippet;
+	/**
+	 * Close on escape key (default: true)
+	 * Note: Consider setting to false for critical confirmations
+	 */
+	closeOnEscape?: boolean;
+	/**
+	 * Behavior when interacting outside (default: "ignore")
+	 * CRITICAL: AlertDialog defaults to "ignore" unlike Dialog
+	 * This forces explicit user action (Action or Cancel button)
+	 */
+	interactOutsideBehavior?: "close" | "ignore";
+	/** Trap focus inside alert dialog (default: true) */
+	trapFocus?: boolean;
+	/** Prevent body scroll (default: true) */
+	preventScroll?: boolean;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
 // TITLE PROPS
 // ============================================
 
-export interface AlertDialogTitleProps extends Omit<HTMLAttributes<HTMLHeadingElement>, "style" | "children"> {
-  /** Heading level 1-6 (default: 2) */
-  level?: 1 | 2 | 3 | 4 | 5 | 6;
-  /** Title content */
-  children?: Snippet;
-  /** User-defined stable ID */
-  "data-id"?: string;
+export interface AlertDialogTitleProps
+	extends Omit<HTMLAttributes<HTMLHeadingElement>, "style" | "children"> {
+	/** Heading level 1-6 (default: 2) */
+	level?: 1 | 2 | 3 | 4 | 5 | 6;
+	/** Title content */
+	children?: Snippet;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
 // DESCRIPTION PROPS
 // ============================================
 
-export interface AlertDialogDescriptionProps extends Omit<HTMLAttributes<HTMLParagraphElement>, "style" | "children"> {
-  /** Description content */
-  children?: Snippet;
-  /** User-defined stable ID */
-  "data-id"?: string;
+export interface AlertDialogDescriptionProps
+	extends Omit<HTMLAttributes<HTMLParagraphElement>, "style" | "children"> {
+	/** Description content */
+	children?: Snippet;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
@@ -145,10 +149,10 @@ export interface AlertDialogDescriptionProps extends Omit<HTMLAttributes<HTMLPar
  * The consumer is responsible for closing the dialog after the action.
  */
 export interface AlertDialogActionProps extends Omit<HTMLButtonAttributes, "style" | "children"> {
-  /** Button content */
-  children?: Snippet;
-  /** User-defined stable ID */
-  "data-id"?: string;
+	/** Button content */
+	children?: Snippet;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
@@ -160,8 +164,8 @@ export interface AlertDialogActionProps extends Omit<HTMLButtonAttributes, "styl
  * Used for aborting the action (Cancel, Nevermind, etc.)
  */
 export interface AlertDialogCancelProps extends Omit<HTMLButtonAttributes, "style" | "children"> {
-  /** Button content */
-  children?: Snippet;
-  /** User-defined stable ID */
-  "data-id"?: string;
+	/** Button content */
+	children?: Snippet;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }

@@ -32,7 +32,7 @@ const __dirname = path.dirname(__filename);
  * Convert Windows paths to POSIX format for TypeDoc compatibility
  */
 function toPosix(p: string): string {
-  return p.replace(/\\/g, "/");
+	return p.replace(/\\/g, "/");
 }
 
 // ============================================================================
@@ -45,44 +45,35 @@ const TYPEDOC_OUTPUT = toPosix(path.join(OUTPUT_DIR, "typedoc"));
 const TYPEDOC_JSON = toPosix(path.join(OUTPUT_DIR, "api.json"));
 
 // Exports to skip (config files that cause TypeDoc issues)
-const SKIP_EXPORTS = new Set([
-  "./config",
-  "./vite-plugin",
-  "./tailwind-preset",
-]);
+const SKIP_EXPORTS = new Set(["./config", "./vite-plugin", "./tailwind-preset"]);
 
 // File patterns to exclude
-const EXCLUDE_PATTERNS = [
-  "**/node_modules/**",
-  "**/.cowlevel/**",
-  "**/*.test.ts",
-  "**/*.spec.ts",
-];
+const EXCLUDE_PATTERNS = ["**/node_modules/**", "**/.cowlevel/**", "**/*.test.ts", "**/*.spec.ts"];
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface PackageJson {
-  name: string;
-  version: string;
-  description?: string;
-  exports?: Record<string, ExportEntry | string>;
+	name: string;
+	version: string;
+	description?: string;
+	exports?: Record<string, ExportEntry | string>;
 }
 
 type ExportEntry =
-  | {
-      types?: string;
-      import?: string;
-      svelte?: string;
-      default?: string;
-    }
-  | string;
+	| {
+			types?: string;
+			import?: string;
+			svelte?: string;
+			default?: string;
+	  }
+	| string;
 
 interface EntryPoint {
-  name: string;
-  relativePath: string;
-  absolutePath: string;
+	name: string;
+	relativePath: string;
+	absolutePath: string;
 }
 
 // ============================================================================
@@ -90,140 +81,119 @@ interface EntryPoint {
 // ============================================================================
 
 function readPackageJson(): PackageJson {
-  const pkgPath = path.join(COLDLIGHT_ROOT, "package.json");
-  if (!fs.existsSync(pkgPath)) {
-    throw new Error(`package.json not found: ${pkgPath}`);
-  }
-  return JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
+	const pkgPath = path.join(COLDLIGHT_ROOT, "package.json");
+	if (!fs.existsSync(pkgPath)) {
+		throw new Error(`package.json not found: ${pkgPath}`);
+	}
+	return JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
 }
 
 function extractEntryPoints(pkg: PackageJson): EntryPoint[] {
-  const exports = pkg.exports;
-  if (!exports) {
-    console.warn("⚠️  No exports map, using index.ts");
-    const absPath = toPosix(path.join(COLDLIGHT_ROOT, "index.ts"));
-    return [{ name: ".", relativePath: "./index.ts", absolutePath: absPath }];
-  }
+	const exports = pkg.exports;
+	if (!exports) {
+		console.warn("⚠️  No exports map, using index.ts");
+		const absPath = toPosix(path.join(COLDLIGHT_ROOT, "index.ts"));
+		return [{ name: ".", relativePath: "./index.ts", absolutePath: absPath }];
+	}
 
-  const entries: EntryPoint[] = [];
+	const entries: EntryPoint[] = [];
 
-  for (const [name, value] of Object.entries(exports)) {
-    // Skip config exports
-    if (SKIP_EXPORTS.has(name)) {
-      console.log(`⏭️  Skip: ${name} (config)`);
-      continue;
-    }
+	for (const [name, value] of Object.entries(exports)) {
+		// Skip config exports
+		if (SKIP_EXPORTS.has(name)) {
+			continue;
+		}
 
-    // Extract import path
-    let importPath: string | undefined;
-    if (typeof value === "string") {
-      importPath = value;
-    } else if (value && typeof value === "object") {
-      importPath = value.import || value.svelte || value.default;
-    }
+		// Extract import path
+		let importPath: string | undefined;
+		if (typeof value === "string") {
+			importPath = value;
+		} else if (value && typeof value === "object") {
+			importPath = value.import || value.svelte || value.default;
+		}
 
-    if (!importPath) continue;
+		if (!importPath) continue;
 
-    // Skip non-TS and .d.ts files
-    if (!importPath.endsWith(".ts") || importPath.endsWith(".d.ts")) {
-      console.log(`⏭️  Skip: ${name} → ${importPath} (not TS source)`);
-      continue;
-    }
+		// Skip non-TS and .d.ts files
+		if (!importPath.endsWith(".ts") || importPath.endsWith(".d.ts")) {
+			continue;
+		}
 
-    const absolutePath = toPosix(path.resolve(COLDLIGHT_ROOT, importPath));
+		const absolutePath = toPosix(path.resolve(COLDLIGHT_ROOT, importPath));
 
-    // Verify exists
-    if (!fs.existsSync(absolutePath)) {
-      console.warn(`⚠️  Missing: ${absolutePath}`);
-      continue;
-    }
+		// Verify exists
+		if (!fs.existsSync(absolutePath)) {
+			console.warn(`⚠️  Missing: ${absolutePath}`);
+			continue;
+		}
 
-    entries.push({ name, relativePath: importPath, absolutePath });
-    console.log(`✅ Entry: ${name} → ${importPath}`);
-  }
+		entries.push({ name, relativePath: importPath, absolutePath });
+	}
 
-  return entries;
+	return entries;
 }
 
 function ensureDir(dir: string): void {
-  const winPath = dir.replace(/\//g, path.sep);
-  if (!fs.existsSync(winPath)) {
-    fs.mkdirSync(winPath, { recursive: true });
-    console.log(`📁 Created: ${dir}`);
-  }
+	const winPath = dir.replace(/\//g, path.sep);
+	if (!fs.existsSync(winPath)) {
+		fs.mkdirSync(winPath, { recursive: true });
+	}
 }
 
 function generateConfig(pkg: PackageJson, entries: EntryPoint[]): object {
-  return {
-    $schema: "https://typedoc.org/schema.json",
-    entryPoints: entries.map((e) => e.absolutePath),
-    entryPointStrategy: "expand",
-    out: TYPEDOC_OUTPUT,
-    json: TYPEDOC_JSON,
-    name: pkg.name,
-    includeVersion: true,
-    excludePrivate: true,
-    excludeInternal: true,
-    exclude: EXCLUDE_PATTERNS,
-    skipErrorChecking: true,
-    readme: toPosix(path.join(COLDLIGHT_ROOT, "README.md")),
-    validation: {
-      notExported: false,
-      invalidLink: true,
-      notDocumented: false,
-    },
-    categorizeByGroup: true,
-    categoryOrder: [
-      "Tokens",
-      "Taxonomy",
-      "Recipes",
-      "Primitives",
-      "Patterns",
-      "Blocks",
-      "*",
-    ],
-    sort: ["source-order"],
-  };
+	return {
+		$schema: "https://typedoc.org/schema.json",
+		entryPoints: entries.map((e) => e.absolutePath),
+		entryPointStrategy: "expand",
+		out: TYPEDOC_OUTPUT,
+		json: TYPEDOC_JSON,
+		name: pkg.name,
+		includeVersion: true,
+		excludePrivate: true,
+		excludeInternal: true,
+		exclude: EXCLUDE_PATTERNS,
+		skipErrorChecking: true,
+		readme: toPosix(path.join(COLDLIGHT_ROOT, "README.md")),
+		validation: {
+			notExported: false,
+			invalidLink: true,
+			notDocumented: false,
+		},
+		categorizeByGroup: true,
+		categoryOrder: ["Tokens", "Taxonomy", "Recipes", "Primitives", "Patterns", "Blocks", "*"],
+		sort: ["source-order"],
+	};
 }
 
 function runTypedoc(config: object): void {
-  const configPath = toPosix(path.join(OUTPUT_DIR, "typedoc.config.json"));
-  const winConfigPath = configPath.replace(/\//g, path.sep);
+	const configPath = toPosix(path.join(OUTPUT_DIR, "typedoc.config.json"));
+	const winConfigPath = configPath.replace(/\//g, path.sep);
 
-  fs.writeFileSync(winConfigPath, JSON.stringify(config, null, 2));
-  console.log(`📝 Config: ${configPath}`);
+	fs.writeFileSync(winConfigPath, JSON.stringify(config, null, 2));
 
-  try {
-    console.log("\n🚀 Running TypeDoc...\n");
-    // Use POSIX path in the command for TypeDoc
-    execSync(`npx typedoc --options "${configPath}"`, {
-      cwd: COLDLIGHT_ROOT.replace(/\//g, path.sep),
-      stdio: "inherit",
-    });
-    console.log("\n✅ Success!");
-    console.log(`   📂 ${TYPEDOC_OUTPUT}`);
-    console.log(`   📄 ${TYPEDOC_JSON}`);
-  } catch {
-    console.error("\n❌ TypeDoc failed");
-    process.exit(1);
-  }
+	try {
+		// Use POSIX path in the command for TypeDoc
+		execSync(`npx typedoc --options "${configPath}"`, {
+			cwd: COLDLIGHT_ROOT.replace(/\//g, path.sep),
+			stdio: "inherit",
+		});
+	} catch {
+		console.error("\n❌ TypeDoc failed");
+		process.exit(1);
+	}
 }
 
 function writeManifest(pkg: PackageJson, entries: EntryPoint[]): void {
-  const manifest = {
-    generatedAt: new Date().toISOString(),
-    package: pkg.name,
-    version: pkg.version,
-    entryPoints: entries.map((e) => ({ export: e.name, file: e.relativePath })),
-    outputs: { html: TYPEDOC_OUTPUT, json: TYPEDOC_JSON },
-  };
+	const manifest = {
+		generatedAt: new Date().toISOString(),
+		package: pkg.name,
+		version: pkg.version,
+		entryPoints: entries.map((e) => ({ export: e.name, file: e.relativePath })),
+		outputs: { html: TYPEDOC_OUTPUT, json: TYPEDOC_JSON },
+	};
 
-  const manifestPath = path.join(
-    OUTPUT_DIR.replace(/\//g, path.sep),
-    "manifest.json",
-  );
-  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
-  console.log(`📋 Manifest: ${toPosix(manifestPath)}`);
+	const manifestPath = path.join(OUTPUT_DIR.replace(/\//g, path.sep), "manifest.json");
+	fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
 }
 
 // ============================================================================
@@ -231,26 +201,18 @@ function writeManifest(pkg: PackageJson, entries: EntryPoint[]): void {
 // ============================================================================
 
 function main(): void {
-  console.log("\n╔═══════════════════════════════════════════════════╗");
-  console.log("║  ColdLight Doc Generator                          ║");
-  console.log("╚═══════════════════════════════════════════════════╝\n");
+	const pkg = readPackageJson();
 
-  const pkg = readPackageJson();
-  console.log(`📦 ${pkg.name}@${pkg.version}\n`);
+	const entries = extractEntryPoints(pkg);
+	if (entries.length === 0) {
+		console.error("❌ No entry points found");
+		process.exit(1);
+	}
 
-  const entries = extractEntryPoints(pkg);
-  if (entries.length === 0) {
-    console.error("❌ No entry points found");
-    process.exit(1);
-  }
-  console.log(`\n📊 ${entries.length} entry points\n`);
-
-  ensureDir(OUTPUT_DIR);
-  const config = generateConfig(pkg, entries);
-  runTypedoc(config);
-  writeManifest(pkg, entries);
-
-  console.log("\n🎉 Done\n");
+	ensureDir(OUTPUT_DIR);
+	const config = generateConfig(pkg, entries);
+	runTypedoc(config);
+	writeManifest(pkg, entries);
 }
 
 main();

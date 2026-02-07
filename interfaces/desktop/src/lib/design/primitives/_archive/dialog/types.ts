@@ -6,21 +6,21 @@
  */
 
 import type { Snippet } from "svelte";
-import type { HTMLButtonAttributes, HTMLAttributes } from "svelte/elements";
+import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
 
 // ============================================
 // DIALOG SLOTS
 // ============================================
 
 export const DialogSlots = [
-  "root",
-  "trigger",
-  "portal",
-  "overlay",
-  "content",
-  "title",
-  "description",
-  "close",
+	"root",
+	"trigger",
+	"portal",
+	"overlay",
+	"content",
+	"title",
+	"description",
+	"close",
 ] as const;
 
 export type DialogSlot = (typeof DialogSlots)[number];
@@ -40,14 +40,14 @@ export type DialogState = "open" | "closed";
  * ColdLight owns ALL IDs - meltui is NOT used for ID generation.
  */
 export interface DialogContext {
-  /** ID for the Content element - used for aria-controls on Trigger */
-  contentId: string;
-  /** ID for the Title element - used for aria-labelledby on Content */
-  titleId: string;
-  /** ID for the Description element - used for aria-describedby on Content */
-  descriptionId: string;
-  /** Current open state - shared for aria-expanded on Trigger */
-  open: () => boolean;
+	/** ID for the Content element - used for aria-controls on Trigger */
+	contentId: string;
+	/** ID for the Title element - used for aria-labelledby on Content */
+	titleId: string;
+	/** ID for the Description element - used for aria-describedby on Content */
+	descriptionId: string;
+	/** Current open state - shared for aria-expanded on Trigger */
+	open: () => boolean;
 }
 
 /** Context key for Dialog ID sharing */
@@ -58,14 +58,14 @@ export const DIALOG_CONTEXT_KEY = "coldlight-dialog-ids";
 // ============================================
 
 export interface DialogRootProps {
-  /** Controlled open state (bindable) */
-  open?: boolean;
-  /** Callback when open state changes */
-  onOpenChange?: (open: boolean) => void;
-  /** Children (Trigger, Portal) */
-  children?: Snippet;
-  /** User-defined stable ID */
-  "data-id"?: string;
+	/** Controlled open state (bindable) */
+	open?: boolean;
+	/** Callback when open state changes */
+	onOpenChange?: (open: boolean) => void;
+	/** Children (Trigger, Portal) */
+	children?: Snippet;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
@@ -73,10 +73,10 @@ export interface DialogRootProps {
 // ============================================
 
 export interface DialogTriggerProps extends Omit<HTMLButtonAttributes, "style" | "children"> {
-  /** Button content */
-  children?: Snippet;
-  /** User-defined stable ID */
-  "data-id"?: string;
+	/** Button content */
+	children?: Snippet;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
@@ -84,68 +84,72 @@ export interface DialogTriggerProps extends Omit<HTMLButtonAttributes, "style" |
 // ============================================
 
 export interface DialogPortalProps {
-  /** Portal target selector or element (default: body) */
-  to?: string | HTMLElement;
-  /** Disable portal rendering */
-  disabled?: boolean;
-  /** Children (Overlay, Content) */
-  children?: Snippet;
-  /** User-defined stable ID */
-  "data-id"?: string;
+	/** Portal target selector or element (default: body) */
+	to?: string | HTMLElement;
+	/** Disable portal rendering */
+	disabled?: boolean;
+	/** Children (Overlay, Content) */
+	children?: Snippet;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
 // OVERLAY PROPS
 // ============================================
 
-export interface DialogOverlayProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
-  /** Snippet receives { open } for animations */
-  children?: Snippet<[{ open: boolean }]>;
-  /** User-defined stable ID */
-  "data-id"?: string;
+export interface DialogOverlayProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
+	/** Snippet receives { open } for animations */
+	children?: Snippet<[{ open: boolean }]>;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
 // CONTENT PROPS
 // ============================================
 
-export interface DialogContentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
-  /** Snippet receives { open } for animations */
-  children?: Snippet<[{ open: boolean }]> | Snippet;
-  /** Close on escape key (default: true) */
-  closeOnEscape?: boolean;
-  /** Close on click outside (default: true) */
-  closeOnOutsideClick?: boolean;
-  /** Trap focus inside dialog (default: true) */
-  trapFocus?: boolean;
-  /** Prevent body scroll (default: true) */
-  preventScroll?: boolean;
-  /** User-defined stable ID */
-  "data-id"?: string;
+export interface DialogContentProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
+	/** Snippet receives { open } for animations */
+	children?: Snippet<[{ open: boolean }]> | Snippet;
+	/** Close on escape key (default: true) */
+	closeOnEscape?: boolean;
+	/** Close on click outside (default: true) */
+	closeOnOutsideClick?: boolean;
+	/** Trap focus inside dialog (default: true) */
+	trapFocus?: boolean;
+	/** Prevent body scroll (default: true) */
+	preventScroll?: boolean;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
 // TITLE PROPS
 // ============================================
 
-export interface DialogTitleProps extends Omit<HTMLAttributes<HTMLHeadingElement>, "style" | "children"> {
-  /** Heading level 1-6 (default: 2) */
-  level?: 1 | 2 | 3 | 4 | 5 | 6;
-  /** Title content */
-  children?: Snippet;
-  /** User-defined stable ID */
-  "data-id"?: string;
+export interface DialogTitleProps
+	extends Omit<HTMLAttributes<HTMLHeadingElement>, "style" | "children"> {
+	/** Heading level 1-6 (default: 2) */
+	level?: 1 | 2 | 3 | 4 | 5 | 6;
+	/** Title content */
+	children?: Snippet;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
 // DESCRIPTION PROPS
 // ============================================
 
-export interface DialogDescriptionProps extends Omit<HTMLAttributes<HTMLParagraphElement>, "style" | "children"> {
-  /** Description content */
-  children?: Snippet;
-  /** User-defined stable ID */
-  "data-id"?: string;
+export interface DialogDescriptionProps
+	extends Omit<HTMLAttributes<HTMLParagraphElement>, "style" | "children"> {
+	/** Description content */
+	children?: Snippet;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
@@ -153,8 +157,8 @@ export interface DialogDescriptionProps extends Omit<HTMLAttributes<HTMLParagrap
 // ============================================
 
 export interface DialogCloseProps extends Omit<HTMLButtonAttributes, "style" | "children"> {
-  /** Button content */
-  children?: Snippet;
-  /** User-defined stable ID */
-  "data-id"?: string;
+	/** Button content */
+	children?: Snippet;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }

@@ -16,19 +16,19 @@
   - data-value="{value}"
 -->
 <script lang="ts">
-	import { Tabs } from "meltui";
-	import type { TabsContentProps, TabsState } from "./types.js";
-	import { stripStyleProp, cn } from "../types.js";
+import { Tabs } from "meltui";
+import { cn, stripStyleProp } from "../types.js";
+import type { TabsContentProps, TabsState } from "./types.js";
 
-	let {
-		value,
-		children,
-		class: className = "",
-		"data-id": dataId,
-		...rest
-	}: TabsContentProps = $props();
+let {
+	value,
+	children,
+	class: className = "",
+	"data-id": dataId,
+	...rest
+}: TabsContentProps = $props();
 
-	stripStyleProp(rest, "Tabs.Content");
+stripStyleProp(rest, "Tabs.Content");
 </script>
 
 <Tabs.Content {value} {...rest}>

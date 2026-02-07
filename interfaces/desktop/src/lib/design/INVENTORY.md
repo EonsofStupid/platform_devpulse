@@ -1,4 +1,4 @@
-﻿# COLDLIGHT MASTER INVENTORY
+# COLDLIGHT MASTER INVENTORY
 
 > **Created:** 2026-01-30
 > **Purpose:** Track every file, flag issues, fix one by one

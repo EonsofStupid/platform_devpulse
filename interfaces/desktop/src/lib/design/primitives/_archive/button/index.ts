@@ -9,5 +9,5 @@
 export { default as Button } from "./Button.svelte";
 
 // Types
-export type { ButtonProps, ButtonState, ButtonSlot } from "./types.js";
+export type { ButtonProps, ButtonSlot, ButtonState } from "./types.js";
 export { ButtonSlots } from "./types.js";

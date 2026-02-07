@@ -4,12 +4,12 @@
 	Contract: kind="slider", slot="track", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { SliderTrackProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { SliderTrackProps } from "./types.js";
 
-	let { children, class: className, ...rest }: SliderTrackProps = $props();
+let { children, class: className, ...rest }: SliderTrackProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SliderTrack");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SliderTrack");
 </script>
 
 <div

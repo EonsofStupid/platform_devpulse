@@ -4,16 +4,16 @@
 	Contract: kind="popover", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import type { PopoverProps } from "./types.js";
-	import { setPopoverContext } from "./context.js";
+import { setPopoverContext } from "./context.js";
+import type { PopoverProps } from "./types.js";
 
-	let { open = $bindable(false), children }: PopoverProps = $props();
+let { open = $bindable(false), children }: PopoverProps = $props();
 
-	setPopoverContext({
-		get open() {
-			return open;
-		},
-	});
+setPopoverContext({
+	get open() {
+		return open;
+	},
+});
 </script>
 
 {@render children?.()}

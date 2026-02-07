@@ -11,17 +11,17 @@
  */
 
 import type {
-	ARIA_ROLES,
 	ARIA_ATTRIBUTES,
-	KEYBOARD_KEYS,
-	STATE_TOKENS,
-	SLOT_ACTIONS,
+	ARIA_ROLES,
 	ARIA_STATE_PROVIDERS,
-	SCAN_ERROR_CODES,
-	HTML_ELEMENTS,
 	FOCUS_STRATEGIES,
-	SLOT_CHILDREN_MODES,
+	HTML_ELEMENTS,
+	KEYBOARD_KEYS,
 	ORIENTATIONS,
+	SCAN_ERROR_CODES,
+	SLOT_ACTIONS,
+	SLOT_CHILDREN_MODES,
+	STATE_TOKENS,
 } from "../config/coldlight/vocabularies.cfg.js";
 
 // =============================================================================
@@ -90,10 +90,10 @@ export interface AriaRequirements {
  * Maps each slot to its allowed states.
  * Ensures type safety between slot names and their valid states.
  */
-export type SlotStateMap<
-	TSlot extends string,
-	TState extends StateToken,
-> = Record<TSlot, readonly TState[]>;
+export type SlotStateMap<TSlot extends string, TState extends StateToken> = Record<
+	TSlot,
+	readonly TState[]
+>;
 
 // =============================================================================
 // SLOT SPECIFICATION — per-slot structural + accessibility spec

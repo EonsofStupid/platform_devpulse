@@ -4,12 +4,12 @@
 	Contract: kind="dropdown-menu", slot="sub-trigger", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { DropdownMenuSubTriggerProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { DropdownMenuSubTriggerProps } from "./types.js";
 
-	let { children, class: className, ...rest }: DropdownMenuSubTriggerProps = $props();
+let { children, class: className, ...rest }: DropdownMenuSubTriggerProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "DropdownMenuSubTrigger");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "DropdownMenuSubTrigger");
 </script>
 
 <div

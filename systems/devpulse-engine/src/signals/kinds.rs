@@ -17,7 +17,7 @@ pub enum SinkKind {
     Vector,
     /// Parking lot (deferred processing)
     Parking,
-    /// Analytics pipeline (DuckDB)
+    /// Analytics pipeline (`DuckDB`)
     Analytics,
 }
 

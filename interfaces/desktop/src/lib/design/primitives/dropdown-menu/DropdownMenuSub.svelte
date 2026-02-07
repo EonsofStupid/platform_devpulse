@@ -4,9 +4,9 @@
 	Contract: kind="dropdown-menu", slot="sub", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import type { DropdownMenuSubProps } from "./types.js";
+import type { DropdownMenuSubProps } from "./types.js";
 
-	let { children }: DropdownMenuSubProps = $props();
+let { children }: DropdownMenuSubProps = $props();
 </script>
 
 {@render children?.()}

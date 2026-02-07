@@ -4,19 +4,19 @@
 	Contract: kind="navigation-menu", slot="root", ariaStateProvider="coldlight"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { NavigationMenuProps } from "./types.js";
-	import { setNavigationMenuContext } from "./context.js";
+import { cn, stripStyleProp } from "../types.js";
+import { setNavigationMenuContext } from "./context.js";
+import type { NavigationMenuProps } from "./types.js";
 
-	let { value = $bindable(""), children, class: className, ...rest }: NavigationMenuProps = $props();
+let { value = $bindable(""), children, class: className, ...rest }: NavigationMenuProps = $props();
 
-	setNavigationMenuContext({
-		get value() {
-			return value;
-		},
-	});
+setNavigationMenuContext({
+	get value() {
+		return value;
+	},
+});
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "NavigationMenu");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "NavigationMenu");
 </script>
 
 <nav

@@ -4,12 +4,12 @@
 	Contract: kind="progress", slot="indicator", ariaStateProvider="coldlight"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { ProgressIndicatorProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { ProgressIndicatorProps } from "./types.js";
 
-	let { children, class: className, ...rest }: ProgressIndicatorProps = $props();
+let { children, class: className, ...rest }: ProgressIndicatorProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ProgressIndicator");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ProgressIndicator");
 </script>
 
 <div

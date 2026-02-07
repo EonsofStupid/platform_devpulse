@@ -18,7 +18,7 @@
 
 **Current Problem:** Engine initializes Analytics, so Desktop opens DuckDB and locks it.
 
-**Solution:** Remove Analytics from Engine. Lab owns DuckDB exclusively.
+**Solution:** Wrong.  DuckDB is installed in both lab and engine. Libpsql is also to be installed and configured for user data.  Kernel maestro is sensitive ip and we have devtools featureflagged that will be able to process the actual signals.  We have a one to one mapping to engine that is our facade so it still provides useful just not our exact IP methods and unique ideas and designs.  
 
 ### 1.1 Engine::init() takes mode parameter
 

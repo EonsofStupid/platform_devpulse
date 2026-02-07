@@ -7,26 +7,26 @@
  */
 
 import type { Snippet } from "svelte";
-import type { HTMLButtonAttributes, HTMLAttributes } from "svelte/elements";
+import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
 
 // ============================================
 // SELECT SLOTS
 // ============================================
 
 export const SelectSlots = [
-  "root",
-  "trigger",
-  "portal",
-  "content",
-  "viewport",
-  "item",
-  "item-text",
-  "item-group",
-  "group-label",
-  "separator",
-  "scroll-up",
-  "scroll-down",
-  "arrow",
+	"root",
+	"trigger",
+	"portal",
+	"content",
+	"viewport",
+	"item",
+	"item-text",
+	"item-group",
+	"group-label",
+	"separator",
+	"scroll-up",
+	"scroll-down",
+	"arrow",
 ] as const;
 
 export type SelectSlot = (typeof SelectSlots)[number];
@@ -55,31 +55,31 @@ export type SelectState = "open" | "closed";
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/listbox/
  */
 export interface SelectContext {
-  // ========== ColdLight-Generated IDs ==========
-  /** ID for Trigger element - used for aria-labelledby on Content */
-  triggerId: string;
-  /** ID for Content element - used for aria-controls on Trigger */
-  contentId: string;
+	// ========== ColdLight-Generated IDs ==========
+	/** ID for Trigger element - used for aria-labelledby on Content */
+	triggerId: string;
+	/** ID for Content element - used for aria-controls on Trigger */
+	contentId: string;
 
-  // ========== ColdLight-Managed State (Reactive) ==========
-  /** Current open state - for aria-expanded on Trigger, data-state on all */
-  open: () => boolean;
-  /** Current highlighted item value - for aria-activedescendant tracking */
-  highlightedValue: () => string | null;
-  /** Set highlighted item value */
-  setHighlightedValue: (value: string | null) => void;
-  /** Current selected value(s) - for aria-selected on Items */
-  selectedValue: () => string | string[] | undefined;
-  /** Selection type - for aria-multiselectable on Content */
-  type: () => SelectType;
-  /** Disabled state */
-  disabled: () => boolean;
+	// ========== ColdLight-Managed State (Reactive) ==========
+	/** Current open state - for aria-expanded on Trigger, data-state on all */
+	open: () => boolean;
+	/** Current highlighted item value - for aria-activedescendant tracking */
+	highlightedValue: () => string | null;
+	/** Set highlighted item value */
+	setHighlightedValue: (value: string | null) => void;
+	/** Current selected value(s) - for aria-selected on Items */
+	selectedValue: () => string | string[] | undefined;
+	/** Selection type - for aria-multiselectable on Content */
+	type: () => SelectType;
+	/** Disabled state */
+	disabled: () => boolean;
 
-  // ========== Item Registration ==========
-  /** Register an item and get its ColdLight-generated ID */
-  registerItem: (value: string) => string;
-  /** Get registered item ID by value */
-  getItemId: (value: string) => string | undefined;
+	// ========== Item Registration ==========
+	/** Register an item and get its ColdLight-generated ID */
+	registerItem: (value: string) => string;
+	/** Get registered item ID by value */
+	getItemId: (value: string) => string | undefined;
 }
 
 /** Context key for Select state sharing */
@@ -107,12 +107,12 @@ export type SelectAlign = "start" | "center" | "end";
 
 /** Item definition for typeahead lookup */
 export interface SelectItem {
-  /** Unique value for this item (meltui requires string) */
-  value: string;
-  /** Display label for typeahead and lookup */
-  label: string;
-  /** Whether this item is disabled */
-  disabled?: boolean;
+	/** Unique value for this item (meltui requires string) */
+	value: string;
+	/** Display label for typeahead and lookup */
+	label: string;
+	/** Whether this item is disabled */
+	disabled?: boolean;
 }
 
 // ============================================
@@ -120,30 +120,30 @@ export interface SelectItem {
 // ============================================
 
 export interface SelectRootProps {
-  /** Controlled open state (bindable) */
-  open?: boolean;
-  /** Callback when open state changes */
-  onOpenChange?: (open: boolean) => void;
-  /** Selected value (bindable) - string for single, string[] for multiple */
-  value?: string | string[];
-  /** Callback when value changes */
-  onValueChange?: (value: string | string[]) => void;
-  /** Selection mode */
-  type?: SelectType;
-  /** Items array for typeahead and label lookup */
-  items?: SelectItem[];
-  /** Disable the entire select */
-  disabled?: boolean;
-  /** Loop keyboard navigation */
-  loop?: boolean;
-  /** Form field name for native submission */
-  name?: string;
-  /** Form field required validation */
-  required?: boolean;
-  /** Children (Trigger, Portal) */
-  children?: Snippet;
-  /** User-defined stable ID */
-  "data-id"?: string;
+	/** Controlled open state (bindable) */
+	open?: boolean;
+	/** Callback when open state changes */
+	onOpenChange?: (open: boolean) => void;
+	/** Selected value (bindable) - string for single, string[] for multiple */
+	value?: string | string[];
+	/** Callback when value changes */
+	onValueChange?: (value: string | string[]) => void;
+	/** Selection mode */
+	type?: SelectType;
+	/** Items array for typeahead and label lookup */
+	items?: SelectItem[];
+	/** Disable the entire select */
+	disabled?: boolean;
+	/** Loop keyboard navigation */
+	loop?: boolean;
+	/** Form field name for native submission */
+	name?: string;
+	/** Form field required validation */
+	required?: boolean;
+	/** Children (Trigger, Portal) */
+	children?: Snippet;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
@@ -151,12 +151,12 @@ export interface SelectRootProps {
 // ============================================
 
 export interface SelectTriggerProps extends Omit<HTMLButtonAttributes, "style" | "children"> {
-  /** Button content */
-  children?: Snippet;
-  /** Disable the trigger */
-  disabled?: boolean;
-  /** User-defined stable ID */
-  "data-id"?: string;
+	/** Button content */
+	children?: Snippet;
+	/** Disable the trigger */
+	disabled?: boolean;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
@@ -164,55 +164,57 @@ export interface SelectTriggerProps extends Omit<HTMLButtonAttributes, "style" |
 // ============================================
 
 export interface SelectPortalProps {
-  /** Portal target selector or element (default: body) */
-  to?: string | HTMLElement;
-  /** Disable portal rendering */
-  disabled?: boolean;
-  /** Children (Content) */
-  children?: Snippet;
-  /** User-defined stable ID */
-  "data-id"?: string;
+	/** Portal target selector or element (default: body) */
+	to?: string | HTMLElement;
+	/** Disable portal rendering */
+	disabled?: boolean;
+	/** Children (Content) */
+	children?: Snippet;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
 // CONTENT PROPS
 // ============================================
 
-export interface SelectContentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
-  /** Snippet receives { open } for animations */
-  children?: Snippet<[{ open: boolean }]> | Snippet;
+export interface SelectContentProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
+	/** Snippet receives { open } for animations */
+	children?: Snippet<[{ open: boolean }]> | Snippet;
 
-  // Positioning
-  /** Side of anchor to position against (default: "bottom") */
-  side?: SelectSide;
-  /** Distance from anchor in pixels (default: 4) */
-  sideOffset?: number;
-  /** Alignment relative to anchor (default: "start") */
-  align?: SelectAlign;
-  /** Offset from alignment in pixels */
-  alignOffset?: number;
-  /** Padding between arrow and content edges */
-  arrowPadding?: number;
+	// Positioning
+	/** Side of anchor to position against (default: "bottom") */
+	side?: SelectSide;
+	/** Distance from anchor in pixels (default: 4) */
+	sideOffset?: number;
+	/** Alignment relative to anchor (default: "start") */
+	align?: SelectAlign;
+	/** Offset from alignment in pixels */
+	alignOffset?: number;
+	/** Padding between arrow and content edges */
+	arrowPadding?: number;
 
-  // Collision handling
-  /** Override side/align to avoid collisions (default: true) */
-  avoidCollisions?: boolean;
-  /** Padding around viewport for collision detection (default: 8) */
-  collisionPadding?: number | Partial<Record<SelectSide, number>>;
+	// Collision handling
+	/** Override side/align to avoid collisions (default: true) */
+	avoidCollisions?: boolean;
+	/** Padding around viewport for collision detection (default: 8) */
+	collisionPadding?: number | Partial<Record<SelectSide, number>>;
 
-  /** User-defined stable ID */
-  "data-id"?: string;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
 // VIEWPORT PROPS
 // ============================================
 
-export interface SelectViewportProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
-  /** Children (Items, Groups, Separators) */
-  children?: Snippet;
-  /** User-defined stable ID */
-  "data-id"?: string;
+export interface SelectViewportProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
+	/** Children (Items, Groups, Separators) */
+	children?: Snippet;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
@@ -220,91 +222,98 @@ export interface SelectViewportProps extends Omit<HTMLAttributes<HTMLDivElement>
 // ============================================
 
 export interface SelectItemProps {
-  /** Item value (meltui requires string) */
-  value: string;
-  /** Disable this item */
-  disabled?: boolean;
-  /** Label for typeahead search (defaults to textContent) */
-  label?: string;
-  /** Additional CSS classes */
-  class?: string;
-  /** Snippet receives { selected, highlighted } for conditional rendering */
-  children?: Snippet<[{ selected: boolean; highlighted: boolean }]> | Snippet;
-  /** User-defined stable ID */
-  "data-id"?: string;
+	/** Item value (meltui requires string) */
+	value: string;
+	/** Disable this item */
+	disabled?: boolean;
+	/** Label for typeahead search (defaults to textContent) */
+	label?: string;
+	/** Additional CSS classes */
+	class?: string;
+	/** Snippet receives { selected, highlighted } for conditional rendering */
+	children?: Snippet<[{ selected: boolean; highlighted: boolean }]> | Snippet;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
 // ITEM TEXT PROPS
 // ============================================
 
-export interface SelectItemTextProps extends Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children"> {
-  /** Text content */
-  children?: Snippet;
-  /** User-defined stable ID */
-  "data-id"?: string;
+export interface SelectItemTextProps
+	extends Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children"> {
+	/** Text content */
+	children?: Snippet;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
 // ITEM GROUP PROPS
 // ============================================
 
-export interface SelectItemGroupProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
-  /** Children (GroupLabel, Items) */
-  children?: Snippet;
-  /** User-defined stable ID */
-  "data-id"?: string;
+export interface SelectItemGroupProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
+	/** Children (GroupLabel, Items) */
+	children?: Snippet;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
 // GROUP LABEL PROPS
 // ============================================
 
-export interface SelectGroupLabelProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
-  /** Label content */
-  children?: Snippet;
-  /** User-defined stable ID */
-  "data-id"?: string;
+export interface SelectGroupLabelProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
+	/** Label content */
+	children?: Snippet;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
 // SEPARATOR PROPS
 // ============================================
 
-export interface SelectSeparatorProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
-  /** User-defined stable ID */
-  "data-id"?: string;
+export interface SelectSeparatorProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
 // SCROLL BUTTON PROPS
 // ============================================
 
-export interface SelectScrollUpProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
-  /** Button content */
-  children?: Snippet;
-  /** User-defined stable ID */
-  "data-id"?: string;
+export interface SelectScrollUpProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
+	/** Button content */
+	children?: Snippet;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
-export interface SelectScrollDownProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
-  /** Button content */
-  children?: Snippet;
-  /** User-defined stable ID */
-  "data-id"?: string;
+export interface SelectScrollDownProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
+	/** Button content */
+	children?: Snippet;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }
 
 // ============================================
 // ARROW PROPS
 // ============================================
 
-export interface SelectArrowProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
-  /** Reference to the arrow element (bindable) */
-  ref?: HTMLElement | null;
-  /** Arrow width in pixels (default: 8) */
-  width?: number;
-  /** Arrow height in pixels (default: 8) */
-  height?: number;
-  /** User-defined stable ID */
-  "data-id"?: string;
+export interface SelectArrowProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
+	/** Reference to the arrow element (bindable) */
+	ref?: HTMLElement | null;
+	/** Arrow width in pixels (default: 8) */
+	width?: number;
+	/** Arrow height in pixels (default: 8) */
+	height?: number;
+	/** User-defined stable ID */
+	"data-id"?: string;
 }

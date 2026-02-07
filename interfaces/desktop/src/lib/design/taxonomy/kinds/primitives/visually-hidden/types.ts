@@ -8,7 +8,7 @@
  * Renders content visible only to assistive technology (screen readers).
  */
 
-import type { StateToken, SlotStateMap } from "../../../types.js";
+import type { SlotStateMap, StateToken } from "../../../types.js";
 
 // ─── SLOT TYPES ─────────────────────────────────────────────────────────────
 

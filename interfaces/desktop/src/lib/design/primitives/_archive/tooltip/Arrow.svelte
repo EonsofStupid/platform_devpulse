@@ -10,19 +10,19 @@
   - data-tooltip-arrow=""
 -->
 <script lang="ts">
-  import { Tooltip } from "meltui";
-  import type { TooltipArrowProps } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+import { Tooltip } from "meltui";
+import { stripStyleProp } from "../types.js";
+import type { TooltipArrowProps } from "./types.js";
 
-  let {
-    class: className = "",
-    "data-id": dataId,
-    width = 8,
-    height = 8,
-    ...rest
-  }: TooltipArrowProps = $props();
+let {
+	class: className = "",
+	"data-id": dataId,
+	width = 8,
+	height = 8,
+	...rest
+}: TooltipArrowProps = $props();
 
-  stripStyleProp(rest, "Tooltip.Arrow");
+stripStyleProp(rest, "Tooltip.Arrow");
 </script>
 
 <Tooltip.Arrow

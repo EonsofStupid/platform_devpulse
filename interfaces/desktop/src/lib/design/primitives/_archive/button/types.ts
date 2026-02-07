@@ -20,11 +20,11 @@ import type { HTMLButtonAttributes } from "svelte/elements";
  * Inherits: disabled, type, name, value, form, formAction, etc.
  */
 export interface ButtonProps extends Omit<HTMLButtonAttributes, "style" | "children"> {
-  /** Button content (Svelte 5 snippet) */
-  children?: Snippet;
+	/** Button content (Svelte 5 snippet) */
+	children?: Snippet;
 
-  /** User-defined stable ID for tooling/testing */
-  "data-id"?: string;
+	/** User-defined stable ID for tooling/testing */
+	"data-id"?: string;
 }
 
 // ============================================

@@ -3,4 +3,4 @@
  */
 export { default as Progress } from "./Progress.svelte";
 export { default as ProgressIndicator } from "./ProgressIndicator.svelte";
-export type { ProgressProps, ProgressIndicatorProps } from "./types.js";
+export type { ProgressIndicatorProps, ProgressProps } from "./types.js";

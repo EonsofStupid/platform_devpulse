@@ -16,7 +16,9 @@
 pub mod history;
 pub mod interactions;
 
+/// Send a chat message and receive an echo response.
 #[tauri::command]
+#[allow(clippy::needless_pass_by_value)]
 pub fn send_message(content: String) -> String {
-    format!("Echo: {}", content)
+    format!("Echo: {content}")
 }

@@ -17,66 +17,61 @@
   @since 1.0.0
 -->
 <script lang="ts">
-    import { onMount, onDestroy } from "svelte";
-    import "./parasite.css";
+import { onDestroy, onMount } from "svelte";
+import "./parasite.css";
 
-    // Types
-    type Size = "sm" | "md" | "lg" | "hero";
+// Types
+type Size = "sm" | "md" | "lg" | "hero";
 
-    interface Props {
-        text?: string;
-        size?: Size;
-        animate?: boolean;
-        enablePulse?: boolean;
-    }
+interface Props {
+	text?: string;
+	size?: Size;
+	animate?: boolean;
+	enablePulse?: boolean;
+}
 
-    let {
-        text = "DevPULSE",
-        size = "md",
-        animate = true,
-        enablePulse = true,
-    }: Props = $props();
+let { text = "DevPULSE", size = "md", animate = true, enablePulse = true }: Props = $props();
 
-    // Split text into individual letters
-    const letters = $derived(text.split(""));
+// Split text into individual letters
+const letters = $derived(text.split(""));
 
-    // Sporadic pulse state
-    let isPulsing = $state(false);
-    let pulseInterval: ReturnType<typeof setTimeout> | null = null;
+// Sporadic pulse state
+let isPulsing = $state(false);
+let pulseInterval: ReturnType<typeof setTimeout> | null = null;
 
-    function triggerRandomPulse() {
-        isPulsing = true;
-        setTimeout(() => {
-            isPulsing = false;
-        }, 500);
-    }
+function triggerRandomPulse() {
+	isPulsing = true;
+	setTimeout(() => {
+		isPulsing = false;
+	}, 500);
+}
 
-    function startPulseLoop() {
-        if (!enablePulse) return;
+function startPulseLoop() {
+	if (!enablePulse) return;
 
-        const randomDelay = () => Math.random() * 7000 + 8000; // 8-15s
+	const randomDelay = () => Math.random() * 7000 + 8000; // 8-15s
 
-        const scheduleNext = () => {
-            pulseInterval = setTimeout(() => {
-                triggerRandomPulse();
-                scheduleNext();
-            }, randomDelay());
-        };
+	const scheduleNext = () => {
+		pulseInterval = setTimeout(() => {
+			triggerRandomPulse();
+			scheduleNext();
+		}, randomDelay());
+	};
 
-        scheduleNext();
-    }
+	scheduleNext();
+}
 
-    onMount(() => {
-        if (enablePulse) {
-            startPulseLoop();
-        }
-    });
+onMount(() => {
+	if (enablePulse) {
+		startPulseLoop();
+	}
+});
 
-    onDestroy(() => {
-        if (pulseInterval) {
-            clearTimeout(pulseInterval);
-        }
-    });
+onDestroy(() => {
+	if (pulseInterval) {
+		clearTimeout(pulseInterval);
+	}
+});
 </script>
 
 <span

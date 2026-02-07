@@ -1,4 +1,4 @@
-//! DuckDB adapter for analytics
+//! `DuckDB` adapter for analytics
 //!
 //! Handles: user analytics, AI metrics, telemetry, OLAP queries
 //! Optimized for analytical workloads and columnar storage.
@@ -9,13 +9,16 @@ use std::path::Path;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-/// DuckDB database adapter for analytics
+/// `DuckDB` database adapter for analytics.
 pub struct DuckDbAdapter {
     conn: Arc<Mutex<duckdb::Connection>>,
 }
 
 impl DuckDbAdapter {
-    /// Open or create database at path
+    /// Open or create database at path.
+    ///
+    /// # Errors
+    /// Returns error if the database cannot be opened or schema initialization fails.
     pub fn open(path: &Path) -> Result<Self> {
         // Ensure parent directory exists
         if let Some(parent) = path.parent() {
@@ -34,7 +37,10 @@ impl DuckDbAdapter {
         Ok(adapter)
     }
 
-    /// Open in-memory database for testing
+    /// Open in-memory database for testing.
+    ///
+    /// # Errors
+    /// Returns error if the in-memory database cannot be created or schema initialization fails.
     pub fn open_in_memory() -> Result<Self> {
         let conn =
             duckdb::Connection::open_in_memory().context("Failed to open in-memory DuckDB")?;
@@ -47,7 +53,7 @@ impl DuckDbAdapter {
         Ok(adapter)
     }
 
-    /// Initialize schema (sync because DuckDB is sync)
+    /// Initialize schema (sync because `DuckDB` is sync).
     fn init_schema_sync(&self) -> Result<()> {
         // We need to block on the mutex since this is called from sync context
         let conn = futures::executor::block_on(self.conn.lock());
@@ -159,7 +165,7 @@ impl AnalyticsAdapter for DuckDbAdapter {
         let mut count = 0u64;
         for item in data {
             if let serde_json::Value::Object(map) = item {
-                let columns: Vec<&str> = map.keys().map(|k| k.as_str()).collect();
+                let columns: Vec<&str> = map.keys().map(std::string::String::as_str).collect();
                 let placeholders: Vec<&str> = (0..columns.len()).map(|_| "?").collect();
 
                 let sql = format!(
@@ -191,8 +197,8 @@ impl AnalyticsAdapter for DuckDbAdapter {
     }
 }
 
-/// Analytics schema for DuckDB
-const ANALYTICS_SCHEMA: &str = r#"
+/// Analytics schema for `DuckDB`.
+const ANALYTICS_SCHEMA: &str = r"
 -- Key-value store for signal-based access
 CREATE TABLE IF NOT EXISTS kv_store (
     key VARCHAR PRIMARY KEY,
@@ -238,4 +244,4 @@ CREATE TABLE IF NOT EXISTS daily_stats (
     avg_latency_ms DOUBLE DEFAULT 0,
     PRIMARY KEY (date)
 );
-"#;
+";

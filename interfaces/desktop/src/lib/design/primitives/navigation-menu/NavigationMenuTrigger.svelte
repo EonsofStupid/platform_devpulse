@@ -4,12 +4,12 @@
 	Contract: kind="navigation-menu", slot="trigger", ariaStateProvider="coldlight"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { NavigationMenuTriggerProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { NavigationMenuTriggerProps } from "./types.js";
 
-	let { children, class: className, ...rest }: NavigationMenuTriggerProps = $props();
+let { children, class: className, ...rest }: NavigationMenuTriggerProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "NavigationMenuTrigger");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "NavigationMenuTrigger");
 </script>
 
 <button

@@ -8,7 +8,7 @@
  * Tri-state: checked / unchecked / indeterminate.
  */
 
-import type { StateToken, SlotStateMap } from "../../../types.js";
+import type { SlotStateMap, StateToken } from "../../../types.js";
 
 // ─── SLOT TYPES ─────────────────────────────────────────────────────────────
 

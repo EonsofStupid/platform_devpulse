@@ -12,8 +12,7 @@
 @import "@fontsource/jetbrains-mono/500.css";
 
 /* Design tokens (generated — do not hand-edit tokens.css) */
-/* @import "$lib/design/tokens/tokens.css"; */
-/* ^ Uncomment after running pnpm ds:tokens:build with real SSOT values */
+@import "$lib/design/tokens/tokens.css";
 
 /* Tailwind v4 @theme — migrated from dead tailwind.config.ts */
 @theme {

@@ -8,22 +8,22 @@
   A11y Acceptance: SR announces "Loading" (or custom label) - NEVER empty
 -->
 <script lang="ts">
-  import type { OmitStyle, BaseProps } from "./types.js";
-  import { stripStyleProp } from "./types.js";
+import type { BaseProps, OmitStyle } from "./types.js";
+import { stripStyleProp } from "./types.js";
 
-  interface Props extends OmitStyle<HTMLSpanElement>, BaseProps {
-    /** REQUIRED: Label for screen readers. Defaults to "Loading" */
-    "aria-label"?: string;
-  }
+interface Props extends OmitStyle<HTMLSpanElement>, BaseProps {
+	/** REQUIRED: Label for screen readers. Defaults to "Loading" */
+	"aria-label"?: string;
+}
 
-  let {
-    "aria-label": ariaLabel = "Loading",
-    class: className = "",
-    "data-id": id,
-    ...rest
-  }: Props = $props();
+let {
+	"aria-label": ariaLabel = "Loading",
+	class: className = "",
+	"data-id": id,
+	...rest
+}: Props = $props();
 
-  stripStyleProp(rest, "Spinner");
+stripStyleProp(rest, "Spinner");
 </script>
 
 <span

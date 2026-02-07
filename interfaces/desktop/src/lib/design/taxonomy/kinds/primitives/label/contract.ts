@@ -6,13 +6,10 @@
  * 2-folder parity: taxonomy + primitive.
  */
 
-import type { PrimitiveContract } from "../../../types.js";
-import { labelSlotStates, type LabelSlot, type LabelState } from "./types.js";
+import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { labelSlotStates } from "./types.js";
 
-// ─── CONTRACT ───────────────────────────────────────────────────────────────
-
-/** Label primitive contract — ColdLight SSOT */
-export const contract: PrimitiveContract<"label", LabelSlot, LabelState> = {
+const rawContract = {
 	kind: "label",
 	ariaStateProvider: "coldlight",
 	slots: { required: ["root"], optional: [], forbidden: [] },
@@ -37,4 +34,6 @@ export const contract: PrimitiveContract<"label", LabelSlot, LabelState> = {
 	keyboard: [],
 	focusStrategy: "none",
 	compound: false,
-};
+} as const;
+
+export const contract: PrimitiveContract = parseContract(rawContract);

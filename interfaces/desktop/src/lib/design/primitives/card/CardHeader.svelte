@@ -4,12 +4,12 @@
 	Contract: kind="card", slot="header", ariaStateProvider="coldlight"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { CardHeaderProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { CardHeaderProps } from "./types.js";
 
-	let { children, class: className, ...rest }: CardHeaderProps = $props();
+let { children, class: className, ...rest }: CardHeaderProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "CardHeader");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "CardHeader");
 </script>
 
 <div

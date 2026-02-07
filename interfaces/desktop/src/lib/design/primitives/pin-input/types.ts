@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** PinInput root — container for a group of single-character inputs */
 export interface PinInputProps extends OmitStyle<HTMLDivElement>, BaseProps {

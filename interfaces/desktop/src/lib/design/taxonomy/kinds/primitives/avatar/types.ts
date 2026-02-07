@@ -7,7 +7,7 @@
  * ariaStateProvider: "coldlight" — image element with fallback, direct ARIA application.
  */
 
-import type { StateToken, SlotStateMap } from "../../../types.js";
+import type { SlotStateMap, StateToken } from "../../../types.js";
 
 // ─── SLOT TYPES ─────────────────────────────────────────────────────────────
 

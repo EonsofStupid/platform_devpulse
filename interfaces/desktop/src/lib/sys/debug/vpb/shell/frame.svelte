@@ -8,12 +8,12 @@
   @since 1.0.0
 -->
 <script lang="ts">
-    import { vpb } from "../state/vpb.svelte";
-    import Topbar from "./topbar.svelte";
-    import Tabs from "./tabs.svelte";
-    import Toolbar from "./toolbar.svelte";
-    import Inspector from "../components/inspector/Inspector.svelte";
-    import Builder from "../components/builder/Builder.svelte";
+import Builder from "../components/builder/Builder.svelte";
+import Inspector from "../components/inspector/Inspector.svelte";
+import { vpb } from "../state/vpb.svelte";
+import Tabs from "./tabs.svelte";
+import Toolbar from "./toolbar.svelte";
+import Topbar from "./topbar.svelte";
 </script>
 
 {#if vpb.isOpen}

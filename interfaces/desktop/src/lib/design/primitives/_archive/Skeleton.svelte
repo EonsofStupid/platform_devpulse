@@ -9,25 +9,19 @@
   A11y Acceptance: NOT reachable by Tab, NOT announced by SR
 -->
 <script lang="ts">
-  import type { OmitStyle, BaseProps } from "./types.js";
-  import { stripStyleProp } from "./types.js";
+import type { BaseProps, OmitStyle } from "./types.js";
+import { stripStyleProp } from "./types.js";
 
-  interface Props extends OmitStyle<HTMLDivElement>, BaseProps {
-    /** Width of skeleton */
-    width?: string;
-    /** Height of skeleton */
-    height?: string;
-  }
+interface Props extends OmitStyle<HTMLDivElement>, BaseProps {
+	/** Width of skeleton */
+	width?: string;
+	/** Height of skeleton */
+	height?: string;
+}
 
-  let {
-    width,
-    height,
-    class: className = "",
-    "data-id": id,
-    ...rest
-  }: Props = $props();
+let { width, height, class: className = "", "data-id": id, ...rest }: Props = $props();
 
-  stripStyleProp(rest, "Skeleton");
+stripStyleProp(rest, "Skeleton");
 </script>
 
 <div

@@ -17,14 +17,10 @@
   - data-state="open" | "closed"
 -->
 <script lang="ts">
-  import { Dialog } from "meltui";
-  import type { DialogOverlayProps, DialogState } from "./types.js";
+import { Dialog } from "meltui";
+import type { DialogOverlayProps, DialogState } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    "data-id": dataId,
-  }: DialogOverlayProps = $props();
+let { children, class: className = "", "data-id": dataId }: DialogOverlayProps = $props();
 </script>
 
 <!--

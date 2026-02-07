@@ -5,19 +5,17 @@
  * ariaStateProvider: "coldlight" — native <button> with role="checkbox" + aria-checked at component layer.
  * 2-folder parity: taxonomy + primitive.
  *
+ * Reference: W3C WAI-ARIA APG Checkbox Pattern
+ * https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/
+ *
  * WAI-ARIA: role="checkbox" supports tri-state (true/false/mixed).
  * aria-checked required. "mixed" = indeterminate state for parent checkboxes.
- * Accessible name required via aria-label or aria-labelledby.
- * Toggle on Space (native button behavior).
  */
 
-import type { PrimitiveContract } from "../../../types.js";
-import { checkboxSlotStates, type CheckboxSlot, type CheckboxState } from "./types.js";
+import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { checkboxSlotStates } from "./types.js";
 
-// ─── CONTRACT ───────────────────────────────────────────────────────────────
-
-/** Checkbox primitive contract — ColdLight SSOT */
-export const contract: PrimitiveContract<"checkbox", CheckboxSlot, CheckboxState> = {
+const rawContract = {
 	kind: "checkbox",
 	ariaStateProvider: "coldlight",
 	slots: { required: ["root"], optional: ["indicator"], forbidden: [] },
@@ -63,6 +61,11 @@ export const contract: PrimitiveContract<"checkbox", CheckboxSlot, CheckboxState
 		],
 	},
 	keyboard: ["Space"],
+	keyboardMap: [
+		{ orientation: "both", focusLocation: "root", key: "Space", action: "toggle", required: true },
+	],
 	focusStrategy: "none",
 	compound: true,
-};
+} as const;
+
+export const contract: PrimitiveContract = parseContract(rawContract);

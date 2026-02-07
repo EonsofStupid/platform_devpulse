@@ -6,65 +6,65 @@
   Provides controlled props for vitest-browser-svelte tests.
 -->
 <script lang="ts">
-  import * as Select from "./index.js";
-  import type { SelectItem, SelectType } from "./types.js";
+import * as Select from "./index.js";
+import type { SelectItem, SelectType } from "./types.js";
 
-  interface Props {
-    open?: boolean;
-    value?: string | string[];
-    onOpenChange?: (open: boolean) => void;
-    onValueChange?: (value: string | string[]) => void;
-    type?: SelectType;
-    items?: SelectItem[];
-    disabled?: boolean;
-    loop?: boolean;
-    name?: string;
-    required?: boolean;
-    "data-id"?: string;
-    // Content props
-    side?: "top" | "right" | "bottom" | "left";
-    align?: "start" | "center" | "end";
-    sideOffset?: number;
-    // Item props
-    showGroups?: boolean;
-    showArrow?: boolean;
-    showScrollButtons?: boolean;
-  }
+interface Props {
+	open?: boolean;
+	value?: string | string[];
+	onOpenChange?: (open: boolean) => void;
+	onValueChange?: (value: string | string[]) => void;
+	type?: SelectType;
+	items?: SelectItem[];
+	disabled?: boolean;
+	loop?: boolean;
+	name?: string;
+	required?: boolean;
+	"data-id"?: string;
+	// Content props
+	side?: "top" | "right" | "bottom" | "left";
+	align?: "start" | "center" | "end";
+	sideOffset?: number;
+	// Item props
+	showGroups?: boolean;
+	showArrow?: boolean;
+	showScrollButtons?: boolean;
+}
 
-  let {
-    open = $bindable(false),
-    value = $bindable(""),
-    onOpenChange,
-    onValueChange,
-    type = "single",
-    items = [
-      { value: "apple", label: "Apple" },
-      { value: "banana", label: "Banana" },
-      { value: "cherry", label: "Cherry" },
-    ],
-    disabled = false,
-    loop = false,
-    name,
-    required = false,
-    "data-id": dataId,
-    side = "bottom",
-    align = "start",
-    sideOffset = 4,
-    showGroups = false,
-    showArrow = false,
-    showScrollButtons = false,
-  }: Props = $props();
+let {
+	open = $bindable(false),
+	value = $bindable(""),
+	onOpenChange,
+	onValueChange,
+	type = "single",
+	items = [
+		{ value: "apple", label: "Apple" },
+		{ value: "banana", label: "Banana" },
+		{ value: "cherry", label: "Cherry" },
+	],
+	disabled = false,
+	loop = false,
+	name,
+	required = false,
+	"data-id": dataId,
+	side = "bottom",
+	align = "start",
+	sideOffset = 4,
+	showGroups = false,
+	showArrow = false,
+	showScrollButtons = false,
+}: Props = $props();
 
-  const fruits = [
-    { value: "apple", label: "Apple" },
-    { value: "banana", label: "Banana" },
-    { value: "cherry", label: "Cherry" },
-  ];
+const fruits = [
+	{ value: "apple", label: "Apple" },
+	{ value: "banana", label: "Banana" },
+	{ value: "cherry", label: "Cherry" },
+];
 
-  const vegetables = [
-    { value: "carrot", label: "Carrot" },
-    { value: "broccoli", label: "Broccoli" },
-  ];
+const vegetables = [
+	{ value: "carrot", label: "Carrot" },
+	{ value: "broccoli", label: "Broccoli" },
+];
 </script>
 
 <Select.Root

@@ -3,28 +3,27 @@
  * @description Visual Page Builder block types and validation
  */
 
-// Block kinds
-export {
-  blockKinds,
-  blockKindKeys,
-  getKindDefinition,
-  getKindSlots,
-  shellKinds,
-  surfaceKinds,
-  widgetKinds,
-  chatKinds,
-  type BlockKind,
-  type BlockKindDefinition,
-} from "./kinds";
-
 // Block contracts (Zod schemas)
 export {
-  kindContracts,
-  getKindSchema,
-  getDefaultProps,
-  type KindContract,
-  type KindProps,
+	getDefaultProps,
+	getKindSchema,
+	type KindContract,
+	type KindProps,
+	kindContracts,
 } from "./contracts";
+// Block kinds
+export {
+	type BlockKind,
+	type BlockKindDefinition,
+	blockKindKeys,
+	blockKinds,
+	chatKinds,
+	getKindDefinition,
+	getKindSlots,
+	shellKinds,
+	surfaceKinds,
+	widgetKinds,
+} from "./kinds";
 
 // Slot constraints
-export { isChildAllowed, getAllowedChildren } from "./slots";
+export { getAllowedChildren, isChildAllowed } from "./slots";

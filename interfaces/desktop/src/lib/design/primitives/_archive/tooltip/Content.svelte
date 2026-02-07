@@ -17,28 +17,28 @@
   - data-align (from Bits UI)
 -->
 <script lang="ts">
-  import { Tooltip } from "meltui";
-  import type { TooltipContentProps, TooltipState } from "./types.js";
-  import { stripStyleProp, cn } from "../types.js";
+import { Tooltip } from "meltui";
+import { cn, stripStyleProp } from "../types.js";
+import type { TooltipContentProps, TooltipState } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    "data-id": dataId,
-    // Positioning
-    side = "top",
-    sideOffset = 4,
-    align = "center",
-    alignOffset,
-    arrowPadding,
-    avoidCollisions = true,
-    collisionPadding = 8,
-    sticky,
-    hideWhenDetached,
-    ...rest
-  }: TooltipContentProps = $props();
+let {
+	children,
+	class: className = "",
+	"data-id": dataId,
+	// Positioning
+	side = "top",
+	sideOffset = 4,
+	align = "center",
+	alignOffset,
+	arrowPadding,
+	avoidCollisions = true,
+	collisionPadding = 8,
+	sticky,
+	hideWhenDetached,
+	...rest
+}: TooltipContentProps = $props();
 
-  stripStyleProp(rest, "Tooltip.Content");
+stripStyleProp(rest, "Tooltip.Content");
 </script>
 
 <Tooltip.Content

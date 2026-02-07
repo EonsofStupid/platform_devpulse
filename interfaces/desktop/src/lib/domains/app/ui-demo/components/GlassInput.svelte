@@ -23,21 +23,21 @@
     GlassInput - Glass with inset bevel and colored shadows
 -->
 <script lang="ts">
-    interface Props {
-        type?: "text" | "email" | "password" | "search";
-        placeholder?: string;
-        value?: string;
-        disabled?: boolean;
-        label?: string;
-    }
+interface Props {
+	type?: "text" | "email" | "password" | "search";
+	placeholder?: string;
+	value?: string;
+	disabled?: boolean;
+	label?: string;
+}
 
-    let {
-        type = "text",
-        placeholder = "",
-        value = $bindable(""),
-        disabled = false,
-        label,
-    }: Props = $props();
+let {
+	type = "text",
+	placeholder = "",
+	value = $bindable(""),
+	disabled = false,
+	label,
+}: Props = $props();
 </script>
 
 <div class="glass-input-wrapper">

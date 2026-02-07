@@ -4,15 +4,19 @@
 	Contract: kind="collapsible", slot="root"
 -->
 <script lang="ts">
-	import type { CollapsibleProps } from "./types.js";
-	import { setCollapsibleContext } from "./context.js";
+import { setCollapsibleContext } from "./context.js";
+import type { CollapsibleProps } from "./types.js";
 
-	let { open = $bindable(false), disabled = false, children }: CollapsibleProps = $props();
+let { open = $bindable(false), disabled = false, children }: CollapsibleProps = $props();
 
-	setCollapsibleContext({
-		get open() { return open; },
-		get disabled() { return disabled; },
-	});
+setCollapsibleContext({
+	get open() {
+		return open;
+	},
+	get disabled() {
+		return disabled;
+	},
+});
 </script>
 
 {@render children?.()}

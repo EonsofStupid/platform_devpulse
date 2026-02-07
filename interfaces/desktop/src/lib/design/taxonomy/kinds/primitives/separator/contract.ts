@@ -4,23 +4,15 @@
  *
  * ariaStateProvider: "coldlight" — native HTML handles semantics.
  * 2-folder parity: taxonomy + primitive.
+ *
+ * WAI-ARIA: role="separator" with optional focusability for draggable splitters.
+ * When focusable (tabindex=0), supports aria-valuenow for resizable split views.
  */
 
-import type { PrimitiveContract } from "../../../types.js";
-import {
-	separatorSlotStates,
-	type SeparatorSlot,
-	type SeparatorState,
-} from "./types.js";
+import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { separatorSlotStates } from "./types.js";
 
-// ─── CONTRACT ───────────────────────────────────────────────────────────────
-
-/** Separator primitive contract — ColdLight SSOT */
-export const contract: PrimitiveContract<
-	"separator",
-	SeparatorSlot,
-	SeparatorState
-> = {
+const rawContract = {
 	kind: "separator",
 	ariaStateProvider: "coldlight",
 	slots: { required: ["root"], optional: [], forbidden: [] },
@@ -28,7 +20,20 @@ export const contract: PrimitiveContract<
 		root: {
 			element: "div",
 			children: "snippet",
-			aria: { role: "separator", required: [], optional: ["aria-orientation", "aria-label", "aria-labelledby", "aria-disabled", "aria-valuemin", "aria-valuemax", "aria-valuenow", "aria-valuetext"] },
+			aria: {
+				role: "separator",
+				required: [],
+				optional: [
+					"aria-orientation",
+					"aria-label",
+					"aria-labelledby",
+					"aria-disabled",
+					"aria-valuemin",
+					"aria-valuemax",
+					"aria-valuenow",
+					"aria-valuetext",
+				],
+			},
 		},
 	},
 	states: {
@@ -51,14 +56,53 @@ export const contract: PrimitiveContract<
 			"aria-valuetext",
 		],
 	},
-	keyboard: [
-		"ArrowUp",
-		"ArrowDown",
-		"ArrowLeft",
-		"ArrowRight",
-		"Home",
-		"End",
+	keyboard: ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End"],
+	keyboardMap: [
+		{
+			orientation: "horizontal",
+			focusLocation: "root",
+			key: "ArrowLeft",
+			action: "decrement",
+			required: false,
+		},
+		{
+			orientation: "horizontal",
+			focusLocation: "root",
+			key: "ArrowRight",
+			action: "increment",
+			required: false,
+		},
+		{
+			orientation: "vertical",
+			focusLocation: "root",
+			key: "ArrowUp",
+			action: "decrement",
+			required: false,
+		},
+		{
+			orientation: "vertical",
+			focusLocation: "root",
+			key: "ArrowDown",
+			action: "increment",
+			required: false,
+		},
+		{
+			orientation: "both",
+			focusLocation: "root",
+			key: "Home",
+			action: "first-item",
+			required: false,
+		},
+		{
+			orientation: "both",
+			focusLocation: "root",
+			key: "End",
+			action: "last-item",
+			required: false,
+		},
 	],
 	focusStrategy: "none",
 	compound: false,
-};
+} as const;
+
+export const contract: PrimitiveContract = parseContract(rawContract);

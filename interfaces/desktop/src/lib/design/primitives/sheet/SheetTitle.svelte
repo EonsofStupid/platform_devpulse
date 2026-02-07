@@ -4,12 +4,12 @@
 	Contract: kind="sheet", slot="title"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { SheetTitleProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { SheetTitleProps } from "./types.js";
 
-	let { children, class: className, ...rest }: SheetTitleProps = $props();
+let { children, class: className, ...rest }: SheetTitleProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SheetTitle");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SheetTitle");
 </script>
 
 <h2

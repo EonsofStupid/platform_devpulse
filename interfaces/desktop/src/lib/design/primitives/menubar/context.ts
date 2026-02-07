@@ -11,8 +11,8 @@ import { getContext, setContext } from "svelte";
 // ─── ROOT CONTEXT ────────────────────────────────────────────────────────
 const MENUBAR_KEY = Symbol("coldlight:menubar");
 
-/** Menubar root context shape */
-export type MenubarContext = {};
+/** Menubar root context shape (placeholder for future expansion) */
+export type MenubarContext = Record<string, never>;
 
 /** Set menubar context (called by Menubar root) */
 export function setMenubarContext(ctx: MenubarContext): void {

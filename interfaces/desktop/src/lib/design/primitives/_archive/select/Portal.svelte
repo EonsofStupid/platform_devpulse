@@ -9,15 +9,10 @@
   - data-slot="portal"
 -->
 <script lang="ts">
-  import { Select } from "meltui";
-  import type { SelectPortalProps } from "./types.js";
+import { Select } from "meltui";
+import type { SelectPortalProps } from "./types.js";
 
-  let {
-    to,
-    disabled = false,
-    children,
-    "data-id": dataId,
-  }: SelectPortalProps = $props();
+let { to, disabled = false, children, "data-id": dataId }: SelectPortalProps = $props();
 </script>
 
 <Select.Portal {to} {disabled}>

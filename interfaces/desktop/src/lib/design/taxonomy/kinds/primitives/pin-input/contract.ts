@@ -2,30 +2,29 @@
  * @file PinInput Taxonomy Contract
  * @description ColdLight SSOT contract for the pin-input primitive.
  *
- * ariaStateProvider: "meltui" — createPinInput provides auto-advance, backspace navigation, and paste handling.
+ * ariaStateProvider: "coldlight" — createPinInput provides auto-advance, backspace navigation, and paste handling.
  * 2-folder parity: taxonomy + primitive.
  *
  * WAI-ARIA: Group of individual text inputs for one-time passwords or PIN codes.
  * role="group" on root container with aria-label for accessible name.
- * Each input accepts a single character with auto-advance behavior.
- * Keyboard: arrow keys for navigation, backspace for deletion + backward nav.
  */
 
-import type { PrimitiveContract } from "../../../types.js";
-import { pinInputSlotStates, type PinInputSlot, type PinInputState } from "./types.js";
+import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { pinInputSlotStates } from "./types.js";
 
-// ─── CONTRACT ───────────────────────────────────────────────────────────────
-
-/** PinInput primitive contract — ColdLight SSOT */
-export const contract: PrimitiveContract<"pin-input", PinInputSlot, PinInputState> = {
+const rawContract = {
 	kind: "pin-input",
-	ariaStateProvider: "meltui",
+	ariaStateProvider: "coldlight",
 	slots: { required: ["root", "input"], optional: [], forbidden: [] },
 	slotSpec: {
 		root: {
 			element: "div",
 			children: "snippet",
-			aria: { role: "group", required: [], optional: ["aria-label", "aria-labelledby", "aria-describedby", "aria-disabled"] },
+			aria: {
+				role: "group",
+				required: [],
+				optional: ["aria-label", "aria-labelledby", "aria-describedby", "aria-disabled"],
+			},
 		},
 		input: {
 			element: "input",
@@ -42,9 +41,47 @@ export const contract: PrimitiveContract<"pin-input", PinInputSlot, PinInputStat
 	aria: {
 		role: "group",
 		requiredAttrs: [],
-		optionalAttrs: ["aria-label", "aria-labelledby", "aria-describedby", "aria-disabled", "aria-invalid"],
+		optionalAttrs: [
+			"aria-label",
+			"aria-labelledby",
+			"aria-describedby",
+			"aria-disabled",
+			"aria-invalid",
+		],
 	},
 	keyboard: ["ArrowLeft", "ArrowRight", "Backspace", "Delete"],
+	keyboardMap: [
+		{
+			orientation: "horizontal",
+			focusLocation: "input",
+			key: "ArrowRight",
+			action: "next-item",
+			required: true,
+		},
+		{
+			orientation: "horizontal",
+			focusLocation: "input",
+			key: "ArrowLeft",
+			action: "prev-item",
+			required: true,
+		},
+		{
+			orientation: "horizontal",
+			focusLocation: "input",
+			key: "Backspace",
+			action: "delete",
+			required: true,
+		},
+		{
+			orientation: "horizontal",
+			focusLocation: "input",
+			key: "Delete",
+			action: "delete",
+			required: true,
+		},
+	],
 	focusStrategy: "none",
 	compound: true,
-};
+} as const;
+
+export const contract: PrimitiveContract = parseContract(rawContract);

@@ -4,12 +4,12 @@
 	Contract: kind="alert-dialog", slot="action"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { AlertDialogActionProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { AlertDialogActionProps } from "./types.js";
 
-	let { children, class: className, ...rest }: AlertDialogActionProps = $props();
+let { children, class: className, ...rest }: AlertDialogActionProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "AlertDialogAction");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "AlertDialogAction");
 </script>
 
 <button

@@ -10,17 +10,12 @@
   - data-slot="item-text"
 -->
 <script lang="ts">
-  import type { SelectItemTextProps } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+import { stripStyleProp } from "../types.js";
+import type { SelectItemTextProps } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: SelectItemTextProps = $props();
+let { children, class: className = "", "data-id": dataId, ...rest }: SelectItemTextProps = $props();
 
-  stripStyleProp(rest, "Select.ItemText");
+stripStyleProp(rest, "Select.ItemText");
 </script>
 
 <span

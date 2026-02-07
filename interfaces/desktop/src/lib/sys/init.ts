@@ -10,13 +10,13 @@ let initialized = false;
 
 /** Initialize the sys layer */
 export function initSys(): void {
-  if (initialized) return;
-  initialized = true;
-  // SvelteKit handles routing automatically
-  // No manual domain registration needed
+	if (initialized) return;
+	initialized = true;
+	// SvelteKit handles routing automatically
+	// No manual domain registration needed
 }
 
 /** Check if sys is initialized */
 export function isSysInitialized(): boolean {
-  return initialized;
+	return initialized;
 }

@@ -10,18 +10,18 @@
   - data-slot="cancel"
 -->
 <script lang="ts">
-  import { AlertDialog } from "melt-ui";
-  import type { AlertDialogCancelProps } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+import { AlertDialog } from "melt-ui";
+import { stripStyleProp } from "../types.js";
+import type { AlertDialogCancelProps } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: AlertDialogCancelProps = $props();
+let {
+	children,
+	class: className = "",
+	"data-id": dataId,
+	...rest
+}: AlertDialogCancelProps = $props();
 
-  stripStyleProp(rest, "AlertDialog.Cancel");
+stripStyleProp(rest, "AlertDialog.Cancel");
 </script>
 
 <AlertDialog.Cancel

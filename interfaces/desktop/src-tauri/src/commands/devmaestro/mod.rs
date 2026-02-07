@@ -13,5 +13,6 @@
 //!
 //! @since 1.0.0
 
+/// Get the current Maestro orchestrator status.
 #[tauri::command]
 pub fn get_status() {}

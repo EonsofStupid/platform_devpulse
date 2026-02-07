@@ -23,7 +23,7 @@ pub enum SignalSource {
 /// The 4 atomic requirements for every signal.
 ///
 /// This enables:
-/// - Tracing: Follow any output back to its input via correlation_id
+/// - Tracing: Follow any output back to its input via `correlation_id`
 /// - Replay: Reconstruct sessions from stored headers
 /// - Debugging: Know exactly when/where/who created each signal
 #[derive(Clone, Debug, Serialize, Deserialize, TS)]
@@ -45,10 +45,7 @@ impl SignalHeader {
         Self {
             id: Uuid::now_v7(),
             correlation_id: None,
-            timestamp: std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_millis() as u64,
+            timestamp: epoch_millis(),
             source,
         }
     }
@@ -58,11 +55,19 @@ impl SignalHeader {
         Self {
             id: Uuid::now_v7(),
             correlation_id: Some(parent_id),
-            timestamp: std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_millis() as u64,
+            timestamp: epoch_millis(),
             source,
         }
     }
+}
+
+/// Current epoch milliseconds (safe — no `unwrap`, no truncation).
+fn epoch_millis() -> u64 {
+    u64::try_from(
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_millis(),
+    )
+    .unwrap_or(u64::MAX)
 }

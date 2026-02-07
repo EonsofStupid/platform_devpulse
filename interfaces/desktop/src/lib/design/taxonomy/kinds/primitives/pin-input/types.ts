@@ -7,7 +7,7 @@
  * ariaStateProvider: "meltui" — createPinInput provides auto-advance, backspace navigation, and paste handling.
  */
 
-import type { StateToken, SlotStateMap } from "../../../types.js";
+import type { SlotStateMap, StateToken } from "../../../types.js";
 
 // ─── SLOT TYPES ─────────────────────────────────────────────────────────────
 

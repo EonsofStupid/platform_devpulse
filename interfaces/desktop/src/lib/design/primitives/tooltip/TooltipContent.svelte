@@ -4,15 +4,15 @@
 	Contract: kind="tooltip", slot="content"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { TooltipContentProps } from "./types.js";
-	import { getTooltipContext } from "./context.js";
+import { cn, stripStyleProp } from "../types.js";
+import { getTooltipContext } from "./context.js";
+import type { TooltipContentProps } from "./types.js";
 
-	let { children, class: className, ...rest }: TooltipContentProps = $props();
+let { children, class: className, ...rest }: TooltipContentProps = $props();
 
-	const ctx = getTooltipContext();
+const ctx = getTooltipContext();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "TooltipContent");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "TooltipContent");
 </script>
 
 <div

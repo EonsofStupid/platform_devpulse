@@ -4,12 +4,12 @@
 	Contract: kind="pagination", slot="content", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { PaginationContentProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { PaginationContentProps } from "./types.js";
 
-	let { children, class: className, ...rest }: PaginationContentProps = $props();
+let { children, class: className, ...rest }: PaginationContentProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "PaginationContent");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "PaginationContent");
 </script>
 
 <div

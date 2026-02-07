@@ -7,7 +7,7 @@
  * ariaStateProvider: "coldlight" — native <button> + aria-pressed at component layer.
  */
 
-import type { StateToken, SlotStateMap } from "../../../types.js";
+import type { SlotStateMap, StateToken } from "../../../types.js";
 
 // ─── SLOT TYPES ─────────────────────────────────────────────────────────────
 

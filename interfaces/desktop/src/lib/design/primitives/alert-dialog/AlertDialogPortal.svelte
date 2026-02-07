@@ -4,12 +4,12 @@
 	Contract: kind="alert-dialog", slot="portal"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { AlertDialogPortalProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { AlertDialogPortalProps } from "./types.js";
 
-	let { children, class: className, ...rest }: AlertDialogPortalProps = $props();
+let { children, class: className, ...rest }: AlertDialogPortalProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "AlertDialogPortal");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "AlertDialogPortal");
 </script>
 
 <div

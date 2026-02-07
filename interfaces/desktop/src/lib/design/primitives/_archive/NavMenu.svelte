@@ -8,18 +8,18 @@
   A11y Acceptance: Active route has aria-current="page"
 -->
 <script lang="ts" module>
-  export interface NavMenuItem {
-    /** Human-readable label */
-    label: string;
-    /** Route path */
-    href: string;
-    /** Icon identifier */
-    icon?: string;
-    /** Is this item active? */
-    active?: boolean;
-    /** Is this item disabled? */
-    disabled?: boolean;
-  }
+export interface NavMenuItem {
+	/** Human-readable label */
+	label: string;
+	/** Route path */
+	href: string;
+	/** Icon identifier */
+	icon?: string;
+	/** Is this item active? */
+	active?: boolean;
+	/** Is this item disabled? */
+	disabled?: boolean;
+}
 </script>
 
 <script lang="ts">

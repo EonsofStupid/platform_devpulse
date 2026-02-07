@@ -9,7 +9,7 @@
  */
 
 import { writeFileSync } from "node:fs";
-import { resolve, dirname } from "node:path";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -42,11 +42,7 @@ interface TokensModule {
 
 // Dynamic import required — tokens.ts is outside scripts/ rootDir boundary.
 // pathToFileURL handles Windows drive letter colon in absolute paths.
-const tokens = await import(
-	pathToFileURL(resolve(TOKENS_DIR, "tokens.ts")).href
-) as TokensModule;
-
-const PREFIX = "dp";
+const tokens = (await import(pathToFileURL(resolve(TOKENS_DIR, "tokens.ts")).href)) as TokensModule;
 
 // ---------------------------------------------------------------------------
 // Generate tokens.css
@@ -61,16 +57,21 @@ function generateCss(): string {
 		":root {",
 	];
 
-	function addSection(comment: string, prefix: string, obj: Record<string, unknown>, nested = false): void {
+	function addSection(
+		comment: string,
+		prefix: string,
+		obj: Record<string, unknown>,
+		nested = false,
+	): void {
 		lines.push(`\t/* ${comment} */`);
 		for (const [key, value] of Object.entries(obj)) {
 			if (typeof value === "object" && value !== null && !nested) {
 				// Nested object (color scales)
 				for (const [subKey, subValue] of Object.entries(value as Record<string, string>)) {
-					lines.push(`\t--${PREFIX}-${prefix}-${key}-${subKey}: ${subValue};`);
+					lines.push(`\t--${prefix}-${key}-${subKey}: ${subValue};`);
 				}
 			} else {
-				lines.push(`\t--${PREFIX}-${prefix}-${key}: ${value};`);
+				lines.push(`\t--${prefix}-${key}: ${value};`);
 			}
 		}
 		lines.push("");
@@ -94,7 +95,104 @@ function generateCss(): string {
 	addSection("Padding", "padding", tokens.padding);
 
 	lines.push("}");
-	return lines.join("\n") + "\n";
+	lines.push("");
+
+	// ---------------------------------------------------------------------------
+	// Tailwind v4 @theme block — maps CSS vars to Tailwind utilities
+	// ---------------------------------------------------------------------------
+	lines.push("@theme {");
+
+	// Surface materials → bg-glass-*, bg-matte-*
+	lines.push("\t/* Surface materials */");
+	for (const key of Object.keys(tokens.glass)) {
+		lines.push(`\t--color-glass-${key}: var(--glass-${key});`);
+	}
+	for (const key of Object.keys(tokens.matte)) {
+		lines.push(`\t--color-matte-${key}: var(--matte-${key});`);
+	}
+	lines.push("");
+
+	// Color scales → bg-teal-500, text-purple-300, etc.
+	lines.push("\t/* Color scales */");
+	for (const [name, scale] of Object.entries(tokens.color)) {
+		for (const step of Object.keys(scale)) {
+			lines.push(`\t--color-${name}-${step}: var(--color-${name}-${step});`);
+		}
+	}
+	lines.push("");
+
+	// Text colors → text-primary, text-muted, etc.
+	lines.push("\t/* Text colors */");
+	for (const key of Object.keys(tokens.text)) {
+		lines.push(`\t--color-text-${key}: var(--text-${key});`);
+	}
+	lines.push("");
+
+	// Radius → rounded-lg, rounded-xl, etc.
+	lines.push("\t/* Radius */");
+	for (const key of Object.keys(tokens.radius)) {
+		lines.push(`\t--radius-${key}: var(--radius-${key});`);
+	}
+	lines.push("");
+
+	// Shadows → shadow-z1, shadow-z2, etc.
+	lines.push("\t/* Shadows */");
+	for (const key of Object.keys(tokens.shadow)) {
+		lines.push(`\t--shadow-${key}: var(--shadow-${key});`);
+	}
+	lines.push("");
+
+	// Glows → shadow-glow-teal, etc.
+	lines.push("\t/* Glows */");
+	for (const key of Object.keys(tokens.glow)) {
+		lines.push(`\t--shadow-glow-${key}: var(--glow-${key});`);
+	}
+	lines.push("");
+
+	// Bevels → shadow-bevel-subtle, etc.
+	lines.push("\t/* Bevels */");
+	for (const key of Object.keys(tokens.bevel)) {
+		lines.push(`\t--shadow-bevel-${key}: var(--bevel-${key});`);
+	}
+	lines.push("");
+
+	// Spacing → p-4, m-2, gap-3, etc.
+	lines.push("\t/* Spacing */");
+	for (const key of Object.keys(tokens.space)) {
+		lines.push(`\t--spacing-${key}: var(--space-${key});`);
+	}
+	lines.push("");
+
+	// Text sizes → text-sm, text-base, etc.
+	lines.push("\t/* Text sizes */");
+	for (const key of Object.keys(tokens.textSize)) {
+		lines.push(`\t--font-size-${key}: var(--text-size-${key});`);
+	}
+	lines.push("");
+
+	// Blur → blur-md, etc.
+	lines.push("\t/* Blur */");
+	for (const key of Object.keys(tokens.blur)) {
+		lines.push(`\t--blur-${key}: var(--blur-${key});`);
+	}
+	lines.push("");
+
+	// Duration → duration-fast, etc.
+	lines.push("\t/* Duration */");
+	for (const key of Object.keys(tokens.duration)) {
+		lines.push(`\t--transition-duration-${key}: var(--duration-${key});`);
+	}
+	lines.push("");
+
+	// Easing → ease-spring, etc.
+	lines.push("\t/* Easing */");
+	for (const key of Object.keys(tokens.ease)) {
+		lines.push(`\t--transition-timing-function-${key}: var(--ease-${key});`);
+	}
+
+	lines.push("}");
+
+	return `${lines.join("\n")}\n`;
 }
 
 // ---------------------------------------------------------------------------
@@ -128,7 +226,7 @@ function generateTypes(): string {
 	}
 	lines.push("} as const;");
 
-	return lines.join("\n") + "\n";
+	return `${lines.join("\n")}\n`;
 }
 
 // ---------------------------------------------------------------------------
@@ -149,9 +247,9 @@ function generateTailwindPreset(): string {
 	// Colors
 	lines.push("\t\t\tcolors: {");
 	for (const [name, scale] of Object.entries(tokens.color)) {
-		lines.push(`\t\t\t\t"${PREFIX}-${name}": {`);
-		for (const [step, value] of Object.entries(scale)) {
-			lines.push(`\t\t\t\t\t${step}: "var(--${PREFIX}-color-${name}-${step})",`);
+		lines.push(`\t\t\t\t"${name}": {`);
+		for (const [step, _value] of Object.entries(scale)) {
+			lines.push(`\t\t\t\t\t${step}: "var(--color-${name}-${step})",`);
 		}
 		lines.push("\t\t\t\t},");
 	}
@@ -159,32 +257,32 @@ function generateTailwindPreset(): string {
 
 	// Spacing
 	lines.push("\t\t\tspacing: {");
-	for (const [key, value] of Object.entries(tokens.space)) {
-		lines.push(`\t\t\t\t"${PREFIX}-${key}": "var(--${PREFIX}-space-${key})",`);
+	for (const [key, _value] of Object.entries(tokens.space)) {
+		lines.push(`\t\t\t\t"${key}": "var(--space-${key})",`);
 	}
 	lines.push("\t\t\t},");
 
 	// Border radius
 	lines.push("\t\t\tborderRadius: {");
-	for (const [key, value] of Object.entries(tokens.radius)) {
-		lines.push(`\t\t\t\t"${PREFIX}-${key}": "var(--${PREFIX}-radius-${key})",`);
+	for (const [key, _value] of Object.entries(tokens.radius)) {
+		lines.push(`\t\t\t\t"${key}": "var(--radius-${key})",`);
 	}
 	lines.push("\t\t\t},");
 
 	// Box shadow (glow + shadow + bevel)
 	lines.push("\t\t\tboxShadow: {");
 	for (const [key] of Object.entries(tokens.glow)) {
-		lines.push(`\t\t\t\t"${PREFIX}-glow-${key}": "var(--${PREFIX}-glow-${key})",`);
+		lines.push(`\t\t\t\t"glow-${key}": "var(--glow-${key})",`);
 	}
 	for (const [key] of Object.entries(tokens.shadow)) {
-		lines.push(`\t\t\t\t"${PREFIX}-${key}": "var(--${PREFIX}-shadow-${key})",`);
+		lines.push(`\t\t\t\t"${key}": "var(--shadow-${key})",`);
 	}
 	lines.push("\t\t\t},");
 
 	// Z-index
 	lines.push("\t\t\tzIndex: {");
 	for (const [key] of Object.entries(tokens.z)) {
-		lines.push(`\t\t\t\t"${PREFIX}-${key}": "var(--${PREFIX}-z-${key})",`);
+		lines.push(`\t\t\t\t"${key}": "var(--z-${key})",`);
 	}
 	lines.push("\t\t\t},");
 
@@ -192,7 +290,7 @@ function generateTailwindPreset(): string {
 	lines.push("\t},");
 	lines.push("};");
 
-	return lines.join("\n") + "\n";
+	return `${lines.join("\n")}\n`;
 }
 
 // ---------------------------------------------------------------------------
@@ -206,7 +304,6 @@ writeFileSync(resolve(TOKENS_DIR, "tokens.css"), css, "utf-8");
 writeFileSync(resolve(TOKENS_DIR, "types.ts"), types, "utf-8");
 writeFileSync(resolve(TOKENS_DIR, "tailwind.preset.ts"), preset, "utf-8");
 
-console.log("[ds:tokens:build] Generated:");
-console.log(`  tokens.css     (${css.split("\n").length} lines)`);
-console.log(`  types.ts       (${types.split("\n").length} lines)`);
-console.log(`  tailwind.preset.ts (${preset.split("\n").length} lines)`);
+console.log("Generated tokens.css");
+console.log("Generated types.ts");
+console.log("Generated tailwind.preset.ts");

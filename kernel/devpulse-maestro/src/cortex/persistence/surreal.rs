@@ -1,4 +1,4 @@
-//! SurrealDB adapter for reasoning system
+//! `SurrealDB` adapter for reasoning system
 //!
 //! Handles: reasoning graph, state transitions, knowledge relationships
 //! Namespace: maestro/devpulse/reasoning/ with sub-categories
@@ -15,13 +15,16 @@ use surrealdb::engine::local::{Db, RocksDb};
 use surrealdb::Surreal;
 use tokio::sync::RwLock;
 
-/// SurrealDB adapter for reasoning graph
+/// `SurrealDB` adapter for reasoning graph.
 pub struct SurrealAdapter {
     db: Arc<RwLock<Surreal<Db>>>,
 }
 
 impl SurrealAdapter {
-    /// Open database at path with RocksDB backend
+    /// Open database at path with `RocksDB` backend.
+    ///
+    /// # Errors
+    /// Returns error if the database cannot be opened or schema initialization fails.
     pub async fn open(path: &Path) -> Result<Self> {
         // Ensure directory exists
         if let Some(parent) = path.parent() {
@@ -48,7 +51,10 @@ impl SurrealAdapter {
         Ok(adapter)
     }
 
-    /// Open in-memory database for testing
+    /// Open in-memory database for testing.
+    ///
+    /// # Errors
+    /// Returns error if the in-memory database cannot be created or schema initialization fails.
     pub async fn open_in_memory() -> Result<Self> {
         use surrealdb::engine::local::Mem;
 
@@ -245,33 +251,46 @@ struct KvRecord {
 /// Reasoning node in the graph
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReasoningNode {
+    /// Unique node identifier.
     pub id: String,
+    /// Classification of this node (concept, fact, decision).
     pub node_type: String,
+    /// Text content of the node.
     pub content: String,
+    /// Additional structured metadata.
     pub metadata: serde_json::Value,
+    /// Unix timestamp of creation.
     pub created_at: i64,
 }
 
 /// State in the reasoning HMM
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReasoningState {
+    /// Unique state identifier.
     pub id: String,
+    /// Human-readable state name.
     pub name: String,
+    /// Prior probability of this state.
     pub probability: f64,
+    /// Observable emissions from this state.
     pub emissions: Vec<String>,
 }
 
 /// Transition between reasoning states
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StateTransition {
+    /// Source state identifier.
     pub from_state: String,
+    /// Target state identifier.
     pub to_state: String,
+    /// Transition probability.
     pub probability: f64,
+    /// Event that triggers this transition.
     pub trigger: String,
 }
 
-/// Schema for reasoning system
-const REASONING_SCHEMA: &str = r#"
+/// Schema for reasoning system.
+const REASONING_SCHEMA: &str = r"
 -- Key-value store for signal-based access
 DEFINE TABLE kv SCHEMAFULL;
 DEFINE FIELD key ON kv TYPE string;
@@ -305,4 +324,4 @@ DEFINE FIELD from_state ON transitions TYPE record(states);
 DEFINE FIELD to_state ON transitions TYPE record(states);
 DEFINE FIELD probability ON transitions TYPE float;
 DEFINE FIELD trigger ON transitions TYPE string;
-"#;
+";

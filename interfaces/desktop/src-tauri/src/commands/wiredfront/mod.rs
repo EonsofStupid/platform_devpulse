@@ -13,5 +13,6 @@
 //!
 //! @since 1.0.0
 
+/// Connect to a peer for real-time collaboration.
 #[tauri::command]
 pub fn connect_peer() {}

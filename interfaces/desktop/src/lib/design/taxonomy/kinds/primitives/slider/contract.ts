@@ -2,8 +2,11 @@
  * @file Slider Taxonomy Contract
  * @description ColdLight SSOT contract for the slider primitive.
  *
- * ariaStateProvider: "meltui" — createSlider provides ARIA range widget + keyboard interaction.
+ * ariaStateProvider: "coldlight" — createSlider provides ARIA range widget + keyboard interaction.
  * 2-folder parity: taxonomy + primitive.
+ *
+ * Reference: W3C WAI-ARIA APG Slider Pattern
+ * https://www.w3.org/WAI/ARIA/apg/patterns/slider/
  *
  * WAI-ARIA: role="slider" on each thumb element.
  * Required: aria-valuenow, aria-valuemin, aria-valuemax.
@@ -11,15 +14,12 @@
  * Keyboard: arrow keys for fine adjustment, Page/Home/End for coarse.
  */
 
-import type { PrimitiveContract } from "../../../types.js";
-import { sliderSlotStates, type SliderSlot, type SliderState } from "./types.js";
+import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { sliderSlotStates } from "./types.js";
 
-// ─── CONTRACT ───────────────────────────────────────────────────────────────
-
-/** Slider primitive contract — ColdLight SSOT */
-export const contract: PrimitiveContract<"slider", SliderSlot, SliderState> = {
+const rawContract = {
 	kind: "slider",
-	ariaStateProvider: "meltui",
+	ariaStateProvider: "coldlight",
 	slots: { required: ["root", "track", "range", "thumb"], optional: [], forbidden: [] },
 	slotSpec: {
 		root: {
@@ -56,10 +56,85 @@ export const contract: PrimitiveContract<"slider", SliderSlot, SliderState> = {
 	aria: {
 		role: "slider",
 		requiredAttrs: ["aria-valuenow", "aria-valuemin", "aria-valuemax"],
-		optionalAttrs: ["aria-valuetext", "aria-label", "aria-labelledby", "aria-orientation", "aria-disabled"],
+		optionalAttrs: [
+			"aria-valuetext",
+			"aria-label",
+			"aria-labelledby",
+			"aria-orientation",
+			"aria-disabled",
+		],
 	},
-	keyboard: ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "PageUp", "PageDown"],
+	keyboard: [
+		"ArrowLeft",
+		"ArrowRight",
+		"ArrowUp",
+		"ArrowDown",
+		"Home",
+		"End",
+		"PageUp",
+		"PageDown",
+	],
+	keyboardMap: [
+		{
+			orientation: "horizontal",
+			focusLocation: "thumb",
+			key: "ArrowRight",
+			action: "increment",
+			required: true,
+		},
+		{
+			orientation: "horizontal",
+			focusLocation: "thumb",
+			key: "ArrowLeft",
+			action: "decrement",
+			required: true,
+		},
+		{
+			orientation: "vertical",
+			focusLocation: "thumb",
+			key: "ArrowUp",
+			action: "increment",
+			required: true,
+		},
+		{
+			orientation: "vertical",
+			focusLocation: "thumb",
+			key: "ArrowDown",
+			action: "decrement",
+			required: true,
+		},
+		{
+			orientation: "both",
+			focusLocation: "thumb",
+			key: "Home",
+			action: "first-item",
+			required: true,
+		},
+		{
+			orientation: "both",
+			focusLocation: "thumb",
+			key: "End",
+			action: "last-item",
+			required: true,
+		},
+		{
+			orientation: "both",
+			focusLocation: "thumb",
+			key: "PageUp",
+			action: "increment",
+			required: false,
+		},
+		{
+			orientation: "both",
+			focusLocation: "thumb",
+			key: "PageDown",
+			action: "decrement",
+			required: false,
+		},
+	],
 	focusStrategy: "none",
 	compound: true,
 	orientation: "horizontal",
-};
+} as const;
+
+export const contract: PrimitiveContract = parseContract(rawContract);

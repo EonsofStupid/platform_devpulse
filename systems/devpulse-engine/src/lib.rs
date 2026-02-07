@@ -1,3 +1,5 @@
+//! `DevPulse` signal engine — broadcast routing and typed payloads.
+
 pub mod signals;
 
 use signals::{Signal, SignalRouter, SignalSource, SignalVariant, SystemPayload, SystemStatus};

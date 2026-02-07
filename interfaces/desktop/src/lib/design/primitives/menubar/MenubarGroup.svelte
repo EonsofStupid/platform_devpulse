@@ -4,12 +4,12 @@
 	Contract: kind="menubar", slot="group"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { MenubarGroupProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { MenubarGroupProps } from "./types.js";
 
-	let { children, class: className, ...rest }: MenubarGroupProps = $props();
+let { children, class: className, ...rest }: MenubarGroupProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "MenubarGroup");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "MenubarGroup");
 </script>
 
 <div

@@ -4,12 +4,12 @@
 	Contract: kind="select", slot="item"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { SelectItemProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { SelectItemProps } from "./types.js";
 
-	let { children, class: className, ...rest }: SelectItemProps = $props();
+let { children, class: className, ...rest }: SelectItemProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SelectItem");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SelectItem");
 </script>
 
 <div

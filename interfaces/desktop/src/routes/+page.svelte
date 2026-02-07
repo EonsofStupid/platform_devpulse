@@ -1,6 +1,6 @@
 <script lang="ts">
-  // Server-side redirect handles navigation to /devpulse
-  // This page only renders briefly during SSR hydration
+// Server-side redirect handles navigation to /devpulse
+// This page only renders briefly during SSR hydration
 </script>
 
 <div class="loading">Loading...</div>

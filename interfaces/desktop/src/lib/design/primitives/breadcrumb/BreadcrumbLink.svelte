@@ -4,12 +4,12 @@
 	Contract: kind="breadcrumb", slot="link", ariaStateProvider="coldlight"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { BreadcrumbLinkProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { BreadcrumbLinkProps } from "./types.js";
 
-	let { children, class: className, ...rest }: BreadcrumbLinkProps = $props();
+let { children, class: className, ...rest }: BreadcrumbLinkProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "BreadcrumbLink");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "BreadcrumbLink");
 </script>
 
 <a

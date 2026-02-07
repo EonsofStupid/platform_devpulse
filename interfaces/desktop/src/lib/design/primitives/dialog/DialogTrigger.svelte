@@ -4,12 +4,12 @@
 	Contract: kind="dialog", slot="trigger"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { DialogTriggerProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { DialogTriggerProps } from "./types.js";
 
-	let { children, class: className, ...rest }: DialogTriggerProps = $props();
+let { children, class: className, ...rest }: DialogTriggerProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "DialogTrigger");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "DialogTrigger");
 </script>
 
 <button

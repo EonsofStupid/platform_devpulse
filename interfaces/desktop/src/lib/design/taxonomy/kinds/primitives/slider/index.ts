@@ -2,11 +2,12 @@
  * @file Slider Taxonomy Barrel
  * @description Re-exports slider types + contract. Zero logic.
  */
+
+export { contract } from "./contract.js";
 export {
-	sliderSlots,
-	sliderStateTokens,
-	sliderSlotStates,
 	type SliderSlot,
 	type SliderState,
+	sliderSlotStates,
+	sliderSlots,
+	sliderStateTokens,
 } from "./types.js";
-export { contract } from "./contract.js";

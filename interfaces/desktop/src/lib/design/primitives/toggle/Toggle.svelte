@@ -4,19 +4,19 @@
 	Contract: kind="toggle", slot="root", ariaStateProvider="coldlight"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { ToggleProps } from "./types.js";
-	import { setToggleContext } from "./context.js";
+import { cn, stripStyleProp } from "../types.js";
+import { setToggleContext } from "./context.js";
+import type { ToggleProps } from "./types.js";
 
-	let { pressed = $bindable(false), children, class: className, ...rest }: ToggleProps = $props();
+let { pressed = $bindable(false), children, class: className, ...rest }: ToggleProps = $props();
 
-	setToggleContext({
-		get pressed() {
-			return pressed;
-		},
-	});
+setToggleContext({
+	get pressed() {
+		return pressed;
+	},
+});
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "Toggle");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "Toggle");
 </script>
 
 <button

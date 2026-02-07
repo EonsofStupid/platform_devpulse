@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** Slider root — container for the slider track and thumb(s) */
 export interface SliderProps extends OmitStyle<HTMLDivElement>, BaseProps {

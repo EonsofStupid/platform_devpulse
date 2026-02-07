@@ -4,12 +4,12 @@
 	Contract: kind="visually-hidden", slot="root", ariaStateProvider="coldlight"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { VisuallyHiddenProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { VisuallyHiddenProps } from "./types.js";
 
-	let { children, class: className, ...rest }: VisuallyHiddenProps = $props();
+let { children, class: className, ...rest }: VisuallyHiddenProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "VisuallyHidden");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "VisuallyHidden");
 </script>
 
 <span

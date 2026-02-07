@@ -4,12 +4,12 @@
 	Contract: kind="command", slot="list", ariaStateProvider="coldlight"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { CommandListProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { CommandListProps } from "./types.js";
 
-	let { children, class: className, ...rest }: CommandListProps = $props();
+let { children, class: className, ...rest }: CommandListProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "CommandList");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "CommandList");
 </script>
 
 <div

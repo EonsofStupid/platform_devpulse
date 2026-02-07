@@ -4,14 +4,14 @@
 	Contract: kind="collapsible", slot="trigger"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { CollapsibleTriggerProps } from "./types.js";
-	import { getCollapsibleContext } from "./context.js";
+import { cn, stripStyleProp } from "../types.js";
+import { getCollapsibleContext } from "./context.js";
+import type { CollapsibleTriggerProps } from "./types.js";
 
-	let { children, class: className, ...rest }: CollapsibleTriggerProps = $props();
-	const ctx = getCollapsibleContext();
+let { children, class: className, ...rest }: CollapsibleTriggerProps = $props();
+const ctx = getCollapsibleContext();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "CollapsibleTrigger");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "CollapsibleTrigger");
 </script>
 
 <button

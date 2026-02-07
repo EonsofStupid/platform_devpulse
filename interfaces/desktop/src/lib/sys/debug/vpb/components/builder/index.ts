@@ -4,45 +4,44 @@
  * @since 1.0.0
  */
 
-// Schema and types
+// Templates
 export {
-  type BlockNode,
-  type BlockMetadata,
-  type CreateBlockOptions,
-  type ValidationResult,
-  type KindProps,
-  type KindSlots,
-  BlockNodeSchema,
-  BlockTreeSchema,
-  BlockMetadataSchema,
-  validateBlockNode,
-  validateBlockTree,
-  generateBlockId,
-  createBlock,
-  isBlockKind,
-} from "./schema";
+	type BlockTemplate,
+	blockTemplates,
+	getTemplate,
+	getTemplatesByCategory,
+} from "./defaults";
 
 // Palette
 export {
-  type PaletteItem,
-  type PaletteCategory,
-  type PaletteCategoryGroup,
-  paletteItems,
-  paletteByKind,
-  paletteGroups,
-  getPaletteItem,
-  getPaletteByCategory,
-  getRootPaletteItems,
-  getAllowedChildItems,
-  searchPalette,
-  getRecipesForPaletteItem,
-  isRecipeValidForKind,
+	getAllowedChildItems,
+	getPaletteByCategory,
+	getPaletteItem,
+	getRecipesForPaletteItem,
+	getRootPaletteItems,
+	isRecipeValidForKind,
+	type PaletteCategory,
+	type PaletteCategoryGroup,
+	type PaletteItem,
+	paletteByKind,
+	paletteGroups,
+	paletteItems,
+	searchPalette,
 } from "./palette";
-
-// Templates
+// Schema and types
 export {
-  type BlockTemplate,
-  blockTemplates,
-  getTemplate,
-  getTemplatesByCategory,
-} from "./defaults";
+	type BlockMetadata,
+	BlockMetadataSchema,
+	type BlockNode,
+	BlockNodeSchema,
+	BlockTreeSchema,
+	type CreateBlockOptions,
+	createBlock,
+	generateBlockId,
+	isBlockKind,
+	type KindProps,
+	type KindSlots,
+	type ValidationResult,
+	validateBlockNode,
+	validateBlockTree,
+} from "./schema";

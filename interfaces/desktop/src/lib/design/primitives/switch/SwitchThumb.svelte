@@ -4,14 +4,14 @@
 	Contract: kind="switch", slot="thumb", ariaStateProvider="coldlight"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { SwitchThumbProps } from "./types.js";
-	import { getSwitchContext } from "./context.js";
+import { cn, stripStyleProp } from "../types.js";
+import { getSwitchContext } from "./context.js";
+import type { SwitchThumbProps } from "./types.js";
 
-	let { children, class: className, ...rest }: SwitchThumbProps = $props();
-	const ctx = getSwitchContext();
+let { children, class: className, ...rest }: SwitchThumbProps = $props();
+const ctx = getSwitchContext();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SwitchThumb");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SwitchThumb");
 </script>
 
 <span

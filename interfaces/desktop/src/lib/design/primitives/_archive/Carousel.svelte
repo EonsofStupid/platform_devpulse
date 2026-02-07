@@ -7,14 +7,14 @@
   A11y Acceptance: Arrow keys navigate, current slide announced
 -->
 <script lang="ts" module>
-  export interface CarouselItem {
-    /** Unique identifier */
-    id: string;
-    /** Label for screen readers */
-    label: string;
-    /** Any additional data */
-    [key: string]: unknown;
-  }
+export interface CarouselItem {
+	/** Unique identifier */
+	id: string;
+	/** Label for screen readers */
+	label: string;
+	/** Any additional data */
+	[key: string]: unknown;
+}
 </script>
 
 <script lang="ts">

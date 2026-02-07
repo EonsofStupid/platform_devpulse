@@ -10,13 +10,10 @@
  * Selected state for multi-card selection patterns.
  */
 
-import type { PrimitiveContract } from "../../../types.js";
-import { cardSlotStates, type CardSlot, type CardState } from "./types.js";
+import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { cardSlotStates } from "./types.js";
 
-// ─── CONTRACT ───────────────────────────────────────────────────────────────
-
-/** Card primitive contract — ColdLight SSOT */
-export const contract: PrimitiveContract<"card", CardSlot, CardState> = {
+const rawContract = {
 	kind: "card",
 	ariaStateProvider: "coldlight",
 	slots: {
@@ -28,7 +25,17 @@ export const contract: PrimitiveContract<"card", CardSlot, CardState> = {
 		root: {
 			element: "div",
 			children: "snippet",
-			aria: { role: "group", required: [], optional: ["aria-label", "aria-labelledby", "aria-describedby", "aria-selected", "aria-disabled"] },
+			aria: {
+				role: "group",
+				required: [],
+				optional: [
+					"aria-label",
+					"aria-labelledby",
+					"aria-describedby",
+					"aria-selected",
+					"aria-disabled",
+				],
+			},
 		},
 		header: {
 			element: "div",
@@ -56,12 +63,28 @@ export const contract: PrimitiveContract<"card", CardSlot, CardState> = {
 			aria: { required: [], optional: [] },
 		},
 	},
+	slotRelationships: [
+		{ sourceSlot: "root", attribute: "aria-labelledby", targetSlot: "title", required: false },
+		{
+			sourceSlot: "root",
+			attribute: "aria-describedby",
+			targetSlot: "description",
+			required: false,
+		},
+	],
 	states: {
 		shared: ["hover", "active", "focused", "focus-visible", "disabled"],
 		specific: ["selected"],
 	},
 	slotStates: cardSlotStates,
-	slotActions: { root: ["select"], header: [], title: [], description: [], content: [], footer: [] },
+	slotActions: {
+		root: ["select"],
+		header: [],
+		title: [],
+		description: [],
+		content: [],
+		footer: [],
+	},
 	aria: {
 		role: "group",
 		requiredAttrs: [],
@@ -74,6 +97,12 @@ export const contract: PrimitiveContract<"card", CardSlot, CardState> = {
 		],
 	},
 	keyboard: ["Enter", "Space"],
+	keyboardMap: [
+		{ orientation: "both", focusLocation: "root", key: "Enter", action: "select", required: false },
+		{ orientation: "both", focusLocation: "root", key: "Space", action: "select", required: false },
+	],
 	focusStrategy: "none",
 	compound: false,
-};
+} as const;
+
+export const contract: PrimitiveContract = parseContract(rawContract);

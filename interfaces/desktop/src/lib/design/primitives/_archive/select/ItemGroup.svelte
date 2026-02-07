@@ -9,18 +9,18 @@
   - data-slot="item-group"
 -->
 <script lang="ts">
-  import { Select } from "meltui";
-  import type { SelectItemGroupProps } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+import { Select } from "meltui";
+import { stripStyleProp } from "../types.js";
+import type { SelectItemGroupProps } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: SelectItemGroupProps = $props();
+let {
+	children,
+	class: className = "",
+	"data-id": dataId,
+	...rest
+}: SelectItemGroupProps = $props();
 
-  stripStyleProp(rest, "Select.ItemGroup");
+stripStyleProp(rest, "Select.ItemGroup");
 </script>
 
 <Select.Group

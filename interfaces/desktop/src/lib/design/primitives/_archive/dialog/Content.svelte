@@ -24,42 +24,42 @@
   - data-state="open" | "closed"
 -->
 <script lang="ts">
-  import { Dialog } from "meltui";
-  import { getContext } from "svelte";
-  import type { DialogContentProps, DialogState, DialogContext } from "./types.js";
-  import { DIALOG_CONTEXT_KEY } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+import { Dialog } from "meltui";
+import { getContext } from "svelte";
+import { stripStyleProp } from "../types.js";
+import type { DialogContentProps, DialogContext, DialogState } from "./types.js";
+import { DIALOG_CONTEXT_KEY } from "./types.js";
 
-  let {
-    children,
-    closeOnEscape = true,
-    closeOnOutsideClick = true,
-    trapFocus = true,
-    preventScroll = true,
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: DialogContentProps = $props();
+let {
+	children,
+	closeOnEscape = true,
+	closeOnOutsideClick = true,
+	trapFocus = true,
+	preventScroll = true,
+	class: className = "",
+	"data-id": dataId,
+	...rest
+}: DialogContentProps = $props();
 
-  stripStyleProp(rest, "Dialog.Content");
+stripStyleProp(rest, "Dialog.Content");
 
-  // ============================================
-  // COLDLIGHT GETS IDs FROM CONTEXT
-  // ============================================
-  const ctx = getContext<DialogContext>(DIALOG_CONTEXT_KEY);
-  const { contentId, titleId, descriptionId } = ctx;
+// ============================================
+// COLDLIGHT GETS IDs FROM CONTEXT
+// ============================================
+const ctx = getContext<DialogContext>(DIALOG_CONTEXT_KEY);
+const { contentId, titleId, descriptionId } = ctx;
 
-  function handleEscapeKeydown(e: KeyboardEvent) {
-    if (!closeOnEscape) {
-      e.preventDefault();
-    }
-  }
+function handleEscapeKeydown(e: KeyboardEvent) {
+	if (!closeOnEscape) {
+		e.preventDefault();
+	}
+}
 
-  function handleInteractOutside(e: Event) {
-    if (!closeOnOutsideClick) {
-      e.preventDefault();
-    }
-  }
+function handleInteractOutside(e: Event) {
+	if (!closeOnOutsideClick) {
+		e.preventDefault();
+	}
+}
 </script>
 
 <!--

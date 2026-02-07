@@ -4,12 +4,12 @@
 	Contract: kind="pagination", slot="ellipsis", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { PaginationEllipsisProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { PaginationEllipsisProps } from "./types.js";
 
-	let { children, class: className, ...rest }: PaginationEllipsisProps = $props();
+let { children, class: className, ...rest }: PaginationEllipsisProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "PaginationEllipsis");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "PaginationEllipsis");
 </script>
 
 <span

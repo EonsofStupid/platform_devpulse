@@ -6,7 +6,7 @@
  * ariaStateProvider: "coldlight" — native <input> handles semantics.
  */
 
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** Input root — structural shell for text input (self-closing, no children) */
 export interface InputProps extends OmitStyle<HTMLInputElement>, BaseProps {}

@@ -27,23 +27,23 @@
     - Animated gradient background support
 -->
 <script lang="ts">
-    import type { Snippet } from "svelte";
+import type { Snippet } from "svelte";
 
-    interface Props {
-        variant?: "deep" | "standard" | "light" | "frost";
-        animatedBg?: boolean;
-        padding?: "sm" | "md" | "lg";
-        class?: string;
-        children: Snippet;
-    }
+interface Props {
+	variant?: "deep" | "standard" | "light" | "frost";
+	animatedBg?: boolean;
+	padding?: "sm" | "md" | "lg";
+	class?: string;
+	children: Snippet;
+}
 
-    let {
-        variant = "standard",
-        animatedBg = false,
-        padding = "md",
-        class: className = "",
-        children,
-    }: Props = $props();
+let {
+	variant = "standard",
+	animatedBg = false,
+	padding = "md",
+	class: className = "",
+	children,
+}: Props = $props();
 </script>
 
 <div

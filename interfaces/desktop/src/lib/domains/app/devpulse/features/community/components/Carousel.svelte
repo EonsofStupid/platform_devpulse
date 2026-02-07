@@ -20,30 +20,30 @@
   @since 1.0.0
 -->
 <script lang="ts">
-    import { run } from "svelte/legacy";
+import { run } from "svelte/legacy";
 
-    // INTERFACE: The Carousel accepts a list of items and an onSelect callback.
-    // State is local (Runes) or passed down.
+// INTERFACE: The Carousel accepts a list of items and an onSelect callback.
+// State is local (Runes) or passed down.
 
-    let { items = [], onSelect } = $props();
+let { items = [], onSelect } = $props();
 
-    // State
-    let activeIndex = $state(0);
+// State
+let activeIndex = $state(0);
 
-    function handleKeydown(e: KeyboardEvent) {
-        if (e.key === "ArrowRight") {
-            activeIndex = (activeIndex + 1) % items.length;
-        } else if (e.key === "ArrowLeft") {
-            activeIndex = (activeIndex - 1 + items.length) % items.length;
-        } else if (e.key === "Enter") {
-            onSelect(items[activeIndex]);
-        }
-    }
+function handleKeydown(e: KeyboardEvent) {
+	if (e.key === "ArrowRight") {
+		activeIndex = (activeIndex + 1) % items.length;
+	} else if (e.key === "ArrowLeft") {
+		activeIndex = (activeIndex - 1 + items.length) % items.length;
+	} else if (e.key === "Enter") {
+		onSelect(items[activeIndex]);
+	}
+}
 
-    function select(index: number) {
-        activeIndex = index;
-        onSelect(items[index]);
-    }
+function select(index: number) {
+	activeIndex = index;
+	onSelect(items[index]);
+}
 </script>
 
 <svelte:window onkeydown={handleKeydown} />

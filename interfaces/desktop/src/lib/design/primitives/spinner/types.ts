@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** Spinner root — indeterminate loading indicator */
 export interface SpinnerProps extends OmitStyle<HTMLSpanElement>, BaseProps {

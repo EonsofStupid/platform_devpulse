@@ -7,15 +7,22 @@ import type { DsSurfaceProps } from "$lib/design/recipes/types.js";
 
 /** Blueprint: composition defaults for a component kind */
 export interface BlueprintDefinition {
-  id: string;
-  kind: string;
-  label: string;
-  defaultRecipe: string;
-  defaultProps: Partial<DsSurfaceProps>;
-  slots?: Record<string, SlotWiring>;
+	id: string;
+	kind: string;
+	label: string;
+	defaultRecipe: string;
+	defaultProps: Partial<DsSurfaceProps>;
+	slots?: Record<string, SlotWiring>;
 }
 
 /** Slot wiring metadata */
 export interface SlotWiring {
-  required: boolean;
+	required: boolean;
+}
+
+/** Per-kind manifest of available blueprint presets */
+export interface BlueprintLegend {
+	readonly kind: string;
+	readonly defaultId: string;
+	readonly ids: readonly string[];
 }

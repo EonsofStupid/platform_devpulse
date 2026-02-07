@@ -44,7 +44,7 @@ pub trait TypedPersistence: PersistenceAdapter {
 // Blanket impl for all PersistenceAdapters
 impl<T: PersistenceAdapter> TypedPersistence for T {}
 
-/// SQL query interface for relational stores (LibSQL, DuckDB)
+/// SQL query interface for relational stores (`LibSQL`, `DuckDB`)
 #[allow(async_fn_in_trait)]
 pub trait SqlAdapter: Send + Sync {
     /// Execute a query that returns rows
@@ -57,7 +57,7 @@ pub trait SqlAdapter: Send + Sync {
     async fn execute_batch(&self, sql: &str) -> Result<()>;
 }
 
-/// Graph operations for SurrealDB reasoning system
+/// Graph operations for `SurrealDB` reasoning system
 #[allow(async_fn_in_trait)]
 pub trait GraphAdapter: Send + Sync {
     /// Create a node with properties
@@ -84,7 +84,7 @@ pub trait GraphAdapter: Send + Sync {
     ) -> Result<Vec<serde_json::Value>>;
 }
 
-/// Analytics query interface for DuckDB
+/// Analytics query interface for `DuckDB`
 #[allow(async_fn_in_trait)]
 pub trait AnalyticsAdapter: Send + Sync {
     /// Run an analytics query

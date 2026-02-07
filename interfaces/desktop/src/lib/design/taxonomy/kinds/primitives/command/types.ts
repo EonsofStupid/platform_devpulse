@@ -7,12 +7,20 @@
  * ariaStateProvider: "coldlight" — native combobox/listbox pattern with activedescendant focus.
  */
 
-import type { StateToken, SlotStateMap } from "../../../types.js";
+import type { SlotStateMap, StateToken } from "../../../types.js";
 
 // ─── SLOT TYPES ─────────────────────────────────────────────────────────────
 
 /** All slot names for the command primitive */
-export const commandSlots = ["root", "input", "list", "group", "item", "empty", "separator"] as const;
+export const commandSlots = [
+	"root",
+	"input",
+	"list",
+	"group",
+	"item",
+	"empty",
+	"separator",
+] as const;
 
 /** Union of command slot names */
 export type CommandSlot = (typeof commandSlots)[number];

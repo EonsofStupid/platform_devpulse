@@ -6,13 +6,10 @@
  * 2-folder parity: taxonomy + primitive.
  */
 
-import type { PrimitiveContract } from "../../../types.js";
-import { inputSlotStates, type InputSlot, type InputState } from "./types.js";
+import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { inputSlotStates } from "./types.js";
 
-// ─── CONTRACT ───────────────────────────────────────────────────────────────
-
-/** Input primitive contract — ColdLight SSOT */
-export const contract: PrimitiveContract<"input", InputSlot, InputState> = {
+const rawContract = {
 	kind: "input",
 	ariaStateProvider: "coldlight",
 	slots: { required: ["root"], optional: [], forbidden: [] },
@@ -20,7 +17,22 @@ export const contract: PrimitiveContract<"input", InputSlot, InputState> = {
 		root: {
 			element: "input",
 			children: "self-closing",
-			aria: { role: "textbox", required: [], optional: ["aria-label", "aria-labelledby", "aria-describedby", "aria-required", "aria-invalid", "aria-errormessage", "aria-disabled", "aria-readonly", "aria-placeholder", "aria-autocomplete"] },
+			aria: {
+				role: "textbox",
+				required: [],
+				optional: [
+					"aria-label",
+					"aria-labelledby",
+					"aria-describedby",
+					"aria-required",
+					"aria-invalid",
+					"aria-errormessage",
+					"aria-disabled",
+					"aria-readonly",
+					"aria-placeholder",
+					"aria-autocomplete",
+				],
+			},
 		},
 	},
 	states: {
@@ -48,4 +60,6 @@ export const contract: PrimitiveContract<"input", InputSlot, InputState> = {
 	keyboard: [],
 	focusStrategy: "none",
 	compound: false,
-};
+} as const;
+
+export const contract: PrimitiveContract = parseContract(rawContract);

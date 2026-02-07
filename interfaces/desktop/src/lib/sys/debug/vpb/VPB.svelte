@@ -8,7 +8,7 @@
   @since 1.0.0
 -->
 <script lang="ts">
-    import Frame from "./shell/frame.svelte";
+import Frame from "./shell/frame.svelte";
 </script>
 
 <Frame />

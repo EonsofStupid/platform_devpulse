@@ -4,9 +4,9 @@
 	Contract: kind="context-menu", slot="sub"
 -->
 <script lang="ts">
-	import type { ContextMenuSubProps } from "./types.js";
+import type { ContextMenuSubProps } from "./types.js";
 
-	let { children }: ContextMenuSubProps = $props();
+let { children }: ContextMenuSubProps = $props();
 </script>
 
 {@render children?.()}

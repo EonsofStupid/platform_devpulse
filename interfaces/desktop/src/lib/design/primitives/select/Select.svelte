@@ -4,16 +4,16 @@
 	Contract: kind="select", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import type { SelectProps } from "./types.js";
-	import { setSelectContext } from "./context.js";
+import { setSelectContext } from "./context.js";
+import type { SelectProps } from "./types.js";
 
-	let { open = $bindable(false), children }: SelectProps = $props();
+let { open = $bindable(false), children }: SelectProps = $props();
 
-	setSelectContext({
-		get open() {
-			return open;
-		},
-	});
+setSelectContext({
+	get open() {
+		return open;
+	},
+});
 </script>
 
 {@render children?.()}

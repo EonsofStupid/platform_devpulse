@@ -1,3 +1,5 @@
+//! `DevPulse` task runner for development orchestration.
+
 use clap::{Parser, Subcommand};
 use xshell::{cmd, Shell};
 
@@ -23,15 +25,14 @@ fn main() -> anyhow::Result<()> {
 
     match cli.command {
         Commands::RunDev => {
-            println!("🚀 Starting DevPulse Platform + Lab...");
-            // Use sh to verify environment (Example implementation)
-            let _env_check = cmd!(sh, "echo 'Environment Checked'").read()?;
-            println!("{}", _env_check);
+            println!("Starting DevPulse Platform + Lab...");
+            let env_check = cmd!(sh, "echo 'Environment Checked'").read()?;
+            println!("{env_check}");
         }
         Commands::VerifyDogfood => {
-            println!("🔍 Verifying Dogfood Status...");
-            let _status = cmd!(sh, "echo 'Dogfood Status: OK'").read()?;
-            println!("{}", _status);
+            println!("Verifying Dogfood Status...");
+            let status = cmd!(sh, "echo 'Dogfood Status: OK'").read()?;
+            println!("{status}");
         }
     }
 

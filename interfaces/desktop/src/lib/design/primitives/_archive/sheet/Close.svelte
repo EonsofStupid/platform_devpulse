@@ -9,18 +9,13 @@
   - data-slot="close"
 -->
 <script lang="ts">
-  import { Dialog } from "meltui";
-  import type { SheetCloseProps } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+import { Dialog } from "meltui";
+import { stripStyleProp } from "../types.js";
+import type { SheetCloseProps } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: SheetCloseProps = $props();
+let { children, class: className = "", "data-id": dataId, ...rest }: SheetCloseProps = $props();
 
-  stripStyleProp(rest, "Sheet.Close");
+stripStyleProp(rest, "Sheet.Close");
 </script>
 
 <Dialog.Close

@@ -2,20 +2,17 @@
  * @file Popover Taxonomy Contract
  * @description ColdLight SSOT contract for the popover primitive.
  *
- * ariaStateProvider: "meltui" — dsAdapter (createPopover) provides ARIA + state.
+ * ariaStateProvider: "coldlight" — dsAdapter (createPopover) provides ARIA + state.
  * 3-folder parity: taxonomy + adapter + primitive.
  * Non-modal floating content anchored to trigger via Floating UI.
  */
 
-import type { PrimitiveContract } from "../../../types.js";
-import { popoverSlotStates, type PopoverSlot, type PopoverState } from "./types.js";
+import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { popoverSlotStates } from "./types.js";
 
-// ─── CONTRACT ───────────────────────────────────────────────────────────────
-
-/** Popover primitive contract — ColdLight SSOT */
-export const contract: PrimitiveContract<"popover", PopoverSlot, PopoverState> = {
+const rawContract = {
 	kind: "popover",
-	ariaStateProvider: "meltui",
+	ariaStateProvider: "coldlight",
 	slots: {
 		required: ["root", "trigger", "content"],
 		optional: ["arrow", "close"],
@@ -23,11 +20,30 @@ export const contract: PrimitiveContract<"popover", PopoverSlot, PopoverState> =
 	},
 	slotSpec: {
 		root: { element: "fragment", children: "renderless", aria: { required: [], optional: [] } },
-		trigger: { element: "button", children: "snippet", aria: { role: "button", required: ["aria-haspopup", "aria-expanded"], optional: ["aria-controls", "aria-label"] } },
-		content: { element: "div", children: "snippet", aria: { required: [], optional: ["aria-label", "aria-labelledby", "aria-describedby"] } },
+		trigger: {
+			element: "button",
+			children: "snippet",
+			aria: {
+				role: "button",
+				required: ["aria-haspopup", "aria-expanded"],
+				optional: ["aria-controls", "aria-label"],
+			},
+		},
+		content: {
+			element: "div",
+			children: "snippet",
+			aria: { required: [], optional: ["aria-label", "aria-labelledby", "aria-describedby"] },
+		},
 		arrow: { element: "div", children: "snippet", aria: { required: [], optional: [] } },
-		close: { element: "button", children: "snippet", aria: { role: "button", required: [], optional: ["aria-label"] } },
+		close: {
+			element: "button",
+			children: "snippet",
+			aria: { role: "button", required: [], optional: ["aria-label"] },
+		},
 	},
+	slotRelationships: [
+		{ sourceSlot: "trigger", attribute: "aria-controls", targetSlot: "content", required: false },
+	],
 	states: {
 		shared: ["focused", "focus-visible", "focus-within", "hover", "active"],
 		specific: ["open", "hidden", "visible", "entering", "exiting"],
@@ -52,7 +68,22 @@ export const contract: PrimitiveContract<"popover", PopoverSlot, PopoverState> =
 		],
 	},
 	keyboard: ["Escape", "Tab"],
+	keyboardMap: [
+		{
+			orientation: "both",
+			focusLocation: "content",
+			key: "Escape",
+			action: "close",
+			required: true,
+		},
+	],
 	focusStrategy: "redirect",
+	focus: {
+		strategy: "redirect",
+		onEscape: "return-to-trigger",
+	},
 	compound: true,
 	dismissBehavior: { escape: true, outsideClick: true },
-};
+} as const;
+
+export const contract: PrimitiveContract = parseContract(rawContract);

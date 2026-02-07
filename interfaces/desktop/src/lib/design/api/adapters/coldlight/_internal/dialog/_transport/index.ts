@@ -1,2 +1,7 @@
-export type { DialogTransport, DialogTransportConfig, DialogTransportStates, DialogAttachments } from "./types.js";
 export { createDialogTransport } from "./factory.js";
+export type {
+	DialogAttachments,
+	DialogTransport,
+	DialogTransportConfig,
+	DialogTransportStates,
+} from "./types.js";

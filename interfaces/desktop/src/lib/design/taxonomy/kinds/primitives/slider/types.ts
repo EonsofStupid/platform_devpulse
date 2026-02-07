@@ -7,7 +7,7 @@
  * ariaStateProvider: "meltui" — createSlider provides ARIA range widget + keyboard interaction.
  */
 
-import type { StateToken, SlotStateMap } from "../../../types.js";
+import type { SlotStateMap, StateToken } from "../../../types.js";
 
 // ─── SLOT TYPES ─────────────────────────────────────────────────────────────
 

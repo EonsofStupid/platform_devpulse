@@ -10,17 +10,17 @@
   - data-state="open" | "closed"
 -->
 <script lang="ts">
-  import { Popover } from "meltui";
-  import type { PopoverRootProps, PopoverState } from "./types.js";
+import { Popover } from "meltui";
+import type { PopoverRootProps, PopoverState } from "./types.js";
 
-  let {
-    open = $bindable(false),
-    onOpenChange,
-    children,
-    "data-id": dataId,
-  }: PopoverRootProps = $props();
+let {
+	open = $bindable(false),
+	onOpenChange,
+	children,
+	"data-id": dataId,
+}: PopoverRootProps = $props();
 
-  const dataState: PopoverState = $derived(open ? "open" : "closed");
+const dataState: PopoverState = $derived(open ? "open" : "closed");
 </script>
 
 <div

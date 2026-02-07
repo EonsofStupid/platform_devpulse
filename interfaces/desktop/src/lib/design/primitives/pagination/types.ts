@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** Pagination root — navigation landmark container */
 export interface PaginationProps extends OmitStyle<HTMLElement>, BaseProps {

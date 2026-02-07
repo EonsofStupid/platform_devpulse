@@ -14,19 +14,19 @@
   - data-slot="trigger"
 -->
 <script lang="ts">
-  import { Select } from "meltui";
-  import type { SelectTriggerProps } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+import { Select } from "meltui";
+import { stripStyleProp } from "../types.js";
+import type { SelectTriggerProps } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    "data-id": dataId,
-    disabled,
-    ...rest
-  }: SelectTriggerProps = $props();
+let {
+	children,
+	class: className = "",
+	"data-id": dataId,
+	disabled,
+	...rest
+}: SelectTriggerProps = $props();
 
-  stripStyleProp(rest, "Select.Trigger");
+stripStyleProp(rest, "Select.Trigger");
 </script>
 
 <Select.Trigger

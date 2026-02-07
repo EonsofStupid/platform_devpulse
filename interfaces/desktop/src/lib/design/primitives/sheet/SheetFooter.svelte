@@ -4,12 +4,12 @@
 	Contract: kind="sheet", slot="footer"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { SheetFooterProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { SheetFooterProps } from "./types.js";
 
-	let { children, class: className, ...rest }: SheetFooterProps = $props();
+let { children, class: className, ...rest }: SheetFooterProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SheetFooter");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SheetFooter");
 </script>
 
 <div

@@ -1,2 +1,7 @@
-export type { ComboboxTransport, ComboboxActions, ComboboxTransportStates, ComboboxTransportConfig } from "./types.js";
 export { createComboboxTransport } from "./factory.js";
+export type {
+	ComboboxActions,
+	ComboboxTransport,
+	ComboboxTransportConfig,
+	ComboboxTransportStates,
+} from "./types.js";

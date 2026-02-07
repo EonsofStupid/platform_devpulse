@@ -14,23 +14,23 @@
   - data-state="open" | "closed"
 -->
 <script lang="ts">
-  import { Tooltip } from "meltui";
-  import type { TooltipRootProps, TooltipState } from "./types.js";
+import { Tooltip } from "meltui";
+import type { TooltipRootProps, TooltipState } from "./types.js";
 
-  let {
-    open = $bindable(false),
-    onOpenChange,
-    onOpenChangeComplete,
-    delayDuration = 700,
-    disableHoverableContent = false,
-    disableCloseOnTriggerClick = false,
-    disabled = false,
-    ignoreNonKeyboardFocus = false,
-    children,
-    "data-id": dataId,
-  }: TooltipRootProps = $props();
+let {
+	open = $bindable(false),
+	onOpenChange,
+	onOpenChangeComplete,
+	delayDuration = 700,
+	disableHoverableContent = false,
+	disableCloseOnTriggerClick = false,
+	disabled = false,
+	ignoreNonKeyboardFocus = false,
+	children,
+	"data-id": dataId,
+}: TooltipRootProps = $props();
 
-  const dataState: TooltipState = $derived(open ? "open" : "closed");
+const dataState: TooltipState = $derived(open ? "open" : "closed");
 </script>
 
 <div

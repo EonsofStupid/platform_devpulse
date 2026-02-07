@@ -1,6 +1,6 @@
-//! SignalRouter - broadcast channel for signal fanout.
+//! `SignalRouter` - broadcast channel for signal fanout.
 //!
-//! Uses tokio::broadcast for multi-subscriber support.
+//! Uses `tokio::broadcast` for multi-subscriber support.
 
 use tokio::sync::broadcast;
 

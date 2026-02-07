@@ -4,12 +4,12 @@
 	Contract: kind="slider", slot="thumb", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { SliderThumbProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { SliderThumbProps } from "./types.js";
 
-	let { children, class: className, ...rest }: SliderThumbProps = $props();
+let { children, class: className, ...rest }: SliderThumbProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SliderThumb");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SliderThumb");
 </script>
 
 <span

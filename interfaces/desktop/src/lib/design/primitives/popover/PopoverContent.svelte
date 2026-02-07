@@ -4,15 +4,15 @@
 	Contract: kind="popover", slot="content"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { PopoverContentProps } from "./types.js";
-	import { getPopoverContext } from "./context.js";
+import { cn, stripStyleProp } from "../types.js";
+import { getPopoverContext } from "./context.js";
+import type { PopoverContentProps } from "./types.js";
 
-	let { children, class: className, ...rest }: PopoverContentProps = $props();
+let { children, class: className, ...rest }: PopoverContentProps = $props();
 
-	const ctx = getPopoverContext();
+const ctx = getPopoverContext();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "PopoverContent");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "PopoverContent");
 </script>
 
 <div

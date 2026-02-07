@@ -4,12 +4,12 @@
 	Contract: kind="pagination", slot="next", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { PaginationNextProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { PaginationNextProps } from "./types.js";
 
-	let { children, class: className, ...rest }: PaginationNextProps = $props();
+let { children, class: className, ...rest }: PaginationNextProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "PaginationNext");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "PaginationNext");
 </script>
 
 <button

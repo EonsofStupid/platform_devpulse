@@ -1,4 +1,4 @@
-﻿# Primitives
+# Primitives
 
 > **Layer 3: Structure + State components. Bound to taxonomy contracts.**
 

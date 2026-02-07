@@ -14,14 +14,14 @@
 // ============================================
 
 export interface RouteMetadata {
-  /** Human-readable label (i18n-ready) */
-  label: string;
-  /** Optional icon identifier */
-  icon?: string;
-  /** Parent route path for breadcrumb hierarchy */
-  parent?: string;
-  /** Exclude from navigation */
-  hidden?: boolean;
+	/** Human-readable label (i18n-ready) */
+	label: string;
+	/** Optional icon identifier */
+	icon?: string;
+	/** Parent route path for breadcrumb hierarchy */
+	parent?: string;
+	/** Exclude from navigation */
+	hidden?: boolean;
 }
 
 // ============================================
@@ -35,7 +35,7 @@ let _injectedRegistry: Record<string, RouteMetadata> = {};
  * Returns undefined if not found (use fallback).
  */
 export function getRouteMetadata(path: string): RouteMetadata | undefined {
-  return _injectedRegistry[path];
+	return _injectedRegistry[path];
 }
 
 /**
@@ -52,15 +52,13 @@ export function getRouteMetadata(path: string): RouteMetadata | undefined {
  *   "/settings": { label: "Settings", parent: "/" },
  * });
  */
-export function setRouteRegistry(
-  registry: Record<string, RouteMetadata>
-): void {
-  _injectedRegistry = registry;
+export function setRouteRegistry(registry: Record<string, RouteMetadata>): void {
+	_injectedRegistry = registry;
 }
 
 /**
  * Clear the registry (useful for testing).
  */
 export function clearRouteRegistry(): void {
-  _injectedRegistry = {};
+	_injectedRegistry = {};
 }

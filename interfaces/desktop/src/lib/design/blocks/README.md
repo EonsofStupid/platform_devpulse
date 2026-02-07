@@ -1,4 +1,4 @@
-﻿# Blocks
+# Blocks
 
 > **Layer 6: The Accessible Unit. ARIA applied here.**
 

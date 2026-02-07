@@ -9,20 +9,20 @@
   A11y Acceptance: Active route has aria-current="page"
 -->
 <script lang="ts" module>
-  export interface SidebarItem {
-    /** Human-readable label */
-    label: string;
-    /** Route path */
-    href?: string;
-    /** Icon identifier */
-    icon?: string;
-    /** Nested items (for sections) */
-    children?: SidebarItem[];
-    /** Is this item active? */
-    active?: boolean;
-    /** Is section expanded? */
-    expanded?: boolean;
-  }
+export interface SidebarItem {
+	/** Human-readable label */
+	label: string;
+	/** Route path */
+	href?: string;
+	/** Icon identifier */
+	icon?: string;
+	/** Nested items (for sections) */
+	children?: SidebarItem[];
+	/** Is this item active? */
+	active?: boolean;
+	/** Is section expanded? */
+	expanded?: boolean;
+}
 </script>
 
 <script lang="ts">

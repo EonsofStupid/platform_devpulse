@@ -20,7 +20,30 @@
       "Bash(netsh interface ipv4 show excludedportrange protocol=tcp:*)",
       "WebFetch(domain:next.melt-ui.com)",
       "WebFetch(domain:wzhu.dev)",
-      "Bash(npx vitest:*)"
+      "Bash(npx vitest:*)",
+      "WebFetch(domain:svelte.dev)",
+      "Bash(cargo update:*)",
+      "Bash(pnpm biome:*)",
+      "Bash(pnpm docs:preflight:*)",
+      "Bash(surreal import:*)",
+      "Bash(npm init:*)",
+      "Bash(node:*)",
+      "Bash(surreal sql:*)",
+      "WebFetch(domain:arxiv.org)",
+      "WebFetch(domain:www.accessibility.works)",
+      "WebFetch(domain:developer.chrome.com)",
+      "WebFetch(domain:www.w3.org)",
+      "WebFetch(domain:www.radix-ui.com)",
+      "Bash(jq:*)",
+      "Bash(git reset:*)",
+      "Bash(pnpm lefthook run pre-commit:*)",
+      "Bash(echo:*)",
+      "Bash(npx biome lint:*)",
+      "Bash(git restore:*)",
+      "WebFetch(domain:dev.to)",
+      "WebFetch(domain:surrealdb.com)",
+      "Bash(xxd:*)",
+      "Bash(git rm:*)"
     ]
   }
 }

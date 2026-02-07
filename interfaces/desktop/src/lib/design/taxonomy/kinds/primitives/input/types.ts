@@ -7,7 +7,7 @@
  * ariaStateProvider: "coldlight" — native <input> handles semantics.
  */
 
-import type { StateToken, SlotStateMap } from "../../../types.js";
+import type { SlotStateMap, StateToken } from "../../../types.js";
 
 // ─── SLOT TYPES ─────────────────────────────────────────────────────────────
 
@@ -39,5 +39,15 @@ export type InputState = (typeof inputStateTokens)[number];
 
 /** Per-slot allowed states for input */
 export const inputSlotStates = {
-	root: ["focused", "focus-visible", "hover", "active", "disabled", "readonly", "invalid", "valid", "required"],
+	root: [
+		"focused",
+		"focus-visible",
+		"hover",
+		"active",
+		"disabled",
+		"readonly",
+		"invalid",
+		"valid",
+		"required",
+	],
 } as const satisfies SlotStateMap<InputSlot, InputState>;

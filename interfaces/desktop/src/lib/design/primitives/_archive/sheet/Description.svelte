@@ -10,18 +10,18 @@
   - data-slot="description"
 -->
 <script lang="ts">
-  import { Dialog } from "meltui";
-  import type { SheetDescriptionProps } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+import { Dialog } from "meltui";
+import { stripStyleProp } from "../types.js";
+import type { SheetDescriptionProps } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: SheetDescriptionProps = $props();
+let {
+	children,
+	class: className = "",
+	"data-id": dataId,
+	...rest
+}: SheetDescriptionProps = $props();
 
-  stripStyleProp(rest, "Sheet.Description");
+stripStyleProp(rest, "Sheet.Description");
 </script>
 
 <Dialog.Description

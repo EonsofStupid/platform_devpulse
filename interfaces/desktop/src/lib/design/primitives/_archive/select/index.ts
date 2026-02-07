@@ -32,42 +32,40 @@
  * ```
  */
 
+export { default as Arrow } from "./Arrow.svelte";
+export { default as Content } from "./Content.svelte";
+export { default as GroupLabel } from "./GroupLabel.svelte";
+export { default as Item } from "./Item.svelte";
+export { default as ItemGroup } from "./ItemGroup.svelte";
+export { default as ItemText } from "./ItemText.svelte";
+export { default as Portal } from "./Portal.svelte";
 // Components
 export { default as Root } from "./Root.svelte";
-export { default as Trigger } from "./Trigger.svelte";
-export { default as Portal } from "./Portal.svelte";
-export { default as Content } from "./Content.svelte";
-export { default as Viewport } from "./Viewport.svelte";
-export { default as Item } from "./Item.svelte";
-export { default as ItemText } from "./ItemText.svelte";
-export { default as ItemGroup } from "./ItemGroup.svelte";
-export { default as GroupLabel } from "./GroupLabel.svelte";
-export { default as Separator } from "./Separator.svelte";
-export { default as ScrollUp } from "./ScrollUp.svelte";
 export { default as ScrollDown } from "./ScrollDown.svelte";
-export { default as Arrow } from "./Arrow.svelte";
-
+export { default as ScrollUp } from "./ScrollUp.svelte";
+export { default as Separator } from "./Separator.svelte";
+export { default as Trigger } from "./Trigger.svelte";
 // Types
 export type {
-  SelectRootProps,
-  SelectTriggerProps,
-  SelectPortalProps,
-  SelectContentProps,
-  SelectViewportProps,
-  SelectItemProps,
-  SelectItemTextProps,
-  SelectItemGroupProps,
-  SelectGroupLabelProps,
-  SelectSeparatorProps,
-  SelectScrollUpProps,
-  SelectScrollDownProps,
-  SelectArrowProps,
-  SelectState,
-  SelectSlot,
-  SelectType,
-  SelectSide,
-  SelectAlign,
-  SelectItem,
+	SelectAlign,
+	SelectArrowProps,
+	SelectContentProps,
+	SelectGroupLabelProps,
+	SelectItem,
+	SelectItemGroupProps,
+	SelectItemProps,
+	SelectItemTextProps,
+	SelectPortalProps,
+	SelectRootProps,
+	SelectScrollDownProps,
+	SelectScrollUpProps,
+	SelectSeparatorProps,
+	SelectSide,
+	SelectSlot,
+	SelectState,
+	SelectTriggerProps,
+	SelectType,
+	SelectViewportProps,
 } from "./types.js";
-
 export { SelectSlots } from "./types.js";
+export { default as Viewport } from "./Viewport.svelte";

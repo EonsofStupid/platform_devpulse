@@ -7,7 +7,7 @@
  * ariaStateProvider: "coldlight" — semantic grouping container, direct ARIA application.
  */
 
-import type { StateToken, SlotStateMap } from "../../../types.js";
+import type { SlotStateMap, StateToken } from "../../../types.js";
 
 // ─── SLOT TYPES ─────────────────────────────────────────────────────────────
 

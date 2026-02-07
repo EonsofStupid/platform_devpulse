@@ -6,7 +6,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** Select root — context provider, no DOM */
 export interface SelectProps extends BaseProps {

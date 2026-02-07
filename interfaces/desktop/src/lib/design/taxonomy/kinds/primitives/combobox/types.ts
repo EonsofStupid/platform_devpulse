@@ -7,12 +7,20 @@
  * ariaStateProvider: "meltui" — createCombobox provides ARIA roles, keyboard nav, and filtering.
  */
 
-import type { StateToken, SlotStateMap } from "../../../types.js";
+import type { SlotStateMap, StateToken } from "../../../types.js";
 
 // ─── SLOT TYPES ─────────────────────────────────────────────────────────────
 
 /** All slot names for the combobox primitive */
-export const comboboxSlots = ["root", "input", "trigger", "content", "item", "group", "empty"] as const;
+export const comboboxSlots = [
+	"root",
+	"input",
+	"trigger",
+	"content",
+	"item",
+	"group",
+	"empty",
+] as const;
 
 /** Union of combobox slot names */
 export type ComboboxSlot = (typeof comboboxSlots)[number];

@@ -7,7 +7,7 @@
  * ariaStateProvider: "meltui" — createDropdownMenu provides ARIA roles, keyboard nav, and dismiss behavior.
  */
 
-import type { StateToken, SlotStateMap } from "../../../types.js";
+import type { SlotStateMap, StateToken } from "../../../types.js";
 
 // ─── SLOT TYPES ─────────────────────────────────────────────────────────────
 
@@ -58,7 +58,15 @@ export const dropdownMenuSlotStates = {
 	content: ["open", "closed"],
 	group: [],
 	item: ["hover", "active", "focused", "focus-visible", "disabled"],
-	"checkbox-item": ["hover", "active", "focused", "focus-visible", "disabled", "checked", "indeterminate"],
+	"checkbox-item": [
+		"hover",
+		"active",
+		"focused",
+		"focus-visible",
+		"disabled",
+		"checked",
+		"indeterminate",
+	],
 	"radio-group": [],
 	"radio-item": ["hover", "active", "focused", "focus-visible", "disabled", "checked"],
 	label: [],

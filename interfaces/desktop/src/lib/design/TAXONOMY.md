@@ -1,4 +1,4 @@
-﻿# Taxonomy
+# Taxonomy
 
 > **Taxonomy is truth. Everything else is execution.**
 

@@ -2,12 +2,12 @@
  * @file AlertDialog Taxonomy Barrel
  * @description Re-exports alert-dialog types + contract. Zero logic.
  */
-export {
-	alertDialogSlots,
-	alertDialogStateTokens,
-	alertDialogSlotStates,
-	type AlertDialogSlot,
-	type AlertDialogState,
-} from "./types.js";
 
 export { contract } from "./contract.js";
+export {
+	type AlertDialogSlot,
+	type AlertDialogState,
+	alertDialogSlotStates,
+	alertDialogSlots,
+	alertDialogStateTokens,
+} from "./types.js";

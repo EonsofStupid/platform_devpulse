@@ -4,12 +4,12 @@
 	Contract: kind="skeleton", slot="root", ariaStateProvider="coldlight"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { SkeletonProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { SkeletonProps } from "./types.js";
 
-	let { children, class: className, ...rest }: SkeletonProps = $props();
+let { children, class: className, ...rest }: SkeletonProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "Skeleton");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "Skeleton");
 </script>
 
 <div

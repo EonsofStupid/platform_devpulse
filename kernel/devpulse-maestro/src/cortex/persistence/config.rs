@@ -1,6 +1,6 @@
 //! Persistence configuration and path resolution
 //!
-//! Defines StoreKind for database routing and path resolution
+//! Defines `StoreKind` for database routing and path resolution
 //! for embedded database files.
 
 use std::path::PathBuf;
@@ -8,11 +8,11 @@ use std::path::PathBuf;
 /// Database store types available in the platform
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum StoreKind {
-    /// LibSQL - relational data, users, settings, projects
+    /// `LibSQL` - relational data, users, settings, projects.
     LibSql,
-    /// DuckDB - analytics, user + AI metrics
+    /// `DuckDB` - analytics, user + AI metrics.
     DuckDb,
-    /// SurrealDB - reasoning system graph
+    /// `SurrealDB` - reasoning system graph.
     Surreal,
 }
 
@@ -39,7 +39,7 @@ impl StoreKind {
 /// Configuration for the persistence layer
 #[derive(Debug, Clone)]
 pub struct PersistenceConfig {
-    /// Root data directory (e.g., {app_root}/data/platform/)
+    /// Root data directory (e.g., `{app_root}/data/platform/`).
     pub data_root: PathBuf,
 }
 
@@ -63,7 +63,10 @@ impl PersistenceConfig {
         self.data_root.join(kind.subdir())
     }
 
-    /// Ensure all store directories exist
+    /// Ensure all store directories exist.
+    ///
+    /// # Errors
+    /// Returns error if directory creation fails.
     pub fn ensure_dirs(&self) -> std::io::Result<()> {
         for kind in [StoreKind::LibSql, StoreKind::DuckDb, StoreKind::Surreal] {
             std::fs::create_dir_all(self.store_dir(kind))?;
@@ -79,10 +82,12 @@ impl Default for PersistenceConfig {
     }
 }
 
-/// SurrealDB namespace configuration
-/// Follows: maestro/devpulse/reasoning/ pattern with sub-categories
+/// `SurrealDB` namespace configuration.
+/// Follows: maestro/devpulse/reasoning/ pattern with sub-categories.
 pub struct SurrealNamespace {
+    /// Namespace name.
     pub namespace: &'static str,
+    /// Database name within namespace.
     pub database: &'static str,
 }
 
@@ -94,12 +99,16 @@ impl SurrealNamespace {
     };
 }
 
-/// Reasoning graph tables in SurrealDB
+/// Reasoning graph tables in `SurrealDB`.
 pub struct ReasoningTables;
 
 impl ReasoningTables {
+    /// Table name for reasoning graph nodes.
     pub const NODES: &'static str = "reasoning:nodes";
+    /// Table name for reasoning graph edges.
     pub const EDGES: &'static str = "reasoning:edges";
+    /// Table name for reasoning graph states.
     pub const STATES: &'static str = "reasoning:states";
+    /// Table name for reasoning graph state transitions.
     pub const TRANSITIONS: &'static str = "reasoning:transitions";
 }

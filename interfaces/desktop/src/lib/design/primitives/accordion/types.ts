@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** Accordion root — context provider, no DOM element */
 export interface AccordionProps extends BaseProps {
@@ -18,9 +18,7 @@ export interface AccordionProps extends BaseProps {
 }
 
 /** Accordion item — item wrapper providing item-level context */
-export interface AccordionItemProps
-	extends OmitStyle<HTMLDivElement>,
-		BaseProps {
+export interface AccordionItemProps extends OmitStyle<HTMLDivElement>, BaseProps {
 	/** Unique value identifying this item */
 	value: string;
 	disabled?: boolean;
@@ -28,22 +26,16 @@ export interface AccordionItemProps
 }
 
 /** Accordion header — heading wrapper for trigger */
-export interface AccordionHeaderProps
-	extends OmitStyle<HTMLHeadingElement>,
-		BaseProps {
+export interface AccordionHeaderProps extends OmitStyle<HTMLHeadingElement>, BaseProps {
 	children?: Snippet;
 }
 
 /** Accordion trigger — button that toggles item content */
-export interface AccordionTriggerProps
-	extends OmitStyle<HTMLButtonElement>,
-		BaseProps {
+export interface AccordionTriggerProps extends OmitStyle<HTMLButtonElement>, BaseProps {
 	children?: Snippet;
 }
 
 /** Accordion content — expandable content panel */
-export interface AccordionContentProps
-	extends OmitStyle<HTMLDivElement>,
-		BaseProps {
+export interface AccordionContentProps extends OmitStyle<HTMLDivElement>, BaseProps {
 	children?: Snippet;
 }

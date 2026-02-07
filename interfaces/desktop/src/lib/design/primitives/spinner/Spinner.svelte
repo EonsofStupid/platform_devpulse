@@ -4,12 +4,12 @@
 	Contract: kind="spinner", slot="root", ariaStateProvider="coldlight"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { SpinnerProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { SpinnerProps } from "./types.js";
 
-	let { children, class: className, ...rest }: SpinnerProps = $props();
+let { children, class: className, ...rest }: SpinnerProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "Spinner");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "Spinner");
 </script>
 
 <span

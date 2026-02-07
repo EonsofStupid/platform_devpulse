@@ -9,11 +9,11 @@
  */
 
 import {
-  createTable,
-  type RowData,
-  type TableOptions,
-  type TableOptionsResolved,
-  type TableState,
+	createTable,
+	type RowData,
+	type TableOptions,
+	type TableOptionsResolved,
+	type TableState,
 } from "@tanstack/table-core";
 
 /**
@@ -44,50 +44,46 @@ import {
  * </table>
  * ```
  */
-export function createSvelteTable<TData extends RowData>(
-  options: TableOptions<TData>
-) {
-  const resolvedOptions: TableOptionsResolved<TData> = mergeObjects(
-    {
-      state: {},
-      onStateChange() {},
-      renderFallbackValue: null,
-      mergeOptions: (
-        defaultOptions: TableOptions<TData>,
-        opts: Partial<TableOptions<TData>>
-      ) => {
-        return mergeObjects(defaultOptions, opts);
-      },
-    },
-    options
-  );
+export function createSvelteTable<TData extends RowData>(options: TableOptions<TData>) {
+	const resolvedOptions: TableOptionsResolved<TData> = mergeObjects(
+		{
+			state: {},
+			onStateChange() {},
+			renderFallbackValue: null,
+			mergeOptions: (defaultOptions: TableOptions<TData>, opts: Partial<TableOptions<TData>>) => {
+				return mergeObjects(defaultOptions, opts);
+			},
+		},
+		options,
+	);
 
-  const table = createTable(resolvedOptions);
-  let state = $state<Partial<TableState>>(table.initialState);
+	const table = createTable(resolvedOptions);
+	let state = $state<Partial<TableState>>(table.initialState);
 
-  function updateOptions() {
-    table.setOptions((prev) => {
-      return mergeObjects(prev, options, {
-        state: mergeObjects(state, options.state || {}),
-        onStateChange: (updater: unknown) => {
-          if (updater instanceof Function) {
-            state = updater(state);
-          } else {
-            state = mergeObjects(state, updater as Partial<TableState>);
-          }
-          options.onStateChange?.(updater as any);
-        },
-      });
-    });
-  }
+	function updateOptions() {
+		table.setOptions((prev) => {
+			return mergeObjects(prev, options, {
+				state: mergeObjects(state, options.state || {}),
+				onStateChange: (updater: unknown) => {
+					if (updater instanceof Function) {
+						state = updater(state);
+					} else {
+						state = mergeObjects(state, updater as Partial<TableState>);
+					}
+					// biome-ignore lint/suspicious/noExplicitAny: TanStack Table callback type mismatch
+					options.onStateChange?.(updater as any);
+				},
+			});
+		});
+	}
 
-  updateOptions();
+	updateOptions();
 
-  $effect.pre(() => {
-    updateOptions();
-  });
+	$effect.pre(() => {
+		updateOptions();
+	});
 
-  return table;
+	return table;
 }
 
 /**
@@ -96,43 +92,37 @@ export function createSvelteTable<TData extends RowData>(
  */
 export function mergeObjects<T>(source: T): T;
 export function mergeObjects<T, U>(source: T, source1: U): T & U;
-export function mergeObjects<T, U, V>(
-  source: T,
-  source1: U,
-  source2: V
-): T & U & V;
+export function mergeObjects<T, U, V>(source: T, source1: U, source2: V): T & U & V;
 export function mergeObjects<T, U, V, W>(
-  source: T,
-  source1: U,
-  source2: V,
-  source3: W
+	source: T,
+	source1: U,
+	source2: V,
+	source3: W,
 ): T & U & V & W;
 export function mergeObjects(...sources: unknown[]): unknown {
-  const target: Record<string, unknown> = {};
+	const target: Record<string, unknown> = {};
 
-  for (let i = 0; i < sources.length; i++) {
-    let source = sources[i];
-    if (typeof source === "function") source = source();
-    if (source) {
-      const descriptors = Object.getOwnPropertyDescriptors(
-        source as Record<string, unknown>
-      );
-      for (const key in descriptors) {
-        if (key in target) continue;
-        Object.defineProperty(target, key, {
-          enumerable: true,
-          get() {
-            for (let j = sources.length - 1; j >= 0; j--) {
-              let s = sources[j];
-              if (typeof s === "function") s = s();
-              const v = (s as Record<string, unknown> | undefined)?.[key];
-              if (v !== undefined) return v;
-            }
-          },
-        });
-      }
-    }
-  }
+	for (let i = 0; i < sources.length; i++) {
+		let source = sources[i];
+		if (typeof source === "function") source = source();
+		if (source) {
+			const descriptors = Object.getOwnPropertyDescriptors(source as Record<string, unknown>);
+			for (const key in descriptors) {
+				if (key in target) continue;
+				Object.defineProperty(target, key, {
+					enumerable: true,
+					get() {
+						for (let j = sources.length - 1; j >= 0; j--) {
+							let s = sources[j];
+							if (typeof s === "function") s = s();
+							const v = (s as Record<string, unknown> | undefined)?.[key];
+							if (v !== undefined) return v;
+						}
+					},
+				});
+			}
+		}
+	}
 
-  return target;
+	return target;
 }

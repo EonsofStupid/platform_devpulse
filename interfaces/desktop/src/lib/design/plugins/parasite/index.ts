@@ -10,4 +10,4 @@
  * @since 1.0.0
  */
 
-export { default as Parasite } from './Parasite.svelte';
+export { default as Parasite } from "./Parasite.svelte";

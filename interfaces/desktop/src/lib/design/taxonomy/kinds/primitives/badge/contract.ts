@@ -4,15 +4,14 @@
  *
  * ariaStateProvider: "coldlight" — decorative element, minimal ARIA.
  * 2-folder parity: taxonomy + primitive.
+ *
+ * WAI-ARIA: role="status" for live region status updates.
  */
 
-import type { PrimitiveContract } from "../../../types.js";
-import { badgeSlotStates, type BadgeSlot, type BadgeState } from "./types.js";
+import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { badgeSlotStates } from "./types.js";
 
-// ─── CONTRACT ───────────────────────────────────────────────────────────────
-
-/** Badge primitive contract — ColdLight SSOT */
-export const contract: PrimitiveContract<"badge", BadgeSlot, BadgeState> = {
+const rawContract = {
 	kind: "badge",
 	ariaStateProvider: "coldlight",
 	slots: { required: ["root"], optional: [], forbidden: [] },
@@ -32,6 +31,9 @@ export const contract: PrimitiveContract<"badge", BadgeSlot, BadgeState> = {
 		optionalAttrs: ["aria-label", "aria-hidden"],
 	},
 	keyboard: [],
+	keyboardMap: [],
 	focusStrategy: "none",
 	compound: false,
-};
+} as const;
+
+export const contract: PrimitiveContract = parseContract(rawContract);

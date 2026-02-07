@@ -4,12 +4,12 @@
 	Contract: kind="context-menu", slot="label"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { ContextMenuLabelProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { ContextMenuLabelProps } from "./types.js";
 
-	let { children, class: className, ...rest }: ContextMenuLabelProps = $props();
+let { children, class: className, ...rest }: ContextMenuLabelProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ContextMenuLabel");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ContextMenuLabel");
 </script>
 
 <div

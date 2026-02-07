@@ -10,19 +10,19 @@
   - data-slot="title"
 -->
 <script lang="ts">
-  import { AlertDialog } from "meltui";
-  import type { AlertDialogTitleProps } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+import { AlertDialog } from "meltui";
+import { stripStyleProp } from "../types.js";
+import type { AlertDialogTitleProps } from "./types.js";
 
-  let {
-    level = 2,
-    children,
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: AlertDialogTitleProps = $props();
+let {
+	level = 2,
+	children,
+	class: className = "",
+	"data-id": dataId,
+	...rest
+}: AlertDialogTitleProps = $props();
 
-  stripStyleProp(rest, "AlertDialog.Title");
+stripStyleProp(rest, "AlertDialog.Title");
 </script>
 
 <AlertDialog.Title

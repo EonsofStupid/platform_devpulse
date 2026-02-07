@@ -10,13 +10,10 @@
  * Image slot is self-closing. Fallback shown when image fails/loading.
  */
 
-import type { PrimitiveContract } from "../../../types.js";
-import { avatarSlotStates, type AvatarSlot, type AvatarState } from "./types.js";
+import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { avatarSlotStates } from "./types.js";
 
-// ─── CONTRACT ───────────────────────────────────────────────────────────────
-
-/** Avatar primitive contract — ColdLight SSOT */
-export const contract: PrimitiveContract<"avatar", AvatarSlot, AvatarState> = {
+const rawContract = {
 	kind: "avatar",
 	ariaStateProvider: "coldlight",
 	slots: {
@@ -53,6 +50,9 @@ export const contract: PrimitiveContract<"avatar", AvatarSlot, AvatarState> = {
 		optionalAttrs: ["aria-label", "aria-hidden"],
 	},
 	keyboard: [],
+	keyboardMap: [],
 	focusStrategy: "none",
 	compound: false,
-};
+} as const;
+
+export const contract: PrimitiveContract = parseContract(rawContract);

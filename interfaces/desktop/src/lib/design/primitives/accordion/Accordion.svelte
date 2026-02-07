@@ -4,15 +4,19 @@
 	Contract: kind="accordion", slot="root"
 -->
 <script lang="ts">
-	import type { AccordionProps } from "./types.js";
-	import { setAccordionContext } from "./context.js";
+import { setAccordionContext } from "./context.js";
+import type { AccordionProps } from "./types.js";
 
-	let { value = $bindable([]), disabled = false, children }: AccordionProps = $props();
+let { value = $bindable([]), disabled = false, children }: AccordionProps = $props();
 
-	setAccordionContext({
-		get value() { return value; },
-		get disabled() { return disabled; },
-	});
+setAccordionContext({
+	get value() {
+		return value;
+	},
+	get disabled() {
+		return disabled;
+	},
+});
 </script>
 
 {@render children?.()}

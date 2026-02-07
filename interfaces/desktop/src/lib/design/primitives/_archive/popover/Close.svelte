@@ -9,18 +9,13 @@
   - data-slot="close"
 -->
 <script lang="ts">
-  import { Popover } from "meltui";
-  import type { PopoverCloseProps } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+import { Popover } from "meltui";
+import { stripStyleProp } from "../types.js";
+import type { PopoverCloseProps } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: PopoverCloseProps = $props();
+let { children, class: className = "", "data-id": dataId, ...rest }: PopoverCloseProps = $props();
 
-  stripStyleProp(rest, "Popover.Close");
+stripStyleProp(rest, "Popover.Close");
 </script>
 
 <Popover.Close

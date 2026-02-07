@@ -6,7 +6,7 @@
  * ariaStateProvider: "coldlight" — native <textarea> handles semantics.
  */
 
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** Textarea root — structural shell for multiline text input (no Snippet children) */
 export interface TextareaProps extends OmitStyle<HTMLTextAreaElement>, BaseProps {}

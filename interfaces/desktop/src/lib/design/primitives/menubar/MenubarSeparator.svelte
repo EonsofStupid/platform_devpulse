@@ -4,12 +4,12 @@
 	Contract: kind="menubar", slot="separator"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { MenubarSeparatorProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { MenubarSeparatorProps } from "./types.js";
 
-	let { children, class: className, ...rest }: MenubarSeparatorProps = $props();
+let { children, class: className, ...rest }: MenubarSeparatorProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "MenubarSeparator");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "MenubarSeparator");
 </script>
 
 <div

@@ -9,14 +9,14 @@
   A11y Acceptance: Current page has aria-current="page", is NOT a link
 -->
 <script lang="ts" module>
-  export interface BreadcrumbItem {
-    /** Human-readable label (i18n-ready) */
-    label: string;
-    /** Route path */
-    href: string;
-    /** Is this the current page? */
-    current?: boolean;
-  }
+export interface BreadcrumbItem {
+	/** Human-readable label (i18n-ready) */
+	label: string;
+	/** Route path */
+	href: string;
+	/** Is this the current page? */
+	current?: boolean;
+}
 </script>
 
 <script lang="ts">

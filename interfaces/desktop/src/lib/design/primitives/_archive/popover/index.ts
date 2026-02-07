@@ -22,28 +22,28 @@
  * ```
  */
 
+export { default as Arrow } from "./Arrow.svelte";
+export { default as Close } from "./Close.svelte";
+export { default as Content } from "./Content.svelte";
+export { default as Overlay } from "./Overlay.svelte";
+export { default as Portal } from "./Portal.svelte";
 // Components
 export { default as Root } from "./Root.svelte";
 export { default as Trigger } from "./Trigger.svelte";
-export { default as Portal } from "./Portal.svelte";
-export { default as Overlay } from "./Overlay.svelte";
-export { default as Content } from "./Content.svelte";
-export { default as Close } from "./Close.svelte";
-export { default as Arrow } from "./Arrow.svelte";
 
 // Types
 export type {
-  PopoverRootProps,
-  PopoverTriggerProps,
-  PopoverPortalProps,
-  PopoverOverlayProps,
-  PopoverContentProps,
-  PopoverCloseProps,
-  PopoverArrowProps,
-  PopoverState,
-  PopoverSlot,
-  PopoverSide,
-  PopoverAlign,
+	PopoverAlign,
+	PopoverArrowProps,
+	PopoverCloseProps,
+	PopoverContentProps,
+	PopoverOverlayProps,
+	PopoverPortalProps,
+	PopoverRootProps,
+	PopoverSide,
+	PopoverSlot,
+	PopoverState,
+	PopoverTriggerProps,
 } from "./types.js";
 
 export { PopoverSlots } from "./types.js";

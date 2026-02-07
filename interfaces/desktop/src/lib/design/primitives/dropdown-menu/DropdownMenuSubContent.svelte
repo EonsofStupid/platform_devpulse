@@ -4,14 +4,14 @@
 	Contract: kind="dropdown-menu", slot="sub-content", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { DropdownMenuSubContentProps } from "./types.js";
-	import { getDropdownMenuContext } from "./context.js";
+import { cn, stripStyleProp } from "../types.js";
+import { getDropdownMenuContext } from "./context.js";
+import type { DropdownMenuSubContentProps } from "./types.js";
 
-	let { children, class: className, ...rest }: DropdownMenuSubContentProps = $props();
-	const ctx = getDropdownMenuContext();
+let { children, class: className, ...rest }: DropdownMenuSubContentProps = $props();
+const ctx = getDropdownMenuContext();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "DropdownMenuSubContent");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "DropdownMenuSubContent");
 </script>
 
 <div

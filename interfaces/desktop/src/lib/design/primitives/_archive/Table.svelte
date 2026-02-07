@@ -6,35 +6,35 @@
   For complex data tables, use DataTable primitive instead.
 -->
 <script lang="ts">
-  import type { Snippet } from "svelte";
-  import type { OmitStyle, BaseProps } from "./types.js";
-  import { stripStyleProp } from "./types.js";
+import type { Snippet } from "svelte";
+import type { BaseProps, OmitStyle } from "./types.js";
+import { stripStyleProp } from "./types.js";
 
-  interface Props extends OmitStyle<HTMLTableElement>, BaseProps {
-    /** Table caption (required for accessibility) */
-    caption?: string;
-    /** Hide caption visually (still read by SR) */
-    captionHidden?: boolean;
-    /** Table head slot */
-    head?: Snippet;
-    /** Table body slot */
-    children?: Snippet;
-    /** Table foot slot */
-    foot?: Snippet;
-  }
+interface Props extends OmitStyle<HTMLTableElement>, BaseProps {
+	/** Table caption (required for accessibility) */
+	caption?: string;
+	/** Hide caption visually (still read by SR) */
+	captionHidden?: boolean;
+	/** Table head slot */
+	head?: Snippet;
+	/** Table body slot */
+	children?: Snippet;
+	/** Table foot slot */
+	foot?: Snippet;
+}
 
-  let {
-    caption,
-    captionHidden = false,
-    head,
-    children,
-    foot,
-    class: className = "",
-    "data-id": id,
-    ...rest
-  }: Props = $props();
+let {
+	caption,
+	captionHidden = false,
+	head,
+	children,
+	foot,
+	class: className = "",
+	"data-id": id,
+	...rest
+}: Props = $props();
 
-  stripStyleProp(rest, "Table");
+stripStyleProp(rest, "Table");
 </script>
 
 <table

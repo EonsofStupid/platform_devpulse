@@ -4,12 +4,12 @@
 	Contract: kind="toolbar", slot="root"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { ToolbarProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { ToolbarProps } from "./types.js";
 
-	let { orientation = "horizontal", children, class: className, ...rest }: ToolbarProps = $props();
+let { orientation = "horizontal", children, class: className, ...rest }: ToolbarProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "Toolbar");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "Toolbar");
 </script>
 
 <div

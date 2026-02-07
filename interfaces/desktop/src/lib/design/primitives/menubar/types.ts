@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** Menubar root — DOM container with menubar context */
 export interface MenubarProps extends OmitStyle<HTMLDivElement>, BaseProps {

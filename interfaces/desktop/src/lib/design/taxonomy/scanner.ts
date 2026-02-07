@@ -29,15 +29,15 @@
 import type { ColdLightConfig } from "../coldlight.config.js";
 import type {
 	AriaStateProvider,
+	ColdLightManifest,
+	DsAdapterId,
+	ManifestPrimitive,
 	PrimitiveContract,
+	PrimitiveScanResult,
 	ScanError,
 	ScanResult,
-	ColdLightManifest,
-	ManifestPrimitive,
-	PrimitiveScanResult,
-	DsAdapterId,
-	StateToken,
 	SlotAction,
+	StateToken,
 } from "./types.js";
 
 // =============================================================================
@@ -109,9 +109,7 @@ function listSubfolders(fs: FsLike, dirPath: string): string[] {
 
 function containsSvelteFile(fs: FsLike, dirPath: string): boolean {
 	try {
-		return fs
-			.readdirSync(dirPath)
-			.some((name) => name.endsWith(".svelte"));
+		return fs.readdirSync(dirPath).some((name) => name.endsWith(".svelte"));
 	} catch {
 		return false;
 	}
@@ -123,29 +121,33 @@ function containsSvelteFile(fs: FsLike, dirPath: string): boolean {
 
 /**
  * Validate spine: taxonomy/api/adapter/ ↔ api/adapters/ must match 1:1.
- * No orphans in either direction. Runs once per scan, not per-kind.
+ * Only checks enabled adapters from config.adapters.enabled.
+ * Runs once per scan, not per-kind.
  */
 function validateSpine(
 	fs: FsLike,
-	paths: ReturnType<typeof resolvePaths>
+	paths: ReturnType<typeof resolvePaths>,
+	enabledAdapters: Record<string, boolean>,
 ): ScanError[] {
 	const errors: ScanError[] = [];
+	const enabled = Object.keys(enabledAdapters).filter((k) => enabledAdapters[k]);
 
 	const taxonomyAdapterFolders = listSubfolders(fs, paths.clAdapters);
 	const apiAdapterFolders = listSubfolders(fs, paths.apiAdapters);
 
-	taxonomyAdapterFolders.forEach((name) => {
-		if (!apiAdapterFolders.includes(name)) {
+	enabled.forEach((name) => {
+		const inTaxonomy = taxonomyAdapterFolders.includes(name);
+		const inApi = apiAdapterFolders.includes(name);
+
+		if (inTaxonomy && !inApi) {
 			errors.push({
 				code: "SPINE_MISMATCH",
 				kind: name,
 				detail: `Taxonomy declares adapter "${name}" at ${paths.clAdapters}/${name}/ but no implementation at ${paths.apiAdapters}/${name}/`,
 			});
 		}
-	});
 
-	apiAdapterFolders.forEach((name) => {
-		if (!taxonomyAdapterFolders.includes(name)) {
+		if (inApi && !inTaxonomy) {
 			errors.push({
 				code: "SPINE_MISMATCH",
 				kind: name,
@@ -172,7 +174,7 @@ function checkParity(
 	paths: ReturnType<typeof resolvePaths>,
 	dsAdapter: DsAdapterId,
 	kind: string,
-	ariaStateProvider: AriaStateProvider
+	ariaStateProvider: AriaStateProvider,
 ): PrimitiveScanResult {
 	const kindPaths = {
 		clPrimitive: `${paths.clPrimitives}/${kind}`,
@@ -214,7 +216,7 @@ function checkParity(
 async function loadContract(
 	importFn: ImportLike,
 	clPrimitivesPath: string,
-	kind: string
+	kind: string,
 ): Promise<unknown> {
 	const contractPath = `${clPrimitivesPath}/${kind}/contract.js`;
 	const mod = await importFn(contractPath);
@@ -325,7 +327,7 @@ function contractToManifest(contract: PrimitiveContract): ManifestPrimitive {
 export async function scanColdLight(
 	fs: FsLike,
 	importFn: ImportLike,
-	config: ColdLightConfig
+	config: ColdLightConfig,
 ): Promise<ScanResult> {
 	const errors: ScanError[] = [];
 	const primitives: PrimitiveScanResult[] = [];
@@ -336,7 +338,7 @@ export async function scanColdLight(
 		return { valid: true, primitives: [], errors: [], manifest: null };
 	}
 
-	const spineErrors = validateSpine(fs, paths);
+	const spineErrors = validateSpine(fs, paths, config.adapters.enabled);
 	errors.push(...spineErrors);
 
 	const kinds = listSubfolders(fs, paths.clPrimitives);
@@ -435,7 +437,7 @@ export function scanPrimitive(
 	fs: FsLike,
 	config: ColdLightConfig,
 	kind: string,
-	ariaStateProvider: AriaStateProvider
+	ariaStateProvider: AriaStateProvider,
 ): PrimitiveScanResult {
 	const paths = resolvePaths(config);
 	const dsAdapter = config.adapters.active;

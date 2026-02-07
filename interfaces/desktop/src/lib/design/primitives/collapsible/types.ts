@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** Collapsible root — context provider, no DOM element */
 export interface CollapsibleProps extends BaseProps {
@@ -19,15 +19,11 @@ export interface CollapsibleProps extends BaseProps {
 }
 
 /** Collapsible trigger — button that toggles content visibility */
-export interface CollapsibleTriggerProps
-	extends OmitStyle<HTMLButtonElement>,
-		BaseProps {
+export interface CollapsibleTriggerProps extends OmitStyle<HTMLButtonElement>, BaseProps {
 	children?: Snippet;
 }
 
 /** Collapsible content — expandable content region */
-export interface CollapsibleContentProps
-	extends OmitStyle<HTMLDivElement>,
-		BaseProps {
+export interface CollapsibleContentProps extends OmitStyle<HTMLDivElement>, BaseProps {
 	children?: Snippet;
 }

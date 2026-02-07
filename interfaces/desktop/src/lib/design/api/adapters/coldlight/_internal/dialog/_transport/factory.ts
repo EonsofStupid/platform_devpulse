@@ -1,11 +1,12 @@
 import { ColdLightDialog } from "../dialog.svelte.js";
-import type { DialogTransport, DialogTransportConfig, DialogAttachments } from "./types.js";
+import type { DialogAttachments, DialogTransport, DialogTransportConfig } from "./types.js";
 
 export function createDialogTransport(
 	config?: DialogTransportConfig,
 ): DialogTransport & DialogAttachments {
+	const openGetter = config?.open;
 	const dialog = new ColdLightDialog({
-		open: config?.open ? () => config.open! : undefined,
+		open: openGetter,
 		onOpenChange: config?.onOpenChange,
 		closeOnEscape: config?.closeOnEscape,
 		closeOnOutsideClick: config?.closeOnOutsideClick,

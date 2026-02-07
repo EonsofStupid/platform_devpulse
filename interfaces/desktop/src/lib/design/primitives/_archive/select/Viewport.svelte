@@ -9,18 +9,13 @@
   - data-slot="viewport"
 -->
 <script lang="ts">
-  import { Select } from "meltui";
-  import type { SelectViewportProps } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+import { Select } from "meltui";
+import { stripStyleProp } from "../types.js";
+import type { SelectViewportProps } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: SelectViewportProps = $props();
+let { children, class: className = "", "data-id": dataId, ...rest }: SelectViewportProps = $props();
 
-  stripStyleProp(rest, "Select.Viewport");
+stripStyleProp(rest, "Select.Viewport");
 </script>
 
 <Select.Viewport

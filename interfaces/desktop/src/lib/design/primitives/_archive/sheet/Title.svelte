@@ -10,19 +10,19 @@
   - data-slot="title"
 -->
 <script lang="ts">
-  import { Dialog } from "meltui";
-  import type { SheetTitleProps } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+import { Dialog } from "meltui";
+import { stripStyleProp } from "../types.js";
+import type { SheetTitleProps } from "./types.js";
 
-  let {
-    level = 2,
-    children,
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: SheetTitleProps = $props();
+let {
+	level = 2,
+	children,
+	class: className = "",
+	"data-id": dataId,
+	...rest
+}: SheetTitleProps = $props();
 
-  stripStyleProp(rest, "Sheet.Title");
+stripStyleProp(rest, "Sheet.Title");
 </script>
 
 <Dialog.Title

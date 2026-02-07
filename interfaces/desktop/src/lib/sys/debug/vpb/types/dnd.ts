@@ -11,8 +11,8 @@ export type DropEffect = "none" | "copy" | "move" | "link";
 
 /** Element information for inspection */
 export interface ElementInfo {
-  tagName: string;
-  id?: string;
-  className?: string;
-  rect: DOMRect;
+	tagName: string;
+	id?: string;
+	className?: string;
+	rect: DOMRect;
 }

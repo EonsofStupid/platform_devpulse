@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { vpb } from "../state/vpb.svelte";
+import { vpb } from "../state/vpb.svelte";
 </script>
 
 <div

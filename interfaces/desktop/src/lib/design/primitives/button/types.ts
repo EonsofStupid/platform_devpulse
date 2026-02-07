@@ -6,12 +6,16 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** Button root — interactive command element */
 export interface ButtonProps extends OmitStyle<HTMLButtonElement>, BaseProps {
 	/** HTML disabled state */
 	disabled?: boolean;
+	/** Toggle pressed state (for toggle buttons) */
+	pressed?: boolean;
+	/** Loading/busy state */
+	loading?: boolean;
 	children?: Snippet;
 }
 

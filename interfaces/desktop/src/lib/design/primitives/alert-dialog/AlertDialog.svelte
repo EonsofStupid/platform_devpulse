@@ -4,16 +4,16 @@
 	Contract: kind="alert-dialog", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import type { AlertDialogProps } from "./types.js";
-	import { setAlertDialogContext } from "./context.js";
+import { setAlertDialogContext } from "./context.js";
+import type { AlertDialogProps } from "./types.js";
 
-	let { open = $bindable(false), children }: AlertDialogProps = $props();
+let { open = $bindable(false), children }: AlertDialogProps = $props();
 
-	setAlertDialogContext({
-		get open() {
-			return open;
-		},
-	});
+setAlertDialogContext({
+	get open() {
+		return open;
+	},
+});
 </script>
 
 {@render children?.()}

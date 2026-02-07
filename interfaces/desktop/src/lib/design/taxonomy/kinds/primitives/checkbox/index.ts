@@ -2,11 +2,12 @@
  * @file Checkbox Taxonomy Barrel
  * @description Re-exports checkbox types + contract. Zero logic.
  */
+
+export { contract } from "./contract.js";
 export {
-	checkboxSlots,
-	checkboxStateTokens,
-	checkboxSlotStates,
 	type CheckboxSlot,
 	type CheckboxState,
+	checkboxSlotStates,
+	checkboxSlots,
+	checkboxStateTokens,
 } from "./types.js";
-export { contract } from "./contract.js";

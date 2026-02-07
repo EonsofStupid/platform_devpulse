@@ -20,75 +20,75 @@ export type MeltBuilderName = `create${string}`;
 
 /** Standard ARIA attributes MeltUI manages - never override these */
 export type MeltManagedAttr =
-  | "role"
-  | "aria-modal"
-  | "aria-labelledby"
-  | "aria-describedby"
-  | "aria-selected"
-  | "aria-expanded"
-  | "aria-disabled"
-  | "aria-pressed"
-  | "aria-checked"
-  | "aria-orientation"
-  | "aria-controls"
-  | "aria-haspopup"
-  | "aria-activedescendant"
-  | "aria-label"
-  | "aria-valuenow"
-  | "aria-valuemin"
-  | "aria-valuemax"
-  | "aria-valuetext"
-  | "tabindex"
-  | "id";
+	| "role"
+	| "aria-modal"
+	| "aria-labelledby"
+	| "aria-describedby"
+	| "aria-selected"
+	| "aria-expanded"
+	| "aria-disabled"
+	| "aria-pressed"
+	| "aria-checked"
+	| "aria-orientation"
+	| "aria-controls"
+	| "aria-haspopup"
+	| "aria-activedescendant"
+	| "aria-label"
+	| "aria-valuenow"
+	| "aria-valuemin"
+	| "aria-valuemax"
+	| "aria-valuetext"
+	| "tabindex"
+	| "id";
 
 /**
  * MeltUI primitives that have builder functions.
  * Each entry here means a `create<Primitive>` function exists in @melt-ui/svelte.
  */
 export type MeltPrimitive =
-  | "accordion"
-  | "alert-dialog"
-  | "avatar"
-  | "calendar"
-  | "checkbox"
-  | "collapsible"
-  | "combobox"
-  | "context-menu"
-  | "date-field"
-  | "date-picker"
-  | "date-range-field"
-  | "date-range-picker"
-  | "dialog"
-  | "dropdown-menu"
-  | "label"
-  | "link-preview"
-  | "menubar"
-  | "pagination"
-  | "pin-input"
-  | "popover"
-  | "progress"
-  | "radio-group"
-  | "range-calendar"
-  | "scroll-area"
-  | "select"
-  | "separator"
-  | "slider"
-  | "switch"
-  | "table-of-contents"
-  | "tabs"
-  | "tags-input"
-  | "toggle"
-  | "toggle-group"
-  | "toolbar"
-  | "tooltip"
-  | "tree";
+	| "accordion"
+	| "alert-dialog"
+	| "avatar"
+	| "calendar"
+	| "checkbox"
+	| "collapsible"
+	| "combobox"
+	| "context-menu"
+	| "date-field"
+	| "date-picker"
+	| "date-range-field"
+	| "date-range-picker"
+	| "dialog"
+	| "dropdown-menu"
+	| "label"
+	| "link-preview"
+	| "menubar"
+	| "pagination"
+	| "pin-input"
+	| "popover"
+	| "progress"
+	| "radio-group"
+	| "range-calendar"
+	| "scroll-area"
+	| "select"
+	| "separator"
+	| "slider"
+	| "switch"
+	| "table-of-contents"
+	| "tabs"
+	| "tags-input"
+	| "toggle"
+	| "toggle-group"
+	| "toolbar"
+	| "tooltip"
+	| "tree";
 
 /**
  * Inventory entry for a single MeltUI builder.
  * Declares the builder name and which ARIA attrs it manages.
  */
 export interface MeltBuilderEntry {
-  readonly kind: string;
-  readonly builder: MeltBuilderName;
-  readonly manages: readonly MeltManagedAttr[];
+	readonly kind: string;
+	readonly builder: MeltBuilderName;
+	readonly manages: readonly MeltManagedAttr[];
 }

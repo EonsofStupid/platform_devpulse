@@ -8,78 +8,77 @@
   @since 1.0.0
 -->
 <script lang="ts">
-    import { vpb } from "../../state/vpb.svelte";
-    import {
-        paletteGroups,
-        type PaletteItem,
-        type PaletteCategoryGroup,
-    } from "./palette";
-    import type { BlockNode } from "./schema";
+import { vpb } from "../../state/vpb.svelte";
+import { type PaletteCategoryGroup, type PaletteItem, paletteGroups } from "./palette";
+import type { BlockNode } from "./schema";
 
-    // Local state for collapsed categories
-    let collapsedCategories = $state<Set<string>>(new Set());
-    let searchQuery = $state("");
+// Local state for collapsed categories
+let collapsedCategories = $state<Set<string>>(new Set());
+let searchQuery = $state("");
 
-    // Filtered palette items
-    let filteredGroups = $derived(() => {
-        if (!searchQuery.trim()) return paletteGroups;
-        const q = searchQuery.toLowerCase();
-        return paletteGroups
-            .map((group) => ({
-                ...group,
-                items: group.items.filter(
-                    (item) =>
-                        item.label.toLowerCase().includes(q) ||
-                        item.description.toLowerCase().includes(q)
-                ),
-            }))
-            .filter((group) => group.items.length > 0);
-    });
+// Filtered palette items
+let filteredGroups = $derived(() => {
+	if (!searchQuery.trim()) return paletteGroups;
+	const q = searchQuery.toLowerCase();
+	return paletteGroups
+		.map((group) => ({
+			...group,
+			items: group.items.filter(
+				(item) =>
+					item.label.toLowerCase().includes(q) || item.description.toLowerCase().includes(q),
+			),
+		}))
+		.filter((group) => group.items.length > 0);
+});
 
-    // Toggle category collapse
-    function toggleCategory(id: string) {
-        if (collapsedCategories.has(id)) {
-            collapsedCategories.delete(id);
-        } else {
-            collapsedCategories.add(id);
-        }
-        collapsedCategories = new Set(collapsedCategories);
-    }
+// Toggle category collapse
+function toggleCategory(id: string) {
+	if (collapsedCategories.has(id)) {
+		collapsedCategories.delete(id);
+	} else {
+		collapsedCategories.add(id);
+	}
+	collapsedCategories = new Set(collapsedCategories);
+}
 
-    // Add block from palette
-    function addBlockFromPalette(item: PaletteItem) {
-        // If there's a selected block, add as child to first slot
-        if (vpb.selectedBlock) {
-            const slots = vpb.selectedBlock.slots;
-            const firstSlot = slots ? Object.keys(slots)[0] : null;
-            if (firstSlot) {
-                vpb.addBlock(item.kind, vpb.selectedBlock.id, firstSlot, item.defaultRecipe);
-                return;
-            }
-        }
-        // Otherwise add to root
-        vpb.addBlock(item.kind, null, "root", item.defaultRecipe);
-    }
+// Add block from palette
+function addBlockFromPalette(item: PaletteItem) {
+	// If there's a selected block, add as child to first slot
+	if (vpb.selectedBlock) {
+		const slots = vpb.selectedBlock.slots;
+		const firstSlot = slots ? Object.keys(slots)[0] : null;
+		if (firstSlot) {
+			vpb.addBlock(item.kind, vpb.selectedBlock.id, firstSlot, item.defaultRecipe);
+			return;
+		}
+	}
+	// Otherwise add to root
+	vpb.addBlock(item.kind, null, "root", item.defaultRecipe);
+}
 
-    // Start drag from palette
-    function handleDragStart(e: DragEvent, item: PaletteItem) {
-        if (!e.dataTransfer) return;
-        e.dataTransfer.effectAllowed = "copy";
-        e.dataTransfer.setData("text/plain", item.kind);
-        vpb.startDragFromPalette(item.kind);
-    }
+// Start drag from palette
+function handleDragStart(e: DragEvent, item: PaletteItem) {
+	if (!e.dataTransfer) return;
+	e.dataTransfer.effectAllowed = "copy";
+	e.dataTransfer.setData("text/plain", item.kind);
+	vpb.startDragFromPalette(item.kind);
+}
 
-    function handleDragEnd() {
-        vpb.cancelDrag();
-    }
+function handleDragEnd() {
+	vpb.cancelDrag();
+}
 
-    // Recursive block tree renderer
-    function getBlockChildren(block: BlockNode): Array<{ slot: string; children: BlockNode[] }> {
-        if (!block.slots) return [];
-        return Object.entries(block.slots)
-            .filter(([_, children]) => children && children.length > 0)
-            .map(([slot, children]) => ({ slot, children: children! }));
-    }
+// Recursive block tree renderer
+function getBlockChildren(block: BlockNode): Array<{ slot: string; children: BlockNode[] }> {
+	if (!block.slots) return [];
+	const result: Array<{ slot: string; children: BlockNode[] }> = [];
+	for (const [slot, children] of Object.entries(block.slots)) {
+		if (children && children.length > 0) {
+			result.push({ slot, children });
+		}
+	}
+	return result;
+}
 </script>
 
 <div class="flex flex-col h-full overflow-hidden">

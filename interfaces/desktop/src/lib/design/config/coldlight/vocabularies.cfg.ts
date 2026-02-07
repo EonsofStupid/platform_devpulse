@@ -222,22 +222,61 @@ export const ARIA_STATE_PROVIDERS = ["meltui", "coldlight"] as const;
 
 export const HTML_ELEMENTS = [
 	// Structural
-	"div", "span", "section", "article", "aside", "nav",
-	"header", "footer", "main",
+	"div",
+	"span",
+	"section",
+	"article",
+	"aside",
+	"nav",
+	"header",
+	"footer",
+	"main",
 	// Interactive
-	"button", "a", "input", "textarea", "select", "label",
+	"button",
+	"a",
+	"input",
+	"textarea",
+	"select",
+	"label",
 	// Semantic
-	"h1", "h2", "h3", "h4", "h5", "h6", "p", "hr",
+	"h1",
+	"h2",
+	"h3",
+	"h4",
+	"h5",
+	"h6",
+	"p",
+	"hr",
 	// Lists
-	"ul", "ol", "li", "dl", "dt", "dd",
+	"ul",
+	"ol",
+	"li",
+	"dl",
+	"dt",
+	"dd",
 	// Media
-	"img", "figure", "figcaption",
+	"img",
+	"figure",
+	"figcaption",
 	// Tables
-	"table", "thead", "tbody", "tfoot", "tr", "th", "td",
+	"table",
+	"thead",
+	"tbody",
+	"tfoot",
+	"tr",
+	"th",
+	"td",
 	// Forms
-	"form", "fieldset", "legend", "output", "progress", "meter",
+	"form",
+	"fieldset",
+	"legend",
+	"output",
+	"progress",
+	"meter",
 	// Disclosure
-	"details", "summary", "dialog",
+	"details",
+	"summary",
+	"dialog",
 	// Virtual (no DOM element)
 	"fragment",
 ] as const;
@@ -247,11 +286,11 @@ export const HTML_ELEMENTS = [
 // =============================================================================
 
 export const FOCUS_STRATEGIES = [
-	"trap",              // Focus locked inside (dialog, sheet, alert-dialog)
-	"roving",            // Roving tabindex (tabs, toolbar, radiogroup)
-	"activedescendant",  // aria-activedescendant (select, combobox)
-	"redirect",          // Focus moved to specific target (popover → content)
-	"none",              // No special focus management
+	"trap", // Focus locked inside (dialog, sheet, alert-dialog)
+	"roving", // Roving tabindex (tabs, toolbar, radiogroup)
+	"activedescendant", // aria-activedescendant (select, combobox)
+	"redirect", // Focus moved to specific target (popover → content)
+	"none", // No special focus management
 ] as const;
 
 // =============================================================================
@@ -259,20 +298,16 @@ export const FOCUS_STRATEGIES = [
 // =============================================================================
 
 export const SLOT_CHILDREN_MODES = [
-	"snippet",       // Accepts Snippet children, rendered with {@render}
-	"self-closing",  // No children (img, input)
-	"renderless",    // No DOM element, only renders children (context providers)
+	"snippet", // Accepts Snippet children, rendered with {@render}
+	"self-closing", // No children (img, input)
+	"renderless", // No DOM element, only renders children (context providers)
 ] as const;
 
 // =============================================================================
 // ORIENTATIONS — Primary axis for directional navigation
 // =============================================================================
 
-export const ORIENTATIONS = [
-	"horizontal",
-	"vertical",
-	"both",
-] as const;
+export const ORIENTATIONS = ["horizontal", "vertical", "both"] as const;
 
 // =============================================================================
 // SCAN ERROR CODES — Scanner error taxonomy

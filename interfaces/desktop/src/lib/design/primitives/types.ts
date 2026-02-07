@@ -8,8 +8,8 @@
 
 /// <reference types="vite/client" />
 
+import { type ClassValue, clsx } from "clsx";
 import type { HTMLAttributes } from "svelte/elements";
-import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 // ============================================
@@ -38,19 +38,19 @@ const NS = ""; // Empty now, can become "cl-" later
  * See README.md and PRIMITIVE_CONTRACT.md for usage patterns.
  */
 export const DATA_ATTRS = {
-  // Primitives (behavior)
-  kind: `data-${NS}kind`,
-  slot: `data-${NS}slot`,
-  state: `data-${NS}state`,
-  id: `data-${NS}id`,
+	// Primitives (behavior)
+	kind: `data-${NS}kind`,
+	slot: `data-${NS}slot`,
+	state: `data-${NS}state`,
+	id: `data-${NS}id`,
 
-  // Recipes (visual)
-  surface: `data-${NS}surface`,
-  material: `data-${NS}material`,
-  motion: `data-${NS}motion`,
-  transition: `data-${NS}transition`,
-  focus: `data-${NS}focus`,
-  layers: `data-${NS}layers`,
+	// Recipes (visual)
+	surface: `data-${NS}surface`,
+	material: `data-${NS}material`,
+	motion: `data-${NS}motion`,
+	transition: `data-${NS}transition`,
+	focus: `data-${NS}focus`,
+	layers: `data-${NS}layers`,
 } as const;
 
 // ============================================
@@ -62,20 +62,20 @@ export const DATA_ATTRS = {
  * Used with data-state attribute.
  */
 export const PrimitiveStates = [
-  "open",
-  "closed",
-  "checked",
-  "unchecked",
-  "indeterminate",
-  "active",
-  "inactive",
-  "on",
-  "off",
-  "pressed",
-  "loading",
-  "disabled",
-  "focused",
-  "selected",
+	"open",
+	"closed",
+	"checked",
+	"unchecked",
+	"indeterminate",
+	"active",
+	"inactive",
+	"on",
+	"off",
+	"pressed",
+	"loading",
+	"disabled",
+	"focused",
+	"selected",
 ] as const;
 
 export type PrimitiveState = (typeof PrimitiveStates)[number];
@@ -96,8 +96,8 @@ export type OmitStyle<T extends HTMLElement> = Omit<HTMLAttributes<T>, "style" |
  * These already get `class` from HTMLAttributes - do NOT redefine it here.
  */
 export interface BaseProps {
-  /** User-defined stable ID for tooling */
-  "data-id"?: string;
+	/** User-defined stable ID for tooling */
+	"data-id"?: string;
 }
 
 // ============================================
@@ -108,17 +108,14 @@ export interface BaseProps {
  * DEV-only: Strip style prop from rest and warn.
  * Types alone don't stop JS/any usage.
  */
-export function stripStyleProp(
-  rest: Record<string, unknown>,
-  componentName: string
-): void {
-  if (import.meta.env?.DEV && "style" in rest) {
-    console.warn(
-      `[ColdLight] Inline style prop stripped from <${componentName}>. ` +
-        `Use recipe classes instead.`
-    );
-    delete rest.style;
-  }
+export function stripStyleProp(rest: Record<string, unknown>, componentName: string): void {
+	if (import.meta.env?.DEV && "style" in rest) {
+		console.warn(
+			`[ColdLight] Inline style prop stripped from <${componentName}>. ` +
+				`Use recipe classes instead.`,
+		);
+		delete rest.style;
+	}
 }
 
 // ============================================
@@ -134,5 +131,5 @@ export function stripStyleProp(
  * cn("text-red-500", props.class, className) // => merged result
  */
 export function cn(...inputs: ClassValue[]): string {
-  return twMerge(clsx(inputs));
+	return twMerge(clsx(inputs));
 }

@@ -1,4 +1,4 @@
-﻿# Claude Instructions for ColdLight
+# Claude Instructions for ColdLight
 
 > **Read this first when working on ColdLight.**
 
@@ -32,7 +32,7 @@ primitives/     api/adapters/{dsAdapter}/
 ## ARIA Application
 
 **ARIA is NOT baked into primitives.**
-**ARIA is applied at BLOCK RENDER TIME.**
+**ARIA IS OWNED BY COLD LIGHT, .**
 
 Primitives provide:
 - data-kind

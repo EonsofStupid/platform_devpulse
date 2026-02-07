@@ -16,26 +16,26 @@
   - data-align (from Bits UI)
 -->
 <script lang="ts">
-  import { Select } from "meltui";
-  import type { SelectContentProps, SelectState } from "./types.js";
-  import { stripStyleProp, cn } from "../types.js";
+import { Select } from "meltui";
+import { cn, stripStyleProp } from "../types.js";
+import type { SelectContentProps, SelectState } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    "data-id": dataId,
-    // Positioning
-    side = "bottom",
-    sideOffset = 4,
-    align = "start",
-    alignOffset,
-    arrowPadding,
-    avoidCollisions = true,
-    collisionPadding = 8,
-    ...rest
-  }: SelectContentProps = $props();
+let {
+	children,
+	class: className = "",
+	"data-id": dataId,
+	// Positioning
+	side = "bottom",
+	sideOffset = 4,
+	align = "start",
+	alignOffset,
+	arrowPadding,
+	avoidCollisions = true,
+	collisionPadding = 8,
+	...rest
+}: SelectContentProps = $props();
 
-  stripStyleProp(rest, "Select.Content");
+stripStyleProp(rest, "Select.Content");
 </script>
 
 <Select.Content

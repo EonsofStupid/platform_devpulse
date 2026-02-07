@@ -10,19 +10,19 @@
   - data-popover-arrow=""
 -->
 <script lang="ts">
-  import { Popover } from "meltui";
-  import type { PopoverArrowProps } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+import { Popover } from "meltui";
+import { stripStyleProp } from "../types.js";
+import type { PopoverArrowProps } from "./types.js";
 
-  let {
-    class: className = "",
-    "data-id": dataId,
-    width = 8,
-    height = 8,
-    ...rest
-  }: PopoverArrowProps = $props();
+let {
+	class: className = "",
+	"data-id": dataId,
+	width = 8,
+	height = 8,
+	...rest
+}: PopoverArrowProps = $props();
 
-  stripStyleProp(rest, "Popover.Arrow");
+stripStyleProp(rest, "Popover.Arrow");
 </script>
 
 <Popover.Arrow

@@ -4,12 +4,12 @@
 	Contract: kind="select", slot="group"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { SelectGroupProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { SelectGroupProps } from "./types.js";
 
-	let { children, class: className, ...rest }: SelectGroupProps = $props();
+let { children, class: className, ...rest }: SelectGroupProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SelectGroup");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SelectGroup");
 </script>
 
 <div

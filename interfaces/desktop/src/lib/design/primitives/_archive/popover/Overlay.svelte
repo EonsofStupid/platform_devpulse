@@ -11,18 +11,13 @@
   - data-state="open" | "closed"
 -->
 <script lang="ts">
-  import { Popover } from "meltui";
-  import type { PopoverOverlayProps, PopoverState } from "./types.js";
-  import { stripStyleProp, cn } from "../types.js";
+import { Popover } from "meltui";
+import { cn, stripStyleProp } from "../types.js";
+import type { PopoverOverlayProps, PopoverState } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: PopoverOverlayProps = $props();
+let { children, class: className = "", "data-id": dataId, ...rest }: PopoverOverlayProps = $props();
 
-  stripStyleProp(rest, "Popover.Overlay");
+stripStyleProp(rest, "Popover.Overlay");
 </script>
 
 <Popover.Overlay {...rest}>

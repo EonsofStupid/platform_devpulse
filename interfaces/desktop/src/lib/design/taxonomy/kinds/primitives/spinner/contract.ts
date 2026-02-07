@@ -10,13 +10,10 @@
  * No keyboard interaction. No focus management. Purely informational.
  */
 
-import type { PrimitiveContract } from "../../../types.js";
-import { spinnerSlotStates, type SpinnerSlot, type SpinnerState } from "./types.js";
+import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { spinnerSlotStates } from "./types.js";
 
-// ─── CONTRACT ───────────────────────────────────────────────────────────────
-
-/** Spinner primitive contract — ColdLight SSOT */
-export const contract: PrimitiveContract<"spinner", SpinnerSlot, SpinnerState> = {
+const rawContract = {
 	kind: "spinner",
 	ariaStateProvider: "coldlight",
 	slots: { required: ["root"], optional: [], forbidden: [] },
@@ -40,6 +37,9 @@ export const contract: PrimitiveContract<"spinner", SpinnerSlot, SpinnerState> =
 		optionalAttrs: ["aria-label", "aria-hidden", "aria-busy", "aria-live"],
 	},
 	keyboard: [],
+	keyboardMap: [],
 	focusStrategy: "none",
 	compound: false,
-};
+} as const;
+
+export const contract: PrimitiveContract = parseContract(rawContract);

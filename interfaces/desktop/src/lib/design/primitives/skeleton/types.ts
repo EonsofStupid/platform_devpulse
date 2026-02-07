@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** Skeleton root — loading placeholder shell */
 export interface SkeletonProps extends OmitStyle<HTMLDivElement>, BaseProps {

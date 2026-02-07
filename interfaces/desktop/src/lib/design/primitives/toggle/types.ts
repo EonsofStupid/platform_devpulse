@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** Toggle root — pressable button with on/off state */
 export interface ToggleProps extends OmitStyle<HTMLButtonElement>, BaseProps {

@@ -18,10 +18,8 @@ import { createReport, formatReport, writeJsonReport } from './report.js';
 import type { CheckContext, CheckResult, FixResult, PolicyConfig, DryRunState } from '../types.js';
 
 // Import all checks to register them
-import '../checks/check.thin-routes.js';
 import '../checks/check.domain-boundaries.js';
 import '../checks/check.typed-routes.js';
-import '../checks/check.state-vs-streams.js';
 import '../checks/check.naming.js';
 
 // Import all fixers

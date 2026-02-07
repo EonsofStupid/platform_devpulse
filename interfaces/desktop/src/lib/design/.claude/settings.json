@@ -1,52 +1,52 @@
 {
-  "$schema": "https://claude.ai/schema/claude-settings.json",
-  "priority": "CRITICAL",
-  "onLoad": [
-    "READ .claude/CLAUDE.md FIRST — comprehensive system context",
-    "READ .agent/INSTRUCTIONS.md SECOND — enforcement rules"
-  ],
-  "systemType": "Enterprise NO-CODE Visual Design System",
-  "stack": {
-    "framework": "SvelteKit 5 (runes: $state, $derived, $props)",
-    "behavior": "Bits UI (headless primitives)",
-    "styling": "Tailwind CSS (JIT) + data-* attribute pattern",
-    "values": "tokens.ts → generated CSS (SSOT)",
-    "composition": "VPB (Visual Page Builder) — NO-CODE driven"
-  },
-  "corePattern": "Registry-First Architecture: Tokens → Taxonomy → Recipes → VPB → Renderers",
-  "criticalRules": {
-    "tokensSSOT": "tokens.ts is SSOT — run pnpm ds:tokens:build after changes",
-    "onlyManualCSS": "keyframes.css is the ONLY manually written CSS",
-    "recipesReusable": "Recipes are REUSABLE PRESETS — effects belong in recipe library, NOT components",
-    "dataAttributes": "Styling via data-* attributes, NOT class manipulation or inline styles",
-    "bitsUILocation": "Bits UI imports ONLY in primitives/ folder",
-    "noArbitraryTailwind": "No [...] bracket patterns anywhere",
-    "componentsConsume": "Components CONSUME recipes, they don't OWN visual effects"
-  },
-  "fileRules": {
-    "canEdit": [
-      "tokens/tokens.ts",
-      "recipes/css/keyframes.css",
-      "taxonomy/*.ts",
-      "recipes/*.ts",
-      "recipes/actions/*.ts",
-      "primitives/*.svelte",
-      "components/*.svelte",
-      "renderers/*.svelte"
-    ],
-    "neverEdit": [
-      "tokens/tokens.css (GENERATED)",
-      "tokens/types.ts (GENERATED)",
-      "tokens/tailwind.preset.ts (GENERATED)",
-      "recipes/css/surfaces.gen.css (GENERATED)"
-    ]
-  },
-  "currentWork": {
-    "pending": [
-      "Add VPB tokens to tokens.ts",
-      "Add dp-glitch-pulse keyframe",
-      "Create sporadicPulse action",
-      "Create VPB FAB component (consumes recipes)"
-    ]
-  }
+	"$schema": "https://claude.ai/schema/claude-settings.json",
+	"priority": "CRITICAL",
+	"onLoad": [
+		"READ .claude/CLAUDE.md FIRST — comprehensive system context",
+		"READ .agent/INSTRUCTIONS.md SECOND — enforcement rules"
+	],
+	"systemType": "Enterprise NO-CODE Visual Design System",
+	"stack": {
+		"framework": "SvelteKit 5 (runes: $state, $derived, $props)",
+		"behavior": "Bits UI (headless primitives)",
+		"styling": "Tailwind CSS (JIT) + data-* attribute pattern",
+		"values": "tokens.ts → generated CSS (SSOT)",
+		"composition": "VPB (Visual Page Builder) — NO-CODE driven"
+	},
+	"corePattern": "Registry-First Architecture: Tokens → Taxonomy → Recipes → VPB → Renderers",
+	"criticalRules": {
+		"tokensSSOT": "tokens.ts is SSOT — run pnpm ds:tokens:build after changes",
+		"onlyManualCSS": "keyframes.css is the ONLY manually written CSS",
+		"recipesReusable": "Recipes are REUSABLE PRESETS — effects belong in recipe library, NOT components",
+		"dataAttributes": "Styling via data-* attributes, NOT class manipulation or inline styles",
+		"bitsUILocation": "Bits UI imports ONLY in primitives/ folder",
+		"noArbitraryTailwind": "No [...] bracket patterns anywhere",
+		"componentsConsume": "Components CONSUME recipes, they don't OWN visual effects"
+	},
+	"fileRules": {
+		"canEdit": [
+			"tokens/tokens.ts",
+			"recipes/css/keyframes.css",
+			"taxonomy/*.ts",
+			"recipes/*.ts",
+			"recipes/actions/*.ts",
+			"primitives/*.svelte",
+			"components/*.svelte",
+			"renderers/*.svelte"
+		],
+		"neverEdit": [
+			"tokens/tokens.css (GENERATED)",
+			"tokens/types.ts (GENERATED)",
+			"tokens/tailwind.preset.ts (GENERATED)",
+			"recipes/css/surfaces.gen.css (GENERATED)"
+		]
+	},
+	"currentWork": {
+		"pending": [
+			"Add VPB tokens to tokens.ts",
+			"Add dp-glitch-pulse keyframe",
+			"Create sporadicPulse action",
+			"Create VPB FAB component (consumes recipes)"
+		]
+	}
 }

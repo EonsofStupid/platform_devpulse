@@ -4,15 +4,15 @@
 	Contract: kind="sheet", slot="content"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { SheetContentProps } from "./types.js";
-	import { getSheetContext } from "./context.js";
+import { cn, stripStyleProp } from "../types.js";
+import { getSheetContext } from "./context.js";
+import type { SheetContentProps } from "./types.js";
 
-	let { children, class: className, ...rest }: SheetContentProps = $props();
+let { children, class: className, ...rest }: SheetContentProps = $props();
 
-	const ctx = getSheetContext();
+const ctx = getSheetContext();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SheetContent");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SheetContent");
 </script>
 
 <div

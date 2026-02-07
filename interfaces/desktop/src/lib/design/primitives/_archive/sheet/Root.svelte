@@ -10,17 +10,17 @@
   - data-state="open" | "closed"
 -->
 <script lang="ts">
-  import { Dialog } from "meltui";
-  import type { SheetRootProps, SheetState } from "./types.js";
+import { Dialog } from "meltui";
+import type { SheetRootProps, SheetState } from "./types.js";
 
-  let {
-    open = $bindable(false),
-    onOpenChange,
-    children,
-    "data-id": dataId,
-  }: SheetRootProps = $props();
+let {
+	open = $bindable(false),
+	onOpenChange,
+	children,
+	"data-id": dataId,
+}: SheetRootProps = $props();
 
-  const dataState: SheetState = $derived(open ? "open" : "closed");
+const dataState: SheetState = $derived(open ? "open" : "closed");
 </script>
 
 <div

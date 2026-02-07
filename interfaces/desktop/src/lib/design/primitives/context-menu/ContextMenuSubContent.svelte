@@ -4,14 +4,14 @@
 	Contract: kind="context-menu", slot="sub-content"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { ContextMenuSubContentProps } from "./types.js";
-	import { getContextMenuContext } from "./context.js";
+import { cn, stripStyleProp } from "../types.js";
+import { getContextMenuContext } from "./context.js";
+import type { ContextMenuSubContentProps } from "./types.js";
 
-	let { children, class: className, ...rest }: ContextMenuSubContentProps = $props();
-	const ctx = getContextMenuContext();
+let { children, class: className, ...rest }: ContextMenuSubContentProps = $props();
+const ctx = getContextMenuContext();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ContextMenuSubContent");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ContextMenuSubContent");
 </script>
 
 <div

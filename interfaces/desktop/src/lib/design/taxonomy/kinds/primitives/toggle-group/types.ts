@@ -7,7 +7,7 @@
  * ariaStateProvider: "meltui" — createToggleGroup provides roving tabindex + aria-pressed management.
  */
 
-import type { StateToken, SlotStateMap } from "../../../types.js";
+import type { SlotStateMap, StateToken } from "../../../types.js";
 
 // ─── SLOT TYPES ─────────────────────────────────────────────────────────────
 

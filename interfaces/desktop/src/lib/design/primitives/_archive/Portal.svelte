@@ -6,28 +6,22 @@
   SSR-safe: No-op on server, activates only in browser.
 -->
 <script lang="ts">
-  import { Portal as BitsPortal } from "melt-ui";
-  import type { Snippet } from "svelte";
-  import type { OmitStyle, BaseProps } from "./types.js";
+import { Portal as BitsPortal } from "melt-ui";
+import type { Snippet } from "svelte";
+import type { BaseProps, OmitStyle } from "./types.js";
 
-  interface Props extends OmitStyle<HTMLDivElement>, BaseProps {
-    /** Portal target (CSS selector or element). Defaults to body. */
-    to?: string | HTMLElement;
-    /** Disable portal (render in place) */
-    disabled?: boolean;
-    children?: Snippet;
-  }
+interface Props extends OmitStyle<HTMLDivElement>, BaseProps {
+	/** Portal target (CSS selector or element). Defaults to body. */
+	to?: string | HTMLElement;
+	/** Disable portal (render in place) */
+	disabled?: boolean;
+	children?: Snippet;
+}
 
-  let {
-    to,
-    disabled = false,
-    children,
-    class: className = "",
-    "data-id": id,
-  }: Props = $props();
+let { to, disabled = false, children, class: className = "", "data-id": id }: Props = $props();
 
-  // SSR check
-  const isBrowser = typeof window !== "undefined";
+// SSR check
+const isBrowser = typeof window !== "undefined";
 </script>
 
 {#if disabled || !isBrowser}

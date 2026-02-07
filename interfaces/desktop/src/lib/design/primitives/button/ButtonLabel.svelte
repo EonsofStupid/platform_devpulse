@@ -4,12 +4,12 @@
 	Contract: kind="button", slot="label", ariaStateProvider="coldlight"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { ButtonLabelProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { ButtonLabelProps } from "./types.js";
 
-	let { children, class: className, ...rest }: ButtonLabelProps = $props();
+let { children, class: className, ...rest }: ButtonLabelProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ButtonLabel");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ButtonLabel");
 </script>
 
 <span

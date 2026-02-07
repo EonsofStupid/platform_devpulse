@@ -4,12 +4,13 @@
 	Contract: kind="context-menu", slot="checkbox-item"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { ContextMenuCheckboxItemProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { ContextMenuCheckboxItemProps } from "./types.js";
 
-	let { children, class: className, ...rest }: ContextMenuCheckboxItemProps = $props();
+let { children, class: className, ...rest }: ContextMenuCheckboxItemProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ContextMenuCheckboxItem");
+if (import.meta.env?.DEV)
+	stripStyleProp(rest as Record<string, unknown>, "ContextMenuCheckboxItem");
 </script>
 
 <div

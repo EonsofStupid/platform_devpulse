@@ -1,11 +1,11 @@
 <script lang="ts">
-  import * as Dialog from "$lib/design/components/dialog/index.js";
+import * as Dialog from "$lib/design/components/dialog/index.js";
 
-  // Side-effect: register recipe + blueprint
-  import "$lib/design/recipes/dialog.recipe.js";
-  import "$lib/design/blueprints/dialog.blueprint.js";
+// Side-effect: register recipe + blueprint
+import "$lib/design/recipes/components/dialog/index.js";
+import "$lib/design/blueprints/components/dialog/index.js";
 
-  let open = $state(false);
+let open = $state(false);
 </script>
 
 <div class="p-8 space-y-8">

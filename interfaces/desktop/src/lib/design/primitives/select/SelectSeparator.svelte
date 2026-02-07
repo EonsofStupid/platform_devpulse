@@ -4,12 +4,12 @@
 	Contract: kind="select", slot="separator"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { SelectSeparatorProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { SelectSeparatorProps } from "./types.js";
 
-	let { children, class: className, ...rest }: SelectSeparatorProps = $props();
+let { children, class: className, ...rest }: SelectSeparatorProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SelectSeparator");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SelectSeparator");
 </script>
 
 <div

@@ -9,15 +9,10 @@
   - data-slot="portal"
 -->
 <script lang="ts">
-  import { Popover } from "meltui";
-  import type { PopoverPortalProps } from "./types.js";
+import { Popover } from "meltui";
+import type { PopoverPortalProps } from "./types.js";
 
-  let {
-    to,
-    disabled = false,
-    children,
-    "data-id": dataId,
-  }: PopoverPortalProps = $props();
+let { to, disabled = false, children, "data-id": dataId }: PopoverPortalProps = $props();
 </script>
 
 <Popover.Portal {to} {disabled}>

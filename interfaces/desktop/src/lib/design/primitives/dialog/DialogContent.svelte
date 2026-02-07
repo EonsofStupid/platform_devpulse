@@ -4,15 +4,15 @@
 	Contract: kind="dialog", slot="content"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { DialogContentProps } from "./types.js";
-	import { getDialogContext } from "./context.js";
+import { cn, stripStyleProp } from "../types.js";
+import { getDialogContext } from "./context.js";
+import type { DialogContentProps } from "./types.js";
 
-	let { children, class: className, ...rest }: DialogContentProps = $props();
+let { children, class: className, ...rest }: DialogContentProps = $props();
 
-	const ctx = getDialogContext();
+const ctx = getDialogContext();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "DialogContent");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "DialogContent");
 </script>
 
 <div

@@ -18,25 +18,25 @@
   - data-slot="trigger"
 -->
 <script lang="ts">
-  import { Dialog } from "meltui";
-  import { getContext } from "svelte";
-  import type { DialogTriggerProps, DialogContext } from "./types.js";
-  import { DIALOG_CONTEXT_KEY } from "./types.js";
+import { Dialog } from "meltui";
+import { getContext } from "svelte";
+import type { DialogContext, DialogTriggerProps } from "./types.js";
+import { DIALOG_CONTEXT_KEY } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    "data-id": dataId,
-    disabled = false,
-  }: DialogTriggerProps = $props();
+let {
+	children,
+	class: className = "",
+	"data-id": dataId,
+	disabled = false,
+}: DialogTriggerProps = $props();
 
-  // ============================================
-  // COLDLIGHT GETS IDs AND STATE FROM CONTEXT
-  // ============================================
-  const ctx = getContext<DialogContext>(DIALOG_CONTEXT_KEY);
-  const { contentId } = ctx;
-  // Get open state reactively
-  const isOpen = $derived(ctx.open());
+// ============================================
+// COLDLIGHT GETS IDs AND STATE FROM CONTEXT
+// ============================================
+const ctx = getContext<DialogContext>(DIALOG_CONTEXT_KEY);
+const { contentId } = ctx;
+// Get open state reactively
+const isOpen = $derived(ctx.open());
 </script>
 
 <!--

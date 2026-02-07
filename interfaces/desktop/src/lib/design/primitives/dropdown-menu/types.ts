@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** DropdownMenu root — renderless context provider (no DOM element) */
 export interface DropdownMenuProps extends BaseProps {

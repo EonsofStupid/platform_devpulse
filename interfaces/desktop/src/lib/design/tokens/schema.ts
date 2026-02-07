@@ -14,18 +14,18 @@
 
 import { z } from "zod";
 import {
-  AccentTokens,
-  GlowTokens,
-  SurfaceTokens,
-  GlassVariantTokens,
-  SizeTokens,
-  RadiusTokens,
-  BlurTokens,
-  BevelTokens,
-  ImprintTokens,
-  ShellDepthTokens,
-  PaddingTokens,
-  ToneTokens,
+	AccentTokens,
+	BevelTokens,
+	BlurTokens,
+	GlassVariantTokens,
+	GlowTokens,
+	ImprintTokens,
+	PaddingTokens,
+	RadiusTokens,
+	ShellDepthTokens,
+	SizeTokens,
+	SurfaceTokens,
+	ToneTokens,
 } from "./types";
 
 // Token Schemas
@@ -36,7 +36,13 @@ export const GlassVariantSchema = z.enum(GlassVariantTokens);
 export const SizeSchema = z.enum(SizeTokens);
 export const RadiusSchema = z.enum(RadiusTokens);
 export const BlurSchema = z.enum(BlurTokens);
-export const DepthSchema = z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(4)]);
+export const DepthSchema = z.union([
+	z.literal(0),
+	z.literal(1),
+	z.literal(2),
+	z.literal(3),
+	z.literal(4),
+]);
 export const BevelSchema = z.enum(BevelTokens);
 export const ImprintSchema = z.enum(ImprintTokens);
 export const ShellDepthSchema = z.enum(ShellDepthTokens);

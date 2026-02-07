@@ -15,21 +15,21 @@
   - data-slot="trigger"
 -->
 <script lang="ts">
-  import { Popover } from "meltui";
-  import type { PopoverTriggerProps } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+import { Popover } from "meltui";
+import { stripStyleProp } from "../types.js";
+import type { PopoverTriggerProps } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    "data-id": dataId,
-    openOnHover = false,
-    openDelay = 700,
-    closeDelay = 300,
-    ...rest
-  }: PopoverTriggerProps = $props();
+let {
+	children,
+	class: className = "",
+	"data-id": dataId,
+	openOnHover = false,
+	openDelay = 700,
+	closeDelay = 300,
+	...rest
+}: PopoverTriggerProps = $props();
 
-  stripStyleProp(rest, "Popover.Trigger");
+stripStyleProp(rest, "Popover.Trigger");
 </script>
 
 <Popover.Trigger

@@ -16,6 +16,7 @@
 // Stores session history (Diary Minion)
 // Will connect to `systems/userdata/db`
 
+/// Load recent chat history entries.
 #[tauri::command]
 pub fn load_recent() -> Vec<String> {
     vec![]

@@ -4,12 +4,12 @@
 	Contract: kind="select", slot="label"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { SelectLabelProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { SelectLabelProps } from "./types.js";
 
-	let { children, class: className, ...rest }: SelectLabelProps = $props();
+let { children, class: className, ...rest }: SelectLabelProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SelectLabel");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SelectLabel");
 </script>
 
 <div

@@ -4,14 +4,14 @@
 	Contract: kind="tooltip", slot="trigger"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { TooltipTriggerProps } from "./types.js";
-	import { getTooltipContext } from "./context.js";
+import { cn, stripStyleProp } from "../types.js";
+import { getTooltipContext } from "./context.js";
+import type { TooltipTriggerProps } from "./types.js";
 
-	let { children, class: className, ...rest }: TooltipTriggerProps = $props();
-	const ctx = getTooltipContext();
+let { children, class: className, ...rest }: TooltipTriggerProps = $props();
+const ctx = getTooltipContext();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "TooltipTrigger");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "TooltipTrigger");
 </script>
 
 <button

@@ -9,15 +9,10 @@
   - data-slot="portal"
 -->
 <script lang="ts">
-  import { Dialog } from "meltui";
-  import type { SheetPortalProps } from "./types.js";
+import { Dialog } from "meltui";
+import type { SheetPortalProps } from "./types.js";
 
-  let {
-    to,
-    disabled = false,
-    children,
-    "data-id": dataId,
-  }: SheetPortalProps = $props();
+let { to, disabled = false, children, "data-id": dataId }: SheetPortalProps = $props();
 </script>
 
 <Dialog.Portal {to} {disabled}>

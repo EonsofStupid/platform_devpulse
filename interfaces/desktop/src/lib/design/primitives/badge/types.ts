@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** Badge root — inline status indicator */
 export interface BadgeProps extends OmitStyle<HTMLSpanElement>, BaseProps {

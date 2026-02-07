@@ -10,7 +10,7 @@
 
 ```
 ColdLight = framework-owned public API (SSOT)
-MeltUI = provider implementation (ARIA handled here)
+MeltUI = my first dsAdapter for state and aria behavior
 _internals = adapter boundary (provider abstraction layer)
 ```
 

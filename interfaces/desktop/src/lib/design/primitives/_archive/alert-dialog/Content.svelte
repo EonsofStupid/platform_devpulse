@@ -22,28 +22,28 @@
   - data-state="open" | "closed"
 -->
 <script lang="ts">
-  import { AlertDialog } from "meltui";
-  import type { AlertDialogContentProps, AlertDialogState } from "./types.js";
-  import { stripStyleProp, cn } from "../types.js";
+import { AlertDialog } from "meltui";
+import { cn, stripStyleProp } from "../types.js";
+import type { AlertDialogContentProps, AlertDialogState } from "./types.js";
 
-  let {
-    children,
-    closeOnEscape = true,
-    interactOutsideBehavior = "ignore",  // DEFAULT: ignore (unlike Dialog)
-    trapFocus = true,
-    preventScroll = true,
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: AlertDialogContentProps = $props();
+let {
+	children,
+	closeOnEscape = true,
+	interactOutsideBehavior = "ignore", // DEFAULT: ignore (unlike Dialog)
+	trapFocus = true,
+	preventScroll = true,
+	class: className = "",
+	"data-id": dataId,
+	...rest
+}: AlertDialogContentProps = $props();
 
-  stripStyleProp(rest, "AlertDialog.Content");
+stripStyleProp(rest, "AlertDialog.Content");
 
-  function handleEscapeKeydown(e: KeyboardEvent) {
-    if (!closeOnEscape) {
-      e.preventDefault();
-    }
-  }
+function handleEscapeKeydown(e: KeyboardEvent) {
+	if (!closeOnEscape) {
+		e.preventDefault();
+	}
+}
 </script>
 
 <AlertDialog.Content

@@ -4,12 +4,12 @@
 	Contract: kind="dialog", slot="close"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { DialogCloseProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { DialogCloseProps } from "./types.js";
 
-	let { children, class: className, ...rest }: DialogCloseProps = $props();
+let { children, class: className, ...rest }: DialogCloseProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "DialogClose");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "DialogClose");
 </script>
 
 <button

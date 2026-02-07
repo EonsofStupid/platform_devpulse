@@ -4,12 +4,12 @@
 	Contract: kind="tooltip", slot="arrow"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { TooltipArrowProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { TooltipArrowProps } from "./types.js";
 
-	let { children, class: className, ...rest }: TooltipArrowProps = $props();
+let { children, class: className, ...rest }: TooltipArrowProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "TooltipArrow");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "TooltipArrow");
 </script>
 
 <div

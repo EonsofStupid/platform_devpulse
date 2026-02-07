@@ -15,22 +15,17 @@
   - data-slot="title"
 -->
 <script lang="ts">
-  import { getContext } from "svelte";
-  import type { DialogTitleProps, DialogContext } from "./types.js";
-  import { DIALOG_CONTEXT_KEY } from "./types.js";
+import { getContext } from "svelte";
+import type { DialogContext, DialogTitleProps } from "./types.js";
+import { DIALOG_CONTEXT_KEY } from "./types.js";
 
-  let {
-    level = 2,
-    children,
-    class: className = "",
-    "data-id": dataId,
-  }: DialogTitleProps = $props();
+let { level = 2, children, class: className = "", "data-id": dataId }: DialogTitleProps = $props();
 
-  // ============================================
-  // COLDLIGHT GETS ID FROM CONTEXT
-  // ============================================
-  const ctx = getContext<DialogContext>(DIALOG_CONTEXT_KEY);
-  const { titleId } = ctx;
+// ============================================
+// COLDLIGHT GETS ID FROM CONTEXT
+// ============================================
+const ctx = getContext<DialogContext>(DIALOG_CONTEXT_KEY);
+const { titleId } = ctx;
 </script>
 
 <!--

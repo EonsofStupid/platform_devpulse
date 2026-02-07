@@ -13,18 +13,13 @@
   - data-slot="trigger"
 -->
 <script lang="ts">
-  import { Dialog } from "meltui";
-  import type { SheetTriggerProps } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+import { Dialog } from "meltui";
+import { stripStyleProp } from "../types.js";
+import type { SheetTriggerProps } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: SheetTriggerProps = $props();
+let { children, class: className = "", "data-id": dataId, ...rest }: SheetTriggerProps = $props();
 
-  stripStyleProp(rest, "Sheet.Trigger");
+stripStyleProp(rest, "Sheet.Trigger");
 </script>
 
 <Dialog.Trigger

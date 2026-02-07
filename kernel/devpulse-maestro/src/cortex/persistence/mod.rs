@@ -1,11 +1,11 @@
 //! Persistence layer for Maestro
 //!
 //! Three embedded databases for different workloads:
-//! - LibSQL: Relational data (users, settings, projects, messages)
-//! - DuckDB: Analytics (user + AI metrics, telemetry)
-//! - SurrealDB: Reasoning graph (knowledge, states, transitions)
+//! - `LibSQL`: Relational data (users, settings, projects, messages)
+//! - `DuckDB`: Analytics (user + AI metrics, telemetry)
+//! - `SurrealDB`: Reasoning graph (knowledge, states, transitions)
 //!
-//! All adapters implement PersistenceAdapter for signal-based access
+//! All adapters implement `PersistenceAdapter` for signal-based access
 //! plus specialized traits for their specific use cases.
 
 pub mod config;
@@ -47,7 +47,10 @@ impl PersistenceLayer {
         }
     }
 
-    /// Initialize all databases
+    /// Initialize all databases.
+    ///
+    /// # Errors
+    /// Returns error if any database adapter fails to initialize its schema.
     pub async fn init(&mut self) -> Result<()> {
         // Ensure directories exist
         self.config.ensure_dirs()?;
@@ -70,17 +73,17 @@ impl PersistenceLayer {
         Ok(())
     }
 
-    /// Get the LibSQL adapter
+    /// Get the `LibSQL` adapter.
     pub fn libsql(&self) -> Option<&Arc<LibSqlAdapter>> {
         self.libsql.as_ref()
     }
 
-    /// Get the DuckDB adapter
+    /// Get the `DuckDB` adapter.
     pub fn duckdb(&self) -> Option<&Arc<DuckDbAdapter>> {
         self.duckdb.as_ref()
     }
 
-    /// Get the SurrealDB adapter
+    /// Get the `SurrealDB` adapter.
     pub fn surreal(&self) -> Option<&Arc<SurrealAdapter>> {
         self.surreal.as_ref()
     }

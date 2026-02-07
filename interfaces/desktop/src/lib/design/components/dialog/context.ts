@@ -1,5 +1,8 @@
 import { getContext, setContext } from "svelte";
-import type { DialogInstance, DialogAttachments } from "$lib/design/taxonomy/.generated/imports.gen.js";
+import type {
+	DialogAttachments,
+	DialogInstance,
+} from "$lib/design/taxonomy/.generated/imports.gen.js";
 
 const CTX_KEY = Symbol("coldlight:components:dialog");
 

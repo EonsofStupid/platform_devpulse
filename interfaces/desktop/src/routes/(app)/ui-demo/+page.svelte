@@ -1,6 +1,6 @@
 <script lang="ts">
-  // UI Demo - Design System Showcase
-  // Demonstrates panel recipes and ARIA primitives
+// UI Demo - Design System Showcase
+// Demonstrates panel recipes and ARIA primitives
 </script>
 
 <div class="demo-page">

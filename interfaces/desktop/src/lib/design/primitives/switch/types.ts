@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** Switch root — toggle button with on/off state */
 export interface SwitchProps extends OmitStyle<HTMLButtonElement>, BaseProps {

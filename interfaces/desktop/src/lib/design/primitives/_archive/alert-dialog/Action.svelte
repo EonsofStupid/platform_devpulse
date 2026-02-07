@@ -13,18 +13,18 @@
   - data-slot="action"
 -->
 <script lang="ts">
-  import { AlertDialog } from "melt-ui";
-  import type { AlertDialogActionProps } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+import { AlertDialog } from "melt-ui";
+import { stripStyleProp } from "../types.js";
+import type { AlertDialogActionProps } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: AlertDialogActionProps = $props();
+let {
+	children,
+	class: className = "",
+	"data-id": dataId,
+	...rest
+}: AlertDialogActionProps = $props();
 
-  stripStyleProp(rest, "AlertDialog.Action");
+stripStyleProp(rest, "AlertDialog.Action");
 </script>
 
 <AlertDialog.Action

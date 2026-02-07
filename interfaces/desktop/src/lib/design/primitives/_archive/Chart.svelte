@@ -6,25 +6,25 @@
   Uses figure element with role="img" for screen readers.
 -->
 <script lang="ts">
-  import type { Snippet } from "svelte";
-  import type { OmitStyle, BaseProps } from "./types.js";
-  import { stripStyleProp } from "./types.js";
+import type { Snippet } from "svelte";
+import type { BaseProps, OmitStyle } from "./types.js";
+import { stripStyleProp } from "./types.js";
 
-  interface Props extends OmitStyle<HTMLElement>, BaseProps {
-    /** REQUIRED: Description of the chart for screen readers */
-    "aria-label": string;
-    children?: Snippet;
-  }
+interface Props extends OmitStyle<HTMLElement>, BaseProps {
+	/** REQUIRED: Description of the chart for screen readers */
+	"aria-label": string;
+	children?: Snippet;
+}
 
-  let {
-    "aria-label": ariaLabel,
-    children,
-    class: className = "",
-    "data-id": id,
-    ...rest
-  }: Props = $props();
+let {
+	"aria-label": ariaLabel,
+	children,
+	class: className = "",
+	"data-id": id,
+	...rest
+}: Props = $props();
 
-  stripStyleProp(rest, "Chart");
+stripStyleProp(rest, "Chart");
 </script>
 
 <figure

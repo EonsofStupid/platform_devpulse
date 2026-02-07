@@ -8,18 +8,12 @@
  * Floating content panel anchored to a trigger element.
  */
 
-import type { StateToken, SlotStateMap } from "../../../types.js";
+import type { SlotStateMap, StateToken } from "../../../types.js";
 
 // ─── SLOT TYPES ─────────────────────────────────────────────────────────────
 
 /** All slot names for the popover primitive */
-export const popoverSlots = [
-	"root",
-	"trigger",
-	"content",
-	"arrow",
-	"close",
-] as const;
+export const popoverSlots = ["root", "trigger", "content", "arrow", "close"] as const;
 
 /** Union of popover slot names */
 export type PopoverSlot = (typeof popoverSlots)[number];

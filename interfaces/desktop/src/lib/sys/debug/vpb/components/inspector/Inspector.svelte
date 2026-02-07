@@ -9,95 +9,95 @@
   @since 1.0.0
 -->
 <script lang="ts">
-    import { vpb } from "../../state/vpb.svelte";
-    import { getPaletteItem, getRecipesForPaletteItem } from "../builder/palette";
-    import { getKindDefinition } from "$lib/design/taxonomy/vpb";
-    import {
-        TokenArrays,
-        AccentTokens,
-        SurfaceTokens,
-        GlassVariantTokens,
-        GlowTokens,
-        RadiusTokens,
-        BlurTokens,
-        BevelTokens,
-        PaddingTokens,
-    } from "$lib/design/tokens/types";
+import { getKindDefinition } from "$lib/design/taxonomy/vpb";
+import {
+	AccentTokens,
+	BevelTokens,
+	BlurTokens,
+	GlassVariantTokens,
+	GlowTokens,
+	PaddingTokens,
+	RadiusTokens,
+	SurfaceTokens,
+	TokenArrays,
+} from "$lib/design/tokens/types";
+import { vpb } from "../../state/vpb.svelte";
+import { getPaletteItem, getRecipesForPaletteItem } from "../builder/palette";
 
-    // Local state for collapsed sections
-    let collapsedSections = $state<Set<string>>(new Set());
+// Local state for collapsed sections
+let collapsedSections = $state<Set<string>>(new Set());
 
-    // Toggle section collapse
-    function toggleSection(id: string) {
-        if (collapsedSections.has(id)) {
-            collapsedSections.delete(id);
-        } else {
-            collapsedSections.add(id);
-        }
-        collapsedSections = new Set(collapsedSections);
-    }
+// Toggle section collapse
+function toggleSection(id: string) {
+	if (collapsedSections.has(id)) {
+		collapsedSections.delete(id);
+	} else {
+		collapsedSections.add(id);
+	}
+	collapsedSections = new Set(collapsedSections);
+}
 
-    // Get available recipes for selected block
-    let availableRecipes = $derived(() => {
-        const block = vpb.selectedBlock;
-        if (!block) return [];
-        const paletteItem = getPaletteItem(block.kind);
-        if (!paletteItem) return [];
-        return getRecipesForPaletteItem(paletteItem);
-    });
+// Get available recipes for selected block
+let availableRecipes = $derived(() => {
+	const block = vpb.selectedBlock;
+	if (!block) return [];
+	const paletteItem = getPaletteItem(block.kind);
+	if (!paletteItem) return [];
+	return getRecipesForPaletteItem(paletteItem);
+});
 
-    // Update a nested prop
-    function updateProp(path: string, value: unknown) {
-        if (!vpb.selection.blockId) return;
+// Update a nested prop
+function updateProp(path: string, value: unknown) {
+	if (!vpb.selection.blockId) return;
 
-        const block = vpb.selectedBlock;
-        if (!block) return;
+	const block = vpb.selectedBlock;
+	if (!block) return;
 
-        // Parse path and create nested update
-        const parts = path.split(".");
-        const newProps = { ...(block.props as Record<string, unknown>) };
+	// Parse path and create nested update
+	const parts = path.split(".");
+	const newProps = { ...(block.props as Record<string, unknown>) };
 
-        let current: Record<string, unknown> = newProps;
-        for (let i = 0; i < parts.length - 1; i++) {
-            const key = parts[i];
-            if (typeof current[key] !== "object" || current[key] === null) {
-                current[key] = {};
-            }
-            current[key] = { ...(current[key] as Record<string, unknown>) };
-            current = current[key] as Record<string, unknown>;
-        }
-        current[parts[parts.length - 1]] = value;
+	let current: Record<string, unknown> = newProps;
+	for (let i = 0; i < parts.length - 1; i++) {
+		const key = parts[i];
+		if (typeof current[key] !== "object" || current[key] === null) {
+			current[key] = {};
+		}
+		current[key] = { ...(current[key] as Record<string, unknown>) };
+		current = current[key] as Record<string, unknown>;
+	}
+	current[parts[parts.length - 1]] = value;
 
-        vpb.updateProps(vpb.selection.blockId, newProps);
-    }
+	vpb.updateProps(vpb.selection.blockId, newProps);
+}
 
-    // Get nested prop value
-    function getProp(path: string): unknown {
-        const block = vpb.selectedBlock;
-        if (!block) return undefined;
+// Get nested prop value
+function getProp(path: string): unknown {
+	const block = vpb.selectedBlock;
+	if (!block) return undefined;
 
-        const parts = path.split(".");
-        let current: unknown = block.props;
-        for (const part of parts) {
-            if (typeof current !== "object" || current === null) return undefined;
-            current = (current as Record<string, unknown>)[part];
-        }
-        return current;
-    }
+	const parts = path.split(".");
+	let current: unknown = block.props;
+	for (const part of parts) {
+		if (typeof current !== "object" || current === null) return undefined;
+		current = (current as Record<string, unknown>)[part];
+	}
+	return current;
+}
 
-    // Delete selected block
-    function deleteBlock() {
-        if (vpb.selection.blockId) {
-            vpb.removeBlock(vpb.selection.blockId);
-        }
-    }
+// Delete selected block
+function deleteBlock() {
+	if (vpb.selection.blockId) {
+		vpb.removeBlock(vpb.selection.blockId);
+	}
+}
 
-    // Copy selected block
-    function copyBlock() {
-        if (vpb.selection.blockId) {
-            vpb.copy(vpb.selection.blockId);
-        }
-    }
+// Copy selected block
+function copyBlock() {
+	if (vpb.selection.blockId) {
+		vpb.copy(vpb.selection.blockId);
+	}
+}
 </script>
 
 <div class="flex flex-col h-full overflow-hidden">

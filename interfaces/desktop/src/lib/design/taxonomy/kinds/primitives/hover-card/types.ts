@@ -7,7 +7,7 @@
  * ariaStateProvider: "meltui" — createLinkPreview provides hover timing, positioning, and dismiss behavior.
  */
 
-import type { StateToken, SlotStateMap } from "../../../types.js";
+import type { SlotStateMap, StateToken } from "../../../types.js";
 
 // ─── SLOT TYPES ─────────────────────────────────────────────────────────────
 

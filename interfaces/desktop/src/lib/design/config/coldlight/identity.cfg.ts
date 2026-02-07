@@ -4,7 +4,7 @@
  */
 
 export const IDENTITY = {
-  systemId: "coldlight",
-  packageName: "@devpulse/coldlight",
-  version: "0.1.0",
+	systemId: "coldlight",
+	packageName: "@devpulse/coldlight",
+	version: "0.1.0",
 } as const;

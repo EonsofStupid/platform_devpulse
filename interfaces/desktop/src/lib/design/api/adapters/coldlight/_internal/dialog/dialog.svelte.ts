@@ -1,9 +1,9 @@
-import { createDialogIds } from "../_transport/ids.js";
-import { useScrollLock } from "../_transport/scroll-lock.svelte.js";
-import { useDismissLayer } from "../_transport/dismiss-layer.svelte.js";
-import { usePresence } from "../_transport/presence.svelte.js";
-import { extract, type MaybeGetter, type SlotAttrs } from "../_transport/types.js";
 import { tick } from "svelte";
+import { useDismissLayer } from "../_transport/dismiss-layer.svelte.js";
+import { createDialogIds } from "../_transport/ids.js";
+import { usePresence } from "../_transport/presence.svelte.js";
+import { useScrollLock } from "../_transport/scroll-lock.svelte.js";
+import { extract, type MaybeGetter, type SlotAttrs } from "../_transport/types.js";
 
 export interface ColdLightDialogConfig {
 	open?: MaybeGetter<boolean>;
@@ -145,6 +145,8 @@ export class ColdLightDialog {
 			onExitComplete: () => {
 				this.#contentEl?.close?.();
 				this.#overlayEl?.hidePopover?.();
+				// WCAG: restore focus to trigger element
+				this.#triggerEl?.focus();
 			},
 		});
 

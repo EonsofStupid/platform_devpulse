@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** Card root — semantic grouping container */
 export interface CardProps extends OmitStyle<HTMLDivElement>, BaseProps {

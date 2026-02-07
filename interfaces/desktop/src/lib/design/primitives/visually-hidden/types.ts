@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** VisuallyHidden root — screen-reader-only content wrapper */
 export interface VisuallyHiddenProps extends OmitStyle<HTMLSpanElement>, BaseProps {

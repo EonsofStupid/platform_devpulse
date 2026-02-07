@@ -4,8 +4,8 @@
  */
 
 export const ATTRIBUTES = {
-  kind: "data-kind",
-  slot: "data-slot",
-  state: "data-state",
-  id: "data-id",
+	kind: "data-kind",
+	slot: "data-slot",
+	state: "data-state",
+	id: "data-id",
 } as const;

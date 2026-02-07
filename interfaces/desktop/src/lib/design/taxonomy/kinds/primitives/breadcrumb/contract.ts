@@ -5,19 +5,19 @@
  * ariaStateProvider: "coldlight" — semantic HTML landmarks + aria-current for current page indication.
  * 2-folder parity: taxonomy + primitive.
  *
+ * Reference: W3C WAI-ARIA APG Breadcrumb Pattern
+ * https://www.w3.org/WAI/ARIA/apg/patterns/breadcrumb/
+ *
  * WAI-ARIA: <nav> landmark with aria-label="Breadcrumb".
  * Ordered list (<ol>) structure for sequential navigation.
  * aria-current="page" on the current (last) item.
  * Separators are presentational (aria-hidden).
  */
 
-import type { PrimitiveContract } from "../../../types.js";
-import { breadcrumbSlotStates, type BreadcrumbSlot, type BreadcrumbState } from "./types.js";
+import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { breadcrumbSlotStates } from "./types.js";
 
-// ─── CONTRACT ───────────────────────────────────────────────────────────────
-
-/** Breadcrumb primitive contract — ColdLight SSOT */
-export const contract: PrimitiveContract<"breadcrumb", BreadcrumbSlot, BreadcrumbState> = {
+const rawContract = {
 	kind: "breadcrumb",
 	ariaStateProvider: "coldlight",
 	slots: {
@@ -69,6 +69,9 @@ export const contract: PrimitiveContract<"breadcrumb", BreadcrumbSlot, Breadcrum
 		optionalAttrs: ["aria-label", "aria-current"],
 	},
 	keyboard: [],
+	keyboardMap: [],
 	focusStrategy: "none",
 	compound: false,
-};
+} as const;
+
+export const contract: PrimitiveContract = parseContract(rawContract);

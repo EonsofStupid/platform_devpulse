@@ -21,7 +21,7 @@
  * DEBUG_FLAG.ts
  * Feature gate for dev-only tools.
  * This constant is statically analyzed by Vite and stripped in production builds.
- * 
+ *
  * Usage:
  * ```ts
  * import { __DEV__ } from '$lib/sys/debug/DEBUG_FLAG';
@@ -36,5 +36,5 @@ export const __DEV__ = import.meta.env.DEV;
  * Use this for conditional compilation patterns.
  */
 export function isDev(): boolean {
-  return import.meta.env.DEV;
+	return import.meta.env.DEV;
 }

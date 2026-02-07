@@ -16,15 +16,15 @@
   - data-slot="close"
 -->
 <script lang="ts">
-  import { Dialog } from "meltui";
-  import type { DialogCloseProps } from "./types.js";
+import { Dialog } from "meltui";
+import type { DialogCloseProps } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    "data-id": dataId,
-    disabled = false,
-  }: DialogCloseProps = $props();
+let {
+	children,
+	class: className = "",
+	"data-id": dataId,
+	disabled = false,
+}: DialogCloseProps = $props();
 </script>
 
 <!--

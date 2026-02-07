@@ -9,7 +9,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { HTMLButtonAttributes, HTMLAttributes } from "svelte/elements";
+import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
 
 // ============================================
 // TABS SLOTS
@@ -63,8 +63,7 @@ export type TabsActivationMode = "automatic" | "manual";
  * Props for Tabs.Root component.
  * Controls active tab state and provides context to children.
  */
-export interface TabsRootProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
+export interface TabsRootProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
 	/**
 	 * Active tab value (bindable).
 	 * Must match a Trigger's `value` prop.
@@ -119,8 +118,7 @@ export interface TabsRootProps
  * Props for Tabs.List component.
  * Container for tab triggers with role="tablist".
  */
-export interface TabsListProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
+export interface TabsListProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
 	/**
 	 * Tab trigger children.
 	 */
@@ -140,8 +138,7 @@ export interface TabsListProps
  * Props for Tabs.Trigger component.
  * Individual tab button with role="tab".
  */
-export interface TabsTriggerProps
-	extends Omit<HTMLButtonAttributes, "style" | "children"> {
+export interface TabsTriggerProps extends Omit<HTMLButtonAttributes, "style" | "children"> {
 	/**
 	 * Tab value (required).
 	 * Links this trigger to a Content with matching value.

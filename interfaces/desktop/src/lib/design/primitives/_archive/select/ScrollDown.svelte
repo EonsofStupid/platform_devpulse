@@ -9,18 +9,18 @@
   - data-slot="scroll-down"
 -->
 <script lang="ts">
-  import { Select } from "meltui";
-  import type { SelectScrollDownProps } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+import { Select } from "meltui";
+import { stripStyleProp } from "../types.js";
+import type { SelectScrollDownProps } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: SelectScrollDownProps = $props();
+let {
+	children,
+	class: className = "",
+	"data-id": dataId,
+	...rest
+}: SelectScrollDownProps = $props();
 
-  stripStyleProp(rest, "Select.ScrollDown");
+stripStyleProp(rest, "Select.ScrollDown");
 </script>
 
 <Select.ScrollDownButton

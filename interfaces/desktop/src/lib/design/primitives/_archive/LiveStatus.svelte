@@ -9,22 +9,17 @@
   A11y Acceptance: SR announces content changes politely
 -->
 <script lang="ts">
-  import type { Snippet } from "svelte";
-  import type { OmitStyle, BaseProps } from "./types.js";
-  import { stripStyleProp } from "./types.js";
+import type { Snippet } from "svelte";
+import type { BaseProps, OmitStyle } from "./types.js";
+import { stripStyleProp } from "./types.js";
 
-  interface Props extends OmitStyle<HTMLSpanElement>, BaseProps {
-    children?: Snippet;
-  }
+interface Props extends OmitStyle<HTMLSpanElement>, BaseProps {
+	children?: Snippet;
+}
 
-  let {
-    children,
-    class: className = "",
-    "data-id": id,
-    ...rest
-  }: Props = $props();
+let { children, class: className = "", "data-id": id, ...rest }: Props = $props();
 
-  stripStyleProp(rest, "LiveStatus");
+stripStyleProp(rest, "LiveStatus");
 </script>
 
 <span

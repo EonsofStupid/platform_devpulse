@@ -2,11 +2,12 @@
  * @file Badge Taxonomy Barrel
  * @description Re-exports badge types + contract. Zero logic.
  */
+
+export { contract } from "./contract.js";
 export {
-	badgeSlots,
-	badgeStateTokens,
-	badgeSlotStates,
 	type BadgeSlot,
 	type BadgeState,
+	badgeSlotStates,
+	badgeSlots,
+	badgeStateTokens,
 } from "./types.js";
-export { contract } from "./contract.js";

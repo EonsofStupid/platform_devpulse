@@ -8,7 +8,7 @@
  * Nearly identical to dropdown-menu but triggered by right-click (contextmenu event).
  */
 
-import type { StateToken, SlotStateMap } from "../../../types.js";
+import type { SlotStateMap, StateToken } from "../../../types.js";
 
 // ─── SLOT TYPES ─────────────────────────────────────────────────────────────
 
@@ -59,7 +59,15 @@ export const contextMenuSlotStates = {
 	content: ["open", "closed"],
 	group: [],
 	item: ["hover", "active", "focused", "focus-visible", "disabled"],
-	"checkbox-item": ["hover", "active", "focused", "focus-visible", "disabled", "checked", "indeterminate"],
+	"checkbox-item": [
+		"hover",
+		"active",
+		"focused",
+		"focus-visible",
+		"disabled",
+		"checked",
+		"indeterminate",
+	],
 	"radio-group": [],
 	"radio-item": ["hover", "active", "focused", "focus-visible", "disabled", "checked"],
 	label: [],

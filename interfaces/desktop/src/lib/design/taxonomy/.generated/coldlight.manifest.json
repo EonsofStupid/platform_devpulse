@@ -1,12 +1,5308 @@
 {
-  "version": "1.0.0",
-  "generatedAt": "2026-01-28T00:00:00.000Z",
+  "version": "0.1.0",
+  "generatedAt": "2026-02-06T22:58:17.990Z",
   "adapters": {
     "dsAdapter": "meltui"
   },
   "categories": {
     "primitives": {
-      "kinds": []
+      "kinds": [
+        {
+          "kind": "accordion",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root",
+              "item",
+              "trigger",
+              "content"
+            ],
+            "optional": [
+              "header"
+            ],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active",
+              "disabled"
+            ],
+            "specific": [
+              "open",
+              "closed"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "disabled"
+            ],
+            "item": [
+              "open",
+              "closed",
+              "disabled"
+            ],
+            "trigger": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active",
+              "disabled"
+            ],
+            "content": [
+              "open",
+              "closed"
+            ],
+            "header": []
+          },
+          "slotActions": {
+            "root": [],
+            "item": [],
+            "trigger": [
+              "toggle"
+            ],
+            "content": [],
+            "header": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "fragment",
+              "children": "renderless",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "item": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "header": {
+              "element": "h3",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "trigger": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "button",
+                "required": [
+                  "aria-expanded",
+                  "aria-controls"
+                ],
+                "optional": [
+                  "aria-disabled"
+                ]
+              }
+            },
+            "content": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "region",
+                "required": [
+                  "aria-labelledby"
+                ],
+                "optional": [
+                  "aria-hidden"
+                ]
+              }
+            }
+          },
+          "aria": {
+            "role": "group",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-expanded",
+              "aria-controls",
+              "aria-disabled",
+              "aria-labelledby",
+              "aria-label",
+              "aria-hidden"
+            ]
+          },
+          "keyboard": [
+            "Enter",
+            "Space",
+            "ArrowUp",
+            "ArrowDown",
+            "Home",
+            "End"
+          ],
+          "focusStrategy": "roving",
+          "compound": true,
+          "orientation": "vertical"
+        },
+        {
+          "kind": "alert",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root"
+            ],
+            "optional": [
+              "title",
+              "description"
+            ],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "hover",
+              "active"
+            ],
+            "specific": [
+              "visible",
+              "hidden"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "hover",
+              "active",
+              "visible",
+              "hidden"
+            ],
+            "title": [],
+            "description": []
+          },
+          "slotActions": {
+            "root": [
+              "dismiss"
+            ],
+            "title": [],
+            "description": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "alert",
+                "required": [],
+                "optional": [
+                  "aria-live",
+                  "aria-atomic",
+                  "aria-label",
+                  "aria-labelledby",
+                  "aria-describedby"
+                ]
+              }
+            },
+            "title": {
+              "element": "h5",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "description": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            }
+          },
+          "aria": {
+            "role": "alert",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-live",
+              "aria-atomic",
+              "aria-label",
+              "aria-labelledby",
+              "aria-describedby"
+            ]
+          },
+          "keyboard": [
+            "Escape"
+          ],
+          "focusStrategy": "none",
+          "compound": false
+        },
+        {
+          "kind": "alert-dialog",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root",
+              "content",
+              "title",
+              "description"
+            ],
+            "optional": [
+              "trigger",
+              "portal",
+              "overlay",
+              "cancel",
+              "action"
+            ],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "focused",
+              "focus-visible",
+              "focus-within",
+              "hover",
+              "active"
+            ],
+            "specific": [
+              "hidden",
+              "visible",
+              "open",
+              "entering",
+              "exiting"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "open",
+              "closed"
+            ],
+            "content": [
+              "open",
+              "closed",
+              "focus-within",
+              "entering",
+              "exiting"
+            ],
+            "title": [],
+            "description": [],
+            "trigger": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active"
+            ],
+            "portal": [
+              "hidden",
+              "visible"
+            ],
+            "overlay": [
+              "visible",
+              "entering",
+              "exiting"
+            ],
+            "cancel": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active"
+            ],
+            "action": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active"
+            ]
+          },
+          "slotActions": {
+            "root": [],
+            "content": [],
+            "title": [],
+            "description": [],
+            "trigger": [
+              "open"
+            ],
+            "portal": [],
+            "overlay": [],
+            "cancel": [
+              "dismiss"
+            ],
+            "action": [
+              "close"
+            ]
+          },
+          "slotSpec": {
+            "root": {
+              "element": "fragment",
+              "children": "renderless",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "trigger": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "button",
+                "required": [
+                  "aria-haspopup",
+                  "aria-expanded"
+                ],
+                "optional": [
+                  "aria-controls",
+                  "aria-label"
+                ]
+              }
+            },
+            "portal": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "overlay": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": [
+                  "aria-hidden"
+                ]
+              }
+            },
+            "content": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "alertdialog",
+                "required": [
+                  "aria-modal",
+                  "aria-labelledby",
+                  "aria-describedby"
+                ],
+                "optional": [
+                  "aria-label"
+                ]
+              }
+            },
+            "title": {
+              "element": "h2",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "description": {
+              "element": "p",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "cancel": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "button",
+                "required": [],
+                "optional": [
+                  "aria-label"
+                ]
+              }
+            },
+            "action": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "button",
+                "required": [],
+                "optional": [
+                  "aria-label"
+                ]
+              }
+            }
+          },
+          "aria": {
+            "role": "alertdialog",
+            "requiredAttrs": [
+              "aria-modal",
+              "aria-labelledby",
+              "aria-describedby"
+            ],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-hidden",
+              "aria-busy"
+            ]
+          },
+          "keyboard": [
+            "Tab"
+          ],
+          "focusStrategy": "trap",
+          "compound": true,
+          "dismissBehavior": {
+            "escape": false,
+            "outsideClick": false
+          }
+        },
+        {
+          "kind": "avatar",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root"
+            ],
+            "optional": [
+              "image",
+              "fallback"
+            ],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "hover",
+              "active"
+            ],
+            "specific": [
+              "loading",
+              "hidden",
+              "visible"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "hover",
+              "active"
+            ],
+            "image": [
+              "loading",
+              "hidden",
+              "visible"
+            ],
+            "fallback": [
+              "visible",
+              "hidden"
+            ]
+          },
+          "slotActions": {
+            "root": [],
+            "image": [],
+            "fallback": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "span",
+              "children": "snippet",
+              "aria": {
+                "role": "img",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-hidden"
+                ]
+              }
+            },
+            "image": {
+              "element": "img",
+              "children": "self-closing",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "fallback": {
+              "element": "span",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": [
+                  "aria-hidden"
+                ]
+              }
+            }
+          },
+          "aria": {
+            "role": "img",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-hidden"
+            ]
+          },
+          "keyboard": [],
+          "focusStrategy": "none",
+          "compound": false
+        },
+        {
+          "kind": "badge",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root"
+            ],
+            "optional": [],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "hover",
+              "active"
+            ],
+            "specific": []
+          },
+          "slotStates": {
+            "root": [
+              "hover",
+              "active"
+            ]
+          },
+          "slotActions": {
+            "root": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "span",
+              "children": "snippet",
+              "aria": {
+                "role": "status",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-hidden"
+                ]
+              }
+            }
+          },
+          "aria": {
+            "role": "status",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-hidden"
+            ]
+          },
+          "keyboard": [],
+          "focusStrategy": "none",
+          "compound": false
+        },
+        {
+          "kind": "breadcrumb",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root",
+              "list",
+              "item"
+            ],
+            "optional": [
+              "link",
+              "separator",
+              "page"
+            ],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "specific": []
+          },
+          "slotStates": {
+            "root": [],
+            "list": [],
+            "item": [],
+            "link": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "separator": [],
+            "page": []
+          },
+          "slotActions": {
+            "root": [],
+            "list": [],
+            "item": [],
+            "link": [],
+            "separator": [],
+            "page": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "nav",
+              "children": "snippet",
+              "aria": {
+                "role": "navigation",
+                "required": [],
+                "optional": [
+                  "aria-label"
+                ]
+              }
+            },
+            "list": {
+              "element": "ol",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "item": {
+              "element": "li",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "link": {
+              "element": "a",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": [
+                  "aria-current"
+                ]
+              }
+            },
+            "separator": {
+              "element": "span",
+              "children": "snippet",
+              "aria": {
+                "role": "presentation",
+                "required": [],
+                "optional": [
+                  "aria-hidden"
+                ]
+              }
+            },
+            "page": {
+              "element": "span",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": [
+                  "aria-current"
+                ]
+              }
+            }
+          },
+          "aria": {
+            "role": "navigation",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-current"
+            ]
+          },
+          "keyboard": [],
+          "focusStrategy": "none",
+          "compound": false
+        },
+        {
+          "kind": "button",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root"
+            ],
+            "optional": [
+              "icon",
+              "label"
+            ],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active",
+              "disabled"
+            ],
+            "specific": [
+              "pressed",
+              "loading",
+              "busy"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active",
+              "disabled",
+              "pressed",
+              "loading",
+              "busy"
+            ],
+            "icon": [],
+            "label": []
+          },
+          "slotActions": {
+            "root": [
+              "submit",
+              "reset",
+              "toggle"
+            ],
+            "icon": [],
+            "label": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "button",
+                "required": [],
+                "optional": [
+                  "aria-pressed",
+                  "aria-disabled",
+                  "aria-busy",
+                  "aria-expanded",
+                  "aria-haspopup",
+                  "aria-controls",
+                  "aria-label",
+                  "aria-labelledby",
+                  "aria-describedby"
+                ]
+              }
+            },
+            "icon": {
+              "element": "span",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": [
+                  "aria-hidden"
+                ]
+              }
+            },
+            "label": {
+              "element": "span",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            }
+          },
+          "aria": {
+            "role": "button",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-pressed",
+              "aria-disabled",
+              "aria-busy",
+              "aria-expanded",
+              "aria-haspopup",
+              "aria-controls",
+              "aria-label",
+              "aria-labelledby",
+              "aria-describedby"
+            ]
+          },
+          "keyboard": [
+            "Enter",
+            "Space"
+          ],
+          "focusStrategy": "none",
+          "compound": false
+        },
+        {
+          "kind": "card",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root"
+            ],
+            "optional": [
+              "header",
+              "title",
+              "description",
+              "content",
+              "footer"
+            ],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "specific": [
+              "selected"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled",
+              "selected"
+            ],
+            "header": [],
+            "title": [],
+            "description": [],
+            "content": [],
+            "footer": []
+          },
+          "slotActions": {
+            "root": [
+              "select"
+            ],
+            "header": [],
+            "title": [],
+            "description": [],
+            "content": [],
+            "footer": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "group",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-labelledby",
+                  "aria-describedby",
+                  "aria-selected",
+                  "aria-disabled"
+                ]
+              }
+            },
+            "header": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "title": {
+              "element": "h3",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "description": {
+              "element": "p",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "content": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "footer": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            }
+          },
+          "aria": {
+            "role": "group",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-labelledby",
+              "aria-describedby",
+              "aria-selected",
+              "aria-disabled"
+            ]
+          },
+          "keyboard": [
+            "Enter",
+            "Space"
+          ],
+          "focusStrategy": "none",
+          "compound": false
+        },
+        {
+          "kind": "checkbox",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root"
+            ],
+            "optional": [
+              "indicator"
+            ],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "specific": [
+              "checked",
+              "indeterminate"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "checked",
+              "indeterminate",
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "indicator": [
+              "checked",
+              "indeterminate"
+            ]
+          },
+          "slotActions": {
+            "root": [
+              "check",
+              "uncheck",
+              "toggle"
+            ],
+            "indicator": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "checkbox",
+                "required": [
+                  "aria-checked"
+                ],
+                "optional": [
+                  "aria-label",
+                  "aria-labelledby",
+                  "aria-describedby",
+                  "aria-disabled",
+                  "aria-required",
+                  "aria-invalid"
+                ]
+              }
+            },
+            "indicator": {
+              "element": "span",
+              "children": "snippet",
+              "aria": {
+                "role": "presentation",
+                "required": [],
+                "optional": []
+              }
+            }
+          },
+          "aria": {
+            "role": "checkbox",
+            "requiredAttrs": [
+              "aria-checked"
+            ],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-labelledby",
+              "aria-describedby",
+              "aria-disabled",
+              "aria-required",
+              "aria-invalid"
+            ]
+          },
+          "keyboard": [
+            "Space"
+          ],
+          "focusStrategy": "none",
+          "compound": true
+        },
+        {
+          "kind": "collapsible",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root",
+              "trigger",
+              "content"
+            ],
+            "optional": [],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active",
+              "disabled"
+            ],
+            "specific": [
+              "open",
+              "closed"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "open",
+              "closed",
+              "disabled"
+            ],
+            "trigger": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active",
+              "disabled",
+              "open",
+              "closed"
+            ],
+            "content": [
+              "open",
+              "closed"
+            ]
+          },
+          "slotActions": {
+            "root": [],
+            "trigger": [
+              "toggle"
+            ],
+            "content": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "fragment",
+              "children": "renderless",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "trigger": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "button",
+                "required": [
+                  "aria-expanded",
+                  "aria-controls"
+                ],
+                "optional": [
+                  "aria-disabled",
+                  "aria-label"
+                ]
+              }
+            },
+            "content": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": [
+                  "aria-hidden"
+                ]
+              }
+            }
+          },
+          "aria": {
+            "role": "group",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-expanded",
+              "aria-controls",
+              "aria-disabled",
+              "aria-hidden"
+            ]
+          },
+          "keyboard": [
+            "Enter",
+            "Space"
+          ],
+          "focusStrategy": "none",
+          "compound": true
+        },
+        {
+          "kind": "combobox",
+          "ariaStateProvider": "meltui",
+          "slots": {
+            "required": [
+              "root",
+              "input",
+              "content"
+            ],
+            "optional": [
+              "trigger",
+              "item",
+              "group",
+              "empty"
+            ],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "specific": [
+              "open",
+              "closed",
+              "selected",
+              "checked"
+            ]
+          },
+          "slotStates": {
+            "root": [],
+            "input": [
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "content": [
+              "open",
+              "closed"
+            ],
+            "trigger": [
+              "hover",
+              "active",
+              "disabled"
+            ],
+            "item": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled",
+              "selected",
+              "checked"
+            ],
+            "group": [],
+            "empty": []
+          },
+          "slotActions": {
+            "root": [],
+            "input": [
+              "filter",
+              "clear"
+            ],
+            "content": [],
+            "trigger": [
+              "open",
+              "close",
+              "toggle"
+            ],
+            "item": [
+              "select"
+            ],
+            "group": [],
+            "empty": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "fragment",
+              "children": "renderless",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "input": {
+              "element": "input",
+              "children": "self-closing",
+              "aria": {
+                "role": "combobox",
+                "required": [
+                  "aria-expanded",
+                  "aria-controls",
+                  "aria-haspopup"
+                ],
+                "optional": [
+                  "aria-label",
+                  "aria-autocomplete",
+                  "aria-activedescendant"
+                ]
+              }
+            },
+            "trigger": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "button",
+                "required": [
+                  "aria-label"
+                ],
+                "optional": [
+                  "aria-expanded"
+                ]
+              }
+            },
+            "content": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "listbox",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-labelledby"
+                ]
+              }
+            },
+            "item": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "option",
+                "required": [
+                  "aria-selected"
+                ],
+                "optional": [
+                  "aria-disabled"
+                ]
+              }
+            },
+            "group": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "group",
+                "required": [
+                  "aria-labelledby"
+                ],
+                "optional": [
+                  "aria-label"
+                ]
+              }
+            },
+            "empty": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            }
+          },
+          "aria": {
+            "role": "combobox",
+            "requiredAttrs": [
+              "aria-expanded",
+              "aria-controls",
+              "aria-haspopup"
+            ],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-autocomplete",
+              "aria-activedescendant",
+              "aria-selected",
+              "aria-disabled"
+            ]
+          },
+          "keyboard": [
+            "ArrowUp",
+            "ArrowDown",
+            "Enter",
+            "Escape",
+            "Home",
+            "End",
+            "Tab"
+          ],
+          "focusStrategy": "activedescendant",
+          "compound": true,
+          "orientation": "vertical"
+        },
+        {
+          "kind": "command",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root",
+              "input",
+              "list"
+            ],
+            "optional": [
+              "group",
+              "item",
+              "empty",
+              "separator"
+            ],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "specific": [
+              "selected"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "hover",
+              "active"
+            ],
+            "input": [
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "list": [],
+            "group": [],
+            "item": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled",
+              "selected"
+            ],
+            "empty": [],
+            "separator": []
+          },
+          "slotActions": {
+            "root": [],
+            "input": [
+              "filter",
+              "clear"
+            ],
+            "list": [],
+            "group": [],
+            "item": [
+              "select"
+            ],
+            "empty": [],
+            "separator": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "combobox",
+                "required": [
+                  "aria-expanded"
+                ],
+                "optional": [
+                  "aria-label",
+                  "aria-haspopup"
+                ]
+              }
+            },
+            "input": {
+              "element": "input",
+              "children": "self-closing",
+              "aria": {
+                "role": "searchbox",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-autocomplete",
+                  "aria-controls",
+                  "aria-activedescendant"
+                ]
+              }
+            },
+            "list": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "listbox",
+                "required": [],
+                "optional": [
+                  "aria-label"
+                ]
+              }
+            },
+            "group": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "group",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-labelledby"
+                ]
+              }
+            },
+            "item": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "option",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-disabled",
+                  "aria-selected"
+                ]
+              }
+            },
+            "empty": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "separator": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "separator",
+                "required": [],
+                "optional": []
+              }
+            }
+          },
+          "aria": {
+            "role": "combobox",
+            "requiredAttrs": [
+              "aria-expanded"
+            ],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-haspopup",
+              "aria-autocomplete",
+              "aria-controls",
+              "aria-activedescendant",
+              "aria-selected",
+              "aria-disabled"
+            ]
+          },
+          "keyboard": [
+            "ArrowUp",
+            "ArrowDown",
+            "Enter",
+            "Escape",
+            "Home",
+            "End"
+          ],
+          "focusStrategy": "activedescendant",
+          "compound": true
+        },
+        {
+          "kind": "context-menu",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root",
+              "trigger",
+              "content"
+            ],
+            "optional": [
+              "group",
+              "item",
+              "checkbox-item",
+              "radio-group",
+              "radio-item",
+              "label",
+              "separator",
+              "sub",
+              "sub-trigger",
+              "sub-content"
+            ],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "open",
+              "closed",
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "specific": [
+              "checked",
+              "indeterminate"
+            ]
+          },
+          "slotStates": {
+            "root": [],
+            "trigger": [
+              "hover",
+              "active"
+            ],
+            "content": [
+              "open",
+              "closed"
+            ],
+            "group": [],
+            "item": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "checkbox-item": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled",
+              "checked",
+              "indeterminate"
+            ],
+            "radio-group": [],
+            "radio-item": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled",
+              "checked"
+            ],
+            "label": [],
+            "separator": [],
+            "sub": [],
+            "sub-trigger": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled",
+              "open",
+              "closed"
+            ],
+            "sub-content": [
+              "open",
+              "closed"
+            ]
+          },
+          "slotActions": {
+            "root": [],
+            "trigger": [],
+            "content": [],
+            "group": [],
+            "item": [
+              "select"
+            ],
+            "checkbox-item": [
+              "check",
+              "uncheck",
+              "toggle"
+            ],
+            "radio-group": [],
+            "radio-item": [
+              "select"
+            ],
+            "label": [],
+            "separator": [],
+            "sub": [],
+            "sub-trigger": [
+              "open"
+            ],
+            "sub-content": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "fragment",
+              "children": "renderless",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "trigger": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": [
+                  "aria-label"
+                ]
+              }
+            },
+            "content": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "menu",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-labelledby",
+                  "aria-orientation"
+                ]
+              }
+            },
+            "group": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "group",
+                "required": [],
+                "optional": [
+                  "aria-labelledby"
+                ]
+              }
+            },
+            "item": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "menuitem",
+                "required": [],
+                "optional": [
+                  "aria-disabled"
+                ]
+              }
+            },
+            "checkbox-item": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "menuitemcheckbox",
+                "required": [
+                  "aria-checked"
+                ],
+                "optional": [
+                  "aria-disabled"
+                ]
+              }
+            },
+            "radio-group": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "group",
+                "required": [],
+                "optional": [
+                  "aria-labelledby"
+                ]
+              }
+            },
+            "radio-item": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "menuitemradio",
+                "required": [
+                  "aria-checked"
+                ],
+                "optional": [
+                  "aria-disabled"
+                ]
+              }
+            },
+            "label": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "separator": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "separator",
+                "required": [],
+                "optional": []
+              }
+            },
+            "sub": {
+              "element": "fragment",
+              "children": "renderless",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "sub-trigger": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "menuitem",
+                "required": [
+                  "aria-haspopup",
+                  "aria-expanded"
+                ],
+                "optional": [
+                  "aria-disabled"
+                ]
+              }
+            },
+            "sub-content": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "menu",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-labelledby"
+                ]
+              }
+            }
+          },
+          "aria": {
+            "role": "menu",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-labelledby",
+              "aria-orientation",
+              "aria-haspopup",
+              "aria-expanded",
+              "aria-controls",
+              "aria-checked",
+              "aria-disabled"
+            ]
+          },
+          "keyboard": [
+            "ArrowUp",
+            "ArrowDown",
+            "ArrowLeft",
+            "ArrowRight",
+            "Enter",
+            "Space",
+            "Escape",
+            "Home",
+            "End"
+          ],
+          "focusStrategy": "roving",
+          "compound": true,
+          "orientation": "vertical",
+          "dismissBehavior": {
+            "escape": true,
+            "outsideClick": true
+          }
+        },
+        {
+          "kind": "dialog",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root",
+              "content"
+            ],
+            "optional": [
+              "trigger",
+              "portal",
+              "overlay",
+              "title",
+              "description",
+              "close"
+            ],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "focused",
+              "focus-visible",
+              "focus-within",
+              "hover",
+              "active"
+            ],
+            "specific": [
+              "hidden",
+              "visible",
+              "inert",
+              "open",
+              "entering",
+              "exiting"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "open",
+              "closed"
+            ],
+            "content": [
+              "open",
+              "closed",
+              "focus-within",
+              "entering",
+              "exiting"
+            ],
+            "trigger": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active"
+            ],
+            "portal": [
+              "hidden",
+              "visible"
+            ],
+            "overlay": [
+              "visible",
+              "entering",
+              "exiting",
+              "hover"
+            ],
+            "title": [],
+            "description": [],
+            "close": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active"
+            ]
+          },
+          "slotActions": {
+            "root": [],
+            "content": [],
+            "trigger": [
+              "open"
+            ],
+            "portal": [],
+            "overlay": [
+              "close"
+            ],
+            "title": [],
+            "description": [],
+            "close": [
+              "close"
+            ]
+          },
+          "slotSpec": {
+            "root": {
+              "element": "fragment",
+              "children": "renderless",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "trigger": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "button",
+                "required": [
+                  "aria-haspopup",
+                  "aria-expanded"
+                ],
+                "optional": [
+                  "aria-controls",
+                  "aria-label"
+                ]
+              }
+            },
+            "portal": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "overlay": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": [
+                  "aria-hidden"
+                ]
+              }
+            },
+            "content": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "dialog",
+                "required": [
+                  "aria-modal",
+                  "aria-labelledby"
+                ],
+                "optional": [
+                  "aria-label",
+                  "aria-describedby"
+                ]
+              }
+            },
+            "title": {
+              "element": "h2",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "description": {
+              "element": "p",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "close": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "button",
+                "required": [],
+                "optional": [
+                  "aria-label"
+                ]
+              }
+            }
+          },
+          "aria": {
+            "role": "dialog",
+            "requiredAttrs": [
+              "aria-modal",
+              "aria-labelledby"
+            ],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-describedby",
+              "aria-hidden",
+              "aria-busy",
+              "aria-expanded",
+              "aria-haspopup",
+              "aria-controls"
+            ]
+          },
+          "keyboard": [
+            "Escape",
+            "Tab"
+          ],
+          "focusStrategy": "trap",
+          "compound": true,
+          "dismissBehavior": {
+            "escape": true,
+            "outsideClick": true
+          }
+        },
+        {
+          "kind": "dropdown-menu",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root",
+              "trigger",
+              "content"
+            ],
+            "optional": [
+              "group",
+              "item",
+              "checkbox-item",
+              "radio-group",
+              "radio-item",
+              "label",
+              "separator",
+              "sub",
+              "sub-trigger",
+              "sub-content"
+            ],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "specific": [
+              "open",
+              "closed",
+              "checked",
+              "indeterminate"
+            ]
+          },
+          "slotStates": {
+            "root": [],
+            "trigger": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "content": [
+              "open",
+              "closed"
+            ],
+            "group": [],
+            "item": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "checkbox-item": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled",
+              "checked",
+              "indeterminate"
+            ],
+            "radio-group": [],
+            "radio-item": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled",
+              "checked"
+            ],
+            "label": [],
+            "separator": [],
+            "sub": [],
+            "sub-trigger": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled",
+              "open",
+              "closed"
+            ],
+            "sub-content": [
+              "open",
+              "closed"
+            ]
+          },
+          "slotActions": {
+            "root": [],
+            "trigger": [
+              "open",
+              "close",
+              "toggle"
+            ],
+            "content": [],
+            "group": [],
+            "item": [
+              "select"
+            ],
+            "checkbox-item": [
+              "check",
+              "uncheck",
+              "toggle"
+            ],
+            "radio-group": [],
+            "radio-item": [
+              "select"
+            ],
+            "label": [],
+            "separator": [],
+            "sub": [],
+            "sub-trigger": [
+              "open",
+              "close"
+            ],
+            "sub-content": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "fragment",
+              "children": "renderless",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "trigger": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "button",
+                "required": [
+                  "aria-haspopup",
+                  "aria-expanded"
+                ],
+                "optional": [
+                  "aria-controls",
+                  "aria-label"
+                ]
+              }
+            },
+            "content": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "menu",
+                "required": [
+                  "aria-labelledby"
+                ],
+                "optional": [
+                  "aria-label",
+                  "aria-orientation"
+                ]
+              }
+            },
+            "group": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "group",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-labelledby"
+                ]
+              }
+            },
+            "item": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "menuitem",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-disabled"
+                ]
+              }
+            },
+            "checkbox-item": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "menuitemcheckbox",
+                "required": [
+                  "aria-checked"
+                ],
+                "optional": [
+                  "aria-label",
+                  "aria-disabled"
+                ]
+              }
+            },
+            "radio-group": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "group",
+                "required": [],
+                "optional": [
+                  "aria-label"
+                ]
+              }
+            },
+            "radio-item": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "menuitemradio",
+                "required": [
+                  "aria-checked"
+                ],
+                "optional": [
+                  "aria-label",
+                  "aria-disabled"
+                ]
+              }
+            },
+            "label": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "separator": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "separator",
+                "required": [],
+                "optional": [
+                  "aria-orientation"
+                ]
+              }
+            },
+            "sub": {
+              "element": "fragment",
+              "children": "renderless",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "sub-trigger": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "menuitem",
+                "required": [
+                  "aria-haspopup",
+                  "aria-expanded"
+                ],
+                "optional": [
+                  "aria-label",
+                  "aria-disabled"
+                ]
+              }
+            },
+            "sub-content": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "menu",
+                "required": [
+                  "aria-labelledby"
+                ],
+                "optional": [
+                  "aria-label"
+                ]
+              }
+            }
+          },
+          "aria": {
+            "role": "menu",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-labelledby",
+              "aria-orientation",
+              "aria-haspopup",
+              "aria-expanded",
+              "aria-controls",
+              "aria-checked",
+              "aria-disabled"
+            ]
+          },
+          "keyboard": [
+            "ArrowUp",
+            "ArrowDown",
+            "ArrowLeft",
+            "ArrowRight",
+            "Enter",
+            "Space",
+            "Escape",
+            "Home",
+            "End",
+            "Tab"
+          ],
+          "focusStrategy": "roving",
+          "compound": true,
+          "orientation": "vertical",
+          "dismissBehavior": {
+            "escape": true,
+            "outsideClick": true
+          }
+        },
+        {
+          "kind": "hover-card",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root",
+              "trigger",
+              "content"
+            ],
+            "optional": [
+              "arrow"
+            ],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "hover"
+            ],
+            "specific": [
+              "open",
+              "closed"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "open",
+              "closed"
+            ],
+            "trigger": [
+              "hover"
+            ],
+            "content": [
+              "open",
+              "closed"
+            ],
+            "arrow": []
+          },
+          "slotActions": {
+            "root": [
+              "open",
+              "close"
+            ],
+            "trigger": [],
+            "content": [],
+            "arrow": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "fragment",
+              "children": "renderless",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "trigger": {
+              "element": "a",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": [
+                  "aria-haspopup",
+                  "aria-expanded"
+                ]
+              }
+            },
+            "content": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": [
+                  "aria-label"
+                ]
+              }
+            },
+            "arrow": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "presentation",
+                "required": [],
+                "optional": []
+              }
+            }
+          },
+          "aria": {
+            "role": "none",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-haspopup",
+              "aria-expanded",
+              "aria-label"
+            ]
+          },
+          "keyboard": [
+            "Escape"
+          ],
+          "focusStrategy": "redirect",
+          "compound": true,
+          "dismissBehavior": {
+            "escape": true,
+            "outsideClick": true
+          }
+        },
+        {
+          "kind": "input",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root"
+            ],
+            "optional": [],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active",
+              "disabled"
+            ],
+            "specific": [
+              "readonly",
+              "invalid",
+              "valid",
+              "required"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active",
+              "disabled",
+              "readonly",
+              "invalid",
+              "valid",
+              "required"
+            ]
+          },
+          "slotActions": {
+            "root": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "input",
+              "children": "self-closing",
+              "aria": {
+                "role": "textbox",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-labelledby",
+                  "aria-describedby",
+                  "aria-required",
+                  "aria-invalid",
+                  "aria-errormessage",
+                  "aria-disabled",
+                  "aria-readonly",
+                  "aria-placeholder",
+                  "aria-autocomplete"
+                ]
+              }
+            }
+          },
+          "aria": {
+            "role": "textbox",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-labelledby",
+              "aria-describedby",
+              "aria-invalid",
+              "aria-errormessage",
+              "aria-required",
+              "aria-disabled",
+              "aria-placeholder",
+              "aria-readonly",
+              "aria-autocomplete"
+            ]
+          },
+          "keyboard": [],
+          "focusStrategy": "none",
+          "compound": false
+        },
+        {
+          "kind": "label",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root"
+            ],
+            "optional": [],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active",
+              "disabled"
+            ],
+            "specific": []
+          },
+          "slotStates": {
+            "root": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active",
+              "disabled"
+            ]
+          },
+          "slotActions": {
+            "root": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "label",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            }
+          },
+          "aria": {
+            "role": "none",
+            "requiredAttrs": [],
+            "optionalAttrs": []
+          },
+          "keyboard": [],
+          "focusStrategy": "none",
+          "compound": false
+        },
+        {
+          "kind": "menubar",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root",
+              "menu",
+              "trigger",
+              "content"
+            ],
+            "optional": [
+              "group",
+              "item",
+              "checkbox-item",
+              "radio-group",
+              "radio-item",
+              "label",
+              "separator",
+              "sub",
+              "sub-trigger",
+              "sub-content"
+            ],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "specific": [
+              "open",
+              "closed",
+              "checked",
+              "indeterminate"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "hover",
+              "active"
+            ],
+            "menu": [],
+            "trigger": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled",
+              "open",
+              "closed"
+            ],
+            "content": [
+              "open",
+              "closed"
+            ],
+            "group": [],
+            "item": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "checkbox-item": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled",
+              "checked",
+              "indeterminate"
+            ],
+            "radio-group": [],
+            "radio-item": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled",
+              "checked"
+            ],
+            "label": [],
+            "separator": [],
+            "sub": [],
+            "sub-trigger": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled",
+              "open",
+              "closed"
+            ],
+            "sub-content": [
+              "open",
+              "closed"
+            ]
+          },
+          "slotActions": {
+            "root": [],
+            "menu": [],
+            "trigger": [
+              "open",
+              "close"
+            ],
+            "content": [],
+            "group": [],
+            "item": [
+              "select"
+            ],
+            "checkbox-item": [
+              "check",
+              "uncheck",
+              "toggle"
+            ],
+            "radio-group": [],
+            "radio-item": [
+              "select"
+            ],
+            "label": [],
+            "separator": [],
+            "sub": [],
+            "sub-trigger": [
+              "open",
+              "close"
+            ],
+            "sub-content": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "menubar",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-orientation"
+                ]
+              }
+            },
+            "menu": {
+              "element": "fragment",
+              "children": "renderless",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "trigger": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "menuitem",
+                "required": [
+                  "aria-haspopup",
+                  "aria-expanded"
+                ],
+                "optional": [
+                  "aria-controls",
+                  "aria-label"
+                ]
+              }
+            },
+            "content": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "menu",
+                "required": [
+                  "aria-labelledby"
+                ],
+                "optional": [
+                  "aria-label"
+                ]
+              }
+            },
+            "group": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "group",
+                "required": [],
+                "optional": [
+                  "aria-label"
+                ]
+              }
+            },
+            "item": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "menuitem",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-disabled"
+                ]
+              }
+            },
+            "checkbox-item": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "menuitemcheckbox",
+                "required": [
+                  "aria-checked"
+                ],
+                "optional": [
+                  "aria-label",
+                  "aria-disabled"
+                ]
+              }
+            },
+            "radio-group": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "group",
+                "required": [],
+                "optional": [
+                  "aria-label"
+                ]
+              }
+            },
+            "radio-item": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "menuitemradio",
+                "required": [
+                  "aria-checked"
+                ],
+                "optional": [
+                  "aria-label",
+                  "aria-disabled"
+                ]
+              }
+            },
+            "label": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "separator": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "separator",
+                "required": [],
+                "optional": []
+              }
+            },
+            "sub": {
+              "element": "fragment",
+              "children": "renderless",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "sub-trigger": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "menuitem",
+                "required": [
+                  "aria-haspopup",
+                  "aria-expanded"
+                ],
+                "optional": [
+                  "aria-label",
+                  "aria-disabled"
+                ]
+              }
+            },
+            "sub-content": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "menu",
+                "required": [
+                  "aria-labelledby"
+                ],
+                "optional": [
+                  "aria-label"
+                ]
+              }
+            }
+          },
+          "aria": {
+            "role": "menubar",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-orientation",
+              "aria-labelledby",
+              "aria-haspopup",
+              "aria-expanded",
+              "aria-controls",
+              "aria-checked",
+              "aria-disabled"
+            ]
+          },
+          "keyboard": [
+            "ArrowUp",
+            "ArrowDown",
+            "ArrowLeft",
+            "ArrowRight",
+            "Enter",
+            "Space",
+            "Escape",
+            "Home",
+            "End"
+          ],
+          "focusStrategy": "roving",
+          "compound": true,
+          "orientation": "horizontal",
+          "dismissBehavior": {
+            "escape": true,
+            "outsideClick": true
+          }
+        },
+        {
+          "kind": "navigation-menu",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root",
+              "list",
+              "item"
+            ],
+            "optional": [
+              "trigger",
+              "content",
+              "link",
+              "viewport"
+            ],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "specific": [
+              "open",
+              "closed"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "hover",
+              "active"
+            ],
+            "list": [],
+            "item": [
+              "hover",
+              "active"
+            ],
+            "trigger": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled",
+              "open",
+              "closed"
+            ],
+            "content": [
+              "open",
+              "closed"
+            ],
+            "link": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "viewport": []
+          },
+          "slotActions": {
+            "root": [],
+            "list": [],
+            "item": [],
+            "trigger": [
+              "open",
+              "close",
+              "toggle"
+            ],
+            "content": [],
+            "link": [
+              "select"
+            ],
+            "viewport": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "nav",
+              "children": "snippet",
+              "aria": {
+                "role": "navigation",
+                "required": [],
+                "optional": [
+                  "aria-label"
+                ]
+              }
+            },
+            "list": {
+              "element": "ul",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "item": {
+              "element": "li",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "trigger": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "button",
+                "required": [
+                  "aria-expanded"
+                ],
+                "optional": [
+                  "aria-controls",
+                  "aria-label",
+                  "aria-haspopup"
+                ]
+              }
+            },
+            "content": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": [
+                  "aria-label"
+                ]
+              }
+            },
+            "link": {
+              "element": "a",
+              "children": "snippet",
+              "aria": {
+                "role": "link",
+                "required": [],
+                "optional": [
+                  "aria-current",
+                  "aria-label"
+                ]
+              }
+            },
+            "viewport": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            }
+          },
+          "aria": {
+            "role": "navigation",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-labelledby",
+              "aria-expanded",
+              "aria-controls",
+              "aria-current",
+              "aria-haspopup"
+            ]
+          },
+          "keyboard": [
+            "ArrowLeft",
+            "ArrowRight",
+            "ArrowDown",
+            "Enter",
+            "Space",
+            "Escape",
+            "Home",
+            "End",
+            "Tab"
+          ],
+          "focusStrategy": "roving",
+          "compound": true,
+          "orientation": "horizontal"
+        },
+        {
+          "kind": "pagination",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root",
+              "content"
+            ],
+            "optional": [
+              "item",
+              "previous",
+              "next",
+              "ellipsis"
+            ],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "specific": [
+              "selected"
+            ]
+          },
+          "slotStates": {
+            "root": [],
+            "content": [],
+            "item": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled",
+              "selected"
+            ],
+            "previous": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "next": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "ellipsis": []
+          },
+          "slotActions": {
+            "root": [],
+            "content": [],
+            "item": [
+              "select"
+            ],
+            "previous": [
+              "select"
+            ],
+            "next": [
+              "select"
+            ],
+            "ellipsis": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "nav",
+              "children": "snippet",
+              "aria": {
+                "role": "navigation",
+                "required": [],
+                "optional": [
+                  "aria-label"
+                ]
+              }
+            },
+            "content": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "item": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "button",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-current",
+                  "aria-disabled"
+                ]
+              }
+            },
+            "previous": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "button",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-disabled"
+                ]
+              }
+            },
+            "next": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "button",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-disabled"
+                ]
+              }
+            },
+            "ellipsis": {
+              "element": "span",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": [
+                  "aria-hidden"
+                ]
+              }
+            }
+          },
+          "aria": {
+            "role": "navigation",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-current",
+              "aria-disabled"
+            ]
+          },
+          "keyboard": [
+            "Enter",
+            "Space"
+          ],
+          "focusStrategy": "none",
+          "compound": true
+        },
+        {
+          "kind": "pin-input",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root",
+              "input"
+            ],
+            "optional": [],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "specific": [
+              "invalid",
+              "valid"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "disabled"
+            ],
+            "input": [
+              "focused",
+              "focus-visible",
+              "disabled",
+              "invalid",
+              "valid"
+            ]
+          },
+          "slotActions": {
+            "root": [],
+            "input": [
+              "focus"
+            ]
+          },
+          "slotSpec": {
+            "root": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "group",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-labelledby",
+                  "aria-describedby",
+                  "aria-disabled"
+                ]
+              }
+            },
+            "input": {
+              "element": "input",
+              "children": "self-closing",
+              "aria": {
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-invalid",
+                  "aria-disabled"
+                ]
+              }
+            }
+          },
+          "aria": {
+            "role": "group",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-labelledby",
+              "aria-describedby",
+              "aria-disabled",
+              "aria-invalid"
+            ]
+          },
+          "keyboard": [
+            "ArrowLeft",
+            "ArrowRight",
+            "Backspace",
+            "Delete"
+          ],
+          "focusStrategy": "none",
+          "compound": true
+        },
+        {
+          "kind": "popover",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root",
+              "trigger",
+              "content"
+            ],
+            "optional": [
+              "arrow",
+              "close"
+            ],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "focused",
+              "focus-visible",
+              "focus-within",
+              "hover",
+              "active"
+            ],
+            "specific": [
+              "open",
+              "hidden",
+              "visible",
+              "entering",
+              "exiting"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "open",
+              "closed"
+            ],
+            "trigger": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active",
+              "open",
+              "closed"
+            ],
+            "content": [
+              "open",
+              "closed",
+              "focus-within",
+              "entering",
+              "exiting"
+            ],
+            "arrow": [],
+            "close": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active"
+            ]
+          },
+          "slotActions": {
+            "root": [],
+            "trigger": [
+              "toggle"
+            ],
+            "content": [],
+            "arrow": [],
+            "close": [
+              "close"
+            ]
+          },
+          "slotSpec": {
+            "root": {
+              "element": "fragment",
+              "children": "renderless",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "trigger": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "button",
+                "required": [
+                  "aria-haspopup",
+                  "aria-expanded"
+                ],
+                "optional": [
+                  "aria-controls",
+                  "aria-label"
+                ]
+              }
+            },
+            "content": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-labelledby",
+                  "aria-describedby"
+                ]
+              }
+            },
+            "arrow": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "close": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "button",
+                "required": [],
+                "optional": [
+                  "aria-label"
+                ]
+              }
+            }
+          },
+          "aria": {
+            "role": "dialog",
+            "requiredAttrs": [
+              "aria-expanded",
+              "aria-controls"
+            ],
+            "optionalAttrs": [
+              "aria-haspopup",
+              "aria-label",
+              "aria-labelledby",
+              "aria-describedby",
+              "aria-hidden"
+            ]
+          },
+          "keyboard": [
+            "Escape",
+            "Tab"
+          ],
+          "focusStrategy": "redirect",
+          "compound": true,
+          "dismissBehavior": {
+            "escape": true,
+            "outsideClick": true
+          }
+        },
+        {
+          "kind": "progress",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root",
+              "indicator"
+            ],
+            "optional": [],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "hover",
+              "active",
+              "disabled"
+            ],
+            "specific": [
+              "indeterminate",
+              "loading"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "hover",
+              "active",
+              "disabled",
+              "indeterminate",
+              "loading"
+            ],
+            "indicator": [
+              "indeterminate",
+              "loading"
+            ]
+          },
+          "slotActions": {
+            "root": [],
+            "indicator": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "progressbar",
+                "required": [],
+                "optional": [
+                  "aria-valuenow",
+                  "aria-valuemin",
+                  "aria-valuemax",
+                  "aria-valuetext",
+                  "aria-label",
+                  "aria-labelledby",
+                  "aria-describedby",
+                  "aria-busy"
+                ]
+              }
+            },
+            "indicator": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            }
+          },
+          "aria": {
+            "role": "progressbar",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-valuenow",
+              "aria-valuemin",
+              "aria-valuemax",
+              "aria-valuetext",
+              "aria-label",
+              "aria-labelledby",
+              "aria-describedby",
+              "aria-busy"
+            ]
+          },
+          "keyboard": [],
+          "focusStrategy": "none",
+          "compound": false
+        },
+        {
+          "kind": "radio-group",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root",
+              "item"
+            ],
+            "optional": [
+              "indicator"
+            ],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "specific": [
+              "checked"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "disabled"
+            ],
+            "item": [
+              "checked",
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "indicator": [
+              "checked"
+            ]
+          },
+          "slotActions": {
+            "root": [],
+            "item": [
+              "select"
+            ],
+            "indicator": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "radiogroup",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-labelledby",
+                  "aria-describedby",
+                  "aria-orientation",
+                  "aria-disabled",
+                  "aria-required"
+                ]
+              }
+            },
+            "item": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "radio",
+                "required": [
+                  "aria-checked"
+                ],
+                "optional": [
+                  "aria-label",
+                  "aria-labelledby",
+                  "aria-disabled"
+                ]
+              }
+            },
+            "indicator": {
+              "element": "span",
+              "children": "snippet",
+              "aria": {
+                "role": "presentation",
+                "required": [],
+                "optional": []
+              }
+            }
+          },
+          "aria": {
+            "role": "radiogroup",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-labelledby",
+              "aria-describedby",
+              "aria-orientation",
+              "aria-disabled",
+              "aria-required"
+            ]
+          },
+          "keyboard": [
+            "ArrowUp",
+            "ArrowDown",
+            "ArrowLeft",
+            "ArrowRight",
+            "Space"
+          ],
+          "focusStrategy": "roving",
+          "compound": true,
+          "orientation": "vertical"
+        },
+        {
+          "kind": "scroll-area",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root",
+              "viewport"
+            ],
+            "optional": [
+              "scrollbar",
+              "thumb",
+              "corner"
+            ],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "hover",
+              "active"
+            ],
+            "specific": [
+              "visible",
+              "hidden"
+            ]
+          },
+          "slotStates": {
+            "root": [],
+            "viewport": [],
+            "scrollbar": [
+              "visible",
+              "hidden",
+              "hover",
+              "active"
+            ],
+            "thumb": [
+              "hover",
+              "active"
+            ],
+            "corner": []
+          },
+          "slotActions": {
+            "root": [],
+            "viewport": [],
+            "scrollbar": [],
+            "thumb": [],
+            "corner": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "viewport": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "scrollbar": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "scrollbar",
+                "required": [
+                  "aria-controls",
+                  "aria-valuenow",
+                  "aria-valuemin",
+                  "aria-valuemax"
+                ],
+                "optional": [
+                  "aria-orientation"
+                ]
+              }
+            },
+            "thumb": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "corner": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            }
+          },
+          "aria": {
+            "role": "region",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-orientation",
+              "aria-valuenow",
+              "aria-valuemin",
+              "aria-valuemax",
+              "aria-controls"
+            ]
+          },
+          "keyboard": [
+            "ArrowUp",
+            "ArrowDown",
+            "ArrowLeft",
+            "ArrowRight",
+            "PageUp",
+            "PageDown",
+            "Home",
+            "End"
+          ],
+          "focusStrategy": "none",
+          "compound": false,
+          "orientation": "both"
+        },
+        {
+          "kind": "select",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root",
+              "trigger",
+              "content",
+              "item"
+            ],
+            "optional": [
+              "value",
+              "viewport",
+              "item-text",
+              "group",
+              "label",
+              "separator"
+            ],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "focused",
+              "focus-visible",
+              "focus-within",
+              "hover",
+              "active",
+              "disabled"
+            ],
+            "specific": [
+              "open",
+              "selected",
+              "hidden",
+              "visible"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "open",
+              "closed"
+            ],
+            "trigger": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active",
+              "disabled",
+              "open",
+              "closed"
+            ],
+            "content": [
+              "open",
+              "closed",
+              "focus-within"
+            ],
+            "item": [
+              "focused",
+              "hover",
+              "active",
+              "disabled",
+              "selected"
+            ],
+            "value": [],
+            "viewport": [],
+            "item-text": [],
+            "group": [],
+            "label": [],
+            "separator": []
+          },
+          "slotActions": {
+            "root": [],
+            "trigger": [
+              "open",
+              "close",
+              "toggle"
+            ],
+            "content": [],
+            "item": [
+              "select"
+            ],
+            "value": [],
+            "viewport": [],
+            "item-text": [],
+            "group": [],
+            "label": [],
+            "separator": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "fragment",
+              "children": "renderless",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "trigger": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "combobox",
+                "required": [
+                  "aria-expanded",
+                  "aria-haspopup",
+                  "aria-controls"
+                ],
+                "optional": [
+                  "aria-label",
+                  "aria-labelledby",
+                  "aria-disabled",
+                  "aria-activedescendant"
+                ]
+              }
+            },
+            "value": {
+              "element": "span",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "content": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "listbox",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-labelledby",
+                  "aria-multiselectable"
+                ]
+              }
+            },
+            "viewport": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "item": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "option",
+                "required": [
+                  "aria-selected"
+                ],
+                "optional": [
+                  "aria-disabled"
+                ]
+              }
+            },
+            "item-text": {
+              "element": "span",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "group": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "group",
+                "required": [
+                  "aria-labelledby"
+                ],
+                "optional": []
+              }
+            },
+            "label": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "separator": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "separator",
+                "required": [],
+                "optional": []
+              }
+            }
+          },
+          "aria": {
+            "role": "listbox",
+            "requiredAttrs": [
+              "aria-expanded",
+              "aria-selected",
+              "aria-controls"
+            ],
+            "optionalAttrs": [
+              "aria-activedescendant",
+              "aria-label",
+              "aria-labelledby",
+              "aria-disabled",
+              "aria-describedby",
+              "aria-orientation"
+            ]
+          },
+          "keyboard": [
+            "ArrowUp",
+            "ArrowDown",
+            "Enter",
+            "Space",
+            "Escape",
+            "Home",
+            "End",
+            "Tab"
+          ],
+          "focusStrategy": "activedescendant",
+          "compound": true,
+          "orientation": "vertical",
+          "dismissBehavior": {
+            "escape": true,
+            "outsideClick": true
+          }
+        },
+        {
+          "kind": "separator",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root"
+            ],
+            "optional": [],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active",
+              "disabled"
+            ],
+            "specific": []
+          },
+          "slotStates": {
+            "root": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active",
+              "disabled"
+            ]
+          },
+          "slotActions": {
+            "root": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "separator",
+                "required": [],
+                "optional": [
+                  "aria-orientation",
+                  "aria-label",
+                  "aria-labelledby",
+                  "aria-disabled",
+                  "aria-valuemin",
+                  "aria-valuemax",
+                  "aria-valuenow",
+                  "aria-valuetext"
+                ]
+              }
+            }
+          },
+          "aria": {
+            "role": "separator",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-orientation",
+              "aria-label",
+              "aria-labelledby",
+              "aria-disabled",
+              "aria-valuemin",
+              "aria-valuemax",
+              "aria-valuenow",
+              "aria-valuetext"
+            ]
+          },
+          "keyboard": [
+            "ArrowUp",
+            "ArrowDown",
+            "ArrowLeft",
+            "ArrowRight",
+            "Home",
+            "End"
+          ],
+          "focusStrategy": "none",
+          "compound": false
+        },
+        {
+          "kind": "sheet",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root",
+              "content"
+            ],
+            "optional": [
+              "trigger",
+              "portal",
+              "overlay",
+              "header",
+              "footer",
+              "title",
+              "description",
+              "close"
+            ],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "focused",
+              "focus-visible",
+              "focus-within",
+              "hover",
+              "active"
+            ],
+            "specific": [
+              "hidden",
+              "visible",
+              "open",
+              "entering",
+              "exiting"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "open",
+              "closed"
+            ],
+            "content": [
+              "open",
+              "closed",
+              "focus-within",
+              "entering",
+              "exiting"
+            ],
+            "trigger": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active"
+            ],
+            "portal": [
+              "hidden",
+              "visible"
+            ],
+            "overlay": [
+              "visible",
+              "entering",
+              "exiting",
+              "hover"
+            ],
+            "header": [],
+            "footer": [],
+            "title": [],
+            "description": [],
+            "close": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active"
+            ]
+          },
+          "slotActions": {
+            "root": [],
+            "content": [],
+            "trigger": [
+              "open"
+            ],
+            "portal": [],
+            "overlay": [
+              "close"
+            ],
+            "header": [],
+            "footer": [],
+            "title": [],
+            "description": [],
+            "close": [
+              "close"
+            ]
+          },
+          "slotSpec": {
+            "root": {
+              "element": "fragment",
+              "children": "renderless",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "trigger": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "button",
+                "required": [
+                  "aria-haspopup",
+                  "aria-expanded"
+                ],
+                "optional": [
+                  "aria-controls",
+                  "aria-label"
+                ]
+              }
+            },
+            "portal": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "overlay": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": [
+                  "aria-hidden"
+                ]
+              }
+            },
+            "content": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "dialog",
+                "required": [
+                  "aria-modal",
+                  "aria-labelledby"
+                ],
+                "optional": [
+                  "aria-label",
+                  "aria-describedby"
+                ]
+              }
+            },
+            "header": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "footer": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "title": {
+              "element": "h2",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "description": {
+              "element": "p",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "close": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "button",
+                "required": [],
+                "optional": [
+                  "aria-label"
+                ]
+              }
+            }
+          },
+          "aria": {
+            "role": "dialog",
+            "requiredAttrs": [
+              "aria-modal",
+              "aria-labelledby"
+            ],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-describedby",
+              "aria-hidden",
+              "aria-busy"
+            ]
+          },
+          "keyboard": [
+            "Escape",
+            "Tab"
+          ],
+          "focusStrategy": "trap",
+          "compound": true,
+          "dismissBehavior": {
+            "escape": true,
+            "outsideClick": true
+          }
+        },
+        {
+          "kind": "skeleton",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root"
+            ],
+            "optional": [],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [],
+            "specific": [
+              "loading",
+              "busy",
+              "visible",
+              "hidden"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "loading",
+              "busy",
+              "visible",
+              "hidden"
+            ]
+          },
+          "slotActions": {
+            "root": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "status",
+                "required": [],
+                "optional": [
+                  "aria-busy",
+                  "aria-label",
+                  "aria-hidden"
+                ]
+              }
+            }
+          },
+          "aria": {
+            "role": "status",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-busy",
+              "aria-label",
+              "aria-hidden"
+            ]
+          },
+          "keyboard": [],
+          "focusStrategy": "none",
+          "compound": false
+        },
+        {
+          "kind": "slider",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root",
+              "track",
+              "range",
+              "thumb"
+            ],
+            "optional": [],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "specific": []
+          },
+          "slotStates": {
+            "root": [
+              "hover",
+              "active",
+              "disabled"
+            ],
+            "track": [],
+            "range": [],
+            "thumb": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ]
+          },
+          "slotActions": {
+            "root": [],
+            "track": [],
+            "range": [],
+            "thumb": [
+              "increment",
+              "decrement"
+            ]
+          },
+          "slotSpec": {
+            "root": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-orientation",
+                  "aria-disabled"
+                ]
+              }
+            },
+            "track": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "presentation",
+                "required": [],
+                "optional": []
+              }
+            },
+            "range": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "presentation",
+                "required": [],
+                "optional": []
+              }
+            },
+            "thumb": {
+              "element": "span",
+              "children": "snippet",
+              "aria": {
+                "role": "slider",
+                "required": [
+                  "aria-valuenow",
+                  "aria-valuemin",
+                  "aria-valuemax"
+                ],
+                "optional": [
+                  "aria-valuetext",
+                  "aria-label",
+                  "aria-labelledby",
+                  "aria-disabled"
+                ]
+              }
+            }
+          },
+          "aria": {
+            "role": "slider",
+            "requiredAttrs": [
+              "aria-valuenow",
+              "aria-valuemin",
+              "aria-valuemax"
+            ],
+            "optionalAttrs": [
+              "aria-valuetext",
+              "aria-label",
+              "aria-labelledby",
+              "aria-orientation",
+              "aria-disabled"
+            ]
+          },
+          "keyboard": [
+            "ArrowLeft",
+            "ArrowRight",
+            "ArrowUp",
+            "ArrowDown",
+            "Home",
+            "End",
+            "PageUp",
+            "PageDown"
+          ],
+          "focusStrategy": "none",
+          "compound": true,
+          "orientation": "horizontal"
+        },
+        {
+          "kind": "spinner",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root"
+            ],
+            "optional": [],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [],
+            "specific": [
+              "loading",
+              "visible",
+              "hidden"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "loading",
+              "visible",
+              "hidden"
+            ]
+          },
+          "slotActions": {
+            "root": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "span",
+              "children": "snippet",
+              "aria": {
+                "role": "status",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-hidden",
+                  "aria-busy",
+                  "aria-live"
+                ]
+              }
+            }
+          },
+          "aria": {
+            "role": "status",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-hidden",
+              "aria-busy",
+              "aria-live"
+            ]
+          },
+          "keyboard": [],
+          "focusStrategy": "none",
+          "compound": false
+        },
+        {
+          "kind": "switch",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root",
+              "thumb"
+            ],
+            "optional": [],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "specific": [
+              "checked"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "checked",
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "thumb": [
+              "checked"
+            ]
+          },
+          "slotActions": {
+            "root": [
+              "check",
+              "uncheck",
+              "toggle"
+            ],
+            "thumb": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "switch",
+                "required": [
+                  "aria-checked"
+                ],
+                "optional": [
+                  "aria-label",
+                  "aria-labelledby",
+                  "aria-describedby",
+                  "aria-disabled"
+                ]
+              }
+            },
+            "thumb": {
+              "element": "span",
+              "children": "snippet",
+              "aria": {
+                "role": "presentation",
+                "required": [],
+                "optional": []
+              }
+            }
+          },
+          "aria": {
+            "role": "switch",
+            "requiredAttrs": [
+              "aria-checked"
+            ],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-labelledby",
+              "aria-describedby",
+              "aria-disabled"
+            ]
+          },
+          "keyboard": [
+            "Space"
+          ],
+          "focusStrategy": "none",
+          "compound": true
+        },
+        {
+          "kind": "tabs",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root",
+              "list",
+              "trigger",
+              "content"
+            ],
+            "optional": [],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "focused",
+              "focus-visible",
+              "focus-within",
+              "hover",
+              "active",
+              "disabled"
+            ],
+            "specific": [
+              "hidden",
+              "visible",
+              "selected"
+            ]
+          },
+          "slotStates": {
+            "root": [],
+            "list": [
+              "focus-within"
+            ],
+            "trigger": [
+              "selected",
+              "focused",
+              "focus-visible",
+              "hover",
+              "active",
+              "disabled"
+            ],
+            "content": [
+              "hidden",
+              "visible"
+            ]
+          },
+          "slotActions": {
+            "root": [],
+            "list": [],
+            "trigger": [
+              "select"
+            ],
+            "content": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "list": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "tablist",
+                "required": [
+                  "aria-orientation"
+                ],
+                "optional": [
+                  "aria-label",
+                  "aria-labelledby"
+                ]
+              }
+            },
+            "trigger": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "tab",
+                "required": [
+                  "aria-selected",
+                  "aria-controls"
+                ],
+                "optional": [
+                  "aria-disabled"
+                ]
+              }
+            },
+            "content": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "tabpanel",
+                "required": [
+                  "aria-labelledby"
+                ],
+                "optional": [
+                  "aria-hidden"
+                ]
+              }
+            }
+          },
+          "aria": {
+            "role": "tablist",
+            "requiredAttrs": [
+              "aria-orientation"
+            ],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-labelledby",
+              "aria-disabled",
+              "aria-describedby",
+              "aria-selected",
+              "aria-controls"
+            ]
+          },
+          "keyboard": [
+            "ArrowLeft",
+            "ArrowRight",
+            "ArrowUp",
+            "ArrowDown",
+            "Home",
+            "End",
+            "Enter",
+            "Space"
+          ],
+          "focusStrategy": "roving",
+          "compound": true,
+          "orientation": "horizontal"
+        },
+        {
+          "kind": "textarea",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root"
+            ],
+            "optional": [],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active",
+              "disabled"
+            ],
+            "specific": [
+              "readonly",
+              "invalid",
+              "valid",
+              "required"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active",
+              "disabled",
+              "readonly",
+              "invalid",
+              "valid",
+              "required"
+            ]
+          },
+          "slotActions": {
+            "root": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "textarea",
+              "children": "self-closing",
+              "aria": {
+                "role": "textbox",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-labelledby",
+                  "aria-describedby",
+                  "aria-required",
+                  "aria-invalid",
+                  "aria-errormessage",
+                  "aria-disabled",
+                  "aria-readonly",
+                  "aria-placeholder",
+                  "aria-multiline"
+                ]
+              }
+            }
+          },
+          "aria": {
+            "role": "textbox",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-labelledby",
+              "aria-describedby",
+              "aria-invalid",
+              "aria-errormessage",
+              "aria-required",
+              "aria-disabled",
+              "aria-placeholder",
+              "aria-readonly",
+              "aria-multiline"
+            ]
+          },
+          "keyboard": [],
+          "focusStrategy": "none",
+          "compound": false
+        },
+        {
+          "kind": "toggle",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root"
+            ],
+            "optional": [],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active",
+              "disabled"
+            ],
+            "specific": [
+              "pressed"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "pressed",
+              "focused",
+              "focus-visible",
+              "hover",
+              "active",
+              "disabled"
+            ]
+          },
+          "slotActions": {
+            "root": [
+              "toggle"
+            ]
+          },
+          "slotSpec": {
+            "root": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "button",
+                "required": [
+                  "aria-pressed"
+                ],
+                "optional": [
+                  "aria-disabled",
+                  "aria-label",
+                  "aria-labelledby",
+                  "aria-describedby"
+                ]
+              }
+            }
+          },
+          "aria": {
+            "role": "button",
+            "requiredAttrs": [
+              "aria-pressed"
+            ],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-labelledby",
+              "aria-describedby",
+              "aria-disabled"
+            ]
+          },
+          "keyboard": [
+            "Enter",
+            "Space"
+          ],
+          "focusStrategy": "none",
+          "compound": true
+        },
+        {
+          "kind": "toggle-group",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root",
+              "item"
+            ],
+            "optional": [],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ],
+            "specific": [
+              "pressed"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "disabled"
+            ],
+            "item": [
+              "pressed",
+              "hover",
+              "active",
+              "focused",
+              "focus-visible",
+              "disabled"
+            ]
+          },
+          "slotActions": {
+            "root": [],
+            "item": [
+              "toggle"
+            ]
+          },
+          "slotSpec": {
+            "root": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "group",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-orientation",
+                  "aria-disabled"
+                ]
+              }
+            },
+            "item": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "required": [
+                  "aria-pressed"
+                ],
+                "optional": [
+                  "aria-label",
+                  "aria-disabled"
+                ]
+              }
+            }
+          },
+          "aria": {
+            "role": "group",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-label",
+              "aria-orientation",
+              "aria-disabled"
+            ]
+          },
+          "keyboard": [
+            "ArrowLeft",
+            "ArrowRight",
+            "ArrowUp",
+            "ArrowDown",
+            "Home",
+            "End",
+            "Space",
+            "Enter"
+          ],
+          "focusStrategy": "roving",
+          "compound": true,
+          "orientation": "horizontal"
+        },
+        {
+          "kind": "toolbar",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root"
+            ],
+            "optional": [
+              "group",
+              "item",
+              "separator",
+              "link"
+            ],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active",
+              "disabled"
+            ],
+            "specific": []
+          },
+          "slotStates": {
+            "root": [
+              "disabled"
+            ],
+            "group": [],
+            "item": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active",
+              "disabled"
+            ],
+            "separator": [],
+            "link": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "active"
+            ]
+          },
+          "slotActions": {
+            "root": [],
+            "group": [],
+            "item": [],
+            "separator": [],
+            "link": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "toolbar",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-labelledby",
+                  "aria-orientation"
+                ]
+              }
+            },
+            "group": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "group",
+                "required": [],
+                "optional": [
+                  "aria-label"
+                ]
+              }
+            },
+            "item": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "role": "button",
+                "required": [],
+                "optional": [
+                  "aria-disabled",
+                  "aria-pressed",
+                  "aria-label"
+                ]
+              }
+            },
+            "separator": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "separator",
+                "required": [],
+                "optional": [
+                  "aria-orientation"
+                ]
+              }
+            },
+            "link": {
+              "element": "a",
+              "children": "snippet",
+              "aria": {
+                "role": "link",
+                "required": [],
+                "optional": [
+                  "aria-label",
+                  "aria-disabled"
+                ]
+              }
+            }
+          },
+          "aria": {
+            "role": "toolbar",
+            "requiredAttrs": [
+              "aria-label"
+            ],
+            "optionalAttrs": [
+              "aria-orientation",
+              "aria-controls",
+              "aria-disabled"
+            ]
+          },
+          "keyboard": [
+            "ArrowLeft",
+            "ArrowRight",
+            "Home",
+            "End",
+            "Tab"
+          ],
+          "focusStrategy": "roving",
+          "compound": false,
+          "orientation": "horizontal"
+        },
+        {
+          "kind": "tooltip",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root",
+              "trigger",
+              "content"
+            ],
+            "optional": [
+              "arrow"
+            ],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [
+              "focused",
+              "focus-visible",
+              "hover"
+            ],
+            "specific": [
+              "open",
+              "hidden",
+              "visible",
+              "entering",
+              "exiting"
+            ]
+          },
+          "slotStates": {
+            "root": [
+              "open",
+              "closed"
+            ],
+            "trigger": [
+              "focused",
+              "focus-visible",
+              "hover",
+              "open",
+              "closed"
+            ],
+            "content": [
+              "open",
+              "closed",
+              "visible",
+              "entering",
+              "exiting"
+            ],
+            "arrow": []
+          },
+          "slotActions": {
+            "root": [],
+            "trigger": [],
+            "content": [],
+            "arrow": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "fragment",
+              "children": "renderless",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            },
+            "trigger": {
+              "element": "button",
+              "children": "snippet",
+              "aria": {
+                "required": [
+                  "aria-describedby"
+                ],
+                "optional": []
+              }
+            },
+            "content": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "role": "tooltip",
+                "required": [],
+                "optional": [
+                  "aria-label"
+                ]
+              }
+            },
+            "arrow": {
+              "element": "div",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            }
+          },
+          "aria": {
+            "role": "tooltip",
+            "requiredAttrs": [],
+            "optionalAttrs": [
+              "aria-describedby"
+            ]
+          },
+          "keyboard": [
+            "Escape"
+          ],
+          "focusStrategy": "none",
+          "compound": true,
+          "dismissBehavior": {
+            "escape": true,
+            "outsideClick": false
+          }
+        },
+        {
+          "kind": "visually-hidden",
+          "ariaStateProvider": "coldlight",
+          "slots": {
+            "required": [
+              "root"
+            ],
+            "optional": [],
+            "forbidden": []
+          },
+          "states": {
+            "shared": [],
+            "specific": []
+          },
+          "slotStates": {
+            "root": []
+          },
+          "slotActions": {
+            "root": []
+          },
+          "slotSpec": {
+            "root": {
+              "element": "span",
+              "children": "snippet",
+              "aria": {
+                "required": [],
+                "optional": []
+              }
+            }
+          },
+          "aria": {
+            "role": "none",
+            "requiredAttrs": [],
+            "optionalAttrs": []
+          },
+          "keyboard": [],
+          "focusStrategy": "none",
+          "compound": false
+        }
+      ]
     }
   }
 }

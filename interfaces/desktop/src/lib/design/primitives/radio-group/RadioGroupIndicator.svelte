@@ -4,14 +4,14 @@
 	Contract: kind="radio-group", slot="indicator", ariaStateProvider="coldlight"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { RadioGroupIndicatorProps } from "./types.js";
-	import { getRadioGroupItemContext } from "./context.js";
+import { cn, stripStyleProp } from "../types.js";
+import { getRadioGroupItemContext } from "./context.js";
+import type { RadioGroupIndicatorProps } from "./types.js";
 
-	let { children, class: className, ...rest }: RadioGroupIndicatorProps = $props();
-	const itemCtx = getRadioGroupItemContext();
+let { children, class: className, ...rest }: RadioGroupIndicatorProps = $props();
+const itemCtx = getRadioGroupItemContext();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "RadioGroupIndicator");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "RadioGroupIndicator");
 </script>
 
 <span

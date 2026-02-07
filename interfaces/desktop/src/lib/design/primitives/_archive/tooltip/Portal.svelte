@@ -9,15 +9,10 @@
   - data-slot="portal"
 -->
 <script lang="ts">
-  import { Tooltip } from "meltui";
-  import type { TooltipPortalProps } from "./types.js";
+import { Tooltip } from "meltui";
+import type { TooltipPortalProps } from "./types.js";
 
-  let {
-    to,
-    disabled = false,
-    children,
-    "data-id": dataId,
-  }: TooltipPortalProps = $props();
+let { to, disabled = false, children, "data-id": dataId }: TooltipPortalProps = $props();
 </script>
 
 <div

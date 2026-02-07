@@ -8,8 +8,8 @@
   Sonner handles ARIA live region announcements internally.
 -->
 <script lang="ts" module>
-  // Re-export sonner's toast function for convenience
-  export { toast } from "svelte-sonner";
+// Re-export sonner's toast function for convenience
+export { toast } from "svelte-sonner";
 </script>
 
 <script lang="ts">

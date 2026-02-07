@@ -2,11 +2,12 @@
  * @file NavigationMenu Taxonomy Barrel
  * @description Re-exports navigation-menu types + contract. Zero logic.
  */
+
+export { contract } from "./contract.js";
 export {
-	navigationMenuSlots,
-	navigationMenuStateTokens,
-	navigationMenuSlotStates,
 	type NavigationMenuSlot,
 	type NavigationMenuState,
+	navigationMenuSlotStates,
+	navigationMenuSlots,
+	navigationMenuStateTokens,
 } from "./types.js";
-export { contract } from "./contract.js";

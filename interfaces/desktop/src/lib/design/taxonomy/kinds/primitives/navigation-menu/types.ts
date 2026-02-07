@@ -7,12 +7,20 @@
  * ariaStateProvider: "coldlight" — semantic HTML nav landmark with roving tabindex.
  */
 
-import type { StateToken, SlotStateMap } from "../../../types.js";
+import type { SlotStateMap, StateToken } from "../../../types.js";
 
 // ─── SLOT TYPES ─────────────────────────────────────────────────────────────
 
 /** All slot names for the navigation-menu primitive */
-export const navigationMenuSlots = ["root", "list", "item", "trigger", "content", "link", "viewport"] as const;
+export const navigationMenuSlots = [
+	"root",
+	"list",
+	"item",
+	"trigger",
+	"content",
+	"link",
+	"viewport",
+] as const;
 
 /** Union of navigation-menu slot names */
 export type NavigationMenuSlot = (typeof navigationMenuSlots)[number];

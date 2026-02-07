@@ -1,4 +1,4 @@
-﻿# Adapter Architecture
+# Adapter Architecture
 
 > **How dsAdapters work in ColdLight.**
 

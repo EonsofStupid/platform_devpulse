@@ -4,12 +4,12 @@
 	Contract: kind="command", slot="group", ariaStateProvider="coldlight"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { CommandGroupProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { CommandGroupProps } from "./types.js";
 
-	let { children, class: className, ...rest }: CommandGroupProps = $props();
+let { children, class: className, ...rest }: CommandGroupProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "CommandGroup");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "CommandGroup");
 </script>
 
 <div

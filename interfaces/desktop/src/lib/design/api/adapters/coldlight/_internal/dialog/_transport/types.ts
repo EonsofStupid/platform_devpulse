@@ -1,14 +1,11 @@
 import type { DialogSlot } from "$lib/design/taxonomy/kinds/primitives/dialog/types.js";
-import type { SlotAttrs, TransportAdapter } from "../../_transport/types.js";
+import type { TransportAdapter } from "../../_transport/types.js";
 
 export interface DialogTransportStates {
 	open: boolean;
 }
 
-export type DialogTransport = TransportAdapter<
-	Exclude<DialogSlot, "root">,
-	DialogTransportStates
->;
+export type DialogTransport = TransportAdapter<Exclude<DialogSlot, "root">, DialogTransportStates>;
 
 export interface DialogTransportConfig {
 	open?: boolean;

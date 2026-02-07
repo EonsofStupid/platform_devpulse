@@ -4,12 +4,12 @@
 	Contract: kind="pin-input", slot="input", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { PinInputInputProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { PinInputInputProps } from "./types.js";
 
-	let { class: className, ...rest }: PinInputInputProps = $props();
+let { class: className, ...rest }: PinInputInputProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "PinInputInput");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "PinInputInput");
 </script>
 
 <input

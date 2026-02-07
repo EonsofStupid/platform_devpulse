@@ -17,18 +17,18 @@
   - data-disabled (presence attribute when disabled)
 -->
 <script lang="ts">
-  import { Select } from "meltui";
-  import type { SelectItemProps } from "./types.js";
-  import { cn } from "../types.js";
+import { Select } from "meltui";
+import { cn } from "../types.js";
+import type { SelectItemProps } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    value,
-    disabled = false,
-    label,
-    "data-id": dataId,
-  }: SelectItemProps = $props();
+let {
+	children,
+	class: className = "",
+	value,
+	disabled = false,
+	label,
+	"data-id": dataId,
+}: SelectItemProps = $props();
 </script>
 
 <Select.Item {value} {disabled} {label}>

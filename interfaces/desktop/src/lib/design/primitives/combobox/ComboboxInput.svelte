@@ -4,12 +4,12 @@
 	Contract: kind="combobox", slot="input", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { ComboboxInputProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { ComboboxInputProps } from "./types.js";
 
-	let { class: className, ...rest }: ComboboxInputProps = $props();
+let { class: className, ...rest }: ComboboxInputProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ComboboxInput");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ComboboxInput");
 </script>
 
 <input

@@ -1,6 +1,6 @@
 <script lang="ts">
-  // DevPulse Dashboard - main entry point
-  // Feature components are imported from $lib/domains/app/devpulse/features/
+// DevPulse Dashboard - main entry point
+// Feature components are imported from $lib/domains/app/devpulse/features/
 </script>
 
 <div class="dashboard">

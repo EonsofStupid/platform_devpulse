@@ -11,18 +11,18 @@
   - data-select-arrow=""
 -->
 <script lang="ts">
-  import type { SelectArrowProps } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+import { stripStyleProp } from "../types.js";
+import type { SelectArrowProps } from "./types.js";
 
-  let {
-    class: className = "",
-    "data-id": dataId,
-    width = 8,
-    height = 8,
-    ...rest
-  }: SelectArrowProps = $props();
+let {
+	class: className = "",
+	"data-id": dataId,
+	width = 8,
+	height = 8,
+	...rest
+}: SelectArrowProps = $props();
 
-  stripStyleProp(rest, "Select.Arrow");
+stripStyleProp(rest, "Select.Arrow");
 </script>
 
 <!--

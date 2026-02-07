@@ -5,19 +5,17 @@
  * ariaStateProvider: "coldlight" — native <button> with role="switch" + aria-checked at component layer.
  * 2-folder parity: taxonomy + primitive.
  *
+ * Reference: W3C WAI-ARIA APG Switch Pattern
+ * https://www.w3.org/WAI/ARIA/apg/patterns/switch/
+ *
  * WAI-ARIA: role="switch" is a type of checkbox that represents on/off.
  * aria-checked is required (true/false, never "mixed" unlike checkbox).
- * Accessible name required via aria-label or aria-labelledby.
- * Toggle on Space (native button behavior).
  */
 
-import type { PrimitiveContract } from "../../../types.js";
-import { switchSlotStates, type SwitchSlot, type SwitchState } from "./types.js";
+import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { switchSlotStates } from "./types.js";
 
-// ─── CONTRACT ───────────────────────────────────────────────────────────────
-
-/** Switch primitive contract — ColdLight SSOT */
-export const contract: PrimitiveContract<"switch", SwitchSlot, SwitchState> = {
+const rawContract = {
 	kind: "switch",
 	ariaStateProvider: "coldlight",
 	slots: { required: ["root", "thumb"], optional: [], forbidden: [] },
@@ -49,6 +47,11 @@ export const contract: PrimitiveContract<"switch", SwitchSlot, SwitchState> = {
 		optionalAttrs: ["aria-label", "aria-labelledby", "aria-describedby", "aria-disabled"],
 	},
 	keyboard: ["Space"],
+	keyboardMap: [
+		{ orientation: "both", focusLocation: "root", key: "Space", action: "toggle", required: true },
+	],
 	focusStrategy: "none",
 	compound: true,
-};
+} as const;
+
+export const contract: PrimitiveContract = parseContract(rawContract);

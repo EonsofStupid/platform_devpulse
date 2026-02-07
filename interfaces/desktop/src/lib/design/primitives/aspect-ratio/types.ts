@@ -6,7 +6,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** AspectRatio root — CSS aspect-ratio wrapper */
 export interface AspectRatioProps extends OmitStyle<HTMLDivElement>, BaseProps {

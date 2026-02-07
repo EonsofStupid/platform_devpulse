@@ -9,16 +9,12 @@
   - data-slot="separator"
 -->
 <script lang="ts">
-  import type { SelectSeparatorProps } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+import { stripStyleProp } from "../types.js";
+import type { SelectSeparatorProps } from "./types.js";
 
-  let {
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: SelectSeparatorProps = $props();
+let { class: className = "", "data-id": dataId, ...rest }: SelectSeparatorProps = $props();
 
-  stripStyleProp(rest, "Select.Separator");
+stripStyleProp(rest, "Select.Separator");
 </script>
 
 <div

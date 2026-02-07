@@ -10,17 +10,17 @@
   - data-state="open" | "closed"
 -->
 <script lang="ts">
-  import { AlertDialog } from "meltui";
-  import type { AlertDialogRootProps, AlertDialogState } from "./types.js";
+import { AlertDialog } from "meltui";
+import type { AlertDialogRootProps, AlertDialogState } from "./types.js";
 
-  let {
-    open = $bindable(false),
-    onOpenChange,
-    children,
-    "data-id": dataId,
-  }: AlertDialogRootProps = $props();
+let {
+	open = $bindable(false),
+	onOpenChange,
+	children,
+	"data-id": dataId,
+}: AlertDialogRootProps = $props();
 
-  const dataState: AlertDialogState = $derived(open ? "open" : "closed");
+const dataState: AlertDialogState = $derived(open ? "open" : "closed");
 </script>
 
 <div

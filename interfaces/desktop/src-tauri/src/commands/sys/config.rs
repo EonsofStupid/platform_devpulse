@@ -13,6 +13,7 @@
 //!
 //! @since 1.0.0
 
+/// Get current application settings as JSON.
 #[tauri::command]
 pub fn get_settings() -> String {
     "{}".to_string()

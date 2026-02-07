@@ -7,7 +7,7 @@
  * ariaStateProvider: "coldlight" — decorative element, minimal ARIA.
  */
 
-import type { StateToken, SlotStateMap } from "../../../types.js";
+import type { SlotStateMap, StateToken } from "../../../types.js";
 
 // ─── SLOT TYPES ─────────────────────────────────────────────────────────────
 
@@ -20,10 +20,7 @@ export type BadgeSlot = (typeof badgeSlots)[number];
 // ─── STATE TYPES ────────────────────────────────────────────────────────────
 
 /** All state tokens applicable to the badge primitive */
-export const badgeStateTokens = [
-	"hover",
-	"active",
-] as const satisfies readonly StateToken[];
+export const badgeStateTokens = ["hover", "active"] as const satisfies readonly StateToken[];
 
 /** Union of badge state tokens */
 export type BadgeState = (typeof badgeStateTokens)[number];

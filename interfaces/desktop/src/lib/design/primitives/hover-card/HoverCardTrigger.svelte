@@ -4,12 +4,12 @@
 	Contract: kind="hover-card", slot="trigger", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { HoverCardTriggerProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { HoverCardTriggerProps } from "./types.js";
 
-	let { children, class: className, ...rest }: HoverCardTriggerProps = $props();
+let { children, class: className, ...rest }: HoverCardTriggerProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "HoverCardTrigger");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "HoverCardTrigger");
 </script>
 
 <a

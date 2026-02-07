@@ -13,18 +13,18 @@
   - data-slot="trigger"
 -->
 <script lang="ts">
-  import { AlertDialog } from "meltui";
-  import type { AlertDialogTriggerProps } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+import { AlertDialog } from "meltui";
+import { stripStyleProp } from "../types.js";
+import type { AlertDialogTriggerProps } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: AlertDialogTriggerProps = $props();
+let {
+	children,
+	class: className = "",
+	"data-id": dataId,
+	...rest
+}: AlertDialogTriggerProps = $props();
 
-  stripStyleProp(rest, "AlertDialog.Trigger");
+stripStyleProp(rest, "AlertDialog.Trigger");
 </script>
 
 <AlertDialog.Trigger

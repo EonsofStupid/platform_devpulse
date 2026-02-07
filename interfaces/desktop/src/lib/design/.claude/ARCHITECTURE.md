@@ -1,4 +1,4 @@
-﻿# ColdLight Architecture
+# ColdLight Architecture
 
 > **For AI agents working on ColdLight.**
 

@@ -13,5 +13,6 @@
 //!
 //! @since 1.0.0
 
+/// Log a message from the frontend.
 #[tauri::command]
 pub fn log() {}

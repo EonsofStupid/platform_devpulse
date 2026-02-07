@@ -23,25 +23,25 @@
     GlassButton - Deep glass with colored shadows
 -->
 <script lang="ts">
-    import type { Snippet } from "svelte";
+import type { Snippet } from "svelte";
 
-    interface Props {
-        variant?: "primary" | "secondary" | "ghost";
-        size?: "sm" | "md" | "lg";
-        glow?: "none" | "teal" | "purple" | "blue";
-        disabled?: boolean;
-        onclick?: () => void;
-        children: Snippet;
-    }
+interface Props {
+	variant?: "primary" | "secondary" | "ghost";
+	size?: "sm" | "md" | "lg";
+	glow?: "none" | "teal" | "purple" | "blue";
+	disabled?: boolean;
+	onclick?: () => void;
+	children: Snippet;
+}
 
-    let {
-        variant = "primary",
-        size = "md",
-        glow = "none",
-        disabled = false,
-        onclick,
-        children,
-    }: Props = $props();
+let {
+	variant = "primary",
+	size = "md",
+	glow = "none",
+	disabled = false,
+	onclick,
+	children,
+}: Props = $props();
 </script>
 
 <button

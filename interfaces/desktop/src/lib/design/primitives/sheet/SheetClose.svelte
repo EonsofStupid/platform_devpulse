@@ -4,12 +4,12 @@
 	Contract: kind="sheet", slot="close"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { SheetCloseProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { SheetCloseProps } from "./types.js";
 
-	let { children, class: className, ...rest }: SheetCloseProps = $props();
+let { children, class: className, ...rest }: SheetCloseProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SheetClose");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SheetClose");
 </script>
 
 <button

@@ -4,14 +4,14 @@
 	Contract: kind="collapsible", slot="content"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { CollapsibleContentProps } from "./types.js";
-	import { getCollapsibleContext } from "./context.js";
+import { cn, stripStyleProp } from "../types.js";
+import { getCollapsibleContext } from "./context.js";
+import type { CollapsibleContentProps } from "./types.js";
 
-	let { children, class: className, ...rest }: CollapsibleContentProps = $props();
-	const ctx = getCollapsibleContext();
+let { children, class: className, ...rest }: CollapsibleContentProps = $props();
+const ctx = getCollapsibleContext();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "CollapsibleContent");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "CollapsibleContent");
 </script>
 
 <div

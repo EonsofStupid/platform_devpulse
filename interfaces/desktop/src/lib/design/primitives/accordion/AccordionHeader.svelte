@@ -4,12 +4,12 @@
 	Contract: kind="accordion", slot="header"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { AccordionHeaderProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { AccordionHeaderProps } from "./types.js";
 
-	let { children, class: className, ...rest }: AccordionHeaderProps = $props();
+let { children, class: className, ...rest }: AccordionHeaderProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "AccordionHeader");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "AccordionHeader");
 </script>
 
 <h3

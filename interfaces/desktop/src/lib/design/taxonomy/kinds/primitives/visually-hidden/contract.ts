@@ -11,21 +11,10 @@
  * No states, no keyboard, no focus management.
  */
 
-import type { PrimitiveContract } from "../../../types.js";
-import {
-	visuallyHiddenSlotStates,
-	type VisuallyHiddenSlot,
-	type VisuallyHiddenState,
-} from "./types.js";
+import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { visuallyHiddenSlotStates } from "./types.js";
 
-// ─── CONTRACT ───────────────────────────────────────────────────────────────
-
-/** VisuallyHidden utility contract — ColdLight SSOT */
-export const contract: PrimitiveContract<
-	"visually-hidden",
-	VisuallyHiddenSlot,
-	VisuallyHiddenState
-> = {
+const rawContract = {
 	kind: "visually-hidden",
 	ariaStateProvider: "coldlight",
 	slots: { required: ["root"], optional: [], forbidden: [] },
@@ -45,6 +34,9 @@ export const contract: PrimitiveContract<
 		optionalAttrs: [],
 	},
 	keyboard: [],
+	keyboardMap: [],
 	focusStrategy: "none",
 	compound: false,
-};
+} as const;
+
+export const contract: PrimitiveContract = parseContract(rawContract);

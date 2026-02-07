@@ -12,18 +12,13 @@
   - data-slot="trigger"
 -->
 <script lang="ts">
-  import { Tooltip } from "meltui";
-  import type { TooltipTriggerProps } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+import { Tooltip } from "meltui";
+import { stripStyleProp } from "../types.js";
+import type { TooltipTriggerProps } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: TooltipTriggerProps = $props();
+let { children, class: className = "", "data-id": dataId, ...rest }: TooltipTriggerProps = $props();
 
-  stripStyleProp(rest, "Tooltip.Trigger");
+stripStyleProp(rest, "Tooltip.Trigger");
 </script>
 
 <Tooltip.Trigger

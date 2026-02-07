@@ -14,11 +14,12 @@ import type { Component, ComponentProps, Snippet } from "svelte";
  * Configuration class for rendering Svelte components in table cells.
  * Used internally by FlexRender to identify component-based content.
  */
+// biome-ignore lint/suspicious/noExplicitAny: TanStack Table requires flexible component types
 export class RenderComponentConfig<TComponent extends Component<any>> {
-  constructor(
-    public component: TComponent,
-    public props: ComponentProps<TComponent> | Record<string, never> = {}
-  ) {}
+	constructor(
+		public component: TComponent,
+		public props: ComponentProps<TComponent> | Record<string, never> = {},
+	) {}
 }
 
 /**
@@ -26,10 +27,10 @@ export class RenderComponentConfig<TComponent extends Component<any>> {
  * Used internally by FlexRender to identify snippet-based content.
  */
 export class RenderSnippetConfig<TProps> {
-  constructor(
-    public snippet: Snippet<[TProps]>,
-    public params: TProps
-  ) {}
+	constructor(
+		public snippet: Snippet<[TProps]>,
+		public params: TProps,
+	) {}
 }
 
 /**
@@ -46,10 +47,11 @@ export class RenderSnippetConfig<TProps> {
  * ```
  */
 export function renderComponent<
-  TComponent extends Component<any>,
-  TProps extends ComponentProps<TComponent>
+	// biome-ignore lint/suspicious/noExplicitAny: TanStack Table requires flexible component types
+	TComponent extends Component<any>,
+	TProps extends ComponentProps<TComponent>,
 >(component: TComponent, props: TProps): RenderComponentConfig<TComponent> {
-  return new RenderComponentConfig(component, props);
+	return new RenderComponentConfig(component, props);
 }
 
 /**
@@ -71,8 +73,8 @@ export function renderComponent<
  * ```
  */
 export function renderSnippet<TProps>(
-  snippet: Snippet<[TProps]>,
-  params: TProps
+	snippet: Snippet<[TProps]>,
+	params: TProps,
 ): RenderSnippetConfig<TProps> {
-  return new RenderSnippetConfig(snippet, params);
+	return new RenderSnippetConfig(snippet, params);
 }

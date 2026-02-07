@@ -23,29 +23,29 @@
  * ```
  */
 
+export { default as Close } from "./Close.svelte";
+export { default as Content } from "./Content.svelte";
+export { default as Description } from "./Description.svelte";
+export { default as Overlay } from "./Overlay.svelte";
+export { default as Portal } from "./Portal.svelte";
 // Components
 export { default as Root } from "./Root.svelte";
-export { default as Trigger } from "./Trigger.svelte";
-export { default as Portal } from "./Portal.svelte";
-export { default as Overlay } from "./Overlay.svelte";
-export { default as Content } from "./Content.svelte";
 export { default as Title } from "./Title.svelte";
-export { default as Description } from "./Description.svelte";
-export { default as Close } from "./Close.svelte";
+export { default as Trigger } from "./Trigger.svelte";
 
 // Types
 export type {
-  SheetRootProps,
-  SheetTriggerProps,
-  SheetPortalProps,
-  SheetOverlayProps,
-  SheetContentProps,
-  SheetTitleProps,
-  SheetDescriptionProps,
-  SheetCloseProps,
-  SheetState,
-  SheetSlot,
-  SheetSide,
+	SheetCloseProps,
+	SheetContentProps,
+	SheetDescriptionProps,
+	SheetOverlayProps,
+	SheetPortalProps,
+	SheetRootProps,
+	SheetSide,
+	SheetSlot,
+	SheetState,
+	SheetTitleProps,
+	SheetTriggerProps,
 } from "./types.js";
 
 export { SheetSlots } from "./types.js";

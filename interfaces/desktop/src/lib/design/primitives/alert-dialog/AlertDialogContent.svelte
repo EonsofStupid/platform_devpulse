@@ -4,15 +4,15 @@
 	Contract: kind="alert-dialog", slot="content"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { AlertDialogContentProps } from "./types.js";
-	import { getAlertDialogContext } from "./context.js";
+import { cn, stripStyleProp } from "../types.js";
+import { getAlertDialogContext } from "./context.js";
+import type { AlertDialogContentProps } from "./types.js";
 
-	let { children, class: className, ...rest }: AlertDialogContentProps = $props();
+let { children, class: className, ...rest }: AlertDialogContentProps = $props();
 
-	const ctx = getAlertDialogContext();
+const ctx = getAlertDialogContext();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "AlertDialogContent");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "AlertDialogContent");
 </script>
 
 <div

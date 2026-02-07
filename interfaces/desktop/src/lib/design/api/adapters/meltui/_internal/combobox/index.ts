@@ -1,8 +1,12 @@
-export { createMeltCombobox, type MeltComboboxInstance, type MeltComboboxConfig } from "./factory.js";
 export {
-	createComboboxTransport,
-	type ComboboxTransport,
 	type ComboboxActions,
-	type ComboboxTransportStates,
+	type ComboboxTransport,
 	type ComboboxTransportConfig,
+	type ComboboxTransportStates,
+	createComboboxTransport,
 } from "./_transport/index.js";
+export {
+	createMeltCombobox,
+	type MeltComboboxConfig,
+	type MeltComboboxInstance,
+} from "./factory.js";

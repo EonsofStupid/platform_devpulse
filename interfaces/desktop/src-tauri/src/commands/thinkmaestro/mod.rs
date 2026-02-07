@@ -13,5 +13,6 @@
 //!
 //! @since 1.0.0
 
+/// Create a new thinking canvas session.
 #[tauri::command]
 pub fn create_canvas() {}

@@ -4,12 +4,12 @@
 	Contract: kind="alert", slot="root", ariaStateProvider="coldlight"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { AlertProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { AlertProps } from "./types.js";
 
-	let { children, class: className, ...rest }: AlertProps = $props();
+let { children, class: className, ...rest }: AlertProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "Alert");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "Alert");
 </script>
 
 <div

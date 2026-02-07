@@ -14,7 +14,7 @@
  * @since 1.0.0
  */
 
+export * from "./data";
 // Category exports (SSOT)
 export * from "./forms";
 export * from "./search";
-export * from "./data";

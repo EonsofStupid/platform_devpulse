@@ -2,11 +2,12 @@
  * @file ScrollArea Taxonomy Barrel
  * @description Re-exports scroll-area types + contract. Zero logic.
  */
+
+export { contract } from "./contract.js";
 export {
-	scrollAreaSlots,
-	scrollAreaStateTokens,
-	scrollAreaSlotStates,
 	type ScrollAreaSlot,
 	type ScrollAreaState,
+	scrollAreaSlotStates,
+	scrollAreaSlots,
+	scrollAreaStateTokens,
 } from "./types.js";
-export { contract } from "./contract.js";

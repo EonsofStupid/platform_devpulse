@@ -26,24 +26,24 @@
 // COMPONENTS
 // ============================================
 
-export { default as Root } from "./Root.svelte";
-export { default as List } from "./List.svelte";
-export { default as Trigger } from "./Trigger.svelte";
 export { default as Content } from "./Content.svelte";
+export { default as List } from "./List.svelte";
+export { default as Root } from "./Root.svelte";
+export { default as Trigger } from "./Trigger.svelte";
 
 // ============================================
 // TYPES
 // ============================================
 
 export type {
-	TabsRootProps,
-	TabsListProps,
-	TabsTriggerProps,
-	TabsContentProps,
-	TabsState,
-	TabsSlot,
-	TabsOrientation,
 	TabsActivationMode,
+	TabsContentProps,
+	TabsListProps,
+	TabsOrientation,
+	TabsRootProps,
+	TabsSlot,
+	TabsState,
+	TabsTriggerProps,
 } from "./types.js";
 
 export { TabsSlots } from "./types.js";

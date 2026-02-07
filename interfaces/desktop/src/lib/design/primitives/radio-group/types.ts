@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** RadioGroup root — container for exclusive radio items */
 export interface RadioGroupProps extends OmitStyle<HTMLDivElement>, BaseProps {

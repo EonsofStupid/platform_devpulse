@@ -4,14 +4,14 @@
 	Contract: kind="hover-card", slot="content", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { HoverCardContentProps } from "./types.js";
-	import { getHoverCardContext } from "./context.js";
+import { cn, stripStyleProp } from "../types.js";
+import { getHoverCardContext } from "./context.js";
+import type { HoverCardContentProps } from "./types.js";
 
-	let { children, class: className, ...rest }: HoverCardContentProps = $props();
-	const ctx = getHoverCardContext();
+let { children, class: className, ...rest }: HoverCardContentProps = $props();
+const ctx = getHoverCardContext();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "HoverCardContent");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "HoverCardContent");
 </script>
 
 <div

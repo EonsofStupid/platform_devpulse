@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** NavigationMenu root — navigation landmark container */
 export interface NavigationMenuProps extends OmitStyle<HTMLElement>, BaseProps {

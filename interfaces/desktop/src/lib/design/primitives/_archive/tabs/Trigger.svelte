@@ -17,20 +17,20 @@
   - data-value="{value}"
 -->
 <script lang="ts">
-	import { Tabs } from "meltui";
-	import type { TabsTriggerProps, TabsState } from "./types.js";
-	import { stripStyleProp, cn } from "../types.js";
+import { Tabs } from "meltui";
+import { cn, stripStyleProp } from "../types.js";
+import type { TabsState, TabsTriggerProps } from "./types.js";
 
-	let {
-		value,
-		disabled = false,
-		children,
-		class: className = "",
-		"data-id": dataId,
-		...rest
-	}: TabsTriggerProps = $props();
+let {
+	value,
+	disabled = false,
+	children,
+	class: className = "",
+	"data-id": dataId,
+	...rest
+}: TabsTriggerProps = $props();
 
-	stripStyleProp(rest, "Tabs.Trigger");
+stripStyleProp(rest, "Tabs.Trigger");
 </script>
 
 <Tabs.Trigger {value} {disabled} {...rest}>

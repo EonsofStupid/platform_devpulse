@@ -4,12 +4,13 @@
 	Contract: kind="dropdown-menu", slot="checkbox-item", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { DropdownMenuCheckboxItemProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { DropdownMenuCheckboxItemProps } from "./types.js";
 
-	let { children, class: className, ...rest }: DropdownMenuCheckboxItemProps = $props();
+let { children, class: className, ...rest }: DropdownMenuCheckboxItemProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "DropdownMenuCheckboxItem");
+if (import.meta.env?.DEV)
+	stripStyleProp(rest as Record<string, unknown>, "DropdownMenuCheckboxItem");
 </script>
 
 <div

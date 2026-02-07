@@ -10,24 +10,24 @@
   - data-orientation="horizontal" | "vertical"
 -->
 <script lang="ts">
-	import { Tabs } from "meltui";
-	import type { TabsRootProps, TabsOrientation } from "./types.js";
-	import { stripStyleProp, cn } from "../types.js";
+import { Tabs } from "meltui";
+import { cn, stripStyleProp } from "../types.js";
+import type { TabsOrientation, TabsRootProps } from "./types.js";
 
-	let {
-		value = $bindable(),
-		onValueChange,
-		orientation = "horizontal",
-		activationMode = "automatic",
-		loop = true,
-		disabled = false,
-		children,
-		class: className = "",
-		"data-id": dataId,
-		...rest
-	}: TabsRootProps = $props();
+let {
+	value = $bindable(),
+	onValueChange,
+	orientation = "horizontal",
+	activationMode = "automatic",
+	loop = true,
+	disabled = false,
+	children,
+	class: className = "",
+	"data-id": dataId,
+	...rest
+}: TabsRootProps = $props();
 
-	stripStyleProp(rest, "Tabs.Root");
+stripStyleProp(rest, "Tabs.Root");
 </script>
 
 <Tabs.Root

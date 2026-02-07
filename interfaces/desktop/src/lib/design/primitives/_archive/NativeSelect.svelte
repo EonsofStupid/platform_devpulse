@@ -6,51 +6,51 @@
   Exposes ref for form integration.
 -->
 <script lang="ts">
-  import type { Snippet } from "svelte";
-  import type { OmitStyle, BaseProps } from "./types.js";
-  import { stripStyleProp } from "./types.js";
+import type { Snippet } from "svelte";
+import type { BaseProps, OmitStyle } from "./types.js";
+import { stripStyleProp } from "./types.js";
 
-  interface Props extends OmitStyle<HTMLSelectElement>, BaseProps {
-    /** Selected value (bindable) */
-    value?: string;
-    /** ID of error/description element for aria-describedby */
-    describedBy?: string;
-    /** Invalid state */
-    invalid?: boolean;
-    /** Disabled state */
-    disabled?: boolean;
-    /** Select name */
-    name?: string;
-    /** Required field */
-    required?: boolean;
-    /** Option elements */
-    children?: Snippet;
-  }
+interface Props extends OmitStyle<HTMLSelectElement>, BaseProps {
+	/** Selected value (bindable) */
+	value?: string;
+	/** ID of error/description element for aria-describedby */
+	describedBy?: string;
+	/** Invalid state */
+	invalid?: boolean;
+	/** Disabled state */
+	disabled?: boolean;
+	/** Select name */
+	name?: string;
+	/** Required field */
+	required?: boolean;
+	/** Option elements */
+	children?: Snippet;
+}
 
-  let {
-    value = $bindable(""),
-    describedBy,
-    invalid = false,
-    disabled = false,
-    name,
-    required = false,
-    children,
-    class: className = "",
-    "data-id": id,
-    ...rest
-  }: Props = $props();
+let {
+	value = $bindable(""),
+	describedBy,
+	invalid = false,
+	disabled = false,
+	name,
+	required = false,
+	children,
+	class: className = "",
+	"data-id": id,
+	...rest
+}: Props = $props();
 
-  stripStyleProp(rest, "NativeSelect");
+stripStyleProp(rest, "NativeSelect");
 
-  let selectRef = $state<HTMLSelectElement>();
+let selectRef = $state<HTMLSelectElement>();
 
-  export function focus() {
-    selectRef?.focus();
-  }
+export function focus() {
+	selectRef?.focus();
+}
 
-  export function blur() {
-    selectRef?.blur();
-  }
+export function blur() {
+	selectRef?.blur();
+}
 </script>
 
 <select

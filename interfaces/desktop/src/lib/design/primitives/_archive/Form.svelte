@@ -8,52 +8,52 @@
   A11y Acceptance: Error summary linked via aria-describedby
 -->
 <script lang="ts">
-  import type { Snippet } from "svelte";
-  import type { OmitStyle, BaseProps } from "./types.js";
-  import { stripStyleProp } from "./types.js";
+import type { Snippet } from "svelte";
+import type { BaseProps, OmitStyle } from "./types.js";
+import { stripStyleProp } from "./types.js";
 
-  interface Props extends OmitStyle<HTMLFormElement>, BaseProps {
-    /** Form ID */
-    id?: string;
-    /** ID of error summary element */
-    errorSummaryId?: string;
-    /** Prevent default form submission */
-    preventDefault?: boolean;
-    /** Form content */
-    children?: Snippet;
-    /** Submit handler */
-    onSubmit?: (e: SubmitEvent) => void;
-  }
+interface Props extends OmitStyle<HTMLFormElement>, BaseProps {
+	/** Form ID */
+	id?: string;
+	/** ID of error summary element */
+	errorSummaryId?: string;
+	/** Prevent default form submission */
+	preventDefault?: boolean;
+	/** Form content */
+	children?: Snippet;
+	/** Submit handler */
+	onSubmit?: (e: SubmitEvent) => void;
+}
 
-  let {
-    id: formId,
-    errorSummaryId,
-    preventDefault = true,
-    children,
-    onSubmit,
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: Props = $props();
+let {
+	id: formId,
+	errorSummaryId,
+	preventDefault = true,
+	children,
+	onSubmit,
+	class: className = "",
+	"data-id": dataId,
+	...rest
+}: Props = $props();
 
-  stripStyleProp(rest, "Form");
+stripStyleProp(rest, "Form");
 
-  let formRef = $state<HTMLFormElement>();
+let formRef = $state<HTMLFormElement>();
 
-  function handleSubmit(e: SubmitEvent) {
-    if (preventDefault) {
-      e.preventDefault();
-    }
-    onSubmit?.(e);
-  }
+function handleSubmit(e: SubmitEvent) {
+	if (preventDefault) {
+		e.preventDefault();
+	}
+	onSubmit?.(e);
+}
 
-  export function submit() {
-    formRef?.requestSubmit();
-  }
+export function submit() {
+	formRef?.requestSubmit();
+}
 
-  export function reset() {
-    formRef?.reset();
-  }
+export function reset() {
+	formRef?.reset();
+}
 </script>
 
 <form

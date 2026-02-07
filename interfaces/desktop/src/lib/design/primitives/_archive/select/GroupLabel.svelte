@@ -9,18 +9,18 @@
   - data-slot="group-label"
 -->
 <script lang="ts">
-  import { Select } from "meltui";
-  import type { SelectGroupLabelProps } from "./types.js";
-  import { stripStyleProp } from "../types.js";
+import { Select } from "meltui";
+import { stripStyleProp } from "../types.js";
+import type { SelectGroupLabelProps } from "./types.js";
 
-  let {
-    children,
-    class: className = "",
-    "data-id": dataId,
-    ...rest
-  }: SelectGroupLabelProps = $props();
+let {
+	children,
+	class: className = "",
+	"data-id": dataId,
+	...rest
+}: SelectGroupLabelProps = $props();
 
-  stripStyleProp(rest, "Select.GroupLabel");
+stripStyleProp(rest, "Select.GroupLabel");
 </script>
 
 <Select.GroupHeading

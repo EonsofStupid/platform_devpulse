@@ -4,14 +4,14 @@
 	Contract: kind="menubar", slot="content"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { MenubarContentProps } from "./types.js";
-	import { getMenubarMenuContext } from "./context.js";
+import { cn, stripStyleProp } from "../types.js";
+import { getMenubarMenuContext } from "./context.js";
+import type { MenubarContentProps } from "./types.js";
 
-	let { children, class: className, ...rest }: MenubarContentProps = $props();
-	const ctx = getMenubarMenuContext();
+let { children, class: className, ...rest }: MenubarContentProps = $props();
+const ctx = getMenubarMenuContext();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "MenubarContent");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "MenubarContent");
 </script>
 
 <div

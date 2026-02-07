@@ -4,23 +4,17 @@
   "description": "DevPulse Enterprise Documentation Policy - Requirements Matrix",
   "targetPath": "interfaces/desktop/src",
   "rules": {
-    "thin-routes": {
-      "description": "Routes must be adapters only - no feature logic",
-      "tier": 1,
-      "scope": ["routes/**/*.svelte", "routes/**/*.ts"],
-      "enforcement": "error",
-      "autofix": false
-    },
     "domain-boundaries": {
-      "description": "Routes import only from domain index.ts or pages/",
+      "description": "Routes import from domain index.ts or features/",
       "tier": 1,
       "scope": ["routes/**/*.svelte", "routes/**/*.ts"],
       "enforcement": "error",
       "autofix": false,
       "allowedImports": [
         "$lib/domains/{ns}/{domain}/index.ts",
-        "$lib/domains/{ns}/{domain}/pages/",
+        "$lib/domains/{ns}/{domain}/features/",
         "$lib/sys/",
+        "$lib/design/",
         "$app/",
         "svelte/"
       ]
@@ -32,24 +26,17 @@
       "enforcement": "error",
       "autofix": false,
       "allowlist": [
-        "lib/sys/generated/"
+        "lib/sys/generated/",
+        "+error.svelte"
       ]
-    },
-    "state-vs-streams": {
-      "description": "State in *.state.svelte.ts, streams in sys/streams/",
-      "tier": 1,
-      "scope": ["lib/**/*.ts", "lib/**/*.svelte.ts"],
-      "enforcement": "error",
-      "autofix": false
     },
     "naming-conventions": {
       "description": "Enforce naming patterns per file type",
-      "tier": 2,
+      "tier": 3,
       "scope": ["lib/**/*"],
       "enforcement": "warning",
       "autofix": true,
       "patterns": {
-        "pages": "*.page.svelte",
         "state": "*.state.svelte.ts",
         "services": "*.svc.ts",
         "contracts": "*.contract.ts",
@@ -60,8 +47,7 @@
   "kindMatrix": {
     "route": {
       "lifecycle": ["load", "action", "render"],
-      "requiredDocs": ["@description"],
-      "forbiddenPatterns": ["useState", "createStore", "writable"]
+      "requiredDocs": ["@description"]
     },
     "domain": {
       "lifecycle": ["init", "ready", "destroy"],
@@ -72,7 +58,6 @@
       "lifecycle": ["mount", "update", "destroy"],
       "requiredDocs": ["@description", "@props"],
       "patterns": {
-        "page": "*.page.svelte",
         "feature": "*.svelte"
       }
     },

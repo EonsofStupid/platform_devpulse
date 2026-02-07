@@ -4,12 +4,12 @@
 	Contract: kind="scroll-area", slot="thumb"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { ScrollAreaThumbProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { ScrollAreaThumbProps } from "./types.js";
 
-	let { children, class: className, ...rest }: ScrollAreaThumbProps = $props();
+let { children, class: className, ...rest }: ScrollAreaThumbProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ScrollAreaThumb");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "ScrollAreaThumb");
 </script>
 
 <div

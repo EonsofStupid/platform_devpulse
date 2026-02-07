@@ -4,7 +4,10 @@
  * Maps melt v0.44 Combobox API → ColdLight vocabulary.
  */
 
-import type { SlotAttrs, TransportAdapter } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
+import type {
+	SlotAttrs,
+	TransportAdapter,
+} from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
 
 export interface ComboboxTransportStates<T> {
 	open: boolean;

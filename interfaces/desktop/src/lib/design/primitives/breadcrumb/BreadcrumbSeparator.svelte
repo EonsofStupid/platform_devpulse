@@ -4,12 +4,12 @@
 	Contract: kind="breadcrumb", slot="separator", ariaStateProvider="coldlight"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { BreadcrumbSeparatorProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { BreadcrumbSeparatorProps } from "./types.js";
 
-	let { children, class: className, ...rest }: BreadcrumbSeparatorProps = $props();
+let { children, class: className, ...rest }: BreadcrumbSeparatorProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "BreadcrumbSeparator");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "BreadcrumbSeparator");
 </script>
 
 <span

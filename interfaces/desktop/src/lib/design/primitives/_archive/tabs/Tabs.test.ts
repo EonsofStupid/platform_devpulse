@@ -13,7 +13,7 @@
  * - State management (active/inactive)
  */
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { render } from "vitest-browser-svelte";
 import TabsTest from "./Tabs.test.svelte";

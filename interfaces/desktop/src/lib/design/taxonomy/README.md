@@ -1,4 +1,4 @@
-﻿# Taxonomy
+# Taxonomy
 
 > **The SSOT backbone. All contracts live here.**
 

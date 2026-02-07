@@ -1,10 +1,10 @@
 <script lang="ts">
-	import type { DialogTriggerProps } from "./types.js";
-	import { getDialogComponentContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getDialogComponentContext } from "./context.js";
+import type { DialogTriggerProps } from "./types.js";
 
-	let { children, class: className, ...rest }: DialogTriggerProps = $props();
-	const { transport, classes } = getDialogComponentContext();
+let { children, class: className, ...rest }: DialogTriggerProps = $props();
+const { transport, classes } = getDialogComponentContext();
 </script>
 
 <button

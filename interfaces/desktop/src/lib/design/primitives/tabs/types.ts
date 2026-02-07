@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** Tabs root — container and context provider */
 export interface TabsProps extends OmitStyle<HTMLDivElement>, BaseProps {

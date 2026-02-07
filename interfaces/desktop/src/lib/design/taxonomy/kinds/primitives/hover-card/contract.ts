@@ -2,23 +2,19 @@
  * @file HoverCard Taxonomy Contract
  * @description ColdLight SSOT contract for the hover-card primitive.
  *
- * ariaStateProvider: "meltui" — createLinkPreview provides hover timing, positioning, and dismiss behavior.
+ * ariaStateProvider: "coldlight" — createLinkPreview provides hover timing, positioning, and dismiss behavior.
  * 2-folder parity: taxonomy + primitive.
  *
  * Supplementary content card shown on hover/focus of a trigger element.
  * Content is non-essential — the trigger (typically a link) remains accessible without it.
- * No specific WAI-ARIA widget role; uses generic tooltip-like pattern.
  */
 
-import type { PrimitiveContract } from "../../../types.js";
-import { hoverCardSlotStates, type HoverCardSlot, type HoverCardState } from "./types.js";
+import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { hoverCardSlotStates } from "./types.js";
 
-// ─── CONTRACT ───────────────────────────────────────────────────────────────
-
-/** HoverCard primitive contract — ColdLight SSOT */
-export const contract: PrimitiveContract<"hover-card", HoverCardSlot, HoverCardState> = {
+const rawContract = {
 	kind: "hover-card",
-	ariaStateProvider: "meltui",
+	ariaStateProvider: "coldlight",
 	slots: { required: ["root", "trigger", "content"], optional: ["arrow"], forbidden: [] },
 	slotSpec: {
 		root: {
@@ -54,7 +50,18 @@ export const contract: PrimitiveContract<"hover-card", HoverCardSlot, HoverCardS
 		optionalAttrs: ["aria-haspopup", "aria-expanded", "aria-label"],
 	},
 	keyboard: ["Escape"],
+	keyboardMap: [
+		{
+			orientation: "both",
+			focusLocation: "trigger",
+			key: "Escape",
+			action: "close",
+			required: true,
+		},
+	],
 	focusStrategy: "redirect",
 	compound: true,
 	dismissBehavior: { escape: true, outsideClick: true },
-};
+} as const;
+
+export const contract: PrimitiveContract = parseContract(rawContract);

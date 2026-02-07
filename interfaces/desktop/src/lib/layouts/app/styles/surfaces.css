@@ -13,14 +13,15 @@
    ============================================ */
 
 [data-slot="topbar"] {
-  background: var(--dp-glass-void, oklch(6% 0.02 195 / 0.92));
-  backdrop-filter: blur(var(--dp-blur-lg, 24px));
-  border-bottom: var(--dp-border-thin, 1px) solid var(--dp-glass-btn-border, oklch(50% 0.10 195 / 0.3));
+	background: var(--dp-glass-void, oklch(6% 0.02 195 / 0.92));
+	backdrop-filter: blur(var(--dp-blur-lg, 24px));
+	border-bottom: var(--dp-border-thin, 1px) solid
+		var(--dp-glass-btn-border, oklch(50% 0.1 195 / 0.3));
 
-  /* Bevel imprint - top edge highlight */
-  box-shadow:
-    inset 0 1px 0 var(--dp-bevel-light, oklch(80% 0.06 195 / 0.3)),
-    var(--dp-shadow-z1, 0 1px 4px oklch(5% 0.02 280 / 0.2));
+	/* Bevel imprint - top edge highlight */
+	box-shadow:
+		inset 0 1px 0 var(--dp-bevel-light, oklch(80% 0.06 195 / 0.3)),
+		var(--dp-shadow-z1, 0 1px 4px oklch(5% 0.02 280 / 0.2));
 }
 
 /* ============================================
@@ -28,18 +29,19 @@
    ============================================ */
 
 [data-slot="sidebar"] {
-  background: var(--dp-glass-deep, oklch(10% 0.04 195 / 0.88));
-  backdrop-filter: blur(var(--dp-blur-md, 16px));
-  border-right: var(--dp-border-thin, 1px) solid var(--dp-glass-btn-border, oklch(50% 0.10 195 / 0.3));
+	background: var(--dp-glass-deep, oklch(10% 0.04 195 / 0.88));
+	backdrop-filter: blur(var(--dp-blur-md, 16px));
+	border-right: var(--dp-border-thin, 1px) solid
+		var(--dp-glass-btn-border, oklch(50% 0.1 195 / 0.3));
 
-  box-shadow:
-    inset -1px 0 0 var(--dp-bevel-light, oklch(80% 0.06 195 / 0.3)),
-    var(--dp-shadow-z2, 0 4px 12px oklch(5% 0.02 280 / 0.35));
+	box-shadow:
+		inset -1px 0 0 var(--dp-bevel-light, oklch(80% 0.06 195 / 0.3)),
+		var(--dp-shadow-z2, 0 4px 12px oklch(5% 0.02 280 / 0.35));
 }
 
 /* Sidebar expanded state */
 [data-slot="sidebar"][data-expanded="true"] {
-  background: var(--dp-glass-smoke, oklch(15% 0.03 200 / 0.82));
+	background: var(--dp-glass-smoke, oklch(15% 0.03 200 / 0.82));
 }
 
 /* ============================================
@@ -47,13 +49,13 @@
    ============================================ */
 
 [data-slot="content"] {
-  background: var(--dp-surface-1, oklch(6% 0.02 195 / 0.95));
-  border-radius: var(--dp-radius-sm, 4px);
+	background: var(--dp-surface-1, oklch(6% 0.02 195 / 0.95));
+	border-radius: var(--dp-radius-sm, 4px);
 
-  /* Subtle inset for depth */
-  box-shadow:
-    inset 0 1px 2px var(--dp-inset-dark, oklch(5% 0.02 200 / 0.6)),
-    inset 0 0 4px var(--dp-inset-dark, oklch(5% 0.02 200 / 0.6));
+	/* Subtle inset for depth */
+	box-shadow:
+		inset 0 1px 2px var(--dp-inset-dark, oklch(5% 0.02 200 / 0.6)),
+		inset 0 0 4px var(--dp-inset-dark, oklch(5% 0.02 200 / 0.6));
 }
 
 /* ============================================
@@ -61,13 +63,13 @@
    ============================================ */
 
 [data-slot="statusbar"] {
-  background: var(--dp-glass-void, oklch(6% 0.02 195 / 0.92));
-  backdrop-filter: blur(var(--dp-blur-md, 16px));
-  border-top: var(--dp-border-thin, 1px) solid var(--dp-glass-btn-border, oklch(50% 0.10 195 / 0.3));
+	background: var(--dp-glass-void, oklch(6% 0.02 195 / 0.92));
+	backdrop-filter: blur(var(--dp-blur-md, 16px));
+	border-top: var(--dp-border-thin, 1px) solid var(--dp-glass-btn-border, oklch(50% 0.1 195 / 0.3));
 
-  box-shadow:
-    inset 0 1px 0 var(--dp-bevel-dark, oklch(15% 0.04 280 / 0.5)),
-    0 -1px 4px var(--dp-inset-dark, oklch(5% 0.02 200 / 0.6));
+	box-shadow:
+		inset 0 1px 0 var(--dp-bevel-dark, oklch(15% 0.04 280 / 0.5)),
+		0 -1px 4px var(--dp-inset-dark, oklch(5% 0.02 200 / 0.6));
 }
 
 /* ============================================
@@ -76,45 +78,45 @@
 
 [data-slot="sidebar"] button,
 [data-slot="topbar"] button {
-  background: var(--dp-glass-smoke, oklch(15% 0.03 200 / 0.82));
-  border: var(--dp-border-thin, 1px) solid var(--dp-glass-btn-border, oklch(50% 0.10 195 / 0.3));
-  border-radius: var(--dp-radius-md, 6px);
-  padding: var(--dp-space-2, 4px);
+	background: var(--dp-glass-smoke, oklch(15% 0.03 200 / 0.82));
+	border: var(--dp-border-thin, 1px) solid var(--dp-glass-btn-border, oklch(50% 0.1 195 / 0.3));
+	border-radius: var(--dp-radius-md, 6px);
+	padding: var(--dp-space-2, 4px);
 
-  box-shadow:
-    inset 1px 1px 0 var(--dp-bevel-light, oklch(80% 0.06 195 / 0.3)),
-    inset -1px -1px 0 var(--dp-bevel-dark, oklch(15% 0.04 280 / 0.5));
+	box-shadow:
+		inset 1px 1px 0 var(--dp-bevel-light, oklch(80% 0.06 195 / 0.3)),
+		inset -1px -1px 0 var(--dp-bevel-dark, oklch(15% 0.04 280 / 0.5));
 
-  transition: all var(--dp-transition-fast, 150ms cubic-bezier(0.16, 1, 0.3, 1));
-  cursor: pointer;
+	transition: all var(--dp-transition-fast, 150ms cubic-bezier(0.16, 1, 0.3, 1));
+	cursor: pointer;
 }
 
 [data-slot="sidebar"] button:hover,
 [data-slot="topbar"] button:hover {
-  background: var(--dp-glass-btn-bg-hover, oklch(20% 0.05 195 / 0.7));
-  border-color: var(--dp-glass-btn-border-hover, oklch(60% 0.15 195 / 0.5));
-  box-shadow:
-    inset 1px 1px 0 var(--dp-bevel-light, oklch(80% 0.06 195 / 0.3)),
-    0 0 12px var(--dp-glass-btn-glow-hover, oklch(60% 0.15 195 / 0.3));
-  transform: translateY(-1px);
+	background: var(--dp-glass-btn-bg-hover, oklch(20% 0.05 195 / 0.7));
+	border-color: var(--dp-glass-btn-border-hover, oklch(60% 0.15 195 / 0.5));
+	box-shadow:
+		inset 1px 1px 0 var(--dp-bevel-light, oklch(80% 0.06 195 / 0.3)),
+		0 0 12px var(--dp-glass-btn-glow-hover, oklch(60% 0.15 195 / 0.3));
+	transform: translateY(-1px);
 }
 
 [data-slot="sidebar"] button:active,
 [data-slot="topbar"] button:active {
-  transform: translateY(0);
-  box-shadow:
-    inset 2px 2px 4px var(--dp-inset-dark, oklch(5% 0.02 200 / 0.6)),
-    inset -1px -1px 2px var(--dp-inset-light, oklch(25% 0.03 200 / 0.3));
+	transform: translateY(0);
+	box-shadow:
+		inset 2px 2px 4px var(--dp-inset-dark, oklch(5% 0.02 200 / 0.6)),
+		inset -1px -1px 2px var(--dp-inset-light, oklch(25% 0.03 200 / 0.3));
 }
 
 /* Active/selected button */
 [data-slot="sidebar"] button[data-active="true"],
 [data-slot="topbar"] button[data-active="true"] {
-  background: var(--dp-glass-frost, oklch(25% 0.02 210 / 0.75));
-  border-color: var(--dp-teal-500, oklch(55% 0.18 195));
-  box-shadow:
-    0 0 16px var(--dp-glass-btn-glow-hover, oklch(60% 0.15 195 / 0.3)),
-    inset 0 1px 0 var(--dp-bevel-light-strong, oklch(90% 0.08 195 / 0.5));
+	background: var(--dp-glass-frost, oklch(25% 0.02 210 / 0.75));
+	border-color: var(--dp-teal-500, oklch(55% 0.18 195));
+	box-shadow:
+		0 0 16px var(--dp-glass-btn-glow-hover, oklch(60% 0.15 195 / 0.3)),
+		inset 0 1px 0 var(--dp-bevel-light-strong, oklch(90% 0.08 195 / 0.5));
 }
 
 /* ============================================
@@ -122,25 +124,25 @@
    ============================================ */
 
 [data-status="online"] {
-  color: var(--dp-teal-400, oklch(65% 0.16 195));
+	color: var(--dp-teal-400, oklch(65% 0.16 195));
 }
 
 [data-status="offline"] {
-  color: var(--dp-ember-500, oklch(60% 0.22 35));
+	color: var(--dp-ember-500, oklch(60% 0.22 35));
 }
 
 [data-status="hybrid"] {
-  color: var(--dp-purple-400, oklch(65% 0.20 280));
+	color: var(--dp-purple-400, oklch(65% 0.2 280));
 }
 
 /* Status dot indicator */
 [data-status]::before {
-  content: "";
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-right: var(--dp-space-2, 4px);
-  background: currentColor;
-  box-shadow: 0 0 8px currentColor;
+	content: "";
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	margin-right: var(--dp-space-2, 4px);
+	background: currentColor;
+	box-shadow: 0 0 8px currentColor;
 }

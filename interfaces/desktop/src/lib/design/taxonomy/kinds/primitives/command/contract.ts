@@ -5,18 +5,18 @@
  * ariaStateProvider: "coldlight" — native combobox/listbox pattern with activedescendant focus.
  * 2-folder parity: taxonomy + primitive.
  *
+ * Reference: W3C WAI-ARIA APG Combobox Pattern
+ * https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
+ *
  * WAI-ARIA: role="combobox" root with searchbox input and listbox results.
  * Activedescendant focus for keyboard navigation through filtered items.
  * Supports grouping, empty state, and separator slots.
  */
 
-import type { PrimitiveContract } from "../../../types.js";
-import { commandSlotStates, type CommandSlot, type CommandState } from "./types.js";
+import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { commandSlotStates } from "./types.js";
 
-// ─── CONTRACT ───────────────────────────────────────────────────────────────
-
-/** Command primitive contract — ColdLight SSOT */
-export const contract: PrimitiveContract<"command", CommandSlot, CommandState> = {
+const rawContract = {
 	kind: "command",
 	ariaStateProvider: "coldlight",
 	slots: {
@@ -28,12 +28,20 @@ export const contract: PrimitiveContract<"command", CommandSlot, CommandState> =
 		root: {
 			element: "div",
 			children: "snippet",
-			aria: { role: "combobox", required: ["aria-expanded"], optional: ["aria-label", "aria-haspopup"] },
+			aria: {
+				role: "combobox",
+				required: ["aria-expanded"],
+				optional: ["aria-label", "aria-haspopup"],
+			},
 		},
 		input: {
 			element: "input",
 			children: "self-closing",
-			aria: { role: "searchbox", required: [], optional: ["aria-label", "aria-autocomplete", "aria-controls", "aria-activedescendant"] },
+			aria: {
+				role: "searchbox",
+				required: [],
+				optional: ["aria-label", "aria-autocomplete", "aria-controls", "aria-activedescendant"],
+			},
 		},
 		list: {
 			element: "div",
@@ -48,7 +56,11 @@ export const contract: PrimitiveContract<"command", CommandSlot, CommandState> =
 		item: {
 			element: "div",
 			children: "snippet",
-			aria: { role: "option", required: [], optional: ["aria-label", "aria-disabled", "aria-selected"] },
+			aria: {
+				role: "option",
+				required: [],
+				optional: ["aria-label", "aria-disabled", "aria-selected"],
+			},
 		},
 		empty: {
 			element: "div",
@@ -61,6 +73,15 @@ export const contract: PrimitiveContract<"command", CommandSlot, CommandState> =
 			aria: { role: "separator", required: [], optional: [] },
 		},
 	},
+	slotRelationships: [
+		{ sourceSlot: "input", attribute: "aria-controls", targetSlot: "list", required: true },
+		{
+			sourceSlot: "input",
+			attribute: "aria-activedescendant",
+			targetSlot: "item",
+			required: false,
+		},
+	],
 	states: {
 		shared: ["hover", "active", "focused", "focus-visible", "disabled"],
 		specific: ["selected"],
@@ -68,7 +89,7 @@ export const contract: PrimitiveContract<"command", CommandSlot, CommandState> =
 	slotStates: commandSlotStates,
 	slotActions: {
 		root: [],
-		input: [],
+		input: ["filter", "clear"],
 		list: [],
 		group: [],
 		item: ["select"],
@@ -78,9 +99,60 @@ export const contract: PrimitiveContract<"command", CommandSlot, CommandState> =
 	aria: {
 		role: "combobox",
 		requiredAttrs: ["aria-expanded"],
-		optionalAttrs: ["aria-label", "aria-haspopup", "aria-autocomplete", "aria-controls", "aria-activedescendant", "aria-selected", "aria-disabled"],
+		optionalAttrs: [
+			"aria-label",
+			"aria-haspopup",
+			"aria-autocomplete",
+			"aria-controls",
+			"aria-activedescendant",
+			"aria-selected",
+			"aria-disabled",
+		],
 	},
 	keyboard: ["ArrowUp", "ArrowDown", "Enter", "Escape", "Home", "End"],
+	keyboardMap: [
+		{
+			orientation: "vertical",
+			focusLocation: "input",
+			key: "ArrowDown",
+			action: "next-item",
+			required: true,
+		},
+		{
+			orientation: "vertical",
+			focusLocation: "input",
+			key: "ArrowUp",
+			action: "prev-item",
+			required: true,
+		},
+		{ orientation: "both", focusLocation: "input", key: "Enter", action: "select", required: true },
+		{ orientation: "both", focusLocation: "input", key: "Escape", action: "close", required: true },
+		{
+			orientation: "both",
+			focusLocation: "input",
+			key: "Home",
+			action: "first-item",
+			required: false,
+		},
+		{
+			orientation: "both",
+			focusLocation: "input",
+			key: "End",
+			action: "last-item",
+			required: false,
+		},
+	],
 	focusStrategy: "activedescendant",
+	focus: {
+		strategy: "activedescendant",
+		wrapAround: true,
+	},
 	compound: true,
-};
+	filtering: {
+		enabled: true,
+		mode: "contains",
+		typeahead: true,
+	},
+} as const;
+
+export const contract: PrimitiveContract = parseContract(rawContract);

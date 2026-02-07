@@ -7,7 +7,7 @@
  * ariaStateProvider: "meltui" — createPagination provides ARIA roles and keyboard nav.
  */
 
-import type { StateToken, SlotStateMap } from "../../../types.js";
+import type { SlotStateMap, StateToken } from "../../../types.js";
 
 // ─── SLOT TYPES ─────────────────────────────────────────────────────────────
 

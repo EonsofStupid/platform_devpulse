@@ -1,4 +1,4 @@
-﻿# Contract System
+# Contract System
 
 > **One contract per kind. Taxonomy is truth.**
 

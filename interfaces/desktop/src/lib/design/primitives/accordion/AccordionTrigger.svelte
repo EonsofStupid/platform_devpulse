@@ -4,14 +4,14 @@
 	Contract: kind="accordion", slot="trigger"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { AccordionTriggerProps } from "./types.js";
-	import { getAccordionItemContext } from "./context.js";
+import { cn, stripStyleProp } from "../types.js";
+import { getAccordionItemContext } from "./context.js";
+import type { AccordionTriggerProps } from "./types.js";
 
-	let { children, class: className, ...rest }: AccordionTriggerProps = $props();
-	const ctx = getAccordionItemContext();
+let { children, class: className, ...rest }: AccordionTriggerProps = $props();
+const ctx = getAccordionItemContext();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "AccordionTrigger");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "AccordionTrigger");
 </script>
 
 <button

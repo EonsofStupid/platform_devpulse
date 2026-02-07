@@ -4,12 +4,12 @@
 	Contract: kind="card", slot="description", ariaStateProvider="coldlight"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { CardDescriptionProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { CardDescriptionProps } from "./types.js";
 
-	let { children, class: className, ...rest }: CardDescriptionProps = $props();
+let { children, class: className, ...rest }: CardDescriptionProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "CardDescription");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "CardDescription");
 </script>
 
 <p

@@ -4,16 +4,16 @@
 	Contract: kind="hover-card", slot="root", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import type { HoverCardProps } from "./types.js";
-	import { setHoverCardContext } from "./context.js";
+import { setHoverCardContext } from "./context.js";
+import type { HoverCardProps } from "./types.js";
 
-	let { open = $bindable(false), children }: HoverCardProps = $props();
+let { open = $bindable(false), children }: HoverCardProps = $props();
 
-	setHoverCardContext({
-		get open() {
-			return open;
-		},
-	});
+setHoverCardContext({
+	get open() {
+		return open;
+	},
+});
 </script>
 
 {@render children?.()}

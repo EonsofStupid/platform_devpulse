@@ -6,57 +6,57 @@
   Exposes ref for form integration.
 -->
 <script lang="ts">
-  import type { OmitStyle, BaseProps } from "./types.js";
-  import { stripStyleProp } from "./types.js";
+import type { BaseProps, OmitStyle } from "./types.js";
+import { stripStyleProp } from "./types.js";
 
-  interface Props extends OmitStyle<HTMLInputElement>, BaseProps {
-    /** Input value (bindable) */
-    value?: string;
-    /** ID of error/description element for aria-describedby */
-    describedBy?: string;
-    /** Invalid state */
-    invalid?: boolean;
-    /** Disabled state */
-    disabled?: boolean;
-    /** Readonly state */
-    readonly?: boolean;
-    /** Placeholder text */
-    placeholder?: string;
-    /** Input name */
-    name?: string;
-    /** Required field */
-    required?: boolean;
-  }
+interface Props extends OmitStyle<HTMLInputElement>, BaseProps {
+	/** Input value (bindable) */
+	value?: string;
+	/** ID of error/description element for aria-describedby */
+	describedBy?: string;
+	/** Invalid state */
+	invalid?: boolean;
+	/** Disabled state */
+	disabled?: boolean;
+	/** Readonly state */
+	readonly?: boolean;
+	/** Placeholder text */
+	placeholder?: string;
+	/** Input name */
+	name?: string;
+	/** Required field */
+	required?: boolean;
+}
 
-  let {
-    value = $bindable(""),
-    describedBy,
-    invalid = false,
-    disabled = false,
-    readonly = false,
-    placeholder,
-    name,
-    required = false,
-    class: className = "",
-    "data-id": id,
-    ...rest
-  }: Props = $props();
+let {
+	value = $bindable(""),
+	describedBy,
+	invalid = false,
+	disabled = false,
+	readonly = false,
+	placeholder,
+	name,
+	required = false,
+	class: className = "",
+	"data-id": id,
+	...rest
+}: Props = $props();
 
-  stripStyleProp(rest, "InputText");
+stripStyleProp(rest, "InputText");
 
-  let inputRef = $state<HTMLInputElement>();
+let inputRef = $state<HTMLInputElement>();
 
-  export function focus() {
-    inputRef?.focus();
-  }
+export function focus() {
+	inputRef?.focus();
+}
 
-  export function blur() {
-    inputRef?.blur();
-  }
+export function blur() {
+	inputRef?.blur();
+}
 
-  export function select() {
-    inputRef?.select();
-  }
+export function select() {
+	inputRef?.select();
+}
 </script>
 
 <input

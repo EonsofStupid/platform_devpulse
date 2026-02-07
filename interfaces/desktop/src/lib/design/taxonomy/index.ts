@@ -9,22 +9,19 @@
  * - Registry (runtime manifest access)
  */
 
-// Core types
-export * from "./types";
-
 // Primitive contracts
 export * from "./kinds";
-
-// Build-time scanner
-export { scanColdLight, scanPrimitiveKinds, scanPrimitive } from "./scanner";
-export type { FsLike, ImportLike } from "./scanner";
-
 // Runtime registry
 export {
-  getManifest,
-  getDsAdapter,
-  getPrimitiveKinds,
-  hasPrimitiveKind,
-  getPrimitive,
-  getPrimitiveOrUndefined,
+	getDsAdapter,
+	getManifest,
+	getPrimitive,
+	getPrimitiveKinds,
+	getPrimitiveOrUndefined,
+	hasPrimitiveKind,
 } from "./registry";
+export type { FsLike, ImportLike } from "./scanner";
+// Build-time scanner
+export { scanColdLight, scanPrimitive, scanPrimitiveKinds } from "./scanner";
+// Core types
+export * from "./types";

@@ -4,12 +4,12 @@
 	Contract: kind="navigation-menu", slot="link", ariaStateProvider="coldlight"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { NavigationMenuLinkProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { NavigationMenuLinkProps } from "./types.js";
 
-	let { children, class: className, ...rest }: NavigationMenuLinkProps = $props();
+let { children, class: className, ...rest }: NavigationMenuLinkProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "NavigationMenuLink");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "NavigationMenuLink");
 </script>
 
 <a

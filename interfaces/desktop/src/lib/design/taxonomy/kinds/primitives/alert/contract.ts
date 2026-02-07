@@ -5,18 +5,17 @@
  * ariaStateProvider: "coldlight" — native live region, direct ARIA application.
  * 2-folder parity: taxonomy + primitive.
  *
+ * Reference: W3C WAI-ARIA APG Alert Pattern
+ * https://www.w3.org/WAI/ARIA/apg/patterns/alert/
+ *
  * WAI-ARIA: role="alert" is an assertive live region.
  * Implicit aria-live="assertive", aria-atomic="true".
- * No focus management. For dynamic content only.
  */
 
-import type { PrimitiveContract } from "../../../types.js";
-import { alertSlotStates, type AlertSlot, type AlertState } from "./types.js";
+import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { alertSlotStates } from "./types.js";
 
-// ─── CONTRACT ───────────────────────────────────────────────────────────────
-
-/** Alert primitive contract — ColdLight SSOT */
-export const contract: PrimitiveContract<"alert", AlertSlot, AlertState> = {
+const rawContract = {
 	kind: "alert",
 	ariaStateProvider: "coldlight",
 	slots: {
@@ -28,7 +27,11 @@ export const contract: PrimitiveContract<"alert", AlertSlot, AlertState> = {
 		root: {
 			element: "div",
 			children: "snippet",
-			aria: { role: "alert", required: [], optional: ["aria-live", "aria-atomic", "aria-label", "aria-labelledby", "aria-describedby"] },
+			aria: {
+				role: "alert",
+				required: [],
+				optional: ["aria-live", "aria-atomic", "aria-label", "aria-labelledby", "aria-describedby"],
+			},
 		},
 		title: {
 			element: "h5",
@@ -59,6 +62,11 @@ export const contract: PrimitiveContract<"alert", AlertSlot, AlertState> = {
 		],
 	},
 	keyboard: ["Escape"],
+	keyboardMap: [
+		{ orientation: "both", focusLocation: "root", key: "Escape", action: "close", required: false },
+	],
 	focusStrategy: "none",
 	compound: false,
-};
+} as const;
+
+export const contract: PrimitiveContract = parseContract(rawContract);

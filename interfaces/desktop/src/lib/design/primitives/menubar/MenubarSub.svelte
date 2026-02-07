@@ -4,9 +4,9 @@
 	Contract: kind="menubar", slot="sub"
 -->
 <script lang="ts">
-	import type { MenubarSubProps } from "./types.js";
+import type { MenubarSubProps } from "./types.js";
 
-	let { children }: MenubarSubProps = $props();
+let { children }: MenubarSubProps = $props();
 </script>
 
 {@render children?.()}

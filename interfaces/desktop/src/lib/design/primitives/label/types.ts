@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** Label root — structural shell for form label */
 export interface LabelProps extends OmitStyle<HTMLLabelElement>, BaseProps {

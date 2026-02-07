@@ -7,7 +7,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { OmitStyle, BaseProps } from "../types.js";
+import type { BaseProps, OmitStyle } from "../types.js";
 
 /** Progress root — track container for the progress bar */
 export interface ProgressProps extends OmitStyle<HTMLDivElement>, BaseProps {

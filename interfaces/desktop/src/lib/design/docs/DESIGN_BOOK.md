@@ -1,4 +1,4 @@
-﻿# ColdLight Design Book
+# ColdLight Design Book
 
 > **The canonical specification for ColdLight design system.**
 >

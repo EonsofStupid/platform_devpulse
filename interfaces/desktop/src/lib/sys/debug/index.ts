@@ -23,8 +23,7 @@
  * Feature-gated via DEBUG_FLAG.
  */
 
-export { __DEV__, isDev } from './DEBUG_FLAG';
-
+export { __DEV__, isDev } from "./DEBUG_FLAG";
+export type { DropEffect, ElementInfo, VPBMode } from "./vpb";
 // VPB (Visual Page Builder)
-export { VPB, vpb, dnd, scan } from './vpb';
-export type { VPBMode, DropEffect, ElementInfo } from './vpb';
+export { dnd, scan, VPB, vpb } from "./vpb";

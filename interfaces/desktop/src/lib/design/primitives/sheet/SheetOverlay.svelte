@@ -4,12 +4,12 @@
 	Contract: kind="sheet", slot="overlay"
 -->
 <script lang="ts">
-	import { cn, stripStyleProp } from "../types.js";
-	import type { SheetOverlayProps } from "./types.js";
+import { cn, stripStyleProp } from "../types.js";
+import type { SheetOverlayProps } from "./types.js";
 
-	let { children, class: className, ...rest }: SheetOverlayProps = $props();
+let { children, class: className, ...rest }: SheetOverlayProps = $props();
 
-	if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SheetOverlay");
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "SheetOverlay");
 </script>
 
 <div

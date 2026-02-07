@@ -4,16 +4,16 @@
 	Contract: kind="dropdown-menu", slot="root", ariaStateProvider="meltui"
 -->
 <script lang="ts">
-	import type { DropdownMenuProps } from "./types.js";
-	import { setDropdownMenuContext } from "./context.js";
+import { setDropdownMenuContext } from "./context.js";
+import type { DropdownMenuProps } from "./types.js";
 
-	let { open = $bindable(false), children }: DropdownMenuProps = $props();
+let { open = $bindable(false), children }: DropdownMenuProps = $props();
 
-	setDropdownMenuContext({
-		get open() {
-			return open;
-		},
-	});
+setDropdownMenuContext({
+	get open() {
+		return open;
+	},
+});
 </script>
 
 {@render children?.()}

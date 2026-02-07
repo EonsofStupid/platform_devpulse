@@ -10,19 +10,19 @@
   - data-slot="provider"
 -->
 <script lang="ts">
-  import { Tooltip } from "meltui";
-  import type { TooltipProviderProps } from "./types.js";
+import { Tooltip } from "meltui";
+import type { TooltipProviderProps } from "./types.js";
 
-  let {
-    delayDuration = 700,
-    skipDelayDuration = 300,
-    disableCloseOnTriggerClick = false,
-    disableHoverableContent = false,
-    disabled = false,
-    ignoreNonKeyboardFocus = false,
-    children,
-    "data-id": dataId,
-  }: TooltipProviderProps = $props();
+let {
+	delayDuration = 700,
+	skipDelayDuration = 300,
+	disableCloseOnTriggerClick = false,
+	disableHoverableContent = false,
+	disabled = false,
+	ignoreNonKeyboardFocus = false,
+	children,
+	"data-id": dataId,
+}: TooltipProviderProps = $props();
 </script>
 
 <div

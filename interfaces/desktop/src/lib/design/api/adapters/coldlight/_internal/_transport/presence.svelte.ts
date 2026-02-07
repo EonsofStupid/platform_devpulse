@@ -24,10 +24,8 @@ export function usePresence(config: {
 		}
 
 		const styles = getComputedStyle(node);
-		const hasTransition =
-			styles.transitionDuration !== "0s" && styles.transitionDuration !== "";
-		const hasAnimation =
-			styles.animationName !== "none" && styles.animationName !== "";
+		const hasTransition = styles.transitionDuration !== "0s" && styles.transitionDuration !== "";
+		const hasAnimation = styles.animationName !== "none" && styles.animationName !== "";
 
 		if (!hasTransition && !hasAnimation) {
 			present = false;
@@ -38,8 +36,8 @@ export function usePresence(config: {
 		function onEnd(): void {
 			present = false;
 			config.onExitComplete?.();
-			node!.removeEventListener("transitionend", onEnd);
-			node!.removeEventListener("animationend", onEnd);
+			node?.removeEventListener("transitionend", onEnd);
+			node?.removeEventListener("animationend", onEnd);
 		}
 
 		node.addEventListener("transitionend", onEnd, { once: true });
