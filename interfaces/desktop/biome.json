@@ -34,7 +34,8 @@
 		"enabled": true,
 		"indentStyle": "tab",
 		"indentWidth": 2,
-		"lineWidth": 100
+		"lineWidth": 100,
+		"lineEnding": "lf"
 	},
 	"javascript": {
 		"formatter": {
@@ -61,6 +62,26 @@
 					}
 				}
 			}
+		},
+		{
+			"includes": ["scripts/*.ts", "scripts/**/*.ts"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noConsole": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["**/UIDemoPage.svelte", "**/DEBUG_FLAG.ts", "**/VPB.svelte"],
+			"linter": {
+				"rules": {
+					"style": {
+						"useFilenamingConvention": "off"
+					}
+				}
+			}
 		}
 	],
 	"files": {
@@ -71,11 +92,15 @@
 			"!**/dist",
 			"!**/build",
 			"!**/*.generated.*",
-			"!**/src/lib/sys/generated/**",
-			"!**/src/lib/design/.cowlevel/**",
+			"!**/src/lib/sys/generated",
+			"!**/src/lib/design/.cowlevel",
 			"!**/src/lib/design/tokens/tokens.css",
 			"!**/src/lib/design/tokens/types.ts",
-			"!**/src/lib/design/tokens/tailwind.preset.ts"
+			"!**/src/lib/design/tokens/tailwind.preset.ts",
+			"!**/src/lib/design/primitives/_archive",
+			"!**/src/lib/design/primitives/tanstack/flex-render.svelte",
+			"!**/src-tauri/gen",
+			"!**/taxonomy/.generated/coldlight.manifest.json"
 		]
 	}
 }

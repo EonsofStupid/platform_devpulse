@@ -1,48 +1,48 @@
 {
-    "productName": "devpulse-desktop",
-    "version": "0.1.0",
-    "identifier": "com.devpulse.desktop",
-    "build": {
-        "beforeDevCommand": "npm run dev",
-        "beforeBuildCommand": "npm run build",
-        "devUrl": "http://localhost:1420",
-        "frontendDist": "../dist"
-    },
-    "app": {
-        "windows": [
-            {
-                "label": "main",
-                "title": "DevPulse",
-                "width": 1280,
-                "height": 800,
-                "transparent": true,
-                "decorations": false
-            },
-            {
-                "label": "chat",
-                "title": "Maestro Chat",
-                "url": "chat.html",
-                "width": 450,
-                "height": 600,
-                "x": 100,
-                "y": 100,
-                "decorations": false,
-                "transparent": true
-            }
-        ],
-        "security": {
-            "csp": null
-        }
-    },
-    "bundle": {
-        "active": true,
-        "targets": "all",
-        "icon": [
-            "icons/32x32.png",
-            "icons/128x128.png",
-            "icons/128x128@2x.png",
-            "icons/icon.icns",
-            "icons/icon.ico"
-        ]
-    }
+	"productName": "devpulse-desktop",
+	"version": "0.1.0",
+	"identifier": "com.devpulse.desktop",
+	"build": {
+		"beforeDevCommand": "pnpm dev",
+		"beforeBuildCommand": "pnpm build",
+		"devUrl": "http://localhost:1420",
+		"frontendDist": "../dist"
+	},
+	"app": {
+		"windows": [
+			{
+				"label": "main",
+				"title": "DevPulse",
+				"width": 1280,
+				"height": 800,
+				"transparent": true,
+				"decorations": false
+			},
+			{
+				"label": "chat",
+				"title": "Maestro Chat",
+				"url": "chat.html",
+				"width": 450,
+				"height": 600,
+				"x": 100,
+				"y": 100,
+				"decorations": false,
+				"transparent": true
+			}
+		],
+		"security": {
+			"csp": null
+		}
+	},
+	"bundle": {
+		"active": true,
+		"targets": "all",
+		"icon": [
+			"icons/32x32.png",
+			"icons/128x128.png",
+			"icons/128x128@2x.png",
+			"icons/icon.icns",
+			"icons/icon.ico"
+		]
+	}
 }

@@ -9,23 +9,22 @@
  * This file reads it at runtime.
  */
 
-import type { ColdLightManifest, ManifestPrimitive } from "./types";
-
 // Import the generated manifest (committed to git)
 import manifestJson from "./.generated/coldlight.manifest.json";
+import type { ColdLightManifest, ManifestPrimitive } from "./types";
 
 // =============================================================================
 // MANIFEST
 // =============================================================================
 
-const manifest = manifestJson as ColdLightManifest;
+const manifest = manifestJson as unknown as ColdLightManifest;
 
 // =============================================================================
 // INDEXES (built once at import time)
 // =============================================================================
 
 const primitiveIndex = new Map<string, ManifestPrimitive>(
-  manifest.categories.primitives.kinds.map((k) => [k.kind, k] as const)
+	manifest.categories.primitives.kinds.map((k) => [k.kind, k] as const),
 );
 
 // =============================================================================
@@ -36,28 +35,28 @@ const primitiveIndex = new Map<string, ManifestPrimitive>(
  * Get the full manifest.
  */
 export function getManifest(): ColdLightManifest {
-  return manifest;
+	return manifest;
 }
 
 /**
  * Get the dsAdapter declared in config (the behavior provider under ColdLight).
  */
 export function getDsAdapter(): string {
-  return manifest.adapters.dsAdapter;
+	return manifest.adapters.dsAdapter;
 }
 
 /**
  * Get all primitive kinds.
  */
 export function getPrimitiveKinds(): readonly string[] {
-  return manifest.categories.primitives.kinds.map((k) => k.kind);
+	return manifest.categories.primitives.kinds.map((k) => k.kind);
 }
 
 /**
  * Check if a kind is a registered primitive.
  */
 export function hasPrimitiveKind(kind: string): boolean {
-  return primitiveIndex.has(kind);
+	return primitiveIndex.has(kind);
 }
 
 /**
@@ -65,16 +64,16 @@ export function hasPrimitiveKind(kind: string): boolean {
  * Throws if kind is not found.
  */
 export function getPrimitive(kind: string): ManifestPrimitive {
-  const hit = primitiveIndex.get(kind);
-  if (!hit) {
-    throw new Error(`[ColdLight] Unknown primitive kind: ${kind}`);
-  }
-  return hit;
+	const hit = primitiveIndex.get(kind);
+	if (!hit) {
+		throw new Error(`[ColdLight] Unknown primitive kind: ${kind}`);
+	}
+	return hit;
 }
 
 /**
  * Get primitive manifest entry by kind, or undefined if not found.
  */
 export function getPrimitiveOrUndefined(kind: string): ManifestPrimitive | undefined {
-  return primitiveIndex.get(kind);
+	return primitiveIndex.get(kind);
 }
