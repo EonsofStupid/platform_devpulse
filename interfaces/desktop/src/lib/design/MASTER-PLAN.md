@@ -1,6 +1,6 @@
 # ColdLight Design System -- Master Plan
 
-> **@devpulse/coldlight** v0.1.0
+> **@devpulse/coldlight** v0.2.0 (Updated 2026-02-07)
 > Schema-registry-driven design system, component library, and block composition engine.
 > Taxonomy-first architecture: typed contracts, Zod-validated boundaries, four runtime registries (recipes, blueprints, patterns, blocks).
 > Every UI entity -- primitive, surface, composition, page section -- exists only if registered against the taxonomy with a typed ID, a validated contract, and a declared recipe.
@@ -80,22 +80,25 @@ Examples: dialog, tabs, select, popover, tooltip, sheet, alert-dialog, accordion
 | ColdLight attributes: `data-kind`, `data-slot`, `data-state` | **Locked** |
 | manifest.ts: `id` is camelCase, `ariaStateProvider` key required | **Locked** |
 | PascalCase file naming: `Button.svelte`, `DialogTrigger.svelte` | **Locked** |
-| Token NONE ** LOCKED**
-(DevPulse) | **Locked** |
+| Token prefix: NONE (unprefixed CSS custom properties) | **Locked** |
 | No shadcn | **Locked** |
 | Biome for lint/format | **Locked** |
 | svelte-sonner for notifications | **Locked** |
 | Dark variant first, light variant later (value swap only) | **Locked** |
 | CSS Grid for shell/dashboard layout | **Locked** |
+| 3-tier token architecture (Global → Semantic → Component) | **Locked** |
+| Variant key encoding: `v-s{#}z{#}l{#}t{#}m{#}` (both separate + combined) | **Locked** |
+| Layouts MUST use ColdLight primitives for all interactive elements | **Locked** |
+| No raw HTML when a ColdLight primitive exists (Button, Tooltip, Badge, etc.) | **Locked** |
+| Tailwind v4 @theme (not v3 preset objects) | **Locked** |
 
 ### Not Yet Locked
 
 | Item | Status |
 |------|--------|
 | DTCG token SSOT file format | Open -- evaluate Style Dictionary v4 |
-| Exact generated CSS tier format | Open -- recipes implementation details |
 | Concrete schemas for blueprints registry | Open -- define after recipe system proves out |
-| Hook points (dev server vs build vs lefthook stages) | Open -- wire as enforcement matures |
+| SVG icon library choice (Lucide, Phosphor, or custom) | Open -- evaluate |
 
 ---
 
@@ -104,11 +107,42 @@ Examples: dialog, tabs, select, popover, tooltip, sheet, alert-dialog, accordion
 ```
 @devpulse/coldlight
 ├── tokens/              # Layer 0: Design tokens (SSOT)
-│   ├── tokens.ts        # SSOT -- channel-separated OKLCH objects
-│   ├── schema.ts        # Zod validators for token values
-│   ├── tokens.css       # GENERATED CSS custom properties
-│   ├── types.ts         # GENERATED TypeScript types + runtime arrays
-│   └── tailwind.preset.ts  # GENERATED Tailwind theme mapping
+│   ├── tokens.ts        # SSOT — Tier 1 global values (OKLCH)
+│   ├── semantic.ts      # Tier 2 semantic aliases
+│   ├── components.ts    # Tier 3 component-scoped tokens
+│   ├── schema.ts        # Zod validators for all 3 tiers
+│   ├── tokens.css       # GENERATED — CSS custom properties + @theme
+│   └── types.ts         # GENERATED — TypeScript types + runtime arrays
+│
+├── molecules/           # Atomic CSS effects (token-driven)
+│   ├── glass.css        # Glass morphism utilities
+│   ├── glow.css         # Glow shadow utilities
+│   ├── bevel.css        # Bevel inset shadow utilities
+│   ├── void.css         # Void gradient background
+│   ├── sheen.css        # Liquid sheen overlay
+│   ├── grid.css         # Circuit grid pattern
+│   ├── tracked.css      # Pointer-tracked radial
+│   └── depth.css        # Multi-layer shadow presets
+│
+├── variants/            # Variant key system
+│   ├── variant-keys.css # CSS utility classes (v-s0 through v-m4)
+│   ├── variant-keys.ts  # encode/decode/split functions
+│   ├── schema.ts        # Zod validators for variant strings
+│   └── index.ts         # Barrel
+│
+├── svg/                 # SVG depth/bevel filters
+│   ├── SvgFilters.svelte # Hidden SVG rendered once at root
+│   ├── filters.css      # .filter-bevel-soft, .filter-noise, etc.
+│   └── index.ts         # Barrel
+│
+├── typography/          # Text styles (token-driven)
+│   └── typography.css
+├── focus/               # Focus ring styles
+│   └── focus.css
+├── scrollbars/          # Scrollbar styles
+│   └── scrollbars.css
+├── keyframes/           # Animation keyframes
+│   └── keyframes.css
 │
 ├── taxonomy/            # Layer 1: SSOT contracts + registries
 │   ├── types.ts         # Core types (PrimitiveContract, SlotSpec, AriaRequirements)
@@ -128,9 +162,12 @@ Examples: dialog, tabs, select, popover, tooltip, sheet, alert-dialog, accordion
 │
 ├── recipes/             # Layer 2: CSS appearance system
 │   ├── index.ts         # Recipe registry (getRecipe, registerRecipe)
-│   ├── css/             # Generated recipe CSS
-│   │   ├── keyframes.css
-│   │   └── surfaces.gen.css
+│   ├── utils.ts         # Token→class mapping functions
+│   ├── components/      # Per-kind recipe definitions
+│   │   ├── panel/       # Panel recipes (glass.void, glass.deep, etc.)
+│   │   ├── dialog/      # Dialog recipes
+│   │   ├── combobox/    # Combobox recipes
+│   │   └── tabs/        # Tabs recipes
 │   └── actions/         # Svelte actions required by recipes
 │       ├── index.ts     # Action registry + applyRecipeActions
 │       ├── glowTrack.ts
@@ -195,24 +232,49 @@ Examples: dialog, tabs, select, popover, tooltip, sheet, alert-dialog, accordion
 
 ### SSOT: `tokens/tokens.ts`
 
-All other token files are GENERATED. Never edit `tokens.css`, `types.ts`, or `tailwind.preset.ts` directly.
+All other token files are GENERATED. Never edit `tokens.css` or `types.ts` directly.
 
 ```bash
 pnpm ds:tokens:build    # One-shot generation
 pnpm ds:tokens:watch    # Watch mode during dev
 ```
 
+### 3-Tier Token Architecture
+
+Every major design system (Material Design 3, Adobe Spectrum, Salesforce Lightning, IBM Carbon) uses 3 tiers:
+
+```
+TIER 1: Global Tokens (raw values — tokens.ts)
+  --color-teal-500, --glass-void, --shadow-z2, --duration-fast
+
+TIER 2: Semantic Tokens (intent-based aliases — semantic.ts)
+  --surface-primary: var(--glass-void)
+  --surface-elevated: var(--glass-smoke)
+  --border-subtle: oklch(from var(--color-teal-700) l c h / 0.22)
+  --depth-panel: var(--shadow-z2)
+  --transition-ui: var(--duration-fast) var(--ease-out)
+
+TIER 3: Component Tokens (scoped to primitive kinds — components.ts)
+  --button-bg: var(--surface-primary)
+  --button-border: var(--border-subtle)
+  --panel-depth: var(--depth-panel)
+  --input-border-focus: var(--border-emphasis)
+```
+
+**Schema enforcement:** Tier 2 MUST reference Tier 1. Tier 3 MUST reference Tier 2. Raw values only in Tier 1.
+
 ### Token Pipeline
 
 ```
-tokens.ts (SSOT)
+tokens.ts (Tier 1 SSOT)
+semantic.ts (Tier 2 aliases)
+components.ts (Tier 3 scoped)
     │
-    ├── schema.ts validates at build time (Zod)
+    ├── schema.ts validates all 3 tiers at build time (Zod)
     │
     └── ds-tokens-build.ts generates:
-        ├── tokens.css          (CSS custom properties)
-        ├── types.ts            (TypeScript types + runtime arrays)
-        └── tailwind.preset.ts  (Tailwind theme mapping)
+        ├── tokens.css    (all 3 tiers as CSS custom properties + @theme block)
+        └── types.ts      (TypeScript types + runtime arrays)
 ```
 
 ### Current Token Format (String OKLCH)
@@ -250,7 +312,7 @@ export const color = {
 
 The build script composes `oklch()` strings from objects. CSS output is identical. TypeScript gains typed access to individual channels.
 
-### Token Categories
+### Token Categories (Tier 1 — Global)
 
 | Category | Prefix | Format | Example |
 |----------|--------|--------|---------|
@@ -268,8 +330,24 @@ The build script composes `oklch()` strings from objects. CSS output is identica
 | Z-Index | `--z-*` | integer | `--z-modal: 400` |
 | Duration | `--duration-*` | ms | `--duration-fast: 150ms` |
 | Easing | `--ease-*` | cubic-bezier | `--ease-out: cubic-bezier(0, 0, 0.2, 1)` |
-| Text Size | `---text-size-*` | rem | `--text-size-base: 1rem` |
+| Text Size | `--text-size-*` | rem | `--text-size-base: 1rem` |
 | Padding | `--padding-*` | shorthand | `--padding-md: 0.5rem 1rem` |
+
+### Token Categories (Tier 2 — Semantic)
+
+| Category | Prefix | References |
+|----------|--------|------------|
+| Surface | `--surface-*` | Glass/matte Tier 1 tokens |
+| Border | `--border-*` | Color scale Tier 1 tokens |
+| Depth | `--depth-*` | Shadow Tier 1 tokens |
+| Transition | `--transition-*` | Duration + easing Tier 1 tokens |
+
+### Token Categories (Tier 3 — Component)
+
+| Category | Prefix | References |
+|----------|--------|------------|
+| Per-kind | `--{kind}-*` | Tier 2 semantic tokens |
+| Example | `--button-bg`, `--panel-border`, `--input-bg-focus` | `var(--surface-primary)`, etc. |
 
 ### Zod Token Validation (`schema.ts`)
 
@@ -399,6 +477,119 @@ If a recipe declares `requires`, the renderer MUST attach those actions. No manu
 
 ---
 
+## Molecule System
+
+Molecules are single, reusable CSS effects. Each molecule:
+- Uses ONLY token references (`var(--glass-void)`, `var(--color-teal-300)`)
+- Is a single `@utility` class
+- Has NO structural CSS (no grid, no positioning)
+- Is composable (stack multiple molecules on one element)
+
+### Molecule Inventory
+
+| Molecule | File | Class | Effect |
+|----------|------|-------|--------|
+| Glass | `molecules/glass.css` | `.glass-void`, `.glass-deep`, etc. | Backdrop-filter + translucent bg |
+| Glow | `molecules/glow.css` | `.glow-teal`, `.glow-purple`, etc. | Colored box-shadow halo |
+| Bevel | `molecules/bevel.css` | `.bevel-subtle`, `.bevel-soft`, etc. | Inset shadow edge highlight |
+| Void | `molecules/void.css` | `.void-gradient` | Never-black gradient background |
+| Sheen | `molecules/sheen.css` | `.liquid-sheen` | Animated light sweep overlay |
+| Grid | `molecules/grid.css` | `.circuit-grid` | Circuit board background pattern |
+| Tracked | `molecules/tracked.css` | `.pointer-tracked` | Pointer-following radial highlight |
+| Depth | `molecules/depth.css` | `.depth-z1` through `.depth-z4` | Multi-layer shadow presets |
+
+Molecules live in `design/molecules/`. They are imported by `design/index.css`.
+
+---
+
+## Variant Key System
+
+Compact class encoding of recipe surface parameters. Both individual segments and combined strings supported.
+
+### Encoding
+
+| Key | CSS Variable | 0 | 1 | 2 | 3 | 4 |
+|-----|-------------|---|---|---|---|---|
+| `s` | `--v-surface` | transparent | glass-void | glass-deep | glass-smoke | glass-frost |
+| `z` | `--v-depth` | none | z1 | z2 | z3 | z4 |
+| `l` | `--v-layers` | flat | bevel-subtle | bevel-soft | bevel-medium | bevel-strong+filter |
+| `t` | `--v-transition` | 0ms | 50ms | 150ms | 250ms | 400ms |
+| `m` | `--v-motion` | none | ease-out | ease-inOut | spring | bounce |
+
+### Usage
+
+```html
+<!-- Individual segments (composable, override-friendly) -->
+<div class="v-s1 v-z2 v-t2">...</div>
+
+<!-- Combined (compact, recipe-emitted) -->
+<div class="v-s1z2l0t2m0">...</div>
+```
+
+Both forms set the same CSS custom properties. Elements with variant keys automatically consume them:
+
+```css
+background: var(--v-surface, transparent);
+box-shadow: var(--v-depth, none), var(--v-bevel, none);
+transition-duration: var(--v-transition, 0ms);
+transition-timing-function: var(--v-motion, linear);
+```
+
+### TypeScript API
+
+```typescript
+// design/variants/variant-keys.ts
+export function encodeVariant(props: VariantProps): string;
+export function decodeVariant(key: string): VariantProps;
+export function splitVariant(key: string): string[];
+```
+
+### Zod Schema
+
+```typescript
+export const VariantKeySchema = z.string().regex(/^v-s[0-4]z[0-4]l[0-4]t[0-4]m[0-4]$/);
+export const VariantSegmentSchema = z.string().regex(/^v-[szltm][0-4]$/);
+```
+
+Files: `design/variants/variant-keys.css`, `design/variants/variant-keys.ts`, `design/variants/schema.ts`
+
+---
+
+## SVG Depth & Bevel System
+
+Reference images show bevel/depth effects that CSS box-shadow alone cannot produce. SVG filters provide specular lighting, noise grain, and glow effects.
+
+### Filter Definitions
+
+Rendered once in root layout via `<SvgFilters />` component (hidden SVG):
+
+| Filter ID | Effect | Used By |
+|-----------|--------|---------|
+| `bevel-soft` | 3D edge highlight (feSpecularLighting) | Variant key `l2` |
+| `bevel-medium` | Stronger 3D edge | Variant key `l3` |
+| `bevel-strong` | Maximum 3D depth | Variant key `l4` |
+| `noise-subtle` | Grain texture (feTurbulence) | Variant keys `l3`, `l4` |
+| `glow-teal` | Colored gaussian glow | Accent glow effects |
+| `glow-purple` | Purple glow variant | Accent glow effects |
+
+### CSS Integration
+
+```css
+.filter-bevel-soft { filter: url(#bevel-soft); }
+.filter-noise { filter: url(#noise-subtle); }
+.filter-glow-teal { filter: url(#glow-teal); }
+```
+
+### Variant Key Integration
+
+Layers key (`l`) at levels 3-4 auto-applies SVG filters:
+- `v-l3` → `bevel-medium` + `noise-subtle`
+- `v-l4` → `bevel-strong` + `noise-subtle` + accent glow
+
+Files: `design/svg/SvgFilters.svelte`, `design/svg/filters.css`
+
+---
+
 ## Blueprint System (Planned)
 
 Blueprints are typed composition data (not prose):
@@ -470,21 +661,25 @@ The manifest (`manifest.ts`) registers 60+ components with:
 
 ### What's Allowed
 
-- Token references: `var(--dp-*)`
-- Recipe classes: `dp-surface`
-- Data attributes: `data-surface="glass"`
-- Tailwind preset utilities (no arbitrary values)
+- Token references: `var(--glass-void)`, `var(--shadow-z2)`, `var(--color-teal-500)` (unprefixed)
+- Semantic token references: `var(--surface-primary)`, `var(--border-subtle)`, `var(--depth-panel)`
+- Component token references: `var(--button-bg)`, `var(--panel-border)`
+- Tailwind @theme utilities: `bg-glass-void`, `shadow-z2`, `rounded-md`
+- Data attributes: `data-surface="glass"`, `data-kind="panel"`
+- Variant key classes: `v-s1`, `v-z2`, `v-s1z2l0t2m0`
+- Molecule utility classes: `.glass-void`, `.glow-teal`, `.bevel-soft`
 
 ### What's Banned
 
 | Violation | Why |
 |-----------|-----|
-| `var(--dp-*)` inside `.svelte` files | Tokens exist only in `tokens.css` |
-| Raw colors (`#fff`, `oklch()`, `rgb()`, `hsl()`) outside tokens layer | All color through tokens |
-| Arbitrary Tailwind (`bg-[#000]`, `text-[12px]`) | All values from preset |
+| Raw colors (`#fff`, `oklch()`, `rgb()`, `hsl()`) outside `tokens.ts` | All color through tokens |
+| Arbitrary Tailwind (`bg-[#000]`, `text-[12px]`) | All values from @theme |
 | Inline styles (`style="..."`) | Recipes handle all styling |
 | `<style>` blocks in primitives | Primitives are unstyled |
-| Component-scoped CSS variables | Tokens are global only |
+| Raw `<button>`, `<input>`, `<dialog>` when a ColdLight primitive exists | Use the primitive |
+| Emoji icons in production UI | Use SVG icon components |
+| `--dp-*` prefixed CSS variables | Token prefix is NONE (unprefixed) |
 
 ### Ephemeral Computed Vars
 
@@ -492,10 +687,15 @@ Allowed ONLY with `--_cl-*` prefix (private ColdLight runtime), in allowlisted f
 
 ### CSS Entry Point
 
-`app.css` imports ONE file: `./lib/design/index.css`. That barrel imports in order:
-1. `tokens/tokens.css`
-2. `recipes/css/keyframes.css`
-3. `recipes/css/surfaces.gen.css`
+`app.css` imports Tailwind, fonts, and `design/index.css`. The design barrel imports in order:
+1. `tokens/tokens.css` (generated — all 3 tiers as CSS custom properties + @theme block)
+2. `molecules/*.css` (glass, glow, bevel, sheen, grid, void, tracked, depth)
+3. `variants/variant-keys.css` (variant key utility classes)
+4. `svg/filters.css` (SVG filter utility classes)
+5. `typography/typography.css`
+6. `focus/focus.css`
+7. `scrollbars/scrollbars.css`
+8. `keyframes/keyframes.css`
 
 ---
 
@@ -580,85 +780,116 @@ VPB persists `BlockNode[]` trees. No theme values, no CSS, no classnames in stor
 - [x] `tokens/tokens.ts` SSOT with real values
 - [x] `ds-tokens-build.ts` generator script
 - [x] `pnpm ds:tokens:build` and `pnpm ds:tokens:watch`
-- [x] Generate `tokens.css`, `types.ts`, `tailwind.preset.ts`
+- [x] Generate `tokens.css`, `types.ts`
 - [x] `schema.ts` Zod validators for token enums
 
-### Phase 1: Token Pipeline Upgrade
+### Phase 1: Biome + Tooling (DONE)
 
-- [ ] Restructure `tokens.ts` to channel-separated OKLCH objects
-- [ ] Add OKLCH channel validation to `schema.ts` (L: 0-1, C: 0-0.4, H: 0-360)
-- [ ] Update `ds-tokens-build.ts` to compose oklch() from objects + run Zod validation
-- [ ] Regenerate all outputs
-- [ ] Wire `pnpm ds:tokens:validate` into lefthook pre-commit
-- [ ] Evaluate Style Dictionary v4 / DTCG token format for multi-platform output
+- [x] `biome.json` created (lint + format, replaces ESLint + Prettier)
+- [x] Biome wired into lefthook pre-commit
+- [x] Orphaned ESLint/Prettier configs deleted
 
-### Phase 2: Biome + Tooling
+### Phase 2: Taxonomy Completion (PARTIAL)
 
-- [ ] Create `biome.json` (lint + format, replaces ESLint + Prettier)
-- [ ] Add `pnpm lint` and `pnpm format` scripts
-- [ ] Wire Biome into lefthook pre-commit
-- [ ] Delete any orphaned ESLint/Prettier configs
+- [x] 42 primitive contracts created
+- [x] Scanner operational, manifest generated
+- [ ] Verify all contracts match disk state (parity check)
+- [ ] Fix any remaining parity gaps
 
-### Phase 3: Taxonomy Completion
+### Phase 3: Recipe System (PARTIAL — BLOCKED by Phase 4)
 
-- [ ] Verify all 40+ primitive contracts match disk state
-- [ ] Run scanner, fix any parity gaps
-- [ ] Regenerate `coldlight.manifest.json`
+- [x] `recipes/index.ts` registry exists with `getRecipe`, `registerRecipe`
+- [x] 4 recipes registered (panel, dialog, combobox, tabs)
+- [x] `classes()` function pattern working
+- [ ] Recipe class names DON'T RESOLVE — blocked by Token→Tailwind gap
+- [ ] `applyRecipeActions` — not yet implemented
+- [ ] `glowTrack.ts`, `ripple.ts` actions — not yet implemented
+- [ ] Expand recipes for all layout component needs
 
-### Phase 4: Recipe System
+### Phase 4: Token Bridge + 3-Tier Architecture (CURRENT PRIORITY)
 
-- [ ] Expand `recipes/index.ts` from stub to full registry
-- [ ] Add `requires?: ActionId[]` metadata to RecipeDefinition
-- [ ] Implement `recipes/actions/index.ts` with `applyRecipeActions`
-- [ ] Implement `glowTrack.ts`, `ripple.ts` Svelte actions
-- [ ] Author base surface recipes: `surface.glass`, `surface.matte`, `surface.solid`
-- [ ] Author component recipes: `button.glass`, `panel.glass`, `input.glass`
-- [ ] Generate `surfaces.gen.css` from registry
+> **THIS UNBLOCKS EVERYTHING.** Recipes produce class names that don't exist in @theme.
 
-### Phase 5: Blueprint System
+- [ ] Fix `ds-tokens-build.ts` to emit proper Tailwind v4 @theme mappings
+- [ ] Create `tokens/semantic.ts` (Tier 2 semantic aliases)
+- [ ] Create `tokens/components.ts` (Tier 3 component-scoped)
+- [ ] Update `tokens/schema.ts` with Tier 2/3 validators
+- [ ] Unify dual @theme blocks (app.css + tokens.css → one @theme in tokens.css)
+- [ ] Strip app.css to fonts + base only
+- [ ] Verify recipe class names resolve (`bg-glass-void`, `shadow-z2`, etc.)
+
+### Phase 5: Delete Ad-Hoc CSS + Rebuild Molecules
+
+- [ ] DELETE `layouts/app/styles/layout.css` (712 lines, dead weight)
+- [ ] DELETE `layouts/app/AppLayout.svelte` (empty duplicate)
+- [ ] Extract useful effects as tokenized molecules (void, sheen, grid, tracked)
+- [ ] Move common CSS from `layouts/common/styles/` into `design/` subdirs
+- [ ] Rebuild `design/index.css` as true CSS SSOT entry point
+
+### Phase 6: Variant Key System
+
+- [ ] Create `design/variants/variant-keys.css` (25 individual + combined pattern classes)
+- [ ] Create `design/variants/variant-keys.ts` (encode/decode/split)
+- [ ] Create `design/variants/schema.ts` (Zod validators)
+- [ ] Wire recipes to emit variant classes
+
+### Phase 7: SVG Depth & Bevel
+
+- [ ] Create `design/svg/SvgFilters.svelte` (bevel, noise, glow filters)
+- [ ] Create `design/svg/filters.css` (filter utility classes)
+- [ ] Render `<SvgFilters />` once in root layout
+- [ ] Wire variant key `l3`/`l4` to auto-apply SVG filters
+
+### Phase 8: Layout Rebuild with ColdLight Primitives
+
+> **Layouts MUST use ColdLight primitives.** No raw HTML for elements that have primitives.
+
+- [ ] Rewrite TopBar.svelte: Command (search), Button + Tooltip (icons), Avatar
+- [ ] Rewrite Sidebar.svelte: Tooltip + Button (nav), proper SVG icons
+- [ ] Rewrite StatusBar.svelte: Badge (status pills)
+- [ ] Update Frame.svelte: fix broken class names (unblocked by Phase 4)
+- [ ] Wire chat stubs: Dialog/Sheet, Tabs/ToggleGroup, Command, Input, RadioGroup, AlertDialog
+- [ ] Update layout READMEs with ColdLight mandate
+
+### Phase 9: Recipe Expansion + Visual Scaffolding
+
+- [ ] New recipes: button.glass, input.glass, badge.accent, message.ai, message.user
+- [ ] Dashboard page scaffold matching DASHBOARD-REFERENCE-01.png
+- [ ] Chat page scaffold matching CHAT-REFERENCE-01/02.png
+- [ ] New primitives if needed: gauge (circular progress), sparkline
+
+### Phase 10: CSS Enforcement
+
+- [ ] Implement `scan-violations.ts` (THE KILL SWITCH)
+- [ ] CSS auditor: no raw oklch/hsl/rgb outside tokens.ts
+- [ ] Wire into lefthook pre-commit
+- [ ] Run on entire codebase, delete/rewrite all violators
+
+### Phase 11: Blueprint System
 
 - [ ] Define `BlueprintDefinition` interface
 - [ ] Create `blueprints/index.ts` registry
-- [ ] Author blueprints for core block kinds (panel, card, shell)
-- [ ] Wire VPB to read blueprints for assembly defaults
+- [ ] Author blueprints for core block kinds
+- [ ] Wire VPB to read blueprints
 
-### Phase 6: Semantics Layer
+### Phase 12: VPB Refactor
 
-- [ ] Author semantic compositions in `semantics/`
-- [ ] Each semantic = primitive + recipe + blueprint defaults
-- [ ] Demo at `domains/app/ui-demo/` imports from `$lib/design/semantics/`
-
-### Phase 7: VPB Refactor
-
-- [ ] Audit existing VPB code for registry consumption points
-- [ ] Refactor `builder/schema.ts` to strictly typed `BlockNode<K>`
-- [ ] Refactor `builder/palette.ts` to consume taxonomy for block kinds
-- [ ] Refactor inspector to use taxonomy/contracts for prop validation
-- [ ] Wire SvelteFlow for node graph visualization
+- [ ] Refactor to strictly typed `BlockNode<K>`
+- [ ] Consume taxonomy for block kinds
+- [ ] Wire SvelteFlow for node graph
 - [ ] VPB state uses recipes for class generation
 
-### Phase 8: Enforcement + CI
+### Phase 13: Persistence (After Dark Variant Locked)
 
-- [ ] Implement `scan-violations.ts` (THE KILL SWITCH)
-- [ ] Implement `verify-kinds.ts`, `verify-recipes.ts`, `verify-tokens-sync.ts`
-- [ ] Create `.github/workflows/ci.yml` (Rust + TypeScript PR validation)
-- [ ] Create Vite enforcer plugin (`dsEnforce`) for dev-time blocking
-- [ ] Run violation scanner on existing codebase, delete/rewrite violators
-
-### Phase 9: Persistence (After Dark Variant Locked)
-
-- [ ] DB migrations for theme/layout/block storage (libsql)
+- [ ] DB migrations for theme/layout/block storage
 - [ ] Theme service (load/save token variant values)
 - [ ] Layout service (load/save BlockNode trees)
-- [ ] Wire VPB to persist layouts via layout service
-- [ ] Scope-theme bindings
 
-### Phase 10: Light Variant (Last)
+### Phase 14: Light Variant (Last)
 
 - [ ] Add "light" variant -- same token NAMES, different VALUES
 - [ ] Variant switcher UI
 - [ ] Verify: switching variants changes look, NOT structure
-- [ ] No code changes required for new variants
 
 ---
 
@@ -666,12 +897,17 @@ VPB persists `BlockNode[]` trees. No theme values, no CSS, no classnames in stor
 
 | Milestone | Done When |
 |-----------|-----------|
-| Token Pipeline | Channel-separated OKLCH, Zod validates at build, lefthook blocks invalid tokens |
-| Taxonomy | Scanner clean, manifest regenerated, all 40+ contracts have parity |
-| Recipes | Registry populated, `applyRecipeActions` works, base surface recipes authored |
+| Token Bridge | @theme emits correct Tailwind utility names, recipe classes resolve, components render |
+| 3-Tier Tokens | semantic.ts + components.ts exist, Zod validates cross-tier refs, build enforces |
+| Molecules | All visual effects are token-driven @utility classes, zero raw oklch outside tokens.ts |
+| Variant Keys | `v-s1z2l0t2m0` renders correctly, encode/decode/split work, Zod validates |
+| SVG Filters | `<SvgFilters />` renders, `v-l3` shows bevel, reference image depth quality matched |
+| Layout Rebuild | All layouts use ColdLight primitives (Button, Tooltip, Command, Badge, Avatar) |
+| Visual Scaffold | Dashboard + chat pages approximate reference images using only ColdLight |
+| Enforcement | Violation scanner returns 0 hits, lefthook blocks raw values |
+| Taxonomy | Scanner clean, manifest regenerated, all 42+ contracts have parity |
+| Recipes | Registry populated, `applyRecipeActions` works, surface + component recipes authored |
 | Blueprints | Core block kinds have typed blueprints, VPB reads them |
-| Enforcement | Violation scanner returns 0 hits, Vite plugin blocks in dev, CI blocks PRs |
-| VPB | Persists BlockNode trees, no theme values in storage, Zod validates on load |
 | Dark Variant | Full visual identity locked, all recipes produce correct output |
 | Light Variant | Token value swap only, zero component changes |
 
@@ -685,12 +921,20 @@ VPB persists `BlockNode[]` trees. No theme values, no CSS, no classnames in stor
 | `taxonomy/types.ts` | Core types: PrimitiveContract, SlotSpec, AriaRequirements, ColdLightManifest |
 | `taxonomy/registry.ts` | Runtime manifest reader (getManifest, getPrimitive, hasPrimitiveKind) |
 | `taxonomy/scanner.ts` | Build-time parity checker |
-| `tokens/tokens.ts` | SSOT token values |
-| `tokens/schema.ts` | Zod token validators |
-| `recipes/index.ts` | Recipe registry |
+| `tokens/tokens.ts` | SSOT — Tier 1 global token values |
+| `tokens/semantic.ts` | Tier 2 semantic aliases (NEW) |
+| `tokens/components.ts` | Tier 3 component-scoped tokens (NEW) |
+| `tokens/schema.ts` | Zod token validators (all 3 tiers) |
+| `tokens/tokens.css` | GENERATED — CSS custom properties + @theme block |
+| `recipes/index.ts` | Recipe registry (getRecipe, registerRecipe) |
+| `recipes/utils.ts` | Token→class mapping functions |
+| `variants/variant-keys.ts` | Variant key encode/decode/split (NEW) |
+| `variants/variant-keys.css` | Variant key CSS utility classes (NEW) |
+| `svg/SvgFilters.svelte` | Hidden SVG filter definitions (NEW) |
+| `molecules/*.css` | Atomic CSS effects (glass, glow, bevel, etc.) |
 | `primitives/types.ts` | Shared: cn(), stripStyleProp(), BaseProps, OmitStyle, DATA_ATTRS |
 | `index.ts` | Barrel: re-exports taxonomy |
-| `index.css` | CSS barrel: imports tokens + recipe CSS in order |
+| `index.css` | CSS barrel: imports all design system CSS in order |
 
 ---
 

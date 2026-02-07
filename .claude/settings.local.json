@@ -43,7 +43,12 @@
       "WebFetch(domain:dev.to)",
       "WebFetch(domain:surrealdb.com)",
       "Bash(xxd:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(surreal version:*)",
+      "mcp__surrealdb-banter__query",
+      "mcp__surrealdb-banter__create",
+      "Skill(planning)",
+      "Skill(planning:*)"
     ]
   }
 }

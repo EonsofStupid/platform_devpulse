@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // restore-memory.js - Queries SurrealDB after /compact to restore context
-// Output goes directly to Claude's context
+// Output goes directly to Claude's context via SessionStart hook
 
 const { spawnSync } = require("child_process");
 
@@ -33,7 +33,7 @@ function query(sql) {
 			return [];
 		}
 		const parsed = JSON.parse(result.stdout);
-		// SurrealDB returns [[rows]] format
+		// surreal sql --json returns [[rows]] format
 		return parsed[0] || [];
 	} catch (e) {
 		return [];
@@ -41,7 +41,7 @@ function query(sql) {
 }
 
 // Check if SurrealDB is accessible
-const testResult = query("INFO FOR DB;");
+const testResult = query("SELECT count() AS c FROM context GROUP ALL;");
 if (testResult.length === 0) {
 	console.log("[SurrealDB not accessible - skipping memory restore]");
 	process.exit(0);
@@ -49,7 +49,7 @@ if (testResult.length === 0) {
 
 console.log("## RESTORED CONTEXT FROM SURREALDB\n");
 
-// Current context - must include priority in SELECT for ORDER BY
+// Current context
 console.log("### Current Context");
 const context = query(
 	"SELECT key, value, priority FROM context ORDER BY priority DESC LIMIT 10;",
@@ -77,7 +77,7 @@ for (const row of learnings) {
 }
 console.log("");
 
-// Pending tasks - must include priority in SELECT for ORDER BY
+// Pending tasks
 console.log("### Pending Tasks");
 const tasks = query(
 	"SELECT content, priority, status FROM tasks WHERE status IN ['pending', 'in_progress'] ORDER BY priority DESC;",
