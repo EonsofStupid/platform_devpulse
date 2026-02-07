@@ -2,7 +2,7 @@
 
 **Date**: 2026-02-07
 **Sprint**: SPRINT-VISUAL-SCAFFOLDING
-**Status**: COMPLETE
+**Status**: COMPLETE → SPRINTS CREATED
 
 ## Question/Goal
 
@@ -394,18 +394,23 @@ The ColdLight MASTER-PLAN.md is architecturally correct but ~30 days stale:
 
 ---
 
-## Recommendations
+## Sprint Plans (Created from this Research)
+
+| Sprint | File | Status | Blocks |
+|--------|------|--------|--------|
+| **Token Bridge** | [SPRINT-TOKEN-BRIDGE.md](./SPRINT-TOKEN-BRIDGE.md) | READY | Everything |
+| **App Shell Rebuild** | [SPRINT-APP-SHELL-REBUILD.md](./SPRINT-APP-SHELL-REBUILD.md) | READY (blocked by Token Bridge) | Chat Overlay |
+| **Chat Overlay** | [SPRINT-CHAT-OVERLAY.md](./SPRINT-CHAT-OVERLAY.md) | READY (blocked by Token Bridge + App Shell) | Dashboard scaffold |
 
 ### Execution Order
 
-1. **PHASE 1: Token Bridge + 3-Tier Architecture** — Fix @theme generation, add semantic.ts + components.ts, validate with Zod. THIS UNBLOCKS EVERYTHING.
-2. **PHASE 2: Delete layout.css + Rebuild Molecules** — Extract effects as tokenized molecules, move common CSS under design/, rebuild design/index.css as true entry point.
-3. **PHASE 3: Variant Key System** — CSS classes + TS encode/decode + Zod schema.
-4. **PHASE 4: SVG Filters** — SvgFilters.svelte + filter utilities, wire to variant `l` key.
-5. **PHASE 5: Layout Rebuild with ColdLight Primitives** — Rewrite TopBar/Sidebar/StatusBar using Button, Tooltip, Command, Badge, Avatar. Wire chat stubs using Dialog/Sheet, Tabs, Command, Input, RadioGroup, AlertDialog. Every interactive element uses its ColdLight primitive.
-6. **PHASE 6: Recipe Expansion + Visual Scaffolding** — New recipes for dashboard/chat reference images, new gauge/sparkline primitives.
-7. **PHASE 7: CSS Audit Enforcement** — Build-time scanner, lefthook hook, zero raw values allowed.
-8. **PHASE 8: MASTER-PLAN.md Update** — Fix all contradictions, add missing sections, align with reality.
+1. **SPRINT-TOKEN-BRIDGE** — Fix @theme generation, 3-tier tokens, unify dual @theme, fix recipe utils. THIS UNBLOCKS EVERYTHING.
+2. **SPRINT-APP-SHELL-REBUILD** — Delete dead CSS, migrate common styles to design/, rewrite TopBar/Sidebar/StatusBar with ColdLight primitives, install icon system.
+3. **SPRINT-CHAT-OVERLAY** — Build all 11 chat stubs + 4 interaction components using ColdLight primitives, thick glass aesthetic.
+4. Variant Key System (future sprint)
+5. SVG Depth & Bevel (future sprint)
+6. Recipe Expansion + Dashboard Visual Scaffold (future sprint)
+7. CSS Audit Enforcement (future sprint)
 
 ### Key Architecture Decisions
 

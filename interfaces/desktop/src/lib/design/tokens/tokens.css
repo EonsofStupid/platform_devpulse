@@ -73,6 +73,11 @@
 	--color-neutral-700: oklch(0.28 0 0);
 	--color-neutral-800: oklch(0.20 0 0);
 	--color-neutral-900: oklch(0.14 0 0);
+	--color-void-800: oklch(0.12 0.02 195);
+	--color-void-900: oklch(0.08 0.02 195);
+	--color-void-950: oklch(0.06 0.02 195);
+	--color-obsidian-900: oklch(0.06 0.02 195);
+	--color-obsidian-950: oklch(0.04 0.01 195);
 
 	/* Glass */
 	--glass-void: oklch(0.08 0.005 250 / 0.85);
@@ -178,6 +183,60 @@
 	--padding-md: 0.5rem 1rem;
 	--padding-lg: 0.75rem 1.5rem;
 
+	/* Signal */
+	--signal-success: oklch(0.70 0.20 145);
+	--signal-warning: oklch(0.75 0.20 85);
+	--signal-error: oklch(0.60 0.25 25);
+
+	/* Font */
+	--font-sans: "Inter", system-ui, sans-serif;
+	--font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+	/* Animation */
+	--animation-pulse-glow: pulse-glow 4s ease-in-out infinite;
+
+	/* --- Tier 2: Semantic Tokens --- */
+	--surface-primary: var(--glass-void);
+	--surface-elevated: var(--glass-smoke);
+	--surface-overlay: var(--glass-deep);
+	--surface-frosted: var(--glass-frost);
+	--surface-muted: var(--matte-dark);
+	--surface-muted-medium: var(--matte-medium);
+	--surface-muted-light: var(--matte-light);
+	--border-subtle: oklch(from var(--color-teal-700) l c h / 0.22);
+	--border-soft: oklch(from var(--color-teal-600) l c h / 0.30);
+	--border-emphasis: oklch(from var(--color-teal-500) l c h / 0.50);
+	--border-focus: var(--color-teal-400);
+	--depth-flat: var(--shadow-z0);
+	--depth-raised: var(--shadow-z1);
+	--depth-panel: var(--shadow-z2);
+	--depth-overlay: var(--shadow-z3);
+	--depth-modal: var(--shadow-z4);
+	--transition-instant: var(--duration-instant) var(--ease-out);
+	--transition-fast: var(--duration-fast) var(--ease-out);
+	--transition-normal: var(--duration-normal) var(--ease-inOut);
+	--transition-slow: var(--duration-slow) var(--ease-inOut);
+
+	/* --- Tier 3: Component Tokens --- */
+	--button-bg: var(--surface-primary);
+	--button-bg-hover: var(--surface-elevated);
+	--button-border: var(--border-subtle);
+	--button-border-focus: var(--border-focus);
+	--panel-bg: var(--surface-primary);
+	--panel-border: var(--border-soft);
+	--panel-depth: var(--depth-panel);
+	--input-bg: var(--surface-overlay);
+	--input-bg-focus: var(--surface-elevated);
+	--input-border: var(--border-subtle);
+	--input-border-focus: var(--border-focus);
+	--badge-bg: var(--surface-elevated);
+	--badge-border: var(--border-subtle);
+	--dialog-bg: var(--surface-overlay);
+	--dialog-border: var(--border-soft);
+	--dialog-depth: var(--depth-modal);
+	--tooltip-bg: var(--surface-elevated);
+	--tooltip-border: var(--border-subtle);
+
 }
 
 @theme {
@@ -251,6 +310,11 @@
 	--color-neutral-700: var(--color-neutral-700);
 	--color-neutral-800: var(--color-neutral-800);
 	--color-neutral-900: var(--color-neutral-900);
+	--color-void-800: var(--color-void-800);
+	--color-void-900: var(--color-void-900);
+	--color-void-950: var(--color-void-950);
+	--color-obsidian-900: var(--color-obsidian-900);
+	--color-obsidian-950: var(--color-obsidian-950);
 
 	/* Text colors */
 	--color-text-primary: var(--text-primary);
@@ -328,4 +392,34 @@
 	--transition-timing-function-out: var(--ease-out);
 	--transition-timing-function-inOut: var(--ease-inOut);
 	--transition-timing-function-spring: var(--ease-spring);
+
+	/* Signal colors */
+	--color-signal-success: var(--signal-success);
+	--color-signal-warning: var(--signal-warning);
+	--color-signal-error: var(--signal-error);
+
+	/* Fonts */
+	--font-sans: var(--font-sans);
+	--font-mono: var(--font-mono);
+
+	/* Animation */
+	--animate-pulse-glow: var(--animation-pulse-glow);
+
+	/* Tier 2: Semantic */
+	--color-surface-primary: var(--surface-primary);
+	--color-surface-elevated: var(--surface-elevated);
+	--color-surface-overlay: var(--surface-overlay);
+	--color-surface-frosted: var(--surface-frosted);
+	--color-surface-muted: var(--surface-muted);
+	--color-surface-muted-medium: var(--surface-muted-medium);
+	--color-surface-muted-light: var(--surface-muted-light);
+	--color-border-subtle: var(--border-subtle);
+	--color-border-soft: var(--border-soft);
+	--color-border-emphasis: var(--border-emphasis);
+	--color-border-focus: var(--border-focus);
+	--shadow-depth-flat: var(--depth-flat);
+	--shadow-depth-raised: var(--depth-raised);
+	--shadow-depth-panel: var(--depth-panel);
+	--shadow-depth-overlay: var(--depth-overlay);
+	--shadow-depth-modal: var(--depth-modal);
 }

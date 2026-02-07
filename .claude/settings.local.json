@@ -48,7 +48,8 @@
       "mcp__surrealdb-banter__query",
       "mcp__surrealdb-banter__create",
       "Skill(planning)",
-      "Skill(planning:*)"
+      "Skill(planning:*)",
+      "Bash(npx biome check:*)"
     ]
   }
 }

@@ -14,22 +14,8 @@
 /* Design tokens (generated — do not hand-edit tokens.css) */
 @import "$lib/design/tokens/tokens.css";
 
-/* Tailwind v4 @theme — migrated from dead tailwind.config.ts */
-@theme {
-	--font-sans: "Inter", system-ui, sans-serif;
-	--font-mono: "JetBrains Mono", "Fira Code", monospace;
-
-	--color-void-950: oklch(6% 0.02 195);
-	--color-void-900: oklch(8% 0.02 195);
-	--color-void-800: oklch(12% 0.02 195);
-	--color-obsidian-950: oklch(4% 0.01 195);
-	--color-obsidian-900: oklch(6% 0.02 195);
-	--color-success: oklch(70% 0.2 145);
-	--color-warning: oklch(75% 0.2 85);
-	--color-error: oklch(60% 0.25 25);
-
-	--animate-pulse-glow: pulse-glow 4s ease-in-out infinite;
-}
+/* Design system (molecules, keyframes, etc.) */
+@import "$lib/design/index.css";
 
 @keyframes pulse-glow {
 	0%,

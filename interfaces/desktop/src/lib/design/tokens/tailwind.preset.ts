@@ -79,6 +79,15 @@ export const dpPreset = {
 					800: "var(--color-neutral-800)",
 					900: "var(--color-neutral-900)",
 				},
+				"void": {
+					800: "var(--color-void-800)",
+					900: "var(--color-void-900)",
+					950: "var(--color-void-950)",
+				},
+				"obsidian": {
+					900: "var(--color-obsidian-900)",
+					950: "var(--color-obsidian-950)",
+				},
 			},
 			spacing: {
 				"1": "var(--space-1)",

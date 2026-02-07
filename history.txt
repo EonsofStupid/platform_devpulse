@@ -1,6 +1,4 @@
 #V2
-INSERT INTO context { key: 'remaining_violations', value: 'typed-routes on error pages (allowlist pattern needs fix)', priority: 8 };
-INSERT INTO context { key: 'surrealdb_namespace', value: 'banter', priority: 10 };
 INSERT INTO context { key: 'mcp_status', value: 'configured in ~/.claude.json and .mcp.json', priority: 5 };
 -- =============================================================================
 -- BLOCKERS
@@ -99,3 +97,5 @@ SELECT key, value, priority FROM context ORDER BY priority DESC LIMIT 10;
 SELECT trigger, wrong_action, correct_action FROM learnings WHERE severity = 'critical';
 SELECT content, priority, status FROM tasks WHERE status IN ['pending', 'in_progress'] ORDER BY priority DESC;
 SELECT category, description FROM blockers WHERE resolved = false;
+CREATE messages SET session_id = 'manual-test-002', role = 'user', content = 'testing absolute path hook';
+UPSERT chat_sessions:manual_test_002 SET session_id = 'manual-test-002', last_active = time::now(), message_count += 1, project_dir = 'd:/localdev/platform_devpulse';

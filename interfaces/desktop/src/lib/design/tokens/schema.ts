@@ -63,3 +63,20 @@ export type ImprintInput = z.infer<typeof ImprintSchema>;
 export type ShellDepthInput = z.infer<typeof ShellDepthSchema>;
 export type PaddingInput = z.infer<typeof PaddingSchema>;
 export type ToneInput = z.infer<typeof ToneSchema>;
+
+// Tier 2: Semantic tokens must reference Tier 1 values
+export const SemanticTokenSchema = z.object({
+	surface: z.record(z.string(), z.string()),
+	border: z.record(z.string(), z.string()),
+	depth: z.record(z.string(), z.string()),
+	transition: z.record(z.string(), z.string()),
+});
+
+// Tier 3: Component tokens must reference Tier 1 or Tier 2
+export const ComponentTokenSchema = z.record(
+	z.string(),
+	z.record(
+		z.string(),
+		z.string().startsWith("var(--", { message: "Tier 3 values must be var() references" }),
+	),
+);

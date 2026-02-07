@@ -37,12 +37,29 @@ interface TokensModule {
 	ease: Record<string, string>;
 	textSize: Record<string, string>;
 	padding: Record<string, string>;
+	signal: Record<string, string>;
+	font: Record<string, string>;
+	animation: Record<string, string>;
 	enums: Record<string, readonly (string | number)[]>;
+}
+
+interface SemanticModule {
+	semantic: Record<string, Record<string, string>>;
+}
+
+interface ComponentsModule {
+	components: Record<string, Record<string, string>>;
 }
 
 // Dynamic import required — tokens.ts is outside scripts/ rootDir boundary.
 // pathToFileURL handles Windows drive letter colon in absolute paths.
 const tokens = (await import(pathToFileURL(resolve(TOKENS_DIR, "tokens.ts")).href)) as TokensModule;
+const semanticMod = (await import(
+	pathToFileURL(resolve(TOKENS_DIR, "semantic.ts")).href
+)) as SemanticModule;
+const componentsMod = (await import(
+	pathToFileURL(resolve(TOKENS_DIR, "components.ts")).href
+)) as ComponentsModule;
 
 // ---------------------------------------------------------------------------
 // Generate tokens.css
@@ -93,6 +110,27 @@ function generateCss(): string {
 	addSection("Easing", "ease", tokens.ease);
 	addSection("Text Size", "text-size", tokens.textSize);
 	addSection("Padding", "padding", tokens.padding);
+	addSection("Signal", "signal", tokens.signal);
+	addSection("Font", "font", tokens.font);
+	addSection("Animation", "animation", tokens.animation);
+
+	// Tier 2: Semantic tokens
+	lines.push("\t/* --- Tier 2: Semantic Tokens --- */");
+	for (const [category, entries] of Object.entries(semanticMod.semantic)) {
+		for (const [key, value] of Object.entries(entries)) {
+			lines.push(`\t--${category}-${key}: ${value};`);
+		}
+	}
+	lines.push("");
+
+	// Tier 3: Component tokens
+	lines.push("\t/* --- Tier 3: Component Tokens --- */");
+	for (const [kind, entries] of Object.entries(componentsMod.components)) {
+		for (const [key, value] of Object.entries(entries)) {
+			lines.push(`\t--${kind}-${key}: ${value};`);
+		}
+	}
+	lines.push("");
 
 	lines.push("}");
 	lines.push("");
@@ -188,6 +226,49 @@ function generateCss(): string {
 	lines.push("\t/* Easing */");
 	for (const key of Object.keys(tokens.ease)) {
 		lines.push(`\t--transition-timing-function-${key}: var(--ease-${key});`);
+	}
+	lines.push("");
+
+	// Signal colors → text-signal-success, bg-signal-error, etc.
+	lines.push("\t/* Signal colors */");
+	for (const key of Object.keys(tokens.signal)) {
+		lines.push(`\t--color-signal-${key}: var(--signal-${key});`);
+	}
+	lines.push("");
+
+	// Fonts → font-sans, font-mono
+	lines.push("\t/* Fonts */");
+	for (const key of Object.keys(tokens.font)) {
+		lines.push(`\t--font-${key}: var(--font-${key});`);
+	}
+	lines.push("");
+
+	// Animation → animate-pulse-glow
+	lines.push("\t/* Animation */");
+	for (const key of Object.keys(tokens.animation)) {
+		lines.push(`\t--animate-${key}: var(--animation-${key});`);
+	}
+	lines.push("");
+
+	// Tier 2 semantic → bg-surface-primary, border-subtle, shadow-depth-panel
+	lines.push("\t/* Tier 2: Semantic */");
+	const semanticSurfaces = semanticMod.semantic.surface;
+	if (semanticSurfaces) {
+		for (const key of Object.keys(semanticSurfaces)) {
+			lines.push(`\t--color-surface-${key}: var(--surface-${key});`);
+		}
+	}
+	const semanticBorders = semanticMod.semantic.border;
+	if (semanticBorders) {
+		for (const key of Object.keys(semanticBorders)) {
+			lines.push(`\t--color-border-${key}: var(--border-${key});`);
+		}
+	}
+	const semanticDepths = semanticMod.semantic.depth;
+	if (semanticDepths) {
+		for (const key of Object.keys(semanticDepths)) {
+			lines.push(`\t--shadow-depth-${key}: var(--depth-${key});`);
+		}
 	}
 
 	lines.push("}");

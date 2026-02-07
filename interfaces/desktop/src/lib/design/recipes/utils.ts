@@ -13,36 +13,36 @@ import type {
 } from "$lib/design/tokens/types.js";
 
 const RADIUS_MAP: Record<RadiusToken, string> = {
-	none: "rounded-dp-none",
-	sm: "rounded-dp-sm",
-	md: "rounded-dp-md",
-	lg: "rounded-dp-lg",
-	xl: "rounded-dp-xl",
-	full: "rounded-dp-full",
+	none: "rounded-none",
+	sm: "rounded-sm",
+	md: "rounded-md",
+	lg: "rounded-lg",
+	xl: "rounded-xl",
+	full: "rounded-full",
 };
 
 const DEPTH_MAP: Record<DepthToken, string> = {
 	0: "",
-	1: "shadow-dp-z1",
-	2: "shadow-dp-z2",
-	3: "shadow-dp-z3",
-	4: "shadow-dp-z4",
+	1: "shadow-z1",
+	2: "shadow-z2",
+	3: "shadow-z3",
+	4: "shadow-z4",
 };
 
 const SIZE_MAP: Record<SizeToken, string> = {
-	sm: "text-dp-sm",
-	md: "text-dp-base",
-	lg: "text-dp-lg",
+	sm: "text-sm",
+	md: "text-base",
+	lg: "text-lg",
 };
 
 const GLOW_MAP: Record<GlowToken, string> = {
 	off: "",
-	teal: "shadow-dp-glow-teal",
-	purple: "shadow-dp-glow-purple",
-	magenta: "shadow-dp-glow-magenta",
-	ember: "shadow-dp-glow-ember",
-	frost: "shadow-dp-glow-frost",
-	cyber: "shadow-dp-glow-cyber",
+	teal: "shadow-glow-teal",
+	purple: "shadow-glow-purple",
+	magenta: "shadow-glow-magenta",
+	ember: "shadow-glow-ember",
+	frost: "shadow-glow-frost",
+	cyber: "shadow-glow-cyber",
 };
 
 export function radiusClass(radius: RadiusToken): string {
