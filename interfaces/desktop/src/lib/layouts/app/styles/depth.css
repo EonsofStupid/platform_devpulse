@@ -3,72 +3,41 @@
  * @layer layouts
  *
  * Multi-layer Depth System for App Shell
- * True neumorphism with 4-5 shadow layers for realistic depth.
- * Consumes ColdLight tokens - no definitions here.
- *
- * Shadow Layers:
- * 1. Ambient - large, soft, omnidirectional
- * 2. Key - directional from top-left light
- * 3. Fill - softer opposite fill
- * 4. Contact - sharp ground shadow
- * 5. Rim - subtle color bleed
+ * Neumorphism + bevel + rim lights using ColdLight tokens.
  *
  * @since 0.1.0
  */
 
-/* ============================================
-   CSS CUSTOM PROPERTIES (Layout-scoped)
-   These compose ColdLight tokens into depth presets
-   ============================================ */
-
 [data-layout="app"] {
-	/* Void surface scale */
-	--void-900: oklch(2% 0.01 280);
-	--void-800: oklch(4% 0.015 280);
-	--void-700: oklch(6% 0.02 195);
-	--void-600: oklch(8% 0.025 200);
-
-	/* Multi-layer shadow components */
 	--depth-ambient: 0 0 80px -20px oklch(3% 0.02 280 / 0.25);
 	--depth-key: -4px 8px 24px -4px oklch(2% 0.015 280 / 0.45);
 	--depth-fill: 2px 4px 16px -2px oklch(5% 0.02 195 / 0.2);
 	--depth-contact: 0 2px 4px -1px oklch(1% 0.01 200 / 0.6);
 	--depth-rim: 0 -1px 12px 2px oklch(15% 0.08 195 / 0.15);
 
-	/* Composed depth presets */
 	--depth-float: var(--depth-ambient), var(--depth-contact);
-	--depth-raised: var(--depth-ambient), var(--depth-key), var(--depth-contact);
-	--depth-elevated: var(--depth-ambient), var(--depth-key), var(--depth-fill), var(--depth-contact);
+	--depth-raised-multi: var(--depth-ambient), var(--depth-key), var(--depth-contact);
+	--depth-elevated-multi:
+		var(--depth-ambient), var(--depth-key), var(--depth-fill), var(--depth-contact);
 	--depth-lifted:
 		var(--depth-ambient), var(--depth-key), var(--depth-fill), var(--depth-contact),
 		var(--depth-rim);
 
-	/* Neumorphic shadows */
 	--neu-light: -6px -6px 16px oklch(25% 0.04 195 / 0.35);
 	--neu-shadow: 6px 6px 16px oklch(2% 0.02 280 / 0.5);
 	--neu-inner-light: inset -3px -3px 8px oklch(18% 0.03 195 / 0.25);
 	--neu-inner-shadow: inset 3px 3px 8px oklch(1% 0.015 280 / 0.4);
-
-	/* Thick neumorphism */
 	--neu-thick-light: -8px -8px 24px oklch(22% 0.04 195 / 0.4);
 	--neu-thick-shadow: 8px 8px 24px oklch(1% 0.02 280 / 0.55);
 
-	/* Pillow (soft) */
-	--neu-pillow-light: -12px -12px 32px oklch(20% 0.03 210 / 0.3);
-	--neu-pillow-shadow: 12px 12px 32px oklch(2% 0.02 280 / 0.45);
-
-	/* Composed neumorphic presets */
 	--neu-outset: var(--neu-light), var(--neu-shadow);
 	--neu-inset: var(--neu-inner-light), var(--neu-inner-shadow);
 	--neu-thick: var(--neu-thick-light), var(--neu-thick-shadow);
-	--neu-pillow: var(--neu-pillow-light), var(--neu-pillow-shadow);
 
-	/* Rim lights */
 	--rim-subtle: 0 0 8px 1px oklch(65% 0.12 195 / 0.3);
 	--rim-medium: 0 0 12px 2px oklch(70% 0.15 195 / 0.45);
 	--rim-strong: 0 0 16px 2px oklch(75% 0.18 195 / 0.6);
 
-	/* Text bevels */
 	--text-emboss: 0 1px 0 oklch(40% 0.04 195 / 0.5), 0 -1px 1px oklch(2% 0.02 280 / 0.7);
 	--text-deboss: 0 -1px 0 oklch(30% 0.03 195 / 0.4), 0 1px 1px oklch(1% 0.015 280 / 0.6);
 	--text-glow:
@@ -76,144 +45,87 @@
 		0 0 24px oklch(50% 0.12 195 / 0.3);
 }
 
-/* ============================================
-   DEPTH UTILITY CLASSES
-   ============================================ */
-
 [data-layout="app"] [data-depth="float"] {
 	box-shadow: var(--depth-float);
 }
-
 [data-layout="app"] [data-depth="raised"] {
-	box-shadow: var(--depth-raised);
+	box-shadow: var(--depth-raised-multi);
 }
-
 [data-layout="app"] [data-depth="elevated"] {
-	box-shadow: var(--depth-elevated);
+	box-shadow: var(--depth-elevated-multi);
 }
-
 [data-layout="app"] [data-depth="lifted"] {
 	box-shadow: var(--depth-lifted);
 }
 
-/* ============================================
-   NEUMORPHISM CLASSES
-   ============================================ */
-
 [data-layout="app"] [data-neu="outset"] {
 	box-shadow: var(--neu-outset);
 }
-
 [data-layout="app"] [data-neu="inset"] {
 	box-shadow: var(--neu-inset);
 }
-
 [data-layout="app"] [data-neu="thick"] {
 	box-shadow: var(--neu-thick);
 }
 
-[data-layout="app"] [data-neu="pillow"] {
-	box-shadow: var(--neu-pillow);
-}
-
-/* Combined: outset + inner shadow for concave */
-[data-layout="app"] [data-neu="concave"] {
-	box-shadow: var(--neu-outset), var(--neu-inner-shadow);
-}
-
-/* Combined: inset + contact for well/input */
-[data-layout="app"] [data-neu="well"] {
-	box-shadow: var(--neu-inset), var(--depth-contact);
-}
-
-/* ============================================
-   RIM LIGHT CLASSES
-   ============================================ */
-
 [data-layout="app"] [data-rim="subtle"] {
 	box-shadow: var(--rim-subtle);
 }
-
 [data-layout="app"] [data-rim="medium"] {
 	box-shadow: var(--rim-medium);
 }
-
 [data-layout="app"] [data-rim="strong"] {
 	box-shadow: var(--rim-strong);
 }
 
-/* Combined: depth + rim */
-[data-layout="app"] [data-depth="elevated"][data-rim="subtle"] {
-	box-shadow: var(--depth-elevated), var(--rim-subtle);
-}
-
-[data-layout="app"] [data-depth="elevated"][data-rim="medium"] {
-	box-shadow: var(--depth-elevated), var(--rim-medium);
-}
-
-[data-layout="app"] [data-depth="lifted"][data-rim="strong"] {
-	box-shadow: var(--depth-lifted), var(--rim-strong);
-}
-
-/* ============================================
-   TEXT BEVEL CLASSES
-   ============================================ */
-
 [data-layout="app"] [data-text-bevel="emboss"] {
 	text-shadow: var(--text-emboss);
 }
-
 [data-layout="app"] [data-text-bevel="deboss"] {
 	text-shadow: var(--text-deboss);
 }
-
 [data-layout="app"] [data-text-bevel="glow"] {
 	text-shadow: var(--text-glow);
 }
 
-/* ============================================
-   PANEL DEPTH COMBINATIONS
-   ============================================ */
-
-/* Glass panel with depth */
 [data-layout="app"] .panel-float {
-	background: var(--dp-glass-deep, oklch(10% 0.04 195 / 0.88));
-	backdrop-filter: blur(var(--dp-blur-md, 16px));
-	border: 1px solid var(--dp-glass-btn-border, oklch(50% 0.1 195 / 0.3));
-	border-radius: var(--dp-radius-md, 6px);
+	background: var(--glass-deep);
+	backdrop-filter: blur(var(--blur-md));
+	border: 1px solid var(--border-subtle);
+	border-radius: var(--radius-md);
 	box-shadow: var(--depth-float);
 }
 
 [data-layout="app"] .panel-raised {
-	background: var(--dp-glass-smoke, oklch(15% 0.03 200 / 0.82));
-	backdrop-filter: blur(var(--dp-blur-lg, 24px));
-	border: 1px solid var(--dp-glass-btn-border, oklch(50% 0.1 195 / 0.3));
-	border-radius: var(--dp-radius-md, 6px);
+	background: var(--glass-smoke);
+	backdrop-filter: blur(var(--blur-lg));
+	border: 1px solid var(--border-subtle);
+	border-radius: var(--radius-md);
 	box-shadow:
-		var(--depth-raised),
-		inset 0 1px 0 var(--dp-bevel-light, oklch(80% 0.06 195 / 0.3));
+		var(--depth-raised-multi),
+		inset 0 1px 0 oklch(80% 0.06 195 / 0.3);
 }
 
 [data-layout="app"] .panel-elevated {
-	background: var(--dp-glass-frost, oklch(25% 0.02 210 / 0.75));
-	backdrop-filter: blur(var(--dp-blur-lg, 24px));
-	border: 1px solid var(--dp-glass-btn-border-hover, oklch(60% 0.15 195 / 0.5));
-	border-radius: var(--dp-radius-lg, 10px);
+	background: var(--glass-frost);
+	backdrop-filter: blur(var(--blur-lg));
+	border: 1px solid var(--border-emphasis);
+	border-radius: var(--radius-lg);
 	box-shadow:
-		var(--depth-elevated),
-		inset 0 1px 0 var(--dp-bevel-light-strong, oklch(90% 0.08 195 / 0.5)),
-		inset 0 -1px 0 var(--dp-bevel-dark, oklch(15% 0.04 280 / 0.5));
+		var(--depth-elevated-multi),
+		inset 0 1px 0 oklch(90% 0.08 195 / 0.5),
+		inset 0 -1px 0 oklch(15% 0.04 280 / 0.5);
 }
 
 [data-layout="app"] .panel-hero {
-	background: var(--dp-glass-frost, oklch(25% 0.02 210 / 0.75));
-	backdrop-filter: blur(var(--dp-blur-xl, 32px));
-	border: 2px solid var(--dp-teal-500, oklch(55% 0.18 195));
-	border-radius: var(--dp-radius-lg, 10px);
+	background: var(--glass-frost);
+	backdrop-filter: blur(var(--blur-xl));
+	border: 2px solid var(--color-teal-500);
+	border-radius: var(--radius-lg);
 	box-shadow:
 		var(--depth-lifted),
 		var(--rim-strong),
-		inset 0 1px 0 var(--dp-bevel-light-strong, oklch(90% 0.08 195 / 0.5));
+		inset 0 1px 0 oklch(90% 0.08 195 / 0.5);
 }
 
 [data-layout="app"] .panel-hero:hover {
@@ -221,7 +133,7 @@
 		var(--depth-lifted),
 		0 0 24px oklch(60% 0.18 195 / 0.5),
 		0 0 48px oklch(55% 0.15 195 / 0.25),
-		inset 0 1px 0 var(--dp-bevel-light-strong, oklch(90% 0.08 195 / 0.5));
+		inset 0 1px 0 oklch(90% 0.08 195 / 0.5);
 	transform: translateY(-2px);
-	transition: all 300ms cubic-bezier(0.16, 1, 0.3, 1);
+	transition: all var(--duration-normal) var(--ease-spring);
 }

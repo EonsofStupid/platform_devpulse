@@ -83,6 +83,7 @@ export const dpPreset = {
 					800: "var(--color-void-800)",
 					900: "var(--color-void-900)",
 					950: "var(--color-void-950)",
+					base: "var(--color-void-base)",
 				},
 				"obsidian": {
 					900: "var(--color-obsidian-900)",

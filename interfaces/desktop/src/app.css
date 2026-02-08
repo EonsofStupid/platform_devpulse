@@ -10,6 +10,9 @@
 @import "@fontsource/inter/700.css";
 @import "@fontsource/jetbrains-mono/400.css";
 @import "@fontsource/jetbrains-mono/500.css";
+@import "@fontsource/orbitron/400.css";
+@import "@fontsource/orbitron/500.css";
+@import "@fontsource/orbitron/700.css";
 
 /* Design tokens (generated — do not hand-edit tokens.css) */
 @import "$lib/design/tokens/tokens.css";
@@ -33,5 +36,12 @@ body {
 	width: 100%;
 	height: 100%;
 	background-color: var(--color-void-950);
-	color: white;
+	color: var(--text-primary);
+	font-family: var(--font-sans);
+}
+
+h1,
+h2,
+h3 {
+	font-family: var(--font-display);
 }

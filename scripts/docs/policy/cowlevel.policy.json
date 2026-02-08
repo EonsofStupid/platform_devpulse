@@ -27,6 +27,7 @@
       "autofix": false,
       "allowlist": [
         "lib/sys/generated/",
+        "child-routes",
         "+error.svelte"
       ]
     },

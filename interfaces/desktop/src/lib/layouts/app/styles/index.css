@@ -3,8 +3,7 @@
  * @layer layouts
  *
  * App Shell Layout Styles
- * Consumes ColdLight tokens via var(--dp-*) references.
- * NO token definitions here - only layout-specific styling.
+ * Consumes ColdLight tokens via var(--*) references.
  *
  * @since 0.1.0
  */
@@ -12,4 +11,3 @@
 @import "./shell.css";
 @import "./surfaces.css";
 @import "./depth.css";
-@import "./layouts.css";

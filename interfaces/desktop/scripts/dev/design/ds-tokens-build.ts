@@ -136,138 +136,174 @@ function generateCss(): string {
 	lines.push("");
 
 	// ---------------------------------------------------------------------------
-	// Tailwind v4 @theme block — maps CSS vars to Tailwind utilities
+	// Tailwind v4 @theme block — raw values required (resolved at build time)
 	// ---------------------------------------------------------------------------
+
+	// Build var→value map so semantic tokens can resolve references
+	const varMap = new Map<string, string>();
+	for (const [k, v] of Object.entries(tokens.glass)) varMap.set(`--glass-${k}`, String(v));
+	for (const [k, v] of Object.entries(tokens.matte)) varMap.set(`--matte-${k}`, String(v));
+	for (const [k, v] of Object.entries(tokens.text)) varMap.set(`--text-${k}`, String(v));
+	for (const [k, v] of Object.entries(tokens.shadow)) varMap.set(`--shadow-${k}`, String(v));
+	for (const [k, v] of Object.entries(tokens.space)) varMap.set(`--space-${k}`, String(v));
+	for (const [k, v] of Object.entries(tokens.radius)) varMap.set(`--radius-${k}`, String(v));
+	for (const [k, v] of Object.entries(tokens.blur)) varMap.set(`--blur-${k}`, String(v));
+	for (const [k, v] of Object.entries(tokens.glow)) varMap.set(`--glow-${k}`, String(v));
+	for (const [k, v] of Object.entries(tokens.bevel)) varMap.set(`--bevel-${k}`, String(v));
+	for (const [k, v] of Object.entries(tokens.duration)) varMap.set(`--duration-${k}`, String(v));
+	for (const [k, v] of Object.entries(tokens.ease)) varMap.set(`--ease-${k}`, String(v));
+	for (const [k, v] of Object.entries(tokens.signal)) varMap.set(`--signal-${k}`, String(v));
+	for (const [k, v] of Object.entries(tokens.font)) varMap.set(`--font-${k}`, String(v));
+	for (const [k, v] of Object.entries(tokens.animation)) varMap.set(`--animation-${k}`, String(v));
+	for (const [name, scale] of Object.entries(tokens.color)) {
+		for (const [step, val] of Object.entries(scale)) {
+			varMap.set(`--color-${name}-${step}`, String(val));
+		}
+	}
+
+	function resolveVars(value: string): string {
+		let resolved = value.replace(
+			/var\((--[a-zA-Z0-9-]+)\)/g,
+			(_full: string, varName: string) => varMap.get(varName) ?? `var(${varName})`,
+		);
+		// Simplify oklch(from oklch(L C H) l c h / A) → oklch(L C H / A)
+		resolved = resolved.replace(
+			/oklch\(from\s+oklch\(([^)]+)\)\s+l\s+c\s+h\s*\/\s*([0-9.]+)\)/g,
+			(_full: string, components: string, alpha: string) => `oklch(${components} / ${alpha})`,
+		);
+		return resolved;
+	}
+
 	lines.push("@theme {");
 
 	// Surface materials → bg-glass-*, bg-matte-*
 	lines.push("\t/* Surface materials */");
-	for (const key of Object.keys(tokens.glass)) {
-		lines.push(`\t--color-glass-${key}: var(--glass-${key});`);
+	for (const [key, val] of Object.entries(tokens.glass)) {
+		lines.push(`\t--color-glass-${key}: ${val};`);
 	}
-	for (const key of Object.keys(tokens.matte)) {
-		lines.push(`\t--color-matte-${key}: var(--matte-${key});`);
+	for (const [key, val] of Object.entries(tokens.matte)) {
+		lines.push(`\t--color-matte-${key}: ${val};`);
 	}
 	lines.push("");
 
 	// Color scales → bg-teal-500, text-purple-300, etc.
 	lines.push("\t/* Color scales */");
 	for (const [name, scale] of Object.entries(tokens.color)) {
-		for (const step of Object.keys(scale)) {
-			lines.push(`\t--color-${name}-${step}: var(--color-${name}-${step});`);
+		for (const [step, val] of Object.entries(scale)) {
+			lines.push(`\t--color-${name}-${step}: ${val};`);
 		}
 	}
 	lines.push("");
 
 	// Text colors → text-primary, text-muted, etc.
 	lines.push("\t/* Text colors */");
-	for (const key of Object.keys(tokens.text)) {
-		lines.push(`\t--color-text-${key}: var(--text-${key});`);
+	for (const [key, val] of Object.entries(tokens.text)) {
+		lines.push(`\t--color-text-${key}: ${val};`);
 	}
 	lines.push("");
 
 	// Radius → rounded-lg, rounded-xl, etc.
 	lines.push("\t/* Radius */");
-	for (const key of Object.keys(tokens.radius)) {
-		lines.push(`\t--radius-${key}: var(--radius-${key});`);
+	for (const [key, val] of Object.entries(tokens.radius)) {
+		lines.push(`\t--radius-${key}: ${val};`);
 	}
 	lines.push("");
 
 	// Shadows → shadow-z1, shadow-z2, etc.
 	lines.push("\t/* Shadows */");
-	for (const key of Object.keys(tokens.shadow)) {
-		lines.push(`\t--shadow-${key}: var(--shadow-${key});`);
+	for (const [key, val] of Object.entries(tokens.shadow)) {
+		lines.push(`\t--shadow-${key}: ${val};`);
 	}
 	lines.push("");
 
 	// Glows → shadow-glow-teal, etc.
 	lines.push("\t/* Glows */");
-	for (const key of Object.keys(tokens.glow)) {
-		lines.push(`\t--shadow-glow-${key}: var(--glow-${key});`);
+	for (const [key, val] of Object.entries(tokens.glow)) {
+		lines.push(`\t--shadow-glow-${key}: ${val};`);
 	}
 	lines.push("");
 
 	// Bevels → shadow-bevel-subtle, etc.
 	lines.push("\t/* Bevels */");
-	for (const key of Object.keys(tokens.bevel)) {
-		lines.push(`\t--shadow-bevel-${key}: var(--bevel-${key});`);
+	for (const [key, val] of Object.entries(tokens.bevel)) {
+		lines.push(`\t--shadow-bevel-${key}: ${val};`);
 	}
 	lines.push("");
 
 	// Spacing → p-4, m-2, gap-3, etc.
 	lines.push("\t/* Spacing */");
-	for (const key of Object.keys(tokens.space)) {
-		lines.push(`\t--spacing-${key}: var(--space-${key});`);
+	for (const [key, val] of Object.entries(tokens.space)) {
+		lines.push(`\t--spacing-${key}: ${val};`);
 	}
 	lines.push("");
 
 	// Text sizes → text-sm, text-base, etc.
 	lines.push("\t/* Text sizes */");
-	for (const key of Object.keys(tokens.textSize)) {
-		lines.push(`\t--font-size-${key}: var(--text-size-${key});`);
+	for (const [key, val] of Object.entries(tokens.textSize)) {
+		lines.push(`\t--font-size-${key}: ${val};`);
 	}
 	lines.push("");
 
 	// Blur → blur-md, etc.
 	lines.push("\t/* Blur */");
-	for (const key of Object.keys(tokens.blur)) {
-		lines.push(`\t--blur-${key}: var(--blur-${key});`);
+	for (const [key, val] of Object.entries(tokens.blur)) {
+		lines.push(`\t--blur-${key}: ${val};`);
 	}
 	lines.push("");
 
 	// Duration → duration-fast, etc.
 	lines.push("\t/* Duration */");
-	for (const key of Object.keys(tokens.duration)) {
-		lines.push(`\t--transition-duration-${key}: var(--duration-${key});`);
+	for (const [key, val] of Object.entries(tokens.duration)) {
+		lines.push(`\t--transition-duration-${key}: ${val};`);
 	}
 	lines.push("");
 
 	// Easing → ease-spring, etc.
 	lines.push("\t/* Easing */");
-	for (const key of Object.keys(tokens.ease)) {
-		lines.push(`\t--transition-timing-function-${key}: var(--ease-${key});`);
+	for (const [key, val] of Object.entries(tokens.ease)) {
+		lines.push(`\t--transition-timing-function-${key}: ${val};`);
 	}
 	lines.push("");
 
 	// Signal colors → text-signal-success, bg-signal-error, etc.
 	lines.push("\t/* Signal colors */");
-	for (const key of Object.keys(tokens.signal)) {
-		lines.push(`\t--color-signal-${key}: var(--signal-${key});`);
+	for (const [key, val] of Object.entries(tokens.signal)) {
+		lines.push(`\t--color-signal-${key}: ${val};`);
 	}
 	lines.push("");
 
 	// Fonts → font-sans, font-mono
 	lines.push("\t/* Fonts */");
-	for (const key of Object.keys(tokens.font)) {
-		lines.push(`\t--font-${key}: var(--font-${key});`);
+	for (const [key, val] of Object.entries(tokens.font)) {
+		lines.push(`\t--font-${key}: ${val};`);
 	}
 	lines.push("");
 
 	// Animation → animate-pulse-glow
 	lines.push("\t/* Animation */");
-	for (const key of Object.keys(tokens.animation)) {
-		lines.push(`\t--animate-${key}: var(--animation-${key});`);
+	for (const [key, val] of Object.entries(tokens.animation)) {
+		lines.push(`\t--animate-${key}: ${val};`);
 	}
 	lines.push("");
 
-	// Tier 2 semantic → bg-surface-primary, border-subtle, shadow-depth-panel
+	// Tier 2 semantic — resolved to actual values for @theme
 	lines.push("\t/* Tier 2: Semantic */");
 	const semanticSurfaces = semanticMod.semantic.surface;
 	if (semanticSurfaces) {
-		for (const key of Object.keys(semanticSurfaces)) {
-			lines.push(`\t--color-surface-${key}: var(--surface-${key});`);
+		for (const [key, val] of Object.entries(semanticSurfaces)) {
+			lines.push(`\t--color-surface-${key}: ${resolveVars(val)};`);
 		}
 	}
 	const semanticBorders = semanticMod.semantic.border;
 	if (semanticBorders) {
-		for (const key of Object.keys(semanticBorders)) {
-			lines.push(`\t--color-border-${key}: var(--border-${key});`);
+		for (const [key, val] of Object.entries(semanticBorders)) {
+			lines.push(`\t--color-border-${key}: ${resolveVars(val)};`);
 		}
 	}
 	const semanticDepths = semanticMod.semantic.depth;
 	if (semanticDepths) {
-		for (const key of Object.keys(semanticDepths)) {
-			lines.push(`\t--shadow-depth-${key}: var(--depth-${key});`);
+		for (const [key, val] of Object.entries(semanticDepths)) {
+			lines.push(`\t--shadow-depth-${key}: ${resolveVars(val)};`);
 		}
 	}
 

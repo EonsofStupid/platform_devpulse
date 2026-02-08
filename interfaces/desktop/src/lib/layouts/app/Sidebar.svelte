@@ -1,130 +1,149 @@
 <!--
   @file src/lib/layouts/app/Sidebar.svelte
-  @name Sidebar.svelte
   @module @devpulse/layouts/app/Sidebar
   @layer lib
+
+  @description
+  Vertical sidebar with ColdLight primitives and Lucide icons.
+  Supports child route submenu via globalState.
+
+  @consumers
+  - Frame.svelte: Main app layout
+
+  @since 1.0.0
 -->
 <script lang="ts">
+import {
+	Brain,
+	Home,
+	Palette,
+	PanelLeftClose,
+	PanelLeftOpen,
+	Radio,
+	Sparkles,
+	Wrench,
+} from "lucide-svelte";
 import { page } from "$app/state";
+import { Button, ButtonIcon } from "$lib/design/primitives/button";
+import { getChildRoutes } from "$lib/sys/routing/child-routes";
+import { globalState } from "$lib/sys/runes/global.svelte";
 
-interface NavItem {
+interface NavHub {
 	id: string;
-	icon: string;
+	icon: typeof Home;
 	label: string;
 	href: string;
-	hotkey?: string;
 }
 
-interface Props {
-	/** If provided, Sidebar becomes controlled. */
-	collapsed?: boolean;
-	/** Optional controlled toggle callback. */
-	onToggle?: (nextCollapsed: boolean) => void;
-}
-
-const navItems: NavItem[] = [
-	{ id: "devpulse", icon: "🏠", label: "Home", href: "/devpulse", hotkey: "G H" },
-	{ id: "ui-demo", icon: "🎨", label: "UI Components", href: "/ui-demo", hotkey: "G U" },
-	{ id: "overmind", icon: "🧠", label: "OverMind", href: "/overmind", hotkey: "G O" },
-	{ id: "wiredfront", icon: "📡", label: "WiredFront", href: "/wiredfront", hotkey: "G W" },
-	{ id: "devforge", icon: "🔧", label: "DevForge", href: "/devforge", hotkey: "G D" },
-	{ id: "maestro", icon: "🎭", label: "Maestro", href: "/maestro", hotkey: "G M" },
+const navHubs: NavHub[] = [
+	{ id: "devpulse", icon: Home, label: "Home", href: "/devpulse" },
+	{ id: "ui-demo", icon: Palette, label: "UI Demo", href: "/ui-demo" },
+	{ id: "overmind", icon: Brain, label: "OverMind", href: "/overmind" },
+	{ id: "wiredfront", icon: Radio, label: "WiredFront", href: "/wiredfront" },
+	{ id: "devforge", icon: Wrench, label: "DevForge", href: "/devforge" },
+	{ id: "maestro", icon: Sparkles, label: "Maestro", href: "/maestro" },
 ];
-
-const animations = ["bounce", "spin", "pulse", "shake"] as const;
-type Anim = (typeof animations)[number];
-
-let { collapsed, onToggle }: Props = $props();
-
-// Uncontrolled fallback (works, but best practice is: Frame controls this)
-let localCollapsed = $state(true);
-$effect(() => {
-	if (collapsed === undefined) return;
-	localCollapsed = collapsed;
-});
-
-function isCollapsed() {
-	return collapsed ?? localCollapsed;
-}
-
-function toggleCollapsed() {
-	const next = !isCollapsed();
-	if (collapsed === undefined) localCollapsed = next;
-	onToggle?.(next);
-}
 
 function isActive(href: string): boolean {
 	return page.url.pathname === href || page.url.pathname.startsWith(`${href}/`);
 }
 
-let animatingId = $state<string | null>(null);
-let activeAnim = $state<Anim>("pulse");
-
-function randAnim(): Anim {
-	return animations[Math.floor(Math.random() * animations.length)];
+function handleHubClick(hub: NavHub): void {
+	const children = getChildRoutes(hub.href);
+	if (children.length > 0) {
+		globalState.openSubmenu(hub.id);
+	} else {
+		globalState.closeSubmenu();
+	}
+	globalState.setDomain(hub.id);
 }
 
-function triggerAnim(id: string) {
-	animatingId = id;
-	activeAnim = randAnim();
-	window.setTimeout(() => {
-		if (animatingId === id) animatingId = null;
-	}, 420);
+function handleSubmenuNav(): void {
+	globalState.closeSubmenu();
 }
 
-// Track pointer for interactive effects
-function track(e: PointerEvent) {
-	const el = e.currentTarget as HTMLElement | null;
-	if (!el) return;
-	const r = el.getBoundingClientRect();
-	const x = ((e.clientX - r.left) / r.width) * 100;
-	const y = ((e.clientY - r.top) / r.height) * 100;
-	el.style.setProperty("--mx", `${x}%`);
-	el.style.setProperty("--my", `${y}%`);
-	// keep old names too (safe)
-	el.style.setProperty("--mouse-x", `${x}%`);
-	el.style.setProperty("--mouse-y", `${y}%`);
-}
+const submenuRoutes = $derived(
+	globalState.sidebar_submenu
+		? getChildRoutes(navHubs.find((h) => h.id === globalState.sidebar_submenu)?.href ?? "")
+		: [],
+);
+
+const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 </script>
 
-<nav class="sidebar" aria-label="Primary" data-collapsed={isCollapsed() ? "true" : "false"}>
-  <div class="navGroup" role="list">
-    {#each navItems as item (item.id)}
-      <span class="tooltipWrap" data-tooltip={item.label}>
-        <a
-          href={item.href}
-          class="navItem"
-          class:active={isActive(item.href)}
-          class:animating={animatingId === item.id}
-          data-animation={animatingId === item.id ? activeAnim : ""}
-          data-hotkey={item.hotkey ?? ""}
-          aria-label={item.label}
-          aria-current={isActive(item.href) ? "page" : undefined}
-          onpointermove={track}
-          onpointerdown={() => triggerAnim(item.id)}
-        >
-          <span class="navIcon" aria-hidden="true">{item.icon}</span>
-          <span class="sidebarLabel" aria-hidden={isCollapsed() ? "true" : "false"}>{item.label}</span>
-        </a>
-      </span>
-    {/each}
+<nav class="relative grid h-full grid-rows-[1fr_auto] gap-2" aria-label="Primary">
+	<div class="grid auto-rows-min gap-2" role="list">
+		{#each navHubs as hub (hub.id)}
+			<a
+				href={hub.href}
+				data-kind="button"
+				data-slot="root"
+				class="flex items-center rounded-md"
+				class:justify-center={!isExpanded}
+				class:w-10={!isExpanded}
+				class:h-10={!isExpanded}
+				class:justify-self-end={!isExpanded}
+				class:w-full={isExpanded}
+				class:gap-3={isExpanded}
+				class:px-3={isExpanded}
+				class:py-2={isExpanded}
+				aria-label={hub.label}
+				aria-current={isActive(hub.href) ? "page" : undefined}
+				title={hub.label}
+				onclick={() => handleHubClick(hub)}
+			>
+				<span data-kind="button" data-slot="icon" class="flex shrink-0 items-center justify-center">
+					<hub.icon size={18} />
+				</span>
+				{#if isExpanded}
+					<span class="truncate text-sm text-[var(--text-secondary)]">{hub.label}</span>
+				{/if}
+			</a>
+		{/each}
+	</div>
 
-    <div class="sidebarSpacer"></div>
+	<div class="grid auto-rows-min gap-2">
+		<Button
+			class="flex items-center rounded-md {isExpanded ? 'w-full gap-3 px-3 py-2' : 'h-10 w-10 justify-center justify-self-end'}"
+			title={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
+			aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
+			onclick={() => globalState.toggleSidebar()}
+		>
+			<ButtonIcon>
+				{#if isExpanded}
+					<PanelLeftClose size={18} />
+				{:else}
+					<PanelLeftOpen size={18} />
+				{/if}
+			</ButtonIcon>
+			{#if isExpanded}
+				<span class="truncate text-sm text-[var(--text-secondary)]">Collapse</span>
+			{/if}
+		</Button>
+	</div>
 
-    <span class="tooltipWrap" data-tooltip={isCollapsed() ? "Expand" : "Collapse"}>
-      <button
-        type="button"
-        class="navItem navToggle"
-        aria-label={isCollapsed() ? "Expand sidebar" : "Collapse sidebar"}
-        aria-pressed={isCollapsed() ? "false" : "true"}
-        onpointermove={track}
-        onclick={toggleCollapsed}
-      >
-        <span class="navIcon" aria-hidden="true">{isCollapsed() ? "➡️" : "⬅️"}</span>
-        <span class="sidebarLabel" aria-hidden={isCollapsed() ? "true" : "false"}>
-          {isCollapsed() ? "Expand" : "Collapse"}
-        </span>
-      </button>
-    </span>
-  </div>
+	{#if globalState.sidebar_submenu && submenuRoutes.length > 0}
+		<div
+			data-slot="submenu"
+			class="absolute left-full top-0 z-[var(--z-dropdown)] flex h-full w-48 flex-col gap-1 p-2"
+			role="menu"
+		>
+			<span class="mb-1 px-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+				{globalState.sidebar_submenu}
+			</span>
+			{#each submenuRoutes as route (route.path)}
+				<a
+					href={route.path}
+					data-kind="button"
+					data-slot="root"
+					class="flex w-full items-center rounded-md px-3 py-2 text-sm capitalize text-[var(--text-secondary)]"
+					aria-current={isActive(route.path) ? "page" : undefined}
+					onclick={handleSubmenuNav}
+					role="menuitem"
+				>
+					{route.label}
+				</a>
+			{/each}
+		</div>
+	{/if}
 </nav>

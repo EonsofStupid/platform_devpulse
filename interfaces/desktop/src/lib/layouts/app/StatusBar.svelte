@@ -1,39 +1,64 @@
 <!--
   @file src/lib/layouts/app/StatusBar.svelte
-  @name StatusBar.svelte
   @module @devpulse/layouts/app/StatusBar
   @layer lib
+
+  @description
+  Status bar with ColdLight Badge primitives.
+  Connection dot, uptime, and version display.
+
+  @consumers
+  - Frame.svelte: Main app layout
+
+  @since 1.0.0
 -->
 <script lang="ts">
-// TODO: wire real state later
+import { Badge } from "$lib/design/primitives/badge";
+
 const status = {
-	connection: "online" as "online" | "offline" | "warning" | "processing",
+	connection: "online" as "online" | "offline" | "hybrid",
 	uptime: "12d 4h",
 	version: "0.1.0",
 };
 </script>
 
 <div class="flex w-full items-center justify-between" aria-label="System status">
-  <div class="flex items-center gap-2">
-    <span class="inline-flex items-center gap-1.5 rounded-full bg-glass-smoke px-2 py-0.5">
-      <span
-        class="h-2 w-2 rounded-full {status.connection === 'online' ? 'bg-teal-400 shadow-glow-teal' : status.connection === 'offline' ? 'bg-ember-500' : 'bg-purple-400'}"
-        data-state={status.connection}
-        aria-hidden="true"
-      ></span>
-      <span class="text-xs text-neutral-300">{status.connection}</span>
-    </span>
-  </div>
+	<div class="flex items-center gap-2">
+		<Badge
+			class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs"
+			data-status={status.connection}
+		>
+			<span
+				class="status-dot h-2 w-2 rounded-full"
+				data-status={status.connection}
+				aria-hidden="true"
+			></span>
+			<span class="text-[var(--text-secondary)]">{status.connection}</span>
+		</Badge>
+	</div>
 
-  <div class="flex items-center">
-    <span class="inline-flex items-center rounded-full bg-glass-smoke px-2 py-0.5">
-      <span class="text-xs text-neutral-400">Uptime: {status.uptime}</span>
-    </span>
-  </div>
+	<div class="flex items-center gap-2">
+		<Badge class="inline-flex items-center rounded-full px-2 py-0.5 text-xs text-[var(--text-muted)]">
+			Uptime: {status.uptime}
+		</Badge>
 
-  <div class="flex items-center">
-    <span class="inline-flex items-center rounded-full bg-glass-smoke px-2 py-0.5">
-      <span class="text-xs text-neutral-400">v{status.version}</span>
-    </span>
-  </div>
+		<Badge class="inline-flex items-center rounded-full px-2 py-0.5 text-xs text-[var(--text-muted)]">
+			v{status.version}
+		</Badge>
+	</div>
 </div>
+
+<style>
+	.status-dot {
+		box-shadow: 0 0 6px currentColor;
+	}
+	.status-dot[data-status="online"] {
+		background-color: var(--color-teal-400);
+	}
+	.status-dot[data-status="offline"] {
+		background-color: var(--signal-error);
+	}
+	.status-dot[data-status="hybrid"] {
+		background-color: var(--color-purple-400);
+	}
+</style>

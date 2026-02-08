@@ -107,6 +107,7 @@ export const color = {
 		900: "oklch(0.14 0 0)",
 	},
 	void: {
+		base: "oklch(0.06 0.02 195)",
 		800: "oklch(0.12 0.02 195)",
 		900: "oklch(0.08 0.02 195)",
 		950: "oklch(0.06 0.02 195)",
@@ -287,6 +288,7 @@ export const signal = {
 // Fonts
 // ---------------------------------------------------------------------------
 export const font = {
+	display: '"Orbitron", system-ui, sans-serif',
 	sans: '"Inter", system-ui, sans-serif',
 	mono: '"JetBrains Mono", "Fira Code", monospace',
 } as const;

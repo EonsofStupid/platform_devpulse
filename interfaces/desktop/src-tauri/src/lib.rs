@@ -39,6 +39,10 @@ pub fn run() {
             commands::thinkmaestro::create_canvas,
             // WiredFront
             commands::wiredfront::connect_peer,
+            // Window
+            commands::window::open_chat_window,
+            commands::window::close_window,
+            commands::window::focus_window,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

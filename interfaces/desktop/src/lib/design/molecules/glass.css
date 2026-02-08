@@ -29,6 +29,12 @@
 	border: 1px solid color-mix(in oklch, white, transparent 90%);
 }
 
+@utility glass-smoke {
+	background: var(--glass-smoke);
+	backdrop-filter: blur(var(--blur-md)) saturate(1.1);
+	border: 1px solid color-mix(in oklch, white, transparent 95%);
+}
+
 @utility glass-frost {
 	background: color-mix(in oklch, white, transparent 90%);
 	backdrop-filter: blur(var(--blur-md));
