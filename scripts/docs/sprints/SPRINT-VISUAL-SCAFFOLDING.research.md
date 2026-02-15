@@ -438,7 +438,7 @@ app.create_window(
 | Blueprint registry | SCAFFOLDED | 4 kinds, defaults + slot wiring |
 | Molecule CSS | MINIMAL | 3 files (glass, glow, bevel), ~77 lines total |
 | Frame.svelte grid | MIGRATED | data-layout/data-slot attributes, CSS grid |
-| Layout CSS (shell/surfaces/depth) | MIGRATED | Real token references (no more --dp-*) |
+| Layout CSS (shell/surfaces/depth) | MIGRATED | Real token references (unprefixed) |
 | Lucide SVG icons | INSTALLED | lucide-svelte@0.563.0 |
 
 ### What's BROKEN or MISSING

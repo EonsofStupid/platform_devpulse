@@ -2,70 +2,69 @@
 
 > **Status**: EXECUTING
 > **Priority**: CRITICAL
-> **Goal**: Eliminate ALL --dp- and --cl- prefixes from the codebase
+> **Goal**: Eliminate ALL legacy prefixes from the codebase
 
 ## Problem Statement
 
 ColdLight is a **first-party design system**. First-party tokens do not need prefixes.
 - `--glass-void` ✅ CORRECT
-- `--dp-glass-void` ❌ WRONG
-- `--cl-glass-void` ❌ WRONG
+- `--glass-void` ✅ CORRECT (no prefix)
+- Previously prefixed tokens (e.g. `dp-glass-void`, `cl-glass-void`) were WRONG
 
 Previous sessions introduced prefix drift. This sprint eliminates it permanently.
 
 ## Token Mapping
 
 ### Surface Materials
-| OLD (--dp-) | NEW (unprefixed) |
-|-------------|------------------|
-| `--dp-glass-void` | `--glass-void` |
-| `--dp-glass-deep` | `--glass-deep` |
-| `--dp-glass-smoke` | `--glass-smoke` |
-| `--dp-glass-frost` | `--glass-frost` |
+| CORRECT (unprefixed) |
+|----------------------|
+| `--glass-void` |
+| `--glass-deep` |
+| `--glass-smoke` |
+| `--glass-frost` |
 
 ### Colors
-| OLD (--dp-) | NEW (unprefixed) |
-|-------------|------------------|
-| `--dp-teal-{N}` | `--color-teal-{N}` |
-| `--dp-purple-{N}` | `--color-purple-{N}` |
-| `--dp-ember-{N}` | `--color-ember-{N}` |
+| CORRECT (unprefixed) |
+|----------------------|
+| `--color-teal-{N}` |
+| `--color-purple-{N}` |
+| `--color-ember-{N}` |
 
 ### Text
-| OLD (--dp-) | NEW (unprefixed) |
-|-------------|------------------|
-| `--dp-text-primary` | `--text-primary` |
-| `--dp-text-secondary` | `--text-secondary` |
-| `--dp-text-muted` | `--text-muted` |
-| `--dp-text-white` | `--text-primary` (remap) |
+| CORRECT (unprefixed) |
+|----------------------|
+| `--text-primary` |
+| `--text-secondary` |
+| `--text-muted` |
 
 ### Spacing
-| OLD (--dp-) | NEW (unprefixed) |
-|-------------|------------------|
-| `--dp-space-{N}` | `--space-{N}` |
+| CORRECT (unprefixed) |
+|----------------------|
+| `--space-{N}` |
 
 ### Radius
-| OLD (--dp-) | NEW (unprefixed) |
-|-------------|------------------|
-| `--dp-radius-sm` | `--radius-sm` |
-| `--dp-radius-md` | `--radius-md` |
-| `--dp-radius-lg` | `--radius-lg` |
+| CORRECT (unprefixed) |
+|----------------------|
+| `--radius-sm` |
+| `--radius-md` |
+| `--radius-lg` |
 
 ### Blur
-| OLD (--dp-) | NEW (unprefixed) |
-|-------------|------------------|
-| `--dp-blur-md` | `--blur-md` |
-| `--dp-blur-lg` | `--blur-lg` |
+| CORRECT (unprefixed) |
+|----------------------|
+| `--blur-md` |
+| `--blur-lg` |
 
 ### Shadows
-| OLD (--dp-) | NEW (unprefixed) |
-|-------------|------------------|
-| `--dp-shadow-z1` | `--shadow-z1` |
-| `--dp-shadow-z2` | `--shadow-z2` |
+| CORRECT (unprefixed) |
+|----------------------|
+| `--shadow-z1` |
+| `--shadow-z2` |
 
 ### Duration
-| OLD (--dp-) | NEW (unprefixed) |
-|-------------|------------------|
-| `--dp-transition-fast` | `--duration-fast` |
+| CORRECT (unprefixed) |
+|----------------------|
+| `--duration-fast` |
 
 ## Files to Fix
 
@@ -84,7 +83,7 @@ Previous sessions introduced prefix drift. This sprint eliminates it permanently
 12. `layouts/chat/styles/index.css`
 
 ### Documentation Files (Reference Only)
-- Various .md files mentioning --dp- as examples
+- Various .md files updated to unprefixed tokens
 - These will be updated to reflect correct tokens
 
 ## Verification
