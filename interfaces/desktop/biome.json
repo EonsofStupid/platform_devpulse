@@ -1,6 +1,7 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.3.13/schema.json",
 	"assist": { "actions": { "source": { "organizeImports": "on" } } },
+	"plugins": ["./gritql/no-raw-colors.grit"],
 	"linter": {
 		"enabled": true,
 		"rules": {
@@ -25,6 +26,18 @@
 					"level": "warn",
 					"options": {
 						"filenameCases": ["camelCase", "PascalCase", "kebab-case"]
+					}
+				},
+				"noRestrictedImports": {
+					"level": "error",
+					"options": {
+						"paths": {},
+						"patterns": [
+							{
+								"group": ["**/_archive/*", "**/_archive/**"],
+								"message": "Archive imports are banned. Build from taxonomy contracts."
+							}
+						]
 					}
 				}
 			}
@@ -69,6 +82,47 @@
 				"rules": {
 					"suspicious": {
 						"noConsole": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": [
+				"src/routes/**/+page.svelte",
+				"src/routes/**/+page.ts",
+				"src/routes/**/+page.server.ts",
+				"src/routes/**/+layout.svelte",
+				"src/routes/**/+layout.ts"
+			],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"paths": {},
+								"patterns": [
+									{
+										"group": ["**/_archive/*", "**/_archive/**"],
+										"message": "Archive imports are banned. Build from taxonomy contracts."
+									},
+									{
+										"group": ["$lib/design/recipes/*", "$lib/design/recipes/**"],
+										"message": "Routes must not import recipes directly. Use components or renderers."
+									}
+								]
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"includes": ["**/test-components/**"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": "off"
 					}
 				}
 			}

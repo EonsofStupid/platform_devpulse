@@ -35,13 +35,13 @@
 
 ### 2.1 Tokens (The Atoms)
 *   **`tokens/colors.css`**: OKLCH Palette.
-    *   `--dp-hue`: The global theme variable (Cyan/Teal/Purple).
-    *   `--dp-obsidian-*`: The background scale (950 to 700).
-    *   `--dp-accent-*`: Primary highlights.
+    *   `--hue`: The global theme variable (Cyan/Teal/Purple).
+    *   `--obsidian-*`: The background scale (950 to 700).
+    *   `--accent-*`: Primary highlights.
 *   **`tokens/space.css`**: The Rhythm.
-    *   `--dp-space-1` to `16`: Rem-based scale.
-    *   `--dp-topbar-height`: 52px.
-    *   `--dp-sidebar-width`: 240px.
+    *   `--space-1` to `16`: Rem-based scale.
+    *   `--topbar-height`: 52px.
+    *   `--sidebar-width`: 240px.
 
 ### 2.2 Recipes (The Molecules)
 *   **`recipes/glass.css`**: The "Deep Glass" System.
