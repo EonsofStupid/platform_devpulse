@@ -1,6 +1,8 @@
 # lefthook.yml
 # Git hooks for DevPulse - runs before commits/pushes
 
+glob_matcher: doublestar
+
 pre-commit:
   parallel: true
   commands:
@@ -19,6 +21,11 @@ pre-commit:
       glob: "*.svelte"
       root: "interfaces/desktop"
       run: pnpm exec svelte-check --threshold error
+
+    # Block --dp- and --cl- prefixes from ever entering the codebase
+    no-legacy-prefixes:
+      glob: "interfaces/desktop/src/**/*.{ts,svelte,css}"
+      run: bash scripts/hooks/no-legacy-prefixes.sh
 
     # Biome lint + format check (TypeScript, Svelte, CSS)
     biome-lint:

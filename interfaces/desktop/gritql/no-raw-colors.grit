@@ -1,0 +1,7 @@
+language css
+
+`$selector { $props }` where {
+	$props <: contains `color: $color` as $rule,
+	$color <: r"#[0-9a-fA-F].*",
+	register_diagnostic(span=$rule, message="Raw color values are banned outside tokens. Use Tailwind preset classes.")
+}
