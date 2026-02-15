@@ -179,7 +179,7 @@ Styling is driven by `data-*` attributes, NOT class manipulation:
 **CSS in surfaces.gen.css:**
 ```css
 .dp-surface[data-surface="glass"][data-variant="deep"] {
-  background: var(--dp-glass-deep);
+  background: var(--glass-deep);
   /* ... */
 }
 ```
@@ -201,7 +201,7 @@ tokens.ts (EDIT THIS)
 ### Adding a new token:
 1. Edit `src/lib/design/tokens/tokens.ts`
 2. Run `pnpm ds:tokens:build`
-3. Use in recipes via `var(--dp-your-token)`
+3. Use in recipes via `var(--your-token)`
 
 ### Token naming convention:
 ```typescript
@@ -211,7 +211,7 @@ export const myCategory = {
 } as const;
 
 // Generates:
-// --dp-my-category-my-token: oklch(50% 0.15 195);
+// --my-category-my-token: oklch(50% 0.15 195);
 ```
 
 ---
@@ -235,7 +235,7 @@ export const myCategory = {
 ### 3. No CSS custom properties in components
 ```svelte
 ❌ style="--my-color: blue"
-❌ var(--dp-*) in component code (only in generated CSS)
+❌ var(--*) token references in component code (only in generated CSS)
 ```
 
 ### 4. No MeltUI outside primitives/

@@ -19,7 +19,7 @@ tokens.ts (SSOT) --> ds-tokens-build.ts --> tokens.css, types.ts, tailwind.prese
 | File | Type | Description |
 |------|------|-------------|
 | `tokens.ts` | SSOT | Hand-edited source of truth |
-| `tokens.css` | GENERATED | CSS custom properties (`--dp-*`) |
+| `tokens.css` | GENERATED | CSS custom properties (unprefixed) |
 | `types.ts` | GENERATED | TypeScript union types + runtime arrays |
 | `tailwind.preset.ts` | GENERATED | Tailwind theme extension via CSS var refs |
 
@@ -31,22 +31,22 @@ tokens.ts (SSOT) --> ds-tokens-build.ts --> tokens.css, types.ts, tailwind.prese
 
 | Category | CSS Prefix | Example | tokens.ts export |
 |----------|------------|---------|------------------|
-| Hues | `--dp-hue-*` | `--dp-hue-teal` | `hue` |
-| Color Scales | `--dp-color-{name}-{step}` | `--dp-color-teal-500` | `color` |
-| Glass | `--dp-glass-*` | `--dp-glass-deep` | `glass` |
-| Matte | `--dp-matte-*` | `--dp-matte-dark` | `matte` |
-| Text | `--dp-text-*` | `--dp-text-primary` | `text` |
-| Spacing | `--dp-space-*` | `--dp-space-4` | `space` |
-| Radius | `--dp-radius-*` | `--dp-radius-md` | `radius` |
-| Blur | `--dp-blur-*` | `--dp-blur-md` | `blur` |
-| Glow | `--dp-glow-*` | `--dp-glow-teal` | `glow` |
-| Shadow | `--dp-shadow-*` | `--dp-shadow-z2` | `shadow` |
-| Bevel | `--dp-bevel-*` | `--dp-bevel-subtle` | `bevel` |
-| Z-Index | `--dp-z-*` | `--dp-z-modal` | `z` |
-| Duration | `--dp-duration-*` | `--dp-duration-fast` | `duration` |
-| Easing | `--dp-ease-*` | `--dp-ease-out` | `ease` |
-| Text Size | `--dp-text-size-*` | `--dp-text-size-base` | `textSize` |
-| Padding | `--dp-padding-*` | `--dp-padding-md` | `padding` |
+| Hues | `--hue-*` | `--hue-teal` | `hue` |
+| Color Scales | `--color-{name}-{step}` | `--color-teal-500` | `color` |
+| Glass | `--glass-*` | `--glass-deep` | `glass` |
+| Matte | `--matte-*` | `--matte-dark` | `matte` |
+| Text | `--text-*` | `--text-primary` | `text` |
+| Spacing | `--space-*` | `--space-4` | `space` |
+| Radius | `--radius-*` | `--radius-md` | `radius` |
+| Blur | `--blur-*` | `--blur-md` | `blur` |
+| Glow | `--glow-*` | `--glow-teal` | `glow` |
+| Shadow | `--shadow-*` | `--shadow-z2` | `shadow` |
+| Bevel | `--bevel-*` | `--bevel-subtle` | `bevel` |
+| Z-Index | `--z-*` | `--z-modal` | `z` |
+| Duration | `--duration-*` | `--duration-fast` | `duration` |
+| Easing | `--ease-*` | `--ease-out` | `ease` |
+| Text Size | `--text-size-*` | `--text-size-base` | `textSize` |
+| Padding | `--padding-*` | `--padding-md` | `padding` |
 
 ---
 
@@ -55,7 +55,7 @@ tokens.ts (SSOT) --> ds-tokens-build.ts --> tokens.css, types.ts, tailwind.prese
 ### Before Adding Tokens
 
 - [ ] Category exists or needs creation in `tokens.ts`
-- [ ] Naming follows `--dp-{category}-{name}` pattern
+- [ ] Naming follows `--{category}-{name}` pattern
 - [ ] Values use OKLCH for colors
 - [ ] Added to the correct export in `tokens.ts`
 - [ ] If new category, added to `enums` and to `generateCss()` in `ds-tokens-build.ts`

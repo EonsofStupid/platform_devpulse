@@ -218,7 +218,7 @@ recipes/
 ## Adding New Recipes
 
 1. Define the pattern in Vite plugin's `generateRecipeCSS()` function
-2. Reference only `var(--dp-*)` tokens
+2. Reference only `var(--*)` tokens
 3. Use `data-*` attributes for variants
 4. Document in `docs/recipes.md`
 

@@ -1,17 +1,29 @@
 @utility glow-teal {
-	box-shadow: 0 0 12px color-mix(in oklch, var(--color-teal-500), transparent 60%);
+	--_shadow-glow: 0 0 12px color-mix(in oklch, var(--color-teal-500), transparent 60%);
+	box-shadow:
+		var(--_shadow-glass, 0 0 #0000), var(--_shadow-bevel, 0 0 #0000),
+		var(--_shadow-glow, 0 0 #0000), var(--_shadow-depth, 0 0 #0000);
 }
 
 @utility glow-purple {
-	box-shadow: 0 0 12px color-mix(in oklch, var(--color-purple-500), transparent 60%);
+	--_shadow-glow: 0 0 12px color-mix(in oklch, var(--color-purple-500), transparent 60%);
+	box-shadow:
+		var(--_shadow-glass, 0 0 #0000), var(--_shadow-bevel, 0 0 #0000),
+		var(--_shadow-glow, 0 0 #0000), var(--_shadow-depth, 0 0 #0000);
 }
 
 @utility glow-magenta {
-	box-shadow: 0 0 12px color-mix(in oklch, var(--color-magenta-500), transparent 60%);
+	--_shadow-glow: 0 0 12px color-mix(in oklch, var(--color-magenta-500), transparent 60%);
+	box-shadow:
+		var(--_shadow-glass, 0 0 #0000), var(--_shadow-bevel, 0 0 #0000),
+		var(--_shadow-glow, 0 0 #0000), var(--_shadow-depth, 0 0 #0000);
 }
 
 @utility glow-accent {
-	box-shadow: 0 0 12px color-mix(in oklch, var(--_accent), transparent 60%);
+	--_shadow-glow: 0 0 12px color-mix(in oklch, var(--_accent), transparent 60%);
+	box-shadow:
+		var(--_shadow-glass, 0 0 #0000), var(--_shadow-bevel, 0 0 #0000),
+		var(--_shadow-glow, 0 0 #0000), var(--_shadow-depth, 0 0 #0000);
 }
 
 @utility glow-track {

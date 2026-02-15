@@ -110,18 +110,18 @@ These props are set as `data-*` attributes on DOM elements. CSS selectors match 
 
 | Token Key | CSS Variable | Tailwind Class | OKLCH Value |
 |-----------|--------------|----------------|-------------|
-| `glass.void` | `--dp-glass-void` | `bg-dp-glass-void` | `oklch(6% 0.02 195 / 0.92)` |
-| `glass.deep` | `--dp-glass-deep` | `bg-dp-glass-deep` | `oklch(10% 0.04 195 / 0.88)` |
-| `glass.smoke` | `--dp-glass-smoke` | `bg-dp-glass-smoke` | `oklch(15% 0.03 200 / 0.82)` |
-| `glass.frost` | `--dp-glass-frost` | `bg-dp-glass-frost` | `oklch(25% 0.02 210 / 0.75)` |
+| `glass.void` | `--glass-void` | `bg-glass-void` | `oklch(6% 0.02 195 / 0.92)` |
+| `glass.deep` | `--glass-deep` | `bg-glass-deep` | `oklch(10% 0.04 195 / 0.88)` |
+| `glass.smoke` | `--glass-smoke` | `bg-glass-smoke` | `oklch(15% 0.03 200 / 0.82)` |
+| `glass.frost` | `--glass-frost` | `bg-glass-frost` | `oklch(25% 0.02 210 / 0.75)` |
 
 ### 2.2 Matte Surfaces
 
 | Token Key | CSS Variable | Tailwind Class | OKLCH Value |
 |-----------|--------------|----------------|-------------|
-| `matte.dark` | `--dp-matte-dark` | `bg-dp-matte-dark` | `oklch(8% 0.04 200)` |
-| `matte.mid` | `--dp-matte-mid` | `bg-dp-matte-mid` | `oklch(12% 0.05 200)` |
-| `matte.light` | `--dp-matte-light` | `bg-dp-matte-light` | `oklch(18% 0.06 200)` |
+| `matte.dark` | `--matte-dark` | `bg-matte-dark` | `oklch(8% 0.04 200)` |
+| `matte.mid` | `--matte-mid` | `bg-matte-mid` | `oklch(12% 0.05 200)` |
+| `matte.light` | `--matte-light` | `bg-matte-light` | `oklch(18% 0.06 200)` |
 
 ### 2.3 Color Scales (per accent)
 
@@ -129,59 +129,59 @@ Example for `teal`:
 
 | Step | CSS Variable | Tailwind Class | OKLCH Value |
 |------|--------------|----------------|-------------|
-| 100 | `--dp-teal-100` | `text-dp-teal-100` | `oklch(95% 0.05 195)` |
-| 300 | `--dp-teal-300` | `text-dp-teal-300` | `oklch(75% 0.12 195)` |
-| 500 | `--dp-teal-500` | `text-dp-teal-500` | `oklch(55% 0.18 195)` |
-| 700 | `--dp-teal-700` | `text-dp-teal-700` | `oklch(35% 0.12 195)` |
-| 900 | `--dp-teal-900` | `text-dp-teal-900` | `oklch(15% 0.05 195)` |
+| 100 | `--color-teal-100` | `text-color-teal-100` | `oklch(95% 0.05 195)` |
+| 300 | `--color-teal-300` | `text-color-teal-300` | `oklch(75% 0.12 195)` |
+| 500 | `--color-teal-500` | `text-color-teal-500` | `oklch(55% 0.18 195)` |
+| 700 | `--color-teal-700` | `text-color-teal-700` | `oklch(35% 0.12 195)` |
+| 900 | `--color-teal-900` | `text-color-teal-900` | `oklch(15% 0.05 195)` |
 
 ### 2.4 Glow Shadows
 
 | Token Key | CSS Variable | Tailwind Class | Box-Shadow |
 |-----------|--------------|----------------|------------|
-| `glow.teal` | `--dp-glow-teal` | `shadow-dp-glow-teal` | Inner + outer teal glow |
-| `glow.purple` | `--dp-glow-purple` | `shadow-dp-glow-purple` | Inner + outer purple glow |
-| `glow.magenta` | `--dp-glow-magenta` | `shadow-dp-glow-magenta` | Inner + outer magenta glow |
-| `glow.ember` | `--dp-glow-ember` | `shadow-dp-glow-ember` | Inner + outer ember glow |
-| `glow.frost` | `--dp-glow-frost` | `shadow-dp-glow-frost` | Inner + outer frost glow |
+| `glow.teal` | `--glow-teal` | `shadow-glow-teal` | Inner + outer teal glow |
+| `glow.purple` | `--glow-purple` | `shadow-glow-purple` | Inner + outer purple glow |
+| `glow.magenta` | `--glow-magenta` | `shadow-glow-magenta` | Inner + outer magenta glow |
+| `glow.ember` | `--glow-ember` | `shadow-glow-ember` | Inner + outer ember glow |
+| `glow.frost` | `--glow-frost` | `shadow-glow-frost` | Inner + outer frost glow |
 
 ### 2.5 Spacing
 
 | Token Key | CSS Variable | Tailwind Class | Value |
 |-----------|--------------|----------------|-------|
-| `spacing.1` | `--dp-space-1` | `p-dp-1`, `m-dp-1`, `gap-dp-1` | `clamp(2px, 0.25rem, 4px)` |
-| `spacing.2` | `--dp-space-2` | `p-dp-2`, `m-dp-2`, `gap-dp-2` | `clamp(4px, 0.5rem, 8px)` |
-| `spacing.3` | `--dp-space-3` | `p-dp-3`, `m-dp-3`, `gap-dp-3` | `clamp(8px, 0.75rem, 12px)` |
-| `spacing.4` | `--dp-space-4` | `p-dp-4`, `m-dp-4`, `gap-dp-4` | `clamp(12px, 1rem, 16px)` |
-| `spacing.5` | `--dp-space-5` | `p-dp-5`, `m-dp-5`, `gap-dp-5` | `clamp(16px, 1.25rem, 20px)` |
-| `spacing.6` | `--dp-space-6` | `p-dp-6`, `m-dp-6`, `gap-dp-6` | `clamp(20px, 1.5rem, 24px)` |
-| `spacing.8` | `--dp-space-8` | `p-dp-8`, `m-dp-8`, `gap-dp-8` | `clamp(28px, 2rem, 32px)` |
+| `spacing.1` | `--space-1` | `p-1`, `m-1`, `gap-1` | `clamp(2px, 0.25rem, 4px)` |
+| `spacing.2` | `--space-2` | `p-2`, `m-2`, `gap-2` | `clamp(4px, 0.5rem, 8px)` |
+| `spacing.3` | `--space-3` | `p-3`, `m-3`, `gap-3` | `clamp(8px, 0.75rem, 12px)` |
+| `spacing.4` | `--space-4` | `p-4`, `m-4`, `gap-4` | `clamp(12px, 1rem, 16px)` |
+| `spacing.5` | `--space-5` | `p-5`, `m-5`, `gap-5` | `clamp(16px, 1.25rem, 20px)` |
+| `spacing.6` | `--space-6` | `p-6`, `m-6`, `gap-6` | `clamp(20px, 1.5rem, 24px)` |
+| `spacing.8` | `--space-8` | `p-8`, `m-8`, `gap-8` | `clamp(28px, 2rem, 32px)` |
 
 ### 2.6 Radius
 
 | Token Key | CSS Variable | Tailwind Class | Value |
 |-----------|--------------|----------------|-------|
-| `radius.none` | `--dp-radius-none` | `rounded-dp-none` | `0` |
-| `radius.sm` | `--dp-radius-sm` | `rounded-dp-sm` | `clamp(4px, 0.5rem, 6px)` |
-| `radius.md` | `--dp-radius-md` | `rounded-dp-md` | `clamp(6px, 0.75rem, 10px)` |
-| `radius.lg` | `--dp-radius-lg` | `rounded-dp-lg` | `clamp(10px, 1rem, 14px)` |
-| `radius.xl` | `--dp-radius-xl` | `rounded-dp-xl` | `clamp(14px, 1.25rem, 20px)` |
-| `radius.full` | `--dp-radius-full` | `rounded-dp-full` | `9999px` |
+| `radius.none` | `--radius-none` | `rounded-none` | `0` |
+| `radius.sm` | `--radius-sm` | `rounded-sm` | `clamp(4px, 0.5rem, 6px)` |
+| `radius.md` | `--radius-md` | `rounded-md` | `clamp(6px, 0.75rem, 10px)` |
+| `radius.lg` | `--radius-lg` | `rounded-lg` | `clamp(10px, 1rem, 14px)` |
+| `radius.xl` | `--radius-xl` | `rounded-xl` | `clamp(14px, 1.25rem, 20px)` |
+| `radius.full` | `--radius-full` | `rounded-full` | `9999px` |
 
 ### 2.7 Z-Index
 
 | Token Key | CSS Variable | Tailwind Class | Value |
 |-----------|--------------|----------------|-------|
-| `zIndex.base` | `--dp-z-base` | `z-dp-base` | `0` |
-| `zIndex.dropdown` | `--dp-z-dropdown` | `z-dp-dropdown` | `100` |
-| `zIndex.sticky` | `--dp-z-sticky` | `z-dp-sticky` | `200` |
-| `zIndex.modal` | `--dp-z-modal` | `z-dp-modal` | `300` |
-| `zIndex.popover` | `--dp-z-popover` | `z-dp-popover` | `400` |
-| `zIndex.tooltip` | `--dp-z-tooltip` | `z-dp-tooltip` | `500` |
-| `zIndex.toast` | `--dp-z-toast` | `z-dp-toast` | `600` |
-| `zIndex.overlay` | `--dp-z-overlay` | `z-dp-overlay` | `700` |
-| `zIndex.vpb` | `--dp-z-vpb` | `z-dp-vpb` | `800` ❌ MISSING |
-| `zIndex.vpbFab` | `--dp-z-vpb-fab` | `z-dp-vpb-fab` | `900` ❌ MISSING |
+| `zIndex.base` | `--z-base` | `z-base` | `0` |
+| `zIndex.dropdown` | `--z-dropdown` | `z-dropdown` | `100` |
+| `zIndex.sticky` | `--z-sticky` | `z-sticky` | `200` |
+| `zIndex.modal` | `--z-modal` | `z-modal` | `300` |
+| `zIndex.popover` | `--z-popover` | `z-popover` | `400` |
+| `zIndex.tooltip` | `--z-tooltip` | `z-tooltip` | `500` |
+| `zIndex.toast` | `--z-toast` | `z-toast` | `600` |
+| `zIndex.overlay` | `--z-overlay` | `z-overlay` | `700` |
+| `zIndex.vpb` | `--z-vpb` | `z-vpb` | `800` |
+| `zIndex.vpbFab` | `--z-vpb-fab` | `z-vpb-fab` | `900` |
 
 ---
 
@@ -336,10 +336,10 @@ Examples:
   description: "Glass variant for myKind with standard styling",
   classes: {
     // Slot name → Tailwind classes
-    root: "bg-dp-glass-deep backdrop-blur-md rounded-dp-md border border-white/10",
-    header: "px-dp-4 py-dp-2 border-b border-white/5",
-    body: "px-dp-4 py-dp-3",
-    footer: "px-dp-4 py-dp-2 border-t border-white/5",
+    root: "bg-glass-deep backdrop-blur-md rounded-md border border-white/10",
+    header: "px-4 py-2 border-b border-white/5",
+    body: "px-4 py-3",
+    footer: "px-4 py-2 border-t border-white/5",
   },
   // Optional: if this recipe needs JS effects
   // requires: ["glowTrack", "ripple"],
@@ -351,13 +351,13 @@ Examples:
 **ALLOWED:**
 ```typescript
 // Token-backed Tailwind classes
-"bg-dp-glass-deep"           // Glass background
+"bg-glass-deep"              // Glass background
 "backdrop-blur-md"           // Blur
-"rounded-dp-md"              // Token radius
+"rounded-md"                 // Token radius
 "border border-white/10"     // Border with opacity
-"px-dp-4 py-dp-2"            // Token spacing
-"shadow-dp-glow-teal"        // Token glow
-"text-dp-text-primary"       // Token text color
+"px-4 py-2"                  // Token spacing
+"shadow-glow-teal"           // Token glow
+"text-text-primary"          // Token text color
 ```
 
 **FORBIDDEN:**
@@ -369,8 +369,8 @@ Examples:
 "shadow-[0_0_20px_teal]"     // Raw shadow
 
 // ❌ Non-token classes
-"bg-red-500"                 // Tailwind default (not dp-)
-"text-blue-700"              // Tailwind default (not dp-)
+"bg-red-500"                 // Tailwind default (not token-backed)
+"text-blue-700"              // Tailwind default (not token-backed)
 ```
 
 ### 4.6 Slot Classes Pattern
@@ -598,11 +598,11 @@ card.matte.compact
 
 ### Class Pattern
 ```
-bg-dp-{surface}-{variant}
-text-dp-{color}-{step}
-shadow-dp-glow-{color}
-rounded-dp-{size}
-p-dp-{size}
+bg-{surface}-{variant}
+text-{color}-{step}
+shadow-glow-{color}
+rounded-{size}
+p-{size}
 ```
 
 ### Data Attribute Pattern

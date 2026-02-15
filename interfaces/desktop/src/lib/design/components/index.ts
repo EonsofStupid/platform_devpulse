@@ -7,6 +7,7 @@ import "$lib/design/recipes/components/tabs/index.js";
 import "$lib/design/blueprints/components/tabs/index.js";
 import "$lib/design/recipes/components/panel/index.js";
 import "$lib/design/blueprints/components/panel/index.js";
+import "$lib/design/recipes/layouts/shell/index.js";
 
 export * as Combobox from "./combobox/index.js";
 // Component exports

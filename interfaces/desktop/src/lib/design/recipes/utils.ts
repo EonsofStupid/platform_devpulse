@@ -4,6 +4,7 @@
  */
 
 import type {
+	BevelToken,
 	DepthToken,
 	GlassVariantToken,
 	GlowToken,
@@ -23,10 +24,10 @@ const RADIUS_MAP: Record<RadiusToken, string> = {
 
 const DEPTH_MAP: Record<DepthToken, string> = {
 	0: "",
-	1: "shadow-z1",
-	2: "shadow-z2",
-	3: "shadow-z3",
-	4: "shadow-z4",
+	1: "depth-float",
+	2: "depth-raised",
+	3: "depth-elevated",
+	4: "depth-lifted",
 };
 
 const SIZE_MAP: Record<SizeToken, string> = {
@@ -37,12 +38,19 @@ const SIZE_MAP: Record<SizeToken, string> = {
 
 const GLOW_MAP: Record<GlowToken, string> = {
 	off: "",
-	teal: "shadow-glow-teal",
-	purple: "shadow-glow-purple",
-	magenta: "shadow-glow-magenta",
-	ember: "shadow-glow-ember",
-	frost: "shadow-glow-frost",
-	cyber: "shadow-glow-cyber",
+	teal: "glow-teal",
+	purple: "glow-purple",
+	magenta: "glow-magenta",
+	ember: "glow-ember",
+	frost: "glow-frost",
+	cyber: "glow-cyber",
+};
+
+const BEVEL_MAP: Record<BevelToken, string> = {
+	off: "",
+	subtle: "bevel-subtle",
+	soft: "bevel-soft",
+	medium: "bevel-medium",
 };
 
 export function radiusClass(radius: RadiusToken): string {
@@ -61,15 +69,19 @@ export function glowClass(glow: GlowToken): string {
 	return GLOW_MAP[glow];
 }
 
+export function bevelClass(bevel: BevelToken): string {
+	return BEVEL_MAP[bevel];
+}
+
 export function surfaceClass(
 	surface: SurfaceToken,
 	variant: GlassVariantToken | "dark" | "medium" | "light",
 ): string {
 	if (surface === "glass") {
-		return `bg-glass-${variant}`;
+		return `glass-${variant}`;
 	}
 	if (surface === "matte") {
-		return `bg-matte-${variant}`;
+		return `bg-[var(--matte-${variant})]`;
 	}
 	return "";
 }

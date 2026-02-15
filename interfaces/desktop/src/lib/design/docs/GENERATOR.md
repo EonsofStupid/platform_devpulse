@@ -147,14 +147,14 @@ taxonomy + code structure
 
 ### Token Audit
 
-- [ ] All CSS variables use `--dp-` prefix
+- [ ] All CSS variables are unprefixed
 - [ ] All values are OKLCH for colors
 - [ ] No raw hex/rgb values
 - [ ] DTCG format compliance
 
 ### Recipe Audit
 
-- [ ] All CSS uses `var(--dp-*)` references
+- [ ] All CSS uses `var(--*)` references
 - [ ] No hand-written CSS in `*.gen.css` files
 - [ ] Variant keys match `v-s{#}z{#}l{#}t{#}m{#}` format
 
@@ -250,7 +250,7 @@ pnpm dev
 | `Missing kind` | Primitive not in registry | Add to `primitiveKinds.ts` |
 | `Missing slots` | Slots not defined | Add to `primitiveRegistry.ts` |
 | `Invalid variant` | Wrong format | Use `v-s{#}z{#}l{#}t{#}m{#}` |
-| `Raw color` | Non-token color | Use `var(--dp-*)` |
+| `Raw color` | Non-token color | Use `var(--*)` |
 
 ---
 

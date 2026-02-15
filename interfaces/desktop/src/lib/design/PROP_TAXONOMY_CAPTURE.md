@@ -610,7 +610,7 @@ Renderers are a runtime boundary. DB gives you JSON. So renderers must validate 
 **Never duplicate values inside recipes.**
 
 ```
-✅ Tokens: --dp-glass-void (value)
+✅ Tokens: --glass-void (value)
 ✅ Recipe: "glass panel uses glass.void + blur.md + bevel.md" (decision)
 ```
 

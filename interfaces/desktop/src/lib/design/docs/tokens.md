@@ -20,24 +20,24 @@ ColdLight uses OKLCH color format for perceptually uniform colors.
 
 | Name | Variable | Hue Angle |
 |------|----------|-----------|
-| Teal | `--dp-hue-teal` | 180 |
-| Purple | `--dp-hue-purple` | 280 |
-| Magenta | `--dp-hue-magenta` | 330 |
-| Ember | `--dp-hue-ember` | 25 |
-| Frost | `--dp-hue-frost` | 220 |
-| Cyber | `--dp-hue-cyber` | 160 |
+| Teal | `--hue-teal` | 180 |
+| Purple | `--hue-purple` | 280 |
+| Magenta | `--hue-magenta` | 330 |
+| Ember | `--hue-ember` | 25 |
+| Frost | `--hue-frost` | 220 |
+| Cyber | `--hue-cyber` | 160 |
 
 ### Color Scales
 
 Six palettes, each with a 50-900 step scale:
 
 ```css
---dp-color-teal-50 through --dp-color-teal-900
---dp-color-purple-50 through --dp-color-purple-900
---dp-color-magenta-50 through --dp-color-magenta-900
---dp-color-ember-50 through --dp-color-ember-900
---dp-color-frost-50 through --dp-color-frost-900
---dp-color-neutral-50 through --dp-color-neutral-900
+--color-teal-50 through --color-teal-900
+--color-purple-50 through --color-purple-900
+--color-magenta-50 through --color-magenta-900
+--color-ember-50 through --color-ember-900
+--color-frost-50 through --color-frost-900
+--color-neutral-50 through --color-neutral-900
 ```
 
 Steps: 50, 100, 200, 300, 400, 500, 600, 700, 800, 900.
@@ -46,30 +46,30 @@ Steps: 50, 100, 200, 300, 400, 500, 600, 700, 800, 900.
 
 | Name | Variable | Description |
 |------|----------|-------------|
-| Void | `--dp-glass-void` | Darkest, near-black (85% opacity) |
-| Deep | `--dp-glass-deep` | Default glass depth (75% opacity) |
-| Smoke | `--dp-glass-smoke` | Slightly lighter (60% opacity) |
-| Frost | `--dp-glass-frost` | Lightest, frosted (40% opacity) |
+| Void | `--glass-void` | Darkest, near-black (85% opacity) |
+| Deep | `--glass-deep` | Default glass depth (75% opacity) |
+| Smoke | `--glass-smoke` | Slightly lighter (60% opacity) |
+| Frost | `--glass-frost` | Lightest, frosted (40% opacity) |
 
 ### Matte Surfaces
 
 | Name | Variable | Description |
 |------|----------|-------------|
-| Dark | `--dp-matte-dark` | Darkest matte |
-| Medium | `--dp-matte-medium` | Mid matte |
-| Light | `--dp-matte-light` | Lightest matte |
+| Dark | `--matte-dark` | Darkest matte |
+| Medium | `--matte-medium` | Mid matte |
+| Light | `--matte-light` | Lightest matte |
 
 ### Text Colors
 
 | Name | Variable | Usage |
 |------|----------|-------|
-| Primary | `--dp-text-primary` | Main text |
-| Secondary | `--dp-text-secondary` | Supporting text |
-| Muted | `--dp-text-muted` | Disabled/subtle |
-| Inverted | `--dp-text-inverted` | Dark text on light backgrounds |
-| Link | `--dp-text-link` | Hyperlinks |
-| Error | `--dp-text-error` | Error messages |
-| Success | `--dp-text-success` | Success messages |
+| Primary | `--text-primary` | Main text |
+| Secondary | `--text-secondary` | Supporting text |
+| Muted | `--text-muted` | Disabled/subtle |
+| Inverted | `--text-inverted` | Dark text on light backgrounds |
+| Link | `--text-link` | Hyperlinks |
+| Error | `--text-error` | Error messages |
+| Success | `--text-success` | Success messages |
 
 ---
 
@@ -79,13 +79,13 @@ Fixed rem values (1 unit = 0.25rem).
 
 | Name | Variable | Value |
 |------|----------|-------|
-| 1 | `--dp-space-1` | 0.25rem |
-| 2 | `--dp-space-2` | 0.5rem |
-| 3 | `--dp-space-3` | 0.75rem |
-| 4 | `--dp-space-4` | 1rem |
-| 5 | `--dp-space-5` | 1.25rem |
-| 6 | `--dp-space-6` | 1.5rem |
-| 8 | `--dp-space-8` | 2rem |
+| 1 | `--space-1` | 0.25rem |
+| 2 | `--space-2` | 0.5rem |
+| 3 | `--space-3` | 0.75rem |
+| 4 | `--space-4` | 1rem |
+| 5 | `--space-5` | 1.25rem |
+| 6 | `--space-6` | 1.5rem |
+| 8 | `--space-8` | 2rem |
 
 ---
 
@@ -93,12 +93,12 @@ Fixed rem values (1 unit = 0.25rem).
 
 | Name | Variable | Value |
 |------|----------|-------|
-| None | `--dp-radius-none` | 0 |
-| SM | `--dp-radius-sm` | 0.25rem |
-| MD | `--dp-radius-md` | 0.5rem |
-| LG | `--dp-radius-lg` | 0.75rem |
-| XL | `--dp-radius-xl` | 1rem |
-| Full | `--dp-radius-full` | 9999px |
+| None | `--radius-none` | 0 |
+| SM | `--radius-sm` | 0.25rem |
+| MD | `--radius-md` | 0.5rem |
+| LG | `--radius-lg` | 0.75rem |
+| XL | `--radius-xl` | 1rem |
+| Full | `--radius-full` | 9999px |
 
 ---
 
@@ -106,11 +106,11 @@ Fixed rem values (1 unit = 0.25rem).
 
 | Name | Variable | Value |
 |------|----------|-------|
-| Off | `--dp-blur-off` | 0 |
-| SM | `--dp-blur-sm` | 4px |
-| MD | `--dp-blur-md` | 8px |
-| LG | `--dp-blur-lg` | 16px |
-| XL | `--dp-blur-xl` | 24px |
+| Off | `--blur-off` | 0 |
+| SM | `--blur-sm` | 4px |
+| MD | `--blur-md` | 8px |
+| LG | `--blur-lg` | 16px |
+| XL | `--blur-xl` | 24px |
 
 ---
 
@@ -120,13 +120,13 @@ Accent-colored box-shadow values.
 
 | Name | Variable | Color |
 |------|----------|-------|
-| Off | `--dp-glow-off` | none |
-| Teal | `--dp-glow-teal` | oklch teal at 40% opacity |
-| Purple | `--dp-glow-purple` | oklch purple at 40% opacity |
-| Magenta | `--dp-glow-magenta` | oklch magenta at 40% opacity |
-| Ember | `--dp-glow-ember` | oklch ember at 40% opacity |
-| Frost | `--dp-glow-frost` | oklch frost at 40% opacity |
-| Cyber | `--dp-glow-cyber` | oklch cyber at 40% opacity |
+| Off | `--glow-off` | none |
+| Teal | `--glow-teal` | oklch teal at 40% opacity |
+| Purple | `--glow-purple` | oklch purple at 40% opacity |
+| Magenta | `--glow-magenta` | oklch magenta at 40% opacity |
+| Ember | `--glow-ember` | oklch ember at 40% opacity |
+| Frost | `--glow-frost` | oklch frost at 40% opacity |
+| Cyber | `--glow-cyber` | oklch cyber at 40% opacity |
 
 ---
 
@@ -136,11 +136,11 @@ Elevation stacks using z-level naming.
 
 | Name | Variable | Elevation |
 |------|----------|-----------|
-| Z0 | `--dp-shadow-z0` | none |
-| Z1 | `--dp-shadow-z1` | Base elevation |
-| Z2 | `--dp-shadow-z2` | Raised |
-| Z3 | `--dp-shadow-z3` | Floating |
-| Z4 | `--dp-shadow-z4` | Modal/overlay |
+| Z0 | `--shadow-z0` | none |
+| Z1 | `--shadow-z1` | Base elevation |
+| Z2 | `--shadow-z2` | Raised |
+| Z3 | `--shadow-z3` | Floating |
+| Z4 | `--shadow-z4` | Modal/overlay |
 
 ---
 
@@ -150,10 +150,10 @@ Inset shadow effects for depth.
 
 | Name | Variable | Effect |
 |------|----------|--------|
-| Off | `--dp-bevel-off` | none |
-| Subtle | `--dp-bevel-subtle` | Light top highlight |
-| Soft | `--dp-bevel-soft` | Top + bottom edge |
-| Medium | `--dp-bevel-medium` | Stronger top + bottom edge |
+| Off | `--bevel-off` | none |
+| Subtle | `--bevel-subtle` | Light top highlight |
+| Soft | `--bevel-soft` | Top + bottom edge |
+| Medium | `--bevel-medium` | Stronger top + bottom edge |
 
 ---
 
@@ -161,15 +161,15 @@ Inset shadow effects for depth.
 
 | Name | Variable | Value |
 |------|----------|-------|
-| Base | `--dp-z-base` | 0 |
-| Raised | `--dp-z-raised` | 10 |
-| Dropdown | `--dp-z-dropdown` | 100 |
-| Sticky | `--dp-z-sticky` | 200 |
-| Overlay | `--dp-z-overlay` | 300 |
-| Modal | `--dp-z-modal` | 400 |
-| Popover | `--dp-z-popover` | 500 |
-| Toast | `--dp-z-toast` | 600 |
-| Tooltip | `--dp-z-tooltip` | 700 |
+| Base | `--z-base` | 0 |
+| Raised | `--z-raised` | 10 |
+| Dropdown | `--z-dropdown` | 100 |
+| Sticky | `--z-sticky` | 200 |
+| Overlay | `--z-overlay` | 300 |
+| Modal | `--z-modal` | 400 |
+| Popover | `--z-popover` | 500 |
+| Toast | `--z-toast` | 600 |
+| Tooltip | `--z-tooltip` | 700 |
 
 ---
 
@@ -177,12 +177,12 @@ Inset shadow effects for depth.
 
 | Name | Variable | Value |
 |------|----------|-------|
-| XS | `--dp-text-size-xs` | 0.75rem |
-| SM | `--dp-text-size-sm` | 0.875rem |
-| Base | `--dp-text-size-base` | 1rem |
-| LG | `--dp-text-size-lg` | 1.125rem |
-| XL | `--dp-text-size-xl` | 1.25rem |
-| 2XL | `--dp-text-size-2xl` | 1.5rem |
+| XS | `--text-size-xs` | 0.75rem |
+| SM | `--text-size-sm` | 0.875rem |
+| Base | `--text-size-base` | 1rem |
+| LG | `--text-size-lg` | 1.125rem |
+| XL | `--text-size-xl` | 1.25rem |
+| 2XL | `--text-size-2xl` | 1.5rem |
 
 ---
 
@@ -190,11 +190,11 @@ Inset shadow effects for depth.
 
 | Name | Variable | Value |
 |------|----------|-------|
-| Instant | `--dp-duration-instant` | 50ms |
-| Fast | `--dp-duration-fast` | 150ms |
-| Normal | `--dp-duration-normal` | 250ms |
-| Slow | `--dp-duration-slow` | 400ms |
-| Glacial | `--dp-duration-glacial` | 700ms |
+| Instant | `--duration-instant` | 50ms |
+| Fast | `--duration-fast` | 150ms |
+| Normal | `--duration-normal` | 250ms |
+| Slow | `--duration-slow` | 400ms |
+| Glacial | `--duration-glacial` | 700ms |
 
 ---
 
@@ -202,11 +202,11 @@ Inset shadow effects for depth.
 
 | Name | Variable | Curve |
 |------|----------|-------|
-| Linear | `--dp-ease-linear` | linear |
-| In | `--dp-ease-in` | cubic-bezier(0.4, 0, 1, 1) |
-| Out | `--dp-ease-out` | cubic-bezier(0, 0, 0.2, 1) |
-| In-Out | `--dp-ease-inOut` | cubic-bezier(0.4, 0, 0.2, 1) |
-| Spring | `--dp-ease-spring` | cubic-bezier(0.34, 1.56, 0.64, 1) |
+| Linear | `--ease-linear` | linear |
+| In | `--ease-in` | cubic-bezier(0.4, 0, 1, 1) |
+| Out | `--ease-out` | cubic-bezier(0, 0, 0.2, 1) |
+| In-Out | `--ease-inOut` | cubic-bezier(0.4, 0, 0.2, 1) |
+| Spring | `--ease-spring` | cubic-bezier(0.34, 1.56, 0.64, 1) |
 
 ---
 
@@ -216,9 +216,9 @@ Component-level padding presets.
 
 | Name | Variable | Value |
 |------|----------|-------|
-| SM | `--dp-padding-sm` | 0.375rem 0.75rem |
-| MD | `--dp-padding-md` | 0.5rem 1rem |
-| LG | `--dp-padding-lg` | 0.75rem 1.5rem |
+| SM | `--padding-sm` | 0.375rem 0.75rem |
+| MD | `--padding-md` | 0.5rem 1rem |
+| LG | `--padding-lg` | 0.75rem 1.5rem |
 
 ---
 
@@ -228,6 +228,6 @@ Component-level padding presets.
 2. If new category, add `addSection()` call in `ds-tokens-build.ts`
 3. If enumerable, add to `enums` in `tokens.ts`
 4. Run `pnpm ds:tokens:build`
-5. Use `var(--dp-your-token)` in CSS/recipes
+5. Use `var(--your-token)` in CSS/recipes
 
 **Never hand-edit generated files.**

@@ -13,7 +13,7 @@ All AI agents and developers MUST follow these patterns.
 
 ```
 ❌ WRONG UNDERSTANDING:
-   Recipe = "bg-dp-glass-deep border-dp-teal-500 shadow-dp-glow-teal"
+   Recipe = "bg-glass-deep border-color-teal-500 shadow-glow-teal"
    (A hardcoded string that never changes)
 
 ✅ CORRECT UNDERSTANDING:
@@ -321,13 +321,13 @@ const buttonGlassDefault: RecipeDefinition<ButtonProps> = {
   // Composable - VPB can change any prop
   classes: (props) => ({
     root: [
-      `bg-dp-glass-${props.finish}`,
-      `border-dp-${props.color.a}-500`,
-      `shadow-dp-${props.depth}`,
-      props.glow.color && `shadow-dp-glow-${props.glow.color}`,
-      props.bevel.level && `shadow-dp-bevel-${props.bevel.level}`
+      `bg-glass-${props.finish}`,
+      `border-${props.color.a}-500`,
+      `shadow-${props.depth}`,
+      props.glow.color && `shadow-glow-${props.glow.color}`,
+      props.bevel.level && `shadow-bevel-${props.bevel.level}`
     ].filter(Boolean).join(" "),
-    icon: "text-dp-text-primary",
+    icon: "text-text-primary",
     label: "font-medium"
   }),
 
@@ -372,7 +372,7 @@ No exceptions.
 ## 6) CSS Variable Injection (STRICT + LIMITED)
 
 ✅ Allowed: ROOT tokens only
-- `--dp-*` / `--ds-*` exist only in tokens.css at root scope
+- Unprefixed CSS custom properties exist only in tokens.css at root scope
 
 ✅ Allowed: Ephemeral computed vars ONLY when necessary (rare)
 - Prefix: `--_cl-*` (private coldlight runtime)
@@ -381,7 +381,7 @@ No exceptions.
 
 ❌ Forbidden:
 - Injecting theme tokens per component
-- Using `--dp-*` inside .svelte
+- Using token CSS vars inside .svelte
 - Injecting colors via inline style
 - Injecting spacing via px/rem values
 
@@ -455,7 +455,7 @@ export default defineConfig({
 3. No magic numbers — no raw px/rem/oklch strings in components
 4. No duplicate primitives — one SSOT per primitive
 5. No string props — union literals only
-6. No raw theme vars in components — `--dp-*` must never appear in .svelte
+6. No raw theme vars in components — token CSS vars must never appear in .svelte
 7. No Tailwind arbitrary values — ban any `[...]` class usage
 8. No renderer styling logic — renderers only apply recipe outputs
 9. No visual JS without recipe.requires — tracking effects must be declared
