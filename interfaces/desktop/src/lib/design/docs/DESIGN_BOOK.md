@@ -232,7 +232,7 @@ v-s{#}z{#}l{#}t{#}m{#}
 | Standard | Status |
 |----------|--------|
 | DTCG (W3C Dec 2024) | Compliant |
-| Style Dictionary v4 | Compliant |
+| Style Dictionary v5 | Compliant |
 | WCAG 2.1 AA | Target |
 | ARIA 1.2 | Per-contract via dsAdapter |
 
