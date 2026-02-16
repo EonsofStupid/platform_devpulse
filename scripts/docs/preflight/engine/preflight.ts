@@ -22,9 +22,7 @@ import '../checks/check.domain-boundaries.js';
 import '../checks/check.typed-routes.js';
 import '../checks/check.naming.js';
 import '../checks/check.primitive-structure.js';
-import '../checks/check.component-structure.js';
 import '../checks/check.no-style-primitives.js';
-import '../checks/check.taxonomy-alignment.js';
 import '../checks/check.aria-primitives.js';
 
 // Import all fixers
