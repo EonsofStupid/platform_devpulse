@@ -6,7 +6,7 @@
  * 2-folder parity: taxonomy + primitive.
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { inputSlotStates } from "./types.js";
 
 const rawContract = {

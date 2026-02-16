@@ -64,14 +64,14 @@ export function mountDevPulse(opts: { wsUrl: string; topbarHook?: boolean }) {
           console.error('[DevPulse] ❌ Failed to load CSS:', err);
           // Last resort: inject minimal critical styles
           style.textContent = `
-            :host { --dp-fg: #F5F5F7; --dp-bg-dark: #0F1419; --dp-glass: hsla(217, 91%, 25%, 0.7); }
+            :host { --fg: #F5F5F7; --bg-dark: #0F1419; --glass: hsla(217, 91%, 25%, 0.7); }
             .dp-controls { position: fixed; left: 16px; top: 16px; display: flex; gap: 8px; pointer-events: auto; 
-              background: var(--dp-glass); backdrop-filter: blur(8px); padding: 8px 12px; border-radius: 999px; 
+              background: var(--glass); backdrop-filter: blur(8px); padding: 8px 12px; border-radius: 999px; 
               box-shadow: 0 0 0 1px rgba(51, 153, 255, 0.15), 0 4px 16px rgba(0, 0, 0, 0.16); z-index: 2147483647; }
             .dp-ctrl { all: unset; cursor: pointer; width: 34px; height: 34px; display: grid; place-items: center; 
-              border-radius: 6px; color: var(--dp-fg); transition: all 0.2s ease; }
+              border-radius: 6px; color: var(--fg); transition: all 0.2s ease; }
             .dp-brand-logo { display: inline-flex; align-items: center; font-weight: 700; font-size: 13px; 
-              letter-spacing: 0.05em; color: var(--dp-fg); text-transform: uppercase; }
+              letter-spacing: 0.05em; color: var(--fg); text-transform: uppercase; }
           `;
           shadow.appendChild(style);
           console.warn('[DevPulse] ⚠️ Using fallback minimal styles');
@@ -81,7 +81,7 @@ export function mountDevPulse(opts: { wsUrl: string; topbarHook?: boolean }) {
     console.error('[DevPulse] ❌ Error injecting CSS:', error);
     // Inject minimal fallback styles
     style.textContent = `
-      :host { --dp-fg: #F5F5F7; --dp-bg-dark: #0F1419; }
+      :host { --fg: #F5F5F7; --bg-dark: #0F1419; }
       .dp-controls { position: fixed; left: 16px; top: 16px; display: flex; gap: 8px; background: rgba(26, 31, 44, 0.9); 
         padding: 8px; border-radius: 8px; z-index: 2147483647; }
     `;

@@ -11,7 +11,7 @@
  * Non-interactive, appears on hover/focus after delay. Dismissed on Escape.
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { tooltipSlotStates } from "./types.js";
 
 const rawContract = {

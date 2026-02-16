@@ -11,37 +11,52 @@
 -->
 <script lang="ts">
 import type { Snippet } from "svelte";
+import { getRecipe } from "$lib/design/recipes/index.js";
 import "../../styles/shell.css";
-import "../../styles/surfaces.css";
 
 interface Props {
 	children: Snippet;
 }
 
 let { children }: Props = $props();
+
+const shell = getRecipe("shell.chat.default");
+const slots = $derived(
+	shell?.classes({
+		accent: "teal",
+		surface: "glass",
+		variant: "deep",
+		size: "md",
+		radius: "lg",
+		depth: 2,
+		glow: "off",
+		bevel: "subtle",
+	}) ?? {},
+);
 </script>
 
 <div
+	class={slots.frame}
 	data-layout="chat"
 	data-state="open"
 	data-engaged="true"
 	data-context-collapsed="true"
 >
-	<header data-slot="topbar">
+	<header data-slot="topbar" class={slots.topbar}>
 		<span class="text-sm font-semibold text-[var(--text-primary)]" style:font-family="var(--font-display)">
 			Maestro Chat
 		</span>
 	</header>
 
-	<div data-slot="mode-selector">
+	<div data-slot="mode-selector" class={slots.modeSelector}>
 		<!-- Mode buttons will be wired later -->
 	</div>
 
-	<main data-slot="chat-dashboard">
+	<main data-slot="chat-dashboard" class={slots.dashboard}>
 		{@render children()}
 	</main>
 
-	<footer data-slot="chat-footer">
+	<footer data-slot="chat-footer" class={slots.footer}>
 		<input
 			type="text"
 			placeholder="Ask Maestro..."
@@ -49,21 +64,3 @@ let { children }: Props = $props();
 		/>
 	</footer>
 </div>
-
-<style>
-	/* Override position: fixed for standalone Tauri window */
-	[data-layout="chat"] {
-		position: relative;
-		width: 100%;
-		height: 100vh;
-		bottom: auto;
-		right: auto;
-		border: 4px solid oklch(0.40 0.13 180 / 0.25);
-		border-radius: var(--radius-lg);
-		box-shadow:
-			inset 2px 2px 4px oklch(0.80 0.06 195 / 0.15),
-			inset -2px -2px 4px oklch(0.05 0.02 280 / 0.4),
-			0 0 40px oklch(0.55 0.15 195 / 0.1),
-			0 8px 32px oklch(0.02 0.01 280 / 0.5);
-	}
-</style>

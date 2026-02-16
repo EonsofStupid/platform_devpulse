@@ -47,7 +47,7 @@ BLOCKS (blocks/) <-- Page sections
 1. **Taxonomy is truth** - All contracts in taxonomy/
 2. **One contract per kind** - No duplicates, no scattered declarations
 3. **Two archetypes** - ColdLight-owned (native ARIA) or adapter-backed (MeltUI)
-4. **Token prefix: `--dp-*`** - All CSS custom properties use DevPulse prefix
+4. **Token prefix: NONE** - All CSS custom properties are unprefixed
 
 ---
 

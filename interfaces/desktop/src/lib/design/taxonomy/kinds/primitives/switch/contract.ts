@@ -12,7 +12,7 @@
  * aria-checked is required (true/false, never "mixed" unlike checkbox).
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { switchSlotStates } from "./types.js";
 
 const rawContract = {

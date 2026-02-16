@@ -13,7 +13,7 @@
  * all elements are direct stores. This affects primitive implementation.
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { tabsSlotStates } from "./types.js";
 
 // ─── CONTRACT ───────────────────────────────────────────────────────────────

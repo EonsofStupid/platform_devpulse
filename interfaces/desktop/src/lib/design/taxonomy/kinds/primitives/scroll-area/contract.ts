@@ -9,7 +9,7 @@
  * Native scroll keyboard behavior (Arrow, Page, Home, End).
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { scrollAreaSlotStates } from "./types.js";
 
 const rawContract = {

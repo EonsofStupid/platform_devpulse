@@ -12,7 +12,7 @@
  * Implicit aria-live="assertive", aria-atomic="true".
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { alertSlotStates } from "./types.js";
 
 const rawContract = {

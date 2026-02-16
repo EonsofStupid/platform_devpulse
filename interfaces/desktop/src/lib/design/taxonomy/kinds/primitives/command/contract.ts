@@ -13,7 +13,7 @@
  * Supports grouping, empty state, and separator slots.
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { commandSlotStates } from "./types.js";
 
 const rawContract = {

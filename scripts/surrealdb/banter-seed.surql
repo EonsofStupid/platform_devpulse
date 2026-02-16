@@ -83,14 +83,4 @@ INSERT INTO commits { type: 'feat', scope: 'surrealdb', message: 'Set up Surreal
 INSERT INTO commits { type: 'chore', scope: 'preflight', message: 'Update cowlevel.policy.json to remove deleted checks', files: ['scripts/docs/policy/cowlevel.policy.json'], session_id: 'session-2026-02-05' };
 INSERT INTO commits { type: 'chore', scope: 'preflight', message: 'Update preflight.ts to remove deleted check imports', files: ['scripts/docs/preflight/engine/preflight.ts'], session_id: 'session-2026-02-05' };
 
--- =============================================================================
--- CHAT LOG TABLE (for conversation persistence)
--- =============================================================================
-
-DEFINE TABLE IF NOT EXISTS chat SCHEMAFULL;
-DEFINE FIELD role ON chat TYPE string ASSERT $value IN ['user', 'assistant', 'system'];
-DEFINE FIELD content ON chat TYPE string;
-DEFINE FIELD session_id ON chat TYPE string;
-DEFINE FIELD timestamp ON chat TYPE datetime DEFAULT time::now();
-DEFINE INDEX idx_chat_session ON chat FIELDS session_id;
-DEFINE INDEX idx_chat_time ON chat FIELDS timestamp;
+-- CHAT LOG TABLE already defined in banter-schema.surql

@@ -174,9 +174,9 @@ Every primitive element emits:
 ### Rule 6: Components cannot contain colors
 
 Components use:
-- Token references (`var(--dp-*)`)
-- Recipe classes (`dp-surface`)
-- Data attributes (`data-surface="glass"`)
+- Token references (`var(--*)`)
+- ColdLight molecule classes (`glass-void`, `bevel-subtle`, `glow-teal`)
+- Recipe-generated per-slot class strings via `getRecipe()`
 
 Components **never** contain:
 - Raw color values (`#fff`, `oklch()`, `rgb()`)
@@ -189,56 +189,63 @@ Components **never** contain:
 
 | Category | Prefix | Example |
 |----------|--------|---------|
-| Hues | `--dp-hue-*` | `--dp-hue-teal` |
-| Color Scales | `--dp-color-{name}-{step}` | `--dp-color-teal-500` |
-| Glass | `--dp-glass-*` | `--dp-glass-deep` |
-| Matte | `--dp-matte-*` | `--dp-matte-dark` |
-| Text | `--dp-text-*` | `--dp-text-primary` |
-| Spacing | `--dp-space-*` | `--dp-space-4` |
-| Radius | `--dp-radius-*` | `--dp-radius-md` |
-| Blur | `--dp-blur-*` | `--dp-blur-md` |
-| Glow | `--dp-glow-*` | `--dp-glow-teal` |
-| Shadow | `--dp-shadow-*` | `--dp-shadow-z2` |
-| Bevel | `--dp-bevel-*` | `--dp-bevel-subtle` |
-| Z-Index | `--dp-z-*` | `--dp-z-modal` |
-| Duration | `--dp-duration-*` | `--dp-duration-fast` |
-| Easing | `--dp-ease-*` | `--dp-ease-out` |
-| Text Size | `--dp-text-size-*` | `--dp-text-size-base` |
-| Padding | `--dp-padding-*` | `--dp-padding-md` |
+| Hues | `--hue-*` | `--hue-teal` |
+| Color Scales | `--color-{name}-{step}` | `--color-teal-500` |
+| Glass | `--glass-*` | `--glass-deep` |
+| Matte | `--matte-*` | `--matte-dark` |
+| Text | `--text-*` | `--text-primary` |
+| Spacing | `--space-*` | `--space-4` |
+| Radius | `--radius-*` | `--radius-md` |
+| Blur | `--blur-*` | `--blur-md` |
+| Glow | `--glow-*` | `--glow-teal` |
+| Shadow | `--shadow-*` | `--shadow-z2` |
+| Bevel | `--bevel-*` | `--bevel-subtle` |
+| Z-Index | `--z-*` | `--z-modal` |
+| Duration | `--duration-*` | `--duration-fast` |
+| Easing | `--ease-*` | `--ease-out` |
+| Text Size | `--text-size-*` | `--text-size-base` |
+| Padding | `--padding-*` | `--padding-md` |
 
 ---
 
 ## Recipe System
 
-Recipes are CSS rules that style surfaces via data attributes:
+Recipes are composable functions that map `DsSurfaceProps` to per-slot class strings:
 
-```css
-/* Base surface */
-.dp-surface { ... }
-
-/* Surface type */
-.dp-surface[data-surface="glass"] { ... }
-.dp-surface[data-surface="matte"] { ... }
-.dp-surface[data-surface="solid"] { ... }
-
-/* Modifiers */
-.dp-surface[data-glow="teal"] { ... }
-.dp-surface[data-bevel="subtle"] { ... }
+```typescript
+// Recipe definition
+registerRecipe({
+  id: "panel.glass.void",
+  kind: "panel",
+  defaults: { surface: "glass", variant: "void", bevel: "off", glow: "off", ... },
+  classes: (props: DsSurfaceProps) => ({
+    root: cn(surfaceClass(props.surface, props.variant), radiusClass(props.radius)),
+    header: cn("px-4 py-3", "border-b border-white/6"),
+    body: cn("px-4 py-3", "flex-1"),
+  }),
+});
 ```
 
-### Using Recipes
+### Molecule Classes (ColdLight Utilities)
+
+Molecules compose via shadow layering — multiple molecules on one element work together:
+
+```html
+<!-- All three shadow layers compose, no conflicts -->
+<div class="glass-void bevel-subtle glow-teal">...</div>
+```
+
+### Using Recipes in Components
 
 ```svelte
-<!-- Primitive (behavior) + Recipe (appearance) -->
-<button
-  class="dp-surface"
-  data-kind="button"
-  data-slot="root"
-  data-surface="glass"
-  data-glow="teal"
->
-  Click me
-</button>
+<script lang="ts">
+import { getRecipe } from "$lib/design/recipes/index.js";
+
+const recipe = getRecipe("shell.app.default");
+const slots = $derived(recipe?.classes({ ...recipe.defaults }) ?? {});
+</script>
+
+<header data-slot="topbar" class={slots.topbar}>...</header>
 ```
 
 ---
@@ -268,7 +275,7 @@ pnpm test:run primitives/   # Run primitive tests
 - Taxonomy-first architecture
 - PascalCase primitive file naming
 - Two archetype model (ColdLight-owned + adapter-backed)
-- Token system (OKLCH, `--dp-*` prefix)
+- Token system (OKLCH, unprefixed)
 - Glass/matte/solid surface recipes
 - Dark variant only
 - 40+ primitives implemented (structural)

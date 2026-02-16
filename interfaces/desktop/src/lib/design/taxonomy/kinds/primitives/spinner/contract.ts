@@ -10,7 +10,7 @@
  * No keyboard interaction. No focus management. Purely informational.
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { spinnerSlotStates } from "./types.js";
 
 const rawContract = {

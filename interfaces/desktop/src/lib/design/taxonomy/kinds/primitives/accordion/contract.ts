@@ -9,7 +9,7 @@
  * https://www.w3.org/WAI/ARIA/apg/patterns/accordion/
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { accordionSlotStates } from "./types.js";
 
 // ─── CONTRACT ───────────────────────────────────────────────────────────────

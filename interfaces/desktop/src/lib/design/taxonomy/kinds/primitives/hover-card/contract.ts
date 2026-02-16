@@ -9,7 +9,7 @@
  * Content is non-essential — the trigger (typically a link) remains accessible without it.
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { hoverCardSlotStates } from "./types.js";
 
 const rawContract = {

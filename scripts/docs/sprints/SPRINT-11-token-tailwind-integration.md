@@ -13,7 +13,7 @@
 ## Goal
 
 Connect the token system to Tailwind v4 properly. Currently:
-- tokens.ts (SSOT) generates tokens.css with `--dp-*` CSS variables
+- tokens.ts (SSOT) generates tokens.css with unprefixed CSS variables
 - tokens.css is **not imported** (commented out in app.css)
 - Recipes reference non-existent classes (`glass-void`, `glass-deep`)
 - Recipe utils duplicate token values as Tailwind class mappings
@@ -21,7 +21,7 @@ Connect the token system to Tailwind v4 properly. Currently:
 After this sprint:
 - tokens.css includes both `:root` variables AND `@theme` Tailwind mappings
 - One import enables the entire token system
-- Recipes use generated utility classes (`bg-glass-void`, `rounded-dp-lg`)
+- Recipes use generated utility classes (`bg-glass-void`, `rounded-lg`)
 - lefthook regenerates tokens on tokens.ts change
 - Zod validates recipe registration
 
@@ -30,7 +30,7 @@ After this sprint:
 ## Hard Invariants
 
 1. **tokens.ts is SSOT** — never hand-edit tokens.css, types.ts, or any generated file
-2. **`--dp-*` prefix for CSS vars** — namespace isolation
+2. **Unprefixed CSS vars** — no namespace prefix (first-party system)
 3. **Tailwind v4 @theme syntax** — no v3 preset objects
 4. **Recipes use generated utilities** — no hardcoded Tailwind classes that bypass tokens
 5. **All `.ts` imports use `.js` extension**
@@ -43,7 +43,7 @@ After this sprint:
 ```
 src/lib/design/tokens/
 ├── tokens.ts            ✓ SSOT — all token definitions (288 lines)
-├── tokens.css           ✓ Generated — :root with --dp-* vars (182 lines)
+├── tokens.css           ✓ Generated — :root with unprefixed vars (182 lines)
 ├── types.ts             ✓ Generated — TypeScript types + runtime arrays
 ├── tailwind.preset.ts   ✗ Generated — v3 format (OBSOLETE)
 ├── schema.ts            ✓ Zod validation schemas
@@ -57,7 +57,7 @@ recipes/utils.ts:
   radiusClass("lg") → "rounded-lg"  ← Tailwind class, NOT token reference
 
 recipes/components/panel/panel.default.ts:
-  Line 21: "glass-void"  ← Class does NOT exist
+  Line 21: "glass-void"  ← Molecule class name (correct after purge)
 ```
 
 **Verify before starting:**
@@ -76,52 +76,52 @@ recipes/components/panel/panel.default.ts:
 
 ### Task 1.2: Add @theme block generation to tokens.css
 - [ ] Modify `generateCss()` to output TWO blocks:
-  - First: `:root { --dp-* vars }`
+  - First: `:root { unprefixed vars }`
   - Second: `@theme { Tailwind mappings }`
 - [ ] @theme mappings:
   ```css
   @theme {
     /* Surface materials */
-    --color-glass-void: var(--dp-glass-void);
-    --color-glass-deep: var(--dp-glass-deep);
-    --color-glass-smoke: var(--dp-glass-smoke);
-    --color-glass-frost: var(--dp-glass-frost);
-    --color-matte-dark: var(--dp-matte-dark);
-    --color-matte-medium: var(--dp-matte-medium);
-    --color-matte-light: var(--dp-matte-light);
+    --color-glass-void: var(--glass-void);
+    --color-glass-deep: var(--glass-deep);
+    --color-glass-smoke: var(--glass-smoke);
+    --color-glass-frost: var(--glass-frost);
+    --color-matte-dark: var(--matte-dark);
+    --color-matte-medium: var(--matte-medium);
+    --color-matte-light: var(--matte-light);
 
-    /* Accent color scales (dp-teal-500 etc) */
-    --color-dp-teal-*: var(--dp-color-teal-*);
+    /* Accent color scales */
+    --color-teal-*: var(--color-teal-*);
     /* ... all accents ... */
 
     /* Radius */
-    --radius-dp-none: var(--dp-radius-none);
-    --radius-dp-sm: var(--dp-radius-sm);
-    --radius-dp-md: var(--dp-radius-md);
-    --radius-dp-lg: var(--dp-radius-lg);
-    --radius-dp-xl: var(--dp-radius-xl);
-    --radius-dp-full: var(--dp-radius-full);
+    --radius-none: var(--radius-none);
+    --radius-sm: var(--radius-sm);
+    --radius-md: var(--radius-md);
+    --radius-lg: var(--radius-lg);
+    --radius-xl: var(--radius-xl);
+    --radius-full: var(--radius-full);
 
     /* Shadows */
-    --shadow-dp-z0: var(--dp-shadow-z0);
-    --shadow-dp-z1: var(--dp-shadow-z1);
-    --shadow-dp-z2: var(--dp-shadow-z2);
-    --shadow-dp-z3: var(--dp-shadow-z3);
-    --shadow-dp-z4: var(--dp-shadow-z4);
+    --shadow-z0: var(--shadow-z0);
+    --shadow-z1: var(--shadow-z1);
+    --shadow-z2: var(--shadow-z2);
+    --shadow-z3: var(--shadow-z3);
+    --shadow-z4: var(--shadow-z4);
 
     /* Glows */
-    --shadow-dp-glow-teal: var(--dp-glow-teal);
-    --shadow-dp-glow-purple: var(--dp-glow-purple);
+    --shadow-glow-teal: var(--glow-teal);
+    --shadow-glow-purple: var(--glow-purple);
     /* ... all glows ... */
 
     /* Spacing */
-    --spacing-dp-1: var(--dp-space-1);
-    --spacing-dp-2: var(--dp-space-2);
+    --spacing-1: var(--space-1);
+    --spacing-2: var(--space-2);
     /* ... all spacing ... */
 
     /* Text sizes */
-    --font-size-dp-xs: var(--dp-text-size-xs);
-    --font-size-dp-sm: var(--dp-text-size-sm);
+    --font-size-xs: var(--text-size-xs);
+    --font-size-sm: var(--text-size-sm);
     /* ... all text sizes ... */
   }
   ```
@@ -160,13 +160,13 @@ recipes/components/panel/panel.default.ts:
 - [ ] Start dev server: `pnpm dev`
 - [ ] In browser devtools, verify:
   - `bg-glass-void` generates correct background
-  - `rounded-dp-lg` generates correct border-radius
-  - `shadow-dp-z2` generates correct box-shadow
+  - `rounded-lg` generates correct border-radius
+  - `shadow-z2` generates correct box-shadow
 
 ### Phase 2 Gate
 - [ ] `pnpm dev` starts without CSS errors
 - [ ] `bg-glass-void` resolves to `oklch(0.08 0.005 250 / 0.85)` in devtools
-- [ ] `rounded-dp-lg` resolves to `0.75rem` in devtools
+- [ ] `rounded-lg` resolves to `0.75rem` in devtools
 
 > **COMPACT CHECKPOINT** — Verify Phase 1 + 2 gates, then proceed.
 
@@ -179,12 +179,12 @@ recipes/components/panel/panel.default.ts:
 - [ ] Change RADIUS_MAP values:
   ```typescript
   const RADIUS_MAP: Record<RadiusToken, string> = {
-    none: "rounded-dp-none",
-    sm: "rounded-dp-sm",
-    md: "rounded-dp-md",
-    lg: "rounded-dp-lg",
-    xl: "rounded-dp-xl",
-    full: "rounded-dp-full",
+    none: "rounded-none",
+    sm: "rounded-sm",
+    md: "rounded-md",
+    lg: "rounded-lg",
+    xl: "rounded-xl",
+    full: "rounded-full",
   };
   ```
 
@@ -193,10 +193,10 @@ recipes/components/panel/panel.default.ts:
   ```typescript
   const DEPTH_MAP: Record<DepthToken, string> = {
     0: "",
-    1: "shadow-dp-z1",
-    2: "shadow-dp-z2",
-    3: "shadow-dp-z3",
-    4: "shadow-dp-z4",
+    1: "shadow-z1",
+    2: "shadow-z2",
+    3: "shadow-z3",
+    4: "shadow-z4",
   };
   ```
 
@@ -204,9 +204,9 @@ recipes/components/panel/panel.default.ts:
 - [ ] Change SIZE_MAP values:
   ```typescript
   const SIZE_MAP: Record<SizeToken, string> = {
-    sm: "text-dp-sm",
-    md: "text-dp-base",
-    lg: "text-dp-lg",
+    sm: "text-sm",
+    md: "text-base",
+    lg: "text-lg",
   };
   ```
 
@@ -215,12 +215,12 @@ recipes/components/panel/panel.default.ts:
   ```typescript
   const GLOW_MAP: Record<GlowToken, string> = {
     off: "",
-    teal: "shadow-dp-glow-teal",
-    purple: "shadow-dp-glow-purple",
-    magenta: "shadow-dp-glow-magenta",
-    ember: "shadow-dp-glow-ember",
-    frost: "shadow-dp-glow-frost",
-    cyber: "shadow-dp-glow-cyber",
+    teal: "shadow-glow-teal",
+    purple: "shadow-glow-purple",
+    magenta: "shadow-glow-magenta",
+    ember: "shadow-glow-ember",
+    frost: "shadow-glow-frost",
+    cyber: "shadow-glow-cyber",
   };
 
   export function glowClass(glow: GlowToken): string {
@@ -328,7 +328,7 @@ recipes/components/panel/panel.default.ts:
 - [ ] Verify: shadows appear at correct depth
 
 ### Task 6.3: Token chain verification
-- [ ] Change a token value in tokens.ts (e.g., `--dp-radius-lg: 1rem`)
+- [ ] Change a token value in tokens.ts (e.g., `--radius-lg: 1rem`)
 - [ ] Run: `pnpm ds:tokens:build`
 - [ ] Verify: CSS updates with new value
 - [ ] Verify: UI updates to reflect new radius
@@ -377,7 +377,7 @@ src/lib/design/tokens/.tokens.gen.mjs     — Empty stub
 ## Success Criteria
 
 1. **Single import enables tokens** — `@import "tokens.css"` in app.css
-2. **Tailwind utilities work** — `bg-glass-void`, `rounded-dp-lg` resolve correctly
+2. **Tailwind utilities work** — `bg-glass-void`, `rounded-lg` resolve correctly
 3. **Recipes use token utilities** — No hardcoded class names
 4. **Token chain is live** — Change tokens.ts → rebuild → UI updates
 5. **Enforcement in place** — lefthook regenerates on token change
@@ -388,7 +388,7 @@ src/lib/design/tokens/.tokens.gen.mjs     — Empty stub
 ## Future: VPB Integration (Not This Sprint)
 
 After this sprint, the foundation is ready for:
-- SvelteFlow nodes that expose `--dp-*` CSS vars as inputs
+- SvelteFlow nodes that expose unprefixed CSS vars as inputs
 - Gradient mixer overlay that writes to token values
 - Live preview of token changes in VPB canvas
 - Export modified tokens back to tokens.ts

@@ -13,7 +13,7 @@
  * Root is renderless (fragment). Input is self-closing.
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { comboboxSlotStates } from "./types.js";
 
 // ─── CONTRACT ───────────────────────────────────────────────────────────────

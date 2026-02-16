@@ -10,7 +10,7 @@
  * Selected state for multi-card selection patterns.
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { cardSlotStates } from "./types.js";
 
 const rawContract = {

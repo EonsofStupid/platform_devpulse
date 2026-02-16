@@ -11,7 +11,7 @@
  * No states, no keyboard, no focus management.
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { visuallyHiddenSlotStates } from "./types.js";
 
 const rawContract = {

@@ -12,6 +12,7 @@ import { ENFORCEMENT } from "./config/coldlight/enforcement.cfg.js";
 import { GENERATION } from "./config/coldlight/generation.cfg.js";
 import { IDENTITY } from "./config/coldlight/identity.cfg.js";
 import { ROOTS } from "./config/coldlight/roots.cfg.js";
+import { TOKENS } from "./config/coldlight/tokens.cfg.js";
 import type { ColdLightConfig } from "./config/coldlight/types.js";
 
 export const coldlightConfig = {
@@ -21,6 +22,7 @@ export const coldlightConfig = {
 	generation: GENERATION,
 	enforcement: ENFORCEMENT,
 	attributes: ATTRIBUTES,
+	tokens: TOKENS,
 } as const satisfies ColdLightConfig;
 
 export type { ColdLightConfig };

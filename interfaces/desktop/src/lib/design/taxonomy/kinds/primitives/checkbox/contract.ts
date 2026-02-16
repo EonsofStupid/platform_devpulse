@@ -12,7 +12,7 @@
  * aria-checked required. "mixed" = indeterminate state for parent checkboxes.
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { checkboxSlotStates } from "./types.js";
 
 const rawContract = {

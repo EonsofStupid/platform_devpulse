@@ -18,6 +18,35 @@ export type CategoryId = "primitives" | "semantics" | "composites";
  */
 export type AdapterId = "meltui";
 
+/** Tailwind v4 @theme namespace mapping for a token category */
+type TailwindMapping = Readonly<{
+	namespace: string;
+	prefix: string | null;
+}>;
+
+/** Token pipeline platform configuration */
+type TokenPlatformCss = Readonly<{
+	enabled: boolean;
+	output: string;
+	prefixes: Readonly<Record<string, string>>;
+	tailwindTheme: Readonly<{
+		enabled: boolean;
+		mappings: Readonly<
+			Record<string, TailwindMapping | Readonly<Record<string, TailwindMapping>>>
+		>;
+	}>;
+}>;
+
+type TokenPlatformTs = Readonly<{
+	enabled: boolean;
+	output: string;
+}>;
+
+type TokenPlatformTailwind = Readonly<{
+	enabled: boolean;
+	output: string;
+}>;
+
 export type ColdLightConfig = Readonly<{
 	identity: Readonly<{
 		systemId: SystemId;
@@ -67,5 +96,24 @@ export type ColdLightConfig = Readonly<{
 		slot: "data-slot";
 		state: "data-state";
 		id: "data-id";
+	}>;
+
+	/** Style Dictionary v5 token pipeline configuration */
+	tokens: Readonly<{
+		sdVersion: number;
+		sources: Readonly<{
+			globals: string;
+			semantic: string;
+			components: string;
+		}>;
+		dtcg: Readonly<{
+			output: string;
+			formatVersion: string;
+		}>;
+		platforms: Readonly<{
+			css: TokenPlatformCss;
+			ts: TokenPlatformTs;
+			tailwind: TokenPlatformTailwind;
+		}>;
 	}>;
 }>;

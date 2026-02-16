@@ -84,20 +84,20 @@ The script dynamically imports `tokens.ts` and generates three files:
 ```css
 :root {
   /* Hues */
-  --dp-hue-teal: 180;
+  --hue-teal: 180;
 
   /* Colors */
-  --dp-color-teal-50: oklch(0.97 0.02 180);
-  --dp-color-teal-100: oklch(0.92 0.04 180);
+  --color-teal-50: oklch(0.97 0.02 180);
+  --color-teal-100: oklch(0.92 0.04 180);
   /* ... */
 
   /* Glass */
-  --dp-glass-void: oklch(0.08 0.005 250 / 0.85);
+  --glass-void: oklch(0.08 0.005 250 / 0.85);
   /* ... */
 }
 ```
 
-Naming: `--dp-{category}-{name}`. Nested objects (color scales) produce `--dp-{category}-{group}-{key}`.
+Naming: `--{category}-{name}`. Nested objects (color scales) produce `--{category}-{group}-{key}`.
 
 ### 2. `types.ts` — TypeScript Types + Runtime Arrays
 
@@ -116,19 +116,19 @@ export const TokenArrays = {
 ### 3. `tailwind.preset.ts` — Tailwind Theme Extension
 
 ```typescript
-export const dpPreset = {
+export const coldlightPreset = {
   theme: {
     extend: {
       colors: {
-        "dp-teal": {
-          50: "var(--dp-color-teal-50)",
+        "teal": {
+          50: "var(--color-teal-50)",
           // ...
         },
       },
-      spacing: { "dp-1": "var(--dp-space-1)", /* ... */ },
-      borderRadius: { "dp-sm": "var(--dp-radius-sm)", /* ... */ },
-      boxShadow: { "dp-glow-teal": "var(--dp-glow-teal)", /* ... */ },
-      zIndex: { "dp-base": "var(--dp-z-base)", /* ... */ },
+      spacing: { "1": "var(--space-1)", /* ... */ },
+      borderRadius: { "sm": "var(--radius-sm)", /* ... */ },
+      boxShadow: { "glow-teal": "var(--glow-teal)", /* ... */ },
+      zIndex: { "base": "var(--z-base)", /* ... */ },
     },
   },
 };
@@ -165,7 +165,7 @@ Values reference CSS vars so Tailwind classes resolve through the token layer.
 |-------|-------------|
 | `tokens.ts` is SSOT | Never edit generated files |
 | OKLCH is primary color format | All color values in oklch() |
-| `--dp-*` is the CSS prefix | Build script enforces naming |
+| No prefix on CSS custom properties | Build script enforces naming |
 | Three outputs only | CSS, types, Tailwind preset |
 
 ---

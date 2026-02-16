@@ -14,7 +14,7 @@
  * Accessible name required. Children are presentational.
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { progressSlotStates } from "./types.js";
 
 const rawContract = {

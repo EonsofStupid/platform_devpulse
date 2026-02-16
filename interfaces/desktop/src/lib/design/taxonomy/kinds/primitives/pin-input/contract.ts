@@ -9,7 +9,7 @@
  * role="group" on root container with aria-label for accessible name.
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { pinInputSlotStates } from "./types.js";
 
 const rawContract = {

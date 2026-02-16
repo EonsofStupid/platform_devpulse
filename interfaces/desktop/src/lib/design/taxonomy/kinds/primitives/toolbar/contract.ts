@@ -9,7 +9,7 @@
  * https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { toolbarSlotStates } from "./types.js";
 
 const rawContract = {

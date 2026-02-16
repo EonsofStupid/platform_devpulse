@@ -13,7 +13,7 @@
  * Roving tabindex for keyboard navigation (Arrow keys move focus + select).
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { radioGroupSlotStates } from "./types.js";
 
 const rawContract = {

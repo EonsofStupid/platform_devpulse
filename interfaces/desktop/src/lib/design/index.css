@@ -5,18 +5,15 @@
  * SSOT CSS Entry Point for COLD LIGHT Design System
  *
  * This is the ONLY design system CSS file that app.css should import.
- * Import order matters - tokens first, then keyframes, then surfaces.
+ * Import order matters - tokens first, then molecules.
  *
  * @since 1.0.0
  */
 
-/* 1. Tokens - CSS custom properties (SSOT values) */
+/* 1. Tokens - CSS custom properties (SSOT values via @theme in tokens.css) */
 
-/* 2. Keyframes - Token-safe animations */
-
-/* 3. Surfaces - Generated recipe CSS (data-* attribute styling) */
+/* 2. Molecules - Composable visual effects using shadow layering */
 @import "./molecules/glass.css";
 @import "./molecules/glow.css";
 @import "./molecules/bevel.css";
-
-/* 4. Depth System - Multi-layer shadows, neumorphism, liquid metal */
+@import "./molecules/depth.css";

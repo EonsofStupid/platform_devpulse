@@ -170,7 +170,7 @@ recipes/
 1. **Recipes are reusable** — library of presets, not component-specific
 2. **Components consume recipes** — via `class` and `data-*` attributes
 3. **No CSS in components** — all styling comes from recipes
-4. **Token references only** — use `var(--dp-*)`, never raw values
+4. **Token references only** — use `var(--*)`, never raw values
 5. **Generated CSS** — `surfaces.gen.css` is generated from tokens
 
 ---
@@ -204,7 +204,7 @@ dialog.svelte (primitive)
 
 ### File Requirements
 
-- [ ] CSS uses only `var(--dp-*)` token references
+- [ ] CSS uses only `var(--*)` token references
 - [ ] No raw color values (`#fff`, `oklch()`, `rgb()`)
 - [ ] Uses `data-*` attribute selectors
 - [ ] Documented in this README

@@ -7,7 +7,7 @@
  * Non-modal floating content anchored to trigger via Floating UI.
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { popoverSlotStates } from "./types.js";
 
 const rawContract = {

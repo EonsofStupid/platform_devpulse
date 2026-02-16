@@ -9,7 +9,7 @@
  * Standard button keyboard for items. No special focus management.
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { paginationSlotStates } from "./types.js";
 
 const rawContract = {

@@ -8,7 +8,7 @@
  * WAI-ARIA: role="status" for live region status updates.
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { badgeSlotStates } from "./types.js";
 
 const rawContract = {

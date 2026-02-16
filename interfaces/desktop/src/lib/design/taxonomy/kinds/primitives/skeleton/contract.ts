@@ -8,7 +8,7 @@
  * WAI-ARIA: role="status" with aria-busy for loading indication.
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { skeletonSlotStates } from "./types.js";
 
 const rawContract = {

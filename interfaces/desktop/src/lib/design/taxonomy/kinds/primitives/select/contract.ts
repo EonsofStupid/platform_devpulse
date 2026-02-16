@@ -11,7 +11,7 @@
  * Dropdown selection with listbox keyboard navigation and type-ahead.
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { selectSlotStates } from "./types.js";
 
 // ─── CONTRACT ───────────────────────────────────────────────────────────────

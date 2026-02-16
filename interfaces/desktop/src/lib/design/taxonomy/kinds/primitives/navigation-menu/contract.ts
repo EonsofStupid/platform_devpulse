@@ -11,7 +11,7 @@
  * WAI-ARIA: role="navigation" landmark with nested disclosure pattern.
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { navigationMenuSlotStates } from "./types.js";
 
 const rawContract = {

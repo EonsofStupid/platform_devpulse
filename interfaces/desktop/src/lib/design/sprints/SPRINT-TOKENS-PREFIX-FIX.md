@@ -2,7 +2,7 @@
 
 > **Scope**: `interfaces/desktop/scripts/dev/design/ds-tokens-build.ts` + generated tokens
 > **Goal**: Remove ALL `dp-` prefix from token generation. Fix ALL pre-commit hook failures.
-> **Gate**: `pnpm lefthook run pre-commit` passes. Tokens generate as `--glass-void` NOT `--dp-glass-void`.
+> **Gate**: `pnpm lefthook run pre-commit` passes. Tokens generate as `--glass-void` (unprefixed).
 > **Created**: 2026-02-05
 > **Status**: ACTIVE
 
@@ -11,7 +11,7 @@
 ## Problem Statement
 
 Token generation script uses `const PREFIX = "dp"` which produces prefixed tokens:
-- WRONG: `--dp-glass-void`, `--dp-color-teal-500`
+- WRONG: prefixed tokens (e.g. `dp-glass-void`, `dp-color-teal-500`)
 - CORRECT: `--glass-void`, `--color-teal-500`
 
 This prefix was NEVER requested and pollutes the entire design system.
@@ -352,8 +352,8 @@ pnpm ds:tokens:build
 ### 3.2: Verify generated output
 
 **tokens.css** should contain:
-- `--glass-void` NOT `--dp-glass-void`
-- `--color-teal-500` NOT `--dp-color-teal-500`
+- `--glass-void` (unprefixed, correct)
+- `--color-teal-500` (unprefixed, correct)
 
 ---
 

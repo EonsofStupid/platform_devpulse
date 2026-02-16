@@ -14,7 +14,7 @@
  * Separators are presentational (aria-hidden).
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { breadcrumbSlotStates } from "./types.js";
 
 const rawContract = {

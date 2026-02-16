@@ -10,7 +10,7 @@
  * Image slot is self-closing. Fallback shown when image fails/loading.
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { avatarSlotStates } from "./types.js";
 
 const rawContract = {

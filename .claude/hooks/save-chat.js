@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // save-chat.js - Saves user prompts to SurrealDB on every message
 // Triggered by UserPromptSubmit hook (async, non-blocking)
+// Uses banter-schema.surql tables: chat, sessions
 
 const { spawnSync } = require("child_process");
 const fs = require("fs");
@@ -58,14 +59,30 @@ if (!prompt) {
 	process.exit(0);
 }
 
+// Strip IDE selection noise, keep only the user's actual text
+let cleanPrompt = prompt;
+const ideMatch = prompt.match(/^(.*?)<ide_selection>/s);
+const afterIde = prompt.match(/<\/ide_selection>(.*)/s);
+if (ideMatch && afterIde) {
+	cleanPrompt = (ideMatch[1] + afterIde[1]).trim();
+}
+// Cap at 2000 chars to avoid timeout on huge pastes
+if (cleanPrompt.length > 2000) {
+	cleanPrompt = cleanPrompt.slice(0, 2000) + "... [truncated]";
+}
+
 // Escape single quotes for SurrealQL
-const safePrompt = prompt.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+const safePrompt = cleanPrompt.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
 const safeCwd = cwd.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
 
-// Save the message
-query(`CREATE messages SET session_id = '${sessionId}', role = 'user', content = '${safePrompt}';`);
+// Save to chat table (matches banter-schema.surql)
+query(
+	`INSERT INTO chat { role: 'user', content: '${safePrompt}', session_id: '${sessionId}' };`,
+);
 
-// Upsert session tracker
-query(`UPSERT chat_sessions:${sessionId.replace(/-/g, "_")} SET session_id = '${sessionId}', last_active = time::now(), message_count += 1, project_dir = '${safeCwd}';`);
+// Upsert session tracker (matches banter-schema.surql sessions table)
+query(
+	`UPSERT sessions:${sessionId.replace(/-/g, "_")} SET session_id = '${sessionId}', project = '${safeCwd}', last_active = time::now(), message_count += 1;`,
+);
 
 process.exit(0);

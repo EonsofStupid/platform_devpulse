@@ -43,6 +43,41 @@
         "contracts": "*.contract.ts",
         "registries": "*.registry.ts"
       }
+    },
+    "primitive-structure": {
+      "description": "Every primitive folder must have types.ts, index.ts, and .svelte files",
+      "tier": 1,
+      "scope": ["lib/design/primitives/**/*"],
+      "enforcement": "error",
+      "autofix": false
+    },
+    "component-structure": {
+      "description": "Every component folder must have schema.ts, context.ts, types.ts, index.ts, and .svelte files",
+      "tier": 1,
+      "scope": ["lib/design/components/**/*"],
+      "enforcement": "error",
+      "autofix": false
+    },
+    "no-style-primitives": {
+      "description": "Primitives are unstyled shells - no <style> tags allowed",
+      "tier": 1,
+      "scope": ["lib/design/primitives/**/*.svelte"],
+      "enforcement": "error",
+      "autofix": false
+    },
+    "taxonomy-alignment": {
+      "description": "Every primitive must have a taxonomy contract and import from it",
+      "tier": 1,
+      "scope": ["lib/design/primitives/**/*"],
+      "enforcement": "error",
+      "autofix": false
+    },
+    "aria-primitives": {
+      "description": "Every primitive must use semantic HTML, role attributes, or use:aria action",
+      "tier": 1,
+      "scope": ["lib/design/primitives/**/*.svelte"],
+      "enforcement": "error",
+      "autofix": false
     }
   },
   "kindMatrix": {

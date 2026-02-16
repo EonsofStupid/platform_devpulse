@@ -12,7 +12,7 @@
  * checkbox items, radio groups, submenus, and separators.
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { menubarSlotStates } from "./types.js";
 
 const rawContract = {

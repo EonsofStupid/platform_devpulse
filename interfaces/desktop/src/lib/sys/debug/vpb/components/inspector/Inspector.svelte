@@ -2,7 +2,7 @@
   @file src/lib/sys/debug/vpb/components/inspector/Inspector.svelte
   @description VPB Inspector - Block prop editing UI
 
-  Uses dp-surface + data-* attributes for styling.
+  ColdLight molecules + token vars for styling.
   Consumes taxonomy/contracts for prop validation.
   Uses tokens/types for dropdown options.
 
@@ -103,8 +103,8 @@ function copyBlock() {
 <div class="flex flex-col h-full overflow-hidden">
     <!-- Header -->
     <div class="flex items-center gap-2 px-3 py-2 border-b border-white/5">
-        <div class="w-2 h-2 rounded-full bg-teal-400"></div>
-        <h3 class="text-xs font-bold text-secondary uppercase tracking-wider flex-1">
+        <div class="w-2 h-2 rounded-full bg-[var(--color-teal-400)]"></div>
+        <h3 class="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider flex-1">
             Inspector
         </h3>
     </div>
@@ -118,25 +118,25 @@ function copyBlock() {
             <!-- Block Info -->
             <div class="p-3 border-b border-white/5">
                 <div class="flex items-center gap-2 mb-2">
-                    <span class="text-xs font-bold text-secondary">{block.kind}</span>
-                    <span class="text-[10px] text-muted font-mono">{block.id.slice(0, 12)}...</span>
+                    <span class="text-xs font-bold text-[var(--text-secondary)]">{block.kind}</span>
+                    <span class="text-[10px] text-[var(--text-muted)] font-mono">{block.id.slice(0, 12)}...</span>
                 </div>
-                <p class="text-[10px] text-muted">{kindDef.description}</p>
+                <p class="text-[10px] text-[var(--text-muted)]">{kindDef.description}</p>
             </div>
 
             <!-- Recipe Selection -->
             <div class="p-3 border-b border-white/5">
                 <button
-                    class="w-full flex items-center gap-2 text-xs font-medium text-secondary mb-2"
+                    class="w-full flex items-center gap-2 text-xs font-medium text-[var(--text-secondary)] mb-2"
                     onclick={() => toggleSection("recipe")}
                 >
-                    <span class="text-muted transition-transform" class:rotate-90={!collapsedSections.has("recipe")}>▶</span>
+                    <span class="text-[var(--text-muted)] transition-transform" class:rotate-90={!collapsedSections.has("recipe")}>▶</span>
                     <span>Recipe</span>
                 </button>
                 {#if !collapsedSections.has("recipe")}
                     <select
-                        class="dp-surface w-full px-2 py-1.5 text-xs rounded"
-                        data-surface="matte"
+                        class="bg-matte-dark border border-white/8 w-full px-2 py-1.5 text-xs rounded"
+                        
                         value={block.recipe}
                         onchange={(e) => vpb.updateRecipe(block.id, e.currentTarget.value)}
                     >
@@ -153,20 +153,20 @@ function copyBlock() {
             <!-- Color Props -->
             <div class="p-3 border-b border-white/5">
                 <button
-                    class="w-full flex items-center gap-2 text-xs font-medium text-secondary mb-2"
+                    class="w-full flex items-center gap-2 text-xs font-medium text-[var(--text-secondary)] mb-2"
                     onclick={() => toggleSection("color")}
                 >
-                    <span class="text-muted transition-transform" class:rotate-90={!collapsedSections.has("color")}>▶</span>
+                    <span class="text-[var(--text-muted)] transition-transform" class:rotate-90={!collapsedSections.has("color")}>▶</span>
                     <span>Color</span>
                 </button>
                 {#if !collapsedSections.has("color")}
                     <div class="space-y-2">
                         <!-- Color Mode -->
                         <div class="flex items-center gap-2">
-                            <label class="text-[10px] text-muted w-16">Mode</label>
+                            <label class="text-[10px] text-[var(--text-muted)] w-16">Mode</label>
                             <select
-                                class="dp-surface flex-1 px-2 py-1 text-xs rounded"
-                                data-surface="matte"
+                                class="bg-matte-dark border border-white/8 flex-1 px-2 py-1 text-xs rounded"
+                                
                                 value={getProp("color.mode") ?? "mono"}
                                 onchange={(e) => updateProp("color.mode", e.currentTarget.value)}
                             >
@@ -176,10 +176,10 @@ function copyBlock() {
                         </div>
                         <!-- Accent A -->
                         <div class="flex items-center gap-2">
-                            <label class="text-[10px] text-muted w-16">Accent A</label>
+                            <label class="text-[10px] text-[var(--text-muted)] w-16">Accent A</label>
                             <select
-                                class="dp-surface flex-1 px-2 py-1 text-xs rounded"
-                                data-surface="matte"
+                                class="bg-matte-dark border border-white/8 flex-1 px-2 py-1 text-xs rounded"
+                                
                                 value={getProp("color.a") ?? "teal"}
                                 onchange={(e) => updateProp("color.a", e.currentTarget.value)}
                             >
@@ -191,10 +191,10 @@ function copyBlock() {
                         <!-- Accent B (if duo) -->
                         {#if getProp("color.mode") === "duo"}
                             <div class="flex items-center gap-2">
-                                <label class="text-[10px] text-muted w-16">Accent B</label>
+                                <label class="text-[10px] text-[var(--text-muted)] w-16">Accent B</label>
                                 <select
-                                    class="dp-surface flex-1 px-2 py-1 text-xs rounded"
-                                    data-surface="matte"
+                                    class="bg-matte-dark border border-white/8 flex-1 px-2 py-1 text-xs rounded"
+                                    
                                     value={getProp("color.b") ?? "purple"}
                                     onchange={(e) => updateProp("color.b", e.currentTarget.value)}
                                 >
@@ -211,20 +211,20 @@ function copyBlock() {
             <!-- Surface Props -->
             <div class="p-3 border-b border-white/5">
                 <button
-                    class="w-full flex items-center gap-2 text-xs font-medium text-secondary mb-2"
+                    class="w-full flex items-center gap-2 text-xs font-medium text-[var(--text-secondary)] mb-2"
                     onclick={() => toggleSection("surface")}
                 >
-                    <span class="text-muted transition-transform" class:rotate-90={!collapsedSections.has("surface")}>▶</span>
+                    <span class="text-[var(--text-muted)] transition-transform" class:rotate-90={!collapsedSections.has("surface")}>▶</span>
                     <span>Surface</span>
                 </button>
                 {#if !collapsedSections.has("surface")}
                     <div class="space-y-2">
                         <!-- Finish -->
                         <div class="flex items-center gap-2">
-                            <label class="text-[10px] text-muted w-16">Finish</label>
+                            <label class="text-[10px] text-[var(--text-muted)] w-16">Finish</label>
                             <select
-                                class="dp-surface flex-1 px-2 py-1 text-xs rounded"
-                                data-surface="matte"
+                                class="bg-matte-dark border border-white/8 flex-1 px-2 py-1 text-xs rounded"
+                                
                                 value={getProp("surface.finish") ?? "glass"}
                                 onchange={(e) => updateProp("surface.finish", e.currentTarget.value)}
                             >
@@ -235,10 +235,10 @@ function copyBlock() {
                         </div>
                         <!-- Clarity -->
                         <div class="flex items-center gap-2">
-                            <label class="text-[10px] text-muted w-16">Clarity</label>
+                            <label class="text-[10px] text-[var(--text-muted)] w-16">Clarity</label>
                             <select
-                                class="dp-surface flex-1 px-2 py-1 text-xs rounded"
-                                data-surface="matte"
+                                class="bg-matte-dark border border-white/8 flex-1 px-2 py-1 text-xs rounded"
+                                
                                 value={getProp("surface.clarity") ?? "deep"}
                                 onchange={(e) => updateProp("surface.clarity", e.currentTarget.value)}
                             >
@@ -254,20 +254,20 @@ function copyBlock() {
             <!-- Frame Props -->
             <div class="p-3 border-b border-white/5">
                 <button
-                    class="w-full flex items-center gap-2 text-xs font-medium text-secondary mb-2"
+                    class="w-full flex items-center gap-2 text-xs font-medium text-[var(--text-secondary)] mb-2"
                     onclick={() => toggleSection("frame")}
                 >
-                    <span class="text-muted transition-transform" class:rotate-90={!collapsedSections.has("frame")}>▶</span>
+                    <span class="text-[var(--text-muted)] transition-transform" class:rotate-90={!collapsedSections.has("frame")}>▶</span>
                     <span>Frame</span>
                 </button>
                 {#if !collapsedSections.has("frame")}
                     <div class="space-y-2">
                         <!-- Glow -->
                         <div class="flex items-center gap-2">
-                            <label class="text-[10px] text-muted w-16">Glow</label>
+                            <label class="text-[10px] text-[var(--text-muted)] w-16">Glow</label>
                             <select
-                                class="dp-surface flex-1 px-2 py-1 text-xs rounded"
-                                data-surface="matte"
+                                class="bg-matte-dark border border-white/8 flex-1 px-2 py-1 text-xs rounded"
+                                
                                 value={getProp("frame.glow") ?? "off"}
                                 onchange={(e) => updateProp("frame.glow", e.currentTarget.value)}
                             >
@@ -283,20 +283,20 @@ function copyBlock() {
             <!-- Depth Props -->
             <div class="p-3 border-b border-white/5">
                 <button
-                    class="w-full flex items-center gap-2 text-xs font-medium text-secondary mb-2"
+                    class="w-full flex items-center gap-2 text-xs font-medium text-[var(--text-secondary)] mb-2"
                     onclick={() => toggleSection("depth")}
                 >
-                    <span class="text-muted transition-transform" class:rotate-90={!collapsedSections.has("depth")}>▶</span>
+                    <span class="text-[var(--text-muted)] transition-transform" class:rotate-90={!collapsedSections.has("depth")}>▶</span>
                     <span>Depth</span>
                 </button>
                 {#if !collapsedSections.has("depth")}
                     <div class="space-y-2">
                         <!-- Intent -->
                         <div class="flex items-center gap-2">
-                            <label class="text-[10px] text-muted w-16">Intent</label>
+                            <label class="text-[10px] text-[var(--text-muted)] w-16">Intent</label>
                             <select
-                                class="dp-surface flex-1 px-2 py-1 text-xs rounded"
-                                data-surface="matte"
+                                class="bg-matte-dark border border-white/8 flex-1 px-2 py-1 text-xs rounded"
+                                
                                 value={getProp("depth.intent") ?? "flat"}
                                 onchange={(e) => updateProp("depth.intent", e.currentTarget.value)}
                             >
@@ -308,10 +308,10 @@ function copyBlock() {
                         </div>
                         <!-- Bevel -->
                         <div class="flex items-center gap-2">
-                            <label class="text-[10px] text-muted w-16">Bevel</label>
+                            <label class="text-[10px] text-[var(--text-muted)] w-16">Bevel</label>
                             <select
-                                class="dp-surface flex-1 px-2 py-1 text-xs rounded"
-                                data-surface="matte"
+                                class="bg-matte-dark border border-white/8 flex-1 px-2 py-1 text-xs rounded"
+                                
                                 value={getProp("depth.bevel.level") ?? "off"}
                                 onchange={(e) => updateProp("depth.bevel.level", e.currentTarget.value)}
                             >
@@ -328,20 +328,20 @@ function copyBlock() {
             {#if block.kind === "panel" || block.kind === "card" || block.kind === "modal"}
                 <div class="p-3 border-b border-white/5">
                     <button
-                        class="w-full flex items-center gap-2 text-xs font-medium text-secondary mb-2"
+                        class="w-full flex items-center gap-2 text-xs font-medium text-[var(--text-secondary)] mb-2"
                         onclick={() => toggleSection("panel")}
                     >
-                        <span class="text-muted transition-transform" class:rotate-90={!collapsedSections.has("panel")}>▶</span>
+                        <span class="text-[var(--text-muted)] transition-transform" class:rotate-90={!collapsedSections.has("panel")}>▶</span>
                         <span>Panel</span>
                     </button>
                     {#if !collapsedSections.has("panel")}
                         <div class="space-y-2">
                             <!-- Padding -->
                             <div class="flex items-center gap-2">
-                                <label class="text-[10px] text-muted w-16">Padding</label>
+                                <label class="text-[10px] text-[var(--text-muted)] w-16">Padding</label>
                                 <select
-                                    class="dp-surface flex-1 px-2 py-1 text-xs rounded"
-                                    data-surface="matte"
+                                    class="bg-matte-dark border border-white/8 flex-1 px-2 py-1 text-xs rounded"
+                                    
                                     value={getProp("panel.padding") ?? "md"}
                                     onchange={(e) => updateProp("panel.padding", e.currentTarget.value)}
                                 >
@@ -352,10 +352,10 @@ function copyBlock() {
                             </div>
                             <!-- Scrollable -->
                             <div class="flex items-center gap-2">
-                                <label class="text-[10px] text-muted w-16">Scrollable</label>
+                                <label class="text-[10px] text-[var(--text-muted)] w-16">Scrollable</label>
                                 <input
                                     type="checkbox"
-                                    class="dp-toggle"
+                                    class="accent-[var(--color-teal-500)]"
                                     checked={getProp("panel.scrollable") === true}
                                     onchange={(e) => updateProp("panel.scrollable", e.currentTarget.checked)}
                                 />
@@ -369,20 +369,20 @@ function copyBlock() {
             {#if kindDef.slots.length > 0}
                 <div class="p-3 border-b border-white/5">
                     <button
-                        class="w-full flex items-center gap-2 text-xs font-medium text-secondary mb-2"
+                        class="w-full flex items-center gap-2 text-xs font-medium text-[var(--text-secondary)] mb-2"
                         onclick={() => toggleSection("slots")}
                     >
-                        <span class="text-muted transition-transform" class:rotate-90={!collapsedSections.has("slots")}>▶</span>
+                        <span class="text-[var(--text-muted)] transition-transform" class:rotate-90={!collapsedSections.has("slots")}>▶</span>
                         <span>Slots</span>
                     </button>
                     {#if !collapsedSections.has("slots")}
                         <div class="space-y-1">
                             {#each kindDef.slots as slotName}
                                 {@const children = block.slots?.[slotName] ?? []}
-                                <div class="dp-surface flex items-center gap-2 px-2 py-1.5 rounded text-xs" data-surface="matte" data-variant="subtle">
-                                    <span class="text-muted">{slotName}</span>
+                                <div class="bg-matte-dark border border-white/8 flex items-center gap-2 px-2 py-1.5 rounded text-xs">
+                                    <span class="text-[var(--text-muted)]">{slotName}</span>
                                     <span class="flex-1"></span>
-                                    <span class="text-[10px] text-muted">{children.length} items</span>
+                                    <span class="text-[10px] text-[var(--text-muted)]">{children.length} items</span>
                                 </div>
                             {/each}
                         </div>
@@ -393,8 +393,8 @@ function copyBlock() {
         {:else}
             <!-- No selection -->
             <div class="p-4 text-center">
-                <div class="text-muted text-xs mb-2">No block selected</div>
-                <p class="text-[10px] text-muted">
+                <div class="text-[var(--text-muted)] text-xs mb-2">No block selected</div>
+                <p class="text-[10px] text-[var(--text-muted)]">
                     Select a block from the tree or add one from the Builder palette.
                 </p>
             </div>
@@ -405,17 +405,13 @@ function copyBlock() {
     {#if vpb.selectedBlock}
         <div class="flex items-center gap-1 px-3 py-2 border-t border-white/5">
             <button
-                class="dp-surface flex-1 px-2 py-1 text-xs rounded"
-                data-surface="matte"
-                data-variant="subtle"
+                class="bg-matte-dark border border-white/8 flex-1 px-2 py-1 text-xs rounded hover:bg-white/5 text-[var(--text-secondary)]"
                 onclick={copyBlock}
             >
                 Copy
             </button>
             <button
-                class="dp-surface flex-1 px-2 py-1 text-xs rounded text-red-400"
-                data-surface="matte"
-                data-variant="subtle"
+                class="bg-matte-dark border border-white/8 flex-1 px-2 py-1 text-xs rounded hover:bg-white/5 text-[var(--color-red-400)]"
                 onclick={deleteBlock}
             >
                 Delete

@@ -9,7 +9,7 @@
  * When focusable (tabindex=0), supports aria-valuenow for resizable split views.
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { separatorSlotStates } from "./types.js";
 
 const rawContract = {

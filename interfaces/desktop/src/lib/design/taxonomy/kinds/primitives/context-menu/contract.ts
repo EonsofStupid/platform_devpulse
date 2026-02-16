@@ -12,7 +12,7 @@
  * Triggered by right-click (contextmenu event) on trigger area.
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { contextMenuSlotStates } from "./types.js";
 
 const rawContract = {

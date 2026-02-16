@@ -14,7 +14,7 @@
  * Keyboard: arrow keys for fine adjustment, Page/Home/End for coarse.
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { sliderSlotStates } from "./types.js";
 
 const rawContract = {

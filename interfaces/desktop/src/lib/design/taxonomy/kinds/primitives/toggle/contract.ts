@@ -9,7 +9,7 @@
  * https://www.w3.org/WAI/ARIA/apg/patterns/button/
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { toggleSlotStates } from "./types.js";
 
 const rawContract = {

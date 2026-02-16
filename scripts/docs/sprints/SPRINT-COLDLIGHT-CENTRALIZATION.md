@@ -7,7 +7,7 @@
 ## Problem Statement
 
 Layout components have colocated CSS files that:
-1. Use `--dp-*` prefixed tokens that don't exist in SSOT
+1. Use prefixed tokens that don't exist in SSOT
 2. Duplicate styling that should come from ColdLight
 3. Violate the "ColdLight is the only design system" principle
 
@@ -61,7 +61,7 @@ ColdLight tokens exposed via Tailwind preset:
 
 ## Fix MASTER-PLAN.md
 
-Remove all stale `--dp-*` references. Token Categories table is WRONG.
+Remove all stale prefixed references. Token Categories table is WRONG.
 The SSOT (tokens.css) has unprefixed tokens. Documentation must match.
 
 ## Tasks

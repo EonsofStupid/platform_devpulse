@@ -11,7 +11,7 @@
  * Non-dismissible dialog — Escape does NOT close. User must pick cancel or action.
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { alertDialogSlotStates } from "./types.js";
 
 const rawContract = {

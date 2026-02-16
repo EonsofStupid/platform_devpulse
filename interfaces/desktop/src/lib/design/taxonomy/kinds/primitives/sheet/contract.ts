@@ -9,7 +9,7 @@
  * https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { sheetSlotStates } from "./types.js";
 
 const rawContract = {

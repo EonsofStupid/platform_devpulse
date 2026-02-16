@@ -9,7 +9,7 @@
  * https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/
  */
 
-import { type PrimitiveContract, parseContract } from "../../../schema.js";
+import { type PrimitiveContract, parseContract } from "../../../primitive/contract.js";
 import { collapsibleSlotStates } from "./types.js";
 
 const rawContract = {

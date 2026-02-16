@@ -1260,7 +1260,7 @@ ColdLight	interfaces/desktop/src/lib/design/	Design system (tokens → renderers
 | M3: State Cleanup | Delete dead singletons, clean sys barrel | `pnpm check`, app shell works |
 | M4: Domain Structure | index.ts barrels, types.ts for all domains | Barrel imports resolve |
 | M5: Route-Domain Wiring | Thin route shells, wire to domain page components | All routes render, no blanks |
-| M6: CSS + Tokens | @theme block, tokens.css real values, font imports | DevTools shows --cl-* props, fonts render |
+| M6: CSS + Tokens | @theme block, tokens.css real values, font imports | DevTools shows unprefixed token props, fonts render |
 | M7: Enforcement | Biome in lefthook pre-commit | `pnpm lint` + lefthook pass |
 | M8: Verification | Full integration check | Dev server works, all gates pass |
 
@@ -2123,7 +2123,7 @@ These are intentionally minimal — Phase 3 Sprint 1B will properly wire page co
 
 M6: CSS + TOKENS
 Real token values. Design system foundation.
-Gate: DevTools shows --cl-* custom properties. Fonts render.
+Gate: DevTools shows unprefixed custom properties. Fonts render.
 
 M6.1 — REWRITE src/lib/design/tokens/tokens.css
 
@@ -2183,17 +2183,17 @@ M6.1 — REWRITE src/lib/design/tokens/tokens.css
   --blur-xl: 24px;
 
   /* --- Depth (z-index) --- */
-  --cl-depth-0: 0;
-  --cl-depth-1: 10;
-  --cl-depth-2: 20;
-  --cl-depth-3: 30;
-  --cl-depth-4: 40;
+  --depth-0: 0;
+  --depth-1: 10;
+  --depth-2: 20;
+  --depth-3: 30;
+  --depth-4: 40;
 
   /* --- Bevel --- */
   --bevel-off: none;
   --bevel-subtle: inset 0 1px 0 oklch(100% 0 0 / 0.04);
   --bevel-soft: inset 0 1px 0 oklch(100% 0 0 / 0.06), inset 0 -1px 0 oklch(0% 0 0 / 0.1);
-  --cl-bevel-medium: inset 0 1px 1px oklch(100% 0 0 / 0.08), inset 0 -1px 1px oklch(0% 0 0 / 0.15);
+  --bevel-medium: inset 0 1px 1px oklch(100% 0 0 / 0.08), inset 0 -1px 1px oklch(0% 0 0 / 0.15);
 
   /* --- Tone --- */
   --tone-cold: oklch(50% 0.05 220);
@@ -2259,7 +2259,7 @@ export type PaddingToken = "sm" | "md" | "lg";
 
 /** Build a CSS custom property reference for a token. */
 export function tokenVar(category: string, value: string): string {
-  return `var(--cl-${category}-${value})`;
+  return `var(--${category}-${value})`;
 }
 M7: ENFORCEMENT
 Wire Biome into lefthook pre-commit.
@@ -2295,7 +2295,7 @@ pnpm dev
 # Manually verify: routes render, no console errors, fonts load
 
 # 4. Token verification
-# Open DevTools → Elements → :root → verify --cl-* properties exist
+# Open DevTools → Elements → :root → verify unprefixed token properties exist
 
 # 5. Lefthook dry-run
 cd ../..
@@ -3284,7 +3284,7 @@ ColdLight	interfaces/desktop/src/lib/design/	Design system (tokens → renderers
 | M3: State Cleanup | Delete dead singletons, clean sys barrel | `pnpm check`, app shell works |
 | M4: Domain Structure | index.ts barrels, types.ts for all domains | Barrel imports resolve |
 | M5: Route-Domain Wiring | Thin route shells, wire to domain page components | All routes render, no blanks |
-| M6: CSS + Tokens | @theme block, tokens.css real values, font imports | DevTools shows --cl-* props, fonts render |
+| M6: CSS + Tokens | @theme block, tokens.css real values, font imports | DevTools shows unprefixed token props, fonts render |
 | M7: Enforcement | Biome in lefthook pre-commit | `pnpm lint` + lefthook pass |
 | M8: Verification | Full integration check | Dev server works, all gates pass |
 
@@ -4147,7 +4147,7 @@ These are intentionally minimal — Phase 3 Sprint 1B will properly wire page co
 
 M6: CSS + TOKENS
 Real token values. Design system foundation.
-Gate: DevTools shows --cl-* custom properties. Fonts render.
+Gate: DevTools shows unprefixed custom properties. Fonts render.
 
 M6.1 — REWRITE src/lib/design/tokens/tokens.css
 
@@ -4160,101 +4160,101 @@ M6.1 — REWRITE src/lib/design/tokens/tokens.css
 
 :root {
   /* --- Accent --- */
-  --cl-accent-teal: oklch(72% 0.15 195);
-  --cl-accent-purple: oklch(65% 0.2 300);
-  --cl-accent-magenta: oklch(62% 0.22 340);
-  --cl-accent-ember: oklch(70% 0.2 50);
-  --cl-accent-frost: oklch(80% 0.1 220);
+  --accent-teal: oklch(72% 0.15 195);
+  --accent-purple: oklch(65% 0.2 300);
+  --accent-magenta: oklch(62% 0.22 340);
+  --accent-ember: oklch(70% 0.2 50);
+  --accent-frost: oklch(80% 0.1 220);
 
   /* --- Glow --- */
-  --cl-glow-off: 0 0 0 transparent;
-  --cl-glow-teal: 0 0 12px oklch(72% 0.15 195 / 0.4);
-  --cl-glow-purple: 0 0 12px oklch(65% 0.2 300 / 0.4);
-  --cl-glow-magenta: 0 0 12px oklch(62% 0.22 340 / 0.4);
-  --cl-glow-ember: 0 0 12px oklch(70% 0.2 50 / 0.4);
-  --cl-glow-frost: 0 0 12px oklch(80% 0.1 220 / 0.4);
-  --cl-glow-cyber: 0 0 16px oklch(75% 0.18 170 / 0.5);
+  --glow-off: 0 0 0 transparent;
+  --glow-teal: 0 0 12px oklch(72% 0.15 195 / 0.4);
+  --glow-purple: 0 0 12px oklch(65% 0.2 300 / 0.4);
+  --glow-magenta: 0 0 12px oklch(62% 0.22 340 / 0.4);
+  --glow-ember: 0 0 12px oklch(70% 0.2 50 / 0.4);
+  --glow-frost: 0 0 12px oklch(80% 0.1 220 / 0.4);
+  --glow-cyber: 0 0 16px oklch(75% 0.18 170 / 0.5);
 
   /* --- Surface --- */
-  --cl-surface-glass: oklch(12% 0.02 195 / 0.6);
-  --cl-surface-solid: oklch(10% 0.02 195);
-  --cl-surface-matte: oklch(14% 0.01 195);
+  --surface-glass: oklch(12% 0.02 195 / 0.6);
+  --surface-solid: oklch(10% 0.02 195);
+  --surface-matte: oklch(14% 0.01 195);
 
   /* --- Glass Variant --- */
-  --cl-glass-void: oklch(6% 0.02 195 / 0.5);
-  --cl-glass-deep: oklch(8% 0.02 195 / 0.6);
-  --cl-glass-smoke: oklch(12% 0.01 195 / 0.4);
-  --cl-glass-frost: oklch(85% 0.02 220 / 0.15);
+  --glass-void: oklch(6% 0.02 195 / 0.5);
+  --glass-deep: oklch(8% 0.02 195 / 0.6);
+  --glass-smoke: oklch(12% 0.01 195 / 0.4);
+  --glass-frost: oklch(85% 0.02 220 / 0.15);
 
   /* --- Size --- */
-  --cl-size-sm: 0.875rem;
-  --cl-size-md: 1rem;
-  --cl-size-lg: 1.25rem;
+  --size-sm: 0.875rem;
+  --size-md: 1rem;
+  --size-lg: 1.25rem;
 
   /* --- Radius --- */
-  --cl-radius-none: 0;
-  --cl-radius-sm: 0.25rem;
-  --cl-radius-md: 0.5rem;
-  --cl-radius-lg: 0.75rem;
-  --cl-radius-xl: 1rem;
-  --cl-radius-full: 9999px;
+  --radius-none: 0;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
 
   /* --- Blur --- */
-  --cl-blur-off: 0;
-  --cl-blur-sm: 4px;
-  --cl-blur-md: 8px;
-  --cl-blur-lg: 16px;
-  --cl-blur-xl: 24px;
+  --blur-off: 0;
+  --blur-sm: 4px;
+  --blur-md: 8px;
+  --blur-lg: 16px;
+  --blur-xl: 24px;
 
   /* --- Depth (z-index) --- */
-  --cl-depth-0: 0;
-  --cl-depth-1: 10;
-  --cl-depth-2: 20;
-  --cl-depth-3: 30;
-  --cl-depth-4: 40;
+  --depth-0: 0;
+  --depth-1: 10;
+  --depth-2: 20;
+  --depth-3: 30;
+  --depth-4: 40;
 
   /* --- Bevel --- */
-  --cl-bevel-off: none;
-  --cl-bevel-subtle: inset 0 1px 0 oklch(100% 0 0 / 0.04);
-  --cl-bevel-soft: inset 0 1px 0 oklch(100% 0 0 / 0.06), inset 0 -1px 0 oklch(0% 0 0 / 0.1);
-  --cl-bevel-medium: inset 0 1px 1px oklch(100% 0 0 / 0.08), inset 0 -1px 1px oklch(0% 0 0 / 0.15);
+  --bevel-off: none;
+  --bevel-subtle: inset 0 1px 0 oklch(100% 0 0 / 0.04);
+  --bevel-soft: inset 0 1px 0 oklch(100% 0 0 / 0.06), inset 0 -1px 0 oklch(0% 0 0 / 0.1);
+  --bevel-medium: inset 0 1px 1px oklch(100% 0 0 / 0.08), inset 0 -1px 1px oklch(0% 0 0 / 0.15);
 
   /* --- Tone --- */
-  --cl-tone-cold: oklch(50% 0.05 220);
-  --cl-tone-neutral: oklch(50% 0.02 200);
-  --cl-tone-warm: oklch(50% 0.05 60);
+  --tone-cold: oklch(50% 0.05 220);
+  --tone-neutral: oklch(50% 0.02 200);
+  --tone-warm: oklch(50% 0.05 60);
 
   /* --- Imprint --- */
-  --cl-imprint-subtle: 0 1px 2px oklch(0% 0 0 / 0.15);
-  --cl-imprint-medium: 0 2px 6px oklch(0% 0 0 / 0.25);
-  --cl-imprint-strong: 0 4px 12px oklch(0% 0 0 / 0.4);
+  --imprint-subtle: 0 1px 2px oklch(0% 0 0 / 0.15);
+  --imprint-medium: 0 2px 6px oklch(0% 0 0 / 0.25);
+  --imprint-strong: 0 4px 12px oklch(0% 0 0 / 0.4);
 
   /* --- Shell Depth --- */
-  --cl-shell-shallow: oklch(8% 0.02 195);
-  --cl-shell-standard: oklch(6% 0.02 195);
-  --cl-shell-deep: oklch(4% 0.01 195);
+  --shell-shallow: oklch(8% 0.02 195);
+  --shell-standard: oklch(6% 0.02 195);
+  --shell-deep: oklch(4% 0.01 195);
 
   /* --- Space --- */
-  --cl-space-1: 0.25rem;
-  --cl-space-2: 0.5rem;
-  --cl-space-3: 0.75rem;
-  --cl-space-4: 1rem;
-  --cl-space-5: 1.25rem;
-  --cl-space-6: 1.5rem;
-  --cl-space-8: 2rem;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
 
   /* --- Text Size --- */
-  --cl-text-xs: 0.75rem;
-  --cl-text-sm: 0.875rem;
-  --cl-text-base: 1rem;
-  --cl-text-lg: 1.125rem;
-  --cl-text-xl: 1.25rem;
-  --cl-text-2xl: 1.5rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
 
   /* --- Padding --- */
-  --cl-padding-sm: 0.5rem 0.75rem;
-  --cl-padding-md: 0.75rem 1rem;
-  --cl-padding-lg: 1rem 1.5rem;
+  --padding-sm: 0.5rem 0.75rem;
+  --padding-md: 0.75rem 1rem;
+  --padding-lg: 1rem 1.5rem;
 }
 M6.2 — REWRITE src/lib/design/tokens/index.ts
 
@@ -4282,7 +4282,7 @@ export type PaddingToken = "sm" | "md" | "lg";
 
 /** Build a CSS custom property reference for a token. */
 export function tokenVar(category: string, value: string): string {
-  return `var(--cl-${category}-${value})`;
+  return `var(--${category}-${value})`;
 }
 M7: ENFORCEMENT
 Wire Biome into lefthook pre-commit.
@@ -4318,7 +4318,7 @@ pnpm dev
 # Manually verify: routes render, no console errors, fonts load
 
 # 4. Token verification
-# Open DevTools → Elements → :root → verify --cl-* properties exist
+# Open DevTools → Elements → :root → verify unprefixed token properties exist
 
 # 5. Lefthook dry-run
 cd ../..
