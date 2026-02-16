@@ -4,8 +4,7 @@
   @layer lib
 
   @description
-  Status bar with ColdLight Badge primitives.
-  Connection dot, uptime, and version display.
+  Status bar. Connection dot, uptime, and version display.
 
   @consumers
   - Frame.svelte: Main app layout
@@ -13,8 +12,6 @@
   @since 1.0.0
 -->
 <script lang="ts">
-import { Badge } from "$lib/design/primitives/badge";
-
 const status = {
 	connection: "online" as "online" | "offline" | "hybrid",
 	uptime: "12d 4h",
@@ -24,7 +21,9 @@ const status = {
 
 <div class="flex w-full items-center justify-between" aria-label="System status">
 	<div class="flex items-center gap-2">
-		<Badge
+		<span
+			data-kind="badge"
+			data-slot="root"
 			class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs"
 			data-status={status.connection}
 		>
@@ -34,17 +33,25 @@ const status = {
 				aria-hidden="true"
 			></span>
 			<span class="text-[var(--text-secondary)]">{status.connection}</span>
-		</Badge>
+		</span>
 	</div>
 
 	<div class="flex items-center gap-2">
-		<Badge class="inline-flex items-center rounded-full px-2 py-0.5 text-xs text-[var(--text-muted)]">
+		<span
+			data-kind="badge"
+			data-slot="root"
+			class="inline-flex items-center rounded-full px-2 py-0.5 text-xs text-[var(--text-muted)]"
+		>
 			Uptime: {status.uptime}
-		</Badge>
+		</span>
 
-		<Badge class="inline-flex items-center rounded-full px-2 py-0.5 text-xs text-[var(--text-muted)]">
+		<span
+			data-kind="badge"
+			data-slot="root"
+			class="inline-flex items-center rounded-full px-2 py-0.5 text-xs text-[var(--text-muted)]"
+		>
 			v{status.version}
-		</Badge>
+		</span>
 	</div>
 </div>
 

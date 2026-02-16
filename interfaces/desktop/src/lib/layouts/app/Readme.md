@@ -312,3 +312,103 @@ layouts/app/
 | Version | Date | Changes |
 |---------|------|---------|
 | 0.1.0 | 2026-01-22 | Initial scaffold with CSS Grid layout |
+/**
+ * @file layouts/app/styles/shell.css
+ * @layer layouts
+ *
+ * CSS Grid Shell Layout
+ * Consumes ColdLight tokens via var(--*) references.
+ *
+ * Grid:
+ * ┌──────────────────────────────────────────┐
+ * │ TOPBAR (100%)                            │
+ * ├────────┬─────────────────────────────────┤
+ * │ SIDEBAR│ CONTENT AREA                    │
+ * │ 64px   │ (scrollable)                    │
+ * ├────────┴─────────────────────────────────┤
+ * │ STATUSBAR (100%)                         │
+ * └──────────────────────────────────────────┘
+ *
+ * @since 0.1.0
+ */
+
+[data-layout="app"] {
+	display: grid;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	grid-template-rows: clamp(40px, 5vh, 56px) 1fr clamp(24px, 3vh, 32px);
+	grid-template-columns: clamp(48px, 5vw, 64px) 1fr;
+	grid-template-areas:
+		"topbar  topbar"
+		"sidebar content"
+		"status  status";
+	gap: 4px;
+}
+
+[data-layout="app"][data-sidebar="expanded"] {
+	grid-template-columns: clamp(200px, 20vw, 280px) 1fr;
+}
+
+[data-slot="topbar"] {
+	grid-area: topbar;
+	display: flex;
+	align-items: center;
+	padding: 0 var(--space-3);
+	gap: var(--space-3);
+	min-height: 0;
+}
+
+[data-slot="sidebar"] {
+	grid-area: sidebar;
+	display: grid;
+	grid-template-rows: 1fr auto;
+	align-content: start;
+	justify-items: end;
+	padding: var(--space-3) var(--space-2) var(--space-2);
+	gap: var(--space-2);
+	min-width: 0;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+[data-layout="app"][data-sidebar="expanded"] [data-slot="sidebar"] {
+	justify-items: stretch;
+}
+
+[data-slot="content"] {
+	grid-area: content;
+	min-width: 0;
+	min-height: 0;
+	overflow: auto;
+	position: relative;
+}
+
+[data-slot="statusbar"] {
+	grid-area: status;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 var(--space-3);
+	min-height: 0;
+}
+
+[data-slot="content"]::-webkit-scrollbar {
+	width: 6px;
+}
+
+[data-slot="content"]::-webkit-scrollbar-track {
+	background: var(--color-void-900);
+	border-radius: 3px;
+}
+
+[data-slot="content"]::-webkit-scrollbar-thumb {
+	background: var(--color-teal-600);
+	border-radius: 3px;
+	box-shadow: 0 0 4px color-mix(in oklch, var(--color-teal-500), transparent 70%);
+}
+
+[data-slot="content"]::-webkit-scrollbar-thumb:hover {
+	background: var(--color-teal-500);
+	box-shadow: 0 0 8px color-mix(in oklch, var(--color-teal-500), transparent 50%);
+}

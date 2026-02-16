@@ -4,7 +4,7 @@
   @layer lib
 
   @description
-  Vertical sidebar with ColdLight primitives and Lucide icons.
+  Vertical sidebar with Lucide icons.
   Supports child route submenu via globalState.
 
   @consumers
@@ -24,7 +24,6 @@ import {
 	Wrench,
 } from "lucide-svelte";
 import { page } from "$app/state";
-import { Button, ButtonIcon } from "$lib/design/primitives/button";
 import { getChildRoutes } from "$lib/sys/routing/child-routes";
 import { globalState } from "$lib/sys/runes/global.svelte";
 
@@ -103,23 +102,25 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 	</div>
 
 	<div class="grid auto-rows-min gap-2">
-		<Button
+		<button
+			data-kind="button"
+			data-slot="root"
 			class="flex items-center rounded-md {isExpanded ? 'w-full gap-3 px-3 py-2' : 'h-10 w-10 justify-center justify-self-end'}"
 			title={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
 			aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
 			onclick={() => globalState.toggleSidebar()}
 		>
-			<ButtonIcon>
+			<span data-kind="button" data-slot="icon">
 				{#if isExpanded}
 					<PanelLeftClose size={18} />
 				{:else}
 					<PanelLeftOpen size={18} />
 				{/if}
-			</ButtonIcon>
+			</span>
 			{#if isExpanded}
 				<span class="truncate text-sm text-[var(--text-secondary)]">Collapse</span>
 			{/if}
-		</Button>
+		</button>
 	</div>
 
 	{#if globalState.sidebar_submenu && submenuRoutes.length > 0}

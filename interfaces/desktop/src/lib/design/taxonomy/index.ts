@@ -9,8 +9,6 @@
  * - Registry (runtime manifest access)
  */
 
-// Primitive contracts
-export * from "./kinds";
 // Runtime registry
 export {
 	getDsAdapter,

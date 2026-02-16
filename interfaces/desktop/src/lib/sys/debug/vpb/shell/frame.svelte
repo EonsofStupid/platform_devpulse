@@ -1,8 +1,8 @@
 <!--
   @file src/lib/sys/debug/vpb/shell/frame.svelte
-  @description VPB main frame container
+  @layer vpb
 
-  Uses dp-surface + data-* attributes for styling.
+  VPB main frame container. ColdLight molecules provide all visual styling.
   Renders Builder and Inspector components based on active tab.
 
   @since 1.0.0
@@ -18,13 +18,12 @@ import Topbar from "./topbar.svelte";
 
 {#if vpb.isOpen}
     <div
-        class="dp-surface fixed bottom-5 right-5 z-[9999] flex flex-col w-[380px] h-[500px] rounded-xl overflow-hidden transition-all duration-200"
-        data-surface="glass"
-        data-variant="deep"
-        data-role="panel"
+        class="glass-deep bevel-subtle depth-elevated fixed bottom-5 right-5 z-[var(--z-vpb)] flex flex-col w-[380px] h-[500px] rounded-[var(--radius-xl)] overflow-hidden transition-all duration-[var(--duration-normal)]"
+        data-kind="vpb"
+        data-slot="root"
     >
         <!-- Header Zone (Draggable) -->
-        <div class="dp-surface flex flex-col border-b border-white/5" data-surface="matte" data-variant="sunken">
+        <div class="glass-smoke flex flex-col border-b border-white/5">
             <Topbar />
             <Tabs />
         </div>

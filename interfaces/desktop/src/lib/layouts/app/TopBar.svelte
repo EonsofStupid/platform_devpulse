@@ -4,8 +4,7 @@
   @layer lib
 
   @description
-  Top navigation bar with ColdLight primitives.
-  Parasite logo left, icon buttons + avatar right.
+  Top navigation bar. Parasite logo left, icon buttons + avatar right.
 
   @consumers
   - Frame.svelte: Main app layout
@@ -16,8 +15,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { Bell, MessageCircle, Search } from "lucide-svelte";
 import { Parasite } from "$lib/design/plugins/parasite";
-import { Avatar, AvatarFallback } from "$lib/design/primitives/avatar";
-import { Button, ButtonIcon } from "$lib/design/primitives/button";
 
 let searchOpen = $state(false);
 let searchQuery = $state("");
@@ -51,31 +48,37 @@ function onKey(e: KeyboardEvent): void {
 	<div class="flex-1"></div>
 
 	<div class="flex items-center gap-2">
-		<Button
+		<button
+			data-kind="button"
+			data-slot="root"
 			class="flex h-8 w-8 items-center justify-center"
 			title="Search"
 			aria-label="Search"
 			onclick={toggleSearch}
 		>
-			<ButtonIcon><Search size={16} /></ButtonIcon>
-		</Button>
+			<span data-kind="button" data-slot="icon"><Search size={16} /></span>
+		</button>
 
-		<Button
+		<button
+			data-kind="button"
+			data-slot="root"
 			class="flex h-8 w-8 items-center justify-center"
 			title="Notifications"
 			aria-label="Notifications"
 		>
-			<ButtonIcon><Bell size={16} /></ButtonIcon>
-		</Button>
+			<span data-kind="button" data-slot="icon"><Bell size={16} /></span>
+		</button>
 
-		<Button
+		<button
+			data-kind="button"
+			data-slot="root"
 			class="flex h-8 w-8 items-center justify-center"
 			title="Open Chat"
 			aria-label="Open Chat"
 			onclick={openChat}
 		>
-			<ButtonIcon><MessageCircle size={16} /></ButtonIcon>
-		</Button>
+			<span data-kind="button" data-slot="icon"><MessageCircle size={16} /></span>
+		</button>
 
 		{#if searchOpen}
 			<div
@@ -93,10 +96,18 @@ function onKey(e: KeyboardEvent): void {
 			</div>
 		{/if}
 
-		<Avatar class="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--glass-deep)] border border-[var(--border-subtle)] overflow-hidden">
-			<AvatarFallback class="flex h-full w-full items-center justify-center text-xs text-[var(--text-secondary)]">
+		<div
+			data-kind="avatar"
+			data-slot="root"
+			class="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--glass-deep)] border border-[var(--border-subtle)] overflow-hidden"
+		>
+			<span
+				data-kind="avatar"
+				data-slot="fallback"
+				class="flex h-full w-full items-center justify-center text-xs text-[var(--text-secondary)]"
+			>
 				DP
-			</AvatarFallback>
-		</Avatar>
+			</span>
+		</div>
 	</div>
 </div>

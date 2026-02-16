@@ -7,11 +7,11 @@ import { vpb } from "../state/vpb.svelte";
 >
     <!-- Drag Handle / Title -->
     <div
-        class="flex items-center gap-2 text-xs font-mono text-muted group-hover:text-primary transition-colors"
+        class="flex items-center gap-2 text-xs font-mono text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-colors"
     >
         <span class="opacity-50">::</span>
         <span class="font-bold tracking-tight"
-            >DEV<span class="text-teal-400">PULSE</span></span
+            >DEV<span class="text-[var(--color-teal-400)]">PULSE</span></span
         >
     </div>
 
@@ -19,7 +19,7 @@ import { vpb } from "../state/vpb.svelte";
     <div class="flex items-center gap-1">
         <button
             onclick={() => vpb.toggle()}
-            class="w-5 h-5 flex items-center justify-center rounded hover:bg-white/10 text-muted hover:text-white transition-colors"
+            class="w-5 h-5 flex items-center justify-center rounded hover:bg-white/10 text-[var(--text-muted)] hover:text-white transition-colors"
         >
             <span class="text-[10px]">✕</span>
         </button>

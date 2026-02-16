@@ -1,5 +1,7 @@
-import type { DialogSlot } from "$lib/design/taxonomy/kinds/primitives/dialog/types.js";
 import type { TransportAdapter } from "../../_transport/types.js";
+
+/** Dialog slot names — will be sourced from central taxonomy contract */
+type DialogSlot = "root" | "trigger" | "overlay" | "content" | "title" | "description" | "close" | "portal";
 
 export interface DialogTransportStates {
 	open: boolean;

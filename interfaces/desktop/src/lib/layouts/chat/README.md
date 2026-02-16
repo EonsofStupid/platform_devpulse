@@ -447,3 +447,188 @@ class GlobalState {
 | Version | Date | Changes |
 |---------|------|---------|
 | 0.1.0 | 2026-01-22 | Initial scaffold with interactions folder spec |
+/**
+ * @file layouts/chat/styles/shell.css
+ * @layer layouts
+ *
+ * CSS Grid Shell Layout for Chat Overlay
+ * Implements the floating chat window grid specification.
+ *
+ * Layout:
+ * ┌──────────────────────────────────────────┐
+ * │ TOPBAR (hub tabs, minimize, close)       │
+ * ├──────┬───────────────────────┬───────────┤
+ * │ MODE │ CHAT DASHBOARD        │ CONTEXT   │
+ * │ ──── │ (message thread)      │ PANEL     │
+ * │ DEV  │                       │ (cortex)  │
+ * │ PLAN │                       │           │
+ * │ IMG  │                       │           │
+ * │ GEN  │                       │           │
+ * ├──────┴───────────────────────┴───────────┤
+ * │ FOOTER (input + voice + tools)           │
+ * └──────────────────────────────────────────┘
+ *
+ * @since 0.1.0
+ */
+
+/* ============================================
+   CHAT OVERLAY FRAME
+   ============================================ */
+
+[data-layout="chat"] {
+    /* Floating position */
+    position: fixed;
+    bottom: var(--space-4);
+    right: var(--space-4);
+    z-index: 1000;
+
+    /* Sizing */
+    width: clamp(320px, 35vw, 600px);
+    height: clamp(400px, 60vh, 80vh);
+
+    /* Grid layout */
+    display: grid;
+    grid-template-rows: clamp(36px, 4vh, 48px) 1fr clamp(48px, 6vh, 64px);
+    grid-template-columns: clamp(48px, 5vw, 64px) 1fr clamp(160px, 20vw, 240px);
+
+    grid-template-areas:
+        "topbar   topbar    topbar"
+        "mode     dashboard context"
+        "footer   footer    footer";
+
+    gap: 4px;
+
+    /* Container styling */
+    overflow: hidden;
+
+    /* Transition for state changes */
+    transition:
+        opacity 300ms cubic-bezier(0.16, 1, 0.3, 1),
+        transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* State: Open */
+[data-layout="chat"][data-state="open"] {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* State: Minimized */
+[data-layout="chat"][data-state="minimized"] {
+    height: clamp(36px, 4vh, 48px);
+    grid-template-rows: 1fr;
+    grid-template-columns: 1fr;
+    grid-template-areas: "topbar";
+}
+
+[data-layout="chat"][data-state="minimized"] [data-slot="mode-selector"],
+[data-layout="chat"][data-state="minimized"] [data-slot="chat-dashboard"],
+[data-layout="chat"][data-state="minimized"] [data-slot="context-panel"],
+[data-layout="chat"][data-state="minimized"] [data-slot="chat-footer"] {
+    display: none;
+}
+
+/* State: Closed */
+[data-layout="chat"][data-state="closed"] {
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+}
+
+/* Idle transparency (when not engaged) */
+[data-layout="chat"][data-engaged="false"] {
+    opacity: 0.35;
+}
+
+[data-layout="chat"][data-engaged="false"]:hover {
+    opacity: 1;
+}
+
+/* ============================================
+   SLOT REGIONS
+   ============================================ */
+
+[data-layout="chat"] [data-slot="topbar"] {
+    grid-area: topbar;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--space-3);
+    min-height: 0;
+}
+
+[data-layout="chat"] [data-slot="mode-selector"] {
+    grid-area: mode;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-2);
+    gap: var(--space-2);
+    min-width: 0;
+}
+
+[data-layout="chat"] [data-slot="chat-dashboard"] {
+    grid-area: dashboard;
+    min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-3);
+}
+
+[data-layout="chat"] [data-slot="context-panel"] {
+    grid-area: context;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    padding: var(--space-2);
+}
+
+[data-layout="chat"] [data-slot="chat-footer"] {
+    grid-area: footer;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    min-height: 0;
+}
+
+/* ============================================
+   CONTEXT PANEL COLLAPSED STATE
+   ============================================ */
+
+[data-layout="chat"][data-context-collapsed="true"] {
+    grid-template-columns: clamp(48px, 5vw, 64px) 1fr;
+    grid-template-areas:
+        "topbar   topbar"
+        "mode     dashboard"
+        "footer   footer";
+}
+
+[data-layout="chat"][data-context-collapsed="true"] [data-slot="context-panel"] {
+    display: none;
+}
+
+/* ============================================
+   MESSAGE THREAD SCROLLBAR
+   ============================================ */
+
+[data-slot="chat-dashboard"]::-webkit-scrollbar {
+    width: 4px;
+}
+
+[data-slot="chat-dashboard"]::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+[data-slot="chat-dashboard"]::-webkit-scrollbar-thumb {
+    background: var(--color-teal-700);
+    border-radius: 2px;
+}
+
+[data-slot="chat-dashboard"]::-webkit-scrollbar-thumb:hover {
+    background: var(--color-teal-600);
+}

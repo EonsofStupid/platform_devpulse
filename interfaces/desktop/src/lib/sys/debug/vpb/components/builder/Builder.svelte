@@ -2,7 +2,7 @@
   @file src/lib/sys/debug/vpb/components/builder/Builder.svelte
   @description VPB Builder - Block palette and tree composition
 
-  Uses dp-surface + data-* attributes for styling.
+  ColdLight molecules + token vars for styling.
   Consumes taxonomy/kinds for palette generation.
 
   @since 1.0.0
@@ -84,11 +84,11 @@ function getBlockChildren(block: BlockNode): Array<{ slot: string; children: Blo
 <div class="flex flex-col h-full overflow-hidden">
     <!-- Header -->
     <div class="flex items-center gap-2 px-3 py-2 border-b border-white/5">
-        <div class="w-2 h-2 rounded-full bg-purple-400"></div>
-        <h3 class="text-xs font-bold text-secondary uppercase tracking-wider flex-1">
+        <div class="w-2 h-2 rounded-full bg-[var(--color-purple-400)]"></div>
+        <h3 class="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider flex-1">
             Builder
         </h3>
-        <span class="text-xs text-muted">{vpb.tree.length} blocks</span>
+        <span class="text-xs text-[var(--text-muted)]">{vpb.tree.length} blocks</span>
     </div>
 
     <!-- Search -->
@@ -96,9 +96,7 @@ function getBlockChildren(block: BlockNode): Array<{ slot: string; children: Blo
         <input
             type="text"
             placeholder="Search blocks..."
-            class="dp-surface w-full px-2 py-1 text-xs rounded"
-            data-surface="matte"
-            data-size="sm"
+            class="bg-matte-dark border border-white/8 w-full px-2 py-1 text-xs rounded text-[var(--text-primary)]"
             bind:value={searchQuery}
         />
     </div>
@@ -107,21 +105,21 @@ function getBlockChildren(block: BlockNode): Array<{ slot: string; children: Blo
     <div class="flex-1 overflow-auto">
         <!-- Block Palette -->
         <div class="p-2">
-            <div class="text-xs font-medium text-muted uppercase tracking-wider px-2 py-1">
+            <div class="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider px-2 py-1">
                 Palette
             </div>
             {#each filteredGroups() as group (group.id)}
                 <div class="mb-2">
                     <!-- Category Header -->
                     <button
-                        class="w-full flex items-center gap-2 px-2 py-1.5 text-xs font-medium text-secondary hover:bg-white/5 rounded transition-colors"
+                        class="w-full flex items-center gap-2 px-2 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:bg-white/5 rounded transition-colors"
                         onclick={() => toggleCategory(group.id)}
                     >
-                        <span class="text-muted transition-transform" class:rotate-90={!collapsedCategories.has(group.id)}>
+                        <span class="text-[var(--text-muted)] transition-transform" class:rotate-90={!collapsedCategories.has(group.id)}>
                             ▶
                         </span>
                         <span class="flex-1 text-left">{group.label}</span>
-                        <span class="text-muted">{group.items.length}</span>
+                        <span class="text-[var(--text-muted)]">{group.items.length}</span>
                     </button>
 
                     <!-- Category Items -->
@@ -129,16 +127,14 @@ function getBlockChildren(block: BlockNode): Array<{ slot: string; children: Blo
                         <div class="grid grid-cols-2 gap-1 px-1 mt-1">
                             {#each group.items as item (item.kind)}
                                 <button
-                                    class="dp-surface flex items-center gap-2 px-2 py-1.5 text-left rounded text-xs transition-all hover:scale-[1.02]"
-                                    data-surface="matte"
-                                    data-variant="subtle"
+                                    class="bg-matte-dark border border-white/8 flex items-center gap-2 px-2 py-1.5 text-left rounded text-xs transition-all hover:scale-[1.02] hover:bg-white/5"
                                     draggable="true"
                                     ondragstart={(e) => handleDragStart(e, item)}
                                     ondragend={handleDragEnd}
                                     onclick={() => addBlockFromPalette(item)}
                                     title={item.description}
                                 >
-                                    <span class="text-muted text-[10px]">
+                                    <span class="text-[var(--text-muted)] text-[10px]">
                                         {#if item.layoutMode === "grid"}
                                             ⊞
                                         {:else if item.layoutMode === "flex"}
@@ -159,10 +155,10 @@ function getBlockChildren(block: BlockNode): Array<{ slot: string; children: Blo
         <!-- Block Tree -->
         {#if vpb.tree.length > 0}
             <div class="p-2 border-t border-white/5">
-                <div class="text-xs font-medium text-muted uppercase tracking-wider px-2 py-1 flex items-center justify-between">
+                <div class="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider px-2 py-1 flex items-center justify-between">
                     <span>Tree</span>
                     <button
-                        class="text-xs text-muted hover:text-secondary transition-colors"
+                        class="text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
                         onclick={() => vpb.clearTree()}
                     >
                         Clear
@@ -180,9 +176,7 @@ function getBlockChildren(block: BlockNode): Array<{ slot: string; children: Blo
     <!-- Footer Actions -->
     <div class="flex items-center gap-1 px-3 py-2 border-t border-white/5">
         <button
-            class="dp-surface flex-1 px-2 py-1 text-xs rounded"
-            data-surface="matte"
-            data-variant="subtle"
+            class="bg-matte-dark border border-white/8 flex-1 px-2 py-1 text-xs rounded hover:bg-white/5 text-[var(--text-secondary)]"
             onclick={() => vpb.undo()}
             disabled={!vpb.canUndo}
             class:opacity-50={!vpb.canUndo}
@@ -190,9 +184,7 @@ function getBlockChildren(block: BlockNode): Array<{ slot: string; children: Blo
             Undo
         </button>
         <button
-            class="dp-surface flex-1 px-2 py-1 text-xs rounded"
-            data-surface="matte"
-            data-variant="subtle"
+            class="bg-matte-dark border border-white/8 flex-1 px-2 py-1 text-xs rounded hover:bg-white/5 text-[var(--text-secondary)]"
             onclick={() => vpb.redo()}
             disabled={!vpb.canRedo}
             class:opacity-50={!vpb.canRedo}
@@ -205,12 +197,10 @@ function getBlockChildren(block: BlockNode): Array<{ slot: string; children: Blo
 {#snippet blockTreeItem(block: BlockNode, depth: number)}
     <div style="padding-left: {depth * 12}px">
         <button
-            class="dp-surface w-full flex items-center gap-2 px-2 py-1.5 text-left rounded text-xs transition-all"
-            data-surface="matte"
-            data-variant={vpb.selection.blockId === block.id ? "active" : "subtle"}
+            class="bg-matte-dark border border-white/8 w-full flex items-center gap-2 px-2 py-1.5 text-left rounded text-xs transition-all hover:bg-white/5 {vpb.selection.blockId === block.id ? 'bg-[var(--surface-elevated)]' : ''}"
             onclick={() => vpb.select(block.id)}
         >
-            <span class="text-muted text-[10px]">
+            <span class="text-[var(--text-muted)] text-[10px]">
                 {#if block.slots && Object.keys(block.slots).some(k => block.slots?.[k]?.length)}
                     ▼
                 {:else}
@@ -218,12 +208,12 @@ function getBlockChildren(block: BlockNode): Array<{ slot: string; children: Blo
                 {/if}
             </span>
             <span class="flex-1 truncate">{block.kind}</span>
-            <span class="text-muted text-[10px] truncate max-w-[60px]">{block.recipe.split('.').pop()}</span>
+            <span class="text-[var(--text-muted)] text-[10px] truncate max-w-[60px]">{block.recipe.split('.').pop()}</span>
         </button>
 
         <!-- Render children -->
         {#each getBlockChildren(block) as { slot, children }}
-            <div style="padding-left: {(depth + 1) * 12}px" class="text-[10px] text-muted px-2 py-0.5">
+            <div style="padding-left: {(depth + 1) * 12}px" class="text-[10px] text-[var(--text-muted)] px-2 py-0.5">
                 {slot}
             </div>
             {#each children as child (child.id)}

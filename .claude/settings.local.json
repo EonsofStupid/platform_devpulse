@@ -50,7 +50,25 @@
       "Skill(planning)",
       "Skill(planning:*)",
       "Bash(npx biome check:*)",
-      "Bash(pnpm preflight:check:*)"
+      "Bash(pnpm preflight:check:*)",
+      "WebFetch(domain:panda-css.com)",
+      "WebFetch(domain:v2.tauri.app)",
+      "WebFetch(domain:docs.rs)",
+      "WebFetch(domain:www.gethopp.app)",
+      "WebFetch(domain:martinfowler.com)",
+      "Bash(while read f)",
+      "Bash(do if git diff --cached -- \"$f\")",
+      "Bash(then echo \"$f\")",
+      "Bash(fi:*)",
+      "Bash(git ls-tree:*)",
+      "WebFetch(domain:docs.grit.io)",
+      "Skill(fixes)",
+      "Skill(fixes:*)",
+      "Bash(bash scripts/hooks/no-legacy-prefixes.sh:*)",
+      "Bash(LEFTHOOK_EXCLUDE=docs-preflight git commit -m \"$\\(cat <<''EOF''\nrefactor\\(coldlight\\): consolidate design system docs, molecules, and shell recipes\n\n- Update molecules: bevel, depth, glass, glow\n- Add shell layout recipes \\(app, chat\\) as typed recipe objects\n- Update design system documentation and style guide\n- Add primitives audit and token pipeline docs\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(LEFTHOOK_EXCLUDE=docs-preflight git commit -m \"$\\(cat <<''EOF''\nrefactor\\(layouts\\): migrate layout styles to ColdLight recipe system\n\n- Remove standalone layout CSS files \\(depth, surfaces, shell, interactions\\)\n- Remove common utility CSS \\(focus, keyframes, scrollbars, typography\\)\n- Update Frame components to use ColdLight recipes\n- Consolidate app.css entry point\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "WebFetch(domain:styledictionary.com)",
+      "Bash(pnpm coldlight:generate:*)"
     ]
   }
 }
