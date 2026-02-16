@@ -3,8 +3,8 @@
  * @package @devpulse/coldlight
  *
  * Taxonomy is the SSOT for:
- * - Core types (StateToken, PrimitiveContract, etc.)
- * - Primitive contracts (slots, states, ARIA, keyboard)
+ * - Primitive contracts (taxonomy/primitive/)
+ * - Component contracts (taxonomy/component/)
  * - Scanner (build-time parity checking)
  * - Registry (runtime manifest access)
  */
@@ -17,9 +17,8 @@ export {
 	getPrimitiveKinds,
 	getPrimitiveOrUndefined,
 	hasPrimitiveKind,
-} from "./registry";
-export type { FsLike, ImportLike } from "./scanner";
+} from "./registry.js";
+
+export type { FsLike, ImportLike } from "./scanner.js";
 // Build-time scanner
-export { scanColdLight, scanPrimitive, scanPrimitiveKinds } from "./scanner";
-// Core types
-export * from "./types";
+export { scanColdLight, scanPrimitive, scanPrimitiveKinds } from "./scanner.js";

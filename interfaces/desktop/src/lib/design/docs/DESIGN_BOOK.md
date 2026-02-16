@@ -121,20 +121,18 @@ dsAdapter (MeltUI)
 
 ## ARIA Application Model
 
-**ARIA is NOT baked into primitives.**
-**ARIA is applied at block render time via dsAdapter.**
+**ColdLight OWNS ARIA by default** (`ariaStateProvider: "coldlight"`).
+ColdLight-owned primitives render native HTML elements with ARIA attributes directly.
+Adapter-backed primitives (`ariaStateProvider: "meltui"`) receive ARIA via the transport chain.
 
-### Why Late-Binding ARIA?
+### Two Archetype Model
 
-Primitives do not know their context:
+| Archetype | ARIA Provider | When to Use |
+|-----------|---------------|-------------|
+| **ColdLight-owned (DEFAULT)** | Primitive sets ARIA directly on native HTML | Simple ARIA patterns (button, badge, input, etc.) |
+| **Adapter-backed (EXCEPTION)** | MeltUI transport provides ARIA via context | Complex ARIA (dialog focus trap, combobox listbox, etc.) |
 
-| Same Primitive | Context A     | Context B      | ARIA Needed                 |
-|----------------|---------------|----------------|-----------------------------|
-| dialog         | Modal         | Alert          | role=dialog vs alertdialog  |
-| button         | Form submit   | Toolbar toggle | button vs aria-pressed      |
-| panel          | Sidebar       | Disclosure     | complementary vs expanded   |
-
-**The block knows the context. The primitive does not.**
+**ColdLight is ALWAYS the public API regardless of archetype.**
 
 ### The Flow
 
@@ -234,7 +232,7 @@ v-s{#}z{#}l{#}t{#}m{#}
 | Standard | Status |
 |----------|--------|
 | DTCG (W3C Dec 2024) | Compliant |
-| Style Dictionary v4 | Compliant |
+| Style Dictionary v5 | Compliant |
 | WCAG 2.1 AA | Target |
 | ARIA 1.2 | Per-contract via dsAdapter |
 

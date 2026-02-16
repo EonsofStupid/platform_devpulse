@@ -87,21 +87,24 @@ Primitives see ColdLight names. Adapter is invisible.
 
 ## ARIA Application
 
-ARIA is NOT baked into primitives.
-ARIA is applied at BLOCK RENDER TIME.
+**ColdLight OWNS ARIA by default** (`ariaStateProvider: "coldlight"`).
+For ColdLight-owned primitives, ARIA is applied directly on native HTML elements by the primitive itself.
+For adapter-backed primitives (`ariaStateProvider: "meltui"`), ARIA is applied via the transport chain.
 
-`
-PRIMITIVE (structure + state)
-       |
-       v
-BLOCK instantiates primitive
-       |
-       v
-dsAdapter auto-applies:
-  - ARIA from contract
-  - Keyboard from contract
-  - Focus management
-       |
+```
+ColdLight-owned (DEFAULT):
+  PRIMITIVE renders native HTML + ARIA directly
+  No adapter needed
+
+Adapter-backed (EXCEPTION):
+  PRIMITIVE consumes transport via context
+         |
+         v
+  dsAdapter provides:
+    - ARIA from contract
+    - Keyboard from contract
+    - Focus management
+         |
        v
 ACCESSIBLE COMPONENT
 `

@@ -32,22 +32,35 @@ platform_devpulse/
 ## Design System: ColdLight (@devpulse/coldlight)
 
 Location: `interfaces/desktop/src/lib/design/`
+Master Plan: `interfaces/desktop/src/lib/design/MASTER-PLAN.md`
+Config: `interfaces/desktop/src/lib/design/coldlight.config.ts`
+
+### Core Principles
+- **ColdLight is the SOLE authority** for all CSS, components, and UI generation
+- **Config-driven** — `coldlight.config.ts` declares everything; build tools read config
+- **Schema-driven** — Zod validates all contracts, tokens, props at boundaries
+- **Manifest-producing** — Scanner generates `coldlight.manifest.json` from taxonomy
+- **ColdLight-owned by default** — MeltUI adapter used ONLY when justified
+- **Style Dictionary v5** token pipeline (SD5 + DTCG 1.0)
+- **Fully tested** — Vitest browser tests (Chromium) + Playwright E2E
 
 ### Layers
-1. **Tokens** - Design tokens (colors, spacing, typography)
-2. **Primitives** - Unstyled, accessible components (MeltUI + custom ARIA)
-3. **Recipes** - Styling patterns applied via class prop
-4. **Components** - Composed primitives with recipes
-5. **Blocks** - Page-level compositions
-6. **Renderers** - Dynamic block rendering
+1. **Tokens** — Design tokens (SD5 pipeline, 3-tier: global → semantic → component)
+2. **Primitives** — Unstyled, accessible components (ColdLight-owned ARIA by default, MeltUI adapter for complex widgets only)
+3. **Recipes** — Styling patterns applied via class prop
+4. **Components** — Styled: primitives + recipes, in `components/{kind}/` named folders with schema + tests
+5. **Blocks** — Page-level compositions (VPB)
+6. **Renderers** — Dynamic block rendering
 
 ### Key Dependencies
-- @melt-ui/svelte ^0.86.6
+- @melt-ui/svelte ^0.86.6 (OPTIONAL adapter — not imported directly by components)
 - svelte-sonner ^1.0.7
 - @tanstack/svelte-table ^8.21.3
 - @tanstack/svelte-query ^6.0.17
 - @tanstack/svelte-virtual ^3.13.18
 - tailwindcss ^4.1.18
+- vitest + @vitest/browser-playwright (testing)
+- zod (schema validation)
 
 ## Working Directory
 
