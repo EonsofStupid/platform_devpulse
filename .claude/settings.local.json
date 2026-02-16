@@ -78,7 +78,8 @@
       "Bash(D:/localdev/deps/node/npm.cmd view:*)",
       "WebFetch(domain:styledictionary.com)",
       "Bash(D:/localdev/deps/node/node.exe:*)",
-      "Bash(pnpm update:*)"
+      "Bash(pnpm update:*)",
+      "Bash(find:*)"
     ]
   }
 }

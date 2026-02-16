@@ -1,9 +1,11 @@
 # ColdLight Design System -- Master Plan
 
-> **@devpulse/coldlight** v0.2.0 (Updated 2026-02-07)
+> **@devpulse/coldlight** v0.3.0 (Updated 2026-02-16)
 > Schema-registry-driven design system, component library, and block composition engine.
 > Taxonomy-first architecture: typed contracts, Zod-validated boundaries, four runtime registries (recipes, blueprints, patterns, blocks).
 > Every UI entity -- primitive, surface, composition, page section -- exists only if registered against the taxonomy with a typed ID, a validated contract, and a declared recipe.
+>
+> **ColdLight is the sole authority.** The human owner directs ColdLight. ColdLight directs all CSS, all components, all generation. No library, no tool, no AI agent overrides the owner's decisions. Configuration is the owner's instrument of control -- `coldlight.config.ts` declares what exists, what gets generated, and what gets enforced. Code serves the config. Config serves the owner.
 >
 > Visual identity: liquid surfaces, particle effects, metal/glass/molten aesthetics, OKLCH color system, dark-first.
 > Named for Tesla's cold light gas tubes (1890s).
@@ -18,9 +20,12 @@
 | **Reactivity** | Svelte 5 Runes | `$state`, `$derived`, `$effect`, `$bindable` -- no legacy stores |
 | **Desktop** | Tauri 2.0 | Rust backend, IPC via `invoke()` |
 | **CSS** | Tailwind CSS v4 | `@tailwindcss/vite` plugin, `@theme {}` directive |
-| **UI Provider** | Melt UI | Headless ARIA/state/behavior engine (adapter-backed primitives) |
-| **Tokens** | `tokens.ts` SSOT | Channel-separated OKLCH, Zod-validated |
+| **Adapter** | Melt UI (optional) | Headless ARIA/state adapter -- used ONLY when ColdLight-owned ARIA is impractical (complex widgets). Default is ColdLight-owned. |
+| **Tokens** | Style Dictionary v5 | Token pipeline: `tokens.ts` SSOT → SD5 build → CSS + TS + DTCG JSON |
+| **Token SSOT** | `tokens.ts` | Channel-separated OKLCH, Zod-validated, 3-tier architecture |
 | **Validation** | Zod v4 | Token schemas, contract validation, boundary enforcement |
+| **Unit Testing** | Vitest + vitest-browser-svelte | Real Chromium browser tests, schema validation tests |
+| **E2E Testing** | Playwright | Full integration/E2E tests via `@vitest/browser-playwright` |
 | **Lint/Format** | Biome | Single tool replacing ESLint + Prettier |
 | **Node Graph** | SvelteFlow (`@xyflow/svelte`) | VPB node visualization |
 | **Notifications** | svelte-sonner | Only toast provider (+ Tauri OS when minimized) |
@@ -62,15 +67,17 @@ Components NEVER import `@melt-ui/svelte` directly. The transport chain cloaks t
 
 ### Two Primitive Archetypes
 
-**Archetype A: ColdLight-Owned** (`ariaStateProvider: "coldlight"`)
-Component renders native HTML with ARIA set directly. No adapter. 2-folder parity enforced (taxonomy/kinds + primitives).
+**Archetype A: ColdLight-Owned (DEFAULT)** (`ariaStateProvider: "coldlight"`)
+Component renders native HTML with ARIA set directly by ColdLight. No adapter. 2-folder parity enforced (taxonomy/kinds + primitives). **This is the default for ALL new primitives.** ColdLight owns ARIA, state, keyboard, focus. Only escalate to Archetype B when the ARIA/focus/keyboard complexity genuinely justifies adapter overhead (e.g., complex listbox virtualization, date picker calendars).
 
-Examples: button, badge, skeleton, progress, alert, avatar, card, label, input, separator, textarea, spinner, visually-hidden, breadcrumb, aspect-ratio.
+Examples: button, badge, skeleton, progress, alert, avatar, card, label, input, separator, textarea, spinner, visually-hidden, breadcrumb, aspect-ratio, checkbox, radio-group, toggle, switch, slider, accordion, collapsible, tabs, toolbar, scroll-area.
 
-**Archetype B: Adapter-Backed** (`ariaStateProvider: "meltui"`)
-Uses Melt UI adapter through transport chain. Root creates adapter + provides context via Symbol-keyed Svelte context. Sub-components consume from context. 3-folder parity enforced (taxonomy/kinds + api/adapters/meltui + primitives).
+**Archetype B: Adapter-Backed (EXCEPTION ONLY)** (`ariaStateProvider: "meltui"`)
+Uses Melt UI adapter through transport chain ONLY when the ARIA/focus/keyboard pattern is too complex for ColdLight to own directly. Must be justified in the contract with a comment explaining WHY adapter is needed. Root creates adapter + provides context via Symbol-keyed Svelte context. Sub-components consume from context. 3-folder parity enforced (taxonomy/kinds + api/adapters/meltui + primitives).
 
-Examples: dialog, tabs, select, popover, tooltip, sheet, alert-dialog, accordion, collapsible, combobox, command, context-menu, dropdown-menu, hover-card, menubar, navigation-menu, slider, switch, toggle-group.
+**ColdLight is ALWAYS the public API regardless of archetype.** Users never import `@melt-ui/svelte`. The adapter is an internal implementation detail.
+
+Examples (justified by ARIA complexity): dialog, alert-dialog, sheet, combobox, command, context-menu, dropdown-menu, hover-card, menubar, navigation-menu, popover, select, tooltip, date-picker.
 
 ---
 
@@ -98,7 +105,12 @@ Examples: dialog, tabs, select, popover, tooltip, sheet, alert-dialog, accordion
 | Zero colocated `.css` files — `.svelte` files consume ColdLight directly | **Locked** |
 | Taxonomy is the spine — declare in taxonomy FIRST, then build | **Locked** |
 | Schema-driven everything — Zod validates all contracts, tokens, props | **Locked** |
-| Style Dictionary 4 compatible token pipeline | **Locked** |
+| Style Dictionary **v5** token pipeline (SD5 + DTCG 1.0) | **Locked** |
+| ColdLight-owned is the DEFAULT archetype — MeltUI adapter is exception-only | **Locked** |
+| Every primitive + component MUST have Vitest browser tests | **Locked** |
+| Playwright E2E for critical user flows | **Locked** |
+| `components/{kind}/` named folders with contract + schema + tests | **Locked** |
+| `coldlight.config.ts` is THE instrument of control — all generation reads config | **Locked** |
 | Research → sprint plan → execute — never touch code without a sprint | **Locked** |
 
 ### Not Yet Locked
@@ -132,7 +144,7 @@ Examples: dialog, tabs, select, popover, tooltip, sheet, alert-dialog, accordion
 
 9. **Everything schema-driven** — Zod validates all contracts, token values, recipe props, block nodes, VPB payloads. If it enters the system, it gets validated.
 10. **Fully typed** — complete TypeScript types for every design system contract, prop, token, recipe, slot, state. No `any`. Strict mode.
-11. **Style Dictionary 4 compatible token pipeline** — `tokens.ts` → build → CSS output. Token structure follows DTCG format direction so SD4 migration is a build script swap, not a rewrite.
+11. **Style Dictionary v5 token pipeline** — `tokens.ts` (SSOT) → SD5 build (reads `tokens.cfg.ts`) → `tokens.json` (DTCG 1.0) + `tokens.css` (CSS custom properties + @theme) + `types.ts` (TypeScript). Config-driven, zero hardcoded paths.
 12. **Manifest-generating** — taxonomy contracts + scanner produce `coldlight.manifest.json`. Runtime registry reads only the manifest. VPB reads the manifest for its palette.
 13. **No-code compiler patterns** — schema-driven generation, not manual CSS authoring. New tokens → rebuild → new CSS. New primitive → declare contract → scanner validates → manifest updates.
 
@@ -170,11 +182,41 @@ Examples: dialog, tabs, select, popover, tooltip, sheet, alert-dialog, accordion
 31. **Scanner (build-time)** verifies parity between taxonomy contracts and actual primitives/recipes. Missing primitive? Missing adapter? Missing recipe? Build fails.
 32. **CI/CD token build** — automate `ds-tokens-build.ts` in pipeline. Tokens change → CSS regenerated → types regenerated → commit includes generated output.
 
-### I. Process
+### I. Ownership Hierarchy
 
-33. **Research → sprint plan → execute.** Never touch code without a sprint document. Planning skill produces research doc + sprint plan. User approves. Then execute.
-34. **Pre-release state** — establishing the foundation, not maintaining an app. Every decision is about getting the system RIGHT, not shipping features.
-35. **Enterprise design system that scales** — patterns that work for 5 components work for 500. Schema-driven, manifest-generating, scanner-enforced. No shortcuts.
+33. **The human owner is the supreme authority.** ColdLight exists to serve the owner's vision. No library, no tool, no AI agent overrides the owner's explicit decisions or intent.
+34. **`coldlight.config.ts` is the owner's instrument of control.** It declares what exists, what gets generated, what gets enforced, and what adapters are allowed. Build tools, scanners, generators, and registries ALL read config. Nothing is hardcoded.
+35. **ColdLight OWNS everything by default.** Primitives are ColdLight-owned (`ariaStateProvider: "coldlight"`) unless the ARIA/focus/keyboard complexity genuinely requires an adapter. MeltUI is a last-resort implementation detail, never the default, never the authority.
+36. **ColdLight is always the public API.** Users never import adapters directly. The transport chain cloaks all adapter usage. If MeltUI were replaced tomorrow, zero public API changes.
+
+### J. Testing (Non-Negotiable)
+
+37. **Every primitive MUST have Vitest browser tests.** Tests run in real Chromium via `vitest-browser-svelte` + `@vitest/browser-playwright`. No jsdom. No mocking DOM.
+38. **Test categories per primitive:** ARIA presence, data attributes, keyboard navigation, focus management, state management, edge cases. Minimum test counts enforced (see ADR-011).
+39. **Every component (semantic) MUST have Vitest tests.** Schema validation, recipe application, prop forwarding, slot rendering.
+40. **Playwright E2E for critical flows.** Login, navigation, VPB interactions, chat — tested end-to-end.
+41. **Schema validation tests.** Every Zod schema has corresponding tests: valid inputs pass, invalid inputs fail with correct error messages.
+42. **No primitive is complete without passing tests.** Scanner should flag primitives missing test files.
+
+### K. Component Folder Structure (Mandatory)
+
+43. **`components/{kind}/` named folders.** Every styled component (semantic) gets a named folder under `src/lib/design/components/`. The folder name matches the taxonomy kind.
+44. **Each component folder contains:** `{Name}.svelte` (component), `types.ts` (props), `schema.ts` (Zod contract), `{Name}.test.ts` (Vitest tests), `index.ts` (barrel export).
+45. **Component contracts link to primitive contracts.** `ComponentContractSchema` validates that the component's slots, ARIA, and focus match the underlying primitive.
+46. **Components are schema-driven.** The taxonomy contract declares what the component IS. The Zod schema validates it at boundaries. The scanner enforces parity.
+
+### L. Token Pipeline — Style Dictionary v5
+
+47. **Style Dictionary v5 is the token build pipeline.** Not v4. `coldlight.config.ts` declares `sdVersion: 5`. The build script reads this config.
+48. **DTCG 1.0 interchange format.** `tokens.ts` (SSOT) → SD5 build → `tokens.json` (DTCG) + `tokens.css` (CSS custom properties + @theme) + `types.ts` (TypeScript).
+49. **3-tier token architecture enforced by Zod.** Tier 1 (global raw values) → Tier 2 (semantic aliases referencing Tier 1) → Tier 3 (component-scoped referencing Tier 2). Cross-tier reference validation at build time.
+50. **Token pipeline is config-driven.** `tokens.cfg.ts` declares sources, outputs, platforms, prefix rules, Tailwind @theme mappings. The build script reads config. Zero hardcoded paths.
+
+### M. Process
+
+51. **Research → sprint plan → execute.** Never touch code without a sprint document. Planning skill produces research doc + sprint plan. User approves. Then execute.
+52. **Pre-release state** — establishing the foundation, not maintaining an app. Every decision is about getting the system RIGHT, not shipping features.
+53. **Enterprise design system that scales** — patterns that work for 5 components work for 500. Schema-driven, manifest-generating, scanner-enforced. No shortcuts.
 
 ---
 
@@ -252,19 +294,23 @@ Examples: dialog, tabs, select, popover, tooltip, sheet, alert-dialog, accordion
 ├── blueprints/          # Layer 3: Composition defaults + slot wiring (TODO)
 │   └── index.ts         # Blueprint registry
 │
-├── primitives/          # Layer 4: Structural + behavioral wrappers
-│   └── {kind}/          # PascalCase: button/, dialog/, tabs/
-│       ├── {Name}.svelte
-│       ├── {Name}{Sub}.svelte
-│       ├── types.ts
-│       ├── context.ts   # Symbol-keyed (if compound)
-│       └── index.ts
+├── primitives/          # Layer 4: Structural + behavioral wrappers (UNSTYLED)
+│   └── {kind}/          # kebab-case: button/, dialog/, tabs/
+│       ├── {Name}.svelte          # PascalCase component file
+│       ├── {Name}{Sub}.svelte     # Sub-components (compound)
+│       ├── types.ts               # Props interfaces
+│       ├── context.ts             # Symbol-keyed (if compound)
+│       ├── {Name}.test.ts         # Vitest browser tests (MANDATORY)
+│       ├── {Name}.test.svelte     # Test wrapper component
+│       └── index.ts               # Barrel export
 │
-├── semantics/           # Layer 5: Primitives + Recipes composed
-│   ├── buttons/
-│   ├── cards/
-│   ├── inputs/
-│   └── panels/
+├── components/          # Layer 5: Primitives + Recipes = Styled Components
+│   └── {kind}/          # Named folders matching taxonomy kind
+│       ├── {Name}.svelte          # Styled component (primitive + recipe)
+│       ├── types.ts               # Component props
+│       ├── schema.ts              # Zod contract (links to primitive contract)
+│       ├── {Name}.test.ts         # Vitest tests (MANDATORY)
+│       └── index.ts               # Barrel export
 │
 ├── patterns/            # Documentation-only (not runtime)
 │   ├── data/
@@ -339,7 +385,7 @@ TIER 3: Component Tokens (scoped to primitive kinds — components.ts)
 
 **Schema enforcement:** Tier 2 MUST reference Tier 1. Tier 3 MUST reference Tier 2. Raw values only in Tier 1.
 
-### Token Pipeline
+### Token Pipeline (Style Dictionary v5)
 
 ```
 tokens.ts (Tier 1 SSOT)
@@ -348,10 +394,13 @@ components.ts (Tier 3 scoped)
     │
     ├── schema.ts validates all 3 tiers at build time (Zod)
     │
-    └── ds-tokens-build.ts generates:
+    └── ds-tokens-build.ts (reads coldlight.config.ts → tokens.cfg.ts) generates:
+        ├── tokens.json   (DTCG 1.0 interchange — consumed by SD5)
         ├── tokens.css    (all 3 tiers as CSS custom properties + @theme block)
         └── types.ts      (TypeScript types + runtime arrays)
 ```
+
+**Config-driven:** `tokens.cfg.ts` declares source files, output paths, platform targets, CSS prefix rules, and Tailwind @theme mappings. The build script reads config — zero hardcoded paths or formats.
 
 ### Current Token Format (String OKLCH)
 
@@ -876,6 +925,14 @@ VPB persists `BlockNode[]` trees. No theme values, no CSS, no classnames in stor
 - [ ] Verify all contracts match disk state (parity check)
 - [ ] Fix any remaining parity gaps
 
+### Phase 2.5: Testing Infrastructure (REQUIRED)
+
+- [ ] Vitest browser config verified working (`vitest.config.ts` + `@vitest/browser-playwright`)
+- [ ] Test file pattern established: `{Name}.test.ts` in every primitive/component folder
+- [ ] Schema validation test pattern: valid inputs pass, invalid inputs fail
+- [ ] Scanner updated to flag primitives/components missing test files
+- [ ] CI pipeline runs `pnpm test` — zero test failures allowed
+
 ### Phase 3: Recipe System (PARTIAL — BLOCKED by Phase 4)
 
 - [x] `recipes/index.ts` registry exists with `getRecipe`, `registerRecipe`
@@ -886,14 +943,15 @@ VPB persists `BlockNode[]` trees. No theme values, no CSS, no classnames in stor
 - [ ] `glowTrack.ts`, `ripple.ts` actions — not yet implemented
 - [ ] Expand recipes for all layout component needs
 
-### Phase 4: Token Bridge + 3-Tier Architecture (CURRENT PRIORITY)
+### Phase 4: Token Bridge + SD5 Pipeline + 3-Tier Architecture (CURRENT PRIORITY)
 
 > **THIS UNBLOCKS EVERYTHING.** Recipes produce class names that don't exist in @theme.
 
-- [ ] Fix `ds-tokens-build.ts` to emit proper Tailwind v4 @theme mappings
+- [ ] Fix `ds-tokens-build.ts` to emit proper Tailwind v4 @theme mappings (reads `tokens.cfg.ts`)
+- [ ] Generate `tokens.json` DTCG 1.0 interchange file (SD5 compatible)
 - [ ] Create `tokens/semantic.ts` (Tier 2 semantic aliases)
 - [ ] Create `tokens/components.ts` (Tier 3 component-scoped)
-- [ ] Update `tokens/schema.ts` with Tier 2/3 validators
+- [ ] Update `tokens/schema.ts` with Tier 2/3 validators + cross-tier reference validation
 - [ ] Unify dual @theme blocks (app.css + tokens.css → one @theme in tokens.css)
 - [ ] Strip app.css to fonts + base only
 - [ ] Verify recipe class names resolve (`bg-glass-void`, `shadow-z2`, etc.)
@@ -990,8 +1048,13 @@ VPB persists `BlockNode[]` trees. No theme values, no CSS, no classnames in stor
 
 | Milestone | Done When |
 |-----------|-----------|
-| Token Bridge | @theme emits correct Tailwind utility names, recipe classes resolve, components render |
-| 3-Tier Tokens | semantic.ts + components.ts exist, Zod validates cross-tier refs, build enforces |
+| **Config Authority** | `coldlight.config.ts` is THE single import for all build tools, scanner, generator. All paths, adapters, generation flags read from config. Zero hardcoded values. |
+| **SD5 Pipeline** | `ds-tokens-build.ts` reads `tokens.cfg.ts`, generates `tokens.json` (DTCG 1.0) + `tokens.css` + `types.ts`. SD5 compatible. |
+| **Token Bridge** | @theme emits correct Tailwind utility names, recipe classes resolve, components render |
+| **3-Tier Tokens** | semantic.ts + components.ts exist, Zod validates cross-tier refs, build enforces |
+| **Testing** | Every primitive has `{Name}.test.ts` with real Chromium tests. Every component has tests. Scanner flags missing test files. CI runs `pnpm test` with zero failures. |
+| **Component Folders** | `components/{kind}/` exists for every styled component. Each has `.svelte`, `types.ts`, `schema.ts`, `.test.ts`, `index.ts`. |
+| **ColdLight Ownership** | Default `ariaStateProvider` is `"coldlight"`. MeltUI used ONLY for justified exceptions. Adapter config reflects this. |
 | Molecules | All visual effects are token-driven @utility classes, zero raw oklch outside tokens.ts |
 | Variant Keys | `v-s1z2l0t2m0` renders correctly, encode/decode/split work, Zod validates |
 | SVG Filters | `<SvgFilters />` renders, `v-l3` shows bevel, reference image depth quality matched |
@@ -1010,7 +1073,7 @@ VPB persists `BlockNode[]` trees. No theme values, no CSS, no classnames in stor
 
 | File | Purpose |
 |------|---------|
-| `coldlight.config.ts` | Config orchestrator (identity, roots, adapters, generation, enforcement, attributes) |
+| `coldlight.config.ts` | **THE config orchestrator** — single import for ALL build tools (identity, roots, adapters, generation, enforcement, attributes, tokens) |
 | `taxonomy/types.ts` | Core types: PrimitiveContract, SlotSpec, AriaRequirements, ColdLightManifest |
 | `taxonomy/registry.ts` | Runtime manifest reader (getManifest, getPrimitive, hasPrimitiveKind) |
 | `taxonomy/scanner.ts` | Build-time parity checker |

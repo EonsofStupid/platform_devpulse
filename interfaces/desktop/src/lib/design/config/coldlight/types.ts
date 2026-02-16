@@ -1,20 +1,31 @@
 /**
  * @file ColdLight Configuration Types
  * @package @devpulse/coldlight
+ *
+ * ColdLight config is the owner's instrument of control.
+ * ALL build tools, scanners, generators, and registries read this type.
+ * Nothing is hardcoded. Config drives everything.
  */
 
 export type SystemId = "coldlight";
 
 /**
- * CategoryId is the hub grouping (primitives/semantics/composites).
+ * CategoryId is the hub grouping (primitives/components/composites).
  * Individual things inside a category are "kinds" (e.g., dialog, tabs).
  */
-export type CategoryId = "primitives" | "semantics" | "composites";
+export type CategoryId = "primitives" | "components" | "composites";
+
+/**
+ * ARIA state provider — who handles ARIA attributes for a primitive.
+ * "coldlight" = ColdLight owns ARIA directly (DEFAULT).
+ * "meltui" = MeltUI adapter handles ARIA (exception only, must be justified).
+ */
+export type AriaStateProvider = "coldlight" | "meltui";
 
 /**
  * Design-system adapter identifier.
- * These are the behavior providers that run under ColdLight.
- * ColdLight itself is the SSOT system, not an adapter.
+ * These are OPTIONAL behavior providers that run UNDER ColdLight.
+ * ColdLight is the SSOT and public API — adapters are internal details.
  */
 export type AdapterId = "meltui";
 
@@ -61,16 +72,18 @@ export type ColdLightConfig = Readonly<{
 		/** The api/ folder (adapters live under api/adapters/) */
 		apiRoot: string;
 		primitivesRoot: string;
+		/** Styled component folders (primitives + recipes = components) */
+		componentsRoot: string;
 		generatedRoot: string;
 	}>;
 
 	adapters: Readonly<{
-		/** Which adapters are enabled */
+		/** Which adapters are enabled (optional fallbacks) */
 		enabled: Readonly<Record<AdapterId, true>>;
-		/** The active adapter providing ARIA + state behavior */
+		/** The active adapter available for ARIA delegation */
 		active: AdapterId;
-		/** Who provides ARIA state builders */
-		ariaStateProvider: AdapterId;
+		/** DEFAULT ARIA provider — "coldlight" unless per-primitive contract overrides */
+		ariaStateProvider: AriaStateProvider;
 	}>;
 
 	generation: Readonly<{
@@ -96,6 +109,34 @@ export type ColdLightConfig = Readonly<{
 		slot: "data-slot";
 		state: "data-state";
 		id: "data-id";
+	}>;
+
+	/** Testing configuration — enforced by scanner and CI */
+	testing: Readonly<{
+		/** Vitest browser tests required for every primitive */
+		vitest: Readonly<{
+			enabled: boolean;
+			/** Test file pattern relative to primitive/component folder */
+			filePattern: string;
+			/** Browser provider */
+			browser: "chromium" | "firefox" | "webkit";
+		}>;
+		/** Playwright E2E for critical flows */
+		playwright: Readonly<{
+			enabled: boolean;
+		}>;
+		/** Scanner flags missing test files */
+		scannerEnforced: boolean;
+	}>;
+
+	/** Component (styled semantic) folder configuration */
+	components: Readonly<{
+		/** Root path for component folders */
+		root: string;
+		/** Required files in each component folder */
+		requiredFiles: readonly string[];
+		/** Scanner enforces folder parity with taxonomy */
+		scannerEnforced: boolean;
 	}>;
 
 	/** Style Dictionary v5 token pipeline configuration */
