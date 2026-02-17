@@ -8,7 +8,7 @@
  */
 
 // Re-export ALL primitive types for backward compatibility
-export * from "./primitive/types.js";
+export * from "./kinds/primitives/types.js";
 
 import type {
 	AriaRequirements,
@@ -22,7 +22,7 @@ import type {
 	SlotAction,
 	SlotSpec,
 	StateToken,
-} from "./primitive/types.js";
+} from "./kinds/primitives/types.js";
 
 // =============================================================================
 // MANIFEST TYPES
