@@ -1,20 +1,13 @@
 <script lang="ts">
-// DevPulse Dashboard - main entry point
-// Feature components are imported from $lib/domains/app/devpulse/features/
+	import { Button } from "$lib/design/index.js";
 </script>
 
-<div class="dashboard">
-  <h1>DevPulse Dashboard</h1>
-  <p>Dashboard content will be implemented here.</p>
+<div class="p-8 text-text-primary">
+	<h1 class="text-2xl font-bold text-teal-200 mb-6">DevPulse Dashboard</h1>
+
+	<div class="flex gap-4">
+		<Button intent="primary" size="md">New Project</Button>
+		<Button intent="secondary" size="md">Import</Button>
+		<Button intent="ghost" size="md">Settings</Button>
+	</div>
 </div>
-
-<style>
-  .dashboard {
-    padding: 2rem;
-    color: rgba(255, 255, 255, 0.9);
-  }
-
-  h1 {
-    margin-bottom: 1rem;
-  }
-</style>

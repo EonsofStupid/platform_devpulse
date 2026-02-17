@@ -40,7 +40,7 @@ export {
 	type ComponentSlotContract,
 	AccessibleNameSourceSchema,
 	type AccessibleNameSource,
-} from "$lib/design/taxonomy/component/schema.js";
+} from "$lib/design/taxonomy/kinds/component/schema.js";
 
 export {
 	// Component contract
@@ -52,4 +52,4 @@ export {
 	deriveSlotContract,
 	parseComponentContract,
 	safeParseComponentContract,
-} from "$lib/design/taxonomy/component/contract.js";
+} from "$lib/design/taxonomy/kinds/component/contract.js";

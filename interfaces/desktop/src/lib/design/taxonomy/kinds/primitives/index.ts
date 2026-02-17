@@ -3,7 +3,8 @@
  * @package @devpulse/coldlight
  *
  * Master contract definitions that ALL primitives must adhere to.
- * Import/export only — zero logic.
+ * Zod schemas are the canonical source — types.ts provides generic interfaces.
+ * Per-kind contracts live in their own directories.
  */
 
 // Zod enum schemas (atomic)
@@ -12,5 +13,8 @@ export * from "./schema.js";
 // Composite schemas + PrimitiveContractSchema + validation
 export * from "./contract.js";
 
-// TypeScript interfaces (derived from vocabularies.cfg.ts)
-export * from "./types.js";
+// ============================================
+// PER-KIND CONTRACTS
+// ============================================
+
+export * from "./button/index.js";

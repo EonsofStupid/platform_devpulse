@@ -2,26 +2,17 @@
  * @file primitives/index.ts
  * @layer primitives
  *
- * ColdLight Primitives — Foundation Types
+ * ColdLight Primitives — Structureless Shells
  *
- * Headless structural shells. Contract-aligned.
- * data-kind, data-slot, data-state, typed props, snippet children.
- * Zero adapter awareness. Zero behavior imports.
- *
- * Primitive components will be added as they are built
- * against the central taxonomy contract.
+ * Zero ARIA. Zero behavior. Zero styling.
+ * data-kind, data-slot, typed props, snippet children, class merging.
+ * Component layer adds ARIA, state, and recipes.
  */
 
 // ============================================
 // FOUNDATION
 // ============================================
 
-export {
-	clearRouteRegistry,
-	getRouteMetadata,
-	type RouteMetadata,
-	setRouteRegistry,
-} from "./route-metadata";
 export {
 	type BaseProps,
 	cn,
@@ -30,4 +21,10 @@ export {
 	type PrimitiveState,
 	PrimitiveStates,
 	stripStyleProp,
-} from "./types";
+} from "./types.js";
+
+// ============================================
+// PRIMITIVES
+// ============================================
+
+export { ButtonRoot, type ButtonRootProps } from "./button/index.js";

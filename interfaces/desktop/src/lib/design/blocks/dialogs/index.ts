@@ -1,6 +1,6 @@
 /**
  * @file Dialog Blocks Barrel
- * @description Pre-composed dialog patterns with recipes applied.
+ * @description Pre-composed dialog patterns. Empty until Dialog component exists.
  */
 
-export { default as ConfirmDialog } from "./ConfirmDialog.svelte";
+export {};

@@ -15,7 +15,7 @@ import {
 	AriaRoleSchema,
 	KeyboardKeySchema,
 	StateTokenSchema,
-} from "../kinds/primitives/schema.js";
+} from "../primitives/schema.js";
 
 // =============================================================================
 // ARIA VALUE TYPES — Specific value schemas for ARIA attributes

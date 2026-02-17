@@ -1,4 +1,4 @@
-# ColdLight Primitives — Foundational Checklist
+# ColdLight — Foundational Checklist
 
 > **ColdLight is the SINGLE SOURCE OF TRUTH.**
 > **NO CODE is written until this checklist is understood and approved.**
@@ -9,163 +9,186 @@
 
 # ColdLight OWNS EVERYTHING.
 
-melt-ui is a behavior engine. Nothing more.
+Behavior engines are adapter-agnostic options. ColdLight is the default ariaStateProvider.
 
 ---
 
-## WHAT MELT-UI PROVIDES (AND NOTHING ELSE)
+## THREE-LAYER ARCHITECTURE
 
-| Behavior | Description |
-|----------|-------------|
-| Focus trapping | Tab key cycles within modal |
-| Keyboard navigation | Arrow keys, Enter, Escape handling |
-| Click outside detection | Fires callback |
-| Escape key detection | Fires callback |
-| Portal rendering | Teleports to body |
-| Floating positioning | Side, align, offset, collision |
-| Scroll lock | Prevents body scroll |
+```
+taxonomy/kinds/primitives/{kind}/     ← CONTRACT (SSOT)
+  types.ts                            ← Slots, states, slot-state map
+  contract.ts                         ← Full PrimitiveContract satisfies
+  index.ts                            ← Barrel
+
+primitives/{kind}/                    ← STRUCTURELESS SHELL
+  types.ts                            ← Props (OmitStyle + BaseProps)
+  {Kind}{Slot}.svelte                 ← Zero ARIA, zero behavior
+  context.ts                          ← Compound only (Symbol-keyed)
+  index.ts                            ← Barrel
+
+components/{kind}/                    ← STYLED COMPONENT (ARIA + RECIPE)
+  contract.ts                         ← ComponentContract satisfies
+  types.ts                            ← Extends primitive + intent/size/state
+  recipe.ts                           ← SD5 token-driven TW4 classes
+  {Kind}.svelte                       ← Wraps primitive, sets ALL ARIA
+  index.ts                            ← Barrel
+```
+
+---
+
+## WHAT THE PRIMITIVE LAYER PROVIDES
+
+| Responsibility | Implementation |
+|---------------|----------------|
+| `data-kind` | Hardcoded per primitive |
+| `data-slot` | Hardcoded per slot |
+| `class` merging | `cn(className)` via tailwind-merge |
+| `{...rest}` spread | Pass-through for component layer props |
+| `children` rendering | `{@render children?.()}` |
+| `stripStyleProp` | DEV-only inline style guard |
 
 **That's it. Nothing else.**
 
 ---
 
-## WHAT COLDLIGHT PROVIDES (EVERYTHING ELSE)
+## WHAT THE COMPONENT LAYER PROVIDES (EVERYTHING ELSE)
 
 | Ownership | Description |
 |-----------|-------------|
-| **ALL IDs** | Generated with `useId()` - ColdLight links them |
 | **ALL `role` attributes** | `role="dialog"`, `role="tooltip"`, etc. |
-| **ALL `aria-*` attributes** | `aria-modal`, `aria-labelledby`, `aria-describedby`, etc. |
-| **ALL `data-*` attributes** | `data-kind`, `data-slot`, `data-state`, `data-id` |
+| **ALL `aria-*` attributes** | `aria-modal`, `aria-pressed`, `aria-busy`, etc. |
+| **ALL `data-state`** | Derived from component state props |
+| **ALL `data-id`** | Stable test/tooling IDs |
+| **ALL ID generation** | Generated IDs for ID linking |
 | **ALL ID linking** | Title ID → Content `aria-labelledby` |
-| **ALL state derivation** | Computing open/closed from state |
+| **ALL state derivation** | Computing disabled/loading/pressed/open/closed |
+| **ALL recipes** | SD5 token-driven TW4 class composition |
+| **Behavior** (if needed) | Focus trap, keyboard nav, portal, scroll lock |
 
 ---
 
 ## THE PATTERN
 
-### ColdLight Content.svelte
+### Structureless Primitive — `primitives/button/Button.svelte`
 
 ```svelte
+<!--
+  @component ButtonRoot
+  @description Structureless button — semantic HTML, data attributes.
+  Contract: kind="button", slot="root"
+
+  Zero ARIA. Zero behavior. Zero styling.
+-->
 <script lang="ts">
-  import { Dialog } from "melt-ui";
-  import { useId } from "melt-ui";
-  import { getContext } from "svelte";
-  import type { DialogContentProps } from "./types.js";
+  import type { ButtonRootProps } from "./types.js";
+  import { cn, stripStyleProp } from "../types.js";
+
+  let { children, class: className, ...rest }: ButtonRootProps = $props();
+
+  if (import.meta.env.DEV) stripStyleProp(rest, 'Button.Root');
+</script>
+
+<button
+  data-kind="button"
+  data-slot="root"
+  class={cn(className)}
+  {...rest}
+>
+  {@render children?.()}
+</button>
+```
+
+### Styled Component — `components/button/Button.svelte`
+
+```svelte
+<!--
+  @component Button
+  @kind button
+  @layer components
+
+  ColdLight OWNS all ARIA. Primitive is structural only.
+-->
+<script lang="ts">
+  import type { ButtonComponentProps } from "./types.js";
+  import ButtonRoot from "$lib/design/primitives/button/Button.svelte";
+  import { cn } from "$lib/design/primitives/types.js";
+  import { buttonRecipe } from "./recipe.js";
 
   let {
+    intent = "primary",
+    size = "md",
+    pressed,
+    loading = false,
+    disabled = false,
     children,
-    class: className = "",
-    "data-id": dataId,
+    class: className,
     ...rest
-  }: DialogContentProps = $props();
+  }: ButtonComponentProps = $props();
 
-  // ColdLight generates IDs
-  const contentId = useId();
-
-  // ColdLight gets linked IDs from context (set by Title/Description)
-  const titleId = getContext<string>("dialog-title-id");
-  const descriptionId = getContext<string>("dialog-description-id");
+  const classes = $derived(cn(buttonRecipe({ intent, size }), className));
+  const dataState = $derived(
+    disabled ? "disabled"
+    : loading ? "loading"
+    : pressed !== undefined ? (pressed ? "pressed" : "idle")
+    : undefined
+  );
 </script>
 
-<Dialog.Content
-  onEscapeKeydown={handleEscapeKeydown}
-  onInteractOutside={handleInteractOutside}
-  trapFocus={true}
-  preventScroll={true}
+<ButtonRoot
+  {...rest}
+  class={classes}
+  {disabled}
+  aria-pressed={pressed}
+  aria-disabled={disabled || undefined}
+  aria-busy={loading || undefined}
+  data-state={dataState}
 >
-  {#snippet child({ open })}
-    <!--
-      ColdLight sets EVERY attribute.
-      We do NOT spread melt-ui props.
-    -->
-    <div
-      id={contentId}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby={titleId}
-      aria-describedby={descriptionId}
-      tabindex={-1}
-      class={className}
-      data-kind="dialog"
-      data-slot="content"
-      data-state={open ? "open" : "closed"}
-      data-id={dataId}
-    >
-      {@render children?.({ open })}
-    </div>
-  {/snippet}
-</Dialog.Content>
-```
-
-### ColdLight Title.svelte
-
-```svelte
-<script lang="ts">
-  import { Dialog } from "melt-ui";
-  import { useId } from "melt-ui";
-  import { setContext } from "svelte";
-
-  const titleId = useId();
-
-  // ColdLight shares ID via context for Content to link
-  setContext("dialog-title-id", titleId);
-</script>
-
-<Dialog.Title>
-  {#snippet child()}
-    <h2
-      id={titleId}
-      data-kind="dialog"
-      data-slot="title"
-    >
-      {@render children?.()}
-    </h2>
-  {/snippet}
-</Dialog.Title>
+  {@render children?.()}
+</ButtonRoot>
 ```
 
 ---
 
-## WHAT WE NEVER DO
+## WHAT PRIMITIVES NEVER DO
 
-- ❌ NEVER spread `{...props}` from melt-ui
-- ❌ NEVER rely on melt-ui for `role` attributes
-- ❌ NEVER rely on melt-ui for `aria-*` attributes
-- ❌ NEVER rely on melt-ui for `id` attributes
-- ❌ NEVER rely on melt-ui for ID linking
-
----
-
-## WHAT WE ALWAYS DO
-
-- ✅ ALWAYS generate IDs with `useId()`
-- ✅ ALWAYS set `role` explicitly
-- ✅ ALWAYS set `aria-*` explicitly
-- ✅ ALWAYS set `data-kind`, `data-slot`, `data-state`
-- ✅ ALWAYS link IDs via Svelte context
-- ✅ ALWAYS use melt-ui ONLY for behavior
+- NEVER set `role=` attributes
+- NEVER set `aria-*` attributes
+- NEVER set `id=` attributes
+- NEVER import behavior engines
+- NEVER handle events (`onclick`, `on:keydown`)
+- NEVER derive state (`$derived` for UI state)
+- NEVER use inline styles
 
 ---
 
-## ID LINKING PATTERN
+## WHAT COMPONENTS ALWAYS DO
+
+- ALWAYS set `role` explicitly per contract
+- ALWAYS set `aria-*` explicitly per contract
+- ALWAYS set `data-state` from derived state
+- ALWAYS apply recipe classes via `cn()`
+- ALWAYS use SD5 token-based styling
+- ALWAYS link IDs via Svelte context (compound components)
+
+---
+
+## ID LINKING PATTERN (compound components)
 
 ```
-Root.svelte
-  └── setContext("dialog-ids", { titleId, descriptionId, contentId })
+components/dialog/Root.svelte
+  └── setContext(CTX_KEY, { titleId, descriptionId, contentId })
 
-Title.svelte
-  └── const { titleId } = getContext("dialog-ids")
+components/dialog/Title.svelte
+  └── const { titleId } = getContext(CTX_KEY)
   └── <h2 id={titleId}>
 
-Description.svelte
-  └── const { descriptionId } = getContext("dialog-ids")
-  └── <p id={descriptionId}>
-
-Content.svelte
-  └── const { titleId, descriptionId, contentId } = getContext("dialog-ids")
+components/dialog/Content.svelte
+  └── const { titleId, descriptionId, contentId } = getContext(CTX_KEY)
   └── <div
         id={contentId}
+        role="dialog"
+        aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
       >
@@ -173,92 +196,97 @@ Content.svelte
 
 ---
 
-## ARIA REQUIREMENTS BY PRIMITIVE
+## ARIA REQUIREMENTS BY KIND
+
+### Button
+
+| Attribute | Value | Set By |
+|-----------|-------|--------|
+| `aria-pressed` | `true/false/undefined` | Component |
+| `aria-disabled` | `true/undefined` | Component |
+| `aria-busy` | `true/undefined` | Component |
+| `data-state` | disabled/loading/pressed/idle | Component |
 
 ### Dialog
 
 | Attribute | Value | Set By |
 |-----------|-------|--------|
-| `role` | `"dialog"` | ColdLight |
-| `aria-modal` | `"true"` | ColdLight |
-| `aria-labelledby` | Title ID | ColdLight |
-| `aria-describedby` | Description ID | ColdLight |
-| `tabindex` | `-1` | ColdLight |
-
-### AlertDialog
-
-| Attribute | Value | Set By |
-|-----------|-------|--------|
-| `role` | `"alertdialog"` | ColdLight |
-| `aria-modal` | `"true"` | ColdLight |
-| `aria-labelledby` | Title ID | ColdLight |
-| `aria-describedby` | Description ID | ColdLight |
-| `tabindex` | `-1` | ColdLight |
+| `role` | `"dialog"` | Component |
+| `aria-modal` | `"true"` | Component |
+| `aria-labelledby` | Title ID | Component |
+| `aria-describedby` | Description ID | Component |
+| `tabindex` | `-1` | Component |
 
 ### Tooltip
 
 | Attribute | Value | Set By |
 |-----------|-------|--------|
-| `role` | `"tooltip"` | ColdLight |
-| `id` | Generated | ColdLight |
-| Trigger `aria-describedby` | Content ID | ColdLight |
+| `role` | `"tooltip"` | Component |
+| `id` | Generated | Component |
+| Trigger `aria-describedby` | Content ID | Component |
 
 ### Popover
 
 | Attribute | Value | Set By |
 |-----------|-------|--------|
-| Trigger `aria-haspopup` | `"dialog"` | ColdLight |
-| Trigger `aria-expanded` | `"true"/"false"` | ColdLight |
-| Trigger `aria-controls` | Content ID | ColdLight |
+| Trigger `aria-haspopup` | `"dialog"` | Component |
+| Trigger `aria-expanded` | `"true"/"false"` | Component |
+| Trigger `aria-controls` | Content ID | Component |
 
 ### Select
 
 | Attribute | Value | Set By |
 |-----------|-------|--------|
-| Trigger `role` | `"combobox"` | ColdLight |
-| Trigger `aria-haspopup` | `"listbox"` | ColdLight |
-| Trigger `aria-expanded` | `"true"/"false"` | ColdLight |
-| Content `role` | `"listbox"` | ColdLight |
-| Item `role` | `"option"` | ColdLight |
-| Item `aria-selected` | `"true"/"false"` | ColdLight |
+| Trigger `role` | `"combobox"` | Component |
+| Trigger `aria-haspopup` | `"listbox"` | Component |
+| Trigger `aria-expanded` | `"true"/"false"` | Component |
+| Content `role` | `"listbox"` | Component |
+| Item `role` | `"option"` | Component |
+| Item `aria-selected` | `"true"/"false"` | Component |
 
 ### Tabs
 
 | Attribute | Value | Set By |
 |-----------|-------|--------|
-| List `role` | `"tablist"` | ColdLight |
-| Trigger `role` | `"tab"` | ColdLight |
-| Trigger `aria-selected` | `"true"/"false"` | ColdLight |
-| Trigger `aria-controls` | Panel ID | ColdLight |
-| Content `role` | `"tabpanel"` | ColdLight |
-| Content `aria-labelledby` | Tab ID | ColdLight |
+| List `role` | `"tablist"` | Component |
+| Trigger `role` | `"tab"` | Component |
+| Trigger `aria-selected` | `"true"/"false"` | Component |
+| Trigger `aria-controls` | Panel ID | Component |
+| Content `role` | `"tabpanel"` | Component |
+| Content `aria-labelledby` | Tab ID | Component |
 
 ---
 
 ## TEST REQUIREMENTS
 
-Every primitive test file MUST include:
+Every COMPONENT test file MUST include:
 
 ```typescript
 describe("ARIA ownership", () => {
-  it("ColdLight sets role attribute", async () => {
+  it("Component sets role attribute", async () => {
     // Verify role exists and has correct value
   });
 
-  it("ColdLight sets aria-modal", async () => {
-    // Verify aria-modal="true" for modals
+  it("Component sets aria-* attributes", async () => {
+    // Verify all contract-required ARIA attributes
   });
 
-  it("ColdLight links aria-labelledby to Title", async () => {
-    // Get title ID, verify content aria-labelledby matches
+  it("Component derives data-state", async () => {
+    // Verify data-state changes with state props
   });
 
-  it("ColdLight links aria-describedby to Description", async () => {
-    // Get description ID, verify content aria-describedby matches
+  it("IDs are generated and linked", async () => {
+    // Verify IDs exist and aria-labelledby/controls match
+  });
+});
+
+describe("Primitive structure", () => {
+  it("Renders data-kind and data-slot", async () => {
+    // Verify structural attributes from primitive
   });
 
-  it("IDs are generated by ColdLight", async () => {
-    // Verify IDs exist and are ColdLight-generated format
+  it("Primitive has zero ARIA on DOM", async () => {
+    // Verify primitive adds no ARIA itself
   });
 });
 ```
@@ -267,39 +295,14 @@ describe("ARIA ownership", () => {
 
 ## PRE-FLIGHT CHECKLIST
 
-Before writing ANY code for a primitive:
+Before writing ANY code for a kind:
 
 - [ ] Read WAI-ARIA APG for this pattern
-- [ ] Document ALL required ARIA attributes in a11y.md
-- [ ] Document ID linking requirements
-- [ ] Understand what melt-ui behavior we need
-- [ ] Plan context structure for ID sharing
-
----
-
-## SPRINT TEMPLATE
-
-### Sprint N: {Primitive}
-
-**Pre-flight:**
-- [ ] WAI-ARIA APG read
-- [ ] a11y.md written
-- [ ] ID linking planned
-
-**Implementation:**
-- [ ] types.ts - All types
-- [ ] Root.svelte - Context + ID generation
-- [ ] Trigger.svelte - With ARIA
-- [ ] Content.svelte - With ARIA
-- [ ] Title.svelte - ID sharing
-- [ ] Description.svelte - ID sharing
-- [ ] index.ts - Exports
-
-**Verification:**
-- [ ] `pnpm check` passes
-- [ ] `pnpm test:run` passes
-- [ ] All ARIA tests pass
-- [ ] ID linking verified
+- [ ] Create taxonomy/kinds/primitives/{kind}/ directory
+- [ ] Write types.ts with slots, states, slot-state map
+- [ ] Write contract.ts with full PrimitiveContract
+- [ ] Document ALL required ARIA attributes
+- [ ] Plan context structure for ID sharing (compound only)
 
 ---
 
@@ -307,12 +310,13 @@ Before writing ANY code for a primitive:
 
 Before marking complete:
 
-1. Does ColdLight generate ALL IDs? **YES/NO**
-2. Does ColdLight set ALL `role` attributes? **YES/NO**
-3. Does ColdLight set ALL `aria-*` attributes? **YES/NO**
-4. Does ColdLight link IDs via context? **YES/NO**
-5. Is melt-ui used ONLY for behavior? **YES/NO**
-6. Do ALL tests pass? **YES/NO**
+1. Does the taxonomy contract exist and compile? **YES/NO**
+2. Is the primitive ZERO ARIA? **YES/NO**
+3. Does the component set ALL ARIA per contract? **YES/NO**
+4. Does the component use SD5 token-driven recipes? **YES/NO**
+5. Are IDs linked via context? (compound only) **YES/NO**
+6. Does `pnpm svelte-check` pass? **YES/NO**
+7. Do ALL tests pass? **YES/NO**
 
 **All must be YES.**
 

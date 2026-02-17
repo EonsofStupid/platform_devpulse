@@ -7,3 +7,16 @@
  */
 
 export type { ComponentSurfaceProps } from "./types.js";
+
+// ============================================
+// COMPONENTS
+// ============================================
+
+export {
+	Button,
+	buttonComponentContract,
+	buttonRecipe,
+	type ButtonComponentProps,
+	type ButtonIntent,
+	type ButtonSize,
+} from "./button/index.js";

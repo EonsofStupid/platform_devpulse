@@ -15,8 +15,8 @@
  */
 
 import { z } from "zod";
-import { FocusStrategySchema, KeyboardKeySchema, StateTokenSchema } from "../kinds/primitives/schema.js";
-import type { PrimitiveContract } from "../kinds/primitives/contract.js";
+import { FocusStrategySchema, KeyboardKeySchema, StateTokenSchema } from "../primitives/schema.js";
+import type { PrimitiveContract } from "../primitives/contract.js";
 import {
 	AccessibleNameSourceSchema,
 	AriaAttrValueSchemas,
