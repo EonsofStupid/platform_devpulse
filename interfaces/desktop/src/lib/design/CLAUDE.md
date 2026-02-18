@@ -40,10 +40,10 @@ Example: `v-s1z2l3t1m2`
 
 | Layer | What | Code? |
 |-------|------|-------|
-| Tokens | Design tokens | JSON (DTCG) |
-| Recipes | CSS appearance | CSS classes |
-| Primitives | Behavior only | Svelte (MeltUI) |
-| Semantics | Primitive + Recipe | Svelte |
+| Tokens | Design tokens (SD5, DTCG 1.0, 3-tier) | JSON / CSS |
+| Recipes | CSS appearance rules | CSS classes |
+| Primitives | ColdLight-owned ARIA + behavior | Svelte 5 |
+| Semantics | Primitive + Recipe = Styled | Svelte 5 |
 | Blueprints | Prebuilt assembly | TypeScript |
 | Patterns | Guidance | Docs only |
 | Blocks | VPB payload | JSON runtime |
@@ -53,13 +53,12 @@ Example: `v-s1z2l3t1m2`
 ## Provider Model
 
 ```
-MeltUI (ARIA + behavior) → _internal (mapping) → ColdLight Primitive
+SD5 Tokens → CSS Custom Properties → Tailwind v4 @theme → ColdLight Primitive (owns ARIA)
 ```
 
-- **MeltUI owns**: `role`, `aria-*`, `tabindex`, focus, keyboard
-- **ColdLight owns**: `data-kind`, `data-slot`, `data-state`, `class`
-
-Primitives import from `_internal`, NEVER from meltui directly.
+- **ColdLight owns**: `role`, `aria-*`, `tabindex`, focus, keyboard, `data-kind`, `data-slot`, `data-state`, `class`
+- **dsAdapter (Melt UI)**: EXCEPTION ONLY — for complex widgets where native ARIA is impractical
+- **Primitives use**: Native HTML + Svelte 5 runes + WAI-ARIA APG patterns
 
 ---
 
@@ -76,11 +75,10 @@ Primitives import from `_internal`, NEVER from meltui directly.
 
 ## Current Sprint
 
-**Sprint 7: Select Primitive**
+**Token Pipeline + Primitives (SD5-driven, ColdLight-owned)**
 
-Location: `primitives/select/`
-
-Components: Root, Trigger, Portal, Content, Viewport, Item, ItemText, ItemGroup, GroupLabel, Separator, ScrollUp, ScrollDown, Arrow
+See: `primitives/WORKFLOW.md` for development process
+See: `.claude/MASTER_SPRINT_PLAN.md` for sprint order
 
 ---
 
@@ -97,7 +95,7 @@ pnpm test:browser # Browser tests
 
 ## Key Files
 
-- `taxonomy/` — SSOT backbone
+- `catalog/` — SSOT backbone
 - `primitives/` — Behavior components
 - `recipes/` — CSS appearance
 - `semantics/` — Styled components

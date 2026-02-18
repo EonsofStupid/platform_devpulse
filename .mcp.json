@@ -10,6 +10,13 @@
         "SURREAL_NAMESPACE": "banter",
         "SURREAL_DATABASE": "sessions"
       }
+    },
+    "context7": {
+      "command": "npx.cmd",
+      "args": ["-y", "@upstash/context7-mcp"],
+      "env": {
+        "CONTEXT7_API_KEY": "ctx7sk-2ee50c50-bb37-44af-ad7c-83a76b874a69"
+      }
     }
   }
 }

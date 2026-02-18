@@ -68,7 +68,10 @@
       "Bash(LEFTHOOK_EXCLUDE=docs-preflight git commit -m \"$\\(cat <<''EOF''\nrefactor\\(coldlight\\): consolidate design system docs, molecules, and shell recipes\n\n- Update molecules: bevel, depth, glass, glow\n- Add shell layout recipes \\(app, chat\\) as typed recipe objects\n- Update design system documentation and style guide\n- Add primitives audit and token pipeline docs\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(LEFTHOOK_EXCLUDE=docs-preflight git commit -m \"$\\(cat <<''EOF''\nrefactor\\(layouts\\): migrate layout styles to ColdLight recipe system\n\n- Remove standalone layout CSS files \\(depth, surfaces, shell, interactions\\)\n- Remove common utility CSS \\(focus, keyframes, scrollbars, typography\\)\n- Update Frame components to use ColdLight recipes\n- Consolidate app.css entry point\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
       "WebFetch(domain:styledictionary.com)",
-      "Bash(pnpm coldlight:generate:*)"
+      "Bash(pnpm coldlight:generate:*)",
+      "Bash(npx:*)",
+      "Bash(where:*)",
+      "mcp__context7__query-docs"
     ]
   }
 }

@@ -5,277 +5,187 @@
 
 ---
 
-## REALITY CHECK (2026-02-16)
+## TERMINOLOGY (LOCKED — from CLAUDE.md)
 
-### What EXISTS (real code, compiles)
+| Layer | What | Code? |
+|-------|------|-------|
+| Tokens | Design tokens (SD5 pipeline, DTCG 1.0, 3-tier) | JSON / CSS |
+| Recipes | CSS appearance rules | CSS classes |
+| Primitives | ColdLight-owned ARIA + behavior (WAI-ARIA APG) | Svelte 5 |
+| **Semantics** | Primitive + Recipe = Styled | Svelte |
+| Blueprints | Prebuilt assembly | TypeScript |
+| Patterns | Guidance only | Docs |
+| Blocks | VPB runtime payload | JSON |
 
-| Layer | Path | Status |
-|-------|------|--------|
-| **Config** | `config/coldlight/` | 10 typed fragments, orchestrator compiles |
-| **Config Type** | `config/coldlight/types.ts` | `ColdLightConfig` — full type with `as const satisfies` |
-| **Config Orchestrator** | `coldlight.config.ts` | Single import, all fragments wired |
-| **Taxonomy Contracts** | `taxonomy/kinds/primitives/` | **40 contracts** — Zod-validated, typed, complete |
-| **Primitive Contract Schema** | `taxonomy/primitive/contract.ts` | `PrimitiveContractSchema` — Zod enforcement |
-| **Component Contract Schema** | `taxonomy/component/contract.ts` | `ComponentContractSchema` + `validateComponentContract` |
-| **Scanner** | `taxonomy/scanner.ts` | 446 lines — config-driven, contract-aware parity |
-| **Registry** | `taxonomy/registry.ts` | Runtime manifest reader |
-| **Vocabularies** | `config/coldlight/vocabularies.cfg.ts` | ARIA roles, attributes, states, keyboard keys, etc. |
-| **Tokens SSOT** | `tokens/tokens.ts` | Tier 1 global values (OKLCH) |
-| **Tokens Semantic** | `tokens/semantic.ts` | Tier 2 semantic aliases |
-| **Tokens Components** | `tokens/components.ts` | Tier 3 component-scoped |
-| **Tokens Schema** | `tokens/schema.ts` | Zod validators + cross-tier enforcement |
-| **Tokens DTCG** | `tokens/tokens.json` | DTCG 1.0 interchange (generated) |
-| **Tokens CSS** | `tokens/tokens.css` | CSS custom properties (generated) |
-| **Vitest Config** | `vitest.config.ts` | Configured — Playwright browser, Chromium |
-| **Recipes** | `recipes/` | 4 recipes (panel, dialog, combobox, tabs) |
-| **Blueprints** | `blueprints/` | 4 blueprints (panel, dialog, combobox, tabs) |
-| **Adapters** | `api/adapters/` | ColdLight dialog/tabs + MeltUI combobox transports |
+**SEMANTICS = Primitive + Recipe. ARIA lives in primitives (ColdLight-owned, WAI-ARIA APG). NO separate ARIA contract in semantics.**
 
-### What DOES NOT EXIST (zero implementation)
-
-| Layer | Path | Status |
-|-------|------|--------|
-| **Primitive Folders** | `primitives/{kind}/` | **ZERO** — only `types.ts` + `index.ts` stubs |
-| **Component Folders** | `components/{kind}/` | **ZERO** — only shared types/schema/index |
-| **Test Files** | `**/*.test.ts` | **ZERO** — vitest configured, no tests written |
-| **Tokens Index** | `tokens/index.ts` | **STUBBED** — `export {}` |
-| **Svelte Components** | `*.svelte` in primitives/ | **ZERO** — no actual components |
-
-### Gap Summary
-
-40 taxonomy contracts exist. Zero primitive folders. Zero component folders. Zero tests. Zero Svelte components.
-**The foundation (config, types, contracts, scanner) is solid. The implementation layer is empty.**
+**"catalog" NOT "taxonomy". "semantics" NOT "components".**
 
 ---
 
-## TECHNOLOGY STACK (Locked)
+## REALITY CHECK (2026-02-17)
 
-| Tech | Version | Purpose |
-|------|---------|---------|
-| Style Dictionary | **v5** | Token pipeline (DTCG 1.0 interchange) |
-| Tailwind CSS | **v4** | @theme directive, utility classes from tokens |
-| OKLCH | — | Color system (perceptually uniform) |
-| Zod | **v4** | Schema validation at all boundaries |
-| Vitest | — | Browser tests via `vitest-browser-svelte` + `@vitest/browser-playwright` |
-| Playwright | — | Real Chromium browser (no jsdom) |
-| Svelte | **5** | Runes ($state, $derived, $effect, $bindable) |
-| SvelteKit | **5** | Framework |
-| Tauri | **2.0** | Desktop shell |
+### What EXISTS
+
+| Layer | Path | Status |
+|-------|------|--------|
+| Config | `config/coldlight/` | 10 typed fragments, orchestrator compiles |
+| Tokens SSOT | `tokens/tokens.ts` | Tier 1 global values (OKLCH) |
+| Tokens Semantic | `tokens/semantic.ts` | Tier 2 semantic aliases |
+| Tokens Component | `tokens/components.ts` | Tier 3 component-scoped |
+| Tokens CSS | `tokens/tokens.css` | Generated CSS + @theme block |
+| Tokens Schema | `tokens/schema.ts` | Zod validators |
+| Tokens DTCG | `tokens/tokens.json` | DTCG 1.0 interchange |
+| Build Script | `scripts/dev/design/ds-tokens-build.ts` | Generates CSS + types + preset |
+| Molecules | `molecules/*.css` | glass, depth, glow, bevel — RENDER |
+| Recipes | `recipes/` | 4 recipes (panel, dialog, combobox, tabs) |
+| Recipe Utils | `recipes/utils.ts` | Token → Tailwind class maps |
+| Blueprints | `blueprints/` | 4 blueprints |
+| Adapters | `api/adapters/` | ColdLight dialog/tabs + MeltUI combobox |
+| Catalog VPB | `catalog/vpb/` | Block kinds, contracts, slots |
+| Catalog Primitives | `catalog/kinds/primitives/button/` | Button contract |
+| Primitives | `primitives/button/` | Button.svelte — needs ColdLight-owned ARIA |
+
+### What DOES NOT EXIST
+
+| Layer | Path | Status |
+|-------|------|--------|
+| Primitives | `primitives/{kind}/` | Only button exists — need 40+ |
+| Semantics | `semantics/{kind}/` | **ZERO** — folder doesn't exist |
+| Tests | `**/*.test.ts` | **ZERO** |
+| Token barrel | `tokens/index.ts` | Stubbed |
+| Working pipeline | tokens → Tailwind → render | Not verified end-to-end |
 
 ---
 
-## PRIMITIVE FOLDER STRUCTURE (Mandatory)
+## SPRINT 1: Token Pipeline (UNBLOCKS EVERYTHING)
 
-Every primitive MUST have a named folder under `primitives/{kind}/`:
+**Goal:** Verify `ds-tokens-build.ts` produces working CSS, recipe class names resolve in Tailwind v4, and one component renders visually in the browser.
 
+Tasks:
+- [ ] Run `pnpm ds:tokens:build` — verify it completes
+- [ ] Verify `tokens.css` @theme block has all token mappings
+- [ ] Verify molecule classes resolve (`glass-void`, `depth-raised`, `glow-teal`)
+- [ ] Verify recipe utility classes resolve (`rounded-lg`, `bg-glass-void`)
+- [ ] Wire `tokens/index.ts` barrel export
+- [ ] Run `pnpm dev` — verify no CSS errors in browser console
+- [ ] Render one Panel with `glass-void` recipe — verify it's visible
+
+**Deliverable:** One styled panel visible in browser. Token pipeline confirmed working.
+
+---
+
+## SPRINT 2: ColdLight-Owned Primitives (ALL 40)
+
+**Goal:** Every primitive kind gets a named folder under `primitives/` with ColdLight-owned `.svelte` + `types.ts` + `context.ts` (if compound) + `index.ts`. Primitives OWN their ARIA via WAI-ARIA APG patterns.
+
+**Pattern (LOCKED):**
 ```
 primitives/{kind}/
-├── {Name}.svelte          # Unstyled structural component
-│                          # ColdLight-owned: renders native HTML + ARIA directly
-│                          # Adapter-backed: consumes transport via context
-├── types.ts               # Props interface (extends base, typed slots)
-├── context.ts             # Symbol-keyed Svelte context (compound primitives only)
-│                          # Pattern: const CTX_KEY = Symbol('{kind}');
-│                          # Root: setContext(CTX_KEY, state)
-│                          # Sub: getContext<T>(CTX_KEY)
-├── {Name}.test.ts         # Vitest browser tests (MANDATORY)
-│                          # Categories: ARIA, data-attributes, keyboard, focus, state
-├── {Name}.test.svelte     # Test wrapper component (renders primitive for testing)
-└── index.ts               # Barrel export (re-exports component + types)
+├── {Name}.svelte       ← ColdLight-owned: data-kind, data-slot, ARIA, keyboard, focus
+├── {Name}{Sub}.svelte  ← Sub-components (compound primitives only)
+├── types.ts            ← Props interface extending HTML element + BaseProps
+├── context.ts          ← setContext/getContext (compound primitives only)
+└── index.ts            ← Barrel export
 ```
 
-### context.ts Pattern (Compound Primitives)
-
-```typescript
-// primitives/tabs/context.ts
-import { getContext, setContext } from 'svelte';
-
-const CTX_KEY = Symbol('tabs');
-
-export interface TabsContext {
-  activeTab: { value: string };
-  orientation: 'horizontal' | 'vertical';
-  // ... compound state shared between root and sub-components
-}
-
-export function setTabsContext(ctx: TabsContext) {
-  setContext(CTX_KEY, ctx);
-}
-
-export function getTabsContext(): TabsContext {
-  return getContext<TabsContext>(CTX_KEY);
-}
-```
-
----
-
-## COMPONENT FOLDER STRUCTURE (Mandatory)
-
-Every styled component MUST have a named folder under `components/{kind}/`:
-
-```
-components/{kind}/
-├── {Name}.svelte          # Styled component (primitive + recipe)
-├── types.ts               # Component props (extends primitive props + DsSurfaceProps)
-├── schema.ts              # Zod contract (ComponentContractSchema, links to primitive)
-├── {Name}.test.ts         # Vitest browser tests (MANDATORY)
-│                          # Categories: schema validation, recipe application, props, slots
-└── index.ts               # Barrel export
-```
-
----
-
-## TESTING REQUIREMENTS (Non-Negotiable)
-
-### Primitive Tests ({Name}.test.ts)
-
-Every primitive test MUST cover:
-
-1. **ARIA Presence** — correct role, required attributes present
-2. **Data Attributes** — `data-kind`, `data-slot`, `data-state` correct
-3. **Keyboard Navigation** — all keys from contract.keyboard work
-4. **Focus Management** — focus strategy from contract matches behavior
-5. **State Management** — states transition correctly, data-state updates
-6. **Accessibility** — screen reader compatibility, focus visible
-
-### Component Tests ({Name}.test.ts)
-
-Every component test MUST cover:
-
-1. **Schema Validation** — ComponentContractSchema validates, primitive link verified
-2. **Recipe Application** — correct CSS classes applied per recipe
-3. **Prop Forwarding** — props pass through to underlying primitive
-4. **Slot Rendering** — named slots render correctly
-
-### Test Infrastructure
-
-- `vitest.config.ts` — already configured with Playwright browser provider
-- `vitest-browser-svelte` — already in setupFiles
-- Browser: Chromium (headless for CI, headed for dev)
-- Pattern: `import { render } from 'vitest-browser-svelte'`
-- Assertions: `import { expect } from 'vitest'`
-
----
-
-## SPRINT SEQUENCE
-
-### Sprint 1: Token Pipeline Fix (SD5 + OKLCH + TW4)
-
-**Goal:** Fix `ds-tokens-build.ts` to produce working CSS + Tailwind @theme from `tokens.cfg.ts`
-
-**Blocked by:** Token → Tailwind gap (recipes produce class names that don't resolve)
+**Rules:**
+- ColdLight OWNS ARIA. Primitives set `role`, `aria-*`, `tabindex`, keyboard handlers, focus management directly.
+- WAI-ARIA APG patterns — follow W3C authoring practices for each widget type.
+- Svelte 5 runes only — `$state`, `$derived`, `$effect`, `$bindable`, `$props()`.
+- Zero styling. Styling comes from recipe layer via semantics.
+- Each primitive renders the correct semantic HTML element.
+- `data-kind="{kind}"` and `data-slot="root"` on every root element.
+- `data-state` reflects current state for recipe CSS selectors.
+- Compound primitives use `setContext`/`getContext` with getter function for reactivity.
+- dsAdapter (Melt UI) is EXCEPTION ONLY — justified by ARIA complexity comment in contract.
 
 Tasks:
-- [ ] Fix `ds-tokens-build.ts` to read `tokens.cfg.ts` for all paths and mappings
-- [ ] Generate proper Tailwind v4 @theme block from tokens
-- [ ] Generate `tokens.json` DTCG 1.0 interchange
-- [ ] Unify dual @theme blocks (app.css + tokens.css → one @theme in tokens.css)
-- [ ] Verify recipe class names resolve (e.g., `bg-glass-void`, `shadow-z2`)
-- [ ] Wire `tokens/index.ts` barrel export
+- [ ] Build all 40 primitive folders following WORKFLOW.md specification
+- [ ] Each with correct HTML element, ARIA roles, keyboard handlers
+- [ ] Compound primitives with context pattern (accordion, tabs, dialog, etc.)
+- [ ] `pnpm svelte-check` passes with zero errors
+- [ ] All primitives importable from `primitives/{kind}/index.ts`
 
-**Deliverables:**
-- `pnpm ds:tokens:build` produces working `tokens.css` with @theme block
-- All recipe class names resolve in browser
-- DTCG 1.0 `tokens.json` generated
+**Deliverable:** 40 ColdLight-owned ARIA primitives that compile.
 
 ---
 
-### Sprint 2: First ColdLight-Owned Primitive — Button
+## SPRINT 3: Semantics Layer (Primitive + Recipe)
 
-**Goal:** Build one complete primitive + component end-to-end as the gold standard.
+**Goal:** Create `semantics/` folder. Each semantic is a primitive + recipe = styled component.
 
-**Pre-existing:** `taxonomy/kinds/primitives/button/contract.ts` (exists, Zod-validated)
+**Pattern (LOCKED):**
+```
+semantics/{kind}/
+├── {Name}.svelte       ← Imports primitive, applies recipe classes
+├── types.ts            ← Semantic props (extends primitive + DsSurfaceProps)
+└── index.ts            ← Barrel export (PUBLIC API — users import from here)
+```
+
+**Rules:**
+- Semantics are what users import. Never primitives directly.
+- Each semantic wraps a primitive and applies recipe classes.
+- NO ARIA contracts. NO validation schemas. Just primitive + recipe.
 
 Tasks:
-- [ ] Create `primitives/button/Button.svelte` — native `<button>`, ColdLight ARIA, data-* attributes
-- [ ] Create `primitives/button/types.ts` — ButtonProps interface
-- [ ] Create `primitives/button/index.ts` — barrel export
-- [ ] Create `primitives/button/Button.test.ts` — ARIA, keyboard, focus, state tests
-- [ ] Create `primitives/button/Button.test.svelte` — test wrapper
-- [ ] Create `components/button/Button.svelte` — styled (primitive + recipe)
-- [ ] Create `components/button/types.ts` — ButtonComponentProps
-- [ ] Create `components/button/schema.ts` — ComponentContractSchema for button
-- [ ] Create `components/button/Button.test.ts` — schema + recipe tests
-- [ ] Create `components/button/index.ts` — barrel export
-- [ ] Verify scanner parity passes
-- [ ] Verify all tests pass in Chromium
+- [ ] Create `semantics/` folder structure
+- [ ] Build first semantic: `semantics/button/Button.svelte`
+- [ ] Build panel, dialog, tabs, combobox semantics (recipes exist)
+- [ ] Each semantic renders with visible styling in browser
+- [ ] `pnpm svelte-check` passes
 
-**Deliverables:**
-- One complete primitive + component visible in browser
-- All tests passing
-- Gold standard folder structure for every future primitive
+**Deliverable:** Styled components visible in browser.
 
 ---
 
-### Sprint 3: ColdLight-Owned Primitives (Batch 1 — Structureless)
+## SPRINT 4: Tests
 
-Build simple primitives that ColdLight owns directly:
+**Goal:** Vitest browser tests for primitives and semantics.
 
-- badge, label, separator, spinner, skeleton, progress, avatar, visually-hidden
-- Each gets: primitive folder, component folder, tests
+Tasks:
+- [ ] Primitive tests: data attributes present, correct HTML element
+- [ ] Semantic tests: recipe classes applied, props forwarded
+- [ ] `pnpm test:browser` passes
 
----
-
-### Sprint 4: ColdLight-Owned Primitives (Batch 2 — Form Controls)
-
-More complex ColdLight-owned:
-
-- input, textarea, checkbox, switch, toggle, radio-group, slider
-- Each uses context.ts for compound state where needed
+**Deliverable:** Test coverage for all primitives and semantics.
 
 ---
 
-### Sprint 5: ColdLight-Owned Primitives (Batch 3 — Compound)
+## SPRINT 5: Catalog Alignment
 
-Compound primitives with context.ts:
+**Goal:** Fix catalog/ imports (already renamed from taxonomy/). Fix all import paths. Scanner works.
 
-- accordion, collapsible, tabs, toolbar, breadcrumb, card, scroll-area
-- Each has context.ts with Symbol-keyed context pattern
+Tasks:
+- [x] Rename `taxonomy/` → `catalog/` (folder) — DONE
+- [ ] Update ALL import paths across codebase (currently broken)
+- [ ] Delete `kinds/component/` (wrong layer — semantics don't need ARIA contracts)
+- [ ] Rebuild catalog/types.ts, scanner.ts, registry.ts for new architecture
+- [ ] Update config roots to reference catalog
+- [ ] `pnpm svelte-check` passes with zero errors
 
----
-
-### Sprint 6: Adapter-Backed Primitives (Exception — Justified)
-
-Complex widgets where MeltUI adapter is justified by ARIA complexity:
-
-- dialog, alert-dialog, sheet, combobox, command, select, popover, tooltip
-- Each has contract comment explaining WHY adapter is needed
-- Each has adapter mapping in `api/adapters/meltui/_internal/{kind}/`
+**Deliverable:** Clean catalog folder, all imports resolved, zero errors.
 
 ---
 
-### Sprint 7: Testing Enforcement + CI
+## SPRINT 6: Remaining Semantics + Blueprints
 
-- Scanner flags missing test files for any primitive or component
-- CI pipeline: `pnpm test` must pass with zero failures
-- Schema validation tests for all 40 contracts
-- Playwright E2E for critical user flows
+**Goal:** Build semantics for all 40 kinds. Wire blueprints.
+
+Tasks:
+- [ ] Semantics for all primitive kinds
+- [ ] Blueprints reference semantics (not components)
+- [ ] VPB blocks can render semantics
+
+**Deliverable:** Full design system usable end-to-end.
 
 ---
 
 ## EXECUTION RULES
 
 1. **Owner decides.** No sprint starts without owner approval.
-2. **ColdLight-owned first.** Default `ariaStateProvider: "coldlight"` unless contract justifies "meltui".
-3. **Contract first.** No primitive/component exists without a taxonomy contract.
-4. **Tests mandatory.** No primitive is done without passing Vitest browser tests.
-5. **Config-driven.** Scanner reads `coldlight.config.ts` for all paths and enforcement rules.
-6. **Schema-validated.** Zod validates all contracts at build time.
-7. **context.ts for compound.** Compound primitives use Symbol-keyed Svelte context.
-8. **Named folders.** Every primitive and component gets a named folder matching the taxonomy kind.
-9. **One at a time.** Build one primitive end-to-end before starting the next.
-10. **Research → plan → execute.** Never touch code without a sprint document approved by the owner.
-
----
-
-## COMPLETION CRITERIA
-
-System is done when:
-
-1. All 40 taxonomy contracts have matching primitive folders with tests
-2. All primitives have matching component folders with tests
-3. `pnpm test` passes with zero failures
-4. Scanner parity check passes for all kinds
-5. Token pipeline produces working CSS + DTCG + TypeScript
-6. Recipe class names resolve in browser
-7. At least one component visible and interactive in browser
+2. **TERMINOLOGY.md vocabulary is LAW.** Semantics not components. Catalog not taxonomy.
+3. **Build first, validate later.** Get .svelte files rendering before writing contracts.
+4. **Test in browser.** If it doesn't render, it doesn't exist.
+5. **One at a time.** Complete each sprint before starting next.
+6. **No architecture astronautics.** No contracts for things that don't exist yet.

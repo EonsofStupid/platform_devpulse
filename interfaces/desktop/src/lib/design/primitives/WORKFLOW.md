@@ -1,8 +1,11 @@
 # ColdLight Primitives — Development Workflow
 
-> **Last Updated:** 2026-01-23
-> **ARIA Provider:** Melt UI
-> **Architecture:** See ADR-009, ADR-010, ADR-011
+> **Last Updated:** 2026-02-17
+> **ARIA Provider:** ColdLight (native WAI-ARIA APG)
+> **Token Pipeline:** Style Dictionary v5 (DTCG 1.0)
+> **Styling:** Tailwind CSS v4 (@theme directive)
+> **Reactivity:** Svelte 5 Runes ($state, $derived, $effect, $bindable)
+> **dsAdapter:** Available for Melt UI escalation — NOT default
 
 ---
 
@@ -12,40 +15,57 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  Melt UI (ARIA Provider)                                    │
-│  ───────────────────────                                    │
-│  • ARIA attributes (role, aria-*)                           │
-│  • ID generation and linking                                │
-│  • Focus management                                         │
-│  • Keyboard navigation                                      │
-│  • Event handlers                                           │
-│  • Floating positioning                                     │
-│  • Portal rendering                                         │
-│  Delivery: use:melt={$element} action                       │
+│  SD5 Token Pipeline (Foundation)                            │
+│  ──────────────────────────────                             │
+│  • DTCG 1.0 token format ($value, $type)                   │
+│  • 3-tier: Global → Semantic → Component                   │
+│  • Generates CSS custom properties                          │
+│  • Generates @theme block for Tailwind v4                   │
+│  • Generates TypeScript types                               │
+│  • Zod validates all tiers at build time                    │
 └─────────────────────────────────────────────────────────────┘
                           │
                           ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  ColdLight (Design System)                                  │
-│  ─────────────────────────                                  │
-│  • data-kind          (primitive taxonomy)                  │
+│  ColdLight (ARIA Provider + Design System)                  │
+│  ─────────────────────────────────────────                  │
+│  • ARIA attributes (role, aria-*) — WAI-ARIA APG patterns  │
+│  • Keyboard navigation — native event handlers             │
+│  • Focus management — programmatic focus control            │
+│  • data-kind          (primitive catalog)                   │
 │  • data-slot          (slot identification)                 │
 │  • data-state         (visual state for CSS)                │
 │  • data-id            (user-controlled stable ID)           │
-│  • class              (recipe-based styling)                │
-│  • Type system        (props interfaces, validation)        │
-│  • Registry           (kind/material/recipe registration)   │
-│  • Audit              (diagram generation, JSDOC)           │
+│  • class              (recipe-based styling via TW4)        │
+│  • Type system        (Svelte 5 $props, Zod validation)    │
+│  • Registry           (kind/recipe registration)            │
+│  • Audit              (scanner, manifest generation)        │
+│  Delivery: Native HTML + Svelte 5 runes + event handlers   │
+└─────────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────────┐
+│  dsAdapter (EXCEPTION ONLY — Melt UI)                       │
+│  ────────────────────────────────────                       │
+│  • Available for complex widgets where native ARIA is       │
+│    impractical (e.g., combobox virtualization, date picker) │
+│  • Accessed via api/adapters/meltui/_internal/              │
+│  • NEVER imported directly by components                    │
+│  • Must be justified in contract with WHY comment           │
+│  • 3-folder parity: catalog/kinds + api/adapters + prims   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ### Key Principles
 
-1. **Melt UI = ARIA Provider** — All accessibility via `use:melt`
-2. **ColdLight = Design System** — Taxonomy, types, styling, audit
-3. **`data-kind` Attribute** — All primitives emit `data-kind="{name}"`
-4. **Robust Tests** — Foundation-level test coverage, not minimal
-5. **Builder Context Pattern** — Root creates builder, shares via context
+1. **ColdLight = ARIA Provider** — Native WAI-ARIA APG patterns, no library dependency
+2. **SD5 = Token Pipeline** — DTCG 1.0 tokens drive all CSS generation
+3. **Tailwind v4 = Styling** — @theme directive consumes SD5 tokens
+4. **Svelte 5 Runes** — $state, $derived, $effect, $bindable for all reactivity
+5. **`data-kind` Attribute** — All primitives emit `data-kind="{name}"`
+6. **Robust Tests** — Foundation-level test coverage, not minimal
+7. **Context Pattern** — Root creates state, shares via setContext/getContext
+8. **AI-Introspectable** — Schemas and contracts readable by AI agents
 
 ---
 
@@ -55,20 +75,23 @@ Every primitive MUST follow these phases in order. No skipping.
 
 ### Phase 0: Pre-Flight Check (MANDATORY)
 
-Before writing ANY code, check the Melt UI builder API:
+Before writing ANY code:
 
-```bash
-# Reference the tech_refs documentation
-cat tech_refs/melt-ui/builders/{primitive}.md
-```
+1. **Check WAI-ARIA APG** for the pattern:
+   - https://www.w3.org/WAI/ARIA/apg/patterns/
+   - What ARIA role does this primitive need?
+   - What keyboard interactions are required?
+   - What focus management rules apply?
 
-Verify:
-- [ ] Builder exists: `create{Name}` from `@melt-ui/svelte`
-- [ ] Elements available: `elements: { trigger, content, ... }`
-- [ ] States available: `states: { open, ... }`
-- [ ] Builder options match your props needs
+2. **Check SD5 token availability:**
+   - Does `tokens/components.ts` have Tier 3 tokens for this kind?
+   - If not, add them BEFORE building the primitive.
 
-**Why this matters:** Each Melt builder has different options, elements, and states. Knowing the API upfront prevents rework.
+3. **Determine archetype:**
+   - **Archetype A (DEFAULT):** ColdLight-owned. Native HTML + ARIA.
+   - **Archetype B (EXCEPTION):** dsAdapter needed. Justify WHY in contract.
+
+**Why this matters:** Knowing the ARIA pattern upfront prevents rework. Knowing the tokens exist prevents broken styling.
 
 ---
 
@@ -92,101 +115,171 @@ export type {Name}State = 'open' | 'closed';
 export const {NAME}_CONTEXT_KEY = 'coldlight-{name}';
 ```
 
-**4. Props interfaces** (one per slot)
+**4. Props interfaces** (one per slot, Svelte 5 pattern)
+```typescript
+import type { Snippet } from 'svelte';
+import type { HTMLButtonAttributes } from 'svelte/elements';
+
+export interface {Name}RootProps extends Omit<HTMLButtonAttributes, 'style' | 'children'> {
+  children?: Snippet;
+  'data-id'?: string;
+  class?: string;
+}
+```
+
 - Always `Omit<HTML*Attributes, 'style' | 'children'>`
 - Always include `'data-id'?: string`
-- Snippet types for children
+- Snippet types for children (Svelte 5)
+- Use `$bindable()` for controlled state props
 
 **Verification:**
 ```bash
-pnpm check  # No errors in {name}/types.ts
+pnpm svelte-check  # No errors in {name}/types.ts
 ```
 
 ---
 
 ### Phase 2: Root Component
 
-Root creates the Melt builder and shares via Svelte context:
+Root creates state and shares via Svelte context. ColdLight owns ARIA directly.
 
 ```svelte
 <script lang="ts">
-  import { create{Name} } from '@melt-ui/svelte';
   import { setContext } from 'svelte';
   import { {NAME}_CONTEXT_KEY } from './types.js';
+  import type { {Name}RootProps } from './types.js';
+  import { cn } from '../types.js';
 
-  // Create builder with controlled props
-  const {name} = create{Name}({
-    defaultOpen: open,
-    onOpenChange: (details) => {
-      open = details.open;
-      onOpenChange?.(details.open);
+  let {
+    children,
+    open = $bindable(false),
+    onOpenChange,
+    class: className,
+    'data-id': dataId,
+    ...rest
+  }: {Name}RootProps = $props();
+
+  // Derived state for data-state attribute
+  const dataState = $derived(open ? 'open' : 'closed');
+
+  // Share state via context for child components
+  const context = $derived({
+    get open() { return open; },
+    toggle() {
+      open = !open;
+      onOpenChange?.(open);
+    },
+    close() {
+      open = false;
+      onOpenChange?.(false);
     },
   });
 
-  // Share builder via context
-  setContext({NAME}_CONTEXT_KEY, {name});
+  setContext({NAME}_CONTEXT_KEY, () => context);
 </script>
 
 <div
+  role="{appropriate-aria-role}"
   data-kind="{name}"
   data-slot="root"
   data-state={dataState}
   data-id={dataId}
+  class={cn(className)}
+  {...rest}
 >
   {@render children?.()}
 </div>
 ```
 
+**Key patterns:**
+- `$bindable()` for controlled props (Svelte 5)
+- `$derived()` for computed state
+- `setContext()` wraps a getter function for reactivity
+- ARIA role set directly on element (ColdLight-owned)
+- `cn()` from shared types for class merging (clsx + tailwind-merge)
+
 **Verification:**
 ```bash
-pnpm check  # No errors in Root.svelte
+pnpm svelte-check  # No errors in Root.svelte
 ```
 
 ---
 
 ### Phase 3: Child Components
 
-Children get builder from context and use `use:melt`:
+Children get state from context and render with ARIA:
 
 ```svelte
 <script lang="ts">
-  import { melt } from '@melt-ui/svelte';
   import { getContext } from 'svelte';
   import { {NAME}_CONTEXT_KEY } from './types.js';
+  import type { {Name}ContentProps } from './types.js';
+  import { cn } from '../types.js';
 
-  const {name} = getContext({NAME}_CONTEXT_KEY);
-  const { elements: { content }, states: { open } } = {name};
+  let {
+    children,
+    class: className,
+    'data-id': dataId,
+    ...rest
+  }: {Name}ContentProps = $props();
+
+  const getCtx = getContext<() => { open: boolean; toggle: () => void; close: () => void }>(
+    {NAME}_CONTEXT_KEY
+  );
+  const ctx = $derived(getCtx());
 </script>
 
-<div
-  use:melt={$content}
-  class={className}
-  data-kind="{name}"
-  data-slot="content"
-  data-state={$open ? 'open' : 'closed'}
-  data-id={dataId}
->
-  {@render children?.({ open: $open })}
-</div>
+{#if ctx.open}
+  <div
+    role="{appropriate-aria-role}"
+    aria-labelledby="{linked-id}"
+    data-kind="{name}"
+    data-slot="content"
+    data-state={ctx.open ? 'open' : 'closed'}
+    data-id={dataId}
+    class={cn(className)}
+    {...rest}
+  >
+    {@render children?.()}
+  </div>
+{/if}
 ```
 
-**Pattern for each slot type:**
+**ARIA patterns per slot type (ColdLight-owned):**
 
-| Slot Type | use:melt | data-state |
-|-----------|----------|------------|
-| Root | No (wrapper only) | Yes |
-| Trigger | Yes (`$trigger`) | Optional |
-| Content | Yes (`$content`) | Yes |
-| Overlay | Yes (`$overlay`) | Yes |
-| Title | Yes (`$title`) | No |
-| Description | Yes (`$description`) | No |
-| Close | Yes (`$close`) | No |
-| Portal | No (container only) | No |
-| Arrow | Yes (`$arrow`) | No |
+| Slot Type | ARIA Role | Key Attributes | Keyboard |
+|-----------|-----------|----------------|----------|
+| Root | varies | aria-label/labelledby | -- |
+| Trigger | button | aria-expanded, aria-controls | Enter, Space |
+| Content | varies | aria-labelledby | Escape to close |
+| Overlay | none/presentation | aria-hidden on background | Click to dismiss |
+| Title | heading | aria-level, id (for labelledby) | -- |
+| Description | paragraph | id (for describedby) | -- |
+| Close | button | aria-label="Close" | Enter, Space |
+| Item | option/menuitem | aria-selected/checked | Arrow keys |
+
+**Keyboard handling (native, no library):**
+```svelte
+<script>
+  function handleKeydown(e: KeyboardEvent) {
+    switch (e.key) {
+      case 'Escape':
+        ctx.close();
+        e.preventDefault();
+        break;
+      case 'Tab':
+        // Focus trap logic if modal
+        break;
+    }
+  }
+</script>
+
+<div onkeydown={handleKeydown} ...>
+```
 
 **Verification:**
 ```bash
-pnpm check  # No errors in *.svelte files
+pnpm svelte-check  # No errors in *.svelte files
 ```
 
 ---
@@ -210,13 +303,11 @@ export { {Name}Slots, {NAME}_CONTEXT_KEY } from './types.js';
 Update `primitives/index.ts`:
 ```typescript
 export * as {Name} from './{name}/index.js';
-export type { ... } from './{name}/index.js';
-export { {Name}Slots } from './{name}/index.js';
 ```
 
 **Verification:**
 ```bash
-pnpm check  # No import errors
+pnpm svelte-check  # No import errors
 ```
 
 ---
@@ -228,29 +319,67 @@ Create `{name}/{Name}.test.svelte` (test wrapper) and `{name}/{Name}.test.ts`.
 **Test structure:**
 
 ```typescript
+import { describe, it, expect } from 'vitest';
+import { render } from 'vitest-browser-svelte';
+import TestWrapper from './{Name}.test.svelte';
+
 describe('{Name} Primitive', () => {
-  describe('ARIA (Melt UI)', () => {
-    // Verify Melt's ARIA attributes are present
+  describe('ARIA (ColdLight-owned)', () => {
+    it('renders correct role', async () => {
+      const screen = render(TestWrapper);
+      await expect.element(
+        screen.getByRole('{role}')
+      ).toBeInTheDocument();
+    });
+
+    it('has aria-expanded on trigger', async () => {
+      // ...
+    });
+
+    it('links aria-labelledby to title', async () => {
+      // ...
+    });
   });
 
   describe('Data Attributes (ColdLight)', () => {
-    // Verify data-kind, data-slot, data-state, data-id
+    it('emits data-kind="{name}"', async () => {
+      const screen = render(TestWrapper);
+      const root = screen.container.querySelector('[data-kind="{name}"]');
+      await expect.element(root).toBeInTheDocument();
+    });
+
+    it('emits data-slot on all slots', async () => {
+      // ...
+    });
+
+    it('emits data-state reflecting current state', async () => {
+      // ...
+    });
+
+    it('forwards data-id prop', async () => {
+      // ...
+    });
   });
 
   describe('Keyboard Navigation', () => {
-    // Full keyboard interaction per WAI-ARIA pattern
+    it('Enter/Space activates trigger', async () => { /* ... */ });
+    it('Escape closes content', async () => { /* ... */ });
+    it('Tab moves focus correctly', async () => { /* ... */ });
   });
 
   describe('Focus Management', () => {
-    // Focus trap, return, initial focus
+    it('traps focus inside modal content', async () => { /* ... */ });
+    it('returns focus to trigger on close', async () => { /* ... */ });
   });
 
   describe('State Management', () => {
-    // Controlled mode, callbacks, bindable
+    it('supports controlled open state via $bindable', async () => { /* ... */ });
+    it('calls onOpenChange callback', async () => { /* ... */ });
   });
 
   describe('Edge Cases', () => {
-    // Disabled, nested, dynamic content
+    it('handles disabled state', async () => { /* ... */ });
+    it('handles dynamic children', async () => { /* ... */ });
   });
 });
 ```
@@ -259,18 +388,11 @@ describe('{Name} Primitive', () => {
 
 | Primitive Type | Minimum |
 |----------------|---------|
-| Simple | 15+ |
-| Modal | 35+ |
-| Selection | 50+ |
-| Navigation | 40+ |
-| Floating | 30+ |
-
-**Portal content testing:**
-```typescript
-// Portal renders to document.body, NOT screen.container
-const content = document.querySelector('[data-slot="content"]');
-await expect.element(content).toHaveAttribute('data-state', 'open');
-```
+| Simple (button, badge, label) | 15+ |
+| Modal (dialog, alert-dialog, sheet) | 35+ |
+| Selection (select, combobox, radio) | 50+ |
+| Navigation (tabs, menubar, toolbar) | 40+ |
+| Floating (popover, tooltip, dropdown) | 30+ |
 
 **Verification:**
 ```bash
@@ -282,16 +404,11 @@ pnpm test:run lib/design/primitives/{name}/  # All tests pass
 ### Phase 6: Documentation
 
 Create `{name}/a11y.md` covering:
-- ARIA attributes (what Melt provides)
-- Keyboard interaction table
+- ARIA attributes (what ColdLight renders)
+- Keyboard interaction table (per WAI-ARIA APG)
 - Focus management rules
-- Data attributes (what ColdLight provides)
-
-**Verification:**
-```bash
-pnpm audit:primitives  # {Name} shows ✅
-pnpm docs:primitives   # Updates PRIMITIVES.md
-```
+- Data attributes (data-kind, data-slot, data-state, data-id)
+- WAI-ARIA APG reference link
 
 ---
 
@@ -300,23 +417,19 @@ pnpm docs:primitives   # Updates PRIMITIVES.md
 Run these at each checkpoint:
 
 ```bash
-cd interfaces/desktop/src
+cd interfaces/desktop
 
 # After Phase 1 (Types)
-pnpm check
+pnpm svelte-check
 
 # After Phase 2-3 (Components)
-pnpm check
+pnpm svelte-check
 
 # After Phase 4 (Exports)
-pnpm check
+pnpm svelte-check
 
 # After Phase 5 (Tests)
 pnpm test:run lib/design/primitives/{name}/
-
-# After Phase 6 (Docs)
-pnpm audit:primitives
-pnpm docs:primitives
 ```
 
 ---
@@ -334,26 +447,27 @@ Before marking ANY primitive complete, verify ALL of these:
 - [ ] `{name}/{Name}.test.ts` — Tests exist and pass
 
 ### Implementation
-- [ ] Root creates Melt builder
-- [ ] Root shares builder via `setContext()`
-- [ ] Children get builder via `getContext()`
-- [ ] Interactive elements use `use:melt={$element}`
+- [ ] ColdLight owns all ARIA (role, aria-*, keyboard, focus)
+- [ ] Root shares state via `setContext()` (Svelte 5)
+- [ ] Children get state via `getContext()` (Svelte 5)
+- [ ] Props use `$props()` with `$bindable()` for controlled state
+- [ ] Derived state uses `$derived()`
 - [ ] All components have `data-kind="{name}"`
 - [ ] All components have `data-slot="{slot}"`
 - [ ] `primitives/index.ts` exports the primitive
 
 ### Tests
 - [ ] Minimum test count met
-- [ ] ARIA presence tests
+- [ ] ARIA presence tests (ColdLight-owned)
 - [ ] Data attribute tests
-- [ ] Keyboard tests
+- [ ] Keyboard tests (per WAI-ARIA APG)
 - [ ] Focus tests
-- [ ] State tests
+- [ ] State tests ($bindable controlled mode)
 - [ ] ALL TESTS PASS
 
 ### Quality
-- [ ] `pnpm audit:primitives` shows ✅
-- [ ] `pnpm check` passes
+- [ ] `pnpm svelte-check` passes
+- [ ] WAI-ARIA APG pattern followed
 
 ---
 
@@ -374,49 +488,64 @@ All primitives MUST emit:
 
 ## TROUBLESHOOTING
 
-### "Tests fail with undefined element"
-**Cause:** Portal renders content to `document.body`, not `screen.container`
-**Fix:** Use `document.querySelector('[data-slot="content"]')` instead of `screen.container.querySelector()`
-
-### "Melt builder not found in context"
-**Cause:** Child component not wrapped in Root
-**Fix:** Ensure Root creates and sets context, child gets from same context key
-
 ### "ARIA attributes missing"
-**Cause:** Missing `use:melt` on element
-**Fix:** Add `use:melt={$elementName}` to the element
+**Cause:** ColdLight component not rendering role/aria-* attributes
+**Fix:** Add correct ARIA attributes per WAI-ARIA APG pattern directly to element
 
-### "Type errors on builder"
-**Cause:** Wrong builder options or elements
-**Fix:** Check `tech_refs/melt-ui/builders/{primitive}.md` for correct API
+### "Context not found"
+**Cause:** Child component not wrapped in Root
+**Fix:** Ensure Root calls `setContext()`, child calls `getContext()` with same key
+
+### "Keyboard not working"
+**Cause:** Missing `onkeydown` handler on interactive element
+**Fix:** Add keyboard event handler per WAI-ARIA APG pattern
+
+### "Focus trap not working"
+**Cause:** Modal content not trapping focus
+**Fix:** Implement focus trap in Root component (track focusable elements, wrap Tab key)
+
+### "$bindable not updating parent"
+**Cause:** Svelte 5 runes reactivity issue
+**Fix:** Ensure prop is declared with `$bindable()` and parent uses `bind:prop`
 
 ---
 
-## MIGRATION NOTES
+## dsADAPTER ESCALATION (EXCEPTION ONLY)
 
-Existing melt-ui primitives will be migrated to Melt UI. The changes are:
+If a primitive's ARIA/focus/keyboard pattern is too complex for native implementation:
 
-| melt-ui Pattern | Melt UI Pattern |
-|-----------------|-----------------|
-| `{...props}` spreading | `use:melt={$element}` action |
-| `useId()` from melt-ui | Melt generates IDs internally |
-| Child snippet `{ props, open }` | Builder `states.open` store |
-| Manual ARIA overrides | Melt handles all ARIA |
+1. **Document WHY** in the contract (comment explaining complexity)
+2. **Use Archetype B** — `ariaStateProvider: "meltui"`
+3. **Import from `api/adapters/meltui/_internal/`** — NEVER from `@melt-ui/svelte` directly
+4. **3-folder parity enforced** — catalog/kinds + api/adapters/meltui + primitives
+
+Examples that MAY justify escalation:
+- Combobox with virtualized listbox
+- Date picker with calendar grid navigation
+- Complex nested menu systems
+
+**The bar is HIGH.** Most primitives should be ColdLight-owned.
 
 ---
 
-## BUILDER QUICK REFERENCE
+## PRIMITIVE QUICK REFERENCE
 
-| Primitive | Builder | Key Elements | Key States |
-|-----------|---------|--------------|------------|
-| Dialog | `createDialog` | trigger, content, overlay, title, description, close | open |
-| Popover | `createPopover` | trigger, content, arrow | open |
-| Tooltip | `createTooltip` | trigger, content, arrow | open |
-| Select | `createSelect` | trigger, menu, option | open, selected |
-| Tabs | `createTabs` | list, trigger, content | value |
-| Accordion | `createAccordion` | item, trigger, content | value |
+| Primitive | Archetype | ARIA Role | Key Elements | Key States |
+|-----------|-----------|-----------|--------------|------------|
+| Button | A (ColdLight) | button | root | pressed, disabled, loading |
+| Dialog | A (ColdLight) | dialog | trigger, overlay, content, title, description, close | open |
+| Popover | A (ColdLight) | -- | trigger, content, arrow | open |
+| Tooltip | A (ColdLight) | tooltip | trigger, content | open |
+| Select | A (ColdLight) | listbox | trigger, content, option | open, selected |
+| Tabs | A (ColdLight) | tablist/tab/tabpanel | list, trigger, content | value |
+| Accordion | A (ColdLight) | -- | item, trigger, content | value |
+| Checkbox | A (ColdLight) | checkbox | root, indicator | checked |
+| Switch | A (ColdLight) | switch | root, thumb | checked |
+| Slider | A (ColdLight) | slider | root, track, thumb | value |
+| Radio Group | A (ColdLight) | radiogroup/radio | root, item | value |
 
-See `tech_refs/melt-ui/` for complete builder documentation.
+See WAI-ARIA APG for complete pattern documentation:
+https://www.w3.org/WAI/ARIA/apg/patterns/
 
 ---
 
@@ -426,6 +555,10 @@ See `tech_refs/melt-ui/` for complete builder documentation.
 |------|----------|-----------|
 | 2026-01-20 | Compound folders for all primitives | Scalable, testable, documentable |
 | 2026-01-21 | Portal testing with document.querySelector | Portal renders outside container |
-| 2026-01-23 | **Melt UI as ARIA provider (ADR-009)** | Stop fighting library, accept ARIA delegation |
-| 2026-01-23 | Builder context pattern (ADR-010) | Share builder between compound components |
-| 2026-01-23 | Robust test requirements (ADR-011) | Foundation quality, not minimal coverage |
+| 2026-01-23 | Builder context pattern | Share state between compound components |
+| 2026-01-23 | Robust test requirements | Foundation quality, not minimal coverage |
+| 2026-02-17 | **ColdLight owns ARIA (not Melt UI)** | SD5-driven, no library dependency, WAI-ARIA APG native |
+| 2026-02-17 | **SD5 DTCG token pipeline drives everything** | Single source of truth for all CSS generation |
+| 2026-02-17 | **dsAdapter available but NOT default** | Melt UI only when justified by ARIA complexity |
+| 2026-02-17 | **Svelte 5 runes exclusively** | $state, $derived, $effect, $bindable — no legacy |
+| 2026-02-17 | **Tailwind v4 @theme** | CSS-first config, tokens as CSS custom properties |
