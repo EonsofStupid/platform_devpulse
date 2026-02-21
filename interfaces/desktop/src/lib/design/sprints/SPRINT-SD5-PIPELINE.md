@@ -173,11 +173,14 @@ const DESKTOP_ROOT = resolve(__dirname, "../../../..");
 
 const jiti = createJiti(import.meta.url, { moduleCache: false });
 
-// Load config
-const configMod = await jiti.import(resolve(DESKTOP_ROOT, "src/lib/design/coldlight.config.ts"));
-const tokensConfig = (configMod.coldlightConfig ?? configMod.default).tokens;
+// Load tokens pipeline config directly — no need for the full coldlightConfig assembly.
+// tokens.cfg.ts exports TOKENS — that's all this pipeline needs.
+const tokensMod = await jiti.import(
+  resolve(DESKTOP_ROOT, "src/lib/design/config/coldlight/tokens.cfg.ts")
+);
+const tokensConfig = tokensMod.TOKENS;
 
-// Load SSOT sources
+// Load SSOT sources via paths declared in TOKENS
 const tokens  = await jiti.import(resolve(DESKTOP_ROOT, tokensConfig.sources.globals));
 const semMod  = await jiti.import(resolve(DESKTOP_ROOT, tokensConfig.sources.semantic));
 const compMod = await jiti.import(resolve(DESKTOP_ROOT, tokensConfig.sources.components));

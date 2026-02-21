@@ -1,9 +1,12 @@
 # ColdLight Design System -- Master Plan
 
-> **@devpulse/coldlight** v0.3.0 (Updated 2026-02-16)
+> **@devpulse/coldlight** v0.3.0 (Updated 2026-02-21)
 > Schema-registry-driven design system, component library, and block composition engine.
-> Catalog-first architecture: typed contracts, Zod-validated boundaries, four runtime registries (recipes, blueprints, patterns, blocks).
-> Every UI entity -- primitive, surface, composition, page section -- exists only if registered against the catalog with a typed ID, a validated contract, and a declared recipe.
+> Taxonomy-first architecture: typed contracts, Zod-validated boundaries, four runtime registries (recipes, blueprints, patterns, blocks).
+> Contracts live WITH their implementations — `primitives/*/contract.ts` and `components/*/contract.ts` declare themselves into the taxonomy registry at build time.
+> Every UI entity — primitive, surface, composition, page section — exists only if its contract.ts is present with its implementation and registered in the taxonomy manifest.
+>
+> **ColdLight is a portable, multi-project, UI-driven design system** owned by the architect. Deployed across the architect's own projects and customer engagements. Config-first: `coldlight.config.ts` is project-specific. VPB reads config + manifest to present configuration UI.
 >
 > **ColdLight is the sole authority.** The human owner directs ColdLight. ColdLight directs all CSS, all components, all generation. No library, no tool, no AI agent overrides the owner's decisions. Configuration is the owner's instrument of control -- `coldlight.config.ts` declares what exists, what gets generated, and what gets enforced. Code serves the config. Config serves the owner.
 >
@@ -68,12 +71,12 @@ ColdLight owns ARIA by default. Components NEVER import `@melt-ui/svelte` direct
 ### Two Primitive Archetypes
 
 **Archetype A: ColdLight-Owned (DEFAULT)** (`ariaStateProvider: "coldlight"`)
-Component renders native HTML with ARIA set directly by ColdLight. No adapter. 2-folder parity enforced (catalog/kinds + primitives). **This is the default for ALL new primitives.** ColdLight owns ARIA, state, keyboard, focus via WAI-ARIA APG patterns. Only escalate to Archetype B when the ARIA/focus/keyboard complexity genuinely justifies adapter overhead (e.g., complex listbox virtualization, date picker calendars).
+Component renders native HTML with ARIA computed and applied in the `components/` layer. No adapter. Primitive layer is zero-ARIA — it only passes `aria-*` through via `...rest` spread. Component layer computes ARIA from state props and applies it. **This is the default for ALL new primitives.** ColdLight owns ARIA, state, keyboard, focus via WAI-ARIA APG patterns. Only escalate to Archetype B when the ARIA/focus/keyboard complexity genuinely justifies adapter overhead (e.g., complex listbox virtualization, date picker calendars).
 
 Examples: button, badge, skeleton, progress, alert, avatar, card, label, input, separator, textarea, spinner, visually-hidden, breadcrumb, aspect-ratio, checkbox, radio-group, toggle, switch, slider, accordion, collapsible, tabs, toolbar, scroll-area.
 
 **Archetype B: Adapter-Backed (EXCEPTION ONLY)** (`ariaStateProvider: "meltui"`)
-Uses Melt UI adapter through transport chain ONLY when the ARIA/focus/keyboard pattern is too complex for ColdLight to own directly. Must be justified in the contract with a comment explaining WHY adapter is needed. Root creates adapter + provides context via Symbol-keyed Svelte context. Sub-components consume from context. 3-folder parity enforced (catalog/kinds + api/adapters/meltui + primitives).
+Uses Melt UI adapter through transport chain ONLY when the ARIA/focus/keyboard pattern is too complex for ColdLight to own directly. Must be justified in `contract.ts` with a comment explaining WHY adapter is needed. Root creates adapter + provides context via Symbol-keyed Svelte context. Sub-components consume from context. `ariaStateProvider: "meltui"` in contract triggers scanner to verify adapter impl exists.
 
 **ColdLight is ALWAYS the public API regardless of archetype.** Users never import `@melt-ui/svelte`. The adapter is an internal implementation detail.
 
@@ -103,10 +106,18 @@ Examples (justified by ARIA complexity): dialog, alert-dialog, sheet, combobox, 
 
 | ColdLight is the SOLE CSS authority — zero hand-written CSS outside `design/` | **Locked** |
 | Zero colocated `.css` files — `.svelte` files consume ColdLight directly | **Locked** |
-| Catalog is the spine — declare in catalog FIRST, then build | **Locked** |
+| Taxonomy is the registry spine — contracts live WITH implementation, scanner registers at build time | **Locked** |
 | Schema-driven everything — Zod validates all contracts, tokens, props | **Locked** |
 | Style Dictionary v5 token pipeline (SD5 + DTCG 1.0) | **Locked** |
 | Research → sprint plan → execute — never touch code without a sprint | **Locked** |
+| Contracts live WITH implementation: `primitives/{name}/contract.ts`, `components/{name}/contract.ts` | **Locked 2026-02-21** |
+| Taxonomy = registry machinery only (scanner + Zod schema + runtime registry + manifest). NOT a contracts folder. | **Locked 2026-02-21** |
+| Three layers: `primitives/` (zero ARIA applied) → `components/` (ARIA computed+applied) → `ui/` (styled, project-specific) | **Locked 2026-02-21** |
+| `semantics/` is DELETED — split into `components/` (ARIA) + `ui/` (style) | **Locked 2026-02-21** |
+| `catalog/` folder DELETED — taxonomy is the registry | **Locked 2026-02-21** |
+| SD5 pipeline: `scripts/dev/design/sd/build.ts` — WORKING, zero warnings | **Locked 2026-02-21** |
+| Primitives: ARIA props pass through via `...rest`. NOT applied. NOT computed. Zero ARIA in primitives. | **Locked 2026-02-21** |
+| Components: compute ARIA from state props, apply to primitive. `pressed: boolean` → `aria-pressed={pressed}` | **Locked 2026-02-21** |
 
 ### Not Yet Locked
 
@@ -143,13 +154,13 @@ Examples (justified by ARIA complexity): dialog, alert-dialog, sheet, combobox, 
 12. **Manifest-generating** — catalog contracts + scanner produce `coldlight.manifest.json`. Runtime registry reads only the manifest. VPB reads the manifest for its palette.
 13. **No-code compiler patterns** — schema-driven generation, not manual CSS authoring. New tokens → rebuild → new CSS. New primitive → declare contract → scanner validates → manifest updates.
 
-### D. Catalog = The Spine
+### D. Taxonomy = The Registry Spine
 
-14. **Catalog is THE spine of ColdLight** — everything MUST be declared there first (contract-first). No primitive, no recipe, no semantic exists without a catalog entry.
-15. **Every primitive's existence, slots, states, ARIA requirements, keyboard maps** declared in `catalog/kinds/primitives/{kind}/contract.ts`.
-16. **Every semantic/recipe MUST reference a catalog kind.** Recipe `kind` field matches a catalog kind ID. Blueprint `kind` field matches. Block `kind` field matches.
-17. **Catalog enforcement by code** — Lefthook pre-commit + scanner blocks undeclared primitives. If it's not in catalog, it cannot be committed.
-18. **Patterns and schemas for adding anything new**: declare in catalog → write contract → create primitive → author recipe → compose semantic → register block. The 6-Stage Gate.
+14. **Taxonomy is THE registry spine of ColdLight** — scanner reads contracts FROM their implementations and registers them. No primitive, no recipe, no component exists without a `contract.ts` alongside its implementation.
+15. **Every primitive's contract lives at `primitives/{kind}/contract.ts`** — slots, states, ARIA requirements, keyboard maps declared there. Scanner globs this path. NOT in a separate taxonomy folder.
+16. **Every component's contract lives at `components/{kind}/contract.ts`** — props, variants, ARIA mapping, token usage declared there. Same scanner glob pattern.
+17. **Taxonomy enforcement by code** — Lefthook pre-commit + scanner validates all `contract.ts` files against Zod schemas (`taxonomy/schema/primitive.ts`, `taxonomy/schema/component.ts`). Fails build on: Zod failure, duplicate kind, `ariaStateProvider: "meltui"` without adapter impl.
+18. **Pattern for adding anything new**: write `primitives/{kind}/contract.ts` → write `primitives/{kind}/{Kind}.svelte` → write `components/{kind}/contract.ts` → write `components/{kind}/{Kind}.svelte` → scanner registers both → manifest updates → VPB palette updates. The 6-Stage Gate.
 
 ### E. Folder Structure — Hypermodular, Strict
 
@@ -189,15 +200,87 @@ Examples (justified by ARIA complexity): dialog, alert-dialog, sheet, combobox, 
 
 ```
 @devpulse/coldlight
-├── tokens/              # Layer 0: Design tokens (SSOT)
+│
+│  ┌─────────────────────────────────────────────────────────────┐
+│  │  LAYER 0: TOKEN FOUNDATION                                  │
+│  │  SD5 pipeline: scripts/dev/design/sd/build.ts (WORKING)    │
+│  └─────────────────────────────────────────────────────────────┘
+│
+├── tokens/              # Layer 0: Design tokens (SSOT — never edit generated files)
 │   ├── tokens.ts        # SSOT — Tier 1 global values (OKLCH)
 │   ├── semantic.ts      # Tier 2 semantic aliases
 │   ├── components.ts    # Tier 3 component-scoped tokens
 │   ├── schema.ts        # Zod validators for all 3 tiers
-│   ├── tokens.css       # GENERATED — CSS custom properties + @theme
-│   └── types.ts         # GENERATED — TypeScript types + runtime arrays
+│   ├── tokens.css       # GENERATED by SD5 — :root CSS custom properties
+│   ├── tailwind.css     # GENERATED by SD5 — @theme { --color-*: oklch(...); }
+│   ├── tailwind.preset.ts # GENERATED by SD5 — Tailwind v3 preset
+│   └── types.ts         # GENERATED by SD5 — TypeScript constants
 │
-├── molecules/           # Atomic CSS effects (token-driven)
+│  ┌─────────────────────────────────────────────────────────────┐
+│  │  LAYER 1: TAXONOMY (REGISTRY ONLY — no contracts housed)   │
+│  │  Scanner reads: primitives/*/contract.ts                    │
+│  │                 components/*/contract.ts                    │
+│  │  Scanner writes: taxonomy/.generated/manifest.json         │
+│  └─────────────────────────────────────────────────────────────┘
+│
+├── taxonomy/            # Registry machinery — NOT a contracts folder
+│   ├── schema/
+│   │   ├── primitive.ts # PrimitiveContractSchema (Zod) — validates all primitive contracts
+│   │   ├── component.ts # ComponentContractSchema (Zod) — validates all component contracts
+│   │   └── index.ts
+│   ├── scanner.ts       # BUILD TIME: globs primitives/*/contract.ts + components/*/contract.ts,
+│   │                    #   validates against schema, flags dupes, writes manifest
+│   ├── registry.ts      # RUNTIME: reads manifest.json, O(1) Map lookups
+│   ├── types.ts         # ColdLightManifest, ManifestKind, ScanResult
+│   ├── index.ts
+│   └── .generated/
+│       ├── manifest.json    # VPB source of truth — every component's full prop surface
+│       └── imports.gen.ts   # Import cloak for adapter abstraction
+│
+│  ┌─────────────────────────────────────────────────────────────┐
+│  │  LAYER 2: PRIMITIVES (STRUCTURELESS — contract travels here)│
+│  │  Zero ARIA applied. Zero style. Full prop spread.           │
+│  │  types.ts extends HTML element (aria-* passthrough only)    │
+│  └─────────────────────────────────────────────────────────────┘
+│
+├── primitives/          # Layer 2: Structureless HTML wrappers
+│   └── {kind}/          # kebab-case: button/, dialog/, tabs/
+│       ├── {Name}.svelte    # HTML element + data-kind + data-slot + full prop spread
+│       │                    # ZERO ARIA applied. aria-* pass through via ...rest ONLY.
+│       ├── contract.ts      # ← PRIMITIVE CONTRACT — scanner reads this, registers into manifest
+│       ├── types.ts         # Extends HTML element interface (aria-* passthrough)
+│       ├── context.ts       # Symbol-keyed context (compound primitives only)
+│       ├── {Name}.test.ts   # Vitest browser tests (MANDATORY)
+│       └── index.ts         # Barrel export
+│
+│  ┌─────────────────────────────────────────────────────────────┐
+│  │  LAYER 3: COMPONENTS (ARIA + STATE — wraps primitive)       │
+│  │  Zero visual style. Computes ARIA from state props.         │
+│  │  pressed:boolean → aria-pressed={pressed}                   │
+│  └─────────────────────────────────────────────────────────────┘
+│
+├── components/          # Layer 3: ARIA + state layer (no style)
+│   └── {kind}/          # Named folders matching primitive kind
+│       ├── {Name}.svelte    # Wraps primitive. Computes ARIA from state. Sets data-state.
+│       │                    # ZERO visual style.
+│       ├── contract.ts      # ← COMPONENT CONTRACT — scanner reads this, registers into manifest
+│       ├── types.ts         # Extends primitive props + visual props (intent, size)
+│       ├── {Name}.test.ts   # Vitest tests (MANDATORY)
+│       └── index.ts         # Barrel export
+│
+│  ┌─────────────────────────────────────────────────────────────┐
+│  │  LAYER 4: UI (STYLED — project-specific, not ColdLight core)│
+│  │  Wraps component. Applies recipe class strings.             │
+│  │  What THIS project imports. ColdLight core stops at layer 3.│
+│  └─────────────────────────────────────────────────────────────┘
+│
+├── ui/                  # Layer 4: Project-specific styled components
+│   └── {kind}/          # Wraps components/ layer + applies recipes
+│       ├── {Name}.svelte    # Wraps component, applies recipe classes
+│       ├── types.ts
+│       └── index.ts
+│
+├── molecules/           # Atomic CSS effects (token-driven @utility classes)
 │   ├── glass.css        # Glass morphism utilities
 │   ├── glow.css         # Glow shadow utilities
 │   ├── bevel.css        # Bevel inset shadow utilities
@@ -227,67 +310,34 @@ Examples (justified by ARIA complexity): dialog, alert-dialog, sheet, combobox, 
 ├── keyframes/           # Animation keyframes
 │   └── keyframes.css
 │
-├── catalog/             # Layer 1: SSOT contracts + registries
-│   ├── types.ts         # Core types (PrimitiveContract, SlotSpec, AriaRequirements)
-│   ├── kinds/           # Per-primitive contracts (40+)
-│   │   └── primitives/  # accordion/, button/, dialog/, etc.
-│   │       └── {kind}/
-│   │           ├── contract.ts
-│   │           ├── types.ts
-│   │           └── index.ts
-│   ├── vpb/             # Block kinds, contracts, slots for VPB
-│   │   ├── kinds.ts
-│   │   ├── contracts.ts
-│   │   └── slots.ts
-│   ├── registry.ts      # Runtime manifest reader
-│   ├── scanner.ts       # Build-time parity checker
-│   └── .generated/      # coldlight.manifest.json, imports.gen.ts
-│
-├── recipes/             # Layer 2: CSS appearance system
+├── recipes/             # CSS appearance system
 │   ├── index.ts         # Recipe registry (getRecipe, registerRecipe)
 │   ├── utils.ts         # Token→class mapping functions
 │   ├── components/      # Per-kind recipe definitions
-│   │   ├── panel/       # Panel recipes (glass.void, glass.deep, etc.)
-│   │   ├── dialog/      # Dialog recipes
-│   │   ├── combobox/    # Combobox recipes
-│   │   └── tabs/        # Tabs recipes
+│   │   ├── panel/
+│   │   ├── dialog/
+│   │   ├── combobox/
+│   │   └── tabs/
 │   └── actions/         # Svelte actions required by recipes
 │       ├── index.ts     # Action registry + applyRecipeActions
 │       ├── glowTrack.ts
 │       └── ripple.ts
 │
-├── blueprints/          # Layer 3: Composition defaults + slot wiring (TODO)
+├── blueprints/          # Composition defaults + slot wiring (TODO)
 │   └── index.ts         # Blueprint registry
-│
-├── primitives/          # Layer 4: Structural + behavioral wrappers (UNSTYLED)
-│   └── {kind}/          # kebab-case: button/, dialog/, tabs/
-│       ├── {Name}.svelte          # PascalCase component file
-│       ├── {Name}{Sub}.svelte     # Sub-components (compound)
-│       ├── types.ts               # Props interfaces
-│       ├── context.ts             # Symbol-keyed (if compound)
-│       ├── {Name}.test.ts         # Vitest browser tests (MANDATORY)
-│       ├── {Name}.test.svelte     # Test wrapper component
-│       └── index.ts               # Barrel export
-│
-├── semantics/           # Layer 5: Primitives + Recipes = Styled Semantics
-│   └── {kind}/          # Named folders matching catalog kind
-│       ├── {Name}.svelte          # Styled semantic (primitive + recipe)
-│       ├── types.ts               # Semantic props
-│       ├── {Name}.test.ts         # Vitest tests (MANDATORY)
-│       └── index.ts               # Barrel export
 │
 ├── patterns/            # Documentation-only (not runtime)
 │   ├── data/
 │   ├── forms/
 │   └── search/
 │
-├── blocks/              # Layer 6: VPB block schemas + renderers
+├── blocks/              # VPB block schemas + renderers
 │   ├── chat/
 │   ├── dashboards/
 │   ├── heroes/
 │   └── navigation/
 │
-├── api/                 # Provider adapter layer (EXCEPTION ONLY)
+├── api/                 # MeltUI adapter transport chain (EXCEPTION ONLY)
 │   └── adapters/
 │       └── meltui/
 │           └── _internal/  # Provider Internals (never public, exception-only)
@@ -307,7 +357,7 @@ Examples (justified by ARIA complexity): dialog, alert-dialog, sheet, combobox, 
 │
 ├── coldlight.config.ts  # Config orchestrator (imports all fragments)
 ├── surface.config.ts    # Surface design config
-├── index.ts             # Barrel export (re-exports catalog)
+├── index.ts             # Barrel export
 ├── index.css            # SSOT CSS entry point
 └── package.json
 ```
@@ -358,13 +408,17 @@ components.ts (Tier 3 scoped)
     │
     ├── schema.ts validates all 3 tiers at build time (Zod)
     │
-    └── ds-tokens-build.ts (reads coldlight.config.ts → tokens.cfg.ts) generates:
-        ├── tokens.json   (DTCG 1.0 interchange — consumed by SD5)
-        ├── tokens.css    (all 3 tiers as CSS custom properties + @theme block)
-        └── types.ts      (TypeScript types + runtime arrays)
+    └── scripts/dev/design/sd/build.ts  ← SD5 pipeline (WORKING — pnpm ds:tokens:build)
+        Hypermodular: preprocessors/, formats/, config.ts, build.ts
+        Generates:
+        ├── tokens.json       (DTCG 1.0 interchange)
+        ├── tokens.css        (:root { --token-name: value; })
+        ├── tailwind.css      (@theme { --color-*: oklch(...); })
+        ├── tailwind.preset.ts (Tailwind v3 preset)
+        └── types.ts          (TypeScript constants)
 ```
 
-**Config-driven:** `tokens.cfg.ts` declares source files, output paths, platform targets, CSS prefix rules, and Tailwind @theme mappings. The build script reads config — zero hardcoded paths or formats.
+**SD5 pipeline status: WORKING.** `pnpm ds:tokens:build` runs clean with zero warnings. All outputs verified. Command: `pnpm ds:tokens:build`. Script: `scripts/dev/design/sd/build.ts`.
 
 ### Current Token Format (String OKLCH)
 
@@ -453,11 +507,11 @@ export const SurfaceSchema = z.enum(SurfaceTokens);
 
 ---
 
-## Catalog System
+## Taxonomy System
 
 ### PrimitiveContract
 
-Every primitive is specified by a contract in `catalog/kinds/primitives/{kind}/contract.ts`. The contract declares:
+Every primitive is specified by a contract at `primitives/{kind}/contract.ts` — the contract lives WITH the implementation. The scanner reads this file, validates it against `taxonomy/schema/primitive.ts` (Zod), and registers the kind into the manifest. The contract declares:
 
 - **kind** -- literal identifier (`"dialog"`, `"button"`)
 - **ariaStateProvider** -- `"meltui"` or `"coldlight"`
@@ -477,11 +531,12 @@ Contracts are adapter-agnostic. They don't care which provider fulfills them.
 
 ### Scanner + Manifest
 
-Build-time scanner (`catalog/scanner.ts`) reads all contracts and validates parity:
-- Archetype A (coldlight): contract + primitive must exist (2-folder)
-- Archetype B (meltui): contract + adapter + primitive must exist (3-folder)
+Build-time scanner (`taxonomy/scanner.ts`) globs `primitives/*/contract.ts` + `components/*/contract.ts`, validates each against Zod schemas, flags duplicate kinds, and writes the manifest.
 
-Scanner outputs `catalog/.generated/coldlight.manifest.json`. Runtime registry (`catalog/registry.ts`) reads only this manifest -- no filesystem scanning at runtime.
+- `ariaStateProvider: "coldlight"` — validates primitive + component exist
+- `ariaStateProvider: "meltui"` — additionally validates MeltUI adapter impl exists
+
+Scanner outputs `taxonomy/.generated/manifest.json`. Runtime registry (`taxonomy/registry.ts`) reads only this manifest — no filesystem scanning at runtime. O(1) Map lookups.
 
 ### Data Attributes
 
@@ -871,10 +926,11 @@ VPB persists `BlockNode[]` trees. No theme values, no CSS, no classnames in stor
 ### Phase 0: Token Foundation (DONE)
 
 - [x] `tokens/tokens.ts` SSOT with real values
-- [x] `ds-tokens-build.ts` generator script
-- [x] `pnpm ds:tokens:build` and `pnpm ds:tokens:watch`
-- [x] Generate `tokens.css`, `types.ts`
+- [x] SD5 pipeline: `scripts/dev/design/sd/build.ts` (WORKING — supersedes old `ds-tokens-build.ts`)
+- [x] `pnpm ds:tokens:build` runs SD5, zero warnings
+- [x] Generate `tokens.css` (:root block), `tailwind.css` (@theme block), `tailwind.preset.ts`, `types.ts`, `tokens.json` (DTCG 1.0)
 - [x] `schema.ts` Zod validators for token enums
+- [ ] Verify recipe class names actually resolve in browser (token→Tailwind gap — remaining Phase 4 work)
 
 ### Phase 1: Biome + Tooling (DONE)
 
@@ -907,18 +963,20 @@ VPB persists `BlockNode[]` trees. No theme values, no CSS, no classnames in stor
 - [ ] `glowTrack.ts`, `ripple.ts` actions — not yet implemented
 - [ ] Expand recipes for all layout component needs
 
-### Phase 4: Token Bridge + SD5 Pipeline + 3-Tier Architecture (CURRENT PRIORITY)
+### Phase 4: Token Bridge + SD5 Pipeline + 3-Tier Architecture (PARTIAL — script DONE)
 
 > **THIS UNBLOCKS EVERYTHING.** Recipes produce class names that don't exist in @theme.
 
-- [ ] Fix `ds-tokens-build.ts` to emit proper Tailwind v4 @theme mappings (reads `tokens.cfg.ts`)
-- [ ] Generate `tokens.json` DTCG 1.0 interchange file (SD5 driven)
-- [ ] Create `tokens/semantic.ts` (Tier 2 semantic aliases)
-- [ ] Create `tokens/components.ts` (Tier 3 component-scoped)
+- [x] SD5 pipeline built: `scripts/dev/design/sd/build.ts` (hypermodular: preprocessors/, formats/, config.ts, build.ts)
+- [x] SD5 generates `tokens.json` DTCG 1.0, `tokens.css`, `tailwind.css` (@theme), `tailwind.preset.ts`, `types.ts`
+- [x] `pnpm ds:tokens:build` clean, zero warnings
+- [x] Old `ds-tokens-build.ts` DELETED
+- [ ] Create `tokens/semantic.ts` (Tier 2 semantic aliases) — NOT YET DONE
+- [ ] Create `tokens/components.ts` (Tier 3 component-scoped) — NOT YET DONE
 - [ ] Update `tokens/schema.ts` with Tier 2/3 validators + cross-tier reference validation
 - [ ] Unify dual @theme blocks (app.css + tokens.css → one @theme in tokens.css)
 - [ ] Strip app.css to fonts + base only
-- [ ] Verify recipe class names resolve (`bg-glass-void`, `shadow-z2`, etc.)
+- [ ] **VERIFY recipe class names resolve in browser** (`bg-glass-void`, `shadow-z2`, etc.) — token→Tailwind gap still unverified
 
 ### Phase 5: Delete ALL Colocated CSS — ColdLight Sole Authority
 
@@ -1013,19 +1071,19 @@ VPB persists `BlockNode[]` trees. No theme values, no CSS, no classnames in stor
 | Milestone | Done When |
 |-----------|-----------|
 | **Config Authority** | `coldlight.config.ts` is THE single import for all build tools, scanner, generator. All paths, adapters, generation flags read from config. Zero hardcoded values. |
-| **SD5 Pipeline** | `ds-tokens-build.ts` reads `tokens.cfg.ts`, generates `tokens.json` (DTCG 1.0) + `tokens.css` + `types.ts`. SD5 driven. |
+| **SD5 Pipeline** | `scripts/dev/design/sd/build.ts` runs via `pnpm ds:tokens:build`. Generates `tokens.json` (DTCG 1.0) + `tokens.css` + `tailwind.css` (@theme) + `tailwind.preset.ts` + `types.ts`. WORKING. |
 | **Token Bridge** | @theme emits correct Tailwind utility names, recipe classes resolve, components render |
 | **3-Tier Tokens** | semantic.ts + components.ts exist, Zod validates cross-tier refs, build enforces |
 | **Testing** | Every primitive has `{Name}.test.ts` with real Chromium tests. Every component has tests. Scanner flags missing test files. CI runs `pnpm test` with zero failures. |
-| **Semantic Folders** | `semantics/{kind}/` exists for every styled semantic. Each has `.svelte`, `types.ts`, `.test.ts`, `index.ts`. |
-| **ColdLight Ownership** | Default `ariaStateProvider` is `"coldlight"`. ColdLight owns ARIA via WAI-ARIA APG patterns. MeltUI adapter ONLY for justified exceptions. |
+| **Three Layers** | `primitives/{kind}/` (zero ARIA), `components/{kind}/` (ARIA applied), `ui/{kind}/` (styled). Every kind has all three. Each layer has `contract.ts`, `.svelte`, `types.ts`, `index.ts`, `.test.ts`. |
+| **ColdLight Ownership** | Default `ariaStateProvider` is `"coldlight"`. Primitives: zero ARIA applied, aria-* pass through via ...rest. Components: ARIA computed from state, applied to primitive. MeltUI adapter ONLY for justified exceptions (declared in contract.ts with comment). |
 | Molecules | All visual effects are token-driven @utility classes, zero raw oklch outside tokens.ts |
 | Variant Keys | `v-s1z2l0t2m0` renders correctly, encode/decode/split work, Zod validates |
 | SVG Filters | `<SvgFilters />` renders, `v-l3` shows bevel, reference image depth quality matched |
 | Layout Rebuild | All layouts use ColdLight primitives (Button, Tooltip, Command, Badge, Avatar) |
 | Visual Scaffold | Dashboard + chat pages approximate reference images using only ColdLight |
 | Enforcement | Violation scanner returns 0 hits, lefthook blocks raw values |
-| Catalog | Scanner clean, manifest regenerated, all 42+ contracts have parity |
+| Taxonomy | Scanner clean (`pnpm ds:scan`), manifest at `taxonomy/.generated/manifest.json` regenerated, all kinds have parity (primitives/{kind}/contract.ts + components/{kind}/contract.ts) |
 | Recipes | Registry populated, `applyRecipeActions` works, surface + component recipes authored |
 | Blueprints | Core block kinds have typed blueprints, VPB reads them |
 | Dark Variant | Full visual identity locked, all recipes produce correct output |
@@ -1038,22 +1096,28 @@ VPB persists `BlockNode[]` trees. No theme values, no CSS, no classnames in stor
 | File | Purpose |
 |------|---------|
 | `coldlight.config.ts` | **THE config orchestrator** — single import for ALL build tools (identity, roots, adapters, generation, enforcement, attributes, tokens) |
-| `catalog/types.ts` | Core types: PrimitiveContract, SlotSpec, AriaRequirements, ColdLightManifest |
-| `catalog/registry.ts` | Runtime manifest reader (getManifest, getPrimitive, hasPrimitiveKind) |
-| `catalog/scanner.ts` | Build-time parity checker |
+| `scripts/dev/design/sd/build.ts` | **SD5 token pipeline** — `pnpm ds:tokens:build` — generates all token outputs |
+| `taxonomy/schema/primitive.ts` | PrimitiveContractSchema (Zod) — validates ALL primitive contracts |
+| `taxonomy/schema/component.ts` | ComponentContractSchema (Zod) — validates ALL component contracts |
+| `taxonomy/scanner.ts` | BUILD TIME: globs `primitives/*/contract.ts` + `components/*/contract.ts`, validates, writes manifest |
+| `taxonomy/registry.ts` | RUNTIME: reads manifest.json, O(1) Map lookups |
+| `taxonomy/types.ts` | ColdLightManifest, ManifestKind, ScanResult |
+| `taxonomy/.generated/manifest.json` | VPB source of truth — every component's full prop surface |
+| `primitives/{kind}/contract.ts` | PRIMITIVE CONTRACT — lives with implementation, scanner reads here |
+| `components/{kind}/contract.ts` | COMPONENT CONTRACT — lives with implementation, scanner reads here |
 | `tokens/tokens.ts` | SSOT — Tier 1 global token values |
-| `tokens/semantic.ts` | Tier 2 semantic aliases (NEW) |
-| `tokens/components.ts` | Tier 3 component-scoped tokens (NEW) |
+| `tokens/semantic.ts` | Tier 2 semantic aliases |
+| `tokens/components.ts` | Tier 3 component-scoped tokens |
 | `tokens/schema.ts` | Zod token validators (all 3 tiers) |
-| `tokens/tokens.css` | GENERATED — CSS custom properties + @theme block |
+| `tokens/tokens.css` | GENERATED by SD5 — :root CSS custom properties |
+| `tokens/tailwind.css` | GENERATED by SD5 — @theme { --color-*: oklch(...); } |
 | `recipes/index.ts` | Recipe registry (getRecipe, registerRecipe) |
 | `recipes/utils.ts` | Token→class mapping functions |
-| `variants/variant-keys.ts` | Variant key encode/decode/split (NEW) |
-| `variants/variant-keys.css` | Variant key CSS utility classes (NEW) |
-| `svg/SvgFilters.svelte` | Hidden SVG filter definitions (NEW) |
+| `variants/variant-keys.ts` | Variant key encode/decode/split |
+| `variants/variant-keys.css` | Variant key CSS utility classes |
+| `svg/SvgFilters.svelte` | Hidden SVG filter definitions |
 | `molecules/*.css` | Atomic CSS effects (glass, glow, bevel, etc.) |
-| `primitives/types.ts` | Shared: cn(), stripStyleProp(), BaseProps, OmitStyle, DATA_ATTRS |
-| `index.ts` | Barrel: re-exports catalog |
+| `index.ts` | Barrel export |
 | `index.css` | CSS barrel: imports all design system CSS in order |
 
 ---
@@ -1078,15 +1142,36 @@ Zero `@melt-ui/svelte` imports outside `_internal/`. If you see a direct Melt im
 
 ## 6-Stage Gate (Before Any .svelte Renderer)
 
-1. **Stage 0 -- Naming + Intent:** Kind name exists, purpose documented, slots defined
-2. **Stage 1 -- Token Check:** Uses existing tokens, new tokens added to SSOT only, generator run
-3. **Stage 2 -- Catalog Contract:** Kind in `catalog/kinds/primitives/{kind}/contract.ts`, allowed recipes, prop schema, slot constraints
-4. **Stage 3 -- Recipe Authoring:** Recipe ID in registry, variants mapped to Tailwind classes (token-backed only)
-5. **Stage 4 -- VPB Registration:** Block in palette, default recipe + props, property UI config
-6. **Stage 5 -- Implementation:** Create `.svelte`, receives `{ recipe, props, slots }`, does NOT implement theming
+1. **Stage 0 — Naming + Intent:** Kind name exists, purpose documented, slots defined
+2. **Stage 1 — Token Check:** Uses existing tokens, new tokens added to SSOT only, `pnpm ds:tokens:build` run
+3. **Stage 2 — Primitive Contract:** `primitives/{kind}/contract.ts` written, satisfies `PrimitiveContractSchema`. `primitives/{kind}/{Kind}.svelte` written — zero ARIA applied, full prop spread, `data-kind`, `data-slot`.
+4. **Stage 3 — Component Contract:** `components/{kind}/contract.ts` written, satisfies `ComponentContractSchema`. `components/{kind}/{Kind}.svelte` written — wraps primitive, computes ARIA from state, zero visual style.
+5. **Stage 4 — Recipe Authoring:** Recipe ID in registry, variants mapped to Tailwind classes (token-backed only via @theme)
+6. **Stage 5 — VPB Registration:** Block in palette, default recipe + props, property UI config
+7. **Stage 6 — UI Layer:** `ui/{kind}/{Kind}.svelte` created — wraps component, applies recipe classes. Project-specific.
 
 If any stage fails: **STOP. Fix registry first.**
 
 ---
+
+---
+
+## SD5 CSS Rule (ABSOLUTE)
+
+**Nothing touches CSS directly. Everything goes through SD5.**
+
+```
+tokens.ts (SSOT) → SD5 pipeline → tokens.css + tailwind.css + types.ts
+                                        ↓               ↓
+                               :root { --token }    @theme { --color-* }
+                                        ↓               ↓
+                               var(--token-name)    bg-teal-500 (Tailwind utility)
+```
+
+- **Raw color values** exist ONLY in `tokens.ts`. Nowhere else.
+- **CSS custom properties** exist ONLY in `tokens.css` (SD5 generated). Never hand-authored.
+- **@theme** exists ONLY in `tailwind.css` (SD5 generated). Never hand-authored.
+- **Recipe class names** MUST map to tokens in @theme. No hardcoded values.
+- **Molecules** use ONLY `var(--token-name)` references. Zero raw values.
 
 **ColdLight is the public API. Users never see adapters.**

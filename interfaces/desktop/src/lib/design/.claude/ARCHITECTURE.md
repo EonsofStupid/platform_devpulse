@@ -1,123 +1,101 @@
 # ColdLight Architecture
 
-> **For AI agents working on ColdLight.**
+> See MASTER-PLAN.md for the authoritative reference. This file is a quick reference for AI agents.
 
 ---
 
-## Core Principle
+## The Spine: Taxonomy Declares. Implementations Satisfy.
 
-**Taxonomy is truth. Everything else is execution.**
+```
+taxonomy/kinds/{name}/
+  primitive/contract.ts    ← what the primitive IS (slots, ARIA surface, keyboard, states)
+  component/contract.ts    ← what the component EXPOSES (props, variants, ARIA mapping, token usage)
+  index.ts
 
----
+taxonomy/schema/
+  primitive.ts             ← PrimitiveContractSchema (Zod)
+  component.ts             ← ComponentContractSchema (Zod)
 
-## The Contract Chain
+taxonomy/scanner.ts        ← BUILD TIME: validates, flags dupes, generates manifest
+taxonomy/registry.ts       ← RUNTIME: reads manifest, O(1) lookups
+taxonomy/.generated/
+  manifest.json            ← VPB source of truth
+  imports.gen.ts           ← import cloak for adapter abstraction
+```
 
-`
-CONFIG (config/coldlight/adapters.cfg.ts)
-    dsAdapter: "meltui"
-           |
-           v
-TAXONOMY CONTRACT (taxonomy/kinds/primitives/{kind}/contract.ts)
-    SSOT - declares existence + requirements
-    ariaStateProvider: "meltui"
-           |
-     +-----+-----+
-     |           |
-     v           v
-PRIMITIVE       dsADAPTER IMPLEMENTATION
-primitives/     api/adapters/meltui/_internal/{kind}/
-{kind}/         factory.ts
-     |                |
-     v                v
-Structure       Behavior + ARIA
-+ State         (applied at block level)
-     |
-     v
-BLOCK (blocks/{category}/{Name}.svelte)
-    ARIA APPLIED HERE
-    This is the accessible component
-`
+Nothing exists in ColdLight unless declared in `taxonomy/kinds/{name}/`.
+Scanner fails the build if a declared kind has no implementation.
+Scanner fails the build if two kinds share a name.
 
 ---
 
-## Key Architectural Decisions
+## Three Implementation Layers
 
-### 1. One Contract Per Kind
+```
+primitives/{name}/         ← STRUCTURELESS
+  {Name}.svelte            ← HTML element + data-kind + data-slot + prop spread. ZERO ARIA. ZERO style.
+  types.ts                 ← extends HTML element interface (includes aria-* passthrough)
+  index.ts
 
-Location: `taxonomy/kinds/primitives/{kind}/contract.ts`
+components/{name}/         ← ARIA + STATE (no visual style)
+  {Name}.svelte            ← wraps primitive, computes ARIA from state, sets data-state
+  types.ts                 ← extends primitive props + visual props (intent, size)
+  index.ts
 
-This is the SSOT. It declares:
-- slots (required, optional, forbidden)
-- states (shared, specific)
-- slotStates mapping
-- ARIA requirements (role, attrs)
-- keyboard requirements
-- ariaStateProvider
-
-### 2. Contract Binding via Naming
-
-The taxonomy contract binds to:
-- `primitives/{kind}/` via folder name
-- `api/adapters/{dsAdapter}/_internal/{kind}/` via folder name + ariaStateProvider
-
-No separate adapter-kind contracts needed. Folder naming IS the binding.
-
-### 3. ARIA at Block Level
-
-Primitives do NOT have ARIA baked in.
-ARIA is applied at block render time.
-This enables context-aware accessibility.
-
-### 4. dsAdapter Abstraction
-
-MeltUI is the first dsAdapter.
-React ARIA will be next.
-Primitives never see the adapter directly.
-Import cloak provides abstraction.
+ui/{name}/                 ← PROJECT-SPECIFIC STYLED (this project only)
+  {Name}.svelte            ← wraps component, applies recipe classes
+  types.ts
+  index.ts
+```
 
 ---
 
-## Folder Ownership
+## Token Pipeline (SD5 — WORKING)
 
-| Folder | Contains | Editable? |
-|--------|----------|-----------|
-| taxonomy/ | ALL contracts | SSOT |
-| primitives/ | ColdLight components | Implementation |
-| api/adapters/ | Adapter code ONLY | Implementation |
-| blocks/ | Accessible units | Implementation |
-| .generated/ | Scanner output | NEVER EDIT |
+```
+tokens.ts / semantic.ts / components.ts  ← TypeScript SSOT (3 tiers)
+  ↓ (SD5 preprocessor via jiti)
+tokens.json                              ← DTCG 1.0
+  ↓ (Style Dictionary v5)
+tokens.css          ← :root { --token-name: value; }
+tailwind.css        ← @theme { --color-*: oklch(...); }
+tailwind.preset.ts  ← Tailwind v3 preset
+types.ts            ← TypeScript constants
+```
 
----
-
-## Scanner Validation
-
-Scanner checks:
-1. Every primitive has a taxonomy contract
-2. If ariaStateProvider = meltui, adapter folder exists
-3. Adapter factory.ts exists
-4. Adapter inventory includes the kind
+Command: `pnpm ds:tokens:build`
+Script: `scripts/dev/design/sd/build.ts`
 
 ---
 
-## When Adding a New Primitive
+## Adapter Rule
 
-1. Create `taxonomy/kinds/primitives/{kind}/contract.ts`
-2. Create `primitives/{kind}/` folder with components
-3. If ariaStateProvider = meltui:
-   - Verify kind in adapter inventory
-   - Create `api/adapters/meltui/_internal/{kind}/factory.ts`
-4. Run scanner to validate
+`ariaStateProvider: "coldlight"` — default. Component layer applies ARIA directly.
+`ariaStateProvider: "meltui"` — exception only, justified in contract comment. Adapter handles ARIA.
 
 ---
 
-## When Swapping Adapters
+## What Does NOT Belong
 
-1. Create `taxonomy/api/adapter/{newAdapter}/contract.ts`
-2. Create `api/adapters/{newAdapter}/_internal/` implementations
-3. Update `config/coldlight/adapters.cfg.ts`
-4. Primitives unchanged - they use import cloak
-5. Blocks unchanged - they compose primitives
+- No `.svelte` files in `taxonomy/`
+- No `catalog/` folder — deleted
+- No `taxonomy/kinds/primitives/{name}/` — wrong split (schema lives in `taxonomy/schema/`)
+- No `taxonomy/kinds/component/{name}/` — wrong split (same)
+- No inline styles anywhere
+- No hardcoded color/spacing values — use tokens
 
 ---
 
-**Follow the contract chain. Taxonomy is truth.**
+## ARIA Ownership
+
+Primitive: ZERO ARIA applied. Types include aria-* so they pass through.
+Component: computes ARIA from state props, applies to primitive spread.
+Example: `pressed: boolean` → `aria-pressed={pressed}` in component layer.
+
+---
+
+## VPB No-Code Compiler
+
+The manifest (`taxonomy/.generated/manifest.json`) is the VPB data source.
+It contains every component's full prop surface, token usage, and visual variants.
+VPB renders this as a node editor. AI context = manifest + current composition.

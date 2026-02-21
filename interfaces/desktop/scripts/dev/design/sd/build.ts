@@ -1,0 +1,28 @@
+/**
+ * @file scripts/dev/design/sd/build.ts
+ * @package @devpulse/coldlight
+ *
+ * SD5 token pipeline entry point.
+ *
+ * Usage: node scripts/dev/design/sd/build.ts
+ *
+ * Pipeline:
+ *   1. ts-to-dtcg.ts  — load TS token sources via jiti → DTCG JSON → tokens.json
+ *   2. config.ts      — register custom formats + build SD5 config
+ *   3. SD5            — buildAllPlatforms() → tokens.css, tailwind.css, types.ts, tailwind.preset.ts
+ */
+
+import StyleDictionary from "style-dictionary";
+import { dtcgPath, tokensConfig, jitiEnums, desktopRoot } from "./preprocessors/ts-to-dtcg.ts";
+import { buildConfig } from "./config.ts";
+
+const config = buildConfig(dtcgPath, tokensConfig, jitiEnums, desktopRoot);
+const sd = new StyleDictionary(config);
+
+await sd.buildAllPlatforms();
+
+console.log(`[SD5] CSS:   ${tokensConfig.platforms.css.output}`);
+console.log(`[SD5] Theme: ${tokensConfig.platforms.tailwindCss.output}`);
+console.log(`[SD5] TS:    ${tokensConfig.platforms.ts.output}`);
+console.log(`[SD5] TW:    ${tokensConfig.platforms.tailwind.output}`);
+console.log(`[SD5] DTCG:  ${tokensConfig.dtcg.output}`);

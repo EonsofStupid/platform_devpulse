@@ -10,9 +10,13 @@
  * @since 1.0.0
  */
 
-/* 1. Tokens - CSS custom properties (SSOT values via @theme in tokens.css) */
+/* 1. Tokens - CSS custom properties (:root block — all tiers) */
+@import "./tokens/tokens.css";
 
-/* 2. Molecules - Composable visual effects using shadow layering */
+/* 2. Tailwind v4 @theme — maps tokens to Tailwind utility namespaces */
+@import "./tokens/tailwind.css";
+
+/* 3. Molecules - Composable visual effects using shadow layering */
 @import "./molecules/glass.css";
 @import "./molecules/glow.css";
 @import "./molecules/bevel.css";
