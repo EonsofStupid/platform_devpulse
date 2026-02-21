@@ -9,7 +9,7 @@
  * Powers contract validation, primitive generation, component ARIA.
  */
 
-import type { StateToken, SlotStateMap } from "../types.js";
+import type { StateToken, SlotStateMap } from "../../primitives/types.js";
 
 // ─── SLOT TYPES ─────────────────────────────────────────────────────────────
 

@@ -20,7 +20,6 @@
 		"headers:check": "node scripts/dev/inject-headers.ts check",
 		"headers:inject": "node scripts/dev/inject-headers.ts inject",
 		"ds:tokens:build": "node scripts/dev/design/ds-tokens-build.ts",
-		"ds:tokens:build:sd5": "node scripts/dev/design/ds-tokens-sd5.ts",
 		"ds:tokens:watch": "node --watch scripts/dev/design/ds-tokens-build.ts",
 		"audit:primitives": "node scripts/dev/design/audit-primitives.ts",
 		"audit:primitives:json": "node scripts/dev/design/audit-primitives.ts --json",

@@ -1,15 +1,16 @@
 {
   "mcpServers": {
-    "surrealdb-banter": {
-      "command": "uvx",
-      "args": ["surreal-mcp"],
-      "env": {
-        "SURREAL_URL": "ws://localhost:8000/rpc",
-        "SURREAL_USER": "root",
-        "SURREAL_PASSWORD": "root",
-        "SURREAL_NAMESPACE": "banter",
-        "SURREAL_DATABASE": "sessions"
-      }
+    "surrealdb": {
+      "command": "docker",
+      "args": [
+        "run", "--rm", "-i",
+        "-e", "SURREALDB_URL=ws://host.docker.internal:8000/rpc",
+        "-e", "SURREALDB_NS=projects",
+        "-e", "SURREALDB_DB=devpulse",
+        "-e", "SURREALDB_USER=root",
+        "-e", "SURREALDB_PASS=root",
+        "ghcr.io/surrealdb/surrealmcp:latest"
+      ]
     },
     "context7": {
       "command": "npx.cmd",

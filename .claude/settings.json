@@ -29,7 +29,8 @@
       "Bash(git show:*)",
       "Bash(ls:*)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "WebFetch(domain:v2.tauri.app)"
+      "WebFetch(domain:v2.tauri.app)",
+      "Bash(find:*)"
     ],
     "deny": [
       "Bash(rm -rf /*)",

@@ -3,6 +3,16 @@
 > **Goal:** Get SurrealDB v3 running on the dev machine with proper namespace architecture, seeded with all project knowledge, and connected to Claude via MCP.
 > **Priority:** HIGH — unblocks persistent AI memory across sessions
 > **Prerequisites:** SurrealDB v3.0.0 installed (DONE — C:\Program Files\SurrealDB\surreal.exe)
+>
+> **Research**: See [`SPRINT-SURREALDB-STANDALONE.research.md`](SPRINT-SURREALDB-STANDALONE.research.md)
+>
+> **Current State (2026-02-19)**:
+> - Server: NOT running. Needs restart at canonical path.
+> - Schemas: NOT seeded. 6 files exist, none applied yet.
+> - MCP: WRONG namespace (`banter/sessions`), WRONG tool (`uvx surreal-mcp` → unofficial).
+> - Hooks: `~/.claude/hooks/` does NOT exist. Zero context persistence.
+> - Canonical path: `D:\localdev\.surrealdb\data` with `surrealkv://` backend.
+> - Drift issue: `start-surrealdb.cmd` (root) points to `data/devpulse.db` (rocksdb). Consolidate.
 
 ---
 

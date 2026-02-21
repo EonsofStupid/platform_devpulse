@@ -17,4 +17,4 @@ export * from "./contract.js";
 // PER-KIND CONTRACTS
 // ============================================
 
-export * from "./button/index.js";
+export * from "../component/button/index.js";
