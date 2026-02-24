@@ -1,10 +1,19 @@
 <!--
 	@component ButtonRoot
-	@description Structureless button — semantic HTML element with data attributes.
+	@file primitives/button/Button.svelte
+	@kind button
+	@layer primitives
+	@package @devpulse/coldlight
+
+	Structureless button primitive — semantic HTML element with data attributes only.
 	Contract: kind="button", slot="root"
 
 	Zero ARIA. Zero behavior. Zero styling.
-	Component layer adds ARIA, state, and recipes.
+	- ARIA applied by:    components/button/Button.svelte
+	- Styling applied by: recipe class string from component layer
+	- Contract declared:  primitives/button/contract.ts (locked 2026-02-21)
+
+	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/button/
 -->
 <script lang="ts">
 	import type { ButtonRootProps } from "./types.js";

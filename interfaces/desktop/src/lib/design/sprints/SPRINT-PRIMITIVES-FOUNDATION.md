@@ -1,204 +1,184 @@
 # Sprint: Primitives Foundation
 
 **Created**: 2026-02-20
+**Updated**: 2026-02-21
 **Research**: [SPRINT-PRIMITIVES-FOUNDATION.research.md](./SPRINT-PRIMITIVES-FOUNDATION.research.md)
 **Priority**: CRITICAL — Nothing renders without this
-**Status**: READY TO EXECUTE
+**Status**: IN PROGRESS
 
 ---
 
-## Goal
+## Architecture (LOCKED 2026-02-21)
 
-Three things broken. Fix them in order. Nothing else.
+Three layers. Contracts travel WITH implementations. Taxonomy = registry only.
 
-1. SD5 is not the default token pipeline — fix it
-2. No primitive `.svelte` files exist — build button as gold standard
-3. MASTER-PLAN does not reflect real state or real purpose — reauthor it
+```
+primitives/{kind}/
+  contract.ts       ← SSOT. Scanner reads this. Lives with implementation.
+  {Name}.svelte     ← Zero ARIA. Zero styling. data-kind + data-slot + spread only.
+  types.ts          ← ButtonSlot, ButtonState, ButtonRootProps
+  index.ts          ← barrel: ButtonRoot + contract + types
+  {Name}.test.ts    ← Tests stored WITH the code (Vitest browser/Chromium)
+
+components/{kind}/
+  contract.ts       ← Component contract (ARIA + recipe declarations)
+  {Name}.svelte     ← Wraps primitive. Applies ARIA + data-state + recipe class.
+  types.ts          ← ComponentProps
+  recipe.ts         ← cva recipe
+  index.ts          ← barrel
+
+taxonomy/
+  kinds/primitives/ ← Zod schema (PrimitiveContractSchema) + scanner types
+  scanner.ts        ← Scans primitives/*/contract.ts, validates, generates manifest
+  types.ts          ← Runtime type registry
+```
+
+**What taxonomy/ is NOT:**
+- NOT a contracts folder
+- NOT a components folder
+- taxonomy/button/ was WRONG — deleted 2026-02-21
 
 ---
 
-## Prerequisites
+## Completed
 
-- [x] `style-dictionary@5.3.1` installed
-- [x] `ds-tokens-sd5.ts` exists and runs correctly
-- [x] `taxonomy/kinds/primitives/contract.ts` — PrimitiveContractSchema solid
-- [x] `config/coldlight/vocabularies.cfg.ts` — all vocabulary constants solid
-- [x] `taxonomy/button/` — files exist but in wrong location
+### ✅ MASTER-PLAN.md Updated (2026-02-21)
+- Architecture diagram reflects 3-layer structure
+- Taxonomy = registry ONLY (not contracts folder)
+- SD5 pipeline documented
+- Locked decisions table current
+
+### ✅ Button Primitive — Gold Standard (2026-02-21)
+
+**`primitives/button/contract.ts`** — WRITTEN
+- Correct location (with implementation, not taxonomy)
+- Satisfies `PrimitiveContract<"button", ButtonSlot, ButtonState>`
+- Proper JSDoc header with WAI-ARIA APG reference
+
+**`primitives/button/types.ts`** — UPDATED
+- ButtonSlot, ButtonState vocabulary exported
+- buttonSlots, buttonStateTokens, buttonSlotStates constants
+- ButtonRootProps (structural HTML props)
+- Proper JSDoc header
+
+**`primitives/button/index.ts`** — UPDATED
+- Exports: ButtonRoot + contract + buttonSlots + buttonStateTokens + buttonSlotStates + types
+- Correct comment: "Contract lives HERE — with the implementation"
+
+**`primitives/button/Button.svelte`** — UPDATED
+- Proper JSDoc header with @file, @kind, @layer, @package
+- Zero ARIA. Zero behavior. Zero styling (unchanged, correct)
+
+**`primitives/button/Button.test.ts`** — CREATED
+- Stored WITH the code (not in a separate test folder)
+- Contract integrity tests
+- Structural attribute tests (data-kind, data-slot)
+- Zero ARIA enforcement tests
+- Prop passthrough tests
+
+**`taxonomy/button/`** — DELETED
+- Entire folder removed (wrong location)
+- 4 files: Button.svelte, contract.ts, index.ts, types.ts — all gone
 
 ---
 
-## Phase A: Wire SD5 as Default Pipeline
+## Pending
 
-### A1. Switch `ds:tokens:build` to SD5 script
+### Phase A: Wire SD5 as Default Pipeline
+
+**Status**: NEEDS VERIFICATION
+
+#### A1. Verify `ds:tokens:build` points to SD5 script
 
 **File**: `interfaces/desktop/package.json`
 
-Change:
-```json
-"ds:tokens:build": "node scripts/dev/design/ds-tokens-build.ts",
-"ds:tokens:build:sd5": "node scripts/dev/design/ds-tokens-sd5.ts",
-"ds:tokens:watch": "node --watch scripts/dev/design/ds-tokens-build.ts",
-```
-
-To:
+Must be:
 ```json
 "ds:tokens:build": "node scripts/dev/design/ds-tokens-sd5.ts",
-"ds:tokens:watch": "node --watch scripts/dev/design/ds-tokens-sd5.ts",
+"ds:tokens:watch": "node --watch scripts/dev/design/ds-tokens-sd5.ts"
 ```
 
-Remove `ds:tokens:build:sd5` — it IS now `ds:tokens:build`.
+Run:
+```bash
+cd interfaces/desktop && pnpm ds:tokens:build
+```
 
-### A2. Delete old hand-rolled script
+Must output `[SD5]` prefix on all generated file lines.
 
-Delete: `scripts/dev/design/ds-tokens-build.ts`
+#### A2. Delete old hand-rolled script (if it still exists)
 
-### A3. Run and verify
+Check: `scripts/dev/design/ds-tokens-build.ts`
+If exists → delete it.
+
+---
+
+### Phase B: Update Scanner to Read Correct Paths
+
+**Status**: NOT STARTED
+
+The scanner at `taxonomy/scanner.ts` currently scans `taxonomy/kinds/primitives/` for contract folders.
+Per locked decisions, contracts are at `primitives/*/contract.ts`.
+
+#### B1. Update `taxonomy/scanner.ts` path resolution
+
+`resolvePaths()` must point `clPrimitives` at the `primitives/` root.
+Scanner globs `primitives/*/contract.ts` not `taxonomy/kinds/primitives/*/contract.ts`.
+
+#### B2. Update scanner contract loader
+
+`loadContract()` must resolve:
+```ts
+const contractPath = `${primitivesRoot}/${kind}/contract.js`;
+```
+
+#### B3. Verify scan result against button
+
+Run scanner with button. Must load `primitives/button/contract.ts`, validate, emit manifest entry.
+
+---
+
+### Phase C: Run svelte-check
+
+**Status**: NOT STARTED
 
 ```bash
-pnpm ds:tokens:build
+cd interfaces/desktop && pnpm svelte-check
 ```
 
-Must output:
-```
-[SD5] Generated CSS:  src/lib/design/tokens/tokens.css
-[SD5] Generated TS:   src/lib/design/tokens/types.ts
-[SD5] Generated TW:   src/lib/design/tokens/tailwind.preset.ts
-[SD5] Generated DTCG: src/lib/design/tokens/tokens.json
-```
+Zero errors on:
+- `primitives/button/Button.svelte`
+- `primitives/button/contract.ts`
+- `primitives/button/types.ts`
+- `components/button/Button.svelte`
 
 ---
 
-## Phase B: Fix Taxonomy Folder Location
+### Phase D: Run Button Tests
 
-### B1. Move button files to correct location
-
-`taxonomy/button/` → `taxonomy/kinds/button/`
-
-Files to move:
-- `contract.ts`
-- `Button.svelte`
-- `types.ts`
-- `index.ts`
-
-### B2. Delete old `taxonomy/kinds/component/button/`
-
-This split folder is replaced by the unified `taxonomy/kinds/button/`.
-
-### B3. Verify `taxonomy/kinds/button/` structure
-
-```
-taxonomy/kinds/button/
-  contract.ts       ✓
-  Button.svelte     ✓
-  types.ts          ✓
-  index.ts          ✓
-```
-
----
-
-## Phase C: Button as Gold Standard
-
-### C1. Verify Button.svelte is correct
-
-```svelte
-<script lang="ts">
-  import type { ButtonProps } from "./types.js";
-  let { disabled, loading, pressed, type = "button", ... }: ButtonProps = $props();
-  const state = $derived(disabled ? "disabled" : loading ? "loading" : pressed === true ? "pressed" : undefined);
-</script>
-
-<button
-  {type} {disabled}
-  aria-pressed={pressed}
-  aria-busy={loading || undefined}
-  aria-disabled={disabled || undefined}
-  data-kind="button"
-  data-slot="root"
-  data-state={state}
-  class={className}
-  {onclick}
-  {...rest}
->
-  {@render children?.()}
-</button>
-```
-
-### C2. Verify contract.ts satisfies PrimitiveContractSchema
-
-Run scanner or manually verify contract passes `parseContract()`.
-
-### C3. Run svelte-check
+**Status**: NOT STARTED
 
 ```bash
-pnpm check
+cd interfaces/desktop && pnpm vitest run src/lib/design/primitives/button/Button.test.ts
 ```
 
-Zero errors on button files.
-
----
-
-## Phase D: Reauthor MASTER-PLAN.md
-
-### D1. Update purpose statement
-
-Add to opening block:
-
-> ColdLight is a **portable, multi-project, UI-driven design system** owned by the architect.
-> Deployed across the architect's own projects and customer engagements.
-> Config-first: `coldlight.config.ts` is project-specific. VPB reads config + manifest to present configuration UI.
-
-### D2. Fix architecture diagram
-
-Replace `catalog/` with `taxonomy/` throughout.
-
-Update primitive folder from:
-```
-catalog/kinds/primitives/{kind}/
-```
-To:
-```
-taxonomy/kinds/{name}/
-```
-
-### D3. Fix Implementation Phases
-
-Mark accurate current state:
-- Phase 0 (Tokens): PARTIAL — SD5 script exists but not wired as default
-- Phase 2 (Catalog/Taxonomy): PARTIAL — schemas exist, zero .svelte files
-- All other phases: NOT STARTED
-
-### D4. Add Primitive Pattern section
-
-Document the gold standard:
-- `taxonomy/kinds/{name}/` is home
-- `contract.ts` = PrimitiveContract data
-- `{Name}.svelte` = HTML + ARIA + data attributes + empty class prop
-- `types.ts` = Props interface
-- `index.ts` = barrel
-
----
-
-## Verification
-
-After each phase:
-
-```bash
-pnpm ds:tokens:build    # Phase A — must use SD5
-pnpm check              # Phase C — zero errors
-```
+All tests green.
 
 ---
 
 ## Acceptance Criteria
 
-| Criteria | Verified By |
-|----------|-------------|
-| `pnpm ds:tokens:build` runs SD5 | Output shows `[SD5]` prefix |
-| Old `ds-tokens-build.ts` deleted | File does not exist |
-| `taxonomy/kinds/button/` has all 4 files | `ls taxonomy/kinds/button/` |
-| `pnpm check` passes on button files | Zero errors |
-| MASTER-PLAN states portable/multi-project | First paragraph updated |
-| MASTER-PLAN folder names match codebase | `taxonomy/` not `catalog/` |
+| Criteria | Status |
+|----------|--------|
+| `primitives/button/contract.ts` exists with proper JSDoc | ✅ DONE |
+| `primitives/button/types.ts` has ButtonSlot, ButtonState | ✅ DONE |
+| `primitives/button/index.ts` exports contract | ✅ DONE |
+| `primitives/button/Button.test.ts` exists alongside Button.svelte | ✅ DONE |
+| `taxonomy/button/` deleted | ✅ DONE |
+| MASTER-PLAN.md reflects locked decisions | ✅ DONE |
+| `pnpm ds:tokens:build` runs SD5 | ⏳ VERIFY |
+| `pnpm svelte-check` zero errors on button | ⏳ PENDING |
+| `pnpm vitest run` button tests green | ⏳ PENDING |
+| Scanner reads `primitives/*/contract.ts` | ⏳ PENDING |
 
 ---
 
@@ -206,6 +186,5 @@ pnpm check              # Phase C — zero errors
 
 - All other primitives (after button is gold standard, repeat the pattern)
 - VPB implementation
-- Component (styled) layer
 - Recipe system changes
-- Test files (after pattern proven)
+- MeltUI adapter primitives (dialog, tabs, etc.) — separate sprint

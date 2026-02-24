@@ -1,16 +1,20 @@
 /**
- * @file taxonomy/button/contract.ts
+ * @file primitives/button/contract.ts
+ * @kind button
+ * @layer primitives
  * @package @devpulse/coldlight
  *
- * Button PrimitiveContract — the SSOT declaration for what the button primitive is.
+ * Button PrimitiveContract — SSOT declaration for the button primitive.
+ * Lives WITH the implementation per ColdLight architecture (locked 2026-02-21).
  *
- * ariaStateProvider: "coldlight" — ColdLight owns ARIA directly.
- * No adapter. Native <button> semantics. WAI-ARIA APG: Button Pattern.
+ * ariaStateProvider: "coldlight"
+ *   ColdLight owns ARIA directly. No adapter. Native <button> semantics.
+ *   2-folder parity enforced by scanner: taxonomy/kinds/primitives/button/ + primitives/button/
  *
- * Reference: https://www.w3.org/WAI/ARIA/apg/patterns/button/
+ * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/button/
  */
 
-import type { PrimitiveContract } from "../kinds/primitives/types.js";
+import type { PrimitiveContract } from "../../taxonomy/kinds/primitives/types.js";
 import type { ButtonSlot, ButtonState } from "./types.js";
 
 export const contract = {
@@ -74,16 +78,10 @@ export const contract = {
 	aria: {
 		role: "button",
 		requiredAttrs: [],
-		optionalAttrs: [
-			"aria-label",
-			"aria-describedby",
-			"aria-pressed",
-			"aria-disabled",
-			"aria-busy",
-		],
+		optionalAttrs: ["aria-label", "aria-describedby", "aria-pressed", "aria-disabled", "aria-busy"],
 	},
 
-	// ─── Keyboard (WAI-ARIA APG: Button) ─────────────────────────────────────
+	// ─── Keyboard (WAI-ARIA APG: Button) ──────────────────────────────────────
 	// Enter: activates the button
 	// Space: activates the button
 	keyboard: ["Enter", "Space"],

@@ -5,4 +5,3 @@
 
 export { buttonSlots, buttonStateTokens, buttonSlotStates } from "./types.js";
 export type { ButtonSlot, ButtonState } from "./types.js";
-export { contract } from "./contract.js";
