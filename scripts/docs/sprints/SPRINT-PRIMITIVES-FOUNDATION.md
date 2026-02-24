@@ -80,13 +80,63 @@ taxonomy/
 - Entire folder removed (wrong location)
 - 4 files: Button.svelte, contract.ts, index.ts, types.ts — all gone
 
+### ✅ Config Type System — SD5 Aligned (2026-02-24)
+
+**Sprint 1: Config Type System Fix** — Commit `a46018e`
+
+**DELETED — Tailwind v3 dead code:**
+- `scripts/dev/design/sd/formats/tailwind-preset.ts` — v3 format, dead code
+- `src/lib/design/tokens/tailwind.preset.ts` — v3 output, dead code
+
+**REWRITTEN — `config/coldlight/types.ts`:**
+- Deleted fabricated types: `TokenPlatformCss`, `TokenPlatformTs`, `TokenPlatformTailwind`
+- New: `TokenPlatform = Readonly<{ enabled: boolean; output: string }>`
+- New: `ThemeMapping = Readonly<{ namespace: string; prefix: string | null }>`
+- 3 platforms: `css`, `theme`, `types` (renamed from css/tailwindCss/ts)
+- `themeMappings` at top level (moved from nested inside css)
+- Removed phantom `prefixes` property
+
+**REWRITTEN — `config/coldlight/tokens.cfg.ts`:**
+- Renamed platforms: `tailwindCss` → `theme`, `ts` → `types`
+- Deleted `tailwind` (v3 preset) platform
+- Moved `tailwindTheme.mappings` to top-level `themeMappings`
+
+**REWRITTEN — SD5 build scripts:**
+- `scripts/dev/design/sd/config.ts` — new platform names, removed v3 preset
+- `scripts/dev/design/sd/build.ts` — new log lines
+- `scripts/dev/design/sd/preprocessors/ts-to-dtcg.ts` — new tokensConfig type
+- `scripts/dev/design/sd/formats/tailwind-theme.ts` — updated JSDoc
+
+### ✅ Compilation Errors Fixed to Zero (2026-02-24)
+
+**Sprint 2: Fix All Errors** — Commit `a46018e`
+
+**Vocabulary gaps fixed — `vocabularies.cfg.ts`:**
+- Added to `ARIA_ROLES`: `"form"`, `"heading"`, `"list"`, `"listitem"`
+- Added to `SLOT_ACTIONS`: `"clear"`
+
+**Type inference fixed — `components/_schema/contract.ts`:**
+- `deriveSlotContract()` — removed explicit `string` annotations on map callbacks
+- Let TypeScript infer `AriaAttribute` and `KeyboardKey` from Zod-inferred types
+- 4 errors → 0
+
+**VPB references cleaned — VPB pending rebuild:**
+- `src/lib/sys/debug/index.ts` — removed VPB imports
+- `src/routes/(app)/+layout.svelte` — removed VPB import and component
+
+**Result: 0 errors, 55 warnings** (16 → 0)
+
+### ✅ Phase C: Run svelte-check (2026-02-24)
+
+**Status**: DONE — 0 errors across ALL files (not just button)
+
 ---
 
 ## Pending
 
 ### Phase A: Wire SD5 as Default Pipeline
 
-**Status**: NEEDS VERIFICATION
+**Status**: NEEDS VERIFICATION — Sprint 3
 
 #### A1. Verify `ds:tokens:build` points to SD5 script
 
@@ -176,7 +226,7 @@ All tests green.
 | `taxonomy/button/` deleted | ✅ DONE |
 | MASTER-PLAN.md reflects locked decisions | ✅ DONE |
 | `pnpm ds:tokens:build` runs SD5 | ⏳ VERIFY |
-| `pnpm svelte-check` zero errors on button | ⏳ PENDING |
+| `pnpm svelte-check` zero errors on button | ✅ DONE (0 errors across ALL files) |
 | `pnpm vitest run` button tests green | ⏳ PENDING |
 | Scanner reads `primitives/*/contract.ts` | ⏳ PENDING |
 
