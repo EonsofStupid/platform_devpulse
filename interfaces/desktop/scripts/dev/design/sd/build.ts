@@ -13,8 +13,8 @@
  */
 
 import StyleDictionary from "style-dictionary";
-import { dtcgPath, tokensConfig, jitiEnums, desktopRoot } from "./preprocessors/ts-to-dtcg.ts";
-import { buildConfig } from "./config.ts";
+import { dtcgPath, tokensConfig, jitiEnums, desktopRoot } from "./preprocessors/ts-to-dtcg.js";
+import { buildConfig } from "./config.js";
 
 const config = buildConfig(dtcgPath, tokensConfig, jitiEnums, desktopRoot);
 const sd = new StyleDictionary(config);

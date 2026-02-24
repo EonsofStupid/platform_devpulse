@@ -13,10 +13,12 @@ import type {
 	AriaRequirements,
 	AriaStateProvider,
 	DismissBehavior,
+	DsAdapterId,
 	FocusStrategy,
 	KeyboardKey,
 	Orientation,
 	ScanErrorCode,
+	SlotAction,
 	SlotSpec,
 	StateToken,
 } from "./primitives/_schema/types.js";

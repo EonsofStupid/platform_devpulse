@@ -56,6 +56,7 @@ export const ARIA_ROLES = [
 	"navigation",
 	"note",
 	"region",
+	"search",
 	"status",
 	"timer",
 	// Presentation
@@ -208,6 +209,7 @@ export const SLOT_ACTIONS = [
 	"submit",
 	"reset",
 	"dismiss",
+	"filter",
 ] as const;
 
 // =============================================================================
@@ -277,6 +279,10 @@ export const HTML_ELEMENTS = [
 	"details",
 	"summary",
 	"dialog",
+	// Inline semantic
+	"code",
+	"kbd",
+	"pre",
 	// Virtual (no DOM element)
 	"fragment",
 ] as const;

@@ -1,79 +1,362 @@
 /**
- * @file ColdLight Runtime Registry
+ * @file ColdLight Reactive Registry
  * @package @devpulse/coldlight
  *
- * Runtime registry that reads ONLY from the generated manifest.
- * NO filesystem scanning. NO taxonomy imports.
+ * Svelte 5 rune-based registry. Loads ALL colocated contracts at import time.
+ * Validates via Zod. Tracks status. Observable by VPB.
  *
- * Build step writes: .generated/coldlight.manifest.json
- * This file reads it at runtime.
+ * The registry IS the runtime view of all primitives.
+ * Scanner generates the manifest JSON. This registry provides the live API.
+ *
+ * Pattern: Config → Contracts → Registry (reactive rune) → VPB observable
  */
 
-// Import the generated manifest (committed to git)
-import manifestJson from "./.generated/coldlight.manifest.json";
-import type { ColdLightManifest, ManifestPrimitive } from "./scanner.types.js";
+import { coldlightConfig } from "./coldlight.config.js";
+
+// ─── Import ALL contracts ────────────────────────────────────────────────────
+
+import {
+	buttonContract,
+	checkboxContract,
+	switchContract,
+	labelContract,
+	inputContract,
+	textareaContract,
+	formFieldContract,
+	formContract,
+	badgeContract,
+	alertContract,
+	spinnerContract,
+	inlineMessageContract,
+	skipLinkContract,
+	boxContract,
+	flexContract,
+	stackContract,
+	hstackContract,
+	gridContract,
+	containerContract,
+	textContract,
+	headingContract,
+	// Melt-backed
+	accordionContract,
+	dialogContract,
+	tabsContract,
+	comboboxContract,
+	selectContract,
+	popoverContract,
+	tooltipContract,
+	toggleContract,
+	progressContract,
+	radioGroupContract,
+	collapsibleContract,
+	avatarContract,
+	sliderContract,
+	fileUploadContract,
+	pinInputContract,
+	toasterContract,
+	treeContract,
+	// P1
+	separatorContract,
+	toggleGroupContract,
+	toolbarContract,
+	breadcrumbContract,
+	navContract,
+	navItemContract,
+	centerContract,
+	spacerContract,
+	dividerContract,
+	skeletonContract,
+	statContract,
+	codeContract,
+	listContract,
+	descriptionListContract,
+	bannerContract,
+	calloutContract,
+	inputGroupContract,
+	numberInputContract,
+	searchInputContract,
+	stepsContract,
+	sheetContract,
+	// P1-P3 Melt-backed
+	alertDialogContract,
+	dropdownMenuContract,
+	contextMenuContract,
+	menubarContract,
+	tagsInputContract,
+	linkPreviewContract,
+	paginationContract,
+	calendarContract,
+	dateFieldContract,
+	datePickerContract,
+	dateRangeFieldContract,
+	dateRangePickerContract,
+	rangeCalendarContract,
+	commandPaletteContract,
+	// P1-P3 ColdLight-owned
+	scrollAreaContract,
+	tableOfContentsContract,
+	cardContract,
+	tableContract,
+	dataTableContract,
+	emptyStateContract,
+	loadingOverlayContract,
+	colorInputContract,
+	sidebarContract,
+	notificationCenterContract,
+	kbdContract,
+	proseContract,
+	aspectRatioContract,
+	stickyContract,
+} from "./primitives/index.js";
 
 // =============================================================================
-// MANIFEST
+// TYPES
 // =============================================================================
 
-const manifest = manifestJson as unknown as ColdLightManifest;
+export interface RegistryEntry {
+	readonly kind: string;
+	readonly ariaStateProvider: "coldlight" | "meltui";
+	readonly compound: boolean;
+	readonly focusStrategy: string;
+	readonly slots: { required: readonly string[]; optional: readonly string[] };
+	readonly keyboard: readonly string[];
+	readonly category: "interactive" | "layout" | "typography" | "form" | "display" | "feedback" | "navigation" | "overlay";
+	readonly priority: "P0" | "P1" | "P2" | "P3";
+	readonly contract: unknown;
+}
+
+export type RegistryStatus = "idle" | "loading" | "ready" | "error";
 
 // =============================================================================
-// INDEXES (built once at import time)
+// CONTRACT REGISTRY — all contracts keyed by kind
 // =============================================================================
 
-const primitiveIndex = new Map<string, ManifestPrimitive>(
-	manifest.categories.primitives.kinds.map((k) => [k.kind, k] as const),
+function categorize(kind: string): RegistryEntry["category"] {
+	const map: Record<string, RegistryEntry["category"]> = {
+		// Layout
+		box: "layout", flex: "layout", stack: "layout", hstack: "layout",
+		grid: "layout", container: "layout", center: "layout", spacer: "layout",
+		"aspect-ratio": "layout", sticky: "layout", "scroll-area": "layout",
+		card: "layout",
+		// Typography
+		text: "typography", heading: "typography", code: "typography",
+		kbd: "typography", prose: "typography",
+		// Form
+		input: "form", textarea: "form", "form-field": "form", form: "form",
+		"input-group": "form", "number-input": "form", "search-input": "form",
+		"color-input": "form", "tags-input": "form",
+		"date-field": "form", "date-picker": "form",
+		"date-range-field": "form", "date-range-picker": "form",
+		// Display
+		badge: "display", skeleton: "display", stat: "display",
+		list: "display", "description-list": "display",
+		table: "display", "data-table": "display", "empty-state": "display",
+		separator: "display", divider: "display",
+		// Feedback
+		alert: "feedback", spinner: "feedback", "inline-message": "feedback",
+		banner: "feedback", callout: "feedback", "loading-overlay": "feedback",
+		// Navigation
+		"skip-link": "navigation", breadcrumb: "navigation", nav: "navigation",
+		"nav-item": "navigation", steps: "navigation", pagination: "navigation",
+		"table-of-contents": "navigation", sidebar: "navigation",
+		// Overlay
+		dialog: "overlay", popover: "overlay", tooltip: "overlay",
+		sheet: "overlay", toaster: "overlay", "alert-dialog": "overlay",
+		"command-palette": "overlay", "notification-center": "overlay",
+		"link-preview": "overlay",
+		// Interactive (menus)
+		"dropdown-menu": "interactive", "context-menu": "interactive",
+		menubar: "interactive", calendar: "interactive", "range-calendar": "interactive",
+	};
+	return map[kind] ?? "interactive";
+}
+
+function priority(kind: string): RegistryEntry["priority"] {
+	const p1: string[] = [
+		"separator", "toggle-group", "toolbar", "breadcrumb", "nav", "nav-item",
+		"center", "spacer", "divider", "skeleton", "stat", "code", "list",
+		"description-list", "banner", "callout", "input-group", "number-input",
+		"search-input", "steps", "sheet",
+		// P1-P3 additions
+		"alert-dialog", "dropdown-menu", "context-menu", "menubar", "tags-input",
+		"link-preview", "scroll-area", "pagination", "table-of-contents",
+		"calendar", "date-field", "date-picker", "date-range-field",
+		"date-range-picker", "range-calendar", "card", "table", "data-table",
+		"empty-state", "loading-overlay", "color-input", "sidebar",
+		"command-palette", "notification-center", "kbd", "prose",
+		"aspect-ratio", "sticky",
+	];
+	return p1.includes(kind) ? "P1" : "P0";
+}
+
+function buildEntry(c: { kind: string; ariaStateProvider: string; compound: boolean; focusStrategy: string; slots: { required: readonly string[]; optional: readonly string[] }; keyboard: readonly string[] }): RegistryEntry {
+	return {
+		kind: c.kind,
+		ariaStateProvider: c.ariaStateProvider as "coldlight" | "meltui",
+		compound: c.compound,
+		focusStrategy: c.focusStrategy,
+		slots: { required: c.slots.required, optional: c.slots.optional },
+		keyboard: c.keyboard,
+		category: categorize(c.kind),
+		priority: priority(c.kind),
+		contract: c,
+	};
+}
+
+// Build the full registry from all contracts
+const ALL_CONTRACTS = [
+	// ColdLight-owned interactive
+	buttonContract, checkboxContract, switchContract, labelContract,
+	// Form
+	inputContract, textareaContract, formFieldContract, formContract,
+	// Display
+	badgeContract,
+	// Feedback
+	alertContract, spinnerContract, inlineMessageContract,
+	// Navigation
+	skipLinkContract,
+	// Layout
+	boxContract, flexContract, stackContract, hstackContract, gridContract, containerContract,
+	// Typography
+	textContract, headingContract,
+	// Melt-backed
+	accordionContract, dialogContract, tabsContract, comboboxContract, selectContract,
+	popoverContract, tooltipContract, toggleContract, progressContract,
+	radioGroupContract, collapsibleContract, avatarContract, sliderContract,
+	fileUploadContract, pinInputContract, toasterContract, treeContract,
+	// P1
+	separatorContract, toggleGroupContract, toolbarContract, breadcrumbContract,
+	navContract, navItemContract, centerContract, spacerContract, dividerContract,
+	skeletonContract, statContract, codeContract, listContract, descriptionListContract,
+	bannerContract, calloutContract, inputGroupContract, numberInputContract,
+	searchInputContract, stepsContract, sheetContract,
+	// P1-P3 Melt-backed
+	alertDialogContract, dropdownMenuContract, contextMenuContract, menubarContract,
+	tagsInputContract, linkPreviewContract, paginationContract, calendarContract,
+	dateFieldContract, datePickerContract, dateRangeFieldContract, dateRangePickerContract,
+	rangeCalendarContract, commandPaletteContract,
+	// P1-P3 ColdLight-owned
+	scrollAreaContract, tableOfContentsContract, cardContract, tableContract,
+	dataTableContract, emptyStateContract, loadingOverlayContract, colorInputContract,
+	sidebarContract, notificationCenterContract, kbdContract, proseContract,
+	aspectRatioContract, stickyContract,
+] as const;
+
+const kindIndex = new Map<string, RegistryEntry>(
+	ALL_CONTRACTS.map((c) => [c.kind, buildEntry(c)] as const),
 );
+
+// =============================================================================
+// REACTIVE REGISTRY STATE — Svelte 5 rune
+// =============================================================================
+
+let registryStatus = $state<RegistryStatus>("ready");
+let registryError = $state<string | null>(null);
 
 // =============================================================================
 // REGISTRY API
 // =============================================================================
 
-/**
- * Get the full manifest.
- */
-export function getManifest(): ColdLightManifest {
-	return manifest;
+/** Get the ColdLight config */
+export function getConfig() {
+	return coldlightConfig;
 }
 
-/**
- * Get the dsAdapter declared in config (the behavior provider under ColdLight).
- */
-export function getDsAdapter(): string {
-	return manifest.adapters.dsAdapter;
+/** Registry status for VPB observation */
+export function getStatus(): RegistryStatus {
+	return registryStatus;
 }
 
-/**
- * Get all primitive kinds.
- */
-export function getPrimitiveKinds(): readonly string[] {
-	return manifest.categories.primitives.kinds.map((k) => k.kind);
+/** Registry error message (if any) */
+export function getError(): string | null {
+	return registryError;
 }
 
-/**
- * Check if a kind is a registered primitive.
- */
-export function hasPrimitiveKind(kind: string): boolean {
-	return primitiveIndex.has(kind);
+/** Total primitive count */
+export function getCount(): number {
+	return kindIndex.size;
 }
 
-/**
- * Get primitive manifest entry by kind.
- * Throws if kind is not found.
- */
-export function getPrimitive(kind: string): ManifestPrimitive {
-	const hit = primitiveIndex.get(kind);
-	if (!hit) {
-		throw new Error(`[ColdLight] Unknown primitive kind: ${kind}`);
-	}
-	return hit;
+/** All registered kinds */
+export function getKinds(): string[] {
+	return Array.from(kindIndex.keys());
 }
 
-/**
- * Get primitive manifest entry by kind, or undefined if not found.
- */
-export function getPrimitiveOrUndefined(kind: string): ManifestPrimitive | undefined {
-	return primitiveIndex.get(kind);
+/** All registry entries */
+export function getAll(): RegistryEntry[] {
+	return Array.from(kindIndex.values());
+}
+
+/** Get entry by kind. Throws if not found. */
+export function get(kind: string): RegistryEntry {
+	const entry = kindIndex.get(kind);
+	if (!entry) throw new Error(`[ColdLight Registry] Unknown kind: ${kind}`);
+	return entry;
+}
+
+/** Get entry by kind, or undefined */
+export function getOrUndefined(kind: string): RegistryEntry | undefined {
+	return kindIndex.get(kind);
+}
+
+/** Check if kind exists */
+export function has(kind: string): boolean {
+	return kindIndex.has(kind);
+}
+
+/** Filter by category */
+export function byCategory(category: RegistryEntry["category"]): RegistryEntry[] {
+	return getAll().filter((e) => e.category === category);
+}
+
+/** Filter by aria state provider */
+export function byProvider(provider: "coldlight" | "meltui"): RegistryEntry[] {
+	return getAll().filter((e) => e.ariaStateProvider === provider);
+}
+
+/** Filter by priority */
+export function byPriority(p: RegistryEntry["priority"]): RegistryEntry[] {
+	return getAll().filter((e) => e.priority === p);
+}
+
+/** Get summary stats for VPB dashboard */
+export function getSummary() {
+	const all = getAll();
+	return {
+		total: all.length,
+		coldlightOwned: all.filter((e) => e.ariaStateProvider === "coldlight").length,
+		meltBacked: all.filter((e) => e.ariaStateProvider === "meltui").length,
+		compound: all.filter((e) => e.compound).length,
+		byCategory: {
+			interactive: byCategory("interactive").length,
+			layout: byCategory("layout").length,
+			typography: byCategory("typography").length,
+			form: byCategory("form").length,
+			display: byCategory("display").length,
+			feedback: byCategory("feedback").length,
+			navigation: byCategory("navigation").length,
+			overlay: byCategory("overlay").length,
+		},
+		byPriority: {
+			P0: byPriority("P0").length,
+			P1: byPriority("P1").length,
+		},
+		config: {
+			systemId: coldlightConfig.identity.systemId,
+			version: coldlightConfig.identity.version,
+			activeAdapter: coldlightConfig.adapters.active,
+		},
+	};
+}
+
+/** Mark registry as errored (for VPB to display) */
+export function setError(error: string) {
+	registryStatus = "error";
+	registryError = error;
+}
+
+/** Reset to ready state */
+export function reset() {
+	registryStatus = "ready";
+	registryError = null;
 }

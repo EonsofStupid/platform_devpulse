@@ -16,7 +16,7 @@
 
 import { z } from "zod";
 import { FocusStrategySchema, KeyboardKeySchema, StateTokenSchema } from "../../primitives/_schema/schema.js";
-import type { PrimitiveContract } from "../../primitives/_schema/types.js";
+import type { PrimitiveContract as PrimitiveContractInterface } from "../../primitives/_schema/types.js";
 import type { PrimitiveContract as PrimitiveContractZod } from "../../primitives/_schema/contract.js";
 import {
 	AccessibleNameSourceSchema,
@@ -118,7 +118,7 @@ export type ComponentContract = z.infer<typeof ComponentContractSchema>;
  */
 export function validateComponentContract(
 	component: ComponentContract,
-	primitive: PrimitiveContract | PrimitiveContractZod,
+	primitive: PrimitiveContractInterface | PrimitiveContractZod,
 ): { valid: boolean; errors: string[] } {
 	const errors: string[] = [];
 
@@ -221,7 +221,7 @@ export function validateSlotAttrs(
  * Convenience function to derive component schema from primitive.
  */
 export function deriveSlotContract(
-	primitive: PrimitiveContract | PrimitiveContractZod,
+	primitive: PrimitiveContractZod,
 	slotName: string,
 ): ComponentSlotContract | null {
 	const slotSpec = primitive.slotSpec[slotName];
@@ -234,17 +234,17 @@ export function deriveSlotContract(
 		element: slotSpec.element,
 		aria: {
 			role: slotSpec.aria.role,
-			required: slotSpec.aria.required.map((attr) => ({
+			required: slotSpec.aria.required.map((attr: string) => ({
 				attr,
-				valueType: attr, // Same as attr name for now
+				valueType: attr,
 			})),
-			optional: slotSpec.aria.optional.map((attr) => ({
+			optional: slotSpec.aria.optional.map((attr: string) => ({
 				attr,
 				valueType: attr,
 			})),
 			relationships: (primitive.slotRelationships ?? [])
-				.filter((r) => r.sourceSlot === slotName)
-				.map((r) => ({
+				.filter((r: { sourceSlot: string }) => r.sourceSlot === slotName)
+				.map((r: { attribute: string; targetSlot: string; required: boolean }) => ({
 					attr: r.attribute,
 					targetSlot: r.targetSlot,
 					required: r.required,
@@ -256,8 +256,8 @@ export function deriveSlotContract(
 			states: slotStates,
 		},
 		keyboard: (primitive.keyboardMap ?? [])
-			.filter((k) => k.focusLocation === slotName)
-			.map((k) => ({
+			.filter((k: { focusLocation: string }) => k.focusLocation === slotName)
+			.map((k: { key: string; action: string }) => ({
 				key: k.key,
 				action: k.action,
 				description: `${k.key} → ${k.action}`,
