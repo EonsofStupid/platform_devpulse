@@ -1,37 +1,33 @@
 /**
- * @file ColdLight Taxonomy Types — Manifest & Scanner
+ * @file ColdLight Scanner & Manifest Types
  * @package @devpulse/coldlight
  *
- * Taxonomy-wide types for manifest output and scanner results.
- * Primitive-specific types are in ./primitive/types.ts.
- * Component-specific types are in ./component/types.ts.
+ * Types for manifest output, scanner results, and registry.
+ * The scanner walks primitives/, validates contracts, and produces the manifest.
+ * The manifest IS the taxonomy — generated, not hand-maintained.
  */
 
-// Re-export ALL primitive types for backward compatibility
-export * from "./kinds/primitives/types.js";
+export type { AriaStateProvider, DsAdapterId, SlotAction, StateToken } from "./primitives/_schema/types.js";
 
 import type {
 	AriaRequirements,
 	AriaStateProvider,
 	DismissBehavior,
-	DsAdapterId,
 	FocusStrategy,
 	KeyboardKey,
 	Orientation,
 	ScanErrorCode,
-	SlotAction,
 	SlotSpec,
 	StateToken,
-} from "./kinds/primitives/types.js";
+} from "./primitives/_schema/types.js";
 
 // =============================================================================
-// MANIFEST TYPES
+// MANIFEST TYPES — Generated output
 // =============================================================================
 
 /**
  * Primitive entry in the generated manifest.
  * Flattened from PrimitiveContract for JSON serialization.
- * Uses the same typed vocabularies as the source contract.
  */
 export interface ManifestPrimitive {
 	readonly kind: string;
@@ -59,6 +55,7 @@ export interface ManifestPrimitive {
 /**
  * The generated ColdLight manifest.
  * Written by scanner, read by registry.
+ * THIS IS THE TAXONOMY — auto-generated from colocated contracts.
  */
 export interface ColdLightManifest {
 	readonly version: string;
@@ -77,18 +74,12 @@ export interface ColdLightManifest {
 // SCANNER TYPES
 // =============================================================================
 
-/**
- * Error from scanner.
- */
 export interface ScanError {
 	readonly code: ScanErrorCode;
 	readonly kind: string;
 	readonly detail: string;
 }
 
-/**
- * Result of scanning a single primitive for parity.
- */
 export interface PrimitiveScanResult {
 	readonly kind: string;
 	readonly ariaStateProvider: AriaStateProvider;
@@ -98,9 +89,6 @@ export interface PrimitiveScanResult {
 	readonly hasParity: boolean;
 }
 
-/**
- * Full scanner result.
- */
 export interface ScanResult {
 	readonly valid: boolean;
 	readonly primitives: readonly PrimitiveScanResult[];

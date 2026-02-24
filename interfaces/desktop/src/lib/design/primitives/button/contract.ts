@@ -9,12 +9,12 @@
  *
  * ariaStateProvider: "coldlight"
  *   ColdLight owns ARIA directly. No adapter. Native <button> semantics.
- *   2-folder parity enforced by scanner: taxonomy/kinds/primitives/button/ + primitives/button/
+ *   2-folder parity enforced by scanner: primitives/button/ (colocated contract + implementation)
  *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/button/
  */
 
-import type { PrimitiveContract } from "../../taxonomy/kinds/primitives/types.js";
+import type { PrimitiveContract } from "../_schema/types.js";
 import type { ButtonSlot, ButtonState } from "./types.js";
 
 export const contract = {

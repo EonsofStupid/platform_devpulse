@@ -3,15 +3,15 @@
  * @package @devpulse/coldlight
  *
  * Runtime registry that reads ONLY from the generated manifest.
- * NO filesystem scanning. NO taxonomy imports. NO adapter declarations.
+ * NO filesystem scanning. NO taxonomy imports.
  *
- * Build step writes: taxonomy/.generated/coldlight.manifest.json
+ * Build step writes: .generated/coldlight.manifest.json
  * This file reads it at runtime.
  */
 
 // Import the generated manifest (committed to git)
 import manifestJson from "./.generated/coldlight.manifest.json";
-import type { ColdLightManifest, ManifestPrimitive } from "./types";
+import type { ColdLightManifest, ManifestPrimitive } from "./scanner.types.js";
 
 // =============================================================================
 // MANIFEST

@@ -1,5 +1,5 @@
 /**
- * @file ColdLight Component Contract — Master Schema & Validation
+ * @file Component Contract — Master Schema & Validation
  * @package @devpulse/coldlight
  *
  * ComponentContractSchema is THE master shape ALL components must satisfy.
@@ -7,7 +7,7 @@
  * AI agents can introspect these contracts to understand component semantics.
  *
  * Layers:
- * 1. PrimitiveContract (../primitive/contract.ts) - SSOT for ARIA specs
+ * 1. PrimitiveContract (primitives/_schema/) - SSOT for ARIA specs
  * 2. ComponentContract (this file) - Render-time enforcement + AI introspection
  * 3. Transport (adapters) - Actual ARIA attribute providers
  *
@@ -15,8 +15,9 @@
  */
 
 import { z } from "zod";
-import { FocusStrategySchema, KeyboardKeySchema, StateTokenSchema } from "../primitives/schema.js";
-import type { PrimitiveContract } from "../primitives/contract.js";
+import { FocusStrategySchema, KeyboardKeySchema, StateTokenSchema } from "../../primitives/_schema/schema.js";
+import type { PrimitiveContract } from "../../primitives/_schema/types.js";
+import type { PrimitiveContract as PrimitiveContractZod } from "../../primitives/_schema/contract.js";
 import {
 	AccessibleNameSourceSchema,
 	AriaAttrValueSchemas,
@@ -117,7 +118,7 @@ export type ComponentContract = z.infer<typeof ComponentContractSchema>;
  */
 export function validateComponentContract(
 	component: ComponentContract,
-	primitive: PrimitiveContract,
+	primitive: PrimitiveContract | PrimitiveContractZod,
 ): { valid: boolean; errors: string[] } {
 	const errors: string[] = [];
 
@@ -220,7 +221,7 @@ export function validateSlotAttrs(
  * Convenience function to derive component schema from primitive.
  */
 export function deriveSlotContract(
-	primitive: PrimitiveContract,
+	primitive: PrimitiveContract | PrimitiveContractZod,
 	slotName: string,
 ): ComponentSlotContract | null {
 	const slotSpec = primitive.slotSpec[slotName];

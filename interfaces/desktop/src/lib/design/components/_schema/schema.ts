@@ -1,5 +1,5 @@
 /**
- * @file ColdLight Component Schema — ARIA Value Types & Slot Schemas
+ * @file Component Schema — ARIA Value Types & Slot Schemas
  * @package @devpulse/coldlight
  *
  * COMPONENT-LEVEL ARIA enforcement schemas.
@@ -15,7 +15,7 @@ import {
 	AriaRoleSchema,
 	KeyboardKeySchema,
 	StateTokenSchema,
-} from "../primitives/schema.js";
+} from "../../primitives/_schema/schema.js";
 
 // =============================================================================
 // ARIA VALUE TYPES — Specific value schemas for ARIA attributes

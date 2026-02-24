@@ -8,9 +8,8 @@
 
 export const ROOTS = {
 	designRoot: "src/lib/design",
-	taxonomyRoot: "src/lib/design/taxonomy",
 	apiRoot: "src/lib/design/api",
 	primitivesRoot: "src/lib/design/primitives",
 	componentsRoot: "src/lib/design/components",
-	generatedRoot: "src/lib/design/taxonomy/.generated",
+	generatedRoot: "src/lib/design/.generated",
 } as const;

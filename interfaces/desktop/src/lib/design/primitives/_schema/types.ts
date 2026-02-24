@@ -1,8 +1,8 @@
 /**
- * @file ColdLight Primitive Types
+ * @file Primitive Type Infrastructure
  * @package @devpulse/coldlight
  *
- * Core type definitions for primitives in the ColdLight design system.
+ * Core type definitions for ALL primitives.
  * EVERY type union is DERIVED from config/coldlight/vocabularies.cfg.ts.
  * No hand-written unions. Data lives in config. Types are derived.
  *
@@ -22,7 +22,7 @@ import type {
 	SLOT_ACTIONS,
 	SLOT_CHILDREN_MODES,
 	STATE_TOKENS,
-} from "../../../config/coldlight/vocabularies.cfg.js";
+} from "../../config/coldlight/vocabularies.cfg.js";
 
 // =============================================================================
 // DERIVED VOCABULARY TYPES — all from config const arrays

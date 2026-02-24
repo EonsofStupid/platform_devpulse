@@ -15,7 +15,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLButtonAttributes } from "svelte/elements";
-import type { StateToken, SlotStateMap } from "../../taxonomy/kinds/primitives/types.js";
+import type { StateToken, SlotStateMap } from "../_schema/types.js";
 import type { BaseProps } from "../types.js";
 
 // =============================================================================

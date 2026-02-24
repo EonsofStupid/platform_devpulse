@@ -1,5 +1,5 @@
 /**
- * @file ColdLight Primitive Schema — Zod Enum Definitions
+ * @file Primitive Schema — Zod Enum Definitions
  * @package @devpulse/coldlight
  *
  * SINGLE SOURCE OF TRUTH for all Zod-validated vocabularies used by primitive contracts.
@@ -154,6 +154,13 @@ export const AriaPropertyAttrs = [
 	"aria-valuenow",
 	"aria-valuetext",
 	"aria-roledescription",
+	"aria-keyshortcuts",
+] as const;
+
+/** Drag and drop attributes (deprecated in ARIA 1.2 but still in spec) */
+export const AriaDragDropAttrs = [
+	"aria-dropeffect",
+	"aria-grabbed",
 ] as const;
 
 /** Live region attributes */
@@ -183,6 +190,7 @@ export const AriaAttributes = [
 	...AriaPropertyAttrs,
 	...AriaLiveRegionAttrs,
 	...AriaPositionAttrs,
+	...AriaDragDropAttrs,
 ] as const;
 
 // Zod schema for ARIA attributes

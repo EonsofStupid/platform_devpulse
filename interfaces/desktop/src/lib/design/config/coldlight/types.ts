@@ -68,12 +68,13 @@ export type ColdLightConfig = Readonly<{
 	roots: Readonly<{
 		/** Absolute or repo-relative base used by build tools */
 		designRoot: string;
-		taxonomyRoot: string;
 		/** The api/ folder (adapters live under api/adapters/) */
 		apiRoot: string;
+		/** Primitives root — scanner walks this for kind discovery + contract loading */
 		primitivesRoot: string;
 		/** Styled component folders (primitives + recipes = components) */
 		componentsRoot: string;
+		/** Generated output (manifest, imports) */
 		generatedRoot: string;
 	}>;
 
@@ -135,7 +136,7 @@ export type ColdLightConfig = Readonly<{
 		root: string;
 		/** Required files in each component folder */
 		requiredFiles: readonly string[];
-		/** Scanner enforces folder parity with taxonomy */
+		/** Scanner enforces folder parity */
 		scannerEnforced: boolean;
 	}>;
 

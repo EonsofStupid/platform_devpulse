@@ -2,8 +2,8 @@
  * @file Component Schema Layer — Re-export
  * @package @devpulse/coldlight
  *
- * Canonical source is now taxonomy/component/.
- * This file re-exports for backward compatibility.
+ * Canonical source is components/_schema/.
+ * This file re-exports for convenience.
  */
 
 export {
@@ -40,7 +40,7 @@ export {
 	type ComponentSlotContract,
 	AccessibleNameSourceSchema,
 	type AccessibleNameSource,
-} from "$lib/design/taxonomy/kinds/component/schema.js";
+} from "./_schema/schema.js";
 
 export {
 	// Component contract
@@ -52,4 +52,4 @@ export {
 	deriveSlotContract,
 	parseComponentContract,
 	safeParseComponentContract,
-} from "$lib/design/taxonomy/kinds/component/contract.js";
+} from "./_schema/contract.js";

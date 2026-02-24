@@ -1,9 +1,9 @@
 /**
- * @file Component Taxonomy Barrel
+ * @file Component Schema Barrel
  * @package @devpulse/coldlight
  *
- * Master contract definitions that ALL components must adhere to.
- * Import/export only — zero logic.
+ * Type infrastructure for ALL components.
+ * Zod schemas are the canonical source.
  */
 
 // ARIA value schemas + slot schemas

@@ -1,5 +1,5 @@
 /**
- * @file ColdLight Component Types
+ * @file Component Types
  * @package @devpulse/coldlight
  *
  * TypeScript types for components, derived from Zod schemas.

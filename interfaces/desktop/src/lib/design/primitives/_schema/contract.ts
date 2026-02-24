@@ -1,5 +1,5 @@
 /**
- * @file ColdLight Primitive Contract — Composite Schemas & Validation
+ * @file Primitive Contract — Composite Schemas & Validation
  * @package @devpulse/coldlight
  *
  * REAL ENFORCEMENT via Zod runtime validation.
