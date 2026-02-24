@@ -50,8 +50,12 @@ export const ARIA_ROLES = [
 	"dialog",
 	"alertdialog",
 	"alert",
+	"form",
 	"group",
+	"heading",
 	"img",
+	"list",
+	"listitem",
 	"log",
 	"navigation",
 	"note",
@@ -210,6 +214,7 @@ export const SLOT_ACTIONS = [
 	"reset",
 	"dismiss",
 	"filter",
+	"clear",
 ] as const;
 
 // =============================================================================

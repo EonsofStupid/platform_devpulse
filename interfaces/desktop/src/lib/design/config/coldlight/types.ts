@@ -30,30 +30,17 @@ export type AriaStateProvider = "coldlight" | "meltui";
 export type AdapterId = "meltui";
 
 /** Tailwind v4 @theme namespace mapping for a token category */
-type TailwindMapping = Readonly<{
+type ThemeMapping = Readonly<{
 	namespace: string;
 	prefix: string | null;
 }>;
 
-/** Token pipeline platform configuration */
-type TokenPlatformCss = Readonly<{
-	enabled: boolean;
-	output: string;
-	prefixes: Readonly<Record<string, string>>;
-	tailwindTheme: Readonly<{
-		enabled: boolean;
-		mappings: Readonly<
-			Record<string, TailwindMapping | Readonly<Record<string, TailwindMapping>>>
-		>;
-	}>;
-}>;
-
-type TokenPlatformTs = Readonly<{
-	enabled: boolean;
-	output: string;
-}>;
-
-type TokenPlatformTailwind = Readonly<{
+/**
+ * SD5 output platform — one per build target.
+ * Matches Style Dictionary v5's PlatformConfig shape (simplified).
+ * ColdLight names: css, theme, types.
+ */
+type TokenPlatform = Readonly<{
 	enabled: boolean;
 	output: string;
 }>;
@@ -152,10 +139,16 @@ export type ColdLightConfig = Readonly<{
 			output: string;
 			formatVersion: string;
 		}>;
+		/** SD5 output platforms — ColdLight's 3 build targets */
 		platforms: Readonly<{
-			css: TokenPlatformCss;
-			ts: TokenPlatformTs;
-			tailwind: TokenPlatformTailwind;
+			/** CSS custom properties → :root { --token: val; } */
+			css: TokenPlatform;
+			/** Tailwind v4 @theme block → @theme { --color-*: oklch(...); } */
+			theme: TokenPlatform;
+			/** TypeScript constants + union types */
+			types: TokenPlatform;
 		}>;
+		/** @theme namespace mappings — SSOT for Tailwind v4 integration */
+		themeMappings: Readonly<Record<string, ThemeMapping>>;
 	}>;
 }>;

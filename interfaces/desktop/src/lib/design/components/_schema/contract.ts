@@ -234,17 +234,17 @@ export function deriveSlotContract(
 		element: slotSpec.element,
 		aria: {
 			role: slotSpec.aria.role,
-			required: slotSpec.aria.required.map((attr: string) => ({
+			required: slotSpec.aria.required.map((attr) => ({
 				attr,
-				valueType: attr,
+				valueType: attr as string,
 			})),
-			optional: slotSpec.aria.optional.map((attr: string) => ({
+			optional: slotSpec.aria.optional.map((attr) => ({
 				attr,
-				valueType: attr,
+				valueType: attr as string,
 			})),
 			relationships: (primitive.slotRelationships ?? [])
-				.filter((r: { sourceSlot: string }) => r.sourceSlot === slotName)
-				.map((r: { attribute: string; targetSlot: string; required: boolean }) => ({
+				.filter((r) => r.sourceSlot === slotName)
+				.map((r) => ({
 					attr: r.attribute,
 					targetSlot: r.targetSlot,
 					required: r.required,
@@ -256,8 +256,8 @@ export function deriveSlotContract(
 			states: slotStates,
 		},
 		keyboard: (primitive.keyboardMap ?? [])
-			.filter((k: { focusLocation: string }) => k.focusLocation === slotName)
-			.map((k: { key: string; action: string }) => ({
+			.filter((k) => k.focusLocation === slotName)
+			.map((k) => ({
 				key: k.key,
 				action: k.action,
 				description: `${k.key} → ${k.action}`,

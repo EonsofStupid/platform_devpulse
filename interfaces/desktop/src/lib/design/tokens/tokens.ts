@@ -6,13 +6,13 @@
  * SSOT (Single Source of Truth) for ColdLight Design System tokens.
  * This file is the canonical definition - all other token files are GENERATED.
  *
- * DO NOT EDIT tokens.css, types.ts, or tailwind.preset.ts directly.
+ * DO NOT EDIT tokens.css, types.ts, or tailwind.css directly.
  * Run `pnpm ds:tokens:build` to regenerate them from this file.
  *
  * @generated-files
- * - tokens.css (CSS custom properties)
- * - types.ts (TypeScript types and runtime arrays)
- * - tailwind.preset.ts (Tailwind theme mapping)
+ * - tokens.css (CSS custom properties — :root block)
+ * - types.ts (TypeScript constants + union types)
+ * - tailwind.css (Tailwind v4 @theme block)
  *
  * @since 1.0.0
  */

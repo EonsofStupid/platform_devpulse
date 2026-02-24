@@ -36,18 +36,11 @@ const tokensConfig = tokensMod.TOKENS as {
 	sources: { globals: string; semantic: string; components: string };
 	dtcg: { output: string; formatVersion: string };
 	platforms: {
-		css: {
-			enabled: boolean;
-			output: string;
-			tailwindTheme: {
-				enabled: boolean;
-				mappings: Record<string, { namespace: string; prefix: string | null }>;
-			};
-		};
-		tailwindCss: { enabled: boolean; output: string };
-		ts: { enabled: boolean; output: string };
-		tailwind: { enabled: boolean; output: string };
+		css: { enabled: boolean; output: string };
+		theme: { enabled: boolean; output: string };
+		types: { enabled: boolean; output: string };
 	};
+	themeMappings: Record<string, { namespace: string; prefix: string | null }>;
 };
 
 // ─── Load SSOT sources ────────────────────────────────────────────────────────

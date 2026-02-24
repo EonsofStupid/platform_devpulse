@@ -7,7 +7,7 @@
  *
  * Uses dictionary.allTokens — SD5's processed token list.
  * Maps tokens to Tailwind v4 @theme variable names using
- * tokensConfig.platforms.css.tailwindTheme.mappings as SSOT.
+ * tokensConfig.themeMappings as SSOT.
  *
  * Output: @theme { --color-glass-void: oklch(...); ... }
  */

@@ -7,17 +7,15 @@
  * Imports and registers all custom formats.
  * Returns the StyleDictionary config object.
  *
- * Platforms:
- *   css          → SD5 native css/variables → tokens.css (:root block)
- *   tailwindCss  → coldlight/tailwind-theme → tailwind.css (@theme block)
- *   ts           → coldlight/types          → types.ts (TypeScript enums)
- *   tailwind     → coldlight/tailwind-preset → tailwind.preset.ts (TW v3)
+ * Platforms (ColdLight's 3 output targets):
+ *   css   → SD5 native css/variables → tokens.css (:root block)
+ *   theme → coldlight/tailwind-theme → tailwind.css (@theme block, TW v4)
+ *   types → coldlight/types          → types.ts (TypeScript constants)
  */
 
 import { resolve } from "node:path";
 import { registerTailwindTheme } from "./formats/tailwind-theme.js";
 import { registerTypes }         from "./formats/types.js";
-import { registerTailwindPreset } from "./formats/tailwind-preset.js";
 
 type Enums = Record<string, readonly (string | number)[]>;
 type Mapping = { namespace: string; prefix: string | null };
@@ -25,17 +23,11 @@ type Mapping = { namespace: string; prefix: string | null };
 interface TokensConfig {
 	dtcg: { output: string };
 	platforms: {
-		css: {
-			output: string;
-			tailwindTheme: {
-				enabled: boolean;
-				mappings: Record<string, Mapping>;
-			};
-		};
-		tailwindCss: { output: string };
-		ts: { output: string };
-		tailwind: { output: string };
+		css: { output: string };
+		theme: { output: string };
+		types: { output: string };
 	};
+	themeMappings: Record<string, Mapping>;
 }
 
 export function buildConfig(
@@ -45,9 +37,8 @@ export function buildConfig(
 	desktopRoot: string,
 ) {
 	// Register all custom formats before building config
-	registerTailwindTheme(tokensConfig.platforms.css.tailwindTheme.mappings);
+	registerTailwindTheme(tokensConfig.themeMappings);
 	registerTypes(jitiEnums);
-	registerTailwindPreset();
 
 	return {
 		source: [dtcgPath],
@@ -55,7 +46,7 @@ export function buildConfig(
 		// $value and puts the transformed result into token.value correctly.
 		usesDtcg: true,
 		platforms: {
-			// ── SD5 native: css/variables → :root { --token-name: value; } ───────
+			// ── CSS custom properties → :root { --token-name: value; } ────────
 			css: {
 				transformGroup: "css",
 				buildPath: "",
@@ -71,38 +62,26 @@ export function buildConfig(
 				],
 			},
 
-			// ── Custom: @theme { } for Tailwind v4 ────────────────────────────────
-			tailwindCss: {
+			// ── Tailwind v4 @theme block ──────────────────────────────────────
+			theme: {
 				transformGroup: "css",
 				buildPath: "",
 				files: [
 					{
-						destination: resolve(desktopRoot, tokensConfig.platforms.tailwindCss.output),
+						destination: resolve(desktopRoot, tokensConfig.platforms.theme.output),
 						format: "coldlight/tailwind-theme",
 					},
 				],
 			},
 
-			// ── Custom: TypeScript enum arrays ─────────────────────────────────────
-			ts: {
+			// ── TypeScript constants + union types ────────────────────────────
+			types: {
 				transformGroup: "css",
 				buildPath: "",
 				files: [
 					{
-						destination: resolve(desktopRoot, tokensConfig.platforms.ts.output),
+						destination: resolve(desktopRoot, tokensConfig.platforms.types.output),
 						format: "coldlight/types",
-					},
-				],
-			},
-
-			// ── Custom: Tailwind v3 preset ─────────────────────────────────────────
-			tailwind: {
-				transformGroup: "css",
-				buildPath: "",
-				files: [
-					{
-						destination: resolve(desktopRoot, tokensConfig.platforms.tailwind.output),
-						format: "coldlight/tailwind-preset",
 					},
 				],
 			},
