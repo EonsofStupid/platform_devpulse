@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-lefthook-hardening",
+  "title": "SPRINT: Lefthook Windows Hardening",
+  "description": "Status: READY",
+  "source": "@site/docs/sprints/sprint-lefthook-hardening.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-lefthook-hardening",
+  "permalink": "/docs/sprints/sprint-lefthook-hardening",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 22,
+  "frontMatter": {
+    "sidebar_position": 22
+  }
+}

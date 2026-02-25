@@ -1,0 +1,26 @@
+{
+  "id": "coldlight/overview",
+  "title": "ColdLight Design System",
+  "description": "ColdLight (@devpulse/coldlight) is the design system powering all DevPulse user interfaces.",
+  "source": "@site/docs/coldlight/overview.md",
+  "sourceDirName": "coldlight",
+  "slug": "/coldlight/overview",
+  "permalink": "/docs/coldlight/overview",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "DevPulse Platform Documentation",
+    "permalink": "/docs/"
+  },
+  "next": {
+    "title": "ColdLight Architecture",
+    "permalink": "/docs/coldlight/architecture"
+  }
+}

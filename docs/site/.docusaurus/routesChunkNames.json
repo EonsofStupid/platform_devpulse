@@ -1,0 +1,63 @@
+{
+  "/docs/-d6e": {
+    "__comp": "5e95c892",
+    "__context": {
+      "plugin": "aba21aa0"
+    }
+  },
+  "/docs/-3ab": {
+    "__comp": "a7bd4aaa",
+    "__props": "11b43341"
+  },
+  "/docs/-c4b": {
+    "__comp": "a94703ab"
+  },
+  "/docs/coldlight/architecture-158": {
+    "__comp": "17896441",
+    "content": "f69501fe"
+  },
+  "/docs/coldlight/inventory-2be": {
+    "__comp": "17896441",
+    "content": "c7e91925"
+  },
+  "/docs/coldlight/overview-0c0": {
+    "__comp": "17896441",
+    "content": "cc757db9"
+  },
+  "/docs/coldlight/primitives/-fa8": {
+    "__comp": "17896441",
+    "content": "4dfed5a6"
+  },
+  "/docs/coldlight/primitives/contracts-787": {
+    "__comp": "17896441",
+    "content": "138931f7"
+  },
+  "/docs/coldlight/primitives/testing-c84": {
+    "__comp": "17896441",
+    "content": "401a8599"
+  },
+  "/docs/coldlight/recipes/-469": {
+    "__comp": "17896441",
+    "content": "b9b98673"
+  },
+  "/docs/coldlight/tokens/-4d4": {
+    "__comp": "17896441",
+    "content": "a3b4bd09"
+  },
+  "/docs/platform/header-compliance-338": {
+    "__comp": "17896441",
+    "content": "11b4cdfc"
+  },
+  "/docs/platform/namespaces-241": {
+    "__comp": "17896441",
+    "content": "0e87fac4"
+  },
+  "/docs/sprints/-5ae": {
+    "__comp": "17896441",
+    "content": "231736ba"
+  },
+  "/docs/-be8": {
+    "__comp": "17896441",
+    "content": "0e384e19"
+  }
+}

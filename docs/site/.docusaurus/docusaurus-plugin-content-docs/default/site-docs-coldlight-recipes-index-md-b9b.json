@@ -1,0 +1,25 @@
+{
+  "id": "coldlight/recipes/index",
+  "title": "Recipes",
+  "description": "Recipes are styling patterns applied to primitives via the class prop.",
+  "source": "@site/docs/coldlight/recipes/index.md",
+  "sourceDirName": "coldlight/recipes",
+  "slug": "/coldlight/recipes/",
+  "permalink": "/docs/coldlight/recipes/",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "Recipes"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Design Tokens",
+    "permalink": "/docs/coldlight/tokens/"
+  },
+  "next": {
+    "title": "Platform Namespaces",
+    "permalink": "/docs/platform/namespaces"
+  }
+}

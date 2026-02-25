@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-visual-scaffolding",
+  "title": "SPRINT: Visual Scaffolding — ColdLight Delivers",
+  "description": "Date: 2026-02-07",
+  "source": "@site/docs/sprints/sprint-visual-scaffolding.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-visual-scaffolding",
+  "permalink": "/docs/sprints/sprint-visual-scaffolding",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 39,
+  "frontMatter": {
+    "sidebar_position": 39
+  }
+}

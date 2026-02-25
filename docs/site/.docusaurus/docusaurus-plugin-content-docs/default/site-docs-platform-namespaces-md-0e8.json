@@ -1,0 +1,27 @@
+{
+  "id": "platform/namespaces",
+  "title": "Platform Namespaces",
+  "description": "Run pnpm platform:scan to see the full platform report.",
+  "source": "@site/docs/platform/namespaces.md",
+  "sourceDirName": "platform",
+  "slug": "/platform/namespaces",
+  "permalink": "/docs/platform/namespaces",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1,
+    "title": "Platform Namespaces"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Recipes",
+    "permalink": "/docs/coldlight/recipes/"
+  },
+  "next": {
+    "title": "Header Compliance",
+    "permalink": "/docs/platform/header-compliance"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-f2-rust-crate-hygiene",
+  "title": "SPRINT F2: Rust Crate Hygiene",
+  "description": "Status: READY FOR REVIEW",
+  "source": "@site/docs/sprints/sprint-f2-rust-crate-hygiene.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-f2-rust-crate-hygiene",
+  "permalink": "/docs/sprints/sprint-f2-rust-crate-hygiene",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 20,
+  "frontMatter": {
+    "sidebar_position": 20
+  }
+}

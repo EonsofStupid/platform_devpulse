@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-f1-foundation-infrastructure",
+  "title": "SPRINT F1: Foundation Infrastructure",
+  "description": "Status: READY FOR EXECUTION",
+  "source": "@site/docs/sprints/sprint-f1-foundation-infrastructure.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-f1-foundation-infrastructure",
+  "permalink": "/docs/sprints/sprint-f1-foundation-infrastructure",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 19,
+  "frontMatter": {
+    "sidebar_position": 19
+  }
+}

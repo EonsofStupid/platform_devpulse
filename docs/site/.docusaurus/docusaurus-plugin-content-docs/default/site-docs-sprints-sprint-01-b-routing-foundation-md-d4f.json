@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-01b-routing-foundation",
+  "title": "SPRINT 1B: URL-Driven Routing + Nested Capability Buckets",
+  "description": "Status: READY FOR EXECUTION",
+  "source": "@site/docs/sprints/sprint-01b-routing-foundation.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-01b-routing-foundation",
+  "permalink": "/docs/sprints/sprint-01b-routing-foundation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 3,
+  "frontMatter": {
+    "sidebar_position": 3
+  }
+}

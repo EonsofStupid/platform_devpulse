@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-taxonomy-foundation.research",
+  "title": "Research: Taxonomy Foundation — Primitive & Component Master Contracts",
+  "description": "Date: 2026-02-14",
+  "source": "@site/docs/sprints/sprint-taxonomy-foundation.research.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-taxonomy-foundation.research",
+  "permalink": "/docs/sprints/sprint-taxonomy-foundation.research",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 33,
+  "frontMatter": {
+    "sidebar_position": 33
+  }
+}

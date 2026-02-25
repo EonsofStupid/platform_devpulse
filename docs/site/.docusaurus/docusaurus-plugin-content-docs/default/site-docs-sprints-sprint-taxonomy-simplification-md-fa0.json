@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-taxonomy-simplification",
+  "title": "SPRINT: Taxonomy Simplification",
+  "description": "Status: READY",
+  "source": "@site/docs/sprints/sprint-taxonomy-simplification.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-taxonomy-simplification",
+  "permalink": "/docs/sprints/sprint-taxonomy-simplification",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 34,
+  "frontMatter": {
+    "sidebar_position": 34
+  }
+}

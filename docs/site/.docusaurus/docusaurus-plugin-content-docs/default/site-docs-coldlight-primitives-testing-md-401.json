@@ -1,0 +1,25 @@
+{
+  "id": "coldlight/primitives/testing",
+  "title": "Testing",
+  "description": "Primitives are tested with Vitest browser mode (Chromium via Playwright).",
+  "source": "@site/docs/coldlight/primitives/testing.md",
+  "sourceDirName": "coldlight/primitives",
+  "slug": "/coldlight/primitives/testing",
+  "permalink": "/docs/coldlight/primitives/testing",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "Testing"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Contracts",
+    "permalink": "/docs/coldlight/primitives/contracts"
+  },
+  "next": {
+    "title": "Design Tokens",
+    "permalink": "/docs/coldlight/tokens/"
+  }
+}

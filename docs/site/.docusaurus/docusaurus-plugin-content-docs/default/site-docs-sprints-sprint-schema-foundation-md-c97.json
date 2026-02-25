@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-schema-foundation",
+  "title": "Sprint: Schema Foundation",
+  "description": "| Field | Value |",
+  "source": "@site/docs/sprints/sprint-schema-foundation.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-schema-foundation",
+  "permalink": "/docs/sprints/sprint-schema-foundation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 27,
+  "frontMatter": {
+    "sidebar_position": 27
+  }
+}

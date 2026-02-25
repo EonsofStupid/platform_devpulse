@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-10-component-layer",
+  "title": "SPRINT 10: ColdLight Component Layer — Big 3",
+  "description": "Status: READY FOR EXECUTION",
+  "source": "@site/docs/sprints/sprint-10-component-layer.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-10-component-layer",
+  "permalink": "/docs/sprints/sprint-10-component-layer",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 6,
+  "frontMatter": {
+    "sidebar_position": 6
+  }
+}

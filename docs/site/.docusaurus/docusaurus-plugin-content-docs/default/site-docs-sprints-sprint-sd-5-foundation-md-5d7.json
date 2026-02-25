@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-sd5-foundation",
+  "title": "Sprint: SD5 Foundation — Style Dictionary v5 Token Pipeline",
+  "description": "Created: 2026-02-15",
+  "source": "@site/docs/sprints/sprint-sd5-foundation.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-sd5-foundation",
+  "permalink": "/docs/sprints/sprint-sd5-foundation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 28,
+  "frontMatter": {
+    "sidebar_position": 28
+  }
+}

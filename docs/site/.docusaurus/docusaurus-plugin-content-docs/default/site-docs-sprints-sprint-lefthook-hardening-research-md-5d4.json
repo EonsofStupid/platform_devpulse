@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-lefthook-hardening.research",
+  "title": "Research: Lefthook Windows Hardening",
+  "description": "Date: 2026-02-09",
+  "source": "@site/docs/sprints/sprint-lefthook-hardening.research.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-lefthook-hardening.research",
+  "permalink": "/docs/sprints/sprint-lefthook-hardening.research",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 23,
+  "frontMatter": {
+    "sidebar_position": 23
+  }
+}

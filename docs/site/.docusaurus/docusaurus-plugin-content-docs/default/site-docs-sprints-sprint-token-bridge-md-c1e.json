@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-token-bridge",
+  "title": "SPRINT: Token Bridge + 3-Tier Architecture",
+  "description": "Status: READY",
+  "source": "@site/docs/sprints/sprint-token-bridge.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-token-bridge",
+  "permalink": "/docs/sprints/sprint-token-bridge",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 36,
+  "frontMatter": {
+    "sidebar_position": 36
+  }
+}

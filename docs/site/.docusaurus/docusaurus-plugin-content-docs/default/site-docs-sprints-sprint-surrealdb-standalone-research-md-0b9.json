@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-surrealdb-standalone.research",
+  "title": "Research: SurrealDB v3 Standalone Setup — Full Vision",
+  "description": "Date: 2026-02-19",
+  "source": "@site/docs/sprints/sprint-surrealdb-standalone.research.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-surrealdb-standalone.research",
+  "permalink": "/docs/sprints/sprint-surrealdb-standalone.research",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 31,
+  "frontMatter": {
+    "sidebar_position": 31
+  }
+}

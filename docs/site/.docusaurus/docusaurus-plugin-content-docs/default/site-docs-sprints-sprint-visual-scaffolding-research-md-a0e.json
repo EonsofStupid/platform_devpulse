@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-visual-scaffolding.research",
+  "title": "Research: ColdLight Visual Scaffolding — Complete Analysis",
+  "description": "Date: 2026-02-07",
+  "source": "@site/docs/sprints/sprint-visual-scaffolding.research.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-visual-scaffolding.research",
+  "permalink": "/docs/sprints/sprint-visual-scaffolding.research",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 40,
+  "frontMatter": {
+    "sidebar_position": 40
+  }
+}

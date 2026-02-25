@@ -1,0 +1,27 @@
+{
+  "id": "platform/header-compliance",
+  "title": "Header Compliance",
+  "description": "The DevPulse platform uses a schema-driven header system to enforce documentation standards.",
+  "source": "@site/docs/platform/header-compliance.md",
+  "sourceDirName": "platform",
+  "slug": "/platform/header-compliance",
+  "permalink": "/docs/platform/header-compliance",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "sidebar_position": 2,
+    "title": "Header Compliance"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Platform Namespaces",
+    "permalink": "/docs/platform/namespaces"
+  },
+  "next": {
+    "title": "Sprint Plans",
+    "permalink": "/docs/sprints/"
+  }
+}

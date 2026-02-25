@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-02-dialog-gold-standard",
+  "title": "SPRINT 02: Dialog Gold Standard — ColdLight-Native",
+  "description": "Status: READY FOR EXECUTION",
+  "source": "@site/docs/sprints/sprint-02-dialog-gold-standard.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-02-dialog-gold-standard",
+  "permalink": "/docs/sprints/sprint-02-dialog-gold-standard",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 4,
+  "frontMatter": {
+    "sidebar_position": 4
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "coldlight/tokens/index",
+  "title": "Design Tokens",
+  "description": "ColdLight uses Style Dictionary v5 (DTCG 1.0) for the token pipeline.",
+  "source": "@site/docs/coldlight/tokens/index.md",
+  "sourceDirName": "coldlight/tokens",
+  "slug": "/coldlight/tokens/",
+  "permalink": "/docs/coldlight/tokens/",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "Design Tokens"
+  },
+  "sidebar": "docs",
+  "previous": {
+    "title": "Testing",
+    "permalink": "/docs/coldlight/primitives/testing"
+  },
+  "next": {
+    "title": "Recipes",
+    "permalink": "/docs/coldlight/recipes/"
+  }
+}

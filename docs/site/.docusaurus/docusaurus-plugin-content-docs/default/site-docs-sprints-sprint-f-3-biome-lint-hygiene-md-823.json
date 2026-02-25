@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-f3-biome-lint-hygiene",
+  "title": "SPRINT F3: Biome Lint Hygiene",
+  "description": "Status: IN PROGRESS",
+  "source": "@site/docs/sprints/sprint-f3-biome-lint-hygiene.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-f3-biome-lint-hygiene",
+  "permalink": "/docs/sprints/sprint-f3-biome-lint-hygiene",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 21,
+  "frontMatter": {
+    "sidebar_position": 21
+  }
+}

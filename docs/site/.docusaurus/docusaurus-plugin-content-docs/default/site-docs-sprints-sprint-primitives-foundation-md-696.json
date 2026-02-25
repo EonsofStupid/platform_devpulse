@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-primitives-foundation",
+  "title": "Sprint: Primitives Foundation",
+  "description": "Created: 2026-02-20",
+  "source": "@site/docs/sprints/sprint-primitives-foundation.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-primitives-foundation",
+  "permalink": "/docs/sprints/sprint-primitives-foundation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 25,
+  "frontMatter": {
+    "sidebar_position": 25
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-coldlight-sole-provider.research",
+  "title": "Research: ColdLight Sole Provider",
+  "description": "Date: 2026-02-08",
+  "source": "@site/docs/sprints/sprint-coldlight-sole-provider.research.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-coldlight-sole-provider.research",
+  "permalink": "/docs/sprints/sprint-coldlight-sole-provider.research",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 14,
+  "frontMatter": {
+    "sidebar_position": 14
+  }
+}

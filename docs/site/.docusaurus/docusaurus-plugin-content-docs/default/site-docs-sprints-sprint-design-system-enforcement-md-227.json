@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-design-system-enforcement",
+  "title": "SPRINT: Design System Enforcement",
+  "description": "Status: READY",
+  "source": "@site/docs/sprints/sprint-design-system-enforcement.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-design-system-enforcement",
+  "permalink": "/docs/sprints/sprint-design-system-enforcement",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 17,
+  "frontMatter": {
+    "sidebar_position": 17
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-taxonomy-foundation",
+  "title": "SPRINT: Taxonomy Foundation — Primitive & Component Master Contracts",
+  "description": "Status: READY",
+  "source": "@site/docs/sprints/sprint-taxonomy-foundation.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-taxonomy-foundation",
+  "permalink": "/docs/sprints/sprint-taxonomy-foundation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 32,
+  "frontMatter": {
+    "sidebar_position": 32
+  }
+}

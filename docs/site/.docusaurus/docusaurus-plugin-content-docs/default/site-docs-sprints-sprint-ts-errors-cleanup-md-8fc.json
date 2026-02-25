@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-ts-errors-cleanup",
+  "title": "SPRINT: TypeScript Errors Cleanup",
+  "description": "Date: 2026-02-07",
+  "source": "@site/docs/sprints/sprint-ts-errors-cleanup.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-ts-errors-cleanup",
+  "permalink": "/docs/sprints/sprint-ts-errors-cleanup",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 37,
+  "frontMatter": {
+    "sidebar_position": 37
+  }
+}

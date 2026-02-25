@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-primitives-foundation.research",
+  "title": "Research: ColdLight Primitives Foundation",
+  "description": "Date: 2026-02-20",
+  "source": "@site/docs/sprints/sprint-primitives-foundation.research.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-primitives-foundation.research",
+  "permalink": "/docs/sprints/sprint-primitives-foundation.research",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 26,
+  "frontMatter": {
+    "sidebar_position": 26
+  }
+}

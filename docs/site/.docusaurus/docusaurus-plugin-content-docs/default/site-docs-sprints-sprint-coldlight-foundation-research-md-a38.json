@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-coldlight-foundation.research",
+  "title": "Research: ColdLight Design System — Full Audit & External Patterns",
+  "description": "Date: 2026-02-08",
+  "source": "@site/docs/sprints/sprint-coldlight-foundation.research.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-coldlight-foundation.research",
+  "permalink": "/docs/sprints/sprint-coldlight-foundation.research",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 12,
+  "frontMatter": {
+    "sidebar_position": 12
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-chat-overlay",
+  "title": "SPRINT: Chat Overlay with ColdLight Primitives",
+  "description": "Status: READY (blocked by SPRINT-TOKEN-BRIDGE + SPRINT-APP-SHELL-REBUILD)",
+  "source": "@site/docs/sprints/sprint-chat-overlay.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-chat-overlay",
+  "permalink": "/docs/sprints/sprint-chat-overlay",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 10,
+  "frontMatter": {
+    "sidebar_position": 10
+  }
+}

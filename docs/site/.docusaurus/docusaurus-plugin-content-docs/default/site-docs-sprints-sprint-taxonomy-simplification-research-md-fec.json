@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-taxonomy-simplification.research",
+  "title": "Research: Taxonomy Simplification",
+  "description": "Date: 2026-02-10",
+  "source": "@site/docs/sprints/sprint-taxonomy-simplification.research.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-taxonomy-simplification.research",
+  "permalink": "/docs/sprints/sprint-taxonomy-simplification.research",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 35,
+  "frontMatter": {
+    "sidebar_position": 35
+  }
+}

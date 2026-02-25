@@ -1,0 +1,17 @@
+{
+  "id": "sprints/sprint-ts-errors-cleanup.research",
+  "title": "Research: TypeScript Errors Blocking svelte-check",
+  "description": "Date: 2026-02-07",
+  "source": "@site/docs/sprints/sprint-ts-errors-cleanup.research.md",
+  "sourceDirName": "sprints",
+  "slug": "/sprints/sprint-ts-errors-cleanup.research",
+  "permalink": "/docs/sprints/sprint-ts-errors-cleanup.research",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 38,
+  "frontMatter": {
+    "sidebar_position": 38
+  }
+}

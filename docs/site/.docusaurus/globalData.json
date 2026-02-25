@@ -1,0 +1,88 @@
+{
+  "docusaurus-plugin-content-docs": {
+    "default": {
+      "path": "/docs/",
+      "versions": [
+        {
+          "name": "current",
+          "label": "Next",
+          "isLast": true,
+          "path": "/docs/",
+          "mainDocId": "intro",
+          "docs": [
+            {
+              "id": "coldlight/architecture",
+              "path": "/docs/coldlight/architecture",
+              "sidebar": "docs"
+            },
+            {
+              "id": "coldlight/inventory",
+              "path": "/docs/coldlight/inventory",
+              "sidebar": "docs"
+            },
+            {
+              "id": "coldlight/overview",
+              "path": "/docs/coldlight/overview",
+              "sidebar": "docs"
+            },
+            {
+              "id": "coldlight/primitives/contracts",
+              "path": "/docs/coldlight/primitives/contracts",
+              "sidebar": "docs"
+            },
+            {
+              "id": "coldlight/primitives/index",
+              "path": "/docs/coldlight/primitives/",
+              "sidebar": "docs"
+            },
+            {
+              "id": "coldlight/primitives/testing",
+              "path": "/docs/coldlight/primitives/testing",
+              "sidebar": "docs"
+            },
+            {
+              "id": "coldlight/recipes/index",
+              "path": "/docs/coldlight/recipes/",
+              "sidebar": "docs"
+            },
+            {
+              "id": "coldlight/tokens/index",
+              "path": "/docs/coldlight/tokens/",
+              "sidebar": "docs"
+            },
+            {
+              "id": "intro",
+              "path": "/docs/",
+              "sidebar": "docs"
+            },
+            {
+              "id": "platform/header-compliance",
+              "path": "/docs/platform/header-compliance",
+              "sidebar": "docs"
+            },
+            {
+              "id": "platform/namespaces",
+              "path": "/docs/platform/namespaces",
+              "sidebar": "docs"
+            },
+            {
+              "id": "sprints/index",
+              "path": "/docs/sprints/",
+              "sidebar": "docs"
+            }
+          ],
+          "draftIds": [],
+          "sidebars": {
+            "docs": {
+              "link": {
+                "path": "/docs/",
+                "label": "intro"
+              }
+            }
+          }
+        }
+      ],
+      "breadcrumbs": true
+    }
+  }
+}
