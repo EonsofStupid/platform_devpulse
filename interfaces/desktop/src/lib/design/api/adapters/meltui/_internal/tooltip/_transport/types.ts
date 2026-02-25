@@ -7,13 +7,12 @@
  *
  * Slots managed by melt: trigger, content, arrow
  *
- * The `refs` object exposes melt's attachment API for DOM registration.
- * Components use: `use:transport.refs.attach("trigger")` on the trigger element.
+ * Melt v0.44 Tooltip uses direct getter properties (.trigger, .content, .arrow)
+ * that return attribute objects — no .refs API. Uses Popover API for positioning.
  *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/
  */
 
-import type { Attachment } from "svelte/attachments";
 import type {
 	SlotAttrs,
 	TransportAdapter,
@@ -26,17 +25,6 @@ import type {
 export interface TooltipTransportStates {
 	/** Whether the tooltip is currently open */
 	open: boolean;
-}
-
-// =============================================================================
-// TRANSPORT REFS — Svelte attachment protocol for DOM registration
-// =============================================================================
-
-export interface TooltipTransportRefs {
-	/** Attach to the trigger element. Enables hover/focus tracking. */
-	trigger: () => Attachment<HTMLElement>;
-	/** Attach to the tooltip content element. Required for positioning. */
-	content: () => Attachment<HTMLElement>;
 }
 
 // =============================================================================
@@ -58,6 +46,8 @@ export interface TooltipTransportConfig {
 	disableHoverableContent?: boolean;
 	/** Whether to force the tooltip visible regardless of hover state. @default false */
 	forceVisible?: boolean;
+	/** Floating UI configuration. */
+	floatingConfig?: Record<string, unknown>;
 }
 
 // =============================================================================
@@ -69,14 +59,11 @@ export interface TooltipTransportConfig {
  *
  * Slots (melt-managed): trigger, content, arrow
  * States: open
- * Refs: Svelte attachments for DOM lifecycle
  */
 export type TooltipTransport = TransportAdapter<
 	"trigger" | "content" | "arrow",
 	TooltipTransportStates
 > & {
-	/** Svelte attachment protocol — use these on the corresponding DOM elements */
-	readonly refs: TooltipTransportRefs;
 	readonly slots: {
 		readonly trigger: SlotAttrs;
 		readonly content: SlotAttrs;

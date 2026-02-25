@@ -5,10 +5,13 @@
  * Typed transport interface for the MeltUI tree adapter.
  * Maps melt v0.44 Tree API → ColdLight slot vocabulary.
  *
- * Slots managed by melt: root, group, item (per child)
+ * Slots managed by melt: root, group, item (per child via child.attrs)
  * States: selected (string | string[]), expanded (Set<string>)
  *
  * Each tree child exposes its own item slot attrs and nested children.
+ *
+ * Melt v0.44 Tree uses SvelteSet<string> for expanded state and
+ * SelectionStateValue for selected. This transport converts at the boundary.
  *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/treeview/
  */
@@ -17,6 +20,16 @@ import type {
 	SlotAttrs,
 	TransportAdapter,
 } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
+
+// =============================================================================
+// TREE ITEM — minimum shape for tree data items
+// =============================================================================
+
+/** Minimum shape for tree data items (mirrors melt TreeItem) */
+export interface ColdLightTreeItem {
+	id: string;
+	children?: ColdLightTreeItem[];
+}
 
 // =============================================================================
 // TREE CHILD TRANSPORT — per-child interface
@@ -50,14 +63,14 @@ export interface TreeTransportStates<Multiple extends boolean = false> {
 // TRANSPORT CONFIG
 // =============================================================================
 
-export interface TreeTransportConfig<I, Multiple extends boolean = false> {
-	/** The tree collection data. Required. */
-	collection: I;
+export interface TreeTransportConfig<I extends ColdLightTreeItem = ColdLightTreeItem, Multiple extends boolean = false> {
+	/** The tree items data. Required. Array of tree nodes with id + children. */
+	items: I[] | Iterable<I>;
 	/** Whether multiple items can be selected. @default false */
 	multiple?: Multiple;
-	/** Whether clicking an item expands it. @default false */
+	/** Whether clicking an item expands it. @default true */
 	expandOnClick?: boolean;
-	/** Timeout in ms for typeahead search. @default 750 */
+	/** Timeout in ms for typeahead search. @default 500 */
 	typeaheadTimeout?: number;
 }
 

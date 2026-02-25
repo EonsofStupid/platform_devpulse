@@ -7,6 +7,9 @@
  *
  * Slots managed by melt: dropzone, input, trigger
  * States: isDragging (boolean), selected (File | File[])
+ *
+ * Melt v0.44 FileUpload uses SvelteSet<File> internally for multiple selection.
+ * This transport converts to/from plain arrays at the boundary.
  */
 
 import type {
@@ -32,8 +35,8 @@ export interface FileUploadTransportStates<Multiple extends boolean = false> {
 export interface FileUploadTransportConfig<Multiple extends boolean = false> {
 	/** Whether to allow multiple file selection. @default false */
 	multiple?: Multiple;
-	/** Accepted MIME types (e.g., "image/*", "application/pdf") */
-	accept?: string | string[];
+	/** Accepted MIME types as a comma-separated string (e.g., "image/*,.pdf") */
+	accept?: string;
 	/** Maximum file size in bytes */
 	maxSize?: number;
 	/** Whether the file upload is disabled. @default false */

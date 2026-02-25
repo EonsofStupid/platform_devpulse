@@ -13,6 +13,10 @@
  * States (root): value, disabled, multiple
  * States (per-item): isExpanded, isDisabled
  *
+ * Melt v0.44 Accordion uses getItem(meta) returning AccordionItem with
+ * .heading, .trigger, .content getters. Uses OnMultipleChange and
+ * SelectionStateValue internally — this transport uses simpler types at the boundary.
+ *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/
  */
 
@@ -25,13 +29,15 @@ import type {
 // ITEM META — passed to getItem() to create per-item transports
 // =============================================================================
 
-export interface AccordionItemMeta<Meta extends Record<string, unknown> = Record<never, never>> {
+export interface AccordionItemMeta {
 	/** Unique identifier for the accordion item. */
 	id: string;
 	/** Disables this specific accordion item. */
 	disabled?: boolean;
 	/** Heading level (1–6) for the item header. */
 	headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
+	/** Allow additional metadata to be passed through */
+	[key: string]: unknown;
 }
 
 // =============================================================================
@@ -102,9 +108,7 @@ export interface AccordionTransportConfig<Multiple extends boolean = false> {
  */
 export type AccordionTransport = TransportAdapter<"root", AccordionTransportStates> & {
 	/** Create a per-item transport for the given item metadata */
-	getItem<Meta extends Record<string, unknown> = Record<never, never>>(
-		meta: AccordionItemMeta<Meta>,
-	): AccordionItemTransport;
+	getItem(meta: AccordionItemMeta): AccordionItemTransport;
 	/** Check if a specific item is expanded */
 	isExpanded(id: string): boolean;
 	/** Expand a specific item */

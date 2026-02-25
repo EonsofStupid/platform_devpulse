@@ -7,6 +7,5 @@ export { createSliderTransport } from "./factory.js";
 export type {
 	SliderTransport,
 	SliderTransportConfig,
-	SliderTransportRefs,
 	SliderTransportStates,
 } from "./types.js";

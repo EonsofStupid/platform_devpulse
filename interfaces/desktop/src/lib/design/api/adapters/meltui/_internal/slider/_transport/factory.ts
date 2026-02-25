@@ -5,14 +5,15 @@
  * Creates a ColdLight slider transport from melt v0.44 Slider.
  * Maps melt Slider getters → ColdLight slot vocabulary.
  *
- * Slot mapping:
- *   melt slider.root  → slots.root   (role=slider, aria-valuemin/max/now, data-melt-*)
- *   melt slider.thumb → slots.thumb  (tabindex, aria-*, data-melt-*)
- *   ColdLight structural → slots.track, slots.range
+ * Melt v0.44 Slider exposes direct getter properties:
+ *   slider.root  → slots.root  (role=slider, aria-valuemin/max/now, tabindex, data-melt-*)
+ *   slider.thumb → slots.thumb (tabindex, data-dragging, data-melt-*)
  *
- * Ref mapping:
- *   melt slider.refs.attach("root")  → refs.root()
- *   melt slider.refs.attach("thumb") → refs.thumb()
+ * ColdLight structural slots (no melt behavior):
+ *   slots.track — visual track element
+ *   slots.range — visual filled range element
+ *
+ * No .refs API — melt uses direct event handlers for drag interaction.
  */
 
 import type { SlotAttrs } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
@@ -26,11 +27,11 @@ import type { SliderTransport, SliderTransportConfig } from "./types.js";
  * ```svelte
  * const transport = createSliderTransport({ min: 0, max: 100, value: 50 });
  *
- * <div {...transport.slots.root} use:transport.refs.root()>
+ * <div {...transport.slots.root}>
  *   <div {...transport.slots.track}>
  *     <div {...transport.slots.range}></div>
  *   </div>
- *   <div {...transport.slots.thumb} use:transport.refs.thumb()></div>
+ *   <div {...transport.slots.thumb}></div>
  * </div>
  * ```
  */
@@ -42,7 +43,6 @@ export function createSliderTransport(config?: SliderTransportConfig): SliderTra
 		step: config?.step,
 		orientation: config?.orientation,
 		onValueChange: config?.onValueChange,
-		disabled: config?.disabled,
 	});
 
 	return {
@@ -68,10 +68,6 @@ export function createSliderTransport(config?: SliderTransportConfig): SliderTra
 			set value(v: number) {
 				slider.value = v;
 			},
-		},
-		refs: {
-			root: () => slider.refs.attach("root"),
-			thumb: () => slider.refs.attach("thumb"),
 		},
 	};
 }

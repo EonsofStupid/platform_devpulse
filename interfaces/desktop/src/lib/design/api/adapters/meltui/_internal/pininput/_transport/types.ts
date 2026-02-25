@@ -5,8 +5,12 @@
  * Typed transport interface for the MeltUI pin input adapter.
  * Maps melt v0.44 PinInput API → ColdLight slot vocabulary.
  *
- * Slots managed by melt: root, input (array of per-input attrs)
+ * Slots managed by melt: root, inputs (array of per-input attrs)
  * States: value (string), isFilled (boolean)
+ *
+ * Note: PinInput.inputs returns an array of attr objects (one per digit).
+ * The TransportAdapter base only uses "root" since "inputs" is an array
+ * extension, not a single SlotAttrs.
  */
 
 import type {
@@ -51,11 +55,11 @@ export interface PinInputTransportConfig {
 /**
  * ColdLight pin input transport — the public contract for the melt pin input adapter.
  *
- * Slots (melt-managed): root, input (array)
+ * Slots (melt-managed): root, inputs (array — one SlotAttrs per digit)
  * States: value, isFilled
  */
 export type PinInputTransport = TransportAdapter<
-	"root" | "input",
+	"root",
 	PinInputTransportStates
 > & {
 	readonly slots: {

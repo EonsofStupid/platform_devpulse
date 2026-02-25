@@ -9,9 +9,10 @@
 
 export { createTreeTransport } from "./_transport/index.js";
 export type {
+	ColdLightTreeItem,
 	TreeTransport,
 	TreeTransportConfig,
 	TreeTransportStates,
 	TreeChildTransport,
 } from "./_transport/index.js";
-export { createMeltTree, type MeltTreeConfig, type MeltTreeInstance } from "./factory.js";
+export { createMeltTree, type TreeItem, type MeltTreeConfig, type MeltTreeInstance } from "./factory.js";

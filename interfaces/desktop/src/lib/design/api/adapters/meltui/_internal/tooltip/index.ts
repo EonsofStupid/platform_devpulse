@@ -11,7 +11,6 @@ export { createTooltipTransport } from "./_transport/index.js";
 export type {
 	TooltipTransport,
 	TooltipTransportConfig,
-	TooltipTransportRefs,
 	TooltipTransportStates,
 } from "./_transport/index.js";
 export { createMeltTooltip, type MeltTooltipConfig, type MeltTooltipInstance } from "./factory.js";

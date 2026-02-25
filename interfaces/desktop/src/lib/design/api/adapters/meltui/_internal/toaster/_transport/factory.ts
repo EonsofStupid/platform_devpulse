@@ -5,17 +5,17 @@
  * Creates a ColdLight toaster transport from melt v0.44 Toaster.
  * Maps melt Toaster getters → ColdLight slot vocabulary.
  *
- * Slot mapping:
- *   melt toaster.root → slots.root (data-melt-*)
+ * Melt v0.44 Toaster exposes:
+ *   toaster.root → slots.root (data-melt-toaster-root, popover="manual")
  *
- * Toast slot mapping (per toast):
- *   melt toast.content     → toast.content     (data-melt-*)
- *   melt toast.title       → toast.title       (data-melt-*)
- *   melt toast.description → toast.description (data-melt-*)
- *   melt toast.close       → toast.close       (data-melt-*)
+ * Toast slot mapping (per toast instance):
+ *   toast.content     → toast.content     (role="alert", aria-live, data-melt-*)
+ *   toast.title       → toast.title       (id for aria-labelledby)
+ *   toast.description → toast.description (id for aria-describedby)
+ *   toast.close       → toast.close       (onclick, data-melt-*)
  *
- * State mapping:
- *   melt toaster.toasts → states.toasts (array of ToastTransport)
+ * Melt v0.44 addToast expects AddToastArgs<T> = { data: T, id?, closeDelay?, type? }.
+ * This transport wraps the data payload into that shape.
  */
 
 import type { SlotAttrs } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
@@ -72,7 +72,7 @@ function mapToast(meltToast: {
  *
  * Usage in component:
  * ```svelte
- * const transport = createToasterTransport({ duration: 5000 });
+ * const transport = createToasterTransport({ closeDelay: 5000 });
  *
  * <div {...transport.slots.root}>
  *   {#each transport.states.toasts as toast (toast.id)}
@@ -93,9 +93,10 @@ export function createToasterTransport<T = unknown>(
 	config?: ToasterTransportConfig,
 ): ToasterTransport<T> {
 	const toaster = createMeltToaster<T>({
-		duration: config?.duration,
-		type: config?.type,
 		closeDelay: config?.closeDelay,
+		type: config?.type,
+		hover: config?.hover,
+		tabHidden: config?.tabHidden,
 	});
 
 	return {
@@ -110,7 +111,7 @@ export function createToasterTransport<T = unknown>(
 			},
 		},
 		addToast(data: T): void {
-			toaster.addToast(data);
+			toaster.addToast({ data });
 		},
 	};
 }

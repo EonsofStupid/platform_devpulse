@@ -7,6 +7,5 @@ export { createRadioGroupTransport } from "./factory.js";
 export type {
 	RadioGroupTransport,
 	RadioGroupTransportConfig,
-	RadioGroupTransportRefs,
 	RadioGroupTransportStates,
 } from "./types.js";

@@ -5,16 +5,14 @@
  * Creates a ColdLight select transport from melt v0.44 Select.
  * Maps melt Select getters → ColdLight slot vocabulary.
  *
- * Slot mapping:
- *   melt select.trigger → slots.trigger  (onclick, aria-expanded, aria-haspopup, data-melt-*)
- *   melt select.content → slots.content  (role=listbox, data-open, data-melt-*)
- *   melt select.label   → slots.label    (id, data-melt-*)
- *   melt select.item(v) → item(v)        (role=option, aria-selected, data-melt-*)
+ * Melt v0.44 Select extends BasePopover and exposes direct getter properties:
+ *   select.trigger       → slots.trigger  (popovertarget, aria-expanded, data-melt-*)
+ *   select.content       → slots.content  (role=listbox, popover="manual", data-melt-*)
+ *   select.label         → slots.label    (for, onclick, data-melt-*)
+ *   select.getOption(v)  → item(v)        (role=option, aria-selected, data-melt-*)
  *   ColdLight structural → slots.group
  *
- * Ref mapping:
- *   melt select.refs.attach("trigger") → refs.trigger()
- *   melt select.refs.attach("content") → refs.content()
+ * No .refs API — melt uses Popover API (popovertarget) for positioning.
  */
 
 import type { SlotAttrs } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
@@ -29,10 +27,10 @@ import type { SelectTransport, SelectTransportConfig } from "./types.js";
  * const transport = createSelectTransport<string>({ value: "apple" });
  *
  * <label {...transport.slots.label}>Fruit</label>
- * <button {...transport.slots.trigger} use:transport.refs.trigger()>
+ * <button {...transport.slots.trigger}>
  *   {transport.states.value}
  * </button>
- * <div {...transport.slots.content} use:transport.refs.content()>
+ * <div {...transport.slots.content}>
  *   <div {...transport.item("apple")}>Apple</div>
  *   <div {...transport.item("banana")}>Banana</div>
  * </div>
@@ -43,10 +41,12 @@ export function createSelectTransport<T = unknown>(
 ): SelectTransport<T> {
 	const select = createMeltSelect<T, false>({
 		value: config?.value,
-		onValueChange: config?.onValueChange,
+		onValueChange: config?.onValueChange as
+			| ((value: T | undefined) => void)
+			| undefined,
 		open: config?.open,
 		onOpenChange: config?.onOpenChange,
-		positioning: config?.positioning,
+		floatingConfig: config?.floatingConfig,
 		typeaheadTimeout: config?.typeaheadTimeout,
 	});
 
@@ -73,11 +73,11 @@ export function createSelectTransport<T = unknown>(
 			set open(v: boolean) {
 				select.open = v;
 			},
-			get value(): T {
-				return select.value;
+			get value(): T | undefined {
+				return select.value as T | undefined;
 			},
-			set value(v: T) {
-				select.value = v;
+			set value(v: T | undefined) {
+				select.value = v as typeof select.value;
 			},
 			get highlighted(): T | null {
 				return select.highlighted;
@@ -86,12 +86,8 @@ export function createSelectTransport<T = unknown>(
 				select.highlighted = v;
 			},
 		},
-		refs: {
-			trigger: () => select.refs.attach("trigger"),
-			content: () => select.refs.attach("content"),
-		},
-		item(value: T): SlotAttrs {
-			return select.item(value) as unknown as SlotAttrs;
+		item(value: T, label?: string): SlotAttrs {
+			return select.getOption(value, label) as unknown as SlotAttrs;
 		},
 	};
 }

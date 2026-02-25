@@ -8,6 +8,9 @@
  * ColdLight cloaks this entirely. Consumers NEVER import from melt or this file.
  * All access is via the transport layer (_transport/).
  *
+ * Note: Melt v0.44 RadioGroup constructor requires props (not optional).
+ * We default to an empty object when config is undefined.
+ *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/radio/
  */
 
@@ -21,5 +24,5 @@ export type MeltRadioGroupConfig = RadioGroupProps;
  * This is the ONLY place `RadioGroup` from `melt/builders` is instantiated.
  */
 export function createMeltRadioGroup(config?: MeltRadioGroupConfig): MeltRadioGroupInstance {
-	return new RadioGroup(config);
+	return new RadioGroup(config ?? ({} as MeltRadioGroupConfig));
 }

@@ -11,7 +11,6 @@ export { createRadioGroupTransport } from "./_transport/index.js";
 export type {
 	RadioGroupTransport,
 	RadioGroupTransportConfig,
-	RadioGroupTransportRefs,
 	RadioGroupTransportStates,
 } from "./_transport/index.js";
 export { createMeltRadioGroup, type MeltRadioGroupConfig, type MeltRadioGroupInstance } from "./factory.js";

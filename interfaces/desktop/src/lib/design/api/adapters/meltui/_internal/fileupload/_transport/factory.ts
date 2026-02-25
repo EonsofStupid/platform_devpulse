@@ -5,16 +5,16 @@
  * Creates a ColdLight file upload transport from melt v0.44 FileUpload.
  * Maps melt FileUpload getters → ColdLight slot vocabulary.
  *
- * Slot mapping:
- *   melt fileupload.dropzone → slots.dropzone (ondragover, ondrop, data-melt-*)
- *   melt fileupload.input    → slots.input    (type=file, accept, multiple, data-melt-*)
- *   melt fileupload.trigger  → slots.trigger  (onclick, data-melt-*)
+ * Melt v0.44 FileUpload exposes direct getter properties:
+ *   fileupload.dropzone → slots.dropzone (ondragover, ondrop, data-melt-*)
+ *   fileupload.input    → slots.input    (type=file, accept, multiple, data-melt-*)
+ *   fileupload.trigger  → slots.trigger  (onclick, data-melt-*)
  *
- * State mapping:
- *   melt fileupload.isDragging → states.isDragging
- *   melt fileupload.selected   → states.selected (get/set)
+ * Melt uses SvelteSet<File> internally for multiple selection.
+ * This transport converts to/from plain File[] at the boundary.
  */
 
+import { SvelteSet } from "svelte/reactivity";
 import type { SlotAttrs } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
 import { createMeltFileUpload } from "../factory.js";
 import type { FileUploadTransport, FileUploadTransportConfig } from "./types.js";
@@ -44,7 +44,7 @@ export function createFileUploadTransport<Multiple extends boolean = false>(
 		maxSize: config?.maxSize,
 		disabled: config?.disabled,
 		avoidDuplicates: config?.avoidDuplicates,
-	} as FileUploadTransportConfig<Multiple>);
+	});
 
 	return {
 		slots: {
@@ -63,10 +63,18 @@ export function createFileUploadTransport<Multiple extends boolean = false>(
 				return fileupload.isDragging;
 			},
 			get selected() {
-				return fileupload.selected as FileUploadTransport<Multiple>["states"]["selected"];
+				const raw = fileupload.selected;
+				if (raw instanceof SvelteSet) {
+					return [...raw] as FileUploadTransport<Multiple>["states"]["selected"];
+				}
+				return raw as unknown as FileUploadTransport<Multiple>["states"]["selected"];
 			},
 			set selected(v) {
-				fileupload.selected = v as typeof fileupload.selected;
+				if (Array.isArray(v)) {
+					fileupload.selected = new SvelteSet(v) as unknown as typeof fileupload.selected;
+				} else {
+					fileupload.selected = v as unknown as typeof fileupload.selected;
+				}
 			},
 		},
 	};

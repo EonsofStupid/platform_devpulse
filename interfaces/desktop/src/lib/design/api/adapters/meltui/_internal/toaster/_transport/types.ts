@@ -9,6 +9,9 @@
  * States: toasts (array of ToastTransport)
  *
  * Each toast exposes its own slots and lifecycle methods.
+ *
+ * Melt v0.44 Toaster.addToast expects AddToastArgs<T> = { data: T, id?, closeDelay?, type? }.
+ * This transport wraps the data into that shape at the boundary.
  */
 
 import type {
@@ -58,11 +61,13 @@ export interface ToasterTransportStates {
 
 export interface ToasterTransportConfig {
 	/** Default duration in ms before auto-dismiss. @default 5000 */
-	duration?: number;
-	/** Default toast type. @default "foreground" */
-	type?: "foreground" | "background";
-	/** Delay in ms before removing dismissed toast from DOM. @default 300 */
 	closeDelay?: number;
+	/** Default toast type (aria-live region). @default "polite" */
+	type?: "assertive" | "polite";
+	/** Hover behavior for pausing auto-dismiss. @default "pause" */
+	hover?: "pause" | "pause-all" | null;
+	/** Tab hidden behavior for pausing. @default "pause-all" */
+	tabHidden?: "pause-all" | null;
 }
 
 // =============================================================================

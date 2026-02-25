@@ -7,6 +7,5 @@ export { createSelectTransport } from "./factory.js";
 export type {
 	SelectTransport,
 	SelectTransportConfig,
-	SelectTransportRefs,
 	SelectTransportStates,
 } from "./types.js";

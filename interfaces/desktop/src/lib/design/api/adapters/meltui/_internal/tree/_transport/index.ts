@@ -5,6 +5,7 @@
 
 export { createTreeTransport } from "./factory.js";
 export type {
+	ColdLightTreeItem,
 	TreeTransport,
 	TreeTransportConfig,
 	TreeTransportStates,

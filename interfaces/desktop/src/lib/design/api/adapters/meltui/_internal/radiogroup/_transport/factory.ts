@@ -5,14 +5,13 @@
  * Creates a ColdLight radio group transport from melt v0.44 RadioGroup.
  * Maps melt RadioGroup getters → ColdLight slot vocabulary.
  *
- * Slot mapping:
- *   melt radiogroup.root        → slots.root        (role=radiogroup, data-melt-*)
- *   melt radiogroup.label       → slots.label       (id, data-melt-*)
- *   melt radiogroup.hiddenInput → slots.hiddenInput  (type=radio, hidden, data-melt-*)
- *   melt radiogroup.item(v)     → item(v)           (role=radio, aria-checked, data-melt-*)
+ * Melt v0.44 RadioGroup exposes direct getter properties:
+ *   radiogroup.root        → slots.root        (role=radiogroup, aria-required, data-melt-*)
+ *   radiogroup.label       → slots.label       (id, onclick, data-melt-*)
+ *   radiogroup.hiddenInput → slots.hiddenInput  (type=radio, hidden, aria-hidden, data-melt-*)
+ *   radiogroup.getItem(v).attrs → item(v)      (role=radio, aria-checked, onclick, data-melt-*)
  *
- * Ref mapping:
- *   melt radiogroup.refs.attach("root") → refs.root()
+ * No .refs API — melt uses direct event handlers on elements.
  */
 
 import type { SlotAttrs } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
@@ -26,7 +25,7 @@ import type { RadioGroupTransport, RadioGroupTransportConfig } from "./types.js"
  * ```svelte
  * const transport = createRadioGroupTransport({ value: "option1" });
  *
- * <div {...transport.slots.root} use:transport.refs.root()>
+ * <div {...transport.slots.root}>
  *   <span {...transport.slots.label}>Choose an option</span>
  *   <div {...transport.item("option1")}>Option 1</div>
  *   <div {...transport.item("option2")}>Option 2</div>
@@ -67,11 +66,8 @@ export function createRadioGroupTransport(
 				radiogroup.value = v;
 			},
 		},
-		refs: {
-			root: () => radiogroup.refs.attach("root"),
-		},
 		item(value: string): SlotAttrs {
-			return radiogroup.item(value) as unknown as SlotAttrs;
+			return radiogroup.getItem(value).attrs as unknown as SlotAttrs;
 		},
 	};
 }

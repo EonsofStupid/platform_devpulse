@@ -11,7 +11,6 @@ export { createSelectTransport } from "./_transport/index.js";
 export type {
 	SelectTransport,
 	SelectTransportConfig,
-	SelectTransportRefs,
 	SelectTransportStates,
 } from "./_transport/index.js";
 export { createMeltSelect, type MeltSelectConfig, type MeltSelectInstance } from "./factory.js";

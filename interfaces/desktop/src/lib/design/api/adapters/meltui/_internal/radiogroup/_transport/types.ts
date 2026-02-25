@@ -6,16 +6,15 @@
  * Maps melt v0.44 RadioGroup API → ColdLight slot vocabulary.
  *
  * Slots managed by melt: root, label, hiddenInput
- * Slots dynamic (via method): item (created via radiogroup.item(value))
+ * Slots dynamic (via method): item (created via radiogroup.getItem(value).attrs)
  * States: value
  *
- * The `refs` object exposes melt's attachment API for DOM registration.
- * Components use: `use:transport.refs.attach("root")` on the root element.
+ * Melt v0.44 RadioGroup uses direct getter properties (.root, .label, .hiddenInput)
+ * and getItem(value) returning RadioItem with .attrs getter — no .refs API.
  *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/radio/
  */
 
-import type { Attachment } from "svelte/attachments";
 import type {
 	SlotAttrs,
 	TransportAdapter,
@@ -28,15 +27,6 @@ import type {
 export interface RadioGroupTransportStates {
 	/** The currently selected radio value */
 	value: string;
-}
-
-// =============================================================================
-// TRANSPORT REFS — Svelte attachment protocol for DOM registration
-// =============================================================================
-
-export interface RadioGroupTransportRefs {
-	/** Attach to the root radio group container element. */
-	root: () => Attachment<HTMLElement>;
 }
 
 // =============================================================================
@@ -70,15 +60,11 @@ export interface RadioGroupTransportConfig {
  * Slots (melt-managed): root, label, hiddenInput
  * Slots (dynamic): item — created via `transport.item(value)`
  * States: value
- * Refs: Svelte attachments for DOM lifecycle
  */
 export type RadioGroupTransport = TransportAdapter<
 	"root" | "label" | "hiddenInput",
 	RadioGroupTransportStates
 > & {
-	/** Svelte attachment protocol — use these on the corresponding DOM elements */
-	readonly refs: RadioGroupTransportRefs;
-	/** Slot attrs for each radio group slot */
 	readonly slots: {
 		readonly root: SlotAttrs;
 		readonly label: SlotAttrs;

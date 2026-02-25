@@ -5,14 +5,12 @@
  * Creates a ColdLight tooltip transport from melt v0.44 Tooltip.
  * Maps melt Tooltip getters → ColdLight slot vocabulary.
  *
- * Slot mapping:
- *   melt tooltip.trigger → slots.trigger (aria-describedby, data-melt-*)
- *   melt tooltip.content → slots.content (role="tooltip", data-melt-*)
- *   melt tooltip.arrow   → slots.arrow   (data-melt-*)
+ * Melt v0.44 Tooltip exposes direct getter properties:
+ *   tooltip.trigger → slots.trigger (aria-describedby, data-melt-*)
+ *   tooltip.content → slots.content (role="tooltip", popover="manual", data-melt-*)
+ *   tooltip.arrow   → slots.arrow   (data-arrow, aria-hidden, data-melt-*)
  *
- * Ref mapping:
- *   melt tooltip.refs.attach("trigger") → refs.trigger()
- *   melt tooltip.refs.attach("content") → refs.content() ← REQUIRED for positioning
+ * No .refs API — melt uses Popover API (popovertarget) for positioning.
  */
 
 import type { SlotAttrs } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
@@ -26,9 +24,9 @@ import type { TooltipTransport, TooltipTransportConfig } from "./types.js";
  * ```svelte
  * const transport = createTooltipTransport({ openDelay: 200 });
  *
- * <button {...transport.slots.trigger} use:transport.refs.trigger()>Hover me</button>
+ * <button {...transport.slots.trigger}>Hover me</button>
  * {#if transport.states.open}
- *   <div {...transport.slots.content} use:transport.refs.content()>
+ *   <div {...transport.slots.content}>
  *     Tooltip text
  *     <div {...transport.slots.arrow}></div>
  *   </div>
@@ -44,6 +42,7 @@ export function createTooltipTransport(config?: TooltipTransportConfig): Tooltip
 		closeOnPointerDown: config?.closeOnPointerDown,
 		disableHoverableContent: config?.disableHoverableContent,
 		forceVisible: config?.forceVisible,
+		floatingConfig: config?.floatingConfig,
 	});
 
 	return {
@@ -65,10 +64,6 @@ export function createTooltipTransport(config?: TooltipTransportConfig): Tooltip
 			set open(v: boolean) {
 				tooltip.open = v;
 			},
-		},
-		refs: {
-			trigger: () => tooltip.refs.attach("trigger"),
-			content: () => tooltip.refs.attach("content"),
 		},
 	};
 }

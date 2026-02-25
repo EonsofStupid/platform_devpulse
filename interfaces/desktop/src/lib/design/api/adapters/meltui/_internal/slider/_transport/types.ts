@@ -9,13 +9,16 @@
  * Slots structural (ColdLight): track, range
  * States: value
  *
- * The `refs` object exposes melt's attachment API for DOM registration.
- * Components use: `use:transport.refs.attach("root")` on the root element.
+ * Melt v0.44 Slider uses direct getter properties (.root, .thumb)
+ * that return attribute objects — no .refs API. The root element
+ * receives role="slider" with full ARIA (valuemin/max/now/orientation).
+ *
+ * Note: Melt v0.44 Slider has no `disabled` prop. Disabled state
+ * must be handled at the component layer (aria-disabled, pointer-events).
  *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/slider/
  */
 
-import type { Attachment } from "svelte/attachments";
 import type {
 	SlotAttrs,
 	TransportAdapter,
@@ -28,17 +31,6 @@ import type {
 export interface SliderTransportStates {
 	/** The current slider value */
 	value: number;
-}
-
-// =============================================================================
-// TRANSPORT REFS — Svelte attachment protocol for DOM registration
-// =============================================================================
-
-export interface SliderTransportRefs {
-	/** Attach to the root slider container element. */
-	root: () => Attachment<HTMLElement>;
-	/** Attach to the thumb element. Required for drag interaction. */
-	thumb: () => Attachment<HTMLElement>;
 }
 
 // =============================================================================
@@ -58,8 +50,6 @@ export interface SliderTransportConfig {
 	orientation?: "horizontal" | "vertical";
 	/** Called when value changes. */
 	onValueChange?: (value: number) => void;
-	/** Whether the slider is disabled. */
-	disabled?: boolean | (() => boolean);
 }
 
 // =============================================================================
@@ -69,18 +59,14 @@ export interface SliderTransportConfig {
 /**
  * ColdLight slider transport — the public contract for the melt slider adapter.
  *
- * Slots (melt-managed): root, thumb
+ * Slots (melt-managed): root (role=slider + ARIA), thumb
  * Slots (structural): track, range
  * States: value
- * Refs: Svelte attachments for DOM lifecycle
  */
 export type SliderTransport = TransportAdapter<
 	"root" | "track" | "range" | "thumb",
 	SliderTransportStates
 > & {
-	/** Svelte attachment protocol — use these on the corresponding DOM elements */
-	readonly refs: SliderTransportRefs;
-	/** Slot attrs for each slider slot */
 	readonly slots: {
 		readonly root: SlotAttrs;
 		readonly track: SlotAttrs;

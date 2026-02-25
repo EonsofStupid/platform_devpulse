@@ -35,7 +35,6 @@
 		step,
 		orientation,
 		onValueChange,
-		disabled,
 	});
 
 	setSliderContext(transport);

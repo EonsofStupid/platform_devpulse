@@ -5,25 +5,20 @@
  * Creates a ColdLight tree transport from melt v0.44 Tree.
  * Maps melt Tree getters → ColdLight slot vocabulary.
  *
- * Slot mapping:
- *   melt tree.root  → slots.root  (role=tree, data-melt-*)
- *   melt tree.group → slots.group (role=group, data-melt-*)
+ * Melt v0.44 Tree exposes direct getter properties:
+ *   tree.root     → slots.root  (role=tree, data-melt-*)
+ *   tree.group    → slots.group (role=group, data-melt-*)
+ *   tree.children → Child<I>[] with .attrs getter per child
  *
- * Child mapping (recursive):
- *   melt child.item       → child.item       (role=treeitem, data-melt-*)
- *   melt child.children   → child.children   (recursive TreeChildTransport[])
- *   melt child.selected   → child.selected   (readonly boolean)
- *   melt child.expanded   → child.expanded   (readonly boolean)
- *   melt child.canExpand  → child.canExpand  (readonly boolean)
- *
- * State mapping:
- *   melt tree.selected → states.selected (get/set)
- *   melt tree.expanded → states.expanded (get/set)
+ * Melt uses SvelteSet<string> for expanded/selected (multi).
+ * This transport converts to/from plain Set<string>/string[] at the boundary.
  */
 
+import { SvelteSet } from "svelte/reactivity";
 import type { SlotAttrs } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
-import { createMeltTree } from "../factory.js";
+import { createMeltTree, type TreeItem } from "../factory.js";
 import type {
+	ColdLightTreeItem,
 	TreeTransport,
 	TreeTransportConfig,
 	TreeChildTransport,
@@ -31,19 +26,22 @@ import type {
 
 /**
  * Recursively map melt tree children to ColdLight TreeChildTransport.
+ * Melt Child<I> has .attrs (slot attrs), .children (Child<I>[] | undefined),
+ * .selected, .expanded, .canExpand.
  */
 function mapChildren(meltChildren: readonly {
-	item: unknown;
-	children: readonly unknown[];
+	attrs: unknown;
+	children: readonly unknown[] | undefined;
 	selected: boolean;
 	expanded: boolean;
 	canExpand: boolean;
 }[]): readonly TreeChildTransport[] {
 	return meltChildren.map((child) => ({
 		get item(): SlotAttrs {
-			return child.item as unknown as SlotAttrs;
+			return child.attrs as unknown as SlotAttrs;
 		},
 		get children(): readonly TreeChildTransport[] {
+			if (!child.children) return [];
 			return mapChildren(child.children as typeof meltChildren);
 		},
 		get selected(): boolean {
@@ -63,7 +61,7 @@ function mapChildren(meltChildren: readonly {
  *
  * Usage in component:
  * ```svelte
- * const transport = createTreeTransport({ collection });
+ * const transport = createTreeTransport({ items: treeData });
  *
  * <div {...transport.slots.root}>
  *   {#each transport.children as child}
@@ -71,7 +69,7 @@ function mapChildren(meltChildren: readonly {
  *       {#if child.canExpand}
  *         <div {...transport.slots.group}>
  *           {#each child.children as nested}
- *             <div {...nested.item}>{nested.item["data-value"]}</div>
+ *             <div {...nested.item}></div>
  *           {/each}
  *         </div>
  *       {/if}
@@ -80,11 +78,14 @@ function mapChildren(meltChildren: readonly {
  * </div>
  * ```
  */
-export function createTreeTransport<I, Multiple extends boolean = false>(
+export function createTreeTransport<
+	I extends ColdLightTreeItem = ColdLightTreeItem,
+	Multiple extends boolean = false,
+>(
 	config: TreeTransportConfig<I, Multiple>,
 ): TreeTransport<Multiple> {
-	const tree = createMeltTree<I, Multiple>({
-		collection: config.collection,
+	const tree = createMeltTree<I & TreeItem, Multiple>({
+		items: config.items as (I & TreeItem)[],
 		multiple: config.multiple,
 		expandOnClick: config.expandOnClick,
 		typeaheadTimeout: config.typeaheadTimeout,
@@ -101,16 +102,24 @@ export function createTreeTransport<I, Multiple extends boolean = false>(
 		},
 		states: {
 			get selected() {
-				return tree.selected as TreeTransport<Multiple>["states"]["selected"];
+				const raw = tree.selected;
+				if (raw instanceof SvelteSet) {
+					return [...raw] as unknown as TreeTransport<Multiple>["states"]["selected"];
+				}
+				return raw as unknown as TreeTransport<Multiple>["states"]["selected"];
 			},
 			set selected(v) {
-				tree.selected = v as typeof tree.selected;
+				if (Array.isArray(v)) {
+					tree.selected = new SvelteSet(v) as unknown as typeof tree.selected;
+				} else {
+					tree.selected = v as unknown as typeof tree.selected;
+				}
 			},
 			get expanded(): Set<string> {
 				return tree.expanded;
 			},
 			set expanded(v: Set<string>) {
-				tree.expanded = v;
+				tree.expanded = v instanceof SvelteSet ? v : new SvelteSet(v);
 			},
 		},
 		get children(): readonly TreeChildTransport[] {

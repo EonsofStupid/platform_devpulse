@@ -17,7 +17,7 @@
  */
 
 import type { SlotAttrs } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
-import { createMeltAccordion } from "../factory.js";
+import { createMeltAccordion, type MeltAccordionConfig } from "../factory.js";
 import type {
 	AccordionItemMeta,
 	AccordionItemTransport,
@@ -44,12 +44,15 @@ import type {
 export function createAccordionTransport<Multiple extends boolean = false>(
 	config?: AccordionTransportConfig<Multiple>,
 ): AccordionTransport {
+	// Cast config at the ColdLight→melt boundary.
+	// ColdLight uses simpler types (string[], callbacks with string/string[])
+	// while melt uses SvelteSet, OnMultipleChange, etc.
 	const accordion = createMeltAccordion({
 		multiple: config?.multiple,
 		disabled: config?.disabled,
 		value: config?.value,
 		onValueChange: config?.onValueChange,
-	});
+	} as unknown as MeltAccordionConfig<Multiple>);
 
 	return {
 		slots: {
@@ -71,10 +74,8 @@ export function createAccordionTransport<Multiple extends boolean = false>(
 				return accordion.multiple;
 			},
 		},
-		getItem<Meta extends Record<string, unknown> = Record<never, never>>(
-			meta: AccordionItemMeta<Meta>,
-		): AccordionItemTransport {
-			const item = accordion.getItem(meta);
+		getItem(meta: AccordionItemMeta): AccordionItemTransport {
+			const item = accordion.getItem(meta as Parameters<typeof accordion.getItem>[0]);
 			return {
 				slots: {
 					get heading(): SlotAttrs {

@@ -11,7 +11,6 @@ export { createSliderTransport } from "./_transport/index.js";
 export type {
 	SliderTransport,
 	SliderTransportConfig,
-	SliderTransportRefs,
 	SliderTransportStates,
 } from "./_transport/index.js";
 export { createMeltSlider, type MeltSliderConfig, type MeltSliderInstance } from "./factory.js";

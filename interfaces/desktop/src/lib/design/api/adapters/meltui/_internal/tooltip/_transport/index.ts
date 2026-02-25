@@ -7,6 +7,5 @@ export { createTooltipTransport } from "./factory.js";
 export type {
 	TooltipTransport,
 	TooltipTransportConfig,
-	TooltipTransportRefs,
 	TooltipTransportStates,
 } from "./types.js";
