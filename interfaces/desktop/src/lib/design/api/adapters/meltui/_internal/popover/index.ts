@@ -11,7 +11,6 @@ export { createPopoverTransport } from "./_transport/index.js";
 export type {
 	PopoverTransport,
 	PopoverTransportConfig,
-	PopoverTransportRefs,
 	PopoverTransportStates,
 } from "./_transport/index.js";
 export { createMeltPopover, type MeltPopoverConfig, type MeltPopoverInstance } from "./factory.js";

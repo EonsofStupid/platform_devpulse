@@ -5,15 +5,14 @@
  * Creates a ColdLight popover transport from melt v0.44 Popover.
  * Maps melt Popover getters → ColdLight slot vocabulary.
  *
- * Slot mapping:
- *   melt popover.trigger → slots.trigger  (onclick, aria-expanded, data-open, data-melt-*)
- *   melt popover.content → slots.content  (popover, inert, data-open, data-melt-*)
- *   melt popover.arrow   → slots.arrow    (data-arrow, data-melt-*)
+ * Melt v0.44 Popover exposes direct getter properties:
+ *   popover.trigger → slots.trigger  (onclick, popovertarget, onfocus, data-melt-*)
+ *   popover.content → slots.content  (popover="manual", inert, data-open, ontoggle, data-melt-*)
+ *   popover.arrow   → slots.arrow    (data-arrow, aria-hidden, data-open, data-melt-*)
  *
- * Ref mapping:
- *   melt popover.refs.attach("trigger") → refs.trigger()
- *   melt popover.refs.attach("content") → refs.content()
- *   melt popover.refs.attach("arrow")   → refs.arrow()
+ * No .refs API — melt uses Popover API (popovertarget) for positioning.
+ *
+ * WAI-ARIA: Non-modal dialog pattern. Trigger has popovertarget linking to content.
  */
 
 import type { SlotAttrs } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
@@ -27,9 +26,9 @@ import type { PopoverTransport, PopoverTransportConfig } from "./types.js";
  * ```svelte
  * const transport = createPopoverTransport({ open: false });
  *
- * <button {...transport.slots.trigger} use:transport.refs.trigger()>Toggle</button>
- * <div {...transport.slots.content} use:transport.refs.content()>
- *   <div {...transport.slots.arrow} use:transport.refs.arrow()></div>
+ * <button {...transport.slots.trigger}>Toggle</button>
+ * <div {...transport.slots.content}>
+ *   <div {...transport.slots.arrow}></div>
  *   Popover content here
  * </div>
  * ```
@@ -38,7 +37,11 @@ export function createPopoverTransport(config?: PopoverTransportConfig): Popover
 	const popover = createMeltPopover({
 		open: config?.open,
 		onOpenChange: config?.onOpenChange,
-		positioning: config?.positioning,
+		forceVisible: config?.forceVisible,
+		sameWidth: config?.sameWidth,
+		closeOnEscape: config?.closeOnEscape,
+		closeOnOutsideClick: config?.closeOnOutsideClick,
+		floatingConfig: config?.floatingConfig,
 	});
 
 	return {
@@ -61,10 +64,8 @@ export function createPopoverTransport(config?: PopoverTransportConfig): Popover
 				popover.open = v;
 			},
 		},
-		refs: {
-			trigger: () => popover.refs.attach("trigger"),
-			content: () => popover.refs.attach("content"),
-			arrow: () => popover.refs.attach("arrow"),
+		close() {
+			popover.open = false;
 		},
 	};
 }

@@ -7,6 +7,5 @@ export { createPopoverTransport } from "./factory.js";
 export type {
 	PopoverTransport,
 	PopoverTransportConfig,
-	PopoverTransportRefs,
 	PopoverTransportStates,
 } from "./types.js";

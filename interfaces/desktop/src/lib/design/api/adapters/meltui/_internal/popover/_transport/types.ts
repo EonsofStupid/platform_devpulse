@@ -8,13 +8,12 @@
  * Slots managed by melt: trigger, content, arrow
  * States: open
  *
- * The `refs` object exposes melt's attachment API for DOM registration.
- * Components use: `use:transport.refs.attach("trigger")` on the trigger element.
+ * Melt v0.44 Popover uses direct getter properties (.trigger, .content, .arrow)
+ * that return attribute objects — no .refs API. Getters are mapped to SlotAttrs.
  *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/popover/
  */
 
-import type { Attachment } from "svelte/attachments";
 import type {
 	SlotAttrs,
 	TransportAdapter,
@@ -30,19 +29,6 @@ export interface PopoverTransportStates {
 }
 
 // =============================================================================
-// TRANSPORT REFS — Svelte attachment protocol for DOM registration
-// =============================================================================
-
-export interface PopoverTransportRefs {
-	/** Attach to the <button> trigger element. Required for positioning anchor. */
-	trigger: () => Attachment<HTMLElement>;
-	/** Attach to the popover content element. Required for floating positioning. */
-	content: () => Attachment<HTMLElement>;
-	/** Attach to the arrow element. Required for arrow positioning. */
-	arrow: () => Attachment<HTMLElement>;
-}
-
-// =============================================================================
 // TRANSPORT CONFIG
 // =============================================================================
 
@@ -51,8 +37,16 @@ export interface PopoverTransportConfig {
 	open?: boolean | (() => boolean);
 	/** Called when open state changes. */
 	onOpenChange?: (value: boolean) => void;
-	/** Floating UI positioning configuration. */
-	positioning?: Record<string, unknown>;
+	/** If the popover visibility should be controlled by the user. @default false */
+	forceVisible?: boolean | (() => boolean);
+	/** If the popover should have the same width as the trigger. @default false */
+	sameWidth?: boolean | (() => boolean);
+	/** Close on Escape key. @default true */
+	closeOnEscape?: boolean | (() => boolean);
+	/** Close on outside click. @default true */
+	closeOnOutsideClick?: boolean | (() => boolean);
+	/** Floating UI configuration (shift, flip, offset, arrow). */
+	floatingConfig?: Record<string, unknown>;
 }
 
 // =============================================================================
@@ -63,19 +57,21 @@ export interface PopoverTransportConfig {
  * ColdLight popover transport — the public contract for the melt popover adapter.
  *
  * Slots (melt-managed): trigger, content, arrow
- * States: open
- * Refs: Svelte attachments for DOM lifecycle
+ *   - trigger: onclick, popovertarget, onfocus, onfocusout, data-melt-popover-trigger
+ *   - content: id, popover="manual", inert, data-open, ontoggle, data-melt-popover-content
+ *   - arrow: data-arrow, aria-hidden, data-open, data-melt-popover-arrow
+ * States: open (getter/setter)
  */
 export type PopoverTransport = TransportAdapter<
 	"trigger" | "content" | "arrow",
 	PopoverTransportStates
 > & {
-	/** Svelte attachment protocol — use these on the corresponding DOM elements */
-	readonly refs: PopoverTransportRefs;
 	/** Slot attrs for each popover slot */
 	readonly slots: {
 		readonly trigger: SlotAttrs;
 		readonly content: SlotAttrs;
 		readonly arrow: SlotAttrs;
 	};
+	/** Close the popover programmatically */
+	close(): void;
 };
