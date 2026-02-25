@@ -5,22 +5,22 @@
 	"tagDefinitions": [
 		{
 			"tagName": "@layer",
-			"syntaxKind": "modifier",
+			"syntaxKind": "block",
 			"allowMultiple": false
 		},
 		{
 			"tagName": "@kind",
-			"syntaxKind": "modifier",
+			"syntaxKind": "block",
 			"allowMultiple": false
 		},
 		{
 			"tagName": "@slot",
-			"syntaxKind": "modifier",
-			"allowMultiple": false
+			"syntaxKind": "block",
+			"allowMultiple": true
 		},
 		{
-			"tagName": "@primitive",
-			"syntaxKind": "modifier",
+			"tagName": "@package",
+			"syntaxKind": "block",
 			"allowMultiple": false
 		},
 		{
@@ -37,6 +37,21 @@
 			"tagName": "@dataattr",
 			"syntaxKind": "block",
 			"allowMultiple": true
+		},
+		{
+			"tagName": "@transport",
+			"syntaxKind": "block",
+			"allowMultiple": false
+		},
+		{
+			"tagName": "@builder",
+			"syntaxKind": "block",
+			"allowMultiple": false
+		},
+		{
+			"tagName": "@primitive",
+			"syntaxKind": "modifier",
+			"allowMultiple": false
 		},
 		{
 			"tagName": "@recipe",
@@ -57,19 +72,28 @@
 			"tagName": "@taxonomy",
 			"syntaxKind": "modifier",
 			"allowMultiple": false
+		},
+		{
+			"tagName": "@internal",
+			"syntaxKind": "modifier",
+			"allowMultiple": false
 		}
 	],
 	"supportForTags": {
 		"@layer": true,
 		"@kind": true,
 		"@slot": true,
-		"@primitive": true,
+		"@package": true,
 		"@aria": true,
 		"@keyboard": true,
 		"@dataattr": true,
+		"@transport": true,
+		"@builder": true,
+		"@primitive": true,
 		"@recipe": true,
 		"@material": true,
 		"@focus": true,
-		"@taxonomy": true
+		"@taxonomy": true,
+		"@internal": true
 	}
 }

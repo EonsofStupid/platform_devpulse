@@ -1,21 +1,46 @@
 {
 	"$schema": "https://typedoc.org/schema.json",
-	"entryPoints": ["./index.ts"],
-	"out": "./.cowlevel/typedoc",
-	"json": "./.cowlevel/typedoc.json",
+	"entryPoints": [
+		"./index.ts",
+		"./tokens/tokens.ts",
+		"./primitives/index.ts",
+		"./actions/index.ts",
+		"./utils/index.ts"
+	],
+	"entryPointStrategy": "expand",
+	"out": "./.cowlevel/docs",
+	"json": "./.cowlevel/api.json",
 	"name": "@devpulse/coldlight",
 	"includeVersion": true,
 	"excludePrivate": true,
 	"excludeInternal": true,
-	"plugin": ["typedoc-plugin-markdown"],
+	"exclude": [
+		"**/node_modules/**",
+		"**/.cowlevel/**",
+		"**/*.test.ts",
+		"**/*.spec.ts",
+		"**/_internal/**"
+	],
+	"skipErrorChecking": true,
+	"plugin": ["typedoc-plugin-markdown", "typedoc-plugin-mermaid"],
 	"readme": "./README.md",
 	"validation": {
-		"notExported": true,
+		"notExported": false,
 		"invalidLink": true,
 		"notDocumented": false
 	},
 	"categorizeByGroup": true,
-	"categoryOrder": ["Tokens", "Taxonomy", "Recipes", "Primitives", "Patterns", "Blocks", "*"],
+	"categoryOrder": [
+		"Tokens",
+		"Primitives",
+		"Actions",
+		"Utilities",
+		"Adapters",
+		"Transport",
+		"Contracts",
+		"Types",
+		"*"
+	],
 	"sort": ["source-order"],
 	"kindSortOrder": [
 		"Reference",
@@ -29,5 +54,28 @@
 		"TypeAlias",
 		"Function",
 		"Variable"
+	],
+	"blockTags": [
+		"@file",
+		"@since",
+		"@description",
+		"@generated-files",
+		"@layer",
+		"@kind",
+		"@slot",
+		"@package",
+		"@aria",
+		"@keyboard",
+		"@dataattr",
+		"@transport",
+		"@builder"
+	],
+	"modifierTags": [
+		"@primitive",
+		"@recipe",
+		"@material",
+		"@focus",
+		"@taxonomy",
+		"@internal"
 	]
 }
