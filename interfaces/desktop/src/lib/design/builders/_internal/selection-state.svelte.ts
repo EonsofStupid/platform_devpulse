@@ -52,8 +52,15 @@ function toSingle<T>(value: SvelteSet<T> | T | undefined): T | undefined {
 	return value;
 }
 
-/** Deep equality check for snapshots. */
+/** Deep equality check for snapshots. Handles Set (JSON.stringify serializes Set as "{}"). */
 function snapshotEqual(a: unknown, b: unknown): boolean {
+	if (a instanceof Set && b instanceof Set) {
+		if (a.size !== b.size) return false;
+		for (const item of a) {
+			if (!b.has(item)) return false;
+		}
+		return true;
+	}
 	return JSON.stringify(a) === JSON.stringify(b);
 }
 
@@ -122,10 +129,16 @@ export class SelectionState<T, Multiple extends boolean = false> {
 	 */
 	manipulate(cb: (set: SvelteSet<T>) => void): void {
 		const set = this.isControlled ? toSet(this.current as Iterable<T> | T | undefined) : this.#internal_set;
-		const prevValue = $state.snapshot(this.isMultiple ? set : toSingle(set));
+		// Snapshot before mutation — Array.from for Sets (JSON.stringify serializes Set as "{}")
+		const prevSnapshot = this.isMultiple
+			? Array.from(set)
+			: $state.snapshot(toSingle(set));
 		cb(set);
 		const newValue = this.isMultiple ? set : toSingle(set);
-		if (snapshotEqual(prevValue, $state.snapshot(newValue))) return;
+		const newSnapshot = this.isMultiple
+			? Array.from(set)
+			: $state.snapshot(newValue);
+		if (snapshotEqual(prevSnapshot, newSnapshot)) return;
 		this.#onChange(newValue);
 	}
 

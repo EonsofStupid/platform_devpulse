@@ -11,5 +11,7 @@ export const ROOTS = {
 	apiRoot: "src/lib/design/api",
 	primitivesRoot: "src/lib/design/primitives",
 	componentsRoot: "src/lib/design/components",
+	/** ColdLight-owned builders (headless ARIA+behavior, replaces melt for ColdLight-owned kinds) */
+	buildersRoot: "src/lib/design/builders",
 	generatedRoot: "src/lib/design/.generated",
 } as const;

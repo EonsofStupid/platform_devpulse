@@ -61,6 +61,8 @@ export type ColdLightConfig = Readonly<{
 		primitivesRoot: string;
 		/** Styled component folders (primitives + recipes = components) */
 		componentsRoot: string;
+		/** ColdLight-owned builders (headless ARIA+behavior for coldlight-owned kinds) */
+		buildersRoot: string;
 		/** Generated output (manifest, imports) */
 		generatedRoot: string;
 	}>;

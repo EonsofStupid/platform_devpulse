@@ -72,6 +72,9 @@ export function createBuilderMetadata<
 		dataSelectors[part] = `[data-cl-${name}-${part}]`;
 	}
 
+	Object.freeze(dataAttrs);
+	Object.freeze(dataSelectors);
+
 	return {
 		dataAttrs: dataAttrs as Readonly<Record<Parts[number], string>>,
 		dataSelectors: dataSelectors as Readonly<Record<Parts[number], string>>,

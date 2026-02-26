@@ -28,6 +28,7 @@ import type {
 	AdapterKindSummary,
 	BlockSummary,
 	BlueprintSummary,
+	BuilderKindSummary,
 	ComponentKindSummary,
 	DevPulseManifest,
 	FileSummary,
@@ -326,6 +327,7 @@ function scanPrimitives(): PrimitiveSummary[] {
 	const primitivesRoot = path.join(ROOTS.design, "primitives");
 	const meltRoot = path.join(ROOTS.design, "api/adapters/meltui/_internal");
 	const coldlightAdapterRoot = path.join(ROOTS.design, "api/adapters/coldlight/_internal");
+	const buildersRoot = path.join(ROOTS.design, "builders");
 
 	const kinds = listSubfolders(primitivesRoot).filter((k) => !k.startsWith("_"));
 	const results: PrimitiveSummary[] = [];
@@ -346,6 +348,7 @@ function scanPrimitives(): PrimitiveSummary[] {
 		const meltKindName = kind.replace(/-/g, "");
 		const hasMeltAdapter = fileExists(path.join(meltRoot, meltKindName)) || fileExists(path.join(meltRoot, kind));
 		const hasColdlightAdapter = fileExists(path.join(coldlightAdapterRoot, kind));
+		const hasBuilder = fileExists(path.join(buildersRoot, kind));
 
 		// Read ariaStateProvider from contract
 		const contractPath = path.join(kindDir, "contract.ts");
@@ -375,6 +378,7 @@ function scanPrimitives(): PrimitiveSummary[] {
 			hasTest,
 			hasMeltAdapter,
 			hasColdlightAdapter,
+			hasBuilder,
 			hasParity,
 			svelteFiles,
 		});
@@ -416,6 +420,31 @@ function scanAdapterKinds(adapterRoot: string): AdapterKindSummary[] {
 			hasTransportIndex,
 			isComplete,
 		});
+	}
+
+	return results.sort((a, b) => a.kind.localeCompare(b.kind));
+}
+
+// =============================================================================
+// COLDLIGHT — BUILDER SCANNING
+// =============================================================================
+
+function scanBuilders(): BuilderKindSummary[] {
+	const buildersRoot = path.join(ROOTS.design, "builders");
+	const kinds = listSubfolders(buildersRoot).filter((k) => !k.startsWith("_"));
+	const results: BuilderKindSummary[] = [];
+
+	for (const kind of kinds) {
+		const kindDir = path.join(buildersRoot, kind);
+		const files = listFiles(kindDir);
+
+		const hasFactory = files.includes("factory.ts");
+		const hasTypes = files.includes("types.ts");
+		const hasIndex = files.includes("index.ts");
+		const hasTest = files.some((f) => f.endsWith(".test.ts"));
+		const isComplete = hasFactory && hasTypes && hasIndex;
+
+		results.push({ kind, hasFactory, hasTypes, hasIndex, hasTest, isComplete });
 	}
 
 	return results.sort((a, b) => a.kind.localeCompare(b.kind));
@@ -721,6 +750,7 @@ function computeStats(manifest: Omit<DevPulseManifest, "stats" | "headerComplian
 		primitivesWithParity: prims.filter((p) => p.hasParity).length,
 		meltAdapters: manifest.coldlight.adapters.meltui.length,
 		coldlightAdapters: manifest.coldlight.adapters.coldlight.length,
+		builders: manifest.coldlight.builders.length,
 		components: manifest.coldlight.components.length,
 		actions: manifest.coldlight.actions.length,
 		utils: manifest.coldlight.utils.length,
@@ -736,6 +766,7 @@ function computeStats(manifest: Omit<DevPulseManifest, "stats" | "headerComplian
 	const byLayer: Record<string, number> = {
 		primitives: prims.length,
 		adapters: manifest.coldlight.adapters.meltui.length + manifest.coldlight.adapters.coldlight.length,
+		builders: manifest.coldlight.builders.length,
 		components: manifest.coldlight.components.length,
 		recipes: manifest.coldlight.recipes.length,
 		blueprints: manifest.coldlight.blueprints.length,
@@ -767,6 +798,7 @@ export function scanPlatform(): PlatformScanResult {
 	const primitives = scanPrimitives();
 	const meltAdapters = scanAdapterKinds(path.join(ROOTS.design, "api/adapters/meltui/_internal"));
 	const coldlightAdapters = scanAdapterKinds(path.join(ROOTS.design, "api/adapters/coldlight/_internal"));
+	const builders = scanBuilders();
 	const components = scanComponents();
 	const recipes = scanRecipes();
 	const blueprints = scanBlueprints();
@@ -798,6 +830,7 @@ export function scanPlatform(): PlatformScanResult {
 		coldlight: {
 			primitives,
 			adapters: { meltui: meltAdapters, coldlight: coldlightAdapters },
+			builders,
 			components,
 			recipes,
 			blueprints,
@@ -886,6 +919,15 @@ function printReport(result: PlatformScanResult): void {
 	const clComplete = cl.adapters.coldlight.filter((a) => a.isComplete).length;
 	console.log(`  ColdLight:  ${clComplete}/${cl.adapters.coldlight.length} complete\n`);
 
+	// ── ColdLight Builders ──────────────────────────────────────────────────
+	console.log("─── ColdLight Builders ─────────────────────────────────────\n");
+	const buildersComplete = cl.builders.filter((b) => b.isComplete).length;
+	console.log(`  Builders:   ${buildersComplete}/${cl.builders.length} complete`);
+	if (cl.builders.length > 0) {
+		console.log(`  Kinds:      ${cl.builders.map((b) => b.kind).join(", ")}`);
+	}
+	console.log();
+
 	// ── ColdLight Components ─────────────────────────────────────────────────
 	console.log("─── ColdLight Components ───────────────────────────────────\n");
 	const compWithSvelte = cl.components.filter((c) => c.hasSvelte).length;
@@ -935,6 +977,7 @@ function printReport(result: PlatformScanResult): void {
 	console.log(`  With Parity:            ${stats.coldlight.primitivesWithParity}`);
 	console.log(`  MeltUI Adapters:        ${stats.coldlight.meltAdapters}`);
 	console.log(`  ColdLight Adapters:     ${stats.coldlight.coldlightAdapters}`);
+	console.log(`  ColdLight Builders:     ${stats.coldlight.builders}`);
 	console.log(`  Component Layer Kinds:  ${stats.coldlight.components}`);
 	console.log();
 }

@@ -25,6 +25,8 @@ export interface SyncedArgs<T> {
 
 export class Synced<T> {
 	#internalValue = $state<T>() as T;
+	/** Un-proxied value for reference equality checks ($state wraps objects in proxies). */
+	#rawValue: T;
 	#valueArg: MaybeGetter<T | undefined>;
 	#onChange: ((value: T) => void) | undefined;
 	#defaultValue: T;
@@ -35,7 +37,9 @@ export class Synced<T> {
 		this.#onChange = args.onChange;
 		this.#defaultValue = args.defaultValue;
 		this.#equalityCheck = args.equalityCheck;
-		this.#internalValue = extract(args.value, args.defaultValue) as T;
+		const initial = extract(args.value, args.defaultValue) as T;
+		this.#rawValue = initial;
+		this.#internalValue = initial;
 	}
 
 	get current(): T {
@@ -46,8 +50,11 @@ export class Synced<T> {
 	}
 
 	set current(value: T) {
-		// Reference equality skip
-		if (this.#equalityCheck === true && this.current === value) return;
+		// Reference equality skip — use #rawValue for uncontrolled ($state proxy breaks ===)
+		if (this.#equalityCheck === true) {
+			const compareWith = isFunction(this.#valueArg) ? this.current : this.#rawValue;
+			if (compareWith === value) return;
+		}
 
 		// Custom equality skip
 		if (isFunction(this.#equalityCheck)) {
@@ -61,6 +68,7 @@ export class Synced<T> {
 		}
 
 		// Uncontrolled: store internally + fire onChange
+		this.#rawValue = value;
 		this.#internalValue = value;
 		this.#onChange?.(value);
 	}

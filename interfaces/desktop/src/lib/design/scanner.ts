@@ -54,7 +54,7 @@ export type ImportLike = (path: string) => Promise<{ default?: unknown; contract
 // =============================================================================
 
 function resolvePaths(config: ColdLightConfig) {
-	const { apiRoot, primitivesRoot } = config.roots;
+	const { apiRoot, primitivesRoot, buildersRoot } = config.roots;
 	const active = config.adapters.active;
 
 	return {
@@ -64,6 +64,8 @@ function resolvePaths(config: ColdLightConfig) {
 		dsAdapter: `${apiRoot}/adapters/${active}/_internal`,
 		/** All API adapters root (for spine validation) */
 		apiAdapters: `${apiRoot}/adapters`,
+		/** ColdLight-owned builders root (headless ARIA+behavior) */
+		builders: buildersRoot,
 	};
 }
 
@@ -116,6 +118,8 @@ function containsContractFile(fs: FsLike, dirPath: string): boolean {
  *
  * ariaStateProvider: "meltui"    → 3-folder (contract + dsAdapter + svelte)
  * ariaStateProvider: "coldlight" → 2-folder (contract + svelte)
+ *
+ * Also detects ColdLight builder presence (informational, not parity-affecting).
  */
 function checkParity(
 	fs: FsLike,
@@ -126,10 +130,12 @@ function checkParity(
 ): PrimitiveScanResult {
 	const kindDir = `${paths.primitives}/${kind}`;
 	const dsAdapterDir = `${paths.dsAdapter}/${kind}`;
+	const builderDir = `${paths.builders}/${kind}`;
 
 	const hasContract = containsContractFile(fs, kindDir);
 	const hasDsAdapter = isDir(fs, dsAdapterDir);
 	const hasSvelteComponent = containsSvelteFile(fs, kindDir);
+	const hasBuilder = isDir(fs, builderDir);
 
 	const missingAdapters: DsAdapterId[] = [];
 	if (ariaStateProvider === "meltui" && !hasDsAdapter) {
@@ -148,6 +154,7 @@ function checkParity(
 		ariaStateProvider,
 		hasContract,
 		hasSvelteComponent,
+		hasBuilder,
 		missingAdapters,
 		hasParity,
 	};

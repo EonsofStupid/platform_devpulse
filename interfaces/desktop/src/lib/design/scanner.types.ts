@@ -87,6 +87,8 @@ export interface PrimitiveScanResult {
 	readonly ariaStateProvider: AriaStateProvider;
 	readonly hasContract: boolean;
 	readonly hasSvelteComponent: boolean;
+	/** ColdLight builder exists at builders/{kind}/ (informational) */
+	readonly hasBuilder: boolean;
 	readonly missingAdapters: readonly DsAdapterId[];
 	readonly hasParity: boolean;
 }

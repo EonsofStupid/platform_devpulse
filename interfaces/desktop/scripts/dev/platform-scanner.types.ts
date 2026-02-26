@@ -51,6 +51,8 @@ export interface PrimitiveSummary {
 	readonly hasMeltAdapter: boolean;
 	/** ColdLight adapter folder exists in _internal/ */
 	readonly hasColdlightAdapter: boolean;
+	/** ColdLight builder exists in builders/{kind}/ */
+	readonly hasBuilder: boolean;
 	/** Full parity: all required folders present per ariaStateProvider */
 	readonly hasParity: boolean;
 
@@ -89,6 +91,25 @@ export interface AdapterKindSummary {
 	/** Has _transport/index.ts */
 	readonly hasTransportIndex: boolean;
 	/** Is complete: all required files present */
+	readonly isComplete: boolean;
+}
+
+// =============================================================================
+// COLDLIGHT — BUILDERS (ColdLight-owned headless ARIA+behavior)
+// =============================================================================
+
+export interface BuilderKindSummary {
+	/** Kind name (e.g. "toggle-group") */
+	readonly kind: string;
+	/** Has factory.ts */
+	readonly hasFactory: boolean;
+	/** Has types.ts */
+	readonly hasTypes: boolean;
+	/** Has index.ts */
+	readonly hasIndex: boolean;
+	/** Has test file */
+	readonly hasTest: boolean;
+	/** Is complete: factory + types + index */
 	readonly isComplete: boolean;
 }
 
@@ -186,6 +207,7 @@ export interface PlatformStats {
 		readonly primitivesWithParity: number;
 		readonly meltAdapters: number;
 		readonly coldlightAdapters: number;
+		readonly builders: number;
 		readonly components: number;
 		readonly actions: number;
 		readonly utils: number;
@@ -212,6 +234,7 @@ export interface DevPulseManifest {
 			readonly meltui: readonly AdapterKindSummary[];
 			readonly coldlight: readonly AdapterKindSummary[];
 		};
+		readonly builders: readonly BuilderKindSummary[];
 		readonly components: readonly ComponentKindSummary[];
 		readonly recipes: readonly RecipeSummary[];
 		readonly blueprints: readonly BlueprintSummary[];
