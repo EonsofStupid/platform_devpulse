@@ -9,7 +9,7 @@
 -->
 <script lang="ts">
 	import type { AlertComponentProps } from "./types.js";
-	import { createAlert } from "$lib/design/builders/alert/index.js";
+	import { createAlert } from "$lib/design/api/adapters/coldlight/_internal/alert/index.js";
 	import AlertRoot from "$lib/design/primitives/alert/Alert.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { alertRecipe } from "./recipe.js";

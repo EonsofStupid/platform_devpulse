@@ -50,20 +50,20 @@ describe("data-table component — contract", () => {
 describe("data-table component — structural attributes", () => {
 	test("renders a wrapper <div> element", async () => {
 		const { container } = render(DataTable);
-		const root = container.querySelector("[data-kind='data-table']");
+		const root = container.querySelector("[data-kind='data-table']") as HTMLElement;
 		expect(root).toBeTruthy();
 	});
 
 	test("has data-kind='data-table'", async () => {
 		const { container } = render(DataTable);
-		const root = container.querySelector("[data-kind='data-table']");
-		await expect.element(root!).toHaveAttribute("data-kind", "data-table");
+		const root = container.querySelector("[data-kind='data-table']") as HTMLElement;
+		await expect.element(root).toHaveAttribute("data-kind", "data-table");
 	});
 
 	test("has data-slot='root'", async () => {
 		const { container } = render(DataTable);
-		const root = container.querySelector("[data-kind='data-table']");
-		await expect.element(root!).toHaveAttribute("data-slot", "root");
+		const root = container.querySelector("[data-kind='data-table']") as HTMLElement;
+		await expect.element(root).toHaveAttribute("data-slot", "root");
 	});
 });
 
@@ -74,14 +74,14 @@ describe("data-table component — structural attributes", () => {
 describe("data-table component — recipe classes", () => {
 	test("applies recipe classes for default variant", async () => {
 		const { container } = render(DataTable);
-		const root = container.querySelector("[data-kind='data-table']");
-		await expect.element(root!).toHaveClass("w-full");
+		const root = container.querySelector("[data-kind='data-table']") as HTMLElement;
+		await expect.element(root).toHaveClass("w-full");
 	});
 
 	test("passes class prop and merges with recipe", async () => {
 		const { container } = render(DataTable, { props: { class: "custom-dt" } });
-		const root = container.querySelector("[data-kind='data-table']");
-		await expect.element(root!).toHaveClass("custom-dt");
+		const root = container.querySelector("[data-kind='data-table']") as HTMLElement;
+		await expect.element(root).toHaveClass("custom-dt");
 	});
 });
 
@@ -92,7 +92,7 @@ describe("data-table component — recipe classes", () => {
 describe("data-table component — prop passthrough", () => {
 	test("forwards id attribute", async () => {
 		const { container } = render(DataTable, { props: { id: "my-data-table" } });
-		const root = container.querySelector("[data-kind='data-table']");
-		await expect.element(root!).toHaveAttribute("id", "my-data-table");
+		const root = container.querySelector("[data-kind='data-table']") as HTMLElement;
+		await expect.element(root).toHaveAttribute("id", "my-data-table");
 	});
 });

@@ -39,14 +39,14 @@ describe("aspect-ratio component — contract", () => {
 describe("aspect-ratio component — structural attributes", () => {
 	test("renders with data-kind='aspect-ratio'", async () => {
 		const { container } = render(AspectRatio);
-		const el = container.querySelector("[data-kind='aspect-ratio']");
+		const el = container.querySelector("[data-kind='aspect-ratio']") as HTMLElement;
 		expect(el).toBeTruthy();
 	});
 
 	test("has data-slot='root'", async () => {
 		const { container } = render(AspectRatio);
-		const el = container.querySelector("[data-kind='aspect-ratio']");
-		await expect.element(el!).toHaveAttribute("data-slot", "root");
+		const el = container.querySelector("[data-kind='aspect-ratio']") as HTMLElement;
+		await expect.element(el).toHaveAttribute("data-slot", "root");
 	});
 });
 
@@ -57,15 +57,15 @@ describe("aspect-ratio component — structural attributes", () => {
 describe("aspect-ratio component — recipe classes", () => {
 	test("applies relative and overflow-hidden", async () => {
 		const { container } = render(AspectRatio);
-		const el = container.querySelector("[data-kind='aspect-ratio']");
-		await expect.element(el!).toHaveClass("relative");
-		await expect.element(el!).toHaveClass("overflow-hidden");
+		const el = container.querySelector("[data-kind='aspect-ratio']") as HTMLElement;
+		await expect.element(el).toHaveClass("relative");
+		await expect.element(el).toHaveClass("overflow-hidden");
 	});
 
 	test("passes custom class", async () => {
 		const { container } = render(AspectRatio, { props: { class: "custom-aspect" } });
-		const el = container.querySelector("[data-kind='aspect-ratio']");
-		await expect.element(el!).toHaveClass("custom-aspect");
+		const el = container.querySelector("[data-kind='aspect-ratio']") as HTMLElement;
+		await expect.element(el).toHaveClass("custom-aspect");
 	});
 });
 
@@ -76,23 +76,23 @@ describe("aspect-ratio component — recipe classes", () => {
 describe("aspect-ratio component — ratio application", () => {
 	test("applies aspect-ratio style for video preset", async () => {
 		const { container } = render(AspectRatio, { props: { preset: "video" } });
-		const el = container.querySelector("[data-kind='aspect-ratio']");
-		const style = el!.getAttribute("style") || "";
+		const el = container.querySelector("[data-kind='aspect-ratio']") as HTMLElement;
+		const style = el.getAttribute("style") || "";
 		expect(style).toContain("aspect-ratio");
 	});
 
 	test("applies aspect-ratio style for square preset", async () => {
 		const { container } = render(AspectRatio, { props: { preset: "square" } });
-		const el = container.querySelector("[data-kind='aspect-ratio']");
-		const style = el!.getAttribute("style") || "";
+		const el = container.querySelector("[data-kind='aspect-ratio']") as HTMLElement;
+		const style = el.getAttribute("style") || "";
 		expect(style).toContain("aspect-ratio");
 		expect(style).toContain("1");
 	});
 
 	test("applies custom numeric ratio", async () => {
 		const { container } = render(AspectRatio, { props: { ratio: 4 / 3 } });
-		const el = container.querySelector("[data-kind='aspect-ratio']");
-		const style = el!.getAttribute("style") || "";
+		const el = container.querySelector("[data-kind='aspect-ratio']") as HTMLElement;
+		const style = el.getAttribute("style") || "";
 		expect(style).toContain("aspect-ratio");
 	});
 });

@@ -39,27 +39,27 @@ describe("code component — contract", () => {
 describe("code component — structural attributes", () => {
 	test("renders with data-kind='code'", async () => {
 		const { container } = render(Code);
-		const el = container.querySelector("[data-kind='code']");
+		const el = container.querySelector("[data-kind='code']") as HTMLElement;
 		expect(el).toBeTruthy();
 	});
 
 	test("has data-slot='root'", async () => {
 		const { container } = render(Code);
-		const el = container.querySelector("[data-kind='code']");
-		await expect.element(el!).toHaveAttribute("data-slot", "root");
+		const el = container.querySelector("[data-kind='code']") as HTMLElement;
+		await expect.element(el).toHaveAttribute("data-slot", "root");
 	});
 
 	test("renders as <code> element", async () => {
 		const { container } = render(Code);
-		const el = container.querySelector("[data-kind='code']");
-		expect(el!.tagName.toLowerCase()).toBe("code");
+		const el = container.querySelector("[data-kind='code']") as HTMLElement;
+		expect(el.tagName.toLowerCase()).toBe("code");
 	});
 
 	test("renders block code wrapped in <pre>", async () => {
 		const { container } = render(Code, { props: { inline: false } });
-		const pre = container.querySelector("pre");
+		const pre = container.querySelector("pre") as HTMLElement;
 		expect(pre).toBeTruthy();
-		const code = pre!.querySelector("[data-kind='code']");
+		const code = pre.querySelector("[data-kind='code']") as HTMLElement;
 		expect(code).toBeTruthy();
 	});
 });
@@ -71,27 +71,27 @@ describe("code component — structural attributes", () => {
 describe("code component — recipe classes", () => {
 	test("applies inline styles by default", async () => {
 		const { container } = render(Code);
-		const el = container.querySelector("[data-kind='code']");
-		await expect.element(el!).toHaveClass("font-mono");
-		await expect.element(el!).toHaveClass("text-sm");
+		const el = container.querySelector("[data-kind='code']") as HTMLElement;
+		await expect.element(el).toHaveClass("font-mono");
+		await expect.element(el).toHaveClass("text-sm");
 	});
 
 	test("applies block styles when inline=false", async () => {
 		const { container } = render(Code, { props: { inline: false } });
-		const pre = container.querySelector("pre");
-		await expect.element(pre!).toHaveClass("font-mono");
-		await expect.element(pre!).toHaveClass("overflow-x-auto");
+		const pre = container.querySelector("pre") as HTMLElement;
+		await expect.element(pre).toHaveClass("font-mono");
+		await expect.element(pre).toHaveClass("overflow-x-auto");
 	});
 
 	test("sets data-language when language provided", async () => {
 		const { container } = render(Code, { props: { language: "typescript" } });
-		const el = container.querySelector("[data-kind='code']");
-		await expect.element(el!).toHaveAttribute("data-language", "typescript");
+		const el = container.querySelector("[data-kind='code']") as HTMLElement;
+		await expect.element(el).toHaveAttribute("data-language", "typescript");
 	});
 
 	test("passes custom class for inline", async () => {
 		const { container } = render(Code, { props: { class: "custom-code" } });
-		const el = container.querySelector("[data-kind='code']");
-		await expect.element(el!).toHaveClass("custom-code");
+		const el = container.querySelector("[data-kind='code']") as HTMLElement;
+		await expect.element(el).toHaveClass("custom-code");
 	});
 });

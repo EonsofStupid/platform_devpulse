@@ -39,14 +39,14 @@ describe("hstack component — contract", () => {
 describe("hstack component — structural attributes", () => {
 	test("renders with data-kind='hstack'", async () => {
 		const { container } = render(HStack);
-		const el = container.querySelector("[data-kind='hstack']");
+		const el = container.querySelector("[data-kind='hstack']") as HTMLElement;
 		expect(el).toBeTruthy();
 	});
 
 	test("has data-slot='root'", async () => {
 		const { container } = render(HStack);
-		const el = container.querySelector("[data-kind='hstack']");
-		await expect.element(el!).toHaveAttribute("data-slot", "root");
+		const el = container.querySelector("[data-kind='hstack']") as HTMLElement;
+		await expect.element(el).toHaveAttribute("data-slot", "root");
 	});
 });
 
@@ -57,32 +57,32 @@ describe("hstack component — structural attributes", () => {
 describe("hstack component — recipe classes", () => {
 	test("applies flex and flex-row by default", async () => {
 		const { container } = render(HStack);
-		const el = container.querySelector("[data-kind='hstack']");
-		await expect.element(el!).toHaveClass("flex");
-		await expect.element(el!).toHaveClass("flex-row");
+		const el = container.querySelector("[data-kind='hstack']") as HTMLElement;
+		await expect.element(el).toHaveClass("flex");
+		await expect.element(el).toHaveClass("flex-row");
 	});
 
 	test("applies gap-4 for gap='4'", async () => {
 		const { container } = render(HStack, { props: { gap: "4" } });
-		const el = container.querySelector("[data-kind='hstack']");
-		await expect.element(el!).toHaveClass("gap-4");
+		const el = container.querySelector("[data-kind='hstack']") as HTMLElement;
+		await expect.element(el).toHaveClass("gap-4");
 	});
 
 	test("applies items-center for align='center'", async () => {
 		const { container } = render(HStack, { props: { align: "center" } });
-		const el = container.querySelector("[data-kind='hstack']");
-		await expect.element(el!).toHaveClass("items-center");
+		const el = container.querySelector("[data-kind='hstack']") as HTMLElement;
+		await expect.element(el).toHaveClass("items-center");
 	});
 
 	test("applies items-baseline for align='baseline'", async () => {
 		const { container } = render(HStack, { props: { align: "baseline" } });
-		const el = container.querySelector("[data-kind='hstack']");
-		await expect.element(el!).toHaveClass("items-baseline");
+		const el = container.querySelector("[data-kind='hstack']") as HTMLElement;
+		await expect.element(el).toHaveClass("items-baseline");
 	});
 
 	test("passes custom class", async () => {
 		const { container } = render(HStack, { props: { class: "custom-hstack" } });
-		const el = container.querySelector("[data-kind='hstack']");
-		await expect.element(el!).toHaveClass("custom-hstack");
+		const el = container.querySelector("[data-kind='hstack']") as HTMLElement;
+		await expect.element(el).toHaveClass("custom-hstack");
 	});
 });

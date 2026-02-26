@@ -39,14 +39,14 @@ describe("prose component — contract", () => {
 describe("prose component — structural attributes", () => {
 	test("renders with data-kind='prose'", async () => {
 		const { container } = render(Prose);
-		const el = container.querySelector("[data-kind='prose']");
+		const el = container.querySelector("[data-kind='prose']") as HTMLElement;
 		expect(el).toBeTruthy();
 	});
 
 	test("has data-slot='root'", async () => {
 		const { container } = render(Prose);
-		const el = container.querySelector("[data-kind='prose']");
-		await expect.element(el!).toHaveAttribute("data-slot", "root");
+		const el = container.querySelector("[data-kind='prose']") as HTMLElement;
+		await expect.element(el).toHaveAttribute("data-slot", "root");
 	});
 });
 
@@ -57,37 +57,37 @@ describe("prose component — structural attributes", () => {
 describe("prose component — recipe classes", () => {
 	test("applies prose class by default", async () => {
 		const { container } = render(Prose);
-		const el = container.querySelector("[data-kind='prose']");
-		await expect.element(el!).toHaveClass("prose");
+		const el = container.querySelector("[data-kind='prose']") as HTMLElement;
+		await expect.element(el).toHaveClass("prose");
 	});
 
 	test("applies prose-invert for dark theme", async () => {
 		const { container } = render(Prose);
-		const el = container.querySelector("[data-kind='prose']");
-		await expect.element(el!).toHaveClass("prose-invert");
+		const el = container.querySelector("[data-kind='prose']") as HTMLElement;
+		await expect.element(el).toHaveClass("prose-invert");
 	});
 
 	test("applies prose-base by default", async () => {
 		const { container } = render(Prose);
-		const el = container.querySelector("[data-kind='prose']");
-		await expect.element(el!).toHaveClass("prose-base");
+		const el = container.querySelector("[data-kind='prose']") as HTMLElement;
+		await expect.element(el).toHaveClass("prose-base");
 	});
 
 	test("applies prose-sm for size='sm'", async () => {
 		const { container } = render(Prose, { props: { size: "sm" } });
-		const el = container.querySelector("[data-kind='prose']");
-		await expect.element(el!).toHaveClass("prose-sm");
+		const el = container.querySelector("[data-kind='prose']") as HTMLElement;
+		await expect.element(el).toHaveClass("prose-sm");
 	});
 
 	test("applies prose-lg for size='lg'", async () => {
 		const { container } = render(Prose, { props: { size: "lg" } });
-		const el = container.querySelector("[data-kind='prose']");
-		await expect.element(el!).toHaveClass("prose-lg");
+		const el = container.querySelector("[data-kind='prose']") as HTMLElement;
+		await expect.element(el).toHaveClass("prose-lg");
 	});
 
 	test("passes custom class", async () => {
 		const { container } = render(Prose, { props: { class: "custom-prose" } });
-		const el = container.querySelector("[data-kind='prose']");
-		await expect.element(el!).toHaveClass("custom-prose");
+		const el = container.querySelector("[data-kind='prose']") as HTMLElement;
+		await expect.element(el).toHaveClass("custom-prose");
 	});
 });

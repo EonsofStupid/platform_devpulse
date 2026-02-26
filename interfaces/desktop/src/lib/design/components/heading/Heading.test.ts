@@ -39,32 +39,32 @@ describe("heading component — contract", () => {
 describe("heading component — structural attributes", () => {
 	test("renders with data-kind='heading'", async () => {
 		const { container } = render(Heading);
-		const el = container.querySelector("[data-kind='heading']");
+		const el = container.querySelector("[data-kind='heading']") as HTMLElement;
 		expect(el).toBeTruthy();
 	});
 
 	test("has data-slot='root'", async () => {
 		const { container } = render(Heading);
-		const el = container.querySelector("[data-kind='heading']");
-		await expect.element(el!).toHaveAttribute("data-slot", "root");
+		const el = container.querySelector("[data-kind='heading']") as HTMLElement;
+		await expect.element(el).toHaveAttribute("data-slot", "root");
 	});
 
 	test("renders as <h2> by default", async () => {
 		const { container } = render(Heading);
-		const el = container.querySelector("[data-kind='heading']");
-		expect(el!.tagName.toLowerCase()).toBe("h2");
+		const el = container.querySelector("[data-kind='heading']") as HTMLElement;
+		expect(el.tagName.toLowerCase()).toBe("h2");
 	});
 
 	test("renders as <h1> when level=1", async () => {
 		const { container } = render(Heading, { props: { level: 1 } });
-		const el = container.querySelector("[data-kind='heading']");
-		expect(el!.tagName.toLowerCase()).toBe("h1");
+		const el = container.querySelector("[data-kind='heading']") as HTMLElement;
+		expect(el.tagName.toLowerCase()).toBe("h1");
 	});
 
 	test("renders as <h3> when level=3", async () => {
 		const { container } = render(Heading, { props: { level: 3 } });
-		const el = container.querySelector("[data-kind='heading']");
-		expect(el!.tagName.toLowerCase()).toBe("h3");
+		const el = container.querySelector("[data-kind='heading']") as HTMLElement;
+		expect(el.tagName.toLowerCase()).toBe("h3");
 	});
 });
 
@@ -75,14 +75,14 @@ describe("heading component — structural attributes", () => {
 describe("heading component — ARIA attributes", () => {
 	test("has role='heading'", async () => {
 		const { container } = render(Heading);
-		const el = container.querySelector("[data-kind='heading']");
-		await expect.element(el!).toHaveAttribute("role", "heading");
+		const el = container.querySelector("[data-kind='heading']") as HTMLElement;
+		await expect.element(el).toHaveAttribute("role", "heading");
 	});
 
 	test("has aria-level matching heading level", async () => {
 		const { container } = render(Heading, { props: { level: 3 } });
-		const el = container.querySelector("[data-kind='heading']");
-		await expect.element(el!).toHaveAttribute("aria-level", "3");
+		const el = container.querySelector("[data-kind='heading']") as HTMLElement;
+		await expect.element(el).toHaveAttribute("aria-level", "3");
 	});
 });
 
@@ -93,25 +93,25 @@ describe("heading component — ARIA attributes", () => {
 describe("heading component — recipe classes", () => {
 	test("applies font-bold by default", async () => {
 		const { container } = render(Heading);
-		const el = container.querySelector("[data-kind='heading']");
-		await expect.element(el!).toHaveClass("font-bold");
+		const el = container.querySelector("[data-kind='heading']") as HTMLElement;
+		await expect.element(el).toHaveClass("font-bold");
 	});
 
 	test("applies text-xl for size='lg' (default)", async () => {
 		const { container } = render(Heading);
-		const el = container.querySelector("[data-kind='heading']");
-		await expect.element(el!).toHaveClass("text-xl");
+		const el = container.querySelector("[data-kind='heading']") as HTMLElement;
+		await expect.element(el).toHaveClass("text-xl");
 	});
 
 	test("applies text-3xl for size='2xl'", async () => {
 		const { container } = render(Heading, { props: { size: "2xl" } });
-		const el = container.querySelector("[data-kind='heading']");
-		await expect.element(el!).toHaveClass("text-3xl");
+		const el = container.querySelector("[data-kind='heading']") as HTMLElement;
+		await expect.element(el).toHaveClass("text-3xl");
 	});
 
 	test("passes custom class", async () => {
 		const { container } = render(Heading, { props: { class: "custom-heading" } });
-		const el = container.querySelector("[data-kind='heading']");
-		await expect.element(el!).toHaveClass("custom-heading");
+		const el = container.querySelector("[data-kind='heading']") as HTMLElement;
+		await expect.element(el).toHaveClass("custom-heading");
 	});
 });

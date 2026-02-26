@@ -39,14 +39,14 @@ describe("sticky component — contract", () => {
 describe("sticky component — structural attributes", () => {
 	test("renders with data-kind='sticky'", async () => {
 		const { container } = render(Sticky);
-		const el = container.querySelector("[data-kind='sticky']");
+		const el = container.querySelector("[data-kind='sticky']") as HTMLElement;
 		expect(el).toBeTruthy();
 	});
 
 	test("has data-slot='root'", async () => {
 		const { container } = render(Sticky);
-		const el = container.querySelector("[data-kind='sticky']");
-		await expect.element(el!).toHaveAttribute("data-slot", "root");
+		const el = container.querySelector("[data-kind='sticky']") as HTMLElement;
+		await expect.element(el).toHaveAttribute("data-slot", "root");
 	});
 });
 
@@ -57,26 +57,26 @@ describe("sticky component — structural attributes", () => {
 describe("sticky component — recipe classes", () => {
 	test("applies sticky and top-0 by default", async () => {
 		const { container } = render(Sticky);
-		const el = container.querySelector("[data-kind='sticky']");
-		await expect.element(el!).toHaveClass("sticky");
-		await expect.element(el!).toHaveClass("top-0");
+		const el = container.querySelector("[data-kind='sticky']") as HTMLElement;
+		await expect.element(el).toHaveClass("sticky");
+		await expect.element(el).toHaveClass("top-0");
 	});
 
 	test("applies top-4 for top='4'", async () => {
 		const { container } = render(Sticky, { props: { top: "4" } });
-		const el = container.querySelector("[data-kind='sticky']");
-		await expect.element(el!).toHaveClass("top-4");
+		const el = container.querySelector("[data-kind='sticky']") as HTMLElement;
+		await expect.element(el).toHaveClass("top-4");
 	});
 
 	test("applies z-20 for offset='md'", async () => {
 		const { container } = render(Sticky, { props: { offset: "md" } });
-		const el = container.querySelector("[data-kind='sticky']");
-		await expect.element(el!).toHaveClass("z-20");
+		const el = container.querySelector("[data-kind='sticky']") as HTMLElement;
+		await expect.element(el).toHaveClass("z-20");
 	});
 
 	test("passes custom class", async () => {
 		const { container } = render(Sticky, { props: { class: "custom-sticky" } });
-		const el = container.querySelector("[data-kind='sticky']");
-		await expect.element(el!).toHaveClass("custom-sticky");
+		const el = container.querySelector("[data-kind='sticky']") as HTMLElement;
+		await expect.element(el).toHaveClass("custom-sticky");
 	});
 });

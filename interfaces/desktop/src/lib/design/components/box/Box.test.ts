@@ -43,14 +43,14 @@ describe("box component — contract", () => {
 describe("box component — structural attributes", () => {
 	test("renders with data-kind='box'", async () => {
 		const { container } = render(Box);
-		const el = container.querySelector("[data-kind='box']");
+		const el = container.querySelector("[data-kind='box']") as HTMLElement;
 		expect(el).toBeTruthy();
 	});
 
 	test("has data-slot='root'", async () => {
 		const { container } = render(Box);
-		const el = container.querySelector("[data-kind='box']");
-		await expect.element(el!).toHaveAttribute("data-slot", "root");
+		const el = container.querySelector("[data-kind='box']") as HTMLElement;
+		await expect.element(el).toHaveAttribute("data-slot", "root");
 	});
 });
 
@@ -61,19 +61,19 @@ describe("box component — structural attributes", () => {
 describe("box component — recipe classes", () => {
 	test("applies padding class for padding='md'", async () => {
 		const { container } = render(Box, { props: { padding: "md" } });
-		const el = container.querySelector("[data-kind='box']");
-		await expect.element(el!).toHaveClass("p-4");
+		const el = container.querySelector("[data-kind='box']") as HTMLElement;
+		await expect.element(el).toHaveClass("p-4");
 	});
 
 	test("applies radius class for radius='lg'", async () => {
 		const { container } = render(Box, { props: { radius: "lg" } });
-		const el = container.querySelector("[data-kind='box']");
-		await expect.element(el!).toHaveClass("rounded-lg");
+		const el = container.querySelector("[data-kind='box']") as HTMLElement;
+		await expect.element(el).toHaveClass("rounded-lg");
 	});
 
 	test("passes custom class", async () => {
 		const { container } = render(Box, { props: { class: "custom-box" } });
-		const el = container.querySelector("[data-kind='box']");
-		await expect.element(el!).toHaveClass("custom-box");
+		const el = container.querySelector("[data-kind='box']") as HTMLElement;
+		await expect.element(el).toHaveClass("custom-box");
 	});
 });

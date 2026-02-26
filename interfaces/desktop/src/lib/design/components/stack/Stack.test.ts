@@ -39,14 +39,14 @@ describe("stack component — contract", () => {
 describe("stack component — structural attributes", () => {
 	test("renders with data-kind='stack'", async () => {
 		const { container } = render(Stack);
-		const el = container.querySelector("[data-kind='stack']");
+		const el = container.querySelector("[data-kind='stack']") as HTMLElement;
 		expect(el).toBeTruthy();
 	});
 
 	test("has data-slot='root'", async () => {
 		const { container } = render(Stack);
-		const el = container.querySelector("[data-kind='stack']");
-		await expect.element(el!).toHaveAttribute("data-slot", "root");
+		const el = container.querySelector("[data-kind='stack']") as HTMLElement;
+		await expect.element(el).toHaveAttribute("data-slot", "root");
 	});
 });
 
@@ -57,26 +57,26 @@ describe("stack component — structural attributes", () => {
 describe("stack component — recipe classes", () => {
 	test("applies flex and flex-col by default", async () => {
 		const { container } = render(Stack);
-		const el = container.querySelector("[data-kind='stack']");
-		await expect.element(el!).toHaveClass("flex");
-		await expect.element(el!).toHaveClass("flex-col");
+		const el = container.querySelector("[data-kind='stack']") as HTMLElement;
+		await expect.element(el).toHaveClass("flex");
+		await expect.element(el).toHaveClass("flex-col");
 	});
 
 	test("applies gap-4 for gap='4'", async () => {
 		const { container } = render(Stack, { props: { gap: "4" } });
-		const el = container.querySelector("[data-kind='stack']");
-		await expect.element(el!).toHaveClass("gap-4");
+		const el = container.querySelector("[data-kind='stack']") as HTMLElement;
+		await expect.element(el).toHaveClass("gap-4");
 	});
 
 	test("applies items-center for align='center'", async () => {
 		const { container } = render(Stack, { props: { align: "center" } });
-		const el = container.querySelector("[data-kind='stack']");
-		await expect.element(el!).toHaveClass("items-center");
+		const el = container.querySelector("[data-kind='stack']") as HTMLElement;
+		await expect.element(el).toHaveClass("items-center");
 	});
 
 	test("passes custom class", async () => {
 		const { container } = render(Stack, { props: { class: "custom-stack" } });
-		const el = container.querySelector("[data-kind='stack']");
-		await expect.element(el!).toHaveClass("custom-stack");
+		const el = container.querySelector("[data-kind='stack']") as HTMLElement;
+		await expect.element(el).toHaveClass("custom-stack");
 	});
 });

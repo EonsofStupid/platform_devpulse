@@ -39,14 +39,14 @@ describe("center component — contract", () => {
 describe("center component — structural attributes", () => {
 	test("renders with data-kind='center'", async () => {
 		const { container } = render(Center);
-		const el = container.querySelector("[data-kind='center']");
+		const el = container.querySelector("[data-kind='center']") as HTMLElement;
 		expect(el).toBeTruthy();
 	});
 
 	test("has data-slot='root'", async () => {
 		const { container } = render(Center);
-		const el = container.querySelector("[data-kind='center']");
-		await expect.element(el!).toHaveAttribute("data-slot", "root");
+		const el = container.querySelector("[data-kind='center']") as HTMLElement;
+		await expect.element(el).toHaveAttribute("data-slot", "root");
 	});
 });
 
@@ -57,23 +57,23 @@ describe("center component — structural attributes", () => {
 describe("center component — recipe classes", () => {
 	test("applies flex centering by default", async () => {
 		const { container } = render(Center);
-		const el = container.querySelector("[data-kind='center']");
-		await expect.element(el!).toHaveClass("flex");
-		await expect.element(el!).toHaveClass("items-center");
-		await expect.element(el!).toHaveClass("justify-center");
+		const el = container.querySelector("[data-kind='center']") as HTMLElement;
+		await expect.element(el).toHaveClass("flex");
+		await expect.element(el).toHaveClass("items-center");
+		await expect.element(el).toHaveClass("justify-center");
 	});
 
 	test("applies inline-flex when inline=true", async () => {
 		const { container } = render(Center, { props: { inline: true } });
-		const el = container.querySelector("[data-kind='center']");
-		await expect.element(el!).toHaveClass("inline-flex");
-		await expect.element(el!).toHaveClass("items-center");
-		await expect.element(el!).toHaveClass("justify-center");
+		const el = container.querySelector("[data-kind='center']") as HTMLElement;
+		await expect.element(el).toHaveClass("inline-flex");
+		await expect.element(el).toHaveClass("items-center");
+		await expect.element(el).toHaveClass("justify-center");
 	});
 
 	test("passes custom class", async () => {
 		const { container } = render(Center, { props: { class: "custom-center" } });
-		const el = container.querySelector("[data-kind='center']");
-		await expect.element(el!).toHaveClass("custom-center");
+		const el = container.querySelector("[data-kind='center']") as HTMLElement;
+		await expect.element(el).toHaveClass("custom-center");
 	});
 });

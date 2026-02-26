@@ -32,7 +32,7 @@ export interface TabsListProps extends Omit<HTMLAttributes<HTMLDivElement>, "sty
 }
 
 /** TabsTrigger props — individual tab button (role="tab") */
-export interface TabsTriggerProps extends Omit<HTMLButtonAttributes, "style" | "children"> {
+export interface TabsTriggerProps extends Omit<HTMLButtonAttributes, "style" | "children" | "disabled"> {
 	/** Tab value identifier — must match a TabsContent value */
 	value: string;
 	/** Whether this tab is disabled */

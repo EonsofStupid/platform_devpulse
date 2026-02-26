@@ -39,20 +39,20 @@ describe("spacer component — contract", () => {
 describe("spacer component — structural attributes", () => {
 	test("renders with data-kind='spacer'", async () => {
 		const { container } = render(Spacer);
-		const el = container.querySelector("[data-kind='spacer']");
+		const el = container.querySelector("[data-kind='spacer']") as HTMLElement;
 		expect(el).toBeTruthy();
 	});
 
 	test("has data-slot='root'", async () => {
 		const { container } = render(Spacer);
-		const el = container.querySelector("[data-kind='spacer']");
-		await expect.element(el!).toHaveAttribute("data-slot", "root");
+		const el = container.querySelector("[data-kind='spacer']") as HTMLElement;
+		await expect.element(el).toHaveAttribute("data-slot", "root");
 	});
 
 	test("has aria-hidden='true'", async () => {
 		const { container } = render(Spacer);
-		const el = container.querySelector("[data-kind='spacer']");
-		await expect.element(el!).toHaveAttribute("aria-hidden", "true");
+		const el = container.querySelector("[data-kind='spacer']") as HTMLElement;
+		await expect.element(el).toHaveAttribute("aria-hidden", "true");
 	});
 });
 
@@ -63,20 +63,20 @@ describe("spacer component — structural attributes", () => {
 describe("spacer component — recipe classes", () => {
 	test("applies flex-1 by default (size='auto')", async () => {
 		const { container } = render(Spacer);
-		const el = container.querySelector("[data-kind='spacer']");
-		await expect.element(el!).toHaveClass("flex-1");
+		const el = container.querySelector("[data-kind='spacer']") as HTMLElement;
+		await expect.element(el).toHaveClass("flex-1");
 	});
 
 	test("applies w-4 h-4 for size='md'", async () => {
 		const { container } = render(Spacer, { props: { size: "md" } });
-		const el = container.querySelector("[data-kind='spacer']");
-		await expect.element(el!).toHaveClass("w-4");
-		await expect.element(el!).toHaveClass("h-4");
+		const el = container.querySelector("[data-kind='spacer']") as HTMLElement;
+		await expect.element(el).toHaveClass("w-4");
+		await expect.element(el).toHaveClass("h-4");
 	});
 
 	test("passes custom class", async () => {
 		const { container } = render(Spacer, { props: { class: "custom-spacer" } });
-		const el = container.querySelector("[data-kind='spacer']");
-		await expect.element(el!).toHaveClass("custom-spacer");
+		const el = container.querySelector("[data-kind='spacer']") as HTMLElement;
+		await expect.element(el).toHaveClass("custom-spacer");
 	});
 });

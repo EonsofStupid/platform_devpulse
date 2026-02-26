@@ -39,14 +39,14 @@ describe("flex component — contract", () => {
 describe("flex component — structural attributes", () => {
 	test("renders with data-kind='flex'", async () => {
 		const { container } = render(Flex);
-		const el = container.querySelector("[data-kind='flex']");
+		const el = container.querySelector("[data-kind='flex']") as HTMLElement;
 		expect(el).toBeTruthy();
 	});
 
 	test("has data-slot='root'", async () => {
 		const { container } = render(Flex);
-		const el = container.querySelector("[data-kind='flex']");
-		await expect.element(el!).toHaveAttribute("data-slot", "root");
+		const el = container.querySelector("[data-kind='flex']") as HTMLElement;
+		await expect.element(el).toHaveAttribute("data-slot", "root");
 	});
 });
 
@@ -57,43 +57,43 @@ describe("flex component — structural attributes", () => {
 describe("flex component — recipe classes", () => {
 	test("applies flex class by default", async () => {
 		const { container } = render(Flex);
-		const el = container.querySelector("[data-kind='flex']");
-		await expect.element(el!).toHaveClass("flex");
+		const el = container.querySelector("[data-kind='flex']") as HTMLElement;
+		await expect.element(el).toHaveClass("flex");
 	});
 
 	test("applies flex-col for direction='column'", async () => {
 		const { container } = render(Flex, { props: { direction: "column" } });
-		const el = container.querySelector("[data-kind='flex']");
-		await expect.element(el!).toHaveClass("flex-col");
+		const el = container.querySelector("[data-kind='flex']") as HTMLElement;
+		await expect.element(el).toHaveClass("flex-col");
 	});
 
 	test("applies gap-4 for gap='4'", async () => {
 		const { container } = render(Flex, { props: { gap: "4" } });
-		const el = container.querySelector("[data-kind='flex']");
-		await expect.element(el!).toHaveClass("gap-4");
+		const el = container.querySelector("[data-kind='flex']") as HTMLElement;
+		await expect.element(el).toHaveClass("gap-4");
 	});
 
 	test("applies items-center for align='center'", async () => {
 		const { container } = render(Flex, { props: { align: "center" } });
-		const el = container.querySelector("[data-kind='flex']");
-		await expect.element(el!).toHaveClass("items-center");
+		const el = container.querySelector("[data-kind='flex']") as HTMLElement;
+		await expect.element(el).toHaveClass("items-center");
 	});
 
 	test("applies justify-between for justify='between'", async () => {
 		const { container } = render(Flex, { props: { justify: "between" } });
-		const el = container.querySelector("[data-kind='flex']");
-		await expect.element(el!).toHaveClass("justify-between");
+		const el = container.querySelector("[data-kind='flex']") as HTMLElement;
+		await expect.element(el).toHaveClass("justify-between");
 	});
 
 	test("applies flex-wrap when wrap=true", async () => {
 		const { container } = render(Flex, { props: { wrap: true } });
-		const el = container.querySelector("[data-kind='flex']");
-		await expect.element(el!).toHaveClass("flex-wrap");
+		const el = container.querySelector("[data-kind='flex']") as HTMLElement;
+		await expect.element(el).toHaveClass("flex-wrap");
 	});
 
 	test("passes custom class", async () => {
 		const { container } = render(Flex, { props: { class: "custom-flex" } });
-		const el = container.querySelector("[data-kind='flex']");
-		await expect.element(el!).toHaveClass("custom-flex");
+		const el = container.querySelector("[data-kind='flex']") as HTMLElement;
+		await expect.element(el).toHaveClass("custom-flex");
 	});
 });

@@ -39,14 +39,14 @@ describe("grid component — contract", () => {
 describe("grid component — structural attributes", () => {
 	test("renders with data-kind='grid'", async () => {
 		const { container } = render(Grid);
-		const el = container.querySelector("[data-kind='grid']");
+		const el = container.querySelector("[data-kind='grid']") as HTMLElement;
 		expect(el).toBeTruthy();
 	});
 
 	test("has data-slot='root'", async () => {
 		const { container } = render(Grid);
-		const el = container.querySelector("[data-kind='grid']");
-		await expect.element(el!).toHaveAttribute("data-slot", "root");
+		const el = container.querySelector("[data-kind='grid']") as HTMLElement;
+		await expect.element(el).toHaveAttribute("data-slot", "root");
 	});
 });
 
@@ -57,31 +57,31 @@ describe("grid component — structural attributes", () => {
 describe("grid component — recipe classes", () => {
 	test("applies grid class by default", async () => {
 		const { container } = render(Grid);
-		const el = container.querySelector("[data-kind='grid']");
-		await expect.element(el!).toHaveClass("grid");
+		const el = container.querySelector("[data-kind='grid']") as HTMLElement;
+		await expect.element(el).toHaveClass("grid");
 	});
 
 	test("applies grid-cols-3 for columns='3'", async () => {
 		const { container } = render(Grid, { props: { columns: "3" } });
-		const el = container.querySelector("[data-kind='grid']");
-		await expect.element(el!).toHaveClass("grid-cols-3");
+		const el = container.querySelector("[data-kind='grid']") as HTMLElement;
+		await expect.element(el).toHaveClass("grid-cols-3");
 	});
 
 	test("applies gap-6 for gap='6'", async () => {
 		const { container } = render(Grid, { props: { gap: "6" } });
-		const el = container.querySelector("[data-kind='grid']");
-		await expect.element(el!).toHaveClass("gap-6");
+		const el = container.querySelector("[data-kind='grid']") as HTMLElement;
+		await expect.element(el).toHaveClass("gap-6");
 	});
 
 	test("applies grid-rows-2 for rows='2'", async () => {
 		const { container } = render(Grid, { props: { rows: "2" } });
-		const el = container.querySelector("[data-kind='grid']");
-		await expect.element(el!).toHaveClass("grid-rows-2");
+		const el = container.querySelector("[data-kind='grid']") as HTMLElement;
+		await expect.element(el).toHaveClass("grid-rows-2");
 	});
 
 	test("passes custom class", async () => {
 		const { container } = render(Grid, { props: { class: "custom-grid" } });
-		const el = container.querySelector("[data-kind='grid']");
-		await expect.element(el!).toHaveClass("custom-grid");
+		const el = container.querySelector("[data-kind='grid']") as HTMLElement;
+		await expect.element(el).toHaveClass("custom-grid");
 	});
 });

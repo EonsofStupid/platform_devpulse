@@ -39,14 +39,14 @@ describe("container component — contract", () => {
 describe("container component — structural attributes", () => {
 	test("renders with data-kind='container'", async () => {
 		const { container } = render(Container);
-		const el = container.querySelector("[data-kind='container']");
+		const el = container.querySelector("[data-kind='container']") as HTMLElement;
 		expect(el).toBeTruthy();
 	});
 
 	test("has data-slot='root'", async () => {
 		const { container } = render(Container);
-		const el = container.querySelector("[data-kind='container']");
-		await expect.element(el!).toHaveAttribute("data-slot", "root");
+		const el = container.querySelector("[data-kind='container']") as HTMLElement;
+		await expect.element(el).toHaveAttribute("data-slot", "root");
 	});
 });
 
@@ -57,33 +57,33 @@ describe("container component — structural attributes", () => {
 describe("container component — recipe classes", () => {
 	test("applies base centering classes", async () => {
 		const { container } = render(Container);
-		const el = container.querySelector("[data-kind='container']");
-		await expect.element(el!).toHaveClass("mx-auto");
-		await expect.element(el!).toHaveClass("w-full");
-		await expect.element(el!).toHaveClass("px-4");
+		const el = container.querySelector("[data-kind='container']") as HTMLElement;
+		await expect.element(el).toHaveClass("mx-auto");
+		await expect.element(el).toHaveClass("w-full");
+		await expect.element(el).toHaveClass("px-4");
 	});
 
 	test("applies max-w-screen-xl by default", async () => {
 		const { container } = render(Container);
-		const el = container.querySelector("[data-kind='container']");
-		await expect.element(el!).toHaveClass("max-w-screen-xl");
+		const el = container.querySelector("[data-kind='container']") as HTMLElement;
+		await expect.element(el).toHaveClass("max-w-screen-xl");
 	});
 
 	test("applies max-w-screen-sm for size='sm'", async () => {
 		const { container } = render(Container, { props: { size: "sm" } });
-		const el = container.querySelector("[data-kind='container']");
-		await expect.element(el!).toHaveClass("max-w-screen-sm");
+		const el = container.querySelector("[data-kind='container']") as HTMLElement;
+		await expect.element(el).toHaveClass("max-w-screen-sm");
 	});
 
 	test("applies max-w-full for size='full'", async () => {
 		const { container } = render(Container, { props: { size: "full" } });
-		const el = container.querySelector("[data-kind='container']");
-		await expect.element(el!).toHaveClass("max-w-full");
+		const el = container.querySelector("[data-kind='container']") as HTMLElement;
+		await expect.element(el).toHaveClass("max-w-full");
 	});
 
 	test("passes custom class", async () => {
 		const { container } = render(Container, { props: { class: "custom-container" } });
-		const el = container.querySelector("[data-kind='container']");
-		await expect.element(el!).toHaveClass("custom-container");
+		const el = container.querySelector("[data-kind='container']") as HTMLElement;
+		await expect.element(el).toHaveClass("custom-container");
 	});
 });
