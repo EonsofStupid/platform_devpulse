@@ -5,28 +5,93 @@
  * ColdLight EmptyState builder -- Svelte 5 runes-native.
  * Owns all ARIA semantics.
  *
- * - Root: role="status" (polite live region)
- * - Icon: role="presentation" (decorative)
- * - Title: heading for the empty state
- * - Description: explanatory text
- * - Action: container for CTA buttons
+ * Placeholder UI shown when a content area has no data.
+ * Composed of an icon, title, description, and optional action slot.
+ *
+ * Slots: root, icon, title, description, action.
+ *
+ * WAI-ARIA:
+ * - root: `role="status"` (polite live region).
+ * - icon: `role="presentation"`, `aria-hidden="true"` (decorative).
+ * - title: heading for the empty state.
+ * - description: explanatory text.
+ * - action: container for CTA buttons.
+ *
+ * Data attributes:
+ * - `data-cl-empty-state-root`
+ * - `data-cl-empty-state-icon`
+ * - `data-cl-empty-state-title`
+ * - `data-cl-empty-state-description`
+ * - `data-cl-empty-state-action`
  */
 
 import { Synced } from "../_internal/synced.svelte.js";
 import {
 	createBuilderMetadata,
 } from "../_internal/index.js";
-import type { SlotAttrs } from "../_internal/types.js";
 import type { EmptyStateProps } from "./types.js";
 
-const metadata = createBuilderMetadata("empty-state", ["root", "icon", "title", "description", "action"] as const);
+// ============================================================================
+// Metadata
+// ============================================================================
 
+const metadata = createBuilderMetadata("empty-state", [
+	"root",
+	"icon",
+	"title",
+	"description",
+	"action",
+] as const);
+
+// ============================================================================
+// Builder
+// ============================================================================
+
+/**
+ * ColdLight EmptyState builder.
+ *
+ * Provides `root`, `icon`, `title`, `description`, and `action` slot getters
+ * for a placeholder UI displayed when content areas are empty.
+ *
+ * @example
+ * ```ts
+ * const empty = createEmptyState({ label: "No results found" });
+ * // Spread empty.root, empty.icon, empty.title, etc. onto elements.
+ * ```
+ */
 export class EmptyState {
+	// ==========================================================================
+	// Instance IDs
+	// ==========================================================================
+
+	/**
+	 * Unique element IDs for every slot in this builder instance.
+	 *
+	 * @remarks Generated once at construction via `metadata.createIds()`.
+	 */
+	readonly ids: {
+		readonly root: string;
+		readonly icon: string;
+		readonly title: string;
+		readonly description: string;
+		readonly action: string;
+	} = metadata.createIds();
+
+	// ==========================================================================
+	// Private state
+	// ==========================================================================
+
 	#label: Synced<string>;
 
-	/** Unique IDs for this instance. */
-	readonly ids = metadata.createIds();
+	// ==========================================================================
+	// Constructor
+	// ==========================================================================
 
+	/**
+	 * Create a new EmptyState builder instance.
+	 *
+	 * @param props - Configuration options. All fields are optional.
+	 */
 	constructor(props: EmptyStateProps = {}) {
 		this.#label = new Synced<string>({
 			value: props.label,
@@ -34,61 +99,101 @@ export class EmptyState {
 		});
 	}
 
-	// --- Reactive state ---
+	// ==========================================================================
+	// Reactive state
+	// ==========================================================================
 
+	/** Accessible label for the empty state region. */
 	get label(): string {
 		return this.#label.current;
 	}
 
-	// --- Element attribute getters ---
+	// ==========================================================================
+	// Slot attribute getters
+	// ==========================================================================
 
-	/** Root container attributes. Spread onto the wrapper <div>. */
-	get root(): SlotAttrs {
+	/**
+	 * Root slot attributes.
+	 *
+	 * Spread onto the empty-state wrapper `<div>`.
+	 * Provides `role="status"` (polite live region), optional `aria-label`,
+	 * and the `data-cl-empty-state-root` data attribute.
+	 */
+	get root() {
 		const label = this.label;
 		return {
-			[metadata.dataAttrs.root]: "",
+			[metadata.dataAttrs.root]: "" as const,
 			id: this.ids.root,
-			role: "status",
+			role: "status" as const,
 			...(label ? { "aria-label": label } : {}),
 		};
 	}
 
-	/** Icon container attributes. Decorative, hidden from assistive tech. */
-	get icon(): SlotAttrs {
+	/**
+	 * Icon slot attributes.
+	 *
+	 * Spread onto the decorative icon container.
+	 * Hidden from assistive technology via `role="presentation"`
+	 * and `aria-hidden="true"`.
+	 */
+	get icon() {
 		return {
-			[metadata.dataAttrs.icon]: "",
+			[metadata.dataAttrs.icon]: "" as const,
 			id: this.ids.icon,
-			role: "presentation",
-			"aria-hidden": true,
+			role: "presentation" as const,
+			"aria-hidden": true as const,
 		};
 	}
 
-	/** Title attributes. Spread onto the heading element. */
-	get title(): SlotAttrs {
+	/**
+	 * Title slot attributes.
+	 *
+	 * Spread onto the heading element (e.g. `<h2>` or `<h3>`).
+	 */
+	get title() {
 		return {
-			[metadata.dataAttrs.title]: "",
+			[metadata.dataAttrs.title]: "" as const,
 			id: this.ids.title,
 		};
 	}
 
-	/** Description attributes. Spread onto the <p> element. */
-	get description(): SlotAttrs {
+	/**
+	 * Description slot attributes.
+	 *
+	 * Spread onto the explanatory `<p>` element.
+	 */
+	get description() {
 		return {
-			[metadata.dataAttrs.description]: "",
+			[metadata.dataAttrs.description]: "" as const,
 			id: this.ids.description,
 		};
 	}
 
-	/** Action container attributes. Spread onto the CTA wrapper. */
-	get action(): SlotAttrs {
+	/**
+	 * Action slot attributes.
+	 *
+	 * Spread onto the CTA button wrapper `<div>`.
+	 */
+	get action() {
 		return {
-			[metadata.dataAttrs.action]: "",
+			[metadata.dataAttrs.action]: "" as const,
 			id: this.ids.action,
 		};
 	}
 }
 
-/** Factory function -- preferred API. */
+// ============================================================================
+// Factory
+// ============================================================================
+
+/**
+ * Create a new {@link EmptyState} builder instance.
+ *
+ * Factory function -- preferred API over direct `new EmptyState()`.
+ *
+ * @param props - Configuration options.
+ * @returns A fully initialised EmptyState builder.
+ */
 export function createEmptyState(props?: EmptyStateProps): EmptyState {
 	return new EmptyState(props);
 }

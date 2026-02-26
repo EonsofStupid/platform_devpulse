@@ -8,8 +8,18 @@
 
 import type { MaybeGetter } from "../_internal/types.js";
 
-/** Constructor config for Nav. */
+/**
+ * Constructor config for the Nav builder.
+ *
+ * All props support `MaybeGetter<T>` for controlled/uncontrolled patterns.
+ */
 export type NavProps = {
-	/** Accessible label for the navigation landmark. Getter = controlled, static = uncontrolled. */
+	/**
+	 * Accessible label for the navigation landmark.
+	 * Sets `aria-label` on the root `<nav>` element.
+	 * Use this to distinguish multiple navigation regions on a page.
+	 * Getter = controlled, static = uncontrolled.
+	 * @default ""
+	 */
 	label?: MaybeGetter<string | undefined>;
 };

@@ -2,30 +2,55 @@
  * @file builders/nav/factory.ts
  * @package @devpulse/coldlight
  *
- * ColdLight Nav builder -- Svelte 5 runes-native.
+ * ColdLight Nav builder — Svelte 5 runes-native.
  * Owns all ARIA semantics.
  *
- * - Root: role="navigation", aria-label
+ * - Root: `role="navigation"`, `aria-label`
+ *
+ * Slots: root.
  *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/landmarks/
  */
 
 import { Synced } from "../_internal/synced.svelte.js";
-import {
-	createBuilderMetadata,
-	extract,
-} from "../_internal/index.js";
-import type { SlotAttrs } from "../_internal/types.js";
+import { createBuilderMetadata } from "../_internal/index.js";
 import type { NavProps } from "./types.js";
+
+// ============================================================================
+// Metadata
+// ============================================================================
 
 const metadata = createBuilderMetadata("nav", ["root"] as const);
 
+// ============================================================================
+// Builder
+// ============================================================================
+
+/**
+ * ColdLight Nav builder.
+ *
+ * Provides ARIA-compliant attribute objects for a navigation landmark.
+ * Wraps a `<nav>` element with `role="navigation"` and an optional
+ * `aria-label` for distinguishing multiple nav regions on a page.
+ *
+ * @example
+ * ```ts
+ * const nav = createNav({ label: "Main navigation" });
+ * // <nav {...nav.root}>
+ * //   ...nav items...
+ * // </nav>
+ * ```
+ */
 export class Nav {
+	/** Unique IDs for each slot of this nav instance. */
+	readonly ids: Record<"root", string> = metadata.createIds();
+
 	#label: Synced<string>;
 
-	/** Unique IDs for this instance. */
-	readonly ids = metadata.createIds();
-
+	/**
+	 * Create a new Nav builder instance.
+	 * @param props - Configuration options for the navigation landmark.
+	 */
 	constructor(props: NavProps = {}) {
 		this.#label = new Synced<string>({
 			value: props.label,
@@ -33,27 +58,40 @@ export class Nav {
 		});
 	}
 
-	// --- Reactive state ---
+	// ========================================================================
+	// Reactive state
+	// ========================================================================
 
+	/** The accessible label for the navigation landmark. */
 	get label(): string {
 		return this.#label.current;
 	}
 
-	// --- Element attribute getters ---
+	// ========================================================================
+	// Slot attribute getters
+	// ========================================================================
 
-	/** Root container attributes. Spread onto the <nav> element. */
-	get root(): SlotAttrs {
+	/** Root container attributes. Spread onto the `<nav>` element. */
+	get root() {
 		const label = this.label;
 		return {
-			[metadata.dataAttrs.root]: "",
+			[metadata.dataAttrs.root]: "" as const,
 			id: this.ids.root,
-			role: "navigation",
+			role: "navigation" as const,
 			...(label ? { "aria-label": label } : {}),
 		};
 	}
 }
 
-/** Factory function -- preferred API. */
+// ============================================================================
+// Factory
+// ============================================================================
+
+/**
+ * Factory function for creating a Nav builder — preferred API.
+ * @param props - Configuration options for the navigation landmark.
+ * @returns A new `Nav` builder instance.
+ */
 export function createNav(props?: NavProps): Nav {
 	return new Nav(props);
 }

@@ -2,8 +2,9 @@
  * @file builders/inline-message/types.ts
  * @package @devpulse/coldlight
  *
- * Props for the InlineMessage builder.
- * Contract: role="status", aria-live="polite" — inline validation/help feedback.
+ * Props for the ColdLight InlineMessage builder.
+ *
+ * Contract: `role="status"`, `aria-live="polite"` -- inline validation/help feedback.
  */
 
 import type { MaybeGetter } from "../_internal/types.js";
@@ -11,10 +12,23 @@ import type { MaybeGetter } from "../_internal/types.js";
 /** Semantic tone for the inline message. */
 export type InlineMessageTone = "info" | "success" | "warning" | "error" | "help";
 
-/** Constructor config for InlineMessage builder. */
+/** Constructor config for the {@link InlineMessage} builder. */
 export type InlineMessageProps = {
-	/** Semantic tone. @default "info" */
+	/**
+	 * Semantic tone controlling the message's visual appearance.
+	 *
+	 * @default "info"
+	 */
 	tone?: MaybeGetter<InlineMessageTone | undefined>;
-	/** Override aria-live politeness. @default "polite" */
+
+	/**
+	 * Override the `aria-live` politeness level.
+	 *
+	 * - `"polite"` -- announced after current speech (default).
+	 * - `"assertive"` -- interrupts current speech immediately.
+	 * - `"off"` -- suppresses live announcements.
+	 *
+	 * @default "polite"
+	 */
 	"aria-live"?: MaybeGetter<"polite" | "assertive" | "off" | undefined>;
 };

@@ -2,21 +2,50 @@
  * @file builders/banner/types.ts
  * @package @devpulse/coldlight
  *
- * Props for the Banner builder.
- * Contract: role="alert" with optional aria-live.
+ * Props for the ColdLight Banner builder.
+ *
+ * Contract: `role="alert"` with optional `aria-live` override.
  * Dismissible via Synced<boolean> for visible state.
  */
 
 import type { MaybeGetter } from "../_internal/types.js";
 
-/** Constructor config for Banner builder. */
+/** Constructor config for the {@link Banner} builder. */
 export type BannerProps = {
-	/** Whether the banner is visible. Getter = controlled, static = uncontrolled. @default true */
+	/**
+	 * Whether the banner is visible.
+	 *
+	 * Pass a getter for controlled (reactive) mode or a static value
+	 * for uncontrolled mode.
+	 *
+	 * @default true
+	 */
 	visible?: MaybeGetter<boolean | undefined>;
-	/** Called when visible state changes (e.g. on dismiss). */
+
+	/**
+	 * Called when the visible state changes (e.g. on dismiss).
+	 *
+	 * Fires on programmatic `dismiss()` / `show()` calls and
+	 * when the action slot's click handler triggers.
+	 */
 	onVisibleChange?: (visible: boolean) => void;
-	/** Accessible label for the banner. */
+
+	/**
+	 * Accessible label for the banner region.
+	 *
+	 * Applied as `aria-label` on the root element.
+	 *
+	 * @default undefined
+	 */
 	"aria-label"?: MaybeGetter<string | undefined>;
-	/** Live region politeness. @default undefined (role="alert" implies assertive) */
+
+	/**
+	 * Live region politeness override.
+	 *
+	 * `role="alert"` implies assertive by default.
+	 * Set explicitly to override the implicit behaviour.
+	 *
+	 * @default undefined
+	 */
 	"aria-live"?: MaybeGetter<"polite" | "assertive" | "off" | undefined>;
 };

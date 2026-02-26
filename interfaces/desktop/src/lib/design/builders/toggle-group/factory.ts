@@ -4,14 +4,35 @@
  *
  * ColdLight ToggleGroup builder — Svelte 5 runes-native.
  *
- * Owns all ARIA semantics:
- * - Root: role="group", aria-orientation
- * - Items: role="button", aria-pressed, roving tabindex
+ * The ToggleGroup builder owns all ARIA semantics, keyboard interaction, and
+ * data-attribute derivation for the toggle-group pattern. Components create
+ * a ToggleGroup instance, spread `builder.root` onto the group wrapper and
+ * call `builder.getItem(value)` for each toggle item.
  *
- * Keyboard: ArrowLeft/Right (horizontal), ArrowUp/Down (vertical),
- * Home, End, Space, Enter.
+ * ## ARIA Semantics
  *
- * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/
+ * - Root: `role="group"`, `aria-orientation`
+ * - Items: `role="button"`, `aria-pressed`, roving `tabindex`
+ *
+ * ## Keyboard
+ *
+ * - **ArrowLeft / ArrowRight** — navigate items (horizontal)
+ * - **ArrowUp / ArrowDown** — navigate items (vertical)
+ * - **Home** — focus first item
+ * - **End** — focus last item
+ * - **Space / Enter** — toggle pressed state
+ *
+ * ## Data Attributes
+ *
+ * - `data-cl-toggle-group-root` — builder identity (root)
+ * - `data-cl-toggle-group-item` — builder identity (item)
+ * - `data-orientation` — `"horizontal"` or `"vertical"`
+ * - `data-disabled` — present (`""`) when disabled
+ * - `data-value` — the value string for each item
+ * - `data-state` — `"on"` or `"off"` per item
+ *
+ * @see {@link ToggleGroupProps} for configuration options
+ * @see https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/ WAI-ARIA APG Toolbar Pattern
  */
 
 import { Synced } from "../_internal/synced.svelte.js";
@@ -25,21 +46,43 @@ import {
 	getNextKey,
 	getPrevKey,
 } from "../_internal/index.js";
-import type { SlotAttrs, Orientation } from "../_internal/types.js";
+import type { Orientation } from "../_internal/types.js";
 import type { ToggleGroupProps } from "./types.js";
 
 const metadata = createBuilderMetadata("toggle-group", ["root", "item"] as const);
 
+/**
+ * ColdLight ToggleGroup builder.
+ *
+ * Manages ARIA attributes, roving tabindex, keyboard navigation, and
+ * data-state derivation for the toggle-group pattern. Supports both
+ * single-select and multi-select modes via the `multiple` prop.
+ *
+ * @example
+ * ```typescript
+ * // Single selection
+ * const group = new ToggleGroup({ value: "bold" });
+ * // Spread: <div {...group.root}> ... <button {...group.getItem("bold")}>B</button>
+ *
+ * // Multiple selection
+ * const multi = new ToggleGroup<true>({ multiple: true, value: ["bold", "italic"] });
+ * ```
+ */
 export class ToggleGroup<Multiple extends boolean = false> {
+	/** Unique IDs for this builder instance. */
+	readonly ids: { readonly root: string; readonly item: string } = metadata.createIds();
+
 	#props: ToggleGroupProps<Multiple>;
 	#selection: SelectionState<string, Multiple>;
 	#disabled: Synced<boolean>;
 	#orientation: Synced<Orientation>;
 	#loop: Synced<boolean>;
 
-	/** Unique IDs for this instance. */
-	readonly ids = metadata.createIds();
-
+	/**
+	 * Create a new ToggleGroup builder instance.
+	 *
+	 * @param props - Configuration options for the toggle group
+	 */
 	constructor(props: ToggleGroupProps<Multiple> = {} as ToggleGroupProps<Multiple>) {
 		this.#props = props;
 
@@ -65,28 +108,47 @@ export class ToggleGroup<Multiple extends boolean = false> {
 		});
 	}
 
-	// --- Reactive state ---
+	// =========================================================================
+	// Reactive State — Read-only accessors for builder state
+	// =========================================================================
 
+	/** Whether the entire toggle group is disabled. */
 	get disabled(): boolean {
 		return this.#disabled.current;
 	}
 
+	/** The orientation of the group for keyboard navigation. */
 	get orientation(): Orientation {
 		return this.#orientation.current;
 	}
 
+	/** Whether arrow key navigation loops at boundaries. */
 	get loop(): boolean {
 		return this.#loop.current;
 	}
 
-	// --- Element attribute getters ---
+	// =========================================================================
+	// Slot Attribute Getters — Spread onto HTML elements
+	// =========================================================================
 
-	/** Root container attributes. Spread onto the group wrapper element. */
-	get root(): SlotAttrs {
+	/**
+	 * Spread attributes for the root group wrapper element.
+	 *
+	 * Returns an exact typed object containing:
+	 * - Builder identity: `data-cl-toggle-group-root`, `id`
+	 * - ARIA: `role="group"`, `aria-orientation`
+	 * - Data: `data-orientation`, `data-disabled`
+	 *
+	 * @example
+	 * ```svelte
+	 * <div {...group.root}>...</div>
+	 * ```
+	 */
+	get root() {
 		return {
 			[metadata.dataAttrs.root]: "",
 			id: this.ids.root,
-			role: "group",
+			role: "group" as const,
 			"aria-orientation": this.orientation,
 			"data-orientation": this.orientation,
 			"data-disabled": dataAttr(this.disabled),
@@ -94,10 +156,25 @@ export class ToggleGroup<Multiple extends boolean = false> {
 	}
 
 	/**
-	 * Get attributes for a toggle item.
-	 * Each item returns a spread-able object with ARIA, keyboard handlers, and data attrs.
+	 * Get spread attributes for a toggle item.
+	 *
+	 * Returns an exact typed object containing:
+	 * - Builder identity: `data-cl-toggle-group-item`, `id`
+	 * - ARIA: `role="button"`, `aria-pressed`, `aria-disabled`
+	 * - Data: `data-value`, `data-state`, `data-disabled`
+	 * - Handlers: `onclick`, `onkeydown`
+	 * - Navigation: `tabindex` (roving)
+	 *
+	 * @param value - The unique value identifier for this item
+	 * @param itemDisabled - Whether this specific item is disabled
+	 *
+	 * @example
+	 * ```svelte
+	 * <button {...group.getItem("bold")}>B</button>
+	 * <button {...group.getItem("italic", true)}>I (disabled)</button>
+	 * ```
 	 */
-	getItem(value: string, itemDisabled?: boolean): SlotAttrs {
+	getItem(value: string, itemDisabled?: boolean) {
 		const isPressed = this.#selection.has(value);
 		const isDisabled = this.disabled || (itemDisabled ?? false);
 
@@ -105,9 +182,9 @@ export class ToggleGroup<Multiple extends boolean = false> {
 			[metadata.dataAttrs.item]: "",
 			id: `${this.ids.item}-${value}`,
 			"data-value": value,
-			"data-state": isPressed ? "on" : "off",
+			"data-state": isPressed ? "on" as const : "off" as const,
 			"data-disabled": dataAttr(isDisabled),
-			role: "button",
+			role: "button" as const,
 			"aria-pressed": isPressed,
 			"aria-disabled": disabledAttr(isDisabled),
 			tabindex: this.#isRovingActive(value) ? 0 : -1,
@@ -120,7 +197,7 @@ export class ToggleGroup<Multiple extends boolean = false> {
 			onkeydown: (e: KeyboardEvent) => {
 				if (isDisabled) return;
 
-				// Space / Enter → toggle
+				// Space / Enter — toggle
 				if (e.key === kbd.SPACE || e.key === kbd.ENTER) {
 					e.preventDefault();
 					this.#selection.toggle(value);
@@ -170,11 +247,57 @@ export class ToggleGroup<Multiple extends boolean = false> {
 		};
 	}
 
-	// --- Private helpers ---
+	// =========================================================================
+	// Programmatic Helpers
+	// =========================================================================
+
+	/**
+	 * Check whether a given value is currently selected/pressed.
+	 *
+	 * @param value - The value to check
+	 * @returns `true` if the value is in the current selection
+	 */
+	isSelected(value: string): boolean {
+		return this.#selection.has(value);
+	}
+
+	/**
+	 * Programmatically select/press a value.
+	 *
+	 * In single-select mode, replaces the current selection.
+	 * In multi-select mode, adds to the selection.
+	 * No-op if the group is disabled.
+	 *
+	 * @param value - The value to select
+	 */
+	select(value: string): void {
+		if (this.disabled) return;
+		if (!this.#selection.has(value)) {
+			this.#selection.toggle(value);
+		}
+	}
+
+	/**
+	 * Programmatically deselect/unpress a value.
+	 *
+	 * No-op if the group is disabled or the value is not currently selected.
+	 *
+	 * @param value - The value to deselect
+	 */
+	deselect(value: string): void {
+		if (this.disabled) return;
+		if (this.#selection.has(value)) {
+			this.#selection.toggle(value);
+		}
+	}
+
+	// =========================================================================
+	// Private
+	// =========================================================================
 
 	/**
 	 * Roving tabindex: the first selected item gets tabindex=0,
-	 * or the first item if nothing is selected.
+	 * or all items if nothing is selected (first rendered wins).
 	 */
 	#isRovingActive(value: string): boolean {
 		const selected = this.#selection.toArray();
@@ -189,7 +312,19 @@ export class ToggleGroup<Multiple extends boolean = false> {
 	}
 }
 
-/** Factory function — preferred API. */
+/**
+ * Factory function for the ToggleGroup builder.
+ *
+ * Preferred API — matches MeltUI convention of `createBuilder()` factory functions.
+ *
+ * @param props - Configuration options for the toggle group
+ * @returns A new {@link ToggleGroup} instance
+ *
+ * @example
+ * ```typescript
+ * const group = createToggleGroup({ value: "bold", orientation: "horizontal" });
+ * ```
+ */
 export function createToggleGroup<Multiple extends boolean = false>(
 	props?: ToggleGroupProps<Multiple>,
 ): ToggleGroup<Multiple> {

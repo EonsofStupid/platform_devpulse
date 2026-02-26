@@ -3,7 +3,7 @@
  * @package @devpulse/coldlight
  *
  * Props for the ColdLight Text builder.
- * Mirrors primitives/text/contract.ts — role: "none", zero ARIA.
+ * Mirrors primitives/text/contract.ts -- `role: "none"`, zero ARIA.
  */
 
 import type { MaybeGetter } from "../_internal/types.js";
@@ -13,6 +13,11 @@ export type TextAs = "span" | "p" | "div" | "label" | "strong" | "em" | "small";
 
 /** Constructor config for Text builder. */
 export type TextProps = {
-	/** Polymorphic element tag. @default "span" */
+	/**
+	 * Polymorphic element tag.
+	 * Determines which HTML element is rendered at the component level.
+	 *
+	 * @default "span"
+	 */
 	as?: MaybeGetter<TextAs | undefined>;
 };

@@ -8,10 +8,30 @@
 
 import type { MaybeGetter, Orientation } from "../_internal/types.js";
 
-/** Constructor config for ScrollArea. MaybeGetter for controlled/uncontrolled. */
+/**
+ * Constructor config for ScrollArea.
+ *
+ * All props support the `MaybeGetter<T>` pattern for controlled/uncontrolled usage.
+ */
 export type ScrollAreaProps = {
-	/** Accessible label for the scroll region. */
+	/**
+	 * Accessible label for the scroll region.
+	 *
+	 * Applied as `aria-label` on the viewport element with `role="region"`.
+	 * Getter = controlled, static = uncontrolled.
+	 *
+	 * @default undefined
+	 */
 	label?: MaybeGetter<string | undefined>;
-	/** Orientation of the scrollbar. @default "vertical" */
+
+	/**
+	 * Orientation of the scrollbar — "horizontal" or "vertical".
+	 *
+	 * Controls `aria-orientation` on the scrollbar track and
+	 * `data-orientation` on all relevant elements.
+	 * Getter = controlled, static = uncontrolled.
+	 *
+	 * @default "vertical"
+	 */
 	orientation?: MaybeGetter<Orientation | undefined>;
 };

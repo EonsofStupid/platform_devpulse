@@ -78,6 +78,13 @@ export const AriaDocumentRoles = [
 	"math",
 	"paragraph",
 	"term",
+	// Table structural roles (WAI-ARIA 1.2)
+	"table",
+	"row",
+	"rowgroup",
+	"rowheader",
+	"columnheader",
+	"cell",
 ] as const;
 
 /** Landmark roles from WAI-ARIA 1.2 */
@@ -304,6 +311,14 @@ export const StateTokens = [
 	// Position
 	"expanded",
 	"collapsed",
+	// Lifecycle
+	"loaded",
+	"inactive",
+	// Toggle
+	"on",
+	"off",
+	// Unchecked
+	"unchecked",
 ] as const;
 
 export const StateTokenSchema = z.enum(StateTokens);

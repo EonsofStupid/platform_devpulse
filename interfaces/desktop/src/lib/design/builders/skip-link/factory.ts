@@ -5,28 +5,75 @@
  * ColdLight SkipLink builder -- Svelte 5 runes-native.
  * Owns all ARIA semantics.
  *
- * Visually hidden link that becomes visible on focus.
- * Focus management to skip to main content.
+ * Visually hidden anchor link that becomes visible on focus, enabling
+ * keyboard users to skip past navigation and jump directly to main content.
  *
- * - Root: <a> with href pointing to target, visible only on focus
+ * Slots: root.
+ *
+ * WAI-ARIA: skip navigation pattern.
+ * - `<a>` with `aria-label` describing the skip target.
+ * - On click, programmatically focuses the target element.
+ *
+ * Data attributes:
+ * - `data-cl-skip-link-root` on the `<a>` element.
  */
 
 import { Synced } from "../_internal/synced.svelte.js";
 import {
 	createBuilderMetadata,
 } from "../_internal/index.js";
-import type { SlotAttrs } from "../_internal/types.js";
 import type { SkipLinkProps } from "./types.js";
+
+// ============================================================================
+// Metadata
+// ============================================================================
 
 const metadata = createBuilderMetadata("skip-link", ["root"] as const);
 
+// ============================================================================
+// Builder
+// ============================================================================
+
+/**
+ * ColdLight SkipLink builder.
+ *
+ * Provides a `root` slot getter for a visually-hidden-until-focused anchor
+ * that skips keyboard focus to the main content area.
+ *
+ * @example
+ * ```ts
+ * const skip = createSkipLink({ href: "#main-content" });
+ * // Spread skip.root onto an <a> element.
+ * ```
+ */
 export class SkipLink {
+	// ==========================================================================
+	// Instance IDs
+	// ==========================================================================
+
+	/**
+	 * Unique element IDs for every slot in this builder instance.
+	 *
+	 * @remarks Generated once at construction via `metadata.createIds()`.
+	 */
+	readonly ids: { readonly root: string } = metadata.createIds();
+
+	// ==========================================================================
+	// Private state
+	// ==========================================================================
+
 	#href: Synced<string>;
 	#label: Synced<string>;
 
-	/** Unique IDs for this instance. */
-	readonly ids = metadata.createIds();
+	// ==========================================================================
+	// Constructor
+	// ==========================================================================
 
+	/**
+	 * Create a new SkipLink builder instance.
+	 *
+	 * @param props - Configuration options. All fields are optional.
+	 */
 	constructor(props: SkipLinkProps = {}) {
 		this.#href = new Synced<string>({
 			value: props.href,
@@ -39,22 +86,34 @@ export class SkipLink {
 		});
 	}
 
-	// --- Reactive state ---
+	// ==========================================================================
+	// Reactive state
+	// ==========================================================================
 
+	/** Target href (e.g. `"#main-content"`). */
 	get href(): string {
 		return this.#href.current;
 	}
 
+	/** Accessible label text for the link. */
 	get label(): string {
 		return this.#label.current;
 	}
 
-	// --- Element attribute getters ---
+	// ==========================================================================
+	// Slot attribute getters
+	// ==========================================================================
 
-	/** Root <a> attributes. Spread onto the skip link element. */
-	get root(): SlotAttrs {
+	/**
+	 * Root slot attributes.
+	 *
+	 * Spread onto the skip-link `<a>` element.
+	 * Provides `href`, `aria-label`, click handler for focus management,
+	 * and the `data-cl-skip-link-root` data attribute.
+	 */
+	get root() {
 		return {
-			[metadata.dataAttrs.root]: "",
+			[metadata.dataAttrs.root]: "" as const,
 			id: this.ids.root,
 			href: this.href,
 			"aria-label": this.label,
@@ -75,7 +134,18 @@ export class SkipLink {
 	}
 }
 
-/** Factory function -- preferred API. */
+// ============================================================================
+// Factory
+// ============================================================================
+
+/**
+ * Create a new {@link SkipLink} builder instance.
+ *
+ * Factory function -- preferred API over direct `new SkipLink()`.
+ *
+ * @param props - Configuration options.
+ * @returns A fully initialised SkipLink builder.
+ */
 export function createSkipLink(props?: SkipLinkProps): SkipLink {
 	return new SkipLink(props);
 }

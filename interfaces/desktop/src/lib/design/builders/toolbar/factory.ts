@@ -3,13 +3,34 @@
  * @package @devpulse/coldlight
  *
  * ColdLight Toolbar builder — Svelte 5 runes-native.
- * Owns all ARIA semantics.
  *
- * Root: role="toolbar", aria-orientation, aria-label.
- * Items: roving tabindex with ArrowLeft/Right (horizontal),
- * ArrowUp/Down (vertical), Home, End.
+ * The Toolbar builder owns all ARIA semantics, keyboard interaction, and
+ * data-attribute derivation for the toolbar pattern. Components create
+ * a Toolbar instance, spread `builder.root` onto the toolbar wrapper and
+ * call `builder.getItem(value)` for each toolbar item.
  *
- * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/
+ * ## ARIA Semantics
+ *
+ * - Root: `role="toolbar"`, `aria-orientation`, `aria-label`
+ * - Items: roving `tabindex` with keyboard navigation
+ *
+ * ## Keyboard
+ *
+ * - **ArrowLeft / ArrowRight** — navigate items (horizontal)
+ * - **ArrowUp / ArrowDown** — navigate items (vertical)
+ * - **Home** — focus first item
+ * - **End** — focus last item
+ *
+ * ## Data Attributes
+ *
+ * - `data-cl-toolbar-root` — builder identity (root)
+ * - `data-cl-toolbar-item` — builder identity (item)
+ * - `data-orientation` — `"horizontal"` or `"vertical"`
+ * - `data-disabled` — present (`""`) when disabled
+ * - `data-value` — the value string for each item
+ *
+ * @see {@link ToolbarProps} for configuration options
+ * @see https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/ WAI-ARIA APG Toolbar Pattern
  */
 
 import { Synced } from "../_internal/synced.svelte.js";
@@ -17,24 +38,43 @@ import {
 	createBuilderMetadata,
 	dataAttr,
 	disabledAttr,
-	extract,
 	kbd,
 	getNextKey,
 	getPrevKey,
 } from "../_internal/index.js";
-import type { SlotAttrs, Orientation } from "../_internal/types.js";
+import type { Orientation } from "../_internal/types.js";
 import type { ToolbarProps } from "./types.js";
 
 const metadata = createBuilderMetadata("toolbar", ["root", "item"] as const);
 
+/**
+ * ColdLight Toolbar builder.
+ *
+ * Manages ARIA attributes, roving tabindex, keyboard navigation, and
+ * data-attribute derivation for the toolbar pattern. Provides a container
+ * with arrow-key navigation between toolbar items.
+ *
+ * @example
+ * ```typescript
+ * const toolbar = new Toolbar({ label: "Formatting", orientation: "horizontal" });
+ * // Spread: <div {...toolbar.root}> ... <button {...toolbar.getItem("bold")}>B</button>
+ * ```
+ */
 export class Toolbar {
-	readonly ids = metadata.createIds();
+	/** Unique IDs for this builder instance. */
+	readonly ids: { readonly root: string; readonly item: string } = metadata.createIds();
+
 	#label: Synced<string | undefined>;
 	#orientation: Synced<Orientation>;
 	#disabled: Synced<boolean>;
 	#loop: Synced<boolean>;
 
-	constructor(props: ToolbarProps = {} as ToolbarProps) {
+	/**
+	 * Create a new Toolbar builder instance.
+	 *
+	 * @param props - Configuration options for the toolbar
+	 */
+	constructor(props: ToolbarProps = {}) {
 		this.#label = new Synced<string | undefined>({
 			value: props.label,
 			defaultValue: undefined,
@@ -56,28 +96,47 @@ export class Toolbar {
 		});
 	}
 
-	// --- Reactive state ---
+	// =========================================================================
+	// Reactive State — Read-only accessors for builder state
+	// =========================================================================
 
+	/** Whether the entire toolbar is disabled. */
 	get disabled(): boolean {
 		return this.#disabled.current;
 	}
 
+	/** The orientation of the toolbar for keyboard navigation. */
 	get orientation(): Orientation {
 		return this.#orientation.current;
 	}
 
+	/** Whether arrow key navigation loops at boundaries. */
 	get loop(): boolean {
 		return this.#loop.current;
 	}
 
-	// --- Slot attribute getters ---
+	// =========================================================================
+	// Slot Attribute Getters — Spread onto HTML elements
+	// =========================================================================
 
-	/** Root container attributes. Spread onto the toolbar wrapper element. */
-	get root(): SlotAttrs {
+	/**
+	 * Spread attributes for the root toolbar wrapper element.
+	 *
+	 * Returns an exact typed object containing:
+	 * - Builder identity: `data-cl-toolbar-root`, `id`
+	 * - ARIA: `role="toolbar"`, `aria-orientation`, `aria-label`
+	 * - Data: `data-orientation`, `data-disabled`
+	 *
+	 * @example
+	 * ```svelte
+	 * <div {...toolbar.root}>...</div>
+	 * ```
+	 */
+	get root() {
 		return {
 			[metadata.dataAttrs.root]: "",
 			id: this.ids.root,
-			role: "toolbar",
+			role: "toolbar" as const,
 			"aria-orientation": this.orientation,
 			"aria-label": this.#label.current,
 			"data-orientation": this.orientation,
@@ -86,10 +145,25 @@ export class Toolbar {
 	}
 
 	/**
-	 * Get attributes for a toolbar item.
-	 * Each item returns a spread-able object with ARIA, keyboard handlers, and data attrs.
+	 * Get spread attributes for a toolbar item.
+	 *
+	 * Returns an exact typed object containing:
+	 * - Builder identity: `data-cl-toolbar-item`, `id`
+	 * - ARIA: `aria-disabled`
+	 * - Data: `data-value`, `data-disabled`
+	 * - Handlers: `onclick`, `onkeydown`, `onfocus`
+	 * - Navigation: `tabindex` (roving, managed via `onfocus`)
+	 *
+	 * @param value - The unique value identifier for this item
+	 * @param itemDisabled - Whether this specific item is disabled
+	 *
+	 * @example
+	 * ```svelte
+	 * <button {...toolbar.getItem("bold")}>B</button>
+	 * <button {...toolbar.getItem("italic", true)}>I (disabled)</button>
+	 * ```
 	 */
-	getItem(value: string, itemDisabled?: boolean): SlotAttrs {
+	getItem(value: string, itemDisabled?: boolean) {
 		const isDisabled = this.disabled || (itemDisabled ?? false);
 
 		return {
@@ -164,7 +238,19 @@ export class Toolbar {
 	}
 }
 
-/** Factory function — preferred API. */
+/**
+ * Factory function for the Toolbar builder.
+ *
+ * Preferred API — matches MeltUI convention of `createBuilder()` factory functions.
+ *
+ * @param props - Configuration options for the toolbar
+ * @returns A new {@link Toolbar} instance
+ *
+ * @example
+ * ```typescript
+ * const toolbar = createToolbar({ label: "Text formatting" });
+ * ```
+ */
 export function createToolbar(props?: ToolbarProps): Toolbar {
 	return new Toolbar(props);
 }

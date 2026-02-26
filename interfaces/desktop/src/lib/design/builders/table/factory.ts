@@ -5,18 +5,21 @@
  * ColdLight Table builder — Svelte 5 runes-native.
  * Owns all ARIA semantics.
  *
- * Semantic <table> — native table elements provide implicit ARIA roles.
- * aria-label, aria-describedby on root. aria-sort on head cells.
+ * Semantic `<table>` — native table elements provide implicit ARIA roles.
+ * `aria-label`, `aria-describedby` on root. `aria-sort` on head cells.
+ *
+ * Slots: root, header, body, row, cell, caption.
  *
  * Contract: primitives/table/contract.ts
  */
 
 import { Synced } from "../_internal/synced.svelte.js";
-import {
-	createBuilderMetadata,
-} from "../_internal/index.js";
-import type { SlotAttrs } from "../_internal/types.js";
+import { createBuilderMetadata } from "../_internal/index.js";
 import type { TableProps, AriaSort } from "./types.js";
+
+// ============================================================================
+// Metadata
+// ============================================================================
 
 const metadata = createBuilderMetadata("table", [
 	"root",
@@ -27,13 +30,48 @@ const metadata = createBuilderMetadata("table", [
 	"caption",
 ] as const);
 
+// ============================================================================
+// Builder
+// ============================================================================
+
+/**
+ * ColdLight Table builder.
+ *
+ * Provides ARIA-compliant attribute objects for a semantic HTML `<table>`.
+ * Supports `aria-label`, `aria-labelledby`, `aria-describedby` on the root,
+ * and `aria-sort` on head cells.
+ *
+ * @example
+ * ```ts
+ * const table = createTable({ label: "Users" });
+ * // <table {...table.root}>
+ * //   <caption {...table.caption}>Users</caption>
+ * //   <thead {...table.header}>
+ * //     <tr {...table.getRow()}>
+ * //       <th {...table.getHeadCell("ascending")}>Name</th>
+ * //     </tr>
+ * //   </thead>
+ * //   <tbody {...table.body}>
+ * //     <tr {...table.getRow()}>
+ * //       <td {...table.getCell()}>Alice</td>
+ * //     </tr>
+ * //   </tbody>
+ * // </table>
+ * ```
+ */
 export class Table {
-	readonly ids = metadata.createIds();
+	/** Unique IDs for each slot of this table instance. */
+	readonly ids: Record<"root" | "header" | "body" | "row" | "cell" | "caption", string> =
+		metadata.createIds();
 
 	#label: Synced<string | undefined>;
 	#labelledBy: Synced<string | undefined>;
 	#describedBy: Synced<string | undefined>;
 
+	/**
+	 * Create a new Table builder instance.
+	 * @param props - Configuration options for the table.
+	 */
 	constructor(props: TableProps = {}) {
 		this.#label = new Synced<string | undefined>({
 			value: props.label,
@@ -49,82 +87,111 @@ export class Table {
 		});
 	}
 
-	// --- Reactive state ---
+	// ========================================================================
+	// Reactive state
+	// ========================================================================
 
+	/** The accessible label for the table. */
 	get label(): string | undefined {
 		return this.#label.current;
 	}
 
+	/** The ID of the element that labels the table. */
 	get labelledBy(): string | undefined {
 		return this.#labelledBy.current;
 	}
 
+	/** The ID of the element that describes the table. */
 	get describedBy(): string | undefined {
 		return this.#describedBy.current;
 	}
 
-	// --- Element attribute getters ---
+	// ========================================================================
+	// Slot attribute getters
+	// ========================================================================
 
-	/** Root <table> attributes. */
-	get root(): SlotAttrs {
+	/** Root `<table>` attributes. Spread onto the `<table>` element. */
+	get root() {
 		return {
-			[metadata.dataAttrs.root]: "",
+			[metadata.dataAttrs.root]: "" as const,
 			id: this.ids.root,
-			role: "table",
+			role: "table" as const,
 			"aria-label": this.label,
 			"aria-labelledby": this.labelledBy,
 			"aria-describedby": this.describedBy,
 		};
 	}
 
-	/** <thead> attributes. */
-	get header(): SlotAttrs {
+	/** `<thead>` attributes. Spread onto the `<thead>` element. */
+	get header() {
 		return {
-			[metadata.dataAttrs.header]: "",
+			[metadata.dataAttrs.header]: "" as const,
 			id: this.ids.header,
 		};
 	}
 
-	/** <tbody> attributes. */
-	get body(): SlotAttrs {
+	/** `<tbody>` attributes. Spread onto the `<tbody>` element. */
+	get body() {
 		return {
-			[metadata.dataAttrs.body]: "",
+			[metadata.dataAttrs.body]: "" as const,
 			id: this.ids.body,
 		};
 	}
 
-	/** <caption> attributes. */
-	get caption(): SlotAttrs {
+	/** `<caption>` attributes. Spread onto the `<caption>` element. */
+	get caption() {
 		return {
-			[metadata.dataAttrs.caption]: "",
+			[metadata.dataAttrs.caption]: "" as const,
 			id: this.ids.caption,
 		};
 	}
 
-	/** Get attributes for a <tr> row. */
-	getRow(): SlotAttrs {
+	// ========================================================================
+	// Helper methods
+	// ========================================================================
+
+	/**
+	 * Get attributes for a `<tr>` row element.
+	 * @returns Attribute object to spread onto a `<tr>`.
+	 */
+	getRow() {
 		return {
-			[metadata.dataAttrs.row]: "",
+			[metadata.dataAttrs.row]: "" as const,
 		};
 	}
 
-	/** Get attributes for a <td> cell. */
-	getCell(): SlotAttrs {
+	/**
+	 * Get attributes for a `<td>` cell element.
+	 * @returns Attribute object to spread onto a `<td>`.
+	 */
+	getCell() {
 		return {
-			[metadata.dataAttrs.cell]: "",
+			[metadata.dataAttrs.cell]: "" as const,
 		};
 	}
 
-	/** Get attributes for a <th> head cell. */
-	getHeadCell(sort?: AriaSort): SlotAttrs {
+	/**
+	 * Get attributes for a `<th>` head cell element.
+	 * @param sort - The sort direction for this column header.
+	 * @returns Attribute object to spread onto a `<th>`.
+	 */
+	getHeadCell(sort?: AriaSort) {
 		return {
-			[metadata.dataAttrs.cell]: "",
+			[metadata.dataAttrs.cell]: "" as const,
 			"aria-sort": sort,
 		};
 	}
 }
 
-/** Factory function — preferred API. */
+// ============================================================================
+// Factory
+// ============================================================================
+
+/**
+ * Factory function for creating a Table builder — preferred API.
+ * @param props - Configuration options for the table.
+ * @returns A new `Table` builder instance.
+ */
 export function createTable(props?: TableProps): Table {
 	return new Table(props);
 }

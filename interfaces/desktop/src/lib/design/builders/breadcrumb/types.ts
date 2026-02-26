@@ -8,10 +8,23 @@
 
 import type { MaybeGetter } from "../_internal/types.js";
 
-/** Constructor config for Breadcrumb. */
+/**
+ * Constructor config for the Breadcrumb builder.
+ *
+ * All props support `MaybeGetter<T>` for controlled/uncontrolled patterns.
+ */
 export type BreadcrumbProps = {
-	/** Accessible label for the breadcrumb navigation. @default "Breadcrumb" */
+	/**
+	 * Accessible label for the breadcrumb navigation.
+	 * Sets `aria-label` on the root `<nav>` element.
+	 * @default "Breadcrumb"
+	 */
 	label?: MaybeGetter<string | undefined>;
-	/** Separator character or string between items. @default "/" */
+
+	/**
+	 * Separator character or string between items.
+	 * Displayed between breadcrumb links (hidden from assistive tech via `aria-hidden`).
+	 * @default "/"
+	 */
 	separator?: MaybeGetter<string | undefined>;
 };

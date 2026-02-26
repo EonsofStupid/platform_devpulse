@@ -3,13 +3,23 @@
  * @package @devpulse/coldlight
  *
  * Props for the ColdLight AspectRatio builder.
- * Mirrors primitives/aspect-ratio/contract.ts — role: "none", zero ARIA.
+ *
+ * Contract: primitives/aspect-ratio/contract.ts
+ * - role: "none" -- transparent layout wrapper.
+ * - No ARIA attributes, no keyboard, no focus strategy.
  */
 
 import type { MaybeGetter } from "../_internal/types.js";
 
-/** Constructor config for AspectRatio builder. */
+/** Constructor config for the {@link AspectRatio} builder. */
 export type AspectRatioProps = {
-	/** Aspect ratio value (width / height). @default 1 */
+	/**
+	 * Aspect ratio value (width / height).
+	 *
+	 * Pass a getter for controlled (reactive) mode or a static value
+	 * for uncontrolled mode.
+	 *
+	 * @default 1
+	 */
 	ratio?: MaybeGetter<number | undefined>;
 };

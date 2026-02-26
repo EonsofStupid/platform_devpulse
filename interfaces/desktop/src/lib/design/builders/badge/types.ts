@@ -13,10 +13,27 @@ export type BadgeVariant = "default" | "info" | "success" | "warning" | "error";
 
 /** Constructor config for Badge. */
 export type BadgeProps = {
-	/** Whether the badge is purely decorative (aria-hidden). @default true */
+	/**
+	 * Whether the badge is purely decorative (`aria-hidden`).
+	 * When `true`, the badge is hidden from assistive technology.
+	 * When `false`, `role="status"` is applied and `label` is used as `aria-label`.
+	 *
+	 * @default true
+	 */
 	decorative?: MaybeGetter<boolean | undefined>;
-	/** Accessible label when informational (non-decorative). */
+
+	/**
+	 * Accessible label when informational (non-decorative).
+	 * Applied as `aria-label` on the root element when `decorative` is `false`.
+	 *
+	 * @default ""
+	 */
 	label?: MaybeGetter<string | undefined>;
-	/** Visual variant. @default "default" */
+
+	/**
+	 * Visual variant controlling the badge appearance.
+	 *
+	 * @default "default"
+	 */
 	variant?: MaybeGetter<BadgeVariant | undefined>;
 };

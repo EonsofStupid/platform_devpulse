@@ -4,15 +4,31 @@
  *
  * ColdLight InputGroup builder — Svelte 5 runes-native.
  *
- * Owns all ARIA semantics:
- * - Root: role="group", aria-label
+ * The InputGroup builder owns all ARIA semantics and data-attribute derivation
+ * for the input group pattern. Components create an InputGroup instance and
+ * spread the slot getters onto the respective elements: root, prefix, input,
+ * and suffix.
+ *
+ * ## ARIA Semantics
+ *
+ * - Root: `role="group"`, `aria-label` / `aria-labelledby`
  * - Prefix: presentational addon slot
- * - Input: pass-through slot for child input
+ * - Input: pass-through slot for child input element
  * - Suffix: presentational addon slot
  *
- * No custom keyboard handling — container only.
+ * No custom keyboard handling — this is a container only.
  *
- * WAI-ARIA: role="group" to associate input with addons.
+ * ## Data Attributes
+ *
+ * - `data-cl-input-group-root` — builder identity (root)
+ * - `data-cl-input-group-prefix` — builder identity (prefix)
+ * - `data-cl-input-group-input` — builder identity (input)
+ * - `data-cl-input-group-suffix` — builder identity (suffix)
+ * - `data-disabled` — present (`""`) when disabled
+ *
+ * WAI-ARIA: `role="group"` associates the input with its addons.
+ *
+ * @see {@link InputGroupProps} for configuration options
  */
 
 import { Synced } from "../_internal/synced.svelte.js";
@@ -20,7 +36,6 @@ import {
 	createBuilderMetadata,
 	dataAttr,
 } from "../_internal/index.js";
-import type { SlotAttrs } from "../_internal/types.js";
 import type { InputGroupProps } from "./types.js";
 
 const metadata = createBuilderMetadata("input-group", [
@@ -30,14 +45,41 @@ const metadata = createBuilderMetadata("input-group", [
 	"suffix",
 ] as const);
 
+/**
+ * ColdLight InputGroup builder.
+ *
+ * Manages ARIA attributes and data-attribute derivation for the input group
+ * pattern. Provides a `role="group"` container that associates an input
+ * element with leading (prefix) and trailing (suffix) addon elements.
+ *
+ * @example
+ * ```typescript
+ * const group = new InputGroup({ "aria-label": "Price input" });
+ * // Spread: <div {...group.root}>
+ * //   <span {...group.prefix}>$</span>
+ * //   <input {...group.input} />
+ * //   <span {...group.suffix}>.00</span>
+ * // </div>
+ * ```
+ */
 export class InputGroup {
+	/** Unique IDs for this builder instance. */
+	readonly ids: {
+		readonly root: string;
+		readonly prefix: string;
+		readonly input: string;
+		readonly suffix: string;
+	} = metadata.createIds();
+
 	#disabled: Synced<boolean>;
 	#props: InputGroupProps;
 
-	/** Unique IDs for this instance. */
-	readonly ids = metadata.createIds();
-
-	constructor(props: InputGroupProps = {} as InputGroupProps) {
+	/**
+	 * Create a new InputGroup builder instance.
+	 *
+	 * @param props - Configuration options for the input group
+	 */
+	constructor(props: InputGroupProps = {}) {
 		this.#props = props;
 
 		this.#disabled = new Synced<boolean>({
@@ -46,36 +88,74 @@ export class InputGroup {
 		});
 	}
 
-	// --- Reactive state ---
+	// =========================================================================
+	// Reactive State — Read-only accessors for builder state
+	// =========================================================================
 
+	/** Whether the input group is disabled. */
 	get disabled(): boolean {
 		return this.#disabled.current;
 	}
 
-	// --- Slot attribute getters ---
+	// =========================================================================
+	// Slot Attribute Getters — Spread onto HTML elements
+	// =========================================================================
 
-	/** Root container attributes. Spread onto the group wrapper element. */
-	get root(): SlotAttrs {
+	/**
+	 * Spread attributes for the root group wrapper element.
+	 *
+	 * Returns an exact typed object containing:
+	 * - Builder identity: `data-cl-input-group-root`, `id`
+	 * - ARIA: `role="group"`, `aria-label`, `aria-labelledby`
+	 * - Data: `data-disabled`
+	 *
+	 * @example
+	 * ```svelte
+	 * <div {...group.root}>...</div>
+	 * ```
+	 */
+	get root() {
 		return {
 			[metadata.dataAttrs.root]: "",
 			id: this.ids.root,
-			role: "group",
+			role: "group" as const,
 			"aria-label": this.#props["aria-label"],
 			"aria-labelledby": this.#props["aria-labelledby"],
 			"data-disabled": dataAttr(this.disabled),
 		};
 	}
 
-	/** Prefix addon attributes. Spread onto the leading addon element. */
-	get prefix(): SlotAttrs {
+	/**
+	 * Spread attributes for the prefix addon element.
+	 *
+	 * Returns an exact typed object containing:
+	 * - Builder identity: `data-cl-input-group-prefix`, `id`
+	 *
+	 * @example
+	 * ```svelte
+	 * <span {...group.prefix}>$</span>
+	 * ```
+	 */
+	get prefix() {
 		return {
 			[metadata.dataAttrs.prefix]: "",
 			id: this.ids.prefix,
 		};
 	}
 
-	/** Input slot attributes. Spread onto the input wrapper or input element. */
-	get input(): SlotAttrs {
+	/**
+	 * Spread attributes for the input slot element.
+	 *
+	 * Returns an exact typed object containing:
+	 * - Builder identity: `data-cl-input-group-input`, `id`
+	 * - Data: `data-disabled`
+	 *
+	 * @example
+	 * ```svelte
+	 * <input {...group.input} />
+	 * ```
+	 */
+	get input() {
 		return {
 			[metadata.dataAttrs.input]: "",
 			id: this.ids.input,
@@ -83,8 +163,18 @@ export class InputGroup {
 		};
 	}
 
-	/** Suffix addon attributes. Spread onto the trailing addon element. */
-	get suffix(): SlotAttrs {
+	/**
+	 * Spread attributes for the suffix addon element.
+	 *
+	 * Returns an exact typed object containing:
+	 * - Builder identity: `data-cl-input-group-suffix`, `id`
+	 *
+	 * @example
+	 * ```svelte
+	 * <span {...group.suffix}>.00</span>
+	 * ```
+	 */
+	get suffix() {
 		return {
 			[metadata.dataAttrs.suffix]: "",
 			id: this.ids.suffix,
@@ -92,7 +182,19 @@ export class InputGroup {
 	}
 }
 
-/** Factory function — preferred API. */
+/**
+ * Factory function for the InputGroup builder.
+ *
+ * Preferred API — matches MeltUI convention of `createBuilder()` factory functions.
+ *
+ * @param props - Configuration options for the input group
+ * @returns A new {@link InputGroup} instance
+ *
+ * @example
+ * ```typescript
+ * const group = createInputGroup({ "aria-label": "Search", disabled: false });
+ * ```
+ */
 export function createInputGroup(props?: InputGroupProps): InputGroup {
 	return new InputGroup(props);
 }

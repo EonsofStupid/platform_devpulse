@@ -2,34 +2,57 @@
  * @file builders/label/factory.ts
  * @package @devpulse/coldlight
  *
- * ColdLight Label builder — Svelte 5 runes-native.
+ * ColdLight Label builder -- Svelte 5 runes-native.
  * Owns all ARIA semantics.
  *
- * Native <label> element:
- * - Root: <label> with `for` attribute for control association
- * - Disabled state styling hook via data-disabled
- * - Click on label focuses associated control (native behavior)
+ * ARIA spec:
+ * - Native `<label>` element provides implicit semantics (no explicit role needed).
+ * - `for` attribute associates the label with a form control via ID.
+ * - Click on label focuses/activates the associated control (native behavior).
  *
- * No ARIA role needed — native <label> provides implicit semantics.
+ * Keyboard: None -- label focus forwarding is handled by the browser natively.
+ *
+ * Data attributes:
+ * - `data-builder-label-root` -- root slot marker
+ * - `data-disabled` -- present when the associated control is disabled
  */
 
 import { Synced } from "../_internal/synced.svelte.js";
 import {
 	createBuilderMetadata,
 	dataAttr,
-	extract,
 } from "../_internal/index.js";
-import type { SlotAttrs } from "../_internal/types.js";
 import type { LabelProps } from "./types.js";
+
+// ============================================================================
+// Metadata
+// ============================================================================
 
 const metadata = createBuilderMetadata("label", ["root"] as const);
 
+// ============================================================================
+// Builder
+// ============================================================================
+
+/**
+ * Label builder -- form control label with native `<label>` semantics.
+ *
+ * Uses `for` attribute to associate with a form control.
+ * Exposes `data-disabled` for styling when the associated control is disabled.
+ */
 export class Label {
-	readonly ids = metadata.createIds();
 	#htmlFor: Synced<string | undefined>;
 	#disabled: Synced<boolean>;
 
-	constructor(props: LabelProps = {} as LabelProps) {
+	/** Unique element IDs for this builder instance. */
+	readonly ids: { readonly root: string } = metadata.createIds();
+
+	/**
+	 * Create a new Label builder.
+	 *
+	 * @param props - Configuration options. All props support `MaybeGetter` for reactivity.
+	 */
+	constructor(props: LabelProps = {}) {
 		this.#htmlFor = new Synced<string | undefined>({
 			value: props.htmlFor,
 			defaultValue: undefined,
@@ -41,16 +64,25 @@ export class Label {
 		});
 	}
 
-	// --- Reactive state ---
+	// ========================================================================
+	// Reactive state
+	// ========================================================================
 
+	/** Whether the associated control is disabled. */
 	get disabled(): boolean {
 		return this.#disabled.current;
 	}
 
-	// --- Slot attribute getters ---
+	// ========================================================================
+	// Slot attribute getters
+	// ========================================================================
 
-	/** Root label attributes. Spread onto the <label> element. */
-	get root(): SlotAttrs {
+	/**
+	 * Root element attributes. Spread onto the `<label>` element.
+	 *
+	 * Sets `for` for control association and `data-disabled` for styling hooks.
+	 */
+	get root() {
 		return {
 			[metadata.dataAttrs.root]: "",
 			id: this.ids.root,
@@ -60,7 +92,16 @@ export class Label {
 	}
 }
 
-/** Factory function — preferred API. */
+// ============================================================================
+// Factory
+// ============================================================================
+
+/**
+ * Create a new Label builder instance.
+ *
+ * @param props - Configuration options.
+ * @returns A reactive Label builder.
+ */
 export function createLabel(props?: LabelProps): Label {
 	return new Label(props);
 }

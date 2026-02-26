@@ -9,8 +9,8 @@
 /** Value or getter — reactive when getter, static when value. */
 export type MaybeGetter<T> = T | (() => T);
 
-/** Slot attribute object — spread onto HTML element. */
-export type SlotAttrs = Record<string, unknown>;
+/** Loose attribute type for external consumers who accept any builder output. */
+export type BuilderAttrs = Record<string, unknown>;
 
 /** Standard data-state values used across builders. */
 export type DataState = "on" | "off" | "active" | "inactive" | "open" | "closed";

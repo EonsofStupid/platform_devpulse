@@ -5,12 +5,24 @@
  * ColdLight NumberInput builder — Svelte 5 runes-native.
  *
  * Owns all ARIA semantics:
- * - Root: role="group", aria-label
- * - Input: role="spinbutton", aria-valuenow, aria-valuemin, aria-valuemax, aria-valuetext
- * - Increment: role="button", aria-label="Increase value"
- * - Decrement: role="button", aria-label="Decrease value"
+ * - Root: `role="group"`, `aria-label`
+ * - Input: `role="spinbutton"`, `aria-valuenow`, `aria-valuemin`,
+ *   `aria-valuemax`, `aria-valuetext`
+ * - Increment: `type="button"`, `aria-label="Increase value"`
+ * - Decrement: `type="button"`, `aria-label="Decrease value"`
  *
- * Keyboard: ArrowUp (increment), ArrowDown (decrement), Home (min), End (max).
+ * Keyboard interaction:
+ * | Key       | Action                                    |
+ * |-----------|-------------------------------------------|
+ * | ArrowUp   | Increment value by step                   |
+ * | ArrowDown | Decrement value by step                   |
+ * | Home      | Set value to minimum (if finite)          |
+ * | End       | Set value to maximum (if finite)          |
+ *
+ * Data attributes:
+ * | Attribute        | Values                         |
+ * |------------------|--------------------------------|
+ * | `data-disabled`  | `""` (present) or absent       |
  *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/spinbutton/
  */
@@ -22,7 +34,6 @@ import {
 	disabledAttr,
 	kbd,
 } from "../_internal/index.js";
-import type { SlotAttrs } from "../_internal/types.js";
 import type { NumberInputProps } from "./types.js";
 
 const metadata = createBuilderMetadata("number-input", [
@@ -32,6 +43,19 @@ const metadata = createBuilderMetadata("number-input", [
 	"decrement",
 ] as const);
 
+/**
+ * ColdLight NumberInput builder.
+ *
+ * Provides a fully accessible numeric spinbutton widget with increment
+ * and decrement controls, min/max clamping, and step support. All ARIA
+ * semantics are managed internally — consumers spread slot attributes
+ * onto their elements.
+ *
+ * @example
+ * ```ts
+ * const num = createNumberInput({ value: () => count, min: 0, max: 100, step: 5 });
+ * ```
+ */
 export class NumberInput {
 	#value: Synced<number>;
 	#min: Synced<number>;
@@ -43,10 +67,18 @@ export class NumberInput {
 	#valueText: Synced<string>;
 	#props: NumberInputProps;
 
-	/** Unique IDs for this instance. */
-	readonly ids = metadata.createIds();
+	/**
+	 * Unique IDs for each slot element of this number-input instance.
+	 * Generated once at construction time via `createBuilderMetadata`.
+	 */
+	readonly ids: { readonly root: string; readonly input: string; readonly increment: string; readonly decrement: string } = metadata.createIds();
 
-	constructor(props: NumberInputProps = {} as NumberInputProps) {
+	/**
+	 * Create a new NumberInput builder instance.
+	 *
+	 * @param props - Configuration props. All are optional with sensible defaults.
+	 */
+	constructor(props: NumberInputProps = {}) {
 		this.#props = props;
 
 		this.#value = new Synced<number>({
@@ -91,94 +123,124 @@ export class NumberInput {
 		});
 	}
 
-	// --- Reactive state ---
+	// ======================================================================
+	// Reactive State
+	// ======================================================================
 
+	/** The current numeric value, clamped to min/max bounds. */
 	get value(): number {
 		return this.#value.current;
 	}
 
+	/** Set the numeric value directly. The value is clamped to min/max bounds. */
 	set value(v: number) {
 		this.#value.current = this.#clamp(v);
 	}
 
+	/** Whether the number input is disabled. */
 	get disabled(): boolean {
 		return this.#disabled.current;
 	}
 
+	/** Whether the number input is read-only. */
 	get readOnly(): boolean {
 		return this.#readonly.current;
 	}
 
+	/** Whether the number input is required. */
 	get required(): boolean {
 		return this.#required.current;
 	}
 
+	/** The minimum allowed value. */
 	get min(): number {
 		return this.#min.current;
 	}
 
+	/** The maximum allowed value. */
 	get max(): number {
 		return this.#max.current;
 	}
 
+	/** The step increment value. */
 	get step(): number {
 		return this.#step.current;
 	}
 
+	/** Whether the value can be incremented (not disabled, not read-only, below max). */
 	get canIncrement(): boolean {
 		return !this.disabled && !this.readOnly && this.value < this.max;
 	}
 
+	/** Whether the value can be decremented (not disabled, not read-only, above min). */
 	get canDecrement(): boolean {
 		return !this.disabled && !this.readOnly && this.value > this.min;
 	}
 
-	// --- Private helpers ---
+	// ======================================================================
+	// Private
+	// ======================================================================
 
+	/** Clamp a value to the min/max bounds. */
 	#clamp(v: number): number {
 		return Math.min(this.max, Math.max(this.min, v));
 	}
 
+	/** Increment the value by one step, respecting bounds. */
 	#increment(): void {
 		if (!this.canIncrement) return;
 		this.#value.current = this.#clamp(this.value + this.step);
 	}
 
+	/** Decrement the value by one step, respecting bounds. */
 	#decrement(): void {
 		if (!this.canDecrement) return;
 		this.#value.current = this.#clamp(this.value - this.step);
 	}
 
-	// --- Slot attribute getters ---
+	// ======================================================================
+	// Slot Attribute Getters
+	// ======================================================================
 
-	/** Root container attributes. Spread onto the group wrapper element. */
-	get root(): SlotAttrs {
+	/**
+	 * Root container attributes.
+	 *
+	 * Spread onto the group wrapper element. Provides `role="group"`
+	 * and the accessible label for the entire number input composite.
+	 */
+	get root() {
 		return {
 			[metadata.dataAttrs.root]: "",
 			id: this.ids.root,
-			role: "group",
+			role: "group" as const,
 			"aria-label": this.#props["aria-label"],
 			"data-disabled": dataAttr(this.disabled),
 		};
 	}
 
-	/** Input element attributes. Spread onto the native <input> element. */
-	get input(): SlotAttrs {
+	/**
+	 * Input element attributes.
+	 *
+	 * Spread onto the native `<input>` element. Provides `role="spinbutton"`,
+	 * `aria-valuenow`, `aria-valuemin`, `aria-valuemax`, keyboard handling
+	 * (ArrowUp, ArrowDown, Home, End), and the `oninput` handler.
+	 */
+	get input() {
 		const vt = this.#valueText.current;
 		return {
 			[metadata.dataAttrs.input]: "",
 			id: this.ids.input,
-			role: "spinbutton",
-			type: "text",
-			inputmode: "numeric",
+			role: "spinbutton" as const,
+			type: "text" as const,
+			inputmode: "numeric" as const,
 			value: this.value,
 			"aria-valuenow": this.value,
 			"aria-valuemin": this.min === -Infinity ? undefined : this.min,
 			"aria-valuemax": this.max === Infinity ? undefined : this.max,
 			"aria-valuetext": vt || undefined,
 			"aria-disabled": disabledAttr(this.disabled),
-			"aria-readonly": this.readOnly ? true : undefined,
-			"aria-required": this.required ? true : undefined,
+			"aria-readonly": this.readOnly ? (true as const) : undefined,
+			"aria-required": this.required ? (true as const) : undefined,
 			"aria-describedby": this.#props["aria-describedby"],
 			disabled: this.disabled || undefined,
 			readonly: this.readOnly || undefined,
@@ -217,15 +279,20 @@ export class NumberInput {
 		};
 	}
 
-	/** Increment button attributes. Spread onto the increment button. */
-	get increment(): SlotAttrs {
+	/**
+	 * Increment button attributes.
+	 *
+	 * Spread onto the increment button. Includes `aria-label="Increase value"`
+	 * and disables itself when the value is at or above the maximum.
+	 */
+	get increment() {
 		const isDisabled = this.disabled || this.readOnly || !this.canIncrement;
 		return {
 			[metadata.dataAttrs.increment]: "",
 			id: this.ids.increment,
-			type: "button",
-			tabindex: -1,
-			"aria-label": "Increase value",
+			type: "button" as const,
+			tabindex: -1 as const,
+			"aria-label": "Increase value" as const,
 			"aria-disabled": disabledAttr(isDisabled),
 			"data-disabled": dataAttr(isDisabled),
 
@@ -235,15 +302,20 @@ export class NumberInput {
 		};
 	}
 
-	/** Decrement button attributes. Spread onto the decrement button. */
-	get decrement(): SlotAttrs {
+	/**
+	 * Decrement button attributes.
+	 *
+	 * Spread onto the decrement button. Includes `aria-label="Decrease value"`
+	 * and disables itself when the value is at or below the minimum.
+	 */
+	get decrement() {
 		const isDisabled = this.disabled || this.readOnly || !this.canDecrement;
 		return {
 			[metadata.dataAttrs.decrement]: "",
 			id: this.ids.decrement,
-			type: "button",
-			tabindex: -1,
-			"aria-label": "Decrease value",
+			type: "button" as const,
+			tabindex: -1 as const,
+			"aria-label": "Decrease value" as const,
 			"aria-disabled": disabledAttr(isDisabled),
 			"data-disabled": dataAttr(isDisabled),
 
@@ -252,9 +324,43 @@ export class NumberInput {
 			},
 		};
 	}
+
+	// ======================================================================
+	// Programmatic Helpers
+	// ======================================================================
+
+	/**
+	 * Increment the value by one step programmatically.
+	 *
+	 * Respects min/max bounds. No-op if disabled, read-only, or
+	 * already at the maximum.
+	 */
+	incrementValue(): void {
+		this.#increment();
+	}
+
+	/**
+	 * Decrement the value by one step programmatically.
+	 *
+	 * Respects min/max bounds. No-op if disabled, read-only, or
+	 * already at the minimum.
+	 */
+	decrementValue(): void {
+		this.#decrement();
+	}
 }
 
-/** Factory function — preferred API. */
+/**
+ * Factory function for the NumberInput builder — preferred API.
+ *
+ * @param props - Optional number input configuration props.
+ * @returns A new {@link NumberInput} instance.
+ *
+ * @example
+ * ```ts
+ * const num = createNumberInput({ min: 0, max: 100, step: 5 });
+ * ```
+ */
 export function createNumberInput(props?: NumberInputProps): NumberInput {
 	return new NumberInput(props);
 }

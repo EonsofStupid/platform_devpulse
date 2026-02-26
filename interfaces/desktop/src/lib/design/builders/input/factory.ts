@@ -5,12 +5,22 @@
  * ColdLight Input builder — Svelte 5 runes-native.
  *
  * Owns all ARIA semantics:
- * - Root: implicit textbox role (native <input>),
- *   aria-invalid, aria-required, aria-disabled, aria-readonly
+ * - Root: implicit textbox role (native `<input>`),
+ *   `aria-invalid`, `aria-required`, `aria-disabled`, `aria-readonly`
  *
- * No custom keyboard handling — native <input> behavior suffices.
+ * Keyboard interaction:
+ * No custom keyboard handling — native `<input>` behavior suffices.
  *
- * WAI-ARIA: Native <input> element provides implicit textbox role.
+ * Data attributes:
+ * | Attribute         | Values                         |
+ * |-------------------|--------------------------------|
+ * | `data-disabled`   | `""` (present) or absent       |
+ * | `data-readonly`   | `""` (present) or absent       |
+ * | `data-required`   | `""` (present) or absent       |
+ * | `data-invalid`    | `""` (present) or absent       |
+ * | `data-valid`      | `""` (present) or absent       |
+ *
+ * WAI-ARIA: Native `<input>` element provides implicit textbox role.
  */
 
 import { Synced } from "../_internal/synced.svelte.js";
@@ -18,13 +28,24 @@ import {
 	createBuilderMetadata,
 	dataAttr,
 	disabledAttr,
-	extract,
 } from "../_internal/index.js";
-import type { SlotAttrs } from "../_internal/types.js";
 import type { InputProps } from "./types.js";
 
 const metadata = createBuilderMetadata("input", ["root"] as const);
 
+/**
+ * ColdLight Input builder.
+ *
+ * Provides a fully accessible text input with validation state support.
+ * Relies on native `<input>` semantics — no custom ARIA roles needed.
+ * All attributes are managed internally — consumers spread slot
+ * attributes onto their `<input>` element.
+ *
+ * @example
+ * ```ts
+ * const input = createInput({ value: () => text, onValueChange: (v) => text = v });
+ * ```
+ */
 export class Input {
 	#value: Synced<string>;
 	#disabled: Synced<boolean>;
@@ -34,10 +55,18 @@ export class Input {
 	#type: Synced<string>;
 	#props: InputProps;
 
-	/** Unique IDs for this instance. */
-	readonly ids = metadata.createIds();
+	/**
+	 * Unique IDs for each slot element of this input instance.
+	 * Generated once at construction time via `createBuilderMetadata`.
+	 */
+	readonly ids: { readonly root: string } = metadata.createIds();
 
-	constructor(props: InputProps = {} as InputProps) {
+	/**
+	 * Create a new Input builder instance.
+	 *
+	 * @param props - Configuration props. All are optional with sensible defaults.
+	 */
+	constructor(props: InputProps = {}) {
 		this.#props = props;
 
 		this.#value = new Synced<string>({
@@ -72,36 +101,52 @@ export class Input {
 		});
 	}
 
-	// --- Reactive state ---
+	// ======================================================================
+	// Reactive State
+	// ======================================================================
 
+	/** The current input value. */
 	get value(): string {
 		return this.#value.current;
 	}
 
+	/** Set the input value directly. */
 	set value(v: string) {
 		this.#value.current = v;
 	}
 
+	/** Whether the input is disabled. */
 	get disabled(): boolean {
 		return this.#disabled.current;
 	}
 
+	/** Whether the input is read-only. */
 	get readOnly(): boolean {
 		return this.#readonly.current;
 	}
 
+	/** Whether the input is required. */
 	get required(): boolean {
 		return this.#required.current;
 	}
 
+	/** Whether the input is in an invalid state. */
 	get invalid(): boolean {
 		return this.#invalid.current;
 	}
 
-	// --- Slot attribute getters ---
+	// ======================================================================
+	// Slot Attribute Getters
+	// ======================================================================
 
-	/** Root element attributes. Spread onto the native <input> element. */
-	get root(): SlotAttrs {
+	/**
+	 * Root element attributes.
+	 *
+	 * Spread onto the native `<input>` element. Provides all native
+	 * attributes (`type`, `disabled`, `readonly`, `required`, `placeholder`),
+	 * ARIA attributes, data attributes, and the `oninput` handler.
+	 */
+	get root() {
 		return {
 			[metadata.dataAttrs.root]: "",
 			id: this.ids.root,
@@ -111,10 +156,10 @@ export class Input {
 			readonly: this.readOnly || undefined,
 			required: this.required || undefined,
 			placeholder: this.#props.placeholder,
-			"aria-invalid": this.invalid ? true : undefined,
-			"aria-required": this.required ? true : undefined,
+			"aria-invalid": this.invalid ? (true as const) : undefined,
+			"aria-required": this.required ? (true as const) : undefined,
 			"aria-disabled": disabledAttr(this.disabled),
-			"aria-readonly": this.readOnly ? true : undefined,
+			"aria-readonly": this.readOnly ? (true as const) : undefined,
 			"aria-label": this.#props["aria-label"],
 			"aria-labelledby": this.#props["aria-labelledby"],
 			"aria-describedby": this.#props["aria-describedby"],
@@ -132,13 +177,42 @@ export class Input {
 		};
 	}
 
-	/** Clear the input value programmatically. */
+	// ======================================================================
+	// Programmatic Helpers
+	// ======================================================================
+
+	/**
+	 * Focus the input element programmatically.
+	 *
+	 * Uses `document.getElementById` to locate the root element and
+	 * call `.focus()` on it.
+	 */
+	focus(): void {
+		const el = document.getElementById(this.ids.root);
+		el?.focus();
+	}
+
+	/**
+	 * Clear the input value programmatically.
+	 *
+	 * Resets the value to an empty string.
+	 */
 	clear(): void {
 		this.#value.current = "";
 	}
 }
 
-/** Factory function — preferred API. */
+/**
+ * Factory function for the Input builder — preferred API.
+ *
+ * @param props - Optional input configuration props.
+ * @returns A new {@link Input} instance.
+ *
+ * @example
+ * ```ts
+ * const input = createInput({ placeholder: "Enter text..." });
+ * ```
+ */
 export function createInput(props?: InputProps): Input {
 	return new Input(props);
 }
