@@ -3,15 +3,12 @@
 	@kind badge
 	@layer components
 
-	ColdLight Badge — wraps structureless BadgeRoot with:
-	- ARIA attributes (role="status", optional aria-label)
-	- State derivation (data-state based on intent)
-	- SD5 token-driven recipe (intent x size)
-
-	ColdLight OWNS all ARIA. Primitive is structural only.
+	ColdLight Badge — builder-driven component.
+	Builder owns ALL ARIA semantics. Component adds recipe classes.
 -->
 <script lang="ts">
 	import type { BadgeComponentProps } from "./types.js";
+	import { createBadge } from "$lib/design/builders/badge/index.js";
 	import BadgeRoot from "$lib/design/primitives/badge/Badge.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { badgeRecipe } from "./recipe.js";
@@ -24,14 +21,18 @@
 		...rest
 	}: BadgeComponentProps = $props();
 
+	const builder = createBadge({
+		decorative: () => false,
+		variant: () => intent,
+	});
+
 	const classes = $derived(cn(badgeRecipe({ intent, size }), className));
 </script>
 
 <BadgeRoot
+	{...builder.root}
 	{...rest}
 	class={classes}
-	role="status"
-	data-state={intent}
 >
 	{@render children?.()}
 </BadgeRoot>

@@ -3,55 +3,45 @@
 	@kind textarea
 	@layer components
 
-	ColdLight Textarea — wraps structureless TextareaRoot with:
-	- ARIA attributes (aria-invalid, aria-required, aria-readonly, aria-disabled, aria-multiline)
-	- State derivation (data-state)
-	- SD5 token-driven recipe (size)
-
-	ColdLight OWNS all ARIA. Primitive is structural only.
+	ColdLight Textarea — builder-driven component.
+	Builder owns ALL ARIA semantics. Component adds recipe classes.
 	Textarea is self-closing — no children snippet.
 -->
 <script lang="ts">
 	import type { TextareaComponentProps } from "./types.js";
+	import { createTextarea } from "$lib/design/builders/textarea/index.js";
 	import TextareaRoot from "$lib/design/primitives/textarea/Textarea.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { textareaRecipe } from "./recipe.js";
 
 	let {
 		size = "md",
+		value,
 		invalid = false,
 		rows = 3,
 		disabled = false,
 		readonly: readonlyProp = false,
 		required = false,
+		onValueChange,
 		class: className,
 		...rest
 	}: TextareaComponentProps = $props();
 
-	const classes = $derived(cn(textareaRecipe({ size }), className));
+	const builder = createTextarea({
+		value: () => value as string | undefined,
+		disabled: () => disabled,
+		readonly: () => readonlyProp,
+		required: () => required,
+		invalid: () => invalid,
+		rows: () => rows,
+		onValueChange,
+	});
 
-	const dataState = $derived(
-		invalid
-			? "invalid"
-			: disabled
-				? "disabled"
-				: readonlyProp
-					? "readonly"
-					: undefined,
-	);
+	const classes = $derived(cn(textareaRecipe({ size }), className));
 </script>
 
 <TextareaRoot
+	{...builder.root}
 	{...rest}
 	class={classes}
-	{rows}
-	{disabled}
-	readonly={readonlyProp}
-	{required}
-	aria-invalid={invalid || undefined}
-	aria-required={required || undefined}
-	aria-readonly={readonlyProp || undefined}
-	aria-disabled={disabled || undefined}
-	aria-multiline={true}
-	data-state={dataState}
 />

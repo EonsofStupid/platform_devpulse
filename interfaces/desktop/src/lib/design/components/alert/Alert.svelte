@@ -3,16 +3,13 @@
 	@kind alert
 	@layer components
 
-	ColdLight Alert — wraps structureless Alert primitive with:
-	- ARIA attributes (role="alert", implicit aria-live="assertive")
-	- State derivation (data-state based on intent)
-	- SD5 token-driven recipe (intent)
-
-	ColdLight OWNS all ARIA. Primitive is structural only.
+	ColdLight Alert — builder-driven component.
+	Builder owns ALL ARIA semantics. Component adds recipe classes.
 	Reference: WAI-ARIA APG Alert Pattern
 -->
 <script lang="ts">
 	import type { AlertComponentProps } from "./types.js";
+	import { createAlert } from "$lib/design/builders/alert/index.js";
 	import AlertRoot from "$lib/design/primitives/alert/Alert.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { alertRecipe } from "./recipe.js";
@@ -26,24 +23,27 @@
 		...rest
 	}: AlertComponentProps = $props();
 
-	const classes = $derived(cn(alertRecipe({ intent }), className));
+	const builder = createAlert({
+		onVisibleChange: (visible) => {
+			if (!visible) onClose?.();
+		},
+	});
 
-	const dataState = $derived(intent);
+	const classes = $derived(cn(alertRecipe({ intent }), className));
 </script>
 
 <AlertRoot
+	{...builder.root}
 	{...rest}
 	class={classes}
-	role="alert"
-	data-state={dataState}
 >
 	{@render children?.()}
 	{#if closable}
 		<button
+			{...builder.action}
 			type="button"
 			class="absolute top-2 right-2 inline-flex items-center justify-center rounded-sm p-1 opacity-70 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
 			aria-label="Close alert"
-			onclick={onClose}
 			data-slot="action"
 		>
 			<span aria-hidden="true">&times;</span>
