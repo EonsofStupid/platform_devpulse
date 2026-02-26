@@ -1,0 +1,44 @@
+<!--
+	@component AspectRatio
+	@kind aspect-ratio
+	@layer components
+
+	ColdLight AspectRatio — builder-driven fixed ratio container.
+	Builder provides data attributes + style with aspect-ratio CSS.
+	Component resolves preset to numeric ratio and adds recipe classes.
+-->
+<script lang="ts">
+	import type { AspectRatioComponentProps } from "./types.js";
+	import { createAspectRatio } from "$lib/design/builders/aspect-ratio/index.js";
+	import AspectRatioRoot from "$lib/design/primitives/aspect-ratio/AspectRatio.svelte";
+	import { cn } from "$lib/design/primitives/types.js";
+	import { aspectRatioRecipe } from "./recipe.js";
+
+	const presetRatios = {
+		square: 1,
+		video: 16 / 9,
+		portrait: 3 / 4,
+		wide: 21 / 9,
+		ultrawide: 32 / 9,
+	} as const;
+
+	let {
+		ratio,
+		preset = "video",
+		children,
+		class: className,
+		...rest
+	}: AspectRatioComponentProps = $props();
+
+	const resolvedRatio = $derived(ratio ?? presetRatios[preset]);
+	const builder = createAspectRatio({ ratio: () => resolvedRatio });
+	const classes = $derived(cn(aspectRatioRecipe(), className));
+</script>
+
+<AspectRatioRoot
+	{...builder.root}
+	{...rest}
+	class={classes}
+>
+	{@render children?.()}
+</AspectRatioRoot>

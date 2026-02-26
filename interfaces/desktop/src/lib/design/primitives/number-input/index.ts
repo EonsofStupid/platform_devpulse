@@ -8,6 +8,7 @@
  * Contract lives HERE — with the implementation.
  */
 
+export { default as NumberInput } from "./NumberInput.svelte";
 export { contract } from "./contract.js";
 export { numberInputSlots, numberInputStateTokens, numberInputSlotStates } from "./types.js";
 export type { NumberInputRootProps, NumberInputSlot, NumberInputState } from "./types.js";

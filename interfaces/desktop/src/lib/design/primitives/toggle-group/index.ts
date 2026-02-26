@@ -8,6 +8,7 @@
  * Contract lives HERE — with the implementation.
  */
 
+export { default as ToggleGroup } from "./ToggleGroup.svelte";
 export { contract } from "./contract.js";
 export { toggleGroupSlots, toggleGroupStateTokens, toggleGroupSlotStates } from "./types.js";
 export type {

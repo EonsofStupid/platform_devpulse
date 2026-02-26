@@ -1,0 +1,87 @@
+import { render } from "vitest-browser-svelte";
+import { expect, test, describe } from "vitest";
+import { contract } from "./contract.js";
+import Form from "./Form.svelte";
+
+describe("form component — contract", () => {
+	test("contract.kind is 'form'", () => {
+		expect(contract.kind).toBe("form");
+	});
+
+	test("contract requires root slot", () => {
+		expect(contract.slots.required).toContain("root");
+	});
+
+	test("contract declares form element for root slot", () => {
+		expect(contract.slotContracts.root.element).toBe("form");
+	});
+
+	test("contract maps pending state to aria-busy", () => {
+		expect(contract.states.ariaMapping?.pending).toBe("aria-busy");
+	});
+});
+
+describe("form component — ARIA", () => {
+	test("renders a <form> element", async () => {
+		const { container } = render(Form, {
+			label: "User registration",
+		});
+		const form = container.querySelector("form");
+		expect(form).not.toBeNull();
+	});
+
+	test("renders aria-label from label prop", async () => {
+		const { container } = render(Form, {
+			label: "Login form",
+		});
+		const form = container.querySelector("form");
+		expect(form?.getAttribute("aria-label")).toBe("Login form");
+	});
+
+	test("renders data-state='pending' when pending", async () => {
+		const { container } = render(Form, {
+			pending: true,
+			label: "Test",
+		});
+		const form = container.querySelector("form");
+		expect(form?.getAttribute("data-state")).toBe("pending");
+	});
+
+	test("renders aria-busy when pending", async () => {
+		const { container } = render(Form, {
+			pending: true,
+			label: "Test",
+		});
+		const form = container.querySelector("form");
+		expect(form?.getAttribute("aria-busy")).toBe("true");
+	});
+
+	test("renders data-disabled when disabled", async () => {
+		const { container } = render(Form, {
+			disabled: true,
+			label: "Test",
+		});
+		const form = container.querySelector("form");
+		expect(form?.hasAttribute("data-disabled")).toBe(true);
+	});
+});
+
+describe("form component — recipe", () => {
+	test("applies recipe base classes", async () => {
+		const { container } = render(Form, {
+			label: "Test",
+		});
+		const form = container.querySelector("form");
+		expect(form?.className).toContain("flex");
+		expect(form?.className).toContain("flex-col");
+	});
+
+	test("applies size variant classes", async () => {
+		const { container } = render(Form, {
+			size: "lg",
+			label: "Test",
+		});
+		const form = container.querySelector("form");
+		expect(form?.className).toContain("gap-6");
+	});
+});

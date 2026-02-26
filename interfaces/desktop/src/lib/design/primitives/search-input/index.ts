@@ -8,6 +8,7 @@
  * Contract lives HERE — with the implementation.
  */
 
+export { default as SearchInput } from "./SearchInput.svelte";
 export { contract } from "./contract.js";
 export { searchInputSlots, searchInputStateTokens, searchInputSlotStates } from "./types.js";
 export type { SearchInputRootProps, SearchInputSlot, SearchInputState } from "./types.js";
