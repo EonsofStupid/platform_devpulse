@@ -18,7 +18,6 @@
 	import type { ComboboxTriggerProps } from "./types.js";
 	import { getComboboxContext } from "./context.js";
 	import { cn } from "$lib/design/primitives/types.js";
-	import { comboboxRecipe } from "./recipe.js";
 
 	let {
 		children,
@@ -27,7 +26,7 @@
 	}: ComboboxTriggerProps = $props();
 
 	const ctx = getComboboxContext();
-	const recipe = comboboxRecipe();
+	const { recipe } = ctx;
 </script>
 
 <button

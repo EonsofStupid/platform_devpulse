@@ -21,17 +21,26 @@ import type {
 	ComboboxTransport,
 	ComboboxActions,
 } from "$lib/design/api/adapters/meltui/_internal/combobox/index.js";
+import type { ComboboxRecipeResult } from "./recipe.js";
 
 /**
- * Combined transport + actions type for the combobox context.
+ * Combined transport + actions + recipe type for the combobox context.
  *
  * Sub-components access:
  * - `ctx.slots.input` — melt ARIA attributes for the input element
  * - `ctx.states.open` — whether the listbox is open
  * - `ctx.getOption(value)` — melt ARIA attributes for an option element
  * - `ctx.isSelected(value)` — whether a specific value is selected
+ * - `ctx.recipe` — per-slot class strings (size + disabled variant applied)
+ * - `ctx.disabled` — whether the entire combobox is disabled
  */
-export type ComboboxContext<T = unknown> = ComboboxTransport<T> & ComboboxActions<T>;
+export type ComboboxContext<T = unknown> = ComboboxTransport<T> &
+	ComboboxActions<T> & {
+		/** Pre-computed recipe result — size + disabled applied by root. */
+		recipe: ComboboxRecipeResult;
+		/** Whether the combobox is disabled. */
+		disabled: boolean;
+	};
 
 const COMBOBOX_CTX = Symbol("coldlight-combobox");
 
@@ -39,8 +48,8 @@ const COMBOBOX_CTX = Symbol("coldlight-combobox");
  * Set the combobox context from the root component.
  * Called once in Combobox.svelte during initialization.
  */
-export function setComboboxContext<T>(transport: ComboboxContext<T>): void {
-	setContext(COMBOBOX_CTX, transport);
+export function setComboboxContext<T>(ctx: ComboboxContext<T>): void {
+	setContext(COMBOBOX_CTX, ctx);
 }
 
 /**

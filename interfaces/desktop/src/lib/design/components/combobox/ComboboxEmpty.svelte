@@ -14,12 +14,12 @@
 -->
 <script lang="ts">
 	import type { ComboboxEmptyProps } from "./types.js";
+	import { getComboboxContext } from "./context.js";
 	import { cn } from "$lib/design/primitives/types.js";
-	import { comboboxRecipe } from "./recipe.js";
 
 	let { children, class: className }: ComboboxEmptyProps = $props();
 
-	const recipe = comboboxRecipe();
+	const { recipe } = getComboboxContext();
 </script>
 
 <div

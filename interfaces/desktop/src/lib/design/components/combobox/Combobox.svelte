@@ -5,7 +5,8 @@
 	@package @devpulse/coldlight
 
 	ColdLight Combobox — compound component root.
-	Creates MeltUI combobox transport and sets context for all sub-components.
+	Creates MeltUI combobox transport, computes variant-driven recipe,
+	and sets context for all sub-components.
 
 	MeltUI transport adapter provides all ARIA semantics:
 	- role="combobox" on input, role="listbox" on content, role="option" on items
@@ -17,6 +18,7 @@
 	- data-kind="combobox", data-slot="root"
 	- WAI-Adapt: data-adapt-action, data-adapt-purpose, data-adapt-simplification
 	- ARIA 1.3: aria-description
+	- Variant-driven recipe (size, disabled) via context
 
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
 	WAI-ARIA 1.3: https://w3c.github.io/aria/
@@ -36,6 +38,8 @@
 		onInputValueChange,
 		open,
 		onOpenChange,
+		size = "md",
+		disabled = false,
 		children,
 		class: className,
 		"adapt-action": adaptAction = "filter",
@@ -53,9 +57,13 @@
 		onOpenChange,
 	});
 
-	setComboboxContext(transport);
+	const recipe = comboboxRecipe({ size, disabled });
 
-	const recipe = comboboxRecipe();
+	setComboboxContext({
+		...transport,
+		recipe,
+		disabled,
+	});
 </script>
 
 <div
@@ -65,6 +73,7 @@
 	data-adapt-purpose={adaptPurpose}
 	data-adapt-simplification={adaptSimplification}
 	aria-description={ariaDescription}
+	aria-disabled={disabled ? "true" : undefined}
 	class={cn(recipe.wrapper, className)}
 >
 	{@render children?.()}

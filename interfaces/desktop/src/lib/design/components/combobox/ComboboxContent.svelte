@@ -23,12 +23,11 @@
 	import type { ComboboxContentProps } from "./types.js";
 	import { getComboboxContext } from "./context.js";
 	import { cn } from "$lib/design/primitives/types.js";
-	import { comboboxRecipe } from "./recipe.js";
 
 	let { children, class: className }: ComboboxContentProps = $props();
 
 	const ctx = getComboboxContext();
-	const recipe = comboboxRecipe();
+	const { recipe } = ctx;
 </script>
 
 <div

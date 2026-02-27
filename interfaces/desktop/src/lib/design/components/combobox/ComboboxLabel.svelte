@@ -14,12 +14,11 @@
 	import type { ComboboxLabelProps } from "./types.js";
 	import { getComboboxContext } from "./context.js";
 	import { cn } from "$lib/design/primitives/types.js";
-	import { comboboxRecipe } from "./recipe.js";
 
 	let { children, class: className }: ComboboxLabelProps = $props();
 
 	const ctx = getComboboxContext();
-	const recipe = comboboxRecipe();
+	const { recipe } = ctx;
 </script>
 
 <label

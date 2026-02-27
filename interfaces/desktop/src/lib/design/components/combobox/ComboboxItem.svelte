@@ -21,7 +21,6 @@
 	import type { ComboboxItemProps } from "./types.js";
 	import { getComboboxContext } from "./context.js";
 	import { cn } from "$lib/design/primitives/types.js";
-	import { comboboxRecipe } from "./recipe.js";
 
 	let {
 		value,
@@ -33,7 +32,7 @@
 	}: ComboboxItemProps = $props();
 
 	const ctx = getComboboxContext();
-	const recipe = comboboxRecipe();
+	const { recipe } = ctx;
 
 	const isSelected = $derived(ctx.isSelected(value));
 </script>

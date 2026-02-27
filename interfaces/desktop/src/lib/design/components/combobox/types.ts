@@ -14,6 +14,7 @@
  */
 
 import type { Snippet } from "svelte";
+import type { ComboboxSize } from "./recipe.js";
 
 // =============================================================================
 // ROOT — Combobox wrapper, creates transport + sets context
@@ -35,6 +36,19 @@ export interface ComboboxProps<T = unknown> {
 	open?: boolean;
 	/** Called when the listbox open state changes. */
 	onOpenChange?: (open: boolean) => void;
+	/**
+	 * Size variant — drives height, padding, font-size across all slots.
+	 * Uses SD5 SizeToken: "sm" | "md" | "lg".
+	 * @default "md"
+	 */
+	size?: ComboboxSize;
+	/**
+	 * Whether the entire combobox is disabled.
+	 * Disables input, trigger, and all options.
+	 * Recipe applies opacity-50 + pointer-events-none.
+	 * @default false
+	 */
+	disabled?: boolean;
 	/**
 	 * WAI-Adapt: Machine-readable action purpose.
 	 * Declares what this combobox does for AI agents.

@@ -48,6 +48,19 @@ export { contract as comboboxComponentContract } from "./contract.js";
 
 // Recipe
 export { comboboxRecipe } from "./recipe.js";
+export type { ComboboxRecipeOptions, ComboboxRecipeResult, ComboboxSize } from "./recipe.js";
+
+// A11y
+export {
+	comboboxFocusConfig,
+	comboboxLiveRegions,
+	comboboxKeyboardMap,
+	comboboxAnnouncements,
+	comboboxAdaptAttrs,
+	comboboxSlotAdapt,
+	comboboxRelationships,
+	auditCombobox,
+} from "./a11y.js";
 
 // Types
 export type {

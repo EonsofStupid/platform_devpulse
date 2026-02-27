@@ -10,8 +10,9 @@
  * 2. ARIA 1.3 — new attributes declared in contract
  * 3. WAI-Adapt — machine-readable semantics for AI agents
  * 4. Live regions — dynamic content announcement config
- * 5. Sub-component exports — all 9 components + contract + recipe + types
- * 6. Recipe — per-slot class strings
+ * 5. Sub-component exports — all 9 components + contract + recipe + a11y + types
+ * 6. Recipe — variant-driven per-slot class strings (size, disabled, OKLCH tokens)
+ * 7. A11y module — focus config, live regions, keyboard map, announcements, audit
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
@@ -19,6 +20,7 @@
 
 import { expect, test, describe } from "vitest";
 import { contract } from "./contract.js";
+import { comboboxRecipe } from "./recipe.js";
 
 // =============================================================================
 // CONTRACT INTEGRITY
@@ -379,15 +381,26 @@ describe("combobox — exports", () => {
 		expect(mod.comboboxRecipe).toBeDefined();
 		expect(typeof mod.comboboxRecipe).toBe("function");
 	});
+
+	test("exports a11y utilities", async () => {
+		const mod = await import("./index.js");
+		expect(mod.comboboxFocusConfig).toBeDefined();
+		expect(mod.comboboxLiveRegions).toBeDefined();
+		expect(mod.comboboxKeyboardMap).toBeDefined();
+		expect(mod.comboboxAnnouncements).toBeDefined();
+		expect(mod.comboboxAdaptAttrs).toBeDefined();
+		expect(typeof mod.comboboxSlotAdapt).toBe("function");
+		expect(mod.comboboxRelationships).toBeDefined();
+		expect(typeof mod.auditCombobox).toBe("function");
+	});
 });
 
 // =============================================================================
-// RECIPE
+// RECIPE — Variant-driven with OKLCH tokens
 // =============================================================================
 
-describe("combobox — recipe", () => {
-	test("recipe returns all slot class strings", async () => {
-		const { comboboxRecipe } = await import("./recipe.js");
+describe("combobox — recipe (variant-driven)", () => {
+	test("recipe returns all slot class strings", () => {
 		const recipe = comboboxRecipe();
 		expect(typeof recipe.wrapper).toBe("string");
 		expect(typeof recipe.input).toBe("string");
@@ -400,26 +413,240 @@ describe("combobox — recipe", () => {
 		expect(typeof recipe.label).toBe("string");
 	});
 
-	test("recipe.input contains bg-transparent", async () => {
-		const { comboboxRecipe } = await import("./recipe.js");
+	test("default size is md", () => {
+		const recipe = comboboxRecipe();
+		expect(recipe.wrapper).toContain("min-h-10");
+	});
+
+	test("size sm: smaller height + padding", () => {
+		const recipe = comboboxRecipe({ size: "sm" });
+		expect(recipe.wrapper).toContain("min-h-8");
+		expect(recipe.input).toContain("px-2");
+	});
+
+	test("size lg: larger height + padding", () => {
+		const recipe = comboboxRecipe({ size: "lg" });
+		expect(recipe.wrapper).toContain("min-h-12");
+		expect(recipe.input).toContain("px-4");
+		expect(recipe.input).toContain("text-base");
+	});
+
+	test("disabled: opacity + pointer-events-none", () => {
+		const recipe = comboboxRecipe({ disabled: true });
+		expect(recipe.wrapper).toContain("opacity-50");
+		expect(recipe.wrapper).toContain("pointer-events-none");
+		expect(recipe.input).toContain("cursor-not-allowed");
+		expect(recipe.trigger).toContain("cursor-not-allowed");
+	});
+
+	test("not disabled by default", () => {
+		const recipe = comboboxRecipe();
+		expect(recipe.wrapper).not.toContain("opacity-50");
+		expect(recipe.input).not.toContain("cursor-not-allowed");
+	});
+
+	test("uses OKLCH component tokens, not raw white/opacity", () => {
+		const recipe = comboboxRecipe();
+		// Wrapper uses --combobox-bg and --combobox-border tokens
+		expect(recipe.wrapper).toContain("--combobox-bg");
+		expect(recipe.wrapper).toContain("--combobox-border");
+		// NO hardcoded white/opacity values
+		expect(recipe.wrapper).not.toContain("white/");
+		expect(recipe.input).not.toContain("white/");
+	});
+
+	test("uses semantic text tokens", () => {
+		const recipe = comboboxRecipe();
+		expect(recipe.input).toContain("text-text-primary");
+		expect(recipe.input).toContain("text-text-muted");
+		expect(recipe.trigger).toContain("text-text-secondary");
+	});
+
+	test("recipe.input contains bg-transparent", () => {
 		expect(comboboxRecipe().input).toContain("bg-transparent");
 	});
 
-	test("recipe.content contains z-50 and border", async () => {
-		const { comboboxRecipe } = await import("./recipe.js");
+	test("recipe.content contains z-50 and border", () => {
 		const recipe = comboboxRecipe();
 		expect(recipe.content).toContain("z-50");
 		expect(recipe.content).toContain("border");
 	});
 
-	test("recipe.item contains cursor-pointer", async () => {
-		const { comboboxRecipe } = await import("./recipe.js");
+	test("recipe.item contains cursor-pointer", () => {
 		expect(comboboxRecipe().item).toContain("cursor-pointer");
 	});
 
-	test("recipe.groupLabel contains uppercase tracking", async () => {
-		const { comboboxRecipe } = await import("./recipe.js");
+	test("recipe.groupLabel contains uppercase tracking", () => {
 		expect(comboboxRecipe().groupLabel).toContain("uppercase");
 		expect(comboboxRecipe().groupLabel).toContain("tracking-wider");
+	});
+
+	test("item uses --combobox-option-hover for highlight", () => {
+		const recipe = comboboxRecipe();
+		expect(recipe.item).toContain("--combobox-option-hover");
+	});
+
+	test("focus ring uses --combobox-border-focus", () => {
+		const recipe = comboboxRecipe();
+		expect(recipe.wrapper).toContain("--combobox-border-focus");
+		expect(recipe.trigger).toContain("--combobox-border-focus");
+	});
+});
+
+// =============================================================================
+// A11Y MODULE — Focus, live regions, keyboard, announcements, audit
+// =============================================================================
+
+describe("combobox — a11y module", () => {
+	test("focus config: activedescendant strategy", async () => {
+		const { comboboxFocusConfig } = await import("./a11y.js");
+		expect(comboboxFocusConfig.strategy).toBe("activedescendant");
+		expect(comboboxFocusConfig.initialFocus).toBe("input");
+		expect(comboboxFocusConfig.returnFocus).toBe("input");
+		expect(comboboxFocusConfig.wrap).toBe(true);
+		expect(comboboxFocusConfig.orientation).toBe("vertical");
+	});
+
+	test("live regions: announce + empty", async () => {
+		const { comboboxLiveRegions } = await import("./a11y.js");
+		expect(comboboxLiveRegions.length).toBe(2);
+		const announce = comboboxLiveRegions.find((lr) => lr.slot === "announce");
+		const empty = comboboxLiveRegions.find((lr) => lr.slot === "empty");
+		expect(announce).toBeDefined();
+		expect(empty).toBeDefined();
+		expect(announce?.politeness).toBe("polite");
+		expect(announce?.atomic).toBe(true);
+	});
+
+	test("keyboard map: includes global + per-slot entries", async () => {
+		const { comboboxKeyboardMap } = await import("./a11y.js");
+		expect(comboboxKeyboardMap.length).toBeGreaterThanOrEqual(7);
+		const keys = comboboxKeyboardMap.map((k) => k.key);
+		expect(keys).toContain("ArrowDown");
+		expect(keys).toContain("ArrowUp");
+		expect(keys).toContain("Enter");
+		expect(keys).toContain("Escape");
+	});
+
+	test("announcements: resultCount messages", async () => {
+		const { comboboxAnnouncements } = await import("./a11y.js");
+		expect(comboboxAnnouncements.resultCount(0)).toBe("No results found");
+		expect(comboboxAnnouncements.resultCount(1)).toBe("1 result available");
+		expect(comboboxAnnouncements.resultCount(5)).toBe("5 results available");
+	});
+
+	test("announcements: selected message", async () => {
+		const { comboboxAnnouncements } = await import("./a11y.js");
+		expect(comboboxAnnouncements.selected("Mango")).toBe("Selected: Mango");
+	});
+
+	test("WAI-Adapt: root attrs", async () => {
+		const { comboboxAdaptAttrs } = await import("./a11y.js");
+		expect(comboboxAdaptAttrs["data-adapt-action"]).toBe("filter");
+		expect(comboboxAdaptAttrs["data-adapt-purpose"]).toBe("search-term");
+		expect(comboboxAdaptAttrs["data-adapt-simplification"]).toBe("critical");
+	});
+
+	test("WAI-Adapt: slot attrs", async () => {
+		const { comboboxSlotAdapt } = await import("./a11y.js");
+		const inputAdapt = comboboxSlotAdapt("input");
+		expect(inputAdapt["data-adapt-action"]).toBe("filter");
+		expect(inputAdapt["data-adapt-purpose"]).toBe("search-term");
+		const triggerAdapt = comboboxSlotAdapt("trigger");
+		expect(triggerAdapt["data-adapt-action"]).toBe("open-listbox");
+	});
+
+	test("relationships: input → content via aria-controls", async () => {
+		const { comboboxRelationships } = await import("./a11y.js");
+		const controlsRel = comboboxRelationships.find(
+			(r) => r.attr === "aria-controls" && r.sourceSlot === "input",
+		);
+		expect(controlsRel).toBeDefined();
+		expect(controlsRel?.targetSlot).toBe("content");
+		expect(controlsRel?.required).toBe(true);
+	});
+
+	test("contract audit passes", async () => {
+		const { auditCombobox } = await import("./a11y.js");
+		const report = auditCombobox();
+		expect(report.kind).toBe("combobox");
+		expect(report.valid).toBe(true);
+		expect(report.errorCount).toBe(0);
+	});
+});
+
+// =============================================================================
+// SYSTEM-LEVEL A11Y UTILITIES
+// =============================================================================
+
+describe("combobox — system a11y utilities", () => {
+	test("validateAccessibleName: aria-label passes", async () => {
+		const { validateAccessibleName } = await import("../_schema/a11y.js");
+		const result = validateAccessibleName({ "aria-label": "Search fruits" });
+		expect(result.valid).toBe(true);
+		expect(result.source).toBe("aria-label");
+		expect(result.name).toBe("Search fruits");
+	});
+
+	test("validateAccessibleName: missing name fails when required", async () => {
+		const { validateAccessibleName } = await import("../_schema/a11y.js");
+		const result = validateAccessibleName({}, undefined, true);
+		expect(result.valid).toBe(false);
+		expect(result.source).toBe("none");
+		expect(result.message).toContain("Missing accessible name");
+	});
+
+	test("validateAccessibleName: missing name ok when not required", async () => {
+		const { validateAccessibleName } = await import("../_schema/a11y.js");
+		const result = validateAccessibleName({}, undefined, false);
+		expect(result.valid).toBe(true);
+	});
+
+	test("announcements.resultCount standard messages", async () => {
+		const { announcements } = await import("../_schema/a11y.js");
+		expect(announcements.resultCount(0)).toBe("No results found");
+		expect(announcements.resultCount(1)).toBe("1 result available");
+		expect(announcements.resultCount(42)).toBe("42 results available");
+	});
+
+	test("announcements.position", async () => {
+		const { announcements } = await import("../_schema/a11y.js");
+		expect(announcements.position(0, 10)).toBe("Item 1 of 10");
+		expect(announcements.position(4, 5)).toBe("Item 5 of 5");
+	});
+
+	test("announcements.expandedState", async () => {
+		const { announcements } = await import("../_schema/a11y.js");
+		expect(announcements.expandedState(true)).toBe("Expanded");
+		expect(announcements.expandedState(false)).toBe("Collapsed");
+	});
+
+	test("extractKeyboardMap returns flat list", async () => {
+		const { extractKeyboardMap } = await import("../_schema/a11y.js");
+		const map = extractKeyboardMap(contract);
+		expect(map.length).toBeGreaterThanOrEqual(7);
+		// Global entries have no slot
+		const globalEntries = map.filter((e) => !e.slot);
+		expect(globalEntries.length).toBe(7);
+		// Per-slot entries have a slot name
+		const slotEntries = map.filter((e) => e.slot);
+		expect(slotEntries.length).toBeGreaterThan(0);
+	});
+
+	test("liveRegionAttrs builds correct attributes", async () => {
+		const { liveRegionAttrs, createLiveRegionConfigs } = await import("../_schema/a11y.js");
+		const configs = createLiveRegionConfigs(contract);
+		const announce = configs.find((c) => c.slot === "announce")!;
+		const attrs = liveRegionAttrs(announce);
+		expect(attrs["aria-live"]).toBe("polite");
+		expect(attrs["aria-atomic"]).toBe("true");
+	});
+
+	test("auditContract validates contract structure", async () => {
+		const { auditContract } = await import("../_schema/a11y.js");
+		const report = auditContract(contract);
+		expect(report.kind).toBe("combobox");
+		expect(report.valid).toBe(true);
+		expect(report.errorCount).toBe(0);
 	});
 });

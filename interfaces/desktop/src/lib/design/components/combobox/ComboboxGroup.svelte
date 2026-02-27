@@ -22,12 +22,12 @@
 -->
 <script lang="ts">
 	import type { ComboboxGroupProps } from "./types.js";
+	import { getComboboxContext } from "./context.js";
 	import { cn } from "$lib/design/primitives/types.js";
-	import { comboboxRecipe } from "./recipe.js";
 
 	let { label, children, class: className }: ComboboxGroupProps = $props();
 
-	const recipe = comboboxRecipe();
+	const { recipe } = getComboboxContext();
 	const labelId = `cl-combobox-group-${crypto.randomUUID().slice(0, 8)}`;
 </script>
 
