@@ -11,6 +11,7 @@ export const GENERATION = {
 	categories: {
 		primitives: { enabled: true },
 		components: { enabled: true },
+		effects: { enabled: true },
 		composites: { enabled: false },
 	},
 	outputs: {

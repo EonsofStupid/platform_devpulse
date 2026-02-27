@@ -13,7 +13,7 @@ export type SystemId = "coldlight";
  * CategoryId is the hub grouping (primitives/components/composites).
  * Individual things inside a category are "kinds" (e.g., dialog, tabs).
  */
-export type CategoryId = "primitives" | "components" | "composites";
+export type CategoryId = "primitives" | "components" | "effects" | "composites";
 
 /**
  * ARIA state provider — who handles ARIA attributes for a primitive.
@@ -65,6 +65,8 @@ export type ColdLightConfig = Readonly<{
 		buildersRoot: string;
 		/** Recipe definitions — styling patterns per component kind */
 		recipesRoot: string;
+		/** Effect definitions — composable visual building blocks */
+		effectsRoot: string;
 		/** Generated output (manifest, imports) */
 		generatedRoot: string;
 	}>;

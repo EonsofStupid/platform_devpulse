@@ -27,7 +27,10 @@ import type { ColdLightConfig } from "./coldlight.config.js";
 import type {
 	AriaStateProvider,
 	ColdLightManifest,
+	ComponentScanResult,
 	DsAdapterId,
+	ManifestComponent,
+	ManifestEffect,
 	ManifestPrimitive,
 	ManifestRecipe,
 	PrimitiveScanResult,
@@ -55,20 +58,17 @@ export type ImportLike = (path: string) => Promise<{ default?: unknown; contract
 // =============================================================================
 
 function resolvePaths(config: ColdLightConfig) {
-	const { apiRoot, primitivesRoot, buildersRoot, recipesRoot } = config.roots;
+	const { apiRoot, primitivesRoot, componentsRoot, buildersRoot, recipesRoot, effectsRoot } = config.roots;
 	const active = config.adapters.active;
 
 	return {
-		/** Primitives root — scanner walks this for kind discovery + contract loading */
 		primitives: primitivesRoot,
-		/** Active adapter _internal folders (e.g. api/adapters/meltui/_internal) */
+		components: componentsRoot,
 		dsAdapter: `${apiRoot}/adapters/${active}/_internal`,
-		/** All API adapters root (for spine validation) */
 		apiAdapters: `${apiRoot}/adapters`,
-		/** ColdLight-owned builders root (headless ARIA+behavior) */
 		builders: buildersRoot,
-		/** Recipe definitions root */
 		recipes: recipesRoot,
+		effects: effectsRoot,
 	};
 }
 

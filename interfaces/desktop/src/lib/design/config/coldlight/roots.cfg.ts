@@ -15,5 +15,7 @@ export const ROOTS = {
 	buildersRoot: "src/lib/design/builders",
 	/** Recipe definitions — styling patterns per component kind */
 	recipesRoot: "src/lib/design/recipes",
+	/** Effect definitions — composable visual building blocks */
+	effectsRoot: "src/lib/design/effects",
 	generatedRoot: "src/lib/design/.generated",
 } as const;

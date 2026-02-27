@@ -67,6 +67,73 @@ export interface ManifestRecipe {
 }
 
 /**
+ * Component entry in the generated manifest.
+ * Flattened from ComponentContract for JSON serialization.
+ * Each component references a primitive kind (cross-validated by scanner).
+ */
+export interface ManifestComponent {
+	readonly kind: string;
+	readonly description: string;
+	readonly primitiveKind: string;
+	readonly apgPattern?: string;
+	readonly slots: {
+		readonly required: readonly string[];
+		readonly optional: readonly string[];
+	};
+	readonly accessibleName: {
+		readonly required: boolean;
+		readonly sources: readonly string[];
+	};
+	readonly focus: {
+		readonly strategy: string;
+		readonly initialFocus?: string;
+		readonly returnFocus?: string;
+	};
+	readonly keyboard: readonly {
+		readonly key: string;
+		readonly action: string;
+		readonly description: string;
+	}[];
+	readonly states: readonly string[];
+	readonly interactions: {
+		readonly modal: boolean;
+		readonly selectable: boolean;
+		readonly editable: boolean;
+		readonly expandable: boolean;
+	};
+	readonly waiAdapt?: {
+		readonly action?: string;
+		readonly purpose?: string;
+		readonly simplification: string;
+	};
+}
+
+/**
+ * Effect entry in the generated manifest.
+ * Composable visual building block — data object, not function.
+ */
+export interface ManifestEffect {
+	readonly id: string;
+	readonly category: string;
+	readonly label: string;
+	readonly description: string;
+	readonly supportedTriggers: readonly string[];
+	readonly classes: readonly string[];
+	readonly shadowLayer?: string;
+	readonly conflictGroup?: string;
+	readonly hasCustomJS: boolean;
+}
+
+/**
+ * Token layer metadata in the manifest.
+ * Reports what token tiers exist and what files were generated.
+ */
+export interface ManifestTokenMetadata {
+	readonly tiers: readonly string[];
+	readonly generatedFiles: readonly string[];
+}
+
+/**
  * The generated ColdLight manifest.
  * Written by scanner, read by registry.
  * THIS IS THE TAXONOMY — auto-generated from colocated contracts.
@@ -78,8 +145,17 @@ export interface ColdLightManifest {
 		readonly dsAdapter: string;
 	};
 	readonly categories: {
+		readonly tokens: ManifestTokenMetadata;
+		readonly effects: {
+			readonly definitions: readonly ManifestEffect[];
+			readonly categories: readonly string[];
+			readonly conflictGroups: Readonly<Record<string, readonly string[]>>;
+		};
 		readonly primitives: {
 			readonly kinds: readonly ManifestPrimitive[];
+		};
+		readonly components: {
+			readonly kinds: readonly ManifestComponent[];
 		};
 		readonly recipes: {
 			readonly entries: readonly ManifestRecipe[];
@@ -108,9 +184,18 @@ export interface PrimitiveScanResult {
 	readonly hasParity: boolean;
 }
 
+export interface ComponentScanResult {
+	readonly kind: string;
+	readonly hasContract: boolean;
+	readonly hasSvelteComponent: boolean;
+	readonly primitiveKind: string | null;
+	readonly primitiveExists: boolean;
+}
+
 export interface ScanResult {
 	readonly valid: boolean;
 	readonly primitives: readonly PrimitiveScanResult[];
+	readonly components: readonly ComponentScanResult[];
 	readonly errors: readonly ScanError[];
 	readonly manifest: ColdLightManifest | null;
 }
