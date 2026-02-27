@@ -1,0 +1,50 @@
+<!--
+	@component Menubar
+	@kind menubar
+	@slot root
+	@layer components
+
+	ColdLight Menubar root — horizontal menu bar container.
+	ARIA: role="menubar", aria-orientation="horizontal".
+	Creates root context for menu coordination (only one menu open at a time).
+
+	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/menubar/
+-->
+<script lang="ts">
+	import type { MenubarProps } from "./types.js";
+	import { setMenubarRootContext, type MenubarRootCtx } from "./context.js";
+	import { cn } from "$lib/design/primitives/types.js";
+	import { menubarRecipe } from "./recipe.js";
+
+	let { children, class: className, ...rest }: MenubarProps = $props();
+
+	let activeMenu = $state<string | undefined>(undefined);
+	const recipe = menubarRecipe();
+
+	function openMenu(value: string): void {
+		activeMenu = value;
+	}
+
+	function closeAll(): void {
+		activeMenu = undefined;
+	}
+
+	const ctx: MenubarRootCtx = {
+		get activeMenu() { return activeMenu; },
+		openMenu,
+		closeAll,
+	};
+
+	setMenubarRootContext(ctx);
+</script>
+
+<div
+	role="menubar"
+	aria-orientation="horizontal"
+	class={cn(recipe.root, className)}
+	data-kind="menubar"
+	data-slot="root"
+	{...rest}
+>
+	{@render children?.()}
+</div>
