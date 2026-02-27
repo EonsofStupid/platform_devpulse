@@ -8,7 +8,7 @@
  * `aria-label` or `aria-labelledby` for card title association.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /** Constructor config for the {@link Card} builder. */
 export type CardProps = {

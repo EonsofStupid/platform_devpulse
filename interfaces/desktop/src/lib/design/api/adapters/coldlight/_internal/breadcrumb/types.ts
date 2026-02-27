@@ -6,7 +6,7 @@
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/breadcrumb/
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /**
  * Constructor config for the Breadcrumb builder.

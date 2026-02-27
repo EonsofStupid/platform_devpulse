@@ -207,7 +207,7 @@ export {
 	disabledAttr,
 	createId,
 	resetIdCounter,
-} from "../../../../builders/_internal/index.js";
+} from "../builders/index.js";
 
 export type {
 	MaybeGetter,
@@ -218,4 +218,4 @@ export type {
 	BuilderMetadata,
 	SyncedArgs,
 	SelectionStateProps,
-} from "../../../../builders/_internal/index.js";
+} from "../builders/index.js";

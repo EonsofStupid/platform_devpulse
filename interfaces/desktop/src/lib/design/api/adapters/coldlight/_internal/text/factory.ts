@@ -17,7 +17,7 @@
 
 import {
 	createBuilderMetadata,
-} from "../../../../../builders/_internal/index.js";
+} from "../../builders/index.js";
 import type { TextProps } from "./types.js";
 
 // ============================================================================

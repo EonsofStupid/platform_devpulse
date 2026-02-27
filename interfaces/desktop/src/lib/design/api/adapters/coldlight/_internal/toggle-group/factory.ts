@@ -35,8 +35,8 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/ WAI-ARIA APG Toolbar Pattern
  */
 
-import { Synced } from "../../../../../builders/_internal/synced.svelte.js";
-import { SelectionState } from "../../../../../builders/_internal/selection-state.svelte.js";
+import { Synced } from "../../builders/synced.svelte.js";
+import { SelectionState } from "../../builders/selection-state.svelte.js";
 import {
 	createBuilderMetadata,
 	dataAttr,
@@ -45,8 +45,8 @@ import {
 	kbd,
 	getNextKey,
 	getPrevKey,
-} from "../../../../../builders/_internal/index.js";
-import type { Orientation } from "../../../../../builders/_internal/types.js";
+} from "../../builders/index.js";
+import type { Orientation } from "../../builders/types.js";
 import type { ToggleGroupProps } from "./types.js";
 
 const metadata = createBuilderMetadata("toggle-group", ["root", "item"] as const);

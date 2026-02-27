@@ -9,7 +9,7 @@
 -->
 <script lang="ts">
 	import type { ButtonComponentProps } from "./types.js";
-	import { createButton } from "$lib/design/builders/button/index.js";
+	import { createButton } from "$lib/design/api/adapters/coldlight/_internal/button/index.js";
 	import ButtonRoot from "$lib/design/primitives/button/Button.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { buttonRecipe } from "./recipe.js";

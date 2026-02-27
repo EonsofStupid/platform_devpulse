@@ -12,7 +12,7 @@
 -->
 <script lang="ts">
 	import type { CardComponentProps } from "./types.js";
-	import { createCard } from "$lib/design/builders/card/index.js";
+	import { createCard } from "$lib/design/api/adapters/coldlight/_internal/card/index.js";
 	import CardRoot from "$lib/design/primitives/card/Card.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { cardRecipe } from "./recipe.js";

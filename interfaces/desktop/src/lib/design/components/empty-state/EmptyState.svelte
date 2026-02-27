@@ -11,7 +11,7 @@
 -->
 <script lang="ts">
 	import type { EmptyStateComponentProps } from "./types.js";
-	import { createEmptyState } from "$lib/design/builders/empty-state/index.js";
+	import { createEmptyState } from "$lib/design/api/adapters/coldlight/_internal/empty-state/index.js";
 	import EmptyStateRoot from "$lib/design/primitives/empty-state/EmptyState.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { emptyStateRecipe } from "./recipe.js";

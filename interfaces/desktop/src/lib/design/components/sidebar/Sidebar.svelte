@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
 	import type { SidebarComponentProps } from "./types.js";
-	import { createSidebar } from "$lib/design/builders/sidebar/index.js";
+	import { createSidebar } from "$lib/design/api/adapters/coldlight/_internal/sidebar/index.js";
 	import SidebarRoot from "$lib/design/primitives/sidebar/Sidebar.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { sidebarRecipe } from "./recipe.js";

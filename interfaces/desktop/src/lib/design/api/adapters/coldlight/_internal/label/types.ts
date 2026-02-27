@@ -6,7 +6,7 @@
  * Native `<label>` element with `for` attribute association.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /** Constructor config for Label. MaybeGetter for controlled/uncontrolled. */
 export type LabelProps = {

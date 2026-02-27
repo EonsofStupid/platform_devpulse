@@ -25,7 +25,7 @@
  * @see {@link StackProps} for configuration options
  */
 
-import { createBuilderMetadata } from "../../../../../builders/_internal/index.js";
+import { createBuilderMetadata } from "../../builders/index.js";
 import type { StackProps } from "./types.js";
 
 const metadata = createBuilderMetadata("stack", ["root"] as const);

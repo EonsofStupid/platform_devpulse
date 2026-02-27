@@ -8,7 +8,7 @@
  * Optional dismiss action via `Synced<boolean>` for visible state.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /**
  * Semantic variant for the alert tone.

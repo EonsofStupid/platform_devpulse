@@ -23,12 +23,12 @@
  * WAI-ARIA: Native `<input>` element provides implicit textbox role.
  */
 
-import { Synced } from "../../../../../builders/_internal/synced.svelte.js";
+import { Synced } from "../../builders/synced.svelte.js";
 import {
 	createBuilderMetadata,
 	dataAttr,
 	disabledAttr,
-} from "../../../../../builders/_internal/index.js";
+} from "../../builders/index.js";
 import type { InputProps } from "./types.js";
 
 const metadata = createBuilderMetadata("input", ["root"] as const);

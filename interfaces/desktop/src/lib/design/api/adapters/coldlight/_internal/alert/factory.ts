@@ -33,11 +33,11 @@
  * @see {@link AlertProps} for configuration options
  */
 
-import { Synced } from "../../../../../builders/_internal/synced.svelte.js";
+import { Synced } from "../../builders/synced.svelte.js";
 import {
 	createBuilderMetadata,
 	extract,
-} from "../../../../../builders/_internal/index.js";
+} from "../../builders/index.js";
 import type { AlertProps } from "./types.js";
 
 const metadata = createBuilderMetadata("alert", [

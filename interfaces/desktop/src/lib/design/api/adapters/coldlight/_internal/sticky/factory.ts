@@ -25,7 +25,7 @@
  * @see {@link StickyProps} for configuration options
  */
 
-import { createBuilderMetadata } from "../../../../../builders/_internal/index.js";
+import { createBuilderMetadata } from "../../builders/index.js";
 import type { StickyProps } from "./types.js";
 
 const metadata = createBuilderMetadata("sticky", ["root"] as const);

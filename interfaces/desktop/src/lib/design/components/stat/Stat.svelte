@@ -11,7 +11,7 @@
 -->
 <script lang="ts">
 	import type { StatComponentProps } from "./types.js";
-	import { createStat } from "$lib/design/builders/stat/index.js";
+	import { createStat } from "$lib/design/api/adapters/coldlight/_internal/stat/index.js";
 	import StatRoot from "$lib/design/primitives/stat/Stat.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { statRecipe } from "./recipe.js";

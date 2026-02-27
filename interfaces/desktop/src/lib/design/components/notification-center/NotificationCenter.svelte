@@ -13,7 +13,7 @@
 -->
 <script lang="ts">
 	import type { NotificationCenterComponentProps } from "./types.js";
-	import { createNotificationCenter } from "$lib/design/builders/notification-center/index.js";
+	import { createNotificationCenter } from "$lib/design/api/adapters/coldlight/_internal/notification-center/index.js";
 	import NotificationCenterRoot from "$lib/design/primitives/notification-center/NotificationCenter.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { notificationCenterRecipe } from "./recipe.js";

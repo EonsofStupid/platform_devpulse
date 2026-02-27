@@ -13,7 +13,7 @@
 -->
 <script lang="ts">
 	import type { SeparatorComponentProps } from "./types.js";
-	import { createSeparator } from "$lib/design/builders/separator/index.js";
+	import { createSeparator } from "$lib/design/api/adapters/coldlight/_internal/separator/index.js";
 	import SeparatorRoot from "$lib/design/primitives/separator/Separator.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { separatorRecipe } from "./recipe.js";

@@ -9,7 +9,7 @@
  * between elements automatically.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /**
  * Constructor configuration for the FormField builder.

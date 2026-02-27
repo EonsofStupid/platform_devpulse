@@ -14,11 +14,11 @@
  * Slots: root, list, item.
  */
 
-import { Synced } from "../../../../../builders/_internal/synced.svelte.js";
+import { Synced } from "../../builders/synced.svelte.js";
 import {
 	createBuilderMetadata,
 	dataAttr,
-} from "../../../../../builders/_internal/index.js";
+} from "../../builders/index.js";
 import type { TableOfContentsProps } from "./types.js";
 
 // ============================================================================

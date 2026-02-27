@@ -8,7 +8,7 @@
  * WAI-ARIA: skip navigation pattern.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /** Constructor config for the {@link SkipLink} builder. */
 export type SkipLinkProps = {

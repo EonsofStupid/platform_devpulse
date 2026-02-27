@@ -9,7 +9,7 @@
 -->
 <script lang="ts">
 	import type { AspectRatioComponentProps } from "./types.js";
-	import { createAspectRatio } from "$lib/design/builders/aspect-ratio/index.js";
+	import { createAspectRatio } from "$lib/design/api/adapters/coldlight/_internal/aspect-ratio/index.js";
 	import AspectRatioRoot from "$lib/design/primitives/aspect-ratio/AspectRatio.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { aspectRatioRecipe } from "./recipe.js";

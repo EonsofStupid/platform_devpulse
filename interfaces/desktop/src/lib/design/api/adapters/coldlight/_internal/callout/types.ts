@@ -8,7 +8,7 @@
  * Supports semantic variants for tone differentiation.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /** Semantic variant for the callout tone. */
 export type CalloutVariant = "info" | "success" | "warning" | "error" | "tip";

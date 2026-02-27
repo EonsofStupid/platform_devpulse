@@ -10,6 +10,7 @@
 export type {
 	MaybeGetter,
 	BuilderAttrs,
+	SlotAttrs,
 	DataState,
 	Direction,
 	Orientation,

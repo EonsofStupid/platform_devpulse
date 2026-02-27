@@ -6,7 +6,7 @@
  * Custom scrollbar container with viewport, scrollbar track, and thumb.
  */
 
-import type { MaybeGetter, Orientation } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter, Orientation } from "../../builders/types.js";
 
 /**
  * Constructor config for ScrollArea.

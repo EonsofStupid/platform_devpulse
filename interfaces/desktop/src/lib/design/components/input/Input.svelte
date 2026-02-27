@@ -9,7 +9,7 @@
 -->
 <script lang="ts">
 	import type { InputComponentProps } from "./types.js";
-	import { createInput } from "$lib/design/builders/input/index.js";
+	import { createInput } from "$lib/design/api/adapters/coldlight/_internal/input/index.js";
 	import InputRoot from "$lib/design/primitives/input/Input.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { inputRecipe } from "./recipe.js";

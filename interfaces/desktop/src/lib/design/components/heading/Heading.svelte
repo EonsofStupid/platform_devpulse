@@ -9,7 +9,7 @@
 -->
 <script lang="ts">
 	import type { HeadingComponentProps } from "./types.js";
-	import { createHeading } from "$lib/design/builders/heading/index.js";
+	import { createHeading } from "$lib/design/api/adapters/coldlight/_internal/heading/index.js";
 	import HeadingRoot from "$lib/design/primitives/heading/Heading.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { headingRecipe } from "./recipe.js";

@@ -8,7 +8,7 @@
  * `aria-label`, disabled state, and pending/submitting tracking.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /**
  * Constructor configuration for the Form builder.

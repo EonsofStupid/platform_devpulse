@@ -10,7 +10,7 @@
 -->
 <script lang="ts">
 	import type { LabelComponentProps } from "./types.js";
-	import { createLabel } from "$lib/design/builders/label/index.js";
+	import { createLabel } from "$lib/design/api/adapters/coldlight/_internal/label/index.js";
 	import LabelRoot from "$lib/design/primitives/label/Label.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { labelRecipe } from "./recipe.js";

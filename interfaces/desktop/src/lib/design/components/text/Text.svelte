@@ -9,7 +9,7 @@
 -->
 <script lang="ts">
 	import type { TextComponentProps } from "./types.js";
-	import { createText } from "$lib/design/builders/text/index.js";
+	import { createText } from "$lib/design/api/adapters/coldlight/_internal/text/index.js";
 	import TextRoot from "$lib/design/primitives/text/Text.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { textRecipe } from "./recipe.js";

@@ -8,7 +8,7 @@
  * Contract: `role="group"` with `aria-label` or `aria-labelledby`.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /** Constructor config for the {@link Stat} builder. */
 export type StatProps = {

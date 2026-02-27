@@ -8,7 +8,7 @@
 -->
 <script lang="ts">
 	import type { HStackComponentProps } from "./types.js";
-	import { createHStack } from "$lib/design/builders/hstack/index.js";
+	import { createHStack } from "$lib/design/api/adapters/coldlight/_internal/hstack/index.js";
 	import HStackRoot from "$lib/design/primitives/hstack/HStack.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { hstackRecipe } from "./recipe.js";

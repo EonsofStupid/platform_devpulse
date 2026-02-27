@@ -9,7 +9,7 @@
 -->
 <script lang="ts">
 	import type { CodeComponentProps } from "./types.js";
-	import { createCode } from "$lib/design/builders/code/index.js";
+	import { createCode } from "$lib/design/api/adapters/coldlight/_internal/code/index.js";
 	import CodeRoot from "$lib/design/primitives/code/Code.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { codeRecipe } from "./recipe.js";

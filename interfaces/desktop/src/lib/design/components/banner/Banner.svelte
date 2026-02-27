@@ -13,7 +13,7 @@
 -->
 <script lang="ts">
 	import type { BannerComponentProps } from "./types.js";
-	import { createBanner } from "$lib/design/builders/banner/index.js";
+	import { createBanner } from "$lib/design/api/adapters/coldlight/_internal/banner/index.js";
 	import BannerRoot from "$lib/design/primitives/banner/Banner.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { bannerRecipe } from "./recipe.js";

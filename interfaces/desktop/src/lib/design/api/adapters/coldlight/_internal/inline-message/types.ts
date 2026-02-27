@@ -7,7 +7,7 @@
  * Contract: `role="status"`, `aria-live="polite"` -- inline validation/help feedback.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /** Semantic tone for the inline message. */
 export type InlineMessageTone = "info" | "success" | "warning" | "error" | "help";

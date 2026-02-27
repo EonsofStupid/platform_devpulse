@@ -41,13 +41,13 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/button/ WAI-ARIA APG Button Pattern
  */
 
-import { Synced } from "../../../../../builders/_internal/synced.svelte.js";
+import { Synced } from "../../builders/synced.svelte.js";
 import {
 	createBuilderMetadata,
 	dataAttr,
 	disabledAttr,
 	kbd,
-} from "../../../../../builders/_internal/index.js";
+} from "../../builders/index.js";
 import type { ButtonProps, ButtonType } from "./types.js";
 
 const metadata = createBuilderMetadata("button", ["root"] as const);

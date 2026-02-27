@@ -11,7 +11,7 @@
  * WAI-ARIA: `search` landmark + `searchbox` role.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 export type SearchInputProps = {
 	/**

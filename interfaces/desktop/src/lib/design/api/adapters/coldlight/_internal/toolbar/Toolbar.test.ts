@@ -24,7 +24,7 @@
 
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
 import { Toolbar, createToolbar } from "./factory.js";
-import { resetIdCounter } from "../../../../../builders/_internal/builder-metadata.js";
+import { resetIdCounter } from "../../builders/builder-metadata.js";
 
 // =============================================================================
 // TEST HELPERS

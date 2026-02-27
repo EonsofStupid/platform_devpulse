@@ -25,7 +25,7 @@
  * @see {@link HStackProps} for configuration options
  */
 
-import { createBuilderMetadata } from "../../../../../builders/_internal/index.js";
+import { createBuilderMetadata } from "../../builders/index.js";
 import type { HStackProps } from "./types.js";
 
 const metadata = createBuilderMetadata("hstack", ["root"] as const);

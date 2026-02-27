@@ -6,7 +6,7 @@
  * Navigation list of document headings with active heading tracking.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /**
  * Constructor config for TableOfContents.

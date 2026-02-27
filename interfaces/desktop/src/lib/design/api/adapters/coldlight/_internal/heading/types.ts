@@ -6,7 +6,7 @@
  * Mirrors primitives/heading/contract.ts -- `role: "heading"`, `aria-level`.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /** Heading level (1-6), maps to `h1`-`h6` HTML tags and `aria-level`. */
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;

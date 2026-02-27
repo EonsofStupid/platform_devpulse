@@ -12,7 +12,7 @@
  * with `aria-multiline="true"`.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 export type TextareaProps = {
 	/**

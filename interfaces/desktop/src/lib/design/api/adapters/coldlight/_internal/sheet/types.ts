@@ -6,7 +6,7 @@
  * Slide-in panel overlay with focus trap, Escape dismiss, outside click.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /**
  * Side the sheet slides in from.

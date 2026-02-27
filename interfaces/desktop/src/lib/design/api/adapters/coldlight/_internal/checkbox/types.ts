@@ -11,7 +11,7 @@
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 export type CheckboxProps = {
 	/**

@@ -24,13 +24,13 @@
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/switch/
  */
 
-import { Synced } from "../../../../../builders/_internal/synced.svelte.js";
+import { Synced } from "../../builders/synced.svelte.js";
 import {
 	createBuilderMetadata,
 	dataAttr,
 	disabledAttr,
 	kbd,
-} from "../../../../../builders/_internal/index.js";
+} from "../../builders/index.js";
 import type { SwitchProps } from "./types.js";
 
 const metadata = createBuilderMetadata("switch", ["root", "thumb", "label"] as const);

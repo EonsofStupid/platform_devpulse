@@ -10,7 +10,7 @@
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/
  */
 
-import type { MaybeGetter, Orientation } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter, Orientation } from "../../builders/types.js";
 
 /**
  * Constructor configuration for the Toolbar builder.

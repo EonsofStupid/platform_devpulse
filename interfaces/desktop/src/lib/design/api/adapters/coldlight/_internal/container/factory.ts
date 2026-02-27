@@ -25,7 +25,7 @@
  * @see {@link ContainerProps} for configuration options
  */
 
-import { createBuilderMetadata } from "../../../../../builders/_internal/index.js";
+import { createBuilderMetadata } from "../../builders/index.js";
 import type { ContainerProps } from "./types.js";
 
 const metadata = createBuilderMetadata("container", ["root"] as const);

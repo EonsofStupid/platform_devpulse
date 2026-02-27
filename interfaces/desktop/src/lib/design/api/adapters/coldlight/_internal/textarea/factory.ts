@@ -23,12 +23,12 @@
  * WAI-ARIA: Native `<textarea>` provides implicit textbox role with `aria-multiline`.
  */
 
-import { Synced } from "../../../../../builders/_internal/synced.svelte.js";
+import { Synced } from "../../builders/synced.svelte.js";
 import {
 	createBuilderMetadata,
 	dataAttr,
 	disabledAttr,
-} from "../../../../../builders/_internal/index.js";
+} from "../../builders/index.js";
 import type { TextareaProps } from "./types.js";
 
 const metadata = createBuilderMetadata("textarea", ["root"] as const);

@@ -6,7 +6,7 @@
 -->
 <script lang="ts">
 	import type { ToolbarComponentProps } from "./types.js";
-	import { createToolbar } from "$lib/design/builders/toolbar/index.js";
+	import { createToolbar } from "$lib/design/api/adapters/coldlight/_internal/toolbar/index.js";
 	import ToolbarRoot from "$lib/design/primitives/toolbar/Toolbar.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { toolbarRecipe } from "./recipe.js";

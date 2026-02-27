@@ -22,7 +22,7 @@
 import {
 	createBuilderMetadata,
 	extract,
-} from "../../../../../builders/_internal/index.js";
+} from "../../builders/index.js";
 import type { InlineMessageProps } from "./types.js";
 
 // ============================================================================

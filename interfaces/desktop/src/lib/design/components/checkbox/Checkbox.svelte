@@ -9,7 +9,7 @@
 -->
 <script lang="ts">
 	import type { CheckboxComponentProps } from "./types.js";
-	import { createCheckbox } from "$lib/design/builders/checkbox/index.js";
+	import { createCheckbox } from "$lib/design/api/adapters/coldlight/_internal/checkbox/index.js";
 	import CheckboxRoot from "$lib/design/primitives/checkbox/Checkbox.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { checkboxRecipe } from "./recipe.js";

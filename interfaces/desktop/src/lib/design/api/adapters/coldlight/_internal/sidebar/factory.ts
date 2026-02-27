@@ -15,8 +15,8 @@
  * Contract states: expanded, collapsed.
  */
 
-import { Synced } from "../../../../../builders/_internal/synced.svelte.js";
-import { createBuilderMetadata } from "../../../../../builders/_internal/index.js";
+import { Synced } from "../../builders/synced.svelte.js";
+import { createBuilderMetadata } from "../../builders/index.js";
 import type { SidebarProps } from "./types.js";
 
 // ============================================================================

@@ -23,13 +23,13 @@
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/
  */
 
-import { Synced } from "../../../../../builders/_internal/synced.svelte.js";
+import { Synced } from "../../builders/synced.svelte.js";
 import {
 	createBuilderMetadata,
 	dataAttr,
 	disabledAttr,
 	kbd,
-} from "../../../../../builders/_internal/index.js";
+} from "../../builders/index.js";
 import type { CheckboxProps } from "./types.js";
 
 const metadata = createBuilderMetadata("checkbox", ["root", "indicator", "label"] as const);

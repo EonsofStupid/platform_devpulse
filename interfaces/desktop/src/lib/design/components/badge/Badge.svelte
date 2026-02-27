@@ -8,7 +8,7 @@
 -->
 <script lang="ts">
 	import type { BadgeComponentProps } from "./types.js";
-	import { createBadge } from "$lib/design/builders/badge/index.js";
+	import { createBadge } from "$lib/design/api/adapters/coldlight/_internal/badge/index.js";
 	import BadgeRoot from "$lib/design/primitives/badge/Badge.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { badgeRecipe } from "./recipe.js";

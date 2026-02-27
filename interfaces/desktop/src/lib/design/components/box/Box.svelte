@@ -8,7 +8,7 @@
 -->
 <script lang="ts">
 	import type { BoxComponentProps } from "./types.js";
-	import { createBox } from "$lib/design/builders/box/index.js";
+	import { createBox } from "$lib/design/api/adapters/coldlight/_internal/box/index.js";
 	import BoxRoot from "$lib/design/primitives/box/Box.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { boxRecipe } from "./recipe.js";

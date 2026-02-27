@@ -8,7 +8,7 @@
 -->
 <script lang="ts">
 	import type { GridComponentProps } from "./types.js";
-	import { createGrid } from "$lib/design/builders/grid/index.js";
+	import { createGrid } from "$lib/design/api/adapters/coldlight/_internal/grid/index.js";
 	import GridRoot from "$lib/design/primitives/grid/Grid.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { gridRecipe } from "./recipe.js";

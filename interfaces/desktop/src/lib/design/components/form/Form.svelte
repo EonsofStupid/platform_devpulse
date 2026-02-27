@@ -10,7 +10,7 @@
 -->
 <script lang="ts">
 	import type { FormComponentProps } from "./types.js";
-	import { createForm } from "$lib/design/builders/form/index.js";
+	import { createForm } from "$lib/design/api/adapters/coldlight/_internal/form/index.js";
 	import FormRoot from "$lib/design/primitives/form/Form.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { formRecipe } from "./recipe.js";

@@ -12,7 +12,7 @@
 -->
 <script lang="ts">
 	import type { SkipLinkComponentProps } from "./types.js";
-	import { createSkipLink } from "$lib/design/builders/skip-link/index.js";
+	import { createSkipLink } from "$lib/design/api/adapters/coldlight/_internal/skip-link/index.js";
 	import SkipLinkRoot from "$lib/design/primitives/skip-link/SkipLink.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { skipLinkRecipe } from "./recipe.js";

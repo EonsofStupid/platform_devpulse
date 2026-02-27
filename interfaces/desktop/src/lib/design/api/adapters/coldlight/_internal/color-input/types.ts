@@ -12,7 +12,7 @@
  * `role="group"` container.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 export type ColorInputProps = {
 	/**

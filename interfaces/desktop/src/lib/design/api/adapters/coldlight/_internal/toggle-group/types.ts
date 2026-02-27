@@ -11,7 +11,7 @@
  */
 
 import type { SvelteSet } from "svelte/reactivity";
-import type { MaybeGetter, Orientation } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter, Orientation } from "../../builders/types.js";
 
 /**
  * Constructor configuration for the ToggleGroup builder.

@@ -18,7 +18,7 @@
 
 import {
 	createBuilderMetadata,
-} from "../../../../../builders/_internal/index.js";
+} from "../../builders/index.js";
 import type { KbdProps } from "./types.js";
 
 // ============================================================================

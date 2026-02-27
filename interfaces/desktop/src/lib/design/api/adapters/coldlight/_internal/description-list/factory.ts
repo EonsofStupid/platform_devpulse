@@ -13,8 +13,8 @@
  * Contract: primitives/description-list/contract.ts
  */
 
-import { Synced } from "../../../../../builders/_internal/synced.svelte.js";
-import { createBuilderMetadata } from "../../../../../builders/_internal/index.js";
+import { Synced } from "../../builders/synced.svelte.js";
+import { createBuilderMetadata } from "../../builders/index.js";
 import type { DescriptionListProps } from "./types.js";
 
 // ============================================================================

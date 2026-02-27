@@ -12,7 +12,7 @@
 -->
 <script lang="ts">
 	import type { TableOfContentsComponentProps } from "./types.js";
-	import { createTableOfContents } from "$lib/design/builders/table-of-contents/index.js";
+	import { createTableOfContents } from "$lib/design/api/adapters/coldlight/_internal/table-of-contents/index.js";
 	import TableOfContentsRoot from "$lib/design/primitives/table-of-contents/TableOfContents.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { tableOfContentsRecipe } from "./recipe.js";

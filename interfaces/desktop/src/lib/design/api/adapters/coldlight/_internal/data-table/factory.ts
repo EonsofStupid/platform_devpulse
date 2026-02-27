@@ -15,8 +15,8 @@
  * Contract: primitives/data-table/contract.ts
  */
 
-import { Synced } from "../../../../../builders/_internal/synced.svelte.js";
-import { createBuilderMetadata } from "../../../../../builders/_internal/index.js";
+import { Synced } from "../../builders/synced.svelte.js";
+import { createBuilderMetadata } from "../../builders/index.js";
 import type { DataTableProps, AriaSort } from "./types.js";
 
 // ============================================================================

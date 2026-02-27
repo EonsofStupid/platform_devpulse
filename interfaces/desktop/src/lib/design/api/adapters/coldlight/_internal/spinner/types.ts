@@ -7,7 +7,7 @@
  * `aria-hidden` when not active.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /** Constructor config for Spinner builder. */
 export type SpinnerProps = {

@@ -6,7 +6,7 @@
  * Mirrors primitives/text/contract.ts -- `role: "none"`, zero ARIA.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /** Polymorphic element tag for Text. */
 export type TextAs = "span" | "p" | "div" | "label" | "strong" | "em" | "small";

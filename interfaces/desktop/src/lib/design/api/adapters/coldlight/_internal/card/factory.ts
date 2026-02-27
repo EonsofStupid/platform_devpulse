@@ -26,10 +26,10 @@
  * - `data-cl-card-footer`
  */
 
-import { Synced } from "../../../../../builders/_internal/synced.svelte.js";
+import { Synced } from "../../builders/synced.svelte.js";
 import {
 	createBuilderMetadata,
-} from "../../../../../builders/_internal/index.js";
+} from "../../builders/index.js";
 import type { CardProps } from "./types.js";
 
 // ============================================================================

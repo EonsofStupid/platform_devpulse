@@ -13,7 +13,7 @@
 -->
 <script lang="ts">
 	import type { DataTableComponentProps } from "./types.js";
-	import { createDataTable } from "$lib/design/builders/data-table/index.js";
+	import { createDataTable } from "$lib/design/api/adapters/coldlight/_internal/data-table/index.js";
 	import DataTableRoot from "$lib/design/primitives/data-table/DataTable.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { dataTableRecipe } from "./recipe.js";

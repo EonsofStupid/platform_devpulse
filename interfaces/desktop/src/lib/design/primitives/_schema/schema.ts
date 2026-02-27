@@ -144,6 +144,7 @@ export const AriaStateAttrs = [
 /** Property attributes - characteristics that rarely change */
 export const AriaPropertyAttrs = [
 	"aria-autocomplete",
+	"aria-description",
 	"aria-errormessage",
 	"aria-haspopup",
 	"aria-label",
@@ -319,6 +320,8 @@ export const StateTokens = [
 	"off",
 	// Unchecked
 	"unchecked",
+	// Selection emphasis
+	"highlighted",
 ] as const;
 
 export const StateTokenSchema = z.enum(StateTokens);

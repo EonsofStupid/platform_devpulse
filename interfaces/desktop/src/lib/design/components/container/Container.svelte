@@ -8,7 +8,7 @@
 -->
 <script lang="ts">
 	import type { ContainerComponentProps } from "./types.js";
-	import { createContainer } from "$lib/design/builders/container/index.js";
+	import { createContainer } from "$lib/design/api/adapters/coldlight/_internal/container/index.js";
 	import ContainerRoot from "$lib/design/primitives/container/Container.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { containerRecipe } from "./recipe.js";

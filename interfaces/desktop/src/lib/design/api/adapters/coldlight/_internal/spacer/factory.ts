@@ -27,7 +27,7 @@
  * @see {@link SpacerProps} for configuration options
  */
 
-import { createBuilderMetadata } from "../../../../../builders/_internal/index.js";
+import { createBuilderMetadata } from "../../builders/index.js";
 import type { SpacerProps } from "./types.js";
 
 const metadata = createBuilderMetadata("spacer", ["root"] as const);

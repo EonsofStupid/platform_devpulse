@@ -45,7 +45,7 @@
 	data-state={isSelected ? "selected" : undefined}
 	data-adapt-action="select"
 	aria-disabled={disabled ? "true" : undefined}
-	aria-description={ariaDescription}
+	{...ariaDescription ? {"aria-description": ariaDescription} : {}}
 >
 	{@render children?.()}
 </div>

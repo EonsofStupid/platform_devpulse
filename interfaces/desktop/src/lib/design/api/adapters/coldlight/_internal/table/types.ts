@@ -7,7 +7,7 @@
  * beyond the implicit table role.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /**
  * Sort direction for a column header.

@@ -12,7 +12,7 @@
 -->
 <script lang="ts">
 	import type { CalloutComponentProps } from "./types.js";
-	import { createCallout } from "$lib/design/builders/callout/index.js";
+	import { createCallout } from "$lib/design/api/adapters/coldlight/_internal/callout/index.js";
 	import CalloutRoot from "$lib/design/primitives/callout/Callout.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { calloutRecipe } from "./recipe.js";

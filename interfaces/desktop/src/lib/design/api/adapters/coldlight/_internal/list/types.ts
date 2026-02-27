@@ -6,7 +6,7 @@
  * Semantic list — native `<ul>`/`<li>` semantics, `role="list"`.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /**
  * Constructor config for the List builder.

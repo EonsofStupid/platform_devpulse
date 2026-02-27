@@ -9,7 +9,7 @@
 -->
 <script lang="ts">
 	import type { KbdComponentProps } from "./types.js";
-	import { createKbd } from "$lib/design/builders/kbd/index.js";
+	import { createKbd } from "$lib/design/api/adapters/coldlight/_internal/kbd/index.js";
 	import KbdRoot from "$lib/design/primitives/kbd/Kbd.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { kbdRecipe } from "./recipe.js";

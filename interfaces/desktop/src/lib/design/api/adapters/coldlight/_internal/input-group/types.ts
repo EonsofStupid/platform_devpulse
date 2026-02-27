@@ -8,7 +8,7 @@
  * addon slots. Uses `role="group"` to associate the input with its addons.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /**
  * Constructor configuration for the InputGroup builder.

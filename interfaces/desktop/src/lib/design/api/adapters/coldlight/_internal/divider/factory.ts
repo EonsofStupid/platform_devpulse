@@ -43,9 +43,9 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/separator/ WAI-ARIA APG Separator
  */
 
-import { Synced } from "../../../../../builders/_internal/synced.svelte.js";
-import { createBuilderMetadata } from "../../../../../builders/_internal/index.js";
-import type { Orientation } from "../../../../../builders/_internal/types.js";
+import { Synced } from "../../builders/synced.svelte.js";
+import { createBuilderMetadata } from "../../builders/index.js";
+import type { Orientation } from "../../builders/types.js";
 import type { DividerProps } from "./types.js";
 
 const metadata = createBuilderMetadata("divider", ["root"] as const);

@@ -13,7 +13,7 @@
 -->
 <script lang="ts">
 	import type { BreadcrumbComponentProps } from "./types.js";
-	import { createBreadcrumb } from "$lib/design/builders/breadcrumb/index.js";
+	import { createBreadcrumb } from "$lib/design/api/adapters/coldlight/_internal/breadcrumb/index.js";
 	import BreadcrumbRoot from "$lib/design/primitives/breadcrumb/Breadcrumb.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { breadcrumbRecipe } from "./recipe.js";

@@ -12,6 +12,9 @@ export type MaybeGetter<T> = T | (() => T);
 /** Loose attribute type for external consumers who accept any builder output. */
 export type BuilderAttrs = Record<string, unknown>;
 
+/** Alias for BuilderAttrs — used by mergeAttrs and slot spreading. */
+export type SlotAttrs = BuilderAttrs;
+
 /** Standard data-state values used across builders. */
 export type DataState = "on" | "off" | "active" | "inactive" | "open" | "closed";
 

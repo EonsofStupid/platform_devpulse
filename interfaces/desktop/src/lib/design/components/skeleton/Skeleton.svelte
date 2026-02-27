@@ -12,7 +12,7 @@
 -->
 <script lang="ts">
 	import type { SkeletonComponentProps } from "./types.js";
-	import { createSkeleton } from "$lib/design/builders/skeleton/index.js";
+	import { createSkeleton } from "$lib/design/api/adapters/coldlight/_internal/skeleton/index.js";
 	import SkeletonRoot from "$lib/design/primitives/skeleton/Skeleton.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { skeletonRecipe } from "./recipe.js";

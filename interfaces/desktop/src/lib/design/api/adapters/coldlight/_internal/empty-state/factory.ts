@@ -25,10 +25,10 @@
  * - `data-cl-empty-state-action`
  */
 
-import { Synced } from "../../../../../builders/_internal/synced.svelte.js";
+import { Synced } from "../../builders/synced.svelte.js";
 import {
 	createBuilderMetadata,
-} from "../../../../../builders/_internal/index.js";
+} from "../../builders/index.js";
 import type { EmptyStateProps } from "./types.js";
 
 // ============================================================================

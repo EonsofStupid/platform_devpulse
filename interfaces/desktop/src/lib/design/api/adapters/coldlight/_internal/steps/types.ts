@@ -6,7 +6,7 @@
  * Step progression pattern with `aria-current="step"` on active step.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /**
  * Constructor config for the Steps builder.

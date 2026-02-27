@@ -24,7 +24,7 @@
 import {
 	createBuilderMetadata,
 	extract,
-} from "../../../../../builders/_internal/index.js";
+} from "../../builders/index.js";
 import type { CalloutProps } from "./types.js";
 
 // ============================================================================

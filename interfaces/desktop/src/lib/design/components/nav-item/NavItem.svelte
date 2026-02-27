@@ -13,7 +13,7 @@
 -->
 <script lang="ts">
 	import type { NavItemComponentProps } from "./types.js";
-	import { createNavItem } from "$lib/design/builders/nav-item/index.js";
+	import { createNavItem } from "$lib/design/api/adapters/coldlight/_internal/nav-item/index.js";
 	import NavItemRoot from "$lib/design/primitives/nav-item/NavItem.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { navItemRecipe } from "./recipe.js";

@@ -12,7 +12,7 @@
 -->
 <script lang="ts">
 	import type { SpinnerComponentProps } from "./types.js";
-	import { createSpinner } from "$lib/design/builders/spinner/index.js";
+	import { createSpinner } from "$lib/design/api/adapters/coldlight/_internal/spinner/index.js";
 	import SpinnerRoot from "$lib/design/primitives/spinner/Spinner.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { spinnerRecipe } from "./recipe.js";

@@ -9,7 +9,7 @@
 -->
 <script lang="ts">
 	import type { SwitchComponentProps } from "./types.js";
-	import { createSwitch } from "$lib/design/builders/switch/index.js";
+	import { createSwitch } from "$lib/design/api/adapters/coldlight/_internal/switch/index.js";
 	import SwitchRoot from "$lib/design/primitives/switch/Switch.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { switchRecipe, switchThumbRecipe } from "./recipe.js";

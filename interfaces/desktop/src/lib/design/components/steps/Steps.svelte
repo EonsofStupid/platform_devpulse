@@ -6,7 +6,7 @@
 -->
 <script lang="ts">
 	import type { StepsComponentProps } from "./types.js";
-	import { createSteps } from "$lib/design/builders/steps/index.js";
+	import { createSteps } from "$lib/design/api/adapters/coldlight/_internal/steps/index.js";
 	import StepsRoot from "$lib/design/primitives/steps/Steps.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { stepsRecipe } from "./recipe.js";

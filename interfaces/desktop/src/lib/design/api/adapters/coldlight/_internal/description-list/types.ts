@@ -6,7 +6,7 @@
  * Semantic `<dl>`/`<dt>`/`<dd>` — native description list semantics.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /**
  * Constructor config for DescriptionList.

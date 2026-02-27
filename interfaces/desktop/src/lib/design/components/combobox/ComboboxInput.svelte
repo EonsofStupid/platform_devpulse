@@ -39,6 +39,6 @@
 	data-state={ctx.states.open ? "open" : "closed"}
 	data-adapt-action="filter"
 	data-adapt-purpose={adaptPurpose ?? "search-term"}
-	aria-description={ariaDescription}
+	{...ariaDescription ? {"aria-description": ariaDescription} : {}}
 	{placeholder}
 />

@@ -24,7 +24,7 @@
  * @see {@link CenterProps} for configuration options
  */
 
-import { createBuilderMetadata } from "../../../../../builders/_internal/index.js";
+import { createBuilderMetadata } from "../../builders/index.js";
 import type { CenterProps } from "./types.js";
 
 const metadata = createBuilderMetadata("center", ["root"] as const);

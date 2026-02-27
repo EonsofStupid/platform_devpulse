@@ -7,7 +7,7 @@
  * `role="grid"`, `aria-rowcount`, `aria-colcount`, `aria-sort`, `aria-selected`.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /**
  * Sort direction for a column header.

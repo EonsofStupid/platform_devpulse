@@ -6,7 +6,7 @@
  * Status/label indicator -- decorative or informational.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /** Badge variant for semantic styling. */
 export type BadgeVariant = "default" | "info" | "success" | "warning" | "error";

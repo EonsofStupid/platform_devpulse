@@ -8,7 +8,7 @@
  * Contract: `role="status"` -- polite live region.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /** Constructor config for the {@link EmptyState} builder. */
 export type EmptyStateProps = {

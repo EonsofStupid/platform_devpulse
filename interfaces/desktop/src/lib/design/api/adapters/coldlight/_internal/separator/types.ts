@@ -7,7 +7,7 @@
  * WAI-ARIA APG: separator role.
  */
 
-import type { MaybeGetter, Orientation } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter, Orientation } from "../../builders/types.js";
 
 /** Constructor config for Separator. MaybeGetter for controlled/uncontrolled. */
 export type SeparatorProps = {

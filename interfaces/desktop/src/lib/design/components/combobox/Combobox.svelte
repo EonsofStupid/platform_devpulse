@@ -80,7 +80,7 @@
 	data-adapt-action={adaptAction}
 	data-adapt-purpose={adaptPurpose}
 	data-adapt-simplification={adaptSimplification}
-	aria-description={ariaDescription}
+	{...ariaDescription ? {"aria-description": ariaDescription} : {}}
 	aria-disabled={disabled ? "true" : undefined}
 	class={cn(recipe.wrapper, disabled && "opacity-50 pointer-events-none", className)}
 >

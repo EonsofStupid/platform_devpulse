@@ -22,8 +22,8 @@
 
 import {
 	createBuilderMetadata,
-} from "../../../../../builders/_internal/index.js";
-import { Synced } from "../../../../../builders/_internal/synced.svelte.js";
+} from "../../builders/index.js";
+import { Synced } from "../../builders/synced.svelte.js";
 import type { HeadingProps, HeadingLevel } from "./types.js";
 
 // ============================================================================

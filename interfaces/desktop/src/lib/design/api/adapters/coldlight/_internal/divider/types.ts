@@ -14,7 +14,7 @@
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/separator/
  */
 
-import type { MaybeGetter, Orientation } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter, Orientation } from "../../builders/types.js";
 
 /**
  * Constructor props for the {@link Divider} builder.

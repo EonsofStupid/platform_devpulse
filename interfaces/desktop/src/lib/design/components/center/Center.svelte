@@ -8,7 +8,7 @@
 -->
 <script lang="ts">
 	import type { CenterComponentProps } from "./types.js";
-	import { createCenter } from "$lib/design/builders/center/index.js";
+	import { createCenter } from "$lib/design/api/adapters/coldlight/_internal/center/index.js";
 	import CenterRoot from "$lib/design/primitives/center/Center.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { centerRecipe } from "./recipe.js";

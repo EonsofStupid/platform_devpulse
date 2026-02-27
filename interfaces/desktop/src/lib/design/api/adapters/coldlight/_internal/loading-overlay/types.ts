@@ -8,7 +8,7 @@
  * Synced<boolean> for visible state.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /** Constructor config for the {@link LoadingOverlay} builder. */
 export type LoadingOverlayProps = {

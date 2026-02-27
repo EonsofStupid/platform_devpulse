@@ -9,7 +9,7 @@
 -->
 <script lang="ts">
 	import type { TextareaComponentProps } from "./types.js";
-	import { createTextarea } from "$lib/design/builders/textarea/index.js";
+	import { createTextarea } from "$lib/design/api/adapters/coldlight/_internal/textarea/index.js";
 	import TextareaRoot from "$lib/design/primitives/textarea/Textarea.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { textareaRecipe } from "./recipe.js";

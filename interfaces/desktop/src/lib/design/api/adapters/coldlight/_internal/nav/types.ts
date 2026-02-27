@@ -6,7 +6,7 @@
  * WAI-ARIA: navigation landmark.
  */
 
-import type { MaybeGetter } from "../../../../../builders/_internal/types.js";
+import type { MaybeGetter } from "../../builders/types.js";
 
 /**
  * Constructor config for the Nav builder.
