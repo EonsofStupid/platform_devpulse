@@ -33,6 +33,8 @@ import type {
 	ManifestEffect,
 	ManifestPrimitive,
 	ManifestRecipe,
+	ManifestSvgBlank,
+	ManifestSvgFilter,
 	PrimitiveScanResult,
 	ScanError,
 	ScanResult,
@@ -58,7 +60,7 @@ export type ImportLike = (path: string) => Promise<{ default?: unknown; contract
 // =============================================================================
 
 function resolvePaths(config: ColdLightConfig) {
-	const { apiRoot, primitivesRoot, componentsRoot, buildersRoot, recipesRoot, effectsRoot } = config.roots;
+	const { apiRoot, primitivesRoot, componentsRoot, buildersRoot, recipesRoot, effectsRoot, svgRoot } = config.roots;
 	const active = config.adapters.active;
 
 	return {
@@ -69,6 +71,7 @@ function resolvePaths(config: ColdLightConfig) {
 		builders: buildersRoot,
 		recipes: recipesRoot,
 		effects: effectsRoot,
+		svg: svgRoot,
 	};
 }
 
@@ -262,6 +265,273 @@ function contractToManifest(contract: PrimitiveContract): ManifestPrimitive {
 }
 
 // =============================================================================
+// COMPONENT CONTRACT LOADING & VALIDATION
+// =============================================================================
+
+/**
+ * Validate the generic ComponentContract shape.
+ */
+function isComponentContractShape(x: unknown): x is Record<string, unknown> {
+	if (!x || typeof x !== "object") return false;
+	const c = x as Record<string, unknown>;
+
+	if (typeof c.kind !== "string") return false;
+	if (typeof c.primitiveKind !== "string") return false;
+
+	const slots = c.slots as Record<string, unknown> | undefined;
+	if (!slots || typeof slots !== "object") return false;
+	if (!Array.isArray(slots.required)) return false;
+
+	if (!c.slotContracts || typeof c.slotContracts !== "object") return false;
+
+	const accessibleName = c.accessibleName as Record<string, unknown> | undefined;
+	if (!accessibleName || typeof accessibleName !== "object") return false;
+
+	const focus = c.focus as Record<string, unknown> | undefined;
+	if (!focus || typeof focus !== "object") return false;
+
+	const interactions = c.interactions as Record<string, unknown> | undefined;
+	if (!interactions || typeof interactions !== "object") return false;
+
+	return true;
+}
+
+/**
+ * Convert a ComponentContract to a ManifestComponent for JSON serialization.
+ */
+function componentContractToManifest(contract: Record<string, unknown>): ManifestComponent {
+	const slots = contract.slots as { required: string[]; optional?: string[] };
+	const accessibleName = contract.accessibleName as {
+		required: boolean;
+		sources: string[];
+	};
+	const focus = contract.focus as {
+		strategy: string;
+		initialFocus?: string;
+		returnFocus?: string;
+	};
+	const keyboard = contract.keyboard as {
+		global: Array<{ key: string; action: string; description: string }>;
+	};
+	const states = contract.states as { all: string[] };
+	const interactions = contract.interactions as {
+		modal: boolean;
+		selectable: boolean;
+		editable: boolean;
+		expandable: boolean;
+	};
+	const waiAdapt = contract.waiAdapt as
+		| { action?: string; purpose?: string; simplification: string }
+		| undefined;
+
+	return {
+		kind: contract.kind as string,
+		description: contract.description as string,
+		primitiveKind: contract.primitiveKind as string,
+		apgPattern: contract.apgPattern as string | undefined,
+		slots: {
+			required: [...slots.required],
+			optional: [...(slots.optional ?? [])],
+		},
+		accessibleName: {
+			required: accessibleName.required,
+			sources: [...accessibleName.sources],
+		},
+		focus: {
+			strategy: focus.strategy,
+			...(focus.initialFocus != null ? { initialFocus: focus.initialFocus } : {}),
+			...(focus.returnFocus != null ? { returnFocus: focus.returnFocus } : {}),
+		},
+		keyboard: (keyboard?.global ?? []).map((k) => ({
+			key: k.key,
+			action: k.action,
+			description: k.description,
+		})),
+		states: [...(states?.all ?? [])],
+		interactions: {
+			modal: interactions.modal,
+			selectable: interactions.selectable,
+			editable: interactions.editable,
+			expandable: interactions.expandable,
+		},
+		...(waiAdapt
+			? {
+					waiAdapt: {
+						...(waiAdapt.action != null ? { action: waiAdapt.action } : {}),
+						...(waiAdapt.purpose != null ? { purpose: waiAdapt.purpose } : {}),
+						simplification: waiAdapt.simplification,
+					},
+				}
+			: {}),
+	};
+}
+
+// =============================================================================
+// COMPONENT SCANNING
+// =============================================================================
+
+/**
+ * Scan component folders to discover kinds and load contracts.
+ * Cross-validates that each component.primitiveKind exists in discovered primitives.
+ */
+async function scanComponents(
+	fs: FsLike,
+	importFn: ImportLike,
+	componentsPath: string,
+	discoveredPrimitiveKinds: ReadonlySet<string>,
+): Promise<{
+	components: ComponentScanResult[];
+	manifestComponents: ManifestComponent[];
+	errors: ScanError[];
+}> {
+	const components: ComponentScanResult[] = [];
+	const manifestComponents: ManifestComponent[] = [];
+	const errors: ScanError[] = [];
+
+	const kinds = listSubfolders(fs, componentsPath);
+
+	for (const kind of kinds) {
+		if (kind.startsWith("_")) continue;
+
+		const kindDir = `${componentsPath}/${kind}`;
+
+		if (!containsContractFile(fs, kindDir)) {
+			continue;
+		}
+
+		const hasSvelteComponent = containsSvelteFile(fs, kindDir);
+
+		let contract: unknown;
+		try {
+			contract = await loadContract(importFn, componentsPath, kind);
+		} catch {
+			errors.push({
+				code: "COMPONENT_CONTRACT_LOAD_FAILED",
+				kind,
+				detail: `${componentsPath}/${kind}/contract.ts`,
+			});
+			components.push({
+				kind,
+				hasContract: false,
+				hasSvelteComponent,
+				primitiveKind: null,
+				primitiveExists: false,
+			});
+			continue;
+		}
+
+		if (!isComponentContractShape(contract)) {
+			errors.push({
+				code: "COMPONENT_CONTRACT_INVALID",
+				kind,
+				detail: `${componentsPath}/${kind}/contract.ts`,
+			});
+			components.push({
+				kind,
+				hasContract: true,
+				hasSvelteComponent,
+				primitiveKind: null,
+				primitiveExists: false,
+			});
+			continue;
+		}
+
+		const primitiveKind = contract.primitiveKind as string;
+		const primitiveExists = discoveredPrimitiveKinds.has(primitiveKind);
+
+		if (!primitiveExists) {
+			errors.push({
+				code: "COMPONENT_PRIMITIVE_NOT_FOUND",
+				kind,
+				detail: `Component '${kind}' references primitive '${primitiveKind}' which was not found in primitives/`,
+			});
+		}
+
+		components.push({
+			kind,
+			hasContract: true,
+			hasSvelteComponent,
+			primitiveKind,
+			primitiveExists,
+		});
+
+		manifestComponents.push(componentContractToManifest(contract));
+	}
+
+	return { components, manifestComponents, errors };
+}
+
+// =============================================================================
+// EFFECT SCANNING
+// =============================================================================
+
+/**
+ * Scan effect category folders and collect registered effects.
+ * Imports each category index to trigger side-effect registration,
+ * then reads the effect registry for manifest serialization.
+ */
+async function scanEffects(
+	fs: FsLike,
+	importFn: ImportLike,
+	effectsPath: string,
+): Promise<{
+	definitions: ManifestEffect[];
+	categories: string[];
+	conflictGroups: Record<string, string[]>;
+}> {
+	const definitions: ManifestEffect[] = [];
+	const categories: string[] = [];
+	const conflictGroups: Record<string, string[]> = {};
+
+	const categoriesDir = `${effectsPath}/categories`;
+	const categoryFolders = listSubfolders(fs, categoriesDir);
+
+	for (const category of categoryFolders) {
+		categories.push(category);
+
+		const indexPath = `${categoriesDir}/${category}/index.js`;
+		if (!fs.existsSync(`${categoriesDir}/${category}/index.ts`) &&
+			!fs.existsSync(indexPath)) {
+			continue;
+		}
+
+		try {
+			await importFn(indexPath);
+		} catch {
+			// Effect category import failed — non-fatal
+		}
+	}
+
+	// Read registered effects from the runtime registry
+	try {
+		const registryMod = await importFn(`${effectsPath}/index.js`);
+		const getAllEffectsForManifest = (registryMod as Record<string, unknown>).getAllEffectsForManifest as
+			| (() => ManifestEffect[])
+			| undefined;
+		const getCategoryManifests = (registryMod as Record<string, unknown>).getCategoryManifests as
+			| (() => Array<{ category: string; effectIds: string[]; conflictGroups: Record<string, string[]> }>)
+			| undefined;
+
+		if (getAllEffectsForManifest) {
+			definitions.push(...getAllEffectsForManifest());
+		}
+
+		if (getCategoryManifests) {
+			const manifests = getCategoryManifests();
+			manifests.forEach((m) => {
+				Object.entries(m.conflictGroups).forEach(([group, ids]) => {
+					conflictGroups[group] = ids;
+				});
+			});
+		}
+	} catch {
+		// Effect registry not available — effects won't be in manifest
+	}
+
+	return { definitions, categories, conflictGroups };
+}
+
+// =============================================================================
 // RECIPE SCANNING
 // =============================================================================
 
@@ -343,17 +613,66 @@ async function scanRecipes(
 }
 
 // =============================================================================
+// SVG FILTER SCANNING
+// =============================================================================
+
+/**
+ * Scan SVG filter definitions from the filter registry.
+ * Imports the definitions barrel to trigger side-effect registration,
+ * then reads the filter registry for manifest serialization.
+ */
+async function scanSvgFilters(
+	importFn: ImportLike,
+	svgPath: string,
+): Promise<{
+	filters: ManifestSvgFilter[];
+	blanks: ManifestSvgBlank[];
+}> {
+	const filters: ManifestSvgFilter[] = [];
+	const blanks: ManifestSvgBlank[] = [
+		{ shape: "rect", availableFilters: ["bevel-soft", "bevel-medium", "bevel-strong", "noise-subtle", "noise-medium", "glow-teal-svg", "glow-purple-svg"] },
+		{ shape: "pill", availableFilters: ["bevel-soft", "bevel-medium", "bevel-strong", "noise-subtle", "noise-medium", "glow-teal-svg", "glow-purple-svg"] },
+		{ shape: "circle", availableFilters: ["bevel-soft", "bevel-medium", "bevel-strong", "noise-subtle", "noise-medium", "glow-teal-svg", "glow-purple-svg"] },
+		{ shape: "hexagon", availableFilters: ["bevel-soft", "bevel-medium", "bevel-strong", "noise-subtle", "noise-medium", "glow-teal-svg", "glow-purple-svg"] },
+	];
+
+	// Import filter definitions to trigger registration
+	try {
+		await importFn(`${svgPath}/filters/definitions/index.js`);
+	} catch {
+		// Filter definitions not available — non-fatal
+	}
+
+	// Read registered filters from the runtime registry
+	try {
+		const registryMod = await importFn(`${svgPath}/filters/registry.js`);
+		const getAllFiltersForManifest = (registryMod as Record<string, unknown>).getAllFiltersForManifest as
+			| (() => ManifestSvgFilter[])
+			| undefined;
+
+		if (getAllFiltersForManifest) {
+			filters.push(...getAllFiltersForManifest());
+		}
+	} catch {
+		// Filter registry not available — filters won't be in manifest
+	}
+
+	return { filters, blanks };
+}
+
+// =============================================================================
 // MAIN SCANNER
 // =============================================================================
 
 /**
- * Scan ColdLight primitives and recipes.
+ * Scan ALL ColdLight layers: primitives, components, effects, recipes.
  *
- * Fully config-driven:
- * - Scans primitivesRoot for kind folders
- * - Per kind: loads colocated contract.ts → reads ariaStateProvider → checks parity
- * - Scans recipesRoot for recipe definitions → includes in manifest
- * - Returns manifest or errors
+ * Unified manifest — one document, all layers, cross-validated references.
+ * Each layer references the layer below:
+ *   tokens → nothing (atoms)
+ *   effects → tokens (molecules reference token values)
+ *   primitives → nothing structural (AST nodes)
+ *   components → primitives (by kind) + effects (by ID)
  */
 export async function scanColdLight(
 	fs: FsLike,
@@ -365,80 +684,135 @@ export async function scanColdLight(
 	const paths = resolvePaths(config);
 	const dsAdapter = config.adapters.active;
 
-	if (!config.generation.categories.primitives.enabled) {
-		return { valid: true, primitives: [], errors: [], manifest: null };
-	}
+	// =========================================================================
+	// LAYER 1: Scan Primitives (AST nodes — structural foundation)
+	// =========================================================================
 
-	const kinds = listSubfolders(fs, paths.primitives);
-	const manifestKinds: ManifestPrimitive[] = [];
+	const manifestPrimitiveKinds: ManifestPrimitive[] = [];
+	const discoveredPrimitiveKinds = new Set<string>();
 
-	for (const kind of kinds) {
-		// Skip _schema folder — it's type infrastructure, not a primitive
-		if (kind.startsWith("_")) continue;
+	if (config.generation.categories.primitives.enabled) {
+		const kinds = listSubfolders(fs, paths.primitives);
 
-		// Check if this folder has a contract
-		if (!containsContractFile(fs, `${paths.primitives}/${kind}`)) {
-			continue; // No contract = not a registered primitive yet
-		}
+		for (const kind of kinds) {
+			if (kind.startsWith("_")) continue;
 
-		let contract: unknown;
-		try {
-			contract = await loadContract(importFn, paths.primitives, kind);
-		} catch {
-			errors.push({
-				code: "CONTRACT_LOAD_FAILED",
-				kind,
-				detail: `${paths.primitives}/${kind}/contract.ts`,
-			});
-			continue;
-		}
+			if (!containsContractFile(fs, `${paths.primitives}/${kind}`)) {
+				continue;
+			}
 
-		if (!isContractShape(contract)) {
-			errors.push({
-				code: "CONTRACT_INVALID",
-				kind,
-				detail: `${paths.primitives}/${kind}/contract.ts`,
-			});
-			continue;
-		}
-
-		const parityResult = checkParity(fs, paths, dsAdapter, kind, contract.ariaStateProvider);
-		primitives.push(parityResult);
-
-		if (!parityResult.hasParity) {
-			if (!parityResult.hasContract) {
+			let contract: unknown;
+			try {
+				contract = await loadContract(importFn, paths.primitives, kind);
+			} catch {
 				errors.push({
-					code: "PARITY_MISSING_FOLDER",
+					code: "CONTRACT_LOAD_FAILED",
 					kind,
 					detail: `${paths.primitives}/${kind}/contract.ts`,
 				});
+				continue;
 			}
-			parityResult.missingAdapters.forEach(() => {
-				errors.push({
-					code: "PARITY_MISSING_FOLDER",
-					kind,
-					detail: `${paths.dsAdapter}/${kind}/`,
-				});
-			});
-			if (!parityResult.hasSvelteComponent) {
-				errors.push({
-					code: "PARITY_MISSING_FOLDER",
-					kind,
-					detail: `${paths.primitives}/${kind}/*.svelte`,
-				});
-			}
-		}
 
-		manifestKinds.push(contractToManifest(contract));
+			if (!isContractShape(contract)) {
+				errors.push({
+					code: "CONTRACT_INVALID",
+					kind,
+					detail: `${paths.primitives}/${kind}/contract.ts`,
+				});
+				continue;
+			}
+
+			discoveredPrimitiveKinds.add(kind);
+
+			const parityResult = checkParity(fs, paths, dsAdapter, kind, contract.ariaStateProvider);
+			primitives.push(parityResult);
+
+			if (!parityResult.hasParity) {
+				if (!parityResult.hasContract) {
+					errors.push({
+						code: "PARITY_MISSING_FOLDER",
+						kind,
+						detail: `${paths.primitives}/${kind}/contract.ts`,
+					});
+				}
+				parityResult.missingAdapters.forEach(() => {
+					errors.push({
+						code: "PARITY_MISSING_FOLDER",
+						kind,
+						detail: `${paths.dsAdapter}/${kind}/`,
+					});
+				});
+				if (!parityResult.hasSvelteComponent) {
+					errors.push({
+						code: "PARITY_MISSING_FOLDER",
+						kind,
+						detail: `${paths.primitives}/${kind}/*.svelte`,
+					});
+				}
+			}
+
+			manifestPrimitiveKinds.push(contractToManifest(contract));
+		}
 	}
 
-	// Scan recipes
+	// =========================================================================
+	// LAYER 2: Scan Components (cross-validates against primitives)
+	// =========================================================================
+
+	let componentResults: ComponentScanResult[] = [];
+	let manifestComponents: ManifestComponent[] = [];
+
+	if (config.generation.categories.components.enabled) {
+		const componentScan = await scanComponents(
+			fs, importFn, paths.components, discoveredPrimitiveKinds,
+		);
+		componentResults = componentScan.components;
+		manifestComponents = componentScan.manifestComponents;
+		errors.push(...componentScan.errors);
+	}
+
+	// =========================================================================
+	// LAYER 3: Scan Effects (composable visual building blocks)
+	// =========================================================================
+
+	let effectDefinitions: ManifestEffect[] = [];
+	let effectCategories: string[] = [];
+	let effectConflictGroups: Record<string, string[]> = {};
+
+	if (config.generation.categories.effects?.enabled) {
+		const effectScan = await scanEffects(fs, importFn, paths.effects);
+		effectDefinitions = effectScan.definitions;
+		effectCategories = effectScan.categories;
+		effectConflictGroups = effectScan.conflictGroups;
+	}
+
+	// =========================================================================
+	// LAYER 4: Scan SVG Filters (premium tier neumorphism)
+	// =========================================================================
+
+	let svgFilters: ManifestSvgFilter[] = [];
+	let svgBlanks: ManifestSvgBlank[] = [];
+
+	if (config.generation.categories.svg?.enabled) {
+		const svgScan = await scanSvgFilters(importFn, paths.svg);
+		svgFilters = svgScan.filters;
+		svgBlanks = svgScan.blanks;
+	}
+
+	// =========================================================================
+	// LAYER 5: Scan Recipes (styling patterns)
+	// =========================================================================
+
 	const manifestRecipes = await scanRecipes(fs, importFn, paths.recipes);
+
+	// =========================================================================
+	// ASSEMBLE UNIFIED MANIFEST
+	// =========================================================================
 
 	const valid = errors.length === 0;
 
 	if (!valid && config.enforcement.failOnParity) {
-		return { valid: false, primitives, errors, manifest: null };
+		return { valid: false, primitives, components: componentResults, errors, manifest: null };
 	}
 
 	const manifest: ColdLightManifest = {
@@ -448,16 +822,30 @@ export async function scanColdLight(
 			dsAdapter: config.adapters.active,
 		},
 		categories: {
-			primitives: { kinds: manifestKinds },
+			tokens: {
+				tiers: ["global", "semantic", "component"],
+				generatedFiles: ["tokens.css", "tailwind.css", "types.ts"],
+			},
+			effects: {
+				definitions: effectDefinitions,
+				categories: effectCategories,
+				conflictGroups: effectConflictGroups,
+			},
+			svg: {
+				filters: svgFilters,
+				blanks: svgBlanks,
+			},
+			primitives: { kinds: manifestPrimitiveKinds },
+			components: { kinds: manifestComponents },
 			recipes: { entries: manifestRecipes },
 		},
 	};
 
 	if (!valid && config.enforcement.failOnContractLoad) {
-		return { valid: false, primitives, errors, manifest: null };
+		return { valid: false, primitives, components: componentResults, errors, manifest: null };
 	}
 
-	return { valid, primitives, errors, manifest };
+	return { valid, primitives, components: componentResults, errors, manifest };
 }
 
 /**

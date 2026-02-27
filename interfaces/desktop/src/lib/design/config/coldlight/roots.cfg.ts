@@ -17,5 +17,7 @@ export const ROOTS = {
 	recipesRoot: "src/lib/design/recipes",
 	/** Effect definitions — composable visual building blocks */
 	effectsRoot: "src/lib/design/effects",
+	/** SVG filter library + parametric blanks — premium tier neumorphism */
+	svgRoot: "src/lib/design/svg",
 	generatedRoot: "src/lib/design/.generated",
 } as const;

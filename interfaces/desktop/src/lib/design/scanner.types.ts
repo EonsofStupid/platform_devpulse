@@ -125,6 +125,31 @@ export interface ManifestEffect {
 }
 
 /**
+ * SVG filter entry in the generated manifest.
+ * Premium tier neumorphic effects — feSpecularLighting, feTurbulence chains.
+ */
+export interface ManifestSvgFilter {
+	readonly id: string;
+	readonly category: string;
+	readonly label: string;
+	readonly description: string;
+	readonly cssClass: string;
+	readonly params: readonly {
+		readonly cssProperty: string;
+		readonly defaultValue: string | number;
+	}[];
+	readonly effectId?: string;
+}
+
+/**
+ * SVG blank shape entry in the generated manifest.
+ */
+export interface ManifestSvgBlank {
+	readonly shape: string;
+	readonly availableFilters: readonly string[];
+}
+
+/**
  * Token layer metadata in the manifest.
  * Reports what token tiers exist and what files were generated.
  */
@@ -150,6 +175,10 @@ export interface ColdLightManifest {
 			readonly definitions: readonly ManifestEffect[];
 			readonly categories: readonly string[];
 			readonly conflictGroups: Readonly<Record<string, readonly string[]>>;
+		};
+		readonly svg: {
+			readonly filters: readonly ManifestSvgFilter[];
+			readonly blanks: readonly ManifestSvgBlank[];
 		};
 		readonly primitives: {
 			readonly kinds: readonly ManifestPrimitive[];

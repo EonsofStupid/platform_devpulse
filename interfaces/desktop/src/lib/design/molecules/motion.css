@@ -1,0 +1,34 @@
+/**
+ * @file Motion Molecule Utilities
+ * @layer molecules
+ * @package @devpulse/coldlight
+ *
+ * CSS @utility definitions for motion effects.
+ * All respect @media (prefers-reduced-motion: reduce).
+ */
+
+@utility motion-hover-lift {
+	transition: transform var(--duration-fast, 150ms) var(--ease-out, ease-out);
+	&:hover {
+		transform: translateY(-2px);
+	}
+	@media (prefers-reduced-motion: reduce) {
+		transition: none;
+		&:hover {
+			transform: none;
+		}
+	}
+}
+
+@utility motion-press-down {
+	transition: transform var(--duration-instant, 75ms) var(--ease-in, ease-in);
+	&:active {
+		transform: translateY(1px) scale(0.98);
+	}
+	@media (prefers-reduced-motion: reduce) {
+		transition: none;
+		&:active {
+			transform: none;
+		}
+	}
+}

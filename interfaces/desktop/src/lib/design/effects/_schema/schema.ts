@@ -46,8 +46,8 @@ export const EffectDefinitionSchema = z.object({
 	category: EffectCategorySchema,
 	label: z.string().min(1),
 	description: z.string().min(1),
-	supportedTriggers: z.array(EffectTriggerSchema).readonly().min(1),
-	classes: z.array(z.string()).readonly().min(1),
+	supportedTriggers: z.array(EffectTriggerSchema).min(1).readonly(),
+	classes: z.array(z.string()).min(1).readonly(),
 	cssProperties: z.record(z.string(), z.string()).optional(),
 	shadowLayer: ShadowLayerSchema.optional(),
 	transition: z.string().optional(),
@@ -111,7 +111,7 @@ export const CompiledActionSchema = z.object({
 
 export const CompilerOutputSchema = z.object({
 	staticClasses: z.string(),
-	conditionalClasses: z.record(EffectTriggerSchema, z.string()).partial(),
+	conditionalClasses: z.record(EffectTriggerSchema, z.string()),
 	actions: z.array(CompiledActionSchema).readonly(),
 	warnings: z.array(z.string()).readonly(),
 });
