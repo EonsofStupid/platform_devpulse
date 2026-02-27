@@ -6,7 +6,9 @@
  * Builds on primitive schemas to define per-slot ARIA value validation,
  * typed attribute maps, and component slot contracts.
  *
- * Reference: W3C WAI-ARIA 1.2 (https://www.w3.org/WAI/ARIA/apg/)
+ * Reference: W3C WAI-ARIA 1.2 (https://www.w3.org/TR/wai-aria-1.2/)
+ * Reference: W3C WAI-ARIA 1.3 Working Draft (https://w3c.github.io/aria/)
+ * Reference: WAI-Adapt Content Module (https://w3c.github.io/adapt/)
  */
 
 import { z } from "zod";
@@ -134,6 +136,18 @@ export const AriaAttrValueSchemas = {
 	"aria-rowindex": z.number().int().min(1),
 	"aria-rowspan": z.number().int().min(1),
 	"aria-setsize": z.number().int(),
+
+	// =========================================================================
+	// ARIA 1.3 — New attributes (Working Draft)
+	// https://w3c.github.io/aria/
+	// =========================================================================
+
+	/** Supplementary description — richer than aria-label. ARIA 1.3 new. */
+	"aria-description": z.string(),
+	/** Braille-specific label for refreshable braille displays. ARIA 1.3 new. */
+	"aria-braillelabel": z.string(),
+	/** Braille-specific role description. ARIA 1.3 new. */
+	"aria-brailleroledescription": z.string(),
 } as const;
 
 // =============================================================================
@@ -233,3 +247,123 @@ export const AccessibleNameSourceSchema = z.enum([
 	"title", // Title attribute (fallback)
 ]);
 export type AccessibleNameSource = z.infer<typeof AccessibleNameSourceSchema>;
+
+// =============================================================================
+// ARIA 1.3 — New roles (Working Draft)
+// https://w3c.github.io/aria/
+// =============================================================================
+
+/** ARIA 1.3 new roles — suggestion, comment, mark */
+export const Aria13RoleValues = ["suggestion", "comment", "mark"] as const;
+export const Aria13RoleSchema = z.enum(Aria13RoleValues);
+export type Aria13Role = z.infer<typeof Aria13RoleSchema>;
+
+/** ARIA spec version this contract targets */
+export const AriaVersionValues = ["1.2", "1.3"] as const;
+export const AriaVersionSchema = z.enum(AriaVersionValues);
+export type AriaVersion = z.infer<typeof AriaVersionSchema>;
+
+// =============================================================================
+// WAI-ADAPT — Machine-readable semantics for AI/AT
+// https://w3c.github.io/adapt/
+// =============================================================================
+
+/**
+ * WAI-Adapt action tokens — declares what an interactive control DOES.
+ * AI agents use this to understand control purpose without parsing labels.
+ *
+ * Reference: WAI-Adapt Content Module § action
+ */
+export const WaiAdaptActionValues = [
+	// Navigation
+	"navigate", "navigate-back", "navigate-forward", "navigate-home",
+	"navigate-up", "scroll-up", "scroll-down",
+	// Actions
+	"search", "submit", "confirm", "cancel", "close", "dismiss",
+	"delete", "remove", "add", "edit", "save", "undo", "redo",
+	"copy", "paste", "cut", "refresh", "reload",
+	// Selection
+	"select", "deselect", "select-all", "toggle",
+	// Media
+	"play", "pause", "stop", "mute", "unmute",
+	// System
+	"print", "download", "upload", "share", "settings", "help", "info",
+	// Combobox-specific
+	"filter", "clear", "open-listbox", "close-listbox",
+] as const;
+export const WaiAdaptActionSchema = z.enum(WaiAdaptActionValues);
+export type WaiAdaptAction = z.infer<typeof WaiAdaptActionSchema>;
+
+/**
+ * WAI-Adapt purpose tokens — declares what an input IS FOR.
+ * Maps to HTML autocomplete values + extensions.
+ *
+ * Reference: WAI-Adapt Content Module § purpose
+ */
+export const WaiAdaptPurposeValues = [
+	// Identity
+	"name", "given-name", "family-name", "nickname", "username",
+	// Contact
+	"email", "tel", "url", "street-address", "postal-code", "country",
+	// Credentials
+	"current-password", "new-password", "one-time-code",
+	// Payment
+	"cc-number", "cc-exp", "cc-csc",
+	// Search
+	"search-term",
+	// Custom
+	"organization", "job-title", "bday",
+] as const;
+export const WaiAdaptPurposeSchema = z.enum(WaiAdaptPurposeValues);
+export type WaiAdaptPurpose = z.infer<typeof WaiAdaptPurposeSchema>;
+
+/**
+ * WAI-Adapt simplification levels — cognitive accessibility importance.
+ * AI can use this to simplify/reduce UI for users who need fewer choices.
+ *
+ * Reference: WAI-Adapt Content Module § simplification
+ */
+export const WaiAdaptSimplificationValues = [
+	"critical",  // Must always be visible — essential function
+	"medium",    // Important but can be collapsed in simplified views
+	"low",       // Can be hidden in simplified views
+] as const;
+export const WaiAdaptSimplificationSchema = z.enum(WaiAdaptSimplificationValues);
+export type WaiAdaptSimplification = z.infer<typeof WaiAdaptSimplificationSchema>;
+
+/**
+ * WAI-Adapt contract for a component.
+ * Machine-readable semantics for AI agents and assistive technologies.
+ */
+export const WaiAdaptContractSchema = z.object({
+	/** What this control DOES — e.g., "search", "submit", "filter" */
+	action: WaiAdaptActionSchema.optional(),
+	/** What this input IS FOR — e.g., "email", "search-term" */
+	purpose: WaiAdaptPurposeSchema.optional(),
+	/** Cognitive importance level for UI simplification */
+	simplification: WaiAdaptSimplificationSchema,
+	/** Per-slot adapt overrides — slots may have different actions */
+	slotAdapt: z.record(z.string(), z.object({
+		action: WaiAdaptActionSchema.optional(),
+		purpose: WaiAdaptPurposeSchema.optional(),
+	})).optional(),
+});
+export type WaiAdaptContract = z.infer<typeof WaiAdaptContractSchema>;
+
+/**
+ * Live region configuration for components with dynamic content.
+ * Declares how assistive technologies should announce changes.
+ */
+export const LiveRegionContractSchema = z.object({
+	/** Slot name that acts as the live region */
+	slot: z.string(),
+	/** Live region politeness level */
+	politeness: AriaLiveSchema,
+	/** What changes are relevant */
+	relevant: z.array(AriaRelevantSchema).readonly().optional(),
+	/** Whether the entire region should be re-announced */
+	atomic: z.boolean().optional(),
+	/** Human-readable description of what gets announced */
+	announces: z.string(),
+});
+export type LiveRegionContract = z.infer<typeof LiveRegionContractSchema>;

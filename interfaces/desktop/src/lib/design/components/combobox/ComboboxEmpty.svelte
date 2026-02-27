@@ -1,26 +1,34 @@
 <!--
-	@component ComboboxEmpty
+	@component ComboboxEmpty — Gold Standard
 	@kind combobox
 	@layer components
+	@package @devpulse/coldlight
 
 	Combobox empty state — shown when no items match the input filter.
-	Purely presentational — no transport involvement.
+	Has role="status" with aria-live="polite" so screen readers announce
+	the "no results" message when filtering produces zero matches.
+
+	This is a live region per the contract's liveRegions declaration.
+
+	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
 -->
 <script lang="ts">
 	import type { ComboboxEmptyProps } from "./types.js";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { comboboxRecipe } from "./recipe.js";
 
-	let { children, class: className, ...rest }: ComboboxEmptyProps = $props();
+	let { children, class: className }: ComboboxEmptyProps = $props();
 
 	const recipe = comboboxRecipe();
 </script>
 
 <div
+	role="status"
+	aria-live="polite"
+	aria-atomic="true"
 	class={cn(recipe.empty, className)}
 	data-kind="combobox"
 	data-slot="empty"
-	{...rest}
 >
 	{@render children?.()}
 </div>

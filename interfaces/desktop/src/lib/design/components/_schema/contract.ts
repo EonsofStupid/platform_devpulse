@@ -11,7 +11,10 @@
  * 2. ComponentContract (this file) - Render-time enforcement + AI introspection
  * 3. Transport (adapters) - Actual ARIA attribute providers
  *
- * Reference: W3C WAI-ARIA 1.2 (https://www.w3.org/WAI/ARIA/apg/)
+ * Reference: W3C WAI-ARIA 1.2 (https://www.w3.org/TR/wai-aria-1.2/)
+ * Reference: W3C WAI-ARIA 1.3 Working Draft (https://w3c.github.io/aria/)
+ * Reference: WAI-Adapt Content Module (https://w3c.github.io/adapt/)
+ * Reference: WCAG 3.0 Working Draft (https://w3c.github.io/wcag3/guidelines/)
  */
 
 import { z } from "zod";
@@ -21,7 +24,10 @@ import type { PrimitiveContract as PrimitiveContractZod } from "../../primitives
 import {
 	AccessibleNameSourceSchema,
 	AriaAttrValueSchemas,
+	AriaVersionSchema,
 	ComponentSlotContractSchema,
+	LiveRegionContractSchema,
+	WaiAdaptContractSchema,
 	type ComponentSlotContract,
 } from "./schema.js";
 
@@ -106,6 +112,37 @@ export const ComponentContractSchema = z.object({
 
 	/** Linked primitive contract kind (for validation) */
 	primitiveKind: z.string(),
+
+	// =========================================================================
+	// ARIA 1.3 — Spec version targeting (Working Draft)
+	// https://w3c.github.io/aria/
+	// =========================================================================
+
+	/** ARIA spec version this contract targets. @default "1.2" */
+	ariaVersion: AriaVersionSchema.optional(),
+
+	/** ARIA 1.3 specific features used by this component */
+	aria13: z.object({
+		/** New ARIA 1.3 attributes this component uses */
+		attributes: z.array(z.string()).readonly().optional(),
+		/** New ARIA 1.3 roles this component uses */
+		roles: z.array(z.string()).readonly().optional(),
+	}).optional(),
+
+	// =========================================================================
+	// WAI-ADAPT — Machine-readable semantics for AI/AT
+	// https://w3c.github.io/adapt/
+	// =========================================================================
+
+	/** WAI-Adapt Content Module semantics for AI agents */
+	waiAdapt: WaiAdaptContractSchema.optional(),
+
+	// =========================================================================
+	// LIVE REGIONS — Dynamic content announcement config
+	// =========================================================================
+
+	/** Live regions for dynamic content announcements */
+	liveRegions: z.array(LiveRegionContractSchema).readonly().optional(),
 });
 export type ComponentContract = z.infer<typeof ComponentContractSchema>;
 

@@ -1,21 +1,33 @@
 <!--
-	@component Combobox
+	@component Combobox — Gold Standard
 	@kind combobox
 	@layer components
+	@package @devpulse/coldlight
 
 	ColdLight Combobox — compound component root.
-	Creates MeltUI combobox transport and sets root context.
-	Renderless root — children are the input, trigger, and content.
+	Creates MeltUI combobox transport and sets context for all sub-components.
 
-	MeltUI transport adapter provides ARIA.
-	ColdLight adds data-kind, data-slot, data-state.
+	MeltUI transport adapter provides all ARIA semantics:
+	- role="combobox" on input, role="listbox" on content, role="option" on items
+	- aria-expanded, aria-controls, aria-activedescendant
+	- Full keyboard navigation (ArrowUp/Down, Enter, Escape, Home, End, Tab)
+	- Focus management via activedescendant pattern
+
+	ColdLight adds:
+	- data-kind="combobox", data-slot="root"
+	- WAI-Adapt: data-adapt-action, data-adapt-purpose, data-adapt-simplification
+	- ARIA 1.3: aria-description
 
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
+	WAI-ARIA 1.3: https://w3c.github.io/aria/
+	WAI-Adapt: https://w3c.github.io/adapt/
 -->
 <script lang="ts">
 	import type { ComboboxProps } from "./types.js";
 	import { createComboboxTransport } from "$lib/design/api/adapters/meltui/_internal/combobox/index.js";
 	import { setComboboxContext } from "./context.js";
+	import { cn } from "$lib/design/primitives/types.js";
+	import { comboboxRecipe } from "./recipe.js";
 
 	let {
 		value,
@@ -26,7 +38,10 @@
 		onOpenChange,
 		children,
 		class: className,
-		...rest
+		"adapt-action": adaptAction = "filter",
+		"adapt-purpose": adaptPurpose = "search-term",
+		"adapt-simplification": adaptSimplification = "critical",
+		"aria-description": ariaDescription,
 	}: ComboboxProps = $props();
 
 	const transport = createComboboxTransport({
@@ -39,8 +54,18 @@
 	});
 
 	setComboboxContext(transport);
+
+	const recipe = comboboxRecipe();
 </script>
 
-<div data-kind="combobox" data-slot="root" class={className} {...rest}>
+<div
+	data-kind="combobox"
+	data-slot="root"
+	data-adapt-action={adaptAction}
+	data-adapt-purpose={adaptPurpose}
+	data-adapt-simplification={adaptSimplification}
+	aria-description={ariaDescription}
+	class={cn(recipe.wrapper, className)}
+>
 	{@render children?.()}
 </div>
