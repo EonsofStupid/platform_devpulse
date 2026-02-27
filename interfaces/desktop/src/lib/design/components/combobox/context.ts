@@ -21,7 +21,6 @@ import type {
 	ComboboxTransport,
 	ComboboxActions,
 } from "$lib/design/api/adapters/meltui/_internal/combobox/index.js";
-import type { ComboboxRecipeResult } from "./recipe.js";
 
 /**
  * Combined transport + actions + recipe type for the combobox context.
@@ -31,13 +30,13 @@ import type { ComboboxRecipeResult } from "./recipe.js";
  * - `ctx.states.open` — whether the listbox is open
  * - `ctx.getOption(value)` — melt ARIA attributes for an option element
  * - `ctx.isSelected(value)` — whether a specific value is selected
- * - `ctx.recipe` — per-slot class strings (size + disabled variant applied)
+ * - `ctx.recipe` — per-slot class strings from the recipe registry (SSOT)
  * - `ctx.disabled` — whether the entire combobox is disabled
  */
 export type ComboboxContext<T = unknown> = ComboboxTransport<T> &
 	ComboboxActions<T> & {
-		/** Pre-computed recipe result — size + disabled applied by root. */
-		recipe: ComboboxRecipeResult;
+		/** Per-slot class strings resolved from the recipe registry (SSOT). */
+		recipe: Record<string, string>;
 		/** Whether the combobox is disabled. */
 		disabled: boolean;
 	};

@@ -63,6 +63,8 @@ export type ColdLightConfig = Readonly<{
 		componentsRoot: string;
 		/** ColdLight-owned builders (headless ARIA+behavior for coldlight-owned kinds) */
 		buildersRoot: string;
+		/** Recipe definitions — styling patterns per component kind */
+		recipesRoot: string;
 		/** Generated output (manifest, imports) */
 		generatedRoot: string;
 	}>;

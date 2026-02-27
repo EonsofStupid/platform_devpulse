@@ -29,7 +29,8 @@
 	import { createComboboxTransport } from "$lib/design/api/adapters/meltui/_internal/combobox/index.js";
 	import { setComboboxContext } from "./context.js";
 	import { cn } from "$lib/design/primitives/types.js";
-	import { comboboxRecipe } from "./recipe.js";
+	import { getRecipe } from "$lib/design/recipes/index.js";
+	import type { DsSurfaceProps } from "$lib/design/recipes/types.js";
 
 	let {
 		value,
@@ -57,12 +58,19 @@
 		onOpenChange,
 	});
 
-	const recipe = comboboxRecipe({ size, disabled });
+	// Resolve recipe from the SSOT registry
+	const recipeDef = getRecipe("combobox.glass.void")!;
+	const recipe = $derived(
+		recipeDef.classes({
+			...recipeDef.defaults,
+			size,
+		} as DsSurfaceProps),
+	);
 
 	setComboboxContext({
 		...transport,
-		recipe,
-		disabled,
+		get recipe() { return recipe; },
+		get disabled() { return disabled; },
 	});
 </script>
 
@@ -74,7 +82,7 @@
 	data-adapt-simplification={adaptSimplification}
 	aria-description={ariaDescription}
 	aria-disabled={disabled ? "true" : undefined}
-	class={cn(recipe.wrapper, className)}
+	class={cn(recipe.wrapper, disabled && "opacity-50 pointer-events-none", className)}
 >
 	{@render children?.()}
 </div>

@@ -55,6 +55,18 @@ export interface ManifestPrimitive {
 }
 
 /**
+ * Recipe entry in the generated manifest.
+ * Serialized from the runtime recipe registry for build-time discovery.
+ */
+export interface ManifestRecipe {
+	readonly id: string;
+	readonly kind: string;
+	readonly label: string;
+	readonly slots: readonly string[];
+	readonly defaults: Record<string, unknown>;
+}
+
+/**
  * The generated ColdLight manifest.
  * Written by scanner, read by registry.
  * THIS IS THE TAXONOMY — auto-generated from colocated contracts.
@@ -68,6 +80,9 @@ export interface ColdLightManifest {
 	readonly categories: {
 		readonly primitives: {
 			readonly kinds: readonly ManifestPrimitive[];
+		};
+		readonly recipes: {
+			readonly entries: readonly ManifestRecipe[];
 		};
 	};
 }

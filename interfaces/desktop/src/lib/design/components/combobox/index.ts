@@ -46,9 +46,12 @@ export { default as ComboboxAnnounce } from "./ComboboxAnnounce.svelte";
 // Contract
 export { contract as comboboxComponentContract } from "./contract.js";
 
-// Recipe
-export { comboboxRecipe } from "./recipe.js";
-export type { ComboboxRecipeOptions, ComboboxRecipeResult, ComboboxSize } from "./recipe.js";
+// Recipe (SSOT: recipes/components/combobox/)
+export {
+	type ComboboxRecipeId,
+	comboboxRecipeIds,
+	comboboxRecipes,
+} from "$lib/design/recipes/components/combobox/types.js";
 
 // A11y
 export {

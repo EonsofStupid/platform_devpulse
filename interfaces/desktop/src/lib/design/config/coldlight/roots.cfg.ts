@@ -13,5 +13,7 @@ export const ROOTS = {
 	componentsRoot: "src/lib/design/components",
 	/** ColdLight-owned builders (headless ARIA+behavior, replaces melt for ColdLight-owned kinds) */
 	buildersRoot: "src/lib/design/builders",
+	/** Recipe definitions — styling patterns per component kind */
+	recipesRoot: "src/lib/design/recipes",
 	generatedRoot: "src/lib/design/.generated",
 } as const;

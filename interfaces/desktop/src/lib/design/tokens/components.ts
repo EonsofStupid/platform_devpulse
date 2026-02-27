@@ -73,6 +73,8 @@ export const components = {
 		border: "var(--border-subtle)",
 		"border-focus": "var(--border-focus)",
 		"option-hover": "var(--surface-elevated)",
+		"option-selected-bg": "var(--color-teal-900)",
+		"option-selected-text": "var(--color-teal-300)",
 	},
 	"radio-group": {
 		bg: "var(--surface-primary)",
@@ -136,6 +138,7 @@ export const components = {
 	panel: {
 		bg: "var(--surface-primary)",
 		border: "var(--border-soft)",
+		"header-border": "var(--border-subtle)",
 		depth: "var(--depth-panel)",
 	},
 	sidebar: {
@@ -147,7 +150,9 @@ export const components = {
 	dialog: {
 		bg: "var(--surface-overlay)",
 		border: "var(--border-soft)",
+		"border-focus": "var(--border-focus)",
 		depth: "var(--depth-modal)",
+		overlay: "var(--color-void-950)",
 	},
 	popover: {
 		bg: "var(--surface-overlay)",
@@ -162,6 +167,8 @@ export const components = {
 	// ── Navigation ────────────────────────────────────────────────────────────
 	tabs: {
 		bg: "var(--surface-primary)",
+		border: "var(--border-subtle)",
+		"border-focus": "var(--border-focus)",
 		"tab-hover": "var(--surface-elevated)",
 		"tab-active": "var(--surface-overlay)",
 		indicator: "var(--color-teal-400)",

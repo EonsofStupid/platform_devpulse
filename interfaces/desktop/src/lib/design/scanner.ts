@@ -29,6 +29,7 @@ import type {
 	ColdLightManifest,
 	DsAdapterId,
 	ManifestPrimitive,
+	ManifestRecipe,
 	PrimitiveScanResult,
 	ScanError,
 	ScanResult,
@@ -54,7 +55,7 @@ export type ImportLike = (path: string) => Promise<{ default?: unknown; contract
 // =============================================================================
 
 function resolvePaths(config: ColdLightConfig) {
-	const { apiRoot, primitivesRoot, buildersRoot } = config.roots;
+	const { apiRoot, primitivesRoot, buildersRoot, recipesRoot } = config.roots;
 	const active = config.adapters.active;
 
 	return {
@@ -66,6 +67,8 @@ function resolvePaths(config: ColdLightConfig) {
 		apiAdapters: `${apiRoot}/adapters`,
 		/** ColdLight-owned builders root (headless ARIA+behavior) */
 		builders: buildersRoot,
+		/** Recipe definitions root */
+		recipes: recipesRoot,
 	};
 }
 
@@ -259,15 +262,97 @@ function contractToManifest(contract: PrimitiveContract): ManifestPrimitive {
 }
 
 // =============================================================================
+// RECIPE SCANNING
+// =============================================================================
+
+/**
+ * Scan recipe folders to discover registered recipes.
+ * Walks {recipesRoot}/components/ and {recipesRoot}/layouts/ for kind folders,
+ * imports each index.js to trigger recipe registration, then reads the registry.
+ */
+async function scanRecipes(
+	fs: FsLike,
+	importFn: ImportLike,
+	recipesPath: string,
+): Promise<ManifestRecipe[]> {
+	const manifestRecipes: ManifestRecipe[] = [];
+	const categories = ["components", "layouts"];
+
+	for (const category of categories) {
+		const categoryPath = `${recipesPath}/${category}`;
+		const kindFolders = listSubfolders(fs, categoryPath);
+
+		for (const kind of kindFolders) {
+			const indexPath = `${categoryPath}/${kind}/index.js`;
+			if (!fs.existsSync(`${categoryPath}/${kind}/index.ts`) &&
+				!fs.existsSync(indexPath)) {
+				continue;
+			}
+
+			try {
+				// Import triggers side-effect recipe registration
+				await importFn(indexPath);
+			} catch {
+				// Recipe import failed — not a scanner error, recipes are optional
+			}
+		}
+	}
+
+	// Read all registered recipes from the runtime registry
+	try {
+		const registryMod = await importFn(`${recipesPath}/index.js`);
+		const getRecipesForKind = (registryMod as Record<string, unknown>).getRecipesForKind as
+			| ((kind: string) => Array<{ id: string; kind: string; label: string; defaults: Record<string, unknown>; classes: (props: Record<string, unknown>) => Record<string, string> }>)
+			| undefined;
+
+		if (getRecipesForKind) {
+			// Discover all kinds by scanning the recipe folders
+			const allKinds = new Set<string>();
+			for (const category of categories) {
+				const categoryPath = `${recipesPath}/${category}`;
+				listSubfolders(fs, categoryPath).forEach((k) => allKinds.add(k));
+			}
+
+			allKinds.forEach((kind) => {
+				const recipes = getRecipesForKind(kind);
+				recipes.forEach((recipe) => {
+					// Resolve slots by calling classes() with defaults
+					let slots: string[] = [];
+					try {
+						const classes = recipe.classes(recipe.defaults as Record<string, unknown>);
+						slots = Object.keys(classes);
+					} catch {
+						// If classes() fails with partial defaults, report empty slots
+					}
+
+					manifestRecipes.push({
+						id: recipe.id,
+						kind: recipe.kind,
+						label: recipe.label,
+						slots,
+						defaults: recipe.defaults as Record<string, unknown>,
+					});
+				});
+			});
+		}
+	} catch {
+		// Registry not available — recipes won't be in manifest
+	}
+
+	return manifestRecipes;
+}
+
+// =============================================================================
 // MAIN SCANNER
 // =============================================================================
 
 /**
- * Scan ColdLight primitives.
+ * Scan ColdLight primitives and recipes.
  *
  * Fully config-driven:
  * - Scans primitivesRoot for kind folders
  * - Per kind: loads colocated contract.ts → reads ariaStateProvider → checks parity
+ * - Scans recipesRoot for recipe definitions → includes in manifest
  * - Returns manifest or errors
  */
 export async function scanColdLight(
@@ -347,6 +432,9 @@ export async function scanColdLight(
 		manifestKinds.push(contractToManifest(contract));
 	}
 
+	// Scan recipes
+	const manifestRecipes = await scanRecipes(fs, importFn, paths.recipes);
+
 	const valid = errors.length === 0;
 
 	if (!valid && config.enforcement.failOnParity) {
@@ -361,6 +449,7 @@ export async function scanColdLight(
 		},
 		categories: {
 			primitives: { kinds: manifestKinds },
+			recipes: { entries: manifestRecipes },
 		},
 	};
 

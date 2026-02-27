@@ -20,7 +20,15 @@
 
 import { expect, test, describe } from "vitest";
 import { contract } from "./contract.js";
-import { comboboxRecipe } from "./recipe.js";
+import { getRecipe } from "$lib/design/recipes/index.js";
+import "$lib/design/recipes/components/combobox/combobox.default.js";
+import type { DsSurfaceProps } from "$lib/design/recipes/types.js";
+
+/** Resolve recipe classes for a given size (defaults filled from registry). */
+function resolveRecipe(size: "sm" | "md" | "lg" = "md"): Record<string, string> {
+	const def = getRecipe("combobox.glass.void")!;
+	return def.classes({ ...def.defaults, size } as DsSurfaceProps);
+}
 
 // =============================================================================
 // CONTRACT INTEGRITY
@@ -376,10 +384,13 @@ describe("combobox — exports", () => {
 		expect(mod.comboboxComponentContract.kind).toBe("combobox");
 	});
 
-	test("exports comboboxRecipe", async () => {
+	test("exports comboboxRecipes legend + IDs", async () => {
 		const mod = await import("./index.js");
-		expect(mod.comboboxRecipe).toBeDefined();
-		expect(typeof mod.comboboxRecipe).toBe("function");
+		expect(mod.comboboxRecipes).toBeDefined();
+		expect(mod.comboboxRecipes.kind).toBe("combobox");
+		expect(mod.comboboxRecipes.defaultId).toBe("combobox.glass.void");
+		expect(mod.comboboxRecipeIds).toBeDefined();
+		expect(mod.comboboxRecipeIds).toContain("combobox.glass.void");
 	});
 
 	test("exports a11y utilities", async () => {
@@ -396,12 +407,31 @@ describe("combobox — exports", () => {
 });
 
 // =============================================================================
-// RECIPE — Variant-driven with OKLCH tokens
+// RECIPE REGISTRY — ID-based, OKLCH tokens, molecule utilities
 // =============================================================================
 
-describe("combobox — recipe (variant-driven)", () => {
+describe("combobox — recipe registry (SSOT)", () => {
+	test("recipe is registered with ID 'combobox.glass.void'", () => {
+		const def = getRecipe("combobox.glass.void");
+		expect(def).toBeDefined();
+		expect(def!.kind).toBe("combobox");
+		expect(def!.label).toBe("Glass Void Combobox");
+	});
+
+	test("recipe defaults include all DsSurfaceProps", () => {
+		const def = getRecipe("combobox.glass.void")!;
+		expect(def.defaults.surface).toBe("glass");
+		expect(def.defaults.variant).toBe("void");
+		expect(def.defaults.accent).toBe("teal");
+		expect(def.defaults.radius).toBe("lg");
+		expect(def.defaults.depth).toBe(2);
+		expect(def.defaults.glow).toBe("teal");
+		expect(def.defaults.bevel).toBe("soft");
+		expect(def.defaults.size).toBe("md");
+	});
+
 	test("recipe returns all slot class strings", () => {
-		const recipe = comboboxRecipe();
+		const recipe = resolveRecipe();
 		expect(typeof recipe.wrapper).toBe("string");
 		expect(typeof recipe.input).toBe("string");
 		expect(typeof recipe.trigger).toBe("string");
@@ -414,82 +444,88 @@ describe("combobox — recipe (variant-driven)", () => {
 	});
 
 	test("default size is md", () => {
-		const recipe = comboboxRecipe();
+		const recipe = resolveRecipe();
 		expect(recipe.wrapper).toContain("min-h-10");
 	});
 
 	test("size sm: smaller height + padding", () => {
-		const recipe = comboboxRecipe({ size: "sm" });
+		const recipe = resolveRecipe("sm");
 		expect(recipe.wrapper).toContain("min-h-8");
 		expect(recipe.input).toContain("px-2");
 	});
 
 	test("size lg: larger height + padding", () => {
-		const recipe = comboboxRecipe({ size: "lg" });
+		const recipe = resolveRecipe("lg");
 		expect(recipe.wrapper).toContain("min-h-12");
 		expect(recipe.input).toContain("px-4");
 		expect(recipe.input).toContain("text-base");
 	});
 
-	test("disabled: opacity + pointer-events-none", () => {
-		const recipe = comboboxRecipe({ disabled: true });
-		expect(recipe.wrapper).toContain("opacity-50");
-		expect(recipe.wrapper).toContain("pointer-events-none");
-		expect(recipe.input).toContain("cursor-not-allowed");
-		expect(recipe.trigger).toContain("cursor-not-allowed");
-	});
-
-	test("not disabled by default", () => {
-		const recipe = comboboxRecipe();
-		expect(recipe.wrapper).not.toContain("opacity-50");
-		expect(recipe.input).not.toContain("cursor-not-allowed");
-	});
-
 	test("uses OKLCH component tokens, not raw white/opacity", () => {
-		const recipe = comboboxRecipe();
-		// Wrapper uses --combobox-bg and --combobox-border tokens
+		const recipe = resolveRecipe();
 		expect(recipe.wrapper).toContain("--combobox-bg");
 		expect(recipe.wrapper).toContain("--combobox-border");
-		// NO hardcoded white/opacity values
 		expect(recipe.wrapper).not.toContain("white/");
 		expect(recipe.input).not.toContain("white/");
+		expect(recipe.item).not.toContain("white/");
+		expect(recipe.trigger).not.toContain("white/");
 	});
 
 	test("uses semantic text tokens", () => {
-		const recipe = comboboxRecipe();
+		const recipe = resolveRecipe();
 		expect(recipe.input).toContain("text-text-primary");
 		expect(recipe.input).toContain("text-text-muted");
 		expect(recipe.trigger).toContain("text-text-secondary");
 	});
 
+	test("content uses molecule utilities (surface + depth + glow)", () => {
+		const recipe = resolveRecipe();
+		expect(recipe.content).toContain("glass-void");
+		expect(recipe.content).toContain("depth-raised");
+		expect(recipe.content).toContain("glow-teal");
+	});
+
+	test("wrapper uses bevel molecule utility", () => {
+		const recipe = resolveRecipe();
+		expect(recipe.wrapper).toContain("bevel-soft");
+	});
+
 	test("recipe.input contains bg-transparent", () => {
-		expect(comboboxRecipe().input).toContain("bg-transparent");
+		expect(resolveRecipe().input).toContain("bg-transparent");
 	});
 
 	test("recipe.content contains z-50 and border", () => {
-		const recipe = comboboxRecipe();
+		const recipe = resolveRecipe();
 		expect(recipe.content).toContain("z-50");
 		expect(recipe.content).toContain("border");
 	});
 
 	test("recipe.item contains cursor-pointer", () => {
-		expect(comboboxRecipe().item).toContain("cursor-pointer");
+		expect(resolveRecipe().item).toContain("cursor-pointer");
 	});
 
 	test("recipe.groupLabel contains uppercase tracking", () => {
-		expect(comboboxRecipe().groupLabel).toContain("uppercase");
-		expect(comboboxRecipe().groupLabel).toContain("tracking-wider");
+		expect(resolveRecipe().groupLabel).toContain("uppercase");
+		expect(resolveRecipe().groupLabel).toContain("tracking-wider");
 	});
 
-	test("item uses --combobox-option-hover for highlight", () => {
-		const recipe = comboboxRecipe();
+	test("item uses Tier 3 tokens for highlight and selected", () => {
+		const recipe = resolveRecipe();
 		expect(recipe.item).toContain("--combobox-option-hover");
+		expect(recipe.item).toContain("--combobox-option-selected-bg");
+		expect(recipe.item).toContain("--combobox-option-selected-text");
 	});
 
 	test("focus ring uses --combobox-border-focus", () => {
-		const recipe = comboboxRecipe();
+		const recipe = resolveRecipe();
 		expect(recipe.wrapper).toContain("--combobox-border-focus");
 		expect(recipe.trigger).toContain("--combobox-border-focus");
+	});
+
+	test("radius uses utility class from props", () => {
+		const recipe = resolveRecipe();
+		expect(recipe.wrapper).toContain("rounded-lg");
+		expect(recipe.content).toContain("rounded-lg");
 	});
 });
 

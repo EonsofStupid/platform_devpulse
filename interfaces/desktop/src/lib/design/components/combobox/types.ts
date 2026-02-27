@@ -14,7 +14,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { ComboboxSize } from "./recipe.js";
+import type { SizeToken } from "$lib/design/tokens/types.js";
 
 // =============================================================================
 // ROOT — Combobox wrapper, creates transport + sets context
@@ -41,7 +41,7 @@ export interface ComboboxProps<T = unknown> {
 	 * Uses SD5 SizeToken: "sm" | "md" | "lg".
 	 * @default "md"
 	 */
-	size?: ComboboxSize;
+	size?: SizeToken;
 	/**
 	 * Whether the entire combobox is disabled.
 	 * Disables input, trigger, and all options.

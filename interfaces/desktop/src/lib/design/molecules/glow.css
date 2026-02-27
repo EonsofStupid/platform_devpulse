@@ -19,6 +19,27 @@
 		var(--_shadow-glow, 0 0 #0000), var(--_shadow-depth, 0 0 #0000);
 }
 
+@utility glow-ember {
+	--_shadow-glow: 0 0 12px color-mix(in oklch, var(--color-ember-500), transparent 60%);
+	box-shadow:
+		var(--_shadow-glass, 0 0 #0000), var(--_shadow-bevel, 0 0 #0000),
+		var(--_shadow-glow, 0 0 #0000), var(--_shadow-depth, 0 0 #0000);
+}
+
+@utility glow-frost {
+	--_shadow-glow: 0 0 12px color-mix(in oklch, var(--color-frost-500), transparent 60%);
+	box-shadow:
+		var(--_shadow-glass, 0 0 #0000), var(--_shadow-bevel, 0 0 #0000),
+		var(--_shadow-glow, 0 0 #0000), var(--_shadow-depth, 0 0 #0000);
+}
+
+@utility glow-cyber {
+	--_shadow-glow: 0 0 12px color-mix(in oklch, oklch(0.65 0.20 230), transparent 60%);
+	box-shadow:
+		var(--_shadow-glass, 0 0 #0000), var(--_shadow-bevel, 0 0 #0000),
+		var(--_shadow-glow, 0 0 #0000), var(--_shadow-depth, 0 0 #0000);
+}
+
 @utility glow-accent {
 	--_shadow-glow: 0 0 12px color-mix(in oklch, var(--_accent), transparent 60%);
 	box-shadow:
