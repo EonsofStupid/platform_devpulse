@@ -16,7 +16,7 @@
 	align-items: center;
 	justify-content: center;
 	border-radius: var(--radius-sm);
-	border: 1px solid oklch(1 0 0 / 0.15);
+	border: 1px solid var(--interaction-selected);
 	transition: all var(--duration-fast) var(--ease-out);
 
 	&:focus-visible {

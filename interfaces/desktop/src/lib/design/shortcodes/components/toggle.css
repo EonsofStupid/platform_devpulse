@@ -21,11 +21,11 @@
 		color var(--duration-fast) var(--ease-out);
 
 	&:hover {
-		background: oklch(1 0 0 / 0.06);
+		background: var(--interaction-hover);
 		color: var(--text-primary);
 	}
 	&[data-state="on"] {
-		background: oklch(1 0 0 / 0.10);
+		background: var(--interaction-active);
 		color: var(--text-primary);
 	}
 }

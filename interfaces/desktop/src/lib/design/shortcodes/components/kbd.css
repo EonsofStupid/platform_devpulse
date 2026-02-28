@@ -19,6 +19,6 @@
 	font-weight: 500;
 	color: var(--text-secondary);
 	border-radius: var(--radius-sm);
-	background: oklch(0.14 0.005 250);
-	border: 1px solid oklch(1 0 0 / 0.1);
+	background: var(--matte-dark);
+	border: 1px solid var(--interaction-active);
 }

@@ -52,5 +52,5 @@
 	position: relative;
 	flex: 1;
 	border-radius: var(--radius-full);
-	background: oklch(1 0 0 / 0.15);
+	background: var(--interaction-selected);
 }

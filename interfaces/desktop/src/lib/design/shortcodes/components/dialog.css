@@ -24,7 +24,7 @@
 	position: fixed;
 	inset: 0;
 	z-index: var(--z-overlay);
-	background: oklch(0.06 0.02 195 / 0.60);
+	background: var(--overlay-bg-heavy);
 	backdrop-filter: blur(var(--blur-md));
 	transition: opacity var(--duration-normal) var(--ease-out);
 

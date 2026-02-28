@@ -15,6 +15,6 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: oklch(0.06 0.02 195 / 0.60);
+	background: var(--overlay-bg-heavy);
 	backdrop-filter: blur(var(--blur-sm, 4px));
 }

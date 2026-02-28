@@ -28,7 +28,7 @@
 	width: var(--recipe-swatch-size, 2rem);
 	height: var(--recipe-swatch-size, 2rem);
 	border-radius: var(--radius-md);
-	border: 1px solid oklch(1 0 0 / 0.1);
+	border: 1px solid var(--interaction-active);
 	cursor: pointer;
 }
 

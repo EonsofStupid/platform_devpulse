@@ -17,7 +17,7 @@
 	padding: var(--space-1) var(--space-2);
 	font-family: var(--font-mono, ui-monospace, monospace);
 	font-size: var(--recipe-font-size, var(--text-size-sm));
-	background: oklch(0.14 0.005 250);
+	background: var(--matte-dark);
 	color: var(--text-primary);
 }
 

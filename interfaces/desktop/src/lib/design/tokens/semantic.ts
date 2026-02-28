@@ -29,8 +29,14 @@ export const semantic = {
 		divider: "oklch(1 0 0 / 0.06)",
 		"divider-faint": "oklch(1 0 0 / 0.04)",
 	},
+	interaction: {
+		hover: "oklch(1 0 0 / 0.06)",
+		active: "oklch(1 0 0 / 0.10)",
+		selected: "oklch(1 0 0 / 0.15)",
+	},
 	overlay: {
 		bg: "oklch(0.06 0.02 195 / 0.40)",
+		"bg-heavy": "oklch(0.06 0.02 195 / 0.60)",
 	},
 	depth: {
 		flat: "var(--shadow-z0)",

@@ -12,12 +12,12 @@
 	flex-shrink: 0;
 	height: 1px;
 	width: 100%;
-	background: oklch(1 0 0 / 0.06);
+	background: var(--interaction-hover);
 }
 
 @utility divider-vertical {
 	flex-shrink: 0;
 	width: 1px;
 	height: 100%;
-	background: oklch(1 0 0 / 0.06);
+	background: var(--interaction-hover);
 }

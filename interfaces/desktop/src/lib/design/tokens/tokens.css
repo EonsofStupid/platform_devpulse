@@ -171,7 +171,11 @@
   --border-focus: var(--color-teal-400);
   --border-divider: oklch(1 0 0 / 0.06);
   --border-divider-faint: oklch(1 0 0 / 0.04);
+  --interaction-hover: oklch(1 0 0 / 0.06);
+  --interaction-active: oklch(1 0 0 / 0.10);
+  --interaction-selected: oklch(1 0 0 / 0.15);
   --overlay-bg: oklch(0.06 0.02 195 / 0.40);
+  --overlay-bg-heavy: oklch(0.06 0.02 195 / 0.60);
   --depth-flat: var(--shadow-z0);
   --depth-raised: var(--shadow-z1);
   --depth-panel: var(--shadow-z2);

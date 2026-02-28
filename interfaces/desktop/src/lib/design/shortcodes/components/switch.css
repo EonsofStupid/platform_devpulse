@@ -27,7 +27,7 @@
 		background: var(--recipe-accent, var(--color-teal-500));
 	}
 	&[data-state="unchecked"] {
-		background: oklch(1 0 0 / 0.15);
+		background: var(--interaction-selected);
 	}
 	&:focus-visible {
 		outline: none;
@@ -44,7 +44,7 @@
 	display: block;
 	border-radius: var(--radius-full);
 	background: white;
-	box-shadow: var(--shadow-lg, 0 4px 6px -1px oklch(0 0 0 / 0.1));
+	box-shadow: var(--shadow-lg, 0 4px 6px -1px var(--interaction-active));
 	ring: 0;
 	width: var(--recipe-thumb-size, 1.25rem);
 	height: var(--recipe-thumb-size, 1.25rem);

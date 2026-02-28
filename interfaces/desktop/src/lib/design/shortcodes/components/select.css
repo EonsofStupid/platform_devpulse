@@ -64,7 +64,7 @@
 
 	&:hover,
 	&[data-highlighted] {
-		background: oklch(1 0 0 / 0.06);
+		background: var(--interaction-hover);
 	}
 }
 

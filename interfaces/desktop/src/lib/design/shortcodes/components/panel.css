@@ -25,7 +25,7 @@
 
 @utility panel-header {
 	padding: var(--recipe-padding-y, var(--space-3)) var(--recipe-padding-x, var(--space-4));
-	border-bottom: 1px solid oklch(1 0 0 / 0.06);
+	border-bottom: 1px solid var(--interaction-hover);
 	font-weight: 500;
 	color: var(--text-primary);
 }
@@ -39,5 +39,5 @@
 
 @utility panel-footer {
 	padding: var(--recipe-padding-y, var(--space-3)) var(--recipe-padding-x, var(--space-4));
-	border-top: 1px solid oklch(1 0 0 / 0.06);
+	border-top: 1px solid var(--interaction-hover);
 }
