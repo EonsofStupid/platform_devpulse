@@ -1,14 +1,9 @@
 /**
- * @file Card Recipe — Shortcode Class Composition
- * @kind visual
+ * @file Card Recipe
+ * @kind card
  * @layer components
  *
- * GOLD STANDARD recipe — shortcode class composition system.
- *
- * Class strategy:
- *   - Structural class (card) handles padding/border-radius
- *   - Shortcode classes (v-*, s-*, e-*, sz-*) handle visual appearance
- *   - NO raw Tailwind utilities in recipe output
+ * Props → Tailwind v4 utilities (structural) + variant keys (visual).
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -17,17 +12,17 @@ type CardRecipeProps = { variant?: string; size?: string };
 
 export function cardRecipe(props: CardRecipeProps = {}): string {
 	const sizeMap: Record<string, string> = {
-		sm: "sz-sm",
-		md: "sz-md",
-		lg: "sz-lg",
+		sm: "p-3",
+		md: "p-4",
+		lg: "p-6",
 	};
 	const variantMap: Record<string, string> = {
-		default: "v-void s-glass e-2",
-		elevated: "v-void s-glass e-3",
-		outlined: "v-void s-glass e-0",
+		default: "v-s1 v-z1 v-l1 border border-border-soft",
+		elevated: "v-s3 v-z2 v-l2 border border-border-soft",
+		outlined: "v-s1 v-z0 border border-border-subtle",
 	};
 	return cn(
-		"card",
+		"rounded-lg",
 		variantMap[props.variant ?? "default"] ?? variantMap.default,
 		sizeMap[props.size ?? "md"] ?? sizeMap.md,
 	);

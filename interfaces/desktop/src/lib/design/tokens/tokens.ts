@@ -301,6 +301,80 @@ export const animation = {
 } as const;
 
 // ---------------------------------------------------------------------------
+// Variant Key Mappings — SSOT for v-s, v-z, v-l, v-t, v-m CSS generation
+// Each index (0-4) maps to a token reference. SD5 generates @utility classes.
+// ---------------------------------------------------------------------------
+export const variantKeys = {
+	/** s = surface: background material */
+	s: {
+		cssProperty: "background",
+		cssVar: "--v-surface",
+		values: [
+			"transparent",
+			"var(--glass-void)",
+			"var(--glass-deep)",
+			"var(--glass-smoke)",
+			"var(--glass-frost)",
+		],
+		extras: [
+			"",
+			"backdrop-filter: blur(var(--blur-md)) saturate(1.5);",
+			"backdrop-filter: blur(var(--blur-lg)) saturate(1.3);",
+			"backdrop-filter: blur(var(--blur-md)) saturate(1.2);",
+			"backdrop-filter: blur(var(--blur-sm)) saturate(1.1);",
+		],
+	},
+	/** z = depth: elevation shadow */
+	z: {
+		cssProperty: "box-shadow",
+		cssVar: "--v-depth",
+		values: [
+			"var(--shadow-z0)",
+			"var(--shadow-z1)",
+			"var(--shadow-z2)",
+			"var(--shadow-z3)",
+			"var(--shadow-z4)",
+		],
+	},
+	/** l = layers: bevel/inset */
+	l: {
+		cssProperty: "--v-layers",
+		cssVar: "--v-layers",
+		values: [
+			"none",
+			"var(--bevel-subtle)",
+			"var(--bevel-soft)",
+			"var(--bevel-medium)",
+			"var(--bevel-medium)",
+		],
+	},
+	/** t = transition: duration */
+	t: {
+		cssProperty: "transition-duration",
+		cssVar: "--v-transition",
+		values: [
+			"0ms",
+			"var(--duration-instant)",
+			"var(--duration-fast)",
+			"var(--duration-normal)",
+			"var(--duration-slow)",
+		],
+	},
+	/** m = motion: easing curve */
+	m: {
+		cssProperty: "transition-timing-function",
+		cssVar: "--v-motion",
+		values: [
+			"linear",
+			"var(--ease-out)",
+			"var(--ease-inOut)",
+			"var(--ease-spring)",
+			"cubic-bezier(0.68, -0.55, 0.27, 1.55)",
+		],
+	},
+} as const;
+
+// ---------------------------------------------------------------------------
 // Token enum arrays (used by types.ts generator)
 // ---------------------------------------------------------------------------
 export const enums = {

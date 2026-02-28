@@ -3,8 +3,8 @@
  * @kind grid
  * @layer components
  *
- * Shortcode composition — structural + shortcode classes only.
- * Layout handled by grid-root @utility + grid-cols-* / grid-rows-* / grid-gap-* classes.
+ * Props → standard Tailwind v4 utility classes.
+ * All classes resolve via @theme token mappings.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -14,6 +14,6 @@ type GridRecipeProps = { columns?: number | string; gap?: string; rows?: number 
 export function gridRecipe(props: GridRecipeProps = {}): string {
 	const cols = props.columns ? `grid-cols-${props.columns}` : "";
 	const rows = props.rows ? `grid-rows-${props.rows}` : "";
-	const gap = `grid-gap-${props.gap ?? "4"}`;
-	return cn("grid-root", cols, rows, gap);
+	const gap = props.gap ? `gap-${props.gap}` : "gap-4";
+	return cn("grid", cols, rows, gap);
 }

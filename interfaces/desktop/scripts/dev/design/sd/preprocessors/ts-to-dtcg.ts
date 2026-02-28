@@ -155,5 +155,11 @@ const dtcgPath = resolve(desktopRoot, tokensConfig.dtcg.output);
 writeFileSync(dtcgPath, `${JSON.stringify(dtcg, null, "\t")}\n`, "utf-8");
 
 const jitiEnums = tokensMod2.enums;
+const jitiVariantKeys = (tokensMod2 as Record<string, unknown>).variantKeys as Record<string, {
+	cssProperty: string;
+	cssVar: string;
+	values: readonly string[];
+	extras?: readonly string[];
+}>;
 
-export { dtcgPath, tokensConfig, jitiEnums, desktopRoot };
+export { dtcgPath, tokensConfig, jitiEnums, jitiVariantKeys, desktopRoot };
