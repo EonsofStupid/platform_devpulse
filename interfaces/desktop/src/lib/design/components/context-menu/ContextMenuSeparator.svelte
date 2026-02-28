@@ -23,4 +23,4 @@
 	data-kind="context-menu"
 	data-slot="separator"
 	{...rest}
-/>
+></div>

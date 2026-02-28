@@ -19,7 +19,7 @@
 
 	let { children, class: className, ...rest }: BannerProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Banner.Root");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Banner.Root"); });
 </script>
 
 <div

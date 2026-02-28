@@ -50,12 +50,12 @@
 	}: ComboboxProps = $props();
 
 	const transport = createComboboxTransport({
-		value,
-		onValueChange,
-		inputValue,
-		onInputValueChange,
-		open,
-		onOpenChange,
+		get value() { return value; },
+		onValueChange: (v: any) => onValueChange?.(v),
+		get inputValue() { return inputValue; },
+		onInputValueChange: (v: any) => onInputValueChange?.(v),
+		get open() { return open; },
+		onOpenChange: (v: any) => onOpenChange?.(v),
 	});
 
 	// Resolve recipe from the SSOT registry

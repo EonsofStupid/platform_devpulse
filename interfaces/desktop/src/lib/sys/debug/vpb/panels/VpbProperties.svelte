@@ -57,8 +57,9 @@
 		</div>
 
 		<div class="vpb-props__section">
-			<label class="vpb-props__label">Recipe</label>
+			<label class="vpb-props__label" for="vpb-recipe-select">Recipe</label>
 			<select
+				id="vpb-recipe-select"
 				class="vpb-props__select"
 				value={node.recipe}
 				onchange={handleRecipeChange}
@@ -77,7 +78,7 @@
 
 		{#if inspectorTab === "props"}
 			<div class="vpb-props__section">
-				<label class="vpb-props__label">Surface Props</label>
+				<span class="vpb-props__label" id="vpb-surface-props-label">Surface Props</span>
 				<PropControlFactory
 					props={node.props}
 					onchange={(key, value) => {
@@ -87,8 +88,9 @@
 			</div>
 
 			<div class="vpb-props__section vpb-props__section--meta">
-				<label class="vpb-props__label">Label</label>
+				<label class="vpb-props__label" for="vpb-meta-label">Label</label>
 				<input
+					id="vpb-meta-label"
 					class="vpb-props__input"
 					type="text"
 					value={node.meta?.label ?? ""}

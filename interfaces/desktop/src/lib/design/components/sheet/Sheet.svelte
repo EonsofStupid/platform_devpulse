@@ -27,7 +27,7 @@
 
 	const builder = createSheet({
 		get open() { return open; },
-		onOpenChange,
+		onOpenChange: (v: any) => onOpenChange?.(v),
 		get label() { return label; },
 		get side() { return side; },
 		get closeOnEscape() { return closeOnEscape; },

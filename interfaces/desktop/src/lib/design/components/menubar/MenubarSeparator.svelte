@@ -23,4 +23,4 @@
 	data-kind="menubar"
 	data-slot="separator"
 	{...rest}
-/>
+></div>

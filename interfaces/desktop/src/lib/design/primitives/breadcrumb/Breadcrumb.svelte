@@ -19,7 +19,7 @@
 
 	let { children, class: className, ...rest }: BreadcrumbProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Breadcrumb.Root");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Breadcrumb.Root"); });
 </script>
 
 <nav

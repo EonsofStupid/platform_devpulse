@@ -4,7 +4,7 @@
 
 	let { children, class: className, ...rest }: TableOfContentsRootProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "TableOfContents");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "TableOfContents"); });
 </script>
 
 <nav data-kind="table-of-contents" data-slot="root" class={cn(className)} {...rest}>

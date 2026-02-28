@@ -2,6 +2,8 @@ class GlobalState {
 	current_domain = $state<string>("devpulse");
 	sidebar_mode = $state<"collapsed" | "expanded">("collapsed");
 	sidebar_submenu = $state<string | null>(null);
+	context_mode = $state<"collapsed" | "expanded">("collapsed");
+	overlay_active = $state<boolean>(false);
 
 	setDomain(domain: string): void {
 		this.current_domain = domain;
@@ -17,6 +19,18 @@ class GlobalState {
 
 	closeSubmenu(): void {
 		this.sidebar_submenu = null;
+	}
+
+	toggleContext(): void {
+		this.context_mode = this.context_mode === "collapsed" ? "expanded" : "collapsed";
+	}
+
+	showOverlay(): void {
+		this.overlay_active = true;
+	}
+
+	hideOverlay(): void {
+		this.overlay_active = false;
 	}
 }
 

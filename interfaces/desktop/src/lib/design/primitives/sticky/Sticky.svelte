@@ -19,7 +19,7 @@
 
 	let { children, class: className, ...rest }: StickyProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Sticky");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Sticky"); });
 </script>
 
 <div data-kind="sticky" data-slot="root" class={cn(className)} {...rest}>

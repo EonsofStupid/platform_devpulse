@@ -19,7 +19,7 @@
 
 	let { class: className, ...rest }: SkeletonProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Skeleton");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Skeleton"); });
 </script>
 
 <div data-kind="skeleton" data-slot="root" class={cn(className)} {...rest}></div>

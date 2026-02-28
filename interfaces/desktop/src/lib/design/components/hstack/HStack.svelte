@@ -16,13 +16,14 @@
 	let {
 		gap,
 		align,
+		justify,
 		children,
 		class: className,
 		...rest
 	}: HStackComponentProps = $props();
 
 	const builder = createHStack();
-	const classes = $derived(cn(hstackRecipe({ gap, align }), className));
+	const classes = $derived(cn(hstackRecipe({ gap, align, justify }), className));
 </script>
 
 <HStackRoot

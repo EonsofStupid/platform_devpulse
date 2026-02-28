@@ -19,7 +19,7 @@
 
 	let { children, class: className, ...rest }: SidebarProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Sidebar");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Sidebar"); });
 </script>
 
 <aside data-kind="sidebar" data-slot="root" class={cn(className)} {...rest}>

@@ -36,13 +36,13 @@
 
 	const builder = createColorInput({
 		value: () => value,
-		onValueChange,
+		onValueChange: (v: string) => onValueChange?.(v),
 		disabled: () => disabled,
 		required: () => required,
 		invalid: () => invalid,
-		"aria-label": rest["aria-label"],
-		"aria-labelledby": rest["aria-labelledby"],
-		"aria-describedby": rest["aria-describedby"],
+		get "aria-label"() { return rest["aria-label"]; },
+		get "aria-labelledby"() { return rest["aria-labelledby"]; },
+		get "aria-describedby"() { return rest["aria-describedby"]; },
 	});
 
 	const rootClasses = $derived(cn(colorInputRecipe({ size }), className));

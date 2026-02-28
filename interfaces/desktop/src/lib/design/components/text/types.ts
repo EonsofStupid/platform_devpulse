@@ -13,7 +13,7 @@ import type { BaseProps } from "$lib/design/primitives/types.js";
 
 export type TextSize = "xs" | "sm" | "base" | "lg" | "xl" | "2xl";
 export type TextWeight = "normal" | "medium" | "semibold" | "bold";
-export type TextColor = "default" | "muted" | "accent" | "inherit";
+export type TextColor = "primary" | "secondary" | "muted" | "accent" | "inherit";
 export type TextAs = "span" | "p" | "div" | "label" | "strong" | "em" | "small";
 
 /** Text component props — typography */

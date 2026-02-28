@@ -22,7 +22,7 @@
 	}: NavigationMenuContentProps = $props();
 
 	const ctx = getNavigationMenuItemContext();
-	const recipe = navigationMenuRecipe({ size });
+	const recipe = $derived(navigationMenuRecipe({ size }));
 </script>
 
 {#if ctx.open}

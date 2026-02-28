@@ -4,7 +4,7 @@
 
 	let { children, class: className, ...rest }: TableProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Table");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Table"); });
 </script>
 
 <table data-kind="table" data-slot="root" class={cn(className)} {...rest}>

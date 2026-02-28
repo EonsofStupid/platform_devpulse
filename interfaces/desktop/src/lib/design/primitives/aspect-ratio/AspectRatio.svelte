@@ -19,7 +19,7 @@
 
 	let { children, class: className, ...rest }: AspectRatioProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "AspectRatio");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "AspectRatio"); });
 </script>
 
 <div data-kind="aspect-ratio" data-slot="root" class={cn(className)} {...rest}>

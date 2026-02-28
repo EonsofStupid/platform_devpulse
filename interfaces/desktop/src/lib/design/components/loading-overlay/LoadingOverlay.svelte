@@ -27,7 +27,7 @@
 
 	const builder = createLoadingOverlay({
 		visible: () => visible,
-		onVisibleChange,
+		onVisibleChange: (v: any) => onVisibleChange?.(v),
 	});
 
 	const classes = $derived(cn(loadingOverlayRecipe(), className));

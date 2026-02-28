@@ -4,7 +4,7 @@
 
 	let { children, class: className, ...rest }: InlineMessageProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "InlineMessage");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "InlineMessage"); });
 </script>
 
 <div data-kind="inline-message" data-slot="root" class={cn(className)} {...rest}>

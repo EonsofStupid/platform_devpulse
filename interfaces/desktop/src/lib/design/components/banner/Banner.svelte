@@ -29,7 +29,7 @@
 
 	const builder = createBanner({
 		visible: () => visible,
-		onVisibleChange,
+		onVisibleChange: (v: boolean) => onVisibleChange?.(v),
 	});
 
 	const classes = $derived(cn(bannerRecipe({ intent }), className));

@@ -118,8 +118,8 @@ export function isValidShortcodeOutput(classString: string): boolean {
 		if (STRUCTURAL_PREFIXES.some((p) => token.startsWith(p))) return true;
 
 		// Internal shortcode classes
-		if (token.startsWith("_motion-") || token.startsWith("_blend-") ||
-			token.startsWith("_focus-") || token.startsWith("_state-")) return true;
+		if (token.startsWith("motion-") || token.startsWith("blend-") ||
+			token.startsWith("focus-") || token.startsWith("state-")) return true;
 
 		return false;
 	});

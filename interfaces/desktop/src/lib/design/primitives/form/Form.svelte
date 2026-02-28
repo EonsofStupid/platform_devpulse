@@ -4,7 +4,7 @@
 
 	let { children, class: className, ...rest }: FormProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Form");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Form"); });
 </script>
 
 <form data-kind="form" data-slot="root" class={cn(className)} {...rest}>

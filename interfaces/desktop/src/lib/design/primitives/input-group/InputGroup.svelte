@@ -19,7 +19,7 @@
 
 	let { children, class: className, ...rest }: InputGroupProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "InputGroup");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "InputGroup"); });
 </script>
 
 <div data-kind="input-group" data-slot="root" class={cn(className)} {...rest}>

@@ -26,7 +26,7 @@
 
 	const builder = createSidebar({
 		get expanded() { return expanded; },
-		onExpandedChange,
+		onExpandedChange: (v: boolean) => onExpandedChange?.(v),
 		get label() { return label; },
 	});
 

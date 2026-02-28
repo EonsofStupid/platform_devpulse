@@ -4,7 +4,7 @@
 
 	let { children, class: className, as = "span", ...rest }: TextProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Text");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Text"); });
 </script>
 
 <svelte:element this={as} data-kind="text" data-slot="root" class={cn(className)} {...rest}>

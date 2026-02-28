@@ -26,6 +26,11 @@ export const semantic = {
 		soft: "oklch(from var(--color-teal-600) l c h / 0.30)",
 		emphasis: "oklch(from var(--color-teal-500) l c h / 0.50)",
 		focus: "var(--color-teal-400)",
+		divider: "oklch(1 0 0 / 0.06)",
+		"divider-faint": "oklch(1 0 0 / 0.04)",
+	},
+	overlay: {
+		bg: "oklch(0.06 0.02 195 / 0.40)",
 	},
 	depth: {
 		flat: "var(--shadow-z0)",

@@ -30,13 +30,13 @@
 	}: TooltipProps = $props();
 
 	const transport = createTooltipTransport({
-		openDelay,
-		closeDelay,
-		open,
-		onOpenChange,
-		closeOnPointerDown,
-		disableHoverableContent,
-		forceVisible,
+		get openDelay() { return openDelay; },
+		get closeDelay() { return closeDelay; },
+		get open() { return open; },
+		onOpenChange: (v: any) => onOpenChange?.(v),
+		get closeOnPointerDown() { return closeOnPointerDown; },
+		get disableHoverableContent() { return disableHoverableContent; },
+		get forceVisible() { return forceVisible; },
 	});
 
 	setTooltipContext(transport);

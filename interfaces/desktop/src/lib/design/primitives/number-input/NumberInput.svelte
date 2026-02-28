@@ -21,7 +21,7 @@
 
 	let { children, class: className, ...rest }: NumberInputRootProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "NumberInput");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "NumberInput"); });
 </script>
 
 <div data-kind="number-input" data-slot="root" class={cn(className)} {...rest}>

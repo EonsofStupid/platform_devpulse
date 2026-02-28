@@ -29,12 +29,12 @@
 	}: SliderProps = $props();
 
 	const transport = createSliderTransport({
-		min,
-		max,
-		value,
-		step,
-		orientation,
-		onValueChange,
+		get min() { return min; },
+		get max() { return max; },
+		get value() { return value; },
+		get step() { return step; },
+		get orientation() { return orientation; },
+		onValueChange: (v: any) => onValueChange?.(v),
 	});
 
 	setSliderContext(transport);

@@ -17,7 +17,7 @@
 	let {
 		size = "base",
 		weight = "normal",
-		color = "default",
+		color = "primary",
 		as = "span",
 		children,
 		class: className,

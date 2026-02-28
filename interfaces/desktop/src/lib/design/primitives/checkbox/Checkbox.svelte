@@ -12,7 +12,7 @@
 
 	let { children, class: className, ...rest }: CheckboxRootProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Checkbox");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Checkbox"); });
 </script>
 
 <button type="button" data-kind="checkbox" data-slot="root" class={cn(className)} {...rest}>

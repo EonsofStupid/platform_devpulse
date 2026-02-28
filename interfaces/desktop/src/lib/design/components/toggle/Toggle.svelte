@@ -24,8 +24,8 @@
 	}: ToggleComponentProps = $props();
 
 	const transport = createToggleTransport({
-		disabled,
-		value: pressed,
+		get disabled() { return disabled; },
+		get value() { return pressed; },
 	});
 
 	$effect(() => {

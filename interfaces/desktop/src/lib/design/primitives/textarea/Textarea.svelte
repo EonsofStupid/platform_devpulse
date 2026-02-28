@@ -4,7 +4,7 @@
 
 	let { class: className, ...rest }: TextareaProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Textarea");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Textarea"); });
 </script>
 
 <textarea data-kind="textarea" data-slot="root" class={cn(className)} {...rest}></textarea>

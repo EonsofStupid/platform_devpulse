@@ -1,6 +1,6 @@
 <script lang="ts">
 import "../app.css";
-import "$lib/design/components/index.js";
+import "$lib/design/index.js";
 let { children } = $props();
 </script>
 

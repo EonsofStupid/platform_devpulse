@@ -35,12 +35,12 @@
 
 	const builder = createSearchInput({
 		value: () => value,
-		onValueChange,
-		onClear,
+		onValueChange: (v: any) => onValueChange?.(v),
+		onClear: () => onClear?.(),
 		disabled: () => disabled,
-		placeholder,
-		"aria-label": rest["aria-label"] ?? "Search",
-		"aria-describedby": rest["aria-describedby"],
+		get placeholder() { return placeholder; },
+		get "aria-label"() { return rest["aria-label"] ?? "Search"; },
+		get "aria-describedby"() { return rest["aria-describedby"]; },
 	});
 
 	const rootClasses = $derived(cn(searchInputRecipe({ size }), className));

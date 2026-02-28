@@ -35,7 +35,12 @@
 	const today = new Date();
 	today.setHours(0, 0, 0, 0);
 
-	let currentMonth = $state(month ?? startDate ?? new Date());
+	let currentMonth = $state(new Date());
+
+	$effect(() => {
+		const m = month ?? startDate;
+		if (m) currentMonth = m;
+	});
 	let hoveredDate = $state<Date | undefined>(undefined);
 	let selectingEnd = $state(false);
 

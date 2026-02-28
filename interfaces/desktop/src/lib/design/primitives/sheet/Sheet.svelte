@@ -22,7 +22,7 @@
 
 	let { children, class: className, ...rest }: SheetContentProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Sheet");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Sheet"); });
 </script>
 
 <div data-kind="sheet" data-slot="root" class={cn(className)} {...rest}>

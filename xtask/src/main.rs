@@ -13,9 +13,9 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Start the full Platform + Lab environment
+    /// Start the full Tauri dev environment (desktop + engine)
     RunDev,
-    /// Verify the setup (Dogfooding)
+    /// Verify the setup: svelte-check + cargo check
     VerifyDogfood,
 }
 
@@ -25,14 +25,24 @@ fn main() -> anyhow::Result<()> {
 
     match cli.command {
         Commands::RunDev => {
-            println!("Starting DevPulse Platform + Lab...");
-            let env_check = cmd!(sh, "echo 'Environment Checked'").read()?;
-            println!("{env_check}");
+            println!("Starting DevPulse Tauri dev...");
+            sh.change_dir("interfaces/desktop");
+            cmd!(sh, "cargo tauri dev").run()?;
         }
         Commands::VerifyDogfood => {
-            println!("Verifying Dogfood Status...");
-            let status = cmd!(sh, "echo 'Dogfood Status: OK'").read()?;
-            println!("{status}");
+            println!("Running verification checks...");
+
+            // 1. SvelteKit type check
+            println!("  [1/2] svelte-check...");
+            sh.change_dir("interfaces/desktop");
+            cmd!(sh, "pnpm svelte-check").run()?;
+
+            // 2. Rust workspace check
+            println!("  [2/2] cargo check...");
+            sh.change_dir("../..");
+            cmd!(sh, "cargo check --workspace").run()?;
+
+            println!("All checks passed.");
         }
     }
 

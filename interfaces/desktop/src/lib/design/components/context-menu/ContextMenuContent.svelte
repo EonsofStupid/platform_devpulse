@@ -22,7 +22,7 @@
 	}: ContextMenuContentProps = $props();
 
 	const ctx = getContextMenuContext();
-	const recipe = contextMenuRecipe({ size });
+	const recipe = $derived(contextMenuRecipe({ size }));
 </script>
 
 {#if ctx.open}

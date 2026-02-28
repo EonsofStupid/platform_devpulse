@@ -26,7 +26,7 @@
 
 	const builder = createSteps({
 		get activeStep() { return activeStep; },
-		onActiveStepChange,
+		onActiveStepChange: (v: number) => onActiveStepChange?.(v),
 		get label() { return label; },
 		get linear() { return linear; },
 		get disabled() { return disabled; },

@@ -31,8 +31,8 @@
 		label: () => label,
 		disabled: () => disabled,
 		pending: () => pending,
-		onSubmit,
-		onReset,
+		onSubmit: (e: any) => onSubmit?.(e),
+		onReset: () => onReset?.(),
 	});
 
 	const classes = $derived(cn(formRecipe({ size }), className));

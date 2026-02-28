@@ -34,7 +34,7 @@
 		required: () => required,
 		invalid: () => invalid,
 		rows: () => rows,
-		onValueChange,
+		onValueChange: (v: any) => onValueChange?.(v),
 	});
 
 	const classes = $derived(cn(textareaRecipe({ size }), className));

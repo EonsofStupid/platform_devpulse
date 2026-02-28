@@ -1,33 +1,26 @@
 /**
- * @file Panel Recipe — Matte Flat
+ * @file Panel Recipe — Matte Flat (Gold Standard)
  * @id panel.matte.flat
  * @kind panel
  * @layer recipes
  * @package @devpulse/coldlight
  *
- * Matte flat panel variant. Uses the matte surface utility for an
- * opaque, non-transparent panel suitable for dense content layouts.
+ * GOLD STANDARD recipe — opaque matte panel for dense content layouts.
+ * Uses solid surface (matte maps to s-solid).
  *
- * Token strategy:
- *   - Component tokens (from tokens.css, semantic → OKLCH):
- *       --panel-border         → var(--border-soft)
- *       --panel-header-border  → var(--border-subtle)
- *   - Semantic text tokens (from @theme in tailwind.css):
- *       text-text-secondary
- *   - Molecule utilities (from recipes/utils.ts):
- *       surfaceClass(), radiusClass(), depthClass(), bevelClass()
- *
- * All OKLCH — zero hardcoded white/ or black/ opacity values.
+ * Slot keys match panel contract:
+ *   root, header, body, footer
  */
 
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { registerRecipe } from "../../index.js";
 import type { DsSurfaceProps } from "../../types.js";
 import {
+	variantShortcode,
+	surfaceShortcode,
+	elevationShortcode,
+	sizeShortcode,
 	radiusClass,
-	surfaceClass,
-	depthClass,
-	bevelClass,
 } from "../../utils.js";
 
 registerRecipe({
@@ -45,28 +38,15 @@ registerRecipe({
 	},
 	classes: (props: DsSurfaceProps): Record<string, string> => ({
 		root: cn(
-			surfaceClass(props.surface, "dark"),
+			"panel",
+			variantShortcode(props.variant ?? "void"),
+			surfaceShortcode(props.surface),
+			elevationShortcode(props.depth),
+			sizeShortcode(props.size),
 			radiusClass(props.radius),
-			depthClass(props.depth),
-			bevelClass(props.bevel),
-			"border border-[var(--panel-border)]",
-			"overflow-hidden",
-			"flex flex-col",
 		),
-		header: cn(
-			"px-4 py-3",
-			"border-b border-[var(--panel-header-border)]",
-			"text-sm text-text-secondary",
-		),
-		body: cn(
-			"px-4 py-3",
-			"flex-1",
-			"overflow-auto",
-			"text-text-secondary",
-		),
-		footer: cn(
-			"px-4 py-3",
-			"border-t border-[var(--panel-header-border)]",
-		),
+		header: "panel-header",
+		body: "panel-body",
+		footer: "panel-footer",
 	}),
 });

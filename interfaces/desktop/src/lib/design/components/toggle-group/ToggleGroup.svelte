@@ -32,7 +32,7 @@
 
 	const builder = createToggleGroup({
 		value: () => value,
-		onValueChange: onValueChange as any,
+		onValueChange: ((v: any) => (onValueChange as any)?.(v)) as any,
 		multiple: () => multiple as any,
 		disabled: () => disabled,
 		orientation: () => orientation,

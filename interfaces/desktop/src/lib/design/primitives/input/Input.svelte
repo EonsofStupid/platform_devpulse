@@ -4,7 +4,7 @@
 
 	let { class: className, ...rest }: InputProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Input");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Input"); });
 </script>
 
 <input data-kind="input" data-slot="root" class={cn(className)} {...rest} />

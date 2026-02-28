@@ -30,7 +30,7 @@
 	const builder = createTableOfContents({
 		label: () => label,
 		activeId: () => activeId,
-		onActiveIdChange,
+		onActiveIdChange: (v: string | undefined) => onActiveIdChange?.(v),
 	});
 	const classes = $derived(cn(tableOfContentsRecipe({ size }), className));
 </script>

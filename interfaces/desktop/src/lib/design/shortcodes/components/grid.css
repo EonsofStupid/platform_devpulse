@@ -65,6 +65,18 @@
 	grid-template-rows: none;
 }
 
+/* ── Column span utilities ── */
+
+@utility grid-col-span-full {
+	grid-column: 1 / -1;
+}
+@utility grid-col-span-2 {
+	grid-column: span 2;
+}
+@utility grid-col-span-3 {
+	grid-column: span 3;
+}
+
 /* ── Gap utilities ── */
 
 @utility grid-gap-0 {

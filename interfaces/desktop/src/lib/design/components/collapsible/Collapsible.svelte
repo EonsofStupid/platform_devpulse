@@ -30,8 +30,8 @@
 
 	const transport = createCollapsibleTransport({
 		open: () => open,
-		onOpenChange,
-		disabled,
+		onOpenChange: (v: any) => onOpenChange?.(v),
+		get disabled() { return disabled; },
 	});
 
 	setCollapsibleContext(transport);

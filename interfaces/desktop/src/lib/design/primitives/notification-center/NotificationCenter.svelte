@@ -19,7 +19,7 @@
 
 	let { children, class: className, ...rest }: NotificationCenterProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "NotificationCenter");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "NotificationCenter"); });
 </script>
 
 <div data-kind="notification-center" data-slot="root" class={cn(className)} {...rest}>

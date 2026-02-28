@@ -1,12 +1,49 @@
-<div class="placeholder">OverMind Dashboard (Coming Soon)</div>
+<!--
+  @file OverMind Dashboard
+  @route /overmind
+  @domain overmind
+-->
+<script lang="ts">
+	import { Grid, Stack, HStack, Text } from "$lib/design/components/index.js";
+	import { Widget } from "$lib/design/blocks/widgets/index.js";
+</script>
 
-<style>
-  .placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    font-size: 2rem;
-    color: rgba(255, 255, 255, 0.2);
-  }
-</style>
+<Grid columns="3" gap="4" class="box-lg" data-page="overmind-dashboard">
+	<Widget title="System Status">
+		<Stack gap="2">
+			<HStack justify="between">
+				<Text color="secondary">Engine</Text>
+				<Text>Online</Text>
+			</HStack>
+			<HStack justify="between">
+				<Text color="secondary">Signal Router</Text>
+				<Text>Active</Text>
+			</HStack>
+			<HStack justify="between">
+				<Text color="secondary">Database</Text>
+				<Text color="muted">Not Connected</Text>
+			</HStack>
+		</Stack>
+	</Widget>
+
+	<Widget title="Signal Activity" tabs={[{id: "live", label: "Live"}, {id: "history", label: "History"}]} activeTab="live">
+		<Text as="p" size="sm" color="muted">Signal events will stream here when engine is running.</Text>
+	</Widget>
+
+	<Widget title="Resources">
+		<Stack gap="2">
+			<HStack justify="between">
+				<Text color="secondary">CPU</Text>
+				<Text>--</Text>
+			</HStack>
+			<HStack justify="between">
+				<Text color="secondary">Memory</Text>
+				<Text>--</Text>
+			</HStack>
+			<HStack justify="between">
+				<Text color="secondary">Disk</Text>
+				<Text>--</Text>
+			</HStack>
+		</Stack>
+	</Widget>
+</Grid>

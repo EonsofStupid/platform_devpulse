@@ -33,10 +33,10 @@
 	// Transport is initialized once with initial config values.
 	// Melt handles internal reactivity via its own store layer.
 	const transport = createAccordionTransport({
-		multiple,
-		disabled,
-		value,
-		onValueChange,
+		get multiple() { return multiple; },
+		get disabled() { return disabled; },
+		get value() { return value; },
+		onValueChange: (v: any) => onValueChange?.(v),
 	});
 
 	setAccordionContext(transport);

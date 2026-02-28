@@ -4,7 +4,7 @@
 
 	let { class: className, ...rest }: SpinnerProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Spinner");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Spinner"); });
 </script>
 
 <div data-kind="spinner" data-slot="root" class={cn(className)} {...rest}></div>

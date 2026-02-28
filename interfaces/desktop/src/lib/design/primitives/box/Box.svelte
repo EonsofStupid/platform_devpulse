@@ -14,7 +14,7 @@
 
 	let { children, class: className, as = "div", ...rest }: BoxProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Box");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Box"); });
 </script>
 
 <svelte:element this={as} data-kind="box" data-slot="root" class={cn(className)} {...rest}>

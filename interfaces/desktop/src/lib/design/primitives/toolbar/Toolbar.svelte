@@ -21,7 +21,7 @@
 
 	let { children, class: className, ...rest }: ToolbarProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Toolbar.Root");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Toolbar.Root"); });
 </script>
 
 <div

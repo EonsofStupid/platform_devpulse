@@ -12,7 +12,6 @@
 <script lang="ts">
 import type { Snippet } from "svelte";
 import { getRecipe } from "$lib/design/recipes/index.js";
-import "../../styles/shell.css";
 
 interface Props {
 	children: Snippet;

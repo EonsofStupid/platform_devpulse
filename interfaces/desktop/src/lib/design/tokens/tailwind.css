@@ -152,6 +152,8 @@
 	--color-border-soft: oklch(from var(--color-teal-600) l c h / 0.30);
 	--color-border-emphasis: oklch(from var(--color-teal-500) l c h / 0.50);
 	--color-border-focus: var(--color-teal-400);
+	--color-border-divider: oklch(1 0 0 / 0.06);
+	--color-border-divider-faint: oklch(1 0 0 / 0.04);
 	--shadow-depth-flat: var(--shadow-z0);
 	--shadow-depth-raised: var(--shadow-z1);
 	--shadow-depth-panel: var(--shadow-z2);

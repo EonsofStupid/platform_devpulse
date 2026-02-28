@@ -4,8 +4,9 @@
   @layer lib
 
   @description
-  App shell frame with ColdLight CSS Grid layout.
-  Wired to globalState for sidebar mode and route domain.
+  App shell frame with ColdLight 6-zone CSS Grid layout.
+  Zones: topbar, sidebar (left), content, context (right), statusbar, overlay.
+  Wired to globalState for sidebar/context mode and route domain.
 
   @since 1.0.0
 -->
@@ -16,7 +17,6 @@ import { globalState } from "$lib/sys/runes/global.svelte";
 import Sidebar from "./Sidebar.svelte";
 import StatusBar from "./StatusBar.svelte";
 import TopBar from "./TopBar.svelte";
-import "./styles/index.css";
 
 interface Props {
 	children: Snippet;
@@ -24,7 +24,8 @@ interface Props {
 
 let { children }: Props = $props();
 
-const isExpanded = $derived(globalState.sidebar_mode === "expanded");
+const isSidebarExpanded = $derived(globalState.sidebar_mode === "expanded");
+const isContextExpanded = $derived(globalState.context_mode === "expanded");
 
 const shell = getRecipe("shell.app.default");
 const slots = $derived(
@@ -45,23 +46,28 @@ const slots = $derived(
 	class={slots.frame}
 	data-layout="app"
 	data-sidebar={globalState.sidebar_mode}
+	data-context={globalState.context_mode}
 	data-route={globalState.current_domain}
 >
 	<header data-slot="topbar" class={slots.topbar}>
 		<TopBar />
 	</header>
 
-	<aside data-slot="sidebar" class={isExpanded ? slots.sidebarExpanded : slots.sidebar} data-expanded={isExpanded ? "true" : undefined}>
+	<aside data-slot="sidebar" class={isSidebarExpanded ? slots.sidebarExpanded : slots.sidebar} data-expanded={isSidebarExpanded ? "true" : undefined}>
 		<Sidebar />
 	</aside>
 
 	<main data-slot="content" class={slots.content}>
-		<div class="h-full overflow-y-auto p-4 text-[var(--text-primary)]">
-			{@render children()}
-		</div>
+		{@render children()}
 	</main>
+
+	<aside data-slot="context" class={isContextExpanded ? slots.contextExpanded : slots.context} data-expanded={isContextExpanded ? "true" : undefined}>
+	</aside>
 
 	<footer data-slot="statusbar" class={slots.statusbar}>
 		<StatusBar />
 	</footer>
+
+	<div data-slot="overlay" class={globalState.overlay_active ? slots.overlayActive : slots.overlay} role="button" tabindex="-1" onclick={() => globalState.hideOverlay()} onkeydown={(e) => { if (e.key === 'Enter' || e.key === 'Escape') globalState.hideOverlay(); }}>
+	</div>
 </div>

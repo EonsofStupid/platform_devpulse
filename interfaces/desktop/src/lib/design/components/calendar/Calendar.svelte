@@ -34,7 +34,12 @@
 	const today = new Date();
 	today.setHours(0, 0, 0, 0);
 
-	let currentMonth = $state(month ?? value ?? new Date());
+	let currentMonth = $state(new Date());
+
+	$effect(() => {
+		const m = month ?? value;
+		if (m) currentMonth = m;
+	});
 
 	function isSameDay(a: Date, b: Date): boolean {
 		return (

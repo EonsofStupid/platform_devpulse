@@ -4,7 +4,7 @@
 
 	let { children, class: className, level = 2, ...rest }: HeadingProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Heading");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Heading"); });
 
 	const tag = $derived(`h${level}` as const);
 </script>

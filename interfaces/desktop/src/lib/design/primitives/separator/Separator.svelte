@@ -19,7 +19,7 @@
 
 	let { class: className, ...rest }: SeparatorProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Separator");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Separator"); });
 </script>
 
 <hr data-kind="separator" data-slot="root" class={cn(className)} {...rest} />

@@ -4,7 +4,7 @@
 
 	let { children, class: className, ...rest }: ScrollAreaRootProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "ScrollArea");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "ScrollArea"); });
 </script>
 
 <div data-kind="scroll-area" data-slot="root" class={cn(className)} {...rest}>

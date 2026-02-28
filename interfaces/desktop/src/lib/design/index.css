@@ -78,6 +78,7 @@
 @import "./shortcodes/components/notification-center.css";
 @import "./shortcodes/components/number-input.css";
 @import "./shortcodes/components/pagination.css";
+@import "./shortcodes/components/panel.css";
 @import "./shortcodes/components/progress.css";
 @import "./shortcodes/components/prose.css";
 @import "./shortcodes/components/radio-group.css";
@@ -87,6 +88,7 @@
 @import "./shortcodes/components/select.css";
 @import "./shortcodes/components/separator.css";
 @import "./shortcodes/components/sheet.css";
+@import "./shortcodes/components/shell.css";
 @import "./shortcodes/components/sidebar.css";
 @import "./shortcodes/components/skeleton.css";
 @import "./shortcodes/components/skip-link.css";
@@ -107,3 +109,4 @@
 @import "./shortcodes/components/toolbar.css";
 @import "./shortcodes/components/tooltip.css";
 @import "./shortcodes/components/visually-hidden.css";
+@import "./shortcodes/components/widget.css";

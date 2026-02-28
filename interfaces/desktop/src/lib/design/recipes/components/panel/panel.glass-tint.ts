@@ -1,36 +1,26 @@
 /**
- * @file Panel Recipe — Glass Tint
+ * @file Panel Recipe — Glass Tint (Gold Standard)
  * @id panel.glass.tint
  * @kind panel
  * @layer recipes
  * @package @devpulse/coldlight
  *
- * Accent-tinted glass panel variant. Uses the accent color to create
- * a tinted glass surface with matching border colors.
+ * GOLD STANDARD recipe — accent-tinted glass panel variant.
+ * Uses deep variant for a tinted glass surface.
  *
- * Token strategy:
- *   - Component tokens (from tokens.css, semantic → OKLCH):
- *       --panel-border         → var(--border-soft)
- *       --panel-header-border  → var(--border-subtle)
- *   - Semantic text tokens (from @theme in tailwind.css):
- *       text-text-primary, text-text-secondary
- *   - Molecule utilities (from recipes/utils.ts):
- *       radiusClass(), depthClass(), glowClass(), bevelClass()
- *
- * Note: The glass-tint surface utility is generated per accent color
- * as `glass-tint-{accent}` in molecules/glass.css.
- *
- * All OKLCH — zero hardcoded white/ or black/ opacity values.
+ * Slot keys match panel contract:
+ *   root, header, body, footer
  */
 
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { registerRecipe } from "../../index.js";
 import type { DsSurfaceProps } from "../../types.js";
 import {
+	variantShortcode,
+	surfaceShortcode,
+	elevationShortcode,
+	sizeShortcode,
 	radiusClass,
-	depthClass,
-	glowClass,
-	bevelClass,
 } from "../../utils.js";
 
 registerRecipe({
@@ -39,7 +29,7 @@ registerRecipe({
 	label: "Glass Tint Panel",
 	defaults: {
 		surface: "glass",
-		variant: "void",
+		variant: "deep",
 		accent: "teal",
 		radius: "lg",
 		depth: 2,
@@ -49,29 +39,15 @@ registerRecipe({
 	},
 	classes: (props: DsSurfaceProps): Record<string, string> => ({
 		root: cn(
-			`glass-tint-${props.accent}`,
+			"panel",
+			variantShortcode(props.variant ?? "deep"),
+			surfaceShortcode(props.surface),
+			elevationShortcode(props.depth),
+			sizeShortcode(props.size),
 			radiusClass(props.radius),
-			depthClass(props.depth),
-			glowClass(props.glow),
-			bevelClass(props.bevel),
-			"border border-[var(--panel-border)]",
-			"overflow-hidden",
-			"flex flex-col",
 		),
-		header: cn(
-			"px-4 py-3",
-			"border-b border-[var(--panel-header-border)]",
-			"text-text-primary",
-		),
-		body: cn(
-			"px-4 py-3",
-			"flex-1",
-			"overflow-auto",
-			"text-text-secondary",
-		),
-		footer: cn(
-			"px-4 py-3",
-			"border-t border-[var(--panel-header-border)]",
-		),
+		header: "panel-header",
+		body: "panel-body",
+		footer: "panel-footer",
 	}),
 });

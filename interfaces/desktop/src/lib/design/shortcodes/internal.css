@@ -3,32 +3,31 @@
  * @layer shortcodes
  * @package @devpulse/coldlight
  *
- * Internal classes are system-applied, NEVER in user markup.
- * Prefixed with underscore to signal internal-only usage.
+ * System-applied classes composable with the shortcode pipeline.
+ * These set/modify --recipe-* CSS vars consumed by s-*, v-*, structural utilities.
  *
  * Categories:
- *   _motion-*  Animation presets (respects prefers-reduced-motion)
- *   _blend-*   Color blend quadrants (temperature + brightness)
- *   _focus-*   Focus intensity levels
- *   _state-*   Interaction state modifiers
+ *   motion-*  Animation presets (respects prefers-reduced-motion)
+ *   blend-*   Color blend quadrants (temperature + brightness)
+ *   focus-*   Focus intensity levels (override --recipe-blur, --recipe-saturation)
+ *   state-*   Interaction state modifiers (override --recipe-border-alpha, --recipe-bg-alpha)
  */
 
 /* ═══════════════════════════════════════════════════════════════════
- * _motion-* Animation Presets
+ * motion-* Animation Presets
  *
- * Applied by the system when motion context is enabled.
- * All animations respect prefers-reduced-motion.
+ * Composable motion utilities. Respect prefers-reduced-motion.
  * ═══════════════════════════════════════════════════════════════════ */
 
-@utility _motion-pulse {
+@utility motion-pulse {
 	animation: recipe-pulse 2s ease-in-out infinite;
 }
 
-@utility _motion-flow {
+@utility motion-flow {
 	animation: recipe-flow 3s linear infinite;
 }
 
-@utility _motion-shimmer {
+@utility motion-shimmer {
 	animation: recipe-shimmer 1.5s ease infinite;
 }
 
@@ -48,85 +47,89 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-	._motion-pulse,
-	._motion-flow,
-	._motion-shimmer {
+	.motion-pulse,
+	.motion-flow,
+	.motion-shimmer {
 		animation: none;
 	}
 }
 
 /* ═══════════════════════════════════════════════════════════════════
- * _blend-* Color Blend Quadrants
+ * blend-* Color Blend Quadrants
  *
- * System applies based on context (cool/warm + bright/muted).
- * Sets blend modifiers that affect color calculations.
+ * Sets blend modifiers for color temperature + brightness context.
+ * Composable — stack with v-* and s-* shortcodes.
  * ═══════════════════════════════════════════════════════════════════ */
 
-@utility _blend-cool-bright {
+@utility blend-cool-bright {
 	--blend-hue-shift: -15;
 	--blend-saturation-mod: 1.2;
 	--blend-lightness-mod: 1.1;
 }
 
-@utility _blend-cool-muted {
+@utility blend-cool-muted {
 	--blend-hue-shift: -15;
 	--blend-saturation-mod: 0.8;
 	--blend-lightness-mod: 0.9;
 }
 
-@utility _blend-warm-bright {
+@utility blend-warm-bright {
 	--blend-hue-shift: 15;
 	--blend-saturation-mod: 1.2;
 	--blend-lightness-mod: 1.1;
 }
 
-@utility _blend-warm-muted {
+@utility blend-warm-muted {
 	--blend-hue-shift: 15;
 	--blend-saturation-mod: 0.8;
 	--blend-lightness-mod: 0.9;
 }
 
 /* ═══════════════════════════════════════════════════════════════════
- * _focus-* Focus Intensity
+ * focus-* Focus Intensity Scale
  *
- * Inline override for single-element focus intensity.
- * Prefer data-focus attribute cascade for container-level control.
+ * Override --recipe-blur and --recipe-saturation at element level.
+ * Composable with v-* shortcodes and [data-focus] cascade.
+ *
+ * Scale: low → high → critical
  * ═══════════════════════════════════════════════════════════════════ */
 
-@utility _focus-low {
+@utility focus-low {
 	--recipe-blur: var(--blur-sm);
 	--recipe-saturation: 1.0;
 }
 
-@utility _focus-high {
+@utility focus-high {
 	--recipe-blur: var(--blur-xl);
 	--recipe-saturation: 2.0;
 }
 
-@utility _focus-critical {
+@utility focus-critical {
 	--recipe-blur: var(--blur-xl);
 	--recipe-saturation: 2.5;
 	--recipe-glow-intensity: 1.5;
 }
 
 /* ═══════════════════════════════════════════════════════════════════
- * _state-* Interaction States
+ * state-* Interaction States
  *
- * System applies based on component interaction state.
- * These modify recipe vars for visual feedback.
+ * Modify --recipe-border-alpha and --recipe-bg-alpha for visual feedback.
+ * Composable — layer on top of any s-* surface.
+ *
+ * Scale: hover → active → disabled
  * ═══════════════════════════════════════════════════════════════════ */
 
-@utility _state-hover {
+@utility state-hover {
 	--recipe-border-alpha: calc(var(--recipe-border-alpha, 0.06) + 0.05);
 	--recipe-bg-alpha: calc(var(--recipe-bg-alpha, 0.85) + 0.05);
 }
 
-@utility _state-active {
+@utility state-active {
 	--recipe-border-alpha: calc(var(--recipe-border-alpha, 0.06) + 0.10);
 	--recipe-bg-alpha: calc(var(--recipe-bg-alpha, 0.85) + 0.10);
 }
 
-@utility _state-disabled {
+@utility state-disabled {
 	opacity: 0.5;
 	pointer-events: none;
 	filter: saturate(0.5);

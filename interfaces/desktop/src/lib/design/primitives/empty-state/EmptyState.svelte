@@ -4,7 +4,7 @@
 
 	let { children, class: className, ...rest }: EmptyStateProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "EmptyState");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "EmptyState"); });
 </script>
 
 <div data-kind="empty-state" data-slot="root" class={cn(className)} {...rest}>

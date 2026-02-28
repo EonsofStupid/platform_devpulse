@@ -19,7 +19,7 @@
 
 	let { children, class: className, ...rest }: StatProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Stat");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Stat"); });
 </script>
 
 <div data-kind="stat" data-slot="root" class={cn(className)} {...rest}>

@@ -4,7 +4,7 @@
 
 	let { children, class: className, ...rest }: LabelProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Label");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Label"); });
 </script>
 
 <label data-kind="label" data-slot="root" class={cn(className)} {...rest}>

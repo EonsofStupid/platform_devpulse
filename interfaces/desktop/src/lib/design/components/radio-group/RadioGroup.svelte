@@ -28,12 +28,12 @@
 	}: RadioGroupProps = $props();
 
 	const transport = createRadioGroupTransport({
-		value,
-		onValueChange,
-		disabled,
-		required,
-		loop,
-		orientation,
+		get value() { return value; },
+		onValueChange: (v: any) => onValueChange?.(v),
+		get disabled() { return disabled; },
+		get required() { return required; },
+		get loop() { return loop; },
+		get orientation() { return orientation; },
 	});
 
 	setRadioGroupContext(transport);

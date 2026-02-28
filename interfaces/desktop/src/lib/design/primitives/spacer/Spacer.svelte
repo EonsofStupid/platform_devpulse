@@ -19,7 +19,7 @@
 
 	let { class: className, ...rest }: SpacerProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Spacer");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Spacer"); });
 </script>
 
 <div data-kind="spacer" data-slot="root" class={cn(className)} {...rest}></div>

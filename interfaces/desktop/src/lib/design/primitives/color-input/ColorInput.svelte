@@ -19,7 +19,7 @@
 
 	let { children, class: className, ...rest }: ColorInputRootProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "ColorInput");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "ColorInput"); });
 </script>
 
 <div data-kind="color-input" data-slot="root" class={cn(className)} {...rest}>

@@ -19,7 +19,7 @@
 
 	let { children, class: className, ...rest }: DescriptionListProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "DescriptionList");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "DescriptionList"); });
 </script>
 
 <dl data-kind="description-list" data-slot="root" class={cn(className)} {...rest}>

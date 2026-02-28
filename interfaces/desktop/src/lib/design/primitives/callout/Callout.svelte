@@ -19,7 +19,7 @@
 
 	let { children, class: className, ...rest }: CalloutProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Callout.Root");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Callout.Root"); });
 </script>
 
 <div

@@ -35,7 +35,11 @@
 	const triggerId = `drp-trigger-${uid}`;
 	const contentId = `drp-content-${uid}`;
 
-	let isOpen = $state(open);
+	let isOpen = $state(false);
+
+	$effect(() => {
+		isOpen = open;
+	});
 
 	const ctx: DateRangePickerContext = {
 		get startDate() {

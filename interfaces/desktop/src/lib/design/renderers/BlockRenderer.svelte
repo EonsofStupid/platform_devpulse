@@ -9,6 +9,7 @@
 <script lang="ts">
 	import type { BlockNode } from "$lib/design/blocks/schema.js";
 	import { resolveClasses } from "./resolveClasses.js";
+	import BlockRenderer from "./BlockRenderer.svelte";
 
 	let { node, depth = 0 }: { node: BlockNode; depth?: number } = $props();
 
@@ -33,7 +34,7 @@
 >
 	{#each slotEntries as [slotName, children]}
 		{#each children as child (child.id)}
-			<svelte:self node={child} depth={depth + 1} />
+			<BlockRenderer node={child} depth={depth + 1} />
 		{/each}
 	{/each}
 </div>

@@ -4,7 +4,7 @@
 
 	let { children, class: className, ...rest }: GridProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Grid");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Grid"); });
 </script>
 
 <div data-kind="grid" data-slot="root" class={cn(className)} {...rest}>

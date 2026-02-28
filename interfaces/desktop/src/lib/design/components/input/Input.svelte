@@ -32,7 +32,7 @@
 		readonly: () => readonlyProp,
 		required: () => requiredProp,
 		invalid: () => invalid,
-		onValueChange,
+		onValueChange: (v: any) => onValueChange?.(v),
 	});
 
 	const classes = $derived(cn(inputRecipe({ size }), className));

@@ -25,7 +25,10 @@
 	}: AccordionItemProps = $props();
 
 	const transport = getAccordionContext();
-	const item = transport.getItem({ id: value, disabled });
+	const item = transport.getItem({
+		get id() { return value; },
+		get disabled() { return disabled; },
+	});
 	setAccordionItemContext(item);
 </script>
 

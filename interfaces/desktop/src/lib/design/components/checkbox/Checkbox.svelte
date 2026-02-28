@@ -30,7 +30,7 @@
 		checked: () => checked,
 		indeterminate: () => indeterminate,
 		disabled: () => disabled,
-		onCheckedChange,
+		onCheckedChange: (v: any) => onCheckedChange?.(v),
 	});
 
 	const classes = $derived(cn(checkboxRecipe({ intent, size }), className));

@@ -1,33 +1,26 @@
 /**
- * @file Panel Recipe — Metal Chrome
+ * @file Panel Recipe — Metal Chrome (Gold Standard)
  * @id panel.metal.chrome
  * @kind panel
  * @layer recipes
  * @package @devpulse/coldlight
  *
- * Metal chrome panel variant. Uses a metallic surface effect with
- * heavy depth shadows and optional bevel for a premium feel.
+ * GOLD STANDARD recipe — metallic panel with premium feel.
+ * Uses frost variant for the metallic surface effect.
  *
- * Token strategy:
- *   - Component tokens (from tokens.css, semantic → OKLCH):
- *       --panel-border         → var(--border-soft)
- *       --panel-header-border  → var(--border-subtle)
- *   - Semantic text tokens (from @theme in tailwind.css):
- *       text-text-primary, text-text-secondary
- *   - Molecule utilities (from recipes/utils.ts):
- *       radiusClass(), depthClass(), glowClass(), bevelClass()
- *
- * All OKLCH — zero hardcoded white/ or black/ opacity values.
+ * Slot keys match panel contract:
+ *   root, header, body, footer
  */
 
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { registerRecipe } from "../../index.js";
 import type { DsSurfaceProps } from "../../types.js";
 import {
+	variantShortcode,
+	surfaceShortcode,
+	elevationShortcode,
+	sizeShortcode,
 	radiusClass,
-	depthClass,
-	glowClass,
-	bevelClass,
 } from "../../utils.js";
 
 registerRecipe({
@@ -45,28 +38,15 @@ registerRecipe({
 	},
 	classes: (props: DsSurfaceProps): Record<string, string> => ({
 		root: cn(
-			"metal-chrome",
+			"panel",
+			variantShortcode(props.variant ?? "frost"),
+			surfaceShortcode(props.surface),
+			elevationShortcode(props.depth),
+			sizeShortcode(props.size),
 			radiusClass(props.radius),
-			depthClass(props.depth),
-			glowClass(props.glow),
-			bevelClass(props.bevel),
-			"overflow-hidden",
-			"flex flex-col",
 		),
-		header: cn(
-			"px-5 py-4",
-			"border-b border-[var(--panel-header-border)]",
-			"text-text-primary font-semibold",
-		),
-		body: cn(
-			"px-5 py-4",
-			"flex-1",
-			"overflow-auto",
-			"text-text-secondary",
-		),
-		footer: cn(
-			"px-5 py-4",
-			"border-t border-[var(--panel-header-border)]",
-		),
+		header: "panel-header",
+		body: "panel-body",
+		footer: "panel-footer",
 	}),
 });

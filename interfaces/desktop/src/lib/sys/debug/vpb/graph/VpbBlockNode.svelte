@@ -24,11 +24,13 @@
 
 <Handle type="target" position={Position.Left} />
 
-<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
 <div
 	class="vpb-gnode"
 	class:vpb-gnode--selected={isSelected}
+	role="button"
+	tabindex="0"
 	onclick={() => vpbDocument.selectNode(id)}
+	onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); vpbDocument.selectNode(id); }}}
 >
 	<div class="vpb-gnode__kind">{formatKind(data.blockNode.kind)}</div>
 	<div class="vpb-gnode__recipe">{data.blockNode.recipe}</div>

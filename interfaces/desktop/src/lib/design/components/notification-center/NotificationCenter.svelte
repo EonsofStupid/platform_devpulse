@@ -28,7 +28,7 @@
 
 	const builder = createNotificationCenter({
 		open: () => open,
-		onOpenChange,
+		onOpenChange: (v: any) => onOpenChange?.(v),
 	});
 
 	const classes = $derived(cn(notificationCenterRecipe(), className));

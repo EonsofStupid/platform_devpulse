@@ -19,7 +19,7 @@
 
 	let { class: className, ...rest }: DividerProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Divider");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Divider"); });
 </script>
 
 <hr data-kind="divider" data-slot="root" class={cn(className)} {...rest} />

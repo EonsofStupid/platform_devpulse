@@ -24,7 +24,7 @@
 	}: MenubarContentProps = $props();
 
 	const ctx = getMenubarMenuContext();
-	const recipe = menubarRecipe({ size });
+	const recipe = $derived(menubarRecipe({ size }));
 </script>
 
 {#if ctx.open}

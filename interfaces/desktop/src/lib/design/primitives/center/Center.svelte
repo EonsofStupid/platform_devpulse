@@ -19,7 +19,7 @@
 
 	let { children, class: className, ...rest }: CenterProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Center");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Center"); });
 </script>
 
 <div data-kind="center" data-slot="root" class={cn(className)} {...rest}>

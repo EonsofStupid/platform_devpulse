@@ -26,7 +26,7 @@
 				"height": 600,
 				"x": 100,
 				"y": 100,
-				"visible": false,
+				"visible": true,
 				"decorations": false,
 				"transparent": true
 			}

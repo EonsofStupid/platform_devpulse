@@ -23,8 +23,8 @@
 
 	const flowData = $derived(blockTreeToFlow(vpbDocument.document.root));
 
-	let nodes = $state.raw(flowData.nodes);
-	let edges = $state.raw(flowData.edges);
+	let nodes = $state.raw([] as typeof flowData.nodes);
+	let edges = $state.raw([] as typeof flowData.edges);
 
 	$effect(() => {
 		nodes = flowData.nodes;

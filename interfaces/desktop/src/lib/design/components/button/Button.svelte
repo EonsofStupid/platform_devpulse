@@ -32,7 +32,7 @@
 		pressed: () => pressed,
 		loading: () => loading,
 		expanded: () => expanded,
-		onPressedChange,
+		onPressedChange: (v: any) => onPressedChange?.(v),
 	});
 
 	const classes = $derived(cn(buttonRecipe({ intent, size }), className));

@@ -27,7 +27,7 @@
 	const builder = createSwitch({
 		checked: () => checked,
 		disabled: () => disabled,
-		onCheckedChange,
+		onCheckedChange: (v: any) => onCheckedChange?.(v),
 	});
 
 	const classes = $derived(cn(switchRecipe({ size }), className));

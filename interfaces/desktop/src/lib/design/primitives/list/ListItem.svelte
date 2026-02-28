@@ -19,7 +19,7 @@
 
 	let { children, class: className, ...rest }: ListItemProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "ListItem");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "ListItem"); });
 </script>
 
 <li data-kind="list" data-slot="item" class={cn(className)} {...rest}>

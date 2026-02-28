@@ -19,7 +19,7 @@
 
 	let { children, class: className, ...rest }: CodeProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Code");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Code"); });
 </script>
 
 <code data-kind="code" data-slot="root" class={cn(className)} {...rest}>{@render children?.()}</code>

@@ -34,7 +34,11 @@
 	const triggerId = `dp-trigger-${uid}`;
 	const contentId = `dp-content-${uid}`;
 
-	let isOpen = $state(open);
+	let isOpen = $state(false);
+
+	$effect(() => {
+		isOpen = open;
+	});
 
 	const ctx: DatePickerContext = {
 		get value() {

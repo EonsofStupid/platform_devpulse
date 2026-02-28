@@ -19,7 +19,7 @@
 
 	let { children, class: className, ...rest }: NavProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Nav.Root");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Nav.Root"); });
 </script>
 
 <nav

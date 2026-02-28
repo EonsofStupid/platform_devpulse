@@ -28,8 +28,7 @@
 		<VpbGraph />
 	</div>
 {:else}
-	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-	<div class="vpb-canvas" onclick={handleNodeClick}>
+	<div class="vpb-canvas" role="button" tabindex="0" onclick={handleNodeClick} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleNodeClick(e as any); }}>
 		{#if vpbDocument.document.root.length === 0}
 			<div class="vpb-canvas__empty">
 				<p class="vpb-canvas__empty-title">No blocks yet</p>

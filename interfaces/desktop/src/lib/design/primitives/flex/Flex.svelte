@@ -13,7 +13,7 @@
 
 	let { children, class: className, as = "div", ...rest }: FlexProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Flex");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Flex"); });
 </script>
 
 <svelte:element this={as} data-kind="flex" data-slot="root" class={cn(className)} {...rest}>

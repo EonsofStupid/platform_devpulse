@@ -21,7 +21,7 @@
 
 	let { children, class: className, ...rest }: ToggleGroupRootProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "ToggleGroup");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "ToggleGroup"); });
 </script>
 
 <div data-kind="toggle-group" data-slot="root" class={cn(className)} {...rest}>

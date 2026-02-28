@@ -34,7 +34,7 @@
 
 	const builder = createNumberInput({
 		value: () => value,
-		onValueChange,
+		onValueChange: (v: any) => onValueChange?.(v),
 		min: () => min,
 		max: () => max,
 		step: () => step,
@@ -42,8 +42,8 @@
 		readonly: () => readOnly,
 		required: () => required,
 		valueText: () => valueText,
-		"aria-label": rest["aria-label"],
-		"aria-describedby": rest["aria-describedby"],
+		get "aria-label"() { return rest["aria-label"]; },
+		get "aria-describedby"() { return rest["aria-describedby"]; },
 	});
 
 	const rootClasses = $derived(cn(numberInputRecipe({ size }), className));

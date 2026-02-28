@@ -19,7 +19,7 @@
 
 	let { children, class: className, ...rest }: KbdProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Kbd");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Kbd"); });
 </script>
 
 <kbd data-kind="kbd" data-slot="root" class={cn(className)} {...rest}>

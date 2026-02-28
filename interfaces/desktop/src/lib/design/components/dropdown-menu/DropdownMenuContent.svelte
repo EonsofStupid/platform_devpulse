@@ -24,7 +24,7 @@
 	}: DropdownMenuContentProps = $props();
 
 	const ctx = getDropdownMenuContext();
-	const recipe = dropdownMenuRecipe({ size });
+	const recipe = $derived(dropdownMenuRecipe({ size }));
 </script>
 
 {#if ctx.open}

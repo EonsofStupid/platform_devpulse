@@ -29,10 +29,10 @@
 	}: SelectProps = $props();
 
 	const transport = createSelectTransport({
-		value,
-		onValueChange,
-		open,
-		onOpenChange,
+		get value() { return value; },
+		onValueChange: (v: any) => onValueChange?.(v),
+		get open() { return open; },
+		onOpenChange: (v: any) => onOpenChange?.(v),
 	});
 
 	setSelectContext(transport);

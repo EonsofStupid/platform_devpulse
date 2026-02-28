@@ -33,8 +33,8 @@
 
 	const builder = createInputGroup({
 		disabled: () => disabled,
-		"aria-label": rest["aria-label"],
-		"aria-labelledby": rest["aria-labelledby"],
+		get "aria-label"() { return rest["aria-label"]; },
+		get "aria-labelledby"() { return rest["aria-labelledby"]; },
 	});
 
 	const rootClasses = $derived(cn(inputGroupRecipe({ size }), className));

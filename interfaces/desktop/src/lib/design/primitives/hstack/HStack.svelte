@@ -4,7 +4,7 @@
 
 	let { children, class: className, ...rest }: HStackProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "HStack");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "HStack"); });
 </script>
 
 <div data-kind="hstack" data-slot="root" class={cn(className)} {...rest}>

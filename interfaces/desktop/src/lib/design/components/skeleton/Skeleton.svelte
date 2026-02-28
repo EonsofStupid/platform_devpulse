@@ -27,7 +27,7 @@
 
 	const builder = createSkeleton({
 		loading: () => loading,
-		onLoadingChange,
+		onLoadingChange: (v: any) => onLoadingChange?.(v),
 	});
 
 	const classes = $derived(cn(skeletonRecipe({ variant }), className));

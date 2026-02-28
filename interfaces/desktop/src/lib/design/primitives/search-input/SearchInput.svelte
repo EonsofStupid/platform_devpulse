@@ -19,7 +19,7 @@
 
 	let { children, class: className, ...rest }: SearchInputRootProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "SearchInput");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "SearchInput"); });
 </script>
 
 <div data-kind="search-input" data-slot="root" class={cn(className)} {...rest}>

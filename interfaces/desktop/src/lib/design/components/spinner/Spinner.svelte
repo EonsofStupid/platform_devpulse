@@ -27,7 +27,7 @@
 
 	const builder = createSpinner({
 		active: () => active,
-		onActiveChange,
+		onActiveChange: (v: boolean) => onActiveChange?.(v),
 	});
 
 	const classes = $derived(cn(spinnerRecipe({ size }), className));

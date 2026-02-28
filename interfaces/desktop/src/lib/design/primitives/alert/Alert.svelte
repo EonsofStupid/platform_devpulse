@@ -4,7 +4,7 @@
 
 	let { children, class: className, ...rest }: AlertProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Alert");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Alert"); });
 </script>
 
 <div data-kind="alert" data-slot="root" class={cn(className)} {...rest}>

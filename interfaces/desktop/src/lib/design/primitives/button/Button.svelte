@@ -21,7 +21,7 @@
 
 	let { children, class: className, ...rest }: ButtonRootProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Button.Root");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Button.Root"); });
 </script>
 
 <button

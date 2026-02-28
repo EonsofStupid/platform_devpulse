@@ -82,7 +82,7 @@
 						{@const isDisabled = ctx.isDateDisabled(date)}
 						{@const isOutside = ctx.isOutsideMonth(date)}
 						{@const state = isRangeStart ? "range-start" : isRangeEnd ? "range-end" : isInRange ? "in-range" : isSelected ? "selected" : isToday ? "today" : isDisabled ? "disabled" : isOutside ? "outside-month" : undefined}
-						<td role="presentation">
+						<td>
 							<button
 								type="button"
 								role="gridcell"

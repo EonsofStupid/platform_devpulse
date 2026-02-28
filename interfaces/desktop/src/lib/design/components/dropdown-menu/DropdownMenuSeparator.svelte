@@ -23,4 +23,4 @@
 	data-kind="dropdown-menu"
 	data-slot="separator"
 	{...rest}
-/>
+></div>

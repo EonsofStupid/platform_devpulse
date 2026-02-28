@@ -21,9 +21,10 @@
 	let { children, value, class: className, ...rest }: NavigationMenuItemProps = $props();
 
 	const root = getNavigationMenuRootContext();
-	const itemValue = value ?? `nav-item-${crypto.randomUUID().slice(0, 8)}`;
-	const triggerId = `cl-nav-trigger-${itemValue}`;
-	const contentId = `cl-nav-content-${itemValue}`;
+	const fallbackId = `nav-item-${crypto.randomUUID().slice(0, 8)}`;
+	const itemValue = $derived(value ?? fallbackId);
+	const triggerId = $derived(`cl-nav-trigger-${itemValue}`);
+	const contentId = $derived(`cl-nav-content-${itemValue}`);
 
 	const isOpen = $derived(root.activeItem === itemValue);
 
@@ -43,9 +44,9 @@
 		get open() { return isOpen; },
 		toggle,
 		close,
-		triggerId,
-		contentId,
-		value: itemValue,
+		get triggerId() { return triggerId; },
+		get contentId() { return contentId; },
+		get value() { return itemValue; },
 	};
 
 	setNavigationMenuItemContext(ctx);

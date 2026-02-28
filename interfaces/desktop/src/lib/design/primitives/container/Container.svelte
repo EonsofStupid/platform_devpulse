@@ -4,7 +4,7 @@
 
 	let { children, class: className, ...rest }: ContainerProps = $props();
 
-	if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Container");
+	$effect(() => { if (import.meta.env.DEV) stripStyleProp(rest as Record<string, unknown>, "Container"); });
 </script>
 
 <div data-kind="container" data-slot="root" class={cn(className)} {...rest}>

@@ -1,12 +1,32 @@
-<div class="placeholder">DevForge (Coming Soon)</div>
+<!--
+  @file DevForge Dashboard
+  @route /devforge
+  @domain devforge
+-->
+<script lang="ts">
+	import { Grid, Stack, HStack, Text } from "$lib/design/components/index.js";
+	import { Widget } from "$lib/design/blocks/widgets/index.js";
+</script>
 
-<style>
-  .placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    font-size: 2rem;
-    color: rgba(255, 255, 255, 0.2);
-  }
-</style>
+<Grid columns="2" gap="4" class="box-lg" data-page="devforge-dashboard">
+	<Widget title="Build Pipeline" tabs={[{id: "active", label: "Active"}, {id: "history", label: "History"}]} activeTab="active">
+		<Text as="p" size="sm" color="muted">Build jobs will appear here when CI/CD is configured.</Text>
+	</Widget>
+
+	<Widget title="Environments">
+		<Stack gap="2">
+			<HStack justify="between">
+				<Text color="secondary">Development</Text>
+				<Text>Local</Text>
+			</HStack>
+			<HStack justify="between">
+				<Text color="secondary">Staging</Text>
+				<Text color="muted">Not Configured</Text>
+			</HStack>
+			<HStack justify="between">
+				<Text color="secondary">Production</Text>
+				<Text color="muted">Not Configured</Text>
+			</HStack>
+		</Stack>
+	</Widget>
+</Grid>
