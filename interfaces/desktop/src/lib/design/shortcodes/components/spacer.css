@@ -1,0 +1,43 @@
+/**
+ * @file Spacer Structural Shortcode Classes
+ * @kind spacer
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base classes for the spacer component.
+ * Purely structural — provides vertical spacing.
+ *
+ * Slot mapping:
+ *   spacer-root → root spacer element
+ *
+ * Size variants set fixed heights via spacer-{size} intent classes.
+ * "auto" size uses flex-grow for fluid spacing.
+ */
+
+@utility spacer-root {
+	flex-shrink: 0;
+}
+
+@utility spacer-xs {
+	height: var(--space-1);
+}
+
+@utility spacer-sm {
+	height: var(--space-2);
+}
+
+@utility spacer-md {
+	height: var(--space-4);
+}
+
+@utility spacer-lg {
+	height: var(--space-8);
+}
+
+@utility spacer-xl {
+	height: var(--space-12);
+}
+
+@utility spacer-auto {
+	flex: 1;
+}

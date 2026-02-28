@@ -1,7 +1,14 @@
 /**
- * @file SearchInput Recipe
+ * @file SearchInput Recipe — Shortcode Composition
  * @kind search-input
  * @layer components
+ *
+ * GOLD STANDARD — structural classes + shortcode composition only.
+ * NO raw Tailwind utilities in recipe output.
+ *
+ * Structural classes (search-input-*) handle layout/positioning.
+ * Root receives v-* s-* e-* for glass surface treatment.
+ * Size via sz-* sets --recipe-font-size, --recipe-icon-size, --recipe-padding-*.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -9,36 +16,31 @@ import { cn } from "$lib/design/utils/cn.js";
 type SearchInputRecipeProps = { size?: string };
 
 export function searchInputRecipe(props: SearchInputRecipeProps = {}): string {
-	return cn("relative inline-flex items-center w-full rounded-md", "v-void s-glass e-0");
-}
-
-export function searchInputInputRecipe(): string {
+	const size = props.size ?? "md";
 	return cn(
-		"flex-1 bg-transparent border-0 outline-none px-3 py-2",
-		"text-[var(--text-primary)] placeholder:text-[var(--text-muted)]",
-		"text-sm",
+		"search-input-root",
+		"v-void s-glass e-0",
+		`sz-${size}`,
+		"rounded-md",
 	);
 }
 
+export function searchInputInputRecipe(): string {
+	return "search-input-input";
+}
+
 export function searchInputIconRecipe(props: SearchInputRecipeProps = {}): string {
-	const sizeMap: Record<string, string> = {
-		sm: "h-3.5 w-3.5",
-		md: "h-4 w-4",
-		lg: "h-5 w-5",
-	};
-	return cn("absolute left-3 text-[var(--text-muted)]", sizeMap[props.size ?? "md"] ?? sizeMap.md);
+	const size = props.size ?? "md";
+	return cn(
+		"search-input-icon",
+		`sz-${size}`,
+	);
 }
 
 export function searchInputClearRecipe(props: SearchInputRecipeProps = {}): string {
-	const sizeMap: Record<string, string> = {
-		sm: "h-4 w-4",
-		md: "h-5 w-5",
-		lg: "h-6 w-6",
-	};
+	const size = props.size ?? "md";
 	return cn(
-		"absolute right-2 inline-flex items-center justify-center rounded-sm",
-		sizeMap[props.size ?? "md"] ?? sizeMap.md,
-		"text-[var(--text-muted)] hover:text-[var(--text-primary)]",
-		"transition-colors",
+		"search-input-clear",
+		`sz-${size}`,
 	);
 }

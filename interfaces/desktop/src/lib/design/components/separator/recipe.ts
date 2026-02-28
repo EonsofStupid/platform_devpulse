@@ -1,17 +1,17 @@
 /**
- * @file Separator Recipe
+ * @file Separator Recipe — Shortcode Composition
  * @kind separator
  * @layer components
+ *
+ * GOLD STANDARD — structural classes only.
+ * NO raw Tailwind utilities in recipe output.
+ *
+ * Purely structural component. Orientation is handled via
+ * data-orientation attribute in the CSS @utility.
  */
-
-import { cn } from "$lib/design/utils/cn.js";
 
 type SeparatorRecipeProps = { orientation?: string; variant?: string };
 
 export function separatorRecipe(props: SeparatorRecipeProps = {}): string {
-	const isVertical = props.orientation === "vertical";
-	return cn(
-		"shrink-0 bg-[oklch(1_0_0/0.06)]",
-		isVertical ? "h-full w-px" : "h-px w-full",
-	);
+	return "separator-root";
 }

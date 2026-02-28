@@ -1,0 +1,56 @@
+/**
+ * @file ScrollArea Structural Shortcode Classes
+ * @kind scroll-area
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base classes for the scroll-area compound component.
+ * Each class handles layout/positioning ONLY.
+ *
+ * Slot mapping:
+ *   scroll-area-root      → root container
+ *   scroll-area-viewport  → scrollable viewport
+ *   scroll-area-scrollbar → scrollbar track (vertical or horizontal)
+ *   scroll-area-thumb     → scrollbar thumb
+ *
+ * Orientation handled via data-orientation attribute.
+ */
+
+@utility scroll-area-root {
+	position: relative;
+	overflow: hidden;
+}
+
+@utility scroll-area-viewport {
+	height: 100%;
+	width: 100%;
+	border-radius: inherit;
+}
+
+@utility scroll-area-scrollbar {
+	display: flex;
+	touch-action: none;
+	user-select: none;
+	transition: background-color var(--duration-fast) var(--ease-out);
+
+	&[data-orientation="vertical"] {
+		height: 100%;
+		width: 0.625rem;
+		border-left: 1px solid transparent;
+		padding: 1px;
+	}
+
+	&[data-orientation="horizontal"] {
+		height: 0.625rem;
+		flex-direction: column;
+		border-top: 1px solid transparent;
+		padding: 1px;
+	}
+}
+
+@utility scroll-area-thumb {
+	position: relative;
+	flex: 1;
+	border-radius: var(--radius-full);
+	background: oklch(1 0 0 / 0.15);
+}

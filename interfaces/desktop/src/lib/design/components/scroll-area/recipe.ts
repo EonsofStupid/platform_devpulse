@@ -1,32 +1,30 @@
 /**
- * @file ScrollArea Recipe
+ * @file ScrollArea Recipe — Shortcode Composition
  * @kind scroll-area
  * @layer components
+ *
+ * GOLD STANDARD — structural classes + shortcode composition only.
+ * NO raw Tailwind utilities in recipe output.
+ *
+ * Structural classes (scroll-area-*) handle all layout/positioning.
+ * Orientation is handled via data-orientation attribute in CSS.
  */
-
-import { cn } from "$lib/design/utils/cn.js";
 
 type ScrollAreaRecipeProps = { size?: string };
 type ScrollbarRecipeProps = { size?: string; orientation?: string };
 
 export function scrollAreaRecipe(props: ScrollAreaRecipeProps = {}): string {
-	return "relative overflow-hidden";
+	return "scroll-area-root";
 }
 
 export function scrollAreaScrollbarRecipe(props: ScrollbarRecipeProps = {}): string {
-	const isVertical = props.orientation !== "horizontal";
-	return cn(
-		"flex touch-none select-none transition-colors",
-		isVertical
-			? "h-full w-2.5 border-l border-l-transparent p-px"
-			: "h-2.5 flex-col border-t border-t-transparent p-px",
-	);
+	return "scroll-area-scrollbar";
 }
 
 export function scrollAreaThumbRecipe(): string {
-	return "relative flex-1 rounded-full bg-[oklch(1_0_0/0.15)]";
+	return "scroll-area-thumb";
 }
 
 export function scrollAreaViewportRecipe(): string {
-	return "h-full w-full rounded-[inherit]";
+	return "scroll-area-viewport";
 }

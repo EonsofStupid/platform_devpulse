@@ -1,7 +1,14 @@
 /**
- * @file Sidebar Recipe
+ * @file Sidebar Recipe — Shortcode Composition
  * @kind sidebar
  * @layer components
+ *
+ * GOLD STANDARD — structural classes + shortcode composition only.
+ * NO raw Tailwind utilities in recipe output.
+ *
+ * Structural classes (sidebar-*) handle layout/positioning.
+ * Root receives v-* s-* e-* for glass surface treatment.
+ * Expanded/collapsed state via sidebar-expanded / sidebar-collapsed.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -10,10 +17,8 @@ type SidebarRecipeProps = { size?: string; expanded?: boolean };
 
 export function sidebarRecipe(props: SidebarRecipeProps = {}): string {
 	return cn(
-		"flex h-full flex-col",
+		"sidebar-root",
 		"v-void s-glass e-1",
-		"border-r border-[oklch(1_0_0/0.06)]",
-		"transition-[width] duration-200",
-		props.expanded === false ? "w-16" : "w-64",
+		props.expanded === false ? "sidebar-collapsed" : "sidebar-expanded",
 	);
 }

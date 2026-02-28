@@ -1,28 +1,20 @@
 /**
- * @file Slider Recipe
+ * @file Slider Recipe — Shortcode Composition
  * @kind slider
  * @layer components
+ *
+ * GOLD STANDARD — structural classes only.
+ * NO raw Tailwind utilities in recipe output.
+ *
+ * Structural classes (slider-*) handle all layout/positioning.
+ * Accent color consumed via --recipe-accent CSS variable.
  */
-
-import { cn } from "$lib/design/utils/cn.js";
 
 export function sliderRecipe() {
 	return {
-		root: "relative flex w-full touch-none select-none items-center",
-		track: cn(
-			"relative h-2 w-full grow overflow-hidden rounded-full",
-			"bg-[oklch(1_0_0/0.06)]",
-		),
-		range: cn(
-			"absolute h-full rounded-full",
-			"bg-[var(--recipe-accent,var(--color-teal-500))]",
-		),
-		thumb: cn(
-			"block h-5 w-5 rounded-full",
-			"bg-[var(--text-primary)]",
-			"border-2 border-[var(--recipe-accent,var(--color-teal-500))]",
-			"focus-visible:outline-none focus-visible:ring-2",
-			"transition-colors",
-		),
+		root: "slider-root",
+		track: "slider-track",
+		range: "slider-range",
+		thumb: "slider-thumb",
 	};
 }

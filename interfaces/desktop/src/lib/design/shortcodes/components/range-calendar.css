@@ -1,0 +1,70 @@
+/**
+ * @file RangeCalendar Structural Shortcode Classes
+ * @kind range-calendar
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base classes for the range-calendar compound component.
+ * Each class handles layout/positioning ONLY — visual appearance
+ * comes from shortcode composition (v-* + s-* + e-* + sz-*).
+ *
+ * Slot mapping:
+ *   range-calendar-root     → root container
+ *   range-calendar-grid     → table grid
+ *   range-calendar-header   → month/year header with nav
+ *   range-calendar-heading  → month/year text
+ *   range-calendar-cell     → individual day cell button
+ *   range-calendar-headcell → weekday header cell
+ *   range-calendar-nav      → prev/next month button
+ */
+
+@utility range-calendar-root {
+	padding: var(--recipe-padding-x, var(--space-3));
+	font-size: var(--recipe-font-size, var(--text-size-sm));
+}
+
+@utility range-calendar-grid {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+@utility range-calendar-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding-inline: var(--space-1);
+	padding-block: var(--space-2);
+}
+
+@utility range-calendar-heading {
+	font-size: var(--text-size-sm);
+	font-weight: 500;
+}
+
+@utility range-calendar-cell {
+	position: relative;
+	padding: 0;
+	text-align: center;
+	min-height: var(--recipe-min-h, 2.25rem);
+	min-width: var(--recipe-min-h, 2.25rem);
+}
+
+@utility range-calendar-headcell {
+	color: var(--text-muted);
+	font-weight: 400;
+	text-align: center;
+}
+
+@utility range-calendar-nav {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 1.75rem;
+	width: 1.75rem;
+	border-radius: var(--radius-md);
+	transition: background-color var(--duration-fast) var(--ease-out);
+
+	&:hover {
+		background: oklch(1 0 0 / 0.06);
+	}
+}

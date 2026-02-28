@@ -1,0 +1,63 @@
+<!--
+	@file VPB Graph — AST Node Editor
+	@layer vpb
+
+	@xyflow/svelte integration for block tree visualization.
+	Renders BlockNode tree as a connected node graph.
+-->
+<script lang="ts">
+	import {
+		SvelteFlow,
+		Controls,
+		MiniMap,
+		Background,
+	} from "@xyflow/svelte";
+	import "@xyflow/svelte/dist/style.css";
+	import VpbBlockNode from "./VpbBlockNode.svelte";
+	import VpbSlotEdge from "./VpbSlotEdge.svelte";
+	import { blockTreeToFlow } from "./blockToFlow.js";
+	import { vpbDocument } from "../state/vpb-document.svelte.js";
+
+	const nodeTypes = { vpbBlock: VpbBlockNode } as Record<string, any>;
+	const edgeTypes = { slot: VpbSlotEdge } as Record<string, any>;
+
+	const flowData = $derived(blockTreeToFlow(vpbDocument.document.root));
+
+	let nodes = $state.raw(flowData.nodes);
+	let edges = $state.raw(flowData.edges);
+
+	$effect(() => {
+		nodes = flowData.nodes;
+		edges = flowData.edges;
+	});
+</script>
+
+<div class="vpb-graph">
+	<SvelteFlow
+		bind:nodes
+		bind:edges
+		{nodeTypes}
+		{edgeTypes}
+		fitView
+		minZoom={0.25}
+		maxZoom={2}
+		defaultEdgeOptions={{ animated: true }}
+	>
+		<Controls />
+		<MiniMap
+			style="background: oklch(0.1 0.01 220);"
+			nodeColor="oklch(0.3 0.1 180)"
+		/>
+		<Background gap={20} />
+	</SvelteFlow>
+</div>
+
+<style>
+	.vpb-graph {
+		width: 100%;
+		height: 100%;
+	}
+	.vpb-graph :global(.svelte-flow) {
+		background: oklch(0.06 0.01 220) !important;
+	}
+</style>

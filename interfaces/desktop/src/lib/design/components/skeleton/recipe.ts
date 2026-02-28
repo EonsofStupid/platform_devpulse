@@ -1,16 +1,16 @@
 /**
- * @file Skeleton Recipe
+ * @file Skeleton Recipe — Shortcode Composition
  * @kind skeleton
  * @layer components
+ *
+ * GOLD STANDARD — structural classes only.
+ * NO raw Tailwind utilities in recipe output.
+ *
+ * Structural class (skeleton-root) handles animation and background.
  */
-
-import { cn } from "$lib/design/utils/cn.js";
 
 type SkeletonRecipeProps = { variant?: string };
 
 export function skeletonRecipe(props: SkeletonRecipeProps = {}): string {
-	return cn(
-		"animate-pulse rounded-md",
-		"bg-[oklch(1_0_0/0.06)]",
-	);
+	return "skeleton-root";
 }

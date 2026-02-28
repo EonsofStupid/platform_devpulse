@@ -1,17 +1,20 @@
 /**
- * @file SkipLink Recipe
+ * @file SkipLink Recipe — Shortcode Composition
  * @kind skip-link
  * @layer components
+ *
+ * GOLD STANDARD — structural classes + shortcode composition only.
+ * NO raw Tailwind utilities in recipe output.
+ *
+ * Structural class (skip-link-root) handles sr-only + focus reveal.
+ * On focus, receives v-* s-* e-* for glass surface treatment.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
 
 export function skipLinkRecipe(): string {
 	return cn(
-		"sr-only focus:not-sr-only",
-		"focus:fixed focus:left-4 focus:top-4 focus:z-[9999]",
-		"focus:rounded-md focus:px-4 focus:py-2",
-		"focus:v-cyber focus:s-glass focus:e-2",
-		"focus:text-[var(--text-primary)]",
+		"skip-link-root",
+		"v-cyber s-glass e-2",
 	);
 }
