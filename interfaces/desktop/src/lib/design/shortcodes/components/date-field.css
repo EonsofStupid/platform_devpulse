@@ -1,0 +1,38 @@
+/**
+ * @file DateField Structural Shortcode Classes
+ * @kind date-field
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base classes for the date-field compound component.
+ * Each class handles layout/positioning ONLY — visual appearance
+ * comes from shortcode composition (v-* + s-* + e-* + sz-*).
+ *
+ * Slot mapping:
+ *   date-field-root    → root container (receives v-* s-* e-* sz-*)
+ *   date-field-segment → editable segment (spinbutton)
+ *   date-field-literal → literal separator
+ */
+
+@utility date-field-root {
+	display: inline-flex;
+	align-items: center;
+	padding: var(--recipe-padding-y, var(--space-2)) var(--recipe-padding-x, var(--space-3));
+	font-size: var(--recipe-font-size, var(--text-size-sm));
+}
+
+@utility date-field-segment {
+	border-radius: var(--radius-sm);
+	padding-left: 0.125rem;
+	padding-right: 0.125rem;
+	font-variant-numeric: tabular-nums;
+
+	&:focus {
+		background: oklch(1 0 0 / 0.06);
+		outline: none;
+	}
+}
+
+@utility date-field-literal {
+	color: var(--text-muted);
+}

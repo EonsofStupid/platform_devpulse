@@ -1,0 +1,20 @@
+/**
+ * @file LoadingOverlay Structural Shortcode Classes
+ * @kind loading-overlay
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the loading overlay component.
+ * Full-coverage overlay with centered content.
+ */
+
+@utility loading-overlay-root {
+	position: absolute;
+	inset: 0;
+	z-index: var(--z-overlay, 10);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: oklch(0.06 0.02 195 / 0.60);
+	backdrop-filter: blur(var(--blur-sm, 4px));
+}

@@ -1,0 +1,133 @@
+/**
+ * @file Internal Shortcode Classes
+ * @layer shortcodes
+ * @package @devpulse/coldlight
+ *
+ * Internal classes are system-applied, NEVER in user markup.
+ * Prefixed with underscore to signal internal-only usage.
+ *
+ * Categories:
+ *   _motion-*  Animation presets (respects prefers-reduced-motion)
+ *   _blend-*   Color blend quadrants (temperature + brightness)
+ *   _focus-*   Focus intensity levels
+ *   _state-*   Interaction state modifiers
+ */
+
+/* ═══════════════════════════════════════════════════════════════════
+ * _motion-* Animation Presets
+ *
+ * Applied by the system when motion context is enabled.
+ * All animations respect prefers-reduced-motion.
+ * ═══════════════════════════════════════════════════════════════════ */
+
+@utility _motion-pulse {
+	animation: recipe-pulse 2s ease-in-out infinite;
+}
+
+@utility _motion-flow {
+	animation: recipe-flow 3s linear infinite;
+}
+
+@utility _motion-shimmer {
+	animation: recipe-shimmer 1.5s ease infinite;
+}
+
+@keyframes recipe-pulse {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.7; }
+}
+
+@keyframes recipe-flow {
+	0% { background-position: 0% 50%; }
+	100% { background-position: 200% 50%; }
+}
+
+@keyframes recipe-shimmer {
+	0% { background-position: -200% 0; }
+	100% { background-position: 200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	._motion-pulse,
+	._motion-flow,
+	._motion-shimmer {
+		animation: none;
+	}
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ * _blend-* Color Blend Quadrants
+ *
+ * System applies based on context (cool/warm + bright/muted).
+ * Sets blend modifiers that affect color calculations.
+ * ═══════════════════════════════════════════════════════════════════ */
+
+@utility _blend-cool-bright {
+	--blend-hue-shift: -15;
+	--blend-saturation-mod: 1.2;
+	--blend-lightness-mod: 1.1;
+}
+
+@utility _blend-cool-muted {
+	--blend-hue-shift: -15;
+	--blend-saturation-mod: 0.8;
+	--blend-lightness-mod: 0.9;
+}
+
+@utility _blend-warm-bright {
+	--blend-hue-shift: 15;
+	--blend-saturation-mod: 1.2;
+	--blend-lightness-mod: 1.1;
+}
+
+@utility _blend-warm-muted {
+	--blend-hue-shift: 15;
+	--blend-saturation-mod: 0.8;
+	--blend-lightness-mod: 0.9;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ * _focus-* Focus Intensity
+ *
+ * Inline override for single-element focus intensity.
+ * Prefer data-focus attribute cascade for container-level control.
+ * ═══════════════════════════════════════════════════════════════════ */
+
+@utility _focus-low {
+	--recipe-blur: var(--blur-sm);
+	--recipe-saturation: 1.0;
+}
+
+@utility _focus-high {
+	--recipe-blur: var(--blur-xl);
+	--recipe-saturation: 2.0;
+}
+
+@utility _focus-critical {
+	--recipe-blur: var(--blur-xl);
+	--recipe-saturation: 2.5;
+	--recipe-glow-intensity: 1.5;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ * _state-* Interaction States
+ *
+ * System applies based on component interaction state.
+ * These modify recipe vars for visual feedback.
+ * ═══════════════════════════════════════════════════════════════════ */
+
+@utility _state-hover {
+	--recipe-border-alpha: calc(var(--recipe-border-alpha, 0.06) + 0.05);
+	--recipe-bg-alpha: calc(var(--recipe-bg-alpha, 0.85) + 0.05);
+}
+
+@utility _state-active {
+	--recipe-border-alpha: calc(var(--recipe-border-alpha, 0.06) + 0.10);
+	--recipe-bg-alpha: calc(var(--recipe-bg-alpha, 0.85) + 0.10);
+}
+
+@utility _state-disabled {
+	opacity: 0.5;
+	pointer-events: none;
+	filter: saturate(0.5);
+}

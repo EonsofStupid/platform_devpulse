@@ -1,0 +1,55 @@
+/**
+ * @file Textarea Structural Shortcode Classes
+ * @kind textarea
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the textarea component.
+ * Size is controlled by sz-* shortcode classes.
+ */
+
+@utility textarea-root {
+	display: flex;
+	width: 100%;
+	min-height: var(--recipe-min-h, 5rem);
+	padding-inline: var(--recipe-padding-x, var(--space-3));
+	padding-block: var(--recipe-padding-y, var(--space-2));
+	font-size: var(--recipe-font-size, var(--text-size-sm));
+	color: var(--text-primary);
+	border-radius: var(--radius-md);
+	resize: vertical;
+	transition: color var(--duration-fast) var(--ease-out);
+
+	&::placeholder {
+		color: var(--text-muted);
+	}
+	&:focus-visible {
+		outline: none;
+		box-shadow: 0 0 0 2px var(--recipe-accent, var(--color-teal-500));
+	}
+	&:disabled {
+		cursor: not-allowed;
+		opacity: 0.5;
+	}
+}
+
+/* -- Size intent classes -- */
+
+@utility textarea-sm {
+	--recipe-min-h: 3.75rem;
+	--recipe-padding-x: var(--space-2);
+	--recipe-padding-y: var(--space-1);
+	--recipe-font-size: var(--text-size-sm);
+}
+@utility textarea-md {
+	--recipe-min-h: 5rem;
+	--recipe-padding-x: var(--space-3);
+	--recipe-padding-y: var(--space-2);
+	--recipe-font-size: var(--text-size-sm);
+}
+@utility textarea-lg {
+	--recipe-min-h: 7.5rem;
+	--recipe-padding-x: var(--space-4);
+	--recipe-padding-y: var(--space-3);
+	--recipe-font-size: var(--text-size-base);
+}

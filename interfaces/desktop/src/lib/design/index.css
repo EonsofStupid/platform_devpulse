@@ -21,3 +21,11 @@
 @import "./molecules/glow.css";
 @import "./molecules/bevel.css";
 @import "./molecules/depth.css";
+
+/* 4. Shortcodes - Class composition system (v-, s-, e-, sz-) */
+@import "./shortcodes/shortcodes.css";
+@import "./shortcodes/focus-cascade.css";
+@import "./shortcodes/internal.css";
+
+/* 5. Component shortcodes - Structural base classes per component */
+@import "./shortcodes/components/dialog.css";

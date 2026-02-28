@@ -1,0 +1,25 @@
+/**
+ * @file Box Structural Shortcode Classes
+ * @kind box
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base classes for the box layout component.
+ * Padding and radius variants are structural concerns.
+ */
+
+@utility box-none {
+	padding: 0;
+}
+
+@utility box-sm {
+	padding: var(--space-2);
+}
+
+@utility box-md {
+	padding: var(--space-4);
+}
+
+@utility box-lg {
+	padding: var(--space-6);
+}

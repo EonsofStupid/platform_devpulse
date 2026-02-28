@@ -1,0 +1,111 @@
+/**
+ * @file Dialog Structural Shortcode Classes
+ * @kind dialog
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base classes for the dialog compound component.
+ * Each class handles layout/positioning ONLY — visual appearance
+ * comes from shortcode composition (v-* + s-* + e-* + sz-*).
+ *
+ * Slot mapping (matches dialog contract exactly):
+ *   dialog-overlay     → overlay slot
+ *   dialog-content     → content slot (receives v-* s-* e-* sz-*)
+ *   dialog-header      → header slot
+ *   dialog-footer      → footer slot
+ *   dialog-title       → title slot
+ *   dialog-description → description slot
+ *   dialog-close       → close slot
+ *
+ * Slots with no structural needs (trigger, portal) get no class.
+ */
+
+@utility dialog-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: var(--z-overlay);
+	background: oklch(0.06 0.02 195 / 0.60);
+	backdrop-filter: blur(var(--blur-md));
+	transition: opacity var(--duration-normal) var(--ease-out);
+
+	&[data-state="open"] {
+		opacity: 1;
+	}
+	&[data-state="closed"] {
+		opacity: 0;
+	}
+}
+
+@utility dialog-content {
+	position: fixed;
+	left: 50%;
+	top: 50%;
+	z-index: var(--z-modal);
+	transform: translate(-50%, -50%);
+	width: 100%;
+	max-width: 32rem;
+	border-radius: var(--radius-lg);
+	font-size: var(--recipe-font-size, var(--text-size-sm));
+	transition:
+		opacity var(--duration-normal) var(--ease-out),
+		transform var(--duration-normal) var(--ease-spring);
+
+	&[data-state="open"] {
+		opacity: 1;
+		transform: translate(-50%, -50%) scale(1);
+	}
+	&[data-state="closed"] {
+		opacity: 0;
+		transform: translate(-50%, -50%) scale(0.95);
+	}
+}
+
+@utility dialog-header {
+	display: flex;
+	flex-direction: column;
+	gap: var(--recipe-gap, var(--space-2));
+	padding: var(--recipe-padding-x, var(--space-6));
+	padding-bottom: var(--recipe-padding-y, var(--space-4));
+}
+
+@utility dialog-footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: var(--recipe-gap, var(--space-3));
+	padding: var(--recipe-padding-x, var(--space-6));
+	padding-top: var(--recipe-padding-y, var(--space-4));
+}
+
+@utility dialog-title {
+	font-size: var(--text-size-lg);
+	font-weight: 600;
+	letter-spacing: -0.01em;
+	color: var(--text-primary);
+}
+
+@utility dialog-description {
+	font-size: var(--recipe-font-size, var(--text-size-sm));
+	line-height: 1.625;
+	color: var(--text-secondary);
+}
+
+@utility dialog-close {
+	position: absolute;
+	right: var(--space-4);
+	top: var(--space-4);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: var(--radius-md);
+	padding: var(--space-1);
+	color: var(--text-muted);
+	transition: color var(--duration-fast) var(--ease-out);
+
+	&:hover {
+		color: var(--text-primary);
+	}
+	&:focus-visible {
+		outline: none;
+		box-shadow: 0 0 0 2px var(--recipe-accent, var(--color-teal-500));
+	}
+}

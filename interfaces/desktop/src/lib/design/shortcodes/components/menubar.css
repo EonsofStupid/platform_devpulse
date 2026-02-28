@@ -1,0 +1,74 @@
+/**
+ * @file Menubar Structural Shortcode Classes
+ * @kind menubar
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base classes for the menubar compound component.
+ *
+ * Slot mapping:
+ *   menubar-root      → root container (receives v-* s-* e-*)
+ *   menubar-trigger   → trigger button
+ *   menubar-content   → dropdown content (receives v-* s-* e-*)
+ *   menubar-item      → individual menu item
+ *   menubar-separator → visual separator between items
+ */
+
+@utility menubar-root {
+	display: flex;
+	align-items: center;
+	gap: var(--recipe-gap, var(--space-1));
+	padding: var(--space-1);
+	border-radius: var(--radius-md);
+}
+
+@utility menubar-trigger {
+	display: flex;
+	align-items: center;
+	padding-inline: var(--recipe-padding-x, var(--space-3));
+	padding-block: var(--recipe-padding-y, var(--space-1-5));
+	font-size: var(--recipe-font-size, var(--text-size-sm));
+	font-weight: 500;
+	color: var(--text-primary);
+	border-radius: var(--radius-sm);
+	transition: background-color var(--duration-fast) var(--ease-out);
+
+	&:hover {
+		background: oklch(1 0 0 / 0.06);
+	}
+	&[data-state="open"] {
+		background: oklch(1 0 0 / 0.06);
+	}
+}
+
+@utility menubar-content {
+	min-width: 12rem;
+	overflow: hidden;
+	padding: var(--space-1);
+	border-radius: var(--radius-md);
+}
+
+@utility menubar-item {
+	position: relative;
+	display: flex;
+	align-items: center;
+	cursor: default;
+	user-select: none;
+	padding-inline: var(--recipe-padding-x, var(--space-2));
+	padding-block: var(--recipe-padding-y, var(--space-1-5));
+	font-size: var(--recipe-font-size, var(--text-size-sm));
+	color: var(--text-primary);
+	border-radius: var(--radius-sm);
+	transition: background-color var(--duration-fast) var(--ease-out);
+
+	&:hover {
+		background: oklch(1 0 0 / 0.06);
+	}
+}
+
+@utility menubar-separator {
+	margin-inline: var(--space-1);
+	margin-block: var(--space-1);
+	height: 1px;
+	background: oklch(1 0 0 / 0.06);
+}

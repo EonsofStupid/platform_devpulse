@@ -1,0 +1,17 @@
+/**
+ * @file TableOfContents Structural Shortcode Classes
+ * @kind table-of-contents
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the table-of-contents component.
+ * Size is controlled by sz-* shortcode classes.
+ */
+
+@utility toc-root {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-1);
+	color: var(--text-secondary);
+	font-size: var(--recipe-font-size, var(--text-size-sm));
+}

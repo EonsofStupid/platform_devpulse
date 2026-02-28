@@ -188,6 +188,23 @@ export const STATE_TOKENS = [
 	// Position
 	"expanded",
 	"collapsed",
+	// Lifecycle
+	"loaded",
+	"inactive",
+	// Toggle
+	"on",
+	"off",
+	// Unchecked
+	"unchecked",
+	// Selection emphasis
+	"highlighted",
+	// Temporal / Calendar
+	"today",
+	"outside-month",
+	// Range
+	"range-start",
+	"range-end",
+	"in-range",
 ] as const;
 
 // =============================================================================

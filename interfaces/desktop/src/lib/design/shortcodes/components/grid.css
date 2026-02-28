@@ -1,0 +1,96 @@
+/**
+ * @file Grid Structural Shortcode Classes
+ * @kind grid
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the grid layout component.
+ * Handles CSS Grid setup — column/row counts and gap are
+ * controlled by --recipe-* vars set via grid-cols-* / grid-rows-* / grid-gap-* utility classes.
+ */
+
+@utility grid-root {
+	display: grid;
+	gap: var(--recipe-gap, var(--space-4));
+}
+
+/* ── Column count utilities ── */
+
+@utility grid-cols-1 {
+	grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+@utility grid-cols-2 {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@utility grid-cols-3 {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+@utility grid-cols-4 {
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+@utility grid-cols-5 {
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+@utility grid-cols-6 {
+	grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+@utility grid-cols-12 {
+	grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+@utility grid-cols-none {
+	grid-template-columns: none;
+}
+
+/* ── Row count utilities ── */
+
+@utility grid-rows-1 {
+	grid-template-rows: repeat(1, minmax(0, 1fr));
+}
+@utility grid-rows-2 {
+	grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+@utility grid-rows-3 {
+	grid-template-rows: repeat(3, minmax(0, 1fr));
+}
+@utility grid-rows-4 {
+	grid-template-rows: repeat(4, minmax(0, 1fr));
+}
+@utility grid-rows-5 {
+	grid-template-rows: repeat(5, minmax(0, 1fr));
+}
+@utility grid-rows-6 {
+	grid-template-rows: repeat(6, minmax(0, 1fr));
+}
+@utility grid-rows-none {
+	grid-template-rows: none;
+}
+
+/* ── Gap utilities ── */
+
+@utility grid-gap-0 {
+	--recipe-gap: 0px;
+}
+@utility grid-gap-1 {
+	--recipe-gap: var(--space-1);
+}
+@utility grid-gap-2 {
+	--recipe-gap: var(--space-2);
+}
+@utility grid-gap-3 {
+	--recipe-gap: var(--space-3);
+}
+@utility grid-gap-4 {
+	--recipe-gap: var(--space-4);
+}
+@utility grid-gap-6 {
+	--recipe-gap: var(--space-6);
+}
+@utility grid-gap-8 {
+	--recipe-gap: var(--space-8);
+}
+@utility grid-gap-10 {
+	--recipe-gap: var(--space-10);
+}
+@utility grid-gap-12 {
+	--recipe-gap: var(--space-12);
+}

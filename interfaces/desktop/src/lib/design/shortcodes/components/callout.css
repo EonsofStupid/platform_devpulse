@@ -1,0 +1,18 @@
+/**
+ * @file Callout Structural Shortcode Classes
+ * @kind callout
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the callout component.
+ * Handles layout/positioning ONLY — visual appearance
+ * comes from shortcode composition (v-* + s-* + e-*).
+ */
+
+@utility callout {
+	display: flex;
+	gap: var(--recipe-gap, var(--space-3));
+	padding: var(--recipe-padding-x, var(--space-4));
+	font-size: var(--recipe-font-size, var(--text-size-sm));
+	border-radius: var(--radius-lg);
+}

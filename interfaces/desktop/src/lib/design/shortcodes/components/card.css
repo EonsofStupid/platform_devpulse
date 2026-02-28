@@ -1,0 +1,15 @@
+/**
+ * @file Card Structural Shortcode Classes
+ * @kind card
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the card component.
+ * Handles layout/positioning ONLY — visual appearance
+ * comes from shortcode composition (v-* + s-* + e-*).
+ */
+
+@utility card {
+	padding: var(--recipe-padding-x, var(--space-6));
+	border-radius: var(--radius-lg);
+}

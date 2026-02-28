@@ -13,6 +13,7 @@
  */
 
 import { z } from "zod";
+import { STATE_TOKENS } from "../../config/coldlight/vocabularies.cfg.js";
 
 // =============================================================================
 // ARIA ROLES — W3C WAI-ARIA 1.2 Official Spec
@@ -275,54 +276,14 @@ export const FocusStrategySchema = z.enum(FocusStrategies);
 export type FocusStrategy = z.infer<typeof FocusStrategySchema>;
 
 // =============================================================================
-// STATE TOKENS — data-state attribute values
+// STATE TOKENS — derived from vocabularies.cfg.ts SSOT
 // =============================================================================
 
-export const StateTokens = [
-	// Presence
-	"hidden",
-	"visible",
-	"inert",
-	// Primary
-	"open",
-	"closed",
-	"selected",
-	"checked",
-	"indeterminate",
-	"disabled",
-	"readonly",
-	"required",
-	"invalid",
-	"valid",
-	// Focus
-	"focused",
-	"focus-visible",
-	"focus-within",
-	// Interaction
-	"hover",
-	"active",
-	"pressed",
-	// Loading
-	"loading",
-	"pending",
-	"busy",
-	// Animation
-	"entering",
-	"exiting",
-	// Position
-	"expanded",
-	"collapsed",
-	// Lifecycle
-	"loaded",
-	"inactive",
-	// Toggle
-	"on",
-	"off",
-	// Unchecked
-	"unchecked",
-	// Selection emphasis
-	"highlighted",
-] as const;
+/**
+ * Re-exported from config/coldlight/vocabularies.cfg.ts.
+ * SSOT lives there. This is the Zod schema + type derivation.
+ */
+export const StateTokens = STATE_TOKENS;
 
 export const StateTokenSchema = z.enum(StateTokens);
 export type StateToken = z.infer<typeof StateTokenSchema>;

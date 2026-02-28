@@ -1,0 +1,28 @@
+/**
+ * @file Steps Structural Shortcode Classes
+ * @kind steps
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base classes for the steps component.
+ * Orientation controlled by steps-horizontal / steps-vertical intent classes.
+ */
+
+@utility steps-root {
+	display: flex;
+	gap: var(--space-4);
+	align-items: var(--recipe-align, center);
+	flex-direction: var(--recipe-direction, row);
+}
+
+/* -- Orientation intent classes -- */
+
+@utility steps-horizontal {
+	--recipe-direction: row;
+	--recipe-align: center;
+}
+
+@utility steps-vertical {
+	--recipe-direction: column;
+	--recipe-align: stretch;
+}

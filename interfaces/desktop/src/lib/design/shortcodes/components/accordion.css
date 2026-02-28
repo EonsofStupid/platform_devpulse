@@ -1,0 +1,51 @@
+/**
+ * @file Accordion Structural Shortcode Classes
+ * @kind accordion
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base classes for the accordion compound component.
+ * Each class handles layout/positioning ONLY — visual appearance
+ * comes from shortcode composition (v-* + s-* + e-* + sz-*).
+ *
+ * Slot mapping (matches accordion contract exactly):
+ *   accordion-root    → root slot
+ *   accordion-item    → item slot
+ *   accordion-trigger → trigger slot
+ *   accordion-content → content slot
+ */
+
+@utility accordion-root {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-1);
+}
+
+@utility accordion-item {
+	border-bottom: 1px solid oklch(1 0 0 / 0.06);
+}
+
+@utility accordion-trigger {
+	display: flex;
+	width: 100%;
+	align-items: center;
+	justify-content: space-between;
+	padding-top: var(--recipe-padding-y, var(--space-3));
+	padding-bottom: var(--recipe-padding-y, var(--space-3));
+	text-align: left;
+	font-size: var(--recipe-font-size, var(--text-size-sm));
+	font-weight: 500;
+	color: var(--text-primary);
+	transition: color var(--duration-fast) var(--ease-out);
+
+	&:hover {
+		color: var(--text-primary);
+	}
+}
+
+@utility accordion-content {
+	overflow: hidden;
+	padding-bottom: var(--recipe-padding-y, var(--space-3));
+	font-size: var(--recipe-font-size, var(--text-size-sm));
+	color: var(--text-secondary);
+}

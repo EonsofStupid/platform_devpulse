@@ -1,0 +1,32 @@
+/**
+ * @file InlineMessage Structural Shortcode Classes
+ * @kind inline-message
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the inline message component.
+ * Tone is controlled by inline-message-{tone} intent classes.
+ */
+
+@utility inline-message-root {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--recipe-gap, var(--space-2));
+	font-size: var(--recipe-font-size, var(--text-size-sm));
+	color: var(--recipe-accent, var(--color-teal-400));
+}
+
+/* ── Tone intent classes ── */
+
+@utility inline-message-info {
+	--recipe-accent: var(--color-teal-400);
+}
+@utility inline-message-success {
+	--recipe-accent: var(--signal-success);
+}
+@utility inline-message-warning {
+	--recipe-accent: var(--signal-warning);
+}
+@utility inline-message-error {
+	--recipe-accent: var(--signal-error);
+}

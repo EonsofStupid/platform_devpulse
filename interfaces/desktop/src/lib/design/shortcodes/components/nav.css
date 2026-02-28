@@ -1,0 +1,24 @@
+/**
+ * @file Nav Structural Shortcode Classes
+ * @kind nav
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the nav container component.
+ * Orientation is controlled by nav-horizontal / nav-vertical intent classes.
+ */
+
+@utility nav-root {
+	display: flex;
+	gap: var(--recipe-gap, var(--space-1));
+}
+
+/* ── Orientation intent classes ── */
+
+@utility nav-horizontal {
+	flex-direction: row;
+	align-items: center;
+}
+@utility nav-vertical {
+	flex-direction: column;
+}

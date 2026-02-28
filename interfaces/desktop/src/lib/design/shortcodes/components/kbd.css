@@ -1,0 +1,24 @@
+/**
+ * @file Kbd Structural Shortcode Classes
+ * @kind kbd
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the keyboard shortcut indicator component.
+ * Size is controlled by sz-* shortcode classes.
+ */
+
+@utility kbd-root {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: var(--recipe-min-h, 1.5rem);
+	padding-inline: var(--recipe-padding-x, var(--space-1-5));
+	font-size: var(--recipe-font-size, var(--text-size-xs));
+	font-family: var(--font-mono, ui-monospace, monospace);
+	font-weight: 500;
+	color: var(--text-secondary);
+	border-radius: var(--radius-sm);
+	background: oklch(0.14 0.005 250);
+	border: 1px solid oklch(1 0 0 / 0.1);
+}

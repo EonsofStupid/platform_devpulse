@@ -1,0 +1,70 @@
+/**
+ * @file Switch Structural Shortcode Classes
+ * @kind switch
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base classes for the switch compound component.
+ * Size is controlled by sz-* shortcode classes.
+ *
+ * Slot mapping:
+ *   switch-root  → root slot (track)
+ *   switch-thumb → thumb slot
+ */
+
+@utility switch-root {
+	display: inline-flex;
+	flex-shrink: 0;
+	cursor: pointer;
+	align-items: center;
+	border-radius: var(--radius-full);
+	border: 2px solid transparent;
+	width: var(--recipe-width, 2.75rem);
+	height: var(--recipe-height, 1.5rem);
+	transition: background-color var(--duration-fast) var(--ease-out);
+
+	&[data-state="checked"] {
+		background: var(--recipe-accent, var(--color-teal-500));
+	}
+	&[data-state="unchecked"] {
+		background: oklch(1 0 0 / 0.15);
+	}
+	&:focus-visible {
+		outline: none;
+		box-shadow: 0 0 0 2px var(--recipe-accent, var(--color-teal-500));
+	}
+	&:disabled {
+		cursor: not-allowed;
+		opacity: 0.5;
+	}
+}
+
+@utility switch-thumb {
+	pointer-events: none;
+	display: block;
+	border-radius: var(--radius-full);
+	background: white;
+	box-shadow: var(--shadow-lg, 0 4px 6px -1px oklch(0 0 0 / 0.1));
+	ring: 0;
+	width: var(--recipe-thumb-size, 1.25rem);
+	height: var(--recipe-thumb-size, 1.25rem);
+	transition: transform var(--duration-fast) var(--ease-out);
+}
+
+/* -- Size intent classes -- */
+
+@utility switch-sm {
+	--recipe-width: 2.25rem;
+	--recipe-height: 1.25rem;
+	--recipe-thumb-size: 1rem;
+}
+@utility switch-md {
+	--recipe-width: 2.75rem;
+	--recipe-height: 1.5rem;
+	--recipe-thumb-size: 1.25rem;
+}
+@utility switch-lg {
+	--recipe-width: 3.25rem;
+	--recipe-height: 1.75rem;
+	--recipe-thumb-size: 1.5rem;
+}

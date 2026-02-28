@@ -1,0 +1,16 @@
+/**
+ * @file Stat Structural Shortcode Classes
+ * @kind stat
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the stat display component.
+ * Size is controlled by sz-* shortcode classes.
+ */
+
+@utility stat-root {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-1);
+	font-size: var(--recipe-font-size, var(--text-size-base));
+}

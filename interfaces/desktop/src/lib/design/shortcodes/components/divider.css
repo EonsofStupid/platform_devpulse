@@ -1,0 +1,23 @@
+/**
+ * @file Divider Structural Shortcode Classes
+ * @kind divider
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base classes for the divider component.
+ * Orientation is controlled by divider-horizontal / divider-vertical classes.
+ */
+
+@utility divider-horizontal {
+	flex-shrink: 0;
+	height: 1px;
+	width: 100%;
+	background: oklch(1 0 0 / 0.06);
+}
+
+@utility divider-vertical {
+	flex-shrink: 0;
+	width: 1px;
+	height: 100%;
+	background: oklch(1 0 0 / 0.06);
+}
