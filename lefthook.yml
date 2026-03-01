@@ -22,6 +22,11 @@ pre-commit:
       root: "interfaces/desktop"
       run: pnpm exec svelte-check --threshold error
 
+    # IP boundary enforcement — blocks kernel terms in staged files
+    ip-boundary-check:
+      glob: "*.{rs,ts,svelte,json}"
+      run: bash scripts/hooks/ip-boundary-check.sh
+
     # Block --dp- and --cl- prefixes from ever entering the codebase
     no-legacy-prefixes:
       glob: "interfaces/desktop/src/**/*.{ts,svelte,css}"

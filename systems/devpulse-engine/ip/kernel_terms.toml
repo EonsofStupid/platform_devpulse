@@ -1,0 +1,389 @@
+# ═══════════════════════════════════════════════════════════════
+# KERNEL TERMS DICTIONARY — SSOT
+# ═══════════════════════════════════════════════════════════════
+#
+# Every internal term that must NEVER appear in the engine build.
+#
+# Fields:
+#   kernel    = internal term (what we use in development)
+#   engine    = public equivalent (what the customer sees)
+#   category  = grouping for dev tool UI
+#   context   = where this term appears (logs, traces, ui-text, errors, metrics)
+#   severity  = "hard" (compile error if found) or "soft" (warning, may be contextual)
+#
+# Adding a new term:
+#   1. Add entry here
+#   2. Use ip_term!("TERM") in code (not raw string)
+#   3. cargo build regenerates vocabulary HashMap
+#   4. CI scanner auto-catches raw string usage
+#   NO other code changes needed.
+
+# ─────────────────────────────────────────────────────────────
+# CATEGORY: Sub-Agents
+# ─────────────────────────────────────────────────────────────
+
+[[terms]]
+kernel = "DIARY"
+engine = "Memory"
+category = "sub-agents"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "GUARDIAN"
+engine = "Quality Check"
+category = "sub-agents"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "PSYCH"
+engine = "Tone Advisor"
+category = "sub-agents"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "TEACHER"
+engine = "Skill Guide"
+category = "sub-agents"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "SCRIBE"
+engine = "Translation"
+category = "sub-agents"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "VISION"
+engine = "Screen Reader"
+category = "sub-agents"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "RESEARCHER"
+engine = "Knowledge Lookup"
+category = "sub-agents"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "ENFORCER"
+engine = "Standards Check"
+category = "sub-agents"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "sub-agent"
+engine = "assistant"
+category = "sub-agents"
+context = ["logs", "traces", "ui-text", "errors"]
+severity = "hard"
+
+[[terms]]
+kernel = "Minion"
+engine = "helper"
+category = "sub-agents"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+# ─────────────────────────────────────────────────────────────
+# CATEGORY: Rumination Architecture
+# ─────────────────────────────────────────────────────────────
+
+[[terms]]
+kernel = "rumination"
+engine = "thinking"
+category = "rumination"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "rumination layer"
+engine = "thinking step"
+category = "rumination"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "keystroke layer"
+engine = "quick read"
+category = "rumination"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "pause layer"
+engine = "context check"
+category = "rumination"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "send layer"
+engine = "deep thinking"
+category = "rumination"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "background layer"
+engine = "background analysis"
+category = "rumination"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "latency budget"
+engine = "response time"
+category = "rumination"
+context = ["logs", "traces", "metrics"]
+severity = "hard"
+
+[[terms]]
+kernel = "<50ms"
+engine = "instant"
+category = "rumination"
+context = ["logs", "traces"]
+severity = "soft"
+
+[[terms]]
+kernel = "KV cache warmth"
+engine = "context ready"
+category = "rumination"
+context = ["logs", "traces"]
+severity = "hard"
+
+# ─────────────────────────────────────────────────────────────
+# CATEGORY: COSTAR+ Internals
+# ─────────────────────────────────────────────────────────────
+
+[[terms]]
+kernel = "COSTAR+"
+engine = "prompt builder"
+category = "costar"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "COSTAR"
+engine = "prompt structure"
+category = "costar"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "Context-Objective-Style-Tone-Audience-Response"
+engine = "structured prompt"
+category = "costar"
+context = ["logs", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "vibe-speak"
+engine = "natural language"
+category = "costar"
+context = ["logs", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "engineer-speak"
+engine = "technical specification"
+category = "costar"
+context = ["logs", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "translation layer"
+engine = "smart formatting"
+category = "costar"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "provider-specific frame"
+engine = "tool optimization"
+category = "costar"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "frame tuning"
+engine = "tool-specific adjustment"
+category = "costar"
+context = ["logs", "traces"]
+severity = "hard"
+
+# ─────────────────────────────────────────────────────────────
+# CATEGORY: Algorithm Names
+# ─────────────────────────────────────────────────────────────
+
+[[terms]]
+kernel = "HMM"
+engine = "context switching"
+category = "algorithms"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "Hidden Markov Model"
+engine = "context prediction"
+category = "algorithms"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "state transition matrix"
+engine = "prediction model"
+category = "algorithms"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "RRF fusion"
+engine = "smart ranking"
+category = "algorithms"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "Reciprocal Rank Fusion"
+engine = "combined ranking"
+category = "algorithms"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "CAG"
+engine = "cached retrieval"
+category = "algorithms"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "Context-Augmented Generation"
+engine = "context-aware response"
+category = "algorithms"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "RAG pipeline"
+engine = "knowledge retrieval"
+category = "algorithms"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "Retrieval-Augmented Generation"
+engine = "knowledge-enhanced response"
+category = "algorithms"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "RKYV"
+engine = "fast serialization"
+category = "algorithms"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "zero-copy deserialization"
+engine = "fast data loading"
+category = "algorithms"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "BM25"
+engine = "keyword search"
+category = "algorithms"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "cross-encoder"
+engine = "relevance scorer"
+category = "algorithms"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "dense retrieval"
+engine = "semantic search"
+category = "algorithms"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "hybrid search"
+engine = "smart search"
+category = "algorithms"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "reranking"
+engine = "result refinement"
+category = "algorithms"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "speculative decoding"
+engine = "fast generation"
+category = "algorithms"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "RRO"
+engine = "prepared context"
+category = "algorithms"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "Reasoning Ready Object"
+engine = "pre-processed context"
+category = "algorithms"
+context = ["logs", "traces"]
+severity = "hard"
+
+# ─────────────────────────────────────────────────────────────
+# CATEGORY: Architecture Terms
+# ─────────────────────────────────────────────────────────────
+
+[[terms]]
+kernel = "Maestro"
+engine = "Gus"
+category = "architecture"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "Cortex"
+engine = "knowledge engine"
+category = "architecture"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "Trinity"
+engine = "data layer"
+category = "architecture"
+context = ["logs", "traces"]
+severity = "hard"
+
+[[terms]]
+kernel = "OverMind"
+engine = "sandbox"
+category = "architecture"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"

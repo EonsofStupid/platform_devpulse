@@ -1,19 +1,15 @@
-//! @file src-tauri/src/lib.rs
-//! @name lib.rs
-//! @layer tauri
+//! `DevPulse` Desktop — Tauri backend.
 //!
-//! # Description
-//! [TODO: Describe this module's purpose]
-//!
-//! # Dependencies
-//! - [TODO: List crate dependencies]
-//!
-//! # Consumers
-//! - [TODO: List modules that use this]
-//!
-//! @since 1.0.0
+//! The Tauri layer depends on `devpulse-engine` only — never on maestro.
+//! All kernel access goes through the Platform facade.
 
 pub mod commands;
+pub mod state;
+
+use devpulse_engine::platform::Platform;
+use state::AppState;
+use std::sync::Arc;
+use tauri::Manager;
 
 /// Bootstrap and run the Tauri application.
 ///
@@ -24,6 +20,36 @@ pub mod commands;
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
+        .setup(|app| {
+            let data_dir = app
+                .path()
+                .app_data_dir()
+                .expect("Failed to resolve app data dir");
+
+            // Boot platform on the tokio runtime
+            let rt = tokio::runtime::Handle::current();
+            let platform = rt.block_on(async {
+                Platform::boot(data_dir, |event| {
+                    // Log init events (will emit to frontend in launcher sprint)
+                    eprintln!(
+                        "[init] {} — {:?}{}",
+                        event.step,
+                        event.status,
+                        event
+                            .latency_ms
+                            .map(|ms| format!(" ({ms}ms)"))
+                            .unwrap_or_default()
+                    );
+                })
+                .await
+            })?;
+
+            app.manage(AppState {
+                platform: Arc::new(platform),
+            });
+
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             // Chat
             commands::chat::send_message,
@@ -33,7 +59,7 @@ pub fn run() {
             commands::sys::config::get_settings,
             commands::sys::guard::verify,
             commands::sys::logger::log,
-            // Maestro
+            // Platform health
             commands::devmaestro::get_status,
             // ThinkMaestro
             commands::thinkmaestro::create_canvas,

@@ -55,7 +55,9 @@ multiple-versions = "warn"
 wildcards = "allow"
 # Deny known bad crates
 deny = [
-    # Example: { name = "openssl" }
+    # Desktop must NEVER depend on maestro directly.
+    # All kernel access goes through the engine facade.
+    { name = "devpulse-maestro", wrappers = ["devpulse-engine"] },
 ]
 
 [sources]

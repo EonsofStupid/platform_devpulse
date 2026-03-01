@@ -1,20 +1,12 @@
-//! @file src-tauri/src/commands/sys/config.rs
-//! @name config.rs
-//! @layer tauri
-//!
-//! # Description
-//! [TODO: Describe this module's purpose]
-//!
-//! # Dependencies
-//! - [TODO: List crate dependencies]
-//!
-//! # Consumers
-//! - [TODO: List modules that use this]
-//!
-//! @since 1.0.0
+//! System configuration commands.
 
-/// Get current application settings as JSON.
+use crate::state::AppState;
+use devpulse_engine::platform::PlatformConfig;
+use tauri::State;
+
+/// Get current platform settings.
 #[tauri::command]
-pub fn get_settings() -> String {
-    "{}".to_string()
+#[allow(clippy::needless_pass_by_value)] // Tauri requires State by value
+pub fn get_settings(state: State<'_, AppState>) -> PlatformConfig {
+    state.platform.config()
 }

@@ -63,6 +63,22 @@ impl DuckDbAdapter {
 
         Ok(())
     }
+
+    /// Health check — executes `SELECT 1`.
+    ///
+    /// # Errors
+    /// Returns error if the database is unreachable.
+    pub async fn ping(&self) -> Result<()> {
+        let conn = self.conn.lock().await;
+        let mut stmt = conn
+            .prepare("SELECT 1")
+            .context("DuckDB ping prepare failed")?;
+        let mut rows = stmt
+            .query([])
+            .context("DuckDB ping query failed")?;
+        let _row = rows.next().context("DuckDB ping returned no rows")?;
+        Ok(())
+    }
 }
 
 impl PersistenceAdapter for DuckDbAdapter {

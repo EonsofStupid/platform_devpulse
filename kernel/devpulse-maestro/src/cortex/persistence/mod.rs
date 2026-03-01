@@ -101,4 +101,90 @@ impl PersistenceLayer {
     pub fn config(&self) -> &PersistenceConfig {
         &self.config
     }
+
+    // ─────────────────────────────────────────────────────────
+    // Granular initialization (for startup progress reporting)
+    // ─────────────────────────────────────────────────────────
+
+    /// Ensure all database directories exist.
+    ///
+    /// # Errors
+    /// Returns error if directory creation fails.
+    pub fn ensure_dirs(&self) -> Result<()> {
+        self.config.ensure_dirs()?;
+        Ok(())
+    }
+
+    /// Initialize `LibSQL` only.
+    ///
+    /// # Errors
+    /// Returns error if the database cannot be opened or schema fails.
+    pub async fn init_libsql(&mut self) -> Result<()> {
+        let path = self.config.store_path(StoreKind::LibSql);
+        let adapter = LibSqlAdapter::open(&path).await?;
+        self.libsql = Some(Arc::new(adapter));
+        Ok(())
+    }
+
+    /// Initialize `DuckDB` only.
+    ///
+    /// # Errors
+    /// Returns error if the database cannot be opened or schema fails.
+    pub fn init_duckdb(&mut self) -> Result<()> {
+        let path = self.config.store_path(StoreKind::DuckDb);
+        let adapter = DuckDbAdapter::open(&path)?;
+        self.duckdb = Some(Arc::new(adapter));
+        Ok(())
+    }
+
+    /// Initialize `SurrealDB` only.
+    ///
+    /// # Errors
+    /// Returns error if the database cannot be opened or schema fails.
+    pub async fn init_surreal(&mut self) -> Result<()> {
+        let path = self.config.store_path(StoreKind::Surreal);
+        let adapter = SurrealAdapter::open(&path).await?;
+        self.surreal = Some(Arc::new(adapter));
+        Ok(())
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // Health checks
+    // ─────────────────────────────────────────────────────────
+
+    /// Ping `LibSQL` — executes `SELECT 1`.
+    ///
+    /// # Errors
+    /// Returns error if `LibSQL` is not initialized or unreachable.
+    pub async fn ping_libsql(&self) -> Result<()> {
+        if let Some(adapter) = &self.libsql {
+            adapter.ping().await
+        } else {
+            anyhow::bail!("LibSQL not initialized")
+        }
+    }
+
+    /// Ping `DuckDB` — executes `SELECT 1`.
+    ///
+    /// # Errors
+    /// Returns error if `DuckDB` is not initialized or unreachable.
+    pub async fn ping_duckdb(&self) -> Result<()> {
+        if let Some(adapter) = &self.duckdb {
+            adapter.ping().await
+        } else {
+            anyhow::bail!("DuckDB not initialized")
+        }
+    }
+
+    /// Ping `SurrealDB` — executes `INFO FOR DB`.
+    ///
+    /// # Errors
+    /// Returns error if `SurrealDB` is not initialized or unreachable.
+    pub async fn ping_surreal(&self) -> Result<()> {
+        if let Some(adapter) = &self.surreal {
+            adapter.ping().await
+        } else {
+            anyhow::bail!("SurrealDB not initialized")
+        }
+    }
 }

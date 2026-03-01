@@ -1,18 +1,19 @@
-//! @file src-tauri/src/commands/devmaestro/mod.rs
-//! @name mod.rs
-//! @layer tauri
+//! `DevMaestro` commands — system status and health checks.
 //!
-//! # Description
-//! [TODO: Describe this module's purpose]
-//!
-//! # Dependencies
-//! - [TODO: List crate dependencies]
-//!
-//! # Consumers
-//! - [TODO: List modules that use this]
-//!
-//! @since 1.0.0
+//! These commands delegate to the Platform facade.
+//! No maestro types are exposed — only engine public types.
 
-/// Get the current Maestro orchestrator status.
+use crate::state::AppState;
+use devpulse_engine::platform::SystemHealth;
+use tauri::State;
+
+/// Get the current system health status.
+///
+/// Pings all database subsystems and returns aggregate health.
+///
+/// # Errors
+/// This command is infallible — health status is always returned.
 #[tauri::command]
-pub fn get_status() {}
+pub async fn get_status(state: State<'_, AppState>) -> Result<SystemHealth, String> {
+    Ok(state.platform.health().await)
+}

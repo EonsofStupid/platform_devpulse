@@ -60,6 +60,18 @@ impl LibSqlAdapter {
     pub async fn connection(&self) -> tokio::sync::RwLockReadGuard<'_, libsql::Connection> {
         self.conn.read().await
     }
+
+    /// Health check — executes `SELECT 1`.
+    ///
+    /// # Errors
+    /// Returns error if the database is unreachable.
+    pub async fn ping(&self) -> Result<()> {
+        let conn = self.conn.read().await;
+        conn.execute("SELECT 1", ())
+            .await
+            .context("LibSQL ping failed")?;
+        Ok(())
+    }
 }
 
 impl PersistenceAdapter for LibSqlAdapter {

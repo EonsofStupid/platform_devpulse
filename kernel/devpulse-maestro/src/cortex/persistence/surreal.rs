@@ -11,7 +11,7 @@ use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::sync::Arc;
-use surrealdb::engine::local::{Db, RocksDb};
+use surrealdb::engine::local::{Db, SurrealKv};
 use surrealdb::Surreal;
 use tokio::sync::RwLock;
 
@@ -21,7 +21,7 @@ pub struct SurrealAdapter {
 }
 
 impl SurrealAdapter {
-    /// Open database at path with `RocksDB` backend.
+    /// Open database at path with `SurrealKV` backend (pure Rust).
     ///
     /// # Errors
     /// Returns error if the database cannot be opened or schema initialization fails.
@@ -31,7 +31,7 @@ impl SurrealAdapter {
             std::fs::create_dir_all(parent).context("Failed to create SurrealDB directory")?;
         }
 
-        let db = Surreal::new::<RocksDb>(path)
+        let db = Surreal::new::<SurrealKv>(path)
             .await
             .context("Failed to open SurrealDB")?;
 
@@ -90,6 +90,18 @@ impl SurrealAdapter {
     /// Get database handle for advanced queries
     pub async fn database(&self) -> tokio::sync::RwLockReadGuard<'_, Surreal<Db>> {
         self.db.read().await
+    }
+
+    /// Ping database — executes `INFO FOR DB`.
+    ///
+    /// # Errors
+    /// Returns error if the database is unreachable.
+    pub async fn ping(&self) -> Result<()> {
+        let db = self.db.read().await;
+        db.query("INFO FOR DB")
+            .await
+            .context("SurrealDB ping failed")?;
+        Ok(())
     }
 }
 

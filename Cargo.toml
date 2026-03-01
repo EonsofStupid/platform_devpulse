@@ -23,10 +23,10 @@ ts-rs = { version = "10.0", features = ["uuid-impl"] } # or specta
 
 # Platform Data (The "Muscle")
 libsql = "0.9"
-duckdb = "1.1"
+duckdb = { version = "1.1", features = ["bundled"] }
 surrealdb = { version = "2.6", default-features = false, features = ["kv-mem", "kv-surrealkv"] }
 moka = "0.12"
-fjall = "2.0"
+# fjall deferred — SurrealKV covers persistent KV; re-add if perf demands it
 wal = { git = "https://github.com/EonsofStupid/wal" }
 rro = { git = "https://github.com/EonsofStupid/rro" }
 tar-rs = { git = "https://github.com/EonsofStupid/tar-rs" }

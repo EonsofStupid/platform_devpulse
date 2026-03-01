@@ -7,6 +7,7 @@ edition = "2021"
 xshell = { workspace = true }
 clap = { workspace = true }
 anyhow = { workspace = true }
+cargo_metadata = { workspace = true }
 
 [lints]
 workspace = true
