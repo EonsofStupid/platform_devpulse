@@ -24,7 +24,7 @@ ts-rs = { version = "10.0", features = ["uuid-impl"] } # or specta
 # Platform Data (The "Muscle")
 libsql = "0.9"
 duckdb = "1.1"
-surrealdb = { version = "2.6", default-features = false, features = ["kv-mem", "kv-rocksdb"] }
+surrealdb = { version = "2.6", default-features = false, features = ["kv-mem", "kv-surrealkv"] }
 moka = "0.12"
 fjall = "2.0"
 wal = { git = "https://github.com/EonsofStupid/wal" }

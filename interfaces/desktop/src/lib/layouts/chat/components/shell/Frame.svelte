@@ -40,26 +40,16 @@ const slots = $derived(
 	data-state="open"
 	data-engaged="true"
 	data-context-collapsed="true"
+	style="font-family: var(--font-sans);"
 >
 	<header data-slot="topbar" class={slots.topbar}>
-		<span class="text-sm font-semibold text-[var(--text-primary)]" style:font-family="var(--font-display)">
+		<span class="text-sm font-semibold" style="color: var(--text-primary); font-family: var(--font-display);">
 			Maestro Chat
 		</span>
+		<span class="inline-block h-2 w-2 rounded-full" style="background: var(--color-teal-400); box-shadow: 0 0 6px var(--color-teal-400);"></span>
 	</header>
-
-	<div data-slot="mode-selector" class={slots.modeSelector}>
-		<!-- Mode buttons will be wired later -->
-	</div>
 
 	<main data-slot="chat-dashboard" class={slots.dashboard}>
 		{@render children()}
 	</main>
-
-	<footer data-slot="chat-footer" class={slots.footer}>
-		<input
-			type="text"
-			placeholder="Ask Maestro..."
-			class="w-full"
-		/>
-	</footer>
 </div>

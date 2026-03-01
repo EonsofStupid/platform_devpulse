@@ -25,8 +25,30 @@ export interface RecentProject {
 	readonly branch: string;
 }
 
+export interface GaugeData {
+	readonly label: string;
+	readonly value: number;
+	readonly max: number;
+	readonly unit: string;
+}
+
+export interface TimeSeriesData {
+	readonly label: string;
+	readonly data: readonly number[];
+}
+
+export interface SystemStatus {
+	readonly maestroLoad: GaugeData;
+	readonly contextLoad: GaugeData;
+	readonly memoryUsage: GaugeData;
+	readonly activityTimeline: TimeSeriesData;
+	readonly commitHistory: TimeSeriesData;
+	readonly buildHealth: TimeSeriesData;
+}
+
 export interface DashboardData {
 	readonly user: UserStats;
 	readonly community: CommunityStats;
 	readonly recentProjects: readonly RecentProject[];
+	readonly system: SystemStatus;
 }

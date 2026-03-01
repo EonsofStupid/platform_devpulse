@@ -48,6 +48,7 @@ const slots = $derived(
 	data-sidebar={globalState.sidebar_mode}
 	data-context={globalState.context_mode}
 	data-route={globalState.current_domain}
+	style="font-family: var(--font-sans);"
 >
 	<header data-slot="topbar" class={slots.topbar}>
 		<TopBar />

@@ -1,2 +1,62 @@
 @import "tailwindcss";
 @import "$lib/design/index.css";
+
+/*
+ * Global base styles — ColdLight dark theme defaults.
+ * Fonts loaded via app.html (Google Fonts).
+ * Circuit board background gives the cyberpunk reference aesthetic.
+ */
+
+html, body {
+	margin: 0;
+	padding: 0;
+	background: var(--color-void-base);
+	color: var(--text-primary);
+	font-family: var(--font-sans);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+/* Circuit board / neural network background pattern */
+[data-layout="app"] {
+	background:
+		/* Radial glow in center */
+		radial-gradient(
+			ellipse 60% 50% at 50% 40%,
+			oklch(0.15 0.06 180 / 0.30) 0%,
+			transparent 70%
+		),
+		/* Subtle grid lines */
+		linear-gradient(
+			oklch(0.20 0.04 180 / 0.08) 1px,
+			transparent 1px
+		),
+		linear-gradient(
+			90deg,
+			oklch(0.20 0.04 180 / 0.08) 1px,
+			transparent 1px
+		),
+		/* Base color */
+		var(--color-void-base);
+	background-size:
+		100% 100%,
+		40px 40px,
+		40px 40px,
+		100% 100%;
+}
+
+/* Scrollbar styling for glass panels */
+::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+::-webkit-scrollbar-thumb {
+	background: oklch(1 0 0 / 0.12);
+	border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+	background: oklch(1 0 0 / 0.20);
+}

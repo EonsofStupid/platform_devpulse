@@ -165,6 +165,7 @@ export const space = {
 // ---------------------------------------------------------------------------
 export const radius = {
 	none: "0",
+	xs: "0.125rem",
 	sm: "0.25rem",
 	md: "0.5rem",
 	lg: "0.75rem",
@@ -181,6 +182,7 @@ export const blur = {
 	md: "8px",
 	lg: "16px",
 	xl: "24px",
+	"2xl": "40px",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -236,11 +238,14 @@ export const z = {
 // Duration (animation)
 // ---------------------------------------------------------------------------
 export const duration = {
+	snap: "50ms",
 	instant: "50ms",
 	fast: "150ms",
 	normal: "250ms",
+	smooth: "400ms",
 	slow: "400ms",
 	glacial: "700ms",
+	moderate: "3s",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -252,6 +257,7 @@ export const ease = {
 	out: "cubic-bezier(0, 0, 0.2, 1)",
 	inOut: "cubic-bezier(0.4, 0, 0.2, 1)",
 	spring: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+	bounce: "cubic-bezier(0.68, -0.55, 0.27, 1.55)",
 } as const;
 
 // ---------------------------------------------------------------------------

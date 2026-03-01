@@ -14,11 +14,11 @@ name = "devpulse-desktop-app"
 path = "src/main.rs"
 
 [build-dependencies]
-tauri-build = { version = "2.0.0-rc", features = [] }
+tauri-build = { version = "2.5.5", features = [] }
 
 [dependencies]
-tauri = { version = "2.0.0-rc", features = [] }
-tauri-plugin-shell = "2.0.0-rc"
+tauri = { version = "2.10.2", features = [] }
+tauri-plugin-shell = "2.3.5"
 serde = { workspace = true }
 serde_json = { workspace = true }
 devpulse-engine = { path = "../../../systems/devpulse-engine" }
