@@ -76,4 +76,14 @@ impl InitEvent {
             latency_ms: None,
         }
     }
+
+    /// Create a "skipped" event (store disabled in config).
+    pub fn skipped(step: &str) -> Self {
+        Self {
+            step: step.to_string(),
+            status: InitStatus::Skipped,
+            message: Some("Disabled in config".to_string()),
+            latency_ms: None,
+        }
+    }
 }

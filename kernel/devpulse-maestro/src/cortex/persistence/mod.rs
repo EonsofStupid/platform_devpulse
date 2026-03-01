@@ -1,9 +1,10 @@
 //! Persistence layer for Maestro
 //!
-//! Three embedded databases for different workloads:
+//! Four embedded stores for different workloads:
 //! - `LibSQL`: Relational data (users, settings, projects, messages)
 //! - `DuckDB`: Analytics (user + AI metrics, telemetry)
 //! - `SurrealDB`: Reasoning graph (knowledge, states, transitions)
+//! - `Moka`: In-memory cache (hot data, TTL-based eviction)
 //!
 //! All adapters implement `PersistenceAdapter` for signal-based access
 //! plus specialized traits for their specific use cases.
@@ -14,15 +15,17 @@ pub mod traits;
 // Database adapters
 pub mod duckdb;
 pub mod libsql;
+pub mod moka;
 pub mod surreal;
 
 // Re-exports for convenience
 pub use config::{PersistenceConfig, StoreKind, SurrealNamespace};
 pub use duckdb::DuckDbAdapter;
 pub use libsql::LibSqlAdapter;
+pub use moka::{MokaAdapter, MokaCacheConfig};
 pub use surreal::SurrealAdapter;
 pub use traits::{
-    AnalyticsAdapter, GraphAdapter, PersistenceAdapter, SqlAdapter, TypedPersistence,
+    AnalyticsAdapter, CacheAdapter, GraphAdapter, PersistenceAdapter, SqlAdapter, TypedPersistence,
 };
 
 use anyhow::Result;
@@ -34,6 +37,7 @@ pub struct PersistenceLayer {
     libsql: Option<Arc<LibSqlAdapter>>,
     duckdb: Option<Arc<DuckDbAdapter>>,
     surreal: Option<Arc<SurrealAdapter>>,
+    moka: Option<Arc<MokaAdapter>>,
 }
 
 impl PersistenceLayer {
@@ -44,6 +48,7 @@ impl PersistenceLayer {
             libsql: None,
             duckdb: None,
             surreal: None,
+            moka: None,
         }
     }
 
@@ -88,12 +93,18 @@ impl PersistenceLayer {
         self.surreal.as_ref()
     }
 
+    /// Get the `Moka` cache adapter.
+    pub fn moka(&self) -> Option<&Arc<MokaAdapter>> {
+        self.moka.as_ref()
+    }
+
     /// Check if a store is initialized
     pub fn is_initialized(&self, kind: StoreKind) -> bool {
         match kind {
             StoreKind::LibSql => self.libsql.is_some(),
             StoreKind::DuckDb => self.duckdb.is_some(),
             StoreKind::Surreal => self.surreal.is_some(),
+            StoreKind::Moka => self.moka.is_some(),
         }
     }
 
@@ -185,6 +196,23 @@ impl PersistenceLayer {
             adapter.ping().await
         } else {
             anyhow::bail!("SurrealDB not initialized")
+        }
+    }
+
+    /// Initialize `Moka` in-memory cache.
+    pub fn init_moka(&mut self, config: MokaCacheConfig) {
+        self.moka = Some(Arc::new(MokaAdapter::new(config)));
+    }
+
+    /// Ping `Moka` — always succeeds if initialized.
+    ///
+    /// # Errors
+    /// Returns error if `Moka` is not initialized.
+    pub fn ping_moka(&self) -> Result<()> {
+        if let Some(adapter) = &self.moka {
+            adapter.ping()
+        } else {
+            anyhow::bail!("Moka cache not initialized")
         }
     }
 }

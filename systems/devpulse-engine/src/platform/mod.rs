@@ -6,7 +6,7 @@
 //!
 //! # Architecture
 //! ```text
-//! Tauri → Platform (this) → Maestro PersistenceLayer (private)
+//! Tauri → Platform (this) → Store wrappers → Maestro adapters (private)
 //!              │
 //!              ├── SystemHealth (public type)
 //!              ├── InitEvent (public type)
@@ -16,102 +16,144 @@
 pub mod config;
 pub mod health;
 pub mod init;
+pub mod stores;
 
-pub use config::{DatabaseConfig, PlatformConfig};
+pub use config::{DatabaseConfig, PlatformBootConfig, PlatformConfig};
 pub use health::{HealthStatus, SubsystemHealth, SystemHealth};
 pub use init::{InitEvent, InitStatus};
+pub use stores::{Store, StoreRole};
 
 use anyhow::Result;
-use devpulse_maestro::cortex::persistence::{PersistenceConfig, PersistenceLayer, StoreKind};
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Instant;
-use tokio::sync::RwLock;
+
+use stores::analytics::AnalyticsStore;
+use stores::cache::CacheStore;
+use stores::graph::GraphStore;
+use stores::relational::RelationalStore;
 
 /// Platform facade — sole public API for persistence, health, config.
 ///
 /// Wraps maestro internals. Tauri talks to this, never to maestro directly.
 /// All user-facing strings pass through `ip_term!()` at this boundary.
 pub struct Platform {
-    persistence: Arc<RwLock<PersistenceLayer>>,
+    relational: Option<Arc<RelationalStore>>,
+    analytics: Option<Arc<AnalyticsStore>>,
+    graph: Option<Arc<GraphStore>>,
+    cache: Option<Arc<CacheStore>>,
+    boot_config: PlatformBootConfig,
     boot_time: Instant,
     data_dir: PathBuf,
 }
 
 impl Platform {
-    /// Boot the platform — initialize all databases.
+    /// Boot the platform — initialize all enabled stores from config.
     ///
     /// Calls the provided callback for each initialization step so the
     /// launcher UI can show real-time progress.
     ///
     /// # Errors
-    /// Returns error if any database fails to initialize.
+    /// Returns error if any enabled store fails to initialize.
     pub async fn boot(
         data_dir: PathBuf,
         on_event: impl Fn(InitEvent),
     ) -> Result<Self> {
         let boot_time = Instant::now();
-        let config = PersistenceConfig::new(&data_dir);
-        let mut persistence = PersistenceLayer::new(config);
+        let boot_config = PlatformBootConfig::load(&data_dir)?;
 
-        // Step 1: Ensure directories
+        // Step 1: Ensure directories for file-based stores
         on_event(InitEvent::running(
             crate::ip_term!("Trinity"),
             "Creating data directories",
         ));
-        persistence.ensure_dirs()?;
+        ensure_store_dirs(&data_dir, &boot_config)?;
         on_event(InitEvent::ok(
             crate::ip_term!("Trinity"),
             "Directories ready",
         ));
 
-        // Step 2: LibSQL (relational store)
-        on_event(InitEvent::running("Relational store", "Opening database"));
-        let start = Instant::now();
-        persistence.init_libsql().await?;
-        on_event(InitEvent::ok_with_latency(
-            "Relational store",
-            start.elapsed(),
-        ));
+        // Step 2: Relational store (LibSQL)
+        let relational = if boot_config.stores.relational.enabled {
+            on_event(InitEvent::running("Relational store", "Opening database"));
+            let start = Instant::now();
+            let path = boot_config.stores.relational.resolve_path(&data_dir);
+            let store = RelationalStore::boot(&path).await?;
+            on_event(InitEvent::ok_with_latency("Relational store", start.elapsed()));
+            Some(Arc::new(store))
+        } else {
+            on_event(InitEvent::skipped("Relational store"));
+            None
+        };
 
-        // Step 3: DuckDB (analytics store)
-        on_event(InitEvent::running("Analytics store", "Opening database"));
-        let start = Instant::now();
-        persistence.init_duckdb()?;
-        on_event(InitEvent::ok_with_latency(
-            "Analytics store",
-            start.elapsed(),
-        ));
+        // Step 3: Analytics store (DuckDB)
+        let analytics = if boot_config.stores.analytics.enabled {
+            on_event(InitEvent::running("Analytics store", "Opening database"));
+            let start = Instant::now();
+            let path = boot_config.stores.analytics.resolve_path(&data_dir);
+            let store = AnalyticsStore::boot(&path)?;
+            on_event(InitEvent::ok_with_latency("Analytics store", start.elapsed()));
+            Some(Arc::new(store))
+        } else {
+            on_event(InitEvent::skipped("Analytics store"));
+            None
+        };
 
-        // Step 4: SurrealDB (graph store)
-        on_event(InitEvent::running("Graph store", "Opening database"));
-        let start = Instant::now();
-        persistence.init_surreal().await?;
-        on_event(InitEvent::ok_with_latency("Graph store", start.elapsed()));
+        // Step 4: Graph store (SurrealDB)
+        let graph = if boot_config.stores.graph.enabled {
+            on_event(InitEvent::running("Graph store", "Opening database"));
+            let start = Instant::now();
+            let path = boot_config.stores.graph.resolve_path(&data_dir);
+            let store = GraphStore::boot(&path).await?;
+            on_event(InitEvent::ok_with_latency("Graph store", start.elapsed()));
+            Some(Arc::new(store))
+        } else {
+            on_event(InitEvent::skipped("Graph store"));
+            None
+        };
+
+        // Step 5: Cache store (Moka)
+        let cache = if boot_config.stores.cache.enabled {
+            on_event(InitEvent::running("Cache store", "Initializing in-memory cache"));
+            let start = Instant::now();
+            let store = CacheStore::boot(boot_config.stores.cache.to_moka_config());
+            on_event(InitEvent::ok_with_latency("Cache store", start.elapsed()));
+            Some(Arc::new(store))
+        } else {
+            on_event(InitEvent::skipped("Cache store"));
+            None
+        };
 
         Ok(Self {
-            persistence: Arc::new(RwLock::new(persistence)),
+            relational,
+            analytics,
+            graph,
+            cache,
+            boot_config,
             boot_time,
             data_dir,
         })
     }
 
-    /// Get system health by pinging all databases.
+    /// Get system health by pinging all enabled stores.
     ///
-    /// Each subsystem is pinged independently. A failed ping results in
-    /// `HealthStatus::Down` for that subsystem, not a propagated error.
+    /// Each store is pinged independently. A failed ping results in
+    /// `HealthStatus::Down` for that store, not a propagated error.
     pub async fn health(&self) -> SystemHealth {
-        let persistence = self.persistence.read().await;
-        let mut subsystems = Vec::with_capacity(3);
+        let mut subsystems = Vec::with_capacity(4);
 
-        // LibSQL
-        subsystems.push(ping_subsystem(&persistence, "Relational store", StoreKind::LibSql).await);
-
-        // DuckDB
-        subsystems.push(ping_subsystem(&persistence, "Analytics store", StoreKind::DuckDb).await);
-
-        // SurrealDB
-        subsystems.push(ping_subsystem(&persistence, "Graph store", StoreKind::Surreal).await);
+        if let Some(store) = &self.relational {
+            subsystems.push(ping_store(store.as_ref()).await);
+        }
+        if let Some(store) = &self.analytics {
+            subsystems.push(ping_store(store.as_ref()).await);
+        }
+        if let Some(store) = &self.graph {
+            subsystems.push(ping_store(store.as_ref()).await);
+        }
+        if let Some(store) = &self.cache {
+            subsystems.push(ping_store(store.as_ref()).await);
+        }
 
         // Aggregate status
         let status = if subsystems.iter().all(|s| s.status == HealthStatus::Healthy) {
@@ -133,7 +175,7 @@ impl Platform {
     pub fn config(&self) -> PlatformConfig {
         PlatformConfig {
             data_dir: self.data_dir.display().to_string(),
-            databases: DatabaseConfig::default(),
+            databases: self.boot_config.to_database_config(),
         }
     }
 
@@ -141,41 +183,65 @@ impl Platform {
     pub fn uptime_secs(&self) -> u64 {
         self.boot_time.elapsed().as_secs()
     }
-}
 
-/// Ping a single subsystem and return its health.
-async fn ping_subsystem(
-    persistence: &PersistenceLayer,
-    name: &str,
-    kind: StoreKind,
-) -> SubsystemHealth {
-    if !persistence.is_initialized(kind) {
-        return SubsystemHealth {
-            name: name.to_string(),
-            status: HealthStatus::Unknown,
-            latency_ms: None,
-            message: Some("Not initialized".to_string()),
-        };
+    /// Get the relational store (if enabled).
+    pub fn relational(&self) -> Option<&Arc<RelationalStore>> {
+        self.relational.as_ref()
     }
 
+    /// Get the analytics store (if enabled).
+    pub fn analytics(&self) -> Option<&Arc<AnalyticsStore>> {
+        self.analytics.as_ref()
+    }
+
+    /// Get the graph store (if enabled).
+    pub fn graph(&self) -> Option<&Arc<GraphStore>> {
+        self.graph.as_ref()
+    }
+
+    /// Get the cache store (if enabled).
+    pub fn cache(&self) -> Option<&Arc<CacheStore>> {
+        self.cache.as_ref()
+    }
+}
+
+/// Ensure directories exist for all enabled file-based stores.
+fn ensure_store_dirs(data_dir: &std::path::Path, config: &PlatformBootConfig) -> Result<()> {
+    if config.stores.relational.enabled {
+        if let Some(parent) = config.stores.relational.resolve_path(data_dir).parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+    }
+    if config.stores.analytics.enabled {
+        if let Some(parent) = config.stores.analytics.resolve_path(data_dir).parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+    }
+    if config.stores.graph.enabled {
+        if let Some(parent) = config.stores.graph.resolve_path(data_dir).parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+    }
+    // Moka is in-memory — no directory needed
+    Ok(())
+}
+
+/// Ping a single store and return its health.
+#[allow(clippy::cast_possible_truncation)] // Ping latency will never exceed u64 ms
+async fn ping_store<S: Store>(store: &S) -> SubsystemHealth {
     let start = Instant::now();
-    let result = match kind {
-        StoreKind::LibSql => persistence.ping_libsql().await,
-        StoreKind::DuckDb => persistence.ping_duckdb().await,
-        StoreKind::Surreal => persistence.ping_surreal().await,
-    };
-    #[allow(clippy::cast_possible_truncation)] // Ping latency will never exceed u64 ms
+    let result = store.ping().await;
     let latency = start.elapsed().as_millis() as u64;
 
     match result {
         Ok(()) => SubsystemHealth {
-            name: name.to_string(),
+            name: store.name().to_string(),
             status: HealthStatus::Healthy,
             latency_ms: Some(latency),
             message: None,
         },
         Err(e) => SubsystemHealth {
-            name: name.to_string(),
+            name: store.name().to_string(),
             status: HealthStatus::Down,
             latency_ms: Some(latency),
             message: Some(e.to_string()),

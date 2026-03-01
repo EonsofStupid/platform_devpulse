@@ -93,3 +93,19 @@ pub trait AnalyticsAdapter: Send + Sync {
     /// Append data to an analytics table
     async fn append(&self, table: &str, data: &[serde_json::Value]) -> Result<u64>;
 }
+
+/// Cache operations for in-memory stores (Moka).
+#[allow(async_fn_in_trait)]
+pub trait CacheAdapter: PersistenceAdapter {
+    /// Invalidate all entries whose key starts with `prefix`.
+    async fn invalidate_prefix(&self, prefix: &str) -> Result<u64>;
+
+    /// Returns `(entry_count, max_capacity)`.
+    fn stats(&self) -> (u64, u64);
+
+    /// Remove all entries.
+    async fn clear(&self);
+
+    /// Number of entries currently in the cache.
+    fn entry_count(&self) -> u64;
+}

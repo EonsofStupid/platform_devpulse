@@ -17,6 +17,7 @@ futures = { workspace = true }
 libsql = { workspace = true }
 duckdb = { workspace = true }
 surrealdb = { workspace = true }
+moka = { workspace = true }
 
 [lints]
 workspace = true

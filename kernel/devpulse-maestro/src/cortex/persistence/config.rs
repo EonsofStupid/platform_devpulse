@@ -14,6 +14,8 @@ pub enum StoreKind {
     DuckDb,
     /// `SurrealDB` - reasoning system graph.
     Surreal,
+    /// `Moka` - in-memory cache (no disk).
+    Moka,
 }
 
 impl StoreKind {
@@ -23,6 +25,7 @@ impl StoreKind {
             StoreKind::LibSql => "libsql",
             StoreKind::DuckDb => "duckdb",
             StoreKind::Surreal => "surreal",
+            StoreKind::Moka => "",
         }
     }
 
@@ -32,7 +35,13 @@ impl StoreKind {
             StoreKind::LibSql => "platform.db",
             StoreKind::DuckDb => "analytics.duckdb",
             StoreKind::Surreal => "reasoning",
+            StoreKind::Moka => "",
         }
+    }
+
+    /// Whether this store persists to disk.
+    pub fn is_persistent(&self) -> bool {
+        !matches!(self, StoreKind::Moka)
     }
 }
 
@@ -63,13 +72,15 @@ impl PersistenceConfig {
         self.data_root.join(kind.subdir())
     }
 
-    /// Ensure all store directories exist.
+    /// Ensure all store directories exist (skips in-memory stores).
     ///
     /// # Errors
     /// Returns error if directory creation fails.
     pub fn ensure_dirs(&self) -> std::io::Result<()> {
         for kind in [StoreKind::LibSql, StoreKind::DuckDb, StoreKind::Surreal] {
-            std::fs::create_dir_all(self.store_dir(kind))?;
+            if kind.is_persistent() {
+                std::fs::create_dir_all(self.store_dir(kind))?;
+            }
         }
         Ok(())
     }

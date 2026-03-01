@@ -21,6 +21,8 @@ chrono = { workspace = true }
 # Kernel (the brain — always linked, facade controls exposure)
 devpulse-maestro = { path = "../../kernel/devpulse-maestro" }
 
+# Config
+toml = "0.8"
 
 [build-dependencies]
 toml = "0.8"

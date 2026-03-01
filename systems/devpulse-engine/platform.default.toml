@@ -1,0 +1,26 @@
+# Platform store defaults — embedded at compile time via include_str!().
+# Override at runtime by placing a platform.toml in your data directory.
+
+[stores.relational]
+enabled = true
+kind = "libsql"
+path = "libsql/platform.db"
+
+[stores.analytics]
+enabled = true
+kind = "duckdb"
+path = "duckdb/analytics.duckdb"
+
+[stores.graph]
+enabled = true
+kind = "surreal"
+path = "surreal/reasoning"
+namespace = "maestro"
+database = "devpulse"
+
+[stores.cache]
+enabled = true
+kind = "moka"
+max_capacity = 10_000
+time_to_live_secs = 300
+time_to_idle_secs = 60
