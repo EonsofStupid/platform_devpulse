@@ -3,11 +3,9 @@
  * @layer recipes
  * @package @devpulse/coldlight
  *
- * DsSurfaceProps = Preset (8 registry category indices) + radius + size.
+ * DsSurfaceProps = Preset (8 semantic category IDs) + radius + size.
  * Zod schemas validate at system boundaries (VPB, API, persistence).
  * TypeScript types inferred from schemas — single source of truth.
- *
- * No legacy. No V1. No bridge maps.
  */
 
 import { z } from "zod";
@@ -23,28 +21,28 @@ import {
 
 /**
  * Zod schema for surface props.
- * 8 registry category indices (s, z, d, b, g, f, m, t) + structural props.
- * Preset indices map directly to TOKEN_CATEGORY_REGISTRY values.
+ * 8 semantic category IDs (surface, material, depth, bevel, glow, frame, motion, transition)
+ * + structural props (radius, size).
  */
 export const DsSurfacePropsSchema = PresetSchema.extend({
 	radius: RadiusSchema,
 	size: SizeSchema,
 });
 
-/** Surface props: 8 encoding categories + radius + size. */
+/** Surface props: 8 semantic categories + radius + size. */
 export type DsSurfaceProps = z.infer<typeof DsSurfacePropsSchema>;
 
 /** Extract just the Preset portion (encoding categories only). */
 export function toPreset(props: DsSurfaceProps): Preset {
 	return {
-		s: props.s,
-		z: props.z,
-		d: props.d,
-		b: props.b,
-		g: props.g,
-		f: props.f,
-		m: props.m,
-		t: props.t,
+		surface: props.surface,
+		material: props.material,
+		depth: props.depth,
+		bevel: props.bevel,
+		glow: props.glow,
+		frame: props.frame,
+		motion: props.motion,
+		transition: props.transition,
 	};
 }
 

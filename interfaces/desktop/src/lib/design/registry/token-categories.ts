@@ -647,16 +647,18 @@ export const EncodingStringSchema = z
 		});
 	}, "All category codes must exist in registry and values must be within valid range");
 
-/**
- * Preset schema — 8 encoding category indices.
- *
- * TypeScript needs explicit named keys (Object.fromEntries loses them).
- * Runtime validation still derives max values from the registry.
- */
+// ═══════════════════════════════════════════════════════════════
+// ENCODING INDICES — Internal numeric representation
+//
+// Used internally by emitters to produce v-s1z0d2 CSS classes.
+// NEVER exposed to authors. Authors use PresetSchema (semantic IDs).
+// ═══════════════════════════════════════════════════════════════
+
 const _maxIndex = (code: string) =>
 	TOKEN_CATEGORY_REGISTRY.find((c) => c.code === code)!.values.length - 1;
 
-export const PresetSchema = z.object({
+/** @internal Numeric index schema — encoding internals only. */
+export const EncodingIndicesSchema = z.object({
 	s: z.number().int().min(0).max(_maxIndex("s")).default(0),
 	z: z.number().int().min(0).max(_maxIndex("z")).default(0),
 	d: z.number().int().min(0).max(_maxIndex("d")).default(0),
@@ -667,4 +669,122 @@ export const PresetSchema = z.object({
 	t: z.number().int().min(0).max(_maxIndex("t")).default(0),
 });
 
+/** @internal Numeric indices — encoding internals only. */
+export type EncodingIndices = z.infer<typeof EncodingIndicesSchema>;
+
+// ═══════════════════════════════════════════════════════════════
+// PRESET — THE public schema. Semantic IDs per category.
+//
+// This IS the preset. One schema. One type.
+// { surface: "glass-void", depth: "z2", glow: "teal" }
+//
+// The system resolves IDs → indices → CSS internally.
+// Authors never see numbers.
+// ═══════════════════════════════════════════════════════════════
+
+/** Extract value IDs from a category as a z.enum-compatible tuple. */
+const _ids = (code: string) =>
+	TOKEN_CATEGORY_REGISTRY.find((c) => c.code === code)!.values.map(
+		(v) => v.id,
+	) as [string, ...string[]];
+
+export const SurfaceIdSchema = z.enum(_ids("s"));
+export const MaterialIdSchema = z.enum(_ids("z"));
+export const DepthIdSchema = z.enum(_ids("d"));
+export const BevelIdSchema = z.enum(_ids("b"));
+export const GlowIdSchema = z.enum(_ids("g"));
+export const FrameIdSchema = z.enum(_ids("f"));
+export const MotionIdSchema = z.enum(_ids("m"));
+export const TransitionIdSchema = z.enum(_ids("t"));
+
+export type SurfaceId = z.infer<typeof SurfaceIdSchema>;
+export type MaterialId = z.infer<typeof MaterialIdSchema>;
+export type DepthId = z.infer<typeof DepthIdSchema>;
+export type BevelId = z.infer<typeof BevelIdSchema>;
+export type GlowId = z.infer<typeof GlowIdSchema>;
+export type FrameId = z.infer<typeof FrameIdSchema>;
+export type MotionId = z.infer<typeof MotionIdSchema>;
+export type TransitionId = z.infer<typeof TransitionIdSchema>;
+
+/**
+ * Preset — THE public contract for visual configuration.
+ *
+ * Authors write: `{ surface: "glass-void", depth: "z2", glow: "teal" }`
+ * System resolves to CSS: `v-s1 v-d2 v-g1`
+ *
+ * Every field validated against registry. Add a value to the registry,
+ * the union type auto-updates. One schema. No duplication.
+ */
+export const PresetSchema = z.object({
+	surface: SurfaceIdSchema.default("transparent"),
+	material: MaterialIdSchema.default("none"),
+	depth: DepthIdSchema.default("flat"),
+	bevel: BevelIdSchema.default("flat"),
+	glow: GlowIdSchema.default("none"),
+	frame: FrameIdSchema.default("none"),
+	motion: MotionIdSchema.default("none"),
+	transition: TransitionIdSchema.default("none"),
+});
+
 export type Preset = z.infer<typeof PresetSchema>;
+
+// ═══════════════════════════════════════════════════════════════
+// DERIVED: CODE ↔ NAME MAPS
+// ═══════════════════════════════════════════════════════════════
+
+/** Map category code → preset field name: { s: "surface", z: "material", ... } */
+export const CODE_TO_NAME: Record<string, keyof Preset> = {
+	s: "surface",
+	z: "material",
+	d: "depth",
+	b: "bevel",
+	g: "glow",
+	f: "frame",
+	m: "motion",
+	t: "transition",
+};
+
+/** Map preset field name → category code: { surface: "s", material: "z", ... } */
+export const NAME_TO_CODE: Record<keyof Preset, string> = {
+	surface: "s",
+	material: "z",
+	depth: "d",
+	bevel: "b",
+	glow: "g",
+	frame: "f",
+	motion: "m",
+	transition: "t",
+};
+
+// ═══════════════════════════════════════════════════════════════
+// RESOLUTION: Semantic IDs ↔ Numeric Indices
+//
+// Internal converters. The emitters use these to produce CSS.
+// ═══════════════════════════════════════════════════════════════
+
+/** Resolve a semantic preset to numeric encoding indices. */
+export function resolveToIndices(preset: Partial<Preset>): EncodingIndices {
+	const indices: Record<string, number> = {};
+	for (const cat of TOKEN_CATEGORY_REGISTRY) {
+		const name = CODE_TO_NAME[cat.code];
+		const id = preset[name];
+		if (id) {
+			const idx = cat.values.findIndex((v) => v.id === id);
+			indices[cat.code] = idx >= 0 ? idx : cat.defaultIndex;
+		} else {
+			indices[cat.code] = cat.defaultIndex;
+		}
+	}
+	return indices as EncodingIndices;
+}
+
+/** Resolve numeric encoding indices to a semantic preset. */
+export function resolveToPreset(indices: EncodingIndices): Preset {
+	const preset: Record<string, string> = {};
+	for (const cat of TOKEN_CATEGORY_REGISTRY) {
+		const name = CODE_TO_NAME[cat.code];
+		const idx = indices[cat.code as keyof EncodingIndices] ?? cat.defaultIndex;
+		preset[name] = cat.values[idx]?.id ?? cat.values[cat.defaultIndex].id;
+	}
+	return preset as Preset;
+}

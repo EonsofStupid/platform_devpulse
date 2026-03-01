@@ -420,14 +420,14 @@ describe("combobox — recipe registry (SSOT)", () => {
 
 	test("recipe defaults include all DsSurfaceProps", () => {
 		const def = getRecipe("combobox.glass.void")!;
-		expect(def.defaults.s).toBe(1);
-		expect(def.defaults.z).toBe(0);
-		expect(def.defaults.d).toBe(2);
-		expect(def.defaults.b).toBe(2);
-		expect(def.defaults.g).toBe(1);
-		expect(def.defaults.f).toBe(0);
-		expect(def.defaults.m).toBe(0);
-		expect(def.defaults.t).toBe(0);
+		expect(def.defaults.surface).toBe("glass-void");
+		expect(def.defaults.material).toBe("none");
+		expect(def.defaults.depth).toBe("z2");
+		expect(def.defaults.bevel).toBe("soft");
+		expect(def.defaults.glow).toBe("teal");
+		expect(def.defaults.frame).toBe("none");
+		expect(def.defaults.motion).toBe("none");
+		expect(def.defaults.transition).toBe("none");
 		expect(def.defaults.radius).toBe("lg");
 		expect(def.defaults.size).toBe("md");
 	});

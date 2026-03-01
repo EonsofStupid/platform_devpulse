@@ -22,14 +22,14 @@ let { children }: Props = $props();
 const shell = getRecipe("shell.chat.default");
 const slots = $derived(
 	shell?.classes({
-		s: 2,  // glass-deep
-		z: 0,  // none
-		d: 2,  // z2 elevated
-		b: 1,  // subtle bevel
-		g: 0,  // no glow
-		f: 0,  // no frame border
-		m: 0,  // static
-		t: 0,  // instant
+		surface: "glass-deep",
+		material: "none",
+		depth: "z2",
+		bevel: "subtle",
+		glow: "none",
+		frame: "none",
+		motion: "none",
+		transition: "none",
 		size: "md",
 		radius: "lg",
 	}) ?? {},

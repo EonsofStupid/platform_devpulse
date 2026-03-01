@@ -1,7 +1,7 @@
 {
 	"$schema": "coldlight/manifest",
 	"version": 1,
-	"generatedAt": "2026-03-01T01:54:42.630Z",
+	"generatedAt": "2026-03-01T03:14:57.464Z",
 	"pipeline": "sd5-dtcg-1.0",
 	"categories": [
 		{
