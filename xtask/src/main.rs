@@ -1,6 +1,7 @@
 //! `DevPulse` task runner for development orchestration.
 
 mod commands;
+mod tools;
 
 use clap::{Parser, Subcommand};
 
