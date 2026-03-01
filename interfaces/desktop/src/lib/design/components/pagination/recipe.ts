@@ -24,7 +24,7 @@ export function paginationPageRecipe(props: PaginationRecipeProps = {}): string 
 	return cn(
 		"pagination-page",
 		`sz-${size}`,
-		props.active ? "v-cyber s-glass e-1" : "",
+		props.active ? "v-s1 v-d1 v-g6" : "",
 	);
 }
 

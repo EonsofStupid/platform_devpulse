@@ -19,7 +19,7 @@ export function toggleGroupRecipe(props: ToggleGroupRecipeProps = {}): string {
 		: "toggle-group-horizontal";
 	return cn(
 		"toggle-group-root",
-		"v-void s-glass e-0",
+		"v-s1",
 		orientationClass,
 		"rounded-md",
 	);

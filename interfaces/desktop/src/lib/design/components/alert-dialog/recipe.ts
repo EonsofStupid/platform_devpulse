@@ -16,12 +16,12 @@
 export function alertDialogRecipe() {
 	return {
 		overlay: "dialog-overlay",
-		content: "dialog-content v-void s-glass e-3 sz-md rounded-lg",
+		content: "dialog-content v-s1 v-d3 sz-md rounded-lg",
 		header: "dialog-header",
 		footer: "dialog-footer",
 		title: "dialog-title",
 		description: "dialog-description",
-		action: "alertdialog-action v-molten s-solid e-1 sz-md rounded-md",
-		cancel: "alertdialog-cancel v-void s-glass e-0 sz-md rounded-md",
+		action: "alertdialog-action v-s6 v-d1 v-g3 sz-md rounded-md",
+		cancel: "alertdialog-cancel v-s1 sz-md rounded-md",
 	};
 }

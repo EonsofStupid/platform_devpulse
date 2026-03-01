@@ -10,5 +10,5 @@
 import { cn } from "$lib/design/utils/cn.js";
 
 export function notificationCenterRecipe(): string {
-	return cn("notification-center-root", "v-void s-glass e-2", "rounded-lg");
+	return cn("notification-center-root", "v-s1 v-d2", "rounded-lg");
 }

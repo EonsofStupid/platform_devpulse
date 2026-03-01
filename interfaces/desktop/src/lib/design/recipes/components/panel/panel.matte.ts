@@ -15,34 +15,29 @@
 import { cn } from "$lib/design/utils/cn.js";
 import { registerRecipe } from "../../index.js";
 import type { DsSurfaceProps } from "../../types.js";
-import {
-	variantShortcode,
-	surfaceShortcode,
-	elevationShortcode,
-	sizeShortcode,
-	radiusClass,
-} from "../../utils.js";
+import { toPreset } from "../../types.js";
+import { emitSegments, radiusClass } from "../../utils.js";
 
 registerRecipe({
 	id: "panel.matte.flat",
 	kind: "panel",
 	label: "Matte Flat Panel",
 	defaults: {
-		surface: "matte",
-		accent: "teal",
+		s: 5,
+		z: 0,
+		d: 1,
+		b: 0,
+		g: 0,
+		f: 0,
+		m: 0,
+		t: 0,
 		radius: "md",
-		depth: 1,
-		glow: "off",
-		bevel: "off",
 		size: "md",
 	},
 	classes: (props: DsSurfaceProps): Record<string, string> => ({
 		root: cn(
 			"panel",
-			variantShortcode(props.variant ?? "void"),
-			surfaceShortcode(props.surface),
-			elevationShortcode(props.depth),
-			sizeShortcode(props.size),
+			emitSegments(toPreset(props)),
 			radiusClass(props.radius),
 		),
 		header: "panel-header",

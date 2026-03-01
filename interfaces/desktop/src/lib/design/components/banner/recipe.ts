@@ -15,10 +15,10 @@ type BannerRecipeProps = { intent?: string };
 
 export function bannerRecipe(props: BannerRecipeProps = {}): string {
 	const intentMap: Record<string, string> = {
-		info: "banner banner-info v-void s-glass e-0",
-		success: "banner banner-success v-glacial s-glass e-0",
-		warning: "banner banner-warning v-molten s-glass e-0",
-		error: "banner banner-error v-molten s-glass e-0",
+		info: "banner banner-info v-s1",
+		success: "banner banner-success v-s4",
+		warning: "banner banner-warning v-s1 v-g3",
+		error: "banner banner-error v-s1 v-g3",
 	};
 	return intentMap[props.intent ?? "info"] ?? intentMap.info;
 }

@@ -38,14 +38,16 @@ let {
 const widgetRecipe = $derived(getRecipe(recipeId));
 const slots = $derived(
 	widgetRecipe?.classes({
-		accent: "teal",
-		surface: "glass",
-		variant: "void",
+		s: 1,
+		z: 0,
+		d: 2,
+		b: 2,
+		g: 0,
+		f: 0,
+		m: 0,
+		t: 0,
 		size,
 		radius: "lg",
-		depth: 2,
-		glow: "off",
-		bevel: "soft",
 	}) ?? {},
 );
 </script>

@@ -17,7 +17,7 @@ import {
 /** Preset object → canonical encoding string */
 export function encodePreset(preset: Partial<Preset>): string {
 	const parts = ENCODING_ORDER.map((code) => {
-		const val = preset[code] ?? CODE_MAP[code].defaultIndex;
+		const val = preset[code as keyof Preset] ?? CODE_MAP[code].defaultIndex;
 		return val === CODE_MAP[code].defaultIndex ? null : `${code}${val}`;
 	}).filter(Boolean);
 
@@ -53,7 +53,7 @@ export function resolvePreset(
 	const resolved: Record<string, Record<string, string>> = {};
 
 	for (const cat of TOKEN_CATEGORY_REGISTRY) {
-		const value = cat.values[preset[cat.code] ?? cat.defaultIndex];
+		const value = cat.values[preset[cat.code as keyof Preset] ?? cat.defaultIndex];
 		if (value && Object.keys(value.tokenRefs).length > 0) {
 			resolved[cat.code] = { ...value.tokenRefs } as Record<
 				string,
@@ -75,7 +75,7 @@ export function emitSegments(props: Partial<Preset>): string {
 	const segments: string[] = [];
 
 	for (const code of ENCODING_ORDER) {
-		const val = props[code];
+		const val = props[code as keyof Preset];
 		if (val !== undefined && val !== CODE_MAP[code].defaultIndex) {
 			segments.push(`v-${code}${val}`);
 		}

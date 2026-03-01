@@ -22,35 +22,29 @@
 import { cn } from "$lib/design/utils/cn.js";
 import { registerRecipe } from "../../index.js";
 import type { DsSurfaceProps } from "../../types.js";
-import {
-	variantShortcode,
-	surfaceShortcode,
-	elevationShortcode,
-	sizeShortcode,
-	radiusClass,
-} from "../../utils.js";
+import { toPreset } from "../../types.js";
+import { emitSegments, radiusClass } from "../../utils.js";
 
 registerRecipe({
 	id: "card.glass.void",
 	kind: "card",
 	label: "Glass Void Card",
 	defaults: {
-		surface: "glass",
-		variant: "void",
-		accent: "teal",
+		s: 1,
+		z: 0,
+		d: 2,
+		b: 2,
+		g: 1,
+		f: 0,
+		m: 0,
+		t: 0,
 		radius: "lg",
-		depth: 2,
-		glow: "teal",
-		bevel: "soft",
 		size: "md",
 	},
 	classes: (props: DsSurfaceProps): Record<string, string> => ({
 		root: cn(
 			"card",
-			variantShortcode(props.variant ?? "void"),
-			surfaceShortcode(props.surface),
-			elevationShortcode(props.depth),
-			sizeShortcode(props.size),
+			emitSegments(toPreset(props)),
 			radiusClass(props.radius),
 		),
 		header: "card-header",

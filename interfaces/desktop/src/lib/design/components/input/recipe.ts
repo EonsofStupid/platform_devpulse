@@ -19,7 +19,7 @@ export function inputRecipe(props: InputRecipeProps = {}): string {
 	};
 	return cn(
 		"input-root",
-		"v-void s-glass e-0",
+		"v-s1",
 		sizeMap[props.size ?? "md"] ?? "sz-md",
 		"rounded-md",
 	);

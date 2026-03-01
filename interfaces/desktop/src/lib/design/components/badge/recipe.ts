@@ -22,11 +22,11 @@ export function badgeRecipe(props: BadgeRecipeProps = {}): string {
 		lg: "sz-md",
 	};
 	const intentMap: Record<string, string> = {
-		neutral: "badge v-void s-glass",
-		primary: "badge badge-primary v-cyber s-glass",
-		success: "badge badge-success v-glacial s-glass",
-		warning: "badge badge-warning v-molten s-glass",
-		danger: "badge badge-danger v-molten s-glass",
+		neutral: "badge v-s1",
+		primary: "badge badge-primary v-s1 v-g6",
+		success: "badge badge-success v-s4",
+		warning: "badge badge-warning v-s1 v-g3",
+		danger: "badge badge-danger v-s1 v-g3",
 	};
 	return cn(
 		intentMap[props.intent ?? "neutral"] ?? intentMap.neutral,

@@ -18,10 +18,10 @@ type ButtonRecipeProps = { intent?: string; size?: string };
 
 export function buttonRecipe(props: ButtonRecipeProps = {}): string {
 	const intentMap: Record<string, string> = {
-		primary: "btn btn-primary v-cyber s-glass e-1",
-		secondary: "btn btn-secondary v-void s-glass e-0",
-		ghost: "btn btn-ghost e-0",
-		danger: "btn btn-danger v-molten s-solid e-1",
+		primary: "btn btn-primary v-s1 v-d1 v-g6",
+		secondary: "btn btn-secondary v-s1",
+		ghost: "btn btn-ghost",
+		danger: "btn btn-danger v-s6 v-d1 v-g3",
 	};
 	const sizeMap: Record<string, string> = {
 		sm: "sz-sm rounded-md",

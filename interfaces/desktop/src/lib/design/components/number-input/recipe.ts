@@ -19,7 +19,7 @@ export function numberInputRecipe(props: NumberInputRecipeProps = {}): string {
 	};
 	return cn(
 		"number-input-root",
-		"v-void s-glass e-0",
+		"v-s1",
 		sizeMap[props.size ?? "md"] ?? "number-input-md",
 		"rounded-md",
 	);

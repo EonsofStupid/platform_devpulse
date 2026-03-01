@@ -22,7 +22,7 @@ export function contextMenuRecipe(props: ContextMenuRecipeProps = {}) {
 		trigger: "",
 		content: cn(
 			"context-menu-content",
-			"v-void s-glass e-3",
+			"v-s1 v-d3",
 			sizeMap[props.size ?? "md"] ?? sizeMap.md,
 			"rounded-md",
 		),

@@ -16,12 +16,12 @@ export function dateRangePickerRecipe(props: DateRangePickerRecipeProps = {}) {
 		root: "",
 		trigger: cn(
 			"date-range-picker-trigger",
-			"v-void s-glass e-0 sz-md",
+			"v-s1 sz-md",
 			"rounded-md",
 		),
 		content: cn(
 			"date-range-picker-content",
-			"v-void s-glass e-3",
+			"v-s1 v-d3",
 			"rounded-lg",
 		),
 		calendar: "",

@@ -6,12 +6,15 @@
  * Converts to DTCG 1.0 JSON structure.
  * Writes tokens.json to tokensConfig.dtcg.output.
  *
+ * Also loads TOKEN_CATEGORY_REGISTRY for the variants generator
+ * and keyframesDef for the keyframes generator.
+ *
  * Tier 2 (semantic) and Tier 3 (component) tokens go to DTCG root
  * WITHOUT their wrapper keys — semantic categories (surface, border, depth,
  * transition) and component kinds (button, panel, etc.) become top-level
  * DTCG groups. SD5 name/kebab then produces --surface-primary, --button-bg, etc.
  *
- * Exports: { dtcgPath, tokensConfig, jitiEnums, desktopRoot }
+ * Exports: { dtcgPath, tokensConfig, jitiEnums, jitiRegistry, jitiKeyframesDef, desktopRoot }
  */
 
 import { writeFileSync } from "node:fs";
@@ -20,13 +23,11 @@ import { fileURLToPath } from "node:url";
 import { createJiti } from "jiti";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-// scripts/dev/design/sd/preprocessors/ → 5 levels up → interfaces/desktop/
 const desktopRoot = resolve(__dirname, "../../../../../");
 
 const jiti = createJiti(import.meta.url, { moduleCache: false });
 
-// ─── Load tokens pipeline config directly ────────────────────────────────────
-// No need for the full coldlightConfig assembly — only TOKENS is needed here.
+// ─── Load tokens pipeline config ─────────────────────────────────────────────
 const tokensMod = await jiti.import(
 	resolve(desktopRoot, "src/lib/design/config/coldlight/tokens.cfg.ts"),
 ) as { TOKENS: Record<string, unknown> };
@@ -43,7 +44,7 @@ const tokensConfig = tokensMod.TOKENS as {
 	themeMappings: Record<string, { namespace: string; prefix: string | null }>;
 };
 
-// ─── Load SSOT sources ────────────────────────────────────────────────────────
+// ─── Load Tier 1 SSOT (barrel file re-exports from organized sources) ────────
 const tokensMod2 = await jiti.import(resolve(desktopRoot, tokensConfig.sources.globals)) as {
 	hue: Record<string, string>;
 	color: Record<string, Record<string, string>>;
@@ -54,6 +55,7 @@ const tokensMod2 = await jiti.import(resolve(desktopRoot, tokensConfig.sources.g
 	radius: Record<string, string>;
 	blur: Record<string, string>;
 	glow: Record<string, string>;
+	glowSpread: Record<string, string>;
 	shadow: Record<string, string>;
 	bevel: Record<string, string>;
 	z: Record<string, string>;
@@ -64,6 +66,7 @@ const tokensMod2 = await jiti.import(resolve(desktopRoot, tokensConfig.sources.g
 	signal: Record<string, string>;
 	font: Record<string, string>;
 	animation: Record<string, string>;
+	keyframesDef: Record<string, string>;
 	enums: Record<string, readonly (string | number)[]>;
 };
 
@@ -75,9 +78,32 @@ const compMod = await jiti.import(resolve(desktopRoot, tokensConfig.sources.comp
 	components: Record<string, Record<string, string>>;
 };
 
+// ─── Load SSOT Registry ──────────────────────────────────────────────────────
+const registryMod = await jiti.import(
+	resolve(desktopRoot, "src/lib/design/registry/token-categories.ts"),
+) as {
+	TOKEN_CATEGORY_REGISTRY: Array<{
+		code: string;
+		name: string;
+		description: string;
+		values: Array<{
+			index: number;
+			id: string;
+			label: string;
+			tokenRefs: Record<string, string>;
+			requiredTokens?: string[];
+			svgFilters?: string[];
+		}>;
+		defaultIndex: number;
+		encodingOrder: number;
+		vpbControl: string;
+	}>;
+};
+
+const jitiRegistry = registryMod.TOKEN_CATEGORY_REGISTRY;
+
 // ─── DTCG helpers ─────────────────────────────────────────────────────────────
 
-/** Flat object → DTCG token group. { key: value } → { key: { $type, $value } } */
 function toGroup(
 	obj: Record<string, string>,
 	type: string,
@@ -89,7 +115,6 @@ function toGroup(
 	return group;
 }
 
-/** 2-level nested object → DTCG token group. For `color` which is { scale: { step: value } }. */
 function toNestedGroup(
 	obj: Record<string, Record<string, string>>,
 	type: string,
@@ -107,31 +132,28 @@ const dtcg: Record<string, unknown> = {
 	$description: "ColdLight Design System — DTCG 1.0. AUTO-GENERATED.",
 
 	// ── Tier 1: Global tokens ─────────────────────────────────────────────────
-	hue:       toGroup(tokensMod2.hue,       "number"),
-	color:     toNestedGroup(tokensMod2.color, "color"),
-	glass:     toGroup(tokensMod2.glass,     "color"),
-	matte:     toGroup(tokensMod2.matte,     "color"),
-	text:      toGroup(tokensMod2.text,      "color"),
-	space:     toGroup(tokensMod2.space,     "dimension"),
-	radius:    toGroup(tokensMod2.radius,    "dimension"),
-	blur:      toGroup(tokensMod2.blur,      "dimension"),
-	glow:      toGroup(tokensMod2.glow,      "shadow"),
-	shadow:    toGroup(tokensMod2.shadow,    "shadow"),
-	bevel:     toGroup(tokensMod2.bevel,     "shadow"),
-	z:         toGroup(tokensMod2.z,         "number"),
-	duration:  toGroup(tokensMod2.duration,  "duration"),
-	ease:      toGroup(tokensMod2.ease,      "cubicBezier"),
-	textSize:  toGroup(tokensMod2.textSize,  "dimension"),
-	padding:   toGroup(tokensMod2.padding,   "other"),
-	signal:    toGroup(tokensMod2.signal,    "color"),
-	font:      toGroup(tokensMod2.font,      "fontFamily"),
-	animation: toGroup(tokensMod2.animation, "other"),
+	hue:        toGroup(tokensMod2.hue,        "number"),
+	color:      toNestedGroup(tokensMod2.color, "color"),
+	glass:      toGroup(tokensMod2.glass,      "color"),
+	matte:      toGroup(tokensMod2.matte,      "color"),
+	text:       toGroup(tokensMod2.text,       "color"),
+	space:      toGroup(tokensMod2.space,      "dimension"),
+	radius:     toGroup(tokensMod2.radius,     "dimension"),
+	blur:       toGroup(tokensMod2.blur,       "dimension"),
+	glow:       toGroup(tokensMod2.glow,       "shadow"),
+	glowSpread: toGroup(tokensMod2.glowSpread, "dimension"),
+	shadow:     toGroup(tokensMod2.shadow,     "shadow"),
+	bevel:      toGroup(tokensMod2.bevel,      "shadow"),
+	z:          toGroup(tokensMod2.z,          "number"),
+	duration:   toGroup(tokensMod2.duration,   "duration"),
+	ease:       toGroup(tokensMod2.ease,       "cubicBezier"),
+	textSize:   toGroup(tokensMod2.textSize,   "dimension"),
+	padding:    toGroup(tokensMod2.padding,    "other"),
+	signal:     toGroup(tokensMod2.signal,     "color"),
+	font:       toGroup(tokensMod2.font,       "fontFamily"),
+	animation:  toGroup(tokensMod2.animation,  "other"),
 
-	// ── Tier 2: Semantic — spread to root (no "semantic" wrapper) ─────────────
-	// semantic.surface.primary → surface.primary → --surface-primary
-	// semantic.border.subtle   → border.subtle   → --border-subtle
-	// semantic.depth.panel     → depth.panel     → --depth-panel
-	// semantic.transition.fast → transition.fast → --transition-fast
+	// ── Tier 2: Semantic — spread to root ─────────────────────────────────────
 	...Object.fromEntries(
 		Object.entries(semMod.semantic).map(([category, entries]) => [
 			category,
@@ -139,9 +161,7 @@ const dtcg: Record<string, unknown> = {
 		]),
 	),
 
-	// ── Tier 3: Component — spread to root (no "component" wrapper) ───────────
-	// components.button.bg     → button.bg     → --button-bg
-	// components.panel.border  → panel.border  → --panel-border
+	// ── Tier 3: Component — spread to root ────────────────────────────────────
 	...Object.fromEntries(
 		Object.entries(compMod.components).map(([kind, entries]) => [
 			kind,
@@ -155,11 +175,6 @@ const dtcgPath = resolve(desktopRoot, tokensConfig.dtcg.output);
 writeFileSync(dtcgPath, `${JSON.stringify(dtcg, null, "\t")}\n`, "utf-8");
 
 const jitiEnums = tokensMod2.enums;
-const jitiVariantKeys = (tokensMod2 as Record<string, unknown>).variantKeys as Record<string, {
-	cssProperty: string;
-	cssVar: string;
-	values: readonly string[];
-	extras?: readonly string[];
-}>;
+const jitiKeyframesDef = tokensMod2.keyframesDef;
 
-export { dtcgPath, tokensConfig, jitiEnums, jitiVariantKeys, desktopRoot };
+export { dtcgPath, tokensConfig, jitiEnums, jitiRegistry, jitiKeyframesDef, desktopRoot };

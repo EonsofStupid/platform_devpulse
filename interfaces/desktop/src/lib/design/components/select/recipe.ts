@@ -16,12 +16,12 @@ export function selectRecipe() {
 	return {
 		trigger: cn(
 			"select-trigger",
-			"v-void s-glass e-0",
+			"v-s1",
 			"rounded-md",
 		),
 		content: cn(
 			"select-content",
-			"v-void s-glass e-3",
+			"v-s1 v-d3",
 			"rounded-md",
 		),
 		item: "select-item",

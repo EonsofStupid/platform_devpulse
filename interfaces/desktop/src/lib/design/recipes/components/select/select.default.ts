@@ -17,8 +17,8 @@
  *       --select-item-selected  → var(--color-teal-900)
  *   - Semantic text tokens:
  *       text-text-primary, text-text-secondary, text-text-muted
- *   - Molecule utilities (from recipes/utils.ts):
- *       surfaceClass(), radiusClass(), depthClass(), glowClass(), bevelClass()
+ *   - Encoding emitters:
+ *       emitSegments(), emitCategory(), radiusClass()
  *
  * Size variants (sm/md/lg) drive per-slot height, padding, and font-size.
  * All OKLCH — zero hardcoded colors.
@@ -27,13 +27,8 @@
 import { cn } from "$lib/design/primitives/types.js";
 import { registerRecipe } from "../../index.js";
 import type { DsSurfaceProps } from "../../types.js";
-import {
-	radiusClass,
-	surfaceClass,
-	depthClass,
-	glowClass,
-	bevelClass,
-} from "../../utils.js";
+import { toPreset } from "../../types.js";
+import { emitSegments, emitCategory, radiusClass } from "../../utils.js";
 
 const SIZE_SCALE = {
 	sm: {
@@ -58,13 +53,15 @@ registerRecipe({
 	kind: "select",
 	label: "Glass Void Select",
 	defaults: {
-		surface: "glass",
-		variant: "void",
-		accent: "teal",
+		s: 1,
+		z: 0,
+		d: 2,
+		b: 2,
+		g: 1,
+		f: 0,
+		m: 0,
+		t: 0,
 		radius: "lg",
-		depth: 2,
-		glow: "teal",
-		bevel: "soft",
 		size: "md",
 	},
 	classes: (props: DsSurfaceProps): Record<string, string> => {
@@ -76,7 +73,7 @@ registerRecipe({
 				"inline-flex w-full items-center justify-between",
 				s.trigger,
 				r,
-				bevelClass(props.bevel),
+				emitCategory("b", props.b),
 				"border border-[var(--select-border)]",
 				"bg-[var(--select-bg)]",
 				"text-text-primary",
@@ -86,10 +83,8 @@ registerRecipe({
 				"disabled:pointer-events-none disabled:opacity-50",
 			),
 			content: cn(
-				surfaceClass(props.surface, props.variant ?? "void"),
+				emitSegments(toPreset(props)),
 				r,
-				depthClass(props.depth),
-				glowClass(props.glow),
 				"border border-[var(--select-border)]",
 				"p-1 z-50 overflow-hidden",
 				"data-[open]:animate-in data-[open]:fade-in-0 data-[open]:zoom-in-95",

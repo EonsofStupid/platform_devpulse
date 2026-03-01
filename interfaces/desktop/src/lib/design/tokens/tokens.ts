@@ -1,396 +1,62 @@
 /**
- * @file src/lib/design/tokens/tokens.ts
- * @layer tokens
+ * @file Tier 1 Token Barrel — re-exports from organized source files
+ * @module @devpulse/coldlight/tokens
+ * @layer tokens/tier-1
  *
- * @description
- * SSOT (Single Source of Truth) for ColdLight Design System tokens.
- * This file is the canonical definition - all other token files are GENERATED.
+ * This file re-exports all Tier 1 global tokens from their organized source files.
+ * The SD5 build pipeline loads this file via jiti.
  *
- * DO NOT EDIT tokens.css, types.ts, or tailwind.css directly.
- * Run `pnpm ds:tokens:build` to regenerate them from this file.
+ * Source organization:
+ *   color/     — palettes, surfaces, text, signals
+ *   spacing/   — space scale, padding
+ *   effects/   — shadow, bevel, glow, blur
+ *   motion/    — duration, easing, keyframes
+ *   typography/ — fonts, text sizes
+ *   layout/    — radius, z-index
  *
- * @generated-files
- * - tokens.css (CSS custom properties — :root block)
- * - types.ts (TypeScript constants + union types)
- * - tailwind.css (Tailwind v4 @theme block)
- *
- * @since 1.0.0
+ * DO NOT add token definitions here. Add them to the appropriate source file.
+ * Run `pnpm ds:tokens:build` to regenerate CSS from these sources.
  */
 
-// ---------------------------------------------------------------------------
-// Accent Hues (oklch hue channel)
-// ---------------------------------------------------------------------------
-export const hue = {
-	teal: "180",
-	purple: "280",
-	magenta: "330",
-	ember: "25",
-	frost: "220",
-	cyber: "160",
-} as const;
+// ── Color ────────────────────────────────────────────────────────────────────
+export { hue, color } from "./color/scales.js";
+export { glass, matte } from "./color/surfaces.js";
+export { text } from "./color/text.js";
+export { signal } from "./color/signals.js";
 
-// ---------------------------------------------------------------------------
-// Color Scales — oklch(L C H) — 9-step scale per accent
-// L: lightness 0-1, C: chroma 0-0.4, H: hue angle
-// ---------------------------------------------------------------------------
-export const color = {
-	teal: {
-		50: "oklch(0.97 0.02 180)",
-		100: "oklch(0.92 0.04 180)",
-		200: "oklch(0.84 0.08 180)",
-		300: "oklch(0.74 0.12 180)",
-		400: "oklch(0.64 0.16 180)",
-		500: "oklch(0.55 0.18 180)",
-		600: "oklch(0.48 0.16 180)",
-		700: "oklch(0.40 0.13 180)",
-		800: "oklch(0.32 0.10 180)",
-		900: "oklch(0.24 0.07 180)",
-	},
-	purple: {
-		50: "oklch(0.97 0.02 280)",
-		100: "oklch(0.92 0.04 280)",
-		200: "oklch(0.84 0.08 280)",
-		300: "oklch(0.74 0.12 280)",
-		400: "oklch(0.64 0.16 280)",
-		500: "oklch(0.55 0.18 280)",
-		600: "oklch(0.48 0.16 280)",
-		700: "oklch(0.40 0.13 280)",
-		800: "oklch(0.32 0.10 280)",
-		900: "oklch(0.24 0.07 280)",
-	},
-	magenta: {
-		50: "oklch(0.97 0.02 330)",
-		100: "oklch(0.92 0.05 330)",
-		200: "oklch(0.84 0.10 330)",
-		300: "oklch(0.74 0.14 330)",
-		400: "oklch(0.64 0.18 330)",
-		500: "oklch(0.55 0.20 330)",
-		600: "oklch(0.48 0.18 330)",
-		700: "oklch(0.40 0.14 330)",
-		800: "oklch(0.32 0.10 330)",
-		900: "oklch(0.24 0.07 330)",
-	},
-	ember: {
-		50: "oklch(0.97 0.02 25)",
-		100: "oklch(0.92 0.05 25)",
-		200: "oklch(0.84 0.10 25)",
-		300: "oklch(0.74 0.14 25)",
-		400: "oklch(0.64 0.16 25)",
-		500: "oklch(0.55 0.18 25)",
-		600: "oklch(0.48 0.16 25)",
-		700: "oklch(0.40 0.13 25)",
-		800: "oklch(0.32 0.10 25)",
-		900: "oklch(0.24 0.07 25)",
-	},
-	frost: {
-		50: "oklch(0.98 0.01 220)",
-		100: "oklch(0.94 0.02 220)",
-		200: "oklch(0.88 0.04 220)",
-		300: "oklch(0.78 0.06 220)",
-		400: "oklch(0.68 0.08 220)",
-		500: "oklch(0.58 0.10 220)",
-		600: "oklch(0.50 0.08 220)",
-		700: "oklch(0.42 0.06 220)",
-		800: "oklch(0.34 0.04 220)",
-		900: "oklch(0.26 0.03 220)",
-	},
-	neutral: {
-		50: "oklch(0.97 0 0)",
-		100: "oklch(0.92 0 0)",
-		200: "oklch(0.84 0 0)",
-		300: "oklch(0.70 0 0)",
-		400: "oklch(0.56 0 0)",
-		500: "oklch(0.44 0 0)",
-		600: "oklch(0.36 0 0)",
-		700: "oklch(0.28 0 0)",
-		800: "oklch(0.20 0 0)",
-		900: "oklch(0.14 0 0)",
-	},
-	void: {
-		base: "oklch(0.06 0.02 195)",
-		800: "oklch(0.12 0.02 195)",
-		900: "oklch(0.08 0.02 195)",
-		950: "oklch(0.06 0.02 195)",
-	},
-	obsidian: {
-		900: "oklch(0.06 0.02 195)",
-		950: "oklch(0.04 0.01 195)",
-	},
-} as const;
+// ── Spacing ──────────────────────────────────────────────────────────────────
+export { space, padding } from "./spacing/space.js";
 
-// ---------------------------------------------------------------------------
-// Surface Materials
-// ---------------------------------------------------------------------------
-export const glass = {
-	void: "oklch(0.08 0.005 250 / 0.85)",
-	deep: "oklch(0.11 0.01 250 / 0.75)",
-	smoke: "oklch(0.16 0.005 0 / 0.60)",
-	frost: "oklch(0.92 0.01 220 / 0.40)",
-} as const;
+// ── Effects ──────────────────────────────────────────────────────────────────
+export { shadow } from "./effects/shadow.js";
+export { bevel } from "./effects/bevel.js";
+export { glow, glowSpread } from "./effects/glow.js";
+export { blur } from "./effects/blur.js";
 
-export const matte = {
-	dark: "oklch(0.14 0.005 250)",
-	medium: "oklch(0.22 0.005 250)",
-	light: "oklch(0.30 0.005 250)",
-} as const;
+// ── Motion ───────────────────────────────────────────────────────────────────
+export { duration } from "./motion/duration.js";
+export { ease } from "./motion/easing.js";
+export { animation, keyframesDef } from "./motion/keyframes.js";
 
-// ---------------------------------------------------------------------------
-// Text
-// ---------------------------------------------------------------------------
-export const text = {
-	primary: "oklch(0.95 0.01 250)",
-	secondary: "oklch(0.75 0.01 250)",
-	muted: "oklch(0.55 0.005 250)",
-	inverted: "oklch(0.10 0 0)",
-	link: "oklch(0.70 0.14 180)",
-	error: "oklch(0.65 0.20 25)",
-	success: "oklch(0.70 0.16 160)",
-} as const;
+// ── Typography ───────────────────────────────────────────────────────────────
+export { font } from "./typography/fonts.js";
+export { textSize } from "./typography/sizes.js";
 
-// ---------------------------------------------------------------------------
-// Spacing (rem scale — 1 unit = 0.25rem)
-// ---------------------------------------------------------------------------
-export const space = {
-	1: "0.25rem",
-	2: "0.5rem",
-	3: "0.75rem",
-	4: "1rem",
-	5: "1.25rem",
-	6: "1.5rem",
-	8: "2rem",
-} as const;
+// ── Layout ───────────────────────────────────────────────────────────────────
+export { radius } from "./layout/radius.js";
+export { z } from "./layout/z-index.js";
 
-// ---------------------------------------------------------------------------
-// Radius
-// ---------------------------------------------------------------------------
-export const radius = {
-	none: "0",
-	xs: "0.125rem",
-	sm: "0.25rem",
-	md: "0.5rem",
-	lg: "0.75rem",
-	xl: "1rem",
-	full: "9999px",
-} as const;
-
-// ---------------------------------------------------------------------------
-// Blur
-// ---------------------------------------------------------------------------
-export const blur = {
-	off: "0",
-	sm: "4px",
-	md: "8px",
-	lg: "16px",
-	xl: "24px",
-	"2xl": "40px",
-} as const;
-
-// ---------------------------------------------------------------------------
-// Glow (box-shadow with color)
-// ---------------------------------------------------------------------------
-export const glow = {
-	off: "none",
-	teal: "0 0 12px oklch(0.55 0.18 180 / 0.4)",
-	purple: "0 0 12px oklch(0.55 0.18 280 / 0.4)",
-	magenta: "0 0 12px oklch(0.55 0.20 330 / 0.4)",
-	ember: "0 0 12px oklch(0.55 0.18 25 / 0.4)",
-	frost: "0 0 12px oklch(0.58 0.10 220 / 0.4)",
-	cyber: "0 0 12px oklch(0.55 0.18 160 / 0.4)",
-} as const;
-
-// ---------------------------------------------------------------------------
-// Shadow (elevation)
-// ---------------------------------------------------------------------------
-export const shadow = {
-	z0: "none",
-	z1: "0 1px 3px oklch(0 0 0 / 0.12), 0 1px 2px oklch(0 0 0 / 0.24)",
-	z2: "0 3px 6px oklch(0 0 0 / 0.15), 0 2px 4px oklch(0 0 0 / 0.12)",
-	z3: "0 10px 20px oklch(0 0 0 / 0.15), 0 3px 6px oklch(0 0 0 / 0.10)",
-	z4: "0 15px 25px oklch(0 0 0 / 0.15), 0 5px 10px oklch(0 0 0 / 0.05)",
-} as const;
-
-// ---------------------------------------------------------------------------
-// Bevel (inset shadow)
-// ---------------------------------------------------------------------------
-export const bevel = {
-	off: "none",
-	subtle: "inset 0 1px 0 oklch(1 0 0 / 0.05)",
-	soft: "inset 0 1px 1px oklch(1 0 0 / 0.08), inset 0 -1px 1px oklch(0 0 0 / 0.08)",
-	medium: "inset 0 2px 2px oklch(1 0 0 / 0.10), inset 0 -2px 2px oklch(0 0 0 / 0.10)",
-} as const;
-
-// ---------------------------------------------------------------------------
-// Z-Index
-// ---------------------------------------------------------------------------
-export const z = {
-	base: "0",
-	raised: "10",
-	dropdown: "100",
-	sticky: "200",
-	overlay: "300",
-	modal: "400",
-	popover: "500",
-	toast: "600",
-	tooltip: "700",
-} as const;
-
-// ---------------------------------------------------------------------------
-// Duration (animation)
-// ---------------------------------------------------------------------------
-export const duration = {
-	snap: "50ms",
-	instant: "50ms",
-	fast: "150ms",
-	normal: "250ms",
-	smooth: "400ms",
-	slow: "400ms",
-	glacial: "700ms",
-	moderate: "3s",
-} as const;
-
-// ---------------------------------------------------------------------------
-// Easing
-// ---------------------------------------------------------------------------
-export const ease = {
-	linear: "linear",
-	in: "cubic-bezier(0.4, 0, 1, 1)",
-	out: "cubic-bezier(0, 0, 0.2, 1)",
-	inOut: "cubic-bezier(0.4, 0, 0.2, 1)",
-	spring: "cubic-bezier(0.34, 1.56, 0.64, 1)",
-	bounce: "cubic-bezier(0.68, -0.55, 0.27, 1.55)",
-} as const;
-
-// ---------------------------------------------------------------------------
-// Text Size
-// ---------------------------------------------------------------------------
-export const textSize = {
-	xs: "0.75rem",
-	sm: "0.875rem",
-	base: "1rem",
-	lg: "1.125rem",
-	xl: "1.25rem",
-	"2xl": "1.5rem",
-} as const;
-
-// ---------------------------------------------------------------------------
-// Padding (component-level)
-// ---------------------------------------------------------------------------
-export const padding = {
-	sm: "0.375rem 0.75rem",
-	md: "0.5rem 1rem",
-	lg: "0.75rem 1.5rem",
-} as const;
-
-// ---------------------------------------------------------------------------
-// Signal Colors (status indicators)
-// ---------------------------------------------------------------------------
-export const signal = {
-	success: "oklch(0.70 0.20 145)",
-	warning: "oklch(0.75 0.20 85)",
-	error: "oklch(0.60 0.25 25)",
-} as const;
-
-// ---------------------------------------------------------------------------
-// Fonts
-// ---------------------------------------------------------------------------
-export const font = {
-	display: '"Orbitron", system-ui, sans-serif',
-	sans: '"Inter", system-ui, sans-serif',
-	mono: '"JetBrains Mono", "Fira Code", monospace',
-} as const;
-
-// ---------------------------------------------------------------------------
-// Animation
-// ---------------------------------------------------------------------------
-export const animation = {
-	"pulse-glow": "pulse-glow 4s ease-in-out infinite",
-} as const;
-
-// ---------------------------------------------------------------------------
-// Variant Key Mappings — SSOT for v-s, v-z, v-l, v-t, v-m CSS generation
-// Each index (0-4) maps to a token reference. SD5 generates @utility classes.
-// ---------------------------------------------------------------------------
-export const variantKeys = {
-	/** s = surface: background material */
-	s: {
-		cssProperty: "background",
-		cssVar: "--v-surface",
-		values: [
-			"transparent",
-			"var(--glass-void)",
-			"var(--glass-deep)",
-			"var(--glass-smoke)",
-			"var(--glass-frost)",
-		],
-		extras: [
-			"",
-			"backdrop-filter: blur(var(--blur-md)) saturate(1.5);",
-			"backdrop-filter: blur(var(--blur-lg)) saturate(1.3);",
-			"backdrop-filter: blur(var(--blur-md)) saturate(1.2);",
-			"backdrop-filter: blur(var(--blur-sm)) saturate(1.1);",
-		],
-	},
-	/** z = depth: elevation shadow */
-	z: {
-		cssProperty: "box-shadow",
-		cssVar: "--v-depth",
-		values: [
-			"var(--shadow-z0)",
-			"var(--shadow-z1)",
-			"var(--shadow-z2)",
-			"var(--shadow-z3)",
-			"var(--shadow-z4)",
-		],
-	},
-	/** l = layers: bevel/inset */
-	l: {
-		cssProperty: "--v-layers",
-		cssVar: "--v-layers",
-		values: [
-			"none",
-			"var(--bevel-subtle)",
-			"var(--bevel-soft)",
-			"var(--bevel-medium)",
-			"var(--bevel-medium)",
-		],
-	},
-	/** t = transition: duration */
-	t: {
-		cssProperty: "transition-duration",
-		cssVar: "--v-transition",
-		values: [
-			"0ms",
-			"var(--duration-instant)",
-			"var(--duration-fast)",
-			"var(--duration-normal)",
-			"var(--duration-slow)",
-		],
-	},
-	/** m = motion: easing curve */
-	m: {
-		cssProperty: "transition-timing-function",
-		cssVar: "--v-motion",
-		values: [
-			"linear",
-			"var(--ease-out)",
-			"var(--ease-inOut)",
-			"var(--ease-spring)",
-			"cubic-bezier(0.68, -0.55, 0.27, 1.55)",
-		],
-	},
-} as const;
-
-// ---------------------------------------------------------------------------
-// Token enum arrays (used by types.ts generator)
-// ---------------------------------------------------------------------------
+// ── Enums (derived from token keys — consumed by types.ts generator) ─────────
+// These are generated from the source files above. When you add a token,
+// add its key here too. In a future pass, these will be auto-derived.
 export const enums = {
-	accent: ["teal", "purple", "magenta", "ember", "frost"] as const,
+	accent: ["teal", "purple", "magenta", "ember", "frost", "cyber"] as const,
 	glow: ["off", "teal", "purple", "magenta", "ember", "frost", "cyber"] as const,
 	surface: ["glass", "solid", "matte"] as const,
 	glassVariant: ["void", "deep", "smoke", "frost"] as const,
 	size: ["sm", "md", "lg"] as const,
-	radius: ["none", "sm", "md", "lg", "xl", "full"] as const,
-	blur: ["off", "sm", "md", "lg", "xl"] as const,
+	radius: ["none", "xs", "sm", "md", "lg", "xl", "full"] as const,
+	blur: ["off", "sm", "md", "lg", "xl", "2xl"] as const,
 	depth: [0, 1, 2, 3, 4] as const,
 	bevel: ["off", "subtle", "soft", "medium"] as const,
 	tone: ["cold", "neutral", "warm"] as const,
@@ -399,4 +65,6 @@ export const enums = {
 	space: ["1", "2", "3", "4", "5", "6", "8"] as const,
 	textSize: ["xs", "sm", "base", "lg", "xl", "2xl"] as const,
 	padding: ["sm", "md", "lg"] as const,
+	duration: ["snap", "fast", "normal", "smooth", "glacial", "moderate"] as const,
+	ease: ["linear", "in", "out", "inOut", "spring", "bounce"] as const,
 } as const;

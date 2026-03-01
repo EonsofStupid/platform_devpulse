@@ -18,7 +18,7 @@ type SidebarRecipeProps = { size?: string; expanded?: boolean };
 export function sidebarRecipe(props: SidebarRecipeProps = {}): string {
 	return cn(
 		"sidebar-root",
-		"v-void s-glass e-1",
+		"v-s1 v-d1",
 		props.expanded === false ? "sidebar-collapsed" : "sidebar-expanded",
 	);
 }

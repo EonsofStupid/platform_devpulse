@@ -15,7 +15,7 @@ export function textareaRecipe(props: TextareaRecipeProps = {}): string {
 	const sizeClass = `textarea-${props.size ?? "md"}`;
 	return cn(
 		"textarea-root",
-		"v-void s-glass e-0",
+		"v-s1",
 		sizeClass,
 		"rounded-md",
 	);

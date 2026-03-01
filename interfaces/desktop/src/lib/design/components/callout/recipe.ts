@@ -17,10 +17,10 @@ type CalloutRecipeProps = { variant?: string };
 
 export function calloutRecipe(props: CalloutRecipeProps = {}): string {
 	const variantMap: Record<string, string> = {
-		default: "v-void s-glass e-0",
-		info: "v-cyber s-glass e-0",
-		warning: "v-molten s-glass e-0",
-		error: "v-molten s-glass e-0",
+		default: "v-s1",
+		info: "v-s1 v-g6",
+		warning: "v-s1 v-g3",
+		error: "v-s1 v-g3",
 	};
 	return cn(
 		"callout",

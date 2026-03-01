@@ -17,5 +17,5 @@ export function codeRecipe(props: CodeRecipeProps = {}): string {
 	if (props.inline) {
 		return "code-inline";
 	}
-	return "code-block v-void s-glass e-1";
+	return "code-block v-s1 v-d1";
 }

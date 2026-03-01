@@ -6,7 +6,7 @@
  * @package @devpulse/coldlight
  *
  * Gold standard recipe for the ColdLight tabs compound component.
- * Fully prop-driven via DsSurfaceProps — size, radius, depth, glow, bevel
+ * Fully prop-driven via DsSurfaceProps — size, radius, encoding categories
  * all flow through from the recipe registry.
  *
  * Token strategy:
@@ -19,8 +19,8 @@
  *       --tabs-indicator      → var(--color-teal-400)
  *   - Semantic text tokens (from @theme in tailwind.css):
  *       text-text-primary, text-text-secondary, text-text-muted
- *   - Molecule utilities (from recipes/utils.ts):
- *       surfaceClass(), radiusClass(), bevelClass()
+ *   - Encoding emitters:
+ *       emitSegments(), emitCategory(), radiusClass()
  *
  * Size variants (sm/md/lg) drive per-slot padding and font-size.
  * All OKLCH — zero hardcoded white/ or black/ opacity values.
@@ -34,11 +34,8 @@
 import { cn } from "$lib/design/primitives/types.js";
 import { registerRecipe } from "../../index.js";
 import type { DsSurfaceProps } from "../../types.js";
-import {
-	radiusClass,
-	surfaceClass,
-	bevelClass,
-} from "../../utils.js";
+import { toPreset } from "../../types.js";
+import { emitSegments, emitCategory, radiusClass } from "../../utils.js";
 
 /**
  * Per-slot size dimensions: padding, font-size.
@@ -64,13 +61,15 @@ registerRecipe({
 	kind: "tabs",
 	label: "Glass Void Tabs",
 	defaults: {
-		surface: "glass",
-		variant: "void",
-		accent: "teal",
+		s: 1,
+		z: 0,
+		d: 2,
+		b: 0,
+		g: 0,
+		f: 0,
+		m: 0,
+		t: 0,
 		radius: "lg",
-		depth: 2,
-		glow: "off",
-		bevel: "off",
 		size: "md",
 	},
 	classes: (props: DsSurfaceProps): Record<string, string> => {
@@ -79,12 +78,12 @@ registerRecipe({
 		return {
 			root: cn("flex flex-col"),
 			list: cn(
-				surfaceClass(props.surface, props.variant ?? "void"),
+				emitSegments(toPreset(props)),
 				"flex flex-row items-center",
 				"gap-1 p-1",
 				"border-b border-[var(--tabs-border)]",
 				radiusClass(props.radius),
-				bevelClass(props.bevel),
+				emitCategory("b", props.b),
 			),
 			trigger: cn(
 				"inline-flex items-center justify-center",

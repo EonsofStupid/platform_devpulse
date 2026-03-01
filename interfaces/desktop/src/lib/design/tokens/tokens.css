@@ -97,6 +97,7 @@
   --space-6: 1.5rem;
   --space-8: 2rem;
   --radius-none: 0;
+  --radius-xs: 0.125rem;
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
@@ -107,6 +108,7 @@
   --blur-md: 8px;
   --blur-lg: 16px;
   --blur-xl: 24px;
+  --blur-2xl: 40px;
   --glow-off: none;
   --glow-teal: 0 0 12px oklch(0.55 0.18 180 / 0.4);
   --glow-purple: 0 0 12px oklch(0.55 0.18 280 / 0.4);
@@ -114,6 +116,10 @@
   --glow-ember: 0 0 12px oklch(0.55 0.18 25 / 0.4);
   --glow-frost: 0 0 12px oklch(0.58 0.10 220 / 0.4);
   --glow-cyber: 0 0 12px oklch(0.55 0.18 160 / 0.4);
+  --glow-spread-default: 12px;
+  --glow-spread-sm: 6px;
+  --glow-spread-lg: 20px;
+  --glow-spread-xl: 30px;
   --shadow-z0: none;
   --shadow-z1: 0 1px 3px oklch(0 0 0 / 0.12), 0 1px 2px oklch(0 0 0 / 0.24);
   --shadow-z2: 0 3px 6px oklch(0 0 0 / 0.15), 0 2px 4px oklch(0 0 0 / 0.12);
@@ -132,16 +138,18 @@
   --z-popover: 500;
   --z-toast: 600;
   --z-tooltip: 700;
-  --duration-instant: 50ms;
+  --duration-snap: 50ms;
   --duration-fast: 150ms;
   --duration-normal: 250ms;
-  --duration-slow: 400ms;
+  --duration-smooth: 400ms;
   --duration-glacial: 700ms;
+  --duration-moderate: 3s;
   --ease-linear: linear;
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.27, 1.55);
   --text-size-xs: 0.75rem;
   --text-size-sm: 0.875rem;
   --text-size-base: 1rem;
@@ -158,6 +166,10 @@
   --font-sans: "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", monospace;
   --animation-pulse-glow: pulse-glow 4s ease-in-out infinite;
+  --animation-breathe: cl-breathe 4s ease-in-out infinite;
+  --animation-shimmer: cl-shimmer 8s linear infinite;
+  --animation-drift: cl-drift 8s ease-in-out infinite;
+  --animation-pulse: cl-pulse 3s ease-in-out infinite;
   --surface-primary: var(--glass-void);
   --surface-elevated: var(--glass-smoke);
   --surface-overlay: var(--glass-deep);

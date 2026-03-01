@@ -17,10 +17,10 @@ type AlertRecipeProps = { intent?: string };
 
 export function alertRecipe(props: AlertRecipeProps = {}): string {
 	const intentMap: Record<string, string> = {
-		info: cn("alert", "alert-info", "v-void", "s-glass", "e-1", "sz-md", "rounded-lg"),
-		success: cn("alert", "alert-success", "v-void", "s-glass", "e-1", "sz-md", "rounded-lg"),
-		warning: cn("alert", "alert-warning", "v-molten", "s-glass", "e-1", "sz-md", "rounded-lg"),
-		error: cn("alert", "alert-error", "v-molten", "s-glass", "e-1", "sz-md", "rounded-lg"),
+		info: cn("alert", "alert-info", "v-s1", "v-d1", "sz-md", "rounded-lg"),
+		success: cn("alert", "alert-success", "v-s1", "v-d1", "sz-md", "rounded-lg"),
+		warning: cn("alert", "alert-warning", "v-s1", "v-d1", "v-g3", "sz-md", "rounded-lg"),
+		error: cn("alert", "alert-error", "v-s1", "v-d1", "v-g3", "sz-md", "rounded-lg"),
 	};
 	return intentMap[props.intent ?? "info"] ?? intentMap.info;
 }

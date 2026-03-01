@@ -19,7 +19,7 @@ export function inputGroupRecipe(props: InputGroupRecipeProps = {}): string {
 	};
 	return cn(
 		"input-group-root",
-		"v-void s-glass e-0",
+		"v-s1",
 		sizeMap[props.size ?? "md"] ?? "sz-md",
 		"rounded-md",
 	);

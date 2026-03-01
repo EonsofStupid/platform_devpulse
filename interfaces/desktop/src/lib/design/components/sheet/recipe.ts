@@ -36,7 +36,7 @@ export function sheetRecipe(props: SheetRecipeProps = {}): string {
 	const size = props.size ?? "md";
 	return cn(
 		"sheet-content",
-		"v-void s-glass e-3",
+		"v-s1 v-d3",
 		SIDE_CLASS[side] ?? SIDE_CLASS.right,
 		sheetSizeClass(size, side),
 	);

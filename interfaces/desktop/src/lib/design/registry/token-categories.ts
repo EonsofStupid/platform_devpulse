@@ -7,6 +7,11 @@
  * Everything else is generated from it: Zod schemas, Prisma references, SD5 CSS,
  * VPB controls, TypeScript types.
  *
+ * tokenRefs use CSS-READY values:
+ *   - Keys are kebab-case CSS properties (e.g., "backdrop-filter", "box-shadow")
+ *   - Values are CSS-ready (e.g., "var(--glass-void)", "blur(var(--blur-md))")
+ *   - The generator dumps key:value pairs directly into @utility blocks. No resolver.
+ *
  * Adding a new category: add entry here → run pnpm ds:tokens:build → done.
  * NO other code changes needed.
  */
@@ -18,34 +23,22 @@ import { z } from "zod";
 // ═══════════════════════════════════════════════════════════════
 
 export const CategoryValueSchema = z.object({
-	/** Index in array = number in encoding (0, 1, 2...) */
 	index: z.number().int().nonnegative(),
-	/** Token-friendly ID (used in CSS custom property names) */
 	id: z.string().regex(/^[a-z][a-z0-9-]*$/),
-	/** Human label for VPB */
 	label: z.string(),
-	/** Tier 1 token references this value resolves to */
+	/** CSS-ready key:value pairs. Keys = CSS properties. Values = CSS values. */
 	tokenRefs: z.record(z.string(), z.string()),
-	/** Required Tier 1 tokens (build fails if missing) */
 	requiredTokens: z.array(z.string()).optional(),
-	/** SVG filters to apply (bevel/glow) */
 	svgFilters: z.array(z.string()).optional(),
 });
 
 export const CategoryDefinitionSchema = z.object({
-	/** 1-2 character code used in v-encoding */
 	code: z.string().min(1).max(2).regex(/^[a-z]{1,2}$/),
-	/** Human-readable category name */
 	name: z.string(),
-	/** What this category controls */
 	description: z.string(),
-	/** Ordered array of valid values. Index = encoding number. */
 	values: z.array(CategoryValueSchema),
-	/** Default value index when omitted from encoding */
 	defaultIndex: z.number().int().nonnegative().default(0),
-	/** Sort order in encoding string */
 	encodingOrder: z.number().int(),
-	/** VPB UI control type */
 	vpbControl: z.enum([
 		"slider",
 		"select",
@@ -60,9 +53,13 @@ export type CategoryDefinition = z.infer<typeof CategoryDefinitionSchema>;
 
 // ═══════════════════════════════════════════════════════════════
 // THE REGISTRY — SINGLE SOURCE OF TRUTH
+//
+// tokenRefs keys = real CSS properties (kebab-case)
+// tokenRefs values = real CSS values (var() references)
 // ═══════════════════════════════════════════════════════════════
 
 export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
+	// ── s: Surface ────────────────────────────────────────────
 	{
 		code: "s",
 		name: "Surface",
@@ -83,30 +80,33 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "glass-void",
 				label: "Glass Void",
 				tokenRefs: {
-					background: "{glass.void}",
-					backdropFilter: "blur({blur.md})",
-					border: "1px solid {color.teal.700/0.22}",
+					background: "var(--glass-void)",
+					"backdrop-filter":
+						"blur(var(--blur-md)) saturate(1.5)",
+					border: "1px solid oklch(from var(--color-teal-700) l c h / 0.22)",
 				},
-				requiredTokens: ["glass.void", "blur.md", "color.teal.700"],
+				requiredTokens: ["glass.void", "blur.md"],
 			},
 			{
 				index: 2,
 				id: "glass-deep",
 				label: "Glass Deep",
 				tokenRefs: {
-					background: "{glass.deep}",
-					backdropFilter: "blur({blur.lg})",
-					border: "1px solid {color.teal.600/0.18}",
+					background: "var(--glass-deep)",
+					"backdrop-filter":
+						"blur(var(--blur-lg)) saturate(1.3)",
+					border: "1px solid oklch(from var(--color-teal-600) l c h / 0.18)",
 				},
-				requiredTokens: ["glass.deep", "blur.lg", "color.teal.600"],
+				requiredTokens: ["glass.deep", "blur.lg"],
 			},
 			{
 				index: 3,
 				id: "glass-smoke",
 				label: "Glass Smoke",
 				tokenRefs: {
-					background: "{glass.smoke}",
-					backdropFilter: "blur({blur.xl})",
+					background: "var(--glass-smoke)",
+					"backdrop-filter":
+						"blur(var(--blur-xl)) saturate(1.2)",
 				},
 				requiredTokens: ["glass.smoke", "blur.xl"],
 			},
@@ -115,9 +115,10 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "glass-frost",
 				label: "Glass Frost",
 				tokenRefs: {
-					background: "{glass.frost}",
-					backdropFilter: "blur({blur.2xl})",
-					border: "1px solid {color.white/0.12}",
+					background: "var(--glass-frost)",
+					"backdrop-filter":
+						"blur(var(--blur-2xl)) saturate(1.1)",
+					border: "1px solid oklch(1 0 0 / 0.12)",
 				},
 				requiredTokens: ["glass.frost", "blur.2xl"],
 			},
@@ -126,7 +127,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "matte-dark",
 				label: "Matte Dark",
 				tokenRefs: {
-					background: "{matte.dark}",
+					background: "var(--matte-dark)",
 				},
 				requiredTokens: ["matte.dark"],
 			},
@@ -135,7 +136,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "solid-teal",
 				label: "Solid Teal",
 				tokenRefs: {
-					background: "{color.teal.500}",
+					background: "var(--color-teal-500)",
 				},
 				requiredTokens: ["color.teal.500"],
 			},
@@ -145,18 +146,19 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				label: "Void Gradient",
 				tokenRefs: {
 					background:
-						"linear-gradient(135deg, {color.void.start}, {color.void.end})",
+						"linear-gradient(135deg, var(--color-void-900), var(--color-void-base))",
 				},
-				requiredTokens: ["color.void.start", "color.void.end"],
+				requiredTokens: ["color.void.900", "color.void.base"],
 			},
 		],
 	},
 
+	// ── z: Material ───────────────────────────────────────────
 	{
 		code: "z",
 		name: "Material",
 		description:
-			"Material physics. Modifies HOW a surface renders. Declares requiredTokens + optionalLayers.",
+			"Material physics. Modifies HOW a surface renders: opacity, filter effects, border treatment.",
 		encodingOrder: 1,
 		defaultIndex: 0,
 		vpbControl: "select",
@@ -173,7 +175,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				label: "Glass — Subtle",
 				tokenRefs: {
 					opacity: "0.85",
-					saturation: "1.1",
+					"backdrop-filter": "saturate(1.1)",
 				},
 			},
 			{
@@ -182,7 +184,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				label: "Glass — Medium",
 				tokenRefs: {
 					opacity: "0.75",
-					saturation: "1.2",
+					"backdrop-filter": "saturate(1.2)",
 				},
 			},
 			{
@@ -191,8 +193,8 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				label: "Glass — Intense",
 				tokenRefs: {
 					opacity: "0.6",
-					saturation: "1.4",
-					border: "1px solid {color.white/0.15}",
+					"backdrop-filter": "saturate(1.4)",
+					border: "1px solid oklch(1 0 0 / 0.15)",
 				},
 			},
 			{
@@ -201,8 +203,8 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				label: "Glass — Ultra",
 				tokenRefs: {
 					opacity: "0.45",
-					saturation: "1.6",
-					border: "1px solid {color.white/0.22}",
+					"backdrop-filter": "saturate(1.6)",
+					border: "1px solid oklch(1 0 0 / 0.22)",
 				},
 			},
 			{
@@ -229,7 +231,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				label: "Metal — Brushed",
 				tokenRefs: {
 					background:
-						"repeating-linear-gradient(90deg, {color.white/0.02} 0px, transparent 2px)",
+						"repeating-linear-gradient(90deg, oklch(1 0 0 / 0.02) 0px, transparent 2px)",
 					filter: "contrast(1.1)",
 				},
 				svgFilters: ["noise-subtle"],
@@ -240,7 +242,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				label: "Metal — Chrome",
 				tokenRefs: {
 					background:
-						"linear-gradient(180deg, {color.white/0.15}, transparent, {color.white/0.08})",
+						"linear-gradient(180deg, oklch(1 0 0 / 0.15), transparent, oklch(1 0 0 / 0.08))",
 					filter: "contrast(1.15) brightness(1.1)",
 				},
 				svgFilters: ["noise-subtle"],
@@ -251,7 +253,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				label: "Metal — Copper",
 				tokenRefs: {
 					background:
-						"linear-gradient(180deg, {color.orange.300/0.12}, transparent, {color.orange.400/0.08})",
+						"linear-gradient(180deg, oklch(from var(--color-ember-300) l c h / 0.12), transparent, oklch(from var(--color-ember-400) l c h / 0.08))",
 					filter: "contrast(1.08) saturate(1.2)",
 				},
 				svgFilters: ["noise-subtle"],
@@ -259,6 +261,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 		],
 	},
 
+	// ── d: Depth ──────────────────────────────────────────────
 	{
 		code: "d",
 		name: "Depth",
@@ -272,44 +275,45 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				index: 0,
 				id: "flat",
 				label: "Flat (no shadow)",
-				tokenRefs: { boxShadow: "none" },
+				tokenRefs: { "box-shadow": "none" },
 			},
 			{
 				index: 1,
 				id: "z1",
 				label: "Z1 — Subtle",
-				tokenRefs: { boxShadow: "{shadow.z1}" },
+				tokenRefs: { "box-shadow": "var(--shadow-z1)" },
 				requiredTokens: ["shadow.z1"],
 			},
 			{
 				index: 2,
 				id: "z2",
 				label: "Z2 — Elevated",
-				tokenRefs: { boxShadow: "{shadow.z2}" },
+				tokenRefs: { "box-shadow": "var(--shadow-z2)" },
 				requiredTokens: ["shadow.z2"],
 			},
 			{
 				index: 3,
 				id: "z3",
 				label: "Z3 — Floating",
-				tokenRefs: { boxShadow: "{shadow.z3}" },
+				tokenRefs: { "box-shadow": "var(--shadow-z3)" },
 				requiredTokens: ["shadow.z3"],
 			},
 			{
 				index: 4,
 				id: "z4",
 				label: "Z4 — Maximum",
-				tokenRefs: { boxShadow: "{shadow.z4}" },
+				tokenRefs: { "box-shadow": "var(--shadow-z4)" },
 				requiredTokens: ["shadow.z4"],
 			},
 		],
 	},
 
+	// ── b: Bevel ──────────────────────────────────────────────
 	{
 		code: "b",
 		name: "Bevel",
 		description:
-			"Neuromorphic edge treatment. Inset shadows + SVG specular lighting + noise. Higher values = more SVG filter layers.",
+			"Neuromorphic edge treatment. Inset shadows + SVG specular lighting + noise.",
 		encodingOrder: 3,
 		defaultIndex: 0,
 		vpbControl: "slider",
@@ -320,8 +324,8 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "subtle",
 				label: "Subtle",
 				tokenRefs: {
-					boxShadow:
-						"inset 0 1px 0 {color.white/0.06}, inset 0 -1px 0 {color.black/0.1}",
+					"box-shadow":
+						"inset 0 1px 0 oklch(1 0 0 / 0.06), inset 0 -1px 0 oklch(0 0 0 / 0.1)",
 				},
 			},
 			{
@@ -329,8 +333,8 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "soft",
 				label: "Soft",
 				tokenRefs: {
-					boxShadow:
-						"inset 0 2px 1px {color.white/0.08}, inset 0 -2px 1px {color.black/0.15}",
+					"box-shadow":
+						"inset 0 2px 1px oklch(1 0 0 / 0.08), inset 0 -2px 1px oklch(0 0 0 / 0.15)",
 				},
 				svgFilters: ["bevel-soft"],
 			},
@@ -339,8 +343,8 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "medium",
 				label: "Medium",
 				tokenRefs: {
-					boxShadow:
-						"inset 0 2px 2px {color.white/0.1}, inset 0 -2px 2px {color.black/0.2}",
+					"box-shadow":
+						"inset 0 2px 2px oklch(1 0 0 / 0.1), inset 0 -2px 2px oklch(0 0 0 / 0.2)",
 				},
 				svgFilters: ["bevel-medium", "noise-subtle"],
 			},
@@ -349,14 +353,15 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "strong",
 				label: "Strong + Filters",
 				tokenRefs: {
-					boxShadow:
-						"inset 0 3px 3px {color.white/0.12}, inset 0 -3px 3px {color.black/0.25}",
+					"box-shadow":
+						"inset 0 3px 3px oklch(1 0 0 / 0.12), inset 0 -3px 3px oklch(0 0 0 / 0.25)",
 				},
 				svgFilters: ["bevel-strong", "noise-subtle"],
 			},
 		],
 	},
 
+	// ── g: Glow ───────────────────────────────────────────────
 	{
 		code: "g",
 		name: "Glow",
@@ -372,49 +377,59 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "teal",
 				label: "Teal",
 				tokenRefs: {
-					boxShadow: "0 0 {glow.spread} {color.teal.400/0.4}",
+					"box-shadow": "var(--shadow-glow-teal)",
 				},
-				requiredTokens: ["glow.spread", "color.teal.400"],
+				requiredTokens: ["glow.teal"],
 			},
 			{
 				index: 2,
 				id: "purple",
 				label: "Purple",
 				tokenRefs: {
-					boxShadow: "0 0 {glow.spread} {color.purple.400/0.4}",
+					"box-shadow": "var(--shadow-glow-purple)",
 				},
-				requiredTokens: ["glow.spread", "color.purple.400"],
+				requiredTokens: ["glow.purple"],
 			},
 			{
 				index: 3,
-				id: "amber",
-				label: "Amber",
+				id: "ember",
+				label: "Ember",
 				tokenRefs: {
-					boxShadow: "0 0 {glow.spread} {color.amber.400/0.4}",
+					"box-shadow": "var(--shadow-glow-ember)",
 				},
-				requiredTokens: ["glow.spread", "color.amber.400"],
+				requiredTokens: ["glow.ember"],
 			},
 			{
 				index: 4,
-				id: "rose",
-				label: "Rose",
+				id: "magenta",
+				label: "Magenta",
 				tokenRefs: {
-					boxShadow: "0 0 {glow.spread} {color.rose.400/0.4}",
+					"box-shadow": "var(--shadow-glow-magenta)",
 				},
-				requiredTokens: ["glow.spread", "color.rose.400"],
+				requiredTokens: ["glow.magenta"],
 			},
 			{
 				index: 5,
-				id: "white",
-				label: "White",
+				id: "frost",
+				label: "Frost",
 				tokenRefs: {
-					boxShadow: "0 0 {glow.spread} {color.white/0.3}",
+					"box-shadow": "var(--shadow-glow-frost)",
 				},
-				requiredTokens: ["glow.spread"],
+				requiredTokens: ["glow.frost"],
+			},
+			{
+				index: 6,
+				id: "cyber",
+				label: "Cyber",
+				tokenRefs: {
+					"box-shadow": "var(--shadow-glow-cyber)",
+				},
+				requiredTokens: ["glow.cyber"],
 			},
 		],
 	},
 
+	// ── f: Frame ──────────────────────────────────────────────
 	{
 		code: "f",
 		name: "Frame",
@@ -435,8 +450,8 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "soft",
 				label: "Soft",
 				tokenRefs: {
-					border: "1px solid {color.white/0.06}",
-					borderRadius: "{radius.md}",
+					border: "1px solid oklch(1 0 0 / 0.06)",
+					"border-radius": "var(--radius-md)",
 				},
 			},
 			{
@@ -444,8 +459,8 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "hard",
 				label: "Hard",
 				tokenRefs: {
-					border: "1px solid {color.white/0.15}",
-					borderRadius: "{radius.sm}",
+					border: "1px solid oklch(1 0 0 / 0.15)",
+					"border-radius": "var(--radius-sm)",
 				},
 			},
 			{
@@ -453,8 +468,8 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "crisp",
 				label: "Crisp",
 				tokenRefs: {
-					border: "1px solid {color.white/0.25}",
-					borderRadius: "{radius.xs}",
+					border: "1px solid oklch(1 0 0 / 0.25)",
+					"border-radius": "var(--radius-xs)",
 				},
 			},
 			{
@@ -462,14 +477,16 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "glow",
 				label: "Glow Border",
 				tokenRefs: {
-					border: "1px solid {color.teal.500/0.4}",
-					borderRadius: "{radius.md}",
-					boxShadow: "0 0 8px {color.teal.500/0.15}",
+					border: "1px solid oklch(from var(--color-teal-500) l c h / 0.4)",
+					"border-radius": "var(--radius-md)",
+					"box-shadow":
+						"0 0 8px oklch(from var(--color-teal-500) l c h / 0.15)",
 				},
 			},
 		],
 	},
 
+	// ── m: Motion ─────────────────────────────────────────────
 	{
 		code: "m",
 		name: "Motion",
@@ -485,8 +502,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "breathe",
 				label: "Breathing Pulse",
 				tokenRefs: {
-					animation:
-						"{anim.breathe} {duration.slow} ease-in-out infinite",
+					animation: "var(--animate-breathe)",
 				},
 			},
 			{
@@ -494,8 +510,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "shimmer",
 				label: "Liquid Shimmer",
 				tokenRefs: {
-					animation:
-						"{anim.shimmer} {duration.glacial} linear infinite",
+					animation: "var(--animate-shimmer)",
 				},
 			},
 			{
@@ -503,8 +518,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "drift",
 				label: "Particle Drift",
 				tokenRefs: {
-					animation:
-						"{anim.drift} {duration.glacial} ease-in-out infinite",
+					animation: "var(--animate-drift)",
 				},
 			},
 			{
@@ -512,13 +526,13 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "pulse",
 				label: "Glow Pulse",
 				tokenRefs: {
-					animation:
-						"{anim.pulse} {duration.moderate} ease-in-out infinite",
+					animation: "var(--animate-pulse)",
 				},
 			},
 		],
 	},
 
+	// ── t: Transition ─────────────────────────────────────────
 	{
 		code: "t",
 		name: "Transition",
@@ -538,20 +552,27 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				index: 1,
 				id: "snap",
 				label: "Snap (50ms)",
-				tokenRefs: { transition: "all {duration.snap} {ease.out}" },
+				tokenRefs: {
+					transition:
+						"all var(--transition-duration-snap) var(--transition-timing-function-out)",
+				},
 			},
 			{
 				index: 2,
 				id: "fast",
 				label: "Fast (150ms)",
-				tokenRefs: { transition: "all {duration.fast} {ease.out}" },
+				tokenRefs: {
+					transition:
+						"all var(--transition-duration-fast) var(--transition-timing-function-out)",
+				},
 			},
 			{
 				index: 3,
 				id: "normal",
 				label: "Normal (250ms)",
 				tokenRefs: {
-					transition: "all {duration.normal} {ease.inOut}",
+					transition:
+						"all var(--transition-duration-normal) var(--transition-timing-function-inOut)",
 				},
 			},
 			{
@@ -559,7 +580,8 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "smooth",
 				label: "Smooth (400ms)",
 				tokenRefs: {
-					transition: "all {duration.smooth} {ease.inOut}",
+					transition:
+						"all var(--transition-duration-smooth) var(--transition-timing-function-inOut)",
 				},
 			},
 			{
@@ -567,7 +589,8 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "spring",
 				label: "Spring",
 				tokenRefs: {
-					transition: "all {duration.normal} {ease.spring}",
+					transition:
+						"all var(--transition-duration-normal) var(--transition-timing-function-spring)",
 				},
 			},
 			{
@@ -575,7 +598,8 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "bounce",
 				label: "Bounce",
 				tokenRefs: {
-					transition: "all {duration.smooth} {ease.bounce}",
+					transition:
+						"all var(--transition-duration-smooth) var(--transition-timing-function-bounce)",
 				},
 			},
 		],
@@ -598,14 +622,12 @@ export const ENCODING_ORDER = TOKEN_CATEGORY_REGISTRY.sort(
 // DERIVED: ZOD SCHEMAS
 // ═══════════════════════════════════════════════════════════════
 
-/** Per-category value validator — ensures index is within valid range */
 export function categoryValueSchema(code: string) {
 	const cat = CODE_MAP[code];
 	if (!cat) throw new Error(`Unknown category code: ${code}`);
 	return z.number().int().min(0).max(cat.values.length - 1);
 }
 
-/** Full encoding string validator */
 export const EncodingStringSchema = z
 	.string()
 	.regex(
@@ -625,19 +647,24 @@ export const EncodingStringSchema = z
 		});
 	}, "All category codes must exist in registry and values must be within valid range");
 
-/** Preset object validator (what VPB works with) */
-export const PresetSchema = z.object(
-	Object.fromEntries(
-		TOKEN_CATEGORY_REGISTRY.map((cat) => [
-			cat.code,
-			z
-				.number()
-				.int()
-				.min(0)
-				.max(cat.values.length - 1)
-				.default(cat.defaultIndex),
-		]),
-	),
-);
+/**
+ * Preset schema — 8 encoding category indices.
+ *
+ * TypeScript needs explicit named keys (Object.fromEntries loses them).
+ * Runtime validation still derives max values from the registry.
+ */
+const _maxIndex = (code: string) =>
+	TOKEN_CATEGORY_REGISTRY.find((c) => c.code === code)!.values.length - 1;
+
+export const PresetSchema = z.object({
+	s: z.number().int().min(0).max(_maxIndex("s")).default(0),
+	z: z.number().int().min(0).max(_maxIndex("z")).default(0),
+	d: z.number().int().min(0).max(_maxIndex("d")).default(0),
+	b: z.number().int().min(0).max(_maxIndex("b")).default(0),
+	g: z.number().int().min(0).max(_maxIndex("g")).default(0),
+	f: z.number().int().min(0).max(_maxIndex("f")).default(0),
+	m: z.number().int().min(0).max(_maxIndex("m")).default(0),
+	t: z.number().int().min(0).max(_maxIndex("t")).default(0),
+});
 
 export type Preset = z.infer<typeof PresetSchema>;

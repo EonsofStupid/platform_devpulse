@@ -15,6 +15,6 @@ import { cn } from "$lib/design/utils/cn.js";
 export function skipLinkRecipe(): string {
 	return cn(
 		"skip-link-root",
-		"v-cyber s-glass e-2",
+		"v-s1 v-d2 v-g6",
 	);
 }

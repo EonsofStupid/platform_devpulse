@@ -13,8 +13,8 @@
  *       --badge-bg       → var(--surface-elevated)
  *       --badge-border   → var(--border-subtle)
  *       --badge-text     → var(--text-primary)
- *   - Molecule utilities (from recipes/utils.ts):
- *       surfaceClass(), depthClass(), glowClass(), bevelClass()
+ *   - Encoding emitters:
+ *       emitSegments()
  *
  * Intent via accent token. Size variants (sm/md/lg) drive height, padding, font-size.
  * All OKLCH — zero hardcoded colors.
@@ -23,12 +23,8 @@
 import { cn } from "$lib/design/primitives/types.js";
 import { registerRecipe } from "../../index.js";
 import type { DsSurfaceProps } from "../../types.js";
-import {
-	surfaceClass,
-	depthClass,
-	glowClass,
-	bevelClass,
-} from "../../utils.js";
+import { toPreset } from "../../types.js";
+import { emitSegments } from "../../utils.js";
 
 const SIZE_SCALE = {
 	sm: { root: "h-5 px-1.5 text-xs" },
@@ -41,13 +37,15 @@ registerRecipe({
 	kind: "badge",
 	label: "Glass Void Badge",
 	defaults: {
-		surface: "glass",
-		variant: "void",
-		accent: "teal",
+		s: 1,
+		z: 0,
+		d: 1,
+		b: 1,
+		g: 0,
+		f: 0,
+		m: 0,
+		t: 0,
 		radius: "full",
-		depth: 1,
-		glow: "off",
-		bevel: "subtle",
 		size: "md",
 	},
 	classes: (props: DsSurfaceProps): Record<string, string> => {
@@ -59,10 +57,7 @@ registerRecipe({
 				s.root,
 				"rounded-full",
 				"font-medium",
-				surfaceClass(props.surface, props.variant ?? "void"),
-				depthClass(props.depth),
-				glowClass(props.glow),
-				bevelClass(props.bevel),
+				emitSegments(toPreset(props)),
 				"border border-[var(--badge-border)]",
 				"bg-[var(--badge-bg)]",
 				"text-[var(--badge-text)]",

@@ -15,8 +15,8 @@
  *       --switch-border-focus   → var(--border-focus)
  *       --switch-checked-bg     → var(--color-teal-600)
  *       --switch-thumb          → var(--color-void-50)
- *   - Molecule utilities (from recipes/utils.ts):
- *       depthClass(), glowClass(), bevelClass()
+ *   - Encoding emitters:
+ *       emitSegments()
  *
  * Size variants (sm/md/lg) drive track and thumb dimensions.
  * All OKLCH — zero hardcoded colors.
@@ -25,11 +25,8 @@
 import { cn } from "$lib/design/primitives/types.js";
 import { registerRecipe } from "../../index.js";
 import type { DsSurfaceProps } from "../../types.js";
-import {
-	depthClass,
-	glowClass,
-	bevelClass,
-} from "../../utils.js";
+import { toPreset } from "../../types.js";
+import { emitSegments } from "../../utils.js";
 
 const SIZE_SCALE = {
 	sm: { root: "h-4 w-7", thumb: "h-3 w-3 data-[state=checked]:translate-x-3" },
@@ -42,13 +39,15 @@ registerRecipe({
 	kind: "switch",
 	label: "Glass Void Switch",
 	defaults: {
-		surface: "glass",
-		variant: "void",
-		accent: "teal",
+		s: 1,
+		z: 0,
+		d: 1,
+		b: 1,
+		g: 0,
+		f: 0,
+		m: 0,
+		t: 0,
 		radius: "full",
-		depth: 1,
-		glow: "off",
-		bevel: "subtle",
 		size: "md",
 	},
 	classes: (props: DsSurfaceProps): Record<string, string> => {
@@ -59,9 +58,7 @@ registerRecipe({
 				"inline-flex shrink-0 cursor-pointer items-center",
 				s.root,
 				"rounded-full",
-				depthClass(props.depth),
-				glowClass(props.glow),
-				bevelClass(props.bevel),
+				emitSegments(toPreset(props)),
 				"border border-[var(--switch-border)]",
 				"bg-[var(--switch-bg)]",
 				"transition-colors duration-fast",

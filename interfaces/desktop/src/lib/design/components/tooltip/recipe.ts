@@ -14,7 +14,7 @@ export function tooltipRecipe() {
 		trigger: "",
 		content: cn(
 			"tooltip-content",
-			"v-void s-glass e-2",
+			"v-s1 v-d2",
 			"rounded-md",
 		),
 		arrow: "tooltip-arrow",

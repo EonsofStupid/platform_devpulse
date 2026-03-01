@@ -20,7 +20,7 @@ export function dateFieldRecipe(props: DateFieldRecipeProps = {}) {
 	return {
 		root: cn(
 			"date-field-root",
-			"v-void s-glass e-0",
+			"v-s1",
 			sizeMap[props.size ?? "md"] ?? sizeMap.md,
 			"rounded-md",
 		),

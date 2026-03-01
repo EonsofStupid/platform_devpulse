@@ -18,7 +18,7 @@ type CalendarRecipeProps = { size?: string };
 export function calendarRecipe(props: CalendarRecipeProps = {}) {
 	const sizeClass = props.size === "sm" ? "sz-sm" : "sz-md";
 	return {
-		root: cn("calendar-root", "v-void s-glass e-1", sizeClass, "rounded-lg"),
+		root: cn("calendar-root", "v-s1 v-d1", sizeClass, "rounded-lg"),
 		grid: "calendar-grid",
 		header: "calendar-header",
 		heading: "calendar-heading",

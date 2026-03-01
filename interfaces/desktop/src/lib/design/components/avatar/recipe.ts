@@ -23,7 +23,7 @@ export function avatarRootRecipe(props: AvatarRecipeProps = {}): string {
 	};
 	return cn(
 		"avatar-root",
-		"v-void s-glass",
+		"v-s1",
 		sizeMap[props.size ?? "md"] ?? sizeMap.md,
 	);
 }

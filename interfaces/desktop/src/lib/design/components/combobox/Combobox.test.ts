@@ -420,13 +420,15 @@ describe("combobox — recipe registry (SSOT)", () => {
 
 	test("recipe defaults include all DsSurfaceProps", () => {
 		const def = getRecipe("combobox.glass.void")!;
-		expect(def.defaults.surface).toBe("glass");
-		expect(def.defaults.variant).toBe("void");
-		expect(def.defaults.accent).toBe("teal");
+		expect(def.defaults.s).toBe(1);
+		expect(def.defaults.z).toBe(0);
+		expect(def.defaults.d).toBe(2);
+		expect(def.defaults.b).toBe(2);
+		expect(def.defaults.g).toBe(1);
+		expect(def.defaults.f).toBe(0);
+		expect(def.defaults.m).toBe(0);
+		expect(def.defaults.t).toBe(0);
 		expect(def.defaults.radius).toBe("lg");
-		expect(def.defaults.depth).toBe(2);
-		expect(def.defaults.glow).toBe("teal");
-		expect(def.defaults.bevel).toBe("soft");
 		expect(def.defaults.size).toBe("md");
 	});
 
@@ -478,16 +480,16 @@ describe("combobox — recipe registry (SSOT)", () => {
 		expect(recipe.trigger).toContain("text-text-secondary");
 	});
 
-	test("content uses molecule utilities (surface + depth + glow)", () => {
+	test("content uses encoding categories (surface + depth + glow)", () => {
 		const recipe = resolveRecipe();
-		expect(recipe.content).toContain("glass-void");
-		expect(recipe.content).toContain("depth-raised");
-		expect(recipe.content).toContain("glow-teal");
+		expect(recipe.content).toContain("v-s1");
+		expect(recipe.content).toContain("v-d2");
+		expect(recipe.content).toContain("v-g1");
 	});
 
-	test("wrapper uses bevel molecule utility", () => {
+	test("wrapper uses bevel encoding category", () => {
 		const recipe = resolveRecipe();
-		expect(recipe.wrapper).toContain("bevel-soft");
+		expect(recipe.wrapper).toContain("v-b2");
 	});
 
 	test("recipe.input contains bg-transparent", () => {

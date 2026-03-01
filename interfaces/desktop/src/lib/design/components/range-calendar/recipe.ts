@@ -20,7 +20,7 @@ export function rangeCalendarRecipe(props: RangeCalendarRecipeProps = {}) {
 	return {
 		root: cn(
 			"range-calendar-root",
-			"v-void s-glass e-1",
+			"v-s1 v-d1",
 			`sz-${size}`,
 			"rounded-lg",
 		),

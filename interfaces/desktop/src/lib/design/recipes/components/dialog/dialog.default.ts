@@ -30,36 +30,30 @@
 import { cn } from "$lib/design/utils/cn.js";
 import { registerRecipe } from "../../index.js";
 import type { DsSurfaceProps } from "../../types.js";
-import {
-	variantShortcode,
-	surfaceShortcode,
-	elevationShortcode,
-	sizeShortcode,
-	radiusClass,
-} from "../../utils.js";
+import { toPreset } from "../../types.js";
+import { emitSegments, radiusClass } from "../../utils.js";
 
 registerRecipe({
 	id: "dialog.glass.void",
 	kind: "dialog",
 	label: "Glass Void Dialog",
 	defaults: {
-		surface: "glass",
-		variant: "void",
-		accent: "teal",
+		s: 1,
+		z: 0,
+		d: 3,
+		b: 2,
+		g: 1,
+		f: 0,
+		m: 0,
+		t: 0,
 		radius: "lg",
-		depth: 3,
-		glow: "teal",
-		bevel: "soft",
 		size: "md",
 	},
 	classes: (props: DsSurfaceProps): Record<string, string> => ({
 		overlay: "dialog-overlay",
 		content: cn(
 			"dialog-content",
-			variantShortcode(props.variant ?? "void"),
-			surfaceShortcode(props.surface),
-			elevationShortcode(props.depth),
-			sizeShortcode(props.size),
+			emitSegments(toPreset(props)),
 			radiusClass(props.radius),
 		),
 		header: "dialog-header",

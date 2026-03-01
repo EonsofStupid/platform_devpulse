@@ -17,7 +17,7 @@ export function toolbarRecipe(props: ToolbarRecipeProps = {}): string {
 		: "toolbar-horizontal";
 	return cn(
 		"toolbar-root",
-		"v-void s-glass e-1",
+		"v-s1 v-d1",
 		orientationClass,
 		"rounded-md",
 	);

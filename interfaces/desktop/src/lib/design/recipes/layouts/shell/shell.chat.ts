@@ -19,14 +19,16 @@ registerRecipe({
 	kind: "shell",
 	label: "Chat Shell",
 	defaults: {
-		accent: "teal",
-		surface: "glass",
-		variant: "deep",
+		s: 2,
+		z: 0,
+		d: 2,
+		b: 1,
+		g: 0,
+		f: 0,
+		m: 0,
+		t: 0,
 		size: "md",
 		radius: "lg",
-		depth: 2,
-		glow: "off",
-		bevel: "subtle",
 	},
 	classes: (props: DsSurfaceProps): Record<string, string> => ({
 		frame: cn(
@@ -38,7 +40,7 @@ registerRecipe({
 		topbar: cn(
 			"flex items-center justify-between",
 			"h-10 px-4",
-			"v-s2 v-z0 v-l1",
+			"v-s2 v-z0 v-b1",
 			"border-b border-border-divider",
 		),
 		modeSelector: cn(

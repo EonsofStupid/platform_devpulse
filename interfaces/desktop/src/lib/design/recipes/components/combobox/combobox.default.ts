@@ -19,8 +19,8 @@
  *       --combobox-option-selected-text → var(--color-teal-300)
  *   - Semantic text tokens (from @theme in tailwind.css):
  *       text-text-primary, text-text-secondary, text-text-muted
- *   - Molecule utilities (from recipes/utils.ts):
- *       surfaceClass(), radiusClass(), depthClass(), glowClass(), bevelClass()
+ *   - Encoding emitters:
+ *       emitSegments(), emitCategory(), radiusClass()
  *
  * Size variants (sm/md/lg) drive per-slot height, padding, and font-size.
  * All OKLCH — zero hardcoded white/ or black/ opacity values.
@@ -34,13 +34,8 @@
 import { cn } from "$lib/design/primitives/types.js";
 import { registerRecipe } from "../../index.js";
 import type { DsSurfaceProps } from "../../types.js";
-import {
-	radiusClass,
-	surfaceClass,
-	depthClass,
-	glowClass,
-	bevelClass,
-} from "../../utils.js";
+import { toPreset } from "../../types.js";
+import { emitSegments, emitCategory, radiusClass } from "../../utils.js";
 
 /**
  * Per-slot size dimensions: height, padding, font-size.
@@ -81,13 +76,15 @@ registerRecipe({
 	kind: "combobox",
 	label: "Glass Void Combobox",
 	defaults: {
-		surface: "glass",
-		variant: "void",
-		accent: "teal",
+		s: 1,
+		z: 0,
+		d: 2,
+		b: 2,
+		g: 1,
+		f: 0,
+		m: 0,
+		t: 0,
 		radius: "lg",
-		depth: 2,
-		glow: "teal",
-		bevel: "soft",
 		size: "md",
 	},
 	classes: (props: DsSurfaceProps): Record<string, string> => {
@@ -101,7 +98,7 @@ registerRecipe({
 				r,
 				"bg-[var(--combobox-bg)]",
 				"border border-[var(--combobox-border)]",
-				bevelClass(props.bevel),
+				emitCategory("b", props.b),
 				"focus-within:ring-2 focus-within:ring-[var(--combobox-border-focus)]",
 				"transition-[border-color,box-shadow] duration-fast",
 			),
@@ -122,10 +119,8 @@ registerRecipe({
 				"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--combobox-border-focus)]",
 			),
 			content: cn(
-				surfaceClass(props.surface, props.variant ?? "void"),
+				emitSegments(toPreset(props)),
 				r,
-				depthClass(props.depth),
-				glowClass(props.glow),
 				"border border-[var(--combobox-border)]",
 				"p-1 z-50 overflow-hidden",
 				"data-[open]:animate-in data-[open]:fade-in-0 data-[open]:zoom-in-95",

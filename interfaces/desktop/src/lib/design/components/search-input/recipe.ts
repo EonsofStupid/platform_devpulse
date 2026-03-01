@@ -19,7 +19,7 @@ export function searchInputRecipe(props: SearchInputRecipeProps = {}): string {
 	const size = props.size ?? "md";
 	return cn(
 		"search-input-root",
-		"v-void s-glass e-0",
+		"v-s1",
 		`sz-${size}`,
 		"rounded-md",
 	);

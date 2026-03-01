@@ -1,112 +1,77 @@
 /**
- * @file Recipe Utilities — Exhaustive Token Maps + Shortcode Emitters
+ * @file Recipe Utilities — Encoding-Based Emitters
  * @layer recipes
  * @package @devpulse/coldlight
  *
- * Two API surfaces:
+ * Registry-driven emitters. Every class name comes from TOKEN_CATEGORY_REGISTRY.
+ * No legacy. No bridge. No backward compat.
  *
- * 1. **Shortcode emitters** (preferred) — emit shortcode class names
- *    from CLASS_COMPOSITION.md: v-*, s-*, e-*, sz-*.
- *    These map directly to @utility definitions in shortcodes/*.css.
+ * emitSegments() — individual v-{code}{index} classes (sparse, skips defaults)
+ * emitEncoding() — compact v-s3z1d2b1g0f1m0t2 string (dense, all categories)
+ * emitCategory() — single v-{code}{index} for one category
+ * radiusClass()  — Tailwind rounded-* (radius is not part of encoding)
+ */
+
+import {
+	TOKEN_CATEGORY_REGISTRY,
+	type Preset,
+} from "$lib/design/registry/token-categories.js";
+import type { RadiusToken } from "$lib/design/tokens/types.js";
+
+// =============================================================================
+// Encoding Emitters — Registry-Driven
+// =============================================================================
+
+/**
+ * Emit individual v-{code}{index} classes for each non-default category.
+ * Skips categories at their default index to keep output minimal.
  *
- * 2. **Molecule emitters** (legacy) — emit molecule class names
- *    (glass-void, depth-raised, glow-teal, etc.).
- *    @deprecated — use shortcode emitters for new recipes.
+ * @example emitSegments({ s: 1, d: 2, t: 2 }) → "v-s1 v-d2 v-t2"
+ */
+export function emitSegments(preset: Partial<Preset>): string {
+	const parts: string[] = [];
+	for (const cat of TOKEN_CATEGORY_REGISTRY) {
+		const code = cat.code as keyof Preset;
+		const val = preset[code];
+		if (val !== undefined && val !== cat.defaultIndex) {
+			parts.push(`v-${cat.code}${val}`);
+		}
+	}
+	return parts.join(" ");
+}
+
+/**
+ * Emit a compact encoding string with ALL categories.
  *
- * Every map uses `satisfies Record<TokenType, string>` to ensure
- * exhaustive coverage against the auto-generated token enums.
- * If SD5 adds a new token value, TypeScript will error here.
+ * @example emitEncoding({ s: 3, z: 1, d: 2, b: 1, g: 0, f: 1, m: 0, t: 2 })
+ *          → "v-s3z1d2b1g0f1m0t2"
  */
-
-import type {
-	BevelToken,
-	DepthToken,
-	GlassVariantToken,
-	GlowToken,
-	RadiusToken,
-	SizeToken,
-	SurfaceToken,
-} from "$lib/design/tokens/types.js";
-
-// =============================================================================
-// Shortcode Emitters — CLASS_COMPOSITION.md system
-// =============================================================================
-
-/**
- * Variant → v-* shortcode class.
- * Maps to @utility v-* in shortcodes/shortcodes.css.
- * Sets --recipe-blur, --recipe-saturation, --recipe-bg-alpha,
- * --recipe-glow-color, --recipe-border-alpha, --recipe-accent.
- */
-const VARIANT_SHORTCODE_MAP = {
-	void: "v-void",
-	deep: "v-deep",
-	smoke: "v-smoke",
-	frost: "v-frost",
-} satisfies Record<GlassVariantToken, string>;
-
-export function variantShortcode(variant: GlassVariantToken): string {
-	return VARIANT_SHORTCODE_MAP[variant];
+export function emitEncoding(preset: Partial<Preset>): string {
+	const pairs = TOKEN_CATEGORY_REGISTRY.map((cat) => {
+		const code = cat.code as keyof Preset;
+		const val = preset[code] ?? cat.defaultIndex;
+		return `${cat.code}${val}`;
+	});
+	return `v-${pairs.join("")}`;
 }
 
 /**
- * Surface → s-* shortcode class.
- * Maps to @utility s-* in shortcodes/shortcodes.css.
- * Reads --recipe-* vars set by v-* classes.
+ * Emit a single v-{code}{index} class for one category.
+ *
+ * @example emitCategory("s", 3) → "v-s3"
+ * @example emitCategory("d", 0) → "v-d0"
  */
-const SURFACE_SHORTCODE_MAP = {
-	glass: "s-glass",
-	solid: "s-solid",
-	matte: "s-solid",
-} satisfies Record<SurfaceToken, string>;
-
-export function surfaceShortcode(surface: SurfaceToken): string {
-	return SURFACE_SHORTCODE_MAP[surface];
-}
-
-/**
- * Depth → e-* shortcode class.
- * Maps to @utility e-* in shortcodes/shortcodes.css.
- * Sets --_shadow-depth (same var as molecule depth-* utilities).
- */
-const ELEVATION_SHORTCODE_MAP = {
-	0: "e-0",
-	1: "e-1",
-	2: "e-2",
-	3: "e-3",
-	4: "e-4",
-} satisfies Record<DepthToken, string>;
-
-export function elevationShortcode(depth: DepthToken): string {
-	return ELEVATION_SHORTCODE_MAP[depth];
-}
-
-/**
- * Size → sz-* shortcode class.
- * Maps to @utility sz-* in shortcodes/shortcodes.css.
- * Sets --recipe-font-size, --recipe-padding-x/y, --recipe-gap,
- * --recipe-min-h, --recipe-icon-size.
- */
-const SIZE_SHORTCODE_MAP = {
-	sm: "sz-sm",
-	md: "sz-md",
-	lg: "sz-lg",
-} satisfies Record<SizeToken, string>;
-
-export function sizeShortcode(size: SizeToken): string {
-	return SIZE_SHORTCODE_MAP[size];
+export function emitCategory(code: string, index: number): string {
+	return `v-${code}${index}`;
 }
 
 // =============================================================================
-// Molecule Emitters — Legacy (use shortcode emitters for new recipes)
+// Radius — Tailwind (permanent, not part of encoding)
 // =============================================================================
 
-/**
- * Radius → Tailwind rounded utility.
- * Maps to @theme --radius-* tokens in tailwind.css.
- */
 const RADIUS_MAP = {
 	none: "rounded-none",
+	xs: "rounded-xs",
 	sm: "rounded-sm",
 	md: "rounded-md",
 	lg: "rounded-lg",
@@ -114,92 +79,6 @@ const RADIUS_MAP = {
 	full: "rounded-full",
 } satisfies Record<RadiusToken, string>;
 
-/**
- * Depth → molecule utility class.
- * Maps to @utility depth-* in molecules/depth.css.
- * @deprecated Use elevationShortcode() for new recipes.
- */
-const DEPTH_MAP = {
-	0: "",
-	1: "depth-float",
-	2: "depth-raised",
-	3: "depth-elevated",
-	4: "depth-lifted",
-} satisfies Record<DepthToken, string>;
-
-/**
- * Size → base text size utility.
- * Maps to @theme --font-size-* in tailwind.css.
- * @deprecated Use sizeShortcode() for new recipes.
- */
-const SIZE_MAP = {
-	sm: "text-sm",
-	md: "text-base",
-	lg: "text-lg",
-} satisfies Record<SizeToken, string>;
-
-/**
- * Glow → molecule utility class.
- * Maps to @utility glow-* in molecules/glow.css.
- */
-const GLOW_MAP = {
-	off: "",
-	teal: "glow-teal",
-	purple: "glow-purple",
-	magenta: "glow-magenta",
-	ember: "glow-ember",
-	frost: "glow-frost",
-	cyber: "glow-cyber",
-} satisfies Record<GlowToken, string>;
-
-/**
- * Bevel → molecule utility class.
- * Maps to @utility bevel-* in molecules/bevel.css.
- */
-const BEVEL_MAP = {
-	off: "",
-	subtle: "bevel-subtle",
-	soft: "bevel-soft",
-	medium: "bevel-medium",
-} satisfies Record<BevelToken, string>;
-
-/**
- * Surface + variant → molecule/background utility.
- * @deprecated Use surfaceShortcode() + variantShortcode() for new recipes.
- */
-const SURFACE_HANDLERS: Record<SurfaceToken, (variant: string) => string> = {
-	glass: (variant) => `glass-${variant}`,
-	matte: (variant) => `bg-[var(--matte-${variant})]`,
-	solid: (variant) => `bg-[var(--surface-${variant})]`,
-};
-
 export function radiusClass(radius: RadiusToken): string {
 	return RADIUS_MAP[radius];
-}
-
-/** @deprecated Use elevationShortcode() */
-export function depthClass(depth: DepthToken): string {
-	return DEPTH_MAP[depth];
-}
-
-/** @deprecated Use sizeShortcode() */
-export function sizeClass(size: SizeToken): string {
-	return SIZE_MAP[size];
-}
-
-export function glowClass(glow: GlowToken): string {
-	return GLOW_MAP[glow];
-}
-
-export function bevelClass(bevel: BevelToken): string {
-	return BEVEL_MAP[bevel];
-}
-
-/** @deprecated Use surfaceShortcode() + variantShortcode() */
-export function surfaceClass(
-	surface: SurfaceToken,
-	variant: GlassVariantToken | "dark" | "medium" | "light",
-): string {
-	const handler = SURFACE_HANDLERS[surface];
-	return handler ? handler(variant) : "";
 }

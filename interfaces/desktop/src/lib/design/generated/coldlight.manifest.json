@@ -1,0 +1,903 @@
+{
+	"$schema": "coldlight/manifest",
+	"version": 1,
+	"generatedAt": "2026-03-01T01:54:42.630Z",
+	"pipeline": "sd5-dtcg-1.0",
+	"categories": [
+		{
+			"code": "s",
+			"name": "Surface",
+			"description": "Full surface treatment: fill, backdrop-filter, opacity. Glass types include blur.",
+			"encodingOrder": 0,
+			"defaultIndex": 0,
+			"vpbControl": "select",
+			"valueCount": 8,
+			"values": [
+				{
+					"index": 0,
+					"id": "transparent",
+					"label": "Transparent",
+					"tokenRefs": {
+						"background": "transparent"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 1,
+					"id": "glass-void",
+					"label": "Glass Void",
+					"tokenRefs": {
+						"background": "var(--glass-void)",
+						"backdrop-filter": "blur(var(--blur-md)) saturate(1.5)",
+						"border": "1px solid oklch(from var(--color-teal-700) l c h / 0.22)"
+					},
+					"requiredTokens": [
+						"glass.void",
+						"blur.md"
+					],
+					"svgFilters": []
+				},
+				{
+					"index": 2,
+					"id": "glass-deep",
+					"label": "Glass Deep",
+					"tokenRefs": {
+						"background": "var(--glass-deep)",
+						"backdrop-filter": "blur(var(--blur-lg)) saturate(1.3)",
+						"border": "1px solid oklch(from var(--color-teal-600) l c h / 0.18)"
+					},
+					"requiredTokens": [
+						"glass.deep",
+						"blur.lg"
+					],
+					"svgFilters": []
+				},
+				{
+					"index": 3,
+					"id": "glass-smoke",
+					"label": "Glass Smoke",
+					"tokenRefs": {
+						"background": "var(--glass-smoke)",
+						"backdrop-filter": "blur(var(--blur-xl)) saturate(1.2)"
+					},
+					"requiredTokens": [
+						"glass.smoke",
+						"blur.xl"
+					],
+					"svgFilters": []
+				},
+				{
+					"index": 4,
+					"id": "glass-frost",
+					"label": "Glass Frost",
+					"tokenRefs": {
+						"background": "var(--glass-frost)",
+						"backdrop-filter": "blur(var(--blur-2xl)) saturate(1.1)",
+						"border": "1px solid oklch(1 0 0 / 0.12)"
+					},
+					"requiredTokens": [
+						"glass.frost",
+						"blur.2xl"
+					],
+					"svgFilters": []
+				},
+				{
+					"index": 5,
+					"id": "matte-dark",
+					"label": "Matte Dark",
+					"tokenRefs": {
+						"background": "var(--matte-dark)"
+					},
+					"requiredTokens": [
+						"matte.dark"
+					],
+					"svgFilters": []
+				},
+				{
+					"index": 6,
+					"id": "solid-teal",
+					"label": "Solid Teal",
+					"tokenRefs": {
+						"background": "var(--color-teal-500)"
+					},
+					"requiredTokens": [
+						"color.teal.500"
+					],
+					"svgFilters": []
+				},
+				{
+					"index": 7,
+					"id": "void-gradient",
+					"label": "Void Gradient",
+					"tokenRefs": {
+						"background": "linear-gradient(135deg, var(--color-void-900), var(--color-void-base))"
+					},
+					"requiredTokens": [
+						"color.void.900",
+						"color.void.base"
+					],
+					"svgFilters": []
+				}
+			]
+		},
+		{
+			"code": "z",
+			"name": "Material",
+			"description": "Material physics. Modifies HOW a surface renders: opacity, filter effects, border treatment.",
+			"encodingOrder": 1,
+			"defaultIndex": 0,
+			"vpbControl": "select",
+			"valueCount": 10,
+			"values": [
+				{
+					"index": 0,
+					"id": "none",
+					"label": "None",
+					"tokenRefs": {},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 1,
+					"id": "glass-subtle",
+					"label": "Glass — Subtle",
+					"tokenRefs": {
+						"opacity": "0.85",
+						"backdrop-filter": "saturate(1.1)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 2,
+					"id": "glass-medium",
+					"label": "Glass — Medium",
+					"tokenRefs": {
+						"opacity": "0.75",
+						"backdrop-filter": "saturate(1.2)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 3,
+					"id": "glass-intense",
+					"label": "Glass — Intense",
+					"tokenRefs": {
+						"opacity": "0.6",
+						"backdrop-filter": "saturate(1.4)",
+						"border": "1px solid oklch(1 0 0 / 0.15)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 4,
+					"id": "glass-ultra",
+					"label": "Glass — Ultra",
+					"tokenRefs": {
+						"opacity": "0.45",
+						"backdrop-filter": "saturate(1.6)",
+						"border": "1px solid oklch(1 0 0 / 0.22)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 5,
+					"id": "solid-matte",
+					"label": "Solid — Matte",
+					"tokenRefs": {
+						"opacity": "1",
+						"filter": "brightness(0.95)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 6,
+					"id": "solid-satin",
+					"label": "Solid — Satin",
+					"tokenRefs": {
+						"opacity": "1",
+						"filter": "brightness(1.05) contrast(1.02)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 7,
+					"id": "metal-brushed",
+					"label": "Metal — Brushed",
+					"tokenRefs": {
+						"background": "repeating-linear-gradient(90deg, oklch(1 0 0 / 0.02) 0px, transparent 2px)",
+						"filter": "contrast(1.1)"
+					},
+					"requiredTokens": [],
+					"svgFilters": [
+						"noise-subtle"
+					]
+				},
+				{
+					"index": 8,
+					"id": "metal-chrome",
+					"label": "Metal — Chrome",
+					"tokenRefs": {
+						"background": "linear-gradient(180deg, oklch(1 0 0 / 0.15), transparent, oklch(1 0 0 / 0.08))",
+						"filter": "contrast(1.15) brightness(1.1)"
+					},
+					"requiredTokens": [],
+					"svgFilters": [
+						"noise-subtle"
+					]
+				},
+				{
+					"index": 9,
+					"id": "metal-copper",
+					"label": "Metal — Copper",
+					"tokenRefs": {
+						"background": "linear-gradient(180deg, oklch(from var(--color-ember-300) l c h / 0.12), transparent, oklch(from var(--color-ember-400) l c h / 0.08))",
+						"filter": "contrast(1.08) saturate(1.2)"
+					},
+					"requiredTokens": [],
+					"svgFilters": [
+						"noise-subtle"
+					]
+				}
+			]
+		},
+		{
+			"code": "d",
+			"name": "Depth",
+			"description": "Z-elevation via drop shadows. Layered shadow compositions.",
+			"encodingOrder": 2,
+			"defaultIndex": 0,
+			"vpbControl": "slider",
+			"valueCount": 5,
+			"values": [
+				{
+					"index": 0,
+					"id": "flat",
+					"label": "Flat (no shadow)",
+					"tokenRefs": {
+						"box-shadow": "none"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 1,
+					"id": "z1",
+					"label": "Z1 — Subtle",
+					"tokenRefs": {
+						"box-shadow": "var(--shadow-z1)"
+					},
+					"requiredTokens": [
+						"shadow.z1"
+					],
+					"svgFilters": []
+				},
+				{
+					"index": 2,
+					"id": "z2",
+					"label": "Z2 — Elevated",
+					"tokenRefs": {
+						"box-shadow": "var(--shadow-z2)"
+					},
+					"requiredTokens": [
+						"shadow.z2"
+					],
+					"svgFilters": []
+				},
+				{
+					"index": 3,
+					"id": "z3",
+					"label": "Z3 — Floating",
+					"tokenRefs": {
+						"box-shadow": "var(--shadow-z3)"
+					},
+					"requiredTokens": [
+						"shadow.z3"
+					],
+					"svgFilters": []
+				},
+				{
+					"index": 4,
+					"id": "z4",
+					"label": "Z4 — Maximum",
+					"tokenRefs": {
+						"box-shadow": "var(--shadow-z4)"
+					},
+					"requiredTokens": [
+						"shadow.z4"
+					],
+					"svgFilters": []
+				}
+			]
+		},
+		{
+			"code": "b",
+			"name": "Bevel",
+			"description": "Neuromorphic edge treatment. Inset shadows + SVG specular lighting + noise.",
+			"encodingOrder": 3,
+			"defaultIndex": 0,
+			"vpbControl": "slider",
+			"valueCount": 5,
+			"values": [
+				{
+					"index": 0,
+					"id": "flat",
+					"label": "Flat",
+					"tokenRefs": {},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 1,
+					"id": "subtle",
+					"label": "Subtle",
+					"tokenRefs": {
+						"box-shadow": "inset 0 1px 0 oklch(1 0 0 / 0.06), inset 0 -1px 0 oklch(0 0 0 / 0.1)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 2,
+					"id": "soft",
+					"label": "Soft",
+					"tokenRefs": {
+						"box-shadow": "inset 0 2px 1px oklch(1 0 0 / 0.08), inset 0 -2px 1px oklch(0 0 0 / 0.15)"
+					},
+					"requiredTokens": [],
+					"svgFilters": [
+						"bevel-soft"
+					]
+				},
+				{
+					"index": 3,
+					"id": "medium",
+					"label": "Medium",
+					"tokenRefs": {
+						"box-shadow": "inset 0 2px 2px oklch(1 0 0 / 0.1), inset 0 -2px 2px oklch(0 0 0 / 0.2)"
+					},
+					"requiredTokens": [],
+					"svgFilters": [
+						"bevel-medium",
+						"noise-subtle"
+					]
+				},
+				{
+					"index": 4,
+					"id": "strong",
+					"label": "Strong + Filters",
+					"tokenRefs": {
+						"box-shadow": "inset 0 3px 3px oklch(1 0 0 / 0.12), inset 0 -3px 3px oklch(0 0 0 / 0.25)"
+					},
+					"requiredTokens": [],
+					"svgFilters": [
+						"bevel-strong",
+						"noise-subtle"
+					]
+				}
+			]
+		},
+		{
+			"code": "g",
+			"name": "Glow",
+			"description": "Emission halo. Color + intensity + spread via box-shadow.",
+			"encodingOrder": 4,
+			"defaultIndex": 0,
+			"vpbControl": "select",
+			"valueCount": 7,
+			"values": [
+				{
+					"index": 0,
+					"id": "none",
+					"label": "None",
+					"tokenRefs": {},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 1,
+					"id": "teal",
+					"label": "Teal",
+					"tokenRefs": {
+						"box-shadow": "var(--shadow-glow-teal)"
+					},
+					"requiredTokens": [
+						"glow.teal"
+					],
+					"svgFilters": []
+				},
+				{
+					"index": 2,
+					"id": "purple",
+					"label": "Purple",
+					"tokenRefs": {
+						"box-shadow": "var(--shadow-glow-purple)"
+					},
+					"requiredTokens": [
+						"glow.purple"
+					],
+					"svgFilters": []
+				},
+				{
+					"index": 3,
+					"id": "ember",
+					"label": "Ember",
+					"tokenRefs": {
+						"box-shadow": "var(--shadow-glow-ember)"
+					},
+					"requiredTokens": [
+						"glow.ember"
+					],
+					"svgFilters": []
+				},
+				{
+					"index": 4,
+					"id": "magenta",
+					"label": "Magenta",
+					"tokenRefs": {
+						"box-shadow": "var(--shadow-glow-magenta)"
+					},
+					"requiredTokens": [
+						"glow.magenta"
+					],
+					"svgFilters": []
+				},
+				{
+					"index": 5,
+					"id": "frost",
+					"label": "Frost",
+					"tokenRefs": {
+						"box-shadow": "var(--shadow-glow-frost)"
+					},
+					"requiredTokens": [
+						"glow.frost"
+					],
+					"svgFilters": []
+				},
+				{
+					"index": 6,
+					"id": "cyber",
+					"label": "Cyber",
+					"tokenRefs": {
+						"box-shadow": "var(--shadow-glow-cyber)"
+					},
+					"requiredTokens": [
+						"glow.cyber"
+					],
+					"svgFilters": []
+				}
+			]
+		},
+		{
+			"code": "f",
+			"name": "Frame",
+			"description": "Border treatment: mode, width scaling, corner radius, border glow.",
+			"encodingOrder": 5,
+			"defaultIndex": 0,
+			"vpbControl": "select",
+			"valueCount": 5,
+			"values": [
+				{
+					"index": 0,
+					"id": "none",
+					"label": "No Border",
+					"tokenRefs": {
+						"border": "none"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 1,
+					"id": "soft",
+					"label": "Soft",
+					"tokenRefs": {
+						"border": "1px solid oklch(1 0 0 / 0.06)",
+						"border-radius": "var(--radius-md)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 2,
+					"id": "hard",
+					"label": "Hard",
+					"tokenRefs": {
+						"border": "1px solid oklch(1 0 0 / 0.15)",
+						"border-radius": "var(--radius-sm)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 3,
+					"id": "crisp",
+					"label": "Crisp",
+					"tokenRefs": {
+						"border": "1px solid oklch(1 0 0 / 0.25)",
+						"border-radius": "var(--radius-xs)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 4,
+					"id": "glow",
+					"label": "Glow Border",
+					"tokenRefs": {
+						"border": "1px solid oklch(from var(--color-teal-500) l c h / 0.4)",
+						"border-radius": "var(--radius-md)",
+						"box-shadow": "0 0 8px oklch(from var(--color-teal-500) l c h / 0.15)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				}
+			]
+		},
+		{
+			"code": "m",
+			"name": "Motion",
+			"description": "Ambient/idle animations. NO user interaction trigger. Always playing when visible.",
+			"encodingOrder": 6,
+			"defaultIndex": 0,
+			"vpbControl": "select",
+			"valueCount": 5,
+			"values": [
+				{
+					"index": 0,
+					"id": "none",
+					"label": "Static",
+					"tokenRefs": {},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 1,
+					"id": "breathe",
+					"label": "Breathing Pulse",
+					"tokenRefs": {
+						"animation": "var(--animate-breathe)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 2,
+					"id": "shimmer",
+					"label": "Liquid Shimmer",
+					"tokenRefs": {
+						"animation": "var(--animate-shimmer)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 3,
+					"id": "drift",
+					"label": "Particle Drift",
+					"tokenRefs": {
+						"animation": "var(--animate-drift)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 4,
+					"id": "pulse",
+					"label": "Glow Pulse",
+					"tokenRefs": {
+						"animation": "var(--animate-pulse)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				}
+			]
+		},
+		{
+			"code": "t",
+			"name": "Transition",
+			"description": "User-triggered state changes: hover, focus, click, press. Duration + easing.",
+			"encodingOrder": 7,
+			"defaultIndex": 0,
+			"vpbControl": "select",
+			"valueCount": 7,
+			"values": [
+				{
+					"index": 0,
+					"id": "none",
+					"label": "Instant (0ms)",
+					"tokenRefs": {
+						"transition": "none"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 1,
+					"id": "snap",
+					"label": "Snap (50ms)",
+					"tokenRefs": {
+						"transition": "all var(--transition-duration-snap) var(--transition-timing-function-out)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 2,
+					"id": "fast",
+					"label": "Fast (150ms)",
+					"tokenRefs": {
+						"transition": "all var(--transition-duration-fast) var(--transition-timing-function-out)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 3,
+					"id": "normal",
+					"label": "Normal (250ms)",
+					"tokenRefs": {
+						"transition": "all var(--transition-duration-normal) var(--transition-timing-function-inOut)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 4,
+					"id": "smooth",
+					"label": "Smooth (400ms)",
+					"tokenRefs": {
+						"transition": "all var(--transition-duration-smooth) var(--transition-timing-function-inOut)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 5,
+					"id": "spring",
+					"label": "Spring",
+					"tokenRefs": {
+						"transition": "all var(--transition-duration-normal) var(--transition-timing-function-spring)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 6,
+					"id": "bounce",
+					"label": "Bounce",
+					"tokenRefs": {
+						"transition": "all var(--transition-duration-smooth) var(--transition-timing-function-bounce)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				}
+			]
+		}
+	],
+	"encoding": {
+		"order": [
+			"s",
+			"z",
+			"d",
+			"b",
+			"g",
+			"f",
+			"m",
+			"t"
+		],
+		"totalValues": 52,
+		"format": "v-{code}{index}",
+		"example": "v-s0z0d0b0g0f0m0t0"
+	},
+	"tokens": {
+		"accent": {
+			"values": [
+				"teal",
+				"purple",
+				"magenta",
+				"ember",
+				"frost",
+				"cyber"
+			],
+			"count": 6
+		},
+		"glow": {
+			"values": [
+				"off",
+				"teal",
+				"purple",
+				"magenta",
+				"ember",
+				"frost",
+				"cyber"
+			],
+			"count": 7
+		},
+		"surface": {
+			"values": [
+				"glass",
+				"solid",
+				"matte"
+			],
+			"count": 3
+		},
+		"glassVariant": {
+			"values": [
+				"void",
+				"deep",
+				"smoke",
+				"frost"
+			],
+			"count": 4
+		},
+		"size": {
+			"values": [
+				"sm",
+				"md",
+				"lg"
+			],
+			"count": 3
+		},
+		"radius": {
+			"values": [
+				"none",
+				"xs",
+				"sm",
+				"md",
+				"lg",
+				"xl",
+				"full"
+			],
+			"count": 7
+		},
+		"blur": {
+			"values": [
+				"off",
+				"sm",
+				"md",
+				"lg",
+				"xl",
+				"2xl"
+			],
+			"count": 6
+		},
+		"depth": {
+			"values": [
+				0,
+				1,
+				2,
+				3,
+				4
+			],
+			"count": 5
+		},
+		"bevel": {
+			"values": [
+				"off",
+				"subtle",
+				"soft",
+				"medium"
+			],
+			"count": 4
+		},
+		"tone": {
+			"values": [
+				"cold",
+				"neutral",
+				"warm"
+			],
+			"count": 3
+		},
+		"imprint": {
+			"values": [
+				"subtle",
+				"medium",
+				"strong"
+			],
+			"count": 3
+		},
+		"shellDepth": {
+			"values": [
+				"shallow",
+				"standard",
+				"deep"
+			],
+			"count": 3
+		},
+		"space": {
+			"values": [
+				"1",
+				"2",
+				"3",
+				"4",
+				"5",
+				"6",
+				"8"
+			],
+			"count": 7
+		},
+		"textSize": {
+			"values": [
+				"xs",
+				"sm",
+				"base",
+				"lg",
+				"xl",
+				"2xl"
+			],
+			"count": 6
+		},
+		"padding": {
+			"values": [
+				"sm",
+				"md",
+				"lg"
+			],
+			"count": 3
+		},
+		"duration": {
+			"values": [
+				"snap",
+				"fast",
+				"normal",
+				"smooth",
+				"glacial",
+				"moderate"
+			],
+			"count": 6
+		},
+		"ease": {
+			"values": [
+				"linear",
+				"in",
+				"out",
+				"inOut",
+				"spring",
+				"bounce"
+			],
+			"count": 6
+		}
+	},
+	"keyframes": [
+		"pulse-glow",
+		"cl-breathe",
+		"cl-shimmer",
+		"cl-drift",
+		"cl-pulse"
+	],
+	"generatedFiles": [
+		{
+			"file": "generated/variants.css",
+			"bytes": 5243
+		},
+		{
+			"file": "generated/typography.css",
+			"bytes": 331
+		},
+		{
+			"file": "generated/focus.css",
+			"bytes": 292
+		},
+		{
+			"file": "generated/scrollbars.css",
+			"bytes": 286
+		},
+		{
+			"file": "generated/keyframes.css",
+			"bytes": 1348
+		}
+	],
+	"platforms": {
+		"css": "src/lib/design/tokens/tokens.css",
+		"theme": "src/lib/design/tokens/tailwind.css",
+		"types": "src/lib/design/tokens/types.ts",
+		"dtcg": "src/lib/design/tokens/tokens.json"
+	}
+}

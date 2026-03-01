@@ -15,8 +15,8 @@
  *       --textarea-border-focus  → var(--border-focus)
  *   - Semantic text tokens:
  *       text-text-primary, text-text-muted
- *   - Molecule utilities (from recipes/utils.ts):
- *       radiusClass(), depthClass(), glowClass(), bevelClass()
+ *   - Encoding emitters:
+ *       emitSegments(), radiusClass()
  *
  * Size variants (sm/md/lg) drive padding, font-size, and min-height.
  * All OKLCH — zero hardcoded colors.
@@ -25,12 +25,8 @@
 import { cn } from "$lib/design/primitives/types.js";
 import { registerRecipe } from "../../index.js";
 import type { DsSurfaceProps } from "../../types.js";
-import {
-	radiusClass,
-	depthClass,
-	glowClass,
-	bevelClass,
-} from "../../utils.js";
+import { toPreset } from "../../types.js";
+import { emitSegments, radiusClass } from "../../utils.js";
 
 const SIZE_SCALE = {
 	sm: { root: "p-2 text-sm min-h-16" },
@@ -43,13 +39,15 @@ registerRecipe({
 	kind: "textarea",
 	label: "Glass Void Textarea",
 	defaults: {
-		surface: "glass",
-		variant: "void",
-		accent: "teal",
+		s: 1,
+		z: 0,
+		d: 2,
+		b: 2,
+		g: 1,
+		f: 0,
+		m: 0,
+		t: 0,
 		radius: "lg",
-		depth: 2,
-		glow: "teal",
-		bevel: "soft",
 		size: "md",
 	},
 	classes: (props: DsSurfaceProps): Record<string, string> => {
@@ -60,9 +58,7 @@ registerRecipe({
 				"w-full bg-transparent",
 				s.root,
 				radiusClass(props.radius),
-				depthClass(props.depth),
-				glowClass(props.glow),
-				bevelClass(props.bevel),
+				emitSegments(toPreset(props)),
 				"border border-[var(--textarea-border)]",
 				"bg-[var(--textarea-bg)]",
 				"text-text-primary",

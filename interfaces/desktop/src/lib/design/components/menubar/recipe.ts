@@ -13,9 +13,9 @@ type MenubarRecipeProps = { size?: string };
 
 export function menubarRecipe(props: MenubarRecipeProps = {}) {
 	return {
-		root: cn("menubar-root", "v-void s-glass e-1", "rounded-md"),
+		root: cn("menubar-root", "v-s1 v-d1", "rounded-md"),
 		trigger: cn("menubar-trigger"),
-		content: cn("menubar-content", "v-void s-glass e-3", "rounded-md"),
+		content: cn("menubar-content", "v-s1 v-d3", "rounded-md"),
 		item: cn("menubar-item"),
 		separator: cn("menubar-separator"),
 	};

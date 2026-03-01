@@ -14,20 +14,15 @@
  *       --banner-border    → var(--border-subtle)
  *   - Semantic text tokens:
  *       text-text-primary, text-text-secondary, text-text-muted
- *   - Molecule utilities:
- *       surfaceClass(), radiusClass(), depthClass(), glowClass(), bevelClass()
+ *   - Encoding emitters:
+ *       emitSegments(), radiusClass()
  */
 
 import { cn } from "$lib/design/primitives/types.js";
 import { registerRecipe } from "../../index.js";
 import type { DsSurfaceProps } from "../../types.js";
-import {
-	radiusClass,
-	surfaceClass,
-	depthClass,
-	glowClass,
-	bevelClass,
-} from "../../utils.js";
+import { toPreset } from "../../types.js";
+import { emitSegments, radiusClass } from "../../utils.js";
 
 const SIZE_SCALE = {
 	sm: {
@@ -52,13 +47,15 @@ registerRecipe({
 	kind: "banner",
 	label: "Glass Void Banner",
 	defaults: {
-		surface: "glass",
-		variant: "void",
-		accent: "teal",
+		s: 1,
+		z: 0,
+		d: 2,
+		b: 2,
+		g: 1,
+		f: 0,
+		m: 0,
+		t: 0,
 		radius: "lg",
-		depth: 2,
-		glow: "teal",
-		bevel: "soft",
 		size: "md",
 	},
 	classes: (props: DsSurfaceProps): Record<string, string> => {
@@ -68,10 +65,7 @@ registerRecipe({
 			root: cn(
 				"flex items-center",
 				s.root,
-				surfaceClass(props.surface, props.variant ?? "void"),
-				depthClass(props.depth),
-				glowClass(props.glow),
-				bevelClass(props.bevel),
+				emitSegments(toPreset(props)),
 				"border-b border-[var(--banner-border)]",
 				"bg-[var(--banner-bg)]",
 			),

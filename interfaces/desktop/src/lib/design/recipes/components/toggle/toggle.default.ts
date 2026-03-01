@@ -16,8 +16,8 @@
  *       --toggle-pressed-bg     → var(--surface-elevated)
  *   - Semantic text tokens:
  *       text-text-primary, text-text-secondary
- *   - Molecule utilities (from recipes/utils.ts):
- *       radiusClass(), depthClass(), glowClass(), bevelClass()
+ *   - Encoding emitters:
+ *       emitSegments(), radiusClass()
  *
  * Size variants (sm/md/lg) drive height and padding.
  * All OKLCH — zero hardcoded colors.
@@ -26,12 +26,8 @@
 import { cn } from "$lib/design/primitives/types.js";
 import { registerRecipe } from "../../index.js";
 import type { DsSurfaceProps } from "../../types.js";
-import {
-	radiusClass,
-	depthClass,
-	glowClass,
-	bevelClass,
-} from "../../utils.js";
+import { toPreset } from "../../types.js";
+import { emitSegments, radiusClass } from "../../utils.js";
 
 const SIZE_SCALE = {
 	sm: { root: "h-8 px-2 text-sm" },
@@ -44,13 +40,15 @@ registerRecipe({
 	kind: "toggle",
 	label: "Glass Void Toggle",
 	defaults: {
-		surface: "glass",
-		variant: "void",
-		accent: "teal",
+		s: 1,
+		z: 0,
+		d: 1,
+		b: 1,
+		g: 0,
+		f: 0,
+		m: 0,
+		t: 0,
 		radius: "md",
-		depth: 1,
-		glow: "off",
-		bevel: "subtle",
 		size: "md",
 	},
 	classes: (props: DsSurfaceProps): Record<string, string> => {
@@ -61,9 +59,7 @@ registerRecipe({
 				"inline-flex items-center justify-center",
 				s.root,
 				radiusClass(props.radius),
-				depthClass(props.depth),
-				glowClass(props.glow),
-				bevelClass(props.bevel),
+				emitSegments(toPreset(props)),
 				"border border-[var(--toggle-border)]",
 				"bg-[var(--toggle-bg)]",
 				"text-text-secondary",

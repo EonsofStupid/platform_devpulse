@@ -17,7 +17,7 @@ export function navigationMenuRecipe(props: NavigationMenuRecipeProps = {}) {
 		list: cn("navmenu-list"),
 		item: cn("navmenu-item"),
 		trigger: cn("navmenu-trigger"),
-		content: cn("navmenu-content", "v-void s-glass e-3", "rounded-md"),
+		content: cn("navmenu-content", "v-s1 v-d3", "rounded-md"),
 		link: cn("navmenu-link"),
 	};
 }

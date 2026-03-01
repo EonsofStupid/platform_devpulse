@@ -16,7 +16,7 @@ export function dateRangeFieldRecipe(props: DateRangeFieldRecipeProps = {}) {
 	return {
 		root: cn(
 			"date-range-field-root",
-			"v-void s-glass e-0",
+			"v-s1",
 			"rounded-md",
 		),
 		field: cn("date-range-field-field"),

@@ -16,8 +16,8 @@
  *       --number-input-btn-hover      → var(--surface-elevated)
  *   - Semantic text tokens:
  *       text-text-primary, text-text-secondary, text-text-muted
- *   - Molecule utilities (from recipes/utils.ts):
- *       radiusClass(), depthClass(), glowClass(), bevelClass()
+ *   - Encoding emitters:
+ *       emitSegments(), radiusClass()
  *
  * Size variants (sm/md/lg) drive per-slot height, padding, and font-size.
  * All OKLCH — zero hardcoded colors.
@@ -26,12 +26,8 @@
 import { cn } from "$lib/design/primitives/types.js";
 import { registerRecipe } from "../../index.js";
 import type { DsSurfaceProps } from "../../types.js";
-import {
-	radiusClass,
-	depthClass,
-	glowClass,
-	bevelClass,
-} from "../../utils.js";
+import { toPreset } from "../../types.js";
+import { emitSegments, radiusClass } from "../../utils.js";
 
 const SIZE_SCALE = {
 	sm: { root: "h-8", input: "px-2 text-sm", button: "h-8 w-6 text-xs" },
@@ -44,13 +40,15 @@ registerRecipe({
 	kind: "number-input",
 	label: "Glass Void Number Input",
 	defaults: {
-		surface: "glass",
-		variant: "void",
-		accent: "teal",
+		s: 1,
+		z: 0,
+		d: 2,
+		b: 2,
+		g: 1,
+		f: 0,
+		m: 0,
+		t: 0,
 		radius: "lg",
-		depth: 2,
-		glow: "teal",
-		bevel: "soft",
 		size: "md",
 	},
 	classes: (props: DsSurfaceProps): Record<string, string> => {
@@ -62,9 +60,7 @@ registerRecipe({
 				"inline-flex items-center",
 				s.root,
 				r,
-				depthClass(props.depth),
-				glowClass(props.glow),
-				bevelClass(props.bevel),
+				emitSegments(toPreset(props)),
 				"border border-[var(--number-input-border)]",
 				"bg-[var(--number-input-bg)]",
 				"focus-within:ring-2 focus-within:ring-[var(--number-input-border-focus)]",
