@@ -1,34 +1,28 @@
 //! Project-local tool resolver.
 //!
-//! Discovers the workspace root and builds a `PATH` that includes
-//! `node_modules/.bin/` so Node-ecosystem tools (pnpm, tauri, biome, etc.)
-//! are found without relying on global installs or `.CMD` shim hacks.
-//!
-//! Uses `std::process::Command` which respects `PATHEXT` on Windows
-//! natively — no `cmd /c` wrappers or `#[cfg(windows)]` branches needed.
+//! Prepends `interfaces/desktop/node_modules/.bin` to the search path and
+//! uses the [`which`] crate for cross-platform binary resolution (handles
+//! `PATHEXT` on Windows, executable-bit checks on Unix, symlinks everywhere).
 
 use anyhow::{Context, Result};
 use std::env;
 use std::path::{Path, PathBuf};
 use std::process::{Command, ExitStatus};
 
-/// Knows where the project's tools live and spawns them correctly.
+/// Resolves project-local and system tools, spawns them correctly.
 pub struct ToolResolver {
-    /// Workspace root (contains `Cargo.toml` with `[workspace]`).
+    /// Workspace root (contains root `Cargo.toml`).
     project_root: PathBuf,
-    /// Augmented `PATH` with local tool dirs prepended.
+    /// Augmented PATH for tool resolution and child process inheritance.
     augmented_path: std::ffi::OsString,
 }
 
 impl ToolResolver {
     /// Discover the workspace from the current working directory.
-    ///
-    /// Walks up from `cwd` looking for a `Cargo.toml` that sits next to
-    /// an `interfaces/desktop/node_modules/.bin/` directory.
     pub fn discover() -> Result<Self> {
         let cwd = env::current_dir().context("failed to get cwd")?;
         let project_root = find_workspace_root(&cwd)
-            .context("could not find workspace root (looking for Cargo.toml)")?;
+            .context("could not find workspace root (Cargo.toml + interfaces/)")?;
 
         let node_bin = project_root
             .join("interfaces")
@@ -36,7 +30,10 @@ impl ToolResolver {
             .join("node_modules")
             .join(".bin");
 
-        let augmented_path = build_augmented_path(&node_bin);
+        let system_path = env::var_os("PATH").unwrap_or_default();
+        let mut dirs: Vec<PathBuf> = vec![node_bin];
+        dirs.extend(env::split_paths(&system_path));
+        let augmented_path = env::join_paths(&dirs).unwrap_or(system_path);
 
         Ok(Self {
             project_root,
@@ -44,55 +41,65 @@ impl ToolResolver {
         })
     }
 
-    /// The desktop frontend directory (`interfaces/desktop/`).
+    /// The desktop frontend directory.
     pub fn desktop_dir(&self) -> PathBuf {
         self.project_root.join("interfaces").join("desktop")
     }
 
-    /// Create a `Command` for a tool, with the augmented PATH set.
+    /// Resolve a program to its full path using the augmented PATH.
     ///
-    /// Works for both Node tools (`pnpm`, `tauri`, `biome`) and system
-    /// tools (`cargo`, `git`). `std::process::Command` resolves `.CMD`
-    /// and `.BAT` extensions on Windows via `PATHEXT` automatically.
-    pub fn cmd(&self, program: &str) -> Command {
-        let mut cmd = Command::new(program);
-        cmd.env("PATH", &self.augmented_path);
-        cmd.current_dir(&self.project_root);
-        cmd
+    /// Delegates to [`which::which_in`] which handles `PATHEXT` on Windows
+    /// and executable-bit checks on Unix.
+    pub fn resolve(&self, program: &str) -> Result<PathBuf> {
+        which::which_in(program, Some(&self.augmented_path), &self.project_root)
+            .with_context(|| format!("tool `{program}` not found in PATH"))
     }
 
-    /// Convenience: spawn a tool and wait for it to finish.
-    ///
-    /// Returns an error if the process cannot be started or exits non-zero.
+    /// Create a `Command` for a resolved tool.
+    pub fn cmd(&self, program: &str) -> Result<Command> {
+        let resolved = self.resolve(program)?;
+        let mut cmd = Command::new(resolved);
+        cmd.env("PATH", &self.augmented_path);
+        cmd.current_dir(&self.project_root);
+        Ok(cmd)
+    }
+
+    /// Run a tool and capture its output (stdout + stderr).
+    pub fn output(&self, program: &str, args: &[&str]) -> Result<std::process::Output> {
+        self.cmd(program)?
+            .args(args)
+            .output()
+            .with_context(|| format!("failed to run `{program}`"))
+    }
+
+    /// Spawn a tool and wait for exit. Errors on not-found or non-zero exit.
     pub fn run(&self, program: &str, args: &[&str]) -> Result<ExitStatus> {
         let status = self
-            .cmd(program)
+            .cmd(program)?
             .args(args)
             .status()
-            .with_context(|| format!("failed to run `{program}`"))?;
+            .with_context(|| format!("failed to start `{program}`"))?;
 
         if !status.success() {
             let code = status.code().unwrap_or(-1);
             anyhow::bail!("`{program}` exited with code {code}");
         }
-
         Ok(status)
     }
 
-    /// Convenience: run a tool in a specific directory.
+    /// Spawn a tool in a specific directory.
     pub fn run_in(&self, dir: &Path, program: &str, args: &[&str]) -> Result<ExitStatus> {
         let status = self
-            .cmd(program)
+            .cmd(program)?
             .args(args)
             .current_dir(dir)
             .status()
-            .with_context(|| format!("failed to run `{program}` in {}", dir.display()))?;
+            .with_context(|| format!("failed to start `{program}` in {}", dir.display()))?;
 
         if !status.success() {
             let code = status.code().unwrap_or(-1);
             anyhow::bail!("`{program}` exited with code {code}");
         }
-
         Ok(status)
     }
 }
@@ -108,12 +115,4 @@ fn find_workspace_root(start: &Path) -> Option<PathBuf> {
             return None;
         }
     }
-}
-
-/// Prepend `node_bin` to the system `PATH`.
-fn build_augmented_path(node_bin: &Path) -> std::ffi::OsString {
-    let system_path = env::var_os("PATH").unwrap_or_default();
-    let mut paths = vec![node_bin.to_path_buf()];
-    paths.extend(env::split_paths(&system_path));
-    env::join_paths(paths).unwrap_or(system_path)
 }

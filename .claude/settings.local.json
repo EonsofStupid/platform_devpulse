@@ -74,7 +74,8 @@
       "mcp__context7__query-docs",
       "WebFetch(domain:rust-unofficial.github.io)",
       "WebFetch(domain:www.sea-ql.org)",
-      "WebFetch(domain:tjmaynes.com)"
+      "WebFetch(domain:tjmaynes.com)",
+      "Read(//tmp/rro-check/**)"
     ]
   }
 }

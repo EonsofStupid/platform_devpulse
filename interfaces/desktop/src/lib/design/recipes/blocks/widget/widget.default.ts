@@ -33,7 +33,6 @@ registerRecipe({
 	classes: (props: DsSurfaceProps): Record<string, string> => ({
 		root: cn(
 			"flex flex-col overflow-hidden",
-			"v-s1 v-z2 v-b2",
 			"border border-border-soft",
 			radiusClass(props.radius),
 		),
@@ -41,11 +40,7 @@ registerRecipe({
 		title: "text-sm font-semibold text-text-primary",
 		actions: "flex items-center gap-2",
 		tabs: "flex items-center gap-1 px-4 border-b border-border-divider",
-		tab: cn(
-			"px-3 py-2 text-xs font-medium text-text-muted",
-			"hover:text-text-primary",
-			"v-t2 v-m1",
-		),
+		tab: "px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary",
 		content: "flex-1 p-4",
 		footer: "px-4 py-3 border-t border-border-divider",
 	}),

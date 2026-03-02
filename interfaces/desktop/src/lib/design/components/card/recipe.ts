@@ -1,29 +1,23 @@
 /**
- * @file Card Recipe
+ * @file Card Recipe — Structural Classes Only
  * @kind card
  * @layer components
  *
- * Props → Tailwind v4 utilities (structural) + variant keys (visual).
+ * Visual appearance flows through useColdLight(). Recipe = structural layout only.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
+import type { CardSize } from "./types.js";
 
-type CardRecipeProps = { variant?: string; size?: string };
+const SIZE_CLASSES: Record<CardSize, string> = {
+	sm: "p-3",
+	md: "p-4",
+	lg: "p-6",
+};
 
-export function cardRecipe(props: CardRecipeProps = {}): string {
-	const sizeMap: Record<string, string> = {
-		sm: "p-3",
-		md: "p-4",
-		lg: "p-6",
-	};
-	const variantMap: Record<string, string> = {
-		default: "v-s1 v-z1 v-l1 border border-border-soft",
-		elevated: "v-s3 v-z2 v-l2 border border-border-soft",
-		outlined: "v-s1 v-z0 border border-border-subtle",
-	};
+export function cardRecipe(size: CardSize = "md"): string {
 	return cn(
-		"rounded-lg",
-		variantMap[props.variant ?? "default"] ?? variantMap.default,
-		sizeMap[props.size ?? "md"] ?? sizeMap.md,
+		"block overflow-hidden",
+		SIZE_CLASSES[size] ?? SIZE_CLASSES.md,
 	);
 }

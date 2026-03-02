@@ -491,12 +491,13 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 		code: "m",
 		name: "Motion",
 		description:
-			"Ambient/idle animations. NO user interaction trigger. Always playing when visible.",
+			"Ambient/idle animations AND entry effects. Ambient = always playing. Entry = plays once on mount.",
 		encodingOrder: 6,
 		defaultIndex: 0,
 		vpbControl: "select",
 		values: [
 			{ index: 0, id: "none", label: "Static", tokenRefs: {} },
+			// ─ Ambient (infinite loop) ─
 			{
 				index: 1,
 				id: "breathe",
@@ -529,6 +530,39 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 					animation: "var(--animate-pulse)",
 				},
 			},
+			// ─ Entry (plays once) ─
+			{
+				index: 5,
+				id: "fade-in",
+				label: "Fade In",
+				tokenRefs: {
+					animation: "var(--animate-fade-in)",
+				},
+			},
+			{
+				index: 6,
+				id: "slide-up",
+				label: "Slide Up",
+				tokenRefs: {
+					animation: "var(--animate-slide-up)",
+				},
+			},
+			{
+				index: 7,
+				id: "slide-down",
+				label: "Slide Down",
+				tokenRefs: {
+					animation: "var(--animate-slide-down)",
+				},
+			},
+			{
+				index: 8,
+				id: "scale-in",
+				label: "Scale In",
+				tokenRefs: {
+					animation: "var(--animate-scale-in)",
+				},
+			},
 		],
 	},
 
@@ -537,7 +571,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 		code: "t",
 		name: "Transition",
 		description:
-			"User-triggered state changes: hover, focus, click, press. Duration + easing.",
+			"User-triggered state changes: hover, focus, click, press. Duration + easing + optional property scope.",
 		encodingOrder: 7,
 		defaultIndex: 0,
 		vpbControl: "select",
@@ -600,6 +634,34 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				tokenRefs: {
 					transition:
 						"all var(--transition-duration-smooth) var(--transition-timing-function-bounce)",
+				},
+			},
+			// ─ Scoped transitions (per-property) ─
+			{
+				index: 7,
+				id: "opacity-fast",
+				label: "Opacity Fast",
+				tokenRefs: {
+					transition:
+						"opacity var(--transition-duration-fast) var(--transition-timing-function-out)",
+				},
+			},
+			{
+				index: 8,
+				id: "transform-spring",
+				label: "Transform Spring",
+				tokenRefs: {
+					transition:
+						"transform var(--transition-duration-normal) var(--transition-timing-function-spring)",
+				},
+			},
+			{
+				index: 9,
+				id: "color-smooth",
+				label: "Color Smooth",
+				tokenRefs: {
+					transition:
+						"color var(--transition-duration-smooth) var(--transition-timing-function-inOut), background-color var(--transition-duration-smooth) var(--transition-timing-function-inOut)",
 				},
 			},
 		],

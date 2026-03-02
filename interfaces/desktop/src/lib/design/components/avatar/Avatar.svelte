@@ -3,27 +3,37 @@
 	@kind avatar
 	@layer components
 
-	ColdLight Avatar — renders HTML directly (no primitive .svelte exists).
-	- ARIA attributes (role="img", aria-label)
-	- State derivation (data-state: loading | loaded | error)
-	- SD5 token-driven recipe (size)
-	- Compound: root container + image + fallback
-
-	ColdLight OWNS all ARIA. No primitive wrapper — direct HTML rendering.
-	Manages image load state via onload/onerror events.
+	ColdLight Avatar — 8-axis visual system, direct HTML rendering.
+	ColdLight OWNS all ARIA. useColdLight() resolves visual props.
+	Compound: root + image + fallback.
 -->
 <script lang="ts">
 	import type { AvatarComponentProps } from "./types.js";
 	import type { AvatarLoadState } from "./types.js";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { avatarRootRecipe, avatarImageRecipe, avatarFallbackRecipe } from "./recipe.js";
 
 	let {
+		// Kind-specific props
 		src,
 		alt,
 		fallback = "",
 		size = "md",
 		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
+		// Rest spread
 		...rest
 	}: AvatarComponentProps = $props();
 
@@ -36,7 +46,14 @@
 	const showImage = $derived(src && loadState === "loaded");
 	const showFallback = $derived(!src || loadState !== "loaded");
 
-	const rootClasses = $derived(cn(avatarRootRecipe({ size }), className));
+	const visual = useColdLight(
+		() => ({
+			preset, surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius: radius ?? "full", size,
+		}),
+	);
+
+	const rootClasses = $derived(cn(avatarRootRecipe({ size }), visual.segments, visual.radius, className));
 	const imageClasses = $derived(cn(avatarImageRecipe()));
 	const fallbackClasses = $derived(cn(avatarFallbackRecipe()));
 
@@ -54,6 +71,7 @@
 	data-kind="avatar"
 	data-slot="root"
 	data-state={loadState}
+	data-encoding={visual.encoding || undefined}
 	class={rootClasses}
 	role="img"
 	aria-label={alt}

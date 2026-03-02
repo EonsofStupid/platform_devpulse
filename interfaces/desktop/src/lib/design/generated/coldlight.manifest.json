@@ -1,7 +1,7 @@
 {
 	"$schema": "coldlight/manifest",
 	"version": 1,
-	"generatedAt": "2026-03-01T03:14:57.464Z",
+	"generatedAt": "2026-03-02T05:05:58.646Z",
 	"pipeline": "sd5-dtcg-1.0",
 	"categories": [
 		{
@@ -543,11 +543,11 @@
 		{
 			"code": "m",
 			"name": "Motion",
-			"description": "Ambient/idle animations. NO user interaction trigger. Always playing when visible.",
+			"description": "Ambient/idle animations AND entry effects. Ambient = always playing. Entry = plays once on mount.",
 			"encodingOrder": 6,
 			"defaultIndex": 0,
 			"vpbControl": "select",
-			"valueCount": 5,
+			"valueCount": 9,
 			"values": [
 				{
 					"index": 0,
@@ -596,17 +596,57 @@
 					},
 					"requiredTokens": [],
 					"svgFilters": []
+				},
+				{
+					"index": 5,
+					"id": "fade-in",
+					"label": "Fade In",
+					"tokenRefs": {
+						"animation": "var(--animate-fade-in)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 6,
+					"id": "slide-up",
+					"label": "Slide Up",
+					"tokenRefs": {
+						"animation": "var(--animate-slide-up)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 7,
+					"id": "slide-down",
+					"label": "Slide Down",
+					"tokenRefs": {
+						"animation": "var(--animate-slide-down)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 8,
+					"id": "scale-in",
+					"label": "Scale In",
+					"tokenRefs": {
+						"animation": "var(--animate-scale-in)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
 				}
 			]
 		},
 		{
 			"code": "t",
 			"name": "Transition",
-			"description": "User-triggered state changes: hover, focus, click, press. Duration + easing.",
+			"description": "User-triggered state changes: hover, focus, click, press. Duration + easing + optional property scope.",
 			"encodingOrder": 7,
 			"defaultIndex": 0,
 			"vpbControl": "select",
-			"valueCount": 7,
+			"valueCount": 10,
 			"values": [
 				{
 					"index": 0,
@@ -677,6 +717,36 @@
 					},
 					"requiredTokens": [],
 					"svgFilters": []
+				},
+				{
+					"index": 7,
+					"id": "opacity-fast",
+					"label": "Opacity Fast",
+					"tokenRefs": {
+						"transition": "opacity var(--transition-duration-fast) var(--transition-timing-function-out)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 8,
+					"id": "transform-spring",
+					"label": "Transform Spring",
+					"tokenRefs": {
+						"transition": "transform var(--transition-duration-normal) var(--transition-timing-function-spring)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
+				},
+				{
+					"index": 9,
+					"id": "color-smooth",
+					"label": "Color Smooth",
+					"tokenRefs": {
+						"transition": "color var(--transition-duration-smooth) var(--transition-timing-function-inOut), background-color var(--transition-duration-smooth) var(--transition-timing-function-inOut)"
+					},
+					"requiredTokens": [],
+					"svgFilters": []
 				}
 			]
 		}
@@ -692,7 +762,7 @@
 			"m",
 			"t"
 		],
-		"totalValues": 52,
+		"totalValues": 59,
 		"format": "v-{code}{index}",
 		"example": "v-s0z0d0b0g0f0m0t0"
 	},
@@ -875,7 +945,7 @@
 	"generatedFiles": [
 		{
 			"file": "generated/variants.css",
-			"bytes": 5243
+			"bytes": 5802
 		},
 		{
 			"file": "generated/typography.css",

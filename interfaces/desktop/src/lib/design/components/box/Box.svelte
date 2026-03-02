@@ -11,6 +11,7 @@
 	import { createBox } from "$lib/design/api/adapters/coldlight/_internal/box/index.js";
 	import BoxRoot from "$lib/design/primitives/box/Box.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { boxRecipe } from "./recipe.js";
 
 	let {
@@ -19,11 +20,31 @@
 		as = "div",
 		children,
 		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		size,
 		...rest
 	}: BoxComponentProps = $props();
 
 	const builder = createBox();
-	const classes = $derived(cn(boxRecipe({ padding, radius }), className));
+
+	const visual = useColdLight(
+		() => ({
+			preset, surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, size,
+		}),
+	);
+
+	const classes = $derived(cn(boxRecipe({ padding, radius }), visual.segments, visual.radius, className));
 </script>
 
 <BoxRoot
@@ -31,6 +52,7 @@
 	{...rest}
 	{as}
 	class={classes}
+	data-encoding={visual.encoding || undefined}
 >
 	{@render children?.()}
 </BoxRoot>

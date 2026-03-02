@@ -11,6 +11,7 @@
 	import { createFlex } from "$lib/design/api/adapters/coldlight/_internal/flex/index.js";
 	import FlexRoot from "$lib/design/primitives/flex/Flex.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { flexRecipe } from "./recipe.js";
 
 	let {
@@ -22,11 +23,32 @@
 		as = "div",
 		children,
 		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition: coldTransition,
+		encoding,
+		radius,
+		size,
 		...rest
 	}: FlexComponentProps = $props();
 
 	const builder = createFlex();
-	const classes = $derived(cn(flexRecipe({ direction, wrap, gap, align, justify }), className));
+
+	const visual = useColdLight(
+		() => ({
+			preset, surface, material, depth, bevel, glow, frame, motion, transition: coldTransition,
+			encoding, radius, size,
+		}),
+	);
+
+	const classes = $derived(cn(flexRecipe({ direction, wrap, gap, align, justify }), visual.segments, visual.radius, className));
 </script>
 
 <FlexRoot
@@ -34,6 +56,7 @@
 	{...rest}
 	{as}
 	class={classes}
+	data-encoding={visual.encoding || undefined}
 >
 	{@render children?.()}
 </FlexRoot>

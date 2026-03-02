@@ -8,6 +8,7 @@
 -->
 <script lang="ts">
 	import { Send, Mic, Sparkles } from "lucide-svelte";
+	import { platformHealth } from "$lib/sys/runes/health.svelte.js";
 
 	interface ChatMessage {
 		id: string;
@@ -44,6 +45,7 @@
 	]);
 
 	let inputValue = $state("");
+	const canSend = $derived(platformHealth.isHealthy && inputValue.trim().length > 0);
 
 	function setActiveThread(id: string) {
 		threads = threads.map((t) => ({ ...t, active: t.id === id }));
@@ -90,6 +92,11 @@
 
 	<!-- Chat area -->
 	<div class="flex flex-1 flex-col">
+		{#if !platformHealth.isHealthy && platformHealth.initialized}
+			<div class="px-3 py-1.5 text-center text-xs" style="background: oklch(0.3 0.05 30 / 0.3); color: var(--signal-error); border-bottom: 1px solid var(--border-subtle);">
+				Platform {platformHealth.status.toLowerCase()} — some features may be unavailable
+			</div>
+		{/if}
 		<!-- Messages -->
 		<div class="flex-1 overflow-y-auto scrollbar-thin p-3">
 			<div class="flex flex-col gap-3">
@@ -136,9 +143,10 @@
 			/>
 			<button
 				class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
-				style="color: var(--color-teal-400); background: oklch(0.55 0.18 180 / 0.1); border: 1px solid oklch(0.55 0.18 180 / 0.2);"
+				style="color: var(--color-teal-400); background: oklch(0.55 0.18 180 / 0.1); border: 1px solid oklch(0.55 0.18 180 / 0.2); opacity: {canSend ? 1 : 0.4};"
 				onclick={sendMessage}
-				title="Send"
+				disabled={!canSend}
+				title={platformHealth.isHealthy ? "Send" : "Waiting for platform..."}
 			>
 				<Send size={14} />
 			</button>

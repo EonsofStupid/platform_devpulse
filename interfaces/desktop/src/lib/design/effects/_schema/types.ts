@@ -25,7 +25,9 @@ export const EFFECT_CATEGORIES = [
 	"glow",
 	"depth",
 	"bevel",
+	"frame",
 	"motion",
+	"transition",
 ] as const;
 
 export type EffectCategory = (typeof EFFECT_CATEGORIES)[number];

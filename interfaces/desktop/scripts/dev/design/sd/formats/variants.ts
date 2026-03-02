@@ -54,8 +54,10 @@ export function generateVariantsCSS(
 			const refs = Object.entries(value.tokenRefs);
 
 			if (refs.length === 0) {
+				// Tailwind v4 requires at least one property per @utility.
+				// Emit an inert custom property marker for "none/default" values.
 				lines.push(`@utility v-${cat.code}${value.index} {`);
-				lines.push(`\t/* ${value.label} — no CSS properties */`);
+				lines.push(`\t--v-${cat.code}: ${value.index};`);
 				lines.push("}");
 				continue;
 			}

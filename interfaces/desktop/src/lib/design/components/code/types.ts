@@ -10,11 +10,12 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 export type CodeLanguage = "typescript" | "javascript" | "rust" | "html" | "css" | "json" | "shell" | "text";
 
-/** Code component props — inline or block code display */
-export interface CodeComponentProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children">, BaseProps {
+/** Code component props — ColdLight 8-axis + code display */
+export interface CodeComponentProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children">, BaseProps, ColdLightProps {
 	children?: Snippet;
 	/** Render as inline <code> or block <pre><code> */
 	inline?: boolean;

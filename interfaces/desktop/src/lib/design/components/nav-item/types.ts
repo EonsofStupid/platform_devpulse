@@ -10,11 +10,12 @@
 import type { Snippet } from "svelte";
 import type { HTMLAnchorAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 export type NavItemSize = "sm" | "md" | "lg";
 
-/** NavItem component props -- ARIA + recipe + primitive */
-export interface NavItemComponentProps extends Omit<HTMLAnchorAttributes, "style" | "children">, BaseProps {
+/** NavItem component props — ColdLight 8-axis + ARIA + recipe */
+export interface NavItemComponentProps extends Omit<HTMLAnchorAttributes, "style" | "children">, BaseProps, ColdLightProps {
 	children?: Snippet;
 	/** Whether this item represents the current page */
 	active?: boolean;

@@ -1,35 +1,34 @@
 /**
- * @file Button Recipe — Shortcode Class Composition
+ * @file Button Recipe — Structural Classes Only
  * @kind action
  * @layer components
  *
- * GOLD STANDARD recipe — shortcode class composition system.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
  *
- * Class strategy:
- *   - Structural classes (btn, btn-{intent}) handle layout + accent + focus/disabled
- *   - Shortcode classes (v-*, s-*, e-*, sz-*) handle visual appearance
- *   - rounded-* for radius (allowed per gold standard)
- *   - NO raw Tailwind utilities in recipe output
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
+import type { ButtonSize } from "./types.js";
 
-type ButtonRecipeProps = { intent?: string; size?: string };
+const SIZE_CLASSES: Record<ButtonSize, string> = {
+	sm: "h-8 px-3 text-sm gap-1.5",
+	md: "h-10 px-4 text-sm gap-2",
+	lg: "h-12 px-6 text-base gap-2.5",
+};
 
-export function buttonRecipe(props: ButtonRecipeProps = {}): string {
-	const intentMap: Record<string, string> = {
-		primary: "btn btn-primary v-s1 v-d1 v-g6",
-		secondary: "btn btn-secondary v-s1",
-		ghost: "btn btn-ghost",
-		danger: "btn btn-danger v-s6 v-d1 v-g3",
-	};
-	const sizeMap: Record<string, string> = {
-		sm: "sz-sm rounded-md",
-		md: "sz-md rounded-lg",
-		lg: "sz-lg rounded-lg",
-	};
+/**
+ * Button structural recipe — layout + sizing + focus.
+ * Visual appearance is handled by useColdLight(), NOT by this recipe.
+ */
+export function buttonRecipe(size: ButtonSize = "md"): string {
 	return cn(
-		intentMap[props.intent ?? "primary"] ?? intentMap.primary,
-		sizeMap[props.size ?? "md"] ?? sizeMap.md,
+		"btn",
+		"inline-flex items-center justify-center font-medium",
+		"focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current",
+		"disabled:pointer-events-none disabled:opacity-50",
+		"cursor-pointer select-none",
+		SIZE_CLASSES[size] ?? SIZE_CLASSES.md,
 	);
 }

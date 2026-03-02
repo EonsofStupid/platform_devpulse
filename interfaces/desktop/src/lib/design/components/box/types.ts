@@ -10,12 +10,13 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 export type BoxPadding = "none" | "sm" | "md" | "lg" | "xl";
 export type BoxRadius = "none" | "sm" | "md" | "lg" | "full";
 
-/** Box component props — layout container with padding + radius */
-export interface BoxComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps {
+/** Box component props — layout container with padding + radius + ColdLight 8-axis */
+export interface BoxComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps, Omit<ColdLightProps, "radius"> {
 	children?: Snippet;
 	/** Padding variant */
 	padding?: BoxPadding;

@@ -4,7 +4,7 @@
  * Source: registry/token-categories.ts → TOKEN_CATEGORY_REGISTRY
  *
  * Categories: s, z, d, b, g, f, m, t (8 total)
- * Values: 52 total
+ * Values: 59 total
  */
 
 /* ── s: Surface — 8 values ── */
@@ -42,7 +42,7 @@
 
 /* ── z: Material — 10 values ── */
 @utility v-z0 {
-	/* None — no CSS properties */
+	--v-z: 0;
 }
 @utility v-z1 {
 	opacity: 0.85;
@@ -105,7 +105,7 @@
 
 /* ── b: Bevel — 5 values ── */
 @utility v-b0 {
-	/* Flat — no CSS properties */
+	--v-b: 0;
 }
 @utility v-b1 {
 	box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.06), inset 0 -1px 0 oklch(0 0 0 / 0.1);
@@ -125,7 +125,7 @@
 
 /* ── g: Glow — 7 values ── */
 @utility v-g0 {
-	/* None — no CSS properties */
+	--v-g: 0;
 }
 @utility v-g1 {
 	box-shadow: var(--shadow-glow-teal);
@@ -168,9 +168,9 @@
 	box-shadow: 0 0 8px oklch(from var(--color-teal-500) l c h / 0.15);
 }
 
-/* ── m: Motion — 5 values ── */
+/* ── m: Motion — 9 values ── */
 @utility v-m0 {
-	/* Static — no CSS properties */
+	--v-m: 0;
 }
 @utility v-m1 {
 	animation: var(--animate-breathe);
@@ -184,8 +184,20 @@
 @utility v-m4 {
 	animation: var(--animate-pulse);
 }
+@utility v-m5 {
+	animation: var(--animate-fade-in);
+}
+@utility v-m6 {
+	animation: var(--animate-slide-up);
+}
+@utility v-m7 {
+	animation: var(--animate-slide-down);
+}
+@utility v-m8 {
+	animation: var(--animate-scale-in);
+}
 
-/* ── t: Transition — 7 values ── */
+/* ── t: Transition — 10 values ── */
 @utility v-t0 {
 	transition: none;
 }
@@ -206,4 +218,13 @@
 }
 @utility v-t6 {
 	transition: all var(--transition-duration-smooth) var(--transition-timing-function-bounce);
+}
+@utility v-t7 {
+	transition: opacity var(--transition-duration-fast) var(--transition-timing-function-out);
+}
+@utility v-t8 {
+	transition: transform var(--transition-duration-normal) var(--transition-timing-function-spring);
+}
+@utility v-t9 {
+	transition: color var(--transition-duration-smooth) var(--transition-timing-function-inOut), background-color var(--transition-duration-smooth) var(--transition-timing-function-inOut);
 }

@@ -3,15 +3,16 @@
 	@kind input
 	@layer components
 
-	ColdLight Input — builder-driven component.
-	Builder owns ALL ARIA semantics. Component adds recipe classes.
-	Note: Input has NO children (self-closing element).
+	ColdLight Input — builder-driven, 8-axis visual system.
+	Builder owns ARIA. useColdLight() resolves visual props.
+	Default preset: input-default.
 -->
 <script lang="ts">
 	import type { InputComponentProps } from "./types.js";
 	import { createInput } from "$lib/design/api/adapters/coldlight/_internal/input/index.js";
 	import InputRoot from "$lib/design/primitives/input/Input.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { inputRecipe } from "./recipe.js";
 
 	let {
@@ -23,6 +24,17 @@
 		required: requiredProp = false,
 		onValueChange,
 		class: className,
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
 		...rest
 	}: InputComponentProps = $props();
 
@@ -35,11 +47,31 @@
 		onValueChange: (v: any) => onValueChange?.(v),
 	});
 
-	const classes = $derived(cn(inputRecipe({ size }), className));
+	const visual = useColdLight(
+		() => ({
+			preset: preset ?? "input-default",
+			surface,
+			material,
+			depth,
+			bevel,
+			glow,
+			frame,
+			motion,
+			transition,
+			encoding,
+			radius: radius ?? "md",
+			size,
+		}),
+	);
+
+	const classes = $derived(
+		cn(inputRecipe(size), visual.segments, visual.radius, className),
+	);
 </script>
 
 <InputRoot
 	{...builder.root}
 	{...rest}
 	class={classes}
+	data-encoding={visual.encoding || undefined}
 />

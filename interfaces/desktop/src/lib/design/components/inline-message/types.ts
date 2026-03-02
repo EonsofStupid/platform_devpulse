@@ -10,11 +10,12 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 export type InlineMessageTone = "info" | "success" | "warning" | "error" | "help";
 
-/** InlineMessage component props — ARIA + recipe + primitive */
-export interface InlineMessageComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps {
+/** InlineMessage component props — ColdLight 8-axis + ARIA + recipe */
+export interface InlineMessageComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps, ColdLightProps {
 	children?: Snippet;
 	/** Semantic tone — drives color + icon via recipe */
 	tone?: InlineMessageTone;

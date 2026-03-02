@@ -58,3 +58,21 @@ export {
 	CompilerOutputSchema,
 	CompiledActionSchema,
 } from "./_schema/schema.js";
+
+// ─── Category registrations (side-effect imports) ────────────────────────────
+// Each import registers its effects into the global registry.
+import "./categories/glass/index.js";
+import "./categories/glow/index.js";
+import "./categories/depth/index.js";
+import "./categories/bevel/index.js";
+import "./categories/frame/index.js";
+import "./categories/motion/index.js";
+import "./categories/transition/index.js";
+
+// ─── Bridge — encoding ↔ effects recommendation ─────────────────────────────
+export type { InteractivePreset } from "./bridge.js";
+export { recommendEffects, presetToComposedEffects } from "./bridge.js";
+
+// ─── Actions — JS-driven visual effects (Svelte 5 actions) ──────────────────
+export { intersectionReveal, type IntersectionRevealParams } from "./actions/intersection-reveal.js";
+export { glowTrack, type GlowTrackParams } from "./actions/glow-track.js";

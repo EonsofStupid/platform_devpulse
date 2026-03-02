@@ -10,11 +10,20 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 export type CalloutVariant = "info" | "success" | "warning" | "error" | "tip";
 
-/** Callout component props — ARIA + recipe + primitive */
-export interface CalloutComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps {
+export const CALLOUT_VARIANT_PRESETS: Record<CalloutVariant, string> = {
+	info: "callout-info",
+	success: "callout-info",
+	warning: "callout-warning",
+	error: "callout-warning",
+	tip: "callout-tip",
+};
+
+/** Callout component props — ColdLight 8-axis + ARIA + recipe */
+export interface CalloutComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps, ColdLightProps {
 	children?: Snippet;
 	/** Semantic variant — drives color + accent via recipe */
 	variant?: CalloutVariant;

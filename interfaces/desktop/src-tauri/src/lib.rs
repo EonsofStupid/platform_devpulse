@@ -6,7 +6,7 @@
 pub mod commands;
 pub mod state;
 
-use devpulse_engine::platform::Platform;
+use devpulse_engine::platform::{InitStatus, Platform};
 use state::AppState;
 use std::sync::Arc;
 use tauri::Manager;
@@ -26,27 +26,67 @@ pub fn run() {
                 .app_data_dir()
                 .expect("Failed to resolve app data dir");
 
+            eprintln!();
+            eprintln!("--- Platform Boot ---");
+            eprintln!("  data: {}", data_dir.display());
+
             // Boot platform on the tokio runtime
             let rt = tokio::runtime::Handle::current();
             let platform = rt.block_on(async {
                 Platform::boot(data_dir, |event| {
-                    // Log init events (will emit to frontend in launcher sprint)
-                    eprintln!(
-                        "[init] {} — {:?}{}",
-                        event.step,
-                        event.status,
-                        event
-                            .latency_ms
-                            .map(|ms| format!(" ({ms}ms)"))
-                            .unwrap_or_default()
-                    );
+                    let symbol = match event.status {
+                        InitStatus::Running => ">",
+                        InitStatus::Ok => "+",
+                        InitStatus::Error => "!",
+                        InitStatus::Skipped => "-",
+                    };
+                    let latency = event
+                        .latency_ms
+                        .map(|ms| format!("  {ms}ms"))
+                        .unwrap_or_default();
+                    let msg = event
+                        .message
+                        .as_deref()
+                        .map(|m| format!(" ({m})"))
+                        .unwrap_or_default();
+
+                    // Only print completion events (Ok/Error/Skipped), not Running
+                    if event.status != InitStatus::Running {
+                        eprintln!("  [{symbol}] {}{msg}{latency}", event.step);
+                    }
                 })
                 .await
             })?;
 
+            // Post-boot verification — ping all stores
+            eprintln!();
+            eprintln!("--- Verification ---");
+            let health = rt.block_on(platform.health());
+            for sub in &health.subsystems {
+                let latency = sub
+                    .latency_ms
+                    .map(|ms| format!("  {ms}ms"))
+                    .unwrap_or_default();
+                let symbol = if sub.status == devpulse_engine::platform::HealthStatus::Healthy {
+                    "+"
+                } else {
+                    "!"
+                };
+                eprintln!("  [{symbol}] {}{latency}", sub.name);
+            }
+            eprintln!(
+                "  Platform {:?} — {} store(s) verified",
+                health.status,
+                health.subsystems.len()
+            );
+
             app.manage(AppState {
                 platform: Arc::new(platform),
             });
+
+            eprintln!();
+            eprintln!("--- Ready ---");
+            eprintln!();
 
             Ok(())
         })

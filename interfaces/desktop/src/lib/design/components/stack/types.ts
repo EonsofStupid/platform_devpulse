@@ -10,12 +10,13 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 export type StackGap = "0" | "1" | "2" | "3" | "4" | "6" | "8" | "10" | "12";
 export type StackAlign = "start" | "center" | "end" | "stretch";
 
-/** Stack component props — vertical flex layout */
-export interface StackComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps {
+/** Stack component props — vertical flex layout + ColdLight 8-axis */
+export interface StackComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps, ColdLightProps {
 	children?: Snippet;
 	/** Gap between items */
 	gap?: StackGap;

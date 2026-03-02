@@ -10,12 +10,13 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 export type StickyTop = "0" | "1" | "2" | "4" | "8" | "16";
 export type StickyOffset = "none" | "sm" | "md" | "lg";
 
-/** Sticky component props — position sticky wrapper */
-export interface StickyComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps {
+/** Sticky component props — position sticky wrapper + ColdLight 8-axis */
+export interface StickyComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps, ColdLightProps {
 	children?: Snippet;
 	/** Top offset for sticky positioning */
 	top?: StickyTop;

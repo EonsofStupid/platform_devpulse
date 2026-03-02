@@ -5,18 +5,24 @@
   @package @devpulse/coldlight
 
   Compound block that composes header, tabs, content, and footer slots.
-  Uses recipe from registry via getRecipe() for visual treatment.
+  Uses recipe from registry for STRUCTURAL slot classes.
+  Uses useColdLight() for 8-axis VISUAL resolution on root.
   Renders with data-kind="widget" and data-slot per zone.
 
   Usage:
-    <Widget title="Stats" tabs={[{id: "overview", label: "Overview"}]} activeTab="overview">
+    <Widget title="Stats" preset="widget-stat">
       <p>Widget content here</p>
+    </Widget>
+
+    <Widget title="Chart" surface="glass-deep" depth="z2" glow="teal">
+      <ChartContent />
     </Widget>
 -->
 <script lang="ts">
 import type { WidgetProps } from "./types.js";
 import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
+import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import WidgetHeader from "./WidgetHeader.svelte";
 import WidgetTabs from "./WidgetTabs.svelte";
 import WidgetContent from "./WidgetContent.svelte";
@@ -33,8 +39,29 @@ let {
 	actions,
 	footer,
 	class: className,
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius = "lg",
 }: WidgetProps = $props();
 
+// ColdLight 8-axis resolution — visual treatment for root
+const visual = useColdLight(
+	() => ({
+		preset: preset ?? "widget-stat",
+		surface, material, depth, bevel, glow, frame, motion, transition,
+		encoding, radius, size,
+	}),
+);
+
+// Recipe — structural slot classes only
 const widgetRecipe = $derived(getRecipe(recipeId));
 const slots = $derived(
 	widgetRecipe?.classes({
@@ -47,12 +74,21 @@ const slots = $derived(
 		motion: "none",
 		transition: "none",
 		size,
-		radius: "lg",
+		radius: radius ?? "lg",
 	}) ?? {},
+);
+
+const rootClasses = $derived(
+	cn(slots.root, visual.segments, visual.radius, className),
 );
 </script>
 
-<div data-kind="widget" data-slot="root" class={cn(slots.root, className)}>
+<div
+	data-kind="widget"
+	data-slot="root"
+	data-encoding={visual.encoding || undefined}
+	class={rootClasses}
+>
 	{#if title || actions}
 		<WidgetHeader
 			{title}

@@ -15,6 +15,8 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Pre-flight checks: verify toolchain and dependencies.
+    Preflight,
     /// Start the full Tauri dev environment (desktop + engine).
     RunDev,
     /// Verify the setup: svelte-check + cargo check.
@@ -27,6 +29,7 @@ fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
+        Commands::Preflight => commands::preflight::run(),
         Commands::RunDev => commands::dev::run(),
         Commands::VerifyDogfood => commands::verify::run(),
         Commands::VerifyIpBoundary => commands::ip_boundary::run(),

@@ -1,35 +1,22 @@
 /**
- * @file Badge Recipe — Shortcode Class Composition
- * @kind display
+ * @file Badge Recipe — Structural Classes Only
+ * @kind badge
  * @layer components
- *
- * GOLD STANDARD recipe — shortcode class composition system.
- *
- * Class strategy:
- *   - Structural classes (badge, badge-{intent}) handle layout + accent
- *   - Shortcode classes (v-*, s-*, sz-*) handle visual appearance
- *   - NO raw Tailwind utilities in recipe output
  */
 
 import { cn } from "$lib/design/utils/cn.js";
+import type { BadgeSize } from "./types.js";
 
-type BadgeRecipeProps = { intent?: string; size?: string };
+const SIZE_CLASSES: Record<BadgeSize, string> = {
+	sm: "h-5 px-1.5 text-xs",
+	md: "h-6 px-2 text-xs",
+	lg: "h-7 px-2.5 text-sm",
+};
 
-export function badgeRecipe(props: BadgeRecipeProps = {}): string {
-	const sizeMap: Record<string, string> = {
-		sm: "sz-xs",
-		md: "sz-sm",
-		lg: "sz-md",
-	};
-	const intentMap: Record<string, string> = {
-		neutral: "badge v-s1",
-		primary: "badge badge-primary v-s1 v-g6",
-		success: "badge badge-success v-s4",
-		warning: "badge badge-warning v-s1 v-g3",
-		danger: "badge badge-danger v-s1 v-g3",
-	};
+export function badgeRecipe(size: BadgeSize = "md"): string {
 	return cn(
-		intentMap[props.intent ?? "neutral"] ?? intentMap.neutral,
-		sizeMap[props.size ?? "md"] ?? sizeMap.md,
+		"badge",
+		"inline-flex items-center justify-center font-medium whitespace-nowrap",
+		SIZE_CLASSES[size] ?? SIZE_CLASSES.md,
 	);
 }

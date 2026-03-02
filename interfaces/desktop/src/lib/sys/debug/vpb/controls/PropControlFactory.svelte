@@ -1,43 +1,63 @@
 <!--
-	@file PropControlFactory — Maps DsSurfaceProps fields to controls
+	@file PropControlFactory — Maps ColdLight 8-axis props to controls
 	@layer vpb
 
 	Entry point for the properties panel. Renders the correct control
-	for each DsSurfaceProps field.
+	for each category using SEMANTIC IDs from the resolved visual.
 
 	Uses TOKEN_CATEGORY_REGISTRY to generate controls for the 8 Preset
-	category indices (s, z, d, b, g, f, m, t), plus Size and Radius.
+	categories (surface, material, depth, bevel, glow, frame, motion, transition),
+	plus Size and Radius structural props.
+
+	Emits semantic field names ("surface", "glass-deep") NOT numeric codes ("s", 2).
 -->
 <script lang="ts">
-	import type { DsSurfaceProps } from "$lib/design/recipes/types.js";
-	import { TOKEN_CATEGORY_REGISTRY } from "$lib/design/registry/token-categories.js";
+	import {
+		TOKEN_CATEGORY_REGISTRY,
+		CODE_TO_NAME,
+		type Preset,
+	} from "$lib/design/registry/token-categories.js";
+	import type { ColdLightProps } from "$lib/design/registry/resolve-visual.js";
 	import SizeControl from "./SizeControl.svelte";
 	import RadiusControl from "./RadiusControl.svelte";
 
 	let {
 		props,
+		resolvedPreset,
 		onchange,
 	}: {
-		props: Partial<DsSurfaceProps>;
-		onchange: (key: string, value: unknown) => void;
+		/** Current ColdLight props being edited */
+		props: ColdLightProps;
+		/** Resolved preset from resolveVisual() — shows what's actually active */
+		resolvedPreset: Preset;
+		/** Callback: emits (fieldName, semanticId) e.g. ("surface", "glass-deep") */
+		onchange: (key: string, value: string) => void;
 	} = $props();
 
 	/** Sorted by encodingOrder so controls appear in a consistent order. */
 	const categories = TOKEN_CATEGORY_REGISTRY.toSorted(
 		(a, b) => a.encodingOrder - b.encodingOrder,
 	);
+
+	/** Get the current semantic ID for a category from the resolved preset. */
+	function getCurrentId(code: string): string {
+		const name = CODE_TO_NAME[code] as keyof Preset;
+		return resolvedPreset[name];
+	}
 </script>
 
 <div class="vpb-controls">
 	{#each categories as cat}
-		{@const code = cat.code as keyof DsSurfaceProps}
-		{@const current = (props[code] as number | undefined) ?? cat.defaultIndex}
+		{@const name = CODE_TO_NAME[cat.code]}
+		{@const currentId = getCurrentId(cat.code)}
+		{@const currentValue = cat.values.find((v) => v.id === currentId)}
 
 		{#if cat.vpbControl === "slider"}
+			{@const currentIndex = currentValue?.index ?? cat.defaultIndex}
 			<div class="vpb-ctrl">
 				<span class="vpb-ctrl__label">
 					{cat.name}
-					<span class="vpb-ctrl__val">{cat.values[current]?.label ?? current}</span>
+					<span class="vpb-ctrl__val">{currentValue?.label ?? currentId}</span>
 				</span>
 				<input
 					class="vpb-ctrl__slider"
@@ -45,28 +65,34 @@
 					min={0}
 					max={cat.values.length - 1}
 					step="1"
-					value={current}
-					oninput={(e) => onchange(cat.code, Number((e.target as HTMLInputElement).value))}
+					value={currentIndex}
+					oninput={(e) => {
+						const idx = Number((e.target as HTMLInputElement).value);
+						const v = cat.values[idx];
+						if (v && name) onchange(name, v.id);
+					}}
 				/>
 				<div class="vpb-ctrl__ticks">
 					{#each cat.values as v}
-						<span class="vpb-ctrl__tick" class:vpb-ctrl__tick--active={current === v.index}>
-							{v.index}
+						<span
+							class="vpb-ctrl__tick"
+							class:vpb-ctrl__tick--active={v.id === currentId}
+						>
+							{v.label.split(" ")[0]}
 						</span>
 					{/each}
 				</div>
 			</div>
 		{:else}
-			<!-- select / toggle / color-picker / curve-editor all render as select for now -->
 			<div class="vpb-ctrl">
 				<span class="vpb-ctrl__label">{cat.name}</span>
 				<div class="vpb-ctrl__seg">
 					{#each cat.values as v}
 						<button
 							class="vpb-ctrl__seg-btn"
-							class:vpb-ctrl__seg-btn--active={current === v.index}
-							onclick={() => onchange(cat.code, v.index)}
-							title={v.label}
+							class:vpb-ctrl__seg-btn--active={v.id === currentId}
+							onclick={() => { if (name) onchange(name, v.id); }}
+							title="{v.label} ({v.id})"
 						>{v.label}</button>
 					{/each}
 				</div>
@@ -74,7 +100,7 @@
 		{/if}
 	{/each}
 
-	<!-- Structural props (string tokens, not category indices) -->
+	<!-- Structural props (string tokens, not encoding categories) -->
 	<SizeControl value={props.size ?? "md"} onchange={(v) => onchange("size", v)} />
 	<RadiusControl value={props.radius ?? "md"} onchange={(v) => onchange("radius", v)} />
 </div>

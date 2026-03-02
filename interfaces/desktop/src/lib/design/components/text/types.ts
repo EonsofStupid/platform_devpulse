@@ -10,14 +10,15 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 export type TextSize = "xs" | "sm" | "base" | "lg" | "xl" | "2xl";
 export type TextWeight = "normal" | "medium" | "semibold" | "bold";
 export type TextColor = "primary" | "secondary" | "muted" | "accent" | "inherit";
 export type TextAs = "span" | "p" | "div" | "label" | "strong" | "em" | "small";
 
-/** Text component props — typography */
-export interface TextComponentProps extends Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children">, BaseProps {
+/** Text component props — ColdLight 8-axis + typography */
+export interface TextComponentProps extends Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children">, BaseProps, Omit<ColdLightProps, "size"> {
 	children?: Snippet;
 	/** Font size variant */
 	size?: TextSize;

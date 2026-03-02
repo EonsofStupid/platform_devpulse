@@ -47,3 +47,20 @@ export {
 	emitEncoding,
 	emitSegments,
 } from "./encoding.js";
+
+export {
+	resolveVisual,
+	resolveClasses,
+	ColdLightPropsSchema,
+	type ColdLightProps,
+	type ResolvedVisual,
+} from "./resolve-visual.js";
+
+export {
+	getPreset,
+	getPresetValues,
+	getPresetsForKind,
+	getAllPresets,
+	getPresetKinds,
+	type PresetDefinition,
+} from "./presets.js";

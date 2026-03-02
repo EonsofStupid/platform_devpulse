@@ -6,6 +6,7 @@
  */
 
 import type { Snippet } from "svelte";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 export type WidgetSize = "sm" | "md" | "lg";
 
@@ -14,11 +15,9 @@ export interface WidgetTab {
 	readonly label: string;
 }
 
-export interface WidgetProps {
+export interface WidgetProps extends ColdLightProps {
 	/** Widget title displayed in header. */
 	title?: string;
-	/** Size token — feeds sz-* shortcode. */
-	size?: WidgetSize;
 	/** Recipe ID override. @default "widget.glass.void" */
 	recipe?: string;
 	/** Tab definitions for chrome-style tab bar. */

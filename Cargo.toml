@@ -27,9 +27,9 @@ duckdb = { version = "1.1", features = ["bundled"] }
 surrealdb = { version = "2.6", default-features = false, features = ["kv-mem", "kv-surrealkv"] }
 moka = { version = "0.12", features = ["future"] }
 # fjall deferred — SurrealKV covers persistent KV; re-add if perf demands it
-wal = { git = "https://github.com/EonsofStupid/wal" }
-rro = { git = "https://github.com/EonsofStupid/rro" }
-tar-rs = { git = "https://github.com/EonsofStupid/tar-rs" }
+wal = { git = "https://github.com/EonsofStupid/wal", branch = "rro-alpha" }
+rro = { git = "https://github.com/EonsofStupid/rro", branch = "alpha" }
+tar-rs = { git = "https://github.com/EonsofStupid/tar-rs", branch = "rro-alpha" }
 
 # Error Handling
 anyhow = "1.0"
@@ -46,6 +46,7 @@ ort = "2.0"
 xshell = "0.2" # Shell scripting in Rust
 clap = { version = "4.5", features = ["derive"] } # CLI parsing
 cargo_metadata = "0.18" # Project introspection
+which = "7.0" # Cross-platform tool resolution (PATHEXT, symlinks)
 fs_extra = "1.3" # File manipulation
 
 [workspace.lints.clippy]

@@ -9,11 +9,12 @@
 
 import type { HTMLAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 export type SpacerSize = "auto" | "xs" | "sm" | "md" | "lg" | "xl";
 
-/** Spacer component props — flex spacer */
-export interface SpacerComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps {
+/** Spacer component props — flex spacer + ColdLight 8-axis */
+export interface SpacerComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps, Omit<ColdLightProps, "size"> {
 	/** Size variant — auto grows to fill, named sizes set fixed width/height */
 	size?: SpacerSize;
 }

@@ -12,11 +12,9 @@
   @since 1.0.0
 -->
 <script lang="ts">
-const status = {
-	connection: "online" as "online" | "offline" | "hybrid",
-	uptime: "12d 4h",
-	version: "0.1.0",
-};
+import { platformHealth } from "$lib/sys/runes/health.svelte.js";
+
+const APP_VERSION = "0.1.0";
 </script>
 
 <div class="flex w-full items-center justify-between" aria-label="System status">
@@ -25,14 +23,14 @@ const status = {
 			data-kind="badge"
 			data-slot="root"
 			class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs"
-			data-status={status.connection}
+			data-status={platformHealth.connectionStatus}
 		>
 			<span
 				class="status-dot h-2 w-2 rounded-full"
-				data-status={status.connection}
+				data-status={platformHealth.connectionStatus}
 				aria-hidden="true"
 			></span>
-			<span class="text-[var(--text-secondary)]">{status.connection}</span>
+			<span class="text-[var(--text-secondary)]">{platformHealth.connectionStatus}</span>
 		</span>
 	</div>
 
@@ -42,7 +40,7 @@ const status = {
 			data-slot="root"
 			class="inline-flex items-center rounded-full px-2 py-0.5 text-xs text-[var(--text-muted)]"
 		>
-			Uptime: {status.uptime}
+			Uptime: {platformHealth.uptimeFormatted}
 		</span>
 
 		<span
@@ -50,7 +48,7 @@ const status = {
 			data-slot="root"
 			class="inline-flex items-center rounded-full px-2 py-0.5 text-xs text-[var(--text-muted)]"
 		>
-			v{status.version}
+			v{APP_VERSION}
 		</span>
 	</div>
 </div>

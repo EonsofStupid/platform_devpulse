@@ -10,11 +10,12 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 export type KbdSize = "sm" | "md" | "lg";
 
-/** Kbd component props — keyboard shortcut display */
-export interface KbdComponentProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children">, BaseProps {
+/** Kbd component props — ColdLight 8-axis + keyboard shortcut display */
+export interface KbdComponentProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children">, BaseProps, ColdLightProps {
 	children?: Snippet;
 	/** Size variant */
 	size?: KbdSize;
