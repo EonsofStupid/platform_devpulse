@@ -1,14 +1,16 @@
 /**
- * @file NotificationCenter Recipe
+ * @file NotificationCenter Recipe — Structural Classes Only
  * @kind notification-center
  * @layer components
  *
- * Shortcode composition — structural + shortcode classes only.
- * Layout handled by notification-center-root @utility.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
+ *
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
 
 export function notificationCenterRecipe(): string {
-	return cn("notification-center-root", "v-s1 v-d2", "rounded-lg");
+	return cn("notification-center-root", "rounded-lg");
 }

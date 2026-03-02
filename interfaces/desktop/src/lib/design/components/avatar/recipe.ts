@@ -1,14 +1,12 @@
 /**
- * @file Avatar Recipe — Shortcode Class Composition
+ * @file Avatar Recipe — Structural Classes Only
  * @kind display
  * @layer components
  *
- * GOLD STANDARD recipe — shortcode class composition system.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
  *
- * Class strategy:
- *   - Structural classes (avatar-*) handle layout/positioning/sizing
- *   - Shortcode classes (v-*, s-*) handle visual appearance
- *   - NO raw Tailwind utilities in recipe output
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -23,7 +21,6 @@ export function avatarRootRecipe(props: AvatarRecipeProps = {}): string {
 	};
 	return cn(
 		"avatar-root",
-		"v-s1",
 		sizeMap[props.size ?? "md"] ?? sizeMap.md,
 	);
 }

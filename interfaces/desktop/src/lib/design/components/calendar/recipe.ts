@@ -1,14 +1,12 @@
 /**
- * @file Calendar Recipe — Shortcode Class Composition
+ * @file Calendar Recipe — Structural Classes Only
  * @kind compound
  * @layer components
  *
- * GOLD STANDARD recipe — shortcode class composition system.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
  *
- * Class strategy:
- *   - Structural classes (calendar-*) handle layout/positioning
- *   - Shortcode classes (v-*, s-*, e-*, sz-*) handle visual appearance
- *   - NO raw Tailwind utilities in recipe output
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -16,13 +14,14 @@ import { cn } from "$lib/design/utils/cn.js";
 type CalendarRecipeProps = { size?: string };
 
 export function calendarRecipe(props: CalendarRecipeProps = {}) {
-	const sizeClass = props.size === "sm" ? "sz-sm" : "sz-md";
+	const sizeClass = props.size === "sm" ? "p-3 text-sm" : "p-4 text-sm";
+	const cellSize = props.size === "sm" ? "text-xs" : "text-sm";
 	return {
-		root: cn("calendar-root", "v-s1 v-d1", sizeClass, "rounded-lg"),
+		root: cn("calendar-root", sizeClass, "rounded-lg"),
 		grid: "calendar-grid",
 		header: "calendar-header",
 		heading: "calendar-heading",
-		cell: cn("calendar-cell", sizeClass),
+		cell: cn("calendar-cell", cellSize),
 		headCell: "calendar-headcell",
 		nav: "calendar-nav",
 		navButton: "calendar-navbtn",

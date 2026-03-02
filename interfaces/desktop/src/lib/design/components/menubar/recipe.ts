@@ -1,10 +1,12 @@
 /**
- * @file Menubar Recipe
+ * @file Menubar Recipe — Structural Classes Only
  * @kind menubar
  * @layer components
  *
- * Shortcode composition — structural + shortcode classes only.
- * Layout handled by menubar-* @utility classes.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
+ *
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -13,9 +15,9 @@ type MenubarRecipeProps = { size?: string };
 
 export function menubarRecipe(props: MenubarRecipeProps = {}) {
 	return {
-		root: cn("menubar-root", "v-s1 v-d1", "rounded-md"),
+		root: cn("menubar-root", "rounded-md"),
 		trigger: cn("menubar-trigger"),
-		content: cn("menubar-content", "v-s1 v-d3", "rounded-md"),
+		content: cn("menubar-content", "rounded-md"),
 		item: cn("menubar-item"),
 		separator: cn("menubar-separator"),
 	};

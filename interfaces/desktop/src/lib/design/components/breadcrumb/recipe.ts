@@ -1,14 +1,12 @@
 /**
- * @file Breadcrumb Recipe — Shortcode Class Composition
+ * @file Breadcrumb Recipe — Structural Classes Only
  * @kind navigation
  * @layer components
  *
- * GOLD STANDARD recipe — shortcode class composition system.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
  *
- * Class strategy:
- *   - Structural class (breadcrumb) handles layout/positioning
- *   - sz-* shortcodes handle size scaling
- *   - NO raw Tailwind utilities in recipe output
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -17,9 +15,9 @@ type BreadcrumbRecipeProps = { size?: string };
 
 export function breadcrumbRecipe(props: BreadcrumbRecipeProps = {}): string {
 	const sizeMap: Record<string, string> = {
-		sm: "sz-xs",
-		md: "sz-sm",
-		lg: "sz-md",
+		sm: "text-xs",
+		md: "text-xs",
+		lg: "text-sm",
 	};
 	return cn(
 		"breadcrumb",

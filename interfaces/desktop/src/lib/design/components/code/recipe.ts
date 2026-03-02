@@ -1,14 +1,12 @@
 /**
- * @file Code Recipe — Shortcode Class Composition
+ * @file Code Recipe — Structural Classes Only
  * @kind visual
  * @layer components
  *
- * GOLD STANDARD recipe — shortcode class composition system.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
  *
- * Class strategy:
- *   - Structural classes (code-inline, code-block) handle layout/font/spacing
- *   - Shortcode classes (v-*, s-*, e-*) handle visual appearance (block only)
- *   - NO raw Tailwind utilities in recipe output
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 type CodeRecipeProps = { inline?: boolean };
@@ -17,5 +15,5 @@ export function codeRecipe(props: CodeRecipeProps = {}): string {
 	if (props.inline) {
 		return "code-inline";
 	}
-	return "code-block v-s1 v-d1";
+	return "code-block";
 }

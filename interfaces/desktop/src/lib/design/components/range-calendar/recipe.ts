@@ -1,14 +1,12 @@
 /**
- * @file RangeCalendar Recipe — Shortcode Composition
+ * @file RangeCalendar Recipe — Structural Classes Only
  * @kind range-calendar
  * @layer components
  *
- * GOLD STANDARD — structural classes + shortcode composition only.
- * NO raw Tailwind utilities in recipe output.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
  *
- * Structural classes (range-calendar-*) handle layout/positioning.
- * Root receives v-* s-* e-* for glass treatment.
- * Size via sz-* sets --recipe-font-size and --recipe-min-h for cells.
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -17,17 +15,26 @@ type RangeCalendarRecipeProps = { size?: string };
 
 export function rangeCalendarRecipe(props: RangeCalendarRecipeProps = {}) {
 	const size = props.size ?? "md";
+	const rootSize: Record<string, string> = {
+		sm: "p-3 text-sm",
+		md: "p-4 text-sm",
+		lg: "p-6 text-base",
+	};
+	const cellSize: Record<string, string> = {
+		sm: "text-xs",
+		md: "text-sm",
+		lg: "text-base",
+	};
 	return {
 		root: cn(
 			"range-calendar-root",
-			"v-s1 v-d1",
-			`sz-${size}`,
+			rootSize[size] ?? rootSize.md,
 			"rounded-lg",
 		),
 		grid: "range-calendar-grid",
 		header: "range-calendar-header",
 		heading: "range-calendar-heading",
-		cell: cn("range-calendar-cell", `sz-${size}`),
+		cell: cn("range-calendar-cell", cellSize[size] ?? cellSize.md),
 		headCell: "range-calendar-headcell",
 		navButton: "range-calendar-nav",
 	};

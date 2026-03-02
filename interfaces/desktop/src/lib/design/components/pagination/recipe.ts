@@ -1,19 +1,23 @@
 /**
- * @file Pagination Recipe — Shortcode Composition
+ * @file Pagination Recipe — Structural Classes Only
  * @kind pagination
  * @layer components
  *
- * GOLD STANDARD — structural classes + shortcode composition only.
- * NO raw Tailwind utilities in recipe output.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
  *
- * Structural classes (pagination-*) handle layout/positioning.
- * Shortcode classes (sz-*) set --recipe-* vars consumed by structural CSS.
- * Active page buttons receive v-* s-* e-* for visual treatment.
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
 
 type PaginationRecipeProps = { size?: string; active?: boolean };
+
+const SIZE_MAP: Record<string, string> = {
+	sm: "h-8 px-3 text-sm",
+	md: "h-10 px-4 text-sm",
+	lg: "h-12 px-6 text-base",
+};
 
 export function paginationRootRecipe(): string {
 	return "pagination-root";
@@ -23,8 +27,7 @@ export function paginationPageRecipe(props: PaginationRecipeProps = {}): string 
 	const size = props.size ?? "md";
 	return cn(
 		"pagination-page",
-		`sz-${size}`,
-		props.active ? "v-s1 v-d1 v-g6" : "",
+		SIZE_MAP[size] ?? SIZE_MAP.md,
 	);
 }
 
@@ -32,14 +35,19 @@ export function paginationNavRecipe(props: PaginationRecipeProps = {}): string {
 	const size = props.size ?? "md";
 	return cn(
 		"pagination-nav",
-		`sz-${size}`,
+		SIZE_MAP[size] ?? SIZE_MAP.md,
 	);
 }
 
 export function paginationEllipsisRecipe(props: PaginationRecipeProps = {}): string {
 	const size = props.size ?? "md";
+	const labelSize: Record<string, string> = {
+		sm: "text-xs",
+		md: "text-sm",
+		lg: "text-base",
+	};
 	return cn(
 		"pagination-ellipsis",
-		`sz-${size}`,
+		labelSize[size] ?? labelSize.md,
 	);
 }

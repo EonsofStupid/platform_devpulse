@@ -1,11 +1,12 @@
 /**
- * @file ToggleGroup Recipe
+ * @file ToggleGroup Recipe — Structural Classes Only
  * @kind toggle-group
  * @layer components
  *
- * Shortcode composition — structural + shortcode classes only.
- * Layout handled by toggle-group-root / toggle-group-item @utility classes
- * + orientation and size intent classes.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
+ *
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -19,7 +20,6 @@ export function toggleGroupRecipe(props: ToggleGroupRecipeProps = {}): string {
 		: "toggle-group-horizontal";
 	return cn(
 		"toggle-group-root",
-		"v-s1",
 		orientationClass,
 		"rounded-md",
 	);

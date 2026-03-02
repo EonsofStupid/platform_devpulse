@@ -1,10 +1,12 @@
 /**
- * @file Table Recipe
+ * @file Table Recipe — Structural Classes Only
  * @kind table
  * @layer components
  *
- * Shortcode composition — structural + shortcode classes only.
- * Layout handled by table-root @utility. Size via sz-* shortcodes.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
+ *
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -13,12 +15,12 @@ type TableRecipeProps = { size?: string; variant?: string };
 
 export function tableRecipe(props: TableRecipeProps = {}): string {
 	const sizeMap: Record<string, string> = {
-		sm: "sz-sm",
-		md: "sz-md",
-		lg: "sz-lg",
+		sm: "p-3 text-sm",
+		md: "p-4 text-sm",
+		lg: "p-6 text-base",
 	};
 	return cn(
 		"table-root",
-		sizeMap[props.size ?? "md"] ?? "sz-md",
+		sizeMap[props.size ?? "md"] ?? "p-4 text-sm",
 	);
 }

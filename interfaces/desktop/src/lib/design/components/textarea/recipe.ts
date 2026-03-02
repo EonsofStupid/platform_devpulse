@@ -1,10 +1,12 @@
 /**
- * @file Textarea Recipe
+ * @file Textarea Recipe — Structural Classes Only
  * @kind textarea
  * @layer components
  *
- * Shortcode composition — structural + shortcode classes only.
- * Layout handled by textarea-root @utility + textarea-{size} intent classes.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
+ *
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -15,7 +17,6 @@ export function textareaRecipe(props: TextareaRecipeProps = {}): string {
 	const sizeClass = `textarea-${props.size ?? "md"}`;
 	return cn(
 		"textarea-root",
-		"v-s1",
 		sizeClass,
 		"rounded-md",
 	);

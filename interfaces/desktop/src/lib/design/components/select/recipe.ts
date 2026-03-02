@@ -1,13 +1,12 @@
 /**
- * @file Select Recipe — Shortcode Composition
+ * @file Select Recipe — Structural Classes Only
  * @kind select
  * @layer components
  *
- * GOLD STANDARD — structural classes + shortcode composition only.
- * NO raw Tailwind utilities in recipe output.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
  *
- * Structural classes (select-*) handle layout/positioning.
- * Trigger and content receive v-* s-* e-* for glass surface treatment.
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -16,12 +15,10 @@ export function selectRecipe() {
 	return {
 		trigger: cn(
 			"select-trigger",
-			"v-s1",
 			"rounded-md",
 		),
 		content: cn(
 			"select-content",
-			"v-s1 v-d3",
 			"rounded-md",
 		),
 		item: "select-item",

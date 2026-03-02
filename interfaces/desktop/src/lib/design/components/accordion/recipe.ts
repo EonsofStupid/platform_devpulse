@@ -1,14 +1,12 @@
 /**
- * @file Accordion Recipe — Shortcode Class Composition
+ * @file Accordion Recipe — Structural Classes Only
  * @kind disclosure
  * @layer components
  *
- * GOLD STANDARD recipe — shortcode class composition system.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
  *
- * Class strategy:
- *   - Structural classes (accordion-*) handle layout/positioning
- *   - Shortcode classes (v-*, s-*, sz-*) handle visual appearance
- *   - NO raw Tailwind utilities in recipe output
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 export function accordionRecipe() {
@@ -16,7 +14,7 @@ export function accordionRecipe() {
 		root: "accordion-root",
 		item: "accordion-item",
 		heading: "",
-		trigger: "accordion-trigger sz-md",
-		content: "accordion-content sz-md",
+		trigger: "accordion-trigger h-10 px-4 text-sm",
+		content: "accordion-content p-4 text-sm",
 	};
 }

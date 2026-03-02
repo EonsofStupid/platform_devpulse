@@ -1,26 +1,29 @@
 /**
- * @file SearchInput Recipe — Shortcode Composition
+ * @file SearchInput Recipe — Structural Classes Only
  * @kind search-input
  * @layer components
  *
- * GOLD STANDARD — structural classes + shortcode composition only.
- * NO raw Tailwind utilities in recipe output.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
  *
- * Structural classes (search-input-*) handle layout/positioning.
- * Root receives v-* s-* e-* for glass surface treatment.
- * Size via sz-* sets --recipe-font-size, --recipe-icon-size, --recipe-padding-*.
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
 
 type SearchInputRecipeProps = { size?: string };
 
+const SIZE_MAP: Record<string, string> = {
+	sm: "h-8 px-3 text-sm",
+	md: "h-10 px-4 text-sm",
+	lg: "h-12 px-6 text-base",
+};
+
 export function searchInputRecipe(props: SearchInputRecipeProps = {}): string {
 	const size = props.size ?? "md";
 	return cn(
 		"search-input-root",
-		"v-s1",
-		`sz-${size}`,
+		SIZE_MAP[size] ?? SIZE_MAP.md,
 		"rounded-md",
 	);
 }
@@ -30,17 +33,9 @@ export function searchInputInputRecipe(): string {
 }
 
 export function searchInputIconRecipe(props: SearchInputRecipeProps = {}): string {
-	const size = props.size ?? "md";
-	return cn(
-		"search-input-icon",
-		`sz-${size}`,
-	);
+	return cn("search-input-icon");
 }
 
 export function searchInputClearRecipe(props: SearchInputRecipeProps = {}): string {
-	const size = props.size ?? "md";
-	return cn(
-		"search-input-clear",
-		`sz-${size}`,
-	);
+	return cn("search-input-clear");
 }

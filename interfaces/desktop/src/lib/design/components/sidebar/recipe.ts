@@ -1,14 +1,12 @@
 /**
- * @file Sidebar Recipe — Shortcode Composition
+ * @file Sidebar Recipe — Structural Classes Only
  * @kind sidebar
  * @layer components
  *
- * GOLD STANDARD — structural classes + shortcode composition only.
- * NO raw Tailwind utilities in recipe output.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
  *
- * Structural classes (sidebar-*) handle layout/positioning.
- * Root receives v-* s-* e-* for glass surface treatment.
- * Expanded/collapsed state via sidebar-expanded / sidebar-collapsed.
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -18,7 +16,6 @@ type SidebarRecipeProps = { size?: string; expanded?: boolean };
 export function sidebarRecipe(props: SidebarRecipeProps = {}): string {
 	return cn(
 		"sidebar-root",
-		"v-s1 v-d1",
 		props.expanded === false ? "sidebar-collapsed" : "sidebar-expanded",
 	);
 }

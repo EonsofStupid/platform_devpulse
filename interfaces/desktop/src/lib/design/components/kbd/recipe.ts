@@ -1,10 +1,12 @@
 /**
- * @file Kbd Recipe
+ * @file Kbd Recipe — Structural Classes Only
  * @kind kbd
  * @layer components
  *
- * Shortcode composition — structural + shortcode classes only.
- * Layout handled by kbd-root @utility. Size via sz-* shortcodes.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
+ *
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -13,9 +15,9 @@ type KbdRecipeProps = { size?: string };
 
 export function kbdRecipe(props: KbdRecipeProps = {}): string {
 	const sizeMap: Record<string, string> = {
-		sm: "sz-sm",
-		md: "sz-md",
-		lg: "sz-lg",
+		sm: "text-xs",
+		md: "text-sm",
+		lg: "text-base",
 	};
-	return cn("kbd-root", sizeMap[props.size ?? "md"] ?? "sz-md");
+	return cn("kbd-root", sizeMap[props.size ?? "md"] ?? "text-sm");
 }

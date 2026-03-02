@@ -1,10 +1,12 @@
 /**
- * @file List Recipe
+ * @file List Recipe — Structural Classes Only
  * @kind list
  * @layer components
  *
- * Shortcode composition — structural + shortcode classes only.
- * Layout handled by list-root @utility + list-spacing-* classes. Size via sz-*.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
+ *
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -13,9 +15,9 @@ type ListRecipeProps = { size?: string; variant?: string; spacing?: string };
 
 export function listRecipe(props: ListRecipeProps = {}): string {
 	const sizeMap: Record<string, string> = {
-		sm: "sz-sm",
-		md: "sz-md",
-		lg: "sz-lg",
+		sm: "p-3 text-sm",
+		md: "p-4 text-sm",
+		lg: "p-6 text-base",
 	};
 	const spacingMap: Record<string, string> = {
 		compact: "list-spacing-compact",
@@ -24,7 +26,7 @@ export function listRecipe(props: ListRecipeProps = {}): string {
 	};
 	return cn(
 		"list-root",
-		sizeMap[props.size ?? "md"] ?? "sz-md",
+		sizeMap[props.size ?? "md"] ?? "p-4 text-sm",
 		spacingMap[props.spacing ?? "default"] ?? "list-spacing-default",
 	);
 }

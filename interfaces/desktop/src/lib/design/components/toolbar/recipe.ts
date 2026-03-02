@@ -1,10 +1,12 @@
 /**
- * @file Toolbar Recipe
+ * @file Toolbar Recipe — Structural Classes Only
  * @kind toolbar
  * @layer components
  *
- * Shortcode composition — structural + shortcode classes only.
- * Layout handled by toolbar-root @utility + toolbar-horizontal / toolbar-vertical intent classes.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
+ *
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -17,7 +19,6 @@ export function toolbarRecipe(props: ToolbarRecipeProps = {}): string {
 		: "toolbar-horizontal";
 	return cn(
 		"toolbar-root",
-		"v-s1 v-d1",
 		orientationClass,
 		"rounded-md",
 	);

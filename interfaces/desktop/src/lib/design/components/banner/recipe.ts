@@ -1,24 +1,22 @@
 /**
- * @file Banner Recipe — Shortcode Class Composition
+ * @file Banner Recipe — Structural Classes Only
  * @kind feedback
  * @layer components
  *
- * GOLD STANDARD recipe — shortcode class composition system.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
  *
- * Class strategy:
- *   - Structural classes (banner, banner-{intent}) handle layout + accent
- *   - Shortcode classes (v-*, s-*, e-*) handle visual appearance
- *   - NO raw Tailwind utilities in recipe output
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 type BannerRecipeProps = { intent?: string };
 
 export function bannerRecipe(props: BannerRecipeProps = {}): string {
 	const intentMap: Record<string, string> = {
-		info: "banner banner-info v-s1",
-		success: "banner banner-success v-s4",
-		warning: "banner banner-warning v-s1 v-g3",
-		error: "banner banner-error v-s1 v-g3",
+		info: "banner banner-info",
+		success: "banner banner-success",
+		warning: "banner banner-warning",
+		error: "banner banner-error",
 	};
 	return intentMap[props.intent ?? "info"] ?? intentMap.info;
 }

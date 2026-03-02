@@ -1,27 +1,23 @@
 /**
- * @file AlertDialog Recipe — Shortcode Class Composition
+ * @file AlertDialog Recipe — Structural Classes Only
  * @kind overlay
  * @layer components
  *
- * GOLD STANDARD recipe — shortcode class composition system.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
  *
- * Class strategy:
- *   - Structural classes (dialog-*, alertdialog-*) handle layout/positioning
- *   - Shortcode classes (v-*, s-*, e-*, sz-*) handle visual appearance
- *   - NO raw Tailwind utilities in recipe output
- *
- * Reuses dialog-* structural classes for overlay/content/header/footer/title/description.
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 export function alertDialogRecipe() {
 	return {
 		overlay: "dialog-overlay",
-		content: "dialog-content v-s1 v-d3 sz-md rounded-lg",
+		content: "dialog-content p-4 text-sm rounded-lg",
 		header: "dialog-header",
 		footer: "dialog-footer",
 		title: "dialog-title",
 		description: "dialog-description",
-		action: "alertdialog-action v-s6 v-d1 v-g3 sz-md rounded-md",
-		cancel: "alertdialog-cancel v-s1 sz-md rounded-md",
+		action: "alertdialog-action h-10 px-4 text-sm rounded-md",
+		cancel: "alertdialog-cancel h-10 px-4 text-sm rounded-md",
 	};
 }

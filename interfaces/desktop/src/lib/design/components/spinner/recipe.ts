@@ -1,13 +1,12 @@
 /**
- * @file Spinner Recipe — Shortcode Composition
+ * @file Spinner Recipe — Structural Classes Only
  * @kind spinner
  * @layer components
  *
- * GOLD STANDARD — structural classes + shortcode composition only.
- * NO raw Tailwind utilities in recipe output.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
  *
- * Structural class (spinner-root) handles animation and sizing.
- * Size is controlled by sz-* shortcode classes which set --recipe-icon-size.
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -16,8 +15,13 @@ type SpinnerRecipeProps = { size?: string };
 
 export function spinnerRecipe(props: SpinnerRecipeProps = {}): string {
 	const size = props.size ?? "md";
+	const sizeMap: Record<string, string> = {
+		sm: "size-4",
+		md: "size-6",
+		lg: "size-8",
+	};
 	return cn(
 		"spinner-root",
-		`sz-${size}`,
+		sizeMap[size] ?? sizeMap.md,
 	);
 }

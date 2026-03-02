@@ -1,10 +1,12 @@
 /**
- * @file NavigationMenu Recipe
+ * @file NavigationMenu Recipe — Structural Classes Only
  * @kind navigation-menu
  * @layer components
  *
- * Shortcode composition — structural + shortcode classes only.
- * Layout handled by navmenu-* @utility classes.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
+ *
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -17,7 +19,7 @@ export function navigationMenuRecipe(props: NavigationMenuRecipeProps = {}) {
 		list: cn("navmenu-list"),
 		item: cn("navmenu-item"),
 		trigger: cn("navmenu-trigger"),
-		content: cn("navmenu-content", "v-s1 v-d3", "rounded-md"),
+		content: cn("navmenu-content", "rounded-md"),
 		link: cn("navmenu-link"),
 	};
 }

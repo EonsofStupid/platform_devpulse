@@ -1,10 +1,12 @@
 /**
- * @file Tooltip Recipe
+ * @file Tooltip Recipe — Structural Classes Only
  * @kind tooltip
  * @layer components
  *
- * Shortcode composition — structural + shortcode classes only.
- * Layout handled by tooltip-content / tooltip-arrow @utility classes.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
+ *
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -14,7 +16,6 @@ export function tooltipRecipe() {
 		trigger: "",
 		content: cn(
 			"tooltip-content",
-			"v-s1 v-d2",
 			"rounded-md",
 		),
 		arrow: "tooltip-arrow",

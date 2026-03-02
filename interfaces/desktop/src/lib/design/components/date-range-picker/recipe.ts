@@ -1,10 +1,12 @@
 /**
- * @file DateRangePicker Recipe
+ * @file DateRangePicker Recipe — Structural Classes Only
  * @kind compound
  * @layer components
  *
- * Shortcode class composition — ZERO raw Tailwind.
- * Structural classes: date-range-picker-trigger, date-range-picker-content
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
+ *
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -16,12 +18,12 @@ export function dateRangePickerRecipe(props: DateRangePickerRecipeProps = {}) {
 		root: "",
 		trigger: cn(
 			"date-range-picker-trigger",
-			"v-s1 sz-md",
+			"h-10 px-4 text-sm",
 			"rounded-md",
 		),
 		content: cn(
 			"date-range-picker-content",
-			"v-s1 v-d3",
+			"p-4 text-sm",
 			"rounded-lg",
 		),
 		calendar: "",

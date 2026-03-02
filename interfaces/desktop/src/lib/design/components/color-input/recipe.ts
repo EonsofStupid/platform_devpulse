@@ -1,11 +1,12 @@
 /**
- * @file ColorInput Recipe
+ * @file ColorInput Recipe — Structural Classes Only
  * @kind interactive
  * @layer components
  *
- * Shortcode class composition — ZERO raw Tailwind.
- * Structural classes: color-input-root, color-input-swatch, color-input-hidden, color-input-label
- * Size intent classes: color-input-swatch-{size}, color-input-label-{size}
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
+ *
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -14,9 +15,9 @@ type ColorInputRecipeProps = { size?: string };
 
 export function colorInputRecipe(props: ColorInputRecipeProps = {}): string {
 	const sizeMap: Record<string, string> = {
-		sm: "sz-sm",
-		md: "sz-md",
-		lg: "sz-lg",
+		sm: "h-8 px-3 text-sm",
+		md: "h-10 px-4 text-sm",
+		lg: "h-12 px-6 text-base",
 	};
 	return cn(
 		"color-input-root",

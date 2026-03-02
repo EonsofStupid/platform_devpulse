@@ -1,20 +1,16 @@
 /**
- * @file SkipLink Recipe — Shortcode Composition
+ * @file SkipLink Recipe — Structural Classes Only
  * @kind skip-link
  * @layer components
  *
- * GOLD STANDARD — structural classes + shortcode composition only.
- * NO raw Tailwind utilities in recipe output.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
  *
- * Structural class (skip-link-root) handles sr-only + focus reveal.
- * On focus, receives v-* s-* e-* for glass surface treatment.
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
 
 export function skipLinkRecipe(): string {
-	return cn(
-		"skip-link-root",
-		"v-s1 v-d2 v-g6",
-	);
+	return cn("skip-link-root");
 }

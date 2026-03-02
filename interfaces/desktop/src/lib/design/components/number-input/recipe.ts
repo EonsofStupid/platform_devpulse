@@ -1,10 +1,12 @@
 /**
- * @file NumberInput Recipe
+ * @file NumberInput Recipe — Structural Classes Only
  * @kind number-input
  * @layer components
  *
- * Shortcode composition — structural + shortcode classes only.
- * Layout handled by number-input-* @utility classes.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
+ *
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -19,7 +21,6 @@ export function numberInputRecipe(props: NumberInputRecipeProps = {}): string {
 	};
 	return cn(
 		"number-input-root",
-		"v-s1",
 		sizeMap[props.size ?? "md"] ?? "number-input-md",
 		"rounded-md",
 	);

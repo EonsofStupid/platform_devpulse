@@ -1,16 +1,12 @@
 /**
- * @file Sheet Recipe — Shortcode Composition
+ * @file Sheet Recipe — Structural Classes Only
  * @kind sheet
  * @layer components
  *
- * GOLD STANDARD — structural classes + shortcode composition only.
- * NO raw Tailwind utilities in recipe output.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
  *
- * Structural classes (sheet-*) handle layout/positioning.
- * Content receives v-* s-* e-* for glass surface treatment.
- * Side is controlled by sheet-{side} intent classes.
- * Size uses sheet-size-{size}-{axis} intent classes.
- * Overlay reuses dialog-overlay structural class.
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -36,7 +32,6 @@ export function sheetRecipe(props: SheetRecipeProps = {}): string {
 	const size = props.size ?? "md";
 	return cn(
 		"sheet-content",
-		"v-s1 v-d3",
 		SIDE_CLASS[side] ?? SIDE_CLASS.right,
 		sheetSizeClass(size, side),
 	);

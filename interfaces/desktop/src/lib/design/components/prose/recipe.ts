@@ -1,14 +1,12 @@
 /**
- * @file Prose Recipe — Shortcode Composition
+ * @file Prose Recipe — Structural Classes Only
  * @kind prose
  * @layer components
  *
- * GOLD STANDARD — structural classes + shortcode composition only.
- * NO raw Tailwind utilities in recipe output.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
  *
- * Structural class (prose-root) handles typography and nested elements.
- * Size is controlled by sz-* shortcode classes which set --recipe-font-size
- * consumed by prose-root.
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -16,7 +14,7 @@ import { cn } from "$lib/design/utils/cn.js";
 type ProseRecipeProps = { size?: string };
 
 export function proseRecipe(props: ProseRecipeProps = {}): string {
-	const size = props.size === "sm" ? "sz-sm" : props.size === "lg" ? "sz-lg" : "sz-md";
+	const size = props.size === "sm" ? "text-sm" : props.size === "lg" ? "text-base" : "text-sm";
 	return cn(
 		"prose-root",
 		size,

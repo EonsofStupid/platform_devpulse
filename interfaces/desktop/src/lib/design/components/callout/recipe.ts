@@ -1,14 +1,12 @@
 /**
- * @file Callout Recipe — Shortcode Class Composition
+ * @file Callout Recipe — Structural Classes Only
  * @kind visual
  * @layer components
  *
- * GOLD STANDARD recipe — shortcode class composition system.
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
  *
- * Class strategy:
- *   - Structural class (callout) handles layout/positioning
- *   - Shortcode classes (v-*, s-*, e-*) handle visual appearance
- *   - NO raw Tailwind utilities in recipe output
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -17,14 +15,14 @@ type CalloutRecipeProps = { variant?: string };
 
 export function calloutRecipe(props: CalloutRecipeProps = {}): string {
 	const variantMap: Record<string, string> = {
-		default: "v-s1",
-		info: "v-s1 v-g6",
-		warning: "v-s1 v-g3",
-		error: "v-s1 v-g3",
+		default: "callout-default",
+		info: "callout-info",
+		warning: "callout-warning",
+		error: "callout-error",
 	};
 	return cn(
 		"callout",
-		"sz-md",
+		"p-4 text-sm",
 		variantMap[props.variant ?? "default"] ?? variantMap.default,
 	);
 }

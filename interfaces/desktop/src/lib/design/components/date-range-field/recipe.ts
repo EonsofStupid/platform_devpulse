@@ -1,11 +1,12 @@
 /**
- * @file DateRangeField Recipe
+ * @file DateRangeField Recipe — Structural Classes Only
  * @kind compound
  * @layer components
  *
- * Shortcode class composition — ZERO raw Tailwind.
- * Structural classes: date-range-field-root, date-range-field-field,
- *   date-range-field-segment, date-range-field-literal, date-range-field-separator
+ * Visual appearance (surface, depth, glow, etc.) flows through
+ * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
+ *
+ * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -16,7 +17,6 @@ export function dateRangeFieldRecipe(props: DateRangeFieldRecipeProps = {}) {
 	return {
 		root: cn(
 			"date-range-field-root",
-			"v-s1",
 			"rounded-md",
 		),
 		field: cn("date-range-field-field"),
