@@ -14,6 +14,7 @@
 	import { createColorInput } from "$lib/design/api/adapters/coldlight/_internal/color-input/index.js";
 	import ColorInputRoot from "$lib/design/primitives/color-input/ColorInput.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import {
 		colorInputRecipe,
 		colorInputSwatchRecipe,
@@ -31,6 +32,19 @@
 		label,
 		children,
 		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
+		// Rest spread
 		...rest
 	}: ColorInputComponentProps = $props();
 
@@ -45,13 +59,31 @@
 		get "aria-describedby"() { return rest["aria-describedby"]; },
 	});
 
-	const rootClasses = $derived(cn(colorInputRecipe({ size }), className));
+	// Resolve ColdLight visual props
+	const visual = useColdLight(
+		() => ({
+			preset,
+			surface,
+			material,
+			depth,
+			bevel,
+			glow,
+			frame,
+			motion,
+			transition,
+			encoding,
+			radius,
+			size,
+		}),
+	);
+
+	const rootClasses = $derived(cn(colorInputRecipe({ size }), visual.segments, visual.radius, className));
 	const swatchClasses = $derived(cn(colorInputSwatchRecipe({ size })));
 	const inputClasses = $derived(cn(colorInputInputRecipe()));
 	const labelClasses = $derived(cn(colorInputLabelRecipe({ size })));
 </script>
 
-<ColorInputRoot {...builder.root} {...rest} class={rootClasses}>
+<ColorInputRoot {...builder.root} {...rest} class={rootClasses} data-encoding={visual.encoding || undefined}>
 	<div {...builder.swatch} class={swatchClasses}></div>
 	<input {...builder.input} class={inputClasses} />
 	{#if label}

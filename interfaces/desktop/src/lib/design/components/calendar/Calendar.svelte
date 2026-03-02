@@ -14,6 +14,7 @@
 	import { setCalendarContext, type CalendarContext } from "./context.js";
 	import { calendarRecipe } from "./recipe.js";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 
 	let {
 		value = undefined,
@@ -27,6 +28,19 @@
 		size = "md",
 		children,
 		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
+		// Rest spread
 		...rest
 	}: CalendarProps = $props();
 
@@ -108,16 +122,24 @@
 
 	setCalendarContext(ctx);
 
+	const visual = useColdLight(
+		() => ({
+			preset, surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius, size,
+		}),
+	);
+
 	const recipe = $derived(calendarRecipe({ size }));
 </script>
 
 <div
 	role="group"
 	aria-label="Calendar"
-	class={cn(recipe.root, className)}
+	class={cn(recipe.root, visual.segments, visual.radius, className)}
 	data-kind="calendar"
 	data-slot="root"
 	data-state={disabled ? "disabled" : undefined}
+	data-encoding={visual.encoding || undefined}
 	{...rest}
 >
 	{@render children?.()}

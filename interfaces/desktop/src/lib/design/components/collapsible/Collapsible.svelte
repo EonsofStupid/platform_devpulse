@@ -18,6 +18,7 @@
 	import { createCollapsibleTransport } from "$lib/design/api/adapters/meltui/_internal/collapsible/index.js";
 	import { setCollapsibleContext } from "./context.js";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 
 	let {
 		open = false,
@@ -25,6 +26,19 @@
 		disabled = false,
 		children,
 		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
+		size,
 		...rest
 	}: CollapsibleProps = $props();
 
@@ -35,13 +49,16 @@
 	});
 
 	setCollapsibleContext(transport);
+
+	const visual = useColdLight(() => ({ preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius, size }));
 </script>
 
 <div
-	class={cn(className)}
+	class={cn(visual.segments, visual.radius, className)}
 	data-kind="collapsible"
 	data-slot="root"
 	data-state={transport.states.open ? "open" : "closed"}
+	data-encoding={visual.encoding || undefined}
 	{...rest}
 >
 	{@render children?.()}

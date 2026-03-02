@@ -13,9 +13,10 @@ import type {
 	HTMLButtonAttributes,
 	HTMLDialogAttributes,
 } from "svelte/elements";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 /** Dialog root props — creates adapter and provides context */
-export interface DialogProps {
+export interface DialogProps extends ColdLightProps {
 	/** Whether the dialog is open */
 	open?: boolean;
 	/** Callback when open state changes */

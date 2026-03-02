@@ -12,6 +12,7 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 // =============================================================================
 // SIZE
@@ -26,7 +27,8 @@ export type Size = "sm" | "md" | "lg";
 /** Calendar root props — creates context and manages state */
 export interface CalendarProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps {
+		BaseProps,
+		ColdLightProps {
 	children?: Snippet;
 	/** Currently selected date */
 	value?: Date | undefined;

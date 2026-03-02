@@ -217,8 +217,12 @@ function isContractShape(x: unknown): x is PrimitiveContract {
 
 /**
  * Convert a PrimitiveContract to a ManifestPrimitive for JSON serialization.
+ * @param status  Implementation status: "complete" | "contract-only" | "no-contract"
  */
-function contractToManifest(contract: PrimitiveContract): ManifestPrimitive {
+function contractToManifest(
+	contract: PrimitiveContract,
+	status: ManifestPrimitive["status"],
+): ManifestPrimitive {
 	const slotStates: ManifestPrimitive["slotStates"] = {};
 	const allSlots = [...contract.slots.required, ...contract.slots.optional];
 	allSlots.forEach((slot) => {
@@ -238,6 +242,7 @@ function contractToManifest(contract: PrimitiveContract): ManifestPrimitive {
 
 	return {
 		kind: contract.kind,
+		status,
 		ariaStateProvider: contract.ariaStateProvider,
 		slots: {
 			required: [...contract.slots.required],
@@ -751,7 +756,9 @@ export async function scanColdLight(
 				}
 			}
 
-			manifestPrimitiveKinds.push(contractToManifest(contract));
+			manifestPrimitiveKinds.push(
+				contractToManifest(contract, parityResult.hasParity ? "complete" : "contract-only"),
+			);
 		}
 	}
 
@@ -809,10 +816,41 @@ export async function scanColdLight(
 	// ASSEMBLE UNIFIED MANIFEST
 	// =========================================================================
 
+	// =========================================================================
+	// ERROR CLASSIFICATION — separate parity from fatal contract errors
+	// =========================================================================
+
+	const PARITY_CODES = new Set(["PARITY_MISSING_FOLDER"]);
+	const CONTRACT_CODES = new Set([
+		"CONTRACT_LOAD_FAILED",
+		"CONTRACT_INVALID",
+		"COMPONENT_CONTRACT_LOAD_FAILED",
+		"COMPONENT_CONTRACT_INVALID",
+	]);
+
+	const parityErrors = errors.filter((e) => PARITY_CODES.has(e.code));
+	const contractErrors = errors.filter((e) => CONTRACT_CODES.has(e.code));
 	const valid = errors.length === 0;
 
-	if (!valid && config.enforcement.failOnParity) {
+	// Parity errors block manifest ONLY if failOnParity is true
+	if (parityErrors.length > 0 && config.enforcement.failOnParity) {
 		return { valid: false, primitives, components: componentResults, errors, manifest: null };
+	}
+
+	// Contract-load errors are truly fatal — corrupt SSOT
+	if (contractErrors.length > 0 && config.enforcement.failOnContractLoad) {
+		return { valid: false, primitives, components: componentResults, errors, manifest: null };
+	}
+
+	// Log parity warnings when warnOnParity is enabled
+	if (parityErrors.length > 0 && config.enforcement.warnOnParity) {
+		const complete = manifestPrimitiveKinds.filter((p) => p.status === "complete").length;
+		const contractOnly = manifestPrimitiveKinds.filter((p) => p.status === "contract-only").length;
+		console.warn(
+			`[ColdLight] Scanner: ${manifestPrimitiveKinds.length} primitives ` +
+			`(${complete} complete, ${contractOnly} contract-only). ` +
+			`${parityErrors.length} parity warnings.`,
+		);
 	}
 
 	const manifest: ColdLightManifest = {
@@ -840,10 +878,6 @@ export async function scanColdLight(
 			recipes: { entries: manifestRecipes },
 		},
 	};
-
-	if (!valid && config.enforcement.failOnContractLoad) {
-		return { valid: false, primitives, components: componentResults, errors, manifest: null };
-	}
 
 	return { valid, primitives, components: componentResults, errors, manifest };
 }

@@ -14,6 +14,7 @@
 	import { createToggleGroup } from "$lib/design/api/adapters/coldlight/_internal/toggle-group/index.js";
 	import ToggleGroupRoot from "$lib/design/primitives/toggle-group/ToggleGroup.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { toggleGroupRecipe, toggleGroupItemRecipe } from "./recipe.js";
 
 	let {
@@ -27,6 +28,19 @@
 		loop = true,
 		children,
 		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
+		// Rest spread
 		...rest
 	}: ToggleGroupComponentProps = $props();
 
@@ -39,11 +53,18 @@
 		loop: () => loop,
 	});
 
-	const rootClasses = $derived(cn(toggleGroupRecipe({ size, orientation }), className));
+	const visual = useColdLight(
+		() => ({
+			preset, surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius, size,
+		}),
+	);
+
+	const rootClasses = $derived(cn(toggleGroupRecipe({ size, orientation }), visual.segments, visual.radius, className));
 	const itemClasses = $derived(cn(toggleGroupItemRecipe({ size })));
 </script>
 
-<ToggleGroupRoot {...builder.root} {...rest} class={rootClasses}>
+<ToggleGroupRoot {...builder.root} {...rest} class={rootClasses} data-encoding={visual.encoding || undefined}>
 	{#each items as item (item.value)}
 		<button {...builder.getItem(item.value, item.disabled)} class={itemClasses}>
 			{item.label}

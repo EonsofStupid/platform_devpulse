@@ -2,7 +2,7 @@
  * @file builders/_internal/builder-metadata.test.ts
  * @package @devpulse/coldlight
  *
- * GOLD STANDARD — ColdLight builder utility tests.
+ * ColdLight builder utility tests.
  *
  * Tests every public export from builder-metadata.ts:
  *   createBuilderMetadata — data attr factory, CSS selectors, ID generation
@@ -31,7 +31,7 @@ import {
 } from "./builder-metadata.js";
 
 // =============================================================================
-// createId — unique ID generation
+// createId — standalone unique ID generation
 // =============================================================================
 
 describe("createId", () => {
@@ -266,20 +266,31 @@ describe("createBuilderMetadata", () => {
 		document.body.removeChild(container);
 	});
 
-	// --- createIds: unique IDs per instance ---
+	// --- createIds: kind-scoped structured IDs ---
 
-	test("createIds returns unique IDs for each part", () => {
+	test("createIds returns kind-scoped IDs: cl-{name}-{part}-{instance}", () => {
 		const meta = createBuilderMetadata("test", ["root", "item"] as const);
 		const ids = meta.createIds();
-		expect(ids.root).toMatch(/^cl-\d+$/);
-		expect(ids.item).toMatch(/^cl-\d+$/);
-		expect(ids.root).not.toBe(ids.item);
+		expect(ids.root).toBe("cl-test-root-0");
+		expect(ids.item).toBe("cl-test-item-0");
 	});
 
-	test("createIds produces different IDs per call (per instance)", () => {
+	test("all slots in one createIds call share the same instance number", () => {
+		const meta = createBuilderMetadata("dialog", ["root", "trigger", "content", "overlay"] as const);
+		const ids = meta.createIds();
+		// All should end with -0 (same instance)
+		expect(ids.root).toBe("cl-dialog-root-0");
+		expect(ids.trigger).toBe("cl-dialog-trigger-0");
+		expect(ids.content).toBe("cl-dialog-content-0");
+		expect(ids.overlay).toBe("cl-dialog-overlay-0");
+	});
+
+	test("createIds produces different instance numbers per call", () => {
 		const meta = createBuilderMetadata("test", ["root"] as const);
 		const ids1 = meta.createIds();
 		const ids2 = meta.createIds();
+		expect(ids1.root).toBe("cl-test-root-0");
+		expect(ids2.root).toBe("cl-test-root-1");
 		expect(ids1.root).not.toBe(ids2.root);
 	});
 
@@ -288,7 +299,36 @@ describe("createBuilderMetadata", () => {
 		const meta2 = createBuilderMetadata("widget-b", ["root"] as const);
 		const ids1 = meta1.createIds();
 		const ids2 = meta2.createIds();
+		// Different builder name AND different instance number
+		expect(ids1.root).toBe("cl-widget-a-root-0");
+		expect(ids2.root).toBe("cl-widget-b-root-1");
 		expect(ids1.root).not.toBe(ids2.root);
+	});
+
+	test("IDs include kind name for debugging", () => {
+		const meta = createBuilderMetadata("toggle-group", ["root", "item"] as const);
+		const ids = meta.createIds();
+		expect(ids.root).toContain("toggle-group");
+		expect(ids.item).toContain("toggle-group");
+	});
+
+	test("IDs include slot name for debugging", () => {
+		const meta = createBuilderMetadata("menu", ["root", "trigger", "content"] as const);
+		const ids = meta.createIds();
+		expect(ids.root).toContain("root");
+		expect(ids.trigger).toContain("trigger");
+		expect(ids.content).toContain("content");
+	});
+
+	test("never produces duplicate IDs across many instances", () => {
+		const meta = createBuilderMetadata("stress", ["root", "item"] as const);
+		const allIds = new Set<string>();
+		for (let i = 0; i < 500; i++) {
+			const ids = meta.createIds();
+			allIds.add(ids.root);
+			allIds.add(ids.item);
+		}
+		expect(allIds.size).toBe(1000);
 	});
 
 	// --- Readonly enforcement ---
@@ -344,6 +384,10 @@ describe("createBuilderMetadata", () => {
 
 		const items = document.querySelectorAll(meta.dataSelectors.item);
 		expect(items.length).toBe(2);
+
+		// Verify: IDs are structured and debuggable
+		expect(ids.root).toMatch(/^cl-toggle-group-root-\d+$/);
+		expect(ids.item).toMatch(/^cl-toggle-group-item-\d+$/);
 
 		// Verify: filter disabled items (common builder pattern)
 		item2.setAttribute("data-disabled", "");

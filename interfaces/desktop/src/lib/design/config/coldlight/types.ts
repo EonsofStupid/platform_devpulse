@@ -16,11 +16,12 @@ export type SystemId = "coldlight";
 export type CategoryId = "primitives" | "components" | "effects" | "svg" | "composites";
 
 /**
- * ARIA state provider — who handles ARIA attributes for a primitive.
- * "coldlight" = ColdLight owns ARIA directly (DEFAULT).
- * "meltui" = MeltUI adapter handles ARIA (exception only, must be justified).
+ * ARIA state provider — SSOT is primitives/_schema/types.ts
+ * (derived from config/coldlight/vocabularies.cfg.ts).
+ * Imported and re-exported for config type consumption.
  */
-export type AriaStateProvider = "coldlight" | "meltui";
+import type { AriaStateProvider } from "../../primitives/_schema/types.js";
+export type { AriaStateProvider };
 
 /**
  * Design-system adapter identifier.
@@ -92,8 +93,9 @@ export type ColdLightConfig = Readonly<{
 
 	enforcement: Readonly<{
 		mode: "strict";
-		failOnParity: true;
-		failOnContractLoad: true;
+		failOnParity: boolean;
+		failOnContractLoad: boolean;
+		warnOnParity: boolean;
 		lefthook: Readonly<{
 			enabled: boolean;
 			verifyCmd: string;
@@ -105,6 +107,7 @@ export type ColdLightConfig = Readonly<{
 		slot: "data-slot";
 		state: "data-state";
 		id: "data-id";
+		variant: "data-variant";
 	}>;
 
 	/** Testing configuration — enforced by scanner and CI */

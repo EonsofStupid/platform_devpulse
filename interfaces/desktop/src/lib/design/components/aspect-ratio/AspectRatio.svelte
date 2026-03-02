@@ -12,6 +12,7 @@
 	import { createAspectRatio } from "$lib/design/api/adapters/coldlight/_internal/aspect-ratio/index.js";
 	import AspectRatioRoot from "$lib/design/primitives/aspect-ratio/AspectRatio.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { aspectRatioRecipe } from "./recipe.js";
 
 	const presetRatios = {
@@ -27,18 +28,39 @@
 		preset = "video",
 		children,
 		class: className,
+		// ColdLight 8-axis props (preset omitted — used for aspect ratio)
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
+		size,
 		...rest
 	}: AspectRatioComponentProps = $props();
 
 	const resolvedRatio = $derived(ratio ?? presetRatios[preset]);
 	const builder = createAspectRatio({ ratio: () => resolvedRatio });
-	const classes = $derived(cn(aspectRatioRecipe(), className));
+
+	const visual = useColdLight(
+		() => ({
+			surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius, size,
+		}),
+	);
+
+	const classes = $derived(cn(aspectRatioRecipe(), visual.segments, visual.radius, className));
 </script>
 
 <AspectRatioRoot
 	{...builder.root}
 	{...rest}
 	class={classes}
+	data-encoding={visual.encoding || undefined}
 >
 	{@render children?.()}
 </AspectRatioRoot>

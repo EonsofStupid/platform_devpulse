@@ -10,6 +10,7 @@
 	import { createSidebar } from "$lib/design/api/adapters/coldlight/_internal/sidebar/index.js";
 	import SidebarRoot from "$lib/design/primitives/sidebar/Sidebar.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { sidebarRecipe } from "./recipe.js";
 
 	let {
@@ -21,6 +22,18 @@
 		footer,
 		children,
 		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
 		...rest
 	}: SidebarComponentProps = $props();
 
@@ -30,10 +43,17 @@
 		get label() { return label; },
 	});
 
-	const classes = $derived(cn(sidebarRecipe({ size, expanded: builder.expanded }), className));
+	const visual = useColdLight(
+		() => ({
+			preset, surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius, size,
+		}),
+	);
+
+	const classes = $derived(cn(sidebarRecipe({ size, expanded: builder.expanded }), visual.segments, visual.radius, className));
 </script>
 
-<SidebarRoot {...builder.root} {...rest} class={classes}>
+<SidebarRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>
 	{#if header}
 		<div {...builder.header} data-kind="sidebar" data-slot="header">
 			{@render header()}

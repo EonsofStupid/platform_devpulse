@@ -75,7 +75,9 @@
       "WebFetch(domain:rust-unofficial.github.io)",
       "WebFetch(domain:www.sea-ql.org)",
       "WebFetch(domain:tjmaynes.com)",
-      "Read(//tmp/rro-check/**)"
+      "Read(//tmp/rro-check/**)",
+      "WebFetch(domain:ui.shadcn.com)",
+      "WebFetch(domain:zagjs.com)"
     ]
   }
 }

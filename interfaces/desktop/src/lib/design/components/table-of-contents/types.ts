@@ -10,11 +10,12 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 export type TableOfContentsSize = "sm" | "md" | "lg";
 
-/** TableOfContents component props -- ARIA + recipe + primitive */
-export interface TableOfContentsComponentProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children">, BaseProps {
+/** TableOfContents component props -- ColdLight 8-axis + ARIA + recipe + primitive */
+export interface TableOfContentsComponentProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children">, BaseProps, ColdLightProps {
 	children?: Snippet;
 	/** Accessible label for the table of contents nav. @default "Table of contents" */
 	label?: string;

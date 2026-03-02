@@ -13,6 +13,7 @@
 	import { createForm } from "$lib/design/api/adapters/coldlight/_internal/form/index.js";
 	import FormRoot from "$lib/design/primitives/form/Form.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { formRecipe } from "./recipe.js";
 
 	let {
@@ -24,6 +25,19 @@
 		onReset,
 		children,
 		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
+		// Rest spread
 		...rest
 	}: FormComponentProps = $props();
 
@@ -35,9 +49,27 @@
 		onReset: () => onReset?.(),
 	});
 
-	const classes = $derived(cn(formRecipe({ size }), className));
+	// Resolve ColdLight visual props
+	const visual = useColdLight(
+		() => ({
+			preset,
+			surface,
+			material,
+			depth,
+			bevel,
+			glow,
+			frame,
+			motion,
+			transition,
+			encoding,
+			radius,
+			size,
+		}),
+	);
+
+	const classes = $derived(cn(formRecipe({ size }), visual.segments, visual.radius, className));
 </script>
 
-<FormRoot {...builder.root} {...rest} class={classes}>
+<FormRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>
 	{@render children?.()}
 </FormRoot>

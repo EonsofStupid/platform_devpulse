@@ -11,6 +11,7 @@
 	import { createSticky } from "$lib/design/api/adapters/coldlight/_internal/sticky/index.js";
 	import StickyRoot from "$lib/design/primitives/sticky/Sticky.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { stickyRecipe } from "./recipe.js";
 
 	let {
@@ -18,17 +19,39 @@
 		offset = "none",
 		children,
 		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
+		size,
 		...rest
 	}: StickyComponentProps = $props();
 
 	const builder = createSticky();
-	const classes = $derived(cn(stickyRecipe({ top, offset }), className));
+
+	const visual = useColdLight(
+		() => ({
+			preset, surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius, size,
+		}),
+	);
+
+	const classes = $derived(cn(stickyRecipe({ top, offset }), visual.segments, visual.radius, className));
 </script>
 
 <StickyRoot
 	{...builder.root}
 	{...rest}
 	class={classes}
+	data-encoding={visual.encoding || undefined}
 >
 	{@render children?.()}
 </StickyRoot>

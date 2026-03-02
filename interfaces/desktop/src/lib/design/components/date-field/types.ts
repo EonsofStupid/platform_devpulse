@@ -12,6 +12,7 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 // =============================================================================
 // SIZE
@@ -48,7 +49,8 @@ export interface DateSegment {
 /** DateField root props — manages segmented date input state */
 export interface DateFieldProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps {
+		BaseProps,
+		ColdLightProps {
 	children?: Snippet;
 	/** Current date value */
 	value?: Date | undefined;

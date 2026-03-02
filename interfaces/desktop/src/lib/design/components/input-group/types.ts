@@ -10,11 +10,12 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 export type InputGroupSize = "sm" | "md" | "lg";
 
 /** InputGroup component props — builder state + recipe + primitive */
-export interface InputGroupComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "prefix" | "suffix">, BaseProps {
+export interface InputGroupComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "prefix" | "suffix">, BaseProps, ColdLightProps {
 	/** Main content slot (typically an input element) */
 	children?: Snippet;
 	/** Prefix addon content */

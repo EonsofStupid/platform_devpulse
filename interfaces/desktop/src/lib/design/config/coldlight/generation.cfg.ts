@@ -16,7 +16,7 @@ export const GENERATION = {
 		composites: { enabled: false },
 	},
 	outputs: {
-		manifestJson: "src/lib/design/taxonomy/.generated/coldlight.manifest.json",
-		importsTs: "src/lib/design/taxonomy/.generated/imports.gen.ts",
+		manifestJson: "src/lib/design/generated/coldlight.manifest.json",
+		importsTs: "src/lib/design/.generated/imports.gen.ts",
 	},
 } as const;

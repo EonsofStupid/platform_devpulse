@@ -10,11 +10,12 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 export type SearchInputSize = "sm" | "md" | "lg";
 
 /** SearchInput component props — builder state + recipe + primitive */
-export interface SearchInputComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps {
+export interface SearchInputComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps, ColdLightProps {
 	children?: Snippet;
 	/** Size variant */
 	size?: SearchInputSize;

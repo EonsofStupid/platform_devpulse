@@ -13,6 +13,8 @@
 	import type { DialogProps } from "./types.js";
 	import { ColdLightDialog } from "$lib/design/api/adapters/coldlight/_internal/dialog/dialog.svelte.js";
 	import { setDialogContext } from "./context.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+	import { cn } from "$lib/design/primitives/types.js";
 
 	let {
 		open = false,
@@ -21,7 +23,21 @@
 		closeOnOutsideClick = true,
 		preventScroll = true,
 		children,
-	}: DialogProps = $props();
+		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
+		size,
+	}: DialogProps & { class?: string } = $props();
 
 	const dialog = new ColdLightDialog({
 		open: () => open,
@@ -32,6 +48,15 @@
 	});
 
 	setDialogContext(dialog);
+
+	const visual = useColdLight(() => ({ preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius, size }));
 </script>
 
-{@render children?.()}
+<div
+	class={cn(visual.segments, visual.radius, className)}
+	data-kind="dialog"
+	data-slot="root"
+	data-encoding={visual.encoding || undefined}
+>
+	{@render children?.()}
+</div>

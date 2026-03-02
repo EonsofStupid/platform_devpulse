@@ -13,6 +13,7 @@
 	import { createRadioGroupTransport } from "$lib/design/api/adapters/meltui/_internal/radiogroup/index.js";
 	import { setRadioGroupContext } from "./context.js";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { radioGroupRecipe } from "./recipe.js";
 
 	let {
@@ -24,6 +25,20 @@
 		orientation = "vertical",
 		children,
 		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
+		size,
+		// Rest spread
 		...rest
 	}: RadioGroupProps = $props();
 
@@ -37,15 +52,24 @@
 	});
 
 	setRadioGroupContext(transport);
+
+	const visual = useColdLight(
+		() => ({
+			preset, surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius, size,
+		}),
+	);
+
 	const recipe = radioGroupRecipe();
 </script>
 
 <div
 	{...transport.slots.root}
-	class={cn(recipe.root, orientation === "horizontal" ? "flex-row" : "flex-col", className)}
+	class={cn(recipe.root, orientation === "horizontal" ? "flex-row" : "flex-col", visual.segments, visual.radius, className)}
 	data-kind="radio-group"
 	data-slot="root"
 	data-orientation={orientation}
+	data-encoding={visual.encoding || undefined}
 	{...rest}
 >
 	{@render children?.()}

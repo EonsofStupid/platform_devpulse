@@ -19,6 +19,7 @@
 	import { setAccordionContext } from "./context.js";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { accordionRecipe } from "./recipe.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 
 	let {
 		multiple = false,
@@ -27,6 +28,19 @@
 		onValueChange,
 		children,
 		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
+		size,
 		...rest
 	}: AccordionProps = $props();
 
@@ -42,13 +56,16 @@
 	setAccordionContext(transport);
 
 	const recipe = accordionRecipe();
+
+	const visual = useColdLight(() => ({ preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius, size }));
 </script>
 
 <div
 	{...transport.slots.root}
-	class={cn(recipe.root, className)}
+	class={cn(recipe.root, visual.segments, visual.radius, className)}
 	data-kind="accordion"
 	data-slot="root"
+	data-encoding={visual.encoding || undefined}
 	{...rest}
 >
 	{@render children?.()}

@@ -16,14 +16,36 @@
 	import type { NavigationMenuProps } from "./types.js";
 	import { setNavigationMenuRootContext, type NavigationMenuRootCtx } from "./context.js";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { navigationMenuRecipe } from "./recipe.js";
 
 	let {
 		children,
 		"aria-label": ariaLabel = "Main navigation",
 		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
+		size,
+		// Rest spread
 		...rest
 	}: NavigationMenuProps = $props();
+
+	const visual = useColdLight(
+		() => ({
+			preset, surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius, size,
+		}),
+	);
 
 	let activeItem = $state<string | undefined>(undefined);
 	const recipe = navigationMenuRecipe();
@@ -47,9 +69,10 @@
 
 <nav
 	aria-label={ariaLabel}
-	class={cn(recipe.root, className)}
+	class={cn(recipe.root, visual.segments, visual.radius, className)}
 	data-kind="navigation-menu"
 	data-slot="root"
+	data-encoding={visual.encoding || undefined}
 	{...rest}
 >
 	<ul

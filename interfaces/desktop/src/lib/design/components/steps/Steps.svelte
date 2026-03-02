@@ -9,6 +9,7 @@
 	import { createSteps } from "$lib/design/api/adapters/coldlight/_internal/steps/index.js";
 	import StepsRoot from "$lib/design/primitives/steps/Steps.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { stepsRecipe } from "./recipe.js";
 
 	let {
@@ -21,6 +22,18 @@
 		disabled = false,
 		children,
 		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
 		...rest
 	}: StepsComponentProps = $props();
 
@@ -32,9 +45,16 @@
 		get disabled() { return disabled; },
 	});
 
-	const classes = $derived(cn(stepsRecipe({ size, orientation }), className));
+	const visual = useColdLight(
+		() => ({
+			preset, surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius, size,
+		}),
+	);
+
+	const classes = $derived(cn(stepsRecipe({ size, orientation }), visual.segments, visual.radius, className));
 </script>
 
-<StepsRoot {...builder.root} {...rest} class={classes}>
+<StepsRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>
 	{@render children?.()}
 </StepsRoot>

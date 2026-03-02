@@ -20,13 +20,13 @@
 		loadManifest,
 		getPrimitiveFromManifest,
 		getComponentFromManifest,
+		type UnifiedManifest,
 	} from "../manifest/manifest-reader.js";
-	import type { ColdLightManifest } from "$lib/design/scanner.types.js";
 
 	const node = $derived(vpbDocument.selectedNode);
 	const recipes = $derived(node ? getRecipesForKind(node.kind) : []);
 
-	let manifest = $state<ColdLightManifest | null>(null);
+	let manifest = $state<UnifiedManifest | null>(null);
 	const primitive = $derived(manifest && node ? getPrimitiveFromManifest(manifest, node.kind) : undefined);
 	const component = $derived(manifest && node ? getComponentFromManifest(manifest, node.kind) : undefined);
 

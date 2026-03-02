@@ -19,7 +19,7 @@ const DESIGN_ROOT = path.resolve(DESKTOP_ROOT, "src/lib/design");
 async function main() {
 	// Dynamic import with pathToFileURL for Windows ESM compatibility
 	const configPath = pathToFileURL(path.resolve(DESIGN_ROOT, "coldlight.config.js")).href;
-	const scannerPath = pathToFileURL(path.resolve(DESIGN_ROOT, "taxonomy/scanner.js")).href;
+	const scannerPath = pathToFileURL(path.resolve(DESIGN_ROOT, "scanner.js")).href;
 
 	const { coldlightConfig } = await import(configPath);
 	const { scanColdLight } = await import(scannerPath);
@@ -32,12 +32,18 @@ async function main() {
 
 	const result = await scanColdLight(fs, importFn, coldlightConfig);
 
-	if (!result.valid) {
-		console.error("[ColdLight] Verification failed - scan errors:");
+	// Null manifest = truly fatal (bad contracts).
+	if (!result.manifest) {
+		console.error("[ColdLight] Verification FATAL — manifest could not be produced:");
 		for (const err of result.errors) {
 			console.error(`  [${err.code}] ${err.kind}: ${err.detail}`);
 		}
 		process.exit(1);
+	}
+
+	// Log parity warnings (non-fatal)
+	if (result.errors.length > 0) {
+		console.warn(`[ColdLight] ${result.errors.length} parity warning(s) during verify.`);
 	}
 
 	// Check if manifest file exists
@@ -53,10 +59,6 @@ async function main() {
 	// Load committed manifest
 	const committed = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
 	const generated = result.manifest;
-
-	if (!generated) {
-		return;
-	}
 
 	// Compare (ignoring generatedAt timestamp)
 	const committedNormalized = { ...committed, generatedAt: "__IGNORED__" };

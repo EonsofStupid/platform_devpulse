@@ -15,6 +15,7 @@
 	import { setTabsContext } from "./context.js";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { getRecipe } from "$lib/design/recipes/index.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 
 	let {
 		value = "",
@@ -24,6 +25,19 @@
 		loop = true,
 		children,
 		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
+		size,
 		...rest
 	}: TabsProps = $props();
 
@@ -39,13 +53,16 @@
 
 	const recipe = getRecipe("tabs.glass.void");
 	const rootClass = recipe?.classes({} as any)?.root ?? "";
+
+	const visual = useColdLight(() => ({ preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius, size }));
 </script>
 
 <div
 	{...tabs.root}
-	class={cn(rootClass, className)}
+	class={cn(rootClass, visual.segments, visual.radius, className)}
 	data-kind="tabs"
 	data-slot="root"
+	data-encoding={visual.encoding || undefined}
 	{...rest}
 >
 	{@render children?.()}

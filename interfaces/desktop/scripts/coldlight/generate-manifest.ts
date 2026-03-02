@@ -75,7 +75,7 @@ function generateImportsCloak(
 async function main() {
 	// Dynamic import with pathToFileURL for Windows ESM compatibility
 	const configPath = pathToFileURL(path.resolve(DESIGN_ROOT, "coldlight.config.js")).href;
-	const scannerPath = pathToFileURL(path.resolve(DESIGN_ROOT, "taxonomy/scanner.js")).href;
+	const scannerPath = pathToFileURL(path.resolve(DESIGN_ROOT, "scanner.js")).href;
 
 	const { coldlightConfig } = await import(configPath);
 	const { scanColdLight } = await import(scannerPath);
@@ -88,16 +88,21 @@ async function main() {
 
 	const result = await scanColdLight(fs, importFn, coldlightConfig);
 
-	if (!result.valid) {
-		console.error("[ColdLight] Scan failed with errors:");
+	// Null manifest = truly fatal (bad contracts). Non-null with errors = parity warnings.
+	if (!result.manifest) {
+		console.error("[ColdLight] Scan FATAL — manifest could not be produced:");
 		for (const err of result.errors) {
 			console.error(`  [${err.code}] ${err.kind}: ${err.detail}`);
 		}
 		process.exit(1);
 	}
 
-	if (!result.manifest) {
-		return;
+	// Log parity warnings (non-fatal)
+	if (result.errors.length > 0) {
+		console.warn(`[ColdLight] ${result.errors.length} parity warning(s):`);
+		for (const err of result.errors) {
+			console.warn(`  [${err.code}] ${err.kind}: ${err.detail}`);
+		}
 	}
 
 	// Ensure output directory exists

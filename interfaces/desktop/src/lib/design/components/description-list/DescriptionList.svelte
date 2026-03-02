@@ -15,6 +15,7 @@
 	import { createDescriptionList } from "$lib/design/api/adapters/coldlight/_internal/description-list/index.js";
 	import DescriptionListRoot from "$lib/design/primitives/description-list/DescriptionList.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { descriptionListRecipe } from "./recipe.js";
 
 	let {
@@ -23,6 +24,18 @@
 		label,
 		children,
 		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
 		...rest
 	}: DescriptionListComponentProps = $props();
 
@@ -30,9 +43,16 @@
 		get label() { return label; },
 	});
 
-	const classes = $derived(cn(descriptionListRecipe({ size, variant }), className));
+	const visual = useColdLight(
+		() => ({
+			preset, surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius, size,
+		}),
+	);
+
+	const classes = $derived(cn(descriptionListRecipe({ size, variant }), visual.segments, visual.radius, className));
 </script>
 
-<DescriptionListRoot {...builder.root} {...rest} class={classes}>
+<DescriptionListRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>
 	{@render children?.()}
 </DescriptionListRoot>

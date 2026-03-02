@@ -21,14 +21,3 @@ export const ADAPTERS = {
 	/** DEFAULT: ColdLight owns ARIA. Per-primitive contracts override to "meltui" when justified */
 	ariaStateProvider: "coldlight",
 } as const;
-/**
- * @file ColdLight Attributes
- * @package @devpulse/coldlight
- */
-
-export const ATTRIBUTES = {
-	kind: "data-kind",
-	slot: "data-slot",
-	state: "data-state",
-	id: "data-id",
-} as const;

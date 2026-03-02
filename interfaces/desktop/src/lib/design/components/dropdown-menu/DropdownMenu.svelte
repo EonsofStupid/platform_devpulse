@@ -14,12 +14,33 @@
 <script lang="ts">
 	import type { DropdownMenuProps } from "./types.js";
 	import { setDropdownMenuContext, type DropdownMenuContext } from "./context.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 
 	let {
 		open = $bindable(false),
 		onOpenChange,
 		children,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
+		size,
 	}: DropdownMenuProps = $props();
+
+	const visual = useColdLight(
+		() => ({
+			preset, surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius, size,
+		}),
+	);
 
 	const triggerId = `cl-dropdown-trigger-${crypto.randomUUID().slice(0, 8)}`;
 	const contentId = `cl-dropdown-content-${crypto.randomUUID().slice(0, 8)}`;

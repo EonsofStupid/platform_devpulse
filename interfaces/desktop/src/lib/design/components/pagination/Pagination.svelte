@@ -11,6 +11,7 @@
 <script lang="ts">
 	import type { PaginationComponentProps } from "./types.js";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import {
 		paginationRootRecipe,
 		paginationPageRecipe,
@@ -19,6 +20,7 @@
 	} from "./recipe.js";
 
 	let {
+		// Kind-specific props
 		page = 1,
 		totalPages,
 		onPageChange,
@@ -27,6 +29,19 @@
 		size = "md",
 		children,
 		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
+		// Rest spread
 		...rest
 	}: PaginationComponentProps = $props();
 
@@ -77,7 +92,12 @@
 	const pages = $derived(getPageRange(page, totalPages, siblings, boundaries));
 	const isFirstPage = $derived(page <= 1);
 	const isLastPage = $derived(page >= totalPages);
-	const rootClasses = $derived(cn(paginationRootRecipe(), className));
+
+	// Resolve ColdLight visual
+	const visual = useColdLight(() => ({ preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius, size }));
+
+	// Compose: structural recipe + ColdLight visual + user classes
+	const rootClasses = $derived(cn(paginationRootRecipe(), visual.segments, visual.radius, className));
 </script>
 
 <nav
@@ -86,6 +106,7 @@
 	aria-label="Pagination"
 	data-kind="pagination"
 	data-slot="root"
+	data-encoding={visual.encoding || undefined}
 >
 	<button
 		class={paginationNavRecipe({ size })}

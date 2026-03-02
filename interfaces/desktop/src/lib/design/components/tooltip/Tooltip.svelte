@@ -17,6 +17,8 @@
 	import type { TooltipProps } from "./types.js";
 	import { createTooltipTransport } from "$lib/design/api/adapters/meltui/_internal/tooltip/index.js";
 	import { setTooltipContext } from "./context.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+	import { cn } from "$lib/design/primitives/types.js";
 
 	let {
 		openDelay = 700,
@@ -27,7 +29,21 @@
 		disableHoverableContent = false,
 		forceVisible = false,
 		children,
-	}: TooltipProps = $props();
+		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
+		size,
+	}: TooltipProps & { class?: string } = $props();
 
 	const transport = createTooltipTransport({
 		get openDelay() { return openDelay; },
@@ -40,6 +56,15 @@
 	});
 
 	setTooltipContext(transport);
+
+	const visual = useColdLight(() => ({ preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius, size }));
 </script>
 
-{@render children?.()}
+<div
+	class={cn(visual.segments, visual.radius, className)}
+	data-kind="tooltip"
+	data-slot="root"
+	data-encoding={visual.encoding || undefined}
+>
+	{@render children?.()}
+</div>

@@ -12,6 +12,7 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 // =============================================================================
 // SIZE
@@ -35,7 +36,8 @@ export interface DateRange {
 /** RangeCalendar root props — manages date range selection state */
 export interface RangeCalendarProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps {
+		BaseProps,
+		ColdLightProps {
 	children?: Snippet;
 	/** Start date of the range */
 	startDate?: Date | undefined;

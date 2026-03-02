@@ -14,6 +14,7 @@
 	import { createNumberInput } from "$lib/design/api/adapters/coldlight/_internal/number-input/index.js";
 	import NumberInputRoot from "$lib/design/primitives/number-input/NumberInput.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { numberInputRecipe, numberInputInputRecipe, numberInputButtonRecipe } from "./recipe.js";
 
 	let {
@@ -29,6 +30,19 @@
 		valueText,
 		children,
 		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
+		// Rest spread
 		...rest
 	}: NumberInputComponentProps = $props();
 
@@ -46,12 +60,30 @@
 		get "aria-describedby"() { return rest["aria-describedby"]; },
 	});
 
-	const rootClasses = $derived(cn(numberInputRecipe({ size }), className));
+	// Resolve ColdLight visual props
+	const visual = useColdLight(
+		() => ({
+			preset,
+			surface,
+			material,
+			depth,
+			bevel,
+			glow,
+			frame,
+			motion,
+			transition,
+			encoding,
+			radius,
+			size,
+		}),
+	);
+
+	const rootClasses = $derived(cn(numberInputRecipe({ size }), visual.segments, visual.radius, className));
 	const inputClasses = $derived(cn(numberInputInputRecipe({ size })));
 	const buttonClasses = $derived(cn(numberInputButtonRecipe({ size })));
 </script>
 
-<NumberInputRoot {...builder.root} {...rest} class={rootClasses}>
+<NumberInputRoot {...builder.root} {...rest} class={rootClasses} data-encoding={visual.encoding || undefined}>
 	<button {...builder.decrement} class={buttonClasses}>
 		<span aria-hidden="true">-</span>
 	</button>

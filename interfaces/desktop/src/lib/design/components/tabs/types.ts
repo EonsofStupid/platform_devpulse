@@ -9,9 +9,10 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 /** Tabs root props — creates adapter and provides context */
-export interface TabsProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
+export interface TabsProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, ColdLightProps {
 	/** Currently active tab value */
 	value?: string;
 	/** Callback when active tab changes */

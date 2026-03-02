@@ -14,9 +14,35 @@
 	import type { MenubarProps } from "./types.js";
 	import { setMenubarRootContext, type MenubarRootCtx } from "./context.js";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { menubarRecipe } from "./recipe.js";
 
-	let { children, class: className, ...rest }: MenubarProps = $props();
+	let {
+		children,
+		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
+		size,
+		// Rest spread
+		...rest
+	}: MenubarProps = $props();
+
+	const visual = useColdLight(
+		() => ({
+			preset, surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius, size,
+		}),
+	);
 
 	let activeMenu = $state<string | undefined>(undefined);
 	const recipe = menubarRecipe();
@@ -41,9 +67,10 @@
 <div
 	role="menubar"
 	aria-orientation="horizontal"
-	class={cn(recipe.root, className)}
+	class={cn(recipe.root, visual.segments, visual.radius, className)}
 	data-kind="menubar"
 	data-slot="root"
+	data-encoding={visual.encoding || undefined}
 	{...rest}
 >
 	{@render children?.()}

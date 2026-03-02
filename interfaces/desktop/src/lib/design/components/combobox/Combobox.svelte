@@ -31,6 +31,7 @@
 	import { cn } from "$lib/design/primitives/types.js";
 	import { getRecipe } from "$lib/design/recipes/index.js";
 	import type { DsSurfaceProps } from "$lib/design/recipes/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 
 	let {
 		value,
@@ -47,6 +48,18 @@
 		"adapt-purpose": adaptPurpose = "search-term",
 		"adapt-simplification": adaptSimplification = "critical",
 		"aria-description": ariaDescription,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
 	}: ComboboxProps = $props();
 
 	const transport = createComboboxTransport({
@@ -72,6 +85,8 @@
 		get recipe() { return recipe; },
 		get disabled() { return disabled; },
 	});
+
+	const visual = useColdLight(() => ({ preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius, size }));
 </script>
 
 <div
@@ -82,7 +97,8 @@
 	data-adapt-simplification={adaptSimplification}
 	{...ariaDescription ? {"aria-description": ariaDescription} : {}}
 	aria-disabled={disabled ? "true" : undefined}
-	class={cn(recipe.wrapper, disabled && "opacity-50 pointer-events-none", className)}
+	class={cn(recipe.wrapper, visual.segments, visual.radius, disabled && "opacity-50 pointer-events-none", className)}
+	data-encoding={visual.encoding || undefined}
 >
 	{@render children?.()}
 </div>

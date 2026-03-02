@@ -16,13 +16,29 @@
 	import { createNotificationCenter } from "$lib/design/api/adapters/coldlight/_internal/notification-center/index.js";
 	import NotificationCenterRoot from "$lib/design/primitives/notification-center/NotificationCenter.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { notificationCenterRecipe } from "./recipe.js";
 
 	let {
+		// Kind-specific props
 		open = false,
 		onOpenChange,
 		children,
 		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
+		size,
+		// Rest spread
 		...rest
 	}: NotificationCenterComponentProps = $props();
 
@@ -31,9 +47,13 @@
 		onOpenChange: (v: any) => onOpenChange?.(v),
 	});
 
-	const classes = $derived(cn(notificationCenterRecipe(), className));
+	// Resolve ColdLight visual
+	const visual = useColdLight(() => ({ preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius, size }));
+
+	// Compose: structural recipe + ColdLight visual + user classes
+	const classes = $derived(cn(notificationCenterRecipe(), visual.segments, visual.radius, className));
 </script>
 
-<NotificationCenterRoot {...builder.root} {...rest} class={classes}>
+<NotificationCenterRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>
 	{@render children?.()}
 </NotificationCenterRoot>

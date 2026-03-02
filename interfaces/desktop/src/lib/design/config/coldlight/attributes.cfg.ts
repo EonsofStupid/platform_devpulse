@@ -8,4 +8,5 @@ export const ATTRIBUTES = {
 	slot: "data-slot",
 	state: "data-state",
 	id: "data-id",
+	variant: "data-variant",
 } as const;

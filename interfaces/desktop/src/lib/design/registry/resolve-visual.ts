@@ -83,6 +83,8 @@ export interface ResolvedVisual {
 	size: SizeToken;
 	/** Resolved CSS tokenRefs per category (for inline styles / VPB display) */
 	cssProperties: Record<string, string>;
+	/** Preset ID that was applied, if any — drives data-variant attribute */
+	variant: string | undefined;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -267,6 +269,7 @@ export function resolveVisual(
 		radius,
 		size,
 		cssProperties,
+		variant: input.preset,
 	};
 }
 

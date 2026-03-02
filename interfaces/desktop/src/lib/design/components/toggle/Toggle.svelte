@@ -11,6 +11,7 @@
 	import type { ToggleComponentProps } from "./types.js";
 	import { createToggleTransport } from "$lib/design/api/adapters/meltui/_internal/toggle/index.js";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { toggleRecipe } from "./recipe.js";
 
 	let {
@@ -20,6 +21,19 @@
 		size = "md",
 		children,
 		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
+		// Rest spread
 		...rest
 	}: ToggleComponentProps = $props();
 
@@ -38,7 +52,14 @@
 		}
 	});
 
-	const classes = $derived(cn(toggleRecipe({ size }), className));
+	const visual = useColdLight(
+		() => ({
+			preset, surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius, size,
+		}),
+	);
+
+	const classes = $derived(cn(toggleRecipe({ size }), visual.segments, visual.radius, className));
 </script>
 
 <button
@@ -47,6 +68,7 @@
 	class={classes}
 	data-kind="toggle"
 	data-slot="trigger"
+	data-encoding={visual.encoding || undefined}
 	data-state={pressed ? "on" : "off"}
 	{disabled}
 	onclick={() => {

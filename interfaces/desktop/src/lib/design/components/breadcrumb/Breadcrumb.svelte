@@ -16,6 +16,7 @@
 	import { createBreadcrumb } from "$lib/design/api/adapters/coldlight/_internal/breadcrumb/index.js";
 	import BreadcrumbRoot from "$lib/design/primitives/breadcrumb/Breadcrumb.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { breadcrumbRecipe } from "./recipe.js";
 
 	let {
@@ -24,6 +25,18 @@
 		size = "md",
 		children,
 		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
 		...rest
 	}: BreadcrumbComponentProps = $props();
 
@@ -31,9 +44,17 @@
 		label: () => label,
 		separator: () => separator,
 	});
-	const classes = $derived(cn(breadcrumbRecipe({ size }), className));
+
+	const visual = useColdLight(
+		() => ({
+			preset, surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius, size,
+		}),
+	);
+
+	const classes = $derived(cn(breadcrumbRecipe({ size }), visual.segments, visual.radius, className));
 </script>
 
-<BreadcrumbRoot {...builder.root} {...rest} class={classes}>
+<BreadcrumbRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>
 	{@render children?.()}
 </BreadcrumbRoot>

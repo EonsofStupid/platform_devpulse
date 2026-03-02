@@ -10,9 +10,10 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
-/** LoadingOverlay component props — ARIA + recipe + primitive */
-export interface LoadingOverlayComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps {
+/** LoadingOverlay component props — ColdLight 8-axis + ARIA + recipe + primitive */
+export interface LoadingOverlayComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps, ColdLightProps {
 	children?: Snippet;
 	/** Whether the overlay is visible */
 	visible?: boolean;

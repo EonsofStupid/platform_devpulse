@@ -14,6 +14,7 @@
 	import { createFormField } from "$lib/design/api/adapters/coldlight/_internal/form-field/index.js";
 	import FormFieldRoot from "$lib/design/primitives/form-field/FormField.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import {
 		formFieldRecipe,
 		formFieldLabelRecipe,
@@ -32,6 +33,19 @@
 		disabled = false,
 		children,
 		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
+		// Rest spread
 		...rest
 	}: FormFieldComponentProps = $props();
 
@@ -42,14 +56,32 @@
 		error: () => error,
 	});
 
-	const rootClasses = $derived(cn(formFieldRecipe({ size }), className));
+	// Resolve ColdLight visual props
+	const visual = useColdLight(
+		() => ({
+			preset,
+			surface,
+			material,
+			depth,
+			bevel,
+			glow,
+			frame,
+			motion,
+			transition,
+			encoding,
+			radius,
+			size,
+		}),
+	);
+
+	const rootClasses = $derived(cn(formFieldRecipe({ size }), visual.segments, visual.radius, className));
 	const labelClasses = $derived(cn(formFieldLabelRecipe({ size })));
 	const controlClasses = $derived(cn(formFieldControlRecipe()));
 	const descriptionClasses = $derived(cn(formFieldDescriptionRecipe({ size })));
 	const errorClasses = $derived(cn(formFieldErrorRecipe({ size })));
 </script>
 
-<FormFieldRoot {...builder.root} {...rest} class={rootClasses}>
+<FormFieldRoot {...builder.root} {...rest} class={rootClasses} data-encoding={visual.encoding || undefined}>
 	{#if label}
 		<label {...builder.label} class={labelClasses}>{label}</label>
 	{/if}

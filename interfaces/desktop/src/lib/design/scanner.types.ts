@@ -33,6 +33,7 @@ import type {
  */
 export interface ManifestPrimitive {
 	readonly kind: string;
+	readonly status: "complete" | "contract-only" | "no-contract";
 	readonly ariaStateProvider: AriaStateProvider;
 	readonly slots: {
 		readonly required: readonly string[];

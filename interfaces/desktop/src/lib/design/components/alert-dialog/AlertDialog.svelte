@@ -13,12 +13,33 @@
 <script lang="ts">
 	import type { AlertDialogProps } from "./types.js";
 	import { setAlertDialogContext, type AlertDialogContext } from "./context.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 
 	let {
 		open = false,
 		onOpenChange,
 		children,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
+		size,
 	}: AlertDialogProps = $props();
+
+	const visual = useColdLight(
+		() => ({
+			preset, surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius, size,
+		}),
+	);
 
 	let triggerEl: HTMLElement | null = $state(null);
 	let cancelEl: HTMLElement | null = $state(null);

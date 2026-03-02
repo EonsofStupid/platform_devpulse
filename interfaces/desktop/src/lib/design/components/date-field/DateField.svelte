@@ -15,6 +15,7 @@
 	import { setDateFieldContext, type DateFieldContext } from "./context.js";
 	import { dateFieldRecipe } from "./recipe.js";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 
 	let {
 		value = undefined,
@@ -26,6 +27,19 @@
 		size = "md",
 		children,
 		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
+		// Rest spread
 		...rest
 	}: DateFieldProps = $props();
 
@@ -166,6 +180,13 @@
 
 	setDateFieldContext(ctx);
 
+	const visual = useColdLight(
+		() => ({
+			preset, surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius, size,
+		}),
+	);
+
 	const recipe = $derived(dateFieldRecipe({ size }));
 
 	const rootState = $derived(
@@ -175,10 +196,11 @@
 
 <div
 	role="group"
-	class={cn(recipe.root, className)}
+	class={cn(recipe.root, visual.segments, visual.radius, className)}
 	data-kind="date-field"
 	data-slot="root"
 	data-state={rootState}
+	data-encoding={visual.encoding || undefined}
 	{...rest}
 >
 	{@render children?.()}

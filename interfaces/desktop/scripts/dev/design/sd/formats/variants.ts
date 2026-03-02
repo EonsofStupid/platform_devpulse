@@ -8,8 +8,17 @@
  * dumps tokenRefs (CSS property:value pairs) directly into @utility blocks.
  * No resolver, no transformation — tokenRefs ARE the CSS output.
  *
+ * SHADOW COMPOSITION: Categories d (depth), b (bevel), g (glow), and f (frame)
+ * all produce box-shadow values. Instead of setting box-shadow directly (which
+ * causes last-one-wins conflicts), they set CSS custom property layers:
+ *   --cl-depth, --cl-bevel, --cl-glow, --cl-frame-glow
+ * A base rule composes all layers into one box-shadow declaration.
+ * This means v-d2 v-b1 v-g6 all compose correctly.
+ *
  * Output: @utility v-s0 { background: transparent; }
- *         @utility v-s1 { background: var(--glass-void); backdrop-filter: ...; }
+ *         @utility v-d1 { --cl-depth: var(--shadow-z1); }
+ *         @utility v-b1 { --cl-bevel: inset 0 1px 0 ...; }
+ *         @utility v-g1 { --cl-glow: var(--shadow-glow-teal); }
  */
 
 interface CategoryValue {
@@ -30,6 +39,17 @@ interface CategoryDefinition {
 	vpbControl: string;
 }
 
+/**
+ * Map category codes to their shadow layer custom property name.
+ * Categories in this map redirect box-shadow values to layer variables
+ * instead of setting box-shadow directly.
+ */
+const SHADOW_LAYER_MAP: Record<string, string> = {
+	d: "--cl-depth",
+	b: "--cl-bevel",
+	g: "--cl-glow",
+};
+
 export function generateVariantsCSS(
 	registry: CategoryDefinition[],
 ): string {
@@ -41,7 +61,23 @@ export function generateVariantsCSS(
 		" *",
 		` * Categories: ${registry.map((c) => c.code).join(", ")} (${registry.length} total)`,
 		` * Values: ${registry.reduce((sum, c) => sum + c.values.length, 0)} total`,
+		" *",
+		" * Shadow composition: d (depth), b (bevel), g (glow) set --cl-* layer vars.",
+		" * The base rule in this file composes all layers into one box-shadow.",
 		" */",
+		"",
+		"/* ── Shadow Composition Base ── */",
+		"/* All ColdLight-encoded elements compose shadow layers. */",
+		"/* Default: all layers are transparent (no shadow). */",
+		"@layer base {",
+		"\t[data-kind] {",
+		"\t\t--cl-depth: 0 0 0 transparent;",
+		"\t\t--cl-bevel: 0 0 0 transparent;",
+		"\t\t--cl-glow: 0 0 0 transparent;",
+		"\t\t--cl-frame-glow: 0 0 0 transparent;",
+		"\t\tbox-shadow: var(--cl-depth), var(--cl-bevel), var(--cl-glow), var(--cl-frame-glow);",
+		"\t}",
+		"}",
 		"",
 	];
 
@@ -49,6 +85,8 @@ export function generateVariantsCSS(
 		lines.push(
 			`/* ── ${cat.code}: ${cat.name} — ${cat.values.length} values ── */`,
 		);
+
+		const shadowLayer = SHADOW_LAYER_MAP[cat.code];
 
 		for (const value of cat.values) {
 			const refs = Object.entries(value.tokenRefs);
@@ -65,7 +103,15 @@ export function generateVariantsCSS(
 			lines.push(`@utility v-${cat.code}${value.index} {`);
 
 			for (const [prop, val] of refs) {
-				lines.push(`\t${prop}: ${val};`);
+				if (prop === "box-shadow" && shadowLayer) {
+					// Redirect box-shadow to the layer custom property
+					lines.push(`\t${shadowLayer}: ${val};`);
+				} else if (prop === "box-shadow" && cat.code === "f") {
+					// Frame category: glow border goes to --cl-frame-glow
+					lines.push(`\t--cl-frame-glow: ${val};`);
+				} else {
+					lines.push(`\t${prop}: ${val};`);
+				}
 			}
 
 			if (value.svgFilters && value.svgFilters.length > 0) {

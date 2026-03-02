@@ -10,11 +10,12 @@
 import type { Snippet } from "svelte";
 import type { HTMLFormAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 export type FormSize = "sm" | "md" | "lg";
 
 /** Form component props — builder state + recipe + primitive */
-export interface FormComponentProps extends Omit<HTMLFormAttributes, "style" | "children">, BaseProps {
+export interface FormComponentProps extends Omit<HTMLFormAttributes, "style" | "children">, BaseProps, ColdLightProps {
 	children?: Snippet;
 	/** Size variant — propagates to child form fields via CSS */
 	size?: FormSize;

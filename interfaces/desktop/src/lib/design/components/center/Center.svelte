@@ -11,23 +11,46 @@
 	import { createCenter } from "$lib/design/api/adapters/coldlight/_internal/center/index.js";
 	import CenterRoot from "$lib/design/primitives/center/Center.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { centerRecipe } from "./recipe.js";
 
 	let {
 		inline = false,
 		children,
 		class: className,
+		// ColdLight 8-axis props
+		preset,
+		surface,
+		material,
+		depth,
+		bevel,
+		glow,
+		frame,
+		motion,
+		transition,
+		encoding,
+		radius,
+		size,
 		...rest
 	}: CenterComponentProps = $props();
 
 	const builder = createCenter();
-	const classes = $derived(cn(centerRecipe({ inline }), className));
+
+	const visual = useColdLight(
+		() => ({
+			preset, surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius, size,
+		}),
+	);
+
+	const classes = $derived(cn(centerRecipe({ inline }), visual.segments, visual.radius, className));
 </script>
 
 <CenterRoot
 	{...builder.root}
 	{...rest}
 	class={classes}
+	data-encoding={visual.encoding || undefined}
 >
 	{@render children?.()}
 </CenterRoot>
