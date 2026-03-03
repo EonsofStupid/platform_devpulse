@@ -3,34 +3,19 @@
 	@kind progress
 	@layer components
 
-	ColdLight Progress — 8-axis visual system, direct HTML rendering.
-	ColdLight OWNS all ARIA. useColdLight() resolves visual props.
+	ARIA + state only. ZERO visual.
 	Compound: track (root) + indicator bar.
+	indicatorClass injected by ui/ layer.
 -->
 <script lang="ts">
 	import type { ProgressComponentProps } from "./types.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-	import { progressTrackRecipe, progressIndicatorRecipe } from "./recipe.js";
 
 	let {
 		// Kind-specific props
 		value = null,
 		max = 100,
-		size = "md",
+		indicatorClass,
 		class: className,
-		// ColdLight 8-axis props
-		preset,
-		surface,
-		material,
-		depth,
-		bevel,
-		glow,
-		frame,
-		motion,
-		transition,
-		encoding,
-		radius,
 		// Rest spread
 		...rest
 	}: ProgressComponentProps = $props();
@@ -50,16 +35,6 @@
 				? "complete"
 				: "loading",
 	);
-
-	const visual = useColdLight(
-		() => ({
-			preset, surface, material, depth, bevel, glow, frame, motion, transition,
-			encoding, radius: radius ?? "full", size,
-		}),
-	);
-
-	const trackClasses = $derived(cn(progressTrackRecipe({ size }), visual.segments, visual.radius, className));
-	const indicatorClasses = $derived(cn(progressIndicatorRecipe()));
 </script>
 
 <div
@@ -67,8 +42,7 @@
 	data-kind="progress"
 	data-slot="root"
 	data-state={dataState}
-	data-encoding={visual.encoding || undefined}
-	class={trackClasses}
+	class={className}
 	role="progressbar"
 	aria-valuenow={isIndeterminate ? undefined : clampedValue}
 	aria-valuemin={0}
@@ -77,7 +51,7 @@
 	<div
 		data-kind="progress"
 		data-slot="indicator"
-		class={indicatorClasses}
+		class={indicatorClass}
 		style:width={isIndeterminate ? "100%" : `${percentage}%`}
 		aria-hidden="true"
 	></div>

@@ -4,7 +4,7 @@
   @domain devforge
 -->
 <script lang="ts">
-	import { Grid, Stack, HStack, Text } from "$lib/design/components/index.js";
+	import { Grid, Stack, HStack, Text } from "$lib/design/index.js";
 	import { Widget } from "$lib/design/blocks/widgets/index.js";
 </script>
 

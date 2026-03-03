@@ -17,7 +17,6 @@ export {
 	buttonComponentContract,
 	buttonRecipe,
 	type ButtonComponentProps,
-	type ButtonIntent,
 	type ButtonSize,
 } from "./button/index.js";
 

@@ -5,6 +5,5 @@
  */
 
 export { default as Grid } from "./Grid.svelte";
-export { contract as gridComponentContract } from "./contract.js";
 export { gridRecipe } from "./recipe.js";
 export type { GridComponentProps, GridColumns, GridGap, GridRows } from "./types.js";

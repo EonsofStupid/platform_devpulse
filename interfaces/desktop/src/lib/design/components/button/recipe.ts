@@ -1,16 +1,18 @@
 /**
  * @file Button Recipe — Structural Classes Only
- * @kind action
+ * @kind button
  * @layer components
  *
  * Visual appearance (surface, depth, glow, etc.) flows through
- * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
+ * useColdLight() → resolveVisual() in the ui/ layer.
+ * Recipe provides ONLY structural layout.
  *
  * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
-import type { ButtonSize } from "./types.js";
+
+export type ButtonSize = "sm" | "md" | "lg";
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
 	sm: "h-8 px-3 text-sm gap-1.5",
@@ -20,7 +22,7 @@ const SIZE_CLASSES: Record<ButtonSize, string> = {
 
 /**
  * Button structural recipe — layout + sizing + focus.
- * Visual appearance is handled by useColdLight(), NOT by this recipe.
+ * Visual appearance is handled by useColdLight() in ui/ layer.
  */
 export function buttonRecipe(size: ButtonSize = "md"): string {
 	return cn(

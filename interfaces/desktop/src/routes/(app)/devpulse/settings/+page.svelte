@@ -4,7 +4,7 @@
   @domain devpulse
 -->
 <script lang="ts">
-	import { Stack, HStack, Text, Container } from "$lib/design/components/index.js";
+	import { Stack, HStack, Text, Container } from "$lib/design/index.js";
 	import { Widget } from "$lib/design/blocks/widgets/index.js";
 </script>
 

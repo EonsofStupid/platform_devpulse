@@ -3,26 +3,17 @@
  * @kind hstack
  * @layer components
  *
- * Horizontal flex shorthand with gap and alignment props.
- * Component layer owns layout — primitive is structureless.
+ * ZERO visual. Layout vocab types kept for recipe/ui consumption.
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 export type HStackGap = "0" | "1" | "2" | "3" | "4" | "6" | "8" | "10" | "12";
 export type HStackAlign = "start" | "center" | "end" | "stretch" | "baseline";
 export type HStackJustify = "start" | "center" | "end" | "between";
 
-/** HStack component props — horizontal flex layout + ColdLight 8-axis */
-export interface HStackComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps, ColdLightProps {
+export interface HStackComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps {
 	children?: Snippet;
-	/** Gap between items */
-	gap?: HStackGap;
-	/** Cross-axis alignment */
-	align?: HStackAlign;
-	/** Main-axis justification */
-	justify?: HStackJustify;
 }

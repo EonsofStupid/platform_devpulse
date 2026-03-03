@@ -5,7 +5,8 @@
  * @package @devpulse/coldlight
  *
  * Stat component browser tests.
- * Tests ARIA compliance, recipe application, and contract shape.
+ * Tests ARIA compliance and contract shape.
+ * Visual/recipe tests belong in ui/stat/ tests.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
@@ -66,35 +67,10 @@ describe("stat component — ARIA", () => {
 });
 
 // =============================================================================
-// RECIPE CLASSES
+// PROP PASSTHROUGH
 // =============================================================================
 
-describe("stat component — recipe", () => {
-	test("applies recipe base classes", async () => {
-		const { getByRole } = render(Stat);
-		const el = getByRole("group");
-		await expect.element(el).toHaveClass("flex");
-		await expect.element(el).toHaveClass("flex-col");
-	});
-
-	test("applies md size by default", async () => {
-		const { getByRole } = render(Stat);
-		const el = getByRole("group");
-		await expect.element(el).toHaveClass("gap-1");
-	});
-
-	test("applies sm size variant", async () => {
-		const { getByRole } = render(Stat, { props: { size: "sm" } });
-		const el = getByRole("group");
-		await expect.element(el).toHaveClass("text-sm");
-	});
-
-	test("applies lg size variant", async () => {
-		const { getByRole } = render(Stat, { props: { size: "lg" } });
-		const el = getByRole("group");
-		await expect.element(el).toHaveClass("text-lg");
-	});
-
+describe("stat component — prop passthrough", () => {
 	test("merges custom class prop", async () => {
 		const { getByRole } = render(Stat, { props: { class: "my-custom" } });
 		const el = getByRole("group");

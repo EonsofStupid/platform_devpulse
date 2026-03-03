@@ -2,6 +2,9 @@
  * @file Callout Component Barrel
  * @kind callout
  * @layer components
+ *
+ * Components layer — ARIA + state. ZERO visual.
+ * For styled callout, import from ui/callout/.
  */
 
 export { default as Callout } from "./Callout.svelte";

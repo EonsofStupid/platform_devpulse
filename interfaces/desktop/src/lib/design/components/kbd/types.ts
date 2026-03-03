@@ -3,19 +3,18 @@
  * @kind kbd
  * @layer components
  *
- * Keyboard shortcut indicator using semantic <kbd> HTML.
- * No ARIA needed — <kbd> provides native semantics.
+ * ARIA + state only. ZERO visual.
+ * Visual props (ColdLightProps) belong in ui/kbd/.
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 export type KbdSize = "sm" | "md" | "lg";
 
-/** Kbd component props — ColdLight 8-axis + keyboard shortcut display */
-export interface KbdComponentProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children">, BaseProps, ColdLightProps {
+/** Kbd component props — ARIA + behavioral. ZERO visual. */
+export interface KbdComponentProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children">, BaseProps {
 	children?: Snippet;
 	/** Size variant */
 	size?: KbdSize;

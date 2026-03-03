@@ -11,7 +11,7 @@
 
 import { render } from "vitest-browser-svelte";
 import { expect, test, describe } from "vitest";
-import HStack from "./HStack.svelte";
+import { HStack } from "$lib/design/ui/hstack/index.js";
 import { contract } from "./contract.js";
 
 // =============================================================================

@@ -3,36 +3,22 @@
 	@kind avatar
 	@layer components
 
-	ColdLight Avatar — 8-axis visual system, direct HTML rendering.
-	ColdLight OWNS all ARIA. useColdLight() resolves visual props.
+	ARIA + state only. ZERO visual.
 	Compound: root + image + fallback.
+	imageClass and fallbackClass injected by ui/ layer.
 -->
 <script lang="ts">
 	import type { AvatarComponentProps } from "./types.js";
 	import type { AvatarLoadState } from "./types.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-	import { avatarRootRecipe, avatarImageRecipe, avatarFallbackRecipe } from "./recipe.js";
 
 	let {
 		// Kind-specific props
 		src,
 		alt,
 		fallback = "",
-		size = "md",
+		imageClass,
+		fallbackClass,
 		class: className,
-		// ColdLight 8-axis props
-		preset,
-		surface,
-		material,
-		depth,
-		bevel,
-		glow,
-		frame,
-		motion,
-		transition,
-		encoding,
-		radius,
 		// Rest spread
 		...rest
 	}: AvatarComponentProps = $props();
@@ -45,17 +31,6 @@
 
 	const showImage = $derived(src && loadState === "loaded");
 	const showFallback = $derived(!src || loadState !== "loaded");
-
-	const visual = useColdLight(
-		() => ({
-			preset, surface, material, depth, bevel, glow, frame, motion, transition,
-			encoding, radius: radius ?? "full", size,
-		}),
-	);
-
-	const rootClasses = $derived(cn(avatarRootRecipe({ size }), visual.segments, visual.radius, className));
-	const imageClasses = $derived(cn(avatarImageRecipe()));
-	const fallbackClasses = $derived(cn(avatarFallbackRecipe()));
 
 	function handleLoad() {
 		loadState = "loaded";
@@ -71,8 +46,7 @@
 	data-kind="avatar"
 	data-slot="root"
 	data-state={loadState}
-	data-encoding={visual.encoding || undefined}
-	class={rootClasses}
+	class={className}
 	role="img"
 	aria-label={alt}
 >
@@ -82,7 +56,7 @@
 			alt=""
 			data-kind="avatar"
 			data-slot="image"
-			class={imageClasses}
+			class={imageClass}
 			aria-hidden="true"
 			onload={handleLoad}
 			onerror={handleError}
@@ -93,7 +67,7 @@
 		<span
 			data-kind="avatar"
 			data-slot="fallback"
-			class={fallbackClasses}
+			class={fallbackClass}
 			aria-hidden="true"
 		>
 			{fallback}

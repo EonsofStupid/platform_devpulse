@@ -7,4 +7,4 @@
 export { default as Textarea } from "./Textarea.svelte";
 export { contract as textareaComponentContract } from "./contract.js";
 export { textareaRecipe } from "./recipe.js";
-export type { TextareaComponentProps, TextareaSize } from "./types.js";
+export type { TextareaComponentProps } from "./types.js";

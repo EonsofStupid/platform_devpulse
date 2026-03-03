@@ -14,7 +14,7 @@
 import { render } from "vitest-browser-svelte";
 import { expect, test, describe } from "vitest";
 import { contract } from "./contract.js";
-import Spinner from "./Spinner.svelte";
+import { Spinner } from "$lib/design/ui/spinner/index.js";
 
 // =============================================================================
 // CONTRACT INTEGRITY

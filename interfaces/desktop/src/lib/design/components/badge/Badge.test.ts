@@ -5,8 +5,8 @@
  * @package @devpulse/coldlight
  *
  * Badge component browser tests.
- * Tests ARIA application, data-state derivation, recipe class application,
- * and prop forwarding through the component layer.
+ * Tests ARIA application, structural attributes, and prop forwarding.
+ * Visual/recipe tests (intent, size) belong in ui/badge/ tests.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
@@ -82,55 +82,13 @@ describe("badge component — ARIA attributes", () => {
 });
 
 // =============================================================================
-// DATA-STATE — intent-driven state
-// =============================================================================
-
-describe("badge component — data-state", () => {
-	test("data-state='default' by default", async () => {
-		const { getByRole } = render(Badge);
-		const badge = getByRole("status");
-		await expect.element(badge).toHaveAttribute("data-state", "default");
-	});
-
-	test("data-state='info' when intent='info'", async () => {
-		const { getByRole } = render(Badge, { props: { intent: "info" } });
-		const badge = getByRole("status");
-		await expect.element(badge).toHaveAttribute("data-state", "info");
-	});
-
-	test("data-state='success' when intent='success'", async () => {
-		const { getByRole } = render(Badge, { props: { intent: "success" } });
-		const badge = getByRole("status");
-		await expect.element(badge).toHaveAttribute("data-state", "success");
-	});
-
-	test("data-state='warning' when intent='warning'", async () => {
-		const { getByRole } = render(Badge, { props: { intent: "warning" } });
-		const badge = getByRole("status");
-		await expect.element(badge).toHaveAttribute("data-state", "warning");
-	});
-
-	test("data-state='error' when intent='error'", async () => {
-		const { getByRole } = render(Badge, { props: { intent: "error" } });
-		const badge = getByRole("status");
-		await expect.element(badge).toHaveAttribute("data-state", "error");
-	});
-});
-
-// =============================================================================
 // PROP PASSTHROUGH — ...rest spread
 // =============================================================================
 
 describe("badge component — prop passthrough", () => {
-	test("passes class prop and applies recipe", async () => {
+	test("passes class prop", async () => {
 		const { getByRole } = render(Badge, { props: { class: "custom-badge" } });
 		const badge = getByRole("status");
 		await expect.element(badge).toHaveClass("custom-badge");
-	});
-
-	test("applies recipe classes for size variants", async () => {
-		const { getByRole } = render(Badge, { props: { size: "sm" } });
-		const badge = getByRole("status");
-		await expect.element(badge).toHaveClass("text-xs");
 	});
 });

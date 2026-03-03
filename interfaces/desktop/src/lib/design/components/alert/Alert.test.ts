@@ -14,7 +14,7 @@
 import { render } from "vitest-browser-svelte";
 import { expect, test, describe } from "vitest";
 import { contract } from "./contract.js";
-import Alert from "./Alert.svelte";
+import { Alert } from "$lib/design/ui/alert/index.js";
 
 // =============================================================================
 // CONTRACT INTEGRITY

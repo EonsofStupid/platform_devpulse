@@ -3,28 +3,19 @@
  * @kind callout
  * @layer components
  *
- * Extends primitive with visual variant and accessible label.
- * Component layer owns ARIA — primitive is structureless.
+ * ARIA + state only. ZERO visual.
+ * Visual props (variant presets, ColdLightProps) belong in ui/callout/.
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 export type CalloutVariant = "info" | "success" | "warning" | "error" | "tip";
 
-export const CALLOUT_VARIANT_PRESETS: Record<CalloutVariant, string> = {
-	info: "callout-info",
-	success: "callout-info",
-	warning: "callout-warning",
-	error: "callout-warning",
-	tip: "callout-tip",
-};
-
-/** Callout component props — ColdLight 8-axis + ARIA + recipe */
-export interface CalloutComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps, ColdLightProps {
+/** Callout component props — ARIA + state only. ZERO visual. */
+export interface CalloutComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps {
 	children?: Snippet;
-	/** Semantic variant — drives color + accent via recipe */
+	/** Semantic variant — drives ARIA state via data-state */
 	variant?: CalloutVariant;
 }

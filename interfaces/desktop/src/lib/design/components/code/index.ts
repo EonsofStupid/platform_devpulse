@@ -2,6 +2,9 @@
  * @file Code Component Barrel
  * @kind code
  * @layer components
+ *
+ * Components layer — ARIA + behavioral. ZERO visual.
+ * For styled code, import from ui/code/.
  */
 
 export { default as Code } from "./Code.svelte";

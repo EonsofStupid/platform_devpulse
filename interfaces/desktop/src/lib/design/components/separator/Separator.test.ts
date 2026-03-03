@@ -5,8 +5,8 @@
  * @package @devpulse/coldlight
  *
  * Separator component browser tests.
- * Tests ARIA application, builder attribute binding, recipe class application,
- * and prop forwarding through the component layer.
+ * Tests ARIA application, builder attribute binding, and prop forwarding.
+ * Visual/recipe tests (variant, ColdLight encoding) belong in ui/separator/ tests.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
@@ -118,30 +118,6 @@ describe("separator component — data-orientation", () => {
 });
 
 // =============================================================================
-// RECIPE CLASSES — orientation and variant
-// =============================================================================
-
-describe("separator component — recipe classes", () => {
-	test("applies horizontal classes by default", async () => {
-		const { getByRole } = render(Separator);
-		const separator = getByRole("separator");
-		await expect.element(separator).toHaveClass("w-full");
-	});
-
-	test("applies dashed variant classes", async () => {
-		const { getByRole } = render(Separator, { props: { variant: "dashed" } });
-		const separator = getByRole("separator");
-		await expect.element(separator).toHaveClass("border-dashed");
-	});
-
-	test("passes class prop and merges with recipe", async () => {
-		const { getByRole } = render(Separator, { props: { class: "custom-sep" } });
-		const separator = getByRole("separator");
-		await expect.element(separator).toHaveClass("custom-sep");
-	});
-});
-
-// =============================================================================
 // PROP PASSTHROUGH — ...rest spread
 // =============================================================================
 
@@ -150,5 +126,11 @@ describe("separator component — prop passthrough", () => {
 		const { getByRole } = render(Separator, { props: { id: "my-separator" } });
 		const separator = getByRole("separator");
 		await expect.element(separator).toHaveAttribute("id", "my-separator");
+	});
+
+	test("passes class prop", async () => {
+		const { getByRole } = render(Separator, { props: { class: "custom-sep" } });
+		const separator = getByRole("separator");
+		await expect.element(separator).toHaveClass("custom-sep");
 	});
 });

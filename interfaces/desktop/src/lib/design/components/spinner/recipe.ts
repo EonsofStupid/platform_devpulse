@@ -4,24 +4,30 @@
  * @layer components
  *
  * Visual appearance (surface, depth, glow, etc.) flows through
- * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
+ * useColdLight() → resolveVisual() in the ui/ layer.
+ * Recipe provides ONLY structural layout.
  *
  * NO hardcoded v-encoding classes. NO legacy shortcodes.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
 
-type SpinnerRecipeProps = { size?: string };
+export type SpinnerSize = "sm" | "md" | "lg";
 
-export function spinnerRecipe(props: SpinnerRecipeProps = {}): string {
+const SIZE_CLASSES: Record<SpinnerSize, string> = {
+	sm: "size-4",
+	md: "size-6",
+	lg: "size-8",
+};
+
+/**
+ * Spinner structural recipe — layout + sizing.
+ * Visual appearance is handled by useColdLight() in ui/ layer.
+ */
+export function spinnerRecipe(props: { size?: SpinnerSize } = {}): string {
 	const size = props.size ?? "md";
-	const sizeMap: Record<string, string> = {
-		sm: "size-4",
-		md: "size-6",
-		lg: "size-8",
-	};
 	return cn(
 		"spinner-root",
-		sizeMap[size] ?? sizeMap.md,
+		SIZE_CLASSES[size] ?? SIZE_CLASSES.md,
 	);
 }

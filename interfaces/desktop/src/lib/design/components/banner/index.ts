@@ -2,6 +2,9 @@
  * @file Banner Component Barrel
  * @kind banner
  * @layer components
+ *
+ * Components layer — ARIA + state. ZERO visual.
+ * For styled banner, import from ui/banner/.
  */
 
 export { default as Banner } from "./Banner.svelte";

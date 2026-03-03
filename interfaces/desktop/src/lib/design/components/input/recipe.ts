@@ -5,7 +5,8 @@
  */
 
 import { cn } from "$lib/design/utils/cn.js";
-import type { InputSize } from "./types.js";
+
+export type InputSize = "sm" | "md" | "lg";
 
 const SIZE_CLASSES: Record<InputSize, string> = {
 	sm: "h-8 px-2.5 text-sm",

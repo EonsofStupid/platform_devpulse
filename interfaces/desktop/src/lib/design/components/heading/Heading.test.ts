@@ -4,7 +4,8 @@
  * @layer components
  * @package @devpulse/coldlight
  *
- * Heading component browser tests.
+ * Heading component browser tests — ARIA + structural only. ZERO visual.
+ * Recipe/visual tests live in ui/heading/Heading.test.ts.
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
  */
@@ -66,6 +67,12 @@ describe("heading component — structural attributes", () => {
 		const el = container.querySelector("[data-kind='heading']") as HTMLElement;
 		expect(el.tagName.toLowerCase()).toBe("h3");
 	});
+
+	test("passes custom class", async () => {
+		const { container } = render(Heading, { props: { class: "custom-heading" } });
+		const el = container.querySelector("[data-kind='heading']") as HTMLElement;
+		await expect.element(el).toHaveClass("custom-heading");
+	});
 });
 
 // =============================================================================
@@ -83,35 +90,5 @@ describe("heading component — ARIA attributes", () => {
 		const { container } = render(Heading, { props: { level: 3 } });
 		const el = container.querySelector("[data-kind='heading']") as HTMLElement;
 		await expect.element(el).toHaveAttribute("aria-level", "3");
-	});
-});
-
-// =============================================================================
-// RECIPE CLASSES
-// =============================================================================
-
-describe("heading component — recipe classes", () => {
-	test("applies font-bold by default", async () => {
-		const { container } = render(Heading);
-		const el = container.querySelector("[data-kind='heading']") as HTMLElement;
-		await expect.element(el).toHaveClass("font-bold");
-	});
-
-	test("applies text-xl for size='lg' (default)", async () => {
-		const { container } = render(Heading);
-		const el = container.querySelector("[data-kind='heading']") as HTMLElement;
-		await expect.element(el).toHaveClass("text-xl");
-	});
-
-	test("applies text-3xl for size='2xl'", async () => {
-		const { container } = render(Heading, { props: { size: "2xl" } });
-		const el = container.querySelector("[data-kind='heading']") as HTMLElement;
-		await expect.element(el).toHaveClass("text-3xl");
-	});
-
-	test("passes custom class", async () => {
-		const { container } = render(Heading, { props: { class: "custom-heading" } });
-		const el = container.querySelector("[data-kind='heading']") as HTMLElement;
-		await expect.element(el).toHaveClass("custom-heading");
 	});
 });

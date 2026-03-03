@@ -11,7 +11,7 @@
 
 import { render } from "vitest-browser-svelte";
 import { expect, test, describe } from "vitest";
-import Stack from "./Stack.svelte";
+import { Stack } from "$lib/design/ui/stack/index.js";
 import { contract } from "./contract.js";
 
 // =============================================================================

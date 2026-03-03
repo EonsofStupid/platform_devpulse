@@ -3,70 +3,35 @@
 	@kind alert
 	@layer components
 
-	ColdLight Alert — builder-driven, 8-axis visual system.
-	Builder owns ARIA. useColdLight() resolves visual props.
+	ColdLight Alert — builder-driven ARIA + state. ZERO visual.
+	Builder owns ALL ARIA, keyboard, data attributes.
+	Visual (recipe, ColdLight encoding) applied by ui/alert/.
+
+	Usage (from ui/ layer):
+	  <Alert {closable} {onClose} class={computedClasses} />
 -->
 <script lang="ts">
 	import type { AlertComponentProps } from "./types.js";
 	import { createAlert } from "$lib/design/api/adapters/coldlight/_internal/alert/index.js";
 	import AlertRoot from "$lib/design/primitives/alert/Alert.svelte";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-	import { alertRecipe } from "./recipe.js";
 
 	let {
-		intent = "info",
 		closable = false,
 		onClose,
 		children,
 		class: className,
-		preset,
-		surface,
-		material,
-		depth,
-		bevel,
-		glow,
-		frame,
-		motion,
-		transition,
-		encoding,
-		radius,
 		...rest
 	}: AlertComponentProps = $props();
 
+	// Builder owns ARIA, keyboard, state
 	const builder = createAlert({
 		onVisibleChange: (visible) => {
 			if (!visible) onClose?.();
 		},
 	});
-
-	const visual = useColdLight(
-		() => ({
-			preset: preset ?? "panel-glass",
-			surface: surface ?? "glass-void",
-			material,
-			depth: depth ?? "z1",
-			bevel,
-			glow,
-			frame: frame ?? "soft",
-			motion,
-			transition,
-			encoding,
-			radius: radius ?? "lg",
-		}),
-	);
-
-	const classes = $derived(
-		cn(alertRecipe(), visual.segments, visual.radius, className),
-	);
 </script>
 
-<AlertRoot
-	{...builder.root}
-	{...rest}
-	class={classes}
-	data-encoding={visual.encoding || undefined}
->
+<AlertRoot {...builder.root} {...rest} class={className}>
 	{@render children?.()}
 	{#if closable}
 		<button

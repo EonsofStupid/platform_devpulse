@@ -7,7 +7,7 @@
   Uses ColdLight components and Widget blocks exclusively.
 -->
 <script lang="ts">
-	import { Stack, HStack, Text, Card } from "$lib/design/components/index.js";
+	import { Stack, HStack, Text, Card } from "$lib/design/index.js";
 	import { Widget, RadialGauge, SparkLine } from "$lib/design/blocks/widgets/index.js";
 	import { devpulseState } from "$lib/domains/app/devpulse/index.js";
 

@@ -3,8 +3,7 @@
 	Demonstrates structureless primitives, styled components, recipes, and tokens.
 -->
 <script lang="ts">
-	import { Button } from "$lib/design/index.js";
-	import type { ButtonIntent, ButtonSize } from "$lib/design/components/button/types.js";
+	import { Button, type ButtonIntent, type ButtonSize } from "$lib/design/index.js";
 
 	const intents: ButtonIntent[] = ["primary", "secondary", "ghost", "danger"];
 	const sizes: ButtonSize[] = ["sm", "md", "lg"];

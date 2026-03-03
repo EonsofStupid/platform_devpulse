@@ -3,60 +3,30 @@
 	@kind spinner
 	@layer components
 
-	ColdLight Spinner — builder-driven, 8-axis visual system.
-	Builder owns ALL ARIA. useColdLight() resolves visual props.
+	ColdLight Spinner — builder-driven ARIA + state. ZERO visual.
+	Builder owns ALL ARIA, keyboard, data attributes.
+	Visual (recipe, ColdLight encoding) applied by ui/spinner/.
+
+	Usage (from ui/ layer):
+	  <Spinner {active} {onActiveChange} class={computedClasses} />
 -->
 <script lang="ts">
 	import type { SpinnerComponentProps } from "./types.js";
 	import { createSpinner } from "$lib/design/api/adapters/coldlight/_internal/spinner/index.js";
 	import SpinnerRoot from "$lib/design/primitives/spinner/Spinner.svelte";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-	import { spinnerRecipe } from "./recipe.js";
 
 	let {
-		// Kind-specific props
-		size = "md",
 		active = true,
 		onActiveChange,
 		class: className,
-		// ColdLight 8-axis props
-		preset,
-		surface,
-		material,
-		depth,
-		bevel,
-		glow,
-		frame,
-		motion,
-		transition,
-		encoding,
-		radius,
-		// Rest spread
 		...rest
 	}: SpinnerComponentProps = $props();
 
+	// Builder owns ARIA, keyboard, state
 	const builder = createSpinner({
 		active: () => active,
 		onActiveChange: (v: boolean) => onActiveChange?.(v),
 	});
-
-	const visual = useColdLight(
-		() => ({
-			preset: preset ?? "spinner-default",
-			surface, material, depth, bevel, glow, frame, motion, transition,
-			encoding, radius, size,
-		}),
-	);
-
-	const classes = $derived(
-		cn(spinnerRecipe({ size }), visual.segments, visual.radius, className),
-	);
 </script>
 
-<SpinnerRoot
-	{...builder.root}
-	{...rest}
-	class={classes}
-	data-encoding={visual.encoding || undefined}
-/>
+<SpinnerRoot {...builder.root} {...rest} class={className} />
