@@ -1,20 +1,30 @@
-//! `VerifyDogfood` — svelte-check + cargo check.
+//! `Verify` — frontend + backend type/lint checks.
 
-use crate::tools::ToolResolver;
+use crate::commands::Task;
+use crate::stage::{self, Stage};
+use crate::workspace::Workspace;
 
-/// Run frontend and backend verification checks.
-pub fn run() -> anyhow::Result<()> {
-    let tools = ToolResolver::discover()?;
-    println!("Running verification checks...");
+/// Run `svelte-check` + `cargo check --workspace`.
+pub struct Verify;
 
-    // 1. SvelteKit type check
-    println!("  [1/2] svelte-check...");
-    tools.run_in(&tools.desktop_dir(), "pnpm", &["svelte-check"])?;
+impl Task for Verify {
+    fn name(&self) -> &'static str {
+        "verify"
+    }
 
-    // 2. Rust workspace check
-    println!("  [2/2] cargo check...");
-    tools.run("cargo", &["check", "--workspace"])?;
+    fn run(&self, ws: &Workspace) -> anyhow::Result<()> {
+        stage::section("Verify");
 
-    println!("All checks passed.");
-    Ok(())
+        let s1 = Stage::start("svelte-check");
+        ws.exec_in(&ws.desktop_dir(), "pnpm", &["svelte-check"])?;
+        s1.ok();
+
+        let s2 = Stage::start("cargo check");
+        ws.exec("cargo", &["check", "--workspace"])?;
+        s2.ok();
+
+        println!();
+        println!("  All checks passed.");
+        Ok(())
+    }
 }

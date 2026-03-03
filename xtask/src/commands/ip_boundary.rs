@@ -1,72 +1,80 @@
-//! `VerifyIpBoundary` — cargo metadata checks for the facade pattern.
+//! `IpBoundary` — verify the facade pattern via cargo-metadata.
+//!
+//! Invariants:
+//!   1. Desktop does NOT depend on maestro directly
+//!   2. Engine DOES depend on maestro (facade)
+//!   3. Engine has `kernel` + `engine` feature gates
 
+use crate::commands::Task;
+use crate::stage::{self, Stage};
+use crate::workspace::Workspace;
 use anyhow::Context;
 
-/// Verify the IP boundary invariants using cargo metadata.
-///
-/// Checks:
-/// 1. Desktop backend does NOT depend on maestro directly
-/// 2. Engine DOES depend on maestro (facade pattern)
-/// 3. Engine has both `kernel` and `engine` features
-pub fn run() -> anyhow::Result<()> {
-    println!("Verifying IP boundary...");
+/// Verify IP boundary invariants.
+pub struct IpBoundary;
 
-    let metadata = cargo_metadata::MetadataCommand::new()
-        .exec()
-        .context("Failed to run cargo metadata")?;
+impl Task for IpBoundary {
+    fn name(&self) -> &'static str {
+        "ip-boundary"
+    }
 
-    // 1. Desktop must NOT depend on maestro
-    let desktop = metadata
-        .packages
-        .iter()
-        .find(|p| p.name == "devpulse_desktop_backend")
-        .context("Desktop backend package not found in workspace")?;
+    fn run(&self, _ws: &Workspace) -> anyhow::Result<()> {
+        stage::section("IP Boundary");
 
-    let desktop_has_maestro = desktop
-        .dependencies
-        .iter()
-        .any(|d| d.name == "devpulse-maestro");
+        let metadata = cargo_metadata::MetadataCommand::new()
+            .exec()
+            .context("failed to run cargo metadata")?;
 
-    if desktop_has_maestro {
-        anyhow::bail!(
-            "IP BOUNDARY VIOLATION: devpulse_desktop_backend has a direct \
-             dependency on devpulse-maestro. All kernel access must go \
-             through the devpulse-engine facade."
+        // 1. Desktop must NOT depend on maestro
+        let s1 = Stage::start("desktop isolation");
+        let desktop = metadata
+            .packages
+            .iter()
+            .find(|p| p.name == "devpulse_desktop_backend")
+            .context("package devpulse_desktop_backend not found")?;
+
+        let has_maestro = desktop
+            .dependencies
+            .iter()
+            .any(|d| d.name == "devpulse-maestro");
+
+        anyhow::ensure!(
+            !has_maestro,
+            "IP BOUNDARY VIOLATION: desktop depends on maestro directly. \
+             All kernel access must go through devpulse-engine."
         );
-    }
-    println!("  [OK] Desktop does not depend on maestro directly");
+        s1.ok();
 
-    // 2. Engine MUST depend on maestro (facade pattern)
-    let engine = metadata
-        .packages
-        .iter()
-        .find(|p| p.name == "devpulse-engine")
-        .context("Engine package not found in workspace")?;
+        // 2. Engine MUST depend on maestro
+        let s2 = Stage::start("engine facade");
+        let engine = metadata
+            .packages
+            .iter()
+            .find(|p| p.name == "devpulse-engine")
+            .context("package devpulse-engine not found")?;
 
-    let engine_has_maestro = engine
-        .dependencies
-        .iter()
-        .any(|d| d.name == "devpulse-maestro");
+        let engine_has_maestro = engine
+            .dependencies
+            .iter()
+            .any(|d| d.name == "devpulse-maestro");
 
-    if !engine_has_maestro {
-        anyhow::bail!(
-            "IP BOUNDARY BROKEN: devpulse-engine does not depend on \
-             devpulse-maestro. The facade pattern requires this dependency."
+        anyhow::ensure!(
+            engine_has_maestro,
+            "IP BOUNDARY BROKEN: engine does not depend on maestro. \
+             The facade pattern requires this dependency."
         );
-    }
-    println!("  [OK] Engine depends on maestro (facade pattern)");
+        s2.ok();
 
-    // 3. Engine must have both feature gates
-    let feature_names: Vec<&str> = engine.features.keys().map(String::as_str).collect();
+        // 3. Feature gates
+        let s3 = Stage::start("feature gates");
+        let features: Vec<&str> = engine.features.keys().map(String::as_str).collect();
 
-    if !feature_names.contains(&"kernel") {
-        anyhow::bail!("Engine missing 'kernel' feature gate");
-    }
-    if !feature_names.contains(&"engine") {
-        anyhow::bail!("Engine missing 'engine' feature gate");
-    }
-    println!("  [OK] Feature gates present: kernel, engine");
+        anyhow::ensure!(features.contains(&"kernel"), "engine missing 'kernel' feature");
+        anyhow::ensure!(features.contains(&"engine"), "engine missing 'engine' feature");
+        s3.ok();
 
-    println!("IP boundary verified.");
-    Ok(())
+        println!();
+        println!("  IP boundary verified.");
+        Ok(())
+    }
 }

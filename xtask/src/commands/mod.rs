@@ -1,4 +1,24 @@
+//! Task-based command dispatch.
+//!
+//! Every subcommand implements [`Task`] — receives the shared [`Workspace`]
+//! context, reports progress via [`Stage`], returns `Result<()>`.
+
 pub mod dev;
 pub mod ip_boundary;
 pub mod preflight;
 pub mod verify;
+
+use crate::workspace::Workspace;
+use anyhow::Result;
+
+/// A composable unit of work in the DevPulse orchestrator.
+///
+/// Implemented by every subcommand. The [`Workspace`] context is created
+/// once in `main()` and threaded through — no re-discovery per command.
+pub trait Task {
+    /// Human-readable name for banner/logging output.
+    fn name(&self) -> &'static str;
+
+    /// Execute this task against the workspace.
+    fn run(&self, ws: &Workspace) -> Result<()>;
+}

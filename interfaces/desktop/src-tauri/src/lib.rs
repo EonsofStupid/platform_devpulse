@@ -30,8 +30,11 @@ pub fn run() {
             eprintln!("--- Platform Boot ---");
             eprintln!("  data: {}", data_dir.display());
 
-            // Boot platform on the tokio runtime
-            let rt = tokio::runtime::Handle::current();
+            // Boot platform — create a dedicated Tokio runtime for async init.
+            // Tauri's setup closure doesn't run inside a Tokio context,
+            // so Handle::current() would panic.
+            let rt = tokio::runtime::Runtime::new()
+                .expect("Failed to create Tokio runtime");
             let platform = rt.block_on(async {
                 Platform::boot(data_dir, |event| {
                     let symbol = match event.status {

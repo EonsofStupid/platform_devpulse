@@ -29,6 +29,9 @@ import type { Preset } from "$lib/design/registry/token-categories.js";
 /**
  * Reactive ColdLight prop resolution.
  *
+ * Returns an object whose properties read from $derived via getters,
+ * preserving Svelte 5 reactivity across component boundaries.
+ *
  * @param getProps - Getter function returning current ColdLight props (reactive via $derived)
  * @param kindDefaults - Static per-kind default preset values (e.g., Button → surface: "glass-void")
  * @returns ResolvedVisual — segments, encoding, radius, cssProperties, etc.
@@ -38,5 +41,17 @@ export function useColdLight(
 	kindDefaults?: Partial<Preset>,
 ): ResolvedVisual {
 	const resolved = $derived(resolveVisual(getProps(), kindDefaults));
-	return resolved;
+
+	return {
+		get values() { return resolved.values; },
+		get preset() { return resolved.preset; },
+		get encoding() { return resolved.encoding; },
+		get segments() { return resolved.segments; },
+		get radius() { return resolved.radius; },
+		get size() { return resolved.size; },
+		get cssProperties() { return resolved.cssProperties; },
+		get variant() { return resolved.variant; },
+		get svgFilters() { return resolved.svgFilters; },
+		get svgFilterClasses() { return resolved.svgFilterClasses; },
+	};
 }
