@@ -6,8 +6,8 @@
  *
  * Command palette PrimitiveContract — dialog + combobox composition for command search.
  *
- * ariaStateProvider: "meltui"
- * Builder: new CommandPalette() (composes Dialog + Combobox)
+ * ariaStateProvider: "coldlight"
+ * ColdLight-owned ARIA (builder pending)
  */
 
 import type { PrimitiveContract } from "../_schema/types.js";
@@ -15,7 +15,7 @@ import type { CommandPaletteSlot, CommandPaletteState } from "./types.js";
 
 export const contract = {
 	kind: "command-palette",
-	ariaStateProvider: "meltui",
+	ariaStateProvider: "coldlight",
 
 	// ─── Slots ───────────────────────────────────────────────────────────────
 	slots: {

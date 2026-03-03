@@ -6,13 +6,12 @@
  *
  * Menubar PrimitiveContract — horizontal menu bar with dropdown menus.
  *
- * ariaStateProvider: "meltui"
- * Builder: new Menubar()
- * 3-folder parity: primitives/menubar/ + api/adapters/meltui/_internal/menubar/ + components/menubar/
+ * ariaStateProvider: "coldlight"
+ * ColdLight-owned ARIA (builder pending)
  *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/menubar/
  *
- * ARIA (handled by MeltUI adapter):
+ * ARIA:
  *   root: role="menubar"
  *   trigger: role="menuitem", aria-haspopup, aria-expanded, aria-controls → content
  *   content: role="menu", aria-labelledby → trigger
@@ -36,7 +35,7 @@ import type { MenubarSlot, MenubarState } from "./types.js";
 
 export const contract = {
 	kind: "menubar",
-	ariaStateProvider: "meltui",
+	ariaStateProvider: "coldlight",
 
 	slots: {
 		required: ["root", "menu", "trigger", "content", "item"],

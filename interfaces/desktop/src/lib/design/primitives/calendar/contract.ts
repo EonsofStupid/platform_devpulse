@@ -6,8 +6,8 @@
  *
  * Calendar PrimitiveContract — grid-based date selection widget.
  *
- * ariaStateProvider: "meltui"
- * Builder: new Calendar()
+ * ariaStateProvider: "coldlight"
+ * ColdLight-owned ARIA (builder pending)
  */
 
 import type { PrimitiveContract } from "../_schema/types.js";
@@ -15,7 +15,7 @@ import type { CalendarSlot, CalendarState } from "./types.js";
 
 export const contract = {
 	kind: "calendar",
-	ariaStateProvider: "meltui",
+	ariaStateProvider: "coldlight",
 
 	// ─── Slots ───────────────────────────────────────────────────────────────
 	slots: {

@@ -6,13 +6,12 @@
  *
  * Dropdown Menu PrimitiveContract — menu with disclosure trigger.
  *
- * ariaStateProvider: "meltui"
- * Builder: new DropdownMenu()
- * 3-folder parity: primitives/dropdown-menu/ + api/adapters/meltui/_internal/dropdown-menu/ + components/dropdown-menu/
+ * ariaStateProvider: "coldlight"
+ * ColdLight-owned ARIA (builder pending)
  *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/menu/
  *
- * ARIA (handled by MeltUI adapter):
+ * ARIA:
  *   trigger: role="button", aria-haspopup, aria-expanded, aria-controls → content
  *   content: role="menu", aria-labelledby → trigger
  *   item: role="menuitem"
@@ -36,7 +35,7 @@ import type { DropdownMenuSlot, DropdownMenuState } from "./types.js";
 
 export const contract = {
 	kind: "dropdown-menu",
-	ariaStateProvider: "meltui",
+	ariaStateProvider: "coldlight",
 
 	slots: {
 		required: ["trigger", "content", "item"],

@@ -6,8 +6,8 @@
  *
  * Date picker PrimitiveContract — combined date field + calendar popup for date selection.
  *
- * ariaStateProvider: "meltui"
- * Builder: new DatePicker()
+ * ariaStateProvider: "coldlight"
+ * ColdLight-owned ARIA (builder pending)
  */
 
 import type { PrimitiveContract } from "../_schema/types.js";
@@ -15,7 +15,7 @@ import type { DatePickerSlot, DatePickerState } from "./types.js";
 
 export const contract = {
 	kind: "date-picker",
-	ariaStateProvider: "meltui",
+	ariaStateProvider: "coldlight",
 
 	// ─── Slots ───────────────────────────────────────────────────────────────
 	slots: {

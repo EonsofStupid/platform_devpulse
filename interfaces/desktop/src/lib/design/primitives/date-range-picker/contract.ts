@@ -6,8 +6,8 @@
  *
  * Date range picker PrimitiveContract — combined range field + calendar popup for range selection.
  *
- * ariaStateProvider: "meltui"
- * Builder: new DateRangePicker()
+ * ariaStateProvider: "coldlight"
+ * ColdLight-owned ARIA (builder pending)
  */
 
 import type { PrimitiveContract } from "../_schema/types.js";
@@ -15,7 +15,7 @@ import type { DateRangePickerSlot, DateRangePickerState } from "./types.js";
 
 export const contract = {
 	kind: "date-range-picker",
-	ariaStateProvider: "meltui",
+	ariaStateProvider: "coldlight",
 
 	// ─── Slots ───────────────────────────────────────────────────────────────
 	slots: {

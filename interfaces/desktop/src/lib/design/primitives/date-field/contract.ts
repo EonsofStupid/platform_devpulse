@@ -6,8 +6,8 @@
  *
  * Date field PrimitiveContract — segmented date input fields with spinbutton segments.
  *
- * ariaStateProvider: "meltui"
- * Builder: new DateField()
+ * ariaStateProvider: "coldlight"
+ * ColdLight-owned ARIA (builder pending)
  */
 
 import type { PrimitiveContract } from "../_schema/types.js";
@@ -15,7 +15,7 @@ import type { DateFieldSlot, DateFieldState } from "./types.js";
 
 export const contract = {
 	kind: "date-field",
-	ariaStateProvider: "meltui",
+	ariaStateProvider: "coldlight",
 
 	// ─── Slots ───────────────────────────────────────────────────────────────
 	slots: {

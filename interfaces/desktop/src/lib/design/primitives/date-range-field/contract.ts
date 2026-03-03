@@ -6,8 +6,8 @@
  *
  * Date range field PrimitiveContract — two segmented date fields for range input.
  *
- * ariaStateProvider: "meltui"
- * Builder: new DateRangeField()
+ * ariaStateProvider: "coldlight"
+ * ColdLight-owned ARIA (builder pending)
  */
 
 import type { PrimitiveContract } from "../_schema/types.js";
@@ -15,7 +15,7 @@ import type { DateRangeFieldSlot, DateRangeFieldState } from "./types.js";
 
 export const contract = {
 	kind: "date-range-field",
-	ariaStateProvider: "meltui",
+	ariaStateProvider: "coldlight",
 
 	// ─── Slots ───────────────────────────────────────────────────────────────
 	slots: {

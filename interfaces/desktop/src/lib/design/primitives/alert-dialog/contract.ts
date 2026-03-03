@@ -6,13 +6,12 @@
  *
  * Alert Dialog PrimitiveContract — modal dialog requiring acknowledgment.
  *
- * ariaStateProvider: "meltui"
- * Builder: new AlertDialog()
- * 3-folder parity: primitives/alert-dialog/ + api/adapters/meltui/_internal/alert-dialog/ + components/alert-dialog/
+ * ariaStateProvider: "coldlight"
+ * ColdLight-owned ARIA (builder pending)
  *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/
  *
- * ARIA (handled by MeltUI adapter):
+ * ARIA:
  *   trigger: role="button", aria-haspopup, aria-expanded, aria-controls → content
  *   content: role="alertdialog", aria-modal, aria-labelledby → title, aria-describedby → description
  *   action: role="button"
@@ -28,7 +27,7 @@ import type { AlertDialogSlot, AlertDialogState } from "./types.js";
 
 export const contract = {
 	kind: "alert-dialog",
-	ariaStateProvider: "meltui",
+	ariaStateProvider: "coldlight",
 
 	slots: {
 		required: ["trigger", "overlay", "content", "title", "description", "action", "cancel"],

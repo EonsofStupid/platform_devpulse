@@ -6,13 +6,12 @@
  *
  * Link Preview PrimitiveContract — tooltip-like hover preview.
  *
- * ariaStateProvider: "meltui"
- * Builder: new LinkPreview()
- * 3-folder parity: primitives/link-preview/ + api/adapters/meltui/_internal/link-preview/ + components/link-preview/
+ * ariaStateProvider: "coldlight"
+ * ColdLight-owned ARIA (builder pending)
  *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/
  *
- * ARIA (handled by MeltUI adapter):
+ * ARIA:
  *   trigger: role="link", aria-describedby → content
  *   content: role="tooltip", aria-label
  *
@@ -25,7 +24,7 @@ import type { LinkPreviewSlot, LinkPreviewState } from "./types.js";
 
 export const contract = {
 	kind: "link-preview",
-	ariaStateProvider: "meltui",
+	ariaStateProvider: "coldlight",
 
 	slots: {
 		required: ["trigger", "content"],

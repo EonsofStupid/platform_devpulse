@@ -6,13 +6,12 @@
  *
  * Pagination PrimitiveContract — navigation landmark with page controls.
  *
- * ariaStateProvider: "meltui"
- * Builder: new Pagination()
- * 3-folder parity: primitives/pagination/ + api/adapters/meltui/_internal/pagination/ + components/pagination/
+ * ariaStateProvider: "coldlight"
+ * ColdLight-owned ARIA (builder pending)
  *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/landmarks/
  *
- * ARIA (handled by MeltUI adapter):
+ * ARIA:
  *   root: role="navigation", aria-label
  *   previous: role="button", aria-label, aria-disabled
  *   next: role="button", aria-label, aria-disabled
@@ -28,7 +27,7 @@ import type { PaginationSlot, PaginationState } from "./types.js";
 
 export const contract = {
 	kind: "pagination",
-	ariaStateProvider: "meltui",
+	ariaStateProvider: "coldlight",
 
 	slots: {
 		required: ["root", "previous", "next", "page"],

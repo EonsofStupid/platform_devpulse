@@ -6,13 +6,12 @@
  *
  * Tags Input PrimitiveContract — composite widget with editable tags.
  *
- * ariaStateProvider: "meltui"
- * Builder: new TagsInput()
- * 3-folder parity: primitives/tags-input/ + api/adapters/meltui/_internal/tags-input/ + components/tags-input/
+ * ariaStateProvider: "coldlight"
+ * ColdLight-owned ARIA (builder pending)
  *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/listbox/
  *
- * ARIA (handled by MeltUI adapter):
+ * ARIA:
  *   root: no explicit role, optional aria-labelledby
  *   tag: role="option", aria-selected, aria-disabled
  *   tag-delete: role="button", aria-label
@@ -30,7 +29,7 @@ import type { TagsInputSlot, TagsInputState } from "./types.js";
 
 export const contract = {
 	kind: "tags-input",
-	ariaStateProvider: "meltui",
+	ariaStateProvider: "coldlight",
 
 	slots: {
 		required: ["root", "tag", "tag-delete", "input"],

@@ -6,9 +6,8 @@
  *
  * Context Menu PrimitiveContract — menu triggered by right-click.
  *
- * ariaStateProvider: "meltui"
- * Builder: new ContextMenu()
- * 3-folder parity: primitives/context-menu/ + api/adapters/meltui/_internal/context-menu/ + components/context-menu/
+ * ariaStateProvider: "coldlight"
+ * Builder: ColdLight context-menu (coldlight/_internal/context-menu/).
  *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/menu/
  *
@@ -36,7 +35,7 @@ import type { ContextMenuSlot, ContextMenuState } from "./types.js";
 
 export const contract = {
 	kind: "context-menu",
-	ariaStateProvider: "meltui",
+	ariaStateProvider: "coldlight",
 
 	slots: {
 		required: ["trigger", "content", "item"],

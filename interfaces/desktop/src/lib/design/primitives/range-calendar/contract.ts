@@ -6,8 +6,8 @@
  *
  * Range calendar PrimitiveContract — grid-based date range selection widget.
  *
- * ariaStateProvider: "meltui"
- * Builder: new RangeCalendar()
+ * ariaStateProvider: "coldlight"
+ * ColdLight-owned ARIA (builder pending)
  */
 
 import type { PrimitiveContract } from "../_schema/types.js";
@@ -15,7 +15,7 @@ import type { RangeCalendarSlot, RangeCalendarState } from "./types.js";
 
 export const contract = {
 	kind: "range-calendar",
-	ariaStateProvider: "meltui",
+	ariaStateProvider: "coldlight",
 
 	// ─── Slots ───────────────────────────────────────────────────────────────
 	slots: {
