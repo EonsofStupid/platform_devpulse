@@ -14,7 +14,7 @@
 
 import { render } from "vitest-browser-svelte";
 import { expect, test, describe } from "vitest";
-import { Avatar } from "$lib/design/ui/avatar/index.js";
+import { Avatar } from "./index.js";
 import { contract } from "./contract.js";
 
 // =============================================================================

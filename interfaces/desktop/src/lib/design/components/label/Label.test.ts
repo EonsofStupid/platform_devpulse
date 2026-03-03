@@ -1,7 +1,7 @@
 import { render } from "vitest-browser-svelte";
 import { expect, test, describe } from "vitest";
 import { contract } from "./contract.js";
-import { Label } from "$lib/design/ui/label/index.js";
+import { Label } from "./index.js";
 
 describe("label component — contract", () => {
 	test("contract.kind is 'label'", () => {

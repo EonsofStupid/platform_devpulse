@@ -3,31 +3,47 @@
 	@kind banner
 	@layer components
 
-	ColdLight Banner — builder-driven ARIA + state. ZERO visual.
-	Builder owns ALL ARIA, keyboard, data attributes.
-	Visual (recipe, ColdLight encoding) applied by ui/banner/.
+	ColdLight Banner — builder-driven, 8-axis visual system.
 -->
 <script lang="ts">
-	import type { BannerComponentProps } from "./types.js";
+	import type { BannerProps } from "./types.js";
+	import { BANNER_INTENT_PRESETS } from "./types.js";
 	import { createBanner } from "$lib/design/api/adapters/coldlight/_internal/banner/index.js";
 	import BannerRoot from "$lib/design/primitives/banner/Banner.svelte";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+	import { bannerRecipe } from "./recipe.js";
+	import { cn } from "$lib/design/primitives/types.js";
 
 	let {
 		intent = "info",
 		visible = true,
 		onVisibleChange,
+		preset,
+		surface, material, depth, bevel, glow, frame, motion, transition,
+		encoding, radius,
 		children,
 		class: className,
 		...rest
-	}: BannerComponentProps = $props();
+	}: BannerProps = $props();
 
-	// Builder owns ARIA, keyboard, state
 	const builder = createBanner({
 		visible: () => visible,
-		onVisibleChange: (v: boolean) => onVisibleChange?.(v),
+		onVisibleChange: (v: any) => onVisibleChange?.(v),
 	});
+
+	const visual = useColdLight(
+		() => ({
+			preset: preset ?? BANNER_INTENT_PRESETS[intent as keyof typeof BANNER_INTENT_PRESETS],
+			surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius: radius ?? "md",
+		}),
+	);
+
+	const classes = $derived(
+		cn(bannerRecipe({ intent }), visual.segments, visual.radius, className),
+	);
 </script>
 
-<BannerRoot {...builder.root} {...rest} class={className}>
+<BannerRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>
 	{@render children?.()}
 </BannerRoot>

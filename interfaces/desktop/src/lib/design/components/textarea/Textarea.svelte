@@ -3,39 +3,51 @@
 	@kind textarea
 	@layer components
 
-	ARIA + state only. Builder-driven. ZERO visual.
-	Self-closing element — no children.
+	ColdLight Textarea — builder-driven, 8-axis visual system.
 -->
 <script lang="ts">
-	import type { TextareaComponentProps } from "./types.js";
+	import type { TextareaProps } from "./types.js";
 	import { createTextarea } from "$lib/design/api/adapters/coldlight/_internal/textarea/index.js";
 	import TextareaRoot from "$lib/design/primitives/textarea/Textarea.svelte";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+	import { textareaRecipe } from "./recipe.js";
+	import { cn } from "$lib/design/primitives/types.js";
 
 	let {
-		value,
-		invalid = false,
-		rows = 3,
+		size = "md",
 		disabled = false,
-		readonly: readonlyProp = false,
+		readonly: readOnly = false,
 		required = false,
+		invalid = false,
+		rows,
 		onValueChange,
+		preset,
+		surface, material, depth, bevel, glow, frame, motion, transition,
+		encoding, radius,
 		class: className,
 		...rest
-	}: TextareaComponentProps = $props();
+	}: TextareaProps = $props();
 
 	const builder = createTextarea({
-		value: () => value as string | undefined,
 		disabled: () => disabled,
-		readonly: () => readonlyProp,
+		readonly: () => readOnly,
 		required: () => required,
 		invalid: () => invalid,
 		rows: () => rows,
 		onValueChange: (v: any) => onValueChange?.(v),
 	});
+
+	const visual = useColdLight(
+		() => ({
+			preset: preset ?? "textarea-default",
+			surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius: radius ?? "md",
+		}),
+	);
+
+	const classes = $derived(
+		cn(textareaRecipe({ size }), visual.segments, visual.radius, className),
+	);
 </script>
 
-<TextareaRoot
-	{...builder.root}
-	{...rest}
-	class={className}
-/>
+<TextareaRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined} />

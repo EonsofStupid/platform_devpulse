@@ -3,30 +3,43 @@
 	@kind separator
 	@layer components
 
-	ColdLight Separator — builder-driven ARIA + state. ZERO visual.
-	Builder owns ALL ARIA (role, aria-orientation, aria-hidden).
-	Visual (recipe, ColdLight encoding, variant) applied by ui/separator/.
+	ColdLight Separator — builder-driven, 8-axis visual system.
 -->
 <script lang="ts">
-	import type { SeparatorComponentProps } from "./types.js";
+	import type { SeparatorProps } from "./types.js";
 	import { createSeparator } from "$lib/design/api/adapters/coldlight/_internal/separator/index.js";
 	import SeparatorRoot from "$lib/design/primitives/separator/Separator.svelte";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+	import { separatorRecipe } from "./recipe.js";
+	import { cn } from "$lib/design/primitives/types.js";
 
 	let {
 		orientation = "horizontal",
 		decorative = false,
+		variant = "solid",
+		preset,
+		surface, material, depth, bevel, glow, frame, motion, transition,
+		encoding, radius,
 		class: className,
 		...rest
-	}: SeparatorComponentProps = $props();
+	}: SeparatorProps = $props();
 
 	const builder = createSeparator({
-		get orientation() { return orientation; },
-		get decorative() { return decorative; },
+		orientation: () => orientation,
+		decorative: () => decorative,
 	});
+
+	const visual = useColdLight(
+		() => ({
+			preset: preset ?? "divider-default",
+			surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius: radius ?? "none",
+		}),
+	);
+
+	const classes = $derived(
+		cn(separatorRecipe({ orientation, variant }), visual.segments, visual.radius, className),
+	);
 </script>
 
-<SeparatorRoot
-	{...builder.root}
-	{...rest}
-	class={className}
-/>
+<SeparatorRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined} />

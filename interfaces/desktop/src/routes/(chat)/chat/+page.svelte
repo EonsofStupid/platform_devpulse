@@ -4,11 +4,22 @@
   @domain chat
 
   Chat interface for the Maestro AI assistant.
+  Uses ColdLight components with registered chat presets.
   Renders in a separate Tauri window (450x600).
 -->
 <script lang="ts">
 	import { Send, Mic, Sparkles } from "lucide-svelte";
 	import { platformHealth } from "$lib/sys/runes/health.svelte.js";
+	import {
+		Box,
+		Button,
+		Text,
+		Heading,
+		HStack,
+		Stack,
+		Input,
+		Badge,
+	} from "$lib/design/index.js";
 
 	interface ChatMessage {
 		id: string;
@@ -73,83 +84,100 @@
 	}
 </script>
 
-<div class="flex h-full gap-0">
+<Box class="flex h-full gap-0">
 	<!-- Thread sidebar -->
-	<div class="flex w-24 flex-col gap-1 border-r border-border-divider px-2 py-3">
+	<Stack gap="1" class="w-24 border-r border-border-divider px-2 py-3">
 		{#each threads as thread (thread.id)}
-			<button
-				class="rounded-md px-2 py-1.5 text-xs font-medium transition-colors"
-				class:text-teal-400={thread.active}
-				class:v-s1={thread.active}
-				class:text-text-muted={!thread.active}
-				style={thread.active ? "color: var(--color-teal-400); text-shadow: 0 0 8px oklch(0.55 0.18 180 / 0.4);" : "color: var(--text-muted);"}
+			<Button
+				intent="ghost"
+				size="sm"
+				surface={thread.active ? "glass-void" : undefined}
+				glow={thread.active ? "teal" : undefined}
+				radius="md"
+				class="text-xs font-medium {thread.active ? 'text-teal-400' : 'text-text-muted'}"
 				onclick={() => setActiveThread(thread.id)}
 			>
 				{thread.label}
-			</button>
+			</Button>
 		{/each}
-	</div>
+	</Stack>
 
 	<!-- Chat area -->
-	<div class="flex flex-1 flex-col">
+	<Stack class="flex-1">
 		{#if !platformHealth.isHealthy && platformHealth.initialized}
-			<div class="px-3 py-1.5 text-center text-xs" style="background: oklch(0.3 0.05 30 / 0.3); color: var(--signal-error); border-bottom: 1px solid var(--border-subtle);">
-				Platform {platformHealth.status.toLowerCase()} — some features may be unavailable
-			</div>
+			<Box
+				preset="banner-warning"
+				radius="none"
+				class="px-3 py-1.5 text-center text-xs border-b border-border-subtle"
+			>
+				<Text size="xs" color="accent">
+					Platform {platformHealth.status.toLowerCase()} — some features may be unavailable
+				</Text>
+			</Box>
 		{/if}
+
 		<!-- Messages -->
-		<div class="flex-1 overflow-y-auto scrollbar-thin p-3">
-			<div class="flex flex-col gap-3">
+		<Box class="flex-1 overflow-y-auto scrollbar-thin p-3">
+			<Stack gap="3">
 				{#each messages as msg (msg.id)}
-					<div class="flex flex-col gap-1" class:items-end={msg.role === "user"}>
-						<div
-							class="max-w-[85%] rounded-lg px-3 py-2 text-sm"
-							class:v-s1={msg.role === "user"}
-							class:v-s2={msg.role === "assistant"}
-							style={msg.role === "user"
-								? "border: 1px solid var(--border-subtle); color: var(--text-primary);"
-								: "border: 1px solid var(--border-soft); color: var(--text-primary);"}
+					<Stack gap="1" class={msg.role === "user" ? "items-end" : ""}>
+						<Box
+							preset={msg.role === "assistant" ? "chat-bubble-ai" : "chat-bubble-user"}
+							radius="lg"
+							frame="soft"
+							class="max-w-[85%] px-3 py-2"
 						>
 							{#if msg.role === "assistant"}
-								<div class="mb-1 flex items-center gap-1.5">
-									<Sparkles size={12} style="color: var(--color-teal-400);" />
-									<span class="text-xs font-semibold" style="color: var(--color-teal-400); font-family: var(--font-display);">Maestro</span>
-								</div>
+								<HStack gap="1" class="mb-1">
+									<Sparkles size={12} class="text-teal-400" />
+									<Heading level={6} size="xs" class="font-display text-teal-400">Maestro</Heading>
+								</HStack>
 							{/if}
-							<div class="whitespace-pre-wrap leading-relaxed">{msg.content}</div>
-						</div>
-						<span class="px-1 text-xs" style="color: var(--text-muted);">{msg.timestamp}</span>
-					</div>
+							<Text size="sm" class="whitespace-pre-wrap leading-relaxed">{msg.content}</Text>
+						</Box>
+						<Text size="xs" color="muted" class="px-1">{msg.timestamp}</Text>
+					</Stack>
 				{/each}
-			</div>
-		</div>
+			</Stack>
+		</Box>
 
-		<!-- Input -->
-		<div class="flex items-center gap-2 border-t border-border-divider px-3 py-2 v-s2">
-			<button
-				class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
-				style="color: var(--color-teal-400); background: oklch(0.55 0.18 180 / 0.08); border: 1px solid oklch(0.55 0.18 180 / 0.15);"
+		<!-- Input area -->
+		<HStack
+			gap="2"
+			align="center"
+			preset="shell-statusbar"
+			class="border-t border-border-divider px-3 py-2"
+		>
+			<Button
+				intent="ghost"
+				size="sm"
+				glow="teal"
+				radius="full"
+				class="h-8 w-8 shrink-0"
 				title="Voice input"
 			>
 				<Mic size={14} />
-			</button>
+			</Button>
 			<input
 				type="text"
 				bind:value={inputValue}
 				onkeydown={handleKeydown}
 				placeholder="Ask Maestro..."
 				class="flex-1 rounded-md border px-3 py-1.5 text-sm outline-none"
-				style="background: var(--matte-dark); border-color: var(--border-subtle); color: var(--text-primary); font-family: var(--font-sans);"
+				style="background: var(--matte-dark); border-color: var(--border-subtle); color: var(--text-primary);"
 			/>
-			<button
-				class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
-				style="color: var(--color-teal-400); background: oklch(0.55 0.18 180 / 0.1); border: 1px solid oklch(0.55 0.18 180 / 0.2); opacity: {canSend ? 1 : 0.4};"
+			<Button
+				intent="ghost"
+				size="sm"
+				glow={canSend ? "teal" : undefined}
+				radius="full"
+				class="h-8 w-8 shrink-0"
 				onclick={sendMessage}
 				disabled={!canSend}
 				title={platformHealth.isHealthy ? "Send" : "Waiting for platform..."}
 			>
 				<Send size={14} />
-			</button>
-		</div>
-	</div>
-</div>
+			</Button>
+		</HStack>
+	</Stack>
+</Box>

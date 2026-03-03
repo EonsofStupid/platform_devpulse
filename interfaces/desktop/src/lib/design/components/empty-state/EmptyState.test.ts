@@ -14,7 +14,7 @@
 import { render } from "vitest-browser-svelte";
 import { expect, test, describe } from "vitest";
 import { contract } from "./contract.js";
-import { EmptyState } from "$lib/design/ui/empty-state/index.js";
+import { EmptyState } from "./index.js";
 
 // =============================================================================
 // CONTRACT INTEGRITY

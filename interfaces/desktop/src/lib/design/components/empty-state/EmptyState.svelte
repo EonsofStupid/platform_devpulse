@@ -3,25 +3,41 @@
 	@kind empty-state
 	@layer components
 
-	ColdLight EmptyState — builder-driven ARIA + state. ZERO visual.
-	Builder owns ALL ARIA, keyboard, data attributes.
-	Visual (recipe, ColdLight encoding) applied by ui/empty-state/.
+	ColdLight EmptyState — builder-driven, 8-axis visual system.
 -->
 <script lang="ts">
-	import type { EmptyStateComponentProps } from "./types.js";
+	import type { EmptyStateProps } from "./types.js";
 	import { createEmptyState } from "$lib/design/api/adapters/coldlight/_internal/empty-state/index.js";
 	import EmptyStateRoot from "$lib/design/primitives/empty-state/EmptyState.svelte";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+	import { emptyStateRecipe } from "./recipe.js";
+	import { cn } from "$lib/design/primitives/types.js";
 
 	let {
+		size = "md",
+		preset,
+		surface, material, depth, bevel, glow, frame, motion, transition,
+		encoding, radius,
 		children,
 		class: className,
 		...rest
-	}: EmptyStateComponentProps = $props();
+	}: EmptyStateProps = $props();
 
-	// Builder owns ARIA, keyboard, state
 	const builder = createEmptyState();
+
+	const visual = useColdLight(
+		() => ({
+			preset,
+			surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius: radius ?? "md",
+		}),
+	);
+
+	const classes = $derived(
+		cn(emptyStateRecipe({ size }), visual.segments, visual.radius, className),
+	);
 </script>
 
-<EmptyStateRoot {...builder.root} {...rest} class={className}>
+<EmptyStateRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>
 	{@render children?.()}
 </EmptyStateRoot>

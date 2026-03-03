@@ -16,7 +16,7 @@ export {
 	Button,
 	buttonComponentContract,
 	buttonRecipe,
-	type ButtonComponentProps,
+	type ButtonProps,
 	type ButtonSize,
 } from "./button/index.js";
 
@@ -27,7 +27,7 @@ export {
 export {
 	Grid,
 	gridRecipe,
-	type GridComponentProps,
+	type GridProps,
 	type GridColumns,
 	type GridGap,
 } from "./grid/index.js";
@@ -35,7 +35,7 @@ export {
 export {
 	Stack,
 	stackRecipe,
-	type StackComponentProps,
+	type StackProps,
 	type StackGap,
 	type StackAlign,
 } from "./stack/index.js";
@@ -43,7 +43,7 @@ export {
 export {
 	HStack,
 	hstackRecipe,
-	type HStackComponentProps,
+	type HStackProps,
 	type HStackGap,
 	type HStackAlign,
 	type HStackJustify,
@@ -52,14 +52,14 @@ export {
 export {
 	Box,
 	boxRecipe,
-	type BoxComponentProps,
+	type BoxProps,
 	type BoxPadding,
 } from "./box/index.js";
 
 export {
 	Container,
 	containerRecipe,
-	type ContainerComponentProps,
+	type ContainerProps,
 	type ContainerSize,
 } from "./container/index.js";
 
@@ -70,7 +70,7 @@ export {
 export {
 	Text,
 	textRecipe,
-	type TextComponentProps,
+	type TextProps,
 	type TextSize,
 	type TextWeight,
 	type TextColor,
@@ -80,7 +80,7 @@ export {
 export {
 	Heading,
 	headingRecipe,
-	type HeadingComponentProps,
+	type HeadingProps,
 	type HeadingLevel,
 	type HeadingSize,
 } from "./heading/index.js";
@@ -92,14 +92,14 @@ export {
 export {
 	Stat,
 	statRecipe,
-	type StatComponentProps,
+	type StatProps,
 	type StatSize,
 } from "./stat/index.js";
 
 export {
 	Badge,
 	badgeRecipe,
-	type BadgeComponentProps,
+	type BadgeProps,
 	type BadgeIntent,
 	type BadgeSize,
 } from "./badge/index.js";
@@ -107,7 +107,7 @@ export {
 export {
 	Card,
 	cardRecipe,
-	type CardComponentProps,
+	type CardProps,
 	type CardVariant,
 	type CardSize,
 } from "./card/index.js";
@@ -115,6 +115,6 @@ export {
 export {
 	Separator,
 	separatorRecipe,
-	type SeparatorComponentProps,
+	type SeparatorProps,
 	type SeparatorOrientation,
 } from "./separator/index.js";

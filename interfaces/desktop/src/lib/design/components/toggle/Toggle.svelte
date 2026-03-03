@@ -3,23 +3,27 @@
 	@kind toggle
 	@layer components
 
-	ARIA + state only. MeltUI transport-driven. ZERO visual.
-	Transport owns ARIA semantics (aria-pressed).
-	Reference: WAI-ARIA APG Button Pattern (Toggle)
+	ColdLight Toggle — MeltUI transport + 8-axis visual system.
 -->
 <script lang="ts">
-	import type { ToggleComponentProps } from "./types.js";
+	import type { ToggleProps } from "./types.js";
 	import { createToggleTransport } from "$lib/design/api/adapters/meltui/_internal/toggle/index.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+	import { toggleRecipe } from "./recipe.js";
+	import { cn } from "$lib/design/primitives/types.js";
 
 	let {
+		size = "md",
 		pressed = false,
 		onPressedChange,
 		disabled = false,
+		preset,
+		surface, material, depth, bevel, glow, frame, motion, transition,
+		encoding, radius,
 		children,
 		class: className,
-		// Rest spread
 		...rest
-	}: ToggleComponentProps = $props();
+	}: ToggleProps = $props();
 
 	const transport = createToggleTransport({
 		get disabled() { return disabled; },
@@ -27,31 +31,32 @@
 	});
 
 	$effect(() => {
-		transport.states.pressed = pressed;
-	});
-
-	$effect(() => {
-		if (transport.states.pressed !== pressed) {
-			onPressedChange?.(transport.states.pressed);
+		if (onPressedChange && transport.states.pressed !== pressed) {
+			onPressedChange(transport.states.pressed);
 		}
 	});
+
+	const visual = useColdLight(
+		() => ({
+			preset,
+			surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius,
+		}),
+	);
+
+	const classes = $derived(
+		cn(toggleRecipe({ size }), visual.segments, visual.radius, className),
+	);
 </script>
 
 <button
 	{...transport.slots.trigger}
 	{...rest}
-	class={className}
+	class={classes}
 	data-kind="toggle"
-	data-slot="trigger"
-	data-state={pressed ? "on" : "off"}
-	{disabled}
-	onclick={() => {
-		if (!disabled) {
-			const next = !pressed;
-			transport.states.pressed = next;
-			onPressedChange?.(next);
-		}
-	}}
+	data-slot="root"
+	data-state={transport.states.pressed ? "on" : "off"}
+	data-encoding={visual.encoding || undefined}
 >
 	{@render children?.()}
 </button>

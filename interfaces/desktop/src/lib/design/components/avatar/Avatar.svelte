@@ -3,74 +3,68 @@
 	@kind avatar
 	@layer components
 
-	ARIA + state only. ZERO visual.
-	Compound: root + image + fallback.
-	imageClass and fallbackClass injected by ui/ layer.
+	ColdLight Avatar — compound, 8-axis visual system.
 -->
 <script lang="ts">
-	import type { AvatarComponentProps } from "./types.js";
-	import type { AvatarLoadState } from "./types.js";
+	import type { AvatarProps, AvatarLoadState } from "./types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+	import { avatarRootRecipe, avatarImageRecipe, avatarFallbackRecipe } from "./recipe.js";
+	import { cn } from "$lib/design/primitives/types.js";
 
 	let {
-		// Kind-specific props
+		size = "md",
 		src,
 		alt,
-		fallback = "",
-		imageClass,
-		fallbackClass,
+		fallback,
+		preset,
+		surface, material, depth, bevel, glow, frame, motion, transition,
+		encoding, radius,
+		children,
 		class: className,
-		// Rest spread
 		...rest
-	}: AvatarComponentProps = $props();
+	}: AvatarProps = $props();
 
-	let loadState = $state<AvatarLoadState>("loading");
+	let loadState: AvatarLoadState = $state("loading");
 
-	$effect(() => {
-		loadState = src ? "loading" : "error";
-	});
+	function handleLoad() { loadState = "loaded"; }
+	function handleError() { loadState = "error"; }
 
-	const showImage = $derived(src && loadState === "loaded");
-	const showFallback = $derived(!src || loadState !== "loaded");
+	const visual = useColdLight(
+		() => ({
+			preset,
+			surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius: radius ?? "full",
+		}),
+	);
 
-	function handleLoad() {
-		loadState = "loaded";
-	}
-
-	function handleError() {
-		loadState = "error";
-	}
+	const rootClasses = $derived(cn(avatarRootRecipe({ size }), visual.segments, visual.radius, className));
+	const imageClasses = $derived(avatarImageRecipe());
+	const fallbackClasses = $derived(avatarFallbackRecipe());
 </script>
 
 <span
 	{...rest}
+	class={rootClasses}
 	data-kind="avatar"
 	data-slot="root"
 	data-state={loadState}
-	class={className}
-	role="img"
-	aria-label={alt}
+	data-encoding={visual.encoding || undefined}
 >
-	{#if src}
+	{#if src && loadState !== "error"}
 		<img
 			{src}
-			alt=""
-			data-kind="avatar"
+			{alt}
+			class={imageClasses}
 			data-slot="image"
-			class={imageClass}
-			aria-hidden="true"
 			onload={handleLoad}
 			onerror={handleError}
-			style:display={showImage ? "block" : "none"}
+			style:display={loadState === "loaded" ? undefined : "none"}
 		/>
 	{/if}
-	{#if showFallback && fallback}
-		<span
-			data-kind="avatar"
-			data-slot="fallback"
-			class={fallbackClass}
-			aria-hidden="true"
-		>
-			{fallback}
+	{#if loadState !== "loaded"}
+		<span class={fallbackClasses} data-slot="fallback" aria-hidden="true">
+			{fallback ?? alt?.charAt(0)?.toUpperCase() ?? "?"}
 		</span>
 	{/if}
+	{@render children?.()}
 </span>

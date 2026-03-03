@@ -10,4 +10,4 @@
 export { default as Spinner } from "./Spinner.svelte";
 export { contract as spinnerComponentContract } from "./contract.js";
 export { spinnerRecipe, type SpinnerSize } from "./recipe.js";
-export type { SpinnerComponentProps } from "./types.js";
+export type { SpinnerProps } from "./types.js";

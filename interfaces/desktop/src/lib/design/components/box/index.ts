@@ -1,9 +1,3 @@
-/**
- * @file Box Component Barrel
- * @kind box
- * @layer components
- */
-
 export { default as Box } from "./Box.svelte";
+export { type BoxProps, type BoxPadding, type BoxRadius } from "./types.js";
 export { boxRecipe } from "./recipe.js";
-export type { BoxComponentProps, BoxPadding, BoxRadius } from "./types.js";

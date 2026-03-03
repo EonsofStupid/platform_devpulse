@@ -3,56 +3,63 @@
 	@kind progress
 	@layer components
 
-	ARIA + state only. ZERO visual.
-	Compound: track (root) + indicator bar.
-	indicatorClass injected by ui/ layer.
+	ColdLight Progress — compound, 8-axis visual system.
 -->
 <script lang="ts">
-	import type { ProgressComponentProps } from "./types.js";
+	import type { ProgressProps } from "./types.js";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+	import { progressTrackRecipe, progressIndicatorRecipe } from "./recipe.js";
+	import { cn } from "$lib/design/primitives/types.js";
 
 	let {
-		// Kind-specific props
-		value = null,
+		size = "md",
+		value = 0,
 		max = 100,
-		indicatorClass,
+		preset,
+		surface, material, depth, bevel, glow, frame, motion, transition,
+		encoding, radius,
+		children,
 		class: className,
-		// Rest spread
 		...rest
-	}: ProgressComponentProps = $props();
+	}: ProgressProps = $props();
 
-	const isIndeterminate = $derived(value === null || value === undefined);
 	const clampedValue = $derived(
-		isIndeterminate ? 0 : Math.min(Math.max(value as number, 0), max),
+		value === null ? null : Math.min(Math.max(value ?? 0, 0), max),
 	);
 	const percentage = $derived(
-		isIndeterminate ? 0 : max > 0 ? (clampedValue / max) * 100 : 0,
+		clampedValue === null ? undefined : (clampedValue / max) * 100,
+	);
+	const indeterminate = $derived(value === null);
+
+	const visual = useColdLight(
+		() => ({
+			preset,
+			surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius: radius ?? "full",
+		}),
 	);
 
-	const dataState = $derived(
-		isIndeterminate
-			? "indeterminate"
-			: clampedValue >= max
-				? "complete"
-				: "loading",
-	);
+	const trackClasses = $derived(cn(progressTrackRecipe({ size }), visual.segments, visual.radius, className));
+	const indicatorClasses = $derived(progressIndicatorRecipe());
 </script>
 
 <div
 	{...rest}
-	data-kind="progress"
-	data-slot="root"
-	data-state={dataState}
-	class={className}
+	class={trackClasses}
 	role="progressbar"
-	aria-valuenow={isIndeterminate ? undefined : clampedValue}
+	aria-valuenow={clampedValue ?? undefined}
 	aria-valuemin={0}
 	aria-valuemax={max}
+	data-kind="progress"
+	data-slot="root"
+	data-state={indeterminate ? "indeterminate" : "determinate"}
+	data-encoding={visual.encoding || undefined}
 >
 	<div
-		data-kind="progress"
+		class={indicatorClasses}
 		data-slot="indicator"
-		class={indicatorClass}
-		style:width={isIndeterminate ? "100%" : `${percentage}%`}
-		aria-hidden="true"
+		style:width={percentage !== undefined ? `${percentage}%` : undefined}
+		data-state={indeterminate ? "indeterminate" : "determinate"}
 	></div>
+	{@render children?.()}
 </div>

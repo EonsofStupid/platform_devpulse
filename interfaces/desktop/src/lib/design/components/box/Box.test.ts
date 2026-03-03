@@ -11,7 +11,7 @@
 
 import { render } from "vitest-browser-svelte";
 import { expect, test, describe } from "vitest";
-import { Box } from "$lib/design/ui/box/index.js";
+import { Box } from "./index.js";
 import { contract } from "./contract.js";
 
 // =============================================================================

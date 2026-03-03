@@ -7,7 +7,7 @@ edition = "2021"
 
 [lib]
 name = "devpulse_desktop_backend"
-crate-type = ["staticlib", "cdylib", "rlib"]
+crate-type = ["lib"]
 
 [[bin]]
 name = "devpulse-desktop-app"

@@ -1,25 +1,26 @@
 /**
- * @file Banner Component Types
+ * @file Banner Types
  * @kind banner
  * @layer components
- *
- * ARIA + state only. ZERO visual.
- * Visual props (intent presets, ColdLightProps) belong in ui/banner/.
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 export type BannerIntent = "info" | "success" | "warning" | "error";
 
-/** Banner component props — ARIA + state only. ZERO visual. */
-export interface BannerComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps {
+export const BANNER_INTENT_PRESETS: Record<BannerIntent, string> = {
+	info: "banner-info",
+	success: "banner-success",
+	warning: "banner-warning",
+	error: "banner-error",
+};
+
+export interface BannerProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps, ColdLightProps {
 	children?: Snippet;
-	/** Semantic intent — drives ARIA state */
 	intent?: BannerIntent;
-	/** Whether the banner is visible */
 	visible?: boolean;
-	/** Called when visible state changes (e.g. on dismiss) */
 	onVisibleChange?: (visible: boolean) => void;
 }

@@ -1,21 +1,25 @@
 /**
- * @file Callout Component Types
+ * @file Callout Types
  * @kind callout
  * @layer components
- *
- * ARIA + state only. ZERO visual.
- * Visual props (variant presets, ColdLightProps) belong in ui/callout/.
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 export type CalloutVariant = "info" | "success" | "warning" | "error" | "tip";
 
-/** Callout component props — ARIA + state only. ZERO visual. */
-export interface CalloutComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps {
+export const CALLOUT_VARIANT_PRESETS: Record<CalloutVariant, string> = {
+	info: "callout-info",
+	success: "callout-info",
+	warning: "callout-warning",
+	error: "callout-warning",
+	tip: "callout-tip",
+};
+
+export interface CalloutProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps, ColdLightProps {
 	children?: Snippet;
-	/** Semantic variant — drives ARIA state via data-state */
 	variant?: CalloutVariant;
 }

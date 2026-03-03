@@ -3,31 +3,41 @@
 	@kind kbd
 	@layer components
 
-	ColdLight Kbd — builder-driven ARIA + state. ZERO visual.
-	Builder owns ALL data attributes.
-	Visual (recipe, ColdLight encoding) applied by ui/kbd/.
+	ColdLight Kbd — builder-driven, 8-axis visual system.
 -->
 <script lang="ts">
-	import type { KbdComponentProps } from "./types.js";
+	import type { KbdProps } from "./types.js";
 	import { createKbd } from "$lib/design/api/adapters/coldlight/_internal/kbd/index.js";
 	import KbdRoot from "$lib/design/primitives/kbd/Kbd.svelte";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+	import { kbdRecipe } from "./recipe.js";
+	import { cn } from "$lib/design/primitives/types.js";
 
 	let {
-		// Kind-specific props
 		size = "md",
+		preset,
+		surface, material, depth, bevel, glow, frame, motion, transition,
+		encoding, radius,
 		children,
 		class: className,
-		// Rest spread
 		...rest
-	}: KbdComponentProps = $props();
+	}: KbdProps = $props();
 
 	const builder = createKbd();
+
+	const visual = useColdLight(
+		() => ({
+			preset: preset ?? "kbd-default",
+			surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius: radius ?? "sm",
+		}),
+	);
+
+	const classes = $derived(
+		cn(kbdRecipe({ size }), visual.segments, visual.radius, className),
+	);
 </script>
 
-<KbdRoot
-	{...builder.root}
-	{...rest}
-	class={className}
->
+<KbdRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>
 	{@render children?.()}
 </KbdRoot>

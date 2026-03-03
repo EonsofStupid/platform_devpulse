@@ -3,18 +3,40 @@
 	@kind hstack
 	@layer components
 
-	ColdLight HStack — builder-driven data attributes. ZERO visual.
+	ColdLight HStack — layout primitive, 8-axis visual system.
 -->
 <script lang="ts">
-	import type { HStackComponentProps } from "./types.js";
+	import type { HStackProps } from "./types.js";
 	import { createHStack } from "$lib/design/api/adapters/coldlight/_internal/hstack/index.js";
 	import HStackRoot from "$lib/design/primitives/hstack/HStack.svelte";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+	import { hstackRecipe } from "./recipe.js";
+	import { cn } from "$lib/design/primitives/types.js";
 
-	let { children, class: className, ...rest }: HStackComponentProps = $props();
+	let {
+		gap,
+		align,
+		justify,
+		preset,
+		surface, material, depth, bevel, glow, frame, motion, transition,
+		encoding, radius, size,
+		children,
+		class: className,
+		...rest
+	}: HStackProps = $props();
 
 	const builder = createHStack();
+
+	const visual = useColdLight(
+		() => ({
+			preset, surface, material, depth, bevel, glow, frame, motion, transition,
+			encoding, radius, size,
+		}),
+	);
+
+	const classes = $derived(cn(hstackRecipe({ gap, align, justify }), visual.segments, visual.radius, className));
 </script>
 
-<HStackRoot {...builder.root} {...rest} class={className}>
+<HStackRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>
 	{@render children?.()}
 </HStackRoot>

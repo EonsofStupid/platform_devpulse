@@ -3,45 +3,49 @@
 	@kind alert
 	@layer components
 
-	ColdLight Alert — builder-driven ARIA + state. ZERO visual.
-	Builder owns ALL ARIA, keyboard, data attributes.
-	Visual (recipe, ColdLight encoding) applied by ui/alert/.
-
-	Usage (from ui/ layer):
-	  <Alert {closable} {onClose} class={computedClasses} />
+	ColdLight Alert — builder-driven, 8-axis visual system.
 -->
 <script lang="ts">
-	import type { AlertComponentProps } from "./types.js";
+	import type { AlertProps } from "./types.js";
+	import { ALERT_INTENT_PRESETS } from "./types.js";
 	import { createAlert } from "$lib/design/api/adapters/coldlight/_internal/alert/index.js";
 	import AlertRoot from "$lib/design/primitives/alert/Alert.svelte";
+	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+	import { alertRecipe } from "./recipe.js";
+	import { cn } from "$lib/design/primitives/types.js";
 
 	let {
+		intent = "info",
 		closable = false,
 		onClose,
+		preset,
+		surface, material, depth, bevel, glow, frame, motion, transition,
+		encoding, radius,
 		children,
 		class: className,
 		...rest
-	}: AlertComponentProps = $props();
+	}: AlertProps = $props();
 
-	// Builder owns ARIA, keyboard, state
 	const builder = createAlert({
-		onVisibleChange: (visible) => {
-			if (!visible) onClose?.();
-		},
+		visible: true,
+		onVisibleChange: (v: boolean) => { if (!v) onClose?.(); },
 	});
+
+	const visual = useColdLight(
+		() => ({
+			preset: preset ?? ALERT_INTENT_PRESETS[intent as keyof typeof ALERT_INTENT_PRESETS],
+			surface: surface ?? "glass-void",
+			material, depth: depth ?? "z1", bevel, glow,
+			frame: frame ?? "soft", motion, transition,
+			encoding, radius: radius ?? "lg",
+		}),
+	);
+
+	const classes = $derived(
+		cn(alertRecipe(), visual.segments, visual.radius, className),
+	);
 </script>
 
-<AlertRoot {...builder.root} {...rest} class={className}>
+<AlertRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>
 	{@render children?.()}
-	{#if closable}
-		<button
-			{...builder.action}
-			type="button"
-			class="absolute top-2 right-2 inline-flex items-center justify-center rounded-sm p-1 opacity-70 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current"
-			aria-label="Close alert"
-			data-slot="action"
-		>
-			<span aria-hidden="true">&times;</span>
-		</button>
-	{/if}
 </AlertRoot>

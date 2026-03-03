@@ -1,17 +1,17 @@
 /**
- * @file EmptyState Component Types
+ * @file EmptyState Types
  * @kind empty-state
  * @layer components
- *
- * ARIA + state only. ZERO visual.
- * Visual props (size, ColdLightProps) belong in ui/empty-state/.
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
-/** EmptyState component props — ARIA + state only. ZERO visual. */
-export interface EmptyStateComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps {
+export type EmptyStateSize = "sm" | "md" | "lg";
+
+export interface EmptyStateProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps, ColdLightProps {
 	children?: Snippet;
+	size?: EmptyStateSize;
 }

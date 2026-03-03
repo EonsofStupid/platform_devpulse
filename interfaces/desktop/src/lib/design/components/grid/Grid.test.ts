@@ -11,7 +11,7 @@
 
 import { render } from "vitest-browser-svelte";
 import { expect, test, describe } from "vitest";
-import { Grid } from "$lib/design/ui/grid/index.js";
+import { Grid } from "./index.js";
 import { contract } from "./contract.js";
 
 // =============================================================================

@@ -14,7 +14,7 @@
 import { render } from "vitest-browser-svelte";
 import { expect, test, describe } from "vitest";
 import { contract } from "./contract.js";
-import { Skeleton } from "$lib/design/ui/skeleton/index.js";
+import { Skeleton } from "./index.js";
 
 // =============================================================================
 // CONTRACT INTEGRITY

@@ -85,6 +85,10 @@ export interface ResolvedVisual {
 	cssProperties: Record<string, string>;
 	/** Preset ID that was applied, if any — drives data-variant attribute */
 	variant: string | undefined;
+	/** SVG filter IDs from resolved categories: ["bevel-soft", "noise-subtle"] */
+	svgFilters: string[];
+	/** Tailwind filter utility classes: "filter-bevel-soft filter-noise-subtle" */
+	svgFilterClasses: string;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -255,6 +259,23 @@ export function resolveVisual(
 		}
 	}
 
+	// Collect SVG filters from all resolved categories
+	const svgFilters: string[] = [];
+	for (const cat of TOKEN_CATEGORY_REGISTRY) {
+		const idx = values[cat.code as keyof EncodingIndices];
+		const value = cat.values[idx];
+		if (value?.svgFilters) {
+			for (const filterId of value.svgFilters) {
+				if (!svgFilters.includes(filterId)) svgFilters.push(filterId);
+			}
+		}
+	}
+
+	// Map filter IDs to Tailwind utility classes (from svg/filters/filters.css)
+	const svgFilterClasses = svgFilters
+		.map((id) => `filter-${id}`)
+		.join(" ");
+
 	// Radius (not part of encoding — applied directly as Tailwind class)
 	const radius = RADIUS_MAP[input.radius ?? "md"] ?? RADIUS_MAP.md;
 
@@ -270,6 +291,8 @@ export function resolveVisual(
 		size,
 		cssProperties,
 		variant: input.preset,
+		svgFilters,
+		svgFilterClasses,
 	};
 }
 

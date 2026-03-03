@@ -1,19 +1,21 @@
 /**
- * @file Grid Component Types
+ * @file Grid Types
  * @kind grid
  * @layer components
- *
- * ZERO visual. Layout vocab types kept for recipe/ui consumption.
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
-export type GridColumns = "1" | "2" | "3" | "4" | "5" | "6" | "12" | "none";
-export type GridGap = "0" | "1" | "2" | "3" | "4" | "6" | "8" | "10" | "12";
-export type GridRows = "1" | "2" | "3" | "4" | "5" | "6" | "none";
+export type GridColumns = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "11" | "12" | "auto" | "none";
+export type GridGap = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "8" | "10" | "12" | "none";
+export type GridRows = "1" | "2" | "3" | "4" | "5" | "6" | "auto" | "none";
 
-export interface GridComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps {
+export interface GridProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps, ColdLightProps {
 	children?: Snippet;
+	columns?: GridColumns;
+	gap?: GridGap;
+	rows?: GridRows;
 }

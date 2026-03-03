@@ -1,10 +1,4 @@
-/**
- * @file Textarea Component Barrel
- * @kind textarea
- * @layer components
- */
-
 export { default as Textarea } from "./Textarea.svelte";
+export { type TextareaProps, type TextareaSize } from "./types.js";
 export { contract as textareaComponentContract } from "./contract.js";
 export { textareaRecipe } from "./recipe.js";
-export type { TextareaComponentProps } from "./types.js";
