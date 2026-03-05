@@ -36,41 +36,38 @@ impl Task for Dev {
         // ── Stage 2: Pre-flight ──
         Preflight.run(ws)?;
 
-        // ── Stage 3+4: Backend check (background) + Port management (parallel) ──
+        // ── Stage 3+4: Backend check (verbose) + Port management (parallel) ──
         //
         // `cargo check -p devpulse_desktop_backend` transitively compiles:
         //   devpulse_desktop_backend → devpulse-engine → devpulse-maestro
         //   Including: Platform facade, all 4 store adapters, health checks.
         //
-        // Spawned via spawn_in() so port management runs in parallel.
-        // On a warm cache this is <1s. On cold it catches compile errors
-        // BEFORE wasting time on the slow Tauri dev build.
+        // Spawned via spawn_in_verbose() — stderr streams to the terminal
+        // so the user sees cargo's real-time progress (Compiling X, Checking Y).
+        // On a warm cache this is <1s. On cold it shows every crate as it builds.
         stage::section("Backend");
+        println!("  > cargo check -p devpulse_desktop_backend");
         let s_backend = Stage::start("compile check");
-        let cargo_child = ws.spawn_in(
+        let mut cargo_child = ws.spawn_in_verbose(
             ws.root(),
             "cargo",
-            &["check", "-p", "devpulse_desktop_backend", "-q"],
+            &["check", "-p", "devpulse_desktop_backend"],
         )?;
 
         // Port management runs WHILE backend compiles
         stage::section("Port Check");
         net::ensure_port_free(net::DEV_PORT)?;
 
-        // Collect backend result
-        let cargo_output = cargo_child
-            .wait_with_output()
-            .context("failed to collect cargo check output")?;
+        // Wait for backend — stderr already streamed to terminal
+        let status = cargo_child
+            .wait()
+            .context("failed to wait on cargo check")?;
 
-        if cargo_output.status.success() {
+        if status.success() {
             s_backend.ok_with("devpulse_desktop_backend + stores (LibSQL, DuckDB, SurrealDB, Moka)");
         } else {
-            let stderr = String::from_utf8_lossy(&cargo_output.stderr);
-            if !stderr.is_empty() {
-                eprintln!("{stderr}");
-            }
             anyhow::bail!(
-                "backend compilation failed — fix Rust errors before dev.\n  \
+                "backend compilation failed — fix Rust errors above.\n  \
                  This check covers: Tauri backend, Platform facade, all 4 embedded stores."
             );
         }

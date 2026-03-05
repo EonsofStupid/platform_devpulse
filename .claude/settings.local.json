@@ -81,7 +81,15 @@
       "WebFetch(domain:www.alwaystwisted.com)",
       "WebFetch(domain:www.designtokens.org)",
       "WebFetch(domain:testparty.ai)",
-      "WebFetch(domain:gist.github.com)"
+      "WebFetch(domain:gist.github.com)",
+      "Read(//c/Users/jessa/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/surrealdb-3.0.2/src/**)",
+      "Read(//c/Users/jessa/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/surrealdb-3.0.2/src/engine/local/**)",
+      "Read(//c/Users/jessa/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/surrealdb-3.0.2/**)",
+      "Read(//c/Users/jessa/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/surrealdb-core-3.0.2/**)",
+      "Read(//c/Users/jessa/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/aws-lc-sys-0.38.0/**)",
+      "Read(//c/Users/jessa/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/jsonwebtoken-10.3.0/**)",
+      "Read(//c/Users/jessa/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-0.23.36/**)",
+      "Read(//c/Users/jessa/.cargo/registry/src/**)"
     ]
   }
 }

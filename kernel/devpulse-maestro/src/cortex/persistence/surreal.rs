@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::sync::Arc;
 use surrealdb::engine::local::{Db, SurrealKv};
+use surrealdb::types::SurrealValue;
 use surrealdb::Surreal;
 use tokio::sync::RwLock;
 
@@ -254,14 +255,16 @@ impl GraphAdapter for SurrealAdapter {
 }
 
 /// Key-value record for signal-based storage
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[surreal(crate = "surrealdb::types")]
 struct KvRecord {
     key: String,
     value: Vec<u8>,
 }
 
 /// Reasoning node in the graph
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[surreal(crate = "surrealdb::types")]
 pub struct ReasoningNode {
     /// Unique node identifier.
     pub id: String,
@@ -276,7 +279,8 @@ pub struct ReasoningNode {
 }
 
 /// State in the reasoning HMM
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[surreal(crate = "surrealdb::types")]
 pub struct ReasoningState {
     /// Unique state identifier.
     pub id: String,
@@ -289,7 +293,8 @@ pub struct ReasoningState {
 }
 
 /// Transition between reasoning states
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[surreal(crate = "surrealdb::types")]
 pub struct StateTransition {
     /// Source state identifier.
     pub from_state: String,

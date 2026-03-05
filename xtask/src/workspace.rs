@@ -132,6 +132,29 @@ impl Workspace {
                 format!("failed to spawn `{program}` in {}", dir.display())
             })
     }
+
+    /// Spawn a tool with stderr inherited (visible to user) but non-blocking.
+    ///
+    /// Use this when you want the user to see real-time progress (e.g. cargo
+    /// compilation output) while still being able to check the exit code later.
+    /// Stdout is piped (captured), stderr streams directly to the terminal.
+    pub fn spawn_in_verbose(
+        &self,
+        dir: &Path,
+        program: &str,
+        args: &[&str],
+    ) -> Result<Child> {
+        use std::process::Stdio;
+        self.cmd(program)?
+            .args(args)
+            .current_dir(dir)
+            .stdout(Stdio::piped())
+            .stderr(Stdio::inherit())
+            .spawn()
+            .with_context(|| {
+                format!("failed to spawn `{program}` in {}", dir.display())
+            })
+    }
 }
 
 /// Walk up from `start` to find the monorepo root.
