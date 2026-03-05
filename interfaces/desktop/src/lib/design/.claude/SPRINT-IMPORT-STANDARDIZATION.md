@@ -93,7 +93,7 @@ import type { DialogSlot } from "$lib/design/taxonomy/primitives/dialog/contract
 } from "../../api/adapters/coldlight/_internal/dialog/index.js";
 
 // AFTER
-} from "$lib/design/api/adapters/coldlight/_internal/dialog";
+} from "$lib/design/api/dsadapters/coldlight/_internal/dialog";
 ```
 
 ---

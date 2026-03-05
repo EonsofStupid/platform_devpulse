@@ -20,7 +20,7 @@ import { getContext, setContext } from "svelte";
 import type {
 	ComboboxTransport,
 	ComboboxActions,
-} from "$lib/design/api/adapters/meltui/_internal/combobox/index.js";
+} from "$lib/design/api/dsadapters/meltui/_internal/combobox/index.js";
 
 /**
  * Combined transport + actions + recipe type for the combobox context.

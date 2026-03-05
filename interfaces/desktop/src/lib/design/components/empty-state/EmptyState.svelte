@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
 	import type { EmptyStateProps } from "./types.js";
-	import { createEmptyState } from "$lib/design/api/adapters/coldlight/_internal/empty-state/index.js";
+	import { createEmptyState } from "$lib/design/api/dsadapters/coldlight/_internal/empty-state/index.js";
 	import EmptyStateRoot from "$lib/design/primitives/empty-state/EmptyState.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { emptyStateRecipe } from "./recipe.js";

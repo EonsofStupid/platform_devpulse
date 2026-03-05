@@ -192,7 +192,7 @@ Defines:
 
 ### Task 3.1: Create folder structure
 
-**Create**: `src/lib/design/api/adapters/coldlight/_internal/dialog/`
+**Create**: `src/lib/design/api/dsadapters/coldlight/_internal/dialog/`
 
 ```
 api/adapters/coldlight/_internal/dialog/
@@ -244,7 +244,7 @@ Barrel imports/exports dialog.ts and other exports.
 
 ### Task 4.1: Create folder structure
 
-**Create**: `src/lib/design/api/adapters/meltui/_internal/dialog/`
+**Create**: `src/lib/design/api/dsadapters/meltui/_internal/dialog/`
 
 ```
 api/adapters/meltui/_internal/dialog/

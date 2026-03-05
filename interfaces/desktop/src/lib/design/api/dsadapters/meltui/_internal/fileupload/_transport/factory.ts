@@ -15,7 +15,7 @@
  */
 
 import { SvelteSet } from "svelte/reactivity";
-import type { SlotAttrs } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
+import type { SlotAttrs } from "$lib/design/api/dsadapters/coldlight/_internal/_transport/types.js";
 import { createMeltFileUpload } from "../factory.js";
 import type { FileUploadTransport, FileUploadTransportConfig } from "./types.js";
 

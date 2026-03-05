@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
 	import type { ScrollAreaComponentProps } from "./types.js";
-	import { createScrollArea } from "$lib/design/api/adapters/coldlight/_internal/scroll-area/index.js";
+	import { createScrollArea } from "$lib/design/api/dsadapters/coldlight/_internal/scroll-area/index.js";
 	import ScrollAreaRoot from "$lib/design/primitives/scroll-area/ScrollArea.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";

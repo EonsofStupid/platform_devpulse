@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
 	import type { ToggleProps } from "./types.js";
-	import { createToggleTransport } from "$lib/design/api/adapters/meltui/_internal/toggle/index.js";
+	import { createToggleTransport } from "$lib/design/api/dsadapters/meltui/_internal/toggle/index.js";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { toggleRecipe } from "./recipe.js";
 	import { cn } from "$lib/design/primitives/types.js";

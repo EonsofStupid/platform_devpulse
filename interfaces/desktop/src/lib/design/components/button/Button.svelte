@@ -8,7 +8,7 @@
 <script lang="ts">
 	import type { ButtonProps } from "./types.js";
 	import { BUTTON_INTENT_PRESETS } from "./types.js";
-	import { createButton } from "$lib/design/api/adapters/coldlight/_internal/button/index.js";
+	import { createButton } from "$lib/design/api/dsadapters/coldlight/_internal/button/index.js";
 	import ButtonRoot from "$lib/design/primitives/button/Button.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { buttonRecipe } from "./recipe.js";

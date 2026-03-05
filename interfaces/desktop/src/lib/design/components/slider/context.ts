@@ -7,7 +7,7 @@
  */
 
 import { getContext, setContext } from "svelte";
-import type { SliderTransport } from "$lib/design/api/adapters/meltui/_internal/slider/index.js";
+import type { SliderTransport } from "$lib/design/api/dsadapters/meltui/_internal/slider/index.js";
 
 const SLIDER_CTX = Symbol("coldlight-slider");
 

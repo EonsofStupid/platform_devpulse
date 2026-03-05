@@ -4,7 +4,7 @@
  * Maps melt getters → ColdLight slot vocabulary.
  */
 
-import type { SlotAttrs } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
+import type { SlotAttrs } from "$lib/design/api/dsadapters/coldlight/_internal/_transport/types.js";
 import { createMeltCombobox } from "../factory.js";
 import type { ComboboxActions, ComboboxTransport, ComboboxTransportConfig } from "./types.js";
 

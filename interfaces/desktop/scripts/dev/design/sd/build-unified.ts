@@ -233,7 +233,7 @@ const cloakLines: string[] = [
 ];
 meltuiKinds.forEach((entry: { kind: string }) => {
 	const Kind = capitalize(entry.kind);
-	const factoryPath = `$lib/design/api/adapters/meltui/_internal/${entry.kind}/factory`;
+	const factoryPath = `$lib/design/api/dsadapters/meltui/_internal/${entry.kind}/factory`;
 	cloakLines.push(`export { createMelt${Kind} as create${Kind} } from "${factoryPath}";`);
 	cloakLines.push(`export type { Melt${Kind}Instance as ${Kind}Instance } from "${factoryPath}";`);
 	cloakLines.push(`export type { Melt${Kind}Config as ${Kind}Config } from "${factoryPath}";`);

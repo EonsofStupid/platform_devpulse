@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
 	import type { StatProps } from "./types.js";
-	import { createStat } from "$lib/design/api/adapters/coldlight/_internal/stat/index.js";
+	import { createStat } from "$lib/design/api/dsadapters/coldlight/_internal/stat/index.js";
 	import StatRoot from "$lib/design/primitives/stat/Stat.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { statRecipe } from "./recipe.js";

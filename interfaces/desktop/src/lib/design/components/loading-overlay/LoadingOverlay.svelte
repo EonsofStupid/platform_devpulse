@@ -12,7 +12,7 @@
 -->
 <script lang="ts">
 	import type { LoadingOverlayComponentProps } from "./types.js";
-	import { createLoadingOverlay } from "$lib/design/api/adapters/coldlight/_internal/loading-overlay/index.js";
+	import { createLoadingOverlay } from "$lib/design/api/dsadapters/coldlight/_internal/loading-overlay/index.js";
 	import LoadingOverlayRoot from "$lib/design/primitives/loading-overlay/LoadingOverlay.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";

@@ -174,7 +174,7 @@ export const IDENTITY = {
 export const ROOTS = {
   designRoot: "src/lib/design",
   taxonomyRoot: "src/lib/design/taxonomy",
-  apiAdaptersRoot: "src/lib/design/api/adapters",
+  apiAdaptersRoot: "src/lib/design/api/dsadapters",
   primitivesRoot: "src/lib/design/primitives",
   generatedRoot: "src/lib/design/taxonomy/.generated",
 } as const;
@@ -896,7 +896,7 @@ pre-commit:
 ## PHASE 6: Delete Legacy Files
 
 ### Task 6.1: Remove api/adapters/registry.ts
-**Action**: DELETE `src/lib/design/api/adapters/registry.ts`
+**Action**: DELETE `src/lib/design/api/dsadapters/registry.ts`
 **Reason**: This is the "half-assed" type interface doing nothing
 
 ---

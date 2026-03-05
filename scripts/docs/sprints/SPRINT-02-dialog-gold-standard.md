@@ -571,18 +571,18 @@ Route Dialog → coldlight adapter. Remove `connectSlot` (no longer needed — s
 // dialog — ColdLight-native
 // =============================================================================
 
-export { createDialogTransport as createDialog } from "$lib/design/api/adapters/coldlight/_internal/dialog/_transport/factory.js";
-export type { DialogTransport as DialogInstance } from "$lib/design/api/adapters/coldlight/_internal/dialog/_transport/types.js";
-export type { DialogTransportConfig as DialogConfig } from "$lib/design/api/adapters/coldlight/_internal/dialog/_transport/types.js";
-export type { DialogAttachments } from "$lib/design/api/adapters/coldlight/_internal/dialog/_transport/types.js";
+export { createDialogTransport as createDialog } from "$lib/design/api/dsadapters/coldlight/_internal/dialog/_transport/factory.js";
+export type { DialogTransport as DialogInstance } from "$lib/design/api/dsadapters/coldlight/_internal/dialog/_transport/types.js";
+export type { DialogTransportConfig as DialogConfig } from "$lib/design/api/dsadapters/coldlight/_internal/dialog/_transport/types.js";
+export type { DialogAttachments } from "$lib/design/api/dsadapters/coldlight/_internal/dialog/_transport/types.js";
 
 // =============================================================================
 // tabs — meltui
 // =============================================================================
 
-export { createMeltTabs as createTabs } from "$lib/design/api/adapters/meltui/_internal/tabs/factory.js";
-export type { MeltTabsInstance as TabsInstance } from "$lib/design/api/adapters/meltui/_internal/tabs/factory.js";
-export type { MeltTabsConfig as TabsConfig } from "$lib/design/api/adapters/meltui/_internal/tabs/factory.js";
+export { createMeltTabs as createTabs } from "$lib/design/api/dsadapters/meltui/_internal/tabs/factory.js";
+export type { MeltTabsInstance as TabsInstance } from "$lib/design/api/dsadapters/meltui/_internal/tabs/factory.js";
+export type { MeltTabsConfig as TabsConfig } from "$lib/design/api/dsadapters/meltui/_internal/tabs/factory.js";
 ```
 
 Changes:

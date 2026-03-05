@@ -8,7 +8,7 @@
 -->
 <script lang="ts">
 	import type { FlexComponentProps } from "./types.js";
-	import { createFlex } from "$lib/design/api/adapters/coldlight/_internal/flex/index.js";
+	import { createFlex } from "$lib/design/api/dsadapters/coldlight/_internal/flex/index.js";
 	import FlexRoot from "$lib/design/primitives/flex/Flex.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";

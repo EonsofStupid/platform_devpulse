@@ -8,7 +8,7 @@
 -->
 <script lang="ts">
 	import type { ProseComponentProps } from "./types.js";
-	import { createProse } from "$lib/design/api/adapters/coldlight/_internal/prose/index.js";
+	import { createProse } from "$lib/design/api/dsadapters/coldlight/_internal/prose/index.js";
 	import ProseRoot from "$lib/design/primitives/prose/Prose.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";

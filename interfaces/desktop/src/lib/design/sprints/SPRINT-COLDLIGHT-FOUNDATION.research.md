@@ -393,8 +393,8 @@ The foundation exists:
 - `design/taxonomy/scanner.ts` — build-time parity checking
 
 ### API/Adapter Layer
-- `design/api/adapters/coldlight/` — native adapter (dialog, tabs transport)
-- `design/api/adapters/meltui/` — MeltUI adapter (combobox)
+- `design/api/dsadapters/coldlight/` — native adapter (dialog, tabs transport)
+- `design/api/dsadapters/meltui/` — MeltUI adapter (combobox)
 - `design/api/actions/` — ARIA utilities
 
 ### Config Layer

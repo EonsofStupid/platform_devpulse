@@ -8,7 +8,7 @@
 <script lang="ts">
 	import type { CardProps } from "./types.js";
 	import { CARD_VARIANT_PRESETS } from "./types.js";
-	import { createCard } from "$lib/design/api/adapters/coldlight/_internal/card/index.js";
+	import { createCard } from "$lib/design/api/dsadapters/coldlight/_internal/card/index.js";
 	import CardRoot from "$lib/design/primitives/card/Card.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { cardRecipe } from "./recipe.js";

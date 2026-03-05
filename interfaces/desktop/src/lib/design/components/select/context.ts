@@ -8,7 +8,7 @@
  */
 
 import { getContext, setContext } from "svelte";
-import type { SelectTransport } from "$lib/design/api/adapters/meltui/_internal/select/index.js";
+import type { SelectTransport } from "$lib/design/api/dsadapters/meltui/_internal/select/index.js";
 
 const SELECT_CTX = Symbol("coldlight-select");
 

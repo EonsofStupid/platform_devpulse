@@ -9,7 +9,7 @@
 -->
 <script lang="ts">
 	import type { SpacerComponentProps } from "./types.js";
-	import { createSpacer } from "$lib/design/api/adapters/coldlight/_internal/spacer/index.js";
+	import { createSpacer } from "$lib/design/api/dsadapters/coldlight/_internal/spacer/index.js";
 	import SpacerRoot from "$lib/design/primitives/spacer/Spacer.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";

@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
 	import type { InlineMessageProps } from "./types.js";
-	import { createInlineMessage } from "$lib/design/api/adapters/coldlight/_internal/inline-message/index.js";
+	import { createInlineMessage } from "$lib/design/api/dsadapters/coldlight/_internal/inline-message/index.js";
 	import InlineMessageRoot from "$lib/design/primitives/inline-message/InlineMessage.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { inlineMessageRecipe } from "./recipe.js";

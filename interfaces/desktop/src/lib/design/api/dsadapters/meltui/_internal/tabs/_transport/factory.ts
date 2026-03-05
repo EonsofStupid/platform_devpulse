@@ -14,7 +14,7 @@
  *   melt tabs.value             → states.value (get/set)
  */
 
-import type { SlotAttrs } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
+import type { SlotAttrs } from "$lib/design/api/dsadapters/coldlight/_internal/_transport/types.js";
 import { createMeltTabs } from "../factory.js";
 import type { TabsTransport, TabsTransportConfig } from "./types.js";
 

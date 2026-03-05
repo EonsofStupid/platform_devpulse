@@ -26,7 +26,7 @@
 -->
 <script lang="ts">
 	import type { ComboboxProps } from "./types.js";
-	import { createComboboxTransport } from "$lib/design/api/adapters/meltui/_internal/combobox/index.js";
+	import { createComboboxTransport } from "$lib/design/api/dsadapters/meltui/_internal/combobox/index.js";
 	import { setComboboxContext } from "./context.js";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { getRecipe } from "$lib/design/recipes/index.js";

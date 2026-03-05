@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
 	import type { BoxProps } from "./types.js";
-	import { createBox } from "$lib/design/api/adapters/coldlight/_internal/box/index.js";
+	import { createBox } from "$lib/design/api/dsadapters/coldlight/_internal/box/index.js";
 	import BoxRoot from "$lib/design/primitives/box/Box.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { boxRecipe } from "./recipe.js";

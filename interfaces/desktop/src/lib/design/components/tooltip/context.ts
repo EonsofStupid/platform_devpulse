@@ -8,7 +8,7 @@
  */
 
 import { getContext, setContext } from "svelte";
-import type { TooltipTransport } from "$lib/design/api/adapters/meltui/_internal/tooltip/index.js";
+import type { TooltipTransport } from "$lib/design/api/dsadapters/meltui/_internal/tooltip/index.js";
 
 const TOOLTIP_CTX = Symbol("coldlight-tooltip");
 

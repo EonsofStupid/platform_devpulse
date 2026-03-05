@@ -112,7 +112,7 @@ export default defineConfig({
 ## Phase 1: Shared Infrastructure
 
 ### Task 1.1: Create cloaking origin — `_internal/_transport/action.ts`
-- [ ] Create file: `src/lib/design/api/adapters/meltui/_internal/_transport/action.ts`
+- [ ] Create file: `src/lib/design/api/dsadapters/meltui/_internal/_transport/action.ts`
 - [ ] Verify: file imports from `@melt-ui/svelte` (this is inside `_internal/` — allowed)
 - [ ] Verify: file exports `cold` (NOT `melt`, NOT `connectSlot`)
 
@@ -144,7 +144,7 @@ export { melt as cold };
  * Components import from here. Never from _internal.
  * use:cold={adapter.slots.trigger} — applies adapter-computed attributes to DOM.
  */
-export { cold } from "$lib/design/api/adapters/meltui/_internal/_transport/action.js";
+export { cold } from "$lib/design/api/dsadapters/meltui/_internal/_transport/action.js";
 ```
 
 ### Task 1.3: Create transport types — `components/_transport/types.ts`
@@ -175,7 +175,7 @@ export interface AdapterApi<
 ```
 
 ### Task 1.4: Create dialog adapter — `_internal/dialog/adapter.ts`
-- [ ] Create file: `src/lib/design/api/adapters/meltui/_internal/dialog/adapter.ts`
+- [ ] Create file: `src/lib/design/api/dsadapters/meltui/_internal/dialog/adapter.ts`
 - [ ] Verify: imports from `./factory.js` (existing file)
 - [ ] Verify: exports `DialogAdapterApi` type and `createDialogAdapter` function
 - [ ] Verify: `createDialogAdapter` returns `{ slots: {...}, states: {...} }`
@@ -226,7 +226,7 @@ export function createDialogAdapter(config?: MeltDialogConfig): DialogAdapterApi
 ```
 
 ### Task 1.5: Create tabs adapter — `_internal/tabs/adapter.ts`
-- [ ] Create file: `src/lib/design/api/adapters/meltui/_internal/tabs/adapter.ts`
+- [ ] Create file: `src/lib/design/api/dsadapters/meltui/_internal/tabs/adapter.ts`
 - [ ] Verify: imports from `./factory.js` (existing file)
 - [ ] Verify: `trigger` and `content` are FUNCTIONS returning stores (parameterized)
 - [ ] Verify: exports `TabsAdapterApi` type and `createTabsAdapter` function
@@ -545,7 +545,7 @@ export interface DialogCloseComponentProps extends OmitStyle<HTMLButtonElement>,
  * Holds the ColdLight adapter API — sub-components read slot stores from here.
  */
 import { getContext, setContext } from "svelte";
-import type { DialogAdapterApi } from "$lib/design/api/adapters/meltui/_internal/dialog/adapter.js";
+import type { DialogAdapterApi } from "$lib/design/api/dsadapters/meltui/_internal/dialog/adapter.js";
 
 const CTX_KEY = Symbol("coldlight:component:dialog");
 
@@ -580,7 +580,7 @@ export function getDialogComponentContext(): DialogComponentContext {
 <script lang="ts">
   import type { DialogComponentProps } from "./types.js";
   import { setDialogComponentContext } from "./context.js";
-  import { createDialogAdapter } from "$lib/design/api/adapters/meltui/_internal/dialog/adapter.js";
+  import { createDialogAdapter } from "$lib/design/api/dsadapters/meltui/_internal/dialog/adapter.js";
 
   let { open = $bindable(false), children }: DialogComponentProps = $props();
 
@@ -950,7 +950,7 @@ export interface TabsContentComponentProps extends OmitStyle<HTMLDivElement>, Ba
  * Holds the ColdLight adapter API.
  */
 import { getContext, setContext } from "svelte";
-import type { TabsAdapterApi } from "$lib/design/api/adapters/meltui/_internal/tabs/adapter.js";
+import type { TabsAdapterApi } from "$lib/design/api/dsadapters/meltui/_internal/tabs/adapter.js";
 
 const CTX_KEY = Symbol("coldlight:component:tabs");
 
@@ -985,7 +985,7 @@ export function getTabsComponentContext(): TabsComponentContext {
   import { cn, stripStyleProp } from "$lib/design/primitives/types.js";
   import { cold } from "../_transport/action.js";
   import { setTabsComponentContext } from "./context.js";
-  import { createTabsAdapter } from "$lib/design/api/adapters/meltui/_internal/tabs/adapter.js";
+  import { createTabsAdapter } from "$lib/design/api/dsadapters/meltui/_internal/tabs/adapter.js";
   import type { TabsComponentProps } from "./types.js";
 
   let { value = $bindable(""), children, class: className, ...rest }: TabsComponentProps = $props();

@@ -8,7 +8,7 @@
  */
 
 import { getContext, setContext } from "svelte";
-import type { ColdLightDialog } from "$lib/design/api/adapters/coldlight/_internal/dialog/dialog.svelte.js";
+import type { ColdLightDialog } from "$lib/design/api/dsadapters/coldlight/_internal/dialog/dialog.svelte.js";
 
 const DIALOG_CTX = Symbol("coldlight-dialog");
 

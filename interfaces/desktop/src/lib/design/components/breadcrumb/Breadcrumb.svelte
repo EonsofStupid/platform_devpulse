@@ -13,7 +13,7 @@
 -->
 <script lang="ts">
 	import type { BreadcrumbComponentProps } from "./types.js";
-	import { createBreadcrumb } from "$lib/design/api/adapters/coldlight/_internal/breadcrumb/index.js";
+	import { createBreadcrumb } from "$lib/design/api/dsadapters/coldlight/_internal/breadcrumb/index.js";
 	import BreadcrumbRoot from "$lib/design/primitives/breadcrumb/Breadcrumb.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";

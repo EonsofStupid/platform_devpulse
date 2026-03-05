@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
 	import type { StackProps } from "./types.js";
-	import { createStack } from "$lib/design/api/adapters/coldlight/_internal/stack/index.js";
+	import { createStack } from "$lib/design/api/dsadapters/coldlight/_internal/stack/index.js";
 	import StackRoot from "$lib/design/primitives/stack/Stack.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { stackRecipe } from "./recipe.js";

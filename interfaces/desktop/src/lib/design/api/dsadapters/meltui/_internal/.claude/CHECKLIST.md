@@ -89,7 +89,7 @@
 ## USAGE
 
 ```typescript
-import { getMeltInternal, hasMeltInternal } from '$lib/design/api/adapters/meltui/_internal';
+import { getMeltInternal, hasMeltInternal } from '$lib/design/api/dsadapters/meltui/_internal';
 
 // Get runtime parts for a primitive
 const parts = getMeltInternal('button').build({ disabled: true });
@@ -129,7 +129,7 @@ cd interfaces/desktop
 pnpm check
 
 # Verify exports
-ls src/lib/design/api/adapters/meltui/_internal/
+ls src/lib/design/api/dsadapters/meltui/_internal/
 # Expected: types.ts index.ts *.internal.ts
 ```
 

@@ -214,11 +214,11 @@ export { MELT_PROVIDER as CURRENT_PROVIDER } from './melt.js';
 
 ## SPRINT 1: _internal/melt/ STRUCTURE
 
-### 1.1 Create `design/api/adapters/meltui/types.ts`
+### 1.1 Create `design/api/dsadapters/meltui/types.ts`
 
 ```typescript
 /**
- * @file design/api/adapters/meltui/types.ts
+ * @file design/api/dsadapters/meltui/types.ts
  * @layer internal
  *
  * Melt UI builder return types for ColdLight context typing.
@@ -330,11 +330,11 @@ export type BuilderHelpers<T> = T extends { helpers: infer H } ? H : never;
 export type BuilderOptions<T> = T extends { options: infer O } ? O : never;
 ```
 
-### 1.2 Create `design/api/adapters/meltui/state.ts`
+### 1.2 Create `design/api/dsadapters/meltui/state.ts`
 
 ```typescript
 /**
- * @file design/api/adapters/meltui/state.ts
+ * @file design/api/dsadapters/meltui/state.ts
  * @layer internal
  *
  * State extraction helpers for ColdLight data-state attributes.
@@ -439,11 +439,11 @@ export function extractDisabled(disabled: boolean): '' | undefined {
 }
 ```
 
-### 1.3 Create `design/api/adapters/meltui/schemas.ts`
+### 1.3 Create `design/api/dsadapters/meltui/schemas.ts`
 
 ```typescript
 /**
- * @file design/api/adapters/meltui/schemas.ts
+ * @file design/api/dsadapters/meltui/schemas.ts
  * @layer internal
  *
  * Zod validation schemas for props at the boundary.
@@ -616,11 +616,11 @@ export function safeValidateProps<T>(
 }
 ```
 
-### 1.4 Create `design/api/adapters/meltui/index.ts`
+### 1.4 Create `design/api/dsadapters/meltui/index.ts`
 
 ```typescript
 /**
- * @file design/api/adapters/meltui/index.ts
+ * @file design/api/dsadapters/meltui/index.ts
  * @layer internal
  *
  * Melt UI integration layer barrel export.
@@ -765,10 +765,10 @@ export {
 ```
 
 **Checklist:**
-- [ ] `design/api/adapters/meltui/types.ts` created
-- [ ] `design/api/adapters/meltui/state.ts` created
-- [ ] `design/api/adapters/meltui/schemas.ts` created
-- [ ] `design/api/adapters/meltui/index.ts` created
+- [ ] `design/api/dsadapters/meltui/types.ts` created
+- [ ] `design/api/dsadapters/meltui/state.ts` created
+- [ ] `design/api/dsadapters/meltui/schemas.ts` created
+- [ ] `design/api/dsadapters/meltui/index.ts` created
 - [ ] `sys/api/_internal/index.ts` created
 - [ ] `pnpm check` passes
 
@@ -792,7 +792,7 @@ Replace existing content with updated architecture documentation.
 Create individual type files for complex builders if needed:
 
 ```
-design/api/adapters/meltui/builders/
+design/api/dsadapters/meltui/builders/
 ├── dialog.ts        # Dialog-specific types
 ├── select.ts        # Select-specific types
 ├── combobox.ts      # Combobox-specific types
@@ -812,10 +812,10 @@ This is optional but useful for complex builders with many options.
 - [ ] `taxonomy/provider/index.ts` — Exports + CURRENT_PROVIDER
 
 ### Binding Layer (Sprint 1)
-- [ ] `design/api/adapters/meltui/types.ts` — All 31 builder types
-- [ ] `design/api/adapters/meltui/state.ts` — State extraction helpers
-- [ ] `design/api/adapters/meltui/schemas.ts` — Zod validation
-- [ ] `design/api/adapters/meltui/index.ts` — Barrel export
+- [ ] `design/api/dsadapters/meltui/types.ts` — All 31 builder types
+- [ ] `design/api/dsadapters/meltui/state.ts` — State extraction helpers
+- [ ] `design/api/dsadapters/meltui/schemas.ts` — Zod validation
+- [ ] `design/api/dsadapters/meltui/index.ts` — Barrel export
 - [ ] `sys/api/_internal/index.ts` — Top-level export
 
 ### Integration
@@ -842,9 +842,9 @@ pnpm build
 | Sprint | Files | Purpose |
 |--------|-------|---------|
 | 0 | `taxonomy/provider/*` | Provider port contract |
-| 1 | `design/api/adapters/meltui/*` | Melt binding layer |
+| 1 | `design/api/dsadapters/meltui/*` | Melt binding layer |
 | 2 | `sys/api/_internal/README.md` | Documentation |
-| 3 | `design/api/adapters/meltui/builders/*` | Optional per-builder types |
+| 3 | `design/api/dsadapters/meltui/builders/*` | Optional per-builder types |
 
 **Total: 8 new files, 1 updated file**
 

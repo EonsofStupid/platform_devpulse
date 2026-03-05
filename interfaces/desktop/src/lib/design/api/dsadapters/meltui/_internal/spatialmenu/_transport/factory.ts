@@ -13,7 +13,7 @@
  *   melt spatialmenu.getItem(value) → getItem(value) → { attrs, value, highlighted, disabled }
  */
 
-import type { SlotAttrs } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
+import type { SlotAttrs } from "$lib/design/api/dsadapters/coldlight/_internal/_transport/types.js";
 import { createMeltSpatialMenu } from "../factory.js";
 import type {
 	SpatialMenuTransport,

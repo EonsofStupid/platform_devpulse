@@ -10,7 +10,7 @@
 -->
 <script lang="ts">
 	import type { RadioGroupProps } from "./types.js";
-	import { createRadioGroupTransport } from "$lib/design/api/adapters/meltui/_internal/radiogroup/index.js";
+	import { createRadioGroupTransport } from "$lib/design/api/dsadapters/meltui/_internal/radiogroup/index.js";
 	import { setRadioGroupContext } from "./context.js";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";

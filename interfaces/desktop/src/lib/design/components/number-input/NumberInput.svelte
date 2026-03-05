@@ -11,7 +11,7 @@
 -->
 <script lang="ts">
 	import type { NumberInputComponentProps } from "./types.js";
-	import { createNumberInput } from "$lib/design/api/adapters/coldlight/_internal/number-input/index.js";
+	import { createNumberInput } from "$lib/design/api/dsadapters/coldlight/_internal/number-input/index.js";
 	import NumberInputRoot from "$lib/design/primitives/number-input/NumberInput.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";

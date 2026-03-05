@@ -12,7 +12,7 @@
 -->
 <script lang="ts">
 	import type { DescriptionListComponentProps } from "./types.js";
-	import { createDescriptionList } from "$lib/design/api/adapters/coldlight/_internal/description-list/index.js";
+	import { createDescriptionList } from "$lib/design/api/dsadapters/coldlight/_internal/description-list/index.js";
 	import DescriptionListRoot from "$lib/design/primitives/description-list/DescriptionList.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";

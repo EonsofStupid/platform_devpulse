@@ -15,7 +15,7 @@
  * No .refs API — melt uses Popover API (popovertarget) for positioning.
  */
 
-import type { SlotAttrs } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
+import type { SlotAttrs } from "$lib/design/api/dsadapters/coldlight/_internal/_transport/types.js";
 import { createMeltSelect } from "../factory.js";
 import type { SelectTransport, SelectTransportConfig } from "./types.js";
 

@@ -8,7 +8,7 @@
  */
 
 import { getContext, setContext } from "svelte";
-import type { PopoverTransport } from "$lib/design/api/adapters/meltui/_internal/popover/index.js";
+import type { PopoverTransport } from "$lib/design/api/dsadapters/meltui/_internal/popover/index.js";
 
 const POPOVER_CTX = Symbol("coldlight-popover");
 

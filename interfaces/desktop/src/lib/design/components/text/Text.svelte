@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
 	import type { TextProps } from "./types.js";
-	import { createText } from "$lib/design/api/adapters/coldlight/_internal/text/index.js";
+	import { createText } from "$lib/design/api/dsadapters/coldlight/_internal/text/index.js";
 	import TextRoot from "$lib/design/primitives/text/Text.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { textRecipe } from "./recipe.js";

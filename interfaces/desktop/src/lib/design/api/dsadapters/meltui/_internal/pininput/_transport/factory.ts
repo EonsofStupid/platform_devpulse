@@ -14,7 +14,7 @@
  *   melt pininput.isFilled → states.isFilled (readonly)
  */
 
-import type { SlotAttrs } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
+import type { SlotAttrs } from "$lib/design/api/dsadapters/coldlight/_internal/_transport/types.js";
 import { createMeltPinInput } from "../factory.js";
 import type { PinInputTransport, PinInputTransportConfig } from "./types.js";
 

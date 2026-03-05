@@ -14,7 +14,7 @@
  * No .refs API — melt uses direct event handlers on elements.
  */
 
-import type { SlotAttrs } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
+import type { SlotAttrs } from "$lib/design/api/dsadapters/coldlight/_internal/_transport/types.js";
 import { createMeltRadioGroup } from "../factory.js";
 import type { RadioGroupTransport, RadioGroupTransportConfig } from "./types.js";
 

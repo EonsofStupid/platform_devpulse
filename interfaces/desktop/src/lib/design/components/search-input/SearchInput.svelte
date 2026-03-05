@@ -11,7 +11,7 @@
 -->
 <script lang="ts">
 	import type { SearchInputComponentProps } from "./types.js";
-	import { createSearchInput } from "$lib/design/api/adapters/coldlight/_internal/search-input/index.js";
+	import { createSearchInput } from "$lib/design/api/dsadapters/coldlight/_internal/search-input/index.js";
 	import SearchInputRoot from "$lib/design/primitives/search-input/SearchInput.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";

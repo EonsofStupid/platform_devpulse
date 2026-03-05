@@ -18,7 +18,7 @@
  * This transport wraps the data payload into that shape.
  */
 
-import type { SlotAttrs } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
+import type { SlotAttrs } from "$lib/design/api/dsadapters/coldlight/_internal/_transport/types.js";
 import { createMeltToaster } from "../factory.js";
 import type {
 	ToasterTransport,

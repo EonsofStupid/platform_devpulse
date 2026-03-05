@@ -173,7 +173,7 @@ export interface ButtonProps extends Omit<HTMLButtonAttributes, "style" | "child
 <script lang="ts">
 	import type { ButtonProps } from "./types.js";
 	import { BUTTON_INTENT_PRESETS } from "./types.js";
-	import { createButton } from "$lib/design/api/adapters/coldlight/_internal/button/index.js";
+	import { createButton } from "$lib/design/api/dsadapters/coldlight/_internal/button/index.js";
 	import ButtonRoot from "$lib/design/primitives/button/Button.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { buttonRecipe } from "./recipe.js";
@@ -271,7 +271,7 @@ export interface CheckboxProps extends Omit<HTMLButtonAttributes, "style" | "chi
 -->
 <script lang="ts">
 	import type { CheckboxProps } from "./types.js";
-	import { createCheckbox } from "$lib/design/api/adapters/coldlight/_internal/checkbox/index.js";
+	import { createCheckbox } from "$lib/design/api/dsadapters/coldlight/_internal/checkbox/index.js";
 	import CheckboxRoot from "$lib/design/primitives/checkbox/Checkbox.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { checkboxRecipe } from "./recipe.js";
@@ -332,7 +332,7 @@ These render their own internal sub-slots. No injected class props.
 -->
 <script lang="ts">
 	import type { SwitchProps } from "./types.js";
-	import { createSwitch } from "$lib/design/api/adapters/coldlight/_internal/switch/index.js";
+	import { createSwitch } from "$lib/design/api/dsadapters/coldlight/_internal/switch/index.js";
 	import SwitchRoot from "$lib/design/primitives/switch/Switch.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { switchRecipe, switchThumbRecipe } from "./recipe.js";

@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
 	import type { CodeProps } from "./types.js";
-	import { createCode } from "$lib/design/api/adapters/coldlight/_internal/code/index.js";
+	import { createCode } from "$lib/design/api/dsadapters/coldlight/_internal/code/index.js";
 	import CodeRoot from "$lib/design/primitives/code/Code.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { codeRecipe } from "./recipe.js";

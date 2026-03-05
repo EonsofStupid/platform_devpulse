@@ -8,7 +8,7 @@
  */
 
 import { getContext, setContext } from "svelte";
-import type { CollapsibleTransport } from "$lib/design/api/adapters/meltui/_internal/collapsible/index.js";
+import type { CollapsibleTransport } from "$lib/design/api/dsadapters/meltui/_internal/collapsible/index.js";
 
 const COLLAPSIBLE_CTX = Symbol("coldlight-collapsible");
 

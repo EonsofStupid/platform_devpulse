@@ -16,7 +16,7 @@
  * No .refs API — melt uses direct event handlers for drag interaction.
  */
 
-import type { SlotAttrs } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
+import type { SlotAttrs } from "$lib/design/api/dsadapters/coldlight/_internal/_transport/types.js";
 import { createMeltSlider } from "../factory.js";
 import type { SliderTransport, SliderTransportConfig } from "./types.js";
 

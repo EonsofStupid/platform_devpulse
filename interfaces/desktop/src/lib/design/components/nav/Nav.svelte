@@ -8,7 +8,7 @@
 -->
 <script lang="ts">
 	import type { NavComponentProps } from "./types.js";
-	import { createNav } from "$lib/design/api/adapters/coldlight/_internal/nav/index.js";
+	import { createNav } from "$lib/design/api/dsadapters/coldlight/_internal/nav/index.js";
 	import NavRoot from "$lib/design/primitives/nav/Nav.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";

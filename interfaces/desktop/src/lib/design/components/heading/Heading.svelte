@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
 	import type { HeadingProps } from "./types.js";
-	import { createHeading } from "$lib/design/api/adapters/coldlight/_internal/heading/index.js";
+	import { createHeading } from "$lib/design/api/dsadapters/coldlight/_internal/heading/index.js";
 	import HeadingRoot from "$lib/design/primitives/heading/Heading.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { headingRecipe } from "./recipe.js";

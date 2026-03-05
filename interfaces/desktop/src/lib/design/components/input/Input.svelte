@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
 	import type { InputProps } from "./types.js";
-	import { createInput } from "$lib/design/api/adapters/coldlight/_internal/input/index.js";
+	import { createInput } from "$lib/design/api/dsadapters/coldlight/_internal/input/index.js";
 	import InputRoot from "$lib/design/primitives/input/Input.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { inputRecipe } from "./recipe.js";

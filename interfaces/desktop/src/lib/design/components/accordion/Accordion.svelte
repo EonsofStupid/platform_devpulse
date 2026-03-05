@@ -15,7 +15,7 @@
 -->
 <script lang="ts">
 	import type { AccordionProps } from "./types.js";
-	import { createAccordionTransport } from "$lib/design/api/adapters/meltui/_internal/accordion/index.js";
+	import { createAccordionTransport } from "$lib/design/api/dsadapters/meltui/_internal/accordion/index.js";
 	import { setAccordionContext } from "./context.js";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { accordionRecipe } from "./recipe.js";

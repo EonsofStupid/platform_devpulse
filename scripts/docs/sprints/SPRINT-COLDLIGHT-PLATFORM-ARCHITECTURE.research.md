@@ -601,8 +601,8 @@ tokens.ts → jiti → DTCG JSON → SD5 → tokens.css + tailwind.css + types.t
 - `interfaces/desktop/src/lib/design/effects/bridge.ts` — Effect recommendations
 
 ### dsAdapter
-- `interfaces/desktop/src/lib/design/api/adapters/_schema/engine.ts` — EngineType, AdapterResult
-- `interfaces/desktop/src/lib/design/api/adapters/resolve.ts` — Dynamic resolver
+- `interfaces/desktop/src/lib/design/api/dsadapters/_schema/engine.ts` — EngineType, AdapterResult
+- `interfaces/desktop/src/lib/design/api/dsadapters/resolve.ts` — Dynamic resolver
 
 ### VPB
 - `interfaces/desktop/src/lib/sys/debug/vpb/manifest/manifest-reader.ts` — Manifest loader

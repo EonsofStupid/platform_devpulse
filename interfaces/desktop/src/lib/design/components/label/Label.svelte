@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
 	import type { LabelProps } from "./types.js";
-	import { createLabel } from "$lib/design/api/adapters/coldlight/_internal/label/index.js";
+	import { createLabel } from "$lib/design/api/dsadapters/coldlight/_internal/label/index.js";
 	import LabelRoot from "$lib/design/primitives/label/Label.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { labelRecipe } from "./recipe.js";

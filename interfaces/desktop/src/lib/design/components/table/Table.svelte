@@ -13,7 +13,7 @@
 -->
 <script lang="ts">
 	import type { TableComponentProps } from "./types.js";
-	import { createTable } from "$lib/design/api/adapters/coldlight/_internal/table/index.js";
+	import { createTable } from "$lib/design/api/dsadapters/coldlight/_internal/table/index.js";
 	import TableRoot from "$lib/design/primitives/table/Table.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";

@@ -14,7 +14,7 @@
 -->
 <script lang="ts">
 	import type { SelectProps } from "./types.js";
-	import { createSelectTransport } from "$lib/design/api/adapters/meltui/_internal/select/index.js";
+	import { createSelectTransport } from "$lib/design/api/dsadapters/meltui/_internal/select/index.js";
 	import { setSelectContext } from "./context.js";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { cn } from "$lib/design/primitives/types.js";

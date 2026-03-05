@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
 	import type { SpinnerProps } from "./types.js";
-	import { createSpinner } from "$lib/design/api/adapters/coldlight/_internal/spinner/index.js";
+	import { createSpinner } from "$lib/design/api/dsadapters/coldlight/_internal/spinner/index.js";
 	import SpinnerRoot from "$lib/design/primitives/spinner/Spinner.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { spinnerRecipe } from "./recipe.js";

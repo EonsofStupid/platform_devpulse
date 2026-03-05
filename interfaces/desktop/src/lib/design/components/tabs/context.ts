@@ -8,7 +8,7 @@
  */
 
 import { getContext, setContext } from "svelte";
-import type { ColdLightTabs } from "$lib/design/api/adapters/coldlight/_internal/tabs/tabs.svelte.js";
+import type { ColdLightTabs } from "$lib/design/api/dsadapters/coldlight/_internal/tabs/tabs.svelte.js";
 
 const TABS_CTX = Symbol("coldlight-tabs");
 

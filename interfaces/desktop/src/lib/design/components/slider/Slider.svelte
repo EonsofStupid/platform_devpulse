@@ -10,7 +10,7 @@
 -->
 <script lang="ts">
 	import type { SliderProps } from "./types.js";
-	import { createSliderTransport } from "$lib/design/api/adapters/meltui/_internal/slider/index.js";
+	import { createSliderTransport } from "$lib/design/api/dsadapters/meltui/_internal/slider/index.js";
 	import { setSliderContext } from "./context.js";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";

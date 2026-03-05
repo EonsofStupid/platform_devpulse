@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
 	import type { SeparatorProps } from "./types.js";
-	import { createSeparator } from "$lib/design/api/adapters/coldlight/_internal/separator/index.js";
+	import { createSeparator } from "$lib/design/api/dsadapters/coldlight/_internal/separator/index.js";
 	import SeparatorRoot from "$lib/design/primitives/separator/Separator.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { separatorRecipe } from "./recipe.js";

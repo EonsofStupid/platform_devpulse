@@ -14,7 +14,7 @@ import { getContext, setContext } from "svelte";
 import type {
 	AccordionTransport,
 	AccordionItemTransport,
-} from "$lib/design/api/adapters/meltui/_internal/accordion/index.js";
+} from "$lib/design/api/dsadapters/meltui/_internal/accordion/index.js";
 
 // =============================================================================
 // ROOT CONTEXT — set by Accordion.svelte, consumed by AccordionItem.svelte

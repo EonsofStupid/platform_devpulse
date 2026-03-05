@@ -17,7 +17,7 @@
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/tabs/
  */
 
-import type { SlotAttrs } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
+import type { SlotAttrs } from "$lib/design/api/dsadapters/coldlight/_internal/_transport/types.js";
 
 // =============================================================================
 // TRANSPORT STATES

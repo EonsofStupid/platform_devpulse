@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
 	import type { ContainerProps } from "./types.js";
-	import { createContainer } from "$lib/design/api/adapters/coldlight/_internal/container/index.js";
+	import { createContainer } from "$lib/design/api/dsadapters/coldlight/_internal/container/index.js";
 	import ContainerRoot from "$lib/design/primitives/container/Container.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { containerRecipe } from "./recipe.js";

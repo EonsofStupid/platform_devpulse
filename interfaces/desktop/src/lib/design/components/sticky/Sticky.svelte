@@ -8,7 +8,7 @@
 -->
 <script lang="ts">
 	import type { StickyComponentProps } from "./types.js";
-	import { createSticky } from "$lib/design/api/adapters/coldlight/_internal/sticky/index.js";
+	import { createSticky } from "$lib/design/api/dsadapters/coldlight/_internal/sticky/index.js";
 	import StickyRoot from "$lib/design/primitives/sticky/Sticky.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";

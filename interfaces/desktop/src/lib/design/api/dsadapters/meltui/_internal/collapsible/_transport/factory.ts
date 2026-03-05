@@ -10,7 +10,7 @@
  *   melt collapsible.content → slots.content (data-open, data-melt-*)
  */
 
-import type { SlotAttrs } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
+import type { SlotAttrs } from "$lib/design/api/dsadapters/coldlight/_internal/_transport/types.js";
 import { createMeltCollapsible } from "../factory.js";
 import type { CollapsibleTransport, CollapsibleTransportConfig } from "./types.js";
 

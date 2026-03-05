@@ -13,7 +13,7 @@
  * for naming consistency across the design system.
  */
 
-import type { SlotAttrs } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
+import type { SlotAttrs } from "$lib/design/api/dsadapters/coldlight/_internal/_transport/types.js";
 import { createMeltProgress } from "../factory.js";
 import type { ProgressTransport, ProgressTransportConfig } from "./types.js";
 

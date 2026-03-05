@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
 	import type { CheckboxProps } from "./types.js";
-	import { createCheckbox } from "$lib/design/api/adapters/coldlight/_internal/checkbox/index.js";
+	import { createCheckbox } from "$lib/design/api/dsadapters/coldlight/_internal/checkbox/index.js";
 	import CheckboxRoot from "$lib/design/primitives/checkbox/Checkbox.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { checkboxRecipe } from "./recipe.js";

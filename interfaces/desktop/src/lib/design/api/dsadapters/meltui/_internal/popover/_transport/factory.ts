@@ -15,7 +15,7 @@
  * WAI-ARIA: Non-modal dialog pattern. Trigger has popovertarget linking to content.
  */
 
-import type { SlotAttrs } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
+import type { SlotAttrs } from "$lib/design/api/dsadapters/coldlight/_internal/_transport/types.js";
 import { createMeltPopover } from "../factory.js";
 import type { PopoverTransport, PopoverTransportConfig } from "./types.js";
 

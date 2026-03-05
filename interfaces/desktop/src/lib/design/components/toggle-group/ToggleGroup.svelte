@@ -11,7 +11,7 @@
 -->
 <script lang="ts">
 	import type { ToggleGroupComponentProps } from "./types.js";
-	import { createToggleGroup } from "$lib/design/api/adapters/coldlight/_internal/toggle-group/index.js";
+	import { createToggleGroup } from "$lib/design/api/dsadapters/coldlight/_internal/toggle-group/index.js";
 	import ToggleGroupRoot from "$lib/design/primitives/toggle-group/ToggleGroup.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";

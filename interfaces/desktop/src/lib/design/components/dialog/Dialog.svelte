@@ -11,7 +11,7 @@
 -->
 <script lang="ts">
 	import type { DialogProps } from "./types.js";
-	import { ColdLightDialog } from "$lib/design/api/adapters/coldlight/_internal/dialog/dialog.svelte.js";
+	import { ColdLightDialog } from "$lib/design/api/dsadapters/coldlight/_internal/dialog/dialog.svelte.js";
 	import { setDialogContext } from "./context.js";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { cn } from "$lib/design/primitives/types.js";

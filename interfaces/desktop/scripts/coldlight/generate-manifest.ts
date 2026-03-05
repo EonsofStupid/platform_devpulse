@@ -31,7 +31,7 @@ function capitalize(s: string): string {
  * Generate the imports.gen.ts cloak file content.
  *
  * For each meltui-backed kind, writes:
- *   export { createMelt<Kind> as create<Kind> } from "$lib/design/api/adapters/meltui/_internal/<kind>/factory";
+ *   export { createMelt<Kind> as create<Kind> } from "$lib/design/api/dsadapters/meltui/_internal/<kind>/factory";
  *   export type { Melt<Kind>Instance as <Kind>Instance } from "...";
  *   export type { Melt<Kind>Config as <Kind>Config } from "...";
  */
@@ -57,7 +57,7 @@ function generateImportsCloak(
 	meltuiKinds.forEach((entry) => {
 		const kind = entry.kind;
 		const Kind = capitalize(kind);
-		const factoryPath = `$lib/design/api/adapters/meltui/_internal/${kind}/factory`;
+		const factoryPath = `$lib/design/api/dsadapters/meltui/_internal/${kind}/factory`;
 
 		lines.push(`// =============================================================================`);
 		lines.push(`// ${kind}`);

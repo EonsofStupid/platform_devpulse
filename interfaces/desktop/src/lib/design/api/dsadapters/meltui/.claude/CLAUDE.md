@@ -12,7 +12,7 @@
 | **Headless UI Provider** | Melt UI — behavior engine (ARIA, focus, keyboard) | `@melt-ui/svelte` |
 | **Provider Port** | Contract interface ColdLight expects | `taxonomy/provider/types.ts` |
 | **Provider Registry** | SSOT declaring active provider | `taxonomy/provider/` |
-| **Provider Adapter Layer** | Binding that maps Melt → ColdLight | `design/api/adapters/meltui/` |
+| **Provider Adapter Layer** | Binding that maps Melt → ColdLight | `design/api/dsadapters/meltui/` |
 
 ---
 YOU DO NOT EXECUTE A SINGLE LING OF CODE WITHOUT A TRUE FUCKING PLAN WRITTEN FIRST.
@@ -37,7 +37,7 @@ THIS IS GOD DAMN FOUNDATIONAL WORK
 │  Maps Melt → ColdLight without leaking Melt                 │
 │  Satisfies the Provider Port contract                       │
 │                                                             │
-│  This folder: design/api/adapters/meltui/                       │
+│  This folder: design/api/dsadapters/meltui/                       │
 │  Contains: types.ts, state.ts, schemas.ts, assertions.ts    │
 └─────────────────────────────────────────────────────────────┘
                           │

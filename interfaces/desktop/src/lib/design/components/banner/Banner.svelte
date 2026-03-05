@@ -8,7 +8,7 @@
 <script lang="ts">
 	import type { BannerProps } from "./types.js";
 	import { BANNER_INTENT_PRESETS } from "./types.js";
-	import { createBanner } from "$lib/design/api/adapters/coldlight/_internal/banner/index.js";
+	import { createBanner } from "$lib/design/api/dsadapters/coldlight/_internal/banner/index.js";
 	import BannerRoot from "$lib/design/primitives/banner/Banner.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { bannerRecipe } from "./recipe.js";

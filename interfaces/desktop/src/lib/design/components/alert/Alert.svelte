@@ -8,7 +8,7 @@
 <script lang="ts">
 	import type { AlertProps } from "./types.js";
 	import { ALERT_INTENT_PRESETS } from "./types.js";
-	import { createAlert } from "$lib/design/api/adapters/coldlight/_internal/alert/index.js";
+	import { createAlert } from "$lib/design/api/dsadapters/coldlight/_internal/alert/index.js";
 	import AlertRoot from "$lib/design/primitives/alert/Alert.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { alertRecipe } from "./recipe.js";

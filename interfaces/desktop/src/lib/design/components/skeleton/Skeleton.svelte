@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
 	import type { SkeletonProps } from "./types.js";
-	import { createSkeleton } from "$lib/design/api/adapters/coldlight/_internal/skeleton/index.js";
+	import { createSkeleton } from "$lib/design/api/dsadapters/coldlight/_internal/skeleton/index.js";
 	import SkeletonRoot from "$lib/design/primitives/skeleton/Skeleton.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { skeletonRecipe } from "./recipe.js";

@@ -21,7 +21,7 @@ Fix all 19 biome lint errors blocking `git commit`. Every fix is mechanical — 
 | File | Errors | Rule |
 |------|--------|------|
 | `scripts/test-schema.ts` | 12 | noConsole |
-| `src/lib/design/api/adapters/coldlight/_internal/dialog/dialog.svelte.ts` | 1 | noUnusedPrivateClassMembers |
+| `src/lib/design/api/dsadapters/coldlight/_internal/dialog/dialog.svelte.ts` | 1 | noUnusedPrivateClassMembers |
 | `scripts/dev/inject-headers.ts` | 1 | noUnusedVariables (interface) |
 | `src/lib/design/components/dialog/schema.ts` | 1 | noUnusedImports |
 | `biome.json` | 1 | format (CRLF → LF) |
@@ -59,7 +59,7 @@ Fix all 19 biome lint errors blocking `git commit`. Every fix is mechanical — 
 ```
 
 ### Task 1.2 — dialog.svelte.ts: remove unused #triggerEl
-**File**: `src/lib/design/api/adapters/coldlight/_internal/dialog/dialog.svelte.ts:24`
+**File**: `src/lib/design/api/dsadapters/coldlight/_internal/dialog/dialog.svelte.ts:24`
 **Error**: `noUnusedPrivateClassMembers` — #triggerEl written but never read
 **Fix**: Remove line 24 (`#triggerEl: HTMLElement | null = null;`) and simplify `attachTrigger` to just return `{ destroy: () => {} }`
 
@@ -101,7 +101,7 @@ Fix all 19 biome lint errors blocking `git commit`. Every fix is mechanical — 
 
 ```
 interfaces/desktop/biome.json                                          — 1 fix (scripts override)
-interfaces/desktop/src/lib/design/api/adapters/coldlight/_internal/dialog/dialog.svelte.ts — 1 fix (remove #triggerEl)
+interfaces/desktop/src/lib/design/api/dsadapters/coldlight/_internal/dialog/dialog.svelte.ts — 1 fix (remove #triggerEl)
 interfaces/desktop/scripts/dev/inject-headers.ts                       — 1 fix (remove HeaderConfig)
 interfaces/desktop/src/lib/design/components/dialog/schema.ts          — 1 fix (remove unused import)
 ```

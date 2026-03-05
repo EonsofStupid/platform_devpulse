@@ -416,7 +416,7 @@ Pattern (root):
 
 <script lang="ts">
   import { setDialogComponentContext } from "./context.js";
-  import { createDialogAdapter } from "$lib/design/api/adapters/meltui/_internal/dialog/adapter.js";
+  import { createDialogAdapter } from "$lib/design/api/dsadapters/meltui/_internal/dialog/adapter.js";
   const adapter = createDialogAdapter({ defaultOpen: open });
   setDialogComponentContext({ adapter });
 </script>
@@ -438,7 +438,7 @@ TRANSPORT CHAIN (use:cold)
     ↓
 api/adapters/meltui/_internal/_transport/action.ts    ← CLOAKING ORIGIN: import { melt } from "@melt-ui/svelte"; export { melt as cold };
     ↓
-components/_transport/action.ts                        ← TRANSPORT ENDPOINT: export { cold } from "$lib/design/api/adapters/meltui/_internal/_transport/action.js";
+components/_transport/action.ts                        ← TRANSPORT ENDPOINT: export { cold } from "$lib/design/api/dsadapters/meltui/_internal/_transport/action.js";
     ↓
 components/dialog/DialogTrigger.svelte                 ← CONSUMER: import { cold } from "../_transport/action.js";
 Components NEVER import from @melt-ui/svelte. NEVER import from _internal/ directly except for adapter creation in root component.
@@ -2440,7 +2440,7 @@ Pattern (root):
 
 <script lang="ts">
   import { setDialogComponentContext } from "./context.js";
-  import { createDialogAdapter } from "$lib/design/api/adapters/meltui/_internal/dialog/adapter.js";
+  import { createDialogAdapter } from "$lib/design/api/dsadapters/meltui/_internal/dialog/adapter.js";
   const adapter = createDialogAdapter({ defaultOpen: open });
   setDialogComponentContext({ adapter });
 </script>
@@ -2462,7 +2462,7 @@ TRANSPORT CHAIN (use:cold)
     ↓
 api/adapters/meltui/_internal/_transport/action.ts    ← CLOAKING ORIGIN: import { melt } from "@melt-ui/svelte"; export { melt as cold };
     ↓
-components/_transport/action.ts                        ← TRANSPORT ENDPOINT: export { cold } from "$lib/design/api/adapters/meltui/_internal/_transport/action.js";
+components/_transport/action.ts                        ← TRANSPORT ENDPOINT: export { cold } from "$lib/design/api/dsadapters/meltui/_internal/_transport/action.js";
     ↓
 components/dialog/DialogTrigger.svelte                 ← CONSUMER: import { cold } from "../_transport/action.js";
 Components NEVER import from @melt-ui/svelte. NEVER import from _internal/ directly except for adapter creation in root component.

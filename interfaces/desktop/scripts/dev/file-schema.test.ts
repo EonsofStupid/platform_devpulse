@@ -147,7 +147,7 @@ group("FileContext — Kind Resolution");
 {
 	eq("primitives/button → button", resolveFileContext(abs("src/lib/design/primitives/button/types.ts")).kind, "button");
 	eq("primitives/dialog → dialog", resolveFileContext(abs("src/lib/design/primitives/dialog/index.ts")).kind, "dialog");
-	eq("_internal/accordion → accordion", resolveFileContext(abs("src/lib/design/api/adapters/meltui/_internal/accordion/factory.ts")).kind, "accordion");
+	eq("_internal/accordion → accordion", resolveFileContext(abs("src/lib/design/api/dsadapters/meltui/_internal/accordion/factory.ts")).kind, "accordion");
 	eq("components/button → button", resolveFileContext(abs("src/lib/design/components/button/Button.svelte")).kind, "button");
 	eq("_schema/types → null (not a kind)", resolveFileContext(abs("src/lib/design/primitives/_schema/types.ts")).kind, null);
 	eq("actions/use → null (no kind)", resolveFileContext(abs("src/lib/design/actions/useClickOutside.ts")).kind, null);
@@ -156,11 +156,11 @@ group("FileContext — Kind Resolution");
 group("FileContext — Internal/Transport/Schema flags");
 
 {
-	const internal = resolveFileContext(abs("src/lib/design/api/adapters/meltui/_internal/dialog/factory.ts"));
+	const internal = resolveFileContext(abs("src/lib/design/api/dsadapters/meltui/_internal/dialog/factory.ts"));
 	eq("_internal/ → isInternal=true", internal.isInternal, true);
 	eq("factory.ts → isTransport=false", internal.isTransport, false);
 
-	const transport = resolveFileContext(abs("src/lib/design/api/adapters/meltui/_internal/dialog/_transport/types.ts"));
+	const transport = resolveFileContext(abs("src/lib/design/api/dsadapters/meltui/_internal/dialog/_transport/types.ts"));
 	eq("_transport/ → isTransport=true", transport.isTransport, true);
 	eq("_transport/ → isInternal=true (parent)", transport.isInternal, true);
 
@@ -203,11 +203,11 @@ group("Schema Matching — MeltUI Adapters");
 
 {
 	const cases: Array<[string, string]> = [
-		["src/lib/design/api/adapters/meltui/_internal/dialog/factory.ts", "internal-factory"],
-		["src/lib/design/api/adapters/meltui/_internal/dialog/_transport/types.ts", "internal-transport-types"],
-		["src/lib/design/api/adapters/meltui/_internal/dialog/_transport/factory.ts", "internal-transport-factory"],
-		["src/lib/design/api/adapters/meltui/_internal/dialog/_transport/index.ts", "internal-transport-index"],
-		["src/lib/design/api/adapters/meltui/_internal/dialog/index.ts", "internal-index"],
+		["src/lib/design/api/dsadapters/meltui/_internal/dialog/factory.ts", "internal-factory"],
+		["src/lib/design/api/dsadapters/meltui/_internal/dialog/_transport/types.ts", "internal-transport-types"],
+		["src/lib/design/api/dsadapters/meltui/_internal/dialog/_transport/factory.ts", "internal-transport-factory"],
+		["src/lib/design/api/dsadapters/meltui/_internal/dialog/_transport/index.ts", "internal-transport-index"],
+		["src/lib/design/api/dsadapters/meltui/_internal/dialog/index.ts", "internal-index"],
 	];
 	for (const [file, expected] of cases) {
 		const ctx = resolveFileContext(abs(file));
@@ -220,13 +220,13 @@ group("Schema Matching — ColdLight Adapters");
 
 {
 	const cases: Array<[string, string]> = [
-		["src/lib/design/api/adapters/coldlight/_internal/dialog/dialog.svelte.ts", "coldlight-adapter-svelte-ts"],
-		["src/lib/design/api/adapters/coldlight/_internal/dialog/index.ts", "coldlight-adapter-index"],
-		["src/lib/design/api/adapters/coldlight/_internal/dialog/_transport/types.ts", "coldlight-adapter-transport-types"],
-		["src/lib/design/api/adapters/coldlight/_internal/dialog/_transport/factory.ts", "coldlight-adapter-transport-factory"],
-		["src/lib/design/api/adapters/coldlight/_internal/dialog/_transport/index.ts", "coldlight-adapter-transport-index"],
-		["src/lib/design/api/adapters/coldlight/_internal/_transport/types.ts", "coldlight-shared-transport"],
-		["src/lib/design/api/adapters/coldlight/_internal/_transport/ids.ts", "coldlight-shared-transport"],
+		["src/lib/design/api/dsadapters/coldlight/_internal/dialog/dialog.svelte.ts", "coldlight-adapter-svelte-ts"],
+		["src/lib/design/api/dsadapters/coldlight/_internal/dialog/index.ts", "coldlight-adapter-index"],
+		["src/lib/design/api/dsadapters/coldlight/_internal/dialog/_transport/types.ts", "coldlight-adapter-transport-types"],
+		["src/lib/design/api/dsadapters/coldlight/_internal/dialog/_transport/factory.ts", "coldlight-adapter-transport-factory"],
+		["src/lib/design/api/dsadapters/coldlight/_internal/dialog/_transport/index.ts", "coldlight-adapter-transport-index"],
+		["src/lib/design/api/dsadapters/coldlight/_internal/_transport/types.ts", "coldlight-shared-transport"],
+		["src/lib/design/api/dsadapters/coldlight/_internal/_transport/ids.ts", "coldlight-shared-transport"],
 	];
 	for (const [file, expected] of cases) {
 		const ctx = resolveFileContext(abs(file));
@@ -333,7 +333,7 @@ group("Header Generation — Content Validation");
 }
 
 {
-	const ctx = resolveFileContext(abs("src/lib/design/api/adapters/meltui/_internal/dialog/factory.ts"));
+	const ctx = resolveFileContext(abs("src/lib/design/api/dsadapters/meltui/_internal/dialog/factory.ts"));
 	const header = generateHeader(ctx)!;
 	includes("factory header has @internal", header, "@internal");
 	includes("factory header has @builder", header, "@builder new Dialog()");

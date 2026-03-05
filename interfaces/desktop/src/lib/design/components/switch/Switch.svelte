@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
 	import type { SwitchProps } from "./types.js";
-	import { createSwitch } from "$lib/design/api/adapters/coldlight/_internal/switch/index.js";
+	import { createSwitch } from "$lib/design/api/dsadapters/coldlight/_internal/switch/index.js";
 	import SwitchRoot from "$lib/design/primitives/switch/Switch.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { switchRecipe, switchThumbRecipe } from "./recipe.js";

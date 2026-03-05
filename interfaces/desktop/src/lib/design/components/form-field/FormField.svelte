@@ -11,7 +11,7 @@
 -->
 <script lang="ts">
 	import type { FormFieldComponentProps } from "./types.js";
-	import { createFormField } from "$lib/design/api/adapters/coldlight/_internal/form-field/index.js";
+	import { createFormField } from "$lib/design/api/dsadapters/coldlight/_internal/form-field/index.js";
 	import FormFieldRoot from "$lib/design/primitives/form-field/FormField.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";

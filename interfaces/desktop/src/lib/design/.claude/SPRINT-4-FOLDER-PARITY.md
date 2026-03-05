@@ -11,9 +11,9 @@ For every primitive kind, these 4 folders must exist:
 
 src/lib/design/taxonomy/primitives/<kind>/
 
-src/lib/design/api/adapters/coldlight/<kind>/
+src/lib/design/api/dsadapters/coldlight/<kind>/
 
-src/lib/design/api/adapters/meltui/_internal/<kind>/
+src/lib/design/api/dsadapters/meltui/_internal/<kind>/
 
 src/lib/design/primitives/<kind>/
 
@@ -34,9 +34,9 @@ src/lib/design/taxonomy/adapters/registry.ts
 
 Missing for dialog parity
 
-src/lib/design/api/adapters/coldlight/dialog/
+src/lib/design/api/dsadapters/coldlight/dialog/
 
-src/lib/design/api/adapters/meltui/_internal/dialog/
+src/lib/design/api/dsadapters/meltui/_internal/dialog/
 
 src/lib/design/primitives/dialog/
 
@@ -62,7 +62,7 @@ scanner output reports missing folders (not missing ${kind}.ts)
 PHASE 2: Create ColdLight Adapter Folder (Dialog)
 Task 2.1: Create folder structure
 
-Create: src/lib/design/api/adapters/coldlight/dialog/
+Create: src/lib/design/api/dsadapters/coldlight/dialog/
 
 Required files:
 
@@ -74,7 +74,7 @@ types.ts
 
 Task 2.2: Implement dialog/types.ts
 
-File: src/lib/design/api/adapters/coldlight/dialog/types.ts
+File: src/lib/design/api/dsadapters/coldlight/dialog/types.ts
 
 Defines:
 
@@ -96,7 +96,7 @@ pnpm svelte-check passes
 
 Task 2.3: Implement dialog/index.ts
 
-File: src/lib/design/api/adapters/coldlight/dialog/index.ts
+File: src/lib/design/api/dsadapters/coldlight/dialog/index.ts
 
 Exports:
 
@@ -113,7 +113,7 @@ pnpm svelte-check passes
 PHASE 3: Create MeltUI Internal Folder (Dialog)
 Task 3.1: Create folder structure
 
-Create: src/lib/design/api/adapters/meltui/_internal/dialog/
+Create: src/lib/design/api/dsadapters/meltui/_internal/dialog/
 
 Required files:
 
@@ -127,7 +127,7 @@ mapping.ts
 
 Task 3.2: Implement dialog/types.ts
 
-File: src/lib/design/api/adapters/meltui/_internal/dialog/types.ts
+File: src/lib/design/api/dsadapters/meltui/_internal/dialog/types.ts
 
 Defines:
 
@@ -147,7 +147,7 @@ pnpm svelte-check passes
 
 Task 3.3: Implement dialog/mapping.ts
 
-File: src/lib/design/api/adapters/meltui/_internal/dialog/mapping.ts
+File: src/lib/design/api/dsadapters/meltui/_internal/dialog/mapping.ts
 
 Defines:
 
@@ -165,7 +165,7 @@ pnpm svelte-check passes
 
 Task 3.4: Implement dialog/index.ts
 
-File: src/lib/design/api/adapters/meltui/_internal/dialog/index.ts
+File: src/lib/design/api/dsadapters/meltui/_internal/dialog/index.ts
 
 Barrel exports:
 
@@ -348,6 +348,6 @@ Phase 6
 4-FOLDER SUMMARY FOR DIALOG
 Location	Purpose	Folder
 src/lib/design/taxonomy/primitives/dialog/	Declaration	dialog/
-src/lib/design/api/adapters/coldlight/dialog/	ColdLight adapter surface	dialog/
-src/lib/design/api/adapters/meltui/_internal/dialog/	MeltUI internal mapping	dialog/
+src/lib/design/api/dsadapters/coldlight/dialog/	ColdLight adapter surface	dialog/
+src/lib/design/api/dsadapters/meltui/_internal/dialog/	MeltUI internal mapping	dialog/
 src/lib/design/primitives/dialog/	Svelte primitive	dialog/

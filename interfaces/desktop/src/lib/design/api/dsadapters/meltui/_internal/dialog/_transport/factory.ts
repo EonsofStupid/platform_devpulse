@@ -17,7 +17,7 @@
  *   melt dialog.refs.attach("overlay") → refs.overlay()  ← REQUIRED for popover
  */
 
-import type { SlotAttrs } from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
+import type { SlotAttrs } from "$lib/design/api/dsadapters/coldlight/_internal/_transport/types.js";
 import { createMeltDialog } from "../factory.js";
 import type { DialogTransport, DialogTransportConfig } from "./types.js";
 

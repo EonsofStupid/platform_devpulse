@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
 	import type { KbdProps } from "./types.js";
-	import { createKbd } from "$lib/design/api/adapters/coldlight/_internal/kbd/index.js";
+	import { createKbd } from "$lib/design/api/dsadapters/coldlight/_internal/kbd/index.js";
 	import KbdRoot from "$lib/design/primitives/kbd/Kbd.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { kbdRecipe } from "./recipe.js";

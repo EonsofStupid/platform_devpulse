@@ -11,7 +11,7 @@
 -->
 <script lang="ts">
 	import type { ColorInputComponentProps } from "./types.js";
-	import { createColorInput } from "$lib/design/api/adapters/coldlight/_internal/color-input/index.js";
+	import { createColorInput } from "$lib/design/api/dsadapters/coldlight/_internal/color-input/index.js";
 	import ColorInputRoot from "$lib/design/primitives/color-input/ColorInput.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";

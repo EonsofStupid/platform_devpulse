@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
 	import type { GridProps } from "./types.js";
-	import { createGrid } from "$lib/design/api/adapters/coldlight/_internal/grid/index.js";
+	import { createGrid } from "$lib/design/api/dsadapters/coldlight/_internal/grid/index.js";
 	import GridRoot from "$lib/design/primitives/grid/Grid.svelte";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 	import { gridRecipe } from "./recipe.js";

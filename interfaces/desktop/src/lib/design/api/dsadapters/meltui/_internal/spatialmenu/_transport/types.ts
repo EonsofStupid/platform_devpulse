@@ -19,7 +19,7 @@ import type { Attachment } from "svelte/attachments";
 import type {
 	SlotAttrs,
 	TransportAdapter,
-} from "$lib/design/api/adapters/coldlight/_internal/_transport/types.js";
+} from "$lib/design/api/dsadapters/coldlight/_internal/_transport/types.js";
 
 // =============================================================================
 // TRANSPORT STATES
