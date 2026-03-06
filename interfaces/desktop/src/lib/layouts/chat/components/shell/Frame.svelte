@@ -12,14 +12,14 @@
 <script lang="ts">
 import type { Snippet } from "svelte";
 import { getRecipe } from "$lib/design/recipes/index.js";
-import { platformHealth } from "$lib/sys/runes/health.svelte.js";
+import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 
 const healthColors: Record<string, string> = {
 	online: "var(--color-teal-400)",
 	hybrid: "var(--color-purple-400)",
 	offline: "var(--signal-error)",
 };
-const healthColor = $derived(healthColors[platformHealth.connectionStatus] ?? "var(--signal-error)");
+const healthColor = $derived(healthColors[platformState.connectionStatus] ?? "var(--signal-error)");
 
 interface Props {
 	children: Snippet;
@@ -59,7 +59,7 @@ const slots = $derived(
 		<span
 			class="inline-block h-2 w-2 rounded-full"
 			style="background: {healthColor}; box-shadow: 0 0 6px {healthColor};"
-			title="Platform: {platformHealth.connectionStatus}"
+			title="Platform: {platformState.connectionStatus}"
 		></span>
 	</header>
 

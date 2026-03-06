@@ -16,6 +16,7 @@ ts-rs = { workspace = true }
 uuid = { workspace = true }
 tokio = { workspace = true }
 anyhow = { workspace = true }
+tracing = { workspace = true }
 chrono = { workspace = true }
 
 # Kernel (the brain — always linked, facade controls exposure)

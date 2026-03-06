@@ -1,5 +1,5 @@
 /**
- * @file routes/splashscreen/boot-labels.ts
+ * @file sys/boot/boot-labels.ts
  * @description Maps Platform::boot() step names to user-friendly labels.
  * Engine layer uses IP-safe names ("Graph store"). Frontend adds friendly labels for production mode.
  */
@@ -16,8 +16,6 @@ export const FRIENDLY_LABELS: Record<string, BootLabel> = {
 	"Analytics store": { label: "Analytics Engine", icon: "chart" },
 	"Graph store": { label: "Knowledge Graph", icon: "brain" },
 	"Cache store": { label: "Memory Cache", icon: "lightning" },
-	// Future:
-	// "Vector store": { label: "Search Engine", icon: "search" },
 };
 
 /** Resolve a step name to its friendly label. Falls back to raw name. */

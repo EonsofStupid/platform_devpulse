@@ -11,25 +11,13 @@
 	"app": {
 		"windows": [
 			{
-				"label": "splashscreen",
-				"title": "DevPulse",
-				"url": "/splashscreen",
-				"width": 800,
-				"height": 600,
-				"center": true,
-				"decorations": false,
-				"resizable": false,
-				"transparent": true,
-				"alwaysOnTop": true
-			},
-			{
 				"label": "main",
 				"title": "DevPulse",
 				"width": 1280,
 				"height": 800,
 				"transparent": true,
 				"decorations": false,
-				"visible": false
+				"visible": true
 			},
 			{
 				"label": "chat",

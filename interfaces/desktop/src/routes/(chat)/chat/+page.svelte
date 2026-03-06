@@ -9,7 +9,7 @@
 -->
 <script lang="ts">
 	import { Send, Mic, Sparkles } from "lucide-svelte";
-	import { platformHealth } from "$lib/sys/runes/health.svelte.js";
+	import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 	import {
 		Box,
 		Button,
@@ -56,7 +56,7 @@
 	]);
 
 	let inputValue = $state("");
-	const canSend = $derived(platformHealth.isHealthy && inputValue.trim().length > 0);
+	const canSend = $derived(platformState.isReady && inputValue.trim().length > 0);
 
 	function setActiveThread(id: string) {
 		threads = threads.map((t) => ({ ...t, active: t.id === id }));
@@ -104,14 +104,24 @@
 
 	<!-- Chat area -->
 	<Stack class="flex-1">
-		{#if !platformHealth.isHealthy && platformHealth.initialized}
+		{#if platformState.hasFailed}
 			<Box
 				preset="banner-warning"
 				radius="none"
 				class="px-3 py-1.5 text-center text-xs border-b border-border-subtle"
 			>
 				<Text size="xs" color="accent">
-					Platform {platformHealth.status.toLowerCase()} — some features may be unavailable
+					Platform degraded — some features may be unavailable
+				</Text>
+			</Box>
+		{:else if platformState.isBooting}
+			<Box
+				preset="banner-warning"
+				radius="none"
+				class="px-3 py-1.5 text-center text-xs border-b border-border-subtle"
+			>
+				<Text size="xs" color="accent">
+					Platform starting up...
 				</Text>
 			</Box>
 		{/if}
@@ -174,7 +184,7 @@
 				class="h-8 w-8 shrink-0"
 				onclick={sendMessage}
 				disabled={!canSend}
-				title={platformHealth.isHealthy ? "Send" : "Waiting for platform..."}
+				title={platformState.isReady ? "Send" : "Waiting for platform..."}
 			>
 				<Send size={14} />
 			</Button>

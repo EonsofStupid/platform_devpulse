@@ -1,12 +1,18 @@
 //! System configuration commands.
 
-use crate::state::AppState;
+use crate::state::PlatformState;
 use devpulse_engine::platform::PlatformConfig;
 use tauri::State;
 
 /// Get current platform settings.
+///
+/// # Errors
+/// Returns error if platform is still booting.
 #[tauri::command]
-#[allow(clippy::needless_pass_by_value)] // Tauri requires State by value
-pub fn get_settings(state: State<'_, AppState>) -> PlatformConfig {
-    state.platform.config()
+pub async fn get_settings(state: State<'_, PlatformState>) -> Result<PlatformConfig, String> {
+    let lock = state.platform.read().await;
+    match lock.as_ref() {
+        Some(platform) => Ok(platform.config()),
+        None => Err("Platform is still booting".to_string()),
+    }
 }

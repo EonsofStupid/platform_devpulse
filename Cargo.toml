@@ -31,6 +31,11 @@ wal = { git = "https://github.com/EonsofStupid/wal", branch = "rro-alpha" }
 rro = { git = "https://github.com/EonsofStupid/rro", branch = "alpha" }
 tar-rs = { git = "https://github.com/EonsofStupid/tar-rs", branch = "rro-alpha" }
 
+# Observability
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
+tracing-appender = "0.2"
+
 # Error Handling
 anyhow = "1.0"
 thiserror = "2.0"

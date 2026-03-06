@@ -6,11 +6,11 @@
 //!
 //! # Architecture
 //! ```text
-//! Tauri → Platform (this) → Store wrappers → Maestro adapters (private)
-//!              │
-//!              ├── SystemHealth (public type)
-//!              ├── InitEvent (public type)
-//!              └── PlatformConfig (public type)
+//! Tauri -> Platform (this) -> Store wrappers -> Maestro adapters (private)
+//!              |
+//!              +-- SystemHealth (public type)
+//!              +-- InitEvent (public type)
+//!              +-- PlatformConfig (public type)
 //! ```
 
 pub mod config;
@@ -50,14 +50,16 @@ pub struct Platform {
 impl Platform {
     /// Boot the platform — initialize all enabled stores from config.
     ///
-    /// Calls the provided callback for each initialization step so the
-    /// launcher UI can show real-time progress.
+    /// Each store is booted independently. A failed store results in
+    /// a degraded state (store = None), NOT a crash. The callback
+    /// receives real-time progress for every subsystem.
     ///
     /// # Errors
-    /// Returns error if any enabled store fails to initialize.
+    /// Returns error only if config loading or directory creation fails.
+    /// Individual store failures are reported via callback and result in None.
     pub async fn boot(
         data_dir: PathBuf,
-        on_event: impl Fn(InitEvent),
+        on_event: impl Fn(InitEvent) + Send + 'static,
     ) -> Result<Self> {
         let boot_time = Instant::now();
         let boot_config = PlatformBootConfig::load(&data_dir)?;
@@ -73,50 +75,140 @@ impl Platform {
             "Directories ready",
         ));
 
-        // Step 2: Relational store (LibSQL)
+        // Step 2: Relational store (LibSQL) — resilient boot
         let relational = if boot_config.stores.relational.enabled {
             on_event(InitEvent::running("Relational store", "Opening database"));
             let start = Instant::now();
             let path = boot_config.stores.relational.resolve_path(&data_dir);
-            let store = RelationalStore::boot(&path).await?;
-            on_event(InitEvent::ok_with_latency("Relational store", start.elapsed()));
-            Some(Arc::new(store))
+            match RelationalStore::boot(&path).await {
+                Ok(store) => {
+                    tracing::info!(
+                        step = "Relational store",
+                        status = "ready",
+                        latency_ms = start.elapsed().as_millis() as u64,
+                        "LibSQL store booted"
+                    );
+                    on_event(InitEvent::ok_with_latency("Relational store", start.elapsed()));
+                    Some(Arc::new(store))
+                }
+                Err(e) => {
+                    tracing::error!(
+                        step = "Relational store",
+                        error = %e,
+                        "LibSQL store failed to boot"
+                    );
+                    on_event(InitEvent::error("Relational store", &e.to_string()));
+                    None
+                }
+            }
         } else {
             on_event(InitEvent::skipped("Relational store"));
             None
         };
 
-        // Step 3: Analytics store (DuckDB)
+        // Step 3: Analytics store (DuckDB) — resilient boot
         let analytics = if boot_config.stores.analytics.enabled {
             on_event(InitEvent::running("Analytics store", "Opening database"));
             let start = Instant::now();
             let path = boot_config.stores.analytics.resolve_path(&data_dir);
-            let store = AnalyticsStore::boot(&path)?;
-            on_event(InitEvent::ok_with_latency("Analytics store", start.elapsed()));
-            Some(Arc::new(store))
+            match AnalyticsStore::boot(&path) {
+                Ok(store) => {
+                    tracing::info!(
+                        step = "Analytics store",
+                        status = "ready",
+                        latency_ms = start.elapsed().as_millis() as u64,
+                        "DuckDB store booted"
+                    );
+                    on_event(InitEvent::ok_with_latency("Analytics store", start.elapsed()));
+                    Some(Arc::new(store))
+                }
+                Err(e) => {
+                    tracing::error!(
+                        step = "Analytics store",
+                        error = %e,
+                        "DuckDB store failed to boot"
+                    );
+                    on_event(InitEvent::error("Analytics store", &e.to_string()));
+                    None
+                }
+            }
         } else {
             on_event(InitEvent::skipped("Analytics store"));
             None
         };
 
-        // Step 4: Graph store (SurrealDB)
+        // Step 4: Graph store (SurrealDB) — resilient boot with stale data recovery
         let graph = if boot_config.stores.graph.enabled {
             on_event(InitEvent::running("Graph store", "Opening database"));
             let start = Instant::now();
             let path = boot_config.stores.graph.resolve_path(&data_dir);
-            let store = GraphStore::boot(&path).await?;
-            on_event(InitEvent::ok_with_latency("Graph store", start.elapsed()));
-            Some(Arc::new(store))
+            match GraphStore::boot(&path).await {
+                Ok(store) => {
+                    tracing::info!(
+                        step = "Graph store",
+                        status = "ready",
+                        latency_ms = start.elapsed().as_millis() as u64,
+                        "SurrealDB store booted"
+                    );
+                    on_event(InitEvent::ok_with_latency("Graph store", start.elapsed()));
+                    Some(Arc::new(store))
+                }
+                Err(e) => {
+                    tracing::warn!(
+                        step = "Graph store",
+                        error = %e,
+                        "SurrealDB failed — attempting recovery by clearing stale data"
+                    );
+                    // Recovery: clear stale SurrealKV data and retry
+                    if path.exists() {
+                        tracing::info!(
+                            path = %path.display(),
+                            "Removing stale SurrealKV data directory"
+                        );
+                        let _ = std::fs::remove_dir_all(&path);
+                        if let Some(parent) = path.parent() {
+                            let _ = std::fs::create_dir_all(parent);
+                        }
+                    }
+                    match GraphStore::boot(&path).await {
+                        Ok(store) => {
+                            tracing::info!(
+                                step = "Graph store",
+                                status = "recovered",
+                                latency_ms = start.elapsed().as_millis() as u64,
+                                "SurrealDB store booted after data reset"
+                            );
+                            on_event(InitEvent::ok_with_latency("Graph store", start.elapsed()));
+                            Some(Arc::new(store))
+                        }
+                        Err(retry_err) => {
+                            tracing::error!(
+                                step = "Graph store",
+                                error = %retry_err,
+                                "SurrealDB store failed even after data reset"
+                            );
+                            on_event(InitEvent::error("Graph store", &retry_err.to_string()));
+                            None
+                        }
+                    }
+                }
+            }
         } else {
             on_event(InitEvent::skipped("Graph store"));
             None
         };
 
-        // Step 5: Cache store (Moka)
+        // Step 5: Cache store (Moka) — resilient boot
         let cache = if boot_config.stores.cache.enabled {
             on_event(InitEvent::running("Cache store", "Initializing in-memory cache"));
             let start = Instant::now();
             let store = CacheStore::boot(boot_config.stores.cache.to_moka_config());
+            tracing::info!(
+                step = "Cache store",
+                status = "ready",
+                latency_ms = start.elapsed().as_millis() as u64,
+                "Moka cache booted"
+            );
             on_event(InitEvent::ok_with_latency("Cache store", start.elapsed()));
             Some(Arc::new(store))
         } else {
@@ -184,22 +276,22 @@ impl Platform {
         self.boot_time.elapsed().as_secs()
     }
 
-    /// Get the relational store (if enabled).
+    /// Get the relational store (if enabled and booted).
     pub fn relational(&self) -> Option<&Arc<RelationalStore>> {
         self.relational.as_ref()
     }
 
-    /// Get the analytics store (if enabled).
+    /// Get the analytics store (if enabled and booted).
     pub fn analytics(&self) -> Option<&Arc<AnalyticsStore>> {
         self.analytics.as_ref()
     }
 
-    /// Get the graph store (if enabled).
+    /// Get the graph store (if enabled and booted).
     pub fn graph(&self) -> Option<&Arc<GraphStore>> {
         self.graph.as_ref()
     }
 
-    /// Get the cache store (if enabled).
+    /// Get the cache store (if enabled and booted).
     pub fn cache(&self) -> Option<&Arc<CacheStore>> {
         self.cache.as_ref()
     }
