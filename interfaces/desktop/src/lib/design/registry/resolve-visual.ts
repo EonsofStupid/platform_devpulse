@@ -8,6 +8,10 @@
  * VPB manipulates this. This IS the DsAdapter resolution engine.
  *
  * Resolution order: kind defaults → preset → individual props → encoding override
+ *
+ * FULLY DERIVED from TOKEN_CATEGORY_REGISTRY.
+ * Add a category to the registry → ColdLightProps, ColdLightPropsSchema,
+ * and resolveVisual() auto-handle the new axis. Zero manual changes here.
  */
 
 import { z } from "zod";
@@ -16,21 +20,12 @@ import {
 	TOKEN_CATEGORY_REGISTRY,
 	CODE_MAP,
 	CODE_TO_NAME,
-	NAME_TO_CODE,
 	PresetSchema,
 	EncodingStringSchema,
 	resolveToIndices,
 	resolveToPreset,
 	type Preset,
 	type EncodingIndices,
-	type SurfaceId,
-	type MaterialId,
-	type DepthId,
-	type BevelId,
-	type GlowId,
-	type FrameId,
-	type MotionId,
-	type TransitionId,
 } from "./token-categories.js";
 
 import type { RadiusToken, SizeToken } from "$lib/design/tokens/types.js";
@@ -39,33 +34,23 @@ import type { RadiusToken, SizeToken } from "$lib/design/tokens/types.js";
 // PUBLIC TYPES
 // ═══════════════════════════════════════════════════════════════
 
-/** Input — pick any combination, mix freely. */
-export interface ColdLightProps {
+/**
+ * Input — pick any combination, mix freely.
+ *
+ * DERIVED from Preset: every category in TOKEN_CATEGORY_REGISTRY
+ * becomes an optional field here. Add a category to the registry →
+ * ColdLightProps auto-expands.
+ */
+export type ColdLightProps = Partial<Preset> & {
 	/** Named preset: "panel-glass", "btn-primary" */
 	preset?: string;
-	/** Surface treatment */
-	surface?: SurfaceId;
-	/** Material physics */
-	material?: MaterialId;
-	/** Depth / elevation */
-	depth?: DepthId;
-	/** Bevel edge treatment */
-	bevel?: BevelId;
-	/** Glow emission color */
-	glow?: GlowId;
-	/** Frame / border treatment */
-	frame?: FrameId;
-	/** Ambient motion / animation */
-	motion?: MotionId;
-	/** Transition timing for interactive states */
-	transition?: TransitionId;
 	/** Encoding override string: "v-s1z2d3" */
 	encoding?: string;
 	/** Border radius — not part of encoding, applied directly */
 	radius?: RadiusToken;
 	/** Size variant — structural, not part of encoding */
 	size?: SizeToken;
-}
+};
 
 /** Output — everything needed to render a ColdLight component. */
 export interface ResolvedVisual {
@@ -93,22 +78,18 @@ export interface ResolvedVisual {
 
 // ═══════════════════════════════════════════════════════════════
 // ZOD SCHEMA FOR BOUNDARY VALIDATION
+//
+// DERIVED from PresetSchema — auto-expands when registry grows.
 // ═══════════════════════════════════════════════════════════════
 
-export const ColdLightPropsSchema = z.object({
-	preset: z.string().optional(),
-	surface: z.string().optional(),
-	material: z.string().optional(),
-	depth: z.string().optional(),
-	bevel: z.string().optional(),
-	glow: z.string().optional(),
-	frame: z.string().optional(),
-	motion: z.string().optional(),
-	transition: z.string().optional(),
-	encoding: EncodingStringSchema.optional(),
-	radius: z.string().optional(),
-	size: z.string().optional(),
-}).passthrough();
+export const ColdLightPropsSchema = PresetSchema.partial()
+	.extend({
+		preset: z.string().optional(),
+		encoding: EncodingStringSchema.optional(),
+		radius: z.string().optional(),
+		size: z.string().optional(),
+	})
+	.passthrough();
 
 // ═══════════════════════════════════════════════════════════════
 // RADIUS MAP — Tailwind classes (not part of encoding)
@@ -170,7 +151,7 @@ function parseEncoding(encoding: string): Partial<Record<string, number>> {
  * Resolution order (later wins):
  * 1. All-defaults (index 0 per category)
  * 2. Named preset lookup (if `preset` is provided)
- * 3. Individual semantic props (surface, depth, glow, etc.)
+ * 3. Individual semantic props (surface, depth, glow, etc.) — LOOPS REGISTRY
  * 4. Encoding string override (if `encoding` is provided)
  *
  * @example
@@ -203,14 +184,14 @@ export function resolveVisual(
 	}
 
 	// Layer 3: Individual semantic props override preset values
-	if (input.surface !== undefined) merged.surface = input.surface;
-	if (input.material !== undefined) merged.material = input.material;
-	if (input.depth !== undefined) merged.depth = input.depth;
-	if (input.bevel !== undefined) merged.bevel = input.bevel;
-	if (input.glow !== undefined) merged.glow = input.glow;
-	if (input.frame !== undefined) merged.frame = input.frame;
-	if (input.motion !== undefined) merged.motion = input.motion;
-	if (input.transition !== undefined) merged.transition = input.transition;
+	// LOOPS REGISTRY — auto-handles any new category added to TOKEN_CATEGORY_REGISTRY.
+	for (const cat of TOKEN_CATEGORY_REGISTRY) {
+		const name = CODE_TO_NAME[cat.code];
+		const value = (input as Record<string, unknown>)[name];
+		if (value !== undefined) {
+			(merged as Record<string, unknown>)[name] = value;
+		}
+	}
 
 	// Layer 4: Encoding string override (highest priority for encoded categories)
 	if (input.encoding) {
@@ -245,7 +226,8 @@ export function resolveVisual(
 
 	// Emit sparse encoding string
 	const encodingParts = segmentParts.map((s) => s.slice(2)); // strip "v-" prefix
-	const encoding = encodingParts.length > 0 ? `v-${encodingParts.join("")}` : "";
+	const encoding =
+		encodingParts.length > 0 ? `v-${encodingParts.join("")}` : "";
 
 	// Collect CSS properties from all non-default categories
 	const cssProperties: Record<string, string> = {};
@@ -272,9 +254,7 @@ export function resolveVisual(
 	}
 
 	// Map filter IDs to Tailwind utility classes (from svg/filters/filters.css)
-	const svgFilterClasses = svgFilters
-		.map((id) => `filter-${id}`)
-		.join(" ");
+	const svgFilterClasses = svgFilters.map((id) => `filter-${id}`).join(" ");
 
 	// Radius (not part of encoding — applied directly as Tailwind class)
 	const radius = RADIUS_MAP[input.radius ?? "md"] ?? RADIUS_MAP.md;

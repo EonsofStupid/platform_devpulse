@@ -9,7 +9,7 @@ pub mod state;
 use devpulse_engine::platform::{InitStatus, Platform};
 use state::AppState;
 use std::sync::Arc;
-use tauri::Manager;
+use tauri::{Emitter, Manager};
 
 /// Bootstrap and run the Tauri application.
 ///
@@ -33,6 +33,7 @@ pub fn run() {
             // Boot platform — create a dedicated Tokio runtime for async init.
             // Tauri's setup closure doesn't run inside a Tokio context,
             // so Handle::current() would panic.
+            let app_handle = app.handle().clone();
             let rt = tokio::runtime::Runtime::new()
                 .expect("Failed to create Tokio runtime");
             let platform = rt.block_on(async {
@@ -57,6 +58,9 @@ pub fn run() {
                     if event.status != InitStatus::Running {
                         eprintln!("  [{symbol}] {}{msg}{latency}", event.step);
                     }
+
+                    // Bridge to splashscreen UI
+                    let _ = app_handle.emit("platform:boot", &event);
                 })
                 .await
             })?;
@@ -86,6 +90,18 @@ pub fn run() {
             app.manage(AppState {
                 platform: Arc::new(platform),
             });
+
+            // Emit completion to splashscreen
+            let _ = app.emit("platform:boot-complete", &health);
+
+            // Window swap: show main, close splashscreen
+            if let Some(splash) = app.get_webview_window("splashscreen") {
+                let _ = splash.close();
+            }
+            if let Some(main) = app.get_webview_window("main") {
+                let _ = main.show();
+                let _ = main.set_focus();
+            }
 
             eprintln!();
             eprintln!("--- Ready ---");

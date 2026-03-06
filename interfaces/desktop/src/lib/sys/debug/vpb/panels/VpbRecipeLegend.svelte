@@ -13,7 +13,7 @@
 	const recipes = $derived(getRecipesForKind(kind));
 
 	function previewClasses(recipe: RecipeDefinition): string {
-		const classes = recipe.classes(recipe.defaults as DsSurfaceProps);
+		const classes = recipe.classes(recipe.defaults as unknown as DsSurfaceProps);
 		return classes["root"] ?? classes["content"] ?? Object.values(classes)[0] ?? "";
 	}
 

@@ -9,8 +9,19 @@
 //!   [OK] pnpm 10.29.3 — C:\nvm4w\nodejs\pnpm.CMD (45ms)
 //!   [WARN] node v24.13.1 — expected v22.x from .nvmrc (12ms)
 //!   [OK] cargo (1ms)
+//!
+//! --- Backend (423 crates in dependency graph) ---
+//!   ├─ tls layer
+//!   │  compiling rustls                        2.1s    [  8/423]
+//!   ├─ relational store (LibSQL)
+//!   │  checking  libsql                        4.3s    [ 92/423]
+//!   ├─ platform engine
+//!   │  checking  devpulse-engine               9.1s    [421/423]
+//!   └─ [OK] backend — 12 compiled + 411 checked (9.3s)
 //! ```
 
+use std::io::{self, Write};
+use std::path::Path;
 use std::time::Instant;
 
 /// Print a section header. Groups related stages.
@@ -59,5 +70,329 @@ impl Stage {
     /// Stage was skipped (not applicable).
     pub fn skip(self, reason: impl std::fmt::Display) {
         println!("  [--] {} — {reason}", self.label);
+    }
+
+    /// Stage failed with a fatal error.
+    pub fn fail(self, detail: impl std::fmt::Display) {
+        let ms = self.start.elapsed().as_millis();
+        eprintln!("  [FAIL] {} — {detail} ({ms}ms)", self.label);
+    }
+}
+
+// ── Dependency graph estimation ──────────────────────────────────
+
+/// Use `cargo_metadata` to count the total number of packages in the resolve
+/// graph for a given package. Returns the count, or 0 if metadata fails.
+///
+/// This lets us show "X of ~Y" during compilation instead of just "X compiled".
+pub fn estimate_crate_count(workspace_root: &Path, package: &str) -> u32 {
+    let Ok(metadata) = cargo_metadata::MetadataCommand::new()
+        .manifest_path(workspace_root.join("Cargo.toml"))
+        .exec()
+    else {
+        return 0;
+    };
+
+    // Find the target package's ID
+    let Some(target_pkg) = metadata.packages.iter().find(|p| p.name == package) else {
+        // Fall back to total package count
+        return metadata.packages.len() as u32;
+    };
+
+    // Walk the resolve graph from the target package to count transitive deps
+    let Some(resolve) = &metadata.resolve else {
+        return metadata.packages.len() as u32;
+    };
+
+    let mut visited = std::collections::HashSet::new();
+    let mut stack = vec![&target_pkg.id];
+
+    while let Some(pkg_id) = stack.pop() {
+        if !visited.insert(pkg_id.clone()) {
+            continue;
+        }
+        if let Some(node) = resolve.nodes.iter().find(|n| &n.id == pkg_id) {
+            for dep in &node.deps {
+                stack.push(&dep.pkg);
+            }
+        }
+    }
+
+    visited.len() as u32
+}
+
+// ── Crate layer mapping ─────────────────────────────────────────
+
+/// Known crate → human-readable layer mapping.
+/// Tells the developer WHERE in the stack the build currently is.
+fn crate_layer(name: &str) -> &'static str {
+    match name {
+        // Platform crates (ours)
+        "devpulse_desktop_backend" | "devpulse-desktop-app" => "tauri backend",
+        "devpulse-engine" => "platform engine",
+        "devpulse-maestro" => "ai kernel",
+        // Database drivers
+        "surrealdb" | "surrealdb-core" | "surrealdb-core2" => "graph store (SurrealDB)",
+        "surrealkv" | "surrealcs" => "graph store (kv engine)",
+        "libsql" | "libsql-sys" => "relational store (LibSQL)",
+        "duckdb" | "libduckdb-sys" => "analytics store (DuckDB)",
+        "moka" => "cache store (Moka)",
+        // Networking
+        "reqwest" | "hyper" | "hyper-util" => "http client",
+        "rustls" | "rustls-webpki" | "tokio-rustls" | "hyper-rustls" => "tls layer",
+        // Tauri framework
+        n if n.starts_with("tauri") => "tauri framework",
+        // Tokio runtime
+        "tokio" | "tokio-util" | "tokio-stream" => "async runtime",
+        // Serde
+        "serde" | "serde_json" | "serde_derive" => "serialization",
+        // Crypto
+        n if n.starts_with("aws-lc") || n.starts_with("ring") => "crypto (native)",
+        // Everything else
+        _ => "",
+    }
+}
+
+// ── Line clearing helper ─────────────────────────────────────────
+
+/// Width of the progress line. Must be wide enough to overwrite any previous
+/// content on Windows ConHost (bare \r does not clear trailing chars).
+const LINE_WIDTH: usize = 100;
+
+/// Clear the current terminal line (works on Windows ConHost + Unix).
+fn clear_line() {
+    eprint!("\r{}\r", " ".repeat(LINE_WIDTH));
+    io::stderr().flush().ok();
+}
+
+// ── Live progress for long operations ────────────────────────────
+
+/// Monitor a cargo child process with transparent, real-time build logging.
+///
+/// Shows every crate being compiled/checked with its layer context.
+/// When `estimated_total > 0`, shows "X of ~Y" progress.
+/// Errors print immediately. Warnings are counted. Summary at the end.
+///
+/// Returns the child's exit status.
+pub fn monitor_cargo_child(
+    label: &str,
+    mut child: std::process::Child,
+    estimated_total: u32,
+) -> anyhow::Result<std::process::ExitStatus> {
+    use std::io::BufRead;
+    use std::sync::{Arc, Mutex};
+    use std::thread;
+    use std::time::Duration;
+
+    let stderr = child
+        .stderr
+        .take()
+        .ok_or_else(|| anyhow::anyhow!("no stderr on child"))?;
+
+    let reader = io::BufReader::new(stderr);
+    let start = Instant::now();
+    let mut compiled = 0u32;
+    let mut checked = 0u32;
+    let mut warnings = 0u32;
+    let mut errors = Vec::<String>::new();
+    let mut current_layer = "";
+    let mut in_error_block = false;
+
+    // Shared state for the heartbeat thread to display live elapsed time
+    // even when cargo is silent (e.g. during long native C++ compilations).
+    let heartbeat_state = Arc::new(Mutex::new(HeartbeatState {
+        last_verb: String::new(),
+        last_crate: String::new(),
+        total: 0u32,
+        estimated_total,
+        alive: true,
+    }));
+
+    // Heartbeat thread: updates elapsed timer every 2s so the UI never looks frozen.
+    let hb = Arc::clone(&heartbeat_state);
+    let hb_start = start;
+    let heartbeat = thread::spawn(move || {
+        let spinner = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+        let mut tick = 0usize;
+        loop {
+            thread::sleep(Duration::from_millis(500));
+            let state = hb.lock().unwrap();
+            if !state.alive {
+                break;
+            }
+            if state.last_crate.is_empty() {
+                // Nothing to display yet — cargo hasn't emitted a crate line
+                drop(state);
+                continue;
+            }
+            let elapsed = format_duration(hb_start.elapsed());
+            let spin = spinner[tick % spinner.len()];
+            tick += 1;
+            let verb = state.last_verb.clone();
+            let crate_name = state.last_crate.clone();
+            let total = state.total;
+            let est = state.estimated_total;
+            drop(state);
+
+            clear_line();
+            if est > 0 {
+                let counter = format!("[{total:>3}/~{est}]");
+                eprint!(
+                    "\r  \u{2502}  {spin} {verb} {crate_name:<32} {elapsed:>8}  {counter}"
+                );
+            } else {
+                eprint!(
+                    "\r  \u{2502}  {spin} {verb} {crate_name:<32} {elapsed:>8}"
+                );
+            }
+            io::stderr().flush().ok();
+        }
+    });
+
+    for line in reader.lines() {
+        let line = match line {
+            Ok(l) => l,
+            Err(_) => continue,
+        };
+
+        let trimmed = line.trim();
+
+        if trimmed.starts_with("Compiling ") || trimmed.starts_with("Checking ") {
+            in_error_block = false;
+            let is_compile = trimmed.starts_with("Compiling ");
+            if is_compile {
+                compiled += 1;
+            } else {
+                checked += 1;
+            }
+
+            let prefix = if is_compile { "Compiling " } else { "Checking " };
+            let verb = if is_compile { "compiling" } else { "checking " };
+            let crate_name = trimmed
+                .strip_prefix(prefix)
+                .unwrap_or(trimmed)
+                .split_whitespace()
+                .next()
+                .unwrap_or("?");
+
+            let layer = crate_layer(crate_name);
+            let elapsed = format_duration(start.elapsed());
+            let total = compiled + checked;
+
+            // Update heartbeat shared state
+            if let Ok(mut state) = heartbeat_state.lock() {
+                state.last_verb = verb.to_string();
+                state.last_crate = crate_name.to_string();
+                state.total = total;
+            }
+
+            // Print layer transition header when entering a new layer
+            if !layer.is_empty() && layer != current_layer {
+                current_layer = layer;
+                clear_line();
+                eprintln!("  \u{251c}\u{2500} {layer}");
+            }
+
+            // Show progress with optional "X of ~Y" counter
+            clear_line();
+            if estimated_total > 0 {
+                let counter = format!("[{total:>3}/~{estimated_total}]");
+                eprint!(
+                    "\r  \u{2502}  {verb} {crate_name:<32} {elapsed:>8}  {counter}"
+                );
+            } else {
+                eprint!(
+                    "\r  \u{2502}  {verb} {crate_name:<32} {elapsed:>8}"
+                );
+            }
+            io::stderr().flush().ok();
+
+        } else if trimmed.starts_with("warning:") {
+            if trimmed.contains("generated") {
+                continue;
+            }
+            warnings += 1;
+            clear_line();
+            let detail = trimmed.strip_prefix("warning: ").unwrap_or(trimmed);
+            eprintln!("  \u{2502}  [warn] {detail}");
+
+        } else if trimmed.starts_with("error") {
+            in_error_block = true;
+            clear_line();
+            errors.push(trimmed.to_string());
+            eprintln!("  \u{2502}  [ERROR] {trimmed}");
+
+        } else if in_error_block && !trimmed.is_empty() {
+            eprintln!("  \u{2502}          {trimmed}");
+
+        } else if trimmed.starts_with("Finished") {
+            in_error_block = false;
+            clear_line();
+        }
+    }
+
+    // Stop heartbeat thread
+    if let Ok(mut state) = heartbeat_state.lock() {
+        state.alive = false;
+    }
+    let _ = heartbeat.join();
+
+    clear_line();
+
+    let status = child.wait().context("failed to wait on cargo")?;
+    let elapsed = format_duration(start.elapsed());
+    let total = compiled + checked;
+
+    if status.success() {
+        let summary = if compiled > 0 && checked > 0 {
+            format!("{compiled} compiled + {checked} checked")
+        } else {
+            format!("{total} crates")
+        };
+        if warnings > 0 {
+            println!(
+                "  \u{2514}\u{2500} [OK] {label} \u{2014} {summary}, {warnings} warning(s) ({elapsed})"
+            );
+        } else {
+            println!("  \u{2514}\u{2500} [OK] {label} \u{2014} {summary} ({elapsed})");
+        }
+    } else {
+        eprintln!(
+            "  \u{2514}\u{2500} [FAIL] {label} \u{2014} {} error(s) after {total} crates ({elapsed})",
+            errors.len().max(1)
+        );
+        for err in &errors {
+            eprintln!("           {err}");
+        }
+    }
+
+    Ok(status)
+}
+
+/// Shared state between the main reader loop and the heartbeat thread.
+struct HeartbeatState {
+    last_verb: String,
+    last_crate: String,
+    total: u32,
+    estimated_total: u32,
+    alive: bool,
+}
+
+use anyhow::Context;
+
+/// Format a duration as human-readable: "1.2s", "2m 15s", "45ms"
+pub fn format_duration(d: std::time::Duration) -> String {
+    let secs = d.as_secs();
+    let ms = d.as_millis();
+
+    if secs >= 60 {
+        let mins = secs / 60;
+        let remaining = secs % 60;
+        format!("{mins}m {remaining}s")
+    } else if secs > 0 {
+        let tenths = (ms % 1000) / 100;
+        format!("{secs}.{tenths}s")
+    } else {
+        format!("{ms}ms")
     }
 }

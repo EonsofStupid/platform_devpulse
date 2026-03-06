@@ -116,6 +116,52 @@ function containsContractFile(fs: FsLike, dirPath: string): boolean {
 }
 
 // =============================================================================
+// ADAPTER CONTENT VALIDATION
+// =============================================================================
+
+/**
+ * Required files inside every MeltUI adapter folder.
+ * Scanner validates ALL of these exist — not just the folder.
+ */
+const REQUIRED_ADAPTER_FILES = [
+	"factory.ts",
+	"adapter.contract.ts",
+	"schema.ts",
+	"adapter.ts",
+	"index.ts",
+	"_transport/types.ts",
+	"_transport/factory.ts",
+	"_transport/index.ts",
+] as const;
+
+/**
+ * Validate that an adapter folder contains ALL required files.
+ * Returns list of missing files (empty = complete).
+ */
+function validateAdapterContents(fs: FsLike, adapterDir: string): string[] {
+	const missing: string[] = [];
+	REQUIRED_ADAPTER_FILES.forEach((file) => {
+		if (!fs.existsSync(`${adapterDir}/${file}`)) {
+			missing.push(file);
+		}
+	});
+	return missing;
+}
+
+/**
+ * Detect orphan adapter folders — adapter folders that exist but
+ * no primitive contract claims via ariaStateProvider: "meltui".
+ */
+function detectOrphanAdapters(
+	fs: FsLike,
+	dsAdapterPath: string,
+	meltBackedKinds: ReadonlySet<string>,
+): string[] {
+	const adapterFolders = listSubfolders(fs, dsAdapterPath);
+	return adapterFolders.filter((folder) => !meltBackedKinds.has(folder));
+}
+
+// =============================================================================
 // PARITY CHECK (contract-aware)
 // =============================================================================
 
@@ -123,6 +169,7 @@ function containsContractFile(fs: FsLike, dirPath: string): boolean {
  * Contract-aware parity check.
  *
  * ariaStateProvider: "meltui"    → 3-folder (contract + dsAdapter + svelte)
+ *   PLUS: validates adapter folder contains ALL 8 required files
  * ariaStateProvider: "coldlight" → 2-folder (contract + svelte)
  *
  * Also detects ColdLight builder presence (informational, not parity-affecting).
@@ -133,7 +180,7 @@ function checkParity(
 	dsAdapter: DsAdapterId,
 	kind: string,
 	ariaStateProvider: AriaStateProvider,
-): PrimitiveScanResult {
+): { result: PrimitiveScanResult; contentErrors: ScanError[] } {
 	const kindDir = `${paths.primitives}/${kind}`;
 	const dsAdapterDir = `${paths.dsAdapter}/${kind}`;
 	const builderDir = `${paths.builders}/${kind}`;
@@ -144,25 +191,42 @@ function checkParity(
 	const hasBuilder = isDir(fs, builderDir);
 
 	const missingAdapters: DsAdapterId[] = [];
-	if (ariaStateProvider === "meltui" && !hasDsAdapter) {
-		missingAdapters.push(dsAdapter);
+	const contentErrors: ScanError[] = [];
+
+	if (ariaStateProvider === "meltui") {
+		if (!hasDsAdapter) {
+			missingAdapters.push(dsAdapter);
+		} else {
+			// Adapter folder exists — validate it contains ALL required files
+			const missingFiles = validateAdapterContents(fs, dsAdapterDir);
+			missingFiles.forEach((file) => {
+				contentErrors.push({
+					code: "ADAPTER_INCOMPLETE",
+					kind,
+					detail: `Missing required file: ${dsAdapterDir}/${file}`,
+				});
+			});
+		}
 	}
 
 	let hasParity: boolean;
 	if (ariaStateProvider === "meltui") {
-		hasParity = hasContract && hasDsAdapter && hasSvelteComponent;
+		hasParity = hasContract && hasDsAdapter && hasSvelteComponent && contentErrors.length === 0;
 	} else {
 		hasParity = hasContract && hasSvelteComponent;
 	}
 
 	return {
-		kind,
-		ariaStateProvider,
-		hasContract,
-		hasSvelteComponent,
-		hasBuilder,
-		missingAdapters,
-		hasParity,
+		result: {
+			kind,
+			ariaStateProvider,
+			hasContract,
+			hasSvelteComponent,
+			hasBuilder,
+			missingAdapters,
+			hasParity,
+		},
+		contentErrors,
 	};
 }
 
@@ -695,6 +759,7 @@ export async function scanColdLight(
 
 	const manifestPrimitiveKinds: ManifestPrimitive[] = [];
 	const discoveredPrimitiveKinds = new Set<string>();
+	const meltBackedKinds = new Set<string>();
 
 	if (config.generation.categories.primitives.enabled) {
 		const kinds = listSubfolders(fs, paths.primitives);
@@ -729,8 +794,16 @@ export async function scanColdLight(
 
 			discoveredPrimitiveKinds.add(kind);
 
-			const parityResult = checkParity(fs, paths, dsAdapter, kind, contract.ariaStateProvider);
+			// Track meltui-backed kinds for orphan detection
+			if (contract.ariaStateProvider === "meltui") {
+				meltBackedKinds.add(kind);
+			}
+
+			const { result: parityResult, contentErrors } = checkParity(fs, paths, dsAdapter, kind, contract.ariaStateProvider);
 			primitives.push(parityResult);
+
+			// Adapter content errors (missing required files inside adapter folder)
+			errors.push(...contentErrors);
 
 			if (!parityResult.hasParity) {
 				if (!parityResult.hasContract) {
@@ -760,6 +833,21 @@ export async function scanColdLight(
 				contractToManifest(contract, parityResult.hasParity ? "complete" : "contract-only"),
 			);
 		}
+	}
+
+	// =========================================================================
+	// ADAPTER INTEGRITY: Orphan detection
+	// =========================================================================
+
+	if (config.generation.categories.primitives.enabled) {
+		const orphans = detectOrphanAdapters(fs, paths.dsAdapter, meltBackedKinds);
+		orphans.forEach((folder) => {
+			errors.push({
+				code: "ADAPTER_ORPHAN",
+				kind: folder,
+				detail: `Adapter folder '${paths.dsAdapter}/${folder}/' exists but no primitive declares ariaStateProvider: "meltui" for kind '${folder}'`,
+			});
+		});
 	}
 
 	// =========================================================================
@@ -820,7 +908,7 @@ export async function scanColdLight(
 	// ERROR CLASSIFICATION — separate parity from fatal contract errors
 	// =========================================================================
 
-	const PARITY_CODES = new Set(["PARITY_MISSING_FOLDER"]);
+	const PARITY_CODES = new Set(["PARITY_MISSING_FOLDER", "ADAPTER_INCOMPLETE", "ADAPTER_ORPHAN"]);
 	const CONTRACT_CODES = new Set([
 		"CONTRACT_LOAD_FAILED",
 		"CONTRACT_INVALID",
@@ -901,5 +989,5 @@ export function scanPrimitive(
 ): PrimitiveScanResult {
 	const paths = resolvePaths(config);
 	const dsAdapter = config.adapters.active;
-	return checkParity(fs, paths, dsAdapter, kind, ariaStateProvider);
+	return checkParity(fs, paths, dsAdapter, kind, ariaStateProvider).result;
 }

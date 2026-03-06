@@ -6,8 +6,9 @@
  *
  * Dialog PrimitiveContract — modal dialog overlay.
  *
- * ariaStateProvider: "coldlight"
- * Builder: ColdLightDialog (coldlight/_internal/dialog/)
+ * ariaStateProvider: "meltui"
+ * Builder: new Dialog() (melt/builders)
+ * 3-folder parity: primitives/dialog/ + api/adapters/meltui/_internal/dialog/ + components/dialog/
  *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
  *
@@ -20,7 +21,7 @@ import type { DialogSlot, DialogState } from "./types.js";
 
 export const contract = {
 	kind: "dialog",
-	ariaStateProvider: "coldlight",
+	ariaStateProvider: "meltui",
 
 	slots: {
 		required: ["trigger", "content"],

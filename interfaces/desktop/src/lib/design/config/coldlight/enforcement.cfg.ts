@@ -2,15 +2,17 @@
  * @file ColdLight Enforcement
  * @package @devpulse/coldlight
  *
- * failOnParity: false  — parity errors are warnings, scanner still emits manifest.
- *                         Kinds with missing .svelte get status: "contract-only".
+ * failOnParity: true   — parity errors BLOCK manifest generation.
+ *                         Every meltui primitive MUST have a complete adapter folder.
+ *                         Adapter folders MUST contain all 8 required files.
+ *                         No orphan adapter folders allowed.
  * failOnContractLoad: true — bad contracts ARE fatal (corrupt SSOT).
- * warnOnParity: true   — log parity gaps so they're visible but non-blocking.
+ * warnOnParity: true   — log parity gaps with detail (before failing).
  */
 
 export const ENFORCEMENT = {
 	mode: "strict",
-	failOnParity: false,
+	failOnParity: true,
 	failOnContractLoad: true,
 	warnOnParity: true,
 	lefthook: {

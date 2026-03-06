@@ -10,6 +10,7 @@ export {
 	ENCODING_ORDER,
 	CODE_TO_NAME,
 	NAME_TO_CODE,
+	IdSchemaMap,
 	CategoryDefinitionSchema,
 	CategoryValueSchema,
 	EncodingStringSchema,

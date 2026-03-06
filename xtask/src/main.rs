@@ -5,11 +5,13 @@
 //! - [`Task`] trait — each subcommand implements it
 //! - [`Stage`] — timed status reporting per pipeline step
 //! - [`net`] — cross-platform port management
+//! - [`zombie`] — stale process cleanup
 
 mod commands;
 mod net;
 mod stage;
 mod workspace;
+mod zombie;
 
 use clap::{Parser, Subcommand};
 use commands::Task;

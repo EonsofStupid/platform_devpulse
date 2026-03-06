@@ -52,7 +52,7 @@ export function decodeEncoding(encoding: string): Preset {
 		}
 	}
 
-	return resolveToPreset(indices as EncodingIndices);
+	return resolveToPreset(indices as unknown as EncodingIndices);
 }
 
 /** Semantic preset → resolved token references per category (SD5/CSS generator) */

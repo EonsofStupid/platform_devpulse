@@ -30,7 +30,7 @@ export function resolveClasses(node: BlockNode): Record<string, string> {
 	const mergedProps = {
 		...recipe.defaults,
 		...node.props,
-	} as DsSurfaceProps;
+	} as unknown as DsSurfaceProps;
 
 	return recipe.classes(mergedProps);
 }

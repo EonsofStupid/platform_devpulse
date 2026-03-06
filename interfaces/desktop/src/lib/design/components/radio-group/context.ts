@@ -7,7 +7,7 @@
  */
 
 import { getContext, setContext } from "svelte";
-import type { RadioGroupTransport } from "$lib/design/api/dsadapters/meltui/_internal/radiogroup/index.js";
+import type { RadioGroupTransport } from "$lib/design/api/dsadapters/meltui/_internal/radio-group/index.js";
 
 const RADIO_GROUP_CTX = Symbol("coldlight-radio-group");
 

@@ -42,7 +42,7 @@
 	/** Get the current semantic ID for a category from the resolved preset. */
 	function getCurrentId(code: string): string {
 		const name = CODE_TO_NAME[code] as keyof Preset;
-		return resolvedPreset[name];
+		return resolvedPreset[name] as string;
 	}
 </script>
 

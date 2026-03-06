@@ -5,3 +5,4 @@ xtask = "run --package xtask --"
 # aws-lc-sys (SurrealDB 3.0 transitive dep) needs NASM for x86_64 assembly
 # NASM 3.01 binary stored at D:\localdev\deps\nasm-3.01\
 NASM = { value = "D:\\localdev\\deps\\nasm-3.01\\nasm.exe", force = true }
+AWS_LC_SYS_PREBUILT_NASM = { value = "D:\\localdev\\deps\\nasm-3.01\\nasm.exe", force = true }

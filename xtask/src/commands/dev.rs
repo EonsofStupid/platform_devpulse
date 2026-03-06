@@ -1,23 +1,25 @@
 //! `Dev` — staged dev environment orchestration.
 //!
-//! Pipeline:
-//!   1. Banner (task name)
-//!   2. Pre-flight (toolchain validation)
-//!   3. Backend verification (cargo check of desktop backend + all embedded stores)
-//!      — runs parallel with port management via `spawn_in()`
-//!   4. Port management (ensure 1420 is free)
-//!   5. Launch `pnpm tauri dev` (Vite + Cargo in parallel, managed by Tauri CLI)
+//! Pipeline (each stage is modular and reports its own status):
+//!   1. Banner
+//!   2. Job Object creation — all children die when xtask dies (Windows)
+//!   3. Zombie cleanup — kill stale processes from crashed sessions
+//!   4. Port management — ensure :1420 is free
+//!   5. Pre-flight — validate toolchain
+//!   6. Backend compile — cargo check with live progress (spinner + crate count + elapsed)
+//!   7. Launch — `pnpm tauri dev`
 //!
-//! When Tauri starts, `Platform::boot()` initializes all 4 embedded stores
-//! (LibSQL, DuckDB, SurrealDB, Moka) and runs health verification.
-//! The xtask backend check ensures this code compiles BEFORE launching.
+//! The Job Object is the key: if xtask crashes, gets killed from Task Manager,
+//! or receives Ctrl+C, Windows kernel automatically kills cargo, pnpm, vite,
+//! rustc — everything. No zombie processes. Ever.
 
 use crate::commands::preflight::Preflight;
 use crate::commands::Task;
 use crate::net;
 use crate::stage::{self, Stage};
+#[allow(unused_imports)] // Stage used conditionally on Windows
 use crate::workspace::Workspace;
-use anyhow::Context;
+use crate::zombie;
 
 const VERSION: &str = "0.1.0";
 
@@ -33,54 +35,95 @@ impl Task for Dev {
         // ── Stage 1: Banner ──
         print_banner(self.name());
 
-        // ── Stage 2: Pre-flight ──
+        // ── Stage 2: Job Object (Windows) ──
+        // Create BEFORE spawning any children. The _guard must live
+        // until the end of this function — dropping it kills all children.
+        #[cfg(windows)]
+        let _job_guard = {
+            let s = Stage::start("job object");
+            match zombie::JobGuard::new() {
+                Ok(guard) => {
+                    s.ok_with("children will die with xtask (kernel-enforced)");
+                    Some(guard)
+                }
+                Err(e) => {
+                    s.warn(format!("failed to create job object: {e} — zombies possible"));
+                    None
+                }
+            }
+        };
+
+        // ── Stage 3: Zombie cleanup ──
+        // Kill stale cargo/node/vite processes from crashed sessions.
+        // Without this, port 1420 stays occupied and cargo locks deadlock.
+        stage::section("Cleanup");
+        zombie::cleanup()?;
+
+        // ── Stage 4: Port management ──
+        stage::section("Port Check");
+        net::ensure_port_free(net::DEV_PORT)?;
+
+        // ── Stage 5: Pre-flight ──
         Preflight.run(ws)?;
 
-        // ── Stage 3+4: Backend check (verbose) + Port management (parallel) ──
+        // ── Stage 6: Backend compile with live progress ──
         //
         // `cargo check -p devpulse_desktop_backend` transitively compiles:
         //   devpulse_desktop_backend → devpulse-engine → devpulse-maestro
         //   Including: Platform facade, all 4 store adapters, health checks.
         //
-        // Spawned via spawn_in_verbose() — stderr streams to the terminal
-        // so the user sees cargo's real-time progress (Compiling X, Checking Y).
-        // On a warm cache this is <1s. On cold it shows every crate as it builds.
-        stage::section("Backend");
+        // Cold cache: 3-12 minutes (live progress shows layer + crate + X/~Y).
+        // Warm cache: <2s.
+        let estimated = stage::estimate_crate_count(ws.root(), "devpulse_desktop_backend");
+        if estimated > 0 {
+            stage::section(&format!("Backend (~{estimated} crates in dependency graph)"));
+        } else {
+            stage::section("Backend");
+        }
         println!("  > cargo check -p devpulse_desktop_backend");
-        let s_backend = Stage::start("compile check");
-        let mut cargo_child = ws.spawn_in_verbose(
+        println!("  > Scope: Tauri backend + Platform facade + 4 stores");
+
+        let cargo_child = ws.spawn_in_stderr_piped(
             ws.root(),
             "cargo",
             &["check", "-p", "devpulse_desktop_backend"],
         )?;
 
-        // Port management runs WHILE backend compiles
-        stage::section("Port Check");
-        net::ensure_port_free(net::DEV_PORT)?;
+        // Assign cargo to Job Object so it dies if we die
+        #[cfg(windows)]
+        if let Some(ref guard) = _job_guard {
+            if let Err(e) = guard.assign(&cargo_child) {
+                eprintln!("  [!!] failed to assign cargo to job: {e}");
+            }
+        }
 
-        // Wait for backend — stderr already streamed to terminal
-        let status = cargo_child
-            .wait()
-            .context("failed to wait on cargo check")?;
+        let status = stage::monitor_cargo_child("backend", cargo_child, estimated)?;
 
-        if status.success() {
-            s_backend.ok_with("devpulse_desktop_backend + stores (LibSQL, DuckDB, SurrealDB, Moka)");
-        } else {
+        if !status.success() {
             anyhow::bail!(
-                "backend compilation failed — fix Rust errors above.\n  \
-                 This check covers: Tauri backend, Platform facade, all 4 embedded stores."
+                "Backend compilation failed — fix the Rust errors above.\n  \
+                 Scope: Tauri backend, Platform facade, all 4 embedded stores\n  \
+                 (LibSQL, DuckDB, SurrealDB, Moka)."
             );
         }
 
-        // ── Stage 5: Launch ──
+        // Re-verify port — something might have grabbed it during compile
+        if !net::port_is_free(net::DEV_PORT) {
+            stage::section("Port Recovery");
+            net::ensure_port_free(net::DEV_PORT)?;
+        }
+
+        // ── Stage 7: Launch ──
         stage::section("Launch");
         println!("  > pnpm tauri dev");
-        println!("  > Vite → http://localhost:{}", net::DEV_PORT);
-        println!("  > Platform::boot() → 4 embedded stores");
+        println!("  > Vite        → http://localhost:{}", net::DEV_PORT);
+        println!("  > Platform    → LibSQL + DuckDB + SurrealDB + Moka");
+        println!("  > Ctrl+C      → kills all children (job object enforced)");
         println!();
 
         ws.exec_in(&ws.desktop_dir(), "pnpm", &["tauri", "dev"])?;
 
+        // _job_guard drops here → all remaining children killed by kernel
         Ok(())
     }
 }

@@ -11,7 +11,7 @@
  */
 
 import { z } from "zod";
-import { DsSurfacePropsSchema } from "$lib/design/recipes/types.js";
+import { DsSurfacePropsSchema, type DsSurfaceProps } from "$lib/design/recipes/types.js";
 
 // =============================================================================
 // BlockNode — the atomic unit VPB stores
@@ -44,7 +44,7 @@ export interface BlockNode {
 	id: string;
 	kind: string;
 	recipe: string;
-	props: Partial<z.infer<typeof DsSurfacePropsSchema>>;
+	props: Partial<DsSurfaceProps>;
 	slots?: Record<string, BlockNode[]>;
 	binds?: Record<string, string>;
 	meta?: BlockNodeMeta;

@@ -10,6 +10,7 @@
 
 import { z } from "zod";
 import { RadiusSchema, SizeSchema } from "$lib/design/tokens/schema.js";
+import type { RadiusToken, SizeToken } from "$lib/design/tokens/types.js";
 import {
 	PresetSchema,
 	type Preset,
@@ -29,8 +30,15 @@ export const DsSurfacePropsSchema = PresetSchema.extend({
 	size: SizeSchema,
 });
 
-/** Surface props: 8 semantic categories + radius + size. */
-export type DsSurfaceProps = z.infer<typeof DsSurfacePropsSchema>;
+/**
+ * Surface props: 8 semantic categories + radius + size.
+ * Explicit interface (no index signature) so recipe classes() functions
+ * get proper typed access to `props.size`, `props.radius`, etc.
+ */
+export interface DsSurfaceProps extends Preset {
+	radius: RadiusToken;
+	size: SizeToken;
+}
 
 /** Extract just the Preset portion (encoding categories only). */
 export function toPreset(props: DsSurfaceProps): Preset {

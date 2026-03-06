@@ -343,6 +343,8 @@ export const ORIENTATIONS = ["horizontal", "vertical", "both"] as const;
 
 export const SCAN_ERROR_CODES = [
 	"PARITY_MISSING_FOLDER",
+	"ADAPTER_INCOMPLETE",
+	"ADAPTER_ORPHAN",
 	"CONTRACT_LOAD_FAILED",
 	"CONTRACT_INVALID",
 	"SPINE_MISMATCH",

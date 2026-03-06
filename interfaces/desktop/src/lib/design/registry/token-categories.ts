@@ -716,23 +716,65 @@ export const EncodingStringSchema = z
 // NEVER exposed to authors. Authors use PresetSchema (semantic IDs).
 // ═══════════════════════════════════════════════════════════════
 
-const _maxIndex = (code: string) =>
-	TOKEN_CATEGORY_REGISTRY.find((c) => c.code === code)!.values.length - 1;
+/**
+ * @internal Numeric index schema — encoding internals only.
+ *
+ * FULLY DERIVED from TOKEN_CATEGORY_REGISTRY.
+ * Add a category to the registry → this schema auto-expands.
+ */
+const _encodingShape: Record<string, z.ZodDefault<z.ZodNumber>> = {};
+for (const cat of TOKEN_CATEGORY_REGISTRY) {
+	_encodingShape[cat.code] = z
+		.number()
+		.int()
+		.min(0)
+		.max(cat.values.length - 1)
+		.default(cat.defaultIndex);
+}
+export const EncodingIndicesSchema = z.object(_encodingShape);
 
-/** @internal Numeric index schema — encoding internals only. */
-export const EncodingIndicesSchema = z.object({
-	s: z.number().int().min(0).max(_maxIndex("s")).default(0),
-	z: z.number().int().min(0).max(_maxIndex("z")).default(0),
-	d: z.number().int().min(0).max(_maxIndex("d")).default(0),
-	b: z.number().int().min(0).max(_maxIndex("b")).default(0),
-	g: z.number().int().min(0).max(_maxIndex("g")).default(0),
-	f: z.number().int().min(0).max(_maxIndex("f")).default(0),
-	m: z.number().int().min(0).max(_maxIndex("m")).default(0),
-	t: z.number().int().min(0).max(_maxIndex("t")).default(0),
-});
+/**
+ * @internal Numeric indices — one per encoding axis.
+ * Explicit interface (no index signature) to preserve type safety
+ * when intersected with component props.
+ *
+ * If you add a 9th axis to TOKEN_CATEGORY_REGISTRY, add the field here.
+ * The _assertEncodingIndicesSync check below will fail at compile time
+ * if this interface falls out of sync with the schema.
+ */
+export interface EncodingIndices {
+	s: number;
+	z: number;
+	d: number;
+	b: number;
+	g: number;
+	f: number;
+	m: number;
+	t: number;
+}
 
-/** @internal Numeric indices — encoding internals only. */
-export type EncodingIndices = z.infer<typeof EncodingIndicesSchema>;
+// Runtime sync assertion: EncodingIndices fields must match registry codes.
+const _encodingFields: (keyof EncodingIndices)[] = [
+	"s",
+	"z",
+	"d",
+	"b",
+	"g",
+	"f",
+	"m",
+	"t",
+];
+const _registryCodes = TOKEN_CATEGORY_REGISTRY.map((c) => c.code);
+if (
+	_encodingFields.length !== _registryCodes.length ||
+	!_encodingFields.every((f) => _registryCodes.includes(f))
+) {
+	throw new Error(
+		`EncodingIndices interface out of sync with TOKEN_CATEGORY_REGISTRY. ` +
+			`Interface: [${_encodingFields.join(", ")}] ` +
+			`Registry: [${_registryCodes.join(", ")}]`,
+	);
+}
 
 // ═══════════════════════════════════════════════════════════════
 // PRESET — THE public schema. Semantic IDs per category.
@@ -750,14 +792,28 @@ const _ids = (code: string) =>
 		(v) => v.id,
 	) as [string, ...string[]];
 
-export const SurfaceIdSchema = z.enum(_ids("s"));
-export const MaterialIdSchema = z.enum(_ids("z"));
-export const DepthIdSchema = z.enum(_ids("d"));
-export const BevelIdSchema = z.enum(_ids("b"));
-export const GlowIdSchema = z.enum(_ids("g"));
-export const FrameIdSchema = z.enum(_ids("f"));
-export const MotionIdSchema = z.enum(_ids("m"));
-export const TransitionIdSchema = z.enum(_ids("t"));
+// ───────────────────────────────────────────────────────────────
+// ID SCHEMA MAP — DERIVED from registry. One map, all categories.
+//
+// Add a category to the registry → IdSchemaMap auto-expands.
+// Named exports below are stable aliases for type consumers.
+// ───────────────────────────────────────────────────────────────
+
+/** Dynamic map: code → Zod enum schema for that category's value IDs. */
+export const IdSchemaMap = Object.fromEntries(
+	TOKEN_CATEGORY_REGISTRY.map((cat) => [cat.code, z.enum(_ids(cat.code))]),
+) as Record<string, z.ZodEnum>;
+
+// Named aliases — stable exports for type consumers.
+// Each is derived from IdSchemaMap, which derives from registry.
+export const SurfaceIdSchema = IdSchemaMap["s"];
+export const MaterialIdSchema = IdSchemaMap["z"];
+export const DepthIdSchema = IdSchemaMap["d"];
+export const BevelIdSchema = IdSchemaMap["b"];
+export const GlowIdSchema = IdSchemaMap["g"];
+export const FrameIdSchema = IdSchemaMap["f"];
+export const MotionIdSchema = IdSchemaMap["m"];
+export const TransitionIdSchema = IdSchemaMap["t"];
 
 export type SurfaceId = z.infer<typeof SurfaceIdSchema>;
 export type MaterialId = z.infer<typeof MaterialIdSchema>;
@@ -768,55 +824,93 @@ export type FrameId = z.infer<typeof FrameIdSchema>;
 export type MotionId = z.infer<typeof MotionIdSchema>;
 export type TransitionId = z.infer<typeof TransitionIdSchema>;
 
+// ───────────────────────────────────────────────────────────────
+// PRESET SCHEMA — DERIVED from registry.
+//
+// Add a category to the registry → PresetSchema auto-expands.
+// ───────────────────────────────────────────────────────────────
+
+const _presetShape: Record<string, z.ZodDefault<z.ZodEnum>> = {};
+for (const cat of TOKEN_CATEGORY_REGISTRY) {
+	_presetShape[cat.name.toLowerCase()] = z
+		.enum(_ids(cat.code))
+		.default(cat.values[cat.defaultIndex].id);
+}
+
 /**
  * Preset — THE public contract for visual configuration.
  *
  * Authors write: `{ surface: "glass-void", depth: "z2", glow: "teal" }`
  * System resolves to CSS: `v-s1 v-d2 v-g1`
  *
- * Every field validated against registry. Add a value to the registry,
- * the union type auto-updates. One schema. No duplication.
+ * FULLY DERIVED from TOKEN_CATEGORY_REGISTRY.
+ * Add a value to the registry → the schema auto-updates.
+ * Add a category to the registry → a new field auto-appears.
  */
-export const PresetSchema = z.object({
-	surface: SurfaceIdSchema.default("transparent"),
-	material: MaterialIdSchema.default("none"),
-	depth: DepthIdSchema.default("flat"),
-	bevel: BevelIdSchema.default("flat"),
-	glow: GlowIdSchema.default("none"),
-	frame: FrameIdSchema.default("none"),
-	motion: MotionIdSchema.default("none"),
-	transition: TransitionIdSchema.default("none"),
-});
+export const PresetSchema = z.object(_presetShape);
 
-export type Preset = z.infer<typeof PresetSchema>;
+/**
+ * Preset — THE public contract for visual configuration.
+ *
+ * Explicit interface (no index signature) so component props that
+ * extend `Partial<Preset>` don't get polluted with `[x: string]: string`.
+ *
+ * If you add a 9th axis to TOKEN_CATEGORY_REGISTRY, add the field here.
+ * The _assertPresetSync check below will fail at compile time
+ * if this interface falls out of sync with the schema.
+ */
+export interface Preset {
+	surface: SurfaceId;
+	material: MaterialId;
+	depth: DepthId;
+	bevel: BevelId;
+	glow: GlowId;
+	frame: FrameId;
+	motion: MotionId;
+	transition: TransitionId;
+}
+
+// Runtime sync assertion: Preset interface fields must match registry categories.
+// If you add a 9th axis to TOKEN_CATEGORY_REGISTRY, this will throw at module load
+// until you add the matching field to the Preset interface above.
+const _presetFields: (keyof Preset)[] = [
+	"surface",
+	"material",
+	"depth",
+	"bevel",
+	"glow",
+	"frame",
+	"motion",
+	"transition",
+];
+const _registryFields = TOKEN_CATEGORY_REGISTRY.map((c) => c.name.toLowerCase());
+if (
+	_presetFields.length !== _registryFields.length ||
+	!_presetFields.every((f) => _registryFields.includes(f))
+) {
+	throw new Error(
+		`Preset interface out of sync with TOKEN_CATEGORY_REGISTRY. ` +
+			`Interface: [${_presetFields.join(", ")}] ` +
+			`Registry: [${_registryFields.join(", ")}]`,
+	);
+}
 
 // ═══════════════════════════════════════════════════════════════
 // DERIVED: CODE ↔ NAME MAPS
+//
+// FULLY DERIVED from TOKEN_CATEGORY_REGISTRY.
+// Add a category to the registry → these maps update automatically.
 // ═══════════════════════════════════════════════════════════════
 
 /** Map category code → preset field name: { s: "surface", z: "material", ... } */
-export const CODE_TO_NAME: Record<string, keyof Preset> = {
-	s: "surface",
-	z: "material",
-	d: "depth",
-	b: "bevel",
-	g: "glow",
-	f: "frame",
-	m: "motion",
-	t: "transition",
-};
+export const CODE_TO_NAME = Object.fromEntries(
+	TOKEN_CATEGORY_REGISTRY.map((cat) => [cat.code, cat.name.toLowerCase()]),
+) as Record<string, keyof Preset>;
 
 /** Map preset field name → category code: { surface: "s", material: "z", ... } */
-export const NAME_TO_CODE: Record<keyof Preset, string> = {
-	surface: "s",
-	material: "z",
-	depth: "d",
-	bevel: "b",
-	glow: "g",
-	frame: "f",
-	motion: "m",
-	transition: "t",
-};
+export const NAME_TO_CODE = Object.fromEntries(
+	TOKEN_CATEGORY_REGISTRY.map((cat) => [cat.name.toLowerCase(), cat.code]),
+) as Record<keyof Preset, string>;
 
 // ═══════════════════════════════════════════════════════════════
 // RESOLUTION: Semantic IDs ↔ Numeric Indices
@@ -837,7 +931,7 @@ export function resolveToIndices(preset: Partial<Preset>): EncodingIndices {
 			indices[cat.code] = cat.defaultIndex;
 		}
 	}
-	return indices as EncodingIndices;
+	return indices as unknown as EncodingIndices;
 }
 
 /** Resolve numeric encoding indices to a semantic preset. */
@@ -848,5 +942,5 @@ export function resolveToPreset(indices: EncodingIndices): Preset {
 		const idx = indices[cat.code as keyof EncodingIndices] ?? cat.defaultIndex;
 		preset[name] = cat.values[idx]?.id ?? cat.values[cat.defaultIndex].id;
 	}
-	return preset as Preset;
+	return preset as unknown as Preset;
 }

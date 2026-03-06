@@ -155,6 +155,28 @@ impl Workspace {
                 format!("failed to spawn `{program}` in {}", dir.display())
             })
     }
+
+    /// Spawn a tool with stderr PIPED for monitoring.
+    ///
+    /// Use with [`stage::monitor_cargo_child`] — parses cargo output
+    /// to show live progress (crate count, elapsed time, current crate).
+    pub fn spawn_in_stderr_piped(
+        &self,
+        dir: &Path,
+        program: &str,
+        args: &[&str],
+    ) -> Result<Child> {
+        use std::process::Stdio;
+        self.cmd(program)?
+            .args(args)
+            .current_dir(dir)
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .with_context(|| {
+                format!("failed to spawn `{program}` in {}", dir.display())
+            })
+    }
 }
 
 /// Walk up from `start` to find the monorepo root.

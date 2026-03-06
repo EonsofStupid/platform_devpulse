@@ -34,6 +34,9 @@ export const flags = {
 	// 3. EXPERIMENTAL DOMAINS
 	ENABLE_OVERMIND: true, // The ThinkSpace (Core Feature)
 	ENABLE_WIREDFRONT: true, // The Overlay System
+
+	// 4. STARTUP EXPERIENCE
+	ENABLE_BOOT_UI: true, // Splashscreen during Platform::boot()
 };
 
 // Type Safety for the Flag Dictionary

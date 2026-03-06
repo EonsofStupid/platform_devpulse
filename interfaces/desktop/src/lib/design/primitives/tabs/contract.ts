@@ -7,9 +7,9 @@
  * Tabs PrimitiveContract — SSOT declaration for the tabs primitive.
  * Lives WITH the implementation per ColdLight architecture.
  *
- * ariaStateProvider: "coldlight"
- *   ColdLight builder handles ARIA natively (coldlight/_internal/tabs/).
- *   Complex compound widget with roving tabindex focus management.
+ * ariaStateProvider: "meltui"
+ * Builder: new Tabs() (melt/builders)
+ * 3-folder parity: primitives/tabs/ + api/adapters/meltui/_internal/tabs/ + components/tabs/
  *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/tabs/
  */
@@ -19,7 +19,7 @@ import type { TabsSlot, TabsState } from "./types.js";
 
 export const contract = {
 	kind: "tabs",
-	ariaStateProvider: "coldlight",
+	ariaStateProvider: "meltui",
 
 	// ─── Slots ───────────────────────────────────────────────────────────────
 	slots: {
