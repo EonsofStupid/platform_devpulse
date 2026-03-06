@@ -394,3 +394,15 @@ After each phase, pause and confirm with user:
 6. **No hardcoded routes** — Child routes discovered via `import.meta.glob`
 7. **data-kind/data-slot/data-state** — On every primitive
 8. **Compile before done** — `svelte-check` passes after every file
+
+## First-Party Library Registration (MANDATORY per MASTER-PLAN.md)
+
+Every component/widget/screen built in this sprint MUST register into ColdLight's first-party library:
+
+1. **Tier 3 Component Tokens** — Add to `tokens/components.ts`. Every new kind gets scoped tokens referencing Tier 2 semantics. Run `pnpm ds:tokens:build` after.
+2. **Preset Registration** — Add to `registry/presets.ts`. Every new kind gets at least one named preset with curated 8-axis values.
+3. **Recipe Registration** — Add to `recipes/components/{kind}/`. Every new kind gets a recipe with `registerRecipe()` providing per-slot class strings via `DsSurfaceProps`.
+4. **Block Category** — Add kind to `blocks/kinds.ts` BLOCK_CATEGORIES. VPB palette reads this.
+5. **Schema Validation** — Zod schemas validate all of the above at build time. If it isn't registered, it doesn't exist.
+
+No component ships without all 5. This builds up the token library, recipe library, and block library for VPB to consume.

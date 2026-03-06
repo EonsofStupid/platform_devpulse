@@ -192,4 +192,84 @@ export const components = {
 		"bg-active": "var(--surface-elevated)",
 		border: "var(--border-subtle)",
 	},
+	// ── Shell ────────────────────────────────────────────────────────────────
+	"app-shell": {
+		bg: "var(--surface-primary)",
+		"frame-border": "var(--border-soft)",
+		"frame-bevel": "var(--depth-panel)",
+	},
+	"top-bar": {
+		bg: "var(--surface-primary)",
+		border: "var(--border-subtle)",
+		"search-bg": "var(--surface-overlay)",
+	},
+	"status-bar": {
+		bg: "var(--surface-primary)",
+		border: "var(--border-subtle)",
+	},
+
+	// ── Chat ─────────────────────────────────────────────────────────────────
+	"chat-frame": {
+		bg: "var(--surface-overlay)",
+		border: "var(--border-soft)",
+		"idle-opacity": "0.35",
+		"engaged-opacity": "1",
+	},
+	"chat-topbar": {
+		bg: "var(--surface-primary)",
+		border: "var(--border-subtle)",
+		"tab-active": "var(--color-teal-400)",
+		"tab-hover": "var(--surface-elevated)",
+	},
+	"chat-dashboard": {
+		bg: "var(--surface-primary)",
+		"message-user-bg": "var(--surface-elevated)",
+		"message-ai-bg": "var(--surface-overlay)",
+		"message-system-bg": "var(--surface-muted)",
+	},
+	"chat-footer": {
+		bg: "var(--surface-primary)",
+		border: "var(--border-subtle)",
+		"input-bg": "var(--surface-overlay)",
+		"voice-active": "var(--color-teal-400)",
+	},
+	"chat-context-panel": {
+		bg: "var(--surface-primary)",
+		"node-color": "var(--color-teal-400)",
+		"edge-color": "var(--color-teal-700)",
+		"label-color": "var(--text-muted)",
+	},
+	"chat-status": {
+		"thinking-color": "var(--color-teal-400)",
+		"connected-color": "var(--color-teal-500)",
+		"disconnected-color": "var(--color-ember-400)",
+	},
+	"chat-mode-selector": {
+		"mode-developer": "var(--color-teal-400)",
+		"mode-planning": "var(--color-purple-400)",
+		"mode-image": "var(--color-ember-400)",
+		"mode-general": "var(--text-muted)",
+	},
+
+	// ── Widgets (Dashboard) ──────────────────────────────────────────────────
+	widget: {
+		bg: "var(--surface-primary)",
+		border: "var(--border-soft)",
+		"header-bg": "var(--surface-elevated)",
+		"header-border": "var(--border-subtle)",
+	},
+	gauge: {
+		bg: "var(--surface-primary)",
+		"ring-stroke": "var(--color-teal-500)",
+		"ring-track": "var(--surface-muted)",
+		"label-color": "var(--text-secondary)",
+		"value-color": "var(--text-primary)",
+	},
+	chart: {
+		bg: "var(--surface-primary)",
+		"grid-color": "var(--border-subtle)",
+		"line-primary": "var(--color-teal-400)",
+		"line-secondary": "var(--color-purple-400)",
+		"line-accent": "var(--color-ember-400)",
+	},
 } as const;

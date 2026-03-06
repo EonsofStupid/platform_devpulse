@@ -94,10 +94,10 @@ impl Platform {
                 Err(e) => {
                     tracing::error!(
                         step = "Relational store",
-                        error = %e,
+                        error = ?e,
                         "LibSQL store failed to boot"
                     );
-                    on_event(InitEvent::error("Relational store", &e.to_string()));
+                    on_event(InitEvent::error("Relational store", &format!("{e:#}")));
                     None
                 }
             }
@@ -125,10 +125,10 @@ impl Platform {
                 Err(e) => {
                     tracing::error!(
                         step = "Analytics store",
-                        error = %e,
+                        error = ?e,
                         "DuckDB store failed to boot"
                     );
-                    on_event(InitEvent::error("Analytics store", &e.to_string()));
+                    on_event(InitEvent::error("Analytics store", &format!("{e:#}")));
                     None
                 }
             }
@@ -156,7 +156,7 @@ impl Platform {
                 Err(e) => {
                     tracing::warn!(
                         step = "Graph store",
-                        error = %e,
+                        error = ?e,
                         "SurrealDB failed — attempting recovery by clearing stale data"
                     );
                     // Recovery: clear stale SurrealKV data and retry
@@ -184,10 +184,10 @@ impl Platform {
                         Err(retry_err) => {
                             tracing::error!(
                                 step = "Graph store",
-                                error = %retry_err,
+                                error = ?retry_err,
                                 "SurrealDB store failed even after data reset"
                             );
-                            on_event(InitEvent::error("Graph store", &retry_err.to_string()));
+                            on_event(InitEvent::error("Graph store", &format!("{retry_err:#}")));
                             None
                         }
                     }
@@ -332,11 +332,18 @@ async fn ping_store<S: Store>(store: &S) -> SubsystemHealth {
             latency_ms: Some(latency),
             message: None,
         },
-        Err(e) => SubsystemHealth {
-            name: store.name().to_string(),
-            status: HealthStatus::Down,
-            latency_ms: Some(latency),
-            message: Some(e.to_string()),
-        },
+        Err(e) => {
+            tracing::warn!(
+                store = store.name(),
+                error = ?e,
+                "Health ping failed"
+            );
+            SubsystemHealth {
+                name: store.name().to_string(),
+                status: HealthStatus::Down,
+                latency_ms: Some(latency),
+                message: Some(format!("{e:#}")),
+            }
+        }
     }
 }

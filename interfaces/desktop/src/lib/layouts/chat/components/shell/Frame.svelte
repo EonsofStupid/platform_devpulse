@@ -13,13 +13,11 @@
 import type { Snippet } from "svelte";
 import { getRecipe } from "$lib/design/recipes/index.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
-
-const healthColors: Record<string, string> = {
-	online: "var(--color-teal-400)",
-	hybrid: "var(--color-purple-400)",
-	offline: "var(--signal-error)",
-};
-const healthColor = $derived(healthColors[platformState.connectionStatus] ?? "var(--signal-error)");
+import {
+	Badge,
+	Heading,
+	HStack,
+} from "$lib/design/index.js";
 
 interface Props {
 	children: Snippet;
@@ -53,17 +51,42 @@ const slots = $derived(
 	style="font-family: var(--font-sans);"
 >
 	<header data-slot="topbar" class={slots.topbar}>
-		<span class="text-sm font-semibold" style="color: var(--text-primary); font-family: var(--font-display);">
-			Maestro Chat
-		</span>
-		<span
-			class="inline-block h-2 w-2 rounded-full"
-			style="background: {healthColor}; box-shadow: 0 0 6px {healthColor};"
+		<HStack gap="2" align="center">
+			<Heading level={6} size="xs" class="font-display text-[var(--text-primary)]">
+				Maestro Chat
+			</Heading>
+		</HStack>
+		<Badge
+			intent="default"
+			size="sm"
+			class="gap-1.5"
+			data-status={platformState.connectionStatus}
 			title="Platform: {platformState.connectionStatus}"
-		></span>
+		>
+			<span
+				class="status-dot h-2 w-2 rounded-full"
+				data-status={platformState.connectionStatus}
+				aria-hidden="true"
+			></span>
+		</Badge>
 	</header>
 
 	<main data-slot="chat-dashboard" class={slots.dashboard}>
 		{@render children()}
 	</main>
 </div>
+
+<style>
+	.status-dot {
+		box-shadow: 0 0 6px currentColor;
+	}
+	.status-dot[data-status="online"] {
+		background-color: var(--color-teal-400);
+	}
+	.status-dot[data-status="offline"] {
+		background-color: var(--signal-error);
+	}
+	.status-dot[data-status="hybrid"] {
+		background-color: var(--color-purple-400);
+	}
+</style>

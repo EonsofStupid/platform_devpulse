@@ -38,6 +38,17 @@ export const BLOCK_CATEGORIES = {
 		"popover", "tooltip", "dropdown-menu", "context-menu",
 		"menubar", "combobox", "scroll-area",
 	],
+	chat: [
+		"chat-frame", "chat-topbar", "chat-sidebar", "chat-dashboard",
+		"chat-footer", "chat-context-panel", "chat-command-palette",
+	],
+	interactions: [
+		"multiple-choice", "true-false", "fill-blank", "confirmation",
+	],
+	widgets: [
+		"widget", "widget-stat", "widget-chart", "widget-gauge",
+		"widget-timeline", "widget-table", "widget-kpi",
+	],
 } as const;
 
 export type BlockCategory = keyof typeof BLOCK_CATEGORIES;

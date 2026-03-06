@@ -27,14 +27,20 @@ impl SurrealAdapter {
     /// # Errors
     /// Returns error if the database cannot be opened or schema initialization fails.
     pub async fn open(path: &Path) -> Result<Self> {
-        // Ensure directory exists
-        if let Some(parent) = path.parent() {
-            std::fs::create_dir_all(parent).context("Failed to create SurrealDB directory")?;
-        }
+        // Ensure the full directory exists (SurrealKV stores data inside this dir)
+        std::fs::create_dir_all(path).context("Failed to create SurrealDB directory")?;
 
-        let db = Surreal::new::<SurrealKv>(path)
+        // Pass the path as-is — do NOT canonicalize on Windows because
+        // canonicalize() adds \\?\ extended-length prefix which SurrealKV
+        // misinterprets as root "\", causing "Access is denied" errors.
+        let db = Surreal::new::<SurrealKv>(path.to_path_buf())
             .await
-            .context("Failed to open SurrealDB")?;
+            .with_context(|| {
+                format!(
+                    "Failed to open SurrealDB at path: {}",
+                    path.display()
+                )
+            })?;
 
         // Use maestro namespace and devpulse database
         db.use_ns(SurrealNamespace::REASONING.namespace)

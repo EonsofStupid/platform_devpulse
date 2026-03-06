@@ -3,8 +3,7 @@
   @module @devpulse/layouts/app/Sidebar
   @layer lib
 
-  @description
-  Vertical sidebar with Lucide icons.
+  Vertical sidebar with Lucide icons and ColdLight primitives.
   Supports child route submenu via globalState.
 
   @consumers
@@ -26,6 +25,12 @@ import {
 import { page } from "$app/state";
 import { getChildRoutes } from "$lib/sys/routing/child-routes";
 import { globalState } from "$lib/sys/runes/global.svelte";
+import {
+	Button,
+	Box,
+	Stack,
+	Text,
+} from "$lib/design/index.js";
 
 interface NavHub {
 	id: string;
@@ -71,80 +76,78 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 </script>
 
 <nav class="relative grid h-full grid-rows-[1fr_auto] gap-2" aria-label="Primary">
-	<div class="grid auto-rows-min gap-2" role="list">
+	<Stack gap="1" class="pt-1">
 		{#each navHubs as hub (hub.id)}
-			<a
-				href={hub.href}
-				data-kind="button"
-				data-slot="root"
-				class="flex items-center rounded-md"
-				class:justify-center={!isExpanded}
-				class:w-10={!isExpanded}
-				class:h-10={!isExpanded}
-				class:justify-self-end={!isExpanded}
-				class:w-full={isExpanded}
-				class:gap-3={isExpanded}
-				class:px-3={isExpanded}
-				class:py-2={isExpanded}
-				aria-label={hub.label}
-				aria-current={isActive(hub.href) ? "page" : undefined}
-				title={hub.label}
-				onclick={() => handleHubClick(hub)}
-			>
-				<span data-kind="button" data-slot="icon" class="flex shrink-0 items-center justify-center">
+			<a href={hub.href} onclick={() => handleHubClick(hub)} class="contents">
+				<Button
+					intent={isActive(hub.href) ? "primary" : "ghost"}
+					size="sm"
+					radius="md"
+					surface={isActive(hub.href) ? "glass-void" : undefined}
+					glow={isActive(hub.href) ? "teal" : undefined}
+					class={isExpanded
+						? "w-full justify-start gap-3 px-3 py-2"
+						: "h-10 w-10 justify-self-end"}
+					aria-label={hub.label}
+					aria-current={isActive(hub.href) ? "page" : undefined}
+					title={hub.label}
+				>
 					<hub.icon size={18} />
-				</span>
-				{#if isExpanded}
-					<span class="truncate text-sm text-[var(--text-secondary)]">{hub.label}</span>
-				{/if}
+					{#if isExpanded}
+						<Text size="sm" color="secondary" class="truncate">{hub.label}</Text>
+					{/if}
+				</Button>
 			</a>
 		{/each}
-	</div>
+	</Stack>
 
-	<div class="grid auto-rows-min gap-2">
-		<button
-			data-kind="button"
-			data-slot="root"
-			class="flex items-center rounded-md {isExpanded ? 'w-full gap-3 px-3 py-2' : 'h-10 w-10 justify-center justify-self-end'}"
+	<Stack gap="1" class="pb-1">
+		<Button
+			intent="ghost"
+			size="sm"
+			radius="md"
+			class={isExpanded
+				? "w-full justify-start gap-3 px-3 py-2"
+				: "h-10 w-10 justify-self-end"}
 			title={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
 			aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
 			onclick={() => globalState.toggleSidebar()}
 		>
-			<span data-kind="button" data-slot="icon">
-				{#if isExpanded}
-					<PanelLeftClose size={18} />
-				{:else}
-					<PanelLeftOpen size={18} />
-				{/if}
-			</span>
 			{#if isExpanded}
-				<span class="truncate text-sm text-[var(--text-secondary)]">Collapse</span>
+				<PanelLeftClose size={18} />
+				<Text size="sm" color="secondary" class="truncate">Collapse</Text>
+			{:else}
+				<PanelLeftOpen size={18} />
 			{/if}
-		</button>
-	</div>
+		</Button>
+	</Stack>
 
 	{#if globalState.sidebar_submenu && submenuRoutes.length > 0}
-		<div
+		<Box
 			data-slot="submenu"
+			surface="glass-deep"
+			depth="z2"
+			radius="md"
 			class="absolute left-full top-0 z-[var(--z-dropdown)] flex h-full w-48 flex-col gap-1 p-2"
 			role="menu"
 		>
-			<span class="mb-1 px-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+			<Text size="xs" color="muted" class="mb-1 px-2 font-semibold uppercase tracking-wider">
 				{globalState.sidebar_submenu}
-			</span>
+			</Text>
 			{#each submenuRoutes as route (route.path)}
-				<a
-					href={route.path}
-					data-kind="button"
-					data-slot="root"
-					class="flex w-full items-center rounded-md px-3 py-2 text-sm capitalize text-[var(--text-secondary)]"
-					aria-current={isActive(route.path) ? "page" : undefined}
-					onclick={handleSubmenuNav}
-					role="menuitem"
-				>
-					{route.label}
+				<a href={route.path} onclick={handleSubmenuNav} class="contents">
+					<Button
+						intent="ghost"
+						size="sm"
+						radius="md"
+						class="w-full justify-start px-3 py-2 capitalize"
+						aria-current={isActive(route.path) ? "page" : undefined}
+						role="menuitem"
+					>
+						<Text size="sm" color="secondary">{route.label}</Text>
+					</Button>
 				</a>
 			{/each}
-		</div>
+		</Box>
 	{/if}
 </nav>

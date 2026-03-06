@@ -168,13 +168,14 @@
 			>
 				<Mic size={14} />
 			</Button>
-			<input
+			<Input
 				type="text"
 				bind:value={inputValue}
 				onkeydown={handleKeydown}
 				placeholder="Ask Maestro..."
-				class="flex-1 rounded-md border px-3 py-1.5 text-sm outline-none"
-				style="background: var(--matte-dark); border-color: var(--border-subtle); color: var(--text-primary);"
+				preset="chat-input"
+				size="sm"
+				class="flex-1"
 			/>
 			<Button
 				intent="ghost"

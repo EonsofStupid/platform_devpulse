@@ -3,11 +3,8 @@
   @module @devpulse/layouts/app/TopBar
   @layer lib
 
-  @description
-  Top navigation bar. Parasite logo left, icon buttons + avatar right.
-
-  @consumers
-  - Frame.svelte: Main app layout
+  Top navigation bar. Parasite logo left, ColdLight icon buttons + avatar right.
+  All interactive elements use ColdLight components — zero raw HTML buttons.
 
   @since 1.0.0
 -->
@@ -15,21 +12,21 @@
 import { invoke } from "@tauri-apps/api/core";
 import { Bell, MessageCircle, Search } from "lucide-svelte";
 import { Parasite } from "$lib/design/plugins/parasite";
+import {
+	Button,
+	Input,
+	Avatar,
+	Box,
+	HStack,
+} from "$lib/design/index.js";
 
 let searchOpen = $state(false);
 let searchQuery = $state("");
-let inputEl = $state<HTMLInputElement | null>(null);
 
 function toggleSearch(): void {
 	searchOpen = !searchOpen;
 	if (!searchOpen) searchQuery = "";
 }
-
-$effect(() => {
-	if (searchOpen && inputEl) {
-		inputEl.focus();
-	}
-});
 
 function openChat(): void {
 	invoke("open_chat_window");
@@ -47,67 +44,62 @@ function onKey(e: KeyboardEvent): void {
 
 	<div class="flex-1"></div>
 
-	<div class="flex items-center gap-2">
-		<button
-			data-kind="button"
-			data-slot="root"
-			class="flex h-8 w-8 items-center justify-center"
+	<HStack gap="2" align="center">
+		<Button
+			intent="ghost"
+			size="sm"
+			radius="full"
+			class="h-8 w-8"
 			title="Search"
 			aria-label="Search"
 			onclick={toggleSearch}
 		>
-			<span data-kind="button" data-slot="icon"><Search size={16} /></span>
-		</button>
+			<Search size={16} />
+		</Button>
 
-		<button
-			data-kind="button"
-			data-slot="root"
-			class="flex h-8 w-8 items-center justify-center"
+		<Button
+			intent="ghost"
+			size="sm"
+			radius="full"
+			class="h-8 w-8"
 			title="Notifications"
 			aria-label="Notifications"
 		>
-			<span data-kind="button" data-slot="icon"><Bell size={16} /></span>
-		</button>
+			<Bell size={16} />
+		</Button>
 
-		<button
-			data-kind="button"
-			data-slot="root"
-			class="flex h-8 w-8 items-center justify-center"
+		<Button
+			intent="ghost"
+			size="sm"
+			glow="teal"
+			radius="full"
+			class="h-8 w-8"
 			title="Open Chat"
 			aria-label="Open Chat"
 			onclick={openChat}
 		>
-			<span data-kind="button" data-slot="icon"><MessageCircle size={16} /></span>
-		</button>
+			<MessageCircle size={16} />
+		</Button>
 
 		{#if searchOpen}
-			<div
-				class="absolute right-4 top-12 z-[var(--z-dropdown)] rounded-lg p-2 shadow-z3 glass-void"
-				role="dialog"
-				aria-label="Search"
+			<Box
+				preset="panel-glass"
+				radius="lg"
+				class="absolute right-4 top-12 z-[var(--z-dropdown)] p-2"
 			>
-				<input
-					bind:this={inputEl}
-					class="w-64 rounded-md bg-[var(--matte-dark)] border border-[var(--border-subtle)] px-3 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none focus:border-[var(--color-teal-500)]"
+				<Input
+					size="sm"
+					preset="input-default"
+					class="w-64"
 					type="text"
 					bind:value={searchQuery}
 					placeholder="Search..."
 				/>
-			</div>
+			</Box>
 		{/if}
 
-		<div
-			data-kind="avatar"
-			data-slot="root"
-			class="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--glass-deep)] border border-[var(--border-subtle)] overflow-hidden"
-		>
-			<span
-				data-kind="avatar"
-				data-slot="fallback"
-				class="flex h-full w-full items-center justify-center text-xs text-[var(--text-secondary)]"
-			>
-				DP
-			</span>
-		</div>
-	</div>
+		<Avatar size="sm" class="h-8 w-8">
+			DP
+		</Avatar>
+	</HStack>
 </div>

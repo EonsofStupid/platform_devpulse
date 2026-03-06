@@ -321,10 +321,47 @@ pnpm dev  # Chat overlay opens, glass surface visible, modes switch, interaction
 
 ---
 
+## First-Party Library Registration (MANDATORY per MASTER-PLAN.md)
+
+Every component built in this sprint MUST register into ColdLight's first-party library:
+
+1. **Tier 3 Component Tokens** — Add to `tokens/components.ts`:
+   - `chat-frame`: bg, border, idle-opacity, engaged-opacity, z-index, width, height
+   - `chat-topbar`: bg, border, tab-active, tab-hover
+   - `chat-mode-selector`: mode-developer, mode-planning, mode-image, mode-general colors
+   - `chat-dashboard`: bg, message-user-bg, message-ai-bg, message-system-bg
+   - `chat-footer`: bg, border, input-bg, voice-active, voice-pulse
+   - `chat-context-panel`: bg, node-color, edge-color, label-color
+   - `chat-status`: thinking-color, connected-color, disconnected-color
+   Run `pnpm ds:tokens:build` after adding tokens.
+
+2. **Preset Registration** — Add to `registry/presets.ts`:
+   - `chat-frame`, `chat-topbar`, `chat-sidebar`, `chat-dashboard`, `chat-footer`
+   - `chat-context-panel`, `chat-command-palette`, `chat-status`
+   Each with curated 8-axis values matching reference images.
+
+3. **Recipe Registration** — Add to `recipes/components/{kind}/` or `recipes/layouts/chat/`:
+   - `chat-frame.glass.hud` — per-slot: root, topbar-slot, sidebar-slot, content-slot, footer-slot
+   - `chat-message.glass.ai` — per-slot: root, avatar, content, timestamp
+   - `chat-message.glass.user` — per-slot: root, content, timestamp
+   - `chat-interaction.glass.void` — base recipe for MultipleChoice, TrueFalse, FillBlank, Confirmation
+
+4. **Block Category** — Add to `blocks/kinds.ts` BLOCK_CATEGORIES:
+   ```typescript
+   chat: ["chat-frame", "chat-topbar", "chat-sidebar", "chat-dashboard", "chat-footer", "chat-context-panel", "chat-command-palette"],
+   interactions: ["multiple-choice", "true-false", "fill-blank", "confirmation"],
+   ```
+
+5. **Schema Validation** — Zod schemas validate all of the above at build time.
+
+No component ships without all 5. This builds up the token library, recipe library, and block library for VPB.
+
+---
+
 ## Depends On
 
-- **SPRINT-TOKEN-BRIDGE** — @theme must work
-- **SPRINT-APP-SHELL-REBUILD** — pattern and icon system established
+- **SPRINT-VISUAL-SCAFFOLDING** — app shell + token foundation
+- Token pipeline working (`pnpm ds:tokens:build`)
 
 ## Blocks
 

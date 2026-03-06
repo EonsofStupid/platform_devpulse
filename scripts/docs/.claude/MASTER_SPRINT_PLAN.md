@@ -1,454 +1,148 @@
-# scripts/docs/ Enforcement System - Master Sprint Plan
+# DevPulse Platform — Master Sprint Plan
 
-> **Status**: ACTIVE
-> **Scope**: `platform_devpulse/scripts/docs/`
-> **Depends On**: FOUNDATION.md architecture being implemented
-
----
-
-## Reality Check: Current State vs FOUNDATION.md
-
-### What FOUNDATION.md Requires
-
-| Component | Location | Status |
-|-----------|----------|--------|
-| Routes layer | `src/routes/**` | **MISSING** |
-| Domain index.ts | `$lib/domains/**/index.ts` | **MISSING** |
-| sys/contracts | `$lib/sys/contracts/` | **MISSING** |
-| sys/registries | `$lib/sys/registries/` | **MISSING** |
-| sys/generated | `$lib/sys/generated/` | **MISSING** |
-| sys/streams | `$lib/sys/streams/` | **MISSING** |
-| Typed routes generator | `ROUTES.ts` | **MISSING** |
-| Enforcement system | `scripts/docs/` | **PARTIAL** |
-
-### What Actually Exists (Audit: 2026-01-25)
-
-**Domains** (4 namespaces):
-- `app/` - devforge, devpulse, maestro, overmind, ui-demo, wiredfront
-- `chat/` - interactions structure only
-- `maestro/` - skeleton structure
-- `notify/` - empty
-
-**Domain Stats**:
-- ~15 Svelte page/component files with actual content
-- Most directories are empty scaffolding
-- **ZERO index.ts public API files**
-- Uses non-standard naming (`runes/` not `state/`, no `*.state.svelte.ts`)
-
-**sys/**:
-- `cfg/` - config files
-- `debug/` - VPB builder
-- `global/runes/` - global state (non-standard location)
+> **Last audit**: 2026-03-06
+> **Status**: HONEST REALITY CHECK — NO BULLSHIT
 
 ---
 
-## Problem Statement
+## BRUTAL TRUTH: What Actually Works vs What Doesn't
 
-The previous implementation built enforcement for an architecture that doesn't exist:
-- Checking for thin routes when no routes exist
-- Validating domain boundaries when no index.ts files exist
-- Enforcing state location when state patterns don't match FOUNDATION.md
+### WORKING (Verified in Codebase)
 
-**This is backwards.** You cannot enforce architecture before it exists.
+| System | Status | Evidence |
+|--------|--------|----------|
+| Progressive hydration boot | WORKING | `lib.rs` spawns `boot_task()`, setup returns immediately, window visible instantly |
+| Resilient store boot | WORKING | Each store wrapped in `match`, failed = `None` not crash |
+| SurrealDB auto-recovery | PARTIAL | Clears stale data + retries, but SurrealDB STILL FAILS on fresh install |
+| Tracing + structured logging | WORKING | `logging.rs` has stderr + JSON file layers, `std::mem::forget(guard)` |
+| Log rotation (3 sessions) | WORKING | `rotate_logs()` keeps last 3 `session-*.jsonl` files |
+| Platform state rune | WORKING | `platformState.svelte.ts` tracks boot phase + subsystems + health polling |
+| StatusBar boot progress | WORKING | Shows per-subsystem status during boot, transitions to health display |
+| Splashscreen deleted | DONE | No splashscreen route, no splashscreen window, single-window progressive hydration |
+| ColdLight primitives | 87+ EXIST | `primitives/` has 87+ kinds with index.ts |
+| ColdLight components | 80+ EXIST | `components/` has 80+ kinds with index.ts |
+| dsAdapter system | EXISTS | `api/adapters/` with meltui + coldlight engines |
+| Token category registry | EXISTS | 8 axes (s/z/d/b/g/f/m/t), encoding system |
+| Preset registry | EXISTS | ~50 system presets |
+| VPB | EXISTS | 22+ Svelte files in `sys/debug/vpb/` |
+| Builders | 55 EXIST | `builders/` directory, 1286 tests claimed |
+| Design index.ts | EXISTS | Public API exports 80+ components, SVG surfaces, blocks, recipes |
 
----
+### BROKEN / NOT WORKING
 
-## Sprint Sequence
+| System | Status | Root Cause |
+|--------|--------|------------|
+| **SurrealDB** | **BROKEN** | Fails on BRAND NEW fresh install. Even after clearing data + retry. `.context("Failed to open SurrealDB")` hides real error. Suspected: `SurrealKv` path handling with Windows backslashes in URI scheme |
+| **LibSQL health** | **SUSPECT** | Boots at 2ms successfully but health verification may show Down. Needs investigation |
+| **Chat UI** | **BASIC** | Uses ColdLight Box/Button/Text but looks NOTHING like reference images. Plain text on black. No neuromorphic glass, no liquid metal, no proper surfaces. Input uses raw `<input>` with inline styles instead of ColdLight Input component |
+| **Dashboard UI** | **NONEXISTENT** | Reference shows gauges, charts, data panels with liquid metal aesthetic. Nothing built |
+| **ColdLight visual fidelity** | **GAP** | Components exist structurally but the VISUAL OUTPUT doesn't match references. Tokens/recipes/SVG filters need to produce the liquid metal / neuromorphic / glass aesthetic shown in references |
+| **VPB** | **DEV TOOL ONLY** | Exists in `sys/debug/` — not exposed as product feature. User says it should be 3 modes: Dev, Production, Customer |
+| **Command HUD** | **NONEXISTENT** | Referenced in chat reference images — expandable command interface, not built |
 
-### SPRINT 0: Architecture Templates + Research
-**Goal**: Create templates and research modern patterns before building
-**Status**: COMPLETE
+### NEVER STARTED
 
-Tasks:
-- [x] Research SvelteKit 5 route patterns (groups, layouts, load functions)
-- [x] Research Svelte 5 runes state management patterns
-- [x] Research typed route generation - **Decision: CUSTOM GENERATOR**
-- [x] Lock decisions on routes.inventory.json structure (nested tree + hub-aware)
-- [x] Lock decisions on search params (YES - full typing)
-- [x] Lock decisions on form actions (YES - typed)
-- [ ] Create route file templates (`+page.svelte`, `+page.ts`, `+layout.svelte`)
-- [ ] Create domain index.ts template
-- [ ] Create state module template (`*.state.svelte.ts`)
-
-**Deliverables**:
-- `scripts/docs/.claude/RESEARCH_DECISIONS.md` - DONE
-- `scripts/docs/templates/` - PENDING
-
----
-
-### SPRINT 1: Sys Layer Foundation
-**Goal**: Build the platform backbone per FOUNDATION.md
-**Status**: COMPLETE (2026-01-25)
-
-Tasks:
-- [x] Create `src/lib/sys/contracts/routes.contract.ts`
-- [x] Create `src/lib/sys/contracts/state.contract.ts`
-- [x] Create `src/lib/sys/contracts/registry.contract.ts`
-- [x] Create `src/lib/sys/contracts/streams.contract.ts`
-- [x] Create `src/lib/sys/registries/base.registry.ts`
-- [x] Create `src/lib/sys/registries/routes.registry.ts`
-- [x] Create `src/lib/sys/registries/state.registry.ts`
-- [x] Create `src/lib/sys/registries/streams.registry.ts`
-- [x] Create `src/lib/sys/generated/` directory structure
-- [x] Create `src/lib/sys/streams/` directory structure
-- [x] Create `src/lib/sys/adapters/` directory structure
-- [x] Create `src/lib/sys/runes/global.svelte.ts` re-export
-
-**Deliverables**:
-- sys/ layer foundation exists (flat structure)
-- Contracts define types for the entire system
-- Registries provide runtime lookup
-- All code compiles (verified with svelte-check)
+| System | Sprint Doc Exists? | Code Exists? |
+|--------|-------------------|-------------|
+| RRO/Qdrant vector store integration | Yes (SPRINT-PLATFORM-WIRING) | NO |
+| Database seeding system | Yes (SPRINT-PLATFORM-WIRING Phase 4) | NO |
+| Voice synthesis (kokoros) | Yes (SPRINT-PLATFORM-WIRING Phase 3) | NO |
+| Lefthook preflight in xtask | Yes (SPRINT-FOUNDATION-V2 Phase 4) | NO |
+| Typed routes generator | Yes (MASTER_SPRINT_PLAN Sprint 2) | NO |
+| URL-driven routing | Yes (SPRINT-01B) | NO |
+| Domain public APIs | Yes (Master Plan Sprint 4) | NO |
+| Enforcement system (AST checks) | Yes (Master Plan Sprint 5-6) | NO |
+| CI pipeline | Yes (SPRINT-PLATFORM-WIRING Phase 6) | NO |
 
 ---
 
-### SPRINT 1B: URL-Driven Routing + Nested Capability Buckets
-**Goal**: Reorganize sys/ with named capability buckets (NO /core/) + URL-driven routing
-**Status**: READY FOR EXECUTION
-**Sprint File**: `scripts/docs/sprints/SPRINT-01B-routing-foundation.md`
-**Depends On**: Sprint 1 (complete)
+## SPRINT DOCUMENT INVENTORY
 
-**Critical Decisions (LOCKED):**
-- URL-driven routing (SvelteKit native) - NO separate `current_domain` state
-- NO `/core/` folders - named capability buckets only
-- Domain contracts in `sys/contracts/domains/` (global platform knowledge)
-- Each bucket has: manifest.ts, types.ts, contract.ts, index.ts
+There are **63 sprint files** in `scripts/docs/sprints/`. Many are duplicative or superseded.
 
-Tasks:
-- [ ] Phase 1: Delete App.svelte domain switcher `{#if}` chain
-- [ ] Phase 2: Create thin route wrappers `src/routes/(app)/<domain>/+page.svelte`
-- [ ] Phase 3: Reorganize contracts into capability buckets (registry/, observable/, routing/, state/, streams/, domains/)
-- [ ] Phase 4: Reorganize registries into capability buckets (registry/, routing/, state/, streams/)
-- [ ] Phase 5: Create domain contracts with manifest pattern (devpulse, ui-demo, overmind, wiredfront, devforge, maestro)
-- [ ] Phase 6: Update DomainRegistry for metadata-only (no pageModule loading)
-- [ ] Phase 7: Verification (svelte-check, dev server, domain navigation)
+### Active / Relevant
 
-**Deliverables**:
-- URL-driven routing via SvelteKit filesystem routes
-- Thin route wrappers (zero business logic)
-- Nested capability bucket structure (NO /core/)
-- Domain contracts with manifest + types + contract + index pattern
-- DomainRegistry provides sidebar metadata only
+| Sprint | Purpose | Status |
+|--------|---------|--------|
+| SPRINT-FOUNDATION-V2 | Progressive boot, tracing, resilient stores | **IN PROGRESS** — Phases 1-3 done, Phase 4+ not started |
+| SPRINT-PLATFORM-WIRING | RRO, seeding, real health UI | **NOT STARTED** |
+| SPRINT-COLDLIGHT-PIPELINE | SD5 token pipeline | **NEEDS AUDIT** — pipeline may partially exist |
 
----
+### Superseded (SPRINT-STARTUP-EXPERIENCE)
 
-### SPRINT 2: Typed Routes Generator
-**Goal**: Implement typed route generation before creating routes
-**Decision**: Custom generator (see RESEARCH_DECISIONS.md)
+`SPRINT-STARTUP-EXPERIENCE.md` describes the OLD splashscreen approach (`rt.block_on`, separate splashscreen window, window swap). This was **replaced** by SPRINT-FOUNDATION-V2's progressive hydration. The sprint doc still exists but is DEAD — do not follow it.
 
-**Generator Structure:**
-```
-scripts/docs/generators/
-  routes/
-    index.ts              # Main entry, orchestrates generation
-    scanner.ts            # Filesystem scanner using fast-glob
-    parser.ts             # Parse route files for params/actions
-    codegen.ts            # Generate ROUTES.ts
-    inventory.ts          # Generate routes.inventory.json
-    types.ts              # Shared types
-    config.ts             # Search param definitions
-```
+### Design System Sprints (Many, Overlapping)
 
-**Tasks:**
-
-Phase 1: Scanner
-- [ ] Create `scanner.ts` - scan `src/routes/**` using fast-glob
-- [ ] Extract route paths from filesystem structure
-- [ ] Handle route groups `(app)`, `(marketing)`
-- [ ] Handle dynamic params `[id]`, `[...rest]`
-- [ ] Handle optional params `[[optional]]`
-
-Phase 2: Parser
-- [ ] Create `parser.ts` - parse `+page.server.ts` for form actions
-- [ ] Extract action names (login, delete, send, etc.)
-- [ ] Parse `+page.ts` for load function params
-- [ ] Build route metadata structure
-
-Phase 3: Config
-- [ ] Create `config.ts` - define search params per route
-- [ ] Support typed search params with defaults
-- [ ] Example: `/devpulse/settings` → `{ tab: string, page: number }`
-
-Phase 4: Codegen
-- [ ] Create `codegen.ts` - generate `ROUTES.ts`
-- [ ] Generate `route()` function with overloads
-- [ ] Generate path params types
-- [ ] Generate search params types
-- [ ] Generate form action types
-- [ ] Output: `src/lib/sys/generated/ROUTES.ts`
-
-Phase 5: Inventory
-- [ ] Create `inventory.ts` - generate `routes.inventory.json`
-- [ ] Structure: nested tree + route groups + hub metadata
-- [ ] Include labels, descriptions, icons for navigation
-- [ ] Output: `src/lib/sys/generated/routes.inventory.json`
-
-Phase 6: Integration
-- [ ] Create `index.ts` - orchestrate all generators
-- [ ] Create Vite plugin for dev watch mode
-- [ ] Create npm script: `pnpm routes:generate`
-- [ ] Add to lefthook pre-commit
-
-**Output API:**
-```typescript
-// ROUTES.ts generated API
-import { route } from '$lib/sys/generated/ROUTES';
-
-// Path params
-route('/devpulse')
-route('/site/[id]', { id: 123 })
-route('/ui-demo/[component]', { component: 'button' })
-
-// Search params
-route('/devpulse/settings', { tab: 'general', page: 1 })
-
-// Form actions
-route('login /auth', { returnTo: '/dashboard' })
-route('delete /site/[id]', { id: 123 })
-```
-
-**Deliverables**:
-- `scripts/docs/generators/routes/` - complete generator
-- `src/lib/sys/generated/ROUTES.ts` - typed route helpers
-- `src/lib/sys/generated/routes.inventory.json` - hub-aware nav structure
-- Vite plugin for watch mode
-- npm script for manual generation
+| Sprint | Notes |
+|--------|-------|
+| SPRINT-PRIMITIVES-FOUNDATION | Primitives exist (87+). May be partially done |
+| SPRINT-COMPONENT-FOUNDATION | Components exist (80+). May be partially done |
+| SPRINT-BUILDERS-REAUTHOR | Builders exist (55). May be partially done |
+| SPRINT-DSADAPTER-ALIGNMENT | dsAdapter architecture exists |
+| SPRINT-SD5-FOUNDATION | Token pipeline exists |
+| SPRINT-TAXONOMY-FOUNDATION | Taxonomy exists |
+| SPRINT-EFFECTS-FOUNDATION | Effects system (7 categories) exists |
+| SPRINT-VISUAL-SCAFFOLDING | CRITICAL — visual fidelity gap |
+| SPRINT-COLDLIGHT-SOLE-PROVIDER | ColdLight owns all UI — principle established but NOT enforced everywhere |
 
 ---
 
-### SPRINT 3: Routes Layer
-**Goal**: Create thin route files per FOUNDATION.md section 2.1
+## WHAT ACTUALLY NEEDS TO HAPPEN (Priority Order)
 
-Tasks:
-- [ ] Create `src/routes/+layout.svelte` (root layout)
-- [ ] Create `src/routes/(app)/+layout.svelte` (app shell)
-- [ ] Create route files for devpulse: `(app)/devpulse/+page.svelte`, `+page.ts`
-- [ ] Create route files for ui-demo: `(app)/ui-demo/+page.svelte`
-- [ ] Create route files for overmind: `(app)/overmind/+page.svelte`
-- [ ] Create route files for wiredfront: `(app)/wiredfront/+page.svelte`
-- [ ] Create route files for devforge: `(app)/devforge/+page.svelte`
-- [ ] Create `src/routes/(marketing)/+layout.svelte` if needed
-- [ ] Verify all routes use typed route helpers (no raw strings)
+### P0: Fix Broken Foundation (BLOCKING EVERYTHING)
 
-**Deliverables**:
-- Routes layer matches FOUNDATION.md section 2.1
-- All `+page.svelte` files are adapter-only
-- All navigation uses `route()` helper
+1. **Fix SurrealDB on fresh install**
+   - Expose full error chain (remove `.context()` hiding)
+   - Fix path handling: `SurrealKv` gets Windows backslashes in path
+   - Convert path to forward slashes or use canonical form
+   - File: `kernel/devpulse-maestro/src/cortex/persistence/surreal.rs`
 
----
+2. **Verify LibSQL health check works**
+   - File: `kernel/devpulse-maestro/src/cortex/persistence/libsql.rs`
+   - The ping does `SELECT 1` — should work, but need to verify after boot
 
-### SPRINT 4: Domain Public APIs
-**Goal**: Create index.ts public API surface for each domain
+3. **Verify log files actually persist**
+   - Check `{data_dir}/logs/session-*.jsonl` exist after boot
 
-Tasks:
-- [ ] Create `app/devpulse/index.ts` - export pages, state, services
-- [ ] Create `app/devforge/index.ts`
-- [ ] Create `app/overmind/index.ts`
-- [ ] Create `app/ui-demo/index.ts`
-- [ ] Create `app/wiredfront/index.ts`
-- [ ] Create `app/maestro/index.ts`
-- [ ] Create `chat/index.ts`
-- [ ] Create `maestro/index.ts`
-- [ ] Refactor existing imports to use index.ts boundary
-- [ ] Rename `runes/` to `state/` where needed
-- [ ] Rename state files to `*.state.svelte.ts` pattern
+### P1: Visual Fidelity (THE ACTUAL PRODUCT)
 
-**Deliverables**:
-- Every domain has `index.ts` as public API
-- Domain internals hidden behind index.ts
-- Naming follows FOUNDATION.md conventions
+This is the user's core complaint. The platform has structural components but the visual output is BASIC. Reference images show:
 
----
+- **Liquid metal** surfaces with teal/cyan glow
+- **Neuromorphic** depth and bevel effects
+- **Glass panels** with blur and transparency
+- **SVG-driven** premium surfaces (NeuPanel, NeuGauge, NeuFrame exist but are they used?)
+- **Chat** has a full HUD: thread sidebar, graph visualization, command expansion, voice button
+- **Dashboard** has gauges, charts, data panels with proper ColdLight aesthetic
 
-### SPRINT 5: Enforcement System - Checks
-**Goal**: Build preflight checks that validate the architecture
-**Prerequisites**: Sprints 1-4 complete (architecture exists to enforce)
+**Gap**: Components exist structurally. Tokens exist. Recipes exist. But the COMPOSITION — using them together to produce the reference aesthetic — is not done. Chat uses basic Box/Text/Button. Dashboard doesn't exist.
 
-**ts-morph Best Practices (from research):**
-1. Share single Project instance across all checks
-2. Analyze first, manipulate second
-3. Use forEachDescendant with traversal control (.skip(), .stop())
-4. Forget nodes when done to manage memory
-5. Batch file loading
+### P2: VPB as Product Feature
 
-**Shared Infrastructure:**
-```typescript
-// preflight/engine/ast-context.ts
-export class ASTContext {
-  private project: Project;
+VPB currently lives in `sys/debug/vpb/` — it's a dev tool. User's vision is 3 modes:
+- **Dev mode**: Full control, raw prop editing
+- **Production mode**: Guided, template-driven composition
+- **Customer mode**: Layman-friendly, visual drag-and-drop
 
-  constructor(platformRoot: string) {
-    this.project = new Project({
-      tsConfigFilePath: path.join(platformRoot, 'interfaces/desktop/src/tsconfig.json'),
-      skipAddingFilesFromTsConfig: true
-    });
-  }
+### P3: Platform Wiring (RRO, Seeding, Voice)
 
-  addFiles(patterns: string[]): void { /* batch add */ }
-  getSourceFile(path: string): SourceFile | undefined { /* cached lookup */ }
-  dispose(): void { /* cleanup */ }
-}
-```
+Only after P0 and P1 are solid. No point wiring more stores when the existing ones don't work.
 
-**Tasks:**
+### P4: Routing, Domains, Enforcement
 
-Phase 1: Shared Infrastructure
-- [ ] Create `ast-context.ts` - shared ts-morph Project
-- [ ] Create `svelte-parser.ts` - extract script from .svelte files
-- [ ] Update registry to pass ASTContext to checks
-
-Phase 2: Refactor Checks
-- [ ] `check.thin-routes.ts`
-  - Use AST to detect forbidden patterns (useState, createStore, writable)
-  - Check only script content in Svelte files
-  - Skip template/style sections
-
-- [ ] `check.domain-boundaries.ts`
-  - Use getImportDeclarations() (efficient)
-  - Validate against allowed import patterns
-  - Proper error messages with import path
-
-- [ ] `check.typed-routes.ts`
-  - Regex OK for Svelte templates (href="...")
-  - AST for JS/TS: detect goto(), redirect() calls
-  - Verify they use route() helper
-
-- [ ] `check.state-vs-streams.ts`
-  - AST to find $state, $derived, $effect usage
-  - Verify location matches domains/**/state/*.state.svelte.ts
-  - Detect Observable/Subject outside sys/streams/
-
-- [ ] `check.naming.ts`
-  - Pure filesystem check (no AST needed)
-  - Validate *.page.svelte, *.state.svelte.ts, *.svc.ts, etc.
-
-Phase 3: Testing
-- [ ] Create test fixtures (valid/invalid files)
-- [ ] Test each check against fixtures
-- [ ] Verify error messages are actionable
-
-**Deliverables**:
-- Shared ASTContext for performance
-- All 5 checks using proper AST patterns
-- Test coverage for each check
+Infrastructure sprints (1B through 8 in old master plan). Important but not blocking the product from looking like the references.
 
 ---
 
-### SPRINT 6: Enforcement System - Engine + Fixers
-**Goal**: Build preflight engine and automated fixers
+## RULES GOING FORWARD
 
-Tasks:
-- [ ] Audit preflight.ts for senior patterns
-- [ ] Refactor registry.ts for proper dependency injection
-- [ ] Refactor report.ts for clean output formatting
-- [ ] Implement `fix.domain-index.ts` - generate missing index.ts
-- [ ] Implement `fix.inject-jsdoc.ts` - inject missing JSDoc
-- [ ] Implement fixer preview/diff system
-- [ ] Implement dry-run → apply workflow
-- [ ] Test fixers against actual violations
-
-**Deliverables**:
-- Clean preflight engine
-- Working fixers with preview capability
-- Dry-run state management
-
----
-
-### SPRINT 7: Pipeline
-**Goal**: Build documentation pipeline
-
-Tasks:
-- [ ] Implement `pipeline/scan.ts` - codebase scanner
-- [ ] Implement `pipeline/validate.ts` - policy validation
-- [ ] Implement `pipeline/extract/typedoc.ts` - API extraction
-- [ ] Implement `pipeline/extract/diagrams.ts` - mermaid generation
-- [ ] Implement `pipeline/stage.ts` - documentation staging
-- [ ] Implement `pipeline/lock.ts` - state locking
-- [ ] Implement `pipeline/verify.ts` - determinism verification
-
-**Deliverables**:
-- Full pipeline from scan to verify
-- Deterministic documentation generation
-
----
-
-### SPRINT 8: Integration
-**Goal**: Wire everything into dev workflow
-
-Tasks:
-- [ ] Add all `docs:*` scripts to root package.json
-- [ ] Configure lefthook pre-commit hooks
-- [ ] Configure CI pipeline
-- [ ] Update FOUNDATION.md if needed
-- [ ] Create `scripts/docs/README.md` with usage docs
-
-**Deliverables**:
-- Enforcement runs on every commit
-- CI validates on every PR
-- Documentation stays in sync
-
----
-
-## Execution Rules
-
-1. **No sprint starts without prerequisite sprints complete**
-2. **Each task must be cross-checked against FOUNDATION.md**
-3. **Research first, implement second** (Sprint 0 is mandatory)
-4. **No regex hacks** - use proper AST analysis
-5. **Test against real files** - not hypotheticals
-6. **Update this document** as tasks complete
-
----
-
-## Locked Decisions (from RESEARCH_DECISIONS.md)
-
-### URL-Driven Routing (CRITICAL)
-- **Approach**: SvelteKit native - URL IS the state
-- **NO**: Separate `current_domain` variable, App.svelte `{#if}` chains
-- **YES**: `src/routes/(app)/<domain>/+page.svelte` thin wrappers
-- **DomainRegistry**: Metadata only (sidebar, ordering, icons) - NO page loading
-
-### Nested Capability Buckets (NO /core/)
-- **Pattern**: Named capability folders, no dumping zones
-- **Capabilities**: registry/, observable/, routing/, state/, streams/, domains/
-- **Each bucket**: manifest.ts + types.ts + contract.ts + index.ts
-- **Domain contracts**: In `sys/contracts/domains/` (global platform knowledge)
-
-### Manifest vs Registry
-- **Manifest**: Static, machine-readable, feeds generation/enforcement
-- **Registry**: Runtime view, built at startup, queried by UI
-- **Rule**: Manifest defines truth, registry is a view
-
-### Typed Routes
-- **Approach**: Custom generator (not vite-plugin-kit-routes)
-- **Rationale**: Full control, exact output location, generates inventory.json
-
-### routes.inventory.json
-- **Structure**: Nested tree + route groups + hub metadata
-- **Purpose**: Overlay modal navigation UI
-- **Hubs**: Category groupings (e.g., wiredfront = media hub)
-
-### Search Params
-- **Support**: YES - full typed search params with defaults
-- **Example**: `route('/settings', { tab: 'general', page: 1 })`
-
-### Form Actions
-- **Support**: YES - typed form action references
-- **Example**: `route('login /auth', { returnTo: '/dashboard' })`
-
-### AST Analysis
-- **Library**: ts-morph
-- **Pattern**: Shared Project instance, traversal control, memory management
-
----
-
-## Completion Criteria
-
-System is complete when:
-
-1. `pnpm docs:preflight:check` passes on clean codebase
-2. Intentional violation is detected and reported
-3. `pnpm docs:preflight:fix` can fix the violation
-4. `pnpm docs:verify` confirms determinism
-5. Lefthook blocks commits with violations
-6. CI blocks PRs with violations
+1. **No sprint starts without owner approval**
+2. **Fix what's broken before building new things**
+3. **Visual fidelity is the product** — structural code that produces basic UI is not done
+4. **Read existing docs before writing plans** — the user has millions of pages of documentation
+5. **Do NOT run builds** — the user runs builds in their terminal
+6. **Cross-platform paths** — NO hardcoded Windows paths anywhere
+7. **Full error chains** — never hide errors behind `.context("vague message")`
+8. **Delete dead code** — no deprecation, no backwards compatibility
+9. **Every visual MUST use ColdLight** — no raw HTML, no inline styles, no plain CSS

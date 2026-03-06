@@ -342,7 +342,72 @@ register({
 	},
 });
 
-// ── Chat ─────────────────────────────────────────────────────
+// ── Chat Frame / Shell ──────────────────────────────────────
+
+register({
+	id: "chat-frame",
+	kind: "chat",
+	label: "Chat Frame",
+	description: "Glass void HUD frame — the chat overlay shell",
+	isSystem: true,
+	values: {
+		surface: "glass-void",
+		depth: "z3",
+		bevel: "soft",
+		frame: "soft",
+	},
+});
+
+register({
+	id: "chat-topbar",
+	kind: "chat",
+	label: "Chat Top Bar",
+	description: "Glass void with subtle bevel — chat header",
+	isSystem: true,
+	values: {
+		surface: "glass-void",
+		bevel: "subtle",
+	},
+});
+
+register({
+	id: "chat-sidebar",
+	kind: "chat",
+	label: "Chat Mode Sidebar",
+	description: "Glass deep sidebar for mode selection",
+	isSystem: true,
+	values: {
+		surface: "glass-deep",
+		frame: "soft",
+	},
+});
+
+register({
+	id: "chat-context",
+	kind: "chat",
+	label: "Chat Context Panel",
+	description: "Glass deep panel for cortex visualization",
+	isSystem: true,
+	values: {
+		surface: "glass-deep",
+		depth: "z1",
+	},
+});
+
+register({
+	id: "chat-footer",
+	kind: "chat",
+	label: "Chat Footer",
+	description: "Glass void with soft frame — input area",
+	isSystem: true,
+	values: {
+		surface: "glass-void",
+		frame: "soft",
+		transition: "fast",
+	},
+});
+
+// ── Chat Bubbles ────────────────────────────────────────────
 
 register({
 	id: "chat-bubble-ai",

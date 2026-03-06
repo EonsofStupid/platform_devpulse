@@ -2,7 +2,7 @@
 
 **Date**: 2026-03-06
 **Research**: [SPRINT-FOUNDATION-V2.research.md](SPRINT-FOUNDATION-V2.research.md)
-**Status**: READY FOR APPROVAL
+**Status**: IN PROGRESS — Phases 1-3 DONE, SurrealDB and LibSQL BROKEN, Phase 4+ NOT STARTED
 
 ## Goal
 Replace the dead splashscreen with enterprise-grade progressive hydration.
@@ -41,134 +41,121 @@ All ready ------------------> StatusBar transitions to health display
 ## Phase 1: Delete Splashscreen, Enable Main Window
 
 ### 1.1 Remove splashscreen window from Tauri config
-- [ ] Edit `interfaces/desktop/src-tauri/tauri.conf.json`:
+- [x] Edit `interfaces/desktop/src-tauri/tauri.conf.json`:
   - DELETE the splashscreen window entry
   - Set main window `"visible": true`
-- [ ] Verify: only main + chat windows remain
+- [x] Verify: only main + chat windows remain
 
 ### 1.2 Delete splashscreen route group
-- [ ] DELETE `interfaces/desktop/src/routes/(splashscreen)/+layout.svelte`
-- [ ] DELETE `interfaces/desktop/src/routes/(splashscreen)/splashscreen/+page.svelte`
-- [ ] DELETE `interfaces/desktop/src/routes/(splashscreen)/splashscreen/TechnicalBootView.svelte`
-- [ ] DELETE `interfaces/desktop/src/routes/(splashscreen)/splashscreen/FriendlyBootView.svelte`
-- [ ] MOVE `boot-labels.ts` to `$lib/sys/boot/boot-labels.ts` (reused by StatusBar)
+- [x] DELETE `interfaces/desktop/src/routes/(splashscreen)/+layout.svelte`
+- [x] DELETE `interfaces/desktop/src/routes/(splashscreen)/splashscreen/+page.svelte`
+- [x] DELETE `interfaces/desktop/src/routes/(splashscreen)/splashscreen/TechnicalBootView.svelte`
+- [x] DELETE `interfaces/desktop/src/routes/(splashscreen)/splashscreen/FriendlyBootView.svelte`
+- [x] MOVE `boot-labels.ts` to `$lib/sys/boot/boot-labels.ts` (reused by StatusBar)
 
 ### 1.3 Remove ENABLE_BOOT_UI flag
-- [ ] Remove `ENABLE_BOOT_UI` from `flags.ts` (no longer a separate feature -- boot UI IS the app)
+- [x] Remove `ENABLE_BOOT_UI` from `flags.ts` (no longer a separate feature -- boot UI IS the app)
 
 ---
 
 ## Phase 2: Rust Backend — Async Boot + Tracing
 
 ### 2.1 Add tracing dependencies
-- [ ] Add to workspace deps in root `Cargo.toml`:
+- [x] Add to workspace deps in root `Cargo.toml`:
   - `tracing = "0.1"`
   - `tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }`
   - `tracing-appender = "0.2"`
-- [ ] Add `tracing = { workspace = true }` to:
+- [x] Add `tracing = { workspace = true }` to:
   - `systems/devpulse-engine/Cargo.toml`
   - `interfaces/desktop/src-tauri/Cargo.toml`
-- [ ] Add `tracing-subscriber = { workspace = true }` and `tracing-appender = { workspace = true }` to:
+- [x] Add `tracing-subscriber = { workspace = true }` and `tracing-appender = { workspace = true }` to:
   - `interfaces/desktop/src-tauri/Cargo.toml`
-- [ ] `cargo check --workspace`
+- [x] `cargo check --workspace`
 
 ### 2.2 Engine: Make Platform::boot() callback Send-compatible
-- [ ] In `systems/devpulse-engine/src/platform/mod.rs`:
+- [x] In `systems/devpulse-engine/src/platform/mod.rs`:
   - Change `on_event: impl Fn(InitEvent)` to `on_event: impl Fn(InitEvent) + Send + 'static`
-- [ ] `cargo check -p devpulse-engine`
+- [x] `cargo check -p devpulse-engine`
 
 ### 2.3 Rewrite AppState to PlatformState
-- [ ] Rewrite `interfaces/desktop/src-tauri/src/state.rs`:
+- [x] Rewrite `interfaces/desktop/src-tauri/src/state.rs`:
   ```rust
   pub struct PlatformState {
       pub platform: RwLock<Option<Arc<Platform>>>,
   }
   ```
-- [ ] PlatformState starts with `platform: RwLock::new(None)` -- filled after boot
+- [x] PlatformState starts with `platform: RwLock::new(None)` -- filled after boot
 
 ### 2.4 Create tracing initialization module
-- [ ] Create `interfaces/desktop/src-tauri/src/logging.rs`:
-  - `init_stderr()` -- pretty format, INFO level, called before builder
-  - `init_file_layer(data_dir)` -- JSON format, DEBUG level, called in setup after data_dir known
-  - `rotate_logs(data_dir)` -- scan `{data_dir}/logs/`, keep last 2, delete rest
+- [x] Create `interfaces/desktop/src-tauri/src/logging.rs`:
+  - `init(data_dir)` -- single-phase: stderr (compact) + JSON file in one registry, returns WorkerGuard
+  - `init_stderr_only()` -- fallback if data_dir unavailable
+  - `rotate_logs(data_dir)` -- scan `{data_dir}/logs/`, keep last 3, delete rest
   - Log filenames: `session-{YYYY-MM-DD-HHmmss}.jsonl`
 
 ### 2.5 Rewrite lib.rs — async boot with progressive events
-- [ ] Rewrite `interfaces/desktop/src-tauri/src/lib.rs`:
-  1. `logging::init_stderr()` -- first thing in `run()`
-  2. In `setup()`:
+- [x] Rewrite `interfaces/desktop/src-tauri/src/lib.rs`:
+  1. In `setup()`:
      - Resolve data_dir
-     - `logging::rotate_logs(&data_dir)` + `logging::init_file_layer(&data_dir)`
+     - `logging::rotate_logs(&data_dir)` + `logging::init(&data_dir)`
+     - `std::mem::forget(guard)` to keep file logging alive for process lifetime
      - `app.manage(PlatformState { platform: RwLock::new(None) })`
      - `tauri::async_runtime::spawn(boot_task(app.handle().clone(), data_dir))`
      - Return `Ok(())` immediately
-  3. `boot_task()`:
+  2. `boot_task()`:
      - Emit `platform:boot-phase` with phase = "initializing"
      - Call `Platform::boot(data_dir, callback)`
      - Callback emits `platform:subsystem-status` per store (name, state, latency)
      - After boot: run health verification
      - Store `Arc<Platform>` in managed PlatformState
      - Emit `platform:boot-phase` with phase = "ready" (or "failed")
-- [ ] Update all IPC commands to handle `platform: None`:
+- [x] Update all IPC commands to handle `platform: None`:
   - Lock PlatformState, check if Some, return error if None (boot in progress)
-- [ ] `cargo check -p devpulse_desktop_backend`
+- [x] `cargo check -p devpulse_desktop_backend`
 
 ### 2.6 Engine: Replace eprintln with tracing
-- [ ] Replace `eprintln!()` calls in `platform/mod.rs` with `tracing::info!()` / `tracing::warn!()`
-- [ ] Add structured fields: `step`, `status`, `latency_ms`
-- [ ] Keep InitEvent callback -- it serves the UI, tracing serves the log file
-- [ ] `cargo check -p devpulse-engine`
+- [x] Replace `eprintln!()` calls in `platform/mod.rs` with `tracing::info!()` / `tracing::warn!()`
+- [x] Add structured fields: `step`, `status`, `latency_ms`
+- [x] Keep InitEvent callback -- it serves the UI, tracing serves the log file
+- [x] `cargo check -p devpulse-engine`
 
 ### 2.7 Desktop Backend: Replace eprintln with tracing
-- [ ] Replace all remaining `eprintln!()` in lib.rs with tracing macros
-- [ ] `cargo check -p devpulse_desktop_backend`
+- [x] Replace all remaining `eprintln!()` in lib.rs with tracing macros
+- [x] `cargo check -p devpulse_desktop_backend`
 
 ---
 
 ## Phase 3: Frontend — Progressive Boot State + StatusBar
 
 ### 3.1 Create unified platform state rune
-- [ ] Create `$lib/sys/runes/platformState.svelte.ts`:
+- [x] Create `$lib/sys/runes/platformState.svelte.ts`:
   - Merges bootState + health into one reactive class
   - Tracks: `phase` (initializing | ready | failed)
   - Tracks: `subsystems` map (name -> { state, latency_ms, friendlyName })
   - Listens for Tauri events: `platform:boot-phase`, `platform:subsystem-status`
   - After boot complete: starts health polling (absorbs health.svelte.ts behavior)
   - Exposes: `isReady`, `isBooting`, `hasFailed`, `subsystemStatus(name)`, `progress`
-- [ ] Delete or deprecate `bootState.svelte.ts`
-- [ ] Delete or deprecate `health.svelte.ts` (absorbed)
+- [x] DELETE `bootState.svelte.ts` (absorbed into platformState)
+- [x] DELETE `health.svelte.ts` (absorbed into platformState)
 
 ### 3.2 Update generated types
-- [ ] Add to `$lib/sys/generated/init.types.ts`:
-  ```typescript
-  export type BootPhase = "initializing" | "ready" | "failed";
-  export type SubsystemState = "pending" | "loading" | "ready" | "failed";
-  export interface SubsystemStatusEvent {
-      name: string;
-      state: SubsystemState;
-      latency_ms: number | null;
-      message: string | null;
-  }
-  ```
+- [x] Types defined inline in `platformState.svelte.ts` (BootPhase, SubsystemState, SubsystemInfo)
+- [x] Uses existing `init.types.ts` for InitEvent, InitStatus
 
 ### 3.3 Update StatusBar with boot progress
-- [ ] Read current `StatusBar.svelte`
-- [ ] Add boot progress display:
-  - Dev mode (`flags.DEV_MODE`): per-subsystem status with latencies, store names
-    - `[LibSQL: ready 12ms] [DuckDB: loading...] [SurrealDB: ready 340ms] [Moka: ready 1ms]`
-  - Prod mode: clean progress
-    - `Starting up... 3 of 4 systems ready` -> `All systems operational`
-  - Uses `boot-labels.ts` for friendly names in prod mode
-- [ ] After boot: StatusBar transitions to health display (uptime, connection status)
+- [x] Rewrite `StatusBar.svelte` with 3 modes:
+  - Dev mode: per-subsystem badges with state dots and latencies
+  - Prod mode: "Starting up... X of Y systems ready" / "All systems operational"
+  - Health display: connection status, per-store detail (dev), uptime, version
+- [x] CSS animations for loading state (pulse on loading dots)
 
 ### 3.4 Update root layout
-- [ ] In `+layout.svelte`: replace `platformHealth.startPolling()` with `platformState.init()`
-  - `platformState.init()` sets up Tauri event listeners + starts health polling after boot
+- [x] In `+layout.svelte`: uses `platformState.init()` for event listeners + health polling
 
 ### 3.5 Content area loading states (convention, not enforcement)
-- [ ] Each route page can check `platformState.isReady` or `platformState.subsystemStatus(name)`
-- [ ] Show loading/skeleton when backing store not ready
-- [ ] Document pattern for other pages to adopt progressively
+- [x] Chat page checks `platformState.isReady`, `isBooting`, `hasFailed`
+- [x] Shows degraded/booting banners
+- [ ] **NOT DONE**: Loading skeletons, proper content-area states for other routes
 
 ---
 
@@ -240,22 +227,27 @@ RRO = Reason Ready Object. Part of the AI reasoning system. IP-sensitive.
 
 ---
 
-## BLOCKER: SurrealDB Boot Crash
+## BLOCKER: SurrealDB Fails on Fresh Install
 
-The app currently crashes during `GraphStore::boot()` -- after DuckDB succeeds but
-before SurrealDB completes. Exit code `4294967295` (-1) = access violation / panic.
+**Status**: STILL BROKEN as of 2026-03-06
 
-Root cause: SurrealDB 3.0 with `kv-surrealkv` backend crashing on existing data.
-Possible version mismatch between stored data format and current SurrealDB version.
+SurrealDB fails to open even on a BRAND NEW empty directory. The resilient boot
+catches the error (no longer crashes), but SurrealDB is ALWAYS None (degraded).
 
-### Immediate fixes (required for Phases 2-3 to work):
-- [ ] Wrap each store boot in `catch_unwind` or error recovery -- a failed store must
-      show as "failed" in StatusBar, NOT crash the entire app
-- [ ] Add `RUST_BACKTRACE=1` to xtask dev launch to capture actual panic
-- [ ] Clear stale SurrealKV data at `{data_dir}/surreal/reasoning/` if version mismatch
-- [ ] Ensure latest SurrealDB version (crates.io or git -- see Phase 5)
+What was done:
+- [x] Resilient boot wraps every store in match — failed = None, not crash
+- [x] Auto-recovery: clears stale data dir, retries once
+- [ ] **STILL BROKEN**: Even fresh directory fails
 
-**Progressive hydration means: a failed store is a degraded state, not a crash.**
+Suspected root cause: `SurrealKv` backend path handling.
+The path logged: `surrealkv://C:\Users\jessa\AppData\Roaming\com.devpulse.desktop\surreal\reasoning`
+Windows backslashes in a URI scheme may cause SurrealKV to choke.
+
+### Fix needed:
+- [ ] In `surreal.rs`: change `.context("Failed to open SurrealDB")` to expose FULL error chain
+- [ ] Log the exact path being passed to `Surreal::new::<SurrealKv>(path)`
+- [ ] Convert path to forward slashes or use `path.to_string_lossy().replace('\\', '/')` before passing to SurrealKV
+- [ ] Test on clean data directory
 
 ---
 

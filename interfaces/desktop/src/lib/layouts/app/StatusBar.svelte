@@ -3,10 +3,10 @@
   @module @devpulse/layouts/app/StatusBar
   @layer lib
 
-  @description
   Status bar with progressive boot display.
   During boot: shows per-subsystem status with latencies.
   After boot: shows connection status, uptime, version.
+  All badges use ColdLight Badge component.
 
   @consumers
   - Frame.svelte: Main app layout
@@ -16,6 +16,11 @@
 <script lang="ts">
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 import { flags } from "$lib/sys/cfg/flags.js";
+import {
+	Badge,
+	HStack,
+	Text,
+} from "$lib/design/index.js";
 
 const APP_VERSION = "0.1.0";
 
@@ -25,14 +30,13 @@ const subsystems = $derived(platformState.subsystemList());
 <div class="flex w-full items-center justify-between" aria-label="System status">
 	{#if platformState.isBooting}
 		<!-- Boot progress mode -->
-		<div class="flex items-center gap-2">
+		<HStack gap="2" align="center">
 			{#if flags.DEV_MODE}
-				<!-- Dev mode: per-subsystem detail -->
 				{#each subsystems as sub}
-					<span
-						data-kind="badge"
-						data-slot="root"
-						class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs"
+					<Badge
+						intent="default"
+						size="sm"
+						class="gap-1"
 						data-subsystem-state={sub.state}
 					>
 						<span
@@ -40,57 +44,48 @@ const subsystems = $derived(platformState.subsystemList());
 							data-subsystem-state={sub.state}
 							aria-hidden="true"
 						></span>
-						<span class="text-[var(--text-secondary)]">
+						<Text size="xs" color="secondary">
 							{sub.name}: {sub.state}{sub.latencyMs !== null ? ` ${sub.latencyMs}ms` : ''}
-						</span>
-					</span>
+						</Text>
+					</Badge>
 				{/each}
 				{#if subsystems.length === 0}
-					<span class="text-xs text-[var(--text-muted)]">Initializing...</span>
+					<Text size="xs" color="muted">Initializing...</Text>
 				{/if}
 			{:else}
-				<!-- Prod mode: clean progress -->
-				<span class="text-xs text-[var(--text-secondary)]">
+				<Text size="xs" color="secondary">
 					{#if platformState.progress >= 100}
 						All systems operational
 					{:else}
 						Starting up... {subsystems.filter(s => s.state === 'ready').length} of {Math.max(4, subsystems.length)} systems ready
 					{/if}
-				</span>
+				</Text>
 			{/if}
-		</div>
+		</HStack>
 
-		<div class="flex items-center gap-2">
-			<span
-				data-kind="badge"
-				data-slot="root"
-				class="inline-flex items-center rounded-full px-2 py-0.5 text-xs text-[var(--text-muted)]"
-			>
-				{platformState.progress}%
-			</span>
-		</div>
+		<HStack gap="2" align="center">
+			<Badge intent="default" size="sm">
+				<Text size="xs" color="muted">{platformState.progress}%</Text>
+			</Badge>
+		</HStack>
 	{:else if platformState.hasFailed}
 		<!-- Boot failed -->
-		<div class="flex items-center gap-2">
-			<span
-				data-kind="badge"
-				data-slot="root"
-				class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs"
-			>
+		<HStack gap="2" align="center">
+			<Badge intent="danger" size="sm" class="gap-1.5">
 				<span class="status-dot h-2 w-2 rounded-full" data-status="offline" aria-hidden="true"></span>
-				<span class="text-[var(--signal-error)]">Boot failed</span>
-			</span>
+				<Text size="xs" color="accent">Boot failed</Text>
+			</Badge>
 			{#if platformState.error}
-				<span class="text-xs text-[var(--text-muted)]">{platformState.error}</span>
+				<Text size="xs" color="muted">{platformState.error}</Text>
 			{/if}
-		</div>
+		</HStack>
 	{:else}
 		<!-- Health display mode (post-boot) -->
-		<div class="flex items-center gap-2">
-			<span
-				data-kind="badge"
-				data-slot="root"
-				class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs"
+		<HStack gap="2" align="center">
+			<Badge
+				intent="default"
+				size="sm"
+				class="gap-1.5"
 				data-status={platformState.connectionStatus}
 			>
 				<span
@@ -98,36 +93,26 @@ const subsystems = $derived(platformState.subsystemList());
 					data-status={platformState.connectionStatus}
 					aria-hidden="true"
 				></span>
-				<span class="text-[var(--text-secondary)]">{platformState.connectionStatus}</span>
-			</span>
+				<Text size="xs" color="secondary">{platformState.connectionStatus}</Text>
+			</Badge>
 
 			{#if flags.DEV_MODE}
-				<!-- Dev mode: show individual store health after boot -->
 				{#each subsystems as sub}
-					<span class="text-xs text-[var(--text-muted)]">
+					<Text size="xs" color="muted">
 						[{sub.friendlyName}: {sub.state}{sub.latencyMs !== null ? ` ${sub.latencyMs}ms` : ''}]
-					</span>
+					</Text>
 				{/each}
 			{/if}
-		</div>
+		</HStack>
 
-		<div class="flex items-center gap-2">
-			<span
-				data-kind="badge"
-				data-slot="root"
-				class="inline-flex items-center rounded-full px-2 py-0.5 text-xs text-[var(--text-muted)]"
-			>
-				Uptime: {platformState.uptimeFormatted}
-			</span>
-
-			<span
-				data-kind="badge"
-				data-slot="root"
-				class="inline-flex items-center rounded-full px-2 py-0.5 text-xs text-[var(--text-muted)]"
-			>
-				v{APP_VERSION}
-			</span>
-		</div>
+		<HStack gap="2" align="center">
+			<Badge intent="default" size="sm">
+				<Text size="xs" color="muted">Uptime: {platformState.uptimeFormatted}</Text>
+			</Badge>
+			<Badge intent="default" size="sm">
+				<Text size="xs" color="muted">v{APP_VERSION}</Text>
+			</Badge>
+		</HStack>
 	{/if}
 </div>
 
@@ -144,7 +129,6 @@ const subsystems = $derived(platformState.subsystemList());
 	.status-dot[data-status="hybrid"] {
 		background-color: var(--color-purple-400);
 	}
-	/* Boot progress states */
 	.status-dot[data-subsystem-state="loading"] {
 		background-color: var(--color-purple-400);
 		animation: pulse 1s ease-in-out infinite;
