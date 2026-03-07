@@ -151,7 +151,7 @@ console.log("[UNIFIED] Step 4: Merging token + scanner data...");
 // Build token data section from SD5 output
 const tokenData = {
 	pipeline: "sd5-dtcg-1.0" as const,
-	encodingCategories: jitiRegistry.map((cat: { code: string; name: string; description: string; encodingOrder: number; defaultIndex: number; vpbControl: string; values: Array<{ index: number; id: string; label: string; tokenRefs: Record<string, string>; requiredTokens?: string[]; svgFilters?: string[] }> }) => ({
+	encodingCategories: jitiRegistry.map((cat: { code: string; name: string; description: string; encodingOrder: number; defaultIndex: number; vpbControl: string; values: Array<{ index: number; id: string; label: string; tokenRefs: Record<string, string>; svgFilters?: string[] }> }) => ({
 		code: cat.code,
 		name: cat.name,
 		description: cat.description,
@@ -164,7 +164,6 @@ const tokenData = {
 			id: v.id,
 			label: v.label,
 			tokenRefs: v.tokenRefs,
-			requiredTokens: v.requiredTokens ?? [],
 			svgFilters: v.svgFilters ?? [],
 		})),
 	})),

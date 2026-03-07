@@ -1071,7 +1071,7 @@ VPB persists `BlockNode[]` trees. No theme values, no CSS, no classnames in stor
 | **Token Bridge** | @theme emits correct Tailwind utility names, recipe classes resolve, components render |
 | **3-Tier Tokens** | semantic.ts + components.ts exist, Zod validates cross-tier refs, build enforces |
 | **Testing** | Every primitive has `{Name}.test.ts` with real Chromium tests. Every component has tests. Scanner flags missing test files. CI runs `pnpm test` with zero failures. |
-| **Three Layers** | `primitives/{kind}/` (zero ARIA), `components/{kind}/` (ARIA applied), `ui/{kind}/` (styled). Every kind has all three. Each layer has `contract.ts`, `.svelte`, `types.ts`, `index.ts`, `.test.ts`. |
+| **Three Layers** | `primitives/{kind}/` (configuration/contract only), `recipes/components/{kind}/` (styling patterns), `components/{kind}/` (THE PRODUCT — ARIA + styled, what users import). No `ui/` layer — components ARE the styled final product. |
 | **ColdLight Ownership** | Default `ariaStateProvider` is `"coldlight"`. Primitives: zero ARIA applied, aria-* pass through via ...rest. Components: ARIA computed from state, applied to primitive. MeltUI adapter ONLY for justified exceptions (declared in contract.ts with comment). |
 | Generated CSS | ALL CSS files are SD5-generated from token SSOT, zero hand-written CSS, zero raw oklch outside tokens.ts |
 | Variant Keys | `v-s1z2l0t2m0` renders correctly, encode/decode/split work, Zod validates |
@@ -1136,15 +1136,14 @@ Zero `@melt-ui/svelte` imports outside `_internal/`. If you see a direct Melt im
 
 ---
 
-## 6-Stage Gate (Before Any .svelte Renderer)
+## 5-Stage Gate (Before Any .svelte Renderer)
 
 1. **Stage 0 — Naming + Intent:** Kind name exists, purpose documented, slots defined
 2. **Stage 1 — Token Check:** Uses existing tokens, new tokens added to SSOT only, `pnpm ds:tokens:build` run
-3. **Stage 2 — Primitive Contract:** `primitives/{kind}/contract.ts` written, satisfies `PrimitiveContractSchema`. `primitives/{kind}/{Kind}.svelte` written — zero ARIA applied, full prop spread, `data-kind`, `data-slot`.
-4. **Stage 3 — Component Contract:** `components/{kind}/contract.ts` written, satisfies `ComponentContractSchema`. `components/{kind}/{Kind}.svelte` written — wraps primitive, computes ARIA from state, zero visual style.
-5. **Stage 4 — Recipe Authoring:** Recipe ID in registry, variants mapped to Tailwind classes (token-backed only via @theme)
+3. **Stage 2 — Primitive Contract:** `primitives/{kind}/contract.ts` written, satisfies `PrimitiveContractSchema`. Configuration/structural declaration only.
+4. **Stage 3 — Recipe Authoring:** Recipe ID in registry, variants mapped to Tailwind classes (token-backed only via @theme)
+5. **Stage 4 — Component (THE PRODUCT):** `components/{kind}/{Kind}.svelte` written — ARIA from dsAdapter + recipe styling via props. This IS the styled, importable component. No separate ui/ layer.
 6. **Stage 5 — VPB Registration:** Block in palette, default recipe + props, property UI config
-7. **Stage 6 — UI Layer:** `ui/{kind}/{Kind}.svelte` created — wraps component, applies recipe classes. Project-specific.
 
 If any stage fails: **STOP. Fix registry first.**
 

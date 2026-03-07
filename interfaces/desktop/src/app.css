@@ -18,29 +18,71 @@ html, body {
 }
 
 /* ═══════════════════════════════════════════════════════
-   App Shell — Circuit Board Background
+   App Shell — Default Circuit Board Background (fallback)
    ═══════════════════════════════════════════════════════ */
 
 [data-layout="app"] {
 	background:
-		/* Radial glow in center — teal accent */
 		radial-gradient(
 			ellipse 60% 50% at 50% 40%,
 			var(--backdrop-glow-teal) 0%,
 			transparent 70%
 		),
-		/* Grid lines — circuit board effect */
-		linear-gradient(
-			var(--backdrop-grid-teal) 1px,
-			transparent 1px
-		),
-		linear-gradient(
-			90deg,
-			var(--backdrop-grid-teal) 1px,
-			transparent 1px
-		),
+		linear-gradient(var(--backdrop-grid-teal) 1px, transparent 1px),
+		linear-gradient(90deg, var(--backdrop-grid-teal) 1px, transparent 1px),
 		var(--color-void-base);
 	background-size: 100% 100%, 40px 40px, 40px 40px, 100% 100%;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Domain-Specific Route Backgrounds
+   Each domain gets its own accent glow + grid pattern.
+   Applied via data-route attribute set by Frame.svelte.
+   ═══════════════════════════════════════════════════════ */
+
+[data-layout="app"][data-route="devpulse"] {
+	background:
+		radial-gradient(ellipse 60% 50% at 50% 40%, var(--backdrop-glow-teal) 0%, transparent 70%),
+		linear-gradient(var(--backdrop-grid-teal) 1px, transparent 1px),
+		linear-gradient(90deg, var(--backdrop-grid-teal) 1px, transparent 1px),
+		var(--color-void-base);
+	background-size: 100% 100%, 40px 40px, 40px 40px, 100% 100%;
+}
+
+[data-layout="app"][data-route="maestro"] {
+	background:
+		radial-gradient(ellipse 60% 50% at 50% 40%, var(--backdrop-glow-purple) 0%, transparent 70%),
+		linear-gradient(var(--backdrop-grid-purple) 1px, transparent 1px),
+		linear-gradient(90deg, var(--backdrop-grid-purple) 1px, transparent 1px),
+		var(--color-void-base);
+	background-size: 100% 100%, 36px 36px, 36px 36px, 100% 100%;
+}
+
+[data-layout="app"][data-route="overmind"] {
+	background:
+		radial-gradient(ellipse 60% 50% at 50% 40%, var(--backdrop-glow-magenta) 0%, transparent 70%),
+		linear-gradient(var(--backdrop-grid-magenta) 1px, transparent 1px),
+		linear-gradient(90deg, var(--backdrop-grid-magenta) 1px, transparent 1px),
+		var(--color-void-base);
+	background-size: 100% 100%, 32px 32px, 32px 32px, 100% 100%;
+}
+
+[data-layout="app"][data-route="devforge"] {
+	background:
+		radial-gradient(ellipse 60% 50% at 50% 40%, var(--backdrop-glow-ember) 0%, transparent 70%),
+		linear-gradient(var(--backdrop-grid-ember) 1px, transparent 1px),
+		linear-gradient(90deg, var(--backdrop-grid-ember) 1px, transparent 1px),
+		var(--color-void-base);
+	background-size: 100% 100%, 44px 44px, 44px 44px, 100% 100%;
+}
+
+[data-layout="app"][data-route="wiredfront"] {
+	background:
+		radial-gradient(ellipse 60% 50% at 50% 40%, var(--backdrop-glow-cyber) 0%, transparent 70%),
+		linear-gradient(var(--backdrop-grid-cyber) 1px, transparent 1px),
+		linear-gradient(90deg, var(--backdrop-grid-cyber) 1px, transparent 1px),
+		var(--color-void-base);
+	background-size: 100% 100%, 38px 38px, 38px 38px, 100% 100%;
 }
 
 /* ═══════════════════════════════════════════════════════

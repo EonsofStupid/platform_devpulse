@@ -1,27 +1,26 @@
 #!/usr/bin/env node
 // save-chat.js - Saves user prompts to SurrealDB on every message
 // Triggered by UserPromptSubmit hook (async, non-blocking)
-// Uses banter-schema.surql tables: chat, sessions
+// Writes to: agents/claude (chat + sessions tables)
 
 const { spawnSync } = require("child_process");
 const fs = require("fs");
 
-function query(sql) {
+const ENDPOINT = "http://127.0.0.1:8822";
+const USER = "root";
+const PASS = "root";
+
+function query(ns, db, sql) {
 	try {
 		const result = spawnSync(
 			"surreal",
 			[
 				"sql",
-				"--endpoint",
-				"http://127.0.0.1:8000",
-				"--namespace",
-				"banter",
-				"--database",
-				"sessions",
-				"--username",
-				"root",
-				"--password",
-				"root",
+				"--endpoint", ENDPOINT,
+				"--namespace", ns,
+				"--database", db,
+				"--username", USER,
+				"--password", PASS,
 				"--hide-welcome",
 			],
 			{
@@ -75,13 +74,15 @@ if (cleanPrompt.length > 2000) {
 const safePrompt = cleanPrompt.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
 const safeCwd = cwd.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
 
-// Save to chat table (matches banter-schema.surql)
+// Save to agents/claude chat table
 query(
+	"agents", "claude",
 	`INSERT INTO chat { role: 'user', content: '${safePrompt}', session_id: '${sessionId}' };`,
 );
 
-// Upsert session tracker (matches banter-schema.surql sessions table)
+// Upsert session tracker in agents/claude sessions table
 query(
+	"agents", "claude",
 	`UPSERT sessions:${sessionId.replace(/-/g, "_")} SET session_id = '${sessionId}', project = '${safeCwd}', last_active = time::now(), message_count += 1;`,
 );
 

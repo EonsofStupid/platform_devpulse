@@ -68,6 +68,10 @@ const tokensMod2 = await jiti.import(resolve(desktopRoot, tokensConfig.sources.g
 	animation: Record<string, string>;
 	keyframesDef: Record<string, string>;
 	enums: Record<string, readonly (string | number)[]>;
+	// Composite tokens (SD5 auto-expands these)
+	textStyle: Record<string, Record<string, string | number>>;
+	borderStyle: Record<string, Record<string, string>>;
+	transitionStyle: Record<string, Record<string, string>>;
 };
 
 const semMod = await jiti.import(resolve(desktopRoot, tokensConfig.sources.semantic)) as {
@@ -91,7 +95,6 @@ const registryMod = await jiti.import(
 			id: string;
 			label: string;
 			tokenRefs: Record<string, string>;
-			requiredTokens?: string[];
 			svgFilters?: string[];
 		}>;
 		defaultIndex: number;
@@ -126,6 +129,22 @@ function toNestedGroup(
 	return group;
 }
 
+/**
+ * Converts a record of composite objects into DTCG composite token groups.
+ * SD5 with `expand: true` will auto-expand each composite into individual tokens.
+ * e.g. textStyle.display-lg → --textStyle-display-lg-fontSize, --textStyle-display-lg-fontFamily, etc.
+ */
+function toCompositeGroup(
+	obj: Record<string, Record<string, string | number>>,
+	type: string,
+): Record<string, { $type: string; $value: Record<string, string | number> }> {
+	const group: Record<string, { $type: string; $value: Record<string, string | number> }> = {};
+	for (const [key, value] of Object.entries(obj)) {
+		group[key] = { $type: type, $value: value };
+	}
+	return group;
+}
+
 // ─── Build DTCG ───────────────────────────────────────────────────────────────
 const dtcg: Record<string, unknown> = {
 	$schema: "https://design-tokens.github.io/community-group/format/",
@@ -153,6 +172,11 @@ const dtcg: Record<string, unknown> = {
 	font:       toGroup(tokensMod2.font,       "fontFamily"),
 	animation:  toGroup(tokensMod2.animation,  "other"),
 
+	// ── Tier 1: Composite tokens (SD5 auto-expands) ──────────────────────────
+	textStyle:       toCompositeGroup(tokensMod2.textStyle,       "typography"),
+	borderStyle:     toCompositeGroup(tokensMod2.borderStyle,     "border"),
+	transitionStyle: toCompositeGroup(tokensMod2.transitionStyle, "transition"),
+
 	// ── Tier 2: Semantic — spread to root ─────────────────────────────────────
 	...Object.fromEntries(
 		Object.entries(semMod.semantic).map(([category, entries]) => [
@@ -177,4 +201,35 @@ writeFileSync(dtcgPath, `${JSON.stringify(dtcg, null, "\t")}\n`, "utf-8");
 const jitiEnums = tokensMod2.enums;
 const jitiKeyframesDef = tokensMod2.keyframesDef;
 
-export { dtcgPath, tokensConfig, jitiEnums, jitiRegistry, jitiKeyframesDef, desktopRoot };
+// ─── Load Kind Definitions + Presets ─────────────────────────────────────────
+const kindDefMod = await jiti.import(
+	resolve(desktopRoot, "src/lib/design/registry/kind-definitions.ts"),
+) as {
+	getAllKindDefinitions: () => Array<{
+		kind: string;
+		label: string;
+		engine: string;
+		defaultPreset: string;
+		defaultRecipe: string;
+		blockCategory: string;
+		requiredAxes: readonly string[];
+		compound: boolean;
+		container: boolean;
+		containerSlots?: readonly string[];
+	}>;
+};
+
+const presetsMod = await jiti.import(
+	resolve(desktopRoot, "src/lib/design/registry/presets.ts"),
+) as {
+	getAllPresets: () => Array<{
+		id: string;
+		kind: string;
+		values: Record<string, string>;
+	}>;
+};
+
+const jitiKindDefinitions = kindDefMod.getAllKindDefinitions();
+const jitiPresets = presetsMod.getAllPresets();
+
+export { dtcgPath, tokensConfig, jitiEnums, jitiRegistry, jitiKeyframesDef, jitiKindDefinitions, jitiPresets, desktopRoot };

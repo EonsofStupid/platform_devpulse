@@ -28,7 +28,7 @@ Align all 29 component files to the owner's vision: config-driven, schema-driven
 
 The previous session:
 1. STRIPPED `useColdLight()`, `ColdLightProps`, and recipes from 29 component .svelte + types.ts files
-2. Created 29 redundant `ui/{kind}/` wrapper folders (87 files)
+2. Created 29 redundant `[DELETED — components/{kind}/ IS the product]` wrapper folders (87 files)
 3. Broke 9 test files (visual props passed to stripped components)
 4. Left `design/index.ts` importing from `./ui/index.js` instead of `./components/`
 
@@ -99,5 +99,5 @@ All 29 components have `contract.ts` files.
 - `scanner.ts` — Contract-aware scanner
 - `design/index.ts` — Public barrel (currently imports from ui/)
 - `ui/index.ts` — Redundant barrel (to be deleted)
-- All 29 `ui/{kind}/` directories (to be deleted)
+- All 29 `[DELETED — components/{kind}/ IS the product]` directories (to be deleted)
 - All 29 `components/{kind}/` directories (to be fixed)

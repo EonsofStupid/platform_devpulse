@@ -13,6 +13,7 @@ import type {
 	SystemHealth,
 	HealthStatus,
 } from "$lib/sys/generated/health.types.js";
+import { friendlyLabel } from "$lib/sys/boot/boot-labels.js";
 
 export type BootPhase = "initializing" | "ready" | "failed";
 export type SubsystemState = "pending" | "loading" | "ready" | "failed";
@@ -26,14 +27,6 @@ export interface SubsystemInfo {
 }
 
 const HEALTH_POLL_INTERVAL_MS = 15_000;
-
-/** Map engine step names to friendly names for prod mode. */
-const FRIENDLY_NAMES: Record<string, string> = {
-	"Relational store": "Data Store",
-	"Analytics store": "Analytics Engine",
-	"Graph store": "Knowledge Graph",
-	"Cache store": "Memory Cache",
-};
 
 function mapInitStatus(status: InitStatus): SubsystemState {
 	switch (status) {
@@ -127,8 +120,7 @@ class PlatformState {
 					message: event.message,
 					friendlyName:
 						existing?.friendlyName ??
-						FRIENDLY_NAMES[event.step] ??
-						event.step,
+						friendlyLabel(event.step),
 				};
 				const next = new Map(this.subsystems);
 				next.set(event.step, info);

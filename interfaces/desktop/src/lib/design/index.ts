@@ -92,6 +92,7 @@ export type { DsSurfaceProps, RecipeDefinition } from "./recipes/types.js";
 // Recipe registration (side-effect imports — triggers registerRecipe calls)
 import "./recipes/layouts/shell/index.js";
 import "./recipes/blocks/widget/index.js";
+import "./recipes/components/index.js";
 
 // ── Blueprints ──
 export { getBlueprint, getBlueprintsForKind, registerBlueprint } from "./blueprints/index.js";

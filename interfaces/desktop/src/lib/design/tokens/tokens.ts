@@ -32,15 +32,18 @@ export { shadow } from "./effects/shadow.js";
 export { bevel } from "./effects/bevel.js";
 export { glow, glowSpread } from "./effects/glow.js";
 export { blur } from "./effects/blur.js";
+export { borderStyle } from "./effects/borders.js";
 
 // ── Motion ───────────────────────────────────────────────────────────────────
 export { duration } from "./motion/duration.js";
 export { ease } from "./motion/easing.js";
 export { animation, keyframesDef } from "./motion/keyframes.js";
+export { transitionStyle } from "./motion/transitions.js";
 
 // ── Typography ───────────────────────────────────────────────────────────────
 export { font } from "./typography/fonts.js";
 export { textSize } from "./typography/sizes.js";
+export { textStyle } from "./typography/composites.js";
 
 // ── Layout ───────────────────────────────────────────────────────────────────
 export { radius } from "./layout/radius.js";

@@ -1,7 +1,7 @@
 {
 	"$schema": "coldlight/manifest",
 	"version": 1,
-	"generatedAt": "2026-03-07T03:16:33.945Z",
+	"generatedAt": "2026-03-07T22:57:26.769Z",
 	"pipeline": "sd5-dtcg-1.0",
 	"categories": [
 		{
@@ -20,7 +20,7 @@
 					"tokenRefs": {
 						"background": "transparent"
 					},
-					"requiredTokens": [],
+					"varRefs": [],
 					"svgFilters": []
 				},
 				{
@@ -32,9 +32,10 @@
 						"backdrop-filter": "blur(var(--blur-lg)) saturate(1.5)",
 						"border": "1px solid oklch(from var(--color-teal-700) l c h / 0.22)"
 					},
-					"requiredTokens": [
-						"glass.void",
-						"blur.lg"
+					"varRefs": [
+						"--glass-void",
+						"--blur-lg",
+						"--color-teal-700"
 					],
 					"svgFilters": []
 				},
@@ -47,9 +48,10 @@
 						"backdrop-filter": "blur(var(--blur-lg)) saturate(1.3)",
 						"border": "1px solid oklch(from var(--color-teal-600) l c h / 0.18)"
 					},
-					"requiredTokens": [
-						"glass.deep",
-						"blur.lg"
+					"varRefs": [
+						"--glass-deep",
+						"--blur-lg",
+						"--color-teal-600"
 					],
 					"svgFilters": []
 				},
@@ -61,9 +63,9 @@
 						"background": "var(--glass-smoke)",
 						"backdrop-filter": "blur(var(--blur-xl)) saturate(1.2)"
 					},
-					"requiredTokens": [
-						"glass.smoke",
-						"blur.xl"
+					"varRefs": [
+						"--glass-smoke",
+						"--blur-xl"
 					],
 					"svgFilters": []
 				},
@@ -76,9 +78,9 @@
 						"backdrop-filter": "blur(var(--blur-2xl)) saturate(1.1)",
 						"border": "1px solid oklch(1 0 0 / 0.12)"
 					},
-					"requiredTokens": [
-						"glass.frost",
-						"blur.2xl"
+					"varRefs": [
+						"--glass-frost",
+						"--blur-2xl"
 					],
 					"svgFilters": []
 				},
@@ -89,8 +91,8 @@
 					"tokenRefs": {
 						"background": "var(--matte-dark)"
 					},
-					"requiredTokens": [
-						"matte.dark"
+					"varRefs": [
+						"--matte-dark"
 					],
 					"svgFilters": []
 				},
@@ -101,8 +103,8 @@
 					"tokenRefs": {
 						"background": "var(--color-teal-500)"
 					},
-					"requiredTokens": [
-						"color.teal.500"
+					"varRefs": [
+						"--color-teal-500"
 					],
 					"svgFilters": []
 				},
@@ -113,9 +115,9 @@
 					"tokenRefs": {
 						"background": "linear-gradient(135deg, var(--color-void-900), var(--color-void-base))"
 					},
-					"requiredTokens": [
-						"color.void.900",
-						"color.void.base"
+					"varRefs": [
+						"--color-void-900",
+						"--color-void-base"
 					],
 					"svgFilters": []
 				},
@@ -128,9 +130,10 @@
 						"backdrop-filter": "blur(var(--blur-lg)) saturate(1.4)",
 						"border": "1px solid oklch(from var(--color-teal-500) l c h / 0.35)"
 					},
-					"requiredTokens": [
-						"glass.teal",
-						"blur.lg"
+					"varRefs": [
+						"--glass-teal",
+						"--blur-lg",
+						"--color-teal-500"
 					],
 					"svgFilters": []
 				},
@@ -143,9 +146,10 @@
 						"backdrop-filter": "blur(var(--blur-lg)) saturate(1.3)",
 						"border": "1px solid oklch(from var(--color-purple-500) l c h / 0.30)"
 					},
-					"requiredTokens": [
-						"glass.purple",
-						"blur.lg"
+					"varRefs": [
+						"--glass-purple",
+						"--blur-lg",
+						"--color-purple-500"
 					],
 					"svgFilters": []
 				}
@@ -165,7 +169,7 @@
 					"id": "none",
 					"label": "None",
 					"tokenRefs": {},
-					"requiredTokens": [],
+					"varRefs": [],
 					"svgFilters": []
 				},
 				{
@@ -176,7 +180,7 @@
 						"opacity": "0.85",
 						"backdrop-filter": "saturate(1.1)"
 					},
-					"requiredTokens": [],
+					"varRefs": [],
 					"svgFilters": []
 				},
 				{
@@ -187,7 +191,7 @@
 						"opacity": "0.75",
 						"backdrop-filter": "saturate(1.2)"
 					},
-					"requiredTokens": [],
+					"varRefs": [],
 					"svgFilters": []
 				},
 				{
@@ -199,7 +203,7 @@
 						"backdrop-filter": "saturate(1.4)",
 						"border": "1px solid oklch(1 0 0 / 0.15)"
 					},
-					"requiredTokens": [],
+					"varRefs": [],
 					"svgFilters": []
 				},
 				{
@@ -211,7 +215,7 @@
 						"backdrop-filter": "saturate(1.6)",
 						"border": "1px solid oklch(1 0 0 / 0.22)"
 					},
-					"requiredTokens": [],
+					"varRefs": [],
 					"svgFilters": []
 				},
 				{
@@ -222,7 +226,7 @@
 						"opacity": "1",
 						"filter": "brightness(0.95)"
 					},
-					"requiredTokens": [],
+					"varRefs": [],
 					"svgFilters": []
 				},
 				{
@@ -233,7 +237,7 @@
 						"opacity": "1",
 						"filter": "brightness(1.05) contrast(1.02)"
 					},
-					"requiredTokens": [],
+					"varRefs": [],
 					"svgFilters": []
 				},
 				{
@@ -244,7 +248,7 @@
 						"background": "repeating-linear-gradient(90deg, oklch(1 0 0 / 0.02) 0px, transparent 2px)",
 						"filter": "contrast(1.1)"
 					},
-					"requiredTokens": [],
+					"varRefs": [],
 					"svgFilters": [
 						"noise-subtle"
 					]
@@ -257,7 +261,7 @@
 						"background": "linear-gradient(180deg, oklch(1 0 0 / 0.15), transparent, oklch(1 0 0 / 0.08))",
 						"filter": "contrast(1.15) brightness(1.1)"
 					},
-					"requiredTokens": [],
+					"varRefs": [],
 					"svgFilters": [
 						"noise-subtle"
 					]
@@ -270,7 +274,10 @@
 						"background": "linear-gradient(180deg, oklch(from var(--color-ember-300) l c h / 0.12), transparent, oklch(from var(--color-ember-400) l c h / 0.08))",
 						"filter": "contrast(1.08) saturate(1.2)"
 					},
-					"requiredTokens": [],
+					"varRefs": [
+						"--color-ember-300",
+						"--color-ember-400"
+					],
 					"svgFilters": [
 						"noise-subtle"
 					]
@@ -293,7 +300,7 @@
 					"tokenRefs": {
 						"box-shadow": "none"
 					},
-					"requiredTokens": [],
+					"varRefs": [],
 					"svgFilters": []
 				},
 				{
@@ -303,8 +310,8 @@
 					"tokenRefs": {
 						"box-shadow": "var(--shadow-z1)"
 					},
-					"requiredTokens": [
-						"shadow.z1"
+					"varRefs": [
+						"--shadow-z1"
 					],
 					"svgFilters": []
 				},
@@ -315,8 +322,8 @@
 					"tokenRefs": {
 						"box-shadow": "var(--shadow-z2)"
 					},
-					"requiredTokens": [
-						"shadow.z2"
+					"varRefs": [
+						"--shadow-z2"
 					],
 					"svgFilters": []
 				},
@@ -327,8 +334,8 @@
 					"tokenRefs": {
 						"box-shadow": "var(--shadow-z3)"
 					},
-					"requiredTokens": [
-						"shadow.z3"
+					"varRefs": [
+						"--shadow-z3"
 					],
 					"svgFilters": []
 				},
@@ -339,8 +346,8 @@
 					"tokenRefs": {
 						"box-shadow": "var(--shadow-z4)"
 					},
-					"requiredTokens": [
-						"shadow.z4"
+					"varRefs": [
+						"--shadow-z4"
 					],
 					"svgFilters": []
 				}
@@ -360,7 +367,7 @@
 					"id": "flat",
 					"label": "Flat",
 					"tokenRefs": {},
-					"requiredTokens": [],
+					"varRefs": [],
 					"svgFilters": []
 				},
 				{
@@ -370,7 +377,7 @@
 					"tokenRefs": {
 						"box-shadow": "inset 0 1px 0 oklch(1 0 0 / 0.06), inset 0 -1px 0 oklch(0 0 0 / 0.1)"
 					},
-					"requiredTokens": [],
+					"varRefs": [],
 					"svgFilters": []
 				},
 				{
@@ -380,7 +387,7 @@
 					"tokenRefs": {
 						"box-shadow": "inset 0 2px 1px oklch(1 0 0 / 0.08), inset 0 -2px 1px oklch(0 0 0 / 0.15)"
 					},
-					"requiredTokens": [],
+					"varRefs": [],
 					"svgFilters": [
 						"bevel-soft"
 					]
@@ -392,7 +399,7 @@
 					"tokenRefs": {
 						"box-shadow": "inset 0 2px 2px oklch(1 0 0 / 0.1), inset 0 -2px 2px oklch(0 0 0 / 0.2)"
 					},
-					"requiredTokens": [],
+					"varRefs": [],
 					"svgFilters": [
 						"bevel-medium",
 						"noise-subtle"
@@ -405,7 +412,7 @@
 					"tokenRefs": {
 						"box-shadow": "inset 0 3px 3px oklch(1 0 0 / 0.12), inset 0 -3px 3px oklch(0 0 0 / 0.25)"
 					},
-					"requiredTokens": [],
+					"varRefs": [],
 					"svgFilters": [
 						"bevel-strong",
 						"noise-subtle"
@@ -427,7 +434,7 @@
 					"id": "none",
 					"label": "None",
 					"tokenRefs": {},
-					"requiredTokens": [],
+					"varRefs": [],
 					"svgFilters": []
 				},
 				{
@@ -437,8 +444,8 @@
 					"tokenRefs": {
 						"box-shadow": "var(--shadow-glow-teal)"
 					},
-					"requiredTokens": [
-						"glow.teal"
+					"varRefs": [
+						"--shadow-glow-teal"
 					],
 					"svgFilters": []
 				},
@@ -449,8 +456,8 @@
 					"tokenRefs": {
 						"box-shadow": "var(--shadow-glow-purple)"
 					},
-					"requiredTokens": [
-						"glow.purple"
+					"varRefs": [
+						"--shadow-glow-purple"
 					],
 					"svgFilters": []
 				},
@@ -461,8 +468,8 @@
 					"tokenRefs": {
 						"box-shadow": "var(--shadow-glow-ember)"
 					},
-					"requiredTokens": [
-						"glow.ember"
+					"varRefs": [
+						"--shadow-glow-ember"
 					],
 					"svgFilters": []
 				},
@@ -473,8 +480,8 @@
 					"tokenRefs": {
 						"box-shadow": "var(--shadow-glow-magenta)"
 					},
-					"requiredTokens": [
-						"glow.magenta"
+					"varRefs": [
+						"--shadow-glow-magenta"
 					],
 					"svgFilters": []
 				},
@@ -485,8 +492,8 @@
 					"tokenRefs": {
 						"box-shadow": "var(--shadow-glow-frost)"
 					},
-					"requiredTokens": [
-						"glow.frost"
+					"varRefs": [
+						"--shadow-glow-frost"
 					],
 					"svgFilters": []
 				},
@@ -497,8 +504,8 @@
 					"tokenRefs": {
 						"box-shadow": "var(--shadow-glow-cyber)"
 					},
-					"requiredTokens": [
-						"glow.cyber"
+					"varRefs": [
+						"--shadow-glow-cyber"
 					],
 					"svgFilters": []
 				}
@@ -520,7 +527,7 @@
 					"tokenRefs": {
 						"border": "none"
 					},
-					"requiredTokens": [],
+					"varRefs": [],
 					"svgFilters": []
 				},
 				{
@@ -528,10 +535,12 @@
 					"id": "soft",
 					"label": "Soft",
 					"tokenRefs": {
-						"border": "1px solid oklch(1 0 0 / 0.06)",
+						"border": "1px solid oklch(1 0 0 / 0.25)",
 						"border-radius": "var(--radius-md)"
 					},
-					"requiredTokens": [],
+					"varRefs": [
+						"--radius-md"
+					],
 					"svgFilters": []
 				},
 				{
@@ -539,10 +548,12 @@
 					"id": "hard",
 					"label": "Hard",
 					"tokenRefs": {
-						"border": "1px solid oklch(1 0 0 / 0.15)",
+						"border": "1px solid oklch(1 0 0 / 0.40)",
 						"border-radius": "var(--radius-sm)"
 					},
-					"requiredTokens": [],
+					"varRefs": [
+						"--radius-sm"
+					],
 					"svgFilters": []
 				},
 				{
@@ -550,10 +561,12 @@
 					"id": "crisp",
 					"label": "Crisp",
 					"tokenRefs": {
-						"border": "1px solid oklch(1 0 0 / 0.25)",
+						"border": "1px solid oklch(1 0 0 / 0.45)",
 						"border-radius": "var(--radius-xs)"
 					},
-					"requiredTokens": [],
+					"varRefs": [
+						"--radius-xs"
+					],
 					"svgFilters": []
 				},
 				{
@@ -561,11 +574,13 @@
 					"id": "glow",
 					"label": "Glow Border",
 					"tokenRefs": {
-						"border": "1px solid oklch(from var(--color-teal-500) l c h / 0.4)",
+						"border": "1px solid oklch(0.60 0.18 180 / 0.7)",
 						"border-radius": "var(--radius-md)",
-						"box-shadow": "0 0 8px oklch(from var(--color-teal-500) l c h / 0.15)"
+						"--cl-frame-glow": "0 0 20px oklch(0.55 0.18 180 / 0.45), 0 0 40px oklch(0.45 0.14 180 / 0.25)"
 					},
-					"requiredTokens": [],
+					"varRefs": [
+						"--radius-md"
+					],
 					"svgFilters": []
 				},
 				{
@@ -573,10 +588,13 @@
 					"id": "accent-teal",
 					"label": "Accent Teal",
 					"tokenRefs": {
-						"border": "1px solid oklch(from var(--color-teal-400) l c h / 0.45)",
-						"border-radius": "var(--radius-md)"
+						"border": "1px solid oklch(0.64 0.16 180 / 0.65)",
+						"border-radius": "var(--radius-md)",
+						"--cl-frame-glow": "0 0 20px oklch(0.55 0.18 180 / 0.40)"
 					},
-					"requiredTokens": [],
+					"varRefs": [
+						"--radius-md"
+					],
 					"svgFilters": []
 				},
 				{
@@ -584,10 +602,13 @@
 					"id": "accent-purple",
 					"label": "Accent Purple",
 					"tokenRefs": {
-						"border": "1px solid oklch(from var(--color-purple-400) l c h / 0.40)",
-						"border-radius": "var(--radius-md)"
+						"border": "1px solid oklch(0.64 0.16 280 / 0.65)",
+						"border-radius": "var(--radius-md)",
+						"--cl-frame-glow": "0 0 20px oklch(0.55 0.18 280 / 0.40)"
 					},
-					"requiredTokens": [],
+					"varRefs": [
+						"--radius-md"
+					],
 					"svgFilters": []
 				}
 			]
@@ -606,7 +627,7 @@
 					"id": "none",
 					"label": "Static",
 					"tokenRefs": {},
-					"requiredTokens": [],
+					"varRefs": [],
 					"svgFilters": []
 				},
 				{
@@ -616,7 +637,9 @@
 					"tokenRefs": {
 						"animation": "var(--animate-breathe)"
 					},
-					"requiredTokens": [],
+					"varRefs": [
+						"--animate-breathe"
+					],
 					"svgFilters": []
 				},
 				{
@@ -626,7 +649,9 @@
 					"tokenRefs": {
 						"animation": "var(--animate-shimmer)"
 					},
-					"requiredTokens": [],
+					"varRefs": [
+						"--animate-shimmer"
+					],
 					"svgFilters": []
 				},
 				{
@@ -636,7 +661,9 @@
 					"tokenRefs": {
 						"animation": "var(--animate-drift)"
 					},
-					"requiredTokens": [],
+					"varRefs": [
+						"--animate-drift"
+					],
 					"svgFilters": []
 				},
 				{
@@ -646,7 +673,9 @@
 					"tokenRefs": {
 						"animation": "var(--animate-pulse)"
 					},
-					"requiredTokens": [],
+					"varRefs": [
+						"--animate-pulse"
+					],
 					"svgFilters": []
 				},
 				{
@@ -656,7 +685,9 @@
 					"tokenRefs": {
 						"animation": "var(--animate-fade-in)"
 					},
-					"requiredTokens": [],
+					"varRefs": [
+						"--animate-fade-in"
+					],
 					"svgFilters": []
 				},
 				{
@@ -666,7 +697,9 @@
 					"tokenRefs": {
 						"animation": "var(--animate-slide-up)"
 					},
-					"requiredTokens": [],
+					"varRefs": [
+						"--animate-slide-up"
+					],
 					"svgFilters": []
 				},
 				{
@@ -676,7 +709,9 @@
 					"tokenRefs": {
 						"animation": "var(--animate-slide-down)"
 					},
-					"requiredTokens": [],
+					"varRefs": [
+						"--animate-slide-down"
+					],
 					"svgFilters": []
 				},
 				{
@@ -686,7 +721,9 @@
 					"tokenRefs": {
 						"animation": "var(--animate-scale-in)"
 					},
-					"requiredTokens": [],
+					"varRefs": [
+						"--animate-scale-in"
+					],
 					"svgFilters": []
 				}
 			]
@@ -707,7 +744,7 @@
 					"tokenRefs": {
 						"transition": "none"
 					},
-					"requiredTokens": [],
+					"varRefs": [],
 					"svgFilters": []
 				},
 				{
@@ -717,7 +754,10 @@
 					"tokenRefs": {
 						"transition": "all var(--transition-duration-snap) var(--transition-timing-function-out)"
 					},
-					"requiredTokens": [],
+					"varRefs": [
+						"--transition-duration-snap",
+						"--transition-timing-function-out"
+					],
 					"svgFilters": []
 				},
 				{
@@ -727,7 +767,10 @@
 					"tokenRefs": {
 						"transition": "all var(--transition-duration-fast) var(--transition-timing-function-out)"
 					},
-					"requiredTokens": [],
+					"varRefs": [
+						"--transition-duration-fast",
+						"--transition-timing-function-out"
+					],
 					"svgFilters": []
 				},
 				{
@@ -737,7 +780,10 @@
 					"tokenRefs": {
 						"transition": "all var(--transition-duration-normal) var(--transition-timing-function-inOut)"
 					},
-					"requiredTokens": [],
+					"varRefs": [
+						"--transition-duration-normal",
+						"--transition-timing-function-inOut"
+					],
 					"svgFilters": []
 				},
 				{
@@ -747,7 +793,10 @@
 					"tokenRefs": {
 						"transition": "all var(--transition-duration-smooth) var(--transition-timing-function-inOut)"
 					},
-					"requiredTokens": [],
+					"varRefs": [
+						"--transition-duration-smooth",
+						"--transition-timing-function-inOut"
+					],
 					"svgFilters": []
 				},
 				{
@@ -757,7 +806,10 @@
 					"tokenRefs": {
 						"transition": "all var(--transition-duration-normal) var(--transition-timing-function-spring)"
 					},
-					"requiredTokens": [],
+					"varRefs": [
+						"--transition-duration-normal",
+						"--transition-timing-function-spring"
+					],
 					"svgFilters": []
 				},
 				{
@@ -767,7 +819,10 @@
 					"tokenRefs": {
 						"transition": "all var(--transition-duration-smooth) var(--transition-timing-function-bounce)"
 					},
-					"requiredTokens": [],
+					"varRefs": [
+						"--transition-duration-smooth",
+						"--transition-timing-function-bounce"
+					],
 					"svgFilters": []
 				},
 				{
@@ -777,7 +832,10 @@
 					"tokenRefs": {
 						"transition": "opacity var(--transition-duration-fast) var(--transition-timing-function-out)"
 					},
-					"requiredTokens": [],
+					"varRefs": [
+						"--transition-duration-fast",
+						"--transition-timing-function-out"
+					],
 					"svgFilters": []
 				},
 				{
@@ -787,7 +845,10 @@
 					"tokenRefs": {
 						"transition": "transform var(--transition-duration-normal) var(--transition-timing-function-spring)"
 					},
-					"requiredTokens": [],
+					"varRefs": [
+						"--transition-duration-normal",
+						"--transition-timing-function-spring"
+					],
 					"svgFilters": []
 				},
 				{
@@ -797,7 +858,12 @@
 					"tokenRefs": {
 						"transition": "color var(--transition-duration-smooth) var(--transition-timing-function-inOut), background-color var(--transition-duration-smooth) var(--transition-timing-function-inOut)"
 					},
-					"requiredTokens": [],
+					"varRefs": [
+						"--transition-duration-smooth",
+						"--transition-timing-function-inOut",
+						"--transition-duration-smooth",
+						"--transition-timing-function-inOut"
+					],
 					"svgFilters": []
 				}
 			]
@@ -997,7 +1063,7 @@
 	"generatedFiles": [
 		{
 			"file": "generated/variants.css",
-			"bytes": 6955
+			"bytes": 7028
 		},
 		{
 			"file": "generated/typography.css",
@@ -1014,6 +1080,462 @@
 		{
 			"file": "generated/keyframes.css",
 			"bytes": 1348
+		}
+	],
+	"kindDefinitions": [
+		{
+			"kind": "button",
+			"label": "Button",
+			"engine": "coldlight",
+			"defaultPreset": "btn-primary",
+			"defaultRecipe": "button.glass.void",
+			"blockCategory": "interactions",
+			"requiredAxes": [
+				"surface",
+				"depth",
+				"transition"
+			],
+			"compound": false,
+			"container": false,
+			"containerSlots": []
+		},
+		{
+			"kind": "toggle",
+			"label": "Toggle",
+			"engine": "coldlight",
+			"defaultPreset": "toggle-default",
+			"defaultRecipe": "toggle.glass.void",
+			"blockCategory": "interactions",
+			"requiredAxes": [
+				"surface",
+				"transition"
+			],
+			"compound": false,
+			"container": false,
+			"containerSlots": []
+		},
+		{
+			"kind": "switch",
+			"label": "Switch",
+			"engine": "coldlight",
+			"defaultPreset": "switch-default",
+			"defaultRecipe": "switch.glass.void",
+			"blockCategory": "interactions",
+			"requiredAxes": [
+				"surface",
+				"transition"
+			],
+			"compound": false,
+			"container": false,
+			"containerSlots": []
+		},
+		{
+			"kind": "card",
+			"label": "Card",
+			"engine": "coldlight",
+			"defaultPreset": "card-default",
+			"defaultRecipe": "card.glass.void",
+			"blockCategory": "surfaces",
+			"requiredAxes": [
+				"surface",
+				"depth",
+				"frame"
+			],
+			"compound": true,
+			"container": true,
+			"containerSlots": [
+				"content"
+			]
+		},
+		{
+			"kind": "panel",
+			"label": "Panel",
+			"engine": "coldlight",
+			"defaultPreset": "panel-glass",
+			"defaultRecipe": "panel.glass.void",
+			"blockCategory": "surfaces",
+			"requiredAxes": [
+				"surface",
+				"depth"
+			],
+			"compound": true,
+			"container": true,
+			"containerSlots": [
+				"content"
+			]
+		},
+		{
+			"kind": "badge",
+			"label": "Badge",
+			"engine": "coldlight",
+			"defaultPreset": "badge-accent",
+			"defaultRecipe": "badge.glass.void",
+			"blockCategory": "surfaces",
+			"requiredAxes": [
+				"surface"
+			],
+			"compound": false,
+			"container": false,
+			"containerSlots": []
+		},
+		{
+			"kind": "input",
+			"label": "Input",
+			"engine": "coldlight",
+			"defaultPreset": "input-default",
+			"defaultRecipe": "input.glass.void",
+			"blockCategory": "forms",
+			"requiredAxes": [
+				"surface",
+				"frame",
+				"transition"
+			],
+			"compound": false,
+			"container": false,
+			"containerSlots": []
+		},
+		{
+			"kind": "checkbox",
+			"label": "Checkbox",
+			"engine": "coldlight",
+			"defaultPreset": "checkbox-default",
+			"defaultRecipe": "checkbox.glass.void",
+			"blockCategory": "forms",
+			"requiredAxes": [
+				"surface",
+				"transition"
+			],
+			"compound": false,
+			"container": false,
+			"containerSlots": []
+		},
+		{
+			"kind": "select",
+			"label": "Select",
+			"engine": "meltui",
+			"defaultPreset": "select-default",
+			"defaultRecipe": "select.glass.void",
+			"blockCategory": "forms",
+			"requiredAxes": [
+				"surface",
+				"frame",
+				"transition"
+			],
+			"compound": true,
+			"container": false,
+			"containerSlots": []
+		},
+		{
+			"kind": "combobox",
+			"label": "Combobox",
+			"engine": "meltui",
+			"defaultPreset": "combobox-default",
+			"defaultRecipe": "combobox.glass.void",
+			"blockCategory": "forms",
+			"requiredAxes": [
+				"surface",
+				"frame",
+				"depth",
+				"transition"
+			],
+			"compound": true,
+			"container": false,
+			"containerSlots": []
+		},
+		{
+			"kind": "slider",
+			"label": "Slider",
+			"engine": "coldlight",
+			"defaultPreset": "slider-default",
+			"defaultRecipe": "slider.glass.void",
+			"blockCategory": "forms",
+			"requiredAxes": [
+				"surface",
+				"transition"
+			],
+			"compound": false,
+			"container": false,
+			"containerSlots": []
+		},
+		{
+			"kind": "radio-group",
+			"label": "Radio Group",
+			"engine": "coldlight",
+			"defaultPreset": "radio-default",
+			"defaultRecipe": "radio-group.glass.void",
+			"blockCategory": "forms",
+			"requiredAxes": [
+				"surface",
+				"transition"
+			],
+			"compound": true,
+			"container": false,
+			"containerSlots": []
+		},
+		{
+			"kind": "dialog",
+			"label": "Dialog",
+			"engine": "meltui",
+			"defaultPreset": "dialog-default",
+			"defaultRecipe": "dialog.glass.void",
+			"blockCategory": "overlay",
+			"requiredAxes": [
+				"surface",
+				"depth",
+				"frame"
+			],
+			"compound": true,
+			"container": true,
+			"containerSlots": [
+				"content"
+			]
+		},
+		{
+			"kind": "popover",
+			"label": "Popover",
+			"engine": "meltui",
+			"defaultPreset": "popover-default",
+			"defaultRecipe": "popover.glass.void",
+			"blockCategory": "overlay",
+			"requiredAxes": [
+				"surface",
+				"depth"
+			],
+			"compound": true,
+			"container": true,
+			"containerSlots": [
+				"content"
+			]
+		},
+		{
+			"kind": "tooltip",
+			"label": "Tooltip",
+			"engine": "meltui",
+			"defaultPreset": "tooltip-default",
+			"defaultRecipe": "tooltip.glass.void",
+			"blockCategory": "overlay",
+			"requiredAxes": [
+				"surface",
+				"depth"
+			],
+			"compound": true,
+			"container": false,
+			"containerSlots": []
+		},
+		{
+			"kind": "alert",
+			"label": "Alert",
+			"engine": "coldlight",
+			"defaultPreset": "alert-default",
+			"defaultRecipe": "alert.glass.void",
+			"blockCategory": "feedback",
+			"requiredAxes": [
+				"surface",
+				"frame"
+			],
+			"compound": true,
+			"container": false,
+			"containerSlots": []
+		},
+		{
+			"kind": "banner",
+			"label": "Banner",
+			"engine": "coldlight",
+			"defaultPreset": "banner-info",
+			"defaultRecipe": "banner.glass.void",
+			"blockCategory": "feedback",
+			"requiredAxes": [
+				"surface"
+			],
+			"compound": true,
+			"container": false,
+			"containerSlots": []
+		},
+		{
+			"kind": "spinner",
+			"label": "Spinner",
+			"engine": "coldlight",
+			"defaultPreset": "spinner-default",
+			"defaultRecipe": "spinner.glass.void",
+			"blockCategory": "feedback",
+			"requiredAxes": [
+				"motion"
+			],
+			"compound": false,
+			"container": false,
+			"containerSlots": []
+		},
+		{
+			"kind": "tabs",
+			"label": "Tabs",
+			"engine": "meltui",
+			"defaultPreset": "tabs-default",
+			"defaultRecipe": "tabs.glass.void",
+			"blockCategory": "navigation",
+			"requiredAxes": [
+				"surface",
+				"transition"
+			],
+			"compound": true,
+			"container": true,
+			"containerSlots": [
+				"content"
+			]
+		},
+		{
+			"kind": "accordion",
+			"label": "Accordion",
+			"engine": "meltui",
+			"defaultPreset": "accordion-default",
+			"defaultRecipe": "accordion.glass.void",
+			"blockCategory": "navigation",
+			"requiredAxes": [
+				"surface",
+				"transition"
+			],
+			"compound": true,
+			"container": true,
+			"containerSlots": [
+				"content"
+			]
+		},
+		{
+			"kind": "breadcrumb",
+			"label": "Breadcrumb",
+			"engine": "coldlight",
+			"defaultPreset": "breadcrumb-default",
+			"defaultRecipe": "breadcrumb.glass.void",
+			"blockCategory": "navigation",
+			"requiredAxes": [
+				"surface"
+			],
+			"compound": true,
+			"container": false,
+			"containerSlots": []
+		},
+		{
+			"kind": "table",
+			"label": "Table",
+			"engine": "coldlight",
+			"defaultPreset": "table-default",
+			"defaultRecipe": "table.glass.void",
+			"blockCategory": "data",
+			"requiredAxes": [
+				"surface",
+				"frame"
+			],
+			"compound": true,
+			"container": false,
+			"containerSlots": []
+		},
+		{
+			"kind": "avatar",
+			"label": "Avatar",
+			"engine": "coldlight",
+			"defaultPreset": "avatar-default",
+			"defaultRecipe": "avatar.glass.void",
+			"blockCategory": "content",
+			"requiredAxes": [
+				"surface"
+			],
+			"compound": false,
+			"container": false,
+			"containerSlots": []
+		},
+		{
+			"kind": "kbd",
+			"label": "Keyboard Shortcut",
+			"engine": "coldlight",
+			"defaultPreset": "kbd-default",
+			"defaultRecipe": "kbd.glass.void",
+			"blockCategory": "content",
+			"requiredAxes": [
+				"surface",
+				"bevel"
+			],
+			"compound": false,
+			"container": false,
+			"containerSlots": []
+		},
+		{
+			"kind": "skeleton",
+			"label": "Skeleton",
+			"engine": "coldlight",
+			"defaultPreset": "skeleton-default",
+			"defaultRecipe": "skeleton.glass.void",
+			"blockCategory": "content",
+			"requiredAxes": [
+				"surface",
+				"motion"
+			],
+			"compound": false,
+			"container": false,
+			"containerSlots": []
+		},
+		{
+			"kind": "divider",
+			"label": "Divider",
+			"engine": "coldlight",
+			"defaultPreset": "divider-default",
+			"defaultRecipe": "divider.glass.void",
+			"blockCategory": "layout",
+			"requiredAxes": [],
+			"compound": false,
+			"container": false,
+			"containerSlots": []
+		},
+		{
+			"kind": "sidebar",
+			"label": "Sidebar",
+			"engine": "coldlight",
+			"defaultPreset": "sidebar-default",
+			"defaultRecipe": "sidebar.glass.void",
+			"blockCategory": "shell",
+			"requiredAxes": [
+				"surface",
+				"depth"
+			],
+			"compound": true,
+			"container": true,
+			"containerSlots": [
+				"content"
+			]
+		},
+		{
+			"kind": "widget",
+			"label": "Widget",
+			"engine": "coldlight",
+			"defaultPreset": "widget-stat",
+			"defaultRecipe": "widget.glass.void",
+			"blockCategory": "widgets",
+			"requiredAxes": [
+				"surface",
+				"depth",
+				"frame"
+			],
+			"compound": true,
+			"container": true,
+			"containerSlots": [
+				"content"
+			]
+		},
+		{
+			"kind": "chat-frame",
+			"label": "Chat Frame",
+			"engine": "coldlight",
+			"defaultPreset": "chat-frame",
+			"defaultRecipe": "chat-frame.glass.void",
+			"blockCategory": "chat",
+			"requiredAxes": [
+				"surface",
+				"depth",
+				"frame"
+			],
+			"compound": true,
+			"container": true,
+			"containerSlots": [
+				"content"
+			]
 		}
 	],
 	"platforms": {

@@ -14,6 +14,10 @@ export const animation = {
 	shimmer: "cl-shimmer 8s linear infinite",
 	drift: "cl-drift 8s ease-in-out infinite",
 	pulse: "cl-pulse 3s ease-in-out infinite",
+	"fade-in": "fade-in 300ms ease-out forwards",
+	"slide-up": "slide-up 300ms ease-out forwards",
+	"slide-down": "slide-down 300ms ease-out forwards",
+	"scale-in": "scale-in 250ms ease-out forwards",
 } as const;
 
 /**

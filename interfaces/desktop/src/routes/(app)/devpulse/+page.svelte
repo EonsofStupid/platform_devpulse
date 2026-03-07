@@ -3,14 +3,24 @@
   @route /devpulse
   @domain devpulse
 
-  Cyberpunk dashboard with gauges, charts, and glass panels.
-  Uses ColdLight components and Widget blocks exclusively.
+  Cyberpunk HUD dashboard with gauges, charts, and glass panels.
+  Every Widget receives visual axis props that flow through
+  useColdLight() → resolveVisual() → 8-axis v-encoding classes.
+  Matches DASHBOARD-REFERENCE-01.
 -->
 <script lang="ts">
-	import { Stack, HStack, Text, Card } from "$lib/design/index.js";
+	import { Stack, HStack, Text, Box } from "$lib/design/index.js";
 	import { Widget, RadialGauge, SparkLine } from "$lib/design/blocks/widgets/index.js";
 	import { devpulseState } from "$lib/domains/app/devpulse/index.js";
 	import { platformState } from "$lib/sys/runes/platformState.svelte.js";
+	import {
+		Gauge,
+		Activity,
+		TrendingUp,
+		BarChart3,
+		HeartPulse,
+		FolderGit2,
+	} from "lucide-svelte";
 
 	const langColors: Record<string, string> = {
 		TypeScript: "teal",
@@ -20,10 +30,10 @@
 	};
 
 	const healthColors: Record<string, string> = {
-		Healthy: "var(--color-teal-400)",
-		Degraded: "var(--color-ember-400)",
-		Down: "var(--color-ember-500)",
-		Unknown: "var(--color-neutral-400)",
+		Healthy: "var(--accent-teal-main)",
+		Degraded: "var(--accent-ember-main)",
+		Down: "var(--accent-ember-main)",
+		Unknown: "var(--text-muted)",
 	};
 </script>
 
@@ -35,7 +45,7 @@
 	<div class="flex flex-col items-center justify-center gap-2 py-12">
 		<Text size="sm" color="muted">Failed to load dashboard</Text>
 		<Text size="xs" color="muted">{devpulseState.error}</Text>
-		<button class="mt-2 rounded px-3 py-1 text-xs border border-border-subtle text-text-secondary hover:bg-surface-elevated" onclick={() => devpulseState.refresh()}>
+		<button class="mt-2 rounded px-3 py-1 text-xs border border-border-soft text-text-secondary hover:text-text-link transition-colors" onclick={() => devpulseState.refresh()}>
 			Retry
 		</button>
 	</div>
@@ -43,7 +53,17 @@
 <div class="grid grid-cols-12 gap-4" data-page="devpulse-dashboard">
 	<!-- Row 1: Gauges + Stats -->
 	<div class="col-span-4">
-		<Widget title="Maestro Control">
+		<Widget
+			title="Maestro Control"
+			icon={Gauge}
+			preset="widget-gauge"
+			surface="glass-deep"
+			depth="z2"
+			bevel="soft"
+			glow="teal"
+			frame="accent-teal"
+			radius="lg"
+		>
 			<div class="flex items-center justify-center py-4">
 				<RadialGauge
 					value={devpulseState.data.system.maestroLoad.value}
@@ -58,7 +78,17 @@
 	</div>
 
 	<div class="col-span-4">
-		<Widget title="System Overview">
+		<Widget
+			title="System Overview"
+			icon={Activity}
+			preset="widget-stat"
+			surface="glass-deep"
+			depth="z2"
+			bevel="subtle"
+			glow="purple"
+			frame="soft"
+			radius="lg"
+		>
 			<div class="flex items-center justify-center gap-6 py-2">
 				<RadialGauge
 					value={devpulseState.data.system.contextLoad.value}
@@ -83,27 +113,42 @@
 	</div>
 
 	<div class="col-span-4">
-		<Widget title="Developer Stats">
+		<Widget
+			title="Developer Stats"
+			icon={TrendingUp}
+			preset="widget-stat"
+			surface="glass-deep"
+			depth="z1"
+			bevel="subtle"
+			frame="soft"
+			radius="lg"
+		>
 			<Stack gap="3">
 				<HStack justify="between" align="baseline">
 					<Stack gap="1">
 						<Text size="xs" color="muted">Projects</Text>
-						<span class="text-xl font-bold tabular-nums" style="font-family: var(--font-display); color: var(--color-teal-400); text-shadow: var(--text-glow-sm) var(--accent-teal-glow);">{devpulseState.data.user.totalProjects}</span>
+						<span class="text-xl font-bold tabular-nums font-display text-text-link drop-shadow-[0_0_8px_var(--accent-teal-glow)]">{devpulseState.data.user.totalProjects}</span>
 					</Stack>
 					<Stack gap="1">
 						<Text size="xs" color="muted">Commits</Text>
-						<span class="text-xl font-bold tabular-nums" style="font-family: var(--font-display); color: var(--color-teal-300); text-shadow: var(--text-glow-sm) var(--accent-teal-glow);">{devpulseState.data.user.totalCommits}</span>
+						<span class="text-xl font-bold tabular-nums font-display text-text-link drop-shadow-[0_0_8px_var(--accent-teal-glow)]">{devpulseState.data.user.totalCommits}</span>
 					</Stack>
 					<Stack gap="1">
 						<Text size="xs" color="muted">Branches</Text>
-						<span class="text-xl font-bold tabular-nums" style="font-family: var(--font-display); color: var(--color-teal-300); text-shadow: var(--text-glow-sm) var(--accent-teal-glow);">{devpulseState.data.user.activeBranches}</span>
+						<span class="text-xl font-bold tabular-nums font-display text-text-link drop-shadow-[0_0_8px_var(--accent-teal-glow)]">{devpulseState.data.user.activeBranches}</span>
 					</Stack>
 				</HStack>
-				<div class="flex items-center gap-2 rounded-md px-3 py-2 v-s1 border border-border-subtle">
-					<span class="inline-block h-2 w-2 rounded-full animate-pulse" style="background: var(--color-teal-400); box-shadow: 0 0 8px var(--color-teal-400);"></span>
+				<Box
+					surface="glass-void"
+					bevel="subtle"
+					frame="soft"
+					radius="md"
+					class="flex items-center gap-2 px-3 py-2"
+				>
+					<span class="inline-block h-2 w-2 rounded-full animate-pulse bg-teal-400 shadow-[0_0_8px_var(--accent-teal-glow)]"></span>
 					<Text size="sm" weight="semibold">{devpulseState.data.user.streak}d streak</Text>
 					<Text size="xs" color="muted">· {devpulseState.data.user.lastActivity}</Text>
-				</div>
+				</Box>
 			</Stack>
 		</Widget>
 	</div>
@@ -112,6 +157,14 @@
 	<div class="col-span-8">
 		<Widget
 			title="Activity Timeline"
+			icon={BarChart3}
+			preset="widget-chart"
+			surface="glass-deep"
+			depth="z2"
+			bevel="soft"
+			glow="teal"
+			frame="accent-teal"
+			radius="lg"
 			tabs={[
 				{ id: "activity", label: "Activity" },
 				{ id: "commits", label: "Commits" },
@@ -154,11 +207,26 @@
 	</div>
 
 	<div class="col-span-4">
-		<Widget title="Store Health">
+		<Widget
+			title="Store Health"
+			icon={HeartPulse}
+			preset="widget-stat"
+			surface="glass-deep"
+			depth="z1"
+			bevel="subtle"
+			frame="soft"
+			radius="lg"
+		>
 			<Stack gap="3">
 				{#if platformState.health}
 					{#each platformState.health.subsystems as sub}
-						<HStack justify="between" align="center" class="rounded-md px-3 py-2 v-s1 border border-border-subtle">
+						<Box
+							surface="glass-void"
+							bevel="subtle"
+							frame="soft"
+							radius="md"
+							class="flex items-center justify-between px-3 py-2"
+						>
 							<Stack gap="0">
 								<Text size="sm" weight="semibold">{sub.name}</Text>
 								{#if sub.latency_ms != null}
@@ -171,11 +239,11 @@
 							>
 								<span
 									class="inline-block h-1.5 w-1.5 rounded-full"
-									style="background: {healthColors[sub.status] ?? 'var(--text-muted)'};"
+									style="background: {healthColors[sub.status] ?? 'var(--text-muted)'}; box-shadow: 0 0 6px {healthColors[sub.status] ?? 'transparent'};"
 								></span>
 								{sub.status}
 							</span>
-						</HStack>
+						</Box>
 					{/each}
 					<HStack justify="between" class="px-1">
 						<Text size="xs" color="muted">Uptime</Text>
@@ -192,6 +260,13 @@
 	<div class="col-span-12">
 		<Widget
 			title="Recent Projects"
+			icon={FolderGit2}
+			preset="widget-table"
+			surface="glass-deep"
+			depth="z1"
+			bevel="subtle"
+			frame="soft"
+			radius="lg"
 			tabs={[
 				{ id: "all", label: "All" },
 				{ id: "active", label: "Active" },
@@ -202,24 +277,30 @@
 			<div class="grid grid-cols-4 gap-3">
 				{#each devpulseState.recentProjects as project (project.id)}
 					{@const accentName = langColors[project.language] ?? "teal"}
-					<Card variant="outlined" size="sm">
-						<Stack gap="2" class="p-1">
+					<Box
+						surface="glass-void"
+						bevel="subtle"
+						frame="soft"
+						radius="md"
+						class="p-3"
+					>
+						<Stack gap="2">
 							<HStack gap="2" align="center">
 								<span
 									class="inline-block h-2.5 w-2.5 rounded-full"
-									style="background: var(--color-{accentName}-400); box-shadow: 0 0 6px var(--color-{accentName}-400);"
+									style="background: var(--accent-{accentName}-main); box-shadow: 0 0 8px var(--accent-{accentName}-glow);"
 								></span>
 								<Text weight="semibold" size="sm">{project.name}</Text>
 							</HStack>
 							<HStack justify="between">
 								<Text size="xs" color="muted">{project.language}</Text>
-								<span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs v-s1 border border-border-subtle" style="color: var(--text-secondary);">
+								<span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs border border-border-subtle text-text-secondary">
 									{project.branch}
 								</span>
 							</HStack>
 							<Text size="xs" color="muted">{project.lastModified}</Text>
 						</Stack>
-					</Card>
+					</Box>
 				{/each}
 			</div>
 		</Widget>

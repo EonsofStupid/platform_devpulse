@@ -39,14 +39,17 @@ Composable: `v-s1 v-d2 v-t2`
 
 ---
 
-## Layer Stack (LOCKED — 4 layers)
+## Layer Stack (LOCKED — 3 layers)
 
 | Layer | What | Location |
 |-------|------|----------|
-| Primitives | Structureless shells. Zero ARIA. data-kind + data-slot + HTML + ...rest | `primitives/{kind}/` |
-| Components | Primitive + Builder = ARIA-complete. ZERO visual style. | `components/{kind}/` |
-| Recipes | Styling patterns. registerRecipe() + DsSurfaceProps + getRecipe() | `recipes/components/{kind}/` |
-| UI | Component + Recipe = Styled. What users import. | `ui/{kind}/` |
+| Primitives | CONFIGURATION ONLY. Contract + structural shell. Declares what a kind IS. Never imported by users. | `primitives/{kind}/` |
+| Recipes | Styling patterns. registerRecipe() + DsSurfaceProps + getRecipe(). | `recipes/components/{kind}/` |
+| Components | THE PRODUCT. ARIA + recipe styling. What users import. | `components/{kind}/` |
+
+**There is NO `ui/` layer.** Components ARE the styled, final product.
+They integrate ARIA (from dsAdapter) + recipe styling (via preset/surface/glow/frame props).
+This matches every major design system (shadcn, Chakra, MUI, Mantine).
 
 ---
 
@@ -104,4 +107,4 @@ pnpm coldlight:generate  # Scanner → manifest
 - Raw HTML when a ColdLight primitive exists
 - `any` types
 - jsdom testing
-- References to deleted concepts: taxonomy/, catalog/, semantics/, molecules/, shortcodes/
+- References to deleted concepts: taxonomy/, catalog/, semantics/, molecules/, shortcodes/, ui/

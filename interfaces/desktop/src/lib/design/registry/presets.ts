@@ -912,6 +912,239 @@ register({
 	},
 });
 
+// ── Switch ──────────────────────────────────────────────────
+
+register({
+	id: "switch-default",
+	kind: "switch",
+	label: "Default Switch",
+	description: "Glass void with soft frame and fast transition — toggle switch",
+	isSystem: true,
+	values: {
+		surface: "glass-void",
+		frame: "soft",
+		transition: "fast",
+	},
+});
+
+// ── Checkbox ────────────────────────────────────────────────
+
+register({
+	id: "checkbox-default",
+	kind: "checkbox",
+	label: "Default Checkbox",
+	description: "Glass void with soft frame — checkbox control",
+	isSystem: true,
+	values: {
+		surface: "glass-void",
+		frame: "soft",
+		transition: "fast",
+	},
+});
+
+// ── Select ──────────────────────────────────────────────────
+
+register({
+	id: "select-default",
+	kind: "select",
+	label: "Default Select",
+	description: "Glass void with soft frame — dropdown select",
+	isSystem: true,
+	values: {
+		surface: "glass-void",
+		frame: "soft",
+		transition: "fast",
+	},
+});
+
+// ── Combobox ────────────────────────────────────────────────
+
+register({
+	id: "combobox-default",
+	kind: "combobox",
+	label: "Default Combobox",
+	description: "Glass void with soft frame and depth — searchable dropdown",
+	isSystem: true,
+	values: {
+		surface: "glass-void",
+		frame: "soft",
+		depth: "z2",
+		transition: "fast",
+	},
+});
+
+// ── Slider ──────────────────────────────────────────────────
+
+register({
+	id: "slider-default",
+	kind: "slider",
+	label: "Default Slider",
+	description: "Glass void with fast transition — range slider",
+	isSystem: true,
+	values: {
+		surface: "glass-void",
+		transition: "fast",
+	},
+});
+
+// ── Radio Group ─────────────────────────────────────────────
+
+register({
+	id: "radio-default",
+	kind: "radio-group",
+	label: "Default Radio Group",
+	description: "Glass void with soft frame — radio button group",
+	isSystem: true,
+	values: {
+		surface: "glass-void",
+		frame: "soft",
+		transition: "fast",
+	},
+});
+
+// ── Dialog ──────────────────────────────────────────────────
+
+register({
+	id: "dialog-default",
+	kind: "dialog",
+	label: "Default Dialog",
+	description: "Frost glass floating high — standard dialog",
+	isSystem: true,
+	values: {
+		surface: "glass-frost",
+		depth: "z4",
+		bevel: "soft",
+		frame: "soft",
+		transition: "smooth",
+	},
+});
+
+// ── Popover ─────────────────────────────────────────────────
+
+register({
+	id: "popover-default",
+	kind: "popover",
+	label: "Default Popover",
+	description: "Glass smoke with elevation — floating popover",
+	isSystem: true,
+	values: {
+		surface: "glass-smoke",
+		depth: "z3",
+		frame: "soft",
+	},
+});
+
+// ── Tooltip ─────────────────────────────────────────────────
+
+register({
+	id: "tooltip-default",
+	kind: "tooltip",
+	label: "Default Tooltip",
+	description: "Matte dark with depth — informational tooltip",
+	isSystem: true,
+	values: {
+		surface: "matte-dark",
+		depth: "z3",
+	},
+});
+
+// ── Alert ───────────────────────────────────────────────────
+
+register({
+	id: "alert-default",
+	kind: "alert",
+	label: "Default Alert",
+	description: "Glass void with soft frame — alert message",
+	isSystem: true,
+	values: {
+		surface: "glass-void",
+		frame: "soft",
+	},
+});
+
+// ── Tabs ────────────────────────────────────────────────────
+
+register({
+	id: "tabs-default",
+	kind: "tabs",
+	label: "Default Tabs",
+	description: "Glass void with fast transition — tab navigation",
+	isSystem: true,
+	values: {
+		surface: "glass-void",
+		transition: "fast",
+	},
+});
+
+// ── Accordion ───────────────────────────────────────────────
+
+register({
+	id: "accordion-default",
+	kind: "accordion",
+	label: "Default Accordion",
+	description: "Glass void with fast transition — collapsible sections",
+	isSystem: true,
+	values: {
+		surface: "glass-void",
+		transition: "fast",
+	},
+});
+
+// ── Breadcrumb ──────────────────────────────────────────────
+
+register({
+	id: "breadcrumb-default",
+	kind: "breadcrumb",
+	label: "Default Breadcrumb",
+	description: "Transparent — navigation breadcrumb trail",
+	isSystem: true,
+	values: {
+		surface: "transparent",
+	},
+});
+
+// ── Table ───────────────────────────────────────────────────
+
+register({
+	id: "table-default",
+	kind: "table",
+	label: "Default Table",
+	description: "Glass void with hard frame — data table",
+	isSystem: true,
+	values: {
+		surface: "glass-void",
+		frame: "hard",
+	},
+});
+
+// ── Avatar ──────────────────────────────────────────────────
+
+register({
+	id: "avatar-default",
+	kind: "avatar",
+	label: "Default Avatar",
+	description: "Glass smoke — user avatar",
+	isSystem: true,
+	values: {
+		surface: "glass-smoke",
+	},
+});
+
+// ── Sidebar ─────────────────────────────────────────────────
+
+register({
+	id: "sidebar-default",
+	kind: "sidebar",
+	label: "Default Sidebar",
+	description: "Glass void with soft frame and depth — sidebar panel",
+	isSystem: true,
+	values: {
+		surface: "glass-void",
+		depth: "z1",
+		frame: "soft",
+	},
+});
+
 // ═══════════════════════════════════════════════════════════════
 // PUBLIC API
 // ═══════════════════════════════════════════════════════════════

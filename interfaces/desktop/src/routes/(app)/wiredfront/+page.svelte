@@ -2,27 +2,188 @@
   @file WiredFront Dashboard
   @route /wiredfront
   @domain wiredfront
+  Hub: Screenshots, Video Editor, Audio Editor, Image Editor, Streaming, Notes, Voice
 -->
 <script lang="ts">
-	import { Grid, Stack, HStack, Text } from "$lib/design/index.js";
+	import { Stack, HStack, Text, Badge } from "$lib/design/index.js";
 	import { Widget } from "$lib/design/blocks/widgets/index.js";
+	import {
+		Camera,
+		Video,
+		AudioLines,
+		ImagePlus,
+		Radio,
+		StickyNote,
+		Mic,
+		HardDrive,
+	} from "lucide-svelte";
 </script>
 
-<Grid columns="2" gap="4" class="box-lg" data-page="wiredfront-dashboard">
-	<Widget title="Media Library" tabs={[{id: "images", label: "Images"}, {id: "videos", label: "Videos"}, {id: "audio", label: "Audio"}]} activeTab="images">
-		<Text as="p" size="sm" color="muted">Media assets will be displayed here.</Text>
-	</Widget>
+<div class="grid grid-cols-12 gap-4" data-page="wiredfront-dashboard">
+	<!-- Row 1: Storage + Screenshots -->
+	<div class="col-span-4">
+		<Widget
+			title="Storage"
+			icon={HardDrive}
+			surface="glass-deep"
+			depth="z2"
+			bevel="subtle"
+			glow="teal"
+			frame="accent-teal"
+			radius="lg"
+		>
+			<Stack gap="2">
+				<HStack justify="between">
+					<Text color="secondary">Total Files</Text>
+					<Text>0</Text>
+				</HStack>
+				<HStack justify="between">
+					<Text color="secondary">Storage Used</Text>
+					<Text>0 MB</Text>
+				</HStack>
+				<HStack justify="between">
+					<Text color="secondary">Captures Today</Text>
+					<Text>0</Text>
+				</HStack>
+			</Stack>
+		</Widget>
+	</div>
 
-	<Widget title="Uploads">
-		<Stack gap="2">
-			<HStack justify="between">
-				<Text color="secondary">Total Files</Text>
-				<Text>0</Text>
-			</HStack>
-			<HStack justify="between">
-				<Text color="secondary">Storage Used</Text>
-				<Text>0 MB</Text>
-			</HStack>
-		</Stack>
-	</Widget>
-</Grid>
+	<div class="col-span-8">
+		<Widget
+			title="Screenshots"
+			icon={Camera}
+			surface="glass-deep"
+			depth="z2"
+			bevel="soft"
+			glow="purple"
+			frame="soft"
+			radius="lg"
+			tabs={[
+				{ id: "recent", label: "Recent" },
+				{ id: "annotated", label: "Annotated" },
+				{ id: "collections", label: "Collections" },
+			]}
+			activeTab="recent"
+		>
+			<Text as="p" size="sm" color="muted">Screen capture tool with annotation, OCR, and smart cropping.</Text>
+		</Widget>
+	</div>
+
+	<!-- Row 2: Video + Audio -->
+	<div class="col-span-6">
+		<Widget
+			title="Video Editor"
+			icon={Video}
+			surface="glass-deep"
+			depth="z1"
+			bevel="subtle"
+			frame="soft"
+			radius="lg"
+			tabs={[
+				{ id: "projects", label: "Projects" },
+				{ id: "exports", label: "Exports" },
+			]}
+			activeTab="projects"
+		>
+			<Text as="p" size="sm" color="muted">Edit video files, trim clips, add overlays and transitions.</Text>
+		</Widget>
+	</div>
+
+	<div class="col-span-6">
+		<Widget
+			title="Audio Editor"
+			icon={AudioLines}
+			surface="glass-deep"
+			depth="z1"
+			bevel="subtle"
+			frame="soft"
+			radius="lg"
+		>
+			<Text as="p" size="sm" color="muted">Audio editing, noise reduction, format conversion, and waveform visualization.</Text>
+		</Widget>
+	</div>
+
+	<!-- Row 3: Image + Streaming -->
+	<div class="col-span-6">
+		<Widget
+			title="Image Editor"
+			icon={ImagePlus}
+			surface="glass-deep"
+			depth="z1"
+			bevel="subtle"
+			frame="soft"
+			radius="lg"
+		>
+			<Text as="p" size="sm" color="muted">Resize, crop, filter, and batch-process images for web and social.</Text>
+		</Widget>
+	</div>
+
+	<div class="col-span-6">
+		<Widget
+			title="Streaming"
+			icon={Radio}
+			surface="glass-deep"
+			depth="z1"
+			bevel="subtle"
+			glow="ember"
+			frame="soft"
+			radius="lg"
+			tabs={[
+				{ id: "twitch", label: "Twitch" },
+				{ id: "youtube", label: "YouTube" },
+				{ id: "angryvibers", label: "AngryVibers" },
+			]}
+			activeTab="twitch"
+		>
+			<Stack gap="2">
+				<HStack justify="between">
+					<Text color="secondary">Status</Text>
+					<Badge intent="default" size="sm">Offline</Badge>
+				</HStack>
+				<HStack justify="between">
+					<Text color="secondary">Viewers</Text>
+					<Text color="muted">--</Text>
+				</HStack>
+			</Stack>
+		</Widget>
+	</div>
+
+	<!-- Row 4: Notes + Voice -->
+	<div class="col-span-6">
+		<Widget
+			title="Notes"
+			icon={StickyNote}
+			surface="glass-deep"
+			depth="z1"
+			bevel="subtle"
+			frame="soft"
+			radius="lg"
+		>
+			<Text as="p" size="sm" color="muted">Quick notes, markdown support, project-linked documentation.</Text>
+		</Widget>
+	</div>
+
+	<div class="col-span-6">
+		<Widget
+			title="Voice"
+			icon={Mic}
+			surface="glass-deep"
+			depth="z1"
+			bevel="subtle"
+			frame="soft"
+			radius="lg"
+		>
+			<Stack gap="2">
+				<HStack justify="between">
+					<Text color="secondary">Recordings</Text>
+					<Text>0</Text>
+				</HStack>
+				<HStack justify="between">
+					<Text color="secondary">Transcriptions</Text>
+					<Text>0</Text>
+				</HStack>
+			</Stack>
+		</Widget>
+	</div>
+</div>

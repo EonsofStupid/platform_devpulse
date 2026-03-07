@@ -30,6 +30,7 @@ import WidgetFooter from "./WidgetFooter.svelte";
 
 let {
 	title,
+	icon,
 	size = "md",
 	recipe: recipeId = "widget.glass.void",
 	tabs,
@@ -89,9 +90,10 @@ const rootClasses = $derived(
 	data-encoding={visual.encoding || undefined}
 	class={rootClasses}
 >
-	{#if title || actions}
+	{#if title || icon || actions}
 		<WidgetHeader
 			{title}
+			{icon}
 			class={slots.header}
 			titleClass={slots.title}
 			actionsClass={slots.actions}

@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  */
 
-import type { Snippet } from "svelte";
+import type { Snippet, Component } from "svelte";
 import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 export type WidgetSize = "sm" | "md" | "lg";
@@ -18,6 +18,8 @@ export interface WidgetTab {
 export interface WidgetProps extends ColdLightProps {
 	/** Widget title displayed in header. */
 	title?: string;
+	/** Lucide icon component rendered before the title. */
+	icon?: Component<Record<string, unknown>>;
 	/** Recipe ID override. @default "widget.glass.void" */
 	recipe?: string;
 	/** Tab definitions for chrome-style tab bar. */
@@ -39,6 +41,8 @@ export interface WidgetProps extends ColdLightProps {
 export interface WidgetHeaderProps {
 	/** Widget title text. */
 	title?: string;
+	/** Lucide icon component rendered before the title. */
+	icon?: Component<Record<string, unknown>>;
 	/** Class string from recipe. */
 	class?: string;
 	/** Title class from recipe. */

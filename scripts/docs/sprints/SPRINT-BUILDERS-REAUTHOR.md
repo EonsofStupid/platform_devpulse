@@ -230,7 +230,7 @@ For 5 representative builders, verify return types are exact (not Record):
 2. **Component layer re-authoring** — separate sprint after builders are solid
 3. **New builders for adapter-backed kinds** (dialog, accordion, etc.) — these use MeltUI adapter, no ColdLight builder needed
 4. **BaseOverlay pattern** — future sprint for sheet/notification-center inheritance
-5. **UI layer** (styled components) — Phase 6 in master plan
+5. **[DELETED — no ui/ layer. Components ARE the styled final product]** (styled components) — Phase 6 in master plan
 
 ---
 

@@ -91,7 +91,17 @@
       "Read(//c/Users/jessa/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-0.23.36/**)",
       "Read(//c/Users/jessa/.cargo/registry/src/**)",
       "WebSearch",
-      "WebFetch(domain:crates.io)"
+      "WebFetch(domain:crates.io)",
+      "Read(//mnt/c/Users/jessa/.claude/**)",
+      "Read(//d/mnt/c/Users/jessa/.claude/**)",
+      "Read(//mnt/d/localdev/platform_devpulse/**)",
+      "Read(//d/mnt/d/localdev/platform_devpulse/**)",
+      "Read(//mnt/d/localdev/platform_devpulse/.vscode/**)",
+      "Read(//d/mnt/d/localdev/platform_devpulse/.vscode/**)",
+      "Read(//mnt/d/localdev/platform_devpulse/scripts/surrealdb/**)",
+      "Read(//d/mnt/d/localdev/platform_devpulse/scripts/surrealdb/**)",
+      "Skill(parkinglot)",
+      "Skill(parkinglot:*)"
     ],
     "additionalDirectories": [
       "C:\\Users\\jessa\\.claude\\plans"

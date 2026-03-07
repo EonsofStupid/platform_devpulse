@@ -28,7 +28,6 @@ export const CategoryValueSchema = z.object({
 	label: z.string(),
 	/** CSS-ready key:value pairs. Keys = CSS properties. Values = CSS values. */
 	tokenRefs: z.record(z.string(), z.string()),
-	requiredTokens: z.array(z.string()).optional(),
 	svgFilters: z.array(z.string()).optional(),
 });
 
@@ -85,8 +84,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 						"blur(var(--blur-lg)) saturate(1.5)",
 					border: "1px solid oklch(from var(--color-teal-700) l c h / 0.22)",
 				},
-				requiredTokens: ["glass.void", "blur.lg"],
-			},
+				},
 			{
 				index: 2,
 				id: "glass-deep",
@@ -97,7 +95,6 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 						"blur(var(--blur-lg)) saturate(1.3)",
 					border: "1px solid oklch(from var(--color-teal-600) l c h / 0.18)",
 				},
-				requiredTokens: ["glass.deep", "blur.lg"],
 			},
 			{
 				index: 3,
@@ -108,7 +105,6 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 					"backdrop-filter":
 						"blur(var(--blur-xl)) saturate(1.2)",
 				},
-				requiredTokens: ["glass.smoke", "blur.xl"],
 			},
 			{
 				index: 4,
@@ -120,7 +116,6 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 						"blur(var(--blur-2xl)) saturate(1.1)",
 					border: "1px solid oklch(1 0 0 / 0.12)",
 				},
-				requiredTokens: ["glass.frost", "blur.2xl"],
 			},
 			{
 				index: 5,
@@ -129,7 +124,6 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				tokenRefs: {
 					background: "var(--matte-dark)",
 				},
-				requiredTokens: ["matte.dark"],
 			},
 			{
 				index: 6,
@@ -138,7 +132,6 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				tokenRefs: {
 					background: "var(--color-teal-500)",
 				},
-				requiredTokens: ["color.teal.500"],
 			},
 			{
 				index: 7,
@@ -148,7 +141,6 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 					background:
 						"linear-gradient(135deg, var(--color-void-900), var(--color-void-base))",
 				},
-				requiredTokens: ["color.void.900", "color.void.base"],
 			},
 			{
 				index: 8,
@@ -160,7 +152,6 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 						"blur(var(--blur-lg)) saturate(1.4)",
 					border: "1px solid oklch(from var(--color-teal-500) l c h / 0.35)",
 				},
-				requiredTokens: ["glass.teal", "blur.lg"],
 			},
 			{
 				index: 9,
@@ -172,7 +163,6 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 						"blur(var(--blur-lg)) saturate(1.3)",
 					border: "1px solid oklch(from var(--color-purple-500) l c h / 0.30)",
 				},
-				requiredTokens: ["glass.purple", "blur.lg"],
 			},
 		],
 	},
@@ -306,28 +296,24 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "z1",
 				label: "Z1 — Subtle",
 				tokenRefs: { "box-shadow": "var(--shadow-z1)" },
-				requiredTokens: ["shadow.z1"],
 			},
 			{
 				index: 2,
 				id: "z2",
 				label: "Z2 — Elevated",
 				tokenRefs: { "box-shadow": "var(--shadow-z2)" },
-				requiredTokens: ["shadow.z2"],
 			},
 			{
 				index: 3,
 				id: "z3",
 				label: "Z3 — Floating",
 				tokenRefs: { "box-shadow": "var(--shadow-z3)" },
-				requiredTokens: ["shadow.z3"],
 			},
 			{
 				index: 4,
 				id: "z4",
 				label: "Z4 — Maximum",
 				tokenRefs: { "box-shadow": "var(--shadow-z4)" },
-				requiredTokens: ["shadow.z4"],
 			},
 		],
 	},
@@ -403,7 +389,6 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				tokenRefs: {
 					"box-shadow": "var(--shadow-glow-teal)",
 				},
-				requiredTokens: ["glow.teal"],
 			},
 			{
 				index: 2,
@@ -412,7 +397,6 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				tokenRefs: {
 					"box-shadow": "var(--shadow-glow-purple)",
 				},
-				requiredTokens: ["glow.purple"],
 			},
 			{
 				index: 3,
@@ -421,7 +405,6 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				tokenRefs: {
 					"box-shadow": "var(--shadow-glow-ember)",
 				},
-				requiredTokens: ["glow.ember"],
 			},
 			{
 				index: 4,
@@ -430,7 +413,6 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				tokenRefs: {
 					"box-shadow": "var(--shadow-glow-magenta)",
 				},
-				requiredTokens: ["glow.magenta"],
 			},
 			{
 				index: 5,
@@ -439,7 +421,6 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				tokenRefs: {
 					"box-shadow": "var(--shadow-glow-frost)",
 				},
-				requiredTokens: ["glow.frost"],
 			},
 			{
 				index: 6,
@@ -448,7 +429,6 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				tokenRefs: {
 					"box-shadow": "var(--shadow-glow-cyber)",
 				},
-				requiredTokens: ["glow.cyber"],
 			},
 		],
 	},
@@ -474,7 +454,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "soft",
 				label: "Soft",
 				tokenRefs: {
-					border: "1px solid oklch(1 0 0 / 0.06)",
+					border: "1px solid oklch(1 0 0 / 0.25)",
 					"border-radius": "var(--radius-md)",
 				},
 			},
@@ -483,7 +463,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "hard",
 				label: "Hard",
 				tokenRefs: {
-					border: "1px solid oklch(1 0 0 / 0.15)",
+					border: "1px solid oklch(1 0 0 / 0.40)",
 					"border-radius": "var(--radius-sm)",
 				},
 			},
@@ -492,7 +472,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "crisp",
 				label: "Crisp",
 				tokenRefs: {
-					border: "1px solid oklch(1 0 0 / 0.25)",
+					border: "1px solid oklch(1 0 0 / 0.45)",
 					"border-radius": "var(--radius-xs)",
 				},
 			},
@@ -501,10 +481,10 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "glow",
 				label: "Glow Border",
 				tokenRefs: {
-					border: "1px solid oklch(from var(--color-teal-500) l c h / 0.4)",
+					border: "1px solid oklch(0.60 0.18 180 / 0.7)",
 					"border-radius": "var(--radius-md)",
-					"box-shadow":
-						"0 0 8px oklch(from var(--color-teal-500) l c h / 0.15)",
+					"--cl-frame-glow":
+						"0 0 20px oklch(0.55 0.18 180 / 0.45), 0 0 40px oklch(0.45 0.14 180 / 0.25)",
 				},
 			},
 			{
@@ -512,8 +492,10 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "accent-teal",
 				label: "Accent Teal",
 				tokenRefs: {
-					border: "1px solid oklch(from var(--color-teal-400) l c h / 0.45)",
+					border: "1px solid oklch(0.64 0.16 180 / 0.65)",
 					"border-radius": "var(--radius-md)",
+					"--cl-frame-glow":
+						"0 0 20px oklch(0.55 0.18 180 / 0.40)",
 				},
 			},
 			{
@@ -521,8 +503,10 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "accent-purple",
 				label: "Accent Purple",
 				tokenRefs: {
-					border: "1px solid oklch(from var(--color-purple-400) l c h / 0.40)",
+					border: "1px solid oklch(0.64 0.16 280 / 0.65)",
 					"border-radius": "var(--radius-md)",
+					"--cl-frame-glow":
+						"0 0 20px oklch(0.55 0.18 280 / 0.40)",
 				},
 			},
 		],

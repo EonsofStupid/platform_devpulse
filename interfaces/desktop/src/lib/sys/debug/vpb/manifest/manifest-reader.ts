@@ -47,7 +47,7 @@ export interface UnifiedManifest {
 				readonly id: string;
 				readonly label: string;
 				readonly tokenRefs: Record<string, string>;
-				readonly requiredTokens: readonly string[];
+				readonly varRefs?: readonly string[];
 				readonly svgFilters: readonly string[];
 			}[];
 		}[];

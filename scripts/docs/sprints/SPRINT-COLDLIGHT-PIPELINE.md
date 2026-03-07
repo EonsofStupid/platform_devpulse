@@ -4,7 +4,7 @@
 > **Date**: 2026-03-02
 > **Research**: `SPRINT-COLDLIGHT-PIPELINE.research.md`
 > **Depends On**: Existing token-categories.ts (SSOT), scanner.ts, contracts
-> **Blocks**: Component layer fix, UI layer, VPB integration, dev tool manifest consumption
+> **Blocks**: Component layer fix, [DELETED — no ui/ layer. Components ARE the styled final product], VPB integration, dev tool manifest consumption
 
 ---
 
@@ -275,7 +275,7 @@ Apply preset "btn-primary" to a button. Inspect DOM:
 ## What This Sprint Does NOT Cover
 
 1. **Component layer fix** — Stripping visual from components/ → separate sprint (DSADAPTER-ALIGNMENT)
-2. **UI layer creation** — Creating ui/ wrappers → separate sprint
+2. **[DELETED — no ui/ layer. Components ARE the styled final product] creation** — Creating ui/ wrappers → separate sprint
 3. **VPB integration** — VPB consuming manifest → separate sprint
 4. **New builders** — Existing 60+ are correct
 5. **New primitives** — Existing 87+ are correct

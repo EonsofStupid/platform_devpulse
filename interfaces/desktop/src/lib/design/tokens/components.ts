@@ -195,6 +195,8 @@ export const components = {
 	// ── Shell ────────────────────────────────────────────────────────────────
 	"app-shell": {
 		bg: "var(--surface-primary)",
+		"bg-start": "var(--color-void-950)",
+		"bg-end": "var(--color-obsidian-950)",
 		"frame-border": "var(--border-soft)",
 		"frame-bevel": "var(--depth-panel)",
 	},
@@ -211,6 +213,8 @@ export const components = {
 	// ── Chat ─────────────────────────────────────────────────────────────────
 	"chat-frame": {
 		bg: "var(--surface-overlay)",
+		"bg-start": "var(--color-void-950)",
+		"bg-end": "var(--color-obsidian-950)",
 		border: "var(--border-soft)",
 		"idle-opacity": "0.35",
 		"engaged-opacity": "1",
@@ -257,6 +261,9 @@ export const components = {
 		border: "var(--border-soft)",
 		"header-bg": "var(--surface-elevated)",
 		"header-border": "var(--border-subtle)",
+		"title-color": "var(--text-link)",
+		"tab-hover": "var(--text-link)",
+		divider: "var(--border-subtle)",
 	},
 	gauge: {
 		bg: "var(--surface-primary)",

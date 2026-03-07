@@ -64,7 +64,7 @@ The encoding `v-s1`, `v-d2`, etc. produces class names that reference nonexisten
 ### Gap 3: Components Have Visual Concerns in Wrong Layer
 Per locked architecture (2026-02-21): components/ = ARIA + state, ZERO visual. ui/ = styled.
 Currently components/ has useColdLight(), ColdLightProps, recipes, data-encoding.
-ui/ layer does not exist.
+ui/ layer DOES NOT EXIST and is NOT needed. Components ARE the styled product.
 **Impact**: Layer violation. Users can't import components without visual. Components aren't reusable.
 
 ### Gap 4: No data-variant Attribute
@@ -158,7 +158,7 @@ Pattern: `cl-{kind}-{counter}` with per-slot derivation: `cl-button-42`, `cl-but
 Use `crypto.randomUUID().slice(0, 8)` or structured counter.
 
 ### P4: Fix Component Layer
-Strip visual from components/, create ui/ layer.
+[DELETED — components/ integrates ARIA + recipe styling. No ui/ layer needed.]
 (Already planned in SPRINT-DSADAPTER-ALIGNMENT)
 
 ### P5: Wire Scanner to Build

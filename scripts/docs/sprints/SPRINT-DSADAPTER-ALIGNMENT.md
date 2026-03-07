@@ -4,7 +4,7 @@
 > **Date**: 2026-03-02
 > **Research**: `SPRINT-DSADAPTER-ALIGNMENT.research.md`
 > **Depends On**: Existing builders (55, correct), existing primitives (87, correct)
-> **Blocks**: UI layer, VPB integration, correct component API
+> **Blocks**: [DELETED — no ui/ layer. Components ARE the styled final product], VPB integration, correct component API
 
 ---
 
@@ -59,7 +59,7 @@ cd interfaces/desktop && npx vitest run
 
 ### Task 1.1: Create ui/ directory
 ```
-ui/{kind}/
+[DELETED — components/{kind}/ IS the product]
 ├── {Name}.svelte    ← Wraps component, applies recipe + ColdLight visual
 ├── types.ts         ← Extends component props + ColdLightProps
 └── index.ts         ← Barrel export (PUBLIC API — users import from here)
@@ -83,7 +83,7 @@ Pattern:
     // Component props (forwarded)
     intent, size, pressed, onPressedChange, loading, disabled, expanded, children,
     class: className,
-    // ColdLight 8-axis props (visual — UI layer only)
+    // ColdLight 8-axis props (visual — [DELETED — no ui/ layer. Components ARE the styled final product] only)
     preset, surface, material, depth, bevel, glow, frame, motion, transition,
     encoding, radius,
     ...rest
@@ -245,7 +245,7 @@ Build ui/ wrapper for every existing component. Same pattern as ui/button/:
 ## Phase 4: Update Imports Across App
 
 ### Task 4.1: Find all imports from components/
-All app code that imports from `$lib/design/components/{kind}/` must be updated to import from `$lib/design/ui/{kind}/` instead.
+All app code that imports from `$lib/design/components/{kind}/` must be updated to import from `$lib/design/[DELETED — components/{kind}/ IS the product]` instead.
 
 ### Task 4.2: Update barrel exports
 Create `ui/index.ts` barrel that re-exports all UI components.
@@ -267,7 +267,7 @@ Verify NO component .svelte file contains:
 - `data-encoding`
 - recipe imports
 
-### Task 5.3: UI layer audit
+### Task 5.3: [DELETED — no ui/ layer. Components ARE the styled final product] audit
 Verify every ui/ wrapper:
 - Imports from components/ (not primitives/)
 - Applies useColdLight() for visual

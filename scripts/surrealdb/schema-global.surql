@@ -37,7 +37,7 @@ DEFINE FIELD source       ON patterns TYPE option<string>;
 DEFINE FIELD embedding    ON patterns TYPE option<array<float>>;
 DEFINE FIELD created_at   ON patterns TYPE datetime DEFAULT time::now();
 DEFINE INDEX idx_pattern_category ON patterns FIELDS category;
-DEFINE INDEX idx_patterns_vector  ON patterns FIELDS embedding MTREE DIMENSION 1536 DIST COSINE;
+DEFINE INDEX idx_patterns_vector  ON patterns FIELDS embedding HNSW DIMENSION 1536 DIST COSINE TYPE F32;
 
 -- =============================================================================
 -- DECISIONS (cross-project)
@@ -51,7 +51,7 @@ DEFINE FIELD reasoning    ON decisions TYPE option<string>;
 DEFINE FIELD alternatives ON decisions TYPE option<array<string>>;
 DEFINE FIELD embedding    ON decisions TYPE option<array<float>>;
 DEFINE FIELD created_at   ON decisions TYPE datetime DEFAULT time::now();
-DEFINE INDEX idx_decisions_vector ON decisions FIELDS embedding MTREE DIMENSION 1536 DIST COSINE;
+DEFINE INDEX idx_decisions_vector ON decisions FIELDS embedding HNSW DIMENSION 1536 DIST COSINE TYPE F32;
 
 -- =============================================================================
 -- LEARNINGS — prevent repeated AI mistakes across ALL sessions and projects
@@ -76,4 +76,4 @@ DEFINE FIELD full_text ON learnings VALUE
 
 DEFINE INDEX idx_learnings_severity ON learnings FIELDS severity;
 DEFINE INDEX idx_learnings_category ON learnings FIELDS category;
-DEFINE INDEX idx_learnings_vector   ON learnings FIELDS embedding MTREE DIMENSION 1536 DIST COSINE;
+DEFINE INDEX idx_learnings_vector   ON learnings FIELDS embedding HNSW DIMENSION 1536 DIST COSINE TYPE F32;

@@ -5,10 +5,12 @@
  */
 
 export const glass = {
-	void: "oklch(0.08 0.005 250 / 0.85)",
-	deep: "oklch(0.11 0.01 250 / 0.75)",
-	smoke: "oklch(0.16 0.005 0 / 0.60)",
+	void: "oklch(0.06 0.01 210 / 0.88)",
+	deep: "oklch(0.09 0.02 220 / 0.80)",
+	smoke: "oklch(0.14 0.008 210 / 0.65)",
 	frost: "oklch(0.92 0.01 220 / 0.40)",
+	teal: "oklch(0.10 0.06 180 / 0.75)",
+	purple: "oklch(0.10 0.06 280 / 0.75)",
 } as const;
 
 export const matte = {

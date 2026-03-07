@@ -1,25 +1,25 @@
 #!/usr/bin/env node
 // save-state.js - Saves current session state to SurrealDB before compaction
 // Triggered by PreCompact hook
+// Writes to: projects/devpulse (context timestamps)
 
 const { spawnSync } = require("child_process");
 
-function query(sql) {
+const ENDPOINT = "http://127.0.0.1:8822";
+const USER = "root";
+const PASS = "root";
+
+function query(ns, db, sql) {
 	try {
 		const result = spawnSync(
 			"surreal",
 			[
 				"sql",
-				"--endpoint",
-				"http://127.0.0.1:8000",
-				"--namespace",
-				"banter",
-				"--database",
-				"sessions",
-				"--username",
-				"root",
-				"--password",
-				"root",
+				"--endpoint", ENDPOINT,
+				"--namespace", ns,
+				"--database", db,
+				"--username", USER,
+				"--password", PASS,
 				"--hide-welcome",
 				"--json",
 			],
@@ -29,9 +29,7 @@ function query(sql) {
 				timeout: 10000,
 			},
 		);
-		if (result.error || result.status !== 0) {
-			return null;
-		}
+		if (result.error || result.status !== 0) return null;
 		const parsed = JSON.parse(result.stdout);
 		return parsed[0] || null;
 	} catch (e) {
@@ -48,17 +46,18 @@ try {
 }
 
 // Test connectivity
-const test = query("INFO FOR DB;");
+const test = query("projects", "devpulse", "INFO FOR DB;");
 if (!test) {
 	process.exit(0);
 }
 
-// Update the compaction timestamp
+// Update the compaction timestamp in projects/devpulse context
 query(
+	"projects", "devpulse",
 	`UPSERT context:last_compact SET key = 'last_compact', value = time::now(), priority = 5, updated_at = time::now();`,
 );
 
-// Read the transcript if available to extract recent learnings
+// Parse hook data if available
 let hookData = {};
 try {
 	hookData = JSON.parse(input);
@@ -68,6 +67,7 @@ try {
 
 if (hookData.trigger) {
 	query(
+		"projects", "devpulse",
 		`UPSERT context:compact_trigger SET key = 'compact_trigger', value = '${hookData.trigger}', priority = 3, updated_at = time::now();`,
 	);
 }

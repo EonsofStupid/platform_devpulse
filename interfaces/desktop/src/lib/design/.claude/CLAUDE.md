@@ -37,14 +37,16 @@ OWNER (human) — supreme authority
 
 ---
 
-## Layer Architecture (LOCKED — 4 layers)
+## Layer Architecture (LOCKED — 3 layers. NO ui/ layer.)
 
 ```
-primitives/{kind}/  → STRUCTURELESS shells. Zero ARIA. data-kind + data-slot + HTML + ...rest spread.
-components/{kind}/  → PRIMITIVE + BUILDER = ARIA-complete. ZERO VISUAL STYLE.
+primitives/{kind}/  → CONFIGURATION ONLY. Contract + structural shell. Declares what a kind IS. Never imported by users.
 recipes/            → Styling patterns via registerRecipe() + DsSurfaceProps + getRecipe()
-ui/{kind}/          → COMPONENT + RECIPE = STYLED. What users import.
+components/{kind}/  → THE PRODUCT. ARIA (from dsAdapter) + recipe styling (via props). What users import.
 ```
+
+**There is NO `ui/` layer. Components ARE the styled final product.**
+This matches industry standard (shadcn, Chakra, MUI, Mantine). Do NOT create a ui/ directory.
 
 ---
 
@@ -138,7 +140,7 @@ interface AdapterResult {
 - jsdom testing
 - Primitives without tests
 - Inline `recipe.ts` in component folders (use centralized `recipes/components/{kind}/`)
-- References to deleted concepts: taxonomy/, catalog/, semantics/, molecules/, shortcodes/
+- References to deleted concepts: taxonomy/, catalog/, semantics/, molecules/, shortcodes/, ui/
 
 ---
 

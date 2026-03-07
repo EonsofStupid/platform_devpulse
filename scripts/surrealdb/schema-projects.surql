@@ -22,7 +22,7 @@ DEFINE FIELD anti_examples ON architecture TYPE option<array<string>>;
 DEFINE FIELD embedding     ON architecture TYPE option<array<float>>;
 DEFINE FIELD created_at    ON architecture TYPE datetime DEFAULT time::now();
 DEFINE INDEX idx_arch_layer  ON architecture FIELDS layer;
-DEFINE INDEX idx_arch_vector ON architecture FIELDS embedding MTREE DIMENSION 1536 DIST COSINE;
+DEFINE INDEX idx_arch_vector ON architecture FIELDS embedding HNSW DIMENSION 1536 DIST COSINE TYPE F32;
 
 -- =============================================================================
 -- PATTERNS (project-scoped)
@@ -36,7 +36,7 @@ DEFINE FIELD code_example ON patterns TYPE option<string>;
 DEFINE FIELD embedding    ON patterns TYPE option<array<float>>;
 DEFINE FIELD created_at   ON patterns TYPE datetime DEFAULT time::now();
 DEFINE INDEX idx_pattern_component ON patterns FIELDS component;
-DEFINE INDEX idx_pattern_vector    ON patterns FIELDS embedding MTREE DIMENSION 1536 DIST COSINE;
+DEFINE INDEX idx_pattern_vector    ON patterns FIELDS embedding HNSW DIMENSION 1536 DIST COSINE TYPE F32;
 
 -- =============================================================================
 -- CONTEXT — loaded on every session start, high priority first
@@ -73,7 +73,7 @@ DEFINE FIELD full_text ON decisions VALUE
   IF reasoning { ' Reasoning: ' + reasoning } ELSE { '' };
 
 DEFINE INDEX idx_decisions_sprint  ON decisions FIELDS sprint;
-DEFINE INDEX idx_decisions_vector  ON decisions FIELDS embedding MTREE DIMENSION 1536 DIST COSINE;
+DEFINE INDEX idx_decisions_vector  ON decisions FIELDS embedding HNSW DIMENSION 1536 DIST COSINE TYPE F32;
 
 -- =============================================================================
 -- TASKS
@@ -154,7 +154,7 @@ DEFINE API "/context" FOR get
   THEN {
     LET $ctx   = SELECT key, value, priority FROM context ORDER BY priority DESC;
     LET $arch  = SELECT layer, rule, description FROM architecture LIMIT 20;
-    LET $tasks = SELECT content, status, sprint FROM tasks
+    LET $tasks = SELECT content, status, sprint, priority FROM tasks
                  WHERE status IN ['pending', 'in_progress']
                  ORDER BY priority DESC LIMIT 10;
     RETURN { context: $ctx, architecture: $arch, active_tasks: $tasks };

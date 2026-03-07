@@ -45,6 +45,10 @@ export function buildConfig(
 		// Tell SD5 our tokens use DTCG format ($value, $type) so it reads
 		// $value and puts the transformed result into token.value correctly.
 		usesDtcg: true,
+		// Auto-expand composite tokens (typography, border, transition)
+		// into individual flat tokens. Only object $values are expanded;
+		// string $values pass through untouched.
+		expand: true,
 		platforms: {
 			// ── CSS custom properties → :root { --token-name: value; } ────────
 			css: {

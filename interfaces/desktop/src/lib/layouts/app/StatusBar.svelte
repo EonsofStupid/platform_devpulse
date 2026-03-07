@@ -4,9 +4,10 @@
   @layer lib
 
   Status bar with progressive boot display.
-  During boot: shows per-subsystem status with latencies.
+  During boot: shows per-subsystem status with latencies and icons.
   After boot: shows connection status, uptime, version.
-  All badges use ColdLight Badge component.
+  DEV_MODE: raw tech labels (LibSQL, SurrealDB, DuckDB, Moka).
+  PROD: friendly labels (Data Store, Cortex, Analytics Engine, Memory Cache).
 
   @consumers
   - Frame.svelte: Main app layout
@@ -16,6 +17,7 @@
 <script lang="ts">
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 import { flags } from "$lib/sys/cfg/flags.js";
+import { getIcon, devLabel } from "$lib/sys/boot/boot-labels.js";
 import {
 	Badge,
 	HStack,
@@ -33,6 +35,7 @@ const subsystems = $derived(platformState.subsystemList());
 		<HStack gap="2" align="center">
 			{#if flags.DEV_MODE}
 				{#each subsystems as sub}
+					{@const Icon = getIcon(sub.name)}
 					<Badge
 						intent="default"
 						size="sm"
@@ -44,8 +47,11 @@ const subsystems = $derived(platformState.subsystemList());
 							data-subsystem-state={sub.state}
 							aria-hidden="true"
 						></span>
+						{#if Icon}
+							<svelte:component this={Icon} size={12} class="shrink-0" />
+						{/if}
 						<Text size="xs" color="secondary">
-							{sub.name}: {sub.state}{sub.latencyMs !== null ? ` ${sub.latencyMs}ms` : ''}
+							{devLabel(sub.name)}: {sub.state}{sub.latencyMs !== null ? ` ${sub.latencyMs}ms` : ''}
 						</Text>
 					</Badge>
 				{/each}
@@ -98,9 +104,15 @@ const subsystems = $derived(platformState.subsystemList());
 
 			{#if flags.DEV_MODE}
 				{#each subsystems as sub}
-					<Text size="xs" color="muted">
-						[{sub.friendlyName}: {sub.state}{sub.latencyMs !== null ? ` ${sub.latencyMs}ms` : ''}]
-					</Text>
+					{@const Icon = getIcon(sub.name)}
+					<HStack gap="1" align="center">
+						{#if Icon}
+							<svelte:component this={Icon} size={12} class="shrink-0 text-text-muted" />
+						{/if}
+						<Text size="xs" color="muted">
+							[{devLabel(sub.name)}: {sub.state}{sub.latencyMs !== null ? ` ${sub.latencyMs}ms` : ''}]
+						</Text>
+					</HStack>
 				{/each}
 			{/if}
 		</HStack>

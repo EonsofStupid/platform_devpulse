@@ -101,7 +101,7 @@ DEFINE API "/session/current" FOR get
       LET $recent = SELECT role, content, turn FROM chat
                     WHERE session = $s.id
                     ORDER BY turn DESC LIMIT 10;
-      LET $files  = SELECT path, action FROM files_touched
+      LET $files  = SELECT path, action, created_at FROM files_touched
                     WHERE session = $s.id
                     ORDER BY created_at DESC LIMIT 20;
       RETURN { session: $s, recent_chat: $recent, files_touched: $files };

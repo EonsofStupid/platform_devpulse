@@ -92,7 +92,7 @@
 			stroke-dasharray={circumference}
 			stroke-dashoffset={dashOffset}
 			transform="rotate(-90 {cx} {cy})"
-			style="filter: drop-shadow(0 0 6px {colors.glow}); transition: stroke-dashoffset 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);"
+			style="filter: drop-shadow(0 0 8px {colors.glow}) drop-shadow(0 0 20px {colors.glow}); transition: stroke-dashoffset 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);"
 		/>
 
 		<!-- Outer glow ring (subtle) -->

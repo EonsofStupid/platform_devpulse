@@ -38,16 +38,16 @@ Audit the entire ColdLight design system against the locked architecture spec. I
 | Issue | Path | What's Wrong | Spec Says |
 |-------|------|-------------|-----------|
 | **Components have visual style** | `components/{kind}/` | useColdLight(), recipes, ColdLightProps, data-encoding baked into component .svelte files | Components = ARIA + state ONLY, ZERO visual style (Locked 2026-02-21) |
-| **Components extend ColdLightProps** | `components/{kind}/types.ts` | types.ts files extend ColdLightProps (8-axis visual props) | ColdLightProps belong in UI layer, not component layer |
-| **No ui/ layer** | `ui/` | Does not exist | UI layer wraps components + applies recipes. What users import. |
+| **Components extend ColdLightProps** | `components/{kind}/types.ts` | types.ts files extend ColdLightProps (8-axis visual props) | ColdLightProps belong in [DELETED — no ui/ layer. Components ARE the styled final product], not component layer |
+| **No ui/ layer** | `ui/` | Does not exist | [DELETED — no ui/ layer. Components ARE the styled final product] wraps components + applies recipes. What users import. |
 | **ColdLight Layers in memory** | MEMORY.md | Listed 6 layers with "Components = Styled" | Four layers: primitives → builders → components (ARIA only) → ui (styled) |
 
 ### What DOES NOT EXIST
 
 | Layer | Path | Status | Notes |
 |-------|------|--------|-------|
-| **ui/{kind}/** | `ui/` | ZERO | The styled layer. Wraps component + recipe. Where ColdLightProps, useColdLight(), encoding belong. |
-| **Per-component recipes** | `components/{kind}/recipe.ts` | Many exist BUT in wrong layer | Recipes should be consumed by UI layer, not component layer |
+| **[DELETED — components/{kind}/ IS the product]** | `ui/` | ZERO | The styled layer. Wraps component + recipe. Where ColdLightProps, useColdLight(), encoding belong. |
+| **Per-component recipes** | `components/{kind}/recipe.ts` | Many exist BUT in wrong layer | Recipes should be consumed by [DELETED — no ui/ layer. Components ARE the styled final product], not component layer |
 | **Complete test coverage** | Many primitives/components | Missing | Tests mandatory per spec |
 
 ---
@@ -70,7 +70,7 @@ components/  → WRONG: has useColdLight(), ColdLightProps, recipes, data-encodi
 ui/          → Does not exist
 ```
 
-Every single `components/{kind}/` folder has been contaminated with visual concerns that belong in `ui/{kind}/`.
+Every single `components/{kind}/` folder has been contaminated with visual concerns that belong in `[DELETED — components/{kind}/ IS the product]`.
 
 ---
 
@@ -108,8 +108,8 @@ Every single `components/{kind}/` folder has been contaminated with visual conce
 
 ### Option A: Split components/ into components/ (ARIA) + ui/ (styled)
 1. Strip visual concerns from every `components/{kind}/` .svelte and types.ts
-2. Create `ui/{kind}/` for each kind — move visual concerns there
-3. UI layer imports component, applies recipe + ColdLightProps
+2. Create `[DELETED — components/{kind}/ IS the product]` for each kind — move visual concerns there
+3. [DELETED — no ui/ layer. Components ARE the styled final product] imports component, applies recipe + ColdLightProps
 
 ### Option B: Keep current structure, rename intent
 - Accept that `components/` IS the styled layer
