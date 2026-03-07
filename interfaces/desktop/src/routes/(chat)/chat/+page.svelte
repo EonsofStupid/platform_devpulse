@@ -6,10 +6,13 @@
   Chat interface for the Maestro AI assistant.
   Uses ColdLight components with registered chat presets.
   Renders in a separate Tauri window (450x600).
+  Messages persist to LibSQL via Tauri IPC.
 -->
 <script lang="ts">
 	import { Send, Mic, Sparkles } from "lucide-svelte";
+	import { invoke } from "@tauri-apps/api/core";
 	import { platformState } from "$lib/sys/runes/platformState.svelte.js";
+	import type { ChatMessage } from "$lib/sys/generated/chat.types.js";
 	import {
 		Box,
 		Button,
@@ -18,15 +21,7 @@
 		HStack,
 		Stack,
 		Input,
-		Badge,
 	} from "$lib/design/index.js";
-
-	interface ChatMessage {
-		id: string;
-		role: "user" | "assistant";
-		content: string;
-		timestamp: string;
-	}
 
 	interface Thread {
 		id: string;
@@ -40,40 +35,55 @@
 		{ id: "gamma", label: "GAMMA", active: false },
 	]);
 
-	let messages = $state<ChatMessage[]>([
-		{
-			id: "1",
-			role: "user",
-			content: "Analyze the current devpulse build pipeline and identify bottlenecks.",
-			timestamp: "2:34 PM",
-		},
-		{
-			id: "2",
-			role: "assistant",
-			content: "I've analyzed the build pipeline. Here are the findings:\n\n1. Token generation (SD5) — 2.1s avg, acceptable\n2. Vite HMR — 340ms, well within targets\n3. svelte-check — 8.2s, could benefit from incremental mode\n4. Type resolution in recipe system — minor delays from deep generic chains\n\nRecommendation: Enable incremental svelte-check and consider caching the token build output.",
-			timestamp: "2:35 PM",
-		},
-	]);
-
+	let messages = $state<ChatMessage[]>([]);
+	let loading = $state(true);
 	let inputValue = $state("");
-	const canSend = $derived(platformState.isReady && inputValue.trim().length > 0);
+	let sending = $state(false);
+	const canSend = $derived(platformState.isReady && inputValue.trim().length > 0 && !sending);
+
+	// Load messages on mount
+	async function loadMessages() {
+		loading = true;
+		try {
+			const history = await invoke<ChatMessage[]>("load_recent");
+			messages = history;
+		} catch {
+			// Platform may still be booting — retry after delay
+			setTimeout(loadMessages, 2000);
+		} finally {
+			loading = false;
+		}
+	}
+
+	// Auto-load on module init
+	loadMessages();
 
 	function setActiveThread(id: string) {
 		threads = threads.map((t) => ({ ...t, active: t.id === id }));
 	}
 
-	function sendMessage() {
-		if (!inputValue.trim()) return;
-		messages = [
-			...messages,
-			{
-				id: String(Date.now()),
-				role: "user",
-				content: inputValue.trim(),
-				timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-			},
-		];
+	async function sendMessage() {
+		if (!inputValue.trim() || sending) return;
+		const content = inputValue.trim();
 		inputValue = "";
+		sending = true;
+
+		try {
+			const stored = await invoke<ChatMessage>("send_message", { content });
+			messages = [...messages, stored];
+		} catch (e) {
+			// Show error as system message
+			const errorMsg: ChatMessage = {
+				id: Date.now(),
+				session_id: "",
+				role: "assistant",
+				content: `Error: ${e instanceof Error ? e.message : String(e)}`,
+				created_at: Math.floor(Date.now() / 1000),
+			};
+			messages = [...messages, errorMsg];
+		} finally {
+			sending = false;
+		}
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
@@ -81,6 +91,12 @@
 			e.preventDefault();
 			sendMessage();
 		}
+	}
+
+	function formatTime(epoch: number): string {
+		if (epoch === 0) return "";
+		const date = new Date(epoch * 1000);
+		return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 	}
 </script>
 
@@ -128,27 +144,38 @@
 
 		<!-- Messages -->
 		<Box class="flex-1 overflow-y-auto scrollbar-thin p-3">
-			<Stack gap="3">
-				{#each messages as msg (msg.id)}
-					<Stack gap="1" class={msg.role === "user" ? "items-end" : ""}>
-						<Box
-							preset={msg.role === "assistant" ? "chat-bubble-ai" : "chat-bubble-user"}
-							radius="lg"
-							frame="soft"
-							class="max-w-[85%] px-3 py-2 {msg.role === 'assistant' ? 'cl-bubble-ai' : 'cl-bubble-user'}"
-						>
-							{#if msg.role === "assistant"}
-								<HStack gap="1" class="mb-1">
-									<Sparkles size={12} class="text-teal-400" />
-									<Heading level={6} size="xs" class="font-display text-teal-400">Maestro</Heading>
-								</HStack>
-							{/if}
-							<Text size="sm" class="whitespace-pre-wrap leading-relaxed">{msg.content}</Text>
-						</Box>
-						<Text size="xs" color="muted" class="px-1">{msg.timestamp}</Text>
-					</Stack>
-				{/each}
-			</Stack>
+			{#if loading}
+				<div class="flex items-center justify-center py-8">
+					<Text size="sm" color="muted">Loading messages...</Text>
+				</div>
+			{:else if messages.length === 0}
+				<div class="flex flex-col items-center justify-center py-8 gap-2">
+					<Sparkles size={24} class="text-teal-400" />
+					<Text size="sm" color="muted">No messages yet. Start a conversation.</Text>
+				</div>
+			{:else}
+				<Stack gap="3">
+					{#each messages as msg (msg.id)}
+						<Stack gap="1" class={msg.role === "user" ? "items-end" : ""}>
+							<Box
+								preset={msg.role === "assistant" ? "chat-bubble-ai" : "chat-bubble-user"}
+								radius="lg"
+								frame="soft"
+								class="max-w-[85%] px-3 py-2 {msg.role === 'assistant' ? 'cl-bubble-ai' : 'cl-bubble-user'}"
+							>
+								{#if msg.role === "assistant"}
+									<HStack gap="1" class="mb-1">
+										<Sparkles size={12} class="text-teal-400" />
+										<Heading level={6} size="xs" class="font-display text-teal-400">Maestro</Heading>
+									</HStack>
+								{/if}
+								<Text size="sm" class="whitespace-pre-wrap leading-relaxed">{msg.content}</Text>
+							</Box>
+							<Text size="xs" color="muted" class="px-1">{formatTime(msg.created_at)}</Text>
+						</Stack>
+					{/each}
+				</Stack>
+			{/if}
 		</Box>
 
 		<!-- Input area -->

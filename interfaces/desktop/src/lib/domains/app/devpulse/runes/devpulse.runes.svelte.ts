@@ -3,14 +3,16 @@
  * @module @devpulse/domains/app/devpulse/runes
  *
  * Svelte 5 runes for the DevPulse dashboard hub.
- * $state for reactive state, $derived for computed values.
+ * Fetches real data from stores via Tauri IPC.
  */
 
-import { getDashboardData } from "../services/devpulse.service.js";
+import { fetchDashboardData, mapPayloadToDashboard, getEmptyDashboard } from "../services/devpulse.service.js";
 import type { DashboardData } from "../types/devpulse.types.js";
 
 class DevPulseState {
-	data = $state<DashboardData>(getDashboardData());
+	data = $state<DashboardData>(getEmptyDashboard());
+	loading = $state(true);
+	error = $state<string | null>(null);
 	activeWidget = $state<string | null>(null);
 
 	get totalProjects(): number {
@@ -29,9 +31,21 @@ class DevPulseState {
 		this.activeWidget = widgetId;
 	}
 
-	refresh(): void {
-		this.data = getDashboardData();
+	async refresh(): Promise<void> {
+		this.loading = true;
+		this.error = null;
+		try {
+			const payload = await fetchDashboardData();
+			this.data = mapPayloadToDashboard(payload);
+		} catch (e) {
+			this.error = e instanceof Error ? e.message : String(e);
+		} finally {
+			this.loading = false;
+		}
 	}
 }
 
 export const devpulseState = new DevPulseState();
+
+// Auto-fetch on module load
+devpulseState.refresh();

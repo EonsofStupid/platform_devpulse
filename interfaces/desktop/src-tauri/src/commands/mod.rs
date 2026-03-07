@@ -15,6 +15,7 @@
 
 pub mod chat;
 pub mod devmaestro;
+pub mod devpulse;
 pub mod sys;
 pub mod thinkmaestro;
 pub mod window;

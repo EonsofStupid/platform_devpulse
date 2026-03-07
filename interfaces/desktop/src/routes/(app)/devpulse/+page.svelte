@@ -10,6 +10,7 @@
 	import { Stack, HStack, Text, Card } from "$lib/design/index.js";
 	import { Widget, RadialGauge, SparkLine } from "$lib/design/blocks/widgets/index.js";
 	import { devpulseState } from "$lib/domains/app/devpulse/index.js";
+	import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 
 	const langColors: Record<string, string> = {
 		TypeScript: "teal",
@@ -17,8 +18,28 @@
 		CSS: "purple",
 		Python: "cyber",
 	};
+
+	const healthColors: Record<string, string> = {
+		Healthy: "var(--color-teal-400)",
+		Degraded: "var(--color-ember-400)",
+		Down: "var(--color-ember-500)",
+		Unknown: "var(--color-neutral-400)",
+	};
 </script>
 
+{#if devpulseState.loading}
+	<div class="flex items-center justify-center py-12">
+		<Text size="sm" color="muted">Loading dashboard data...</Text>
+	</div>
+{:else if devpulseState.error}
+	<div class="flex flex-col items-center justify-center gap-2 py-12">
+		<Text size="sm" color="muted">Failed to load dashboard</Text>
+		<Text size="xs" color="muted">{devpulseState.error}</Text>
+		<button class="mt-2 rounded px-3 py-1 text-xs border border-border-subtle text-text-secondary hover:bg-surface-elevated" onclick={() => devpulseState.refresh()}>
+			Retry
+		</button>
+	</div>
+{:else}
 <div class="grid grid-cols-12 gap-4" data-page="devpulse-dashboard">
 	<!-- Row 1: Gauges + Stats -->
 	<div class="col-span-4">
@@ -67,15 +88,15 @@
 				<HStack justify="between" align="baseline">
 					<Stack gap="1">
 						<Text size="xs" color="muted">Projects</Text>
-						<span class="text-xl font-bold tabular-nums" style="font-family: var(--font-display); color: var(--color-teal-400); text-shadow: 0 0 8px oklch(0.55 0.18 180 / 0.4);">{devpulseState.data.user.totalProjects}</span>
+						<span class="text-xl font-bold tabular-nums" style="font-family: var(--font-display); color: var(--color-teal-400); text-shadow: var(--text-glow-sm) var(--accent-teal-glow);">{devpulseState.data.user.totalProjects}</span>
 					</Stack>
 					<Stack gap="1">
 						<Text size="xs" color="muted">Commits</Text>
-						<span class="text-xl font-bold tabular-nums" style="font-family: var(--font-display); color: var(--color-teal-300); text-shadow: 0 0 8px oklch(0.55 0.18 180 / 0.3);">{devpulseState.data.user.totalCommits}</span>
+						<span class="text-xl font-bold tabular-nums" style="font-family: var(--font-display); color: var(--color-teal-300); text-shadow: var(--text-glow-sm) var(--accent-teal-glow);">{devpulseState.data.user.totalCommits}</span>
 					</Stack>
 					<Stack gap="1">
 						<Text size="xs" color="muted">Branches</Text>
-						<span class="text-xl font-bold tabular-nums" style="font-family: var(--font-display); color: var(--color-teal-300); text-shadow: 0 0 8px oklch(0.55 0.18 180 / 0.3);">{devpulseState.data.user.activeBranches}</span>
+						<span class="text-xl font-bold tabular-nums" style="font-family: var(--font-display); color: var(--color-teal-300); text-shadow: var(--text-glow-sm) var(--accent-teal-glow);">{devpulseState.data.user.activeBranches}</span>
 					</Stack>
 				</HStack>
 				<div class="flex items-center gap-2 rounded-md px-3 py-2 v-s1 border border-border-subtle">
@@ -133,22 +154,36 @@
 	</div>
 
 	<div class="col-span-4">
-		<Widget title="Community">
-			<Stack gap="4">
-				<div class="flex items-center justify-around">
-					<Stack gap="1" align="center">
-						<span class="text-3xl font-bold tabular-nums" style="font-family: var(--font-display); color: var(--color-teal-400); text-shadow: 0 0 12px oklch(0.55 0.18 180 / 0.5);">{devpulseState.data.community.friends}</span>
-						<Text size="xs" color="muted">Friends</Text>
-					</Stack>
-					<Stack gap="1" align="center">
-						<span class="text-3xl font-bold tabular-nums" style="font-family: var(--font-display); color: var(--color-purple-400); text-shadow: 0 0 12px oklch(0.55 0.18 280 / 0.5);">{devpulseState.data.community.groups}</span>
-						<Text size="xs" color="muted">Groups</Text>
-					</Stack>
-				</div>
-				<div class="flex items-center justify-between rounded-md px-3 py-2 v-s2 border border-border-subtle">
-					<span class="text-lg font-semibold tabular-nums" style="font-family: var(--font-display); color: var(--color-magenta-400);">{devpulseState.data.community.contributions}</span>
-					<Text size="xs" color="muted">contributions this month</Text>
-				</div>
+		<Widget title="Store Health">
+			<Stack gap="3">
+				{#if platformState.health}
+					{#each platformState.health.subsystems as sub}
+						<HStack justify="between" align="center" class="rounded-md px-3 py-2 v-s1 border border-border-subtle">
+							<Stack gap="0">
+								<Text size="sm" weight="semibold">{sub.name}</Text>
+								{#if sub.latency_ms != null}
+									<Text size="xs" color="muted">{sub.latency_ms}ms</Text>
+								{/if}
+							</Stack>
+							<span
+								class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium"
+								style="color: {healthColors[sub.status] ?? 'var(--text-muted)'};"
+							>
+								<span
+									class="inline-block h-1.5 w-1.5 rounded-full"
+									style="background: {healthColors[sub.status] ?? 'var(--text-muted)'};"
+								></span>
+								{sub.status}
+							</span>
+						</HStack>
+					{/each}
+					<HStack justify="between" class="px-1">
+						<Text size="xs" color="muted">Uptime</Text>
+						<Text size="xs" weight="semibold">{platformState.uptimeFormatted}</Text>
+					</HStack>
+				{:else}
+					<Text size="xs" color="muted">Waiting for health data...</Text>
+				{/if}
 			</Stack>
 		</Widget>
 	</div>
@@ -190,3 +225,4 @@
 		</Widget>
 	</div>
 </div>
+{/if}

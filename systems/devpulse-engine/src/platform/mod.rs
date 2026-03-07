@@ -23,6 +23,11 @@ pub use health::{HealthStatus, SubsystemHealth, SystemHealth};
 pub use init::{InitEvent, InitStatus};
 pub use stores::{Store, StoreRole};
 
+// Re-export maestro persistence traits for Tauri command layer
+pub use devpulse_maestro::cortex::persistence::{
+    AnalyticsAdapter, CacheAdapter, SqlAdapter,
+};
+
 use anyhow::Result;
 use std::path::PathBuf;
 use std::sync::Arc;

@@ -5,5 +5,5 @@
  */
 
 export { devpulseState } from "./runes/devpulse.runes.svelte.js";
-export { getDashboardData } from "./services/devpulse.service.js";
+export { fetchDashboardData, getEmptyDashboard, mapPayloadToDashboard } from "./services/devpulse.service.js";
 export type { DashboardData, UserStats, CommunityStats, RecentProject } from "./types/devpulse.types.js";
