@@ -4,81 +4,84 @@
 
 ---
 
-## Variant Key Encoding (FROZEN)
+## Variant Key Encoding (8-AXIS — FROZEN)
 
 ```
-v-s{#}z{#}l{#}t{#}m{#}
+v-s{#}z{#}d{#}b{#}g{#}f{#}m{#}t{#}
 ```
 
-| Key | Variable | Meaning |
-|-----|----------|---------|
-| `s` | `--surface` | Surface type |
-| `z` | `--material` | Material (z-material) |
-| `l` | `--layers` | Layer count |
-| `t` | `--transition` | Transition speed |
-| `m` | `--motion` | Motion type |
+| Key | Code | Meaning |
+|-----|------|---------|
+| `s` | surface | Surface type (glass-void, glass-deep, glass-teal, glass-purple, etc.) |
+| `z` | material | Material / z-depth |
+| `d` | depth | Shadow depth (z0–z4) |
+| `b` | bevel | Bevel treatment (off, subtle, soft, medium) |
+| `g` | glow | Glow color (off, teal, purple, magenta, ember, frost, cyber) |
+| `f` | frame | Frame/border (off, soft, hard, glow, accent-teal, accent-purple) |
+| `m` | motion | Motion animation |
+| `t` | transition | Transition speed |
 
-Example: `v-s1z2l3t1m2`
+Example: `v-s1z0d2b1g0f1m0t2`
+Composable: `v-s1 v-d2 v-t2`
 
 ---
 
 ## Markup Contract
 
 ```html
-<button class="btn-main v-s1z2l3t1m2" data-kind="button" data-slot="root" data-state="idle">
+<button class="v-s1 v-d2 v-t2" data-kind="button" data-slot="root" data-state="idle">
   Save
 </button>
 ```
 
-- `.btn-main` = semantic preset (structure + hooks)
-- `.v-*` = variant payload (sets CSS variables only)
-- `data-kind` / `data-slot` / `data-state` = THREE attributes only
+- `v-*` = variant utilities (set CSS custom properties, generated from token-categories.ts)
+- `data-kind` / `data-slot` / `data-state` = THREE data attributes only
 
 ---
 
-## Layer Stack
+## Layer Stack (LOCKED — 4 layers)
 
-| Layer | What | Code? |
-|-------|------|-------|
-| Tokens | Design tokens (SD5, DTCG 1.0, 3-tier) | JSON / CSS |
-| Recipes | CSS appearance rules | CSS classes |
-| Primitives | ColdLight-owned ARIA + behavior | Svelte 5 |
-| Semantics | Primitive + Recipe = Styled | Svelte 5 |
-| Blueprints | Prebuilt assembly | TypeScript |
-| Patterns | Guidance | Docs only |
-| Blocks | VPB payload | JSON runtime |
+| Layer | What | Location |
+|-------|------|----------|
+| Primitives | Structureless shells. Zero ARIA. data-kind + data-slot + HTML + ...rest | `primitives/{kind}/` |
+| Components | Primitive + Builder = ARIA-complete. ZERO visual style. | `components/{kind}/` |
+| Recipes | Styling patterns. registerRecipe() + DsSurfaceProps + getRecipe() | `recipes/components/{kind}/` |
+| UI | Component + Recipe = Styled. What users import. | `ui/{kind}/` |
 
 ---
 
 ## Provider Model
 
 ```
-SD5 Tokens → CSS Custom Properties → Tailwind v4 @theme → ColdLight Primitive (owns ARIA)
+SD5 Tokens → CSS Custom Properties → Tailwind v4 @theme → variants.css @utility blocks
 ```
 
-- **ColdLight owns**: `role`, `aria-*`, `tabindex`, focus, keyboard, `data-kind`, `data-slot`, `data-state`, `class`
-- **dsAdapter (Melt UI)**: EXCEPTION ONLY — for complex widgets where native ARIA is impractical
-- **Primitives use**: Native HTML + Svelte 5 runes + WAI-ARIA APG patterns
+- **ColdLight owns**: `role`, `aria-*`, `tabindex`, focus, keyboard, `data-kind`, `data-slot`, `data-state`
+- **dsAdapter (MeltUI)**: EXCEPTION ONLY — complex ARIA (dialog focus trap, combobox listbox)
+- **Adapters**: `api/dsadapters/{engine}/_internal/{kind}/`
 
 ---
 
-## Terminology (LOCKED)
+## Token Pipeline
 
-| Term | Is Code? | Purpose |
-|------|----------|---------|
-| Recipe | Yes (CSS) | Appearance rules |
-| Blueprint | Yes (TS) | Prebuilt assembly |
-| Pattern | No (Docs) | Guidance only |
-| Block | Yes (JSON) | VPB runtime |
+- **Style Dictionary v5** — DTCG 1.0 → CSS + TypeScript + JSON
+- **OKLCH** color system
+- **3-tier** — Global → Semantic → Component tokens
+- **8-axis encoding** — token-categories.ts is SSOT → generates variants.css, Zod schemas, types
+- **Build**: `pnpm ds:tokens:build`
 
 ---
 
-## Current Sprint
+## Key Paths
 
-**Token Pipeline + Primitives (SD5-driven, ColdLight-owned)**
-
-See: `primitives/WORKFLOW.md` for development process
-See: `.claude/MASTER_SPRINT_PLAN.md` for sprint order
+- `registry/token-categories.ts` — 8-axis category SSOT (add value here → types auto-update)
+- `registry/presets.ts` — Named visual configs per kind (60+ presets)
+- `registry/resolve-visual.ts` — Pipeline: defaults → preset → props → encoding
+- `generated/variants.css` — Auto-generated @utility rules from token-categories
+- `api/dsadapters/` — Adapter layer (coldlight/ and meltui/)
+- `primitives/` — Structural shells (83 kinds)
+- `components/` — ARIA + state (67 kinds)
+- `recipes/` — Styling (centralized registerRecipe system)
 
 ---
 
@@ -86,17 +89,19 @@ See: `.claude/MASTER_SPRINT_PLAN.md` for sprint order
 
 ```bash
 cd interfaces/desktop
-pnpm dev          # Dev server
-pnpm check        # TypeScript
-pnpm test:browser # Browser tests
+pnpm dev              # Dev server
+pnpm svelte-check     # TypeScript
+pnpm ds:tokens:build  # Rebuild tokens + variants
+pnpm coldlight:generate  # Scanner → manifest
 ```
 
 ---
 
-## Key Files
+## Banned
 
-- `catalog/` — SSOT backbone
-- `primitives/` — Behavior components
-- `recipes/` — CSS appearance
-- `semantics/` — Styled components
-- `sys/api/_internal/` — Provider mapping
+- Direct `@melt-ui/svelte` imports outside `_internal/`
+- Hand-written CSS outside `design/`
+- Raw HTML when a ColdLight primitive exists
+- `any` types
+- jsdom testing
+- References to deleted concepts: taxonomy/, catalog/, semantics/, molecules/, shortcodes/

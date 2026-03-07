@@ -7,7 +7,7 @@
 
 ## The One Rule
 
-**Taxonomy is truth. Config drives everything. The owner decides.**
+**Config drives everything. The owner decides.**
 
 ---
 
@@ -19,7 +19,7 @@ OWNER (human) — supreme authority
        └── ColdLight — owns EVERYTHING by default
             ├── ARIA attributes, focus, keyboard, state
             ├── Component structure, slots, props, typing
-            ├── CSS via recipes, tokens, molecules
+            ├── CSS via recipes, tokens, variants
             ├── Public API (what users import)
             └── MeltUI adapter (EXCEPTION ONLY — never the default)
 ```
@@ -28,111 +28,103 @@ OWNER (human) — supreme authority
 
 ## ARIA Ownership (CRITICAL)
 
-**ColdLight OWNS ARIA by default.** The `ariaStateProvider` in each contract determines who provides ARIA:
+**ColdLight OWNS ARIA by default.** The `engine` field in each schema determines who provides ARIA:
 
-- `"coldlight"` (DEFAULT) — ColdLight handles ARIA directly on native HTML elements. The primitive renders `<button>`, `<input>`, etc. with ARIA attributes set by ColdLight. No adapter needed. 2-folder parity.
-- `"meltui"` (EXCEPTION) — MeltUI adapter handles ARIA through transport chain. Only for complex ARIA patterns (dialog focus trap, combobox listbox). Must be justified in the contract. 3-folder parity.
+- `"coldlight"` (DEFAULT) — ColdLight builders handle ARIA. 60+ kinds.
+- `"meltui"` (EXCEPTION) — MeltUI adapter handles ARIA. Only for complex ARIA patterns (dialog focus trap, combobox listbox). 20 kinds.
 
-**ColdLight is ALWAYS the public API regardless of archetype.** Users never import `@melt-ui/svelte`.
-
----
-
-## Contract Chain
-
-```
-taxonomy/kinds/primitives/{kind}/contract.ts   <- SSOT (Zod-validated)
-           |
-     +-----+-----+
-     |           |
-     v           v (only if ariaStateProvider: "meltui")
-primitives/     api/adapters/meltui/
-{kind}/         _internal/{kind}/
-     |
-     v
-components/     <- Styled component (primitive + recipe)
-{kind}/
-```
-
-- Config declares dsAdapter
-- Contract declares ariaStateProvider
-- Folder name = kind name = binding
-- No separate adapter-kind contracts
+**ColdLight is ALWAYS the public API.** Users never import `@melt-ui/svelte`.
 
 ---
 
-## Primitive Folder Structure (ColdLight-Owned)
+## Layer Architecture (LOCKED — 4 layers)
 
 ```
-primitives/{kind}/
-├── {Name}.svelte          # Unstyled component, ColdLight ARIA
-├── types.ts               # Props interface
-├── context.ts             # Symbol-keyed Svelte context (if compound)
-├── {Name}.test.ts         # Vitest browser tests (MANDATORY)
-├── {Name}.test.svelte     # Test wrapper component
-└── index.ts               # Barrel export
-```
-
-## Component Folder Structure
-
-```
-components/{kind}/
-├── {Name}.svelte          # Styled component (primitive + recipe)
-├── types.ts               # Component props (extends primitive + surface)
-├── schema.ts              # Zod contract (links to primitive contract)
-├── {Name}.test.ts         # Vitest browser tests (MANDATORY)
-└── index.ts               # Barrel export
+primitives/{kind}/  → STRUCTURELESS shells. Zero ARIA. data-kind + data-slot + HTML + ...rest spread.
+components/{kind}/  → PRIMITIVE + BUILDER = ARIA-complete. ZERO VISUAL STYLE.
+recipes/            → Styling patterns via registerRecipe() + DsSurfaceProps + getRecipe()
+ui/{kind}/          → COMPONENT + RECIPE = STYLED. What users import.
 ```
 
 ---
 
-## Testing (Non-Negotiable)
+## Contract Location
 
-- **Vitest browser tests** in real Chromium via `vitest-browser-svelte` + `@vitest/browser-playwright`
-- **No jsdom. No mocking DOM.**
-- Every primitive: ARIA presence, data attributes, keyboard navigation, focus management, state
-- Every component: schema validation, recipe application, prop forwarding, slot rendering
-- Scanner flags missing test files
-- CI enforces zero test failures
+Contracts live in `primitives/{kind}/contract.ts`.
+Zod-validated via `PrimitiveContractSchema.parse()`.
+Scanner reads contracts → generates manifest.
 
 ---
 
-## Token Pipeline
+## Adapter Architecture (dsAdapter)
 
-- **Style Dictionary v5** — `tokens.ts` (SSOT) → SD5 build → DTCG 1.0 + CSS + TypeScript
-- **OKLCH** color system — channel-separated for programmatic manipulation
-- **3-tier** — Global → Semantic → Component tokens, Zod-validated cross-tier
-- **Tailwind v4** @theme — tokens map to TW4 utility namespaces via `tokens.cfg.ts`
-- **Config-driven** — `coldlight.config.ts` → `tokens.cfg.ts` declares everything
+```
+api/dsadapters/
+├── coldlight/_internal/{kind}/   → ColdLight builders (60+ kinds)
+│   └── factory.ts                → Builder class with ARIA, state, handlers
+├── meltui/_internal/{kind}/      → MeltUI adapters (20 kinds)
+│   ├── factory.ts                → Wraps MeltUI builder
+│   └── _transport/               → Maps MeltUI → ColdLight interface
+└── resolve.ts                    → resolveAdapter(schema) dispatches by engine field
+```
+
+**AdapterResult** (universal — every adapter returns this):
+```typescript
+interface AdapterResult {
+  states: Record<string, { get current(): boolean; set current(v: boolean) }>;
+  attrs: Record<string, Record<string, string | undefined>>;
+  handlers: Record<string, Record<string, (e: Event) => void>>;
+  context?: Record<string, unknown>;
+}
+```
+
+---
+
+## Token Pipeline (8-axis)
+
+- `registry/token-categories.ts` — SSOT for all 8 axes (s/z/d/b/g/f/m/t)
+- Add a value → types auto-update. NO other code changes needed.
+- `pnpm ds:tokens:build` → tokens.css, tailwind.css, variants.css, types.ts, manifest
+- Encoding: `v-s3z1d2b1g0f1m0t2` or composable `v-s3 v-d2 v-t2`
+
+---
+
+## Preset System
+
+- `registry/presets.ts` — 60+ named presets per kind
+- `registry/resolve-visual.ts` — Pipeline: kind defaults → preset → props → encoding → ResolvedVisual
 
 ---
 
 ## When Adding a Primitive
 
-1. Declare contract: `taxonomy/kinds/primitives/{kind}/contract.ts` + `types.ts` + `index.ts`
+1. Create contract: `primitives/{kind}/contract.ts`
 2. Create primitive folder: `primitives/{kind}/` with `.svelte`, `types.ts`, `context.ts` (if compound), `.test.ts`, `index.ts`
-3. If ariaStateProvider = "meltui" (EXCEPTION ONLY):
-   - Verify kind in `taxonomy/api/adapter/meltui/contract.ts`
-   - Create `api/adapters/meltui/_internal/{kind}/factory.ts`
-4. Create component folder: `components/{kind}/` with `.svelte`, `types.ts`, `schema.ts`, `.test.ts`, `index.ts`
-5. Run scanner to validate parity
-6. Run tests — must pass
+3. If engine = "meltui" (EXCEPTION ONLY):
+   - Create `api/dsadapters/meltui/_internal/{kind}/factory.ts`
+   - Create `api/dsadapters/meltui/_internal/{kind}/_transport/`
+4. Create component folder: `components/{kind}/`
+5. Create centralized recipe: `recipes/components/{kind}/`
+6. Register preset: `registry/presets.ts`
+7. Run scanner, run tests
 
 ---
 
-## When Editing Contracts
+## Testing (Non-Negotiable)
 
-Contracts live ONLY in `taxonomy/kinds/primitives/{kind}/`.
-Zod-validated via `PrimitiveContractSchema.parse()`.
-Scanner calls `.parse()` — invalid contracts fail hard.
+- **Vitest browser tests** in real Chromium
+- **No jsdom. No mocking DOM.**
+- Every primitive: ARIA presence, data attributes, keyboard, focus, state
+- Every component: schema validation, recipe application, prop forwarding
 
 ---
 
 ## Files to Read First
 
-1. `MASTER-PLAN.md` — Canonical specification (Foundation Requirements are NON-NEGOTIABLE)
-2. `coldlight.config.ts` — THE config orchestrator
-3. `taxonomy/primitive/contract.ts` — PrimitiveContractSchema (Zod enforcement)
-4. `taxonomy/scanner.ts` — Config-driven parity checker
+1. `MASTER-PLAN.md` — Canonical specification
+2. `coldlight.config.ts` — Config orchestrator
+3. `registry/token-categories.ts` — 8-axis encoding SSOT
+4. `registry/presets.ts` — Named visual configs
 5. `config/coldlight/types.ts` — ColdLightConfig type
 
 ---
@@ -145,8 +137,15 @@ Scanner calls `.parse()` — invalid contracts fail hard.
 - `any` types
 - jsdom testing
 - Primitives without tests
-- Components without named folders
-- Tokens without Zod validation
+- Inline `recipe.ts` in component folders (use centralized `recipes/components/{kind}/`)
+- References to deleted concepts: taxonomy/, catalog/, semantics/, molecules/, shortcodes/
+
+---
+
+YOU DO NOT EXECUTE A SINGLE LINE OF CODE WITHOUT A TRUE PLAN WRITTEN FIRST.
+METHODICALLY AND ACTUALLY OFF THE CODEBASE. ZERO ASSUMPTIONS.
+THAT PLAN ALLOWS YOU TO HAVE RESEARCH. YOU DO NOT GUESS.
+THIS IS FOUNDATIONAL WORK.
 
 ---
 

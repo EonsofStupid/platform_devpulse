@@ -82,10 +82,10 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				tokenRefs: {
 					background: "var(--glass-void)",
 					"backdrop-filter":
-						"blur(var(--blur-md)) saturate(1.5)",
+						"blur(var(--blur-lg)) saturate(1.5)",
 					border: "1px solid oklch(from var(--color-teal-700) l c h / 0.22)",
 				},
-				requiredTokens: ["glass.void", "blur.md"],
+				requiredTokens: ["glass.void", "blur.lg"],
 			},
 			{
 				index: 2,
@@ -149,6 +149,30 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 						"linear-gradient(135deg, var(--color-void-900), var(--color-void-base))",
 				},
 				requiredTokens: ["color.void.900", "color.void.base"],
+			},
+			{
+				index: 8,
+				id: "glass-teal",
+				label: "Glass Teal",
+				tokenRefs: {
+					background: "var(--glass-teal)",
+					"backdrop-filter":
+						"blur(var(--blur-lg)) saturate(1.4)",
+					border: "1px solid oklch(from var(--color-teal-500) l c h / 0.35)",
+				},
+				requiredTokens: ["glass.teal", "blur.lg"],
+			},
+			{
+				index: 9,
+				id: "glass-purple",
+				label: "Glass Purple",
+				tokenRefs: {
+					background: "var(--glass-purple)",
+					"backdrop-filter":
+						"blur(var(--blur-lg)) saturate(1.3)",
+					border: "1px solid oklch(from var(--color-purple-500) l c h / 0.30)",
+				},
+				requiredTokens: ["glass.purple", "blur.lg"],
 			},
 		],
 	},
@@ -481,6 +505,24 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 					"border-radius": "var(--radius-md)",
 					"box-shadow":
 						"0 0 8px oklch(from var(--color-teal-500) l c h / 0.15)",
+				},
+			},
+			{
+				index: 5,
+				id: "accent-teal",
+				label: "Accent Teal",
+				tokenRefs: {
+					border: "1px solid oklch(from var(--color-teal-400) l c h / 0.45)",
+					"border-radius": "var(--radius-md)",
+				},
+			},
+			{
+				index: 6,
+				id: "accent-purple",
+				label: "Accent Purple",
+				tokenRefs: {
+					border: "1px solid oklch(from var(--color-purple-400) l c h / 0.40)",
+					"border-radius": "var(--radius-md)",
 				},
 			},
 		],

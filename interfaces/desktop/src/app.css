@@ -17,16 +17,19 @@ html, body {
 	-moz-osx-font-smoothing: grayscale;
 }
 
-/* Circuit board / neural network background pattern */
+/* ═══════════════════════════════════════════════════════
+   App Shell — Circuit Board Background
+   ═══════════════════════════════════════════════════════ */
+
 [data-layout="app"] {
 	background:
-		/* Radial glow in center */
+		/* Radial glow in center — teal accent */
 		radial-gradient(
 			ellipse 60% 50% at 50% 40%,
 			oklch(0.15 0.06 180 / 0.30) 0%,
 			transparent 70%
 		),
-		/* Subtle grid lines */
+		/* Grid lines — circuit board effect */
 		linear-gradient(
 			oklch(0.20 0.04 180 / 0.08) 1px,
 			transparent 1px
@@ -36,16 +39,41 @@ html, body {
 			oklch(0.20 0.04 180 / 0.08) 1px,
 			transparent 1px
 		),
-		/* Base color */
 		var(--color-void-base);
-	background-size:
-		100% 100%,
-		40px 40px,
-		40px 40px,
-		100% 100%;
+	background-size: 100% 100%, 40px 40px, 40px 40px, 100% 100%;
 }
 
-/* Scrollbar styling for glass panels */
+/* ═══════════════════════════════════════════════════════
+   Chat Window — Purple-shifted Neural Backdrop
+   ═══════════════════════════════════════════════════════ */
+
+[data-layout="chat"] {
+	background:
+		/* Purple-teal radial glow */
+		radial-gradient(
+			ellipse 80% 60% at 50% 30%,
+			oklch(0.15 0.08 280 / 0.25) 0%,
+			oklch(0.10 0.04 180 / 0.10) 50%,
+			transparent 80%
+		),
+		/* Tighter grid — neural network feel */
+		linear-gradient(
+			oklch(0.22 0.05 280 / 0.06) 1px,
+			transparent 1px
+		),
+		linear-gradient(
+			90deg,
+			oklch(0.22 0.05 280 / 0.06) 1px,
+			transparent 1px
+		),
+		var(--color-void-base);
+	background-size: 100% 100%, 28px 28px, 28px 28px, 100% 100%;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Scrollbar styling
+   ═══════════════════════════════════════════════════════ */
+
 ::-webkit-scrollbar {
 	width: 6px;
 	height: 6px;

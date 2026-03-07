@@ -33,14 +33,13 @@ registerRecipe({
 	classes: (props: DsSurfaceProps): Record<string, string> => ({
 		frame: cn(
 			"flex flex-col h-screen w-full overflow-hidden",
-			"v-s2 v-z2",
 			"bg-void-base",
 			radiusClass(props.radius),
 		),
 		topbar: cn(
 			"flex items-center justify-between",
 			"h-10 px-4",
-			"v-s2 v-z0 v-b1",
+			"v-s1 v-b1",
 			"border-b border-border-divider",
 		),
 		modeSelector: cn(
@@ -54,7 +53,7 @@ registerRecipe({
 		footer: cn(
 			"flex items-center gap-2",
 			"px-4 py-3",
-			"v-s2 v-z0",
+			"v-s1 v-f1",
 			"border-t border-border-divider",
 		),
 	}),

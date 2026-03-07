@@ -230,7 +230,7 @@ register({
 	id: "shell-sidebar",
 	kind: "shell",
 	label: "Sidebar",
-	description: "Glass void with soft frame edge",
+	description: "Glass void panel with soft frame edge",
 	isSystem: true,
 	values: {
 		surface: "glass-void",
@@ -242,7 +242,7 @@ register({
 	id: "shell-topbar",
 	kind: "shell",
 	label: "Top Bar",
-	description: "Glass void with subtle bevel edge",
+	description: "Glass void panel with subtle bevel edge",
 	isSystem: true,
 	values: {
 		surface: "glass-void",
@@ -254,7 +254,7 @@ register({
 	id: "shell-statusbar",
 	kind: "shell",
 	label: "Status Bar",
-	description: "Glass void — minimal bottom bar",
+	description: "Glass void panel — minimal bottom bar",
 	isSystem: true,
 	values: {
 		surface: "glass-void",
@@ -413,12 +413,15 @@ register({
 	id: "chat-bubble-ai",
 	kind: "chat",
 	label: "AI Chat Bubble",
-	description: "Deep glass with subtle depth and bevel",
+	description: "Purple glass with purple glow — AI messages",
 	isSystem: true,
 	values: {
-		surface: "glass-deep",
+		surface: "glass-purple",
 		depth: "z1",
 		bevel: "subtle",
+		glow: "purple",
+		frame: "accent-purple",
+		transition: "fast",
 	},
 });
 
@@ -426,11 +429,15 @@ register({
 	id: "chat-bubble-user",
 	kind: "chat",
 	label: "User Chat Bubble",
-	description: "Glass smoke with subtle elevation",
+	description: "Teal glass with teal glow — user messages",
 	isSystem: true,
 	values: {
-		surface: "glass-smoke",
+		surface: "glass-teal",
 		depth: "z1",
+		bevel: "subtle",
+		glow: "teal",
+		frame: "accent-teal",
+		transition: "fast",
 	},
 });
 
@@ -594,6 +601,22 @@ register({
 		surface: "glass-void",
 		glow: "teal",
 		frame: "soft",
+		transition: "fast",
+	},
+});
+
+register({
+	id: "sidebar-nav-active",
+	kind: "navigation",
+	label: "Active Sidebar Nav",
+	description: "Teal glass with glow — active sidebar button",
+	isSystem: true,
+	values: {
+		surface: "glass-teal",
+		depth: "z1",
+		bevel: "subtle",
+		glow: "teal",
+		frame: "accent-teal",
 		transition: "fast",
 	},
 });

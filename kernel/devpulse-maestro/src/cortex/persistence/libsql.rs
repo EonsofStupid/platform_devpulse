@@ -67,9 +67,12 @@ impl LibSqlAdapter {
     /// Returns error if the database is unreachable.
     pub async fn ping(&self) -> Result<()> {
         let conn = self.conn.read().await;
-        conn.execute("SELECT 1", ())
+        let mut rows = conn
+            .query("SELECT 1", ())
             .await
             .context("LibSQL ping failed")?;
+        // Consume the single row to complete the query
+        let _ = rows.next().await;
         Ok(())
     }
 }

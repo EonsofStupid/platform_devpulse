@@ -29,10 +29,26 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
-            let data_dir = app
-                .path()
-                .app_data_dir()
-                .expect("Failed to resolve app data dir");
+            // Dev: project-local data/ dir (already gitignored).
+            // Release: standard OS app data dir.
+            let data_dir = if cfg!(debug_assertions) {
+                // CARGO_MANIFEST_DIR = interfaces/desktop/src-tauri
+                // Go up 3 levels to project root, then into data/
+                let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+                let project_root = manifest
+                    .parent() // interfaces/desktop
+                    .and_then(|p| p.parent()) // interfaces
+                    .and_then(|p| p.parent()) // project root
+                    .expect("Failed to resolve project root from CARGO_MANIFEST_DIR");
+                let dev_data = project_root.join("data");
+                std::fs::create_dir_all(&dev_data)
+                    .expect("Failed to create dev data directory");
+                dev_data
+            } else {
+                app.path()
+                    .app_data_dir()
+                    .expect("Failed to resolve app data dir")
+            };
 
             // Logging: rotate old logs, then init stderr + file together
             let _ = logging::rotate_logs(&data_dir);

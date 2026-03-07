@@ -165,10 +165,15 @@ impl Platform {
                             path = %path.display(),
                             "Removing stale SurrealKV data directory"
                         );
-                        let _ = std::fs::remove_dir_all(&path);
-                        if let Some(parent) = path.parent() {
-                            let _ = std::fs::create_dir_all(parent);
+                        match std::fs::remove_dir_all(&path) {
+                            Ok(()) => tracing::info!("Stale data removed successfully"),
+                            Err(rm_err) => tracing::warn!(
+                                error = ?rm_err,
+                                "Failed to remove stale data — Windows may still hold file locks"
+                            ),
                         }
+                        // Brief delay for Windows to release file handles
+                        tokio::time::sleep(std::time::Duration::from_millis(200)).await;
                     }
                     match GraphStore::boot(&path).await {
                         Ok(store) => {

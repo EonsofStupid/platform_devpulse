@@ -27,8 +27,12 @@ impl SurrealAdapter {
     /// # Errors
     /// Returns error if the database cannot be opened or schema initialization fails.
     pub async fn open(path: &Path) -> Result<Self> {
-        // Ensure the full directory exists (SurrealKV stores data inside this dir)
-        std::fs::create_dir_all(path).context("Failed to create SurrealDB directory")?;
+        // Ensure the PARENT directory exists — SurrealKV creates its own
+        // data directory and needs write access to the parent.
+        if let Some(parent) = path.parent() {
+            std::fs::create_dir_all(parent)
+                .context("Failed to create SurrealDB parent directory")?;
+        }
 
         // Pass the path as-is — do NOT canonicalize on Windows because
         // canonicalize() adds \\?\ extended-length prefix which SurrealKV

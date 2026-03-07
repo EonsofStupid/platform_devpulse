@@ -86,7 +86,7 @@
 
 <Box class="flex h-full gap-0">
 	<!-- Thread sidebar -->
-	<Stack gap="1" class="w-24 border-r border-border-divider px-2 py-3">
+	<Stack gap="1" class="w-24 border-r border-border-divider px-2 py-3 cl-chat-threads">
 		{#each threads as thread (thread.id)}
 			<Button
 				intent="ghost"
@@ -135,7 +135,7 @@
 							preset={msg.role === "assistant" ? "chat-bubble-ai" : "chat-bubble-user"}
 							radius="lg"
 							frame="soft"
-							class="max-w-[85%] px-3 py-2"
+							class="max-w-[85%] px-3 py-2 {msg.role === 'assistant' ? 'cl-bubble-ai' : 'cl-bubble-user'}"
 						>
 							{#if msg.role === "assistant"}
 								<HStack gap="1" class="mb-1">
@@ -156,7 +156,7 @@
 			gap="2"
 			align="center"
 			preset="shell-statusbar"
-			class="border-t border-border-divider px-3 py-2"
+			class="border-t border-border-divider px-3 py-2 cl-chat-input"
 		>
 			<Button
 				intent="ghost"
