@@ -71,7 +71,7 @@ const subsystems = $derived(platformState.subsystemList());
 	{:else if platformState.hasFailed}
 		<!-- Boot failed -->
 		<HStack gap="2" align="center">
-			<Badge intent="danger" size="sm" class="gap-1.5">
+			<Badge intent="error" size="sm" class="gap-1.5">
 				<span class="status-dot h-2 w-2 rounded-full" data-status="offline" aria-hidden="true"></span>
 				<Text size="xs" color="accent">Boot failed</Text>
 			</Badge>

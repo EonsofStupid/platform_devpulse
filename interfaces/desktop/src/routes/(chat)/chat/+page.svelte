@@ -170,7 +170,8 @@
 			</Button>
 			<Input
 				type="text"
-				bind:value={inputValue}
+				value={inputValue}
+				oninput={(e) => { inputValue = e.currentTarget.value; }}
 				onkeydown={handleKeydown}
 				placeholder="Ask Maestro..."
 				preset="chat-input"

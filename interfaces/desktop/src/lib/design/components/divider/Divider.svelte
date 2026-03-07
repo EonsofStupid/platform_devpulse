@@ -9,7 +9,7 @@
 -->
 <script lang="ts">
 	import type { DividerComponentProps } from "./types.js";
-	import { createDivider } from "$lib/design/api/adapters/coldlight/_internal/divider/index.js";
+	import { createDivider } from "$lib/design/api/dsadapters/coldlight/_internal/divider/index.js";
 	import DividerRoot from "$lib/design/primitives/divider/Divider.svelte";
 	import { cn } from "$lib/design/primitives/types.js";
 	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";

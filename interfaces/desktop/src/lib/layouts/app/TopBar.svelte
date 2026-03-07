@@ -92,13 +92,14 @@ function onKey(e: KeyboardEvent): void {
 					preset="input-default"
 					class="w-64"
 					type="text"
-					bind:value={searchQuery}
+					value={searchQuery}
+					oninput={(e) => { searchQuery = e.currentTarget.value; }}
 					placeholder="Search..."
 				/>
 			</Box>
 		{/if}
 
-		<Avatar size="sm" class="h-8 w-8">
+		<Avatar size="sm" alt="User avatar" class="h-8 w-8">
 			DP
 		</Avatar>
 	</HStack>
