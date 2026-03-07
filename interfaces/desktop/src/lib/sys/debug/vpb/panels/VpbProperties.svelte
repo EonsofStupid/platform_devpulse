@@ -348,13 +348,13 @@
 		flex-direction: column;
 		gap: 2px;
 		padding-bottom: 8px;
-		border-bottom: 1px solid oklch(1 0 0 / 0.06);
+		border-bottom: 1px solid var(--vpb-border);
 	}
 	.vpb-props__kind {
 		font-size: 15px;
 		font-weight: 600;
 		margin: 0;
-		color: oklch(0.85 0.08 180);
+		color: var(--vpb-graph-node-kind-color);
 	}
 	.vpb-props__meta {
 		display: flex;
@@ -363,7 +363,7 @@
 	}
 	.vpb-props__id {
 		font-size: 10px;
-		color: oklch(0.5 0 0);
+		color: var(--vpb-label-dim);
 		font-family: monospace;
 	}
 	.vpb-props__preset-badge {
@@ -371,9 +371,9 @@
 		font-family: monospace;
 		padding: 1px 5px;
 		border-radius: 3px;
-		background: oklch(0.5 0.12 180 / 0.2);
-		color: oklch(0.75 0.1 180);
-		border: 1px solid oklch(0.5 0.12 180 / 0.3);
+		background: var(--vpb-tag-teal-bg);
+		color: var(--vpb-tag-teal-color);
+		border: 1px solid var(--vpb-tag-teal-border);
 	}
 	.vpb-props__section {
 		display: flex;
@@ -385,25 +385,25 @@
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
-		color: oklch(0.55 0 0);
+		color: var(--vpb-label-color);
 	}
 	.vpb-props__select, .vpb-props__input {
 		width: 100%;
 		padding: 6px 8px;
-		border: 1px solid oklch(1 0 0 / 0.1);
+		border: 1px solid var(--vpb-btn-border);
 		border-radius: 4px;
-		background: oklch(1 0 0 / 0.04);
+		background: var(--vpb-btn-bg);
 		color: inherit;
 		font-size: 12px;
 	}
 	.vpb-props__select:focus, .vpb-props__input:focus {
-		border-color: oklch(0.6 0.15 180);
+		border-color: var(--vpb-accent-teal);
 		outline: none;
 	}
 	.vpb-props__actions {
 		margin-top: auto;
 		padding-top: 12px;
-		border-top: 1px solid oklch(1 0 0 / 0.06);
+		border-top: 1px solid var(--vpb-border);
 		display: flex;
 		flex-direction: column;
 		gap: 6px;
@@ -411,28 +411,28 @@
 	.vpb-props__reset {
 		width: 100%;
 		padding: 6px;
-		border: 1px solid oklch(0.5 0.1 180 / 0.3);
+		border: 1px solid var(--vpb-tag-teal-border);
 		border-radius: 4px;
-		background: oklch(0.5 0.1 180 / 0.1);
-		color: oklch(0.7 0.08 180);
+		background: var(--vpb-tag-teal-bg);
+		color: var(--vpb-tag-teal-color);
 		font-size: 12px;
 		cursor: pointer;
 	}
 	.vpb-props__reset:hover {
-		background: oklch(0.5 0.1 180 / 0.2);
+		background: var(--vpb-tag-teal-bg);
 	}
 	.vpb-props__delete {
 		width: 100%;
 		padding: 6px;
-		border: 1px solid oklch(0.5 0.15 20 / 0.3);
+		border: 1px solid var(--vpb-tag-ember-border);
 		border-radius: 4px;
-		background: oklch(0.5 0.15 20 / 0.1);
-		color: oklch(0.75 0.12 20);
+		background: var(--vpb-tag-ember-bg);
+		color: var(--vpb-tag-ember-color);
 		font-size: 12px;
 		cursor: pointer;
 	}
 	.vpb-props__delete:hover {
-		background: oklch(0.5 0.15 20 / 0.2);
+		background: var(--vpb-tag-ember-bg);
 	}
 	.vpb-props__empty {
 		display: flex;
@@ -441,18 +441,18 @@
 		justify-content: center;
 		height: 100%;
 		gap: 6px;
-		color: oklch(0.5 0 0);
+		color: var(--vpb-label-dim);
 		text-align: center;
 	}
 	.vpb-props__empty-sub {
 		font-size: 12px;
-		color: oklch(0.4 0 0);
+		color: var(--vpb-text-dim);
 	}
 	.vpb-props__tabs {
 		display: flex;
 		gap: 2px;
 		padding: 2px;
-		background: oklch(1 0 0 / 0.03);
+		background: var(--vpb-btn-bg);
 		border-radius: 5px;
 	}
 	.vpb-props__tab {
@@ -461,25 +461,25 @@
 		border: none;
 		border-radius: 4px;
 		background: transparent;
-		color: oklch(0.5 0 0);
+		color: var(--vpb-label-dim);
 		font-size: 10px;
 		cursor: pointer;
 		transition: background 0.15s, color 0.15s;
 	}
 	.vpb-props__tab:hover {
-		background: oklch(1 0 0 / 0.06);
+		background: var(--vpb-border);
 	}
 	.vpb-props__tab--active {
-		background: oklch(0.5 0.12 180 / 0.2);
-		color: oklch(0.8 0.08 180);
+		background: var(--vpb-tag-teal-bg);
+		color: var(--vpb-btn-active-color);
 	}
 	.vpb-props__value {
 		font-size: 12px;
-		color: oklch(0.75 0 0);
+		color: var(--vpb-text-bright);
 		padding: 2px 0;
 	}
 	.vpb-props__value--muted {
-		color: oklch(0.45 0 0);
+		color: var(--vpb-label-dim);
 		font-style: italic;
 	}
 	.vpb-props__list {
@@ -493,24 +493,24 @@
 		gap: 6px;
 		padding: 3px 6px;
 		border-radius: 3px;
-		background: oklch(1 0 0 / 0.03);
+		background: var(--vpb-btn-bg);
 		font-size: 11px;
 	}
 	.vpb-props__kbd {
 		display: inline-block;
 		padding: 1px 5px;
 		border-radius: 3px;
-		background: oklch(1 0 0 / 0.08);
-		border: 1px solid oklch(1 0 0 / 0.12);
+		background: var(--vpb-btn-hover);
+		border: 1px solid var(--vpb-code-border);
 		font-family: monospace;
 		font-size: 10px;
-		color: oklch(0.8 0.06 180);
+		color: var(--vpb-btn-active-color);
 		min-width: 24px;
 		text-align: center;
 	}
 	.vpb-props__desc {
 		font-size: 11px;
-		color: oklch(0.55 0 0);
+		color: var(--vpb-label-color);
 	}
 	.vpb-props__tags {
 		display: flex;
@@ -520,41 +520,41 @@
 	.vpb-props__tag {
 		padding: 1px 6px;
 		border-radius: 3px;
-		background: oklch(1 0 0 / 0.06);
-		border: 1px solid oklch(1 0 0 / 0.08);
+		background: var(--vpb-border);
+		border: 1px solid var(--vpb-btn-hover);
 		font-size: 10px;
 		font-family: monospace;
-		color: oklch(0.6 0 0);
+		color: var(--vpb-value-color);
 	}
 	.vpb-props__tag--active {
-		background: oklch(0.5 0.1 150 / 0.15);
-		border-color: oklch(0.5 0.1 150 / 0.25);
-		color: oklch(0.75 0.08 150);
+		background: var(--vpb-tag-green-bg);
+		border-color: var(--vpb-tag-green-border);
+		color: var(--vpb-tag-green-color);
 	}
 	.vpb-props__slot-name {
 		font-family: monospace;
 		font-size: 11px;
-		color: oklch(0.8 0.06 180);
+		color: var(--vpb-btn-active-color);
 	}
 	.vpb-props__slot-badge {
 		font-size: 9px;
 		padding: 0 4px;
 		border-radius: 2px;
-		background: oklch(1 0 0 / 0.06);
-		color: oklch(0.5 0 0);
+		background: var(--vpb-border);
+		color: var(--vpb-label-dim);
 	}
 	.vpb-props__slot-badge--required {
-		background: oklch(0.5 0.1 30 / 0.15);
-		color: oklch(0.75 0.1 30);
+		background: var(--vpb-tag-ember-bg);
+		color: var(--vpb-tag-ember-color);
 	}
 	.vpb-props__slot-role {
 		font-family: monospace;
 		font-size: 10px;
-		color: oklch(0.55 0.05 260);
+		color: var(--vpb-encoding-purple);
 	}
 	.vpb-props__link {
 		font-size: 11px;
-		color: oklch(0.7 0.12 180);
+		color: var(--vpb-tag-teal-color);
 		text-decoration: underline;
 		word-break: break-all;
 	}
@@ -564,10 +564,10 @@
 		gap: 2px;
 		padding: 6px 8px;
 		border-radius: 4px;
-		background: oklch(1 0 0 / 0.04);
-		border: 1px solid oklch(1 0 0 / 0.08);
+		background: var(--vpb-btn-bg);
+		border: 1px solid var(--vpb-btn-hover);
 		font-family: monospace;
 		font-size: 10px;
-		color: oklch(0.65 0 0);
+		color: var(--vpb-value-color);
 	}
 </style>

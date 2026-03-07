@@ -54,14 +54,14 @@
 		font-weight: 700;
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
-		color: oklch(0.5 0.08 180);
+		color: var(--vpb-label-dim);
 		margin: 0;
 		padding-bottom: 4px;
-		border-bottom: 1px solid oklch(1 0 0 / 0.04);
+		border-bottom: 1px solid var(--vpb-border-faint);
 	}
 	.vpb-legend__empty {
 		font-size: 11px;
-		color: oklch(0.45 0 0);
+		color: var(--vpb-label-dim);
 		margin: 0;
 	}
 	.vpb-legend__grid {
@@ -82,11 +82,11 @@
 		align-items: center;
 		justify-content: center;
 		flex-shrink: 0;
-		border: 1px solid oklch(1 0 0 / 0.1);
+		border: 1px solid var(--vpb-btn-border);
 	}
 	.vpb-legend__swatch-label {
 		font-size: 8px;
-		color: oklch(0.6 0 0);
+		color: var(--vpb-value-color);
 		font-family: monospace;
 	}
 	.vpb-legend__meta {
@@ -98,7 +98,7 @@
 	.vpb-legend__name {
 		font-size: 11px;
 		font-weight: 500;
-		color: oklch(0.75 0 0);
+		color: var(--vpb-text-bright);
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -106,6 +106,6 @@
 	.vpb-legend__id {
 		font-size: 9px;
 		font-family: monospace;
-		color: oklch(0.45 0 0);
+		color: var(--vpb-label-dim);
 	}
 </style>

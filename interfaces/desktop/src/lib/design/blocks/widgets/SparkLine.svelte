@@ -43,13 +43,14 @@
 		class: className = "",
 	}: Props = $props();
 
+	/** Accent colors — resolved from SD5 component tokens (--accent-{color}-{role}) */
 	const accentColors: Record<Accent, { main: string; glow: string; fill: string }> = {
-		teal: { main: "oklch(0.64 0.16 180)", glow: "oklch(0.55 0.18 180 / 0.5)", fill: "oklch(0.55 0.18 180 / 0.15)" },
-		purple: { main: "oklch(0.64 0.16 280)", glow: "oklch(0.55 0.18 280 / 0.5)", fill: "oklch(0.55 0.18 280 / 0.15)" },
-		magenta: { main: "oklch(0.64 0.18 330)", glow: "oklch(0.55 0.20 330 / 0.5)", fill: "oklch(0.55 0.20 330 / 0.15)" },
-		ember: { main: "oklch(0.64 0.16 25)", glow: "oklch(0.55 0.18 25 / 0.5)", fill: "oklch(0.55 0.18 25 / 0.15)" },
-		frost: { main: "oklch(0.68 0.08 220)", glow: "oklch(0.58 0.10 220 / 0.5)", fill: "oklch(0.58 0.10 220 / 0.15)" },
-		cyber: { main: "oklch(0.64 0.16 160)", glow: "oklch(0.55 0.18 160 / 0.5)", fill: "oklch(0.55 0.18 160 / 0.15)" },
+		teal: { main: "var(--accent-teal-main)", glow: "var(--accent-teal-glow)", fill: "var(--accent-teal-fill)" },
+		purple: { main: "var(--accent-purple-main)", glow: "var(--accent-purple-glow)", fill: "var(--accent-purple-fill)" },
+		magenta: { main: "var(--accent-magenta-main)", glow: "var(--accent-magenta-glow)", fill: "var(--accent-magenta-fill)" },
+		ember: { main: "var(--accent-ember-main)", glow: "var(--accent-ember-glow)", fill: "var(--accent-ember-fill)" },
+		frost: { main: "var(--accent-frost-main)", glow: "var(--accent-frost-glow)", fill: "var(--accent-frost-fill)" },
+		cyber: { main: "var(--accent-cyber-main)", glow: "var(--accent-cyber-glow)", fill: "var(--accent-cyber-fill)" },
 	};
 
 	const padding = 4;

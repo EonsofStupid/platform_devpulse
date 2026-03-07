@@ -30,15 +30,15 @@
 		z-index: 10;
 	}
 	.vpb-conn-badge--disconnected {
-		background: oklch(0.4 0.15 30 / 0.9);
-		color: oklch(0.9 0.1 50);
-		border: 1px solid oklch(0.5 0.15 30 / 0.5);
+		background: var(--vpb-error-bg);
+		color: var(--vpb-error-color);
+		border: 1px solid var(--vpb-error-border);
 	}
 	.vpb-conn-badge__dot {
 		width: 6px;
 		height: 6px;
 		border-radius: 50%;
-		background: oklch(0.7 0.2 30);
+		background: var(--vpb-error-dot);
 		animation: vpb-pulse 1.5s infinite;
 	}
 	.vpb-conn-badge__count {

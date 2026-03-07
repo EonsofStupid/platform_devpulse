@@ -78,19 +78,19 @@
 	}
 	.vpb-palette__search {
 		padding: 8px;
-		border-bottom: 1px solid oklch(1 0 0 / 0.06);
+		border-bottom: 1px solid var(--vpb-border);
 	}
 	.vpb-palette__search input {
 		width: 100%;
 		padding: 6px 8px;
-		border: 1px solid oklch(1 0 0 / 0.1);
+		border: 1px solid var(--vpb-btn-border);
 		border-radius: 4px;
-		background: oklch(1 0 0 / 0.04);
+		background: var(--vpb-btn-bg);
 		color: inherit;
 		font-size: 12px;
 	}
 	.vpb-palette__search input:focus {
-		border-color: oklch(0.6 0.15 180);
+		border-color: var(--vpb-accent-teal);
 		outline: none;
 	}
 	.vpb-palette__categories {
@@ -98,25 +98,25 @@
 		flex-wrap: wrap;
 		gap: 2px;
 		padding: 6px 8px;
-		border-bottom: 1px solid oklch(1 0 0 / 0.06);
+		border-bottom: 1px solid var(--vpb-border);
 	}
 	.vpb-palette__cat-btn {
 		padding: 3px 8px;
 		border: 1px solid transparent;
 		border-radius: 3px;
 		background: transparent;
-		color: oklch(0.7 0 0);
+		color: var(--vpb-value-color);
 		font-size: 11px;
 		text-transform: capitalize;
 		cursor: pointer;
 	}
 	.vpb-palette__cat-btn:hover {
-		background: oklch(1 0 0 / 0.06);
+		background: var(--vpb-border);
 	}
 	.vpb-palette__cat-btn--active {
-		background: oklch(0.5 0.15 180 / 0.15);
-		color: oklch(0.75 0.12 180);
-		border-color: oklch(0.5 0.15 180 / 0.3);
+		background: var(--vpb-btn-active-bg);
+		color: var(--vpb-tag-teal-color);
+		border-color: var(--vpb-btn-active-border);
 	}
 	.vpb-palette__kinds {
 		flex: 1;
@@ -138,8 +138,8 @@
 		text-align: left;
 	}
 	.vpb-palette__kind:hover:not(:disabled) {
-		background: oklch(1 0 0 / 0.06);
-		border-color: oklch(1 0 0 / 0.08);
+		background: var(--vpb-border);
+		border-color: var(--vpb-btn-hover);
 	}
 	.vpb-palette__kind--disabled {
 		opacity: 0.35;
@@ -150,15 +150,15 @@
 	}
 	.vpb-palette__kind-count {
 		font-size: 10px;
-		color: oklch(0.6 0 0);
-		background: oklch(1 0 0 / 0.06);
+		color: var(--vpb-value-color);
+		background: var(--vpb-border);
 		padding: 1px 5px;
 		border-radius: 3px;
 	}
 	.vpb-palette__empty {
 		padding: 16px;
 		text-align: center;
-		color: oklch(0.5 0 0);
+		color: var(--vpb-label-dim);
 		font-size: 12px;
 	}
 </style>

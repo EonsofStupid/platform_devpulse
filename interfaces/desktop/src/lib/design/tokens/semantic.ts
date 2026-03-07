@@ -51,4 +51,15 @@ export const semantic = {
 		normal: "var(--duration-normal) var(--ease-inOut)",
 		slow: "var(--duration-slow) var(--ease-inOut)",
 	},
+	backdrop: {
+		"glow-teal": "oklch(0.15 0.06 180 / 0.30)",
+		"glow-purple": "oklch(0.15 0.08 280 / 0.25)",
+		"glow-purple-fade": "oklch(0.10 0.04 180 / 0.10)",
+		"grid-teal": "oklch(0.20 0.04 180 / 0.08)",
+		"grid-purple": "oklch(0.22 0.05 280 / 0.06)",
+	},
+	scrollbar: {
+		thumb: "oklch(1 0 0 / 0.12)",
+		"thumb-hover": "oklch(1 0 0 / 0.20)",
+	},
 } as const;

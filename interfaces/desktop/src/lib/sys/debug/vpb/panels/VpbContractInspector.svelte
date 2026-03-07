@@ -152,7 +152,7 @@
 	}
 	.vpb-inspector__empty {
 		font-size: 12px;
-		color: oklch(0.45 0 0);
+		color: var(--vpb-label-dim);
 		text-align: center;
 		padding: 16px 8px;
 	}
@@ -160,7 +160,7 @@
 		display: block;
 		margin-top: 4px;
 		font-size: 10px;
-		color: oklch(0.35 0 0);
+		color: var(--vpb-label-dim);
 	}
 	.vpb-inspector__section {
 		display: flex;
@@ -172,10 +172,10 @@
 		font-weight: 700;
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
-		color: oklch(0.5 0.08 180);
+		color: var(--vpb-label-color);
 		margin: 0;
 		padding-bottom: 2px;
-		border-bottom: 1px solid oklch(1 0 0 / 0.04);
+		border-bottom: 1px solid var(--vpb-btn-bg);
 	}
 	.vpb-inspector__row {
 		display: flex;
@@ -185,19 +185,19 @@
 	}
 	.vpb-inspector__label {
 		font-size: 11px;
-		color: oklch(0.55 0 0);
+		color: var(--vpb-label-color);
 	}
 	.vpb-inspector__value {
 		font-size: 11px;
 		font-family: monospace;
-		color: oklch(0.75 0.06 180);
-		background: oklch(1 0 0 / 0.04);
+		color: var(--vpb-encoding-teal);
+		background: var(--vpb-btn-bg);
 		padding: 1px 4px;
 		border-radius: 3px;
 	}
 	.vpb-inspector__desc {
 		font-size: 11px;
-		color: oklch(0.6 0 0);
+		color: var(--vpb-value-color);
 		margin: 0;
 		line-height: 1.4;
 	}
@@ -213,35 +213,35 @@
 		border-radius: 3px;
 	}
 	.vpb-inspector__tag--required {
-		background: oklch(0.5 0.12 180 / 0.15);
-		color: oklch(0.7 0.1 180);
+		background: var(--vpb-btn-active-bg);
+		color: var(--vpb-tick-active);
 	}
 	.vpb-inspector__tag--optional {
-		background: oklch(1 0 0 / 0.06);
-		color: oklch(0.55 0 0);
+		background: var(--vpb-border);
+		color: var(--vpb-label-color);
 	}
 	.vpb-inspector__tag--state {
-		background: oklch(0.5 0.1 290 / 0.15);
-		color: oklch(0.7 0.1 290);
+		background: var(--vpb-tag-purple-bg);
+		color: var(--vpb-tag-purple-color);
 	}
 	.vpb-inspector__tag--state-specific {
-		background: oklch(0.5 0.15 60 / 0.15);
-		color: oklch(0.7 0.12 60);
+		background: var(--vpb-tag-gold-bg);
+		color: var(--vpb-tag-gold-color);
 	}
 	.vpb-inspector__kbd {
 		font-size: 10px;
 		font-family: monospace;
-		background: oklch(1 0 0 / 0.08);
-		border: 1px solid oklch(1 0 0 / 0.1);
+		background: var(--vpb-btn-hover);
+		border: 1px solid var(--vpb-btn-border);
 		padding: 1px 5px;
 		border-radius: 3px;
-		color: oklch(0.7 0 0);
+		color: var(--vpb-value-color);
 	}
 	.vpb-inspector__attr {
 		font-size: 10px;
 		font-family: monospace;
-		color: oklch(0.7 0.08 20);
-		background: oklch(0.5 0.1 20 / 0.1);
+		color: var(--vpb-tag-ember-color);
+		background: var(--vpb-tag-ember-bg);
 		padding: 1px 4px;
 		border-radius: 3px;
 	}
@@ -257,6 +257,6 @@
 	}
 	.vpb-inspector__kbd-action {
 		font-size: 10px;
-		color: oklch(0.55 0 0);
+		color: var(--vpb-label-color);
 	}
 </style>

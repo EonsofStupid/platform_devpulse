@@ -43,13 +43,14 @@
 		class: className = "",
 	}: Props = $props();
 
+	/** Accent colors — resolved from SD5 component tokens (--accent-{color}-{role}) */
 	const accentColors: Record<Accent, { main: string; glow: string }> = {
-		teal: { main: "oklch(0.64 0.16 180)", glow: "oklch(0.55 0.18 180 / 0.6)" },
-		purple: { main: "oklch(0.64 0.16 280)", glow: "oklch(0.55 0.18 280 / 0.6)" },
-		magenta: { main: "oklch(0.64 0.18 330)", glow: "oklch(0.55 0.20 330 / 0.6)" },
-		ember: { main: "oklch(0.64 0.16 25)", glow: "oklch(0.55 0.18 25 / 0.6)" },
-		frost: { main: "oklch(0.68 0.08 220)", glow: "oklch(0.58 0.10 220 / 0.6)" },
-		cyber: { main: "oklch(0.64 0.16 160)", glow: "oklch(0.55 0.18 160 / 0.6)" },
+		teal: { main: "var(--accent-teal-main)", glow: "var(--accent-teal-glow)" },
+		purple: { main: "var(--accent-purple-main)", glow: "var(--accent-purple-glow)" },
+		magenta: { main: "var(--accent-magenta-main)", glow: "var(--accent-magenta-glow)" },
+		ember: { main: "var(--accent-ember-main)", glow: "var(--accent-ember-glow)" },
+		frost: { main: "var(--accent-frost-main)", glow: "var(--accent-frost-glow)" },
+		cyber: { main: "var(--accent-cyber-main)", glow: "var(--accent-cyber-glow)" },
 	};
 
 	const cx = $derived(size / 2);
@@ -75,7 +76,7 @@
 			{cy}
 			r={radius}
 			fill="none"
-			stroke="oklch(1 0 0 / 0.06)"
+			stroke="var(--svg-track-stroke)"
 			stroke-width={strokeWidth}
 		/>
 
@@ -114,7 +115,7 @@
 			{@const y2 = cy + (radius + strokeWidth / 2 + 1) * Math.sin(angle)}
 			<line
 				{x1} {y1} {x2} {y2}
-				stroke="oklch(1 0 0 / 0.15)"
+				stroke="var(--svg-track-tick-stroke)"
 				stroke-width="1"
 			/>
 		{/each}

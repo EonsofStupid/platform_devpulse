@@ -28,10 +28,10 @@
 
 <style>
 	.vpb-ctrl { display: flex; flex-direction: column; gap: 4px; }
-	.vpb-ctrl__label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: oklch(0.55 0 0); display: flex; justify-content: space-between; }
-	.vpb-ctrl__val { color: oklch(0.7 0.1 180); font-weight: 400; }
-	.vpb-ctrl__slider { width: 100%; accent-color: oklch(0.6 0.15 180); }
+	.vpb-ctrl__label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--vpb-label-color); display: flex; justify-content: space-between; }
+	.vpb-ctrl__val { color: var(--vpb-tick-active); font-weight: 400; }
+	.vpb-ctrl__slider { width: 100%; accent-color: var(--vpb-slider-accent); }
 	.vpb-ctrl__ticks { display: flex; justify-content: space-between; }
-	.vpb-ctrl__tick { font-size: 9px; color: oklch(0.45 0 0); }
-	.vpb-ctrl__tick--active { color: oklch(0.7 0.1 180); font-weight: 600; }
+	.vpb-ctrl__tick { font-size: 9px; color: var(--vpb-label-dim); }
+	.vpb-ctrl__tick--active { color: var(--vpb-tick-active); font-weight: 600; }
 </style>

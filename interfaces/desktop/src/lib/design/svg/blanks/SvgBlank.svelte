@@ -52,7 +52,7 @@
 		height = "100%",
 		radius = 12,
 		filters = [],
-		fill = "oklch(0.08 0.005 250 / 0.85)",
+		fill = "var(--glass-void)",
 		stroke = "none",
 		strokeWidth = 0,
 		class: className = "",

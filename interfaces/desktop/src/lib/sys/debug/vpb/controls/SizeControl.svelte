@@ -23,9 +23,9 @@
 
 <style>
 	.vpb-ctrl { display: flex; flex-direction: column; gap: 4px; }
-	.vpb-ctrl__label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: oklch(0.55 0 0); }
+	.vpb-ctrl__label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--vpb-label-color); }
 	.vpb-ctrl__seg { display: flex; gap: 2px; }
-	.vpb-ctrl__seg-btn { flex: 1; padding: 4px 6px; border: 1px solid oklch(1 0 0 / 0.1); border-radius: 3px; background: oklch(1 0 0 / 0.04); color: inherit; font-size: 11px; cursor: pointer; text-transform: uppercase; }
-	.vpb-ctrl__seg-btn:hover { background: oklch(1 0 0 / 0.08); }
-	.vpb-ctrl__seg-btn--active { background: oklch(0.5 0.15 180 / 0.2); border-color: oklch(0.6 0.15 180 / 0.4); color: oklch(0.8 0.1 180); }
+	.vpb-ctrl__seg-btn { flex: 1; padding: 4px 6px; border: 1px solid var(--vpb-btn-border); border-radius: 3px; background: var(--vpb-btn-bg); color: inherit; font-size: 11px; cursor: pointer; text-transform: uppercase; }
+	.vpb-ctrl__seg-btn:hover { background: var(--vpb-btn-hover); }
+	.vpb-ctrl__seg-btn--active { background: var(--vpb-btn-active-bg); border-color: var(--vpb-btn-active-border); color: var(--vpb-btn-active-color); }
 </style>

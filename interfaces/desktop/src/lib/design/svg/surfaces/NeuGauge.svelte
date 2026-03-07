@@ -37,7 +37,7 @@
 		size = 200,
 		bevel = "medium",
 		noise = true,
-		fill = "oklch(0.10 0.01 250 / 0.90)",
+		fill = "var(--glass-deep)",
 		class: className = "",
 		children,
 	}: Props = $props();

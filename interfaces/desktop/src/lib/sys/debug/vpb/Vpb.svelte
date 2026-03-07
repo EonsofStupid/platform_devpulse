@@ -60,7 +60,7 @@
 		z-index: 9999;
 		display: flex;
 		flex-direction: column;
-		background: oklch(0.08 0.02 220 / 0.95);
+		background: var(--vpb-bg);
 		backdrop-filter: blur(20px);
 		color: var(--text-primary, #e0e0e0);
 		font-family: var(--font-sans, system-ui, sans-serif);
@@ -74,11 +74,11 @@
 	}
 	.vpb-panel {
 		overflow-y: auto;
-		border-right: 1px solid oklch(1 0 0 / 0.08);
+		border-right: 1px solid var(--vpb-btn-hover);
 	}
 	.vpb-panel--properties {
 		border-right: none;
-		border-left: 1px solid oklch(1 0 0 / 0.08);
+		border-left: 1px solid var(--vpb-btn-hover);
 	}
 	.vpb-panel--canvas {
 		border-right: none;

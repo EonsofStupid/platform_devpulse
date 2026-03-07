@@ -43,7 +43,7 @@
 	const slotName = $derived(data?.slotName ?? "");
 </script>
 
-<BaseEdge {id} path={pathData[0]} style="stroke: oklch(0.4 0.1 180); stroke-width: 1.5;" />
+<BaseEdge {id} path={pathData[0]} style="stroke: var(--vpb-graph-edge-stroke); stroke-width: 1.5;" />
 {#if slotName}
 	<foreignObject x={midX - 30} y={midY - 10} width="60" height="20">
 		<span class="vpb-edge-label">{slotName}</span>
@@ -53,8 +53,8 @@
 <style>
 	.vpb-edge-label {
 		font-size: 9px;
-		color: oklch(0.6 0.08 180);
-		background: oklch(0.1 0.02 220 / 0.85);
+		color: var(--vpb-graph-edge-label-color);
+		background: var(--vpb-graph-edge-label-bg);
 		padding: 1px 5px;
 		border-radius: 3px;
 		display: block;

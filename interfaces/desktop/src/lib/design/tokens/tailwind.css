@@ -180,4 +180,11 @@
 	--transition-fast: var(--duration-fast) var(--ease-out);
 	--transition-normal: var(--duration-normal) var(--ease-inOut);
 	--transition-slow: var(--duration-slow) var(--ease-inOut);
+	--color-backdrop-glow-teal: oklch(0.15 0.06 180 / 0.30);
+	--color-backdrop-glow-purple: oklch(0.15 0.08 280 / 0.25);
+	--color-backdrop-glow-purple-fade: oklch(0.10 0.04 180 / 0.10);
+	--color-backdrop-grid-teal: oklch(0.20 0.04 180 / 0.08);
+	--color-backdrop-grid-purple: oklch(0.22 0.05 280 / 0.06);
+	--color-scrollbar-thumb: oklch(1 0 0 / 0.12);
+	--color-scrollbar-thumb-hover: oklch(1 0 0 / 0.20);
 }

@@ -98,8 +98,8 @@
 		justify-content: space-between;
 		height: 40px;
 		padding: 0 12px;
-		border-bottom: 1px solid oklch(1 0 0 / 0.08);
-		background: oklch(0.1 0.02 220 / 0.9);
+		border-bottom: 1px solid var(--vpb-btn-hover);
+		background: var(--vpb-panel-bg);
 		flex-shrink: 0;
 	}
 	.vpb-toolbar__left, .vpb-toolbar__center, .vpb-toolbar__right {
@@ -110,11 +110,11 @@
 	.vpb-toolbar__logo {
 		font-weight: 700;
 		font-size: 14px;
-		color: oklch(0.7 0.15 180);
+		color: var(--vpb-tag-teal-color);
 		letter-spacing: 0.05em;
 	}
 	.vpb-toolbar__sep {
-		color: oklch(1 0 0 / 0.15);
+		color: var(--vpb-border-faint);
 		margin: 0 2px;
 	}
 	.vpb-toolbar__label {
@@ -127,35 +127,35 @@
 		width: 180px;
 	}
 	.vpb-toolbar__label:focus {
-		border-color: oklch(0.6 0.15 180);
+		border-color: var(--vpb-accent-teal);
 		outline: none;
 	}
 	.vpb-toolbar__dirty {
-		color: oklch(0.8 0.2 60);
+		color: var(--vpb-accent-ember);
 		font-weight: 700;
 	}
 	.vpb-toolbar__btn {
 		padding: 4px 10px;
-		border: 1px solid oklch(1 0 0 / 0.1);
+		border: 1px solid var(--vpb-btn-border);
 		border-radius: 4px;
-		background: oklch(1 0 0 / 0.04);
+		background: var(--vpb-btn-bg);
 		color: inherit;
 		font-size: 12px;
 		cursor: pointer;
 		transition: background 0.15s;
 	}
 	.vpb-toolbar__btn:hover:not(:disabled) {
-		background: oklch(1 0 0 / 0.1);
+		background: var(--vpb-btn-border);
 	}
 	.vpb-toolbar__btn:disabled {
 		opacity: 0.3;
 		cursor: not-allowed;
 	}
 	.vpb-toolbar__btn--active {
-		background: oklch(0.5 0.15 180 / 0.2);
-		border-color: oklch(0.6 0.15 180 / 0.4);
+		background: var(--vpb-btn-active-bg);
+		border-color: var(--vpb-btn-active-border);
 	}
 	.vpb-toolbar__btn--close {
-		color: oklch(0.7 0.15 20);
+		color: var(--vpb-accent-warning);
 	}
 </style>

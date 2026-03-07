@@ -39,8 +39,8 @@
 	let {
 		glow = "teal",
 		radius = 16,
-		fill = "oklch(0.06 0.008 250 / 0.90)",
-		stroke = "oklch(0.35 0.12 180 / 0.6)",
+		fill = "var(--color-void-base)",
+		stroke = "var(--border-emphasis)",
 		strokeWidth = 2,
 		class: className = "",
 		children,

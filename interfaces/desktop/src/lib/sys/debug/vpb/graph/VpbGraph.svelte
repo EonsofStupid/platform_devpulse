@@ -45,8 +45,8 @@
 	>
 		<Controls />
 		<MiniMap
-			style="background: oklch(0.1 0.01 220);"
-			nodeColor="oklch(0.3 0.1 180)"
+			style="background: var(--vpb-graph-bg);"
+			nodeColor="var(--vpb-graph-node-color)"
 		/>
 		<Background gap={20} />
 	</SvelteFlow>
@@ -58,6 +58,6 @@
 		height: 100%;
 	}
 	.vpb-graph :global(.svelte-flow) {
-		background: oklch(0.06 0.01 220) !important;
+		background: var(--vpb-graph-bg) !important;
 	}
 </style>

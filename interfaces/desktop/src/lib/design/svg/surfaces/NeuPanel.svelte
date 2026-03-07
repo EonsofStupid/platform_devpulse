@@ -46,7 +46,7 @@
 		noise = true,
 		glow = "off",
 		radius = 12,
-		fill = "oklch(0.08 0.005 250 / 0.85)",
+		fill = "var(--glass-void)",
 		class: className = "",
 		children,
 	}: Props = $props();

@@ -44,35 +44,35 @@
 <style>
 	.vpb-gnode {
 		padding: 8px 12px;
-		border: 1px solid oklch(1 0 0 / 0.12);
+		border: 1px solid var(--vpb-graph-node-border);
 		border-radius: 6px;
-		background: oklch(0.12 0.02 220 / 0.95);
+		background: var(--vpb-graph-node-bg);
 		backdrop-filter: blur(8px);
 		min-width: 180px;
 		cursor: pointer;
 		transition: border-color 0.15s, box-shadow 0.15s;
 	}
 	.vpb-gnode:hover {
-		border-color: oklch(0.5 0.1 180 / 0.4);
+		border-color: var(--vpb-graph-node-hover-border);
 	}
 	.vpb-gnode--selected {
-		border-color: oklch(0.6 0.15 180);
-		box-shadow: 0 0 12px oklch(0.5 0.15 180 / 0.25);
+		border-color: var(--vpb-graph-node-selected-border);
+		box-shadow: 0 0 12px var(--vpb-graph-node-selected-glow);
 	}
 	.vpb-gnode__kind {
 		font-size: 13px;
 		font-weight: 600;
-		color: oklch(0.85 0.08 180);
+		color: var(--vpb-graph-node-kind-color);
 	}
 	.vpb-gnode__recipe {
 		font-size: 10px;
-		color: oklch(0.55 0 0);
+		color: var(--vpb-graph-node-slot-color);
 		font-family: monospace;
 		margin-top: 2px;
 	}
 	.vpb-gnode__slot {
 		font-size: 9px;
-		color: oklch(0.5 0.1 290);
+		color: var(--vpb-graph-node-type-color);
 		margin-top: 2px;
 	}
 </style>

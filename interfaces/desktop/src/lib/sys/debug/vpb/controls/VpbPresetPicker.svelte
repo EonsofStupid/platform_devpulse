@@ -45,7 +45,7 @@
 	}
 	.vpb-presets__empty {
 		font-size: 11px;
-		color: oklch(0.45 0 0);
+		color: var(--vpb-label-dim);
 		text-align: center;
 		padding: 8px;
 	}
@@ -54,21 +54,21 @@
 		flex-direction: column;
 		gap: 1px;
 		padding: 6px 8px;
-		border: 1px solid oklch(1 0 0 / 0.06);
+		border: 1px solid var(--vpb-border);
 		border-radius: 4px;
-		background: oklch(1 0 0 / 0.02);
+		background: var(--vpb-btn-bg);
 		color: inherit;
 		text-align: left;
 		cursor: pointer;
 		transition: background 0.12s, border-color 0.12s;
 	}
 	.vpb-presets__item:hover {
-		background: oklch(1 0 0 / 0.06);
-		border-color: oklch(1 0 0 / 0.1);
+		background: var(--vpb-border);
+		border-color: var(--vpb-btn-border);
 	}
 	.vpb-presets__item--active {
-		background: oklch(0.5 0.15 180 / 0.15);
-		border-color: oklch(0.6 0.15 180 / 0.35);
+		background: var(--vpb-btn-active-bg);
+		border-color: var(--vpb-btn-active-border);
 	}
 	.vpb-presets__label {
 		font-size: 12px;
@@ -77,11 +77,11 @@
 	.vpb-presets__id {
 		font-size: 10px;
 		font-family: monospace;
-		color: oklch(0.6 0.08 180);
+		color: var(--vpb-accent-teal);
 	}
 	.vpb-presets__encoding {
 		font-size: 9px;
 		font-family: monospace;
-		color: oklch(0.5 0 0);
+		color: var(--vpb-label-dim);
 	}
 </style>

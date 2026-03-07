@@ -54,7 +54,7 @@
 		height: 100%;
 		overflow-y: auto;
 		padding: 16px;
-		background: oklch(0.07 0.01 220);
+		background: var(--vpb-bg);
 	}
 	.vpb-canvas__empty {
 		display: flex;
@@ -67,11 +67,11 @@
 	.vpb-canvas__empty-title {
 		font-size: 16px;
 		font-weight: 600;
-		color: oklch(0.5 0 0);
+		color: var(--vpb-label-dim);
 	}
 	.vpb-canvas__empty-sub {
 		font-size: 13px;
-		color: oklch(0.4 0 0);
+		color: var(--vpb-text-dim);
 	}
 	.vpb-canvas__preview {
 		display: flex;
@@ -84,7 +84,7 @@
 		transition: border-color 0.15s;
 	}
 	.vpb-canvas__block-wrapper--selected {
-		border-color: oklch(0.6 0.15 180);
+		border-color: var(--vpb-accent-teal);
 	}
 	.vpb-canvas--graph {
 		padding: 0;

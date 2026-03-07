@@ -109,9 +109,9 @@
 		flex-direction: column;
 		gap: 3px;
 		padding: 6px;
-		border: 1px solid oklch(1 0 0 / 0.06);
+		border: 1px solid var(--vpb-border);
 		border-radius: 4px;
-		background: oklch(0 0 0 / 0.3);
+		background: var(--overlay-bg);
 	}
 	.vpb-output__header {
 		display: flex;
@@ -123,25 +123,25 @@
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
-		color: oklch(0.55 0 0);
+		color: var(--vpb-label-color);
 	}
 	.vpb-output__copy {
 		font-size: 9px;
 		padding: 1px 5px;
-		border: 1px solid oklch(1 0 0 / 0.1);
+		border: 1px solid var(--vpb-btn-border);
 		border-radius: 3px;
-		background: oklch(1 0 0 / 0.04);
-		color: oklch(0.6 0 0);
+		background: var(--vpb-btn-bg);
+		color: var(--vpb-value-color);
 		cursor: pointer;
 	}
 	.vpb-output__copy:hover {
-		background: oklch(1 0 0 / 0.08);
-		color: oklch(0.8 0 0);
+		background: var(--vpb-btn-hover);
+		color: var(--vpb-text-bright);
 	}
 	.vpb-output__code {
 		font-family: var(--font-mono, monospace);
 		font-size: 11px;
-		color: oklch(0.75 0.1 180);
+		color: var(--vpb-encoding-teal);
 		word-break: break-all;
 	}
 	.vpb-output__code--encoding {
@@ -164,13 +164,13 @@
 	}
 	.vpb-output__key {
 		font-size: 10px;
-		color: oklch(0.6 0.06 280);
+		color: var(--vpb-encoding-purple);
 		flex-shrink: 0;
 	}
 	.vpb-output__val {
 		font-family: var(--font-mono, monospace);
 		font-size: 10px;
-		color: oklch(0.7 0.08 140);
+		color: var(--vpb-encoding-green);
 		text-align: right;
 		word-break: break-all;
 	}
