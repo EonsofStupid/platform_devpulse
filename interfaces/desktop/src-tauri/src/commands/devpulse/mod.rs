@@ -86,12 +86,12 @@ pub async fn fetch_dashboard(
         let projects: Vec<ProjectRow> = project_rows
             .into_iter()
             .map(|row| ProjectRow {
-                id: row.first().cloned().unwrap_or_default(),
-                name: row.get(1).cloned().unwrap_or_default(),
-                root_path: row.get(2).cloned().unwrap_or_default(),
-                project_type: row.get(3).cloned().unwrap_or_default(),
-                created_at: row.get(4).and_then(|s| s.parse().ok()).unwrap_or(0),
-                last_accessed: row.get(5).and_then(|s| s.parse().ok()).unwrap_or(0),
+                id: row.first().map(|v| v.to_string()).unwrap_or_default(),
+                name: row.get(1).and_then(|v| v.as_text()).unwrap_or("").to_string(),
+                root_path: row.get(2).and_then(|v| v.as_text()).unwrap_or("").to_string(),
+                project_type: row.get(3).and_then(|v| v.as_text()).unwrap_or("").to_string(),
+                created_at: row.get(4).and_then(|v| v.as_integer()).unwrap_or(0),
+                last_accessed: row.get(5).and_then(|v| v.as_integer()).unwrap_or(0),
             })
             .collect();
 
@@ -100,10 +100,10 @@ pub async fn fetch_dashboard(
             .query("SELECT COUNT(*) FROM projects", &[])
             .await
             .map_err(|e| format!("Failed to count projects: {e}"))?;
-        let project_count: i64 = count_rows
+        let project_count = count_rows
             .first()
             .and_then(|r| r.first())
-            .and_then(|s| s.parse().ok())
+            .and_then(|v| v.as_integer())
             .unwrap_or(0);
 
         // Message + session counts
@@ -111,20 +111,20 @@ pub async fn fetch_dashboard(
             .query("SELECT COUNT(*) FROM messages", &[])
             .await
             .map_err(|e| format!("Failed to count messages: {e}"))?;
-        let total_messages: i64 = msg_rows
+        let total_messages = msg_rows
             .first()
             .and_then(|r| r.first())
-            .and_then(|s| s.parse().ok())
+            .and_then(|v| v.as_integer())
             .unwrap_or(0);
 
         let sess_rows = adapter
             .query("SELECT COUNT(*) FROM sessions", &[])
             .await
             .map_err(|e| format!("Failed to count sessions: {e}"))?;
-        let total_sessions: i64 = sess_rows
+        let total_sessions = sess_rows
             .first()
             .and_then(|r| r.first())
-            .and_then(|s| s.parse().ok())
+            .and_then(|v| v.as_integer())
             .unwrap_or(0);
 
         (
@@ -161,11 +161,11 @@ pub async fn fetch_dashboard(
         stats_rows
             .into_iter()
             .map(|row| DailyStatsRow {
-                date: row.first().cloned().unwrap_or_default(),
-                total_signals: row.get(1).and_then(|s| s.parse().ok()).unwrap_or(0),
-                total_messages: row.get(2).and_then(|s| s.parse().ok()).unwrap_or(0),
-                total_tokens: row.get(3).and_then(|s| s.parse().ok()).unwrap_or(0),
-                avg_latency_ms: row.get(4).and_then(|s| s.parse().ok()).unwrap_or(0.0),
+                date: row.first().map(|v| v.to_string()).unwrap_or_default(),
+                total_signals: row.get(1).and_then(|v| v.as_integer()).unwrap_or(0),
+                total_messages: row.get(2).and_then(|v| v.as_integer()).unwrap_or(0),
+                total_tokens: row.get(3).and_then(|v| v.as_integer()).unwrap_or(0),
+                avg_latency_ms: row.get(4).and_then(|v| v.as_real()).unwrap_or(0.0),
             })
             .collect()
     } else {

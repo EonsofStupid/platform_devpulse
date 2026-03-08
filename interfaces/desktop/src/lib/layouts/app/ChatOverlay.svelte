@@ -29,8 +29,9 @@ let inputValue = $state("");
 let sending = $state(false);
 const canSend = $derived(platformState.isReady && inputValue.trim().length > 0 && !sending);
 
-// Draggable state
-let posX = $state(window.innerWidth - 480);
+// Draggable state — guard for SSR (window unavailable during server render)
+const initialX = typeof window !== "undefined" ? window.innerWidth - 480 : 400;
+let posX = $state(initialX);
 let posY = $state(60);
 let dragging = $state(false);
 let dragOffsetX = 0;

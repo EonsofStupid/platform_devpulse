@@ -190,10 +190,10 @@ async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
         let rows = adapter
             .query("SELECT COUNT(*) FROM projects", &[])
             .await?;
-        let count: i64 = rows
+        let count = rows
             .first()
             .and_then(|r| r.first())
-            .and_then(|s| s.parse().ok())
+            .and_then(|v| v.as_integer())
             .unwrap_or(0);
 
         if count == 0 {
@@ -234,10 +234,10 @@ async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
         let rows = adapter
             .analytics_query("SELECT COUNT(*) FROM daily_stats")
             .await?;
-        let count: i64 = rows
+        let count = rows
             .first()
             .and_then(|r| r.first())
-            .and_then(|s| s.parse().ok())
+            .and_then(|v| v.as_integer())
             .unwrap_or(0);
 
         if count == 0 {

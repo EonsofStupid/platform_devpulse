@@ -1,12 +1,18 @@
 -- =============================================================================
--- AGENTS NAMESPACE: Per-agent session data
+-- AGENTS NAMESPACE: Per-agent session data (TEMPLATE)
 -- SurrealDB 3.0 — Record References, Graph Relations, Computed Fields
+-- =============================================================================
+-- This file is an agent-agnostic template. It defines tables, indexes,
+-- and API endpoints that every agent DB gets. The specific agent database
+-- (claude, cursor, copilot, etc.) is specified at import time:
+--
+--   surreal import --namespace agents --database claude schema-agents.surql
+--   surreal import --namespace agents --database cursor schema-agents.surql
+--
+-- DO NOT hardcode a database name here. The --database flag handles it.
 -- =============================================================================
 
 DEFINE NAMESPACE IF NOT EXISTS agents;
-USE NS agents;
-DEFINE DATABASE IF NOT EXISTS claude;
-USE DB claude;
 
 -- =============================================================================
 -- SESSIONS
@@ -84,9 +90,10 @@ DEFINE INDEX idx_blockers_category ON blockers FIELDS category;
 
 -- =============================================================================
 -- DEFINE API: Agent session management baked into DB
--- GET /api/agents/claude/session/current → active session for context restore
--- POST /api/agents/claude/session/start  → create new session, return id
--- POST /api/agents/claude/session/end    → close session with summary
+-- These endpoints are per-database, so each agent gets their own set.
+-- GET /api/session/current → active session for context restore
+-- POST /api/session/start  → create new session, return id
+-- POST /api/session/end    → close session with summary
 -- =============================================================================
 
 DEFINE API "/session/current" FOR get

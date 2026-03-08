@@ -5,6 +5,76 @@
 
 use anyhow::Result;
 use serde::{de::DeserializeOwned, Serialize};
+use std::fmt;
+
+/// Typed SQL value — no lazy string dumps.
+#[derive(Debug, Clone, PartialEq)]
+pub enum SqlValue {
+    /// NULL
+    Null,
+    /// Integer (i64)
+    Integer(i64),
+    /// Floating point (f64)
+    Real(f64),
+    /// Text (String)
+    Text(String),
+    /// Binary data
+    Blob(Vec<u8>),
+}
+
+impl SqlValue {
+    /// Get as i64 if this is an Integer.
+    pub fn as_integer(&self) -> Option<i64> {
+        match self {
+            Self::Integer(v) => Some(*v),
+            _ => None,
+        }
+    }
+
+    /// Get as f64 if this is a Real.
+    pub fn as_real(&self) -> Option<f64> {
+        match self {
+            Self::Real(v) => Some(*v),
+            _ => None,
+        }
+    }
+
+    /// Get as &str if this is Text.
+    pub fn as_text(&self) -> Option<&str> {
+        match self {
+            Self::Text(v) => Some(v.as_str()),
+            _ => None,
+        }
+    }
+
+    /// Get as &[u8] if this is a Blob.
+    pub fn as_blob(&self) -> Option<&[u8]> {
+        match self {
+            Self::Blob(v) => Some(v.as_slice()),
+            _ => None,
+        }
+    }
+
+    /// Returns true if this is Null.
+    pub fn is_null(&self) -> bool {
+        matches!(self, Self::Null)
+    }
+}
+
+impl fmt::Display for SqlValue {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Null => write!(f, "NULL"),
+            Self::Integer(v) => write!(f, "{v}"),
+            Self::Real(v) => write!(f, "{v}"),
+            Self::Text(v) => write!(f, "{v}"),
+            Self::Blob(v) => write!(f, "<blob {} bytes>", v.len()),
+        }
+    }
+}
+
+/// A single row of typed SQL values.
+pub type SqlRow = Vec<SqlValue>;
 
 /// Core persistence operations trait
 /// All database adapters implement this for basic CRUD
@@ -47,13 +117,13 @@ impl<T: PersistenceAdapter> TypedPersistence for T {}
 /// SQL query interface for relational stores (`LibSQL`, `DuckDB`)
 #[allow(async_fn_in_trait)]
 pub trait SqlAdapter: Send + Sync {
-    /// Execute a query that returns rows
-    async fn query(&self, sql: &str, params: &[&str]) -> Result<Vec<Vec<String>>>;
+    /// Execute a query that returns typed rows.
+    async fn query(&self, sql: &str, params: &[&str]) -> Result<Vec<SqlRow>>;
 
-    /// Execute a statement that modifies data
+    /// Execute a statement that modifies data.
     async fn execute(&self, sql: &str, params: &[&str]) -> Result<u64>;
 
-    /// Execute a batch of statements
+    /// Execute a batch of statements.
     async fn execute_batch(&self, sql: &str) -> Result<()>;
 }
 
@@ -87,10 +157,10 @@ pub trait GraphAdapter: Send + Sync {
 /// Analytics query interface for `DuckDB`
 #[allow(async_fn_in_trait)]
 pub trait AnalyticsAdapter: Send + Sync {
-    /// Run an analytics query
-    async fn analytics_query(&self, sql: &str) -> Result<Vec<Vec<String>>>;
+    /// Run an analytics query returning typed rows.
+    async fn analytics_query(&self, sql: &str) -> Result<Vec<SqlRow>>;
 
-    /// Append data to an analytics table
+    /// Append data to an analytics table.
     async fn append(&self, table: &str, data: &[serde_json::Value]) -> Result<u64>;
 }
 

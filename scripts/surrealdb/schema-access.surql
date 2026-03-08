@@ -19,7 +19,7 @@ DEFINE USER agent_reader ON NAMESPACE PASSWORD 'agent_readonly_2026' ROLES VIEWE
 
 USE NS projects;
 DEFINE USER claude ON NAMESPACE PASSWORD 'claude_projects_2026' ROLES EDITOR;
--- DEFINE USER cursor ON NAMESPACE PASSWORD 'cursor_projects_2026' ROLES EDITOR;
+DEFINE USER cursor ON NAMESPACE PASSWORD 'cursor_projects_2026' ROLES EDITOR;
 -- Add more agents as needed
 
 -- -----------------------------------------------------------------------------
@@ -31,7 +31,7 @@ DEFINE USER claude ON NAMESPACE PASSWORD 'claude_projects_2026' ROLES EDITOR;
 
 USE NS agents;
 DEFINE USER claude ON NAMESPACE PASSWORD 'claude_agent_2026' ROLES EDITOR;
--- DEFINE USER cursor ON NAMESPACE PASSWORD 'cursor_agent_2026' ROLES EDITOR;
+DEFINE USER cursor ON NAMESPACE PASSWORD 'cursor_agent_2026' ROLES EDITOR;
 -- Add more agents as needed
 
 -- =============================================================================

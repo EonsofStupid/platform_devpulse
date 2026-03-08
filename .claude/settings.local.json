@@ -101,7 +101,10 @@
       "Read(//mnt/d/localdev/platform_devpulse/scripts/surrealdb/**)",
       "Read(//d/mnt/d/localdev/platform_devpulse/scripts/surrealdb/**)",
       "Skill(parkinglot)",
-      "Skill(parkinglot:*)"
+      "Skill(parkinglot:*)",
+      "WebFetch(domain:park-ui.com)",
+      "WebFetch(domain:www.chakra-ui.com)",
+      "WebFetch(domain:storybook.js.org)"
     ],
     "additionalDirectories": [
       "C:\\Users\\jessa\\.claude\\plans"

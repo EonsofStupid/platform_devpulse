@@ -77,3 +77,43 @@ DEFINE FIELD full_text ON learnings VALUE
 DEFINE INDEX idx_learnings_severity ON learnings FIELDS severity;
 DEFINE INDEX idx_learnings_category ON learnings FIELDS category;
 DEFINE INDEX idx_learnings_vector   ON learnings FIELDS embedding HNSW DIMENSION 1536 DIST COSINE TYPE F32;
+
+-- =============================================================================
+-- DEV_PROFILE — persistent developer identity across all projects and agents
+-- Not flat KV — structured identity: skills, style, communication preferences,
+-- tool preferences, pain points, growth areas.
+-- Memory budget tier: IDENTITY (always loaded, highest priority)
+-- =============================================================================
+
+DEFINE TABLE dev_profile SCHEMAFULL;
+DEFINE FIELD category    ON dev_profile TYPE string;
+DEFINE FIELD key         ON dev_profile TYPE string;
+DEFINE FIELD value       ON dev_profile TYPE string;
+DEFINE FIELD confidence  ON dev_profile TYPE float DEFAULT 0.5
+  ASSERT $value >= 0.0 AND $value <= 1.0;
+DEFINE FIELD source      ON dev_profile TYPE string DEFAULT 'inferred'
+  ASSERT $value IN ['explicit', 'inferred', 'observed'];
+DEFINE FIELD notes       ON dev_profile TYPE option<string>;
+DEFINE FIELD updated_at  ON dev_profile TYPE datetime DEFAULT time::now();
+DEFINE FIELD created_at  ON dev_profile TYPE datetime DEFAULT time::now();
+DEFINE INDEX idx_profile_key      ON dev_profile FIELDS key UNIQUE;
+DEFINE INDEX idx_profile_category ON dev_profile FIELDS category;
+
+-- =============================================================================
+-- REJECTIONS — things the developer has explicitly rejected
+-- Agents check this BEFORE suggesting tools, patterns, libraries, approaches.
+-- Prevents the "I already told you no" loop across sessions.
+-- Memory budget tier: REJECTIONS (15% — loaded after patterns and decisions)
+-- =============================================================================
+
+DEFINE TABLE rejections SCHEMAFULL;
+DEFINE FIELD subject     ON rejections TYPE string;
+DEFINE FIELD category    ON rejections TYPE string;
+DEFINE FIELD reason      ON rejections TYPE option<string>;
+DEFINE FIELD strength    ON rejections TYPE string DEFAULT 'firm'
+  ASSERT $value IN ['soft', 'firm', 'absolute'];
+DEFINE FIELD embedding   ON rejections TYPE option<array<float>>;
+DEFINE FIELD created_at  ON rejections TYPE datetime DEFAULT time::now();
+DEFINE INDEX idx_rejections_subject  ON rejections FIELDS subject UNIQUE;
+DEFINE INDEX idx_rejections_category ON rejections FIELDS category;
+DEFINE INDEX idx_rejections_vector   ON rejections FIELDS embedding HNSW DIMENSION 1536 DIST COSINE TYPE F32;

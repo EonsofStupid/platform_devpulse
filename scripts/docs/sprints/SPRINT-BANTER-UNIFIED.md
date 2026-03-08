@@ -77,9 +77,11 @@ The `CLAUDE_ENV_FILE` env var (documented in Claude Code hooks reference) persis
 
 | Namespace | Database | Tables | Hook Access |
 |-----------|----------|--------|-------------|
-| `global` | `knowledge` | preferences, patterns, decisions, learnings | READ on SessionStart |
+| `global` | `knowledge` | preferences, patterns, decisions, learnings, dev_profile, rejections | READ on SessionStart |
 | `projects` | `devpulse` | architecture, patterns, context, decisions, tasks, file_conventions, commits, lesson_progress, lesson_replays | READ on SessionStart, WRITE for /banter commit |
-| `agents` | `claude` | sessions, chat, files_touched, blockers | READ/WRITE on all hooks |
+| `agents` | `{agent}` (template) | sessions, chat, files_touched, blockers | READ/WRITE on all hooks |
+
+**Agent Template Pattern**: `schema-agents.surql` is agent-agnostic. The `--database` flag at import time determines which agent gets the tables. Each agent (claude, cursor, copilot) gets an isolated DB with identical schema. `seed-all.cmd` provisions claude and cursor by default.
 
 ### What Banter Was vs What It Is Now
 
@@ -225,13 +227,14 @@ Update from recovered version:
 - [ ] Data path: `D:\localdev\deps\surrealdb\data` or `D:\localdev\.surrealdb\data` (confirm with owner)
 - [ ] surrealkv backend
 
-### Task 3.3: Update `seed-all.cmd`
+### Task 3.3: Update `seed-all.cmd` — DONE
 
 **File**: `scripts/surrealdb/seed-all.cmd`
 
-- [ ] Port 8822
-- [ ] Add step 7: `schema-lessons.surql` -> `projects/devpulse`
-- [ ] Verify all 7 steps pass
+- [x] Port 8822
+- [x] Apply `schema-agents.surql` per-agent (claude + cursor via `--database` flag)
+- [x] Add step for `schema-lessons.surql` -> `projects/devpulse`
+- [x] 8 steps total, all using port 8822
 
 ### Task 3.4: Clean up VS Code tasks.json
 

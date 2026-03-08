@@ -3,7 +3,7 @@
 //! Handles: users, settings, projects, sessions, messages, decisions
 //! This is the "clean" queryable layer for UI and cross-project data.
 
-use crate::cortex::persistence::traits::{PersistenceAdapter, SqlAdapter};
+use crate::cortex::persistence::traits::{PersistenceAdapter, SqlAdapter, SqlRow, SqlValue};
 use anyhow::{Context, Result};
 use std::path::Path;
 use std::sync::Arc;
@@ -130,7 +130,7 @@ impl PersistenceAdapter for LibSqlAdapter {
 }
 
 impl SqlAdapter for LibSqlAdapter {
-    async fn query(&self, sql: &str, params: &[&str]) -> Result<Vec<Vec<String>>> {
+    async fn query(&self, sql: &str, params: &[&str]) -> Result<Vec<SqlRow>> {
         let conn = self.conn.read().await;
 
         // Convert params to libsql format
@@ -146,11 +146,15 @@ impl SqlAdapter for LibSqlAdapter {
 
         let mut results = Vec::new();
         while let Some(row) = rows.next().await? {
-            let mut row_values = Vec::new();
+            let mut row_values: SqlRow = Vec::new();
             // LibSQL doesn't expose column count easily, so we try columns until failure
             for i in 0..32 {
-                match row.get::<String>(i) {
-                    Ok(val) => row_values.push(val),
+                match row.get_value(i) {
+                    Ok(libsql::Value::Null) => row_values.push(SqlValue::Null),
+                    Ok(libsql::Value::Integer(v)) => row_values.push(SqlValue::Integer(v)),
+                    Ok(libsql::Value::Real(v)) => row_values.push(SqlValue::Real(v)),
+                    Ok(libsql::Value::Text(v)) => row_values.push(SqlValue::Text(v)),
+                    Ok(libsql::Value::Blob(v)) => row_values.push(SqlValue::Blob(v)),
                     Err(_) => break,
                 }
             }

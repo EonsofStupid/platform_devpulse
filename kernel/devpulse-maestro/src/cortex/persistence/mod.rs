@@ -25,7 +25,8 @@ pub use libsql::LibSqlAdapter;
 pub use moka::{MokaAdapter, MokaCacheConfig};
 pub use surreal::SurrealAdapter;
 pub use traits::{
-    AnalyticsAdapter, CacheAdapter, GraphAdapter, PersistenceAdapter, SqlAdapter, TypedPersistence,
+    AnalyticsAdapter, CacheAdapter, GraphAdapter, PersistenceAdapter, SqlAdapter, SqlRow, SqlValue,
+    TypedPersistence,
 };
 
 use anyhow::Result;

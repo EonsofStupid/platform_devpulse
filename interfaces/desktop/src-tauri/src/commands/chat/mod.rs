@@ -45,7 +45,7 @@ pub async fn send_message(
         .map_err(|e| format!("Failed to query sessions: {e}"))?;
 
     let session_id = if let Some(id) = session_rows.first().and_then(|r| r.first()) {
-        id.clone()
+        id.to_string()
     } else {
         let new_id = format!("sess-{}", chrono::Utc::now().timestamp_millis());
         adapter
@@ -77,10 +77,10 @@ pub async fn send_message(
     let row = rows.first().ok_or("No message returned after insert")?;
 
     Ok(ChatMessage {
-        id: row.first().and_then(|s| s.parse().ok()).unwrap_or(0),
-        session_id: row.get(1).cloned().unwrap_or_default(),
-        role: row.get(2).cloned().unwrap_or_default(),
-        content: row.get(3).cloned().unwrap_or_default(),
-        created_at: row.get(4).and_then(|s| s.parse().ok()).unwrap_or(0),
+        id: row.first().and_then(|v| v.as_integer()).unwrap_or(0),
+        session_id: row.get(1).and_then(|v| v.as_text()).unwrap_or("").to_string(),
+        role: row.get(2).and_then(|v| v.as_text()).unwrap_or("").to_string(),
+        content: row.get(3).and_then(|v| v.as_text()).unwrap_or("").to_string(),
+        created_at: row.get(4).and_then(|v| v.as_integer()).unwrap_or(0),
     })
 }

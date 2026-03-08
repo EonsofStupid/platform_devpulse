@@ -3,7 +3,7 @@
 //! Handles: user analytics, AI metrics, telemetry, OLAP queries
 //! Optimized for analytical workloads and columnar storage.
 
-use crate::cortex::persistence::traits::{AnalyticsAdapter, PersistenceAdapter};
+use crate::cortex::persistence::traits::{AnalyticsAdapter, PersistenceAdapter, SqlRow, SqlValue};
 use anyhow::{Context, Result};
 use std::path::Path;
 use std::sync::Arc;
@@ -139,7 +139,7 @@ impl PersistenceAdapter for DuckDbAdapter {
 }
 
 impl AnalyticsAdapter for DuckDbAdapter {
-    async fn analytics_query(&self, sql: &str) -> Result<Vec<Vec<String>>> {
+    async fn analytics_query(&self, sql: &str) -> Result<Vec<SqlRow>> {
         let conn = self.conn.lock().await;
 
         let mut stmt = conn
@@ -154,15 +154,20 @@ impl AnalyticsAdapter for DuckDbAdapter {
 
         let mut results = Vec::new();
         while let Some(row) = rows.next()? {
-            let mut row_values = Vec::new();
+            let mut row_values: SqlRow = Vec::new();
             for i in 0..column_count {
-                // Try to get as string, fallback to debug format
-                let val: String = row.get::<_, String>(i).unwrap_or_else(|_| {
-                    row.get::<_, i64>(i)
-                        .map(|v| v.to_string())
-                        .unwrap_or_default()
-                });
-                row_values.push(val);
+                // Try typed extraction in order: integer, real, string, blob, null
+                if let Ok(v) = row.get::<_, i64>(i) {
+                    row_values.push(SqlValue::Integer(v));
+                } else if let Ok(v) = row.get::<_, f64>(i) {
+                    row_values.push(SqlValue::Real(v));
+                } else if let Ok(v) = row.get::<_, String>(i) {
+                    row_values.push(SqlValue::Text(v));
+                } else if let Ok(v) = row.get::<_, Vec<u8>>(i) {
+                    row_values.push(SqlValue::Blob(v));
+                } else {
+                    row_values.push(SqlValue::Null);
+                }
             }
             results.push(row_values);
         }

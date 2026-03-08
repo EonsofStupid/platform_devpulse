@@ -30,7 +30,7 @@ pub async fn load_recent(
         .map_err(|e| format!("Failed to query sessions: {e}"))?;
 
     let session_id = match session_rows.first().and_then(|r| r.first()) {
-        Some(id) => id.clone(),
+        Some(id) => id.to_string(),
         None => return Ok(Vec::new()),
     };
 
@@ -39,7 +39,7 @@ pub async fn load_recent(
         .query(
             "SELECT id, session_id, role, content, created_at FROM messages \
              WHERE session_id = ? ORDER BY created_at ASC, id ASC LIMIT 50",
-            &[&session_id],
+            &[session_id.as_str()],
         )
         .await
         .map_err(|e| format!("Failed to load messages: {e}"))?;
@@ -47,11 +47,11 @@ pub async fn load_recent(
     let messages: Vec<ChatMessage> = rows
         .into_iter()
         .map(|row| ChatMessage {
-            id: row.first().and_then(|s| s.parse().ok()).unwrap_or(0),
-            session_id: row.get(1).cloned().unwrap_or_default(),
-            role: row.get(2).cloned().unwrap_or_default(),
-            content: row.get(3).cloned().unwrap_or_default(),
-            created_at: row.get(4).and_then(|s| s.parse().ok()).unwrap_or(0),
+            id: row.first().and_then(|v| v.as_integer()).unwrap_or(0),
+            session_id: row.get(1).and_then(|v| v.as_text()).unwrap_or("").to_string(),
+            role: row.get(2).and_then(|v| v.as_text()).unwrap_or("").to_string(),
+            content: row.get(3).and_then(|v| v.as_text()).unwrap_or("").to_string(),
+            created_at: row.get(4).and_then(|v| v.as_integer()).unwrap_or(0),
         })
         .collect();
 

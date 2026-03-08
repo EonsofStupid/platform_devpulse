@@ -1,11 +1,15 @@
 /**
- * @file Recipe Types — Registry-Driven
+ * @file Recipe Types — Schema-Driven Foundation
  * @layer recipes
  * @package @devpulse/coldlight
  *
+ * EVERY recipe is DATA, not a function.
+ * EVERY recipe is Zod-validated at registration.
+ * EVERY slot declares its structural classes AND whether it receives visual encoding.
+ * The engine (engine.ts) resolves data + props → final per-slot class strings.
+ *
  * DsSurfaceProps = Preset (8 semantic category IDs) + radius + size.
- * Zod schemas validate at system boundaries (VPB, API, persistence).
- * TypeScript types inferred from schemas — single source of truth.
+ * Preset derives from TOKEN_CATEGORY_REGISTRY — add a category there, it appears here.
  */
 
 import { z } from "zod";
@@ -20,21 +24,11 @@ import {
 // DsSurfaceProps — Registry-Driven (Preset + structural)
 // =============================================================================
 
-/**
- * Zod schema for surface props.
- * 8 semantic category IDs (surface, material, depth, bevel, glow, frame, motion, transition)
- * + structural props (radius, size).
- */
 export const DsSurfacePropsSchema = PresetSchema.extend({
 	radius: RadiusSchema,
 	size: SizeSchema,
 });
 
-/**
- * Surface props: 8 semantic categories + radius + size.
- * Explicit interface (no index signature) so recipe classes() functions
- * get proper typed access to `props.size`, `props.radius`, etc.
- */
 export interface DsSurfaceProps extends Preset {
 	radius: RadiusToken;
 	size: SizeToken;
@@ -55,13 +49,45 @@ export function toPreset(props: DsSurfaceProps): Preset {
 }
 
 // =============================================================================
-// RecipeDefinition — Zod schema + inferred type
+// SlotDefinition — Per-slot contract
 // =============================================================================
 
 /**
- * Zod schema for recipe registration.
- * Validates id format (kind.name.variant), kind, label,
- * defaults (partial DsSurfaceProps), and classes function.
+ * How a slot receives visual encoding from the 8-axis system.
+ *
+ * - "all"   — Full v-* encoding + radius applied (root slots)
+ * - "none"  — Structural only, inherits visual from parent (child slots)
+ */
+const SlotVisualMode = z.enum(["all", "none"]);
+export type SlotVisualMode = z.infer<typeof SlotVisualMode>;
+
+/**
+ * Per-slot declaration. Pure data.
+ * structural = Tailwind layout/spacing/typography classes.
+ * visual     = Whether this slot receives v-* encoding from the engine.
+ */
+export const SlotDefinitionSchema = z.object({
+	structural: z.string(),
+	visual: SlotVisualMode,
+});
+
+export type SlotDefinition = z.infer<typeof SlotDefinitionSchema>;
+
+// =============================================================================
+// RecipeDefinition — Data-driven, Zod-validated
+// =============================================================================
+
+/**
+ * A recipe is DATA. Not a function.
+ *
+ * - id:       "kind.name.variant" (dot-separated, validated)
+ * - kind:     Which component kind this recipe serves
+ * - label:    Human-readable name
+ * - defaults: Default axis values (partial DsSurfaceProps)
+ * - slots:    Per-slot structural + visual declarations
+ *
+ * The engine (resolveRecipe) combines slot declarations + resolved props
+ * to produce final per-slot class strings. No hand-authored classes() function.
  */
 export const RecipeDefinitionSchema = z.object({
 	id: z.string().regex(/^[a-z][\w-]*\.[a-z][\w-]*\.[a-z][\w-]*$/, {
@@ -70,20 +96,15 @@ export const RecipeDefinitionSchema = z.object({
 	kind: z.string().min(1),
 	label: z.string().min(1),
 	defaults: DsSurfacePropsSchema.partial(),
-	classes: z.custom<(props: DsSurfaceProps) => Record<string, string>>(
-		(val) => typeof val === "function",
-		{ message: "classes must be a function (props) => Record<string, string>" },
-	),
+	slots: z.record(z.string(), SlotDefinitionSchema),
 });
 
-/** A recipe: props in, per-slot CSS class strings out. */
 export type RecipeDefinition = z.infer<typeof RecipeDefinitionSchema>;
 
 // =============================================================================
 // RecipeLegend — Per-kind manifest of available recipe variants
 // =============================================================================
 
-/** Per-kind manifest of available recipe variants. */
 export interface RecipeLegend {
 	readonly kind: string;
 	readonly defaultId: string;

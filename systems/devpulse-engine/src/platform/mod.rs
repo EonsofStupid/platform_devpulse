@@ -23,9 +23,9 @@ pub use health::{HealthStatus, SubsystemHealth, SystemHealth};
 pub use init::{InitEvent, InitStatus};
 pub use stores::{Store, StoreRole};
 
-// Re-export maestro persistence traits for Tauri command layer
+// Re-export maestro persistence traits and types for Tauri command layer
 pub use devpulse_maestro::cortex::persistence::{
-    AnalyticsAdapter, CacheAdapter, SqlAdapter,
+    AnalyticsAdapter, CacheAdapter, SqlAdapter, SqlRow, SqlValue,
 };
 
 use anyhow::Result;
