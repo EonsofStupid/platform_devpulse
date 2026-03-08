@@ -40,12 +40,35 @@
     ],
     "SessionStart": [
       {
-        "matcher": "compact",
         "hooks": [
           {
             "type": "command",
             "command": "node \"d:/localdev/platform_devpulse/.claude/hooks/restore-memory.js\"",
             "timeout": 30
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"d:/localdev/platform_devpulse/.claude/hooks/session-end.js\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"d:/localdev/platform_devpulse/.claude/hooks/track-files.js\"",
+            "timeout": 10,
+            "async": true
           }
         ]
       }

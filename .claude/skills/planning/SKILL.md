@@ -86,8 +86,39 @@ Always produce:
 2. Updated/new sprint document (actionable plan)
 3. Summary to user (key findings + recommendation)
 
+## STOP Points — Owner Decision Protocol
+
+**Sprints are DRY RUNS.** The owner is in charge — not the AI.
+
+### Rules
+1. **ZERO ASSUMPTIONS** — If you don't know, you STOP and ask. Period.
+2. **STOP at every decision point** — Any place where the direction could go more than one way, you STOP and present options to the owner. You do NOT pick for them.
+3. **STOP when you need answers** — Architecture choices, naming, scope, priority, approach — all require owner sign-off before proceeding.
+4. **Mark STOP points explicitly** in sprint documents:
+   ```markdown
+   ### 🛑 STOP — Owner Decision Required
+   **Question**: {what you need answered}
+   **Options**: {A, B, C with tradeoffs}
+   **Impact**: {what this decision affects downstream}
+   ```
+5. **Redo if needed** — If the owner says it's wrong, rewrite it. Second time, third time, doesn't matter. Get it right.
+6. **No forward progress past a STOP** — Do NOT continue planning/coding past a STOP point until the owner answers. The sprint document captures where you stopped and why.
+7. **Sprint phases gate on owner approval** — Each phase of a sprint ends with owner review. Next phase does not start without explicit go-ahead.
+
+### What triggers a STOP
+- Schema design choices (what fields, what types, what's required vs optional)
+- Naming decisions (contract field names, function names, file paths)
+- Architecture decisions (where code lives, what depends on what)
+- Scope decisions (what's in this sprint vs deferred)
+- Priority decisions (what order to build things)
+- Any time you're about to assume what the owner wants
+- Any time two valid approaches exist and the "right" one depends on owner intent
+
 ## Never
 
 - Never start implementation during research
 - Never skip documenting findings
 - Never assume — verify in the codebase
+- Never make architecture decisions without owner sign-off
+- Never continue past a STOP point without owner answer
+- Never treat a sprint as final until owner explicitly approves it
