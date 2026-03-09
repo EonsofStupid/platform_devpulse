@@ -7,26 +7,8 @@
 ## The Spine: Taxonomy Declares. Implementations Satisfy.
 
 ```
-taxonomy/kinds/{name}/
-  primitive/contract.ts    ← what the primitive IS (slots, ARIA surface, keyboard, states)
-  component/contract.ts    ← what the component EXPOSES (props, variants, ARIA mapping, token usage)
-  index.ts
-
-taxonomy/schema/
-  primitive.ts             ← PrimitiveContractSchema (Zod)
-  component.ts             ← ComponentContractSchema (Zod)
-
-taxonomy/scanner.ts        ← BUILD TIME: validates, flags dupes, generates manifest
-taxonomy/registry.ts       ← RUNTIME: reads manifest, O(1) lookups
-taxonomy/.generated/
-  manifest.json            ← VPB source of truth
-  imports.gen.ts           ← import cloak for adapter abstraction
-```
-
-Nothing exists in ColdLight unless declared in `taxonomy/kinds/{name}/`.
-Scanner fails the build if a declared kind has no implementation.
-Scanner fails the build if two kinds share a name.
-
+Nothing exists without transparency.  Confirming its source of truth.  
+Taxonomy must be properly declared.  every entity must declare itself so it can be properly identified for its registry whether that is component library registry, block registry, visual library and preset registry.  Once declared it can be implemented.  A component can only be implemented if its primitive exists.  A primitive can only be created if its taxonomy is declared.  A block can only be created if its component exists.  A component can only be created if its primitive exists.  A visual can only be created if its component exists.  A preset can only be created if its component exists.  A recipe can only be created if its component exists.  A recipe can only be created if its component exists.  A component can only be created if its primitive exists.  A primitive can only be created if its taxonomy is declared.  This is the order of implementation.  This is the order of declaration.  This is the order of existence.  
 ---
 
 ## Three Implementation Layers
@@ -41,11 +23,8 @@ components/{name}/         ← ARIA + STATE (no visual style)
   {Name}.svelte            ← wraps primitive, computes ARIA from state, sets data-state
   types.ts                 ← extends primitive props + visual props (intent, size)
   index.ts
+a11y.ts
 
-ui/{name}/                 ← PROJECT-SPECIFIC STYLED (this project only)
-  {Name}.svelte            ← wraps component, applies recipe classes
-  types.ts
-  index.ts
 ```
 
 ---

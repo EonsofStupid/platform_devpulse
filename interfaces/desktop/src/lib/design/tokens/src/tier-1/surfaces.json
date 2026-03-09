@@ -1,0 +1,17 @@
+{
+	"glass": {
+		"$description": "Glass surface fills — translucent OKLCH with alpha",
+		"void":   { "$type": "color", "$value": "oklch(0.06 0.01 210 / 0.88)" },
+		"deep":   { "$type": "color", "$value": "oklch(0.09 0.02 220 / 0.80)" },
+		"smoke":  { "$type": "color", "$value": "oklch(0.14 0.008 210 / 0.65)" },
+		"frost":  { "$type": "color", "$value": "oklch(0.92 0.01 220 / 0.40)" },
+		"teal":   { "$type": "color", "$value": "oklch(0.10 0.06 180 / 0.75)" },
+		"purple": { "$type": "color", "$value": "oklch(0.10 0.06 280 / 0.75)" }
+	},
+	"matte": {
+		"$description": "Matte surface fills — opaque flat finishes",
+		"dark":   { "$type": "color", "$value": "oklch(0.14 0.005 250)" },
+		"medium": { "$type": "color", "$value": "oklch(0.22 0.005 250)" },
+		"light":  { "$type": "color", "$value": "oklch(0.30 0.005 250)" }
+	}
+}

@@ -1,0 +1,11 @@
+{
+	"$schema": "https://coldlight.devpulse.app/config.schema.json",
+	"$description": "DevPulse Platform — Root Configuration Redirect",
+	"author": "Jesse Hall",
+	"designSystem": {
+		"name": "ColdLight",
+		"version": "1.0.0",
+		"config": "interfaces/desktop/sd.config.js",
+		"root": "interfaces/desktop/src/lib/design"
+	}
+}

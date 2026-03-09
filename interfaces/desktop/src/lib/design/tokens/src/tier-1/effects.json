@@ -1,0 +1,43 @@
+{
+	"shadow": {
+		"$description": "Drop shadow elevation scale (z0–z4)",
+		"z0": { "$type": "shadow", "$value": "none" },
+		"z1": { "$type": "shadow", "$value": "0 1px 3px oklch(0 0 0 / 0.12), 0 1px 2px oklch(0 0 0 / 0.24)" },
+		"z2": { "$type": "shadow", "$value": "0 3px 6px oklch(0 0 0 / 0.15), 0 2px 4px oklch(0 0 0 / 0.12)" },
+		"z3": { "$type": "shadow", "$value": "0 10px 20px oklch(0 0 0 / 0.15), 0 3px 6px oklch(0 0 0 / 0.10)" },
+		"z4": { "$type": "shadow", "$value": "0 15px 25px oklch(0 0 0 / 0.15), 0 5px 10px oklch(0 0 0 / 0.05)" }
+	},
+	"bevel": {
+		"$description": "Neumorphic inset shadow treatments",
+		"off":    { "$type": "shadow", "$value": "none" },
+		"subtle": { "$type": "shadow", "$value": "inset 0 1px 0 oklch(1 0 0 / 0.04), inset 0 -1px 0 oklch(0 0 0 / 0.08)" },
+		"soft":   { "$type": "shadow", "$value": "inset 0 1px 2px oklch(1 0 0 / 0.06), inset 0 -1px 2px oklch(0 0 0 / 0.12)" },
+		"medium": { "$type": "shadow", "$value": "inset 0 2px 4px oklch(1 0 0 / 0.08), inset 0 -2px 4px oklch(0 0 0 / 0.16)" }
+	},
+	"glow": {
+		"$description": "Emission halo shadows per accent color",
+		"off":     { "$type": "shadow", "$value": "none" },
+		"teal":    { "$type": "shadow", "$value": "0 0 20px oklch(0.55 0.18 180 / 0.40)" },
+		"purple":  { "$type": "shadow", "$value": "0 0 20px oklch(0.55 0.18 280 / 0.40)" },
+		"magenta": { "$type": "shadow", "$value": "0 0 20px oklch(0.55 0.20 330 / 0.40)" },
+		"ember":   { "$type": "shadow", "$value": "0 0 20px oklch(0.55 0.18 25 / 0.40)" },
+		"frost":   { "$type": "shadow", "$value": "0 0 20px oklch(0.58 0.10 220 / 0.35)" },
+		"cyber":   { "$type": "shadow", "$value": "0 0 20px oklch(0.55 0.18 160 / 0.40)" }
+	},
+	"glowSpread": {
+		"$description": "Glow spread radius scale",
+		"sm":  { "$type": "dimension", "$value": "12px" },
+		"md":  { "$type": "dimension", "$value": "20px" },
+		"lg":  { "$type": "dimension", "$value": "30px" },
+		"xl":  { "$type": "dimension", "$value": "40px" }
+	},
+	"blur": {
+		"$description": "Backdrop blur scale",
+		"off": { "$type": "dimension", "$value": "0px" },
+		"sm":  { "$type": "dimension", "$value": "4px" },
+		"md":  { "$type": "dimension", "$value": "8px" },
+		"lg":  { "$type": "dimension", "$value": "12px" },
+		"xl":  { "$type": "dimension", "$value": "16px" },
+		"2xl": { "$type": "dimension", "$value": "24px" }
+	}
+}

@@ -1,0 +1,66 @@
+{
+	"surface": {
+		"$description": "Surface fill intents",
+		"primary":      { "$type": "color", "$value": "{glass.void}" },
+		"elevated":     { "$type": "color", "$value": "{glass.smoke}" },
+		"overlay":      { "$type": "color", "$value": "{glass.deep}" },
+		"frosted":      { "$type": "color", "$value": "{glass.frost}" },
+		"muted":        { "$type": "color", "$value": "{matte.dark}" },
+		"muted-medium": { "$type": "color", "$value": "{matte.medium}" },
+		"muted-light":  { "$type": "color", "$value": "{matte.light}" }
+	},
+	"border": {
+		"$description": "Border color intents",
+		"subtle":        { "$type": "color", "$value": "oklch(from var(--color-teal-700) l c h / 0.22)" },
+		"soft":          { "$type": "color", "$value": "oklch(from var(--color-teal-600) l c h / 0.30)" },
+		"emphasis":      { "$type": "color", "$value": "oklch(from var(--color-teal-500) l c h / 0.50)" },
+		"focus":         { "$type": "color", "$value": "{color.teal.400}" },
+		"divider":       { "$type": "color", "$value": "oklch(1 0 0 / 0.06)" },
+		"divider-faint": { "$type": "color", "$value": "oklch(1 0 0 / 0.04)" }
+	},
+	"interaction": {
+		"$description": "Interactive state colors",
+		"hover":    { "$type": "color", "$value": "oklch(1 0 0 / 0.06)" },
+		"active":   { "$type": "color", "$value": "oklch(1 0 0 / 0.10)" },
+		"selected": { "$type": "color", "$value": "oklch(1 0 0 / 0.15)" }
+	},
+	"overlay": {
+		"$description": "Overlay backdrop fills",
+		"bg":       { "$type": "color", "$value": "oklch(0.06 0.02 195 / 0.40)" },
+		"bg-heavy": { "$type": "color", "$value": "oklch(0.06 0.02 195 / 0.60)" }
+	},
+	"depth": {
+		"$description": "Semantic shadow elevation aliases",
+		"flat":    { "$type": "shadow", "$value": "{shadow.z0}" },
+		"raised":  { "$type": "shadow", "$value": "{shadow.z1}" },
+		"panel":   { "$type": "shadow", "$value": "{shadow.z2}" },
+		"overlay": { "$type": "shadow", "$value": "{shadow.z3}" },
+		"modal":   { "$type": "shadow", "$value": "{shadow.z4}" }
+	},
+	"transition": {
+		"$description": "Semantic transition presets (duration + easing)",
+		"instant": { "$type": "other", "$value": "{duration.snap} {ease.out}" },
+		"fast":    { "$type": "other", "$value": "{duration.fast} {ease.out}" },
+		"normal":  { "$type": "other", "$value": "{duration.normal} {ease.inOut}" },
+		"slow":    { "$type": "other", "$value": "{duration.smooth} {ease.inOut}" }
+	},
+	"backdrop": {
+		"$description": "Background glow and grid colors for page backdrops",
+		"glow-teal":        { "$type": "color", "$value": "oklch(0.15 0.06 180 / 0.30)" },
+		"glow-purple":      { "$type": "color", "$value": "oklch(0.15 0.08 280 / 0.25)" },
+		"glow-purple-fade": { "$type": "color", "$value": "oklch(0.10 0.04 180 / 0.10)" },
+		"glow-ember":       { "$type": "color", "$value": "oklch(0.15 0.07 25 / 0.25)" },
+		"glow-cyber":       { "$type": "color", "$value": "oklch(0.15 0.06 160 / 0.25)" },
+		"glow-magenta":     { "$type": "color", "$value": "oklch(0.15 0.07 330 / 0.25)" },
+		"grid-teal":        { "$type": "color", "$value": "oklch(0.20 0.04 180 / 0.08)" },
+		"grid-purple":      { "$type": "color", "$value": "oklch(0.22 0.05 280 / 0.06)" },
+		"grid-ember":       { "$type": "color", "$value": "oklch(0.20 0.04 25 / 0.06)" },
+		"grid-cyber":       { "$type": "color", "$value": "oklch(0.20 0.04 160 / 0.06)" },
+		"grid-magenta":     { "$type": "color", "$value": "oklch(0.20 0.04 330 / 0.06)" }
+	},
+	"scrollbar": {
+		"$description": "Scrollbar thumb colors",
+		"thumb":       { "$type": "color", "$value": "oklch(1 0 0 / 0.12)" },
+		"thumb-hover": { "$type": "color", "$value": "oklch(1 0 0 / 0.20)" }
+	}
+}
