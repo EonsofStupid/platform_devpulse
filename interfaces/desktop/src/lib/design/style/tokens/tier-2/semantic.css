@@ -1,0 +1,46 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --border-subtle: oklch(from var(--color-teal-700) l c h / 0.22);
+  --border-soft: oklch(from var(--color-teal-600) l c h / 0.30);
+  --border-emphasis: oklch(from var(--color-teal-500) l c h / 0.50);
+  --border-divider: oklch(1 0 0 / 0.06);
+  --border-divider-faint: oklch(1 0 0 / 0.04);
+  --interaction-hover: oklch(1 0 0 / 0.06);
+  --interaction-active: oklch(1 0 0 / 0.10);
+  --interaction-selected: oklch(1 0 0 / 0.15);
+  --overlay-bg: oklch(0.06 0.02 195 / 0.40);
+  --overlay-bg-heavy: oklch(0.06 0.02 195 / 0.60);
+  --backdrop-glow-teal: oklch(0.15 0.06 180 / 0.30);
+  --backdrop-glow-purple: oklch(0.15 0.08 280 / 0.25);
+  --backdrop-glow-purple-fade: oklch(0.10 0.04 180 / 0.10);
+  --backdrop-glow-ember: oklch(0.15 0.07 25 / 0.25);
+  --backdrop-glow-cyber: oklch(0.15 0.06 160 / 0.25);
+  --backdrop-glow-magenta: oklch(0.15 0.07 330 / 0.25);
+  --backdrop-grid-teal: oklch(0.20 0.04 180 / 0.08);
+  --backdrop-grid-purple: oklch(0.22 0.05 280 / 0.06);
+  --backdrop-grid-ember: oklch(0.20 0.04 25 / 0.06);
+  --backdrop-grid-cyber: oklch(0.20 0.04 160 / 0.06);
+  --backdrop-grid-magenta: oklch(0.20 0.04 330 / 0.06);
+  --scrollbar-thumb: oklch(1 0 0 / 0.12);
+  --scrollbar-thumb-hover: oklch(1 0 0 / 0.20);
+  --surface-primary: var(--glass-void);
+  --surface-elevated: var(--glass-smoke);
+  --surface-overlay: var(--glass-deep);
+  --surface-frosted: var(--glass-frost);
+  --surface-muted: var(--matte-dark);
+  --surface-muted-medium: var(--matte-medium);
+  --surface-muted-light: var(--matte-light);
+  --border-focus: var(--color-teal-400);
+  --depth-flat: var(--shadow-z0);
+  --depth-raised: var(--shadow-z1);
+  --depth-panel: var(--shadow-z2);
+  --depth-overlay: var(--shadow-z3);
+  --depth-modal: var(--shadow-z4);
+  --transition-instant: var(--duration-snap) var(--ease-out);
+  --transition-fast: var(--duration-fast) var(--ease-out);
+  --transition-normal: var(--duration-normal) var(--ease-in-out);
+  --transition-slow: var(--duration-smooth) var(--ease-in-out);
+}

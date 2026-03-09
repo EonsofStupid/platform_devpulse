@@ -1,0 +1,32 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --shadow-z0: none;
+  --shadow-z1: 0 1px 3px oklch(0 0 0 / 0.12), 0 1px 2px oklch(0 0 0 / 0.24);
+  --shadow-z2: 0 3px 6px oklch(0 0 0 / 0.15), 0 2px 4px oklch(0 0 0 / 0.12);
+  --shadow-z3: 0 10px 20px oklch(0 0 0 / 0.15), 0 3px 6px oklch(0 0 0 / 0.10);
+  --shadow-z4: 0 15px 25px oklch(0 0 0 / 0.15), 0 5px 10px oklch(0 0 0 / 0.05);
+  --bevel-off: none;
+  --bevel-subtle: inset 0 1px 0 oklch(1 0 0 / 0.04), inset 0 -1px 0 oklch(0 0 0 / 0.08);
+  --bevel-soft: inset 0 1px 2px oklch(1 0 0 / 0.06), inset 0 -1px 2px oklch(0 0 0 / 0.12);
+  --bevel-medium: inset 0 2px 4px oklch(1 0 0 / 0.08), inset 0 -2px 4px oklch(0 0 0 / 0.16);
+  --glow-off: none;
+  --glow-teal: 0 0 20px oklch(0.55 0.18 180 / 0.40);
+  --glow-purple: 0 0 20px oklch(0.55 0.18 280 / 0.40);
+  --glow-magenta: 0 0 20px oklch(0.55 0.20 330 / 0.40);
+  --glow-ember: 0 0 20px oklch(0.55 0.18 25 / 0.40);
+  --glow-frost: 0 0 20px oklch(0.58 0.10 220 / 0.35);
+  --glow-cyber: 0 0 20px oklch(0.55 0.18 160 / 0.40);
+  --glow-spread-sm: 12px;
+  --glow-spread-md: 20px;
+  --glow-spread-lg: 30px;
+  --glow-spread-xl: 40px;
+  --blur-off: 0px;
+  --blur-sm: 4px;
+  --blur-md: 8px;
+  --blur-lg: 12px;
+  --blur-xl: 16px;
+  --blur-2xl: 24px;
+}

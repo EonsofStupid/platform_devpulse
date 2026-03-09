@@ -1,0 +1,15 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --glass-void: oklch(0.06 0.01 210 / 0.88);
+  --glass-deep: oklch(0.09 0.02 220 / 0.80);
+  --glass-smoke: oklch(0.14 0.008 210 / 0.65);
+  --glass-frost: oklch(0.92 0.01 220 / 0.40);
+  --glass-teal: oklch(0.10 0.06 180 / 0.75);
+  --glass-purple: oklch(0.10 0.06 280 / 0.75);
+  --matte-dark: oklch(0.14 0.005 250);
+  --matte-medium: oklch(0.22 0.005 250);
+  --matte-light: oklch(0.30 0.005 250);
+}
