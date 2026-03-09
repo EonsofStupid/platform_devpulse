@@ -11,4 +11,13 @@
 	--radius-lg: var(--radius-lg);
 	--radius-xl: var(--radius-xl);
 	--radius-full: var(--radius-full);
+	--z-base: var(--z-base);
+	--z-raised: var(--z-raised);
+	--z-dropdown: var(--z-dropdown);
+	--z-sticky: var(--z-sticky);
+	--z-overlay: var(--z-overlay);
+	--z-modal: var(--z-modal);
+	--z-popover: var(--z-popover);
+	--z-toast: var(--z-toast);
+	--z-tooltip: var(--z-tooltip);
 }

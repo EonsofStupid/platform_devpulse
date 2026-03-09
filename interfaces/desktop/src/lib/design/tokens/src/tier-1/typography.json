@@ -1,17 +1,19 @@
 {
 	"font": {
+		"$type": "fontFamily",
 		"$description": "Font family stacks",
-		"display": { "$type": "fontFamily", "$value": "\"Orbitron\", system-ui, sans-serif" },
-		"sans":    { "$type": "fontFamily", "$value": "\"Inter\", system-ui, sans-serif" },
-		"mono":    { "$type": "fontFamily", "$value": "\"JetBrains Mono\", \"Fira Code\", monospace" }
+		"display": { "$value": ["Orbitron", "system-ui", "sans-serif"] },
+		"sans":    { "$value": ["Inter", "system-ui", "sans-serif"] },
+		"mono":    { "$value": ["JetBrains Mono", "Fira Code", "monospace"] }
 	},
 	"textSize": {
+		"$type": "dimension",
 		"$description": "Text size scale",
-		"xs":  { "$type": "dimension", "$value": "0.75rem" },
-		"sm":  { "$type": "dimension", "$value": "0.875rem" },
-		"base": { "$type": "dimension", "$value": "1rem" },
-		"lg":  { "$type": "dimension", "$value": "1.125rem" },
-		"xl":  { "$type": "dimension", "$value": "1.25rem" },
-		"2xl": { "$type": "dimension", "$value": "1.5rem" }
+		"xs":   { "$value": { "value": 0.75, "unit": "rem" } },
+		"sm":   { "$value": { "value": 0.875, "unit": "rem" } },
+		"base": { "$value": { "value": 1, "unit": "rem" } },
+		"lg":   { "$value": { "value": 1.125, "unit": "rem" } },
+		"xl":   { "$value": { "value": 1.25, "unit": "rem" } },
+		"2xl":  { "$value": { "value": 1.5, "unit": "rem" } }
 	}
 }

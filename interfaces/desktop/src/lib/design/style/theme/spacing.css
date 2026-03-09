@@ -4,11 +4,17 @@
  */
 
 @theme {
-	--spacing-1: var(--space-1);
-	--spacing-2: var(--space-2);
-	--spacing-3: var(--space-3);
-	--spacing-4: var(--space-4);
-	--spacing-5: var(--space-5);
-	--spacing-6: var(--space-6);
-	--spacing-8: var(--space-8);
+	--space-1: var(--space-1);
+	--space-2: var(--space-2);
+	--space-3: var(--space-3);
+	--space-4: var(--space-4);
+	--space-5: var(--space-5);
+	--space-6: var(--space-6);
+	--space-8: var(--space-8);
+	--padding-sm-y: var(--padding-sm-y);
+	--padding-sm-x: var(--padding-sm-x);
+	--padding-md-y: var(--padding-md-y);
+	--padding-md-x: var(--padding-md-x);
+	--padding-lg-y: var(--padding-lg-y);
+	--padding-lg-x: var(--padding-lg-x);
 }

@@ -4,6 +4,12 @@
  */
 
 @theme {
+	--hue-teal: var(--hue-teal);
+	--hue-purple: var(--hue-purple);
+	--hue-magenta: var(--hue-magenta);
+	--hue-ember: var(--hue-ember);
+	--hue-frost: var(--hue-frost);
+	--hue-cyber: var(--hue-cyber);
 	--color-teal-50: var(--color-teal-50);
 	--color-teal-100: var(--color-teal-100);
 	--color-teal-200: var(--color-teal-200);
@@ -64,14 +70,14 @@
 	--color-cyber-700: var(--color-cyber-700);
 	--color-cyber-800: var(--color-cyber-800);
 	--color-cyber-900: var(--color-cyber-900);
-	--color-text-primary: var(--text-primary);
-	--color-text-secondary: var(--text-secondary);
-	--color-text-muted: var(--text-muted);
-	--color-text-disabled: var(--text-disabled);
-	--color-text-accent: var(--text-accent);
-	--color-text-inverse: var(--text-inverse);
-	--color-signal-success: var(--signal-success);
-	--color-signal-warning: var(--signal-warning);
-	--color-signal-error: var(--signal-error);
-	--color-signal-info: var(--signal-info);
+	--text-primary: var(--text-primary);
+	--text-secondary: var(--text-secondary);
+	--text-muted: var(--text-muted);
+	--text-disabled: var(--text-disabled);
+	--text-accent: var(--text-accent);
+	--text-inverse: var(--text-inverse);
+	--signal-success: var(--signal-success);
+	--signal-warning: var(--signal-warning);
+	--signal-error: var(--signal-error);
+	--signal-info: var(--signal-info);
 }

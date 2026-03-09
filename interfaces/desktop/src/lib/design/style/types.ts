@@ -10,38 +10,17 @@
 
 // ─── Tier 1: Primitive ───
 
-export const HueTokens = ["teal","purple","magenta","ember","frost","cyber"] as const;
-export type HueToken = (typeof HueTokens)[number];
-
-export const ColorTokens = ["50","100","200","300","400","500","600","700","800","900"] as const;
-export type ColorToken = (typeof ColorTokens)[number];
-
-export const TextTokens = ["primary","secondary","muted","disabled","accent","inverse"] as const;
-export type TextToken = (typeof TextTokens)[number];
-
-export const SignalTokens = ["success","warning","error","info"] as const;
-export type SignalToken = (typeof SignalTokens)[number];
-
-export const ShadowTokens = ["z0","z1","z2","z3","z4"] as const;
-export type ShadowToken = (typeof ShadowTokens)[number];
+export const AnimationTokens = ["pulse-glow","breathe","shimmer","drift","pulse","fade-in","slide-up","slide-down","scale-in"] as const;
+export type AnimationToken = (typeof AnimationTokens)[number];
 
 export const BevelTokens = ["off","subtle","soft","medium"] as const;
 export type BevelToken = (typeof BevelTokens)[number];
 
-export const GlowTokens = ["off","teal","purple","magenta","ember","frost","cyber"] as const;
-export type GlowToken = (typeof GlowTokens)[number];
-
-export const GlowSpreadTokens = ["sm","md","lg","xl"] as const;
-export type GlowSpreadToken = (typeof GlowSpreadTokens)[number];
-
 export const BlurTokens = ["off","sm","md","lg","xl","2xl"] as const;
 export type BlurToken = (typeof BlurTokens)[number];
 
-export const RadiusTokens = ["none","xs","sm","md","lg","xl","full"] as const;
-export type RadiusToken = (typeof RadiusTokens)[number];
-
-export const ZTokens = ["base","raised","dropdown","sticky","overlay","modal","popover","toast","tooltip"] as const;
-export type ZToken = (typeof ZTokens)[number];
+export const ColorTokens = ["50","100","200","300","400","500","600","700","800","900"] as const;
+export type ColorToken = (typeof ColorTokens)[number];
 
 export const DurationTokens = ["snap","fast","normal","smooth","glacial","moderate"] as const;
 export type DurationToken = (typeof DurationTokens)[number];
@@ -49,34 +28,58 @@ export type DurationToken = (typeof DurationTokens)[number];
 export const EaseTokens = ["linear","in","out","inOut","spring","bounce"] as const;
 export type EaseToken = (typeof EaseTokens)[number];
 
-export const AnimationTokens = ["pulse-glow","breathe","shimmer","drift","pulse","fade-in","slide-up","slide-down","scale-in"] as const;
-export type AnimationToken = (typeof AnimationTokens)[number];
-
-export const SpaceTokens = ["1","2","3","4","5","6","8"] as const;
-export type SpaceToken = (typeof SpaceTokens)[number];
-
-export const PaddingTokens = ["sm","md","lg"] as const;
-export type PaddingToken = (typeof PaddingTokens)[number];
+export const FontTokens = ["display","sans","mono"] as const;
+export type FontToken = (typeof FontTokens)[number];
 
 export const GlassTokens = ["void","deep","smoke","frost","teal","purple"] as const;
 export type GlassToken = (typeof GlassTokens)[number];
 
+export const GlowTokens = ["off","teal","purple","magenta","ember","frost","cyber"] as const;
+export type GlowToken = (typeof GlowTokens)[number];
+
+export const GlowSpreadTokens = ["sm","md","lg","xl"] as const;
+export type GlowSpreadToken = (typeof GlowSpreadTokens)[number];
+
+export const HueTokens = ["teal","purple","magenta","ember","frost","cyber"] as const;
+export type HueToken = (typeof HueTokens)[number];
+
 export const MatteTokens = ["dark","medium","light"] as const;
 export type MatteToken = (typeof MatteTokens)[number];
 
-export const FontTokens = ["display","sans","mono"] as const;
-export type FontToken = (typeof FontTokens)[number];
+export const PaddingTokens = ["sm-y","sm-x","md-y","md-x","lg-y","lg-x"] as const;
+export type PaddingToken = (typeof PaddingTokens)[number];
+
+export const RadiusTokens = ["none","xs","sm","md","lg","xl","full"] as const;
+export type RadiusToken = (typeof RadiusTokens)[number];
+
+export const ShadowTokens = ["z0","z1","z2","z3","z4"] as const;
+export type ShadowToken = (typeof ShadowTokens)[number];
+
+export const SignalTokens = ["success","warning","error","info"] as const;
+export type SignalToken = (typeof SignalTokens)[number];
+
+export const SpaceTokens = ["1","2","3","4","5","6","8"] as const;
+export type SpaceToken = (typeof SpaceTokens)[number];
+
+export const TextTokens = ["primary","secondary","muted","disabled","accent","inverse"] as const;
+export type TextToken = (typeof TextTokens)[number];
 
 export const TextSizeTokens = ["xs","sm","base","lg","xl","2xl"] as const;
 export type TextSizeToken = (typeof TextSizeTokens)[number];
 
+export const ZTokens = ["base","raised","dropdown","sticky","overlay","modal","popover","toast","tooltip"] as const;
+export type ZToken = (typeof ZTokens)[number];
+
 // ─── Tier 2: Semantic ───
 
-export const SurfaceTokens = ["primary","elevated","overlay","frosted","muted","muted-medium","muted-light"] as const;
-export type SurfaceToken = (typeof SurfaceTokens)[number];
+export const BackdropTokens = ["glow-teal","glow-purple","glow-purple-fade","glow-ember","glow-cyber","glow-magenta","grid-teal","grid-purple","grid-ember","grid-cyber","grid-magenta"] as const;
+export type BackdropToken = (typeof BackdropTokens)[number];
 
 export const BorderTokens = ["subtle","soft","emphasis","focus","divider","divider-faint"] as const;
 export type BorderToken = (typeof BorderTokens)[number];
+
+export const DepthTokens = ["flat","raised","panel","overlay","modal"] as const;
+export type DepthToken = (typeof DepthTokens)[number];
 
 export const InteractionTokens = ["hover","active","selected"] as const;
 export type InteractionToken = (typeof InteractionTokens)[number];
@@ -84,149 +87,146 @@ export type InteractionToken = (typeof InteractionTokens)[number];
 export const OverlayTokens = ["bg","bg-heavy"] as const;
 export type OverlayToken = (typeof OverlayTokens)[number];
 
-export const DepthTokens = ["flat","raised","panel","overlay","modal"] as const;
-export type DepthToken = (typeof DepthTokens)[number];
+export const ScrollbarTokens = ["thumb","thumb-hover"] as const;
+export type ScrollbarToken = (typeof ScrollbarTokens)[number];
+
+export const SurfaceTokens = ["primary","elevated","overlay","frosted","muted","muted-medium","muted-light"] as const;
+export type SurfaceToken = (typeof SurfaceTokens)[number];
 
 export const TransitionTokens = ["instant","fast","normal","slow"] as const;
 export type TransitionToken = (typeof TransitionTokens)[number];
 
-export const BackdropTokens = ["glow-teal","glow-purple","glow-purple-fade","glow-ember","glow-cyber","glow-magenta","grid-teal","grid-purple","grid-ember","grid-cyber","grid-magenta"] as const;
-export type BackdropToken = (typeof BackdropTokens)[number];
-
-export const ScrollbarTokens = ["thumb","thumb-hover"] as const;
-export type ScrollbarToken = (typeof ScrollbarTokens)[number];
-
 // ─── Tier 3: Composite ───
-
-export const ButtonTokens = ["bg","bg-hover","border","border-focus"] as const;
-export type ButtonToken = (typeof ButtonTokens)[number];
-
-export const CheckboxTokens = ["bg","bg-checked","border","border-focus"] as const;
-export type CheckboxToken = (typeof CheckboxTokens)[number];
-
-export const SwitchTokens = ["bg","bg-checked","thumb"] as const;
-export type SwitchToken = (typeof SwitchTokens)[number];
-
-export const ToggleTokens = ["bg","bg-pressed","border"] as const;
-export type ToggleToken = (typeof ToggleTokens)[number];
-
-export const SliderTokens = ["track","range","thumb","thumb-border"] as const;
-export type SliderToken = (typeof SliderTokens)[number];
-
-export const ProgressTokens = ["track","bar"] as const;
-export type ProgressToken = (typeof ProgressTokens)[number];
-
-export const InputTokens = ["bg","bg-focus","border","border-focus"] as const;
-export type InputToken = (typeof InputTokens)[number];
-
-export const SelectTokens = ["bg","bg-hover","border","border-focus"] as const;
-export type SelectToken = (typeof SelectTokens)[number];
-
-export const ComboboxTokens = ["bg","border","border-focus","option-hover","option-selected-bg","option-selected-text"] as const;
-export type ComboboxToken = (typeof ComboboxTokens)[number];
-
-export const Radio-groupTokens = ["bg","bg-checked","border","border-focus"] as const;
-export type Radio-groupToken = (typeof Radio-groupTokens)[number];
-
-export const BadgeTokens = ["bg","border"] as const;
-export type BadgeToken = (typeof BadgeTokens)[number];
-
-export const CardTokens = ["bg","border","depth"] as const;
-export type CardToken = (typeof CardTokens)[number];
-
-export const AvatarTokens = ["bg","border"] as const;
-export type AvatarToken = (typeof AvatarTokens)[number];
-
-export const TableTokens = ["header-bg","row-bg","row-hover","border"] as const;
-export type TableToken = (typeof TableTokens)[number];
-
-export const SkeletonTokens = ["bg","shine"] as const;
-export type SkeletonToken = (typeof SkeletonTokens)[number];
-
-export const KbdTokens = ["bg","border"] as const;
-export type KbdToken = (typeof KbdTokens)[number];
-
-export const AlertTokens = ["bg","border"] as const;
-export type AlertToken = (typeof AlertTokens)[number];
-
-export const ToastTokens = ["bg","border","depth"] as const;
-export type ToastToken = (typeof ToastTokens)[number];
-
-export const PanelTokens = ["bg","border","header-border","depth"] as const;
-export type PanelToken = (typeof PanelTokens)[number];
-
-export const DialogTokens = ["bg","border","border-focus","depth"] as const;
-export type DialogToken = (typeof DialogTokens)[number];
-
-export const TabsTokens = ["bg","border","border-focus","tab-hover","tab-active","indicator"] as const;
-export type TabsToken = (typeof TabsTokens)[number];
 
 export const AccordionTokens = ["bg","border","trigger-hover"] as const;
 export type AccordionToken = (typeof AccordionTokens)[number];
 
+export const AlertTokens = ["bg","border"] as const;
+export type AlertToken = (typeof AlertTokens)[number];
+
+export const AppShellTokens = ["bg","frame-border"] as const;
+export type AppShellToken = (typeof AppShellTokens)[number];
+
+export const AvatarTokens = ["bg","border"] as const;
+export type AvatarToken = (typeof AvatarTokens)[number];
+
+export const BadgeTokens = ["bg","border"] as const;
+export type BadgeToken = (typeof BadgeTokens)[number];
+
+export const ButtonTokens = ["bg","bg-hover","border","border-focus"] as const;
+export type ButtonToken = (typeof ButtonTokens)[number];
+
+export const CardTokens = ["bg","border","depth"] as const;
+export type CardToken = (typeof CardTokens)[number];
+
+export const CheckboxTokens = ["bg","bg-checked","border","border-focus"] as const;
+export type CheckboxToken = (typeof CheckboxTokens)[number];
+
+export const ComboboxTokens = ["bg","border","border-focus","option-hover","option-selected-bg","option-selected-text"] as const;
+export type ComboboxToken = (typeof ComboboxTokens)[number];
+
+export const DialogTokens = ["bg","border","border-focus","depth"] as const;
+export type DialogToken = (typeof DialogTokens)[number];
+
+export const InputTokens = ["bg","bg-focus","border","border-focus"] as const;
+export type InputToken = (typeof InputTokens)[number];
+
+export const KbdTokens = ["bg","border"] as const;
+export type KbdToken = (typeof KbdTokens)[number];
+
 export const MenuTokens = ["bg","border","item-hover","depth"] as const;
 export type MenuToken = (typeof MenuTokens)[number];
 
-export const App-shellTokens = ["bg","frame-border"] as const;
-export type App-shellToken = (typeof App-shellTokens)[number];
+export const PanelTokens = ["bg","border","header-border","depth"] as const;
+export type PanelToken = (typeof PanelTokens)[number];
+
+export const ProgressTokens = ["track","bar"] as const;
+export type ProgressToken = (typeof ProgressTokens)[number];
+
+export const RadioGroupTokens = ["bg","bg-checked","border","border-focus"] as const;
+export type RadioGroupToken = (typeof RadioGroupTokens)[number];
+
+export const SelectTokens = ["bg","bg-hover","border","border-focus"] as const;
+export type SelectToken = (typeof SelectTokens)[number];
+
+export const SkeletonTokens = ["bg","shine"] as const;
+export type SkeletonToken = (typeof SkeletonTokens)[number];
+
+export const SliderTokens = ["track","range","thumb","thumb-border"] as const;
+export type SliderToken = (typeof SliderTokens)[number];
 
 export const SpinnerTokens = ["color"] as const;
 export type SpinnerToken = (typeof SpinnerTokens)[number];
 
+export const SwitchTokens = ["bg","bg-checked","thumb"] as const;
+export type SwitchToken = (typeof SwitchTokens)[number];
+
+export const TableTokens = ["header-bg","row-bg","row-hover","border"] as const;
+export type TableToken = (typeof TableTokens)[number];
+
+export const TabsTokens = ["bg","border","border-focus","tab-hover","tab-active","indicator"] as const;
+export type TabsToken = (typeof TabsTokens)[number];
+
+export const ToastTokens = ["bg","border","depth"] as const;
+export type ToastToken = (typeof ToastTokens)[number];
+
+export const ToggleTokens = ["bg","bg-pressed","border"] as const;
+export type ToggleToken = (typeof ToggleTokens)[number];
+
 // ─── Master lookup ───
 
 export const TokenArrays = {
-	hue: HueTokens,
-	color: ColorTokens,
-	text: TextTokens,
-	signal: SignalTokens,
-	shadow: ShadowTokens,
+	animation: AnimationTokens,
 	bevel: BevelTokens,
-	glow: GlowTokens,
-	glowSpread: GlowSpreadTokens,
 	blur: BlurTokens,
-	radius: RadiusTokens,
-	z: ZTokens,
+	color: ColorTokens,
 	duration: DurationTokens,
 	ease: EaseTokens,
-	animation: AnimationTokens,
-	space: SpaceTokens,
-	padding: PaddingTokens,
-	glass: GlassTokens,
-	matte: MatteTokens,
 	font: FontTokens,
+	glass: GlassTokens,
+	glow: GlowTokens,
+	glowSpread: GlowSpreadTokens,
+	hue: HueTokens,
+	matte: MatteTokens,
+	padding: PaddingTokens,
+	radius: RadiusTokens,
+	shadow: ShadowTokens,
+	signal: SignalTokens,
+	space: SpaceTokens,
+	text: TextTokens,
 	textSize: TextSizeTokens,
-	surface: SurfaceTokens,
+	z: ZTokens,
+	backdrop: BackdropTokens,
 	border: BorderTokens,
+	depth: DepthTokens,
 	interaction: InteractionTokens,
 	overlay: OverlayTokens,
-	depth: DepthTokens,
-	transition: TransitionTokens,
-	backdrop: BackdropTokens,
 	scrollbar: ScrollbarTokens,
-	button: ButtonTokens,
-	checkbox: CheckboxTokens,
-	switch: SwitchTokens,
-	toggle: ToggleTokens,
-	slider: SliderTokens,
-	progress: ProgressTokens,
-	input: InputTokens,
-	select: SelectTokens,
-	combobox: ComboboxTokens,
-	radio-group: Radio-groupTokens,
-	badge: BadgeTokens,
-	card: CardTokens,
-	avatar: AvatarTokens,
-	table: TableTokens,
-	skeleton: SkeletonTokens,
-	kbd: KbdTokens,
-	alert: AlertTokens,
-	toast: ToastTokens,
-	panel: PanelTokens,
-	dialog: DialogTokens,
-	tabs: TabsTokens,
+	surface: SurfaceTokens,
+	transition: TransitionTokens,
 	accordion: AccordionTokens,
+	alert: AlertTokens,
+	appShell: AppShellTokens,
+	avatar: AvatarTokens,
+	badge: BadgeTokens,
+	button: ButtonTokens,
+	card: CardTokens,
+	checkbox: CheckboxTokens,
+	combobox: ComboboxTokens,
+	dialog: DialogTokens,
+	input: InputTokens,
+	kbd: KbdTokens,
 	menu: MenuTokens,
-	app-shell: App-shellTokens,
+	panel: PanelTokens,
+	progress: ProgressTokens,
+	radioGroup: RadioGroupTokens,
+	select: SelectTokens,
+	skeleton: SkeletonTokens,
+	slider: SliderTokens,
 	spinner: SpinnerTokens,
+	switch: SwitchTokens,
+	table: TableTokens,
+	tabs: TabsTokens,
+	toast: ToastTokens,
+	toggle: ToggleTokens,
 } as const;

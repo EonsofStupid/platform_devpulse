@@ -7,10 +7,10 @@
 	--font-display: var(--font-display);
 	--font-sans: var(--font-sans);
 	--font-mono: var(--font-mono);
-	--font-size-xs: var(--text-size-xs);
-	--font-size-sm: var(--text-size-sm);
-	--font-size-base: var(--text-size-base);
-	--font-size-lg: var(--text-size-lg);
-	--font-size-xl: var(--text-size-xl);
-	--font-size-2xl: var(--text-size-2xl);
+	--text-size-xs: var(--text-size-xs);
+	--text-size-sm: var(--text-size-sm);
+	--text-size-base: var(--text-size-base);
+	--text-size-lg: var(--text-size-lg);
+	--text-size-xl: var(--text-size-xl);
+	--text-size-2xl: var(--text-size-2xl);
 }

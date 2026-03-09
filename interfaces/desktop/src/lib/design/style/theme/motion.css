@@ -4,25 +4,25 @@
  */
 
 @theme {
-	--transition-duration-snap: var(--duration-snap);
-	--transition-duration-fast: var(--duration-fast);
-	--transition-duration-normal: var(--duration-normal);
-	--transition-duration-smooth: var(--duration-smooth);
-	--transition-duration-glacial: var(--duration-glacial);
-	--transition-duration-moderate: var(--duration-moderate);
-	--transition-timing-function-linear: var(--ease-linear);
-	--transition-timing-function-in: var(--ease-in);
-	--transition-timing-function-out: var(--ease-out);
-	--transition-timing-function-inOut: var(--ease-in-out);
-	--transition-timing-function-spring: var(--ease-spring);
-	--transition-timing-function-bounce: var(--ease-bounce);
-	--animate-pulse-glow: var(--animation-pulse-glow);
-	--animate-breathe: var(--animation-breathe);
-	--animate-shimmer: var(--animation-shimmer);
-	--animate-drift: var(--animation-drift);
-	--animate-pulse: var(--animation-pulse);
-	--animate-fade-in: var(--animation-fade-in);
-	--animate-slide-up: var(--animation-slide-up);
-	--animate-slide-down: var(--animation-slide-down);
-	--animate-scale-in: var(--animation-scale-in);
+	--motion-duration-snap: var(--motion-duration-snap);
+	--motion-duration-fast: var(--motion-duration-fast);
+	--motion-duration-normal: var(--motion-duration-normal);
+	--motion-duration-smooth: var(--motion-duration-smooth);
+	--motion-duration-glacial: var(--motion-duration-glacial);
+	--motion-duration-moderate: var(--motion-duration-moderate);
+	--motion-ease-linear: var(--motion-ease-linear);
+	--motion-ease-in: var(--motion-ease-in);
+	--motion-ease-out: var(--motion-ease-out);
+	--motion-ease-in-out: var(--motion-ease-in-out);
+	--motion-ease-spring: var(--motion-ease-spring);
+	--motion-ease-bounce: var(--motion-ease-bounce);
+	--motion-animation-pulse-glow: var(--motion-animation-pulse-glow);
+	--motion-animation-breathe: var(--motion-animation-breathe);
+	--motion-animation-shimmer: var(--motion-animation-shimmer);
+	--motion-animation-drift: var(--motion-animation-drift);
+	--motion-animation-pulse: var(--motion-animation-pulse);
+	--motion-animation-fade-in: var(--motion-animation-fade-in);
+	--motion-animation-slide-up: var(--motion-animation-slide-up);
+	--motion-animation-slide-down: var(--motion-animation-slide-down);
+	--motion-animation-scale-in: var(--motion-animation-scale-in);
 }

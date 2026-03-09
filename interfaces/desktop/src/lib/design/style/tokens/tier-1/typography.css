@@ -3,9 +3,9 @@
  */
 
 :root {
-  --font-display: "Orbitron", system-ui, sans-serif;
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+  --font-display: Orbitron, system-ui, sans-serif;
+  --font-sans: Inter, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
   --text-size-xs: 0.75rem;
   --text-size-sm: 0.875rem;
   --text-size-base: 1rem;

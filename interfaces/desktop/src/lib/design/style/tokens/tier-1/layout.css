@@ -3,7 +3,7 @@
  */
 
 :root {
-  --radius-none: 0;
+  --radius-none: 0px;
   --radius-xs: 0.125rem;
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
