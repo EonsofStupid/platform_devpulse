@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { Switch } from "./factory.js";
+import { Switch } from "./factory.svelte.js";
 import type { SwitchProps } from "./types.js";
 
 /**

@@ -3,5 +3,5 @@
  * @package @devpulse/coldlight
  */
 
-export { SearchInput, createSearchInput } from "./factory.js";
+export { SearchInput, createSearchInput } from "./factory.svelte.js";
 export type { SearchInputProps } from "./types.js";

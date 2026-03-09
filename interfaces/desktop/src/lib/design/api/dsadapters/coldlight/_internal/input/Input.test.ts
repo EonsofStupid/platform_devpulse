@@ -26,7 +26,7 @@
  */
 
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
-import { Input, createInput } from "./factory.js";
+import { Input, createInput } from "./factory.svelte.js";
 import { resetIdCounter } from "../../builders/builder-metadata.js";
 
 // =============================================================================

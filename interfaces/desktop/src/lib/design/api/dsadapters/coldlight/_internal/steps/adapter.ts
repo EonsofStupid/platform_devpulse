@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { Steps } from "./factory.js";
+import { Steps } from "./factory.svelte.js";
 import type { StepsProps } from "./types.js";
 
 /**

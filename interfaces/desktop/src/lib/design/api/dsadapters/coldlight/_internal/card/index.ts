@@ -3,5 +3,5 @@
  * @package @devpulse/coldlight
  */
 
-export { Card, createCard } from "./factory.js";
+export { Card, createCard } from "./factory.svelte.js";
 export type { CardProps } from "./types.js";

@@ -20,7 +20,7 @@
  */
 
 import { describe, test, expect, beforeEach, afterEach } from "vitest";
-import { Separator, createSeparator } from "./factory.js";
+import { Separator, createSeparator } from "./factory.svelte.js";
 import { resetIdCounter } from "../../builders/builder-metadata.js";
 
 // =============================================================================

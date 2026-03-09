@@ -3,5 +3,5 @@
  * @package @devpulse/coldlight
  */
 
-export { Steps, createSteps } from "./factory.js";
+export { Steps, createSteps } from "./factory.svelte.js";
 export type { StepsProps } from "./types.js";

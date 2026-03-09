@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { Form } from "./factory.js";
+import { Form } from "./factory.svelte.js";
 import type { FormProps } from "./types.js";
 
 /**

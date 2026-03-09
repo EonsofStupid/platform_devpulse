@@ -16,7 +16,7 @@
 	let { children, class: className, ...rest }: DialogCloseProps = $props();
 	const dialog = getDialogContext();
 	const recipe = getRecipe("dialog.glass.void");
-	const closeClass = recipe?.classes({} as any)?.close ?? "";
+	const closeClass = recipe?.classes?.({} as any)?.close ?? "";
 </script>
 
 <button

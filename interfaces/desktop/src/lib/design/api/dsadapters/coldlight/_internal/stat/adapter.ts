@@ -7,7 +7,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { Stat } from "./factory.js";
+import { Stat } from "./factory.svelte.js";
 import type { StatProps } from "./types.js";
 
 /**

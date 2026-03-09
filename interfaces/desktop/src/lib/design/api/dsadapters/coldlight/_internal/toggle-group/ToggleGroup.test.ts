@@ -22,7 +22,7 @@
  */
 
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
-import { ToggleGroup, createToggleGroup } from "./factory.js";
+import { ToggleGroup, createToggleGroup } from "./factory.svelte.js";
 import { resetIdCounter } from "../../builders/builder-metadata.js";
 
 // =============================================================================

@@ -10,7 +10,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { Separator } from "./factory.js";
+import { Separator } from "./factory.svelte.js";
 import type { SeparatorProps } from "./types.js";
 
 /**

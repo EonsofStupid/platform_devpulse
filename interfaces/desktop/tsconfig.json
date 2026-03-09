@@ -15,7 +15,7 @@
 		"types": ["node"]
 	},
 	"include": ["**/*.d.ts", "**/*.ts", "**/*.js", "**/*.svelte"],
-	"exclude": ["node_modules", "**/node_modules", "src/lib/design/primitives/_archive/**"],
+	"exclude": ["node_modules", "**/node_modules", "dist", "src/lib/design/primitives/_archive/**"],
 	"references": [
 		{
 			"path": "./tsconfig.node.json"

@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { Nav } from "./factory.js";
+import { Nav } from "./factory.svelte.js";
 import type { NavProps } from "./types.js";
 
 /**

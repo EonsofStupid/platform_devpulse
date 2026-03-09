@@ -3,5 +3,5 @@
  * @package @devpulse/coldlight
  */
 
-export { TableOfContents, createTableOfContents } from "./factory.js";
+export { TableOfContents, createTableOfContents } from "./factory.svelte.js";
 export type { TableOfContentsProps } from "./types.js";

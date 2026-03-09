@@ -16,7 +16,7 @@
 	let { children, class: className, ...rest }: DialogTitleProps = $props();
 	const dialog = getDialogContext();
 	const recipe = getRecipe("dialog.glass.void");
-	const titleClass = recipe?.classes({} as any)?.title ?? "";
+	const titleClass = recipe?.classes?.({} as any)?.title ?? "";
 </script>
 
 <h2

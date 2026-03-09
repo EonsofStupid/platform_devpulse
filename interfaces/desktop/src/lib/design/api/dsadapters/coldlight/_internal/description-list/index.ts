@@ -3,5 +3,5 @@
  * @package @devpulse/coldlight
  */
 
-export { DescriptionList, createDescriptionList } from "./factory.js";
+export { DescriptionList, createDescriptionList } from "./factory.svelte.js";
 export type { DescriptionListProps } from "./types.js";

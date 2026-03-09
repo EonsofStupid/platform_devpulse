@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { AspectRatio } from "./factory.js";
+import { AspectRatio } from "./factory.svelte.js";
 import type { AspectRatioProps } from "./types.js";
 
 /**

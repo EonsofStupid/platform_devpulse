@@ -658,7 +658,7 @@ async function scanRecipes(
 					// Resolve slots by calling classes() with defaults
 					let slots: string[] = [];
 					try {
-						const classes = recipe.classes(recipe.defaults as Record<string, unknown>);
+						const classes = recipe.classes?.(recipe.defaults as Record<string, unknown>);
 						slots = Object.keys(classes);
 					} catch {
 						// If classes() fails with partial defaults, report empty slots

@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { NumberInput } from "./factory.js";
+import { NumberInput } from "./factory.svelte.js";
 import type { NumberInputProps } from "./types.js";
 
 /**

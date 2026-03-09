@@ -23,7 +23,7 @@
  */
 
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
-import { Switch, createSwitch } from "./factory.js";
+import { Switch, createSwitch } from "./factory.svelte.js";
 import { resetIdCounter } from "../../builders/builder-metadata.js";
 
 // =============================================================================

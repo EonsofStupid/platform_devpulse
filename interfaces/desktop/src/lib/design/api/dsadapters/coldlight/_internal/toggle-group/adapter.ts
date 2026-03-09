@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { ToggleGroup } from "./factory.js";
+import { ToggleGroup } from "./factory.svelte.js";
 import type { ToggleGroupProps } from "./types.js";
 
 /**

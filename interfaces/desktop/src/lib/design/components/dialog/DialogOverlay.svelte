@@ -16,7 +16,7 @@
 	let { class: className, ...rest }: DialogOverlayProps = $props();
 	const dialog = getDialogContext();
 	const recipe = getRecipe("dialog.glass.void");
-	const overlayClass = recipe?.classes({} as any)?.overlay ?? "";
+	const overlayClass = recipe?.classes?.({} as any)?.overlay ?? "";
 </script>
 
 {#if dialog.open}

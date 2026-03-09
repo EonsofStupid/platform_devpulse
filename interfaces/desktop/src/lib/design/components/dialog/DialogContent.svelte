@@ -17,7 +17,7 @@
 	let { children, class: className, ...rest }: DialogContentProps = $props();
 	const dialog = getDialogContext();
 	const recipe = getRecipe("dialog.glass.void");
-	const contentClass = recipe?.classes({} as any)?.content ?? "";
+	const contentClass = recipe?.classes?.({} as any)?.content ?? "";
 </script>
 
 {#if dialog.open}

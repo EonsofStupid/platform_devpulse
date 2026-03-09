@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { TableOfContents } from "./factory.js";
+import { TableOfContents } from "./factory.svelte.js";
 import type { TableOfContentsProps } from "./types.js";
 
 /**

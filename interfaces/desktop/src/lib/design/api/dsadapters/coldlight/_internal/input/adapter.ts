@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { Input } from "./factory.js";
+import { Input } from "./factory.svelte.js";
 import type { InputProps } from "./types.js";
 
 /**

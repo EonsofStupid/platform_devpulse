@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { Sheet } from "./factory.js";
+import { Sheet } from "./factory.svelte.js";
 import type { SheetProps } from "./types.js";
 
 /**

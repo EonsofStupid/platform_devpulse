@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { DescriptionList } from "./factory.js";
+import { DescriptionList } from "./factory.svelte.js";
 import type { DescriptionListProps } from "./types.js";
 
 /**

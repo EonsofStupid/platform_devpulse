@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { Sidebar } from "./factory.js";
+import { Sidebar } from "./factory.svelte.js";
 import type { SidebarProps } from "./types.js";
 
 /**

@@ -16,7 +16,7 @@
 	let { children, class: className, ...rest }: DialogDescriptionProps = $props();
 	const dialog = getDialogContext();
 	const recipe = getRecipe("dialog.glass.void");
-	const descriptionClass = recipe?.classes({} as any)?.description ?? "";
+	const descriptionClass = recipe?.classes?.({} as any)?.description ?? "";
 </script>
 
 <p

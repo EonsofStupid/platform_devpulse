@@ -29,7 +29,7 @@ const isContextExpanded = $derived(globalState.context_mode === "expanded");
 
 const shell = getRecipe("shell.app.default");
 const slots = $derived(
-	shell?.classes({
+	shell?.classes?.({
 		surface: "glass-void",
 		material: "none",
 		depth: "z2",

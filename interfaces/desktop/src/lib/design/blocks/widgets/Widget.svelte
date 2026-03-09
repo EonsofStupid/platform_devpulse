@@ -65,7 +65,7 @@ const visual = useColdLight(
 // Recipe — structural slot classes only
 const widgetRecipe = $derived(getRecipe(recipeId));
 const slots = $derived(
-	widgetRecipe?.classes({
+	widgetRecipe?.classes?.({
 		surface: "glass-void",
 		material: "none",
 		depth: "z2",

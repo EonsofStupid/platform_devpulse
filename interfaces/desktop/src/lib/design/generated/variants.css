@@ -15,8 +15,8 @@
 /* Default: all layers are transparent (no shadow). */
 @layer base {
 	[data-kind] {
-		--cl-depth: 0 0 0 transparent;
-		--cl-bevel: 0 0 0 transparent;
+		-depth: 0 0 0 transparent;
+		-bevel: 0 0 0 transparent;
 		--cl-glow: 0 0 0 transparent;
 		--cl-frame-glow: 0 0 0 transparent;
 		box-shadow: var(--cl-depth), var(--cl-bevel), var(--cl-glow), var(--cl-frame-glow);

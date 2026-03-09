@@ -3,5 +3,5 @@
  * @package @devpulse/coldlight
  */
 
-export { ColorInput, createColorInput } from "./factory.js";
+export { ColorInput, createColorInput } from "./factory.svelte.js";
 export type { ColorInputProps } from "./types.js";

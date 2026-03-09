@@ -3,5 +3,5 @@
  * @package @devpulse/coldlight
  */
 
-export { Separator, createSeparator } from "./factory.js";
+export { Separator, createSeparator } from "./factory.svelte.js";
 export type { SeparatorProps } from "./types.js";

@@ -74,15 +74,15 @@
 	// Resolve recipe from the SSOT registry
 	const recipeDef = getRecipe("combobox.glass.void")!;
 	const recipe = $derived(
-		recipeDef.classes({
+		recipeDef.classes?.({
 			...recipeDef.defaults,
 			size,
-		} as DsSurfaceProps),
+		} as DsSurfaceProps) ?? {},
 	);
 
 	setComboboxContext({
 		...transport,
-		get recipe() { return recipe; },
+		get recipe() { return recipe as Record<string, string>; },
 		get disabled() { return disabled; },
 	});
 

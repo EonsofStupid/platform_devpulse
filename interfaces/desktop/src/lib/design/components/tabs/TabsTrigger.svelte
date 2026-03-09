@@ -17,7 +17,7 @@
 	let { value, disabled = false, children, class: className, ...rest }: TabsTriggerProps = $props();
 	const tabs = getTabsContext();
 	const recipe = getRecipe("tabs.glass.void");
-	const triggerClass = recipe?.classes({} as any)?.trigger ?? "";
+	const triggerClass = recipe?.classes?.({} as any)?.trigger ?? "";
 	const slotAttrs = $derived(tabs.getTrigger(value, disabled));
 </script>
 

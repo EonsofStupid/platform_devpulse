@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { Table } from "./factory.js";
+import { Table } from "./factory.svelte.js";
 import type { TableProps, AriaSort } from "./types.js";
 
 /**

@@ -3,5 +3,5 @@
  * @package @devpulse/coldlight
  */
 
-export { Form, createForm } from "./factory.js";
+export { Form, createForm } from "./factory.svelte.js";
 export type { FormProps } from "./types.js";

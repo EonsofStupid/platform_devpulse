@@ -14,7 +14,7 @@
 
 	let { children, class: className, ...rest }: DialogHeaderProps = $props();
 	const recipe = getRecipe("dialog.glass.void");
-	const headerClass = recipe?.classes({} as any)?.header ?? "";
+	const headerClass = recipe?.classes?.({} as any)?.header ?? "";
 </script>
 
 <div

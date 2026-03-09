@@ -52,7 +52,7 @@
 	setTabsContext(tabs);
 
 	const recipe = getRecipe("tabs.glass.void");
-	const rootClass = recipe?.classes({} as any)?.root ?? "";
+	const rootClass = recipe?.classes?.({} as any)?.root ?? "";
 
 	const visual = useColdLight(() => ({ preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius, size }));
 </script>

@@ -3,5 +3,5 @@
  * @package @devpulse/coldlight
  */
 
-export { Stat, createStat } from "./factory.js";
+export { Stat, createStat } from "./factory.svelte.js";
 export type { StatProps } from "./types.js";

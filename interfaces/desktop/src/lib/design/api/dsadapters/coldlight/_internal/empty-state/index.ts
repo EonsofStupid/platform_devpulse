@@ -3,5 +3,5 @@
  * @package @devpulse/coldlight
  */
 
-export { EmptyState, createEmptyState } from "./factory.js";
+export { EmptyState, createEmptyState } from "./factory.svelte.js";
 export type { EmptyStateProps } from "./types.js";

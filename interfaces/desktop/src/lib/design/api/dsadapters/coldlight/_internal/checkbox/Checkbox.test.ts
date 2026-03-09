@@ -24,7 +24,7 @@
  */
 
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
-import { Checkbox, createCheckbox } from "./factory.js";
+import { Checkbox, createCheckbox } from "./factory.svelte.js";
 import { resetIdCounter } from "../../builders/builder-metadata.js";
 
 // =============================================================================

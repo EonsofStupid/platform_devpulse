@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { Textarea } from "./factory.js";
+import { Textarea } from "./factory.svelte.js";
 import type { TextareaProps } from "./types.js";
 
 /**

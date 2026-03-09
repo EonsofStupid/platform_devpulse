@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { EmptyState } from "./factory.js";
+import { EmptyState } from "./factory.svelte.js";
 import type { EmptyStateProps } from "./types.js";
 
 /**

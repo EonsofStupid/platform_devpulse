@@ -3,5 +3,5 @@
  * @package @devpulse/coldlight
  */
 
-export { NumberInput, createNumberInput } from "./factory.js";
+export { NumberInput, createNumberInput } from "./factory.svelte.js";
 export type { NumberInputProps } from "./types.js";

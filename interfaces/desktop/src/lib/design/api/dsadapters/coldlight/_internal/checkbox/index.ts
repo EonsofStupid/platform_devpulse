@@ -3,5 +3,5 @@
  * @package @devpulse/coldlight
  */
 
-export { Checkbox, createCheckbox } from "./factory.js";
+export { Checkbox, createCheckbox } from "./factory.svelte.js";
 export type { CheckboxProps } from "./types.js";

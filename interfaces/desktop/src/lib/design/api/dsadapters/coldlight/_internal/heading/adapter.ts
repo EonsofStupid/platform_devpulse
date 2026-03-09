@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { Heading } from "./factory.js";
+import { Heading } from "./factory.svelte.js";
 import type { HeadingProps } from "./types.js";
 
 /**

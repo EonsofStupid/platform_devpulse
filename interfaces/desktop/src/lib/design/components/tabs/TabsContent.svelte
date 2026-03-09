@@ -17,7 +17,7 @@
 	let { value, children, class: className, ...rest }: TabsContentProps = $props();
 	const tabs = getTabsContext();
 	const recipe = getRecipe("tabs.glass.void");
-	const contentClass = recipe?.classes({} as any)?.content ?? "";
+	const contentClass = recipe?.classes?.({} as any)?.content ?? "";
 	const slotAttrs = $derived(tabs.getContent(value));
 </script>
 

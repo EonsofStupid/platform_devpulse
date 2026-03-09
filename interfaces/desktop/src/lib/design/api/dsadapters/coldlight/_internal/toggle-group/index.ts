@@ -3,5 +3,5 @@
  * @package @devpulse/coldlight
  */
 
-export { ToggleGroup, createToggleGroup } from "./factory.js";
+export { ToggleGroup, createToggleGroup } from "./factory.svelte.js";
 export type { ToggleGroupProps } from "./types.js";

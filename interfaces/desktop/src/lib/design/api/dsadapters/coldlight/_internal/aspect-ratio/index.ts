@@ -3,5 +3,5 @@
  * @package @devpulse/coldlight
  */
 
-export { AspectRatio, createAspectRatio } from "./factory.js";
+export { AspectRatio, createAspectRatio } from "./factory.svelte.js";
 export type { AspectRatioProps } from "./types.js";

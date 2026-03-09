@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { ColorInput } from "./factory.js";
+import { ColorInput } from "./factory.svelte.js";
 import type { ColorInputProps } from "./types.js";
 
 /**

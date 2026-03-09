@@ -4,7 +4,7 @@
  * @package @devpulse/coldlight
  *
  * The critical bridge between block data and visual output.
- * Merges recipe defaults with node prop overrides, calls recipe.classes(),
+ * Merges recipe defaults with node prop overrides, calls recipe.classes?.(),
  * and returns per-slot shortcode class strings.
  */
 
@@ -32,5 +32,5 @@ export function resolveClasses(node: BlockNode): Record<string, string> {
 		...node.props,
 	} as unknown as DsSurfaceProps;
 
-	return recipe.classes(mergedProps);
+	return recipe.classes?.(mergedProps) ?? {};
 }

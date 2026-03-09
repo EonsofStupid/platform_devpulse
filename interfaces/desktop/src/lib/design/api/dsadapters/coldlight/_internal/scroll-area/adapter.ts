@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { ScrollArea } from "./factory.js";
+import { ScrollArea } from "./factory.svelte.js";
 import type { ScrollAreaProps } from "./types.js";
 
 /**

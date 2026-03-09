@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { Badge } from "./factory.js";
+import { Badge } from "./factory.svelte.js";
 import type { BadgeProps } from "./types.js";
 
 /**

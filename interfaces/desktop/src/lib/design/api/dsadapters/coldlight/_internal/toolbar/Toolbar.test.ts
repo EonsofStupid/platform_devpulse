@@ -23,7 +23,7 @@
  */
 
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
-import { Toolbar, createToolbar } from "./factory.js";
+import { Toolbar, createToolbar } from "./factory.svelte.js";
 import { resetIdCounter } from "../../builders/builder-metadata.js";
 
 // =============================================================================

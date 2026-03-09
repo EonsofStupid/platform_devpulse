@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { SkipLink } from "./factory.js";
+import { SkipLink } from "./factory.svelte.js";
 import type { SkipLinkProps } from "./types.js";
 
 /**

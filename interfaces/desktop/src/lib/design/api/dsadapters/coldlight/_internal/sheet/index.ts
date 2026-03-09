@@ -3,5 +3,5 @@
  * @package @devpulse/coldlight
  */
 
-export { Sheet, createSheet } from "./factory.js";
+export { Sheet, createSheet } from "./factory.svelte.js";
 export type { SheetProps, SheetSide } from "./types.js";

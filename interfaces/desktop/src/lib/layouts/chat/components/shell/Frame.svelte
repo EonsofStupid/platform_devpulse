@@ -27,7 +27,7 @@ let { children }: Props = $props();
 
 const shell = getRecipe("shell.chat.default");
 const slots = $derived(
-	shell?.classes({
+	shell?.classes?.({
 		surface: "glass-deep",
 		material: "none",
 		depth: "z2",

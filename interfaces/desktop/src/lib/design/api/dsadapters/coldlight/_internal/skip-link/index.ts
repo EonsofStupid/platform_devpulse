@@ -3,5 +3,5 @@
  * @package @devpulse/coldlight
  */
 
-export { SkipLink, createSkipLink } from "./factory.js";
+export { SkipLink, createSkipLink } from "./factory.svelte.js";
 export type { SkipLinkProps } from "./types.js";

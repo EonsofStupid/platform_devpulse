@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { Card } from "./factory.js";
+import { Card } from "./factory.svelte.js";
 import type { CardProps } from "./types.js";
 
 /**

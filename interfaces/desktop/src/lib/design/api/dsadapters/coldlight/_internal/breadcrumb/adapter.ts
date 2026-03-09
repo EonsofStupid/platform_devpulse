@@ -12,7 +12,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { Breadcrumb } from "./factory.js";
+import { Breadcrumb } from "./factory.svelte.js";
 import type { BreadcrumbProps } from "./types.js";
 
 /**

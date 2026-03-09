@@ -3,5 +3,5 @@
  * @package @devpulse/coldlight
  */
 
-export { Heading, createHeading } from "./factory.js";
+export { Heading, createHeading } from "./factory.svelte.js";
 export type { HeadingProps, HeadingLevel } from "./types.js";

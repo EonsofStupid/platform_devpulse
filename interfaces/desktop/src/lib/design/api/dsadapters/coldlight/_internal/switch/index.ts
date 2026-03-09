@@ -3,5 +3,5 @@
  * @package @devpulse/coldlight
  */
 
-export { Switch, createSwitch } from "./factory.js";
+export { Switch, createSwitch } from "./factory.svelte.js";
 export type { SwitchProps } from "./types.js";

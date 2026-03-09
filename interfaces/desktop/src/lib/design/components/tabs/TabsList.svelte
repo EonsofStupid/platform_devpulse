@@ -16,7 +16,7 @@
 	let { children, class: className, ...rest }: TabsListProps = $props();
 	const tabs = getTabsContext();
 	const recipe = getRecipe("tabs.glass.void");
-	const listClass = recipe?.classes({} as any)?.list ?? "";
+	const listClass = recipe?.classes?.({} as any)?.list ?? "";
 </script>
 
 <div

@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { List } from "./factory.js";
+import { List } from "./factory.svelte.js";
 import type { ListProps } from "./types.js";
 
 /**

@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { SearchInput } from "./factory.js";
+import { SearchInput } from "./factory.svelte.js";
 import type { SearchInputProps } from "./types.js";
 
 /**

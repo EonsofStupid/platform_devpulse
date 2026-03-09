@@ -3,5 +3,5 @@
  * @package @devpulse/coldlight
  */
 
-export { Nav, createNav } from "./factory.js";
+export { Nav, createNav } from "./factory.svelte.js";
 export type { NavProps } from "./types.js";

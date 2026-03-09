@@ -12,7 +12,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { Button } from "./factory.js";
+import { Button } from "./factory.svelte.js";
 import type { ButtonProps } from "./types.js";
 
 /**

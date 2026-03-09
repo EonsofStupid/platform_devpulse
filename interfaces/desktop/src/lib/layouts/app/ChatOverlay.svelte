@@ -122,8 +122,7 @@ function formatTime(epoch: number): string {
 		glow="teal"
 		frame="accent-teal"
 		radius="lg"
-		class="flex flex-col overflow-hidden shadow-[0_8px_32px_rgb(0_0_0/0.5)]"
-		style="height: {minimized ? 'auto' : '520px'};"
+		class="flex flex-col overflow-hidden shadow-[0_8px_32px_rgb(0_0_0/0.5)] {minimized ? 'h-auto' : 'h-[520px]'}"
 	>
 		<!-- Draggable title bar -->
 		<!-- svelte-ignore a11y_no_static_element_interactions -->

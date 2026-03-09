@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { Divider } from "./factory.js";
+import { Divider } from "./factory.svelte.js";
 import type { DividerProps } from "./types.js";
 
 /**

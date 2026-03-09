@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { NavItem } from "./factory.js";
+import { NavItem } from "./factory.svelte.js";
 import type { NavItemProps } from "./types.js";
 
 /**

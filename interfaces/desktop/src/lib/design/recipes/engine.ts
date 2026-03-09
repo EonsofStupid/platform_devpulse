@@ -40,7 +40,7 @@ export function resolveRecipe(
 
 	const result: Record<string, string> = {};
 
-	for (const [slotName, slotDef] of Object.entries(recipe.slots)) {
+	for (const [slotName, slotDef] of Object.entries(recipe.slots ?? {})) {
 		if (slotDef.visual === "all") {
 			// Root-level slot: structural + visual encoding + radius
 			result[slotName] = cn(slotDef.structural, visual, radius);

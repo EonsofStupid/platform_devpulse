@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { Toolbar } from "./factory.js";
+import { Toolbar } from "./factory.svelte.js";
 import type { ToolbarProps } from "./types.js";
 
 /**

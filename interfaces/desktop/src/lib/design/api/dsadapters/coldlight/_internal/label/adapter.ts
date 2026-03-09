@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { Label } from "./factory.js";
+import { Label } from "./factory.svelte.js";
 import type { LabelProps } from "./types.js";
 
 /**

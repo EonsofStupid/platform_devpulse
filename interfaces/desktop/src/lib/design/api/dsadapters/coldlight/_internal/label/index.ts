@@ -3,5 +3,5 @@
  * @package @devpulse/coldlight
  */
 
-export { Label, createLabel } from "./factory.js";
+export { Label, createLabel } from "./factory.svelte.js";
 export type { LabelProps } from "./types.js";

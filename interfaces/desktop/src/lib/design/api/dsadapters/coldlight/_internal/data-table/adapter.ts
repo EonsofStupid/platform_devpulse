@@ -12,7 +12,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { DataTable } from "./factory.js";
+import { DataTable } from "./factory.svelte.js";
 import type { DataTableProps, AriaSort } from "./types.js";
 
 /**

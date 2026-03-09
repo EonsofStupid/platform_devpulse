@@ -14,7 +14,7 @@
 
 	let { children, class: className, ...rest }: DialogFooterProps = $props();
 	const recipe = getRecipe("dialog.glass.void");
-	const footerClass = recipe?.classes({} as any)?.footer ?? "";
+	const footerClass = recipe?.classes?.({} as any)?.footer ?? "";
 </script>
 
 <div

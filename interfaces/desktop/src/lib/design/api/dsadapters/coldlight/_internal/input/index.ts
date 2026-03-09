@@ -3,5 +3,5 @@
  * @package @devpulse/coldlight
  */
 
-export { Input, createInput } from "./factory.js";
+export { Input, createInput } from "./factory.svelte.js";
 export type { InputProps } from "./types.js";

@@ -3,5 +3,5 @@
  * @package @devpulse/coldlight
  */
 
-export { Badge, createBadge } from "./factory.js";
+export { Badge, createBadge } from "./factory.svelte.js";
 export type { BadgeProps, BadgeVariant } from "./types.js";

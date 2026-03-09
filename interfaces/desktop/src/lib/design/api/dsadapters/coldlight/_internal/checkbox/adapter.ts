@@ -8,7 +8,7 @@
  */
 
 import type { AdapterResult } from "../../../_schema/engine.js";
-import { Checkbox } from "./factory.js";
+import { Checkbox } from "./factory.svelte.js";
 import type { CheckboxProps } from "./types.js";
 
 /**

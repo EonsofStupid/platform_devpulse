@@ -27,7 +27,7 @@ import type { DsSurfaceProps } from "$lib/design/recipes/types.js";
 /** Resolve recipe classes for a given size (defaults filled from registry). */
 function resolveRecipe(size: "sm" | "md" | "lg" = "md"): Record<string, string> {
 	const def = getRecipe("combobox.glass.void")!;
-	return def.classes({ ...def.defaults, size } as DsSurfaceProps);
+	return def.classes?.({ ...def.defaults, size } as DsSurfaceProps) ?? {};
 }
 
 // =============================================================================
