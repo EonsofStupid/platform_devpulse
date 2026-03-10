@@ -1,0 +1,43 @@
+{
+	"space": {
+		"$type": "dimension",
+		"$description": "Base spacing scale — layout gaps, margins",
+		"1": { "$value": { "value": 0.25, "unit": "rem" } },
+		"2": { "$value": { "value": 0.5, "unit": "rem" } },
+		"3": { "$value": { "value": 0.75, "unit": "rem" } },
+		"4": { "$value": { "value": 1, "unit": "rem" } },
+		"5": { "$value": { "value": 1.25, "unit": "rem" } },
+		"6": { "$value": { "value": 1.5, "unit": "rem" } },
+		"8": { "$value": { "value": 2, "unit": "rem" } }
+	},
+	"padding": {
+		"$type": "dimension",
+		"$description": "Component padding presets — split into y (block) and x (inline) axes",
+		"sm-y": { "$value": { "value": 0.375, "unit": "rem" } },
+		"sm-x": { "$value": { "value": 0.75, "unit": "rem" } },
+		"md-y": { "$value": { "value": 0.5, "unit": "rem" } },
+		"md-x": { "$value": { "value": 1, "unit": "rem" } },
+		"lg-y": { "$value": { "value": 0.75, "unit": "rem" } },
+		"lg-x": { "$value": { "value": 1.5, "unit": "rem" } }
+	},
+	"size": {
+		"$type": "dimension",
+		"$description": "Component size scale — structural height/padding/font-size",
+		"sm": { "$value": { "value": 2, "unit": "rem" } },
+		"md": { "$value": { "value": 2.5, "unit": "rem" } },
+		"lg": { "$value": { "value": 3, "unit": "rem" } }
+	},
+	"z": {
+		"$type": "number",
+		"$description": "Z-index stacking order",
+		"base":     { "$value": 0 },
+		"raised":   { "$value": 10 },
+		"dropdown": { "$value": 100 },
+		"sticky":   { "$value": 200 },
+		"overlay":  { "$value": 300 },
+		"modal":    { "$value": 400 },
+		"popover":  { "$value": 500 },
+		"toast":    { "$value": 600 },
+		"tooltip":  { "$value": 700 }
+	}
+}

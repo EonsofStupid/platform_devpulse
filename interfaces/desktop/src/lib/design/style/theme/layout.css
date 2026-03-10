@@ -4,6 +4,9 @@
  */
 
 @theme {
+	--size-sm: var(--size-sm);
+	--size-md: var(--size-md);
+	--size-lg: var(--size-lg);
 	--radius-none: var(--radius-none);
 	--radius-xs: var(--radius-xs);
 	--radius-sm: var(--radius-sm);

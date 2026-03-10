@@ -10,49 +10,74 @@ use devpulse_engine::platform::{
 use serde::Serialize;
 use tauri::State;
 
-/// A project row from LibSQL.
+/// A project row from LibSQL — maps 1:1 to the `projects` table.
 #[derive(Debug, Serialize)]
 pub struct ProjectRow {
+    /// Application-generated string key, not a DB auto-increment.
     pub id: String,
+    /// Display label shown in the dashboard project list.
     pub name: String,
+    /// Absolute filesystem path; used to open the project in the IDE.
     pub root_path: String,
+    /// Free-form tag (e.g. `"rust"`, `"node"`, `"python"`). Not an enum — user-supplied.
     pub project_type: String,
+    /// Epoch seconds. Set once on INSERT, never updated.
     pub created_at: i64,
+    /// Epoch seconds. Updated on every project open; drives dashboard sort order.
     pub last_accessed: i64,
 }
 
-/// Daily stats row from DuckDB.
+/// One row per day from the DuckDB `daily_stats` table.
+///
+/// Populated by the analytics pipeline, not by user actions directly.
 #[derive(Debug, Serialize)]
 pub struct DailyStatsRow {
+    /// `YYYY-MM-DD` string from DuckDB `DATE` column cast to text.
     pub date: String,
+    /// Engine events (API calls, tool invocations, etc.) — not chat messages.
     pub total_signals: i64,
+    /// Chat messages specifically, across all sessions that day.
     pub total_messages: i64,
+    /// LLM token consumption (prompt + completion) aggregated for the day.
     pub total_tokens: i64,
+    /// Arithmetic mean of per-request latencies. 0.0 if no requests that day.
     pub avg_latency_ms: f64,
 }
 
-/// Cache stats from Moka.
+/// Snapshot of the Moka in-memory cache. Changes between calls.
 #[derive(Debug, Serialize)]
 pub struct CacheStats {
+    /// Live count — may decrease between calls due to TTL eviction.
     pub entry_count: u64,
+    /// Hard ceiling configured at boot. Entries beyond this are evicted LRU.
     pub max_capacity: u64,
 }
 
-/// Message count summary.
+/// Aggregate counts from LibSQL — cheap `COUNT(*)` queries, not row scans.
 #[derive(Debug, Serialize)]
 pub struct MessageStats {
+    /// All messages ever stored. Includes both user and assistant roles.
     pub total_messages: i64,
+    /// Distinct sessions (open + closed). A session with 0 messages still counts.
     pub total_sessions: i64,
 }
 
-/// Full dashboard payload returned to the frontend.
+/// Single IPC response for the dashboard route. Assembles data from all stores.
+///
+/// LibSQL may be unavailable during early boot — fields fall back to empty/zero.
 #[derive(Debug, Serialize)]
 pub struct DashboardPayload {
+    /// Most recently accessed projects, hard-capped at 8. Sorted by `last_accessed DESC`.
     pub projects: Vec<ProjectRow>,
+    /// Separate from `projects.len()` — this is the true total across all projects.
     pub project_count: i64,
+    /// Reverse-chronological, capped at 20 rows. Empty if DuckDB is unavailable.
     pub daily_stats: Vec<DailyStatsRow>,
+    /// Both fields zero if the Moka store hasn't initialized yet.
     pub cache_stats: CacheStats,
+    /// Both fields zero if LibSQL is unavailable.
     pub message_stats: MessageStats,
+    /// Wall-clock seconds since `Platform::new()`. Monotonic, never resets.
     pub uptime_secs: u64,
 }
 

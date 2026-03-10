@@ -5,23 +5,23 @@
  * Import in app.css:
  *   @import "tailwindcss";
  *   @import "$lib/design/style/tailwind.css";
- *
- * This gives you:
- *   1. All ColdLight token custom properties in :root
- *   2. All tokens registered as Tailwind utility classes via @theme
- *   3. Full Tailwind utility class generation for VPB composability
  */
 
-/* Canonical token values (all :root custom properties) */
 @import "./tokens.css";
 
-/* @theme registrations (var() references → Tailwind utility generation) */
-@import "./theme/color.css";
-@import "./theme/surfaces.css";
-@import "./theme/effects.css";
-@import "./theme/spacing.css";
-@import "./theme/layout.css";
-@import "./theme/motion.css";
-@import "./theme/typography.css";
-@import "./theme/semantic.css";
-@import "./theme/composite.css";
+@import "./color/theme.css";
+@import "./surface/theme.css";
+@import "./shadow/theme.css";
+@import "./bevel/theme.css";
+@import "./glow/theme.css";
+@import "./blur/theme.css";
+@import "./border/theme.css";
+@import "./radius/theme.css";
+@import "./spacing/theme.css";
+@import "./motion/theme.css";
+@import "./typography/theme.css";
+@import "./interaction/theme.css";
+@import "./overlay/theme.css";
+@import "./backdrop/theme.css";
+@import "./scrollbar/theme.css";
+@import "./components/theme.css";

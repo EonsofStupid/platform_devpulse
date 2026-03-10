@@ -105,6 +105,9 @@
   --blur-lg: 12px;
   --blur-xl: 16px;
   --blur-2xl: 24px;
+  --size-sm: 2rem;
+  --size-md: 2.5rem;
+  --size-lg: 3rem;
   --radius-none: 0px;
   --radius-xs: 0.125rem;
   --radius-sm: 0.25rem;

@@ -12,12 +12,20 @@ use serde::Serialize;
 use tauri::State;
 
 /// A chat message returned to the frontend.
+///
+/// Serialized as JSON over IPC via `send_message`. The frontend renders
+/// these in the chat panel, keyed by `id` for dedup.
 #[derive(Debug, Clone, Serialize)]
 pub struct ChatMessage {
+    /// Auto-increment primary key from the `messages` table.
     pub id: i64,
+    /// Format: `"sess-{epoch_millis}"`. Auto-created if no open session exists.
     pub session_id: String,
+    /// Either `"user"` or `"assistant"` — no other values currently.
     pub role: String,
+    /// Raw text as entered. No markdown processing server-side.
     pub content: String,
+    /// SQLite `DEFAULT (strftime('%s','now'))` — epoch seconds, not millis.
     pub created_at: i64,
 }
 
