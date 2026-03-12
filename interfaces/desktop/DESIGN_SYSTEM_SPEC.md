@@ -1,6 +1,6 @@
 # CRYSTAL DESIGN SYSTEM - HSL/OKLCH TOKEN REFERENCE
 > **Color Format**: HSL/OKLCH ONLY (no hex/rgba unless necessary)
-> **Location**: `src/lib/design/tokens.css`
+> **Location**: `src/lib/design/tokens/aligned to self-describing named json.`
 
 ## Color Primitives
 ```css
