@@ -1,0 +1,8 @@
+{
+	"scrollbar": {
+		"$type": "color",
+		"$description": "Scrollbar thumb colors",
+		"thumb":       { "$value": "#ffffff1f" },
+		"thumb-hover": { "$value": "#ffffff33" }
+	}
+}

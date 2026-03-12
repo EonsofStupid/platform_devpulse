@@ -1,0 +1,87 @@
+{
+	"shadow": {
+		"$type": "shadow",
+		"$description": "Drop shadow elevation scale (z0–z4)",
+		"z0": {
+			"$value": {
+				"color": "#00000000",
+				"offsetX": "0px",
+				"offsetY": "0px",
+				"blur": "0px",
+				"spread": "0px"
+			}
+		},
+		"z1": {
+			"$value": [
+				{
+					"color": "#0000001f",
+					"offsetX": "0px",
+					"offsetY": "1px",
+					"blur": "3px",
+					"spread": "0px"
+				},
+				{
+					"color": "#0000003d",
+					"offsetX": "0px",
+					"offsetY": "1px",
+					"blur": "2px",
+					"spread": "0px"
+				}
+			]
+		},
+		"z2": {
+			"$value": [
+				{
+					"color": "#00000026",
+					"offsetX": "0px",
+					"offsetY": "3px",
+					"blur": "6px",
+					"spread": "0px"
+				},
+				{
+					"color": "#0000001f",
+					"offsetX": "0px",
+					"offsetY": "2px",
+					"blur": "4px",
+					"spread": "0px"
+				}
+			]
+		},
+		"z3": {
+			"$value": [
+				{
+					"color": "#00000026",
+					"offsetX": "0px",
+					"offsetY": "10px",
+					"blur": "20px",
+					"spread": "0px"
+				},
+				{
+					"color": "#0000001a",
+					"offsetX": "0px",
+					"offsetY": "3px",
+					"blur": "6px",
+					"spread": "0px"
+				}
+			]
+		},
+		"z4": {
+			"$value": [
+				{
+					"color": "#00000026",
+					"offsetX": "0px",
+					"offsetY": "15px",
+					"blur": "25px",
+					"spread": "0px"
+				},
+				{
+					"color": "#0000000d",
+					"offsetX": "0px",
+					"offsetY": "5px",
+					"blur": "10px",
+					"spread": "0px"
+				}
+			]
+		}
+	}
+}

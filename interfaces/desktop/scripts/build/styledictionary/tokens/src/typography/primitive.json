@@ -1,0 +1,19 @@
+{
+	"font": {
+		"$type": "fontFamily",
+		"$description": "Font family stacks",
+		"display": { "$value": ["Orbitron", "system-ui", "sans-serif"] },
+		"sans":    { "$value": ["Inter", "system-ui", "sans-serif"] },
+		"mono":    { "$value": ["JetBrains Mono", "Fira Code", "monospace"] }
+	},
+	"textSize": {
+		"$type": "dimension",
+		"$description": "Text size scale (px → rem via SD5 transform)",
+		"xs":   { "$value": "12px" },
+		"sm":   { "$value": "14px" },
+		"base": { "$value": "16px" },
+		"lg":   { "$value": "18px" },
+		"xl":   { "$value": "20px" },
+		"2xl":  { "$value": "24px" }
+	}
+}

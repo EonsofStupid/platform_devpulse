@@ -1,0 +1,73 @@
+{
+	"bevel": {
+		"$type": "shadow",
+		"$description": "Neumorphic inset shadow treatments",
+		"off": {
+			"$value": {
+				"color": "#00000000",
+				"offsetX": "0px",
+				"offsetY": "0px",
+				"blur": "0px",
+				"spread": "0px"
+			},
+			"$extensions": { "com.coldlight": { "inset": true, "axis": "bevel", "scope": "primitive" } }
+		},
+		"subtle": {
+			"$value": [
+				{
+					"color": "#ffffff0a",
+					"offsetX": "0px",
+					"offsetY": "1px",
+					"blur": "0px",
+					"spread": "0px"
+				},
+				{
+					"color": "#00000014",
+					"offsetX": "0px",
+					"offsetY": "-1px",
+					"blur": "0px",
+					"spread": "0px"
+				}
+			],
+			"$extensions": { "com.coldlight": { "inset": true, "axis": "bevel", "scope": "primitive" } }
+		},
+		"soft": {
+			"$value": [
+				{
+					"color": "#ffffff0f",
+					"offsetX": "0px",
+					"offsetY": "1px",
+					"blur": "2px",
+					"spread": "0px"
+				},
+				{
+					"color": "#0000001f",
+					"offsetX": "0px",
+					"offsetY": "-1px",
+					"blur": "2px",
+					"spread": "0px"
+				}
+			],
+			"$extensions": { "com.coldlight": { "inset": true, "axis": "bevel", "scope": "primitive" } }
+		},
+		"medium": {
+			"$value": [
+				{
+					"color": "#ffffff14",
+					"offsetX": "0px",
+					"offsetY": "2px",
+					"blur": "4px",
+					"spread": "0px"
+				},
+				{
+					"color": "#00000029",
+					"offsetX": "0px",
+					"offsetY": "-2px",
+					"blur": "4px",
+					"spread": "0px"
+				}
+			],
+			"$extensions": { "com.coldlight": { "inset": true, "axis": "bevel", "scope": "primitive" } }
+		}
+	}
+}

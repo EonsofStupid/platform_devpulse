@@ -1,0 +1,8 @@
+{
+	"overlay": {
+		"$type": "color",
+		"$description": "Named overlay backdrop presets",
+		"scrim":       { "$value": "#00040466", "$description": "Standard modal backdrop" },
+		"scrim-heavy": { "$value": "#00040499", "$description": "Heavy backdrop for critical dialogs" }
+	}
+}

@@ -1,0 +1,189 @@
+{
+	"button": {
+		"bg":           { "$type": "color", "$value": "{surface.primary}" },
+		"bg-hover":     { "$type": "color", "$value": "{surface.elevated}" },
+		"border":       { "$type": "color", "$value": "{border.subtle}" },
+		"border-focus": { "$type": "color", "$value": "{border.focus}" }
+	},
+	"checkbox": {
+		"bg":           { "$type": "color", "$value": "{surface.primary}" },
+		"bg-checked":   { "$type": "color", "$value": "{color.teal.500}" },
+		"border":       { "$type": "color", "$value": "{border.emphasis}" },
+		"border-focus": { "$type": "color", "$value": "{border.focus}" }
+	},
+	"switch": {
+		"bg":         { "$type": "color", "$value": "{surface.muted}" },
+		"bg-checked": { "$type": "color", "$value": "{color.teal.500}" },
+		"thumb":      { "$type": "color", "$value": "{text.primary}" }
+	},
+	"toggle": {
+		"bg":         { "$type": "color", "$value": "{surface.primary}" },
+		"bg-pressed": { "$type": "color", "$value": "{surface.elevated}" },
+		"border":     { "$type": "color", "$value": "{border.subtle}" }
+	},
+	"slider": {
+		"track":        { "$type": "color", "$value": "{surface.muted}" },
+		"range":        { "$type": "color", "$value": "{color.teal.500}" },
+		"thumb":        { "$type": "color", "$value": "{surface.elevated}" },
+		"thumb-border": { "$type": "color", "$value": "{border.focus}" }
+	},
+	"progress": {
+		"track": { "$type": "color", "$value": "{surface.muted}" },
+		"bar":   { "$type": "color", "$value": "{color.teal.500}" }
+	},
+	"input": {
+		"bg":           { "$type": "color", "$value": "{surface.overlay}" },
+		"bg-focus":     { "$type": "color", "$value": "{surface.elevated}" },
+		"border":       { "$type": "color", "$value": "{border.subtle}" },
+		"border-focus": { "$type": "color", "$value": "{border.focus}" }
+	},
+	"select": {
+		"bg":           { "$type": "color", "$value": "{surface.overlay}" },
+		"bg-hover":     { "$type": "color", "$value": "{surface.elevated}" },
+		"border":       { "$type": "color", "$value": "{border.subtle}" },
+		"border-focus": { "$type": "color", "$value": "{border.focus}" }
+	},
+	"combobox": {
+		"bg":                   { "$type": "color", "$value": "{surface.overlay}" },
+		"border":               { "$type": "color", "$value": "{border.subtle}" },
+		"border-focus":         { "$type": "color", "$value": "{border.focus}" },
+		"option-hover":         { "$type": "color", "$value": "{surface.elevated}" },
+		"option-selected-bg":   { "$type": "color", "$value": "{color.teal.900}" },
+		"option-selected-text": { "$type": "color", "$value": "{color.teal.300}" }
+	},
+	"radio-group": {
+		"bg":           { "$type": "color", "$value": "{surface.primary}" },
+		"bg-checked":   { "$type": "color", "$value": "{color.teal.500}" },
+		"border":       { "$type": "color", "$value": "{border.emphasis}" },
+		"border-focus": { "$type": "color", "$value": "{border.focus}" }
+	},
+	"badge": {
+		"bg":     { "$type": "color", "$value": "{surface.elevated}" },
+		"border": { "$type": "color", "$value": "{border.subtle}" }
+	},
+	"card": {
+		"bg":     { "$type": "color", "$value": "{surface.primary}" },
+		"border": { "$type": "color", "$value": "{border.soft}" },
+		"depth":  { "$type": "shadow", "$value": "{depth.raised}" }
+	},
+	"avatar": {
+		"bg":     { "$type": "color", "$value": "{surface.muted}" },
+		"border": { "$type": "color", "$value": "{border.subtle}" }
+	},
+	"table": {
+		"header-bg": { "$type": "color", "$value": "{surface.elevated}" },
+		"row-bg":    { "$type": "color", "$value": "{surface.primary}" },
+		"row-hover": { "$type": "color", "$value": "{surface.overlay}" },
+		"border":    { "$type": "color", "$value": "{border.subtle}" }
+	},
+	"skeleton": {
+		"bg":    { "$type": "color", "$value": "{surface.muted}" },
+		"shine": { "$type": "color", "$value": "{surface.elevated}" }
+	},
+	"kbd": {
+		"bg":     { "$type": "color", "$value": "{surface.elevated}" },
+		"border": { "$type": "color", "$value": "{border.soft}" }
+	},
+	"alert": {
+		"bg":     { "$type": "color", "$value": "{surface.overlay}" },
+		"border": { "$type": "color", "$value": "{border.soft}" }
+	},
+	"toast": {
+		"bg":     { "$type": "color", "$value": "{surface.elevated}" },
+		"border": { "$type": "color", "$value": "{border.soft}" },
+		"depth":  { "$type": "shadow", "$value": "{depth.overlay}" }
+	},
+	"panel": {
+		"bg":            { "$type": "color", "$value": "{surface.primary}" },
+		"border":        { "$type": "color", "$value": "{border.soft}" },
+		"header-border": { "$type": "color", "$value": "{border.subtle}" },
+		"depth":         { "$type": "shadow", "$value": "{depth.panel}" }
+	},
+	"dialog": {
+		"bg":           { "$type": "color", "$value": "{surface.overlay}" },
+		"border":       { "$type": "color", "$value": "{border.soft}" },
+		"border-focus": { "$type": "color", "$value": "{border.focus}" },
+		"depth":        { "$type": "shadow", "$value": "{depth.modal}" }
+	},
+	"tabs": {
+		"bg":           { "$type": "color", "$value": "{surface.primary}" },
+		"border":       { "$type": "color", "$value": "{border.subtle}" },
+		"border-focus": { "$type": "color", "$value": "{border.focus}" },
+		"tab-hover":    { "$type": "color", "$value": "{surface.elevated}" },
+		"tab-active":   { "$type": "color", "$value": "{surface.overlay}" },
+		"indicator":    { "$type": "color", "$value": "{color.teal.400}" }
+	},
+	"accordion": {
+		"bg":            { "$type": "color", "$value": "{surface.primary}" },
+		"border":        { "$type": "color", "$value": "{border.subtle}" },
+		"trigger-hover": { "$type": "color", "$value": "{surface.elevated}" }
+	},
+	"menu": {
+		"bg":         { "$type": "color", "$value": "{surface.overlay}" },
+		"border":     { "$type": "color", "$value": "{border.soft}" },
+		"item-hover": { "$type": "color", "$value": "{surface.elevated}" },
+		"depth":      { "$type": "shadow", "$value": "{depth.overlay}" }
+	},
+	"app-shell": {
+		"bg":           { "$type": "color", "$value": "{surface.primary}" },
+		"frame-border": { "$type": "color", "$value": "{border.soft}" }
+	},
+	"spinner": {
+		"color": { "$type": "color", "$value": "{color.teal.400}" }
+	},
+	"accent": {
+		"$description": "Accent glow and fill colors for SVG widgets and sparklines",
+		"cyber-glow":    { "$type": "color", "$value": "#008f4a80" },
+		"cyber-fill":    { "$type": "color", "$value": "#008f4a26" },
+		"ember-warm":    { "$type": "color", "$value": "#e8a030" },
+		"warning-muted": { "$type": "color", "$value": "#b87a6e" }
+	},
+	"tag": {
+		"$description": "Tag/badge background, border, and text colors",
+		"teal-bg":      { "$type": "color", "$value": "#00685833" },
+		"teal-border":  { "$type": "color", "$value": "#0068584d" },
+		"ember-bg":     { "$type": "color", "$value": "#8b30251a" },
+		"ember-color":  { "$type": "color", "$value": "#d4826e" },
+		"ember-border": { "$type": "color", "$value": "#8b30254d" },
+		"purple-bg":    { "$type": "color", "$value": "#6050a026" },
+		"purple-color": { "$type": "color", "$value": "#9585d0" },
+		"gold-bg":      { "$type": "color", "$value": "#7a5a1026" },
+		"gold-color":   { "$type": "color", "$value": "#b89030" },
+		"green-bg":     { "$type": "color", "$value": "#20754826" },
+		"green-border": { "$type": "color", "$value": "#20754840" },
+		"green-color":  { "$type": "color", "$value": "#70b888" }
+	},
+	"encoding": {
+		"$description": "Encoding axis debug colors",
+		"purple": { "$type": "color", "$value": "#7878a0" },
+		"green":  { "$type": "color", "$value": "#68a878" }
+	},
+	"graph": {
+		"$description": "VPB graph visualization colors",
+		"bg":                  { "$type": "color", "$value": "#060a0d" },
+		"node-color":          { "$type": "color", "$value": "#003830" },
+		"node-bg":             { "$type": "color", "$value": "#121820f2" },
+		"node-border":         { "$type": "color", "$value": "#ffffff1f" },
+		"node-hover-border":   { "$type": "color", "$value": "#00887066" },
+		"node-selected-glow":  { "$type": "color", "$value": "#00887040" },
+		"node-kind-color":     { "$type": "color", "$value": "#90d8c8" },
+		"node-type-color":     { "$type": "color", "$value": "#6050a0" },
+		"edge-stroke":         { "$type": "color", "$value": "#005545" },
+		"edge-label-color":    { "$type": "color", "$value": "#408880" },
+		"edge-label-bg":       { "$type": "color", "$value": "#0f1418d9" }
+	},
+	"devtool": {
+		"$description": "VPB devtool panel colors",
+		"bg":                { "$type": "color", "$value": "#0a0e11f2" },
+		"panel-bg":          { "$type": "color", "$value": "#0f1418e6" },
+		"btn-hover":         { "$type": "color", "$value": "#ffffff14" },
+		"btn-active-bg":     { "$type": "color", "$value": "#00685833" },
+		"btn-active-border": { "$type": "color", "$value": "#008c7666" },
+		"code-bg":           { "$type": "color", "$value": "#ffffff14" },
+		"code-border":       { "$type": "color", "$value": "#ffffff1f" },
+		"error-bg":          { "$type": "color", "$value": "#802818e6" },
+		"error-color":       { "$type": "color", "$value": "#f0c890" },
+		"error-border":      { "$type": "color", "$value": "#80281880" },
+		"error-dot":         { "$type": "color", "$value": "#e06030" }
+	}
+}

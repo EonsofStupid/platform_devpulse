@@ -1,0 +1,22 @@
+{
+	"borderPreset": {
+		"$type": "border",
+		"$description": "Named border presets — complete color + width + style",
+		"default": {
+			"$value": { "color": "{border.subtle}", "width": "1px", "style": "solid" },
+			"$description": "Standard container border"
+		},
+		"strong": {
+			"$value": { "color": "{border.strong}", "width": "1px", "style": "solid" },
+			"$description": "Emphasized container border"
+		},
+		"focus": {
+			"$value": { "color": "{border.focus}", "width": "2px", "style": "solid" },
+			"$description": "Focus ring"
+		},
+		"divider": {
+			"$value": { "color": "{border.divider}", "width": "1px", "style": "solid" },
+			"$description": "Section separator"
+		}
+	}
+}

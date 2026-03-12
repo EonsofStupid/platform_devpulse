@@ -5,8 +5,8 @@
 # Node
 node_modules
 .svelte-kit
-build
-dist
+/build
+/dist
 
 # VS Code
 .vscode/*

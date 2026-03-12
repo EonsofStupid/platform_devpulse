@@ -1,0 +1,17 @@
+{
+	"backdrop": {
+		"$type": "color",
+		"$description": "Background glow and grid colors for page backdrops",
+		"glow-teal":        { "$value": "#00373a4d" },
+		"glow-purple":      { "$value": "#1a004a40" },
+		"glow-purple-fade": { "$value": "#0018241a" },
+		"glow-ember":       { "$value": "#2a060740" },
+		"glow-cyber":       { "$value": "#002e1a40" },
+		"glow-magenta":     { "$value": "#2a003040" },
+		"grid-teal":        { "$value": "#0a3b3814" },
+		"grid-purple":      { "$value": "#15084a0f" },
+		"grid-ember":       { "$value": "#2a0a070f" },
+		"grid-cyber":       { "$value": "#003a1a0f" },
+		"grid-magenta":     { "$value": "#2a00300f" }
+	}
+}
