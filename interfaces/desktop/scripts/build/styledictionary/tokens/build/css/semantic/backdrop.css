@@ -1,0 +1,19 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@layer tokens.semantic {
+  :root {
+  --backdrop-glow-teal: rgba(0, 55, 58, 0.3);
+  --backdrop-glow-purple: rgba(26, 0, 74, 0.25);
+  --backdrop-glow-purple-fade: rgba(0, 24, 36, 0.1);
+  --backdrop-glow-ember: rgba(42, 6, 7, 0.25);
+  --backdrop-glow-cyber: rgba(0, 46, 26, 0.25);
+  --backdrop-glow-magenta: rgba(42, 0, 48, 0.25);
+  --backdrop-grid-teal: rgba(10, 59, 56, 0.08);
+  --backdrop-grid-purple: rgba(21, 8, 74, 0.06);
+  --backdrop-grid-ember: rgba(42, 10, 7, 0.06);
+  --backdrop-grid-cyber: rgba(0, 58, 26, 0.06);
+  --backdrop-grid-magenta: rgba(42, 0, 48, 0.06);
+  }
+}

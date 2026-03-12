@@ -1,0 +1,12 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@layer tokens.semantic {
+  :root {
+  --interaction-hover: rgba(255, 255, 255, 0.06); /** Hover overlay — subtle lighten */
+  --interaction-active: rgba(255, 255, 255, 0.1); /** Active/pressed overlay */
+  --interaction-selected: rgba(255, 255, 255, 0.15); /** Selected/checked overlay */
+  --interaction-disabled: rgba(255, 255, 255, 0.03); /** Disabled state overlay */
+  }
+}

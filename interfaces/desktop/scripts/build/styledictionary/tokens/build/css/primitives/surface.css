@@ -1,0 +1,17 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@layer tokens.primitives {
+  :root {
+  --glass-void: rgba(0, 1, 1, 0.88);
+  --glass-deep: rgba(0, 3, 5, 0.8);
+  --glass-smoke: rgba(6, 10, 11, 0.65);
+  --glass-frost: rgba(222, 230, 233, 0.4);
+  --glass-teal: rgba(0, 7, 4, 0.75);
+  --glass-purple: rgba(3, 0, 23, 0.75);
+  --matte-dark: #08090b;
+  --matte-medium: #191b1d;
+  --matte-light: #2c2e30;
+  }
+}

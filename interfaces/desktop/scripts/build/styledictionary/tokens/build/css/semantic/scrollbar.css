@@ -1,0 +1,10 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@layer tokens.semantic {
+  :root {
+  --scrollbar-thumb: rgba(255, 255, 255, 0.12);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
+  }
+}

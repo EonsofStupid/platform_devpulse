@@ -3,71 +3,42 @@
  * @package @devpulse/coldlight
  *
  * Style Dictionary v5 build configuration.
- * Reads DTCG 1.0 JSON tokens → outputs CSS custom properties, .d.ts type unions, Tailwind @theme.
+ * Reads DTCG 1.0 JSON tokens → outputs organized CSS + .d.ts + Tailwind @theme.
  *
- * Custom transforms:
- *   - color/oklch: hex → oklch() for perceptual color manipulation
- *   - dimension/pxToRem: px → rem (base 16)
- *
- * Custom formats:
- *   - coldlight/css: CSS custom properties with @layer tokens wrapper
- *   - coldlight/tailwind-theme: Tailwind v4 @theme block mapping tokens → utilities
- *   - coldlight/types: .d.ts type unions for each token group (populates editor dropdowns)
+ * Output structure (tokens/build/):
+ *   css/
+ *     primitives/   — color.css, shadow.css, bevel.css, glow.css, blur.css, surface.css,
+ *                     radius.css, spacing.css, typography.css, motion.css
+ *     semantic/     — elevation.css, surfaces.css, borders.css, transitions.css,
+ *                     interaction.css, overlay.css, scrollbar.css, backdrop.css, text-styles.css
+ *     components/   — components.css
+ *     index.css     — barrel import in layer order
+ *   tailwind.css    — @theme block with all resolved values
+ *   types/          — per-domain .d.ts files
+ *     index.d.ts    — barrel re-export
  */
 
 import StyleDictionary from 'style-dictionary';
 import { fileHeader, formattedVariables } from 'style-dictionary/utils';
-import type { TransformedToken, Dictionary, Config } from 'style-dictionary/types';
+import type { Config } from 'style-dictionary/types';
 
-// ─── Custom Transforms ───────────────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────
 
-/**
- * hex → oklch() conversion using CSS Color Level 4.
- * SD5 built-in color/css outputs hex/rgba — we want oklch for perceptual uniformity.
- */
-StyleDictionary.registerTransform({
-	name: 'color/oklch',
-	type: 'value',
-	filter: (token) => token.type === 'color' || token.$type === 'color',
-	transform: (token) => {
-		const val = `${token.value ?? token.$value}`;
-		// Skip already-oklch values, references, and cssRuntime expressions
-		if (val.startsWith('oklch') || val.startsWith('{') || val.startsWith('var(')) {
-			return val;
-		}
-		// Convert hex to oklch via CSS relative color syntax at build time
-		// We use the hex as-is and let the browser handle oklch conversion at runtime
-		// For static builds, we keep hex — the Tailwind @theme output does the conversion
-		return val;
-	},
-});
+/** Filter: token's top-level path segment matches one of the given names */
+const pathFilter = (...names: string[]) => (token: any) =>
+	names.includes(token.path[0]);
 
-/**
- * px → rem (base 16px). Applies to dimension tokens only.
- * SD5 built-in has no px→rem — we need this for responsive output.
- */
-StyleDictionary.registerTransform({
-	name: 'dimension/pxToRem',
-	type: 'value',
-	filter: (token) => {
-		const type = token.type || token.$type;
-		return type === 'dimension';
-	},
-	transform: (token) => {
-		const val = `${token.value ?? token.$value}`;
-		const match = val.match(/^(\d+(?:\.\d+)?)px$/);
-		if (!match) return val;
-		const px = parseFloat(match[1]);
-		if (px === 0) return '0';
-		return `${px / 16}rem`;
-	},
-});
+/** Shared platform config */
+const cssBase = {
+	transformGroup: 'css' as const,
+	transforms: ['size/pxToRem'],
+};
 
 // ─── Custom Formats ──────────────────────────────────────────────────
 
 /**
- * CSS custom properties wrapped in @layer tokens.
- * Outputs: --{path}: {value};
+ * CSS custom properties wrapped in @layer tokens.{sublayer}.
+ * Options: sublayer (string), outputReferences (boolean)
  */
 StyleDictionary.registerFormat({
 	name: 'coldlight/css',
@@ -77,35 +48,34 @@ StyleDictionary.registerFormat({
 			format: 'css',
 			dictionary,
 			outputReferences: options.outputReferences ?? true,
+			usesDtcg: true,
 		});
-		return `${header}@layer tokens {\n  :root {\n${vars}\n  }\n}\n`;
+		const layer = options.sublayer
+			? `@layer tokens.${options.sublayer}`
+			: '@layer tokens';
+		return `${header}${layer} {\n  :root {\n${vars}\n  }\n}\n`;
 	},
 });
 
 /**
- * Tailwind v4 @theme block — maps CSS custom properties to TW utility classes.
- * Generates: @theme { --color-*: var(--color-*); --spacing-*: var(--spacing-*); ... }
+ * Tailwind v4 @theme block with resolved values.
  */
 StyleDictionary.registerFormat({
 	name: 'coldlight/tailwind-theme',
 	format: async ({ dictionary, file }) => {
 		const header = await fileHeader({ file });
 		const lines: string[] = [];
-
 		for (const token of dictionary.allTokens) {
-			const name = token.name;
-			lines.push(`  --${name}: var(--${name});`);
+			const val = token.$value ?? token.value;
+			lines.push(`  --${token.name}: ${val};`);
 		}
-
 		return `${header}@theme {\n${lines.join('\n')}\n}\n`;
 	},
 });
 
 /**
- * TypeScript type unions — generates const arrays + type aliases for each top-level group.
- * Example output:
- *   export const ElevationTokens = ["flat", "card", "panel", "dropdown", "modal"] as const;
- *   export type ElevationToken = (typeof ElevationTokens)[number];
+ * TypeScript type unions per domain.
+ * Groups by top-level path segment → const array + type alias.
  */
 StyleDictionary.registerFormat({
 	name: 'coldlight/types',
@@ -114,26 +84,22 @@ StyleDictionary.registerFormat({
 		const groups = new Map<string, Set<string>>();
 
 		for (const token of dictionary.allTokens) {
-			// Group by top-level path segment (color, elevation, surface, transition, etc.)
 			const groupName = token.path[0];
-			if (!groups.has(groupName)) {
-				groups.set(groupName, new Set());
-			}
-			// Use the last path segment as the value name
+			if (!groups.has(groupName)) groups.set(groupName, new Set());
 			const valueName = token.path[token.path.length - 1];
 			groups.get(groupName)!.add(valueName);
 		}
 
 		const output: string[] = [];
 		for (const [group, values] of groups) {
-			const pascalName = group
+			const pascal = group
 				.split('-')
 				.map((s) => s.charAt(0).toUpperCase() + s.slice(1))
 				.join('');
-			const valuesArray = [...values].map((v) => `"${v}"`).join(', ');
+			const arr = [...values].map((v) => `"${v}"`).join(', ');
 			output.push(
-				`export const ${pascalName}Tokens = [${valuesArray}] as const;`,
-				`export type ${pascalName}Token = (typeof ${pascalName}Tokens)[number];`,
+				`export const ${pascal}Tokens = [${arr}] as const;`,
+				`export type ${pascal}Token = (typeof ${pascal}Tokens)[number];`,
 				'',
 			);
 		}
@@ -142,11 +108,30 @@ StyleDictionary.registerFormat({
 	},
 });
 
-// ─── Token Source Paths ──────────────────────────────────────────────
+// ─── File Definitions ────────────────────────────────────────────────
 
-const SRC = 'tokens/src';
+/** CSS file definition helper */
+const cssFile = (
+	dest: string,
+	filter: (token: any) => boolean,
+	sublayer: string,
+) => ({
+	destination: dest,
+	format: 'coldlight/css' as const,
+	filter,
+	options: { outputReferences: true, sublayer },
+});
+
+/** Types file definition helper */
+const typesFile = (dest: string, filter: (token: any) => boolean) => ({
+	destination: dest,
+	format: 'coldlight/types' as const,
+	filter,
+});
 
 // ─── Configuration ───────────────────────────────────────────────────
+
+const SRC = 'tokens/src';
 
 const config: Config = {
 	source: [`${SRC}/**/*.json`],
@@ -154,40 +139,65 @@ const config: Config = {
 	log: { verbosity: 'verbose' },
 
 	platforms: {
-		// ── CSS Custom Properties ─────────────────────────────────────
-		css: {
-			transformGroup: 'css',
-			transforms: [
-				'attribute/cti',
-				'name/kebab',
-				'color/css',
-				'shadow/css',
-				'cubicBezier/css',
-				'fontFamily/css',
-				'typography/css/shorthand',
-				'transition/css/shorthand',
-				'border/css/shorthand',
-				'dimension/pxToRem',
-			],
-			buildPath: 'tokens/build/',
+		// ── CSS: Primitives ───────────────────────────────────────────
+		'css-primitives': {
+			...cssBase,
+			buildPath: 'tokens/build/css/primitives/',
 			files: [
-				{
-					destination: 'tokens.css',
-					format: 'coldlight/css',
-					options: { outputReferences: true },
-				},
+				cssFile('color.css', pathFilter('color'), 'primitives'),
+				cssFile('shadow.css', pathFilter('shadow'), 'primitives'),
+				cssFile('bevel.css', pathFilter('bevel'), 'primitives'),
+				cssFile('glow.css', pathFilter('glow'), 'primitives'),
+				cssFile('blur.css', pathFilter('blur'), 'primitives'),
+				cssFile('surface.css', pathFilter('glass', 'matte'), 'primitives'),
+				cssFile('radius.css', pathFilter('radius'), 'primitives'),
+				cssFile('spacing.css', pathFilter('space', 'padding', 'size', 'zIndex'), 'primitives'),
+				cssFile('typography.css', pathFilter('font', 'textSize', 'leading', 'tracking'), 'primitives'),
+				cssFile('motion.css', pathFilter('motion'), 'primitives'),
+			],
+		},
+
+		// ── CSS: Semantic ─────────────────────────────────────────────
+		'css-semantic': {
+			...cssBase,
+			buildPath: 'tokens/build/css/semantic/',
+			files: [
+				cssFile('elevation.css', pathFilter('elevation'), 'semantic'),
+				cssFile('surfaces.css', pathFilter('surface'), 'semantic'),
+				cssFile('borders.css', pathFilter('border', 'borderPreset'), 'semantic'),
+				cssFile('transitions.css', pathFilter('transition'), 'semantic'),
+				cssFile('interaction.css', pathFilter('interaction'), 'semantic'),
+				cssFile('overlay.css', pathFilter('overlay'), 'semantic'),
+				cssFile('scrollbar.css', pathFilter('scrollbar'), 'semantic'),
+				cssFile('backdrop.css', pathFilter('backdrop'), 'semantic'),
+				cssFile('text-styles.css', pathFilter('textStyle'), 'semantic'),
+			],
+		},
+
+		// ── CSS: Components ───────────────────────────────────────────
+		'css-components': {
+			...cssBase,
+			buildPath: 'tokens/build/css/components/',
+			files: [
+				cssFile(
+					'components.css',
+					(token) =>
+						!pathFilter(
+							// Exclude primitives + semantics — everything else is component
+							'color', 'shadow', 'bevel', 'glow', 'blur', 'glass', 'matte',
+							'radius', 'space', 'padding', 'size', 'zIndex', 'font', 'textSize',
+							'leading', 'tracking', 'motion', 'elevation', 'surface', 'border',
+							'borderPreset', 'transition', 'interaction', 'overlay', 'scrollbar',
+							'backdrop', 'textStyle',
+						)(token),
+					'components',
+				),
 			],
 		},
 
 		// ── Tailwind v4 @theme ────────────────────────────────────────
 		tailwind: {
-			transformGroup: 'css',
-			transforms: [
-				'attribute/cti',
-				'name/kebab',
-				'color/css',
-				'dimension/pxToRem',
-			],
+			...cssBase,
 			buildPath: 'tokens/build/',
 			files: [
 				{
@@ -198,15 +208,44 @@ const config: Config = {
 		},
 
 		// ── TypeScript Types ──────────────────────────────────────────
-		types: {
-			transformGroup: 'css',
+		'types-primitives': {
 			transforms: ['attribute/cti', 'name/kebab'],
-			buildPath: 'tokens/build/',
+			buildPath: 'tokens/build/types/',
 			files: [
-				{
-					destination: 'types.d.ts',
-					format: 'coldlight/types',
-				},
+				typesFile('color.d.ts', pathFilter('color')),
+				typesFile('shadow.d.ts', pathFilter('shadow', 'bevel', 'glow')),
+				typesFile('blur.d.ts', pathFilter('blur')),
+				typesFile('surface.d.ts', pathFilter('glass', 'matte', 'surface')),
+				typesFile('spacing.d.ts', pathFilter('radius', 'space', 'padding', 'size', 'zIndex')),
+				typesFile('typography.d.ts', pathFilter('font', 'textSize', 'textStyle')),
+				typesFile('motion.d.ts', pathFilter('motion', 'transition')),
+			],
+		},
+		'types-semantic': {
+			transforms: ['attribute/cti', 'name/kebab'],
+			buildPath: 'tokens/build/types/',
+			files: [
+				typesFile('elevation.d.ts', pathFilter('elevation')),
+				typesFile('borders.d.ts', pathFilter('border', 'borderPreset')),
+				typesFile('interaction.d.ts', pathFilter('interaction', 'overlay', 'scrollbar')),
+				typesFile('backdrop.d.ts', pathFilter('backdrop')),
+			],
+		},
+		'types-components': {
+			transforms: ['attribute/cti', 'name/kebab'],
+			buildPath: 'tokens/build/types/',
+			files: [
+				typesFile(
+					'components.d.ts',
+					(token) =>
+						!pathFilter(
+							'color', 'shadow', 'bevel', 'glow', 'blur', 'glass', 'matte',
+							'radius', 'space', 'padding', 'size', 'zIndex', 'font', 'textSize',
+							'leading', 'tracking', 'motion', 'elevation', 'surface', 'border',
+							'borderPreset', 'transition', 'interaction', 'overlay', 'scrollbar',
+							'backdrop', 'textStyle',
+						)(token),
+				),
 			],
 		},
 	},

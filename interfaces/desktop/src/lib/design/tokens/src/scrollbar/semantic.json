@@ -1,8 +1,0 @@
-{
-	"scrollbar": {
-		"$type": "color",
-		"$description": "Scrollbar thumb colors",
-		"thumb":       { "$value": { "colorSpace": "oklch", "components": [1, 0, 0], "alpha": 0.12, "hex": "#ffffff" } },
-		"thumb-hover": { "$value": { "colorSpace": "oklch", "components": [1, 0, 0], "alpha": 0.20, "hex": "#ffffff" } }
-	}
-}

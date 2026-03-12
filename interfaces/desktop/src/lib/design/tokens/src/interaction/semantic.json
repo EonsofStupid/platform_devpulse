@@ -1,9 +1,0 @@
-{
-	"interaction": {
-		"$type": "color",
-		"$description": "Interactive state colors",
-		"hover":    { "$value": { "colorSpace": "oklch", "components": [1, 0, 0], "alpha": 0.06, "hex": "#ffffff" } },
-		"active":   { "$value": { "colorSpace": "oklch", "components": [1, 0, 0], "alpha": 0.10, "hex": "#ffffff" } },
-		"selected": { "$value": { "colorSpace": "oklch", "components": [1, 0, 0], "alpha": 0.15, "hex": "#ffffff" } }
-	}
-}
