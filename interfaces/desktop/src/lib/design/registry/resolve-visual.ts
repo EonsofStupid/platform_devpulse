@@ -28,7 +28,7 @@ import {
 	type EncodingIndices,
 } from "./token-categories.js";
 
-import type { RadiusToken, SizeToken } from "$lib/design/tokens/types.js";
+import type { RadiusToken, SizeToken } from "$lib/design/recipes/types.js";
 
 // ═══════════════════════════════════════════════════════════════
 // PUBLIC TYPES

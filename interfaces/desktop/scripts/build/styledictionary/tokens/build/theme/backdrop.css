@@ -1,0 +1,17 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@theme {
+  --backdrop-glow-teal: oklch(0.3063 0.0521 200.74 / 0.30196078431372547);
+  --backdrop-glow-purple: oklch(0.2086 0.1200 287.45 / 0.25098039215686274);
+  --backdrop-glow-purple-fade: oklch(0.1963 0.0400 231.93 / 0.10196078431372549);
+  --backdrop-glow-ember: oklch(0.1928 0.0603 23.01 / 0.25098039215686274);
+  --backdrop-glow-cyber: oklch(0.2655 0.0611 158.91 / 0.25098039215686274);
+  --backdrop-glow-magenta: oklch(0.2050 0.0971 322.54 / 0.25098039215686274);
+  --backdrop-grid-teal: oklch(0.3203 0.0501 188.86 / 0.0784313725490196);
+  --backdrop-grid-purple: oklch(0.2148 0.1113 280.59 / 0.058823529411764705);
+  --backdrop-grid-ember: oklch(0.1998 0.0543 28.75 / 0.058823529411764705);
+  --backdrop-grid-cyber: oklch(0.3053 0.0795 152.46 / 0.058823529411764705);
+  --backdrop-grid-magenta: oklch(0.2050 0.0971 322.54 / 0.058823529411764705);
+}

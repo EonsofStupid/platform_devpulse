@@ -1,0 +1,16 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@theme {
+  --text-style-display-lg: 700 32px/1.1 Orbitron, system-ui, sans-serif;
+  --text-style-display-sm: 600 24px/1.2 Orbitron, system-ui, sans-serif;
+  --text-style-heading-lg: 600 20px/1.3 Inter, system-ui, sans-serif;
+  --text-style-heading-sm: 600 16px/1.4 Inter, system-ui, sans-serif;
+  --text-style-body: 400 14px/1.5 Inter, system-ui, sans-serif;
+  --text-style-body-sm: 400 13px/1.45 Inter, system-ui, sans-serif;
+  --text-style-caption: 500 12px/1.4 Inter, system-ui, sans-serif;
+  --text-style-overline: 600 11px/1.3 Inter, system-ui, sans-serif;
+  --text-style-code: 400 13px/1.6 'JetBrains Mono', 'Fira Code', monospace;
+  --text-style-stat: 700 24px/1.1 Orbitron, system-ui, sans-serif;
+}

@@ -4,16 +4,16 @@
 
 @layer tokens.semantic {
   :root {
-  --backdrop-glow-teal: rgba(0, 55, 58, 0.3);
-  --backdrop-glow-purple: rgba(26, 0, 74, 0.25);
-  --backdrop-glow-purple-fade: rgba(0, 24, 36, 0.1);
-  --backdrop-glow-ember: rgba(42, 6, 7, 0.25);
-  --backdrop-glow-cyber: rgba(0, 46, 26, 0.25);
-  --backdrop-glow-magenta: rgba(42, 0, 48, 0.25);
-  --backdrop-grid-teal: rgba(10, 59, 56, 0.08);
-  --backdrop-grid-purple: rgba(21, 8, 74, 0.06);
-  --backdrop-grid-ember: rgba(42, 10, 7, 0.06);
-  --backdrop-grid-cyber: rgba(0, 58, 26, 0.06);
-  --backdrop-grid-magenta: rgba(42, 0, 48, 0.06);
+  --backdrop-glow-teal: oklch(0.3063 0.0521 200.74 / 0.30196078431372547);
+  --backdrop-glow-purple: oklch(0.2086 0.1200 287.45 / 0.25098039215686274);
+  --backdrop-glow-purple-fade: oklch(0.1963 0.0400 231.93 / 0.10196078431372549);
+  --backdrop-glow-ember: oklch(0.1928 0.0603 23.01 / 0.25098039215686274);
+  --backdrop-glow-cyber: oklch(0.2655 0.0611 158.91 / 0.25098039215686274);
+  --backdrop-glow-magenta: oklch(0.2050 0.0971 322.54 / 0.25098039215686274);
+  --backdrop-grid-teal: oklch(0.3203 0.0501 188.86 / 0.0784313725490196);
+  --backdrop-grid-purple: oklch(0.2148 0.1113 280.59 / 0.058823529411764705);
+  --backdrop-grid-ember: oklch(0.1998 0.0543 28.75 / 0.058823529411764705);
+  --backdrop-grid-cyber: oklch(0.3053 0.0795 152.46 / 0.058823529411764705);
+  --backdrop-grid-magenta: oklch(0.2050 0.0971 322.54 / 0.058823529411764705);
   }
 }

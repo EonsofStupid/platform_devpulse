@@ -27,8 +27,22 @@ import {
 	PresetSchema,
 	type Preset,
 } from "$lib/design/registry/token-categories.js";
-import { RadiusSchema, SizeSchema } from "$lib/design/tokens/schema.js";
-import type { RadiusToken, SizeToken } from "$lib/design/tokens/types.js";
+
+// =============================================================================
+// Size & Radius — Recipe-level props (NOT encoding axes)
+//
+// These are layout/dimension concerns used by recipes to drive height, padding,
+// font-size (Size) and border-radius (Radius). They extend the 8-axis Preset
+// into DsSurfaceProps. Defined here because this is where they're consumed.
+// =============================================================================
+
+export const SizeTokens = ['sm', 'md', 'lg'] as const;
+export type SizeToken = (typeof SizeTokens)[number];
+export const SizeSchema = z.enum(SizeTokens);
+
+export const RadiusTokens = ['none', 'xs', 'sm', 'md', 'lg', 'xl', 'full'] as const;
+export type RadiusToken = (typeof RadiusTokens)[number];
+export const RadiusSchema = z.enum(RadiusTokens);
 
 // =============================================================================
 // DsSurfaceProps — Full axis props (8-axis + radius + size)
@@ -91,7 +105,7 @@ export type SlotVisualMode = z.infer<typeof SlotVisualModeSchema>;
 export const SlotDefinitionSchema = z.object({
 	structural: z.string(),
 	visual: SlotVisualModeSchema,
-	element: z.string().min(1),
+	element: z.string().min(1).optional(),
 });
 
 export type SlotDefinition = z.infer<typeof SlotDefinitionSchema>;
@@ -129,7 +143,7 @@ export const RecipeDefinitionSchema = z.object({
 	slots: z.record(z.string(), SlotDefinitionSchema).refine(
 		(slots) => Object.keys(slots).length > 0,
 		{ message: "Recipe must declare at least one slot" },
-	),
+	).optional(),
 });
 
 /**
@@ -148,15 +162,15 @@ export interface RecipeDefinition {
 	readonly label: string;
 	/** Full 8-axis defaults — ALL axes required */
 	readonly defaults: DsSurfaceProps;
-	/** Per-slot structural + visual declarations — REQUIRED, at least 1 slot */
-	readonly slots: Record<string, SlotDefinition>;
+	/** Per-slot structural + visual declarations (optional — for VPB introspection) */
+	readonly slots?: Record<string, SlotDefinition>;
 	/**
 	 * Per-slot class resolver.
 	 * Receives fully-resolved DsSurfaceProps (defaults merged with incoming props).
 	 * Returns per-slot class strings keyed by slot name.
 	 * Must return a key for every slot declared in `slots`.
 	 */
-	readonly classes: (props: DsSurfaceProps) => Record<string, string>;
+	readonly classes?: (props: DsSurfaceProps) => Record<string, string>;
 }
 
 // =============================================================================

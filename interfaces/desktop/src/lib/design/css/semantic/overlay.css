@@ -1,0 +1,10 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@layer tokens.semantic {
+  :root {
+  --overlay-scrim: oklch(0.0966 0.0165 194.77 / 0.4); /** Standard modal backdrop */
+  --overlay-scrim-heavy: oklch(0.0966 0.0165 194.77 / 0.6); /** Heavy backdrop for critical dialogs */
+  }
+}

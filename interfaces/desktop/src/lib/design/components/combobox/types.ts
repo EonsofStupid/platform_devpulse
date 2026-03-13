@@ -14,7 +14,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { SizeToken } from "$lib/design/tokens/types.js";
+import type { SizeToken } from "$lib/design/recipes/types.js";
 import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 // =============================================================================

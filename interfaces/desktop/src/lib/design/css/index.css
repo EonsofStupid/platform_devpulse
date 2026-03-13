@@ -1,0 +1,30 @@
+/* AUTO-GENERATED — DO NOT EDIT */
+
+/* ── Layer order declaration ─────────────────────────────── */
+@layer tokens.primitives, tokens.semantic, tokens.components;
+
+/* ── Primitives ──────────────────────────────────────────── */
+@import "./css/primitives/color.css";
+@import "./css/primitives/shadow.css";
+@import "./css/primitives/bevel.css";
+@import "./css/primitives/glow.css";
+@import "./css/primitives/blur.css";
+@import "./css/primitives/surface.css";
+@import "./css/primitives/radius.css";
+@import "./css/primitives/spacing.css";
+@import "./css/primitives/typography.css";
+@import "./css/primitives/motion.css";
+
+/* ── Semantic ────────────────────────────────────────────── */
+@import "./css/semantic/elevation.css";
+@import "./css/semantic/surface.css";
+@import "./css/semantic/border.css";
+@import "./css/semantic/transition.css";
+@import "./css/semantic/interaction.css";
+@import "./css/semantic/overlay.css";
+@import "./css/semantic/scrollbar.css";
+@import "./css/semantic/backdrop.css";
+@import "./css/semantic/text-styles.css";
+
+/* ── Components ──────────────────────────────────────────── */
+@import "./css/components/component.css";

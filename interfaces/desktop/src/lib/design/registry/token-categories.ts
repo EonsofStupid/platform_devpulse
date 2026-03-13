@@ -813,7 +813,7 @@ if (
 // ═══════════════════════════════════════════════════════════════
 
 /** Extract value IDs from a category as a z.enum-compatible tuple. */
-const _ids = (code: string) =>
+export const categoryIds = (code: string) =>
 	TOKEN_CATEGORY_REGISTRY.find((c) => c.code === code)!.values.map(
 		(v) => v.id,
 	) as [string, ...string[]];
@@ -827,7 +827,7 @@ const _ids = (code: string) =>
 
 /** Dynamic map: code → Zod enum schema for that category's value IDs. */
 export const IdSchemaMap = Object.fromEntries(
-	TOKEN_CATEGORY_REGISTRY.map((cat) => [cat.code, z.enum(_ids(cat.code))]),
+	TOKEN_CATEGORY_REGISTRY.map((cat) => [cat.code, z.enum(categoryIds(cat.code))]),
 ) as Record<string, z.ZodEnum>;
 
 // Named aliases — stable exports for type consumers.
@@ -859,7 +859,7 @@ export type TransitionId = z.infer<typeof TransitionIdSchema>;
 const _presetShape: Record<string, z.ZodDefault<z.ZodEnum>> = {};
 for (const cat of TOKEN_CATEGORY_REGISTRY) {
 	_presetShape[cat.name.toLowerCase()] = z
-		.enum(_ids(cat.code))
+		.enum(categoryIds(cat.code))
 		.default(cat.values[cat.defaultIndex].id);
 }
 

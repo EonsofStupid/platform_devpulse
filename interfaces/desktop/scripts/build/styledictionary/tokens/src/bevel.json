@@ -1,0 +1,85 @@
+{
+	"bevel": {
+		"$type": "shadow",
+		"$description": "Neumorphic inset shadow treatments — progressive depth via stacked layers",
+		"off": {
+			"$value": { "color": "#00000000", "offsetX": "0px", "offsetY": "0px", "blur": "0px", "spread": "0px" },
+			"$extensions": { "com.coldlight": { "inset": true, "axis": "bevel", "scope": "primitive" } }
+		},
+		"subtle": {
+			"$description": "Barely visible edge highlight — single light/dark pair",
+			"$value": [
+				{ "color": "#ffffff0a", "offsetX": "0px", "offsetY": "1px", "blur": "0px", "spread": "0px" },
+				{ "color": "#00000014", "offsetX": "0px", "offsetY": "-1px", "blur": "0px", "spread": "0px" }
+			],
+			"$extensions": {
+				"com.coldlight": {
+					"inset": true, "axis": "bevel", "scope": "primitive",
+					"svgFilter": { "type": "specularLighting", "surfaceScale": 1, "specularConstant": 0.3, "specularExponent": 30, "lightPosition": { "x": 0, "y": -1, "z": 1 } }
+				}
+			}
+		},
+		"soft": {
+			"$description": "Gentle depth — 3 layers with soft blur",
+			"$value": [
+				{ "color": "#ffffff0d", "offsetX": "0px", "offsetY": "1px", "blur": "1px", "spread": "0px" },
+				{ "color": "#ffffff08", "offsetX": "0px", "offsetY": "2px", "blur": "3px", "spread": "0px" },
+				{ "color": "#0000001f", "offsetX": "0px", "offsetY": "-1px", "blur": "2px", "spread": "0px" }
+			],
+			"$extensions": {
+				"com.coldlight": {
+					"inset": true, "axis": "bevel", "scope": "primitive",
+					"svgFilter": { "type": "specularLighting", "surfaceScale": 2, "specularConstant": 0.5, "specularExponent": 25, "lightPosition": { "x": 0, "y": -1, "z": 1.5 } }
+				}
+			}
+		},
+		"medium": {
+			"$description": "Noticeable depth — 4 layers with graduated offsets",
+			"$value": [
+				{ "color": "#ffffff12", "offsetX": "0px", "offsetY": "1px", "blur": "1px", "spread": "0px" },
+				{ "color": "#ffffff0a", "offsetX": "0px", "offsetY": "2px", "blur": "4px", "spread": "0px" },
+				{ "color": "#00000024", "offsetX": "0px", "offsetY": "-1px", "blur": "2px", "spread": "0px" },
+				{ "color": "#00000018", "offsetX": "0px", "offsetY": "-3px", "blur": "5px", "spread": "0px" }
+			],
+			"$extensions": {
+				"com.coldlight": {
+					"inset": true, "axis": "bevel", "scope": "primitive",
+					"svgFilter": { "type": "specularLighting", "surfaceScale": 3, "specularConstant": 0.65, "specularExponent": 22, "lightPosition": { "x": 0, "y": -1, "z": 2 } }
+				}
+			}
+		},
+		"pronounced": {
+			"$description": "Strong neumorphic effect — 5 layers with wide blur range",
+			"$value": [
+				{ "color": "#ffffff1a", "offsetX": "0px", "offsetY": "1px", "blur": "1px", "spread": "0px" },
+				{ "color": "#ffffff0f", "offsetX": "0px", "offsetY": "2px", "blur": "4px", "spread": "0px" },
+				{ "color": "#ffffff08", "offsetX": "0px", "offsetY": "4px", "blur": "8px", "spread": "0px" },
+				{ "color": "#00000029", "offsetX": "0px", "offsetY": "-1px", "blur": "2px", "spread": "0px" },
+				{ "color": "#0000001a", "offsetX": "0px", "offsetY": "-3px", "blur": "6px", "spread": "0px" }
+			],
+			"$extensions": {
+				"com.coldlight": {
+					"inset": true, "axis": "bevel", "scope": "primitive",
+					"svgFilter": { "type": "specularLighting", "surfaceScale": 4, "specularConstant": 0.8, "specularExponent": 20, "lightPosition": { "x": 0, "y": -1, "z": 2.5 } }
+				}
+			}
+		},
+		"deep": {
+			"$description": "Maximum CSS depth — 6 layers simulating true bevel relief",
+			"$value": [
+				{ "color": "#ffffff1f", "offsetX": "0px", "offsetY": "1px", "blur": "1px", "spread": "0px" },
+				{ "color": "#ffffff14", "offsetX": "0px", "offsetY": "2px", "blur": "4px", "spread": "0px" },
+				{ "color": "#ffffff0a", "offsetX": "0px", "offsetY": "4px", "blur": "8px", "spread": "0px" },
+				{ "color": "#ffffff05", "offsetX": "0px", "offsetY": "6px", "blur": "12px", "spread": "0px" },
+				{ "color": "#00000033", "offsetX": "0px", "offsetY": "-1px", "blur": "3px", "spread": "0px" },
+				{ "color": "#00000024", "offsetX": "0px", "offsetY": "-4px", "blur": "8px", "spread": "0px" }
+			],
+			"$extensions": {
+				"com.coldlight": {
+					"inset": true, "axis": "bevel", "scope": "primitive",
+					"svgFilter": { "type": "specularLighting", "surfaceScale": 5, "specularConstant": 0.9, "specularExponent": 18, "lightPosition": { "x": 0, "y": -1, "z": 3 } }
+				}
+			}
+		}
+	}
+}

@@ -20,5 +20,14 @@
   --size-sm: 2rem;
   --size-md: 2.5rem;
   --size-lg: 3rem;
+  --z-index-base: 0;
+  --z-index-raised: 10;
+  --z-index-dropdown: 100;
+  --z-index-sticky: 200;
+  --z-index-overlay: 300;
+  --z-index-modal: 400;
+  --z-index-popover: 500;
+  --z-index-toast: 600;
+  --z-index-tooltip: 700;
   }
 }

@@ -4,7 +4,7 @@
 
 @layer tokens.semantic {
   :root {
-  --scrollbar-thumb: rgba(255, 255, 255, 0.12);
-  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
+  --scrollbar-thumb: oklch(1.0000 0.0000 0.00 / 0.12156862745098039);
+  --scrollbar-thumb-hover: oklch(1.0000 0.0000 0.00 / 0.2);
   }
 }

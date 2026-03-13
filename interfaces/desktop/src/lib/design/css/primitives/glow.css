@@ -1,0 +1,19 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@layer tokens.primitives {
+  :root {
+  --glow-off: 0px 0px 0px 0px #00000000;
+  --glow-teal: 0px 0px 20px 0px #00907666;
+  --glow-purple: 0px 0px 20px 0px #615ed666;
+  --glow-magenta: 0px 0px 20px 0px #ad36a766;
+  --glow-ember: 0px 0px 20px 0px #c5363766;
+  --glow-frost: 0px 0px 20px 0px #1988a359;
+  --glow-cyber: 0px 0px 20px 0px #008f4a66;
+  --glow-spread-sm: 0.75rem;
+  --glow-spread-md: 1.25rem;
+  --glow-spread-lg: 1.875rem;
+  --glow-spread-xl: 2.5rem;
+  }
+}

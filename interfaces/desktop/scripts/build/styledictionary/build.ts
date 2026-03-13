@@ -4,49 +4,79 @@
  * @package @devpulse/coldlight
  *
  * Runs the Style Dictionary v5 build pipeline.
- * Usage: npx tsx scripts/build/styledictionary/build.ts
+ * Usage: pnpm ds:tokens:build
  */
 
 import { writeFileSync } from 'node:fs';
 import StyleDictionary from 'style-dictionary';
 import config from './sd.config.js';
 
-const BUILD = 'tokens/build';
+const OUT = '../../../src/lib/design';
 
-/** Layer-ordered barrel import for CSS */
+// ─── Barrel: CSS imports with layer order ────────────────────────────
+
 const INDEX_CSS = `/* AUTO-GENERATED — DO NOT EDIT */
 
 /* ── Layer order declaration ─────────────────────────────── */
 @layer tokens.primitives, tokens.semantic, tokens.components;
 
 /* ── Primitives ──────────────────────────────────────────── */
-@import "./css/primitives/color.css";
-@import "./css/primitives/shadow.css";
-@import "./css/primitives/bevel.css";
-@import "./css/primitives/glow.css";
-@import "./css/primitives/blur.css";
-@import "./css/primitives/surface.css";
-@import "./css/primitives/radius.css";
-@import "./css/primitives/spacing.css";
-@import "./css/primitives/typography.css";
-@import "./css/primitives/motion.css";
+@import "./styles/primitives/color.css";
+@import "./styles/primitives/shadow.css";
+@import "./styles/primitives/bevel.css";
+@import "./styles/primitives/glow.css";
+@import "./styles/primitives/blur.css";
+@import "./styles/primitives/surface.css";
+@import "./styles/primitives/radius.css";
+@import "./styles/primitives/spacing.css";
+@import "./styles/primitives/typography.css";
+@import "./styles/primitives/motion.css";
 
 /* ── Semantic ────────────────────────────────────────────── */
-@import "./css/semantic/elevation.css";
-@import "./css/semantic/surfaces.css";
-@import "./css/semantic/borders.css";
-@import "./css/semantic/transitions.css";
-@import "./css/semantic/interaction.css";
-@import "./css/semantic/overlay.css";
-@import "./css/semantic/scrollbar.css";
-@import "./css/semantic/backdrop.css";
-@import "./css/semantic/text-styles.css";
+@import "./styles/semantic/elevation.css";
+@import "./styles/semantic/surface.css";
+@import "./styles/semantic/border.css";
+@import "./styles/semantic/transition.css";
+@import "./styles/semantic/interaction.css";
+@import "./styles/semantic/overlay.css";
+@import "./styles/semantic/scrollbar.css";
+@import "./styles/semantic/backdrop.css";
+@import "./styles/semantic/text-styles.css";
 
 /* ── Components ──────────────────────────────────────────── */
-@import "./css/components/components.css";
+@import "./styles/components/component.css";
 `;
 
-/** Barrel re-export for TypeScript types */
+// ─── Barrel: Theme imports (per-domain composable) ───────────────────
+
+const INDEX_THEME = `/* AUTO-GENERATED — DO NOT EDIT */
+/* Per-domain @theme files — import individually for composable presets */
+
+/* ── Primitives ──────────────────────────────────────────── */
+@import "./color.css";
+@import "./shadow.css";
+@import "./bevel.css";
+@import "./glow.css";
+@import "./blur.css";
+@import "./surface.css";
+@import "./radius.css";
+@import "./spacing.css";
+@import "./typography.css";
+@import "./motion.css";
+
+/* ── Semantic ────────────────────────────────────────────── */
+@import "./elevation.css";
+@import "./text-style.css";
+@import "./transition.css";
+@import "./border.css";
+@import "./interaction.css";
+@import "./overlay.css";
+@import "./scrollbar.css";
+@import "./backdrop.css";
+`;
+
+// ─── Barrel: TypeScript re-exports ───────────────────────────────────
+
 const INDEX_DTS = `/* AUTO-GENERATED — DO NOT EDIT */
 
 export * from './color.js';
@@ -57,25 +87,30 @@ export * from './spacing.js';
 export * from './typography.js';
 export * from './motion.js';
 export * from './elevation.js';
-export * from './borders.js';
+export * from './border.js';
 export * from './interaction.js';
 export * from './backdrop.js';
-export * from './components.js';
+export * from './component.js';
 `;
+
+// ─── Build ───────────────────────────────────────────────────────────
 
 async function build() {
 	console.log('[SD5] Starting token build...');
+	console.log('[SD5] Source: tokens/src/*.json (flat domain files)');
+	console.log('[SD5] Output: css/ (tier-aware), theme/ (per-domain), types/ (per-domain)');
+
 	const sd = new StyleDictionary(config);
 	await sd.buildAllPlatforms();
 
-	// Write barrel files
-	writeFileSync(`${BUILD}/index.css`, INDEX_CSS);
-	writeFileSync(`${BUILD}/types/index.d.ts`, INDEX_DTS);
+	writeFileSync(`${OUT}/css/index.css`, INDEX_CSS);
+	writeFileSync(`${OUT}/theme/index.css`, INDEX_THEME);
+	writeFileSync(`${OUT}/types/index.d.ts`, INDEX_DTS);
 
 	console.log('[SD5] Build complete.');
-	console.log(`  CSS:   ${BUILD}/index.css (imports ${BUILD}/css/*)`);
-	console.log(`  TW:    ${BUILD}/tailwind.css`);
-	console.log(`  Types: ${BUILD}/types/index.d.ts`);
+	console.log(`  CSS:   ${OUT}/css/index.css`);
+	console.log(`  Theme: ${OUT}/theme/index.css`);
+	console.log(`  Types: ${OUT}/types/index.d.ts`);
 }
 
 build().catch((err) => {

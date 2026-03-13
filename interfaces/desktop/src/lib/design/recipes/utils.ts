@@ -21,7 +21,7 @@ import {
 	type Preset,
 	type EncodingIndices,
 } from "$lib/design/registry/token-categories.js";
-import type { RadiusToken } from "$lib/design/tokens/types.js";
+import type { RadiusToken } from "./types.js";
 
 // =============================================================================
 // Encoding Emitters — Registry-Driven

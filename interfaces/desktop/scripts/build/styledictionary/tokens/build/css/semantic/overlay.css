@@ -4,7 +4,7 @@
 
 @layer tokens.semantic {
   :root {
-  --overlay-scrim: rgba(0, 4, 4, 0.4); /** Standard modal backdrop */
-  --overlay-scrim-heavy: rgba(0, 4, 4, 0.6); /** Heavy backdrop for critical dialogs */
+  --overlay-scrim: oklch(0.0966 0.0165 194.77 / 0.4); /** Standard modal backdrop */
+  --overlay-scrim-heavy: oklch(0.0966 0.0165 194.77 / 0.6); /** Heavy backdrop for critical dialogs */
   }
 }

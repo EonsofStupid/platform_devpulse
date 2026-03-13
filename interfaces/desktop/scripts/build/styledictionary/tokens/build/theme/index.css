@@ -1,0 +1,24 @@
+/* AUTO-GENERATED — DO NOT EDIT */
+/* Per-domain @theme files — import individually for composable presets */
+
+/* ── Primitives ──────────────────────────────────────────── */
+@import "./color.css";
+@import "./shadow.css";
+@import "./bevel.css";
+@import "./glow.css";
+@import "./blur.css";
+@import "./surface.css";
+@import "./radius.css";
+@import "./spacing.css";
+@import "./typography.css";
+@import "./motion.css";
+
+/* ── Semantic ────────────────────────────────────────────── */
+@import "./elevation.css";
+@import "./text-style.css";
+@import "./transition.css";
+@import "./border.css";
+@import "./interaction.css";
+@import "./overlay.css";
+@import "./scrollbar.css";
+@import "./backdrop.css";

@@ -1,0 +1,63 @@
+{
+	"font": {
+		"$type": "fontFamily",
+		"$description": "Font family stacks",
+		"display": { "$value": ["Orbitron", "system-ui", "sans-serif"] },
+		"sans":    { "$value": ["Inter", "system-ui", "sans-serif"] },
+		"mono":    { "$value": ["JetBrains Mono", "Fira Code", "monospace"] }
+	},
+	"textSize": {
+		"$type": "dimension",
+		"$description": "Text size scale (px → rem via SD5 transform)",
+		"xs":   { "$value": "12px" },
+		"sm":   { "$value": "14px" },
+		"base": { "$value": "16px" },
+		"lg":   { "$value": "18px" },
+		"xl":   { "$value": "20px" },
+		"2xl":  { "$value": "24px" }
+	},
+	"textStyle": {
+		"$type": "typography",
+		"$description": "Named text style presets — complete font stack per use case",
+		"display-lg": {
+			"$value": { "fontSize": "32px", "fontFamily": "{font.display}", "fontWeight": 700, "lineHeight": 1.1, "letterSpacing": "0.02em" },
+			"$description": "Hero stats, page titles"
+		},
+		"display-sm": {
+			"$value": { "fontSize": "24px", "fontFamily": "{font.display}", "fontWeight": 600, "lineHeight": 1.2, "letterSpacing": "0.01em" },
+			"$description": "Section headers, widget titles"
+		},
+		"heading-lg": {
+			"$value": { "fontSize": "20px", "fontFamily": "{font.sans}", "fontWeight": 600, "lineHeight": 1.3, "letterSpacing": "-0.01em" },
+			"$description": "Panel headers, card titles"
+		},
+		"heading-sm": {
+			"$value": { "fontSize": "16px", "fontFamily": "{font.sans}", "fontWeight": 600, "lineHeight": 1.4, "letterSpacing": "-0.005em" },
+			"$description": "Sub-headers, group labels"
+		},
+		"body": {
+			"$value": { "fontSize": "14px", "fontFamily": "{font.sans}", "fontWeight": 400, "lineHeight": 1.5, "letterSpacing": "0em" },
+			"$description": "Default body text"
+		},
+		"body-sm": {
+			"$value": { "fontSize": "13px", "fontFamily": "{font.sans}", "fontWeight": 400, "lineHeight": 1.45, "letterSpacing": "0em" },
+			"$description": "Secondary body, descriptions"
+		},
+		"caption": {
+			"$value": { "fontSize": "12px", "fontFamily": "{font.sans}", "fontWeight": 500, "lineHeight": 1.4, "letterSpacing": "0.01em" },
+			"$description": "Captions, timestamps, metadata"
+		},
+		"overline": {
+			"$value": { "fontSize": "11px", "fontFamily": "{font.sans}", "fontWeight": 600, "lineHeight": 1.3, "letterSpacing": "0.08em" },
+			"$description": "Overline labels, category tags"
+		},
+		"code": {
+			"$value": { "fontSize": "13px", "fontFamily": "{font.mono}", "fontWeight": 400, "lineHeight": 1.6, "letterSpacing": "0em" },
+			"$description": "Code blocks, terminal output"
+		},
+		"stat": {
+			"$value": { "fontSize": "24px", "fontFamily": "{font.display}", "fontWeight": 700, "lineHeight": 1.1, "letterSpacing": "0.02em" },
+			"$description": "Dashboard stat values, gauges"
+		}
+	}
+}

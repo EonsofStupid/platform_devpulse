@@ -98,5 +98,8 @@ import "./recipes/components/index.js";
 export { getBlueprint, getBlueprintsForKind, registerBlueprint } from "./blueprints/index.js";
 export type { BlueprintDefinition } from "./blueprints/types.js";
 
-// ── Tokens ──
-export * from "./tokens/index.js";
+// ── Token Types (SSOT: recipes/_base/schema.ts → recipes/types.ts) ──
+export {
+	SizeTokens, type SizeToken, SizeSchema,
+	RadiusTokens, type RadiusToken, RadiusSchema,
+} from "./recipes/types.js";

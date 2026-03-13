@@ -9,6 +9,13 @@
  */
 
 export {
+	// Size & Radius — recipe-level props (SSOT)
+	SizeTokens,
+	type SizeToken,
+	SizeSchema,
+	RadiusTokens,
+	type RadiusToken,
+	RadiusSchema,
 	// Zod schemas
 	DsSurfacePropsSchema,
 	SlotVisualModeSchema,
