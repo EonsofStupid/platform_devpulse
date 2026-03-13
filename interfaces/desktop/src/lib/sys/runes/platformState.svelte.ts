@@ -18,7 +18,7 @@ import type { BootSnapshot } from "$lib/sys/generated/boot.types.js";
 import { resolveLabel } from "$lib/sys/generated/terminology.js";
 
 export type BootPhase = "initializing" | "ready" | "failed";
-export type SubsystemState = "pending" | "loading" | "ready" | "failed";
+export type SubsystemState = "pending" | "loading" | "ready" | "skipped" | "failed";
 
 export interface SubsystemInfo {
 	name: string;
@@ -39,7 +39,7 @@ function mapInitStatus(status: InitStatus): SubsystemState {
 		case "Error":
 			return "failed";
 		case "Skipped":
-			return "ready";
+			return "skipped";
 	}
 }
 
@@ -66,11 +66,15 @@ class PlatformState {
 	}
 
 	get progress(): number {
-		const total = Math.max(4, this.subsystems.size);
+		let active = 0;
 		let ready = 0;
 		this.subsystems.forEach((info) => {
-			if (info.state === "ready") ready++;
+			if (info.state !== "skipped") {
+				active++;
+				if (info.state === "ready") ready++;
+			}
 		});
+		const total = Math.max(4, active);
 		return Math.round((ready / total) * 100);
 	}
 

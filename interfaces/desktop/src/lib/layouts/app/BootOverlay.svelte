@@ -6,17 +6,57 @@
   Full-viewport overlay displayed during platform boot.
   Shows per-subsystem progress with status indicators and latencies.
   Fades out and unmounts when boot completes.
+
+  ## Built with ColdLight
+  All visual elements use design system components:
+  - Box for containers and rows
+  - Stack/HStack for layout
+  - Text for typography
+  - Badge for status indicators
+  - Progress for boot progress bar
+
+  ## Status Accuracy Contract
+  Every SubsystemState has exactly one visual representation:
+    pending  → default badge, no text
+    loading  → info badge, "..."
+    ready    → success badge, latency in ms (or "ok" if no latency)
+    skipped  → default badge, "disabled"
+    failed   → error badge, "failed"
 -->
 <script lang="ts">
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
+import type { SubsystemState } from "$lib/sys/runes/platformState.svelte.js";
 import { DEV_MODE, devLabel, resolveLabel } from "$lib/sys/generated/terminology.js";
 import { getIcon } from "$lib/sys/generated/terminology-icons.js";
-import { Text, Stack, HStack } from "$lib/design/index.js";
+import { Text, Stack, HStack, Box, Badge, Progress } from "$lib/design/index.js";
+import type { BadgeIntent } from "$lib/design/index.js";
 
 let visible = $state(true);
 let fading = $state(false);
 
 const subsystems = $derived(platformState.subsystemList());
+
+/** Map subsystem state to Badge intent — each state has exactly one visual */
+function stateToIntent(state: SubsystemState): BadgeIntent {
+	switch (state) {
+		case "ready": return "success";
+		case "loading": return "info";
+		case "failed": return "error";
+		case "skipped": return "default";
+		case "pending": return "default";
+	}
+}
+
+/** Map subsystem state to status text — accurate, no lies */
+function stateToLabel(state: SubsystemState, latencyMs: number | null): string {
+	switch (state) {
+		case "pending": return "";
+		case "loading": return "...";
+		case "ready": return latencyMs !== null ? `${latencyMs}ms` : "ok";
+		case "skipped": return "disabled";
+		case "failed": return "failed";
+	}
+}
 
 $effect(() => {
 	if (platformState.isReady && !fading) {
@@ -35,41 +75,45 @@ $effect(() => {
 	aria-label="Platform booting"
 	role="status"
 >
-	<div class="boot-overlay__content">
+	<Stack gap="6" align="center" class="boot-overlay__content">
 		<!-- Wordmark -->
-		<div class="boot-overlay__wordmark">
+		<Stack gap="1" align="center">
 			<Text size="lg" weight="bold">DevPulse</Text>
 			<Text size="xs" color="muted">Platform Engine</Text>
-		</div>
+		</Stack>
 
 		<!-- Subsystem list -->
-		<Stack gap="2" class="boot-overlay__subsystems">
+		<Stack gap="2" class="w-full">
 			{#each subsystems as sub (sub.name)}
 				{@const Icon = getIcon(sub.name)}
-				<HStack gap="3" align="center" class="boot-overlay__row">
-					<span
-						class="boot-overlay__dot"
-						data-state={sub.state}
-						aria-hidden="true"
-					></span>
-					{#if Icon}
-						<svelte:component this={Icon} size={14} class="shrink-0 text-text-muted" />
-					{/if}
-					<Text size="sm" color="secondary" class="flex-1">
-						{DEV_MODE ? devLabel(sub.name) : resolveLabel(sub.name)}
-					</Text>
-					<Text size="xs" color="muted">
-						{#if sub.state === "loading"}
-							...
-						{:else if sub.state === "ready" && sub.latencyMs !== null}
-							{sub.latencyMs}ms
-						{:else if sub.state === "failed"}
-							failed
-						{:else if sub.state === "ready"}
-							ok
+				{@const label = stateToLabel(sub.state, sub.latencyMs)}
+				<Box
+					surface="glass-void"
+					bevel="subtle"
+					frame="soft"
+					radius="md"
+					class="px-3 py-1.5 {sub.state === 'skipped' ? 'opacity-50' : ''}"
+				>
+					<HStack gap="3" align="center">
+						<Badge
+							intent={stateToIntent(sub.state)}
+							size="sm"
+							decorative
+							class="h-2 w-2 min-w-0 p-0"
+						>
+							&ZeroWidthSpace;
+						</Badge>
+						{#if Icon}
+							<svelte:component this={Icon} size={14} class="shrink-0 text-text-muted" />
 						{/if}
-					</Text>
-				</HStack>
+						<Text size="sm" color={sub.state === "skipped" ? "muted" : "secondary"} class="flex-1">
+							{DEV_MODE ? devLabel(sub.name) : resolveLabel(sub.name)}
+						</Text>
+						{#if label}
+							<Text size="xs" color="muted">{label}</Text>
+						{/if}
+					</HStack>
+				</Box>
 			{/each}
 
 			{#if subsystems.length === 0}
@@ -78,24 +122,33 @@ $effect(() => {
 		</Stack>
 
 		<!-- Progress bar -->
-		<div class="boot-overlay__progress-track">
-			<div
-				class="boot-overlay__progress-fill"
-				style="width: {platformState.progress}%"
-			></div>
-		</div>
+		<Progress
+			value={platformState.progress}
+			max={100}
+			size="sm"
+			surface="glass-void"
+			glow="teal"
+			class="w-full"
+		/>
 
 		<!-- Error state -->
 		{#if platformState.hasFailed && platformState.error}
-			<div class="boot-overlay__error">
+			<Box
+				surface="glass-void"
+				frame="soft"
+				radius="md"
+				class="w-full px-3 py-2 text-center border border-red-500/20 bg-red-500/10"
+			>
 				<Text size="xs" color="accent">{platformState.error}</Text>
-			</div>
+			</Box>
 		{/if}
-	</div>
+	</Stack>
 </div>
 {/if}
 
 <style>
+	/* Overlay positioning — the ONLY hand-written CSS.
+	   Fixed viewport cover is layout scaffolding, not a component concern. */
 	.boot-overlay {
 		position: fixed;
 		inset: 0;
@@ -114,91 +167,8 @@ $effect(() => {
 	}
 
 	.boot-overlay__content {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 1.5rem;
 		min-width: 320px;
 		max-width: 400px;
 		padding: 2rem;
-	}
-
-	.boot-overlay__wordmark {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 0.25rem;
-		margin-bottom: 0.5rem;
-	}
-
-	.boot-overlay__subsystems {
-		width: 100%;
-	}
-
-	.boot-overlay__row {
-		padding: 0.375rem 0.75rem;
-		border-radius: 0.375rem;
-		background: var(--surface-raised, rgba(255, 255, 255, 0.03));
-	}
-
-	.boot-overlay__dot {
-		width: 0.5rem;
-		height: 0.5rem;
-		border-radius: 50%;
-		flex-shrink: 0;
-	}
-
-	.boot-overlay__dot[data-state="pending"] {
-		background: var(--text-muted, #555);
-	}
-
-	.boot-overlay__dot[data-state="loading"] {
-		background: var(--color-purple-400, #a78bfa);
-		box-shadow: 0 0 6px var(--color-purple-400, #a78bfa);
-		animation: pulse 1s ease-in-out infinite;
-	}
-
-	.boot-overlay__dot[data-state="ready"] {
-		background: var(--color-teal-400, #2dd4bf);
-		box-shadow: 0 0 6px var(--color-teal-400, #2dd4bf);
-	}
-
-	.boot-overlay__dot[data-state="failed"] {
-		background: var(--signal-error, #ef4444);
-		box-shadow: 0 0 6px var(--signal-error, #ef4444);
-	}
-
-	.boot-overlay__progress-track {
-		width: 100%;
-		height: 2px;
-		background: var(--border-subtle, rgba(255, 255, 255, 0.06));
-		border-radius: 1px;
-		overflow: hidden;
-	}
-
-	.boot-overlay__progress-fill {
-		height: 100%;
-		background: var(--color-teal-400, #2dd4bf);
-		box-shadow: 0 0 8px var(--accent-teal-glow, rgba(45, 212, 191, 0.4));
-		transition: width 300ms ease-out;
-	}
-
-	.boot-overlay__error {
-		padding: 0.5rem 0.75rem;
-		border-radius: 0.375rem;
-		background: rgba(239, 68, 68, 0.1);
-		border: 1px solid rgba(239, 68, 68, 0.2);
-		width: 100%;
-		text-align: center;
-	}
-
-	@keyframes pulse {
-		0%,
-		100% {
-			opacity: 1;
-		}
-		50% {
-			opacity: 0.4;
-		}
 	}
 </style>

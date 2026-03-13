@@ -72,15 +72,10 @@ impl Platform {
         let boot_config = PlatformBootConfig::load(&data_dir)?;
 
         // Step 1: Ensure directories for file-based stores
-        on_event(InitEvent::running(
-            crate::ip_term!("Trinity"),
-            "Creating data directories",
-        ));
+        // Uses engine term "data layer" — resolves to "Trinity" (dev) / "System" (prod)
+        on_event(InitEvent::running("data layer", "Creating data directories"));
         ensure_store_dirs(&data_dir, &boot_config)?;
-        on_event(InitEvent::ok(
-            crate::ip_term!("Trinity"),
-            "Directories ready",
-        ));
+        on_event(InitEvent::ok("data layer", "Directories ready"));
 
         // Step 2: Relational store (LibSQL) — resilient boot
         let relational = if boot_config.stores.relational.enabled {
