@@ -2,17 +2,19 @@
  * @file sys/runes/platformState.svelte.ts
  * @module @devpulse/sys/runes/platformState
  * @description Unified platform state — merges boot progress + health into one reactive class.
- * Tracks progressive hydration: subsystems boot in background, StatusBar shows real-time progress.
- * After boot complete, transitions to health polling.
+ *
+ * ## Boot Strategy: Snapshot-First
+ * 1. On init(), call `get_boot_state` to get accumulated events from Rust.
+ * 2. Apply snapshot (replay all events that fired before we mounted).
+ * 3. Register live event listeners for any events that fire after.
+ * 4. Events are idempotent — Map keyed by step name, so duplicates are safe.
  */
 
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import type { InitEvent, InitStatus } from "$lib/sys/generated/init.types.js";
-import type {
-	SystemHealth,
-	HealthStatus,
-} from "$lib/sys/generated/health.types.js";
+import type { SystemHealth } from "$lib/sys/generated/health.types.js";
+import type { BootSnapshot } from "$lib/sys/generated/boot.types.js";
 import { resolveLabel } from "$lib/sys/generated/terminology.js";
 
 export type BootPhase = "initializing" | "ready" | "failed";
@@ -105,51 +107,84 @@ class PlatformState {
 		return list;
 	}
 
-	/** Initialize event listeners — call once from root layout. */
+	/** Initialize — call once from root layout onMount. */
 	async init(): Promise<void> {
-		// Listen for subsystem status events (during boot)
+		// 1. Catch up — get snapshot of boot state accumulated in Rust
+		try {
+			const snapshot = await invoke<BootSnapshot>("get_boot_state");
+			this.applySnapshot(snapshot);
+		} catch (e) {
+			console.warn("get_boot_state unavailable, relying on events:", e);
+		}
+
+		// 2. Register live event listeners (idempotent — Map keyed by step name)
 		const unlistenSubsystem = await listen<InitEvent>(
 			"platform:subsystem-status",
 			(e) => {
-				const event = e.payload;
-				const existing = this.subsystems.get(event.step);
-				const info: SubsystemInfo = {
-					name: event.step,
-					state: mapInitStatus(event.status),
-					latencyMs: event.latency_ms,
-					message: event.message,
-					friendlyName:
-						existing?.friendlyName ??
-						resolveLabel(event.step),
-				};
-				const next = new Map(this.subsystems);
-				next.set(event.step, info);
-				this.subsystems = next;
+				this.applyEvent(e.payload);
 			},
 		);
 		this.unlisteners.push(unlistenSubsystem);
 
-		// Listen for boot phase transitions
 		const unlistenPhase = await listen<{
-			phase: BootPhase;
+			phase: string;
 			health?: SystemHealth;
 			error?: string;
 		}>("platform:boot-phase", (e) => {
-			this.phase = e.payload.phase;
-
-			if (e.payload.health) {
-				this.health = e.payload.health;
-			}
-			if (e.payload.error) {
-				this.error = e.payload.error;
-			}
-
-			// After boot complete, start health polling
-			if (e.payload.phase === "ready") {
-				this.startHealthPolling();
-			}
+			this.applyPhaseTransition(e.payload);
 		});
 		this.unlisteners.push(unlistenPhase);
+	}
+
+	/** Apply a full boot snapshot (catch-up from Rust state). */
+	private applySnapshot(snapshot: BootSnapshot): void {
+		const phaseMap: Record<string, BootPhase> = {
+			Initializing: "initializing",
+			Ready: "ready",
+			Failed: "failed",
+		};
+		this.phase = phaseMap[snapshot.phase] ?? "initializing";
+
+		// Replay all accumulated events
+		for (const event of snapshot.events) {
+			this.applyEvent(event);
+		}
+
+		if (snapshot.health) this.health = snapshot.health;
+		if (snapshot.error) this.error = snapshot.error;
+		if (this.phase === "ready") this.startHealthPolling();
+	}
+
+	/** Apply a single subsystem init event (idempotent via Map key). */
+	private applyEvent(event: InitEvent): void {
+		const existing = this.subsystems.get(event.step);
+		const info: SubsystemInfo = {
+			name: event.step,
+			state: mapInitStatus(event.status),
+			latencyMs: event.latency_ms,
+			message: event.message,
+			friendlyName: existing?.friendlyName ?? resolveLabel(event.step),
+		};
+		const next = new Map(this.subsystems);
+		next.set(event.step, info);
+		this.subsystems = next;
+	}
+
+	/** Apply a boot phase transition event. */
+	private applyPhaseTransition(payload: {
+		phase: string;
+		health?: SystemHealth;
+		error?: string;
+	}): void {
+		const phaseMap: Record<string, BootPhase> = {
+			initializing: "initializing",
+			ready: "ready",
+			failed: "failed",
+		};
+		this.phase = phaseMap[payload.phase] ?? this.phase;
+		if (payload.health) this.health = payload.health;
+		if (payload.error) this.error = payload.error;
+		if (payload.phase === "ready") this.startHealthPolling();
 	}
 
 	/** Start periodic health polling (after boot). */

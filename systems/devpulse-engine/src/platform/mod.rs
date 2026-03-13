@@ -37,6 +37,7 @@ use stores::analytics::AnalyticsStore;
 use stores::cache::CacheStore;
 use stores::graph::GraphStore;
 use stores::relational::RelationalStore;
+use stores::vector::VectorStore;
 
 /// Platform facade — sole public API for persistence, health, config.
 ///
@@ -47,6 +48,7 @@ pub struct Platform {
     analytics: Option<Arc<AnalyticsStore>>,
     graph: Option<Arc<GraphStore>>,
     cache: Option<Arc<CacheStore>>,
+    vector: Option<Arc<VectorStore>>,
     boot_config: PlatformBootConfig,
     boot_time: Instant,
     data_dir: PathBuf,
@@ -226,11 +228,23 @@ impl Platform {
             None
         };
 
+        // Step 6: Vector store (RRO) — not yet integrated
+        let vector = if boot_config.stores.vector.enabled {
+            on_event(InitEvent::running("Vector store", "Initializing RRO"));
+            // RRO integration pending — would boot here
+            on_event(InitEvent::skipped("Vector store"));
+            None
+        } else {
+            on_event(InitEvent::skipped("Vector store"));
+            None
+        };
+
         Ok(Self {
             relational,
             analytics,
             graph,
             cache,
+            vector,
             boot_config,
             boot_time,
             data_dir,
@@ -254,6 +268,9 @@ impl Platform {
             subsystems.push(ping_store(store.as_ref()).await);
         }
         if let Some(store) = &self.cache {
+            subsystems.push(ping_store(store.as_ref()).await);
+        }
+        if let Some(store) = &self.vector {
             subsystems.push(ping_store(store.as_ref()).await);
         }
 
@@ -304,6 +321,11 @@ impl Platform {
     /// Get the cache store (if enabled and booted).
     pub fn cache(&self) -> Option<&Arc<CacheStore>> {
         self.cache.as_ref()
+    }
+
+    /// Get the vector store (if enabled and booted).
+    pub fn vector(&self) -> Option<&Arc<VectorStore>> {
+        self.vector.as_ref()
     }
 }
 

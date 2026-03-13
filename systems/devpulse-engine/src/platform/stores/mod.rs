@@ -7,6 +7,7 @@ pub mod analytics;
 pub mod cache;
 pub mod graph;
 pub mod relational;
+pub mod vector;
 
 use anyhow::Result;
 
@@ -21,6 +22,8 @@ pub enum StoreRole {
     Graph,
     /// In-memory cache (`Moka`).
     Cache,
+    /// Vector store (`RRO`).
+    Vector,
 }
 
 /// Uniform interface for all platform stores.

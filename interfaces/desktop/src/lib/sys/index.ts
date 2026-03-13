@@ -23,3 +23,5 @@ export { getIcon } from "./generated/terminology-icons.js";
 export * from "./debug/index.js";
 // Initialization
 export { initSys, isSysInitialized } from "./init.js";
+// Logger (bridges to Rust tracing)
+export { log, logInfo, logWarn, logError, logDebug } from "./logger.js";

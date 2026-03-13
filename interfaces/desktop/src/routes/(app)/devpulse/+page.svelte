@@ -35,6 +35,13 @@
 		Down: "var(--accent-ember-main)",
 		Unknown: "var(--text-muted)",
 	};
+
+	// Fetch dashboard data only after platform boot completes
+	$effect(() => {
+		if (platformState.isReady && devpulseState.loading) {
+			devpulseState.refresh();
+		}
+	});
 </script>
 
 {#if devpulseState.loading}

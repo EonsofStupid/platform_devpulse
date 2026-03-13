@@ -4,9 +4,14 @@
  *
  * Svelte 5 runes for the DevPulse dashboard hub.
  * Fetches real data from stores via Tauri IPC.
+ * Does NOT auto-fetch — dashboard page triggers fetch after boot completes.
  */
 
-import { fetchDashboardData, mapPayloadToDashboard, getEmptyDashboard } from "../services/devpulse.service.js";
+import {
+	fetchDashboardData,
+	mapPayloadToDashboard,
+	getEmptyDashboard,
+} from "../services/devpulse.service.js";
 import type { DashboardData } from "../types/devpulse.types.js";
 
 class DevPulseState {
@@ -31,26 +36,14 @@ class DevPulseState {
 		this.activeWidget = widgetId;
 	}
 
-	private retryTimer: ReturnType<typeof setTimeout> | null = null;
-
 	async refresh(): Promise<void> {
 		this.loading = true;
 		this.error = null;
 		try {
 			const payload = await fetchDashboardData();
 			this.data = mapPayloadToDashboard(payload);
-			this.retryTimer = null;
 		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			// Platform still booting — retry after delay
-			if (msg.includes("still booting") && !this.retryTimer) {
-				this.retryTimer = setTimeout(() => {
-					this.retryTimer = null;
-					this.refresh();
-				}, 2000);
-			} else {
-				this.error = msg;
-			}
+			this.error = e instanceof Error ? e.message : String(e);
 		} finally {
 			this.loading = false;
 		}
@@ -58,6 +51,3 @@ class DevPulseState {
 }
 
 export const devpulseState = new DevPulseState();
-
-// Auto-fetch on module load (retries if platform is still booting)
-devpulseState.refresh();

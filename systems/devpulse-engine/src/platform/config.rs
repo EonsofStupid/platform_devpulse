@@ -39,6 +39,8 @@ pub struct DatabaseConfig {
     pub graph_enabled: bool,
     /// Cache store enabled (`Moka`).
     pub cache_enabled: bool,
+    /// Vector store enabled (`RRO`).
+    pub vector_enabled: bool,
 }
 
 impl Default for DatabaseConfig {
@@ -48,6 +50,7 @@ impl Default for DatabaseConfig {
             analytics_enabled: true,
             graph_enabled: true,
             cache_enabled: true,
+            vector_enabled: false,
         }
     }
 }
@@ -81,6 +84,9 @@ pub struct StoresConfig {
     /// In-memory cache (`Moka`).
     #[serde(default)]
     pub cache: CacheStoreEntry,
+    /// Vector store (`RRO`).
+    #[serde(default)]
+    pub vector: VectorStoreEntry,
 }
 
 /// Configuration for a file-based store.
@@ -202,6 +208,20 @@ impl CacheStoreEntry {
     }
 }
 
+/// Configuration for the vector store (`RRO`).
+#[derive(Debug, Clone, Deserialize)]
+pub struct VectorStoreEntry {
+    /// Whether this store is enabled.
+    #[serde(default)]
+    pub enabled: bool,
+}
+
+impl Default for VectorStoreEntry {
+    fn default() -> Self {
+        Self { enabled: false }
+    }
+}
+
 impl PlatformBootConfig {
     /// Load boot config: embedded default, optionally overridden by user file.
     ///
@@ -230,6 +250,7 @@ impl PlatformBootConfig {
             analytics_enabled: self.stores.analytics.enabled,
             graph_enabled: self.stores.graph.enabled,
             cache_enabled: self.stores.cache.enabled,
+            vector_enabled: self.stores.vector.enabled,
         }
     }
 }
