@@ -1,11 +1,17 @@
 {
   "permissions": {
     "allow": [
-      "Read(//d/localdev/platform_devpulse/**)",
-      "Edit(//d/localdev/platform_devpulse/**)",
+      "Read",
+      "Edit",
+      "Write",
+      "Glob",
+      "Grep",
       "Bash(*)",
-      "WebFetch(domain:raw.githubusercontent.com)",
-      "WebFetch(domain:v2.tauri.app)"
+      "WebFetch",
+      "WebSearch",
+      "Skill",
+      "TodoWrite",
+      "NotebookEdit"
     ],
     "deny": [
       "Bash(rm -rf /*)",

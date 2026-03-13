@@ -1,7 +1,9 @@
 ---
 name: preflight
-description: Mandatory orientation before any work. Loads context from SurrealDB, reads source-of-truth docs, verifies disk state, declares unknowns.
-allowed-tools: [Bash, Read, Glob, Grep]
+description: Mandatory orientation before any work. Loads context, reads SSOTs, verifies disk state, scans for duplicates, declares unknowns.
+user-invocable: true
+disable-model-invocation: false
+argument-hint: "[optional: specific area to focus preflight on]"
 ---
 
 # /preflight — Mandatory AI Orientation
@@ -18,10 +20,10 @@ surreal sql --endpoint http://127.0.0.1:8822 --username root --password root --h
 If SurrealDB is up, load context in priority order:
 
 ```bash
-# Developer identity (WHO am I working with)
+# Developer identity
 surreal sql --endpoint http://127.0.0.1:8822 --username root --password root --namespace global --database knowledge --hide-welcome --json <<< "SELECT * FROM dev_profile ORDER BY category;"
 
-# Rejections (what NOT to suggest — EVER)
+# Rejections (NEVER suggest these)
 surreal sql --endpoint http://127.0.0.1:8822 --username root --password root --namespace global --database knowledge --hide-welcome --json <<< "SELECT * FROM rejections;"
 
 # Critical learnings (mistakes to NEVER repeat)
@@ -43,16 +45,16 @@ surreal sql --endpoint http://127.0.0.1:8822 --username root --password root --n
 surreal sql --endpoint http://127.0.0.1:8822 --username root --password root --namespace global --database knowledge --hide-welcome --json <<< "SELECT * FROM preferences;"
 ```
 
-If SurrealDB is NOT running, say so and ask if the developer wants to start it.
+If SurrealDB is NOT running, say so and proceed with file-based context.
 
 ## Step 2: Read Source of Truth
 
 Read these files in order:
-1. `CLAUDE.md`
-2. `scripts/surrealdb/ARCHITECTURE.md`
+1. `CLAUDE.md` (project root instructions)
+2. `scripts/surrealdb/ARCHITECTURE.md` (database architecture)
 3. Whatever sprint doc is referenced in the active context
-4. `interfaces/desktop/src/lib/design/MASTER-PLAN.md`
-5. `interfaces/desktop/src/lib/design/coldlight.config.ts`
+4. `interfaces/desktop/src/lib/design/MASTER-PLAN.md` (ColdLight architecture)
+5. `interfaces/desktop/src/lib/design/coldlight.config.ts` (ColdLight config)
 
 ## Step 3: Verify Disk State
 
@@ -63,8 +65,30 @@ git log --oneline -5
 ```
 
 Check that directories you plan to work in actually exist.
+**READ files you plan to modify — do not assume their contents from docs.**
 
-## Step 4: Report
+## Step 4: Quick Duplicate Scan
+
+Before any work, check for the most common anti-pattern — competing definitions:
+
+```
+Grep for known SSOT types across the design system:
+- SizeToken, RadiusToken → should only be in recipes/_base/schema.ts
+- Preset, EncodingIndices → should only be in registry/token-categories.ts
+- DsSurfaceProps, RecipeDefinition → should only be in recipes/_base/schema.ts
+- SurfaceId, GlowId, BevelId → should only be in registry/token-categories.ts
+```
+
+If duplicates found → flag them immediately. They must be consolidated
+(via `/consolidate`) before any sprint work begins.
+
+Also check for stale patterns:
+```
+Grep for: "tokens/types.js", "tokens/schema.js", "tokens/index.js"
+```
+These files were deleted. Any import referencing them is broken.
+
+## Step 5: Report
 
 Output a structured summary:
 
@@ -88,6 +112,12 @@ Output a structured summary:
 ### Architecture Rules
 - [list]
 
+### Duplicate Scan
+- [CLEAN or list of duplicates found]
+
+### Stale Imports
+- [CLEAN or list of broken imports]
+
 ### What I Know
 - [list]
 
@@ -95,6 +125,14 @@ Output a structured summary:
 - [list]
 
 ### Ready to proceed: YES/NO
+- If NO: {what needs to be fixed first — consolidation, stale imports, etc.}
 ```
 
 Do NOT proceed until reporting is done and the developer confirms.
+
+## Never
+
+- Never skip the duplicate scan
+- Never assume files exist — verify
+- Never assume docs describe reality — read the actual code
+- Never proceed with "ready: NO" without fixing the blockers

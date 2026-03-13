@@ -3,7 +3,9 @@
 	@layer vpb
 -->
 <script lang="ts">
-	import { SurfaceTokens } from "$lib/design/tokens/types.js";
+	import { categoryIds } from "$lib/design/registry/token-categories.js";
+
+	const SurfaceTokens = categoryIds("s");
 
 	let { value, onchange }: { value: string; onchange: (v: string) => void } = $props();
 </script>

@@ -3,7 +3,6 @@ name: cl-primitive-verify
 description: Verify a ColdLight primitive meets ALL gold standard requirements
 user-invocable: true
 disable-model-invocation: false
-allowed-tools: Read, Glob, Grep, Task, TodoWrite
 argument-hint: "<primitive kind name, e.g. 'button', 'dialog', or 'all'>"
 ---
 

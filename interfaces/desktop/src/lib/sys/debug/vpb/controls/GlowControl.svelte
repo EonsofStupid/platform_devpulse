@@ -3,7 +3,9 @@
 	@layer vpb
 -->
 <script lang="ts">
-	import { GlowTokens } from "$lib/design/tokens/types.js";
+	import { categoryIds } from "$lib/design/registry/token-categories.js";
+
+	const GlowTokens = categoryIds("g");
 
 	let { value, onchange }: { value: string; onchange: (v: string) => void } = $props();
 

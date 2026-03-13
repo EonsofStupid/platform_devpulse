@@ -3,7 +3,6 @@ name: parkinglot
 description: Handle blockers, confusion, or decision points during implementation
 user-invocable: true
 disable-model-invocation: false
-allowed-tools: Read, Glob, Grep, Edit, Write, AskUserQuestion, TodoWrite
 argument-hint: "<brief description of the blocker or decision needed>"
 ---
 

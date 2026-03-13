@@ -3,7 +3,6 @@ name: explain
 description: Explain code in plain English for non-technical audiences
 user-invocable: true
 disable-model-invocation: true
-allowed-tools: Read, Glob, Grep, Task
 argument-hint: "<file path or concept>"
 ---
 

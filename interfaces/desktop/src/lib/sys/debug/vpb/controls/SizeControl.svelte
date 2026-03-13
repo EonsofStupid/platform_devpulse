@@ -3,7 +3,7 @@
 	@layer vpb
 -->
 <script lang="ts">
-	import { SizeTokens } from "$lib/design/tokens/types.js";
+	import { SizeTokens } from "$lib/design/recipes/_base/schema.js";
 
 	let { value, onchange }: { value: string; onchange: (v: string) => void } = $props();
 </script>

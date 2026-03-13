@@ -3,7 +3,6 @@ name: scan-project
 description: Deep scan of codebase structure, tech debt, and architecture
 user-invocable: true
 disable-model-invocation: true
-allowed-tools: Read, Glob, Grep, Task, Bash
 argument-hint: "[area to focus on]"
 ---
 

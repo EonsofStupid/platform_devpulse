@@ -3,7 +3,7 @@
 	@layer vpb
 -->
 <script lang="ts">
-	import { RadiusTokens } from "$lib/design/tokens/types.js";
+	import { RadiusTokens } from "$lib/design/recipes/_base/schema.js";
 
 	let { value, onchange }: { value: string; onchange: (v: string) => void } = $props();
 </script>
