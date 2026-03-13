@@ -13,7 +13,7 @@ import type {
 	SystemHealth,
 	HealthStatus,
 } from "$lib/sys/generated/health.types.js";
-import { friendlyLabel } from "$lib/sys/boot/boot-labels.js";
+import { resolveLabel } from "$lib/sys/generated/terminology.js";
 
 export type BootPhase = "initializing" | "ready" | "failed";
 export type SubsystemState = "pending" | "loading" | "ready" | "failed";
@@ -120,7 +120,7 @@ class PlatformState {
 					message: event.message,
 					friendlyName:
 						existing?.friendlyName ??
-						friendlyLabel(event.step),
+						resolveLabel(event.step),
 				};
 				const next = new Map(this.subsystems);
 				next.set(event.step, info);

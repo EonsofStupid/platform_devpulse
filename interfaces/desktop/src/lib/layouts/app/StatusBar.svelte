@@ -16,8 +16,8 @@
 -->
 <script lang="ts">
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
-import { flags } from "$lib/sys/cfg/flags.js";
-import { getIcon, devLabel } from "$lib/sys/boot/boot-labels.js";
+import { DEV_MODE, resolveLabel, devLabel } from "$lib/sys/generated/terminology.js";
+import { getIcon } from "$lib/sys/generated/terminology-icons.js";
 import {
 	Badge,
 	HStack,
@@ -33,7 +33,7 @@ const subsystems = $derived(platformState.subsystemList());
 	{#if platformState.isBooting}
 		<!-- Boot progress mode -->
 		<HStack gap="2" align="center">
-			{#if flags.DEV_MODE}
+			{#if DEV_MODE}
 				{#each subsystems as sub}
 					{@const Icon = getIcon(sub.name)}
 					<Badge
@@ -102,7 +102,7 @@ const subsystems = $derived(platformState.subsystemList());
 				<Text size="xs" color="secondary">{platformState.connectionStatus}</Text>
 			</Badge>
 
-			{#if flags.DEV_MODE}
+			{#if DEV_MODE}
 				{#each subsystems as sub}
 					{@const Icon = getIcon(sub.name)}
 					<HStack gap="1" align="center">

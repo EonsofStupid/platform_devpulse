@@ -13,7 +13,7 @@ pub mod logging;
 pub mod state;
 
 use devpulse_engine::platform::{InitStatus, Platform, SqlAdapter};
-use state::PlatformState;
+use state::{BootStateTracker, PlatformState};
 use std::path::PathBuf;
 use std::sync::Arc;
 use tauri::{Emitter, Manager};
@@ -68,10 +68,13 @@ pub fn run() {
             app.manage(PlatformState {
                 platform: RwLock::new(None),
             });
+            app.manage(BootStateTracker::new());
 
             // Spawn async boot task — setup returns IMMEDIATELY
             let handle = app.handle().clone();
-            tauri::async_runtime::spawn(boot_task(handle, data_dir));
+            let tracker = app.state::<BootStateTracker>();
+            let tracker_clone = tracker.clone_tracker();
+            tauri::async_runtime::spawn(boot_task(handle, data_dir, tracker_clone));
 
             tracing::info!("Setup complete — boot running in background");
             Ok(())
@@ -83,6 +86,7 @@ pub fn run() {
             commands::sys::config::get_settings,
             commands::sys::guard::verify,
             commands::sys::logger::log,
+            commands::sys::boot::get_boot_state,
             commands::devmaestro::get_status,
             commands::devpulse::fetch_dashboard,
             commands::thinkmaestro::create_canvas,
@@ -96,7 +100,7 @@ pub fn run() {
 }
 
 /// Background boot task — boots all platform stores and emits progress events.
-async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf) {
+async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateTracker) {
     tracing::info!("Boot task started");
 
     let _ = app.emit(
@@ -105,7 +109,11 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf) {
     );
 
     let app_for_callback = app.clone();
+    let tracker_for_callback = tracker.clone_tracker();
     let result = Platform::boot(data_dir, move |event| {
+        // Accumulate in tracker BEFORE emitting (so frontend can catch up)
+        tracker_for_callback.record_event(event.clone());
+
         // Log completion events via tracing
         if event.status != InitStatus::Running {
             let latency_str = event
@@ -149,6 +157,9 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf) {
                 }
             }
 
+            // Record in tracker before emitting
+            tracker.set_ready(health.clone());
+
             // Store platform in managed state
             let state = app.state::<PlatformState>();
             {
@@ -166,6 +177,8 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf) {
         }
         Err(e) => {
             tracing::error!(error = %e, "Platform boot failed");
+            // Record in tracker before emitting
+            tracker.set_failed(e.to_string());
             let _ = app.emit(
                 "platform:boot-phase",
                 serde_json::json!({

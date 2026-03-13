@@ -3,7 +3,7 @@
 	@layer vpb
 -->
 <script lang="ts">
-	import { GlassVariantTokens } from "$lib/design/tokens/types.js";
+	const GLASS_VARIANTS = ["void", "deep", "smoke", "frost"] as const;
 
 	let { value, onchange }: { value: string; onchange: (v: string) => void } = $props();
 </script>
@@ -11,7 +11,7 @@
 <div class="vpb-ctrl">
 	<span class="vpb-ctrl__label">Variant</span>
 	<div class="vpb-ctrl__seg">
-		{#each GlassVariantTokens as token}
+		{#each GLASS_VARIANTS as token}
 			<button
 				class="vpb-ctrl__seg-btn"
 				class:vpb-ctrl__seg-btn--active={value === token}

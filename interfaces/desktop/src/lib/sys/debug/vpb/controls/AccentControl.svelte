@@ -3,7 +3,7 @@
 	@layer vpb
 -->
 <script lang="ts">
-	import { AccentTokens } from "$lib/design/tokens/types.js";
+	const ACCENT_TOKENS = ["teal", "purple", "magenta", "ember", "frost"] as const;
 
 	let { value, onchange }: { value: string; onchange: (v: string) => void } = $props();
 
@@ -19,7 +19,7 @@
 <div class="vpb-ctrl">
 	<span class="vpb-ctrl__label">Accent</span>
 	<div class="vpb-ctrl__swatches">
-		{#each AccentTokens as token}
+		{#each ACCENT_TOKENS as token}
 			<button
 				class="vpb-ctrl__swatch"
 				class:vpb-ctrl__swatch--active={value === token}

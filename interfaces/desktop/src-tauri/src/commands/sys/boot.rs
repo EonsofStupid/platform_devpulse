@@ -1,0 +1,17 @@
+//! Boot state query command.
+//!
+//! Returns the accumulated boot snapshot so the frontend can catch up
+//! even if it mounts after boot events have already fired.
+
+use crate::state::BootStateTracker;
+
+/// Return the current boot state snapshot.
+///
+/// Called by the frontend on mount before registering live event listeners.
+/// This eliminates the race condition where events fire before listeners exist.
+#[tauri::command]
+pub async fn get_boot_state(
+    tracker: tauri::State<'_, BootStateTracker>,
+) -> Result<crate::state::BootSnapshot, String> {
+    Ok(tracker.snapshot())
+}

@@ -4,10 +4,21 @@
  * @description System layer barrel export
  */
 
-export type { FeatureFlags } from "./cfg/flags.js";
-
-// Feature flags
-export { flags } from "./cfg/flags.js";
+// Terminology (generated from kernel_terms.toml)
+export {
+	DEV_MODE,
+	resolveLabel,
+	devLabel,
+	prodLabel,
+	minionStatus,
+	sanitizeForProd,
+	isFeatureEnabled,
+	FEATURES,
+	TERMS,
+	STORE_TERMS,
+	PERSONALITY,
+} from "./generated/terminology.js";
+export { getIcon } from "./generated/terminology-icons.js";
 // Debug tools (dev-only)
 export * from "./debug/index.js";
 // Initialization

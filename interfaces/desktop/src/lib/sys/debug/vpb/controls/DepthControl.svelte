@@ -3,7 +3,7 @@
 	@layer vpb
 -->
 <script lang="ts">
-	import { DepthTokens } from "$lib/design/tokens/types.js";
+	const DEPTH_LEVELS = [0, 1, 2, 3, 4] as const;
 
 	let { value, onchange }: { value: number; onchange: (v: number) => void } = $props();
 </script>
@@ -13,14 +13,14 @@
 	<input
 		class="vpb-ctrl__slider"
 		type="range"
-		min={DepthTokens[0]}
-		max={DepthTokens[DepthTokens.length - 1]}
+		min={DEPTH_LEVELS[0]}
+		max={DEPTH_LEVELS[DEPTH_LEVELS.length - 1]}
 		step="1"
 		{value}
 		oninput={(e) => onchange(Number((e.target as HTMLInputElement).value))}
 	/>
 	<div class="vpb-ctrl__ticks">
-		{#each DepthTokens as d}
+		{#each DEPTH_LEVELS as d}
 			<span class="vpb-ctrl__tick" class:vpb-ctrl__tick--active={value === d}>{d}</span>
 		{/each}
 	</div>

@@ -1,21 +1,26 @@
 # ═══════════════════════════════════════════════════════════════
-# KERNEL TERMS DICTIONARY — SSOT
+# KERNEL TERMS DICTIONARY — UNIVERSAL SSOT
 # ═══════════════════════════════════════════════════════════════
 #
 # Every internal term that must NEVER appear in the engine build.
+# This file drives BOTH Rust compile-time filtering (ip_term! macro)
+# AND frontend UI label generation (TOML→TS codegen).
 #
 # Fields:
 #   kernel    = internal term (what we use in development)
-#   engine    = public equivalent (what the customer sees)
+#   engine    = public equivalent (what crosses IPC boundary to frontend)
+#   prod      = user-friendly label (what customers see in production UI)
+#   dev       = raw tech label (what devs see in dev mode UI)
 #   category  = grouping for dev tool UI
 #   context   = where this term appears (logs, traces, ui-text, errors, metrics)
 #   severity  = "hard" (compile error if found) or "soft" (warning, may be contextual)
 #
 # Adding a new term:
-#   1. Add entry here
-#   2. Use ip_term!("TERM") in code (not raw string)
+#   1. Add entry here with ALL fields (kernel, engine, prod, dev)
+#   2. Use ip_term!("TERM") in Rust code (not raw string)
 #   3. cargo build regenerates vocabulary HashMap
-#   4. CI scanner auto-catches raw string usage
+#   4. pnpm generate:terminology regenerates frontend TS
+#   5. CI scanner auto-catches raw string usage
 #   NO other code changes needed.
 
 # ─────────────────────────────────────────────────────────────
@@ -25,6 +30,8 @@
 [[terms]]
 kernel = "DIARY"
 engine = "Memory"
+prod = "Memory"
+dev = "Diary Agent"
 category = "sub-agents"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"
@@ -32,6 +39,8 @@ severity = "hard"
 [[terms]]
 kernel = "GUARDIAN"
 engine = "Quality Check"
+prod = "Quality Check"
+dev = "Guardian Agent"
 category = "sub-agents"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"
@@ -39,6 +48,8 @@ severity = "hard"
 [[terms]]
 kernel = "PSYCH"
 engine = "Tone Advisor"
+prod = "Tone Advisor"
+dev = "Psych Agent"
 category = "sub-agents"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"
@@ -46,6 +57,8 @@ severity = "hard"
 [[terms]]
 kernel = "TEACHER"
 engine = "Skill Guide"
+prod = "Skill Guide"
+dev = "Teacher Agent"
 category = "sub-agents"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"
@@ -53,6 +66,8 @@ severity = "hard"
 [[terms]]
 kernel = "SCRIBE"
 engine = "Translation"
+prod = "Translation"
+dev = "Scribe Agent"
 category = "sub-agents"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"
@@ -60,6 +75,8 @@ severity = "hard"
 [[terms]]
 kernel = "VISION"
 engine = "Screen Reader"
+prod = "Screen Reader"
+dev = "Vision Agent"
 category = "sub-agents"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"
@@ -67,6 +84,8 @@ severity = "hard"
 [[terms]]
 kernel = "RESEARCHER"
 engine = "Knowledge Lookup"
+prod = "Knowledge Lookup"
+dev = "Researcher Agent"
 category = "sub-agents"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"
@@ -74,6 +93,8 @@ severity = "hard"
 [[terms]]
 kernel = "ENFORCER"
 engine = "Standards Check"
+prod = "Standards Check"
+dev = "Enforcer Agent"
 category = "sub-agents"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"
@@ -81,6 +102,8 @@ severity = "hard"
 [[terms]]
 kernel = "sub-agent"
 engine = "assistant"
+prod = "assistant"
+dev = "sub-agent"
 category = "sub-agents"
 context = ["logs", "traces", "ui-text", "errors"]
 severity = "hard"
@@ -88,6 +111,8 @@ severity = "hard"
 [[terms]]
 kernel = "Minion"
 engine = "helper"
+prod = "helper"
+dev = "Minion"
 category = "sub-agents"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"
@@ -99,6 +124,8 @@ severity = "hard"
 [[terms]]
 kernel = "rumination"
 engine = "thinking"
+prod = "thinking"
+dev = "rumination"
 category = "rumination"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"
@@ -106,6 +133,8 @@ severity = "hard"
 [[terms]]
 kernel = "rumination layer"
 engine = "thinking step"
+prod = "thinking step"
+dev = "rumination layer"
 category = "rumination"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"
@@ -113,6 +142,8 @@ severity = "hard"
 [[terms]]
 kernel = "keystroke layer"
 engine = "quick read"
+prod = "quick read"
+dev = "keystroke layer"
 category = "rumination"
 context = ["logs", "traces"]
 severity = "hard"
@@ -120,6 +151,8 @@ severity = "hard"
 [[terms]]
 kernel = "pause layer"
 engine = "context check"
+prod = "context check"
+dev = "pause layer"
 category = "rumination"
 context = ["logs", "traces"]
 severity = "hard"
@@ -127,6 +160,8 @@ severity = "hard"
 [[terms]]
 kernel = "send layer"
 engine = "deep thinking"
+prod = "deep thinking"
+dev = "send layer"
 category = "rumination"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"
@@ -134,6 +169,8 @@ severity = "hard"
 [[terms]]
 kernel = "background layer"
 engine = "background analysis"
+prod = "background analysis"
+dev = "background layer"
 category = "rumination"
 context = ["logs", "traces"]
 severity = "hard"
@@ -141,6 +178,8 @@ severity = "hard"
 [[terms]]
 kernel = "latency budget"
 engine = "response time"
+prod = "response time"
+dev = "latency budget"
 category = "rumination"
 context = ["logs", "traces", "metrics"]
 severity = "hard"
@@ -148,6 +187,8 @@ severity = "hard"
 [[terms]]
 kernel = "<50ms"
 engine = "instant"
+prod = "instant"
+dev = "<50ms"
 category = "rumination"
 context = ["logs", "traces"]
 severity = "soft"
@@ -155,6 +196,8 @@ severity = "soft"
 [[terms]]
 kernel = "KV cache warmth"
 engine = "context ready"
+prod = "context ready"
+dev = "KV cache warmth"
 category = "rumination"
 context = ["logs", "traces"]
 severity = "hard"
@@ -166,6 +209,8 @@ severity = "hard"
 [[terms]]
 kernel = "COSTAR+"
 engine = "prompt builder"
+prod = "prompt builder"
+dev = "COSTAR+"
 category = "costar"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"
@@ -173,6 +218,8 @@ severity = "hard"
 [[terms]]
 kernel = "COSTAR"
 engine = "prompt structure"
+prod = "prompt structure"
+dev = "COSTAR"
 category = "costar"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"
@@ -180,6 +227,8 @@ severity = "hard"
 [[terms]]
 kernel = "Context-Objective-Style-Tone-Audience-Response"
 engine = "structured prompt"
+prod = "structured prompt"
+dev = "COSTAR framework"
 category = "costar"
 context = ["logs", "ui-text"]
 severity = "hard"
@@ -187,6 +236,8 @@ severity = "hard"
 [[terms]]
 kernel = "vibe-speak"
 engine = "natural language"
+prod = "natural language"
+dev = "vibe-speak"
 category = "costar"
 context = ["logs", "ui-text"]
 severity = "hard"
@@ -194,6 +245,8 @@ severity = "hard"
 [[terms]]
 kernel = "engineer-speak"
 engine = "technical specification"
+prod = "technical specification"
+dev = "engineer-speak"
 category = "costar"
 context = ["logs", "ui-text"]
 severity = "hard"
@@ -201,6 +254,8 @@ severity = "hard"
 [[terms]]
 kernel = "translation layer"
 engine = "smart formatting"
+prod = "smart formatting"
+dev = "translation layer"
 category = "costar"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"
@@ -208,6 +263,8 @@ severity = "hard"
 [[terms]]
 kernel = "provider-specific frame"
 engine = "tool optimization"
+prod = "tool optimization"
+dev = "provider-specific frame"
 category = "costar"
 context = ["logs", "traces"]
 severity = "hard"
@@ -215,6 +272,8 @@ severity = "hard"
 [[terms]]
 kernel = "frame tuning"
 engine = "tool-specific adjustment"
+prod = "tool-specific adjustment"
+dev = "frame tuning"
 category = "costar"
 context = ["logs", "traces"]
 severity = "hard"
@@ -226,6 +285,8 @@ severity = "hard"
 [[terms]]
 kernel = "HMM"
 engine = "context switching"
+prod = "context switching"
+dev = "HMM"
 category = "algorithms"
 context = ["logs", "traces"]
 severity = "hard"
@@ -233,6 +294,8 @@ severity = "hard"
 [[terms]]
 kernel = "Hidden Markov Model"
 engine = "context prediction"
+prod = "context prediction"
+dev = "Hidden Markov Model"
 category = "algorithms"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"
@@ -240,6 +303,8 @@ severity = "hard"
 [[terms]]
 kernel = "state transition matrix"
 engine = "prediction model"
+prod = "prediction model"
+dev = "state transition matrix"
 category = "algorithms"
 context = ["logs", "traces"]
 severity = "hard"
@@ -247,6 +312,8 @@ severity = "hard"
 [[terms]]
 kernel = "RRF fusion"
 engine = "smart ranking"
+prod = "smart ranking"
+dev = "RRF fusion"
 category = "algorithms"
 context = ["logs", "traces"]
 severity = "hard"
@@ -254,6 +321,8 @@ severity = "hard"
 [[terms]]
 kernel = "Reciprocal Rank Fusion"
 engine = "combined ranking"
+prod = "combined ranking"
+dev = "Reciprocal Rank Fusion"
 category = "algorithms"
 context = ["logs", "traces"]
 severity = "hard"
@@ -261,6 +330,8 @@ severity = "hard"
 [[terms]]
 kernel = "CAG"
 engine = "cached retrieval"
+prod = "cached retrieval"
+dev = "CAG"
 category = "algorithms"
 context = ["logs", "traces"]
 severity = "hard"
@@ -268,6 +339,8 @@ severity = "hard"
 [[terms]]
 kernel = "Context-Augmented Generation"
 engine = "context-aware response"
+prod = "context-aware response"
+dev = "CAG (Context-Augmented)"
 category = "algorithms"
 context = ["logs", "traces"]
 severity = "hard"
@@ -275,6 +348,8 @@ severity = "hard"
 [[terms]]
 kernel = "RAG pipeline"
 engine = "knowledge retrieval"
+prod = "Deep Research"
+dev = "RAG pipeline"
 category = "algorithms"
 context = ["logs", "traces"]
 severity = "hard"
@@ -282,6 +357,8 @@ severity = "hard"
 [[terms]]
 kernel = "Retrieval-Augmented Generation"
 engine = "knowledge-enhanced response"
+prod = "knowledge-enhanced response"
+dev = "RAG (Retrieval-Augmented)"
 category = "algorithms"
 context = ["logs", "traces"]
 severity = "hard"
@@ -289,6 +366,8 @@ severity = "hard"
 [[terms]]
 kernel = "RKYV"
 engine = "fast serialization"
+prod = "fast serialization"
+dev = "RKYV"
 category = "algorithms"
 context = ["logs", "traces"]
 severity = "hard"
@@ -296,6 +375,8 @@ severity = "hard"
 [[terms]]
 kernel = "zero-copy deserialization"
 engine = "fast data loading"
+prod = "fast data loading"
+dev = "zero-copy deserialization"
 category = "algorithms"
 context = ["logs", "traces"]
 severity = "hard"
@@ -303,6 +384,8 @@ severity = "hard"
 [[terms]]
 kernel = "BM25"
 engine = "keyword search"
+prod = "keyword search"
+dev = "BM25"
 category = "algorithms"
 context = ["logs", "traces"]
 severity = "hard"
@@ -310,6 +393,8 @@ severity = "hard"
 [[terms]]
 kernel = "cross-encoder"
 engine = "relevance scorer"
+prod = "relevance scorer"
+dev = "cross-encoder"
 category = "algorithms"
 context = ["logs", "traces"]
 severity = "hard"
@@ -317,6 +402,8 @@ severity = "hard"
 [[terms]]
 kernel = "dense retrieval"
 engine = "semantic search"
+prod = "semantic search"
+dev = "dense retrieval"
 category = "algorithms"
 context = ["logs", "traces"]
 severity = "hard"
@@ -324,6 +411,8 @@ severity = "hard"
 [[terms]]
 kernel = "hybrid search"
 engine = "smart search"
+prod = "smart search"
+dev = "hybrid search"
 category = "algorithms"
 context = ["logs", "traces"]
 severity = "hard"
@@ -331,6 +420,8 @@ severity = "hard"
 [[terms]]
 kernel = "reranking"
 engine = "result refinement"
+prod = "result refinement"
+dev = "reranking"
 category = "algorithms"
 context = ["logs", "traces"]
 severity = "hard"
@@ -338,6 +429,8 @@ severity = "hard"
 [[terms]]
 kernel = "speculative decoding"
 engine = "fast generation"
+prod = "fast generation"
+dev = "speculative decoding"
 category = "algorithms"
 context = ["logs", "traces"]
 severity = "hard"
@@ -345,6 +438,8 @@ severity = "hard"
 [[terms]]
 kernel = "RRO"
 engine = "prepared context"
+prod = "prepared context"
+dev = "RRO"
 category = "algorithms"
 context = ["logs", "traces"]
 severity = "hard"
@@ -352,6 +447,8 @@ severity = "hard"
 [[terms]]
 kernel = "Reasoning Ready Object"
 engine = "pre-processed context"
+prod = "pre-processed context"
+dev = "Reasoning Ready Object"
 category = "algorithms"
 context = ["logs", "traces"]
 severity = "hard"
@@ -363,6 +460,8 @@ severity = "hard"
 [[terms]]
 kernel = "Maestro"
 engine = "Gus"
+prod = "Gus"
+dev = "Maestro"
 category = "architecture"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"
@@ -370,6 +469,8 @@ severity = "hard"
 [[terms]]
 kernel = "Cortex"
 engine = "knowledge engine"
+prod = "knowledge engine"
+dev = "Cortex"
 category = "architecture"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"
@@ -377,6 +478,8 @@ severity = "hard"
 [[terms]]
 kernel = "Trinity"
 engine = "data layer"
+prod = "System"
+dev = "Trinity"
 category = "architecture"
 context = ["logs", "traces"]
 severity = "hard"
@@ -384,6 +487,165 @@ severity = "hard"
 [[terms]]
 kernel = "OverMind"
 engine = "sandbox"
+prod = "Playground"
+dev = "OverMind"
 category = "architecture"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"
+
+# ─────────────────────────────────────────────────────────────
+# CATEGORY: Stores (frontend display labels)
+# ─────────────────────────────────────────────────────────────
+# These map the engine-safe step names (what Platform::boot()
+# emits via InitEvent) to frontend display labels.
+
+[[terms]]
+kernel = "LibSqlAdapter"
+engine = "Relational store"
+prod = "Data Store"
+dev = "LibSQL"
+category = "stores"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "DuckDbAdapter"
+engine = "Analytics store"
+prod = "Analytics Engine"
+dev = "DuckDB"
+category = "stores"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "SurrealAdapter"
+engine = "Graph store"
+prod = "Cortex"
+dev = "SurrealDB"
+category = "stores"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "MokaAdapter"
+engine = "Cache store"
+prod = "Memory Cache"
+dev = "Moka"
+category = "stores"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+[[terms]]
+kernel = "RroAdapter"
+engine = "Vector store"
+prod = "Vector Store"
+dev = "RRO (Qdrant)"
+category = "stores"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
+
+# ═══════════════════════════════════════════════════════════════
+# FEATURES — replaces flags.ts
+# ═══════════════════════════════════════════════════════════════
+#
+# Feature flags driven from the same SSOT.
+# Frontend codegen produces isFeatureEnabled(name) function.
+# Disabled features are tree-shaken in production builds.
+
+[features.viper_memory]
+enabled = false
+prod = "Long-Term Memory"
+dev = "Viper Memory"
+
+[features.maestro_thoughts]
+enabled = false
+prod = "Thought Process"
+dev = "Maestro Thoughts"
+
+[features.journey_analytics]
+enabled = false
+prod = "Journey Insights"
+dev = "Journey Analytics"
+
+[features.overmind]
+enabled = true
+prod = "Playground"
+dev = "OverMind"
+
+[features.wiredfront]
+enabled = true
+prod = "Studio"
+dev = "WiredFront"
+
+[features.context_debugger]
+enabled = false
+prod = "Context Inspector"
+dev = "Context Debugger"
+
+# ═══════════════════════════════════════════════════════════════
+# PERSONALITY — minion activity flavor text
+# ═══════════════════════════════════════════════════════════════
+#
+# Fun, layman-friendly status messages for agent activity.
+# Warcraft 3 peon vibes + Despicable Me + useful info.
+# Frontend codegen produces minionStatus(action) function.
+
+[personality.minion.idle]
+messages = [
+  "Awaiting orders, my lord",
+  "More work?",
+  "Ready and willing!",
+  "What shall we do today?",
+  "Stop poking me!",
+  "Me not that kind of orc!",
+  "Why you keep clicking on me?",
+]
+
+[personality.minion.processing]
+messages = [
+  "Doing thy bidding",
+  "Zug zug",
+  "On it, boss!",
+  "Working hard or hardly working? ...working hard.",
+  "Banana!",
+  "Something need doing?",
+  "Be happy to!",
+  "Dabu",
+  "Work work",
+]
+
+[personality.minion.searching]
+messages = [
+  "Searching the archives...",
+  "Looking everywhere! Even under the couch cushions.",
+  "Bottom!",
+  "Deep diving into the knowledge base",
+  "Digging through the vaults...",
+]
+
+[personality.minion.complete]
+messages = [
+  "Task complete! Want more work, my lord?",
+  "Done! That was fun. Got more?",
+  "Work complete. Job's done!",
+  "Finished! Wondering if there's more...",
+  "All done. Ready for the next adventure!",
+]
+
+[personality.minion.error]
+messages = [
+  "Hmm, that didn't go as planned...",
+  "Hit a snag. Regrouping.",
+  "Something went sideways.",
+  "Oops. Let me try a different approach.",
+  "We have a problem... but I'm on it!",
+]
+
+[personality.minion.booting]
+messages = [
+  "Warming up the engines...",
+  "Getting everything ready for you",
+  "Setting up your workspace",
+  "Preparing systems...",
+  "Almost there, boss!",
+]

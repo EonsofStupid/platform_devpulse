@@ -8,7 +8,7 @@
 <script lang="ts">
 	import { Stack, HStack, Text, Badge } from "$lib/design/index.js";
 	import { Widget } from "$lib/design/blocks/widgets/index.js";
-	import { flags } from "$lib/sys/cfg/flags.js";
+	import { DEV_MODE } from "$lib/sys/generated/terminology.js";
 	import {
 		Brain,
 		Users,
@@ -44,7 +44,7 @@
 					<Text color="secondary">Queue Depth</Text>
 					<Text>0</Text>
 				</HStack>
-				{#if flags.DEV_MODE}
+				{#if DEV_MODE}
 					<HStack justify="between">
 						<Text size="xs" color="muted">Engine</Text>
 						<Text size="xs" color="muted">Maestro Kernel</Text>
@@ -168,7 +168,7 @@
 					<Text color="secondary">Hit Rate</Text>
 					<Text color="muted">--</Text>
 				</HStack>
-				{#if flags.DEV_MODE}
+				{#if DEV_MODE}
 					<HStack justify="between">
 						<Text size="xs" color="muted">Backend</Text>
 						<Text size="xs" color="muted">Moka (in-memory)</Text>
