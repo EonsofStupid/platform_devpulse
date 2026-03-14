@@ -122,9 +122,13 @@ const ZOMBIE_NAMES: &[&str] = &[
 ];
 
 /// Command-line patterns that identify DevPulse dev processes.
+/// Matches against the full command line so we don't kill unrelated node/vite instances.
 const ZOMBIE_PATTERNS: &[&str] = &[
     "tauri dev",
     "vite --port 1420",
+    "vite.bin.js --port 1420",
+    "node_modules/.bin/tauri",
+    "node_modules\\.bin\\tauri",
 ];
 
 /// Scan for and kill zombie processes from previous dev sessions.

@@ -9,7 +9,9 @@ import { onMount } from "svelte";
 let { children } = $props();
 
 onMount(() => {
-	platformState.init();
+	platformState.init().catch((e) => {
+		console.error("platformState.init() failed:", e);
+	});
 	return () => platformState.destroy();
 });
 </script>

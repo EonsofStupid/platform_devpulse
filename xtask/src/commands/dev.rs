@@ -21,6 +21,7 @@ use crate::stage::{self, Stage};
 use crate::workspace::Workspace;
 use crate::zombie;
 
+use anyhow::Context;
 use std::fs;
 use std::io::Write;
 use std::time::Instant;
@@ -140,6 +141,8 @@ impl Task for Dev {
         }
 
         // ── Stage 7: Launch ──
+        // Spawn as Child so we can assign to Job Object.
+        // exec_in() uses .status() which never returns a handle — zombies escape.
         stage::section("Launch");
         println!("  > pnpm tauri dev");
         println!("  > Vite        → http://localhost:{}", net::DEV_PORT);
@@ -150,7 +153,27 @@ impl Task for Dev {
         log.stage("launch", "START", "pnpm tauri dev")?;
         log.footer(run_start)?;
 
-        ws.exec_in(&ws.desktop_dir(), "pnpm", &["tauri", "dev"])?;
+        let mut tauri_child = ws.spawn_in_verbose(
+            &ws.desktop_dir(),
+            "pnpm",
+            &["tauri", "dev"],
+        )?;
+
+        // Assign pnpm (and its child tree) to the Job Object so Ctrl+C
+        // kills everything — vite, node, cargo, the Tauri backend, all of it.
+        #[cfg(windows)]
+        if let Some(ref guard) = _job_guard {
+            if let Err(e) = guard.assign(&tauri_child) {
+                eprintln!("  [!!] failed to assign tauri dev to job: {e}");
+                log.stage("launch", "WARN", &format!("job assign failed: {e}"))?;
+            }
+        }
+
+        let status = tauri_child.wait().context("failed to wait on pnpm tauri dev")?;
+        if !status.success() {
+            let code = status.code().unwrap_or(-1);
+            anyhow::bail!("`pnpm tauri dev` exited with code {code}");
+        }
 
         // _job_guard drops here → all remaining children killed by kernel
         Ok(())

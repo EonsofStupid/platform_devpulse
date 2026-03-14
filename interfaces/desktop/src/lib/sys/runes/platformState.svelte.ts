@@ -4,10 +4,16 @@
  * @description Unified platform state — merges boot progress + health into one reactive class.
  *
  * ## Boot Strategy: Snapshot-First
- * 1. On init(), call `get_boot_state` to get accumulated events from Rust.
- * 2. Apply snapshot (replay all events that fired before we mounted).
- * 3. Register live event listeners for any events that fire after.
- * 4. Events are idempotent — Map keyed by step name, so duplicates are safe.
+ * 1. Wait for Tauri IPC bridge to be ready (poll window.__TAURI_INTERNALS__).
+ * 2. On init(), call `get_boot_state` to get accumulated events from Rust.
+ * 3. Apply snapshot (replay all events that fired before we mounted).
+ * 4. Register live event listeners for any events that fire after.
+ * 5. Events are idempotent — Map keyed by step name, so duplicates are safe.
+ *
+ * ## Lifecycle Safety
+ * - init() is guarded against double-calls and destroyed-during-init races.
+ * - destroy() is idempotent — safe to call multiple times.
+ * - All intervals and listeners are tracked and cleaned up.
  */
 
 import { invoke } from "@tauri-apps/api/core";
@@ -29,6 +35,34 @@ export interface SubsystemInfo {
 }
 
 const HEALTH_POLL_INTERVAL_MS = 15_000;
+const TAURI_READY_POLL_MS = 50;
+const TAURI_READY_TIMEOUT_MS = 10_000;
+
+/**
+ * Wait for Tauri IPC bridge to be available.
+ * The webview can mount before the Rust backend connects the IPC channel.
+ * Without this, `listen()` and `invoke()` crash with "Cannot read properties of undefined".
+ */
+function waitForTauri(): Promise<void> {
+	return new Promise((resolve, reject) => {
+		// Already available
+		if (typeof window !== "undefined" && (window as any).__TAURI_INTERNALS__) {
+			resolve();
+			return;
+		}
+
+		const start = Date.now();
+		const check = setInterval(() => {
+			if (typeof window !== "undefined" && (window as any).__TAURI_INTERNALS__) {
+				clearInterval(check);
+				resolve();
+			} else if (Date.now() - start > TAURI_READY_TIMEOUT_MS) {
+				clearInterval(check);
+				reject(new Error(`Tauri IPC not available after ${TAURI_READY_TIMEOUT_MS}ms`));
+			}
+		}, TAURI_READY_POLL_MS);
+	});
+}
 
 function mapInitStatus(status: InitStatus): SubsystemState {
 	switch (status) {
@@ -51,6 +85,8 @@ class PlatformState {
 
 	private healthInterval: ReturnType<typeof setInterval> | null = null;
 	private unlisteners: Array<() => void> = [];
+	private initialized = false;
+	private destroyed = false;
 
 	// Derived state
 	get isReady(): boolean {
@@ -113,13 +149,33 @@ class PlatformState {
 
 	/** Initialize — call once from root layout onMount. */
 	async init(): Promise<void> {
+		if (this.initialized) return;
+		this.initialized = true;
+		this.destroyed = false;
+
+		// 0. Wait for Tauri IPC bridge — prevents transformCallback crash
+		try {
+			await waitForTauri();
+		} catch (e) {
+			console.error("platformState: Tauri IPC never became available:", e);
+			this.phase = "failed";
+			this.error = "Tauri IPC bridge unavailable";
+			return;
+		}
+
+		// Bail if destroy() was called while we were waiting
+		if (this.destroyed) return;
+
 		// 1. Catch up — get snapshot of boot state accumulated in Rust
 		try {
 			const snapshot = await invoke<BootSnapshot>("get_boot_state");
+			if (this.destroyed) return;
 			this.applySnapshot(snapshot);
 		} catch (e) {
 			console.warn("get_boot_state unavailable, relying on events:", e);
 		}
+
+		if (this.destroyed) return;
 
 		// 2. Register live event listeners (idempotent — Map keyed by step name)
 		const unlistenSubsystem = await listen<InitEvent>(
@@ -130,6 +186,11 @@ class PlatformState {
 		);
 		this.unlisteners.push(unlistenSubsystem);
 
+		if (this.destroyed) {
+			unlistenSubsystem();
+			return;
+		}
+
 		const unlistenPhase = await listen<{
 			phase: string;
 			health?: SystemHealth;
@@ -138,6 +199,10 @@ class PlatformState {
 			this.applyPhaseTransition(e.payload);
 		});
 		this.unlisteners.push(unlistenPhase);
+
+		if (this.destroyed) {
+			this.cleanupListeners();
+		}
 	}
 
 	/** Apply a full boot snapshot (catch-up from Rust state). */
@@ -193,7 +258,7 @@ class PlatformState {
 
 	/** Start periodic health polling (after boot). */
 	private startHealthPolling(): void {
-		if (this.healthInterval !== null) return;
+		if (this.healthInterval !== null || this.destroyed) return;
 
 		// Immediate first poll
 		this.refreshHealth();
@@ -204,11 +269,14 @@ class PlatformState {
 	}
 
 	private async refreshHealth(): Promise<void> {
+		if (this.destroyed) return;
 		try {
 			const h = await invoke<SystemHealth>("get_status");
+			if (this.destroyed) return;
 			this.health = h;
 			this.error = null;
 		} catch (e) {
+			if (this.destroyed) return;
 			// Platform might still be booting — silently ignore
 			if (this.isReady) {
 				this.error = e instanceof Error ? e.message : String(e);
@@ -216,10 +284,16 @@ class PlatformState {
 		}
 	}
 
-	/** Cleanup — call from layout onDestroy. */
-	destroy(): void {
+	private cleanupListeners(): void {
 		this.unlisteners.forEach((fn) => fn());
 		this.unlisteners = [];
+	}
+
+	/** Cleanup — call from layout onDestroy. Idempotent. */
+	destroy(): void {
+		this.destroyed = true;
+		this.initialized = false;
+		this.cleanupListeners();
 		if (this.healthInterval !== null) {
 			clearInterval(this.healthInterval);
 			this.healthInterval = null;
