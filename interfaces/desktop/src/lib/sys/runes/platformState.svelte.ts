@@ -182,6 +182,8 @@ class PlatformState {
 			console.error("platformState: Tauri IPC never became available:", e);
 			this.phase = "failed";
 			this.error = "Tauri IPC bridge unavailable";
+			this.bootStepLabel = "Tauri IPC bridge unavailable";
+			this.stopBootTimer();
 			return;
 		}
 
