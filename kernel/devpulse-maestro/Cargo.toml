@@ -24,6 +24,9 @@ surrealdb = { workspace = true }
 moka = { workspace = true }
 rro = { workspace = true, optional = true }
 
+# Observability
+tracing = { workspace = true }
+
 # Async traits
 async-trait = "0.1"
 

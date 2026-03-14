@@ -304,6 +304,7 @@ impl StoreEntry {
             enabled: true,
             kind: "libsql".to_string(),
             path: "system/libsql/platform.db".to_string(),
+            retry: StoreRetryConfig::default(),
         }
     }
 
@@ -313,6 +314,7 @@ impl StoreEntry {
             enabled: true,
             kind: "duckdb".to_string(),
             path: "system/duckdb/analytics.duckdb".to_string(),
+            retry: StoreRetryConfig::default(),
         }
     }
 
@@ -322,6 +324,7 @@ impl StoreEntry {
             enabled: true,
             kind: "libsql".to_string(),
             path: "user/libsql/user.db".to_string(),
+            retry: StoreRetryConfig::default(),
         }
     }
 
@@ -369,6 +372,7 @@ impl GraphStoreEntry {
             path: "system/surreal/reasoning".to_string(),
             namespace: "system".to_string(),
             database: "engine".to_string(),
+            retry: StoreRetryConfig::default(),
         }
     }
 
@@ -380,6 +384,7 @@ impl GraphStoreEntry {
             path: "user/surreal/profile".to_string(),
             namespace: "user".to_string(),
             database: "profile".to_string(),
+            retry: StoreRetryConfig::default(),
         }
     }
 
@@ -391,6 +396,7 @@ impl GraphStoreEntry {
             path: "global/surreal/knowledge".to_string(),
             namespace: "global".to_string(),
             database: "knowledge".to_string(),
+            retry: StoreRetryConfig::default(),
         }
     }
 
