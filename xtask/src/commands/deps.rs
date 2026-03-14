@@ -98,19 +98,24 @@ impl Task for Deps {
 }
 
 /// Force cargo to re-fetch git dependencies.
+///
+/// Shows real-time cargo output (inherited stdio) so the user sees
+/// download/update progress. Network failures are non-fatal — cached
+/// deps may still work.
 fn update_git_deps(ws: &Workspace) -> Result<()> {
-    // Update only git sources, not registry
-    let output = ws.output("cargo", &["update"])?;
-    if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        // Non-fatal: cargo update can fail if network is down but deps are cached
-        if stderr.contains("failed to fetch") || stderr.contains("network") {
-            eprintln!("  [WARN] cargo update failed (network?) — using cached deps");
-        } else {
-            anyhow::bail!("cargo update failed: {stderr}");
+    match ws.exec("cargo", &["update"]) {
+        Ok(_) => Ok(()),
+        Err(e) => {
+            let msg = format!("{e:#}");
+            // Non-fatal: cargo update can fail if network is down but deps are cached
+            if msg.contains("failed to fetch") || msg.contains("network") {
+                eprintln!("  [WARN] cargo update failed (network?) — using cached deps");
+                Ok(())
+            } else {
+                Err(e).context("cargo update failed")
+            }
         }
     }
-    Ok(())
 }
 
 /// Verify a single repo is reachable via git ls-remote.

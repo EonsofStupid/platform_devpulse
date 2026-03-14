@@ -381,7 +381,7 @@ struct HeartbeatState {
 use anyhow::Context;
 
 /// Format a duration as human-readable: "1.2s", "2m 15s", "45ms"
-pub fn format_duration(d: std::time::Duration) -> String {
+fn format_duration(d: std::time::Duration) -> String {
     let secs = d.as_secs();
     let ms = d.as_millis();
 
