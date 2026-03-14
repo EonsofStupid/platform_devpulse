@@ -233,6 +233,63 @@ impl Platform {
         self.global_graph.as_ref()
     }
 
+    /// Graceful shutdown — close all stores in reverse boot order.
+    ///
+    /// Flushes WALs, checkpoints databases, and releases file locks so the
+    /// next process can open them immediately (hot-reload, restart).
+    /// Enforces a 5-second deadline — if exceeded, logs a warning and drops.
+    pub async fn shutdown(&self) {
+        let start = Instant::now();
+        tracing::info!("Platform shutting down — closing stores");
+        let deadline = std::time::Duration::from_secs(5);
+
+        // Reverse boot order: graph → analytics → cache → relational
+        // Graph stores share one SurrealKV — close system graph first (owns the adapter)
+        Self::shutdown_store_with_deadline(&self.global_graph, &deadline, start).await;
+        Self::shutdown_store_with_deadline(&self.user_graph, &deadline, start).await;
+        Self::shutdown_store_with_deadline(&self.system_graph, &deadline, start).await;
+        Self::shutdown_store_with_deadline(&self.system_analytics, &deadline, start).await;
+        // Cache (Moka) is in-memory — no-op shutdown, but call for consistency
+        Self::shutdown_store_with_deadline(&self.system_cache, &deadline, start).await;
+        Self::shutdown_store_with_deadline(&self.user_relational, &deadline, start).await;
+        Self::shutdown_store_with_deadline(&self.system_relational, &deadline, start).await;
+
+        let elapsed = start.elapsed();
+        tracing::info!(
+            elapsed_ms = elapsed.as_millis() as u64,
+            "Platform shutdown complete"
+        );
+    }
+
+    /// Shut down a single store, respecting the overall deadline.
+    async fn shutdown_store_with_deadline<S: Store>(
+        store: &Option<Arc<S>>,
+        deadline: &std::time::Duration,
+        start: Instant,
+    ) {
+        let Some(store) = store else { return };
+        let elapsed = start.elapsed();
+        if elapsed >= *deadline {
+            tracing::warn!(
+                store = store.name(),
+                "Shutdown deadline exceeded — skipping"
+            );
+            return;
+        }
+        let remaining = *deadline - elapsed;
+        match tokio::time::timeout(remaining, store.shutdown()).await {
+            Ok(Ok(())) => {
+                tracing::debug!(store = store.name(), "Store shutdown OK");
+            }
+            Ok(Err(e)) => {
+                tracing::warn!(store = store.name(), error = %e, "Store shutdown error");
+            }
+            Err(_) => {
+                tracing::warn!(store = store.name(), "Store shutdown timed out");
+            }
+        }
+    }
+
     /// Get the data directory.
     pub fn data_dir(&self) -> &PathBuf {
         &self.data_dir

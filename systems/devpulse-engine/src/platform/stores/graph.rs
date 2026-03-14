@@ -68,6 +68,12 @@ impl Store for GraphStore {
     fn is_ready(&self) -> bool {
         true
     }
+
+    async fn shutdown(&self) -> Result<()> {
+        tracing::info!(store = self.label, "Shutting down SurrealDB store");
+        self.adapter.close().await;
+        Ok(())
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════

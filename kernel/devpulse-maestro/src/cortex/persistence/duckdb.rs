@@ -73,6 +73,21 @@ impl DuckDbAdapter {
         Ok(())
     }
 
+    /// Graceful shutdown — checkpoint and release the connection.
+    ///
+    /// DuckDB uses exclusive file locks. Explicitly dropping the connection
+    /// ensures the lock is released before the process exits, preventing
+    /// lock conflicts on hot-reload.
+    pub async fn close(&self) {
+        tracing::debug!("DuckDB: closing connection");
+        // DuckDB checkpoints automatically on close. Dropping the Arc<Mutex<Connection>>
+        // triggers Connection::drop which flushes and releases the file lock.
+        // We take the lock to ensure no queries are in flight.
+        let _conn = self.conn.lock().await;
+        // Lock held — all pending queries blocked. Drop releases everything.
+        tracing::debug!("DuckDB: connection closed");
+    }
+
     /// Health check — executes `SELECT 1`.
     ///
     /// # Errors

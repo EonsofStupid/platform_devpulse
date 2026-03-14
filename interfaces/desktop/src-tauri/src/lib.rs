@@ -119,8 +119,22 @@ pub fn run() {
             commands::window::close_window,
             commands::window::focus_window,
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .build(tauri::generate_context!())
+        .expect("error while building tauri application")
+        .run(|app, event| {
+            if let tauri::RunEvent::Exit = event {
+                tracing::info!("Tauri exit event — initiating platform shutdown");
+                let state = app.state::<PlatformState>();
+                // Block on shutdown with the tokio runtime that's still alive
+                tauri::async_runtime::block_on(async {
+                    let lock = state.platform.read().await;
+                    if let Some(platform) = lock.as_ref() {
+                        platform.shutdown().await;
+                    }
+                });
+                tracing::info!("Platform shutdown complete — process exiting");
+            }
+        });
 }
 
 /// Background boot task — boots all platform stores and emits progress events.

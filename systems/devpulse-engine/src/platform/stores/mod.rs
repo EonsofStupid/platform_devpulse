@@ -41,4 +41,13 @@ pub trait Store: Send + Sync {
 
     /// Whether the store is ready to serve.
     fn is_ready(&self) -> bool;
+
+    /// Graceful shutdown — flush and release resources.
+    ///
+    /// Called during platform shutdown before process exit. Implementations
+    /// should checkpoint WAL, flush buffers, and release file locks.
+    /// Default is no-op for stores that don't need explicit cleanup (e.g. Moka).
+    async fn shutdown(&self) -> Result<()> {
+        Ok(())
+    }
 }

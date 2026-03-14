@@ -145,7 +145,7 @@ pub async fn execute(
 // Simple store boot helpers
 // ═══════════════════════════════════════════════════════════════
 
-/// Boot a relational (LibSQL) store with Windows file-lock retry.
+/// Boot a relational (LibSQL) store with file-lock retry.
 async fn boot_relational(
     data_dir: &Path,
     entry: &config::StoreEntry,
@@ -162,8 +162,9 @@ async fn boot_relational(
     let start = Instant::now();
     let raw_path = entry.resolve_path(data_dir);
     let path = sanitize_path(&raw_path, win_config);
+    let retry_cfg = entry.retry.to_retry_config();
 
-    let result = retry::retry_on_lock_async(win_config, label, || {
+    let result = retry::retry_on_lock_async(&retry_cfg, label, || {
         let p = path.clone();
         async move { RelationalStore::boot(&p, schema, label).await }
     })
@@ -193,10 +194,11 @@ async fn boot_relational(
 ///
 /// DuckDB uses an exclusive file lock. On Windows hot-reload, the previous
 /// process may not have released its lock yet. Retry with exponential backoff.
+/// DuckDB's `boot()` is synchronous — wrapped in `spawn_blocking` for async retry.
 async fn boot_analytics(
     data_dir: &Path,
     entry: &config::StoreEntry,
-    win_config: &config::WindowsConfig,
+    _win_config: &config::WindowsConfig,
     schema: &'static str,
     label: &'static str,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
@@ -208,11 +210,16 @@ async fn boot_analytics(
     on_event(InitEvent::running(label, "Opening database"));
     let start = Instant::now();
     let raw_path = entry.resolve_path(data_dir);
-    let path = sanitize_path(&raw_path, win_config);
+    let path = sanitize_path(&raw_path, _win_config);
+    let retry_cfg = entry.retry.to_retry_config();
 
-    let result = retry::retry_on_lock_async(win_config, label, || {
+    let result = retry::retry_on_lock_async(&retry_cfg, label, || {
         let p = path.clone();
-        async move { AnalyticsStore::boot(&p, schema, label) }
+        async move {
+            tokio::task::spawn_blocking(move || AnalyticsStore::boot(&p, schema, label))
+                .await
+                .map_err(|e| anyhow::anyhow!("DuckDB spawn_blocking failed: {e}"))?
+        }
     })
     .await;
 

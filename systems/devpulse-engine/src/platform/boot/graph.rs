@@ -5,10 +5,10 @@
 //! HTTP server on :8822 for external tool access.
 //!
 //! # Recovery Policy
-//! On first failure: retry after delay (file lock, antivirus).
-//! On second failure: report error, return None for all graph stores.
+//! Uses the standard retry utility with exponential backoff on file lock errors.
 //! **NEVER delete data.** Transient failures must not destroy the knowledge graph.
 
+use crate::platform::boot::retry;
 use crate::platform::config::{PlatformBootConfig, sanitize_path};
 use crate::platform::init::InitEvent;
 use crate::platform::server;
@@ -60,18 +60,32 @@ pub async fn boot_consolidated(
         }
     }
 
-    // Open ONE SurrealKV instance — system namespace is the "boot" namespace
+    // Open ONE SurrealKV instance with retry — uses per-store config
     let sys_cfg = &boot_config.stores.system.graph;
-    let adapter = match open_with_retry(
-        &surreal_path,
-        &sys_cfg.namespace,
-        &sys_cfg.database,
-        SYSTEM_GRAPH_SCHEMA,
-        boot_config.windows.file_lock_retry_delay_ms,
-        on_event,
-    ).await {
-        Some(a) => a,
-        None => return (None, None, None),
+    let retry_cfg = sys_cfg.retry.to_retry_config();
+    let ns = sys_cfg.namespace.clone();
+    let db = sys_cfg.database.clone();
+
+    let adapter = {
+        let path = surreal_path.clone();
+        let result = retry::retry_on_lock_async(&retry_cfg, "Graph store (SurrealDB)", || {
+            let p = path.clone();
+            let n = ns.clone();
+            let d = db.clone();
+            async move {
+                SurrealAdapter::open_with_ns(&p, &n, &d, SYSTEM_GRAPH_SCHEMA).await
+            }
+        })
+        .await;
+
+        match result {
+            Ok(a) => a,
+            Err(e) => {
+                tracing::error!(error = ?e, path = %surreal_path.display(), "SurrealDB boot failed after retries");
+                on_event(InitEvent::error("Graph store", &format!("{e:#}")));
+                return (None, None, None);
+            }
+        }
     };
 
     let adapter = Arc::new(adapter);
@@ -144,41 +158,4 @@ pub async fn boot_consolidated(
     };
 
     (system_graph, user_graph, global_graph)
-}
-
-/// Open SurrealDB with one retry on failure.
-///
-/// First attempt: try to open. On failure: wait (file lock, antivirus may
-/// release), then retry once. **NEVER deletes data.**
-///
-/// Returns `Some(adapter)` on success, `None` on failure (with error reported).
-async fn open_with_retry(
-    path: &std::path::Path,
-    namespace: &str,
-    database: &str,
-    schema: &str,
-    retry_delay_ms: u64,
-    on_event: &(impl Fn(InitEvent) + Send + 'static),
-) -> Option<SurrealAdapter> {
-    match SurrealAdapter::open_with_ns(path, namespace, database, schema).await {
-        Ok(adapter) => return Some(adapter),
-        Err(e) => {
-            tracing::error!(error = ?e, "SurrealDB failed to open");
-            tracing::info!("Retrying SurrealDB after delay (no data deletion)");
-            tokio::time::sleep(std::time::Duration::from_millis(retry_delay_ms)).await;
-        }
-    }
-
-    match SurrealAdapter::open_with_ns(path, namespace, database, schema).await {
-        Ok(adapter) => Some(adapter),
-        Err(retry_err) => {
-            tracing::error!(
-                error = ?retry_err,
-                path = %path.display(),
-                "SurrealDB failed on retry — graph stores unavailable"
-            );
-            on_event(InitEvent::error("Graph store", &format!("{retry_err:#}")));
-            None
-        }
-    }
 }

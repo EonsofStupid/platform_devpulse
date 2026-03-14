@@ -52,6 +52,12 @@ impl Store for AnalyticsStore {
     fn is_ready(&self) -> bool {
         true
     }
+
+    async fn shutdown(&self) -> Result<()> {
+        tracing::info!(store = self.label, "Shutting down DuckDB store");
+        self.adapter.close().await;
+        Ok(())
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════

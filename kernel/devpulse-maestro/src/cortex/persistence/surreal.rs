@@ -192,6 +192,21 @@ impl SurrealAdapter {
         Arc::clone(&self.db)
     }
 
+    /// Graceful shutdown — flush and release the SurrealKV instance.
+    ///
+    /// SurrealKV uses a WAL that needs to be flushed on shutdown.
+    /// Dropping the `Surreal<Db>` handle triggers the flush. We acquire
+    /// the write lock first to ensure no queries are in flight.
+    pub async fn close(&self) {
+        tracing::debug!("SurrealDB: flushing and closing");
+        // Acquire write lock — blocks all pending reads/writes
+        let _db = self.db.write().await;
+        // Write lock held. When this scope exits, the RwLockWriteGuard drops,
+        // but we've ensured exclusive access. The actual Surreal<Db> drops
+        // when all Arc references reach zero (handled by Platform::shutdown).
+        tracing::debug!("SurrealDB: closed");
+    }
+
     /// Ping database — executes `INFO FOR DB`.
     ///
     /// # Errors

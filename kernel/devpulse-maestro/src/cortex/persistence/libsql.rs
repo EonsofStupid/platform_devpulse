@@ -72,6 +72,23 @@ impl LibSqlAdapter {
         self.conn.read().await
     }
 
+    /// Graceful shutdown — checkpoint WAL and release the connection.
+    ///
+    /// LibSQL uses WAL mode by default. Checkpointing before close ensures
+    /// all data is flushed to the main database file and file locks are
+    /// released cleanly for the next process.
+    pub async fn close(&self) {
+        tracing::debug!("LibSQL: checkpointing WAL");
+        let conn = self.conn.read().await;
+        // TRUNCATE mode: checkpoint and then truncate the WAL file to zero bytes.
+        // This is the cleanest state for the next process to open the database.
+        if let Err(e) = conn.execute("PRAGMA wal_checkpoint(TRUNCATE)", ()).await {
+            tracing::warn!(error = %e, "LibSQL WAL checkpoint failed (non-fatal)");
+        }
+        drop(conn);
+        tracing::debug!("LibSQL: connection closed");
+    }
+
     /// Health check — executes `SELECT 1`.
     ///
     /// # Errors

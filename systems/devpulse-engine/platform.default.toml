@@ -29,11 +29,14 @@ enabled = true
 enabled = true
 kind = "libsql"
 path = "system/libsql/platform.db"
+retry = { max_retries = 5, base_delay_ms = 500 }
 
 [stores.system.analytics]
 enabled = true
 kind = "duckdb"
 path = "system/duckdb/analytics.duckdb"
+# DuckDB uses exclusive file locks — generous retry for hot-reload
+retry = { max_retries = 5, base_delay_ms = 500 }
 
 [stores.system.graph]
 enabled = true
@@ -41,6 +44,8 @@ kind = "surreal"
 path = "system/surreal/reasoning"
 namespace = "system"
 database = "engine"
+# SurrealKV WAL flush on shutdown can take longer — extra generous
+retry = { max_retries = 5, base_delay_ms = 750 }
 
 [stores.system.cache]
 enabled = true
@@ -61,6 +66,7 @@ path = "system/rro/storage"
 enabled = true
 kind = "libsql"
 path = "user/libsql/user.db"
+retry = { max_retries = 5, base_delay_ms = 500 }
 
 [stores.user.graph]
 enabled = true
@@ -68,6 +74,7 @@ kind = "surreal"
 path = "user/surreal/profile"
 namespace = "user"
 database = "profile"
+retry = { max_retries = 5, base_delay_ms = 750 }
 
 # ── Global scope ─────────────────────────────────────────────────
 # Cross-project shared knowledge. Decisions, patterns, learnings.
@@ -78,6 +85,7 @@ kind = "surreal"
 path = "global/surreal/knowledge"
 namespace = "global"
 database = "knowledge"
+retry = { max_retries = 5, base_delay_ms = 750 }
 
 # ── Project scope ────────────────────────────────────────────────
 # Per-project data lives under projects/{id}/ — created on demand.
