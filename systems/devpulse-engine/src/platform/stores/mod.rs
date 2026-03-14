@@ -7,6 +7,8 @@ pub mod analytics;
 pub mod cache;
 pub mod graph;
 pub mod relational;
+#[cfg(feature = "rro")]
+pub mod vector;
 
 use anyhow::Result;
 

@@ -7,6 +7,7 @@ edition = "2021"
 default = ["kernel"]
 kernel = []
 engine = []
+rro = ["devpulse-maestro/rro"]
 
 [dependencies]
 # Core
@@ -21,6 +22,9 @@ chrono = { workspace = true }
 
 # Kernel (the brain — always linked, facade controls exposure)
 devpulse-maestro = { path = "../../kernel/devpulse-maestro" }
+
+# HTTP server (SurrealDB endpoint on :8822)
+axum = "0.8"
 
 # Config
 toml = "0.8"

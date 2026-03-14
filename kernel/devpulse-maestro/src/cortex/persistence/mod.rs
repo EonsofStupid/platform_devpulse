@@ -1,10 +1,11 @@
 //! Persistence layer for Maestro
 //!
-//! Four embedded stores for different workloads:
+//! Five embedded stores for different workloads:
 //! - `LibSQL`: Relational data (users, settings, projects, messages)
 //! - `DuckDB`: Analytics (user + AI metrics, telemetry)
 //! - `SurrealDB`: Reasoning graph (knowledge, states, transitions)
 //! - `Moka`: In-memory cache (hot data, TTL-based eviction)
+//! - `RRO`: Vector similarity search (embedded Qdrant — two-tier retrieval)
 //!
 //! All adapters implement `PersistenceAdapter` for signal-based access
 //! plus specialized traits for their specific use cases.
@@ -16,6 +17,8 @@ pub mod traits;
 pub mod duckdb;
 pub mod libsql;
 pub mod moka;
+#[cfg(feature = "rro")]
+pub mod rro;
 pub mod surreal;
 
 // Re-exports for convenience
@@ -23,10 +26,12 @@ pub use config::{PersistenceConfig, StoreKind, SurrealNamespace};
 pub use duckdb::DuckDbAdapter;
 pub use libsql::LibSqlAdapter;
 pub use moka::{MokaAdapter, MokaCacheConfig};
+#[cfg(feature = "rro")]
+pub use rro::RroAdapter;
 pub use surreal::SurrealAdapter;
 pub use traits::{
-    AnalyticsAdapter, CacheAdapter, GraphAdapter, PersistenceAdapter, SqlAdapter, SqlRow, SqlValue,
-    TypedPersistence,
+    AnalyticsAdapter, CacheAdapter, GraphAdapter, PersistenceAdapter, SparseVector, SqlAdapter,
+    SqlRow, SqlValue, TypedPersistence, VectorAdapter, VectorMatch,
 };
 
 use anyhow::Result;
@@ -39,6 +44,8 @@ pub struct PersistenceLayer {
     duckdb: Option<Arc<DuckDbAdapter>>,
     surreal: Option<Arc<SurrealAdapter>>,
     moka: Option<Arc<MokaAdapter>>,
+    #[cfg(feature = "rro")]
+    rro: Option<Arc<RroAdapter>>,
 }
 
 impl PersistenceLayer {
@@ -50,6 +57,8 @@ impl PersistenceLayer {
             duckdb: None,
             surreal: None,
             moka: None,
+            #[cfg(feature = "rro")]
+            rro: None,
         }
     }
 
@@ -99,6 +108,12 @@ impl PersistenceLayer {
         self.moka.as_ref()
     }
 
+    /// Get the `RRO` vector store adapter.
+    #[cfg(feature = "rro")]
+    pub fn rro(&self) -> Option<&Arc<RroAdapter>> {
+        self.rro.as_ref()
+    }
+
     /// Check if a store is initialized
     pub fn is_initialized(&self, kind: StoreKind) -> bool {
         match kind {
@@ -106,6 +121,10 @@ impl PersistenceLayer {
             StoreKind::DuckDb => self.duckdb.is_some(),
             StoreKind::Surreal => self.surreal.is_some(),
             StoreKind::Moka => self.moka.is_some(),
+            #[cfg(feature = "rro")]
+            StoreKind::Rro => self.rro.is_some(),
+            #[cfg(not(feature = "rro"))]
+            StoreKind::Rro => false,
         }
     }
 
@@ -214,6 +233,31 @@ impl PersistenceLayer {
             adapter.ping()
         } else {
             anyhow::bail!("Moka cache not initialized")
+        }
+    }
+
+    /// Initialize `RRO` vector store.
+    ///
+    /// # Errors
+    /// Returns error if the vector store cannot be opened.
+    #[cfg(feature = "rro")]
+    pub async fn init_rro(&mut self) -> Result<()> {
+        let path = self.config.store_path(StoreKind::Rro);
+        let adapter = RroAdapter::open(&path).await?;
+        self.rro = Some(Arc::new(adapter));
+        Ok(())
+    }
+
+    /// Ping `RRO` — health check.
+    ///
+    /// # Errors
+    /// Returns error if `RRO` is not initialized or unreachable.
+    #[cfg(feature = "rro")]
+    pub async fn ping_rro(&self) -> Result<()> {
+        if let Some(adapter) = &self.rro {
+            adapter.ping().await
+        } else {
+            anyhow::bail!("RRO not initialized")
         }
     }
 }

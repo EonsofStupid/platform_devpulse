@@ -179,3 +179,83 @@ pub trait CacheAdapter: PersistenceAdapter {
     /// Number of entries currently in the cache.
     fn entry_count(&self) -> u64;
 }
+
+/// A single scored result from vector similarity search.
+#[derive(Debug, Clone)]
+pub struct VectorMatch {
+    /// Point ID in the vector store.
+    pub id: String,
+    /// Similarity score (higher = more similar).
+    pub score: f32,
+    /// Serialized payload attached to this point.
+    pub payload: serde_json::Value,
+}
+
+/// Sparse vector for BM25 / keyword-based retrieval.
+#[derive(Debug, Clone)]
+pub struct SparseVector {
+    /// Non-zero dimension indices.
+    pub indices: Vec<u32>,
+    /// Values at those indices.
+    pub values: Vec<f32>,
+}
+
+/// Vector similarity search operations for `RRO` (embedded Qdrant).
+///
+/// Supports dense vectors (semantic similarity), sparse vectors (BM25),
+/// and hybrid search with RRF fusion. This is the 5th adapter trait
+/// completing the persistence layer alongside SQL, Graph, Analytics, and Cache.
+#[allow(async_fn_in_trait)]
+pub trait VectorAdapter: Send + Sync {
+    /// Create a named collection with the given vector dimensionality.
+    async fn create_collection(&self, name: &str, dimension: u32) -> Result<()>;
+
+    /// Delete a collection and all its points.
+    async fn delete_collection(&self, name: &str) -> Result<()>;
+
+    /// Check whether a collection exists.
+    async fn collection_exists(&self, name: &str) -> Result<bool>;
+
+    /// Upsert a point with a dense embedding vector and JSON payload.
+    async fn upsert(
+        &self,
+        collection: &str,
+        id: &str,
+        vector: &[f32],
+        payload: serde_json::Value,
+    ) -> Result<()>;
+
+    /// Upsert a point with both dense and sparse vectors.
+    async fn upsert_hybrid(
+        &self,
+        collection: &str,
+        id: &str,
+        dense: &[f32],
+        sparse: &SparseVector,
+        payload: serde_json::Value,
+    ) -> Result<()>;
+
+    /// Dense similarity search — returns top `limit` matches by cosine similarity.
+    async fn search(
+        &self,
+        collection: &str,
+        vector: &[f32],
+        limit: usize,
+        filter: Option<serde_json::Value>,
+    ) -> Result<Vec<VectorMatch>>;
+
+    /// Sparse search (BM25) — returns top `limit` matches by sparse similarity.
+    async fn search_sparse(
+        &self,
+        collection: &str,
+        sparse: &SparseVector,
+        limit: usize,
+        filter: Option<serde_json::Value>,
+    ) -> Result<Vec<VectorMatch>>;
+
+    /// Delete a point by ID.
+    async fn delete_point(&self, collection: &str, id: &str) -> Result<bool>;
+
+    /// Count total points in a collection.
+    async fn point_count(&self, collection: &str) -> Result<u64>;
+}

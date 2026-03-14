@@ -1,3 +1,5 @@
+/// Context-Augmented Generation (CAG) retrieval pipeline.
+pub mod cag;
 /// KV cache tier for attention optimization.
 pub mod kv_cache;
 /// Minion task workers.

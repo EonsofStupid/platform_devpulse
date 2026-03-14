@@ -49,6 +49,11 @@ max_capacity = 10_000
 time_to_live_secs = 300
 time_to_idle_secs = 60
 
+[stores.system.vector]
+enabled = true
+kind = "rro"
+path = "system/rro/storage"
+
 # ── User scope ───────────────────────────────────────────────────
 # User-owned data. Sessions, messages, preferences, personal memory.
 

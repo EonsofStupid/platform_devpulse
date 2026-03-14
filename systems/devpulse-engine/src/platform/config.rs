@@ -177,6 +177,9 @@ pub struct SystemStoresConfig {
     /// In-memory cache (`Moka`).
     #[serde(default)]
     pub cache: CacheStoreEntry,
+    /// Vector store (`RRO`) — embedded Qdrant for two-tier retrieval.
+    #[serde(default)]
+    pub vector: VectorStoreEntry,
 }
 
 impl Default for SystemStoresConfig {
@@ -186,6 +189,7 @@ impl Default for SystemStoresConfig {
             analytics: StoreEntry::system_analytics_default(),
             graph: GraphStoreEntry::system_default(),
             cache: CacheStoreEntry::default(),
+            vector: VectorStoreEntry::default(),
         }
     }
 }
@@ -439,17 +443,34 @@ impl CacheStoreEntry {
     }
 }
 
-/// Configuration for the vector store (`RRO`).
+/// Configuration for the vector store (`RRO` — embedded Qdrant).
 #[derive(Debug, Clone, Deserialize)]
 pub struct VectorStoreEntry {
     /// Whether this store is enabled.
     #[serde(default)]
     pub enabled: bool,
+    /// Store kind identifier.
+    #[serde(default = "default_rro_kind")]
+    pub kind: String,
+    /// Relative path from data directory for RRO storage.
+    #[serde(default = "default_rro_path")]
+    pub path: String,
 }
 
 impl Default for VectorStoreEntry {
     fn default() -> Self {
-        Self { enabled: false }
+        Self {
+            enabled: false,
+            kind: default_rro_kind(),
+            path: default_rro_path(),
+        }
+    }
+}
+
+impl VectorStoreEntry {
+    /// Resolve the full storage path from data directory.
+    pub fn resolve_path(&self, data_dir: &Path) -> PathBuf {
+        data_dir.join(&self.path)
     }
 }
 
@@ -517,7 +538,7 @@ impl PlatformBootConfig {
             user_relational_enabled: self.stores.user.relational.enabled,
             user_graph_enabled: self.stores.user.graph.enabled,
             global_graph_enabled: self.stores.global.graph.enabled,
-            vector_enabled: false,
+            vector_enabled: self.stores.system.vector.enabled,
         }
     }
 }
@@ -587,4 +608,10 @@ fn default_project_path_template() -> String {
 }
 fn default_project_namespace() -> String {
     "project".to_string()
+}
+fn default_rro_kind() -> String {
+    "rro".to_string()
+}
+fn default_rro_path() -> String {
+    "system/rro/storage".to_string()
 }

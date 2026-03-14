@@ -123,9 +123,73 @@ impl SurrealAdapter {
         Ok(())
     }
 
-    /// Get database handle for advanced queries
+    /// Initialize an additional namespace/database with its own schema.
+    ///
+    /// Switches to the given ns/db context, runs the schema DDL, then
+    /// returns. The session context is left pointing at this ns/db.
+    /// Use this to bootstrap multiple scopes on a single `SurrealKV` instance.
+    ///
+    /// # Errors
+    /// Returns error if namespace selection or schema init fails.
+    pub async fn init_namespace(&self, namespace: &str, database: &str, schema: &str) -> Result<()> {
+        let db = self.db.read().await;
+
+        db.use_ns(namespace)
+            .use_db(database)
+            .await
+            .with_context(|| {
+                format!("Failed to select namespace '{namespace}' / database '{database}'")
+            })?;
+
+        db.query(schema)
+            .await
+            .with_context(|| {
+                format!("Failed to initialize schema for '{namespace}/{database}'")
+            })?;
+
+        Ok(())
+    }
+
+    /// Execute a raw SurrealQL query in a specific namespace/database context.
+    ///
+    /// Prefixes the query with `USE NS ... DB ...;` to scope it.
+    /// Returns the raw JSON response.
+    ///
+    /// # Errors
+    /// Returns error if the query fails.
+    pub async fn query_in_ns(
+        &self,
+        namespace: &str,
+        database: &str,
+        query: &str,
+    ) -> Result<serde_json::Value> {
+        let db = self.db.read().await;
+
+        let scoped_query = format!("USE NS {namespace} DB {database}; {query}");
+        let mut response = db
+            .query(scoped_query)
+            .await
+            .context("SurrealDB query failed")?;
+
+        // The USE NS/DB statement is index 0, user query starts at index 1.
+        // SurrealDB v3 `take()` requires Vec<T>/Option<T>, not raw Value.
+        let rows: Vec<serde_json::Value> = response
+            .take(1)
+            .context("Failed to extract query results")?;
+
+        Ok(serde_json::Value::Array(rows))
+    }
+
+    /// Get database handle for advanced queries.
     pub async fn database(&self) -> tokio::sync::RwLockReadGuard<'_, Surreal<Db>> {
         self.db.read().await
+    }
+
+    /// Get a clone of the inner database handle for sharing.
+    ///
+    /// Used by the SurrealDB HTTP server to share the same instance.
+    pub fn db_handle(&self) -> Arc<RwLock<Surreal<Db>>> {
+        Arc::clone(&self.db)
     }
 
     /// Ping database — executes `INFO FOR DB`.

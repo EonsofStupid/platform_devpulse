@@ -16,6 +16,8 @@ pub enum StoreKind {
     Surreal,
     /// `Moka` - in-memory cache (no disk).
     Moka,
+    /// `RRO` - vector similarity search (embedded Qdrant).
+    Rro,
 }
 
 impl StoreKind {
@@ -26,6 +28,7 @@ impl StoreKind {
             StoreKind::DuckDb => "duckdb",
             StoreKind::Surreal => "surreal",
             StoreKind::Moka => "",
+            StoreKind::Rro => "rro",
         }
     }
 
@@ -36,6 +39,7 @@ impl StoreKind {
             StoreKind::DuckDb => "analytics.duckdb",
             StoreKind::Surreal => "reasoning",
             StoreKind::Moka => "",
+            StoreKind::Rro => "vectors",
         }
     }
 
@@ -77,7 +81,7 @@ impl PersistenceConfig {
     /// # Errors
     /// Returns error if directory creation fails.
     pub fn ensure_dirs(&self) -> std::io::Result<()> {
-        for kind in [StoreKind::LibSql, StoreKind::DuckDb, StoreKind::Surreal] {
+        for kind in [StoreKind::LibSql, StoreKind::DuckDb, StoreKind::Surreal, StoreKind::Rro] {
             if kind.is_persistent() {
                 std::fs::create_dir_all(self.store_dir(kind))?;
             }

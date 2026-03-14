@@ -12,7 +12,7 @@ pub mod commands;
 pub mod logging;
 pub mod state;
 
-use devpulse_engine::platform::{InitStatus, Platform, SqlAdapter};
+use devpulse_engine::platform::{InitStatus, Platform};
 use state::{BootStateTracker, PlatformState};
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -124,7 +124,14 @@ pub fn run() {
 }
 
 /// Background boot task — boots all platform stores and emits progress events.
+///
+/// Writes `.userdata/logs/boot.log` on every run (overwritten, not appended).
+/// Human-readable summary so you can immediately see what booted and what didn't.
 async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateTracker) {
+    use devpulse_engine::platform::InitEvent;
+    use std::fmt::Write as _;
+    use std::sync::Mutex;
+
     tracing::info!("Boot task started");
 
     let _ = app.emit(
@@ -132,11 +139,45 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
         serde_json::json!({ "phase": "initializing" }),
     );
 
+    // Accumulate boot log lines for boot.log
+    let boot_lines: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
+    let boot_start = std::time::Instant::now();
+
     let app_for_callback = app.clone();
     let tracker_for_callback = tracker.clone_tracker();
-    let result = Platform::boot(data_dir, move |event| {
+    let lines_for_callback = Arc::clone(&boot_lines);
+
+    let result = Platform::boot(data_dir.clone(), move |event: InitEvent| {
         // Accumulate in tracker BEFORE emitting (so frontend can catch up)
         tracker_for_callback.record_event(event.clone());
+
+        // Build boot.log line
+        if event.status != InitStatus::Running {
+            let elapsed = boot_start.elapsed().as_secs_f64();
+            let status_tag = match event.status {
+                InitStatus::Ok => "   OK",
+                InitStatus::Error => "FAIL!",
+                InitStatus::Skipped => " SKIP",
+                InitStatus::Running => unreachable!(),
+            };
+            let latency_str = event
+                .latency_ms
+                .map(|ms| format!(" ({ms}ms)"))
+                .unwrap_or_default();
+            let msg_str = event
+                .message
+                .as_deref()
+                .map(|m| format!(": {m}"))
+                .unwrap_or_default();
+            let line = format!(
+                "[+{elapsed:07.3}s] [{status_tag}] {}{msg_str}{latency_str}",
+                event.step
+            );
+
+            if let Ok(mut lines) = lines_for_callback.lock() {
+                lines.push(line);
+            }
+        }
 
         // Log completion events via tracing
         if event.status != InitStatus::Running {
@@ -164,13 +205,37 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
     })
     .await;
 
+    // Build final boot.log content
+    let total_elapsed = boot_start.elapsed();
+    let mut log = String::with_capacity(2048);
+    let _ = writeln!(log, "# DevPulse Boot Log");
+    let _ = writeln!(log, "# {}", chrono::Local::now().format("%Y-%m-%d %H:%M:%S"));
+    let _ = writeln!(log, "# data_dir: {}", data_dir.display());
+    let _ = writeln!(log, "#");
+
+    if let Ok(lines) = boot_lines.lock() {
+        for line in lines.iter() {
+            let _ = writeln!(log, "{line}");
+        }
+    }
+    let _ = writeln!(log);
+
     match result {
         Ok(platform) => {
             tracing::info!("Boot complete — verifying health");
             let health = platform.health().await;
+
+            let _ = writeln!(log, "# Health check:");
             for sub in &health.subsystems {
+                let _ = writeln!(log, "#   {}: {:?}", sub.name, sub.status);
                 tracing::info!(store = %sub.name, status = ?sub.status, "verified");
             }
+            let _ = writeln!(log, "#");
+            let _ = writeln!(
+                log,
+                "# Result: READY ({:.1}s total)",
+                total_elapsed.as_secs_f64()
+            );
             tracing::info!(status = ?health.status, "Platform ready");
 
             // Dev mode: seed sample data if stores are empty
@@ -178,6 +243,7 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
             {
                 if let Err(e) = seed_dev_data(&platform).await {
                     tracing::warn!(error = %e, "Dev seed failed (non-fatal)");
+                    let _ = writeln!(log, "# WARNING: Dev seed failed: {e}");
                 }
             }
 
@@ -200,8 +266,13 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
             );
         }
         Err(e) => {
+            let _ = writeln!(
+                log,
+                "# Result: FAILED ({:.1}s total)",
+                total_elapsed.as_secs_f64()
+            );
+            let _ = writeln!(log, "# Error: {e}");
             tracing::error!(error = %e, "Platform boot failed");
-            // Record in tracker before emitting
             tracker.set_failed(e.to_string());
             let _ = app.emit(
                 "platform:boot-phase",
@@ -211,6 +282,14 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
                 }),
             );
         }
+    }
+
+    // Write boot.log — overwrites every run
+    let boot_log_path = data_dir.join("logs").join("boot.log");
+    if let Err(e) = std::fs::write(&boot_log_path, &log) {
+        tracing::warn!(error = %e, "Failed to write boot.log");
+    } else {
+        tracing::info!(path = %boot_log_path.display(), "boot.log written");
     }
 }
 

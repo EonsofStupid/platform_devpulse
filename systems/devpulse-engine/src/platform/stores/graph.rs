@@ -37,6 +37,15 @@ impl GraphStore {
         })
     }
 
+    /// Create a graph store from a shared adapter.
+    ///
+    /// Used when all graph stores share a single `SurrealDB` instance
+    /// with multiple namespaces. The adapter must already have the
+    /// target namespace initialized via `init_namespace()`.
+    pub fn from_shared(adapter: Arc<SurrealAdapter>, label: &'static str) -> Self {
+        Self { adapter, label }
+    }
+
     /// Get the underlying adapter for typed access.
     pub fn adapter(&self) -> &Arc<SurrealAdapter> {
         &self.adapter

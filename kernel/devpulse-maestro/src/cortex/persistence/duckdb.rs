@@ -155,31 +155,30 @@ impl AnalyticsAdapter for DuckDbAdapter {
             .prepare(sql)
             .context("Failed to prepare analytics query")?;
 
-        let column_count = stmt.column_count();
-
-        let mut rows = stmt
-            .query([])
-            .context("Failed to execute analytics query")?;
-
-        let mut results = Vec::new();
-        while let Some(row) = rows.next()? {
-            let mut row_values: SqlRow = Vec::new();
-            for i in 0..column_count {
-                // Try typed extraction in order: integer, real, string, blob, null
-                if let Ok(v) = row.get::<_, i64>(i) {
-                    row_values.push(SqlValue::Integer(v));
-                } else if let Ok(v) = row.get::<_, f64>(i) {
-                    row_values.push(SqlValue::Real(v));
-                } else if let Ok(v) = row.get::<_, String>(i) {
-                    row_values.push(SqlValue::Text(v));
-                } else if let Ok(v) = row.get::<_, Vec<u8>>(i) {
-                    row_values.push(SqlValue::Blob(v));
-                } else {
-                    row_values.push(SqlValue::Null);
+        // DuckDB crate v1.4+ panics on column_count() before execution.
+        // Use query_map which executes first, then get count from Row's statement ref.
+        let results = stmt
+            .query_map([], |row| {
+                let column_count = row.as_ref().column_count();
+                let mut row_values: SqlRow = Vec::new();
+                for i in 0..column_count {
+                    if let Ok(v) = row.get::<_, i64>(i) {
+                        row_values.push(SqlValue::Integer(v));
+                    } else if let Ok(v) = row.get::<_, f64>(i) {
+                        row_values.push(SqlValue::Real(v));
+                    } else if let Ok(v) = row.get::<_, String>(i) {
+                        row_values.push(SqlValue::Text(v));
+                    } else if let Ok(v) = row.get::<_, Vec<u8>>(i) {
+                        row_values.push(SqlValue::Blob(v));
+                    } else {
+                        row_values.push(SqlValue::Null);
+                    }
                 }
-            }
-            results.push(row_values);
-        }
+                Ok(row_values)
+            })
+            .context("Failed to execute analytics query")?
+            .collect::<std::result::Result<Vec<_>, _>>()
+            .context("Failed to collect analytics results")?;
 
         Ok(results)
     }
@@ -268,10 +267,17 @@ CREATE TABLE IF NOT EXISTS signal_metrics (
 -- Daily aggregates (materialized for fast dashboards)
 CREATE TABLE IF NOT EXISTS daily_stats (
     date DATE,
-    total_signals INTEGER DEFAULT 0,
+    total_model_calls INTEGER DEFAULT 0,
+    total_sessions INTEGER DEFAULT 0,
     total_messages INTEGER DEFAULT 0,
-    total_tokens INTEGER DEFAULT 0,
+    total_prompt_tokens INTEGER DEFAULT 0,
+    total_completion_tokens INTEGER DEFAULT 0,
+    total_cost_usd DOUBLE DEFAULT 0,
     avg_latency_ms DOUBLE DEFAULT 0,
+    avg_roti_ratio DOUBLE DEFAULT 0,
+    cache_hit_rate DOUBLE DEFAULT 0,
+    error_count INTEGER DEFAULT 0,
+    governance_violations INTEGER DEFAULT 0,
     PRIMARY KEY (date)
 );
 ";

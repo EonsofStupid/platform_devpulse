@@ -3,6 +3,10 @@ name = "devpulse-maestro"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+default = []
+rro = ["dep:rro"]
+
 [dependencies]
 # Core
 serde = { workspace = true }
@@ -18,6 +22,10 @@ libsql = { workspace = true }
 duckdb = { workspace = true }
 surrealdb = { workspace = true }
 moka = { workspace = true }
+rro = { workspace = true, optional = true }
+
+# Async traits
+async-trait = "0.1"
 
 [lints]
 workspace = true

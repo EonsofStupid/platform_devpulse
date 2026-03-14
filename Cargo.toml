@@ -29,7 +29,6 @@ moka = { version = "0.12", features = ["future"] }
 # fjall deferred — SurrealKV covers persistent KV; re-add if perf demands it
 wal = { git = "https://github.com/EonsofStupid/wal", branch = "rro-alpha" }
 rro = { git = "https://github.com/EonsofStupid/rro", branch = "alpha" }
-tar-rs = { git = "https://github.com/EonsofStupid/tar-rs", branch = "rro-alpha" }
 
 # Observability
 tracing = "0.1"
@@ -70,6 +69,8 @@ missing_docs = "warn"
 # Remove once surrealdb ships with surrealkv >= 0.20.3 that includes this fix.
 [patch.crates-io]
 surrealkv = { git = "https://github.com/surrealdb/surrealkv", rev = "2e58059734567573cf55379325d718ce1889e004" }
+# RRO's fork of tar with set_sync method for snapshot serialization
+tar = { git = "https://github.com/EonsofStupid/tar-rs", branch = "rro-alpha" }
 
 # Dev: fast incremental for your code, optimized deps (candle/ort/surreal run fast)
 [profile.dev]
