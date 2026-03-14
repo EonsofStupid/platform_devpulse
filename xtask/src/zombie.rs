@@ -115,7 +115,11 @@ pub use job::JobGuard;
 // ── Stale process cleanup ────────────────────────────────────────
 
 /// Process names that can become zombies from crashed dev sessions.
+///
+/// Must include ALL binary names that appear in our process tree.
+/// `devpulse-desktop-app` is the actual Tauri binary name (set in tauri.conf.json).
 const ZOMBIE_NAMES: &[&str] = &[
+    "devpulse-desktop-app",
     "devpulse_desktop_backend",
     "devpulse-desktop-backend",
     "cargo-tauri",
