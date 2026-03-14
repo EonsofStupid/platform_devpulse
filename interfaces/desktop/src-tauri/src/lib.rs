@@ -217,13 +217,46 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
 /// Seed sample data for dev mode — only if tables are empty.
 #[cfg(debug_assertions)]
 async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
-    use devpulse_engine::platform::AnalyticsAdapter;
+    use devpulse_engine::platform::{AnalyticsAdapter, SqlAdapter};
 
-    // Seed LibSQL projects + sessions + messages
+    // Seed system relational: platform_config + boot_history
     if let Some(store) = platform.relational() {
         let adapter = store.adapter();
 
-        // Check if already seeded
+        let rows = adapter
+            .query("SELECT COUNT(*) FROM platform_config", &[])
+            .await?;
+        let count = rows
+            .first()
+            .and_then(|r| r.first())
+            .and_then(|v| v.as_integer())
+            .unwrap_or(0);
+
+        if count == 0 {
+            tracing::info!("Seeding system config into LibSQL...");
+
+            adapter
+                .execute_batch(
+                    r"
+                    INSERT INTO platform_config (key, value, category) VALUES
+                        ('version', '0.1.0', 'system'),
+                        ('portable_mode', 'true', 'system'),
+                        ('log_level', 'info', 'system'),
+                        ('default_model', 'claude-sonnet-4-6', 'ai'),
+                        ('max_tokens_per_turn', '8192', 'ai'),
+                        ('default_temperature', '0.7', 'ai');
+                    ",
+                )
+                .await?;
+
+            tracing::info!("System LibSQL seeded: 6 config entries");
+        }
+    }
+
+    // Seed user relational: profile + projects + sessions + turns
+    if let Some(store) = platform.user_relational() {
+        let adapter = store.adapter();
+
         let rows = adapter
             .query("SELECT COUNT(*) FROM projects", &[])
             .await?;
@@ -234,33 +267,39 @@ async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
             .unwrap_or(0);
 
         if count == 0 {
-            tracing::info!("Seeding dev data into LibSQL...");
+            tracing::info!("Seeding user data into LibSQL...");
 
             adapter
                 .execute_batch(
                     r"
+                    INSERT INTO profiles (id, display_name, hardware_profile, onboarding_complete, expertise_level) VALUES
+                        ('user-1', 'Developer', '32g_engineer', 1, 3);
+
+                    INSERT INTO preferences (id, user_id, theme, context_mode, verbosity) VALUES
+                        ('pref-1', 'user-1', 'dark', 'normal', 'balanced');
+
                     INSERT INTO projects (id, name, root_path, project_type) VALUES
-                        ('proj-1', 'platform_devpulse', 'D:/localdev/platform_devpulse', 'TypeScript'),
-                        ('proj-2', 'maestro-kernel', 'D:/localdev/platform_devpulse/kernel', 'Rust'),
-                        ('proj-3', 'coldlight-tokens', 'D:/localdev/platform_devpulse/interfaces/desktop/src/lib/design', 'CSS'),
-                        ('proj-4', 'signal-router', 'D:/localdev/platform_devpulse/systems/devpulse-engine', 'Rust');
+                        ('proj-1', 'platform_devpulse', 'D:/localdev/platform_devpulse', 'personal'),
+                        ('proj-2', 'maestro-kernel', 'D:/localdev/platform_devpulse/kernel', 'personal'),
+                        ('proj-3', 'coldlight-tokens', 'D:/localdev/platform_devpulse/interfaces/desktop/src/lib/design', 'personal'),
+                        ('proj-4', 'signal-router', 'D:/localdev/platform_devpulse/systems/devpulse-engine', 'personal');
 
-                    INSERT INTO sessions (id, project_id) VALUES
-                        ('sess-1', 'proj-1'),
-                        ('sess-2', 'proj-2');
+                    INSERT INTO sessions (id, project_id, title, context_mode) VALUES
+                        ('sess-1', 'proj-1', 'Build pipeline analysis', 'normal'),
+                        ('sess-2', 'proj-2', 'Store health review', 'normal');
 
-                    INSERT INTO messages (session_id, role, content) VALUES
-                        ('sess-1', 'user', 'Analyze the build pipeline for bottlenecks.'),
-                        ('sess-1', 'assistant', 'Token generation runs in 2.1s avg. Vite HMR at 340ms. svelte-check at 8.2s could use incremental mode.'),
-                        ('sess-1', 'user', 'What about the recipe system performance?'),
-                        ('sess-1', 'assistant', 'The centralized recipe registry with registerRecipe() adds minimal overhead. 28 recipes resolve in under 1ms via Map lookup.'),
-                        ('sess-2', 'user', 'Show me the store health status.'),
-                        ('sess-2', 'assistant', 'All 4 stores healthy. LibSQL: 3ms, DuckDB: 1ms, SurrealDB: 12ms, Moka: under 1ms.');
+                    INSERT INTO turns (id, session_id, project_id, role, content, sequence_num) VALUES
+                        ('turn-1', 'sess-1', 'proj-1', 'user', 'Analyze the build pipeline for bottlenecks.', 1),
+                        ('turn-2', 'sess-1', 'proj-1', 'assistant', 'Token generation runs in 2.1s avg. Vite HMR at 340ms. svelte-check at 8.2s could use incremental mode.', 2),
+                        ('turn-3', 'sess-1', 'proj-1', 'user', 'What about the recipe system performance?', 3),
+                        ('turn-4', 'sess-1', 'proj-1', 'assistant', 'The centralized recipe registry with registerRecipe() adds minimal overhead. 28 recipes resolve in under 1ms via Map lookup.', 4),
+                        ('turn-5', 'sess-2', 'proj-2', 'user', 'Show me the store health status.', 1),
+                        ('turn-6', 'sess-2', 'proj-2', 'assistant', 'All stores healthy. LibSQL: 3ms, DuckDB: 1ms, SurrealDB: 12ms, Moka: under 1ms.', 2);
                     ",
                 )
                 .await?;
 
-            tracing::info!("LibSQL seeded: 4 projects, 2 sessions, 6 messages");
+            tracing::info!("User LibSQL seeded: 1 profile, 4 projects, 2 sessions, 6 turns");
         }
     }
 
@@ -284,10 +323,17 @@ async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
             for i in 0..20 {
                 data.push(serde_json::json!({
                     "date": format!("2026-02-{:02}", 16 + (i % 13)),
-                    "total_signals": 50 + (i * 7) % 40,
+                    "total_model_calls": 20 + (i * 5) % 30,
+                    "total_sessions": 3 + (i * 2) % 8,
                     "total_messages": 10 + (i * 3) % 25,
-                    "total_tokens": 1000 + (i * 150) % 2000,
+                    "total_prompt_tokens": 500 + (i * 80) % 1200,
+                    "total_completion_tokens": 400 + (i * 60) % 900,
+                    "total_cost_usd": 0.05 + ((i * 3) % 20) as f64 * 0.01,
                     "avg_latency_ms": 15.0 + ((i * 5) % 30) as f64,
+                    "avg_roti_ratio": 1.5 + ((i * 2) % 10) as f64 * 0.1,
+                    "cache_hit_rate": 0.3 + ((i * 4) % 30) as f64 * 0.01,
+                    "error_count": (i * 3) % 5,
+                    "governance_violations": (i * 2) % 3,
                 }));
             }
 

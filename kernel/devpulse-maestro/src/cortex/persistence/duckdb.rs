@@ -15,11 +15,21 @@ pub struct DuckDbAdapter {
 }
 
 impl DuckDbAdapter {
-    /// Open or create database at path.
+    /// Open or create database at path with the default analytics schema.
     ///
     /// # Errors
     /// Returns error if the database cannot be opened or schema initialization fails.
     pub fn open(path: &Path) -> Result<Self> {
+        Self::open_with_schema(path, ANALYTICS_SCHEMA)
+    }
+
+    /// Open or create database at path with a custom schema.
+    ///
+    /// The engine layer uses this to apply scope-specific schemas.
+    ///
+    /// # Errors
+    /// Returns error if the database cannot be opened or schema initialization fails.
+    pub fn open_with_schema(path: &Path, schema: &str) -> Result<Self> {
         // Ensure parent directory exists
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent).context("Failed to create database directory")?;
@@ -31,8 +41,7 @@ impl DuckDbAdapter {
             conn: Arc::new(Mutex::new(conn)),
         };
 
-        // Initialize analytics schema (blocking, DuckDB is sync)
-        adapter.init_schema_sync()?;
+        adapter.init_schema_sync(schema)?;
 
         Ok(adapter)
     }
@@ -49,16 +58,16 @@ impl DuckDbAdapter {
             conn: Arc::new(Mutex::new(conn)),
         };
 
-        adapter.init_schema_sync()?;
+        adapter.init_schema_sync(ANALYTICS_SCHEMA)?;
         Ok(adapter)
     }
 
     /// Initialize schema (sync because `DuckDB` is sync).
-    fn init_schema_sync(&self) -> Result<()> {
+    fn init_schema_sync(&self, schema: &str) -> Result<()> {
         // We need to block on the mutex since this is called from sync context
         let conn = futures::executor::block_on(self.conn.lock());
 
-        conn.execute_batch(ANALYTICS_SCHEMA)
+        conn.execute_batch(schema)
             .context("Failed to initialize DuckDB schema")?;
 
         Ok(())

@@ -25,17 +25,24 @@ pub struct PlatformState {
 /// Boot phase — serialized to frontend as PascalCase.
 #[derive(Debug, Clone, Serialize)]
 pub enum BootPhase {
+    /// Platform is still starting up — stores initializing.
     Initializing,
+    /// All stores booted successfully (or degraded gracefully).
     Ready,
+    /// Boot failed — see `BootSnapshot::error` for details.
     Failed,
 }
 
 /// Snapshot of boot state — returned by `get_boot_state` command.
 #[derive(Debug, Clone, Serialize)]
 pub struct BootSnapshot {
+    /// Current boot phase.
     pub phase: BootPhase,
+    /// Ordered list of subsystem init events accumulated during boot.
     pub events: Vec<InitEvent>,
+    /// Final health snapshot (populated once boot completes).
     pub health: Option<SystemHealth>,
+    /// Error message if boot failed.
     pub error: Option<String>,
 }
 
@@ -48,6 +55,7 @@ pub struct BootStateTracker {
 }
 
 impl BootStateTracker {
+    /// Create a new tracker in the `Initializing` phase with empty events.
     pub fn new() -> Self {
         Self {
             inner: Arc::new(Mutex::new(BootSnapshot {

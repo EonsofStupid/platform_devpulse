@@ -47,10 +47,12 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use stores::analytics::AnalyticsStore;
+use stores::analytics::{AnalyticsStore, SYSTEM_ANALYTICS_SCHEMA};
 use stores::cache::CacheStore;
-use stores::graph::GraphStore;
-use stores::relational::RelationalStore;
+use stores::graph::{
+    GraphStore, GLOBAL_GRAPH_SCHEMA, SYSTEM_GRAPH_SCHEMA, USER_GRAPH_SCHEMA,
+};
+use stores::relational::{RelationalStore, SYSTEM_SCHEMA, USER_SCHEMA};
 
 /// Platform facade — sole public API for persistence, health, config.
 ///
@@ -106,6 +108,7 @@ impl Platform {
             &data_dir,
             &boot_config.stores.system.relational,
             &boot_config.windows,
+            SYSTEM_SCHEMA,
             "System relational",
             &on_event,
         ).await;
@@ -114,6 +117,7 @@ impl Platform {
             &data_dir,
             &boot_config.stores.system.analytics,
             &boot_config.windows,
+            SYSTEM_ANALYTICS_SCHEMA,
             "System analytics",
             &on_event,
         );
@@ -122,6 +126,7 @@ impl Platform {
             &data_dir,
             &boot_config.stores.system.graph,
             &boot_config.windows,
+            SYSTEM_GRAPH_SCHEMA,
             "System graph",
             &on_event,
         ).await;
@@ -149,6 +154,7 @@ impl Platform {
             &data_dir,
             &boot_config.stores.user.relational,
             &boot_config.windows,
+            USER_SCHEMA,
             "User relational",
             &on_event,
         ).await;
@@ -157,6 +163,7 @@ impl Platform {
             &data_dir,
             &boot_config.stores.user.graph,
             &boot_config.windows,
+            USER_GRAPH_SCHEMA,
             "User graph",
             &on_event,
         ).await;
@@ -167,6 +174,7 @@ impl Platform {
             &data_dir,
             &boot_config.stores.global.graph,
             &boot_config.windows,
+            GLOBAL_GRAPH_SCHEMA,
             "Global graph",
             &on_event,
         ).await;
@@ -304,6 +312,7 @@ async fn boot_store_relational(
     data_dir: &Path,
     entry: &config::StoreEntry,
     win_config: &config::WindowsConfig,
+    schema: &'static str,
     label: &'static str,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
 ) -> Option<Arc<RelationalStore>> {
@@ -318,7 +327,7 @@ async fn boot_store_relational(
 
     let result = retry_on_lock_async(win_config, label, || {
         let p = path.clone();
-        async move { RelationalStore::boot(&p).await }
+        async move { RelationalStore::boot(&p, schema, label).await }
     })
     .await;
 
@@ -347,6 +356,7 @@ fn boot_store_analytics(
     data_dir: &Path,
     entry: &config::StoreEntry,
     win_config: &config::WindowsConfig,
+    schema: &str,
     label: &'static str,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
 ) -> Option<Arc<AnalyticsStore>> {
@@ -359,7 +369,7 @@ fn boot_store_analytics(
     let raw_path = entry.resolve_path(data_dir);
     let path = sanitize_path(&raw_path, win_config);
 
-    match AnalyticsStore::boot(&path) {
+    match AnalyticsStore::boot(&path, schema, label) {
         Ok(store) => {
             tracing::info!(
                 step = label,
@@ -384,6 +394,7 @@ async fn boot_store_graph(
     data_dir: &Path,
     entry: &config::GraphStoreEntry,
     win_config: &config::WindowsConfig,
+    schema: &'static str,
     label: &'static str,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
 ) -> Option<Arc<GraphStore>> {
@@ -398,7 +409,7 @@ async fn boot_store_graph(
     let namespace = entry.namespace.as_str();
     let database = entry.database.as_str();
 
-    match GraphStore::boot(&path, namespace, database, label).await {
+    match GraphStore::boot(&path, namespace, database, schema, label).await {
         Ok(store) => {
             tracing::info!(
                 step = label,
@@ -433,7 +444,7 @@ async fn boot_store_graph(
                     win_config.file_lock_retry_delay_ms,
                 )).await;
             }
-            match GraphStore::boot(&path, namespace, database, label).await {
+            match GraphStore::boot(&path, namespace, database, schema, label).await {
                 Ok(store) => {
                     tracing::info!(
                         step = label,

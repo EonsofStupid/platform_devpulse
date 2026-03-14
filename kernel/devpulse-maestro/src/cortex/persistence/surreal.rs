@@ -24,7 +24,7 @@ pub struct SurrealAdapter {
 impl SurrealAdapter {
     /// Open database at path with `SurrealKV` backend (pure Rust).
     ///
-    /// Uses the default maestro reasoning namespace/database.
+    /// Uses the default maestro reasoning namespace/database/schema.
     ///
     /// # Errors
     /// Returns error if the database cannot be opened or schema initialization fails.
@@ -33,19 +33,25 @@ impl SurrealAdapter {
             path,
             SurrealNamespace::REASONING.namespace,
             SurrealNamespace::REASONING.database,
+            REASONING_SCHEMA,
         )
         .await
     }
 
-    /// Open database at path with explicit namespace and database.
+    /// Open database at path with explicit namespace, database, and schema.
     ///
     /// This is the primary constructor — `open()` delegates here with
     /// maestro defaults. Engine-level scoped stores pass their own
-    /// namespace/database from config.
+    /// namespace/database/schema from config.
     ///
     /// # Errors
     /// Returns error if the database cannot be opened or schema initialization fails.
-    pub async fn open_with_ns(path: &Path, namespace: &str, database: &str) -> Result<Self> {
+    pub async fn open_with_ns(
+        path: &Path,
+        namespace: &str,
+        database: &str,
+        schema: &str,
+    ) -> Result<Self> {
         // Ensure the PARENT directory exists — SurrealKV creates its own
         // data directory and needs write access to the parent.
         if let Some(parent) = path.parent() {
@@ -76,8 +82,8 @@ impl SurrealAdapter {
             db: Arc::new(RwLock::new(db)),
         };
 
-        // Initialize reasoning schema
-        adapter.init_schema().await?;
+        // Initialize with provided schema
+        adapter.init_schema(schema).await?;
 
         Ok(adapter)
     }
@@ -102,16 +108,15 @@ impl SurrealAdapter {
             db: Arc::new(RwLock::new(db)),
         };
 
-        adapter.init_schema().await?;
+        adapter.init_schema(REASONING_SCHEMA).await?;
         Ok(adapter)
     }
 
-    /// Initialize the reasoning schema
-    async fn init_schema(&self) -> Result<()> {
+    /// Initialize the database schema with provided DDL.
+    async fn init_schema(&self, schema: &str) -> Result<()> {
         let db = self.db.read().await;
 
-        // Define tables for reasoning system
-        db.query(REASONING_SCHEMA)
+        db.query(schema)
             .await
             .context("Failed to initialize SurrealDB schema")?;
 

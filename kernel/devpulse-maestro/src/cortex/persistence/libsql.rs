@@ -17,11 +17,22 @@ pub struct LibSqlAdapter {
 }
 
 impl LibSqlAdapter {
-    /// Open or create database at path.
+    /// Open or create database at path with the default core schema.
     ///
     /// # Errors
     /// Returns error if the database cannot be opened or schema initialization fails.
     pub async fn open(path: &Path) -> Result<Self> {
+        Self::open_with_schema(path, CORE_SCHEMA).await
+    }
+
+    /// Open or create database at path with a custom schema.
+    ///
+    /// The engine layer uses this to apply scope-specific schemas
+    /// (system vs user) instead of the default core schema.
+    ///
+    /// # Errors
+    /// Returns error if the database cannot be opened or schema initialization fails.
+    pub async fn open_with_schema(path: &Path, schema: &str) -> Result<Self> {
         // Ensure parent directory exists
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent).context("Failed to create database directory")?;
@@ -41,16 +52,16 @@ impl LibSqlAdapter {
             conn: Arc::new(RwLock::new(conn)),
         };
 
-        // Initialize core schema
-        adapter.init_schema().await?;
+        // Initialize with provided schema
+        adapter.init_schema(schema).await?;
 
         Ok(adapter)
     }
 
-    /// Initialize the database schema
-    async fn init_schema(&self) -> Result<()> {
+    /// Initialize the database schema.
+    async fn init_schema(&self, schema: &str) -> Result<()> {
         let conn = self.conn.read().await;
-        conn.execute_batch(CORE_SCHEMA)
+        conn.execute_batch(schema)
             .await
             .context("Failed to initialize LibSQL schema")?;
         Ok(())
