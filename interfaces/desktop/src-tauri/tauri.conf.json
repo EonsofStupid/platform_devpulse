@@ -17,19 +17,7 @@
 				"height": 800,
 				"transparent": true,
 				"decorations": false,
-				"visible": true
-			},
-			{
-				"label": "chat",
-				"title": "Maestro Chat",
-				"url": "/chat",
-				"width": 450,
-				"height": 600,
-				"x": 100,
-				"y": 100,
-				"visible": true,
-				"decorations": false,
-				"transparent": true
+				"visible": false
 			}
 		],
 		"security": {

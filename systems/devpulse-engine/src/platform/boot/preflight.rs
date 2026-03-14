@@ -1,7 +1,13 @@
-//! Boot preflight — directory creation and path validation.
+//! Boot preflight — directory creation, path validation, stale lock cleanup.
 //!
-//! Runs BEFORE any store touches disk. Ensures the scoped directory
-//! hierarchy exists for all enabled file-based stores.
+//! Runs BEFORE any store touches disk. Two responsibilities:
+//! 1. Ensure the scoped directory hierarchy exists for all enabled stores.
+//! 2. Clean stale LOCK files from previous crashed sessions so SurrealKV can open.
+//!
+//! LOCK file cleanup is safe because:
+//! - Single-instance plugin prevents concurrent launches (Tauri mutex)
+//! - xtask zombie cleanup already killed stale processes before boot
+//! - If we reach preflight, no other DevPulse process should be alive
 
 use crate::platform::config::PlatformBootConfig;
 use anyhow::Result;
@@ -69,6 +75,37 @@ pub fn ensure_scoped_dirs(data_dir: &Path, config: &PlatformBootConfig) -> Resul
 
     // Logs dir
     std::fs::create_dir_all(data_dir.join("logs"))?;
+
+    // Clean stale LOCK files from SurrealKV
+    // SurrealKV creates a LOCK file on open. On crash/kill, the LOCK persists.
+    // On next boot, SurrealKV sees it and refuses to open (os error 33).
+    // Since single-instance + zombie cleanup guarantee no other process is alive,
+    // any remaining LOCK file is stale and safe to delete.
+    if config.stores.system.graph.enabled
+        || config.stores.user.graph.enabled
+        || config.stores.global.graph.enabled
+    {
+        // Consolidated SurrealDB path matches boot/graph.rs:49-52
+        let surreal_dir = data_dir.join("surreal").join("devpulse");
+        let lock_path = surreal_dir.join("LOCK");
+        if lock_path.exists() {
+            match std::fs::remove_file(&lock_path) {
+                Ok(()) => {
+                    tracing::info!(
+                        path = %lock_path.display(),
+                        "Cleaned stale SurrealKV LOCK file from previous session"
+                    );
+                }
+                Err(e) => {
+                    tracing::warn!(
+                        path = %lock_path.display(),
+                        error = %e,
+                        "Failed to clean stale SurrealKV LOCK file — boot may fail"
+                    );
+                }
+            }
+        }
+    }
 
     Ok(())
 }

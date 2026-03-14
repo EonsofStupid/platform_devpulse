@@ -27,6 +27,14 @@ use tokio::sync::RwLock;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            // Second instance launched — focus the existing main window
+            tracing::info!("Second instance detected — focusing existing window");
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.set_focus();
+                let _ = window.show();
+            }
+        }))
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
             // Portable-first data directory resolution.
@@ -93,6 +101,14 @@ pub fn run() {
                 platform: RwLock::new(None),
             });
             app.manage(BootStateTracker::new());
+
+            // Show main window immediately so boot overlay is visible.
+            // Window starts hidden (tauri.conf.json visible:false) to prevent
+            // flash of blank content. We show it here AFTER setup is done but
+            // BEFORE boot completes — the boot overlay handles the "loading" UX.
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.show();
+            }
 
             // Spawn async boot task — setup returns IMMEDIATELY
             let handle = app.handle().clone();
