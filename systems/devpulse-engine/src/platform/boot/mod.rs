@@ -81,7 +81,7 @@ pub async fn execute(
         SYSTEM_ANALYTICS_SCHEMA,
         "System analytics",
         on_event,
-    );
+    ).await;
 
     // Consolidated graph (SurrealDB) — system graph is CRITICAL
     let (system_graph, user_graph, global_graph) = graph::boot_consolidated(
@@ -189,12 +189,15 @@ async fn boot_relational(
     }
 }
 
-/// Boot an analytics (DuckDB) store.
-fn boot_analytics(
+/// Boot an analytics (DuckDB) store with file-lock retry.
+///
+/// DuckDB uses an exclusive file lock. On Windows hot-reload, the previous
+/// process may not have released its lock yet. Retry with exponential backoff.
+async fn boot_analytics(
     data_dir: &Path,
     entry: &config::StoreEntry,
     win_config: &config::WindowsConfig,
-    schema: &str,
+    schema: &'static str,
     label: &'static str,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
 ) -> Option<Arc<AnalyticsStore>> {
@@ -207,7 +210,13 @@ fn boot_analytics(
     let raw_path = entry.resolve_path(data_dir);
     let path = sanitize_path(&raw_path, win_config);
 
-    match AnalyticsStore::boot(&path, schema, label) {
+    let result = retry::retry_on_lock_async(win_config, label, || {
+        let p = path.clone();
+        async move { AnalyticsStore::boot(&p, schema, label) }
+    })
+    .await;
+
+    match result {
         Ok(store) => {
             tracing::info!(
                 step = label,

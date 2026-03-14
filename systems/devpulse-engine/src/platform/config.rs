@@ -250,6 +250,36 @@ impl Default for ProjectStoresConfig {
 // Store entry types
 // ═══════════════════════════════════════════════════════════════
 
+/// Per-store retry configuration — overrides global [windows] defaults.
+#[derive(Debug, Clone, Deserialize)]
+pub struct StoreRetryConfig {
+    /// Maximum number of retry attempts on file lock errors.
+    #[serde(default = "default_retry_max")]
+    pub max_retries: u32,
+    /// Base delay between retries in milliseconds (multiplied by 2^attempt).
+    #[serde(default = "default_retry_delay")]
+    pub base_delay_ms: u64,
+}
+
+impl Default for StoreRetryConfig {
+    fn default() -> Self {
+        Self {
+            max_retries: default_retry_max(),
+            base_delay_ms: default_retry_delay(),
+        }
+    }
+}
+
+impl StoreRetryConfig {
+    /// Convert to the retry utility's config type.
+    pub fn to_retry_config(&self) -> crate::platform::boot::retry::RetryConfig {
+        crate::platform::boot::retry::RetryConfig {
+            max_retries: self.max_retries,
+            base_delay_ms: self.base_delay_ms,
+        }
+    }
+}
+
 /// Configuration for a file-based store.
 #[derive(Debug, Clone, Deserialize)]
 pub struct StoreEntry {
@@ -262,6 +292,9 @@ pub struct StoreEntry {
     /// Relative path from data directory.
     #[serde(default)]
     pub path: String,
+    /// Per-store retry config — overrides global defaults.
+    #[serde(default)]
+    pub retry: StoreRetryConfig,
 }
 
 impl StoreEntry {
@@ -316,6 +349,9 @@ pub struct GraphStoreEntry {
     /// `SurrealDB` database.
     #[serde(default)]
     pub database: String,
+    /// Per-store retry config.
+    #[serde(default)]
+    pub retry: StoreRetryConfig,
 }
 
 impl Default for GraphStoreEntry {
@@ -614,4 +650,10 @@ fn default_rro_kind() -> String {
 }
 fn default_rro_path() -> String {
     "system/rro/storage".to_string()
+}
+fn default_retry_max() -> u32 {
+    5
+}
+fn default_retry_delay() -> u64 {
+    500
 }
