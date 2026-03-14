@@ -83,7 +83,13 @@ class PlatformState {
 	health = $state<SystemHealth | null>(null);
 	error = $state<string | null>(null);
 
+	/** Elapsed seconds since boot started — ticks every second for live UI. */
+	bootElapsedSecs = $state(0);
+	/** Human-readable label for what the boot is currently doing. */
+	bootStepLabel = $state("Connecting to engine...");
+
 	private healthInterval: ReturnType<typeof setInterval> | null = null;
+	private bootTimer: ReturnType<typeof setInterval> | null = null;
 	private unlisteners: Array<() => void> = [];
 	private initialized = false;
 	private destroyed = false;
@@ -99,6 +105,15 @@ class PlatformState {
 
 	get hasFailed(): boolean {
 		return this.phase === "failed";
+	}
+
+	/** Elapsed boot time formatted for display: "12s", "1m 23s" */
+	get bootElapsedFormatted(): string {
+		const s = this.bootElapsedSecs;
+		if (s < 60) return `${s}s`;
+		const m = Math.floor(s / 60);
+		const rem = s % 60;
+		return `${m}m ${rem}s`;
 	}
 
 	get progress(): number {
@@ -153,7 +168,14 @@ class PlatformState {
 		this.initialized = true;
 		this.destroyed = false;
 
-		// 0. Wait for Tauri IPC bridge — prevents transformCallback crash
+		// 0. Start elapsed timer — ticks every second so the UI shows it's alive
+		this.bootElapsedSecs = 0;
+		this.bootStepLabel = "Connecting to engine...";
+		this.bootTimer = setInterval(() => {
+			this.bootElapsedSecs++;
+		}, 1000);
+
+		// 1. Wait for Tauri IPC bridge — prevents transformCallback crash
 		try {
 			await waitForTauri();
 		} catch (e) {
@@ -166,7 +188,9 @@ class PlatformState {
 		// Bail if destroy() was called while we were waiting
 		if (this.destroyed) return;
 
-		// 1. Catch up — get snapshot of boot state accumulated in Rust
+		this.bootStepLabel = "Loading boot state...";
+
+		// 2. Catch up — get snapshot of boot state accumulated in Rust
 		try {
 			const snapshot = await invoke<BootSnapshot>("get_boot_state");
 			if (this.destroyed) return;
@@ -227,16 +251,27 @@ class PlatformState {
 	/** Apply a single subsystem init event (idempotent via Map key). */
 	private applyEvent(event: InitEvent): void {
 		const existing = this.subsystems.get(event.step);
+		const friendlyName = existing?.friendlyName ?? resolveLabel(event.step);
+		const state = mapInitStatus(event.status);
 		const info: SubsystemInfo = {
 			name: event.step,
-			state: mapInitStatus(event.status),
+			state,
 			latencyMs: event.latency_ms,
 			message: event.message,
-			friendlyName: existing?.friendlyName ?? resolveLabel(event.step),
+			friendlyName,
 		};
 		const next = new Map(this.subsystems);
 		next.set(event.step, info);
 		this.subsystems = next;
+
+		// Update the human-readable step label
+		if (state === "loading") {
+			this.bootStepLabel = `Starting ${friendlyName}...`;
+		} else if (state === "ready") {
+			this.bootStepLabel = `${friendlyName} ready`;
+		} else if (state === "failed") {
+			this.bootStepLabel = `${friendlyName} failed`;
+		}
 	}
 
 	/** Apply a boot phase transition event. */
@@ -253,7 +288,22 @@ class PlatformState {
 		this.phase = phaseMap[payload.phase] ?? this.phase;
 		if (payload.health) this.health = payload.health;
 		if (payload.error) this.error = payload.error;
-		if (payload.phase === "ready") this.startHealthPolling();
+
+		if (payload.phase === "ready") {
+			this.bootStepLabel = "All systems go";
+			this.stopBootTimer();
+			this.startHealthPolling();
+		} else if (payload.phase === "failed") {
+			this.bootStepLabel = payload.error ?? "Boot failed";
+			this.stopBootTimer();
+		}
+	}
+
+	private stopBootTimer(): void {
+		if (this.bootTimer !== null) {
+			clearInterval(this.bootTimer);
+			this.bootTimer = null;
+		}
 	}
 
 	/** Start periodic health polling (after boot). */
@@ -294,6 +344,7 @@ class PlatformState {
 		this.destroyed = true;
 		this.initialized = false;
 		this.cleanupListeners();
+		this.stopBootTimer();
 		if (this.healthInterval !== null) {
 			clearInterval(this.healthInterval);
 			this.healthInterval = null;

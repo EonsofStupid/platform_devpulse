@@ -76,10 +76,13 @@ $effect(() => {
 	role="status"
 >
 	<Stack gap="6" align="center" class="boot-overlay__content">
-		<!-- Wordmark -->
+		<!-- Wordmark + elapsed timer -->
 		<Stack gap="1" align="center">
 			<Text size="lg" weight="bold">DevPulse</Text>
-			<Text size="xs" color="muted">Platform Engine</Text>
+			<HStack gap="2" align="center" justify="center">
+				<span class="boot-pulse"></span>
+				<Text size="xs" color="muted">{platformState.bootStepLabel}</Text>
+			</HStack>
 		</Stack>
 
 		<!-- Subsystem list -->
@@ -104,7 +107,8 @@ $effect(() => {
 							&ZeroWidthSpace;
 						</Badge>
 						{#if Icon}
-							<svelte:component this={Icon} size={14} class="shrink-0 text-text-muted" />
+							{@const IconComponent = Icon}
+							<IconComponent size={14} class="shrink-0 text-text-muted" />
 						{/if}
 						<Text size="sm" color={sub.state === "skipped" ? "muted" : "secondary"} class="flex-1">
 							{DEV_MODE ? devLabel(sub.name) : resolveLabel(sub.name)}
@@ -117,7 +121,7 @@ $effect(() => {
 			{/each}
 
 			{#if subsystems.length === 0}
-				<Text size="xs" color="muted">Waiting for subsystems...</Text>
+				<Text size="xs" color="muted">Waiting for engine to start...</Text>
 			{/if}
 		</Stack>
 
@@ -130,6 +134,11 @@ $effect(() => {
 			glow="teal"
 			class="w-full"
 		/>
+
+		<!-- Elapsed time — always visible during boot -->
+		{#if platformState.isBooting}
+			<Text size="xs" color="muted">{platformState.bootElapsedFormatted} elapsed</Text>
+		{/if}
 
 		<!-- Error state -->
 		{#if platformState.hasFailed && platformState.error}
@@ -170,5 +179,21 @@ $effect(() => {
 		min-width: 320px;
 		max-width: 400px;
 		padding: 2rem;
+	}
+
+	/* Pulsing dot — proves the app is alive, not frozen */
+	.boot-pulse {
+		display: inline-block;
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: var(--glow-teal, #2dd4bf);
+		animation: pulse 1.5s ease-in-out infinite;
+		flex-shrink: 0;
+	}
+
+	@keyframes pulse {
+		0%, 100% { opacity: 0.3; transform: scale(0.8); }
+		50% { opacity: 1; transform: scale(1.2); }
 	}
 </style>
