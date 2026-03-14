@@ -1,26 +1,103 @@
 # Platform store defaults — embedded at compile time via include_str!().
 # Override at runtime by placing a platform.toml in your data directory.
+#
+# Layout:
+#   .userdata/
+#   ├── system/         Kernel/engine internal state (never user-facing)
+#   │   ├── libsql/     platform.db — kernel state, boot records, internal KV
+#   │   ├── duckdb/     analytics.duckdb — system telemetry, ROTI metrics
+#   │   └── surreal/    reasoning/ — kernel FSM, state transitions, HMM
+#   ├── user/           User-scoped data (preferences, sessions, memories)
+#   │   ├── libsql/     user.db — sessions, messages, user config
+#   │   └── surreal/    profile/ — user knowledge graph, long-term memory
+#   ├── projects/       Per-project namespaced data (isolated per project ID)
+#   │   └── {id}/
+#   │       └── surreal/ context/ — project-specific knowledge, key junctions
+#   ├── global/         Cross-project shared data
+#   │   └── surreal/    knowledge/ — shared knowledge graph, decisions
+#   └── logs/           Rotated log files
 
-[stores.relational]
+[portable]
+# When true, all data stays within .userdata/ relative to the binary/project root.
+# When false, uses OS-standard app data directories (AppData/Local on Windows).
+enabled = true
+
+# ── System scope ─────────────────────────────────────────────────
+# Kernel internals. Never exposed to user. Owns boot state, telemetry, FSM.
+
+[stores.system.relational]
 enabled = true
 kind = "libsql"
-path = "libsql/platform.db"
+path = "system/libsql/platform.db"
 
-[stores.analytics]
+[stores.system.analytics]
 enabled = true
 kind = "duckdb"
-path = "duckdb/analytics.duckdb"
+path = "system/duckdb/analytics.duckdb"
 
-[stores.graph]
+[stores.system.graph]
 enabled = true
 kind = "surreal"
-path = "surreal/reasoning"
-namespace = "maestro"
-database = "devpulse"
+path = "system/surreal/reasoning"
+namespace = "system"
+database = "engine"
 
-[stores.cache]
+[stores.system.cache]
 enabled = true
 kind = "moka"
 max_capacity = 10_000
 time_to_live_secs = 300
 time_to_idle_secs = 60
+
+# ── User scope ───────────────────────────────────────────────────
+# User-owned data. Sessions, messages, preferences, personal memory.
+
+[stores.user.relational]
+enabled = true
+kind = "libsql"
+path = "user/libsql/user.db"
+
+[stores.user.graph]
+enabled = true
+kind = "surreal"
+path = "user/surreal/profile"
+namespace = "user"
+database = "profile"
+
+# ── Global scope ─────────────────────────────────────────────────
+# Cross-project shared knowledge. Decisions, patterns, learnings.
+
+[stores.global.graph]
+enabled = true
+kind = "surreal"
+path = "global/surreal/knowledge"
+namespace = "global"
+database = "knowledge"
+
+# ── Project scope ────────────────────────────────────────────────
+# Per-project data lives under projects/{id}/ — created on demand.
+# Config here defines the TEMPLATE for each new project namespace.
+
+[stores.project.graph]
+enabled = true
+kind = "surreal"
+# Path is a template: {project_id} replaced at runtime
+path_template = "projects/{project_id}/surreal/context"
+namespace = "project"
+# Database name is the project ID, set at runtime
+
+# ── Windows hardening ────────────────────────────────────────────
+
+[windows]
+# Retry file operations on sharing violations (ERROR_SHARING_VIOLATION)
+file_lock_retries = 5
+file_lock_retry_delay_ms = 200
+# Skip path canonicalization (avoids \\?\ extended-length prefix issues)
+skip_canonicalize = true
+# Use short paths for SurrealKV to avoid MAX_PATH (260 char) issues
+max_path_depth = 200
+
+# ── Dependencies ─────────────────────────────────────────────────
+# Managed by `cargo xtask deps`. Repos are defined in xtask/src/commands/deps.rs.
+# Run `cargo xtask deps` before build to pull and verify all external repos:
+#   rro (alpha), rust-stemmers, wal (rro-alpha), tar-rs (rro-alpha), Kokoros

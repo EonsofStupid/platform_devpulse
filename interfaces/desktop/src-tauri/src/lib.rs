@@ -29,25 +29,49 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
-            // Dev: project-local data/ dir (already gitignored).
-            // Release: standard OS app data dir.
+            // Portable-first data directory resolution.
+            //
+            // Default: .userdata/ relative to project root (portable — nothing
+            // leaves the project boundary). Override: set portable.enabled = false
+            // in platform.toml to use OS-standard app data dirs.
+            //
+            // Dev mode always uses .userdata/ at project root.
+            // Release mode checks for .userdata/ next to the binary first
+            // (portable install), then falls back to OS app data dir.
             let data_dir = if cfg!(debug_assertions) {
-                // CARGO_MANIFEST_DIR = interfaces/desktop/src-tauri
-                // Go up 3 levels to project root, then into data/
+                // Dev: CARGO_MANIFEST_DIR is valid at compile time.
+                // interfaces/desktop/src-tauri → up 3 levels → project root
                 let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
                 let project_root = manifest
                     .parent() // interfaces/desktop
                     .and_then(|p| p.parent()) // interfaces
                     .and_then(|p| p.parent()) // project root
                     .expect("Failed to resolve project root from CARGO_MANIFEST_DIR");
-                let dev_data = project_root.join("data");
+                let dev_data = project_root.join(".userdata");
                 std::fs::create_dir_all(&dev_data)
-                    .expect("Failed to create dev data directory");
+                    .expect("Failed to create .userdata directory");
                 dev_data
             } else {
-                app.path()
-                    .app_data_dir()
-                    .expect("Failed to resolve app data dir")
+                // Release: CARGO_MANIFEST_DIR is a compile-time constant
+                // pointing to the build machine — NOT the deployed location.
+                // Use current_exe() to find the binary's actual location.
+                let exe_dir = std::env::current_exe()
+                    .expect("Failed to resolve current executable path")
+                    .parent()
+                    .expect("Executable has no parent directory")
+                    .to_path_buf();
+                let portable_dir = exe_dir.join(".userdata");
+                if portable_dir.exists() {
+                    portable_dir
+                } else {
+                    // Fall back to OS app data dir
+                    let os_dir = app.path()
+                        .app_data_dir()
+                        .expect("Failed to resolve app data dir");
+                    std::fs::create_dir_all(&os_dir)
+                        .expect("Failed to create app data directory");
+                    os_dir
+                }
             };
 
             // Logging: rotate old logs, then init stderr + file together

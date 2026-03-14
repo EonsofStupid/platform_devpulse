@@ -3,6 +3,7 @@
 //! Every subcommand implements [`Task`] — receives the shared [`Workspace`]
 //! context, reports progress via [`Stage`], returns `Result<()>`.
 
+pub mod deps;
 pub mod dev;
 pub mod ip_boundary;
 pub mod preflight;

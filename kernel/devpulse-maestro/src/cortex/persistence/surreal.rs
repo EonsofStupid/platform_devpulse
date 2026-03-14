@@ -24,9 +24,28 @@ pub struct SurrealAdapter {
 impl SurrealAdapter {
     /// Open database at path with `SurrealKV` backend (pure Rust).
     ///
+    /// Uses the default maestro reasoning namespace/database.
+    ///
     /// # Errors
     /// Returns error if the database cannot be opened or schema initialization fails.
     pub async fn open(path: &Path) -> Result<Self> {
+        Self::open_with_ns(
+            path,
+            SurrealNamespace::REASONING.namespace,
+            SurrealNamespace::REASONING.database,
+        )
+        .await
+    }
+
+    /// Open database at path with explicit namespace and database.
+    ///
+    /// This is the primary constructor — `open()` delegates here with
+    /// maestro defaults. Engine-level scoped stores pass their own
+    /// namespace/database from config.
+    ///
+    /// # Errors
+    /// Returns error if the database cannot be opened or schema initialization fails.
+    pub async fn open_with_ns(path: &Path, namespace: &str, database: &str) -> Result<Self> {
         // Ensure the PARENT directory exists — SurrealKV creates its own
         // data directory and needs write access to the parent.
         if let Some(parent) = path.parent() {
@@ -46,11 +65,12 @@ impl SurrealAdapter {
                 )
             })?;
 
-        // Use maestro namespace and devpulse database
-        db.use_ns(SurrealNamespace::REASONING.namespace)
-            .use_db(SurrealNamespace::REASONING.database)
+        db.use_ns(namespace)
+            .use_db(database)
             .await
-            .context("Failed to select namespace/database")?;
+            .with_context(|| {
+                format!("Failed to select namespace '{namespace}' / database '{database}'")
+            })?;
 
         let adapter = Self {
             db: Arc::new(RwLock::new(db)),

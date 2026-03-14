@@ -27,6 +27,8 @@ struct Cli {
 enum Commands {
     /// Pre-flight checks: verify toolchain and dependencies.
     Preflight,
+    /// Pull and verify external dependency repos.
+    Deps,
     /// Start the full Tauri dev environment (desktop + engine).
     RunDev,
     /// Verify the setup: svelte-check + cargo check.
@@ -41,6 +43,7 @@ fn main() -> anyhow::Result<()> {
 
     let task: Box<dyn Task> = match cli.command {
         Commands::Preflight => Box::new(commands::preflight::Preflight),
+        Commands::Deps => Box::new(commands::deps::Deps),
         Commands::RunDev => Box::new(commands::dev::Dev),
         Commands::Verify => Box::new(commands::verify::Verify),
         Commands::VerifyIpBoundary => Box::new(commands::ip_boundary::IpBoundary),

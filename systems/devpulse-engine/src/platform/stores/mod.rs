@@ -7,7 +7,6 @@ pub mod analytics;
 pub mod cache;
 pub mod graph;
 pub mod relational;
-pub mod vector;
 
 use anyhow::Result;
 
