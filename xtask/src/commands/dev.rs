@@ -98,8 +98,17 @@ impl Task for Dev {
             stage::section("Backend");
         }
         println!("  > cargo check -p devpulse_desktop_backend");
-        println!("  > Scope: Tauri backend + Platform facade + 4 services");
+        println!("  > Scope: Tauri backend + Platform facade + 7 services");
         log.entry(&format!("backend_compile: ~{estimated} crates in dep graph"))?;
+
+        // Build environment — required for optional service deps:
+        //   - outlines-core needs pyo3 which needs Python path + ABI compat flag
+        //   - kokoros needs audiopus_sys which needs CMake compat flag
+        if let Ok(python) = which::which("python") {
+            std::env::set_var("PYO3_PYTHON", python);
+        }
+        std::env::set_var("PYO3_USE_ABI3_FORWARD_COMPATIBILITY", "1");
+        std::env::set_var("CMAKE_POLICY_VERSION_MINIMUM", "3.5");
 
         let compile_start = Instant::now();
         let cargo_child = ws.spawn_in_stderr_piped(
@@ -149,7 +158,7 @@ impl Task for Dev {
         println!("  > pnpm tauri dev");
         let dev_bind = &platform_config.services.network.dev_server.bind;
         println!("  > Vite        → http://{}:{}", dev_bind, dev_port);
-        println!("  > Platform    → LibSQL + DuckDB + SurrealDB + Moka");
+        println!("  > Platform    → LibSQL + DuckDB + SurrealDB + Moka + RRO + Kokoros + Outlines");
         let graph_api = &platform_config.services.network.graph_api;
         println!("  > SurrealDB   → http://{}:{} (HTTP server)", graph_api.bind, graph_api.port);
         println!("  > Ctrl+C      → kills all children (job object enforced)");
