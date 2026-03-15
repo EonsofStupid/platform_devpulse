@@ -4,7 +4,7 @@
 //!   1. Banner
 //!   2. Job Object creation — all children die when xtask dies (Windows)
 //!   3. Zombie cleanup — kill stale processes from crashed sessions
-//!   4. Port management — ensure :1420 is free
+//!   4. Port management — ensure dev port is free (config-driven)
 //!   5. Pre-flight — validate toolchain
 //!   6. Backend compile — cargo check with live progress (spinner + crate count + elapsed)
 //!   7. Launch — `pnpm tauri dev`
@@ -38,6 +38,8 @@ impl Task for Dev {
 
     fn run(&self, ws: &Workspace) -> anyhow::Result<()> {
         let run_start = Instant::now();
+        let platform_config = ws.platform_config()?;
+        let dev_port = platform_config.services.network.dev_server.port;
 
         // ── Log file setup ──
         // Overwrites on each run — always reflects the latest session.
@@ -74,14 +76,14 @@ impl Task for Dev {
         // ── Stage 3: Zombie cleanup ──
         stage::section("Cleanup");
         let cleanup_start = Instant::now();
-        zombie::cleanup()?;
+        zombie::cleanup(dev_port)?;
         log.stage_timed("zombie_cleanup", "OK", "stale processes cleaned", cleanup_start)?;
 
         // ── Stage 4: Port management ──
         stage::section("Port Check");
         let port_start = Instant::now();
-        net::ensure_port_free(net::DEV_PORT)?;
-        log.stage_timed("port_check", "OK", &format!(":{} free", net::DEV_PORT), port_start)?;
+        net::ensure_port_free(dev_port)?;
+        log.stage_timed("port_check", "OK", &format!(":{} free", dev_port), port_start)?;
 
         // ── Stage 5: Pre-flight ──
         let preflight_start = Instant::now();
@@ -96,7 +98,7 @@ impl Task for Dev {
             stage::section("Backend");
         }
         println!("  > cargo check -p devpulse_desktop_backend");
-        println!("  > Scope: Tauri backend + Platform facade + 4 stores");
+        println!("  > Scope: Tauri backend + Platform facade + 4 services");
         log.entry(&format!("backend_compile: ~{estimated} crates in dep graph"))?;
 
         let compile_start = Instant::now();
@@ -121,7 +123,7 @@ impl Task for Dev {
             log.footer(run_start)?;
             anyhow::bail!(
                 "Backend compilation failed — fix the Rust errors above.\n  \
-                 Scope: Tauri backend, Platform facade, all 4 embedded stores\n  \
+                 Scope: Tauri backend, Platform facade, all 4 embedded services\n  \
                  (LibSQL, DuckDB, SurrealDB, Moka)."
             );
         }
@@ -134,9 +136,9 @@ impl Task for Dev {
         )?;
 
         // Re-verify port — something might have grabbed it during compile
-        if !net::port_is_free(net::DEV_PORT) {
+        if !net::port_is_free(dev_port) {
             stage::section("Port Recovery");
-            net::ensure_port_free(net::DEV_PORT)?;
+            net::ensure_port_free(dev_port)?;
             log.stage("port_recovery", "OK", "port reclaimed after compile")?;
         }
 
@@ -145,13 +147,18 @@ impl Task for Dev {
         // exec_in() uses .status() which never returns a handle — zombies escape.
         stage::section("Launch");
         println!("  > pnpm tauri dev");
-        println!("  > Vite        → http://localhost:{}", net::DEV_PORT);
+        let dev_bind = &platform_config.services.network.dev_server.bind;
+        println!("  > Vite        → http://{}:{}", dev_bind, dev_port);
         println!("  > Platform    → LibSQL + DuckDB + SurrealDB + Moka");
-        println!("  > SurrealDB   → http://127.0.0.1:8822 (HTTP server)");
+        let graph_api = &platform_config.services.network.graph_api;
+        println!("  > SurrealDB   → http://{}:{} (HTTP server)", graph_api.bind, graph_api.port);
         println!("  > Ctrl+C      → kills all children (job object enforced)");
         println!();
         log.stage("launch", "START", "pnpm tauri dev")?;
         log.footer(run_start)?;
+
+        // Set env var so Vite reads port from config SSOT
+        std::env::set_var("DEVPULSE_DEV_PORT", dev_port.to_string());
 
         let mut tauri_child = ws.spawn_in_verbose(
             &ws.desktop_dir(),

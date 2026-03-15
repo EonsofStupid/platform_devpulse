@@ -15,8 +15,8 @@
 				"title": "DevPulse",
 				"width": 1280,
 				"height": 800,
-				"transparent": true,
-				"decorations": false,
+				"transparent": false,
+				"decorations": true,
 				"visible": true
 			}
 		],

@@ -1,24 +1,24 @@
-//! Graph store wrapper (`SurrealDB`).
+//! Graph service wrapper (`SurrealDB`).
 //!
 //! Three scoped schemas:
 //! - **System**: FSM state machine, kernel reasoning, state transitions
 //! - **User**: knowledge graph, learning patterns, memory relationships
 //! - **Global**: cross-project concepts, shared knowledge base
 
-use super::{Store, StoreRole};
+use super::{Service, ServiceRole};
 use anyhow::Result;
 use devpulse_maestro::cortex::persistence::SurrealAdapter;
 use std::path::Path;
 use std::sync::Arc;
 
 /// Graph store backed by `SurrealDB`.
-pub struct GraphStore {
+pub struct GraphService {
     adapter: Arc<SurrealAdapter>,
     /// Scoped name for health checks (e.g., "System graph", "User graph").
     label: &'static str,
 }
 
-impl GraphStore {
+impl GraphService {
     /// Boot the graph store with explicit namespace, database, and schema.
     ///
     /// # Errors
@@ -52,13 +52,13 @@ impl GraphStore {
     }
 }
 
-impl Store for GraphStore {
+impl Service for GraphService {
     fn name(&self) -> &'static str {
         self.label
     }
 
-    fn role(&self) -> StoreRole {
-        StoreRole::Graph
+    fn role(&self) -> ServiceRole {
+        ServiceRole::Graph
     }
 
     async fn ping(&self) -> Result<()> {
@@ -70,7 +70,7 @@ impl Store for GraphStore {
     }
 
     async fn shutdown(&self) -> Result<()> {
-        tracing::info!(store = self.label, "Shutting down SurrealDB store");
+        tracing::info!(service = self.label, "Shutting down SurrealDB service");
         self.adapter.close().await;
         Ok(())
     }

@@ -11802,7 +11802,9 @@ dependencies = [
  "anyhow",
  "cargo_metadata 0.18.1",
  "clap",
+ "serde",
  "serde_json",
+ "toml 0.8.2",
  "which 7.0.3",
  "windows-sys 0.59.0",
 ]

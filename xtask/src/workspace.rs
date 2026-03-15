@@ -5,6 +5,7 @@
 //! with `node_modules/.bin`, and spawn/exec helpers.
 
 use anyhow::{Context, Result};
+use serde::Deserialize;
 use std::env;
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command, ExitStatus};
@@ -49,6 +50,19 @@ impl Workspace {
     /// `interfaces/desktop/` — SvelteKit + Tauri frontend.
     pub fn desktop_dir(&self) -> PathBuf {
         self.root.join("interfaces").join("desktop")
+    }
+
+    /// Load platform config from `platform.default.toml` — SSOT for ports.
+    pub fn platform_config(&self) -> Result<PlatformConfig> {
+        let toml_path = self.root
+            .join("systems")
+            .join("devpulse-engine")
+            .join("platform.default.toml");
+        let content = std::fs::read_to_string(&toml_path)
+            .with_context(|| format!("failed to read {}", toml_path.display()))?;
+        let config: PlatformConfig = toml::from_str(&content)
+            .with_context(|| format!("failed to parse {}", toml_path.display()))?;
+        Ok(config)
     }
 
     // ── Tool Resolution ────────────────────────────────────────────
@@ -177,6 +191,51 @@ impl Workspace {
                 format!("failed to spawn `{program}` in {}", dir.display())
             })
     }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Platform config — minimal deserialization for xtask
+// ═══════════════════════════════════════════════════════════════
+
+/// Minimal view of `platform.default.toml` — only what xtask needs.
+#[derive(Debug, Deserialize)]
+pub struct PlatformConfig {
+    /// Service configurations.
+    pub services: PlatformServicesConfig,
+}
+
+/// Top-level services scope.
+#[derive(Debug, Deserialize)]
+pub struct PlatformServicesConfig {
+    /// Network services (ports, bind addresses).
+    pub network: PlatformNetworkConfig,
+}
+
+/// Network services — ports are the SSOT.
+#[derive(Debug, Deserialize)]
+pub struct PlatformNetworkConfig {
+    /// Vite dev server.
+    pub dev_server: PlatformDevServerConfig,
+    /// `SurrealDB` HTTP API.
+    pub graph_api: PlatformGraphApiConfig,
+}
+
+/// Dev server config — port defined in `[services.network.dev_server]`.
+#[derive(Debug, Deserialize)]
+pub struct PlatformDevServerConfig {
+    /// Port the Vite dev server binds.
+    pub port: u16,
+    /// Bind address.
+    pub bind: String,
+}
+
+/// Graph API config — port defined in `[services.network.graph_api]`.
+#[derive(Debug, Deserialize)]
+pub struct PlatformGraphApiConfig {
+    /// Port the `SurrealDB` HTTP API binds.
+    pub port: u16,
+    /// Bind address.
+    pub bind: String,
 }
 
 /// Walk up from `start` to find the monorepo root.

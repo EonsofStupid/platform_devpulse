@@ -1,4 +1,4 @@
-//! `DevPulse` dashboard commands — real data from stores.
+//! `DevPulse` dashboard commands — real data from services.
 //!
 //! Queries `LibSQL` (projects, sessions, messages) and `DuckDB` (`daily_stats`)
 //! to populate the `DevPulse` dashboard with live data.
@@ -62,7 +62,7 @@ pub struct MessageStats {
     pub total_sessions: i64,
 }
 
-/// Single IPC response for the dashboard route. Assembles data from all stores.
+/// Single IPC response for the dashboard route. Assembles data from all services.
 ///
 /// `LibSQL` may be unavailable during early boot — fields fall back to empty/zero.
 #[derive(Debug, Serialize)]
@@ -73,7 +73,7 @@ pub struct DashboardPayload {
     pub project_count: i64,
     /// Reverse-chronological, capped at 20 rows. Empty if `DuckDB` is unavailable.
     pub daily_stats: Vec<DailyStatsRow>,
-    /// Both fields zero if the Moka store hasn't initialized yet.
+    /// Both fields zero if the Moka service hasn't initialized yet.
     pub cache_stats: CacheStats,
     /// Both fields zero if `LibSQL` is unavailable.
     pub message_stats: MessageStats,
@@ -81,7 +81,7 @@ pub struct DashboardPayload {
     pub uptime_secs: u64,
 }
 
-/// Fetch dashboard data from all stores.
+/// Fetch dashboard data from all services.
 ///
 /// Queries:
 /// - `LibSQL`: projects (recent 8), project count, message/session counts
@@ -96,8 +96,8 @@ pub async fn fetch_dashboard(
     let platform = lock.as_ref().ok_or("Platform is still booting")?;
 
     // ── LibSQL queries ───────────────────────────────────────────────────
-    let (projects, project_count, message_stats) = if let Some(store) = platform.relational() {
-        let adapter = store.adapter();
+    let (projects, project_count, message_stats) = if let Some(svc) = platform.relational() {
+        let adapter = svc.adapter();
 
         // Recent projects (up to 8)
         let project_rows = adapter
@@ -173,8 +173,8 @@ pub async fn fetch_dashboard(
     };
 
     // ── DuckDB queries ───────────────────────────────────────────────────
-    let daily_stats = if let Some(store) = platform.analytics() {
-        let adapter = store.adapter();
+    let daily_stats = if let Some(svc) = platform.analytics() {
+        let adapter = svc.adapter();
 
         let stats_rows = adapter
             .analytics_query(
@@ -199,8 +199,8 @@ pub async fn fetch_dashboard(
     };
 
     // ── Moka cache stats ─────────────────────────────────────────────────
-    let cache_stats = if let Some(store) = platform.cache() {
-        let (entry_count, max_capacity) = store.adapter().stats();
+    let cache_stats = if let Some(svc) = platform.cache() {
+        let (entry_count, max_capacity) = svc.adapter().stats();
         CacheStats {
             entry_count,
             max_capacity,

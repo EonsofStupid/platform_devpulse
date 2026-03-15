@@ -17,7 +17,7 @@
 //! ## Stale Process Cleanup
 //!
 //! On startup, scans for leftover processes from crashed sessions and
-//! terminates them before they block port 1420 or hold cargo locks.
+//! terminates them before they block the dev port or hold cargo locks.
 
 use crate::stage::Stage;
 use anyhow::Result;
@@ -125,25 +125,29 @@ const ZOMBIE_NAMES: &[&str] = &[
     "cargo-tauri",
 ];
 
-/// Command-line patterns that identify DevPulse dev processes.
-/// Matches against the full command line so we don't kill unrelated node/vite instances.
-const ZOMBIE_PATTERNS: &[&str] = &[
-    "tauri dev",
-    "vite --port 1420",
-    "vite.bin.js --port 1420",
-    "node_modules/.bin/tauri",
-    "node_modules\\.bin\\tauri",
-];
+/// Build command-line patterns that identify DevPulse dev processes.
+/// Port is config-driven — no hardcoded values.
+fn zombie_patterns(dev_port: u16) -> Vec<String> {
+    vec![
+        "tauri dev".to_string(),
+        format!("vite --port {dev_port}"),
+        format!("vite.bin.js --port {dev_port}"),
+        "node_modules/.bin/tauri".to_string(),
+        "node_modules\\.bin\\tauri".to_string(),
+    ]
+}
 
 /// Scan for and kill zombie processes from previous dev sessions.
-pub fn cleanup() -> Result<u32> {
+///
+/// `dev_port` is read from `[services.network.dev_server]` in `platform.default.toml`.
+pub fn cleanup(dev_port: u16) -> Result<u32> {
     let stage = Stage::start("zombie scan");
 
     #[cfg(windows)]
-    let killed = cleanup_windows();
+    let killed = cleanup_windows(dev_port);
 
     #[cfg(not(windows))]
-    let killed = cleanup_unix();
+    let killed = cleanup_unix(dev_port);
 
     let killed = killed?;
 
@@ -157,7 +161,7 @@ pub fn cleanup() -> Result<u32> {
 }
 
 #[cfg(windows)]
-fn cleanup_windows() -> Result<u32> {
+fn cleanup_windows(dev_port: u16) -> Result<u32> {
     use std::process::Command;
 
     let mut killed = 0u32;
@@ -195,7 +199,8 @@ fn cleanup_windows() -> Result<u32> {
 
     // Phase 2: Kill by command-line pattern via PowerShell
     // PowerShell can kill process trees even when taskkill can't
-    for pattern in ZOMBIE_PATTERNS {
+    let patterns = zombie_patterns(dev_port);
+    for pattern in &patterns {
         let ps = Command::new("powershell")
             .args([
                 "-NoProfile",
@@ -222,7 +227,7 @@ fn cleanup_windows() -> Result<u32> {
 }
 
 #[cfg(not(windows))]
-fn cleanup_unix() -> Result<u32> {
+fn cleanup_unix(_dev_port: u16) -> Result<u32> {
     use std::process::Command;
 
     let mut killed = 0u32;

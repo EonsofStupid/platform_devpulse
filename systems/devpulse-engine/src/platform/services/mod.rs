@@ -1,6 +1,6 @@
-//! Store modules — one wrapper per database.
+//! Service modules — one wrapper per database engine.
 //!
-//! Each store wraps a maestro adapter with a uniform `Store` trait
+//! Each service wraps a maestro adapter with a uniform `Service` trait
 //! for config-driven boot and health orchestration.
 
 pub mod analytics;
@@ -12,41 +12,41 @@ pub mod vector;
 
 use anyhow::Result;
 
-/// Identifies a store's role in the platform.
+/// Identifies a service's role in the platform.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum StoreRole {
-    /// Relational store (`LibSQL`).
+pub enum ServiceRole {
+    /// Relational service (`LibSQL`).
     Relational,
-    /// Analytics store (`DuckDB`).
+    /// Analytics service (`DuckDB`).
     Analytics,
-    /// Graph store (`SurrealDB`).
+    /// Graph service (`SurrealDB`).
     Graph,
     /// In-memory cache (`Moka`).
     Cache,
-    /// Vector store (`RRO`).
+    /// Vector service (`RRO`).
     Vector,
 }
 
-/// Uniform interface for all platform stores.
+/// Uniform interface for all platform services.
 #[allow(async_fn_in_trait)]
-pub trait Store: Send + Sync {
+pub trait Service: Send + Sync {
     /// Human-readable name for health checks and events.
     fn name(&self) -> &'static str;
 
-    /// This store's role.
-    fn role(&self) -> StoreRole;
+    /// This service's role.
+    fn role(&self) -> ServiceRole;
 
-    /// Ping the store — health check.
+    /// Ping the service — health check.
     async fn ping(&self) -> Result<()>;
 
-    /// Whether the store is ready to serve.
+    /// Whether the service is ready to serve.
     fn is_ready(&self) -> bool;
 
     /// Graceful shutdown — flush and release resources.
     ///
     /// Called during platform shutdown before process exit. Implementations
     /// should checkpoint WAL, flush buffers, and release file locks.
-    /// Default is no-op for stores that don't need explicit cleanup (e.g. Moka).
+    /// Default is no-op for services that don't need explicit cleanup (e.g. Moka).
     async fn shutdown(&self) -> Result<()> {
         Ok(())
     }

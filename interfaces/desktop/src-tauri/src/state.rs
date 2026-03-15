@@ -25,9 +25,9 @@ pub struct PlatformState {
 /// Boot phase — serialized to frontend as `PascalCase`.
 #[derive(Debug, Clone, Serialize)]
 pub enum BootPhase {
-    /// Platform is still starting up — stores initializing.
+    /// Platform is still starting up — services initializing.
     Initializing,
-    /// All stores booted successfully (or degraded gracefully).
+    /// All services booted successfully (or degraded gracefully).
     Ready,
     /// Boot failed — see `BootSnapshot::error` for details.
     Failed,

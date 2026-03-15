@@ -13,7 +13,7 @@ pub enum SinkKind {
     Cache,
     /// Durable storage (libsql)
     Durable,
-    /// Vector store (embedding search)
+    /// Vector service (embedding search)
     Vector,
     /// Parking lot (deferred processing)
     Parking,

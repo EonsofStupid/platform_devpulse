@@ -39,10 +39,10 @@ pub async fn send_message(
     let lock = state.platform.read().await;
     let platform = lock.as_ref().ok_or("Platform is still booting")?;
 
-    let store = platform
+    let svc = platform
         .relational()
-        .ok_or("Relational store not available")?;
-    let adapter = store.adapter();
+        .ok_or("Relational service not available")?;
+    let adapter = svc.adapter();
 
     // Get or create active session
     let session_rows = adapter

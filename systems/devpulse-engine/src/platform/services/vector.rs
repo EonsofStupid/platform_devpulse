@@ -1,4 +1,4 @@
-//! Vector store wrapper (`RRO` — embedded Qdrant engine).
+//! Vector service wrapper (`RRO` — embedded Qdrant engine).
 //!
 //! Direct tokio channel communication to the RRO engine thread.
 //! No HTTP, no gRPC — sub-millisecond message passing for
@@ -7,17 +7,17 @@
 //! Part of the two-tier retrieval pipeline:
 //!   RRO (broad ANN → top 50) → Moka (hot cache → top 10 instant)
 
-use super::{Store, StoreRole};
+use super::{Service, ServiceRole};
 use anyhow::Result;
 use devpulse_maestro::cortex::persistence::RroAdapter;
 use std::sync::Arc;
 
 /// Vector store backed by RRO (embedded Qdrant).
-pub struct VectorStore {
+pub struct VectorService {
     adapter: Arc<RroAdapter>,
 }
 
-impl VectorStore {
+impl VectorService {
     /// Boot the vector store with optional config path.
     ///
     /// # Errors
@@ -35,13 +35,13 @@ impl VectorStore {
     }
 }
 
-impl Store for VectorStore {
+impl Service for VectorService {
     fn name(&self) -> &'static str {
-        "Vector store"
+        "Vector service"
     }
 
-    fn role(&self) -> StoreRole {
-        StoreRole::Vector
+    fn role(&self) -> ServiceRole {
+        ServiceRole::Vector
     }
 
     async fn ping(&self) -> Result<()> {

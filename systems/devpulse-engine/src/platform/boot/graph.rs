@@ -2,7 +2,7 @@
 //!
 //! Opens ONE `SurrealKV` instance at `.userdata/surreal/devpulse` and
 //! initializes system, user, and global namespaces. Then starts the
-//! HTTP server on :8822 for external tool access.
+//! HTTP server on the configured port for external tool access.
 //!
 //! # Recovery Policy
 //! Uses the standard retry utility with exponential backoff on file lock errors.
@@ -12,8 +12,8 @@ use crate::platform::boot::retry;
 use crate::platform::config::{PlatformBootConfig, sanitize_path};
 use crate::platform::init::InitEvent;
 use crate::platform::server;
-use crate::platform::stores::graph::{
-    GraphStore, GLOBAL_GRAPH_SCHEMA, SYSTEM_GRAPH_SCHEMA, USER_GRAPH_SCHEMA,
+use crate::platform::services::graph::{
+    GraphService, GLOBAL_GRAPH_SCHEMA, SYSTEM_GRAPH_SCHEMA, USER_GRAPH_SCHEMA,
 };
 use devpulse_maestro::cortex::persistence::SurrealAdapter;
 use std::path::Path;
@@ -30,13 +30,13 @@ pub async fn boot_consolidated(
     boot_config: &PlatformBootConfig,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
 ) -> (
-    Option<Arc<GraphStore>>,
-    Option<Arc<GraphStore>>,
-    Option<Arc<GraphStore>>,
+    Option<Arc<GraphService>>,
+    Option<Arc<GraphService>>,
+    Option<Arc<GraphService>>,
 ) {
-    let any_graph_enabled = boot_config.stores.system.graph.enabled
-        || boot_config.stores.user.graph.enabled
-        || boot_config.stores.global.graph.enabled;
+    let any_graph_enabled = boot_config.services.system.graph.enabled
+        || boot_config.services.user.graph.enabled
+        || boot_config.services.global.graph.enabled;
 
     if !any_graph_enabled {
         on_event(InitEvent::skipped("Graph store (SurrealDB)"));
@@ -62,7 +62,7 @@ pub async fn boot_consolidated(
     }
 
     // Open ONE SurrealKV instance with retry — uses per-store config
-    let sys_cfg = &boot_config.stores.system.graph;
+    let sys_cfg = &boot_config.services.system.graph;
     let retry_cfg = sys_cfg.retry.to_retry_config();
     let ns = sys_cfg.namespace.clone();
     let db = sys_cfg.database.clone();
@@ -92,7 +92,7 @@ pub async fn boot_consolidated(
     let adapter = Arc::new(adapter);
 
     // Initialize user namespace on the same instance
-    let usr_cfg = &boot_config.stores.user.graph;
+    let usr_cfg = &boot_config.services.user.graph;
     if usr_cfg.enabled {
         if let Err(e) = adapter.init_namespace(
             &usr_cfg.namespace,
@@ -105,7 +105,7 @@ pub async fn boot_consolidated(
     }
 
     // Initialize global namespace on the same instance
-    let glb_cfg = &boot_config.stores.global.graph;
+    let glb_cfg = &boot_config.services.global.graph;
     if glb_cfg.enabled {
         if let Err(e) = adapter.init_namespace(
             &glb_cfg.namespace,
@@ -126,34 +126,40 @@ pub async fn boot_consolidated(
     );
     on_event(InitEvent::ok_with_latency("Graph store", start.elapsed()));
 
-    // Start HTTP server on :8822
-    on_event(InitEvent::running("SurrealDB HTTP", "Starting server on :8822"));
-    match server::start(Arc::clone(&adapter), server::DEFAULT_PORT).await {
-        Ok(()) => {
-            tracing::info!(port = server::DEFAULT_PORT, "SurrealDB HTTP server ready");
-            on_event(InitEvent::ok("SurrealDB HTTP", "Listening on :8822"));
+    // Start HTTP server on configured port
+    let graph_api = &boot_config.services.network.graph_api;
+    if graph_api.enabled {
+        let api_port = graph_api.port;
+        on_event(InitEvent::running("SurrealDB HTTP", &format!("Starting server on :{api_port}")));
+        match server::start(Arc::clone(&adapter), api_port).await {
+            Ok(()) => {
+                tracing::info!(port = api_port, "SurrealDB HTTP server ready");
+                on_event(InitEvent::ok("SurrealDB HTTP", &format!("Listening on :{api_port}")));
+            }
+            Err(e) => {
+                tracing::warn!(error = ?e, "SurrealDB HTTP server failed to start (non-fatal)");
+                on_event(InitEvent::error("SurrealDB HTTP", &format!("{e:#}")));
+            }
         }
-        Err(e) => {
-            tracing::warn!(error = ?e, "SurrealDB HTTP server failed to start (non-fatal)");
-            on_event(InitEvent::error("SurrealDB HTTP", &format!("{e:#}")));
-        }
+    } else {
+        on_event(InitEvent::skipped("SurrealDB HTTP"));
     }
 
-    // Build scoped graph stores from the shared adapter
-    let system_graph = if boot_config.stores.system.graph.enabled {
-        Some(Arc::new(GraphStore::from_shared(Arc::clone(&adapter), "System graph")))
+    // Build scoped graph services from the shared adapter
+    let system_graph = if boot_config.services.system.graph.enabled {
+        Some(Arc::new(GraphService::from_shared(Arc::clone(&adapter), "System graph")))
     } else {
         None
     };
 
-    let user_graph = if boot_config.stores.user.graph.enabled {
-        Some(Arc::new(GraphStore::from_shared(Arc::clone(&adapter), "User graph")))
+    let user_graph = if boot_config.services.user.graph.enabled {
+        Some(Arc::new(GraphService::from_shared(Arc::clone(&adapter), "User graph")))
     } else {
         None
     };
 
-    let global_graph = if boot_config.stores.global.graph.enabled {
-        Some(Arc::new(GraphStore::from_shared(adapter, "Global graph")))
+    let global_graph = if boot_config.services.global.graph.enabled {
+        Some(Arc::new(GraphService::from_shared(adapter, "Global graph")))
     } else {
         None
     };

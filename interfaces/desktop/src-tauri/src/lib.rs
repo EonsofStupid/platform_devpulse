@@ -6,13 +6,13 @@
 //! # Boot Architecture: Progressive Hydration
 //! `setup()` returns instantly. Main window is visible immediately.
 //! Subsystems boot in background via spawned task.
-//! `StatusBar` shows real-time per-store progress.
+//! `StatusBar` shows real-time per-service progress.
 
 pub mod commands;
 pub mod logging;
 pub mod state;
 
-use devpulse_engine::platform::{InitStatus, Platform};
+use devpulse_engine::platform::{InitStatus, Platform, PlatformBootConfig};
 use state::{BootStateTracker, PlatformState};
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -102,22 +102,29 @@ pub fn run() {
             });
             app.manage(BootStateTracker::new());
 
-            // Dev mode: verify Vite dev server is reachable before boot
+            // Dev mode: verify Vite dev server is reachable before boot.
+            // Port is config-driven from [services.network.dev_server] in platform.default.toml.
             // In production, frontendDist is embedded — this check is skipped.
             #[cfg(debug_assertions)]
             {
-                let dev_url = "http://localhost:1420";
-                tracing::info!(url = dev_url, "Checking frontend dev server");
+                let boot_config = PlatformBootConfig::load(&data_dir)
+                    .unwrap_or_default();
+                let dev_port = boot_config.services.network.dev_server.port;
+                let dev_url = format!("http://localhost:{dev_port}");
+                tracing::info!(url = %dev_url, "Checking frontend dev server");
+                let addr: std::net::SocketAddr = format!("127.0.0.1:{dev_port}")
+                    .parse()
+                    .expect("valid addr");
                 match std::net::TcpStream::connect_timeout(
-                    &"127.0.0.1:1420".parse().expect("valid addr"),
+                    &addr,
                     std::time::Duration::from_secs(2),
                 ) {
                     Ok(_) => {
-                        tracing::info!(url = dev_url, "Frontend dev server is reachable");
+                        tracing::info!(url = %dev_url, "Frontend dev server is reachable");
                     }
                     Err(e) => {
                         tracing::error!(
-                            url = dev_url,
+                            url = %dev_url,
                             error = %e,
                             "Frontend dev server NOT reachable — UI will show connection error. \
                              Run 'cargo xtask run-dev' instead of launching the .exe directly."
@@ -129,7 +136,7 @@ pub fn run() {
                                 font-family:system-ui;display:flex;align-items:center;justify-content:center;\
                                 height:100vh;margin:0;flex-direction:column;gap:16px'>\
                                 <h2 style='color:#2dd4bf'>DevPulse</h2>\
-                                <p>Frontend dev server not running on port 1420</p>\
+                                <p>Frontend dev server not running on port {dev_port}</p>\
                                 <p style='color:#888;font-size:14px'>Run <code style='color:#2dd4bf'>\
                                 cargo xtask run-dev</code> to start both frontend and backend</p>\
                                 <p style='color:#555;font-size:12px'>Error: {e}</p>\
@@ -184,7 +191,7 @@ pub fn run() {
         });
 }
 
-/// Background boot task — boots all platform stores and emits progress events.
+/// Background boot task — boots all platform services and emits progress events.
 ///
 /// Writes `.userdata/logs/boot.log` on every run (overwritten, not appended).
 /// Human-readable summary so you can immediately see what booted and what didn't.
@@ -290,7 +297,7 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
             let _ = writeln!(log, "# Health check:");
             for sub in &health.subsystems {
                 let _ = writeln!(log, "#   {}: {:?}", sub.name, sub.status);
-                tracing::info!(store = %sub.name, status = ?sub.status, "verified");
+                tracing::info!(service = %sub.name, status = ?sub.status, "verified");
             }
             let _ = writeln!(log, "#");
             let _ = writeln!(
@@ -300,7 +307,7 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
             );
             tracing::info!(status = ?health.status, "Platform ready");
 
-            // Dev mode: seed sample data if stores are empty
+            // Dev mode: seed sample data if services are empty
             #[cfg(debug_assertions)]
             {
                 if let Err(e) = seed_dev_data(&platform).await {
@@ -312,7 +319,7 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
             // Record in tracker before emitting
             tracker.set_ready(health.clone());
 
-            // Store platform in managed state
+            // Set platform in managed state
             let state = app.state::<PlatformState>();
             {
                 let mut lock = state.platform.write().await;
@@ -362,8 +369,8 @@ async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
     use devpulse_engine::platform::{AnalyticsAdapter, SqlAdapter};
 
     // Seed system relational: platform_config + boot_history
-    if let Some(store) = platform.relational() {
-        let adapter = store.adapter();
+    if let Some(svc) = platform.relational() {
+        let adapter = svc.adapter();
 
         let rows = adapter
             .query("SELECT COUNT(*) FROM platform_config", &[])
@@ -396,8 +403,8 @@ async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
     }
 
     // Seed user relational: profile + projects + sessions + turns
-    if let Some(store) = platform.user_relational() {
-        let adapter = store.adapter();
+    if let Some(svc) = platform.user_relational() {
+        let adapter = svc.adapter();
 
         let rows = adapter
             .query("SELECT COUNT(*) FROM projects", &[])
@@ -428,15 +435,15 @@ async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
 
                     INSERT INTO sessions (id, project_id, title, context_mode) VALUES
                         ('sess-1', 'proj-1', 'Build pipeline analysis', 'normal'),
-                        ('sess-2', 'proj-2', 'Store health review', 'normal');
+                        ('sess-2', 'proj-2', 'Service health review', 'normal');
 
                     INSERT INTO turns (id, session_id, project_id, role, content, sequence_num) VALUES
                         ('turn-1', 'sess-1', 'proj-1', 'user', 'Analyze the build pipeline for bottlenecks.', 1),
                         ('turn-2', 'sess-1', 'proj-1', 'assistant', 'Token generation runs in 2.1s avg. Vite HMR at 340ms. svelte-check at 8.2s could use incremental mode.', 2),
                         ('turn-3', 'sess-1', 'proj-1', 'user', 'What about the recipe system performance?', 3),
                         ('turn-4', 'sess-1', 'proj-1', 'assistant', 'The centralized recipe registry with registerRecipe() adds minimal overhead. 28 recipes resolve in under 1ms via Map lookup.', 4),
-                        ('turn-5', 'sess-2', 'proj-2', 'user', 'Show me the store health status.', 1),
-                        ('turn-6', 'sess-2', 'proj-2', 'assistant', 'All stores healthy. LibSQL: 3ms, DuckDB: 1ms, SurrealDB: 12ms, Moka: under 1ms.', 2);
+                        ('turn-5', 'sess-2', 'proj-2', 'user', 'Show me the service health status.', 1),
+                        ('turn-6', 'sess-2', 'proj-2', 'assistant', 'All services healthy. LibSQL: 3ms, DuckDB: 1ms, SurrealDB: 12ms, Moka: under 1ms.', 2);
                     ",
                 )
                 .await?;
@@ -446,8 +453,8 @@ async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
     }
 
     // Seed DuckDB daily_stats
-    if let Some(store) = platform.analytics() {
-        let adapter = store.adapter();
+    if let Some(svc) = platform.analytics() {
+        let adapter = svc.adapter();
 
         let rows = adapter
             .analytics_query("SELECT COUNT(*) FROM daily_stats")

@@ -1,5 +1,9 @@
-# Platform store defaults — embedded at compile time via include_str!().
+# Platform service configuration — embedded at compile time via include_str!().
 # Override at runtime by placing a platform.toml in your data directory.
+#
+# Every database, API, and dev tool the platform runs is a SERVICE.
+# Boot pipeline initializes each service, captures output, verifies health.
+# UI does not render until all critical services report ready.
 #
 # Layout:
 #   .userdata/
@@ -7,39 +11,46 @@
 #   │   ├── libsql/     platform.db — kernel state, boot records, internal KV
 #   │   ├── duckdb/     analytics.duckdb — system telemetry, ROTI metrics
 #   │   └── surreal/    reasoning/ — kernel FSM, state transitions, HMM
-#   ├── user/           User-scoped data (preferences, sessions, memories)
-#   │   ├── libsql/     user.db — sessions, messages, user config
+#   ├── user/           User-scoped data (auto-managed, never user-facing)
+#   │   ├── libsql/     user.db — sessions, messages, tasks, user config
 #   │   └── surreal/    profile/ — user knowledge graph, long-term memory
 #   ├── projects/       Per-project namespaced data (isolated per project ID)
 #   │   └── {id}/
 #   │       └── surreal/ context/ — project-specific knowledge, key junctions
 #   ├── global/         Cross-project shared data
 #   │   └── surreal/    knowledge/ — shared knowledge graph, decisions
-#   └── logs/           Rotated log files
+#   └── logs/           Rotated log files, boot.log
 
 [portable]
 # When true, all data stays within .userdata/ relative to the binary/project root.
 # When false, uses OS-standard app data directories (AppData/Local on Windows).
 enabled = true
 
-# ── System scope ─────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════
+# SERVICES — every component the platform boots is a service
+# ══════════════════════════════════════════════════════════════════
+
+# ── System services ──────────────────────────────────────────────
 # Kernel internals. Never exposed to user. Owns boot state, telemetry, FSM.
 
-[stores.system.relational]
+[services.system.relational]
 enabled = true
+critical = true
 kind = "libsql"
 path = "system/libsql/platform.db"
 retry = { max_retries = 5, base_delay_ms = 500 }
 
-[stores.system.analytics]
+[services.system.analytics]
 enabled = true
+critical = false
 kind = "duckdb"
 path = "system/duckdb/analytics.duckdb"
 # DuckDB uses exclusive file locks — generous retry for hot-reload
 retry = { max_retries = 5, base_delay_ms = 500 }
 
-[stores.system.graph]
+[services.system.graph]
 enabled = true
+critical = true
 kind = "surreal"
 path = "system/surreal/reasoning"
 namespace = "system"
@@ -47,57 +58,93 @@ database = "engine"
 # SurrealKV WAL flush on shutdown can take longer — extra generous
 retry = { max_retries = 5, base_delay_ms = 750 }
 
-[stores.system.cache]
+[services.system.cache]
 enabled = true
+critical = false
 kind = "moka"
 max_capacity = 10_000
 time_to_live_secs = 300
 time_to_idle_secs = 60
 
-[stores.system.vector]
+[services.system.vector]
 enabled = true
+critical = false
 kind = "rro"
 path = "system/rro/storage"
 
-# ── User scope ───────────────────────────────────────────────────
-# User-owned data. Sessions, messages, preferences, personal memory.
+# ── User services ────────────────────────────────────────────────
+# User-owned data. Sessions, messages, tasks, preferences, personal memory.
+# All auto-saved and auto-managed — the user never touches this config.
 
-[stores.user.relational]
+[services.user.relational]
 enabled = true
+critical = false
 kind = "libsql"
 path = "user/libsql/user.db"
 retry = { max_retries = 5, base_delay_ms = 500 }
 
-[stores.user.graph]
+[services.user.graph]
 enabled = true
+critical = false
 kind = "surreal"
 path = "user/surreal/profile"
 namespace = "user"
 database = "profile"
 retry = { max_retries = 5, base_delay_ms = 750 }
 
-# ── Global scope ─────────────────────────────────────────────────
+# ── Global services ──────────────────────────────────────────────
 # Cross-project shared knowledge. Decisions, patterns, learnings.
 
-[stores.global.graph]
+[services.global.graph]
 enabled = true
+critical = false
 kind = "surreal"
 path = "global/surreal/knowledge"
 namespace = "global"
 database = "knowledge"
 retry = { max_retries = 5, base_delay_ms = 750 }
 
-# ── Project scope ────────────────────────────────────────────────
+# ── Project services ─────────────────────────────────────────────
 # Per-project data lives under projects/{id}/ — created on demand.
 # Config here defines the TEMPLATE for each new project namespace.
 
-[stores.project.graph]
+[services.project.graph]
 enabled = true
+critical = false
 kind = "surreal"
 # Path is a template: {project_id} replaced at runtime
 path_template = "projects/{project_id}/surreal/context"
 namespace = "project"
 # Database name is the project ID, set at runtime
+
+# ── Network services ─────────────────────────────────────────────
+# Services that bind ports and serve network requests.
+# Ports defined here are the SSOT — xtask, Vite, Tauri all derive from these.
+
+[services.network.dev_server]
+# Vite dev server — serves SvelteKit frontend during development.
+# xtask injects this as DEVPULSE_DEV_PORT env var before spawning Vite.
+# tauri.conf.json devUrl must match — xtask preflight verifies.
+port = 1420
+bind = "127.0.0.1"
+strict_port = true
+
+[services.network.graph_api]
+# SurrealDB HTTP API — exposes the embedded graph store.
+# External tools (Claude Code, surreal sql, scripts) connect here.
+enabled = true
+critical = true
+port = 8822
+bind = "127.0.0.1"
+
+# ── Boot gate ────────────────────────────────────────────────────
+# Controls when the UI is allowed to render.
+
+[boot]
+# When true, boot task will not emit "ready" until every critical
+# service passes health check. Non-critical failures = degraded mode.
+require_all_critical = true
+timeout_secs = 60
 
 # ── Windows hardening ────────────────────────────────────────────
 

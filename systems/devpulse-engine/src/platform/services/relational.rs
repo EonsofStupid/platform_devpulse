@@ -1,24 +1,24 @@
-//! Relational store wrapper (`LibSQL`).
+//! Relational service wrapper (`LibSQL`).
 //!
 //! Two scoped schemas:
 //! - **System**: platform config, guardian state (git/file drift)
 //! - **User**: profiles, preferences, projects, sessions, turns,
 //!   anchors, open loops, corrections, learnings, concepts, psych
 
-use super::{Store, StoreRole};
+use super::{Service, ServiceRole};
 use anyhow::Result;
 use devpulse_maestro::cortex::persistence::LibSqlAdapter;
 use std::path::Path;
 use std::sync::Arc;
 
 /// Relational store backed by `LibSQL`.
-pub struct RelationalStore {
+pub struct RelationalService {
     adapter: Arc<LibSqlAdapter>,
     /// Scoped name for health checks (e.g., "System relational", "User relational").
     label: &'static str,
 }
 
-impl RelationalStore {
+impl RelationalService {
     /// Boot the relational store with a scope-specific schema.
     ///
     /// # Errors
@@ -37,13 +37,13 @@ impl RelationalStore {
     }
 }
 
-impl Store for RelationalStore {
+impl Service for RelationalService {
     fn name(&self) -> &'static str {
         self.label
     }
 
-    fn role(&self) -> StoreRole {
-        StoreRole::Relational
+    fn role(&self) -> ServiceRole {
+        ServiceRole::Relational
     }
 
     async fn ping(&self) -> Result<()> {
@@ -55,7 +55,7 @@ impl Store for RelationalStore {
     }
 
     async fn shutdown(&self) -> Result<()> {
-        tracing::info!(store = self.label, "Shutting down LibSQL store");
+        tracing::info!(service = self.label, "Shutting down LibSQL service");
         self.adapter.close().await;
         Ok(())
     }
@@ -111,8 +111,8 @@ CREATE TABLE IF NOT EXISTS boot_history (
     started_at INTEGER NOT NULL,
     completed_at INTEGER,
     success INTEGER NOT NULL DEFAULT 0,
-    stores_booted INTEGER DEFAULT 0,
-    stores_failed INTEGER DEFAULT 0,
+    services_booted INTEGER DEFAULT 0,
+    services_failed INTEGER DEFAULT 0,
     total_latency_ms INTEGER,
     error_message TEXT
 );

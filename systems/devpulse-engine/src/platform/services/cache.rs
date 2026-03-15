@@ -1,16 +1,16 @@
-//! Cache store wrapper (`Moka`).
+//! Cache service wrapper (`Moka`).
 
-use super::{Store, StoreRole};
+use super::{Service, ServiceRole};
 use anyhow::Result;
 use devpulse_maestro::cortex::persistence::{MokaAdapter, MokaCacheConfig};
 use std::sync::Arc;
 
 /// In-memory cache store backed by `Moka`.
-pub struct CacheStore {
+pub struct CacheService {
     adapter: Arc<MokaAdapter>,
 }
 
-impl CacheStore {
+impl CacheService {
     /// Boot the cache store from configuration. Infallible.
     pub fn boot(config: MokaCacheConfig) -> Self {
         let adapter = MokaAdapter::new(config);
@@ -25,13 +25,13 @@ impl CacheStore {
     }
 }
 
-impl Store for CacheStore {
+impl Service for CacheService {
     fn name(&self) -> &'static str {
-        "Cache store"
+        "Cache service"
     }
 
-    fn role(&self) -> StoreRole {
-        StoreRole::Cache
+    fn role(&self) -> ServiceRole {
+        ServiceRole::Cache
     }
 
     async fn ping(&self) -> Result<()> {

@@ -13,7 +13,7 @@
 //! --- Backend (423 crates in dependency graph) ---
 //!   ├─ tls layer
 //!   │  compiling rustls                        2.1s    [  8/423]
-//!   ├─ relational store (LibSQL)
+//!   ├─ relational service (LibSQL)
 //!   │  checking  libsql                        4.3s    [ 92/423]
 //!   ├─ platform engine
 //!   │  checking  devpulse-engine               9.1s    [421/423]
@@ -132,11 +132,11 @@ fn crate_layer(name: &str) -> &'static str {
         "devpulse-engine" => "platform engine",
         "devpulse-maestro" => "ai kernel",
         // Database drivers
-        "surrealdb" | "surrealdb-core" | "surrealdb-core2" => "graph store (SurrealDB)",
-        "surrealkv" | "surrealcs" => "graph store (kv engine)",
-        "libsql" | "libsql-sys" => "relational store (LibSQL)",
-        "duckdb" | "libduckdb-sys" => "analytics store (DuckDB)",
-        "moka" => "cache store (Moka)",
+        "surrealdb" | "surrealdb-core" | "surrealdb-core2" => "graph service (SurrealDB)",
+        "surrealkv" | "surrealcs" => "graph service (kv engine)",
+        "libsql" | "libsql-sys" => "relational service (LibSQL)",
+        "duckdb" | "libduckdb-sys" => "analytics service (DuckDB)",
+        "moka" => "cache service (Moka)",
         // Networking
         "reqwest" | "hyper" | "hyper-util" => "http client",
         "rustls" | "rustls-webpki" | "tokio-rustls" | "hyper-rustls" => "tls layer",

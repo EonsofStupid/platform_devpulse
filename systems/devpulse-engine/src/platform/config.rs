@@ -76,17 +76,21 @@ impl Default for DatabaseConfig {
 // Internal boot config (TOML-driven, NOT TS-exported)
 // ═══════════════════════════════════════════════════════════════
 
-/// Embedded default config — SSOT for store settings.
+/// Embedded default config — SSOT for service settings.
 const DEFAULT_CONFIG: &str = include_str!("../../platform.default.toml");
 
 /// Root boot configuration deserialized from TOML.
 #[derive(Debug, Clone, Deserialize)]
+#[derive(Default)]
 pub struct PlatformBootConfig {
     /// Portable mode configuration.
     #[serde(default)]
     pub portable: PortableConfig,
-    /// Per-scope store configurations.
-    pub stores: ScopedStoresConfig,
+    /// Per-scope service configurations.
+    pub services: ScopedServicesConfig,
+    /// Boot gate configuration — controls when UI is allowed to render.
+    #[serde(default)]
+    pub boot: BootGateConfig,
     /// Windows-specific hardening options.
     #[serde(default)]
     pub windows: WindowsConfig,
@@ -134,100 +138,103 @@ impl Default for WindowsConfig {
     }
 }
 
-/// All store configurations, organized by scope.
+/// All service configurations, organized by scope.
 #[derive(Debug, Clone, Deserialize)]
 #[derive(Default)]
-pub struct ScopedStoresConfig {
-    /// System-scope stores (kernel internals).
+pub struct ScopedServicesConfig {
+    /// System-scope services (kernel internals).
     #[serde(default)]
-    pub system: SystemStoresConfig,
-    /// User-scope stores (sessions, preferences).
+    pub system: SystemServicesConfig,
+    /// User-scope services (sessions, preferences, auto-managed).
     #[serde(default)]
-    pub user: UserStoresConfig,
-    /// Global-scope stores (cross-project knowledge).
+    pub user: UserServicesConfig,
+    /// Global-scope services (cross-project knowledge).
     #[serde(default)]
-    pub global: GlobalStoresConfig,
-    /// Project-scope store templates.
+    pub global: GlobalServicesConfig,
+    /// Project-scope service templates.
     #[serde(default)]
-    pub project: ProjectStoresConfig,
+    pub project: ProjectServicesConfig,
+    /// Network services (ports, bind addresses).
+    #[serde(default)]
+    pub network: NetworkServicesConfig,
 }
 
 
-/// System-scope store configuration.
+/// System-scope service configuration.
 #[derive(Debug, Clone, Deserialize)]
-pub struct SystemStoresConfig {
+pub struct SystemServicesConfig {
     /// Relational store (`LibSQL`) — kernel state, boot records.
-    #[serde(default = "StoreEntry::system_relational_default")]
-    pub relational: StoreEntry,
+    #[serde(default = "ServiceEntry::system_relational_default")]
+    pub relational: ServiceEntry,
     /// Analytics store (`DuckDB`) — system telemetry.
-    #[serde(default = "StoreEntry::system_analytics_default")]
-    pub analytics: StoreEntry,
+    #[serde(default = "ServiceEntry::system_analytics_default")]
+    pub analytics: ServiceEntry,
     /// Graph store (`SurrealDB`) — kernel FSM, reasoning.
-    #[serde(default = "GraphStoreEntry::system_default")]
-    pub graph: GraphStoreEntry,
+    #[serde(default = "GraphServiceEntry::system_default")]
+    pub graph: GraphServiceEntry,
     /// In-memory cache (`Moka`).
     #[serde(default)]
-    pub cache: CacheStoreEntry,
+    pub cache: CacheServiceEntry,
     /// Vector store (`RRO`) — embedded Qdrant for two-tier retrieval.
     #[serde(default)]
-    pub vector: VectorStoreEntry,
+    pub vector: VectorServiceEntry,
 }
 
-impl Default for SystemStoresConfig {
+impl Default for SystemServicesConfig {
     fn default() -> Self {
         Self {
-            relational: StoreEntry::system_relational_default(),
-            analytics: StoreEntry::system_analytics_default(),
-            graph: GraphStoreEntry::system_default(),
-            cache: CacheStoreEntry::default(),
-            vector: VectorStoreEntry::default(),
+            relational: ServiceEntry::system_relational_default(),
+            analytics: ServiceEntry::system_analytics_default(),
+            graph: GraphServiceEntry::system_default(),
+            cache: CacheServiceEntry::default(),
+            vector: VectorServiceEntry::default(),
         }
     }
 }
 
-/// User-scope store configuration.
+/// User-scope service configuration.
 #[derive(Debug, Clone, Deserialize)]
-pub struct UserStoresConfig {
+pub struct UserServicesConfig {
     /// Relational store (`LibSQL`) — sessions, messages, user config.
-    #[serde(default = "StoreEntry::user_relational_default")]
-    pub relational: StoreEntry,
+    #[serde(default = "ServiceEntry::user_relational_default")]
+    pub relational: ServiceEntry,
     /// Graph store (`SurrealDB`) — user knowledge graph, memory.
-    #[serde(default = "GraphStoreEntry::user_default")]
-    pub graph: GraphStoreEntry,
+    #[serde(default = "GraphServiceEntry::user_default")]
+    pub graph: GraphServiceEntry,
 }
 
-impl Default for UserStoresConfig {
+impl Default for UserServicesConfig {
     fn default() -> Self {
         Self {
-            relational: StoreEntry::user_relational_default(),
-            graph: GraphStoreEntry::user_default(),
+            relational: ServiceEntry::user_relational_default(),
+            graph: GraphServiceEntry::user_default(),
         }
     }
 }
 
-/// Global-scope store configuration.
+/// Global-scope service configuration.
 #[derive(Debug, Clone, Deserialize)]
-pub struct GlobalStoresConfig {
+pub struct GlobalServicesConfig {
     /// Graph store (`SurrealDB`) — shared knowledge graph.
-    #[serde(default = "GraphStoreEntry::global_default")]
-    pub graph: GraphStoreEntry,
+    #[serde(default = "GraphServiceEntry::global_default")]
+    pub graph: GraphServiceEntry,
 }
 
-impl Default for GlobalStoresConfig {
+impl Default for GlobalServicesConfig {
     fn default() -> Self {
         Self {
-            graph: GraphStoreEntry::global_default(),
+            graph: GraphServiceEntry::global_default(),
         }
     }
 }
 
-/// Project-scope store template configuration.
+/// Project-scope service template configuration.
 #[derive(Debug, Clone, Deserialize)]
 #[derive(Default)]
-pub struct ProjectStoresConfig {
-    /// Graph store template — instantiated per project.
+pub struct ProjectServicesConfig {
+    /// Graph service template — instantiated per project.
     #[serde(default)]
-    pub graph: ProjectGraphEntry,
+    pub graph: ProjectGraphServiceEntry,
 }
 
 
@@ -235,9 +242,9 @@ pub struct ProjectStoresConfig {
 // Store entry types
 // ═══════════════════════════════════════════════════════════════
 
-/// Per-store retry configuration — overrides global [windows] defaults.
+/// Per-service retry configuration — overrides global [windows] defaults.
 #[derive(Debug, Clone, Deserialize)]
-pub struct StoreRetryConfig {
+pub struct ServiceRetryConfig {
     /// Maximum number of retry attempts on file lock errors.
     #[serde(default = "default_retry_max")]
     pub max_retries: u32,
@@ -246,7 +253,7 @@ pub struct StoreRetryConfig {
     pub base_delay_ms: u64,
 }
 
-impl Default for StoreRetryConfig {
+impl Default for ServiceRetryConfig {
     fn default() -> Self {
         Self {
             max_retries: default_retry_max(),
@@ -255,7 +262,7 @@ impl Default for StoreRetryConfig {
     }
 }
 
-impl StoreRetryConfig {
+impl ServiceRetryConfig {
     /// Convert to the retry utility's config type.
     pub fn to_retry_config(&self) -> crate::platform::boot::retry::RetryConfig {
         crate::platform::boot::retry::RetryConfig {
@@ -265,51 +272,57 @@ impl StoreRetryConfig {
     }
 }
 
-/// Configuration for a file-based store.
+/// Configuration for a file-based service.
 #[derive(Debug, Clone, Deserialize)]
-pub struct StoreEntry {
-    /// Whether this store is enabled.
+pub struct ServiceEntry {
+    /// Whether this service is enabled.
     #[serde(default = "default_true")]
     pub enabled: bool,
-    /// Store kind identifier (e.g., "libsql", "duckdb").
+    /// Whether boot fails if this service fails (critical = true).
+    #[serde(default)]
+    pub critical: bool,
+    /// Service kind identifier (e.g., "libsql", "duckdb").
     #[serde(default)]
     pub kind: String,
     /// Relative path from data directory.
     #[serde(default)]
     pub path: String,
-    /// Per-store retry config — overrides global defaults.
+    /// Per-service retry config — overrides global defaults.
     #[serde(default)]
-    pub retry: StoreRetryConfig,
+    pub retry: ServiceRetryConfig,
 }
 
-impl StoreEntry {
-    /// System relational store defaults.
+impl ServiceEntry {
+    /// System relational service defaults.
     pub fn system_relational_default() -> Self {
         Self {
             enabled: true,
+            critical: true,
             kind: "libsql".to_string(),
             path: "system/libsql/platform.db".to_string(),
-            retry: StoreRetryConfig::default(),
+            retry: ServiceRetryConfig::default(),
         }
     }
 
-    /// System analytics store defaults.
+    /// System analytics service defaults.
     pub fn system_analytics_default() -> Self {
         Self {
             enabled: true,
+            critical: false,
             kind: "duckdb".to_string(),
             path: "system/duckdb/analytics.duckdb".to_string(),
-            retry: StoreRetryConfig::default(),
+            retry: ServiceRetryConfig::default(),
         }
     }
 
-    /// User relational store defaults.
+    /// User relational service defaults.
     pub fn user_relational_default() -> Self {
         Self {
             enabled: true,
+            critical: false,
             kind: "libsql".to_string(),
             path: "user/libsql/user.db".to_string(),
-            retry: StoreRetryConfig::default(),
+            retry: ServiceRetryConfig::default(),
         }
     }
 
@@ -321,11 +334,14 @@ impl StoreEntry {
 
 /// Configuration for the graph store (`SurrealDB`).
 #[derive(Debug, Clone, Deserialize)]
-pub struct GraphStoreEntry {
-    /// Whether this store is enabled.
+pub struct GraphServiceEntry {
+    /// Whether this service is enabled.
     #[serde(default = "default_true")]
     pub enabled: bool,
-    /// Store kind identifier.
+    /// Whether boot fails if this service fails (critical = true).
+    #[serde(default)]
+    pub critical: bool,
+    /// Service kind identifier.
     #[serde(default = "default_surreal_kind")]
     pub kind: String,
     /// Relative path from data directory.
@@ -337,51 +353,54 @@ pub struct GraphStoreEntry {
     /// `SurrealDB` database.
     #[serde(default)]
     pub database: String,
-    /// Per-store retry config.
+    /// Per-service retry config.
     #[serde(default)]
-    pub retry: StoreRetryConfig,
+    pub retry: ServiceRetryConfig,
 }
 
-impl Default for GraphStoreEntry {
+impl Default for GraphServiceEntry {
     fn default() -> Self {
         Self::system_default()
     }
 }
 
-impl GraphStoreEntry {
-    /// System graph store defaults.
+impl GraphServiceEntry {
+    /// System graph service defaults.
     pub fn system_default() -> Self {
         Self {
             enabled: true,
+            critical: true,
             kind: default_surreal_kind(),
             path: "system/surreal/reasoning".to_string(),
             namespace: "system".to_string(),
             database: "engine".to_string(),
-            retry: StoreRetryConfig::default(),
+            retry: ServiceRetryConfig::default(),
         }
     }
 
-    /// User graph store defaults.
+    /// User graph service defaults.
     pub fn user_default() -> Self {
         Self {
             enabled: true,
+            critical: false,
             kind: default_surreal_kind(),
             path: "user/surreal/profile".to_string(),
             namespace: "user".to_string(),
             database: "profile".to_string(),
-            retry: StoreRetryConfig::default(),
+            retry: ServiceRetryConfig::default(),
         }
     }
 
-    /// Global graph store defaults.
+    /// Global graph service defaults.
     pub fn global_default() -> Self {
         Self {
             enabled: true,
+            critical: false,
             kind: default_surreal_kind(),
             path: "global/surreal/knowledge".to_string(),
             namespace: "global".to_string(),
             database: "knowledge".to_string(),
-            retry: StoreRetryConfig::default(),
+            retry: ServiceRetryConfig::default(),
         }
     }
 
@@ -391,9 +410,9 @@ impl GraphStoreEntry {
     }
 }
 
-/// Configuration for a per-project graph store template.
+/// Configuration for a per-project graph service template.
 #[derive(Debug, Clone, Deserialize)]
-pub struct ProjectGraphEntry {
+pub struct ProjectGraphServiceEntry {
     /// Whether project graph stores are enabled.
     #[serde(default = "default_true")]
     pub enabled: bool,
@@ -408,7 +427,7 @@ pub struct ProjectGraphEntry {
     pub namespace: String,
 }
 
-impl Default for ProjectGraphEntry {
+impl Default for ProjectGraphServiceEntry {
     fn default() -> Self {
         Self {
             enabled: true,
@@ -419,7 +438,7 @@ impl Default for ProjectGraphEntry {
     }
 }
 
-impl ProjectGraphEntry {
+impl ProjectGraphServiceEntry {
     /// Resolve the full path for a specific project.
     pub fn resolve_path(&self, data_dir: &Path, project_id: &str) -> PathBuf {
         let path = self.path_template.replace("{project_id}", project_id);
@@ -429,7 +448,7 @@ impl ProjectGraphEntry {
 
 /// Configuration for the in-memory cache (`Moka`).
 #[derive(Debug, Clone, Deserialize)]
-pub struct CacheStoreEntry {
+pub struct CacheServiceEntry {
     /// Whether this store is enabled.
     #[serde(default = "default_true")]
     pub enabled: bool,
@@ -447,7 +466,7 @@ pub struct CacheStoreEntry {
     pub time_to_idle_secs: u64,
 }
 
-impl Default for CacheStoreEntry {
+impl Default for CacheServiceEntry {
     fn default() -> Self {
         Self {
             enabled: true,
@@ -459,7 +478,7 @@ impl Default for CacheStoreEntry {
     }
 }
 
-impl CacheStoreEntry {
+impl CacheServiceEntry {
     /// Convert to a `MokaCacheConfig`.
     pub fn to_moka_config(&self) -> devpulse_maestro::cortex::persistence::MokaCacheConfig {
         devpulse_maestro::cortex::persistence::MokaCacheConfig {
@@ -472,7 +491,7 @@ impl CacheStoreEntry {
 
 /// Configuration for the vector store (`RRO` — embedded Qdrant).
 #[derive(Debug, Clone, Deserialize)]
-pub struct VectorStoreEntry {
+pub struct VectorServiceEntry {
     /// Whether this store is enabled.
     #[serde(default)]
     pub enabled: bool,
@@ -484,7 +503,7 @@ pub struct VectorStoreEntry {
     pub path: String,
 }
 
-impl Default for VectorStoreEntry {
+impl Default for VectorServiceEntry {
     fn default() -> Self {
         Self {
             enabled: false,
@@ -494,10 +513,98 @@ impl Default for VectorStoreEntry {
     }
 }
 
-impl VectorStoreEntry {
+impl VectorServiceEntry {
     /// Resolve the full storage path from data directory.
     pub fn resolve_path(&self, data_dir: &Path) -> PathBuf {
         data_dir.join(&self.path)
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Network services + boot gate
+// ═══════════════════════════════════════════════════════════════
+
+/// Network services configuration — ports and bind addresses.
+#[derive(Debug, Clone, Deserialize)]
+#[derive(Default)]
+pub struct NetworkServicesConfig {
+    /// Vite dev server configuration.
+    #[serde(default)]
+    pub dev_server: DevServerConfig,
+    /// `SurrealDB` HTTP API configuration.
+    #[serde(default)]
+    pub graph_api: GraphApiConfig,
+}
+
+/// Vite dev server — serves `SvelteKit` frontend during development.
+///
+/// xtask injects this as `DEVPULSE_DEV_PORT` env var before spawning Vite.
+/// `tauri.conf.json` `devUrl` must match — xtask preflight verifies.
+#[derive(Debug, Clone, Deserialize)]
+pub struct DevServerConfig {
+    /// Port for the Vite dev server.
+    #[serde(default = "default_dev_port")]
+    pub port: u16,
+    /// Bind address.
+    #[serde(default = "default_bind")]
+    pub bind: String,
+    /// Whether Vite should fail if port is already in use.
+    #[serde(default = "default_true")]
+    pub strict_port: bool,
+}
+
+impl Default for DevServerConfig {
+    fn default() -> Self {
+        Self {
+            port: default_dev_port(),
+            bind: default_bind(),
+            strict_port: true,
+        }
+    }
+}
+
+/// `SurrealDB` HTTP API — exposes the embedded graph store for external tools.
+#[derive(Debug, Clone, Deserialize)]
+pub struct GraphApiConfig {
+    /// Whether the HTTP API is enabled.
+    #[serde(default = "default_true")]
+    pub enabled: bool,
+    /// Port for the HTTP API.
+    #[serde(default = "default_graph_api_port")]
+    pub port: u16,
+    /// Bind address.
+    #[serde(default = "default_bind")]
+    pub bind: String,
+}
+
+impl Default for GraphApiConfig {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            port: default_graph_api_port(),
+            bind: default_bind(),
+        }
+    }
+}
+
+/// Boot gate — controls when the UI is allowed to render.
+#[derive(Debug, Clone, Deserialize)]
+pub struct BootGateConfig {
+    /// When true, boot task will not emit "ready" until every critical
+    /// service passes health check. Non-critical failures = degraded mode.
+    #[serde(default = "default_true")]
+    pub require_all_critical: bool,
+    /// Maximum time (seconds) to wait for all services before failing.
+    #[serde(default = "default_boot_timeout")]
+    pub timeout_secs: u64,
+}
+
+impl Default for BootGateConfig {
+    fn default() -> Self {
+        Self {
+            require_all_critical: true,
+            timeout_secs: default_boot_timeout(),
+        }
     }
 }
 
@@ -558,14 +665,14 @@ impl PlatformBootConfig {
     /// Convert to the public `DatabaseConfig` for TS export.
     pub fn to_database_config(&self) -> DatabaseConfig {
         DatabaseConfig {
-            system_relational_enabled: self.stores.system.relational.enabled,
-            system_analytics_enabled: self.stores.system.analytics.enabled,
-            system_graph_enabled: self.stores.system.graph.enabled,
-            system_cache_enabled: self.stores.system.cache.enabled,
-            user_relational_enabled: self.stores.user.relational.enabled,
-            user_graph_enabled: self.stores.user.graph.enabled,
-            global_graph_enabled: self.stores.global.graph.enabled,
-            vector_enabled: self.stores.system.vector.enabled,
+            system_relational_enabled: self.services.system.relational.enabled,
+            system_analytics_enabled: self.services.system.analytics.enabled,
+            system_graph_enabled: self.services.system.graph.enabled,
+            system_cache_enabled: self.services.system.cache.enabled,
+            user_relational_enabled: self.services.user.relational.enabled,
+            user_graph_enabled: self.services.user.graph.enabled,
+            global_graph_enabled: self.services.global.graph.enabled,
+            vector_enabled: self.services.system.vector.enabled,
         }
     }
 }
@@ -647,4 +754,16 @@ fn default_retry_max() -> u32 {
 }
 fn default_retry_delay() -> u64 {
     500
+}
+fn default_dev_port() -> u16 {
+    1420
+}
+fn default_graph_api_port() -> u16 {
+    8822
+}
+fn default_bind() -> String {
+    "127.0.0.1".to_string()
+}
+fn default_boot_timeout() -> u64 {
+    60
 }

@@ -29,44 +29,44 @@ use std::path::Path;
 /// Returns error if any directory cannot be created.
 pub fn ensure_scoped_dirs(data_dir: &Path, config: &PlatformBootConfig) -> Result<()> {
     // System scope
-    if config.stores.system.relational.enabled {
-        if let Some(parent) = config.stores.system.relational.resolve_path(data_dir).parent() {
+    if config.services.system.relational.enabled {
+        if let Some(parent) = config.services.system.relational.resolve_path(data_dir).parent() {
             std::fs::create_dir_all(parent)?;
         }
     }
-    if config.stores.system.analytics.enabled {
-        if let Some(parent) = config.stores.system.analytics.resolve_path(data_dir).parent() {
+    if config.services.system.analytics.enabled {
+        if let Some(parent) = config.services.system.analytics.resolve_path(data_dir).parent() {
             std::fs::create_dir_all(parent)?;
         }
     }
-    if config.stores.system.graph.enabled {
-        if let Some(parent) = config.stores.system.graph.resolve_path(data_dir).parent() {
+    if config.services.system.graph.enabled {
+        if let Some(parent) = config.services.system.graph.resolve_path(data_dir).parent() {
             std::fs::create_dir_all(parent)?;
         }
     }
 
     // User scope
-    if config.stores.user.relational.enabled {
-        if let Some(parent) = config.stores.user.relational.resolve_path(data_dir).parent() {
+    if config.services.user.relational.enabled {
+        if let Some(parent) = config.services.user.relational.resolve_path(data_dir).parent() {
             std::fs::create_dir_all(parent)?;
         }
     }
-    if config.stores.user.graph.enabled {
-        if let Some(parent) = config.stores.user.graph.resolve_path(data_dir).parent() {
+    if config.services.user.graph.enabled {
+        if let Some(parent) = config.services.user.graph.resolve_path(data_dir).parent() {
             std::fs::create_dir_all(parent)?;
         }
     }
 
     // Global scope
-    if config.stores.global.graph.enabled {
-        if let Some(parent) = config.stores.global.graph.resolve_path(data_dir).parent() {
+    if config.services.global.graph.enabled {
+        if let Some(parent) = config.services.global.graph.resolve_path(data_dir).parent() {
             std::fs::create_dir_all(parent)?;
         }
     }
 
     // Vector store (RRO)
-    if config.stores.system.vector.enabled {
-        let vector_path = config.stores.system.vector.resolve_path(data_dir);
+    if config.services.system.vector.enabled {
+        let vector_path = config.services.system.vector.resolve_path(data_dir);
         std::fs::create_dir_all(&vector_path)?;
     }
 
@@ -81,9 +81,9 @@ pub fn ensure_scoped_dirs(data_dir: &Path, config: &PlatformBootConfig) -> Resul
     // On next boot, SurrealKV sees it and refuses to open (os error 33).
     // Since single-instance + zombie cleanup guarantee no other process is alive,
     // any remaining LOCK file is stale and safe to delete.
-    if config.stores.system.graph.enabled
-        || config.stores.user.graph.enabled
-        || config.stores.global.graph.enabled
+    if config.services.system.graph.enabled
+        || config.services.user.graph.enabled
+        || config.services.global.graph.enabled
     {
         // Consolidated SurrealDB path matches boot/graph.rs:49-52
         let surreal_dir = data_dir.join("surreal").join("devpulse");

@@ -1,4 +1,4 @@
-//! `SurrealDB` HTTP server — exposes the embedded graph store on port 8822.
+//! `SurrealDB` HTTP server — exposes the embedded graph store.
 //!
 //! This is the official SurrealDB-recommended pattern: wrap the embedded
 //! `Surreal<Db>` instance with axum routes. No extra process, no extra
@@ -10,7 +10,7 @@
 //! - `GET /version` — returns `SurrealDB` + `DevPulse` version
 //!
 //! External tools (Claude Code, `surreal sql`, custom scripts) connect to
-//! `http://127.0.0.1:8822` and query any namespace/database in the
+//! the configured port (default :8822) and query any namespace/database in the
 //! consolidated graph store.
 
 use anyhow::{Context, Result};
@@ -26,8 +26,8 @@ use tokio::net::TcpListener;
 /// Default bind address for the `SurrealDB` HTTP server.
 const DEFAULT_BIND: &str = "127.0.0.1";
 
-/// Default port for the `SurrealDB` HTTP server.
-pub const DEFAULT_PORT: u16 = 8822;
+// Port is now config-driven — read from [services.network.graph_api] in platform.default.toml.
+// No hardcoded constant. Callers pass the port from PlatformBootConfig.
 
 /// Shared state for the axum server.
 #[derive(Clone)]

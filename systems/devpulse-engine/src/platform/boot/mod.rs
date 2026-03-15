@@ -15,12 +15,12 @@ pub mod retry;
 
 use crate::platform::config::{self, PlatformBootConfig, sanitize_path};
 use crate::platform::init::InitEvent;
-use crate::platform::stores::analytics::{AnalyticsStore, SYSTEM_ANALYTICS_SCHEMA};
-use crate::platform::stores::cache::CacheStore;
-use crate::platform::stores::graph::GraphStore;
-use crate::platform::stores::relational::{RelationalStore, SYSTEM_SCHEMA, USER_SCHEMA};
+use crate::platform::services::analytics::{AnalyticsService, SYSTEM_ANALYTICS_SCHEMA};
+use crate::platform::services::cache::CacheService;
+use crate::platform::services::graph::GraphService;
+use crate::platform::services::relational::{RelationalService, SYSTEM_SCHEMA, USER_SCHEMA};
 #[cfg(feature = "rro")]
-use crate::platform::stores::vector::VectorStore;
+use crate::platform::services::vector::VectorService;
 
 use anyhow::Result;
 use std::path::Path;
@@ -28,16 +28,16 @@ use std::sync::Arc;
 use std::time::Instant;
 
 /// Collected store handles from a successful boot pipeline.
-pub struct BootedStores {
-    pub system_relational: Option<Arc<RelationalStore>>,
-    pub system_analytics: Option<Arc<AnalyticsStore>>,
-    pub system_graph: Option<Arc<GraphStore>>,
-    pub system_cache: Option<Arc<CacheStore>>,
-    pub user_relational: Option<Arc<RelationalStore>>,
-    pub user_graph: Option<Arc<GraphStore>>,
-    pub global_graph: Option<Arc<GraphStore>>,
+pub struct BootedServices {
+    pub system_relational: Option<Arc<RelationalService>>,
+    pub system_analytics: Option<Arc<AnalyticsService>>,
+    pub system_graph: Option<Arc<GraphService>>,
+    pub system_cache: Option<Arc<CacheService>>,
+    pub user_relational: Option<Arc<RelationalService>>,
+    pub user_graph: Option<Arc<GraphService>>,
+    pub global_graph: Option<Arc<GraphService>>,
     #[cfg(feature = "rro")]
-    pub vector: Option<Arc<VectorStore>>,
+    pub vector: Option<Arc<VectorService>>,
 }
 
 /// Execute the full boot pipeline.
@@ -55,7 +55,7 @@ pub async fn execute(
     data_dir: &Path,
     boot_config: &PlatformBootConfig,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
-) -> Result<BootedStores> {
+) -> Result<BootedServices> {
     // ── Phase 1: Preflight ────────────────────────────────────
     on_event(InitEvent::running("data layer", "Creating data directories"));
     preflight::ensure_scoped_dirs(data_dir, boot_config)?;
@@ -66,7 +66,7 @@ pub async fn execute(
     // System relational (LibSQL) — CRITICAL
     let system_relational = boot_relational(
         data_dir,
-        &boot_config.stores.system.relational,
+        &boot_config.services.system.relational,
         &boot_config.windows,
         SYSTEM_SCHEMA,
         "System relational",
@@ -76,7 +76,7 @@ pub async fn execute(
     // System analytics (DuckDB) — non-critical
     let system_analytics = boot_analytics(
         data_dir,
-        &boot_config.stores.system.analytics,
+        &boot_config.services.system.analytics,
         &boot_config.windows,
         SYSTEM_ANALYTICS_SCHEMA,
         "System analytics",
@@ -92,14 +92,14 @@ pub async fn execute(
 
     // System cache (Moka) — non-critical
     let system_cache = boot_cache(
-        &boot_config.stores.system.cache,
+        &boot_config.services.system.cache,
         on_event,
     );
 
     // User relational (LibSQL) — non-critical
     let user_relational = boot_relational(
         data_dir,
-        &boot_config.stores.user.relational,
+        &boot_config.services.user.relational,
         &boot_config.windows,
         USER_SCHEMA,
         "User relational",
@@ -110,25 +110,25 @@ pub async fn execute(
     #[cfg(feature = "rro")]
     let vector = boot_vector(
         data_dir,
-        &boot_config.stores.system.vector,
+        &boot_config.services.system.vector,
         on_event,
     );
     #[cfg(not(feature = "rro"))]
     on_event(InitEvent::skipped("Vector store"));
 
     // ── Phase 3: Validate critical stores ─────────────────────
-    if system_relational.is_none() && boot_config.stores.system.relational.enabled {
+    if system_relational.is_none() && boot_config.services.system.relational.enabled {
         anyhow::bail!(
             "Critical store failed: System relational (LibSQL) was enabled but failed to boot"
         );
     }
-    if system_graph.is_none() && boot_config.stores.system.graph.enabled {
+    if system_graph.is_none() && boot_config.services.system.graph.enabled {
         anyhow::bail!(
             "Critical store failed: System graph (SurrealDB) was enabled but failed to boot"
         );
     }
 
-    Ok(BootedStores {
+    Ok(BootedServices {
         system_relational,
         system_analytics,
         system_graph,
@@ -149,12 +149,12 @@ pub async fn execute(
 #[allow(clippy::cast_possible_truncation)]
 async fn boot_relational(
     data_dir: &Path,
-    entry: &config::StoreEntry,
+    entry: &config::ServiceEntry,
     win_config: &config::WindowsConfig,
     schema: &'static str,
     label: &'static str,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
-) -> Option<Arc<RelationalStore>> {
+) -> Option<Arc<RelationalService>> {
     if !entry.enabled {
         on_event(InitEvent::skipped(label));
         return None;
@@ -167,7 +167,7 @@ async fn boot_relational(
 
     let result = retry::retry_on_lock_async(&retry_cfg, label, || {
         let p = path.clone();
-        async move { RelationalStore::boot(&p, schema, label).await }
+        async move { RelationalService::boot(&p, schema, label).await }
     })
     .await;
 
@@ -199,12 +199,12 @@ async fn boot_relational(
 #[allow(clippy::cast_possible_truncation)]
 async fn boot_analytics(
     data_dir: &Path,
-    entry: &config::StoreEntry,
+    entry: &config::ServiceEntry,
     win_config: &config::WindowsConfig,
     schema: &'static str,
     label: &'static str,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
-) -> Option<Arc<AnalyticsStore>> {
+) -> Option<Arc<AnalyticsService>> {
     if !entry.enabled {
         on_event(InitEvent::skipped(label));
         return None;
@@ -218,7 +218,7 @@ async fn boot_analytics(
     let result = retry::retry_on_lock_async(&retry_cfg, label, || {
         let p = path.clone();
         async move {
-            tokio::task::spawn_blocking(move || AnalyticsStore::boot(&p, schema, label))
+            tokio::task::spawn_blocking(move || AnalyticsService::boot(&p, schema, label))
                 .await
                 .map_err(|e| anyhow::anyhow!("DuckDB spawn_blocking failed: {e}"))?
         }
@@ -248,16 +248,16 @@ async fn boot_analytics(
 /// Boot the in-memory cache (Moka).
 #[allow(clippy::cast_possible_truncation)]
 fn boot_cache(
-    entry: &config::CacheStoreEntry,
+    entry: &config::CacheServiceEntry,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
-) -> Option<Arc<CacheStore>> {
+) -> Option<Arc<CacheService>> {
     if !entry.enabled {
         on_event(InitEvent::skipped("System cache"));
         return None;
     }
     on_event(InitEvent::running("System cache", "Initializing in-memory cache"));
     let start = Instant::now();
-    let store = CacheStore::boot(entry.to_moka_config());
+    let store = CacheService::boot(entry.to_moka_config());
     tracing::info!(
         step = "System cache",
         status = "ready",
@@ -273,9 +273,9 @@ fn boot_cache(
 #[allow(clippy::cast_possible_truncation)]
 fn boot_vector(
     data_dir: &Path,
-    entry: &config::VectorStoreEntry,
+    entry: &config::VectorServiceEntry,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
-) -> Option<Arc<VectorStore>> {
+) -> Option<Arc<VectorService>> {
     if !entry.enabled {
         on_event(InitEvent::skipped("Vector store"));
         return None;
@@ -291,7 +291,7 @@ fn boot_vector(
     #[allow(deprecated)]
     std::env::set_var("QDRANT__STORAGE__STORAGE_PATH", &storage_path);
 
-    match VectorStore::boot(None) {
+    match VectorService::boot(None) {
         Ok(store) => {
             tracing::info!(
                 step = "Vector store",

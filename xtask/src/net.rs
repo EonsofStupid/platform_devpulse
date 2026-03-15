@@ -1,7 +1,8 @@
 //! Network utilities — cross-platform port management.
 //!
-//! Vite runs on port 1420 with `strictPort: true`. If a stale process
-//! holds the port from a crashed session, the entire dev pipeline dies.
+//! Vite runs with `strictPort: true` on the port defined in
+//! `[services.network.dev_server]` of `platform.default.toml`.
+//! If a stale process holds the port from a crashed session, the dev pipeline dies.
 //! This module detects and clears port conflicts before launch.
 
 use anyhow::{Context, Result};
@@ -10,8 +11,8 @@ use std::process::Command;
 
 use crate::stage::Stage;
 
-/// Dev server port. Must match `vite.config.ts` and `tauri.conf.json`.
-pub const DEV_PORT: u16 = 1420;
+// Port is now config-driven — read from [services.network.dev_server] in platform.default.toml.
+// No hardcoded constant. Callers pass the port from PlatformConfig.
 
 /// Check if a TCP port is free by probing both IPv4 and IPv6 loopback.
 ///
@@ -86,7 +87,7 @@ fn kill_port_windows(port: u16) -> Result<bool> {
             continue;
         }
 
-        // Match exact port — "ends_with" prevents :14200 matching :1420.
+        // Match exact port suffix — prevents :14200 matching :1420.
         let local_addr = cols[1];
         if !local_addr.ends_with(&suffix) {
             continue;

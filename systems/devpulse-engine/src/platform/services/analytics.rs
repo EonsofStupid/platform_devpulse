@@ -1,23 +1,23 @@
-//! Analytics store wrapper (`DuckDB`).
+//! Analytics service wrapper (`DuckDB`).
 //!
 //! Scoped schemas:
 //! - **System**: LLM call telemetry, ROTI metrics, layer budgets,
 //!   interaction timing, governance violations, daily aggregates.
 
-use super::{Store, StoreRole};
+use super::{Service, ServiceRole};
 use anyhow::Result;
 use devpulse_maestro::cortex::persistence::DuckDbAdapter;
 use std::path::Path;
 use std::sync::Arc;
 
 /// Analytics store backed by `DuckDB`.
-pub struct AnalyticsStore {
+pub struct AnalyticsService {
     adapter: Arc<DuckDbAdapter>,
     /// Scoped name for health checks (e.g., "System analytics").
     label: &'static str,
 }
 
-impl AnalyticsStore {
+impl AnalyticsService {
     /// Boot the analytics store with a scope-specific schema.
     ///
     /// # Errors
@@ -36,13 +36,13 @@ impl AnalyticsStore {
     }
 }
 
-impl Store for AnalyticsStore {
+impl Service for AnalyticsService {
     fn name(&self) -> &'static str {
         self.label
     }
 
-    fn role(&self) -> StoreRole {
-        StoreRole::Analytics
+    fn role(&self) -> ServiceRole {
+        ServiceRole::Analytics
     }
 
     async fn ping(&self) -> Result<()> {
@@ -54,7 +54,7 @@ impl Store for AnalyticsStore {
     }
 
     async fn shutdown(&self) -> Result<()> {
-        tracing::info!(store = self.label, "Shutting down DuckDB store");
+        tracing::info!(service = self.label, "Shutting down DuckDB service");
         self.adapter.close().await;
         Ok(())
     }
