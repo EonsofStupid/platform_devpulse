@@ -4,7 +4,9 @@
   @domain devpulse
 -->
 <script lang="ts">
-	import { Grid, Stack, Text } from "$lib/design/index.js";
+	import { Grid } from "$lib/design/components/grid/index.js";
+	import { Stack } from "$lib/design/components/stack/index.js";
+	import { Text } from "$lib/design/components/text/index.js";
 	import { Widget } from "$lib/design/blocks/widgets/index.js";
 	import { devpulseState } from "$lib/domains/app/devpulse/index.js";
 </script>

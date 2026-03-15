@@ -13,11 +13,9 @@
 import type { Snippet } from "svelte";
 import { getRecipe } from "$lib/design/recipes/index.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
-import {
-	Badge,
-	Heading,
-	HStack,
-} from "$lib/design/index.js";
+import { Badge } from "$lib/design/components/badge/index.js";
+import { Heading } from "$lib/design/components/heading/index.js";
+import { HStack } from "$lib/design/components/hstack/index.js";
 
 interface Props {
 	children: Snippet;

@@ -148,13 +148,6 @@ pub fn run() {
                 }
             }
 
-            // Open devtools in dev mode so console errors are always visible
-            #[cfg(debug_assertions)]
-            if let Some(window) = app.get_webview_window("main") {
-                window.open_devtools();
-                tracing::info!("DevTools opened for main window");
-            }
-
             // Spawn async boot task — setup returns IMMEDIATELY
             let handle = app.handle().clone();
             let tracker = app.state::<BootStateTracker>();

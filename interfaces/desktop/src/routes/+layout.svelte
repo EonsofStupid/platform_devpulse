@@ -1,6 +1,8 @@
 <script lang="ts">
 import "../app.css";
-import "$lib/design/index.js";
+import "$lib/design/recipes/layouts/shell/index.js";
+import "$lib/design/recipes/blocks/widget/index.js";
+import "$lib/design/recipes/components/index.js";
 import SvgFilters from "$lib/design/svg/filters/SvgFilters.svelte";
 import BootOverlay from "$lib/layouts/app/BootOverlay.svelte";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";

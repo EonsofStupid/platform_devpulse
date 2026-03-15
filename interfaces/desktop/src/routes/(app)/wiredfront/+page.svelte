@@ -5,7 +5,10 @@
   Hub: Screenshots, Video Editor, Audio Editor, Image Editor, Streaming, Notes, Voice
 -->
 <script lang="ts">
-	import { Stack, HStack, Text, Badge } from "$lib/design/index.js";
+	import { Stack } from "$lib/design/components/stack/index.js";
+	import { HStack } from "$lib/design/components/hstack/index.js";
+	import { Text } from "$lib/design/components/text/index.js";
+	import { Badge } from "$lib/design/components/badge/index.js";
 	import { Widget } from "$lib/design/blocks/widgets/index.js";
 	import {
 		Camera,

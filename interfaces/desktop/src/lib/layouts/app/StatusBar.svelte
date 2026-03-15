@@ -18,11 +18,9 @@
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 import { DEV_MODE, resolveLabel, devLabel } from "$lib/sys/generated/terminology.js";
 import { getIcon } from "$lib/sys/generated/terminology-icons.js";
-import {
-	Badge,
-	HStack,
-	Text,
-} from "$lib/design/index.js";
+import { Badge } from "$lib/design/components/badge/index.js";
+import { HStack } from "$lib/design/components/hstack/index.js";
+import { Text } from "$lib/design/components/text/index.js";
 
 const APP_VERSION = "0.1.0";
 

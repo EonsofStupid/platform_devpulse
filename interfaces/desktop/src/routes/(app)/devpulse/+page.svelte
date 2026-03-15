@@ -9,7 +9,10 @@
   Matches DASHBOARD-REFERENCE-01.
 -->
 <script lang="ts">
-	import { Stack, HStack, Text, Box } from "$lib/design/index.js";
+	import { Stack } from "$lib/design/components/stack/index.js";
+	import { HStack } from "$lib/design/components/hstack/index.js";
+	import { Text } from "$lib/design/components/text/index.js";
+	import { Box } from "$lib/design/components/box/index.js";
 	import { Widget, RadialGauge, SparkLine } from "$lib/design/blocks/widgets/index.js";
 	import { devpulseState } from "$lib/domains/app/devpulse/index.js";
 	import { platformState } from "$lib/sys/runes/platformState.svelte.js";

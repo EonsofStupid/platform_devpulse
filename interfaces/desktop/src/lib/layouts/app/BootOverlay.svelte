@@ -28,8 +28,12 @@ import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 import type { SubsystemState } from "$lib/sys/runes/platformState.svelte.js";
 import { DEV_MODE, devLabel, resolveLabel } from "$lib/sys/generated/terminology.js";
 import { getIcon } from "$lib/sys/generated/terminology-icons.js";
-import { Text, Stack, HStack, Box, Badge, Progress } from "$lib/design/index.js";
-import type { BadgeIntent } from "$lib/design/index.js";
+import { Text } from "$lib/design/components/text/index.js";
+import { Stack } from "$lib/design/components/stack/index.js";
+import { HStack } from "$lib/design/components/hstack/index.js";
+import { Box } from "$lib/design/components/box/index.js";
+import { Badge, type BadgeIntent } from "$lib/design/components/badge/index.js";
+import { Progress } from "$lib/design/components/progress/index.js";
 
 let visible = $state(true);
 let fading = $state(false);

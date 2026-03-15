@@ -16,15 +16,13 @@
 	import { invoke } from "@tauri-apps/api/core";
 	import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 	import type { ChatMessage } from "$lib/sys/generated/chat.types.js";
-	import {
-		Box,
-		Button,
-		Text,
-		Heading,
-		HStack,
-		Stack,
-		Input,
-	} from "$lib/design/index.js";
+	import { Box } from "$lib/design/components/box/index.js";
+	import { Button } from "$lib/design/components/button/index.js";
+	import { Text } from "$lib/design/components/text/index.js";
+	import { Heading } from "$lib/design/components/heading/index.js";
+	import { HStack } from "$lib/design/components/hstack/index.js";
+	import { Stack } from "$lib/design/components/stack/index.js";
+	import { Input } from "$lib/design/components/input/index.js";
 
 	interface Thread {
 		id: string;

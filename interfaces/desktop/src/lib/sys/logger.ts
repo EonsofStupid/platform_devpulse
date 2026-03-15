@@ -1,25 +1,67 @@
 /**
  * @file sys/logger.ts
  * @module @devpulse/sys/logger
- * @description Frontend logger — bridges to Rust tracing via Tauri IPC.
+ * @description Frontend logger — buffers before IPC, flushes to Rust tracing after.
  *
  * All frontend log calls appear in the same session JSONL as backend logs,
  * tagged with target: "frontend" and the source module name.
+ *
+ * Before IPC is ready, logs are buffered in memory AND written to console.
+ * Once IPC connects, the buffer is flushed to Rust and all subsequent
+ * logs go directly to the Rust tracing pipeline → session log file.
  */
 
 import { invoke } from "@tauri-apps/api/core";
 
 type LogLevel = "trace" | "debug" | "info" | "warn" | "error";
 
+interface BufferedLog {
+	level: LogLevel;
+	target: string;
+	message: string;
+	timestamp: string;
+}
+
+/** Pre-IPC buffer — flushed once Tauri IPC is available. */
+const buffer: BufferedLog[] = [];
+let ipcReady = false;
+
+/**
+ * Mark IPC as ready and flush all buffered logs to Rust.
+ * Called by platformState after waitForTauri() resolves.
+ */
+export function markIpcReady(): void {
+	if (ipcReady) return;
+	ipcReady = true;
+
+	// Flush buffer
+	for (const entry of buffer) {
+		invoke("log", {
+			level: entry.level,
+			target: entry.target,
+			message: `[buffered ${entry.timestamp}] ${entry.message}`,
+		}).catch(() => {});
+	}
+	buffer.length = 0;
+}
+
 /**
  * Send a log message to the Rust backend via IPC.
- * Falls back to console if IPC is unavailable (e.g., during SSR or before Tauri mounts).
+ * Before IPC is ready, buffers in memory and writes to console.
+ * After IPC is ready, sends directly to Rust tracing.
  */
 export function log(level: LogLevel, target: string, message: string): void {
-	invoke("log", { level, target, message }).catch(() => {
-		const consoleFn = level === "trace" ? "debug" : level;
-		console[consoleFn](`[${target}] ${message}`);
-	});
+	const timestamp = new Date().toISOString();
+
+	// Always write to console so devtools captures it
+	const consoleFn = level === "trace" ? "debug" : level;
+	console[consoleFn](`[${timestamp}] [${level.toUpperCase()}] [${target}] ${message}`);
+
+	if (ipcReady) {
+		invoke("log", { level, target, message }).catch(() => {});
+	} else {
+		buffer.push({ level, target, message, timestamp });
+	}
 }
 
 export const logInfo = (target: string, msg: string): void =>

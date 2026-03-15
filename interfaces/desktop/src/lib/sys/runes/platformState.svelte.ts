@@ -22,6 +22,7 @@ import type { InitEvent, InitStatus } from "$lib/sys/generated/init.types.js";
 import type { SystemHealth } from "$lib/sys/generated/health.types.js";
 import type { BootSnapshot } from "$lib/sys/generated/boot.types.js";
 import { resolveLabel } from "$lib/sys/generated/terminology.js";
+import { logInfo, logError, logWarn, markIpcReady } from "$lib/sys/logger.js";
 
 export type BootPhase = "initializing" | "ready" | "failed";
 export type SubsystemState = "pending" | "loading" | "ready" | "skipped" | "failed";
@@ -45,26 +46,24 @@ const TAURI_READY_TIMEOUT_MS = 30_000;
  */
 function waitForTauri(): Promise<void> {
 	return new Promise((resolve, reject) => {
-		// Already available
 		if (typeof window !== "undefined" && (window as any).__TAURI_INTERNALS__) {
-			console.log("[DevPulse:IPC] __TAURI_INTERNALS__ already available");
+			logInfo("ipc", "Tauri IPC bridge already available");
 			resolve();
 			return;
 		}
 
-		console.log("[DevPulse:IPC] Waiting for __TAURI_INTERNALS__...");
+		logInfo("ipc", "Waiting for Tauri IPC bridge...");
 		const start = Date.now();
 		let pollCount = 0;
 		const check = setInterval(() => {
 			pollCount++;
 			if (typeof window !== "undefined" && (window as any).__TAURI_INTERNALS__) {
 				clearInterval(check);
-				console.log(`[DevPulse:IPC] __TAURI_INTERNALS__ found after ${Date.now() - start}ms (${pollCount} polls)`);
+				logInfo("ipc", `Tauri IPC bridge connected after ${Date.now() - start}ms (${pollCount} polls)`);
 				resolve();
 			} else if (Date.now() - start > TAURI_READY_TIMEOUT_MS) {
 				clearInterval(check);
-				console.error(`[DevPulse:IPC] TIMEOUT — __TAURI_INTERNALS__ not found after ${TAURI_READY_TIMEOUT_MS}ms (${pollCount} polls)`);
-				console.error("[DevPulse:IPC] window keys:", Object.keys(window).filter(k => k.includes("TAURI") || k.includes("__")));
+				logError("ipc", `TIMEOUT — Tauri IPC not available after ${TAURI_READY_TIMEOUT_MS}ms (${pollCount} polls)`);
 				reject(new Error(`Tauri IPC not available after ${TAURI_READY_TIMEOUT_MS}ms`));
 			}
 		}, TAURI_READY_POLL_MS);
@@ -175,6 +174,8 @@ class PlatformState {
 		this.initialized = true;
 		this.destroyed = false;
 
+		logInfo("boot", "platformState.init() starting");
+
 		// 0. Start elapsed timer — ticks every second so the UI shows it's alive
 		this.bootElapsedSecs = 0;
 		this.bootStepLabel = "Connecting to engine...";
@@ -185,8 +186,9 @@ class PlatformState {
 		// 1. Wait for Tauri IPC bridge — prevents transformCallback crash
 		try {
 			await waitForTauri();
+			markIpcReady(); // Flush buffered logs to Rust
 		} catch (e) {
-			console.error("platformState: Tauri IPC never became available:", e);
+			logError("boot", `Tauri IPC bridge unavailable: ${e}`);
 			this.phase = "failed";
 			this.error = "Tauri IPC bridge unavailable";
 			this.bootStepLabel = "Tauri IPC bridge unavailable";
@@ -197,20 +199,24 @@ class PlatformState {
 		// Bail if destroy() was called while we were waiting
 		if (this.destroyed) return;
 
+		logInfo("boot", "IPC ready — loading boot state from Rust");
 		this.bootStepLabel = "Loading boot state...";
 
 		// 2. Catch up — get snapshot of boot state accumulated in Rust
 		try {
 			const snapshot = await invoke<BootSnapshot>("get_boot_state");
 			if (this.destroyed) return;
+			logInfo("boot", `Boot snapshot: phase=${snapshot.phase}, events=${snapshot.events.length}`);
 			this.applySnapshot(snapshot);
 		} catch (e) {
-			console.warn("get_boot_state unavailable, relying on events:", e);
+			logWarn("boot", `get_boot_state failed, relying on events: ${e}`);
 		}
 
 		if (this.destroyed) return;
 
-		// 2. Register live event listeners (idempotent — Map keyed by step name)
+		logInfo("boot", "Registering live event listeners");
+
+		// 3. Register live event listeners (idempotent — Map keyed by step name)
 		const unlistenSubsystem = await listen<InitEvent>(
 			"platform:subsystem-status",
 			(e) => {
@@ -299,10 +305,12 @@ class PlatformState {
 		if (payload.error) this.error = payload.error;
 
 		if (payload.phase === "ready") {
+			logInfo("boot", "Platform READY — all services healthy");
 			this.bootStepLabel = "All systems go";
 			this.stopBootTimer();
 			this.startHealthPolling();
 		} else if (payload.phase === "failed") {
+			logError("boot", `Platform FAILED: ${payload.error ?? "unknown"}`);
 			this.bootStepLabel = payload.error ?? "Boot failed";
 			this.stopBootTimer();
 		}

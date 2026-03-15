@@ -12,13 +12,11 @@
 import { invoke } from "@tauri-apps/api/core";
 import { Bell, MessageCircle, Search } from "lucide-svelte";
 import { Parasite } from "$lib/design/plugins/parasite";
-import {
-	Button,
-	Input,
-	Avatar,
-	Box,
-	HStack,
-} from "$lib/design/index.js";
+import { Button } from "$lib/design/components/button/index.js";
+import { Input } from "$lib/design/components/input/index.js";
+import { Avatar } from "$lib/design/components/avatar/index.js";
+import { Box } from "$lib/design/components/box/index.js";
+import { HStack } from "$lib/design/components/hstack/index.js";
 
 let searchOpen = $state(false);
 let searchQuery = $state("");
