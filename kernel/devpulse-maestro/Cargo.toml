@@ -6,6 +6,8 @@ edition = "2021"
 [features]
 default = []
 rro = ["dep:rro"]
+kokoros = ["dep:kokoros"]
+outlines = ["dep:outlines-core"]
 
 [dependencies]
 # Core
@@ -23,6 +25,8 @@ duckdb = { workspace = true }
 surrealdb = { workspace = true }
 moka = { workspace = true }
 rro = { workspace = true, optional = true }
+kokoros = { workspace = true, optional = true }
+outlines-core = { workspace = true, optional = true }
 
 # Observability
 tracing = { workspace = true }

@@ -44,7 +44,7 @@ candle-core = "0.8"
 candle-transformers = "0.8" 
 outlines-core = "0.1"
 kokoros = { git = "https://github.com/EonsofStupid/Kokoros" }
-ort = "2.0" 
+ort = "=2.0.0-rc.10"
 
 # Ops (xtask Support)
 xshell = "0.2" # Shell scripting in Rust

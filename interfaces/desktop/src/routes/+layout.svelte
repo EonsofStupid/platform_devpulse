@@ -6,20 +6,20 @@ import "$lib/design/recipes/components/index.js";
 import SvgFilters from "$lib/design/svg/filters/SvgFilters.svelte";
 import BootOverlay from "$lib/layouts/app/BootOverlay.svelte";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
+import { logInfo, logError } from "$lib/sys/logger.js";
 import { onMount } from "svelte";
 
 let { children } = $props();
 
 onMount(() => {
-	console.log("[DevPulse] Root layout mounted");
-	console.log("[DevPulse] __TAURI_INTERNALS__:", typeof (window as any).__TAURI_INTERNALS__);
-	console.log("[DevPulse] Starting platformState.init()...");
+	logInfo("layout", "Root layout mounted");
+	logInfo("layout", `__TAURI_INTERNALS__: ${typeof (window as any).__TAURI_INTERNALS__}`);
 	platformState.init()
 		.then(() => {
-			console.log("[DevPulse] platformState.init() completed, phase:", platformState.phase);
+			logInfo("layout", `platformState.init() complete — phase: ${platformState.phase}`);
 		})
 		.catch((e) => {
-			console.error("[DevPulse] platformState.init() FAILED:", e);
+			logError("layout", `platformState.init() FAILED: ${e}`);
 		});
 	return () => platformState.destroy();
 });

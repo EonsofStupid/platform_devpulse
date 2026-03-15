@@ -40,7 +40,7 @@ export function markIpcReady(): void {
 			level: entry.level,
 			target: entry.target,
 			message: `[buffered ${entry.timestamp}] ${entry.message}`,
-		}).catch(() => {});
+		}).catch((e) => console.warn("[logger] IPC log failed:", e));
 	}
 	buffer.length = 0;
 }
@@ -58,7 +58,7 @@ export function log(level: LogLevel, target: string, message: string): void {
 	console[consoleFn](`[${timestamp}] [${level.toUpperCase()}] [${target}] ${message}`);
 
 	if (ipcReady) {
-		invoke("log", { level, target, message }).catch(() => {});
+		invoke("log", { level, target, message }).catch((e) => console.warn("[logger] IPC log failed:", e));
 	} else {
 		buffer.push({ level, target, message, timestamp });
 	}

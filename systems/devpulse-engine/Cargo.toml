@@ -8,6 +8,8 @@ default = ["kernel"]
 kernel = []
 engine = []
 rro = ["devpulse-maestro/rro"]
+kokoros = ["devpulse-maestro/kokoros"]
+outlines = ["devpulse-maestro/outlines"]
 
 [dependencies]
 # Core

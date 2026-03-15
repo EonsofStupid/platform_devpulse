@@ -3,10 +3,12 @@
  * @module @devpulse/domains/app/devpulse/services
  *
  * Data fetching for the DevPulse hub.
- * Calls Tauri IPC commands to query real stores (LibSQL, DuckDB, Moka).
+ * Calls Tauri IPC commands to query real services (LibSQL, DuckDB, Moka).
+ * ALL calls are logged through the platform logger.
  */
 
 import { invoke } from "@tauri-apps/api/core";
+import { logInfo, logError } from "$lib/sys/logger.js";
 import type { DashboardPayload } from "$lib/sys/generated/dashboard.types.js";
 import type { DashboardData, RecentProject } from "../types/devpulse.types.js";
 
@@ -15,7 +17,16 @@ import type { DashboardData, RecentProject } from "../types/devpulse.types.js";
  * Queries LibSQL (projects, messages), DuckDB (daily_stats), Moka (cache stats).
  */
 export async function fetchDashboardData(): Promise<DashboardPayload> {
-	return invoke<DashboardPayload>("fetch_dashboard");
+	logInfo("devpulse", "Fetching dashboard data via IPC...");
+	try {
+		const payload = await invoke<DashboardPayload>("fetch_dashboard");
+		logInfo("devpulse", `Dashboard loaded: ${payload.projects.length} projects, ${payload.daily_stats.length} daily stats, uptime ${payload.uptime_secs}s`);
+		return payload;
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		logError("devpulse", `Dashboard fetch FAILED: ${msg}`);
+		throw e;
+	}
 }
 
 /**

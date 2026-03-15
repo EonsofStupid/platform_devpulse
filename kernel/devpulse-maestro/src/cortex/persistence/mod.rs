@@ -20,6 +20,10 @@ pub mod moka;
 #[cfg(feature = "rro")]
 pub mod rro;
 pub mod surreal;
+#[cfg(feature = "kokoros")]
+pub mod kokoros;
+#[cfg(feature = "outlines")]
+pub mod outlines;
 
 // Re-exports for convenience
 pub use config::{PersistenceConfig, StoreKind, SurrealNamespace};
@@ -29,6 +33,10 @@ pub use moka::{MokaAdapter, MokaCacheConfig};
 #[cfg(feature = "rro")]
 pub use rro::RroAdapter;
 pub use surreal::SurrealAdapter;
+#[cfg(feature = "kokoros")]
+pub use kokoros::KokorosAdapter;
+#[cfg(feature = "outlines")]
+pub use outlines::OutlinesAdapter;
 pub use traits::{
     AnalyticsAdapter, CacheAdapter, GraphAdapter, PersistenceAdapter, SparseVector, SqlAdapter,
     SqlRow, SqlValue, TypedPersistence, VectorAdapter, VectorMatch,

@@ -38,7 +38,6 @@ registerRecipe({
 			"grid h-screen w-screen overflow-hidden",
 			"grid-rows-[auto_1fr_auto]",
 			"grid-cols-[auto_1fr_auto]",
-			"bg-[linear-gradient(180deg,var(--app-shell-bg-start),var(--app-shell-bg-end))]",
 			radiusClass(props.radius),
 		),
 		topbar: cn(

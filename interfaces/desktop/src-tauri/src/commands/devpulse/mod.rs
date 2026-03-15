@@ -178,7 +178,7 @@ pub async fn fetch_dashboard(
 
         let stats_rows = adapter
             .analytics_query(
-                "SELECT date, total_signals, total_messages, total_tokens, avg_latency_ms \
+                "SELECT date, total_model_calls, total_messages, total_prompt_tokens + total_completion_tokens AS total_tokens, avg_latency_ms \
                  FROM daily_stats ORDER BY date DESC LIMIT 20",
             )
             .await

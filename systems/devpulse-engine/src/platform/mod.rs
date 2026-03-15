@@ -55,6 +55,10 @@ use services::graph::GraphService;
 use services::relational::RelationalService;
 #[cfg(feature = "rro")]
 use services::vector::VectorService;
+#[cfg(feature = "kokoros")]
+use services::voice::VoiceService;
+#[cfg(feature = "outlines")]
+use services::grammar::GrammarService;
 
 /// Platform engine — sole public API for persistence, health, config.
 ///
@@ -79,6 +83,12 @@ pub struct Platform {
     // ── Vector (RRO) ──────────────────────────────────────────
     #[cfg(feature = "rro")]
     vector: Option<Arc<VectorService>>,
+    // ── Voice (Kokoros) ─────────────────────────────────────────
+    #[cfg(feature = "kokoros")]
+    voice: Option<Arc<VoiceService>>,
+    // ── Grammar (outlines-core) ─────────────────────────────────
+    #[cfg(feature = "outlines")]
+    grammar: Option<Arc<GrammarService>>,
     // ── Meta ────────────────────────────────────────────────────
     boot_config: PlatformBootConfig,
     boot_time: Instant,
@@ -120,6 +130,10 @@ impl Platform {
             global_graph: booted.global_graph,
             #[cfg(feature = "rro")]
             vector: booted.vector,
+            #[cfg(feature = "kokoros")]
+            voice: booted.voice,
+            #[cfg(feature = "outlines")]
+            grammar: booted.grammar,
             boot_config,
             boot_time,
             data_dir,
@@ -153,6 +167,14 @@ impl Platform {
         }
         #[cfg(feature = "rro")]
         if let Some(svc) = &self.vector {
+            subsystems.push(ping_service(svc.as_ref()).await);
+        }
+        #[cfg(feature = "kokoros")]
+        if let Some(svc) = &self.voice {
+            subsystems.push(ping_service(svc.as_ref()).await);
+        }
+        #[cfg(feature = "outlines")]
+        if let Some(svc) = &self.grammar {
             subsystems.push(ping_service(svc.as_ref()).await);
         }
 
@@ -213,6 +235,18 @@ impl Platform {
     #[cfg(feature = "rro")]
     pub fn vector(&self) -> Option<&Arc<VectorService>> {
         self.vector.as_ref()
+    }
+
+    /// Get the voice service (if enabled and booted).
+    #[cfg(feature = "kokoros")]
+    pub fn voice(&self) -> Option<&Arc<VoiceService>> {
+        self.voice.as_ref()
+    }
+
+    /// Get the grammar service (if enabled and booted).
+    #[cfg(feature = "outlines")]
+    pub fn grammar(&self) -> Option<&Arc<GrammarService>> {
+        self.grammar.as_ref()
     }
 
     // ── User scope accessors ────────────────────────────────────

@@ -55,6 +55,10 @@ pub struct DatabaseConfig {
     pub global_graph_enabled: bool,
     /// Vector store enabled (`RRO`).
     pub vector_enabled: bool,
+    /// Voice service enabled (`Kokoros`).
+    pub voice_enabled: bool,
+    /// Grammar service enabled (`outlines-core`).
+    pub grammar_enabled: bool,
 }
 
 impl Default for DatabaseConfig {
@@ -67,7 +71,9 @@ impl Default for DatabaseConfig {
             user_relational_enabled: true,
             user_graph_enabled: true,
             global_graph_enabled: true,
-            vector_enabled: false,
+            vector_enabled: true,
+            voice_enabled: true,
+            grammar_enabled: true,
         }
     }
 }
@@ -178,6 +184,12 @@ pub struct SystemServicesConfig {
     /// Vector store (`RRO`) — embedded Qdrant for two-tier retrieval.
     #[serde(default)]
     pub vector: VectorServiceEntry,
+    /// Voice service (`Kokoros`) — embedded TTS engine.
+    #[serde(default)]
+    pub voice: VoiceServiceEntry,
+    /// Grammar service (`outlines-core`) — structured generation engine.
+    #[serde(default)]
+    pub grammar: GrammarServiceEntry,
 }
 
 impl Default for SystemServicesConfig {
@@ -188,6 +200,8 @@ impl Default for SystemServicesConfig {
             graph: GraphServiceEntry::system_default(),
             cache: CacheServiceEntry::default(),
             vector: VectorServiceEntry::default(),
+            voice: VoiceServiceEntry::default(),
+            grammar: GrammarServiceEntry::default(),
         }
     }
 }
@@ -452,6 +466,9 @@ pub struct CacheServiceEntry {
     /// Whether this store is enabled.
     #[serde(default = "default_true")]
     pub enabled: bool,
+    /// Whether boot fails if this service fails.
+    #[serde(default = "default_true")]
+    pub critical: bool,
     /// Store kind identifier.
     #[serde(default = "default_moka_kind")]
     pub kind: String,
@@ -470,6 +487,7 @@ impl Default for CacheServiceEntry {
     fn default() -> Self {
         Self {
             enabled: true,
+            critical: true,
             kind: default_moka_kind(),
             max_capacity: default_max_capacity(),
             time_to_live_secs: default_ttl(),
@@ -493,8 +511,11 @@ impl CacheServiceEntry {
 #[derive(Debug, Clone, Deserialize)]
 pub struct VectorServiceEntry {
     /// Whether this store is enabled.
-    #[serde(default)]
+    #[serde(default = "default_true")]
     pub enabled: bool,
+    /// Whether boot fails if this service fails.
+    #[serde(default = "default_true")]
+    pub critical: bool,
     /// Store kind identifier.
     #[serde(default = "default_rro_kind")]
     pub kind: String,
@@ -506,7 +527,8 @@ pub struct VectorServiceEntry {
 impl Default for VectorServiceEntry {
     fn default() -> Self {
         Self {
-            enabled: false,
+            enabled: true,
+            critical: true,
             kind: default_rro_kind(),
             path: default_rro_path(),
         }
@@ -517,6 +539,74 @@ impl VectorServiceEntry {
     /// Resolve the full storage path from data directory.
     pub fn resolve_path(&self, data_dir: &Path) -> PathBuf {
         data_dir.join(&self.path)
+    }
+}
+
+/// Configuration for the voice service (`Kokoros` — embedded TTS).
+#[derive(Debug, Clone, Deserialize)]
+pub struct VoiceServiceEntry {
+    /// Whether this service is enabled.
+    #[serde(default = "default_true")]
+    pub enabled: bool,
+    /// Whether boot fails if this service fails.
+    #[serde(default = "default_true")]
+    pub critical: bool,
+    /// Service kind identifier.
+    #[serde(default = "default_kokoros_kind")]
+    pub kind: String,
+    /// Relative path from data directory for model storage.
+    #[serde(default = "default_kokoros_model_path")]
+    pub model_path: String,
+    /// Relative path from data directory for voice data.
+    #[serde(default = "default_kokoros_voices_path")]
+    pub voices_path: String,
+}
+
+impl Default for VoiceServiceEntry {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            critical: true,
+            kind: default_kokoros_kind(),
+            model_path: default_kokoros_model_path(),
+            voices_path: default_kokoros_voices_path(),
+        }
+    }
+}
+
+impl VoiceServiceEntry {
+    /// Resolve the model path from data directory.
+    pub fn resolve_model_path(&self, data_dir: &Path) -> PathBuf {
+        data_dir.join(&self.model_path)
+    }
+
+    /// Resolve the voices path from data directory.
+    pub fn resolve_voices_path(&self, data_dir: &Path) -> PathBuf {
+        data_dir.join(&self.voices_path)
+    }
+}
+
+/// Configuration for the grammar service (`outlines-core` — structured generation).
+#[derive(Debug, Clone, Deserialize)]
+pub struct GrammarServiceEntry {
+    /// Whether this service is enabled.
+    #[serde(default = "default_true")]
+    pub enabled: bool,
+    /// Whether boot fails if this service fails.
+    #[serde(default = "default_true")]
+    pub critical: bool,
+    /// Service kind identifier.
+    #[serde(default = "default_outlines_kind")]
+    pub kind: String,
+}
+
+impl Default for GrammarServiceEntry {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            critical: true,
+            kind: default_outlines_kind(),
+        }
     }
 }
 
@@ -673,6 +763,8 @@ impl PlatformBootConfig {
             user_graph_enabled: self.services.user.graph.enabled,
             global_graph_enabled: self.services.global.graph.enabled,
             vector_enabled: self.services.system.vector.enabled,
+            voice_enabled: self.services.system.voice.enabled,
+            grammar_enabled: self.services.system.grammar.enabled,
         }
     }
 }
@@ -748,6 +840,18 @@ fn default_rro_kind() -> String {
 }
 fn default_rro_path() -> String {
     "system/rro/storage".to_string()
+}
+fn default_kokoros_kind() -> String {
+    "kokoros".to_string()
+}
+fn default_kokoros_model_path() -> String {
+    "system/kokoros/model".to_string()
+}
+fn default_kokoros_voices_path() -> String {
+    "system/kokoros/voices".to_string()
+}
+fn default_outlines_kind() -> String {
+    "outlines".to_string()
 }
 fn default_retry_max() -> u32 {
     5

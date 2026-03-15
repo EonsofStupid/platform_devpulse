@@ -102,51 +102,11 @@ pub fn run() {
             });
             app.manage(BootStateTracker::new());
 
-            // Dev mode: verify Vite dev server is reachable before boot.
-            // Port is config-driven from [services.network.dev_server] in platform.default.toml.
-            // In production, frontendDist is embedded — this check is skipped.
+            // Dev mode: Tauri's beforeDevCommand starts Vite and waits for it.
+            // Do NOT check Vite here — Tauri handles the race condition.
+            // The Rust backend just logs that it's in dev mode.
             #[cfg(debug_assertions)]
-            {
-                let boot_config = PlatformBootConfig::load(&data_dir)
-                    .unwrap_or_default();
-                let dev_port = boot_config.services.network.dev_server.port;
-                let dev_url = format!("http://localhost:{dev_port}");
-                tracing::info!(url = %dev_url, "Checking frontend dev server");
-                let addr: std::net::SocketAddr = format!("127.0.0.1:{dev_port}")
-                    .parse()
-                    .expect("valid addr");
-                match std::net::TcpStream::connect_timeout(
-                    &addr,
-                    std::time::Duration::from_secs(2),
-                ) {
-                    Ok(_) => {
-                        tracing::info!(url = %dev_url, "Frontend dev server is reachable");
-                    }
-                    Err(e) => {
-                        tracing::error!(
-                            url = %dev_url,
-                            error = %e,
-                            "Frontend dev server NOT reachable — UI will show connection error. \
-                             Run 'cargo xtask run-dev' instead of launching the .exe directly."
-                        );
-                        // Set the webview to show an inline error page instead of chrome-error://
-                        if let Some(window) = app.get_webview_window("main") {
-                            let error_html = format!(
-                                "data:text/html,<html><body style='background:#0a0a0f;color:#e0e0e0;\
-                                font-family:system-ui;display:flex;align-items:center;justify-content:center;\
-                                height:100vh;margin:0;flex-direction:column;gap:16px'>\
-                                <h2 style='color:#2dd4bf'>DevPulse</h2>\
-                                <p>Frontend dev server not running on port {dev_port}</p>\
-                                <p style='color:#888;font-size:14px'>Run <code style='color:#2dd4bf'>\
-                                cargo xtask run-dev</code> to start both frontend and backend</p>\
-                                <p style='color:#555;font-size:12px'>Error: {e}</p>\
-                                </body></html>"
-                            );
-                            let _ = window.navigate(error_html.parse().expect("valid url"));
-                        }
-                    }
-                }
-            }
+            tracing::info!("Dev mode — Tauri CLI manages Vite startup via beforeDevCommand");
 
             // Spawn async boot task — setup returns IMMEDIATELY
             let handle = app.handle().clone();
@@ -276,10 +236,17 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
 
     // Build final boot.log content
     let total_elapsed = boot_start.elapsed();
-    let mut log = String::with_capacity(2048);
+    let mut log = String::with_capacity(4096);
     let _ = writeln!(log, "# DevPulse Boot Log");
     let _ = writeln!(log, "# {}", chrono::Local::now().format("%Y-%m-%d %H:%M:%S"));
+    let _ = writeln!(log, "# OS: {} {}", std::env::consts::OS, std::env::consts::ARCH);
     let _ = writeln!(log, "# data_dir: {}", data_dir.display());
+    let config_source = if data_dir.join("platform.toml").exists() {
+        "platform.toml (user override)"
+    } else {
+        "platform.default.toml (embedded)"
+    };
+    let _ = writeln!(log, "# config: {config_source}");
     let _ = writeln!(log, "#");
 
     if let Ok(lines) = boot_lines.lock() {

@@ -42,7 +42,7 @@ retry = { max_retries = 5, base_delay_ms = 500 }
 
 [services.system.analytics]
 enabled = true
-critical = false
+critical = true
 kind = "duckdb"
 path = "system/duckdb/analytics.duckdb"
 # DuckDB uses exclusive file locks — generous retry for hot-reload
@@ -60,7 +60,7 @@ retry = { max_retries = 5, base_delay_ms = 750 }
 
 [services.system.cache]
 enabled = true
-critical = false
+critical = true
 kind = "moka"
 max_capacity = 10_000
 time_to_live_secs = 300
@@ -68,9 +68,21 @@ time_to_idle_secs = 60
 
 [services.system.vector]
 enabled = true
-critical = false
+critical = true
 kind = "rro"
 path = "system/rro/storage"
+
+[services.system.voice]
+enabled = true
+critical = true
+kind = "kokoros"
+model_path = "system/kokoros/model"
+voices_path = "system/kokoros/voices"
+
+[services.system.grammar]
+enabled = true
+critical = true
+kind = "outlines"
 
 # ── User services ────────────────────────────────────────────────
 # User-owned data. Sessions, messages, tasks, preferences, personal memory.
@@ -78,14 +90,14 @@ path = "system/rro/storage"
 
 [services.user.relational]
 enabled = true
-critical = false
+critical = true
 kind = "libsql"
 path = "user/libsql/user.db"
 retry = { max_retries = 5, base_delay_ms = 500 }
 
 [services.user.graph]
 enabled = true
-critical = false
+critical = true
 kind = "surreal"
 path = "user/surreal/profile"
 namespace = "user"
@@ -97,7 +109,7 @@ retry = { max_retries = 5, base_delay_ms = 750 }
 
 [services.global.graph]
 enabled = true
-critical = false
+critical = true
 kind = "surreal"
 path = "global/surreal/knowledge"
 namespace = "global"

@@ -21,6 +21,10 @@ use crate::platform::services::graph::GraphService;
 use crate::platform::services::relational::{RelationalService, SYSTEM_SCHEMA, USER_SCHEMA};
 #[cfg(feature = "rro")]
 use crate::platform::services::vector::VectorService;
+#[cfg(feature = "kokoros")]
+use crate::platform::services::voice::VoiceService;
+#[cfg(feature = "outlines")]
+use crate::platform::services::grammar::GrammarService;
 
 use anyhow::Result;
 use std::path::Path;
@@ -38,6 +42,10 @@ pub struct BootedServices {
     pub global_graph: Option<Arc<GraphService>>,
     #[cfg(feature = "rro")]
     pub vector: Option<Arc<VectorService>>,
+    #[cfg(feature = "kokoros")]
+    pub voice: Option<Arc<VoiceService>>,
+    #[cfg(feature = "outlines")]
+    pub grammar: Option<Arc<GrammarService>>,
 }
 
 /// Execute the full boot pipeline.
@@ -114,17 +122,90 @@ pub async fn execute(
         on_event,
     );
     #[cfg(not(feature = "rro"))]
-    on_event(InitEvent::skipped("Vector store"));
+    {
+        if boot_config.services.system.vector.enabled {
+            anyhow::bail!(
+                "FATAL: Vector store (RRO) is enabled in config but the 'rro' feature is not compiled in. \
+                 Add features = [\"rro\"] to devpulse-engine dependency in src-tauri/Cargo.toml."
+            );
+        }
+    }
 
-    // ── Phase 3: Validate critical stores ─────────────────────
+    // Voice service (Kokoros) — feature-gated
+    #[cfg(feature = "kokoros")]
+    let voice = boot_voice(
+        data_dir,
+        &boot_config.services.system.voice,
+        on_event,
+    ).await;
+    #[cfg(not(feature = "kokoros"))]
+    {
+        if boot_config.services.system.voice.enabled {
+            anyhow::bail!(
+                "FATAL: Voice service (Kokoros) is enabled in config but the 'kokoros' feature is not compiled in. \
+                 Add features = [\"kokoros\"] to devpulse-engine dependency in src-tauri/Cargo.toml."
+            );
+        }
+    }
+
+    // Grammar service (outlines-core) — feature-gated
+    #[cfg(feature = "outlines")]
+    let grammar = boot_grammar(
+        &boot_config.services.system.grammar,
+        on_event,
+    );
+    #[cfg(not(feature = "outlines"))]
+    {
+        if boot_config.services.system.grammar.enabled {
+            anyhow::bail!(
+                "FATAL: Grammar service (outlines-core) is enabled in config but the 'outlines' feature is not compiled in. \
+                 Add features = [\"outlines\"] to devpulse-engine dependency in src-tauri/Cargo.toml."
+            );
+        }
+    }
+
+    // ── Phase 3: Validate ALL critical stores ──────────────────
     if system_relational.is_none() && boot_config.services.system.relational.enabled {
         anyhow::bail!(
-            "Critical store failed: System relational (LibSQL) was enabled but failed to boot"
+            "FATAL: System relational (LibSQL) was enabled but failed to boot"
+        );
+    }
+    if system_analytics.is_none() && boot_config.services.system.analytics.enabled && boot_config.services.system.analytics.critical {
+        anyhow::bail!(
+            "FATAL: System analytics (DuckDB) was enabled+critical but failed to boot"
         );
     }
     if system_graph.is_none() && boot_config.services.system.graph.enabled {
         anyhow::bail!(
-            "Critical store failed: System graph (SurrealDB) was enabled but failed to boot"
+            "FATAL: System graph (SurrealDB) was enabled but failed to boot"
+        );
+    }
+    if system_cache.is_none() && boot_config.services.system.cache.enabled && boot_config.services.system.cache.critical {
+        anyhow::bail!(
+            "FATAL: System cache (Moka) was enabled+critical but failed to boot"
+        );
+    }
+    if user_relational.is_none() && boot_config.services.user.relational.enabled && boot_config.services.user.relational.critical {
+        anyhow::bail!(
+            "FATAL: User relational (LibSQL) was enabled+critical but failed to boot"
+        );
+    }
+    #[cfg(feature = "rro")]
+    if vector.is_none() && boot_config.services.system.vector.enabled && boot_config.services.system.vector.critical {
+        anyhow::bail!(
+            "FATAL: Vector store (RRO/Qdrant) was enabled+critical but failed to boot"
+        );
+    }
+    #[cfg(feature = "kokoros")]
+    if voice.is_none() && boot_config.services.system.voice.enabled && boot_config.services.system.voice.critical {
+        anyhow::bail!(
+            "FATAL: Voice service (Kokoros) was enabled+critical but failed to boot"
+        );
+    }
+    #[cfg(feature = "outlines")]
+    if grammar.is_none() && boot_config.services.system.grammar.enabled && boot_config.services.system.grammar.critical {
+        anyhow::bail!(
+            "FATAL: Grammar service (outlines-core) was enabled+critical but failed to boot"
         );
     }
 
@@ -138,6 +219,10 @@ pub async fn execute(
         global_graph,
         #[cfg(feature = "rro")]
         vector,
+        #[cfg(feature = "kokoros")]
+        voice,
+        #[cfg(feature = "outlines")]
+        grammar,
     })
 }
 
@@ -306,6 +391,77 @@ fn boot_vector(
         Err(e) => {
             tracing::error!(step = "Vector store", error = ?e, "RRO failed to boot");
             on_event(InitEvent::error("Vector store", &format!("{e:#}")));
+            None
+        }
+    }
+}
+
+/// Boot the voice service (Kokoros — embedded TTS).
+#[cfg(feature = "kokoros")]
+#[allow(clippy::cast_possible_truncation)]
+async fn boot_voice(
+    data_dir: &Path,
+    entry: &config::VoiceServiceEntry,
+    on_event: &(impl Fn(InitEvent) + Send + 'static),
+) -> Option<Arc<VoiceService>> {
+    if !entry.enabled {
+        on_event(InitEvent::skipped("Voice service"));
+        return None;
+    }
+    on_event(InitEvent::running("Voice service", "Loading Kokoros TTS engine"));
+    let start = Instant::now();
+    let model_path = entry.resolve_model_path(data_dir);
+    let voices_path = entry.resolve_voices_path(data_dir);
+
+    match VoiceService::boot(&model_path, &voices_path).await {
+        Ok(store) => {
+            tracing::info!(
+                step = "Voice service",
+                status = "ready",
+                latency_ms = start.elapsed().as_millis() as u64,
+                model_path = %model_path.display(),
+                voices_path = %voices_path.display(),
+                "Kokoros TTS engine booted"
+            );
+            on_event(InitEvent::ok_with_latency("Voice service", start.elapsed()));
+            Some(Arc::new(store))
+        }
+        Err(e) => {
+            tracing::error!(step = "Voice service", error = ?e, "Kokoros failed to boot");
+            on_event(InitEvent::error("Voice service", &format!("{e:#}")));
+            None
+        }
+    }
+}
+
+/// Boot the grammar service (outlines-core — structured generation).
+#[cfg(feature = "outlines")]
+#[allow(clippy::cast_possible_truncation)]
+fn boot_grammar(
+    entry: &config::GrammarServiceEntry,
+    on_event: &(impl Fn(InitEvent) + Send + 'static),
+) -> Option<Arc<GrammarService>> {
+    if !entry.enabled {
+        on_event(InitEvent::skipped("Grammar service"));
+        return None;
+    }
+    on_event(InitEvent::running("Grammar service", "Initializing outlines-core engine"));
+    let start = Instant::now();
+
+    match GrammarService::boot() {
+        Ok(store) => {
+            tracing::info!(
+                step = "Grammar service",
+                status = "ready",
+                latency_ms = start.elapsed().as_millis() as u64,
+                "outlines-core grammar engine booted"
+            );
+            on_event(InitEvent::ok_with_latency("Grammar service", start.elapsed()));
+            Some(Arc::new(store))
+        }
+        Err(e) => {
+            tracing::error!(step = "Grammar service", error = ?e, "outlines-core failed to boot");
+            on_event(InitEvent::error("Grammar service", &format!("{e:#}")));
             None
         }
     }

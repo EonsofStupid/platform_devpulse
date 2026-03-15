@@ -9,6 +9,10 @@ pub mod graph;
 pub mod relational;
 #[cfg(feature = "rro")]
 pub mod vector;
+#[cfg(feature = "kokoros")]
+pub mod voice;
+#[cfg(feature = "outlines")]
+pub mod grammar;
 
 use anyhow::Result;
 
@@ -25,6 +29,10 @@ pub enum ServiceRole {
     Cache,
     /// Vector service (`RRO`).
     Vector,
+    /// Voice service (`Kokoros`).
+    Voice,
+    /// Grammar service (`outlines-core`).
+    Grammar,
 }
 
 /// Uniform interface for all platform services.
