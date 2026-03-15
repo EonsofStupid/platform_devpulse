@@ -12,7 +12,7 @@ pub mod commands;
 pub mod logging;
 pub mod state;
 
-use devpulse_engine::platform::{InitStatus, Platform, PlatformBootConfig};
+use devpulse_engine::platform::{InitStatus, Platform};
 use state::{BootStateTracker, PlatformState};
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -300,6 +300,12 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
                     "health": health
                 }),
             );
+
+            // Open chat window AFTER boot — graceful lazy load
+            tracing::info!("Opening Maestro Chat window");
+            if let Err(e) = commands::window::open_chat_window(app.clone()).await {
+                tracing::warn!(error = %e, "Chat window failed to open (non-fatal)");
+            }
         }
         Err(e) => {
             let _ = writeln!(

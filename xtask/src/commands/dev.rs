@@ -101,14 +101,10 @@ impl Task for Dev {
         println!("  > Scope: Tauri backend + Platform facade + 7 services");
         log.entry(&format!("backend_compile: ~{estimated} crates in dep graph"))?;
 
-        // Build environment — required for optional service deps:
-        //   - outlines-core needs pyo3 which needs Python path + ABI compat flag
-        //   - kokoros needs audiopus_sys which needs CMake compat flag
-        if let Ok(python) = which::which("python") {
-            std::env::set_var("PYO3_PYTHON", python);
-        }
-        std::env::set_var("PYO3_USE_ABI3_FORWARD_COMPATIBILITY", "1");
-        std::env::set_var("CMAKE_POLICY_VERSION_MINIMUM", "3.5");
+        // Build environment — all env vars from platform.default.toml [build.deps.*] SSOT.
+        // No hardcoded env vars here. Everything derives from the config.
+        println!("  > Build env from [build.deps.*] SSOT:");
+        platform_config.build.apply_env(ws.root());
 
         let compile_start = Instant::now();
         let cargo_child = ws.spawn_in_stderr_piped(

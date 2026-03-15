@@ -76,8 +76,8 @@ path = "system/rro/storage"
 enabled = true
 critical = true
 kind = "kokoros"
-model_path = "system/kokoros/model"
-voices_path = "system/kokoros/voices"
+model_path = "system/kokoros/model/kokoro-v1.0.onnx"
+voices_path = "system/kokoros/voices/voices-v1.0.bin"
 
 [services.system.grammar]
 enabled = true
@@ -169,7 +169,67 @@ skip_canonicalize = true
 # Use short paths for SurrealKV to avoid MAX_PATH (260 char) issues
 max_path_depth = 200
 
-# ── Dependencies ─────────────────────────────────────────────────
-# Managed by `cargo xtask deps`. Repos are defined in xtask/src/commands/deps.rs.
-# Run `cargo xtask deps` before build to pull and verify all external repos:
-#   rro (alpha), rust-stemmers, wal (rro-alpha), tar-rs (rro-alpha), Kokoros
+# ══════════════════════════════════════════════════════════════════
+# BUILD — single source of truth for the entire build toolchain
+# ══════════════════════════════════════════════════════════════════
+# xtask reads this section and sets all env vars / flags accordingly.
+# .cargo/config.toml should contain ONLY the xtask alias.
+# Everything else derives from here.
+
+[build.toolchain]
+target = "x86_64-pc-windows-msvc"
+# CRT linkage — EVERY C/C++ dep MUST match. "static" = /MT, "dynamic" = /MD.
+# If any dep ships a pre-built binary with a different CRT, it MUST be
+# rebuilt from source or use load-dynamic.
+msvc_crt = "static"
+
+[build.deps.nasm]
+# aws-lc-sys (SurrealDB transitive) needs NASM for x86_64 assembly
+path = "deps/nasm/nasm.exe"
+version = "3.01"
+env = ["NASM", "AWS_LC_SYS_PREBUILT_NASM"]
+
+[build.deps.python]
+# outlines-core -> pyo3 for grammar constrained decoding
+path = "deps/python/python.exe"
+version = "3.14"
+env = ["PYO3_PYTHON"]
+extras = { PYO3_USE_ABI3_FORWARD_COMPATIBILITY = "1" }
+
+[build.deps.onnxruntime]
+# kokoros -> ort for ONNX model inference (TTS)
+# MUST be built from source with msvc_crt = "static" (/MT).
+# Pre-built binaries from pyke.io use /MD — DO NOT USE.
+path = "deps/onnxruntime/"
+build = "load-dynamic"
+env = ["ORT_STRATEGY", "ORT_LIB_LOCATION"]
+
+[build.repos.kokoros]
+url = "https://github.com/EonsofStupid/Kokoros"
+path = "deps/kokoros"
+ref = "main"
+
+[build.repos.rro]
+url = "https://github.com/EonsofStupid/rro"
+path = "deps/rro"
+ref = "alpha"
+
+[build.repos.wal]
+url = "https://github.com/EonsofStupid/wal"
+path = "deps/wal"
+ref = "rro-alpha"
+
+[build.repos.tar_rs]
+url = "https://github.com/eonsofstupid/tar-rs"
+path = "deps/tar-rs"
+ref = "rro-alpha"
+
+[build.repos.rust_stemmers]
+url = "https://github.com/EonsofStupid/rust-stemmers"
+path = "deps/rust-stemmers"
+ref = "main"
+
+[build.repos.surrealdb_src]
+url = "https://github.com/surrealdb/surrealdb"
+path = "deps/surrealdb-src"
+ref = "main"

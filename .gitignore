@@ -235,3 +235,4 @@ scripts/docs/sprints/SPRINT-TAXONOMY-FOUNDATION.research.md
 scripts/docs/sprints/SPRINT-TAXONOMY-SIMPLIFICATION.md
 scripts/docs/sprints/SPRINT-TAXONOMY-SIMPLIFICATION.research.md
 scripts/hooks/no-legacy-prefixes.sh
+deps/

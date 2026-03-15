@@ -28,7 +28,9 @@ tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 tracing-appender = { workspace = true }
 chrono = { workspace = true }
-devpulse-engine = { path = "../../../systems/devpulse-engine", features = ["rro", "kokoros", "outlines"] }
+# kokoros DISABLED — CRT mismatch (ort=/MD, esaxx=/MT). Fix: Kokoros fork must use ort load-dynamic feature.
+# Re-enable once Kokoros fork has Windows MSVC support: features = ["rro", "kokoros", "outlines"]
+devpulse-engine = { path = "../../../systems/devpulse-engine", features = ["rro", "outlines"] }
 
 [lints]
 workspace = true

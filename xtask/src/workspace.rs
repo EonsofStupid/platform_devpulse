@@ -202,6 +202,129 @@ impl Workspace {
 pub struct PlatformConfig {
     /// Service configurations.
     pub services: PlatformServicesConfig,
+    /// Build toolchain configuration — SSOT for all build env vars.
+    #[serde(default)]
+    pub build: BuildConfig,
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Build config — SSOT for toolchain, deps, repos
+// ═══════════════════════════════════════════════════════════════
+
+/// Build toolchain and dependency configuration.
+///
+/// xtask reads `[build.*]` from `platform.default.toml` and sets all
+/// env vars before invoking cargo. No env vars should live in
+/// `.cargo/config.toml` — everything derives from here.
+#[derive(Debug, Default, Deserialize)]
+pub struct BuildConfig {
+    /// Toolchain settings (target triple, CRT linkage).
+    #[serde(default)]
+    pub toolchain: BuildToolchainConfig,
+    /// Build dependencies with paths and env var mappings.
+    #[serde(default)]
+    pub deps: BuildDepsConfig,
+}
+
+/// Toolchain configuration.
+#[derive(Debug, Deserialize)]
+pub struct BuildToolchainConfig {
+    /// Target triple (e.g., "x86_64-pc-windows-msvc").
+    #[serde(default = "default_target")]
+    pub target: String,
+    /// MSVC CRT linkage: "static" (/MT) or "dynamic" (/MD).
+    /// ALL C/C++ deps MUST match this value.
+    #[serde(default = "default_crt")]
+    pub msvc_crt: String,
+}
+
+impl Default for BuildToolchainConfig {
+    fn default() -> Self {
+        Self {
+            target: default_target(),
+            msvc_crt: default_crt(),
+        }
+    }
+}
+
+fn default_target() -> String {
+    "x86_64-pc-windows-msvc".to_string()
+}
+fn default_crt() -> String {
+    "static".to_string()
+}
+
+/// Build dependency declarations — each has a path and env vars to set.
+#[derive(Debug, Default, Deserialize)]
+pub struct BuildDepsConfig {
+    /// NASM assembler (for aws-lc-sys).
+    #[serde(default)]
+    pub nasm: Option<BuildDepEntry>,
+    /// Python interpreter (for pyo3/outlines-core).
+    #[serde(default)]
+    pub python: Option<BuildDepEntry>,
+    /// ONNX Runtime (for kokoros/ort).
+    #[serde(default)]
+    pub onnxruntime: Option<BuildDepEntry>,
+    /// CMake (for ort-sys source builds).
+    #[serde(default)]
+    pub cmake: Option<BuildDepEntry>,
+}
+
+/// A single build dependency entry.
+#[derive(Debug, Deserialize)]
+pub struct BuildDepEntry {
+    /// Path relative to workspace root.
+    pub path: String,
+    /// Version string (informational).
+    #[serde(default)]
+    pub version: Option<String>,
+    /// Env vars to set with this path as value.
+    #[serde(default)]
+    pub env: Vec<String>,
+    /// Build strategy: "source", "load-dynamic", "prebuilt".
+    #[serde(default)]
+    pub build: Option<String>,
+    /// Extra env vars to set (key=value pairs).
+    #[serde(default)]
+    pub extras: std::collections::HashMap<String, String>,
+}
+
+impl BuildConfig {
+    /// Apply all build env vars from the SSOT config.
+    ///
+    /// Resolves relative paths against workspace root, sets each env var
+    /// declared in `[build.deps.*.env]`, and sets extras.
+    /// Logs every env var set so the user sees exactly what's happening.
+    pub fn apply_env(&self, workspace_root: &std::path::Path) {
+        let deps = [
+            ("nasm", &self.deps.nasm),
+            ("python", &self.deps.python),
+            ("onnxruntime", &self.deps.onnxruntime),
+            ("cmake", &self.deps.cmake),
+        ];
+
+        for (name, dep_opt) in deps {
+            if let Some(dep) = dep_opt {
+                let resolved = workspace_root.join(&dep.path);
+                let resolved_str = resolved.to_string_lossy();
+
+                for env_key in &dep.env {
+                    std::env::set_var(env_key, &*resolved_str);
+                    println!("  [env] {env_key} = {resolved_str} (from [build.deps.{name}])");
+                }
+
+                for (key, value) in &dep.extras {
+                    std::env::set_var(key, value);
+                    println!("  [env] {key} = {value} (from [build.deps.{name}].extras)");
+                }
+
+                if let Some(build_strategy) = &dep.build {
+                    println!("  [build] {name}: strategy = {build_strategy}");
+                }
+            }
+        }
+    }
 }
 
 /// Top-level services scope.

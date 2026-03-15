@@ -1,8 +1,6 @@
 [alias]
 xtask = "run --package xtask --"
 
-[env]
-# aws-lc-sys (SurrealDB 3.0 transitive dep) needs NASM for x86_64 assembly
-# NASM 3.01 binary stored at D:\localdev\deps\nasm-3.01\
-NASM = { value = "D:\\localdev\\deps\\nasm-3.01\\nasm.exe", force = true }
-AWS_LC_SYS_PREBUILT_NASM = { value = "D:\\localdev\\deps\\nasm-3.01\\nasm.exe", force = true }
+# All build env vars are defined in platform.default.toml [build.deps.*]
+# xtask reads that TOML and sets env vars before invoking cargo.
+# DO NOT add env vars here — they belong in the SSOT.

@@ -845,10 +845,10 @@ fn default_kokoros_kind() -> String {
     "kokoros".to_string()
 }
 fn default_kokoros_model_path() -> String {
-    "system/kokoros/model".to_string()
+    "system/kokoros/model/kokoro-v1.0.onnx".to_string()
 }
 fn default_kokoros_voices_path() -> String {
-    "system/kokoros/voices".to_string()
+    "system/kokoros/voices/voices-v1.0.bin".to_string()
 }
 fn default_outlines_kind() -> String {
     "outlines".to_string()
