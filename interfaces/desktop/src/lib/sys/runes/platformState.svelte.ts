@@ -35,8 +35,8 @@ export interface SubsystemInfo {
 }
 
 const HEALTH_POLL_INTERVAL_MS = 15_000;
-const TAURI_READY_POLL_MS = 50;
-const TAURI_READY_TIMEOUT_MS = 10_000;
+const TAURI_READY_POLL_MS = 100;
+const TAURI_READY_TIMEOUT_MS = 30_000;
 
 /**
  * Wait for Tauri IPC bridge to be available.

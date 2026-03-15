@@ -102,14 +102,6 @@ pub fn run() {
             });
             app.manage(BootStateTracker::new());
 
-            // Show main window immediately so boot overlay is visible.
-            // Window starts hidden (tauri.conf.json visible:false) to prevent
-            // flash of blank content. We show it here AFTER setup is done but
-            // BEFORE boot completes — the boot overlay handles the "loading" UX.
-            if let Some(window) = app.get_webview_window("main") {
-                let _ = window.show();
-            }
-
             // Spawn async boot task — setup returns IMMEDIATELY
             let handle = app.handle().clone();
             let tracker = app.state::<BootStateTracker>();
