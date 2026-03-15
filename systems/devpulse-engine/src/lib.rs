@@ -1,4 +1,4 @@
-//! `DevPulse` engine — public facade for the platform.
+//! `DevPulse` engine — owns all platform services and bridges to maestro kernel.
 //!
 //! The engine is the **sole boundary** between the desktop app (Tauri) and
 //! the kernel (Maestro). Tauri depends on this crate only — never on Maestro

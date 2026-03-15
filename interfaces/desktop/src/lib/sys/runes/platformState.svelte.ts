@@ -47,17 +47,24 @@ function waitForTauri(): Promise<void> {
 	return new Promise((resolve, reject) => {
 		// Already available
 		if (typeof window !== "undefined" && (window as any).__TAURI_INTERNALS__) {
+			console.log("[DevPulse:IPC] __TAURI_INTERNALS__ already available");
 			resolve();
 			return;
 		}
 
+		console.log("[DevPulse:IPC] Waiting for __TAURI_INTERNALS__...");
 		const start = Date.now();
+		let pollCount = 0;
 		const check = setInterval(() => {
+			pollCount++;
 			if (typeof window !== "undefined" && (window as any).__TAURI_INTERNALS__) {
 				clearInterval(check);
+				console.log(`[DevPulse:IPC] __TAURI_INTERNALS__ found after ${Date.now() - start}ms (${pollCount} polls)`);
 				resolve();
 			} else if (Date.now() - start > TAURI_READY_TIMEOUT_MS) {
 				clearInterval(check);
+				console.error(`[DevPulse:IPC] TIMEOUT — __TAURI_INTERNALS__ not found after ${TAURI_READY_TIMEOUT_MS}ms (${pollCount} polls)`);
+				console.error("[DevPulse:IPC] window keys:", Object.keys(window).filter(k => k.includes("TAURI") || k.includes("__")));
 				reject(new Error(`Tauri IPC not available after ${TAURI_READY_TIMEOUT_MS}ms`));
 			}
 		}, TAURI_READY_POLL_MS);

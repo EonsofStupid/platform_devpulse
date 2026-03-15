@@ -1,4 +1,4 @@
-//! Health check types for the platform facade.
+//! Health check types for the platform engine.
 //!
 //! These types are what Tauri and the frontend see.
 //! No maestro internals leak through these types.

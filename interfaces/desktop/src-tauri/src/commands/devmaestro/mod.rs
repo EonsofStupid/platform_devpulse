@@ -1,6 +1,6 @@
 //! `DevMaestro` commands — system status and health checks.
 //!
-//! These commands delegate to the Platform facade.
+//! These commands delegate to the Platform engine.
 //! No maestro types are exposed — only engine public types.
 
 use crate::state::PlatformState;

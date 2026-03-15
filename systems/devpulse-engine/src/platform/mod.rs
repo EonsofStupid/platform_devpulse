@@ -1,12 +1,13 @@
-//! Platform facade — the sole public API for persistence, health, and config.
+//! Platform engine — the sole public API for persistence, health, and config.
 //!
-//! This module is the translation layer between maestro (kernel) and Tauri (public).
-//! Maestro types with kernel terminology are wrapped in engine-owned public types.
-//! `ip_term!()` is applied at this boundary for all user-facing strings.
+//! The engine owns every service lifecycle: boot, health, shutdown.
+//! Maestro (kernel) provides low-level adapters. The engine wraps them
+//! into managed services with config-driven boot and health orchestration.
+//! Tauri desktop is the thin facade that calls into this engine via IPC.
 //!
 //! # Architecture
 //! ```text
-//! Tauri -> Platform (this) -> Service wrappers -> Maestro adapters (private)
+//! Tauri (facade) -> Platform Engine (this) -> Services -> Maestro adapters (private)
 //!              |
 //!              +-- SystemHealth (public type)
 //!              +-- InitEvent (public type)
@@ -55,9 +56,9 @@ use services::relational::RelationalService;
 #[cfg(feature = "rro")]
 use services::vector::VectorService;
 
-/// Platform facade — sole public API for persistence, health, config.
+/// Platform engine — sole public API for persistence, health, config.
 ///
-/// Wraps maestro internals. Tauri talks to this, never to maestro directly.
+/// Owns all service lifecycles. Tauri talks to this, never to maestro directly.
 /// All user-facing strings pass through `ip_term!()` at this boundary.
 ///
 /// Services are organized by scope:

@@ -1,7 +1,7 @@
 //! Application state managed by Tauri.
 //!
 //! Two managed state structs:
-//! - `PlatformState`: holds the platform facade after boot completes.
+//! - `PlatformState`: holds the platform engine after boot completes.
 //! - `BootStateTracker`: accumulates boot events so the frontend can
 //!   catch up even if it mounts after boot finishes.
 
@@ -17,7 +17,7 @@ use tokio::sync::RwLock;
 /// `platform` is `None` during boot and `Some(Arc<Platform>)` after.
 /// Commands must handle the `None` case gracefully.
 pub struct PlatformState {
-    /// Platform facade (engine -> maestro bridge).
+    /// Platform engine (owns all services, bridges to maestro kernel).
     /// None while boot task is running, Some after completion.
     pub platform: RwLock<Option<Arc<Platform>>>,
 }

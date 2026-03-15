@@ -8,10 +8,20 @@ import { onMount } from "svelte";
 
 let { children } = $props();
 
+console.log("[DevPulse] Root layout script executing");
+console.log("[DevPulse] __TAURI_INTERNALS__:", typeof (window as any).__TAURI_INTERNALS__);
+
 onMount(() => {
-	platformState.init().catch((e) => {
-		console.error("platformState.init() failed:", e);
-	});
+	console.log("[DevPulse] Root layout mounted");
+	console.log("[DevPulse] __TAURI_INTERNALS__ at mount:", typeof (window as any).__TAURI_INTERNALS__);
+	console.log("[DevPulse] Starting platformState.init()...");
+	platformState.init()
+		.then(() => {
+			console.log("[DevPulse] platformState.init() completed, phase:", platformState.phase);
+		})
+		.catch((e) => {
+			console.error("[DevPulse] platformState.init() FAILED:", e);
+		});
 	return () => platformState.destroy();
 });
 </script>

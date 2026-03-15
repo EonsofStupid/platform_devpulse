@@ -1,7 +1,7 @@
 //! `DevPulse` Desktop — Tauri backend.
 //!
 //! The Tauri layer depends on `devpulse-engine` only — never on maestro.
-//! All kernel access goes through the Platform facade.
+//! All kernel access goes through the Platform engine.
 //!
 //! # Boot Architecture: Progressive Hydration
 //! `setup()` returns instantly. Main window is visible immediately.
@@ -146,6 +146,13 @@ pub fn run() {
                         }
                     }
                 }
+            }
+
+            // Open devtools in dev mode so console errors are always visible
+            #[cfg(debug_assertions)]
+            if let Some(window) = app.get_webview_window("main") {
+                window.open_devtools();
+                tracing::info!("DevTools opened for main window");
             }
 
             // Spawn async boot task — setup returns IMMEDIATELY
