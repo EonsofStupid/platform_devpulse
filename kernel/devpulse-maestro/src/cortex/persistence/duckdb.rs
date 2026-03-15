@@ -75,7 +75,7 @@ impl DuckDbAdapter {
 
     /// Graceful shutdown — acquire lock to ensure no queries are in flight.
     ///
-    /// DuckDB checkpoints automatically on `Connection::drop`. Acquiring
+    /// `DuckDB` checkpoints automatically on `Connection::drop`. Acquiring
     /// the mutex guarantees all in-flight queries complete before the
     /// connection is released. The actual file lock release happens when
     /// all `Arc` references drop (handled by `Platform::shutdown`).

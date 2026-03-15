@@ -150,7 +150,7 @@ impl SurrealAdapter {
         Ok(())
     }
 
-    /// Execute a raw SurrealQL query in a specific namespace/database context.
+    /// Execute a raw `SurrealQL` query in a specific namespace/database context.
     ///
     /// Prefixes the query with `USE NS ... DB ...;` to scope it.
     /// Returns the raw JSON response.
@@ -187,14 +187,14 @@ impl SurrealAdapter {
 
     /// Get a clone of the inner database handle for sharing.
     ///
-    /// Used by the SurrealDB HTTP server to share the same instance.
+    /// Used by the `SurrealDB` HTTP server to share the same instance.
     pub fn db_handle(&self) -> Arc<RwLock<Surreal<Db>>> {
         Arc::clone(&self.db)
     }
 
-    /// Graceful shutdown — flush and release the SurrealKV instance.
+    /// Graceful shutdown — flush and release the `SurrealKV` instance.
     ///
-    /// SurrealKV uses a WAL that needs to be flushed on shutdown.
+    /// `SurrealKV` uses a WAL that needs to be flushed on shutdown.
     /// Dropping the `Surreal<Db>` handle triggers the flush. We acquire
     /// the write lock first to ensure no queries are in flight.
     pub async fn close(&self) {

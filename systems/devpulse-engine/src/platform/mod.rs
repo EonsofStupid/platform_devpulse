@@ -238,6 +238,7 @@ impl Platform {
     /// Flushes WALs, checkpoints databases, and releases file locks so the
     /// next process can open them immediately (hot-reload, restart).
     /// Enforces a 5-second deadline — if exceeded, logs a warning and drops.
+    #[allow(clippy::cast_possible_truncation)]
     pub async fn shutdown(&self) {
         let start = Instant::now();
         tracing::info!("Platform shutting down — closing stores");
@@ -245,14 +246,14 @@ impl Platform {
 
         // Reverse boot order: graph → analytics → cache → relational
         // Graph stores share one SurrealKV — close system graph first (owns the adapter)
-        Self::shutdown_store_with_deadline(&self.global_graph, &deadline, start).await;
-        Self::shutdown_store_with_deadline(&self.user_graph, &deadline, start).await;
-        Self::shutdown_store_with_deadline(&self.system_graph, &deadline, start).await;
-        Self::shutdown_store_with_deadline(&self.system_analytics, &deadline, start).await;
+        Self::shutdown_store_with_deadline(self.global_graph.as_ref(), &deadline, start).await;
+        Self::shutdown_store_with_deadline(self.user_graph.as_ref(), &deadline, start).await;
+        Self::shutdown_store_with_deadline(self.system_graph.as_ref(), &deadline, start).await;
+        Self::shutdown_store_with_deadline(self.system_analytics.as_ref(), &deadline, start).await;
         // Cache (Moka) is in-memory — no-op shutdown, but call for consistency
-        Self::shutdown_store_with_deadline(&self.system_cache, &deadline, start).await;
-        Self::shutdown_store_with_deadline(&self.user_relational, &deadline, start).await;
-        Self::shutdown_store_with_deadline(&self.system_relational, &deadline, start).await;
+        Self::shutdown_store_with_deadline(self.system_cache.as_ref(), &deadline, start).await;
+        Self::shutdown_store_with_deadline(self.user_relational.as_ref(), &deadline, start).await;
+        Self::shutdown_store_with_deadline(self.system_relational.as_ref(), &deadline, start).await;
 
         let elapsed = start.elapsed();
         tracing::info!(
@@ -263,7 +264,7 @@ impl Platform {
 
     /// Shut down a single store, respecting the overall deadline.
     async fn shutdown_store_with_deadline<S: Store>(
-        store: &Option<Arc<S>>,
+        store: Option<&Arc<S>>,
         deadline: &std::time::Duration,
         start: Instant,
     ) {

@@ -88,6 +88,7 @@ pub struct DashboardPayload {
 /// - `DuckDB`: `daily_stats` (last 20 days)
 /// - Moka: cache stats (entry count / capacity)
 #[tauri::command]
+#[allow(clippy::missing_errors_doc, clippy::too_many_lines)]
 pub async fn fetch_dashboard(
     state: State<'_, PlatformState>,
 ) -> Result<DashboardPayload, String> {

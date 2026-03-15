@@ -23,7 +23,7 @@ use tokio::sync::RwLock;
 ///
 /// # Panics
 /// Panics if the Tauri runtime fails to start.
-#[allow(clippy::expect_used)]
+#[allow(clippy::expect_used, clippy::too_many_lines)]
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -188,6 +188,7 @@ pub fn run() {
 ///
 /// Writes `.userdata/logs/boot.log` on every run (overwritten, not appended).
 /// Human-readable summary so you can immediately see what booted and what didn't.
+#[allow(clippy::too_many_lines)]
 async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateTracker) {
     use devpulse_engine::platform::InitEvent;
     use std::fmt::Write as _;
@@ -356,6 +357,7 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
 
 /// Seed sample data for dev mode — only if tables are empty.
 #[cfg(debug_assertions)]
+#[allow(clippy::too_many_lines)]
 async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
     use devpulse_engine::platform::{AnalyticsAdapter, SqlAdapter};
 

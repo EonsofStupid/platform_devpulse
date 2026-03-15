@@ -1,12 +1,12 @@
 //! CAG pipeline stage traits.
 //!
 //! Each stage of the retrieval pipeline is a trait contract:
-//!   Embedder → SparseEncoder → HybridSearcher → Reranker → ContextAssembler
+//!   `Embedder` → `SparseEncoder` → `HybridSearcher` → `Reranker` → `ContextAssembler`
 //!
 //! Implementations will be backed by:
 //!   - Candle (Qwen3-Embedding, Qwen3-Reranker)
 //!   - RRO (hybrid search with RRF fusion)
-//!   - LibSQL (document hydration)
+//!   - `LibSQL` (document hydration)
 //!
 //! These traits define WHAT each stage must do.
 //! HOW is deferred to concrete implementations.
@@ -39,7 +39,7 @@ pub trait Embedder: Send + Sync {
 
 /// Sparse vector generation for keyword-based retrieval (BM25).
 ///
-/// Converts text → sparse vector of (token_index, tf-idf_score) pairs.
+/// Converts text → sparse vector of (`token_index`, `tf_idf_score`) pairs.
 /// Runs on CPU, no model required — purely statistical.
 pub trait SparseEncoder: Send + Sync {
     /// Encode text into a sparse vector.
@@ -67,7 +67,7 @@ pub trait Reranker: Send + Sync {
 
 /// Context assembly — token-budgeted, deduplicated context blob construction.
 ///
-/// Takes scored+hydrated chunks and assembles them into a ContextBlob
+/// Takes scored+hydrated chunks and assembles them into a `ContextBlob`
 /// that fits within the generation model's context window.
 pub trait ContextAssembler: Send + Sync {
     /// Assemble retrieved chunks into a context blob.
@@ -77,6 +77,9 @@ pub trait ContextAssembler: Send + Sync {
     /// - Deduplication (Jaccard similarity threshold)
     /// - Priority ordering (reranker scores)
     /// - Project context injection
+    ///
+    /// # Errors
+    /// Returns error if context assembly fails.
     fn assemble(
         &self,
         chunks: Vec<RetrievedChunk>,
@@ -88,11 +91,11 @@ pub trait ContextAssembler: Send + Sync {
 /// Document hydration — resolves vector store point IDs to full content.
 ///
 /// The vector store holds embeddings + minimal payload (preview, metadata).
-/// Hydration fetches the full document content from LibSQL for prompt injection.
+/// Hydration fetches the full document content from `LibSQL` for prompt injection.
 #[allow(async_fn_in_trait)]
 pub trait Hydrator: Send + Sync {
     /// Hydrate scored chunks with full document content.
     /// Input: scored chunks with IDs from vector search.
-    /// Output: retrieved chunks with full content from LibSQL.
+    /// Output: retrieved chunks with full content from `LibSQL`.
     async fn hydrate(&self, chunks: Vec<ScoredChunk>) -> Result<Vec<RetrievedChunk>>;
 }

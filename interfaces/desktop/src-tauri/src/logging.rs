@@ -82,7 +82,7 @@ pub fn rotate_logs(data_dir: &Path) -> anyhow::Result<()> {
         .filter_map(|entry| {
             let entry = entry.ok()?;
             let name = entry.file_name().to_string_lossy().to_string();
-            if name.starts_with("session-") && name.ends_with(".jsonl") {
+            if name.starts_with("session-") && std::path::Path::new(&name).extension().is_some_and(|ext| ext.eq_ignore_ascii_case("jsonl")) {
                 Some(entry.path())
             } else {
                 None

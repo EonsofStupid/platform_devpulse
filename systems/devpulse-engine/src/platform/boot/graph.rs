@@ -24,6 +24,7 @@ use std::time::Instant;
 ///
 /// Returns graph stores for (system, user, global). Any or all may be None
 /// if the engine fails to open or namespaces fail to initialize.
+#[allow(clippy::too_many_lines, clippy::cast_possible_truncation)]
 pub async fn boot_consolidated(
     data_dir: &Path,
     boot_config: &PlatformBootConfig,

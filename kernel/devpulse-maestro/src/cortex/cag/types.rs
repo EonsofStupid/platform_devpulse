@@ -85,7 +85,7 @@ pub enum ChunkType {
 /// Contains enough metadata for filtering and preview without hydration.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChunkPayload {
-    /// Unique chunk ID — matches the primary key in LibSQL.
+    /// Unique chunk ID — matches the primary key in `LibSQL`.
     pub chunk_id: String,
     /// Source document path.
     pub source_path: String,
@@ -120,14 +120,14 @@ pub struct ScoredChunk {
 
 /// A fully hydrated chunk ready for context assembly.
 ///
-/// Has full content (from LibSQL) plus the search score.
+/// Has full content (from `LibSQL`) plus the search score.
 #[derive(Debug, Clone)]
 pub struct RetrievedChunk {
     /// Chunk ID.
     pub id: String,
     /// Final relevance score (from reranker if available, else search score).
     pub score: f32,
-    /// Full document content from LibSQL hydration.
+    /// Full document content from `LibSQL` hydration.
     pub content: String,
     /// Source path for attribution.
     pub source: String,
@@ -186,7 +186,7 @@ pub struct PipelineMetrics {
     pub search_latency: Duration,
     /// Time spent in cross-encoder reranking.
     pub rerank_latency: Duration,
-    /// Time spent hydrating chunks from LibSQL.
+    /// Time spent hydrating chunks from `LibSQL`.
     pub hydrate_latency: Duration,
     /// Time spent assembling the context blob.
     pub assemble_latency: Duration,

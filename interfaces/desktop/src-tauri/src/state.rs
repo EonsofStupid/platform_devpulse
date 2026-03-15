@@ -74,6 +74,7 @@ impl BootStateTracker {
     }
 
     /// Clone the inner Arc for passing to background tasks.
+    #[must_use]
     pub fn clone_tracker(&self) -> Self {
         Self {
             inner: Arc::clone(&self.inner),
@@ -81,12 +82,20 @@ impl BootStateTracker {
     }
 
     /// Record a subsystem init event.
+    ///
+    /// # Panics
+    /// Panics if the internal mutex is poisoned.
+    #[allow(clippy::expect_used)]
     pub fn record_event(&self, event: InitEvent) {
         let mut snap = self.inner.lock().expect("BootStateTracker lock poisoned");
         snap.events.push(event);
     }
 
     /// Mark boot as ready with final health snapshot.
+    ///
+    /// # Panics
+    /// Panics if the internal mutex is poisoned.
+    #[allow(clippy::expect_used)]
     pub fn set_ready(&self, health: SystemHealth) {
         let mut snap = self.inner.lock().expect("BootStateTracker lock poisoned");
         snap.phase = BootPhase::Ready;
@@ -94,6 +103,10 @@ impl BootStateTracker {
     }
 
     /// Mark boot as failed with error message.
+    ///
+    /// # Panics
+    /// Panics if the internal mutex is poisoned.
+    #[allow(clippy::expect_used)]
     pub fn set_failed(&self, error: String) {
         let mut snap = self.inner.lock().expect("BootStateTracker lock poisoned");
         snap.phase = BootPhase::Failed;
@@ -101,6 +114,10 @@ impl BootStateTracker {
     }
 
     /// Return a clone of the current boot snapshot.
+    ///
+    /// # Panics
+    /// Panics if the internal mutex is poisoned.
+    #[allow(clippy::expect_used)]
     pub fn snapshot(&self) -> BootSnapshot {
         self.inner
             .lock()

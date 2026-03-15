@@ -31,6 +31,7 @@ pub struct ChatMessage {
 
 /// Send a chat message — persists to `LibSQL` and returns the stored message.
 #[tauri::command]
+#[allow(clippy::missing_errors_doc)]
 pub async fn send_message(
     content: String,
     state: State<'_, PlatformState>,

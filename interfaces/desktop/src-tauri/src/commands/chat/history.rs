@@ -9,6 +9,7 @@ use tauri::State;
 ///
 /// Returns the last 50 messages from the most recent active session.
 #[tauri::command]
+#[allow(clippy::missing_errors_doc)]
 pub async fn load_recent(
     state: State<'_, PlatformState>,
 ) -> Result<Vec<ChatMessage>, String> {

@@ -18,6 +18,7 @@ use crate::cortex::persistence::traits::{SparseVector as PersistenceSparseVector
 ///
 /// Each result set contributes `1 / (k + rank)` to a point's score.
 /// Points appearing in both sets get higher fused scores.
+#[allow(clippy::cast_precision_loss)]
 pub fn rrf_fuse(
     dense: &[ScoredChunk],
     sparse: &[ScoredChunk],
@@ -58,6 +59,7 @@ pub fn rrf_fuse(
 }
 
 /// Jaccard similarity between two texts (word-level).
+#[allow(clippy::cast_precision_loss)]
 pub fn jaccard_similarity(a: &str, b: &str) -> f32 {
     let set_a: HashSet<&str> = a.split_whitespace().collect();
     let set_b: HashSet<&str> = b.split_whitespace().collect();
@@ -129,7 +131,7 @@ where
     pub sparse_encoder: S,
     /// Cross-encoder reranker (Qwen3-Reranker via Candle).
     pub reranker: R,
-    /// Document hydrator (LibSQL full-content fetch).
+    /// Document hydrator (`LibSQL` full-content fetch).
     pub hydrator: H,
     /// Token-budgeted context assembler.
     pub assembler: A,
@@ -149,7 +151,10 @@ where
     /// Execute the full retrieval pipeline.
     ///
     /// Signal flow: query → embed → search(dense+sparse) → RRF fuse →
-    ///              deduplicate → rerank → hydrate → assemble → ContextBlob
+    ///              deduplicate → rerank → hydrate → assemble → `ContextBlob`
+    ///
+    /// # Errors
+    /// Returns error if any pipeline stage (embed, search, rerank, hydrate, assemble) fails.
     pub async fn retrieve(
         &self,
         query: &str,

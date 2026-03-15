@@ -74,7 +74,7 @@ impl LibSqlAdapter {
 
     /// Graceful shutdown — checkpoint WAL and release the connection.
     ///
-    /// LibSQL uses WAL mode by default. Checkpointing before close ensures
+    /// `LibSQL` uses WAL mode by default. Checkpointing before close ensures
     /// all data is flushed to the main database file and file locks are
     /// released cleanly for the next process.
     pub async fn close(&self) {

@@ -146,6 +146,7 @@ pub async fn execute(
 // ═══════════════════════════════════════════════════════════════
 
 /// Boot a relational (`LibSQL`) store with file-lock retry.
+#[allow(clippy::cast_possible_truncation)]
 async fn boot_relational(
     data_dir: &Path,
     entry: &config::StoreEntry,
@@ -195,10 +196,11 @@ async fn boot_relational(
 /// `DuckDB` uses an exclusive file lock. On Windows hot-reload, the previous
 /// process may not have released its lock yet. Retry with exponential backoff.
 /// `DuckDB`'s `boot()` is synchronous — wrapped in `spawn_blocking` for async retry.
+#[allow(clippy::cast_possible_truncation)]
 async fn boot_analytics(
     data_dir: &Path,
     entry: &config::StoreEntry,
-    _win_config: &config::WindowsConfig,
+    win_config: &config::WindowsConfig,
     schema: &'static str,
     label: &'static str,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
@@ -210,7 +212,7 @@ async fn boot_analytics(
     on_event(InitEvent::running(label, "Opening database"));
     let start = Instant::now();
     let raw_path = entry.resolve_path(data_dir);
-    let path = sanitize_path(&raw_path, _win_config);
+    let path = sanitize_path(&raw_path, win_config);
     let retry_cfg = entry.retry.to_retry_config();
 
     let result = retry::retry_on_lock_async(&retry_cfg, label, || {
@@ -244,6 +246,7 @@ async fn boot_analytics(
 }
 
 /// Boot the in-memory cache (Moka).
+#[allow(clippy::cast_possible_truncation)]
 fn boot_cache(
     entry: &config::CacheStoreEntry,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
@@ -267,6 +270,7 @@ fn boot_cache(
 
 /// Boot the vector store (RRO — embedded Qdrant).
 #[cfg(feature = "rro")]
+#[allow(clippy::cast_possible_truncation)]
 fn boot_vector(
     data_dir: &Path,
     entry: &config::VectorStoreEntry,
