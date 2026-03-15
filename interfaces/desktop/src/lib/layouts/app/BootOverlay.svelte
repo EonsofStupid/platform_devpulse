@@ -175,7 +175,7 @@ $effect(() => {
 		pointer-events: none;
 	}
 
-	.boot-overlay__content {
+	:global(.boot-overlay__content) {
 		min-width: 320px;
 		max-width: 400px;
 		padding: 2rem;

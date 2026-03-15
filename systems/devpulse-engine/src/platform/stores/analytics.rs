@@ -68,7 +68,7 @@ impl Store for AnalyticsStore {
 ///
 /// Contains all platform telemetry — LLM call tracking, ROTI metrics,
 /// layer budget enforcement, interaction timing, governance audit trail.
-/// Optimized for OLAP queries (DuckDB columnar storage).
+/// Optimized for OLAP queries (`DuckDB` columnar storage).
 pub const SYSTEM_ANALYTICS_SCHEMA: &str = r"
 -- Key-value store for signal-based access
 CREATE TABLE IF NOT EXISTS kv_store (

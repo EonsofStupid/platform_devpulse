@@ -5,7 +5,7 @@
 //! NFS or antivirus. This retries operations with exponential backoff when
 //! sharing violations are detected.
 //!
-//! All stores use this — DuckDB, SurrealDB, LibSQL. No hand-rolled retries.
+//! All stores use this — `DuckDB`, `SurrealDB`, `LibSQL`. No hand-rolled retries.
 
 use std::future::Future;
 use std::time::Duration;
@@ -81,7 +81,7 @@ where
 ///
 /// Cross-platform: covers Windows sharing violations (os error 32/33),
 /// POSIX lock errors (EAGAIN, EACCES on lock), and common error messages
-/// from DuckDB, SurrealDB, and LibSQL.
+/// from `DuckDB`, `SurrealDB`, and `LibSQL`.
 fn is_file_lock_error(err: &str) -> bool {
     // Windows
     err.contains("sharing violation")

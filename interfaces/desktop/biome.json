@@ -1,7 +1,6 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.3.13/schema.json",
 	"assist": { "actions": { "source": { "organizeImports": "on" } } },
-	"plugins": ["./gritql/no-raw-colors.grit", "./gritql/no-kernel-terms.grit"],
 	"linter": {
 		"enabled": true,
 		"rules": {

@@ -136,6 +136,7 @@ impl Default for WindowsConfig {
 
 /// All store configurations, organized by scope.
 #[derive(Debug, Clone, Deserialize)]
+#[derive(Default)]
 pub struct ScopedStoresConfig {
     /// System-scope stores (kernel internals).
     #[serde(default)]
@@ -151,16 +152,6 @@ pub struct ScopedStoresConfig {
     pub project: ProjectStoresConfig,
 }
 
-impl Default for ScopedStoresConfig {
-    fn default() -> Self {
-        Self {
-            system: SystemStoresConfig::default(),
-            user: UserStoresConfig::default(),
-            global: GlobalStoresConfig::default(),
-            project: ProjectStoresConfig::default(),
-        }
-    }
-}
 
 /// System-scope store configuration.
 #[derive(Debug, Clone, Deserialize)]
@@ -232,19 +223,13 @@ impl Default for GlobalStoresConfig {
 
 /// Project-scope store template configuration.
 #[derive(Debug, Clone, Deserialize)]
+#[derive(Default)]
 pub struct ProjectStoresConfig {
     /// Graph store template — instantiated per project.
     #[serde(default)]
     pub graph: ProjectGraphEntry,
 }
 
-impl Default for ProjectStoresConfig {
-    fn default() -> Self {
-        Self {
-            graph: ProjectGraphEntry::default(),
-        }
-    }
-}
 
 // ═══════════════════════════════════════════════════════════════
 // Store entry types
@@ -591,7 +576,7 @@ impl PlatformBootConfig {
 
 /// Sanitize a path for Windows compatibility.
 ///
-/// - Strips `\\?\` extended-length prefix if present (SurrealKV chokes on it)
+/// - Strips `\\?\` extended-length prefix if present (`SurrealKV` chokes on it)
 /// - Checks path length against configured maximum
 pub fn sanitize_path(path: &Path, config: &WindowsConfig) -> PathBuf {
     let mut path_str = path.to_string_lossy().to_string();

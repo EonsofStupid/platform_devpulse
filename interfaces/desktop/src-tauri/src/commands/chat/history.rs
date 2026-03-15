@@ -1,11 +1,11 @@
-//! Chat history — load messages from LibSQL.
+//! Chat history — load messages from `LibSQL`.
 
 use crate::state::PlatformState;
 use devpulse_engine::platform::SqlAdapter;
 use super::ChatMessage;
 use tauri::State;
 
-/// Load recent chat messages from LibSQL.
+/// Load recent chat messages from `LibSQL`.
 ///
 /// Returns the last 50 messages from the most recent active session.
 #[tauri::command]
@@ -47,11 +47,11 @@ pub async fn load_recent(
     let messages: Vec<ChatMessage> = rows
         .into_iter()
         .map(|row| ChatMessage {
-            id: row.first().and_then(|v| v.as_integer()).unwrap_or(0),
+            id: row.first().and_then(devpulse_engine::platform::SqlValue::as_integer).unwrap_or(0),
             session_id: row.get(1).and_then(|v| v.as_text()).unwrap_or("").to_string(),
             role: row.get(2).and_then(|v| v.as_text()).unwrap_or("").to_string(),
             content: row.get(3).and_then(|v| v.as_text()).unwrap_or("").to_string(),
-            created_at: row.get(4).and_then(|v| v.as_integer()).unwrap_or(0),
+            created_at: row.get(4).and_then(devpulse_engine::platform::SqlValue::as_integer).unwrap_or(0),
         })
         .collect();
 

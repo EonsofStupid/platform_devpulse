@@ -11,7 +11,7 @@ use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::EnvFilter;
 
 /// Initialize all logging — stderr + file in one shot.
-/// Must be called once data_dir is known (in setup).
+/// Must be called once `data_dir` is known (in setup).
 /// Returns a guard that must be held for the app lifetime.
 ///
 /// # Errors
@@ -51,7 +51,7 @@ pub fn init(data_dir: &Path) -> anyhow::Result<WorkerGuard> {
     Ok(guard)
 }
 
-/// Initialize stderr-only logging (fallback if data_dir isn't available yet).
+/// Initialize stderr-only logging (fallback if `data_dir` isn't available yet).
 pub fn init_stderr_only() {
     let filter = EnvFilter::try_from_default_env()
         .unwrap_or_else(|_| EnvFilter::new("info,devpulse=debug"));

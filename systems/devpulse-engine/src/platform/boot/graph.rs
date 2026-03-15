@@ -1,6 +1,6 @@
-//! Consolidated SurrealDB boot — one engine, three namespaces.
+//! Consolidated `SurrealDB` boot — one engine, three namespaces.
 //!
-//! Opens ONE SurrealKV instance at `.userdata/surreal/devpulse` and
+//! Opens ONE `SurrealKV` instance at `.userdata/surreal/devpulse` and
 //! initializes system, user, and global namespaces. Then starts the
 //! HTTP server on :8822 for external tool access.
 //!
@@ -20,7 +20,7 @@ use std::path::Path;
 use std::sync::Arc;
 use std::time::Instant;
 
-/// Boot a consolidated SurrealDB instance with all three namespace scopes.
+/// Boot a consolidated `SurrealDB` instance with all three namespace scopes.
 ///
 /// Returns graph stores for (system, user, global). Any or all may be None
 /// if the engine fails to open or namespaces fail to initialize.

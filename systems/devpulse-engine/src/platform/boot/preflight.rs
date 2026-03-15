@@ -2,12 +2,12 @@
 //!
 //! Runs BEFORE any store touches disk. Two responsibilities:
 //! 1. Ensure the scoped directory hierarchy exists for all enabled stores.
-//! 2. Clean stale LOCK files from previous crashed sessions so SurrealKV can open.
+//! 2. Clean stale LOCK files from previous crashed sessions so `SurrealKV` can open.
 //!
 //! LOCK file cleanup is safe because:
 //! - Single-instance plugin prevents concurrent launches (Tauri mutex)
 //! - xtask zombie cleanup already killed stale processes before boot
-//! - If we reach preflight, no other DevPulse process should be alive
+//! - If we reach preflight, no other `DevPulse` process should be alive
 
 use crate::platform::config::PlatformBootConfig;
 use anyhow::Result;

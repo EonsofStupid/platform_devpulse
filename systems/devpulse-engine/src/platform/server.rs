@@ -1,13 +1,13 @@
-//! SurrealDB HTTP server — exposes the embedded graph store on port 8822.
+//! `SurrealDB` HTTP server — exposes the embedded graph store on port 8822.
 //!
 //! This is the official SurrealDB-recommended pattern: wrap the embedded
 //! `Surreal<Db>` instance with axum routes. No extra process, no extra
-//! binary — the Tauri app IS the SurrealDB server.
+//! binary — the Tauri app IS the `SurrealDB` server.
 //!
 //! Endpoints:
-//! - `POST /sql` — execute SurrealQL (NS/DB headers for scope)
+//! - `POST /sql` — execute `SurrealQL` (NS/DB headers for scope)
 //! - `GET /health` — server liveness check
-//! - `GET /version` — returns SurrealDB + DevPulse version
+//! - `GET /version` — returns `SurrealDB` + `DevPulse` version
 //!
 //! External tools (Claude Code, `surreal sql`, custom scripts) connect to
 //! `http://127.0.0.1:8822` and query any namespace/database in the
@@ -23,10 +23,10 @@ use devpulse_maestro::cortex::persistence::SurrealAdapter;
 use std::sync::Arc;
 use tokio::net::TcpListener;
 
-/// Default bind address for the SurrealDB HTTP server.
+/// Default bind address for the `SurrealDB` HTTP server.
 const DEFAULT_BIND: &str = "127.0.0.1";
 
-/// Default port for the SurrealDB HTTP server.
+/// Default port for the `SurrealDB` HTTP server.
 pub const DEFAULT_PORT: u16 = 8822;
 
 /// Shared state for the axum server.
@@ -35,7 +35,7 @@ struct ServerState {
     adapter: Arc<SurrealAdapter>,
 }
 
-/// Start the SurrealDB HTTP server in a background tokio task.
+/// Start the `SurrealDB` HTTP server in a background tokio task.
 ///
 /// Takes the shared `SurrealAdapter` that already has all namespaces
 /// initialized (system, user, global). Returns immediately — the server
@@ -73,13 +73,13 @@ pub async fn start(adapter: Arc<SurrealAdapter>, port: u16) -> Result<()> {
     Ok(())
 }
 
-/// `POST /sql` — execute SurrealQL query.
+/// `POST /sql` — execute `SurrealQL` query.
 ///
 /// Headers:
 /// - `NS` or `surreal-ns`: target namespace (default: "global")
 /// - `DB` or `surreal-db`: target database (default: "knowledge")
 ///
-/// Body: raw SurrealQL text.
+/// Body: raw `SurrealQL` text.
 ///
 /// Returns JSON array of statement results.
 async fn handle_sql(

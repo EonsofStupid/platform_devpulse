@@ -48,7 +48,8 @@ const subsystems = $derived(platformState.subsystemList());
 							aria-hidden="true"
 						></span>
 						{#if Icon}
-							<svelte:component this={Icon} size={12} class="shrink-0" />
+							{@const IconComponent = Icon}
+							<IconComponent size={12} class="shrink-0" />
 						{/if}
 						<Text size="xs" color="secondary">
 							{devLabel(sub.name)}: {sub.state}{sub.latencyMs !== null ? ` ${sub.latencyMs}ms` : ''}
@@ -107,7 +108,8 @@ const subsystems = $derived(platformState.subsystemList());
 					{@const Icon = getIcon(sub.name)}
 					<HStack gap="1" align="center">
 						{#if Icon}
-							<svelte:component this={Icon} size={12} class="shrink-0 text-text-muted" />
+							{@const IconComponent = Icon}
+							<IconComponent size={12} class="shrink-0 text-text-muted" />
 						{/if}
 						<Text size="xs" color="muted">
 							[{devLabel(sub.name)}: {sub.state}{sub.latencyMs !== null ? ` ${sub.latencyMs}ms` : ''}]

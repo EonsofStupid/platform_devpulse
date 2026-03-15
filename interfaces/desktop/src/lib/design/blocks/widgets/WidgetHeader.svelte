@@ -21,7 +21,8 @@ let {
 	{#if icon || title}
 		<span data-slot="title" class="{titleClass} inline-flex items-center gap-1.5">
 			{#if icon}
-				<svelte:component this={icon} size={16} class="shrink-0 text-text-secondary" />
+				{@const Icon = icon}
+				<Icon size={16} class="shrink-0 text-text-secondary" />
 			{/if}
 			{#if title}{title}{/if}
 		</span>

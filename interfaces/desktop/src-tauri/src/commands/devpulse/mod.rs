@@ -1,7 +1,7 @@
-//! DevPulse dashboard commands — real data from stores.
+//! `DevPulse` dashboard commands — real data from stores.
 //!
-//! Queries LibSQL (projects, sessions, messages) and DuckDB (daily_stats)
-//! to populate the DevPulse dashboard with live data.
+//! Queries `LibSQL` (projects, sessions, messages) and `DuckDB` (`daily_stats`)
+//! to populate the `DevPulse` dashboard with live data.
 
 use crate::state::PlatformState;
 use devpulse_engine::platform::{
@@ -10,7 +10,7 @@ use devpulse_engine::platform::{
 use serde::Serialize;
 use tauri::State;
 
-/// A project row from LibSQL — maps 1:1 to the `projects` table.
+/// A project row from `LibSQL` — maps 1:1 to the `projects` table.
 #[derive(Debug, Serialize)]
 pub struct ProjectRow {
     /// Application-generated string key, not a DB auto-increment.
@@ -27,12 +27,12 @@ pub struct ProjectRow {
     pub last_accessed: i64,
 }
 
-/// One row per day from the DuckDB `daily_stats` table.
+/// One row per day from the `DuckDB` `daily_stats` table.
 ///
 /// Populated by the analytics pipeline, not by user actions directly.
 #[derive(Debug, Serialize)]
 pub struct DailyStatsRow {
-    /// `YYYY-MM-DD` string from DuckDB `DATE` column cast to text.
+    /// `YYYY-MM-DD` string from `DuckDB` `DATE` column cast to text.
     pub date: String,
     /// Engine events (API calls, tool invocations, etc.) — not chat messages.
     pub total_signals: i64,
@@ -53,7 +53,7 @@ pub struct CacheStats {
     pub max_capacity: u64,
 }
 
-/// Aggregate counts from LibSQL — cheap `COUNT(*)` queries, not row scans.
+/// Aggregate counts from `LibSQL` — cheap `COUNT(*)` queries, not row scans.
 #[derive(Debug, Serialize)]
 pub struct MessageStats {
     /// All messages ever stored. Includes both user and assistant roles.
@@ -64,18 +64,18 @@ pub struct MessageStats {
 
 /// Single IPC response for the dashboard route. Assembles data from all stores.
 ///
-/// LibSQL may be unavailable during early boot — fields fall back to empty/zero.
+/// `LibSQL` may be unavailable during early boot — fields fall back to empty/zero.
 #[derive(Debug, Serialize)]
 pub struct DashboardPayload {
     /// Most recently accessed projects, hard-capped at 8. Sorted by `last_accessed DESC`.
     pub projects: Vec<ProjectRow>,
     /// Separate from `projects.len()` — this is the true total across all projects.
     pub project_count: i64,
-    /// Reverse-chronological, capped at 20 rows. Empty if DuckDB is unavailable.
+    /// Reverse-chronological, capped at 20 rows. Empty if `DuckDB` is unavailable.
     pub daily_stats: Vec<DailyStatsRow>,
     /// Both fields zero if the Moka store hasn't initialized yet.
     pub cache_stats: CacheStats,
-    /// Both fields zero if LibSQL is unavailable.
+    /// Both fields zero if `LibSQL` is unavailable.
     pub message_stats: MessageStats,
     /// Wall-clock seconds since `Platform::new()`. Monotonic, never resets.
     pub uptime_secs: u64,
@@ -84,8 +84,8 @@ pub struct DashboardPayload {
 /// Fetch dashboard data from all stores.
 ///
 /// Queries:
-/// - LibSQL: projects (recent 8), project count, message/session counts
-/// - DuckDB: daily_stats (last 20 days)
+/// - `LibSQL`: projects (recent 8), project count, message/session counts
+/// - `DuckDB`: `daily_stats` (last 20 days)
 /// - Moka: cache stats (entry count / capacity)
 #[tauri::command]
 pub async fn fetch_dashboard(
@@ -111,12 +111,12 @@ pub async fn fetch_dashboard(
         let projects: Vec<ProjectRow> = project_rows
             .into_iter()
             .map(|row| ProjectRow {
-                id: row.first().map(|v| v.to_string()).unwrap_or_default(),
+                id: row.first().map(std::string::ToString::to_string).unwrap_or_default(),
                 name: row.get(1).and_then(|v| v.as_text()).unwrap_or("").to_string(),
                 root_path: row.get(2).and_then(|v| v.as_text()).unwrap_or("").to_string(),
                 project_type: row.get(3).and_then(|v| v.as_text()).unwrap_or("").to_string(),
-                created_at: row.get(4).and_then(|v| v.as_integer()).unwrap_or(0),
-                last_accessed: row.get(5).and_then(|v| v.as_integer()).unwrap_or(0),
+                created_at: row.get(4).and_then(devpulse_engine::platform::SqlValue::as_integer).unwrap_or(0),
+                last_accessed: row.get(5).and_then(devpulse_engine::platform::SqlValue::as_integer).unwrap_or(0),
             })
             .collect();
 
@@ -128,7 +128,7 @@ pub async fn fetch_dashboard(
         let project_count = count_rows
             .first()
             .and_then(|r| r.first())
-            .and_then(|v| v.as_integer())
+            .and_then(devpulse_engine::platform::SqlValue::as_integer)
             .unwrap_or(0);
 
         // Message + session counts
@@ -139,7 +139,7 @@ pub async fn fetch_dashboard(
         let total_messages = msg_rows
             .first()
             .and_then(|r| r.first())
-            .and_then(|v| v.as_integer())
+            .and_then(devpulse_engine::platform::SqlValue::as_integer)
             .unwrap_or(0);
 
         let sess_rows = adapter
@@ -149,7 +149,7 @@ pub async fn fetch_dashboard(
         let total_sessions = sess_rows
             .first()
             .and_then(|r| r.first())
-            .and_then(|v| v.as_integer())
+            .and_then(devpulse_engine::platform::SqlValue::as_integer)
             .unwrap_or(0);
 
         (
@@ -186,11 +186,11 @@ pub async fn fetch_dashboard(
         stats_rows
             .into_iter()
             .map(|row| DailyStatsRow {
-                date: row.first().map(|v| v.to_string()).unwrap_or_default(),
-                total_signals: row.get(1).and_then(|v| v.as_integer()).unwrap_or(0),
-                total_messages: row.get(2).and_then(|v| v.as_integer()).unwrap_or(0),
-                total_tokens: row.get(3).and_then(|v| v.as_integer()).unwrap_or(0),
-                avg_latency_ms: row.get(4).and_then(|v| v.as_real()).unwrap_or(0.0),
+                date: row.first().map(std::string::ToString::to_string).unwrap_or_default(),
+                total_signals: row.get(1).and_then(devpulse_engine::platform::SqlValue::as_integer).unwrap_or(0),
+                total_messages: row.get(2).and_then(devpulse_engine::platform::SqlValue::as_integer).unwrap_or(0),
+                total_tokens: row.get(3).and_then(devpulse_engine::platform::SqlValue::as_integer).unwrap_or(0),
+                avg_latency_ms: row.get(4).and_then(devpulse_engine::platform::SqlValue::as_real).unwrap_or(0.0),
             })
             .collect()
     } else {

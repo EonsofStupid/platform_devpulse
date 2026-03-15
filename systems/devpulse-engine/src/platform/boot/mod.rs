@@ -145,7 +145,7 @@ pub async fn execute(
 // Simple store boot helpers
 // ═══════════════════════════════════════════════════════════════
 
-/// Boot a relational (LibSQL) store with file-lock retry.
+/// Boot a relational (`LibSQL`) store with file-lock retry.
 async fn boot_relational(
     data_dir: &Path,
     entry: &config::StoreEntry,
@@ -190,11 +190,11 @@ async fn boot_relational(
     }
 }
 
-/// Boot an analytics (DuckDB) store with file-lock retry.
+/// Boot an analytics (`DuckDB`) store with file-lock retry.
 ///
-/// DuckDB uses an exclusive file lock. On Windows hot-reload, the previous
+/// `DuckDB` uses an exclusive file lock. On Windows hot-reload, the previous
 /// process may not have released its lock yet. Retry with exponential backoff.
-/// DuckDB's `boot()` is synchronous — wrapped in `spawn_blocking` for async retry.
+/// `DuckDB`'s `boot()` is synchronous — wrapped in `spawn_blocking` for async retry.
 async fn boot_analytics(
     data_dir: &Path,
     entry: &config::StoreEntry,

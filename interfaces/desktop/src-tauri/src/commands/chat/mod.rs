@@ -1,4 +1,4 @@
-//! Chat commands — message persistence via LibSQL.
+//! Chat commands — message persistence via `LibSQL`.
 //!
 //! Messages are stored in the `messages` table with session tracking.
 //! Each message gets a session — creates one if none active.
@@ -25,11 +25,11 @@ pub struct ChatMessage {
     pub role: String,
     /// Raw text as entered. No markdown processing server-side.
     pub content: String,
-    /// SQLite `DEFAULT (strftime('%s','now'))` — epoch seconds, not millis.
+    /// `SQLite` `DEFAULT (strftime('%s','now'))` — epoch seconds, not millis.
     pub created_at: i64,
 }
 
-/// Send a chat message — persists to LibSQL and returns the stored message.
+/// Send a chat message — persists to `LibSQL` and returns the stored message.
 #[tauri::command]
 pub async fn send_message(
     content: String,
@@ -85,10 +85,10 @@ pub async fn send_message(
     let row = rows.first().ok_or("No message returned after insert")?;
 
     Ok(ChatMessage {
-        id: row.first().and_then(|v| v.as_integer()).unwrap_or(0),
+        id: row.first().and_then(devpulse_engine::platform::SqlValue::as_integer).unwrap_or(0),
         session_id: row.get(1).and_then(|v| v.as_text()).unwrap_or("").to_string(),
         role: row.get(2).and_then(|v| v.as_text()).unwrap_or("").to_string(),
         content: row.get(3).and_then(|v| v.as_text()).unwrap_or("").to_string(),
-        created_at: row.get(4).and_then(|v| v.as_integer()).unwrap_or(0),
+        created_at: row.get(4).and_then(devpulse_engine::platform::SqlValue::as_integer).unwrap_or(0),
     })
 }

@@ -22,7 +22,7 @@ pub struct PlatformState {
     pub platform: RwLock<Option<Arc<Platform>>>,
 }
 
-/// Boot phase — serialized to frontend as PascalCase.
+/// Boot phase — serialized to frontend as `PascalCase`.
 #[derive(Debug, Clone, Serialize)]
 pub enum BootPhase {
     /// Platform is still starting up — stores initializing.
@@ -52,6 +52,12 @@ pub struct BootSnapshot {
 /// boot callback closure (which requires `'static`).
 pub struct BootStateTracker {
     inner: Arc<Mutex<BootSnapshot>>,
+}
+
+impl Default for BootStateTracker {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl BootStateTracker {

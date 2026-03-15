@@ -4,9 +4,9 @@
 //! All kernel access goes through the Platform facade.
 //!
 //! # Boot Architecture: Progressive Hydration
-//! setup() returns instantly. Main window is visible immediately.
+//! `setup()` returns instantly. Main window is visible immediately.
 //! Subsystems boot in background via spawned task.
-//! StatusBar shows real-time per-store progress.
+//! `StatusBar` shows real-time per-store progress.
 
 pub mod commands;
 pub mod logging;
@@ -101,6 +101,45 @@ pub fn run() {
                 platform: RwLock::new(None),
             });
             app.manage(BootStateTracker::new());
+
+            // Dev mode: verify Vite dev server is reachable before boot
+            // In production, frontendDist is embedded — this check is skipped.
+            #[cfg(debug_assertions)]
+            {
+                let dev_url = "http://localhost:1420";
+                tracing::info!(url = dev_url, "Checking frontend dev server");
+                match std::net::TcpStream::connect_timeout(
+                    &"127.0.0.1:1420".parse().expect("valid addr"),
+                    std::time::Duration::from_secs(2),
+                ) {
+                    Ok(_) => {
+                        tracing::info!(url = dev_url, "Frontend dev server is reachable");
+                    }
+                    Err(e) => {
+                        tracing::error!(
+                            url = dev_url,
+                            error = %e,
+                            "Frontend dev server NOT reachable — UI will show connection error. \
+                             Run 'cargo xtask run-dev' instead of launching the .exe directly."
+                        );
+                        // Set the webview to show an inline error page instead of chrome-error://
+                        if let Some(window) = app.get_webview_window("main") {
+                            let error_html = format!(
+                                "data:text/html,<html><body style='background:#0a0a0f;color:#e0e0e0;\
+                                font-family:system-ui;display:flex;align-items:center;justify-content:center;\
+                                height:100vh;margin:0;flex-direction:column;gap:16px'>\
+                                <h2 style='color:#2dd4bf'>DevPulse</h2>\
+                                <p>Frontend dev server not running on port 1420</p>\
+                                <p style='color:#888;font-size:14px'>Run <code style='color:#2dd4bf'>\
+                                cargo xtask run-dev</code> to start both frontend and backend</p>\
+                                <p style='color:#555;font-size:12px'>Error: {e}</p>\
+                                </body></html>"
+                            );
+                            let _ = window.navigate(error_html.parse().expect("valid url"));
+                        }
+                    }
+                }
+            }
 
             // Spawn async boot task — setup returns IMMEDIATELY
             let handle = app.handle().clone();
@@ -330,7 +369,7 @@ async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
         let count = rows
             .first()
             .and_then(|r| r.first())
-            .and_then(|v| v.as_integer())
+            .and_then(devpulse_engine::platform::SqlValue::as_integer)
             .unwrap_or(0);
 
         if count == 0 {
@@ -364,7 +403,7 @@ async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
         let count = rows
             .first()
             .and_then(|r| r.first())
-            .and_then(|v| v.as_integer())
+            .and_then(devpulse_engine::platform::SqlValue::as_integer)
             .unwrap_or(0);
 
         if count == 0 {
@@ -414,7 +453,7 @@ async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
         let count = rows
             .first()
             .and_then(|r| r.first())
-            .and_then(|v| v.as_integer())
+            .and_then(devpulse_engine::platform::SqlValue::as_integer)
             .unwrap_or(0);
 
         if count == 0 {
@@ -429,10 +468,10 @@ async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
                     "total_messages": 10 + (i * 3) % 25,
                     "total_prompt_tokens": 500 + (i * 80) % 1200,
                     "total_completion_tokens": 400 + (i * 60) % 900,
-                    "total_cost_usd": 0.05 + ((i * 3) % 20) as f64 * 0.01,
-                    "avg_latency_ms": 15.0 + ((i * 5) % 30) as f64,
-                    "avg_roti_ratio": 1.5 + ((i * 2) % 10) as f64 * 0.1,
-                    "cache_hit_rate": 0.3 + ((i * 4) % 30) as f64 * 0.01,
+                    "total_cost_usd": 0.05 + f64::from((i * 3) % 20) * 0.01,
+                    "avg_latency_ms": 15.0 + f64::from((i * 5) % 30),
+                    "avg_roti_ratio": 1.5 + f64::from((i * 2) % 10) * 0.1,
+                    "cache_hit_rate": 0.3 + f64::from((i * 4) % 30) * 0.01,
                     "error_count": (i * 3) % 5,
                     "governance_violations": (i * 2) % 3,
                 }));
