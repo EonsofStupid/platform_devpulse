@@ -72,6 +72,16 @@ surrealkv = { git = "https://github.com/surrealdb/surrealkv", rev = "2e580597345
 # RRO's fork of tar with set_sync method for snapshot serialization
 tar = { git = "https://github.com/EonsofStupid/tar-rs", branch = "rro-alpha" }
 
+# ── DevPulse-owned forks (local ../deps/) ───────────────────────
+# All C/C++ deps unified under one CRT. No crates.io at build time.
+esaxx-rs = { path = "../deps/esaxx-rs" }
+tokenizers = { path = "../deps/tokenizers/tokenizers" }
+outlines-core = { path = "../deps/outlines-core" }
+duckdb = { path = "../deps/duckdb-rs/crates/duckdb" }
+libduckdb-sys = { path = "../deps/duckdb-rs/crates/libduckdb-sys" }
+ort = { path = "../deps/ort" }
+ort-sys = { path = "../deps/ort/ort-sys" }
+
 # Dev: fast incremental for your code, optimized deps (candle/ort/surreal run fast)
 [profile.dev]
 opt-level = 0

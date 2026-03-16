@@ -191,18 +191,16 @@ env = ["NASM", "AWS_LC_SYS_PREBUILT_NASM"]
 
 [build.deps.python]
 # outlines-core -> pyo3 for grammar constrained decoding
+# NOTE: pyo3 removed from dep graph — outlines-core fork doesn't use it.
+# Kept here for future use if pyo3 is re-added.
 path = "deps/python/python.exe"
 version = "3.14"
 env = ["PYO3_PYTHON"]
 extras = { PYO3_USE_ABI3_FORWARD_COMPATIBILITY = "1" }
 
-[build.deps.onnxruntime]
-# kokoros -> ort for ONNX model inference (TTS)
-# MUST be built from source with msvc_crt = "static" (/MT).
-# Pre-built binaries from pyke.io use /MD — DO NOT USE.
-path = "deps/onnxruntime/"
-build = "load-dynamic"
-env = ["ORT_STRATEGY", "ORT_LIB_LOCATION"]
+# ort/ort-sys: owned fork at deps/ort/, patched via [patch.crates-io].
+# Builds from source using local MSVC toolchain — no pre-built binaries.
+# No env vars needed — the fork's build.rs handles everything.
 
 [build.repos.kokoros]
 url = "https://github.com/EonsofStupid/Kokoros"

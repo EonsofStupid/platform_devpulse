@@ -24,7 +24,7 @@ impl OutlinesAdapter {
     pub fn boot() -> Result<Self> {
         // Verify the engine works by compiling a trivial schema
         let test_schema = r#"{"type": "string"}"#;
-        let _regex = outlines_core::json_schema::build_regex_from_schema(test_schema, None)
+        let _regex = outlines_core::json_schema::regex_from_str(test_schema, None, None)
             .context("outlines-core failed to compile test schema during boot")?;
 
         Ok(Self {
@@ -38,7 +38,7 @@ impl OutlinesAdapter {
     /// Returns error if schema compilation fails.
     pub fn ping(&self) -> Result<()> {
         let test_schema = r#"{"type": "boolean"}"#;
-        let _regex = outlines_core::json_schema::build_regex_from_schema(test_schema, None)
+        let _regex = outlines_core::json_schema::regex_from_str(test_schema, None, None)
             .context("outlines-core health check failed")?;
         Ok(())
     }
@@ -48,7 +48,7 @@ impl OutlinesAdapter {
     /// # Errors
     /// Returns error if the schema is invalid or compilation fails.
     pub fn schema_to_regex(&self, json_schema: &str) -> Result<String> {
-        outlines_core::json_schema::build_regex_from_schema(json_schema, None)
+        outlines_core::json_schema::regex_from_str(json_schema, None, None)
             .context("Failed to compile JSON schema to regex")
     }
 }
