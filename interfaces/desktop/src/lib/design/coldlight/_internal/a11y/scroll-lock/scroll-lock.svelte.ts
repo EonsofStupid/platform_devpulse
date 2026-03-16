@@ -1,6 +1,8 @@
 /**
  * Body scroll lock with reference counting.
  *
+ * Used by: dialog, sheet, modal.
+ *
  * Multiple overlays can request scroll lock simultaneously —
  * scroll is only restored when ALL locks are released.
  * iOS-aware: uses position:fixed workaround for iOS Safari.
@@ -54,6 +56,7 @@ class ScrollLocker {
 
 const scrollLocker = new ScrollLocker();
 
+/** Lock body scroll while active() returns true. Ref-counted. */
 export function useScrollLock(active: () => boolean): void {
 	$effect(() => {
 		if (active()) {

@@ -1,16 +1,16 @@
 /**
  * Escape key handling with layer stacking.
  *
- * Only the top layer responds to Escape — nested overlays
- * close innermost first.
+ * Used by: dialog, popover, dropdown-menu, select, combobox, sheet.
+ *
+ * Only the top layer responds — nested overlays close innermost first.
  */
+
+import type { EscapeLayerConfig } from "./types.js";
 
 const escapeStack: Set<symbol> = new Set();
 
-export function useEscapeLayer(config: {
-	enabled: () => boolean;
-	onEscape: () => void;
-}): void {
+export function useEscapeLayer(config: EscapeLayerConfig): void {
 	const id = Symbol();
 
 	$effect(() => {

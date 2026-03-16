@@ -1,17 +1,17 @@
 /**
  * Click-outside detection with layer stacking.
  *
- * Nested overlays (dialog inside popover) don't dismiss parents —
- * only the top layer responds to outside clicks.
+ * Used by: dialog, popover, dropdown-menu, select, combobox.
+ *
+ * Nested overlays don't dismiss parents — only the top layer responds.
+ * Handles edge cases: text selection, child dialogs.
  */
+
+import type { DismissLayerConfig } from "./types.js";
 
 const layerStack: Set<symbol> = new Set();
 
-export function useDismissLayer(config: {
-	enabled: () => boolean;
-	node: () => HTMLElement | null;
-	onDismiss: () => void;
-}): void {
+export function useDismissLayer(config: DismissLayerConfig): void {
 	const id = Symbol();
 
 	$effect(() => {
@@ -42,7 +42,7 @@ export function useDismissLayer(config: {
 			}
 		}
 
-		function onPointerUp(_e: PointerEvent): void {
+		function onPointerUp(e: PointerEvent): void {
 			if (!pointerDownOutside || !isTopLayer()) {
 				pointerDownOutside = false;
 				return;
@@ -51,15 +51,13 @@ export function useDismissLayer(config: {
 			const node = config.node();
 			if (!node) return;
 
-			// Don't dismiss during text selection
 			const selection = window.getSelection();
 			if (selection && selection.toString().length > 0) {
 				pointerDownOutside = false;
 				return;
 			}
 
-			// Don't dismiss if target is inside a child dialog
-			const target = _e.target as HTMLElement;
+			const target = e.target as HTMLElement;
 			if (target.closest("dialog[open]") && !node.contains(target)) {
 				pointerDownOutside = false;
 				return;

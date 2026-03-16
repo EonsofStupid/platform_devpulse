@@ -1,16 +1,16 @@
 /**
- * Mount/unmount presence with transition/animation awareness.
+ * Presence — mount/unmount with transition/animation awareness.
+ *
+ * Used by: dialog, popover, tooltip, sheet, collapsible.
  *
  * When closing, waits for CSS transitions or animations to complete
- * before firing onExitComplete. Prevents content from disappearing
+ * before reporting present=false. Prevents content from disappearing
  * before exit animations finish.
  */
 
-export function usePresence(config: {
-	open: () => boolean;
-	node: () => HTMLElement | null;
-	onExitComplete?: () => void;
-}): { readonly present: boolean } {
+import type { PresenceConfig, PresenceReturn } from "./types.js";
+
+export function usePresence(config: PresenceConfig): PresenceReturn {
 	let present = $state(config.open());
 
 	$effect(() => {
@@ -21,7 +21,6 @@ export function usePresence(config: {
 			return;
 		}
 
-		// Closing — check for transitions/animations
 		const node = config.node();
 		if (!node) {
 			present = false;
@@ -56,8 +55,6 @@ export function usePresence(config: {
 	});
 
 	return {
-		get present() {
-			return present;
-		},
+		get present() { return present; },
 	};
 }
