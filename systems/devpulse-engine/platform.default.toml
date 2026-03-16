@@ -198,6 +198,13 @@ version = "3.14"
 env = ["PYO3_PYTHON"]
 extras = { PYO3_USE_ABI3_FORWARD_COMPATIBILITY = "1" }
 
+[build.deps.cmake]
+# audiopus_sys (kokoros transitive) needs cmake with policy >= 3.5
+# VS 2026 Insiders ships cmake that requires this flag for old CMakeLists
+path = "cmake"
+env = []
+extras = { CMAKE_POLICY_VERSION_MINIMUM = "3.5" }
+
 # ort/ort-sys: owned fork at deps/ort/, patched via [patch.crates-io].
 # Builds from source using local MSVC toolchain — no pre-built binaries.
 # No env vars needed — the fork's build.rs handles everything.
