@@ -1,8 +1,8 @@
 # ColdLight Design System
 
-> **@devpulse/coldlight** -- Liquid surface design system. Particle effects, metal, glass, molten aesthetics.
+> **@devpulse/coldlight** — Optimized neumorphism engine. Liquid metal, glass depth, SVG lighting.
 >
-> Named for Nikola Tesla's cold light gas tubes -- documented as "cold light" in the 1890s.
+> Named for Nikola Tesla's cold light gas tubes — documented as "cold light" in the 1890s.
 
 ---
 
@@ -11,68 +11,25 @@
 | Field | Value |
 |-------|-------|
 | **Name** | `@devpulse/coldlight` |
-| **Version** | `0.1.0` |
+| **Version** | `0.3.0` |
 | **Author** | Jesse "Hades" Hall <jessay@angryvibers.com> |
 | **Maintainers** | team@devpulse.app |
 | **License** | MIT |
-| **Status** | Private (public release planned) |
+| **Status** | Private (`@coldlight/latest` npm planned) |
 
 ---
 
 ## What ColdLight Is
 
-ColdLight is a **token-first, taxonomy-driven design system** built for:
+ColdLight is a **visual compiler** — Style Dictionary 5 is the engine that drives CSS generation, TypeScript type generation, and token manifest generation. Everything downstream (components, blocks, recipes, presets, VPB controls) consumes what SD5 produces.
 
-- **SvelteKit 5** -- Framework
-- **Svelte 5 Runes** -- Reactivity ($state, $derived, $effect, $bindable)
-- **Tailwind CSS 4** -- Utility classes via @tailwindcss/vite
-- **dsAdapters** -- ARIA provider (accessibility, keyboard, focus) -- planned for adapter-backed primitives
+**No hand-written CSS values. No raw `var()` strings. No inline styles. Every visual is token-driven, typed, composable, and optimized.**
 
-ColdLight is **supports**:
-
-- A CSS-in-JS solution
-- A component library 
-- recipes 
-- it generates best practice organized CSS real world seniorpatterns 
-
----
-
-## Core Architecture (Locked)
-
-### Provider Model
-
-| Provider | Responsibility |
-|----------|---------------|
-| **Melt UI** | ARIA attributes, focus management, keyboard navigation (adapter-backed primitives) |
-| **ColdLight** | Taxonomy, data attributes, type system, recipes, structural primitives |
-| **ReactAria**
-
-### Two Primitive Archetypes
-
-**Archetype A: ColdLight-Owned** -- Component renders its own DOM with ARIA set directly. No adapter needed. Examples: button, badge, skeleton, progress, alert, avatar, card, label, input, separator, textarea.
-
-**Archetype B: Adapter-Backed** -- Uses MeltUI adapter bridged through transport chain. Root creates adapter + context. Sub-components consume from context. Examples (planned): dialog, tabs, select, popover, tooltip, sheet, accordion, collapsible.
-
-### Primitive Contract
-
-Every primitive is identified via:
-
-```
-data-kind   = primitive identity (dialog, select, button)
-data-slot   = slot within primitive (root, trigger, content)
-data-state  = state machine output (open, closed, active)
-```
-
-### Layer Model
-
-| Layer | Folder | Description | Example |
-|-------|--------|-------------|---------|
-| 0 | `tokens/` | Design tokens (SSOT) | `tokens.ts` |
-| 2 | `recipes/` | Style compositions | `data-surface="glass"` |
-| 3 | `primitives/` | Structural + behavioral wrappers | `Dialog.svelte` |
-| 4 | `semantics/` | Primitives + Recipes | `GlassButton.svelte` |
-| 5 | `patterns/` | Multiple semantics | `LoginForm.svelte` |
-| 6 | `blocks/` | Page sections | `HeroGlass.svelte` |
+Built for:
+- **SvelteKit 5** + **Svelte 5 Runes** ($state, $derived, $effect, $bindable)
+- **Tailwind CSS 4** via @tailwindcss/vite + @theme blocks
+- **Style Dictionary 5.3.2** with DTCG 1.0 token format
+- **MeltUI** (adapter for complex ARIA only — dialog, combobox, etc.)
 
 ---
 
@@ -80,219 +37,163 @@ data-state  = state machine output (open, closed, active)
 
 ColdLight produces interfaces with:
 
-- **Liquid surfaces** -- Fluid, flowing aesthetics with depth and motion
-- **Particle effects** -- Shimmer, scan lines, noise overlays
-- **Metal finishes** -- Brushed, polished, oxidized surface treatments
-- **Glass layers** -- Semi-transparent with backdrop blur and refraction
-- **Molten accents** -- Glowing edges, ember trails, heat signatures
-- **OKLCH color system** -- Perceptually uniform, wide-gamut colors
-- **Beveled depth** -- Inset edges for tactile dimension
-- **Dark-first** -- Dark variant only (light variant planned for future)
+- **Liquid metal surfaces** — Chrome/metallic with multi-angle specular reflections (SVG feSpecularLighting)
+- **Glass depth** — 4-5 visible inset shadow layers creating crisp raised edges, frosted blur + saturation
+- **Glow emission** — 20-40px spread at 0.6-0.8 opacity, shape-aware halos, accent-colored
+- **Bevel relief** — 5-7 layer inset shadow stacks for crisp elevated neumorphism
+- **Text neumorphism** — Glow/bevel/depth applied directly ON text via text-shadow, not container
+- **Circuit board grids** — Radial glow halos, teal/purple accent variants
+- **OKLCH color system** — Perceptually uniform, wide-gamut, authored as HEX → transformed to oklch
+- **Dark-first** — Dark variant only
+
+**3x heavy visuals, optimized. Not conservative. Not MVP. Full neumorphic depth.**
 
 ---
 
 ## Architecture
 
+### 4-Layer Model (LOCKED)
+
+| Layer | Folder | What It Does |
+|-------|--------|-------------|
+| **Primitives** | `primitives/{kind}/` | CONFIGURATION ONLY. Contract + structural shell. Never imported by users. |
+| **Recipes** | `recipes/components/{kind}/` | Styling patterns. `registerRecipe()` + per-slot class strings. |
+| **Components** | `components/{kind}/` | THE PRODUCT. ARIA + recipe styling + useColdLight(). What users import. |
+| **UI** | `ui/{kind}/` | Styled wrappers (Radix/shadcn model). APPROVED, not yet built. |
+
+### Provider Model
+
 ```
-@devpulse/coldlight
-├── tokens/           # SSOT values (OKLCH colors, spacing, etc.)
-│   ├── tokens.ts     # Source of truth (hand-edited)
-│   ├── tokens.css    # GENERATED
-│   ├── types.ts      # GENERATED
-│   └── tailwind.preset.ts  # GENERATED
-├── taxonomy/         # SSOT registries
-│   ├── primitiveKinds.ts   # All data-kind values
-│   ├── primitiveRegistry.ts # Slots + metadata
-│   ├── kinds.ts      # Block kinds (shell, surface, widget)
-│   ├── contracts.ts  # Prop schemas
-│   └── slots.ts      # Slot definitions
-├── recipes/          # Style composition
-│   ├── index.ts      # Recipe registry
-│   ├── actions/      # Svelte actions (glowTrack, ripple)
-│   └── css/          # Generated recipe CSS
-├── primitives/       # Structural + behavioral wrappers
-│   └── {name}/       # PascalCase: Button/, Dialog/, Tabs/
-│       ├── {Name}.svelte       # Root component
-│       ├── {Name}{Sub}.svelte  # Sub-components
-│       ├── types.ts            # Props interfaces
-│       ├── context.ts          # Symbol-keyed context (if compound)
-│       └── index.ts            # Barrel export
-├── semantics/        # Primitives + Recipes
-├── patterns/         # Multi-semantic compositions
-├── blocks/           # Page sections
-└── docs/             # Documentation
+SD5 DTCG JSON → transforms → CSS Custom Properties (@layer tokens.*)
+                           → Tailwind v4 @theme blocks
+                           → TypeScript types (.d.ts)
+                           → JSON manifest (VPB metadata)
+                           → variants.css @utility rules (8-axis encoding)
+```
+
+### Component Resolution Flow
+
+```
+<Button intent="primary" glow="teal" depth="z2">
+  → types.ts: PRESET_MAP[intent] → "btn-primary"
+  → useColdLight({ preset, surface, depth, glow, ... })
+  → resolveVisual(input) → ResolvedVisual
+  → cn(recipe(size), visual.segments, visual.radius, className)
+  → DOM: class="btn h-10 px-4 v-s1 v-d2 v-g1 rounded-lg"
 ```
 
 ---
 
-## The Rules (Non-Negotiable)
+## 8-Axis Encoding System
 
-### Rule 1: Two Primitive Archetypes
+SSOT: `registry/token-categories.ts`
 
-**Archetype A (ColdLight-owned)**: Component renders native HTML with ARIA props directly. Used for simple/self-contained primitives.
-
-**Archetype B (Adapter-backed)**: Uses MeltUI through transport chain. Components never import `@melt-ui/svelte` directly. Transport chain cloaks the dependency.
-
-### Rule 2: Taxonomy first
-
-Before writing ANY primitive:
-1. Verify kind exists in `taxonomy/primitiveKinds.ts`
-2. Verify slots exist in `taxonomy/primitiveRegistry.ts`
-3. Verify state enum exists (if stateful)
-4. THEN write the primitive
-
-### Rule 3: PascalCase file naming
+| Code | Category | Description | VPB Control |
+|------|----------|-------------|-------------|
+| `s` | Surface | Fill, backdrop-filter, opacity | select |
+| `z` | Material | Glass clarity, matte, metal chrome/copper | select |
+| `d` | Depth | Z-elevation via drop shadows (z0–z4) | slider |
+| `b` | Bevel | Neumorphic inset shadows + SVG specular | slider |
+| `g` | Glow | Emission halo: accent color + spread | select |
+| `f` | Frame | Border: none/soft/hard/glow/accent | select |
+| `m` | Motion | Ambient animations (breathe, shimmer, drift) | select |
+| `t` | Transition | User-triggered speed + easing | select |
 
 ```
--- Button.svelte, ButtonIcon.svelte, ButtonLabel.svelte
--- DialogTrigger.svelte, DialogContent.svelte
+v-s3z1d2b1g0f1m0t2   (full explicit)
+v-s3 v-d2 v-t2        (composable segments)
 ```
 
-### Rule 4: `index.ts` is clean
+---
 
-```typescript
-// CORRECT
-export { default as Dialog } from './Dialog.svelte';
-export type { DialogRootProps } from './types.js';
+## Token Pipeline
 
-// WRONG - no logic in index.ts
-import { something } from 'somewhere';
-const computed = something();
-```
+### Source: DTCG JSON (17 files)
+Location: `scripts/build/styledictionary/tokens/src/*.json`
+Format: DTCG 1.0 — `$type`, `$value`, `$description`, `$extensions.com.coldlight`
 
-### Rule 5: Three data attributes
+### Build: Style Dictionary 5
+Config: `scripts/build/styledictionary/sd.config.ts` (664 lines, enum-authored)
+Runner: `scripts/build/styledictionary/build.ts`
+Command: `pnpm ds:tokens:build`
 
-Every primitive element emits:
+### Transforms
+- Colors: HEX → oklch
+- Dimensions: PX → rem
+- Shadows: DTCG → CSS shorthand
+- Gradients: DTCG → linear-gradient()
+- Cubic bezier: array → cubic-bezier()
+- Typography: DTCG → CSS shorthand
 
-| Attribute | Required | Example |
-|-----------|----------|---------|
-| `data-kind` | ALWAYS | `"dialog"` |
-| `data-slot` | ALWAYS | `"content"` |
-| `data-state` | If stateful | `"open"` |
-| `data-id` | If user provides | `"my-dialog"` |
+### Output
+- `css/primitives/*.css` — @layer tokens.primitives (color, shadow, glow, motion, etc.)
+- `css/semantic/*.css` — @layer tokens.semantic (elevation, transition, interaction)
+- `css/components/*.css` — @layer tokens.components
+- `theme/*.css` — Tailwind @theme blocks per domain
+- `types/*.d.ts` — TypeScript const arrays + union types
+- `generated/token-manifest.json` — VPB scale/control metadata
+- `generated/variants.css` — v-* @utility rules from token-categories.ts
 
-### Rule 6: Components cannot contain colors
+---
 
-Components use:
-- Token references (`var(--*)`)
-- ColdLight molecule classes (`glass-void`, `bevel-subtle`, `glow-teal`)
-- Recipe-generated per-slot class strings via `getRecipe()`
+## SVG Filter System
 
-Components **never** contain:
-- Raw color values (`#fff`, `oklch()`, `rgb()`)
-- Arbitrary Tailwind values (`bg-[#000]`, `text-[12px]`)
-- Inline styles (`style="color: red"`)
+Location: `svg/filters/`
+
+Real SVG filter primitives (NOT CSS approximations):
+- **Bevel**: `feSpecularLighting` (surfaceScale, specularConstant, Phong model)
+- **Glow**: `feGaussianBlur` + `feColorMatrix` (shape-aware halos)
+- **Noise**: `feTurbulence` + `feDisplacementMap` (surface grain)
+
+Parameterized via CSS custom properties. VPB reads manifest for slider/knob generation.
+One SVG filter replaces 6-8 layered CSS hacks for neumorphism.
 
 ---
 
 ## Token Categories
 
-| Category | Prefix | Example |
-|----------|--------|---------|
-| Hues | `--hue-*` | `--hue-teal` |
-| Color Scales | `--color-{name}-{step}` | `--color-teal-500` |
+| Category | CSS Prefix | Example |
+|----------|-----------|---------|
+| Colors | `--color-{hue}-{step}` | `--color-teal-500` |
 | Glass | `--glass-*` | `--glass-deep` |
 | Matte | `--matte-*` | `--matte-dark` |
-| Text | `--text-*` | `--text-primary` |
-| Spacing | `--space-*` | `--space-4` |
-| Radius | `--radius-*` | `--radius-md` |
-| Blur | `--blur-*` | `--blur-md` |
 | Glow | `--glow-*` | `--glow-teal` |
 | Shadow | `--shadow-*` | `--shadow-z2` |
 | Bevel | `--bevel-*` | `--bevel-subtle` |
-| Z-Index | `--z-*` | `--z-modal` |
-| Duration | `--duration-*` | `--duration-fast` |
-| Easing | `--ease-*` | `--ease-out` |
-| Text Size | `--text-size-*` | `--text-size-base` |
-| Padding | `--padding-*` | `--padding-md` |
-
----
-
-## Recipe System
-
-Recipes are composable functions that map `DsSurfaceProps` to per-slot class strings:
-
-```typescript
-// Recipe definition
-registerRecipe({
-  id: "panel.glass.void",
-  kind: "panel",
-  defaults: { surface: "glass", variant: "void", bevel: "off", glow: "off", ... },
-  classes: (props: DsSurfaceProps) => ({
-    root: cn(surfaceClass(props.surface, props.variant), radiusClass(props.radius)),
-    header: cn("px-4 py-3", "border-b border-white/6"),
-    body: cn("px-4 py-3", "flex-1"),
-  }),
-});
-```
-
-### Molecule Classes (ColdLight Utilities)
-
-Molecules compose via shadow layering — multiple molecules on one element work together:
-
-```html
-<!-- All three shadow layers compose, no conflicts -->
-<div class="glass-void bevel-subtle glow-teal">...</div>
-```
-
-### Using Recipes in Components
-
-```svelte
-<script lang="ts">
-import { getRecipe } from "$lib/design/recipes/index.js";
-
-const recipe = getRecipe("shell.app.default");
-const slots = $derived(recipe?.classes({ ...recipe.defaults }) ?? {});
-</script>
-
-<header data-slot="topbar" class={slots.topbar}>...</header>
-```
+| Radius | `--radius-*` | `--radius-md` |
+| Spacing | `--space-*` | `--space-4` |
+| Motion duration | `--motion-duration-*` | `--motion-duration-fast` |
+| Motion easing | `--motion-ease-*` | `--motion-ease-spring` |
+| Motion animation | `--motion-animation-*` | `--motion-animation-breathe` |
+| Transition | `--transition-*` | `--transition-fade` |
+| Surface | `--surface-*` | `--surface-glass-deep` |
+| Blur | `--blur-*` | `--blur-md` |
+| Typography | `--text-size-*` | `--text-size-base` |
+| Gradient | `--gradient-*` | `--gradient-teal-glow` |
 
 ---
 
 ## Commands
 
 ```bash
-# Development
-pnpm dev                    # Starts dev server
-
-# Token generation
-pnpm ds:tokens:build        # Generate token outputs
-
-# Type checking
-pnpm check                  # TypeScript check
-
-# Tests
-pnpm test:run primitives/   # Run primitive tests
+cd interfaces/desktop
+pnpm ds:tokens:build    # SD5: JSON → CSS + @theme + .d.ts + manifest (3s)
+pnpm svelte-check       # TypeScript verification (0 errors)
+pnpm build              # Vite production build
+pnpm dev                # Dev server on port 1420
 ```
 
 ---
 
-## Changelog
+## Rules (Non-Negotiable)
 
-### 0.1.0 (In Development)
-
-- Taxonomy-first architecture
-- PascalCase primitive file naming
-- Two archetype model (ColdLight-owned + adapter-backed)
-- Token system (OKLCH, unprefixed)
-- Glass/matte/solid surface recipes
-- Dark variant only
-- 40+ primitives implemented (structural)
+1. **SD5 is the UI compiler** — it drives EVERYTHING. No hand-written CSS values.
+2. **Components never contain raw colors** — only token references, recipe classes, v-* encoding
+3. **ColdLight owns ARIA by default** — MeltUI adapter only for complex patterns
+4. **Three data attributes** — `data-kind`, `data-slot`, `data-state`
+5. **Pre-release mode** — no backwards compat, no shims, aggressively reauthor
+6. **Compile-check after every file edit** — edit → check → edit → check
 
 ---
 
-## License
-
-MIT (c) Jesse "Hades" Hall
-
----
-
-## Contact
-
-- **Author**: Jesse "Hades" Hall <jessay@angryvibers.com>
-- **Team**: team@devpulse.app
-
----
-
-**This is the canonical ColdLight specification.**
+**ColdLight is the public API. The owner directs ColdLight. ColdLight directs everything else.**

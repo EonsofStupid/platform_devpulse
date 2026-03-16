@@ -15,8 +15,8 @@
 /* Default: all layers are transparent (no shadow). */
 @layer base {
 	[data-kind] {
-		-depth: 0 0 0 transparent;
-		-bevel: 0 0 0 transparent;
+		--cl-depth: 0 0 0 transparent;
+		--cl-bevel: 0 0 0 transparent;
 		--cl-glow: 0 0 0 transparent;
 		--cl-frame-glow: 0 0 0 transparent;
 		box-shadow: var(--cl-depth), var(--cl-bevel), var(--cl-glow), var(--cl-frame-glow);
@@ -53,7 +53,7 @@
 	background: var(--color-teal-500);
 }
 @utility v-s7 {
-	background: linear-gradient(135deg, var(--color-void-900), var(--color-void-base));
+	background: linear-gradient(135deg, oklch(0.06 0.01 195 / 0.95), var(--glass-void));
 }
 @utility v-s8 {
 	background: var(--glass-teal);
@@ -154,22 +154,22 @@
 	--v-g: 0;
 }
 @utility v-g1 {
-	--cl-glow: var(--shadow-glow-teal);
+	--cl-glow: var(--glow-teal);
 }
 @utility v-g2 {
-	--cl-glow: var(--shadow-glow-purple);
+	--cl-glow: var(--glow-purple);
 }
 @utility v-g3 {
-	--cl-glow: var(--shadow-glow-ember);
+	--cl-glow: var(--glow-ember);
 }
 @utility v-g4 {
-	--cl-glow: var(--shadow-glow-magenta);
+	--cl-glow: var(--glow-magenta);
 }
 @utility v-g5 {
-	--cl-glow: var(--shadow-glow-frost);
+	--cl-glow: var(--glow-frost);
 }
 @utility v-g6 {
-	--cl-glow: var(--shadow-glow-cyber);
+	--cl-glow: var(--glow-cyber);
 }
 
 /* ── f: Frame — 7 values ── */
@@ -209,28 +209,28 @@
 	--v-m: 0;
 }
 @utility v-m1 {
-	animation: var(--animate-breathe);
+	animation: var(--motion-animation-breathe);
 }
 @utility v-m2 {
-	animation: var(--animate-shimmer);
+	animation: var(--motion-animation-shimmer);
 }
 @utility v-m3 {
-	animation: var(--animate-drift);
+	animation: var(--motion-animation-drift);
 }
 @utility v-m4 {
-	animation: var(--animate-pulse);
+	animation: var(--motion-animation-pulse);
 }
 @utility v-m5 {
-	animation: var(--animate-fade-in);
+	animation: var(--motion-animation-fade-in);
 }
 @utility v-m6 {
-	animation: var(--animate-slide-up);
+	animation: var(--motion-animation-slide-up);
 }
 @utility v-m7 {
-	animation: var(--animate-slide-down);
+	animation: var(--motion-animation-slide-down);
 }
 @utility v-m8 {
-	animation: var(--animate-scale-in);
+	animation: var(--motion-animation-scale-in);
 }
 
 /* ── t: Transition — 10 values ── */
@@ -238,29 +238,29 @@
 	transition: none;
 }
 @utility v-t1 {
-	transition: all var(--transition-duration-snap) var(--transition-timing-function-out);
+	transition: all var(--motion-duration-snap) var(--motion-ease-out);
 }
 @utility v-t2 {
-	transition: all var(--transition-duration-fast) var(--transition-timing-function-out);
+	transition: all var(--motion-duration-fast) var(--motion-ease-out);
 }
 @utility v-t3 {
-	transition: all var(--transition-duration-normal) var(--transition-timing-function-inOut);
+	transition: all var(--motion-duration-normal) var(--motion-ease-in-out);
 }
 @utility v-t4 {
-	transition: all var(--transition-duration-smooth) var(--transition-timing-function-inOut);
+	transition: all var(--motion-duration-smooth) var(--motion-ease-in-out);
 }
 @utility v-t5 {
-	transition: all var(--transition-duration-normal) var(--transition-timing-function-spring);
+	transition: all var(--motion-duration-normal) var(--motion-ease-spring);
 }
 @utility v-t6 {
-	transition: all var(--transition-duration-smooth) var(--transition-timing-function-bounce);
+	transition: all var(--motion-duration-smooth) var(--motion-ease-bounce);
 }
 @utility v-t7 {
-	transition: opacity var(--transition-duration-fast) var(--transition-timing-function-out);
+	transition: opacity var(--motion-duration-fast) var(--motion-ease-out);
 }
 @utility v-t8 {
-	transition: transform var(--transition-duration-normal) var(--transition-timing-function-spring);
+	transition: transform var(--motion-duration-normal) var(--motion-ease-spring);
 }
 @utility v-t9 {
-	transition: color var(--transition-duration-smooth) var(--transition-timing-function-inOut), background-color var(--transition-duration-smooth) var(--transition-timing-function-inOut);
+	transition: color var(--motion-duration-smooth) var(--motion-ease-in-out), background-color var(--motion-duration-smooth) var(--motion-ease-in-out);
 }

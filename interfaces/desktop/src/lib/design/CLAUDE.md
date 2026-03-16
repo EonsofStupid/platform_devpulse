@@ -4,25 +4,49 @@
 
 ---
 
-## Variant Key Encoding (8-AXIS — FROZEN)
+## What ColdLight IS
+
+ColdLight is a **visual compiler**. Style Dictionary 5 is the engine. DTCG JSON tokens are the source. Everything downstream consumes SD5 output. No hand-written CSS values.
+
+**Goal**: Liquid metal, glass depth, SVG neumorphism, 3x heavy visuals. NOT flat CSS. NOT MVP.
+
+---
+
+## 8-Axis Encoding (FROZEN)
 
 ```
 v-s{#}z{#}d{#}b{#}g{#}f{#}m{#}t{#}
 ```
 
-| Key | Code | Meaning |
-|-----|------|---------|
-| `s` | surface | Surface type (glass-void, glass-deep, glass-teal, glass-purple, etc.) |
-| `z` | material | Material / z-depth |
-| `d` | depth | Shadow depth (z0–z4) |
-| `b` | bevel | Bevel treatment (off, subtle, soft, medium) |
-| `g` | glow | Glow color (off, teal, purple, magenta, ember, frost, cyber) |
-| `f` | frame | Frame/border (off, soft, hard, glow, accent-teal, accent-purple) |
-| `m` | motion | Motion animation |
-| `t` | transition | Transition speed |
+| Code | Category | Description |
+|------|----------|-------------|
+| `s` | surface | Glass-void, glass-deep, glass-teal, etc. |
+| `z` | material | Glass clarity, matte, metal chrome/copper |
+| `d` | depth | Shadow depth z0–z4 |
+| `b` | bevel | Neumorphic inset shadows (off, subtle, soft, medium, strong) |
+| `g` | glow | Accent emission (off, teal, purple, magenta, ember, frost, cyber) |
+| `f` | frame | Border (off, soft, hard, glow, accent-teal, accent-purple) |
+| `m` | motion | Ambient animation |
+| `t` | transition | User-triggered speed + easing |
 
-Example: `v-s1z0d2b1g0f1m0t2`
-Composable: `v-s1 v-d2 v-t2`
+Composable: `v-s1 v-d2 v-t2` or full `v-s1z0d2b1g0f1m0t2`
+
+---
+
+## CSS Variable Names (What SD5 ACTUALLY Generates)
+
+| Category | CSS Prefix | Example |
+|----------|-----------|---------|
+| Glow shadows | `--glow-*` | `--glow-teal` |
+| Depth shadows | `--shadow-*` | `--shadow-z2` |
+| Bevel | `--bevel-*` | `--bevel-subtle` |
+| Motion duration | `--motion-duration-*` | `--motion-duration-fast` |
+| Motion easing | `--motion-ease-*` | `--motion-ease-spring` |
+| Motion animation | `--motion-animation-*` | `--motion-animation-breathe` |
+| Transitions | `--transition-*` | `--transition-fade` |
+| Colors | `--color-{hue}-{step}` | `--color-teal-500` |
+
+**WARNING**: Do NOT invent variable names. Check `css/primitives/*.css` and `css/semantic/*.css` for actual output.
 
 ---
 
@@ -34,57 +58,54 @@ Composable: `v-s1 v-d2 v-t2`
 </button>
 ```
 
-- `v-*` = variant utilities (set CSS custom properties, generated from token-categories.ts)
-- `data-kind` / `data-slot` / `data-state` = THREE data attributes only
+- `v-*` = variant utilities (generated from token-categories.ts)
+- `data-kind` / `data-slot` / `data-state` = three data attributes only
 
 ---
 
-## Layer Stack (LOCKED — 3 layers)
+## 4-Layer Model (LOCKED)
 
 | Layer | What | Location |
 |-------|------|----------|
-| Primitives | CONFIGURATION ONLY. Contract + structural shell. Declares what a kind IS. Never imported by users. | `primitives/{kind}/` |
-| Recipes | Styling patterns. registerRecipe() + DsSurfaceProps + getRecipe(). | `recipes/components/{kind}/` |
-| Components | THE PRODUCT. ARIA + recipe styling. What users import. | `components/{kind}/` |
-
-**There is NO `ui/` layer.** Components ARE the styled, final product.
-They integrate ARIA (from dsAdapter) + recipe styling (via preset/surface/glow/frame props).
-This matches every major design system (shadcn, Chakra, MUI, Mantine).
-
----
-
-## Provider Model
-
-```
-SD5 Tokens → CSS Custom Properties → Tailwind v4 @theme → variants.css @utility blocks
-```
-
-- **ColdLight owns**: `role`, `aria-*`, `tabindex`, focus, keyboard, `data-kind`, `data-slot`, `data-state`
-- **dsAdapter (MeltUI)**: EXCEPTION ONLY — complex ARIA (dialog focus trap, combobox listbox)
-- **Adapters**: `api/dsadapters/{engine}/_internal/{kind}/`
+| Primitives | CONFIGURATION ONLY. Contract + structural shell. Never imported by users. | `primitives/{kind}/` |
+| Recipes | Styling patterns. registerRecipe() + per-slot class strings. | `recipes/components/{kind}/` |
+| Components | THE PRODUCT. ARIA + recipe styling + useColdLight(). What users import. | `components/{kind}/` |
+| UI | Styled wrappers (Radix/shadcn model). APPROVED, not yet built. | `ui/{kind}/` (planned) |
 
 ---
 
 ## Token Pipeline
 
-- **Style Dictionary v5** — DTCG 1.0 → CSS + TypeScript + JSON
-- **OKLCH** color system
-- **3-tier** — Global → Semantic → Component tokens
-- **8-axis encoding** — token-categories.ts is SSOT → generates variants.css, Zod schemas, types
-- **Build**: `pnpm ds:tokens:build`
+```
+17 DTCG JSON files (scripts/build/styledictionary/tokens/src/*.json)
+  → SD5 (sd.config.ts, 664 lines, enum-authored)
+  → css/{primitives,semantic,components}/*.css (@layer tokens.*)
+  → theme/*.css (Tailwind @theme blocks)
+  → types/*.d.ts (TypeScript)
+  → generated/token-manifest.json (VPB metadata)
+  → generated/variants.css (8-axis @utility rules)
+```
+
+**Build**: `pnpm ds:tokens:build`
 
 ---
 
 ## Key Paths
 
-- `registry/token-categories.ts` — 8-axis category SSOT (add value here → types auto-update)
-- `registry/presets.ts` — Named visual configs per kind (60+ presets)
-- `registry/resolve-visual.ts` — Pipeline: defaults → preset → props → encoding
-- `generated/variants.css` — Auto-generated @utility rules from token-categories
-- `api/dsadapters/` — Adapter layer (coldlight/ and meltui/)
-- `primitives/` — Structural shells (83 kinds)
-- `components/` — ARIA + state (67 kinds)
-- `recipes/` — Styling (centralized registerRecipe system)
+| File | Purpose |
+|------|---------|
+| `registry/token-categories.ts` | 8-axis category SSOT |
+| `registry/presets.ts` | 60+ named visual configs per kind |
+| `registry/resolve-visual.ts` | Pipeline: defaults → preset → props → encoding |
+| `registry/kind-definitions.ts` | 30 CDOs (kind, engine, defaults) |
+| `generated/variants.css` | Auto-generated @utility rules |
+| `svg/filters/` | SVG neumorphism (feSpecularLighting, feGaussianBlur, feTurbulence) |
+| `recipes/` | 104 .ts files, 32 registered recipes |
+| `components/` | 89 kinds, 167 .svelte files |
+| `primitives/` | 92 kinds, 59 .svelte files |
+| `blocks/` | VPB block system (8 categories) |
+| `components/_base/use-coldlight.svelte.ts` | Svelte 5 rune wrapper |
+| `components/_base/schema.ts` | ComponentSchema |
 
 ---
 
@@ -92,10 +113,10 @@ SD5 Tokens → CSS Custom Properties → Tailwind v4 @theme → variants.css @ut
 
 ```bash
 cd interfaces/desktop
-pnpm dev              # Dev server
-pnpm svelte-check     # TypeScript
-pnpm ds:tokens:build  # Rebuild tokens + variants
-pnpm coldlight:generate  # Scanner → manifest
+pnpm dev              # Dev server :1420
+pnpm svelte-check     # TypeScript (0 errors)
+pnpm ds:tokens:build  # SD5: JSON → CSS + @theme + .d.ts + manifest
+pnpm build            # Vite production build
 ```
 
 ---
@@ -103,8 +124,10 @@ pnpm coldlight:generate  # Scanner → manifest
 ## Banned
 
 - Direct `@melt-ui/svelte` imports outside `_internal/`
-- Hand-written CSS outside `design/`
-- Raw HTML when a ColdLight primitive exists
+- Hand-written CSS values outside `design/`
+- Raw HTML when a ColdLight component exists
 - `any` types
 - jsdom testing
-- References to deleted concepts: taxonomy/, catalog/, semantics/, molecules/, shortcodes/, ui/
+- References to deleted concepts: taxonomy/, catalog/, semantics/, molecules/, shortcodes/
+- Inventing CSS variable names without checking SD5 output
+- Describing architecture that doesn't exist on disk

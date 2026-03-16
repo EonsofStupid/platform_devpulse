@@ -139,7 +139,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				label: "Void Gradient",
 				tokenRefs: {
 					background:
-						"linear-gradient(135deg, var(--color-void-900), var(--color-void-base))",
+						"linear-gradient(135deg, oklch(0.06 0.01 195 / 0.95), var(--glass-void))",
 				},
 			},
 			{
@@ -387,7 +387,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "teal",
 				label: "Teal",
 				tokenRefs: {
-					"box-shadow": "var(--shadow-glow-teal)",
+					"box-shadow": "var(--glow-teal)",
 				},
 			},
 			{
@@ -395,7 +395,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "purple",
 				label: "Purple",
 				tokenRefs: {
-					"box-shadow": "var(--shadow-glow-purple)",
+					"box-shadow": "var(--glow-purple)",
 				},
 			},
 			{
@@ -403,7 +403,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "ember",
 				label: "Ember",
 				tokenRefs: {
-					"box-shadow": "var(--shadow-glow-ember)",
+					"box-shadow": "var(--glow-ember)",
 				},
 			},
 			{
@@ -411,7 +411,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "magenta",
 				label: "Magenta",
 				tokenRefs: {
-					"box-shadow": "var(--shadow-glow-magenta)",
+					"box-shadow": "var(--glow-magenta)",
 				},
 			},
 			{
@@ -419,7 +419,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "frost",
 				label: "Frost",
 				tokenRefs: {
-					"box-shadow": "var(--shadow-glow-frost)",
+					"box-shadow": "var(--glow-frost)",
 				},
 			},
 			{
@@ -427,7 +427,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "cyber",
 				label: "Cyber",
 				tokenRefs: {
-					"box-shadow": "var(--shadow-glow-cyber)",
+					"box-shadow": "var(--glow-cyber)",
 				},
 			},
 		],
@@ -529,7 +529,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "breathe",
 				label: "Breathing Pulse",
 				tokenRefs: {
-					animation: "var(--animate-breathe)",
+					animation: "var(--motion-animation-breathe)",
 				},
 			},
 			{
@@ -537,7 +537,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "shimmer",
 				label: "Liquid Shimmer",
 				tokenRefs: {
-					animation: "var(--animate-shimmer)",
+					animation: "var(--motion-animation-shimmer)",
 				},
 			},
 			{
@@ -545,7 +545,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "drift",
 				label: "Particle Drift",
 				tokenRefs: {
-					animation: "var(--animate-drift)",
+					animation: "var(--motion-animation-drift)",
 				},
 			},
 			{
@@ -553,7 +553,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "pulse",
 				label: "Glow Pulse",
 				tokenRefs: {
-					animation: "var(--animate-pulse)",
+					animation: "var(--motion-animation-pulse)",
 				},
 			},
 			// ─ Entry (plays once) ─
@@ -562,7 +562,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "fade-in",
 				label: "Fade In",
 				tokenRefs: {
-					animation: "var(--animate-fade-in)",
+					animation: "var(--motion-animation-fade-in)",
 				},
 			},
 			{
@@ -570,7 +570,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "slide-up",
 				label: "Slide Up",
 				tokenRefs: {
-					animation: "var(--animate-slide-up)",
+					animation: "var(--motion-animation-slide-up)",
 				},
 			},
 			{
@@ -578,7 +578,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "slide-down",
 				label: "Slide Down",
 				tokenRefs: {
-					animation: "var(--animate-slide-down)",
+					animation: "var(--motion-animation-slide-down)",
 				},
 			},
 			{
@@ -586,7 +586,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "scale-in",
 				label: "Scale In",
 				tokenRefs: {
-					animation: "var(--animate-scale-in)",
+					animation: "var(--motion-animation-scale-in)",
 				},
 			},
 		],
@@ -614,7 +614,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				label: "Snap (50ms)",
 				tokenRefs: {
 					transition:
-						"all var(--transition-duration-snap) var(--transition-timing-function-out)",
+						"all var(--motion-duration-snap) var(--motion-ease-out)",
 				},
 			},
 			{
@@ -623,7 +623,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				label: "Fast (150ms)",
 				tokenRefs: {
 					transition:
-						"all var(--transition-duration-fast) var(--transition-timing-function-out)",
+						"all var(--motion-duration-fast) var(--motion-ease-out)",
 				},
 			},
 			{
@@ -632,7 +632,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				label: "Normal (250ms)",
 				tokenRefs: {
 					transition:
-						"all var(--transition-duration-normal) var(--transition-timing-function-inOut)",
+						"all var(--motion-duration-normal) var(--motion-ease-in-out)",
 				},
 			},
 			{
@@ -641,7 +641,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				label: "Smooth (400ms)",
 				tokenRefs: {
 					transition:
-						"all var(--transition-duration-smooth) var(--transition-timing-function-inOut)",
+						"all var(--motion-duration-smooth) var(--motion-ease-in-out)",
 				},
 			},
 			{
@@ -650,7 +650,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				label: "Spring",
 				tokenRefs: {
 					transition:
-						"all var(--transition-duration-normal) var(--transition-timing-function-spring)",
+						"all var(--motion-duration-normal) var(--motion-ease-spring)",
 				},
 			},
 			{
@@ -659,7 +659,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				label: "Bounce",
 				tokenRefs: {
 					transition:
-						"all var(--transition-duration-smooth) var(--transition-timing-function-bounce)",
+						"all var(--motion-duration-smooth) var(--motion-ease-bounce)",
 				},
 			},
 			// ─ Scoped transitions (per-property) ─
@@ -669,7 +669,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				label: "Opacity Fast",
 				tokenRefs: {
 					transition:
-						"opacity var(--transition-duration-fast) var(--transition-timing-function-out)",
+						"opacity var(--motion-duration-fast) var(--motion-ease-out)",
 				},
 			},
 			{
@@ -678,7 +678,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				label: "Transform Spring",
 				tokenRefs: {
 					transition:
-						"transform var(--transition-duration-normal) var(--transition-timing-function-spring)",
+						"transform var(--motion-duration-normal) var(--motion-ease-spring)",
 				},
 			},
 			{
@@ -687,7 +687,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				label: "Color Smooth",
 				tokenRefs: {
 					transition:
-						"color var(--transition-duration-smooth) var(--transition-timing-function-inOut), background-color var(--transition-duration-smooth) var(--transition-timing-function-inOut)",
+						"color var(--motion-duration-smooth) var(--motion-ease-in-out), background-color var(--motion-duration-smooth) var(--motion-ease-in-out)",
 				},
 			},
 		],
