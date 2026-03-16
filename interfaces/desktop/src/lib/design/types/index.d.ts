@@ -12,3 +12,4 @@ export * from './border.js';
 export * from './interaction.js';
 export * from './backdrop.js';
 export * from './component.js';
+export * from './gradient.js';

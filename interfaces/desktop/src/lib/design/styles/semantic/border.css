@@ -1,0 +1,16 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@layer tokens.semantic {
+  :root {
+  --border-subtle: oklch(0.4234 0.0810 173.37 / 0.2196078431372549); /** Default container border */
+  --border-strong: oklch(0.5106 0.0979 173.17 / 0.30196078431372547); /** Emphasized container border */
+  --border-focus: var(--color-mint-400); /** Focus ring color */
+  --border-divider: oklch(1.0000 0.0000 0.00 / 0.058823529411764705); /** Section separator */
+  --border-preset-default: 1px solid var(--border-subtle); /** Standard container border */
+  --border-preset-strong: 1px solid var(--border-strong); /** Emphasized container border */
+  --border-preset-focus: 2px solid var(--border-focus); /** Focus ring */
+  --border-preset-divider: 1px solid var(--border-divider); /** Section separator */
+  }
+}

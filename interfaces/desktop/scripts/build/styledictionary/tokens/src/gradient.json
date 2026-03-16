@@ -1,0 +1,109 @@
+{
+	"gradient": {
+		"$type": "gradient",
+		"$description": "Accent and surface gradients — SD5 custom transform produces linear-gradient() CSS",
+
+		"teal": {
+			"$value": [
+				{ "color": "#009076", "position": 0 },
+				{ "color": "#005c4a", "position": 1 }
+			],
+			"$extensions": { "com.coldlight": { "angle": "135deg", "accent": "teal" } }
+		},
+		"teal-glow": {
+			"$value": [
+				{ "color": "#00aa90", "position": 0 },
+				{ "color": "#009076", "position": 0.5 },
+				{ "color": "#004235", "position": 1 }
+			],
+			"$extensions": { "com.coldlight": { "angle": "135deg", "accent": "teal" } }
+		},
+		"purple": {
+			"$value": [
+				{ "color": "#615ed6", "position": 0 },
+				{ "color": "#3d3b8b", "position": 1 }
+			],
+			"$extensions": { "com.coldlight": { "angle": "135deg", "accent": "purple" } }
+		},
+		"purple-glow": {
+			"$value": [
+				{ "color": "#7b7dea", "position": 0 },
+				{ "color": "#615ed6", "position": 0.5 },
+				{ "color": "#2b2a64", "position": 1 }
+			],
+			"$extensions": { "com.coldlight": { "angle": "135deg", "accent": "purple" } }
+		},
+		"magenta": {
+			"$value": [
+				{ "color": "#ad36a7", "position": 0 },
+				{ "color": "#6c2768", "position": 1 }
+			],
+			"$extensions": { "com.coldlight": { "angle": "135deg", "accent": "magenta" } }
+		},
+		"ember": {
+			"$value": [
+				{ "color": "#c53637", "position": 0 },
+				{ "color": "#7f2021", "position": 1 }
+			],
+			"$extensions": { "com.coldlight": { "angle": "135deg", "accent": "ember" } }
+		},
+		"frost": {
+			"$value": [
+				{ "color": "#1988a3", "position": 0 },
+				{ "color": "#00536c", "position": 1 }
+			],
+			"$extensions": { "com.coldlight": { "angle": "135deg", "accent": "frost" } }
+		},
+		"cyber": {
+			"$value": [
+				{ "color": "#008f4a", "position": 0 },
+				{ "color": "#005b2d", "position": 1 }
+			],
+			"$extensions": { "com.coldlight": { "angle": "135deg", "accent": "cyber" } }
+		},
+
+		"void": {
+			"$description": "App background — deep dark to void black",
+			"$value": [
+				{ "color": "#002920", "position": 0 },
+				{ "color": "#001712", "position": 0.5 },
+				{ "color": "#000000", "position": 1 }
+			],
+			"$extensions": { "com.coldlight": { "angle": "180deg" } }
+		},
+		"void-radial": {
+			"$description": "Radial void — for hero backgrounds",
+			"$value": [
+				{ "color": "#004235", "position": 0 },
+				{ "color": "#001712", "position": 0.6 },
+				{ "color": "#000000", "position": 1 }
+			],
+			"$extensions": { "com.coldlight": { "angle": "circle at 50% 40%" } }
+		},
+
+		"teal-purple": {
+			"$description": "Teal→purple crossfade — accent blend",
+			"$value": [
+				{ "color": "#009076", "position": 0 },
+				{ "color": "#615ed6", "position": 1 }
+			],
+			"$extensions": { "com.coldlight": { "angle": "135deg" } }
+		},
+		"teal-cyber": {
+			"$description": "Teal→cyber crossfade — matrix blend",
+			"$value": [
+				{ "color": "#009076", "position": 0 },
+				{ "color": "#008f4a", "position": 1 }
+			],
+			"$extensions": { "com.coldlight": { "angle": "90deg" } }
+		},
+		"ember-magenta": {
+			"$description": "Ember→magenta crossfade — hot blend",
+			"$value": [
+				{ "color": "#c53637", "position": 0 },
+				{ "color": "#ad36a7", "position": 1 }
+			],
+			"$extensions": { "com.coldlight": { "angle": "135deg" } }
+		}
+	}
+}

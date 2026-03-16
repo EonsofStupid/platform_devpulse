@@ -338,6 +338,62 @@
 			"950": { "$value": "#1a0a0e" },
 			"$description": "Hue 345°"
 		},
+		"teal": {
+			"50": { "$value": "#e8faf5" },
+			"100": { "$value": "#c9eee5" },
+			"200": { "$value": "#8fdccc" },
+			"300": { "$value": "#39c3ae" },
+			"400": { "$value": "#00aa90" },
+			"500": { "$value": "#009076" },
+			"600": { "$value": "#007861" },
+			"700": { "$value": "#005c4a" },
+			"800": { "$value": "#004235" },
+			"900": { "$value": "#002920" },
+			"950": { "$value": "#001712" },
+			"$description": "Primary accent — oklch hue 180° (hand-tuned for dark neumorphic)"
+		},
+		"ember": {
+			"50": { "$value": "#fff0ee" },
+			"100": { "$value": "#fedbd7" },
+			"200": { "$value": "#fbb7b0" },
+			"300": { "$value": "#ed8c84" },
+			"400": { "$value": "#dc5e59" },
+			"500": { "$value": "#c53637" },
+			"600": { "$value": "#a5292b" },
+			"700": { "$value": "#7f2021" },
+			"800": { "$value": "#5c1717" },
+			"900": { "$value": "#3a0e0d" },
+			"950": { "$value": "#200a08" },
+			"$description": "Danger/fire accent — oklch hue 25°"
+		},
+		"frost": {
+			"50": { "$value": "#e7f9ff" },
+			"100": { "$value": "#c8ebf7" },
+			"200": { "$value": "#8ed7ef" },
+			"300": { "$value": "#39bcdf" },
+			"400": { "$value": "#00a0ce" },
+			"500": { "$value": "#1988a3" },
+			"600": { "$value": "#006b8c" },
+			"700": { "$value": "#00536c" },
+			"800": { "$value": "#003b4f" },
+			"900": { "$value": "#002533" },
+			"950": { "$value": "#00151e" },
+			"$description": "Ice/cool accent — oklch hue 220°"
+		},
+		"cyber": {
+			"50": { "$value": "#eafaf0" },
+			"100": { "$value": "#cfeddc" },
+			"200": { "$value": "#9ddbb9" },
+			"300": { "$value": "#5dc291" },
+			"400": { "$value": "#00a869" },
+			"500": { "$value": "#008f4a" },
+			"600": { "$value": "#00773c" },
+			"700": { "$value": "#005b2d" },
+			"800": { "$value": "#004120" },
+			"900": { "$value": "#002913" },
+			"950": { "$value": "#00170b" },
+			"$description": "Matrix/cyber accent — oklch hue 160°"
+		},
 		"neutral": {
 			"50": { "$value": "#fafafa" },
 			"100": { "$value": "#ededed" },
@@ -353,6 +409,30 @@
 			"$description": "Achromatic gray scale"
 		},
 		"white": { "$value": "#ffffff" },
-		"black": { "$value": "#000000" }
+		"black": { "$value": "#000000" },
+
+		"text": {
+			"$description": "Semantic text colors — role-based",
+			"primary":   { "$value": "#e0f0f3" },
+			"secondary": { "$value": "#8ba8ad" },
+			"muted":     { "$value": "#4a666b" },
+			"link":      { "$value": "{color.teal.400}" },
+			"inverse":   { "$value": "#0a1a1a" }
+		},
+
+		"accent": {
+			"$description": "Per-hue accent roles — main + glow per accent hue",
+			"teal":    { "main": { "$value": "{color.teal.400}" },    "glow": { "$value": "#00aa9066" } },
+			"purple":  { "main": { "$value": "{color.purple.400}" },  "glow": { "$value": "#7b7dea66" } },
+			"magenta": { "main": { "$value": "{color.magenta.400}" }, "glow": { "$value": "#c063ba66" } },
+			"ember":   { "main": { "$value": "{color.ember.400}" },   "glow": { "$value": "#dc5e5966" } },
+			"frost":   { "main": { "$value": "{color.frost.400}" },   "glow": { "$value": "#00a0ce59" } },
+			"cyber":   { "main": { "$value": "{color.cyber.400}" },   "glow": { "$value": "#00a86966" } }
+		},
+
+		"void": {
+			"$description": "App background — deepest dark",
+			"base": { "$value": "#001209" }
+		}
 	}
 }

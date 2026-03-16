@@ -73,8 +73,9 @@ kind = "rro"
 path = "system/rro/storage"
 
 [services.system.voice]
-enabled = true
-critical = true
+# Disabled until voice stack sprint (SPRINT-VOICE-STACK.md) — espeak-rs-sys needs system install fix
+enabled = false
+critical = false
 kind = "kokoros"
 model_path = "system/kokoros/model/kokoro-v1.0.onnx"
 voices_path = "system/kokoros/voices/voices-v1.0.bin"

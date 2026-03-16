@@ -2,125 +2,233 @@
  * @file sd.config.ts
  * @package @devpulse/coldlight
  *
- * Style Dictionary v5 configuration.
+ * Style Dictionary v5 configuration — ColdLight token pipeline.
  *
  * Source: flat domain files (tokens/src/{domain}.json)
- * Output: tier-aware CSS, per-domain theme files, per-domain type files
+ * Output: tier-aware CSS, per-domain Tailwind @theme, per-domain TypeScript types
  *
- * Transforms: ALL BUILT-IN. Zero custom transforms.
- *   - color/oklch          (hex → oklch)
- *   - size/pxToRem         (px → rem, 16px base)
- *   - shadow/css/shorthand (DTCG shadow → CSS shorthand)
- *   - border/css/shorthand, typography/css/shorthand, transition/css/shorthand
- *   - cubicBezier/css, fontFamily/css
- *   - attribute/cti, name/kebab, time/seconds
- *
- * Custom formats (3 — genuinely necessary, no built-in equivalent):
- *   - coldlight/css             @layer wrapper + inset keyword for bevel shadows
- *   - coldlight/tailwind-theme  TW4 @theme with namespace remapping (per-domain)
- *   - coldlight/types           TypeScript union + record type shapes
+ * Every SD5 built-in is referenced via its enum.
+ * Custom names (formats, transforms) are defined as typed constants.
  */
 
 import StyleDictionary from 'style-dictionary';
 import { fileHeader, createPropertyFormatter } from 'style-dictionary/utils';
 import type { Config, TransformedToken } from 'style-dictionary/types';
+import {
+	transforms,
+	transformTypes,
+	propertyFormatNames,
+	logVerbosityLevels,
+	logWarningLevels,
+	logBrokenReferenceLevels,
+} from 'style-dictionary/enums';
 
-// ─── Built-in transforms (explicit list, replaces transformGroup: 'css') ──
+// ═══════════════════════════════════════════════════════════════
+// COLDLIGHT CUSTOM NAMES — typed constants, zero raw strings
+// ═══════════════════════════════════════════════════════════════
 
-const CSS_TRANSFORMS = [
-	'attribute/cti',
-	'name/kebab',
-	'time/seconds',
-	'size/pxToRem',
-	'color/oklch',
-	'fontFamily/css',
-	'cubicBezier/css',
-	'border/css/shorthand',
-	'typography/css/shorthand',
-	'transition/css/shorthand',
-	'shadow/css/shorthand',
-];
+/** Custom transform names — ColdLight extensions to SD5 */
+const clTransforms = {
+	gradientCssShorthand: 'gradient/css/shorthand',
+} as const;
 
-const TYPE_TRANSFORMS = ['attribute/cti', 'name/kebab'];
+/** Custom format names — ColdLight extensions to SD5 */
+const clFormats = {
+	css: 'coldlight/css',
+	tailwindTheme: 'coldlight/tailwind-theme',
+	types: 'coldlight/types',
+	manifest: 'coldlight/manifest',
+} as const;
 
-// ─── Path-based filtering ────────────────────────────────────────────
+/** Custom preprocessor names */
+const clPreprocessors = {
+	captureExtensions: 'coldlight/capture-extensions',
+} as const;
+
+/** DTCG $extensions namespace */
+const CL_EXT = 'com.coldlight' as const;
+
+/**
+ * Group-level $extensions captured by preprocessor.
+ * SD5 strips group-level $extensions from TransformedToken —
+ * the preprocessor walks the raw tree first and stashes them here
+ * so custom formats can read scale/control/default metadata.
+ *
+ * Key = dot-joined group path (e.g., "blur", "color.teal", "motion.duration")
+ * Value = the $extensions[CL_EXT] object from that group
+ */
+const groupExtensions = new Map<string, Record<string, unknown>>();
+
+/** Token tier paths — determines which @layer a token lands in */
+const tiers = {
+	primitive: [
+		'color', 'shadow', 'bevel', 'glow', 'glowSpread', 'blur',
+		'glass', 'matte', 'radius', 'space', 'padding', 'size',
+		'zIndex', 'font', 'textSize', 'leading', 'tracking',
+		'motion', 'gradient',
+	],
+	semantic: [
+		'elevation', 'surface', 'border', 'borderPreset', 'transition',
+		'interaction', 'overlay', 'scrollbar', 'backdrop', 'textStyle',
+	],
+} as const;
+
+/** CSS @layer sublayer names */
+const layers = {
+	primitives: 'primitives',
+	semantic: 'semantic',
+	components: 'components',
+} as const;
+
+/** Tailwind v4 @theme namespace remapping */
+const tw4Remap = {
+	topLevel: {
+		bevel: 'inset-shadow',
+		glow: 'drop-shadow',
+		textSize: 'text',
+	},
+	nested: {
+		'motion.ease': 'ease',
+		'motion.animation': 'animate',
+	},
+} as const;
+
+/** Build paths (relative to CWD = interfaces/desktop/) */
+const paths = {
+	source: 'scripts/build/styledictionary/tokens/src',
+	design: 'src/lib/design',
+} as const;
+
+// ═══════════════════════════════════════════════════════════════
+// PATH-BASED FILTERING
+// ═══════════════════════════════════════════════════════════════
 
 const pathFilter =
-	(...names: string[]) =>
+	(...names: readonly string[]) =>
 	(token: TransformedToken) =>
 		names.includes(token.path[0]);
 
-// ─── Tier membership ─────────────────────────────────────────────────
-//
-// This is the ONLY place tier classification lives.
-// Source files are flat by domain. Output is tier-aware.
+const isPrimitive = pathFilter(...tiers.primitive);
+const isSemantic = pathFilter(...tiers.semantic);
+const isComponent = (token: TransformedToken) =>
+	!isPrimitive(token) && !isSemantic(token);
 
-const PRIMITIVE_PATHS = [
-	'color',
-	'shadow',
-	'bevel',
-	'glow',
-	'glowSpread',
-	'blur',
-	'glass',
-	'matte',
-	'radius',
-	'space',
-	'padding',
-	'size',
-	'zIndex',
-	'font',
-	'textSize',
-	'leading',
-	'tracking',
-	'motion',
-];
-
-const SEMANTIC_PATHS = [
-	'elevation',
-	'surface',
-	'border',
-	'borderPreset',
-	'transition',
-	'interaction',
-	'overlay',
-	'scrollbar',
-	'backdrop',
-	'textStyle',
-];
-
-const isPrimitive = pathFilter(...PRIMITIVE_PATHS);
-const isSemantic = pathFilter(...SEMANTIC_PATHS);
-const isComponent = (token: TransformedToken) => !isPrimitive(token) && !isSemantic(token);
-
-// ─── Inset shadow detection ─────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+// $EXTENSIONS HELPERS
+// ═══════════════════════════════════════════════════════════════
 
 const isInsetShadow = (token: TransformedToken): boolean =>
-	token.$extensions?.['com.coldlight']?.inset === true;
+	token.$extensions?.[CL_EXT]?.inset === true;
 
-// ─── TW4 namespace remapping ─────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+// CUSTOM TRANSFORM: gradient/css/shorthand
+//
+// DTCG gradient: array of { color, position } stops.
+// SD5 has NO built-in CSS transform for gradients.
+// This converts to linear-gradient() CSS shorthand.
+// ═══════════════════════════════════════════════════════════════
 
-const TW4_TOP_LEVEL: Record<string, string> = {
-	bevel: 'inset-shadow',
-	glow: 'drop-shadow',
-	textSize: 'text',
-};
+StyleDictionary.registerTransform({
+	name: clTransforms.gradientCssShorthand,
+	type: transformTypes.value,
+	transitive: true,
+	filter: (token) => token.$type === 'gradient' || token.type === 'gradient',
+	transform: (token) => {
+		const val = token.$value ?? token.value;
+		if (!Array.isArray(val)) return val;
 
-const TW4_NESTED: Record<string, string> = {
-	'motion.ease': 'ease',
-	'motion.animation': 'animate',
-};
+		const stops = val
+			.map((stop: { color: string; position: number }) => {
+				const pos = typeof stop.position === 'number'
+					? ` ${stop.position * 100}%`
+					: '';
+				return `${stop.color}${pos}`;
+			})
+			.join(', ');
+
+		const angle = token.$extensions?.[CL_EXT]?.angle ?? '135deg';
+		return `linear-gradient(${angle}, ${stops})`;
+	},
+});
+
+// ═══════════════════════════════════════════════════════════════
+// PREPROCESSOR: coldlight/capture-extensions
+//
+// SD5 strips group-level $extensions from TransformedToken.
+// This preprocessor walks the raw token tree BEFORE transforms
+// and captures group-level $extensions.com.coldlight metadata
+// into the groupExtensions map so custom formats can read them.
+// ═══════════════════════════════════════════════════════════════
+
+StyleDictionary.registerPreprocessor({
+	name: clPreprocessors.captureExtensions,
+	preprocessor: (dictionary) => {
+		groupExtensions.clear();
+
+		function walk(obj: Record<string, unknown>, path: string[] = []) {
+			if (!obj || typeof obj !== 'object') return;
+
+			const ext = (obj as Record<string, unknown>)['$extensions'] as
+				| Record<string, unknown>
+				| undefined;
+			if (ext?.[CL_EXT]) {
+				groupExtensions.set(
+					path.join('.'),
+					ext[CL_EXT] as Record<string, unknown>,
+				);
+			}
+
+			for (const [key, val] of Object.entries(obj)) {
+				if (key.startsWith('$')) continue;
+				if (val && typeof val === 'object' && !Array.isArray(val)) {
+					walk(val as Record<string, unknown>, [...path, key]);
+				}
+			}
+		}
+
+		walk(dictionary as Record<string, unknown>);
+		return dictionary;
+	},
+});
+
+// ═══════════════════════════════════════════════════════════════
+// TRANSFORM STACKS
+// ═══════════════════════════════════════════════════════════════
+
+const CSS_TRANSFORMS = [
+	transforms.attributeCti,
+	transforms.nameKebab,
+	transforms.timeSeconds,
+	transforms.sizePxToRem,
+	transforms.colorOklch,
+	transforms.fontFamilyCss,
+	transforms.cubicBezierCss,
+	transforms.borderCssShorthand,
+	transforms.typographyCssShorthand,
+	transforms.transitionCssShorthand,
+	transforms.shadowCssShorthand,
+	clTransforms.gradientCssShorthand,
+];
+
+const TYPE_TRANSFORMS = [
+	transforms.attributeCti,
+	transforms.nameKebab,
+];
+
+// ═══════════════════════════════════════════════════════════════
+// TW4 NAMESPACE REMAPPING
+// ═══════════════════════════════════════════════════════════════
 
 function toTw4VarName(token: TransformedToken): string {
 	if (token.path.length >= 2) {
 		const nested = `${token.path[0]}.${token.path[1]}`;
-		const prefix = TW4_NESTED[nested];
+		const prefix = tw4Remap.nested[nested as keyof typeof tw4Remap.nested];
 		if (prefix) {
 			return `--${prefix}-${token.path.slice(2).join('-')}`;
 		}
 	}
 
-	const prefix = TW4_TOP_LEVEL[token.path[0]];
+	const prefix = tw4Remap.topLevel[token.path[0] as keyof typeof tw4Remap.topLevel];
 	if (prefix) {
 		return `--${prefix}-${token.path.slice(1).join('-')}`;
 	}
@@ -128,14 +236,16 @@ function toTw4VarName(token: TransformedToken): string {
 	return `--${token.name}`;
 }
 
-// ─── Custom Format: coldlight/css ────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+// CUSTOM FORMAT: coldlight/css
+// ═══════════════════════════════════════════════════════════════
 
 StyleDictionary.registerFormat({
-	name: 'coldlight/css',
+	name: clFormats.css,
 	format: async ({ dictionary, file, options }) => {
 		const header = await fileHeader({ file });
 		const formatter = createPropertyFormatter({
-			format: 'css',
+			format: propertyFormatNames.css,
 			dictionary,
 			outputReferences: options.outputReferences ?? true,
 			usesDtcg: true,
@@ -166,10 +276,12 @@ StyleDictionary.registerFormat({
 	},
 });
 
-// ─── Custom Format: coldlight/tailwind-theme ─────────────────────────
+// ═══════════════════════════════════════════════════════════════
+// CUSTOM FORMAT: coldlight/tailwind-theme
+// ═══════════════════════════════════════════════════════════════
 
 StyleDictionary.registerFormat({
-	name: 'coldlight/tailwind-theme',
+	name: clFormats.tailwindTheme,
 	format: async ({ dictionary, file, options }) => {
 		const header = await fileHeader({ file });
 		const lines: string[] = [];
@@ -193,13 +305,17 @@ StyleDictionary.registerFormat({
 	},
 });
 
-// ─── Custom Format: coldlight/types ──────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+// CUSTOM FORMAT: coldlight/types
+// ═══════════════════════════════════════════════════════════════
 
 StyleDictionary.registerFormat({
-	name: 'coldlight/types',
+	name: clFormats.types,
 	format: async ({ dictionary, file }) => {
 		const header = await fileHeader({ file });
-		const out: string[] = [`${header}/** AUTO-GENERATED by Style Dictionary — DO NOT EDIT */\n`];
+		const out: string[] = [
+			`${header}/** AUTO-GENERATED by Style Dictionary — DO NOT EDIT */\n`,
+		];
 
 		const groups = new Map<string, TransformedToken[]>();
 		for (const token of dictionary.allTokens) {
@@ -214,7 +330,9 @@ StyleDictionary.registerFormat({
 				.map((s) => s.charAt(0).toUpperCase() + s.slice(1))
 				.join('');
 
-			const leafNames = [...new Set(tokens.map((t) => t.path.slice(1).join('-')))];
+			const leafNames = [
+				...new Set(tokens.map((t) => t.path.slice(1).join('-'))),
+			];
 			out.push(
 				`export const ${pascal}Tokens = [${leafNames.map((v) => `'${v}'`).join(', ')}] as const;`,
 				`export type ${pascal}Token = (typeof ${pascal}Tokens)[number];`,
@@ -222,7 +340,10 @@ StyleDictionary.registerFormat({
 			);
 
 			const vars = tokens.map((t) => `'--${t.name}'`);
-			out.push(`export type ${pascal}CSSVar = ${vars.join(' | ')};`, '');
+			out.push(
+				`export type ${pascal}CSSVar = ${vars.join(' | ')};`,
+				'',
+			);
 
 			const tree: Record<string, unknown> = {};
 			for (const t of tokens) {
@@ -234,25 +355,77 @@ StyleDictionary.registerFormat({
 				node[t.path[t.path.length - 1]] = 'string';
 			}
 
-			const serialize = (obj: Record<string, unknown>, depth: number): string => {
+			const serialize = (
+				obj: Record<string, unknown>,
+				depth: number,
+			): string => {
 				const pad = '\t'.repeat(depth);
 				return Object.entries(obj)
 					.map(([k, v]) => {
-						const key = /^\d/.test(k) || k.includes('-') ? `'${k}'` : k;
-						if (typeof v === 'string') return `${pad}\t${key}: string;`;
+						const key =
+							/^\d/.test(k) || k.includes('-') ? `'${k}'` : k;
+						if (typeof v === 'string')
+							return `${pad}\t${key}: string;`;
 						return `${pad}\t${key}: {\n${serialize(v as Record<string, unknown>, depth + 1)}\n${pad}\t};`;
 					})
 					.join('\n');
 			};
 
-			out.push(`export type ${pascal}Record = {\n${serialize(tree, 0)}\n};`, '');
+			out.push(
+				`export type ${pascal}Record = {\n${serialize(tree, 0)}\n};`,
+				'',
+			);
 		}
 
 		return out.join('\n') + '\n';
 	},
 });
 
-// ─── File definition helpers ─────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+// CUSTOM FORMAT: coldlight/manifest
+//
+// Generates a JSON manifest of all token groups with their
+// $extensions.com.coldlight metadata (control, scale, default, tier).
+// VPB reads this to auto-generate sliders, knobs, selects, color pickers.
+// ═══════════════════════════════════════════════════════════════
+
+StyleDictionary.registerFormat({
+	name: clFormats.manifest,
+	format: ({ dictionary }) => {
+		const manifest: Record<string, unknown> = {};
+
+		for (const token of dictionary.allTokens) {
+			const group = token.path[0];
+			if (!manifest[group]) {
+				// Attach group-level extensions captured by preprocessor
+				const groupPath = token.path.slice(0, -1).join('.');
+				const groupExt = groupExtensions.get(group)
+					?? groupExtensions.get(groupPath)
+					?? {};
+
+				manifest[group] = {
+					extensions: groupExt,
+					tokens: [],
+				};
+			}
+
+			(manifest[group] as { tokens: unknown[] }).tokens.push({
+				name: token.name,
+				path: token.path,
+				cssVar: `--${token.name}`,
+				value: token.$value ?? token.value,
+				type: token.$type ?? token.type,
+				extensions: token.$extensions?.[CL_EXT] ?? null,
+			});
+		}
+
+		return JSON.stringify(manifest, null, '\t');
+	},
+});
+
+// ═══════════════════════════════════════════════════════════════
+// FILE DEFINITION HELPERS
+// ═══════════════════════════════════════════════════════════════
 
 const cssFile = (
 	dest: string,
@@ -260,7 +433,7 @@ const cssFile = (
 	sublayer: string,
 ) => ({
 	destination: dest,
-	format: 'coldlight/css' as const,
+	format: clFormats.css,
 	filter,
 	options: { outputReferences: true, sublayer },
 });
@@ -271,165 +444,183 @@ const themeFile = (
 	opts: Record<string, unknown> = {},
 ) => ({
 	destination: dest,
-	format: 'coldlight/tailwind-theme' as const,
+	format: clFormats.tailwindTheme,
 	filter,
 	options: { ...opts },
 });
 
-const typesFile = (dest: string, filter: (token: TransformedToken) => boolean) => ({
+const typesFile = (
+	dest: string,
+	filter: (token: TransformedToken) => boolean,
+) => ({
 	destination: dest,
-	format: 'coldlight/types' as const,
+	format: clFormats.types,
 	filter,
 });
 
-// ─── Configuration ───────────────────────────────────────────────────
-
-const SRC = 'tokens/src';
+// ═══════════════════════════════════════════════════════════════
+// CONFIGURATION
+// ═══════════════════════════════════════════════════════════════
 
 const config: Config = {
-	source: [`${SRC}/*.json`],
+	source: [`${paths.source}/*.json`],
 	usesDtcg: true,
-	log: { verbosity: 'verbose' },
+	preprocessors: [clPreprocessors.captureExtensions],
+	log: {
+		verbosity: logVerbosityLevels.verbose,
+		warnings: logWarningLevels.warn,
+		errors: {
+			brokenReferences: logBrokenReferenceLevels.throw,
+		},
+	},
 
 	platforms: {
-		// ── CSS: Primitives (tier-aware output) ───────────────────
+		// ── CSS: Primitives ───────────────────────────────────────
 		'css-primitives': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: '../../../src/lib/design/styles/primitives/',
+			buildPath: `${paths.design}/styles/${layers.primitives}/`,
 			files: [
-				cssFile('color.css', pathFilter('color'), 'primitives'),
-				cssFile('shadow.css', pathFilter('shadow'), 'primitives'),
-				cssFile('bevel.css', pathFilter('bevel'), 'primitives'),
-				cssFile('glow.css', pathFilter('glow', 'glowSpread'), 'primitives'),
-				cssFile('blur.css', pathFilter('blur'), 'primitives'),
-				cssFile('surface.css', pathFilter('glass', 'matte'), 'primitives'),
-				cssFile('radius.css', pathFilter('radius'), 'primitives'),
-				cssFile('spacing.css', pathFilter('space', 'padding', 'size', 'zIndex'), 'primitives'),
-				cssFile('typography.css', pathFilter('font', 'textSize', 'leading', 'tracking'), 'primitives'),
-				cssFile('motion.css', pathFilter('motion'), 'primitives'),
+				cssFile('color.css', pathFilter('color'), layers.primitives),
+				cssFile('shadow.css', pathFilter('shadow'), layers.primitives),
+				cssFile('bevel.css', pathFilter('bevel'), layers.primitives),
+				cssFile('glow.css', pathFilter('glow', 'glowSpread'), layers.primitives),
+				cssFile('blur.css', pathFilter('blur'), layers.primitives),
+				cssFile('surface.css', pathFilter('glass', 'matte'), layers.primitives),
+				cssFile('radius.css', pathFilter('radius'), layers.primitives),
+				cssFile('spacing.css', pathFilter('space', 'padding', 'size', 'zIndex'), layers.primitives),
+				cssFile('typography.css', pathFilter('font', 'textSize', 'leading', 'tracking'), layers.primitives),
+				cssFile('motion.css', pathFilter('motion'), layers.primitives),
+				cssFile('gradient.css', pathFilter('gradient'), layers.primitives),
 			],
 		},
 
-		// ── CSS: Semantic (tier-aware output) ─────────────────────
+		// ── CSS: Semantic ─────────────────────────────────────────
 		'css-semantic': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: '../../../src/lib/design/styles/semantic/',
+			buildPath: `${paths.design}/styles/${layers.semantic}/`,
 			files: [
-				cssFile('elevation.css', pathFilter('elevation'), 'semantic'),
-				cssFile('surface.css', pathFilter('surface'), 'semantic'),
-				cssFile('border.css', pathFilter('border', 'borderPreset'), 'semantic'),
-				cssFile('transition.css', pathFilter('transition'), 'semantic'),
-				cssFile('interaction.css', pathFilter('interaction'), 'semantic'),
-				cssFile('overlay.css', pathFilter('overlay'), 'semantic'),
-				cssFile('scrollbar.css', pathFilter('scrollbar'), 'semantic'),
-				cssFile('backdrop.css', pathFilter('backdrop'), 'semantic'),
-				cssFile('text-styles.css', pathFilter('textStyle'), 'semantic'),
+				cssFile('elevation.css', pathFilter('elevation'), layers.semantic),
+				cssFile('surface.css', pathFilter('surface'), layers.semantic),
+				cssFile('border.css', pathFilter('border', 'borderPreset'), layers.semantic),
+				cssFile('transition.css', pathFilter('transition'), layers.semantic),
+				cssFile('interaction.css', pathFilter('interaction'), layers.semantic),
+				cssFile('overlay.css', pathFilter('overlay'), layers.semantic),
+				cssFile('scrollbar.css', pathFilter('scrollbar'), layers.semantic),
+				cssFile('backdrop.css', pathFilter('backdrop'), layers.semantic),
+				cssFile('text-styles.css', pathFilter('textStyle'), layers.semantic),
 			],
 		},
 
-		// ── CSS: Components (tier-aware output) ───────────────────
+		// ── CSS: Components ───────────────────────────────────────
 		'css-components': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: '../../../src/lib/design/styles/components/',
-			files: [cssFile('component.css', isComponent, 'components')],
+			buildPath: `${paths.design}/styles/${layers.components}/`,
+			files: [
+				cssFile('component.css', isComponent, layers.components),
+			],
 		},
 
-		// ── Theme: per-domain @theme files (1 domain = 1 file) ───
+		// ── Theme: per-domain @theme files ────────────────────────
 		'theme-color': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: '../../../src/lib/design/theme/',
+			buildPath: `${paths.design}/theme/`,
 			files: [themeFile('color.css', pathFilter('color'))],
 		},
 		'theme-shadow': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: '../../../src/lib/design/theme/',
+			buildPath: `${paths.design}/theme/`,
 			files: [themeFile('shadow.css', pathFilter('shadow'))],
 		},
 		'theme-elevation': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: '../../../src/lib/design/theme/',
+			buildPath: `${paths.design}/theme/`,
 			files: [themeFile('elevation.css', pathFilter('elevation'))],
 		},
 		'theme-bevel': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: '../../../src/lib/design/theme/',
+			buildPath: `${paths.design}/theme/`,
 			files: [themeFile('bevel.css', pathFilter('bevel'))],
 		},
 		'theme-glow': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: '../../../src/lib/design/theme/',
+			buildPath: `${paths.design}/theme/`,
 			files: [themeFile('glow.css', pathFilter('glow', 'glowSpread'))],
 		},
 		'theme-blur': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: '../../../src/lib/design/theme/',
+			buildPath: `${paths.design}/theme/`,
 			files: [themeFile('blur.css', pathFilter('blur'))],
 		},
 		'theme-surface': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: '../../../src/lib/design/theme/',
+			buildPath: `${paths.design}/theme/`,
 			files: [themeFile('surface.css', pathFilter('glass', 'matte', 'surface'))],
 		},
 		'theme-radius': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: '../../../src/lib/design/theme/',
+			buildPath: `${paths.design}/theme/`,
 			files: [themeFile('radius.css', pathFilter('radius'))],
 		},
 		'theme-spacing': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: '../../../src/lib/design/theme/',
+			buildPath: `${paths.design}/theme/`,
 			files: [themeFile('spacing.css', pathFilter('space', 'padding', 'size', 'zIndex'), { includeSpacingMultiplier: true })],
 		},
 		'theme-typography': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: '../../../src/lib/design/theme/',
+			buildPath: `${paths.design}/theme/`,
 			files: [themeFile('typography.css', pathFilter('font', 'textSize'))],
 		},
 		'theme-text-style': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: '../../../src/lib/design/theme/',
+			buildPath: `${paths.design}/theme/`,
 			files: [themeFile('text-style.css', pathFilter('textStyle'))],
 		},
 		'theme-motion': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: '../../../src/lib/design/theme/',
+			buildPath: `${paths.design}/theme/`,
 			files: [themeFile('motion.css', pathFilter('motion'))],
 		},
 		'theme-transition': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: '../../../src/lib/design/theme/',
+			buildPath: `${paths.design}/theme/`,
 			files: [themeFile('transition.css', pathFilter('transition'))],
 		},
 		'theme-border': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: '../../../src/lib/design/theme/',
+			buildPath: `${paths.design}/theme/`,
 			files: [themeFile('border.css', pathFilter('border', 'borderPreset'))],
 		},
 		'theme-interaction': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: '../../../src/lib/design/theme/',
+			buildPath: `${paths.design}/theme/`,
 			files: [themeFile('interaction.css', pathFilter('interaction'))],
 		},
 		'theme-overlay': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: '../../../src/lib/design/theme/',
+			buildPath: `${paths.design}/theme/`,
 			files: [themeFile('overlay.css', pathFilter('overlay'))],
 		},
 		'theme-scrollbar': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: '../../../src/lib/design/theme/',
+			buildPath: `${paths.design}/theme/`,
 			files: [themeFile('scrollbar.css', pathFilter('scrollbar'))],
 		},
 		'theme-backdrop': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: '../../../src/lib/design/theme/',
+			buildPath: `${paths.design}/theme/`,
 			files: [themeFile('backdrop.css', pathFilter('backdrop'))],
+		},
+		'theme-gradient': {
+			transforms: CSS_TRANSFORMS,
+			buildPath: `${paths.design}/theme/`,
+			files: [themeFile('gradient.css', pathFilter('gradient'))],
 		},
 
 		// ── TypeScript Types ──────────────────────────────────────
 		'types-primitives': {
 			transforms: TYPE_TRANSFORMS,
-			buildPath: '../../../src/lib/design/types/',
+			buildPath: `${paths.design}/types/`,
 			files: [
 				typesFile('color.d.ts', pathFilter('color')),
 				typesFile('shadow.d.ts', pathFilter('shadow', 'bevel', 'glow', 'glowSpread')),
@@ -438,11 +629,12 @@ const config: Config = {
 				typesFile('spacing.d.ts', pathFilter('radius', 'space', 'padding', 'size', 'zIndex')),
 				typesFile('typography.d.ts', pathFilter('font', 'textSize', 'textStyle')),
 				typesFile('motion.d.ts', pathFilter('motion', 'transition')),
+				typesFile('gradient.d.ts', pathFilter('gradient')),
 			],
 		},
 		'types-semantic': {
 			transforms: TYPE_TRANSFORMS,
-			buildPath: '../../../src/lib/design/types/',
+			buildPath: `${paths.design}/types/`,
 			files: [
 				typesFile('elevation.d.ts', pathFilter('elevation')),
 				typesFile('border.d.ts', pathFilter('border', 'borderPreset')),
@@ -452,8 +644,18 @@ const config: Config = {
 		},
 		'types-components': {
 			transforms: TYPE_TRANSFORMS,
-			buildPath: '../../../src/lib/design/types/',
+			buildPath: `${paths.design}/types/`,
 			files: [typesFile('component.d.ts', isComponent)],
+		},
+
+		// ── Manifest: VPB token metadata ─────────────────────────
+		manifest: {
+			transforms: TYPE_TRANSFORMS,
+			buildPath: `${paths.design}/generated/`,
+			files: [{
+				destination: 'token-manifest.json',
+				format: clFormats.manifest,
+			}],
 		},
 	},
 };

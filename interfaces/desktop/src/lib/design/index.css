@@ -1,32 +1,29 @@
 /**
  * @file src/lib/design/index.css
- * @layer design-system
- *
  * SSOT CSS Entry Point for ColdLight Design System.
- * ALL imports are GENERATED files from the SD5 pipeline.
  * Run: pnpm ds:tokens:build
- *
- * @since 1.0.0
  */
 
-/* 1. Tokens + Tailwind @theme — SD5-generated (all 3 tiers + utility registration) */
+/* 1. SD5-generated token CSS — 3-tier @layer (primitives, semantic, components) */
+@import "./css/index.css";
 
-@import "./style/tailwind.css";
+/* 2. SD5-generated Tailwind @theme registrations */
+@import "./theme/index.css";
 
-/* 3. Variant keys — SD5-generated @utility classes (v-s, v-z, v-l, v-t, v-m) */
+/* 3. Variant encoding — @utility classes (v-s, v-z, v-d, v-b, v-g, v-f, v-m, v-t) */
 @import "./generated/variants.css";
 
-/* 4. Typography — SD5-generated text utilities */
+/* 4. Typography utilities */
 @import "./generated/typography.css";
 
-/* 5. Focus — SD5-generated focus ring styles */
+/* 5. Focus ring styles */
 @import "./generated/focus.css";
 
-/* 6. Scrollbars — SD5-generated scrollbar theming */
+/* 6. Scrollbar theming */
 @import "./generated/scrollbars.css";
 
-/* 7. Keyframes — SD5-generated animation keyframes */
+/* 7. Animation keyframes */
 @import "./generated/keyframes.css";
 
-/* 8. SVG Filters */
+/* 8. SVG Filters (neumorphism) */
 @import "./svg/filters/filters.css";

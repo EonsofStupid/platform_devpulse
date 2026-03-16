@@ -11,7 +11,7 @@ import { writeFileSync } from 'node:fs';
 import StyleDictionary from 'style-dictionary';
 import config from './sd.config.js';
 
-const OUT = '../../../src/lib/design';
+const OUT = 'src/lib/design';
 
 // ─── Barrel: CSS imports with layer order ────────────────────────────
 
@@ -21,30 +21,31 @@ const INDEX_CSS = `/* AUTO-GENERATED — DO NOT EDIT */
 @layer tokens.primitives, tokens.semantic, tokens.components;
 
 /* ── Primitives ──────────────────────────────────────────── */
-@import "./styles/primitives/color.css";
-@import "./styles/primitives/shadow.css";
-@import "./styles/primitives/bevel.css";
-@import "./styles/primitives/glow.css";
-@import "./styles/primitives/blur.css";
-@import "./styles/primitives/surface.css";
-@import "./styles/primitives/radius.css";
-@import "./styles/primitives/spacing.css";
-@import "./styles/primitives/typography.css";
-@import "./styles/primitives/motion.css";
+@import "../styles/primitives/color.css";
+@import "../styles/primitives/shadow.css";
+@import "../styles/primitives/bevel.css";
+@import "../styles/primitives/glow.css";
+@import "../styles/primitives/blur.css";
+@import "../styles/primitives/surface.css";
+@import "../styles/primitives/radius.css";
+@import "../styles/primitives/spacing.css";
+@import "../styles/primitives/typography.css";
+@import "../styles/primitives/motion.css";
+@import "../styles/primitives/gradient.css";
 
 /* ── Semantic ────────────────────────────────────────────── */
-@import "./styles/semantic/elevation.css";
-@import "./styles/semantic/surface.css";
-@import "./styles/semantic/border.css";
-@import "./styles/semantic/transition.css";
-@import "./styles/semantic/interaction.css";
-@import "./styles/semantic/overlay.css";
-@import "./styles/semantic/scrollbar.css";
-@import "./styles/semantic/backdrop.css";
-@import "./styles/semantic/text-styles.css";
+@import "../styles/semantic/elevation.css";
+@import "../styles/semantic/surface.css";
+@import "../styles/semantic/border.css";
+@import "../styles/semantic/transition.css";
+@import "../styles/semantic/interaction.css";
+@import "../styles/semantic/overlay.css";
+@import "../styles/semantic/scrollbar.css";
+@import "../styles/semantic/backdrop.css";
+@import "../styles/semantic/text-styles.css";
 
 /* ── Components ──────────────────────────────────────────── */
-@import "./styles/components/component.css";
+@import "../styles/components/component.css";
 `;
 
 // ─── Barrel: Theme imports (per-domain composable) ───────────────────
@@ -63,6 +64,7 @@ const INDEX_THEME = `/* AUTO-GENERATED — DO NOT EDIT */
 @import "./spacing.css";
 @import "./typography.css";
 @import "./motion.css";
+@import "./gradient.css";
 
 /* ── Semantic ────────────────────────────────────────────── */
 @import "./elevation.css";
@@ -91,6 +93,7 @@ export * from './border.js';
 export * from './interaction.js';
 export * from './backdrop.js';
 export * from './component.js';
+export * from './gradient.js';
 `;
 
 // ─── Build ───────────────────────────────────────────────────────────
