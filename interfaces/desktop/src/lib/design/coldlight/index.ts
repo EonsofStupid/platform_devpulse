@@ -10,12 +10,16 @@
  *   <button {...button.root}>Save</button>
  */
 
-// ── Primitives ──────────────────────────────────────────────────
+// ── Primitive hooks ─────────────────────────────────────────
 export { useButton } from "./primitives/button/index.js";
+export { useDialog } from "./primitives/dialog/index.js";
+export { useCheckbox } from "./primitives/checkbox/index.js";
 
-// ── Schema ──────────────────────────────────────────────────────
+// ── Schema utilities ────────────────────────────────────────
 export { createAnatomy, BasePrimitiveSchema } from "./schema/index.js";
 
-// ── Types ───────────────────────────────────────────────────────
+// ── Types ───────────────────────────────────────────────────
 export type { UseButtonProps, UseButtonReturn } from "./primitives/button/index.js";
+export type { UseDialogProps, UseDialogReturn } from "./primitives/dialog/index.js";
+export type { UseCheckboxProps, UseCheckboxReturn, CheckboxState } from "./primitives/checkbox/index.js";
 export type { Anatomy, PrimitiveSpec, A11ySpec } from "./schema/index.js";

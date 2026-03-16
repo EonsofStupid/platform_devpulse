@@ -20,10 +20,10 @@
  *
  * ## Data Attributes
  *
- * - `data-cl-input-group-root` — builder identity (root)
- * - `data-cl-input-group-prefix` — builder identity (prefix)
- * - `data-cl-input-group-input` — builder identity (input)
- * - `data-cl-input-group-suffix` — builder identity (suffix)
+ * - `data-input-group-root` — builder identity (root)
+ * - `data-input-group-prefix` — builder identity (prefix)
+ * - `data-input-group-input` — builder identity (input)
+ * - `data-input-group-suffix` — builder identity (suffix)
  * - `data-disabled` — present (`""`) when disabled
  *
  * WAI-ARIA: `role="group"` associates the input with its addons.

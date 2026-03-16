@@ -1,8 +1,8 @@
 /**
  * Unique ID generation for ColdLight primitives.
  *
- * ID format (Ark UI / Zag.js pattern):
- *   cl-{kind}-{part}-{instance}
+ * ID format: {kind}-{part}-{instance}
+ * Example: dialog-content-0, button-root-1
  *
  * All parts derive from the same instance counter —
  * deterministic, debuggable, no collisions.
@@ -10,8 +10,8 @@
 
 let counter = 0;
 
-/** Generate a unique ColdLight ID with optional prefix. */
-export function uid(prefix = "cl"): string {
+/** Generate a unique ID with optional prefix. */
+export function uid(prefix = "id"): string {
 	return `${prefix}-${++counter}`;
 }
 
@@ -23,7 +23,7 @@ export function createIds<const T extends readonly string[]>(
 	const instance = counter++;
 	const ids = {} as Record<string, string>;
 	for (const part of parts) {
-		ids[part] = `cl-${kind}-${part}-${instance}`;
+		ids[part] = `${kind}-${part}-${instance}`;
 	}
 	return ids as Record<T[number], string>;
 }
