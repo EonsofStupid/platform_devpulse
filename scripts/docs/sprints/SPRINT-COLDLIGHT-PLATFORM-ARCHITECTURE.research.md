@@ -50,7 +50,7 @@ Define the foundational architecture for:
 #### Encoding System ✅ OPERATIONAL
 - **8 axes**: Surface(8), Material(10), Depth(5), Bevel(5), Glow(7), Frame(5), Motion(9), Transition(10) = 59 values
 - **Sparse encoding**: `v-s1d2g1` (skips defaults)
-- **Shadow composition**: 4-layer CSS custom properties (`--cl-depth`, `--cl-bevel`, `--cl-glow`, `--cl-frame-glow`)
+- **Shadow composition**: 4-layer CSS custom properties (`--shadow-depth`, `--shadow-bevel`, `--shadow-glow`, `--shadow-frame`)
 - **resolveVisual()**: Pipeline: kind defaults → preset → individual props → encoding override → ResolvedVisual
 
 #### Contract System ✅ OPERATIONAL (92 primitives)
@@ -544,12 +544,12 @@ tokens.ts → jiti → DTCG JSON → SD5 → tokens.css + tailwind.css + types.t
 **Correct** (per Tailwind v4 + Tokens Studio reference):
 ```css
 @theme inline {
-  --color-teal-50: var(--cl-color-teal-50);
+  --color-teal-50: var(--color-teal-50);
 }
 ```
 
 **Why**: `@theme inline` ensures the `var()` reference is preserved in generated utility CSS, so token values resolve at the point of use. This is critical for:
-1. Runtime theming (swap `--cl-color-teal-50` at :root, all utilities update)
+1. Runtime theming (swap `--color-teal-50` at :root, all utilities update)
 2. Proper cascade behavior
 3. DevTools inspectability
 

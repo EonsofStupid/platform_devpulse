@@ -130,7 +130,7 @@ Tailwind v4 maps CSS variable names to utility namespaces:
 
 /* reference: Uses values from an imported stylesheet without generating utilities */
 @theme reference {
-  --color-primary: var(--cl-color-action-primary);
+  --color-primary: var(--color-action-primary);
 }
 
 /* default: Extends (doesn't replace) the default theme */
@@ -205,10 +205,10 @@ TW4 can consume CSS custom properties from any source:
 
 /* 2. Reference them in @theme */
 @theme {
-  --color-primary: var(--cl-color-action-primary);
-  --color-surface: var(--cl-color-surface-primary);
-  --spacing-sm: var(--cl-spacing-2);
-  --radius-md: var(--cl-radius-md);
+  --color-primary: var(--color-action-primary);
+  --color-surface: var(--color-surface-primary);
+  --spacing-sm: var(--spacing-2);
+  --radius-md: var(--radius-md);
 }
 ```
 

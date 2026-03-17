@@ -5,8 +5,8 @@
 ## ColdLight's Approach: Data Attribute + CSS Variable Override
 
 ```
-Light: :root { --cl-color-surface-primary: #ffffff; }
-Dark:  [data-theme="dark"] { --cl-color-surface-primary: #09090b; }
+Light: :root { --color-surface-primary: #ffffff; }
+Dark:  [data-theme="dark"] { --color-surface-primary: #09090b; }
 ```
 
 Components reference CSS variables. When the attribute changes, everything updates.
@@ -58,8 +58,8 @@ Configure TW4 to use the data attribute:
 @variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @theme inline {
-  --color-surface-primary: var(--cl-color-surface-primary);
-  --color-text-primary: var(--cl-color-text-primary);
+  --color-surface-primary: var(--color-surface-primary);
+  --color-text-primary: var(--color-text-primary);
 }
 ```
 
@@ -113,7 +113,7 @@ StyleDictionary.registerFormat({
   name: 'css/dark-media-query',
   format: ({ dictionary, options }) => {
     const vars = dictionary.allTokens
-      .map(t => `  --cl-${t.name}: ${t.value};`)
+      .map(t => `  --${t.name}: ${t.value};`)
       .join('\n');
     return `@media (prefers-color-scheme: dark) {\n  :root {\n${vars}\n  }\n}\n`;
   },
@@ -232,18 +232,18 @@ ColdLight's component tokens (button, input, etc.) reference semantic tokens:
 In CSS output:
 ```css
 :root {
-  --cl-button-bg-primary: var(--cl-color-action-primary);
+  --button-bg-primary: var(--color-action-primary);
 }
 ```
 
 When dark mode activates:
 ```css
 [data-theme="dark"] {
-  --cl-color-action-primary: #60a5fa;  /* Changes from blue-600 to blue-400 */
+  --color-action-primary: #60a5fa;  /* Changes from blue-600 to blue-400 */
 }
 ```
 
-`--cl-button-bg-primary` still points to `--cl-color-action-primary`, which now resolves to the dark value. **No component CSS changes needed.**
+`--button-bg-primary` still points to `--color-action-primary`, which now resolves to the dark value. **No component CSS changes needed.**
 
 This is why the 4-layer architecture (core → semantic → component → recipe) works:
 - Only the **semantic layer** changes between themes

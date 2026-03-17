@@ -16,7 +16,7 @@ All other hooks (biome-lint, coldlight-verify, coldlight-docs, svelte-check, rus
 ### Task 1: Create `no-legacy-prefixes` hook script
 - [ ] Create `scripts/hooks/no-legacy-prefixes.sh`
 - [ ] Logic: run `git diff --cached --diff-filter=ACMR` for `.ts`, `.svelte`, `.css` under `interfaces/desktop/src/`
-- [ ] Grep for `--dp-` or `--cl-` prefixes in added lines
+- [ ] Grep for `--dp-` or `--` prefixes in added lines
 - [ ] Exit 0 if clean, exit 1 with clear message if violations found
 - [ ] Test: run script manually with no staged files → exit 0
 - [ ] Test: stage a file with `--dp-test` → exit 1

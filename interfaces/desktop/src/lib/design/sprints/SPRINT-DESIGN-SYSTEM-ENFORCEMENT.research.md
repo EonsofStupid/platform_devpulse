@@ -32,7 +32,7 @@ What enforcement tooling exists, what's missing, and what's the fastest path to 
 - **Currently Tier 3 (advisory) only** — warnings, not errors
 
 **Lefthook hooks**:
-- `no-legacy-prefixes` — blocks `--dp-`/`--cl-` prefixes (being fixed in SPRINT-LEFTHOOK-HARDENING)
+- `no-legacy-prefixes` — blocks `--dp-`/`--` prefixes (being fixed in SPRINT-LEFTHOOK-HARDENING)
 - `biome-lint` — runs biome check
 - `docs-preflight` — runs preflight engine
 - `coldlight-verify` — runs manifest verification

@@ -121,7 +121,7 @@ You can import a CSS file and declare it as theme:
 /* Approach 2: Import then override in @theme */
 @import "./tokens.css";
 @theme {
-  --color-primary: var(--cl-color-action-primary);
+  --color-primary: var(--color-action-primary);
 }
 
 /* Approach 3: SD5 outputs directly to @theme (ColdLight approach) */
@@ -212,85 +212,85 @@ Usage: `class="transition ease-bounce duration-300"`
 
 @theme inline {
   /* ── Colors (from SD5 tokens) ── */
-  --color-surface-primary: var(--cl-color-surface-primary);
-  --color-surface-secondary: var(--cl-color-surface-secondary);
-  --color-surface-tertiary: var(--cl-color-surface-tertiary);
-  --color-surface-elevated: var(--cl-color-surface-elevated);
-  --color-surface-inverse: var(--cl-color-surface-inverse);
+  --color-surface-primary: var(--color-surface-primary);
+  --color-surface-secondary: var(--color-surface-secondary);
+  --color-surface-tertiary: var(--color-surface-tertiary);
+  --color-surface-elevated: var(--color-surface-elevated);
+  --color-surface-inverse: var(--color-surface-inverse);
 
-  --color-action-primary: var(--cl-color-action-primary);
-  --color-action-primary-hover: var(--cl-color-action-primary-hover);
-  --color-action-secondary: var(--cl-color-action-secondary);
-  --color-action-danger: var(--cl-color-action-danger);
+  --color-action-primary: var(--color-action-primary);
+  --color-action-primary-hover: var(--color-action-primary-hover);
+  --color-action-secondary: var(--color-action-secondary);
+  --color-action-danger: var(--color-action-danger);
 
-  --color-text-primary: var(--cl-color-text-primary);
-  --color-text-secondary: var(--cl-color-text-secondary);
-  --color-text-disabled: var(--cl-color-text-disabled);
-  --color-text-inverse: var(--cl-color-text-inverse);
-  --color-text-link: var(--cl-color-text-link);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-disabled: var(--color-text-disabled);
+  --color-text-inverse: var(--color-text-inverse);
+  --color-text-link: var(--color-text-link);
 
-  --color-border-default: var(--cl-color-border-default);
-  --color-border-strong: var(--cl-color-border-strong);
-  --color-border-focus: var(--cl-color-border-focus);
-  --color-border-error: var(--cl-color-border-error);
+  --color-border-default: var(--color-border-default);
+  --color-border-strong: var(--color-border-strong);
+  --color-border-focus: var(--color-border-focus);
+  --color-border-error: var(--color-border-error);
 
-  --color-status-success: var(--cl-color-status-success);
-  --color-status-warning: var(--cl-color-status-warning);
-  --color-status-error: var(--cl-color-status-error);
-  --color-status-info: var(--cl-color-status-info);
+  --color-status-success: var(--color-status-success);
+  --color-status-warning: var(--color-status-warning);
+  --color-status-error: var(--color-status-error);
+  --color-status-info: var(--color-status-info);
 
   /* ── Spacing ── */
-  --spacing-0: var(--cl-spacing-0);
-  --spacing-px: var(--cl-spacing-px);
-  --spacing-0-5: var(--cl-spacing-0-5);
-  --spacing-1: var(--cl-spacing-1);
-  --spacing-1-5: var(--cl-spacing-1-5);
-  --spacing-2: var(--cl-spacing-2);
-  --spacing-2-5: var(--cl-spacing-2-5);
-  --spacing-3: var(--cl-spacing-3);
-  --spacing-4: var(--cl-spacing-4);
-  --spacing-5: var(--cl-spacing-5);
-  --spacing-6: var(--cl-spacing-6);
-  --spacing-8: var(--cl-spacing-8);
-  --spacing-10: var(--cl-spacing-10);
-  --spacing-12: var(--cl-spacing-12);
-  --spacing-16: var(--cl-spacing-16);
-  --spacing-20: var(--cl-spacing-20);
-  --spacing-24: var(--cl-spacing-24);
+  --spacing-0: var(--spacing-0);
+  --spacing-px: var(--spacing-px);
+  --spacing-0-5: var(--spacing-0-5);
+  --spacing-1: var(--spacing-1);
+  --spacing-1-5: var(--spacing-1-5);
+  --spacing-2: var(--spacing-2);
+  --spacing-2-5: var(--spacing-2-5);
+  --spacing-3: var(--spacing-3);
+  --spacing-4: var(--spacing-4);
+  --spacing-5: var(--spacing-5);
+  --spacing-6: var(--spacing-6);
+  --spacing-8: var(--spacing-8);
+  --spacing-10: var(--spacing-10);
+  --spacing-12: var(--spacing-12);
+  --spacing-16: var(--spacing-16);
+  --spacing-20: var(--spacing-20);
+  --spacing-24: var(--spacing-24);
 
   /* ── Typography ── */
-  --font-family-sans: var(--cl-font-family-sans);
-  --font-family-mono: var(--cl-font-family-mono);
-  --font-size-xs: var(--cl-font-size-xs);
-  --font-size-sm: var(--cl-font-size-sm);
-  --font-size-md: var(--cl-font-size-md);
-  --font-size-lg: var(--cl-font-size-lg);
-  --font-size-xl: var(--cl-font-size-xl);
-  --font-size-2xl: var(--cl-font-size-2xl);
-  --font-size-3xl: var(--cl-font-size-3xl);
-  --font-size-4xl: var(--cl-font-size-4xl);
+  --font-family-sans: var(--font-family-sans);
+  --font-family-mono: var(--font-family-mono);
+  --font-size-xs: var(--font-size-xs);
+  --font-size-sm: var(--font-size-sm);
+  --font-size-md: var(--font-size-md);
+  --font-size-lg: var(--font-size-lg);
+  --font-size-xl: var(--font-size-xl);
+  --font-size-2xl: var(--font-size-2xl);
+  --font-size-3xl: var(--font-size-3xl);
+  --font-size-4xl: var(--font-size-4xl);
 
   /* ── Border Radius ── */
-  --radius-none: var(--cl-radius-none);
-  --radius-sm: var(--cl-radius-sm);
-  --radius-md: var(--cl-radius-md);
-  --radius-lg: var(--cl-radius-lg);
-  --radius-xl: var(--cl-radius-xl);
-  --radius-2xl: var(--cl-radius-2xl);
-  --radius-full: var(--cl-radius-full);
+  --radius-none: var(--radius-none);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-2xl: var(--radius-2xl);
+  --radius-full: var(--radius-full);
 
   /* ── Shadows ── */
-  --shadow-none: var(--cl-shadow-none);
-  --shadow-sm: var(--cl-shadow-sm);
-  --shadow-md: var(--cl-shadow-md);
-  --shadow-lg: var(--cl-shadow-lg);
-  --shadow-xl: var(--cl-shadow-xl);
+  --shadow-none: var(--shadow-none);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
 
   /* ── Motion ── */
-  --ease-default: var(--cl-easing-default);
-  --ease-in: var(--cl-easing-in);
-  --ease-out: var(--cl-easing-out);
-  --ease-in-out: var(--cl-easing-in-out);
-  --ease-bounce: var(--cl-easing-bounce);
+  --ease-default: var(--easing-default);
+  --ease-in: var(--easing-in);
+  --ease-out: var(--easing-out);
+  --ease-in-out: var(--easing-in-out);
+  --ease-bounce: var(--easing-bounce);
 }
 ```

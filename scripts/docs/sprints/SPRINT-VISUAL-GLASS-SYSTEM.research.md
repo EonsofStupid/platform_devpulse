@@ -65,7 +65,7 @@ How should ColdLight's surface/token system handle the variety of glass effects 
 **Option A: Per-component glass tokens** (glass-topbar, glass-sidebar, etc.)
 - REJECTED: Couples tokens to layout. Not reusable. Combinatorial explosion.
 
-**Option B: Parameterized glass via CSS custom properties** (`--cl-hue`, `--cl-chroma`)
+**Option B: Parameterized glass via CSS custom properties** (`--hue`, `--chroma`)
 - REJECTED: Clever but fragile, harder to debug, breaks token transparency.
 
 **Option C: New encoding axis for hue** (9th axis)

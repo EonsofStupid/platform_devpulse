@@ -68,9 +68,9 @@ Import raw tokens, then manually map to TW4 namespaces:
 **SD5 outputs standard CSS vars:**
 ```css
 :root {
-  --cl-color-action-primary: #2563eb;
-  --cl-spacing-4: 16px;
-  --cl-radius-md: 6px;
+  --color-action-primary: #2563eb;
+  --spacing-4: 16px;
+  --radius-md: 6px;
 }
 ```
 
@@ -80,9 +80,9 @@ Import raw tokens, then manually map to TW4 namespaces:
 @import "../packages/coldlight/dist/tokens.css";
 
 @theme inline {
-  --color-action-primary: var(--cl-color-action-primary);
-  --spacing-4: var(--cl-spacing-4);
-  --radius-md: var(--cl-radius-md);
+  --color-action-primary: var(--color-action-primary);
+  --spacing-4: var(--spacing-4);
+  --radius-md: var(--radius-md);
 }
 ```
 
@@ -246,8 +246,8 @@ tailwindcss -i ./src/input.css -o ./dist/output.css --watch
 ColdLight uses `cl-` prefix for CSS variables to avoid collisions:
 
 ```
-SD5 output:  --cl-color-action-primary: #2563eb;
-TW4 theme:   --color-action-primary: var(--cl-color-action-primary);
+SD5 output:  --color-action-primary: #2563eb;
+TW4 theme:   --color-action-primary: var(--color-action-primary);
 TW4 utility: bg-action-primary
 ```
 

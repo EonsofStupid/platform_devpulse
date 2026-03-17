@@ -603,7 +603,7 @@ Build `routes/(dashboard)/+page.svelte` using widget presets and SVG neuromorphi
 
 | Tier | How | When | GPU Cost |
 |------|-----|------|----------|
-| Default | CSS box-shadow composition (4 layers: --cl-depth, --cl-bevel, --cl-glow, --cl-frame-glow) | All elements | Low — browser composites shadows natively |
+| Default | CSS box-shadow composition (4 layers: --shadow-depth, --shadow-bevel, --shadow-glow, --shadow-frame) | All elements | Low — browser composites shadows natively |
 | Premium | SVG filter: `filter: url(#bevel-medium)` via filter-* utilities or NeuPanel/NeuGauge/NeuFrame | ~10 key surfaces per viewport | Medium — GPU-composited, shape-aware |
 
 **Why SVG filters > stacked shadows for hero surfaces:**

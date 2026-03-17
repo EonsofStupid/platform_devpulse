@@ -106,7 +106,7 @@ interface PlatformConfig {
 
   // Output
   buildPath?: string;                // Directory prefix for all file destinations
-  prefix?: string;                   // Prefix for token names (e.g., 'cl' → '--cl-color-blue-500')
+  prefix?: string;                   // Prefix for token names (e.g., 'cl' → '--color-blue-500')
   files?: File[];                    // Output file configurations
 
   // Post-build
@@ -334,8 +334,8 @@ Output:
  */
 
 :root {
-  --cl-color-blue-500: #3b82f6;
-  --cl-color-action-primary: var(--cl-color-blue-600);
+  --color-blue-500: #3b82f6;
+  --color-action-primary: var(--color-blue-600);
   /* ... */
 }
 ```

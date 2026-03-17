@@ -92,7 +92,7 @@ Problems:
 - Maestro: AI orchestrator (SENSITIVE IP). Minions, CAG, RAG, HyDE, KV cache
 
 ### Visual Tokens — Too Conservative
-- v-g1 (glow teal): `--cl-glow: 0 0 12px oklch(...)` at ~0.4 opacity
+- v-g1 (glow teal): `--shadow-glow: 0 0 12px oklch(...)` at ~0.4 opacity
 - References demand: 20-40px at 0.6-0.8 opacity
 - Surfaces are flat semi-transparent fills, references show gradient backgrounds
 - Borders are 1px solid, references show gradient/multi-layer glowing edges

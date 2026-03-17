@@ -334,8 +334,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "subtle",
 				label: "Subtle",
 				tokenRefs: {
-					"box-shadow":
-						"inset 0 1px 0 oklch(1 0 0 / 0.06), inset 0 -1px 0 oklch(0 0 0 / 0.1)",
+					"box-shadow": "var(--bevel-subtle)",
 				},
 			},
 			{
@@ -343,8 +342,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "soft",
 				label: "Soft",
 				tokenRefs: {
-					"box-shadow":
-						"inset 0 2px 1px oklch(1 0 0 / 0.08), inset 0 -2px 1px oklch(0 0 0 / 0.15)",
+					"box-shadow": "var(--bevel-soft)",
 				},
 				svgFilters: ["bevel-soft"],
 			},
@@ -353,8 +351,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "medium",
 				label: "Medium",
 				tokenRefs: {
-					"box-shadow":
-						"inset 0 2px 2px oklch(1 0 0 / 0.1), inset 0 -2px 2px oklch(0 0 0 / 0.2)",
+					"box-shadow": "var(--bevel-medium)",
 				},
 				svgFilters: ["bevel-medium", "noise-subtle"],
 			},
@@ -363,8 +360,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "strong",
 				label: "Strong + Filters",
 				tokenRefs: {
-					"box-shadow":
-						"inset 0 3px 3px oklch(1 0 0 / 0.12), inset 0 -3px 3px oklch(0 0 0 / 0.25)",
+					"box-shadow": "var(--bevel-pronounced)",
 				},
 				svgFilters: ["bevel-strong", "noise-subtle"],
 			},
@@ -483,7 +479,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				tokenRefs: {
 					border: "1px solid oklch(0.60 0.18 180 / 0.7)",
 					"border-radius": "var(--radius-md)",
-					"--cl-frame-glow":
+					"--shadow-frame":
 						"0 0 20px oklch(0.55 0.18 180 / 0.45), 0 0 40px oklch(0.45 0.14 180 / 0.25)",
 				},
 			},
@@ -494,7 +490,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				tokenRefs: {
 					border: "1px solid oklch(0.64 0.16 180 / 0.65)",
 					"border-radius": "var(--radius-md)",
-					"--cl-frame-glow":
+					"--shadow-frame":
 						"0 0 20px oklch(0.55 0.18 180 / 0.40)",
 				},
 			},
@@ -505,7 +501,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				tokenRefs: {
 					border: "1px solid oklch(0.64 0.16 280 / 0.65)",
 					"border-radius": "var(--radius-md)",
-					"--cl-frame-glow":
+					"--shadow-frame":
 						"0 0 20px oklch(0.55 0.18 280 / 0.40)",
 				},
 			},

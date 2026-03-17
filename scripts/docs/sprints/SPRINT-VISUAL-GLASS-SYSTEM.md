@@ -260,7 +260,7 @@ Updated in `tokens.css` and `tailwind.css`:
 
 - Do not create per-component tokens (glass-topbar, glass-sidebar, etc.)
 - Do not add a 9th encoding axis for hue
-- Do not parameterize glass with var(--cl-hue) CSS custom properties
+- Do not parameterize glass with var(--hue) CSS custom properties
 - Do not delete backdrop patterns from app.css (separate scope)
 - Do not change any component API -- only token values, presets, recipe internals
 - Do not run ds:tokens:build until Phase 1 tokens are authored in tokens.css

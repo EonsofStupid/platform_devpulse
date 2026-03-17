@@ -1,27 +1,27 @@
 {
 	"glow": {
 		"$type": "shadow",
-		"$description": "Emission halo shadows per accent color",
+		"$description": "Emission halo shadows per accent color. Heavy neumorphic — 30px blur, 12px spread, 70%+ opacity.",
 		"off": {
 			"$value": { "color": "#00000000", "offsetX": "0px", "offsetY": "0px", "blur": "0px", "spread": "0px" }
 		},
 		"teal": {
-			"$value": { "color": "#00907666", "offsetX": "0px", "offsetY": "0px", "blur": "20px", "spread": "0px" }
+			"$value": { "color": "#009076b3", "offsetX": "0px", "offsetY": "0px", "blur": "30px", "spread": "12px" }
 		},
 		"purple": {
-			"$value": { "color": "#615ed666", "offsetX": "0px", "offsetY": "0px", "blur": "20px", "spread": "0px" }
+			"$value": { "color": "#615ed6b3", "offsetX": "0px", "offsetY": "0px", "blur": "30px", "spread": "12px" }
 		},
 		"magenta": {
-			"$value": { "color": "#ad36a766", "offsetX": "0px", "offsetY": "0px", "blur": "20px", "spread": "0px" }
+			"$value": { "color": "#ad36a7b3", "offsetX": "0px", "offsetY": "0px", "blur": "30px", "spread": "12px" }
 		},
 		"ember": {
-			"$value": { "color": "#c5363766", "offsetX": "0px", "offsetY": "0px", "blur": "20px", "spread": "0px" }
+			"$value": { "color": "#c53637b3", "offsetX": "0px", "offsetY": "0px", "blur": "30px", "spread": "12px" }
 		},
 		"frost": {
-			"$value": { "color": "#1988a359", "offsetX": "0px", "offsetY": "0px", "blur": "20px", "spread": "0px" }
+			"$value": { "color": "#1988a399", "offsetX": "0px", "offsetY": "0px", "blur": "30px", "spread": "12px" }
 		},
 		"cyber": {
-			"$value": { "color": "#008f4a66", "offsetX": "0px", "offsetY": "0px", "blur": "20px", "spread": "0px" }
+			"$value": { "color": "#008f4ab3", "offsetX": "0px", "offsetY": "0px", "blur": "30px", "spread": "12px" }
 		}
 	},
 	"glowSpread": {

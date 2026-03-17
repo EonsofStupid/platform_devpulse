@@ -6,8 +6,8 @@
  * Categories: s, z, d, b, g, f, m, t (8 total)
  * Values: 63 total
  *
- * Shadow composition: d (depth), b (bevel), g (glow) set --cl-* layer vars.
- * The base rule in this file composes all layers into one box-shadow.
+ * Shadow composition: d (depth), b (bevel), g (glow) set layer vars.
+ * The base rule composes all layers into one box-shadow.
  */
 
 /* ── Shadow Composition Base ── */
@@ -15,11 +15,11 @@
 /* Default: all layers are transparent (no shadow). */
 @layer base {
 	[data-kind] {
-		--cl-depth: 0 0 0 transparent;
-		--cl-bevel: 0 0 0 transparent;
-		--cl-glow: 0 0 0 transparent;
-		--cl-frame-glow: 0 0 0 transparent;
-		box-shadow: var(--cl-depth), var(--cl-bevel), var(--cl-glow), var(--cl-frame-glow);
+		--shadow-depth: 0 0 0 transparent;
+		--shadow-bevel: 0 0 0 transparent;
+		--shadow-glow: 0 0 0 transparent;
+		--shadow-frame: 0 0 0 transparent;
+		box-shadow: var(--shadow-depth), var(--shadow-bevel), var(--shadow-glow), var(--shadow-frame);
 	}
 }
 
@@ -114,19 +114,19 @@
 
 /* ── d: Depth — 5 values ── */
 @utility v-d0 {
-	--cl-depth: none;
+	--shadow-depth: none;
 }
 @utility v-d1 {
-	--cl-depth: var(--shadow-z1);
+	--shadow-depth: var(--shadow-z1);
 }
 @utility v-d2 {
-	--cl-depth: var(--shadow-z2);
+	--shadow-depth: var(--shadow-z2);
 }
 @utility v-d3 {
-	--cl-depth: var(--shadow-z3);
+	--shadow-depth: var(--shadow-z3);
 }
 @utility v-d4 {
-	--cl-depth: var(--shadow-z4);
+	--shadow-depth: var(--shadow-z4);
 }
 
 /* ── b: Bevel — 5 values ── */
@@ -134,18 +134,18 @@
 	--v-b: 0;
 }
 @utility v-b1 {
-	--cl-bevel: inset 0 1px 0 oklch(1 0 0 / 0.06), inset 0 -1px 0 oklch(0 0 0 / 0.1);
+	--shadow-bevel: var(--bevel-subtle);
 }
 @utility v-b2 {
-	--cl-bevel: inset 0 2px 1px oklch(1 0 0 / 0.08), inset 0 -2px 1px oklch(0 0 0 / 0.15);
+	--shadow-bevel: var(--bevel-soft);
 	/* svg-filters: bevel-soft */
 }
 @utility v-b3 {
-	--cl-bevel: inset 0 2px 2px oklch(1 0 0 / 0.1), inset 0 -2px 2px oklch(0 0 0 / 0.2);
+	--shadow-bevel: var(--bevel-medium);
 	/* svg-filters: bevel-medium, noise-subtle */
 }
 @utility v-b4 {
-	--cl-bevel: inset 0 3px 3px oklch(1 0 0 / 0.12), inset 0 -3px 3px oklch(0 0 0 / 0.25);
+	--shadow-bevel: var(--bevel-pronounced);
 	/* svg-filters: bevel-strong, noise-subtle */
 }
 
@@ -154,22 +154,22 @@
 	--v-g: 0;
 }
 @utility v-g1 {
-	--cl-glow: var(--glow-teal);
+	--shadow-glow: var(--glow-teal);
 }
 @utility v-g2 {
-	--cl-glow: var(--glow-purple);
+	--shadow-glow: var(--glow-purple);
 }
 @utility v-g3 {
-	--cl-glow: var(--glow-ember);
+	--shadow-glow: var(--glow-ember);
 }
 @utility v-g4 {
-	--cl-glow: var(--glow-magenta);
+	--shadow-glow: var(--glow-magenta);
 }
 @utility v-g5 {
-	--cl-glow: var(--glow-frost);
+	--shadow-glow: var(--glow-frost);
 }
 @utility v-g6 {
-	--cl-glow: var(--glow-cyber);
+	--shadow-glow: var(--glow-cyber);
 }
 
 /* ── f: Frame — 7 values ── */
@@ -191,17 +191,17 @@
 @utility v-f4 {
 	border: 1px solid oklch(0.60 0.18 180 / 0.7);
 	border-radius: var(--radius-md);
-	--cl-frame-glow: 0 0 20px oklch(0.55 0.18 180 / 0.45), 0 0 40px oklch(0.45 0.14 180 / 0.25);
+	--shadow-frame: 0 0 20px oklch(0.55 0.18 180 / 0.45), 0 0 40px oklch(0.45 0.14 180 / 0.25);
 }
 @utility v-f5 {
 	border: 1px solid oklch(0.64 0.16 180 / 0.65);
 	border-radius: var(--radius-md);
-	--cl-frame-glow: 0 0 20px oklch(0.55 0.18 180 / 0.40);
+	--shadow-frame: 0 0 20px oklch(0.55 0.18 180 / 0.40);
 }
 @utility v-f6 {
 	border: 1px solid oklch(0.64 0.16 280 / 0.65);
 	border-radius: var(--radius-md);
-	--cl-frame-glow: 0 0 20px oklch(0.55 0.18 280 / 0.40);
+	--shadow-frame: 0 0 20px oklch(0.55 0.18 280 / 0.40);
 }
 
 /* ── m: Motion — 9 values ── */

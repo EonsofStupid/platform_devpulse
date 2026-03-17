@@ -109,9 +109,9 @@ Output example:
 Multiple axes produce `box-shadow` (depth, bevel, glow, frame). They need to COMPOSE, not override.
 Strategy: Use CSS custom properties for shadow layering:
 ```css
-@utility v-d1 { --cl-shadow-depth: var(--shadow-z1); box-shadow: var(--cl-shadow-depth, none), var(--cl-shadow-bevel, none), var(--cl-shadow-glow, none); }
-@utility v-b1 { --cl-shadow-bevel: inset 0 1px 0 oklch(1 0 0 / 0.06), inset 0 -1px 0 oklch(0 0 0 / 0.1); }
-@utility v-g1 { --cl-shadow-glow: var(--shadow-glow-teal); }
+@utility v-d1 { --shadow-depth: var(--shadow-z1); box-shadow: var(--shadow-depth, none), var(--shadow-bevel, none), var(--shadow-glow, none); }
+@utility v-b1 { --shadow-bevel: inset 0 1px 0 oklch(1 0 0 / 0.06), inset 0 -1px 0 oklch(0 0 0 / 0.1); }
+@utility v-g1 { --shadow-glow: var(--shadow-glow-teal); }
 ```
 
 This way `v-d1 v-b1 v-g1` composes all three shadow layers.

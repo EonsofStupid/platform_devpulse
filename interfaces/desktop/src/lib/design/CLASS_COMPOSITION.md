@@ -57,14 +57,14 @@ Generated into `variants.css` from `token-categories.ts`:
 
 | Prefix | Category | Example | What It Sets |
 |--------|----------|---------|-------------|
-| `v-s` | Surface | `v-s1` | `--cl-surface`, `--cl-backdrop-filter` |
-| `v-z` | Material | `v-z2` | `--cl-material` |
-| `v-d` | Depth | `v-d2` | `--cl-depth` (box-shadow) |
-| `v-b` | Bevel | `v-b1` | `--cl-bevel` (inset shadow) |
-| `v-g` | Glow | `v-g1` | `--cl-glow` (glow shadow) |
-| `v-f` | Frame | `v-f1` | `--cl-frame` (border) |
-| `v-m` | Motion | `v-m1` | `--cl-motion` (animation) |
-| `v-t` | Transition | `v-t2` | `--cl-transition` |
+| `v-s` | Surface | `v-s1` | `background`, `backdrop-filter` |
+| `v-z` | Material | `v-z2` | `opacity`, `filter` |
+| `v-d` | Depth | `v-d2` | `--shadow-depth` (box-shadow layer) |
+| `v-b` | Bevel | `v-b1` | `--shadow-bevel` (inset shadow layer) |
+| `v-g` | Glow | `v-g1` | `--shadow-glow` (glow shadow layer) |
+| `v-f` | Frame | `v-f1` | `border`, `--shadow-frame` |
+| `v-m` | Motion | `v-m1` | `animation` |
+| `v-t` | Transition | `v-t2` | `transition` |
 
 ### Composable
 ```html

@@ -233,9 +233,9 @@ Prod launch:  splashscreen shows friendly progress → app appears
       width: 100vw;
       height: 100vh;
       overflow: hidden;
-      background: var(--cl-color-surface-base, #0a0a0f);
-      color: var(--cl-color-text-primary, #e0e0e8);
-      font-family: var(--cl-font-family-sans, system-ui);
+      background: var(--color-surface-base, #0a0a0f);
+      color: var(--color-text-primary, #e0e0e8);
+      font-family: var(--font-family-sans, system-ui);
   }
   </style>
   ```
@@ -272,7 +272,7 @@ Prod launch:  splashscreen shows friendly progress → app appears
   ```
 
   Requirements:
-  - Monospace font (`var(--cl-font-family-mono)`)
+  - Monospace font (`var(--font-family-mono)`)
   - Auto-scrolling log output
   - Status symbols: `>` running, `+` ok, `!` error, `-` skipped
   - Raw step names (not friendly — dev wants to see "Graph store" not "Knowledge Graph")
