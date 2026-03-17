@@ -1,3 +1,5 @@
+export { default as TagGroupPrimitive } from "./TagGroup.svelte";
+export type { TagGroupPrimitiveProps } from "./tag-group.props.js";
 export { useTagGroup } from "./use-tag-group.svelte.js";
 export { tagGroupAnatomy } from "./tag-group.anatomy.js";
 export { tagGroupA11y } from "./tag-group.a11y.js";

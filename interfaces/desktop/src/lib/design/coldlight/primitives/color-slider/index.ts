@@ -1,3 +1,5 @@
+export { default as ColorSliderPrimitive } from "./ColorSlider.svelte";
+export type { ColorSliderPrimitiveProps } from "./color-slider.props.js";
 export { useColorSlider } from "./use-color-slider.svelte.js";
 export { colorSliderAnatomy } from "./color-slider.anatomy.js";
 export { colorSliderA11y } from "./color-slider.a11y.js";

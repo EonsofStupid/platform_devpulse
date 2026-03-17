@@ -1,3 +1,5 @@
+export { default as TablePrimitive } from "./Table.svelte";
+export type { TablePrimitiveProps } from "./table.props.js";
 export { useTable } from "./use-table.svelte.js";
 export { tableAnatomy } from "./table.anatomy.js";
 export { tableA11y } from "./table.a11y.js";

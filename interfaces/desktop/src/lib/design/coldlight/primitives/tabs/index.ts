@@ -1,3 +1,5 @@
+export { default as TabsPrimitive } from "./Tabs.svelte";
+export type { TabsPrimitiveProps } from "./tabs.props.js";
 export { useTabs } from "./use-tabs.svelte.js";
 export { tabsAnatomy } from "./tabs.anatomy.js";
 export { tabsA11y } from "./tabs.a11y.js";

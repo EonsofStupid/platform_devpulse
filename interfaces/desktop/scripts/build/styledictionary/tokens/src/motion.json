@@ -28,20 +28,20 @@
 				"$extensions": { "com.coldlight": { "type": "animation", "keyframe": "pulse-glow", "iterationCount": "infinite" } }
 			},
 			"breathe": {
-				"$value": "cl-breathe 4s ease-in-out infinite",
-				"$extensions": { "com.coldlight": { "type": "animation", "keyframe": "cl-breathe", "iterationCount": "infinite" } }
+				"$value": "breathe 4s ease-in-out infinite",
+				"$extensions": { "com.coldlight": { "type": "animation", "keyframe": "breathe", "iterationCount": "infinite" } }
 			},
 			"shimmer": {
-				"$value": "cl-shimmer 8s linear infinite",
-				"$extensions": { "com.coldlight": { "type": "animation", "keyframe": "cl-shimmer", "iterationCount": "infinite" } }
+				"$value": "shimmer 8s linear infinite",
+				"$extensions": { "com.coldlight": { "type": "animation", "keyframe": "shimmer", "iterationCount": "infinite" } }
 			},
 			"drift": {
-				"$value": "cl-drift 8s ease-in-out infinite",
-				"$extensions": { "com.coldlight": { "type": "animation", "keyframe": "cl-drift", "iterationCount": "infinite" } }
+				"$value": "drift 8s ease-in-out infinite",
+				"$extensions": { "com.coldlight": { "type": "animation", "keyframe": "drift", "iterationCount": "infinite" } }
 			},
 			"pulse": {
-				"$value": "cl-pulse 3s ease-in-out infinite",
-				"$extensions": { "com.coldlight": { "type": "animation", "keyframe": "cl-pulse", "iterationCount": "infinite" } }
+				"$value": "pulse 3s ease-in-out infinite",
+				"$extensions": { "com.coldlight": { "type": "animation", "keyframe": "pulse", "iterationCount": "infinite" } }
 			},
 			"fade-in": {
 				"$value": "fade-in 300ms ease-out forwards",

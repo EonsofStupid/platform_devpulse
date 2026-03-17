@@ -43,9 +43,10 @@ struct ServerState {
 ///
 /// # Errors
 /// Returns error if the TCP listener cannot bind.
-pub async fn start(adapter: Arc<SurrealAdapter>, port: u16) -> Result<()> {
-    let bind = format!("{DEFAULT_BIND}:{port}");
+/// Maximum number of ports to try before giving up.
+const MAX_PORT_ATTEMPTS: u16 = 10;
 
+pub async fn start(adapter: Arc<SurrealAdapter>, port: u16) -> Result<u16> {
     let state = ServerState { adapter };
 
     let app = Router::new()
@@ -54,12 +55,31 @@ pub async fn start(adapter: Arc<SurrealAdapter>, port: u16) -> Result<()> {
         .route("/version", get(handle_version))
         .with_state(state);
 
-    let listener = TcpListener::bind(&bind)
-        .await
-        .with_context(|| format!("Failed to bind SurrealDB HTTP server to {bind}"))?;
+    // Try the configured port, then increment up to MAX_PORT_ATTEMPTS
+    let mut actual_port = port;
+    let listener = loop {
+        let bind = format!("{DEFAULT_BIND}:{actual_port}");
+        match TcpListener::bind(&bind).await {
+            Ok(listener) => break listener,
+            Err(e) => {
+                if actual_port - port >= MAX_PORT_ATTEMPTS {
+                    return Err(anyhow::anyhow!(
+                        "Failed to bind SurrealDB HTTP server: tried ports {port}-{actual_port}: {e}"
+                    ));
+                }
+                tracing::debug!(
+                    port = actual_port,
+                    "Port in use, trying next"
+                );
+                actual_port += 1;
+            }
+        }
+    };
 
     tracing::info!(
-        bind = %bind,
+        bind = %format!("{DEFAULT_BIND}:{actual_port}"),
+        configured_port = port,
+        actual_port = actual_port,
         "SurrealDB HTTP server listening"
     );
 
@@ -70,7 +90,7 @@ pub async fn start(adapter: Arc<SurrealAdapter>, port: u16) -> Result<()> {
         }
     });
 
-    Ok(())
+    Ok(actual_port)
 }
 
 /// `POST /sql` — execute `SurrealQL` query.

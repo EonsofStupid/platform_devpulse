@@ -1,3 +1,5 @@
+export { default as MeterPrimitive } from "./Meter.svelte";
+export type { MeterPrimitiveProps } from "./meter.props.js";
 export { useMeter } from "./use-meter.svelte.js";
 export { meterAnatomy } from "./meter.anatomy.js";
 export { meterA11y } from "./meter.a11y.js";

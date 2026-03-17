@@ -132,9 +132,9 @@ pub async fn boot_consolidated(
         let api_port = graph_api.port;
         on_event(InitEvent::running("SurrealDB HTTP", &format!("Starting server on :{api_port}")));
         match server::start(Arc::clone(&adapter), api_port).await {
-            Ok(()) => {
-                tracing::info!(port = api_port, "SurrealDB HTTP server ready");
-                on_event(InitEvent::ok("SurrealDB HTTP", &format!("Listening on :{api_port}")));
+            Ok(actual_port) => {
+                tracing::info!(configured_port = api_port, actual_port = actual_port, "SurrealDB HTTP server ready");
+                on_event(InitEvent::ok("SurrealDB HTTP", &format!("Listening on :{actual_port}")));
             }
             Err(e) => {
                 tracing::warn!(error = ?e, "SurrealDB HTTP server failed to start (non-fatal)");

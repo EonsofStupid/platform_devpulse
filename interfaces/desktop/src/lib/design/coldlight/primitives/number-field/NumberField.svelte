@@ -1,0 +1,20 @@
+<!--
+  @component NumberFieldPrimitive
+  @kind number-field
+  @slot root
+-->
+<script lang="ts">
+	import type { NumberFieldPrimitiveProps } from "./number-field.props.js";
+	import { cn } from "../_shared/cn.js";
+
+	let { children, class: className, ...rest }: NumberFieldPrimitiveProps = $props();
+</script>
+
+<div
+	data-kind="number-field"
+	data-slot="root"
+	class={cn(className)}
+	{...rest}
+>
+	{@render children?.()}
+</div>
