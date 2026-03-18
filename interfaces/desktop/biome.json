@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.3.13/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.4.0/schema.json",
 	"assist": { "actions": { "source": { "organizeImports": "on" } } },
 	"linter": {
 		"enabled": true,
@@ -117,10 +117,7 @@
 			}
 		},
 		{
-			"includes": [
-				"src/lib/design/builders/**/*.ts",
-				"src/lib/design/builders/**/*.svelte.ts"
-			],
+			"includes": ["src/lib/design/builders/**/*.ts", "src/lib/design/builders/**/*.svelte.ts"],
 			"linter": {
 				"rules": {
 					"style": {
@@ -178,7 +175,7 @@
 			"!**/*.generated.*",
 			"!**/src/lib/sys/generated",
 			"!**/src/lib/design/.cowlevel",
-			"!**/src/lib/design/style/**",
+			"!**/src/lib/design/style",
 			"!**/src/lib/design/primitives/_archive",
 			"!**/src/lib/design/primitives/tanstack/flex-render.svelte",
 			"!**/src-tauri/gen",
