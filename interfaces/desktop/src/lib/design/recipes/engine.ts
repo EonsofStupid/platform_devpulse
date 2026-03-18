@@ -17,8 +17,8 @@
  */
 
 import { cn } from "$lib/design/utils/cn.js";
+import type { DsSurfaceProps, RecipeDefinition } from "./types.js";
 import { emitSegments, radiusClass } from "./utils.js";
-import type { RecipeDefinition, DsSurfaceProps } from "./types.js";
 
 /**
  * Resolve a recipe definition + surface props into per-slot class strings.
@@ -66,14 +66,17 @@ export function mergeDefaults(
 	partial: Partial<DsSurfaceProps>,
 ): DsSurfaceProps {
 	return {
-		surface: partial.surface ?? (recipe.defaults.surface as DsSurfaceProps["surface"]) ?? "transparent",
-		material: partial.material ?? (recipe.defaults.material as DsSurfaceProps["material"]) ?? "none",
+		surface:
+			partial.surface ?? (recipe.defaults.surface as DsSurfaceProps["surface"]) ?? "transparent",
+		material:
+			partial.material ?? (recipe.defaults.material as DsSurfaceProps["material"]) ?? "none",
 		depth: partial.depth ?? (recipe.defaults.depth as DsSurfaceProps["depth"]) ?? "flat",
 		bevel: partial.bevel ?? (recipe.defaults.bevel as DsSurfaceProps["bevel"]) ?? "flat",
 		glow: partial.glow ?? (recipe.defaults.glow as DsSurfaceProps["glow"]) ?? "none",
 		frame: partial.frame ?? (recipe.defaults.frame as DsSurfaceProps["frame"]) ?? "none",
 		motion: partial.motion ?? (recipe.defaults.motion as DsSurfaceProps["motion"]) ?? "none",
-		transition: partial.transition ?? (recipe.defaults.transition as DsSurfaceProps["transition"]) ?? "none",
+		transition:
+			partial.transition ?? (recipe.defaults.transition as DsSurfaceProps["transition"]) ?? "none",
 		radius: partial.radius ?? (recipe.defaults.radius as DsSurfaceProps["radius"]) ?? "md",
 		size: partial.size ?? (recipe.defaults.size as DsSurfaceProps["size"]) ?? "md",
 	};

@@ -12,10 +12,10 @@
  * Setup:  vitest-browser-svelte
  */
 
+import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { expect, test, describe } from "vitest";
-import DescriptionList from "./DescriptionList.svelte";
 import { contract } from "./contract.js";
+import DescriptionList from "./DescriptionList.svelte";
 
 // =============================================================================
 // CONTRACT INTEGRITY
@@ -53,12 +53,14 @@ describe("description-list component — structural attributes", () => {
 	test("has data-kind='description-list'", async () => {
 		const { container } = render(DescriptionList);
 		const dl = container.querySelector("dl");
+		// biome-ignore lint/style/noNonNullAssertion: test assertion — dl element always rendered
 		await expect.element(dl!).toHaveAttribute("data-kind", "description-list");
 	});
 
 	test("has data-slot='root'", async () => {
 		const { container } = render(DescriptionList);
 		const dl = container.querySelector("dl");
+		// biome-ignore lint/style/noNonNullAssertion: test assertion — dl element always rendered
 		await expect.element(dl!).toHaveAttribute("data-slot", "root");
 	});
 });
@@ -71,6 +73,7 @@ describe("description-list component — ARIA attributes", () => {
 	test("passes aria-label when label prop provided", async () => {
 		const { container } = render(DescriptionList, { props: { label: "User details" } });
 		const dl = container.querySelector("dl");
+		// biome-ignore lint/style/noNonNullAssertion: test assertion — dl element always rendered
 		await expect.element(dl!).toHaveAttribute("aria-label", "User details");
 	});
 });
@@ -83,18 +86,21 @@ describe("description-list component — recipe classes", () => {
 	test("applies recipe classes for default variant", async () => {
 		const { container } = render(DescriptionList);
 		const dl = container.querySelector("dl");
+		// biome-ignore lint/style/noNonNullAssertion: test assertion — dl element always rendered
 		await expect.element(dl!).toHaveClass("text-base");
 	});
 
 	test("applies sm size classes", async () => {
 		const { container } = render(DescriptionList, { props: { size: "sm" } });
 		const dl = container.querySelector("dl");
+		// biome-ignore lint/style/noNonNullAssertion: test assertion — dl element always rendered
 		await expect.element(dl!).toHaveClass("text-sm");
 	});
 
 	test("passes class prop and merges with recipe", async () => {
 		const { container } = render(DescriptionList, { props: { class: "custom-dl" } });
 		const dl = container.querySelector("dl");
+		// biome-ignore lint/style/noNonNullAssertion: test assertion — dl element always rendered
 		await expect.element(dl!).toHaveClass("custom-dl");
 	});
 });
@@ -107,6 +113,7 @@ describe("description-list component — prop passthrough", () => {
 	test("forwards id attribute", async () => {
 		const { container } = render(DescriptionList, { props: { id: "my-dl" } });
 		const dl = container.querySelector("dl");
+		// biome-ignore lint/style/noNonNullAssertion: test assertion — dl element always rendered
 		await expect.element(dl!).toHaveAttribute("id", "my-dl");
 	});
 });

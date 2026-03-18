@@ -8,14 +8,14 @@
 	ColdLight-owned — delegates to RangeCalendar component context.
 -->
 <script lang="ts">
-	import type { DateRangePickerCalendarProps } from "./types.js";
-	import { getDateRangePickerContext } from "./context.js";
-	import { dateRangePickerRecipe } from "./recipe.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getDateRangePickerContext } from "./context.js";
+import { dateRangePickerRecipe } from "./recipe.js";
+import type { DateRangePickerCalendarProps } from "./types.js";
 
-	let { children, class: className, ...rest }: DateRangePickerCalendarProps = $props();
-	const ctx = getDateRangePickerContext();
-	const recipe = $derived(dateRangePickerRecipe({ size: ctx.size }));
+let { children, class: className, ...rest }: DateRangePickerCalendarProps = $props();
+const ctx = getDateRangePickerContext();
+const recipe = $derived(dateRangePickerRecipe({ size: ctx.size }));
 </script>
 
 <div

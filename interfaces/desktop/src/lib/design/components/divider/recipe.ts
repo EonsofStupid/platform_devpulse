@@ -13,7 +13,5 @@ type DividerRecipeProps = { orientation?: string; variant?: string };
 
 export function dividerRecipe(props: DividerRecipeProps = {}): string {
 	const isVertical = props.orientation === "vertical";
-	return cn(
-		isVertical ? "divider-vertical" : "divider-horizontal",
-	);
+	return cn(isVertical ? "divider-vertical" : "divider-horizontal");
 }

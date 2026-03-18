@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { CheckboxPrimitiveProps } from "./checkbox.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { CheckboxPrimitiveProps } from "./checkbox.props.js";
 
-	let { children, class: className, ...rest }: CheckboxPrimitiveProps = $props();
+let { children, class: className, ...rest }: CheckboxPrimitiveProps = $props();
 </script>
 
 <button

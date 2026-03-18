@@ -95,9 +95,7 @@ export const contract = {
 			element: "td",
 			aria: {
 				required: [],
-				optional: [
-					{ attr: "aria-sort", valueType: "aria-sort" },
-				],
+				optional: [{ attr: "aria-sort", valueType: "aria-sort" }],
 			},
 			data: {
 				kind: "table",

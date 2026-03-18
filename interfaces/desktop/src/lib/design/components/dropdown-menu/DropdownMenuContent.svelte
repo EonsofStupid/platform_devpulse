@@ -9,22 +9,22 @@
 	Handles Escape to close and focus management.
 -->
 <script lang="ts">
-	import type { DropdownMenuContentProps } from "./types.js";
-	import { getDropdownMenuContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { dropdownMenuRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getDropdownMenuContext } from "./context.js";
+import { dropdownMenuRecipe } from "./recipe.js";
+import type { DropdownMenuContentProps } from "./types.js";
 
-	let {
-		children,
-		size = "md",
-		side = "bottom",
-		align = "start",
-		class: className,
-		...rest
-	}: DropdownMenuContentProps = $props();
+let {
+	children,
+	size = "md",
+	side = "bottom",
+	align = "start",
+	class: className,
+	...rest
+}: DropdownMenuContentProps = $props();
 
-	const ctx = getDropdownMenuContext();
-	const recipe = $derived(dropdownMenuRecipe({ size }));
+const ctx = getDropdownMenuContext();
+const recipe = $derived(dropdownMenuRecipe({ size }));
 </script>
 
 {#if ctx.open}

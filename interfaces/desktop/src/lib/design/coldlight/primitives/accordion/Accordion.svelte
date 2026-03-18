@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { AccordionPrimitiveProps } from "./accordion.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { AccordionPrimitiveProps } from "./accordion.props.js";
 
-	let { children, class: className, ...rest }: AccordionPrimitiveProps = $props();
+let { children, class: className, ...rest }: AccordionPrimitiveProps = $props();
 </script>
 
 <div

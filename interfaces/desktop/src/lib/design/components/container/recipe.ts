@@ -20,8 +20,5 @@ export function containerRecipe(props: ContainerRecipeProps = {}): string {
 		xl: "container-xl",
 		full: "container-full",
 	};
-	return cn(
-		"container-root",
-		sizeMap[props.size ?? "lg"] ?? sizeMap.lg,
-	);
+	return cn("container-root", sizeMap[props.size ?? "lg"] ?? sizeMap.lg);
 }

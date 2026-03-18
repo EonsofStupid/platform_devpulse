@@ -7,7 +7,7 @@
  * Tests: recipe application, prop forwarding, ARIA attributes, builder integration.
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { render } from "vitest-browser-svelte";
 import Toolbar from "./Toolbar.svelte";
 

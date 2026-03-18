@@ -11,10 +11,10 @@
  * Setup:  vitest-browser-svelte
  */
 
+import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { expect, test, describe } from "vitest";
-import { contract } from "./contract.js";
 import Checkbox from "./Checkbox.svelte";
+import { contract } from "./contract.js";
 
 // =============================================================================
 // CONTRACT INTEGRITY

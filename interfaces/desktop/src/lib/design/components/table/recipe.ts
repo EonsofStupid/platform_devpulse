@@ -19,8 +19,5 @@ export function tableRecipe(props: TableRecipeProps = {}): string {
 		md: "p-4 text-sm",
 		lg: "p-6 text-base",
 	};
-	return cn(
-		"table-root",
-		sizeMap[props.size ?? "md"] ?? "p-4 text-sm",
-	);
+	return cn("table-root", sizeMap[props.size ?? "md"] ?? "p-4 text-sm");
 }

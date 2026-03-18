@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { NumberFieldPrimitiveProps } from "./number-field.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { NumberFieldPrimitiveProps } from "./number-field.props.js";
 
-	let { children, class: className, ...rest }: NumberFieldPrimitiveProps = $props();
+let { children, class: className, ...rest }: NumberFieldPrimitiveProps = $props();
 </script>
 
 <div

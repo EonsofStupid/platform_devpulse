@@ -18,8 +18,5 @@ export function formRecipe(props: FormRecipeProps = {}): string {
 		md: "form-md",
 		lg: "form-lg",
 	};
-	return cn(
-		"form-root",
-		sizeMap[props.size ?? "md"] ?? sizeMap.md,
-	);
+	return cn("form-root", sizeMap[props.size ?? "md"] ?? sizeMap.md);
 }

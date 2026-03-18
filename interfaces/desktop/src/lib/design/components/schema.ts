@@ -7,49 +7,48 @@
  */
 
 export {
-	// ARIA value schemas
-	AriaHasPopupValues,
-	AriaHasPopupSchema,
-	type AriaHasPopupValue,
-	AriaAutoCompleteValues,
-	AriaAutoCompleteSchema,
-	type AriaAutoCompleteValue,
-	AriaOrientationValues,
-	AriaOrientationSchema,
-	type AriaOrientationValue,
-	AriaSortValues,
-	AriaSortSchema,
-	type AriaSortValue,
-	AriaCurrentValues,
-	AriaCurrentSchema,
-	type AriaCurrentValue,
-	AriaLiveValues,
-	AriaLiveSchema,
-	type AriaLiveValue,
-	AriaRelevantValues,
-	AriaRelevantSchema,
-	type AriaRelevantValue,
-	// ARIA attribute value map
-	AriaAttrValueSchemas,
-	// Slot schemas
-	ComponentSlotAriaSchema,
-	type ComponentSlotAria,
-	ComponentSlotDataSchema,
-	type ComponentSlotData,
-	ComponentSlotContractSchema,
-	type ComponentSlotContract,
-	AccessibleNameSourceSchema,
-	type AccessibleNameSource,
-} from "./_schema/schema.js";
-
-export {
+	type ComponentContract,
 	// Component contract
 	ComponentContractSchema,
-	type ComponentContract,
-	// Validation
-	validateComponentContract,
-	validateSlotAttrs,
 	deriveSlotContract,
 	parseComponentContract,
 	safeParseComponentContract,
+	// Validation
+	validateComponentContract,
+	validateSlotAttrs,
 } from "./_schema/contract.js";
+export {
+	type AccessibleNameSource,
+	AccessibleNameSourceSchema,
+	// ARIA attribute value map
+	AriaAttrValueSchemas,
+	AriaAutoCompleteSchema,
+	type AriaAutoCompleteValue,
+	AriaAutoCompleteValues,
+	AriaCurrentSchema,
+	type AriaCurrentValue,
+	AriaCurrentValues,
+	AriaHasPopupSchema,
+	type AriaHasPopupValue,
+	// ARIA value schemas
+	AriaHasPopupValues,
+	AriaLiveSchema,
+	type AriaLiveValue,
+	AriaLiveValues,
+	AriaOrientationSchema,
+	type AriaOrientationValue,
+	AriaOrientationValues,
+	AriaRelevantSchema,
+	type AriaRelevantValue,
+	AriaRelevantValues,
+	AriaSortSchema,
+	type AriaSortValue,
+	AriaSortValues,
+	type ComponentSlotAria,
+	// Slot schemas
+	ComponentSlotAriaSchema,
+	type ComponentSlotContract,
+	ComponentSlotContractSchema,
+	type ComponentSlotData,
+	ComponentSlotDataSchema,
+} from "./_schema/schema.js";

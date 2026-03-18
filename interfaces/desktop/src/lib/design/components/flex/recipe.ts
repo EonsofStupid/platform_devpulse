@@ -14,7 +14,13 @@
 
 import { cn } from "$lib/design/utils/cn.js";
 
-type FlexRecipeProps = { direction?: string; wrap?: string | boolean; gap?: string; align?: string; justify?: string };
+type FlexRecipeProps = {
+	direction?: string;
+	wrap?: string | boolean;
+	gap?: string;
+	align?: string;
+	justify?: string;
+};
 
 export function flexRecipe(props: FlexRecipeProps = {}): string {
 	const dirMap: Record<string, string> = {
@@ -48,11 +54,12 @@ export function flexRecipe(props: FlexRecipeProps = {}): string {
 		evenly: "flex-justify-evenly",
 	};
 
-	const wrapClass = props.wrap === true
-		? "flex-wrap-on"
-		: props.wrap === "reverse"
-			? "flex-wrap-reverse"
-			: undefined;
+	const wrapClass =
+		props.wrap === true
+			? "flex-wrap-on"
+			: props.wrap === "reverse"
+				? "flex-wrap-reverse"
+				: undefined;
 
 	return cn(
 		"flex-root",

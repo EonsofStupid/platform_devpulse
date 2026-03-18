@@ -40,9 +40,7 @@ export const contract = {
 				slot: "root",
 				states: ["open", "closed"],
 			},
-			keyboard: [
-				{ key: "Escape", action: "close", description: "Close notification center" },
-			],
+			keyboard: [{ key: "Escape", action: "close", description: "Close notification center" }],
 		},
 		header: {
 			name: "header",
@@ -122,9 +120,7 @@ export const contract = {
 	},
 
 	keyboard: {
-		global: [
-			{ key: "Escape", action: "close", description: "Close notification center" },
-		],
+		global: [{ key: "Escape", action: "close", description: "Close notification center" }],
 	},
 
 	states: {

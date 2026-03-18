@@ -7,9 +7,9 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/button/
  */
 
-import { uid } from "../../_internal/utils/uid.js";
 import { disabledAttr } from "../../_internal/utils/data-attr.js";
 import { kbd } from "../../_internal/utils/kbd.js";
+import { uid } from "../../_internal/utils/uid.js";
 import { toggleAnatomy } from "./toggle.anatomy.js";
 import type { UseToggleProps, UseToggleReturn } from "./toggle.types.js";
 
@@ -36,7 +36,10 @@ export function useToggle(props: UseToggleProps = {}): UseToggleReturn {
 		"data-state": pressed ? ("on" as const) : ("off" as const),
 		"data-disabled": disabled ? ("" as const) : undefined,
 		onclick: (e: MouseEvent) => {
-			if (disabled) { e.preventDefault(); return; }
+			if (disabled) {
+				e.preventDefault();
+				return;
+			}
 			doToggle();
 		},
 		onkeydown: (e: KeyboardEvent) => {
@@ -49,8 +52,12 @@ export function useToggle(props: UseToggleProps = {}): UseToggleReturn {
 	});
 
 	return {
-		get pressed() { return pressed; },
-		get root() { return root; },
+		get pressed() {
+			return pressed;
+		},
+		get root() {
+			return root;
+		},
 		toggle: doToggle,
 	};
 }

@@ -16,25 +16,316 @@ import { coldlightConfig } from "./coldlight.config.js";
 // ─── Import ALL contracts ────────────────────────────────────────────────────
 
 import {
+	// Melt-backed
+	accordionContract,
+	alertContract,
+	// P1-P3 Melt-backed
+	alertDialogContract,
+	aspectRatioContract,
+	avatarContract,
+	badgeContract,
+	bannerContract,
+	boxContract,
+	breadcrumbContract,
+	buttonContract,
+	calendarContract,
+	calloutContract,
+	cardContract,
+	centerContract,
+	checkboxContract,
+	codeContract,
+	collapsibleContract,
+	colorInputContract,
+	comboboxContract,
+	commandPaletteContract,
+	containerContract,
+	contextMenuContract,
+	dataTableContract,
+	dateFieldContract,
+	datePickerContract,
+	dateRangeFieldContract,
+	dateRangePickerContract,
+	descriptionListContract,
+	dialogContract,
+	dividerContract,
+	dropdownMenuContract,
+	emptyStateContract,
+	fileUploadContract,
+	flexContract,
+	formContract,
+	formFieldContract,
+	gridContract,
+	headingContract,
+	hstackContract,
+	inlineMessageContract,
+	inputContract,
+	inputGroupContract,
+	kbdContract,
+	labelContract,
+	linkPreviewContract,
+	listContract,
+	loadingOverlayContract,
+	menubarContract,
+	navContract,
+	navItemContract,
+	notificationCenterContract,
+	numberInputContract,
+	paginationContract,
+	pinInputContract,
+	popoverContract,
+	progressContract,
+	proseContract,
+	radioGroupContract,
+	rangeCalendarContract,
+	// P1-P3 ColdLight-owned
+	scrollAreaContract,
+	searchInputContract,
+	selectContract,
+	// P1
+	separatorContract,
+	sheetContract,
+	sidebarContract,
+	skeletonContract,
+	skipLinkContract,
+	sliderContract,
+	spacerContract,
+	spinnerContract,
+	stackContract,
+	statContract,
+	stepsContract,
+	stickyContract,
+	switchContract,
+	tableContract,
+	tableOfContentsContract,
+	tabsContract,
+	tagsInputContract,
+	textareaContract,
+	textContract,
+	toasterContract,
+	toggleContract,
+	toggleGroupContract,
+	toolbarContract,
+	tooltipContract,
+	treeContract,
+} from "./primitives/index.js";
+
+// =============================================================================
+// TYPES
+// =============================================================================
+
+export interface RegistryEntry {
+	readonly kind: string;
+	readonly ariaStateProvider: "coldlight" | "meltui";
+	readonly compound: boolean;
+	readonly focusStrategy: string;
+	readonly slots: { required: readonly string[]; optional: readonly string[] };
+	readonly keyboard: readonly string[];
+	readonly category:
+		| "interactive"
+		| "layout"
+		| "typography"
+		| "form"
+		| "display"
+		| "feedback"
+		| "navigation"
+		| "overlay";
+	readonly priority: "P0" | "P1" | "P2" | "P3";
+	readonly contract: unknown;
+}
+
+export type RegistryStatus = "idle" | "loading" | "ready" | "error";
+
+// =============================================================================
+// CONTRACT REGISTRY — all contracts keyed by kind
+// =============================================================================
+
+function categorize(kind: string): RegistryEntry["category"] {
+	const map: Record<string, RegistryEntry["category"]> = {
+		// Layout
+		box: "layout",
+		flex: "layout",
+		stack: "layout",
+		hstack: "layout",
+		grid: "layout",
+		container: "layout",
+		center: "layout",
+		spacer: "layout",
+		"aspect-ratio": "layout",
+		sticky: "layout",
+		"scroll-area": "layout",
+		card: "layout",
+		// Typography
+		text: "typography",
+		heading: "typography",
+		code: "typography",
+		kbd: "typography",
+		prose: "typography",
+		// Form
+		input: "form",
+		textarea: "form",
+		"form-field": "form",
+		form: "form",
+		"input-group": "form",
+		"number-input": "form",
+		"search-input": "form",
+		"color-input": "form",
+		"tags-input": "form",
+		"date-field": "form",
+		"date-picker": "form",
+		"date-range-field": "form",
+		"date-range-picker": "form",
+		// Display
+		badge: "display",
+		skeleton: "display",
+		stat: "display",
+		list: "display",
+		"description-list": "display",
+		table: "display",
+		"data-table": "display",
+		"empty-state": "display",
+		separator: "display",
+		divider: "display",
+		// Feedback
+		alert: "feedback",
+		spinner: "feedback",
+		"inline-message": "feedback",
+		banner: "feedback",
+		callout: "feedback",
+		"loading-overlay": "feedback",
+		// Navigation
+		"skip-link": "navigation",
+		breadcrumb: "navigation",
+		nav: "navigation",
+		"nav-item": "navigation",
+		steps: "navigation",
+		pagination: "navigation",
+		"table-of-contents": "navigation",
+		sidebar: "navigation",
+		// Overlay
+		dialog: "overlay",
+		popover: "overlay",
+		tooltip: "overlay",
+		sheet: "overlay",
+		toaster: "overlay",
+		"alert-dialog": "overlay",
+		"command-palette": "overlay",
+		"notification-center": "overlay",
+		"link-preview": "overlay",
+		// Interactive (menus)
+		"dropdown-menu": "interactive",
+		"context-menu": "interactive",
+		menubar: "interactive",
+		calendar: "interactive",
+		"range-calendar": "interactive",
+	};
+	return map[kind] ?? "interactive";
+}
+
+function priority(kind: string): RegistryEntry["priority"] {
+	const p1: string[] = [
+		"separator",
+		"toggle-group",
+		"toolbar",
+		"breadcrumb",
+		"nav",
+		"nav-item",
+		"center",
+		"spacer",
+		"divider",
+		"skeleton",
+		"stat",
+		"code",
+		"list",
+		"description-list",
+		"banner",
+		"callout",
+		"input-group",
+		"number-input",
+		"search-input",
+		"steps",
+		"sheet",
+		// P1-P3 additions
+		"alert-dialog",
+		"dropdown-menu",
+		"context-menu",
+		"menubar",
+		"tags-input",
+		"link-preview",
+		"scroll-area",
+		"pagination",
+		"table-of-contents",
+		"calendar",
+		"date-field",
+		"date-picker",
+		"date-range-field",
+		"date-range-picker",
+		"range-calendar",
+		"card",
+		"table",
+		"data-table",
+		"empty-state",
+		"loading-overlay",
+		"color-input",
+		"sidebar",
+		"command-palette",
+		"notification-center",
+		"kbd",
+		"prose",
+		"aspect-ratio",
+		"sticky",
+	];
+	return p1.includes(kind) ? "P1" : "P0";
+}
+
+function buildEntry(c: {
+	kind: string;
+	ariaStateProvider: string;
+	compound: boolean;
+	focusStrategy: string;
+	slots: { required: readonly string[]; optional: readonly string[] };
+	keyboard: readonly string[];
+}): RegistryEntry {
+	return {
+		kind: c.kind,
+		ariaStateProvider: c.ariaStateProvider as "coldlight" | "meltui",
+		compound: c.compound,
+		focusStrategy: c.focusStrategy,
+		slots: { required: c.slots.required, optional: c.slots.optional },
+		keyboard: c.keyboard,
+		category: categorize(c.kind),
+		priority: priority(c.kind),
+		contract: c,
+	};
+}
+
+// Build the full registry from all contracts
+const ALL_CONTRACTS = [
+	// ColdLight-owned interactive
 	buttonContract,
 	checkboxContract,
 	switchContract,
 	labelContract,
+	// Form
 	inputContract,
 	textareaContract,
 	formFieldContract,
 	formContract,
+	// Display
 	badgeContract,
+	// Feedback
 	alertContract,
 	spinnerContract,
 	inlineMessageContract,
+	// Navigation
 	skipLinkContract,
+	// Layout
 	boxContract,
 	flexContract,
 	stackContract,
 	hstackContract,
 	gridContract,
 	containerContract,
+	// Typography
 	textContract,
 	headingContract,
 	// Melt-backed
@@ -107,139 +398,6 @@ import {
 	proseContract,
 	aspectRatioContract,
 	stickyContract,
-} from "./primitives/index.js";
-
-// =============================================================================
-// TYPES
-// =============================================================================
-
-export interface RegistryEntry {
-	readonly kind: string;
-	readonly ariaStateProvider: "coldlight" | "meltui";
-	readonly compound: boolean;
-	readonly focusStrategy: string;
-	readonly slots: { required: readonly string[]; optional: readonly string[] };
-	readonly keyboard: readonly string[];
-	readonly category: "interactive" | "layout" | "typography" | "form" | "display" | "feedback" | "navigation" | "overlay";
-	readonly priority: "P0" | "P1" | "P2" | "P3";
-	readonly contract: unknown;
-}
-
-export type RegistryStatus = "idle" | "loading" | "ready" | "error";
-
-// =============================================================================
-// CONTRACT REGISTRY — all contracts keyed by kind
-// =============================================================================
-
-function categorize(kind: string): RegistryEntry["category"] {
-	const map: Record<string, RegistryEntry["category"]> = {
-		// Layout
-		box: "layout", flex: "layout", stack: "layout", hstack: "layout",
-		grid: "layout", container: "layout", center: "layout", spacer: "layout",
-		"aspect-ratio": "layout", sticky: "layout", "scroll-area": "layout",
-		card: "layout",
-		// Typography
-		text: "typography", heading: "typography", code: "typography",
-		kbd: "typography", prose: "typography",
-		// Form
-		input: "form", textarea: "form", "form-field": "form", form: "form",
-		"input-group": "form", "number-input": "form", "search-input": "form",
-		"color-input": "form", "tags-input": "form",
-		"date-field": "form", "date-picker": "form",
-		"date-range-field": "form", "date-range-picker": "form",
-		// Display
-		badge: "display", skeleton: "display", stat: "display",
-		list: "display", "description-list": "display",
-		table: "display", "data-table": "display", "empty-state": "display",
-		separator: "display", divider: "display",
-		// Feedback
-		alert: "feedback", spinner: "feedback", "inline-message": "feedback",
-		banner: "feedback", callout: "feedback", "loading-overlay": "feedback",
-		// Navigation
-		"skip-link": "navigation", breadcrumb: "navigation", nav: "navigation",
-		"nav-item": "navigation", steps: "navigation", pagination: "navigation",
-		"table-of-contents": "navigation", sidebar: "navigation",
-		// Overlay
-		dialog: "overlay", popover: "overlay", tooltip: "overlay",
-		sheet: "overlay", toaster: "overlay", "alert-dialog": "overlay",
-		"command-palette": "overlay", "notification-center": "overlay",
-		"link-preview": "overlay",
-		// Interactive (menus)
-		"dropdown-menu": "interactive", "context-menu": "interactive",
-		menubar: "interactive", calendar: "interactive", "range-calendar": "interactive",
-	};
-	return map[kind] ?? "interactive";
-}
-
-function priority(kind: string): RegistryEntry["priority"] {
-	const p1: string[] = [
-		"separator", "toggle-group", "toolbar", "breadcrumb", "nav", "nav-item",
-		"center", "spacer", "divider", "skeleton", "stat", "code", "list",
-		"description-list", "banner", "callout", "input-group", "number-input",
-		"search-input", "steps", "sheet",
-		// P1-P3 additions
-		"alert-dialog", "dropdown-menu", "context-menu", "menubar", "tags-input",
-		"link-preview", "scroll-area", "pagination", "table-of-contents",
-		"calendar", "date-field", "date-picker", "date-range-field",
-		"date-range-picker", "range-calendar", "card", "table", "data-table",
-		"empty-state", "loading-overlay", "color-input", "sidebar",
-		"command-palette", "notification-center", "kbd", "prose",
-		"aspect-ratio", "sticky",
-	];
-	return p1.includes(kind) ? "P1" : "P0";
-}
-
-function buildEntry(c: { kind: string; ariaStateProvider: string; compound: boolean; focusStrategy: string; slots: { required: readonly string[]; optional: readonly string[] }; keyboard: readonly string[] }): RegistryEntry {
-	return {
-		kind: c.kind,
-		ariaStateProvider: c.ariaStateProvider as "coldlight" | "meltui",
-		compound: c.compound,
-		focusStrategy: c.focusStrategy,
-		slots: { required: c.slots.required, optional: c.slots.optional },
-		keyboard: c.keyboard,
-		category: categorize(c.kind),
-		priority: priority(c.kind),
-		contract: c,
-	};
-}
-
-// Build the full registry from all contracts
-const ALL_CONTRACTS = [
-	// ColdLight-owned interactive
-	buttonContract, checkboxContract, switchContract, labelContract,
-	// Form
-	inputContract, textareaContract, formFieldContract, formContract,
-	// Display
-	badgeContract,
-	// Feedback
-	alertContract, spinnerContract, inlineMessageContract,
-	// Navigation
-	skipLinkContract,
-	// Layout
-	boxContract, flexContract, stackContract, hstackContract, gridContract, containerContract,
-	// Typography
-	textContract, headingContract,
-	// Melt-backed
-	accordionContract, dialogContract, tabsContract, comboboxContract, selectContract,
-	popoverContract, tooltipContract, toggleContract, progressContract,
-	radioGroupContract, collapsibleContract, avatarContract, sliderContract,
-	fileUploadContract, pinInputContract, toasterContract, treeContract,
-	// P1
-	separatorContract, toggleGroupContract, toolbarContract, breadcrumbContract,
-	navContract, navItemContract, centerContract, spacerContract, dividerContract,
-	skeletonContract, statContract, codeContract, listContract, descriptionListContract,
-	bannerContract, calloutContract, inputGroupContract, numberInputContract,
-	searchInputContract, stepsContract, sheetContract,
-	// P1-P3 Melt-backed
-	alertDialogContract, dropdownMenuContract, contextMenuContract, menubarContract,
-	tagsInputContract, linkPreviewContract, paginationContract, calendarContract,
-	dateFieldContract, datePickerContract, dateRangeFieldContract, dateRangePickerContract,
-	rangeCalendarContract, commandPaletteContract,
-	// P1-P3 ColdLight-owned
-	scrollAreaContract, tableOfContentsContract, cardContract, tableContract,
-	dataTableContract, emptyStateContract, loadingOverlayContract, colorInputContract,
-	sidebarContract, notificationCenterContract, kbdContract, proseContract,
-	aspectRatioContract, stickyContract,
 ] as const;
 
 const kindIndex = new Map<string, RegistryEntry>(

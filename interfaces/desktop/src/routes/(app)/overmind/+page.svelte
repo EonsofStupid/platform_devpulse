@@ -5,20 +5,13 @@
   Hub: Playground, Experiments, Sandbox, Training, Learning
 -->
 <script lang="ts">
-	import { Grid } from "$lib/design/components/grid/index.js";
-	import { Stack } from "$lib/design/components/stack/index.js";
-	import { HStack } from "$lib/design/components/hstack/index.js";
-	import { Text } from "$lib/design/components/text/index.js";
-	import { Badge } from "$lib/design/components/badge/index.js";
-	import { Widget } from "$lib/design/blocks/widgets/index.js";
-	import {
-		FlaskConical,
-		TestTube2,
-		Box,
-		GraduationCap,
-		BookOpen,
-		Activity,
-	} from "lucide-svelte";
+import { Activity, BookOpen, Box, FlaskConical, GraduationCap, TestTube2 } from "lucide-svelte";
+import { Widget } from "$lib/design/blocks/widgets/index.js";
+import { Badge } from "$lib/design/components/badge/index.js";
+import { Grid } from "$lib/design/components/grid/index.js";
+import { HStack } from "$lib/design/components/hstack/index.js";
+import { Stack } from "$lib/design/components/stack/index.js";
+import { Text } from "$lib/design/components/text/index.js";
 </script>
 
 <div class="grid grid-cols-12 gap-4" data-page="overmind-dashboard">

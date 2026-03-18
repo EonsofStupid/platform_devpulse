@@ -6,20 +6,20 @@
 	Shows kind, recipe, and slot handles.
 -->
 <script lang="ts">
-	import { Handle, Position } from "@xyflow/svelte";
-	import { vpbDocument } from "../state/vpb-document.svelte.js";
-	import type { VpbFlowNode } from "./types.js";
+import { Handle, Position } from "@xyflow/svelte";
+import { vpbDocument } from "../state/vpb-document.svelte.js";
+import type { VpbFlowNode } from "./types.js";
 
-	let { data, id }: { data: VpbFlowNode["data"]; id: string } = $props();
+let { data, id }: { data: VpbFlowNode["data"]; id: string } = $props();
 
-	const isSelected = $derived(vpbDocument.selectedNodeId === id);
+const isSelected = $derived(vpbDocument.selectedNodeId === id);
 
-	function formatKind(kind: string): string {
-		return kind
-			.split("-")
-			.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-			.join(" ");
-	}
+function formatKind(kind: string): string {
+	return kind
+		.split("-")
+		.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+		.join(" ");
+}
 </script>
 
 <Handle type="target" position={Position.Left} />

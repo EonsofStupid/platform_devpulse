@@ -10,21 +10,16 @@
  */
 
 import {
-	resolveVisual,
-	type ColdLightProps,
-	type ResolvedVisual,
-} from "$lib/design/registry/resolve-visual.js";
-import {
-	TOKEN_CATEGORY_REGISTRY,
-	CODE_TO_NAME,
-	NAME_TO_CODE,
-	type Preset,
-} from "$lib/design/registry/token-categories.js";
-import {
-	getPresetValues,
 	getPresetsForKind,
+	getPresetValues,
 	type PresetDefinition,
 } from "$lib/design/registry/presets.js";
+import {
+	type ColdLightProps,
+	type ResolvedVisual,
+	resolveVisual,
+} from "$lib/design/registry/resolve-visual.js";
+import { CODE_TO_NAME, TOKEN_CATEGORY_REGISTRY } from "$lib/design/registry/token-categories.js";
 
 // ═══════════════════════════════════════════════════════════════
 // LEGACY MIGRATION — numeric indices → semantic IDs

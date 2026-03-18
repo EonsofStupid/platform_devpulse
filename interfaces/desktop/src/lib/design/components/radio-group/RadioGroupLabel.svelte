@@ -6,15 +6,15 @@
 	Radio group label — associates a text label with the group.
 -->
 <script lang="ts">
-	import type { RadioGroupLabelProps } from "./types.js";
-	import { getRadioGroupContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { radioGroupRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getRadioGroupContext } from "./context.js";
+import { radioGroupRecipe } from "./recipe.js";
+import type { RadioGroupLabelProps } from "./types.js";
 
-	let { children, class: className, ...rest }: RadioGroupLabelProps = $props();
+let { children, class: className, ...rest }: RadioGroupLabelProps = $props();
 
-	const transport = getRadioGroupContext();
-	const recipe = radioGroupRecipe();
+const transport = getRadioGroupContext();
+const recipe = radioGroupRecipe();
 </script>
 
 <span

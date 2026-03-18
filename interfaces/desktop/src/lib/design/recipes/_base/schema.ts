@@ -23,10 +23,7 @@
  */
 
 import { z } from "zod";
-import {
-	PresetSchema,
-	type Preset,
-} from "$lib/design/registry/token-categories.js";
+import { type Preset, PresetSchema } from "$lib/design/registry/token-categories.js";
 
 // =============================================================================
 // Size & Radius — Recipe-level props (NOT encoding axes)
@@ -36,11 +33,11 @@ import {
 // into DsSurfaceProps. Defined here because this is where they're consumed.
 // =============================================================================
 
-export const SizeTokens = ['sm', 'md', 'lg'] as const;
+export const SizeTokens = ["sm", "md", "lg"] as const;
 export type SizeToken = (typeof SizeTokens)[number];
 export const SizeSchema = z.enum(SizeTokens);
 
-export const RadiusTokens = ['none', 'xs', 'sm', 'md', 'lg', 'xl', 'full'] as const;
+export const RadiusTokens = ["none", "xs", "sm", "md", "lg", "xl", "full"] as const;
 export type RadiusToken = (typeof RadiusTokens)[number];
 export const RadiusSchema = z.enum(RadiusTokens);
 
@@ -140,10 +137,12 @@ export const RecipeDefinitionSchema = z.object({
 	kind: z.string().min(1),
 	label: z.string().min(1),
 	defaults: DsSurfacePropsSchema,
-	slots: z.record(z.string(), SlotDefinitionSchema).refine(
-		(slots) => Object.keys(slots).length > 0,
-		{ message: "Recipe must declare at least one slot" },
-	).optional(),
+	slots: z
+		.record(z.string(), SlotDefinitionSchema)
+		.refine((slots) => Object.keys(slots).length > 0, {
+			message: "Recipe must declare at least one slot",
+		})
+		.optional(),
 });
 
 /**

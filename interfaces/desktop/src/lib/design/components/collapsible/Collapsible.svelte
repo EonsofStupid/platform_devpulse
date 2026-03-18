@@ -14,43 +14,59 @@
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/
 -->
 <script lang="ts">
-	import type { CollapsibleProps } from "./types.js";
-	import { createCollapsibleTransport } from "$lib/design/api/dsadapters/meltui/_internal/collapsible/index.js";
-	import { setCollapsibleContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import { createCollapsibleTransport } from "$lib/design/api/dsadapters/meltui/_internal/collapsible/index.js";
+import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { setCollapsibleContext } from "./context.js";
+import type { CollapsibleProps } from "./types.js";
 
-	let {
-		open = false,
-		onOpenChange,
-		disabled = false,
-		children,
-		class: className,
-		// ColdLight 8-axis props
-		preset,
-		surface,
-		material,
-		depth,
-		bevel,
-		glow,
-		frame,
-		motion,
-		transition,
-		encoding,
-		radius,
-		size,
-		...rest
-	}: CollapsibleProps = $props();
+let {
+	open = false,
+	onOpenChange,
+	disabled = false,
+	children,
+	class: className,
+	// ColdLight 8-axis props
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+	...rest
+}: CollapsibleProps = $props();
 
-	const transport = createCollapsibleTransport({
-		open: () => open,
-		onOpenChange: (v: any) => onOpenChange?.(v),
-		get disabled() { return disabled; },
-	});
+const transport = createCollapsibleTransport({
+	open: () => open,
+	// biome-ignore lint/suspicious/noExplicitAny: callback value type from transport
+	onOpenChange: (v: any) => onOpenChange?.(v),
+	get disabled() {
+		return disabled;
+	},
+});
 
-	setCollapsibleContext(transport);
+setCollapsibleContext(transport);
 
-	const visual = useColdLight(() => ({ preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius, size }));
+const visual = useColdLight(() => ({
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+}));
 </script>
 
 <div

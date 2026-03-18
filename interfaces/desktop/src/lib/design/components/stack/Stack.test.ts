@@ -9,10 +9,10 @@
  * Setup:  vitest-browser-svelte
  */
 
+import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { expect, test, describe } from "vitest";
-import { Stack } from "./index.js";
 import { contract } from "./contract.js";
+import { Stack } from "./index.js";
 
 // =============================================================================
 // CONTRACT INTEGRITY

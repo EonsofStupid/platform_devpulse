@@ -12,11 +12,11 @@
 import { z } from "zod";
 
 export const FocusStrategySchema = z.enum([
-	"direct",              // element itself receives focus
-	"roving",              // roving tabindex across children (tabs, radio-group)
-	"activedescendant",    // aria-activedescendant on container (combobox, listbox)
-	"trap",                // focus trapped within (dialog, modal)
-	"none",                // no focus management (layout primitives)
+	"direct", // element itself receives focus
+	"roving", // roving tabindex across children (tabs, radio-group)
+	"activedescendant", // aria-activedescendant on container (combobox, listbox)
+	"trap", // focus trapped within (dialog, modal)
+	"none", // no focus management (layout primitives)
 ]);
 
 export const KeyboardBindingSchema = z.object({

@@ -31,9 +31,7 @@ export const contract = {
 			aria: {
 				role: "group",
 				required: [],
-				optional: [
-					{ attr: "aria-labelledby", valueType: "aria-labelledby" },
-				],
+				optional: [{ attr: "aria-labelledby", valueType: "aria-labelledby" }],
 			},
 			data: {
 				kind: "color-input",
@@ -47,9 +45,7 @@ export const contract = {
 			aria: {
 				role: "presentation",
 				required: [],
-				optional: [
-					{ attr: "aria-hidden", valueType: "aria-hidden" },
-				],
+				optional: [{ attr: "aria-hidden", valueType: "aria-hidden" }],
 			},
 			data: {
 				kind: "color-input",

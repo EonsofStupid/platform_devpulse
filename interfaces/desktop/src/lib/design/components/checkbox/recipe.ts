@@ -20,8 +20,5 @@ export function checkboxRecipe(props: CheckboxRecipeProps = {}): string {
 		md: "checkbox-md",
 		lg: "checkbox-lg",
 	};
-	return cn(
-		"checkbox",
-		sizeMap[props.size ?? "md"] ?? sizeMap.md,
-	);
+	return cn("checkbox", sizeMap[props.size ?? "md"] ?? sizeMap.md);
 }

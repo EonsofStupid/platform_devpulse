@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { ProgressPrimitiveProps } from "./progress.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { ProgressPrimitiveProps } from "./progress.props.js";
 
-	let { children, class: className, ...rest }: ProgressPrimitiveProps = $props();
+let { children, class: className, ...rest }: ProgressPrimitiveProps = $props();
 </script>
 
 <div

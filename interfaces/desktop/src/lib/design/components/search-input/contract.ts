@@ -31,9 +31,7 @@ export const contract = {
 			aria: {
 				role: "search",
 				required: [],
-				optional: [
-					{ attr: "aria-label", valueType: "aria-label" },
-				],
+				optional: [{ attr: "aria-label", valueType: "aria-label" }],
 			},
 			data: {
 				kind: "search-input",
@@ -58,18 +56,14 @@ export const contract = {
 				slot: "input",
 				states: ["focused", "focus-visible", "disabled"],
 			},
-			keyboard: [
-				{ key: "Escape", action: "clear", description: "Clear search value" },
-			],
+			keyboard: [{ key: "Escape", action: "clear", description: "Clear search value" }],
 		},
 		icon: {
 			name: "icon",
 			element: "span",
 			aria: {
 				required: [],
-				optional: [
-					{ attr: "aria-hidden", valueType: "aria-hidden" },
-				],
+				optional: [{ attr: "aria-hidden", valueType: "aria-hidden" }],
 			},
 			data: {
 				kind: "search-input",
@@ -106,9 +100,7 @@ export const contract = {
 	},
 
 	keyboard: {
-		global: [
-			{ key: "Escape", action: "clear", description: "Clear search value" },
-		],
+		global: [{ key: "Escape", action: "clear", description: "Clear search value" }],
 	},
 
 	states: {

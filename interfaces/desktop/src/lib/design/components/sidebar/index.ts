@@ -4,7 +4,7 @@
  * @layer components
  */
 
-export { default as Sidebar } from "./Sidebar.svelte";
 export { contract as sidebarComponentContract } from "./contract.js";
 export { sidebarRecipe } from "./recipe.js";
+export { default as Sidebar } from "./Sidebar.svelte";
 export type { SidebarComponentProps, SidebarSize } from "./types.js";

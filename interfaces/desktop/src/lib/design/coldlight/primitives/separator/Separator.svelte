@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { SeparatorPrimitiveProps } from "./separator.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { SeparatorPrimitiveProps } from "./separator.props.js";
 
-	let { class: className, ...rest }: SeparatorPrimitiveProps = $props();
+let { class: className, ...rest }: SeparatorPrimitiveProps = $props();
 </script>
 
 <hr

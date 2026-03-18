@@ -8,48 +8,46 @@
 	per-menu context (open state, trigger/content IDs) to its children.
 -->
 <script lang="ts">
-	import type { MenubarMenuProps } from "./types.js";
-	import { getMenubarRootContext, setMenubarMenuContext, type MenubarMenuCtx } from "./context.js";
+import { getMenubarRootContext, type MenubarMenuCtx, setMenubarMenuContext } from "./context.js";
+import type { MenubarMenuProps } from "./types.js";
 
-	let {
-		open = $bindable(false),
-		onOpenChange,
-		children,
-	}: MenubarMenuProps = $props();
+let { open = $bindable(false), onOpenChange, children }: MenubarMenuProps = $props();
 
-	const root = getMenubarRootContext();
-	const value = `menu-${crypto.randomUUID().slice(0, 8)}`;
-	const triggerId = `cl-menubar-trigger-${value}`;
-	const contentId = `cl-menubar-content-${value}`;
+const root = getMenubarRootContext();
+const value = `menu-${crypto.randomUUID().slice(0, 8)}`;
+const triggerId = `cl-menubar-trigger-${value}`;
+const contentId = `cl-menubar-content-${value}`;
 
-	// Derive open from root context
-	const isOpen = $derived(root.activeMenu === value);
+// Derive open from root context
+const isOpen = $derived(root.activeMenu === value);
 
-	function toggle(): void {
-		if (isOpen) {
-			root.closeAll();
-			onOpenChange?.(false);
-		} else {
-			root.openMenu(value);
-			onOpenChange?.(true);
-		}
-	}
-
-	function close(): void {
+function toggle(): void {
+	if (isOpen) {
 		root.closeAll();
 		onOpenChange?.(false);
+	} else {
+		root.openMenu(value);
+		onOpenChange?.(true);
 	}
+}
 
-	const ctx: MenubarMenuCtx = {
-		get open() { return isOpen; },
-		toggle,
-		close,
-		triggerId,
-		contentId,
-		value,
-	};
+function close(): void {
+	root.closeAll();
+	onOpenChange?.(false);
+}
 
-	setMenubarMenuContext(ctx);
+const ctx: MenubarMenuCtx = {
+	get open() {
+		return isOpen;
+	},
+	toggle,
+	close,
+	triggerId,
+	contentId,
+	value,
+};
+
+setMenubarMenuContext(ctx);
 </script>
 
 <div

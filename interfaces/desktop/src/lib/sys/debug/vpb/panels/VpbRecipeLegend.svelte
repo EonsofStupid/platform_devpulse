@@ -6,20 +6,24 @@
 	Each swatch renders the recipe's shortcode classes with defaults.
 -->
 <script lang="ts">
-	import { getRecipesForKind, type RecipeDefinition, type DsSurfaceProps } from "$lib/design/recipes/index.js";
+import {
+	type DsSurfaceProps,
+	getRecipesForKind,
+	type RecipeDefinition,
+} from "$lib/design/recipes/index.js";
 
-	let { kind }: { kind: string } = $props();
+let { kind }: { kind: string } = $props();
 
-	const recipes = $derived(getRecipesForKind(kind));
+const recipes = $derived(getRecipesForKind(kind));
 
-	function previewClasses(recipe: RecipeDefinition): string {
-		const classes = recipe.classes?.(recipe.defaults as unknown as DsSurfaceProps) ?? {};
-		return classes["root"] ?? classes["content"] ?? Object.values(classes)[0] ?? "";
-	}
+function previewClasses(recipe: RecipeDefinition): string {
+	const classes = recipe.classes?.(recipe.defaults as unknown as DsSurfaceProps) ?? {};
+	return classes.root ?? classes.content ?? Object.values(classes)[0] ?? "";
+}
 
-	function formatLabel(recipe: RecipeDefinition): string {
-		return recipe.label ?? recipe.id;
-	}
+function formatLabel(recipe: RecipeDefinition): string {
+	return recipe.label ?? recipe.id;
+}
 </script>
 
 <div class="vpb-legend">

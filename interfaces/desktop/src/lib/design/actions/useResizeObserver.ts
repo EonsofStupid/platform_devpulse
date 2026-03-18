@@ -4,10 +4,7 @@
  *
  * ResizeObserver action. Use: `use:resizeObserver={callback}`.
  */
-export function resizeObserver(
-	node: HTMLElement,
-	callback: (entry: ResizeObserverEntry) => void,
-) {
+export function resizeObserver(node: HTMLElement, callback: (entry: ResizeObserverEntry) => void) {
 	const observer = new ResizeObserver((entries) => {
 		for (const entry of entries) callback(entry);
 	});

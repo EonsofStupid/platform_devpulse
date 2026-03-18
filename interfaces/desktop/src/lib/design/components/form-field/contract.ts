@@ -31,9 +31,7 @@ export const contract = {
 			aria: {
 				role: "group",
 				required: [],
-				optional: [
-					{ attr: "aria-labelledby", valueType: "aria-labelledby" },
-				],
+				optional: [{ attr: "aria-labelledby", valueType: "aria-labelledby" }],
 			},
 			data: {
 				kind: "form-field",

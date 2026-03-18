@@ -24,6 +24,7 @@
  */
 
 import type { ColdLightConfig } from "./coldlight.config.js";
+import type { PrimitiveContract } from "./primitives/_schema/types.js";
 import type {
 	AriaStateProvider,
 	ColdLightManifest,
@@ -41,7 +42,6 @@ import type {
 	SlotAction,
 	StateToken,
 } from "./scanner.types.js";
-import type { PrimitiveContract } from "./primitives/_schema/types.js";
 
 // =============================================================================
 // FILESYSTEM ABSTRACTION
@@ -60,7 +60,15 @@ export type ImportLike = (path: string) => Promise<{ default?: unknown; contract
 // =============================================================================
 
 function resolvePaths(config: ColdLightConfig) {
-	const { apiRoot, primitivesRoot, componentsRoot, buildersRoot, recipesRoot, effectsRoot, svgRoot } = config.roots;
+	const {
+		apiRoot,
+		primitivesRoot,
+		componentsRoot,
+		buildersRoot,
+		recipesRoot,
+		effectsRoot,
+		svgRoot,
+	} = config.roots;
 	const active = config.adapters.active;
 
 	return {
@@ -559,8 +567,7 @@ async function scanEffects(
 		categories.push(category);
 
 		const indexPath = `${categoriesDir}/${category}/index.js`;
-		if (!fs.existsSync(`${categoriesDir}/${category}/index.ts`) &&
-			!fs.existsSync(indexPath)) {
+		if (!fs.existsSync(`${categoriesDir}/${category}/index.ts`) && !fs.existsSync(indexPath)) {
 			continue;
 		}
 
@@ -574,11 +581,14 @@ async function scanEffects(
 	// Read registered effects from the runtime registry
 	try {
 		const registryMod = await importFn(`${effectsPath}/index.js`);
-		const getAllEffectsForManifest = (registryMod as Record<string, unknown>).getAllEffectsForManifest as
-			| (() => ManifestEffect[])
-			| undefined;
+		const getAllEffectsForManifest = (registryMod as Record<string, unknown>)
+			.getAllEffectsForManifest as (() => ManifestEffect[]) | undefined;
 		const getCategoryManifests = (registryMod as Record<string, unknown>).getCategoryManifests as
-			| (() => Array<{ category: string; effectIds: string[]; conflictGroups: Record<string, string[]> }>)
+			| (() => Array<{
+					category: string;
+					effectIds: string[];
+					conflictGroups: Record<string, string[]>;
+			  }>)
 			| undefined;
 
 		if (getAllEffectsForManifest) {
@@ -623,8 +633,7 @@ async function scanRecipes(
 
 		for (const kind of kindFolders) {
 			const indexPath = `${categoryPath}/${kind}/index.js`;
-			if (!fs.existsSync(`${categoryPath}/${kind}/index.ts`) &&
-				!fs.existsSync(indexPath)) {
+			if (!fs.existsSync(`${categoryPath}/${kind}/index.ts`) && !fs.existsSync(indexPath)) {
 				continue;
 			}
 
@@ -641,7 +650,13 @@ async function scanRecipes(
 	try {
 		const registryMod = await importFn(`${recipesPath}/index.js`);
 		const getRecipesForKind = (registryMod as Record<string, unknown>).getRecipesForKind as
-			| ((kind: string) => Array<{ id: string; kind: string; label: string; defaults: Record<string, unknown>; classes: (props: Record<string, unknown>) => Record<string, string> }>)
+			| ((kind: string) => Array<{
+					id: string;
+					kind: string;
+					label: string;
+					defaults: Record<string, unknown>;
+					classes: (props: Record<string, unknown>) => Record<string, string>;
+			  }>)
 			| undefined;
 
 		if (getRecipesForKind) {
@@ -649,7 +664,9 @@ async function scanRecipes(
 			const allKinds = new Set<string>();
 			for (const category of categories) {
 				const categoryPath = `${recipesPath}/${category}`;
-				listSubfolders(fs, categoryPath).forEach((k) => allKinds.add(k));
+				listSubfolders(fs, categoryPath).forEach((k) => {
+					allKinds.add(k);
+				});
 			}
 
 			allKinds.forEach((kind) => {
@@ -699,10 +716,54 @@ async function scanSvgFilters(
 }> {
 	const filters: ManifestSvgFilter[] = [];
 	const blanks: ManifestSvgBlank[] = [
-		{ shape: "rect", availableFilters: ["bevel-soft", "bevel-medium", "bevel-strong", "noise-subtle", "noise-medium", "glow-teal-svg", "glow-purple-svg"] },
-		{ shape: "pill", availableFilters: ["bevel-soft", "bevel-medium", "bevel-strong", "noise-subtle", "noise-medium", "glow-teal-svg", "glow-purple-svg"] },
-		{ shape: "circle", availableFilters: ["bevel-soft", "bevel-medium", "bevel-strong", "noise-subtle", "noise-medium", "glow-teal-svg", "glow-purple-svg"] },
-		{ shape: "hexagon", availableFilters: ["bevel-soft", "bevel-medium", "bevel-strong", "noise-subtle", "noise-medium", "glow-teal-svg", "glow-purple-svg"] },
+		{
+			shape: "rect",
+			availableFilters: [
+				"bevel-soft",
+				"bevel-medium",
+				"bevel-strong",
+				"noise-subtle",
+				"noise-medium",
+				"glow-teal-svg",
+				"glow-purple-svg",
+			],
+		},
+		{
+			shape: "pill",
+			availableFilters: [
+				"bevel-soft",
+				"bevel-medium",
+				"bevel-strong",
+				"noise-subtle",
+				"noise-medium",
+				"glow-teal-svg",
+				"glow-purple-svg",
+			],
+		},
+		{
+			shape: "circle",
+			availableFilters: [
+				"bevel-soft",
+				"bevel-medium",
+				"bevel-strong",
+				"noise-subtle",
+				"noise-medium",
+				"glow-teal-svg",
+				"glow-purple-svg",
+			],
+		},
+		{
+			shape: "hexagon",
+			availableFilters: [
+				"bevel-soft",
+				"bevel-medium",
+				"bevel-strong",
+				"noise-subtle",
+				"noise-medium",
+				"glow-teal-svg",
+				"glow-purple-svg",
+			],
+		},
 	];
 
 	// Import filter definitions to trigger registration
@@ -715,9 +776,8 @@ async function scanSvgFilters(
 	// Read registered filters from the runtime registry
 	try {
 		const registryMod = await importFn(`${svgPath}/filters/registry.js`);
-		const getAllFiltersForManifest = (registryMod as Record<string, unknown>).getAllFiltersForManifest as
-			| (() => ManifestSvgFilter[])
-			| undefined;
+		const getAllFiltersForManifest = (registryMod as Record<string, unknown>)
+			.getAllFiltersForManifest as (() => ManifestSvgFilter[]) | undefined;
 
 		if (getAllFiltersForManifest) {
 			filters.push(...getAllFiltersForManifest());
@@ -799,7 +859,13 @@ export async function scanColdLight(
 				meltBackedKinds.add(kind);
 			}
 
-			const { result: parityResult, contentErrors } = checkParity(fs, paths, dsAdapter, kind, contract.ariaStateProvider);
+			const { result: parityResult, contentErrors } = checkParity(
+				fs,
+				paths,
+				dsAdapter,
+				kind,
+				contract.ariaStateProvider,
+			);
 			primitives.push(parityResult);
 
 			// Adapter content errors (missing required files inside adapter folder)
@@ -859,7 +925,10 @@ export async function scanColdLight(
 
 	if (config.generation.categories.components.enabled) {
 		const componentScan = await scanComponents(
-			fs, importFn, paths.components, discoveredPrimitiveKinds,
+			fs,
+			importFn,
+			paths.components,
+			discoveredPrimitiveKinds,
 		);
 		componentResults = componentScan.components;
 		manifestComponents = componentScan.manifestComponents;
@@ -936,8 +1005,8 @@ export async function scanColdLight(
 		const contractOnly = manifestPrimitiveKinds.filter((p) => p.status === "contract-only").length;
 		console.warn(
 			`[ColdLight] Scanner: ${manifestPrimitiveKinds.length} primitives ` +
-			`(${complete} complete, ${contractOnly} contract-only). ` +
-			`${parityErrors.length} parity warnings.`,
+				`(${complete} complete, ${contractOnly} contract-only). ` +
+				`${parityErrors.length} parity warnings.`,
 		);
 	}
 

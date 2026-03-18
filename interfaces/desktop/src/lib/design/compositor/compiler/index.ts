@@ -16,11 +16,11 @@
  *   // output.actions → [{ action: "useIntersectionReveal", ... }]
  */
 
+import type { CompilerOutput, CompositorNode } from "../../effects/_schema/types.js";
 import type { ColdLightManifest } from "../../scanner.types.js";
-import type { CompositorNode, CompilerOutput } from "../../effects/_schema/types.js";
+import { detectConflicts } from "./conflict-resolver.js";
 import { cssPass } from "./css-pass.js";
 import { logicPass } from "./logic-pass.js";
-import { detectConflicts } from "./conflict-resolver.js";
 
 /**
  * Compile a single compositor node into renderer-ready output.
@@ -29,10 +29,7 @@ import { detectConflicts } from "./conflict-resolver.js";
  * @param manifest - The ColdLight manifest for cross-reference validation
  * @returns CompilerOutput with static classes, conditional classes, actions, and warnings
  */
-export function compile(
-	node: CompositorNode,
-	manifest: ColdLightManifest,
-): CompilerOutput {
+export function compile(node: CompositorNode, manifest: ColdLightManifest): CompilerOutput {
 	const warnings: string[] = [];
 
 	// Pass 1: CSS — collect and deduplicate all classes
@@ -84,7 +81,7 @@ function compileNodeRecursive(
 	}
 }
 
+export { deduplicateClasses, detectConflicts, findEffectConflict } from "./conflict-resolver.js";
 // Re-export pass functions for testing
 export { cssPass } from "./css-pass.js";
 export { logicPass } from "./logic-pass.js";
-export { detectConflicts, deduplicateClasses, findEffectConflict } from "./conflict-resolver.js";

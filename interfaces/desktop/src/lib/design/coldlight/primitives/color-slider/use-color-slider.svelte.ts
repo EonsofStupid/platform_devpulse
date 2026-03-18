@@ -21,11 +21,15 @@
  * ```
  */
 
-import { createIds } from "../../_internal/utils/uid.js";
-import { disabledAttr, dataAttr } from "../../_internal/utils/data-attr.js";
+import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
 import { kbd } from "../../_internal/utils/kbd.js";
+import { createIds } from "../../_internal/utils/uid.js";
 import { colorSliderAnatomy } from "./color-slider.anatomy.js";
-import type { ColorChannel, UseColorSliderProps, UseColorSliderReturn } from "./color-slider.types.js";
+import type {
+	ColorChannel,
+	UseColorSliderProps,
+	UseColorSliderReturn,
+} from "./color-slider.types.js";
 
 const CHANNEL_DEFAULTS: Record<ColorChannel, { min: number; max: number }> = {
 	hue: { min: 0, max: 360 },
@@ -93,7 +97,7 @@ export function useColorSlider(props: UseColorSliderProps = {}): UseColorSliderR
 		(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
 
 		function updateFromPointer(clientX: number, clientY: number): void {
-			const rect = track!.getBoundingClientRect();
+			const rect = track?.getBoundingClientRect();
 			const isHorizontal = orientation === "horizontal";
 			const pos = isHorizontal ? clientX - rect.left : rect.bottom - clientY;
 			const size = isHorizontal ? rect.width : rect.height;
@@ -148,9 +152,7 @@ export function useColorSlider(props: UseColorSliderProps = {}): UseColorSliderR
 		"aria-disabled": disabledAttr(disabled),
 		"data-channel": channel,
 		"data-disabled": dataAttr(disabled),
-		style: orientation === "horizontal"
-			? `left:${percent}%`
-			: `bottom:${percent}%`,
+		style: orientation === "horizontal" ? `left:${percent}%` : `bottom:${percent}%`,
 		onkeydown: handleKeydown,
 		onpointerdown: handlePointerDown,
 	});
@@ -163,12 +165,24 @@ export function useColorSlider(props: UseColorSliderProps = {}): UseColorSliderR
 
 	// ── Public API ───────────────────────────────────────────────
 	return {
-		get value() { return value; },
-		get percent() { return percent; },
-		get root() { return root; },
-		get track() { return track; },
-		get thumb() { return thumb; },
-		get label() { return label; },
+		get value() {
+			return value;
+		},
+		get percent() {
+			return percent;
+		},
+		get root() {
+			return root;
+		},
+		get track() {
+			return track;
+		},
+		get thumb() {
+			return thumb;
+		},
+		get label() {
+			return label;
+		},
 		setValue: doSetValue,
 	};
 }

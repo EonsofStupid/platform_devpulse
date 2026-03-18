@@ -8,12 +8,12 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
  */
 
-import { uid } from "../../_internal/utils/uid.js";
-import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
-import { kbd } from "../../_internal/utils/kbd.js";
 import { useDismissLayer } from "../../_internal/a11y/dismiss-layer/index.js";
 import { useEscapeLayer } from "../../_internal/a11y/escape-layer/index.js";
 import { usePresence } from "../../_internal/a11y/presence/index.js";
+import { disabledAttr } from "../../_internal/utils/data-attr.js";
+import { kbd } from "../../_internal/utils/kbd.js";
+import { uid } from "../../_internal/utils/uid.js";
 import { comboboxAnatomy } from "./combobox.anatomy.js";
 import type { UseComboBoxProps, UseComboBoxReturn } from "./combobox.types.js";
 
@@ -43,7 +43,9 @@ export function useComboBox(props: UseComboBoxProps = {}): UseComboBoxReturn {
 
 	function getOptions(): HTMLElement[] {
 		if (!listboxEl) return [];
-		return Array.from(listboxEl.querySelectorAll<HTMLElement>('[role="option"]:not([data-disabled])'));
+		return Array.from(
+			listboxEl.querySelectorAll<HTMLElement>('[role="option"]:not([data-disabled])'),
+		);
 	}
 
 	function highlightByIndex(index: number): void {
@@ -61,8 +63,10 @@ export function useComboBox(props: UseComboBoxProps = {}): UseComboBoxReturn {
 
 		if (e.key === kbd.ARROW_DOWN) {
 			e.preventDefault();
-			if (!isOpen) { setOpen(true); highlightByIndex(0); }
-			else highlightByIndex(currentIndex < options.length - 1 ? currentIndex + 1 : 0);
+			if (!isOpen) {
+				setOpen(true);
+				highlightByIndex(0);
+			} else highlightByIndex(currentIndex < options.length - 1 ? currentIndex + 1 : 0);
 		} else if (e.key === kbd.ARROW_UP) {
 			e.preventDefault();
 			if (isOpen) highlightByIndex(currentIndex > 0 ? currentIndex - 1 : options.length - 1);
@@ -105,7 +109,9 @@ export function useComboBox(props: UseComboBoxProps = {}): UseComboBoxReturn {
 			if (!isOpen) setOpen(true);
 		},
 		onkeydown: handleInputKeydown,
-		onfocus: () => { if (!isOpen && inputValue) setOpen(true); },
+		onfocus: () => {
+			if (!isOpen && inputValue) setOpen(true);
+		},
 	});
 
 	const trigger = $derived({
@@ -114,7 +120,9 @@ export function useComboBox(props: UseComboBoxProps = {}): UseComboBoxReturn {
 		tabindex: -1 as const,
 		"aria-label": "Toggle options" as const,
 		"data-state": isOpen ? ("open" as const) : ("closed" as const),
-		onclick: () => { if (!globalDisabled) setOpen(!isOpen); },
+		onclick: () => {
+			if (!globalDisabled) setOpen(!isOpen);
+		},
 	});
 
 	const listbox = $derived({
@@ -128,22 +136,48 @@ export function useComboBox(props: UseComboBoxProps = {}): UseComboBoxReturn {
 	function attachListbox(node: HTMLElement): { destroy(): void } {
 		listboxEl = node;
 		useEscapeLayer({ enabled: () => isOpen, onEscape: () => setOpen(false) });
-		useDismissLayer({ enabled: () => isOpen, node: () => listboxEl, onDismiss: () => setOpen(false) });
+		useDismissLayer({
+			enabled: () => isOpen,
+			node: () => listboxEl,
+			onDismiss: () => setOpen(false),
+		});
 		usePresence({ open: () => isOpen, node: () => listboxEl });
-		return { destroy() { listboxEl = null; } };
+		return {
+			destroy() {
+				listboxEl = null;
+			},
+		};
 	}
 
 	return {
-		get inputValue() { return inputValue; },
-		get selectedValue() { return selectedValue; },
-		get open() { return isOpen; },
-		get highlightedId() { return highlightedId; },
+		get inputValue() {
+			return inputValue;
+		},
+		get selectedValue() {
+			return selectedValue;
+		},
+		get open() {
+			return isOpen;
+		},
+		get highlightedId() {
+			return highlightedId;
+		},
 		setOpen,
-		get root() { return root; },
-		get input() { return input; },
-		get trigger() { return trigger; },
-		get listbox() { return listbox; },
-		get label() { return label; },
+		get root() {
+			return root;
+		},
+		get input() {
+			return input;
+		},
+		get trigger() {
+			return trigger;
+		},
+		get listbox() {
+			return listbox;
+		},
+		get label() {
+			return label;
+		},
 		getOption(optionValue: string, options?: { disabled?: boolean }) {
 			const optionId = `${id}-option-${optionValue}`;
 			const selected = selectedValue === optionValue;
@@ -158,8 +192,12 @@ export function useComboBox(props: UseComboBoxProps = {}): UseComboBoxReturn {
 				"data-state": selected ? ("selected" as const) : ("unselected" as const),
 				"data-highlighted": highlightedId === optionId ? ("" as const) : undefined,
 				"data-disabled": isDisabled ? ("" as const) : undefined,
-				onclick: () => { if (!isDisabled) selectOption(optionValue); },
-				onpointerenter: () => { highlightedId = optionId; },
+				onclick: () => {
+					if (!isDisabled) selectOption(optionValue);
+				},
+				onpointerenter: () => {
+					highlightedId = optionId;
+				},
 			};
 		},
 		attachListbox,

@@ -9,9 +9,8 @@
  */
 
 import { uid } from "../../_internal/utils/uid.js";
-import { dataAttr } from "../../_internal/utils/data-attr.js";
 import { tableAnatomy } from "./table.anatomy.js";
-import type { UseTableProps, UseTableReturn, SortDirection } from "./table.types.js";
+import type { SortDirection, UseTableProps, UseTableReturn } from "./table.types.js";
 
 export function useTable(props: UseTableProps = {}): UseTableReturn {
 	const id = uid("table");
@@ -31,9 +30,15 @@ export function useTable(props: UseTableProps = {}): UseTableReturn {
 	const body = $derived({ ...tableAnatomy.attrs.body, role: "rowgroup" as const });
 
 	return {
-		get root() { return root; },
-		get header() { return header; },
-		get body() { return body; },
+		get root() {
+			return root;
+		},
+		get header() {
+			return header;
+		},
+		get body() {
+			return body;
+		},
 
 		getRow(key: string, options?: { disabled?: boolean }) {
 			const selected = props.selectedKeys?.has(key) ?? false;

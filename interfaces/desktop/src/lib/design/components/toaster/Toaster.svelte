@@ -11,38 +11,51 @@
 	ColdLight OWNS all ARIA. MeltUI transport handles toast lifecycle.
 -->
 <script lang="ts">
-	import type { ToasterComponentProps } from "./types.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import { cn } from "$lib/design/primitives/types.js";
+import type { ToasterComponentProps } from "./types.js";
 
-	let {
-		// Kind-specific props
-		position = "bottom-right",
-		closeDelay = 5000,
-		children,
-		class: className,
-		// ColdLight 8-axis props
-		preset,
-		surface,
-		material,
-		depth,
-		bevel,
-		glow,
-		frame,
-		motion,
-		transition,
-		encoding,
-		radius,
-		size,
-		// Rest spread
-		...rest
-	}: ToasterComponentProps = $props();
+let {
+	// Kind-specific props
+	position = "bottom-right",
+	closeDelay = 5000,
+	children,
+	class: className,
+	// ColdLight 8-axis props
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+	// Rest spread
+	...rest
+}: ToasterComponentProps = $props();
 
-	// Resolve ColdLight visual
-	const visual = useColdLight(() => ({ preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius, size }));
+// Resolve ColdLight visual
+const visual = useColdLight(() => ({
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+}));
 
-	// Compose: ColdLight visual + user classes
-	const classes = $derived(cn(visual.segments, visual.radius, className));
+// Compose: ColdLight visual + user classes
+const classes = $derived(cn(visual.segments, visual.radius, className));
 </script>
 
 <div

@@ -14,12 +14,7 @@ import { cn } from "$lib/design/utils/cn.js";
 type ToolbarRecipeProps = { size?: string; orientation?: string };
 
 export function toolbarRecipe(props: ToolbarRecipeProps = {}): string {
-	const orientationClass = props.orientation === "vertical"
-		? "toolbar-vertical"
-		: "toolbar-horizontal";
-	return cn(
-		"toolbar-root",
-		orientationClass,
-		"rounded-md",
-	);
+	const orientationClass =
+		props.orientation === "vertical" ? "toolbar-vertical" : "toolbar-horizontal";
+	return cn("toolbar-root", orientationClass, "rounded-md");
 }

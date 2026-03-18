@@ -60,12 +60,7 @@ export default defineConfig({
 			provider: "v8",
 			enabled: isCI,
 			include: ["src/lib/design/**/*.{ts,svelte}"],
-			exclude: [
-				"**/*.test.ts",
-				"**/*.spec.ts",
-				"**/.cowlevel/**",
-				"**/node_modules/**",
-			],
+			exclude: ["**/*.test.ts", "**/*.spec.ts", "**/.cowlevel/**", "**/node_modules/**"],
 			reporter: isCI ? ["text", "json", "html", "lcov"] : ["text"],
 			reportsDirectory: "./coverage",
 		},

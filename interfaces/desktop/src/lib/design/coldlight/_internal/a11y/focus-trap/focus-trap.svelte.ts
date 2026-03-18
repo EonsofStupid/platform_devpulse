@@ -32,8 +32,9 @@ const FOCUSABLE_SELECTOR = [
 ].join(",");
 
 function getFocusableElements(container: HTMLElement): HTMLElement[] {
-	return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR))
-		.filter((el) => !el.hasAttribute("disabled") && el.tabIndex >= 0 && isVisible(el));
+	return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+		(el) => !el.hasAttribute("disabled") && el.tabIndex >= 0 && isVisible(el),
+	);
 }
 
 function isVisible(el: HTMLElement): boolean {
@@ -72,6 +73,7 @@ export function useFocusTrap(config: FocusTrapConfig): void {
 		function onKeydown(e: KeyboardEvent): void {
 			if (e.key !== "Tab") return;
 
+			// biome-ignore lint/style/noNonNullAssertion: container is guaranteed set by $effect before keydown fires
 			const focusable = getFocusableElements(container!);
 			if (focusable.length === 0) {
 				e.preventDefault();

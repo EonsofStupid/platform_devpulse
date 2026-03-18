@@ -23,12 +23,12 @@ export function generateSvelte(roots: BlockNode[]): string {
 	const body = roots.map((root) => renderNode(root, 0)).join("\n");
 	lines.push(body);
 
-	return lines.join("\n") + "\n";
+	return `${lines.join("\n")}\n`;
 }
 
 function renderNode(node: BlockNode, indent: number): string {
 	const classes = resolveClasses(node);
-	const rootClass = classes["root"] ?? classes["content"] ?? Object.values(classes)[0] ?? "";
+	const rootClass = classes.root ?? classes.content ?? Object.values(classes)[0] ?? "";
 	const tab = "\t".repeat(indent);
 	const lines: string[] = [];
 

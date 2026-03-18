@@ -15,14 +15,9 @@ type ToggleGroupRecipeProps = { size?: string; orientation?: string };
 type ToggleGroupItemRecipeProps = { size?: string };
 
 export function toggleGroupRecipe(props: ToggleGroupRecipeProps = {}): string {
-	const orientationClass = props.orientation === "vertical"
-		? "toggle-group-vertical"
-		: "toggle-group-horizontal";
-	return cn(
-		"toggle-group-root",
-		orientationClass,
-		"rounded-md",
-	);
+	const orientationClass =
+		props.orientation === "vertical" ? "toggle-group-vertical" : "toggle-group-horizontal";
+	return cn("toggle-group-root", orientationClass, "rounded-md");
 }
 
 export function toggleGroupItemRecipe(props: ToggleGroupItemRecipeProps = {}): string {

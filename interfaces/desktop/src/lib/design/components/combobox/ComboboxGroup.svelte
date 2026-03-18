@@ -21,14 +21,14 @@
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
 -->
 <script lang="ts">
-	import type { ComboboxGroupProps } from "./types.js";
-	import { getComboboxContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getComboboxContext } from "./context.js";
+import type { ComboboxGroupProps } from "./types.js";
 
-	let { label, children, class: className }: ComboboxGroupProps = $props();
+let { label, children, class: className }: ComboboxGroupProps = $props();
 
-	const { recipe } = getComboboxContext();
-	const labelId = `cl-combobox-group-${crypto.randomUUID().slice(0, 8)}`;
+const { recipe } = getComboboxContext();
+const labelId = `cl-combobox-group-${crypto.randomUUID().slice(0, 8)}`;
 </script>
 
 <div

@@ -165,7 +165,11 @@ function relativeUnder(parent: string, child: string): string | null {
 // NAMESPACE RESOLUTION
 // =============================================================================
 
-function resolveNamespace(filePath: string): { namespace: Namespace; localPath: string; root: string } {
+function resolveNamespace(filePath: string): {
+	namespace: Namespace;
+	localPath: string;
+	root: string;
+} {
 	// Order matters — most specific first
 
 	// ColdLight design system
@@ -344,7 +348,10 @@ function resolveKind(namespace: Namespace, localPath: string): string | null {
 // CONTRACT LOADING
 // =============================================================================
 
-function tryLoadContract(filePath: string, kind: string | null): { hasContract: boolean; ariaStateProvider: string | null } {
+function tryLoadContract(
+	filePath: string,
+	kind: string | null,
+): { hasContract: boolean; ariaStateProvider: string | null } {
 	if (!kind) return { hasContract: false, ariaStateProvider: null };
 
 	// Look for contract.ts in the same primitive directory
@@ -411,7 +418,7 @@ function extractDomain(namespace: Namespace): string | null {
  */
 export function resolveFileContext(filePath: string): FileContext {
 	const abs = path.resolve(filePath);
-	const { namespace, localPath, root } = resolveNamespace(abs);
+	const { namespace, localPath, root: _root } = resolveNamespace(abs);
 
 	const ext = getExt(abs);
 	const language = detectLanguage(abs);

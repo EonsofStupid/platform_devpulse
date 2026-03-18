@@ -34,7 +34,13 @@ import { emitSegments } from "../../utils.js";
 const SIZE_SCALE = {
 	sm: { root: "gap-2", item: "gap-2", indicator: "h-4 w-4", dot: "h-1.5 w-1.5", label: "text-sm" },
 	md: { root: "gap-3", item: "gap-2.5", indicator: "h-5 w-5", dot: "h-2 w-2", label: "text-sm" },
-	lg: { root: "gap-4", item: "gap-3", indicator: "h-6 w-6", dot: "h-2.5 w-2.5", label: "text-base" },
+	lg: {
+		root: "gap-4",
+		item: "gap-3",
+		indicator: "h-6 w-6",
+		dot: "h-2.5 w-2.5",
+		label: "text-base",
+	},
 } as const;
 
 registerRecipe({
@@ -57,14 +63,8 @@ registerRecipe({
 		const s = SIZE_SCALE[props.size];
 
 		return {
-			root: cn(
-				"flex flex-col",
-				s.root,
-			),
-			item: cn(
-				"flex items-center",
-				s.item,
-			),
+			root: cn("flex flex-col", s.root),
+			item: cn("flex items-center", s.item),
 			indicator: cn(
 				"shrink-0 rounded-full",
 				s.indicator,

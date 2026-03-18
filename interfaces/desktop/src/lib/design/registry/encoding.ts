@@ -11,15 +11,13 @@
  */
 
 import {
-	TOKEN_CATEGORY_REGISTRY,
 	CODE_MAP,
 	ENCODING_ORDER,
-	CODE_TO_NAME,
-	NAME_TO_CODE,
+	type EncodingIndices,
+	type Preset,
 	resolveToIndices,
 	resolveToPreset,
-	type Preset,
-	type EncodingIndices,
+	TOKEN_CATEGORY_REGISTRY,
 } from "./token-categories.js";
 
 /** Semantic preset → canonical encoding string (sparse, skips defaults) */
@@ -56,19 +54,14 @@ export function decodeEncoding(encoding: string): Preset {
 }
 
 /** Semantic preset → resolved token references per category (SD5/CSS generator) */
-export function resolvePreset(
-	preset: Preset,
-): Record<string, Record<string, string>> {
+export function resolvePreset(preset: Preset): Record<string, Record<string, string>> {
 	const indices = resolveToIndices(preset);
 	const resolved: Record<string, Record<string, string>> = {};
 
 	for (const cat of TOKEN_CATEGORY_REGISTRY) {
 		const value = cat.values[indices[cat.code as keyof EncodingIndices] ?? cat.defaultIndex];
 		if (value && Object.keys(value.tokenRefs).length > 0) {
-			resolved[cat.code] = { ...value.tokenRefs } as Record<
-				string,
-				string
-			>;
+			resolved[cat.code] = { ...value.tokenRefs } as Record<string, string>;
 		}
 	}
 

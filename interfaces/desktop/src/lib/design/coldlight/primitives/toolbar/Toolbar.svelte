@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { ToolbarPrimitiveProps } from "./toolbar.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { ToolbarPrimitiveProps } from "./toolbar.props.js";
 
-	let { children, class: className, ...rest }: ToolbarPrimitiveProps = $props();
+let { children, class: className, ...rest }: ToolbarPrimitiveProps = $props();
 </script>
 
 <div

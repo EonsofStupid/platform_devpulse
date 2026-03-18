@@ -8,8 +8,8 @@
  */
 
 import { invoke } from "@tauri-apps/api/core";
-import { logInfo, logError } from "$lib/sys/logger.js";
 import type { DashboardPayload } from "$lib/sys/generated/dashboard.types.js";
+import { logError, logInfo } from "$lib/sys/logger.js";
 import type { DashboardData, RecentProject } from "../types/devpulse.types.js";
 
 /**
@@ -20,7 +20,10 @@ export async function fetchDashboardData(): Promise<DashboardPayload> {
 	logInfo("devpulse", "Fetching dashboard data via IPC...");
 	try {
 		const payload = await invoke<DashboardPayload>("fetch_dashboard");
-		logInfo("devpulse", `Dashboard loaded: ${payload.projects.length} projects, ${payload.daily_stats.length} daily stats, uptime ${payload.uptime_secs}s`);
+		logInfo(
+			"devpulse",
+			`Dashboard loaded: ${payload.projects.length} projects, ${payload.daily_stats.length} daily stats, uptime ${payload.uptime_secs}s`,
+		);
 		return payload;
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
@@ -71,9 +74,10 @@ export function mapPayloadToDashboard(payload: DashboardPayload): DashboardData 
 			},
 			contextLoad: {
 				label: "Context Load",
-				value: payload.daily_stats.length > 0
-					? Math.round(payload.daily_stats[0].avg_latency_ms / 10)
-					: 0,
+				value:
+					payload.daily_stats.length > 0
+						? Math.round(payload.daily_stats[0].avg_latency_ms / 10)
+						: 0,
 				max: 100,
 				unit: "%",
 			},

@@ -6,21 +6,19 @@
  * Compound component: exports root + all sub-components.
  */
 
-export { default as RangeCalendar } from "./RangeCalendar.svelte";
-export { default as RangeCalendarHeader } from "./RangeCalendarHeader.svelte";
-export { default as RangeCalendarGrid } from "./RangeCalendarGrid.svelte";
-export { default as RangeCalendarCell } from "./RangeCalendarCell.svelte";
-
-export { contract as rangeCalendarComponentContract } from "./contract.js";
-export { rangeCalendarRecipe } from "./recipe.js";
-export { setRangeCalendarContext, getRangeCalendarContext } from "./context.js";
-
 export type { RangeCalendarContext } from "./context.js";
+export { getRangeCalendarContext, setRangeCalendarContext } from "./context.js";
+export { contract as rangeCalendarComponentContract } from "./contract.js";
+export { default as RangeCalendar } from "./RangeCalendar.svelte";
+export { default as RangeCalendarCell } from "./RangeCalendarCell.svelte";
+export { default as RangeCalendarGrid } from "./RangeCalendarGrid.svelte";
+export { default as RangeCalendarHeader } from "./RangeCalendarHeader.svelte";
+export { rangeCalendarRecipe } from "./recipe.js";
 export type {
-	RangeCalendarProps,
-	RangeCalendarHeaderProps,
-	RangeCalendarGridProps,
-	RangeCalendarCellProps,
 	DateRange,
+	RangeCalendarCellProps,
+	RangeCalendarGridProps,
+	RangeCalendarHeaderProps,
+	RangeCalendarProps,
 	Size as RangeCalendarSize,
 } from "./types.js";

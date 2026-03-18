@@ -8,13 +8,13 @@
 	ARIA: role="separator".
 -->
 <script lang="ts">
-	import type { DropdownMenuSeparatorProps } from "./types.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { dropdownMenuRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { dropdownMenuRecipe } from "./recipe.js";
+import type { DropdownMenuSeparatorProps } from "./types.js";
 
-	let { class: className, ...rest }: DropdownMenuSeparatorProps = $props();
+let { class: className, ...rest }: DropdownMenuSeparatorProps = $props();
 
-	const recipe = dropdownMenuRecipe();
+const recipe = dropdownMenuRecipe();
 </script>
 
 <div

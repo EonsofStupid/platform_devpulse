@@ -7,17 +7,17 @@
   Toggle via Ctrl+Shift+C. Draggable by the title bar.
 -->
 <script lang="ts">
-import { Send, Mic, Sparkles, X, Minus, GripVertical } from "lucide-svelte";
 import { invoke } from "@tauri-apps/api/core";
-import { platformState } from "$lib/sys/runes/platformState.svelte.js";
-import type { ChatMessage } from "$lib/sys/generated/chat.types.js";
+import { GripVertical, Mic, Minus, Send, Sparkles, X } from "lucide-svelte";
 import { Box } from "$lib/design/components/box/index.js";
 import { Button } from "$lib/design/components/button/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";
 import { HStack } from "$lib/design/components/hstack/index.js";
-import { Stack } from "$lib/design/components/stack/index.js";
 import { Input } from "$lib/design/components/input/index.js";
+import { Stack } from "$lib/design/components/stack/index.js";
+import { Text } from "$lib/design/components/text/index.js";
+import type { ChatMessage } from "$lib/sys/generated/chat.types.js";
+import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 
 let { open = $bindable(false) }: { open?: boolean } = $props();
 

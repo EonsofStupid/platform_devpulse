@@ -15,13 +15,13 @@
  * - getAllEffects() returns the full registry for manifest serialization
  */
 
+import { EffectDefinitionSchema } from "./_schema/schema.js";
 import type {
 	EffectCategory,
 	EffectDefinition,
 	ManifestEffect,
 	ManifestEffectCategory,
 } from "./_schema/types.js";
-import { EffectDefinitionSchema } from "./_schema/schema.js";
 
 // =============================================================================
 // REGISTRY STATE

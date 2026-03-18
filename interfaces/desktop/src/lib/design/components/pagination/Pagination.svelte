@@ -9,95 +9,113 @@
 	Reference: WAI-ARIA APG Navigation Landmark
 -->
 <script lang="ts">
-	import type { PaginationComponentProps } from "./types.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-	import {
-		paginationRootRecipe,
-		paginationPageRecipe,
-		paginationNavRecipe,
-		paginationEllipsisRecipe,
-	} from "./recipe.js";
+import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import { cn } from "$lib/design/primitives/types.js";
+import {
+	paginationEllipsisRecipe,
+	paginationNavRecipe,
+	paginationPageRecipe,
+	paginationRootRecipe,
+} from "./recipe.js";
+import type { PaginationComponentProps } from "./types.js";
 
-	let {
-		// Kind-specific props
-		page = 1,
-		totalPages,
-		onPageChange,
-		siblings = 1,
-		boundaries = 1,
-		size = "md",
-		children,
-		class: className,
-		// ColdLight 8-axis props
-		preset,
-		surface,
-		material,
-		depth,
-		bevel,
-		glow,
-		frame,
-		motion,
-		transition,
-		encoding,
-		radius,
-		// Rest spread
-		...rest
-	}: PaginationComponentProps = $props();
+let {
+	// Kind-specific props
+	page = 1,
+	totalPages,
+	onPageChange,
+	siblings = 1,
+	boundaries = 1,
+	size = "md",
+	children,
+	class: className,
+	// ColdLight 8-axis props
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	// Rest spread
+	...rest
+}: PaginationComponentProps = $props();
 
-	/**
-	 * Compute visible page range with ellipsis.
-	 * Returns array of page numbers and "ellipsis" markers.
-	 */
-	function getPageRange(current: number, total: number, sibs: number, bounds: number): (number | "ellipsis")[] {
-		const totalNumbers = sibs * 2 + 1 + bounds * 2;
-		if (totalNumbers >= total) {
-			return Array.from({ length: total }, (_, i) => i + 1);
-		}
-
-		const leftSibIdx = Math.max(current - sibs, bounds + 1);
-		const rightSibIdx = Math.min(current + sibs, total - bounds);
-
-		const showLeftEllipsis = leftSibIdx > bounds + 1;
-		const showRightEllipsis = rightSibIdx < total - bounds;
-
-		const result: (number | "ellipsis")[] = [];
-
-		// Left boundary pages
-		for (let i = 1; i <= bounds; i++) {
-			result.push(i);
-		}
-
-		if (showLeftEllipsis) {
-			result.push("ellipsis");
-		}
-
-		// Sibling pages
-		for (let i = leftSibIdx; i <= rightSibIdx; i++) {
-			result.push(i);
-		}
-
-		if (showRightEllipsis) {
-			result.push("ellipsis");
-		}
-
-		// Right boundary pages
-		for (let i = total - bounds + 1; i <= total; i++) {
-			result.push(i);
-		}
-
-		return result;
+/**
+ * Compute visible page range with ellipsis.
+ * Returns array of page numbers and "ellipsis" markers.
+ */
+function getPageRange(
+	current: number,
+	total: number,
+	sibs: number,
+	bounds: number,
+): (number | "ellipsis")[] {
+	const totalNumbers = sibs * 2 + 1 + bounds * 2;
+	if (totalNumbers >= total) {
+		return Array.from({ length: total }, (_, i) => i + 1);
 	}
 
-	const pages = $derived(getPageRange(page, totalPages, siblings, boundaries));
-	const isFirstPage = $derived(page <= 1);
-	const isLastPage = $derived(page >= totalPages);
+	const leftSibIdx = Math.max(current - sibs, bounds + 1);
+	const rightSibIdx = Math.min(current + sibs, total - bounds);
 
-	// Resolve ColdLight visual
-	const visual = useColdLight(() => ({ preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius, size }));
+	const showLeftEllipsis = leftSibIdx > bounds + 1;
+	const showRightEllipsis = rightSibIdx < total - bounds;
 
-	// Compose: structural recipe + ColdLight visual + user classes
-	const rootClasses = $derived(cn(paginationRootRecipe(), visual.segments, visual.radius, className));
+	const result: (number | "ellipsis")[] = [];
+
+	// Left boundary pages
+	for (let i = 1; i <= bounds; i++) {
+		result.push(i);
+	}
+
+	if (showLeftEllipsis) {
+		result.push("ellipsis");
+	}
+
+	// Sibling pages
+	for (let i = leftSibIdx; i <= rightSibIdx; i++) {
+		result.push(i);
+	}
+
+	if (showRightEllipsis) {
+		result.push("ellipsis");
+	}
+
+	// Right boundary pages
+	for (let i = total - bounds + 1; i <= total; i++) {
+		result.push(i);
+	}
+
+	return result;
+}
+
+const pages = $derived(getPageRange(page, totalPages, siblings, boundaries));
+const isFirstPage = $derived(page <= 1);
+const isLastPage = $derived(page >= totalPages);
+
+// Resolve ColdLight visual
+const visual = useColdLight(() => ({
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+}));
+
+// Compose: structural recipe + ColdLight visual + user classes
+const rootClasses = $derived(cn(paginationRootRecipe(), visual.segments, visual.radius, className));
 </script>
 
 <nav

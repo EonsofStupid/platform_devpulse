@@ -9,42 +9,35 @@
   Matches DASHBOARD-REFERENCE-01.
 -->
 <script lang="ts">
-	import { Stack } from "$lib/design/components/stack/index.js";
-	import { HStack } from "$lib/design/components/hstack/index.js";
-	import { Text } from "$lib/design/components/text/index.js";
-	import { Box } from "$lib/design/components/box/index.js";
-	import { Widget, RadialGauge, SparkLine } from "$lib/design/blocks/widgets/index.js";
-	import { devpulseState } from "$lib/domains/app/devpulse/index.js";
-	import { platformState } from "$lib/sys/runes/platformState.svelte.js";
-	import {
-		Gauge,
-		Activity,
-		TrendingUp,
-		BarChart3,
-		HeartPulse,
-		FolderGit2,
-	} from "lucide-svelte";
+import { Activity, BarChart3, FolderGit2, Gauge, HeartPulse, TrendingUp } from "lucide-svelte";
+import { RadialGauge, SparkLine, Widget } from "$lib/design/blocks/widgets/index.js";
+import { Box } from "$lib/design/components/box/index.js";
+import { HStack } from "$lib/design/components/hstack/index.js";
+import { Stack } from "$lib/design/components/stack/index.js";
+import { Text } from "$lib/design/components/text/index.js";
+import { devpulseState } from "$lib/domains/app/devpulse/index.js";
+import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 
-	const langColors: Record<string, string> = {
-		TypeScript: "teal",
-		Rust: "ember",
-		CSS: "purple",
-		Python: "cyber",
-	};
+const langColors: Record<string, string> = {
+	TypeScript: "teal",
+	Rust: "ember",
+	CSS: "purple",
+	Python: "cyber",
+};
 
-	const healthColors: Record<string, string> = {
-		Healthy: "var(--accent-teal-main)",
-		Degraded: "var(--accent-ember-main)",
-		Down: "var(--accent-ember-main)",
-		Unknown: "var(--text-muted)",
-	};
+const healthColors: Record<string, string> = {
+	Healthy: "var(--accent-teal-main)",
+	Degraded: "var(--accent-ember-main)",
+	Down: "var(--accent-ember-main)",
+	Unknown: "var(--text-muted)",
+};
 
-	// Fetch dashboard data only after platform boot completes
-	$effect(() => {
-		if (platformState.isReady && devpulseState.loading) {
-			devpulseState.refresh();
-		}
-	});
+// Fetch dashboard data only after platform boot completes
+$effect(() => {
+	if (platformState.isReady && devpulseState.loading) {
+		devpulseState.refresh();
+	}
+});
 </script>
 
 {#if devpulseState.loading}

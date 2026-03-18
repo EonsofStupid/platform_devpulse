@@ -21,11 +21,7 @@ export function contextMenuRecipe(props: ContextMenuRecipeProps = {}) {
 	};
 	return {
 		trigger: "",
-		content: cn(
-			"context-menu-content",
-			sizeMap[props.size ?? "md"] ?? sizeMap.md,
-			"rounded-md",
-		),
+		content: cn("context-menu-content", sizeMap[props.size ?? "md"] ?? sizeMap.md, "rounded-md"),
 		item: cn("context-menu-item"),
 		separator: cn("context-menu-separator"),
 		label: cn("context-menu-label"),

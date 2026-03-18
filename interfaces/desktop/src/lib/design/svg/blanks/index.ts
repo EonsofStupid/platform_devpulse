@@ -4,4 +4,4 @@
  * @package @devpulse/coldlight
  */
 
-export { getShape, rect, pill, circle, hexagon } from "./shapes/index.js";
+export { circle, getShape, hexagon, pill, rect } from "./shapes/index.js";

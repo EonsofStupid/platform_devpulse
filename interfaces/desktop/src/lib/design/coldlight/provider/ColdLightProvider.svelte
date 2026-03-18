@@ -10,13 +10,13 @@
 	SVG filters mounted separately (SvgFilters.svelte in root layout).
 -->
 <script lang="ts">
-	import type { Snippet } from "svelte";
-	import type { ColdLightProviderProps } from "./types.js";
-	import { setColdLightTheme } from "./context.svelte.js";
+import type { Snippet } from "svelte";
+import { setColdLightTheme } from "./context.svelte.js";
+import type { ColdLightProviderProps } from "./types.js";
 
-	let { theme = {}, children }: ColdLightProviderProps & { children: Snippet } = $props();
+let { theme = {}, children }: ColdLightProviderProps & { children: Snippet } = $props();
 
-	const resolved = $derived(setColdLightTheme(theme));
+const resolved = $derived(setColdLightTheme(theme));
 </script>
 
 <div

@@ -12,8 +12,8 @@
  * feGaussianBlur (expand into glow) → feMerge (glow behind source).
  */
 
-import { registerFilter } from "../registry.js";
 import type { FilterDef } from "../../_schema/types.js";
+import { registerFilter } from "../registry.js";
 
 // =============================================================================
 // GLOW TEAL — shape-aware teal ambient glow
@@ -23,12 +23,17 @@ const glowTealSvg: FilterDef = {
 	id: "glow-teal-svg",
 	category: "glow",
 	label: "SVG Glow Teal",
-	description: "Teal gaussian glow that follows shape contours. Shape-aware alternative to CSS box-shadow glow.",
+	description:
+		"Teal gaussian glow that follows shape contours. Shape-aware alternative to CSS box-shadow glow.",
 	cssClass: "filter-glow-teal",
 	filterMargin: 20,
 	params: [
 		{ cssProperty: "--svg-glow-radius", defaultValue: 8, description: "Glow blur radius" },
-		{ cssProperty: "--svg-glow-color", defaultValue: "oklch(0.55 0.18 180)", description: "Glow color" },
+		{
+			cssProperty: "--svg-glow-color",
+			defaultValue: "oklch(0.55 0.18 180)",
+			description: "Glow color",
+		},
 	],
 	steps: [
 		{
@@ -70,7 +75,11 @@ const glowPurpleSvg: FilterDef = {
 	filterMargin: 20,
 	params: [
 		{ cssProperty: "--svg-glow-radius", defaultValue: 8, description: "Glow blur radius" },
-		{ cssProperty: "--svg-glow-color", defaultValue: "oklch(0.55 0.18 280)", description: "Glow color" },
+		{
+			cssProperty: "--svg-glow-color",
+			defaultValue: "oklch(0.55 0.18 280)",
+			description: "Glow color",
+		},
 	],
 	steps: [
 		{

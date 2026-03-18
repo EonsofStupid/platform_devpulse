@@ -67,9 +67,7 @@ export const contract = {
 			element: "div",
 			aria: {
 				required: [],
-				optional: [
-					{ attr: "aria-live", valueType: "aria-live" },
-				],
+				optional: [{ attr: "aria-live", valueType: "aria-live" }],
 			},
 			data: {
 				kind: "calendar",

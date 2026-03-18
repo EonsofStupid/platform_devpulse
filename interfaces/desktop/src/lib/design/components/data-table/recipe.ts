@@ -19,8 +19,5 @@ export function dataTableRecipe(props: DataTableRecipeProps = {}): string {
 		md: "p-4 text-sm",
 		lg: "p-6 text-base",
 	};
-	return cn(
-		"data-table-root",
-		sizeMap[props.size ?? "md"] ?? sizeMap.md,
-	);
+	return cn("data-table-root", sizeMap[props.size ?? "md"] ?? sizeMap.md);
 }

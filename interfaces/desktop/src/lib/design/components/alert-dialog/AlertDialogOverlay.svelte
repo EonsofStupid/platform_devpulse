@@ -8,14 +8,14 @@
 	ColdLight-owned: aria-hidden="true".
 -->
 <script lang="ts">
-	import type { AlertDialogOverlayProps } from "./types.js";
-	import { getAlertDialogContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { alertDialogRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getAlertDialogContext } from "./context.js";
+import { alertDialogRecipe } from "./recipe.js";
+import type { AlertDialogOverlayProps } from "./types.js";
 
-	let { class: className, ...rest }: AlertDialogOverlayProps = $props();
-	const ctx = getAlertDialogContext();
-	const recipe = alertDialogRecipe();
+let { class: className, ...rest }: AlertDialogOverlayProps = $props();
+const ctx = getAlertDialogContext();
+const recipe = alertDialogRecipe();
 </script>
 
 {#if ctx.open}

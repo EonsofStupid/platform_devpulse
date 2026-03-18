@@ -8,11 +8,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type {
-	HTMLAttributes,
-	HTMLButtonAttributes,
-	HTMLDialogAttributes,
-} from "svelte/elements";
+import type { HTMLAttributes, HTMLButtonAttributes, HTMLDialogAttributes } from "svelte/elements";
 import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 /** Dialog root props — creates adapter and provides context */
@@ -42,25 +38,30 @@ export interface DialogContentProps extends Omit<HTMLDialogAttributes, "style" |
 }
 
 /** DialogOverlay props — backdrop overlay */
-export interface DialogOverlayProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {}
+export interface DialogOverlayProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {}
 
 /** DialogHeader props — header section wrapper */
-export interface DialogHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
+export interface DialogHeaderProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
 	children?: Snippet;
 }
 
 /** DialogFooter props — footer section wrapper */
-export interface DialogFooterProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
+export interface DialogFooterProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
 	children?: Snippet;
 }
 
 /** DialogTitle props — title with aria linking */
-export interface DialogTitleProps extends Omit<HTMLAttributes<HTMLHeadingElement>, "style" | "children"> {
+export interface DialogTitleProps
+	extends Omit<HTMLAttributes<HTMLHeadingElement>, "style" | "children"> {
 	children?: Snippet;
 }
 
 /** DialogDescription props — description with aria linking */
-export interface DialogDescriptionProps extends Omit<HTMLAttributes<HTMLParagraphElement>, "style" | "children"> {
+export interface DialogDescriptionProps
+	extends Omit<HTMLAttributes<HTMLParagraphElement>, "style" | "children"> {
 	children?: Snippet;
 }
 

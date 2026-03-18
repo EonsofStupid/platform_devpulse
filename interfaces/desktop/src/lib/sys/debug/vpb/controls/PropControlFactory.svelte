@@ -12,38 +12,36 @@
 	Emits semantic field names ("surface", "glass-deep") NOT numeric codes ("s", 2).
 -->
 <script lang="ts">
-	import {
-		TOKEN_CATEGORY_REGISTRY,
-		CODE_TO_NAME,
-		type Preset,
-	} from "$lib/design/registry/token-categories.js";
-	import type { ColdLightProps } from "$lib/design/registry/resolve-visual.js";
-	import SizeControl from "./SizeControl.svelte";
-	import RadiusControl from "./RadiusControl.svelte";
+import type { ColdLightProps } from "$lib/design/registry/resolve-visual.js";
+import {
+	CODE_TO_NAME,
+	type Preset,
+	TOKEN_CATEGORY_REGISTRY,
+} from "$lib/design/registry/token-categories.js";
+import RadiusControl from "./RadiusControl.svelte";
+import SizeControl from "./SizeControl.svelte";
 
-	let {
-		props,
-		resolvedPreset,
-		onchange,
-	}: {
-		/** Current ColdLight props being edited */
-		props: ColdLightProps;
-		/** Resolved preset from resolveVisual() — shows what's actually active */
-		resolvedPreset: Preset;
-		/** Callback: emits (fieldName, semanticId) e.g. ("surface", "glass-deep") */
-		onchange: (key: string, value: string) => void;
-	} = $props();
+let {
+	props,
+	resolvedPreset,
+	onchange,
+}: {
+	/** Current ColdLight props being edited */
+	props: ColdLightProps;
+	/** Resolved preset from resolveVisual() — shows what's actually active */
+	resolvedPreset: Preset;
+	/** Callback: emits (fieldName, semanticId) e.g. ("surface", "glass-deep") */
+	onchange: (key: string, value: string) => void;
+} = $props();
 
-	/** Sorted by encodingOrder so controls appear in a consistent order. */
-	const categories = TOKEN_CATEGORY_REGISTRY.toSorted(
-		(a, b) => a.encodingOrder - b.encodingOrder,
-	);
+/** Sorted by encodingOrder so controls appear in a consistent order. */
+const categories = TOKEN_CATEGORY_REGISTRY.toSorted((a, b) => a.encodingOrder - b.encodingOrder);
 
-	/** Get the current semantic ID for a category from the resolved preset. */
-	function getCurrentId(code: string): string {
-		const name = CODE_TO_NAME[code] as keyof Preset;
-		return resolvedPreset[name] as string;
-	}
+/** Get the current semantic ID for a category from the resolved preset. */
+function getCurrentId(code: string): string {
+	const name = CODE_TO_NAME[code] as keyof Preset;
+	return resolvedPreset[name] as string;
+}
 </script>
 
 <div class="vpb-controls">

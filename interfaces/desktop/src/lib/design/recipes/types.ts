@@ -9,24 +9,24 @@
  */
 
 export {
-	// Size & Radius — recipe-level props (SSOT)
-	SizeTokens,
-	type SizeToken,
-	SizeSchema,
-	RadiusTokens,
-	type RadiusToken,
-	RadiusSchema,
-	// Zod schemas
-	DsSurfacePropsSchema,
-	SlotVisualModeSchema,
-	SlotDefinitionSchema,
-	RecipeDefinitionSchema,
-	// Functions
-	toPreset,
 	// Types
 	type DsSurfaceProps,
-	type SlotVisualMode,
-	type SlotDefinition,
+	// Zod schemas
+	DsSurfacePropsSchema,
+	RadiusSchema,
+	type RadiusToken,
+	RadiusTokens,
 	type RecipeDefinition,
+	RecipeDefinitionSchema,
 	type RecipeLegend,
+	SizeSchema,
+	type SizeToken,
+	// Size & Radius — recipe-level props (SSOT)
+	SizeTokens,
+	type SlotDefinition,
+	SlotDefinitionSchema,
+	type SlotVisualMode,
+	SlotVisualModeSchema,
+	// Functions
+	toPreset,
 } from "./_base/schema.js";

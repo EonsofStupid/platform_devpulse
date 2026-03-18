@@ -23,11 +23,11 @@
  * ```
  */
 
-import { createIds } from "../../_internal/utils/uid.js";
-import { disabledAttr, dataAttr } from "../../_internal/utils/data-attr.js";
+import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
 import { kbd } from "../../_internal/utils/kbd.js";
+import { createIds } from "../../_internal/utils/uid.js";
 import { checkboxAnatomy } from "./checkbox.anatomy.js";
-import type { UseCheckboxProps, UseCheckboxReturn, CheckboxState } from "./checkbox.types.js";
+import type { CheckboxState, UseCheckboxProps, UseCheckboxReturn } from "./checkbox.types.js";
 
 export function useCheckbox(props: UseCheckboxProps = {}): UseCheckboxReturn {
 	const ids = createIds("checkbox", ["root", "indicator", "label"] as const);
@@ -107,21 +107,37 @@ export function useCheckbox(props: UseCheckboxProps = {}): UseCheckboxReturn {
 
 	// ── Public API ───────────────────────────────────────────────
 	return {
-		get checked() { return checked; },
-		get indeterminate() { return indeterminate; },
-		get root() { return root; },
-		get indicator() { return indicator; },
-		get label() { return label; },
+		get checked() {
+			return checked;
+		},
+		get indeterminate() {
+			return indeterminate;
+		},
+		get root() {
+			return root;
+		},
+		get indicator() {
+			return indicator;
+		},
+		get label() {
+			return label;
+		},
 		toggle: doToggle,
 		check() {
 			if (disabled) return;
-			if (indeterminate) { indeterminate = false; props.onIndeterminateChange?.(false); }
+			if (indeterminate) {
+				indeterminate = false;
+				props.onIndeterminateChange?.(false);
+			}
 			checked = true;
 			props.onCheckedChange?.(true);
 		},
 		uncheck() {
 			if (disabled) return;
-			if (indeterminate) { indeterminate = false; props.onIndeterminateChange?.(false); }
+			if (indeterminate) {
+				indeterminate = false;
+				props.onIndeterminateChange?.(false);
+			}
 			checked = false;
 			props.onCheckedChange?.(false);
 		},

@@ -8,11 +8,7 @@
  */
 
 import { z } from "zod";
-import {
-	SVG_FILTER_CATEGORIES,
-	SVG_FILTER_PRIMITIVES,
-	BLANK_SHAPES,
-} from "./types.js";
+import { BLANK_SHAPES, SVG_FILTER_CATEGORIES, SVG_FILTER_PRIMITIVES } from "./types.js";
 
 // =============================================================================
 // VOCABULARY SCHEMAS
@@ -51,10 +47,9 @@ export const FilterStepSchema = z.object({
 // =============================================================================
 
 export const FilterDefSchema = z.object({
-	id: z.string().regex(
-		/^[a-z][a-z0-9]*(-[a-z][a-z0-9]*)*$/,
-		"Filter ID must be lowercase kebab-case",
-	),
+	id: z
+		.string()
+		.regex(/^[a-z][a-z0-9]*(-[a-z][a-z0-9]*)*$/, "Filter ID must be lowercase kebab-case"),
 	category: SvgFilterCategorySchema,
 	label: z.string().min(1),
 	description: z.string().min(1),
@@ -62,10 +57,7 @@ export const FilterDefSchema = z.object({
 	steps: z.array(FilterStepSchema).min(1),
 	filterUnits: z.enum(["userSpaceOnUse", "objectBoundingBox"]).optional(),
 	filterMargin: z.number().min(0).max(100).optional(),
-	cssClass: z.string().regex(
-		/^filter-[a-z][a-z0-9-]*$/,
-		"CSS class must start with 'filter-'",
-	),
+	cssClass: z.string().regex(/^filter-[a-z][a-z0-9-]*$/, "CSS class must start with 'filter-'"),
 	effectId: z.string().optional(),
 });
 
@@ -100,10 +92,12 @@ export const ManifestSvgFilterSchema = z.object({
 	label: z.string(),
 	description: z.string(),
 	cssClass: z.string(),
-	params: z.array(z.object({
-		cssProperty: z.string(),
-		defaultValue: z.union([z.string(), z.number()]),
-	})),
+	params: z.array(
+		z.object({
+			cssProperty: z.string(),
+			defaultValue: z.union([z.string(), z.number()]),
+		}),
+	),
 	effectId: z.string().optional(),
 });
 

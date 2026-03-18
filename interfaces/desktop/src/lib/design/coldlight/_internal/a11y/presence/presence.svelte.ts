@@ -55,6 +55,8 @@ export function usePresence(config: PresenceConfig): PresenceReturn {
 	});
 
 	return {
-		get present() { return present; },
+		get present() {
+			return present;
+		},
 	};
 }

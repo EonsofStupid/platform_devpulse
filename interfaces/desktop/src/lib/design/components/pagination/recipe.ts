@@ -25,18 +25,12 @@ export function paginationRootRecipe(): string {
 
 export function paginationPageRecipe(props: PaginationRecipeProps = {}): string {
 	const size = props.size ?? "md";
-	return cn(
-		"pagination-page",
-		SIZE_MAP[size] ?? SIZE_MAP.md,
-	);
+	return cn("pagination-page", SIZE_MAP[size] ?? SIZE_MAP.md);
 }
 
 export function paginationNavRecipe(props: PaginationRecipeProps = {}): string {
 	const size = props.size ?? "md";
-	return cn(
-		"pagination-nav",
-		SIZE_MAP[size] ?? SIZE_MAP.md,
-	);
+	return cn("pagination-nav", SIZE_MAP[size] ?? SIZE_MAP.md);
 }
 
 export function paginationEllipsisRecipe(props: PaginationRecipeProps = {}): string {
@@ -46,8 +40,5 @@ export function paginationEllipsisRecipe(props: PaginationRecipeProps = {}): str
 		md: "text-sm",
 		lg: "text-base",
 	};
-	return cn(
-		"pagination-ellipsis",
-		labelSize[size] ?? labelSize.md,
-	);
+	return cn("pagination-ellipsis", labelSize[size] ?? labelSize.md);
 }

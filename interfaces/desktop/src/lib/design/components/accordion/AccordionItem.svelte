@@ -12,24 +12,22 @@
 	3. Sets AccordionItemTransport context for child sub-components
 -->
 <script lang="ts">
-	import type { AccordionItemProps } from "./types.js";
-	import { getAccordionContext, setAccordionItemContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getAccordionContext, setAccordionItemContext } from "./context.js";
+import type { AccordionItemProps } from "./types.js";
 
-	let {
-		value,
-		disabled = false,
-		children,
-		class: className,
-		...rest
-	}: AccordionItemProps = $props();
+let { value, disabled = false, children, class: className, ...rest }: AccordionItemProps = $props();
 
-	const transport = getAccordionContext();
-	const item = transport.getItem({
-		get id() { return value; },
-		get disabled() { return disabled; },
-	});
-	setAccordionItemContext(item);
+const transport = getAccordionContext();
+const item = transport.getItem({
+	get id() {
+		return value;
+	},
+	get disabled() {
+		return disabled;
+	},
+});
+setAccordionItemContext(item);
 </script>
 
 <div

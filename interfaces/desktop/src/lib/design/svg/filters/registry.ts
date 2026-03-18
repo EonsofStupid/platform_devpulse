@@ -14,8 +14,8 @@
  * - getAllFiltersForManifest() serializes for JSON manifest
  */
 
-import type { FilterDef, ManifestSvgFilter, SvgFilterCategory } from "../_schema/types.js";
 import { FilterDefSchema } from "../_schema/schema.js";
+import type { FilterDef, ManifestSvgFilter, SvgFilterCategory } from "../_schema/types.js";
 
 // =============================================================================
 // REGISTRY STATE
@@ -46,9 +46,7 @@ export function registerFilter(definition: FilterDef): void {
 
 	// Duplicate check
 	if (registry.has(definition.id)) {
-		throw new Error(
-			`[ColdLight] Duplicate SVG filter ID: "${definition.id}" — IDs must be unique`,
-		);
+		throw new Error(`[ColdLight] Duplicate SVG filter ID: "${definition.id}" — IDs must be unique`);
 	}
 
 	// Register in main map

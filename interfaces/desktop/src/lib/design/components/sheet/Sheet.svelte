@@ -6,57 +6,77 @@
 	Compound: trigger / overlay / content / close slots.
 -->
 <script lang="ts">
-	import type { SheetComponentProps } from "./types.js";
-	import { createSheet } from "$lib/design/api/dsadapters/coldlight/_internal/sheet/index.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-	import { sheetRecipe, sheetOverlayRecipe } from "./recipe.js";
+import { createSheet } from "$lib/design/api/dsadapters/coldlight/_internal/sheet/index.js";
+import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { sheetOverlayRecipe, sheetRecipe } from "./recipe.js";
+import type { SheetComponentProps } from "./types.js";
 
-	let {
-		size = "md",
-		side = "right",
-		open = false,
-		onOpenChange,
-		label,
-		closeOnEscape = true,
-		closeOnOutsideClick = true,
-		trigger,
-		children,
-		class: className,
-		// ColdLight 8-axis props
-		preset,
-		surface,
-		material,
-		depth,
-		bevel,
-		glow,
-		frame,
-		motion,
-		transition,
-		encoding,
-		radius,
-		// Rest spread
-		...rest
-	}: SheetComponentProps = $props();
+let {
+	size = "md",
+	side = "right",
+	open = false,
+	onOpenChange,
+	label,
+	closeOnEscape = true,
+	closeOnOutsideClick = true,
+	trigger,
+	children,
+	class: className,
+	// ColdLight 8-axis props
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	// Rest spread
+	...rest
+}: SheetComponentProps = $props();
 
-	const visual = useColdLight(
-		() => ({
-			preset, surface, material, depth, bevel, glow, frame, motion, transition,
-			encoding, radius,
-		}),
-	);
+const visual = useColdLight(() => ({
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+}));
 
-	const builder = createSheet({
-		get open() { return open; },
-		onOpenChange: (v: any) => onOpenChange?.(v),
-		get label() { return label; },
-		get side() { return side; },
-		get closeOnEscape() { return closeOnEscape; },
-		get closeOnOutsideClick() { return closeOnOutsideClick; },
-	});
+const builder = createSheet({
+	get open() {
+		return open;
+	},
+	// biome-ignore lint/suspicious/noExplicitAny: callback value type from builder
+	onOpenChange: (v: any) => onOpenChange?.(v),
+	get label() {
+		return label;
+	},
+	get side() {
+		return side;
+	},
+	get closeOnEscape() {
+		return closeOnEscape;
+	},
+	get closeOnOutsideClick() {
+		return closeOnOutsideClick;
+	},
+});
 
-	const contentClasses = $derived(cn(sheetRecipe({ size, side }), visual.segments, visual.radius, className));
-	const overlayClasses = $derived(cn(sheetOverlayRecipe()));
+const contentClasses = $derived(
+	cn(sheetRecipe({ size, side }), visual.segments, visual.radius, className),
+);
+const overlayClasses = $derived(cn(sheetOverlayRecipe()));
 </script>
 
 <button {...builder.trigger} data-kind="sheet" data-slot="trigger">

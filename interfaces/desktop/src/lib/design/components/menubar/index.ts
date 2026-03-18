@@ -6,30 +6,27 @@
  * Compound component: exports root + all sub-components.
  */
 
-export { default as Menubar } from "./Menubar.svelte";
-export { default as MenubarMenu } from "./MenubarMenu.svelte";
-export { default as MenubarTrigger } from "./MenubarTrigger.svelte";
-export { default as MenubarContent } from "./MenubarContent.svelte";
-export { default as MenubarItem } from "./MenubarItem.svelte";
-export { default as MenubarSeparator } from "./MenubarSeparator.svelte";
-
-export { contract as menubarComponentContract } from "./contract.js";
-export { menubarRecipe } from "./recipe.js";
+export type { MenubarMenuCtx, MenubarRootCtx } from "./context.js";
 export {
-	setMenubarRootContext,
+	getMenubarMenuContext,
 	getMenubarRootContext,
 	setMenubarMenuContext,
-	getMenubarMenuContext,
+	setMenubarRootContext,
 } from "./context.js";
-
+export { contract as menubarComponentContract } from "./contract.js";
+export { default as Menubar } from "./Menubar.svelte";
+export { default as MenubarContent } from "./MenubarContent.svelte";
+export { default as MenubarItem } from "./MenubarItem.svelte";
+export { default as MenubarMenu } from "./MenubarMenu.svelte";
+export { default as MenubarSeparator } from "./MenubarSeparator.svelte";
+export { default as MenubarTrigger } from "./MenubarTrigger.svelte";
+export { menubarRecipe } from "./recipe.js";
 export type {
-	MenubarProps,
-	MenubarMenuProps,
-	MenubarTriggerProps,
 	MenubarContentProps,
 	MenubarItemProps,
+	MenubarMenuProps,
+	MenubarProps,
 	MenubarSeparatorProps,
 	MenubarSize,
+	MenubarTriggerProps,
 } from "./types.js";
-
-export type { MenubarRootCtx, MenubarMenuCtx } from "./context.js";

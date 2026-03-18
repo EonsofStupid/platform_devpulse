@@ -4,10 +4,10 @@
  * @layer components
  */
 
-export { useColdLight } from "./use-coldlight.svelte.js";
 export type {
-	PreparedComponentProps,
-	ComponentDefaults,
 	ColdLightProps,
+	ComponentDefaults,
+	PreparedComponentProps,
 	ResolvedVisual,
 } from "./types.js";
+export { useColdLight } from "./use-coldlight.svelte.js";

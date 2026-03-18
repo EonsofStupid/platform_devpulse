@@ -1,2 +1,2 @@
 export { announce, useLiveRegion } from "./live-region.js";
-export type { Politeness, LiveRegionReturn } from "./types.js";
+export type { LiveRegionReturn, Politeness } from "./types.js";

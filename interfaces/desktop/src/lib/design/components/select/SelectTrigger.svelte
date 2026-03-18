@@ -9,15 +9,15 @@
 	WAI-ARIA APG: trigger has role="combobox", aria-expanded, aria-haspopup.
 -->
 <script lang="ts">
-	import type { SelectTriggerProps } from "./types.js";
-	import { getSelectContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { selectRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getSelectContext } from "./context.js";
+import { selectRecipe } from "./recipe.js";
+import type { SelectTriggerProps } from "./types.js";
 
-	let { children, class: className, ...rest }: SelectTriggerProps = $props();
+let { children, class: className, ...rest }: SelectTriggerProps = $props();
 
-	const transport = getSelectContext();
-	const recipe = selectRecipe();
+const transport = getSelectContext();
+const recipe = selectRecipe();
 </script>
 
 <button

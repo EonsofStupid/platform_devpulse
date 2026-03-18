@@ -19,8 +19,5 @@ export function breadcrumbRecipe(props: BreadcrumbRecipeProps = {}): string {
 		md: "text-xs",
 		lg: "text-sm",
 	};
-	return cn(
-		"breadcrumb",
-		sizeMap[props.size ?? "md"] ?? sizeMap.md,
-	);
+	return cn("breadcrumb", sizeMap[props.size ?? "md"] ?? sizeMap.md);
 }

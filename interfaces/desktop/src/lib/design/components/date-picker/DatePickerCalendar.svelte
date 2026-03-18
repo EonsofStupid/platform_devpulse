@@ -8,14 +8,14 @@
 	ColdLight-owned — delegates to Calendar component context.
 -->
 <script lang="ts">
-	import type { DatePickerCalendarProps } from "./types.js";
-	import { getDatePickerContext } from "./context.js";
-	import { datePickerRecipe } from "./recipe.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getDatePickerContext } from "./context.js";
+import { datePickerRecipe } from "./recipe.js";
+import type { DatePickerCalendarProps } from "./types.js";
 
-	let { children, class: className, ...rest }: DatePickerCalendarProps = $props();
-	const ctx = getDatePickerContext();
-	const recipe = $derived(datePickerRecipe({ size: ctx.size }));
+let { children, class: className, ...rest }: DatePickerCalendarProps = $props();
+const ctx = getDatePickerContext();
+const recipe = $derived(datePickerRecipe({ size: ctx.size }));
 </script>
 
 <div

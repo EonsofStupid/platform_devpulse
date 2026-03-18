@@ -14,5 +14,8 @@ export interface UseToolbarProps {
 export interface UseToolbarReturn {
 	readonly root: Record<string, unknown>;
 	/** Get item attrs. Items use roving tabindex. */
-	getItem(value: string, options?: { disabled?: boolean; active?: boolean }): Record<string, unknown>;
+	getItem(
+		value: string,
+		options?: { disabled?: boolean; active?: boolean },
+	): Record<string, unknown>;
 }

@@ -1,5 +1,5 @@
+import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { expect, test, describe } from "vitest";
 import { contract } from "./contract.js";
 import ToggleGroup from "./ToggleGroup.svelte";
 
@@ -73,9 +73,7 @@ describe("toggle-group component — ARIA", () => {
 
 	test("renders aria-orientation on root", async () => {
 		const { container } = render(ToggleGroup, {
-			items: [
-				{ value: "a", label: "A" },
-			],
+			items: [{ value: "a", label: "A" }],
 			orientation: "vertical",
 		});
 		const root = container.querySelector("[data-kind='toggle-group']");
@@ -85,9 +83,7 @@ describe("toggle-group component — ARIA", () => {
 	test("renders data-disabled when disabled", async () => {
 		const { container } = render(ToggleGroup, {
 			disabled: true,
-			items: [
-				{ value: "a", label: "A" },
-			],
+			items: [{ value: "a", label: "A" }],
 		});
 		const root = container.querySelector("[data-kind='toggle-group']");
 		expect(root?.hasAttribute("data-disabled")).toBe(true);
@@ -97,9 +93,7 @@ describe("toggle-group component — ARIA", () => {
 describe("toggle-group component — recipe", () => {
 	test("applies recipe base classes", async () => {
 		const { container } = render(ToggleGroup, {
-			items: [
-				{ value: "a", label: "A" },
-			],
+			items: [{ value: "a", label: "A" }],
 		});
 		const root = container.querySelector("[data-kind='toggle-group']");
 		expect(root?.className).toContain("inline-flex");

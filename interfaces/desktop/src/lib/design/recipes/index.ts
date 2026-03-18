@@ -9,7 +9,7 @@
  * The engine (resolveRecipe) produces final classes — recipes are DATA, not functions.
  */
 
-import { RecipeDefinitionSchema, type RecipeDefinition } from "./types.js";
+import { type RecipeDefinition, RecipeDefinitionSchema } from "./types.js";
 
 const recipes = new Map<string, RecipeDefinition>();
 
@@ -37,9 +37,7 @@ export function registerRecipe(recipe: RecipeDefinition): void {
 	}
 
 	if (import.meta.env?.DEV && recipes.has(recipe.id)) {
-		console.warn(
-			`[ColdLight] Recipe "${recipe.id}" already registered. Overwriting.`,
-		);
+		console.warn(`[ColdLight] Recipe "${recipe.id}" already registered. Overwriting.`);
 	}
 
 	recipes.set(recipe.id, recipe);
@@ -60,6 +58,6 @@ export function getRecipeIds(): string[] {
 	return Array.from(recipes.keys());
 }
 
+export { mergeDefaults, resolveRecipe } from "./engine.js";
 // Re-exports
 export type { DsSurfaceProps, RecipeDefinition, SlotDefinition } from "./types.js";
-export { resolveRecipe, mergeDefaults } from "./engine.js";

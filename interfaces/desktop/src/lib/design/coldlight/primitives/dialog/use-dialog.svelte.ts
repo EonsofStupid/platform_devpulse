@@ -30,10 +30,10 @@
  */
 
 import { tick } from "svelte";
-import { createIds } from "../../_internal/utils/uid.js";
 import { useDismissLayer } from "../../_internal/a11y/dismiss-layer/index.js";
 import { usePresence } from "../../_internal/a11y/presence/index.js";
 import { useScrollLock } from "../../_internal/a11y/scroll-lock/index.js";
+import { createIds } from "../../_internal/utils/uid.js";
 import { dialogAnatomy } from "./dialog.anatomy.js";
 import type { UseDialogProps, UseDialogReturn } from "./dialog.types.js";
 
@@ -144,34 +144,54 @@ export function useDialog(props: UseDialogProps = {}): UseDialogReturn {
 		});
 
 		return {
-			destroy() { contentEl = null; },
+			destroy() {
+				contentEl = null;
+			},
 		};
 	}
 
 	function attachOverlay(node: HTMLElement): { destroy(): void } {
 		overlayEl = node;
 		return {
-			destroy() { overlayEl = null; },
+			destroy() {
+				overlayEl = null;
+			},
 		};
 	}
 
 	function attachTrigger(node: HTMLElement): { destroy(): void } {
 		triggerEl = node;
 		return {
-			destroy() { triggerEl = null; },
+			destroy() {
+				triggerEl = null;
+			},
 		};
 	}
 
 	// ── Public API ───────────────────────────────────────────────
 	return {
-		get open() { return isOpen; },
+		get open() {
+			return isOpen;
+		},
 		setOpen,
-		get trigger() { return trigger; },
-		get overlay() { return overlay; },
-		get content() { return content; },
-		get title() { return title; },
-		get description() { return description; },
-		get close() { return close; },
+		get trigger() {
+			return trigger;
+		},
+		get overlay() {
+			return overlay;
+		},
+		get content() {
+			return content;
+		},
+		get title() {
+			return title;
+		},
+		get description() {
+			return description;
+		},
+		get close() {
+			return close;
+		},
 		attachContent,
 		attachOverlay,
 		attachTrigger,

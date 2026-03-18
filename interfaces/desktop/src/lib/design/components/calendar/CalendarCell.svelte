@@ -8,31 +8,31 @@
 	ColdLight-owned — renders aria-selected, aria-disabled, aria-current directly.
 -->
 <script lang="ts">
-	import type { CalendarCellProps } from "./types.js";
-	import { getCalendarContext } from "./context.js";
-	import { calendarRecipe } from "./recipe.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getCalendarContext } from "./context.js";
+import { calendarRecipe } from "./recipe.js";
+import type { CalendarCellProps } from "./types.js";
 
-	let { date, children, class: className, ...rest }: CalendarCellProps = $props();
-	const ctx = getCalendarContext();
-	const recipe = $derived(calendarRecipe({ size: ctx.size }));
+let { date, children, class: className, ...rest }: CalendarCellProps = $props();
+const ctx = getCalendarContext();
+const recipe = $derived(calendarRecipe({ size: ctx.size }));
 
-	const isSelected = $derived(ctx.isSelected(date));
-	const isToday = $derived(ctx.isToday(date));
-	const isDisabled = $derived(ctx.isDateDisabled(date));
-	const isOutside = $derived(ctx.isOutsideMonth(date));
+const isSelected = $derived(ctx.isSelected(date));
+const isToday = $derived(ctx.isToday(date));
+const isDisabled = $derived(ctx.isDateDisabled(date));
+const isOutside = $derived(ctx.isOutsideMonth(date));
 
-	const state = $derived(
-		isSelected
-			? "selected"
-			: isToday
-				? "today"
-				: isDisabled
-					? "disabled"
-					: isOutside
-						? "outside-month"
-						: undefined,
-	);
+const state = $derived(
+	isSelected
+		? "selected"
+		: isToday
+			? "today"
+			: isDisabled
+				? "disabled"
+				: isOutside
+					? "outside-month"
+					: undefined,
+);
 </script>
 
 <button

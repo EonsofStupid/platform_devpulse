@@ -83,9 +83,15 @@ export function useTabs(props: UseTabsProps = {}): UseTabsReturn {
 	});
 
 	return {
-		get value() { return value; },
-		get root() { return root; },
-		get list() { return list; },
+		get value() {
+			return value;
+		},
+		get root() {
+			return root;
+		},
+		get list() {
+			return list;
+		},
 
 		getTrigger(tabValue: string, disabled?: boolean) {
 			const isSelected = tabValue === value;
@@ -101,7 +107,9 @@ export function useTabs(props: UseTabsProps = {}): UseTabsReturn {
 				"data-value": tabValue,
 				"data-disabled": disabled ? ("" as const) : undefined,
 				"aria-disabled": disabled || undefined,
-				onclick: () => { if (!disabled) setValue(tabValue); },
+				onclick: () => {
+					if (!disabled) setValue(tabValue);
+				},
 				onkeydown: handleKeydown,
 			};
 		},

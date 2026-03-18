@@ -3,10 +3,15 @@
  */
 
 @theme {
-  --inset-shadow-off: 0px 0px 0px 0px #00000000;
-  --inset-shadow-subtle: 0px 1px 0px 0px #ffffff1a, 0px -1px 1px 0px #00000029;
-  --inset-shadow-soft: 0px 1px 1px 0px #ffffff1f, 0px 2px 4px 0px #ffffff14, 0px -1px 3px 0px #00000033;
-  --inset-shadow-medium: 0px 1px 1px 0px #ffffff26, 0px 2px 5px 0px #ffffff1a, 0px -1px 3px 0px #00000040, 0px -3px 6px 0px #00000029;
-  --inset-shadow-pronounced: 0px 1px 1px 0px #ffffff33, 0px 2px 5px 0px #ffffff24, 0px 4px 10px 0px #ffffff14, 0px -1px 3px 0px #00000047, 0px -4px 8px 0px #00000033;
-  --inset-shadow-deep: 0px 1px 1px 0px #ffffff3d, 0px 2px 4px 0px #ffffff2e, 0px 4px 8px 0px #ffffff1a, 0px 6px 14px 0px #ffffff0d, 0px -1px 3px 0px #00000052, 0px -4px 8px 0px #0000003d, 0px -8px 16px 0px #00000024;
+	--inset-shadow-off: 0px 0px 0px 0px #00000000;
+	--inset-shadow-subtle: 0px 1px 0px 0px #ffffff1a, 0px -1px 1px 0px #00000029;
+	--inset-shadow-soft:
+		0px 1px 1px 0px #ffffff1f, 0px 2px 4px 0px #ffffff14, 0px -1px 3px 0px #00000033;
+	--inset-shadow-medium:
+		0px 1px 1px 0px #ffffff26, 0px 2px 5px 0px #ffffff1a, 0px -1px 3px 0px #00000040,
+		0px -3px 6px 0px #00000029;
+	--inset-shadow-pronounced:
+		0px 1px 1px 0px #ffffff33, 0px 2px 5px 0px #ffffff24, 0px 4px 10px 0px #ffffff14, 0px -1px 3px 0px #00000047, 0px -4px 8px 0px #00000033;
+	--inset-shadow-deep:
+		0px 1px 1px 0px #ffffff3d, 0px 2px 4px 0px #ffffff2e, 0px 4px 8px 0px #ffffff1a, 0px 6px 14px 0px #ffffff0d, 0px -1px 3px 0px #00000052, 0px -4px 8px 0px #0000003d, 0px -8px 16px 0px #00000024;
 }

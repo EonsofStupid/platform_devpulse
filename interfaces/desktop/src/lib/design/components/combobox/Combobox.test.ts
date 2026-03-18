@@ -18,14 +18,15 @@
  * Setup:  vitest-browser-svelte
  */
 
-import { expect, test, describe } from "vitest";
-import { contract } from "./contract.js";
+import { describe, expect, test } from "vitest";
 import { getRecipe } from "$lib/design/recipes/index.js";
+import { contract } from "./contract.js";
 import "$lib/design/recipes/components/combobox/combobox.default.js";
 import type { DsSurfaceProps } from "$lib/design/recipes/types.js";
 
 /** Resolve recipe classes for a given size (defaults filled from registry). */
 function resolveRecipe(size: "sm" | "md" | "lg" = "md"): Record<string, string> {
+	// biome-ignore lint/style/noNonNullAssertion: recipe is registered at module level — always present
 	const def = getRecipe("combobox.glass.void")!;
 	return def.classes?.({ ...def.defaults, size } as DsSurfaceProps) ?? {};
 }
@@ -202,7 +203,7 @@ describe("combobox — keyboard contract (APG)", () => {
 	test("input slot has per-slot keyboard entries", () => {
 		const inputKb = contract.slotContracts.input.keyboard;
 		expect(inputKb).toBeDefined();
-		expect(inputKb!.length).toBeGreaterThanOrEqual(7);
+		expect(inputKb?.length).toBeGreaterThanOrEqual(7);
 	});
 });
 
@@ -414,11 +415,12 @@ describe("combobox — recipe registry (SSOT)", () => {
 	test("recipe is registered with ID 'combobox.glass.void'", () => {
 		const def = getRecipe("combobox.glass.void");
 		expect(def).toBeDefined();
-		expect(def!.kind).toBe("combobox");
-		expect(def!.label).toBe("Glass Void Combobox");
+		expect(def?.kind).toBe("combobox");
+		expect(def?.label).toBe("Glass Void Combobox");
 	});
 
 	test("recipe defaults include all DsSurfaceProps", () => {
+		// biome-ignore lint/style/noNonNullAssertion: recipe is registered at module level — always present
 		const def = getRecipe("combobox.glass.void")!;
 		expect(def.defaults.surface).toBe("glass-void");
 		expect(def.defaults.material).toBe("none");
@@ -674,6 +676,7 @@ describe("combobox — system a11y utilities", () => {
 	test("liveRegionAttrs builds correct attributes", async () => {
 		const { liveRegionAttrs, createLiveRegionConfigs } = await import("../_schema/a11y.js");
 		const configs = createLiveRegionConfigs(contract);
+		// biome-ignore lint/style/noNonNullAssertion: test assertion — announce config always exists in contract
 		const announce = configs.find((c) => c.slot === "announce")!;
 		const attrs = liveRegionAttrs(announce);
 		expect(attrs["aria-live"]).toBe("polite");

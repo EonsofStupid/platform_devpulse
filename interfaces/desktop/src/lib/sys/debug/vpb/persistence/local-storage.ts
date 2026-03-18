@@ -7,7 +7,7 @@
  * All loads are Zod-validated to catch schema drift.
  */
 
-import { BlockDocumentSchema, type BlockDocument } from "$lib/design/blocks/schema.js";
+import { type BlockDocument, BlockDocumentSchema } from "$lib/design/blocks/schema.js";
 
 const AUTO_SAVE_KEY = "vpb:autosave";
 const DOCUMENTS_KEY = "vpb:documents";

@@ -67,14 +67,8 @@ registerRecipe({
 				"border-l-4 border-[var(--callout-border)]",
 				"bg-[var(--callout-bg)]",
 			),
-			icon: cn(
-				"shrink-0",
-				s.icon,
-				"text-[var(--callout-border)]",
-			),
-			content: cn(
-				"flex-1 text-text-secondary",
-			),
+			icon: cn("shrink-0", s.icon, "text-[var(--callout-border)]"),
+			content: cn("flex-1 text-text-secondary"),
 		};
 	},
 });

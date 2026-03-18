@@ -54,19 +54,14 @@ registerRecipe({
 		const s = SIZE_SCALE[props.size];
 
 		return {
-			root: cn(
-				"relative flex w-full touch-none select-none items-center",
-			),
+			root: cn("relative flex w-full touch-none select-none items-center"),
 			track: cn(
 				"relative w-full rounded-full",
 				s.track,
 				"bg-[var(--slider-track-bg)]",
 				"overflow-hidden",
 			),
-			range: cn(
-				"absolute h-full rounded-full",
-				"bg-[var(--slider-range-bg)]",
-			),
+			range: cn("absolute h-full rounded-full", "bg-[var(--slider-range-bg)]"),
 			thumb: cn(
 				"block rounded-full",
 				s.thumb,

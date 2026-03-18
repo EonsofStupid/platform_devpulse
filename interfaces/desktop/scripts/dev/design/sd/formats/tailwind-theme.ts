@@ -1,4 +1,3 @@
-
 /**
  * @file scripts/dev/design/sd/formats/tailwind-theme.ts
  * @package @devpulse/coldlight

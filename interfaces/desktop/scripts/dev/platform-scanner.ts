@@ -22,7 +22,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import { resolveFileContext, ROOTS } from "./file-context.js";
+import { ROOTS, resolveFileContext } from "./file-context.js";
 import { matchRule } from "./file-schema.js";
 import type {
 	AdapterKindSummary,
@@ -263,7 +263,10 @@ function fileExists(filePath: string): boolean {
 // HEADER COMPLIANCE CHECK
 // =============================================================================
 
-function checkHeaderCompliance(filePath: string): { status: "ok" | "missing" | "wrong"; missingTags: string[] } {
+function checkHeaderCompliance(filePath: string): {
+	status: "ok" | "missing" | "wrong";
+	missingTags: string[];
+} {
 	try {
 		const ctx = resolveFileContext(filePath);
 		const rule = matchRule(ctx);
@@ -346,7 +349,8 @@ function scanPrimitives(): PrimitiveSummary[] {
 		// Adapter checks — use directory-friendly kind names
 		// MeltUI uses flat names: "fileupload" not "file-upload", "radiogroup" not "radio-group"
 		const meltKindName = kind.replace(/-/g, "");
-		const hasMeltAdapter = fileExists(path.join(meltRoot, meltKindName)) || fileExists(path.join(meltRoot, kind));
+		const hasMeltAdapter =
+			fileExists(path.join(meltRoot, meltKindName)) || fileExists(path.join(meltRoot, kind));
 		const hasColdlightAdapter = fileExists(path.join(coldlightAdapterRoot, kind));
 		const hasBuilder = fileExists(path.join(buildersRoot, kind));
 
@@ -408,7 +412,13 @@ function scanAdapterKinds(adapterRoot: string): AdapterKindSummary[] {
 		const hasTransportFactory = transportFiles.includes("factory.ts");
 		const hasTransportIndex = transportFiles.includes("index.ts");
 
-		const isComplete = hasFactory && hasIndex && hasTransport && hasTransportTypes && hasTransportFactory && hasTransportIndex;
+		const isComplete =
+			hasFactory &&
+			hasIndex &&
+			hasTransport &&
+			hasTransportTypes &&
+			hasTransportFactory &&
+			hasTransportIndex;
 
 		results.push({
 			kind,
@@ -494,7 +504,9 @@ function scanRecipes(): RecipeSummary[] {
 		for (const kind of kinds) {
 			const kindDir = path.join(groupDir, kind);
 			const files = listFiles(kindDir);
-			const variants = files.filter((f) => f !== "index.ts" && f !== "types.ts" && f.endsWith(".ts"));
+			const variants = files.filter(
+				(f) => f !== "index.ts" && f !== "types.ts" && f.endsWith(".ts"),
+			);
 
 			results.push({
 				kind,
@@ -714,7 +726,9 @@ function aggregateHeaderCompliance(): HeaderComplianceReport {
 // STATISTICS COMPUTATION
 // =============================================================================
 
-function computeStats(manifest: Omit<DevPulseManifest, "stats" | "headerCompliance">): PlatformStats {
+function computeStats(
+	manifest: Omit<DevPulseManifest, "stats" | "headerCompliance">,
+): PlatformStats {
 	// File counts by namespace
 	const byNamespace: Record<string, number> = {
 		"@devpulse/coldlight": 0,
@@ -765,7 +779,8 @@ function computeStats(manifest: Omit<DevPulseManifest, "stats" | "headerComplian
 	// File counts by layer (approximation from categories)
 	const byLayer: Record<string, number> = {
 		primitives: prims.length,
-		adapters: manifest.coldlight.adapters.meltui.length + manifest.coldlight.adapters.coldlight.length,
+		adapters:
+			manifest.coldlight.adapters.meltui.length + manifest.coldlight.adapters.coldlight.length,
 		builders: manifest.coldlight.builders.length,
 		components: manifest.coldlight.components.length,
 		recipes: manifest.coldlight.recipes.length,
@@ -797,7 +812,9 @@ export function scanPlatform(): PlatformScanResult {
 	// ── ColdLight ────────────────────────────────────────────────────────────
 	const primitives = scanPrimitives();
 	const meltAdapters = scanAdapterKinds(path.join(ROOTS.design, "api/adapters/meltui/_internal"));
-	const coldlightAdapters = scanAdapterKinds(path.join(ROOTS.design, "api/adapters/coldlight/_internal"));
+	const coldlightAdapters = scanAdapterKinds(
+		path.join(ROOTS.design, "api/adapters/coldlight/_internal"),
+	);
 	const builders = scanBuilders();
 	const components = scanComponents();
 	const recipes = scanRecipes();
@@ -1002,7 +1019,7 @@ function main(): void {
 
 	if (writeFlag) {
 		const outputPath = path.join(ROOTS.desktop, "devpulse.manifest.json");
-		fs.writeFileSync(outputPath, JSON.stringify(result.manifest, null, 2) + "\n");
+		fs.writeFileSync(outputPath, `${JSON.stringify(result.manifest, null, 2)}\n`);
 		console.log(`  Manifest written to: ${outputPath}\n`);
 	}
 }

@@ -12,13 +12,13 @@ import { z } from "zod";
 import { A11ySpecSchema } from "./a11y.schema.js";
 
 export const PrimitiveCategorySchema = z.enum([
-	"interactive",     // button, checkbox, switch, toggle
-	"form",            // input, textarea, select, combobox, slider
-	"overlay",         // dialog, popover, tooltip, sheet
-	"navigation",      // tabs, accordion, breadcrumb, nav
-	"layout",          // box, flex, grid, stack, center, spacer
-	"display",         // badge, kbd, code, skeleton, spinner
-	"feedback",        // alert, progress, steps
+	"interactive", // button, checkbox, switch, toggle
+	"form", // input, textarea, select, combobox, slider
+	"overlay", // dialog, popover, tooltip, sheet
+	"navigation", // tabs, accordion, breadcrumb, nav
+	"layout", // box, flex, grid, stack, center, spacer
+	"display", // badge, kbd, code, skeleton, spinner
+	"feedback", // alert, progress, steps
 ]);
 
 export const BasePrimitiveSchema = z.object({

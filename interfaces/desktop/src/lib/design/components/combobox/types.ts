@@ -14,8 +14,8 @@
  */
 
 import type { Snippet } from "svelte";
-import type { SizeToken } from "$lib/design/recipes/types.js";
 import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { SizeToken } from "$lib/design/recipes/types.js";
 
 // =============================================================================
 // ROOT — Combobox wrapper, creates transport + sets context

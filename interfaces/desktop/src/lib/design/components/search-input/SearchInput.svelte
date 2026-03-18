@@ -10,75 +10,82 @@
 	WAI-ARIA: search landmark + searchbox role.
 -->
 <script lang="ts">
-	import type { SearchInputComponentProps } from "./types.js";
-	import { createSearchInput } from "$lib/design/api/dsadapters/coldlight/_internal/search-input/index.js";
-	import SearchInputRoot from "$lib/design/primitives/search-input/SearchInput.svelte";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-	import {
-		searchInputRecipe,
-		searchInputInputRecipe,
-		searchInputIconRecipe,
-		searchInputClearRecipe,
-	} from "./recipe.js";
+import { createSearchInput } from "$lib/design/api/dsadapters/coldlight/_internal/search-input/index.js";
+import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import SearchInputRoot from "$lib/design/primitives/search-input/SearchInput.svelte";
+import { cn } from "$lib/design/primitives/types.js";
+import {
+	searchInputClearRecipe,
+	searchInputIconRecipe,
+	searchInputInputRecipe,
+	searchInputRecipe,
+} from "./recipe.js";
+import type { SearchInputComponentProps } from "./types.js";
 
-	let {
-		size = "md",
-		value = "",
-		onValueChange,
-		onClear,
-		disabled = false,
-		placeholder = "Search...",
-		children,
-		class: className,
-		// ColdLight 8-axis props
-		preset,
-		surface,
-		material,
-		depth,
-		bevel,
-		glow,
-		frame,
-		motion,
-		transition,
-		encoding,
-		radius,
-		// Rest spread
-		...rest
-	}: SearchInputComponentProps = $props();
+let {
+	size = "md",
+	value = "",
+	onValueChange,
+	onClear,
+	disabled = false,
+	placeholder = "Search...",
+	children,
+	class: className,
+	// ColdLight 8-axis props
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	// Rest spread
+	...rest
+}: SearchInputComponentProps = $props();
 
-	const builder = createSearchInput({
-		value: () => value,
-		onValueChange: (v: any) => onValueChange?.(v),
-		onClear: () => onClear?.(),
-		disabled: () => disabled,
-		get placeholder() { return placeholder; },
-		get "aria-label"() { return rest["aria-label"] ?? "Search"; },
-		get "aria-describedby"() { return rest["aria-describedby"]; },
-	});
+const builder = createSearchInput({
+	value: () => value,
+	// biome-ignore lint/suspicious/noExplicitAny: callback value type from builder
+	onValueChange: (v: any) => onValueChange?.(v),
+	onClear: () => onClear?.(),
+	disabled: () => disabled,
+	get placeholder() {
+		return placeholder;
+	},
+	get "aria-label"() {
+		return rest["aria-label"] ?? "Search";
+	},
+	get "aria-describedby"() {
+		return rest["aria-describedby"];
+	},
+});
 
-	// Resolve ColdLight visual props
-	const visual = useColdLight(
-		() => ({
-			preset,
-			surface,
-			material,
-			depth,
-			bevel,
-			glow,
-			frame,
-			motion,
-			transition,
-			encoding,
-			radius,
-			size,
-		}),
-	);
+// Resolve ColdLight visual props
+const visual = useColdLight(() => ({
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+}));
 
-	const rootClasses = $derived(cn(searchInputRecipe({ size }), visual.segments, visual.radius, className));
-	const inputClasses = $derived(cn(searchInputInputRecipe()));
-	const iconClasses = $derived(cn(searchInputIconRecipe({ size })));
-	const clearClasses = $derived(cn(searchInputClearRecipe({ size })));
+const rootClasses = $derived(
+	cn(searchInputRecipe({ size }), visual.segments, visual.radius, className),
+);
+const inputClasses = $derived(cn(searchInputInputRecipe()));
+const iconClasses = $derived(cn(searchInputIconRecipe({ size })));
+const clearClasses = $derived(cn(searchInputClearRecipe({ size })));
 </script>
 
 <SearchInputRoot {...builder.root} {...rest} class={rootClasses} data-encoding={visual.encoding || undefined}>

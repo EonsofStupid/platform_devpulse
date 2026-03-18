@@ -8,12 +8,11 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/
  */
 
-import { uid } from "../../_internal/utils/uid.js";
-import { dataAttr } from "../../_internal/utils/data-attr.js";
-import { kbd } from "../../_internal/utils/kbd.js";
 import { useDismissLayer } from "../../_internal/a11y/dismiss-layer/index.js";
 import { useEscapeLayer } from "../../_internal/a11y/escape-layer/index.js";
 import { usePresence } from "../../_internal/a11y/presence/index.js";
+import { kbd } from "../../_internal/utils/kbd.js";
+import { uid } from "../../_internal/utils/uid.js";
 import { menuAnatomy } from "./menu.anatomy.js";
 import type { UseMenuProps, UseMenuReturn } from "./menu.types.js";
 
@@ -31,7 +30,9 @@ export function useMenu(props: UseMenuProps = {}): UseMenuReturn {
 		if (v) {
 			// Focus first item on open
 			requestAnimationFrame(() => {
-				const first = contentEl?.querySelector<HTMLElement>('[role="menuitem"]:not([data-disabled])');
+				const first = contentEl?.querySelector<HTMLElement>(
+					'[role="menuitem"]:not([data-disabled])',
+				);
 				first?.focus();
 			});
 		}
@@ -39,7 +40,9 @@ export function useMenu(props: UseMenuProps = {}): UseMenuReturn {
 
 	function getItems(): HTMLElement[] {
 		if (!contentEl) return [];
-		return Array.from(contentEl.querySelectorAll<HTMLElement>('[role="menuitem"]:not([data-disabled])'));
+		return Array.from(
+			contentEl.querySelectorAll<HTMLElement>('[role="menuitem"]:not([data-disabled])'),
+		);
 	}
 
 	function handleContentKeydown(e: KeyboardEvent): void {
@@ -74,7 +77,10 @@ export function useMenu(props: UseMenuProps = {}): UseMenuReturn {
 		"data-state": isOpen ? ("open" as const) : ("closed" as const),
 		onclick: () => setOpen(!isOpen),
 		onkeydown: (e: KeyboardEvent) => {
-			if (e.key === kbd.ARROW_DOWN) { e.preventDefault(); setOpen(true); }
+			if (e.key === kbd.ARROW_DOWN) {
+				e.preventDefault();
+				setOpen(true);
+			}
 		},
 	});
 
@@ -95,17 +101,33 @@ export function useMenu(props: UseMenuProps = {}): UseMenuReturn {
 	function attachContent(node: HTMLElement): { destroy(): void } {
 		contentEl = node;
 		useEscapeLayer({ enabled: () => isOpen, onEscape: () => setOpen(false) });
-		useDismissLayer({ enabled: () => isOpen, node: () => contentEl, onDismiss: () => setOpen(false) });
+		useDismissLayer({
+			enabled: () => isOpen,
+			node: () => contentEl,
+			onDismiss: () => setOpen(false),
+		});
 		usePresence({ open: () => isOpen, node: () => contentEl });
-		return { destroy() { contentEl = null; } };
+		return {
+			destroy() {
+				contentEl = null;
+			},
+		};
 	}
 
 	return {
-		get open() { return isOpen; },
+		get open() {
+			return isOpen;
+		},
 		setOpen,
-		get trigger() { return trigger; },
-		get content() { return content; },
-		get separator() { return separator; },
+		get trigger() {
+			return trigger;
+		},
+		get content() {
+			return content;
+		},
+		get separator() {
+			return separator;
+		},
 
 		getItem(value: string, options?: { disabled?: boolean }) {
 			const isDisabled = options?.disabled ?? false;
@@ -117,7 +139,10 @@ export function useMenu(props: UseMenuProps = {}): UseMenuReturn {
 				"data-disabled": isDisabled ? ("" as const) : undefined,
 				"aria-disabled": isDisabled || undefined,
 				onclick: () => {
-					if (!isDisabled) { props.onSelect?.(value); setOpen(false); }
+					if (!isDisabled) {
+						props.onSelect?.(value);
+						setOpen(false);
+					}
 				},
 				onkeydown: (e: KeyboardEvent) => {
 					if (isDisabled) return;

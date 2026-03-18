@@ -22,20 +22,38 @@ export function useTooltip(props: UseTooltipProps = {}): UseTooltipReturn {
 	let closeTimer: ReturnType<typeof setTimeout> | null = null;
 
 	function show(): void {
-		if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
+		if (closeTimer) {
+			clearTimeout(closeTimer);
+			closeTimer = null;
+		}
 		if (isOpen) return;
-		openTimer = setTimeout(() => { isOpen = true; openTimer = null; }, openDelay);
+		openTimer = setTimeout(() => {
+			isOpen = true;
+			openTimer = null;
+		}, openDelay);
 	}
 
 	function hide(): void {
-		if (openTimer) { clearTimeout(openTimer); openTimer = null; }
+		if (openTimer) {
+			clearTimeout(openTimer);
+			openTimer = null;
+		}
 		if (!isOpen) return;
-		closeTimer = setTimeout(() => { isOpen = false; closeTimer = null; }, closeDelay);
+		closeTimer = setTimeout(() => {
+			isOpen = false;
+			closeTimer = null;
+		}, closeDelay);
 	}
 
 	function hideImmediate(): void {
-		if (openTimer) { clearTimeout(openTimer); openTimer = null; }
-		if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
+		if (openTimer) {
+			clearTimeout(openTimer);
+			openTimer = null;
+		}
+		if (closeTimer) {
+			clearTimeout(closeTimer);
+			closeTimer = null;
+		}
 		isOpen = false;
 	}
 
@@ -62,8 +80,14 @@ export function useTooltip(props: UseTooltipProps = {}): UseTooltipReturn {
 	});
 
 	return {
-		get open() { return isOpen; },
-		get trigger() { return trigger; },
-		get content() { return content; },
+		get open() {
+			return isOpen;
+		},
+		get trigger() {
+			return trigger;
+		},
+		get content() {
+			return content;
+		},
 	};
 }

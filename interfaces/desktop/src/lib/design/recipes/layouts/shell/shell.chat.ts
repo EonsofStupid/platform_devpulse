@@ -44,19 +44,8 @@ registerRecipe({
 			"v-s2 v-b1",
 			"border-b border-border-soft",
 		),
-		modeSelector: cn(
-			"flex items-center gap-1 px-3 py-1",
-			"border-b border-border-subtle",
-		),
-		dashboard: cn(
-			"flex-1 overflow-y-auto scrollbar-thin",
-			"p-4",
-		),
-		footer: cn(
-			"flex items-center gap-2",
-			"px-4 py-3",
-			"v-s2 v-f4",
-			"border-t border-border-soft",
-		),
+		modeSelector: cn("flex items-center gap-1 px-3 py-1", "border-b border-border-subtle"),
+		dashboard: cn("flex-1 overflow-y-auto scrollbar-thin", "p-4"),
+		footer: cn("flex items-center gap-2", "px-4 py-3", "v-s2 v-f4", "border-t border-border-soft"),
 	}),
 });

@@ -19,5 +19,8 @@ export interface UseTableReturn {
 	readonly body: Record<string, unknown>;
 	getRow(key: string, options?: { disabled?: boolean }): Record<string, unknown>;
 	getCell(): Record<string, unknown>;
-	getColumnHeader(options?: { sortDirection?: SortDirection; onSort?: () => void }): Record<string, unknown>;
+	getColumnHeader(options?: {
+		sortDirection?: SortDirection;
+		onSort?: () => void;
+	}): Record<string, unknown>;
 }

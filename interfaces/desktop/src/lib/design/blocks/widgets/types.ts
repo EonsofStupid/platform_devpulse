@@ -5,11 +5,12 @@
  * @package @devpulse/coldlight
  */
 
-import type { Snippet, Component, SvelteComponent } from "svelte";
+import type { Component, Snippet, SvelteComponent } from "svelte";
 import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 // Accepts both Svelte 5 Component and Svelte 4 class components (lucide-svelte)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+// biome-ignore lint/suspicious/noExplicitAny: Svelte 5 Component + Svelte 4 class component union requires any
 type IconComponent = Component<any> | (new (...args: any[]) => SvelteComponent);
 
 export type WidgetSize = "sm" | "md" | "lg";

@@ -9,4 +9,4 @@
 // Surface components are .svelte files — imported directly by consumers.
 // This barrel re-exports types only.
 
-export type { SurfaceSpec, ManifestSvgBlank } from "../_schema/types.js";
+export type { ManifestSvgBlank, SurfaceSpec } from "../_schema/types.js";

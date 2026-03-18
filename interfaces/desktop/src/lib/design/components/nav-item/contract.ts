@@ -40,9 +40,7 @@ export const contract = {
 				slot: "root",
 				states: ["active", "focused", "focus-visible", "hover", "disabled"],
 			},
-			keyboard: [
-				{ key: "Enter", action: "navigate", description: "Follow the link" },
-			],
+			keyboard: [{ key: "Enter", action: "navigate", description: "Follow the link" }],
 		},
 	},
 
@@ -56,9 +54,7 @@ export const contract = {
 	},
 
 	keyboard: {
-		global: [
-			{ key: "Enter", action: "navigate", description: "Follow the link" },
-		],
+		global: [{ key: "Enter", action: "navigate", description: "Follow the link" }],
 	},
 
 	states: {

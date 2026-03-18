@@ -9,13 +9,16 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { BaseProps } from "$lib/design/primitives/types.js";
 import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { BaseProps } from "$lib/design/primitives/types.js";
 
 export type TagsInputSize = "sm" | "md" | "lg";
 
 /** TagsInput component props — ColdLight 8-axis + ARIA + recipe */
-export interface TagsInputComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps, ColdLightProps {
+export interface TagsInputComponentProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
+		BaseProps,
+		ColdLightProps {
 	children?: Snippet;
 	/** Size variant */
 	size?: TagsInputSize;

@@ -3,7 +3,7 @@
  * @layer vpb
  */
 
-import type { Node, Edge } from "@xyflow/svelte";
+import type { Edge, Node } from "@xyflow/svelte";
 import type { BlockNode } from "$lib/design/blocks/schema.js";
 
 export interface VpbFlowNode extends Node {

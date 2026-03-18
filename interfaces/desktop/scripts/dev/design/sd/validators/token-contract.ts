@@ -19,9 +19,10 @@ import { readFileSync } from "node:fs";
 function extractCustomProperties(css: string): Set<string> {
 	const props = new Set<string>();
 	const re = /--([a-zA-Z0-9_-]+)\s*:/g;
-	let match: RegExpExecArray | null;
-	while ((match = re.exec(css)) !== null) {
+	let match = re.exec(css);
+	while (match !== null) {
 		props.add(`--${match[1]}`);
+		match = re.exec(css);
 	}
 	return props;
 }
@@ -103,7 +104,7 @@ export function validateTokenContract(
 
 	const errors: ContractError[] = [];
 	let inBoth = 0;
-	let rootOnly = 0;
+	let _rootOnly = 0;
 	let themeOnly = 0;
 
 	// Check each expected Tier 1 property
@@ -116,7 +117,7 @@ export function validateTokenContract(
 		if (inRoot) {
 			inBoth++;
 		} else {
-			rootOnly++;
+			_rootOnly++;
 			errors.push({
 				property: prop,
 				presentIn: "root-only",

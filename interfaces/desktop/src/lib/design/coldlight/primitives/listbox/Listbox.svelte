@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { ListboxPrimitiveProps } from "./listbox.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { ListboxPrimitiveProps } from "./listbox.props.js";
 
-	let { children, class: className, ...rest }: ListboxPrimitiveProps = $props();
+let { children, class: className, ...rest }: ListboxPrimitiveProps = $props();
 </script>
 
 <div

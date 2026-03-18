@@ -4,10 +4,7 @@
  *
  * Moves element to a target container (default: document.body). Use: `use:portal` or `use:portal={target}`.
  */
-export function portal(
-	node: HTMLElement,
-	target: string | HTMLElement = "body",
-) {
+export function portal(node: HTMLElement, target: string | HTMLElement = "body") {
 	let targetEl: HTMLElement;
 
 	function move() {

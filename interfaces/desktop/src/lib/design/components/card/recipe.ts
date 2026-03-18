@@ -16,8 +16,5 @@ const SIZE_CLASSES: Record<CardSize, string> = {
 };
 
 export function cardRecipe(size: CardSize = "md"): string {
-	return cn(
-		"block overflow-hidden",
-		SIZE_CLASSES[size] ?? SIZE_CLASSES.md,
-	);
+	return cn("block overflow-hidden", SIZE_CLASSES[size] ?? SIZE_CLASSES.md);
 }

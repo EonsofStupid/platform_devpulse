@@ -4,11 +4,11 @@
   @domain devpulse
 -->
 <script lang="ts">
-	import { Stack } from "$lib/design/components/stack/index.js";
-	import { HStack } from "$lib/design/components/hstack/index.js";
-	import { Text } from "$lib/design/components/text/index.js";
-	import { Container } from "$lib/design/components/container/index.js";
-	import { Widget } from "$lib/design/blocks/widgets/index.js";
+import { Widget } from "$lib/design/blocks/widgets/index.js";
+import { Container } from "$lib/design/components/container/index.js";
+import { HStack } from "$lib/design/components/hstack/index.js";
+import { Stack } from "$lib/design/components/stack/index.js";
+import { Text } from "$lib/design/components/text/index.js";
 </script>
 
 <Container class="container-md box-lg" data-page="devpulse-settings">

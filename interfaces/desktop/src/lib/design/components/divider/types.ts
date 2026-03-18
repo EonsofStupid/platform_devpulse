@@ -8,14 +8,17 @@
  */
 
 import type { HTMLAttributes } from "svelte/elements";
-import type { BaseProps } from "$lib/design/primitives/types.js";
 import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { BaseProps } from "$lib/design/primitives/types.js";
 
 export type DividerOrientation = "horizontal" | "vertical";
 export type DividerVariant = "solid" | "dashed" | "dotted";
 
 /** Divider component props — ColdLight 8-axis + ARIA + recipe */
-export interface DividerComponentProps extends Omit<HTMLAttributes<HTMLHRElement>, "style">, BaseProps, ColdLightProps {
+export interface DividerComponentProps
+	extends Omit<HTMLAttributes<HTMLHRElement>, "style">,
+		BaseProps,
+		ColdLightProps {
 	/** Orientation of the divider. @default "horizontal" */
 	orientation?: DividerOrientation;
 	/** Visual line style variant */

@@ -18,11 +18,11 @@
 
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import type { InitEvent, InitStatus } from "$lib/sys/generated/init.types.js";
-import type { SystemHealth } from "$lib/sys/generated/health.types.js";
 import type { BootSnapshot } from "$lib/sys/generated/boot.types.js";
+import type { SystemHealth } from "$lib/sys/generated/health.types.js";
+import type { InitEvent, InitStatus } from "$lib/sys/generated/init.types.js";
 import { resolveLabel } from "$lib/sys/generated/terminology.js";
-import { logInfo, logError, logWarn, markIpcReady } from "$lib/sys/logger.js";
+import { logError, logInfo, logWarn, markIpcReady } from "$lib/sys/logger.js";
 
 export type BootPhase = "initializing" | "ready" | "failed";
 export type SubsystemState = "pending" | "loading" | "ready" | "skipped" | "failed";
@@ -46,6 +46,7 @@ const TAURI_READY_TIMEOUT_MS = 30_000;
  */
 function waitForTauri(): Promise<void> {
 	return new Promise((resolve, reject) => {
+		// biome-ignore lint/suspicious/noExplicitAny: Tauri injects __TAURI_INTERNALS__ on window
 		if (typeof window !== "undefined" && (window as any).__TAURI_INTERNALS__) {
 			logInfo("ipc", "Tauri IPC bridge already available");
 			resolve();
@@ -57,13 +58,20 @@ function waitForTauri(): Promise<void> {
 		let pollCount = 0;
 		const check = setInterval(() => {
 			pollCount++;
+			// biome-ignore lint/suspicious/noExplicitAny: Tauri injects __TAURI_INTERNALS__ on window
 			if (typeof window !== "undefined" && (window as any).__TAURI_INTERNALS__) {
 				clearInterval(check);
-				logInfo("ipc", `Tauri IPC bridge connected after ${Date.now() - start}ms (${pollCount} polls)`);
+				logInfo(
+					"ipc",
+					`Tauri IPC bridge connected after ${Date.now() - start}ms (${pollCount} polls)`,
+				);
 				resolve();
 			} else if (Date.now() - start > TAURI_READY_TIMEOUT_MS) {
 				clearInterval(check);
-				logError("ipc", `TIMEOUT — Tauri IPC not available after ${TAURI_READY_TIMEOUT_MS}ms (${pollCount} polls)`);
+				logError(
+					"ipc",
+					`TIMEOUT — Tauri IPC not available after ${TAURI_READY_TIMEOUT_MS}ms (${pollCount} polls)`,
+				);
 				reject(new Error(`Tauri IPC not available after ${TAURI_READY_TIMEOUT_MS}ms`));
 			}
 		}, TAURI_READY_POLL_MS);
@@ -164,7 +172,9 @@ class PlatformState {
 
 	subsystemList(): SubsystemInfo[] {
 		const list: SubsystemInfo[] = [];
-		this.subsystems.forEach((info) => list.push(info));
+		this.subsystems.forEach((info) => {
+			list.push(info);
+		});
 		return list;
 	}
 
@@ -217,12 +227,9 @@ class PlatformState {
 		logInfo("boot", "Registering live event listeners");
 
 		// 3. Register live event listeners (idempotent — Map keyed by step name)
-		const unlistenSubsystem = await listen<InitEvent>(
-			"platform:subsystem-status",
-			(e) => {
-				this.applyEvent(e.payload);
-			},
-		);
+		const unlistenSubsystem = await listen<InitEvent>("platform:subsystem-status", (e) => {
+			this.applyEvent(e.payload);
+		});
 		this.unlisteners.push(unlistenSubsystem);
 
 		if (this.destroyed) {
@@ -352,7 +359,9 @@ class PlatformState {
 	}
 
 	private cleanupListeners(): void {
-		this.unlisteners.forEach((fn) => fn());
+		this.unlisteners.forEach((fn) => {
+			fn();
+		});
 		this.unlisteners = [];
 	}
 

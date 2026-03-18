@@ -9,10 +9,9 @@
  */
 
 import { tick } from "svelte";
-import { createIds } from "../../_internal/utils/uid.js";
-import { useDismissLayer } from "../../_internal/a11y/dismiss-layer/index.js";
 import { usePresence } from "../../_internal/a11y/presence/index.js";
 import { useScrollLock } from "../../_internal/a11y/scroll-lock/index.js";
+import { createIds } from "../../_internal/utils/uid.js";
 import { alertDialogAnatomy } from "./alert-dialog.anatomy.js";
 import type { UseAlertDialogProps, UseAlertDialogReturn } from "./alert-dialog.types.js";
 
@@ -28,7 +27,10 @@ export function useAlertDialog(props: UseAlertDialogProps = {}): UseAlertDialogR
 		if (value) {
 			isOpen = true;
 			props.onOpenChange?.(true);
-			tick().then(() => { contentEl?.showModal?.(); overlayEl?.showPopover?.(); });
+			tick().then(() => {
+				contentEl?.showModal?.();
+				overlayEl?.showPopover?.();
+			});
 		} else {
 			isOpen = false;
 			props.onOpenChange?.(false);
@@ -59,7 +61,10 @@ export function useAlertDialog(props: UseAlertDialogProps = {}): UseAlertDialogR
 		"aria-describedby": ids.description,
 		"data-state": isOpen ? ("open" as const) : ("closed" as const),
 		onclose: () => setOpen(false),
-		oncancel: (e: Event) => { e.preventDefault(); setOpen(false); },
+		oncancel: (e: Event) => {
+			e.preventDefault();
+			setOpen(false);
+		},
 	});
 
 	const title = $derived({ ...alertDialogAnatomy.attrs.title, id: ids.title });
@@ -68,42 +73,79 @@ export function useAlertDialog(props: UseAlertDialogProps = {}): UseAlertDialogR
 	const cancel = $derived({
 		...alertDialogAnatomy.attrs.cancel,
 		type: "button" as const,
-		onclick: () => { props.onCancel?.(); setOpen(false); },
+		onclick: () => {
+			props.onCancel?.();
+			setOpen(false);
+		},
 	});
 
 	const action = $derived({
 		...alertDialogAnatomy.attrs.action,
 		type: "button" as const,
-		onclick: () => { props.onAction?.(); setOpen(false); },
+		onclick: () => {
+			props.onAction?.();
+			setOpen(false);
+		},
 	});
 
 	function attachContent(node: HTMLDialogElement): { destroy(): void } {
 		contentEl = node;
-		if (isOpen) tick().then(() => { contentEl?.showModal?.(); overlayEl?.showPopover?.(); });
+		if (isOpen)
+			tick().then(() => {
+				contentEl?.showModal?.();
+				overlayEl?.showPopover?.();
+			});
 		useScrollLock(() => isOpen);
 		usePresence({
 			open: () => isOpen,
 			node: () => contentEl,
-			onExitComplete: () => { contentEl?.close?.(); overlayEl?.hidePopover?.(); },
+			onExitComplete: () => {
+				contentEl?.close?.();
+				overlayEl?.hidePopover?.();
+			},
 		});
-		return { destroy() { contentEl = null; } };
+		return {
+			destroy() {
+				contentEl = null;
+			},
+		};
 	}
 
 	function attachOverlay(node: HTMLElement): { destroy(): void } {
 		overlayEl = node;
-		return { destroy() { overlayEl = null; } };
+		return {
+			destroy() {
+				overlayEl = null;
+			},
+		};
 	}
 
 	return {
-		get open() { return isOpen; },
+		get open() {
+			return isOpen;
+		},
 		setOpen,
-		get trigger() { return trigger; },
-		get overlay() { return overlay; },
-		get content() { return content; },
-		get title() { return title; },
-		get description() { return description; },
-		get cancel() { return cancel; },
-		get action() { return action; },
+		get trigger() {
+			return trigger;
+		},
+		get overlay() {
+			return overlay;
+		},
+		get content() {
+			return content;
+		},
+		get title() {
+			return title;
+		},
+		get description() {
+			return description;
+		},
+		get cancel() {
+			return cancel;
+		},
+		get action() {
+			return action;
+		},
 		attachContent,
 		attachOverlay,
 	};

@@ -12,7 +12,9 @@ import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
 import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 /** Tabs root props — creates adapter and provides context */
-export interface TabsProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, ColdLightProps {
+export interface TabsProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
+		ColdLightProps {
 	/** Currently active tab value */
 	value?: string;
 	/** Callback when active tab changes */
@@ -33,7 +35,8 @@ export interface TabsListProps extends Omit<HTMLAttributes<HTMLDivElement>, "sty
 }
 
 /** TabsTrigger props — individual tab button (role="tab") */
-export interface TabsTriggerProps extends Omit<HTMLButtonAttributes, "style" | "children" | "disabled"> {
+export interface TabsTriggerProps
+	extends Omit<HTMLButtonAttributes, "style" | "children" | "disabled"> {
 	/** Tab value identifier — must match a TabsContent value */
 	value: string;
 	/** Whether this tab is disabled */
@@ -43,7 +46,8 @@ export interface TabsTriggerProps extends Omit<HTMLButtonAttributes, "style" | "
 }
 
 /** TabsContent props — tab panel (role="tabpanel") */
-export interface TabsContentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
+export interface TabsContentProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
 	/** Tab value identifier — must match a TabsTrigger value */
 	value: string;
 	/** Content */

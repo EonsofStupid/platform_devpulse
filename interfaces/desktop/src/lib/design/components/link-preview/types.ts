@@ -10,9 +10,9 @@
  */
 
 import type { Snippet } from "svelte";
-import type { HTMLAttributes, HTMLAnchorAttributes } from "svelte/elements";
-import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { HTMLAnchorAttributes, HTMLAttributes } from "svelte/elements";
 import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { BaseProps } from "$lib/design/primitives/types.js";
 
 // =============================================================================
 // ROOT PROPS
@@ -36,7 +36,9 @@ export interface LinkPreviewProps extends BaseProps, ColdLightProps {
 // TRIGGER PROPS
 // =============================================================================
 
-export interface LinkPreviewTriggerProps extends Omit<HTMLAnchorAttributes, "style" | "children">, BaseProps {
+export interface LinkPreviewTriggerProps
+	extends Omit<HTMLAnchorAttributes, "style" | "children">,
+		BaseProps {
 	children?: Snippet;
 }
 
@@ -44,6 +46,8 @@ export interface LinkPreviewTriggerProps extends Omit<HTMLAnchorAttributes, "sty
 // CONTENT PROPS
 // =============================================================================
 
-export interface LinkPreviewContentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps {
+export interface LinkPreviewContentProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
+		BaseProps {
 	children?: Snippet;
 }

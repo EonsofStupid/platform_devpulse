@@ -9,13 +9,16 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { BaseProps } from "$lib/design/primitives/types.js";
 import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { BaseProps } from "$lib/design/primitives/types.js";
 
 export type SidebarSize = "sm" | "md" | "lg";
 
 /** Sidebar component props — ARIA + recipe + ColdLight 8-axis */
-export interface SidebarComponentProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children">, BaseProps, ColdLightProps {
+export interface SidebarComponentProps
+	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children">,
+		BaseProps,
+		ColdLightProps {
 	children?: Snippet;
 	/** Header content snippet */
 	header?: Snippet;

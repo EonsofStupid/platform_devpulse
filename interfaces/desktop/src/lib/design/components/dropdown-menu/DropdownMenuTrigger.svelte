@@ -8,15 +8,15 @@
 	ARIA: role="button", aria-haspopup="menu", aria-expanded, aria-controls.
 -->
 <script lang="ts">
-	import type { DropdownMenuTriggerProps } from "./types.js";
-	import { getDropdownMenuContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { dropdownMenuRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getDropdownMenuContext } from "./context.js";
+import { dropdownMenuRecipe } from "./recipe.js";
+import type { DropdownMenuTriggerProps } from "./types.js";
 
-	let { children, class: className, ...rest }: DropdownMenuTriggerProps = $props();
+let { children, class: className, ...rest }: DropdownMenuTriggerProps = $props();
 
-	const ctx = getDropdownMenuContext();
-	const recipe = dropdownMenuRecipe();
+const ctx = getDropdownMenuContext();
+const recipe = dropdownMenuRecipe();
 </script>
 
 <button

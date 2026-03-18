@@ -5,42 +5,44 @@
 	Shows slot name on the edge connection between parent and child.
 -->
 <script lang="ts">
-	import { BaseEdge, getBezierPath } from "@xyflow/svelte";
+import { BaseEdge, getBezierPath } from "@xyflow/svelte";
 
-	let {
-		id,
+let {
+	id,
+	sourceX,
+	sourceY,
+	targetX,
+	targetY,
+	sourcePosition,
+	targetPosition,
+	data,
+}: {
+	id: string;
+	sourceX: number;
+	sourceY: number;
+	targetX: number;
+	targetY: number;
+	sourcePosition: string;
+	targetPosition: string;
+	data?: { slotName: string };
+} = $props();
+
+const pathData = $derived(
+	getBezierPath({
 		sourceX,
 		sourceY,
 		targetX,
 		targetY,
-		sourcePosition,
-		targetPosition,
-		data,
-	}: {
-		id: string;
-		sourceX: number;
-		sourceY: number;
-		targetX: number;
-		targetY: number;
-		sourcePosition: string;
-		targetPosition: string;
-		data?: { slotName: string };
-	} = $props();
+		// biome-ignore lint/suspicious/noExplicitAny: SvelteFlow position type mismatch requires cast
+		sourcePosition: sourcePosition as any,
+		// biome-ignore lint/suspicious/noExplicitAny: SvelteFlow position type mismatch requires cast
+		targetPosition: targetPosition as any,
+	}),
+);
 
-	const pathData = $derived(
-		getBezierPath({
-			sourceX,
-			sourceY,
-			targetX,
-			targetY,
-			sourcePosition: sourcePosition as any,
-			targetPosition: targetPosition as any,
-		}),
-	);
-
-	const midX = $derived((sourceX + targetX) / 2);
-	const midY = $derived((sourceY + targetY) / 2);
-	const slotName = $derived(data?.slotName ?? "");
+const midX = $derived((sourceX + targetX) / 2);
+const midY = $derived((sourceY + targetY) / 2);
+const slotName = $derived(data?.slotName ?? "");
 </script>
 
 <BaseEdge {id} path={pathData[0]} style="stroke: var(--vpb-graph-edge-stroke); stroke-width: 1.5;" />

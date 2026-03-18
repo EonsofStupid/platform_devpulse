@@ -6,51 +6,70 @@
 	Compound: root / trigger / header / content / footer slots.
 -->
 <script lang="ts">
-	import type { SidebarComponentProps } from "./types.js";
-	import { createSidebar } from "$lib/design/api/dsadapters/coldlight/_internal/sidebar/index.js";
-	import SidebarRoot from "$lib/design/primitives/sidebar/Sidebar.svelte";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-	import { sidebarRecipe } from "./recipe.js";
+import { createSidebar } from "$lib/design/api/dsadapters/coldlight/_internal/sidebar/index.js";
+import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import SidebarRoot from "$lib/design/primitives/sidebar/Sidebar.svelte";
+import { cn } from "$lib/design/primitives/types.js";
+import { sidebarRecipe } from "./recipe.js";
+import type { SidebarComponentProps } from "./types.js";
 
-	let {
-		size = "md",
-		expanded = true,
-		onExpandedChange,
-		label,
-		header,
-		footer,
-		children,
-		class: className,
-		// ColdLight 8-axis props
-		preset,
-		surface,
-		material,
-		depth,
-		bevel,
-		glow,
-		frame,
-		motion,
-		transition,
-		encoding,
-		radius,
-		...rest
-	}: SidebarComponentProps = $props();
+let {
+	size = "md",
+	expanded = true,
+	onExpandedChange,
+	label,
+	header,
+	footer,
+	children,
+	class: className,
+	// ColdLight 8-axis props
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	...rest
+}: SidebarComponentProps = $props();
 
-	const builder = createSidebar({
-		get expanded() { return expanded; },
-		onExpandedChange: (v: boolean) => onExpandedChange?.(v),
-		get label() { return label; },
-	});
+const builder = createSidebar({
+	get expanded() {
+		return expanded;
+	},
+	onExpandedChange: (v: boolean) => onExpandedChange?.(v),
+	get label() {
+		return label;
+	},
+});
 
-	const visual = useColdLight(
-		() => ({
-			preset, surface, material, depth, bevel, glow, frame, motion, transition,
-			encoding, radius, size,
-		}),
-	);
+const visual = useColdLight(() => ({
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+}));
 
-	const classes = $derived(cn(sidebarRecipe({ size, expanded: builder.expanded }), visual.segments, visual.radius, className));
+const classes = $derived(
+	cn(
+		sidebarRecipe({ size, expanded: builder.expanded }),
+		visual.segments,
+		visual.radius,
+		className,
+	),
+);
 </script>
 
 <SidebarRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>

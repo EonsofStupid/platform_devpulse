@@ -11,19 +11,15 @@
 	Heading wraps the button for proper document outline.
 -->
 <script lang="ts">
-	import type { AccordionTriggerProps } from "./types.js";
-	import { getAccordionItemContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { accordionRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getAccordionItemContext } from "./context.js";
+import { accordionRecipe } from "./recipe.js";
+import type { AccordionTriggerProps } from "./types.js";
 
-	let {
-		children,
-		class: className,
-		...rest
-	}: AccordionTriggerProps = $props();
+let { children, class: className, ...rest }: AccordionTriggerProps = $props();
 
-	const item = getAccordionItemContext();
-	const recipe = accordionRecipe();
+const item = getAccordionItemContext();
+const recipe = accordionRecipe();
 </script>
 
 <h3 {...item.slots.heading} data-kind="accordion" data-slot="heading">

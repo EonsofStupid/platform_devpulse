@@ -21,11 +21,7 @@ export function dropdownMenuRecipe(props: DropdownMenuRecipeProps = {}) {
 	};
 	return {
 		trigger: "",
-		content: cn(
-			"dropdown-menu-content",
-			sizeMap[props.size ?? "md"] ?? sizeMap.md,
-			"rounded-md",
-		),
+		content: cn("dropdown-menu-content", sizeMap[props.size ?? "md"] ?? sizeMap.md, "rounded-md"),
 		item: cn("dropdown-menu-item"),
 		separator: cn("dropdown-menu-separator"),
 		label: cn("dropdown-menu-label"),

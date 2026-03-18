@@ -6,40 +6,60 @@
 	ColdLight Avatar — compound, 8-axis visual system.
 -->
 <script lang="ts">
-	import type { AvatarProps, AvatarLoadState } from "./types.js";
-	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-	import { avatarRootRecipe, avatarImageRecipe, avatarFallbackRecipe } from "./recipe.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { avatarFallbackRecipe, avatarImageRecipe, avatarRootRecipe } from "./recipe.js";
+import type { AvatarLoadState, AvatarProps } from "./types.js";
 
-	let {
-		size = "md",
-		src,
-		alt,
-		fallback,
-		preset,
-		surface, material, depth, bevel, glow, frame, motion, transition,
-		encoding, radius,
-		children,
-		class: className,
-		...rest
-	}: AvatarProps = $props();
+let {
+	size = "md",
+	src,
+	alt,
+	fallback,
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	children,
+	class: className,
+	...rest
+}: AvatarProps = $props();
 
-	let loadState: AvatarLoadState = $state("loading");
+let loadState: AvatarLoadState = $state("loading");
 
-	function handleLoad() { loadState = "loaded"; }
-	function handleError() { loadState = "error"; }
+function handleLoad() {
+	loadState = "loaded";
+}
+function handleError() {
+	loadState = "error";
+}
 
-	const visual = useColdLight(
-		() => ({
-			preset,
-			surface, material, depth, bevel, glow, frame, motion, transition,
-			encoding, radius: radius ?? "full",
-		}),
-	);
+const visual = useColdLight(() => ({
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius: radius ?? "full",
+}));
 
-	const rootClasses = $derived(cn(avatarRootRecipe({ size }), visual.segments, visual.radius, className));
-	const imageClasses = $derived(avatarImageRecipe());
-	const fallbackClasses = $derived(avatarFallbackRecipe());
+const rootClasses = $derived(
+	cn(avatarRootRecipe({ size }), visual.segments, visual.radius, className),
+);
+const imageClasses = $derived(avatarImageRecipe());
+const fallbackClasses = $derived(avatarFallbackRecipe());
 </script>
 
 <span

@@ -77,7 +77,7 @@ interfaces/desktop/
 │   │   ├── cfg/              # Configuration
 │   │   ├── design/           # COLD LIGHT Design System
 │   │   │   ├── tokens/       # CSS tokens (SSOT)
-│   │   │   ├── primitives/   # MeltUI components
+│   │   │   ├── primitives/   # ColdLight components
 │   │   │   ├── semantics/    # Styled tokens
 │   │   │   ├── compositions/ # Combined primitives
 │   │   │   ├── components/   # (Legacy)
@@ -269,7 +269,7 @@ xtask/
 |------------|---------|---------|
 | **SvelteKit** | 5.x | Framework |
 | **Svelte 5** | 5.x | UI with Runes |
-| **MeltUI** | 2.x | Accessible primitives |
+| **ColdLight** | 0.1 | Accessible primitives |
 | **OKLCH** | CSS | Color system |
 | **CSS Grid** | Native | Layouts |
 | **svelte-sonner** | 1.x | Toast notifications |
@@ -403,15 +403,9 @@ Pattern:
 >
   {@render children?.()}
 </button>
-Archetype B: Adapter-Backed (ariaStateProvider: "meltui")
-Component renders its OWN DOM elements (MeltUI action needs direct DOM access)
-Uses use:cold action to bridge MeltUI stores to DOM
-Imports adapter from _internal/ via transport chain
-Adapter returns ColdLight-branded per-slot readable stores
-Root component creates adapter + provides context
-Sub-components get adapter from context
-Examples: dialog, tabs, select, popover, tooltip, sheet, alert-dialog, accordion, collapsible
-Pattern (root):
+Archetype B: Adapter-Backed (ariaStateProvider: "Shards")
+Component renders its OWN DOM elements (Shards action needs direct DOM access)
+
 
 
 <script lang="ts">
@@ -434,11 +428,7 @@ Pattern (sub-component):
 </button>
 TRANSPORT CHAIN (use:cold)
 
-@melt-ui/svelte (melt action)
-    ↓
-api/adapters/meltui/_internal/_transport/action.ts    ← CLOAKING ORIGIN: import { melt } from "@melt-ui/svelte"; export { melt as cold };
-    ↓
-components/_transport/action.ts                        ← TRANSPORT ENDPOINT: export { cold } from "$lib/design/api/dsadapters/meltui/_internal/_transport/action.js";
+;
     ↓
 components/dialog/DialogTrigger.svelte                 ← CONSUMER: import { cold } from "../_transport/action.js";
 Components NEVER import from @melt-ui/svelte. NEVER import from _internal/ directly except for adapter creation in root component.

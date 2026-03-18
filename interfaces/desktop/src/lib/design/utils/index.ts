@@ -4,11 +4,12 @@
  *
  * ColdLight utility functions barrel export.
  */
-export { cn } from "./cn.js";
-export { vrecipeParse, type RecipeParts } from "./vrecipeParse.js";
-export { vrecipeBuild } from "./vrecipeBuild.js";
-export { vrecipeValidate, type RecipeValidation } from "./vrecipeValidate.js";
-export { tokenResolve } from "./tokenResolve.js";
-export { slotMerge } from "./slotMerge.js";
-export { idGen, idGenPair } from "./idGen.js";
+
 export { ariaAnnounce } from "./ariaAnnounce.js";
+export { cn } from "./cn.js";
+export { idGen, idGenPair } from "./idGen.js";
+export { slotMerge } from "./slotMerge.js";
+export { tokenResolve } from "./tokenResolve.js";
+export { vrecipeBuild } from "./vrecipeBuild.js";
+export { type RecipeParts, vrecipeParse } from "./vrecipeParse.js";
+export { type RecipeValidation, vrecipeValidate } from "./vrecipeValidate.js";

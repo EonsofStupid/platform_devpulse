@@ -60,9 +60,7 @@ not from the public API barrel (`design/index.ts`).
 Check against CLAUDE.md declared architecture:
 - 3 layers only (primitives, recipes, components)
 - No ui/ directory
-- No taxonomy/ references in active code
-- Adapters only in api/dsadapters/
-- MeltUI never imported outside _internal/
+
 
 ## Output Format
 

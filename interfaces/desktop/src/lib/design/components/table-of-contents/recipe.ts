@@ -19,8 +19,5 @@ export function tableOfContentsRecipe(props: TableOfContentsRecipeProps = {}): s
 		md: "text-sm",
 		lg: "text-base",
 	};
-	return cn(
-		"toc-root",
-		sizeMap[props.size ?? "md"] ?? "text-sm",
-	);
+	return cn("toc-root", sizeMap[props.size ?? "md"] ?? "text-sm");
 }

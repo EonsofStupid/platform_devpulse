@@ -495,7 +495,8 @@ const recipeFile: FileSchemaRule = {
 	language: "typescript",
 	requiredTags: ["@file", "@layer", "@package"],
 	generateHeader: (ctx) => {
-		const recipeKind = ctx.localPath.match(/^recipes\/(?:components|layouts)\/([^/]+)\//)?.[1] ?? ctx.baseName;
+		const recipeKind =
+			ctx.localPath.match(/^recipes\/(?:components|layouts)\/([^/]+)\//)?.[1] ?? ctx.baseName;
 		return `/**
  * @file ${ctx.localPath}
  * @layer recipes
@@ -884,7 +885,8 @@ const apiActionFile: FileSchemaRule = {
 
 const coldlightIndex: FileSchemaRule = {
 	name: "coldlight-index",
-	match: /^(?:actions|utils|tokens|recipes|blueprints|blocks|patterns|plugins|components|primitives|api(?:\/actions)?)\/index\.ts$/,
+	match:
+		/^(?:actions|utils|tokens|recipes|blueprints|blocks|patterns|plugins|components|primitives|api(?:\/actions)?)\/index\.ts$/,
 	namespace: "@devpulse/coldlight",
 	language: "typescript",
 	requiredTags: ["@file", "@package"],

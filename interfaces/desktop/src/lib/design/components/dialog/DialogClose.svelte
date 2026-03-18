@@ -8,15 +8,16 @@
 	Spreads adapter close slot attrs (type, onclick).
 -->
 <script lang="ts">
-	import type { DialogCloseProps } from "./types.js";
-	import { getDialogContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { getRecipe } from "$lib/design/recipes/index.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getRecipe } from "$lib/design/recipes/index.js";
+import { getDialogContext } from "./context.js";
+import type { DialogCloseProps } from "./types.js";
 
-	let { children, class: className, ...rest }: DialogCloseProps = $props();
-	const dialog = getDialogContext();
-	const recipe = getRecipe("dialog.glass.void");
-	const closeClass = recipe?.classes?.({} as any)?.close ?? "";
+let { children, class: className, ...rest }: DialogCloseProps = $props();
+const dialog = getDialogContext();
+const recipe = getRecipe("dialog.glass.void");
+// biome-ignore lint/suspicious/noExplicitAny: recipe classes accept any state
+const closeClass = recipe?.classes?.({} as any)?.close ?? "";
 </script>
 
 <button

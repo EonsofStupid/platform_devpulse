@@ -15,11 +15,11 @@
 	Filters only incur GPU cost when an element references them.
 -->
 <script lang="ts">
-	import { getAllFilters } from "./registry.js";
-	// Side-effect: register all filter definitions
-	import "./definitions/index.js";
+import { getAllFilters } from "./registry.js";
+// Side-effect: register all filter definitions
+import "./definitions/index.js";
 
-	const filters = getAllFilters();
+const filters = getAllFilters();
 </script>
 
 <svg

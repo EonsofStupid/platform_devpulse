@@ -4,7 +4,13 @@
  * @layer components
  */
 
-export { default as Flex } from "./Flex.svelte";
 export { contract as flexComponentContract } from "./contract.js";
+export { default as Flex } from "./Flex.svelte";
 export { flexRecipe } from "./recipe.js";
-export type { FlexComponentProps, FlexDirection, FlexGap, FlexAlign, FlexJustify } from "./types.js";
+export type {
+	FlexAlign,
+	FlexComponentProps,
+	FlexDirection,
+	FlexGap,
+	FlexJustify,
+} from "./types.js";

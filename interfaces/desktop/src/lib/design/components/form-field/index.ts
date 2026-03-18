@@ -4,13 +4,13 @@
  * @layer components
  */
 
-export { default as FormField } from "./FormField.svelte";
 export { contract as formFieldComponentContract } from "./contract.js";
+export { default as FormField } from "./FormField.svelte";
 export {
-	formFieldRecipe,
-	formFieldLabelRecipe,
 	formFieldControlRecipe,
 	formFieldDescriptionRecipe,
 	formFieldErrorRecipe,
+	formFieldLabelRecipe,
+	formFieldRecipe,
 } from "./recipe.js";
 export type { FormFieldComponentProps, FormFieldSize } from "./types.js";

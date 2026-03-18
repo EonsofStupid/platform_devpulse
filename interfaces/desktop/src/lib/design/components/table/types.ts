@@ -9,14 +9,17 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { BaseProps } from "$lib/design/primitives/types.js";
 import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { BaseProps } from "$lib/design/primitives/types.js";
 
 export type TableSize = "sm" | "md" | "lg";
 export type TableVariant = "default" | "striped" | "bordered";
 
 /** Table component props — ARIA + recipe + ColdLight 8-axis */
-export interface TableComponentProps extends Omit<HTMLAttributes<HTMLTableElement>, "style" | "children">, BaseProps, ColdLightProps {
+export interface TableComponentProps
+	extends Omit<HTMLAttributes<HTMLTableElement>, "style" | "children">,
+		BaseProps,
+		ColdLightProps {
 	children?: Snippet;
 	/** Size variant — controls cell padding and font size */
 	size?: TableSize;

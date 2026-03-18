@@ -28,7 +28,7 @@ import { cn } from "$lib/design/primitives/types.js";
 import { registerRecipe } from "../../index.js";
 import type { DsSurfaceProps } from "../../types.js";
 import { toPreset } from "../../types.js";
-import { emitSegments, emitCategory, radiusClass } from "../../utils.js";
+import { emitCategory, emitSegments, radiusClass } from "../../utils.js";
 
 const SIZE_SCALE = {
 	sm: {
@@ -98,15 +98,9 @@ registerRecipe({
 				"data-[highlighted]:bg-[var(--select-item-hover)] data-[highlighted]:text-text-primary",
 				"aria-[selected=true]:bg-[var(--select-item-selected)] aria-[selected=true]:text-text-primary",
 			),
-			label: cn(
-				"font-semibold text-text-muted uppercase tracking-wider",
-				s.label,
-			),
+			label: cn("font-semibold text-text-muted uppercase tracking-wider", s.label),
 			group: cn("py-1 overflow-hidden"),
-			separator: cn(
-				"my-1 h-px",
-				"bg-[var(--select-border)]",
-			),
+			separator: cn("my-1 h-px", "bg-[var(--select-border)]"),
 		};
 	},
 });

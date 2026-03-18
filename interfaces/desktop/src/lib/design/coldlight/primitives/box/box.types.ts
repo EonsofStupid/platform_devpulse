@@ -4,9 +4,7 @@
  * Generic box layout primitive. No props needed.
  */
 
-export interface UseBoxProps {
-	/* No props required for box layout. */
-}
+export type UseBoxProps = Record<string, never>;
 
 export interface UseBoxReturn {
 	/** Spread onto the root element. */

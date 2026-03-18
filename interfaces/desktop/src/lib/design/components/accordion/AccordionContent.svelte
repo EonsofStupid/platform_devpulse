@@ -10,19 +10,15 @@
 	Only rendered when item.states.isExpanded is true.
 -->
 <script lang="ts">
-	import type { AccordionContentProps } from "./types.js";
-	import { getAccordionItemContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { accordionRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getAccordionItemContext } from "./context.js";
+import { accordionRecipe } from "./recipe.js";
+import type { AccordionContentProps } from "./types.js";
 
-	let {
-		children,
-		class: className,
-		...rest
-	}: AccordionContentProps = $props();
+let { children, class: className, ...rest }: AccordionContentProps = $props();
 
-	const item = getAccordionItemContext();
-	const recipe = accordionRecipe();
+const item = getAccordionItemContext();
+const recipe = accordionRecipe();
 </script>
 
 {#if item.states.isExpanded}

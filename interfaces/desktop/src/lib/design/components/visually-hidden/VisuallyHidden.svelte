@@ -9,38 +9,51 @@
 	No builder, no transport — CSS only.
 -->
 <script lang="ts">
-	import type { VisuallyHiddenComponentProps } from "./types.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-	import { visuallyHiddenRecipe } from "./recipe.js";
+import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { visuallyHiddenRecipe } from "./recipe.js";
+import type { VisuallyHiddenComponentProps } from "./types.js";
 
-	let {
-		// Kind-specific props
-		as = "span",
-		children,
-		class: className,
-		// ColdLight 8-axis props
-		preset,
-		surface,
-		material,
-		depth,
-		bevel,
-		glow,
-		frame,
-		motion,
-		transition,
-		encoding,
-		radius,
-		size,
-		// Rest spread
-		...rest
-	}: VisuallyHiddenComponentProps = $props();
+let {
+	// Kind-specific props
+	as = "span",
+	children,
+	class: className,
+	// ColdLight 8-axis props
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+	// Rest spread
+	...rest
+}: VisuallyHiddenComponentProps = $props();
 
-	// Resolve ColdLight visual
-	const visual = useColdLight(() => ({ preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius, size }));
+// Resolve ColdLight visual
+const visual = useColdLight(() => ({
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+}));
 
-	// Compose: structural recipe + ColdLight visual + user classes
-	const classes = $derived(cn(visuallyHiddenRecipe(), visual.segments, visual.radius, className));
+// Compose: structural recipe + ColdLight visual + user classes
+const classes = $derived(cn(visuallyHiddenRecipe(), visual.segments, visual.radius, className));
 </script>
 
 {#if as === "div"}

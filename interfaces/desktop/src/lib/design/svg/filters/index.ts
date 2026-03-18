@@ -4,22 +4,21 @@
  * @package @devpulse/coldlight
  */
 
-export {
-	registerFilter,
-	getFilter,
-	getAllFilters,
-	getFiltersForCategory,
-	getFilterCount,
-	getAllFiltersForManifest,
-	_clearFilterRegistry,
-} from "./registry.js";
-
 export type {
 	FilterDef,
+	FilterParam,
 	FilterStep,
 	FilterStepChild,
-	FilterParam,
+	ManifestSvgFilter,
 	SvgFilterCategory,
 	SvgFilterPrimitive,
-	ManifestSvgFilter,
 } from "../_schema/types.js";
+export {
+	_clearFilterRegistry,
+	getAllFilters,
+	getAllFiltersForManifest,
+	getFilter,
+	getFilterCount,
+	getFiltersForCategory,
+	registerFilter,
+} from "./registry.js";

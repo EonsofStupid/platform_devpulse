@@ -21,9 +21,9 @@
  * ```
  */
 
-import { uid } from "../../_internal/utils/uid.js";
 import { disabledAttr } from "../../_internal/utils/data-attr.js";
 import { kbd } from "../../_internal/utils/kbd.js";
+import { uid } from "../../_internal/utils/uid.js";
 import { buttonAnatomy } from "./button.anatomy.js";
 import type { UseButtonProps, UseButtonReturn } from "./button.types.js";
 
@@ -38,6 +38,7 @@ export function useButton(props: UseButtonProps = {}): UseButtonReturn {
 	function togglePressed(): void {
 		if (!isToggle || isDisabled) return;
 		pressed = !pressed;
+		// biome-ignore lint/style/noNonNullAssertion: pressed is guaranteed defined when isToggle is true
 		props.onPressedChange?.(pressed!);
 	}
 
@@ -60,11 +61,7 @@ export function useButton(props: UseButtonProps = {}): UseButtonReturn {
 		// Data attributes (styling hooks)
 		"data-disabled": isDisabled ? ("" as const) : undefined,
 		"data-loading": props.loading ? ("" as const) : undefined,
-		"data-state": isToggle
-			? pressed
-				? ("on" as const)
-				: ("off" as const)
-			: undefined,
+		"data-state": isToggle ? (pressed ? ("on" as const) : ("off" as const)) : undefined,
 
 		// Event handlers
 		onclick: (e: MouseEvent) => {

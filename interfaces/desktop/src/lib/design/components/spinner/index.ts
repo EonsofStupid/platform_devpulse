@@ -7,7 +7,7 @@
  * For styled spinners, import from ui/spinner/.
  */
 
-export { default as Spinner } from "./Spinner.svelte";
 export { contract as spinnerComponentContract } from "./contract.js";
-export { spinnerRecipe, type SpinnerSize } from "./recipe.js";
+export { type SpinnerSize, spinnerRecipe } from "./recipe.js";
+export { default as Spinner } from "./Spinner.svelte";
 export type { SpinnerProps } from "./types.js";

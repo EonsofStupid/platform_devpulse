@@ -14,48 +14,72 @@
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/popover/
 -->
 <script lang="ts">
-	import type { PopoverProps } from "./types.js";
-	import { createPopoverTransport } from "$lib/design/api/dsadapters/meltui/_internal/popover/index.js";
-	import { setPopoverContext } from "./context.js";
-	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { createPopoverTransport } from "$lib/design/api/dsadapters/meltui/_internal/popover/index.js";
+import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { setPopoverContext } from "./context.js";
+import type { PopoverProps } from "./types.js";
 
-	let {
-		open,
-		onOpenChange,
-		forceVisible = false,
-		sameWidth = false,
-		closeOnEscape = true,
-		closeOnOutsideClick = true,
-		children,
-		class: className,
-		// ColdLight 8-axis props
-		preset,
-		surface,
-		material,
-		depth,
-		bevel,
-		glow,
-		frame,
-		motion,
-		transition,
-		encoding,
-		radius,
-		size,
-	}: PopoverProps = $props();
+let {
+	open,
+	onOpenChange,
+	forceVisible = false,
+	sameWidth = false,
+	closeOnEscape = true,
+	closeOnOutsideClick = true,
+	children,
+	class: className,
+	// ColdLight 8-axis props
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+}: PopoverProps = $props();
 
-	const transport = createPopoverTransport({
-		get open() { return open; },
-		onOpenChange: (v: any) => onOpenChange?.(v),
-		get forceVisible() { return forceVisible; },
-		get sameWidth() { return sameWidth; },
-		get closeOnEscape() { return closeOnEscape; },
-		get closeOnOutsideClick() { return closeOnOutsideClick; },
-	});
+const transport = createPopoverTransport({
+	get open() {
+		return open;
+	},
+	// biome-ignore lint/suspicious/noExplicitAny: callback value type from transport
+	onOpenChange: (v: any) => onOpenChange?.(v),
+	get forceVisible() {
+		return forceVisible;
+	},
+	get sameWidth() {
+		return sameWidth;
+	},
+	get closeOnEscape() {
+		return closeOnEscape;
+	},
+	get closeOnOutsideClick() {
+		return closeOnOutsideClick;
+	},
+});
 
-	setPopoverContext(transport);
+setPopoverContext(transport);
 
-	const visual = useColdLight(() => ({ preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius, size }));
+const visual = useColdLight(() => ({
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+}));
 </script>
 
 <div

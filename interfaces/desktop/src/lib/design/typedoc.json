@@ -70,12 +70,5 @@
 		"@transport",
 		"@builder"
 	],
-	"modifierTags": [
-		"@primitive",
-		"@recipe",
-		"@material",
-		"@focus",
-		"@taxonomy",
-		"@internal"
-	]
+	"modifierTags": ["@primitive", "@recipe", "@material", "@focus", "@taxonomy", "@internal"]
 }

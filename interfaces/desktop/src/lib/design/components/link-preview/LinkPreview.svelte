@@ -13,33 +13,46 @@
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/
 -->
 <script lang="ts">
-	import type { LinkPreviewProps } from "./types.js";
-	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import { cn } from "$lib/design/primitives/types.js";
+import type { LinkPreviewProps } from "./types.js";
 
-	let {
-		openDelay = 700,
-		closeDelay = 300,
-		open,
-		onOpenChange,
-		children,
-		class: className,
-		// ColdLight 8-axis props
-		preset,
-		surface,
-		material,
-		depth,
-		bevel,
-		glow,
-		frame,
-		motion,
-		transition,
-		encoding,
-		radius,
-		size,
-	}: LinkPreviewProps = $props();
+let {
+	openDelay = 700,
+	closeDelay = 300,
+	open,
+	onOpenChange,
+	children,
+	class: className,
+	// ColdLight 8-axis props
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+}: LinkPreviewProps = $props();
 
-	const visual = useColdLight(() => ({ preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius, size }));
+const visual = useColdLight(() => ({
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+}));
 </script>
 
 <div

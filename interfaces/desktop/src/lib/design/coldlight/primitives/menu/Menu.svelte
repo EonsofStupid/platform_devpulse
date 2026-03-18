@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { MenuPrimitiveProps } from "./menu.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { MenuPrimitiveProps } from "./menu.props.js";
 
-	let { children, class: className, ...rest }: MenuPrimitiveProps = $props();
+let { children, class: className, ...rest }: MenuPrimitiveProps = $props();
 </script>
 
 <div

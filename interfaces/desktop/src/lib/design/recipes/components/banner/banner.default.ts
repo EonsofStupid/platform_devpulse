@@ -69,17 +69,9 @@ registerRecipe({
 				"border-b border-[var(--banner-border)]",
 				"bg-[var(--banner-bg)]",
 			),
-			icon: cn(
-				"shrink-0",
-				s.icon,
-				"text-text-secondary",
-			),
-			content: cn(
-				"flex-1 text-text-primary",
-			),
-			action: cn(
-				"shrink-0",
-			),
+			icon: cn("shrink-0", s.icon, "text-text-secondary"),
+			content: cn("flex-1 text-text-primary"),
+			action: cn("shrink-0"),
 			dismiss: cn(
 				s.dismiss,
 				radiusClass(props.radius === "lg" ? "md" : props.radius),

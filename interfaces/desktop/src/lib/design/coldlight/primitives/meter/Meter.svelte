@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { MeterPrimitiveProps } from "./meter.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { MeterPrimitiveProps } from "./meter.props.js";
 
-	let { children, class: className, ...rest }: MeterPrimitiveProps = $props();
+let { children, class: className, ...rest }: MeterPrimitiveProps = $props();
 </script>
 
 <div

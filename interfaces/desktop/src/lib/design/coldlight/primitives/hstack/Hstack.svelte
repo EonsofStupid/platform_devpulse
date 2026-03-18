@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { HstackPrimitiveProps } from "./hstack.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { HstackPrimitiveProps } from "./hstack.props.js";
 
-	let { children, class: className, ...rest }: HstackPrimitiveProps = $props();
+let { children, class: className, ...rest }: HstackPrimitiveProps = $props();
 </script>
 
 <div

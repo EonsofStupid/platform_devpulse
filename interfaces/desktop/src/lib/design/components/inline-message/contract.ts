@@ -28,9 +28,7 @@ export const contract = {
 			aria: {
 				role: "status",
 				required: [],
-				optional: [
-					{ attr: "aria-live", valueType: "aria-live" },
-				],
+				optional: [{ attr: "aria-live", valueType: "aria-live" }],
 			},
 			data: {
 				kind: "inline-message",

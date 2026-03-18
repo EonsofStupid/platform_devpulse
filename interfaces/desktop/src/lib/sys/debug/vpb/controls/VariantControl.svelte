@@ -3,9 +3,9 @@
 	@layer vpb
 -->
 <script lang="ts">
-	const GLASS_VARIANTS = ["void", "deep", "smoke", "frost"] as const;
+const GLASS_VARIANTS = ["void", "deep", "smoke", "frost"] as const;
 
-	let { value, onchange }: { value: string; onchange: (v: string) => void } = $props();
+let { value, onchange }: { value: string; onchange: (v: string) => void } = $props();
 </script>
 
 <div class="vpb-ctrl">

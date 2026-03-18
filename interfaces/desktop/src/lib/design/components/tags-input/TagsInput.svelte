@@ -9,55 +9,53 @@
 	Composite widget with editable tags and an inline text input.
 -->
 <script lang="ts">
-	import type { TagsInputComponentProps } from "./types.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import { cn } from "$lib/design/primitives/types.js";
+import type { TagsInputComponentProps } from "./types.js";
 
-	let {
-		size = "md",
-		value = [],
-		onValueChange,
-		disabled = false,
-		invalid = false,
-		max,
-		placeholder = "Add tag...",
-		children,
-		class: className,
-		// ColdLight 8-axis props
-		preset,
-		surface,
-		material,
-		depth,
-		bevel,
-		glow,
-		frame,
-		motion,
-		transition,
-		encoding,
-		radius,
-		// Rest spread
-		...rest
-	}: TagsInputComponentProps = $props();
+let {
+	size = "md",
+	value = [],
+	onValueChange,
+	disabled = false,
+	invalid = false,
+	max,
+	placeholder = "Add tag...",
+	children,
+	class: className,
+	// ColdLight 8-axis props
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	// Rest spread
+	...rest
+}: TagsInputComponentProps = $props();
 
-	// Resolve ColdLight visual props
-	const visual = useColdLight(
-		() => ({
-			preset,
-			surface,
-			material,
-			depth,
-			bevel,
-			glow,
-			frame,
-			motion,
-			transition,
-			encoding,
-			radius,
-			size,
-		}),
-	);
+// Resolve ColdLight visual props
+const visual = useColdLight(() => ({
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+}));
 
-	const classes = $derived(cn(visual.segments, visual.radius, className));
+const classes = $derived(cn(visual.segments, visual.radius, className));
 </script>
 
 <div

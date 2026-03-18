@@ -7,15 +7,15 @@
 	Pulled from manifest data.
 -->
 <script lang="ts">
-	import type { ManifestPrimitive, ManifestComponent } from "$lib/design/scanner.types.js";
+import type { ManifestComponent, ManifestPrimitive } from "$lib/design/scanner.types.js";
 
-	let {
-		primitive,
-		component,
-	}: {
-		primitive?: ManifestPrimitive;
-		component?: ManifestComponent;
-	} = $props();
+let {
+	primitive,
+	component,
+}: {
+	primitive?: ManifestPrimitive;
+	component?: ManifestComponent;
+} = $props();
 </script>
 
 <div class="vpb-inspector">

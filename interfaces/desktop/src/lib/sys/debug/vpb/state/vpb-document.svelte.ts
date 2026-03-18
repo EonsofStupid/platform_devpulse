@@ -8,8 +8,12 @@
  * Uses Svelte 5 class-based rune pattern.
  */
 
-import { BlockDocumentSchema, type BlockDocument, type BlockNode } from "$lib/design/blocks/schema.js";
 import { createBlockDocument } from "$lib/design/blocks/factory.js";
+import {
+	type BlockDocument,
+	BlockDocumentSchema,
+	type BlockNode,
+} from "$lib/design/blocks/schema.js";
 
 class VpbDocumentState {
 	document = $state<BlockDocument>(createBlockDocument());
@@ -124,6 +128,7 @@ class VpbDocumentState {
 	undo(): void {
 		if (this.#undoStack.length === 0) return;
 		this.#redoStack.push(JSON.stringify(this.document));
+		// biome-ignore lint/style/noNonNullAssertion: length check above guarantees non-empty stack
 		const prev = this.#undoStack.pop()!;
 		this.document = JSON.parse(prev);
 		this.dirty = true;
@@ -132,6 +137,7 @@ class VpbDocumentState {
 	redo(): void {
 		if (this.#redoStack.length === 0) return;
 		this.#undoStack.push(JSON.stringify(this.document));
+		// biome-ignore lint/style/noNonNullAssertion: length check above guarantees non-empty stack
 		const next = this.#redoStack.pop()!;
 		this.document = JSON.parse(next);
 		this.dirty = true;

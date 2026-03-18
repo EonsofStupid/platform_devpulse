@@ -31,9 +31,10 @@ function extractCustomProperties(css: string): Set<string> {
 	const props = new Set<string>();
 	// Match --property-name declarations (before the colon)
 	const re = /--([a-zA-Z0-9_-]+)\s*:/g;
-	let match: RegExpExecArray | null;
-	while ((match = re.exec(css)) !== null) {
+	let match = re.exec(css);
+	while (match !== null) {
 		props.add(`--${match[1]}`);
+		match = re.exec(css);
 	}
 	return props;
 }
@@ -42,9 +43,10 @@ function extractCustomProperties(css: string): Set<string> {
 function extractVarRefs(value: string): string[] {
 	const refs: string[] = [];
 	const re = /var\((--[a-zA-Z0-9_-]+)/g;
-	let match: RegExpExecArray | null;
-	while ((match = re.exec(value)) !== null) {
+	let match = re.exec(value);
+	while (match !== null) {
 		refs.push(match[1]);
+		match = re.exec(value);
 	}
 	return refs;
 }

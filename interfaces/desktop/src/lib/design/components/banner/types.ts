@@ -6,8 +6,8 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { BaseProps } from "$lib/design/primitives/types.js";
 import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { BaseProps } from "$lib/design/primitives/types.js";
 
 export type BannerIntent = "info" | "success" | "warning" | "error";
 
@@ -18,7 +18,10 @@ export const BANNER_INTENT_PRESETS: Record<BannerIntent, string> = {
 	error: "banner-error",
 };
 
-export interface BannerProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps, ColdLightProps {
+export interface BannerProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
+		BaseProps,
+		ColdLightProps {
 	children?: Snippet;
 	intent?: BannerIntent;
 	visible?: boolean;

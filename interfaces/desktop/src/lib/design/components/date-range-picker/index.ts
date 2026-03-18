@@ -6,23 +6,21 @@
  * Compound component: exports root + all sub-components.
  */
 
+export type { DateRangePickerContext } from "./context.js";
+export { getDateRangePickerContext, setDateRangePickerContext } from "./context.js";
+export { contract as dateRangePickerComponentContract } from "./contract.js";
 export { default as DateRangePicker } from "./DateRangePicker.svelte";
+export { default as DateRangePickerCalendar } from "./DateRangePickerCalendar.svelte";
+export { default as DateRangePickerContent } from "./DateRangePickerContent.svelte";
 export { default as DateRangePickerField } from "./DateRangePickerField.svelte";
 export { default as DateRangePickerTrigger } from "./DateRangePickerTrigger.svelte";
-export { default as DateRangePickerContent } from "./DateRangePickerContent.svelte";
-export { default as DateRangePickerCalendar } from "./DateRangePickerCalendar.svelte";
-
-export { contract as dateRangePickerComponentContract } from "./contract.js";
 export { dateRangePickerRecipe } from "./recipe.js";
-export { setDateRangePickerContext, getDateRangePickerContext } from "./context.js";
-
-export type { DateRangePickerContext } from "./context.js";
 export type {
-	DateRangePickerProps,
-	DateRangePickerFieldProps,
-	DateRangePickerTriggerProps,
-	DateRangePickerContentProps,
-	DateRangePickerCalendarProps,
 	DateRange,
+	DateRangePickerCalendarProps,
+	DateRangePickerContentProps,
+	DateRangePickerFieldProps,
+	DateRangePickerProps,
+	DateRangePickerTriggerProps,
 	Size as DateRangePickerSize,
 } from "./types.js";

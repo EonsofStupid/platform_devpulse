@@ -9,10 +9,10 @@
  * Setup:  vitest-browser-svelte
  */
 
+import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { expect, test, describe } from "vitest";
-import Sticky from "./Sticky.svelte";
 import { contract } from "./contract.js";
+import Sticky from "./Sticky.svelte";
 
 // =============================================================================
 // CONTRACT INTEGRITY

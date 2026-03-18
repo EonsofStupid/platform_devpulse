@@ -25,8 +25,5 @@ const SIZE_CLASS: Record<string, string> = {
 
 export function spacerRecipe(props: SpacerRecipeProps = {}): string {
 	const size = props.size ?? "md";
-	return cn(
-		"spacer-root",
-		SIZE_CLASS[size] ?? SIZE_CLASS.md,
-	);
+	return cn("spacer-root", SIZE_CLASS[size] ?? SIZE_CLASS.md);
 }

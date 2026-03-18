@@ -14,7 +14,7 @@
  *
  * SSOT: systems/devpulse-engine/ip/kernel_terms.toml
  */
-import { readdirSync, readFileSync } from "node:fs";
+import { type Dirent, readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -77,9 +77,7 @@ const LONG_TERMS = [
 // where "background layer" refers to visual layers, not rumination architecture.
 
 // Build word-boundary regexes for short terms
-const SHORT_TERM_REGEXES = SHORT_TERMS.map(
-	(term) => [term, new RegExp(`\\b${term}\\b`)] as const,
-);
+const SHORT_TERM_REGEXES = SHORT_TERMS.map((term) => [term, new RegExp(`\\b${term}\\b`)] as const);
 
 // Files/paths with KNOWN kernel term usage that will be migrated in
 // SPRINT-LAUNCHER-UI. These are baselined — not ignored, just documented.
@@ -116,7 +114,7 @@ const SKIP = [
 
 function collectFiles(dir: string, extensions: string[]): string[] {
 	const results: string[] = [];
-	let entries;
+	let entries: Dirent[] | undefined;
 	try {
 		entries = readdirSync(dir, { withFileTypes: true });
 	} catch {
@@ -203,10 +201,7 @@ describe("IP Boundary — Frontend", () => {
 		// If a baseline no longer has matching files, it's stale and should
 		// be removed — stale baselines hide the fact that a migration is done.
 		const staleBaselines = BASELINED_PATHS.filter(
-			(bp) =>
-				!files.some((f) =>
-					relative(srcRoot, f).replace(/\\/g, "/").includes(bp),
-				),
+			(bp) => !files.some((f) => relative(srcRoot, f).replace(/\\/g, "/").includes(bp)),
 		);
 
 		if (staleBaselines.length > 0) {

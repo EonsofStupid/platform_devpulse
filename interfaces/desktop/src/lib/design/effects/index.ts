@@ -12,52 +12,49 @@
  *   import { getEffect, getEffectsForCategory } from "$lib/design/effects";
  */
 
-// Schema types (for consumers)
-export type {
-	EffectCategory,
-	EffectDefinition,
-	EffectTrigger,
-	ShadowLayer,
-	ComposedEffect,
-	CompositorNode,
-	CompositorNodeType,
-	CompilerOutput,
-	CompiledAction,
-	ManifestEffect,
-	ManifestEffectCategory,
-} from "./_schema/types.js";
-
-export {
-	EFFECT_CATEGORIES,
-	EFFECT_TRIGGERS,
-	SHADOW_LAYERS,
-	COMPOSITOR_NODE_TYPES,
-} from "./_schema/types.js";
-
-// Registry API
-export {
-	registerEffect,
-	getEffect,
-	getEffectsForCategory,
-	getConflictGroup,
-	effectsConflict,
-	getEffectCount,
-	getAllEffectsForManifest,
-	getCategoryManifests,
-} from "./registry.js";
-
 // Schemas (for boundary validation)
 export {
-	EffectDefinitionSchema,
-	EffectCategorySchema,
-	EffectTriggerSchema,
-	ShadowLayerSchema,
+	CompiledActionSchema,
+	CompilerOutputSchema,
 	ComposedEffectSchema,
 	CompositorNodeSchema,
 	CompositorNodeTypeSchema,
-	CompilerOutputSchema,
-	CompiledActionSchema,
+	EffectCategorySchema,
+	EffectDefinitionSchema,
+	EffectTriggerSchema,
+	ShadowLayerSchema,
 } from "./_schema/schema.js";
+// Schema types (for consumers)
+export type {
+	CompiledAction,
+	CompilerOutput,
+	ComposedEffect,
+	CompositorNode,
+	CompositorNodeType,
+	EffectCategory,
+	EffectDefinition,
+	EffectTrigger,
+	ManifestEffect,
+	ManifestEffectCategory,
+	ShadowLayer,
+} from "./_schema/types.js";
+export {
+	COMPOSITOR_NODE_TYPES,
+	EFFECT_CATEGORIES,
+	EFFECT_TRIGGERS,
+	SHADOW_LAYERS,
+} from "./_schema/types.js";
+// Registry API
+export {
+	effectsConflict,
+	getAllEffectsForManifest,
+	getCategoryManifests,
+	getConflictGroup,
+	getEffect,
+	getEffectCount,
+	getEffectsForCategory,
+	registerEffect,
+} from "./registry.js";
 
 // ─── Category registrations (side-effect imports) ────────────────────────────
 // Each import registers its effects into the global registry.
@@ -69,10 +66,12 @@ import "./categories/frame/index.js";
 import "./categories/motion/index.js";
 import "./categories/transition/index.js";
 
+export { type GlowTrackParams, glowTrack } from "./actions/glow-track.js";
+// ─── Actions — JS-driven visual effects (Svelte 5 actions) ──────────────────
+export {
+	type IntersectionRevealParams,
+	intersectionReveal,
+} from "./actions/intersection-reveal.js";
 // ─── Bridge — encoding ↔ effects recommendation ─────────────────────────────
 export type { InteractivePreset } from "./bridge.js";
-export { recommendEffects, presetToComposedEffects } from "./bridge.js";
-
-// ─── Actions — JS-driven visual effects (Svelte 5 actions) ──────────────────
-export { intersectionReveal, type IntersectionRevealParams } from "./actions/intersection-reveal.js";
-export { glowTrack, type GlowTrackParams } from "./actions/glow-track.js";
+export { presetToComposedEffects, recommendEffects } from "./bridge.js";

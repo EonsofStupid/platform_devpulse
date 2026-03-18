@@ -14,50 +14,70 @@
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/
 -->
 <script lang="ts">
-	import type { AccordionProps } from "./types.js";
-	import { createAccordionTransport } from "$lib/design/api/dsadapters/meltui/_internal/accordion/index.js";
-	import { setAccordionContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { accordionRecipe } from "./recipe.js";
-	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import { createAccordionTransport } from "$lib/design/api/dsadapters/meltui/_internal/accordion/index.js";
+import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { setAccordionContext } from "./context.js";
+import { accordionRecipe } from "./recipe.js";
+import type { AccordionProps } from "./types.js";
 
-	let {
-		multiple = false,
-		disabled = false,
-		value,
-		onValueChange,
-		children,
-		class: className,
-		// ColdLight 8-axis props
-		preset,
-		surface,
-		material,
-		depth,
-		bevel,
-		glow,
-		frame,
-		motion,
-		transition,
-		encoding,
-		radius,
-		size,
-		...rest
-	}: AccordionProps = $props();
+let {
+	multiple = false,
+	disabled = false,
+	value,
+	onValueChange,
+	children,
+	class: className,
+	// ColdLight 8-axis props
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+	...rest
+}: AccordionProps = $props();
 
-	// Transport is initialized once with initial config values.
-	// Melt handles internal reactivity via its own store layer.
-	const transport = createAccordionTransport({
-		get multiple() { return multiple; },
-		get disabled() { return disabled; },
-		get value() { return value; },
-		onValueChange: (v: any) => onValueChange?.(v),
-	});
+// Transport is initialized once with initial config values.
+// Melt handles internal reactivity via its own store layer.
+const transport = createAccordionTransport({
+	get multiple() {
+		return multiple;
+	},
+	get disabled() {
+		return disabled;
+	},
+	get value() {
+		return value;
+	},
+	// biome-ignore lint/suspicious/noExplicitAny: callback value type varies by accordion mode
+	onValueChange: (v: any) => onValueChange?.(v),
+});
 
-	setAccordionContext(transport);
+setAccordionContext(transport);
 
-	const recipe = accordionRecipe();
+const recipe = accordionRecipe();
 
-	const visual = useColdLight(() => ({ preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius, size }));
+const visual = useColdLight(() => ({
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+}));
 </script>
 
 <div

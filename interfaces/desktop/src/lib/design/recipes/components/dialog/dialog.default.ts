@@ -51,11 +51,7 @@ registerRecipe({
 	},
 	classes: (props: DsSurfaceProps): Record<string, string> => ({
 		overlay: "dialog-overlay",
-		content: cn(
-			"dialog-content",
-			emitSegments(toPreset(props)),
-			radiusClass(props.radius),
-		),
+		content: cn("dialog-content", emitSegments(toPreset(props)), radiusClass(props.radius)),
 		header: "dialog-header",
 		footer: "dialog-footer",
 		title: "dialog-title",

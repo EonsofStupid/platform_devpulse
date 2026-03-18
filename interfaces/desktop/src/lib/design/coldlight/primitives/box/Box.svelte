@@ -6,10 +6,10 @@
   Generic container. No ARIA, no behavior.
 -->
 <script lang="ts">
-	import type { BoxPrimitiveProps } from "./box.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { BoxPrimitiveProps } from "./box.props.js";
 
-	let { children, class: className, ...rest }: BoxPrimitiveProps = $props();
+let { children, class: className, ...rest }: BoxPrimitiveProps = $props();
 </script>
 
 <div

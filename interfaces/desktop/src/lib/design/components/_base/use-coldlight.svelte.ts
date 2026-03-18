@@ -20,9 +20,9 @@
  */
 
 import {
-	resolveVisual,
 	type ColdLightProps,
 	type ResolvedVisual,
+	resolveVisual,
 } from "$lib/design/registry/resolve-visual.js";
 import type { Preset } from "$lib/design/registry/token-categories.js";
 
@@ -43,15 +43,35 @@ export function useColdLight(
 	const resolved = $derived(resolveVisual(getProps(), kindDefaults));
 
 	return {
-		get values() { return resolved.values; },
-		get preset() { return resolved.preset; },
-		get encoding() { return resolved.encoding; },
-		get segments() { return resolved.segments; },
-		get radius() { return resolved.radius; },
-		get size() { return resolved.size; },
-		get cssProperties() { return resolved.cssProperties; },
-		get variant() { return resolved.variant; },
-		get svgFilters() { return resolved.svgFilters; },
-		get svgFilterClasses() { return resolved.svgFilterClasses; },
+		get values() {
+			return resolved.values;
+		},
+		get preset() {
+			return resolved.preset;
+		},
+		get encoding() {
+			return resolved.encoding;
+		},
+		get segments() {
+			return resolved.segments;
+		},
+		get radius() {
+			return resolved.radius;
+		},
+		get size() {
+			return resolved.size;
+		},
+		get cssProperties() {
+			return resolved.cssProperties;
+		},
+		get variant() {
+			return resolved.variant;
+		},
+		get svgFilters() {
+			return resolved.svgFilters;
+		},
+		get svgFilterClasses() {
+			return resolved.svgFilterClasses;
+		},
 	};
 }

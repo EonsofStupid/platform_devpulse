@@ -7,15 +7,15 @@
 	MeltUI transport provides id linking for accessibility.
 -->
 <script lang="ts">
-	import type { SelectLabelProps } from "./types.js";
-	import { getSelectContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { selectRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getSelectContext } from "./context.js";
+import { selectRecipe } from "./recipe.js";
+import type { SelectLabelProps } from "./types.js";
 
-	let { children, class: className, ...rest }: SelectLabelProps = $props();
+let { children, class: className, ...rest }: SelectLabelProps = $props();
 
-	const transport = getSelectContext();
-	const recipe = selectRecipe();
+const transport = getSelectContext();
+const recipe = selectRecipe();
 </script>
 
 <span

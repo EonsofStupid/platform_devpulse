@@ -15,20 +15,18 @@
  */
 
 import { z } from "zod";
-
+import type { RadiusToken, SizeToken } from "$lib/design/recipes/types.js";
 import {
-	TOKEN_CATEGORY_REGISTRY,
 	CODE_MAP,
 	CODE_TO_NAME,
-	PresetSchema,
+	type EncodingIndices,
 	EncodingStringSchema,
+	type Preset,
+	PresetSchema,
 	resolveToIndices,
 	resolveToPreset,
-	type Preset,
-	type EncodingIndices,
+	TOKEN_CATEGORY_REGISTRY,
 } from "./token-categories.js";
-
-import type { RadiusToken, SizeToken } from "$lib/design/recipes/types.js";
 
 // ═══════════════════════════════════════════════════════════════
 // PUBLIC TYPES
@@ -115,9 +113,7 @@ let _getPreset: ((id: string) => Partial<Preset> | undefined) | null = null;
  * Register the preset lookup function. Called once by presets.ts on module load.
  * Avoids circular dependency between resolve-visual.ts and presets.ts.
  */
-export function registerPresetLookup(
-	fn: (id: string) => Partial<Preset> | undefined,
-): void {
+export function registerPresetLookup(fn: (id: string) => Partial<Preset> | undefined): void {
 	_getPreset = fn;
 }
 
@@ -226,8 +222,7 @@ export function resolveVisual(
 
 	// Emit sparse encoding string
 	const encodingParts = segmentParts.map((s) => s.slice(2)); // strip "v-" prefix
-	const encoding =
-		encodingParts.length > 0 ? `v-${encodingParts.join("")}` : "";
+	const encoding = encodingParts.length > 0 ? `v-${encodingParts.join("")}` : "";
 
 	// Collect CSS properties from all non-default categories
 	const cssProperties: Record<string, string> = {};
@@ -280,10 +275,7 @@ export function resolveVisual(
  * Convenience: resolve and return ONLY the class string.
  * For components that just need classes, not the full resolved object.
  */
-export function resolveClasses(
-	input: ColdLightProps,
-	kindDefaults?: Partial<Preset>,
-): string {
+export function resolveClasses(input: ColdLightProps, kindDefaults?: Partial<Preset>): string {
 	const resolved = resolveVisual(input, kindDefaults);
 	return [resolved.segments, resolved.radius].filter(Boolean).join(" ");
 }

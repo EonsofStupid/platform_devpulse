@@ -3,15 +3,15 @@
  */
 
 @theme {
-  --drop-shadow-off: 0px 0px 0px 0px #00000000;
-  --drop-shadow-teal: 0px 0px 30px 12px #009076b3;
-  --drop-shadow-purple: 0px 0px 30px 12px #615ed6b3;
-  --drop-shadow-magenta: 0px 0px 30px 12px #ad36a7b3;
-  --drop-shadow-ember: 0px 0px 30px 12px #c53637b3;
-  --drop-shadow-frost: 0px 0px 30px 12px #1988a399;
-  --drop-shadow-cyber: 0px 0px 30px 12px #008f4ab3;
-  --glow-spread-sm: 0.75rem;
-  --glow-spread-md: 1.25rem;
-  --glow-spread-lg: 1.875rem;
-  --glow-spread-xl: 2.5rem;
+	--drop-shadow-off: 0px 0px 0px 0px #00000000;
+	--drop-shadow-teal: 0px 0px 30px 12px #009076b3;
+	--drop-shadow-purple: 0px 0px 30px 12px #615ed6b3;
+	--drop-shadow-magenta: 0px 0px 30px 12px #ad36a7b3;
+	--drop-shadow-ember: 0px 0px 30px 12px #c53637b3;
+	--drop-shadow-frost: 0px 0px 30px 12px #1988a399;
+	--drop-shadow-cyber: 0px 0px 30px 12px #008f4ab3;
+	--glow-spread-sm: 0.75rem;
+	--glow-spread-md: 1.25rem;
+	--glow-spread-lg: 1.875rem;
+	--glow-spread-xl: 2.5rem;
 }

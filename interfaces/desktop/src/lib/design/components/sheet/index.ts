@@ -4,7 +4,7 @@
  * @layer components
  */
 
-export { default as Sheet } from "./Sheet.svelte";
 export { contract as sheetComponentContract } from "./contract.js";
-export { sheetRecipe, sheetOverlayRecipe } from "./recipe.js";
-export type { SheetComponentProps, SheetSize, SheetSide } from "./types.js";
+export { sheetOverlayRecipe, sheetRecipe } from "./recipe.js";
+export { default as Sheet } from "./Sheet.svelte";
+export type { SheetComponentProps, SheetSide, SheetSize } from "./types.js";

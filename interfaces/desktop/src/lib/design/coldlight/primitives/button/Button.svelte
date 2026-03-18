@@ -8,10 +8,10 @@
   Zero styling — that comes from the component layer.
 -->
 <script lang="ts">
-	import type { ButtonPrimitiveProps } from "./button.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { ButtonPrimitiveProps } from "./button.props.js";
 
-	let { children, class: className, ...rest }: ButtonPrimitiveProps = $props();
+let { children, class: className, ...rest }: ButtonPrimitiveProps = $props();
 </script>
 
 <button

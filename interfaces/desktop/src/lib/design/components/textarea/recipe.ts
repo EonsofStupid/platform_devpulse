@@ -15,9 +15,5 @@ type TextareaRecipeProps = { size?: string };
 
 export function textareaRecipe(props: TextareaRecipeProps = {}): string {
 	const sizeClass = `textarea-${props.size ?? "md"}`;
-	return cn(
-		"textarea-root",
-		sizeClass,
-		"rounded-md",
-	);
+	return cn("textarea-root", sizeClass, "rounded-md");
 }

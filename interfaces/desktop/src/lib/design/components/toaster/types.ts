@@ -10,8 +10,8 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { BaseProps } from "$lib/design/primitives/types.js";
 import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { BaseProps } from "$lib/design/primitives/types.js";
 
 export type ToasterPosition =
 	| "top-left"
@@ -22,7 +22,10 @@ export type ToasterPosition =
 	| "bottom-right";
 
 /** Toaster component props — ColdLight 8-axis + ARIA + recipe + primitive */
-export interface ToasterComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps, ColdLightProps {
+export interface ToasterComponentProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
+		BaseProps,
+		ColdLightProps {
 	children?: Snippet;
 	/** Position of the toast container. @default "bottom-right" */
 	position?: ToasterPosition;

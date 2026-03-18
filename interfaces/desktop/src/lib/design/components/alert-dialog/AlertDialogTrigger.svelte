@@ -8,16 +8,16 @@
 	ColdLight-owned ARIA: aria-haspopup="dialog", aria-expanded, aria-controls.
 -->
 <script lang="ts">
-	import type { AlertDialogTriggerProps } from "./types.js";
-	import { getAlertDialogContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getAlertDialogContext } from "./context.js";
+import type { AlertDialogTriggerProps } from "./types.js";
 
-	let { children, class: className, ...rest }: AlertDialogTriggerProps = $props();
-	const ctx = getAlertDialogContext();
+let { children, class: className, ...rest }: AlertDialogTriggerProps = $props();
+const ctx = getAlertDialogContext();
 
-	function handleClick(): void {
-		ctx.setOpen(true);
-	}
+function handleClick(): void {
+	ctx.setOpen(true);
+}
 </script>
 
 <button

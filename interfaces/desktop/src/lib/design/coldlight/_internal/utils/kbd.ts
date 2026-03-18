@@ -27,15 +27,25 @@ export type Direction = "ltr" | "rtl";
 export type Orientation = "horizontal" | "vertical";
 
 /** Get the "next" arrow key for direction + orientation. */
-export function getNextKey(dir: Direction = "ltr", orientation: Orientation = "horizontal"): string {
+export function getNextKey(
+	dir: Direction = "ltr",
+	orientation: Orientation = "horizontal",
+): string {
 	return orientation === "horizontal"
-		? (dir === "rtl" ? kbd.ARROW_LEFT : kbd.ARROW_RIGHT)
+		? dir === "rtl"
+			? kbd.ARROW_LEFT
+			: kbd.ARROW_RIGHT
 		: kbd.ARROW_DOWN;
 }
 
 /** Get the "previous" arrow key for direction + orientation. */
-export function getPrevKey(dir: Direction = "ltr", orientation: Orientation = "horizontal"): string {
+export function getPrevKey(
+	dir: Direction = "ltr",
+	orientation: Orientation = "horizontal",
+): string {
 	return orientation === "horizontal"
-		? (dir === "rtl" ? kbd.ARROW_RIGHT : kbd.ARROW_LEFT)
+		? dir === "rtl"
+			? kbd.ARROW_RIGHT
+			: kbd.ARROW_LEFT
 		: kbd.ARROW_UP;
 }

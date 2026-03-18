@@ -35,10 +35,18 @@ export function useBreadcrumbs(props: UseBreadcrumbsProps = {}): UseBreadcrumbsR
 	});
 
 	return {
-		get root() { return root; },
-		get list() { return list; },
-		get item() { return item; },
-		get separator() { return separator; },
+		get root() {
+			return root;
+		},
+		get list() {
+			return list;
+		},
+		get item() {
+			return item;
+		},
+		get separator() {
+			return separator;
+		},
 
 		getLink(isCurrent?: boolean) {
 			return {

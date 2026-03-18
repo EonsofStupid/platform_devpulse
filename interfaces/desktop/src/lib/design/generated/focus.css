@@ -10,5 +10,7 @@
 
 @utility focus-glow {
 	outline: none;
-	box-shadow: 0 0 0 2px var(--border-focus), var(--glow-teal);
+	box-shadow:
+		0 0 0 2px var(--border-focus),
+		var(--glow-teal);
 }

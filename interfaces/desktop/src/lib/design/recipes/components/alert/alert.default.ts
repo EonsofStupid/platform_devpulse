@@ -73,19 +73,9 @@ registerRecipe({
 				"border border-[var(--alert-border)]",
 				"bg-[var(--alert-bg)]",
 			),
-			icon: cn(
-				"shrink-0",
-				s.icon,
-				"text-[var(--alert-border)]",
-			),
-			title: cn(
-				"font-semibold text-text-primary",
-				s.title,
-			),
-			description: cn(
-				"text-text-secondary",
-				s.description,
-			),
+			icon: cn("shrink-0", s.icon, "text-[var(--alert-border)]"),
+			title: cn("font-semibold text-text-primary", s.title),
+			description: cn("text-text-secondary", s.description),
 		};
 	},
 });

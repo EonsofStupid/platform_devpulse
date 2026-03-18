@@ -6,8 +6,8 @@
  * Public API for VPB. Import from here, not from internal paths.
  */
 
-export { default as Vpb } from "./Vpb.svelte";
+export { vpbConnection } from "./state/vpb-connection.svelte.js";
 export { vpbDocument } from "./state/vpb-document.svelte.js";
 export { vpbPalette } from "./state/vpb-palette.svelte.js";
-export { vpbConnection } from "./state/vpb-connection.svelte.js";
 export { vpbVisual } from "./state/vpb-visual.svelte.js";
+export { default as Vpb } from "./Vpb.svelte";

@@ -9,18 +9,13 @@
 	Uses semantic <a> element.
 -->
 <script lang="ts">
-	import type { NavigationMenuLinkProps } from "./types.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { navigationMenuRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { navigationMenuRecipe } from "./recipe.js";
+import type { NavigationMenuLinkProps } from "./types.js";
 
-	let {
-		children,
-		active = false,
-		class: className,
-		...rest
-	}: NavigationMenuLinkProps = $props();
+let { children, active = false, class: className, ...rest }: NavigationMenuLinkProps = $props();
 
-	const recipe = navigationMenuRecipe();
+const recipe = navigationMenuRecipe();
 </script>
 
 <a

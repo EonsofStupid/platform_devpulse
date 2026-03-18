@@ -15,8 +15,8 @@
  * Includes neumorphism and frame-bevel variants as distinct conflict groups.
  */
 
-import { registerEffect } from "../../registry.js";
 import type { EffectDefinition } from "../../_schema/types.js";
+import { registerEffect } from "../../registry.js";
 
 // =============================================================================
 // STANDARD DEPTH EFFECTS
@@ -37,7 +37,8 @@ const depthRaised: EffectDefinition = {
 	id: "depth.raised",
 	category: "depth",
 	label: "Depth Raised",
-	description: "Mid-weight elevation with 3-layer shadow stack. For panels and interactive surfaces.",
+	description:
+		"Mid-weight elevation with 3-layer shadow stack. For panels and interactive surfaces.",
 	supportedTriggers: ["always", "hover"],
 	classes: ["depth-raised"],
 	shadowLayer: "depth",
@@ -59,7 +60,8 @@ const depthLifted: EffectDefinition = {
 	id: "depth.lifted",
 	category: "depth",
 	label: "Depth Lifted",
-	description: "Maximum elevation with 5-layer shadow stack including upward ambient glow. For tooltips and floating elements.",
+	description:
+		"Maximum elevation with 5-layer shadow stack including upward ambient glow. For tooltips and floating elements.",
 	supportedTriggers: ["always", "hover"],
 	classes: ["depth-lifted"],
 	shadowLayer: "depth",
@@ -85,7 +87,8 @@ const neuInset: EffectDefinition = {
 	id: "depth.neu-inset",
 	category: "depth",
 	label: "Neumorphic Inset",
-	description: "Neumorphism inset style. Dual inset opposing shadows create pressed/recessed appearance.",
+	description:
+		"Neumorphism inset style. Dual inset opposing shadows create pressed/recessed appearance.",
 	supportedTriggers: ["always", "active"],
 	classes: ["neu-inset"],
 	shadowLayer: "depth",
@@ -100,7 +103,8 @@ const frameBevel: EffectDefinition = {
 	id: "depth.frame-bevel",
 	category: "depth",
 	label: "Frame Bevel",
-	description: "Heavy decorative frame with teal-tinted border, inset specular highlights, and ambient glow. For hero sections and featured content.",
+	description:
+		"Heavy decorative frame with teal-tinted border, inset specular highlights, and ambient glow. For hero sections and featured content.",
 	supportedTriggers: ["always"],
 	classes: ["frame-bevel"],
 	shadowLayer: "depth",

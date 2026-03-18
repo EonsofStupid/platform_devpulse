@@ -7,10 +7,7 @@
 <script lang="ts">
 import type { WidgetContentProps } from "./types.js";
 
-let {
-	class: className = "widget-content",
-	children,
-}: WidgetContentProps = $props();
+let { class: className = "widget-content", children }: WidgetContentProps = $props();
 </script>
 
 <div data-kind="widget" data-slot="content" class={className} role="tabpanel">

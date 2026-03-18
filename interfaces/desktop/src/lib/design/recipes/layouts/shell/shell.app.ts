@@ -63,11 +63,7 @@ registerRecipe({
 			"border-r border-border-subtle",
 			"overflow-y-auto scrollbar-thin",
 		),
-		content: cn(
-			"row-start-2 col-start-2",
-			"overflow-y-auto scrollbar-thin",
-			"p-6",
-		),
+		content: cn("row-start-2 col-start-2", "overflow-y-auto scrollbar-thin", "p-6"),
 		context: cn(
 			"row-start-2 col-start-3",
 			"w-0 overflow-hidden",

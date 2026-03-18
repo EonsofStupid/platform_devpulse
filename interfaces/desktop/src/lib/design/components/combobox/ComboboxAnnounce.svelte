@@ -19,10 +19,10 @@
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
 -->
 <script lang="ts">
-	import type { ComboboxAnnounceProps } from "./types.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/primitives/types.js";
+import type { ComboboxAnnounceProps } from "./types.js";
 
-	let { message, class: className }: ComboboxAnnounceProps = $props();
+let { message, class: className }: ComboboxAnnounceProps = $props();
 </script>
 
 <div

@@ -6,16 +6,16 @@
 	Clicking a preset applies it via vpbVisual.applyPreset().
 -->
 <script lang="ts">
-	import { vpbVisual } from "../state/vpb-visual.svelte.js";
-	import type { PresetDefinition } from "$lib/design/registry/presets.js";
-	import { resolveVisual } from "$lib/design/registry/resolve-visual.js";
+import type { PresetDefinition } from "$lib/design/registry/presets.js";
+import { resolveVisual } from "$lib/design/registry/resolve-visual.js";
+import { vpbVisual } from "../state/vpb-visual.svelte.js";
 
-	const presets = $derived(vpbVisual.availablePresets);
+const presets = $derived(vpbVisual.availablePresets);
 
-	function formatEncoding(preset: PresetDefinition): string {
-		const resolved = resolveVisual({ preset: preset.id });
-		return resolved.encoding || "defaults";
-	}
+function formatEncoding(preset: PresetDefinition): string {
+	const resolved = resolveVisual({ preset: preset.id });
+	return resolved.encoding || "defaults";
+}
 </script>
 
 <div class="vpb-presets">

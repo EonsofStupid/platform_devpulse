@@ -9,7 +9,10 @@ export interface UseTreeProps {
 
 export interface UseTreeReturn {
 	readonly root: Record<string, unknown>;
-	getItem(key: string, options?: { hasChildren?: boolean; level?: number; disabled?: boolean }): Record<string, unknown>;
+	getItem(
+		key: string,
+		options?: { hasChildren?: boolean; level?: number; disabled?: boolean },
+	): Record<string, unknown>;
 	getGroup(): Record<string, unknown>;
 	toggleExpanded(key: string): void;
 }

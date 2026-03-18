@@ -8,9 +8,9 @@
  * customJS, produces a CompiledAction for the renderer to wire.
  */
 
-import type { ColdLightManifest } from "../../scanner.types.js";
-import type { CompositorNode, CompiledAction } from "../../effects/_schema/types.js";
+import type { CompiledAction, CompositorNode } from "../../effects/_schema/types.js";
 import { getEffect } from "../../effects/registry.js";
+import type { ColdLightManifest } from "../../scanner.types.js";
 
 export interface LogicPassOutput {
 	/** Svelte actions to wire onto the element */
@@ -24,10 +24,7 @@ export interface LogicPassOutput {
  * Collects all customJS modules from composed effects and produces
  * CompiledAction entries for the renderer.
  */
-export function logicPass(
-	node: CompositorNode,
-	manifest: ColdLightManifest,
-): LogicPassOutput {
+export function logicPass(node: CompositorNode, _manifest: ColdLightManifest): LogicPassOutput {
 	const actions: CompiledAction[] = [];
 	const warnings: string[] = [];
 

@@ -13,13 +13,13 @@
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
 -->
 <script lang="ts">
-	import type { ComboboxEmptyProps } from "./types.js";
-	import { getComboboxContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getComboboxContext } from "./context.js";
+import type { ComboboxEmptyProps } from "./types.js";
 
-	let { children, class: className }: ComboboxEmptyProps = $props();
+let { children, class: className }: ComboboxEmptyProps = $props();
 
-	const { recipe } = getComboboxContext();
+const { recipe } = getComboboxContext();
 </script>
 
 <div

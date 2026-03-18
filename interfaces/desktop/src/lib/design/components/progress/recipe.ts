@@ -20,11 +20,7 @@ export function progressTrackRecipe(props: ProgressRecipeProps = {}): string {
 		md: "h-2",
 		lg: "h-3",
 	};
-	return cn(
-		"progress-track",
-		heightMap[size] ?? heightMap.md,
-		"rounded-full",
-	);
+	return cn("progress-track", heightMap[size] ?? heightMap.md, "rounded-full");
 }
 
 export function progressIndicatorRecipe(): string {

@@ -26,8 +26,5 @@ const SIZE_CLASSES: Record<SpinnerSize, string> = {
  */
 export function spinnerRecipe(props: { size?: SpinnerSize } = {}): string {
 	const size = props.size ?? "md";
-	return cn(
-		"spinner-root",
-		SIZE_CLASSES[size] ?? SIZE_CLASSES.md,
-	);
+	return cn("spinner-root", SIZE_CLASSES[size] ?? SIZE_CLASSES.md);
 }

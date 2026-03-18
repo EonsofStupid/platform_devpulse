@@ -8,40 +8,40 @@
 	ColdLight-owned — renders range-start, range-end, in-range states.
 -->
 <script lang="ts">
-	import type { RangeCalendarCellProps } from "./types.js";
-	import { getRangeCalendarContext } from "./context.js";
-	import { rangeCalendarRecipe } from "./recipe.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getRangeCalendarContext } from "./context.js";
+import { rangeCalendarRecipe } from "./recipe.js";
+import type { RangeCalendarCellProps } from "./types.js";
 
-	let { date, children, class: className, ...rest }: RangeCalendarCellProps = $props();
-	const ctx = getRangeCalendarContext();
-	const recipe = $derived(rangeCalendarRecipe({ size: ctx.size }));
+let { date, children, class: className, ...rest }: RangeCalendarCellProps = $props();
+const ctx = getRangeCalendarContext();
+const recipe = $derived(rangeCalendarRecipe({ size: ctx.size }));
 
-	const isRangeStart = $derived(ctx.isRangeStart(date));
-	const isRangeEnd = $derived(ctx.isRangeEnd(date));
-	const isInRange = $derived(ctx.isInRange(date));
-	const isSelected = $derived(ctx.isSelected(date));
-	const isToday = $derived(ctx.isToday(date));
-	const isDisabled = $derived(ctx.isDateDisabled(date));
-	const isOutside = $derived(ctx.isOutsideMonth(date));
+const isRangeStart = $derived(ctx.isRangeStart(date));
+const isRangeEnd = $derived(ctx.isRangeEnd(date));
+const isInRange = $derived(ctx.isInRange(date));
+const isSelected = $derived(ctx.isSelected(date));
+const isToday = $derived(ctx.isToday(date));
+const isDisabled = $derived(ctx.isDateDisabled(date));
+const isOutside = $derived(ctx.isOutsideMonth(date));
 
-	const state = $derived(
-		isRangeStart
-			? "range-start"
-			: isRangeEnd
-				? "range-end"
-				: isInRange
-					? "in-range"
-					: isSelected
-						? "selected"
-						: isToday
-							? "today"
-							: isDisabled
-								? "disabled"
-								: isOutside
-									? "outside-month"
-									: undefined,
-	);
+const state = $derived(
+	isRangeStart
+		? "range-start"
+		: isRangeEnd
+			? "range-end"
+			: isInRange
+				? "in-range"
+				: isSelected
+					? "selected"
+					: isToday
+						? "today"
+						: isDisabled
+							? "disabled"
+							: isOutside
+								? "outside-month"
+								: undefined,
+);
 </script>
 
 <button

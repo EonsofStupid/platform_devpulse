@@ -10,19 +10,15 @@
 	Only rendered when transport.states.open is true.
 -->
 <script lang="ts">
-	import type { TooltipContentProps } from "./types.js";
-	import { getTooltipContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { tooltipRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getTooltipContext } from "./context.js";
+import { tooltipRecipe } from "./recipe.js";
+import type { TooltipContentProps } from "./types.js";
 
-	let {
-		children,
-		class: className,
-		...rest
-	}: TooltipContentProps = $props();
+let { children, class: className, ...rest }: TooltipContentProps = $props();
 
-	const transport = getTooltipContext();
-	const recipe = tooltipRecipe();
+const transport = getTooltipContext();
+const recipe = tooltipRecipe();
 </script>
 
 {#if transport.states.open}

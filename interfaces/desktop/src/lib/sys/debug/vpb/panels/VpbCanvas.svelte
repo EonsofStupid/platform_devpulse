@@ -7,20 +7,20 @@
 	- Graph: renders AST via @xyflow/svelte (Phase 6)
 -->
 <script lang="ts">
-	import { vpbDocument } from "../state/vpb-document.svelte.js";
-	import BlockRenderer from "$lib/design/renderers/BlockRenderer.svelte";
-	import VpbGraph from "../graph/VpbGraph.svelte";
+import BlockRenderer from "$lib/design/renderers/BlockRenderer.svelte";
+import VpbGraph from "../graph/VpbGraph.svelte";
+import { vpbDocument } from "../state/vpb-document.svelte.js";
 
-	let { viewMode = "preview" }: { viewMode?: "preview" | "graph" } = $props();
+let { viewMode = "preview" }: { viewMode?: "preview" | "graph" } = $props();
 
-	function handleNodeClick(e: MouseEvent) {
-		const target = e.target as HTMLElement;
-		const blockEl = target.closest("[data-block-id]");
-		if (blockEl) {
-			const id = blockEl.getAttribute("data-block-id");
-			vpbDocument.selectNode(id);
-		}
+function handleNodeClick(e: MouseEvent) {
+	const target = e.target as HTMLElement;
+	const blockEl = target.closest("[data-block-id]");
+	if (blockEl) {
+		const id = blockEl.getAttribute("data-block-id");
+		vpbDocument.selectNode(id);
 	}
+}
 </script>
 
 {#if viewMode === "graph"}

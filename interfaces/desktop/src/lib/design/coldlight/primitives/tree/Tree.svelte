@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { TreePrimitiveProps } from "./tree.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { TreePrimitiveProps } from "./tree.props.js";
 
-	let { children, class: className, ...rest }: TreePrimitiveProps = $props();
+let { children, class: className, ...rest }: TreePrimitiveProps = $props();
 </script>
 
 <div

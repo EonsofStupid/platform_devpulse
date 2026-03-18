@@ -22,8 +22,9 @@ export function useActiveDescendant(config: ActiveDescendantConfig): ActiveDesce
 	function getItems(): HTMLElement[] {
 		const container = config.container();
 		if (!container) return [];
-		return Array.from(container.querySelectorAll<HTMLElement>(config.itemSelector))
-			.filter((el) => !el.hasAttribute(disabledAttr));
+		return Array.from(container.querySelectorAll<HTMLElement>(config.itemSelector)).filter(
+			(el) => !el.hasAttribute(disabledAttr),
+		);
 	}
 
 	function getItemId(el: HTMLElement): string | null {
@@ -77,9 +78,19 @@ export function useActiveDescendant(config: ActiveDescendantConfig): ActiveDesce
 	});
 
 	return {
-		get highlightedId() { return highlightedId; },
-		highlightFirst() { highlightByIndex(0); },
-		highlightLast() { const items = getItems(); highlightByIndex(items.length - 1); },
-		clear() { highlightedId = null; config.onHighlightChange(null); },
+		get highlightedId() {
+			return highlightedId;
+		},
+		highlightFirst() {
+			highlightByIndex(0);
+		},
+		highlightLast() {
+			const items = getItems();
+			highlightByIndex(items.length - 1);
+		},
+		clear() {
+			highlightedId = null;
+			config.onHighlightChange(null);
+		},
 	};
 }

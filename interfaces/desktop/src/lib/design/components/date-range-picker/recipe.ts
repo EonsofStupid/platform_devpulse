@@ -13,19 +13,11 @@ import { cn } from "$lib/design/utils/cn.js";
 
 type DateRangePickerRecipeProps = { size?: string };
 
-export function dateRangePickerRecipe(props: DateRangePickerRecipeProps = {}) {
+export function dateRangePickerRecipe(_props: DateRangePickerRecipeProps = {}) {
 	return {
 		root: "",
-		trigger: cn(
-			"date-range-picker-trigger",
-			"h-10 px-4 text-sm",
-			"rounded-md",
-		),
-		content: cn(
-			"date-range-picker-content",
-			"p-4 text-sm",
-			"rounded-lg",
-		),
+		trigger: cn("date-range-picker-trigger", "h-10 px-4 text-sm", "rounded-md"),
+		content: cn("date-range-picker-content", "p-4 text-sm", "rounded-lg"),
 		calendar: "",
 		field: "",
 	};

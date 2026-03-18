@@ -113,9 +113,7 @@ export const contract = {
 			element: "td",
 			aria: {
 				required: [],
-				optional: [
-					{ attr: "aria-colindex", valueType: "aria-colindex" },
-				],
+				optional: [{ attr: "aria-colindex", valueType: "aria-colindex" }],
 			},
 			data: {
 				kind: "data-table",

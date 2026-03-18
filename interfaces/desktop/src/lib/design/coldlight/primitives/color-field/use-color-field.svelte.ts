@@ -18,8 +18,8 @@
  * ```
  */
 
+import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
 import { createIds } from "../../_internal/utils/uid.js";
-import { disabledAttr, dataAttr } from "../../_internal/utils/data-attr.js";
 import { colorFieldAnatomy } from "./color-field.anatomy.js";
 import type { UseColorFieldProps, UseColorFieldReturn } from "./color-field.types.js";
 
@@ -56,7 +56,7 @@ export function useColorField(props: UseColorFieldProps = {}): UseColorFieldRetu
 		disabled: disabled || undefined,
 		readonly: readOnly || undefined,
 		"aria-label": props["aria-label"],
-		"aria-labelledby": props["aria-label"] ? undefined : props["aria-labelledby"] ?? ids.label,
+		"aria-labelledby": props["aria-label"] ? undefined : (props["aria-labelledby"] ?? ids.label),
 		"aria-invalid": !isValid ? (true as const) : undefined,
 		"aria-disabled": disabledAttr(disabled),
 		"data-disabled": dataAttr(disabled),
@@ -83,12 +83,24 @@ export function useColorField(props: UseColorFieldProps = {}): UseColorFieldRetu
 
 	// ── Public API ───────────────────────────────────────────────
 	return {
-		get value() { return value; },
-		get isValid() { return isValid; },
-		get root() { return root; },
-		get input() { return input; },
-		get label() { return label; },
-		get swatch() { return swatch; },
+		get value() {
+			return value;
+		},
+		get isValid() {
+			return isValid;
+		},
+		get root() {
+			return root;
+		},
+		get input() {
+			return input;
+		},
+		get label() {
+			return label;
+		},
+		get swatch() {
+			return swatch;
+		},
 		setValue: doSetValue,
 	};
 }

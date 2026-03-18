@@ -12,89 +12,89 @@
   Zero hardcoded oklch values.
 -->
 <script lang="ts">
-	import { Send, Mic, Sparkles } from "lucide-svelte";
-	import { invoke } from "@tauri-apps/api/core";
-	import { platformState } from "$lib/sys/runes/platformState.svelte.js";
-	import type { ChatMessage } from "$lib/sys/generated/chat.types.js";
-	import { Box } from "$lib/design/components/box/index.js";
-	import { Button } from "$lib/design/components/button/index.js";
-	import { Text } from "$lib/design/components/text/index.js";
-	import { Heading } from "$lib/design/components/heading/index.js";
-	import { HStack } from "$lib/design/components/hstack/index.js";
-	import { Stack } from "$lib/design/components/stack/index.js";
-	import { Input } from "$lib/design/components/input/index.js";
+import { invoke } from "@tauri-apps/api/core";
+import { Mic, Send, Sparkles } from "lucide-svelte";
+import { Box } from "$lib/design/components/box/index.js";
+import { Button } from "$lib/design/components/button/index.js";
+import { Heading } from "$lib/design/components/heading/index.js";
+import { HStack } from "$lib/design/components/hstack/index.js";
+import { Input } from "$lib/design/components/input/index.js";
+import { Stack } from "$lib/design/components/stack/index.js";
+import { Text } from "$lib/design/components/text/index.js";
+import type { ChatMessage } from "$lib/sys/generated/chat.types.js";
+import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 
-	interface Thread {
-		id: string;
-		label: string;
-		active: boolean;
+interface Thread {
+	id: string;
+	label: string;
+	active: boolean;
+}
+
+let threads = $state<Thread[]>([
+	{ id: "alpha", label: "ALPHA", active: true },
+	{ id: "beta", label: "BETA", active: false },
+	{ id: "gamma", label: "GAMMA", active: false },
+]);
+
+let messages = $state<ChatMessage[]>([]);
+let loading = $state(true);
+let inputValue = $state("");
+let sending = $state(false);
+const canSend = $derived(platformState.isReady && inputValue.trim().length > 0 && !sending);
+
+async function loadMessages() {
+	loading = true;
+	try {
+		const history = await invoke<ChatMessage[]>("load_recent");
+		messages = history;
+	} catch {
+		setTimeout(loadMessages, 2000);
+	} finally {
+		loading = false;
 	}
+}
 
-	let threads = $state<Thread[]>([
-		{ id: "alpha", label: "ALPHA", active: true },
-		{ id: "beta", label: "BETA", active: false },
-		{ id: "gamma", label: "GAMMA", active: false },
-	]);
+loadMessages();
 
-	let messages = $state<ChatMessage[]>([]);
-	let loading = $state(true);
-	let inputValue = $state("");
-	let sending = $state(false);
-	const canSend = $derived(platformState.isReady && inputValue.trim().length > 0 && !sending);
+function setActiveThread(id: string) {
+	threads = threads.map((t) => ({ ...t, active: t.id === id }));
+}
 
-	async function loadMessages() {
-		loading = true;
-		try {
-			const history = await invoke<ChatMessage[]>("load_recent");
-			messages = history;
-		} catch {
-			setTimeout(loadMessages, 2000);
-		} finally {
-			loading = false;
-		}
+async function sendMessage() {
+	if (!inputValue.trim() || sending) return;
+	const content = inputValue.trim();
+	inputValue = "";
+	sending = true;
+
+	try {
+		const stored = await invoke<ChatMessage>("send_message", { content });
+		messages = [...messages, stored];
+	} catch (e) {
+		const errorMsg: ChatMessage = {
+			id: Date.now(),
+			session_id: "",
+			role: "assistant",
+			content: `Error: ${e instanceof Error ? e.message : String(e)}`,
+			created_at: Math.floor(Date.now() / 1000),
+		};
+		messages = [...messages, errorMsg];
+	} finally {
+		sending = false;
 	}
+}
 
-	loadMessages();
-
-	function setActiveThread(id: string) {
-		threads = threads.map((t) => ({ ...t, active: t.id === id }));
+function handleKeydown(e: KeyboardEvent) {
+	if (e.key === "Enter" && !e.shiftKey) {
+		e.preventDefault();
+		sendMessage();
 	}
+}
 
-	async function sendMessage() {
-		if (!inputValue.trim() || sending) return;
-		const content = inputValue.trim();
-		inputValue = "";
-		sending = true;
-
-		try {
-			const stored = await invoke<ChatMessage>("send_message", { content });
-			messages = [...messages, stored];
-		} catch (e) {
-			const errorMsg: ChatMessage = {
-				id: Date.now(),
-				session_id: "",
-				role: "assistant",
-				content: `Error: ${e instanceof Error ? e.message : String(e)}`,
-				created_at: Math.floor(Date.now() / 1000),
-			};
-			messages = [...messages, errorMsg];
-		} finally {
-			sending = false;
-		}
-	}
-
-	function handleKeydown(e: KeyboardEvent) {
-		if (e.key === "Enter" && !e.shiftKey) {
-			e.preventDefault();
-			sendMessage();
-		}
-	}
-
-	function formatTime(epoch: number): string {
-		if (epoch === 0) return "";
-		const date = new Date(epoch * 1000);
-		return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-	}
+function formatTime(epoch: number): string {
+	if (epoch === 0) return "";
+	const date = new Date(epoch * 1000);
+	return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
 </script>
 
 <Box class="flex h-full gap-0">

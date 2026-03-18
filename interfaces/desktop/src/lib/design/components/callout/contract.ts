@@ -28,9 +28,7 @@ export const contract = {
 			aria: {
 				role: "note",
 				required: [],
-				optional: [
-					{ attr: "aria-label", valueType: "aria-label" },
-				],
+				optional: [{ attr: "aria-label", valueType: "aria-label" }],
 			},
 			data: {
 				kind: "callout",

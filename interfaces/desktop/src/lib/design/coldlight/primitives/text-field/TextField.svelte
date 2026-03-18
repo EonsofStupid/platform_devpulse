@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { TextFieldPrimitiveProps } from "./text-field.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { TextFieldPrimitiveProps } from "./text-field.props.js";
 
-	let { children, class: className, ...rest }: TextFieldPrimitiveProps = $props();
+let { children, class: className, ...rest }: TextFieldPrimitiveProps = $props();
 </script>
 
 <div

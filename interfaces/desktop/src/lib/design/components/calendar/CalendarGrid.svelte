@@ -8,49 +8,49 @@
 	ColdLight-owned ARIA with role="grid".
 -->
 <script lang="ts">
-	import type { CalendarGridProps } from "./types.js";
-	import { getCalendarContext } from "./context.js";
-	import { calendarRecipe } from "./recipe.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getCalendarContext } from "./context.js";
+import { calendarRecipe } from "./recipe.js";
+import type { CalendarGridProps } from "./types.js";
 
-	let { children, class: className, ...rest }: CalendarGridProps = $props();
-	const ctx = getCalendarContext();
-	const recipe = $derived(calendarRecipe({ size: ctx.size }));
+let { children, class: className, ...rest }: CalendarGridProps = $props();
+const ctx = getCalendarContext();
+const recipe = $derived(calendarRecipe({ size: ctx.size }));
 
-	const weekDayNames = $derived(
-		Array.from({ length: 7 }, (_, i) => {
-			const d = new Date(2024, 0, i); // Jan 2024 starts on Monday
-			// Adjust to start week on Sunday
-			const sunday = new Date(2024, 0, i - 1);
-			return sunday.toLocaleDateString(ctx.locale, { weekday: "short" });
-		}),
-	);
+const weekDayNames = $derived(
+	Array.from({ length: 7 }, (_, i) => {
+		const d = new Date(2024, 0, i); // Jan 2024 starts on Monday
+		// Adjust to start week on Sunday
+		const sunday = new Date(2024, 0, i - 1);
+		return sunday.toLocaleDateString(ctx.locale, { weekday: "short" });
+	}),
+);
 
-	/** Get all dates to display in the calendar grid */
-	function getCalendarDates(month: Date): Date[][] {
-		const year = month.getFullYear();
-		const m = month.getMonth();
-		const firstDay = new Date(year, m, 1);
-		const startOffset = firstDay.getDay(); // 0 = Sunday
-		const start = new Date(year, m, 1 - startOffset);
+/** Get all dates to display in the calendar grid */
+function getCalendarDates(month: Date): Date[][] {
+	const year = month.getFullYear();
+	const m = month.getMonth();
+	const firstDay = new Date(year, m, 1);
+	const startOffset = firstDay.getDay(); // 0 = Sunday
+	const start = new Date(year, m, 1 - startOffset);
 
-		const weeks: Date[][] = [];
-		const current = new Date(start);
+	const weeks: Date[][] = [];
+	const current = new Date(start);
 
-		for (let w = 0; w < 6; w++) {
-			const week: Date[] = [];
-			for (let d = 0; d < 7; d++) {
-				week.push(new Date(current));
-				current.setDate(current.getDate() + 1);
-			}
-			weeks.push(week);
-			// Stop if we've passed the current month and started a new week
-			if (current.getMonth() !== m && w >= 3) break;
+	for (let w = 0; w < 6; w++) {
+		const week: Date[] = [];
+		for (let d = 0; d < 7; d++) {
+			week.push(new Date(current));
+			current.setDate(current.getDate() + 1);
 		}
-		return weeks;
+		weeks.push(week);
+		// Stop if we've passed the current month and started a new week
+		if (current.getMonth() !== m && w >= 3) break;
 	}
+	return weeks;
+}
 
-	const weeks = $derived(getCalendarDates(ctx.currentMonth));
+const weeks = $derived(getCalendarDates(ctx.currentMonth));
 </script>
 
 <table

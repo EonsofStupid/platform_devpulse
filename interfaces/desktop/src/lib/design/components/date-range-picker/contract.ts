@@ -71,9 +71,7 @@ export const contract = {
 			element: "button",
 			aria: {
 				role: "button",
-				required: [
-					{ attr: "aria-haspopup", valueType: "aria-haspopup" },
-				],
+				required: [{ attr: "aria-haspopup", valueType: "aria-haspopup" }],
 				optional: [
 					{ attr: "aria-expanded", valueType: "aria-expanded" },
 					{ attr: "aria-controls", valueType: "aria-controls" },
@@ -96,21 +94,15 @@ export const contract = {
 			element: "div",
 			aria: {
 				role: "dialog",
-				required: [
-					{ attr: "aria-modal", valueType: "aria-modal" },
-				],
-				optional: [
-					{ attr: "aria-label", valueType: "aria-label" },
-				],
+				required: [{ attr: "aria-modal", valueType: "aria-modal" }],
+				optional: [{ attr: "aria-label", valueType: "aria-label" }],
 			},
 			data: {
 				kind: "date-range-picker",
 				slot: "content",
 				states: ["open", "closed"],
 			},
-			keyboard: [
-				{ key: "Escape", action: "close", description: "Close range calendar popover" },
-			],
+			keyboard: [{ key: "Escape", action: "close", description: "Close range calendar popover" }],
 		},
 		calendar: {
 			name: "calendar",

@@ -13,14 +13,8 @@ import { cn } from "$lib/design/utils/cn.js";
 
 export function selectRecipe() {
 	return {
-		trigger: cn(
-			"select-trigger",
-			"rounded-md",
-		),
-		content: cn(
-			"select-content",
-			"rounded-md",
-		),
+		trigger: cn("select-trigger", "rounded-md"),
+		content: cn("select-content", "rounded-md"),
 		item: "select-item",
 		group: "select-group",
 		label: "select-label",

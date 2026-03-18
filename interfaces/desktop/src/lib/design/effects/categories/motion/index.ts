@@ -16,8 +16,8 @@
  * CSS backing: molecules/motion.css (@utility motion-hover-lift, motion-press-down)
  */
 
-import { registerEffect } from "../../registry.js";
 import type { EffectDefinition } from "../../_schema/types.js";
+import { registerEffect } from "../../registry.js";
 
 // =============================================================================
 // HOVER LIFT — element rises on hover
@@ -27,7 +27,8 @@ const motionHoverLift: EffectDefinition = {
 	id: "motion.hover-lift",
 	category: "motion",
 	label: "Hover Lift",
-	description: "Element lifts slightly on hover with subtle transform. Respects prefers-reduced-motion.",
+	description:
+		"Element lifts slightly on hover with subtle transform. Respects prefers-reduced-motion.",
 	supportedTriggers: ["hover"],
 	classes: ["motion-hover-lift"],
 };
@@ -40,7 +41,8 @@ const motionPressDown: EffectDefinition = {
 	id: "motion.press-down",
 	category: "motion",
 	label: "Press Down",
-	description: "Element presses down on active state with scale + translate. Respects prefers-reduced-motion.",
+	description:
+		"Element presses down on active state with scale + translate. Respects prefers-reduced-motion.",
 	supportedTriggers: ["active"],
 	classes: ["motion-press-down"],
 };
@@ -53,10 +55,12 @@ const motionFadeIn: EffectDefinition = {
 	id: "motion.fade-in",
 	category: "motion",
 	label: "Fade In",
-	description: "Element fades in and slides up when entering the viewport. Uses IntersectionObserver.",
+	description:
+		"Element fades in and slides up when entering the viewport. Uses IntersectionObserver.",
 	supportedTriggers: ["intersection"],
 	classes: ["opacity-0", "translate-y-4"],
-	transition: "opacity var(--duration-normal, 300ms) var(--ease-out, ease-out), transform var(--duration-normal, 300ms) var(--ease-out, ease-out)",
+	transition:
+		"opacity var(--duration-normal, 300ms) var(--ease-out, ease-out), transform var(--duration-normal, 300ms) var(--ease-out, ease-out)",
 	customJS: {
 		module: "effects/actions/intersection-reveal",
 		defaultParams: { threshold: 0.1, rootMargin: "0px" },

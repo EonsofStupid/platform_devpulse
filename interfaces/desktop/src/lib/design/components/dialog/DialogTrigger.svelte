@@ -8,12 +8,12 @@
 	(aria-haspopup, aria-expanded, aria-controls, onclick).
 -->
 <script lang="ts">
-	import type { DialogTriggerProps } from "./types.js";
-	import { getDialogContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getDialogContext } from "./context.js";
+import type { DialogTriggerProps } from "./types.js";
 
-	let { children, class: className, ...rest }: DialogTriggerProps = $props();
-	const dialog = getDialogContext();
+let { children, class: className, ...rest }: DialogTriggerProps = $props();
+const dialog = getDialogContext();
 </script>
 
 <button

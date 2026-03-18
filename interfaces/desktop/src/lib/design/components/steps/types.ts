@@ -9,14 +9,17 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { BaseProps } from "$lib/design/primitives/types.js";
 import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { BaseProps } from "$lib/design/primitives/types.js";
 
 export type StepsSize = "sm" | "md" | "lg";
 export type StepsOrientation = "horizontal" | "vertical";
 
 /** Steps component props — ARIA + recipe + ColdLight 8-axis */
-export interface StepsComponentProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children">, BaseProps, ColdLightProps {
+export interface StepsComponentProps
+	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children">,
+		BaseProps,
+		ColdLightProps {
 	children?: Snippet;
 	/** Size variant */
 	size?: StepsSize;

@@ -11,8 +11,8 @@
  */
 
 import { z } from "zod";
-import { PresetSchema, type Preset } from "./token-categories.js";
 import { registerPresetLookup } from "./resolve-visual.js";
+import { type Preset, PresetSchema } from "./token-categories.js";
 
 // ═══════════════════════════════════════════════════════════════
 // TYPES
@@ -1163,6 +1163,7 @@ export function getPresetValues(id: string): Partial<Preset> | undefined {
 export function getPresetsForKind(kind: string): PresetDefinition[] {
 	const ids = kindIndex.get(kind);
 	if (!ids) return [];
+	// biome-ignore lint/style/noNonNullAssertion: ids are always valid keys from kindIndex
 	return ids.map((id) => presets.get(id)!).filter(Boolean);
 }
 

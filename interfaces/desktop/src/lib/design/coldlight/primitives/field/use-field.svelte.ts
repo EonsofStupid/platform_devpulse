@@ -8,8 +8,8 @@
  * The error slot uses role=alert + aria-live=polite for screen reader announcements.
  */
 
-import { createIds } from "../../_internal/utils/uid.js";
 import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
+import { createIds } from "../../_internal/utils/uid.js";
 import { fieldAnatomy } from "./field.anatomy.js";
 import type { UseFieldProps, UseFieldReturn } from "./field.types.js";
 
@@ -69,11 +69,23 @@ export function useField(props: UseFieldProps = {}): UseFieldReturn {
 	});
 
 	return {
-		get root() { return root; },
-		get label() { return label; },
-		get control() { return control; },
-		get description() { return description; },
-		get error() { return error; },
-		get controlId() { return ids.control; },
+		get root() {
+			return root;
+		},
+		get label() {
+			return label;
+		},
+		get control() {
+			return control;
+		},
+		get description() {
+			return description;
+		},
+		get error() {
+			return error;
+		},
+		get controlId() {
+			return ids.control;
+		},
 	};
 }

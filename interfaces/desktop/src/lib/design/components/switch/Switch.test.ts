@@ -11,8 +11,8 @@
  * Setup:  vitest-browser-svelte
  */
 
+import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { expect, test, describe } from "vitest";
 import { contract } from "./contract.js";
 import Switch from "./Switch.svelte";
 
@@ -121,6 +121,7 @@ describe("switch component — thumb", () => {
 		const { container } = render(Switch);
 		const thumb = container.querySelector("[data-slot='thumb']");
 		expect(thumb).toBeTruthy();
+		// biome-ignore lint/style/noNonNullAssertion: test assertion — thumb element verified truthy above
 		await expect.element(thumb! as unknown as HTMLElement).toHaveAttribute("aria-hidden", "true");
 	});
 });

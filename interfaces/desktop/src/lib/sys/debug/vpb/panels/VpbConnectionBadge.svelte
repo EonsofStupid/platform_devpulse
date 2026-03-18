@@ -3,7 +3,7 @@
 	@layer vpb
 -->
 <script lang="ts">
-	import { vpbConnection } from "../state/vpb-connection.svelte.js";
+import { vpbConnection } from "../state/vpb-connection.svelte.js";
 </script>
 
 {#if !vpbConnection.connected}

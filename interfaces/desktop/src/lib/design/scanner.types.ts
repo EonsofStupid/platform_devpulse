@@ -7,7 +7,12 @@
  * The manifest IS the taxonomy — generated, not hand-maintained.
  */
 
-export type { AriaStateProvider, DsAdapterId, SlotAction, StateToken } from "./primitives/_schema/types.js";
+export type {
+	AriaStateProvider,
+	DsAdapterId,
+	SlotAction,
+	StateToken,
+} from "./primitives/_schema/types.js";
 
 import type {
 	AriaRequirements,

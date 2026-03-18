@@ -8,9 +8,9 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/treeview/
  */
 
-import { uid } from "../../_internal/utils/uid.js";
-import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
+import { disabledAttr } from "../../_internal/utils/data-attr.js";
 import { kbd } from "../../_internal/utils/kbd.js";
+import { uid } from "../../_internal/utils/uid.js";
 import { treeAnatomy } from "./tree.anatomy.js";
 import type { UseTreeProps, UseTreeReturn } from "./tree.types.js";
 
@@ -28,16 +28,17 @@ export function useTree(props: UseTreeProps = {}): UseTreeReturn {
 	function getVisibleItems(): HTMLElement[] {
 		const container = document.getElementById(id);
 		if (!container) return [];
-		return Array.from(container.querySelectorAll<HTMLElement>('[role="treeitem"]:not([data-disabled])'))
-			.filter((el) => {
-				// Only include items that are visible (not inside collapsed groups)
-				let parent = el.parentElement;
-				while (parent && parent.id !== id) {
-					if (parent.getAttribute("role") === "group" && parent.hidden) return false;
-					parent = parent.parentElement;
-				}
-				return true;
-			});
+		return Array.from(
+			container.querySelectorAll<HTMLElement>('[role="treeitem"]:not([data-disabled])'),
+		).filter((el) => {
+			// Only include items that are visible (not inside collapsed groups)
+			let parent = el.parentElement;
+			while (parent && parent.id !== id) {
+				if (parent.getAttribute("role") === "group" && parent.hidden) return false;
+				parent = parent.parentElement;
+			}
+			return true;
+		});
 	}
 
 	function handleKeydown(e: KeyboardEvent): void {
@@ -76,7 +77,10 @@ export function useTree(props: UseTreeProps = {}): UseTreeReturn {
 				const level = parseInt(current.getAttribute("aria-level") ?? "1", 10);
 				for (let i = currentIndex - 1; i >= 0; i--) {
 					const parentLevel = parseInt(items[i].getAttribute("aria-level") ?? "1", 10);
-					if (parentLevel < level) { items[i].focus(); break; }
+					if (parentLevel < level) {
+						items[i].focus();
+						break;
+					}
 				}
 			}
 		} else if (e.key === kbd.HOME) {
@@ -107,7 +111,9 @@ export function useTree(props: UseTreeProps = {}): UseTreeReturn {
 	});
 
 	return {
-		get root() { return root; },
+		get root() {
+			return root;
+		},
 
 		getItem(key: string, options?: { hasChildren?: boolean; level?: number; disabled?: boolean }) {
 			const hasChildren = options?.hasChildren ?? false;

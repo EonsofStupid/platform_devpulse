@@ -8,8 +8,8 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/accordion/
  */
 
-import { uid } from "../../_internal/utils/uid.js";
 import { kbd } from "../../_internal/utils/kbd.js";
+import { uid } from "../../_internal/utils/uid.js";
 import { accordionAnatomy } from "./accordion.anatomy.js";
 import type { UseAccordionProps, UseAccordionReturn } from "./accordion.types.js";
 
@@ -55,8 +55,12 @@ export function useAccordion(props: UseAccordionProps = {}): UseAccordionReturn 
 	});
 
 	return {
-		get value() { return value; },
-		get root() { return root; },
+		get value() {
+			return value;
+		},
+		get root() {
+			return root;
+		},
 
 		getItem(itemValue: string) {
 			const expanded = isExpanded(itemValue);
@@ -79,7 +83,9 @@ export function useAccordion(props: UseAccordionProps = {}): UseAccordionReturn 
 				"aria-disabled": isDisabled || undefined,
 				"data-state": expanded ? ("open" as const) : ("closed" as const),
 				"data-disabled": isDisabled ? ("" as const) : undefined,
-				onclick: () => { if (!isDisabled) toggle(itemValue); },
+				onclick: () => {
+					if (!isDisabled) toggle(itemValue);
+				},
 				onkeydown: (e: KeyboardEvent) => {
 					if (isDisabled) return;
 					if (e.key === kbd.SPACE || e.key === kbd.ENTER) {

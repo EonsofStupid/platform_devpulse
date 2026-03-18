@@ -9,14 +9,14 @@
  * - "assertive" — interrupts current speech immediately
  */
 
-import type { Politeness, LiveRegionReturn } from "./types.js";
+import type { LiveRegionReturn, Politeness } from "./types.js";
 
 let politeRegion: HTMLElement | null = null;
 let assertiveRegion: HTMLElement | null = null;
 
 function getOrCreateRegion(politeness: Politeness): HTMLElement {
 	const existing = politeness === "polite" ? politeRegion : assertiveRegion;
-	if (existing && existing.isConnected) return existing;
+	if (existing?.isConnected) return existing;
 
 	const region = document.createElement("div");
 	region.setAttribute("aria-live", politeness);

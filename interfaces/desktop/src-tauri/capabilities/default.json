@@ -3,8 +3,5 @@
 	"identifier": "default",
 	"description": "Default capability — all windows",
 	"windows": ["main", "chat"],
-	"permissions": [
-		"core:default",
-		"shell:allow-open"
-	]
+	"permissions": ["core:default", "shell:allow-open"]
 }

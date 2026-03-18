@@ -9,19 +9,15 @@
 	Only rendered when transport.states.open is true.
 -->
 <script lang="ts">
-	import type { CollapsibleContentProps } from "./types.js";
-	import { getCollapsibleContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { collapsibleRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getCollapsibleContext } from "./context.js";
+import { collapsibleRecipe } from "./recipe.js";
+import type { CollapsibleContentProps } from "./types.js";
 
-	let {
-		children,
-		class: className,
-		...rest
-	}: CollapsibleContentProps = $props();
+let { children, class: className, ...rest }: CollapsibleContentProps = $props();
 
-	const transport = getCollapsibleContext();
-	const recipe = collapsibleRecipe();
+const transport = getCollapsibleContext();
+const recipe = collapsibleRecipe();
 </script>
 
 {#if transport.states.open}

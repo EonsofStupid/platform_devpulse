@@ -4,9 +4,7 @@
  * @layer components
  */
 
-import { describe, it, expect } from "vitest";
-import { render } from "vitest-browser-svelte";
-import Slider from "./Slider.svelte";
+import { describe, expect, it } from "vitest";
 import { contract } from "./contract.js";
 import { sliderRecipe } from "./recipe.js";
 

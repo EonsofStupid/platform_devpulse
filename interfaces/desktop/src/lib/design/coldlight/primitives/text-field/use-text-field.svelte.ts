@@ -5,8 +5,8 @@
  * Parts: root, input, label, description, error.
  */
 
-import { createIds } from "../../_internal/utils/uid.js";
 import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
+import { createIds } from "../../_internal/utils/uid.js";
 import { textFieldAnatomy } from "./text-field.anatomy.js";
 import type { UseTextFieldProps, UseTextFieldReturn } from "./text-field.types.js";
 
@@ -21,11 +21,9 @@ export function useTextField(props: UseTextFieldProps = {}): UseTextFieldReturn 
 	const hasError = $derived(invalid && !!props.error);
 
 	const describedBy = $derived(
-		[
-			props["aria-describedby"],
-			ids.description,
-			hasError ? ids.error : null,
-		].filter(Boolean).join(" ") || undefined,
+		[props["aria-describedby"], ids.description, hasError ? ids.error : null]
+			.filter(Boolean)
+			.join(" ") || undefined,
 	);
 
 	const root = $derived({
@@ -83,13 +81,30 @@ export function useTextField(props: UseTextFieldProps = {}): UseTextFieldReturn 
 	});
 
 	return {
-		get value() { return value; },
-		get root() { return root; },
-		get input() { return input; },
-		get label() { return label; },
-		get description() { return description; },
-		get error() { return error; },
-		focus() { document.getElementById(ids.input)?.focus(); },
-		clear() { value = ""; props.onValueChange?.(""); },
+		get value() {
+			return value;
+		},
+		get root() {
+			return root;
+		},
+		get input() {
+			return input;
+		},
+		get label() {
+			return label;
+		},
+		get description() {
+			return description;
+		},
+		get error() {
+			return error;
+		},
+		focus() {
+			document.getElementById(ids.input)?.focus();
+		},
+		clear() {
+			value = "";
+			props.onValueChange?.("");
+		},
 	};
 }

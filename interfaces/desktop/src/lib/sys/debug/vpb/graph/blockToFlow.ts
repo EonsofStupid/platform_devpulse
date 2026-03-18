@@ -7,7 +7,7 @@
  */
 
 import type { BlockNode } from "$lib/design/blocks/schema.js";
-import type { VpbFlowNode, VpbFlowEdge } from "./types.js";
+import type { VpbFlowEdge, VpbFlowNode } from "./types.js";
 
 const NODE_WIDTH = 220;
 const NODE_HEIGHT = 60;

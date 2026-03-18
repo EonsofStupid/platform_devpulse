@@ -9,59 +9,78 @@
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/slider/
 -->
 <script lang="ts">
-	import type { SliderProps } from "./types.js";
-	import { createSliderTransport } from "$lib/design/api/dsadapters/meltui/_internal/slider/index.js";
-	import { setSliderContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-	import { sliderRecipe } from "./recipe.js";
+import { createSliderTransport } from "$lib/design/api/dsadapters/meltui/_internal/slider/index.js";
+import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { setSliderContext } from "./context.js";
+import { sliderRecipe } from "./recipe.js";
+import type { SliderProps } from "./types.js";
 
-	let {
-		min = 0,
-		max = 100,
-		value,
-		step = 1,
-		orientation = "horizontal",
-		onValueChange,
-		disabled = false,
-		children,
-		class: className,
-		// ColdLight 8-axis props
-		preset,
-		surface,
-		material,
-		depth,
-		bevel,
-		glow,
-		frame,
-		motion,
-		transition,
-		encoding,
-		radius,
-		size,
-		// Rest spread
-		...rest
-	}: SliderProps = $props();
+let {
+	min = 0,
+	max = 100,
+	value,
+	step = 1,
+	orientation = "horizontal",
+	onValueChange,
+	disabled = false,
+	children,
+	class: className,
+	// ColdLight 8-axis props
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+	// Rest spread
+	...rest
+}: SliderProps = $props();
 
-	const transport = createSliderTransport({
-		get min() { return min; },
-		get max() { return max; },
-		get value() { return value; },
-		get step() { return step; },
-		get orientation() { return orientation; },
-		onValueChange: (v: any) => onValueChange?.(v),
-	});
+const transport = createSliderTransport({
+	get min() {
+		return min;
+	},
+	get max() {
+		return max;
+	},
+	get value() {
+		return value;
+	},
+	get step() {
+		return step;
+	},
+	get orientation() {
+		return orientation;
+	},
+	// biome-ignore lint/suspicious/noExplicitAny: callback value type from transport
+	onValueChange: (v: any) => onValueChange?.(v),
+});
 
-	setSliderContext(transport);
+setSliderContext(transport);
 
-	const visual = useColdLight(
-		() => ({
-			preset, surface, material, depth, bevel, glow, frame, motion, transition,
-			encoding, radius, size,
-		}),
-	);
+const visual = useColdLight(() => ({
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+}));
 
-	const recipe = sliderRecipe();
+const recipe = sliderRecipe();
 </script>
 
 <div

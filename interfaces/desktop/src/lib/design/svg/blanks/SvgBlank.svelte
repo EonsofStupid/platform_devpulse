@@ -19,64 +19,62 @@
 	</SvgBlank>
 -->
 <script lang="ts">
-	import type { Snippet } from "svelte";
-	import type { BlankShape } from "../_schema/types.js";
-	import { getShape } from "./shapes/index.js";
+import type { Snippet } from "svelte";
+import type { BlankShape } from "../_schema/types.js";
+import { getShape } from "./shapes/index.js";
 
-	interface Props {
-		/** Shape to render: "rect" | "pill" | "circle" | "hexagon" */
-		shape?: BlankShape;
-		/** Width — CSS value or number for px */
-		width?: string | number;
-		/** Height — CSS value or number for px */
-		height?: string | number;
-		/** Border radius for rect shapes (px) */
-		radius?: number;
-		/** SVG filter IDs to apply (chained) */
-		filters?: string[];
-		/** Fill color (OKLCH token reference or CSS color) */
-		fill?: string;
-		/** Stroke color */
-		stroke?: string;
-		/** Stroke width */
-		strokeWidth?: number;
-		/** Additional CSS classes on the wrapper */
-		class?: string;
-		/** Content to render on top of the SVG background */
-		children?: Snippet;
-	}
+interface Props {
+	/** Shape to render: "rect" | "pill" | "circle" | "hexagon" */
+	shape?: BlankShape;
+	/** Width — CSS value or number for px */
+	width?: string | number;
+	/** Height — CSS value or number for px */
+	height?: string | number;
+	/** Border radius for rect shapes (px) */
+	radius?: number;
+	/** SVG filter IDs to apply (chained) */
+	filters?: string[];
+	/** Fill color (OKLCH token reference or CSS color) */
+	fill?: string;
+	/** Stroke color */
+	stroke?: string;
+	/** Stroke width */
+	strokeWidth?: number;
+	/** Additional CSS classes on the wrapper */
+	class?: string;
+	/** Content to render on top of the SVG background */
+	children?: Snippet;
+}
 
-	let {
-		shape = "rect",
-		width = "100%",
-		height = "100%",
-		radius = 12,
-		filters = [],
-		fill = "var(--glass-void)",
-		stroke = "none",
-		strokeWidth = 0,
-		class: className = "",
-		children,
-	}: Props = $props();
+let {
+	shape = "rect",
+	width = "100%",
+	height = "100%",
+	radius = 12,
+	filters = [],
+	fill = "var(--glass-void)",
+	stroke = "none",
+	strokeWidth = 0,
+	class: className = "",
+	children,
+}: Props = $props();
 
-	// Build the CSS filter string from filter IDs
-	const filterAttr = $derived(
-		filters.length > 0
-			? filters.map((id) => `url(#${id})`).join(" ")
-			: undefined
-	);
+// Build the CSS filter string from filter IDs
+const filterAttr = $derived(
+	filters.length > 0 ? filters.map((id) => `url(#${id})`).join(" ") : undefined,
+);
 
-	// Resolve numeric dimensions for viewBox
-	const w = $derived(typeof width === "number" ? width : 300);
-	const h = $derived(typeof height === "number" ? height : 200);
+// Resolve numeric dimensions for viewBox
+const w = $derived(typeof width === "number" ? width : 300);
+const h = $derived(typeof height === "number" ? height : 200);
 
-	// Get shape output from generator
-	const shapeOutput = $derived(getShape(shape)(w, h, radius));
+// Get shape output from generator
+const shapeOutput = $derived(getShape(shape)(w, h, radius));
 
-	// Wrapper style
-	const wrapperStyle = $derived(
-		`position:relative;width:${typeof width === "string" ? width : width + "px"};height:${typeof height === "string" ? height : height + "px"};`
-	);
+// Wrapper style
+const wrapperStyle = $derived(
+	`position:relative;width:${typeof width === "string" ? width : `${width}px`};height:${typeof height === "string" ? height : `${height}px`};`,
+);
 </script>
 
 <div class="svg-blank {className}" style={wrapperStyle}>

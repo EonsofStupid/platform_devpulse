@@ -14,10 +14,10 @@ export type { ComponentSurfaceProps } from "./types.js";
 
 export {
 	Button,
-	buttonComponentContract,
-	buttonRecipe,
 	type ButtonProps,
 	type ButtonSize,
+	buttonComponentContract,
+	buttonRecipe,
 } from "./button/index.js";
 
 // ============================================
@@ -25,96 +25,88 @@ export {
 // ============================================
 
 export {
-	Grid,
-	gridRecipe,
-	type GridProps,
-	type GridColumns,
-	type GridGap,
-} from "./grid/index.js";
-
-export {
-	Stack,
-	stackRecipe,
-	type StackProps,
-	type StackGap,
-	type StackAlign,
-} from "./stack/index.js";
-
-export {
-	HStack,
-	hstackRecipe,
-	type HStackProps,
-	type HStackGap,
-	type HStackAlign,
-	type HStackJustify,
-} from "./hstack/index.js";
-
-export {
 	Box,
-	boxRecipe,
-	type BoxProps,
 	type BoxPadding,
+	type BoxProps,
+	boxRecipe,
 } from "./box/index.js";
-
 export {
 	Container,
-	containerRecipe,
 	type ContainerProps,
 	type ContainerSize,
+	containerRecipe,
 } from "./container/index.js";
+export {
+	Grid,
+	type GridColumns,
+	type GridGap,
+	type GridProps,
+	gridRecipe,
+} from "./grid/index.js";
+export {
+	HStack,
+	type HStackAlign,
+	type HStackGap,
+	type HStackJustify,
+	type HStackProps,
+	hstackRecipe,
+} from "./hstack/index.js";
+export {
+	Stack,
+	type StackAlign,
+	type StackGap,
+	type StackProps,
+	stackRecipe,
+} from "./stack/index.js";
 
 // ============================================
 // TYPOGRAPHY
 // ============================================
 
 export {
+	Heading,
+	type HeadingLevel,
+	type HeadingProps,
+	type HeadingSize,
+	headingRecipe,
+} from "./heading/index.js";
+export {
 	Text,
-	textRecipe,
+	type TextAs,
+	type TextColor,
 	type TextProps,
 	type TextSize,
 	type TextWeight,
-	type TextColor,
-	type TextAs,
+	textRecipe,
 } from "./text/index.js";
-
-export {
-	Heading,
-	headingRecipe,
-	type HeadingProps,
-	type HeadingLevel,
-	type HeadingSize,
-} from "./heading/index.js";
 
 // ============================================
 // DATA DISPLAY
 // ============================================
 
 export {
-	Stat,
-	statRecipe,
-	type StatProps,
-	type StatSize,
-} from "./stat/index.js";
-
-export {
 	Badge,
-	badgeRecipe,
-	type BadgeProps,
 	type BadgeIntent,
+	type BadgeProps,
 	type BadgeSize,
+	badgeRecipe,
 } from "./badge/index.js";
-
 export {
 	Card,
-	cardRecipe,
 	type CardProps,
-	type CardVariant,
 	type CardSize,
+	type CardVariant,
+	cardRecipe,
 } from "./card/index.js";
-
 export {
 	Separator,
-	separatorRecipe,
-	type SeparatorProps,
 	type SeparatorOrientation,
+	type SeparatorProps,
+	separatorRecipe,
 } from "./separator/index.js";
+export {
+	Stat,
+	type StatProps,
+	type StatSize,
+	statRecipe,
+} from "./stat/index.js";

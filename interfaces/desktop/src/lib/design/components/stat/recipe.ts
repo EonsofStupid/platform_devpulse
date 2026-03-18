@@ -19,8 +19,5 @@ export function statRecipe(props: StatRecipeProps = {}): string {
 		md: "p-4 text-sm",
 		lg: "p-6 text-base",
 	};
-	return cn(
-		"stat-root",
-		sizeMap[props.size ?? "md"] ?? "p-4 text-sm",
-	);
+	return cn("stat-root", sizeMap[props.size ?? "md"] ?? "p-4 text-sm");
 }

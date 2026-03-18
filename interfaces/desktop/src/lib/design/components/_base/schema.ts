@@ -31,7 +31,7 @@ import { z } from "zod";
 
 // =============================================================================
 // PROP TYPE — Discriminated union (ColdLight alpha iteratio.  After first study of Industry patterns,
-// we found that most prop types can be captured by a single discriminated union with a 
+// we found that most prop types can be captured by a single discriminated union with a
 // "type" field. This keeps the schema simpler and more extensible. If we find we need more complex prop types in the future, we
 //  can always refactor to separate schemas. For now, this covers the common cases: string, number, boolean, enum, color, slot reference, event handler, object, and array.
 //  Each has its own specific fields for VPB editor
@@ -77,10 +77,14 @@ const BooleanPropSchema = PropBase.extend({
 const EnumPropSchema = PropBase.extend({
 	type: z.literal("enum"),
 	defaultValue: z.string().optional(),
-	options: z.array(z.object({
-		value: z.string(),
-		label: z.string(),
-	})).min(1),
+	options: z
+		.array(
+			z.object({
+				value: z.string(),
+				label: z.string(),
+			}),
+		)
+		.min(1),
 	/** Render as segmented control instead of dropdown */
 	segmented: z.boolean().default(false),
 });
@@ -169,14 +173,26 @@ export type SlotTokenAxes = z.infer<typeof SlotTokenAxesSchema>;
 
 /** All axes enabled — for root slots. */
 export const ALL_AXES: SlotTokenAxes = {
-	surface: true, material: true, depth: true, bevel: true,
-	glow: true, frame: true, motion: true, transition: true,
+	surface: true,
+	material: true,
+	depth: true,
+	bevel: true,
+	glow: true,
+	frame: true,
+	motion: true,
+	transition: true,
 };
 
 /** No axes — for child/structural slots that inherit from parent. */
 export const NO_AXES: SlotTokenAxes = {
-	surface: false, material: false, depth: false, bevel: false,
-	glow: false, frame: false, motion: false, transition: false,
+	surface: false,
+	material: false,
+	depth: false,
+	bevel: false,
+	glow: false,
+	frame: false,
+	motion: false,
+	transition: false,
 };
 
 // =============================================================================
@@ -269,7 +285,10 @@ export type RecipeBinding = z.infer<typeof RecipeBindingSchema>;
 export const ComponentSchemaZ = z.object({
 	// ─── Identity ────────────────────────────────────────────────────────
 	/** Kebab-case kind identifier (e.g., "combobox", "button", "dialog") */
-	kind: z.string().min(1).regex(/^[a-z][a-z0-9-]*$/),
+	kind: z
+		.string()
+		.min(1)
+		.regex(/^[a-z][a-z0-9-]*$/),
 	/** Human-readable display name for VPB insert menu */
 	displayName: z.string().min(1),
 	/** Short description for VPB tooltip */
@@ -366,9 +385,12 @@ export function safeParseComponentSchema(data: unknown) {
  * - Slot prop types must reference existing slots
  * - allowedParents/allowedChildren should be valid kind names
  */
-export function validateComponentSchema(schema: ComponentSchema): { valid: boolean; errors: string[] } {
+export function validateComponentSchema(schema: ComponentSchema): {
+	valid: boolean;
+	errors: string[];
+} {
 	const errors: string[] = [];
-	const slotNames = new Set(Object.keys(schema.slots));
+	const _slotNames = new Set(Object.keys(schema.slots));
 
 	// perItem requires compound
 	for (const [name, slot] of Object.entries(schema.slots)) {
@@ -378,14 +400,14 @@ export function validateComponentSchema(schema: ComponentSchema): { valid: boole
 	}
 
 	// Slot props must reference existing slots
-	for (const [propName, prop] of Object.entries(schema.props)) {
+	for (const [_propName, prop] of Object.entries(schema.props)) {
 		if (prop.type === "slot" && prop.allowedKinds) {
 			// allowedKinds is cross-component, can't validate here — noted for registry-level validation
 		}
 	}
 
 	// At least one slot must be required
-	const hasRequiredSlot = Object.values(schema.slots).some(s => s.required);
+	const hasRequiredSlot = Object.values(schema.slots).some((s) => s.required);
 	if (!hasRequiredSlot) {
 		errors.push("component must have at least one required slot");
 	}
@@ -397,7 +419,7 @@ export function validateComponentSchema(schema: ComponentSchema): { valid: boole
 
 	// Recipe IDs must start with the kind
 	for (const id of schema.recipe.availableIds) {
-		if (!id.startsWith(schema.kind + ".")) {
+		if (!id.startsWith(`${schema.kind}.`)) {
 			errors.push(`recipe ID "${id}" must start with kind "${schema.kind}."`);
 		}
 	}

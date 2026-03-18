@@ -8,27 +8,27 @@
 	ARIA: role="menuitem". Supports disabled state and onSelect callback.
 -->
 <script lang="ts">
-	import type { MenubarItemProps } from "./types.js";
-	import { getMenubarMenuContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { menubarRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getMenubarMenuContext } from "./context.js";
+import { menubarRecipe } from "./recipe.js";
+import type { MenubarItemProps } from "./types.js";
 
-	let {
-		children,
-		disabled = false,
-		onSelect,
-		class: className,
-		...rest
-	}: MenubarItemProps = $props();
+let {
+	children,
+	disabled = false,
+	onSelect,
+	class: className,
+	...rest
+}: MenubarItemProps = $props();
 
-	const ctx = getMenubarMenuContext();
-	const recipe = menubarRecipe();
+const ctx = getMenubarMenuContext();
+const recipe = menubarRecipe();
 
-	function handleSelect(): void {
-		if (disabled) return;
-		onSelect?.();
-		ctx.close();
-	}
+function handleSelect(): void {
+	if (disabled) return;
+	onSelect?.();
+	ctx.close();
+}
 </script>
 
 <div

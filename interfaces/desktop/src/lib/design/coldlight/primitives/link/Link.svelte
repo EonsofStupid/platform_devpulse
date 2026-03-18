@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { LinkPrimitiveProps } from "./link.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { LinkPrimitiveProps } from "./link.props.js";
 
-	let { children, class: className, ...rest }: LinkPrimitiveProps = $props();
+let { children, class: className, ...rest }: LinkPrimitiveProps = $props();
 </script>
 
 <button

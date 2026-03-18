@@ -15,11 +15,10 @@
  */
 
 import {
-	TOKEN_CATEGORY_REGISTRY,
-	CODE_TO_NAME,
-	resolveToIndices,
-	type Preset,
 	type EncodingIndices,
+	type Preset,
+	resolveToIndices,
+	TOKEN_CATEGORY_REGISTRY,
 } from "$lib/design/registry/token-categories.js";
 import type { RadiusToken } from "./types.js";
 

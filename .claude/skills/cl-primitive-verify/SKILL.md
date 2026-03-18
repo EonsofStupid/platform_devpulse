@@ -18,10 +18,9 @@ If `$ARGUMENTS` is "all", verify every primitive found in both taxonomy and prim
 
 ## Architecture Reminder
 
-- **Primitives are structural shells.** Zero ARIA. Zero MeltUI. Zero behavior. Zero event handlers.
+- **Primitives are structural shells.** Zero ARIA. Zero Zero behavior. Zero event handlers.
 - **Taxonomy declares the contract.** Types, slots, states, what ARIA the COMPONENT layer will eventually implement.
 - **Primitives bind the contract.** Typed props, data attributes, snippet children, class merging. That's it.
-- **MeltUI is hidden behind the import cloak.** It never appears in a primitive file. Ever.
 - **ARIA belongs in the component layer.** Contracts document what the component layer needs. Primitives don't set it.
 
 ## Verification Checklist
@@ -82,7 +81,6 @@ For each primitive kind, read every file and check ALL of the following. No exce
 - [ ] DOM-rendering props include: `children?: Snippet;`
 - [ ] Self-closing elements (input, img): NO children prop
 - [ ] Zero ARIA attributes in any interface
-- [ ] Zero MeltUI types in any interface
 
 #### 2b. Svelte components exist and each contains:
 - [ ] HTML comment: `@component {Name}`, `@description`, `Contract: kind="{kind}", slot="{slot}"`
@@ -107,7 +105,7 @@ For each primitive kind, read every file and check ALL of the following. No exce
 - [ ] `/** Set {kind} context ... */` before set function
 - [ ] `/** Get {kind} context ... */` before get function
 - [ ] Uses `getContext`/`setContext` from `"svelte"`
-- [ ] Zero: MeltUI imports, ARIA attributes, behavior logic
+- [ ] Zero: imports, ARIA attributes, behavior logic
 
 #### 2d. `index.ts` exists and contains:
 - [ ] `@file` header: `@file {Kind} Primitive Barrel`

@@ -20,9 +20,5 @@ export function calloutRecipe(props: CalloutRecipeProps = {}): string {
 		warning: "callout-warning",
 		error: "callout-error",
 	};
-	return cn(
-		"callout",
-		"p-4 text-sm",
-		variantMap[props.variant ?? "default"] ?? variantMap.default,
-	);
+	return cn("callout", "p-4 text-sm", variantMap[props.variant ?? "default"] ?? variantMap.default);
 }

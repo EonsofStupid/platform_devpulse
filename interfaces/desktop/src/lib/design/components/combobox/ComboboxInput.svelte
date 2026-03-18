@@ -16,19 +16,19 @@
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
 -->
 <script lang="ts">
-	import type { ComboboxInputProps } from "./types.js";
-	import { getComboboxContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getComboboxContext } from "./context.js";
+import type { ComboboxInputProps } from "./types.js";
 
-	let {
-		class: className,
-		placeholder,
-		"adapt-purpose": adaptPurpose,
-		"aria-description": ariaDescription,
-	}: ComboboxInputProps = $props();
+let {
+	class: className,
+	placeholder,
+	"adapt-purpose": adaptPurpose,
+	"aria-description": ariaDescription,
+}: ComboboxInputProps = $props();
 
-	const ctx = getComboboxContext();
-	const { recipe } = ctx;
+const ctx = getComboboxContext();
+const { recipe } = ctx;
 </script>
 
 <input

@@ -7,8 +7,8 @@
  * Reads from BLOCK_CATEGORIES and the recipe registry.
  */
 
-import { getRecipesForKind } from "$lib/design/recipes/index.js";
 import { BLOCK_CATEGORIES, type BlockCategory } from "$lib/design/blocks/kinds.js";
+import { getRecipesForKind } from "$lib/design/recipes/index.js";
 
 class VpbPaletteState {
 	searchQuery = $state<string>("");

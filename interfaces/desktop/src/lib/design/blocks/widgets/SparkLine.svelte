@@ -11,82 +11,106 @@
 	<SparkLine data={[10, 25, 18, 32, 28, 45, 38]} accent="teal" />
 -->
 <script lang="ts">
-	type Accent = "teal" | "purple" | "magenta" | "ember" | "frost" | "cyber";
+type Accent = "teal" | "purple" | "magenta" | "ember" | "frost" | "cyber";
 
-	interface Props {
-		/** Data points (y-values) */
-		data?: number[];
-		/** Accent color */
-		accent?: Accent;
-		/** Chart width */
-		width?: number;
-		/** Chart height */
-		height?: number;
-		/** Show area fill under the line */
-		area?: boolean;
-		/** Line stroke width */
-		lineWidth?: number;
-		/** Show glow effect */
-		glow?: boolean;
-		/** Additional CSS classes */
-		class?: string;
-	}
+interface Props {
+	/** Data points (y-values) */
+	data?: number[];
+	/** Accent color */
+	accent?: Accent;
+	/** Chart width */
+	width?: number;
+	/** Chart height */
+	height?: number;
+	/** Show area fill under the line */
+	area?: boolean;
+	/** Line stroke width */
+	lineWidth?: number;
+	/** Show glow effect */
+	glow?: boolean;
+	/** Additional CSS classes */
+	class?: string;
+}
 
-	let {
-		data = [],
-		accent = "teal",
-		width = 200,
-		height = 60,
-		area = true,
-		lineWidth = 2,
-		glow = true,
-		class: className = "",
-	}: Props = $props();
+let {
+	data = [],
+	accent = "teal",
+	width = 200,
+	height = 60,
+	area = true,
+	lineWidth = 2,
+	glow = true,
+	class: className = "",
+}: Props = $props();
 
-	/** Accent colors — resolved from SD5 component tokens (--accent-{color}-{role}) */
-	const accentColors: Record<Accent, { main: string; glow: string; fill: string }> = {
-		teal: { main: "var(--accent-teal-main)", glow: "var(--accent-teal-glow)", fill: "var(--accent-teal-fill)" },
-		purple: { main: "var(--accent-purple-main)", glow: "var(--accent-purple-glow)", fill: "var(--accent-purple-fill)" },
-		magenta: { main: "var(--accent-magenta-main)", glow: "var(--accent-magenta-glow)", fill: "var(--accent-magenta-fill)" },
-		ember: { main: "var(--accent-ember-main)", glow: "var(--accent-ember-glow)", fill: "var(--accent-ember-fill)" },
-		frost: { main: "var(--accent-frost-main)", glow: "var(--accent-frost-glow)", fill: "var(--accent-frost-fill)" },
-		cyber: { main: "var(--accent-cyber-main)", glow: "var(--accent-cyber-glow)", fill: "var(--accent-cyber-fill)" },
-	};
+/** Accent colors — resolved from SD5 component tokens (--accent-{color}-{role}) */
+const accentColors: Record<Accent, { main: string; glow: string; fill: string }> = {
+	teal: {
+		main: "var(--accent-teal-main)",
+		glow: "var(--accent-teal-glow)",
+		fill: "var(--accent-teal-fill)",
+	},
+	purple: {
+		main: "var(--accent-purple-main)",
+		glow: "var(--accent-purple-glow)",
+		fill: "var(--accent-purple-fill)",
+	},
+	magenta: {
+		main: "var(--accent-magenta-main)",
+		glow: "var(--accent-magenta-glow)",
+		fill: "var(--accent-magenta-fill)",
+	},
+	ember: {
+		main: "var(--accent-ember-main)",
+		glow: "var(--accent-ember-glow)",
+		fill: "var(--accent-ember-fill)",
+	},
+	frost: {
+		main: "var(--accent-frost-main)",
+		glow: "var(--accent-frost-glow)",
+		fill: "var(--accent-frost-fill)",
+	},
+	cyber: {
+		main: "var(--accent-cyber-main)",
+		glow: "var(--accent-cyber-glow)",
+		fill: "var(--accent-cyber-fill)",
+	},
+};
 
-	const padding = 4;
-	const colors = $derived(accentColors[accent]);
+const padding = 4;
+const colors = $derived(accentColors[accent]);
 
-	const points = $derived.by(() => {
-		if (data.length < 2) return "";
-		const minVal = Math.min(...data);
-		const maxVal = Math.max(...data);
-		const range = maxVal - minVal || 1;
-		const xStep = (width - padding * 2) / (data.length - 1);
+const points = $derived.by(() => {
+	if (data.length < 2) return "";
+	const minVal = Math.min(...data);
+	const maxVal = Math.max(...data);
+	const range = maxVal - minVal || 1;
+	const xStep = (width - padding * 2) / (data.length - 1);
 
-		return data
-			.map((v, i) => {
-				const x = padding + i * xStep;
-				const y = height - padding - ((v - minVal) / range) * (height - padding * 2);
-				return `${x},${y}`;
-			})
-			.join(" ");
-	});
-
-	const areaPath = $derived.by(() => {
-		if (data.length < 2) return "";
-		const minVal = Math.min(...data);
-		const maxVal = Math.max(...data);
-		const range = maxVal - minVal || 1;
-		const xStep = (width - padding * 2) / (data.length - 1);
-
-		const pts = data.map((v, i) => {
+	return data
+		.map((v, i) => {
 			const x = padding + i * xStep;
 			const y = height - padding - ((v - minVal) / range) * (height - padding * 2);
 			return `${x},${y}`;
-		});
+		})
+		.join(" ");
+});
 
-		return `M ${pts[0]} L ${pts.join(" L ")} L ${padding + (data.length - 1) * xStep},${height - padding} L ${padding},${height - padding} Z`;
+const areaPath = $derived.by(() => {
+	if (data.length < 2) return "";
+	const minVal = Math.min(...data);
+	const maxVal = Math.max(...data);
+	const range = maxVal - minVal || 1;
+	const xStep = (width - padding * 2) / (data.length - 1);
+
+	const pts = data.map((v, i) => {
+		const x = padding + i * xStep;
+		const y = height - padding - ((v - minVal) / range) * (height - padding * 2);
+		return `${x},${y}`;
 	});
+
+	return `M ${pts[0]} L ${pts.join(" L ")} L ${padding + (data.length - 1) * xStep},${height - padding} L ${padding},${height - padding} Z`;
+});
 </script>
 
 <svg

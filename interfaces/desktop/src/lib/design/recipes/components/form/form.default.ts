@@ -45,10 +45,7 @@ registerRecipe({
 		const s = SIZE_SCALE[props.size];
 
 		return {
-			root: cn(
-				"flex flex-col",
-				s.root,
-			),
+			root: cn("flex flex-col", s.root),
 		};
 	},
 });

@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { TablePrimitiveProps } from "./table.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { TablePrimitiveProps } from "./table.props.js";
 
-	let { children, class: className, ...rest }: TablePrimitiveProps = $props();
+let { children, class: className, ...rest }: TablePrimitiveProps = $props();
 </script>
 
 <table

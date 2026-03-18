@@ -24,7 +24,6 @@ sequential {
 		},
 		register_diagnostic(span=$str, message="Kernel sub-agent name in frontend string. Use the public equivalent from kernel_terms.toml.")
 	},
-
 	// Architecture terms
 	`$str` where {
 		$str <: string_fragment(),
@@ -36,7 +35,6 @@ sequential {
 		},
 		register_diagnostic(span=$str, message="Kernel architecture term in frontend string. Use: Gus, knowledge engine, data layer, or sandbox.")
 	},
-
 	// Rumination architecture
 	`$str` where {
 		$str <: string_fragment(),
@@ -52,7 +50,6 @@ sequential {
 		},
 		register_diagnostic(span=$str, message="Kernel rumination term in frontend string. Use: thinking, quick read, context check, deep thinking, etc.")
 	},
-
 	// COSTAR+ internals
 	`$str` where {
 		$str <: string_fragment(),
@@ -68,7 +65,6 @@ sequential {
 		},
 		register_diagnostic(span=$str, message="Kernel COSTAR term in frontend string. Use: prompt builder, natural language, smart formatting, etc.")
 	},
-
 	// Algorithm names
 	`$str` where {
 		$str <: string_fragment(),

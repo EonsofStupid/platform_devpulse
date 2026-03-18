@@ -38,13 +38,13 @@ export type EffectCategory = (typeof EFFECT_CATEGORIES)[number];
 
 /** Triggers determine when a composed effect applies its classes. */
 export const EFFECT_TRIGGERS = [
-	"always",        // Applied statically (no condition)
-	"hover",         // Applied on :hover
-	"focus",         // Applied on :focus-visible
-	"active",        // Applied on :active / data-state="active"
-	"intersection",  // Applied when element enters viewport (IntersectionObserver)
-	"media",         // Applied when media query matches
-	"state",         // Applied when data-state attribute matches
+	"always", // Applied statically (no condition)
+	"hover", // Applied on :hover
+	"focus", // Applied on :focus-visible
+	"active", // Applied on :active / data-state="active"
+	"intersection", // Applied when element enters viewport (IntersectionObserver)
+	"media", // Applied when media query matches
+	"state", // Applied when data-state attribute matches
 ] as const;
 
 export type EffectTrigger = (typeof EFFECT_TRIGGERS)[number];
@@ -60,12 +60,7 @@ export type EffectTrigger = (typeof EFFECT_TRIGGERS)[number];
  *
  * Each effect sets ONE of these layers. The browser composites them.
  */
-export const SHADOW_LAYERS = [
-	"glass",
-	"bevel",
-	"glow",
-	"depth",
-] as const;
+export const SHADOW_LAYERS = ["glass", "bevel", "glow", "depth"] as const;
 
 export type ShadowLayer = (typeof SHADOW_LAYERS)[number];
 
@@ -207,9 +202,9 @@ export interface ComposedEffect {
 
 /** Node types in the compositor tree */
 export const COMPOSITOR_NODE_TYPES = [
-	"Element",   // A rendered DOM element backed by a primitive
-	"Slot",      // A slot container within a compound primitive
-	"Fragment",  // A grouping node (no DOM output, just logical structure)
+	"Element", // A rendered DOM element backed by a primitive
+	"Slot", // A slot container within a compound primitive
+	"Fragment", // A grouping node (no DOM output, just logical structure)
 ] as const;
 
 export type CompositorNodeType = (typeof COMPOSITOR_NODE_TYPES)[number];

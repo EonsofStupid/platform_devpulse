@@ -18,8 +18,8 @@
 
 import { getContext, setContext } from "svelte";
 import type {
-	ComboboxTransport,
 	ComboboxActions,
+	ComboboxTransport,
 } from "$lib/design/api/dsadapters/meltui/_internal/combobox/index.js";
 
 /**

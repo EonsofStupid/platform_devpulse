@@ -8,68 +8,76 @@
 	Uses vpbVisual state bridge for live resolveVisual() integration.
 -->
 <script lang="ts">
-	import { vpbDocument } from "../state/vpb-document.svelte.js";
-	import { vpbVisual } from "../state/vpb-visual.svelte.js";
-	import { getRecipesForKind } from "$lib/design/recipes/index.js";
-	import PropControlFactory from "../controls/PropControlFactory.svelte";
-	import VpbPresetPicker from "../controls/VpbPresetPicker.svelte";
-	import VpbEncodingOutput from "../controls/VpbEncodingOutput.svelte";
-	import VpbContractInspector from "./VpbContractInspector.svelte";
-	import VpbRecipeLegend from "./VpbRecipeLegend.svelte";
-	import {
-		loadManifest,
-		getPrimitiveFromManifest,
-		getComponentFromManifest,
-		type UnifiedManifest,
-	} from "../manifest/manifest-reader.js";
+import { getRecipesForKind } from "$lib/design/recipes/index.js";
+import PropControlFactory from "../controls/PropControlFactory.svelte";
+import VpbEncodingOutput from "../controls/VpbEncodingOutput.svelte";
+import VpbPresetPicker from "../controls/VpbPresetPicker.svelte";
+import {
+	getComponentFromManifest,
+	getPrimitiveFromManifest,
+	loadManifest,
+	type UnifiedManifest,
+} from "../manifest/manifest-reader.js";
+import { vpbDocument } from "../state/vpb-document.svelte.js";
+import { vpbVisual } from "../state/vpb-visual.svelte.js";
+import VpbContractInspector from "./VpbContractInspector.svelte";
+import VpbRecipeLegend from "./VpbRecipeLegend.svelte";
 
-	const node = $derived(vpbDocument.selectedNode);
-	const recipes = $derived(node ? getRecipesForKind(node.kind) : []);
+const node = $derived(vpbDocument.selectedNode);
+const recipes = $derived(node ? getRecipesForKind(node.kind) : []);
 
-	let manifest = $state<UnifiedManifest | null>(null);
-	const primitive = $derived(manifest && node ? getPrimitiveFromManifest(manifest, node.kind) : undefined);
-	const component = $derived(manifest && node ? getComponentFromManifest(manifest, node.kind) : undefined);
+let manifest = $state<UnifiedManifest | null>(null);
+const primitive = $derived(
+	manifest && node ? getPrimitiveFromManifest(manifest, node.kind) : undefined,
+);
+const component = $derived(
+	manifest && node ? getComponentFromManifest(manifest, node.kind) : undefined,
+);
 
-	let inspectorTab = $state<"presets" | "props" | "output" | "contract" | "recipes" | "accessibility" | "seo" | "style">("props");
+let inspectorTab = $state<
+	"presets" | "props" | "output" | "contract" | "recipes" | "accessibility" | "seo" | "style"
+>("props");
 
-	$effect(() => {
-		loadManifest().then((m) => { manifest = m; });
+$effect(() => {
+	loadManifest().then((m) => {
+		manifest = m;
 	});
+});
 
-	// Sync vpbVisual state when selected node changes
-	$effect(() => {
-		if (node) {
-			vpbVisual.loadFromNode(node.kind, node.props ?? {});
-		} else {
-			vpbVisual.reset();
-		}
-	});
-
-	function handleRecipeChange(e: Event) {
-		if (!node) return;
-		const recipeId = (e.target as HTMLSelectElement).value;
-		vpbDocument.updateNodeRecipe(node.id, recipeId);
+// Sync vpbVisual state when selected node changes
+$effect(() => {
+	if (node) {
+		vpbVisual.loadFromNode(node.kind, node.props ?? {});
+	} else {
+		vpbVisual.reset();
 	}
+});
 
-	function handleDelete() {
-		if (!node) return;
-		vpbDocument.removeNode(node.id);
-	}
+function handleRecipeChange(e: Event) {
+	if (!node) return;
+	const recipeId = (e.target as HTMLSelectElement).value;
+	vpbDocument.updateNodeRecipe(node.id, recipeId);
+}
 
-	/** When a ColdLight prop changes, update both vpbVisual and vpbDocument */
-	function handlePropChange(key: string, value: string) {
-		vpbVisual.setProp(key, value);
-		if (node) {
-			vpbDocument.updateNodeProps(node.id, vpbVisual.toNodeProps());
-		}
-	}
+function handleDelete() {
+	if (!node) return;
+	vpbDocument.removeNode(node.id);
+}
 
-	function formatKindName(kind: string): string {
-		return kind
-			.split("-")
-			.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-			.join(" ");
+/** When a ColdLight prop changes, update both vpbVisual and vpbDocument */
+function handlePropChange(key: string, value: string) {
+	vpbVisual.setProp(key, value);
+	if (node) {
+		vpbDocument.updateNodeProps(node.id, vpbVisual.toNodeProps());
 	}
+}
+
+function formatKindName(kind: string): string {
+	return kind
+		.split("-")
+		.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+		.join(" ");
+}
 </script>
 
 <div class="vpb-props">

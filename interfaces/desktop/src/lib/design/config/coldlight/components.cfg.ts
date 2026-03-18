@@ -14,13 +14,7 @@ export const COMPONENTS = {
 	/** Root path for styled component folders */
 	root: "src/lib/design/components",
 	/** Every component folder MUST contain these files */
-	requiredFiles: [
-		"{Name}.svelte",
-		"types.ts",
-		"schema.ts",
-		"{Name}.test.ts",
-		"index.ts",
-	],
+	requiredFiles: ["{Name}.svelte", "types.ts", "schema.ts", "{Name}.test.ts", "index.ts"],
 	/** Scanner enforces component folder parity with taxonomy */
 	scannerEnforced: true,
 } as const;

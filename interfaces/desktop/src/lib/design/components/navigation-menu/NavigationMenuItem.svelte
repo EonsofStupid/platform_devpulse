@@ -9,49 +9,57 @@
 	Sets per-item context for trigger/content children.
 -->
 <script lang="ts">
-	import type { NavigationMenuItemProps } from "./types.js";
-	import {
-		getNavigationMenuRootContext,
-		setNavigationMenuItemContext,
-		type NavigationMenuItemCtx,
-	} from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { navigationMenuRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import {
+	getNavigationMenuRootContext,
+	type NavigationMenuItemCtx,
+	setNavigationMenuItemContext,
+} from "./context.js";
+import { navigationMenuRecipe } from "./recipe.js";
+import type { NavigationMenuItemProps } from "./types.js";
 
-	let { children, value, class: className, ...rest }: NavigationMenuItemProps = $props();
+let { children, value, class: className, ...rest }: NavigationMenuItemProps = $props();
 
-	const root = getNavigationMenuRootContext();
-	const fallbackId = `nav-item-${crypto.randomUUID().slice(0, 8)}`;
-	const itemValue = $derived(value ?? fallbackId);
-	const triggerId = $derived(`cl-nav-trigger-${itemValue}`);
-	const contentId = $derived(`cl-nav-content-${itemValue}`);
+const root = getNavigationMenuRootContext();
+const fallbackId = `nav-item-${crypto.randomUUID().slice(0, 8)}`;
+const itemValue = $derived(value ?? fallbackId);
+const triggerId = $derived(`cl-nav-trigger-${itemValue}`);
+const contentId = $derived(`cl-nav-content-${itemValue}`);
 
-	const isOpen = $derived(root.activeItem === itemValue);
+const isOpen = $derived(root.activeItem === itemValue);
 
-	function toggle(): void {
-		if (isOpen) {
-			root.closeAll();
-		} else {
-			root.openItem(itemValue);
-		}
-	}
-
-	function close(): void {
+function toggle(): void {
+	if (isOpen) {
 		root.closeAll();
+	} else {
+		root.openItem(itemValue);
 	}
+}
 
-	const ctx: NavigationMenuItemCtx = {
-		get open() { return isOpen; },
-		toggle,
-		close,
-		get triggerId() { return triggerId; },
-		get contentId() { return contentId; },
-		get value() { return itemValue; },
-	};
+function close(): void {
+	root.closeAll();
+}
 
-	setNavigationMenuItemContext(ctx);
+const ctx: NavigationMenuItemCtx = {
+	get open() {
+		return isOpen;
+	},
+	toggle,
+	close,
+	get triggerId() {
+		return triggerId;
+	},
+	get contentId() {
+		return contentId;
+	},
+	get value() {
+		return itemValue;
+	},
+};
 
-	const recipe = navigationMenuRecipe();
+setNavigationMenuItemContext(ctx);
+
+const recipe = navigationMenuRecipe();
 </script>
 
 <li

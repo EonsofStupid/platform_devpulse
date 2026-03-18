@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { DividerPrimitiveProps } from "./divider.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { DividerPrimitiveProps } from "./divider.props.js";
 
-	let { class: className, ...rest }: DividerPrimitiveProps = $props();
+let { class: className, ...rest }: DividerPrimitiveProps = $props();
 </script>
 
 <hr

@@ -4,12 +4,12 @@
  * @layer components
  */
 
-export { default as Pagination } from "./Pagination.svelte";
 export { contract as paginationComponentContract } from "./contract.js";
+export { default as Pagination } from "./Pagination.svelte";
 export {
-	paginationRootRecipe,
-	paginationPageRecipe,
-	paginationNavRecipe,
 	paginationEllipsisRecipe,
+	paginationNavRecipe,
+	paginationPageRecipe,
+	paginationRootRecipe,
 } from "./recipe.js";
 export type { PaginationComponentProps, PaginationSize } from "./types.js";

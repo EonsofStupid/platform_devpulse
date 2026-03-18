@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { GridListPrimitiveProps } from "./grid-list.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { GridListPrimitiveProps } from "./grid-list.props.js";
 
-	let { children, class: className, ...rest }: GridListPrimitiveProps = $props();
+let { children, class: className, ...rest }: GridListPrimitiveProps = $props();
 </script>
 
 <div

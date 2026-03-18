@@ -4,11 +4,11 @@
   @domain devpulse
 -->
 <script lang="ts">
-	import { Grid } from "$lib/design/components/grid/index.js";
-	import { Stack } from "$lib/design/components/stack/index.js";
-	import { Text } from "$lib/design/components/text/index.js";
-	import { Widget } from "$lib/design/blocks/widgets/index.js";
-	import { devpulseState } from "$lib/domains/app/devpulse/index.js";
+import { Widget } from "$lib/design/blocks/widgets/index.js";
+import { Grid } from "$lib/design/components/grid/index.js";
+import { Stack } from "$lib/design/components/stack/index.js";
+import { Text } from "$lib/design/components/text/index.js";
+import { devpulseState } from "$lib/domains/app/devpulse/index.js";
 </script>
 
 <Grid columns="2" gap="4" class="box-lg" data-page="devpulse-community">

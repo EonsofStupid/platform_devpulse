@@ -11,6 +11,6 @@
 
 type SkeletonRecipeProps = { variant?: string };
 
-export function skeletonRecipe(props: SkeletonRecipeProps = {}): string {
+export function skeletonRecipe(_props: SkeletonRecipeProps = {}): string {
 	return "skeleton-root";
 }

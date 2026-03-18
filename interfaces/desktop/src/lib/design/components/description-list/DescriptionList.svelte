@@ -11,46 +11,58 @@
 	ColdLight OWNS all ARIA. Primitive is structural only.
 -->
 <script lang="ts">
-	import type { DescriptionListComponentProps } from "./types.js";
-	import { createDescriptionList } from "$lib/design/api/dsadapters/coldlight/_internal/description-list/index.js";
-	import DescriptionListRoot from "$lib/design/primitives/description-list/DescriptionList.svelte";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-	import { descriptionListRecipe } from "./recipe.js";
+import { createDescriptionList } from "$lib/design/api/dsadapters/coldlight/_internal/description-list/index.js";
+import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import DescriptionListRoot from "$lib/design/primitives/description-list/DescriptionList.svelte";
+import { cn } from "$lib/design/primitives/types.js";
+import { descriptionListRecipe } from "./recipe.js";
+import type { DescriptionListComponentProps } from "./types.js";
 
-	let {
-		size = "md",
-		variant = "default",
-		label,
-		children,
-		class: className,
-		// ColdLight 8-axis props
-		preset,
-		surface,
-		material,
-		depth,
-		bevel,
-		glow,
-		frame,
-		motion,
-		transition,
-		encoding,
-		radius,
-		...rest
-	}: DescriptionListComponentProps = $props();
+let {
+	size = "md",
+	variant = "default",
+	label,
+	children,
+	class: className,
+	// ColdLight 8-axis props
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	...rest
+}: DescriptionListComponentProps = $props();
 
-	const builder = createDescriptionList({
-		get label() { return label; },
-	});
+const builder = createDescriptionList({
+	get label() {
+		return label;
+	},
+});
 
-	const visual = useColdLight(
-		() => ({
-			preset, surface, material, depth, bevel, glow, frame, motion, transition,
-			encoding, radius, size,
-		}),
-	);
+const visual = useColdLight(() => ({
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+}));
 
-	const classes = $derived(cn(descriptionListRecipe({ size, variant }), visual.segments, visual.radius, className));
+const classes = $derived(
+	cn(descriptionListRecipe({ size, variant }), visual.segments, visual.radius, className),
+);
 </script>
 
 <DescriptionListRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>

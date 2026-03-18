@@ -9,21 +9,21 @@
 	Focus trap active when open. Escape closes.
 -->
 <script lang="ts">
-	import type { AlertDialogContentProps } from "./types.js";
-	import { getAlertDialogContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { alertDialogRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getAlertDialogContext } from "./context.js";
+import { alertDialogRecipe } from "./recipe.js";
+import type { AlertDialogContentProps } from "./types.js";
 
-	let { children, class: className, ...rest }: AlertDialogContentProps = $props();
-	const ctx = getAlertDialogContext();
-	const recipe = alertDialogRecipe();
+let { children, class: className, ...rest }: AlertDialogContentProps = $props();
+const ctx = getAlertDialogContext();
+const recipe = alertDialogRecipe();
 
-	function handleKeydown(e: KeyboardEvent): void {
-		if (e.key === "Escape") {
-			e.preventDefault();
-			ctx.setOpen(false);
-		}
+function handleKeydown(e: KeyboardEvent): void {
+	if (e.key === "Escape") {
+		e.preventDefault();
+		ctx.setOpen(false);
 	}
+}
 </script>
 
 {#if ctx.open}

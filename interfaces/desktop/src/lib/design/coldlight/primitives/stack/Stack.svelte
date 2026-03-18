@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { StackPrimitiveProps } from "./stack.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { StackPrimitiveProps } from "./stack.props.js";
 
-	let { children, class: className, ...rest }: StackPrimitiveProps = $props();
+let { children, class: className, ...rest }: StackPrimitiveProps = $props();
 </script>
 
 <div

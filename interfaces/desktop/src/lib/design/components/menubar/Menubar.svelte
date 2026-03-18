@@ -11,57 +11,67 @@
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/menubar/
 -->
 <script lang="ts">
-	import type { MenubarProps } from "./types.js";
-	import { setMenubarRootContext, type MenubarRootCtx } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-	import { menubarRecipe } from "./recipe.js";
+import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { type MenubarRootCtx, setMenubarRootContext } from "./context.js";
+import { menubarRecipe } from "./recipe.js";
+import type { MenubarProps } from "./types.js";
 
-	let {
-		children,
-		class: className,
-		// ColdLight 8-axis props
-		preset,
-		surface,
-		material,
-		depth,
-		bevel,
-		glow,
-		frame,
-		motion,
-		transition,
-		encoding,
-		radius,
-		size,
-		// Rest spread
-		...rest
-	}: MenubarProps = $props();
+let {
+	children,
+	class: className,
+	// ColdLight 8-axis props
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+	// Rest spread
+	...rest
+}: MenubarProps = $props();
 
-	const visual = useColdLight(
-		() => ({
-			preset, surface, material, depth, bevel, glow, frame, motion, transition,
-			encoding, radius, size,
-		}),
-	);
+const visual = useColdLight(() => ({
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+}));
 
-	let activeMenu = $state<string | undefined>(undefined);
-	const recipe = menubarRecipe();
+let activeMenu = $state<string | undefined>(undefined);
+const recipe = menubarRecipe();
 
-	function openMenu(value: string): void {
-		activeMenu = value;
-	}
+function openMenu(value: string): void {
+	activeMenu = value;
+}
 
-	function closeAll(): void {
-		activeMenu = undefined;
-	}
+function closeAll(): void {
+	activeMenu = undefined;
+}
 
-	const ctx: MenubarRootCtx = {
-		get activeMenu() { return activeMenu; },
-		openMenu,
-		closeAll,
-	};
+const ctx: MenubarRootCtx = {
+	get activeMenu() {
+		return activeMenu;
+	},
+	openMenu,
+	closeAll,
+};
 
-	setMenubarRootContext(ctx);
+setMenubarRootContext(ctx);
 </script>
 
 <div

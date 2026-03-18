@@ -24,16 +24,16 @@
     failed   → error badge, "failed"
 -->
 <script lang="ts">
-import { platformState } from "$lib/sys/runes/platformState.svelte.js";
-import type { SubsystemState } from "$lib/sys/runes/platformState.svelte.js";
+import { Badge, type BadgeIntent } from "$lib/design/components/badge/index.js";
+import { Box } from "$lib/design/components/box/index.js";
+import { HStack } from "$lib/design/components/hstack/index.js";
+import { Progress } from "$lib/design/components/progress/index.js";
+import { Stack } from "$lib/design/components/stack/index.js";
+import { Text } from "$lib/design/components/text/index.js";
 import { DEV_MODE, devLabel, resolveLabel } from "$lib/sys/generated/terminology.js";
 import { getIcon } from "$lib/sys/generated/terminology-icons.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { Stack } from "$lib/design/components/stack/index.js";
-import { HStack } from "$lib/design/components/hstack/index.js";
-import { Box } from "$lib/design/components/box/index.js";
-import { Badge, type BadgeIntent } from "$lib/design/components/badge/index.js";
-import { Progress } from "$lib/design/components/progress/index.js";
+import type { SubsystemState } from "$lib/sys/runes/platformState.svelte.js";
+import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 
 let visible = $state(true);
 let fading = $state(false);
@@ -43,22 +43,32 @@ const subsystems = $derived(platformState.subsystemList());
 /** Map subsystem state to Badge intent — each state has exactly one visual */
 function stateToIntent(state: SubsystemState): BadgeIntent {
 	switch (state) {
-		case "ready": return "success";
-		case "loading": return "info";
-		case "failed": return "error";
-		case "skipped": return "default";
-		case "pending": return "default";
+		case "ready":
+			return "success";
+		case "loading":
+			return "info";
+		case "failed":
+			return "error";
+		case "skipped":
+			return "default";
+		case "pending":
+			return "default";
 	}
 }
 
 /** Map subsystem state to status text — accurate, no lies */
 function stateToLabel(state: SubsystemState, latencyMs: number | null): string {
 	switch (state) {
-		case "pending": return "";
-		case "loading": return "...";
-		case "ready": return latencyMs !== null ? `${latencyMs}ms` : "ok";
-		case "skipped": return "disabled";
-		case "failed": return "failed";
+		case "pending":
+			return "";
+		case "loading":
+			return "...";
+		case "ready":
+			return latencyMs !== null ? `${latencyMs}ms` : "ok";
+		case "skipped":
+			return "disabled";
+		case "failed":
+			return "failed";
 	}
 }
 

@@ -13,18 +13,14 @@
 
 // Re-export base compositor types from effects (where they originate)
 export type {
+	CompiledAction,
+	CompilerOutput,
 	ComposedEffect,
 	CompositorNode,
 	CompositorNodeType,
-	CompiledAction,
-	CompilerOutput,
+	EffectTrigger,
 } from "../../effects/_schema/types.js";
-
-export {
-	COMPOSITOR_NODE_TYPES,
-} from "../../effects/_schema/types.js";
-
-export type { EffectTrigger } from "../../effects/_schema/types.js";
+export { COMPOSITOR_NODE_TYPES } from "../../effects/_schema/types.js";
 
 // =============================================================================
 // COMPOSITOR-SPECIFIC EXTENSIONS

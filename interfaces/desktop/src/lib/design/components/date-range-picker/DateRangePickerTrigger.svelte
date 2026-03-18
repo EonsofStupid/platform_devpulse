@@ -8,21 +8,21 @@
 	ColdLight-owned ARIA — aria-haspopup, aria-expanded, aria-controls.
 -->
 <script lang="ts">
-	import type { DateRangePickerTriggerProps } from "./types.js";
-	import { getDateRangePickerContext } from "./context.js";
-	import { dateRangePickerRecipe } from "./recipe.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getDateRangePickerContext } from "./context.js";
+import { dateRangePickerRecipe } from "./recipe.js";
+import type { DateRangePickerTriggerProps } from "./types.js";
 
-	let { children, class: className, ...rest }: DateRangePickerTriggerProps = $props();
-	const ctx = getDateRangePickerContext();
-	const recipe = $derived(dateRangePickerRecipe({ size: ctx.size }));
+let { children, class: className, ...rest }: DateRangePickerTriggerProps = $props();
+const ctx = getDateRangePickerContext();
+const recipe = $derived(dateRangePickerRecipe({ size: ctx.size }));
 
-	function handleKeydown(e: KeyboardEvent) {
-		if (e.key === "ArrowDown") {
-			e.preventDefault();
-			ctx.openPopover();
-		}
+function handleKeydown(e: KeyboardEvent) {
+	if (e.key === "ArrowDown") {
+		e.preventDefault();
+		ctx.openPopover();
 	}
+}
 </script>
 
 <button

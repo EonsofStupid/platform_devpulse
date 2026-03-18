@@ -7,28 +7,25 @@
  * ColdLight-owned — no MeltUI adapter.
  */
 
-export { default as NavigationMenu } from "./NavigationMenu.svelte";
-export { default as NavigationMenuItem } from "./NavigationMenuItem.svelte";
-export { default as NavigationMenuTrigger } from "./NavigationMenuTrigger.svelte";
-export { default as NavigationMenuContent } from "./NavigationMenuContent.svelte";
-export { default as NavigationMenuLink } from "./NavigationMenuLink.svelte";
-
-export { contract as navigationMenuComponentContract } from "./contract.js";
-export { navigationMenuRecipe } from "./recipe.js";
+export type { NavigationMenuItemCtx, NavigationMenuRootCtx } from "./context.js";
 export {
-	setNavigationMenuRootContext,
+	getNavigationMenuItemContext,
 	getNavigationMenuRootContext,
 	setNavigationMenuItemContext,
-	getNavigationMenuItemContext,
+	setNavigationMenuRootContext,
 } from "./context.js";
-
+export { contract as navigationMenuComponentContract } from "./contract.js";
+export { default as NavigationMenu } from "./NavigationMenu.svelte";
+export { default as NavigationMenuContent } from "./NavigationMenuContent.svelte";
+export { default as NavigationMenuItem } from "./NavigationMenuItem.svelte";
+export { default as NavigationMenuLink } from "./NavigationMenuLink.svelte";
+export { default as NavigationMenuTrigger } from "./NavigationMenuTrigger.svelte";
+export { navigationMenuRecipe } from "./recipe.js";
 export type {
-	NavigationMenuProps,
-	NavigationMenuItemProps,
-	NavigationMenuTriggerProps,
 	NavigationMenuContentProps,
+	NavigationMenuItemProps,
 	NavigationMenuLinkProps,
+	NavigationMenuProps,
 	NavigationMenuSize,
+	NavigationMenuTriggerProps,
 } from "./types.js";
-
-export type { NavigationMenuRootCtx, NavigationMenuItemCtx } from "./context.js";

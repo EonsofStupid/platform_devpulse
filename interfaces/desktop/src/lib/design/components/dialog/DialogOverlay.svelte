@@ -8,15 +8,16 @@
 	Spreads adapter overlay slot attrs (aria-hidden, popover).
 -->
 <script lang="ts">
-	import type { DialogOverlayProps } from "./types.js";
-	import { getDialogContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { getRecipe } from "$lib/design/recipes/index.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getRecipe } from "$lib/design/recipes/index.js";
+import { getDialogContext } from "./context.js";
+import type { DialogOverlayProps } from "./types.js";
 
-	let { class: className, ...rest }: DialogOverlayProps = $props();
-	const dialog = getDialogContext();
-	const recipe = getRecipe("dialog.glass.void");
-	const overlayClass = recipe?.classes?.({} as any)?.overlay ?? "";
+let { class: className, ...rest }: DialogOverlayProps = $props();
+const dialog = getDialogContext();
+const recipe = getRecipe("dialog.glass.void");
+// biome-ignore lint/suspicious/noExplicitAny: recipe classes accept any state
+const overlayClass = recipe?.classes?.({} as any)?.overlay ?? "";
 </script>
 
 {#if dialog.open}

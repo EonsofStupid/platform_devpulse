@@ -11,7 +11,7 @@
  */
 
 import { z } from "zod";
-import { DsSurfacePropsSchema, type DsSurfaceProps } from "$lib/design/recipes/types.js";
+import { type DsSurfaceProps, DsSurfacePropsSchema } from "$lib/design/recipes/types.js";
 
 // =============================================================================
 // BlockNode — the atomic unit VPB stores

@@ -25,7 +25,7 @@
 
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { resolveFileContext, ROOTS } from "./file-context.js";
+import { ROOTS, resolveFileContext } from "./file-context.js";
 import { matchRule } from "./file-schema.js";
 
 // =============================================================================
@@ -147,7 +147,11 @@ function extractTagLine(generatedHeader: string, tag: string): string | null {
  * Inserts tag lines before the closing * / line.
  * Preserves all existing content.
  */
-function patchJsDocHeader(existingHeader: string, missingTags: string[], generatedHeader: string): string {
+function patchJsDocHeader(
+	existingHeader: string,
+	missingTags: string[],
+	generatedHeader: string,
+): string {
 	const tagLines: string[] = [];
 	for (const tag of missingTags) {
 		const line = extractTagLine(generatedHeader, tag);
@@ -163,14 +167,18 @@ function patchJsDocHeader(existingHeader: string, missingTags: string[], generat
 	const before = existingHeader.slice(0, closingIdx).trimEnd();
 	const after = existingHeader.slice(closingIdx);
 
-	return before + "\n" + tagLines.join("\n") + "\n " + after;
+	return `${before}\n${tagLines.join("\n")}\n ${after}`;
 }
 
 /**
  * Patch missing tags into an existing Svelte header (<!-- ... -->).
  * Inserts tag lines before the closing -->.
  */
-function patchSvelteHeader(existingHeader: string, missingTags: string[], generatedHeader: string): string {
+function patchSvelteHeader(
+	existingHeader: string,
+	missingTags: string[],
+	generatedHeader: string,
+): string {
 	const tagLines: string[] = [];
 	for (const tag of missingTags) {
 		// For svelte, generated header uses different format (no * prefix)
@@ -191,14 +199,18 @@ function patchSvelteHeader(existingHeader: string, missingTags: string[], genera
 	const before = existingHeader.slice(0, closingIdx).trimEnd();
 	const after = existingHeader.slice(closingIdx);
 
-	return before + "\n" + tagLines.join("\n") + "\n" + after;
+	return `${before}\n${tagLines.join("\n")}\n${after}`;
 }
 
 /**
  * Patch missing tags into an existing Rust doc header (//! lines).
  * Appends tag lines at the end of the //! block.
  */
-function patchRustHeader(existingHeader: string, missingTags: string[], generatedHeader: string): string {
+function patchRustHeader(
+	existingHeader: string,
+	missingTags: string[],
+	generatedHeader: string,
+): string {
 	const tagLines: string[] = [];
 	for (const tag of missingTags) {
 		const genLines = generatedHeader.split("\n");
@@ -214,13 +226,18 @@ function patchRustHeader(existingHeader: string, missingTags: string[], generate
 
 	// Append to end of //! block
 	const trimmed = existingHeader.trimEnd();
-	return trimmed + "\n" + tagLines.join("\n") + "\n";
+	return `${trimmed}\n${tagLines.join("\n")}\n`;
 }
 
 /**
  * Patch missing tags into an existing header, preserving all content.
  */
-function patchHeader(existingHeader: string, missingTags: string[], generatedHeader: string, language: string): string {
+function patchHeader(
+	existingHeader: string,
+	missingTags: string[],
+	generatedHeader: string,
+	language: string,
+): string {
 	switch (language) {
 		case "svelte":
 			return patchSvelteHeader(existingHeader, missingTags, generatedHeader);
@@ -302,7 +319,12 @@ function processFile(filePath: string, command: Command): FileResult {
 			// Tags are missing
 			if (command === "fix") {
 				// PATCH: insert missing tags into existing header, preserving content
-				const patchedHeader = patchHeader(existingHeader, missingTags, generatedHeader, ctx.language);
+				const patchedHeader = patchHeader(
+					existingHeader,
+					missingTags,
+					generatedHeader,
+					ctx.language,
+				);
 
 				// Replace the old header with patched header in the body
 				const trimmedBody = body.trimStart();

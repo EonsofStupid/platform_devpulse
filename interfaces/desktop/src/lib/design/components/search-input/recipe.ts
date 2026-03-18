@@ -21,21 +21,17 @@ const SIZE_MAP: Record<string, string> = {
 
 export function searchInputRecipe(props: SearchInputRecipeProps = {}): string {
 	const size = props.size ?? "md";
-	return cn(
-		"search-input-root",
-		SIZE_MAP[size] ?? SIZE_MAP.md,
-		"rounded-md",
-	);
+	return cn("search-input-root", SIZE_MAP[size] ?? SIZE_MAP.md, "rounded-md");
 }
 
 export function searchInputInputRecipe(): string {
 	return "search-input-input";
 }
 
-export function searchInputIconRecipe(props: SearchInputRecipeProps = {}): string {
+export function searchInputIconRecipe(_props: SearchInputRecipeProps = {}): string {
 	return cn("search-input-icon");
 }
 
-export function searchInputClearRecipe(props: SearchInputRecipeProps = {}): string {
+export function searchInputClearRecipe(_props: SearchInputRecipeProps = {}): string {
 	return cn("search-input-clear");
 }

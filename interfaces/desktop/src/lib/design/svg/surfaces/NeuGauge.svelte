@@ -13,40 +13,40 @@
 	</NeuGauge>
 -->
 <script lang="ts">
-	import type { Snippet } from "svelte";
-	import SvgBlank from "../blanks/SvgBlank.svelte";
+import type { Snippet } from "svelte";
+import SvgBlank from "../blanks/SvgBlank.svelte";
 
-	type BevelLevel = "soft" | "medium" | "strong";
+type BevelLevel = "soft" | "medium" | "strong";
 
-	interface Props {
-		/** Gauge diameter in px */
-		size?: number;
-		/** Bevel strength */
-		bevel?: BevelLevel;
-		/** Whether to apply grain texture */
-		noise?: boolean;
-		/** Fill color */
-		fill?: string;
-		/** Additional CSS classes */
-		class?: string;
-		/** Content */
-		children?: Snippet;
-	}
+interface Props {
+	/** Gauge diameter in px */
+	size?: number;
+	/** Bevel strength */
+	bevel?: BevelLevel;
+	/** Whether to apply grain texture */
+	noise?: boolean;
+	/** Fill color */
+	fill?: string;
+	/** Additional CSS classes */
+	class?: string;
+	/** Content */
+	children?: Snippet;
+}
 
-	let {
-		size = 200,
-		bevel = "medium",
-		noise = true,
-		fill = "var(--glass-deep)",
-		class: className = "",
-		children,
-	}: Props = $props();
+let {
+	size = 200,
+	bevel = "medium",
+	noise = true,
+	fill = "var(--glass-deep)",
+	class: className = "",
+	children,
+}: Props = $props();
 
-	const filters = $derived.by(() => {
-		const list: string[] = [`bevel-${bevel}`];
-		if (noise) list.push("noise-subtle");
-		return list;
-	});
+const filters = $derived.by(() => {
+	const list: string[] = [`bevel-${bevel}`];
+	if (noise) list.push("noise-subtle");
+	return list;
+});
 </script>
 
 <SvgBlank

@@ -14,10 +14,7 @@ import { cn } from "$lib/design/utils/cn.js";
 export function tooltipRecipe() {
 	return {
 		trigger: "",
-		content: cn(
-			"tooltip-content",
-			"rounded-md",
-		),
+		content: cn("tooltip-content", "rounded-md"),
 		arrow: "tooltip-arrow",
 	};
 }

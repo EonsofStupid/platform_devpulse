@@ -37,9 +37,7 @@ export const contract = {
 			element: "dl",
 			aria: {
 				required: [],
-				optional: [
-					{ attr: "aria-label", valueType: "aria-label" },
-				],
+				optional: [{ attr: "aria-label", valueType: "aria-label" }],
 			},
 			data: {
 				kind: "description-list",

@@ -42,11 +42,7 @@ registerRecipe({
 		size: "md",
 	},
 	classes: (props: DsSurfaceProps): Record<string, string> => ({
-		root: cn(
-			"panel",
-			emitSegments(toPreset(props)),
-			radiusClass(props.radius),
-		),
+		root: cn("panel", emitSegments(toPreset(props)), radiusClass(props.radius)),
 		header: "panel-header",
 		body: "panel-body",
 		footer: "panel-footer",

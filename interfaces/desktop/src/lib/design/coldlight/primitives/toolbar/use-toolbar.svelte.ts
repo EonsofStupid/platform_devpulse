@@ -8,9 +8,9 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/
  */
 
-import { uid } from "../../_internal/utils/uid.js";
 import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
 import { getNextKey, getPrevKey, kbd } from "../../_internal/utils/kbd.js";
+import { uid } from "../../_internal/utils/uid.js";
 import { toolbarAnatomy } from "./toolbar.anatomy.js";
 import type { UseToolbarProps, UseToolbarReturn } from "./toolbar.types.js";
 
@@ -42,9 +42,9 @@ export function useToolbar(props: UseToolbarProps = {}): UseToolbarReturn {
 		let nextIndex: number;
 
 		if (e.key === nextKey) {
-			nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : (loop ? 0 : currentIndex);
+			nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : loop ? 0 : currentIndex;
 		} else if (e.key === prevKey) {
-			nextIndex = currentIndex > 0 ? currentIndex - 1 : (loop ? items.length - 1 : currentIndex);
+			nextIndex = currentIndex > 0 ? currentIndex - 1 : loop ? items.length - 1 : currentIndex;
 		} else if (e.key === kbd.HOME) {
 			nextIndex = 0;
 		} else {
@@ -69,11 +69,13 @@ export function useToolbar(props: UseToolbarProps = {}): UseToolbarReturn {
 	});
 
 	return {
-		get root() { return root; },
+		get root() {
+			return root;
+		},
 
 		getItem(value: string, options?: { disabled?: boolean; active?: boolean }) {
 			const isDisabled = globalDisabled || (options?.disabled ?? false);
-			const isActive = options?.active ?? (activeValue === value);
+			const isActive = options?.active ?? activeValue === value;
 			return {
 				...toolbarAnatomy.attrs.item,
 				tabindex: isActive ? 0 : -1,

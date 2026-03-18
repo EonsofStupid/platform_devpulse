@@ -25,9 +25,7 @@ export const contract = {
 			element: "div",
 			aria: {
 				required: [],
-				optional: [
-					{ attr: "aria-hidden", valueType: "aria-hidden" },
-				],
+				optional: [{ attr: "aria-hidden", valueType: "aria-hidden" }],
 			},
 			data: {
 				kind: "spacer",

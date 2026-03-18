@@ -15,8 +15,8 @@
  * (hover-brighten + hover-lift + focus-ring on a button is valid).
  */
 
-import { registerEffect } from "../../registry.js";
 import type { EffectDefinition } from "../../_schema/types.js";
+import { registerEffect } from "../../registry.js";
 
 // =============================================================================
 // HOVER EFFECTS
@@ -26,7 +26,8 @@ const transitionHoverBrighten: EffectDefinition = {
 	id: "transition.hover-brighten",
 	category: "transition",
 	label: "Hover Brighten",
-	description: "Subtle brightness increase on hover. Uses filter: brightness() with fast transition.",
+	description:
+		"Subtle brightness increase on hover. Uses filter: brightness() with fast transition.",
 	supportedTriggers: ["hover"],
 	classes: ["hover:brightness-110"],
 	transition: "filter var(--transition-duration-fast) var(--transition-timing-function-out)",
@@ -49,7 +50,8 @@ const transitionHoverScale: EffectDefinition = {
 	description: "Subtle scale increase on hover. 2% growth with spring easing.",
 	supportedTriggers: ["hover"],
 	classes: ["hover:scale-[1.02]"],
-	transition: "transform var(--transition-duration-normal) var(--transition-timing-function-spring)",
+	transition:
+		"transform var(--transition-duration-normal) var(--transition-timing-function-spring)",
 };
 
 const transitionHoverOpacity: EffectDefinition = {
@@ -77,7 +79,8 @@ const transitionFocusRing: EffectDefinition = {
 		"focus-visible:outline-offset-2",
 		"focus-visible:outline-current",
 	],
-	transition: "outline-offset var(--transition-duration-snap) var(--transition-timing-function-out)",
+	transition:
+		"outline-offset var(--transition-duration-snap) var(--transition-timing-function-out)",
 };
 
 const transitionFocusGlow: EffectDefinition = {
@@ -104,17 +107,20 @@ const transitionActivePress: EffectDefinition = {
 	description: "Scale-down and brightness decrease on active/press state.",
 	supportedTriggers: ["active"],
 	classes: ["active:scale-[0.98]", "active:brightness-95"],
-	transition: "transform var(--transition-duration-snap) var(--transition-timing-function-out), filter var(--transition-duration-snap) var(--transition-timing-function-out)",
+	transition:
+		"transform var(--transition-duration-snap) var(--transition-timing-function-out), filter var(--transition-duration-snap) var(--transition-timing-function-out)",
 };
 
 const transitionActiveDepress: EffectDefinition = {
 	id: "transition.active-depress",
 	category: "transition",
 	label: "Active Depress",
-	description: "Subtle inward press effect — translateY + reduced shadow. Neuromorphic button feel.",
+	description:
+		"Subtle inward press effect — translateY + reduced shadow. Neuromorphic button feel.",
 	supportedTriggers: ["active"],
 	classes: ["active:translate-y-px", "active:shadow-none"],
-	transition: "transform var(--transition-duration-snap) var(--transition-timing-function-out), box-shadow var(--transition-duration-snap) var(--transition-timing-function-out)",
+	transition:
+		"transform var(--transition-duration-snap) var(--transition-timing-function-out), box-shadow var(--transition-duration-snap) var(--transition-timing-function-out)",
 };
 
 // =============================================================================
@@ -125,7 +131,8 @@ const transitionInteractive: EffectDefinition = {
 	id: "transition.interactive",
 	category: "transition",
 	label: "Full Interactive",
-	description: "Complete interactive effect: hover brighten + focus ring + active press. Standard button interaction.",
+	description:
+		"Complete interactive effect: hover brighten + focus ring + active press. Standard button interaction.",
 	supportedTriggers: ["hover", "focus", "active"],
 	classes: [
 		"hover:brightness-110",

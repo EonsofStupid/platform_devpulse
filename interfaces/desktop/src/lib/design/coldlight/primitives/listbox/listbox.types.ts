@@ -13,6 +13,9 @@ export interface UseListBoxReturn {
 	readonly value: string | string[];
 	readonly highlightedId: string | null;
 	readonly root: Record<string, unknown>;
-	getOption(optionValue: string, options?: { disabled?: boolean; label?: string }): Record<string, unknown>;
+	getOption(
+		optionValue: string,
+		options?: { disabled?: boolean; label?: string },
+	): Record<string, unknown>;
 	getGroup(label: string): Record<string, unknown>;
 }

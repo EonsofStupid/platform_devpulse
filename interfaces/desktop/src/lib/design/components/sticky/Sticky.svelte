@@ -7,44 +7,54 @@
 	Builder provides data attributes. Component adds recipe classes (top offset, z-index).
 -->
 <script lang="ts">
-	import type { StickyComponentProps } from "./types.js";
-	import { createSticky } from "$lib/design/api/dsadapters/coldlight/_internal/sticky/index.js";
-	import StickyRoot from "$lib/design/primitives/sticky/Sticky.svelte";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-	import { stickyRecipe } from "./recipe.js";
+import { createSticky } from "$lib/design/api/dsadapters/coldlight/_internal/sticky/index.js";
+import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import StickyRoot from "$lib/design/primitives/sticky/Sticky.svelte";
+import { cn } from "$lib/design/primitives/types.js";
+import { stickyRecipe } from "./recipe.js";
+import type { StickyComponentProps } from "./types.js";
 
-	let {
-		top = "0",
-		offset = "none",
-		children,
-		class: className,
-		// ColdLight 8-axis props
-		preset,
-		surface,
-		material,
-		depth,
-		bevel,
-		glow,
-		frame,
-		motion,
-		transition,
-		encoding,
-		radius,
-		size,
-		...rest
-	}: StickyComponentProps = $props();
+let {
+	top = "0",
+	offset = "none",
+	children,
+	class: className,
+	// ColdLight 8-axis props
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+	...rest
+}: StickyComponentProps = $props();
 
-	const builder = createSticky();
+const builder = createSticky();
 
-	const visual = useColdLight(
-		() => ({
-			preset, surface, material, depth, bevel, glow, frame, motion, transition,
-			encoding, radius, size,
-		}),
-	);
+const visual = useColdLight(() => ({
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+}));
 
-	const classes = $derived(cn(stickyRecipe({ top, offset }), visual.segments, visual.radius, className));
+const classes = $derived(
+	cn(stickyRecipe({ top, offset }), visual.segments, visual.radius, className),
+);
 </script>
 
 <StickyRoot

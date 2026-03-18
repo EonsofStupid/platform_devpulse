@@ -12,6 +12,6 @@
 
 type SeparatorRecipeProps = { orientation?: string; variant?: string };
 
-export function separatorRecipe(props: SeparatorRecipeProps = {}): string {
+export function separatorRecipe(_props: SeparatorRecipeProps = {}): string {
 	return "separator-root";
 }

@@ -19,10 +19,7 @@ export function colorInputRecipe(props: ColorInputRecipeProps = {}): string {
 		md: "h-10 px-4 text-sm",
 		lg: "h-12 px-6 text-base",
 	};
-	return cn(
-		"color-input-root",
-		sizeMap[props.size ?? "md"] ?? sizeMap.md,
-	);
+	return cn("color-input-root", sizeMap[props.size ?? "md"] ?? sizeMap.md);
 }
 
 export function colorInputSwatchRecipe(props: ColorInputRecipeProps = {}): string {
@@ -31,10 +28,7 @@ export function colorInputSwatchRecipe(props: ColorInputRecipeProps = {}): strin
 		md: "color-input-swatch-md",
 		lg: "color-input-swatch-lg",
 	};
-	return cn(
-		"color-input-swatch",
-		sizeMap[props.size ?? "md"] ?? sizeMap.md,
-	);
+	return cn("color-input-swatch", sizeMap[props.size ?? "md"] ?? sizeMap.md);
 }
 
 export function colorInputInputRecipe(): string {
@@ -47,8 +41,5 @@ export function colorInputLabelRecipe(props: ColorInputRecipeProps = {}): string
 		md: "color-input-label-md",
 		lg: "color-input-label-md",
 	};
-	return cn(
-		"color-input-label",
-		sizeMap[props.size ?? "md"] ?? sizeMap.md,
-	);
+	return cn("color-input-label", sizeMap[props.size ?? "md"] ?? sizeMap.md);
 }

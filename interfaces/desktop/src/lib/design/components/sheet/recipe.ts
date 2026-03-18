@@ -30,11 +30,7 @@ function sheetSizeClass(size: string, side: string): string {
 export function sheetRecipe(props: SheetRecipeProps = {}): string {
 	const side = props.side ?? "right";
 	const size = props.size ?? "md";
-	return cn(
-		"sheet-content",
-		SIDE_CLASS[side] ?? SIDE_CLASS.right,
-		sheetSizeClass(size, side),
-	);
+	return cn("sheet-content", SIDE_CLASS[side] ?? SIDE_CLASS.right, sheetSizeClass(size, side));
 }
 
 export function sheetOverlayRecipe(): string {

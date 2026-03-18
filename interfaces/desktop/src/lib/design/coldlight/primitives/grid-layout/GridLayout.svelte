@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { GridLayoutPrimitiveProps } from "./grid-layout.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { GridLayoutPrimitiveProps } from "./grid-layout.props.js";
 
-	let { children, class: className, ...rest }: GridLayoutPrimitiveProps = $props();
+let { children, class: className, ...rest }: GridLayoutPrimitiveProps = $props();
 </script>
 
 <div

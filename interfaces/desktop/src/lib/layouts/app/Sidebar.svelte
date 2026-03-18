@@ -23,12 +23,12 @@ import {
 	Wrench,
 } from "lucide-svelte";
 import { page } from "$app/state";
-import { getChildRoutes } from "$lib/sys/routing/child-routes";
-import { globalState } from "$lib/sys/runes/global.svelte";
-import { Button } from "$lib/design/components/button/index.js";
 import { Box } from "$lib/design/components/box/index.js";
+import { Button } from "$lib/design/components/button/index.js";
 import { Stack } from "$lib/design/components/stack/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { getChildRoutes } from "$lib/sys/routing/child-routes";
+import { globalState } from "$lib/sys/runes/global.svelte";
 
 interface NavHub {
 	id: string;

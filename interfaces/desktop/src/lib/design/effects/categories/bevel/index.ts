@@ -20,8 +20,8 @@
  * Conflict group: bevel-variant (one bevel per element across both tiers)
  */
 
-import { registerEffect } from "../../registry.js";
 import type { EffectDefinition } from "../../_schema/types.js";
+import { registerEffect } from "../../registry.js";
 
 // =============================================================================
 // CSS TIER — baseline (box-shadow, universal, fast)
@@ -73,7 +73,7 @@ const bevelSoftSvg: EffectDefinition = {
 	classes: ["filter-bevel-soft"],
 	conflictGroup: "bevel-variant",
 	cssProperties: {
-		"filter": "url(#bevel-soft)",
+		filter: "url(#bevel-soft)",
 	},
 };
 
@@ -86,7 +86,7 @@ const bevelMediumSvg: EffectDefinition = {
 	classes: ["filter-bevel-medium"],
 	conflictGroup: "bevel-variant",
 	cssProperties: {
-		"filter": "url(#bevel-medium)",
+		filter: "url(#bevel-medium)",
 	},
 };
 
@@ -99,7 +99,7 @@ const bevelStrongSvg: EffectDefinition = {
 	classes: ["filter-bevel-strong"],
 	conflictGroup: "bevel-variant",
 	cssProperties: {
-		"filter": "url(#bevel-strong)",
+		filter: "url(#bevel-strong)",
 	},
 };
 

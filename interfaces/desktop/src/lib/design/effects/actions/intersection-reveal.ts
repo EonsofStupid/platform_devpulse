@@ -28,10 +28,7 @@ export interface IntersectionRevealParams {
 	once?: boolean;
 }
 
-export function intersectionReveal(
-	node: HTMLElement,
-	params: IntersectionRevealParams = {},
-) {
+export function intersectionReveal(node: HTMLElement, params: IntersectionRevealParams = {}) {
 	const {
 		threshold = 0.1,
 		rootMargin = "0px",
@@ -41,9 +38,7 @@ export function intersectionReveal(
 	} = params;
 
 	// Respect reduced motion preference
-	const prefersReduced = globalThis.matchMedia?.(
-		"(prefers-reduced-motion: reduce)",
-	).matches;
+	const prefersReduced = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
 	if (prefersReduced) {
 		node.classList.remove(hiddenClass);

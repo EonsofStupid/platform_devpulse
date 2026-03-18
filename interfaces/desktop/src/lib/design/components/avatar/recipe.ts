@@ -19,10 +19,7 @@ export function avatarRootRecipe(props: AvatarRecipeProps = {}): string {
 		md: "avatar-md",
 		lg: "avatar-lg",
 	};
-	return cn(
-		"avatar-root",
-		sizeMap[props.size ?? "md"] ?? sizeMap.md,
-	);
+	return cn("avatar-root", sizeMap[props.size ?? "md"] ?? sizeMap.md);
 }
 
 export function avatarImageRecipe(): string {

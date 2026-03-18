@@ -45,9 +45,7 @@ export const contract = {
 			aria: {
 				role: "none",
 				required: [],
-				optional: [
-					{ attr: "aria-current", valueType: "aria-current" },
-				],
+				optional: [{ attr: "aria-current", valueType: "aria-current" }],
 			},
 			data: {
 				kind: "table-of-contents",
@@ -61,9 +59,7 @@ export const contract = {
 			aria: {
 				role: "link",
 				required: [],
-				optional: [
-					{ attr: "aria-current", valueType: "aria-current" },
-				],
+				optional: [{ attr: "aria-current", valueType: "aria-current" }],
 			},
 			data: {
 				kind: "table-of-contents",
@@ -84,9 +80,7 @@ export const contract = {
 	},
 
 	keyboard: {
-		global: [
-			{ key: "Enter", action: "navigate", description: "Navigate to heading" },
-		],
+		global: [{ key: "Enter", action: "navigate", description: "Navigate to heading" }],
 	},
 
 	states: {

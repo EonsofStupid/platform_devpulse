@@ -3,17 +3,17 @@
 	@layer vpb
 -->
 <script lang="ts">
-	const ACCENT_TOKENS = ["teal", "purple", "magenta", "ember", "frost"] as const;
+const ACCENT_TOKENS = ["teal", "purple", "magenta", "ember", "frost"] as const;
 
-	let { value, onchange }: { value: string; onchange: (v: string) => void } = $props();
+let { value, onchange }: { value: string; onchange: (v: string) => void } = $props();
 
-	const ACCENT_COLORS: Record<string, string> = {
-		teal: "var(--color-teal-600)",
-		purple: "var(--color-purple-600)",
-		magenta: "var(--color-magenta-500)",
-		ember: "var(--color-ember-400)",
-		frost: "var(--color-frost-400)",
-	};
+const ACCENT_COLORS: Record<string, string> = {
+	teal: "var(--color-teal-600)",
+	purple: "var(--color-purple-600)",
+	magenta: "var(--color-magenta-500)",
+	ember: "var(--color-ember-400)",
+	frost: "var(--color-frost-400)",
+};
 </script>
 
 <div class="vpb-ctrl">

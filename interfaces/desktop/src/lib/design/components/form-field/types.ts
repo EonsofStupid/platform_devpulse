@@ -9,13 +9,16 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { BaseProps } from "$lib/design/primitives/types.js";
 import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { BaseProps } from "$lib/design/primitives/types.js";
 
 export type FormFieldSize = "sm" | "md" | "lg";
 
 /** FormField component props — builder state + recipe + primitive */
-export interface FormFieldComponentProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps, ColdLightProps {
+export interface FormFieldComponentProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
+		BaseProps,
+		ColdLightProps {
 	/** Control input slot */
 	children?: Snippet;
 	/** Label text */

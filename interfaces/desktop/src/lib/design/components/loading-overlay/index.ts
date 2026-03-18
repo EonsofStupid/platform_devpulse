@@ -4,7 +4,7 @@
  * @layer components
  */
 
-export { default as LoadingOverlay } from "./LoadingOverlay.svelte";
 export { contract as loadingOverlayComponentContract } from "./contract.js";
+export { default as LoadingOverlay } from "./LoadingOverlay.svelte";
 export { loadingOverlayRecipe } from "./recipe.js";
 export type { LoadingOverlayComponentProps } from "./types.js";

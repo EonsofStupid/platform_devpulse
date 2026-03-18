@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { SwitchPrimitiveProps } from "./switch.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { SwitchPrimitiveProps } from "./switch.props.js";
 
-	let { children, class: className, ...rest }: SwitchPrimitiveProps = $props();
+let { children, class: className, ...rest }: SwitchPrimitiveProps = $props();
 </script>
 
 <button

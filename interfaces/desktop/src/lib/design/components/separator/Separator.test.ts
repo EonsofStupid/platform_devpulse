@@ -12,10 +12,10 @@
  * Setup:  vitest-browser-svelte
  */
 
+import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { expect, test, describe } from "vitest";
-import Separator from "./Separator.svelte";
 import { contract } from "./contract.js";
+import Separator from "./Separator.svelte";
 
 // =============================================================================
 // CONTRACT INTEGRITY
@@ -89,12 +89,14 @@ describe("separator component — ARIA attributes", () => {
 	test("has role='none' when decorative", async () => {
 		const { container } = render(Separator, { props: { decorative: true } });
 		const hr = container.querySelector("hr");
+		// biome-ignore lint/style/noNonNullAssertion: test assertion — hr element always rendered
 		await expect.element(hr!).toHaveAttribute("role", "none");
 	});
 
 	test("has aria-hidden='true' when decorative", async () => {
 		const { container } = render(Separator, { props: { decorative: true } });
 		const hr = container.querySelector("hr");
+		// biome-ignore lint/style/noNonNullAssertion: test assertion — hr element always rendered
 		await expect.element(hr!).toHaveAttribute("aria-hidden", "true");
 	});
 });

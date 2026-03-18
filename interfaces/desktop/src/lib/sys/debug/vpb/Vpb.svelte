@@ -7,32 +7,32 @@
 	Feature-gated via __DEV__ — stripped in production builds.
 -->
 <script lang="ts">
-	import { __DEV__ } from "$lib/sys/debug/DEBUG_FLAG.js";
-	import VpbToolbar from "./panels/VpbToolbar.svelte";
-	import VpbPalette from "./panels/VpbPalette.svelte";
-	import VpbCanvas from "./panels/VpbCanvas.svelte";
-	import VpbProperties from "./panels/VpbProperties.svelte";
-	import VpbConnectionBadge from "./panels/VpbConnectionBadge.svelte";
-	import { vpbConnection } from "./state/vpb-connection.svelte.js";
-	import { vpbDocument } from "./state/vpb-document.svelte.js";
-	import { loadAutoSave } from "./persistence/local-storage.js";
+import { __DEV__ } from "$lib/sys/debug/DEBUG_FLAG.js";
+import VpbCanvas from "./panels/VpbCanvas.svelte";
+import VpbConnectionBadge from "./panels/VpbConnectionBadge.svelte";
+import VpbPalette from "./panels/VpbPalette.svelte";
+import VpbProperties from "./panels/VpbProperties.svelte";
+import VpbToolbar from "./panels/VpbToolbar.svelte";
+import { loadAutoSave } from "./persistence/local-storage.js";
+import { vpbConnection } from "./state/vpb-connection.svelte.js";
+import { vpbDocument } from "./state/vpb-document.svelte.js";
 
-	let { open = $bindable(false) }: { open?: boolean } = $props();
-	let viewMode = $state<"preview" | "graph">("preview");
+let { open = $bindable(false) }: { open?: boolean } = $props();
+let viewMode = $state<"preview" | "graph">("preview");
 
-	$effect(() => {
-		if (__DEV__ && open) {
-			vpbConnection.init();
-			const saved = loadAutoSave();
-			if (saved) {
-				try {
-					vpbDocument.load(saved);
-				} catch {
-					// Schema drift — start fresh
-				}
+$effect(() => {
+	if (__DEV__ && open) {
+		vpbConnection.init();
+		const saved = loadAutoSave();
+		if (saved) {
+			try {
+				vpbDocument.load(saved);
+			} catch {
+				// Schema drift — start fresh
 			}
 		}
-	});
+	}
+});
 </script>
 
 {#if __DEV__ && open}

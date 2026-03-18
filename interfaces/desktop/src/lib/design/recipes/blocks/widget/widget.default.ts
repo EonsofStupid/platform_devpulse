@@ -52,7 +52,8 @@ registerRecipe({
 			visual: "none",
 		},
 		tab: {
-			structural: "px-3 py-2 text-xs font-medium text-text-muted hover:text-text-link transition-colors",
+			structural:
+				"px-3 py-2 text-xs font-medium text-text-muted hover:text-text-link transition-colors",
 			visual: "none",
 		},
 		content: {

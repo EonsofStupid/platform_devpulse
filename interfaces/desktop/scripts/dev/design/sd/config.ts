@@ -15,7 +15,7 @@
 
 import { resolve } from "node:path";
 import { registerTailwindTheme } from "./formats/tailwind-theme.js";
-import { registerTypes }         from "./formats/types.js";
+import { registerTypes } from "./formats/types.js";
 
 type Enums = Record<string, readonly (string | number)[]>;
 type Mapping = { namespace: string; prefix: string | null };

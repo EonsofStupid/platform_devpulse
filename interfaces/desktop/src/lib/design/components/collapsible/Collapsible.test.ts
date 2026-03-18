@@ -11,7 +11,7 @@
  * Setup:  vitest-browser-svelte
  */
 
-import { expect, test, describe } from "vitest";
+import { describe, expect, test } from "vitest";
 import { contract } from "./contract.js";
 
 // =============================================================================
@@ -76,14 +76,18 @@ describe("collapsible component — slot contracts", () => {
 	});
 
 	test("all slot data-kind values are 'collapsible'", () => {
-		const slotNames = Object.keys(contract.slotContracts) as Array<keyof typeof contract.slotContracts>;
+		const slotNames = Object.keys(contract.slotContracts) as Array<
+			keyof typeof contract.slotContracts
+		>;
 		slotNames.forEach((slot) => {
 			expect(contract.slotContracts[slot].data.kind).toBe("collapsible");
 		});
 	});
 
 	test("slot data-slot matches slot name", () => {
-		const slotNames = Object.keys(contract.slotContracts) as Array<keyof typeof contract.slotContracts>;
+		const slotNames = Object.keys(contract.slotContracts) as Array<
+			keyof typeof contract.slotContracts
+		>;
 		slotNames.forEach((slot) => {
 			expect(contract.slotContracts[slot].data.slot).toBe(slot);
 		});

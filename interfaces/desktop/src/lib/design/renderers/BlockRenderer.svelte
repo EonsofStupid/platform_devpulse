@@ -7,22 +7,18 @@
   Recursively renders slot children via svelte:self.
 -->
 <script lang="ts">
-	import type { BlockNode } from "$lib/design/blocks/schema.js";
-	import { resolveClasses } from "./resolveClasses.js";
-	import BlockRenderer from "./BlockRenderer.svelte";
+import type { BlockNode } from "$lib/design/blocks/schema.js";
+import BlockRenderer from "./BlockRenderer.svelte";
+import { resolveClasses } from "./resolveClasses.js";
 
-	let { node, depth = 0 }: { node: BlockNode; depth?: number } = $props();
+let { node, depth = 0 }: { node: BlockNode; depth?: number } = $props();
 
-	const classes = $derived(resolveClasses(node));
+const classes = $derived(resolveClasses(node));
 
-	/** Pick the primary slot class — prefers "root", then "content", then first available. */
-	const rootClass = $derived(
-		classes["root"] ?? classes["content"] ?? Object.values(classes)[0] ?? "",
-	);
+/** Pick the primary slot class — prefers "root", then "content", then first available. */
+const rootClass = $derived(classes.root ?? classes.content ?? Object.values(classes)[0] ?? "");
 
-	const slotEntries = $derived(
-		node.slots ? Object.entries(node.slots) : [],
-	);
+const slotEntries = $derived(node.slots ? Object.entries(node.slots) : []);
 </script>
 
 <div

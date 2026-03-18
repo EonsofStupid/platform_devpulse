@@ -40,7 +40,7 @@ Config: `interfaces/desktop/src/lib/design/coldlight.config.ts`
 - **Config-driven** — `coldlight.config.ts` declares everything; build tools read config
 - **Schema-driven** — Zod validates all contracts, tokens, props at boundaries
 - **Manifest-producing** — Scanner generates `coldlight.manifest.json` from taxonomy
-- **ColdLight-owned by default** — MeltUI adapter used ONLY when justified
+- **ColdLight-owned by default** — Inspired by react spectrum s2 macros 
 - **Style Dictionary v5** token pipeline (SD5 + DTCG 1.0)
 - **Fully tested** — Vitest browser tests (Chromium) + Playwright E2E
 

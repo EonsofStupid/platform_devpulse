@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { SearchFieldPrimitiveProps } from "./search-field.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { SearchFieldPrimitiveProps } from "./search-field.props.js";
 
-	let { children, class: className, ...rest }: SearchFieldPrimitiveProps = $props();
+let { children, class: className, ...rest }: SearchFieldPrimitiveProps = $props();
 </script>
 
 <div

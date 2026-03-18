@@ -6,15 +6,15 @@
 	Slider track — the background track the thumb slides along.
 -->
 <script lang="ts">
-	import type { SliderTrackProps } from "./types.js";
-	import { getSliderContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { sliderRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getSliderContext } from "./context.js";
+import { sliderRecipe } from "./recipe.js";
+import type { SliderTrackProps } from "./types.js";
 
-	let { children, class: className, ...rest }: SliderTrackProps = $props();
+let { children, class: className, ...rest }: SliderTrackProps = $props();
 
-	const transport = getSliderContext();
-	const recipe = sliderRecipe();
+const transport = getSliderContext();
+const recipe = sliderRecipe();
 </script>
 
 <div

@@ -9,15 +9,15 @@
 	Keyboard: Enter/Space toggle, ArrowDown opens, Escape closes.
 -->
 <script lang="ts">
-	import type { NavigationMenuTriggerProps } from "./types.js";
-	import { getNavigationMenuItemContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { navigationMenuRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getNavigationMenuItemContext } from "./context.js";
+import { navigationMenuRecipe } from "./recipe.js";
+import type { NavigationMenuTriggerProps } from "./types.js";
 
-	let { children, class: className, ...rest }: NavigationMenuTriggerProps = $props();
+let { children, class: className, ...rest }: NavigationMenuTriggerProps = $props();
 
-	const ctx = getNavigationMenuItemContext();
-	const recipe = navigationMenuRecipe();
+const ctx = getNavigationMenuItemContext();
+const recipe = navigationMenuRecipe();
 </script>
 
 <button

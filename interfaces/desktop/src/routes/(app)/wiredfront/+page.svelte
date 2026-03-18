@@ -5,21 +5,21 @@
   Hub: Screenshots, Video Editor, Audio Editor, Image Editor, Streaming, Notes, Voice
 -->
 <script lang="ts">
-	import { Stack } from "$lib/design/components/stack/index.js";
-	import { HStack } from "$lib/design/components/hstack/index.js";
-	import { Text } from "$lib/design/components/text/index.js";
-	import { Badge } from "$lib/design/components/badge/index.js";
-	import { Widget } from "$lib/design/blocks/widgets/index.js";
-	import {
-		Camera,
-		Video,
-		AudioLines,
-		ImagePlus,
-		Radio,
-		StickyNote,
-		Mic,
-		HardDrive,
-	} from "lucide-svelte";
+import {
+	AudioLines,
+	Camera,
+	HardDrive,
+	ImagePlus,
+	Mic,
+	Radio,
+	StickyNote,
+	Video,
+} from "lucide-svelte";
+import { Widget } from "$lib/design/blocks/widgets/index.js";
+import { Badge } from "$lib/design/components/badge/index.js";
+import { HStack } from "$lib/design/components/hstack/index.js";
+import { Stack } from "$lib/design/components/stack/index.js";
+import { Text } from "$lib/design/components/text/index.js";
 </script>
 
 <div class="grid grid-cols-12 gap-4" data-page="wiredfront-dashboard">

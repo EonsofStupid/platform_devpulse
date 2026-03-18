@@ -19,14 +19,14 @@
     </Widget>
 -->
 <script lang="ts">
-import type { WidgetProps } from "./types.js";
+import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import WidgetHeader from "./WidgetHeader.svelte";
-import WidgetTabs from "./WidgetTabs.svelte";
+import type { WidgetProps } from "./types.js";
 import WidgetContent from "./WidgetContent.svelte";
 import WidgetFooter from "./WidgetFooter.svelte";
+import WidgetHeader from "./WidgetHeader.svelte";
+import WidgetTabs from "./WidgetTabs.svelte";
 
 let {
 	title,
@@ -54,13 +54,20 @@ let {
 }: WidgetProps = $props();
 
 // ColdLight 8-axis resolution — visual treatment for root
-const visual = useColdLight(
-	() => ({
-		preset: preset ?? "widget-stat",
-		surface, material, depth, bevel, glow, frame, motion, transition,
-		encoding, radius, size,
-	}),
-);
+const visual = useColdLight(() => ({
+	preset: preset ?? "widget-stat",
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+}));
 
 // Recipe — structural slot classes only
 const widgetRecipe = $derived(getRecipe(recipeId));
@@ -79,9 +86,7 @@ const slots = $derived(
 	}) ?? {},
 );
 
-const rootClasses = $derived(
-	cn(slots.root, visual.segments, visual.radius, className),
-);
+const rootClasses = $derived(cn(slots.root, visual.segments, visual.radius, className));
 </script>
 
 <div

@@ -32,19 +32,17 @@ export const CategoryValueSchema = z.object({
 });
 
 export const CategoryDefinitionSchema = z.object({
-	code: z.string().min(1).max(2).regex(/^[a-z]{1,2}$/),
+	code: z
+		.string()
+		.min(1)
+		.max(2)
+		.regex(/^[a-z]{1,2}$/),
 	name: z.string(),
 	description: z.string(),
 	values: z.array(CategoryValueSchema),
 	defaultIndex: z.number().int().nonnegative().default(0),
 	encodingOrder: z.number().int(),
-	vpbControl: z.enum([
-		"slider",
-		"select",
-		"toggle",
-		"color-picker",
-		"curve-editor",
-	]),
+	vpbControl: z.enum(["slider", "select", "toggle", "color-picker", "curve-editor"]),
 });
 
 export type CategoryValue = z.infer<typeof CategoryValueSchema>;
@@ -80,19 +78,17 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				label: "Glass Void",
 				tokenRefs: {
 					background: "var(--glass-void)",
-					"backdrop-filter":
-						"blur(var(--blur-lg)) saturate(1.5)",
+					"backdrop-filter": "blur(var(--blur-lg)) saturate(1.5)",
 					border: "1px solid oklch(from var(--color-teal-700) l c h / 0.22)",
 				},
-				},
+			},
 			{
 				index: 2,
 				id: "glass-deep",
 				label: "Glass Deep",
 				tokenRefs: {
 					background: "var(--glass-deep)",
-					"backdrop-filter":
-						"blur(var(--blur-lg)) saturate(1.3)",
+					"backdrop-filter": "blur(var(--blur-lg)) saturate(1.3)",
 					border: "1px solid oklch(from var(--color-teal-600) l c h / 0.18)",
 				},
 			},
@@ -102,8 +98,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				label: "Glass Smoke",
 				tokenRefs: {
 					background: "var(--glass-smoke)",
-					"backdrop-filter":
-						"blur(var(--blur-xl)) saturate(1.2)",
+					"backdrop-filter": "blur(var(--blur-xl)) saturate(1.2)",
 				},
 			},
 			{
@@ -112,8 +107,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				label: "Glass Frost",
 				tokenRefs: {
 					background: "var(--glass-frost)",
-					"backdrop-filter":
-						"blur(var(--blur-2xl)) saturate(1.1)",
+					"backdrop-filter": "blur(var(--blur-2xl)) saturate(1.1)",
 					border: "1px solid oklch(1 0 0 / 0.12)",
 				},
 			},
@@ -138,8 +132,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "void-gradient",
 				label: "Void Gradient",
 				tokenRefs: {
-					background:
-						"linear-gradient(135deg, oklch(0.06 0.01 195 / 0.95), var(--glass-void))",
+					background: "linear-gradient(135deg, oklch(0.06 0.01 195 / 0.95), var(--glass-void))",
 				},
 			},
 			{
@@ -148,8 +141,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				label: "Glass Teal",
 				tokenRefs: {
 					background: "var(--glass-teal)",
-					"backdrop-filter":
-						"blur(var(--blur-lg)) saturate(1.4)",
+					"backdrop-filter": "blur(var(--blur-lg)) saturate(1.4)",
 					border: "1px solid oklch(from var(--color-teal-500) l c h / 0.35)",
 				},
 			},
@@ -159,8 +151,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				label: "Glass Purple",
 				tokenRefs: {
 					background: "var(--glass-purple)",
-					"backdrop-filter":
-						"blur(var(--blur-lg)) saturate(1.3)",
+					"backdrop-filter": "blur(var(--blur-lg)) saturate(1.3)",
 					border: "1px solid oklch(from var(--color-purple-500) l c h / 0.30)",
 				},
 			},
@@ -244,8 +235,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "metal-brushed",
 				label: "Metal — Brushed",
 				tokenRefs: {
-					background:
-						"repeating-linear-gradient(90deg, oklch(1 0 0 / 0.02) 0px, transparent 2px)",
+					background: "repeating-linear-gradient(90deg, oklch(1 0 0 / 0.02) 0px, transparent 2px)",
 					filter: "contrast(1.1)",
 				},
 				svgFilters: ["noise-subtle"],
@@ -279,8 +269,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 	{
 		code: "d",
 		name: "Depth",
-		description:
-			"Z-elevation via drop shadows. Layered shadow compositions.",
+		description: "Z-elevation via drop shadows. Layered shadow compositions.",
 		encodingOrder: 2,
 		defaultIndex: 0,
 		vpbControl: "slider",
@@ -322,8 +311,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 	{
 		code: "b",
 		name: "Bevel",
-		description:
-			"Neuromorphic edge treatment. Inset shadows + SVG specular lighting + noise.",
+		description: "Neuromorphic edge treatment. Inset shadows + SVG specular lighting + noise.",
 		encodingOrder: 3,
 		defaultIndex: 0,
 		vpbControl: "slider",
@@ -371,8 +359,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 	{
 		code: "g",
 		name: "Glow",
-		description:
-			"Emission halo. Color + intensity + spread via box-shadow.",
+		description: "Emission halo. Color + intensity + spread via box-shadow.",
 		encodingOrder: 4,
 		defaultIndex: 0,
 		vpbControl: "select",
@@ -433,8 +420,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 	{
 		code: "f",
 		name: "Frame",
-		description:
-			"Border treatment: mode, width scaling, corner radius, border glow.",
+		description: "Border treatment: mode, width scaling, corner radius, border glow.",
 		encodingOrder: 5,
 		defaultIndex: 0,
 		vpbControl: "select",
@@ -490,8 +476,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				tokenRefs: {
 					border: "1px solid oklch(0.64 0.16 180 / 0.65)",
 					"border-radius": "var(--radius-md)",
-					"--shadow-frame":
-						"0 0 20px oklch(0.55 0.18 180 / 0.40)",
+					"--shadow-frame": "0 0 20px oklch(0.55 0.18 180 / 0.40)",
 				},
 			},
 			{
@@ -501,8 +486,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				tokenRefs: {
 					border: "1px solid oklch(0.64 0.16 280 / 0.65)",
 					"border-radius": "var(--radius-md)",
-					"--shadow-frame":
-						"0 0 20px oklch(0.55 0.18 280 / 0.40)",
+					"--shadow-frame": "0 0 20px oklch(0.55 0.18 280 / 0.40)",
 				},
 			},
 		],
@@ -609,8 +593,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "snap",
 				label: "Snap (50ms)",
 				tokenRefs: {
-					transition:
-						"all var(--motion-duration-snap) var(--motion-ease-out)",
+					transition: "all var(--motion-duration-snap) var(--motion-ease-out)",
 				},
 			},
 			{
@@ -618,8 +601,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "fast",
 				label: "Fast (150ms)",
 				tokenRefs: {
-					transition:
-						"all var(--motion-duration-fast) var(--motion-ease-out)",
+					transition: "all var(--motion-duration-fast) var(--motion-ease-out)",
 				},
 			},
 			{
@@ -627,8 +609,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "normal",
 				label: "Normal (250ms)",
 				tokenRefs: {
-					transition:
-						"all var(--motion-duration-normal) var(--motion-ease-in-out)",
+					transition: "all var(--motion-duration-normal) var(--motion-ease-in-out)",
 				},
 			},
 			{
@@ -636,8 +617,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "smooth",
 				label: "Smooth (400ms)",
 				tokenRefs: {
-					transition:
-						"all var(--motion-duration-smooth) var(--motion-ease-in-out)",
+					transition: "all var(--motion-duration-smooth) var(--motion-ease-in-out)",
 				},
 			},
 			{
@@ -645,8 +625,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "spring",
 				label: "Spring",
 				tokenRefs: {
-					transition:
-						"all var(--motion-duration-normal) var(--motion-ease-spring)",
+					transition: "all var(--motion-duration-normal) var(--motion-ease-spring)",
 				},
 			},
 			{
@@ -654,8 +633,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "bounce",
 				label: "Bounce",
 				tokenRefs: {
-					transition:
-						"all var(--motion-duration-smooth) var(--motion-ease-bounce)",
+					transition: "all var(--motion-duration-smooth) var(--motion-ease-bounce)",
 				},
 			},
 			// ─ Scoped transitions (per-property) ─
@@ -664,8 +642,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "opacity-fast",
 				label: "Opacity Fast",
 				tokenRefs: {
-					transition:
-						"opacity var(--motion-duration-fast) var(--motion-ease-out)",
+					transition: "opacity var(--motion-duration-fast) var(--motion-ease-out)",
 				},
 			},
 			{
@@ -673,8 +650,7 @@ export const TOKEN_CATEGORY_REGISTRY: CategoryDefinition[] = [
 				id: "transform-spring",
 				label: "Transform Spring",
 				tokenRefs: {
-					transition:
-						"transform var(--motion-duration-normal) var(--motion-ease-spring)",
+					transition: "transform var(--motion-duration-normal) var(--motion-ease-spring)",
 				},
 			},
 			{
@@ -709,15 +685,16 @@ export const ENCODING_ORDER = TOKEN_CATEGORY_REGISTRY.sort(
 export function categoryValueSchema(code: string) {
 	const cat = CODE_MAP[code];
 	if (!cat) throw new Error(`Unknown category code: ${code}`);
-	return z.number().int().min(0).max(cat.values.length - 1);
+	return z
+		.number()
+		.int()
+		.min(0)
+		.max(cat.values.length - 1);
 }
 
 export const EncodingStringSchema = z
 	.string()
-	.regex(
-		/^v-(?:[a-z]{1,2}\d+)+$/,
-		"Must be v- followed by one or more {code}{number} pairs",
-	)
+	.regex(/^v-(?:[a-z]{1,2}\d+)+$/, "Must be v- followed by one or more {code}{number} pairs")
 	.refine((val) => {
 		const pairs = val.slice(2).match(/[a-z]{1,2}\d+/g) ?? [];
 		return pairs.every((pair) => {
@@ -776,16 +753,7 @@ export interface EncodingIndices {
 }
 
 // Runtime sync assertion: EncodingIndices fields must match registry codes.
-const _encodingFields: (keyof EncodingIndices)[] = [
-	"s",
-	"z",
-	"d",
-	"b",
-	"g",
-	"f",
-	"m",
-	"t",
-];
+const _encodingFields: (keyof EncodingIndices)[] = ["s", "z", "d", "b", "g", "f", "m", "t"];
 const _registryCodes = TOKEN_CATEGORY_REGISTRY.map((c) => c.code);
 if (
 	_encodingFields.length !== _registryCodes.length ||
@@ -810,9 +778,10 @@ if (
 
 /** Extract value IDs from a category as a z.enum-compatible tuple. */
 export const categoryIds = (code: string) =>
-	TOKEN_CATEGORY_REGISTRY.find((c) => c.code === code)!.values.map(
-		(v) => v.id,
-	) as [string, ...string[]];
+	TOKEN_CATEGORY_REGISTRY.find((c) => c.code === code)?.values.map((v) => v.id) as [
+		string,
+		...string[],
+	];
 
 // ───────────────────────────────────────────────────────────────
 // ID SCHEMA MAP — DERIVED from registry. One map, all categories.
@@ -828,14 +797,14 @@ export const IdSchemaMap = Object.fromEntries(
 
 // Named aliases — stable exports for type consumers.
 // Each is derived from IdSchemaMap, which derives from registry.
-export const SurfaceIdSchema = IdSchemaMap["s"];
-export const MaterialIdSchema = IdSchemaMap["z"];
-export const DepthIdSchema = IdSchemaMap["d"];
-export const BevelIdSchema = IdSchemaMap["b"];
-export const GlowIdSchema = IdSchemaMap["g"];
-export const FrameIdSchema = IdSchemaMap["f"];
-export const MotionIdSchema = IdSchemaMap["m"];
-export const TransitionIdSchema = IdSchemaMap["t"];
+export const SurfaceIdSchema = IdSchemaMap.s;
+export const MaterialIdSchema = IdSchemaMap.z;
+export const DepthIdSchema = IdSchemaMap.d;
+export const BevelIdSchema = IdSchemaMap.b;
+export const GlowIdSchema = IdSchemaMap.g;
+export const FrameIdSchema = IdSchemaMap.f;
+export const MotionIdSchema = IdSchemaMap.m;
+export const TransitionIdSchema = IdSchemaMap.t;
 
 export type SurfaceId = z.infer<typeof SurfaceIdSchema>;
 export type MaterialId = z.infer<typeof MaterialIdSchema>;

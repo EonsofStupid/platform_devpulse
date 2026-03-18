@@ -20,6 +20,9 @@ export interface UseSelectReturn {
 	readonly valueDisplay: Record<string, unknown>;
 	readonly listbox: Record<string, unknown>;
 	readonly label: Record<string, unknown>;
-	getOption(optionValue: string, options?: { disabled?: boolean; label?: string }): Record<string, unknown>;
+	getOption(
+		optionValue: string,
+		options?: { disabled?: boolean; label?: string },
+	): Record<string, unknown>;
 	attachListbox: (node: HTMLElement) => { destroy(): void };
 }

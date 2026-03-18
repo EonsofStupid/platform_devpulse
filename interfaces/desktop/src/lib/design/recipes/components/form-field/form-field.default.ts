@@ -48,25 +48,11 @@ registerRecipe({
 		const s = SIZE_SCALE[props.size];
 
 		return {
-			root: cn(
-				"flex flex-col",
-				s.root,
-			),
-			label: cn(
-				"font-medium text-text-secondary",
-				s.label,
-			),
-			input: cn(
-				"w-full",
-			),
-			description: cn(
-				"text-text-muted",
-				s.description,
-			),
-			error: cn(
-				"text-ember font-medium",
-				s.error,
-			),
+			root: cn("flex flex-col", s.root),
+			label: cn("font-medium text-text-secondary", s.label),
+			input: cn("w-full"),
+			description: cn("text-text-muted", s.description),
+			error: cn("text-ember font-medium", s.error),
 		};
 	},
 });

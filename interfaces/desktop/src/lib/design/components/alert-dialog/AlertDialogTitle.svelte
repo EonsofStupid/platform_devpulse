@@ -8,14 +8,14 @@
 	ColdLight-owned ARIA.
 -->
 <script lang="ts">
-	import type { AlertDialogTitleProps } from "./types.js";
-	import { getAlertDialogContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { alertDialogRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getAlertDialogContext } from "./context.js";
+import { alertDialogRecipe } from "./recipe.js";
+import type { AlertDialogTitleProps } from "./types.js";
 
-	let { children, class: className, ...rest }: AlertDialogTitleProps = $props();
-	const ctx = getAlertDialogContext();
-	const recipe = alertDialogRecipe();
+let { children, class: className, ...rest }: AlertDialogTitleProps = $props();
+const ctx = getAlertDialogContext();
+const recipe = alertDialogRecipe();
 </script>
 
 <h2

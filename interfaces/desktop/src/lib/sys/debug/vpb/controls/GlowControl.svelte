@@ -3,21 +3,21 @@
 	@layer vpb
 -->
 <script lang="ts">
-	import { categoryIds } from "$lib/design/registry/token-categories.js";
+import { categoryIds } from "$lib/design/registry/token-categories.js";
 
-	const GlowTokens = categoryIds("g");
+const GlowTokens = categoryIds("g");
 
-	let { value, onchange }: { value: string; onchange: (v: string) => void } = $props();
+let { value, onchange }: { value: string; onchange: (v: string) => void } = $props();
 
-	const GLOW_COLORS: Record<string, string> = {
-		off: "var(--color-neutral-700)",
-		teal: "var(--color-teal-600)",
-		purple: "var(--color-purple-600)",
-		magenta: "var(--color-magenta-500)",
-		ember: "var(--color-ember-400)",
-		frost: "var(--color-frost-400)",
-		cyber: "var(--accent-cyber-main)",
-	};
+const GLOW_COLORS: Record<string, string> = {
+	off: "var(--color-neutral-700)",
+	teal: "var(--color-teal-600)",
+	purple: "var(--color-purple-600)",
+	magenta: "var(--color-magenta-500)",
+	ember: "var(--color-ember-400)",
+	frost: "var(--color-frost-400)",
+	cyber: "var(--accent-cyber-main)",
+};
 </script>
 
 <div class="vpb-ctrl">

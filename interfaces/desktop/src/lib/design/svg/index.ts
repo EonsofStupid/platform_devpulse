@@ -7,43 +7,41 @@
  * Premium tier neumorphic effects — feSpecularLighting, feTurbulence, shape-aware glow.
  */
 
-// Types
-export type {
-	FilterDef,
-	FilterStep,
-	FilterStepChild,
-	FilterParam,
-	SvgFilterCategory,
-	SvgFilterPrimitive,
-	BlankShape,
-	ShapeOutput,
-	ShapeGenerator,
-	SurfaceSpec,
-	ManifestSvgFilter,
-	ManifestSvgBlank,
-} from "./_schema/types.js";
-
-// Filter registry
-export {
-	registerFilter,
-	getFilter,
-	getAllFilters,
-	getFiltersForCategory,
-	getFilterCount,
-	getAllFiltersForManifest,
-	_clearFilterRegistry,
-} from "./filters/registry.js";
-
-// Shape generators
-export { getShape, rect, pill, circle, hexagon } from "./blanks/shapes/index.js";
-
 // Schemas
 export {
-	FilterDefSchema,
-	FilterStepSchema,
-	FilterParamSchema,
 	BlankShapeSchema,
-	SurfaceSpecSchema,
-	ManifestSvgFilterSchema,
+	FilterDefSchema,
+	FilterParamSchema,
+	FilterStepSchema,
 	ManifestSvgBlankSchema,
+	ManifestSvgFilterSchema,
+	SurfaceSpecSchema,
 } from "./_schema/schema.js";
+// Types
+export type {
+	BlankShape,
+	FilterDef,
+	FilterParam,
+	FilterStep,
+	FilterStepChild,
+	ManifestSvgBlank,
+	ManifestSvgFilter,
+	ShapeGenerator,
+	ShapeOutput,
+	SurfaceSpec,
+	SvgFilterCategory,
+	SvgFilterPrimitive,
+} from "./_schema/types.js";
+
+// Shape generators
+export { circle, getShape, hexagon, pill, rect } from "./blanks/shapes/index.js";
+// Filter registry
+export {
+	_clearFilterRegistry,
+	getAllFilters,
+	getAllFiltersForManifest,
+	getFilter,
+	getFilterCount,
+	getFiltersForCategory,
+	registerFilter,
+} from "./filters/registry.js";

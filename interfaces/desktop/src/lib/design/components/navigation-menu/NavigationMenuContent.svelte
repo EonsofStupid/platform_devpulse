@@ -9,20 +9,15 @@
 	Handles Escape to close.
 -->
 <script lang="ts">
-	import type { NavigationMenuContentProps } from "./types.js";
-	import { getNavigationMenuItemContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { navigationMenuRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getNavigationMenuItemContext } from "./context.js";
+import { navigationMenuRecipe } from "./recipe.js";
+import type { NavigationMenuContentProps } from "./types.js";
 
-	let {
-		children,
-		size = "md",
-		class: className,
-		...rest
-	}: NavigationMenuContentProps = $props();
+let { children, size = "md", class: className, ...rest }: NavigationMenuContentProps = $props();
 
-	const ctx = getNavigationMenuItemContext();
-	const recipe = $derived(navigationMenuRecipe({ size }));
+const ctx = getNavigationMenuItemContext();
+const recipe = $derived(navigationMenuRecipe({ size }));
 </script>
 
 {#if ctx.open}

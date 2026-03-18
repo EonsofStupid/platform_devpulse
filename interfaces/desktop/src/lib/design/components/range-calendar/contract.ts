@@ -68,9 +68,7 @@ export const contract = {
 			element: "div",
 			aria: {
 				required: [],
-				optional: [
-					{ attr: "aria-live", valueType: "aria-live" },
-				],
+				optional: [{ attr: "aria-live", valueType: "aria-live" }],
 			},
 			data: {
 				kind: "range-calendar",
@@ -111,7 +109,15 @@ export const contract = {
 			data: {
 				kind: "range-calendar",
 				slot: "cell",
-				states: ["range-start", "range-end", "in-range", "selected", "today", "disabled", "outside-month"],
+				states: [
+					"range-start",
+					"range-end",
+					"in-range",
+					"selected",
+					"today",
+					"disabled",
+					"outside-month",
+				],
 			},
 			keyboard: [
 				{ key: "ArrowUp", action: "prev-week", description: "Move to same day previous week" },

@@ -8,13 +8,13 @@
 	ARIA: role="separator".
 -->
 <script lang="ts">
-	import type { MenubarSeparatorProps } from "./types.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { menubarRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { menubarRecipe } from "./recipe.js";
+import type { MenubarSeparatorProps } from "./types.js";
 
-	let { class: className, ...rest }: MenubarSeparatorProps = $props();
+let { class: className, ...rest }: MenubarSeparatorProps = $props();
 
-	const recipe = menubarRecipe();
+const recipe = menubarRecipe();
 </script>
 
 <div

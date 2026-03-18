@@ -13,7 +13,7 @@ import { cn } from "$lib/design/utils/cn.js";
 
 type NavigationMenuRecipeProps = { size?: string };
 
-export function navigationMenuRecipe(props: NavigationMenuRecipeProps = {}) {
+export function navigationMenuRecipe(_props: NavigationMenuRecipeProps = {}) {
 	return {
 		root: cn("navmenu-root"),
 		list: cn("navmenu-list"),

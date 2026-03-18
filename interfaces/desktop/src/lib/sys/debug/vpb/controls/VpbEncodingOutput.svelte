@@ -9,24 +9,26 @@
 	- Copy-to-clipboard for each
 -->
 <script lang="ts">
-	import type { ResolvedVisual } from "$lib/design/registry/resolve-visual.js";
+import type { ResolvedVisual } from "$lib/design/registry/resolve-visual.js";
 
-	let {
-		resolved,
-	}: {
-		resolved: ResolvedVisual;
-	} = $props();
+let {
+	resolved,
+}: {
+	resolved: ResolvedVisual;
+} = $props();
 
-	let copied = $state<string | null>(null);
+let copied = $state<string | null>(null);
 
-	function copyToClipboard(text: string, label: string) {
-		navigator.clipboard.writeText(text).then(() => {
-			copied = label;
-			setTimeout(() => { copied = null; }, 1200);
-		});
-	}
+function copyToClipboard(text: string, label: string) {
+	navigator.clipboard.writeText(text).then(() => {
+		copied = label;
+		setTimeout(() => {
+			copied = null;
+		}, 1200);
+	});
+}
 
-	const cssEntries = $derived(Object.entries(resolved.cssProperties));
+const cssEntries = $derived(Object.entries(resolved.cssProperties));
 </script>
 
 <div class="vpb-output">

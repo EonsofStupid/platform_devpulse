@@ -10,17 +10,13 @@
 	ARIA attributes are provided by the MeltUI transport (aria-describedby, etc).
 -->
 <script lang="ts">
-	import type { TooltipTriggerProps } from "./types.js";
-	import { getTooltipContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getTooltipContext } from "./context.js";
+import type { TooltipTriggerProps } from "./types.js";
 
-	let {
-		children,
-		class: className,
-		...rest
-	}: TooltipTriggerProps = $props();
+let { children, class: className, ...rest }: TooltipTriggerProps = $props();
 
-	const transport = getTooltipContext();
+const transport = getTooltipContext();
 </script>
 
 <span

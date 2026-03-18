@@ -8,47 +8,56 @@
 	ColdLight-owned — renders aria-valuemin, aria-valuemax, aria-valuenow directly.
 -->
 <script lang="ts">
-	import type { DateRangeFieldSegmentProps } from "./types.js";
-	import { getDateRangeFieldContext } from "./context.js";
-	import { dateRangeFieldRecipe } from "./recipe.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getDateRangeFieldContext } from "./context.js";
+import { dateRangeFieldRecipe } from "./recipe.js";
+import type { DateRangeFieldSegmentProps } from "./types.js";
 
-	let { segment, index, field, children, class: className, ...rest }: DateRangeFieldSegmentProps = $props();
-	const ctx = getDateRangeFieldContext();
-	const recipe = $derived(dateRangeFieldRecipe({ size: ctx.size }));
+let {
+	segment,
+	index,
+	field,
+	children,
+	class: className,
+	...rest
+}: DateRangeFieldSegmentProps = $props();
+const ctx = getDateRangeFieldContext();
+const recipe = $derived(dateRangeFieldRecipe({ size: ctx.size }));
 
-	const isLiteral = $derived(segment.type === "literal");
-	const isFocused = $derived(ctx.focusedField === field && ctx.focusedIndex === index);
-	const displayValue = $derived(segment.numericValue !== undefined ? segment.value : segment.placeholder);
+const isLiteral = $derived(segment.type === "literal");
+const isFocused = $derived(ctx.focusedField === field && ctx.focusedIndex === index);
+const displayValue = $derived(
+	segment.numericValue !== undefined ? segment.value : segment.placeholder,
+);
 
-	function handleKeydown(e: KeyboardEvent) {
-		if (ctx.disabled || ctx.readonly || isLiteral) return;
+function handleKeydown(e: KeyboardEvent) {
+	if (ctx.disabled || ctx.readonly || isLiteral) return;
 
-		switch (e.key) {
-			case "ArrowUp":
+	switch (e.key) {
+		case "ArrowUp":
+			e.preventDefault();
+			ctx.incrementSegment(field, index);
+			break;
+		case "ArrowDown":
+			e.preventDefault();
+			ctx.decrementSegment(field, index);
+			break;
+		case "ArrowLeft":
+			e.preventDefault();
+			ctx.focusPrevSegment();
+			break;
+		case "ArrowRight":
+			e.preventDefault();
+			ctx.focusNextSegment();
+			break;
+		default:
+			if (/^\d$/.test(e.key)) {
 				e.preventDefault();
-				ctx.incrementSegment(field, index);
-				break;
-			case "ArrowDown":
-				e.preventDefault();
-				ctx.decrementSegment(field, index);
-				break;
-			case "ArrowLeft":
-				e.preventDefault();
-				ctx.focusPrevSegment();
-				break;
-			case "ArrowRight":
-				e.preventDefault();
-				ctx.focusNextSegment();
-				break;
-			default:
-				if (/^\d$/.test(e.key)) {
-					e.preventDefault();
-					ctx.setSegmentValue(field, index, parseInt(e.key, 10));
-				}
-				break;
-		}
+				ctx.setSegmentValue(field, index, parseInt(e.key, 10));
+			}
+			break;
 	}
+}
 </script>
 
 {#if isLiteral}

@@ -15,18 +15,18 @@
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
 -->
 <script lang="ts">
-	import type { ComboboxTriggerProps } from "./types.js";
-	import { getComboboxContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getComboboxContext } from "./context.js";
+import type { ComboboxTriggerProps } from "./types.js";
 
-	let {
-		children,
-		class: className,
-		"aria-label": ariaLabel = "Toggle options",
-	}: ComboboxTriggerProps = $props();
+let {
+	children,
+	class: className,
+	"aria-label": ariaLabel = "Toggle options",
+}: ComboboxTriggerProps = $props();
 
-	const ctx = getComboboxContext();
-	const { recipe } = ctx;
+const ctx = getComboboxContext();
+const { recipe } = ctx;
 </script>
 
 <button

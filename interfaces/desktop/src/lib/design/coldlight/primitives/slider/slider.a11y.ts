@@ -5,7 +5,13 @@ import type { A11ySpec } from "../../schema/a11y.schema.js";
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/slider/
  */
 export const sliderA11y: A11ySpec = {
-	roles: { root: undefined, track: undefined, thumb: "slider", label: undefined, output: undefined },
+	roles: {
+		root: undefined,
+		track: undefined,
+		thumb: "slider",
+		label: undefined,
+		output: undefined,
+	},
 	requiredAttrs: {
 		thumb: ["aria-valuenow", "aria-valuemin", "aria-valuemax", "aria-orientation"],
 	},

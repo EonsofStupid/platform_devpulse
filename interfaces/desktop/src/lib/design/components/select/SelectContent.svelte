@@ -8,15 +8,15 @@
 	MeltUI transport provides role="listbox", ARIA attributes.
 -->
 <script lang="ts">
-	import type { SelectContentProps } from "./types.js";
-	import { getSelectContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { selectRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getSelectContext } from "./context.js";
+import { selectRecipe } from "./recipe.js";
+import type { SelectContentProps } from "./types.js";
 
-	let { children, class: className, ...rest }: SelectContentProps = $props();
+let { children, class: className, ...rest }: SelectContentProps = $props();
 
-	const transport = getSelectContext();
-	const recipe = selectRecipe();
+const transport = getSelectContext();
+const recipe = selectRecipe();
 </script>
 
 {#if transport.states.open}

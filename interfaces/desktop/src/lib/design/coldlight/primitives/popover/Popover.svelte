@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { PopoverPrimitiveProps } from "./popover.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { PopoverPrimitiveProps } from "./popover.props.js";
 
-	let { children, class: className, ...rest }: PopoverPrimitiveProps = $props();
+let { children, class: className, ...rest }: PopoverPrimitiveProps = $props();
 </script>
 
 <div

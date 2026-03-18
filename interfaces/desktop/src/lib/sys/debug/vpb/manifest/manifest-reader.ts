@@ -12,10 +12,10 @@
  */
 
 import type {
-	ManifestPrimitive,
 	ManifestComponent,
-	ManifestRecipe,
 	ManifestEffect,
+	ManifestPrimitive,
+	ManifestRecipe,
 	ManifestSvgFilter,
 } from "$lib/design/scanner.types.js";
 
@@ -137,10 +137,7 @@ export function getComponentFromManifest(
 /**
  * Get all recipes for a given kind from the manifest.
  */
-export function getRecipesFromManifest(
-	manifest: UnifiedManifest,
-	kind: string,
-): ManifestRecipe[] {
+export function getRecipesFromManifest(manifest: UnifiedManifest, kind: string): ManifestRecipe[] {
 	return manifest.recipes.entries.filter((r) => r.kind === kind);
 }
 

@@ -7,7 +7,8 @@
  * Circuit board background gives the cyberpunk reference aesthetic.
  */
 
-html, body {
+html,
+body {
 	margin: 0;
 	padding: 0;
 	background: var(--color-void-base);
@@ -23,15 +24,14 @@ html, body {
 
 [data-layout="app"] {
 	background:
-		radial-gradient(
-			ellipse 60% 50% at 50% 40%,
-			var(--backdrop-glow-teal) 0%,
-			transparent 70%
-		),
+		radial-gradient(ellipse 60% 50% at 50% 40%, var(--backdrop-glow-teal) 0%, transparent 70%),
 		linear-gradient(var(--backdrop-grid-teal) 1px, transparent 1px),
-		linear-gradient(90deg, var(--backdrop-grid-teal) 1px, transparent 1px),
-		var(--color-void-base);
-	background-size: 100% 100%, 40px 40px, 40px 40px, 100% 100%;
+		linear-gradient(90deg, var(--backdrop-grid-teal) 1px, transparent 1px), var(--color-void-base);
+	background-size:
+		100% 100%,
+		40px 40px,
+		40px 40px,
+		100% 100%;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -44,18 +44,24 @@ html, body {
 	background:
 		radial-gradient(ellipse 60% 50% at 50% 40%, var(--backdrop-glow-teal) 0%, transparent 70%),
 		linear-gradient(var(--backdrop-grid-teal) 1px, transparent 1px),
-		linear-gradient(90deg, var(--backdrop-grid-teal) 1px, transparent 1px),
-		var(--color-void-base);
-	background-size: 100% 100%, 40px 40px, 40px 40px, 100% 100%;
+		linear-gradient(90deg, var(--backdrop-grid-teal) 1px, transparent 1px), var(--color-void-base);
+	background-size:
+		100% 100%,
+		40px 40px,
+		40px 40px,
+		100% 100%;
 }
 
 [data-layout="app"][data-route="maestro"] {
 	background:
 		radial-gradient(ellipse 60% 50% at 50% 40%, var(--backdrop-glow-purple) 0%, transparent 70%),
 		linear-gradient(var(--backdrop-grid-purple) 1px, transparent 1px),
-		linear-gradient(90deg, var(--backdrop-grid-purple) 1px, transparent 1px),
-		var(--color-void-base);
-	background-size: 100% 100%, 36px 36px, 36px 36px, 100% 100%;
+		linear-gradient(90deg, var(--backdrop-grid-purple) 1px, transparent 1px), var(--color-void-base);
+	background-size:
+		100% 100%,
+		36px 36px,
+		36px 36px,
+		100% 100%;
 }
 
 [data-layout="app"][data-route="overmind"] {
@@ -64,25 +70,35 @@ html, body {
 		linear-gradient(var(--backdrop-grid-magenta) 1px, transparent 1px),
 		linear-gradient(90deg, var(--backdrop-grid-magenta) 1px, transparent 1px),
 		var(--color-void-base);
-	background-size: 100% 100%, 32px 32px, 32px 32px, 100% 100%;
+	background-size:
+		100% 100%,
+		32px 32px,
+		32px 32px,
+		100% 100%;
 }
 
 [data-layout="app"][data-route="devforge"] {
 	background:
 		radial-gradient(ellipse 60% 50% at 50% 40%, var(--backdrop-glow-ember) 0%, transparent 70%),
 		linear-gradient(var(--backdrop-grid-ember) 1px, transparent 1px),
-		linear-gradient(90deg, var(--backdrop-grid-ember) 1px, transparent 1px),
-		var(--color-void-base);
-	background-size: 100% 100%, 44px 44px, 44px 44px, 100% 100%;
+		linear-gradient(90deg, var(--backdrop-grid-ember) 1px, transparent 1px), var(--color-void-base);
+	background-size:
+		100% 100%,
+		44px 44px,
+		44px 44px,
+		100% 100%;
 }
 
 [data-layout="app"][data-route="wiredfront"] {
 	background:
 		radial-gradient(ellipse 60% 50% at 50% 40%, var(--backdrop-glow-cyber) 0%, transparent 70%),
 		linear-gradient(var(--backdrop-grid-cyber) 1px, transparent 1px),
-		linear-gradient(90deg, var(--backdrop-grid-cyber) 1px, transparent 1px),
-		var(--color-void-base);
-	background-size: 100% 100%, 38px 38px, 38px 38px, 100% 100%;
+		linear-gradient(90deg, var(--backdrop-grid-cyber) 1px, transparent 1px), var(--color-void-base);
+	background-size:
+		100% 100%,
+		38px 38px,
+		38px 38px,
+		100% 100%;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -90,8 +106,8 @@ html, body {
    ═══════════════════════════════════════════════════════ */
 
 [data-layout="chat"] {
+	/* Purple-teal radial glow */
 	background:
-		/* Purple-teal radial glow */
 		radial-gradient(
 			ellipse 80% 60% at 50% 30%,
 			var(--backdrop-glow-purple) 0%,
@@ -99,17 +115,13 @@ html, body {
 			transparent 80%
 		),
 		/* Tighter grid — neural network feel */
-		linear-gradient(
-			var(--backdrop-grid-purple) 1px,
-			transparent 1px
-		),
-		linear-gradient(
-			90deg,
-			var(--backdrop-grid-purple) 1px,
-			transparent 1px
-		),
-		var(--color-void-base);
-	background-size: 100% 100%, 28px 28px, 28px 28px, 100% 100%;
+		linear-gradient(var(--backdrop-grid-purple) 1px, transparent 1px),
+		linear-gradient(90deg, var(--backdrop-grid-purple) 1px, transparent 1px), var(--color-void-base);
+	background-size:
+		100% 100%,
+		28px 28px,
+		28px 28px,
+		100% 100%;
 }
 
 /* ═══════════════════════════════════════════════════════

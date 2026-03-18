@@ -9,21 +9,21 @@
 	ColdLight-owned ARIA.
 -->
 <script lang="ts">
-	import type { AlertDialogCancelProps } from "./types.js";
-	import { getAlertDialogContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { alertDialogRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getAlertDialogContext } from "./context.js";
+import { alertDialogRecipe } from "./recipe.js";
+import type { AlertDialogCancelProps } from "./types.js";
 
-	let { children, class: className, onclick, ...rest }: AlertDialogCancelProps = $props();
-	const ctx = getAlertDialogContext();
-	const recipe = alertDialogRecipe();
+let { children, class: className, onclick, ...rest }: AlertDialogCancelProps = $props();
+const ctx = getAlertDialogContext();
+const recipe = alertDialogRecipe();
 
-	function handleClick(e: MouseEvent & { currentTarget: HTMLButtonElement }): void {
-		if (typeof onclick === "function") {
-			onclick(e as MouseEvent & { currentTarget: EventTarget & HTMLButtonElement });
-		}
-		ctx.setOpen(false);
+function handleClick(e: MouseEvent & { currentTarget: HTMLButtonElement }): void {
+	if (typeof onclick === "function") {
+		onclick(e as MouseEvent & { currentTarget: EventTarget & HTMLButtonElement });
 	}
+	ctx.setOpen(false);
+}
 </script>
 
 <button

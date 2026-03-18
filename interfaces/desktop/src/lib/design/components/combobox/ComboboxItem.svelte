@@ -18,23 +18,23 @@
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
 -->
 <script lang="ts">
-	import type { ComboboxItemProps } from "./types.js";
-	import { getComboboxContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getComboboxContext } from "./context.js";
+import type { ComboboxItemProps } from "./types.js";
 
-	let {
-		value,
-		label,
-		disabled,
-		children,
-		class: className,
-		"aria-description": ariaDescription,
-	}: ComboboxItemProps = $props();
+let {
+	value,
+	label,
+	disabled,
+	children,
+	class: className,
+	"aria-description": ariaDescription,
+}: ComboboxItemProps = $props();
 
-	const ctx = getComboboxContext();
-	const { recipe } = ctx;
+const ctx = getComboboxContext();
+const { recipe } = ctx;
 
-	const isSelected = $derived(ctx.isSelected(value));
+const isSelected = $derived(ctx.isSelected(value));
 </script>
 
 <div

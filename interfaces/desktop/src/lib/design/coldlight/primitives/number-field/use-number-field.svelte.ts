@@ -7,9 +7,9 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/spinbutton/
  */
 
-import { createIds } from "../../_internal/utils/uid.js";
 import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
 import { kbd } from "../../_internal/utils/kbd.js";
+import { createIds } from "../../_internal/utils/uid.js";
 import { numberFieldAnatomy } from "./number-field.anatomy.js";
 import type { UseNumberFieldProps, UseNumberFieldReturn } from "./number-field.types.js";
 
@@ -79,10 +79,21 @@ export function useNumberField(props: UseNumberFieldProps = {}): UseNumberFieldR
 		},
 		onkeydown: (e: KeyboardEvent) => {
 			if (disabled || readOnly) return;
-			if (e.key === kbd.ARROW_UP) { e.preventDefault(); doIncrement(); }
-			else if (e.key === kbd.ARROW_DOWN) { e.preventDefault(); doDecrement(); }
-			else if (e.key === kbd.HOME && min !== -Infinity) { e.preventDefault(); value = min; props.onValueChange?.(value); }
-			else if (e.key === kbd.END && max !== Infinity) { e.preventDefault(); value = max; props.onValueChange?.(value); }
+			if (e.key === kbd.ARROW_UP) {
+				e.preventDefault();
+				doIncrement();
+			} else if (e.key === kbd.ARROW_DOWN) {
+				e.preventDefault();
+				doDecrement();
+			} else if (e.key === kbd.HOME && min !== -Infinity) {
+				e.preventDefault();
+				value = min;
+				props.onValueChange?.(value);
+			} else if (e.key === kbd.END && max !== Infinity) {
+				e.preventDefault();
+				value = max;
+				props.onValueChange?.(value);
+			}
 		},
 	});
 
@@ -109,13 +120,27 @@ export function useNumberField(props: UseNumberFieldProps = {}): UseNumberFieldR
 	});
 
 	return {
-		get value() { return value; },
-		get canIncrement() { return canIncrement; },
-		get canDecrement() { return canDecrement; },
-		get root() { return root; },
-		get input() { return input; },
-		get increment() { return increment; },
-		get decrement() { return decrement; },
+		get value() {
+			return value;
+		},
+		get canIncrement() {
+			return canIncrement;
+		},
+		get canDecrement() {
+			return canDecrement;
+		},
+		get root() {
+			return root;
+		},
+		get input() {
+			return input;
+		},
+		get increment() {
+			return increment;
+		},
+		get decrement() {
+			return decrement;
+		},
 		incrementValue: doIncrement,
 		decrementValue: doDecrement,
 	};

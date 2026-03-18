@@ -12,10 +12,10 @@ import { NODE_VALIDATION_ERROR_CODES } from "./types.js";
 
 // Re-export base schemas
 export {
-	ComposedEffectSchema,
-	CompositorNodeSchema,
 	CompiledActionSchema,
 	CompilerOutputSchema,
+	ComposedEffectSchema,
+	CompositorNodeSchema,
 } from "../../effects/_schema/schema.js";
 
 // =============================================================================

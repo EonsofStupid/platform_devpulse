@@ -7,15 +7,15 @@
 	MeltUI transport provides all ARIA and keyboard handling via item(value).
 -->
 <script lang="ts">
-	import type { RadioGroupItemProps } from "./types.js";
-	import { getRadioGroupContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { radioGroupRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getRadioGroupContext } from "./context.js";
+import { radioGroupRecipe } from "./recipe.js";
+import type { RadioGroupItemProps } from "./types.js";
 
-	let { value, children, class: className, ...rest }: RadioGroupItemProps = $props();
+let { value, children, class: className, ...rest }: RadioGroupItemProps = $props();
 
-	const transport = getRadioGroupContext();
-	const recipe = radioGroupRecipe();
+const transport = getRadioGroupContext();
+const recipe = radioGroupRecipe();
 </script>
 
 <button

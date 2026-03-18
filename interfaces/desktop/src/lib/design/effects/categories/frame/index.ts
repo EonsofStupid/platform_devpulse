@@ -12,8 +12,8 @@
  * Conflict group: frame-hover (only one hover border effect per element)
  */
 
-import { registerEffect } from "../../registry.js";
 import type { EffectDefinition } from "../../_schema/types.js";
+import { registerEffect } from "../../registry.js";
 
 // =============================================================================
 // HOVER BORDER EFFECTS
@@ -64,8 +64,12 @@ const frameFocusGlow: EffectDefinition = {
 	label: "Focus Border Glow",
 	description: "Border gains teal glow on focus-visible. Combines border color + box-shadow.",
 	supportedTriggers: ["focus"],
-	classes: ["focus-visible:border-teal-400", "focus-visible:shadow-[0_0_0_2px_oklch(0.55_0.18_180_/_0.2)]"],
-	transition: "border-color var(--transition-duration-snap) var(--transition-timing-function-out), box-shadow var(--transition-duration-snap) var(--transition-timing-function-out)",
+	classes: [
+		"focus-visible:border-teal-400",
+		"focus-visible:shadow-[0_0_0_2px_oklch(0.55_0.18_180_/_0.2)]",
+	],
+	transition:
+		"border-color var(--transition-duration-snap) var(--transition-timing-function-out), box-shadow var(--transition-duration-snap) var(--transition-timing-function-out)",
 };
 
 // =============================================================================
@@ -79,7 +83,8 @@ const frameActiveInset: EffectDefinition = {
 	description: "Border becomes inset shadow on active. Neuromorphic pressed effect.",
 	supportedTriggers: ["active"],
 	classes: ["active:border-transparent", "active:shadow-[inset_0_1px_2px_oklch(0_0_0_/_0.15)]"],
-	transition: "border-color var(--transition-duration-snap) var(--transition-timing-function-out), box-shadow var(--transition-duration-snap) var(--transition-timing-function-out)",
+	transition:
+		"border-color var(--transition-duration-snap) var(--transition-timing-function-out), box-shadow var(--transition-duration-snap) var(--transition-timing-function-out)",
 };
 
 // =============================================================================

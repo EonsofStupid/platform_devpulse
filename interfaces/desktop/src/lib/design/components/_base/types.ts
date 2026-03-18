@@ -9,10 +9,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type {
-	ColdLightProps,
-	ResolvedVisual,
-} from "$lib/design/registry/resolve-visual.js";
+import type { ColdLightProps, ResolvedVisual } from "$lib/design/registry/resolve-visual.js";
 
 /**
  * Base props that EVERY prepared ColdLight component receives.

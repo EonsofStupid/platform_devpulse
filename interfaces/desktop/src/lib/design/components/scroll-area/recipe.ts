@@ -13,11 +13,11 @@
 type ScrollAreaRecipeProps = { size?: string };
 type ScrollbarRecipeProps = { size?: string; orientation?: string };
 
-export function scrollAreaRecipe(props: ScrollAreaRecipeProps = {}): string {
+export function scrollAreaRecipe(_props: ScrollAreaRecipeProps = {}): string {
 	return "scroll-area-root";
 }
 
-export function scrollAreaScrollbarRecipe(props: ScrollbarRecipeProps = {}): string {
+export function scrollAreaScrollbarRecipe(_props: ScrollbarRecipeProps = {}): string {
 	return "scroll-area-scrollbar";
 }
 

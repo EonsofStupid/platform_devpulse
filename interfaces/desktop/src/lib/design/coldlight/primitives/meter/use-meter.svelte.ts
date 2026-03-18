@@ -36,7 +36,7 @@ export function useMeter(props: UseMeterProps = {}): UseMeterReturn {
 	function computeStatus(): MeterStatus {
 		const low = props.low ?? min;
 		const high = props.high ?? max;
-		const optimum = props.optimum ?? ((low + high) / 2);
+		const optimum = props.optimum ?? (low + high) / 2;
 
 		// Optimum is in the low region: low values are good
 		if (optimum <= low) {
@@ -78,7 +78,7 @@ export function useMeter(props: UseMeterProps = {}): UseMeterReturn {
 		"aria-valuemax": max,
 		"aria-valuetext": getValueText(),
 		"aria-label": props["aria-label"],
-		"aria-labelledby": props["aria-label"] ? undefined : props["aria-labelledby"] ?? ids.label,
+		"aria-labelledby": props["aria-label"] ? undefined : (props["aria-labelledby"] ?? ids.label),
 		"data-state": status,
 		"data-value": value,
 		"data-max": max,
@@ -104,13 +104,27 @@ export function useMeter(props: UseMeterProps = {}): UseMeterReturn {
 
 	// ── Public API ───────────────────────────────────────────────
 	return {
-		get value() { return value; },
-		get percent() { return percent; },
-		get status() { return status; },
-		get root() { return root; },
-		get track() { return track; },
-		get fill() { return fill; },
-		get label() { return label; },
+		get value() {
+			return value;
+		},
+		get percent() {
+			return percent;
+		},
+		get status() {
+			return status;
+		},
+		get root() {
+			return root;
+		},
+		get track() {
+			return track;
+		},
+		get fill() {
+			return fill;
+		},
+		get label() {
+			return label;
+		},
 		setValue: doSetValue,
 	};
 }

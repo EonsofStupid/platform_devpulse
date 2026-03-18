@@ -28,9 +28,9 @@ const desktopRoot = resolve(__dirname, "../../../../../");
 const jiti = createJiti(import.meta.url, { moduleCache: false });
 
 // ─── Load tokens pipeline config ─────────────────────────────────────────────
-const tokensMod = await jiti.import(
+const tokensMod = (await jiti.import(
 	resolve(desktopRoot, "src/lib/design/config/coldlight/tokens.cfg.ts"),
-) as { TOKENS: Record<string, unknown> };
+)) as { TOKENS: Record<string, unknown> };
 
 const tokensConfig = tokensMod.TOKENS as {
 	sdVersion: number;
@@ -45,7 +45,7 @@ const tokensConfig = tokensMod.TOKENS as {
 };
 
 // ─── Load Tier 1 SSOT (barrel file re-exports from organized sources) ────────
-const tokensMod2 = await jiti.import(resolve(desktopRoot, tokensConfig.sources.globals)) as {
+const tokensMod2 = (await jiti.import(resolve(desktopRoot, tokensConfig.sources.globals))) as {
 	hue: Record<string, string>;
 	color: Record<string, Record<string, string>>;
 	glass: Record<string, string>;
@@ -74,18 +74,18 @@ const tokensMod2 = await jiti.import(resolve(desktopRoot, tokensConfig.sources.g
 	transitionStyle: Record<string, Record<string, string>>;
 };
 
-const semMod = await jiti.import(resolve(desktopRoot, tokensConfig.sources.semantic)) as {
+const semMod = (await jiti.import(resolve(desktopRoot, tokensConfig.sources.semantic))) as {
 	semantic: Record<string, Record<string, string>>;
 };
 
-const compMod = await jiti.import(resolve(desktopRoot, tokensConfig.sources.components)) as {
+const compMod = (await jiti.import(resolve(desktopRoot, tokensConfig.sources.components))) as {
 	components: Record<string, Record<string, string>>;
 };
 
 // ─── Load SSOT Registry ──────────────────────────────────────────────────────
-const registryMod = await jiti.import(
+const registryMod = (await jiti.import(
 	resolve(desktopRoot, "src/lib/design/registry/token-categories.ts"),
-) as {
+)) as {
 	TOKEN_CATEGORY_REGISTRY: Array<{
 		code: string;
 		name: string;
@@ -151,30 +151,30 @@ const dtcg: Record<string, unknown> = {
 	$description: "ColdLight Design System — DTCG 1.0. AUTO-GENERATED.",
 
 	// ── Tier 1: Global tokens ─────────────────────────────────────────────────
-	hue:        toGroup(tokensMod2.hue,        "number"),
-	color:      toNestedGroup(tokensMod2.color, "color"),
-	glass:      toGroup(tokensMod2.glass,      "color"),
-	matte:      toGroup(tokensMod2.matte,      "color"),
-	text:       toGroup(tokensMod2.text,       "color"),
-	space:      toGroup(tokensMod2.space,      "dimension"),
-	radius:     toGroup(tokensMod2.radius,     "dimension"),
-	blur:       toGroup(tokensMod2.blur,       "dimension"),
-	glow:       toGroup(tokensMod2.glow,       "shadow"),
+	hue: toGroup(tokensMod2.hue, "number"),
+	color: toNestedGroup(tokensMod2.color, "color"),
+	glass: toGroup(tokensMod2.glass, "color"),
+	matte: toGroup(tokensMod2.matte, "color"),
+	text: toGroup(tokensMod2.text, "color"),
+	space: toGroup(tokensMod2.space, "dimension"),
+	radius: toGroup(tokensMod2.radius, "dimension"),
+	blur: toGroup(tokensMod2.blur, "dimension"),
+	glow: toGroup(tokensMod2.glow, "shadow"),
 	glowSpread: toGroup(tokensMod2.glowSpread, "dimension"),
-	shadow:     toGroup(tokensMod2.shadow,     "shadow"),
-	bevel:      toGroup(tokensMod2.bevel,      "shadow"),
-	z:          toGroup(tokensMod2.z,          "number"),
-	duration:   toGroup(tokensMod2.duration,   "duration"),
-	ease:       toGroup(tokensMod2.ease,       "cubicBezier"),
-	textSize:   toGroup(tokensMod2.textSize,   "dimension"),
-	padding:    toGroup(tokensMod2.padding,    "other"),
-	signal:     toGroup(tokensMod2.signal,     "color"),
-	font:       toGroup(tokensMod2.font,       "fontFamily"),
-	animation:  toGroup(tokensMod2.animation,  "other"),
+	shadow: toGroup(tokensMod2.shadow, "shadow"),
+	bevel: toGroup(tokensMod2.bevel, "shadow"),
+	z: toGroup(tokensMod2.z, "number"),
+	duration: toGroup(tokensMod2.duration, "duration"),
+	ease: toGroup(tokensMod2.ease, "cubicBezier"),
+	textSize: toGroup(tokensMod2.textSize, "dimension"),
+	padding: toGroup(tokensMod2.padding, "other"),
+	signal: toGroup(tokensMod2.signal, "color"),
+	font: toGroup(tokensMod2.font, "fontFamily"),
+	animation: toGroup(tokensMod2.animation, "other"),
 
 	// ── Tier 1: Composite tokens (SD5 auto-expands) ──────────────────────────
-	textStyle:       toCompositeGroup(tokensMod2.textStyle,       "typography"),
-	borderStyle:     toCompositeGroup(tokensMod2.borderStyle,     "border"),
+	textStyle: toCompositeGroup(tokensMod2.textStyle, "typography"),
+	borderStyle: toCompositeGroup(tokensMod2.borderStyle, "border"),
 	transitionStyle: toCompositeGroup(tokensMod2.transitionStyle, "transition"),
 
 	// ── Tier 2: Semantic — spread to root ─────────────────────────────────────
@@ -187,10 +187,7 @@ const dtcg: Record<string, unknown> = {
 
 	// ── Tier 3: Component — spread to root ────────────────────────────────────
 	...Object.fromEntries(
-		Object.entries(compMod.components).map(([kind, entries]) => [
-			kind,
-			toGroup(entries, "other"),
-		]),
+		Object.entries(compMod.components).map(([kind, entries]) => [kind, toGroup(entries, "other")]),
 	),
 };
 
@@ -202,9 +199,9 @@ const jitiEnums = tokensMod2.enums;
 const jitiKeyframesDef = tokensMod2.keyframesDef;
 
 // ─── Load Kind Definitions + Presets ─────────────────────────────────────────
-const kindDefMod = await jiti.import(
+const kindDefMod = (await jiti.import(
 	resolve(desktopRoot, "src/lib/design/registry/kind-definitions.ts"),
-) as {
+)) as {
 	getAllKindDefinitions: () => Array<{
 		kind: string;
 		label: string;
@@ -219,9 +216,9 @@ const kindDefMod = await jiti.import(
 	}>;
 };
 
-const presetsMod = await jiti.import(
+const presetsMod = (await jiti.import(
 	resolve(desktopRoot, "src/lib/design/registry/presets.ts"),
-) as {
+)) as {
 	getAllPresets: () => Array<{
 		id: string;
 		kind: string;
@@ -232,4 +229,13 @@ const presetsMod = await jiti.import(
 const jitiKindDefinitions = kindDefMod.getAllKindDefinitions();
 const jitiPresets = presetsMod.getAllPresets();
 
-export { dtcgPath, tokensConfig, jitiEnums, jitiRegistry, jitiKeyframesDef, jitiKindDefinitions, jitiPresets, desktopRoot };
+export {
+	dtcgPath,
+	tokensConfig,
+	jitiEnums,
+	jitiRegistry,
+	jitiKeyframesDef,
+	jitiKindDefinitions,
+	jitiPresets,
+	desktopRoot,
+};

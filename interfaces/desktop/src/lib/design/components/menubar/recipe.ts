@@ -13,7 +13,7 @@ import { cn } from "$lib/design/utils/cn.js";
 
 type MenubarRecipeProps = { size?: string };
 
-export function menubarRecipe(props: MenubarRecipeProps = {}) {
+export function menubarRecipe(_props: MenubarRecipeProps = {}) {
 	return {
 		root: cn("menubar-root", "rounded-md"),
 		trigger: cn("menubar-trigger"),

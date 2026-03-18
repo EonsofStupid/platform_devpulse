@@ -8,15 +8,16 @@
 	Spreads adapter description slot attrs ({ id }).
 -->
 <script lang="ts">
-	import type { DialogDescriptionProps } from "./types.js";
-	import { getDialogContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { getRecipe } from "$lib/design/recipes/index.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getRecipe } from "$lib/design/recipes/index.js";
+import { getDialogContext } from "./context.js";
+import type { DialogDescriptionProps } from "./types.js";
 
-	let { children, class: className, ...rest }: DialogDescriptionProps = $props();
-	const dialog = getDialogContext();
-	const recipe = getRecipe("dialog.glass.void");
-	const descriptionClass = recipe?.classes?.({} as any)?.description ?? "";
+let { children, class: className, ...rest }: DialogDescriptionProps = $props();
+const dialog = getDialogContext();
+const recipe = getRecipe("dialog.glass.void");
+// biome-ignore lint/suspicious/noExplicitAny: recipe classes accept any state
+const descriptionClass = recipe?.classes?.({} as any)?.description ?? "";
 </script>
 
 <p

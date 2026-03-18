@@ -5,158 +5,158 @@
 
 /* ── Inter (UI text) ─────────────────────────────────────────── */
 @font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 300;
-  font-display: swap;
-  src: url('/fonts/inter/web/Inter-Light.woff2') format('woff2');
+	font-family: "Inter";
+	font-style: normal;
+	font-weight: 300;
+	font-display: swap;
+	src: url("/fonts/inter/web/Inter-Light.woff2") format("woff2");
 }
 @font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/inter/web/Inter-Regular.woff2') format('woff2');
+	font-family: "Inter";
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url("/fonts/inter/web/Inter-Regular.woff2") format("woff2");
 }
 @font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url('/fonts/inter/web/Inter-Medium.woff2') format('woff2');
+	font-family: "Inter";
+	font-style: normal;
+	font-weight: 500;
+	font-display: swap;
+	src: url("/fonts/inter/web/Inter-Medium.woff2") format("woff2");
 }
 @font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url('/fonts/inter/web/Inter-SemiBold.woff2') format('woff2');
+	font-family: "Inter";
+	font-style: normal;
+	font-weight: 600;
+	font-display: swap;
+	src: url("/fonts/inter/web/Inter-SemiBold.woff2") format("woff2");
 }
 @font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('/fonts/inter/web/Inter-Bold.woff2') format('woff2');
+	font-family: "Inter";
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url("/fonts/inter/web/Inter-Bold.woff2") format("woff2");
 }
 
 /* ── JetBrains Mono (code/monospace) ─────────────────────────── */
 @font-face {
-  font-family: 'JetBrains Mono';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/jetbrains-mono/fonts/webfonts/JetBrainsMono-Regular.woff2') format('woff2');
+	font-family: "JetBrains Mono";
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url("/fonts/jetbrains-mono/fonts/webfonts/JetBrainsMono-Regular.woff2") format("woff2");
 }
 @font-face {
-  font-family: 'JetBrains Mono';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url('/fonts/jetbrains-mono/fonts/webfonts/JetBrainsMono-Medium.woff2') format('woff2');
+	font-family: "JetBrains Mono";
+	font-style: normal;
+	font-weight: 500;
+	font-display: swap;
+	src: url("/fonts/jetbrains-mono/fonts/webfonts/JetBrainsMono-Medium.woff2") format("woff2");
 }
 @font-face {
-  font-family: 'JetBrains Mono';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url('/fonts/jetbrains-mono/fonts/webfonts/JetBrainsMono-SemiBold.woff2') format('woff2');
+	font-family: "JetBrains Mono";
+	font-style: normal;
+	font-weight: 600;
+	font-display: swap;
+	src: url("/fonts/jetbrains-mono/fonts/webfonts/JetBrainsMono-SemiBold.woff2") format("woff2");
 }
 
 /* ── Orbitron (display/headings — cyberpunk aesthetic) ────────── */
 @font-face {
-  font-family: 'Orbitron';
-  font-style: normal;
-  font-weight: 400 900;
-  font-display: swap;
-  src: url('/fonts/Orbitron/Orbitron-VariableFont_wght.ttf') format('truetype');
+	font-family: "Orbitron";
+	font-style: normal;
+	font-weight: 400 900;
+	font-display: swap;
+	src: url("/fonts/Orbitron/Orbitron-VariableFont_wght.ttf") format("truetype");
 }
 
 /* ── Fira Code (monospace with ligatures — alternative) ──────── */
 @font-face {
-  font-family: 'Fira Code';
-  font-style: normal;
-  font-weight: 300 700;
-  font-display: swap;
-  src: url('/fonts/Fira_Code/FiraCode-VariableFont_wght.ttf') format('truetype');
+	font-family: "Fira Code";
+	font-style: normal;
+	font-weight: 300 700;
+	font-display: swap;
+	src: url("/fonts/Fira_Code/FiraCode-VariableFont_wght.ttf") format("truetype");
 }
 
 /* ── IBM Plex Mono (enterprise monospace — alternative) ──────── */
 @font-face {
-  font-family: 'IBM Plex Mono';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/IBM_Plex_Mono/IBMPlexMono-Regular.ttf') format('truetype');
+	font-family: "IBM Plex Mono";
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url("/fonts/IBM_Plex_Mono/IBMPlexMono-Regular.ttf") format("truetype");
 }
 @font-face {
-  font-family: 'IBM Plex Mono';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url('/fonts/IBM_Plex_Mono/IBMPlexMono-Medium.ttf') format('truetype');
+	font-family: "IBM Plex Mono";
+	font-style: normal;
+	font-weight: 500;
+	font-display: swap;
+	src: url("/fonts/IBM_Plex_Mono/IBMPlexMono-Medium.ttf") format("truetype");
 }
 @font-face {
-  font-family: 'IBM Plex Mono';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('/fonts/IBM_Plex_Mono/IBMPlexMono-Bold.ttf') format('truetype');
+	font-family: "IBM Plex Mono";
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url("/fonts/IBM_Plex_Mono/IBMPlexMono-Bold.ttf") format("truetype");
 }
 
 /* ── Iosevka Charon Mono (custom Iosevka build) ──────────────── */
 @font-face {
-  font-family: 'Iosevka Charon Mono';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/Iosevka_Charon_Mono/IosevkaCharonMono-Regular.ttf') format('truetype');
+	font-family: "Iosevka Charon Mono";
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url("/fonts/Iosevka_Charon_Mono/IosevkaCharonMono-Regular.ttf") format("truetype");
 }
 @font-face {
-  font-family: 'Iosevka Charon Mono';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url('/fonts/Iosevka_Charon_Mono/IosevkaCharonMono-Medium.ttf') format('truetype');
+	font-family: "Iosevka Charon Mono";
+	font-style: normal;
+	font-weight: 500;
+	font-display: swap;
+	src: url("/fonts/Iosevka_Charon_Mono/IosevkaCharonMono-Medium.ttf") format("truetype");
 }
 @font-face {
-  font-family: 'Iosevka Charon Mono';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('/fonts/Iosevka_Charon_Mono/IosevkaCharonMono-Bold.ttf') format('truetype');
+	font-family: "Iosevka Charon Mono";
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url("/fonts/Iosevka_Charon_Mono/IosevkaCharonMono-Bold.ttf") format("truetype");
 }
 
 /* ── Datatype (variable width+weight display font) ───────────── */
 @font-face {
-  font-family: 'Datatype';
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url('/fonts/Datatype/Datatype-VariableFont_wdth,wght.ttf') format('truetype');
+	font-family: "Datatype";
+	font-style: normal;
+	font-weight: 100 900;
+	font-display: swap;
+	src: url("/fonts/Datatype/Datatype-VariableFont_wdth,wght.ttf") format("truetype");
 }
 
 /* ── Space Grotesk (geometric sans) ──────────────────────────── */
 @font-face {
-  font-family: 'Space Grotesk';
-  font-style: normal;
-  font-weight: 300 700;
-  font-display: swap;
-  src: url('/fonts/Space_Grotesk/SpaceGrotesk-VariableFont_wght.ttf') format('truetype');
+	font-family: "Space Grotesk";
+	font-style: normal;
+	font-weight: 300 700;
+	font-display: swap;
+	src: url("/fonts/Space_Grotesk/SpaceGrotesk-VariableFont_wght.ttf") format("truetype");
 }
 
 /* ── Space Mono (monospace) ──────────────────────────────────── */
 @font-face {
-  font-family: 'Space Mono';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/Space_Mono/SpaceMono-Regular.ttf') format('truetype');
+	font-family: "Space Mono";
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url("/fonts/Space_Mono/SpaceMono-Regular.ttf") format("truetype");
 }
 @font-face {
-  font-family: 'Space Mono';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('/fonts/Space_Mono/SpaceMono-Bold.ttf') format('truetype');
+	font-family: "Space Mono";
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url("/fonts/Space_Mono/SpaceMono-Bold.ttf") format("truetype");
 }

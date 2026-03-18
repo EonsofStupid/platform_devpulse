@@ -6,11 +6,10 @@
  * Zod schemas are the canonical source.
  */
 
-// ARIA value schemas + slot schemas
-export * from "./schema.js";
-
 // ComponentContractSchema + validation
 export * from "./contract.js";
+// ARIA value schemas + slot schemas
+export * from "./schema.js";
 
 // TypeScript types (convenience re-exports)
 export * from "./types.js";

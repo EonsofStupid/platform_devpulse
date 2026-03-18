@@ -8,9 +8,9 @@
  * class groups (keyed by trigger type).
  */
 
-import type { ColdLightManifest } from "../../scanner.types.js";
 import type { CompositorNode, EffectTrigger } from "../../effects/_schema/types.js";
 import { getEffect } from "../../effects/registry.js";
+import type { ColdLightManifest } from "../../scanner.types.js";
 import { deduplicateClasses } from "./conflict-resolver.js";
 
 export interface CssPassOutput {
@@ -28,10 +28,7 @@ export interface CssPassOutput {
  * Run the CSS pass on a compositor node.
  * Collects all static and conditional classes from base styles + effects.
  */
-export function cssPass(
-	node: CompositorNode,
-	manifest: ColdLightManifest,
-): CssPassOutput {
+export function cssPass(node: CompositorNode, _manifest: ColdLightManifest): CssPassOutput {
 	const staticClassList: string[] = [...node.baseStyles];
 	const conditionalMap = new Map<EffectTrigger, string[]>();
 	const cssProperties: Record<string, string> = {};

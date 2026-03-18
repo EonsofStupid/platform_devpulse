@@ -6,8 +6,8 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { BaseProps } from "$lib/design/primitives/types.js";
 import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { BaseProps } from "$lib/design/primitives/types.js";
 
 export type CalloutVariant = "info" | "success" | "warning" | "error" | "tip";
 
@@ -19,7 +19,10 @@ export const CALLOUT_VARIANT_PRESETS: Record<CalloutVariant, string> = {
 	tip: "callout-tip",
 };
 
-export interface CalloutProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">, BaseProps, ColdLightProps {
+export interface CalloutProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
+		BaseProps,
+		ColdLightProps {
 	children?: Snippet;
 	variant?: CalloutVariant;
 }

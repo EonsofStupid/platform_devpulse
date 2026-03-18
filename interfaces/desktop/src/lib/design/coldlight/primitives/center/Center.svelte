@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { CenterPrimitiveProps } from "./center.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { CenterPrimitiveProps } from "./center.props.js";
 
-	let { children, class: className, ...rest }: CenterPrimitiveProps = $props();
+let { children, class: className, ...rest }: CenterPrimitiveProps = $props();
 </script>
 
 <div

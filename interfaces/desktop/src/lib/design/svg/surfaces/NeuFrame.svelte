@@ -14,50 +14,50 @@
 	</NeuFrame>
 -->
 <script lang="ts">
-	import type { Snippet } from "svelte";
-	import SvgBlank from "../blanks/SvgBlank.svelte";
+import type { Snippet } from "svelte";
+import SvgBlank from "../blanks/SvgBlank.svelte";
 
-	type GlowAccent = "off" | "teal" | "purple";
+type GlowAccent = "off" | "teal" | "purple";
 
-	interface Props {
-		/** Accent glow color */
-		glow?: GlowAccent;
-		/** Border radius in px */
-		radius?: number;
-		/** Fill color */
-		fill?: string;
-		/** Frame stroke color */
-		stroke?: string;
-		/** Frame stroke width */
-		strokeWidth?: number;
-		/** Additional CSS classes */
-		class?: string;
-		/** Content */
-		children?: Snippet;
+interface Props {
+	/** Accent glow color */
+	glow?: GlowAccent;
+	/** Border radius in px */
+	radius?: number;
+	/** Fill color */
+	fill?: string;
+	/** Frame stroke color */
+	stroke?: string;
+	/** Frame stroke width */
+	strokeWidth?: number;
+	/** Additional CSS classes */
+	class?: string;
+	/** Content */
+	children?: Snippet;
+}
+
+let {
+	glow = "teal",
+	radius = 16,
+	fill = "var(--color-void-base)",
+	stroke = "var(--border-emphasis)",
+	strokeWidth = 2,
+	class: className = "",
+	children,
+}: Props = $props();
+
+const filters = $derived.by(() => {
+	const list: string[] = ["bevel-strong", "noise-medium"];
+	if (glow !== "off") {
+		const glowMap: Record<string, string> = {
+			teal: "glow-teal-svg",
+			purple: "glow-purple-svg",
+		};
+		const filterId = glowMap[glow];
+		if (filterId) list.push(filterId);
 	}
-
-	let {
-		glow = "teal",
-		radius = 16,
-		fill = "var(--color-void-base)",
-		stroke = "var(--border-emphasis)",
-		strokeWidth = 2,
-		class: className = "",
-		children,
-	}: Props = $props();
-
-	const filters = $derived.by(() => {
-		const list: string[] = ["bevel-strong", "noise-medium"];
-		if (glow !== "off") {
-			const glowMap: Record<string, string> = {
-				teal: "glow-teal-svg",
-				purple: "glow-purple-svg",
-			};
-			const filterId = glowMap[glow];
-			if (filterId) list.push(filterId);
-		}
-		return list;
-	});
+	return list;
+});
 </script>
 
 <SvgBlank

@@ -28,9 +28,7 @@ export const contract = {
 			element: "h2",
 			aria: {
 				role: "heading",
-				required: [
-					{ attr: "aria-level", valueType: "aria-level" },
-				],
+				required: [{ attr: "aria-level", valueType: "aria-level" }],
 				optional: [],
 			},
 			data: {

@@ -8,13 +8,13 @@
 	ARIA: role="separator".
 -->
 <script lang="ts">
-	import type { ContextMenuSeparatorProps } from "./types.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { contextMenuRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { contextMenuRecipe } from "./recipe.js";
+import type { ContextMenuSeparatorProps } from "./types.js";
 
-	let { class: className, ...rest }: ContextMenuSeparatorProps = $props();
+let { class: className, ...rest }: ContextMenuSeparatorProps = $props();
 
-	const recipe = contextMenuRecipe();
+const recipe = contextMenuRecipe();
 </script>
 
 <div

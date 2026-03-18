@@ -19,8 +19,5 @@ export function descriptionListRecipe(props: DescriptionListRecipeProps = {}): s
 		md: "p-4 text-sm",
 		lg: "p-6 text-base",
 	};
-	return cn(
-		"description-list-root",
-		sizeMap[props.size ?? "md"] ?? sizeMap.md,
-	);
+	return cn("description-list-root", sizeMap[props.size ?? "md"] ?? sizeMap.md);
 }

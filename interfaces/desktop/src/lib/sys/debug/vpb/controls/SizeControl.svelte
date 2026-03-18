@@ -3,9 +3,9 @@
 	@layer vpb
 -->
 <script lang="ts">
-	import { SizeTokens } from "$lib/design/recipes/_base/schema.js";
+import { SizeTokens } from "$lib/design/recipes/_base/schema.js";
 
-	let { value, onchange }: { value: string; onchange: (v: string) => void } = $props();
+let { value, onchange }: { value: string; onchange: (v: string) => void } = $props();
 </script>
 
 <div class="vpb-ctrl">

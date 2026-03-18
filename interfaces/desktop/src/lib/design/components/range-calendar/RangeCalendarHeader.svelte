@@ -8,21 +8,21 @@
 	ColdLight-owned ARIA.
 -->
 <script lang="ts">
-	import type { RangeCalendarHeaderProps } from "./types.js";
-	import { getRangeCalendarContext } from "./context.js";
-	import { rangeCalendarRecipe } from "./recipe.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getRangeCalendarContext } from "./context.js";
+import { rangeCalendarRecipe } from "./recipe.js";
+import type { RangeCalendarHeaderProps } from "./types.js";
 
-	let { children, class: className, ...rest }: RangeCalendarHeaderProps = $props();
-	const ctx = getRangeCalendarContext();
-	const recipe = $derived(rangeCalendarRecipe({ size: ctx.size }));
+let { children, class: className, ...rest }: RangeCalendarHeaderProps = $props();
+const ctx = getRangeCalendarContext();
+const recipe = $derived(rangeCalendarRecipe({ size: ctx.size }));
 
-	const headingText = $derived(
-		ctx.currentMonth.toLocaleDateString(ctx.locale, {
-			month: "long",
-			year: "numeric",
-		}),
-	);
+const headingText = $derived(
+	ctx.currentMonth.toLocaleDateString(ctx.locale, {
+		month: "long",
+		year: "numeric",
+	}),
+);
 </script>
 
 <div

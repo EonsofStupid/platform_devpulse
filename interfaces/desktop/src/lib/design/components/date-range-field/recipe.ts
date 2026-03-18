@@ -13,12 +13,9 @@ import { cn } from "$lib/design/utils/cn.js";
 
 type DateRangeFieldRecipeProps = { size?: string };
 
-export function dateRangeFieldRecipe(props: DateRangeFieldRecipeProps = {}) {
+export function dateRangeFieldRecipe(_props: DateRangeFieldRecipeProps = {}) {
 	return {
-		root: cn(
-			"date-range-field-root",
-			"rounded-md",
-		),
+		root: cn("date-range-field-root", "rounded-md"),
 		field: cn("date-range-field-field"),
 		start: "",
 		end: "",

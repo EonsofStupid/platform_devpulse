@@ -74,12 +74,7 @@ registerRecipe({
 				"caret-[var(--search-input-border-focus)]",
 				"outline-none",
 			),
-			icon: cn(
-				"shrink-0",
-				s.icon,
-				"text-[var(--search-input-icon)]",
-				"pointer-events-none",
-			),
+			icon: cn("shrink-0", s.icon, "text-[var(--search-input-icon)]", "pointer-events-none"),
 			clear: cn(
 				"shrink-0 cursor-pointer",
 				s.clear,

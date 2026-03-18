@@ -6,19 +6,13 @@
   NOTE: IP-sensitive labels gated behind flags.DEV_MODE
 -->
 <script lang="ts">
-	import { Stack } from "$lib/design/components/stack/index.js";
-	import { HStack } from "$lib/design/components/hstack/index.js";
-	import { Text } from "$lib/design/components/text/index.js";
-	import { Badge } from "$lib/design/components/badge/index.js";
-	import { Widget } from "$lib/design/blocks/widgets/index.js";
-	import { DEV_MODE } from "$lib/sys/generated/terminology.js";
-	import {
-		Brain,
-		Users,
-		BookOpenCheck,
-		Database,
-		Layers,
-	} from "lucide-svelte";
+import { BookOpenCheck, Brain, Database, Layers, Users } from "lucide-svelte";
+import { Widget } from "$lib/design/blocks/widgets/index.js";
+import { Badge } from "$lib/design/components/badge/index.js";
+import { HStack } from "$lib/design/components/hstack/index.js";
+import { Stack } from "$lib/design/components/stack/index.js";
+import { Text } from "$lib/design/components/text/index.js";
+import { DEV_MODE } from "$lib/sys/generated/terminology.js";
 </script>
 
 <div class="grid grid-cols-12 gap-4" data-page="maestro-dashboard">

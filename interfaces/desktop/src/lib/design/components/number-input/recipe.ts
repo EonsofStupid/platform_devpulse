@@ -19,17 +19,13 @@ export function numberInputRecipe(props: NumberInputRecipeProps = {}): string {
 		md: "number-input-md",
 		lg: "number-input-lg",
 	};
-	return cn(
-		"number-input-root",
-		sizeMap[props.size ?? "md"] ?? "number-input-md",
-		"rounded-md",
-	);
+	return cn("number-input-root", sizeMap[props.size ?? "md"] ?? "number-input-md", "rounded-md");
 }
 
-export function numberInputInputRecipe(props: NumberInputRecipeProps = {}): string {
+export function numberInputInputRecipe(_props: NumberInputRecipeProps = {}): string {
 	return cn("number-input-field");
 }
 
-export function numberInputButtonRecipe(props: NumberInputRecipeProps = {}): string {
+export function numberInputButtonRecipe(_props: NumberInputRecipeProps = {}): string {
 	return cn("number-input-button");
 }

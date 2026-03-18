@@ -4,7 +4,12 @@
  * @layer components
  */
 
-export { default as InputGroup } from "./InputGroup.svelte";
 export { contract as inputGroupComponentContract } from "./contract.js";
-export { inputGroupRecipe, inputGroupPrefixRecipe, inputGroupInputRecipe, inputGroupSuffixRecipe } from "./recipe.js";
+export { default as InputGroup } from "./InputGroup.svelte";
+export {
+	inputGroupInputRecipe,
+	inputGroupPrefixRecipe,
+	inputGroupRecipe,
+	inputGroupSuffixRecipe,
+} from "./recipe.js";
 export type { InputGroupComponentProps, InputGroupSize } from "./types.js";

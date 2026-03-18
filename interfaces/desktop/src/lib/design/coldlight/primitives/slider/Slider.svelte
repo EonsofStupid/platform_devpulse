@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { SliderPrimitiveProps } from "./slider.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { SliderPrimitiveProps } from "./slider.props.js";
 
-	let { children, class: className, ...rest }: SliderPrimitiveProps = $props();
+let { children, class: className, ...rest }: SliderPrimitiveProps = $props();
 </script>
 
 <div

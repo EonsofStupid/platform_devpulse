@@ -8,15 +8,15 @@
 	No ARIA role on the trigger — it is a plain container that intercepts contextmenu event.
 -->
 <script lang="ts">
-	import type { ContextMenuTriggerProps } from "./types.js";
-	import { getContextMenuContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { contextMenuRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getContextMenuContext } from "./context.js";
+import { contextMenuRecipe } from "./recipe.js";
+import type { ContextMenuTriggerProps } from "./types.js";
 
-	let { children, class: className, ...rest }: ContextMenuTriggerProps = $props();
+let { children, class: className, ...rest }: ContextMenuTriggerProps = $props();
 
-	const ctx = getContextMenuContext();
-	const recipe = contextMenuRecipe();
+const ctx = getContextMenuContext();
+const recipe = contextMenuRecipe();
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->

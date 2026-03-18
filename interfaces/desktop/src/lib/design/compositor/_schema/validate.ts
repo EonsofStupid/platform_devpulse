@@ -11,9 +11,9 @@
  *   - node.slots keys → valid for referenced primitive
  */
 
-import type { ColdLightManifest } from "../../scanner.types.js";
 import type { CompositorNode } from "../../effects/_schema/types.js";
-import type { NodeValidationResult, NodeValidationError } from "./types.js";
+import type { ColdLightManifest } from "../../scanner.types.js";
+import type { NodeValidationError, NodeValidationResult } from "./types.js";
 
 /**
  * Validate a compositor node against the manifest.
@@ -99,10 +99,7 @@ function validateNodeRecursive(
 			(p) => p.kind === node.primitive,
 		);
 		if (primitiveDef) {
-			const validSlots = new Set([
-				...primitiveDef.slots.required,
-				...primitiveDef.slots.optional,
-			]);
+			const validSlots = new Set([...primitiveDef.slots.required, ...primitiveDef.slots.optional]);
 
 			Object.keys(node.slots).forEach((slotName) => {
 				if (!validSlots.has(slotName)) {

@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { TagGroupPrimitiveProps } from "./tag-group.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { TagGroupPrimitiveProps } from "./tag-group.props.js";
 
-	let { children, class: className, ...rest }: TagGroupPrimitiveProps = $props();
+let { children, class: className, ...rest }: TagGroupPrimitiveProps = $props();
 </script>
 
 <div

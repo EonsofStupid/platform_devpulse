@@ -9,15 +9,16 @@
 	Uses attachContent Svelte action for showModal, scroll lock, dismiss layer, presence, focus restore.
 -->
 <script lang="ts">
-	import type { DialogContentProps } from "./types.js";
-	import { getDialogContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { getRecipe } from "$lib/design/recipes/index.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getRecipe } from "$lib/design/recipes/index.js";
+import { getDialogContext } from "./context.js";
+import type { DialogContentProps } from "./types.js";
 
-	let { children, class: className, ...rest }: DialogContentProps = $props();
-	const dialog = getDialogContext();
-	const recipe = getRecipe("dialog.glass.void");
-	const contentClass = recipe?.classes?.({} as any)?.content ?? "";
+let { children, class: className, ...rest }: DialogContentProps = $props();
+const dialog = getDialogContext();
+const recipe = getRecipe("dialog.glass.void");
+// biome-ignore lint/suspicious/noExplicitAny: recipe classes accept any state
+const contentClass = recipe?.classes?.({} as any)?.content ?? "";
 </script>
 
 {#if dialog.open}

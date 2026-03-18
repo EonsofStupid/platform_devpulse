@@ -5,18 +5,12 @@
   Hub: Build Pipeline, CI/CD, Environments, Node CLI, Packages
 -->
 <script lang="ts">
-	import { Stack } from "$lib/design/components/stack/index.js";
-	import { HStack } from "$lib/design/components/hstack/index.js";
-	import { Text } from "$lib/design/components/text/index.js";
-	import { Badge } from "$lib/design/components/badge/index.js";
-	import { Widget } from "$lib/design/blocks/widgets/index.js";
-	import {
-		Hammer,
-		GitBranch,
-		Server,
-		Terminal,
-		Package,
-	} from "lucide-svelte";
+import { GitBranch, Hammer, Package, Server, Terminal } from "lucide-svelte";
+import { Widget } from "$lib/design/blocks/widgets/index.js";
+import { Badge } from "$lib/design/components/badge/index.js";
+import { HStack } from "$lib/design/components/hstack/index.js";
+import { Stack } from "$lib/design/components/stack/index.js";
+import { Text } from "$lib/design/components/text/index.js";
 </script>
 
 <div class="grid grid-cols-12 gap-4" data-page="devforge-dashboard">

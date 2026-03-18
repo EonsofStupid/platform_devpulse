@@ -8,14 +8,14 @@
 	ColdLight-owned ARIA — wraps date-field segments.
 -->
 <script lang="ts">
-	import type { DatePickerFieldProps } from "./types.js";
-	import { getDatePickerContext } from "./context.js";
-	import { datePickerRecipe } from "./recipe.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getDatePickerContext } from "./context.js";
+import { datePickerRecipe } from "./recipe.js";
+import type { DatePickerFieldProps } from "./types.js";
 
-	let { children, class: className, ...rest }: DatePickerFieldProps = $props();
-	const ctx = getDatePickerContext();
-	const recipe = $derived(datePickerRecipe({ size: ctx.size }));
+let { children, class: className, ...rest }: DatePickerFieldProps = $props();
+const ctx = getDatePickerContext();
+const recipe = $derived(datePickerRecipe({ size: ctx.size }));
 </script>
 
 <div

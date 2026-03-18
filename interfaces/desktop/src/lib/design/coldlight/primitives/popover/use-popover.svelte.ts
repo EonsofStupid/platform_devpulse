@@ -7,10 +7,10 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
  */
 
-import { createIds } from "../../_internal/utils/uid.js";
 import { useDismissLayer } from "../../_internal/a11y/dismiss-layer/index.js";
 import { useEscapeLayer } from "../../_internal/a11y/escape-layer/index.js";
 import { usePresence } from "../../_internal/a11y/presence/index.js";
+import { createIds } from "../../_internal/utils/uid.js";
 import { popoverAnatomy } from "./popover.anatomy.js";
 import type { UsePopoverProps, UsePopoverReturn } from "./popover.types.js";
 
@@ -79,16 +79,30 @@ export function usePopover(props: UsePopoverProps = {}): UsePopoverReturn {
 			node: () => contentEl,
 		});
 
-		return { destroy() { contentEl = null; } };
+		return {
+			destroy() {
+				contentEl = null;
+			},
+		};
 	}
 
 	return {
-		get open() { return isOpen; },
+		get open() {
+			return isOpen;
+		},
 		setOpen,
-		get trigger() { return trigger; },
-		get content() { return content; },
-		get arrow() { return arrow; },
-		get close() { return close; },
+		get trigger() {
+			return trigger;
+		},
+		get content() {
+			return content;
+		},
+		get arrow() {
+			return arrow;
+		},
+		get close() {
+			return close;
+		},
 		attachContent,
 	};
 }

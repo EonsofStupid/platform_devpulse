@@ -8,9 +8,9 @@
  * and returns per-slot shortcode class strings.
  */
 
+import type { BlockNode } from "$lib/design/blocks/schema.js";
 import { getRecipe } from "$lib/design/recipes/index.js";
 import type { DsSurfaceProps } from "$lib/design/recipes/types.js";
-import type { BlockNode } from "$lib/design/blocks/schema.js";
 
 /**
  * Resolve a BlockNode to its per-slot class strings.

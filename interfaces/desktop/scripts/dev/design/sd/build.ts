@@ -14,20 +14,29 @@
  *                       scrollbars.css, keyframes.css (from token source)
  */
 
-import { writeFileSync, readFileSync, mkdirSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import StyleDictionary from "style-dictionary";
-import { dtcgPath, tokensConfig, jitiEnums, jitiRegistry, jitiKeyframesDef, jitiKindDefinitions, jitiPresets, desktopRoot } from "./preprocessors/ts-to-dtcg.js";
 import { buildConfig } from "./config.js";
-import { generateVariantsCSS } from "./formats/variants.js";
 import {
-	generateTypographyCSS,
 	generateFocusCSS,
 	generateScrollbarsCSS,
+	generateTypographyCSS,
 } from "./formats/generated-css.js";
+import { generateVariantsCSS } from "./formats/variants.js";
+import {
+	desktopRoot,
+	dtcgPath,
+	jitiEnums,
+	jitiKeyframesDef,
+	jitiKindDefinitions,
+	jitiPresets,
+	jitiRegistry,
+	tokensConfig,
+} from "./preprocessors/ts-to-dtcg.js";
+import { validateKindCoverage } from "./validators/kind-coverage.js";
 import { validateRegistryRefs } from "./validators/registry-refs.js";
 import { validateTokenContract } from "./validators/token-contract.js";
-import { validateKindCoverage } from "./validators/kind-coverage.js";
 
 // ── Step 1: SD5 build (tokens.css, tailwind.css, types.ts) ──────────────────
 const config = buildConfig(dtcgPath, tokensConfig, jitiEnums, desktopRoot);
@@ -51,17 +60,40 @@ if (!refsResult.valid) {
 	for (const err of refsResult.errors) {
 		console.error(`  ✗ ${err.message}`);
 	}
-	console.error(`\n  ${refsResult.stats.validRefs}/${refsResult.stats.totalRefs} refs valid, ${refsResult.stats.availableProps} properties available.`);
-	console.error(`  Fix tokenRefs in registry/token-categories.ts to match tokens.css or tailwind.css.\n`);
+	console.error(
+		`\n  ${refsResult.stats.validRefs}/${refsResult.stats.totalRefs} refs valid, ${refsResult.stats.availableProps} properties available.`,
+	);
+	console.error(
+		`  Fix tokenRefs in registry/token-categories.ts to match tokens.css or tailwind.css.\n`,
+	);
 	process.exit(1);
 }
-console.log(`[VALIDATOR] Registry refs: ${refsResult.stats.totalRefs} refs validated against ${refsResult.stats.availableProps} CSS properties — all valid.`);
+console.log(
+	`[VALIDATOR] Registry refs: ${refsResult.stats.totalRefs} refs validated against ${refsResult.stats.availableProps} CSS properties — all valid.`,
+);
 
 // Validate Tier 1 tokens exist in :root (token-contract is informational for now)
 const tier1Groups = [
-	"hue", "color", "glass", "matte", "text", "space", "radius", "blur",
-	"glow", "glowSpread", "shadow", "bevel", "z", "duration", "ease",
-	"textSize", "padding", "signal", "font", "animation",
+	"hue",
+	"color",
+	"glass",
+	"matte",
+	"text",
+	"space",
+	"radius",
+	"blur",
+	"glow",
+	"glowSpread",
+	"shadow",
+	"bevel",
+	"z",
+	"duration",
+	"ease",
+	"textSize",
+	"padding",
+	"signal",
+	"font",
+	"animation",
 ];
 const dtcgTree = JSON.parse(readFileSync(dtcgPath, "utf-8")) as Record<string, unknown>;
 const contractResult = validateTokenContract(tokensCssPath, tailwindCssPath, dtcgTree, tier1Groups);
@@ -71,7 +103,9 @@ if (!contractResult.valid) {
 		console.warn(`  ⚠ ${err.message}`);
 	}
 }
-console.log(`[VALIDATOR] Token contract: ${contractResult.stats.tier1Props} Tier 1 tokens, ${contractResult.stats.inBoth} in :root, ${contractResult.stats.themeOnly} @theme-only (remapped).`);
+console.log(
+	`[VALIDATOR] Token contract: ${contractResult.stats.tier1Props} Tier 1 tokens, ${contractResult.stats.inBoth} in :root, ${contractResult.stats.themeOnly} @theme-only (remapped).`,
+);
 
 // Validate kind definitions are backed by real presets, recipes, and contracts
 // NOTE: Recipe validation is informational — recipes load at app boot, not build time.
@@ -85,8 +119,12 @@ const kindResult = validateKindCoverage(
 );
 if (kindResult.errors.length > 0) {
 	// Separate hard errors (preset/contract) from soft warnings (recipe)
-	const hardErrors = kindResult.errors.filter((e) => e.field !== "defaultRecipe" && e.field !== "contract");
-	const softWarnings = kindResult.errors.filter((e) => e.field === "defaultRecipe" || e.field === "contract");
+	const hardErrors = kindResult.errors.filter(
+		(e) => e.field !== "defaultRecipe" && e.field !== "contract",
+	);
+	const softWarnings = kindResult.errors.filter(
+		(e) => e.field === "defaultRecipe" || e.field === "contract",
+	);
 	if (softWarnings.length > 0) {
 		console.warn(`[VALIDATOR] Kind recipe gaps (${softWarnings.length}):`);
 		for (const err of softWarnings) console.warn(`  ⚠ ${err.message}`);
@@ -97,7 +135,9 @@ if (kindResult.errors.length > 0) {
 		process.exit(1);
 	}
 }
-console.log(`[VALIDATOR] Kind definitions: ${kindResult.stats.totalKinds} kinds, ${kindResult.stats.withPreset} with preset, ${kindResult.stats.withContract} with contract.`);
+console.log(
+	`[VALIDATOR] Kind definitions: ${kindResult.stats.totalKinds} kinds, ${kindResult.stats.withPreset} with preset, ${kindResult.stats.withContract} with contract.`,
+);
 
 // ── Step 2: Generate additional CSS from SSOT ────────────────────────────────
 const generatedDir = resolve(desktopRoot, "src/lib/design/generated");
@@ -184,8 +224,11 @@ const manifest = {
 			const varRefs: string[] = [];
 			const varRe = /var\((--[a-zA-Z0-9_-]+)/g;
 			for (const val of Object.values(v.tokenRefs)) {
-				let m: RegExpExecArray | null;
-				while ((m = varRe.exec(val)) !== null) varRefs.push(m[1]);
+				let m = varRe.exec(val);
+				while (m !== null) {
+					varRefs.push(m[1]);
+					m = varRe.exec(val);
+				}
 			}
 			return {
 				index: v.index,
@@ -210,7 +253,10 @@ const manifest = {
 	tokens: Object.fromEntries(
 		Object.entries(jitiEnums).map(([key, values]) => [
 			key,
-			{ values: Array.from(values as readonly unknown[]), count: (values as readonly unknown[]).length },
+			{
+				values: Array.from(values as readonly unknown[]),
+				count: (values as readonly unknown[]).length,
+			},
 		]),
 	),
 
@@ -248,6 +294,10 @@ const manifest = {
 
 const manifestPath = resolve(desktopRoot, "src/lib/design/generated/coldlight.manifest.json");
 writeFileSync(manifestPath, JSON.stringify(manifest, null, "\t"), "utf-8");
-console.log(`[MANIFEST] coldlight.manifest.json — ${jitiRegistry.length} categories, ${manifest.encoding.totalValues} values, ${Object.keys(jitiEnums).length} token enums`);
+console.log(
+	`[MANIFEST] coldlight.manifest.json — ${jitiRegistry.length} categories, ${manifest.encoding.totalValues} values, ${Object.keys(jitiEnums).length} token enums`,
+);
 
-console.log(`[SD5] Build complete — ${jitiRegistry.length} categories, ${manifest.encoding.totalValues} variant values.`);
+console.log(
+	`[SD5] Build complete — ${jitiRegistry.length} categories, ${manifest.encoding.totalValues} variant values.`,
+);

@@ -12,8 +12,8 @@
  * feBlend (overlay onto source).
  */
 
-import { registerFilter } from "../registry.js";
 import type { FilterDef } from "../../_schema/types.js";
+import { registerFilter } from "../registry.js";
 
 // =============================================================================
 // NOISE SUBTLE — fine grain, barely visible
@@ -27,7 +27,11 @@ const noiseSubtle: FilterDef = {
 	cssClass: "filter-noise-subtle",
 	filterMargin: 0,
 	params: [
-		{ cssProperty: "--svg-noise-frequency", defaultValue: 0.65, description: "Turbulence base frequency" },
+		{
+			cssProperty: "--svg-noise-frequency",
+			defaultValue: 0.65,
+			description: "Turbulence base frequency",
+		},
 		{ cssProperty: "--svg-noise-octaves", defaultValue: 4, description: "Detail level (octaves)" },
 	],
 	steps: [
@@ -66,7 +70,11 @@ const noiseMedium: FilterDef = {
 	cssClass: "filter-noise-medium",
 	filterMargin: 0,
 	params: [
-		{ cssProperty: "--svg-noise-frequency", defaultValue: 0.45, description: "Turbulence frequency" },
+		{
+			cssProperty: "--svg-noise-frequency",
+			defaultValue: 0.45,
+			description: "Turbulence frequency",
+		},
 		{ cssProperty: "--svg-noise-octaves", defaultValue: 5, description: "Detail level (octaves)" },
 	],
 	steps: [

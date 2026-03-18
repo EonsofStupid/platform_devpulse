@@ -3,9 +3,9 @@
 	@layer vpb
 -->
 <script lang="ts">
-	const DEPTH_LEVELS = [0, 1, 2, 3, 4] as const;
+const DEPTH_LEVELS = [0, 1, 2, 3, 4] as const;
 
-	let { value, onchange }: { value: number; onchange: (v: number) => void } = $props();
+let { value, onchange }: { value: number; onchange: (v: number) => void } = $props();
 </script>
 
 <div class="vpb-ctrl">

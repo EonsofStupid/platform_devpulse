@@ -131,7 +131,10 @@ export function liveRegionAttrs(config: LiveRegionConfig): {
 		"aria-live": config.politeness,
 		"aria-atomic": config.atomic ? "true" : "false",
 	};
-	if (config.relevant.length > 0 && !(config.relevant.length === 1 && config.relevant[0] === "text")) {
+	if (
+		config.relevant.length > 0 &&
+		!(config.relevant.length === 1 && config.relevant[0] === "text")
+	) {
 		attrs["aria-relevant"] = config.relevant.join(" ");
 	}
 	return attrs;

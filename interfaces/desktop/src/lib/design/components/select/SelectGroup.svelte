@@ -7,15 +7,15 @@
 	MeltUI transport provides role="group" via structural slot.
 -->
 <script lang="ts">
-	import type { SelectGroupProps } from "./types.js";
-	import { getSelectContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { selectRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getSelectContext } from "./context.js";
+import { selectRecipe } from "./recipe.js";
+import type { SelectGroupProps } from "./types.js";
 
-	let { children, class: className, ...rest }: SelectGroupProps = $props();
+let { children, class: className, ...rest }: SelectGroupProps = $props();
 
-	const transport = getSelectContext();
-	const recipe = selectRecipe();
+const transport = getSelectContext();
+const recipe = selectRecipe();
 </script>
 
 <div

@@ -6,22 +6,20 @@
  * Compound component: exports root + all sub-components.
  */
 
+export type { DateRangeFieldContext } from "./context.js";
+export { getDateRangeFieldContext, setDateRangeFieldContext } from "./context.js";
+export { contract as dateRangeFieldComponentContract } from "./contract.js";
 export { default as DateRangeField } from "./DateRangeField.svelte";
-export { default as DateRangeFieldStart } from "./DateRangeFieldStart.svelte";
 export { default as DateRangeFieldEnd } from "./DateRangeFieldEnd.svelte";
 export { default as DateRangeFieldSegment } from "./DateRangeFieldSegment.svelte";
-
-export { contract as dateRangeFieldComponentContract } from "./contract.js";
+export { default as DateRangeFieldStart } from "./DateRangeFieldStart.svelte";
 export { dateRangeFieldRecipe } from "./recipe.js";
-export { setDateRangeFieldContext, getDateRangeFieldContext } from "./context.js";
-
-export type { DateRangeFieldContext } from "./context.js";
 export type {
-	DateRangeFieldProps,
-	DateRangeFieldStartProps,
-	DateRangeFieldEndProps,
-	DateRangeFieldSegmentProps,
 	DateRange,
+	DateRangeFieldEndProps,
+	DateRangeFieldProps,
+	DateRangeFieldSegmentProps,
+	DateRangeFieldStartProps,
 	DateSegment,
 	Granularity,
 	Size as DateRangeFieldSize,

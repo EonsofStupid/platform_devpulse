@@ -8,27 +8,27 @@
 	Supports disabled state and onSelect callback.
 -->
 <script lang="ts">
-	import type { ContextMenuItemProps } from "./types.js";
-	import { getContextMenuContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { contextMenuRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getContextMenuContext } from "./context.js";
+import { contextMenuRecipe } from "./recipe.js";
+import type { ContextMenuItemProps } from "./types.js";
 
-	let {
-		children,
-		disabled = false,
-		onSelect,
-		class: className,
-		...rest
-	}: ContextMenuItemProps = $props();
+let {
+	children,
+	disabled = false,
+	onSelect,
+	class: className,
+	...rest
+}: ContextMenuItemProps = $props();
 
-	const ctx = getContextMenuContext();
-	const recipe = contextMenuRecipe();
+const ctx = getContextMenuContext();
+const recipe = contextMenuRecipe();
 
-	function handleSelect(): void {
-		if (disabled) return;
-		onSelect?.();
-		ctx.close();
-	}
+function handleSelect(): void {
+	if (disabled) return;
+	onSelect?.();
+	ctx.close();
+}
 </script>
 
 <div

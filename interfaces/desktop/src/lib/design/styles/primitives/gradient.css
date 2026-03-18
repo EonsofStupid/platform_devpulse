@@ -3,19 +3,41 @@
  */
 
 @layer tokens.primitives {
-  :root {
-  --gradient-teal: linear-gradient(135deg, #009076 0%, #005c4a 100%);
-  --gradient-teal-glow: linear-gradient(135deg, #00aa90 0%, #009076 50%, #004235 100%);
-  --gradient-purple: linear-gradient(135deg, #615ed6 0%, #3d3b8b 100%);
-  --gradient-purple-glow: linear-gradient(135deg, #7b7dea 0%, #615ed6 50%, #2b2a64 100%);
-  --gradient-magenta: linear-gradient(135deg, #ad36a7 0%, #6c2768 100%);
-  --gradient-ember: linear-gradient(135deg, #c53637 0%, #7f2021 100%);
-  --gradient-frost: linear-gradient(135deg, #1988a3 0%, #00536c 100%);
-  --gradient-cyber: linear-gradient(135deg, #008f4a 0%, #005b2d 100%);
-  --gradient-void: linear-gradient(180deg, #002920 0%, #001712 50%, #000000 100%); /** App background — deep dark to void black */
-  --gradient-void-radial: linear-gradient(circle at 50% 40%, #004235 0%, #001712 60%, #000000 100%); /** Radial void — for hero backgrounds */
-  --gradient-teal-purple: linear-gradient(135deg, #009076 0%, #615ed6 100%); /** Teal→purple crossfade — accent blend */
-  --gradient-teal-cyber: linear-gradient(90deg, #009076 0%, #008f4a 100%); /** Teal→cyber crossfade — matrix blend */
-  --gradient-ember-magenta: linear-gradient(135deg, #c53637 0%, #ad36a7 100%); /** Ember→magenta crossfade — hot blend */
-  }
+	:root {
+		--gradient-teal: linear-gradient(135deg, #009076 0%, #005c4a 100%);
+		--gradient-teal-glow: linear-gradient(135deg, #00aa90 0%, #009076 50%, #004235 100%);
+		--gradient-purple: linear-gradient(135deg, #615ed6 0%, #3d3b8b 100%);
+		--gradient-purple-glow: linear-gradient(135deg, #7b7dea 0%, #615ed6 50%, #2b2a64 100%);
+		--gradient-magenta: linear-gradient(135deg, #ad36a7 0%, #6c2768 100%);
+		--gradient-ember: linear-gradient(135deg, #c53637 0%, #7f2021 100%);
+		--gradient-frost: linear-gradient(135deg, #1988a3 0%, #00536c 100%);
+		--gradient-cyber: linear-gradient(135deg, #008f4a 0%, #005b2d 100%);
+		--gradient-void: linear-gradient(
+			180deg,
+			#002920 0%,
+			#001712 50%,
+			#000000 100%
+		); /** App background — deep dark to void black */
+		--gradient-void-radial: linear-gradient(
+			circle at 50% 40%,
+			#004235 0%,
+			#001712 60%,
+			#000000 100%
+		); /** Radial void — for hero backgrounds */
+		--gradient-teal-purple: linear-gradient(
+			135deg,
+			#009076 0%,
+			#615ed6 100%
+		); /** Teal→purple crossfade — accent blend */
+		--gradient-teal-cyber: linear-gradient(
+			90deg,
+			#009076 0%,
+			#008f4a 100%
+		); /** Teal→cyber crossfade — matrix blend */
+		--gradient-ember-magenta: linear-gradient(
+			135deg,
+			#c53637 0%,
+			#ad36a7 100%
+		); /** Ember→magenta crossfade — hot blend */
+	}
 }

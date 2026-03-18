@@ -4,24 +4,24 @@
  * @description System layer barrel export
  */
 
+// Debug tools (dev-only)
+export * from "./debug/index.js";
 // Terminology (generated from kernel_terms.toml)
 export {
 	DEV_MODE,
-	resolveLabel,
 	devLabel,
-	prodLabel,
-	minionStatus,
-	sanitizeForProd,
-	isFeatureEnabled,
 	FEATURES,
-	TERMS,
-	STORE_TERMS,
+	isFeatureEnabled,
+	minionStatus,
 	PERSONALITY,
+	prodLabel,
+	resolveLabel,
+	STORE_TERMS,
+	sanitizeForProd,
+	TERMS,
 } from "./generated/terminology.js";
 export { getIcon } from "./generated/terminology-icons.js";
-// Debug tools (dev-only)
-export * from "./debug/index.js";
 // Initialization
 export { initSys, isSysInitialized } from "./init.js";
 // Logger (bridges to Rust tracing)
-export { log, logInfo, logWarn, logError, logDebug } from "./logger.js";
+export { log, logDebug, logError, logInfo, logWarn } from "./logger.js";

@@ -22,11 +22,11 @@
  */
 
 import {
-	TOKEN_CATEGORY_REGISTRY,
 	NAME_TO_CODE,
 	type Preset,
+	TOKEN_CATEGORY_REGISTRY,
 } from "../../registry/token-categories.js";
-import type { StyleProps, ConditionalValue, StateCondition } from "./types.js";
+import type { StateCondition, StyleProps } from "./types.js";
 
 // ── Encoding axis resolution ────────────────────────────────
 
@@ -73,39 +73,78 @@ const RADIUS_MAP: Record<string, string> = {
 
 function resolveStaticProp(key: string, value: unknown): string {
 	// 8-axis encoding props
-	const encodingProps = ["surface", "material", "depth", "bevel", "glow", "frame", "motion", "transition"] as const;
-	if (encodingProps.includes(key as typeof encodingProps[number])) {
+	const encodingProps = [
+		"surface",
+		"material",
+		"depth",
+		"bevel",
+		"glow",
+		"frame",
+		"motion",
+		"transition",
+	] as const;
+	if (encodingProps.includes(key as (typeof encodingProps)[number])) {
 		return encodingClass(key as keyof Preset, String(value));
 	}
 
 	// Layout props → Tailwind utilities
 	switch (key) {
-		case "padding": return spacingClass("p", value as string | number);
-		case "paddingX": return spacingClass("px", value as string | number);
-		case "paddingY": return spacingClass("py", value as string | number);
-		case "margin": return spacingClass("m", value as string | number);
-		case "marginX": return spacingClass("mx", value as string | number);
-		case "marginY": return spacingClass("my", value as string | number);
-		case "gap": return spacingClass("gap", value as string | number);
-		case "borderRadius": return RADIUS_MAP[String(value)] ?? "";
-		case "display": return String(value);
-		case "alignItems": return `items-${value}`;
+		case "padding":
+			return spacingClass("p", value as string | number);
+		case "paddingX":
+			return spacingClass("px", value as string | number);
+		case "paddingY":
+			return spacingClass("py", value as string | number);
+		case "margin":
+			return spacingClass("m", value as string | number);
+		case "marginX":
+			return spacingClass("mx", value as string | number);
+		case "marginY":
+			return spacingClass("my", value as string | number);
+		case "gap":
+			return spacingClass("gap", value as string | number);
+		case "borderRadius":
+			return RADIUS_MAP[String(value)] ?? "";
+		case "display":
+			return String(value);
+		case "alignItems":
+			return `items-${value}`;
 		case "justifyContent": {
-			const map: Record<string, string> = { start: "justify-start", center: "justify-center", end: "justify-end", between: "justify-between", around: "justify-around", evenly: "justify-evenly" };
+			const map: Record<string, string> = {
+				start: "justify-start",
+				center: "justify-center",
+				end: "justify-end",
+				between: "justify-between",
+				around: "justify-around",
+				evenly: "justify-evenly",
+			};
 			return map[String(value)] ?? "";
 		}
 		case "flexDirection": {
-			const map: Record<string, string> = { row: "flex-row", column: "flex-col", "row-reverse": "flex-row-reverse", "column-reverse": "flex-col-reverse" };
+			const map: Record<string, string> = {
+				row: "flex-row",
+				column: "flex-col",
+				"row-reverse": "flex-row-reverse",
+				"column-reverse": "flex-col-reverse",
+			};
 			return map[String(value)] ?? "";
 		}
-		case "position": return String(value);
-		case "overflow": return `overflow-${value}`;
-		case "fontSize": return `text-${value}`;
-		case "fontWeight": return `font-${value}`;
-		case "opacity": return typeof value === "number" ? `opacity-${Math.round((value as number) * 100)}` : "";
-		case "color": return `text-[var(--color-${value})]`;
-		case "backgroundColor": return `bg-[var(--color-${value})]`;
-		default: return "";
+		case "position":
+			return String(value);
+		case "overflow":
+			return `overflow-${value}`;
+		case "fontSize":
+			return `text-${value}`;
+		case "fontWeight":
+			return `font-${value}`;
+		case "opacity":
+			return typeof value === "number" ? `opacity-${Math.round((value as number) * 100)}` : "";
+		case "color":
+			return `text-[var(--color-${value})]`;
+		case "backgroundColor":
+			return `bg-[var(--color-${value})]`;
+		default:
+			return "";
 	}
 }
 
@@ -120,7 +159,9 @@ function isConditional(value: unknown): value is Record<string, unknown> {
  *
  * Returns a class string (static) or a function that resolves classes at runtime (conditional).
  */
-export function style(props: StyleProps): string | ((state: Partial<Record<StateCondition, boolean>>) => string) {
+export function style(
+	props: StyleProps,
+): string | ((state: Partial<Record<StateCondition, boolean>>) => string) {
 	const staticClasses: string[] = [];
 	const conditionalProps: Array<{ key: string; conditions: Record<string, unknown> }> = [];
 	let hasConditional = false;
@@ -128,7 +169,10 @@ export function style(props: StyleProps): string | ((state: Partial<Record<State
 	for (const [key, value] of Object.entries(props)) {
 		if (value === undefined) continue;
 
-		if (isConditional(value) && ("default" in value || Object.keys(value).some((k) => k.startsWith("is")))) {
+		if (
+			isConditional(value) &&
+			("default" in value || Object.keys(value).some((k) => k.startsWith("is")))
+		) {
 			hasConditional = true;
 			conditionalProps.push({ key, conditions: value as Record<string, unknown> });
 			// Add the default value as a static class

@@ -50,9 +50,7 @@ const SHADOW_LAYER_MAP: Record<string, string> = {
 	g: "--shadow-glow",
 };
 
-export function generateVariantsCSS(
-	registry: CategoryDefinition[],
-): string {
+export function generateVariantsCSS(registry: CategoryDefinition[]): string {
 	const lines: string[] = [
 		"/**",
 		" * AUTO-GENERATED — DO NOT EDIT",
@@ -82,9 +80,7 @@ export function generateVariantsCSS(
 	];
 
 	for (const cat of registry) {
-		lines.push(
-			`/* ── ${cat.code}: ${cat.name} — ${cat.values.length} values ── */`,
-		);
+		lines.push(`/* ── ${cat.code}: ${cat.name} — ${cat.values.length} values ── */`);
 
 		const shadowLayer = SHADOW_LAYER_MAP[cat.code];
 
@@ -115,9 +111,7 @@ export function generateVariantsCSS(
 			}
 
 			if (value.svgFilters && value.svgFilters.length > 0) {
-				lines.push(
-					`\t/* svg-filters: ${value.svgFilters.join(", ")} */`,
-				);
+				lines.push(`\t/* svg-filters: ${value.svgFilters.join(", ")} */`);
 			}
 
 			lines.push("}");

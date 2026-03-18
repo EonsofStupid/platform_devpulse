@@ -3,11 +3,11 @@
 	@layer vpb
 -->
 <script lang="ts">
-	import { categoryIds } from "$lib/design/registry/token-categories.js";
+import { categoryIds } from "$lib/design/registry/token-categories.js";
 
-	const BevelTokens = categoryIds("b");
+const BevelTokens = categoryIds("b");
 
-	let { value, onchange }: { value: string; onchange: (v: string) => void } = $props();
+let { value, onchange }: { value: string; onchange: (v: string) => void } = $props();
 </script>
 
 <div class="vpb-ctrl">

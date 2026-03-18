@@ -4,12 +4,12 @@
   @domain devpulse
 -->
 <script lang="ts">
-	import { Stack } from "$lib/design/components/stack/index.js";
-	import { Grid } from "$lib/design/components/grid/index.js";
-	import { Text } from "$lib/design/components/text/index.js";
-	import { Card } from "$lib/design/components/card/index.js";
-	import { Widget } from "$lib/design/blocks/widgets/index.js";
-	import { devpulseState } from "$lib/domains/app/devpulse/index.js";
+import { Widget } from "$lib/design/blocks/widgets/index.js";
+import { Card } from "$lib/design/components/card/index.js";
+import { Grid } from "$lib/design/components/grid/index.js";
+import { Stack } from "$lib/design/components/stack/index.js";
+import { Text } from "$lib/design/components/text/index.js";
+import { devpulseState } from "$lib/domains/app/devpulse/index.js";
 </script>
 
 <Stack gap="4" class="box-lg" data-page="devpulse-projects">

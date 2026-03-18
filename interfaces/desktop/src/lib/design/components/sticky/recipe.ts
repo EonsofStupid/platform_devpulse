@@ -9,6 +9,6 @@
 
 type StickyRecipeProps = { top?: string; offset?: string };
 
-export function stickyRecipe(props: StickyRecipeProps = {}): string {
+export function stickyRecipe(_props: StickyRecipeProps = {}): string {
 	return "sticky-root";
 }

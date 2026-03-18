@@ -39,12 +39,7 @@ export type SvgFilterPrimitive = (typeof SVG_FILTER_PRIMITIVES)[number];
 // =============================================================================
 
 /** Categories of SVG filters. Each maps to a definitions file. */
-export const SVG_FILTER_CATEGORIES = [
-	"bevel",
-	"noise",
-	"glow",
-	"material",
-] as const;
+export const SVG_FILTER_CATEGORIES = ["bevel", "noise", "glow", "material"] as const;
 
 export type SvgFilterCategory = (typeof SVG_FILTER_CATEGORIES)[number];
 
@@ -137,12 +132,7 @@ export interface FilterDef {
 // =============================================================================
 
 /** Available parametric blank shapes */
-export const BLANK_SHAPES = [
-	"rect",
-	"pill",
-	"circle",
-	"hexagon",
-] as const;
+export const BLANK_SHAPES = ["rect", "pill", "circle", "hexagon"] as const;
 
 export type BlankShape = (typeof BLANK_SHAPES)[number];
 
@@ -160,11 +150,7 @@ export interface ShapeOutput {
  * Shape generator function.
  * Takes dimensions and border radius, returns SVG element tag + attributes.
  */
-export type ShapeGenerator = (
-	width: number,
-	height: number,
-	radius: number,
-) => ShapeOutput;
+export type ShapeGenerator = (width: number, height: number, radius: number) => ShapeOutput;
 
 // =============================================================================
 // SURFACE SPEC — composed SVG surface declaration

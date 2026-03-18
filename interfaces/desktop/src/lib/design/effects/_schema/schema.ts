@@ -12,10 +12,10 @@
 
 import { z } from "zod";
 import {
+	COMPOSITOR_NODE_TYPES,
 	EFFECT_CATEGORIES,
 	EFFECT_TRIGGERS,
 	SHADOW_LAYERS,
-	COMPOSITOR_NODE_TYPES,
 } from "./types.js";
 
 // =============================================================================
@@ -51,10 +51,12 @@ export const EffectDefinitionSchema = z.object({
 	cssProperties: z.record(z.string(), z.string()).optional(),
 	shadowLayer: ShadowLayerSchema.optional(),
 	transition: z.string().optional(),
-	customJS: z.object({
-		module: z.string().min(1),
-		defaultParams: z.record(z.string(), z.unknown()),
-	}).optional(),
+	customJS: z
+		.object({
+			module: z.string().min(1),
+			defaultParams: z.record(z.string(), z.unknown()),
+		})
+		.optional(),
 	conflictGroup: z.string().optional(),
 });
 
@@ -74,10 +76,12 @@ export const ComposedEffectSchema = z.object({
 	trigger: EffectTriggerSchema,
 	tailwindClasses: z.array(z.string()).readonly().optional(),
 	transition: z.string().optional(),
-	customJS: z.object({
-		module: z.string().min(1),
-		params: z.record(z.string(), z.unknown()),
-	}).optional(),
+	customJS: z
+		.object({
+			module: z.string().min(1),
+			params: z.record(z.string(), z.unknown()),
+		})
+		.optional(),
 });
 
 // =============================================================================

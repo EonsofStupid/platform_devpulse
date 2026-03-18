@@ -8,5 +8,5 @@
  * has a customJS property.
  */
 
-export { intersectionReveal, type IntersectionRevealParams } from "./intersection-reveal.js";
-export { glowTrack, type GlowTrackParams } from "./glow-track.js";
+export { type GlowTrackParams, glowTrack } from "./glow-track.js";
+export { type IntersectionRevealParams, intersectionReveal } from "./intersection-reveal.js";

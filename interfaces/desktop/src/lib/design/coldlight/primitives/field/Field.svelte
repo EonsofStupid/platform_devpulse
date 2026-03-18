@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { FieldPrimitiveProps } from "./field.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { FieldPrimitiveProps } from "./field.props.js";
 
-	let { children, class: className, ...rest }: FieldPrimitiveProps = $props();
+let { children, class: className, ...rest }: FieldPrimitiveProps = $props();
 </script>
 
 <div

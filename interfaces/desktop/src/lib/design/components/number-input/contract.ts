@@ -35,9 +35,7 @@ export const contract = {
 			aria: {
 				role: "group",
 				required: [],
-				optional: [
-					{ attr: "aria-label", valueType: "aria-label" },
-				],
+				optional: [{ attr: "aria-label", valueType: "aria-label" }],
 			},
 			data: {
 				kind: "number-input",
@@ -50,9 +48,7 @@ export const contract = {
 			element: "input",
 			aria: {
 				role: "spinbutton",
-				required: [
-					{ attr: "aria-valuenow", valueType: "aria-valuenow" },
-				],
+				required: [{ attr: "aria-valuenow", valueType: "aria-valuenow" }],
 				optional: [
 					{ attr: "aria-valuemin", valueType: "aria-valuemin" },
 					{ attr: "aria-valuemax", valueType: "aria-valuemax" },

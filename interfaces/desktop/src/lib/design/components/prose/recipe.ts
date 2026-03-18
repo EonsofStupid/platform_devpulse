@@ -15,8 +15,5 @@ type ProseRecipeProps = { size?: string };
 
 export function proseRecipe(props: ProseRecipeProps = {}): string {
 	const size = props.size === "sm" ? "text-sm" : props.size === "lg" ? "text-base" : "text-sm";
-	return cn(
-		"prose-root",
-		size,
-	);
+	return cn("prose-root", size);
 }

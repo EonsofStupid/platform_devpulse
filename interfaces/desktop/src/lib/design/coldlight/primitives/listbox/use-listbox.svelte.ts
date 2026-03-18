@@ -8,9 +8,9 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/listbox/
  */
 
-import { uid } from "../../_internal/utils/uid.js";
 import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
 import { kbd } from "../../_internal/utils/kbd.js";
+import { uid } from "../../_internal/utils/uid.js";
 import { listboxAnatomy } from "./listbox.anatomy.js";
 import type { UseListBoxProps, UseListBoxReturn } from "./listbox.types.js";
 
@@ -44,7 +44,9 @@ export function useListBox(props: UseListBoxProps = {}): UseListBoxReturn {
 	function getOptionElements(): HTMLElement[] {
 		const container = document.getElementById(id);
 		if (!container) return [];
-		return Array.from(container.querySelectorAll<HTMLElement>('[role="option"]:not([data-disabled])'));
+		return Array.from(
+			container.querySelectorAll<HTMLElement>('[role="option"]:not([data-disabled])'),
+		);
 	}
 
 	function highlightByIndex(index: number): void {
@@ -99,9 +101,15 @@ export function useListBox(props: UseListBoxProps = {}): UseListBoxReturn {
 	});
 
 	return {
-		get value() { return value; },
-		get highlightedId() { return highlightedId; },
-		get root() { return root; },
+		get value() {
+			return value;
+		},
+		get highlightedId() {
+			return highlightedId;
+		},
+		get root() {
+			return root;
+		},
 
 		getOption(optionValue: string, options?: { disabled?: boolean; label?: string }) {
 			const optionId = `${id}-option-${optionValue}`;
@@ -117,8 +125,12 @@ export function useListBox(props: UseListBoxProps = {}): UseListBoxReturn {
 				"data-state": selected ? ("selected" as const) : ("unselected" as const),
 				"data-highlighted": highlightedId === optionId ? ("" as const) : undefined,
 				"data-disabled": isDisabled ? ("" as const) : undefined,
-				onclick: () => { if (!isDisabled) select(optionValue); },
-				onpointerenter: () => { highlightedId = optionId; },
+				onclick: () => {
+					if (!isDisabled) select(optionValue);
+				},
+				onpointerenter: () => {
+					highlightedId = optionId;
+				},
 			};
 		},
 

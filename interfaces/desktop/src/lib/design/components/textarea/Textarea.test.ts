@@ -12,10 +12,10 @@
  * Setup:  vitest-browser-svelte
  */
 
+import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { expect, test, describe } from "vitest";
-import Textarea from "./Textarea.svelte";
 import { contract } from "./contract.js";
+import Textarea from "./Textarea.svelte";
 
 // =============================================================================
 // CONTRACT INTEGRITY

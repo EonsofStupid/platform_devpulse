@@ -36,9 +36,7 @@ export function registerTypes(jitiEnums: Enums): void {
 				const pascal = name.charAt(0).toUpperCase() + name.slice(1);
 				const serialized = JSON.stringify([...values]);
 				lines.push(`export const ${pascal}Tokens = ${serialized} as const;`);
-				lines.push(
-					`export type ${pascal}Token = (typeof ${pascal}Tokens)[number];`,
-				);
+				lines.push(`export type ${pascal}Token = (typeof ${pascal}Tokens)[number];`);
 				lines.push("");
 			}
 

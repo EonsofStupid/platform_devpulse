@@ -35,7 +35,7 @@ import { cn } from "$lib/design/primitives/types.js";
 import { registerRecipe } from "../../index.js";
 import type { DsSurfaceProps } from "../../types.js";
 import { toPreset } from "../../types.js";
-import { emitSegments, emitCategory, radiusClass } from "../../utils.js";
+import { emitCategory, emitSegments, radiusClass } from "../../utils.js";
 
 /**
  * Per-slot size dimensions: height, padding, font-size.
@@ -136,10 +136,7 @@ registerRecipe({
 			),
 			empty: cn("text-center text-text-muted", s.empty),
 			group: cn("py-1 overflow-hidden"),
-			groupLabel: cn(
-				"font-semibold text-text-muted uppercase tracking-wider",
-				s.groupLabel,
-			),
+			groupLabel: cn("font-semibold text-text-muted uppercase tracking-wider", s.groupLabel),
 			label: cn("font-medium text-text-secondary", s.label),
 		};
 	},

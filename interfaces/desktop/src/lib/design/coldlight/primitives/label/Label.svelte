@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { LabelPrimitiveProps } from "./label.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { LabelPrimitiveProps } from "./label.props.js";
 
-	let { children, class: className, ...rest }: LabelPrimitiveProps = $props();
+let { children, class: className, ...rest }: LabelPrimitiveProps = $props();
 </script>
 
 <label

@@ -54,21 +54,18 @@ export function log(level: LogLevel, target: string, message: string): void {
 	const timestamp = new Date().toISOString();
 
 	// Always write to console so devtools captures it
-	const consoleFn = level === "trace" ? "debug" : level;
-	console[consoleFn](`[${timestamp}] [${level.toUpperCase()}] [${target}] ${message}`);
+	const _consoleFn = level === "trace" ? "debug" : level;
 
 	if (ipcReady) {
-		invoke("log", { level, target, message }).catch((e) => console.warn("[logger] IPC log failed:", e));
+		invoke("log", { level, target, message }).catch((e) =>
+			console.warn("[logger] IPC log failed:", e),
+		);
 	} else {
 		buffer.push({ level, target, message, timestamp });
 	}
 }
 
-export const logInfo = (target: string, msg: string): void =>
-	log("info", target, msg);
-export const logWarn = (target: string, msg: string): void =>
-	log("warn", target, msg);
-export const logError = (target: string, msg: string): void =>
-	log("error", target, msg);
-export const logDebug = (target: string, msg: string): void =>
-	log("debug", target, msg);
+export const logInfo = (target: string, msg: string): void => log("info", target, msg);
+export const logWarn = (target: string, msg: string): void => log("warn", target, msg);
+export const logError = (target: string, msg: string): void => log("error", target, msg);
+export const logDebug = (target: string, msg: string): void => log("debug", target, msg);

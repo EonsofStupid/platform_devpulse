@@ -9,16 +9,17 @@
 	(role, aria-selected, aria-controls, tabindex, onclick, onkeydown).
 -->
 <script lang="ts">
-	import type { TabsTriggerProps } from "./types.js";
-	import { getTabsContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { getRecipe } from "$lib/design/recipes/index.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getRecipe } from "$lib/design/recipes/index.js";
+import { getTabsContext } from "./context.js";
+import type { TabsTriggerProps } from "./types.js";
 
-	let { value, disabled = false, children, class: className, ...rest }: TabsTriggerProps = $props();
-	const tabs = getTabsContext();
-	const recipe = getRecipe("tabs.glass.void");
-	const triggerClass = recipe?.classes?.({} as any)?.trigger ?? "";
-	const slotAttrs = $derived(tabs.getTrigger(value, disabled));
+let { value, disabled = false, children, class: className, ...rest }: TabsTriggerProps = $props();
+const tabs = getTabsContext();
+const recipe = getRecipe("tabs.glass.void");
+// biome-ignore lint/suspicious/noExplicitAny: recipe classes accept any state
+const triggerClass = recipe?.classes?.({} as any)?.trigger ?? "";
+const slotAttrs = $derived(tabs.getTrigger(value, disabled));
 </script>
 
 <button

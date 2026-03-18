@@ -1,1 +1,1 @@
-export type { SlotAttrs, ColdLightDataAttrs } from "./common.js";
+export type { ColdLightDataAttrs, SlotAttrs } from "./common.js";

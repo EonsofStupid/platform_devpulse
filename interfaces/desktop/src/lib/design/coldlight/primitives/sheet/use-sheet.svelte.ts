@@ -8,10 +8,10 @@
  */
 
 import { tick } from "svelte";
-import { createIds } from "../../_internal/utils/uid.js";
 import { useDismissLayer } from "../../_internal/a11y/dismiss-layer/index.js";
 import { usePresence } from "../../_internal/a11y/presence/index.js";
 import { useScrollLock } from "../../_internal/a11y/scroll-lock/index.js";
+import { createIds } from "../../_internal/utils/uid.js";
 import { sheetAnatomy } from "./sheet.anatomy.js";
 import type { UseSheetProps, UseSheetReturn } from "./sheet.types.js";
 
@@ -31,7 +31,10 @@ export function useSheet(props: UseSheetProps = {}): UseSheetReturn {
 		if (value) {
 			isOpen = true;
 			props.onOpenChange?.(true);
-			tick().then(() => { contentEl?.showModal?.(); overlayEl?.showPopover?.(); });
+			tick().then(() => {
+				contentEl?.showModal?.();
+				overlayEl?.showPopover?.();
+			});
 		} else {
 			isOpen = false;
 			props.onOpenChange?.(false);
@@ -80,38 +83,76 @@ export function useSheet(props: UseSheetProps = {}): UseSheetReturn {
 
 	function attachContent(node: HTMLDialogElement): { destroy(): void } {
 		contentEl = node;
-		if (isOpen) tick().then(() => { contentEl?.showModal?.(); overlayEl?.showPopover?.(); });
+		if (isOpen)
+			tick().then(() => {
+				contentEl?.showModal?.();
+				overlayEl?.showPopover?.();
+			});
 		useScrollLock(() => isOpen);
 		if (closeOnOutsideClick) {
-			useDismissLayer({ enabled: () => isOpen, node: () => contentEl, onDismiss: () => setOpen(false) });
+			useDismissLayer({
+				enabled: () => isOpen,
+				node: () => contentEl,
+				onDismiss: () => setOpen(false),
+			});
 		}
 		usePresence({
 			open: () => isOpen,
 			node: () => contentEl,
-			onExitComplete: () => { contentEl?.close?.(); overlayEl?.hidePopover?.(); triggerEl?.focus(); },
+			onExitComplete: () => {
+				contentEl?.close?.();
+				overlayEl?.hidePopover?.();
+				triggerEl?.focus();
+			},
 		});
-		return { destroy() { contentEl = null; } };
+		return {
+			destroy() {
+				contentEl = null;
+			},
+		};
 	}
 
 	function attachOverlay(node: HTMLElement): { destroy(): void } {
 		overlayEl = node;
-		return { destroy() { overlayEl = null; } };
+		return {
+			destroy() {
+				overlayEl = null;
+			},
+		};
 	}
 
 	function attachTrigger(node: HTMLElement): { destroy(): void } {
 		triggerEl = node;
-		return { destroy() { triggerEl = null; } };
+		return {
+			destroy() {
+				triggerEl = null;
+			},
+		};
 	}
 
 	return {
-		get open() { return isOpen; },
+		get open() {
+			return isOpen;
+		},
 		setOpen,
-		get trigger() { return trigger; },
-		get overlay() { return overlay; },
-		get content() { return content; },
-		get title() { return title; },
-		get description() { return description; },
-		get close() { return close; },
+		get trigger() {
+			return trigger;
+		},
+		get overlay() {
+			return overlay;
+		},
+		get content() {
+			return content;
+		},
+		get title() {
+			return title;
+		},
+		get description() {
+			return description;
+		},
+		get close() {
+			return close;
+		},
 		attachContent,
 		attachOverlay,
 		attachTrigger,

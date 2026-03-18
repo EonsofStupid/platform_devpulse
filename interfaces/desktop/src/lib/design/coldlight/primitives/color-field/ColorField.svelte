@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { ColorFieldPrimitiveProps } from "./color-field.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { ColorFieldPrimitiveProps } from "./color-field.props.js";
 
-	let { children, class: className, ...rest }: ColorFieldPrimitiveProps = $props();
+let { children, class: className, ...rest }: ColorFieldPrimitiveProps = $props();
 </script>
 
 <div

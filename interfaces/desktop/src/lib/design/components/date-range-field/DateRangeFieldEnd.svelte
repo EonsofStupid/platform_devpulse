@@ -8,14 +8,14 @@
 	ColdLight-owned ARIA — role="group" with aria-label.
 -->
 <script lang="ts">
-	import type { DateRangeFieldEndProps } from "./types.js";
-	import { getDateRangeFieldContext } from "./context.js";
-	import { dateRangeFieldRecipe } from "./recipe.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getDateRangeFieldContext } from "./context.js";
+import { dateRangeFieldRecipe } from "./recipe.js";
+import type { DateRangeFieldEndProps } from "./types.js";
 
-	let { children, class: className, ...rest }: DateRangeFieldEndProps = $props();
-	const ctx = getDateRangeFieldContext();
-	const recipe = $derived(dateRangeFieldRecipe({ size: ctx.size }));
+let { children, class: className, ...rest }: DateRangeFieldEndProps = $props();
+const ctx = getDateRangeFieldContext();
+const recipe = $derived(dateRangeFieldRecipe({ size: ctx.size }));
 </script>
 
 <div

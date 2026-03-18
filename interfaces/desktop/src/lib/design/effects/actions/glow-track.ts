@@ -24,20 +24,11 @@ export interface GlowTrackParams {
 	radius?: string;
 }
 
-export function glowTrack(
-	node: HTMLElement,
-	params: GlowTrackParams = {},
-) {
-	const {
-		color = "var(--color-teal-500)",
-		opacity = 0.3,
-		radius = "60%",
-	} = params;
+export function glowTrack(node: HTMLElement, params: GlowTrackParams = {}) {
+	const { color = "var(--color-teal-500)", opacity = 0.3, radius = "60%" } = params;
 
 	// Respect reduced motion
-	const prefersReduced = globalThis.matchMedia?.(
-		"(prefers-reduced-motion: reduce)",
-	).matches;
+	const prefersReduced = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
 	if (prefersReduced) {
 		return { destroy() {} };

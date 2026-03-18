@@ -15,8 +15,8 @@
  * where light comes from upper-left and shadows fall lower-right.
  */
 
-import { registerFilter } from "../registry.js";
 import type { FilterDef } from "../../_schema/types.js";
+import { registerFilter } from "../registry.js";
 
 // =============================================================================
 // BEVEL SOFT — subtle machined-metal edge
@@ -26,15 +26,32 @@ const bevelSoft: FilterDef = {
 	id: "bevel-soft",
 	category: "bevel",
 	label: "Bevel Soft",
-	description: "Soft 3D edge highlight using specular lighting. Subtle machined-metal edge for panels and cards.",
+	description:
+		"Soft 3D edge highlight using specular lighting. Subtle machined-metal edge for panels and cards.",
 	cssClass: "filter-bevel-soft",
 	effectId: "bevel.soft-svg",
 	filterMargin: 5,
 	params: [
-		{ cssProperty: "--svg-bevel-specular", defaultValue: 0.6, description: "Specular constant (brightness of highlight)" },
-		{ cssProperty: "--svg-bevel-roughness", defaultValue: 0.3, description: "Surface roughness (spread of highlight)" },
-		{ cssProperty: "--svg-light-elevation", defaultValue: 45, description: "Light source elevation angle" },
-		{ cssProperty: "--svg-light-azimuth", defaultValue: 225, description: "Light source azimuth angle" },
+		{
+			cssProperty: "--svg-bevel-specular",
+			defaultValue: 0.6,
+			description: "Specular constant (brightness of highlight)",
+		},
+		{
+			cssProperty: "--svg-bevel-roughness",
+			defaultValue: 0.3,
+			description: "Surface roughness (spread of highlight)",
+		},
+		{
+			cssProperty: "--svg-light-elevation",
+			defaultValue: 45,
+			description: "Light source elevation angle",
+		},
+		{
+			cssProperty: "--svg-light-azimuth",
+			defaultValue: 225,
+			description: "Light source azimuth angle",
+		},
 	],
 	steps: [
 		{
@@ -52,9 +69,7 @@ const bevelSoft: FilterDef = {
 				"lighting-color": "oklch(0.85 0.02 195)",
 			},
 			result: "specular",
-			children: [
-				{ tag: "feDistantLight", attrs: { azimuth: 225, elevation: 45 } },
-			],
+			children: [{ tag: "feDistantLight", attrs: { azimuth: 225, elevation: 45 } }],
 		},
 		{
 			primitive: "feComposite",
@@ -80,7 +95,8 @@ const bevelMedium: FilterDef = {
 	id: "bevel-medium",
 	category: "bevel",
 	label: "Bevel Medium",
-	description: "Medium-strength 3D edge with pronounced specular ridge. Machined panel look for modals and key surfaces.",
+	description:
+		"Medium-strength 3D edge with pronounced specular ridge. Machined panel look for modals and key surfaces.",
 	cssClass: "filter-bevel-medium",
 	effectId: "bevel.medium-svg",
 	filterMargin: 8,
@@ -106,9 +122,7 @@ const bevelMedium: FilterDef = {
 				"lighting-color": "oklch(0.90 0.03 195)",
 			},
 			result: "specular",
-			children: [
-				{ tag: "feDistantLight", attrs: { azimuth: 225, elevation: 50 } },
-			],
+			children: [{ tag: "feDistantLight", attrs: { azimuth: 225, elevation: 50 } }],
 		},
 		{
 			primitive: "feComposite",
@@ -134,14 +148,23 @@ const bevelStrong: FilterDef = {
 	id: "bevel-strong",
 	category: "bevel",
 	label: "Bevel Strong",
-	description: "Maximum 3D depth with dual-light specular. Primary top-left key light + bottom-right teal fill light. For hero panels and featured surfaces.",
+	description:
+		"Maximum 3D depth with dual-light specular. Primary top-left key light + bottom-right teal fill light. For hero panels and featured surfaces.",
 	cssClass: "filter-bevel-strong",
 	effectId: "bevel.strong-svg",
 	filterMargin: 10,
 	params: [
-		{ cssProperty: "--svg-bevel-specular", defaultValue: 1.0, description: "Primary specular constant" },
+		{
+			cssProperty: "--svg-bevel-specular",
+			defaultValue: 1.0,
+			description: "Primary specular constant",
+		},
 		{ cssProperty: "--svg-bevel-roughness", defaultValue: 0.2, description: "Surface roughness" },
-		{ cssProperty: "--svg-light-elevation", defaultValue: 55, description: "Primary light elevation" },
+		{
+			cssProperty: "--svg-light-elevation",
+			defaultValue: 55,
+			description: "Primary light elevation",
+		},
 		{ cssProperty: "--svg-light-azimuth", defaultValue: 225, description: "Primary light azimuth" },
 	],
 	steps: [
@@ -161,9 +184,7 @@ const bevelStrong: FilterDef = {
 				"lighting-color": "oklch(0.92 0.04 195)",
 			},
 			result: "specular1",
-			children: [
-				{ tag: "feDistantLight", attrs: { azimuth: 225, elevation: 55 } },
-			],
+			children: [{ tag: "feDistantLight", attrs: { azimuth: 225, elevation: 55 } }],
 		},
 		// Secondary specular — bottom-right teal fill light (dimmer)
 		{
@@ -176,9 +197,7 @@ const bevelStrong: FilterDef = {
 				"lighting-color": "oklch(0.55 0.18 180)",
 			},
 			result: "specular2",
-			children: [
-				{ tag: "feDistantLight", attrs: { azimuth: 45, elevation: 30 } },
-			],
+			children: [{ tag: "feDistantLight", attrs: { azimuth: 45, elevation: 30 } }],
 		},
 		// Mask both specular results to source shape
 		{

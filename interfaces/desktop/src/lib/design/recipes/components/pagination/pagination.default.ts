@@ -58,9 +58,7 @@ registerRecipe({
 		const r = radiusClass(props.radius);
 
 		return {
-			root: cn(
-				"flex items-center gap-1",
-			),
+			root: cn("flex items-center gap-1"),
 			item: cn(
 				"inline-flex items-center justify-center",
 				s.item,

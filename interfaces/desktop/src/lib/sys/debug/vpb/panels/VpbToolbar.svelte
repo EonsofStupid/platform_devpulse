@@ -3,43 +3,43 @@
 	@layer vpb
 -->
 <script lang="ts">
-	import { vpbDocument } from "../state/vpb-document.svelte.js";
-	import { saveAutoSave, exportDocument, importDocument } from "../persistence/local-storage.js";
-	import { downloadSvelte } from "../codegen/svelte-codegen.js";
+import { downloadSvelte } from "../codegen/svelte-codegen.js";
+import { exportDocument, importDocument, saveAutoSave } from "../persistence/local-storage.js";
+import { vpbDocument } from "../state/vpb-document.svelte.js";
 
-	let {
-		open = $bindable(true),
-		viewMode = $bindable<"preview" | "graph">("preview"),
-	}: {
-		open?: boolean;
-		viewMode?: "preview" | "graph";
-	} = $props();
-	let fileInput: HTMLInputElement;
+let {
+	open = $bindable(true),
+	viewMode = $bindable<"preview" | "graph">("preview"),
+}: {
+	open?: boolean;
+	viewMode?: "preview" | "graph";
+} = $props();
+let fileInput: HTMLInputElement;
 
-	function handleSave() {
-		saveAutoSave(vpbDocument.document);
-	}
+function handleSave() {
+	saveAutoSave(vpbDocument.document);
+}
 
-	function handleExport() {
-		exportDocument(vpbDocument.document);
-	}
+function handleExport() {
+	exportDocument(vpbDocument.document);
+}
 
-	async function handleImport() {
-		fileInput?.click();
-	}
+async function handleImport() {
+	fileInput?.click();
+}
 
-	async function onFileSelected(e: Event) {
-		const input = e.target as HTMLInputElement;
-		const file = input.files?.[0];
-		if (!file) return;
-		const doc = await importDocument(file);
-		if (doc) vpbDocument.load(doc);
-		input.value = "";
-	}
+async function onFileSelected(e: Event) {
+	const input = e.target as HTMLInputElement;
+	const file = input.files?.[0];
+	if (!file) return;
+	const doc = await importDocument(file);
+	if (doc) vpbDocument.load(doc);
+	input.value = "";
+}
 
-	function handleNew() {
-		vpbDocument.newDocument();
-	}
+function handleNew() {
+	vpbDocument.newDocument();
+}
 </script>
 
 <div class="vpb-toolbar">

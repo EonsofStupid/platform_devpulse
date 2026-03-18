@@ -16,8 +16,8 @@
  * that requires cursor position tracking (customJS).
  */
 
-import { registerEffect } from "../../registry.js";
 import type { EffectDefinition } from "../../_schema/types.js";
+import { registerEffect } from "../../registry.js";
 
 // =============================================================================
 // GLOW EFFECT DEFINITIONS
@@ -111,7 +111,8 @@ const glowAccent: EffectDefinition = {
 	id: "glow.accent",
 	category: "glow",
 	label: "Glow Accent",
-	description: "Dynamic accent glow using the current --_accent CSS custom property. Color follows context.",
+	description:
+		"Dynamic accent glow using the current --_accent CSS custom property. Color follows context.",
 	supportedTriggers: ["always", "hover", "focus"],
 	classes: ["glow-accent"],
 	shadowLayer: "glow",
@@ -125,7 +126,8 @@ const glowTrack: EffectDefinition = {
 	id: "glow.track",
 	category: "glow",
 	label: "Glow Track",
-	description: "Cursor-following radial gradient glow. Appears on hover at mouse position. Requires relative positioning on parent.",
+	description:
+		"Cursor-following radial gradient glow. Appears on hover at mouse position. Requires relative positioning on parent.",
 	supportedTriggers: ["hover"],
 	classes: ["glow-track"],
 	transition: "opacity var(--duration-fast) var(--ease-out)",

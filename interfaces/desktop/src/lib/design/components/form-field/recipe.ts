@@ -18,13 +18,10 @@ export function formFieldRecipe(props: FormFieldRecipeProps = {}): string {
 		sm: "form-field-sm",
 		md: "form-field-md",
 	};
-	return cn(
-		"form-field-root",
-		sizeMap[props.size ?? "md"] ?? sizeMap.md,
-	);
+	return cn("form-field-root", sizeMap[props.size ?? "md"] ?? sizeMap.md);
 }
 
-export function formFieldLabelRecipe(props: FormFieldRecipeProps = {}): string {
+export function formFieldLabelRecipe(_props: FormFieldRecipeProps = {}): string {
 	return cn("form-field-label");
 }
 
@@ -32,10 +29,10 @@ export function formFieldControlRecipe(): string {
 	return "";
 }
 
-export function formFieldDescriptionRecipe(props: FormFieldRecipeProps = {}): string {
+export function formFieldDescriptionRecipe(_props: FormFieldRecipeProps = {}): string {
 	return cn("form-field-description");
 }
 
-export function formFieldErrorRecipe(props: FormFieldRecipeProps = {}): string {
+export function formFieldErrorRecipe(_props: FormFieldRecipeProps = {}): string {
 	return cn("form-field-error");
 }

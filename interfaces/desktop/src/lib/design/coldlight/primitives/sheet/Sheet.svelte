@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { SheetPrimitiveProps } from "./sheet.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { SheetPrimitiveProps } from "./sheet.props.js";
 
-	let { children, class: className, ...rest }: SheetPrimitiveProps = $props();
+let { children, class: className, ...rest }: SheetPrimitiveProps = $props();
 </script>
 
 <div

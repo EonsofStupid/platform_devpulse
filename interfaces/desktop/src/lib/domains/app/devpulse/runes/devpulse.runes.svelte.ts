@@ -9,8 +9,8 @@
 
 import {
 	fetchDashboardData,
-	mapPayloadToDashboard,
 	getEmptyDashboard,
+	mapPayloadToDashboard,
 } from "../services/devpulse.service.js";
 import type { DashboardData } from "../types/devpulse.types.js";
 

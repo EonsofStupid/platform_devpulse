@@ -19,14 +19,10 @@ export function inputGroupRecipe(props: InputGroupRecipeProps = {}): string {
 		md: "h-10 px-4 text-sm",
 		lg: "h-12 px-6 text-base",
 	};
-	return cn(
-		"input-group-root",
-		sizeMap[props.size ?? "md"] ?? "h-10 px-4 text-sm",
-		"rounded-md",
-	);
+	return cn("input-group-root", sizeMap[props.size ?? "md"] ?? "h-10 px-4 text-sm", "rounded-md");
 }
 
-export function inputGroupPrefixRecipe(props: InputGroupRecipeProps = {}): string {
+export function inputGroupPrefixRecipe(_props: InputGroupRecipeProps = {}): string {
 	return cn("input-group-prefix");
 }
 
@@ -34,6 +30,6 @@ export function inputGroupInputRecipe(): string {
 	return cn("input-group-input");
 }
 
-export function inputGroupSuffixRecipe(props: InputGroupRecipeProps = {}): string {
+export function inputGroupSuffixRecipe(_props: InputGroupRecipeProps = {}): string {
 	return cn("input-group-suffix");
 }

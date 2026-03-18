@@ -6,26 +6,26 @@
 	Click a kind to add a new BlockNode to the document.
 -->
 <script lang="ts">
-	import { vpbPalette } from "../state/vpb-palette.svelte.js";
-	import { vpbDocument } from "../state/vpb-document.svelte.js";
-	import { createBlockNode } from "$lib/design/blocks/factory.js";
+import { createBlockNode } from "$lib/design/blocks/factory.js";
+import { vpbDocument } from "../state/vpb-document.svelte.js";
+import { vpbPalette } from "../state/vpb-palette.svelte.js";
 
-	function handleAddBlock(kind: string) {
-		try {
-			const node = createBlockNode(kind);
-			vpbDocument.addNode(node);
-		} catch (e) {
-			// No recipe registered for this kind yet — show as disabled
-			console.warn(`[VPB] Cannot add "${kind}":`, (e as Error).message);
-		}
+function handleAddBlock(kind: string) {
+	try {
+		const node = createBlockNode(kind);
+		vpbDocument.addNode(node);
+	} catch (e) {
+		// No recipe registered for this kind yet — show as disabled
+		console.warn(`[VPB] Cannot add "${kind}":`, (e as Error).message);
 	}
+}
 
-	function formatKindName(kind: string): string {
-		return kind
-			.split("-")
-			.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-			.join(" ");
-	}
+function formatKindName(kind: string): string {
+	return kind
+		.split("-")
+		.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+		.join(" ");
+}
 </script>
 
 <div class="vpb-palette">

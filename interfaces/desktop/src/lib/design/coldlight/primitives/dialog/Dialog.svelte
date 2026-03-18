@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { DialogPrimitiveProps } from "./dialog.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { DialogPrimitiveProps } from "./dialog.props.js";
 
-	let { children, class: className, ...rest }: DialogPrimitiveProps = $props();
+let { children, class: className, ...rest }: DialogPrimitiveProps = $props();
 </script>
 
 <div

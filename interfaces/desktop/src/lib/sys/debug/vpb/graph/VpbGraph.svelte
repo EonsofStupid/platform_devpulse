@@ -6,30 +6,27 @@
 	Renders BlockNode tree as a connected node graph.
 -->
 <script lang="ts">
-	import {
-		SvelteFlow,
-		Controls,
-		MiniMap,
-		Background,
-	} from "@xyflow/svelte";
-	import "@xyflow/svelte/dist/style.css";
-	import VpbBlockNode from "./VpbBlockNode.svelte";
-	import VpbSlotEdge from "./VpbSlotEdge.svelte";
-	import { blockTreeToFlow } from "./blockToFlow.js";
-	import { vpbDocument } from "../state/vpb-document.svelte.js";
+import { Background, Controls, MiniMap, SvelteFlow } from "@xyflow/svelte";
+import "@xyflow/svelte/dist/style.css";
+import { vpbDocument } from "../state/vpb-document.svelte.js";
+import { blockTreeToFlow } from "./blockToFlow.js";
+import VpbBlockNode from "./VpbBlockNode.svelte";
+import VpbSlotEdge from "./VpbSlotEdge.svelte";
 
-	const nodeTypes = { vpbBlock: VpbBlockNode } as Record<string, any>;
-	const edgeTypes = { slot: VpbSlotEdge } as Record<string, any>;
+// biome-ignore lint/suspicious/noExplicitAny: SvelteFlow nodeTypes requires Record<string, any>
+const nodeTypes = { vpbBlock: VpbBlockNode } as Record<string, any>;
+// biome-ignore lint/suspicious/noExplicitAny: SvelteFlow edgeTypes requires Record<string, any>
+const edgeTypes = { slot: VpbSlotEdge } as Record<string, any>;
 
-	const flowData = $derived(blockTreeToFlow(vpbDocument.document.root));
+const flowData = $derived(blockTreeToFlow(vpbDocument.document.root));
 
-	let nodes = $state.raw([] as typeof flowData.nodes);
-	let edges = $state.raw([] as typeof flowData.edges);
+let nodes = $state.raw([] as typeof flowData.nodes);
+let edges = $state.raw([] as typeof flowData.edges);
 
-	$effect(() => {
-		nodes = flowData.nodes;
-		edges = flowData.edges;
-	});
+$effect(() => {
+	nodes = flowData.nodes;
+	edges = flowData.edges;
+});
 </script>
 
 <div class="vpb-graph">

@@ -29,18 +29,14 @@ export const contract = {
 			aria: {
 				role: "link",
 				required: [],
-				optional: [
-					{ attr: "aria-label", valueType: "aria-label" },
-				],
+				optional: [{ attr: "aria-label", valueType: "aria-label" }],
 			},
 			data: {
 				kind: "skip-link",
 				slot: "root",
 				states: ["focused", "focus-visible"],
 			},
-			keyboard: [
-				{ key: "Enter", action: "skip", description: "Skip to target content" },
-			],
+			keyboard: [{ key: "Enter", action: "skip", description: "Skip to target content" }],
 		},
 	},
 
@@ -54,9 +50,7 @@ export const contract = {
 	},
 
 	keyboard: {
-		global: [
-			{ key: "Enter", action: "skip", description: "Skip to target content" },
-		],
+		global: [{ key: "Enter", action: "skip", description: "Skip to target content" }],
 	},
 
 	states: {

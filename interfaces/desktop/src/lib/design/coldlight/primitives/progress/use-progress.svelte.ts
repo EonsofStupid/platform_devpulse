@@ -20,8 +20,8 @@
  * ```
  */
 
-import { createIds } from "../../_internal/utils/uid.js";
 import { announce } from "../../_internal/a11y/live-region/index.js";
+import { createIds } from "../../_internal/utils/uid.js";
 import { progressAnatomy } from "./progress.anatomy.js";
 import type { UseProgressProps, UseProgressReturn } from "./progress.types.js";
 
@@ -34,7 +34,9 @@ export function useProgress(props: UseProgressProps = {}): UseProgressReturn {
 	// ── State ────────────────────────────────────────────────────
 	let value = $state<number | null>(props.value ?? 0);
 	const isIndeterminate = $derived(value === null);
-	const percent = $derived(value === null ? null : max === min ? 0 : ((value - min) / (max - min)) * 100);
+	const percent = $derived(
+		value === null ? null : max === min ? 0 : ((value - min) / (max - min)) * 100,
+	);
 	const isComplete = $derived(value !== null && value >= max);
 
 	function getDataState(): "indeterminate" | "loading" | "complete" {
@@ -67,7 +69,7 @@ export function useProgress(props: UseProgressProps = {}): UseProgressReturn {
 		"aria-valuemax": max,
 		"aria-valuetext": getValueText(),
 		"aria-label": props["aria-label"],
-		"aria-labelledby": props["aria-label"] ? undefined : props["aria-labelledby"] ?? ids.label,
+		"aria-labelledby": props["aria-label"] ? undefined : (props["aria-labelledby"] ?? ids.label),
 		"data-state": getDataState(),
 		"data-value": value ?? undefined,
 		"data-max": max,
@@ -93,14 +95,30 @@ export function useProgress(props: UseProgressProps = {}): UseProgressReturn {
 
 	// ── Public API ───────────────────────────────────────────────
 	return {
-		get value() { return value; },
-		get percent() { return percent; },
-		get isIndeterminate() { return isIndeterminate; },
-		get isComplete() { return isComplete; },
-		get root() { return root; },
-		get track() { return track; },
-		get fill() { return fill; },
-		get label() { return label; },
+		get value() {
+			return value;
+		},
+		get percent() {
+			return percent;
+		},
+		get isIndeterminate() {
+			return isIndeterminate;
+		},
+		get isComplete() {
+			return isComplete;
+		},
+		get root() {
+			return root;
+		},
+		get track() {
+			return track;
+		},
+		get fill() {
+			return fill;
+		},
+		get label() {
+			return label;
+		},
 		setValue: doSetValue,
 	};
 }

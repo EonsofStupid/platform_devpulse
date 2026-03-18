@@ -4,7 +4,7 @@
  * @layer components
  */
 
-export { default as NotificationCenter } from "./NotificationCenter.svelte";
 export { contract as notificationCenterComponentContract } from "./contract.js";
+export { default as NotificationCenter } from "./NotificationCenter.svelte";
 export { notificationCenterRecipe } from "./recipe.js";
 export type { NotificationCenterComponentProps } from "./types.js";

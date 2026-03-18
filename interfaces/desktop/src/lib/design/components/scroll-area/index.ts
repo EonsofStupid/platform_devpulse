@@ -4,12 +4,12 @@
  * @layer components
  */
 
-export { default as ScrollArea } from "./ScrollArea.svelte";
 export { contract as scrollAreaComponentContract } from "./contract.js";
 export {
 	scrollAreaRecipe,
-	scrollAreaViewportRecipe,
 	scrollAreaScrollbarRecipe,
 	scrollAreaThumbRecipe,
+	scrollAreaViewportRecipe,
 } from "./recipe.js";
-export type { ScrollAreaComponentProps, ScrollAreaSize, ScrollAreaOrientation } from "./types.js";
+export { default as ScrollArea } from "./ScrollArea.svelte";
+export type { ScrollAreaComponentProps, ScrollAreaOrientation, ScrollAreaSize } from "./types.js";

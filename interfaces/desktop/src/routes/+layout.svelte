@@ -1,20 +1,25 @@
 <script lang="ts">
 import "../app.css";
+// biome-ignore lint/style/noRestrictedImports: root layout side-effect registration
 import "$lib/design/recipes/layouts/shell/index.js";
+// biome-ignore lint/style/noRestrictedImports: root layout side-effect registration
 import "$lib/design/recipes/blocks/widget/index.js";
+// biome-ignore lint/style/noRestrictedImports: root layout side-effect registration
 import "$lib/design/recipes/components/index.js";
+import { onMount } from "svelte";
 import SvgFilters from "$lib/design/svg/filters/SvgFilters.svelte";
 import BootOverlay from "$lib/layouts/app/BootOverlay.svelte";
+import { logError, logInfo } from "$lib/sys/logger.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
-import { logInfo, logError } from "$lib/sys/logger.js";
-import { onMount } from "svelte";
 
 let { children } = $props();
 
 onMount(() => {
 	logInfo("layout", "Root layout mounted");
+	// biome-ignore lint/suspicious/noExplicitAny: Tauri injects __TAURI_INTERNALS__ on window
 	logInfo("layout", `__TAURI_INTERNALS__: ${typeof (window as any).__TAURI_INTERNALS__}`);
-	platformState.init()
+	platformState
+		.init()
 		.then(() => {
 			logInfo("layout", `platformState.init() complete — phase: ${platformState.phase}`);
 		})

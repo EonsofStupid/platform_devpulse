@@ -1,8 +1,18 @@
 import type { A11ySpec } from "../../schema/a11y.schema.js";
 
 export const tableA11y: A11ySpec = {
-	roles: { root: "grid", header: "rowgroup", body: "rowgroup", row: "row", cell: "gridcell", "column-header": "columnheader" },
-	requiredAttrs: { root: ["aria-label", "aria-rowcount", "aria-colcount"], "column-header": ["aria-sort"] },
+	roles: {
+		root: "grid",
+		header: "rowgroup",
+		body: "rowgroup",
+		row: "row",
+		cell: "gridcell",
+		"column-header": "columnheader",
+	},
+	requiredAttrs: {
+		root: ["aria-label", "aria-rowcount", "aria-colcount"],
+		"column-header": ["aria-sort"],
+	},
 	keyboard: [
 		{ key: "ArrowDown", action: "next-row" },
 		{ key: "ArrowUp", action: "prev-row" },

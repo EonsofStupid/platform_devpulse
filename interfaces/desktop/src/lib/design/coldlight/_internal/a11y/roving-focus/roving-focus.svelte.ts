@@ -24,8 +24,9 @@ export function useRovingFocus(config: RovingFocusConfig): void {
 		if (!container) return;
 
 		function getItems(): HTMLElement[] {
-			return Array.from(container!.querySelectorAll<HTMLElement>(config.itemSelector))
-				.filter((el) => !el.hasAttribute(disabledAttr));
+			return Array.from(container?.querySelectorAll<HTMLElement>(config.itemSelector)).filter(
+				(el) => !el.hasAttribute(disabledAttr),
+			);
 		}
 
 		function focusItem(item: HTMLElement): void {
@@ -40,16 +41,16 @@ export function useRovingFocus(config: RovingFocusConfig): void {
 
 			const nextKey = getNextKey(dir, orientation);
 			const prevKey = getPrevKey(dir, orientation);
-			const currentIndex = items.findIndex((item) => item === document.activeElement);
+			const currentIndex = items.indexOf(document.activeElement);
 
 			let nextIndex: number | null = null;
 
 			if (e.key === nextKey) {
 				e.preventDefault();
-				nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : (loop ? 0 : null);
+				nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : loop ? 0 : null;
 			} else if (e.key === prevKey) {
 				e.preventDefault();
-				nextIndex = currentIndex > 0 ? currentIndex - 1 : (loop ? items.length - 1 : null);
+				nextIndex = currentIndex > 0 ? currentIndex - 1 : loop ? items.length - 1 : null;
 			} else if (e.key === kbd.HOME) {
 				e.preventDefault();
 				nextIndex = 0;

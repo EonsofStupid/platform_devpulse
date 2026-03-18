@@ -5,9 +5,9 @@
  * Parts: root (grid), tag (row, parameterized), label, description, remove (parameterized).
  */
 
-import { uid } from "../../_internal/utils/uid.js";
 import { dataAttr } from "../../_internal/utils/data-attr.js";
 import { kbd } from "../../_internal/utils/kbd.js";
+import { uid } from "../../_internal/utils/uid.js";
 import { tagGroupAnatomy } from "./tag-group.anatomy.js";
 import type { UseTagGroupProps, UseTagGroupReturn } from "./tag-group.types.js";
 
@@ -18,7 +18,9 @@ export function useTagGroup(props: UseTagGroupProps = {}): UseTagGroupReturn {
 	function getTags(): HTMLElement[] {
 		const container = document.getElementById(id);
 		if (!container) return [];
-		return Array.from(container.querySelectorAll<HTMLElement>('[data-slot="tag"]:not([data-disabled])'));
+		return Array.from(
+			container.querySelectorAll<HTMLElement>('[data-slot="tag"]:not([data-disabled])'),
+		);
 	}
 
 	function handleTagKeydown(e: KeyboardEvent, value: string): void {
@@ -55,9 +57,15 @@ export function useTagGroup(props: UseTagGroupProps = {}): UseTagGroupReturn {
 	const description = $derived({ ...tagGroupAnatomy.attrs.description });
 
 	return {
-		get root() { return root; },
-		get label() { return label; },
-		get description() { return description; },
+		get root() {
+			return root;
+		},
+		get label() {
+			return label;
+		},
+		get description() {
+			return description;
+		},
 
 		getTag(value: string, options?: { disabled?: boolean }) {
 			const isDisabled = globalDisabled || (options?.disabled ?? false);
@@ -80,7 +88,9 @@ export function useTagGroup(props: UseTagGroupProps = {}): UseTagGroupReturn {
 				"aria-label": `Remove ${value}` as const,
 				"aria-disabled": isDisabled || undefined,
 				"data-disabled": isDisabled ? ("" as const) : undefined,
-				onclick: () => { if (!isDisabled) props.onRemove?.(value); },
+				onclick: () => {
+					if (!isDisabled) props.onRemove?.(value);
+				},
 			};
 		},
 	};

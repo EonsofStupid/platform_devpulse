@@ -8,32 +8,31 @@
  * into CSS classes + Svelte actions.
  */
 
-// Validation
-export { validateNode, validateTree } from "./_schema/validate.js";
+// Schemas
+export {
+	CompiledActionSchema,
+	CompilerOutputSchema,
+	ComposedEffectSchema,
+	CompositorNodeSchema,
+	NodeValidationResultSchema,
+	RenderingTierSchema,
+	TieredComposedEffectSchema,
+} from "./_schema/schema.js";
 
 // Types
 export type {
-	CompositorNode,
-	CompositorNodeType,
-	ComposedEffect,
 	CompiledAction,
 	CompilerOutput,
-	RenderingTier,
-	TieredComposedEffect,
-	NodeValidationResult,
+	ComposedEffect,
+	CompositorNode,
+	CompositorNodeType,
 	NodeValidationError,
 	NodeValidationErrorCode,
+	NodeValidationResult,
+	RenderingTier,
+	TieredComposedEffect,
 } from "./_schema/types.js";
 
 export { COMPOSITOR_NODE_TYPES, NODE_VALIDATION_ERROR_CODES } from "./_schema/types.js";
-
-// Schemas
-export {
-	ComposedEffectSchema,
-	CompositorNodeSchema,
-	CompiledActionSchema,
-	CompilerOutputSchema,
-	RenderingTierSchema,
-	TieredComposedEffectSchema,
-	NodeValidationResultSchema,
-} from "./_schema/schema.js";
+// Validation
+export { validateNode, validateTree } from "./_schema/validate.js";

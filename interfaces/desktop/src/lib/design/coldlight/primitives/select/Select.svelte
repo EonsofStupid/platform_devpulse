@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { SelectPrimitiveProps } from "./select.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { SelectPrimitiveProps } from "./select.props.js";
 
-	let { children, class: className, ...rest }: SelectPrimitiveProps = $props();
+let { children, class: className, ...rest }: SelectPrimitiveProps = $props();
 </script>
 
 <div

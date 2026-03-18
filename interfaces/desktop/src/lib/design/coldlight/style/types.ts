@@ -9,8 +9,12 @@
 // ── Surface tokens (from token-categories.ts) ──────────────
 export type SurfaceToken =
 	| "transparent"
-	| "glass-void" | "glass-deep" | "glass-smoke" | "glass-frost"
-	| "glass-teal" | "glass-purple"
+	| "glass-void"
+	| "glass-deep"
+	| "glass-smoke"
+	| "glass-frost"
+	| "glass-teal"
+	| "glass-purple"
 	| "matte-dark"
 	| "solid-teal"
 	| "void-gradient";
@@ -18,9 +22,15 @@ export type SurfaceToken =
 // ── Material tokens ─────────────────────────────────────────
 export type MaterialToken =
 	| "none"
-	| "glass-subtle" | "glass-medium" | "glass-intense" | "glass-ultra"
-	| "solid-matte" | "solid-satin"
-	| "metal-brushed" | "metal-chrome" | "metal-copper";
+	| "glass-subtle"
+	| "glass-medium"
+	| "glass-intense"
+	| "glass-ultra"
+	| "solid-matte"
+	| "solid-satin"
+	| "metal-brushed"
+	| "metal-chrome"
+	| "metal-copper";
 
 // ── Depth tokens ────────────────────────────────────────────
 export type DepthToken = "flat" | "z1" | "z2" | "z3" | "z4";
@@ -32,31 +42,107 @@ export type BevelToken = "flat" | "subtle" | "soft" | "medium" | "strong";
 export type GlowToken = "none" | "teal" | "purple" | "ember" | "magenta" | "frost" | "cyber";
 
 // ── Frame tokens ────────────────────────────────────────────
-export type FrameToken = "none" | "soft" | "hard" | "crisp" | "glow" | "accent-teal" | "accent-purple";
+export type FrameToken =
+	| "none"
+	| "soft"
+	| "hard"
+	| "crisp"
+	| "glow"
+	| "accent-teal"
+	| "accent-purple";
 
 // ── Motion tokens ───────────────────────────────────────────
-export type MotionToken = "none" | "breathe" | "shimmer" | "drift" | "pulse" | "fade-in" | "slide-up" | "slide-down" | "scale-in";
+export type MotionToken =
+	| "none"
+	| "breathe"
+	| "shimmer"
+	| "drift"
+	| "pulse"
+	| "fade-in"
+	| "slide-up"
+	| "slide-down"
+	| "scale-in";
 
 // ── Transition tokens ───────────────────────────────────────
-export type TransitionToken = "none" | "snap" | "fast" | "normal" | "smooth" | "spring" | "bounce" | "opacity-fast" | "transform-spring" | "color-smooth";
+export type TransitionToken =
+	| "none"
+	| "snap"
+	| "fast"
+	| "normal"
+	| "smooth"
+	| "spring"
+	| "bounce"
+	| "opacity-fast"
+	| "transform-spring"
+	| "color-smooth";
 
 // ── Color tokens (SD5 generated) ────────────────────────────
 export type AccentColor = "teal" | "purple" | "magenta" | "ember" | "frost" | "cyber";
-export type ColorScale = "50" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900";
+export type ColorScale =
+	| "50"
+	| "100"
+	| "200"
+	| "300"
+	| "400"
+	| "500"
+	| "600"
+	| "700"
+	| "800"
+	| "900";
 export type ColorToken = `${AccentColor}-${ColorScale}` | "white" | "black" | "transparent";
 
 // ── Spacing tokens ──────────────────────────────────────────
-export type SpaceToken = "0" | "0.5" | "1" | "1.5" | "2" | "2.5" | "3" | "3.5" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "11" | "12" | "14" | "16" | "20" | "24" | "28" | "32";
+export type SpaceToken =
+	| "0"
+	| "0.5"
+	| "1"
+	| "1.5"
+	| "2"
+	| "2.5"
+	| "3"
+	| "3.5"
+	| "4"
+	| "5"
+	| "6"
+	| "7"
+	| "8"
+	| "9"
+	| "10"
+	| "11"
+	| "12"
+	| "14"
+	| "16"
+	| "20"
+	| "24"
+	| "28"
+	| "32";
 
 // ── Radius tokens ───────────────────────────────────────────
 export type RadiusToken = "none" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "full";
 
 // ── Font tokens ─────────────────────────────────────────────
-export type FontSizeToken = "xs" | "sm" | "base" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "display";
+export type FontSizeToken =
+	| "xs"
+	| "sm"
+	| "base"
+	| "lg"
+	| "xl"
+	| "2xl"
+	| "3xl"
+	| "4xl"
+	| "5xl"
+	| "display";
 export type FontWeightToken = "normal" | "medium" | "semibold" | "bold";
 
 // ── Conditional styles (S2 pattern) ─────────────────────────
-export type StateCondition = "default" | "isHovered" | "isFocused" | "isPressed" | "isSelected" | "isDisabled" | "isOpen";
+export type StateCondition =
+	| "default"
+	| "isHovered"
+	| "isFocused"
+	| "isPressed"
+	| "isSelected"
+	| "isDisabled"
+	| "isOpen";
 
 export type ConditionalValue<T> = T | Partial<Record<StateCondition, T>>;
 

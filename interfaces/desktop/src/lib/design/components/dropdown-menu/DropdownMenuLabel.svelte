@@ -8,13 +8,13 @@
 	Non-interactive — provides accessible name for group via aria-labelledby.
 -->
 <script lang="ts">
-	import type { DropdownMenuLabelProps } from "./types.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { dropdownMenuRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { dropdownMenuRecipe } from "./recipe.js";
+import type { DropdownMenuLabelProps } from "./types.js";
 
-	let { children, class: className, ...rest }: DropdownMenuLabelProps = $props();
+let { children, class: className, ...rest }: DropdownMenuLabelProps = $props();
 
-	const recipe = dropdownMenuRecipe();
+const recipe = dropdownMenuRecipe();
 </script>
 
 <div

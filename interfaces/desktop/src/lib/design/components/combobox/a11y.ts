@@ -19,18 +19,18 @@
  */
 
 import {
+	type A11yReport,
+	announcements,
+	auditContract,
 	createFocusConfig,
 	createLiveRegionConfigs,
 	extractKeyboardMap,
-	announcements,
-	auditContract,
+	type FocusConfig,
+	type KeyboardEntry,
+	type LiveRegionConfig,
+	type WaiAdaptAttrs,
 	waiAdaptAttrs,
 	waiAdaptSlotAttrs,
-	type FocusConfig,
-	type LiveRegionConfig,
-	type KeyboardEntry,
-	type A11yReport,
-	type WaiAdaptAttrs,
 } from "../_schema/a11y.js";
 import { contract } from "./contract.js";
 
@@ -75,14 +75,16 @@ export const comboboxLiveRegions: readonly LiveRegionConfig[] = createLiveRegion
 /**
  * Get the announce live region config.
  */
-export const announceLiveRegion: LiveRegionConfig | undefined =
-	comboboxLiveRegions.find((lr) => lr.slot === "announce");
+export const announceLiveRegion: LiveRegionConfig | undefined = comboboxLiveRegions.find(
+	(lr) => lr.slot === "announce",
+);
 
 /**
  * Get the empty live region config.
  */
-export const emptyLiveRegion: LiveRegionConfig | undefined =
-	comboboxLiveRegions.find((lr) => lr.slot === "empty");
+export const emptyLiveRegion: LiveRegionConfig | undefined = comboboxLiveRegions.find(
+	(lr) => lr.slot === "empty",
+);
 
 // =============================================================================
 // KEYBOARD — APG Combobox Pattern keybindings

@@ -276,20 +276,56 @@ export type AriaVersion = z.infer<typeof AriaVersionSchema>;
  */
 export const WaiAdaptActionValues = [
 	// Navigation
-	"navigate", "navigate-back", "navigate-forward", "navigate-home",
-	"navigate-up", "scroll-up", "scroll-down",
+	"navigate",
+	"navigate-back",
+	"navigate-forward",
+	"navigate-home",
+	"navigate-up",
+	"scroll-up",
+	"scroll-down",
 	// Actions
-	"search", "submit", "confirm", "cancel", "close", "dismiss",
-	"delete", "remove", "add", "edit", "save", "undo", "redo",
-	"copy", "paste", "cut", "refresh", "reload",
+	"search",
+	"submit",
+	"confirm",
+	"cancel",
+	"close",
+	"dismiss",
+	"delete",
+	"remove",
+	"add",
+	"edit",
+	"save",
+	"undo",
+	"redo",
+	"copy",
+	"paste",
+	"cut",
+	"refresh",
+	"reload",
 	// Selection
-	"select", "deselect", "select-all", "toggle",
+	"select",
+	"deselect",
+	"select-all",
+	"toggle",
 	// Media
-	"play", "pause", "stop", "mute", "unmute",
+	"play",
+	"pause",
+	"stop",
+	"mute",
+	"unmute",
 	// System
-	"print", "download", "upload", "share", "settings", "help", "info",
+	"print",
+	"download",
+	"upload",
+	"share",
+	"settings",
+	"help",
+	"info",
 	// Combobox-specific
-	"filter", "clear", "open-listbox", "close-listbox",
+	"filter",
+	"clear",
+	"open-listbox",
+	"close-listbox",
 ] as const;
 export const WaiAdaptActionSchema = z.enum(WaiAdaptActionValues);
 export type WaiAdaptAction = z.infer<typeof WaiAdaptActionSchema>;
@@ -302,17 +338,32 @@ export type WaiAdaptAction = z.infer<typeof WaiAdaptActionSchema>;
  */
 export const WaiAdaptPurposeValues = [
 	// Identity
-	"name", "given-name", "family-name", "nickname", "username",
+	"name",
+	"given-name",
+	"family-name",
+	"nickname",
+	"username",
 	// Contact
-	"email", "tel", "url", "street-address", "postal-code", "country",
+	"email",
+	"tel",
+	"url",
+	"street-address",
+	"postal-code",
+	"country",
 	// Credentials
-	"current-password", "new-password", "one-time-code",
+	"current-password",
+	"new-password",
+	"one-time-code",
 	// Payment
-	"cc-number", "cc-exp", "cc-csc",
+	"cc-number",
+	"cc-exp",
+	"cc-csc",
 	// Search
 	"search-term",
 	// Custom
-	"organization", "job-title", "bday",
+	"organization",
+	"job-title",
+	"bday",
 ] as const;
 export const WaiAdaptPurposeSchema = z.enum(WaiAdaptPurposeValues);
 export type WaiAdaptPurpose = z.infer<typeof WaiAdaptPurposeSchema>;
@@ -324,9 +375,9 @@ export type WaiAdaptPurpose = z.infer<typeof WaiAdaptPurposeSchema>;
  * Reference: WAI-Adapt Content Module § simplification
  */
 export const WaiAdaptSimplificationValues = [
-	"critical",  // Must always be visible — essential function
-	"medium",    // Important but can be collapsed in simplified views
-	"low",       // Can be hidden in simplified views
+	"critical", // Must always be visible — essential function
+	"medium", // Important but can be collapsed in simplified views
+	"low", // Can be hidden in simplified views
 ] as const;
 export const WaiAdaptSimplificationSchema = z.enum(WaiAdaptSimplificationValues);
 export type WaiAdaptSimplification = z.infer<typeof WaiAdaptSimplificationSchema>;
@@ -343,10 +394,15 @@ export const WaiAdaptContractSchema = z.object({
 	/** Cognitive importance level for UI simplification */
 	simplification: WaiAdaptSimplificationSchema,
 	/** Per-slot adapt overrides — slots may have different actions */
-	slotAdapt: z.record(z.string(), z.object({
-		action: WaiAdaptActionSchema.optional(),
-		purpose: WaiAdaptPurposeSchema.optional(),
-	})).optional(),
+	slotAdapt: z
+		.record(
+			z.string(),
+			z.object({
+				action: WaiAdaptActionSchema.optional(),
+				purpose: WaiAdaptPurposeSchema.optional(),
+			}),
+		)
+		.optional(),
 });
 export type WaiAdaptContract = z.infer<typeof WaiAdaptContractSchema>;
 

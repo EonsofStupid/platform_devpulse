@@ -5,9 +5,9 @@
  * Parts: root (grid), item (row, parameterized).
  */
 
-import { uid } from "../../_internal/utils/uid.js";
-import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
+import { disabledAttr } from "../../_internal/utils/data-attr.js";
 import { kbd } from "../../_internal/utils/kbd.js";
+import { uid } from "../../_internal/utils/uid.js";
 import { gridListAnatomy } from "./grid-list.anatomy.js";
 import type { UseGridListProps, UseGridListReturn } from "./grid-list.types.js";
 
@@ -52,7 +52,10 @@ export function useGridList(props: UseGridListProps = {}): UseGridListReturn {
 		if (globalDisabled) return;
 		const keys = new Set(props.selectedKeys ?? []);
 		if (keys.has(key)) keys.delete(key);
-		else { if (!multiple) keys.clear(); keys.add(key); }
+		else {
+			if (!multiple) keys.clear();
+			keys.add(key);
+		}
 		props.onSelectionChange?.(keys);
 	}
 
@@ -67,7 +70,9 @@ export function useGridList(props: UseGridListProps = {}): UseGridListReturn {
 	});
 
 	return {
-		get root() { return root; },
+		get root() {
+			return root;
+		},
 
 		getItem(key: string, options?: { disabled?: boolean }) {
 			const selected = props.selectedKeys?.has(key) ?? false;
@@ -81,7 +86,9 @@ export function useGridList(props: UseGridListProps = {}): UseGridListReturn {
 				"data-key": key,
 				"data-selected": selected ? ("" as const) : undefined,
 				"data-disabled": isDisabled ? ("" as const) : undefined,
-				onclick: () => { if (!isDisabled) toggleSelection(key); },
+				onclick: () => {
+					if (!isDisabled) toggleSelection(key);
+				},
 			};
 		},
 	};

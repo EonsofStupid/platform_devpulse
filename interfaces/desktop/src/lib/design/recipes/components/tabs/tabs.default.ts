@@ -35,7 +35,7 @@ import { cn } from "$lib/design/primitives/types.js";
 import { registerRecipe } from "../../index.js";
 import type { DsSurfaceProps } from "../../types.js";
 import { toPreset } from "../../types.js";
-import { emitSegments, emitCategory, radiusClass } from "../../utils.js";
+import { emitCategory, emitSegments, radiusClass } from "../../utils.js";
 
 /**
  * Per-slot size dimensions: padding, font-size.

@@ -6,9 +6,9 @@
  * Parts: root, input, icon, clear.
  */
 
-import { createIds } from "../../_internal/utils/uid.js";
 import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
 import { kbd } from "../../_internal/utils/kbd.js";
+import { createIds } from "../../_internal/utils/uid.js";
 import { searchFieldAnatomy } from "./search-field.anatomy.js";
 import type { UseSearchFieldProps, UseSearchFieldReturn } from "./search-field.types.js";
 
@@ -75,16 +75,30 @@ export function useSearchField(props: UseSearchFieldProps = {}): UseSearchFieldR
 		"aria-disabled": disabledAttr(disabled || !hasValue),
 		"data-disabled": dataAttr(disabled || !hasValue),
 		"data-visible": dataAttr(hasValue),
-		onclick: () => { if (!disabled) doClear(); },
+		onclick: () => {
+			if (!disabled) doClear();
+		},
 	});
 
 	return {
-		get value() { return value; },
-		get hasValue() { return hasValue; },
-		get root() { return root; },
-		get input() { return input; },
-		get icon() { return icon; },
-		get clear() { return clear; },
+		get value() {
+			return value;
+		},
+		get hasValue() {
+			return hasValue;
+		},
+		get root() {
+			return root;
+		},
+		get input() {
+			return input;
+		},
+		get icon() {
+			return icon;
+		},
+		get clear() {
+			return clear;
+		},
 		clearValue: doClear,
 	};
 }

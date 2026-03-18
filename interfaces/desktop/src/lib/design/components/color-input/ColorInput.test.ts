@@ -1,7 +1,7 @@
+import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { expect, test, describe } from "vitest";
-import { contract } from "./contract.js";
 import ColorInput from "./ColorInput.svelte";
+import { contract } from "./contract.js";
 
 describe("color-input component — contract", () => {
 	test("contract.kind is 'color-input'", () => {

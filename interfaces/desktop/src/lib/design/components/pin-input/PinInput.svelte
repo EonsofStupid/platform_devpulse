@@ -9,56 +9,54 @@
 	Renders a row of individual character input fields for PIN/OTP entry.
 -->
 <script lang="ts">
-	import type { PinInputComponentProps } from "./types.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import { cn } from "$lib/design/primitives/types.js";
+import type { PinInputComponentProps } from "./types.js";
 
-	let {
-		size = "md",
-		length = 4,
-		value = "",
-		onValueChange,
-		onComplete,
-		disabled = false,
-		mask = false,
-		placeholder = "\u25CB",
-		children,
-		class: className,
-		// ColdLight 8-axis props
-		preset,
-		surface,
-		material,
-		depth,
-		bevel,
-		glow,
-		frame,
-		motion,
-		transition,
-		encoding,
-		radius,
-		// Rest spread
-		...rest
-	}: PinInputComponentProps = $props();
+let {
+	size = "md",
+	length = 4,
+	value = "",
+	onValueChange,
+	onComplete,
+	disabled = false,
+	mask = false,
+	placeholder = "\u25CB",
+	children,
+	class: className,
+	// ColdLight 8-axis props
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	// Rest spread
+	...rest
+}: PinInputComponentProps = $props();
 
-	// Resolve ColdLight visual props
-	const visual = useColdLight(
-		() => ({
-			preset,
-			surface,
-			material,
-			depth,
-			bevel,
-			glow,
-			frame,
-			motion,
-			transition,
-			encoding,
-			radius,
-			size,
-		}),
-	);
+// Resolve ColdLight visual props
+const visual = useColdLight(() => ({
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+}));
 
-	const classes = $derived(cn(visual.segments, visual.radius, className));
+const classes = $derived(cn(visual.segments, visual.radius, className));
 </script>
 
 <div

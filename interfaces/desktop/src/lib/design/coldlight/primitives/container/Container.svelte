@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { ContainerPrimitiveProps } from "./container.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { ContainerPrimitiveProps } from "./container.props.js";
 
-	let { children, class: className, ...rest }: ContainerPrimitiveProps = $props();
+let { children, class: className, ...rest }: ContainerPrimitiveProps = $props();
 </script>
 
 <div

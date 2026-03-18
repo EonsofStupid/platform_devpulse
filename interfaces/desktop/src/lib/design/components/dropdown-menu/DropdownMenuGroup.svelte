@@ -8,13 +8,13 @@
 	ARIA: role="group".
 -->
 <script lang="ts">
-	import type { DropdownMenuGroupProps } from "./types.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { dropdownMenuRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { dropdownMenuRecipe } from "./recipe.js";
+import type { DropdownMenuGroupProps } from "./types.js";
 
-	let { children, class: className, ...rest }: DropdownMenuGroupProps = $props();
+let { children, class: className, ...rest }: DropdownMenuGroupProps = $props();
 
-	const recipe = dropdownMenuRecipe();
+const recipe = dropdownMenuRecipe();
 </script>
 
 <div

@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { TogglePrimitiveProps } from "./toggle.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { TogglePrimitiveProps } from "./toggle.props.js";
 
-	let { children, class: className, ...rest }: TogglePrimitiveProps = $props();
+let { children, class: className, ...rest }: TogglePrimitiveProps = $props();
 </script>
 
 <button

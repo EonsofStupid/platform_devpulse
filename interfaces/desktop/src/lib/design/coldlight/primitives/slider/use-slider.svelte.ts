@@ -22,9 +22,9 @@
  * ```
  */
 
-import { createIds } from "../../_internal/utils/uid.js";
-import { disabledAttr, dataAttr } from "../../_internal/utils/data-attr.js";
+import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
 import { kbd } from "../../_internal/utils/kbd.js";
+import { createIds } from "../../_internal/utils/uid.js";
 import { sliderAnatomy } from "./slider.anatomy.js";
 import type { UseSliderProps, UseSliderReturn } from "./slider.types.js";
 
@@ -55,10 +55,17 @@ export function useSlider(props: UseSliderProps = {}): UseSliderReturn {
 	function handleKeydown(e: KeyboardEvent): void {
 		if (disabled) return;
 
-		const isHorizontal = orientation === "horizontal";
+		const _isHorizontal = orientation === "horizontal";
 		const incrementKeys: string[] = [kbd.ARROW_RIGHT, kbd.ARROW_UP];
 		const decrementKeys: string[] = [kbd.ARROW_LEFT, kbd.ARROW_DOWN];
-		const allKeys: string[] = [...incrementKeys, ...decrementKeys, kbd.HOME, kbd.END, kbd.PAGE_UP, kbd.PAGE_DOWN];
+		const allKeys: string[] = [
+			...incrementKeys,
+			...decrementKeys,
+			kbd.HOME,
+			kbd.END,
+			kbd.PAGE_UP,
+			kbd.PAGE_DOWN,
+		];
 
 		if (!allKeys.includes(e.key)) return;
 		e.preventDefault();
@@ -87,7 +94,7 @@ export function useSlider(props: UseSliderProps = {}): UseSliderReturn {
 		(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
 
 		function updateFromPointer(clientX: number, clientY: number): void {
-			const rect = track!.getBoundingClientRect();
+			const rect = track?.getBoundingClientRect();
 			const isHorizontal = orientation === "horizontal";
 			const pos = isHorizontal ? clientX - rect.left : rect.bottom - clientY;
 			const size = isHorizontal ? rect.width : rect.height;
@@ -137,11 +144,9 @@ export function useSlider(props: UseSliderProps = {}): UseSliderReturn {
 		"aria-orientation": orientation,
 		"aria-disabled": disabledAttr(disabled),
 		"aria-label": props["aria-label"],
-		"aria-labelledby": props["aria-label"] ? undefined : props["aria-labelledby"] ?? ids.label,
+		"aria-labelledby": props["aria-label"] ? undefined : (props["aria-labelledby"] ?? ids.label),
 		"data-disabled": dataAttr(disabled),
-		style: orientation === "horizontal"
-			? `left:${percent}%`
-			: `bottom:${percent}%`,
+		style: orientation === "horizontal" ? `left:${percent}%` : `bottom:${percent}%`,
 		onkeydown: handleKeydown,
 		onpointerdown: handlePointerDown,
 	});
@@ -161,13 +166,27 @@ export function useSlider(props: UseSliderProps = {}): UseSliderReturn {
 
 	// ── Public API ───────────────────────────────────────────────
 	return {
-		get value() { return value; },
-		get percent() { return percent; },
-		get root() { return root; },
-		get track() { return track; },
-		get thumb() { return thumb; },
-		get label() { return label; },
-		get output() { return output; },
+		get value() {
+			return value;
+		},
+		get percent() {
+			return percent;
+		},
+		get root() {
+			return root;
+		},
+		get track() {
+			return track;
+		},
+		get thumb() {
+			return thumb;
+		},
+		get label() {
+			return label;
+		},
+		get output() {
+			return output;
+		},
 		setValue: doSetValue,
 	};
 }

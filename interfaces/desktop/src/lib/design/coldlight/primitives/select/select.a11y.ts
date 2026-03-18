@@ -1,7 +1,14 @@
 import type { A11ySpec } from "../../schema/a11y.schema.js";
 
 export const selectA11y: A11ySpec = {
-	roles: { root: undefined, trigger: "combobox", value: undefined, listbox: "listbox", option: "option", label: undefined },
+	roles: {
+		root: undefined,
+		trigger: "combobox",
+		value: undefined,
+		listbox: "listbox",
+		option: "option",
+		label: undefined,
+	},
 	requiredAttrs: { trigger: ["aria-expanded", "aria-haspopup", "aria-activedescendant"] },
 	keyboard: [
 		{ key: "ArrowDown", action: "open-or-next" },

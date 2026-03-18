@@ -9,20 +9,15 @@
 	Handles Escape to close and arrow key navigation.
 -->
 <script lang="ts">
-	import type { ContextMenuContentProps } from "./types.js";
-	import { getContextMenuContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { contextMenuRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getContextMenuContext } from "./context.js";
+import { contextMenuRecipe } from "./recipe.js";
+import type { ContextMenuContentProps } from "./types.js";
 
-	let {
-		children,
-		size = "md",
-		class: className,
-		...rest
-	}: ContextMenuContentProps = $props();
+let { children, size = "md", class: className, ...rest }: ContextMenuContentProps = $props();
 
-	const ctx = getContextMenuContext();
-	const recipe = $derived(contextMenuRecipe({ size }));
+const ctx = getContextMenuContext();
+const recipe = $derived(contextMenuRecipe({ size }));
 </script>
 
 {#if ctx.open}

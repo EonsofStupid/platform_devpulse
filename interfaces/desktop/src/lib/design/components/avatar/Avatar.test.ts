@@ -12,10 +12,10 @@
  * Setup:  vitest-browser-svelte
  */
 
+import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { expect, test, describe } from "vitest";
-import { Avatar } from "./index.js";
 import { contract } from "./contract.js";
+import { Avatar } from "./index.js";
 
 // =============================================================================
 // CONTRACT INTEGRITY
@@ -91,6 +91,7 @@ describe("avatar component — ARIA attributes", () => {
 		});
 		const img = container.querySelector("img") as HTMLElement | null;
 		expect(img).toBeTruthy();
+		// biome-ignore lint/style/noNonNullAssertion: test assertion — img element verified truthy above
 		await expect.element(img!).toHaveAttribute("aria-hidden", "true");
 	});
 });
@@ -126,6 +127,7 @@ describe("avatar component — fallback", () => {
 		});
 		const fallbackEl = container.querySelector("[data-slot='fallback']") as HTMLElement | null;
 		expect(fallbackEl).toBeTruthy();
+		// biome-ignore lint/style/noNonNullAssertion: test assertion — fallbackEl verified truthy above
 		await expect.element(fallbackEl!).toHaveTextContent("JD");
 	});
 
@@ -135,6 +137,7 @@ describe("avatar component — fallback", () => {
 		});
 		const fallbackEl = container.querySelector("[data-slot='fallback']") as HTMLElement | null;
 		expect(fallbackEl).toBeTruthy();
+		// biome-ignore lint/style/noNonNullAssertion: test assertion — fallbackEl verified truthy above
 		await expect.element(fallbackEl!).toHaveAttribute("aria-hidden", "true");
 	});
 

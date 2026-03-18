@@ -11,4 +11,4 @@
  */
 
 export { __DEV__, isDev } from "./DEBUG_FLAG";
-export { Vpb, vpbDocument, vpbPalette, vpbConnection } from "./vpb/index.js";
+export { Vpb, vpbConnection, vpbDocument, vpbPalette } from "./vpb/index.js";

@@ -7,8 +7,8 @@
  * Looks up the recipe registry, applies defaults, generates unique IDs.
  */
 
-import { idGen } from "$lib/design/utils/idGen.js";
 import { getRecipe, getRecipesForKind } from "$lib/design/recipes/index.js";
+import { idGen } from "$lib/design/utils/idGen.js";
 import type { BlockNode } from "./schema.js";
 
 /**

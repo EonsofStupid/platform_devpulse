@@ -8,8 +8,8 @@
  * Tailwind utility conflicts (e.g., competing padding classes).
  */
 
-import type { ColdLightManifest } from "../../scanner.types.js";
 import type { ComposedEffect } from "../../effects/_schema/types.js";
+import type { ColdLightManifest } from "../../scanner.types.js";
 
 /**
  * Check if two effects conflict via conflictGroup.
@@ -41,9 +41,7 @@ export function detectConflicts(
 	const seen = new Map<string, string>();
 
 	effects.forEach((effect) => {
-		const def = manifest.categories.effects.definitions.find(
-			(d) => d.id === effect.effectId,
-		);
+		const def = manifest.categories.effects.definitions.find((d) => d.id === effect.effectId);
 		if (!def?.conflictGroup) return;
 
 		const existing = seen.get(def.conflictGroup);

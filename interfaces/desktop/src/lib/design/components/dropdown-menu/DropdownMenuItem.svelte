@@ -8,27 +8,27 @@
 	Supports disabled state and onSelect callback.
 -->
 <script lang="ts">
-	import type { DropdownMenuItemProps } from "./types.js";
-	import { getDropdownMenuContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { dropdownMenuRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getDropdownMenuContext } from "./context.js";
+import { dropdownMenuRecipe } from "./recipe.js";
+import type { DropdownMenuItemProps } from "./types.js";
 
-	let {
-		children,
-		disabled = false,
-		onSelect,
-		class: className,
-		...rest
-	}: DropdownMenuItemProps = $props();
+let {
+	children,
+	disabled = false,
+	onSelect,
+	class: className,
+	...rest
+}: DropdownMenuItemProps = $props();
 
-	const ctx = getDropdownMenuContext();
-	const recipe = dropdownMenuRecipe();
+const ctx = getDropdownMenuContext();
+const recipe = dropdownMenuRecipe();
 
-	function handleSelect(): void {
-		if (disabled) return;
-		onSelect?.();
-		ctx.close();
-	}
+function handleSelect(): void {
+	if (disabled) return;
+	onSelect?.();
+	ctx.close();
+}
 </script>
 
 <div

@@ -12,10 +12,9 @@
  * looks like at rest and recommends how it should behave on interaction.
  */
 
-import type { Preset } from "$lib/design/registry/token-categories.js";
 import type { ResolvedVisual } from "$lib/design/registry/resolve-visual.js";
-import type { EffectDefinition, ComposedEffect, EffectTrigger } from "./_schema/types.js";
-import { getEffect, getEffectsForCategory } from "./registry.js";
+import type { ComposedEffect, EffectTrigger } from "./_schema/types.js";
+import { getEffect } from "./registry.js";
 
 // =============================================================================
 // INTERACTIVE PRESET — recommended effects for a visual configuration
@@ -46,10 +45,7 @@ export interface InteractivePreset {
  * @param kind - Component kind (button, card, input, etc.)
  * @returns Recommended interactive effects per trigger
  */
-export function recommendEffects(
-	resolved: ResolvedVisual,
-	kind?: string,
-): InteractivePreset {
+export function recommendEffects(resolved: ResolvedVisual, kind?: string): InteractivePreset {
 	const preset: InteractivePreset = {
 		hover: [],
 		focus: [],

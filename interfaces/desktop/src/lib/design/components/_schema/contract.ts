@@ -18,17 +18,21 @@
  */
 
 import { z } from "zod";
-import { FocusStrategySchema, KeyboardKeySchema, StateTokenSchema } from "../../primitives/_schema/schema.js";
-import type { PrimitiveContract as PrimitiveContractInterface } from "../../primitives/_schema/types.js";
 import type { PrimitiveContract as PrimitiveContractZod } from "../../primitives/_schema/contract.js";
+import {
+	FocusStrategySchema,
+	KeyboardKeySchema,
+	StateTokenSchema,
+} from "../../primitives/_schema/schema.js";
+import type { PrimitiveContract as PrimitiveContractInterface } from "../../primitives/_schema/types.js";
 import {
 	AccessibleNameSourceSchema,
 	AriaAttrValueSchemas,
 	AriaVersionSchema,
+	type ComponentSlotContract,
 	ComponentSlotContractSchema,
 	LiveRegionContractSchema,
 	WaiAdaptContractSchema,
-	type ComponentSlotContract,
 } from "./schema.js";
 
 // =============================================================================
@@ -122,12 +126,14 @@ export const ComponentContractSchema = z.object({
 	ariaVersion: AriaVersionSchema.optional(),
 
 	/** ARIA 1.3 specific features used by this component */
-	aria13: z.object({
-		/** New ARIA 1.3 attributes this component uses */
-		attributes: z.array(z.string()).readonly().optional(),
-		/** New ARIA 1.3 roles this component uses */
-		roles: z.array(z.string()).readonly().optional(),
-	}).optional(),
+	aria13: z
+		.object({
+			/** New ARIA 1.3 attributes this component uses */
+			attributes: z.array(z.string()).readonly().optional(),
+			/** New ARIA 1.3 roles this component uses */
+			roles: z.array(z.string()).readonly().optional(),
+		})
+		.optional(),
 
 	// =========================================================================
 	// WAI-ADAPT — Machine-readable semantics for AI/AT

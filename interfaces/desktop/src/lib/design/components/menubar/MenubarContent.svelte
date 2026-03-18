@@ -9,22 +9,22 @@
 	Handles Escape to close, arrow keys for navigation.
 -->
 <script lang="ts">
-	import type { MenubarContentProps } from "./types.js";
-	import { getMenubarMenuContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { menubarRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getMenubarMenuContext } from "./context.js";
+import { menubarRecipe } from "./recipe.js";
+import type { MenubarContentProps } from "./types.js";
 
-	let {
-		children,
-		size = "md",
-		side = "bottom",
-		align = "start",
-		class: className,
-		...rest
-	}: MenubarContentProps = $props();
+let {
+	children,
+	size = "md",
+	side = "bottom",
+	align = "start",
+	class: className,
+	...rest
+}: MenubarContentProps = $props();
 
-	const ctx = getMenubarMenuContext();
-	const recipe = $derived(menubarRecipe({ size }));
+const ctx = getMenubarMenuContext();
+const recipe = $derived(menubarRecipe({ size }));
 </script>
 
 {#if ctx.open}

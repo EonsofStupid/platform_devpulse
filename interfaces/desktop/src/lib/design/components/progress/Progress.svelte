@@ -6,41 +6,53 @@
 	ColdLight Progress — compound, 8-axis visual system.
 -->
 <script lang="ts">
-	import type { ProgressProps } from "./types.js";
-	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-	import { progressTrackRecipe, progressIndicatorRecipe } from "./recipe.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { progressIndicatorRecipe, progressTrackRecipe } from "./recipe.js";
+import type { ProgressProps } from "./types.js";
 
-	let {
-		size = "md",
-		value = 0,
-		max = 100,
-		preset,
-		surface, material, depth, bevel, glow, frame, motion, transition,
-		encoding, radius,
-		children,
-		class: className,
-		...rest
-	}: ProgressProps = $props();
+let {
+	size = "md",
+	value = 0,
+	max = 100,
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	children,
+	class: className,
+	...rest
+}: ProgressProps = $props();
 
-	const clampedValue = $derived(
-		value === null ? null : Math.min(Math.max(value ?? 0, 0), max),
-	);
-	const percentage = $derived(
-		clampedValue === null ? undefined : (clampedValue / max) * 100,
-	);
-	const indeterminate = $derived(value === null);
+const clampedValue = $derived(value === null ? null : Math.min(Math.max(value ?? 0, 0), max));
+const percentage = $derived(clampedValue === null ? undefined : (clampedValue / max) * 100);
+const indeterminate = $derived(value === null);
 
-	const visual = useColdLight(
-		() => ({
-			preset,
-			surface, material, depth, bevel, glow, frame, motion, transition,
-			encoding, radius: radius ?? "full",
-		}),
-	);
+const visual = useColdLight(() => ({
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius: radius ?? "full",
+}));
 
-	const trackClasses = $derived(cn(progressTrackRecipe({ size }), visual.segments, visual.radius, className));
-	const indicatorClasses = $derived(progressIndicatorRecipe());
+const trackClasses = $derived(
+	cn(progressTrackRecipe({ size }), visual.segments, visual.radius, className),
+);
+const indicatorClasses = $derived(progressIndicatorRecipe());
 </script>
 
 <div

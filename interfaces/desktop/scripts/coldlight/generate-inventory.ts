@@ -35,7 +35,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DESKTOP_ROOT = path.resolve(__dirname, "../..");
 const PLATFORM_ROOT = path.resolve(DESKTOP_ROOT, "../..");
-const OUTPUT_PATH = path.resolve(PLATFORM_ROOT, "scripts/docs/.claude/COLDLIGHT_MASTER_INVENTORY.md");
+const OUTPUT_PATH = path.resolve(
+	PLATFORM_ROOT,
+	"scripts/docs/.claude/COLDLIGHT_MASTER_INVENTORY.md",
+);
 
 // =============================================================================
 // HELPERS
@@ -372,7 +375,9 @@ Run \`pnpm headers:fix\` to patch missing tags and inject missing headers.
 |-----------|-------|
 | @devpulse/coldlight | ${manifest.coldlight.actions.length + manifest.coldlight.utils.length + manifest.coldlight.tokens.length + manifest.coldlight.config.length + manifest.coldlight.molecules.length} (non-primitive) |
 | @devpulse/sys | ${manifest.sys.fileCount} |
-${Object.entries(manifest.domains).map(([d, ns]) => `| @devpulse/domains/${d} | ${ns.fileCount} |`).join("\n")}
+${Object.entries(manifest.domains)
+	.map(([d, ns]) => `| @devpulse/domains/${d} | ${ns.fileCount} |`)
+	.join("\n")}
 | @devpulse/routes | ${manifest.routes.fileCount} |
 | @devpulse/tauri | ${manifest.tauri.fileCount} |
 | @devpulse/engine | ${manifest.engine.fileCount} |
@@ -396,7 +401,10 @@ Sprints are carved FROM this inventory. When a sprint completes, regenerate this
 
 ### After That: SPRINT-REMAINING-SVELTE
 **Scope**: Remaining form + overlay primitives
-**Includes**: ${[...formPrims, ...overlayPrims].filter((p) => !p.hasSvelte).map((p) => p.kindPascal).join(", ")}
+**Includes**: ${[...formPrims, ...overlayPrims]
+		.filter((p) => !p.hasSvelte)
+		.map((p) => p.kindPascal)
+		.join(", ")}
 `;
 }
 
@@ -413,14 +421,62 @@ function generateInventory(manifest: DevPulseManifest): string {
 	md += generateMeltBackedSection(cl.primitives, cl.adapters.meltui);
 
 	// Sections 2-9: Primitive categories
-	md += generateCategorySection(2, "COLDLIGHT-OWNED PRIMITIVES — Interactive", "No adapter. ColdLight owns W3C APG, ARIA, keyboard, everything.", "interactive", cl.primitives);
-	md += generateCategorySection(3, "COLDLIGHT-OWNED PRIMITIVES — Layout", "Structural primitives. No ARIA complexity. Token-driven spacing/sizing.", "layout", cl.primitives);
-	md += generateCategorySection(4, "COLDLIGHT-OWNED PRIMITIVES — Typography", "Text rendering primitives. Token-driven scale/weight/leading.", "typography", cl.primitives);
-	md += generateCategorySection(5, "COLDLIGHT-OWNED PRIMITIVES — Data Display", "Data presentation primitives.", "data-display", cl.primitives);
-	md += generateCategorySection(6, "COLDLIGHT-OWNED PRIMITIVES — Feedback", "User feedback and loading indicators.", "feedback", cl.primitives);
-	md += generateCategorySection(7, "COLDLIGHT-OWNED PRIMITIVES — Form", "Form input primitives.", "form", cl.primitives);
-	md += generateCategorySection(8, "COLDLIGHT-OWNED PRIMITIVES — Navigation", "Navigation and wayfinding primitives.", "navigation", cl.primitives);
-	md += generateCategorySection(9, "COLDLIGHT-OWNED PRIMITIVES — Overlay", "Modal and overlay primitives.", "overlay", cl.primitives);
+	md += generateCategorySection(
+		2,
+		"COLDLIGHT-OWNED PRIMITIVES — Interactive",
+		"No adapter. ColdLight owns W3C APG, ARIA, keyboard, everything.",
+		"interactive",
+		cl.primitives,
+	);
+	md += generateCategorySection(
+		3,
+		"COLDLIGHT-OWNED PRIMITIVES — Layout",
+		"Structural primitives. No ARIA complexity. Token-driven spacing/sizing.",
+		"layout",
+		cl.primitives,
+	);
+	md += generateCategorySection(
+		4,
+		"COLDLIGHT-OWNED PRIMITIVES — Typography",
+		"Text rendering primitives. Token-driven scale/weight/leading.",
+		"typography",
+		cl.primitives,
+	);
+	md += generateCategorySection(
+		5,
+		"COLDLIGHT-OWNED PRIMITIVES — Data Display",
+		"Data presentation primitives.",
+		"data-display",
+		cl.primitives,
+	);
+	md += generateCategorySection(
+		6,
+		"COLDLIGHT-OWNED PRIMITIVES — Feedback",
+		"User feedback and loading indicators.",
+		"feedback",
+		cl.primitives,
+	);
+	md += generateCategorySection(
+		7,
+		"COLDLIGHT-OWNED PRIMITIVES — Form",
+		"Form input primitives.",
+		"form",
+		cl.primitives,
+	);
+	md += generateCategorySection(
+		8,
+		"COLDLIGHT-OWNED PRIMITIVES — Navigation",
+		"Navigation and wayfinding primitives.",
+		"navigation",
+		cl.primitives,
+	);
+	md += generateCategorySection(
+		9,
+		"COLDLIGHT-OWNED PRIMITIVES — Overlay",
+		"Modal and overlay primitives.",
+		"overlay",
+		cl.primitives,
+	);
 
 	// Sections 10-11: Actions, Utils
 	md += generateActionsSection(manifest);

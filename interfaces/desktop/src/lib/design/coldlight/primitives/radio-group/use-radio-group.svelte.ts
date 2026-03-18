@@ -22,9 +22,9 @@
  * ```
  */
 
-import { uid } from "../../_internal/utils/uid.js";
-import { disabledAttr, dataAttr } from "../../_internal/utils/data-attr.js";
+import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
 import { kbd } from "../../_internal/utils/kbd.js";
+import { uid } from "../../_internal/utils/uid.js";
 import { radioGroupAnatomy } from "./radio-group.anatomy.js";
 import type { UseRadioGroupProps, UseRadioGroupReturn } from "./radio-group.types.js";
 
@@ -99,8 +99,12 @@ export function useRadioGroup(props: UseRadioGroupProps = {}): UseRadioGroupRetu
 
 	// ── Public API ───────────────────────────────────────────────
 	return {
-		get value() { return value; },
-		get root() { return root; },
+		get value() {
+			return value;
+		},
+		get root() {
+			return root;
+		},
 
 		getRadio(radioValue: string, itemDisabled?: boolean) {
 			const isChecked = radioValue === value;
@@ -110,7 +114,7 @@ export function useRadioGroup(props: UseRadioGroupProps = {}): UseRadioGroupRetu
 				...radioGroupAnatomy.attrs.radio,
 				role: "radio" as const,
 				id: `${id}-radio-${radioValue}`,
-				tabindex: isChecked ? 0 : (noSelection && !isItemDisabled ? 0 : -1),
+				tabindex: isChecked ? 0 : noSelection && !isItemDisabled ? 0 : -1,
 				"aria-checked": isChecked,
 				"aria-disabled": disabledAttr(isItemDisabled),
 				"aria-labelledby": `${id}-label-${radioValue}`,
@@ -118,7 +122,9 @@ export function useRadioGroup(props: UseRadioGroupProps = {}): UseRadioGroupRetu
 				"data-state": isChecked ? ("checked" as const) : ("unchecked" as const),
 				"data-value": radioValue,
 				"data-disabled": dataAttr(isItemDisabled),
-				onclick: () => { if (!isItemDisabled) doSetValue(radioValue); },
+				onclick: () => {
+					if (!isItemDisabled) doSetValue(radioValue);
+				},
 				onkeydown: (e: KeyboardEvent) => {
 					if (e.key === kbd.SPACE) {
 						e.preventDefault();

@@ -4,10 +4,10 @@
   @slot root
 -->
 <script lang="ts">
-	import type { FlexPrimitiveProps } from "./flex.props.js";
-	import { cn } from "../_shared/cn.js";
+import { cn } from "../_shared/cn.js";
+import type { FlexPrimitiveProps } from "./flex.props.js";
 
-	let { children, class: className, ...rest }: FlexPrimitiveProps = $props();
+let { children, class: className, ...rest }: FlexPrimitiveProps = $props();
 </script>
 
 <div

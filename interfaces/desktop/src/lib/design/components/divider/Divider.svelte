@@ -8,52 +8,63 @@
 	Individual ColdLight props override preset values.
 -->
 <script lang="ts">
-	import type { DividerComponentProps } from "./types.js";
-	import { createDivider } from "$lib/design/api/dsadapters/coldlight/_internal/divider/index.js";
-	import DividerRoot from "$lib/design/primitives/divider/Divider.svelte";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-	import { dividerRecipe } from "./recipe.js";
+import { createDivider } from "$lib/design/api/dsadapters/coldlight/_internal/divider/index.js";
+import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import DividerRoot from "$lib/design/primitives/divider/Divider.svelte";
+import { cn } from "$lib/design/primitives/types.js";
+import { dividerRecipe } from "./recipe.js";
+import type { DividerComponentProps } from "./types.js";
 
-	let {
-		// Kind-specific props
-		orientation = "horizontal",
-		variant = "solid",
-		decorative = false,
-		class: className,
-		// ColdLight 8-axis props
-		preset,
-		surface,
-		material,
-		depth,
-		bevel,
-		glow,
-		frame,
-		motion,
-		transition,
-		encoding,
-		radius,
-		size,
-		// Rest spread
-		...rest
-	}: DividerComponentProps = $props();
+let {
+	// Kind-specific props
+	orientation = "horizontal",
+	variant = "solid",
+	decorative = false,
+	class: className,
+	// ColdLight 8-axis props
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+	// Rest spread
+	...rest
+}: DividerComponentProps = $props();
 
-	const builder = createDivider({
-		get orientation() { return orientation; },
-		get decorative() { return decorative; },
-	});
+const builder = createDivider({
+	get orientation() {
+		return orientation;
+	},
+	get decorative() {
+		return decorative;
+	},
+});
 
-	const visual = useColdLight(
-		() => ({
-			preset: preset ?? "divider-default",
-			surface, material, depth, bevel, glow, frame, motion, transition,
-			encoding, radius: radius ?? "none", size,
-		}),
-	);
+const visual = useColdLight(() => ({
+	preset: preset ?? "divider-default",
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius: radius ?? "none",
+	size,
+}));
 
-	const classes = $derived(
-		cn(dividerRecipe({ orientation, variant }), visual.segments, visual.radius, className),
-	);
+const classes = $derived(
+	cn(dividerRecipe({ orientation, variant }), visual.segments, visual.radius, className),
+);
 </script>
 
 <DividerRoot

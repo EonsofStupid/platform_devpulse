@@ -8,21 +8,21 @@
 	ColdLight-owned ARIA — role="dialog", aria-modal, Escape to close.
 -->
 <script lang="ts">
-	import type { DateRangePickerContentProps } from "./types.js";
-	import { getDateRangePickerContext } from "./context.js";
-	import { dateRangePickerRecipe } from "./recipe.js";
-	import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getDateRangePickerContext } from "./context.js";
+import { dateRangePickerRecipe } from "./recipe.js";
+import type { DateRangePickerContentProps } from "./types.js";
 
-	let { children, class: className, ...rest }: DateRangePickerContentProps = $props();
-	const ctx = getDateRangePickerContext();
-	const recipe = $derived(dateRangePickerRecipe({ size: ctx.size }));
+let { children, class: className, ...rest }: DateRangePickerContentProps = $props();
+const ctx = getDateRangePickerContext();
+const recipe = $derived(dateRangePickerRecipe({ size: ctx.size }));
 
-	function handleKeydown(e: KeyboardEvent) {
-		if (e.key === "Escape") {
-			e.preventDefault();
-			ctx.closePopover();
-		}
+function handleKeydown(e: KeyboardEvent) {
+	if (e.key === "Escape") {
+		e.preventDefault();
+		ctx.closePopover();
 	}
+}
 </script>
 
 {#if ctx.open}

@@ -12,10 +12,10 @@
  * Setup:  vitest-browser-svelte
  */
 
+import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { expect, test, describe } from "vitest";
-import Progress from "./Progress.svelte";
 import { contract } from "./contract.js";
+import Progress from "./Progress.svelte";
 
 // =============================================================================
 // CONTRACT INTEGRITY
@@ -118,7 +118,9 @@ describe("progress component — ARIA attributes", () => {
 	});
 
 	test("passes aria-label when provided", async () => {
-		const { getByRole } = render(Progress, { props: { value: 50, "aria-label": "Upload progress" } });
+		const { getByRole } = render(Progress, {
+			props: { value: 50, "aria-label": "Upload progress" },
+		});
 		const progress = getByRole("progressbar");
 		await expect.element(progress).toHaveAttribute("aria-label", "Upload progress");
 	});

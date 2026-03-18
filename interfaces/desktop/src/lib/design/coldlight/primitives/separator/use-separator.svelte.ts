@@ -32,6 +32,8 @@ export function useSeparator(props: UseSeparatorProps = {}): UseSeparatorReturn 
 	);
 
 	return {
-		get root() { return root; },
+		get root() {
+			return root;
+		},
 	};
 }

@@ -13,9 +13,7 @@ export const checkboxA11y: A11ySpec = {
 	requiredAttrs: {
 		root: ["aria-checked", "aria-disabled"],
 	},
-	keyboard: [
-		{ key: "Space", action: "toggle" },
-	],
+	keyboard: [{ key: "Space", action: "toggle" }],
 	focusStrategy: "direct",
 	apgPattern: "https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/",
 };

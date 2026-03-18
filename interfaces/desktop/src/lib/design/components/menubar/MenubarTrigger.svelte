@@ -9,15 +9,15 @@
 	Keyboard: Enter/Space toggle, ArrowDown opens, ArrowLeft/Right navigate menus.
 -->
 <script lang="ts">
-	import type { MenubarTriggerProps } from "./types.js";
-	import { getMenubarMenuContext } from "./context.js";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { menubarRecipe } from "./recipe.js";
+import { cn } from "$lib/design/primitives/types.js";
+import { getMenubarMenuContext } from "./context.js";
+import { menubarRecipe } from "./recipe.js";
+import type { MenubarTriggerProps } from "./types.js";
 
-	let { children, class: className, ...rest }: MenubarTriggerProps = $props();
+let { children, class: className, ...rest }: MenubarTriggerProps = $props();
 
-	const ctx = getMenubarMenuContext();
-	const recipe = menubarRecipe();
+const ctx = getMenubarMenuContext();
+const recipe = menubarRecipe();
 </script>
 
 <button

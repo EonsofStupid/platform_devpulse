@@ -55,9 +55,7 @@ export const contract = {
 			aria: {
 				role: "group",
 				required: [],
-				optional: [
-					{ attr: "aria-label", valueType: "aria-label" },
-				],
+				optional: [{ attr: "aria-label", valueType: "aria-label" }],
 			},
 			data: {
 				kind: "date-range-field",
@@ -71,9 +69,7 @@ export const contract = {
 			aria: {
 				role: "group",
 				required: [],
-				optional: [
-					{ attr: "aria-label", valueType: "aria-label" },
-				],
+				optional: [{ attr: "aria-label", valueType: "aria-label" }],
 			},
 			data: {
 				kind: "date-range-field",

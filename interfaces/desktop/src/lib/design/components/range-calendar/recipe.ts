@@ -26,11 +26,7 @@ export function rangeCalendarRecipe(props: RangeCalendarRecipeProps = {}) {
 		lg: "text-base",
 	};
 	return {
-		root: cn(
-			"range-calendar-root",
-			rootSize[size] ?? rootSize.md,
-			"rounded-lg",
-		),
+		root: cn("range-calendar-root", rootSize[size] ?? rootSize.md, "rounded-lg"),
 		grid: "range-calendar-grid",
 		header: "range-calendar-header",
 		heading: "range-calendar-heading",

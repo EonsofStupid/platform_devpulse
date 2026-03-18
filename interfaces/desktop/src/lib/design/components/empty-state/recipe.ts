@@ -18,8 +18,5 @@ export function emptyStateRecipe(props: EmptyStateRecipeProps = {}): string {
 		md: "empty-state-md",
 		lg: "empty-state-lg",
 	};
-	return cn(
-		"empty-state-root",
-		sizeMap[props.size ?? "md"] ?? sizeMap.md,
-	);
+	return cn("empty-state-root", sizeMap[props.size ?? "md"] ?? sizeMap.md);
 }

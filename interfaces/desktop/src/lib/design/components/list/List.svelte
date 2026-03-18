@@ -11,47 +11,59 @@
 	ColdLight OWNS all ARIA. Primitive is structural only.
 -->
 <script lang="ts">
-	import type { ListComponentProps } from "./types.js";
-	import { createList } from "$lib/design/api/dsadapters/coldlight/_internal/list/index.js";
-	import ListRoot from "$lib/design/primitives/list/List.svelte";
-	import { cn } from "$lib/design/primitives/types.js";
-	import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-	import { listRecipe } from "./recipe.js";
+import { createList } from "$lib/design/api/dsadapters/coldlight/_internal/list/index.js";
+import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import ListRoot from "$lib/design/primitives/list/List.svelte";
+import { cn } from "$lib/design/primitives/types.js";
+import { listRecipe } from "./recipe.js";
+import type { ListComponentProps } from "./types.js";
 
-	let {
-		size = "md",
-		variant = "none",
-		spacing = "default",
-		label,
-		children,
-		class: className,
-		// ColdLight 8-axis props
-		preset,
-		surface,
-		material,
-		depth,
-		bevel,
-		glow,
-		frame,
-		motion,
-		transition,
-		encoding,
-		radius,
-		...rest
-	}: ListComponentProps = $props();
+let {
+	size = "md",
+	variant = "none",
+	spacing = "default",
+	label,
+	children,
+	class: className,
+	// ColdLight 8-axis props
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	...rest
+}: ListComponentProps = $props();
 
-	const builder = createList({
-		get label() { return label; },
-	});
+const builder = createList({
+	get label() {
+		return label;
+	},
+});
 
-	const visual = useColdLight(
-		() => ({
-			preset, surface, material, depth, bevel, glow, frame, motion, transition,
-			encoding, radius, size,
-		}),
-	);
+const visual = useColdLight(() => ({
+	preset,
+	surface,
+	material,
+	depth,
+	bevel,
+	glow,
+	frame,
+	motion,
+	transition,
+	encoding,
+	radius,
+	size,
+}));
 
-	const classes = $derived(cn(listRecipe({ size, variant, spacing }), visual.segments, visual.radius, className));
+const classes = $derived(
+	cn(listRecipe({ size, variant, spacing }), visual.segments, visual.radius, className),
+);
 </script>
 
 <ListRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>

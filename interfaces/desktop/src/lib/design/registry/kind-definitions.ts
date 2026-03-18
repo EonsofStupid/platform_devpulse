@@ -23,7 +23,6 @@
  */
 
 import { z } from "zod";
-import type { Preset } from "./token-categories.js";
 
 // =============================================================================
 // KIND DEFINITION SCHEMA
@@ -83,9 +82,7 @@ export const KindDefinitionSchema = z.object({
 	defaultPreset: z.string().regex(/^[a-z][a-z0-9-]*$/),
 
 	/** Default recipe ID — must exist in recipes registry */
-	defaultRecipe: z
-		.string()
-		.regex(/^[a-z][\w-]*\.[a-z][\w-]*\.[a-z][\w-]*$/),
+	defaultRecipe: z.string().regex(/^[a-z][\w-]*\.[a-z][\w-]*\.[a-z][\w-]*$/),
 
 	/** VPB palette category */
 	blockCategory: BlockCategorySchema,
@@ -119,9 +116,7 @@ function define(def: KindDefinition): void {
 }
 
 /** Get a kind definition by kind name. */
-export function getKindDefinition(
-	kind: string,
-): KindDefinition | undefined {
+export function getKindDefinition(kind: string): KindDefinition | undefined {
 	return definitions.get(kind);
 }
 
@@ -131,12 +126,8 @@ export function getAllKindDefinitions(): KindDefinition[] {
 }
 
 /** Get all kinds in a specific block category. */
-export function getKindsByCategory(
-	category: BlockCategory,
-): KindDefinition[] {
-	return Array.from(definitions.values()).filter(
-		(d) => d.blockCategory === category,
-	);
+export function getKindsByCategory(category: BlockCategory): KindDefinition[] {
+	return Array.from(definitions.values()).filter((d) => d.blockCategory === category);
 }
 
 /** Get all kind names that have definitions. */
