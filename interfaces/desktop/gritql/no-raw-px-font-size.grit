@@ -1,0 +1,6 @@
+language css
+
+`font-size: $val` where {
+	$val <: r".*\d+px.*",
+	register_diagnostic(span=$val, message="Raw px banned. Use var(--text-size-*) token.")
+}

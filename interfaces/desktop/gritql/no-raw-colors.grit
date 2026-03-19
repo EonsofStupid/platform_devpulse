@@ -1,7 +1,9 @@
 language css
 
-`$selector { $props }` where {
-	$props <: contains `color: $color` as $rule,
-	$color <: r"#[0-9a-fA-F].*",
-	register_diagnostic(span=$rule, message="Raw color values are banned outside tokens. Use Tailwind preset classes.")
+// Block raw hex colors on color property.
+// Svelte <style> covered by no-raw-values.sh.
+
+`color: $val` where {
+	$val <: r".*#[0-9a-fA-F]{3,8}.*",
+	register_diagnostic(span=$val, message="Raw hex color banned. Use var(--color-*) token.")
 }

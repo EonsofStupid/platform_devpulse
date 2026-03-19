@@ -1,0 +1,6 @@
+language css
+
+`color: $val` where {
+	$val <: r"\b(red|blue|green|yellow|orange|purple|pink|white|black|gray|grey)\b",
+	register_diagnostic(span=$val, message="Named CSS color banned. Use var(--color-*) token.")
+}

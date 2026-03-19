@@ -24,45 +24,73 @@ import { fileURLToPath } from "node:url";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { playwright } from "@vitest/browser-playwright";
 import { defineConfig } from "vitest/config";
+import path from 'node:path';
+import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
+const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
+
+// More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const isCI = !!process.env.CI;
-
 export default defineConfig({
-	plugins: [svelte()],
-	resolve: {
-		alias: {
-			$lib: resolve(__dirname, "./src/lib"),
-		},
-	},
-	test: {
-		include: ["src/lib/**/*.{test,spec}.{js,ts}"],
-		setupFiles: ["vitest-browser-svelte"],
-
-		browser: {
-			enabled: true,
-			provider: playwright(),
-			instances: [{ browser: "chromium" }],
-			// headless defaults to process.env.CI — explicit for clarity
-			headless: isCI,
-			// Playwright traces for debugging CI failures
-			trace: isCI ? "retain-on-failure" : "off",
-			// Screenshot on test failure in CI
-			screenshotFailures: isCI,
-			api: {
-				host: "127.0.0.1",
-				port: 51205,
-			},
-		},
-
-		// V8 coverage — AST-aware remapping (Vitest 4 default)
-		coverage: {
-			provider: "v8",
-			enabled: isCI,
-			include: ["src/lib/design/**/*.{ts,svelte}"],
-			exclude: ["**/*.test.ts", "**/*.spec.ts", "**/.cowlevel/**", "**/node_modules/**"],
-			reporter: isCI ? ["text", "json", "html", "lcov"] : ["text"],
-			reportsDirectory: "./coverage",
-		},
-	},
+  plugins: [svelte()],
+  resolve: {
+    alias: {
+      $lib: resolve(__dirname, "./src/lib")
+    }
+  },
+  test: {
+    // V8 coverage — AST-aware remapping (Vitest 4 default)
+    coverage: {
+      provider: "v8",
+      enabled: isCI,
+      include: ["src/lib/design/**/*.{ts,svelte}"],
+      exclude: ["**/*.test.ts", "**/*.spec.ts", "**/.cowlevel/**", "**/node_modules/**"],
+      reporter: isCI ? ["text", "json", "html", "lcov"] : ["text"],
+      reportsDirectory: "./coverage"
+    },
+    projects: [{
+      extends: true,
+      test: {
+        include: ["src/lib/**/*.{test,spec}.{js,ts}"],
+        setupFiles: ["vitest-browser-svelte"],
+        browser: {
+          enabled: true,
+          provider: playwright(),
+          instances: [{
+            browser: "chromium"
+          }],
+          // headless defaults to process.env.CI — explicit for clarity
+          headless: isCI,
+          // Playwright traces for debugging CI failures
+          trace: isCI ? "retain-on-failure" : "off",
+          // Screenshot on test failure in CI
+          screenshotFailures: isCI,
+          api: {
+            host: "127.0.0.1",
+            port: 51205
+          }
+        }
+      }
+    }, {
+      extends: true,
+      plugins: [
+      // The plugin will run tests for the stories defined in your Storybook config
+      // See options at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon#storybooktest
+      storybookTest({
+        configDir: path.join(dirname, '.storybook')
+      })],
+      test: {
+        name: 'storybook',
+        browser: {
+          enabled: true,
+          headless: true,
+          provider: playwright({}),
+          instances: [{
+            browser: 'chromium'
+          }]
+        }
+      }
+    }]
+  }
 });

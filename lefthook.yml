@@ -38,16 +38,11 @@ pre-commit:
       root: "interfaces/desktop"
       run: pnpm exec biome check .
 
-    # Block raw hex colors and raw px values — all values must use design tokens
+    # Block raw hex colors and raw px values in Svelte <style> blocks
+    # GritQL plugins handle .css files via biome check above
     no-raw-values:
       glob: "interfaces/desktop/src/**/*.{svelte,css,ts}"
       run: bash scripts/hooks/no-raw-values.sh
-
-    # CSS value enforcement via Stylelint — blocks raw colors, raw px, enforces var(--*)
-    stylelint:
-      glob: "interfaces/desktop/src/**/*.{svelte,css}"
-      root: "interfaces/desktop"
-      run: pnpm exec stylelint 'src/**/*.{css,svelte}'
 
     # Documentation preflight checks
     docs-preflight:

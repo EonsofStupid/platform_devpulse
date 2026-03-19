@@ -1,0 +1,6 @@
+language css
+
+`height: $val` where {
+	$val <: r".*\d+px.*",
+	register_diagnostic(span=$val, message="Raw px banned. Use var(--size-*) or var(--space-*) token.")
+}

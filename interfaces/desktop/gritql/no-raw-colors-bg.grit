@@ -1,0 +1,6 @@
+language css
+
+`background-color: $val` where {
+	$val <: r".*#[0-9a-fA-F]{3,8}.*",
+	register_diagnostic(span=$val, message="Raw hex bg-color banned. Use var(--color-*) token.")
+}

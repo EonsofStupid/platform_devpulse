@@ -1,5 +1,17 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.4.0/schema.json",
+	"plugins": [
+		"./gritql/no-raw-colors.grit",
+		"./gritql/no-raw-colors-bg.grit",
+		"./gritql/no-named-colors.grit",
+		"./gritql/no-raw-px-padding.grit",
+		"./gritql/no-raw-px-margin.grit",
+		"./gritql/no-raw-px-gap.grit",
+		"./gritql/no-raw-px-width.grit",
+		"./gritql/no-raw-px-height.grit",
+		"./gritql/no-raw-px-font-size.grit",
+		"./gritql/no-raw-px-border-radius.grit"
+	],
 	"assist": { "actions": { "source": { "organizeImports": "on" } } },
 	"linter": {
 		"enabled": true,
@@ -8,6 +20,9 @@
 			"correctness": {
 				"noUnusedVariables": "error",
 				"noUnusedImports": "error"
+			},
+			"nursery": {
+				"noHexColors": "error"
 			},
 			"suspicious": {
 				"noExplicitAny": "error",
@@ -163,6 +178,24 @@
 					}
 				}
 			}
+		},
+		{
+			"includes": [
+				"src/lib/design/styles/**",
+				"src/lib/design/css/**",
+				"src/lib/design/theme/**",
+				"src/lib/design/generated/**",
+				"src/lib/design/svg/**",
+				"src/lib/design/plugins/**",
+				"src/lib/sys/debug/vpb/**"
+			],
+			"linter": {
+				"rules": {
+					"nursery": {
+						"noHexColors": "off"
+					}
+				}
+			}
 		}
 	],
 	"files": {
@@ -176,6 +209,12 @@
 			"!**/src/lib/sys/generated",
 			"!**/src/lib/design/.cowlevel",
 			"!**/src/lib/design/style",
+			"!**/src/lib/design/styles",
+			"!**/src/lib/design/css",
+			"!**/src/lib/design/theme",
+			"!**/src/lib/design/generated",
+			"!**/src/lib/design/svg",
+			"!**/src/lib/design/plugins",
 			"!**/src/lib/design/primitives/_archive",
 			"!**/src/lib/design/primitives/tanstack/flex-render.svelte",
 			"!**/src-tauri/gen",
