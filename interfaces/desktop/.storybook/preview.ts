@@ -1,5 +1,10 @@
 import type { Preview } from '@storybook/sveltekit'
 
+// Import ColdLight token CSS — provides all CSS custom properties
+import '../src/lib/design/css/index.css';
+// Import Tailwind for utility classes used by recipes
+import '../src/app.css';
+
 const preview: Preview = {
   parameters: {
     controls: {
