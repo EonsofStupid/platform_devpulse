@@ -1,0 +1,127 @@
+{/* ColdLight Provider — SSOT Documentation */}
+
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Foundations/ColdLight Provider" />
+
+# ColdLight Provider
+
+**ColdLightProvider** is the root container for all ColdLight applications. It supplies theme context — color scheme, scale, locale, and visual defaults — to every component in the tree.
+
+Every ColdLight application must be wrapped in a Provider. Components and Shards read provider context automatically via `useColdLightContext()`.
+
+> Pattern: React Spectrum S2 Provider, ported to Svelte 5 runes.
+
+---
+
+## Usage
+
+```svelte
+<script>
+  import { ColdLightProvider } from '@devpulse/coldlight/provider';
+</script>
+
+<ColdLightProvider colorScheme="dark">
+  <App />
+</ColdLightProvider>
+```
+
+---
+
+## Architecture
+
+### What the Provider Does
+
+| Concern | How |
+|---------|-----|
+| **Color scheme** | `data-color-scheme="dark"` on the provider root. CSS tokens respond via attribute selectors. |
+| **Scale** | `data-scale="medium"` — medium for pointer devices, large for touch. |
+| **Locale** | `lang` attribute + `dir` (auto RTL for Arabic/Hebrew). |
+| **Axis defaults** | App-wide ColdLight defaults (surface, depth, glow, etc.) merged before kind defaults and component props. |
+| **Cascading props** | `isDisabled`, `isQuiet`, `isEmphasized` cascade to all children — same as S2. |
+
+### Resolution Order
+
+When a component resolves its visual appearance, values are merged in this order (later wins):
+
+```
+1. Provider defaults    → { surface: "glass-void", depth: "z1" }
+2. Kind defaults        → Button: { glow: "teal", frame: "accent-teal" }
+3. Preset lookup        → "btn-primary" → { surface: "glass-deep", ... }
+4. Component props      → <Button depth="z3" />
+5. Encoding override    → encoding="v-s1d3g2"
+```
+
+### Nesting
+
+Providers nest. Inner values override outer. Defaults merge (spread):
+
+```svelte
+<ColdLightProvider colorScheme="dark" defaults={{ "{{ surface: 'glass-void' }}" }}>
+  <!-- All components get glass-void surface -->
+
+  <ColdLightProvider defaults={{ "{{ glow: 'purple' }}" }}>
+    <!-- This subtree: glass-void surface + purple glow -->
+  </ColdLightProvider>
+</ColdLightProvider>
+```
+
+---
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `colorScheme` | `"dark" \| "light"` | `"dark"` | Color scheme. Inherits from parent. |
+| `scale` | `"medium" \| "large"` | `"medium"` | UI scale. Medium = pointer, large = touch. |
+| `locale` | `string` | `"en-US"` | BCP 47 locale tag. Sets `lang` and `dir`. |
+| `defaults` | `Partial<Preset>` | `{}` | App-wide axis defaults merged into every component. |
+| `isDisabled` | `boolean` | `false` | Cascade disabled state to all children. |
+| `isQuiet` | `boolean` | `false` | Cascade quiet mode. |
+| `isEmphasized` | `boolean` | `false` | Cascade emphasis. |
+| `children` | `Snippet` | required | Application content. |
+
+---
+
+## Accessibility
+
+- Sets `lang` for screen reader language detection.
+- Sets `dir="rtl"` automatically for RTL languages.
+- `isDisabled` cascades `aria-disabled` through the tree.
+- Color scheme declared via `data-color-scheme`, respects user preference when no explicit scheme set.
+
+---
+
+## Token Pipeline Integration
+
+```
+DTCG JSON → SD5 build → CSS custom properties → [data-color-scheme] selectors
+                                                        ↑
+                                            ColdLightProvider sets this
+```
+
+Color scheme changes update all token-driven CSS variables through attribute selectors. No JavaScript re-render needed.
+
+---
+
+## S2 Comparison
+
+| React Spectrum S2 | ColdLight (Svelte 5) |
+|-------------------|---------------------|
+| `<Provider theme={defaultTheme}>` | `<ColdLightProvider colorScheme="dark">` |
+| `useProvider()` | `useColdLightContext()` |
+| `useProviderProps(props)` | Provider defaults merged in `useColdLight()` |
+| `colorScheme`, `scale`, `locale` | Same |
+| `isQuiet`, `isDisabled`, `isEmphasized` | Same — cascading overrides |
+| React Context + useContext | Svelte `setContext` / `getContext` |
+| Re-renders on change | `$derived` rune — fine-grained reactivity |
+
+---
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `provider/ColdLightProvider.svelte` | The Provider component |
+| `provider/context.ts` | Context types, defaults, set/get helpers |
+| `provider/index.ts` | Public barrel export |

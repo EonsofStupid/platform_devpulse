@@ -1,0 +1,181 @@
+{/* ColdLight Terminology — SSOT */}
+
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Foundations/Terminology" />
+
+# Terminology
+
+> One term per concept. No synonyms. If you use the wrong word, the system drifts.
+
+---
+
+## The System
+
+**ColdLight** — The design system. A publishable package (`@devpulse/coldlight`). It owns all CSS, all components, all token generation. Named for Tesla's cold light gas tubes.
+
+**Style Dictionary 5 (SD5)** — The token engine. Reads DTCG JSON, outputs CSS custom properties, TypeScript types, Tailwind `@theme` blocks, and VPB manifests. ColdLight configures SD5. SD5 does the generation.
+
+**VPB (Visual Page Builder)** — The no-code visual editor. Reads token manifests, preset registries, and component schemas. Lets users compose and style without writing code. When a user creates a new style, VPB writes it as a preset to the token JSON, SD5 regenerates, and the new style becomes available.
+
+---
+
+## Building Blocks
+
+**Shard** — The structural building block. A minimal Svelte component that renders semantic HTML with `data-kind`, `data-slot`, and `data-state` attributes. Zero styling. Zero ARIA. The skeleton that everything else layers onto. Lives in `primitives/` on disk.
+
+```html
+<!-- What a Shard renders -->
+<button data-kind="button" data-slot="root" data-state="idle">
+  Save
+</button>
+```
+
+**Component** — The product. What users import. A Component = Shard + Hook + Recipe + useColdLight(). It has ARIA, keyboard handling, visual styling, and a default preset. Sealed — users style via presets, not CSS overrides.
+
+```svelte
+<!-- What a user writes -->
+<Button intent="primary" size="md">Save</Button>
+```
+
+**Hook** — The ARIA and behavior layer. A rune-based function (e.g., `createButton()`) that provides `role`, `aria-*`, `tabindex`, keyboard handling, and state management. ColdLight owns hooks for 60+ kinds. MeltUI adapter used only for complex ARIA patterns (~20 kinds).
+
+**Recipe** — Structural CSS classes for a component. Layout, sizing, spacing, focus ring. NOT visual appearance — visual comes from the encoding system. A recipe maps size variants to Tailwind utility classes.
+
+```typescript
+// What a recipe produces
+"inline-flex items-center justify-center h-10 px-4 text-sm gap-2"
+```
+
+**Preset** — A named 8-axis visual configuration. The thing VPB creates and edits. A preset defines what a component looks like across all visual axes — surface, material, depth, bevel, glow, frame, motion, transition.
+
+```typescript
+// What a preset IS
+{
+  surface: "glass-deep",
+  material: "glass-subtle",
+  depth: "z2",
+  bevel: "soft",
+  glow: "teal",
+  frame: "accent-teal",
+  motion: "off",
+  transition: "normal"
+}
+```
+
+**Block** — A VPB runtime payload. A serializable JSON structure that describes a page section — which components, which presets, which children, which layout. Blocks are what VPB saves and renders.
+
+**Pattern** — A documented composition guide. "How to build a form correctly." Not code — documentation. You can't import a pattern.
+
+---
+
+## Token System
+
+**Token** — A single design decision stored as DTCG JSON. Colors, dimensions, shadows, gradients, typography. SD5 transforms tokens into CSS custom properties.
+
+```json
+{ "$type": "color", "$value": "#0d9488" }
+```
+
+**DTCG** — Design Tokens Community Group format. The JSON standard ColdLight uses. `$type`, `$value`, `$description`, `$extensions`.
+
+**Token Tier** — Three levels of abstraction:
+
+| Tier | Example | Purpose |
+|------|---------|---------|
+| **Primitive** | `--color-teal-500` | Raw value, no meaning |
+| **Semantic** | `--surface-base` | Contextual meaning |
+| **Component** | `--button-bg` | Scoped to a specific component |
+
+---
+
+## 8-Axis Encoding
+
+**Encoding** — A compressed string that captures all 8 visual axes in one value. The format: `v-s{#}z{#}d{#}b{#}g{#}f{#}m{#}t{#}`
+
+| Code | Axis | What It Controls |
+|------|------|-----------------|
+| `s` | **Surface** | Fill, backdrop-filter, opacity |
+| `z` | **Material** | Physics — glass clarity, matte, metal |
+| `d` | **Depth** | Z-elevation via drop shadows |
+| `b` | **Bevel** | Neumorphic inset shadows + SVG specular |
+| `g` | **Glow** | Emission halo — accent color + intensity |
+| `f` | **Frame** | Border treatment |
+| `m` | **Motion** | Ambient animation |
+| `t` | **Transition** | User-triggered speed + easing |
+
+Composable: `v-s1 v-d2 v-t2` or full: `v-s1z0d2b1g0f1m0t2`
+
+---
+
+## Contracts
+
+**Component Contract** (`contract.ts`) — Zod-validated ARIA specification. Declares slots, required ARIA attributes, keyboard mappings, state-to-ARIA mappings, focus strategy. The accessibility truth for a component. Validated at build time.
+
+**Component Schema** (`_base/schema.ts`) — Zod-validated visual/structural specification. Declares props with VPB editor controls, per-slot token axes, recipe bindings, composition constraints. The VPB truth for a component. Serializes to JSON for the editor.
+
+These are **two halves** of the same component:
+- Contract = what the browser/screen reader needs (ARIA)
+- Schema = what the editor/developer needs (props, tokens, recipes)
+
+---
+
+## Provider
+
+**ColdLightProvider** — Svelte context wrapper. Supplies color scheme, scale, locale, and app-wide axis defaults to all children. Components read it automatically. Providers nest — inner overrides outer.
+
+**Resolution Order** — When a component resolves its visual:
+
+```
+Provider defaults → Kind defaults → Preset lookup → Component props → Encoding override
+```
+
+Later wins. A prop on the component beats the preset. An encoding string beats everything.
+
+---
+
+## Data Attributes
+
+Three attributes. That's it.
+
+| Attribute | Purpose | Example |
+|-----------|---------|---------|
+| `data-kind` | What this element IS | `"button"`, `"dialog"` |
+| `data-slot` | Which part of the component | `"root"`, `"trigger"`, `"content"` |
+| `data-state` | Current state | `"idle"`, `"open"`, `"pressed"` |
+
+---
+
+## Deprecated Terms — Do Not Use
+
+| Dead Term | Replace With | Why It Died |
+|-----------|-------------|-------------|
+| Blueprint | Preset | Presets are the named configurations now |
+| Semantic | Component | "Semantic" was ambiguous |
+| Taxonomy | Registry | `registry/kind-definitions.ts` replaced it |
+| DaisyUI | — | Banned. ColdLight owns all styling |
+| Primitive (user-facing) | Shard | "Primitive" is the disk folder, "Shard" is the name |
+| Molecule | — | Never existed, never will |
+| Shortcode | — | Dead concept |
+| Catalog | Style Catalog (via VPB) | The catalog IS VPB's browsing interface |
+| Builder | Hook | `createButton()` etc. are hooks, not builders |
+
+---
+
+## The Full Stack
+
+```
+Token JSON (DTCG)
+  → SD5 Engine
+    → CSS Custom Properties
+      → Tailwind @theme
+        → Recipes (structural classes)
+          → Shards (semantic HTML + data attributes)
+            → Hooks (ARIA + keyboard + state)
+              → Components (THE PRODUCT — what users import)
+                → Presets (named visual configurations)
+                  → Blocks (VPB runtime payloads)
+                    → Patterns (documentation guidance)
+```
+
+Each layer depends only on the layers above it. Never sideways. Never down.
