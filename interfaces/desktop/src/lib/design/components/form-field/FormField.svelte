@@ -13,7 +13,7 @@
 import { createFormField } from "$lib/design/api/dsadapters/coldlight/_internal/form-field/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import FormFieldRoot from "$lib/design/primitives/form-field/FormField.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import {
 	formFieldControlRecipe,
 	formFieldDescriptionRecipe,

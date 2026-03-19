@@ -7,7 +7,7 @@
 	MeltUI transport provides role="slider", aria-valuenow/min/max, tabindex, keyboard handlers.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getSliderContext } from "./context.js";
 import { sliderRecipe } from "./recipe.js";
 import type { SliderThumbProps } from "./types.js";

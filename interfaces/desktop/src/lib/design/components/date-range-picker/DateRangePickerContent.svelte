@@ -8,7 +8,7 @@
 	ColdLight-owned ARIA — role="dialog", aria-modal, Escape to close.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getDateRangePickerContext } from "./context.js";
 import { dateRangePickerRecipe } from "./recipe.js";
 import type { DateRangePickerContentProps } from "./types.js";

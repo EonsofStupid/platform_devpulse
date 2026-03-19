@@ -12,7 +12,7 @@
 <script lang="ts">
 import { ColdLightTabs } from "$lib/design/api/dsadapters/coldlight/_internal/tabs/tabs.svelte.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getRecipe } from "$lib/design/recipes/index.js";
 import { setTabsContext } from "./context.js";
 import type { TabsProps } from "./types.js";

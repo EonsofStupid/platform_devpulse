@@ -9,7 +9,7 @@
 import { createScrollArea } from "$lib/design/api/dsadapters/coldlight/_internal/scroll-area/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import ScrollAreaRoot from "$lib/design/primitives/scroll-area/ScrollArea.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import {
 	scrollAreaRecipe,
 	scrollAreaScrollbarRecipe,

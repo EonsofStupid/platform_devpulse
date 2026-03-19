@@ -8,7 +8,7 @@
 	Applies recipe header classes.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getRecipe } from "$lib/design/recipes/index.js";
 import type { DialogHeaderProps } from "./types.js";
 

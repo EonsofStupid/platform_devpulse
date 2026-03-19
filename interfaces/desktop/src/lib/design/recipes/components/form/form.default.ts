@@ -15,7 +15,7 @@
  * All OKLCH — zero hardcoded colors.
  */
 
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { registerRecipe } from "../../index.js";
 import type { DsSurfaceProps } from "../../types.js";
 

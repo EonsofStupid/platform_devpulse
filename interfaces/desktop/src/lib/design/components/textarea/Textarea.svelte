@@ -9,7 +9,7 @@
 import { createTextarea } from "$lib/design/api/dsadapters/coldlight/_internal/textarea/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import TextareaRoot from "$lib/design/primitives/textarea/Textarea.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { textareaRecipe } from "./recipe.js";
 import type { TextareaProps } from "./types.js";
 

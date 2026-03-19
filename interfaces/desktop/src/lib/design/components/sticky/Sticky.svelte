@@ -10,7 +10,7 @@
 import { createSticky } from "$lib/design/api/dsadapters/coldlight/_internal/sticky/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import StickyRoot from "$lib/design/primitives/sticky/Sticky.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { stickyRecipe } from "./recipe.js";
 import type { StickyComponentProps } from "./types.js";
 

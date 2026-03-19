@@ -9,7 +9,7 @@
 import { createSidebar } from "$lib/design/api/dsadapters/coldlight/_internal/sidebar/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import SidebarRoot from "$lib/design/primitives/sidebar/Sidebar.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { sidebarRecipe } from "./recipe.js";
 import type { SidebarComponentProps } from "./types.js";
 

@@ -6,7 +6,7 @@
 	Radio group label — associates a text label with the group.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getRadioGroupContext } from "./context.js";
 import { radioGroupRecipe } from "./recipe.js";
 import type { RadioGroupLabelProps } from "./types.js";

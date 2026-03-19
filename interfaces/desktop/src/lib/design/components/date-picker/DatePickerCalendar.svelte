@@ -8,7 +8,7 @@
 	ColdLight-owned — delegates to Calendar component context.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getDatePickerContext } from "./context.js";
 import { datePickerRecipe } from "./recipe.js";
 import type { DatePickerCalendarProps } from "./types.js";

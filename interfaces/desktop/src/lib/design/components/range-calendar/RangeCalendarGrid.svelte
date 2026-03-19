@@ -8,7 +8,7 @@
 	ColdLight-owned ARIA with role="grid" and aria-multiselectable.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getRangeCalendarContext } from "./context.js";
 import { rangeCalendarRecipe } from "./recipe.js";
 import type { RangeCalendarGridProps } from "./types.js";

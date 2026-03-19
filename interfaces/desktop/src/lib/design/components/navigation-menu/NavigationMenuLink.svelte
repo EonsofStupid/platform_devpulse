@@ -9,7 +9,7 @@
 	Uses semantic <a> element.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { navigationMenuRecipe } from "./recipe.js";
 import type { NavigationMenuLinkProps } from "./types.js";
 

@@ -15,7 +15,7 @@
 import { createBreadcrumb } from "$lib/design/api/dsadapters/coldlight/_internal/breadcrumb/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import BreadcrumbRoot from "$lib/design/primitives/breadcrumb/Breadcrumb.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { breadcrumbRecipe } from "./recipe.js";
 import type { BreadcrumbComponentProps } from "./types.js";
 

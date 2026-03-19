@@ -9,7 +9,7 @@
 import { createInput } from "$lib/design/api/dsadapters/coldlight/_internal/input/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import InputRoot from "$lib/design/primitives/input/Input.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { inputRecipe } from "./recipe.js";
 import type { InputProps } from "./types.js";
 

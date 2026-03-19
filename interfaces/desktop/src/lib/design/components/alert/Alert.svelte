@@ -9,7 +9,7 @@
 import { createAlert } from "$lib/design/api/dsadapters/coldlight/_internal/alert/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import AlertRoot from "$lib/design/primitives/alert/Alert.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { alertRecipe } from "./recipe.js";
 import type { AlertProps } from "./types.js";
 import { ALERT_INTENT_PRESETS } from "./types.js";

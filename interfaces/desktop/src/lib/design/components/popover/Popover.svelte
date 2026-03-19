@@ -16,7 +16,7 @@
 <script lang="ts">
 import { createPopoverTransport } from "$lib/design/api/dsadapters/meltui/_internal/popover/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { setPopoverContext } from "./context.js";
 import type { PopoverProps } from "./types.js";
 

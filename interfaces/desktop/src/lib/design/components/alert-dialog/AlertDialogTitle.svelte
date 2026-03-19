@@ -8,7 +8,7 @@
 	ColdLight-owned ARIA.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getAlertDialogContext } from "./context.js";
 import { alertDialogRecipe } from "./recipe.js";
 import type { AlertDialogTitleProps } from "./types.js";

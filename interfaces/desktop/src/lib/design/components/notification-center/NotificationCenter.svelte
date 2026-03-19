@@ -15,7 +15,7 @@
 import { createNotificationCenter } from "$lib/design/api/dsadapters/coldlight/_internal/notification-center/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import NotificationCenterRoot from "$lib/design/primitives/notification-center/NotificationCenter.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { notificationCenterRecipe } from "./recipe.js";
 import type { NotificationCenterComponentProps } from "./types.js";
 

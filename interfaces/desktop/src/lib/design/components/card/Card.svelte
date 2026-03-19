@@ -9,7 +9,7 @@
 import { createCard } from "$lib/design/api/dsadapters/coldlight/_internal/card/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import CardRoot from "$lib/design/primitives/card/Card.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { cardRecipe } from "./recipe.js";
 import type { CardProps } from "./types.js";
 import { CARD_VARIANT_PRESETS } from "./types.js";

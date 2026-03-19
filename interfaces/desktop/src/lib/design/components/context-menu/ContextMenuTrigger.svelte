@@ -8,7 +8,7 @@
 	No ARIA role on the trigger — it is a plain container that intercepts contextmenu event.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getContextMenuContext } from "./context.js";
 import { contextMenuRecipe } from "./recipe.js";
 import type { ContextMenuTriggerProps } from "./types.js";

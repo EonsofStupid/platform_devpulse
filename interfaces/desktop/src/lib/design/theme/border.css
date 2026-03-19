@@ -3,12 +3,12 @@
  */
 
 @theme {
-	--border-subtle: oklch(0.4234 0.081 173.37 / 0.2196078431372549);
-	--border-strong: oklch(0.5106 0.0979 173.17 / 0.30196078431372547);
-	--border-focus: oklch(0.8147 0.1438 171.59);
-	--border-divider: oklch(1 0 0 / 0.058823529411764705);
-	--border-preset-default: 1px solid oklch(0.4234 0.081 173.37 / 0.2196078431372549);
-	--border-preset-strong: 1px solid oklch(0.5106 0.0979 173.17 / 0.30196078431372547);
-	--border-preset-focus: 2px solid oklch(0.8147 0.1438 171.59);
-	--border-preset-divider: 1px solid oklch(1 0 0 / 0.058823529411764705);
+  --border-subtle: oklch(0.4234 0.0810 173.37 / 0.2196078431372549);
+  --border-strong: oklch(0.5106 0.0979 173.17 / 0.30196078431372547);
+  --border-focus: oklch(0.8147 0.1438 171.59);
+  --border-divider: oklch(1.0000 0.0000 0.00 / 0.058823529411764705);
+  --border-preset-default: 1px solid oklch(0.4234 0.0810 173.37 / 0.2196078431372549);
+  --border-preset-strong: 1px solid oklch(0.5106 0.0979 173.17 / 0.30196078431372547);
+  --border-preset-focus: 2px solid oklch(0.8147 0.1438 171.59);
+  --border-preset-divider: 1px solid oklch(1.0000 0.0000 0.00 / 0.058823529411764705);
 }

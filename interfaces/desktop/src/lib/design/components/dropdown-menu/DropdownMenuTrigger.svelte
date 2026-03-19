@@ -8,7 +8,7 @@
 	ARIA: role="button", aria-haspopup="menu", aria-expanded, aria-controls.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getDropdownMenuContext } from "./context.js";
 import { dropdownMenuRecipe } from "./recipe.js";
 import type { DropdownMenuTriggerProps } from "./types.js";

@@ -31,7 +31,7 @@
  *                   [data-theme="light"] selector in CSS layer.
  */
 
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { registerRecipe } from "../../index.js";
 import type { DsSurfaceProps } from "../../types.js";
 import { toPreset } from "../../types.js";

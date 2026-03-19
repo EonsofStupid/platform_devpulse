@@ -25,12 +25,12 @@ body {
 [data-layout="app"] {
 	background:
 		radial-gradient(ellipse 60% 50% at 50% 40%, var(--backdrop-glow-teal) 0%, transparent 70%),
-		linear-gradient(var(--backdrop-grid-teal) 1px, transparent 1px),
-		linear-gradient(90deg, var(--backdrop-grid-teal) 1px, transparent 1px), var(--color-void-base);
+		linear-gradient(var(--backdrop-grid-teal) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)),
+		linear-gradient(90deg, var(--backdrop-grid-teal) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)), var(--color-void-base);
 	background-size:
 		100% 100%,
-		40px 40px,
-		40px 40px,
+		var(--backdrop-grid-size-teal) var(--backdrop-grid-size-teal),
+		var(--backdrop-grid-size-teal) var(--backdrop-grid-size-teal),
 		100% 100%;
 }
 
@@ -43,61 +43,61 @@ body {
 [data-layout="app"][data-route="devpulse"] {
 	background:
 		radial-gradient(ellipse 60% 50% at 50% 40%, var(--backdrop-glow-teal) 0%, transparent 70%),
-		linear-gradient(var(--backdrop-grid-teal) 1px, transparent 1px),
-		linear-gradient(90deg, var(--backdrop-grid-teal) 1px, transparent 1px), var(--color-void-base);
+		linear-gradient(var(--backdrop-grid-teal) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)),
+		linear-gradient(90deg, var(--backdrop-grid-teal) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)), var(--color-void-base);
 	background-size:
 		100% 100%,
-		40px 40px,
-		40px 40px,
+		var(--backdrop-grid-size-teal) var(--backdrop-grid-size-teal),
+		var(--backdrop-grid-size-teal) var(--backdrop-grid-size-teal),
 		100% 100%;
 }
 
 [data-layout="app"][data-route="maestro"] {
 	background:
 		radial-gradient(ellipse 60% 50% at 50% 40%, var(--backdrop-glow-purple) 0%, transparent 70%),
-		linear-gradient(var(--backdrop-grid-purple) 1px, transparent 1px),
-		linear-gradient(90deg, var(--backdrop-grid-purple) 1px, transparent 1px), var(--color-void-base);
+		linear-gradient(var(--backdrop-grid-purple) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)),
+		linear-gradient(90deg, var(--backdrop-grid-purple) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)), var(--color-void-base);
 	background-size:
 		100% 100%,
-		36px 36px,
-		36px 36px,
+		var(--backdrop-grid-size-purple) var(--backdrop-grid-size-purple),
+		var(--backdrop-grid-size-purple) var(--backdrop-grid-size-purple),
 		100% 100%;
 }
 
 [data-layout="app"][data-route="overmind"] {
 	background:
 		radial-gradient(ellipse 60% 50% at 50% 40%, var(--backdrop-glow-magenta) 0%, transparent 70%),
-		linear-gradient(var(--backdrop-grid-magenta) 1px, transparent 1px),
-		linear-gradient(90deg, var(--backdrop-grid-magenta) 1px, transparent 1px),
+		linear-gradient(var(--backdrop-grid-magenta) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)),
+		linear-gradient(90deg, var(--backdrop-grid-magenta) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)),
 		var(--color-void-base);
 	background-size:
 		100% 100%,
-		32px 32px,
-		32px 32px,
+		var(--backdrop-grid-size-magenta) var(--backdrop-grid-size-magenta),
+		var(--backdrop-grid-size-magenta) var(--backdrop-grid-size-magenta),
 		100% 100%;
 }
 
 [data-layout="app"][data-route="devforge"] {
 	background:
 		radial-gradient(ellipse 60% 50% at 50% 40%, var(--backdrop-glow-ember) 0%, transparent 70%),
-		linear-gradient(var(--backdrop-grid-ember) 1px, transparent 1px),
-		linear-gradient(90deg, var(--backdrop-grid-ember) 1px, transparent 1px), var(--color-void-base);
+		linear-gradient(var(--backdrop-grid-ember) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)),
+		linear-gradient(90deg, var(--backdrop-grid-ember) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)), var(--color-void-base);
 	background-size:
 		100% 100%,
-		44px 44px,
-		44px 44px,
+		var(--backdrop-grid-size-ember) var(--backdrop-grid-size-ember),
+		var(--backdrop-grid-size-ember) var(--backdrop-grid-size-ember),
 		100% 100%;
 }
 
 [data-layout="app"][data-route="wiredfront"] {
 	background:
 		radial-gradient(ellipse 60% 50% at 50% 40%, var(--backdrop-glow-cyber) 0%, transparent 70%),
-		linear-gradient(var(--backdrop-grid-cyber) 1px, transparent 1px),
-		linear-gradient(90deg, var(--backdrop-grid-cyber) 1px, transparent 1px), var(--color-void-base);
+		linear-gradient(var(--backdrop-grid-cyber) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)),
+		linear-gradient(90deg, var(--backdrop-grid-cyber) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)), var(--color-void-base);
 	background-size:
 		100% 100%,
-		38px 38px,
-		38px 38px,
+		var(--backdrop-grid-size-cyber) var(--backdrop-grid-size-cyber),
+		var(--backdrop-grid-size-cyber) var(--backdrop-grid-size-cyber),
 		100% 100%;
 }
 
@@ -106,7 +106,6 @@ body {
    ═══════════════════════════════════════════════════════ */
 
 [data-layout="chat"] {
-	/* Purple-teal radial glow */
 	background:
 		radial-gradient(
 			ellipse 80% 60% at 50% 30%,
@@ -114,13 +113,12 @@ body {
 			var(--backdrop-glow-purple-fade) 50%,
 			transparent 80%
 		),
-		/* Tighter grid — neural network feel */
-		linear-gradient(var(--backdrop-grid-purple) 1px, transparent 1px),
-		linear-gradient(90deg, var(--backdrop-grid-purple) 1px, transparent 1px), var(--color-void-base);
+		linear-gradient(var(--backdrop-grid-purple) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)),
+		linear-gradient(90deg, var(--backdrop-grid-purple) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)), var(--color-void-base);
 	background-size:
 		100% 100%,
-		28px 28px,
-		28px 28px,
+		var(--backdrop-grid-size-neural) var(--backdrop-grid-size-neural),
+		var(--backdrop-grid-size-neural) var(--backdrop-grid-size-neural),
 		100% 100%;
 }
 
@@ -129,15 +127,15 @@ body {
    ═══════════════════════════════════════════════════════ */
 
 ::-webkit-scrollbar {
-	width: 6px;
-	height: 6px;
+	width: var(--scrollbar-size-width);
+	height: var(--scrollbar-size-height);
 }
 ::-webkit-scrollbar-track {
 	background: transparent;
 }
 ::-webkit-scrollbar-thumb {
 	background: var(--scrollbar-thumb);
-	border-radius: 3px;
+	border-radius: var(--scrollbar-size-radius);
 }
 ::-webkit-scrollbar-thumb:hover {
 	background: var(--scrollbar-thumb-hover);

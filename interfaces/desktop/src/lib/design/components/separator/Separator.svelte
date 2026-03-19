@@ -9,7 +9,7 @@
 import { createSeparator } from "$lib/design/api/dsadapters/coldlight/_internal/separator/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import SeparatorRoot from "$lib/design/primitives/separator/Separator.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { separatorRecipe } from "./recipe.js";
 import type { SeparatorProps } from "./types.js";
 

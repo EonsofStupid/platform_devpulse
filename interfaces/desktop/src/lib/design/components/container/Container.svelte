@@ -9,7 +9,7 @@
 import { createContainer } from "$lib/design/api/dsadapters/coldlight/_internal/container/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import ContainerRoot from "$lib/design/primitives/container/Container.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { containerRecipe } from "./recipe.js";
 import type { ContainerProps } from "./types.js";
 

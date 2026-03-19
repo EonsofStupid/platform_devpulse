@@ -9,7 +9,7 @@
 import { createKbd } from "$lib/design/api/dsadapters/coldlight/_internal/kbd/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import KbdRoot from "$lib/design/primitives/kbd/Kbd.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { kbdRecipe } from "./recipe.js";
 import type { KbdProps } from "./types.js";
 

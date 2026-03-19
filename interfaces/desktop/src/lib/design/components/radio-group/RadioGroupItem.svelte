@@ -7,7 +7,7 @@
 	MeltUI transport provides all ARIA and keyboard handling via item(value).
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getRadioGroupContext } from "./context.js";
 import { radioGroupRecipe } from "./recipe.js";
 import type { RadioGroupItemProps } from "./types.js";

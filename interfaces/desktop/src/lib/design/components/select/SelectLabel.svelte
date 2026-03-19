@@ -7,7 +7,7 @@
 	MeltUI transport provides id linking for accessibility.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getSelectContext } from "./context.js";
 import { selectRecipe } from "./recipe.js";
 import type { SelectLabelProps } from "./types.js";

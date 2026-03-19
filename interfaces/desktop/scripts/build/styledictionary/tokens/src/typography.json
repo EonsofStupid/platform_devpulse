@@ -9,12 +9,16 @@
 	"textSize": {
 		"$type": "dimension",
 		"$description": "Text size scale (px → rem via SD5 transform)",
+		"3xs":  { "$value": "8px",  "$description": "Encoding labels, micro metadata" },
+		"2xs":  { "$value": "10px", "$description": "Legend text, tiny labels" },
 		"xs":   { "$value": "12px" },
 		"sm":   { "$value": "14px" },
 		"base": { "$value": "16px" },
 		"lg":   { "$value": "18px" },
 		"xl":   { "$value": "20px" },
-		"2xl":  { "$value": "24px" }
+		"2xl":  { "$value": "24px" },
+		"3xl":  { "$value": "30px" },
+		"4xl":  { "$value": "36px" }
 	},
 	"textStyle": {
 		"$type": "typography",

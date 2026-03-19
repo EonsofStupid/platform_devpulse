@@ -10,7 +10,7 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { ColdLightProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type StickyTop = "0" | "1" | "2" | "4" | "8" | "16";
 export type StickyOffset = "none" | "sm" | "md" | "lg";

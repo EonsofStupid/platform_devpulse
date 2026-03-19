@@ -9,7 +9,7 @@
 	Handles Escape to close and arrow key navigation.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getContextMenuContext } from "./context.js";
 import { contextMenuRecipe } from "./recipe.js";
 import type { ContextMenuContentProps } from "./types.js";

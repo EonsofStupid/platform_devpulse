@@ -14,7 +14,7 @@
 import { createSkipLink } from "$lib/design/api/dsadapters/coldlight/_internal/skip-link/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import SkipLinkRoot from "$lib/design/primitives/skip-link/SkipLink.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { skipLinkRecipe } from "./recipe.js";
 import type { SkipLinkComponentProps } from "./types.js";
 

@@ -8,7 +8,7 @@
 	ColdLight-owned — renders aria-valuemin, aria-valuemax, aria-valuenow directly.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getDateFieldContext } from "./context.js";
 import { dateFieldRecipe } from "./recipe.js";
 import type { DateFieldSegmentProps } from "./types.js";

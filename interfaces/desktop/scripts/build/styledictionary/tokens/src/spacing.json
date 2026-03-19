@@ -1,31 +1,46 @@
 {
 	"space": {
 		"$type": "dimension",
-		"$description": "Base spacing scale (px → rem via SD5 transform)",
-		"1": { "$value": "4px" },
-		"2": { "$value": "8px" },
-		"3": { "$value": "12px" },
-		"4": { "$value": "16px" },
-		"5": { "$value": "20px" },
-		"6": { "$value": "24px" },
-		"8": { "$value": "32px" }
+		"$description": "Base spacing scale (px → rem via SD5 transform). Key = px value. Predictable, linear, no gaps.",
+		"1":  { "$value": "1px",  "$description": "Hairline — grid lines, single-pixel borders" },
+		"2":  { "$value": "2px",  "$description": "Micro — tight label margins, outline offsets" },
+		"3":  { "$value": "3px",  "$description": "Tight — compact padding, scrollbar radius" },
+		"4":  { "$value": "4px",  "$description": "Base unit" },
+		"5":  { "$value": "5px",  "$description": "Compact — small button padding" },
+		"6":  { "$value": "6px",  "$description": "Snug — scrollbar width, tight gaps" },
+		"8":  { "$value": "8px",  "$description": "Standard gap" },
+		"10": { "$value": "10px", "$description": "Comfortable — button padding" },
+		"12": { "$value": "12px" },
+		"14": { "$value": "14px" },
+		"16": { "$value": "16px" },
+		"20": { "$value": "20px" },
+		"24": { "$value": "24px" },
+		"28": { "$value": "28px", "$description": "Neural grid spacing" },
+		"32": { "$value": "32px" },
+		"36": { "$value": "36px", "$description": "Maestro grid spacing" },
+		"40": { "$value": "40px", "$description": "Toolbar height, default grid spacing" },
+		"44": { "$value": "44px", "$description": "DevForge grid spacing" },
+		"48": { "$value": "48px" }
 	},
 	"padding": {
 		"$type": "dimension",
 		"$description": "Component padding presets (px → rem via SD5 transform)",
-		"sm-y": { "$value": "6px" },
-		"sm-x": { "$value": "12px" },
-		"md-y": { "$value": "8px" },
-		"md-x": { "$value": "16px" },
-		"lg-y": { "$value": "12px" },
-		"lg-x": { "$value": "24px" }
+		"sm-y": { "$value": "{space.6}" },
+		"sm-x": { "$value": "{space.12}" },
+		"md-y": { "$value": "{space.8}" },
+		"md-x": { "$value": "{space.16}" },
+		"lg-y": { "$value": "{space.12}" },
+		"lg-x": { "$value": "{space.24}" }
 	},
 	"size": {
 		"$type": "dimension",
 		"$description": "Component size scale (px → rem via SD5 transform)",
+		"xs": { "$value": "24px" },
 		"sm": { "$value": "32px" },
 		"md": { "$value": "40px" },
-		"lg": { "$value": "48px" }
+		"lg": { "$value": "48px" },
+		"xl": { "$value": "56px" },
+		"2xl": { "$value": "64px" }
 	},
 	"zIndex": {
 		"$type": "number",

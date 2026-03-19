@@ -10,7 +10,7 @@
 	Only rendered when item.states.isExpanded is true.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getAccordionItemContext } from "./context.js";
 import { accordionRecipe } from "./recipe.js";
 import type { AccordionContentProps } from "./types.js";

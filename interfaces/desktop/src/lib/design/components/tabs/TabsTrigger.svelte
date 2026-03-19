@@ -9,7 +9,7 @@
 	(role, aria-selected, aria-controls, tabindex, onclick, onkeydown).
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getRecipe } from "$lib/design/recipes/index.js";
 import { getTabsContext } from "./context.js";
 import type { TabsTriggerProps } from "./types.js";

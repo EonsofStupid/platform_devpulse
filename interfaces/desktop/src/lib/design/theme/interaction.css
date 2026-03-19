@@ -3,8 +3,8 @@
  */
 
 @theme {
-	--interaction-hover: oklch(1 0 0 / 0.058823529411764705);
-	--interaction-active: oklch(1 0 0 / 0.10196078431372549);
-	--interaction-selected: oklch(1 0 0 / 0.14901960784313725);
-	--interaction-disabled: oklch(1 0 0 / 0.03137254901960784);
+  --interaction-hover: oklch(1.0000 0.0000 0.00 / 0.058823529411764705);
+  --interaction-active: oklch(1.0000 0.0000 0.00 / 0.10196078431372549);
+  --interaction-selected: oklch(1.0000 0.0000 0.00 / 0.14901960784313725);
+  --interaction-disabled: oklch(1.0000 0.0000 0.00 / 0.03137254901960784);
 }

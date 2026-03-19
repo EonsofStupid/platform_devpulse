@@ -1,4 +1,18 @@
 {
+	"borderWidth": {
+		"$type": "dimension",
+		"$description": "Border width scale (px → rem via SD5 transform)",
+		"thin":   { "$value": "1px", "$description": "Default border, dividers, grid lines" },
+		"medium": { "$value": "2px", "$description": "Focus rings, emphasis borders" },
+		"thick":  { "$value": "3px", "$description": "Active state, strong emphasis" }
+	},
+	"outlineOffset": {
+		"$type": "dimension",
+		"$description": "Outline offset scale (px → rem via SD5 transform)",
+		"sm": { "$value": "1px" },
+		"md": { "$value": "2px" },
+		"lg": { "$value": "4px" }
+	},
 	"border": {
 		"$type": "color",
 		"$description": "Named border color presets",

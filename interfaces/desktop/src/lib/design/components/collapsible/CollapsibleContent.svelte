@@ -9,7 +9,7 @@
 	Only rendered when transport.states.open is true.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getCollapsibleContext } from "./context.js";
 import { collapsibleRecipe } from "./recipe.js";
 import type { CollapsibleContentProps } from "./types.js";

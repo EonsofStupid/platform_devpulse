@@ -9,7 +9,7 @@
 	Sets per-item context for trigger/content children.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import {
 	getNavigationMenuRootContext,
 	type NavigationMenuItemCtx,

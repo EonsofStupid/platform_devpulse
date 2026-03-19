@@ -14,6 +14,9 @@
 | 1 | Which enforcement tools? | **B** — Shell hook + Stylelint |
 | 1.1 | How aggressive on px? | Block colors AND px. Same process — hex→oklch, px→rem. No exceptions. |
 | 1.2 | Edge-case px (`border-width: 1px`, `scrollbar: 6px`)? | **B** — Tokenize everything. Zero exceptions. All values through SD5. |
+| 0.1 | VPB tokenization strategy? | **B** — Map to existing token scale + extend scales to cover all sizes. Parameterize fully. |
+| 0.2 | VPB remediation now or later? | **SKIP** — VPB is marked for full rewrite (step 5 in roadmap). Exclude from enforcement scanning. Enforcement gate prevents new raw values in the rewrite. |
+| 0.3 | Text size naming for gaps? | Follow existing t-shirt convention. Extend downward (2xs, 3xs). VPB rounds to nearest or uses textStyle composites. |
 
 ---
 
@@ -86,32 +89,12 @@ Code enters repository (clean)
 | `design/blocks/widgets/RadialGauge.svelte` | 2 | TBD |
 | `design/blocks/widgets/SparkLine.svelte` | 1 | TBD |
 
-### Debug tooling violations (VPB — zero exceptions)
+### Debug tooling (VPB) — EXCLUDED from this sprint
 
-| File | px count |
-|------|----------|
-| `sys/debug/vpb/Vpb.svelte` | 5 |
-| `sys/debug/vpb/graph/VpbBlockNode.svelte` | 11 |
-| `sys/debug/vpb/graph/VpbSlotEdge.svelte` | 3 |
-| `sys/debug/vpb/panels/VpbProperties.svelte` | 66 |
-| `sys/debug/vpb/panels/VpbContractInspector.svelte` | 29 |
-| `sys/debug/vpb/panels/VpbPalette.svelte` | 23 |
-| `sys/debug/vpb/panels/VpbToolbar.svelte` | 15 |
-| `sys/debug/vpb/panels/VpbRecipeLegend.svelte` | 15 |
-| `sys/debug/vpb/panels/VpbConnectionBadge.svelte` | 9 |
-| `sys/debug/vpb/panels/VpbCanvas.svelte` | 7 |
-| `sys/debug/vpb/controls/VpbEncodingOutput.svelte` | 17 |
-| `sys/debug/vpb/controls/VpbPresetPicker.svelte` | 10 |
-| `sys/debug/vpb/controls/GlowControl.svelte` | 6 |
-| `sys/debug/vpb/controls/AccentControl.svelte` | 5 |
-| `sys/debug/vpb/controls/PropControlFactory.svelte` | 6 |
-| `sys/debug/vpb/controls/DepthControl.svelte` | 3 |
-| `sys/debug/vpb/controls/VariantControl.svelte` | 4 |
-| `sys/debug/vpb/controls/BevelControl.svelte` | 4 |
-| `sys/debug/vpb/controls/SurfaceControl.svelte` | 4 |
-| `sys/debug/vpb/controls/RadiusControl.svelte` | 4 |
-| `sys/debug/vpb/controls/SizeControl.svelte` | 4 |
-| **VPB subtotal** | **~250** |
+~250 raw px violations across ~20 VPB files. **VPB is marked for full rewrite** (roadmap step 5).
+VPB will be rebuilt from scratch on the clean ColdLight foundation — enforcement gate prevents
+new raw values from being committed during the rewrite. `sys/debug/vpb/` excluded from
+Stylelint and shell hook scanning until rewrite lands.
 
 ### Arbitrary Tailwind violations (bracket syntax with raw values)
 

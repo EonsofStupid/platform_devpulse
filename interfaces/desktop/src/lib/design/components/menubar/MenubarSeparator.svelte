@@ -8,7 +8,7 @@
 	ARIA: role="separator".
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { menubarRecipe } from "./recipe.js";
 import type { MenubarSeparatorProps } from "./types.js";
 

@@ -11,7 +11,7 @@
 import { createSpacer } from "$lib/design/api/dsadapters/coldlight/_internal/spacer/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import SpacerRoot from "$lib/design/primitives/spacer/Spacer.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { spacerRecipe } from "./recipe.js";
 import type { SpacerComponentProps } from "./types.js";
 

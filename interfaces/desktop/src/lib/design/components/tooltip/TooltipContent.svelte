@@ -10,7 +10,7 @@
 	Only rendered when transport.states.open is true.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getTooltipContext } from "./context.js";
 import { tooltipRecipe } from "./recipe.js";
 import type { TooltipContentProps } from "./types.js";

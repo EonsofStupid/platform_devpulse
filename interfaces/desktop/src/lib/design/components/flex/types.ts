@@ -10,7 +10,7 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { ColdLightProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type FlexDirection = "row" | "row-reverse" | "column" | "column-reverse";
 export type FlexGap = "0" | "1" | "2" | "3" | "4" | "6" | "8" | "10" | "12";

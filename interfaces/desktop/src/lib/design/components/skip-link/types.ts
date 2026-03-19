@@ -10,7 +10,7 @@
 import type { Snippet } from "svelte";
 import type { HTMLAnchorAttributes } from "svelte/elements";
 import type { ColdLightProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { BaseProps } from "$lib/design/utils/cn.js";
 
 /** SkipLink component props -- ColdLight 8-axis + ARIA + recipe + primitive */
 export interface SkipLinkComponentProps

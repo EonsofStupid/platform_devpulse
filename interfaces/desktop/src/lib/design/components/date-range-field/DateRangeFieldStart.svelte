@@ -8,7 +8,7 @@
 	ColdLight-owned ARIA — role="group" with aria-label.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getDateRangeFieldContext } from "./context.js";
 import { dateRangeFieldRecipe } from "./recipe.js";
 import type { DateRangeFieldStartProps } from "./types.js";

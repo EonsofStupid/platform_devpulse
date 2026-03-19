@@ -10,7 +10,7 @@
 	ARIA attributes are provided by the MeltUI transport (aria-describedby, etc).
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getTooltipContext } from "./context.js";
 import type { TooltipTriggerProps } from "./types.js";
 

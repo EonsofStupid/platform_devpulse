@@ -6,7 +6,7 @@
 	Slider track — the background track the thumb slides along.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getSliderContext } from "./context.js";
 import { sliderRecipe } from "./recipe.js";
 import type { SliderTrackProps } from "./types.js";

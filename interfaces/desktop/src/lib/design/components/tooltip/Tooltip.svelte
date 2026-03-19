@@ -16,7 +16,7 @@
 <script lang="ts">
 import { createTooltipTransport } from "$lib/design/api/dsadapters/meltui/_internal/tooltip/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { setTooltipContext } from "./context.js";
 import type { TooltipProps } from "./types.js";
 

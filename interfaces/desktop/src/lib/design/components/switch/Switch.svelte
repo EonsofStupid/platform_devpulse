@@ -9,7 +9,7 @@
 import { createSwitch } from "$lib/design/api/dsadapters/coldlight/_internal/switch/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import SwitchRoot from "$lib/design/primitives/switch/Switch.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { switchRecipe, switchThumbRecipe } from "./recipe.js";
 import type { SwitchProps } from "./types.js";
 

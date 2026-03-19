@@ -9,7 +9,7 @@
 	WAI-ARIA APG: trigger has aria-expanded + aria-controls pointing to content.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getCollapsibleContext } from "./context.js";
 import { collapsibleRecipe } from "./recipe.js";
 import type { CollapsibleTriggerProps } from "./types.js";

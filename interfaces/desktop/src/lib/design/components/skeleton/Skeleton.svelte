@@ -9,7 +9,7 @@
 import { createSkeleton } from "$lib/design/api/dsadapters/coldlight/_internal/skeleton/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import SkeletonRoot from "$lib/design/primitives/skeleton/Skeleton.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { skeletonRecipe } from "./recipe.js";
 import type { SkeletonProps } from "./types.js";
 

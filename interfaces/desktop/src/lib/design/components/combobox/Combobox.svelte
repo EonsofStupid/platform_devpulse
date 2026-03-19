@@ -27,7 +27,7 @@
 <script lang="ts">
 import { createComboboxTransport } from "$lib/design/api/dsadapters/meltui/_internal/combobox/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getRecipe } from "$lib/design/recipes/index.js";
 import type { DsSurfaceProps } from "$lib/design/recipes/types.js";
 import { setComboboxContext } from "./context.js";

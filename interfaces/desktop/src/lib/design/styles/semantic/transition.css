@@ -3,18 +3,16 @@
  */
 
 @layer tokens.semantic {
-	:root {
-		--transition-fade: opacity 150ms cubic-bezier(0, 0, 0.2, 1); /** Opacity fade for show/hide */
-		--transition-color:
-			color, background-color, border-color 150ms cubic-bezier(0, 0, 0.2, 1); /** Color property transitions for hover/focus */
-		--transition-expand:
-			height, padding 250ms cubic-bezier(0.4, 0, 0.2, 1); /** Expand/collapse for accordions, panels */
-		--transition-slide: transform 200ms cubic-bezier(0, 0, 0.2, 1); /** Slide translation for menus, drawers */
-		--transition-scale: transform 150ms cubic-bezier(0, 0, 0.2, 1); /** Scale pop for tooltips, popovers */
-		--transition-shadow: box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1); /** Shadow elevation change */
-		--transition-all-fast: all 150ms cubic-bezier(0, 0, 0.2, 1); /** Catch-all fast transition */
-		--transition-all-normal: all 250ms cubic-bezier(0.4, 0, 0.2, 1); /** Catch-all normal transition */
-		--transition-spring: transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1); /** Bouncy spring for playful interactions */
-		--transition-none: none; /** Disable transitions (reduced motion) */
-	}
+  :root {
+  --transition-fade: opacity 150ms cubic-bezier(0, 0, 0.2, 1); /** Opacity fade for show/hide */
+  --transition-color: color, background-color, border-color 150ms cubic-bezier(0, 0, 0.2, 1); /** Color property transitions for hover/focus */
+  --transition-expand: height, padding 250ms cubic-bezier(0.4, 0, 0.2, 1); /** Expand/collapse for accordions, panels */
+  --transition-slide: transform 200ms cubic-bezier(0, 0, 0.2, 1); /** Slide translation for menus, drawers */
+  --transition-scale: transform 150ms cubic-bezier(0, 0, 0.2, 1); /** Scale pop for tooltips, popovers */
+  --transition-shadow: box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1); /** Shadow elevation change */
+  --transition-all-fast: all 150ms cubic-bezier(0, 0, 0.2, 1); /** Catch-all fast transition */
+  --transition-all-normal: all 250ms cubic-bezier(0.4, 0, 0.2, 1); /** Catch-all normal transition */
+  --transition-spring: transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1); /** Bouncy spring for playful interactions */
+  --transition-none: none; /** Disable transitions (reduced motion) */
+  }
 }

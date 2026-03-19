@@ -12,7 +12,7 @@
 	3. Sets AccordionItemTransport context for child sub-components
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getAccordionContext, setAccordionItemContext } from "./context.js";
 import type { AccordionItemProps } from "./types.js";
 

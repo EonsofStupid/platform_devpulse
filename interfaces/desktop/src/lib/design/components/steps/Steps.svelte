@@ -8,7 +8,7 @@
 import { createSteps } from "$lib/design/api/dsadapters/coldlight/_internal/steps/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import StepsRoot from "$lib/design/primitives/steps/Steps.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { stepsRecipe } from "./recipe.js";
 import type { StepsComponentProps } from "./types.js";
 

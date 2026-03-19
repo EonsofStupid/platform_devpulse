@@ -9,7 +9,7 @@
 import { createBox } from "$lib/design/api/dsadapters/coldlight/_internal/box/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import BoxRoot from "$lib/design/primitives/box/Box.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { boxRecipe } from "./recipe.js";
 import type { BoxProps } from "./types.js";
 

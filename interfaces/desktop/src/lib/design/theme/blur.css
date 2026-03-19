@@ -3,10 +3,11 @@
  */
 
 @theme {
-	--blur-off: 0;
-	--blur-sm: 0.25rem;
-	--blur-md: 0.5rem;
-	--blur-lg: 0.75rem;
-	--blur-xl: 1rem;
-	--blur-2xl: 1.5rem;
+  --blur-off: 0;
+  --blur-sm: 0.25rem;
+  --blur-md: 0.5rem;
+  --blur-lg: 0.75rem;
+  --blur-xl: 1rem;
+  --blur-2xl: 1.25rem;
+  --blur-3xl: 1.5rem;
 }

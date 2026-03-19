@@ -14,7 +14,7 @@
 import { createDescriptionList } from "$lib/design/api/dsadapters/coldlight/_internal/description-list/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import DescriptionListRoot from "$lib/design/primitives/description-list/DescriptionList.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { descriptionListRecipe } from "./recipe.js";
 import type { DescriptionListComponentProps } from "./types.js";
 

@@ -15,7 +15,7 @@
 import { createDataTable } from "$lib/design/api/dsadapters/coldlight/_internal/data-table/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import DataTableRoot from "$lib/design/primitives/data-table/DataTable.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { dataTableRecipe } from "./recipe.js";
 import type { DataTableComponentProps } from "./types.js";
 

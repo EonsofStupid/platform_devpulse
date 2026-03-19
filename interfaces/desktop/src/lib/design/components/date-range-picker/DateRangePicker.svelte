@@ -11,7 +11,7 @@
 -->
 <script lang="ts">
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { type DateRangePickerContext, setDateRangePickerContext } from "./context.js";
 import { dateRangePickerRecipe } from "./recipe.js";
 import type { DateRange, DateRangePickerProps } from "./types.js";

@@ -4,7 +4,10 @@
 		"tokens": [
 			{
 				"name": "backdrop-glow-teal",
-				"path": ["backdrop", "glow-teal"],
+				"path": [
+					"backdrop",
+					"glow-teal"
+				],
 				"cssVar": "--backdrop-glow-teal",
 				"value": "#00373a4d",
 				"type": "color",
@@ -12,7 +15,10 @@
 			},
 			{
 				"name": "backdrop-glow-purple",
-				"path": ["backdrop", "glow-purple"],
+				"path": [
+					"backdrop",
+					"glow-purple"
+				],
 				"cssVar": "--backdrop-glow-purple",
 				"value": "#1a004a40",
 				"type": "color",
@@ -20,7 +26,10 @@
 			},
 			{
 				"name": "backdrop-glow-purple-fade",
-				"path": ["backdrop", "glow-purple-fade"],
+				"path": [
+					"backdrop",
+					"glow-purple-fade"
+				],
 				"cssVar": "--backdrop-glow-purple-fade",
 				"value": "#0018241a",
 				"type": "color",
@@ -28,7 +37,10 @@
 			},
 			{
 				"name": "backdrop-glow-ember",
-				"path": ["backdrop", "glow-ember"],
+				"path": [
+					"backdrop",
+					"glow-ember"
+				],
 				"cssVar": "--backdrop-glow-ember",
 				"value": "#2a060740",
 				"type": "color",
@@ -36,7 +48,10 @@
 			},
 			{
 				"name": "backdrop-glow-cyber",
-				"path": ["backdrop", "glow-cyber"],
+				"path": [
+					"backdrop",
+					"glow-cyber"
+				],
 				"cssVar": "--backdrop-glow-cyber",
 				"value": "#002e1a40",
 				"type": "color",
@@ -44,7 +59,10 @@
 			},
 			{
 				"name": "backdrop-glow-magenta",
-				"path": ["backdrop", "glow-magenta"],
+				"path": [
+					"backdrop",
+					"glow-magenta"
+				],
 				"cssVar": "--backdrop-glow-magenta",
 				"value": "#2a003040",
 				"type": "color",
@@ -52,7 +70,10 @@
 			},
 			{
 				"name": "backdrop-grid-teal",
-				"path": ["backdrop", "grid-teal"],
+				"path": [
+					"backdrop",
+					"grid-teal"
+				],
 				"cssVar": "--backdrop-grid-teal",
 				"value": "#0a3b3814",
 				"type": "color",
@@ -60,7 +81,10 @@
 			},
 			{
 				"name": "backdrop-grid-purple",
-				"path": ["backdrop", "grid-purple"],
+				"path": [
+					"backdrop",
+					"grid-purple"
+				],
 				"cssVar": "--backdrop-grid-purple",
 				"value": "#15084a0f",
 				"type": "color",
@@ -68,7 +92,10 @@
 			},
 			{
 				"name": "backdrop-grid-ember",
-				"path": ["backdrop", "grid-ember"],
+				"path": [
+					"backdrop",
+					"grid-ember"
+				],
 				"cssVar": "--backdrop-grid-ember",
 				"value": "#2a0a070f",
 				"type": "color",
@@ -76,7 +103,10 @@
 			},
 			{
 				"name": "backdrop-grid-cyber",
-				"path": ["backdrop", "grid-cyber"],
+				"path": [
+					"backdrop",
+					"grid-cyber"
+				],
 				"cssVar": "--backdrop-grid-cyber",
 				"value": "#003a1a0f",
 				"type": "color",
@@ -84,10 +114,100 @@
 			},
 			{
 				"name": "backdrop-grid-magenta",
-				"path": ["backdrop", "grid-magenta"],
+				"path": [
+					"backdrop",
+					"grid-magenta"
+				],
 				"cssVar": "--backdrop-grid-magenta",
 				"value": "#2a00300f",
 				"type": "color",
+				"extensions": null
+			}
+		]
+	},
+	"backdropGridSize": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "backdrop-grid-size-neural",
+				"path": [
+					"backdropGridSize",
+					"neural"
+				],
+				"cssVar": "--backdrop-grid-size-neural",
+				"value": "28px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "backdrop-grid-size-magenta",
+				"path": [
+					"backdropGridSize",
+					"magenta"
+				],
+				"cssVar": "--backdrop-grid-size-magenta",
+				"value": "32px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "backdrop-grid-size-purple",
+				"path": [
+					"backdropGridSize",
+					"purple"
+				],
+				"cssVar": "--backdrop-grid-size-purple",
+				"value": "36px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "backdrop-grid-size-cyber",
+				"path": [
+					"backdropGridSize",
+					"cyber"
+				],
+				"cssVar": "--backdrop-grid-size-cyber",
+				"value": "38px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "backdrop-grid-size-teal",
+				"path": [
+					"backdropGridSize",
+					"teal"
+				],
+				"cssVar": "--backdrop-grid-size-teal",
+				"value": "40px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "backdrop-grid-size-ember",
+				"path": [
+					"backdropGridSize",
+					"ember"
+				],
+				"cssVar": "--backdrop-grid-size-ember",
+				"value": "44px",
+				"type": "dimension",
+				"extensions": null
+			}
+		]
+	},
+	"backdropGridLine": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "backdrop-grid-line-width",
+				"path": [
+					"backdropGridLine",
+					"width"
+				],
+				"cssVar": "--backdrop-grid-line-width",
+				"value": "1px",
+				"type": "dimension",
 				"extensions": null
 			}
 		]
@@ -97,7 +217,10 @@
 		"tokens": [
 			{
 				"name": "bevel-off",
-				"path": ["bevel", "off"],
+				"path": [
+					"bevel",
+					"off"
+				],
 				"cssVar": "--bevel-off",
 				"value": {
 					"color": "#00000000",
@@ -115,7 +238,10 @@
 			},
 			{
 				"name": "bevel-subtle",
-				"path": ["bevel", "subtle"],
+				"path": [
+					"bevel",
+					"subtle"
+				],
 				"cssVar": "--bevel-subtle",
 				"value": [
 					{
@@ -153,7 +279,10 @@
 			},
 			{
 				"name": "bevel-soft",
-				"path": ["bevel", "soft"],
+				"path": [
+					"bevel",
+					"soft"
+				],
 				"cssVar": "--bevel-soft",
 				"value": [
 					{
@@ -198,7 +327,10 @@
 			},
 			{
 				"name": "bevel-medium",
-				"path": ["bevel", "medium"],
+				"path": [
+					"bevel",
+					"medium"
+				],
 				"cssVar": "--bevel-medium",
 				"value": [
 					{
@@ -250,7 +382,10 @@
 			},
 			{
 				"name": "bevel-pronounced",
-				"path": ["bevel", "pronounced"],
+				"path": [
+					"bevel",
+					"pronounced"
+				],
 				"cssVar": "--bevel-pronounced",
 				"value": [
 					{
@@ -309,7 +444,10 @@
 			},
 			{
 				"name": "bevel-deep",
-				"path": ["bevel", "deep"],
+				"path": [
+					"bevel",
+					"deep"
+				],
 				"cssVar": "--bevel-deep",
 				"value": [
 					{
@@ -397,7 +535,10 @@
 		"tokens": [
 			{
 				"name": "blur-off",
-				"path": ["blur", "off"],
+				"path": [
+					"blur",
+					"off"
+				],
 				"cssVar": "--blur-off",
 				"value": "0px",
 				"type": "dimension",
@@ -405,7 +546,10 @@
 			},
 			{
 				"name": "blur-sm",
-				"path": ["blur", "sm"],
+				"path": [
+					"blur",
+					"sm"
+				],
 				"cssVar": "--blur-sm",
 				"value": "4px",
 				"type": "dimension",
@@ -413,7 +557,10 @@
 			},
 			{
 				"name": "blur-md",
-				"path": ["blur", "md"],
+				"path": [
+					"blur",
+					"md"
+				],
 				"cssVar": "--blur-md",
 				"value": "8px",
 				"type": "dimension",
@@ -421,7 +568,10 @@
 			},
 			{
 				"name": "blur-lg",
-				"path": ["blur", "lg"],
+				"path": [
+					"blur",
+					"lg"
+				],
 				"cssVar": "--blur-lg",
 				"value": "12px",
 				"type": "dimension",
@@ -429,7 +579,10 @@
 			},
 			{
 				"name": "blur-xl",
-				"path": ["blur", "xl"],
+				"path": [
+					"blur",
+					"xl"
+				],
 				"cssVar": "--blur-xl",
 				"value": "16px",
 				"type": "dimension",
@@ -437,9 +590,99 @@
 			},
 			{
 				"name": "blur-2xl",
-				"path": ["blur", "2xl"],
+				"path": [
+					"blur",
+					"2xl"
+				],
 				"cssVar": "--blur-2xl",
+				"value": "20px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "blur-3xl",
+				"path": [
+					"blur",
+					"3xl"
+				],
+				"cssVar": "--blur-3xl",
 				"value": "24px",
+				"type": "dimension",
+				"extensions": null
+			}
+		]
+	},
+	"borderWidth": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "border-width-thin",
+				"path": [
+					"borderWidth",
+					"thin"
+				],
+				"cssVar": "--border-width-thin",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "border-width-medium",
+				"path": [
+					"borderWidth",
+					"medium"
+				],
+				"cssVar": "--border-width-medium",
+				"value": "2px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "border-width-thick",
+				"path": [
+					"borderWidth",
+					"thick"
+				],
+				"cssVar": "--border-width-thick",
+				"value": "3px",
+				"type": "dimension",
+				"extensions": null
+			}
+		]
+	},
+	"outlineOffset": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "outline-offset-sm",
+				"path": [
+					"outlineOffset",
+					"sm"
+				],
+				"cssVar": "--outline-offset-sm",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "outline-offset-md",
+				"path": [
+					"outlineOffset",
+					"md"
+				],
+				"cssVar": "--outline-offset-md",
+				"value": "2px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "outline-offset-lg",
+				"path": [
+					"outlineOffset",
+					"lg"
+				],
+				"cssVar": "--outline-offset-lg",
+				"value": "4px",
 				"type": "dimension",
 				"extensions": null
 			}
@@ -450,7 +693,10 @@
 		"tokens": [
 			{
 				"name": "border-subtle",
-				"path": ["border", "subtle"],
+				"path": [
+					"border",
+					"subtle"
+				],
 				"cssVar": "--border-subtle",
 				"value": "#005c4a38",
 				"type": "color",
@@ -461,7 +707,10 @@
 			},
 			{
 				"name": "border-strong",
-				"path": ["border", "strong"],
+				"path": [
+					"border",
+					"strong"
+				],
 				"cssVar": "--border-strong",
 				"value": "#0078614d",
 				"type": "color",
@@ -472,7 +721,10 @@
 			},
 			{
 				"name": "border-focus",
-				"path": ["border", "focus"],
+				"path": [
+					"border",
+					"focus"
+				],
 				"cssVar": "--border-focus",
 				"value": "#3ee0b7",
 				"type": "color",
@@ -480,7 +732,10 @@
 			},
 			{
 				"name": "border-divider",
-				"path": ["border", "divider"],
+				"path": [
+					"border",
+					"divider"
+				],
 				"cssVar": "--border-divider",
 				"value": "#ffffff0f",
 				"type": "color",
@@ -493,7 +748,10 @@
 		"tokens": [
 			{
 				"name": "border-preset-default",
-				"path": ["borderPreset", "default"],
+				"path": [
+					"borderPreset",
+					"default"
+				],
 				"cssVar": "--border-preset-default",
 				"value": {
 					"color": "#005c4a38",
@@ -505,7 +763,10 @@
 			},
 			{
 				"name": "border-preset-strong",
-				"path": ["borderPreset", "strong"],
+				"path": [
+					"borderPreset",
+					"strong"
+				],
 				"cssVar": "--border-preset-strong",
 				"value": {
 					"color": "#0078614d",
@@ -517,7 +778,10 @@
 			},
 			{
 				"name": "border-preset-focus",
-				"path": ["borderPreset", "focus"],
+				"path": [
+					"borderPreset",
+					"focus"
+				],
 				"cssVar": "--border-preset-focus",
 				"value": {
 					"color": "#3ee0b7",
@@ -529,7 +793,10 @@
 			},
 			{
 				"name": "border-preset-divider",
-				"path": ["borderPreset", "divider"],
+				"path": [
+					"borderPreset",
+					"divider"
+				],
 				"cssVar": "--border-preset-divider",
 				"value": {
 					"color": "#ffffff0f",
@@ -546,7 +813,11 @@
 		"tokens": [
 			{
 				"name": "color-red-50",
-				"path": ["color", "red", "50"],
+				"path": [
+					"color",
+					"red",
+					"50"
+				],
 				"cssVar": "--color-red-50",
 				"value": "#fdecec",
 				"type": "color",
@@ -554,7 +825,11 @@
 			},
 			{
 				"name": "color-red-100",
-				"path": ["color", "red", "100"],
+				"path": [
+					"color",
+					"red",
+					"100"
+				],
 				"cssVar": "--color-red-100",
 				"value": "#f9d2d2",
 				"type": "color",
@@ -562,7 +837,11 @@
 			},
 			{
 				"name": "color-red-200",
-				"path": ["color", "red", "200"],
+				"path": [
+					"color",
+					"red",
+					"200"
+				],
 				"cssVar": "--color-red-200",
 				"value": "#f1a7a7",
 				"type": "color",
@@ -570,7 +849,11 @@
 			},
 			{
 				"name": "color-red-300",
-				"path": ["color", "red", "300"],
+				"path": [
+					"color",
+					"red",
+					"300"
+				],
 				"cssVar": "--color-red-300",
 				"value": "#e57676",
 				"type": "color",
@@ -578,7 +861,11 @@
 			},
 			{
 				"name": "color-red-400",
-				"path": ["color", "red", "400"],
+				"path": [
+					"color",
+					"red",
+					"400"
+				],
 				"cssVar": "--color-red-400",
 				"value": "#e03e3e",
 				"type": "color",
@@ -586,7 +873,11 @@
 			},
 			{
 				"name": "color-red-500",
-				"path": ["color", "red", "500"],
+				"path": [
+					"color",
+					"red",
+					"500"
+				],
 				"cssVar": "--color-red-500",
 				"value": "#d31717",
 				"type": "color",
@@ -594,7 +885,11 @@
 			},
 			{
 				"name": "color-red-600",
-				"path": ["color", "red", "600"],
+				"path": [
+					"color",
+					"red",
+					"600"
+				],
 				"cssVar": "--color-red-600",
 				"value": "#a81515",
 				"type": "color",
@@ -602,7 +897,11 @@
 			},
 			{
 				"name": "color-red-700",
-				"path": ["color", "red", "700"],
+				"path": [
+					"color",
+					"red",
+					"700"
+				],
 				"cssVar": "--color-red-700",
 				"value": "#7b1414",
 				"type": "color",
@@ -610,7 +909,11 @@
 			},
 			{
 				"name": "color-red-800",
-				"path": ["color", "red", "800"],
+				"path": [
+					"color",
+					"red",
+					"800"
+				],
 				"cssVar": "--color-red-800",
 				"value": "#541212",
 				"type": "color",
@@ -618,7 +921,11 @@
 			},
 			{
 				"name": "color-red-900",
-				"path": ["color", "red", "900"],
+				"path": [
+					"color",
+					"red",
+					"900"
+				],
 				"cssVar": "--color-red-900",
 				"value": "#2f0e0e",
 				"type": "color",
@@ -626,7 +933,11 @@
 			},
 			{
 				"name": "color-red-950",
-				"path": ["color", "red", "950"],
+				"path": [
+					"color",
+					"red",
+					"950"
+				],
 				"cssVar": "--color-red-950",
 				"value": "#1a0a0a",
 				"type": "color",
@@ -634,7 +945,11 @@
 			},
 			{
 				"name": "color-red-orange-50",
-				"path": ["color", "red-orange", "50"],
+				"path": [
+					"color",
+					"red-orange",
+					"50"
+				],
 				"cssVar": "--color-red-orange-50",
 				"value": "#fdf0ec",
 				"type": "color",
@@ -642,7 +957,11 @@
 			},
 			{
 				"name": "color-red-orange-100",
-				"path": ["color", "red-orange", "100"],
+				"path": [
+					"color",
+					"red-orange",
+					"100"
+				],
 				"cssVar": "--color-red-orange-100",
 				"value": "#f9dcd2",
 				"type": "color",
@@ -650,7 +969,11 @@
 			},
 			{
 				"name": "color-red-orange-200",
-				"path": ["color", "red-orange", "200"],
+				"path": [
+					"color",
+					"red-orange",
+					"200"
+				],
 				"cssVar": "--color-red-orange-200",
 				"value": "#f1baa7",
 				"type": "color",
@@ -658,7 +981,11 @@
 			},
 			{
 				"name": "color-red-orange-300",
-				"path": ["color", "red-orange", "300"],
+				"path": [
+					"color",
+					"red-orange",
+					"300"
+				],
 				"cssVar": "--color-red-orange-300",
 				"value": "#e59276",
 				"type": "color",
@@ -666,7 +993,11 @@
 			},
 			{
 				"name": "color-red-orange-400",
-				"path": ["color", "red-orange", "400"],
+				"path": [
+					"color",
+					"red-orange",
+					"400"
+				],
 				"cssVar": "--color-red-orange-400",
 				"value": "#e0663e",
 				"type": "color",
@@ -674,7 +1005,11 @@
 			},
 			{
 				"name": "color-red-orange-500",
-				"path": ["color", "red-orange", "500"],
+				"path": [
+					"color",
+					"red-orange",
+					"500"
+				],
 				"cssVar": "--color-red-orange-500",
 				"value": "#d34617",
 				"type": "color",
@@ -682,7 +1017,11 @@
 			},
 			{
 				"name": "color-red-orange-600",
-				"path": ["color", "red-orange", "600"],
+				"path": [
+					"color",
+					"red-orange",
+					"600"
+				],
 				"cssVar": "--color-red-orange-600",
 				"value": "#a83a15",
 				"type": "color",
@@ -690,7 +1029,11 @@
 			},
 			{
 				"name": "color-red-orange-700",
-				"path": ["color", "red-orange", "700"],
+				"path": [
+					"color",
+					"red-orange",
+					"700"
+				],
 				"cssVar": "--color-red-orange-700",
 				"value": "#7b2e14",
 				"type": "color",
@@ -698,7 +1041,11 @@
 			},
 			{
 				"name": "color-red-orange-800",
-				"path": ["color", "red-orange", "800"],
+				"path": [
+					"color",
+					"red-orange",
+					"800"
+				],
 				"cssVar": "--color-red-orange-800",
 				"value": "#542212",
 				"type": "color",
@@ -706,7 +1053,11 @@
 			},
 			{
 				"name": "color-red-orange-900",
-				"path": ["color", "red-orange", "900"],
+				"path": [
+					"color",
+					"red-orange",
+					"900"
+				],
 				"cssVar": "--color-red-orange-900",
 				"value": "#2f160e",
 				"type": "color",
@@ -714,7 +1065,11 @@
 			},
 			{
 				"name": "color-red-orange-950",
-				"path": ["color", "red-orange", "950"],
+				"path": [
+					"color",
+					"red-orange",
+					"950"
+				],
 				"cssVar": "--color-red-orange-950",
 				"value": "#1a0e0a",
 				"type": "color",
@@ -722,7 +1077,11 @@
 			},
 			{
 				"name": "color-orange-50",
-				"path": ["color", "orange", "50"],
+				"path": [
+					"color",
+					"orange",
+					"50"
+				],
 				"cssVar": "--color-orange-50",
 				"value": "#fdf5ec",
 				"type": "color",
@@ -730,7 +1089,11 @@
 			},
 			{
 				"name": "color-orange-100",
-				"path": ["color", "orange", "100"],
+				"path": [
+					"color",
+					"orange",
+					"100"
+				],
 				"cssVar": "--color-orange-100",
 				"value": "#f9e6d2",
 				"type": "color",
@@ -738,7 +1101,11 @@
 			},
 			{
 				"name": "color-orange-200",
-				"path": ["color", "orange", "200"],
+				"path": [
+					"color",
+					"orange",
+					"200"
+				],
 				"cssVar": "--color-orange-200",
 				"value": "#f1cca7",
 				"type": "color",
@@ -746,7 +1113,11 @@
 			},
 			{
 				"name": "color-orange-300",
-				"path": ["color", "orange", "300"],
+				"path": [
+					"color",
+					"orange",
+					"300"
+				],
 				"cssVar": "--color-orange-300",
 				"value": "#e5ad76",
 				"type": "color",
@@ -754,7 +1125,11 @@
 			},
 			{
 				"name": "color-orange-400",
-				"path": ["color", "orange", "400"],
+				"path": [
+					"color",
+					"orange",
+					"400"
+				],
 				"cssVar": "--color-orange-400",
 				"value": "#e08f3e",
 				"type": "color",
@@ -762,7 +1137,11 @@
 			},
 			{
 				"name": "color-orange-500",
-				"path": ["color", "orange", "500"],
+				"path": [
+					"color",
+					"orange",
+					"500"
+				],
 				"cssVar": "--color-orange-500",
 				"value": "#d37517",
 				"type": "color",
@@ -770,7 +1149,11 @@
 			},
 			{
 				"name": "color-orange-600",
-				"path": ["color", "orange", "600"],
+				"path": [
+					"color",
+					"orange",
+					"600"
+				],
 				"cssVar": "--color-orange-600",
 				"value": "#a85e15",
 				"type": "color",
@@ -778,7 +1161,11 @@
 			},
 			{
 				"name": "color-orange-700",
-				"path": ["color", "orange", "700"],
+				"path": [
+					"color",
+					"orange",
+					"700"
+				],
 				"cssVar": "--color-orange-700",
 				"value": "#7b4714",
 				"type": "color",
@@ -786,7 +1173,11 @@
 			},
 			{
 				"name": "color-orange-800",
-				"path": ["color", "orange", "800"],
+				"path": [
+					"color",
+					"orange",
+					"800"
+				],
 				"cssVar": "--color-orange-800",
 				"value": "#543312",
 				"type": "color",
@@ -794,7 +1185,11 @@
 			},
 			{
 				"name": "color-orange-900",
-				"path": ["color", "orange", "900"],
+				"path": [
+					"color",
+					"orange",
+					"900"
+				],
 				"cssVar": "--color-orange-900",
 				"value": "#2f1f0e",
 				"type": "color",
@@ -802,7 +1197,11 @@
 			},
 			{
 				"name": "color-orange-950",
-				"path": ["color", "orange", "950"],
+				"path": [
+					"color",
+					"orange",
+					"950"
+				],
 				"cssVar": "--color-orange-950",
 				"value": "#1a120a",
 				"type": "color",
@@ -810,7 +1209,11 @@
 			},
 			{
 				"name": "color-amber-50",
-				"path": ["color", "amber", "50"],
+				"path": [
+					"color",
+					"amber",
+					"50"
+				],
 				"cssVar": "--color-amber-50",
 				"value": "#fdf9ec",
 				"type": "color",
@@ -818,7 +1221,11 @@
 			},
 			{
 				"name": "color-amber-100",
-				"path": ["color", "amber", "100"],
+				"path": [
+					"color",
+					"amber",
+					"100"
+				],
 				"cssVar": "--color-amber-100",
 				"value": "#f9efd2",
 				"type": "color",
@@ -826,7 +1233,11 @@
 			},
 			{
 				"name": "color-amber-200",
-				"path": ["color", "amber", "200"],
+				"path": [
+					"color",
+					"amber",
+					"200"
+				],
 				"cssVar": "--color-amber-200",
 				"value": "#f1dea7",
 				"type": "color",
@@ -834,7 +1245,11 @@
 			},
 			{
 				"name": "color-amber-300",
-				"path": ["color", "amber", "300"],
+				"path": [
+					"color",
+					"amber",
+					"300"
+				],
 				"cssVar": "--color-amber-300",
 				"value": "#e5c976",
 				"type": "color",
@@ -842,7 +1257,11 @@
 			},
 			{
 				"name": "color-amber-400",
-				"path": ["color", "amber", "400"],
+				"path": [
+					"color",
+					"amber",
+					"400"
+				],
 				"cssVar": "--color-amber-400",
 				"value": "#e0b73e",
 				"type": "color",
@@ -850,7 +1269,11 @@
 			},
 			{
 				"name": "color-amber-500",
-				"path": ["color", "amber", "500"],
+				"path": [
+					"color",
+					"amber",
+					"500"
+				],
 				"cssVar": "--color-amber-500",
 				"value": "#d3a417",
 				"type": "color",
@@ -858,7 +1281,11 @@
 			},
 			{
 				"name": "color-amber-600",
-				"path": ["color", "amber", "600"],
+				"path": [
+					"color",
+					"amber",
+					"600"
+				],
 				"cssVar": "--color-amber-600",
 				"value": "#a88315",
 				"type": "color",
@@ -866,7 +1293,11 @@
 			},
 			{
 				"name": "color-amber-700",
-				"path": ["color", "amber", "700"],
+				"path": [
+					"color",
+					"amber",
+					"700"
+				],
 				"cssVar": "--color-amber-700",
 				"value": "#7b6114",
 				"type": "color",
@@ -874,7 +1305,11 @@
 			},
 			{
 				"name": "color-amber-800",
-				"path": ["color", "amber", "800"],
+				"path": [
+					"color",
+					"amber",
+					"800"
+				],
 				"cssVar": "--color-amber-800",
 				"value": "#544412",
 				"type": "color",
@@ -882,7 +1317,11 @@
 			},
 			{
 				"name": "color-amber-900",
-				"path": ["color", "amber", "900"],
+				"path": [
+					"color",
+					"amber",
+					"900"
+				],
 				"cssVar": "--color-amber-900",
 				"value": "#2f270e",
 				"type": "color",
@@ -890,7 +1329,11 @@
 			},
 			{
 				"name": "color-amber-950",
-				"path": ["color", "amber", "950"],
+				"path": [
+					"color",
+					"amber",
+					"950"
+				],
 				"cssVar": "--color-amber-950",
 				"value": "#1a160a",
 				"type": "color",
@@ -898,7 +1341,11 @@
 			},
 			{
 				"name": "color-yellow-50",
-				"path": ["color", "yellow", "50"],
+				"path": [
+					"color",
+					"yellow",
+					"50"
+				],
 				"cssVar": "--color-yellow-50",
 				"value": "#fdfdec",
 				"type": "color",
@@ -906,7 +1353,11 @@
 			},
 			{
 				"name": "color-yellow-100",
-				"path": ["color", "yellow", "100"],
+				"path": [
+					"color",
+					"yellow",
+					"100"
+				],
 				"cssVar": "--color-yellow-100",
 				"value": "#f9f9d2",
 				"type": "color",
@@ -914,7 +1365,11 @@
 			},
 			{
 				"name": "color-yellow-200",
-				"path": ["color", "yellow", "200"],
+				"path": [
+					"color",
+					"yellow",
+					"200"
+				],
 				"cssVar": "--color-yellow-200",
 				"value": "#f1f1a7",
 				"type": "color",
@@ -922,7 +1377,11 @@
 			},
 			{
 				"name": "color-yellow-300",
-				"path": ["color", "yellow", "300"],
+				"path": [
+					"color",
+					"yellow",
+					"300"
+				],
 				"cssVar": "--color-yellow-300",
 				"value": "#e5e576",
 				"type": "color",
@@ -930,7 +1389,11 @@
 			},
 			{
 				"name": "color-yellow-400",
-				"path": ["color", "yellow", "400"],
+				"path": [
+					"color",
+					"yellow",
+					"400"
+				],
 				"cssVar": "--color-yellow-400",
 				"value": "#e0e03e",
 				"type": "color",
@@ -938,7 +1401,11 @@
 			},
 			{
 				"name": "color-yellow-500",
-				"path": ["color", "yellow", "500"],
+				"path": [
+					"color",
+					"yellow",
+					"500"
+				],
 				"cssVar": "--color-yellow-500",
 				"value": "#d3d317",
 				"type": "color",
@@ -946,7 +1413,11 @@
 			},
 			{
 				"name": "color-yellow-600",
-				"path": ["color", "yellow", "600"],
+				"path": [
+					"color",
+					"yellow",
+					"600"
+				],
 				"cssVar": "--color-yellow-600",
 				"value": "#a8a815",
 				"type": "color",
@@ -954,7 +1425,11 @@
 			},
 			{
 				"name": "color-yellow-700",
-				"path": ["color", "yellow", "700"],
+				"path": [
+					"color",
+					"yellow",
+					"700"
+				],
 				"cssVar": "--color-yellow-700",
 				"value": "#7b7b14",
 				"type": "color",
@@ -962,7 +1437,11 @@
 			},
 			{
 				"name": "color-yellow-800",
-				"path": ["color", "yellow", "800"],
+				"path": [
+					"color",
+					"yellow",
+					"800"
+				],
 				"cssVar": "--color-yellow-800",
 				"value": "#545412",
 				"type": "color",
@@ -970,7 +1449,11 @@
 			},
 			{
 				"name": "color-yellow-900",
-				"path": ["color", "yellow", "900"],
+				"path": [
+					"color",
+					"yellow",
+					"900"
+				],
 				"cssVar": "--color-yellow-900",
 				"value": "#2f2f0e",
 				"type": "color",
@@ -978,7 +1461,11 @@
 			},
 			{
 				"name": "color-yellow-950",
-				"path": ["color", "yellow", "950"],
+				"path": [
+					"color",
+					"yellow",
+					"950"
+				],
 				"cssVar": "--color-yellow-950",
 				"value": "#1a1a0a",
 				"type": "color",
@@ -986,7 +1473,11 @@
 			},
 			{
 				"name": "color-chartreuse-50",
-				"path": ["color", "chartreuse", "50"],
+				"path": [
+					"color",
+					"chartreuse",
+					"50"
+				],
 				"cssVar": "--color-chartreuse-50",
 				"value": "#f9fdec",
 				"type": "color",
@@ -994,7 +1485,11 @@
 			},
 			{
 				"name": "color-chartreuse-100",
-				"path": ["color", "chartreuse", "100"],
+				"path": [
+					"color",
+					"chartreuse",
+					"100"
+				],
 				"cssVar": "--color-chartreuse-100",
 				"value": "#eff9d2",
 				"type": "color",
@@ -1002,7 +1497,11 @@
 			},
 			{
 				"name": "color-chartreuse-200",
-				"path": ["color", "chartreuse", "200"],
+				"path": [
+					"color",
+					"chartreuse",
+					"200"
+				],
 				"cssVar": "--color-chartreuse-200",
 				"value": "#def1a7",
 				"type": "color",
@@ -1010,7 +1509,11 @@
 			},
 			{
 				"name": "color-chartreuse-300",
-				"path": ["color", "chartreuse", "300"],
+				"path": [
+					"color",
+					"chartreuse",
+					"300"
+				],
 				"cssVar": "--color-chartreuse-300",
 				"value": "#c9e576",
 				"type": "color",
@@ -1018,7 +1521,11 @@
 			},
 			{
 				"name": "color-chartreuse-400",
-				"path": ["color", "chartreuse", "400"],
+				"path": [
+					"color",
+					"chartreuse",
+					"400"
+				],
 				"cssVar": "--color-chartreuse-400",
 				"value": "#b7e03e",
 				"type": "color",
@@ -1026,7 +1533,11 @@
 			},
 			{
 				"name": "color-chartreuse-500",
-				"path": ["color", "chartreuse", "500"],
+				"path": [
+					"color",
+					"chartreuse",
+					"500"
+				],
 				"cssVar": "--color-chartreuse-500",
 				"value": "#a4d317",
 				"type": "color",
@@ -1034,7 +1545,11 @@
 			},
 			{
 				"name": "color-chartreuse-600",
-				"path": ["color", "chartreuse", "600"],
+				"path": [
+					"color",
+					"chartreuse",
+					"600"
+				],
 				"cssVar": "--color-chartreuse-600",
 				"value": "#83a815",
 				"type": "color",
@@ -1042,7 +1557,11 @@
 			},
 			{
 				"name": "color-chartreuse-700",
-				"path": ["color", "chartreuse", "700"],
+				"path": [
+					"color",
+					"chartreuse",
+					"700"
+				],
 				"cssVar": "--color-chartreuse-700",
 				"value": "#617b14",
 				"type": "color",
@@ -1050,7 +1569,11 @@
 			},
 			{
 				"name": "color-chartreuse-800",
-				"path": ["color", "chartreuse", "800"],
+				"path": [
+					"color",
+					"chartreuse",
+					"800"
+				],
 				"cssVar": "--color-chartreuse-800",
 				"value": "#445412",
 				"type": "color",
@@ -1058,7 +1581,11 @@
 			},
 			{
 				"name": "color-chartreuse-900",
-				"path": ["color", "chartreuse", "900"],
+				"path": [
+					"color",
+					"chartreuse",
+					"900"
+				],
 				"cssVar": "--color-chartreuse-900",
 				"value": "#272f0e",
 				"type": "color",
@@ -1066,7 +1593,11 @@
 			},
 			{
 				"name": "color-chartreuse-950",
-				"path": ["color", "chartreuse", "950"],
+				"path": [
+					"color",
+					"chartreuse",
+					"950"
+				],
 				"cssVar": "--color-chartreuse-950",
 				"value": "#161a0a",
 				"type": "color",
@@ -1074,7 +1605,11 @@
 			},
 			{
 				"name": "color-lime-50",
-				"path": ["color", "lime", "50"],
+				"path": [
+					"color",
+					"lime",
+					"50"
+				],
 				"cssVar": "--color-lime-50",
 				"value": "#f5fdec",
 				"type": "color",
@@ -1082,7 +1617,11 @@
 			},
 			{
 				"name": "color-lime-100",
-				"path": ["color", "lime", "100"],
+				"path": [
+					"color",
+					"lime",
+					"100"
+				],
 				"cssVar": "--color-lime-100",
 				"value": "#e6f9d2",
 				"type": "color",
@@ -1090,7 +1629,11 @@
 			},
 			{
 				"name": "color-lime-200",
-				"path": ["color", "lime", "200"],
+				"path": [
+					"color",
+					"lime",
+					"200"
+				],
 				"cssVar": "--color-lime-200",
 				"value": "#ccf1a7",
 				"type": "color",
@@ -1098,7 +1641,11 @@
 			},
 			{
 				"name": "color-lime-300",
-				"path": ["color", "lime", "300"],
+				"path": [
+					"color",
+					"lime",
+					"300"
+				],
 				"cssVar": "--color-lime-300",
 				"value": "#ade576",
 				"type": "color",
@@ -1106,7 +1653,11 @@
 			},
 			{
 				"name": "color-lime-400",
-				"path": ["color", "lime", "400"],
+				"path": [
+					"color",
+					"lime",
+					"400"
+				],
 				"cssVar": "--color-lime-400",
 				"value": "#8fe03e",
 				"type": "color",
@@ -1114,7 +1665,11 @@
 			},
 			{
 				"name": "color-lime-500",
-				"path": ["color", "lime", "500"],
+				"path": [
+					"color",
+					"lime",
+					"500"
+				],
 				"cssVar": "--color-lime-500",
 				"value": "#75d317",
 				"type": "color",
@@ -1122,7 +1677,11 @@
 			},
 			{
 				"name": "color-lime-600",
-				"path": ["color", "lime", "600"],
+				"path": [
+					"color",
+					"lime",
+					"600"
+				],
 				"cssVar": "--color-lime-600",
 				"value": "#5ea815",
 				"type": "color",
@@ -1130,7 +1689,11 @@
 			},
 			{
 				"name": "color-lime-700",
-				"path": ["color", "lime", "700"],
+				"path": [
+					"color",
+					"lime",
+					"700"
+				],
 				"cssVar": "--color-lime-700",
 				"value": "#477b14",
 				"type": "color",
@@ -1138,7 +1701,11 @@
 			},
 			{
 				"name": "color-lime-800",
-				"path": ["color", "lime", "800"],
+				"path": [
+					"color",
+					"lime",
+					"800"
+				],
 				"cssVar": "--color-lime-800",
 				"value": "#335412",
 				"type": "color",
@@ -1146,7 +1713,11 @@
 			},
 			{
 				"name": "color-lime-900",
-				"path": ["color", "lime", "900"],
+				"path": [
+					"color",
+					"lime",
+					"900"
+				],
 				"cssVar": "--color-lime-900",
 				"value": "#1f2f0e",
 				"type": "color",
@@ -1154,7 +1725,11 @@
 			},
 			{
 				"name": "color-lime-950",
-				"path": ["color", "lime", "950"],
+				"path": [
+					"color",
+					"lime",
+					"950"
+				],
 				"cssVar": "--color-lime-950",
 				"value": "#121a0a",
 				"type": "color",
@@ -1162,7 +1737,11 @@
 			},
 			{
 				"name": "color-green-yellow-50",
-				"path": ["color", "green-yellow", "50"],
+				"path": [
+					"color",
+					"green-yellow",
+					"50"
+				],
 				"cssVar": "--color-green-yellow-50",
 				"value": "#f0fdec",
 				"type": "color",
@@ -1170,7 +1749,11 @@
 			},
 			{
 				"name": "color-green-yellow-100",
-				"path": ["color", "green-yellow", "100"],
+				"path": [
+					"color",
+					"green-yellow",
+					"100"
+				],
 				"cssVar": "--color-green-yellow-100",
 				"value": "#dcf9d2",
 				"type": "color",
@@ -1178,7 +1761,11 @@
 			},
 			{
 				"name": "color-green-yellow-200",
-				"path": ["color", "green-yellow", "200"],
+				"path": [
+					"color",
+					"green-yellow",
+					"200"
+				],
 				"cssVar": "--color-green-yellow-200",
 				"value": "#baf1a7",
 				"type": "color",
@@ -1186,7 +1773,11 @@
 			},
 			{
 				"name": "color-green-yellow-300",
-				"path": ["color", "green-yellow", "300"],
+				"path": [
+					"color",
+					"green-yellow",
+					"300"
+				],
 				"cssVar": "--color-green-yellow-300",
 				"value": "#92e576",
 				"type": "color",
@@ -1194,7 +1785,11 @@
 			},
 			{
 				"name": "color-green-yellow-400",
-				"path": ["color", "green-yellow", "400"],
+				"path": [
+					"color",
+					"green-yellow",
+					"400"
+				],
 				"cssVar": "--color-green-yellow-400",
 				"value": "#66e03e",
 				"type": "color",
@@ -1202,7 +1797,11 @@
 			},
 			{
 				"name": "color-green-yellow-500",
-				"path": ["color", "green-yellow", "500"],
+				"path": [
+					"color",
+					"green-yellow",
+					"500"
+				],
 				"cssVar": "--color-green-yellow-500",
 				"value": "#46d317",
 				"type": "color",
@@ -1210,7 +1809,11 @@
 			},
 			{
 				"name": "color-green-yellow-600",
-				"path": ["color", "green-yellow", "600"],
+				"path": [
+					"color",
+					"green-yellow",
+					"600"
+				],
 				"cssVar": "--color-green-yellow-600",
 				"value": "#3aa815",
 				"type": "color",
@@ -1218,7 +1821,11 @@
 			},
 			{
 				"name": "color-green-yellow-700",
-				"path": ["color", "green-yellow", "700"],
+				"path": [
+					"color",
+					"green-yellow",
+					"700"
+				],
 				"cssVar": "--color-green-yellow-700",
 				"value": "#2e7b14",
 				"type": "color",
@@ -1226,7 +1833,11 @@
 			},
 			{
 				"name": "color-green-yellow-800",
-				"path": ["color", "green-yellow", "800"],
+				"path": [
+					"color",
+					"green-yellow",
+					"800"
+				],
 				"cssVar": "--color-green-yellow-800",
 				"value": "#225412",
 				"type": "color",
@@ -1234,7 +1845,11 @@
 			},
 			{
 				"name": "color-green-yellow-900",
-				"path": ["color", "green-yellow", "900"],
+				"path": [
+					"color",
+					"green-yellow",
+					"900"
+				],
 				"cssVar": "--color-green-yellow-900",
 				"value": "#162f0e",
 				"type": "color",
@@ -1242,7 +1857,11 @@
 			},
 			{
 				"name": "color-green-yellow-950",
-				"path": ["color", "green-yellow", "950"],
+				"path": [
+					"color",
+					"green-yellow",
+					"950"
+				],
 				"cssVar": "--color-green-yellow-950",
 				"value": "#0e1a0a",
 				"type": "color",
@@ -1250,7 +1869,11 @@
 			},
 			{
 				"name": "color-green-50",
-				"path": ["color", "green", "50"],
+				"path": [
+					"color",
+					"green",
+					"50"
+				],
 				"cssVar": "--color-green-50",
 				"value": "#ecfdec",
 				"type": "color",
@@ -1258,7 +1881,11 @@
 			},
 			{
 				"name": "color-green-100",
-				"path": ["color", "green", "100"],
+				"path": [
+					"color",
+					"green",
+					"100"
+				],
 				"cssVar": "--color-green-100",
 				"value": "#d2f9d2",
 				"type": "color",
@@ -1266,7 +1893,11 @@
 			},
 			{
 				"name": "color-green-200",
-				"path": ["color", "green", "200"],
+				"path": [
+					"color",
+					"green",
+					"200"
+				],
 				"cssVar": "--color-green-200",
 				"value": "#a7f1a7",
 				"type": "color",
@@ -1274,7 +1905,11 @@
 			},
 			{
 				"name": "color-green-300",
-				"path": ["color", "green", "300"],
+				"path": [
+					"color",
+					"green",
+					"300"
+				],
 				"cssVar": "--color-green-300",
 				"value": "#76e576",
 				"type": "color",
@@ -1282,7 +1917,11 @@
 			},
 			{
 				"name": "color-green-400",
-				"path": ["color", "green", "400"],
+				"path": [
+					"color",
+					"green",
+					"400"
+				],
 				"cssVar": "--color-green-400",
 				"value": "#3ee03e",
 				"type": "color",
@@ -1290,7 +1929,11 @@
 			},
 			{
 				"name": "color-green-500",
-				"path": ["color", "green", "500"],
+				"path": [
+					"color",
+					"green",
+					"500"
+				],
 				"cssVar": "--color-green-500",
 				"value": "#17d317",
 				"type": "color",
@@ -1298,7 +1941,11 @@
 			},
 			{
 				"name": "color-green-600",
-				"path": ["color", "green", "600"],
+				"path": [
+					"color",
+					"green",
+					"600"
+				],
 				"cssVar": "--color-green-600",
 				"value": "#15a815",
 				"type": "color",
@@ -1306,7 +1953,11 @@
 			},
 			{
 				"name": "color-green-700",
-				"path": ["color", "green", "700"],
+				"path": [
+					"color",
+					"green",
+					"700"
+				],
 				"cssVar": "--color-green-700",
 				"value": "#147b14",
 				"type": "color",
@@ -1314,7 +1965,11 @@
 			},
 			{
 				"name": "color-green-800",
-				"path": ["color", "green", "800"],
+				"path": [
+					"color",
+					"green",
+					"800"
+				],
 				"cssVar": "--color-green-800",
 				"value": "#125412",
 				"type": "color",
@@ -1322,7 +1977,11 @@
 			},
 			{
 				"name": "color-green-900",
-				"path": ["color", "green", "900"],
+				"path": [
+					"color",
+					"green",
+					"900"
+				],
 				"cssVar": "--color-green-900",
 				"value": "#0e2f0e",
 				"type": "color",
@@ -1330,7 +1989,11 @@
 			},
 			{
 				"name": "color-green-950",
-				"path": ["color", "green", "950"],
+				"path": [
+					"color",
+					"green",
+					"950"
+				],
 				"cssVar": "--color-green-950",
 				"value": "#0a1a0a",
 				"type": "color",
@@ -1338,7 +2001,11 @@
 			},
 			{
 				"name": "color-green-cyan-50",
-				"path": ["color", "green-cyan", "50"],
+				"path": [
+					"color",
+					"green-cyan",
+					"50"
+				],
 				"cssVar": "--color-green-cyan-50",
 				"value": "#ecfdf0",
 				"type": "color",
@@ -1346,7 +2013,11 @@
 			},
 			{
 				"name": "color-green-cyan-100",
-				"path": ["color", "green-cyan", "100"],
+				"path": [
+					"color",
+					"green-cyan",
+					"100"
+				],
 				"cssVar": "--color-green-cyan-100",
 				"value": "#d2f9dc",
 				"type": "color",
@@ -1354,7 +2025,11 @@
 			},
 			{
 				"name": "color-green-cyan-200",
-				"path": ["color", "green-cyan", "200"],
+				"path": [
+					"color",
+					"green-cyan",
+					"200"
+				],
 				"cssVar": "--color-green-cyan-200",
 				"value": "#a7f1ba",
 				"type": "color",
@@ -1362,7 +2037,11 @@
 			},
 			{
 				"name": "color-green-cyan-300",
-				"path": ["color", "green-cyan", "300"],
+				"path": [
+					"color",
+					"green-cyan",
+					"300"
+				],
 				"cssVar": "--color-green-cyan-300",
 				"value": "#76e592",
 				"type": "color",
@@ -1370,7 +2049,11 @@
 			},
 			{
 				"name": "color-green-cyan-400",
-				"path": ["color", "green-cyan", "400"],
+				"path": [
+					"color",
+					"green-cyan",
+					"400"
+				],
 				"cssVar": "--color-green-cyan-400",
 				"value": "#3ee066",
 				"type": "color",
@@ -1378,7 +2061,11 @@
 			},
 			{
 				"name": "color-green-cyan-500",
-				"path": ["color", "green-cyan", "500"],
+				"path": [
+					"color",
+					"green-cyan",
+					"500"
+				],
 				"cssVar": "--color-green-cyan-500",
 				"value": "#17d346",
 				"type": "color",
@@ -1386,7 +2073,11 @@
 			},
 			{
 				"name": "color-green-cyan-600",
-				"path": ["color", "green-cyan", "600"],
+				"path": [
+					"color",
+					"green-cyan",
+					"600"
+				],
 				"cssVar": "--color-green-cyan-600",
 				"value": "#15a83a",
 				"type": "color",
@@ -1394,7 +2085,11 @@
 			},
 			{
 				"name": "color-green-cyan-700",
-				"path": ["color", "green-cyan", "700"],
+				"path": [
+					"color",
+					"green-cyan",
+					"700"
+				],
 				"cssVar": "--color-green-cyan-700",
 				"value": "#147b2e",
 				"type": "color",
@@ -1402,7 +2097,11 @@
 			},
 			{
 				"name": "color-green-cyan-800",
-				"path": ["color", "green-cyan", "800"],
+				"path": [
+					"color",
+					"green-cyan",
+					"800"
+				],
 				"cssVar": "--color-green-cyan-800",
 				"value": "#125422",
 				"type": "color",
@@ -1410,7 +2109,11 @@
 			},
 			{
 				"name": "color-green-cyan-900",
-				"path": ["color", "green-cyan", "900"],
+				"path": [
+					"color",
+					"green-cyan",
+					"900"
+				],
 				"cssVar": "--color-green-cyan-900",
 				"value": "#0e2f16",
 				"type": "color",
@@ -1418,7 +2121,11 @@
 			},
 			{
 				"name": "color-green-cyan-950",
-				"path": ["color", "green-cyan", "950"],
+				"path": [
+					"color",
+					"green-cyan",
+					"950"
+				],
 				"cssVar": "--color-green-cyan-950",
 				"value": "#0a1a0e",
 				"type": "color",
@@ -1426,7 +2133,11 @@
 			},
 			{
 				"name": "color-spring-50",
-				"path": ["color", "spring", "50"],
+				"path": [
+					"color",
+					"spring",
+					"50"
+				],
 				"cssVar": "--color-spring-50",
 				"value": "#ecfdf5",
 				"type": "color",
@@ -1434,7 +2145,11 @@
 			},
 			{
 				"name": "color-spring-100",
-				"path": ["color", "spring", "100"],
+				"path": [
+					"color",
+					"spring",
+					"100"
+				],
 				"cssVar": "--color-spring-100",
 				"value": "#d2f9e6",
 				"type": "color",
@@ -1442,7 +2157,11 @@
 			},
 			{
 				"name": "color-spring-200",
-				"path": ["color", "spring", "200"],
+				"path": [
+					"color",
+					"spring",
+					"200"
+				],
 				"cssVar": "--color-spring-200",
 				"value": "#a7f1cc",
 				"type": "color",
@@ -1450,7 +2169,11 @@
 			},
 			{
 				"name": "color-spring-300",
-				"path": ["color", "spring", "300"],
+				"path": [
+					"color",
+					"spring",
+					"300"
+				],
 				"cssVar": "--color-spring-300",
 				"value": "#76e5ad",
 				"type": "color",
@@ -1458,7 +2181,11 @@
 			},
 			{
 				"name": "color-spring-400",
-				"path": ["color", "spring", "400"],
+				"path": [
+					"color",
+					"spring",
+					"400"
+				],
 				"cssVar": "--color-spring-400",
 				"value": "#3ee08f",
 				"type": "color",
@@ -1466,7 +2193,11 @@
 			},
 			{
 				"name": "color-spring-500",
-				"path": ["color", "spring", "500"],
+				"path": [
+					"color",
+					"spring",
+					"500"
+				],
 				"cssVar": "--color-spring-500",
 				"value": "#17d375",
 				"type": "color",
@@ -1474,7 +2205,11 @@
 			},
 			{
 				"name": "color-spring-600",
-				"path": ["color", "spring", "600"],
+				"path": [
+					"color",
+					"spring",
+					"600"
+				],
 				"cssVar": "--color-spring-600",
 				"value": "#15a85e",
 				"type": "color",
@@ -1482,7 +2217,11 @@
 			},
 			{
 				"name": "color-spring-700",
-				"path": ["color", "spring", "700"],
+				"path": [
+					"color",
+					"spring",
+					"700"
+				],
 				"cssVar": "--color-spring-700",
 				"value": "#147b47",
 				"type": "color",
@@ -1490,7 +2229,11 @@
 			},
 			{
 				"name": "color-spring-800",
-				"path": ["color", "spring", "800"],
+				"path": [
+					"color",
+					"spring",
+					"800"
+				],
 				"cssVar": "--color-spring-800",
 				"value": "#125433",
 				"type": "color",
@@ -1498,7 +2241,11 @@
 			},
 			{
 				"name": "color-spring-900",
-				"path": ["color", "spring", "900"],
+				"path": [
+					"color",
+					"spring",
+					"900"
+				],
 				"cssVar": "--color-spring-900",
 				"value": "#0e2f1f",
 				"type": "color",
@@ -1506,7 +2253,11 @@
 			},
 			{
 				"name": "color-spring-950",
-				"path": ["color", "spring", "950"],
+				"path": [
+					"color",
+					"spring",
+					"950"
+				],
 				"cssVar": "--color-spring-950",
 				"value": "#0a1a12",
 				"type": "color",
@@ -1514,7 +2265,11 @@
 			},
 			{
 				"name": "color-mint-50",
-				"path": ["color", "mint", "50"],
+				"path": [
+					"color",
+					"mint",
+					"50"
+				],
 				"cssVar": "--color-mint-50",
 				"value": "#ecfdf9",
 				"type": "color",
@@ -1522,7 +2277,11 @@
 			},
 			{
 				"name": "color-mint-100",
-				"path": ["color", "mint", "100"],
+				"path": [
+					"color",
+					"mint",
+					"100"
+				],
 				"cssVar": "--color-mint-100",
 				"value": "#d2f9ef",
 				"type": "color",
@@ -1530,7 +2289,11 @@
 			},
 			{
 				"name": "color-mint-200",
-				"path": ["color", "mint", "200"],
+				"path": [
+					"color",
+					"mint",
+					"200"
+				],
 				"cssVar": "--color-mint-200",
 				"value": "#a7f1de",
 				"type": "color",
@@ -1538,7 +2301,11 @@
 			},
 			{
 				"name": "color-mint-300",
-				"path": ["color", "mint", "300"],
+				"path": [
+					"color",
+					"mint",
+					"300"
+				],
 				"cssVar": "--color-mint-300",
 				"value": "#76e5c9",
 				"type": "color",
@@ -1546,7 +2313,11 @@
 			},
 			{
 				"name": "color-mint-400",
-				"path": ["color", "mint", "400"],
+				"path": [
+					"color",
+					"mint",
+					"400"
+				],
 				"cssVar": "--color-mint-400",
 				"value": "#3ee0b7",
 				"type": "color",
@@ -1554,7 +2325,11 @@
 			},
 			{
 				"name": "color-mint-500",
-				"path": ["color", "mint", "500"],
+				"path": [
+					"color",
+					"mint",
+					"500"
+				],
 				"cssVar": "--color-mint-500",
 				"value": "#17d3a4",
 				"type": "color",
@@ -1562,7 +2337,11 @@
 			},
 			{
 				"name": "color-mint-600",
-				"path": ["color", "mint", "600"],
+				"path": [
+					"color",
+					"mint",
+					"600"
+				],
 				"cssVar": "--color-mint-600",
 				"value": "#15a883",
 				"type": "color",
@@ -1570,7 +2349,11 @@
 			},
 			{
 				"name": "color-mint-700",
-				"path": ["color", "mint", "700"],
+				"path": [
+					"color",
+					"mint",
+					"700"
+				],
 				"cssVar": "--color-mint-700",
 				"value": "#147b61",
 				"type": "color",
@@ -1578,7 +2361,11 @@
 			},
 			{
 				"name": "color-mint-800",
-				"path": ["color", "mint", "800"],
+				"path": [
+					"color",
+					"mint",
+					"800"
+				],
 				"cssVar": "--color-mint-800",
 				"value": "#125444",
 				"type": "color",
@@ -1586,7 +2373,11 @@
 			},
 			{
 				"name": "color-mint-900",
-				"path": ["color", "mint", "900"],
+				"path": [
+					"color",
+					"mint",
+					"900"
+				],
 				"cssVar": "--color-mint-900",
 				"value": "#0e2f27",
 				"type": "color",
@@ -1594,7 +2385,11 @@
 			},
 			{
 				"name": "color-mint-950",
-				"path": ["color", "mint", "950"],
+				"path": [
+					"color",
+					"mint",
+					"950"
+				],
 				"cssVar": "--color-mint-950",
 				"value": "#0a1a16",
 				"type": "color",
@@ -1602,7 +2397,11 @@
 			},
 			{
 				"name": "color-cyan-50",
-				"path": ["color", "cyan", "50"],
+				"path": [
+					"color",
+					"cyan",
+					"50"
+				],
 				"cssVar": "--color-cyan-50",
 				"value": "#ecfdfd",
 				"type": "color",
@@ -1610,7 +2409,11 @@
 			},
 			{
 				"name": "color-cyan-100",
-				"path": ["color", "cyan", "100"],
+				"path": [
+					"color",
+					"cyan",
+					"100"
+				],
 				"cssVar": "--color-cyan-100",
 				"value": "#d2f9f9",
 				"type": "color",
@@ -1618,7 +2421,11 @@
 			},
 			{
 				"name": "color-cyan-200",
-				"path": ["color", "cyan", "200"],
+				"path": [
+					"color",
+					"cyan",
+					"200"
+				],
 				"cssVar": "--color-cyan-200",
 				"value": "#a7f1f1",
 				"type": "color",
@@ -1626,7 +2433,11 @@
 			},
 			{
 				"name": "color-cyan-300",
-				"path": ["color", "cyan", "300"],
+				"path": [
+					"color",
+					"cyan",
+					"300"
+				],
 				"cssVar": "--color-cyan-300",
 				"value": "#76e5e5",
 				"type": "color",
@@ -1634,7 +2445,11 @@
 			},
 			{
 				"name": "color-cyan-400",
-				"path": ["color", "cyan", "400"],
+				"path": [
+					"color",
+					"cyan",
+					"400"
+				],
 				"cssVar": "--color-cyan-400",
 				"value": "#3ee0e0",
 				"type": "color",
@@ -1642,7 +2457,11 @@
 			},
 			{
 				"name": "color-cyan-500",
-				"path": ["color", "cyan", "500"],
+				"path": [
+					"color",
+					"cyan",
+					"500"
+				],
 				"cssVar": "--color-cyan-500",
 				"value": "#17d3d3",
 				"type": "color",
@@ -1650,7 +2469,11 @@
 			},
 			{
 				"name": "color-cyan-600",
-				"path": ["color", "cyan", "600"],
+				"path": [
+					"color",
+					"cyan",
+					"600"
+				],
 				"cssVar": "--color-cyan-600",
 				"value": "#15a8a8",
 				"type": "color",
@@ -1658,7 +2481,11 @@
 			},
 			{
 				"name": "color-cyan-700",
-				"path": ["color", "cyan", "700"],
+				"path": [
+					"color",
+					"cyan",
+					"700"
+				],
 				"cssVar": "--color-cyan-700",
 				"value": "#147b7b",
 				"type": "color",
@@ -1666,7 +2493,11 @@
 			},
 			{
 				"name": "color-cyan-800",
-				"path": ["color", "cyan", "800"],
+				"path": [
+					"color",
+					"cyan",
+					"800"
+				],
 				"cssVar": "--color-cyan-800",
 				"value": "#125454",
 				"type": "color",
@@ -1674,7 +2505,11 @@
 			},
 			{
 				"name": "color-cyan-900",
-				"path": ["color", "cyan", "900"],
+				"path": [
+					"color",
+					"cyan",
+					"900"
+				],
 				"cssVar": "--color-cyan-900",
 				"value": "#0e2f2f",
 				"type": "color",
@@ -1682,7 +2517,11 @@
 			},
 			{
 				"name": "color-cyan-950",
-				"path": ["color", "cyan", "950"],
+				"path": [
+					"color",
+					"cyan",
+					"950"
+				],
 				"cssVar": "--color-cyan-950",
 				"value": "#0a1a1a",
 				"type": "color",
@@ -1690,7 +2529,11 @@
 			},
 			{
 				"name": "color-sky-50",
-				"path": ["color", "sky", "50"],
+				"path": [
+					"color",
+					"sky",
+					"50"
+				],
 				"cssVar": "--color-sky-50",
 				"value": "#ecf9fd",
 				"type": "color",
@@ -1698,7 +2541,11 @@
 			},
 			{
 				"name": "color-sky-100",
-				"path": ["color", "sky", "100"],
+				"path": [
+					"color",
+					"sky",
+					"100"
+				],
 				"cssVar": "--color-sky-100",
 				"value": "#d2eff9",
 				"type": "color",
@@ -1706,7 +2553,11 @@
 			},
 			{
 				"name": "color-sky-200",
-				"path": ["color", "sky", "200"],
+				"path": [
+					"color",
+					"sky",
+					"200"
+				],
 				"cssVar": "--color-sky-200",
 				"value": "#a7def1",
 				"type": "color",
@@ -1714,7 +2565,11 @@
 			},
 			{
 				"name": "color-sky-300",
-				"path": ["color", "sky", "300"],
+				"path": [
+					"color",
+					"sky",
+					"300"
+				],
 				"cssVar": "--color-sky-300",
 				"value": "#76c9e5",
 				"type": "color",
@@ -1722,7 +2577,11 @@
 			},
 			{
 				"name": "color-sky-400",
-				"path": ["color", "sky", "400"],
+				"path": [
+					"color",
+					"sky",
+					"400"
+				],
 				"cssVar": "--color-sky-400",
 				"value": "#3eb7e0",
 				"type": "color",
@@ -1730,7 +2589,11 @@
 			},
 			{
 				"name": "color-sky-500",
-				"path": ["color", "sky", "500"],
+				"path": [
+					"color",
+					"sky",
+					"500"
+				],
 				"cssVar": "--color-sky-500",
 				"value": "#17a4d3",
 				"type": "color",
@@ -1738,7 +2601,11 @@
 			},
 			{
 				"name": "color-sky-600",
-				"path": ["color", "sky", "600"],
+				"path": [
+					"color",
+					"sky",
+					"600"
+				],
 				"cssVar": "--color-sky-600",
 				"value": "#1583a8",
 				"type": "color",
@@ -1746,7 +2613,11 @@
 			},
 			{
 				"name": "color-sky-700",
-				"path": ["color", "sky", "700"],
+				"path": [
+					"color",
+					"sky",
+					"700"
+				],
 				"cssVar": "--color-sky-700",
 				"value": "#14617b",
 				"type": "color",
@@ -1754,7 +2625,11 @@
 			},
 			{
 				"name": "color-sky-800",
-				"path": ["color", "sky", "800"],
+				"path": [
+					"color",
+					"sky",
+					"800"
+				],
 				"cssVar": "--color-sky-800",
 				"value": "#124454",
 				"type": "color",
@@ -1762,7 +2637,11 @@
 			},
 			{
 				"name": "color-sky-900",
-				"path": ["color", "sky", "900"],
+				"path": [
+					"color",
+					"sky",
+					"900"
+				],
 				"cssVar": "--color-sky-900",
 				"value": "#0e272f",
 				"type": "color",
@@ -1770,7 +2649,11 @@
 			},
 			{
 				"name": "color-sky-950",
-				"path": ["color", "sky", "950"],
+				"path": [
+					"color",
+					"sky",
+					"950"
+				],
 				"cssVar": "--color-sky-950",
 				"value": "#0a161a",
 				"type": "color",
@@ -1778,7 +2661,11 @@
 			},
 			{
 				"name": "color-azure-50",
-				"path": ["color", "azure", "50"],
+				"path": [
+					"color",
+					"azure",
+					"50"
+				],
 				"cssVar": "--color-azure-50",
 				"value": "#ecf5fd",
 				"type": "color",
@@ -1786,7 +2673,11 @@
 			},
 			{
 				"name": "color-azure-100",
-				"path": ["color", "azure", "100"],
+				"path": [
+					"color",
+					"azure",
+					"100"
+				],
 				"cssVar": "--color-azure-100",
 				"value": "#d2e6f9",
 				"type": "color",
@@ -1794,7 +2685,11 @@
 			},
 			{
 				"name": "color-azure-200",
-				"path": ["color", "azure", "200"],
+				"path": [
+					"color",
+					"azure",
+					"200"
+				],
 				"cssVar": "--color-azure-200",
 				"value": "#a7ccf1",
 				"type": "color",
@@ -1802,7 +2697,11 @@
 			},
 			{
 				"name": "color-azure-300",
-				"path": ["color", "azure", "300"],
+				"path": [
+					"color",
+					"azure",
+					"300"
+				],
 				"cssVar": "--color-azure-300",
 				"value": "#76ade5",
 				"type": "color",
@@ -1810,7 +2709,11 @@
 			},
 			{
 				"name": "color-azure-400",
-				"path": ["color", "azure", "400"],
+				"path": [
+					"color",
+					"azure",
+					"400"
+				],
 				"cssVar": "--color-azure-400",
 				"value": "#3e8fe0",
 				"type": "color",
@@ -1818,7 +2721,11 @@
 			},
 			{
 				"name": "color-azure-500",
-				"path": ["color", "azure", "500"],
+				"path": [
+					"color",
+					"azure",
+					"500"
+				],
 				"cssVar": "--color-azure-500",
 				"value": "#1775d3",
 				"type": "color",
@@ -1826,7 +2733,11 @@
 			},
 			{
 				"name": "color-azure-600",
-				"path": ["color", "azure", "600"],
+				"path": [
+					"color",
+					"azure",
+					"600"
+				],
 				"cssVar": "--color-azure-600",
 				"value": "#155ea8",
 				"type": "color",
@@ -1834,7 +2745,11 @@
 			},
 			{
 				"name": "color-azure-700",
-				"path": ["color", "azure", "700"],
+				"path": [
+					"color",
+					"azure",
+					"700"
+				],
 				"cssVar": "--color-azure-700",
 				"value": "#14477b",
 				"type": "color",
@@ -1842,7 +2757,11 @@
 			},
 			{
 				"name": "color-azure-800",
-				"path": ["color", "azure", "800"],
+				"path": [
+					"color",
+					"azure",
+					"800"
+				],
 				"cssVar": "--color-azure-800",
 				"value": "#123354",
 				"type": "color",
@@ -1850,7 +2769,11 @@
 			},
 			{
 				"name": "color-azure-900",
-				"path": ["color", "azure", "900"],
+				"path": [
+					"color",
+					"azure",
+					"900"
+				],
 				"cssVar": "--color-azure-900",
 				"value": "#0e1f2f",
 				"type": "color",
@@ -1858,7 +2781,11 @@
 			},
 			{
 				"name": "color-azure-950",
-				"path": ["color", "azure", "950"],
+				"path": [
+					"color",
+					"azure",
+					"950"
+				],
 				"cssVar": "--color-azure-950",
 				"value": "#0a121a",
 				"type": "color",
@@ -1866,7 +2793,11 @@
 			},
 			{
 				"name": "color-royal-50",
-				"path": ["color", "royal", "50"],
+				"path": [
+					"color",
+					"royal",
+					"50"
+				],
 				"cssVar": "--color-royal-50",
 				"value": "#ecf0fd",
 				"type": "color",
@@ -1874,7 +2805,11 @@
 			},
 			{
 				"name": "color-royal-100",
-				"path": ["color", "royal", "100"],
+				"path": [
+					"color",
+					"royal",
+					"100"
+				],
 				"cssVar": "--color-royal-100",
 				"value": "#d2dcf9",
 				"type": "color",
@@ -1882,7 +2817,11 @@
 			},
 			{
 				"name": "color-royal-200",
-				"path": ["color", "royal", "200"],
+				"path": [
+					"color",
+					"royal",
+					"200"
+				],
 				"cssVar": "--color-royal-200",
 				"value": "#a7baf1",
 				"type": "color",
@@ -1890,7 +2829,11 @@
 			},
 			{
 				"name": "color-royal-300",
-				"path": ["color", "royal", "300"],
+				"path": [
+					"color",
+					"royal",
+					"300"
+				],
 				"cssVar": "--color-royal-300",
 				"value": "#7692e5",
 				"type": "color",
@@ -1898,7 +2841,11 @@
 			},
 			{
 				"name": "color-royal-400",
-				"path": ["color", "royal", "400"],
+				"path": [
+					"color",
+					"royal",
+					"400"
+				],
 				"cssVar": "--color-royal-400",
 				"value": "#3e66e0",
 				"type": "color",
@@ -1906,7 +2853,11 @@
 			},
 			{
 				"name": "color-royal-500",
-				"path": ["color", "royal", "500"],
+				"path": [
+					"color",
+					"royal",
+					"500"
+				],
 				"cssVar": "--color-royal-500",
 				"value": "#1746d3",
 				"type": "color",
@@ -1914,7 +2865,11 @@
 			},
 			{
 				"name": "color-royal-600",
-				"path": ["color", "royal", "600"],
+				"path": [
+					"color",
+					"royal",
+					"600"
+				],
 				"cssVar": "--color-royal-600",
 				"value": "#153aa8",
 				"type": "color",
@@ -1922,7 +2877,11 @@
 			},
 			{
 				"name": "color-royal-700",
-				"path": ["color", "royal", "700"],
+				"path": [
+					"color",
+					"royal",
+					"700"
+				],
 				"cssVar": "--color-royal-700",
 				"value": "#142e7b",
 				"type": "color",
@@ -1930,7 +2889,11 @@
 			},
 			{
 				"name": "color-royal-800",
-				"path": ["color", "royal", "800"],
+				"path": [
+					"color",
+					"royal",
+					"800"
+				],
 				"cssVar": "--color-royal-800",
 				"value": "#122254",
 				"type": "color",
@@ -1938,7 +2901,11 @@
 			},
 			{
 				"name": "color-royal-900",
-				"path": ["color", "royal", "900"],
+				"path": [
+					"color",
+					"royal",
+					"900"
+				],
 				"cssVar": "--color-royal-900",
 				"value": "#0e162f",
 				"type": "color",
@@ -1946,7 +2913,11 @@
 			},
 			{
 				"name": "color-royal-950",
-				"path": ["color", "royal", "950"],
+				"path": [
+					"color",
+					"royal",
+					"950"
+				],
 				"cssVar": "--color-royal-950",
 				"value": "#0a0e1a",
 				"type": "color",
@@ -1954,7 +2925,11 @@
 			},
 			{
 				"name": "color-blue-50",
-				"path": ["color", "blue", "50"],
+				"path": [
+					"color",
+					"blue",
+					"50"
+				],
 				"cssVar": "--color-blue-50",
 				"value": "#ececfd",
 				"type": "color",
@@ -1962,7 +2937,11 @@
 			},
 			{
 				"name": "color-blue-100",
-				"path": ["color", "blue", "100"],
+				"path": [
+					"color",
+					"blue",
+					"100"
+				],
 				"cssVar": "--color-blue-100",
 				"value": "#d2d2f9",
 				"type": "color",
@@ -1970,7 +2949,11 @@
 			},
 			{
 				"name": "color-blue-200",
-				"path": ["color", "blue", "200"],
+				"path": [
+					"color",
+					"blue",
+					"200"
+				],
 				"cssVar": "--color-blue-200",
 				"value": "#a7a7f1",
 				"type": "color",
@@ -1978,7 +2961,11 @@
 			},
 			{
 				"name": "color-blue-300",
-				"path": ["color", "blue", "300"],
+				"path": [
+					"color",
+					"blue",
+					"300"
+				],
 				"cssVar": "--color-blue-300",
 				"value": "#7676e5",
 				"type": "color",
@@ -1986,7 +2973,11 @@
 			},
 			{
 				"name": "color-blue-400",
-				"path": ["color", "blue", "400"],
+				"path": [
+					"color",
+					"blue",
+					"400"
+				],
 				"cssVar": "--color-blue-400",
 				"value": "#3e3ee0",
 				"type": "color",
@@ -1994,7 +2985,11 @@
 			},
 			{
 				"name": "color-blue-500",
-				"path": ["color", "blue", "500"],
+				"path": [
+					"color",
+					"blue",
+					"500"
+				],
 				"cssVar": "--color-blue-500",
 				"value": "#1717d3",
 				"type": "color",
@@ -2002,7 +2997,11 @@
 			},
 			{
 				"name": "color-blue-600",
-				"path": ["color", "blue", "600"],
+				"path": [
+					"color",
+					"blue",
+					"600"
+				],
 				"cssVar": "--color-blue-600",
 				"value": "#1515a8",
 				"type": "color",
@@ -2010,7 +3009,11 @@
 			},
 			{
 				"name": "color-blue-700",
-				"path": ["color", "blue", "700"],
+				"path": [
+					"color",
+					"blue",
+					"700"
+				],
 				"cssVar": "--color-blue-700",
 				"value": "#14147b",
 				"type": "color",
@@ -2018,7 +3021,11 @@
 			},
 			{
 				"name": "color-blue-800",
-				"path": ["color", "blue", "800"],
+				"path": [
+					"color",
+					"blue",
+					"800"
+				],
 				"cssVar": "--color-blue-800",
 				"value": "#121254",
 				"type": "color",
@@ -2026,7 +3033,11 @@
 			},
 			{
 				"name": "color-blue-900",
-				"path": ["color", "blue", "900"],
+				"path": [
+					"color",
+					"blue",
+					"900"
+				],
 				"cssVar": "--color-blue-900",
 				"value": "#0e0e2f",
 				"type": "color",
@@ -2034,7 +3045,11 @@
 			},
 			{
 				"name": "color-blue-950",
-				"path": ["color", "blue", "950"],
+				"path": [
+					"color",
+					"blue",
+					"950"
+				],
 				"cssVar": "--color-blue-950",
 				"value": "#0a0a1a",
 				"type": "color",
@@ -2042,7 +3057,11 @@
 			},
 			{
 				"name": "color-indigo-50",
-				"path": ["color", "indigo", "50"],
+				"path": [
+					"color",
+					"indigo",
+					"50"
+				],
 				"cssVar": "--color-indigo-50",
 				"value": "#f0ecfd",
 				"type": "color",
@@ -2050,7 +3069,11 @@
 			},
 			{
 				"name": "color-indigo-100",
-				"path": ["color", "indigo", "100"],
+				"path": [
+					"color",
+					"indigo",
+					"100"
+				],
 				"cssVar": "--color-indigo-100",
 				"value": "#dcd2f9",
 				"type": "color",
@@ -2058,7 +3081,11 @@
 			},
 			{
 				"name": "color-indigo-200",
-				"path": ["color", "indigo", "200"],
+				"path": [
+					"color",
+					"indigo",
+					"200"
+				],
 				"cssVar": "--color-indigo-200",
 				"value": "#baa7f1",
 				"type": "color",
@@ -2066,7 +3093,11 @@
 			},
 			{
 				"name": "color-indigo-300",
-				"path": ["color", "indigo", "300"],
+				"path": [
+					"color",
+					"indigo",
+					"300"
+				],
 				"cssVar": "--color-indigo-300",
 				"value": "#9276e5",
 				"type": "color",
@@ -2074,7 +3105,11 @@
 			},
 			{
 				"name": "color-indigo-400",
-				"path": ["color", "indigo", "400"],
+				"path": [
+					"color",
+					"indigo",
+					"400"
+				],
 				"cssVar": "--color-indigo-400",
 				"value": "#663ee0",
 				"type": "color",
@@ -2082,7 +3117,11 @@
 			},
 			{
 				"name": "color-indigo-500",
-				"path": ["color", "indigo", "500"],
+				"path": [
+					"color",
+					"indigo",
+					"500"
+				],
 				"cssVar": "--color-indigo-500",
 				"value": "#4617d3",
 				"type": "color",
@@ -2090,7 +3129,11 @@
 			},
 			{
 				"name": "color-indigo-600",
-				"path": ["color", "indigo", "600"],
+				"path": [
+					"color",
+					"indigo",
+					"600"
+				],
 				"cssVar": "--color-indigo-600",
 				"value": "#3a15a8",
 				"type": "color",
@@ -2098,7 +3141,11 @@
 			},
 			{
 				"name": "color-indigo-700",
-				"path": ["color", "indigo", "700"],
+				"path": [
+					"color",
+					"indigo",
+					"700"
+				],
 				"cssVar": "--color-indigo-700",
 				"value": "#2e147b",
 				"type": "color",
@@ -2106,7 +3153,11 @@
 			},
 			{
 				"name": "color-indigo-800",
-				"path": ["color", "indigo", "800"],
+				"path": [
+					"color",
+					"indigo",
+					"800"
+				],
 				"cssVar": "--color-indigo-800",
 				"value": "#221254",
 				"type": "color",
@@ -2114,7 +3165,11 @@
 			},
 			{
 				"name": "color-indigo-900",
-				"path": ["color", "indigo", "900"],
+				"path": [
+					"color",
+					"indigo",
+					"900"
+				],
 				"cssVar": "--color-indigo-900",
 				"value": "#160e2f",
 				"type": "color",
@@ -2122,7 +3177,11 @@
 			},
 			{
 				"name": "color-indigo-950",
-				"path": ["color", "indigo", "950"],
+				"path": [
+					"color",
+					"indigo",
+					"950"
+				],
 				"cssVar": "--color-indigo-950",
 				"value": "#0e0a1a",
 				"type": "color",
@@ -2130,7 +3189,11 @@
 			},
 			{
 				"name": "color-violet-50",
-				"path": ["color", "violet", "50"],
+				"path": [
+					"color",
+					"violet",
+					"50"
+				],
 				"cssVar": "--color-violet-50",
 				"value": "#f5ecfd",
 				"type": "color",
@@ -2138,7 +3201,11 @@
 			},
 			{
 				"name": "color-violet-100",
-				"path": ["color", "violet", "100"],
+				"path": [
+					"color",
+					"violet",
+					"100"
+				],
 				"cssVar": "--color-violet-100",
 				"value": "#e6d2f9",
 				"type": "color",
@@ -2146,7 +3213,11 @@
 			},
 			{
 				"name": "color-violet-200",
-				"path": ["color", "violet", "200"],
+				"path": [
+					"color",
+					"violet",
+					"200"
+				],
 				"cssVar": "--color-violet-200",
 				"value": "#cca7f1",
 				"type": "color",
@@ -2154,7 +3225,11 @@
 			},
 			{
 				"name": "color-violet-300",
-				"path": ["color", "violet", "300"],
+				"path": [
+					"color",
+					"violet",
+					"300"
+				],
 				"cssVar": "--color-violet-300",
 				"value": "#ad76e5",
 				"type": "color",
@@ -2162,7 +3237,11 @@
 			},
 			{
 				"name": "color-violet-400",
-				"path": ["color", "violet", "400"],
+				"path": [
+					"color",
+					"violet",
+					"400"
+				],
 				"cssVar": "--color-violet-400",
 				"value": "#8f3ee0",
 				"type": "color",
@@ -2170,7 +3249,11 @@
 			},
 			{
 				"name": "color-violet-500",
-				"path": ["color", "violet", "500"],
+				"path": [
+					"color",
+					"violet",
+					"500"
+				],
 				"cssVar": "--color-violet-500",
 				"value": "#7517d3",
 				"type": "color",
@@ -2178,7 +3261,11 @@
 			},
 			{
 				"name": "color-violet-600",
-				"path": ["color", "violet", "600"],
+				"path": [
+					"color",
+					"violet",
+					"600"
+				],
 				"cssVar": "--color-violet-600",
 				"value": "#5e15a8",
 				"type": "color",
@@ -2186,7 +3273,11 @@
 			},
 			{
 				"name": "color-violet-700",
-				"path": ["color", "violet", "700"],
+				"path": [
+					"color",
+					"violet",
+					"700"
+				],
 				"cssVar": "--color-violet-700",
 				"value": "#47147b",
 				"type": "color",
@@ -2194,7 +3285,11 @@
 			},
 			{
 				"name": "color-violet-800",
-				"path": ["color", "violet", "800"],
+				"path": [
+					"color",
+					"violet",
+					"800"
+				],
 				"cssVar": "--color-violet-800",
 				"value": "#331254",
 				"type": "color",
@@ -2202,7 +3297,11 @@
 			},
 			{
 				"name": "color-violet-900",
-				"path": ["color", "violet", "900"],
+				"path": [
+					"color",
+					"violet",
+					"900"
+				],
 				"cssVar": "--color-violet-900",
 				"value": "#1f0e2f",
 				"type": "color",
@@ -2210,7 +3309,11 @@
 			},
 			{
 				"name": "color-violet-950",
-				"path": ["color", "violet", "950"],
+				"path": [
+					"color",
+					"violet",
+					"950"
+				],
 				"cssVar": "--color-violet-950",
 				"value": "#120a1a",
 				"type": "color",
@@ -2218,7 +3321,11 @@
 			},
 			{
 				"name": "color-purple-50",
-				"path": ["color", "purple", "50"],
+				"path": [
+					"color",
+					"purple",
+					"50"
+				],
 				"cssVar": "--color-purple-50",
 				"value": "#f9ecfd",
 				"type": "color",
@@ -2226,7 +3333,11 @@
 			},
 			{
 				"name": "color-purple-100",
-				"path": ["color", "purple", "100"],
+				"path": [
+					"color",
+					"purple",
+					"100"
+				],
 				"cssVar": "--color-purple-100",
 				"value": "#efd2f9",
 				"type": "color",
@@ -2234,7 +3345,11 @@
 			},
 			{
 				"name": "color-purple-200",
-				"path": ["color", "purple", "200"],
+				"path": [
+					"color",
+					"purple",
+					"200"
+				],
 				"cssVar": "--color-purple-200",
 				"value": "#dea7f1",
 				"type": "color",
@@ -2242,7 +3357,11 @@
 			},
 			{
 				"name": "color-purple-300",
-				"path": ["color", "purple", "300"],
+				"path": [
+					"color",
+					"purple",
+					"300"
+				],
 				"cssVar": "--color-purple-300",
 				"value": "#c976e5",
 				"type": "color",
@@ -2250,7 +3369,11 @@
 			},
 			{
 				"name": "color-purple-400",
-				"path": ["color", "purple", "400"],
+				"path": [
+					"color",
+					"purple",
+					"400"
+				],
 				"cssVar": "--color-purple-400",
 				"value": "#b73ee0",
 				"type": "color",
@@ -2258,7 +3381,11 @@
 			},
 			{
 				"name": "color-purple-500",
-				"path": ["color", "purple", "500"],
+				"path": [
+					"color",
+					"purple",
+					"500"
+				],
 				"cssVar": "--color-purple-500",
 				"value": "#a417d3",
 				"type": "color",
@@ -2266,7 +3393,11 @@
 			},
 			{
 				"name": "color-purple-600",
-				"path": ["color", "purple", "600"],
+				"path": [
+					"color",
+					"purple",
+					"600"
+				],
 				"cssVar": "--color-purple-600",
 				"value": "#8315a8",
 				"type": "color",
@@ -2274,7 +3405,11 @@
 			},
 			{
 				"name": "color-purple-700",
-				"path": ["color", "purple", "700"],
+				"path": [
+					"color",
+					"purple",
+					"700"
+				],
 				"cssVar": "--color-purple-700",
 				"value": "#61147b",
 				"type": "color",
@@ -2282,7 +3417,11 @@
 			},
 			{
 				"name": "color-purple-800",
-				"path": ["color", "purple", "800"],
+				"path": [
+					"color",
+					"purple",
+					"800"
+				],
 				"cssVar": "--color-purple-800",
 				"value": "#441254",
 				"type": "color",
@@ -2290,7 +3429,11 @@
 			},
 			{
 				"name": "color-purple-900",
-				"path": ["color", "purple", "900"],
+				"path": [
+					"color",
+					"purple",
+					"900"
+				],
 				"cssVar": "--color-purple-900",
 				"value": "#270e2f",
 				"type": "color",
@@ -2298,7 +3441,11 @@
 			},
 			{
 				"name": "color-purple-950",
-				"path": ["color", "purple", "950"],
+				"path": [
+					"color",
+					"purple",
+					"950"
+				],
 				"cssVar": "--color-purple-950",
 				"value": "#160a1a",
 				"type": "color",
@@ -2306,7 +3453,11 @@
 			},
 			{
 				"name": "color-magenta-50",
-				"path": ["color", "magenta", "50"],
+				"path": [
+					"color",
+					"magenta",
+					"50"
+				],
 				"cssVar": "--color-magenta-50",
 				"value": "#fdecfd",
 				"type": "color",
@@ -2314,7 +3465,11 @@
 			},
 			{
 				"name": "color-magenta-100",
-				"path": ["color", "magenta", "100"],
+				"path": [
+					"color",
+					"magenta",
+					"100"
+				],
 				"cssVar": "--color-magenta-100",
 				"value": "#f9d2f9",
 				"type": "color",
@@ -2322,7 +3477,11 @@
 			},
 			{
 				"name": "color-magenta-200",
-				"path": ["color", "magenta", "200"],
+				"path": [
+					"color",
+					"magenta",
+					"200"
+				],
 				"cssVar": "--color-magenta-200",
 				"value": "#f1a7f1",
 				"type": "color",
@@ -2330,7 +3489,11 @@
 			},
 			{
 				"name": "color-magenta-300",
-				"path": ["color", "magenta", "300"],
+				"path": [
+					"color",
+					"magenta",
+					"300"
+				],
 				"cssVar": "--color-magenta-300",
 				"value": "#e576e5",
 				"type": "color",
@@ -2338,7 +3501,11 @@
 			},
 			{
 				"name": "color-magenta-400",
-				"path": ["color", "magenta", "400"],
+				"path": [
+					"color",
+					"magenta",
+					"400"
+				],
 				"cssVar": "--color-magenta-400",
 				"value": "#e03ee0",
 				"type": "color",
@@ -2346,7 +3513,11 @@
 			},
 			{
 				"name": "color-magenta-500",
-				"path": ["color", "magenta", "500"],
+				"path": [
+					"color",
+					"magenta",
+					"500"
+				],
 				"cssVar": "--color-magenta-500",
 				"value": "#d317d3",
 				"type": "color",
@@ -2354,7 +3525,11 @@
 			},
 			{
 				"name": "color-magenta-600",
-				"path": ["color", "magenta", "600"],
+				"path": [
+					"color",
+					"magenta",
+					"600"
+				],
 				"cssVar": "--color-magenta-600",
 				"value": "#a815a8",
 				"type": "color",
@@ -2362,7 +3537,11 @@
 			},
 			{
 				"name": "color-magenta-700",
-				"path": ["color", "magenta", "700"],
+				"path": [
+					"color",
+					"magenta",
+					"700"
+				],
 				"cssVar": "--color-magenta-700",
 				"value": "#7b147b",
 				"type": "color",
@@ -2370,7 +3549,11 @@
 			},
 			{
 				"name": "color-magenta-800",
-				"path": ["color", "magenta", "800"],
+				"path": [
+					"color",
+					"magenta",
+					"800"
+				],
 				"cssVar": "--color-magenta-800",
 				"value": "#541254",
 				"type": "color",
@@ -2378,7 +3561,11 @@
 			},
 			{
 				"name": "color-magenta-900",
-				"path": ["color", "magenta", "900"],
+				"path": [
+					"color",
+					"magenta",
+					"900"
+				],
 				"cssVar": "--color-magenta-900",
 				"value": "#2f0e2f",
 				"type": "color",
@@ -2386,7 +3573,11 @@
 			},
 			{
 				"name": "color-magenta-950",
-				"path": ["color", "magenta", "950"],
+				"path": [
+					"color",
+					"magenta",
+					"950"
+				],
 				"cssVar": "--color-magenta-950",
 				"value": "#1a0a1a",
 				"type": "color",
@@ -2394,7 +3585,11 @@
 			},
 			{
 				"name": "color-rose-50",
-				"path": ["color", "rose", "50"],
+				"path": [
+					"color",
+					"rose",
+					"50"
+				],
 				"cssVar": "--color-rose-50",
 				"value": "#fdecf9",
 				"type": "color",
@@ -2402,7 +3597,11 @@
 			},
 			{
 				"name": "color-rose-100",
-				"path": ["color", "rose", "100"],
+				"path": [
+					"color",
+					"rose",
+					"100"
+				],
 				"cssVar": "--color-rose-100",
 				"value": "#f9d2ef",
 				"type": "color",
@@ -2410,7 +3609,11 @@
 			},
 			{
 				"name": "color-rose-200",
-				"path": ["color", "rose", "200"],
+				"path": [
+					"color",
+					"rose",
+					"200"
+				],
 				"cssVar": "--color-rose-200",
 				"value": "#f1a7de",
 				"type": "color",
@@ -2418,7 +3621,11 @@
 			},
 			{
 				"name": "color-rose-300",
-				"path": ["color", "rose", "300"],
+				"path": [
+					"color",
+					"rose",
+					"300"
+				],
 				"cssVar": "--color-rose-300",
 				"value": "#e576c9",
 				"type": "color",
@@ -2426,7 +3633,11 @@
 			},
 			{
 				"name": "color-rose-400",
-				"path": ["color", "rose", "400"],
+				"path": [
+					"color",
+					"rose",
+					"400"
+				],
 				"cssVar": "--color-rose-400",
 				"value": "#e03eb7",
 				"type": "color",
@@ -2434,7 +3645,11 @@
 			},
 			{
 				"name": "color-rose-500",
-				"path": ["color", "rose", "500"],
+				"path": [
+					"color",
+					"rose",
+					"500"
+				],
 				"cssVar": "--color-rose-500",
 				"value": "#d317a4",
 				"type": "color",
@@ -2442,7 +3657,11 @@
 			},
 			{
 				"name": "color-rose-600",
-				"path": ["color", "rose", "600"],
+				"path": [
+					"color",
+					"rose",
+					"600"
+				],
 				"cssVar": "--color-rose-600",
 				"value": "#a81583",
 				"type": "color",
@@ -2450,7 +3669,11 @@
 			},
 			{
 				"name": "color-rose-700",
-				"path": ["color", "rose", "700"],
+				"path": [
+					"color",
+					"rose",
+					"700"
+				],
 				"cssVar": "--color-rose-700",
 				"value": "#7b1461",
 				"type": "color",
@@ -2458,7 +3681,11 @@
 			},
 			{
 				"name": "color-rose-800",
-				"path": ["color", "rose", "800"],
+				"path": [
+					"color",
+					"rose",
+					"800"
+				],
 				"cssVar": "--color-rose-800",
 				"value": "#541244",
 				"type": "color",
@@ -2466,7 +3693,11 @@
 			},
 			{
 				"name": "color-rose-900",
-				"path": ["color", "rose", "900"],
+				"path": [
+					"color",
+					"rose",
+					"900"
+				],
 				"cssVar": "--color-rose-900",
 				"value": "#2f0e27",
 				"type": "color",
@@ -2474,7 +3705,11 @@
 			},
 			{
 				"name": "color-rose-950",
-				"path": ["color", "rose", "950"],
+				"path": [
+					"color",
+					"rose",
+					"950"
+				],
 				"cssVar": "--color-rose-950",
 				"value": "#1a0a16",
 				"type": "color",
@@ -2482,7 +3717,11 @@
 			},
 			{
 				"name": "color-pink-50",
-				"path": ["color", "pink", "50"],
+				"path": [
+					"color",
+					"pink",
+					"50"
+				],
 				"cssVar": "--color-pink-50",
 				"value": "#fdecf5",
 				"type": "color",
@@ -2490,7 +3729,11 @@
 			},
 			{
 				"name": "color-pink-100",
-				"path": ["color", "pink", "100"],
+				"path": [
+					"color",
+					"pink",
+					"100"
+				],
 				"cssVar": "--color-pink-100",
 				"value": "#f9d2e6",
 				"type": "color",
@@ -2498,7 +3741,11 @@
 			},
 			{
 				"name": "color-pink-200",
-				"path": ["color", "pink", "200"],
+				"path": [
+					"color",
+					"pink",
+					"200"
+				],
 				"cssVar": "--color-pink-200",
 				"value": "#f1a7cc",
 				"type": "color",
@@ -2506,7 +3753,11 @@
 			},
 			{
 				"name": "color-pink-300",
-				"path": ["color", "pink", "300"],
+				"path": [
+					"color",
+					"pink",
+					"300"
+				],
 				"cssVar": "--color-pink-300",
 				"value": "#e576ad",
 				"type": "color",
@@ -2514,7 +3765,11 @@
 			},
 			{
 				"name": "color-pink-400",
-				"path": ["color", "pink", "400"],
+				"path": [
+					"color",
+					"pink",
+					"400"
+				],
 				"cssVar": "--color-pink-400",
 				"value": "#e03e8f",
 				"type": "color",
@@ -2522,7 +3777,11 @@
 			},
 			{
 				"name": "color-pink-500",
-				"path": ["color", "pink", "500"],
+				"path": [
+					"color",
+					"pink",
+					"500"
+				],
 				"cssVar": "--color-pink-500",
 				"value": "#d31775",
 				"type": "color",
@@ -2530,7 +3789,11 @@
 			},
 			{
 				"name": "color-pink-600",
-				"path": ["color", "pink", "600"],
+				"path": [
+					"color",
+					"pink",
+					"600"
+				],
 				"cssVar": "--color-pink-600",
 				"value": "#a8155e",
 				"type": "color",
@@ -2538,7 +3801,11 @@
 			},
 			{
 				"name": "color-pink-700",
-				"path": ["color", "pink", "700"],
+				"path": [
+					"color",
+					"pink",
+					"700"
+				],
 				"cssVar": "--color-pink-700",
 				"value": "#7b1447",
 				"type": "color",
@@ -2546,7 +3813,11 @@
 			},
 			{
 				"name": "color-pink-800",
-				"path": ["color", "pink", "800"],
+				"path": [
+					"color",
+					"pink",
+					"800"
+				],
 				"cssVar": "--color-pink-800",
 				"value": "#541233",
 				"type": "color",
@@ -2554,7 +3825,11 @@
 			},
 			{
 				"name": "color-pink-900",
-				"path": ["color", "pink", "900"],
+				"path": [
+					"color",
+					"pink",
+					"900"
+				],
 				"cssVar": "--color-pink-900",
 				"value": "#2f0e1f",
 				"type": "color",
@@ -2562,7 +3837,11 @@
 			},
 			{
 				"name": "color-pink-950",
-				"path": ["color", "pink", "950"],
+				"path": [
+					"color",
+					"pink",
+					"950"
+				],
 				"cssVar": "--color-pink-950",
 				"value": "#1a0a12",
 				"type": "color",
@@ -2570,7 +3849,11 @@
 			},
 			{
 				"name": "color-crimson-50",
-				"path": ["color", "crimson", "50"],
+				"path": [
+					"color",
+					"crimson",
+					"50"
+				],
 				"cssVar": "--color-crimson-50",
 				"value": "#fdecf0",
 				"type": "color",
@@ -2578,7 +3861,11 @@
 			},
 			{
 				"name": "color-crimson-100",
-				"path": ["color", "crimson", "100"],
+				"path": [
+					"color",
+					"crimson",
+					"100"
+				],
 				"cssVar": "--color-crimson-100",
 				"value": "#f9d2dc",
 				"type": "color",
@@ -2586,7 +3873,11 @@
 			},
 			{
 				"name": "color-crimson-200",
-				"path": ["color", "crimson", "200"],
+				"path": [
+					"color",
+					"crimson",
+					"200"
+				],
 				"cssVar": "--color-crimson-200",
 				"value": "#f1a7ba",
 				"type": "color",
@@ -2594,7 +3885,11 @@
 			},
 			{
 				"name": "color-crimson-300",
-				"path": ["color", "crimson", "300"],
+				"path": [
+					"color",
+					"crimson",
+					"300"
+				],
 				"cssVar": "--color-crimson-300",
 				"value": "#e57692",
 				"type": "color",
@@ -2602,7 +3897,11 @@
 			},
 			{
 				"name": "color-crimson-400",
-				"path": ["color", "crimson", "400"],
+				"path": [
+					"color",
+					"crimson",
+					"400"
+				],
 				"cssVar": "--color-crimson-400",
 				"value": "#e03e66",
 				"type": "color",
@@ -2610,7 +3909,11 @@
 			},
 			{
 				"name": "color-crimson-500",
-				"path": ["color", "crimson", "500"],
+				"path": [
+					"color",
+					"crimson",
+					"500"
+				],
 				"cssVar": "--color-crimson-500",
 				"value": "#d31746",
 				"type": "color",
@@ -2618,7 +3921,11 @@
 			},
 			{
 				"name": "color-crimson-600",
-				"path": ["color", "crimson", "600"],
+				"path": [
+					"color",
+					"crimson",
+					"600"
+				],
 				"cssVar": "--color-crimson-600",
 				"value": "#a8153a",
 				"type": "color",
@@ -2626,7 +3933,11 @@
 			},
 			{
 				"name": "color-crimson-700",
-				"path": ["color", "crimson", "700"],
+				"path": [
+					"color",
+					"crimson",
+					"700"
+				],
 				"cssVar": "--color-crimson-700",
 				"value": "#7b142e",
 				"type": "color",
@@ -2634,7 +3945,11 @@
 			},
 			{
 				"name": "color-crimson-800",
-				"path": ["color", "crimson", "800"],
+				"path": [
+					"color",
+					"crimson",
+					"800"
+				],
 				"cssVar": "--color-crimson-800",
 				"value": "#541222",
 				"type": "color",
@@ -2642,7 +3957,11 @@
 			},
 			{
 				"name": "color-crimson-900",
-				"path": ["color", "crimson", "900"],
+				"path": [
+					"color",
+					"crimson",
+					"900"
+				],
 				"cssVar": "--color-crimson-900",
 				"value": "#2f0e16",
 				"type": "color",
@@ -2650,7 +3969,11 @@
 			},
 			{
 				"name": "color-crimson-950",
-				"path": ["color", "crimson", "950"],
+				"path": [
+					"color",
+					"crimson",
+					"950"
+				],
 				"cssVar": "--color-crimson-950",
 				"value": "#1a0a0e",
 				"type": "color",
@@ -2658,7 +3981,11 @@
 			},
 			{
 				"name": "color-teal-50",
-				"path": ["color", "teal", "50"],
+				"path": [
+					"color",
+					"teal",
+					"50"
+				],
 				"cssVar": "--color-teal-50",
 				"value": "#e8faf5",
 				"type": "color",
@@ -2666,7 +3993,11 @@
 			},
 			{
 				"name": "color-teal-100",
-				"path": ["color", "teal", "100"],
+				"path": [
+					"color",
+					"teal",
+					"100"
+				],
 				"cssVar": "--color-teal-100",
 				"value": "#c9eee5",
 				"type": "color",
@@ -2674,7 +4005,11 @@
 			},
 			{
 				"name": "color-teal-200",
-				"path": ["color", "teal", "200"],
+				"path": [
+					"color",
+					"teal",
+					"200"
+				],
 				"cssVar": "--color-teal-200",
 				"value": "#8fdccc",
 				"type": "color",
@@ -2682,7 +4017,11 @@
 			},
 			{
 				"name": "color-teal-300",
-				"path": ["color", "teal", "300"],
+				"path": [
+					"color",
+					"teal",
+					"300"
+				],
 				"cssVar": "--color-teal-300",
 				"value": "#39c3ae",
 				"type": "color",
@@ -2690,7 +4029,11 @@
 			},
 			{
 				"name": "color-teal-400",
-				"path": ["color", "teal", "400"],
+				"path": [
+					"color",
+					"teal",
+					"400"
+				],
 				"cssVar": "--color-teal-400",
 				"value": "#00aa90",
 				"type": "color",
@@ -2698,7 +4041,11 @@
 			},
 			{
 				"name": "color-teal-500",
-				"path": ["color", "teal", "500"],
+				"path": [
+					"color",
+					"teal",
+					"500"
+				],
 				"cssVar": "--color-teal-500",
 				"value": "#009076",
 				"type": "color",
@@ -2706,7 +4053,11 @@
 			},
 			{
 				"name": "color-teal-600",
-				"path": ["color", "teal", "600"],
+				"path": [
+					"color",
+					"teal",
+					"600"
+				],
 				"cssVar": "--color-teal-600",
 				"value": "#007861",
 				"type": "color",
@@ -2714,7 +4065,11 @@
 			},
 			{
 				"name": "color-teal-700",
-				"path": ["color", "teal", "700"],
+				"path": [
+					"color",
+					"teal",
+					"700"
+				],
 				"cssVar": "--color-teal-700",
 				"value": "#005c4a",
 				"type": "color",
@@ -2722,7 +4077,11 @@
 			},
 			{
 				"name": "color-teal-800",
-				"path": ["color", "teal", "800"],
+				"path": [
+					"color",
+					"teal",
+					"800"
+				],
 				"cssVar": "--color-teal-800",
 				"value": "#004235",
 				"type": "color",
@@ -2730,7 +4089,11 @@
 			},
 			{
 				"name": "color-teal-900",
-				"path": ["color", "teal", "900"],
+				"path": [
+					"color",
+					"teal",
+					"900"
+				],
 				"cssVar": "--color-teal-900",
 				"value": "#002920",
 				"type": "color",
@@ -2738,7 +4101,11 @@
 			},
 			{
 				"name": "color-teal-950",
-				"path": ["color", "teal", "950"],
+				"path": [
+					"color",
+					"teal",
+					"950"
+				],
 				"cssVar": "--color-teal-950",
 				"value": "#001712",
 				"type": "color",
@@ -2746,7 +4113,11 @@
 			},
 			{
 				"name": "color-ember-50",
-				"path": ["color", "ember", "50"],
+				"path": [
+					"color",
+					"ember",
+					"50"
+				],
 				"cssVar": "--color-ember-50",
 				"value": "#fff0ee",
 				"type": "color",
@@ -2754,7 +4125,11 @@
 			},
 			{
 				"name": "color-ember-100",
-				"path": ["color", "ember", "100"],
+				"path": [
+					"color",
+					"ember",
+					"100"
+				],
 				"cssVar": "--color-ember-100",
 				"value": "#fedbd7",
 				"type": "color",
@@ -2762,7 +4137,11 @@
 			},
 			{
 				"name": "color-ember-200",
-				"path": ["color", "ember", "200"],
+				"path": [
+					"color",
+					"ember",
+					"200"
+				],
 				"cssVar": "--color-ember-200",
 				"value": "#fbb7b0",
 				"type": "color",
@@ -2770,7 +4149,11 @@
 			},
 			{
 				"name": "color-ember-300",
-				"path": ["color", "ember", "300"],
+				"path": [
+					"color",
+					"ember",
+					"300"
+				],
 				"cssVar": "--color-ember-300",
 				"value": "#ed8c84",
 				"type": "color",
@@ -2778,7 +4161,11 @@
 			},
 			{
 				"name": "color-ember-400",
-				"path": ["color", "ember", "400"],
+				"path": [
+					"color",
+					"ember",
+					"400"
+				],
 				"cssVar": "--color-ember-400",
 				"value": "#dc5e59",
 				"type": "color",
@@ -2786,7 +4173,11 @@
 			},
 			{
 				"name": "color-ember-500",
-				"path": ["color", "ember", "500"],
+				"path": [
+					"color",
+					"ember",
+					"500"
+				],
 				"cssVar": "--color-ember-500",
 				"value": "#c53637",
 				"type": "color",
@@ -2794,7 +4185,11 @@
 			},
 			{
 				"name": "color-ember-600",
-				"path": ["color", "ember", "600"],
+				"path": [
+					"color",
+					"ember",
+					"600"
+				],
 				"cssVar": "--color-ember-600",
 				"value": "#a5292b",
 				"type": "color",
@@ -2802,7 +4197,11 @@
 			},
 			{
 				"name": "color-ember-700",
-				"path": ["color", "ember", "700"],
+				"path": [
+					"color",
+					"ember",
+					"700"
+				],
 				"cssVar": "--color-ember-700",
 				"value": "#7f2021",
 				"type": "color",
@@ -2810,7 +4209,11 @@
 			},
 			{
 				"name": "color-ember-800",
-				"path": ["color", "ember", "800"],
+				"path": [
+					"color",
+					"ember",
+					"800"
+				],
 				"cssVar": "--color-ember-800",
 				"value": "#5c1717",
 				"type": "color",
@@ -2818,7 +4221,11 @@
 			},
 			{
 				"name": "color-ember-900",
-				"path": ["color", "ember", "900"],
+				"path": [
+					"color",
+					"ember",
+					"900"
+				],
 				"cssVar": "--color-ember-900",
 				"value": "#3a0e0d",
 				"type": "color",
@@ -2826,7 +4233,11 @@
 			},
 			{
 				"name": "color-ember-950",
-				"path": ["color", "ember", "950"],
+				"path": [
+					"color",
+					"ember",
+					"950"
+				],
 				"cssVar": "--color-ember-950",
 				"value": "#200a08",
 				"type": "color",
@@ -2834,7 +4245,11 @@
 			},
 			{
 				"name": "color-frost-50",
-				"path": ["color", "frost", "50"],
+				"path": [
+					"color",
+					"frost",
+					"50"
+				],
 				"cssVar": "--color-frost-50",
 				"value": "#e7f9ff",
 				"type": "color",
@@ -2842,7 +4257,11 @@
 			},
 			{
 				"name": "color-frost-100",
-				"path": ["color", "frost", "100"],
+				"path": [
+					"color",
+					"frost",
+					"100"
+				],
 				"cssVar": "--color-frost-100",
 				"value": "#c8ebf7",
 				"type": "color",
@@ -2850,7 +4269,11 @@
 			},
 			{
 				"name": "color-frost-200",
-				"path": ["color", "frost", "200"],
+				"path": [
+					"color",
+					"frost",
+					"200"
+				],
 				"cssVar": "--color-frost-200",
 				"value": "#8ed7ef",
 				"type": "color",
@@ -2858,7 +4281,11 @@
 			},
 			{
 				"name": "color-frost-300",
-				"path": ["color", "frost", "300"],
+				"path": [
+					"color",
+					"frost",
+					"300"
+				],
 				"cssVar": "--color-frost-300",
 				"value": "#39bcdf",
 				"type": "color",
@@ -2866,7 +4293,11 @@
 			},
 			{
 				"name": "color-frost-400",
-				"path": ["color", "frost", "400"],
+				"path": [
+					"color",
+					"frost",
+					"400"
+				],
 				"cssVar": "--color-frost-400",
 				"value": "#00a0ce",
 				"type": "color",
@@ -2874,7 +4305,11 @@
 			},
 			{
 				"name": "color-frost-500",
-				"path": ["color", "frost", "500"],
+				"path": [
+					"color",
+					"frost",
+					"500"
+				],
 				"cssVar": "--color-frost-500",
 				"value": "#1988a3",
 				"type": "color",
@@ -2882,7 +4317,11 @@
 			},
 			{
 				"name": "color-frost-600",
-				"path": ["color", "frost", "600"],
+				"path": [
+					"color",
+					"frost",
+					"600"
+				],
 				"cssVar": "--color-frost-600",
 				"value": "#006b8c",
 				"type": "color",
@@ -2890,7 +4329,11 @@
 			},
 			{
 				"name": "color-frost-700",
-				"path": ["color", "frost", "700"],
+				"path": [
+					"color",
+					"frost",
+					"700"
+				],
 				"cssVar": "--color-frost-700",
 				"value": "#00536c",
 				"type": "color",
@@ -2898,7 +4341,11 @@
 			},
 			{
 				"name": "color-frost-800",
-				"path": ["color", "frost", "800"],
+				"path": [
+					"color",
+					"frost",
+					"800"
+				],
 				"cssVar": "--color-frost-800",
 				"value": "#003b4f",
 				"type": "color",
@@ -2906,7 +4353,11 @@
 			},
 			{
 				"name": "color-frost-900",
-				"path": ["color", "frost", "900"],
+				"path": [
+					"color",
+					"frost",
+					"900"
+				],
 				"cssVar": "--color-frost-900",
 				"value": "#002533",
 				"type": "color",
@@ -2914,7 +4365,11 @@
 			},
 			{
 				"name": "color-frost-950",
-				"path": ["color", "frost", "950"],
+				"path": [
+					"color",
+					"frost",
+					"950"
+				],
 				"cssVar": "--color-frost-950",
 				"value": "#00151e",
 				"type": "color",
@@ -2922,7 +4377,11 @@
 			},
 			{
 				"name": "color-cyber-50",
-				"path": ["color", "cyber", "50"],
+				"path": [
+					"color",
+					"cyber",
+					"50"
+				],
 				"cssVar": "--color-cyber-50",
 				"value": "#eafaf0",
 				"type": "color",
@@ -2930,7 +4389,11 @@
 			},
 			{
 				"name": "color-cyber-100",
-				"path": ["color", "cyber", "100"],
+				"path": [
+					"color",
+					"cyber",
+					"100"
+				],
 				"cssVar": "--color-cyber-100",
 				"value": "#cfeddc",
 				"type": "color",
@@ -2938,7 +4401,11 @@
 			},
 			{
 				"name": "color-cyber-200",
-				"path": ["color", "cyber", "200"],
+				"path": [
+					"color",
+					"cyber",
+					"200"
+				],
 				"cssVar": "--color-cyber-200",
 				"value": "#9ddbb9",
 				"type": "color",
@@ -2946,7 +4413,11 @@
 			},
 			{
 				"name": "color-cyber-300",
-				"path": ["color", "cyber", "300"],
+				"path": [
+					"color",
+					"cyber",
+					"300"
+				],
 				"cssVar": "--color-cyber-300",
 				"value": "#5dc291",
 				"type": "color",
@@ -2954,7 +4425,11 @@
 			},
 			{
 				"name": "color-cyber-400",
-				"path": ["color", "cyber", "400"],
+				"path": [
+					"color",
+					"cyber",
+					"400"
+				],
 				"cssVar": "--color-cyber-400",
 				"value": "#00a869",
 				"type": "color",
@@ -2962,7 +4437,11 @@
 			},
 			{
 				"name": "color-cyber-500",
-				"path": ["color", "cyber", "500"],
+				"path": [
+					"color",
+					"cyber",
+					"500"
+				],
 				"cssVar": "--color-cyber-500",
 				"value": "#008f4a",
 				"type": "color",
@@ -2970,7 +4449,11 @@
 			},
 			{
 				"name": "color-cyber-600",
-				"path": ["color", "cyber", "600"],
+				"path": [
+					"color",
+					"cyber",
+					"600"
+				],
 				"cssVar": "--color-cyber-600",
 				"value": "#00773c",
 				"type": "color",
@@ -2978,7 +4461,11 @@
 			},
 			{
 				"name": "color-cyber-700",
-				"path": ["color", "cyber", "700"],
+				"path": [
+					"color",
+					"cyber",
+					"700"
+				],
 				"cssVar": "--color-cyber-700",
 				"value": "#005b2d",
 				"type": "color",
@@ -2986,7 +4473,11 @@
 			},
 			{
 				"name": "color-cyber-800",
-				"path": ["color", "cyber", "800"],
+				"path": [
+					"color",
+					"cyber",
+					"800"
+				],
 				"cssVar": "--color-cyber-800",
 				"value": "#004120",
 				"type": "color",
@@ -2994,7 +4485,11 @@
 			},
 			{
 				"name": "color-cyber-900",
-				"path": ["color", "cyber", "900"],
+				"path": [
+					"color",
+					"cyber",
+					"900"
+				],
 				"cssVar": "--color-cyber-900",
 				"value": "#002913",
 				"type": "color",
@@ -3002,7 +4497,11 @@
 			},
 			{
 				"name": "color-cyber-950",
-				"path": ["color", "cyber", "950"],
+				"path": [
+					"color",
+					"cyber",
+					"950"
+				],
 				"cssVar": "--color-cyber-950",
 				"value": "#00170b",
 				"type": "color",
@@ -3010,7 +4509,11 @@
 			},
 			{
 				"name": "color-neutral-50",
-				"path": ["color", "neutral", "50"],
+				"path": [
+					"color",
+					"neutral",
+					"50"
+				],
 				"cssVar": "--color-neutral-50",
 				"value": "#fafafa",
 				"type": "color",
@@ -3018,7 +4521,11 @@
 			},
 			{
 				"name": "color-neutral-100",
-				"path": ["color", "neutral", "100"],
+				"path": [
+					"color",
+					"neutral",
+					"100"
+				],
 				"cssVar": "--color-neutral-100",
 				"value": "#ededed",
 				"type": "color",
@@ -3026,7 +4533,11 @@
 			},
 			{
 				"name": "color-neutral-200",
-				"path": ["color", "neutral", "200"],
+				"path": [
+					"color",
+					"neutral",
+					"200"
+				],
 				"cssVar": "--color-neutral-200",
 				"value": "#d9d9d9",
 				"type": "color",
@@ -3034,7 +4545,11 @@
 			},
 			{
 				"name": "color-neutral-300",
-				"path": ["color", "neutral", "300"],
+				"path": [
+					"color",
+					"neutral",
+					"300"
+				],
 				"cssVar": "--color-neutral-300",
 				"value": "#b8b8b8",
 				"type": "color",
@@ -3042,7 +4557,11 @@
 			},
 			{
 				"name": "color-neutral-400",
-				"path": ["color", "neutral", "400"],
+				"path": [
+					"color",
+					"neutral",
+					"400"
+				],
 				"cssVar": "--color-neutral-400",
 				"value": "#8f8f8f",
 				"type": "color",
@@ -3050,7 +4569,11 @@
 			},
 			{
 				"name": "color-neutral-500",
-				"path": ["color", "neutral", "500"],
+				"path": [
+					"color",
+					"neutral",
+					"500"
+				],
 				"cssVar": "--color-neutral-500",
 				"value": "#6b6b6b",
 				"type": "color",
@@ -3058,7 +4581,11 @@
 			},
 			{
 				"name": "color-neutral-600",
-				"path": ["color", "neutral", "600"],
+				"path": [
+					"color",
+					"neutral",
+					"600"
+				],
 				"cssVar": "--color-neutral-600",
 				"value": "#525252",
 				"type": "color",
@@ -3066,7 +4593,11 @@
 			},
 			{
 				"name": "color-neutral-700",
-				"path": ["color", "neutral", "700"],
+				"path": [
+					"color",
+					"neutral",
+					"700"
+				],
 				"cssVar": "--color-neutral-700",
 				"value": "#3d3d3d",
 				"type": "color",
@@ -3074,7 +4605,11 @@
 			},
 			{
 				"name": "color-neutral-800",
-				"path": ["color", "neutral", "800"],
+				"path": [
+					"color",
+					"neutral",
+					"800"
+				],
 				"cssVar": "--color-neutral-800",
 				"value": "#262626",
 				"type": "color",
@@ -3082,7 +4617,11 @@
 			},
 			{
 				"name": "color-neutral-900",
-				"path": ["color", "neutral", "900"],
+				"path": [
+					"color",
+					"neutral",
+					"900"
+				],
 				"cssVar": "--color-neutral-900",
 				"value": "#171717",
 				"type": "color",
@@ -3090,7 +4629,11 @@
 			},
 			{
 				"name": "color-neutral-950",
-				"path": ["color", "neutral", "950"],
+				"path": [
+					"color",
+					"neutral",
+					"950"
+				],
 				"cssVar": "--color-neutral-950",
 				"value": "#0d0d0d",
 				"type": "color",
@@ -3098,7 +4641,10 @@
 			},
 			{
 				"name": "color-white",
-				"path": ["color", "white"],
+				"path": [
+					"color",
+					"white"
+				],
 				"cssVar": "--color-white",
 				"value": "#ffffff",
 				"type": "color",
@@ -3106,7 +4652,10 @@
 			},
 			{
 				"name": "color-black",
-				"path": ["color", "black"],
+				"path": [
+					"color",
+					"black"
+				],
 				"cssVar": "--color-black",
 				"value": "#000000",
 				"type": "color",
@@ -3114,7 +4663,11 @@
 			},
 			{
 				"name": "color-text-primary",
-				"path": ["color", "text", "primary"],
+				"path": [
+					"color",
+					"text",
+					"primary"
+				],
 				"cssVar": "--color-text-primary",
 				"value": "#e0f0f3",
 				"type": "color",
@@ -3122,7 +4675,11 @@
 			},
 			{
 				"name": "color-text-secondary",
-				"path": ["color", "text", "secondary"],
+				"path": [
+					"color",
+					"text",
+					"secondary"
+				],
 				"cssVar": "--color-text-secondary",
 				"value": "#8ba8ad",
 				"type": "color",
@@ -3130,7 +4687,11 @@
 			},
 			{
 				"name": "color-text-muted",
-				"path": ["color", "text", "muted"],
+				"path": [
+					"color",
+					"text",
+					"muted"
+				],
 				"cssVar": "--color-text-muted",
 				"value": "#4a666b",
 				"type": "color",
@@ -3138,7 +4699,11 @@
 			},
 			{
 				"name": "color-text-link",
-				"path": ["color", "text", "link"],
+				"path": [
+					"color",
+					"text",
+					"link"
+				],
 				"cssVar": "--color-text-link",
 				"value": "#00aa90",
 				"type": "color",
@@ -3146,7 +4711,11 @@
 			},
 			{
 				"name": "color-text-inverse",
-				"path": ["color", "text", "inverse"],
+				"path": [
+					"color",
+					"text",
+					"inverse"
+				],
 				"cssVar": "--color-text-inverse",
 				"value": "#0a1a1a",
 				"type": "color",
@@ -3154,7 +4723,12 @@
 			},
 			{
 				"name": "color-accent-teal-main",
-				"path": ["color", "accent", "teal", "main"],
+				"path": [
+					"color",
+					"accent",
+					"teal",
+					"main"
+				],
 				"cssVar": "--color-accent-teal-main",
 				"value": "#00aa90",
 				"type": "color",
@@ -3162,7 +4736,12 @@
 			},
 			{
 				"name": "color-accent-teal-glow",
-				"path": ["color", "accent", "teal", "glow"],
+				"path": [
+					"color",
+					"accent",
+					"teal",
+					"glow"
+				],
 				"cssVar": "--color-accent-teal-glow",
 				"value": "#00aa9066",
 				"type": "color",
@@ -3170,7 +4749,12 @@
 			},
 			{
 				"name": "color-accent-purple-main",
-				"path": ["color", "accent", "purple", "main"],
+				"path": [
+					"color",
+					"accent",
+					"purple",
+					"main"
+				],
 				"cssVar": "--color-accent-purple-main",
 				"value": "#b73ee0",
 				"type": "color",
@@ -3178,7 +4762,12 @@
 			},
 			{
 				"name": "color-accent-purple-glow",
-				"path": ["color", "accent", "purple", "glow"],
+				"path": [
+					"color",
+					"accent",
+					"purple",
+					"glow"
+				],
 				"cssVar": "--color-accent-purple-glow",
 				"value": "#7b7dea66",
 				"type": "color",
@@ -3186,7 +4775,12 @@
 			},
 			{
 				"name": "color-accent-magenta-main",
-				"path": ["color", "accent", "magenta", "main"],
+				"path": [
+					"color",
+					"accent",
+					"magenta",
+					"main"
+				],
 				"cssVar": "--color-accent-magenta-main",
 				"value": "#e03ee0",
 				"type": "color",
@@ -3194,7 +4788,12 @@
 			},
 			{
 				"name": "color-accent-magenta-glow",
-				"path": ["color", "accent", "magenta", "glow"],
+				"path": [
+					"color",
+					"accent",
+					"magenta",
+					"glow"
+				],
 				"cssVar": "--color-accent-magenta-glow",
 				"value": "#c063ba66",
 				"type": "color",
@@ -3202,7 +4801,12 @@
 			},
 			{
 				"name": "color-accent-ember-main",
-				"path": ["color", "accent", "ember", "main"],
+				"path": [
+					"color",
+					"accent",
+					"ember",
+					"main"
+				],
 				"cssVar": "--color-accent-ember-main",
 				"value": "#dc5e59",
 				"type": "color",
@@ -3210,7 +4814,12 @@
 			},
 			{
 				"name": "color-accent-ember-glow",
-				"path": ["color", "accent", "ember", "glow"],
+				"path": [
+					"color",
+					"accent",
+					"ember",
+					"glow"
+				],
 				"cssVar": "--color-accent-ember-glow",
 				"value": "#dc5e5966",
 				"type": "color",
@@ -3218,7 +4827,12 @@
 			},
 			{
 				"name": "color-accent-frost-main",
-				"path": ["color", "accent", "frost", "main"],
+				"path": [
+					"color",
+					"accent",
+					"frost",
+					"main"
+				],
 				"cssVar": "--color-accent-frost-main",
 				"value": "#00a0ce",
 				"type": "color",
@@ -3226,7 +4840,12 @@
 			},
 			{
 				"name": "color-accent-frost-glow",
-				"path": ["color", "accent", "frost", "glow"],
+				"path": [
+					"color",
+					"accent",
+					"frost",
+					"glow"
+				],
 				"cssVar": "--color-accent-frost-glow",
 				"value": "#00a0ce59",
 				"type": "color",
@@ -3234,7 +4853,12 @@
 			},
 			{
 				"name": "color-accent-cyber-main",
-				"path": ["color", "accent", "cyber", "main"],
+				"path": [
+					"color",
+					"accent",
+					"cyber",
+					"main"
+				],
 				"cssVar": "--color-accent-cyber-main",
 				"value": "#00a869",
 				"type": "color",
@@ -3242,7 +4866,12 @@
 			},
 			{
 				"name": "color-accent-cyber-glow",
-				"path": ["color", "accent", "cyber", "glow"],
+				"path": [
+					"color",
+					"accent",
+					"cyber",
+					"glow"
+				],
 				"cssVar": "--color-accent-cyber-glow",
 				"value": "#00a86966",
 				"type": "color",
@@ -3250,7 +4879,11 @@
 			},
 			{
 				"name": "color-void-base",
-				"path": ["color", "void", "base"],
+				"path": [
+					"color",
+					"void",
+					"base"
+				],
 				"cssVar": "--color-void-base",
 				"value": "#001209",
 				"type": "color",
@@ -3263,7 +4896,10 @@
 		"tokens": [
 			{
 				"name": "button-bg",
-				"path": ["button", "bg"],
+				"path": [
+					"button",
+					"bg"
+				],
 				"cssVar": "--button-bg",
 				"value": "#000101e0",
 				"type": "color",
@@ -3271,7 +4907,10 @@
 			},
 			{
 				"name": "button-bg-hover",
-				"path": ["button", "bg-hover"],
+				"path": [
+					"button",
+					"bg-hover"
+				],
 				"cssVar": "--button-bg-hover",
 				"value": "#060a0ba6",
 				"type": "color",
@@ -3279,7 +4918,10 @@
 			},
 			{
 				"name": "button-border",
-				"path": ["button", "border"],
+				"path": [
+					"button",
+					"border"
+				],
 				"cssVar": "--button-border",
 				"value": "#005c4a38",
 				"type": "color",
@@ -3287,7 +4929,10 @@
 			},
 			{
 				"name": "button-border-focus",
-				"path": ["button", "border-focus"],
+				"path": [
+					"button",
+					"border-focus"
+				],
 				"cssVar": "--button-border-focus",
 				"value": "#3ee0b7",
 				"type": "color",
@@ -3300,7 +4945,10 @@
 		"tokens": [
 			{
 				"name": "checkbox-bg",
-				"path": ["checkbox", "bg"],
+				"path": [
+					"checkbox",
+					"bg"
+				],
 				"cssVar": "--checkbox-bg",
 				"value": "#000101e0",
 				"type": "color",
@@ -3308,7 +4956,10 @@
 			},
 			{
 				"name": "checkbox-bg-checked",
-				"path": ["checkbox", "bg-checked"],
+				"path": [
+					"checkbox",
+					"bg-checked"
+				],
 				"cssVar": "--checkbox-bg-checked",
 				"value": "#17d3a4",
 				"type": "color",
@@ -3316,7 +4967,10 @@
 			},
 			{
 				"name": "checkbox-border",
-				"path": ["checkbox", "border"],
+				"path": [
+					"checkbox",
+					"border"
+				],
 				"cssVar": "--checkbox-border",
 				"value": "#0078614d",
 				"type": "color",
@@ -3324,7 +4978,10 @@
 			},
 			{
 				"name": "checkbox-border-focus",
-				"path": ["checkbox", "border-focus"],
+				"path": [
+					"checkbox",
+					"border-focus"
+				],
 				"cssVar": "--checkbox-border-focus",
 				"value": "#3ee0b7",
 				"type": "color",
@@ -3337,7 +4994,10 @@
 		"tokens": [
 			{
 				"name": "switch-bg",
-				"path": ["switch", "bg"],
+				"path": [
+					"switch",
+					"bg"
+				],
 				"cssVar": "--switch-bg",
 				"value": "#191b1d",
 				"type": "color",
@@ -3345,7 +5005,10 @@
 			},
 			{
 				"name": "switch-bg-checked",
-				"path": ["switch", "bg-checked"],
+				"path": [
+					"switch",
+					"bg-checked"
+				],
 				"cssVar": "--switch-bg-checked",
 				"value": "#17d3a4",
 				"type": "color",
@@ -3353,7 +5016,10 @@
 			},
 			{
 				"name": "switch-thumb",
-				"path": ["switch", "thumb"],
+				"path": [
+					"switch",
+					"thumb"
+				],
 				"cssVar": "--switch-thumb",
 				"value": "#ededed",
 				"type": "color",
@@ -3366,7 +5032,10 @@
 		"tokens": [
 			{
 				"name": "toggle-bg",
-				"path": ["toggle", "bg"],
+				"path": [
+					"toggle",
+					"bg"
+				],
 				"cssVar": "--toggle-bg",
 				"value": "#000101e0",
 				"type": "color",
@@ -3374,7 +5043,10 @@
 			},
 			{
 				"name": "toggle-bg-pressed",
-				"path": ["toggle", "bg-pressed"],
+				"path": [
+					"toggle",
+					"bg-pressed"
+				],
 				"cssVar": "--toggle-bg-pressed",
 				"value": "#060a0ba6",
 				"type": "color",
@@ -3382,7 +5054,10 @@
 			},
 			{
 				"name": "toggle-border",
-				"path": ["toggle", "border"],
+				"path": [
+					"toggle",
+					"border"
+				],
 				"cssVar": "--toggle-border",
 				"value": "#005c4a38",
 				"type": "color",
@@ -3395,7 +5070,10 @@
 		"tokens": [
 			{
 				"name": "slider-track",
-				"path": ["slider", "track"],
+				"path": [
+					"slider",
+					"track"
+				],
 				"cssVar": "--slider-track",
 				"value": "#191b1d",
 				"type": "color",
@@ -3403,7 +5081,10 @@
 			},
 			{
 				"name": "slider-range",
-				"path": ["slider", "range"],
+				"path": [
+					"slider",
+					"range"
+				],
 				"cssVar": "--slider-range",
 				"value": "#17d3a4",
 				"type": "color",
@@ -3411,7 +5092,10 @@
 			},
 			{
 				"name": "slider-thumb",
-				"path": ["slider", "thumb"],
+				"path": [
+					"slider",
+					"thumb"
+				],
 				"cssVar": "--slider-thumb",
 				"value": "#060a0ba6",
 				"type": "color",
@@ -3419,7 +5103,10 @@
 			},
 			{
 				"name": "slider-thumb-border",
-				"path": ["slider", "thumb-border"],
+				"path": [
+					"slider",
+					"thumb-border"
+				],
 				"cssVar": "--slider-thumb-border",
 				"value": "#3ee0b7",
 				"type": "color",
@@ -3432,7 +5119,10 @@
 		"tokens": [
 			{
 				"name": "progress-track",
-				"path": ["progress", "track"],
+				"path": [
+					"progress",
+					"track"
+				],
 				"cssVar": "--progress-track",
 				"value": "#191b1d",
 				"type": "color",
@@ -3440,7 +5130,10 @@
 			},
 			{
 				"name": "progress-bar",
-				"path": ["progress", "bar"],
+				"path": [
+					"progress",
+					"bar"
+				],
 				"cssVar": "--progress-bar",
 				"value": "#17d3a4",
 				"type": "color",
@@ -3453,7 +5146,10 @@
 		"tokens": [
 			{
 				"name": "input-bg",
-				"path": ["input", "bg"],
+				"path": [
+					"input",
+					"bg"
+				],
 				"cssVar": "--input-bg",
 				"value": "#08090b",
 				"type": "color",
@@ -3461,7 +5157,10 @@
 			},
 			{
 				"name": "input-bg-focus",
-				"path": ["input", "bg-focus"],
+				"path": [
+					"input",
+					"bg-focus"
+				],
 				"cssVar": "--input-bg-focus",
 				"value": "#060a0ba6",
 				"type": "color",
@@ -3469,7 +5168,10 @@
 			},
 			{
 				"name": "input-border",
-				"path": ["input", "border"],
+				"path": [
+					"input",
+					"border"
+				],
 				"cssVar": "--input-border",
 				"value": "#005c4a38",
 				"type": "color",
@@ -3477,7 +5179,10 @@
 			},
 			{
 				"name": "input-border-focus",
-				"path": ["input", "border-focus"],
+				"path": [
+					"input",
+					"border-focus"
+				],
 				"cssVar": "--input-border-focus",
 				"value": "#3ee0b7",
 				"type": "color",
@@ -3490,7 +5195,10 @@
 		"tokens": [
 			{
 				"name": "select-bg",
-				"path": ["select", "bg"],
+				"path": [
+					"select",
+					"bg"
+				],
 				"cssVar": "--select-bg",
 				"value": "#08090b",
 				"type": "color",
@@ -3498,7 +5206,10 @@
 			},
 			{
 				"name": "select-bg-hover",
-				"path": ["select", "bg-hover"],
+				"path": [
+					"select",
+					"bg-hover"
+				],
 				"cssVar": "--select-bg-hover",
 				"value": "#060a0ba6",
 				"type": "color",
@@ -3506,7 +5217,10 @@
 			},
 			{
 				"name": "select-border",
-				"path": ["select", "border"],
+				"path": [
+					"select",
+					"border"
+				],
 				"cssVar": "--select-border",
 				"value": "#005c4a38",
 				"type": "color",
@@ -3514,7 +5228,10 @@
 			},
 			{
 				"name": "select-border-focus",
-				"path": ["select", "border-focus"],
+				"path": [
+					"select",
+					"border-focus"
+				],
 				"cssVar": "--select-border-focus",
 				"value": "#3ee0b7",
 				"type": "color",
@@ -3527,7 +5244,10 @@
 		"tokens": [
 			{
 				"name": "combobox-bg",
-				"path": ["combobox", "bg"],
+				"path": [
+					"combobox",
+					"bg"
+				],
 				"cssVar": "--combobox-bg",
 				"value": "#08090b",
 				"type": "color",
@@ -3535,7 +5255,10 @@
 			},
 			{
 				"name": "combobox-border",
-				"path": ["combobox", "border"],
+				"path": [
+					"combobox",
+					"border"
+				],
 				"cssVar": "--combobox-border",
 				"value": "#005c4a38",
 				"type": "color",
@@ -3543,7 +5266,10 @@
 			},
 			{
 				"name": "combobox-border-focus",
-				"path": ["combobox", "border-focus"],
+				"path": [
+					"combobox",
+					"border-focus"
+				],
 				"cssVar": "--combobox-border-focus",
 				"value": "#3ee0b7",
 				"type": "color",
@@ -3551,7 +5277,10 @@
 			},
 			{
 				"name": "combobox-option-bg",
-				"path": ["combobox", "option-bg"],
+				"path": [
+					"combobox",
+					"option-bg"
+				],
 				"cssVar": "--combobox-option-bg",
 				"value": "#060a0ba6",
 				"type": "color",
@@ -3559,7 +5288,10 @@
 			},
 			{
 				"name": "combobox-option-bg-2",
-				"path": ["combobox", "option-bg-2"],
+				"path": [
+					"combobox",
+					"option-bg-2"
+				],
 				"cssVar": "--combobox-option-bg-2",
 				"value": "#0e2f27",
 				"type": "color",
@@ -3567,7 +5299,10 @@
 			},
 			{
 				"name": "combobox-option-text",
-				"path": ["combobox", "option-text"],
+				"path": [
+					"combobox",
+					"option-text"
+				],
 				"cssVar": "--combobox-option-text",
 				"value": "#76e5c9",
 				"type": "color",
@@ -3580,7 +5315,10 @@
 		"tokens": [
 			{
 				"name": "radio-group-bg",
-				"path": ["radio-group", "bg"],
+				"path": [
+					"radio-group",
+					"bg"
+				],
 				"cssVar": "--radio-group-bg",
 				"value": "#000101e0",
 				"type": "color",
@@ -3588,7 +5326,10 @@
 			},
 			{
 				"name": "radio-group-bg-checked",
-				"path": ["radio-group", "bg-checked"],
+				"path": [
+					"radio-group",
+					"bg-checked"
+				],
 				"cssVar": "--radio-group-bg-checked",
 				"value": "#17d3a4",
 				"type": "color",
@@ -3596,7 +5337,10 @@
 			},
 			{
 				"name": "radio-group-border",
-				"path": ["radio-group", "border"],
+				"path": [
+					"radio-group",
+					"border"
+				],
 				"cssVar": "--radio-group-border",
 				"value": "#0078614d",
 				"type": "color",
@@ -3604,7 +5348,10 @@
 			},
 			{
 				"name": "radio-group-border-focus",
-				"path": ["radio-group", "border-focus"],
+				"path": [
+					"radio-group",
+					"border-focus"
+				],
 				"cssVar": "--radio-group-border-focus",
 				"value": "#3ee0b7",
 				"type": "color",
@@ -3617,7 +5364,10 @@
 		"tokens": [
 			{
 				"name": "badge-bg",
-				"path": ["badge", "bg"],
+				"path": [
+					"badge",
+					"bg"
+				],
 				"cssVar": "--badge-bg",
 				"value": "#060a0ba6",
 				"type": "color",
@@ -3625,7 +5375,10 @@
 			},
 			{
 				"name": "badge-border",
-				"path": ["badge", "border"],
+				"path": [
+					"badge",
+					"border"
+				],
 				"cssVar": "--badge-border",
 				"value": "#005c4a38",
 				"type": "color",
@@ -3638,7 +5391,10 @@
 		"tokens": [
 			{
 				"name": "card-bg",
-				"path": ["card", "bg"],
+				"path": [
+					"card",
+					"bg"
+				],
 				"cssVar": "--card-bg",
 				"value": "#000101e0",
 				"type": "color",
@@ -3646,7 +5402,10 @@
 			},
 			{
 				"name": "card-border",
-				"path": ["card", "border"],
+				"path": [
+					"card",
+					"border"
+				],
 				"cssVar": "--card-border",
 				"value": "#005c4a38",
 				"type": "color",
@@ -3654,7 +5413,10 @@
 			},
 			{
 				"name": "card-depth",
-				"path": ["card", "depth"],
+				"path": [
+					"card",
+					"depth"
+				],
 				"cssVar": "--card-depth",
 				"value": [
 					{
@@ -3682,7 +5444,10 @@
 		"tokens": [
 			{
 				"name": "avatar-bg",
-				"path": ["avatar", "bg"],
+				"path": [
+					"avatar",
+					"bg"
+				],
 				"cssVar": "--avatar-bg",
 				"value": "#191b1d",
 				"type": "color",
@@ -3690,7 +5455,10 @@
 			},
 			{
 				"name": "avatar-border",
-				"path": ["avatar", "border"],
+				"path": [
+					"avatar",
+					"border"
+				],
 				"cssVar": "--avatar-border",
 				"value": "#005c4a38",
 				"type": "color",
@@ -3703,7 +5471,10 @@
 		"tokens": [
 			{
 				"name": "table-bg",
-				"path": ["table", "bg"],
+				"path": [
+					"table",
+					"bg"
+				],
 				"cssVar": "--table-bg",
 				"value": "#000101e0",
 				"type": "color",
@@ -3711,7 +5482,10 @@
 			},
 			{
 				"name": "table-bg-2",
-				"path": ["table", "bg-2"],
+				"path": [
+					"table",
+					"bg-2"
+				],
 				"cssVar": "--table-bg-2",
 				"value": "#060a0ba6",
 				"type": "color",
@@ -3719,7 +5493,10 @@
 			},
 			{
 				"name": "table-bg-hover",
-				"path": ["table", "bg-hover"],
+				"path": [
+					"table",
+					"bg-hover"
+				],
 				"cssVar": "--table-bg-hover",
 				"value": "#000305cc",
 				"type": "color",
@@ -3727,7 +5504,10 @@
 			},
 			{
 				"name": "table-border",
-				"path": ["table", "border"],
+				"path": [
+					"table",
+					"border"
+				],
 				"cssVar": "--table-border",
 				"value": "#005c4a38",
 				"type": "color",
@@ -3740,7 +5520,10 @@
 		"tokens": [
 			{
 				"name": "skeleton-bg",
-				"path": ["skeleton", "bg"],
+				"path": [
+					"skeleton",
+					"bg"
+				],
 				"cssVar": "--skeleton-bg",
 				"value": "#191b1d",
 				"type": "color",
@@ -3748,7 +5531,10 @@
 			},
 			{
 				"name": "skeleton-bg-2",
-				"path": ["skeleton", "bg-2"],
+				"path": [
+					"skeleton",
+					"bg-2"
+				],
 				"cssVar": "--skeleton-bg-2",
 				"value": "#060a0ba6",
 				"type": "color",
@@ -3761,7 +5547,10 @@
 		"tokens": [
 			{
 				"name": "kbd-bg",
-				"path": ["kbd", "bg"],
+				"path": [
+					"kbd",
+					"bg"
+				],
 				"cssVar": "--kbd-bg",
 				"value": "#060a0ba6",
 				"type": "color",
@@ -3769,7 +5558,10 @@
 			},
 			{
 				"name": "kbd-border",
-				"path": ["kbd", "border"],
+				"path": [
+					"kbd",
+					"border"
+				],
 				"cssVar": "--kbd-border",
 				"value": "#005c4a38",
 				"type": "color",
@@ -3782,7 +5574,10 @@
 		"tokens": [
 			{
 				"name": "alert-bg",
-				"path": ["alert", "bg"],
+				"path": [
+					"alert",
+					"bg"
+				],
 				"cssVar": "--alert-bg",
 				"value": "#000305cc",
 				"type": "color",
@@ -3790,7 +5585,10 @@
 			},
 			{
 				"name": "alert-border",
-				"path": ["alert", "border"],
+				"path": [
+					"alert",
+					"border"
+				],
 				"cssVar": "--alert-border",
 				"value": "#005c4a38",
 				"type": "color",
@@ -3803,7 +5601,10 @@
 		"tokens": [
 			{
 				"name": "toast-bg",
-				"path": ["toast", "bg"],
+				"path": [
+					"toast",
+					"bg"
+				],
 				"cssVar": "--toast-bg",
 				"value": "#060a0ba6",
 				"type": "color",
@@ -3811,7 +5612,10 @@
 			},
 			{
 				"name": "toast-border",
-				"path": ["toast", "border"],
+				"path": [
+					"toast",
+					"border"
+				],
 				"cssVar": "--toast-border",
 				"value": "#005c4a38",
 				"type": "color",
@@ -3819,7 +5623,10 @@
 			},
 			{
 				"name": "toast-depth",
-				"path": ["toast", "depth"],
+				"path": [
+					"toast",
+					"depth"
+				],
 				"cssVar": "--toast-depth",
 				"value": [
 					{
@@ -3847,7 +5654,10 @@
 		"tokens": [
 			{
 				"name": "panel-bg",
-				"path": ["panel", "bg"],
+				"path": [
+					"panel",
+					"bg"
+				],
 				"cssVar": "--panel-bg",
 				"value": "#000101e0",
 				"type": "color",
@@ -3855,7 +5665,10 @@
 			},
 			{
 				"name": "panel-border",
-				"path": ["panel", "border"],
+				"path": [
+					"panel",
+					"border"
+				],
 				"cssVar": "--panel-border",
 				"value": "#005c4a38",
 				"type": "color",
@@ -3863,7 +5676,10 @@
 			},
 			{
 				"name": "panel-border-2",
-				"path": ["panel", "border-2"],
+				"path": [
+					"panel",
+					"border-2"
+				],
 				"cssVar": "--panel-border-2",
 				"value": "#ffffff0f",
 				"type": "color",
@@ -3871,7 +5687,10 @@
 			},
 			{
 				"name": "panel-depth",
-				"path": ["panel", "depth"],
+				"path": [
+					"panel",
+					"depth"
+				],
 				"cssVar": "--panel-depth",
 				"value": [
 					{
@@ -3899,7 +5718,10 @@
 		"tokens": [
 			{
 				"name": "dialog-bg",
-				"path": ["dialog", "bg"],
+				"path": [
+					"dialog",
+					"bg"
+				],
 				"cssVar": "--dialog-bg",
 				"value": "#000305cc",
 				"type": "color",
@@ -3907,7 +5729,10 @@
 			},
 			{
 				"name": "dialog-border",
-				"path": ["dialog", "border"],
+				"path": [
+					"dialog",
+					"border"
+				],
 				"cssVar": "--dialog-border",
 				"value": "#005c4a38",
 				"type": "color",
@@ -3915,7 +5740,10 @@
 			},
 			{
 				"name": "dialog-border-focus",
-				"path": ["dialog", "border-focus"],
+				"path": [
+					"dialog",
+					"border-focus"
+				],
 				"cssVar": "--dialog-border-focus",
 				"value": "#3ee0b7",
 				"type": "color",
@@ -3923,7 +5751,10 @@
 			},
 			{
 				"name": "dialog-depth",
-				"path": ["dialog", "depth"],
+				"path": [
+					"dialog",
+					"depth"
+				],
 				"cssVar": "--dialog-depth",
 				"value": [
 					{
@@ -3951,7 +5782,10 @@
 		"tokens": [
 			{
 				"name": "tabs-bg",
-				"path": ["tabs", "bg"],
+				"path": [
+					"tabs",
+					"bg"
+				],
 				"cssVar": "--tabs-bg",
 				"value": "#000101e0",
 				"type": "color",
@@ -3959,7 +5793,10 @@
 			},
 			{
 				"name": "tabs-border",
-				"path": ["tabs", "border"],
+				"path": [
+					"tabs",
+					"border"
+				],
 				"cssVar": "--tabs-border",
 				"value": "#005c4a38",
 				"type": "color",
@@ -3967,7 +5804,10 @@
 			},
 			{
 				"name": "tabs-border-focus",
-				"path": ["tabs", "border-focus"],
+				"path": [
+					"tabs",
+					"border-focus"
+				],
 				"cssVar": "--tabs-border-focus",
 				"value": "#3ee0b7",
 				"type": "color",
@@ -3975,7 +5815,10 @@
 			},
 			{
 				"name": "tabs-bg-hover",
-				"path": ["tabs", "bg-hover"],
+				"path": [
+					"tabs",
+					"bg-hover"
+				],
 				"cssVar": "--tabs-bg-hover",
 				"value": "#060a0ba6",
 				"type": "color",
@@ -3983,7 +5826,10 @@
 			},
 			{
 				"name": "tabs-bg-active",
-				"path": ["tabs", "bg-active"],
+				"path": [
+					"tabs",
+					"bg-active"
+				],
 				"cssVar": "--tabs-bg-active",
 				"value": "#000305cc",
 				"type": "color",
@@ -3991,7 +5837,10 @@
 			},
 			{
 				"name": "tabs-indicator",
-				"path": ["tabs", "indicator"],
+				"path": [
+					"tabs",
+					"indicator"
+				],
 				"cssVar": "--tabs-indicator",
 				"value": "#3ee0b7",
 				"type": "color",
@@ -4004,7 +5853,10 @@
 		"tokens": [
 			{
 				"name": "accordion-bg",
-				"path": ["accordion", "bg"],
+				"path": [
+					"accordion",
+					"bg"
+				],
 				"cssVar": "--accordion-bg",
 				"value": "#000101e0",
 				"type": "color",
@@ -4012,7 +5864,10 @@
 			},
 			{
 				"name": "accordion-border",
-				"path": ["accordion", "border"],
+				"path": [
+					"accordion",
+					"border"
+				],
 				"cssVar": "--accordion-border",
 				"value": "#005c4a38",
 				"type": "color",
@@ -4020,7 +5875,10 @@
 			},
 			{
 				"name": "accordion-bg-hover",
-				"path": ["accordion", "bg-hover"],
+				"path": [
+					"accordion",
+					"bg-hover"
+				],
 				"cssVar": "--accordion-bg-hover",
 				"value": "#060a0ba6",
 				"type": "color",
@@ -4033,7 +5891,10 @@
 		"tokens": [
 			{
 				"name": "menu-bg",
-				"path": ["menu", "bg"],
+				"path": [
+					"menu",
+					"bg"
+				],
 				"cssVar": "--menu-bg",
 				"value": "#000305cc",
 				"type": "color",
@@ -4041,7 +5902,10 @@
 			},
 			{
 				"name": "menu-border",
-				"path": ["menu", "border"],
+				"path": [
+					"menu",
+					"border"
+				],
 				"cssVar": "--menu-border",
 				"value": "#005c4a38",
 				"type": "color",
@@ -4049,7 +5913,10 @@
 			},
 			{
 				"name": "menu-bg-hover",
-				"path": ["menu", "bg-hover"],
+				"path": [
+					"menu",
+					"bg-hover"
+				],
 				"cssVar": "--menu-bg-hover",
 				"value": "#060a0ba6",
 				"type": "color",
@@ -4057,7 +5924,10 @@
 			},
 			{
 				"name": "menu-depth",
-				"path": ["menu", "depth"],
+				"path": [
+					"menu",
+					"depth"
+				],
 				"cssVar": "--menu-depth",
 				"value": [
 					{
@@ -4085,7 +5955,10 @@
 		"tokens": [
 			{
 				"name": "app-shell-bg",
-				"path": ["app-shell", "bg"],
+				"path": [
+					"app-shell",
+					"bg"
+				],
 				"cssVar": "--app-shell-bg",
 				"value": "#000101e0",
 				"type": "color",
@@ -4093,10 +5966,29 @@
 			},
 			{
 				"name": "app-shell-border",
-				"path": ["app-shell", "border"],
+				"path": [
+					"app-shell",
+					"border"
+				],
 				"cssVar": "--app-shell-border",
 				"value": "#005c4a38",
 				"type": "color",
+				"extensions": null
+			}
+		]
+	},
+	"status-dot": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "status-dot-glow-radius",
+				"path": [
+					"status-dot",
+					"glow-radius"
+				],
+				"cssVar": "--status-dot-glow-radius",
+				"value": "6px",
+				"type": "dimension",
 				"extensions": null
 			}
 		]
@@ -4106,7 +5998,10 @@
 		"tokens": [
 			{
 				"name": "spinner-icon",
-				"path": ["spinner", "icon"],
+				"path": [
+					"spinner",
+					"icon"
+				],
 				"cssVar": "--spinner-icon",
 				"value": "#3ee0b7",
 				"type": "color",
@@ -4119,7 +6014,10 @@
 		"tokens": [
 			{
 				"name": "accent-glow",
-				"path": ["accent", "glow"],
+				"path": [
+					"accent",
+					"glow"
+				],
 				"cssVar": "--accent-glow",
 				"value": "#17d375",
 				"type": "color",
@@ -4129,7 +6027,10 @@
 			},
 			{
 				"name": "accent-fill",
-				"path": ["accent", "fill"],
+				"path": [
+					"accent",
+					"fill"
+				],
 				"cssVar": "--accent-fill",
 				"value": "#17d375",
 				"type": "color",
@@ -4139,7 +6040,10 @@
 			},
 			{
 				"name": "accent-warm",
-				"path": ["accent", "warm"],
+				"path": [
+					"accent",
+					"warm"
+				],
 				"cssVar": "--accent-warm",
 				"value": "#e0b73e",
 				"type": "color",
@@ -4147,7 +6051,10 @@
 			},
 			{
 				"name": "accent-muted",
-				"path": ["accent", "muted"],
+				"path": [
+					"accent",
+					"muted"
+				],
 				"cssVar": "--accent-muted",
 				"value": "#e59276",
 				"type": "color",
@@ -4160,7 +6067,10 @@
 		"tokens": [
 			{
 				"name": "tag-success-bg",
-				"path": ["tag", "success-bg"],
+				"path": [
+					"tag",
+					"success-bg"
+				],
 				"cssVar": "--tag-success-bg",
 				"value": "#125444",
 				"type": "color",
@@ -4170,7 +6080,10 @@
 			},
 			{
 				"name": "tag-success-border",
-				"path": ["tag", "success-border"],
+				"path": [
+					"tag",
+					"success-border"
+				],
 				"cssVar": "--tag-success-border",
 				"value": "#147b61",
 				"type": "color",
@@ -4180,7 +6093,10 @@
 			},
 			{
 				"name": "tag-success-text",
-				"path": ["tag", "success-text"],
+				"path": [
+					"tag",
+					"success-text"
+				],
 				"cssVar": "--tag-success-text",
 				"value": "#76e5c9",
 				"type": "color",
@@ -4188,7 +6104,10 @@
 			},
 			{
 				"name": "tag-danger-bg",
-				"path": ["tag", "danger-bg"],
+				"path": [
+					"tag",
+					"danger-bg"
+				],
 				"cssVar": "--tag-danger-bg",
 				"value": "#541212",
 				"type": "color",
@@ -4198,7 +6117,10 @@
 			},
 			{
 				"name": "tag-danger-border",
-				"path": ["tag", "danger-border"],
+				"path": [
+					"tag",
+					"danger-border"
+				],
 				"cssVar": "--tag-danger-border",
 				"value": "#7b1414",
 				"type": "color",
@@ -4208,7 +6130,10 @@
 			},
 			{
 				"name": "tag-danger-text",
-				"path": ["tag", "danger-text"],
+				"path": [
+					"tag",
+					"danger-text"
+				],
 				"cssVar": "--tag-danger-text",
 				"value": "#e59276",
 				"type": "color",
@@ -4216,7 +6141,10 @@
 			},
 			{
 				"name": "tag-info-bg",
-				"path": ["tag", "info-bg"],
+				"path": [
+					"tag",
+					"info-bg"
+				],
 				"cssVar": "--tag-info-bg",
 				"value": "#221254",
 				"type": "color",
@@ -4226,7 +6154,10 @@
 			},
 			{
 				"name": "tag-info-text",
-				"path": ["tag", "info-text"],
+				"path": [
+					"tag",
+					"info-text"
+				],
 				"cssVar": "--tag-info-text",
 				"value": "#9276e5",
 				"type": "color",
@@ -4234,7 +6165,10 @@
 			},
 			{
 				"name": "tag-warning-bg",
-				"path": ["tag", "warning-bg"],
+				"path": [
+					"tag",
+					"warning-bg"
+				],
 				"cssVar": "--tag-warning-bg",
 				"value": "#544412",
 				"type": "color",
@@ -4244,7 +6178,10 @@
 			},
 			{
 				"name": "tag-warning-text",
-				"path": ["tag", "warning-text"],
+				"path": [
+					"tag",
+					"warning-text"
+				],
 				"cssVar": "--tag-warning-text",
 				"value": "#e0b73e",
 				"type": "color",
@@ -4252,7 +6189,10 @@
 			},
 			{
 				"name": "tag-neutral-bg",
-				"path": ["tag", "neutral-bg"],
+				"path": [
+					"tag",
+					"neutral-bg"
+				],
 				"cssVar": "--tag-neutral-bg",
 				"value": "#125412",
 				"type": "color",
@@ -4262,7 +6202,10 @@
 			},
 			{
 				"name": "tag-neutral-border",
-				"path": ["tag", "neutral-border"],
+				"path": [
+					"tag",
+					"neutral-border"
+				],
 				"cssVar": "--tag-neutral-border",
 				"value": "#147b14",
 				"type": "color",
@@ -4272,7 +6215,10 @@
 			},
 			{
 				"name": "tag-neutral-text",
-				"path": ["tag", "neutral-text"],
+				"path": [
+					"tag",
+					"neutral-text"
+				],
 				"cssVar": "--tag-neutral-text",
 				"value": "#76e576",
 				"type": "color",
@@ -4285,7 +6231,10 @@
 		"tokens": [
 			{
 				"name": "encoding-axis-1",
-				"path": ["encoding", "axis-1"],
+				"path": [
+					"encoding",
+					"axis-1"
+				],
 				"cssVar": "--encoding-axis-1",
 				"value": "#663ee0",
 				"type": "color",
@@ -4293,7 +6242,10 @@
 			},
 			{
 				"name": "encoding-axis-2",
-				"path": ["encoding", "axis-2"],
+				"path": [
+					"encoding",
+					"axis-2"
+				],
 				"cssVar": "--encoding-axis-2",
 				"value": "#3ee03e",
 				"type": "color",
@@ -4306,7 +6258,10 @@
 		"tokens": [
 			{
 				"name": "graph-bg",
-				"path": ["graph", "bg"],
+				"path": [
+					"graph",
+					"bg"
+				],
 				"cssVar": "--graph-bg",
 				"value": "#0d0d0d",
 				"type": "color",
@@ -4314,7 +6269,10 @@
 			},
 			{
 				"name": "graph-node-bg",
-				"path": ["graph", "node-bg"],
+				"path": [
+					"graph",
+					"node-bg"
+				],
 				"cssVar": "--graph-node-bg",
 				"value": "#171717",
 				"type": "color",
@@ -4322,7 +6280,10 @@
 			},
 			{
 				"name": "graph-node-text",
-				"path": ["graph", "node-text"],
+				"path": [
+					"graph",
+					"node-text"
+				],
 				"cssVar": "--graph-node-text",
 				"value": "#125444",
 				"type": "color",
@@ -4330,7 +6291,10 @@
 			},
 			{
 				"name": "graph-node-border",
-				"path": ["graph", "node-border"],
+				"path": [
+					"graph",
+					"node-border"
+				],
 				"cssVar": "--graph-node-border",
 				"value": "#ffffff0f",
 				"type": "color",
@@ -4338,7 +6302,10 @@
 			},
 			{
 				"name": "graph-node-border-hover",
-				"path": ["graph", "node-border-hover"],
+				"path": [
+					"graph",
+					"node-border-hover"
+				],
 				"cssVar": "--graph-node-border-hover",
 				"value": "#147b61",
 				"type": "color",
@@ -4348,7 +6315,10 @@
 			},
 			{
 				"name": "graph-node-glow",
-				"path": ["graph", "node-glow"],
+				"path": [
+					"graph",
+					"node-glow"
+				],
 				"cssVar": "--graph-node-glow",
 				"value": "#15a883",
 				"type": "color",
@@ -4358,7 +6328,10 @@
 			},
 			{
 				"name": "graph-node-text-2",
-				"path": ["graph", "node-text-2"],
+				"path": [
+					"graph",
+					"node-text-2"
+				],
 				"cssVar": "--graph-node-text-2",
 				"value": "#a7f1de",
 				"type": "color",
@@ -4366,7 +6339,10 @@
 			},
 			{
 				"name": "graph-node-text-3",
-				"path": ["graph", "node-text-3"],
+				"path": [
+					"graph",
+					"node-text-3"
+				],
 				"cssVar": "--graph-node-text-3",
 				"value": "#663ee0",
 				"type": "color",
@@ -4374,7 +6350,10 @@
 			},
 			{
 				"name": "graph-edge",
-				"path": ["graph", "edge"],
+				"path": [
+					"graph",
+					"edge"
+				],
 				"cssVar": "--graph-edge",
 				"value": "#147b61",
 				"type": "color",
@@ -4382,7 +6361,10 @@
 			},
 			{
 				"name": "graph-edge-text",
-				"path": ["graph", "edge-text"],
+				"path": [
+					"graph",
+					"edge-text"
+				],
 				"cssVar": "--graph-edge-text",
 				"value": "#17d3a4",
 				"type": "color",
@@ -4390,7 +6372,10 @@
 			},
 			{
 				"name": "graph-edge-bg",
-				"path": ["graph", "edge-bg"],
+				"path": [
+					"graph",
+					"edge-bg"
+				],
 				"cssVar": "--graph-edge-bg",
 				"value": "#171717",
 				"type": "color",
@@ -4403,7 +6388,10 @@
 		"tokens": [
 			{
 				"name": "devtool-bg",
-				"path": ["devtool", "bg"],
+				"path": [
+					"devtool",
+					"bg"
+				],
 				"cssVar": "--devtool-bg",
 				"value": "#0d0d0d",
 				"type": "color",
@@ -4411,7 +6399,10 @@
 			},
 			{
 				"name": "devtool-bg-2",
-				"path": ["devtool", "bg-2"],
+				"path": [
+					"devtool",
+					"bg-2"
+				],
 				"cssVar": "--devtool-bg-2",
 				"value": "#171717",
 				"type": "color",
@@ -4419,7 +6410,10 @@
 			},
 			{
 				"name": "devtool-bg-hover",
-				"path": ["devtool", "bg-hover"],
+				"path": [
+					"devtool",
+					"bg-hover"
+				],
 				"cssVar": "--devtool-bg-hover",
 				"value": "#ffffff0f",
 				"type": "color",
@@ -4427,7 +6421,10 @@
 			},
 			{
 				"name": "devtool-bg-active",
-				"path": ["devtool", "bg-active"],
+				"path": [
+					"devtool",
+					"bg-active"
+				],
 				"cssVar": "--devtool-bg-active",
 				"value": "#125444",
 				"type": "color",
@@ -4437,7 +6434,10 @@
 			},
 			{
 				"name": "devtool-border-active",
-				"path": ["devtool", "border-active"],
+				"path": [
+					"devtool",
+					"border-active"
+				],
 				"cssVar": "--devtool-border-active",
 				"value": "#15a883",
 				"type": "color",
@@ -4447,7 +6447,10 @@
 			},
 			{
 				"name": "devtool-code-bg",
-				"path": ["devtool", "code-bg"],
+				"path": [
+					"devtool",
+					"code-bg"
+				],
 				"cssVar": "--devtool-code-bg",
 				"value": "#ffffff0f",
 				"type": "color",
@@ -4455,7 +6458,10 @@
 			},
 			{
 				"name": "devtool-code-border",
-				"path": ["devtool", "code-border"],
+				"path": [
+					"devtool",
+					"code-border"
+				],
 				"cssVar": "--devtool-code-border",
 				"value": "#ffffff0f",
 				"type": "color",
@@ -4463,7 +6469,10 @@
 			},
 			{
 				"name": "devtool-error-bg",
-				"path": ["devtool", "error-bg"],
+				"path": [
+					"devtool",
+					"error-bg"
+				],
 				"cssVar": "--devtool-error-bg",
 				"value": "#541212",
 				"type": "color",
@@ -4471,7 +6480,10 @@
 			},
 			{
 				"name": "devtool-error-text",
-				"path": ["devtool", "error-text"],
+				"path": [
+					"devtool",
+					"error-text"
+				],
 				"cssVar": "--devtool-error-text",
 				"value": "#f1dea7",
 				"type": "color",
@@ -4479,7 +6491,10 @@
 			},
 			{
 				"name": "devtool-error-border",
-				"path": ["devtool", "error-border"],
+				"path": [
+					"devtool",
+					"error-border"
+				],
 				"cssVar": "--devtool-error-border",
 				"value": "#541212",
 				"type": "color",
@@ -4489,7 +6504,10 @@
 			},
 			{
 				"name": "devtool-error-icon",
-				"path": ["devtool", "error-icon"],
+				"path": [
+					"devtool",
+					"error-icon"
+				],
 				"cssVar": "--devtool-error-icon",
 				"value": "#d34617",
 				"type": "color",
@@ -4502,7 +6520,10 @@
 		"tokens": [
 			{
 				"name": "glow-off",
-				"path": ["glow", "off"],
+				"path": [
+					"glow",
+					"off"
+				],
 				"cssVar": "--glow-off",
 				"value": {
 					"color": "#00000000",
@@ -4516,7 +6537,10 @@
 			},
 			{
 				"name": "glow-teal",
-				"path": ["glow", "teal"],
+				"path": [
+					"glow",
+					"teal"
+				],
 				"cssVar": "--glow-teal",
 				"value": {
 					"color": "#009076b3",
@@ -4530,7 +6554,10 @@
 			},
 			{
 				"name": "glow-purple",
-				"path": ["glow", "purple"],
+				"path": [
+					"glow",
+					"purple"
+				],
 				"cssVar": "--glow-purple",
 				"value": {
 					"color": "#615ed6b3",
@@ -4544,7 +6571,10 @@
 			},
 			{
 				"name": "glow-magenta",
-				"path": ["glow", "magenta"],
+				"path": [
+					"glow",
+					"magenta"
+				],
 				"cssVar": "--glow-magenta",
 				"value": {
 					"color": "#ad36a7b3",
@@ -4558,7 +6588,10 @@
 			},
 			{
 				"name": "glow-ember",
-				"path": ["glow", "ember"],
+				"path": [
+					"glow",
+					"ember"
+				],
 				"cssVar": "--glow-ember",
 				"value": {
 					"color": "#c53637b3",
@@ -4572,7 +6605,10 @@
 			},
 			{
 				"name": "glow-frost",
-				"path": ["glow", "frost"],
+				"path": [
+					"glow",
+					"frost"
+				],
 				"cssVar": "--glow-frost",
 				"value": {
 					"color": "#1988a399",
@@ -4586,7 +6622,10 @@
 			},
 			{
 				"name": "glow-cyber",
-				"path": ["glow", "cyber"],
+				"path": [
+					"glow",
+					"cyber"
+				],
 				"cssVar": "--glow-cyber",
 				"value": {
 					"color": "#008f4ab3",
@@ -4605,7 +6644,10 @@
 		"tokens": [
 			{
 				"name": "glow-spread-sm",
-				"path": ["glowSpread", "sm"],
+				"path": [
+					"glowSpread",
+					"sm"
+				],
 				"cssVar": "--glow-spread-sm",
 				"value": "12px",
 				"type": "dimension",
@@ -4613,7 +6655,10 @@
 			},
 			{
 				"name": "glow-spread-md",
-				"path": ["glowSpread", "md"],
+				"path": [
+					"glowSpread",
+					"md"
+				],
 				"cssVar": "--glow-spread-md",
 				"value": "20px",
 				"type": "dimension",
@@ -4621,7 +6666,10 @@
 			},
 			{
 				"name": "glow-spread-lg",
-				"path": ["glowSpread", "lg"],
+				"path": [
+					"glowSpread",
+					"lg"
+				],
 				"cssVar": "--glow-spread-lg",
 				"value": "30px",
 				"type": "dimension",
@@ -4629,7 +6677,10 @@
 			},
 			{
 				"name": "glow-spread-xl",
-				"path": ["glowSpread", "xl"],
+				"path": [
+					"glowSpread",
+					"xl"
+				],
 				"cssVar": "--glow-spread-xl",
 				"value": "40px",
 				"type": "dimension",
@@ -4642,7 +6693,10 @@
 		"tokens": [
 			{
 				"name": "gradient-teal",
-				"path": ["gradient", "teal"],
+				"path": [
+					"gradient",
+					"teal"
+				],
 				"cssVar": "--gradient-teal",
 				"value": [
 					{
@@ -4662,7 +6716,10 @@
 			},
 			{
 				"name": "gradient-teal-glow",
-				"path": ["gradient", "teal-glow"],
+				"path": [
+					"gradient",
+					"teal-glow"
+				],
 				"cssVar": "--gradient-teal-glow",
 				"value": [
 					{
@@ -4686,7 +6743,10 @@
 			},
 			{
 				"name": "gradient-purple",
-				"path": ["gradient", "purple"],
+				"path": [
+					"gradient",
+					"purple"
+				],
 				"cssVar": "--gradient-purple",
 				"value": [
 					{
@@ -4706,7 +6766,10 @@
 			},
 			{
 				"name": "gradient-purple-glow",
-				"path": ["gradient", "purple-glow"],
+				"path": [
+					"gradient",
+					"purple-glow"
+				],
 				"cssVar": "--gradient-purple-glow",
 				"value": [
 					{
@@ -4730,7 +6793,10 @@
 			},
 			{
 				"name": "gradient-magenta",
-				"path": ["gradient", "magenta"],
+				"path": [
+					"gradient",
+					"magenta"
+				],
 				"cssVar": "--gradient-magenta",
 				"value": [
 					{
@@ -4750,7 +6816,10 @@
 			},
 			{
 				"name": "gradient-ember",
-				"path": ["gradient", "ember"],
+				"path": [
+					"gradient",
+					"ember"
+				],
 				"cssVar": "--gradient-ember",
 				"value": [
 					{
@@ -4770,7 +6839,10 @@
 			},
 			{
 				"name": "gradient-frost",
-				"path": ["gradient", "frost"],
+				"path": [
+					"gradient",
+					"frost"
+				],
 				"cssVar": "--gradient-frost",
 				"value": [
 					{
@@ -4790,7 +6862,10 @@
 			},
 			{
 				"name": "gradient-cyber",
-				"path": ["gradient", "cyber"],
+				"path": [
+					"gradient",
+					"cyber"
+				],
 				"cssVar": "--gradient-cyber",
 				"value": [
 					{
@@ -4810,7 +6885,10 @@
 			},
 			{
 				"name": "gradient-void",
-				"path": ["gradient", "void"],
+				"path": [
+					"gradient",
+					"void"
+				],
 				"cssVar": "--gradient-void",
 				"value": [
 					{
@@ -4833,7 +6911,10 @@
 			},
 			{
 				"name": "gradient-void-radial",
-				"path": ["gradient", "void-radial"],
+				"path": [
+					"gradient",
+					"void-radial"
+				],
 				"cssVar": "--gradient-void-radial",
 				"value": [
 					{
@@ -4856,7 +6937,10 @@
 			},
 			{
 				"name": "gradient-teal-purple",
-				"path": ["gradient", "teal-purple"],
+				"path": [
+					"gradient",
+					"teal-purple"
+				],
 				"cssVar": "--gradient-teal-purple",
 				"value": [
 					{
@@ -4875,7 +6959,10 @@
 			},
 			{
 				"name": "gradient-teal-cyber",
-				"path": ["gradient", "teal-cyber"],
+				"path": [
+					"gradient",
+					"teal-cyber"
+				],
 				"cssVar": "--gradient-teal-cyber",
 				"value": [
 					{
@@ -4894,7 +6981,10 @@
 			},
 			{
 				"name": "gradient-ember-magenta",
-				"path": ["gradient", "ember-magenta"],
+				"path": [
+					"gradient",
+					"ember-magenta"
+				],
 				"cssVar": "--gradient-ember-magenta",
 				"value": [
 					{
@@ -4918,7 +7008,10 @@
 		"tokens": [
 			{
 				"name": "interaction-hover",
-				"path": ["interaction", "hover"],
+				"path": [
+					"interaction",
+					"hover"
+				],
 				"cssVar": "--interaction-hover",
 				"value": "#ffffff0f",
 				"type": "color",
@@ -4926,7 +7019,10 @@
 			},
 			{
 				"name": "interaction-active",
-				"path": ["interaction", "active"],
+				"path": [
+					"interaction",
+					"active"
+				],
 				"cssVar": "--interaction-active",
 				"value": "#ffffff1a",
 				"type": "color",
@@ -4934,7 +7030,10 @@
 			},
 			{
 				"name": "interaction-selected",
-				"path": ["interaction", "selected"],
+				"path": [
+					"interaction",
+					"selected"
+				],
 				"cssVar": "--interaction-selected",
 				"value": "#ffffff26",
 				"type": "color",
@@ -4942,7 +7041,10 @@
 			},
 			{
 				"name": "interaction-disabled",
-				"path": ["interaction", "disabled"],
+				"path": [
+					"interaction",
+					"disabled"
+				],
 				"cssVar": "--interaction-disabled",
 				"value": "#ffffff08",
 				"type": "color",
@@ -4955,7 +7057,11 @@
 		"tokens": [
 			{
 				"name": "motion-duration-snap",
-				"path": ["motion", "duration", "snap"],
+				"path": [
+					"motion",
+					"duration",
+					"snap"
+				],
 				"cssVar": "--motion-duration-snap",
 				"value": "50ms",
 				"type": "duration",
@@ -4963,7 +7069,11 @@
 			},
 			{
 				"name": "motion-duration-fast",
-				"path": ["motion", "duration", "fast"],
+				"path": [
+					"motion",
+					"duration",
+					"fast"
+				],
 				"cssVar": "--motion-duration-fast",
 				"value": "150ms",
 				"type": "duration",
@@ -4971,7 +7081,11 @@
 			},
 			{
 				"name": "motion-duration-normal",
-				"path": ["motion", "duration", "normal"],
+				"path": [
+					"motion",
+					"duration",
+					"normal"
+				],
 				"cssVar": "--motion-duration-normal",
 				"value": "250ms",
 				"type": "duration",
@@ -4979,7 +7093,11 @@
 			},
 			{
 				"name": "motion-duration-smooth",
-				"path": ["motion", "duration", "smooth"],
+				"path": [
+					"motion",
+					"duration",
+					"smooth"
+				],
 				"cssVar": "--motion-duration-smooth",
 				"value": "400ms",
 				"type": "duration",
@@ -4987,7 +7105,11 @@
 			},
 			{
 				"name": "motion-duration-glacial",
-				"path": ["motion", "duration", "glacial"],
+				"path": [
+					"motion",
+					"duration",
+					"glacial"
+				],
 				"cssVar": "--motion-duration-glacial",
 				"value": "700ms",
 				"type": "duration",
@@ -4995,7 +7117,11 @@
 			},
 			{
 				"name": "motion-duration-moderate",
-				"path": ["motion", "duration", "moderate"],
+				"path": [
+					"motion",
+					"duration",
+					"moderate"
+				],
 				"cssVar": "--motion-duration-moderate",
 				"value": "3000ms",
 				"type": "duration",
@@ -5003,55 +7129,113 @@
 			},
 			{
 				"name": "motion-ease-linear",
-				"path": ["motion", "ease", "linear"],
+				"path": [
+					"motion",
+					"ease",
+					"linear"
+				],
 				"cssVar": "--motion-ease-linear",
-				"value": [0, 0, 1, 1],
+				"value": [
+					0,
+					0,
+					1,
+					1
+				],
 				"type": "cubicBezier",
 				"extensions": null
 			},
 			{
 				"name": "motion-ease-in",
-				"path": ["motion", "ease", "in"],
+				"path": [
+					"motion",
+					"ease",
+					"in"
+				],
 				"cssVar": "--motion-ease-in",
-				"value": [0.4, 0, 1, 1],
+				"value": [
+					0.4,
+					0,
+					1,
+					1
+				],
 				"type": "cubicBezier",
 				"extensions": null
 			},
 			{
 				"name": "motion-ease-out",
-				"path": ["motion", "ease", "out"],
+				"path": [
+					"motion",
+					"ease",
+					"out"
+				],
 				"cssVar": "--motion-ease-out",
-				"value": [0, 0, 0.2, 1],
+				"value": [
+					0,
+					0,
+					0.2,
+					1
+				],
 				"type": "cubicBezier",
 				"extensions": null
 			},
 			{
 				"name": "motion-ease-in-out",
-				"path": ["motion", "ease", "inOut"],
+				"path": [
+					"motion",
+					"ease",
+					"inOut"
+				],
 				"cssVar": "--motion-ease-in-out",
-				"value": [0.4, 0, 0.2, 1],
+				"value": [
+					0.4,
+					0,
+					0.2,
+					1
+				],
 				"type": "cubicBezier",
 				"extensions": null
 			},
 			{
 				"name": "motion-ease-spring",
-				"path": ["motion", "ease", "spring"],
+				"path": [
+					"motion",
+					"ease",
+					"spring"
+				],
 				"cssVar": "--motion-ease-spring",
-				"value": [0.34, 1.56, 0.64, 1],
+				"value": [
+					0.34,
+					1.56,
+					0.64,
+					1
+				],
 				"type": "cubicBezier",
 				"extensions": null
 			},
 			{
 				"name": "motion-ease-bounce",
-				"path": ["motion", "ease", "bounce"],
+				"path": [
+					"motion",
+					"ease",
+					"bounce"
+				],
 				"cssVar": "--motion-ease-bounce",
-				"value": [0.68, -0.55, 0.27, 1.55],
+				"value": [
+					0.68,
+					-0.55,
+					0.27,
+					1.55
+				],
 				"type": "cubicBezier",
 				"extensions": null
 			},
 			{
 				"name": "motion-animation-pulse-glow",
-				"path": ["motion", "animation", "pulse-glow"],
+				"path": [
+					"motion",
+					"animation",
+					"pulse-glow"
+				],
 				"cssVar": "--motion-animation-pulse-glow",
 				"value": "pulse-glow 4s ease-in-out infinite",
 				"extensions": {
@@ -5062,51 +7246,71 @@
 			},
 			{
 				"name": "motion-animation-breathe",
-				"path": ["motion", "animation", "breathe"],
+				"path": [
+					"motion",
+					"animation",
+					"breathe"
+				],
 				"cssVar": "--motion-animation-breathe",
-				"value": "cl-breathe 4s ease-in-out infinite",
+				"value": "breathe 4s ease-in-out infinite",
 				"extensions": {
 					"type": "animation",
-					"keyframe": "cl-breathe",
+					"keyframe": "breathe",
 					"iterationCount": "infinite"
 				}
 			},
 			{
 				"name": "motion-animation-shimmer",
-				"path": ["motion", "animation", "shimmer"],
+				"path": [
+					"motion",
+					"animation",
+					"shimmer"
+				],
 				"cssVar": "--motion-animation-shimmer",
-				"value": "cl-shimmer 8s linear infinite",
+				"value": "shimmer 8s linear infinite",
 				"extensions": {
 					"type": "animation",
-					"keyframe": "cl-shimmer",
+					"keyframe": "shimmer",
 					"iterationCount": "infinite"
 				}
 			},
 			{
 				"name": "motion-animation-drift",
-				"path": ["motion", "animation", "drift"],
+				"path": [
+					"motion",
+					"animation",
+					"drift"
+				],
 				"cssVar": "--motion-animation-drift",
-				"value": "cl-drift 8s ease-in-out infinite",
+				"value": "drift 8s ease-in-out infinite",
 				"extensions": {
 					"type": "animation",
-					"keyframe": "cl-drift",
+					"keyframe": "drift",
 					"iterationCount": "infinite"
 				}
 			},
 			{
 				"name": "motion-animation-pulse",
-				"path": ["motion", "animation", "pulse"],
+				"path": [
+					"motion",
+					"animation",
+					"pulse"
+				],
 				"cssVar": "--motion-animation-pulse",
-				"value": "cl-pulse 3s ease-in-out infinite",
+				"value": "pulse 3s ease-in-out infinite",
 				"extensions": {
 					"type": "animation",
-					"keyframe": "cl-pulse",
+					"keyframe": "pulse",
 					"iterationCount": "infinite"
 				}
 			},
 			{
 				"name": "motion-animation-fade-in",
-				"path": ["motion", "animation", "fade-in"],
+				"path": [
+					"motion",
+					"animation",
+					"fade-in"
+				],
 				"cssVar": "--motion-animation-fade-in",
 				"value": "fade-in 300ms ease-out forwards",
 				"extensions": {
@@ -5118,7 +7322,11 @@
 			},
 			{
 				"name": "motion-animation-slide-up",
-				"path": ["motion", "animation", "slide-up"],
+				"path": [
+					"motion",
+					"animation",
+					"slide-up"
+				],
 				"cssVar": "--motion-animation-slide-up",
 				"value": "slide-up 300ms ease-out forwards",
 				"extensions": {
@@ -5130,7 +7338,11 @@
 			},
 			{
 				"name": "motion-animation-slide-down",
-				"path": ["motion", "animation", "slide-down"],
+				"path": [
+					"motion",
+					"animation",
+					"slide-down"
+				],
 				"cssVar": "--motion-animation-slide-down",
 				"value": "slide-down 300ms ease-out forwards",
 				"extensions": {
@@ -5142,7 +7354,11 @@
 			},
 			{
 				"name": "motion-animation-scale-in",
-				"path": ["motion", "animation", "scale-in"],
+				"path": [
+					"motion",
+					"animation",
+					"scale-in"
+				],
 				"cssVar": "--motion-animation-scale-in",
 				"value": "scale-in 250ms ease-out forwards",
 				"extensions": {
@@ -5159,70 +7375,100 @@
 		"tokens": [
 			{
 				"name": "transition-fade",
-				"path": ["transition", "fade"],
+				"path": [
+					"transition",
+					"fade"
+				],
 				"cssVar": "--transition-fade",
 				"value": "opacity 150ms cubic-bezier(0, 0, 0.2, 1)",
 				"extensions": null
 			},
 			{
 				"name": "transition-color",
-				"path": ["transition", "color"],
+				"path": [
+					"transition",
+					"color"
+				],
 				"cssVar": "--transition-color",
 				"value": "color, background-color, border-color 150ms cubic-bezier(0, 0, 0.2, 1)",
 				"extensions": null
 			},
 			{
 				"name": "transition-expand",
-				"path": ["transition", "expand"],
+				"path": [
+					"transition",
+					"expand"
+				],
 				"cssVar": "--transition-expand",
 				"value": "height, padding 250ms cubic-bezier(0.4, 0, 0.2, 1)",
 				"extensions": null
 			},
 			{
 				"name": "transition-slide",
-				"path": ["transition", "slide"],
+				"path": [
+					"transition",
+					"slide"
+				],
 				"cssVar": "--transition-slide",
 				"value": "transform 200ms cubic-bezier(0, 0, 0.2, 1)",
 				"extensions": null
 			},
 			{
 				"name": "transition-scale",
-				"path": ["transition", "scale"],
+				"path": [
+					"transition",
+					"scale"
+				],
 				"cssVar": "--transition-scale",
 				"value": "transform 150ms cubic-bezier(0, 0, 0.2, 1)",
 				"extensions": null
 			},
 			{
 				"name": "transition-shadow",
-				"path": ["transition", "shadow"],
+				"path": [
+					"transition",
+					"shadow"
+				],
 				"cssVar": "--transition-shadow",
 				"value": "box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1)",
 				"extensions": null
 			},
 			{
 				"name": "transition-all-fast",
-				"path": ["transition", "all-fast"],
+				"path": [
+					"transition",
+					"all-fast"
+				],
 				"cssVar": "--transition-all-fast",
 				"value": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
 				"extensions": null
 			},
 			{
 				"name": "transition-all-normal",
-				"path": ["transition", "all-normal"],
+				"path": [
+					"transition",
+					"all-normal"
+				],
 				"cssVar": "--transition-all-normal",
 				"value": "all 250ms cubic-bezier(0.4, 0, 0.2, 1)",
 				"extensions": null
 			},
 			{
 				"name": "transition-spring",
-				"path": ["transition", "spring"],
+				"path": [
+					"transition",
+					"spring"
+				],
 				"cssVar": "--transition-spring",
 				"value": "transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1)",
 				"extensions": null
 			},
 			{
 				"name": "transition-none",
-				"path": ["transition", "none"],
+				"path": [
+					"transition",
+					"none"
+				],
 				"cssVar": "--transition-none",
 				"value": "none",
 				"extensions": null
@@ -5234,7 +7480,10 @@
 		"tokens": [
 			{
 				"name": "overlay-scrim",
-				"path": ["overlay", "scrim"],
+				"path": [
+					"overlay",
+					"scrim"
+				],
 				"cssVar": "--overlay-scrim",
 				"value": "#00040466",
 				"type": "color",
@@ -5242,7 +7491,10 @@
 			},
 			{
 				"name": "overlay-scrim-heavy",
-				"path": ["overlay", "scrim-heavy"],
+				"path": [
+					"overlay",
+					"scrim-heavy"
+				],
 				"cssVar": "--overlay-scrim-heavy",
 				"value": "#00040499",
 				"type": "color",
@@ -5255,15 +7507,32 @@
 		"tokens": [
 			{
 				"name": "radius-none",
-				"path": ["radius", "none"],
+				"path": [
+					"radius",
+					"none"
+				],
 				"cssVar": "--radius-none",
 				"value": "0px",
 				"type": "dimension",
 				"extensions": null
 			},
 			{
+				"name": "radius-2xs",
+				"path": [
+					"radius",
+					"2xs"
+				],
+				"cssVar": "--radius-2xs",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
 				"name": "radius-xs",
-				"path": ["radius", "xs"],
+				"path": [
+					"radius",
+					"xs"
+				],
 				"cssVar": "--radius-xs",
 				"value": "2px",
 				"type": "dimension",
@@ -5271,7 +7540,10 @@
 			},
 			{
 				"name": "radius-sm",
-				"path": ["radius", "sm"],
+				"path": [
+					"radius",
+					"sm"
+				],
 				"cssVar": "--radius-sm",
 				"value": "4px",
 				"type": "dimension",
@@ -5279,7 +7551,10 @@
 			},
 			{
 				"name": "radius-md",
-				"path": ["radius", "md"],
+				"path": [
+					"radius",
+					"md"
+				],
 				"cssVar": "--radius-md",
 				"value": "8px",
 				"type": "dimension",
@@ -5287,7 +7562,10 @@
 			},
 			{
 				"name": "radius-lg",
-				"path": ["radius", "lg"],
+				"path": [
+					"radius",
+					"lg"
+				],
 				"cssVar": "--radius-lg",
 				"value": "12px",
 				"type": "dimension",
@@ -5295,15 +7573,32 @@
 			},
 			{
 				"name": "radius-xl",
-				"path": ["radius", "xl"],
+				"path": [
+					"radius",
+					"xl"
+				],
 				"cssVar": "--radius-xl",
 				"value": "16px",
 				"type": "dimension",
 				"extensions": null
 			},
 			{
+				"name": "radius-2xl",
+				"path": [
+					"radius",
+					"2xl"
+				],
+				"cssVar": "--radius-2xl",
+				"value": "24px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
 				"name": "radius-full",
-				"path": ["radius", "full"],
+				"path": [
+					"radius",
+					"full"
+				],
 				"cssVar": "--radius-full",
 				"value": "9999px",
 				"type": "dimension",
@@ -5316,7 +7611,10 @@
 		"tokens": [
 			{
 				"name": "scrollbar-thumb",
-				"path": ["scrollbar", "thumb"],
+				"path": [
+					"scrollbar",
+					"thumb"
+				],
 				"cssVar": "--scrollbar-thumb",
 				"value": "#ffffff1f",
 				"type": "color",
@@ -5324,10 +7622,51 @@
 			},
 			{
 				"name": "scrollbar-thumb-hover",
-				"path": ["scrollbar", "thumb-hover"],
+				"path": [
+					"scrollbar",
+					"thumb-hover"
+				],
 				"cssVar": "--scrollbar-thumb-hover",
 				"value": "#ffffff33",
 				"type": "color",
+				"extensions": null
+			}
+		]
+	},
+	"scrollbarSize": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "scrollbar-size-width",
+				"path": [
+					"scrollbarSize",
+					"width"
+				],
+				"cssVar": "--scrollbar-size-width",
+				"value": "6px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "scrollbar-size-height",
+				"path": [
+					"scrollbarSize",
+					"height"
+				],
+				"cssVar": "--scrollbar-size-height",
+				"value": "6px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "scrollbar-size-radius",
+				"path": [
+					"scrollbarSize",
+					"radius"
+				],
+				"cssVar": "--scrollbar-size-radius",
+				"value": "3px",
+				"type": "dimension",
 				"extensions": null
 			}
 		]
@@ -5337,7 +7676,10 @@
 		"tokens": [
 			{
 				"name": "shadow-z0",
-				"path": ["shadow", "z0"],
+				"path": [
+					"shadow",
+					"z0"
+				],
 				"cssVar": "--shadow-z0",
 				"value": {
 					"color": "#00000000",
@@ -5351,7 +7693,10 @@
 			},
 			{
 				"name": "shadow-z1",
-				"path": ["shadow", "z1"],
+				"path": [
+					"shadow",
+					"z1"
+				],
 				"cssVar": "--shadow-z1",
 				"value": [
 					{
@@ -5374,7 +7719,10 @@
 			},
 			{
 				"name": "shadow-z2",
-				"path": ["shadow", "z2"],
+				"path": [
+					"shadow",
+					"z2"
+				],
 				"cssVar": "--shadow-z2",
 				"value": [
 					{
@@ -5397,7 +7745,10 @@
 			},
 			{
 				"name": "shadow-z3",
-				"path": ["shadow", "z3"],
+				"path": [
+					"shadow",
+					"z3"
+				],
 				"cssVar": "--shadow-z3",
 				"value": [
 					{
@@ -5420,7 +7771,10 @@
 			},
 			{
 				"name": "shadow-z4",
-				"path": ["shadow", "z4"],
+				"path": [
+					"shadow",
+					"z4"
+				],
 				"cssVar": "--shadow-z4",
 				"value": [
 					{
@@ -5448,7 +7802,10 @@
 		"tokens": [
 			{
 				"name": "elevation-flat",
-				"path": ["elevation", "flat"],
+				"path": [
+					"elevation",
+					"flat"
+				],
 				"cssVar": "--elevation-flat",
 				"value": {
 					"color": "#00000000",
@@ -5462,7 +7819,10 @@
 			},
 			{
 				"name": "elevation-card",
-				"path": ["elevation", "card"],
+				"path": [
+					"elevation",
+					"card"
+				],
 				"cssVar": "--elevation-card",
 				"value": [
 					{
@@ -5485,7 +7845,10 @@
 			},
 			{
 				"name": "elevation-panel",
-				"path": ["elevation", "panel"],
+				"path": [
+					"elevation",
+					"panel"
+				],
 				"cssVar": "--elevation-panel",
 				"value": [
 					{
@@ -5508,7 +7871,10 @@
 			},
 			{
 				"name": "elevation-dropdown",
-				"path": ["elevation", "dropdown"],
+				"path": [
+					"elevation",
+					"dropdown"
+				],
 				"cssVar": "--elevation-dropdown",
 				"value": [
 					{
@@ -5531,7 +7897,10 @@
 			},
 			{
 				"name": "elevation-modal",
-				"path": ["elevation", "modal"],
+				"path": [
+					"elevation",
+					"modal"
+				],
 				"cssVar": "--elevation-modal",
 				"value": [
 					{
@@ -5559,57 +7928,210 @@
 		"tokens": [
 			{
 				"name": "space-1",
-				"path": ["space", "1"],
+				"path": [
+					"space",
+					"1"
+				],
 				"cssVar": "--space-1",
-				"value": "4px",
+				"value": "1px",
 				"type": "dimension",
 				"extensions": null
 			},
 			{
 				"name": "space-2",
-				"path": ["space", "2"],
+				"path": [
+					"space",
+					"2"
+				],
 				"cssVar": "--space-2",
-				"value": "8px",
+				"value": "2px",
 				"type": "dimension",
 				"extensions": null
 			},
 			{
 				"name": "space-3",
-				"path": ["space", "3"],
+				"path": [
+					"space",
+					"3"
+				],
 				"cssVar": "--space-3",
-				"value": "12px",
+				"value": "3px",
 				"type": "dimension",
 				"extensions": null
 			},
 			{
 				"name": "space-4",
-				"path": ["space", "4"],
+				"path": [
+					"space",
+					"4"
+				],
 				"cssVar": "--space-4",
-				"value": "16px",
+				"value": "4px",
 				"type": "dimension",
 				"extensions": null
 			},
 			{
 				"name": "space-5",
-				"path": ["space", "5"],
+				"path": [
+					"space",
+					"5"
+				],
 				"cssVar": "--space-5",
-				"value": "20px",
+				"value": "5px",
 				"type": "dimension",
 				"extensions": null
 			},
 			{
 				"name": "space-6",
-				"path": ["space", "6"],
+				"path": [
+					"space",
+					"6"
+				],
 				"cssVar": "--space-6",
-				"value": "24px",
+				"value": "6px",
 				"type": "dimension",
 				"extensions": null
 			},
 			{
 				"name": "space-8",
-				"path": ["space", "8"],
+				"path": [
+					"space",
+					"8"
+				],
 				"cssVar": "--space-8",
+				"value": "8px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "space-10",
+				"path": [
+					"space",
+					"10"
+				],
+				"cssVar": "--space-10",
+				"value": "10px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "space-12",
+				"path": [
+					"space",
+					"12"
+				],
+				"cssVar": "--space-12",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "space-14",
+				"path": [
+					"space",
+					"14"
+				],
+				"cssVar": "--space-14",
+				"value": "14px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "space-16",
+				"path": [
+					"space",
+					"16"
+				],
+				"cssVar": "--space-16",
+				"value": "16px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "space-20",
+				"path": [
+					"space",
+					"20"
+				],
+				"cssVar": "--space-20",
+				"value": "20px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "space-24",
+				"path": [
+					"space",
+					"24"
+				],
+				"cssVar": "--space-24",
+				"value": "24px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "space-28",
+				"path": [
+					"space",
+					"28"
+				],
+				"cssVar": "--space-28",
+				"value": "28px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "space-32",
+				"path": [
+					"space",
+					"32"
+				],
+				"cssVar": "--space-32",
 				"value": "32px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "space-36",
+				"path": [
+					"space",
+					"36"
+				],
+				"cssVar": "--space-36",
+				"value": "36px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "space-40",
+				"path": [
+					"space",
+					"40"
+				],
+				"cssVar": "--space-40",
+				"value": "40px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "space-44",
+				"path": [
+					"space",
+					"44"
+				],
+				"cssVar": "--space-44",
+				"value": "44px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "space-48",
+				"path": [
+					"space",
+					"48"
+				],
+				"cssVar": "--space-48",
+				"value": "48px",
 				"type": "dimension",
 				"extensions": null
 			}
@@ -5620,7 +8142,10 @@
 		"tokens": [
 			{
 				"name": "padding-sm-y",
-				"path": ["padding", "sm-y"],
+				"path": [
+					"padding",
+					"sm-y"
+				],
 				"cssVar": "--padding-sm-y",
 				"value": "6px",
 				"type": "dimension",
@@ -5628,7 +8153,10 @@
 			},
 			{
 				"name": "padding-sm-x",
-				"path": ["padding", "sm-x"],
+				"path": [
+					"padding",
+					"sm-x"
+				],
 				"cssVar": "--padding-sm-x",
 				"value": "12px",
 				"type": "dimension",
@@ -5636,7 +8164,10 @@
 			},
 			{
 				"name": "padding-md-y",
-				"path": ["padding", "md-y"],
+				"path": [
+					"padding",
+					"md-y"
+				],
 				"cssVar": "--padding-md-y",
 				"value": "8px",
 				"type": "dimension",
@@ -5644,7 +8175,10 @@
 			},
 			{
 				"name": "padding-md-x",
-				"path": ["padding", "md-x"],
+				"path": [
+					"padding",
+					"md-x"
+				],
 				"cssVar": "--padding-md-x",
 				"value": "16px",
 				"type": "dimension",
@@ -5652,7 +8186,10 @@
 			},
 			{
 				"name": "padding-lg-y",
-				"path": ["padding", "lg-y"],
+				"path": [
+					"padding",
+					"lg-y"
+				],
 				"cssVar": "--padding-lg-y",
 				"value": "12px",
 				"type": "dimension",
@@ -5660,7 +8197,10 @@
 			},
 			{
 				"name": "padding-lg-x",
-				"path": ["padding", "lg-x"],
+				"path": [
+					"padding",
+					"lg-x"
+				],
 				"cssVar": "--padding-lg-x",
 				"value": "24px",
 				"type": "dimension",
@@ -5672,8 +8212,22 @@
 		"extensions": {},
 		"tokens": [
 			{
+				"name": "size-xs",
+				"path": [
+					"size",
+					"xs"
+				],
+				"cssVar": "--size-xs",
+				"value": "24px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
 				"name": "size-sm",
-				"path": ["size", "sm"],
+				"path": [
+					"size",
+					"sm"
+				],
 				"cssVar": "--size-sm",
 				"value": "32px",
 				"type": "dimension",
@@ -5681,7 +8235,10 @@
 			},
 			{
 				"name": "size-md",
-				"path": ["size", "md"],
+				"path": [
+					"size",
+					"md"
+				],
 				"cssVar": "--size-md",
 				"value": "40px",
 				"type": "dimension",
@@ -5689,9 +8246,34 @@
 			},
 			{
 				"name": "size-lg",
-				"path": ["size", "lg"],
+				"path": [
+					"size",
+					"lg"
+				],
 				"cssVar": "--size-lg",
 				"value": "48px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "size-xl",
+				"path": [
+					"size",
+					"xl"
+				],
+				"cssVar": "--size-xl",
+				"value": "56px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "size-2xl",
+				"path": [
+					"size",
+					"2xl"
+				],
+				"cssVar": "--size-2xl",
+				"value": "64px",
 				"type": "dimension",
 				"extensions": null
 			}
@@ -5702,7 +8284,10 @@
 		"tokens": [
 			{
 				"name": "z-index-base",
-				"path": ["zIndex", "base"],
+				"path": [
+					"zIndex",
+					"base"
+				],
 				"cssVar": "--z-index-base",
 				"value": 0,
 				"type": "number",
@@ -5710,7 +8295,10 @@
 			},
 			{
 				"name": "z-index-raised",
-				"path": ["zIndex", "raised"],
+				"path": [
+					"zIndex",
+					"raised"
+				],
 				"cssVar": "--z-index-raised",
 				"value": 10,
 				"type": "number",
@@ -5718,7 +8306,10 @@
 			},
 			{
 				"name": "z-index-dropdown",
-				"path": ["zIndex", "dropdown"],
+				"path": [
+					"zIndex",
+					"dropdown"
+				],
 				"cssVar": "--z-index-dropdown",
 				"value": 100,
 				"type": "number",
@@ -5726,7 +8317,10 @@
 			},
 			{
 				"name": "z-index-sticky",
-				"path": ["zIndex", "sticky"],
+				"path": [
+					"zIndex",
+					"sticky"
+				],
 				"cssVar": "--z-index-sticky",
 				"value": 200,
 				"type": "number",
@@ -5734,7 +8328,10 @@
 			},
 			{
 				"name": "z-index-overlay",
-				"path": ["zIndex", "overlay"],
+				"path": [
+					"zIndex",
+					"overlay"
+				],
 				"cssVar": "--z-index-overlay",
 				"value": 300,
 				"type": "number",
@@ -5742,7 +8339,10 @@
 			},
 			{
 				"name": "z-index-modal",
-				"path": ["zIndex", "modal"],
+				"path": [
+					"zIndex",
+					"modal"
+				],
 				"cssVar": "--z-index-modal",
 				"value": 400,
 				"type": "number",
@@ -5750,7 +8350,10 @@
 			},
 			{
 				"name": "z-index-popover",
-				"path": ["zIndex", "popover"],
+				"path": [
+					"zIndex",
+					"popover"
+				],
 				"cssVar": "--z-index-popover",
 				"value": 500,
 				"type": "number",
@@ -5758,7 +8361,10 @@
 			},
 			{
 				"name": "z-index-toast",
-				"path": ["zIndex", "toast"],
+				"path": [
+					"zIndex",
+					"toast"
+				],
 				"cssVar": "--z-index-toast",
 				"value": 600,
 				"type": "number",
@@ -5766,7 +8372,10 @@
 			},
 			{
 				"name": "z-index-tooltip",
-				"path": ["zIndex", "tooltip"],
+				"path": [
+					"zIndex",
+					"tooltip"
+				],
 				"cssVar": "--z-index-tooltip",
 				"value": 700,
 				"type": "number",
@@ -5779,7 +8388,10 @@
 		"tokens": [
 			{
 				"name": "glass-void",
-				"path": ["glass", "void"],
+				"path": [
+					"glass",
+					"void"
+				],
 				"cssVar": "--glass-void",
 				"value": "#000101e0",
 				"type": "color",
@@ -5787,7 +8399,10 @@
 			},
 			{
 				"name": "glass-deep",
-				"path": ["glass", "deep"],
+				"path": [
+					"glass",
+					"deep"
+				],
 				"cssVar": "--glass-deep",
 				"value": "#000305cc",
 				"type": "color",
@@ -5795,7 +8410,10 @@
 			},
 			{
 				"name": "glass-smoke",
-				"path": ["glass", "smoke"],
+				"path": [
+					"glass",
+					"smoke"
+				],
 				"cssVar": "--glass-smoke",
 				"value": "#060a0ba6",
 				"type": "color",
@@ -5803,7 +8421,10 @@
 			},
 			{
 				"name": "glass-frost",
-				"path": ["glass", "frost"],
+				"path": [
+					"glass",
+					"frost"
+				],
 				"cssVar": "--glass-frost",
 				"value": "#dee6e966",
 				"type": "color",
@@ -5811,7 +8432,10 @@
 			},
 			{
 				"name": "glass-teal",
-				"path": ["glass", "teal"],
+				"path": [
+					"glass",
+					"teal"
+				],
 				"cssVar": "--glass-teal",
 				"value": "#000704bf",
 				"type": "color",
@@ -5819,7 +8443,10 @@
 			},
 			{
 				"name": "glass-purple",
-				"path": ["glass", "purple"],
+				"path": [
+					"glass",
+					"purple"
+				],
 				"cssVar": "--glass-purple",
 				"value": "#030017bf",
 				"type": "color",
@@ -5832,7 +8459,10 @@
 		"tokens": [
 			{
 				"name": "matte-dark",
-				"path": ["matte", "dark"],
+				"path": [
+					"matte",
+					"dark"
+				],
 				"cssVar": "--matte-dark",
 				"value": "#08090b",
 				"type": "color",
@@ -5840,7 +8470,10 @@
 			},
 			{
 				"name": "matte-medium",
-				"path": ["matte", "medium"],
+				"path": [
+					"matte",
+					"medium"
+				],
 				"cssVar": "--matte-medium",
 				"value": "#191b1d",
 				"type": "color",
@@ -5848,7 +8481,10 @@
 			},
 			{
 				"name": "matte-light",
-				"path": ["matte", "light"],
+				"path": [
+					"matte",
+					"light"
+				],
 				"cssVar": "--matte-light",
 				"value": "#2c2e30",
 				"type": "color",
@@ -5861,7 +8497,10 @@
 		"tokens": [
 			{
 				"name": "surface-base",
-				"path": ["surface", "base"],
+				"path": [
+					"surface",
+					"base"
+				],
 				"cssVar": "--surface-base",
 				"value": "#000101e0",
 				"type": "color",
@@ -5869,7 +8508,10 @@
 			},
 			{
 				"name": "surface-raised",
-				"path": ["surface", "raised"],
+				"path": [
+					"surface",
+					"raised"
+				],
 				"cssVar": "--surface-raised",
 				"value": "#060a0ba6",
 				"type": "color",
@@ -5877,7 +8519,10 @@
 			},
 			{
 				"name": "surface-overlay",
-				"path": ["surface", "overlay"],
+				"path": [
+					"surface",
+					"overlay"
+				],
 				"cssVar": "--surface-overlay",
 				"value": "#000305cc",
 				"type": "color",
@@ -5885,7 +8530,10 @@
 			},
 			{
 				"name": "surface-frosted",
-				"path": ["surface", "frosted"],
+				"path": [
+					"surface",
+					"frosted"
+				],
 				"cssVar": "--surface-frosted",
 				"value": "#dee6e966",
 				"type": "color",
@@ -5893,7 +8541,10 @@
 			},
 			{
 				"name": "surface-inset",
-				"path": ["surface", "inset"],
+				"path": [
+					"surface",
+					"inset"
+				],
 				"cssVar": "--surface-inset",
 				"value": "#08090b",
 				"type": "color",
@@ -5901,7 +8552,10 @@
 			},
 			{
 				"name": "surface-subtle",
-				"path": ["surface", "subtle"],
+				"path": [
+					"surface",
+					"subtle"
+				],
 				"cssVar": "--surface-subtle",
 				"value": "#191b1d",
 				"type": "color",
@@ -5909,7 +8563,10 @@
 			},
 			{
 				"name": "surface-chrome",
-				"path": ["surface", "chrome"],
+				"path": [
+					"surface",
+					"chrome"
+				],
 				"cssVar": "--surface-chrome",
 				"value": "#2c2e30",
 				"type": "color",
@@ -5922,25 +8579,46 @@
 		"tokens": [
 			{
 				"name": "font-display",
-				"path": ["font", "display"],
+				"path": [
+					"font",
+					"display"
+				],
 				"cssVar": "--font-display",
-				"value": ["Orbitron", "system-ui", "sans-serif"],
+				"value": [
+					"Orbitron",
+					"system-ui",
+					"sans-serif"
+				],
 				"type": "fontFamily",
 				"extensions": null
 			},
 			{
 				"name": "font-sans",
-				"path": ["font", "sans"],
+				"path": [
+					"font",
+					"sans"
+				],
 				"cssVar": "--font-sans",
-				"value": ["Inter", "system-ui", "sans-serif"],
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
 				"type": "fontFamily",
 				"extensions": null
 			},
 			{
 				"name": "font-mono",
-				"path": ["font", "mono"],
+				"path": [
+					"font",
+					"mono"
+				],
 				"cssVar": "--font-mono",
-				"value": ["JetBrains Mono", "Fira Code", "monospace"],
+				"value": [
+					"JetBrains Mono",
+					"Fira Code",
+					"monospace"
+				],
 				"type": "fontFamily",
 				"extensions": null
 			}
@@ -5950,8 +8628,33 @@
 		"extensions": {},
 		"tokens": [
 			{
+				"name": "text-size-3xs",
+				"path": [
+					"textSize",
+					"3xs"
+				],
+				"cssVar": "--text-size-3xs",
+				"value": "8px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-size-2xs",
+				"path": [
+					"textSize",
+					"2xs"
+				],
+				"cssVar": "--text-size-2xs",
+				"value": "10px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
 				"name": "text-size-xs",
-				"path": ["textSize", "xs"],
+				"path": [
+					"textSize",
+					"xs"
+				],
 				"cssVar": "--text-size-xs",
 				"value": "12px",
 				"type": "dimension",
@@ -5959,7 +8662,10 @@
 			},
 			{
 				"name": "text-size-sm",
-				"path": ["textSize", "sm"],
+				"path": [
+					"textSize",
+					"sm"
+				],
 				"cssVar": "--text-size-sm",
 				"value": "14px",
 				"type": "dimension",
@@ -5967,7 +8673,10 @@
 			},
 			{
 				"name": "text-size-base",
-				"path": ["textSize", "base"],
+				"path": [
+					"textSize",
+					"base"
+				],
 				"cssVar": "--text-size-base",
 				"value": "16px",
 				"type": "dimension",
@@ -5975,7 +8684,10 @@
 			},
 			{
 				"name": "text-size-lg",
-				"path": ["textSize", "lg"],
+				"path": [
+					"textSize",
+					"lg"
+				],
 				"cssVar": "--text-size-lg",
 				"value": "18px",
 				"type": "dimension",
@@ -5983,7 +8695,10 @@
 			},
 			{
 				"name": "text-size-xl",
-				"path": ["textSize", "xl"],
+				"path": [
+					"textSize",
+					"xl"
+				],
 				"cssVar": "--text-size-xl",
 				"value": "20px",
 				"type": "dimension",
@@ -5991,9 +8706,34 @@
 			},
 			{
 				"name": "text-size-2xl",
-				"path": ["textSize", "2xl"],
+				"path": [
+					"textSize",
+					"2xl"
+				],
 				"cssVar": "--text-size-2xl",
 				"value": "24px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-size-3xl",
+				"path": [
+					"textSize",
+					"3xl"
+				],
+				"cssVar": "--text-size-3xl",
+				"value": "30px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-size-4xl",
+				"path": [
+					"textSize",
+					"4xl"
+				],
+				"cssVar": "--text-size-4xl",
+				"value": "36px",
 				"type": "dimension",
 				"extensions": null
 			}
@@ -6004,11 +8744,18 @@
 		"tokens": [
 			{
 				"name": "text-style-display-lg",
-				"path": ["textStyle", "display-lg"],
+				"path": [
+					"textStyle",
+					"display-lg"
+				],
 				"cssVar": "--text-style-display-lg",
 				"value": {
 					"fontSize": "32px",
-					"fontFamily": ["Orbitron", "system-ui", "sans-serif"],
+					"fontFamily": [
+						"Orbitron",
+						"system-ui",
+						"sans-serif"
+					],
 					"fontWeight": 700,
 					"lineHeight": 1.1,
 					"letterSpacing": "0.02em"
@@ -6018,11 +8765,18 @@
 			},
 			{
 				"name": "text-style-display-sm",
-				"path": ["textStyle", "display-sm"],
+				"path": [
+					"textStyle",
+					"display-sm"
+				],
 				"cssVar": "--text-style-display-sm",
 				"value": {
 					"fontSize": "24px",
-					"fontFamily": ["Orbitron", "system-ui", "sans-serif"],
+					"fontFamily": [
+						"Orbitron",
+						"system-ui",
+						"sans-serif"
+					],
 					"fontWeight": 600,
 					"lineHeight": 1.2,
 					"letterSpacing": "0.01em"
@@ -6032,11 +8786,18 @@
 			},
 			{
 				"name": "text-style-heading-lg",
-				"path": ["textStyle", "heading-lg"],
+				"path": [
+					"textStyle",
+					"heading-lg"
+				],
 				"cssVar": "--text-style-heading-lg",
 				"value": {
 					"fontSize": "20px",
-					"fontFamily": ["Inter", "system-ui", "sans-serif"],
+					"fontFamily": [
+						"Inter",
+						"system-ui",
+						"sans-serif"
+					],
 					"fontWeight": 600,
 					"lineHeight": 1.3,
 					"letterSpacing": "-0.01em"
@@ -6046,11 +8807,18 @@
 			},
 			{
 				"name": "text-style-heading-sm",
-				"path": ["textStyle", "heading-sm"],
+				"path": [
+					"textStyle",
+					"heading-sm"
+				],
 				"cssVar": "--text-style-heading-sm",
 				"value": {
 					"fontSize": "16px",
-					"fontFamily": ["Inter", "system-ui", "sans-serif"],
+					"fontFamily": [
+						"Inter",
+						"system-ui",
+						"sans-serif"
+					],
 					"fontWeight": 600,
 					"lineHeight": 1.4,
 					"letterSpacing": "-0.005em"
@@ -6060,11 +8828,18 @@
 			},
 			{
 				"name": "text-style-body",
-				"path": ["textStyle", "body"],
+				"path": [
+					"textStyle",
+					"body"
+				],
 				"cssVar": "--text-style-body",
 				"value": {
 					"fontSize": "14px",
-					"fontFamily": ["Inter", "system-ui", "sans-serif"],
+					"fontFamily": [
+						"Inter",
+						"system-ui",
+						"sans-serif"
+					],
 					"fontWeight": 400,
 					"lineHeight": 1.5,
 					"letterSpacing": "0em"
@@ -6074,11 +8849,18 @@
 			},
 			{
 				"name": "text-style-body-sm",
-				"path": ["textStyle", "body-sm"],
+				"path": [
+					"textStyle",
+					"body-sm"
+				],
 				"cssVar": "--text-style-body-sm",
 				"value": {
 					"fontSize": "13px",
-					"fontFamily": ["Inter", "system-ui", "sans-serif"],
+					"fontFamily": [
+						"Inter",
+						"system-ui",
+						"sans-serif"
+					],
 					"fontWeight": 400,
 					"lineHeight": 1.45,
 					"letterSpacing": "0em"
@@ -6088,11 +8870,18 @@
 			},
 			{
 				"name": "text-style-caption",
-				"path": ["textStyle", "caption"],
+				"path": [
+					"textStyle",
+					"caption"
+				],
 				"cssVar": "--text-style-caption",
 				"value": {
 					"fontSize": "12px",
-					"fontFamily": ["Inter", "system-ui", "sans-serif"],
+					"fontFamily": [
+						"Inter",
+						"system-ui",
+						"sans-serif"
+					],
 					"fontWeight": 500,
 					"lineHeight": 1.4,
 					"letterSpacing": "0.01em"
@@ -6102,11 +8891,18 @@
 			},
 			{
 				"name": "text-style-overline",
-				"path": ["textStyle", "overline"],
+				"path": [
+					"textStyle",
+					"overline"
+				],
 				"cssVar": "--text-style-overline",
 				"value": {
 					"fontSize": "11px",
-					"fontFamily": ["Inter", "system-ui", "sans-serif"],
+					"fontFamily": [
+						"Inter",
+						"system-ui",
+						"sans-serif"
+					],
 					"fontWeight": 600,
 					"lineHeight": 1.3,
 					"letterSpacing": "0.08em"
@@ -6116,11 +8912,18 @@
 			},
 			{
 				"name": "text-style-code",
-				"path": ["textStyle", "code"],
+				"path": [
+					"textStyle",
+					"code"
+				],
 				"cssVar": "--text-style-code",
 				"value": {
 					"fontSize": "13px",
-					"fontFamily": ["JetBrains Mono", "Fira Code", "monospace"],
+					"fontFamily": [
+						"JetBrains Mono",
+						"Fira Code",
+						"monospace"
+					],
 					"fontWeight": 400,
 					"lineHeight": 1.6,
 					"letterSpacing": "0em"
@@ -6130,11 +8933,18 @@
 			},
 			{
 				"name": "text-style-stat",
-				"path": ["textStyle", "stat"],
+				"path": [
+					"textStyle",
+					"stat"
+				],
 				"cssVar": "--text-style-stat",
 				"value": {
 					"fontSize": "24px",
-					"fontFamily": ["Orbitron", "system-ui", "sans-serif"],
+					"fontFamily": [
+						"Orbitron",
+						"system-ui",
+						"sans-serif"
+					],
 					"fontWeight": 700,
 					"lineHeight": 1.1,
 					"letterSpacing": "0.02em"

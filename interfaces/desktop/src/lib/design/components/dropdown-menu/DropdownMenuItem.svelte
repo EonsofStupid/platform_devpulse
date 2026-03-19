@@ -8,7 +8,7 @@
 	Supports disabled state and onSelect callback.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getDropdownMenuContext } from "./context.js";
 import { dropdownMenuRecipe } from "./recipe.js";
 import type { DropdownMenuItemProps } from "./types.js";

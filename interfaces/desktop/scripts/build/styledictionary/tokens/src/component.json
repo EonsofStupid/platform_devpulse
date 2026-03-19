@@ -152,6 +152,10 @@
 		"bg":     { "$type": "color", "$value": "{surface.base}" },
 		"border": { "$type": "color", "$value": "{border.subtle}" }
 	},
+	"status-dot": {
+		"$description": "Status indicator dot — glow radius for currentColor box-shadow",
+		"glow-radius": { "$type": "dimension", "$value": "6px", "$description": "Blur radius for status dot halo (used with currentColor)" }
+	},
 	"spinner": {
 		"$description": "Loading spinner component tokens",
 		"icon": { "$type": "color", "$value": "{color.mint.400}" }

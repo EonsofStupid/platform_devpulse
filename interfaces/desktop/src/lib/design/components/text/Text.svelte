@@ -9,7 +9,7 @@
 import { createText } from "$lib/design/api/dsadapters/coldlight/_internal/text/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import TextRoot from "$lib/design/primitives/text/Text.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { textRecipe } from "./recipe.js";
 import type { TextProps } from "./types.js";
 

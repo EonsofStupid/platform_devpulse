@@ -10,7 +10,7 @@
 import { createToolbar } from "$lib/design/api/dsadapters/coldlight/_internal/toolbar/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import ToolbarRoot from "$lib/design/primitives/toolbar/Toolbar.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { toolbarRecipe } from "./recipe.js";
 import type { ToolbarComponentProps } from "./types.js";
 

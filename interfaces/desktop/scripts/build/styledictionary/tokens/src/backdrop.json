@@ -13,5 +13,20 @@
 		"grid-ember":       { "$value": "#2a0a070f" },
 		"grid-cyber":       { "$value": "#003a1a0f" },
 		"grid-magenta":     { "$value": "#2a00300f" }
+	},
+	"backdropGridSize": {
+		"$type": "dimension",
+		"$description": "Grid cell size per domain backdrop (px → rem via SD5 transform)",
+		"neural":  { "$value": "28px", "$description": "Chat — neural network feel, tightest grid" },
+		"magenta": { "$value": "32px", "$description": "OverMind grid spacing" },
+		"purple":  { "$value": "36px", "$description": "Maestro grid spacing" },
+		"cyber":   { "$value": "38px", "$description": "WiredFront grid spacing" },
+		"teal":    { "$value": "40px", "$description": "DevPulse default grid spacing" },
+		"ember":   { "$value": "44px", "$description": "DevForge grid spacing" }
+	},
+	"backdropGridLine": {
+		"$type": "dimension",
+		"$description": "Grid line stroke width",
+		"width": { "$value": "1px" }
 	}
 }

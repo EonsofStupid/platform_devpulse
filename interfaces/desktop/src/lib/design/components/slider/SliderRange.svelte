@@ -6,7 +6,7 @@
 	Slider range — the filled portion of the track.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getSliderContext } from "./context.js";
 import { sliderRecipe } from "./recipe.js";
 import type { SliderRangeProps } from "./types.js";

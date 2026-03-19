@@ -13,7 +13,7 @@
 import { createInputGroup } from "$lib/design/api/dsadapters/coldlight/_internal/input-group/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import InputGroupRoot from "$lib/design/primitives/input-group/InputGroup.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import {
 	inputGroupInputRecipe,
 	inputGroupPrefixRecipe,

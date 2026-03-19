@@ -9,7 +9,7 @@
 import { createCode } from "$lib/design/api/dsadapters/coldlight/_internal/code/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import CodeRoot from "$lib/design/primitives/code/Code.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { codeRecipe } from "./recipe.js";
 import type { CodeProps } from "./types.js";
 

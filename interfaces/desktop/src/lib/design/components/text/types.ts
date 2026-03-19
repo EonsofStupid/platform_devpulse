@@ -7,7 +7,7 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { ColdLightProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/primitives/types.js";
+import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type TextAs = "span" | "p" | "div" | "label" | "strong" | "em" | "small";
 export type TextSize = "xs" | "sm" | "base" | "lg" | "xl" | "2xl" | "3xl";

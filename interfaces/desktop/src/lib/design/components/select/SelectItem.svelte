@@ -7,7 +7,7 @@
 	MeltUI transport provides ARIA attributes via transport.item(value).
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getSelectContext } from "./context.js";
 import { selectRecipe } from "./recipe.js";
 import type { SelectItemProps } from "./types.js";

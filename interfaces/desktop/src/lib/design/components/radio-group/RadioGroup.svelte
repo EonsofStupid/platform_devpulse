@@ -11,7 +11,7 @@
 <script lang="ts">
 import { createRadioGroupTransport } from "$lib/design/api/dsadapters/meltui/_internal/radio-group/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { setRadioGroupContext } from "./context.js";
 import { radioGroupRecipe } from "./recipe.js";
 import type { RadioGroupProps } from "./types.js";

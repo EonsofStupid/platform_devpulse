@@ -9,7 +9,7 @@
 import { createSpinner } from "$lib/design/api/dsadapters/coldlight/_internal/spinner/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import SpinnerRoot from "$lib/design/primitives/spinner/Spinner.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { spinnerRecipe } from "./recipe.js";
 import type { SpinnerProps } from "./types.js";
 

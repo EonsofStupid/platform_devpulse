@@ -8,7 +8,7 @@
 	Spreads adapter overlay slot attrs (aria-hidden, popover).
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getRecipe } from "$lib/design/recipes/index.js";
 import { getDialogContext } from "./context.js";
 import type { DialogOverlayProps } from "./types.js";

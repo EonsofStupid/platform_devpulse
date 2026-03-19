@@ -9,7 +9,7 @@
 	WAI-ARIA APG: trigger has role="combobox", aria-expanded, aria-haspopup.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getSelectContext } from "./context.js";
 import { selectRecipe } from "./recipe.js";
 import type { SelectTriggerProps } from "./types.js";

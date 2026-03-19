@@ -8,7 +8,7 @@
 	Non-interactive — provides accessible name for group via aria-labelledby.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { dropdownMenuRecipe } from "./recipe.js";
 import type { DropdownMenuLabelProps } from "./types.js";
 

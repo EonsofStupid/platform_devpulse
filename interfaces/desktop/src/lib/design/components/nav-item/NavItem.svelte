@@ -10,7 +10,7 @@
 import { createNavItem } from "$lib/design/api/dsadapters/coldlight/_internal/nav-item/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import NavItemRoot from "$lib/design/primitives/nav-item/NavItem.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { navItemRecipe } from "./recipe.js";
 import type { NavItemComponentProps } from "./types.js";
 

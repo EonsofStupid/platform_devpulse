@@ -3,11 +3,13 @@
 		"$type": "dimension",
 		"$description": "Border radius scale (px → rem via SD5 transform)",
 		"none": { "$value": "0px" },
+		"2xs":  { "$value": "1px" },
 		"xs":   { "$value": "2px" },
 		"sm":   { "$value": "4px" },
 		"md":   { "$value": "8px" },
 		"lg":   { "$value": "12px" },
 		"xl":   { "$value": "16px" },
+		"2xl":  { "$value": "24px" },
 		"full": { "$value": "9999px" }
 	}
 }

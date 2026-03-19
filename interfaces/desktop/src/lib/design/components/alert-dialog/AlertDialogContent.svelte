@@ -9,7 +9,7 @@
 	Focus trap active when open. Escape closes.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getAlertDialogContext } from "./context.js";
 import { alertDialogRecipe } from "./recipe.js";
 import type { AlertDialogContentProps } from "./types.js";

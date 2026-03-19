@@ -76,7 +76,7 @@ const slots = $derived(
 
 <style>
 	.status-dot {
-		box-shadow: 0 0 6px currentColor;
+		box-shadow: 0 0 var(--status-dot-glow-radius) currentColor;
 	}
 	.status-dot[data-status="online"] {
 		background-color: var(--color-teal-400);

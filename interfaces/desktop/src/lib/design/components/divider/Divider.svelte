@@ -11,7 +11,7 @@
 import { createDivider } from "$lib/design/api/dsadapters/coldlight/_internal/divider/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import DividerRoot from "$lib/design/primitives/divider/Divider.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { dividerRecipe } from "./recipe.js";
 import type { DividerComponentProps } from "./types.js";
 

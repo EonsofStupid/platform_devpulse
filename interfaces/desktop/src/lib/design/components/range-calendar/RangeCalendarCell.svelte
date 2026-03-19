@@ -8,7 +8,7 @@
 	ColdLight-owned — renders range-start, range-end, in-range states.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getRangeCalendarContext } from "./context.js";
 import { rangeCalendarRecipe } from "./recipe.js";
 import type { RangeCalendarCellProps } from "./types.js";

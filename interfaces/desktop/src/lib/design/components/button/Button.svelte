@@ -9,7 +9,7 @@
 import { createButton } from "$lib/design/api/dsadapters/coldlight/_internal/button/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import ButtonRoot from "$lib/design/primitives/button/Button.svelte";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { buttonRecipe } from "./recipe.js";
 import type { ButtonProps } from "./types.js";
 import { BUTTON_INTENT_PRESETS } from "./types.js";

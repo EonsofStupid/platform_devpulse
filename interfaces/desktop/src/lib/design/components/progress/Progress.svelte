@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { progressIndicatorRecipe, progressTrackRecipe } from "./recipe.js";
 import type { ProgressProps } from "./types.js";
 

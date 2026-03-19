@@ -8,7 +8,7 @@
 	ColdLight-owned ARIA.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getCalendarContext } from "./context.js";
 import { calendarRecipe } from "./recipe.js";
 import type { CalendarHeaderProps } from "./types.js";

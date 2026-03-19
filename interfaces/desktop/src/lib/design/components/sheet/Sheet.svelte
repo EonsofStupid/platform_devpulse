@@ -8,7 +8,7 @@
 <script lang="ts">
 import { createSheet } from "$lib/design/api/dsadapters/coldlight/_internal/sheet/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { cn } from "$lib/design/primitives/types.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { sheetOverlayRecipe, sheetRecipe } from "./recipe.js";
 import type { SheetComponentProps } from "./types.js";
 
