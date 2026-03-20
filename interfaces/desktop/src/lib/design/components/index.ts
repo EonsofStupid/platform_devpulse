@@ -14,10 +14,14 @@ export type { ComponentSurfaceProps } from "./types.js";
 
 export {
 	Button,
+	useButton,
+	type ButtonIntent,
 	type ButtonProps,
 	type ButtonSize,
-	buttonComponentContract,
-	buttonRecipe,
+	type ButtonType,
+	type UseButtonProps,
+	type UseButtonReturn,
+	BUTTON_INTENT_PRESETS,
 } from "./button/index.js";
 
 // ============================================

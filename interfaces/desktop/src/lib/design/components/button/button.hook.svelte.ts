@@ -1,5 +1,5 @@
 /**
- * useButton — ColdLight button primitive hook.
+ * useButton — ColdLight button hook.
  *
  * Svelte 5 runes-native. Returns reactive ARIA attributes, keyboard handlers,
  * and data attributes to spread onto a `<button>` element.
@@ -14,17 +14,16 @@
  * @example
  * ```svelte
  * <script>
- *   import { useButton } from '$lib/design/coldlight';
+ *   import { useButton } from '$lib/design/components/button';
  *   const button = useButton({ disabled: false });
  * </script>
  * <button {...button.root}>Save</button>
  * ```
  */
 
-import { disabledAttr } from "../../_internal/utils/data-attr.js";
-import { kbd } from "../../_internal/utils/kbd.js";
-import { uid } from "../../_internal/utils/uid.js";
-import { buttonAnatomy } from "./button.anatomy.js";
+import { disabledAttr } from "$lib/design/coldlight/_internal/utils/data-attr.js";
+import { kbd } from "$lib/design/coldlight/_internal/utils/kbd.js";
+import { uid } from "$lib/design/coldlight/_internal/utils/uid.js";
 import type { UseButtonProps, UseButtonReturn } from "./button.types.js";
 
 export function useButton(props: UseButtonProps = {}): UseButtonReturn {
@@ -46,7 +45,8 @@ export function useButton(props: UseButtonProps = {}): UseButtonReturn {
 	const root = $derived({
 		// Identity
 		id,
-		...buttonAnatomy.attrs.root,
+		"data-kind": "button" as const,
+		"data-slot": "root" as const,
 
 		// HTML
 		type: props.type ?? ("button" as const),

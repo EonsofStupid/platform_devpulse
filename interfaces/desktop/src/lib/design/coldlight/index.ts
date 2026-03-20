@@ -17,7 +17,7 @@ export { useAspectRatio } from "./primitives/aspect-ratio/index.js";
 // ── Layout Hooks ────────────────────────────────────────────
 export { useBox } from "./primitives/box/index.js";
 export { useBreadcrumbs } from "./primitives/breadcrumbs/index.js";
-export { useButton } from "./primitives/button/index.js";
+export { useButton } from "$lib/design/components/button/index.js";
 export { useCenter } from "./primitives/center/index.js";
 export { useCheckbox } from "./primitives/checkbox/index.js";
 export { useColorField } from "./primitives/color-field/index.js";

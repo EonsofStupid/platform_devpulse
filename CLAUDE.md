@@ -53,8 +53,8 @@ Config: `interfaces/desktop/src/lib/design/coldlight.config.ts`
 6. **Renderers** — Dynamic block rendering
 
 ### Key Dependencies
-- @melt-ui/svelte ^0.86.6 (OPTIONAL adapter — not imported directly by components)
-- svelte-sonner ^1.0.7
+- @melt-ui/svelte ^0.86.6 (OPTIONAL adapter — not imported directly by components) NO DONT YOU FUCKING DARTE ANYTHING THAT EXISTS RIGHT NOW IS FUCKING ALIGNED TO REACT SPECTRUM S2 PATTERN OWNED BY COLD LIGHT AND ITS FUCKING 100% SENIOR PATTERNS FOR THEM
+- svelte-sonner ^1.0.7 - built to be controlled by the provider 
 - @tanstack/svelte-table ^8.21.3
 - @tanstack/svelte-query ^6.0.17
 - @tanstack/svelte-virtual ^3.13.18

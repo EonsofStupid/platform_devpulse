@@ -2,7 +2,7 @@
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 
 	const { Story } = defineMeta({
-		title: 'Shards/Button',
+		title: 'ColdLight/Button',
 		tags: ['autodocs'],
 		argTypes: {
 			intent: {
@@ -13,7 +13,7 @@
 			size: {
 				control: 'select',
 				options: ['sm', 'md', 'lg'],
-				description: 'Structural size — handled by recipe',
+				description: 'Size — height, padding, font size',
 			},
 			disabled: {
 				control: 'boolean',
@@ -39,257 +39,73 @@
 </script>
 
 <script lang="ts">
-	import { cn } from '$lib/design/utils/cn.js';
-	import { buttonRecipe, type ButtonSize } from '$lib/design/components/button/recipe.js';
-	import { createButton } from '$lib/design/api/dsadapters/coldlight/_internal/button/index.js';
-
-	const INTENT_STYLES: Record<string, string> = {
-		primary: [
-			'bg-[var(--glass-deep)]',
-			'backdrop-blur-[12px]',
-			'shadow-[var(--shadow-z2),var(--bevel-soft),var(--glow-teal)]',
-			'border border-[var(--border-strong)]',
-			'transition-all duration-150',
-			'text-[var(--color-mint-200)]',
-			'hover:shadow-[var(--shadow-z3),var(--bevel-medium),var(--glow-teal)]',
-			'hover:brightness-110',
-			'active:shadow-[var(--shadow-z1),var(--bevel-subtle)]',
-			'active:brightness-95',
-			'rounded-lg',
-		].join(' '),
-		secondary: [
-			'bg-[var(--glass-smoke)]',
-			'backdrop-blur-[8px]',
-			'shadow-[var(--shadow-z1),var(--bevel-subtle)]',
-			'border border-[var(--border-subtle)]',
-			'transition-all duration-150',
-			'text-[var(--color-mint-300)]',
-			'hover:shadow-[var(--shadow-z2),var(--bevel-soft)]',
-			'hover:brightness-110',
-			'active:brightness-95',
-			'rounded-lg',
-		].join(' '),
-		ghost: [
-			'bg-transparent',
-			'border border-transparent',
-			'transition-colors duration-150',
-			'text-[var(--color-mint-400)]',
-			'hover:bg-[var(--glass-void)]',
-			'hover:border-[var(--border-subtle)]',
-			'active:bg-[var(--glass-deep)]',
-			'rounded-lg',
-		].join(' '),
-		danger: [
-			'bg-[var(--glass-deep)]',
-			'backdrop-blur-[12px]',
-			'shadow-[var(--shadow-z2),var(--bevel-soft),var(--glow-ember)]',
-			'border border-[var(--border-strong)]',
-			'transition-all duration-150',
-			'text-red-300',
-			'hover:shadow-[var(--shadow-z3),var(--bevel-medium),var(--glow-ember)]',
-			'hover:brightness-110',
-			'active:shadow-[var(--shadow-z1),var(--bevel-subtle)]',
-			'active:brightness-95',
-			'rounded-lg',
-		].join(' '),
-	};
-
-	const INTENTS = ['primary', 'secondary', 'ghost', 'danger'] as const;
-	const SIZES: ButtonSize[] = ['sm', 'md', 'lg'];
-
-	function getIntentStyle(intent: string): string {
-		return INTENT_STYLES[intent] ?? INTENT_STYLES.primary;
-	}
-
-	const defaultBuilder = createButton({ disabled: () => false });
-	const disabledBuilder = createButton({ disabled: () => true });
-	const loadingBuilder = createButton({ disabled: () => false, loading: () => true });
+	import Button from '$lib/design/components/button/Button.svelte';
+	import type { ButtonIntent, ButtonSize } from '$lib/design/components/button/button.types.js';
 </script>
 
 <!-- Default — interactive with all controls -->
-<!-- @ts-ignore Storybook CSF args -->
+<!-- @ts-ignore Storybook CSF args typing -->
 <Story name="Default" let:args>
+	{@const a = args as { intent: ButtonIntent; size: ButtonSize; disabled: boolean; loading: boolean; label: string }}
 	<div class="p-12 bg-[#050708] min-h-[200px] flex items-center justify-center">
-		<button
-			class={cn(buttonRecipe((args as any).size as ButtonSize), getIntentStyle((args as any).intent))}
-			data-kind="button"
-			data-slot="root"
-			data-state={(args as any).disabled ? 'disabled' : (args as any).loading ? 'loading' : 'idle'}
-			disabled={(args as any).disabled}
-			aria-disabled={(args as any).disabled ? 'true' : undefined}
-			aria-busy={(args as any).loading ? 'true' : undefined}
+		<Button
+			intent={a.intent}
+			size={a.size}
+			disabled={a.disabled}
+			loading={a.loading}
 		>
-			{(args as any).label}
-		</button>
+			{a.label}
+		</Button>
 	</div>
 </Story>
 
 <!-- All Intents — side by side comparison -->
 <Story name="All Intents">
 	<div class="p-12 bg-[#050708] min-h-[200px] flex items-center gap-4 flex-wrap">
-		{#each INTENTS as intent}
-			<button
-				{...defaultBuilder.root}
-				class={cn(buttonRecipe('md'), getIntentStyle(intent))}
-				data-kind="button"
-				data-slot="root"
-			>
+		{#each ['primary', 'secondary', 'ghost', 'danger'] as intent (intent)}
+			<Button intent={intent as ButtonIntent}>
 				{intent.charAt(0).toUpperCase() + intent.slice(1)}
-			</button>
+			</Button>
 		{/each}
 	</div>
 </Story>
 
-<!-- All Sizes — sm, md, lg -->
+<!-- All Sizes -->
 <Story name="All Sizes">
 	<div class="p-12 bg-[#050708] min-h-[200px] flex items-center gap-4">
-		{#each SIZES as size}
-			<button
-				{...defaultBuilder.root}
-				class={cn(buttonRecipe(size), getIntentStyle('primary'))}
-				data-kind="button"
-				data-slot="root"
-			>
+		{#each ['sm', 'md', 'lg'] as size (size)}
+			<Button size={size as ButtonSize}>
 				Size {size}
-			</button>
+			</Button>
 		{/each}
 	</div>
 </Story>
 
-<!-- States — disabled, loading -->
+<!-- States -->
 <Story name="States">
 	<div class="p-12 bg-[#050708] min-h-[200px] flex items-center gap-4">
-		<button
-			{...defaultBuilder.root}
-			class={cn(buttonRecipe('md'), getIntentStyle('primary'))}
-			data-kind="button"
-			data-slot="root"
-		>
-			Normal
-		</button>
-
-		<button
-			{...disabledBuilder.root}
-			class={cn(buttonRecipe('md'), getIntentStyle('primary'), 'opacity-50 pointer-events-none')}
-			data-kind="button"
-			data-slot="root"
-		>
-			Disabled
-		</button>
-
-		<button
-			{...loadingBuilder.root}
-			class={cn(buttonRecipe('md'), getIntentStyle('primary'), 'animate-pulse')}
-			data-kind="button"
-			data-slot="root"
-		>
-			Loading...
-		</button>
+		<Button>Normal</Button>
+		<Button disabled>Disabled</Button>
+		<Button loading>Loading...</Button>
 	</div>
 </Story>
 
-<!-- Composite Effects — shows the 8-axis system in action -->
+<!-- 8-Axis Composite Effects -->
 <Story name="Composite Effects">
 	<div class="p-12 bg-[#050708] min-h-[400px] flex flex-col gap-8">
-		<p class="text-sm text-zinc-500 font-mono">8-Axis Visual Encoding — each button has different axis values</p>
+		<p class="text-sm text-zinc-500 font-mono">8-Axis Visual Encoding — each button uses different preset axis values</p>
 
 		<div class="flex items-center gap-4">
-			<button
-				class={cn(
-					buttonRecipe('lg'),
-					'bg-[var(--glass-deep)] backdrop-blur-[12px]',
-					'shadow-[var(--shadow-z2),var(--bevel-soft),var(--glow-teal)]',
-					'border border-[var(--border-strong)]',
-					'text-[var(--color-mint-200)]',
-					'transition-all duration-150 rounded-lg',
-				)}
-				data-kind="button"
-				data-slot="root"
-				data-encoding="v-s3z0d2b2g1f1m0t1"
-			>
-				Glass + Glow + Bevel
-			</button>
-
-			<button
-				class={cn(
-					buttonRecipe('lg'),
-					'bg-[var(--glass-deep)] backdrop-blur-[12px]',
-					'shadow-[var(--shadow-z3),var(--bevel-medium)]',
-					'border border-[var(--border-strong)]',
-					'text-zinc-200',
-					'transition-all duration-150 rounded-lg',
-				)}
-				data-kind="button"
-				data-slot="root"
-				data-encoding="v-s3z0d3b3g0f1m0t1"
-			>
-				Deep Bevel, No Glow
-			</button>
-
-			<button
-				class={cn(
-					buttonRecipe('lg'),
-					'bg-transparent',
-					'shadow-[var(--glow-purple)]',
-					'border border-transparent',
-					'text-purple-300',
-					'transition-all duration-150 rounded-lg',
-					'animate-pulse',
-				)}
-				data-kind="button"
-				data-slot="root"
-				data-encoding="v-s1z0d0b0g3f0m1t1"
-			>
-				Glow Only + Pulse
-			</button>
+			<Button size="lg" intent="primary">Glass + Glow + Bevel</Button>
+			<Button size="lg" intent="secondary">Subtle Depth</Button>
+			<Button size="lg" intent="ghost">Ghost</Button>
+			<Button size="lg" intent="danger">Danger</Button>
 		</div>
 
 		<div class="flex items-center gap-4">
-			<button
-				class={cn(
-					buttonRecipe('lg'),
-					'bg-[var(--glass-frost)] backdrop-blur-[16px]',
-					'shadow-[var(--shadow-z1),var(--bevel-subtle),var(--glow-magenta)]',
-					'border border-[var(--border-subtle)]',
-					'text-zinc-800',
-					'transition-all duration-250 rounded-lg',
-				)}
-				data-kind="button"
-				data-slot="root"
-				data-encoding="v-s2z0d1b1g2f1m0t2"
-			>
-				Frost + Magenta
-			</button>
-
-			<button
-				class={cn(
-					buttonRecipe('lg'),
-					'bg-[var(--glass-deep)] backdrop-blur-[12px]',
-					'shadow-[var(--shadow-z4),var(--bevel-pronounced),var(--glow-cyber)]',
-					'border border-[var(--border-strong)]',
-					'text-emerald-300',
-					'transition-all duration-150 rounded-lg',
-				)}
-				data-kind="button"
-				data-slot="root"
-				data-encoding="v-s3z0d4b4g1f1m0t1"
-			>
-				Max Depth + Cyber
-			</button>
-
-			<button
-				class={cn(
-					buttonRecipe('lg'),
-					'bg-zinc-800',
-					'text-zinc-300',
-					'rounded-lg',
-				)}
-				data-kind="button"
-				data-slot="root"
-				data-encoding="v-s0z0d0b0g0f0m0t0"
-			>
-				Flat Baseline
-			</button>
+			<Button size="lg" glow="purple" surface="glass-void">Custom Glow</Button>
+			<Button size="lg" depth="z4" bevel="medium">Deep Bevel</Button>
+			<Button size="lg" surface="glass-frost">Frost Surface</Button>
 		</div>
 	</div>
 </Story>

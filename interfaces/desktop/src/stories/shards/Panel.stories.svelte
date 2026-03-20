@@ -42,11 +42,7 @@
 
 <script lang="ts">
 	import { cn } from '$lib/design/utils/cn.js';
-	import { buttonRecipe } from '$lib/design/components/button/recipe.js';
-	import { createButton } from '$lib/design/api/dsadapters/coldlight/_internal/button/index.js';
-
-	const primaryBuilder = createButton({ disabled: () => false });
-	const secondaryBuilder = createButton({ disabled: () => false });
+	import Button from '$lib/design/components/button/Button.svelte';
 
 	const SURFACE_MAP: Record<string, string> = {
 		'glass-void': 'bg-[var(--glass-void)] backdrop-blur-[20px]',
@@ -125,36 +121,8 @@
 
 			<!-- Footer slot -->
 			<div data-kind="panel" data-slot="footer" class="flex gap-3 justify-end">
-				<button
-					{...secondaryBuilder.root}
-					class={cn(
-						buttonRecipe('md'),
-						'bg-[var(--glass-smoke)] backdrop-blur-[8px]',
-						'shadow-[var(--shadow-z1),var(--bevel-subtle)]',
-						'border border-[var(--border-subtle)]',
-						'text-[var(--color-mint-300)]',
-						'transition-all duration-150 rounded-lg',
-					)}
-					data-kind="button"
-					data-slot="root"
-				>
-					Cancel
-				</button>
-				<button
-					{...primaryBuilder.root}
-					class={cn(
-						buttonRecipe('md'),
-						'bg-[var(--glass-deep)] backdrop-blur-[12px]',
-						'shadow-[var(--shadow-z2),var(--bevel-soft),var(--glow-teal)]',
-						'border border-[var(--border-strong)]',
-						'text-[var(--color-mint-200)]',
-						'transition-all duration-150 rounded-lg',
-					)}
-					data-kind="button"
-					data-slot="root"
-				>
-					Confirm
-				</button>
+				<Button intent="secondary">Cancel</Button>
+				<Button intent="primary">Confirm</Button>
 			</div>
 		</div>
 	</div>

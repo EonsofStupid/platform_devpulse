@@ -1,18 +1,22 @@
 <!--
 	@component Button
 	@kind button
-	@layer components
 
-	ColdLight Button — builder-driven, 8-axis visual system.
+	ColdLight Button — S2 pattern.
+	Hook provides ARIA + keyboard. useColdLight resolves visual encoding.
+	This component is glue. Nothing else.
 -->
 <script lang="ts">
-import { createButton } from "$lib/design/api/dsadapters/coldlight/_internal/button/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import ButtonRoot from "$lib/design/primitives/button/Button.svelte";
 import { cn } from "$lib/design/utils/cn.js";
-import { buttonRecipe } from "./recipe.js";
-import type { ButtonProps } from "./types.js";
-import { BUTTON_INTENT_PRESETS } from "./types.js";
+import { useButton } from "./button.hook.svelte.js";
+import { BUTTON_INTENT_PRESETS, type ButtonProps, type ButtonSize } from "./button.types.js";
+
+const SIZE_CLASSES: Record<ButtonSize, string> = {
+	sm: "h-8 px-3 text-sm gap-1.5",
+	md: "h-10 px-4 text-sm gap-2",
+	lg: "h-12 px-6 text-base gap-2.5",
+};
 
 let {
 	intent = "primary",
@@ -39,14 +43,7 @@ let {
 	...rest
 }: ButtonProps = $props();
 
-const builder = createButton({
-	disabled: () => disabled,
-	pressed: () => pressed,
-	loading: () => loading,
-	expanded: () => expanded,
-	type: () => type,
-	onPressedChange: (v) => onPressedChange?.(v),
-});
+const button = $derived(useButton({ disabled, loading, pressed, onPressedChange, expanded, type }));
 
 const visual = useColdLight(() => ({
 	preset: preset ?? BUTTON_INTENT_PRESETS[intent as keyof typeof BUTTON_INTENT_PRESETS],
@@ -63,9 +60,24 @@ const visual = useColdLight(() => ({
 	size,
 }));
 
-const classes = $derived(cn(buttonRecipe(size), visual.segments, visual.radius, className));
+const classes = $derived(cn(
+	"btn",
+	"inline-flex items-center justify-center font-medium",
+	"focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current",
+	"disabled:pointer-events-none disabled:opacity-50",
+	"cursor-pointer select-none",
+	SIZE_CLASSES[size] ?? SIZE_CLASSES.md,
+	visual.segments,
+	visual.radius,
+	className,
+));
 </script>
 
-<ButtonRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>
+<button
+	{...button.root}
+	{...rest}
+	class={classes}
+	data-encoding={visual.encoding || undefined}
+>
 	{@render children?.()}
-</ButtonRoot>
+</button>
