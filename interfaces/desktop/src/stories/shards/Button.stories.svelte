@@ -41,6 +41,19 @@
 <script lang="ts">
 	import Button from '$lib/design/components/button/Button.svelte';
 	import type { ButtonIntent, ButtonSize } from '$lib/design/components/button/button.types.js';
+
+	/**
+	 * DTCG token chain demonstrated in this file:
+	 *
+	 * button.json (DTCG)
+	 *   → preset.button.primary.$value.glow = "{glow.teal}"
+	 *   → SD5 resolves to CSS: --glow-teal: 0px 0px 20px 0px #00907666
+	 *   → variants.css: v-g1 { --shadow-glow: var(--glow-teal) }
+	 *   → [data-kind] { box-shadow: var(--shadow-depth), var(--shadow-bevel), var(--shadow-glow), var(--shadow-frame) }
+	 *
+	 * Component just passes intent="primary" → useColdLight resolves preset → emits v-* classes.
+	 * Zero hardcoded CSS anywhere in this file.
+	 */
 </script>
 
 <!-- Default — interactive with all controls -->
@@ -106,6 +119,211 @@
 			<Button size="lg" glow="purple" surface="glass-void">Custom Glow</Button>
 			<Button size="lg" depth="z4" bevel="medium">Deep Bevel</Button>
 			<Button size="lg" surface="glass-frost">Frost Surface</Button>
+		</div>
+	</div>
+</Story>
+
+<!--
+	DTCG Composite Token Consumption
+	=================================
+	Shows Button consuming individual 8-axis token props directly.
+	Each prop maps to a DTCG token reference in button.json:
+
+	  surface="glass-deep"   → {surface.overlay}     → --glass-deep (oklch)  → v-s3
+	  depth="z3"             → {shadow.z3}            → --shadow-z3 (composite) → v-d3
+	  bevel="medium"         → {bevel.medium}         → --bevel-medium (4-layer inset) → v-b3
+	  glow="magenta"         → {glow.magenta}         → --glow-magenta (20px emission) → v-g3
+
+	The component calls useColdLight() which resolves these through
+	registry/resolve-visual.ts → emits v-* segment classes.
+	variants.css sets CSS custom properties per segment.
+	[data-kind] base rule composites all 4 shadow layers into one box-shadow.
+-->
+<Story name="DTCG Composite Tokens">
+	<div class="p-12 bg-[#050708] min-h-[500px] flex flex-col gap-10">
+		<div>
+			<p class="text-sm text-zinc-500 font-mono mb-4">DTCG Token Resolution Chain — each row overrides one axis at a time</p>
+
+			<!-- Row 1: Surface axis progression -->
+			<p class="text-xs text-zinc-600 font-mono mb-2">surface: transparent → glass-void → glass-deep → glass-frost</p>
+			<div class="flex items-center gap-4 mb-6">
+				<Button surface="transparent">Transparent</Button>
+				<Button surface="glass-void">Glass Void</Button>
+				<Button surface="glass-deep">Glass Deep</Button>
+				<Button surface="glass-smoke">Glass Smoke</Button>
+				<Button surface="glass-frost">Glass Frost</Button>
+			</div>
+
+			<!-- Row 2: Depth axis progression -->
+			<p class="text-xs text-zinc-600 font-mono mb-2">depth: z0 → z1 → z2 → z3 → z4</p>
+			<div class="flex items-center gap-4 mb-6">
+				<Button depth="z0">z0 (flat)</Button>
+				<Button depth="z1">z1</Button>
+				<Button depth="z2">z2</Button>
+				<Button depth="z3">z3</Button>
+				<Button depth="z4">z4 (max)</Button>
+			</div>
+
+			<!-- Row 3: Glow axis — each is a DTCG shadow composite token -->
+			<p class="text-xs text-zinc-600 font-mono mb-2">glow: off → teal → purple → magenta → ember → cyber</p>
+			<div class="flex items-center gap-4 mb-6">
+				<Button glow="off">No Glow</Button>
+				<Button glow="teal">Teal</Button>
+				<Button glow="purple">Purple</Button>
+				<Button glow="magenta">Magenta</Button>
+				<Button glow="ember">Ember</Button>
+				<Button glow="cyber">Cyber</Button>
+			</div>
+
+			<!-- Row 4: Bevel axis — multi-layer inset shadow composites -->
+			<p class="text-xs text-zinc-600 font-mono mb-2">bevel: off → subtle → soft → medium → pronounced</p>
+			<div class="flex items-center gap-4 mb-6">
+				<Button bevel="off">No Bevel</Button>
+				<Button bevel="subtle">Subtle</Button>
+				<Button bevel="soft">Soft</Button>
+				<Button bevel="medium">Medium</Button>
+				<Button bevel="pronounced">Pronounced</Button>
+			</div>
+
+			<!-- Row 5: Full composition — multiple axes combined -->
+			<p class="text-xs text-zinc-600 font-mono mb-2">Full composite: surface + depth + bevel + glow in one token pass</p>
+			<div class="flex items-center gap-4">
+				<Button surface="glass-deep" depth="z3" bevel="medium" glow="teal" size="lg">
+					Deep Glass + Teal
+				</Button>
+				<Button surface="glass-frost" depth="z1" bevel="subtle" glow="purple" size="lg">
+					Frost + Purple
+				</Button>
+				<Button surface="glass-void" depth="z4" bevel="pronounced" glow="ember" size="lg">
+					Void + Ember
+				</Button>
+			</div>
+		</div>
+	</div>
+</Story>
+
+<!--
+	Block Composition
+	=================
+	Shows Button as it would appear inside a VPB block.
+	BlockNode stores: kind + recipe + props (no CSS, no classes).
+	The renderer resolves visual from props via useColdLight().
+
+	This story simulates what VPB renders:
+	  BlockNode { kind: "button", recipe: "button.glass.void", props: { surface: "glass-deep", glow: "teal" } }
+	  → Button component receives props
+	  → useColdLight() resolves to v-* classes
+	  → variants.css applies token-backed CSS
+-->
+<Story name="Block Composition">
+	<div class="p-12 bg-[#050708] min-h-[500px] flex flex-col gap-8">
+		<p class="text-sm text-zinc-500 font-mono">VPB Block Simulation — button inside a surface block, all token-driven</p>
+
+		<!-- Simulated Panel block containing buttons -->
+		<div
+			class="rounded-xl p-6 w-[480px] v-s3 v-d2 v-b2 v-g1 v-f1 v-t1 border border-[var(--border-subtle)]"
+			data-kind="panel"
+			data-slot="root"
+		>
+			<div data-kind="panel" data-slot="header" class="mb-4">
+				<h3 class="text-lg font-semibold text-zinc-100">Confirm Action</h3>
+				<p class="text-sm text-zinc-400 mt-1">This panel and its buttons are fully token-driven. No hardcoded CSS.</p>
+			</div>
+
+			<div data-kind="panel" data-slot="body" class="space-y-3 mb-6">
+				<div class="flex items-center gap-3">
+					<div class="w-2 h-2 rounded-full v-g1" data-kind="indicator" data-slot="root"></div>
+					<span class="text-sm text-zinc-300">Panel: surface=glass-deep, depth=z2, bevel=soft, glow=teal</span>
+				</div>
+				<div class="flex items-center gap-3">
+					<div class="w-2 h-2 rounded-full v-g1" data-kind="indicator" data-slot="root"></div>
+					<span class="text-sm text-zinc-300">Buttons: inherit context, override intent via preset</span>
+				</div>
+			</div>
+
+			<div data-kind="panel" data-slot="footer" class="flex gap-3 justify-end">
+				<Button intent="ghost">Cancel</Button>
+				<Button intent="secondary">Save Draft</Button>
+				<Button intent="primary">Confirm</Button>
+			</div>
+		</div>
+
+		<!-- Simulated Card block with danger action -->
+		<div
+			class="rounded-xl p-6 w-[480px] v-s3 v-d3 v-b3 v-g4 v-f1 v-t1 border border-[var(--border-strong)]"
+			data-kind="card"
+			data-slot="root"
+		>
+			<div data-kind="card" data-slot="header" class="mb-4">
+				<h3 class="text-lg font-semibold text-red-300">Destructive Action</h3>
+				<p class="text-sm text-zinc-400 mt-1">Card with ember glow — danger context propagated to button</p>
+			</div>
+
+			<div data-kind="card" data-slot="footer" class="flex gap-3 justify-end">
+				<Button intent="ghost">Go Back</Button>
+				<Button intent="danger">Delete Project</Button>
+			</div>
+		</div>
+	</div>
+</Story>
+
+<!--
+	Default Preset Resolution
+	=========================
+	Button with ZERO props shows the full default resolution chain:
+
+	  1. Kind definition (kind-definitions.ts): defaultPreset = "btn-primary"
+	  2. Preset registry (presets.ts): btn-primary → surface=glass-deep, depth=z2, bevel=soft, glow=teal
+	  3. useColdLight() resolves via registry/resolve-visual.ts
+	  4. Emits: "v-s3 v-d2 v-b2 v-g1 v-f1 v-t1"
+	  5. variants.css applies CSS custom properties per segment
+	  6. [data-kind] base rule composites into box-shadow
+
+	The developer writes: <Button>Save</Button>
+	ColdLight resolves everything. Zero configuration needed.
+-->
+<Story name="Default Resolution">
+	<div class="p-12 bg-[#050708] min-h-[400px] flex flex-col gap-8">
+		<div>
+			<p class="text-sm text-zinc-500 font-mono mb-2">Zero props — full default resolution chain</p>
+			<p class="text-xs text-zinc-600 font-mono mb-6">
+				Kind default: btn-primary → surface=glass-deep, depth=z2, bevel=soft, glow=teal → v-s3z0d2b2g1f1m0t1
+			</p>
+			<div class="flex items-center gap-8">
+				<!-- This is what a developer actually writes. Nothing else needed. -->
+				<Button>Save Changes</Button>
+
+				<div class="text-xs text-zinc-600 font-mono space-y-1">
+					<p>← That button has zero explicit props.</p>
+					<p>Intent defaults to "primary".</p>
+					<p>Size defaults to "md".</p>
+					<p>Preset resolves to btn-primary.</p>
+					<p>8-axis encoding: v-s3z0d2b2g1f1m0t1</p>
+					<p>All from DTCG JSON → SD5 → CSS vars → v-* utilities.</p>
+				</div>
+			</div>
+		</div>
+
+		<div>
+			<p class="text-sm text-zinc-500 font-mono mb-2">Each intent has its own full default chain</p>
+			<div class="flex items-center gap-4">
+				<div class="flex flex-col items-center gap-2">
+					<Button intent="primary">Primary</Button>
+					<code class="text-[10px] text-zinc-600">v-s3z0d2b2g1f1m0t1</code>
+				</div>
+				<div class="flex flex-col items-center gap-2">
+					<Button intent="secondary">Secondary</Button>
+					<code class="text-[10px] text-zinc-600">v-s2z0d1b1g0f1m0t1</code>
+				</div>
+				<div class="flex flex-col items-center gap-2">
+					<Button intent="ghost">Ghost</Button>
+					<code class="text-[10px] text-zinc-600">v-s0z0d0b0g0f0m0t1</code>
+				</div>
+				<div class="flex flex-col items-center gap-2">
+					<Button intent="danger">Danger</Button>
+					<code class="text-[10px] text-zinc-600">v-s3z0d2b2g4f1m0t1</code>
+				</div>
+			</div>
 		</div>
 	</div>
 </Story>
