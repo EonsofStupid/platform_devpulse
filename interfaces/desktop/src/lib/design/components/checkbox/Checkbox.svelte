@@ -6,7 +6,7 @@
 	ColdLight Checkbox — builder-driven, 8-axis visual system.
 -->
 <script lang="ts">
-import { createCheckbox } from "$lib/design/api/dsadapters/coldlight/_internal/checkbox/index.js";
+import { createCheckbox } from "$lib/design/primitives/checkbox/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import CheckboxRoot from "$lib/design/primitives/checkbox/Checkbox.svelte";
 import { cn } from "$lib/design/utils/cn.js";

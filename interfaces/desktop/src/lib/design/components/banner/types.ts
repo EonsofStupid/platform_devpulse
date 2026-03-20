@@ -1,29 +1,72 @@
 /**
- * @file Banner Types
+ * @file Banner Component Types
  * @kind banner
  * @layer components
+ *
+ * Banner is a sticky/fixed layout container for site-wide announcements,
+ * marketing CTAs, cookie consent, notifications. NOT an alert — see Alert
+ * for inline contextual feedback with role="alert".
+ *
+ * Follows Ark UI / Zag API conventions:
+ *   - Controlled (open) vs uncontrolled (defaultOpen) state
+ *   - onOpenChange callback with details
+ *   - onExitComplete animation lifecycle
+ *   - ids for composition
+ *   - dir for RTL
+ *   - element render delegation on sub-components
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
 
-export type BannerIntent = "info" | "success" | "warning" | "error";
+// =============================================================================
+// CALLBACK DETAILS
+// =============================================================================
 
-export const BANNER_INTENT_PRESETS: Record<BannerIntent, string> = {
-	info: "banner-info",
-	success: "banner-success",
-	warning: "banner-warning",
-	error: "banner-error",
-};
+/** Details passed to onOpenChange callback. */
+export interface BannerOpenChangeDetails {
+	/** The new open state. */
+	open: boolean;
+}
 
+// =============================================================================
+// BANNER ROOT
+// =============================================================================
+
+/** Viewport edge the banner sticks to. */
+export type BannerPosition = "top" | "bottom";
+
+/** Element IDs for composition. */
+export interface BannerIds {
+	root?: string;
+	dismiss?: string;
+}
+
+/** Props for the ColdLight Banner component. */
 export interface BannerProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps,
-		ColdLightProps {
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
+		PreparedComponentProps {
+	/** Element IDs for composition. */
+	ids?: Partial<BannerIds>;
+	/** Controlled open state. */
+	open?: boolean;
+	/** Initial open state when uncontrolled. Default: true. */
+	defaultOpen?: boolean;
+	/** Callback when open state changes. */
+	onOpenChange?: (details: BannerOpenChangeDetails) => void;
+	/** Callback when the exit animation/transition completes. */
+	onExitComplete?: () => void;
+	/** Viewport edge: "top" (default) or "bottom". */
+	position?: BannerPosition;
+	/** Whether the banner is disabled (non-interactive dismiss). */
+	disabled?: boolean;
+	/** Text/writing direction. Default: "ltr". */
+	dir?: "ltr" | "rtl";
+	/** Whether to show the built-in dismiss button. Default: true. */
+	dismissible?: boolean;
+	/** Content snippet. */
 	children?: Snippet;
-	intent?: BannerIntent;
-	visible?: boolean;
-	onVisibleChange?: (visible: boolean) => void;
+	/** Override the dismiss button rendering. */
+	dismiss?: Snippet;
 }

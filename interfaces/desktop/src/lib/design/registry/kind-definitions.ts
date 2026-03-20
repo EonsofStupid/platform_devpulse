@@ -357,10 +357,10 @@ define({
 	engine: "coldlight",
 	defaultPreset: "banner-info",
 	defaultRecipe: "banner.glass.void",
-	blockCategory: "feedback",
+	blockCategory: "layout",
 	requiredAxes: ["surface"],
 	compound: true,
-	container: false,
+	container: true,
 });
 
 define({

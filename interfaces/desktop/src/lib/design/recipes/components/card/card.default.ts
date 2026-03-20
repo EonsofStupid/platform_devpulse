@@ -1,22 +1,17 @@
 /**
- * @file Card Recipe — Glass Void (Gold Standard)
+ * @file Card Recipe — Glass Void
  * @id card.glass.void
  * @kind card
  * @layer recipes
  * @package @devpulse/coldlight
  *
- * GOLD STANDARD recipe — shortcode class composition system.
+ * Token-backed recipe for the Card compound component.
  *
- * Class strategy:
- *   - Structural classes (card, card-*) handle layout/positioning
- *   - Shortcode classes (v-*, s-*, e-*, sz-*) handle visual appearance
- *   - NO raw Tailwind utilities in recipe output
- *
- * Output example:
- *   root: "card v-void s-glass e-2 sz-md rounded-lg"
+ * All spacing uses SD5 token scale (N = pixel value):
+ *   px-16 = 16px = 1rem, py-12 = 12px = 0.75rem, gap-8 = 8px = 0.5rem
  *
  * Slot keys match card contract:
- *   root, header, content, footer
+ *   root, cover, header, title, description, action, content, footer
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -43,8 +38,12 @@ registerRecipe({
 	},
 	classes: (props: DsSurfaceProps): Record<string, string> => ({
 		root: cn("card", emitSegments(toPreset(props)), radiusClass(props.radius)),
-		header: "card-header",
-		content: "card-content",
-		footer: "card-footer",
+		cover: "card-cover",
+		header: cn("card-header", "flex flex-col gap-6 px-24 pt-24"),
+		title: cn("card-title", "text-lg font-semibold leading-none tracking-tight text-text-primary"),
+		description: cn("card-description", "text-sm text-text-secondary"),
+		action: cn("card-action", "ms-auto shrink-0"),
+		content: cn("card-content", "px-24 py-16"),
+		footer: cn("card-footer", "flex items-center px-24 pb-24"),
 	}),
 });

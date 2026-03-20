@@ -10,7 +10,7 @@
 
 export const BLOCK_CATEGORIES = {
 	shell: ["app-shell", "top-bar", "side-nav", "status-bar", "dock"],
-	surfaces: ["card", "dialog", "sheet", "callout", "banner"],
+	surfaces: ["card", "dialog", "sheet", "callout"],
 	forms: [
 		"input",
 		"textarea",
@@ -63,6 +63,7 @@ export const BLOCK_CATEGORIES = {
 		"center",
 		"spacer",
 		"aspect-ratio",
+		"banner",
 	],
 	overlay: [
 		"popover",

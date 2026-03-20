@@ -6,9 +6,9 @@
 	ColdLight Callout — builder-driven, 8-axis visual system.
 -->
 <script lang="ts">
-import { createCallout } from "$lib/design/api/dsadapters/coldlight/_internal/callout/index.js";
+import { createCallout } from "$lib/design/components/callout/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import CalloutRoot from "$lib/design/primitives/callout/Callout.svelte";
+import actual parts to make this component";
 import { cn } from "$lib/design/utils/cn.js";
 import { calloutRecipe } from "./recipe.js";
 import type { CalloutProps } from "./types.js";

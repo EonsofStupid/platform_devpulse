@@ -1,24 +1,37 @@
 <!--
-	@component Card
+	@component Card (Root)
 	@kind card
 	@layer components
 
-	ColdLight Card — builder-driven, 8-axis visual system.
+	ColdLight Card Root — compound structural surface container.
+	Supports element polymorphism: div (default), a (link), button (clickable).
+	Sets Svelte context for sub-components (Header, Title, Content, Footer, etc.).
+
+	API follows Ark UI / Zag conventions:
+	  - ids for composition
+	  - dir for RTL
+	  - disabled state
+	  - element polymorphism (as)
 -->
 <script lang="ts">
-import { createCard } from "$lib/design/api/dsadapters/coldlight/_internal/card/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import CardRoot from "$lib/design/primitives/card/Card.svelte";
+import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { cardRecipe } from "./recipe.js";
-import type { CardProps } from "./types.js";
+import { setCardContext } from "./context.js";
+import type { CardRootProps } from "./types.js";
 import { CARD_VARIANT_PRESETS } from "./types.js";
 
 let {
+	ids,
+	as = "div",
+	orientation = "vertical",
 	variant = "default",
-	size = "md",
 	label,
 	labelledBy,
+	href,
+	target,
+	disabled = false,
+	dir = "ltr",
 	preset,
 	surface,
 	material,
@@ -33,11 +46,17 @@ let {
 	children,
 	class: className,
 	...rest
-}: CardProps = $props();
+}: CardRootProps = $props();
 
-const builder = createCard({
-	label: () => label,
-	labelledBy: () => labelledBy,
+const recipe = getRecipe("card.glass.void");
+// biome-ignore lint/suspicious/noExplicitAny: recipe classes accept resolved props
+const recipeClasses = recipe?.classes?.({} as any) ?? {};
+
+setCardContext({
+	get classes() { return recipeClasses; },
+	get orientation() { return orientation; },
+	get dir() { return dir; },
+	get ids() { return ids ?? {}; },
 });
 
 const visual = useColdLight(() => ({
@@ -52,12 +71,70 @@ const visual = useColdLight(() => ({
 	transition,
 	encoding,
 	radius: radius ?? "lg",
-	size,
 }));
 
-const classes = $derived(cn(cardRecipe(size), visual.segments, visual.radius, className));
+const rootClasses = $derived(
+	cn(
+		recipeClasses.root,
+		visual.segments,
+		visual.radius,
+		orientation === "horizontal" ? "flex-row" : "flex-col",
+		"flex overflow-hidden",
+		disabled ? "pointer-events-none opacity-60" : undefined,
+		className,
+	),
+);
 </script>
 
-<CardRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>
-	{@render children?.()}
-</CardRoot>
+{#if as === "a"}
+	<a
+		id={ids?.root}
+		{href}
+		{target}
+		{dir}
+		aria-label={label || undefined}
+		aria-labelledby={labelledBy || undefined}
+		aria-disabled={disabled || undefined}
+		data-kind="card"
+		data-slot="root"
+		data-orientation={orientation}
+		data-encoding={visual.encoding || undefined}
+		class={rootClasses}
+		{...rest}
+	>
+		{@render children?.()}
+	</a>
+{:else if as === "button"}
+	<button
+		id={ids?.root}
+		type="button"
+		{disabled}
+		{dir}
+		aria-label={label || undefined}
+		aria-labelledby={labelledBy || undefined}
+		data-kind="card"
+		data-slot="root"
+		data-orientation={orientation}
+		data-encoding={visual.encoding || undefined}
+		class={rootClasses}
+		{...rest}
+	>
+		{@render children?.()}
+	</button>
+{:else}
+	<div
+		id={ids?.root}
+		{dir}
+		role={label || labelledBy ? "group" : undefined}
+		aria-label={label || undefined}
+		aria-labelledby={labelledBy || undefined}
+		data-kind="card"
+		data-slot="root"
+		data-orientation={orientation}
+		data-encoding={visual.encoding || undefined}
+		class={rootClasses}
+		{...rest}
+	>
+		{@render children?.()}
+	</div>
+{/if}

@@ -404,18 +404,7 @@ Pattern:
   {@render children?.()}
 </button>
 Archetype B: Adapter-Backed (ariaStateProvider: "Shards")
-Component renders its OWN DOM elements (Shards action needs direct DOM access)
-
-
-
-<script lang="ts">
-  import { setDialogComponentContext } from "./context.js";
-  import { createDialogAdapter } from "$lib/design/api/dsadapters/meltui/_internal/dialog/adapter.js";
-  const adapter = createDialogAdapter({ defaultOpen: open });
-  setDialogComponentContext({ adapter });
-</script>
-{@render children?.()}
-Pattern (sub-component):
+Component renders its OWN DOM elements (Shards action needs direct DOM access
 
 
 <script lang="ts">
@@ -2429,16 +2418,6 @@ Pattern (root):
 
 
 <script lang="ts">
-  import { setDialogComponentContext } from "./context.js";
-  import { createDialogAdapter } from "$lib/design/api/dsadapters/meltui/_internal/dialog/adapter.js";
-  const adapter = createDialogAdapter({ defaultOpen: open });
-  setDialogComponentContext({ adapter });
-</script>
-{@render children?.()}
-Pattern (sub-component):
-
-
-<script lang="ts">
   import { cold } from "../_transport/action.js";
   import { getDialogComponentContext } from "./context.js";
   const { adapter } = getDialogComponentContext();
@@ -2448,28 +2427,6 @@ Pattern (sub-component):
 </button>
 TRANSPORT CHAIN (use:cold)
 
-@melt-ui/svelte (melt action)
-    ↓
-api/adapters/meltui/_internal/_transport/action.ts    ← CLOAKING ORIGIN: import { melt } from "@melt-ui/svelte"; export { melt as cold };
-    ↓
-components/_transport/action.ts                        ← TRANSPORT ENDPOINT: export { cold } from "$lib/design/api/dsadapters/meltui/_internal/_transport/action.js";
-    ↓
-components/dialog/DialogTrigger.svelte                 ← CONSUMER: import { cold } from "../_transport/action.js";
-Components NEVER import from @melt-ui/svelte. NEVER import from _internal/ directly except for adapter creation in root component.
-
-VERIFIED IMPORTS & TYPES (from actual codebase)
-Primitives shared types (primitives/types.ts)
-
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
-
-const NS = "cl-";
-export const DATA_ATTRS = {
-  kind: `data-${NS}kind`, slot: `data-${NS}slot`, state: `data-${NS}state`,
-  id: `data-${NS}id`, surface: `data-${NS}surface`, material: `data-${NS}material`,
-  motion: `data-${NS}motion`, transition: `data-${NS}transition`,
-  focus: `data-${NS}focus`, layers: `data-${NS}layers`,
-} as const;
 
 export type OmitStyle<T extends HTMLElement> = Omit<HTMLAttributes<T>, "style" | "children">;
 export interface BaseProps { "data-id"?: string; }

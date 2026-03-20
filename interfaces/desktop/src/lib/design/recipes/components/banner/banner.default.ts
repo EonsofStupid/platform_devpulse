@@ -8,14 +8,19 @@
  * Recipe for the ColdLight banner component.
  * Fully prop-driven via DsSurfaceProps.
  *
+ * ALL spacing, sizing, and typography values reference the SD5 token scale.
+ * The --spacing-N naming is literal: N = pixel value at base font size.
+ *   px-12 = --spacing-12 = 0.75rem = 12px
+ *   py-8  = --spacing-8  = 0.5rem  = 8px
+ *   gap-8 = --spacing-8  = 0.5rem  = 8px
+ *
  * Token strategy:
- *   - Component tokens:
- *       --banner-bg        → var(--surface-overlay)
- *       --banner-border    → var(--border-subtle)
- *   - Semantic text tokens:
- *       text-text-primary, text-text-secondary, text-text-muted
- *   - Encoding emitters:
- *       emitSegments(), radiusClass()
+ *   - Spacing:   --spacing-* (SD5 primitives, px→rem transformed)
+ *   - Sizing:    --size-* (icon/component sizes)
+ *   - Typography: --text-* (font sizes via @theme)
+ *   - Component:  --banner-bg, --banner-border (semantic)
+ *   - Text:       text-text-primary, text-text-secondary, text-text-muted
+ *   - Encoding:   emitSegments(), radiusClass()
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -24,21 +29,30 @@ import type { DsSurfaceProps } from "../../types.js";
 import { toPreset } from "../../types.js";
 import { emitSegments, radiusClass } from "../../utils.js";
 
+/**
+ * Token-backed size scale.
+ *
+ * Spacing utilities map to --spacing-N where N = pixel value:
+ *   px-12 = 12px = 0.75rem, py-8 = 8px = 0.5rem, etc.
+ *
+ * Icon sizes use --size-* tokens:
+ *   size-3xs = 1rem (16px), size-2xs = 1.25rem (20px), size-xs = 1.5rem (24px)
+ */
 const SIZE_SCALE = {
 	sm: {
-		root: "px-3 py-2 gap-2 text-sm",
-		icon: "h-4 w-4",
-		dismiss: "p-0.5",
+		root: "px-12 py-8 gap-8 text-sm",
+		icon: "size-3xs",
+		dismiss: "p-2",
 	},
 	md: {
-		root: "px-4 py-3 gap-3 text-sm",
-		icon: "h-5 w-5",
-		dismiss: "p-1",
+		root: "px-16 py-12 gap-12 text-sm",
+		icon: "size-2xs",
+		dismiss: "p-4",
 	},
 	lg: {
-		root: "px-5 py-4 gap-4 text-base",
-		icon: "h-6 w-6",
-		dismiss: "p-1.5",
+		root: "px-20 py-16 gap-16 text-base",
+		icon: "size-xs",
+		dismiss: "p-6",
 	},
 } as const;
 

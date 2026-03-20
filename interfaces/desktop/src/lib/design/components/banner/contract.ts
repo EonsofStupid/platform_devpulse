@@ -6,8 +6,14 @@
  * BUILD-TIME validated via `satisfies ComponentContract`.
  * TypeScript compiler enforces the shape — zero runtime overhead.
  *
- * Reference: W3C WAI-ARIA APG Alert Pattern
- * https://www.w3.org/WAI/ARIA/apg/patterns/alert/
+ * Banner is a sticky/fixed layout container for site-wide announcements,
+ * marketing CTAs, cookie consent, and persistent notifications.
+ *
+ * NOT an alert — Banner has no role="alert", no assertive live region.
+ * For inline contextual feedback, see Alert.
+ *
+ * Reference: WAI-ARIA complementary landmark
+ * https://www.w3.org/TR/wai-aria-1.2/#complementary
  */
 
 import type { ComponentContract } from "$lib/design/components/_schema/contract.js";
@@ -15,12 +21,11 @@ import type { ComponentContract } from "$lib/design/components/_schema/contract.
 export const contract = {
 	kind: "banner",
 	description:
-		"Full-width alert banner for important messages. Uses role='alert' for assertive live region. Supports dismiss via action slot. Intents: info, success, warning, error.",
-	apgPattern: "https://www.w3.org/WAI/ARIA/apg/patterns/alert/",
+		"Sticky/fixed layout container for site-wide announcements, marketing CTAs, cookie consent, and persistent notifications. Positioned at viewport top or bottom. Dismissible with transition support. NOT an alert — use Alert for inline contextual feedback.",
 
 	slots: {
 		required: ["root"],
-		optional: ["icon", "content", "action"],
+		optional: ["dismiss"],
 	},
 
 	slotContracts: {
@@ -28,55 +33,30 @@ export const contract = {
 			name: "root",
 			element: "div",
 			aria: {
-				role: "alert",
+				role: "complementary",
 				required: [],
 				optional: [
 					{ attr: "aria-label", valueType: "aria-label" },
-					{ attr: "aria-live", valueType: "aria-live" },
 				],
 			},
 			data: {
 				kind: "banner",
 				slot: "root",
-				states: ["visible", "hidden"],
+				states: ["open", "closed"],
 			},
 		},
-		icon: {
-			name: "icon",
-			element: "span",
+		dismiss: {
+			name: "dismiss",
+			element: "button",
 			aria: {
-				required: [],
-				optional: [{ attr: "aria-hidden", valueType: "aria-hidden" }],
-			},
-			data: {
-				kind: "banner",
-				slot: "icon",
-				states: [],
-			},
-		},
-		content: {
-			name: "content",
-			element: "div",
-			aria: {
-				required: [],
+				required: [
+					{ attr: "aria-label", valueType: "aria-label" },
+				],
 				optional: [],
 			},
 			data: {
 				kind: "banner",
-				slot: "content",
-				states: [],
-			},
-		},
-		action: {
-			name: "action",
-			element: "div",
-			aria: {
-				required: [],
-				optional: [],
-			},
-			data: {
-				kind: "banner",
-				slot: "action",
+				slot: "dismiss",
 				states: [],
 			},
 		},
@@ -84,8 +64,7 @@ export const contract = {
 
 	accessibleName: {
 		required: false,
-		sources: ["content", "aria-label"],
-		defaultSlot: "content",
+		sources: ["aria-label"],
 	},
 
 	focus: {
@@ -97,8 +76,7 @@ export const contract = {
 	},
 
 	states: {
-		all: ["visible", "hidden"],
-		ariaMapping: {},
+		all: ["open", "closed"],
 	},
 
 	interactions: {

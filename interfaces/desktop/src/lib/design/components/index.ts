@@ -95,13 +95,7 @@ export {
 	type BadgeSize,
 	badgeRecipe,
 } from "./badge/index.js";
-export {
-	Card,
-	type CardProps,
-	type CardSize,
-	type CardVariant,
-	cardRecipe,
-} from "./card/index.js";
+export * as Card from "./card/index.js";
 export {
 	Separator,
 	type SeparatorOrientation,
