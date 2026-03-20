@@ -1,45 +1,19 @@
 /**
- * @file Button Types — All types for the Button component, colocated.
+ * @file Button Component Types
  * @kind button
+ * @layer components
+ *
+ * Hook types re-exported from coldlight/primitives/button.
+ * Component-specific types (intent, size, props) defined here.
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLButtonAttributes } from "svelte/elements";
 import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { ButtonType } from "$lib/design/coldlight/primitives/button/button.types.js";
 
-// ── Hook types ──────────────────────────────────────────────────
-
-export type ButtonType = "button" | "submit" | "reset";
-
-export interface UseButtonProps {
-	/** Whether the button is disabled. */
-	disabled?: boolean;
-	/** Whether the button is in a loading state (treated as disabled). */
-	loading?: boolean;
-	/** Toggle mode: the pressed state. `undefined` = not a toggle button. */
-	pressed?: boolean;
-	/** Callback when pressed state changes (toggle mode only). */
-	onPressedChange?: (pressed: boolean) => void;
-	/** Menu trigger mode: whether the controlled region is expanded. */
-	expanded?: boolean;
-	/** HTML button type attribute. Default: "button". */
-	type?: ButtonType;
-}
-
-export interface UseButtonReturn {
-	/** Spread onto the root `<button>` element. */
-	readonly root: Record<string, unknown>;
-	/** Current pressed state (toggle mode). */
-	readonly pressed: boolean | undefined;
-	/** Whether the button is functionally disabled (disabled OR loading). */
-	readonly isDisabled: boolean;
-	/** Programmatically press (toggle mode only). */
-	press(): void;
-	/** Programmatically unpress (toggle mode only). */
-	unpress(): void;
-	/** Programmatically toggle pressed state (toggle mode only). */
-	toggle(): void;
-}
+// Re-export hook types so consumers can import from one place
+export type { ButtonType, UseButtonProps, UseButtonReturn } from "$lib/design/coldlight/primitives/button/button.types.js";
 
 // ── Component types ─────────────────────────────────────────────
 

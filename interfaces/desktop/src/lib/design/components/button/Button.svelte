@@ -9,7 +9,7 @@
 <script lang="ts">
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { useButton } from "./button.hook.svelte.js";
+import { useButton } from "$lib/design/coldlight/primitives/button/index.js";
 import { BUTTON_INTENT_PRESETS, type ButtonProps, type ButtonSize } from "./button.types.js";
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
