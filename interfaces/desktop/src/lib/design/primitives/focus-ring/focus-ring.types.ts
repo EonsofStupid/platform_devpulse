@@ -1,25 +1,14 @@
-/**
- * useFocusRing — prop and return types.
- *
- * Distinguishes keyboard focus (Tab) from mouse focus (click).
- * isFocusVisible is true only for keyboard-initiated focus.
- */
+import type { HTMLAttributes } from "svelte/elements";
 
 export interface UseFocusRingProps {
-	/** Whether the element should auto-focus on mount. */
 	autoFocus?: boolean;
 }
 
-export interface FocusRingPropsAttrs {
-	onfocus: (e: FocusEvent) => void;
-	onblur: (e: FocusEvent) => void;
-	"data-focus-visible": "" | undefined;
-	autofocus: boolean | undefined;
-}
+export type FocusRingPropsAttrs = Pick<HTMLAttributes<HTMLElement>, "onfocus" | "onblur" | "autofocus"> & {
+	"data-focus-visible"?: "";
+};
 
 export interface UseFocusRingReturn {
-	/** Whether focus was initiated by keyboard (Tab). */
 	readonly isFocusVisible: boolean;
-	/** Spread onto the target element. */
 	readonly focusRingProps: FocusRingPropsAttrs;
 }

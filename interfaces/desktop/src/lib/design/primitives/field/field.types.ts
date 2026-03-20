@@ -1,58 +1,45 @@
-import type { ColdLightDataAttrs } from "../../_internal/types/common.js";
+import type { HTMLAttributes, HTMLInputAttributes, HTMLLabelAttributes } from "svelte/elements";
 
 export interface UseFieldProps {
-	/** Whether the field value is invalid. */
 	invalid?: boolean;
-	/** Whether the field is required. */
 	required?: boolean;
-	/** Whether the field is disabled. */
 	disabled?: boolean;
-	/** Error message text (used to determine if error slot should be linked). */
 	error?: string;
 }
 
-export interface FieldRootAttrs extends ColdLightDataAttrs {
+export type FieldRootAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "field";
 	"data-slot": "root";
-	id: string;
-	role: "group";
-	"aria-labelledby": string;
-	"data-invalid": "" | undefined;
-	"data-required": "" | undefined;
-	"data-disabled": "" | undefined;
-}
+	"data-invalid"?: "";
+	"data-required"?: "";
+	"data-disabled"?: "";
+};
 
-export interface FieldLabelAttrs extends ColdLightDataAttrs {
+export type FieldLabelAttrs = HTMLLabelAttributes & {
+	"data-kind": "field";
 	"data-slot": "label";
-	id: string;
-	for: string;
-	"data-required": "" | undefined;
-	"data-disabled": "" | undefined;
-}
+	"data-required"?: "";
+	"data-disabled"?: "";
+};
 
-export interface FieldControlAttrs extends ColdLightDataAttrs {
+export type FieldControlAttrs = HTMLInputAttributes & {
+	"data-kind": "field";
 	"data-slot": "control";
-	id: string;
-	"aria-describedby": string | undefined;
-	"aria-invalid": string | undefined;
-	"aria-required": string | undefined;
-	"aria-disabled": string | undefined;
-	"data-invalid": "" | undefined;
-	"data-required": "" | undefined;
-	"data-disabled": "" | undefined;
-}
+	"data-invalid"?: "";
+	"data-required"?: "";
+	"data-disabled"?: "";
+};
 
-export interface FieldDescriptionAttrs extends ColdLightDataAttrs {
+export type FieldDescriptionAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "field";
 	"data-slot": "description";
-	id: string;
-}
+};
 
-export interface FieldErrorAttrs extends ColdLightDataAttrs {
+export type FieldErrorAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "field";
 	"data-slot": "error";
-	id: string;
-	role: "alert";
-	"aria-live": "polite";
-	"data-invalid": "" | undefined;
-}
+	"data-invalid"?: "";
+};
 
 export interface UseFieldReturn {
 	readonly root: FieldRootAttrs;
@@ -60,6 +47,5 @@ export interface UseFieldReturn {
 	readonly control: FieldControlAttrs;
 	readonly description: FieldDescriptionAttrs;
 	readonly error: FieldErrorAttrs;
-	/** The generated control ID — use this for htmlFor on standalone labels. */
 	readonly controlId: string;
 }

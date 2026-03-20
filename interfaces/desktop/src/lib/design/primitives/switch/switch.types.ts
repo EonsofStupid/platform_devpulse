@@ -1,49 +1,33 @@
-import type { ColdLightDataAttrs } from "../../_internal/types/common.js";
+import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
 
 export interface UseSwitchProps {
-	/** Whether the switch is on. Default: false. */
 	checked?: boolean;
-	/** Callback when checked state changes. */
 	onCheckedChange?: (checked: boolean) => void;
-	/** Whether the switch is disabled. */
 	disabled?: boolean;
-	/** Whether the switch is required. */
 	required?: boolean;
-	/** Accessible label. */
 	"aria-label"?: string;
 	"aria-labelledby"?: string;
 	"aria-describedby"?: string;
 }
 
-export interface SwitchRootAttrs extends ColdLightDataAttrs {
+export type SwitchRootAttrs = HTMLButtonAttributes & {
+	"data-kind": "switch";
 	"data-slot": "root";
-	id: string;
-	role: "switch";
-	type: "button";
-	tabindex: 0;
-	"aria-checked": boolean;
-	"aria-disabled": string;
-	"aria-required": boolean | undefined;
-	"aria-label": string | undefined;
-	"aria-labelledby": string | undefined;
-	"aria-describedby": string | undefined;
 	"data-state": "checked" | "unchecked";
-	"data-disabled": "" | undefined;
-	onclick: (e: MouseEvent) => void;
-	onkeydown: (e: KeyboardEvent) => void;
-}
+	"data-disabled"?: "";
+};
 
-export interface SwitchThumbAttrs extends ColdLightDataAttrs {
+export type SwitchThumbAttrs = HTMLAttributes<HTMLSpanElement> & {
+	"data-kind": "switch";
 	"data-slot": "thumb";
-	"aria-hidden": "true";
 	"data-state": "checked" | "unchecked";
-}
+};
 
-export interface SwitchLabelAttrs extends ColdLightDataAttrs {
+export type SwitchLabelAttrs = HTMLAttributes<HTMLSpanElement> & {
+	"data-kind": "switch";
 	"data-slot": "label";
-	"data-disabled": "" | undefined;
-	onclick: (e: MouseEvent) => void;
-}
+	"data-disabled"?: "";
+};
 
 export interface UseSwitchReturn {
 	readonly checked: boolean;

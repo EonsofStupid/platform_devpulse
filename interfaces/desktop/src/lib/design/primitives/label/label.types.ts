@@ -1,18 +1,15 @@
-import type { ColdLightDataAttrs } from "../../_internal/types/common.js";
+import type { HTMLLabelAttributes } from "svelte/elements";
 
 export interface UseLabelProps {
-	/** The ID of the form control this label is associated with. */
 	htmlFor?: string;
-	/** Whether the associated control is disabled. */
 	disabled?: boolean;
 }
 
-export interface LabelRootAttrs extends ColdLightDataAttrs {
+export type LabelRootAttrs = HTMLLabelAttributes & {
+	"data-kind": "label";
 	"data-slot": "root";
-	id: string;
-	for: string | undefined;
-	"data-disabled": "" | undefined;
-}
+	"data-disabled"?: "";
+};
 
 export interface UseLabelReturn {
 	readonly root: LabelRootAttrs;

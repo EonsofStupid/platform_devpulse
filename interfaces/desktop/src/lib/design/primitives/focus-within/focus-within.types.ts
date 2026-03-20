@@ -1,27 +1,14 @@
-/**
- * useFocusWithin — prop and return types.
- *
- * Tracks whether focus is within a container element,
- * using focusin/focusout with relatedTarget checks.
- */
+import type { HTMLAttributes } from "svelte/elements";
 
 export interface UseFocusWithinProps {
-	/** Callback fired when focus enters the container. */
 	onFocusWithin?: (e: FocusEvent) => void;
-	/** Callback fired when focus leaves the container. */
 	onBlurWithin?: (e: FocusEvent) => void;
-	/** Callback fired when focusedWithin state changes. */
 	onFocusWithinChange?: (focusedWithin: boolean) => void;
 }
 
-export interface FocusWithinPropsAttrs {
-	onfocusin: (e: FocusEvent) => void;
-	onfocusout: (e: FocusEvent) => void;
-}
+export type FocusWithinPropsAttrs = Pick<HTMLAttributes<HTMLElement>, "onfocusin" | "onfocusout">;
 
 export interface UseFocusWithinReturn {
-	/** Whether focus is currently within the container. */
 	readonly focusedWithin: boolean;
-	/** Spread onto the container element. */
 	readonly focusWithinProps: FocusWithinPropsAttrs;
 }

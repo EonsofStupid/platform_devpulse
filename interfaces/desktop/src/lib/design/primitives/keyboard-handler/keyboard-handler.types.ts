@@ -1,22 +1,12 @@
-/**
- * useKeyboard — prop and return types.
- *
- * Thin wrapper that returns onkeydown/onkeyup event handlers.
- */
+import type { HTMLAttributes } from "svelte/elements";
 
 export interface UseKeyboardProps {
-	/** Callback fired on keydown. */
 	onKeyDown?: (e: KeyboardEvent) => void;
-	/** Callback fired on keyup. */
 	onKeyUp?: (e: KeyboardEvent) => void;
 }
 
-export interface KeyboardPropsAttrs {
-	onkeydown: ((e: KeyboardEvent) => void) | undefined;
-	onkeyup: ((e: KeyboardEvent) => void) | undefined;
-}
+export type KeyboardPropsAttrs = Pick<HTMLAttributes<HTMLElement>, "onkeydown" | "onkeyup">;
 
 export interface UseKeyboardReturn {
-	/** Spread onto the target element. */
 	readonly keyboardProps: KeyboardPropsAttrs;
 }

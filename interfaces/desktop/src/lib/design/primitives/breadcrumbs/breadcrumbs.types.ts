@@ -1,41 +1,39 @@
-import type { ColdLightDataAttrs } from "../../_internal/types/common.js";
+import type { HTMLAnchorAttributes, HTMLAttributes } from "svelte/elements";
 
 export interface UseBreadcrumbsProps {
-	/** Accessible label for the nav landmark. Default: "Breadcrumb". */
 	label?: string;
 }
 
-export interface BreadcrumbsRootAttrs extends ColdLightDataAttrs {
+export type BreadcrumbsRootAttrs = HTMLAttributes<HTMLElement> & {
+	"data-kind": "breadcrumbs";
 	"data-slot": "root";
-	role: "navigation";
-	"aria-label": string;
-}
+};
 
-export interface BreadcrumbsListAttrs extends ColdLightDataAttrs {
+export type BreadcrumbsListAttrs = HTMLAttributes<HTMLOListElement> & {
+	"data-kind": "breadcrumbs";
 	"data-slot": "list";
-}
+};
 
-export interface BreadcrumbsItemAttrs extends ColdLightDataAttrs {
+export type BreadcrumbsItemAttrs = HTMLAttributes<HTMLLIElement> & {
+	"data-kind": "breadcrumbs";
 	"data-slot": "item";
-}
+};
 
-export interface BreadcrumbsSeparatorAttrs extends ColdLightDataAttrs {
+export type BreadcrumbsSeparatorAttrs = HTMLAttributes<HTMLSpanElement> & {
+	"data-kind": "breadcrumbs";
 	"data-slot": "separator";
-	"aria-hidden": "true";
-	role: "presentation";
-}
+};
 
-export interface BreadcrumbsLinkAttrs extends ColdLightDataAttrs {
+export type BreadcrumbsLinkAttrs = HTMLAnchorAttributes & {
+	"data-kind": "breadcrumbs";
 	"data-slot": "link";
-	"aria-current": "page" | undefined;
-	"data-current": "" | undefined;
-}
+	"data-current"?: "";
+};
 
 export interface UseBreadcrumbsReturn {
 	readonly root: BreadcrumbsRootAttrs;
 	readonly list: BreadcrumbsListAttrs;
 	readonly item: BreadcrumbsItemAttrs;
 	readonly separator: BreadcrumbsSeparatorAttrs;
-	/** Get link attrs. Pass isCurrent=true for the last item. */
 	getLink(isCurrent?: boolean): BreadcrumbsLinkAttrs;
 }

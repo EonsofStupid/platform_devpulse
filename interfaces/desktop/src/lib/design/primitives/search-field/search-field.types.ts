@@ -1,4 +1,4 @@
-import type { ColdLightDataAttrs } from "../../_internal/types/common.js";
+import type { HTMLAttributes, HTMLButtonAttributes, HTMLInputAttributes } from "svelte/elements";
 
 export interface UseSearchFieldProps {
 	value?: string;
@@ -10,48 +10,30 @@ export interface UseSearchFieldProps {
 	"aria-describedby"?: string;
 }
 
-export interface SearchFieldRootAttrs extends ColdLightDataAttrs {
+export type SearchFieldRootAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "search-field";
 	"data-slot": "root";
-	id: string;
-	role: "search";
-	"aria-label": string;
-	"data-disabled": "" | undefined;
-	"data-has-value": "" | undefined;
-}
+	"data-disabled"?: "";
+	"data-has-value"?: "";
+};
 
-export interface SearchFieldInputAttrs extends ColdLightDataAttrs {
+export type SearchFieldInputAttrs = HTMLInputAttributes & {
+	"data-kind": "search-field";
 	"data-slot": "input";
-	id: string;
-	role: "searchbox";
-	type: "search";
-	value: string;
-	placeholder: string;
-	disabled: boolean | undefined;
-	"aria-label": string;
-	"aria-describedby": string | undefined;
-	"aria-disabled": string;
-	"data-disabled": "" | undefined;
-	oninput: (e: Event) => void;
-	onkeydown: (e: KeyboardEvent) => void;
-}
+	"data-disabled"?: "";
+};
 
-export interface SearchFieldIconAttrs extends ColdLightDataAttrs {
+export type SearchFieldIconAttrs = HTMLAttributes<HTMLSpanElement> & {
+	"data-kind": "search-field";
 	"data-slot": "icon";
-	id: string;
-	"aria-hidden": "true";
-}
+};
 
-export interface SearchFieldClearAttrs extends ColdLightDataAttrs {
+export type SearchFieldClearAttrs = HTMLButtonAttributes & {
+	"data-kind": "search-field";
 	"data-slot": "clear";
-	id: string;
-	type: "button";
-	tabindex: 0 | -1;
-	"aria-label": string;
-	"aria-disabled": string;
-	"data-disabled": "" | undefined;
-	"data-visible": "" | undefined;
-	onclick: (e: MouseEvent) => void;
-}
+	"data-disabled"?: "";
+	"data-visible"?: "";
+};
 
 export interface UseSearchFieldReturn {
 	readonly value: string;

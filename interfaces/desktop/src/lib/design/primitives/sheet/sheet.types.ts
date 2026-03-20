@@ -1,60 +1,48 @@
-import type { ColdLightDataAttrs } from "../../_internal/types/common.js";
+import type { HTMLAttributes, HTMLButtonAttributes, HTMLDialogAttributes } from "svelte/elements";
 
 export type SheetSide = "top" | "right" | "bottom" | "left";
 
 export interface UseSheetProps {
 	open?: boolean;
 	onOpenChange?: (open: boolean) => void;
-	/** Which edge the sheet slides from. Default: "right". */
 	side?: SheetSide;
 	closeOnEscape?: boolean;
 	closeOnOutsideClick?: boolean;
 }
 
-export interface SheetTriggerAttrs extends ColdLightDataAttrs {
+export type SheetTriggerAttrs = HTMLButtonAttributes & {
+	"data-kind": "sheet";
 	"data-slot": "trigger";
-	type: "button";
-	"aria-haspopup": "dialog";
-	"aria-expanded": boolean;
 	"data-state": "open" | "closed";
-	onclick: (e: MouseEvent) => void;
-}
+};
 
-export interface SheetOverlayAttrs extends ColdLightDataAttrs {
+export type SheetOverlayAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "sheet";
 	"data-slot": "overlay";
-	"aria-hidden": "true";
-	popover: "manual";
 	"data-state": "open" | "closed";
-}
+};
 
-export interface SheetContentAttrs extends ColdLightDataAttrs {
+export type SheetContentAttrs = HTMLDialogAttributes & {
+	"data-kind": "sheet";
 	"data-slot": "content";
-	id: string;
-	role: "dialog";
-	"aria-modal": "true";
-	"aria-labelledby": string;
-	"aria-describedby": string;
 	"data-state": "open" | "closed";
 	"data-side": SheetSide;
-	onclose: (e: Event) => void;
-	oncancel: (e: Event) => void;
-}
+};
 
-export interface SheetTitleAttrs extends ColdLightDataAttrs {
+export type SheetTitleAttrs = HTMLAttributes<HTMLHeadingElement> & {
+	"data-kind": "sheet";
 	"data-slot": "title";
-	id: string;
-}
+};
 
-export interface SheetDescriptionAttrs extends ColdLightDataAttrs {
+export type SheetDescriptionAttrs = HTMLAttributes<HTMLParagraphElement> & {
+	"data-kind": "sheet";
 	"data-slot": "description";
-	id: string;
-}
+};
 
-export interface SheetCloseAttrs extends ColdLightDataAttrs {
+export type SheetCloseAttrs = HTMLButtonAttributes & {
+	"data-kind": "sheet";
 	"data-slot": "close";
-	type: "button";
-	onclick: (e: MouseEvent) => void;
-}
+};
 
 export interface UseSheetReturn {
 	readonly open: boolean;

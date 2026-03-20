@@ -1,4 +1,4 @@
-import type { ColdLightDataAttrs } from "../../_internal/types/common.js";
+import type { HTMLAttributes } from "svelte/elements";
 
 export interface UseGridListProps {
 	selectedKeys?: Set<string>;
@@ -8,27 +8,18 @@ export interface UseGridListProps {
 	"aria-label"?: string;
 }
 
-export interface GridListRootAttrs extends ColdLightDataAttrs {
+export type GridListRootAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "grid-list";
 	"data-slot": "root";
-	id: string;
-	role: "grid";
-	"aria-label": string | undefined;
-	"aria-multiselectable": boolean | undefined;
-	"aria-disabled": string | undefined;
-	onkeydown: (e: KeyboardEvent) => void;
-}
+};
 
-export interface GridListItemAttrs extends ColdLightDataAttrs {
+export type GridListItemAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "grid-list";
 	"data-slot": "item";
-	role: "row";
-	tabindex: 0;
-	"aria-selected": boolean;
-	"aria-disabled": boolean | undefined;
 	"data-key": string;
-	"data-selected": "" | undefined;
-	"data-disabled": "" | undefined;
-	onclick: (e: MouseEvent) => void;
-}
+	"data-selected"?: "";
+	"data-disabled"?: "";
+};
 
 export interface UseGridListReturn {
 	readonly root: GridListRootAttrs;

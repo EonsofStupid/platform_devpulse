@@ -1,4 +1,4 @@
-import type { ColdLightDataAttrs } from "../../_internal/types/common.js";
+import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
 
 export interface UsePopoverProps {
 	open?: boolean;
@@ -8,33 +8,27 @@ export interface UsePopoverProps {
 	modal?: boolean;
 }
 
-export interface PopoverTriggerAttrs extends ColdLightDataAttrs {
+export type PopoverTriggerAttrs = HTMLButtonAttributes & {
+	"data-kind": "popover";
 	"data-slot": "trigger";
-	type: "button";
-	"aria-expanded": boolean;
-	"aria-haspopup": "dialog";
-	"aria-controls": string;
 	"data-state": "open" | "closed";
-	onclick: (e: MouseEvent) => void;
-}
+};
 
-export interface PopoverContentAttrs extends ColdLightDataAttrs {
+export type PopoverContentAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "popover";
 	"data-slot": "content";
-	id: string;
-	role: "dialog";
 	"data-state": "open" | "closed";
-}
+};
 
-export interface PopoverArrowAttrs extends ColdLightDataAttrs {
+export type PopoverArrowAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "popover";
 	"data-slot": "arrow";
-	"aria-hidden": "true";
-}
+};
 
-export interface PopoverCloseAttrs extends ColdLightDataAttrs {
+export type PopoverCloseAttrs = HTMLButtonAttributes & {
+	"data-kind": "popover";
 	"data-slot": "close";
-	type: "button";
-	onclick: (e: MouseEvent) => void;
-}
+};
 
 export interface UsePopoverReturn {
 	readonly open: boolean;

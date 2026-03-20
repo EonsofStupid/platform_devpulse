@@ -14,7 +14,7 @@
 export interface Anatomy<T extends string = string> {
 	readonly kind: string;
 	readonly parts: readonly T[];
-	readonly attrs: Readonly<{ [K in T]: { "data-kind": string; "data-slot": K } }>;
+	readonly attrs: Readonly<Record<T, { "data-kind": string; "data-slot": T }>>;
 }
 
 /**

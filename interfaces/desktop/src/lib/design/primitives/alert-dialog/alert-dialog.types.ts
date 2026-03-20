@@ -1,62 +1,49 @@
-import type { ColdLightDataAttrs } from "../../_internal/types/common.js";
+import type { HTMLAttributes, HTMLButtonAttributes, HTMLDialogAttributes } from "svelte/elements";
 
 export interface UseAlertDialogProps {
 	open?: boolean;
 	onOpenChange?: (open: boolean) => void;
-	/** Called when the action button is clicked. */
 	onAction?: () => void;
-	/** Called when the cancel button is clicked. */
 	onCancel?: () => void;
 }
 
-export interface AlertDialogTriggerAttrs extends ColdLightDataAttrs {
+export type AlertDialogTriggerAttrs = HTMLButtonAttributes & {
+	"data-kind": "alert-dialog";
 	"data-slot": "trigger";
-	type: "button";
-	"aria-haspopup": "dialog";
 	"data-state": "open" | "closed";
-	onclick: (e: MouseEvent) => void;
-}
+};
 
-export interface AlertDialogOverlayAttrs extends ColdLightDataAttrs {
+export type AlertDialogOverlayAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "alert-dialog";
 	"data-slot": "overlay";
-	"aria-hidden": "true";
-	popover: "manual";
 	"data-state": "open" | "closed";
-}
+};
 
-export interface AlertDialogContentAttrs extends ColdLightDataAttrs {
+export type AlertDialogContentAttrs = HTMLDialogAttributes & {
+	"data-kind": "alert-dialog";
 	"data-slot": "content";
-	id: string;
-	role: "alertdialog";
-	"aria-modal": "true";
-	"aria-labelledby": string;
-	"aria-describedby": string;
 	"data-state": "open" | "closed";
-	onclose: (e: Event) => void;
-	oncancel: (e: Event) => void;
-}
+};
 
-export interface AlertDialogTitleAttrs extends ColdLightDataAttrs {
+export type AlertDialogTitleAttrs = HTMLAttributes<HTMLHeadingElement> & {
+	"data-kind": "alert-dialog";
 	"data-slot": "title";
-	id: string;
-}
+};
 
-export interface AlertDialogDescriptionAttrs extends ColdLightDataAttrs {
+export type AlertDialogDescriptionAttrs = HTMLAttributes<HTMLParagraphElement> & {
+	"data-kind": "alert-dialog";
 	"data-slot": "description";
-	id: string;
-}
+};
 
-export interface AlertDialogCancelAttrs extends ColdLightDataAttrs {
+export type AlertDialogCancelAttrs = HTMLButtonAttributes & {
+	"data-kind": "alert-dialog";
 	"data-slot": "cancel";
-	type: "button";
-	onclick: (e: MouseEvent) => void;
-}
+};
 
-export interface AlertDialogActionAttrs extends ColdLightDataAttrs {
+export type AlertDialogActionAttrs = HTMLButtonAttributes & {
+	"data-kind": "alert-dialog";
 	"data-slot": "action";
-	type: "button";
-	onclick: (e: MouseEvent) => void;
-}
+};
 
 export interface UseAlertDialogReturn {
 	readonly open: boolean;

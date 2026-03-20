@@ -1,48 +1,40 @@
-import type { ColdLightDataAttrs } from "../../_internal/types/common.js";
+import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
 
 export interface UseTagGroupProps {
-	/** Current tag values. */
 	values?: string[];
-	/** Callback when a tag is removed. */
 	onRemove?: (value: string) => void;
 	disabled?: boolean;
 	"aria-label"?: string;
 }
 
-export interface TagGroupRootAttrs extends ColdLightDataAttrs {
+export type TagGroupRootAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "tag-group";
 	"data-slot": "root";
-	id: string;
-	role: "grid";
-	"aria-label": string | undefined;
-	"data-disabled": "" | undefined;
-}
+	"data-disabled"?: "";
+};
 
-export interface TagGroupLabelAttrs extends ColdLightDataAttrs {
+export type TagGroupLabelAttrs = HTMLAttributes<HTMLSpanElement> & {
+	"data-kind": "tag-group";
 	"data-slot": "label";
-}
+};
 
-export interface TagGroupDescriptionAttrs extends ColdLightDataAttrs {
+export type TagGroupDescriptionAttrs = HTMLAttributes<HTMLSpanElement> & {
+	"data-kind": "tag-group";
 	"data-slot": "description";
-}
+};
 
-export interface TagGroupTagAttrs extends ColdLightDataAttrs {
+export type TagGroupTagAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "tag-group";
 	"data-slot": "tag";
-	role: "row";
-	tabindex: 0;
 	"data-value": string;
-	"data-disabled": "" | undefined;
-	onkeydown: (e: KeyboardEvent) => void;
-}
+	"data-disabled"?: "";
+};
 
-export interface TagGroupRemoveAttrs extends ColdLightDataAttrs {
+export type TagGroupRemoveAttrs = HTMLButtonAttributes & {
+	"data-kind": "tag-group";
 	"data-slot": "remove";
-	type: "button";
-	tabindex: -1;
-	"aria-label": string;
-	"aria-disabled": boolean | undefined;
-	"data-disabled": "" | undefined;
-	onclick: (e: MouseEvent) => void;
-}
+	"data-disabled"?: "";
+};
 
 export interface UseTagGroupReturn {
 	readonly root: TagGroupRootAttrs;

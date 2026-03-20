@@ -1,63 +1,49 @@
-import type { ColdLightDataAttrs } from "../../_internal/types/common.js";
+import type { HTMLAttributes } from "svelte/elements";
 
 export type SortDirection = "ascending" | "descending" | "none";
 
 export interface UseTableProps {
-	/** Total number of rows (for aria-rowcount with virtualization). */
 	rowCount?: number;
-	/** Total number of columns. */
 	colCount?: number;
-	/** Whether rows are selectable. */
 	selectable?: boolean;
-	/** Currently selected row keys. */
 	selectedKeys?: Set<string>;
 	onSelectionChange?: (keys: Set<string>) => void;
 	"aria-label"?: string;
 }
 
-export interface TableRootAttrs extends ColdLightDataAttrs {
+export type TableRootAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "table";
 	"data-slot": "root";
-	id: string;
-	role: "grid";
-	"aria-label": string | undefined;
-	"aria-rowcount": number | undefined;
-	"aria-colcount": number | undefined;
-	"aria-multiselectable": boolean | undefined;
-}
+};
 
-export interface TableHeaderAttrs extends ColdLightDataAttrs {
+export type TableHeaderAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "table";
 	"data-slot": "header";
-	role: "rowgroup";
-}
+};
 
-export interface TableBodyAttrs extends ColdLightDataAttrs {
+export type TableBodyAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "table";
 	"data-slot": "body";
-	role: "rowgroup";
-}
+};
 
-export interface TableRowAttrs extends ColdLightDataAttrs {
+export type TableRowAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "table";
 	"data-slot": "row";
-	role: "row";
-	"aria-selected": boolean | undefined;
-	"aria-disabled": boolean | undefined;
 	"data-key": string;
-	"data-selected": "" | undefined;
-	"data-disabled": "" | undefined;
-	onclick: (e: MouseEvent) => void;
-}
+	"data-selected"?: "";
+	"data-disabled"?: "";
+};
 
-export interface TableCellAttrs extends ColdLightDataAttrs {
+export type TableCellAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "table";
 	"data-slot": "cell";
-	role: "gridcell";
-}
+};
 
-export interface TableColumnHeaderAttrs extends ColdLightDataAttrs {
+export type TableColumnHeaderAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "table";
 	"data-slot": "column-header";
-	role: "columnheader";
-	"aria-sort": "ascending" | "descending" | undefined;
 	"data-sort": SortDirection;
-	onclick: (e: MouseEvent) => void;
-}
+};
 
 export interface UseTableReturn {
 	readonly root: TableRootAttrs;
@@ -65,8 +51,5 @@ export interface UseTableReturn {
 	readonly body: TableBodyAttrs;
 	getRow(key: string, options?: { disabled?: boolean }): TableRowAttrs;
 	getCell(): TableCellAttrs;
-	getColumnHeader(options?: {
-		sortDirection?: SortDirection;
-		onSort?: () => void;
-	}): TableColumnHeaderAttrs;
+	getColumnHeader(options?: { sortDirection?: SortDirection; onSort?: () => void }): TableColumnHeaderAttrs;
 }

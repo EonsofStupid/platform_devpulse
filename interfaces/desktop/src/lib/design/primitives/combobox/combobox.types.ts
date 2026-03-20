@@ -1,4 +1,4 @@
-import type { ColdLightDataAttrs } from "../../_internal/types/common.js";
+import type { HTMLAttributes, HTMLButtonAttributes, HTMLInputAttributes, HTMLLabelAttributes } from "svelte/elements";
 
 export interface UseComboBoxProps {
 	inputValue?: string;
@@ -13,64 +13,41 @@ export interface UseComboBoxProps {
 	"aria-labelledby"?: string;
 }
 
-export interface ComboboxRootAttrs extends ColdLightDataAttrs {
+export type ComboboxRootAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "combobox";
 	"data-slot": "root";
-}
+};
 
-export interface ComboboxInputAttrs extends ColdLightDataAttrs {
+export type ComboboxInputAttrs = HTMLInputAttributes & {
+	"data-kind": "combobox";
 	"data-slot": "input";
-	id: string;
-	role: "combobox";
-	type: "text";
-	value: string;
-	placeholder: string | undefined;
-	"aria-expanded": boolean;
-	"aria-haspopup": "listbox";
-	"aria-activedescendant": string | undefined;
-	"aria-autocomplete": "list";
-	"aria-controls": string;
-	"aria-disabled": string | undefined;
-	"aria-label": string | undefined;
-	"aria-labelledby": string | undefined;
 	"data-state": "open" | "closed";
-	disabled: boolean | undefined;
-	oninput: (e: Event) => void;
-	onkeydown: (e: KeyboardEvent) => void;
-	onfocus: (e: FocusEvent) => void;
-}
+};
 
-export interface ComboboxTriggerAttrs extends ColdLightDataAttrs {
+export type ComboboxTriggerAttrs = HTMLButtonAttributes & {
+	"data-kind": "combobox";
 	"data-slot": "trigger";
-	type: "button";
-	tabindex: -1;
-	"aria-label": string;
 	"data-state": "open" | "closed";
-	onclick: (e: MouseEvent) => void;
-}
+};
 
-export interface ComboboxListboxAttrs extends ColdLightDataAttrs {
+export type ComboboxListboxAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "combobox";
 	"data-slot": "listbox";
-	id: string;
-	role: "listbox";
-}
+};
 
-export interface ComboboxLabelAttrs extends ColdLightDataAttrs {
+export type ComboboxLabelAttrs = HTMLLabelAttributes & {
+	"data-kind": "combobox";
 	"data-slot": "label";
-}
+};
 
-export interface ComboboxOptionAttrs extends ColdLightDataAttrs {
+export type ComboboxOptionAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "combobox";
 	"data-slot": "option";
-	id: string;
-	role: "option";
-	"aria-selected": boolean;
-	"aria-disabled": boolean | undefined;
 	"data-value": string;
 	"data-state": "selected" | "unselected";
-	"data-highlighted": "" | undefined;
-	"data-disabled": "" | undefined;
-	onclick: (e: MouseEvent) => void;
-	onpointerenter: (e: PointerEvent) => void;
-}
+	"data-highlighted"?: "";
+	"data-disabled"?: "";
+};
 
 export interface UseComboBoxReturn {
 	readonly inputValue: string;

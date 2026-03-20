@@ -1,4 +1,4 @@
-import type { ColdLightDataAttrs } from "../../_internal/types/common.js";
+import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
 
 export type AccordionType = "single" | "multiple";
 
@@ -15,46 +15,36 @@ export interface UseAccordionProps {
 	collapsible?: boolean;
 }
 
-export interface AccordionRootAttrs extends ColdLightDataAttrs {
+export type AccordionRootAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "accordion";
 	"data-slot": "root";
-	"data-disabled": "" | undefined;
-}
+	"data-disabled"?: "";
+};
 
-export interface AccordionItemAttrs extends ColdLightDataAttrs {
+export type AccordionItemAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "accordion";
 	"data-slot": "item";
 	"data-state": "open" | "closed";
 	"data-value": string;
-}
+};
 
-export interface AccordionTriggerAttrs extends ColdLightDataAttrs {
+export type AccordionTriggerAttrs = HTMLButtonAttributes & {
+	"data-kind": "accordion";
 	"data-slot": "trigger";
-	type: "button";
-	id: string;
-	"aria-expanded": boolean;
-	"aria-controls": string;
-	"aria-disabled": boolean | undefined;
 	"data-state": "open" | "closed";
-	"data-disabled": "" | undefined;
-	onclick: (e: MouseEvent) => void;
-	onkeydown: (e: KeyboardEvent) => void;
-}
+	"data-disabled"?: "";
+};
 
-export interface AccordionContentAttrs extends ColdLightDataAttrs {
+export type AccordionContentAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "accordion";
 	"data-slot": "content";
-	role: "region";
-	id: string;
-	"aria-labelledby": string;
-	hidden: boolean | undefined;
 	"data-state": "open" | "closed";
-}
+};
 
 export interface UseAccordionReturn {
 	readonly value: string | string[];
 	readonly root: AccordionRootAttrs;
-	/** Get item wrapper attrs. */
 	getItem(itemValue: string): AccordionItemAttrs;
-	/** Get trigger attrs for a specific item. */
 	getTrigger(itemValue: string, disabled?: boolean): AccordionTriggerAttrs;
-	/** Get content attrs for a specific item. */
 	getContent(itemValue: string): AccordionContentAttrs;
 }

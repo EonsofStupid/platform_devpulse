@@ -1,4 +1,4 @@
-import type { ColdLightDataAttrs } from "../../_internal/types/common.js";
+import type { HTMLAttributes } from "svelte/elements";
 
 export interface UseTreeProps {
 	expandedKeys?: Set<string>;
@@ -9,42 +9,29 @@ export interface UseTreeProps {
 	"aria-label"?: string;
 }
 
-export interface TreeRootAttrs extends ColdLightDataAttrs {
+export type TreeRootAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "tree";
 	"data-slot": "root";
-	id: string;
-	role: "tree";
-	"aria-label": string | undefined;
-	"aria-disabled": boolean | undefined;
-	onkeydown: (e: KeyboardEvent) => void;
-}
+};
 
-export interface TreeItemAttrs extends ColdLightDataAttrs {
+export type TreeItemAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "tree";
 	"data-slot": "item";
-	role: "treeitem";
-	tabindex: 0;
-	"aria-expanded": boolean | undefined;
-	"aria-selected": boolean;
-	"aria-level": number;
-	"aria-disabled": boolean | undefined;
 	"data-key": string;
-	"data-has-children": "" | undefined;
-	"data-expanded": "" | undefined;
-	"data-selected": "" | undefined;
-	"data-disabled": "" | undefined;
-	onclick: (e: MouseEvent) => void;
-}
+	"data-has-children"?: "";
+	"data-expanded"?: "";
+	"data-selected"?: "";
+	"data-disabled"?: "";
+};
 
-export interface TreeGroupAttrs extends ColdLightDataAttrs {
+export type TreeGroupAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "tree";
 	"data-slot": "group";
-	role: "group";
-}
+};
 
 export interface UseTreeReturn {
 	readonly root: TreeRootAttrs;
-	getItem(
-		key: string,
-		options?: { hasChildren?: boolean; level?: number; disabled?: boolean },
-	): TreeItemAttrs;
+	getItem(key: string, options?: { hasChildren?: boolean; level?: number; disabled?: boolean }): TreeItemAttrs;
 	getGroup(): TreeGroupAttrs;
 	toggleExpanded(key: string): void;
 }

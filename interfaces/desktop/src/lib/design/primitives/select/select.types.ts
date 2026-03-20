@@ -1,4 +1,4 @@
-import type { ColdLightDataAttrs } from "../../_internal/types/common.js";
+import type { HTMLAttributes, HTMLButtonAttributes, HTMLLabelAttributes } from "svelte/elements";
 
 export interface UseSelectProps {
 	value?: string;
@@ -12,58 +12,42 @@ export interface UseSelectProps {
 	"aria-labelledby"?: string;
 }
 
-export interface SelectRootAttrs extends ColdLightDataAttrs {
+export type SelectRootAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "select";
 	"data-slot": "root";
-}
+};
 
-export interface SelectTriggerAttrs extends ColdLightDataAttrs {
+export type SelectTriggerAttrs = HTMLButtonAttributes & {
+	"data-kind": "select";
 	"data-slot": "trigger";
-	id: string;
-	role: "combobox";
-	type: "button";
-	tabindex: 0;
-	"aria-expanded": boolean;
-	"aria-haspopup": "listbox";
-	"aria-activedescendant": string | undefined;
-	"aria-controls": string;
-	"aria-disabled": string | undefined;
-	"aria-required": boolean | undefined;
-	"aria-label": string | undefined;
-	"aria-labelledby": string | undefined;
 	"data-state": "open" | "closed";
-	"data-disabled": "" | undefined;
-	"data-placeholder": "" | undefined;
-	onclick: (e: MouseEvent) => void;
-	onkeydown: (e: KeyboardEvent) => void;
-}
+	"data-disabled"?: "";
+	"data-placeholder"?: "";
+};
 
-export interface SelectValueAttrs extends ColdLightDataAttrs {
+export type SelectValueAttrs = HTMLAttributes<HTMLSpanElement> & {
+	"data-kind": "select";
 	"data-slot": "value";
-}
+};
 
-export interface SelectListboxAttrs extends ColdLightDataAttrs {
+export type SelectListboxAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "select";
 	"data-slot": "listbox";
-	id: string;
-	role: "listbox";
-}
+};
 
-export interface SelectLabelAttrs extends ColdLightDataAttrs {
+export type SelectLabelAttrs = HTMLLabelAttributes & {
+	"data-kind": "select";
 	"data-slot": "label";
-}
+};
 
-export interface SelectOptionAttrs extends ColdLightDataAttrs {
+export type SelectOptionAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "select";
 	"data-slot": "option";
-	id: string;
-	role: "option";
-	"aria-selected": boolean;
-	"aria-disabled": boolean | undefined;
 	"data-value": string;
 	"data-state": "selected" | "unselected";
-	"data-highlighted": "" | undefined;
-	"data-disabled": "" | undefined;
-	onclick: (e: MouseEvent) => void;
-	onpointerenter: (e: PointerEvent) => void;
-}
+	"data-highlighted"?: "";
+	"data-disabled"?: "";
+};
 
 export interface UseSelectReturn {
 	readonly value: string;
@@ -75,9 +59,6 @@ export interface UseSelectReturn {
 	readonly valueDisplay: SelectValueAttrs;
 	readonly listbox: SelectListboxAttrs;
 	readonly label: SelectLabelAttrs;
-	getOption(
-		optionValue: string,
-		options?: { disabled?: boolean; label?: string },
-	): SelectOptionAttrs;
+	getOption(optionValue: string, options?: { disabled?: boolean; label?: string }): SelectOptionAttrs;
 	attachListbox: (node: HTMLElement) => { destroy(): void };
 }

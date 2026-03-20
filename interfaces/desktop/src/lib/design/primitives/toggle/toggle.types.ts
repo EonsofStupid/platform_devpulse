@@ -1,28 +1,18 @@
-import type { ColdLightDataAttrs } from "../../_internal/types/common.js";
+import type { HTMLButtonAttributes } from "svelte/elements";
 
 export interface UseToggleProps {
-	/** Whether the toggle is pressed. Default: false. */
 	pressed?: boolean;
-	/** Callback when pressed state changes. */
 	onPressedChange?: (pressed: boolean) => void;
-	/** Whether the toggle is disabled. */
 	disabled?: boolean;
 	"aria-label"?: string;
 }
 
-export interface ToggleRootAttrs extends ColdLightDataAttrs {
+export type ToggleRootAttrs = HTMLButtonAttributes & {
+	"data-kind": "toggle";
 	"data-slot": "root";
-	id: string;
-	type: "button";
-	role: "button";
-	"aria-pressed": boolean;
-	"aria-disabled": boolean | undefined;
-	"aria-label": string | undefined;
 	"data-state": "on" | "off";
-	"data-disabled": "" | undefined;
-	onclick: (e: MouseEvent) => void;
-	onkeydown: (e: KeyboardEvent) => void;
-}
+	"data-disabled"?: "";
+};
 
 export interface UseToggleReturn {
 	readonly pressed: boolean;

@@ -1,54 +1,40 @@
-import type { ColdLightDataAttrs } from "../../_internal/types/common.js";
+import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
 
 export interface UseMenuProps {
 	open?: boolean;
 	onOpenChange?: (open: boolean) => void;
-	/** Called when a menu item is selected. */
 	onSelect?: (value: string) => void;
 	"aria-label"?: string;
 }
 
-export interface MenuTriggerAttrs extends ColdLightDataAttrs {
+export type MenuTriggerAttrs = HTMLButtonAttributes & {
+	"data-kind": "menu";
 	"data-slot": "trigger";
-	type: "button";
-	"aria-expanded": boolean;
-	"aria-haspopup": "menu";
-	"aria-controls": string;
 	"data-state": "open" | "closed";
-	onclick: (e: MouseEvent) => void;
-	onkeydown: (e: KeyboardEvent) => void;
-}
+};
 
-export interface MenuContentAttrs extends ColdLightDataAttrs {
+export type MenuContentAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "menu";
 	"data-slot": "content";
-	id: string;
-	role: "menu";
-	"aria-label": string | undefined;
 	"data-state": "open" | "closed";
-	onkeydown: (e: KeyboardEvent) => void;
-}
+};
 
-export interface MenuSeparatorAttrs extends ColdLightDataAttrs {
+export type MenuSeparatorAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "menu";
 	"data-slot": "separator";
-	role: "separator";
-}
+};
 
-export interface MenuItemAttrs extends ColdLightDataAttrs {
+export type MenuItemAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "menu";
 	"data-slot": "item";
-	role: "menuitem";
-	tabindex: -1;
 	"data-value": string;
-	"data-disabled": "" | undefined;
-	"aria-disabled": boolean | undefined;
-	onclick: (e: MouseEvent) => void;
-	onkeydown: (e: KeyboardEvent) => void;
-}
+	"data-disabled"?: "";
+};
 
-export interface MenuGroupAttrs extends ColdLightDataAttrs {
+export type MenuGroupAttrs = HTMLAttributes<HTMLDivElement> & {
+	"data-kind": "menu";
 	"data-slot": "group";
-	role: "group";
-	"aria-label": string;
-}
+};
 
 export interface UseMenuReturn {
 	readonly open: boolean;
