@@ -17,9 +17,16 @@ export interface UsePressProps {
 	disabled?: boolean;
 }
 
+export interface PressPropsAttrs {
+	onpointerdown: (e: PointerEvent) => void;
+	onpointerup: (e: PointerEvent) => void;
+	onpointercancel: (e: PointerEvent) => void;
+	onpointerleave: (e: PointerEvent) => void;
+}
+
 export interface UsePressReturn {
 	/** Whether a press is currently active. */
 	readonly pressed: boolean;
 	/** Spread onto the target element. */
-	readonly pressProps: Record<string, unknown>;
+	readonly pressProps: PressPropsAttrs;
 }

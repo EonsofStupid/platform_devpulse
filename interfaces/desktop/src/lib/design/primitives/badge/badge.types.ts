@@ -6,6 +6,8 @@
  * and manages variant → visual resolution. No ARIA interaction.
  */
 
+import type { ColdLightDataAttrs } from "../../_internal/types/common.js";
+
 export type BadgeVariant =
 	| "accent" | "informative" | "neutral" | "positive" | "notice" | "negative"
 	| "gray" | "red" | "orange" | "yellow" | "chartreuse" | "celery"
@@ -27,7 +29,16 @@ export interface UseBadgeProps {
 	decorative?: boolean;
 }
 
+export interface BadgeRootAttrs extends ColdLightDataAttrs {
+	"data-slot": "root";
+	role: "presentation";
+	"aria-hidden": "true" | undefined;
+	"data-variant": BadgeVariant;
+	"data-fill": BadgeFillStyle;
+	"data-size": BadgeSize;
+}
+
 export interface UseBadgeReturn {
 	/** Spread onto the root element. */
-	readonly root: Record<string, unknown>;
+	readonly root: BadgeRootAttrs;
 }

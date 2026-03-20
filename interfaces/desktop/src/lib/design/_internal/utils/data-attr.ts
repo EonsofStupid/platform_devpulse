@@ -7,7 +7,12 @@
  *   string → string (attribute with value)
  */
 
+/** Boolean → data attribute value: true → "", false → undefined. */
+export function dataAttr(value: boolean): "" | undefined;
+/** String → data attribute value (passthrough). */
+export function dataAttr(value: string): string;
 /** Boolean/string → data attribute value. */
+export function dataAttr(value: boolean | string): "" | string | undefined;
 export function dataAttr(value: boolean | string): "" | string | undefined {
 	if (value === true) return "";
 	if (value === false) return undefined;

@@ -1,3 +1,5 @@
+import type { ColdLightDataAttrs } from "../../_internal/types/common.js";
+
 export interface UseSwitchProps {
 	/** Whether the switch is on. Default: false. */
 	checked?: boolean;
@@ -13,11 +15,41 @@ export interface UseSwitchProps {
 	"aria-describedby"?: string;
 }
 
+export interface SwitchRootAttrs extends ColdLightDataAttrs {
+	"data-slot": "root";
+	id: string;
+	role: "switch";
+	type: "button";
+	tabindex: 0;
+	"aria-checked": boolean;
+	"aria-disabled": string;
+	"aria-required": boolean | undefined;
+	"aria-label": string | undefined;
+	"aria-labelledby": string | undefined;
+	"aria-describedby": string | undefined;
+	"data-state": "checked" | "unchecked";
+	"data-disabled": "" | undefined;
+	onclick: (e: MouseEvent) => void;
+	onkeydown: (e: KeyboardEvent) => void;
+}
+
+export interface SwitchThumbAttrs extends ColdLightDataAttrs {
+	"data-slot": "thumb";
+	"aria-hidden": "true";
+	"data-state": "checked" | "unchecked";
+}
+
+export interface SwitchLabelAttrs extends ColdLightDataAttrs {
+	"data-slot": "label";
+	"data-disabled": "" | undefined;
+	onclick: (e: MouseEvent) => void;
+}
+
 export interface UseSwitchReturn {
 	readonly checked: boolean;
-	readonly root: Record<string, unknown>;
-	readonly thumb: Record<string, unknown>;
-	readonly label: Record<string, unknown>;
+	readonly root: SwitchRootAttrs;
+	readonly thumb: SwitchThumbAttrs;
+	readonly label: SwitchLabelAttrs;
 	toggle(): void;
 	turnOn(): void;
 	turnOff(): void;

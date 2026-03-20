@@ -6,6 +6,8 @@
  * VPB reads data-kind="heading" + level to identify and edit.
  */
 
+import type { ColdLightDataAttrs } from "../../_internal/types/common.js";
+
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 
 export interface UseHeadingProps {
@@ -13,9 +15,14 @@ export interface UseHeadingProps {
 	level?: HeadingLevel;
 }
 
+export interface HeadingRootAttrs extends ColdLightDataAttrs {
+	"data-slot": "root";
+	"data-level": HeadingLevel;
+}
+
 export interface UseHeadingReturn {
 	/** Spread onto the heading element. */
-	readonly root: Record<string, unknown>;
+	readonly root: HeadingRootAttrs;
 	/** The resolved heading level. */
 	readonly level: HeadingLevel;
 }

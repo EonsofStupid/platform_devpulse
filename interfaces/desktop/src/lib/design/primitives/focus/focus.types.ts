@@ -15,9 +15,14 @@ export interface UseFocusProps {
 	disabled?: boolean;
 }
 
+export interface FocusPropsAttrs {
+	onfocus: (e: FocusEvent) => void;
+	onblur: (e: FocusEvent) => void;
+}
+
 export interface UseFocusReturn {
 	/** Whether the element is currently focused. */
 	readonly focused: boolean;
 	/** Spread onto the target element. */
-	readonly focusProps: Record<string, unknown>;
+	readonly focusProps: FocusPropsAttrs;
 }

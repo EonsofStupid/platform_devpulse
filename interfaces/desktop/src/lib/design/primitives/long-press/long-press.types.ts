@@ -13,7 +13,14 @@ export interface UseLongPressProps {
 	disabled?: boolean;
 }
 
+export interface LongPressPropsAttrs {
+	onpointerdown: (e: PointerEvent) => void;
+	onpointerup: (e: PointerEvent) => void;
+	onpointercancel: (e: PointerEvent) => void;
+	onpointerleave: (e: PointerEvent) => void;
+}
+
 export interface UseLongPressReturn {
 	/** Spread onto the target element. */
-	readonly longPressProps: Record<string, unknown>;
+	readonly longPressProps: LongPressPropsAttrs;
 }

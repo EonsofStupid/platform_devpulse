@@ -14,9 +14,14 @@ export interface UseFocusWithinProps {
 	onFocusWithinChange?: (focusedWithin: boolean) => void;
 }
 
+export interface FocusWithinPropsAttrs {
+	onfocusin: (e: FocusEvent) => void;
+	onfocusout: (e: FocusEvent) => void;
+}
+
 export interface UseFocusWithinReturn {
 	/** Whether focus is currently within the container. */
 	readonly focusedWithin: boolean;
 	/** Spread onto the container element. */
-	readonly focusWithinProps: Record<string, unknown>;
+	readonly focusWithinProps: FocusWithinPropsAttrs;
 }

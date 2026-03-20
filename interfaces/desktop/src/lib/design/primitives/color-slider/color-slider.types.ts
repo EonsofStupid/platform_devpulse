@@ -1,3 +1,4 @@
+import type { ColdLightDataAttrs } from "../../_internal/types/common.js";
 import type { Orientation } from "../../_internal/utils/kbd.js";
 
 export type ColorChannel = "hue" | "saturation" | "lightness" | "alpha" | "red" | "green" | "blue";
@@ -23,19 +24,59 @@ export interface UseColorSliderProps {
 	"aria-label"?: string;
 }
 
+export interface ColorSliderRootAttrs extends ColdLightDataAttrs {
+	"data-slot": "root";
+	id: string;
+	"data-channel": ColorChannel;
+	"data-orientation": Orientation;
+	"data-disabled": "" | undefined;
+}
+
+export interface ColorSliderTrackAttrs extends ColdLightDataAttrs {
+	"data-slot": "track";
+	id: string;
+	"data-channel": ColorChannel;
+	"data-orientation": Orientation;
+	"data-disabled": "" | undefined;
+}
+
+export interface ColorSliderThumbAttrs extends ColdLightDataAttrs {
+	"data-slot": "thumb";
+	id: string;
+	role: "slider";
+	tabindex: 0 | -1;
+	"aria-valuenow": number;
+	"aria-valuemin": number;
+	"aria-valuemax": number;
+	"aria-orientation": Orientation;
+	"aria-label": string;
+	"aria-disabled": string | undefined;
+	"data-channel": ColorChannel;
+	"data-disabled": "" | undefined;
+	style: string;
+	onkeydown: (e: KeyboardEvent) => void;
+	onpointerdown: (e: PointerEvent) => void;
+}
+
+export interface ColorSliderLabelAttrs extends ColdLightDataAttrs {
+	"data-slot": "label";
+	id: string;
+	"data-disabled": "" | undefined;
+}
+
 export interface UseColorSliderReturn {
 	/** Current channel value. */
 	readonly value: number;
 	/** Percentage of value within [min, max]. */
 	readonly percent: number;
 	/** Spread onto the root container. */
-	readonly root: Record<string, unknown>;
+	readonly root: ColorSliderRootAttrs;
 	/** Spread onto the track element. */
-	readonly track: Record<string, unknown>;
+	readonly track: ColorSliderTrackAttrs;
 	/** Spread onto the thumb element. */
-	readonly thumb: Record<string, unknown>;
+	readonly thumb: ColorSliderThumbAttrs;
 	/** Spread onto the label element. */
-	readonly label: Record<string, unknown>;
+	readonly label: ColorSliderLabelAttrs;
 	/** Set value programmatically. */
 	setValue(value: number): void;
 }

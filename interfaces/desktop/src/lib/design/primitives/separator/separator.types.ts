@@ -1,3 +1,4 @@
+import type { ColdLightDataAttrs } from "../../_internal/types/common.js";
 import type { Orientation } from "../../_internal/utils/kbd.js";
 
 export interface UseSeparatorProps {
@@ -7,6 +8,14 @@ export interface UseSeparatorProps {
 	decorative?: boolean;
 }
 
+export interface SeparatorRootAttrs extends ColdLightDataAttrs {
+	"data-slot": "root";
+	role: "separator" | "none";
+	"aria-orientation": Orientation | undefined;
+	"aria-hidden": "true" | undefined;
+	"data-orientation": Orientation;
+}
+
 export interface UseSeparatorReturn {
-	readonly root: Record<string, unknown>;
+	readonly root: SeparatorRootAttrs;
 }

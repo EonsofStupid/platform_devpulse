@@ -23,7 +23,13 @@ export interface UseMoveProps {
 	onMoveEnd?: () => void;
 }
 
+export interface MovePropsAttrs {
+	onpointerdown: (e: PointerEvent) => void;
+	onkeydown: (e: KeyboardEvent) => void;
+	tabindex: 0;
+}
+
 export interface UseMoveReturn {
 	/** Spread onto the target element. */
-	readonly moveProps: Record<string, unknown>;
+	readonly moveProps: MovePropsAttrs;
 }

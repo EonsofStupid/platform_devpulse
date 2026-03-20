@@ -11,7 +11,12 @@ export interface UseKeyboardProps {
 	onKeyUp?: (e: KeyboardEvent) => void;
 }
 
+export interface KeyboardPropsAttrs {
+	onkeydown: ((e: KeyboardEvent) => void) | undefined;
+	onkeyup: ((e: KeyboardEvent) => void) | undefined;
+}
+
 export interface UseKeyboardReturn {
 	/** Spread onto the target element. */
-	readonly keyboardProps: Record<string, unknown>;
+	readonly keyboardProps: KeyboardPropsAttrs;
 }

@@ -15,9 +15,14 @@ export interface UseHoverProps {
 	disabled?: boolean;
 }
 
+export interface HoverPropsAttrs {
+	onpointerenter: (e: PointerEvent) => void;
+	onpointerleave: (e: PointerEvent) => void;
+}
+
 export interface UseHoverReturn {
 	/** Whether the element is currently hovered. */
 	readonly hovered: boolean;
 	/** Spread onto the target element. */
-	readonly hoverProps: Record<string, unknown>;
+	readonly hoverProps: HoverPropsAttrs;
 }

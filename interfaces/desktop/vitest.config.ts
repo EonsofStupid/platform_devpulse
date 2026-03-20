@@ -19,18 +19,15 @@
  * ```
  */
 
-import { dirname, resolve } from "node:path";
+import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { playwright } from "@vitest/browser-playwright";
 import { defineConfig } from "vitest/config";
 import path from 'node:path';
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
-const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
 
-// More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isCI = !!process.env.CI;
 export default defineConfig({
   plugins: [svelte()],
@@ -78,7 +75,7 @@ export default defineConfig({
       // The plugin will run tests for the stories defined in your Storybook config
       // See options at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon#storybooktest
       storybookTest({
-        configDir: path.join(dirname, '.storybook')
+        configDir: path.join(__dirname, '.storybook')
       })],
       test: {
         name: 'storybook',

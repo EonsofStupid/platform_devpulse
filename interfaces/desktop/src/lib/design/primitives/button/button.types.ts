@@ -2,6 +2,8 @@
  * Button hook prop and return types.
  */
 
+import type { ColdLightDataAttrs } from "../../_internal/types/common.js";
+
 export type ButtonType = "button" | "submit" | "reset";
 
 export interface UseButtonProps {
@@ -19,9 +21,25 @@ export interface UseButtonProps {
 	type?: ButtonType;
 }
 
+export interface ButtonRootAttrs extends ColdLightDataAttrs {
+	"data-slot": "root";
+	id: string;
+	type: ButtonType;
+	role: "button";
+	"aria-disabled": boolean | undefined;
+	"aria-pressed": boolean | undefined;
+	"aria-expanded": boolean | undefined;
+	"aria-busy": boolean | undefined;
+	"data-disabled": "" | undefined;
+	"data-loading": "" | undefined;
+	"data-state": "on" | "off" | undefined;
+	onclick: (e: MouseEvent) => void;
+	onkeydown: (e: KeyboardEvent) => void;
+}
+
 export interface UseButtonReturn {
 	/** Spread onto the root `<button>` element. */
-	readonly root: Record<string, unknown>;
+	readonly root: ButtonRootAttrs;
 	/** Current pressed state (toggle mode). */
 	readonly pressed: boolean | undefined;
 	/** Whether the button is functionally disabled (disabled OR loading). */

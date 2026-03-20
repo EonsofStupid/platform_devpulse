@@ -10,9 +10,16 @@ export interface UseFocusRingProps {
 	autoFocus?: boolean;
 }
 
+export interface FocusRingPropsAttrs {
+	onfocus: (e: FocusEvent) => void;
+	onblur: (e: FocusEvent) => void;
+	"data-focus-visible": "" | undefined;
+	autofocus: boolean | undefined;
+}
+
 export interface UseFocusRingReturn {
 	/** Whether focus was initiated by keyboard (Tab). */
 	readonly isFocusVisible: boolean;
 	/** Spread onto the target element. */
-	readonly focusRingProps: Record<string, unknown>;
+	readonly focusRingProps: FocusRingPropsAttrs;
 }
