@@ -14,7 +14,7 @@
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/
 -->
 <script lang="ts">
-import { createAccordionTransport } from "$lib/design/api/dsadapters/meltui/_internal/accordion/index.js";
+import { createAccordionTransport } from "$lib/design/primitives/accordion/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setAccordionContext } from "./context.js";

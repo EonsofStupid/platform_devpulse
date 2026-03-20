@@ -9,9 +9,10 @@
 import { BookOpenCheck, Brain, Database, Layers, Users } from "lucide-svelte";
 import { Widget } from "$lib/design/blocks/widgets/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";
-import { HStack } from "$lib/design/components/hstack/index.js";
-import { Stack } from "$lib/design/components/stack/index.js";
+import { hstack } from "$lib/design/utils/hstack/index.js";
+import { stack } from "$lib/design/utils/stack/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { DEV_MODE } from "$lib/sys/generated/terminology.js";
 </script>
 
@@ -28,26 +29,26 @@ import { DEV_MODE } from "$lib/sys/generated/terminology.js";
 			frame="accent-purple"
 			radius="lg"
 		>
-			<Stack gap="2">
-				<HStack justify="between">
+			<div class={stack({ gap: "2" })}>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Status</Text>
 					<Badge intent="default" size="sm">Standby</Badge>
-				</HStack>
-				<HStack justify="between">
+				</div>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Active Tasks</Text>
 					<Text>0</Text>
-				</HStack>
-				<HStack justify="between">
+				</div>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Queue Depth</Text>
 					<Text>0</Text>
-				</HStack>
+				</div>
 				{#if DEV_MODE}
-					<HStack justify="between">
+					<div class={hstack({ justify: "between" })}>
 						<Text size="xs" color="muted">Engine</Text>
 						<Text size="xs" color="muted">Maestro Kernel</Text>
-					</HStack>
+					</div>
 				{/if}
-			</Stack>
+			</div>
 		</Widget>
 	</div>
 
@@ -68,20 +69,20 @@ import { DEV_MODE } from "$lib/sys/generated/terminology.js";
 			]}
 			activeTab="active"
 		>
-			<Stack gap="2">
-				<HStack justify="between">
+			<div class={stack({ gap: "2" })}>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Active Minions</Text>
 					<Text>0</Text>
-				</HStack>
-				<HStack justify="between">
+				</div>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Total Spawned</Text>
 					<Text>0</Text>
-				</HStack>
-				<HStack justify="between">
+				</div>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Avg Completion</Text>
 					<Text color="muted">--</Text>
-				</HStack>
-			</Stack>
+				</div>
+			</div>
 		</Widget>
 	</div>
 
@@ -104,39 +105,39 @@ import { DEV_MODE } from "$lib/sys/generated/terminology.js";
 			activeTab="rag"
 		>
 			<div class="grid grid-cols-3 gap-4">
-				<Stack gap="2" class="rounded-lg border border-border-subtle p-3">
+				<div class={cn(stack({ gap: "2" }), "rounded-lg border border-border-subtle p-3")}>
 					<Text weight="semibold" size="sm">RAG Pipeline</Text>
-					<HStack justify="between">
+					<div class={hstack({ justify: "between" })}>
 						<Text size="xs" color="secondary">Documents</Text>
 						<Text size="xs">0</Text>
-					</HStack>
-					<HStack justify="between">
+					</div>
+					<div class={hstack({ justify: "between" })}>
 						<Text size="xs" color="secondary">Embeddings</Text>
 						<Text size="xs" color="muted">--</Text>
-					</HStack>
-				</Stack>
-				<Stack gap="2" class="rounded-lg border border-border-subtle p-3">
+					</div>
+				</div>
+				<div class={cn(stack({ gap: "2" }), "rounded-lg border border-border-subtle p-3")}>
 					<Text weight="semibold" size="sm">CAG Pipeline</Text>
-					<HStack justify="between">
+					<div class={hstack({ justify: "between" })}>
 						<Text size="xs" color="secondary">Cache Entries</Text>
 						<Text size="xs">0</Text>
-					</HStack>
-					<HStack justify="between">
+					</div>
+					<div class={hstack({ justify: "between" })}>
 						<Text size="xs" color="secondary">Hit Rate</Text>
 						<Text size="xs" color="muted">--</Text>
-					</HStack>
-				</Stack>
-				<Stack gap="2" class="rounded-lg border border-border-subtle p-3">
+					</div>
+				</div>
+				<div class={cn(stack({ gap: "2" }), "rounded-lg border border-border-subtle p-3")}>
 					<Text weight="semibold" size="sm">HyDE Generator</Text>
-					<HStack justify="between">
+					<div class={hstack({ justify: "between" })}>
 						<Text size="xs" color="secondary">Hypotheticals</Text>
 						<Text size="xs">0</Text>
-					</HStack>
-					<HStack justify="between">
+					</div>
+					<div class={hstack({ justify: "between" })}>
 						<Text size="xs" color="secondary">Accuracy</Text>
 						<Text size="xs" color="muted">--</Text>
-					</HStack>
-				</Stack>
+					</div>
+				</div>
 			</div>
 		</Widget>
 	</div>
@@ -152,26 +153,26 @@ import { DEV_MODE } from "$lib/sys/generated/terminology.js";
 			frame="soft"
 			radius="lg"
 		>
-			<Stack gap="2">
-				<HStack justify="between">
+			<div class={stack({ gap: "2" })}>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">KV Cache</Text>
 					<Badge intent="default" size="sm">Empty</Badge>
-				</HStack>
-				<HStack justify="between">
+				</div>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Entries</Text>
 					<Text>0</Text>
-				</HStack>
-				<HStack justify="between">
+				</div>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Hit Rate</Text>
 					<Text color="muted">--</Text>
-				</HStack>
+				</div>
 				{#if DEV_MODE}
-					<HStack justify="between">
+					<div class={hstack({ justify: "between" })}>
 						<Text size="xs" color="muted">Backend</Text>
 						<Text size="xs" color="muted">Moka (in-memory)</Text>
-					</HStack>
+					</div>
 				{/if}
-			</Stack>
+			</div>
 		</Widget>
 	</div>
 
@@ -185,20 +186,20 @@ import { DEV_MODE } from "$lib/sys/generated/terminology.js";
 			frame="soft"
 			radius="lg"
 		>
-			<Stack gap="2">
-				<HStack justify="between">
+			<div class={stack({ gap: "2" })}>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Window Size</Text>
 					<Text color="muted">--</Text>
-				</HStack>
-				<HStack justify="between">
+				</div>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Tokens Used</Text>
 					<Text>0</Text>
-				</HStack>
-				<HStack justify="between">
+				</div>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Compression</Text>
 					<Text color="muted">--</Text>
-				</HStack>
-			</Stack>
+				</div>
+			</div>
 		</Widget>
 	</div>
 </div>

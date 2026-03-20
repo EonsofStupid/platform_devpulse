@@ -19,13 +19,13 @@ export function useDivider(props: UseDividerProps = {}): UseDividerReturn {
 				"w-full",
 				"border-t",
 				"border-border-subtle",
-				props.spacing !== undefined && `my-[var(--space-${props.spacing})]`,
+				props.spacing !== undefined && `my-${props.spacing}`,
 			)
 		: cn(
 				"h-full",
 				"border-l",
 				"border-border-subtle",
-				props.spacing !== undefined && `mx-[var(--space-${props.spacing})]`,
+				props.spacing !== undefined && `mx-${props.spacing}`,
 			);
 
 	const attrs: UseDividerAttrs = decorative

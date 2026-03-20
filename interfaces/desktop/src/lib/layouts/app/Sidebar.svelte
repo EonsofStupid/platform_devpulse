@@ -23,10 +23,11 @@ import {
 	Wrench,
 } from "lucide-svelte";
 import { page } from "$app/state";
-import { Box } from "$lib/design/components/box/index.js";
+import { box } from "$lib/design/utils/box/index.js";
 import { Button } from "$lib/design/components/button/index.js";
-import { Stack } from "$lib/design/components/stack/index.js";
+import { stack } from "$lib/design/utils/stack/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getChildRoutes } from "$lib/sys/routing/child-routes";
 import { globalState } from "$lib/sys/runes/global.svelte";
 
@@ -74,7 +75,7 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 </script>
 
 <nav class="relative grid h-full grid-rows-[1fr_auto] gap-2" aria-label="Primary">
-	<Stack gap="1" class="pt-1">
+	<div class={stack({ gap: "1" })} style="padding-top: 0.25rem;">
 		{#each navHubs as hub (hub.id)}
 			<a href={hub.href} onclick={() => handleHubClick(hub)} class="contents">
 				<Button
@@ -97,9 +98,9 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 				</Button>
 			</a>
 		{/each}
-	</Stack>
+	</div>
 
-	<Stack gap="1" class="pb-1">
+	<div class={stack({ gap: "1" })} style="padding-bottom: 0.25rem;">
 		<Button
 			intent="ghost"
 			size="sm"
@@ -118,15 +119,12 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 				<PanelLeftOpen size={18} />
 			{/if}
 		</Button>
-	</Stack>
+	</div>
 
 	{#if globalState.sidebar_submenu && submenuRoutes.length > 0}
-		<Box
+		<div
 			data-slot="submenu"
-			surface="glass-deep"
-			depth="z2"
-			radius="md"
-			class="absolute left-full top-0 z-[var(--z-dropdown)] flex h-full w-48 flex-col gap-1 p-2"
+			class={cn(box({}), "v-s3 v-d2 v-r2 absolute left-full top-0 z-[var(--z-dropdown)] flex h-full w-48 flex-col gap-1 p-2")}
 			role="menu"
 		>
 			<Text size="xs" color="muted" class="mb-1 px-2 font-semibold uppercase tracking-wider">
@@ -146,6 +144,6 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 					</Button>
 				</a>
 			{/each}
-		</Box>
+		</div>
 	{/if}
 </nav>

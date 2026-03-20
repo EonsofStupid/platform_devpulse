@@ -6,7 +6,7 @@
 	ColdLight Alert — builder-driven, 8-axis visual system.
 -->
 <script lang="ts">
-import { createAlert } from "$lib/design/api/dsadapters/coldlight/_internal/alert/index.js";
+import { createAlert } from "$lib/design/primitives/alert/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import AlertRoot from "$lib/design/primitives/alert/Alert.svelte";
 import { cn } from "$lib/design/utils/cn.js";

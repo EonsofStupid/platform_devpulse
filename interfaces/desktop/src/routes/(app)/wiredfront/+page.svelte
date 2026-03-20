@@ -17,8 +17,8 @@ import {
 } from "lucide-svelte";
 import { Widget } from "$lib/design/blocks/widgets/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";
-import { HStack } from "$lib/design/components/hstack/index.js";
-import { Stack } from "$lib/design/components/stack/index.js";
+import { hstack } from "$lib/design/utils/hstack/index.js";
+import { stack } from "$lib/design/utils/stack/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 </script>
 
@@ -35,20 +35,20 @@ import { Text } from "$lib/design/components/text/index.js";
 			frame="accent-teal"
 			radius="lg"
 		>
-			<Stack gap="2">
-				<HStack justify="between">
+			<div class={stack({ gap: "2" })}>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Total Files</Text>
 					<Text>0</Text>
-				</HStack>
-				<HStack justify="between">
+				</div>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Storage Used</Text>
 					<Text>0 MB</Text>
-				</HStack>
-				<HStack justify="between">
+				</div>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Captures Today</Text>
 					<Text>0</Text>
-				</HStack>
-			</Stack>
+				</div>
+			</div>
 		</Widget>
 	</div>
 
@@ -139,16 +139,16 @@ import { Text } from "$lib/design/components/text/index.js";
 			]}
 			activeTab="twitch"
 		>
-			<Stack gap="2">
-				<HStack justify="between">
+			<div class={stack({ gap: "2" })}>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Status</Text>
 					<Badge intent="default" size="sm">Offline</Badge>
-				</HStack>
-				<HStack justify="between">
+				</div>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Viewers</Text>
 					<Text color="muted">--</Text>
-				</HStack>
-			</Stack>
+				</div>
+			</div>
 		</Widget>
 	</div>
 
@@ -177,16 +177,16 @@ import { Text } from "$lib/design/components/text/index.js";
 			frame="soft"
 			radius="lg"
 		>
-			<Stack gap="2">
-				<HStack justify="between">
+			<div class={stack({ gap: "2" })}>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Recordings</Text>
 					<Text>0</Text>
-				</HStack>
-				<HStack justify="between">
+				</div>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Transcriptions</Text>
 					<Text>0</Text>
-				</HStack>
-			</Stack>
+				</div>
+			</div>
 		</Widget>
 	</div>
 </div>

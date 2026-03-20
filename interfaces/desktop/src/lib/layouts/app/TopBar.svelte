@@ -12,11 +12,12 @@
 import { invoke } from "@tauri-apps/api/core";
 import { Bell, MessageCircle, Search } from "lucide-svelte";
 import { Avatar } from "$lib/design/components/avatar/index.js";
-import { Box } from "$lib/design/components/box/index.js";
+import { box } from "$lib/design/utils/box/index.js";
 import { Button } from "$lib/design/components/button/index.js";
-import { HStack } from "$lib/design/components/hstack/index.js";
-import { Input } from "$lib/design/components/input/index.js";
+import { hstack } from "$lib/design/utils/hstack/index.js";
+import { TextField as Input } from "$lib/design/components/text-field/index.js";
 import { Parasite } from "$lib/design/plugins/parasite";
+import { cn } from "$lib/design/utils/cn.js";
 
 let searchOpen = $state(false);
 let searchQuery = $state("");
@@ -42,7 +43,7 @@ function onKey(e: KeyboardEvent): void {
 
 	<div class="flex-1"></div>
 
-	<HStack gap="2" align="center">
+	<div class={hstack({ gap: "2", align: "center" })}>
 		<Button
 			intent="ghost"
 			size="sm"
@@ -80,10 +81,10 @@ function onKey(e: KeyboardEvent): void {
 		</Button>
 
 		{#if searchOpen}
-			<Box
-				preset="panel-glass"
-				radius="lg"
-				class="absolute right-4 top-12 z-[var(--z-dropdown)] p-2"
+			<div
+				class={cn(box({}), "v-s0 v-r3 absolute right-4 top-12 z-[var(--z-dropdown)] p-2")}
+				data-kind="box"
+				data-slot="root"
 			>
 				<Input
 					size="sm"
@@ -94,11 +95,11 @@ function onKey(e: KeyboardEvent): void {
 					oninput={(e) => { searchQuery = e.currentTarget.value; }}
 					placeholder="Search..."
 				/>
-			</Box>
+			</div>
 		{/if}
 
 		<Avatar size="sm" alt="User avatar" class="h-8 w-8">
 			DP
 		</Avatar>
-	</HStack>
+	</div>
 </div>

@@ -8,9 +8,8 @@
 import { Activity, BookOpen, Box, FlaskConical, GraduationCap, TestTube2 } from "lucide-svelte";
 import { Widget } from "$lib/design/blocks/widgets/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";
-import { Grid } from "$lib/design/components/grid/index.js";
-import { HStack } from "$lib/design/components/hstack/index.js";
-import { Stack } from "$lib/design/components/stack/index.js";
+import { hstack } from "$lib/design/utils/hstack/index.js";
+import { stack } from "$lib/design/utils/stack/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 </script>
 
@@ -27,20 +26,20 @@ import { Text } from "$lib/design/components/text/index.js";
 			frame="accent-teal"
 			radius="lg"
 		>
-			<Stack gap="2">
-				<HStack justify="between">
+			<div class={stack({ gap: "2" })}>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Engine</Text>
 					<Badge intent="success" size="sm">Online</Badge>
-				</HStack>
-				<HStack justify="between">
+				</div>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Signal Router</Text>
 					<Badge intent="success" size="sm">Active</Badge>
-				</HStack>
-				<HStack justify="between">
+				</div>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Database</Text>
 					<Badge intent="default" size="sm">Not Connected</Badge>
-				</HStack>
-			</Stack>
+				</div>
+			</div>
 		</Widget>
 	</div>
 
@@ -110,20 +109,20 @@ import { Text } from "$lib/design/components/text/index.js";
 			frame="soft"
 			radius="lg"
 		>
-			<Stack gap="2">
-				<HStack justify="between">
+			<div class={stack({ gap: "2" })}>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Fine-tuning Jobs</Text>
 					<Text>0 active</Text>
-				</HStack>
-				<HStack justify="between">
+				</div>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Dataset Size</Text>
 					<Text color="muted">--</Text>
-				</HStack>
-				<HStack justify="between">
+				</div>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Last Run</Text>
 					<Text color="muted">Never</Text>
-				</HStack>
-			</Stack>
+				</div>
+			</div>
 		</Widget>
 	</div>
 
@@ -137,20 +136,20 @@ import { Text } from "$lib/design/components/text/index.js";
 			frame="soft"
 			radius="lg"
 		>
-			<Stack gap="2">
-				<HStack justify="between">
+			<div class={stack({ gap: "2" })}>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Knowledge Items</Text>
 					<Text>0</Text>
-				</HStack>
-				<HStack justify="between">
+				</div>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Retention Score</Text>
 					<Text color="muted">--</Text>
-				</HStack>
-				<HStack justify="between">
+				</div>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Last Updated</Text>
 					<Text color="muted">--</Text>
-				</HStack>
-			</Stack>
+				</div>
+			</div>
 		</Widget>
 	</div>
 </div>

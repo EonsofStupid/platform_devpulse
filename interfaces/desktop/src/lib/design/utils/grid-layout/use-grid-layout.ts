@@ -2,7 +2,7 @@
  * gridLayout — CSS Grid container with DTCG token-backed spacing.
  *
  * Returns a Tailwind class string. No inline styles.
- * Uses SD5 --space-* custom properties via arbitrary value syntax.
+ * Uses Tailwind v4 --spacing-* theme utilities (no arbitrary syntax needed).
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -47,10 +47,10 @@ export function gridLayout(props: GridLayoutProps = {}): string {
 		"grid",
 		props.columns !== undefined && resolveColumns(props.columns),
 		props.rows !== undefined && resolveRows(props.rows),
-		props.gap !== undefined && `gap-[var(--space-${props.gap})]`,
-		props.columnGap !== undefined && `gap-x-[var(--space-${props.columnGap})]`,
-		props.rowGap !== undefined && `gap-y-[var(--space-${props.rowGap})]`,
-		props.padding !== undefined && `p-[var(--space-${props.padding})]`,
+		props.gap !== undefined && `gap-${props.gap}`,
+		props.columnGap !== undefined && `gap-x-${props.columnGap}`,
+		props.rowGap !== undefined && `gap-y-${props.rowGap}`,
+		props.padding !== undefined && `p-${props.padding}`,
 		props.autoFlow !== undefined && AUTO_FLOW_MAP[props.autoFlow],
 		props.alignItems !== undefined && ALIGN_MAP[props.alignItems],
 		props.justifyItems !== undefined && JUSTIFY_MAP[props.justifyItems],

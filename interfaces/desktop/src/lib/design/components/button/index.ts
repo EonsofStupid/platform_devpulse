@@ -1,5 +1,5 @@
 export { default as Button } from "./Button.svelte";
-export { useButton } from "./button.hook.svelte.js";
+export { useButton } from "$lib/design/primitives/button/index.js";
 export {
 	BUTTON_INTENT_PRESETS,
 	type ButtonIntent,

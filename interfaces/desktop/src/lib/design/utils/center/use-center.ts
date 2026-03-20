@@ -12,7 +12,7 @@ export function center(props: CenterProps = {}): string {
 	return cn(
 		"mx-auto",
 		props.maxWidth !== undefined && `max-w-[var(--size-${props.maxWidth})]`,
-		props.gutters !== undefined && `px-[var(--space-${props.gutters})]`,
-		props.padding !== undefined && `p-[var(--space-${props.padding})]`,
+		props.gutters !== undefined && `px-${props.gutters}`,
+		props.padding !== undefined && `p-${props.padding}`,
 	);
 }

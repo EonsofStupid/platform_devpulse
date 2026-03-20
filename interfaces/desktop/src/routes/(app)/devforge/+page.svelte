@@ -8,9 +8,10 @@
 import { GitBranch, Hammer, Package, Server, Terminal } from "lucide-svelte";
 import { Widget } from "$lib/design/blocks/widgets/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";
-import { HStack } from "$lib/design/components/hstack/index.js";
-import { Stack } from "$lib/design/components/stack/index.js";
+import { hstack } from "$lib/design/utils/hstack/index.js";
+import { stack } from "$lib/design/utils/stack/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { cn } from "$lib/design/utils/cn.js";
 </script>
 
 <div class="grid grid-cols-12 gap-4" data-page="devforge-dashboard">
@@ -47,20 +48,20 @@ import { Text } from "$lib/design/components/text/index.js";
 			frame="soft"
 			radius="lg"
 		>
-			<Stack gap="2">
-				<HStack justify="between">
+			<div class={stack({ gap: "2" })}>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Pipelines</Text>
 					<Text>0 active</Text>
-				</HStack>
-				<HStack justify="between">
+				</div>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Last Deploy</Text>
 					<Text color="muted">Never</Text>
-				</HStack>
-				<HStack justify="between">
+				</div>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Success Rate</Text>
 					<Text color="muted">--</Text>
-				</HStack>
-			</Stack>
+				</div>
+			</div>
 		</Widget>
 	</div>
 
@@ -76,27 +77,27 @@ import { Text } from "$lib/design/components/text/index.js";
 			radius="lg"
 		>
 			<div class="grid grid-cols-3 gap-4">
-				<Stack gap="2" class="rounded-lg border border-border-subtle p-3">
-					<HStack justify="between" align="center">
+				<div class={cn(stack({ gap: "2" }), "rounded-lg border border-border-subtle p-3")}>
+					<div class={hstack({ justify: "between", align: "center" })}>
 						<Text weight="semibold" size="sm">Development</Text>
 						<Badge intent="success" size="sm">Local</Badge>
-					</HStack>
+					</div>
 					<Text size="xs" color="muted">localhost:1420</Text>
-				</Stack>
-				<Stack gap="2" class="rounded-lg border border-border-subtle p-3">
-					<HStack justify="between" align="center">
+				</div>
+				<div class={cn(stack({ gap: "2" }), "rounded-lg border border-border-subtle p-3")}>
+					<div class={hstack({ justify: "between", align: "center" })}>
 						<Text weight="semibold" size="sm">Staging</Text>
 						<Badge intent="default" size="sm">Not Configured</Badge>
-					</HStack>
+					</div>
 					<Text size="xs" color="muted">--</Text>
-				</Stack>
-				<Stack gap="2" class="rounded-lg border border-border-subtle p-3">
-					<HStack justify="between" align="center">
+				</div>
+				<div class={cn(stack({ gap: "2" }), "rounded-lg border border-border-subtle p-3")}>
+					<div class={hstack({ justify: "between", align: "center" })}>
 						<Text weight="semibold" size="sm">Production</Text>
 						<Badge intent="default" size="sm">Not Configured</Badge>
-					</HStack>
+					</div>
 					<Text size="xs" color="muted">--</Text>
-				</Stack>
+				</div>
 			</div>
 		</Widget>
 	</div>
@@ -112,20 +113,20 @@ import { Text } from "$lib/design/components/text/index.js";
 			frame="soft"
 			radius="lg"
 		>
-			<Stack gap="2">
-				<HStack justify="between">
+			<div class={stack({ gap: "2" })}>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Node Version</Text>
 					<Text size="sm">--</Text>
-				</HStack>
-				<HStack justify="between">
+				</div>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">pnpm Version</Text>
 					<Text size="sm">--</Text>
-				</HStack>
-				<HStack justify="between">
+				</div>
+				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Scripts</Text>
 					<Text size="sm">0 registered</Text>
-				</HStack>
-			</Stack>
+				</div>
+			</div>
 		</Widget>
 	</div>
 

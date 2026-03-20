@@ -11,10 +11,11 @@
 <script lang="ts">
 import { Activity, BarChart3, FolderGit2, Gauge, HeartPulse, TrendingUp } from "lucide-svelte";
 import { RadialGauge, SparkLine, Widget } from "$lib/design/blocks/widgets/index.js";
-import { Box } from "$lib/design/components/box/index.js";
-import { HStack } from "$lib/design/components/hstack/index.js";
-import { Stack } from "$lib/design/components/stack/index.js";
+import { box } from "$lib/design/utils/box/index.js";
+import { hstack } from "$lib/design/utils/hstack/index.js";
+import { stack } from "$lib/design/utils/stack/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { devpulseState } from "$lib/domains/app/devpulse/index.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 
@@ -126,33 +127,31 @@ $effect(() => {
 			frame="soft"
 			radius="lg"
 		>
-			<Stack gap="3">
-				<HStack justify="between" align="baseline">
-					<Stack gap="1">
+			<div class={stack({ gap: "3" })}>
+				<div class={hstack({ justify: "between", align: "baseline" })}>
+					<div class={stack({ gap: "1" })}>
 						<Text size="xs" color="muted">Projects</Text>
 						<span class="text-xl font-bold tabular-nums font-display text-text-link drop-shadow-[0_0_8px_var(--accent-teal-glow)]">{devpulseState.data.user.totalProjects}</span>
-					</Stack>
-					<Stack gap="1">
+					</div>
+					<div class={stack({ gap: "1" })}>
 						<Text size="xs" color="muted">Commits</Text>
 						<span class="text-xl font-bold tabular-nums font-display text-text-link drop-shadow-[0_0_8px_var(--accent-teal-glow)]">{devpulseState.data.user.totalCommits}</span>
-					</Stack>
-					<Stack gap="1">
+					</div>
+					<div class={stack({ gap: "1" })}>
 						<Text size="xs" color="muted">Branches</Text>
 						<span class="text-xl font-bold tabular-nums font-display text-text-link drop-shadow-[0_0_8px_var(--accent-teal-glow)]">{devpulseState.data.user.activeBranches}</span>
-					</Stack>
-				</HStack>
-				<Box
-					surface="glass-void"
-					bevel="subtle"
-					frame="soft"
-					radius="md"
-					class="flex items-center gap-2 px-3 py-2"
+					</div>
+				</div>
+				<div
+					class={cn(box({}), "v-s0 v-b1 v-f1 v-r2 flex items-center gap-2 px-3 py-2")}
+					data-kind="box"
+					data-slot="root"
 				>
 					<span class="inline-block h-2 w-2 rounded-full animate-pulse bg-teal-400 shadow-[0_0_8px_var(--accent-teal-glow)]"></span>
 					<Text size="sm" weight="semibold">{devpulseState.data.user.streak}d streak</Text>
 					<Text size="xs" color="muted">· {devpulseState.data.user.lastActivity}</Text>
-				</Box>
-			</Stack>
+				</div>
+			</div>
 		</Widget>
 	</div>
 
@@ -175,7 +174,7 @@ $effect(() => {
 			]}
 			activeTab="activity"
 		>
-			<Stack gap="3">
+			<div class={stack({ gap: "3" })}>
 				<SparkLine
 					data={[...devpulseState.data.system.activityTimeline.data]}
 					accent="teal"
@@ -205,7 +204,7 @@ $effect(() => {
 						/>
 					</div>
 				</div>
-			</Stack>
+			</div>
 		</Widget>
 	</div>
 
@@ -220,22 +219,20 @@ $effect(() => {
 			frame="soft"
 			radius="lg"
 		>
-			<Stack gap="3">
+			<div class={stack({ gap: "3" })}>
 				{#if platformState.health}
 					{#each platformState.health.subsystems as sub}
-						<Box
-							surface="glass-void"
-							bevel="subtle"
-							frame="soft"
-							radius="md"
-							class="flex items-center justify-between px-3 py-2"
+						<div
+							class={cn(box({}), "v-s0 v-b1 v-f1 v-r2 flex items-center justify-between px-3 py-2")}
+							data-kind="box"
+							data-slot="root"
 						>
-							<Stack gap="0">
+							<div class={stack({ gap: "0" })}>
 								<Text size="sm" weight="semibold">{sub.name}</Text>
 								{#if sub.latency_ms != null}
 									<Text size="xs" color="muted">{sub.latency_ms}ms</Text>
 								{/if}
-							</Stack>
+							</div>
 							<span
 								class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium"
 								style="color: {healthColors[sub.status] ?? 'var(--text-muted)'};"
@@ -246,16 +243,16 @@ $effect(() => {
 								></span>
 								{sub.status}
 							</span>
-						</Box>
+						</div>
 					{/each}
-					<HStack justify="between" class="px-1">
+					<div class={cn(hstack({ justify: "between" }), "px-1")}>
 						<Text size="xs" color="muted">Uptime</Text>
 						<Text size="xs" weight="semibold">{platformState.uptimeFormatted}</Text>
-					</HStack>
+					</div>
 				{:else}
 					<Text size="xs" color="muted">Waiting for health data...</Text>
 				{/if}
-			</Stack>
+			</div>
 		</Widget>
 	</div>
 
@@ -280,30 +277,28 @@ $effect(() => {
 			<div class="grid grid-cols-4 gap-3">
 				{#each devpulseState.recentProjects as project (project.id)}
 					{@const accentName = langColors[project.language] ?? "teal"}
-					<Box
-						surface="glass-void"
-						bevel="subtle"
-						frame="soft"
-						radius="md"
-						class="p-3"
+					<div
+						class={cn(box({}), "v-s0 v-b1 v-f1 v-r2 p-3")}
+						data-kind="box"
+						data-slot="root"
 					>
-						<Stack gap="2">
-							<HStack gap="2" align="center">
+						<div class={stack({ gap: "2" })}>
+							<div class={hstack({ gap: "2", align: "center" })}>
 								<span
 									class="inline-block h-2.5 w-2.5 rounded-full"
 									style="background: var(--accent-{accentName}-main); box-shadow: 0 0 8px var(--accent-{accentName}-glow);"
 								></span>
 								<Text weight="semibold" size="sm">{project.name}</Text>
-							</HStack>
-							<HStack justify="between">
+							</div>
+							<div class={hstack({ justify: "between" })}>
 								<Text size="xs" color="muted">{project.language}</Text>
 								<span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs border border-border-subtle text-text-secondary">
 									{project.branch}
 								</span>
-							</HStack>
+							</div>
 							<Text size="xs" color="muted">{project.lastModified}</Text>
-						</Stack>
-					</Box>
+						</div>
+					</div>
 				{/each}
 			</div>
 		</Widget>

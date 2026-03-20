@@ -21,6 +21,6 @@ export function container(props: ContainerProps = {}): string {
 		"w-full",
 		resolveMaxWidth(size),
 		centered && "mx-auto",
-		props.padding !== undefined && `px-[var(--space-${props.padding})]`,
+		props.padding !== undefined && `px-${props.padding}`,
 	);
 }

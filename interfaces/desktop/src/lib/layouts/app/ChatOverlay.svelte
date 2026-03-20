@@ -9,13 +9,14 @@
 <script lang="ts">
 import { invoke } from "@tauri-apps/api/core";
 import { GripVertical, Mic, Minus, Send, Sparkles, X } from "lucide-svelte";
-import { Box } from "$lib/design/components/box/index.js";
+import { box } from "$lib/design/utils/box/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";
-import { HStack } from "$lib/design/components/hstack/index.js";
-import { Input } from "$lib/design/components/input/index.js";
-import { Stack } from "$lib/design/components/stack/index.js";
+import { hstack } from "$lib/design/utils/hstack/index.js";
+import { TextField as Input } from "$lib/design/components/text-field/index.js";
+import { stack } from "$lib/design/utils/stack/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { cn } from "$lib/design/utils/cn.js";
 import type { ChatMessage } from "$lib/sys/generated/chat.types.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 
@@ -113,14 +114,10 @@ function formatTime(epoch: number): string {
 	style="left: {posX}px; top: {posY}px; width: 420px;"
 	data-layout="chat-overlay"
 >
-	<Box
-		surface="glass-deep"
-		depth="z2"
-		bevel="soft"
-		glow="teal"
-		frame="accent-teal"
-		radius="lg"
-		class="flex flex-col overflow-hidden shadow-[0_8px_32px_rgb(0_0_0/0.5)] {minimized ? 'h-auto' : 'h-[520px]'}"
+	<div
+		class={cn(box({ padding: "4" }), "v-s3 v-d2 v-b2 v-g1 v-f2 v-r3 flex flex-col overflow-hidden shadow-[0_8px_32px_rgb(0_0_0/0.5)]", minimized ? 'h-auto' : 'h-[520px]')}
+		data-kind="box"
+		data-slot="root"
 	>
 		<!-- Draggable title bar -->
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -128,12 +125,12 @@ function formatTime(epoch: number): string {
 			class="flex items-center justify-between px-3 py-2 border-b border-border-soft cursor-move select-none"
 			onmousedown={onDragStart}
 		>
-			<HStack gap="2" align="center">
+			<div class={hstack({ gap: "2", align: "center" })}>
 				<GripVertical size={12} class="text-text-muted" />
 				<Sparkles size={14} class="text-teal-400 drop-shadow-[0_0_6px_var(--accent-teal-glow)]" />
 				<Heading level={6} size="xs" class="font-display text-teal-300">Maestro</Heading>
-			</HStack>
-			<HStack gap="1">
+			</div>
+			<div class={hstack({ gap: "1" })}>
 				<Button
 					intent="ghost"
 					size="sm"
@@ -154,12 +151,12 @@ function formatTime(epoch: number): string {
 				>
 					<X size={12} />
 				</Button>
-			</HStack>
+			</div>
 		</div>
 
 		{#if !minimized}
 			<!-- Messages -->
-			<Box class="flex-1 overflow-y-auto scrollbar-thin p-3">
+			<div class={cn(box({}), "flex-1 overflow-y-auto scrollbar-thin p-3")} data-kind="box" data-slot="root">
 				{#if loading}
 					<div class="flex items-center justify-center py-8">
 						<Text size="sm" color="muted">Loading messages...</Text>
@@ -170,53 +167,40 @@ function formatTime(epoch: number): string {
 						<Text size="sm" color="muted">No messages yet. Start a conversation.</Text>
 					</div>
 				{:else}
-					<Stack gap="3">
+					<div class={stack({ gap: "3" })}>
 						{#each messages as msg (msg.id)}
-							<Stack gap="1" class={msg.role === "user" ? "items-end" : ""}>
+							<div class={cn(stack({ gap: "1" }), msg.role === "user" ? "items-end" : "")}>
 								{#if msg.role === "assistant"}
-									<Box
-										surface="glass-purple"
-										depth="z2"
-										bevel="soft"
-										glow="purple"
-										frame="accent-purple"
-										radius="lg"
-										class="max-w-[85%] px-4 py-3"
+									<div
+										class={cn(box({}), "v-s5 v-d2 v-b2 v-g3 v-f3 v-r3 max-w-[85%] px-4 py-3")}
+										data-kind="box"
+										data-slot="root"
 									>
-										<HStack gap="1" class="mb-1.5">
+										<div class={cn(hstack({ gap: "1" }), "mb-1.5")}>
 											<Sparkles size={12} class="text-purple-300 drop-shadow-[0_0_6px_var(--accent-purple-glow)]" />
 											<Heading level={6} size="xs" class="font-display text-purple-300">Maestro</Heading>
-										</HStack>
+										</div>
 										<Text size="sm" class="whitespace-pre-wrap leading-relaxed text-text-primary">{msg.content}</Text>
-									</Box>
+									</div>
 								{:else}
-									<Box
-										surface="glass-teal"
-										depth="z2"
-										bevel="soft"
-										glow="teal"
-										frame="accent-teal"
-										radius="lg"
-										class="max-w-[85%] px-4 py-3"
+									<div
+										class={cn(box({}), "v-s4 v-d2 v-b2 v-g1 v-f2 v-r3 max-w-[85%] px-4 py-3")}
+										data-kind="box"
+										data-slot="root"
 									>
 										<Text size="sm" class="whitespace-pre-wrap leading-relaxed text-text-primary">{msg.content}</Text>
-									</Box>
+									</div>
 								{/if}
 								<Text size="xs" color="muted" class="px-1">{formatTime(msg.created_at)}</Text>
-							</Stack>
+							</div>
 						{/each}
-					</Stack>
+					</div>
 				{/if}
-			</Box>
+			</div>
 
 			<!-- Input area -->
-			<HStack
-				gap="2"
-				align="center"
-				surface="glass-deep"
-				depth="z1"
-				frame="glow"
-				class="border-t border-border-soft px-3 py-2"
+			<div
+				class={cn(hstack({ gap: "2", align: "center" }), "v-s3 v-d1 v-f4 border-t border-border-soft px-3 py-2")}
 			>
 				<Button
 					intent="ghost"
@@ -254,8 +238,8 @@ function formatTime(epoch: number): string {
 				>
 					<Send size={12} />
 				</Button>
-			</HStack>
+			</div>
 		{/if}
-	</Box>
+	</div>
 </div>
 {/if}

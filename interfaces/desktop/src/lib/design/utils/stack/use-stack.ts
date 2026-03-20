@@ -30,13 +30,13 @@ const JUSTIFY: Record<string, string> = {
  *
  * @example
  * stack({ gap: "8", align: "center" })
- * // → "flex flex-col gap-[var(--space-8)] items-center"
+ * // → "flex flex-col gap-8 items-center"
  */
 export function stack(props: StackProps = {}): string {
 	return cn(
 		"flex",
 		props.reverse ? "flex-col-reverse" : "flex-col",
-		props.gap !== undefined && `gap-[var(--space-${props.gap})]`,
+		props.gap !== undefined && `gap-${props.gap}`,
 		props.align && ALIGN[props.align],
 		props.justify && JUSTIFY[props.justify],
 	);

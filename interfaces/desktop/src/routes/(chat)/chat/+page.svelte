@@ -14,13 +14,14 @@
 <script lang="ts">
 import { invoke } from "@tauri-apps/api/core";
 import { Mic, Send, Sparkles } from "lucide-svelte";
-import { Box } from "$lib/design/components/box/index.js";
+import { box } from "$lib/design/utils/box/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";
-import { HStack } from "$lib/design/components/hstack/index.js";
-import { Input } from "$lib/design/components/input/index.js";
-import { Stack } from "$lib/design/components/stack/index.js";
+import { hstack } from "$lib/design/utils/hstack/index.js";
+import { TextField as Input } from "$lib/design/components/text-field/index.js";
+import { stack } from "$lib/design/utils/stack/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { cn } from "$lib/design/utils/cn.js";
 import type { ChatMessage } from "$lib/sys/generated/chat.types.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 
@@ -97,16 +98,14 @@ function formatTime(epoch: number): string {
 }
 </script>
 
-<Box class="flex h-full gap-0">
+<div class={cn(box({}), "flex h-full gap-0")} data-kind="box" data-slot="root">
 	<!-- Thread sidebar — glass panel with teal accent on active -->
-	<Box
-		surface="glass-void"
-		depth="z1"
-		bevel="subtle"
-		frame="soft"
-		class="w-24 border-r border-border-subtle px-2 py-3"
+	<div
+		class={cn(box({}), "v-s0 v-d1 v-b1 v-f1 w-24 border-r border-border-subtle px-2 py-3")}
+		data-kind="box"
+		data-slot="root"
 	>
-		<Stack gap="1">
+		<div class={stack({ gap: "1" })}>
 			{#each threads as thread (thread.id)}
 				<Button
 					intent="ghost"
@@ -121,36 +120,35 @@ function formatTime(epoch: number): string {
 					{thread.label}
 				</Button>
 			{/each}
-		</Stack>
-	</Box>
+		</div>
+	</div>
 
 	<!-- Chat area -->
-	<Stack class="flex-1">
+	<div class={cn(stack({}), "flex-1")}>
 		{#if platformState.hasFailed}
-			<Box
-				surface="glass-void"
-				frame="accent-teal"
-				radius="none"
-				class="px-3 py-1.5 text-center text-xs border-b border-border-emphasis"
+			<div
+				class={cn(box({}), "v-s0 v-f2 px-3 py-1.5 text-center text-xs border-b border-border-emphasis")}
+				data-kind="box"
+				data-slot="root"
 			>
 				<Text size="xs" color="accent">
 					Platform degraded — some features may be unavailable
 				</Text>
-			</Box>
+			</div>
 		{:else if platformState.isBooting}
-			<Box
-				surface="glass-void"
-				radius="none"
-				class="px-3 py-1.5 text-center text-xs border-b border-border-soft"
+			<div
+				class={cn(box({}), "v-s0 px-3 py-1.5 text-center text-xs border-b border-border-soft")}
+				data-kind="box"
+				data-slot="root"
 			>
 				<Text size="xs" class="text-teal-400">
 					Platform starting up...
 				</Text>
-			</Box>
+			</div>
 		{/if}
 
 		<!-- Messages -->
-		<Box class="flex-1 overflow-y-auto scrollbar-thin p-3">
+		<div class={cn(box({}), "flex-1 overflow-y-auto scrollbar-thin p-3")} data-kind="box" data-slot="root">
 			{#if loading}
 				<div class="flex items-center justify-center py-8">
 					<Text size="sm" color="muted">Loading messages...</Text>
@@ -161,55 +159,42 @@ function formatTime(epoch: number): string {
 					<Text size="sm" color="muted">No messages yet. Start a conversation.</Text>
 				</div>
 			{:else}
-				<Stack gap="3">
+				<div class={stack({ gap: "3" })}>
 					{#each messages as msg (msg.id)}
-						<Stack gap="1" class={msg.role === "user" ? "items-end" : ""}>
+						<div class={cn(stack({ gap: "1" }), msg.role === "user" ? "items-end" : "")}>
 							{#if msg.role === "assistant"}
 								<!-- AI bubble — purple glass with purple glow -->
-								<Box
-									surface="glass-purple"
-									depth="z2"
-									bevel="soft"
-									glow="purple"
-									frame="accent-purple"
-									radius="lg"
-									class="max-w-[85%] px-4 py-3"
+								<div
+									class={cn(box({}), "v-s5 v-d2 v-b2 v-g3 v-f3 v-r3 max-w-[85%] px-4 py-3")}
+									data-kind="box"
+									data-slot="root"
 								>
-									<HStack gap="1" class="mb-1.5">
+									<div class={cn(hstack({ gap: "1" }), "mb-1.5")}>
 										<Sparkles size={12} class="text-purple-300 drop-shadow-[0_0_6px_var(--accent-purple-glow)]" />
 										<Heading level={6} size="xs" class="font-display text-purple-300">Maestro</Heading>
-									</HStack>
+									</div>
 									<Text size="sm" class="whitespace-pre-wrap leading-relaxed text-text-primary">{msg.content}</Text>
-								</Box>
+								</div>
 							{:else}
 								<!-- User bubble — teal glass with teal glow -->
-								<Box
-									surface="glass-teal"
-									depth="z2"
-									bevel="soft"
-									glow="teal"
-									frame="accent-teal"
-									radius="lg"
-									class="max-w-[85%] px-4 py-3"
+								<div
+									class={cn(box({}), "v-s4 v-d2 v-b2 v-g1 v-f2 v-r3 max-w-[85%] px-4 py-3")}
+									data-kind="box"
+									data-slot="root"
 								>
 									<Text size="sm" class="whitespace-pre-wrap leading-relaxed text-text-primary">{msg.content}</Text>
-								</Box>
+								</div>
 							{/if}
 							<Text size="xs" color="muted" class="px-1">{formatTime(msg.created_at)}</Text>
-						</Stack>
+						</div>
 					{/each}
-				</Stack>
+				</div>
 			{/if}
-		</Box>
+		</div>
 
 		<!-- Input area — glass panel with glow frame -->
-		<HStack
-			gap="2"
-			align="center"
-			surface="glass-deep"
-			depth="z1"
-			frame="glow"
-			class="border-t border-border-soft px-3 py-2"
+		<div
+			class={cn(hstack({ gap: "2", align: "center" }), "v-s3 v-d1 v-f4 border-t border-border-soft px-3 py-2")}
 		>
 			<Button
 				intent="ghost"
@@ -247,6 +232,6 @@ function formatTime(epoch: number): string {
 			>
 				<Send size={14} />
 			</Button>
-		</HStack>
-	</Stack>
-</Box>
+		</div>
+	</div>
+</div>

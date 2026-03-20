@@ -16,7 +16,7 @@
 -->
 <script lang="ts">
 import { Badge } from "$lib/design/components/badge/index.js";
-import { HStack } from "$lib/design/components/hstack/index.js";
+import { hstack } from "$lib/design/utils/hstack/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { DEV_MODE, devLabel, resolveLabel } from "$lib/sys/generated/terminology.js";
 import { getIcon } from "$lib/sys/generated/terminology-icons.js";
@@ -30,7 +30,7 @@ const subsystems = $derived(platformState.subsystemList());
 <div class="flex w-full items-center justify-between" aria-label="System status">
 	{#if platformState.isBooting}
 		<!-- Boot progress mode -->
-		<HStack gap="2" align="center">
+		<div class={hstack({ gap: "2", align: "center" })}>
 			{#if DEV_MODE}
 				{#each subsystems as sub}
 					{@const Icon = getIcon(sub.name)}
@@ -66,16 +66,16 @@ const subsystems = $derived(platformState.subsystemList());
 					{/if}
 				</Text>
 			{/if}
-		</HStack>
+		</div>
 
-		<HStack gap="2" align="center">
+		<div class={hstack({ gap: "2", align: "center" })}>
 			<Badge intent="default" size="sm">
 				<Text size="xs" color="muted">{platformState.progress}%</Text>
 			</Badge>
-		</HStack>
+		</div>
 	{:else if platformState.hasFailed}
 		<!-- Boot failed -->
-		<HStack gap="2" align="center">
+		<div class={hstack({ gap: "2", align: "center" })}>
 			<Badge intent="error" size="sm" class="gap-1.5">
 				<span class="status-dot h-2 w-2 rounded-full" data-status="offline" aria-hidden="true"></span>
 				<Text size="xs" color="accent">Boot failed</Text>
@@ -83,10 +83,10 @@ const subsystems = $derived(platformState.subsystemList());
 			{#if platformState.error}
 				<Text size="xs" color="muted">{platformState.error}</Text>
 			{/if}
-		</HStack>
+		</div>
 	{:else}
 		<!-- Health display mode (post-boot) -->
-		<HStack gap="2" align="center">
+		<div class={hstack({ gap: "2", align: "center" })}>
 			<Badge
 				intent="default"
 				size="sm"
@@ -104,7 +104,7 @@ const subsystems = $derived(platformState.subsystemList());
 			{#if DEV_MODE}
 				{#each subsystems as sub}
 					{@const Icon = getIcon(sub.name)}
-					<HStack gap="1" align="center">
+					<div class={hstack({ gap: "1", align: "center" })}>
 						{#if Icon}
 							{@const IconComponent = Icon}
 							<IconComponent size={12} class="shrink-0 text-text-muted" />
@@ -112,19 +112,19 @@ const subsystems = $derived(platformState.subsystemList());
 						<Text size="xs" color="muted">
 							[{devLabel(sub.name)}: {sub.state}{sub.latencyMs !== null ? ` ${sub.latencyMs}ms` : ''}]
 						</Text>
-					</HStack>
+					</div>
 				{/each}
 			{/if}
-		</HStack>
+		</div>
 
-		<HStack gap="2" align="center">
+		<div class={hstack({ gap: "2", align: "center" })}>
 			<Badge intent="default" size="sm">
 				<Text size="xs" color="muted">Uptime: {platformState.uptimeFormatted}</Text>
 			</Badge>
 			<Badge intent="default" size="sm">
 				<Text size="xs" color="muted">v{APP_VERSION}</Text>
 			</Badge>
-		</HStack>
+		</div>
 	{/if}
 </div>
 

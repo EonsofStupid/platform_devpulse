@@ -2,7 +2,7 @@
  * useSpacer — Flexible spacer element with DTCG token-backed sizing.
  *
  * Returns a Tailwind class string. No inline styles.
- * Width/height reference --space-{token} CSS custom properties via arbitrary value syntax.
+ * Width/height use Tailwind v4 --spacing-* theme utilities (no arbitrary syntax needed).
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -23,18 +23,18 @@ export function useSpacer(props: UseSpacerProps = {}): UseSpacerReturn {
 
 		switch (axis) {
 			case "x":
-				parts.push(`w-[var(--space-${token})]`);
-				parts.push(`min-w-[var(--space-${token})]`);
+				parts.push(`w-${token}`);
+				parts.push(`min-w-${token}`);
 				break;
 			case "y":
-				parts.push(`h-[var(--space-${token})]`);
-				parts.push(`min-h-[var(--space-${token})]`);
+				parts.push(`h-${token}`);
+				parts.push(`min-h-${token}`);
 				break;
 			case "both":
-				parts.push(`w-[var(--space-${token})]`);
-				parts.push(`h-[var(--space-${token})]`);
-				parts.push(`min-w-[var(--space-${token})]`);
-				parts.push(`min-h-[var(--space-${token})]`);
+				parts.push(`w-${token}`);
+				parts.push(`h-${token}`);
+				parts.push(`min-w-${token}`);
+				parts.push(`min-h-${token}`);
 				break;
 		}
 	}

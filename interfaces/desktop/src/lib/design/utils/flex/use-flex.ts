@@ -37,7 +37,7 @@ const JUSTIFY: Record<string, string> = {
  *
  * @example
  * flex({ direction: "column", gap: "4", padding: "8" })
- * // → "flex flex-col gap-[var(--space-4)] p-[var(--space-8)]"
+ * // → "flex flex-col gap-4 p-8"
  */
 export function flex(props: FlexProps = {}): string {
 	const dir = props.direction ?? "row";
@@ -51,10 +51,10 @@ export function flex(props: FlexProps = {}): string {
 	return cn(
 		"flex",
 		DIRECTION[dir],
-		props.gap !== undefined && `gap-[var(--space-${props.gap})]`,
+		props.gap !== undefined && `gap-${props.gap}`,
 		props.align && ALIGN[props.align],
 		props.justify && JUSTIFY[props.justify],
 		wrapClass,
-		props.padding !== undefined && `p-[var(--space-${props.padding})]`,
+		props.padding !== undefined && `p-${props.padding}`,
 	);
 }

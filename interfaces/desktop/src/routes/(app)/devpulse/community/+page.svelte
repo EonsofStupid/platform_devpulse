@@ -5,25 +5,25 @@
 -->
 <script lang="ts">
 import { Widget } from "$lib/design/blocks/widgets/index.js";
-import { Grid } from "$lib/design/components/grid/index.js";
-import { Stack } from "$lib/design/components/stack/index.js";
+import { gridLayout } from "$lib/design/utils/grid-layout/index.js";
+import { stack } from "$lib/design/utils/stack/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { devpulseState } from "$lib/domains/app/devpulse/index.js";
 </script>
 
-<Grid columns="2" gap="4" class="box-lg" data-page="devpulse-community">
+<div class={gridLayout({ columns: "2", gap: "4" })} data-page="devpulse-community">
 	<Widget title="Friends" size="md">
-		<Stack gap="2">
+		<div class={stack({ gap: "2" })}>
 			<Text size="xl" weight="bold">{devpulseState.data.community.friends}</Text>
 			<Text size="xs" color="muted">connected developers</Text>
-		</Stack>
+		</div>
 	</Widget>
 
 	<Widget title="Groups" size="md">
-		<Stack gap="2">
+		<div class={stack({ gap: "2" })}>
 			<Text size="xl" weight="bold">{devpulseState.data.community.groups}</Text>
 			<Text size="xs" color="muted">active groups</Text>
-		</Stack>
+		</div>
 	</Widget>
 
 	<div class="grid-col-span-full">
@@ -31,4 +31,4 @@ import { devpulseState } from "$lib/domains/app/devpulse/index.js";
 			<Text as="p" size="sm" color="muted">Community activity will appear here when connected.</Text>
 		</Widget>
 	</div>
-</Grid>
+</div>
