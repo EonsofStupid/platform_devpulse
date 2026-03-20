@@ -63,7 +63,7 @@ const groupExtensions = new Map<string, Record<string, unknown>>();
 const tiers = {
 	primitive: [
 		'color', 'shadow', 'bevel', 'glow', 'glowSpread', 'blur',
-		'glass', 'matte', 'radius', 'space', 'padding', 'size',
+		'glass', 'matte', 'radius', 'space', 'padding', 'size', 'breakpoint',
 		'zIndex', 'font', 'textSize', 'leading', 'tracking',
 		'motion', 'gradient',
 	],
@@ -86,6 +86,8 @@ const tw4Remap = {
 		bevel: 'inset-shadow',
 		glow: 'drop-shadow',
 		textSize: 'text',
+		space: 'spacing',
+		zIndex: 'z',
 	},
 	nested: {
 		'motion.ease': 'ease',
@@ -286,13 +288,8 @@ StyleDictionary.registerFormat({
 		const header = await fileHeader({ file });
 		const lines: string[] = [];
 
-		if (options.includeSpacingMultiplier) {
-			lines.push('  --spacing: 0.25rem;');
-		}
-
 		for (const token of dictionary.allTokens) {
 			if (isComponent(token)) continue;
-			if (pathFilter('space', 'padding', 'size', 'zIndex')(token)) continue;
 
 			const name = toTw4VarName(token);
 			const val = token.$value ?? token.value;
@@ -487,7 +484,7 @@ const config: Config = {
 				cssFile('blur.css', pathFilter('blur'), layers.primitives),
 				cssFile('surface.css', pathFilter('glass', 'matte'), layers.primitives),
 				cssFile('radius.css', pathFilter('radius'), layers.primitives),
-				cssFile('spacing.css', pathFilter('space', 'padding', 'size', 'zIndex'), layers.primitives),
+				cssFile('spacing.css', pathFilter('space', 'padding', 'size', 'breakpoint', 'zIndex'), layers.primitives),
 				cssFile('typography.css', pathFilter('font', 'textSize', 'leading', 'tracking'), layers.primitives),
 				cssFile('motion.css', pathFilter('motion'), layers.primitives),
 				cssFile('gradient.css', pathFilter('gradient'), layers.primitives),
@@ -564,7 +561,7 @@ const config: Config = {
 		'theme-spacing': {
 			transforms: CSS_TRANSFORMS,
 			buildPath: `${paths.design}/theme/`,
-			files: [themeFile('spacing.css', pathFilter('space', 'padding', 'size', 'zIndex'), { includeSpacingMultiplier: true })],
+			files: [themeFile('spacing.css', pathFilter('space', 'padding', 'size', 'breakpoint', 'zIndex'))],
 		},
 		'theme-typography': {
 			transforms: CSS_TRANSFORMS,
@@ -626,7 +623,7 @@ const config: Config = {
 				typesFile('shadow.d.ts', pathFilter('shadow', 'bevel', 'glow', 'glowSpread')),
 				typesFile('blur.d.ts', pathFilter('blur')),
 				typesFile('surface.d.ts', pathFilter('glass', 'matte', 'surface')),
-				typesFile('spacing.d.ts', pathFilter('radius', 'space', 'padding', 'size', 'zIndex')),
+				typesFile('spacing.d.ts', pathFilter('radius', 'space', 'padding', 'size', 'breakpoint', 'zIndex')),
 				typesFile('typography.d.ts', pathFilter('font', 'textSize', 'textStyle')),
 				typesFile('motion.d.ts', pathFilter('motion', 'transition')),
 				typesFile('gradient.d.ts', pathFilter('gradient')),

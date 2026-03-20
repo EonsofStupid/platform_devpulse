@@ -1,8 +1,8 @@
 import type { Snippet } from "svelte";
-import type { HTMLButtonAttributes } from "svelte/elements";
+import type { HTMLAnchorAttributes } from "svelte/elements";
 
 /** Props for the raw Link primitive shell. */
-export interface LinkPrimitiveProps extends Omit<HTMLButtonAttributes, "style" | "children"> {
+export interface LinkPrimitiveProps extends Omit<HTMLAnchorAttributes, "style" | "children"> {
 	children?: Snippet;
 	class?: string;
 }

@@ -12,144 +12,143 @@ Verify primitive: $ARGUMENTS
 
 ## What This Skill Does
 
-Runs a full compliance check against a ColdLight primitive to confirm it meets the gold standard established by button/dialog/tabs. Every primitive — all 40 + 1 utility — MUST pass this verification before being considered complete.
+Verifies a ColdLight primitive against the gold standard architecture (2026-03-20).
+Every primitive MUST pass this checklist before being considered complete.
 
-If `$ARGUMENTS` is "all", verify every primitive found in both taxonomy and primitives directories.
+If `$ARGUMENTS` is "all", verify every primitive in design/primitives/.
 
-## Architecture Reminder
+## Architecture (CURRENT — 2026-03-20)
 
-- **Primitives are structural shells.** Zero ARIA. Zero Zero behavior. Zero event handlers.
-- **Taxonomy declares the contract.** Types, slots, states, what ARIA the COMPONENT layer will eventually implement.
-- **Primitives bind the contract.** Typed props, data attributes, snippet children, class merging. That's it.
-- **ARIA belongs in the component layer.** Contracts document what the component layer needs. Primitives don't set it.
+- **design/ IS ColdLight.** No coldlight/ subfolder. No taxonomy/ folder.
+- **Primitives ARE behavioral hooks WITH ARIA.** They are NOT empty shells.
+- **SD5 engine drives all visuals.** DTCG tokens → CSS custom properties → Tailwind @theme → TypeScript types.
+- **Components consume primitives.** Import hook from primitives/, add visual via useColdLight() + recipes.
+- **Shared infra:** `_internal/` (kbd, uid, data-attr, dismiss, scroll-lock, presence), `schema/` (a11y, anatomy).
+
+### What a Gold Standard Primitive Looks Like
+
+Reference: accordion, dialog, tabs, button — these are verified good.
+
+```
+primitives/{kind}/
+  use-{kind}.svelte.ts   ← Svelte 5 runes hook. ARIA, keyboard, state. The behavior.
+  {kind}.types.ts         ← Hook prop and return types. Fully typed, no `any`.
+  {kind}.a11y.ts          ← WAI-ARIA APG spec declaration (roles, required attrs, keyboard, focus strategy)
+  {kind}.anatomy.ts       ← Slot/part definitions via createAnatomy()
+  {kind}.props.ts         ← Structural shell props (extends HTML element attrs, omits style)
+  {Kind}.svelte           ← Structural shell: data-kind, data-slot, class merge, children render. Zero ARIA.
+  index.ts                ← Barrel: exports hook, types, a11y, anatomy, props, primitive component
+```
 
 ## Verification Checklist
 
-For each primitive kind, read every file and check ALL of the following. No exceptions. No partial passes.
+### 1. Hook — `use-{kind}.svelte.ts`
 
-### 1. TAXONOMY LAYER — `src/lib/design/taxonomy/kinds/primitives/{kind}/`
+- [ ] Exists
+- [ ] Uses Svelte 5 runes: `$state`, `$derived` (NOT `writable`, `readable`, `$:`)
+- [ ] Imports shared utils from `../../_internal/` (kbd, uid, data-attr as needed)
+- [ ] Imports anatomy from `./` (spreads anatomy attrs onto returned slot objects)
+- [ ] Imports types from `./`
+- [ ] Returns typed object with getter-wrapped reactive properties
+- [ ] All slots return: `data-kind`, `data-slot`, relevant ARIA attributes
+- [ ] Keyboard handling where APG requires it (Space, Enter, Arrow keys, etc.)
+- [ ] Event handlers (onclick, onkeydown) where APG requires interaction
+- [ ] WAI-ARIA APG pattern URL in JSDoc
+- [ ] For component primitives: proper ARIA roles (button, dialog, tablist, etc.)
+- [ ] For interaction utilities (hover, press, focus): returns interaction state, no ARIA roles needed
+- [ ] NO direct DOM manipulation (no `document.querySelector`)
+- [ ] NO imports from `@melt-ui/svelte`
 
-#### 1a. `types.ts` exists and contains:
-- [ ] `@file` header: `@file {Kind} Taxonomy Types`
-- [ ] `@description` with: "Type vocabulary for the {kind} primitive"
-- [ ] Header includes: `kind: "{kind}"` and `ariaStateProvider: "{provider}"`
-- [ ] Import: `import type { StateToken, SlotStateMap } from "../../../types.js";`
-- [ ] Section separator: `// ─── SLOT TYPES ───` (77 `─` chars after title)
-- [ ] `/** All slot names for the {kind} primitive */` before slots array
-- [ ] Slots array: `export const {kind}Slots = [...] as const;`
-- [ ] `/** Union of {kind} slot names */` before slot type
-- [ ] Slot type: `export type {Kind}Slot = (typeof {kind}Slots)[number];`
-- [ ] Section separator: `// ─── STATE TYPES ───`
-- [ ] `/** All state tokens applicable to the {kind} primitive */` before state array
-- [ ] State array: `as const satisfies readonly StateToken[];`
-- [ ] `/** Union of {kind} state tokens */` before state type
-- [ ] Section separator: `// ─── SLOT STATE MAP ───`
-- [ ] `/** Per-slot allowed states for {kind} */` before slot states
-- [ ] Slot states: `as const satisfies SlotStateMap<{Kind}Slot, {Kind}State>;`
+### 2. Types — `{kind}.types.ts`
 
-#### 1b. `contract.ts` exists and contains:
-- [ ] `@file` header: `@file {Kind} Taxonomy Contract`
-- [ ] `@description`: "ColdLight SSOT contract for the {kind} primitive"
-- [ ] Header includes: `ariaStateProvider:` and parity mode (2-folder or 3-folder)
-- [ ] Import: `import type { PrimitiveContract } from "../../../types.js";`
-- [ ] Import: types from `"./types.js"` (slotStates, Slot type, State type)
-- [ ] Section separator: `// ─── CONTRACT ───`
-- [ ] `/** {Kind} primitive contract — ColdLight SSOT */` before contract
-- [ ] Contract export: `export const contract: PrimitiveContract<"{kind}", {Kind}Slot, {Kind}State>`
-- [ ] All contract fields present: kind, ariaStateProvider, slots, states, slotStates, slotActions, aria, keyboard
+- [ ] Exists
+- [ ] Exports `Use{Kind}Props` interface with JSDoc on every field
+- [ ] Exports `Use{Kind}Return` interface with readonly getters
+- [ ] All return properties typed (no `Record<string, unknown>` for slot attrs — use specific object types or acceptable for spread pattern)
+- [ ] No `any` types
+- [ ] `.js` extension on any imports
 
-#### 1c. `index.ts` exists and contains:
-- [ ] `@file` header: `@file {Kind} Taxonomy Barrel`
-- [ ] `@description`: "Re-exports {kind} types + contract. Zero logic."
-- [ ] Named exports for: slots array, stateTokens array, slotStates, Slot type, State type
-- [ ] Named export: `export { contract } from "./contract.js";`
-- [ ] Uses `.js` extensions on all imports
+### 3. A11y Spec — `{kind}.a11y.ts`
 
-### 2. PRIMITIVES LAYER — `src/lib/design/primitives/{kind}/`
+- [ ] Exists (for ARIA primitives; interaction utilities may skip)
+- [ ] Imports `A11ySpec` type from `../../schema/a11y.schema.js`
+- [ ] Declares: `roles` per slot, `requiredAttrs`, `keyboard` bindings, `focusStrategy`
+- [ ] APG pattern URL
+- [ ] Matches what the hook actually implements
 
-#### 2a. `types.ts` exists and contains:
-- [ ] `@file` header: `@file {Kind} Primitive Types`
-- [ ] `@description`: "Structural type declarations for the {kind} primitive"
-- [ ] Header includes: `Aligned to taxonomy contract: kind="{kind}"`
-- [ ] Header includes: `Slots:` with comma-separated slot list
-- [ ] Header includes: `ariaStateProvider: "{provider}"`
-- [ ] Import: `import type { Snippet } from "svelte";`
-- [ ] Import: `import type { OmitStyle, BaseProps } from "../types.js";`
-- [ ] Every interface has a one-line `/** description */` JSDoc
-- [ ] Root/renderless props: `extends BaseProps` (no OmitStyle — no DOM element)
-- [ ] DOM-rendering props: `extends OmitStyle<HTML{Element}Element>, BaseProps`
-- [ ] DOM-rendering props include: `children?: Snippet;`
-- [ ] Self-closing elements (input, img): NO children prop
-- [ ] Zero ARIA attributes in any interface
+### 4. Anatomy — `{kind}.anatomy.ts`
 
-#### 2b. Svelte components exist and each contains:
-- [ ] HTML comment: `@component {Name}`, `@description`, `Contract: kind="{kind}", slot="{slot}"`
-- [ ] Script: `let { className, children, ...rest }: {Kind}{Slot}Props = $props();`
-- [ ] Script: `if (import.meta.env.DEV) stripStyleProp(rest, '{Kind}.{Slot}');`
-- [ ] Markup: `data-kind="{kind}"`
-- [ ] Markup: `data-slot="{slot}"`
-- [ ] Markup: `class={cn(className)}`
-- [ ] Markup: `{...rest}` spread
-- [ ] Markup: `{@render children?.()}` (unless self-closing element)
-- [ ] Zero: `role=`, `aria-*=`, `id=`, `use:melt`, event handlers (`on:click`, `onclick`)
-- [ ] Zero: `@melt-ui/svelte` imports
-- [ ] Renderless roots (no DOM): only `{@render children?.()}`, no HTML element
+- [ ] Exists
+- [ ] Imports `createAnatomy` from `../../schema/anatomy.schema.js`
+- [ ] Declares all slots the hook returns
+- [ ] Used by the hook (spread into slot return objects)
 
-#### 2c. `context.ts` (compound primitives only) exists and contains:
-- [ ] `@file` header: `@file {Kind} Primitive Context`
-- [ ] `@description`: "Svelte context for compound {kind} coordination"
-- [ ] Description includes: "Reactive via getter when set from Svelte component with $state"
-- [ ] Symbol-keyed: `const CTX_KEY = Symbol("coldlight:{kind}");`
-- [ ] `/** {Kind} context shape */` before type
-- [ ] Type: `export type {Kind}Context = { readonly ...; };`
-- [ ] `/** Set {kind} context ... */` before set function
-- [ ] `/** Get {kind} context ... */` before get function
-- [ ] Uses `getContext`/`setContext` from `"svelte"`
-- [ ] Zero: imports, ARIA attributes, behavior logic
+### 5. Props — `{kind}.props.ts`
 
-#### 2d. `index.ts` exists and contains:
-- [ ] `@file` header: `@file {Kind} Primitive Barrel`
-- [ ] Default exports for all Svelte components: `export { default as {Kind}{Slot} } from "./{Kind}{Slot}.svelte";`
-- [ ] Type exports: `export type { ...Props } from "./types.js";`
-- [ ] Context exports (if compound): `export { set{Kind}Context, get{Kind}Context, type {Kind}Context } from "./context.js";`
-- [ ] Uses `.js` extensions on all imports
+- [ ] Exists
+- [ ] Extends appropriate HTML element attributes (HTMLButtonAttributes, HTMLDivElement, etc.)
+- [ ] Omits `style` (ColdLight components never use inline styles)
+- [ ] Includes `children?: Snippet` (unless self-closing element)
+- [ ] Includes `class?: string`
 
-### 3. BARREL REGISTRATION
+### 6. Structural Shell — `{Kind}.svelte`
 
-- [ ] `taxonomy/kinds/primitives/index.ts` has export block for this kind
-- [ ] `primitives/index.ts` has `export * from "./{kind}/index.js";`
+- [ ] Exists
+- [ ] Uses `$props()` (Svelte 5 runes)
+- [ ] Imports `cn` from `../_shared/cn.js`
+- [ ] Imports props type from `./`
+- [ ] Renders appropriate HTML element
+- [ ] Sets `data-kind="{kind}"` and `data-slot="root"`
+- [ ] Applies `class={cn(className)}`
+- [ ] Spreads `{...rest}`
+- [ ] Renders `{@render children?.()}` (unless self-closing)
+- [ ] ZERO: role=, aria-*, id=, onclick/onkeydown, @melt-ui imports, inline styles
+- [ ] The shell does NOT call the hook — that's the component layer's job
 
-### 4. ZERO TOLERANCE
+### 7. Barrel — `index.ts`
 
-- [ ] ZERO `@melt-ui/svelte` imports anywhere in primitives/{kind}/
+- [ ] Exists
+- [ ] Exports primitive component as named export: `export { default as {Kind}Primitive } from "./{Kind}.svelte";`
+- [ ] Exports hook: `export { use{Kind} } from "./use-{kind}.svelte.js";`
+- [ ] Exports a11y: `export { {kind}A11y } from "./{kind}.a11y.js";`
+- [ ] Exports anatomy: `export { {kind}Anatomy } from "./{kind}.anatomy.js";`
+- [ ] Exports types: `export type { Use{Kind}Props, Use{Kind}Return } from "./{kind}.types.js";`
+- [ ] Exports props type: `export type { {Kind}PrimitiveProps } from "./{kind}.props.js";`
+- [ ] All imports use `.js` extension
+
+### 8. Zero Tolerance
+
+- [ ] ZERO `@melt-ui/svelte` imports
 - [ ] ZERO `use:melt` directives
-- [ ] ZERO `role=` attributes in Svelte files
-- [ ] ZERO `aria-*` attributes in Svelte files
-- [ ] ZERO `id=` attributes in Svelte files
-- [ ] ZERO inline `style=` (enforced by OmitStyle + stripStyleProp)
-- [ ] ZERO event handlers (`on:click`, `onclick`, etc.) in Svelte files
-- [ ] ZERO `any` or `unknown` types
+- [ ] ZERO `any` types
 - [ ] ZERO legacy Svelte stores (`$:`, `writable`, `readable`)
+- [ ] ZERO imports from deleted paths (`coldlight/`, `dsadapters/`, `taxonomy/`, `api/`)
 
 ## Execution
 
-1. Read ALL files in both taxonomy and primitives directories for the kind
-2. Check EVERY item in the checklist above — read the actual file content, do not assume
-3. Report: PASS or FAIL per section, with specific failures listed
-4. If verifying "all": produce a summary table showing pass/fail per kind
+1. Read ALL files in primitives/{kind}/
+2. Check EVERY item above against the actual file content
+3. For "all": produce a summary table
 
 ## Output Format
 
 ```
 VERIFY: {kind}
-  Taxonomy types.ts:    [PASS/FAIL] {details if fail}
-  Taxonomy contract.ts: [PASS/FAIL] {details if fail}
-  Taxonomy index.ts:    [PASS/FAIL] {details if fail}
-  Primitive types.ts:   [PASS/FAIL] {details if fail}
-  Primitive components:  [PASS/FAIL] {details if fail}
-  Primitive context.ts: [PASS/FAIL] {details if fail} (or N/A if simple)
-  Primitive index.ts:   [PASS/FAIL] {details if fail}
-  Barrel registration:  [PASS/FAIL] {details if fail}
-  Zero tolerance:       [PASS/FAIL] {details if fail}
+  Hook:           [PASS/FAIL] {details}
+  Types:          [PASS/FAIL] {details}
+  A11y Spec:      [PASS/FAIL] {details}
+  Anatomy:        [PASS/FAIL] {details}
+  Props:          [PASS/FAIL] {details}
+  Shell:          [PASS/FAIL] {details}
+  Barrel:         [PASS/FAIL] {details}
+  Zero Tolerance: [PASS/FAIL] {details}
   RESULT: GOLD STANDARD / NEEDS WORK
 ```
+
+## What This Skill Does NOT Check
+
+- Component layer (that's a separate verification)
+- Recipe registration
+- Storybook stories
+- Visual rendering
+- SD5 token output

@@ -1,14 +1,15 @@
 <!--
 	@component Heading
 	@kind heading
-	@layer components
 
-	ColdLight Heading — builder-driven, 8-axis visual system.
+	ColdLight Heading — semantic <h1>-<h6> with token-backed styling.
+	Primitive provides level → element mapping. Component adds visual.
+	VPB authors correct heading level based on context.
 -->
 <script lang="ts">
-import { createHeading } from "$lib/design/api/dsadapters/coldlight/_internal/heading/index.js";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import { useHeading } from "$lib/design/primitives/heading/index.js";
 import HeadingRoot from "$lib/design/primitives/heading/Heading.svelte";
+import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { headingRecipe } from "./recipe.js";
 import type { HeadingProps } from "./types.js";
@@ -32,9 +33,7 @@ let {
 	...rest
 }: HeadingProps = $props();
 
-const builder = createHeading({
-	level: () => level,
-});
+const heading = $derived(useHeading({ level }));
 
 const visual = useColdLight(() => ({
 	preset: preset ?? "heading-default",
@@ -53,6 +52,6 @@ const visual = useColdLight(() => ({
 const classes = $derived(cn(headingRecipe({ size }), visual.segments, visual.radius, className));
 </script>
 
-<HeadingRoot {...builder.root} {...rest} {level} class={classes} data-encoding={visual.encoding || undefined}>
+<HeadingRoot {...heading.root} {...rest} {level} class={classes} data-encoding={visual.encoding || undefined}>
 	{@render children?.()}
 </HeadingRoot>

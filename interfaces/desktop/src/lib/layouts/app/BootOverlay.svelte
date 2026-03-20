@@ -1,35 +1,22 @@
 <!--
   @file BootOverlay.svelte
   @module @devpulse/layouts/app/BootOverlay
-  @layer lib
 
-  Full-viewport overlay displayed during platform boot.
+  Full-viewport overlay during platform boot.
   Shows per-subsystem progress with status indicators and latencies.
   Fades out and unmounts when boot completes.
 
-  ## Built with ColdLight
-  All visual elements use design system components:
-  - Box for containers and rows
-  - Stack/HStack for layout
-  - Text for typography
-  - Badge for status indicators
-  - Progress for boot progress bar
-
-  ## Status Accuracy Contract
-  Every SubsystemState has exactly one visual representation:
-    pending  → default badge, no text
-    loading  → info badge, "..."
-    ready    → success badge, latency in ms (or "ok" if no latency)
-    skipped  → default badge, "disabled"
-    failed   → error badge, "failed"
+  All layout via utils (hstack, stack, box → class strings).
+  All visual via ColdLight components (Badge, Text, Progress).
 -->
 <script lang="ts">
 import { Badge, type BadgeIntent } from "$lib/design/components/badge/index.js";
-import { Box } from "$lib/design/components/box/index.js";
-import { HStack } from "$lib/design/components/hstack/index.js";
 import { Progress } from "$lib/design/components/progress/index.js";
-import { Stack } from "$lib/design/components/stack/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { cn } from "$lib/design/utils/cn.js";
+import { box } from "$lib/design/utils/box/index.js";
+import { hstack } from "$lib/design/utils/hstack/index.js";
+import { stack } from "$lib/design/utils/stack/index.js";
 import { DEV_MODE, devLabel, resolveLabel } from "$lib/sys/generated/terminology.js";
 import { getIcon } from "$lib/sys/generated/terminology-icons.js";
 import type { SubsystemState } from "$lib/sys/runes/platformState.svelte.js";
@@ -40,78 +27,72 @@ let fading = $state(false);
 
 const subsystems = $derived(platformState.subsystemList());
 
-/** Map subsystem state to Badge intent — each state has exactly one visual */
 function stateToIntent(state: SubsystemState): BadgeIntent {
 	switch (state) {
-		case "ready":
-			return "success";
-		case "loading":
-			return "info";
-		case "failed":
-			return "error";
-		case "skipped":
-			return "default";
-		case "pending":
-			return "default";
+		case "ready": return "success";
+		case "loading": return "info";
+		case "failed": return "error";
+		case "skipped": return "default";
+		case "pending": return "default";
 	}
 }
 
-/** Map subsystem state to status text — accurate, no lies */
 function stateToLabel(state: SubsystemState, latencyMs: number | null): string {
 	switch (state) {
-		case "pending":
-			return "";
-		case "loading":
-			return "...";
-		case "ready":
-			return latencyMs !== null ? `${latencyMs}ms` : "ok";
-		case "skipped":
-			return "disabled";
-		case "failed":
-			return "failed";
+		case "pending": return "";
+		case "loading": return "...";
+		case "ready": return latencyMs !== null ? `${latencyMs}ms` : "ok";
+		case "skipped": return "disabled";
+		case "failed": return "failed";
 	}
 }
 
 $effect(() => {
 	if (platformState.isReady && !fading) {
 		fading = true;
-		setTimeout(() => {
-			visible = false;
-		}, 600);
+		setTimeout(() => { visible = false; }, 600);
 	}
 });
 </script>
 
 {#if visible}
 <div
-	class="boot-overlay"
-	class:boot-overlay--fading={fading}
+	class={cn(
+		"fixed inset-0 z-[9999] flex items-center justify-center",
+		"bg-[var(--surface-base,#0a0a0f)]",
+		"transition-opacity duration-500 ease-out",
+		fading && "opacity-0 pointer-events-none",
+	)}
 	aria-label="Platform booting"
 	role="status"
 >
-	<Stack gap="6" align="center" class="boot-overlay__content">
-		<!-- Wordmark + elapsed timer -->
-		<Stack gap="1" align="center">
+	<div class={cn(stack({ gap: "24", align: "center" }), "min-w-[320px] max-w-[400px] p-[var(--space-32)]")}>
+		<!-- Wordmark -->
+		<div class={stack({ gap: "4", align: "center" })}>
 			<Text size="lg" weight="bold">DevPulse</Text>
-			<HStack gap="2" align="center" justify="center">
-				<span class="boot-pulse"></span>
+			<div class={hstack({ gap: "8", align: "center", justify: "center" })}>
+				<span
+					class="inline-block w-1.5 h-1.5 rounded-full bg-[var(--glow-teal)] shrink-0 animate-pulse"
+				></span>
 				<Text size="xs" color="muted">{platformState.bootStepLabel}</Text>
-			</HStack>
-		</Stack>
+			</div>
+		</div>
 
 		<!-- Subsystem list -->
-		<Stack gap="2" class="w-full">
+		<div class={cn(stack({ gap: "8" }), "w-full")}>
 			{#each subsystems as sub (sub.name)}
 				{@const Icon = getIcon(sub.name)}
 				{@const label = stateToLabel(sub.state, sub.latencyMs)}
-				<Box
-					surface="glass-void"
-					bevel="subtle"
-					frame="soft"
-					radius="md"
-					class="px-3 py-1.5 {sub.state === 'skipped' ? 'opacity-50' : ''}"
+				<div
+					class={cn(
+						box({ paddingX: "12", paddingY: "6" }),
+						"v-s0 v-b1 v-f1 rounded-md",
+						sub.state === "skipped" && "opacity-50",
+					)}
+					data-kind="box"
+					data-slot="root"
 				>
-					<HStack gap="3" align="center">
+					<div class={hstack({ gap: "12", align: "center" })}>
 						<Badge
 							intent={stateToIntent(sub.state)}
 							size="sm"
@@ -130,14 +111,14 @@ $effect(() => {
 						{#if label}
 							<Text size="xs" color="muted">{label}</Text>
 						{/if}
-					</HStack>
-				</Box>
+					</div>
+				</div>
 			{/each}
 
 			{#if subsystems.length === 0}
 				<Text size="xs" color="muted">Waiting for engine to start...</Text>
 			{/if}
-		</Stack>
+		</div>
 
 		<!-- Progress bar -->
 		<Progress
@@ -149,65 +130,24 @@ $effect(() => {
 			class="w-full"
 		/>
 
-		<!-- Elapsed time — always visible during boot -->
+		<!-- Elapsed time -->
 		{#if platformState.isBooting}
 			<Text size="xs" color="muted">{platformState.bootElapsedFormatted} elapsed</Text>
 		{/if}
 
 		<!-- Error state -->
 		{#if platformState.hasFailed && platformState.error}
-			<Box
-				surface="glass-void"
-				frame="soft"
-				radius="md"
-				class="w-full px-3 py-2 text-center border border-red-500/20 bg-red-500/10"
+			<div
+				class={cn(
+					box({ paddingX: "12", paddingY: "8" }),
+					"w-full text-center v-f1 rounded-md border border-[var(--color-red-500)]/20 bg-[var(--color-red-500)]/10",
+				)}
+				data-kind="box"
+				data-slot="root"
 			>
 				<Text size="xs" color="accent">{platformState.error}</Text>
-			</Box>
+			</div>
 		{/if}
-	</Stack>
+	</div>
 </div>
 {/if}
-
-<style>
-	/* Overlay positioning — the ONLY hand-written CSS.
-	   Fixed viewport cover is layout scaffolding, not a component concern. */
-	.boot-overlay {
-		position: fixed;
-		inset: 0;
-		z-index: 9999;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		background: var(--surface-base, #0a0a0f);
-		opacity: 1;
-		transition: opacity 500ms ease-out;
-	}
-
-	.boot-overlay--fading {
-		opacity: 0;
-		pointer-events: none;
-	}
-
-	:global(.boot-overlay__content) {
-		min-width: 320px;
-		max-width: 400px;
-		padding: 2rem;
-	}
-
-	/* Pulsing dot — proves the app is alive, not frozen */
-	.boot-pulse {
-		display: inline-block;
-		width: 6px;
-		height: 6px;
-		border-radius: 50%;
-		background: var(--glow-teal, #2dd4bf);
-		animation: pulse 1.5s ease-in-out infinite;
-		flex-shrink: 0;
-	}
-
-	@keyframes pulse {
-		0%, 100% { opacity: 0.3; transform: scale(0.8); }
-		50% { opacity: 1; transform: scale(1.2); }
-	}
-</style>

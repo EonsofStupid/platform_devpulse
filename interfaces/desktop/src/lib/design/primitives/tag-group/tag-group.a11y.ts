@@ -10,4 +10,5 @@ export const tagGroupA11y: A11ySpec = {
 		{ key: "Backspace", action: "remove" },
 	],
 	focusStrategy: "roving",
+	apgPattern: "https://www.w3.org/WAI/ARIA/apg/patterns/grid/",
 };

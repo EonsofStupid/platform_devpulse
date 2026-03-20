@@ -1,0 +1,83 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@layer tokens.primitives {
+  :root {
+  --space-0: 0; /** Zero — reset */
+  --space-1: 0.0625rem; /** Hairline — grid lines, single-pixel borders */
+  --space-2: 0.125rem; /** Micro — tight label margins, outline offsets */
+  --space-3: 0.1875rem; /** Tight — compact padding, scrollbar radius */
+  --space-4: 0.25rem; /** Base unit */
+  --space-5: 0.3125rem; /** Compact — small button padding */
+  --space-6: 0.375rem; /** Snug — scrollbar width, tight gaps */
+  --space-7: 0.4375rem;
+  --space-8: 0.5rem; /** Standard gap */
+  --space-9: 0.5625rem;
+  --space-10: 0.625rem; /** Comfortable — button padding */
+  --space-11: 0.6875rem;
+  --space-12: 0.75rem; /** Card padding sm */
+  --space-14: 0.875rem;
+  --space-16: 1rem; /** Card padding md, standard section gap */
+  --space-18: 1.125rem;
+  --space-20: 1.25rem; /** Panel padding */
+  --space-24: 1.5rem; /** Section padding sm */
+  --space-28: 1.75rem; /** Neural grid spacing */
+  --space-32: 2rem; /** Section padding md */
+  --space-36: 2.25rem; /** Maestro grid spacing */
+  --space-40: 2.5rem; /** Toolbar height, default grid spacing */
+  --space-44: 2.75rem; /** DevForge grid spacing */
+  --space-48: 3rem; /** Section padding lg */
+  --space-56: 3.5rem; /** Hero spacing sm */
+  --space-64: 4rem; /** Hero spacing md */
+  --space-72: 4.5rem;
+  --space-80: 5rem; /** Hero spacing lg */
+  --space-96: 6rem; /** Section max spacing */
+  --space-112: 7rem;
+  --space-128: 8rem; /** Page-level max spacing */
+  --padding-xs-y: var(--space-4);
+  --padding-xs-x: var(--space-8);
+  --padding-sm-y: var(--space-6);
+  --padding-sm-x: var(--space-12);
+  --padding-md-y: var(--space-8);
+  --padding-md-x: var(--space-16);
+  --padding-lg-y: var(--space-12);
+  --padding-lg-x: var(--space-24);
+  --padding-xl-y: var(--space-16);
+  --padding-xl-x: var(--space-32);
+  --padding-2xl-y: var(--space-24);
+  --padding-2xl-x: var(--space-48);
+  --size-3xs: 1rem; /** Icon sm */
+  --size-2xs: 1.25rem; /** Icon md */
+  --size-xs: 1.5rem; /** Icon lg, badge */
+  --size-sm: 2rem; /** Button sm, avatar sm */
+  --size-md: 2.5rem; /** Button md, input height */
+  --size-lg: 3rem; /** Button lg, avatar lg */
+  --size-xl: 3.5rem; /** Toolbar height */
+  --size-2xl: 4rem; /** Panel header */
+  --size-3xl: 5rem; /** Card hero */
+  --size-4xl: 6rem; /** Avatar xl */
+  --size-5xl: 8rem; /** Feature block */
+  --size-container-xs: 20rem; /** Mobile min */
+  --size-container-sm: 40rem; /** Tablet */
+  --size-container-md: 48rem; /** Tablet landscape */
+  --size-container-lg: 64rem; /** Desktop */
+  --size-container-xl: 80rem; /** Desktop wide */
+  --size-container-2xl: 96rem; /** Desktop max */
+  --breakpoint-xs: 20rem; /** Mobile portrait */
+  --breakpoint-sm: 40rem; /** Mobile landscape / small tablet */
+  --breakpoint-md: 48rem; /** Tablet portrait */
+  --breakpoint-lg: 64rem; /** Tablet landscape / desktop */
+  --breakpoint-xl: 80rem; /** Desktop */
+  --breakpoint-2xl: 96rem; /** Wide desktop */
+  --z-index-base: 0;
+  --z-index-raised: 10;
+  --z-index-dropdown: 100;
+  --z-index-sticky: 200;
+  --z-index-overlay: 300;
+  --z-index-modal: 400;
+  --z-index-popover: 500;
+  --z-index-toast: 600;
+  --z-index-tooltip: 700;
+  }
+}

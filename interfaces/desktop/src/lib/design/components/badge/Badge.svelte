@@ -1,18 +1,22 @@
 <!--
 	@component Badge
 	@kind badge
-	@layer components
 
-	ColdLight Badge — builder-driven, 8-axis visual system.
+	ColdLight Badge — presentational (role="presentation").
+	S2 pattern: variant × fillStyle drives color. Provider for child Text/Icon.
 -->
 <script lang="ts">
-import { createBadge } from "$lib/design/api/dsadapters/coldlight/_internal/badge/index.js";
+import { useBadge } from "$lib/design/primitives/badge/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import BadgeRoot from "$lib/design/primitives/badge/Badge.svelte";
 import { cn } from "$lib/design/utils/cn.js";
-import { badgeRecipe } from "./recipe.js";
 import type { BadgeProps } from "./types.js";
 import { BADGE_INTENT_PRESETS } from "./types.js";
+
+const SIZE_CLASSES: Record<string, string> = {
+	sm: "h-5 px-1.5 text-xs",
+	md: "h-6 px-2 text-xs",
+	lg: "h-7 px-2.5 text-sm",
+};
 
 let {
 	intent = "default",
@@ -34,9 +38,11 @@ let {
 	...rest
 }: BadgeProps = $props();
 
-const builder = createBadge({
-	decorative: () => decorative,
-});
+const badge = $derived(useBadge({
+	variant: intent === "error" ? "negative" : intent === "default" ? "neutral" : intent as any,
+	size,
+	decorative,
+}));
 
 const visual = useColdLight(() => ({
 	preset: preset ?? BADGE_INTENT_PRESETS[intent as keyof typeof BADGE_INTENT_PRESETS],
@@ -53,9 +59,16 @@ const visual = useColdLight(() => ({
 	size,
 }));
 
-const classes = $derived(cn(badgeRecipe(size), visual.segments, visual.radius, className));
+const classes = $derived(cn(
+	"badge",
+	"inline-flex items-center justify-center font-medium whitespace-nowrap",
+	SIZE_CLASSES[size] ?? SIZE_CLASSES.md,
+	visual.segments,
+	visual.radius,
+	className,
+));
 </script>
 
-<BadgeRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>
+<span {...badge.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>
 	{@render children?.()}
-</BadgeRoot>
+</span>

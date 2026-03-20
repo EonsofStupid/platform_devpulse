@@ -10,10 +10,10 @@
 import type { Snippet } from "svelte";
 import type { HTMLButtonAttributes } from "svelte/elements";
 import type { ColdLightProps } from "$lib/design/components/_base/types.js";
-import type { ButtonType } from "$lib/design/coldlight/primitives/button/button.types.js";
+import type { ButtonType } from "$lib/design/primitives/button/button.types.js";
 
 // Re-export hook types so consumers can import from one place
-export type { ButtonType, UseButtonProps, UseButtonReturn } from "$lib/design/coldlight/primitives/button/button.types.js";
+export type { ButtonType, UseButtonProps, UseButtonReturn } from "$lib/design/primitives/button/button.types.js";
 
 // ── Component types ─────────────────────────────────────────────
 
