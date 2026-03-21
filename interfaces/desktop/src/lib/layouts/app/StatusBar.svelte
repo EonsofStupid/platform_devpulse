@@ -35,7 +35,7 @@ const subsystems = $derived(platformState.subsystemList());
 				{#each subsystems as sub}
 					{@const Icon = getIcon(sub.name)}
 					<Badge
-						intent="default"
+						variant="neutral"
 						size="sm"
 						class="gap-1"
 						data-subsystem-state={sub.state}
@@ -69,14 +69,14 @@ const subsystems = $derived(platformState.subsystemList());
 		</div>
 
 		<div class={hstack({ gap: "2", align: "center" })}>
-			<Badge intent="default" size="sm">
+			<Badge variant="neutral" size="sm">
 				<Text size="xs" color="muted">{platformState.progress}%</Text>
 			</Badge>
 		</div>
 	{:else if platformState.hasFailed}
 		<!-- Boot failed -->
 		<div class={hstack({ gap: "2", align: "center" })}>
-			<Badge intent="error" size="sm" class="gap-1.5">
+			<Badge variant="negative" size="sm" class="gap-1.5">
 				<span class="status-dot h-2 w-2 rounded-full" data-status="offline" aria-hidden="true"></span>
 				<Text size="xs" color="accent">Boot failed</Text>
 			</Badge>
@@ -88,7 +88,7 @@ const subsystems = $derived(platformState.subsystemList());
 		<!-- Health display mode (post-boot) -->
 		<div class={hstack({ gap: "2", align: "center" })}>
 			<Badge
-				intent="default"
+				variant="neutral"
 				size="sm"
 				class="gap-1.5"
 				data-status={platformState.connectionStatus}
@@ -118,10 +118,10 @@ const subsystems = $derived(platformState.subsystemList());
 		</div>
 
 		<div class={hstack({ gap: "2", align: "center" })}>
-			<Badge intent="default" size="sm">
+			<Badge variant="neutral" size="sm">
 				<Text size="xs" color="muted">Uptime: {platformState.uptimeFormatted}</Text>
 			</Badge>
-			<Badge intent="default" size="sm">
+			<Badge variant="neutral" size="sm">
 				<Text size="xs" color="muted">v{APP_VERSION}</Text>
 			</Badge>
 		</div>

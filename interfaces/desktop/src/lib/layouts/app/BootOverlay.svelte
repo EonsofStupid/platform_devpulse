@@ -10,7 +10,7 @@
   All visual via ColdLight components (Badge, Text, Progress).
 -->
 <script lang="ts">
-import { Badge, type BadgeIntent } from "$lib/design/components/badge/index.js";
+import { Badge, type BadgeVariant } from "$lib/design/components/badge/index.js";
 import { Progress } from "$lib/design/components/progress/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { cn } from "$lib/design/utils/cn.js";
@@ -27,13 +27,13 @@ let fading = $state(false);
 
 const subsystems = $derived(platformState.subsystemList());
 
-function stateToIntent(state: SubsystemState): BadgeIntent {
+function stateToVariant(state: SubsystemState): BadgeVariant {
 	switch (state) {
-		case "ready": return "success";
-		case "loading": return "info";
-		case "failed": return "error";
-		case "skipped": return "default";
-		case "pending": return "default";
+		case "ready": return "positive";
+		case "loading": return "informative";
+		case "failed": return "negative";
+		case "skipped": return "neutral";
+		case "pending": return "neutral";
 	}
 }
 
@@ -94,7 +94,7 @@ $effect(() => {
 				>
 					<div class={hstack({ gap: "12", align: "center" })}>
 						<Badge
-							intent={stateToIntent(sub.state)}
+							variant={stateToVariant(sub.state)}
 							size="sm"
 							decorative
 							class="h-2 w-2 min-w-0 p-0"

@@ -49,7 +49,7 @@ const STATUS_COLORS: Record<string, string> = {
 			</Heading>
 		</div>
 		<Badge
-			intent="default"
+			variant="neutral"
 			size="sm"
 			class="gap-1.5"
 			data-status={platformState.connectionStatus}

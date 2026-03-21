@@ -38,7 +38,7 @@ export const BADGE_VARIANT_PRESETS: Record<BadgeVariant, string> = {
 
 export interface BadgeProps
 	extends Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children" | "class">,
-		PreparedComponentProps {
+		Omit<PreparedComponentProps, "size"> {
 	/** Element ID. */
 	id?: string;
 	/** Semantic color variant. Default: "neutral". */

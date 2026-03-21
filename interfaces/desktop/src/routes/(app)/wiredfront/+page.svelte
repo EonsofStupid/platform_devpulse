@@ -142,7 +142,7 @@ import { Text } from "$lib/design/components/text/index.js";
 			<div class={stack({ gap: "2" })}>
 				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Status</Text>
-					<Badge intent="default" size="sm">Offline</Badge>
+					<Badge variant="neutral" size="sm">Offline</Badge>
 				</div>
 				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Viewers</Text>

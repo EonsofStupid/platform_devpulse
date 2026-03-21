@@ -32,7 +32,7 @@ import { DEV_MODE } from "$lib/sys/generated/terminology.js";
 			<div class={stack({ gap: "2" })}>
 				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Status</Text>
-					<Badge intent="default" size="sm">Standby</Badge>
+					<Badge variant="neutral" size="sm">Standby</Badge>
 				</div>
 				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Active Tasks</Text>
@@ -156,7 +156,7 @@ import { DEV_MODE } from "$lib/sys/generated/terminology.js";
 			<div class={stack({ gap: "2" })}>
 				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">KV Cache</Text>
-					<Badge intent="default" size="sm">Empty</Badge>
+					<Badge variant="neutral" size="sm">Empty</Badge>
 				</div>
 				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Entries</Text>

@@ -80,21 +80,21 @@ import { cn } from "$lib/design/utils/cn.js";
 				<div class={cn(stack({ gap: "2" }), "rounded-lg border border-border-subtle p-3")}>
 					<div class={hstack({ justify: "between", align: "center" })}>
 						<Text weight="semibold" size="sm">Development</Text>
-						<Badge intent="success" size="sm">Local</Badge>
+						<Badge variant="positive" size="sm">Local</Badge>
 					</div>
 					<Text size="xs" color="muted">localhost:1420</Text>
 				</div>
 				<div class={cn(stack({ gap: "2" }), "rounded-lg border border-border-subtle p-3")}>
 					<div class={hstack({ justify: "between", align: "center" })}>
 						<Text weight="semibold" size="sm">Staging</Text>
-						<Badge intent="default" size="sm">Not Configured</Badge>
+						<Badge variant="neutral" size="sm">Not Configured</Badge>
 					</div>
 					<Text size="xs" color="muted">--</Text>
 				</div>
 				<div class={cn(stack({ gap: "2" }), "rounded-lg border border-border-subtle p-3")}>
 					<div class={hstack({ justify: "between", align: "center" })}>
 						<Text weight="semibold" size="sm">Production</Text>
-						<Badge intent="default" size="sm">Not Configured</Badge>
+						<Badge variant="neutral" size="sm">Not Configured</Badge>
 					</div>
 					<Text size="xs" color="muted">--</Text>
 				</div>

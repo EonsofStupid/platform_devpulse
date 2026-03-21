@@ -90,10 +90,10 @@ export {
 
 export {
 	Badge,
-	type BadgeIntent,
 	type BadgeProps,
 	type BadgeSize,
-	badgeRecipe,
+	type BadgeVariant,
+	type BadgeFillStyle,
 } from "./badge/index.js";
 export * as Card from "./card/index.js";
 export {

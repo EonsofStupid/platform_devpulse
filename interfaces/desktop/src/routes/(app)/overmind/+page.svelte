@@ -29,15 +29,15 @@ import { Text } from "$lib/design/components/text/index.js";
 			<div class={stack({ gap: "2" })}>
 				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Engine</Text>
-					<Badge intent="success" size="sm">Online</Badge>
+					<Badge variant="positive" size="sm">Online</Badge>
 				</div>
 				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Signal Router</Text>
-					<Badge intent="success" size="sm">Active</Badge>
+					<Badge variant="positive" size="sm">Active</Badge>
 				</div>
 				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Database</Text>
-					<Badge intent="default" size="sm">Not Connected</Badge>
+					<Badge variant="neutral" size="sm">Not Connected</Badge>
 				</div>
 			</div>
 		</Widget>
