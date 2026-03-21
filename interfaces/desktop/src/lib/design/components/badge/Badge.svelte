@@ -39,7 +39,7 @@ let {
 
 const recipe = getRecipe("badge.glass.void");
 // biome-ignore lint/suspicious/noExplicitAny: recipe classes accept resolved props
-const recipeClasses = recipe?.classes?.({} as any) ?? {};
+const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
 
 const visual = useColdLight(() => ({
 	preset: preset ?? BADGE_VARIANT_PRESETS[variant as keyof typeof BADGE_VARIANT_PRESETS],

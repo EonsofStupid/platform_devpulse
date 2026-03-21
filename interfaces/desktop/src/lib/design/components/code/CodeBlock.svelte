@@ -47,7 +47,7 @@ let {
 
 const recipe = getRecipe("code.glass.void");
 // biome-ignore lint/suspicious/noExplicitAny: recipe classes accept resolved props
-const recipeClasses = recipe?.classes?.({} as any) ?? {};
+const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
 
 function copyCode(value?: string) {
 	if (disabled) return;
