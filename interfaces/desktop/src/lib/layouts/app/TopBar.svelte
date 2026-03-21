@@ -11,7 +11,7 @@
 <script lang="ts">
 import { invoke } from "@tauri-apps/api/core";
 import { Bell, MessageCircle, Search } from "lucide-svelte";
-import { Avatar } from "$lib/design/components/avatar/index.js";
+import * as Avatar from "$lib/design/components/avatar/index.js";
 import { box } from "$lib/design/utils/box/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
@@ -98,8 +98,8 @@ function onKey(e: KeyboardEvent): void {
 			</div>
 		{/if}
 
-		<Avatar size="sm" alt="User avatar" class="h-8 w-8">
-			DP
-		</Avatar>
+		<Avatar.Root size={32} alt="User avatar">
+			<Avatar.Fallback>DP</Avatar.Fallback>
+		</Avatar.Root>
 	</div>
 </div>

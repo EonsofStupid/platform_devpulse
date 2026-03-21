@@ -17,7 +17,6 @@ import { coldlightConfig } from "./coldlight.config.js";
 
 import {
 	aspectRatioContract,
-	avatarContract,
 	boxContract,
 	breadcrumbContract,
 	buttonContract,
@@ -318,7 +317,6 @@ const ALL_CONTRACTS = [
 	toggleContract,
 	progressContract,
 	radioGroupContract,
-	avatarContract,
 	sliderContract,
 	fileUploadContract,
 	pinInputContract,
