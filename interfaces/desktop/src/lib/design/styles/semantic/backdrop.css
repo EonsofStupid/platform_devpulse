@@ -13,7 +13,7 @@
   --backdrop-grid-teal: oklch(0.3203 0.0501 188.86 / 0.0784313725490196);
   --backdrop-grid-purple: oklch(0.2148 0.1113 280.59 / 0.058823529411764705);
   --backdrop-grid-ember: oklch(0.1998 0.0543 28.75 / 0.058823529411764705);
-  --backdrop-grid-cyber: oklch(0.3053 0.0795 152.46 / 0.058823529411764705);
+  --backdrop-grid-cyber: oklch(21.881% 0.08979 29.223 / 0.059);
   --backdrop-grid-magenta: oklch(0.2050 0.0971 322.54 / 0.058823529411764705);
   }
 }

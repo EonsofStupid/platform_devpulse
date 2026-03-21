@@ -1,30 +1,30 @@
 <!--
-	@component CollapsibleTrigger
+	@component Collapsible.Trigger
 	@kind collapsible
+	@slot trigger
 	@layer components
-
-	Collapsible toggle button — reads transport context for slot attributes.
-	MeltUI transport provides aria-expanded, aria-controls, click handlers.
-
-	WAI-ARIA APG: trigger has aria-expanded + aria-controls pointing to content.
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getCollapsibleContext } from "./context.js";
-import { collapsibleRecipe } from "./recipe.js";
 import type { CollapsibleTriggerProps } from "./types.js";
 
 let { children, class: className, ...rest }: CollapsibleTriggerProps = $props();
-
-const transport = getCollapsibleContext();
-const recipe = collapsibleRecipe();
+const ctx = getCollapsibleContext();
 </script>
 
 <button
-	{...transport.slots.trigger}
-	class={cn(recipe.trigger, className)}
+	type="button"
+	id={ctx.triggerId}
+	aria-expanded={ctx.isOpen}
+	aria-controls={ctx.contentId}
+	aria-disabled={ctx.disabled || undefined}
+	disabled={ctx.disabled}
 	data-kind="collapsible"
 	data-slot="trigger"
+	data-state={ctx.isOpen ? "open" : "closed"}
+	class={cn(ctx.classes.trigger, className)}
+	onclick={() => ctx.toggle()}
 	{...rest}
 >
 	{@render children?.()}

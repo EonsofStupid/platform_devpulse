@@ -3,50 +3,52 @@
  * @kind collapsible
  * @layer components
  *
- * Compound component props for Collapsible root + sub-components.
- * MeltUI transport adapter provides ARIA for trigger/content.
+ * Disclosure pattern — one trigger toggles one content panel.
+ * Compound: Root, Trigger, Content, Indicator.
+ * Direct ARIA — aria-expanded, aria-controls, keyboard enter/space.
  *
+ * Ark UI / Zag aligned API.
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
 
-// =============================================================================
-// ROOT PROPS
-// =============================================================================
+export interface CollapsibleOpenChangeDetails {
+	open: boolean;
+}
 
-export interface CollapsibleProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps,
-		ColdLightProps {
-	children?: Snippet;
-	/** Controlled open state. @default false */
+export interface CollapsibleIds {
+	root?: string;
+	trigger?: string;
+	content?: string;
+}
+
+export interface CollapsibleRootProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
+		PreparedComponentProps {
+	ids?: Partial<CollapsibleIds>;
+	/** Controlled open state. */
 	open?: boolean;
-	/** Called when open state changes. */
-	onOpenChange?: (value: boolean) => void;
-	/** Whether the collapsible is disabled. @default false */
+	/** Initial open state when uncontrolled. Default: false. */
+	defaultOpen?: boolean;
+	/** Callback when open state changes. */
+	onOpenChange?: (details: CollapsibleOpenChangeDetails) => void;
+	/** Callback when exit animation completes. */
+	onExitComplete?: () => void;
+	/** Whether the collapsible is disabled. */
 	disabled?: boolean;
-}
-
-// =============================================================================
-// TRIGGER PROPS
-// =============================================================================
-
-export interface CollapsibleTriggerProps
-	extends Omit<HTMLAttributes<HTMLButtonElement>, "style" | "children">,
-		BaseProps {
+	/** Text/writing direction. */
+	dir?: "ltr" | "rtl";
 	children?: Snippet;
 }
 
-// =============================================================================
-// CONTENT PROPS
-// =============================================================================
-
-export interface CollapsibleContentProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps {
+interface CollapsibleSlotProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
 	children?: Snippet;
+	class?: string;
 }
+
+export interface CollapsibleTriggerProps extends CollapsibleSlotProps {}
+export interface CollapsibleContentProps extends CollapsibleSlotProps {}
+export interface CollapsibleIndicatorProps extends CollapsibleSlotProps {}

@@ -41,3 +41,17 @@ export interface DashboardPayload {
 	readonly message_stats: MessageStats;
 	readonly uptime_secs: number;
 }
+
+/** Real process metrics from the OS via sysinfo. Every field is a measurement. */
+export interface ProcessMetrics {
+	/** Process RSS (resident set size) in bytes. */
+	readonly memory_rss_bytes: number;
+	/** Process virtual memory in bytes. */
+	readonly memory_virtual_bytes: number;
+	/** CPU usage as percentage of one core (0.0 - 100.0+). */
+	readonly cpu_usage_percent: number;
+	/** Process uptime in seconds. */
+	readonly uptime_secs: number;
+	/** Process ID. */
+	readonly pid: number;
+}

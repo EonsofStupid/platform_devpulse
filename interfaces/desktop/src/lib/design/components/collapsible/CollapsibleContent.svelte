@@ -1,32 +1,29 @@
 <!--
-	@component CollapsibleContent
+	@component Collapsible.Content
 	@kind collapsible
+	@slot content
 	@layer components
-
-	Collapsible content area — conditionally rendered when open.
-	Reads transport context for slot attributes.
-
-	Only rendered when transport.states.open is true.
 -->
 <script lang="ts">
+import { slide } from "svelte/transition";
 import { cn } from "$lib/design/utils/cn.js";
 import { getCollapsibleContext } from "./context.js";
-import { collapsibleRecipe } from "./recipe.js";
 import type { CollapsibleContentProps } from "./types.js";
 
 let { children, class: className, ...rest }: CollapsibleContentProps = $props();
-
-const transport = getCollapsibleContext();
-const recipe = collapsibleRecipe();
+const ctx = getCollapsibleContext();
 </script>
 
-{#if transport.states.open}
+{#if ctx.isOpen}
 	<div
-		{...transport.slots.content}
-		class={cn(recipe.content, className)}
+		id={ctx.contentId}
+		role="region"
+		aria-labelledby={ctx.triggerId}
 		data-kind="collapsible"
 		data-slot="content"
 		data-state="open"
+		class={cn(ctx.classes.content, className)}
+		transition:slide={{ duration: 200 }}
 		{...rest}
 	>
 		{@render children?.()}

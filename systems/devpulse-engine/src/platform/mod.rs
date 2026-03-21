@@ -28,6 +28,7 @@ mod boot;
 pub mod config;
 pub mod health;
 pub mod init;
+pub mod metrics;
 pub mod server;
 pub mod services;
 
@@ -37,6 +38,7 @@ pub use config::{
 };
 pub use health::{HealthStatus, SubsystemHealth, SystemHealth};
 pub use init::{InitEvent, InitStatus};
+pub use metrics::ProcessMetrics;
 pub use services::{Service, ServiceRole, ServiceState};
 
 // Re-export maestro persistence traits and types for Tauri command layer

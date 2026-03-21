@@ -3,88 +3,63 @@
  * @kind collapsible
  * @layer components
  *
- * BUILD-TIME validated via `satisfies ComponentContract`.
- * TypeScript compiler enforces the shape — zero runtime overhead.
- *
- * MeltUI transport adapter provides ARIA attributes for trigger/content slots.
- * ColdLight adds data-kind, data-slot, data-state.
- *
- * Reference: W3C WAI-ARIA APG Disclosure (Show/Hide) Pattern
- * https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/
+ * Disclosure pattern. One trigger toggles one content panel.
+ * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/
  */
 
 import type { ComponentContract } from "$lib/design/components/_schema/contract.js";
 
-/**
- * Collapsible component contract — compile-time enforced.
- *
- * Compound component: root → trigger + content.
- * Single context layer: CollapsibleTransport.
- */
 export const contract = {
 	kind: "collapsible",
 	description:
-		"A disclosure widget that shows or hides associated content. The trigger toggles the visibility of the content section.",
+		"Disclosure pattern — one trigger toggles one content panel. aria-expanded on trigger, aria-controls pointing to content. Keyboard enter/space to toggle.",
 	apgPattern: "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/",
 
 	slots: {
 		required: ["root", "trigger", "content"],
-		optional: [],
+		optional: ["indicator"],
 	},
 
 	slotContracts: {
 		root: {
 			name: "root",
 			element: "div",
-			aria: {
-				required: [],
-				optional: [],
-			},
-			data: {
-				kind: "collapsible",
-				slot: "root",
-				states: ["open", "closed"],
-			},
+			aria: { required: [], optional: [] },
+			data: { kind: "collapsible", slot: "root", states: ["open", "closed"] },
 		},
 		trigger: {
 			name: "trigger",
 			element: "button",
 			aria: {
-				role: "button",
 				required: [
 					{ attr: "aria-expanded", valueType: "aria-expanded" },
 					{ attr: "aria-controls", valueType: "aria-controls" },
 				],
 				optional: [{ attr: "aria-disabled", valueType: "aria-disabled" }],
 			},
-			data: {
-				kind: "collapsible",
-				slot: "trigger",
-				states: ["expanded", "collapsed", "disabled"],
-			},
-			keyboard: [
-				{ key: "Enter", action: "toggle", description: "Toggle collapsible content" },
-				{ key: "Space", action: "toggle", description: "Toggle collapsible content" },
-			],
+			data: { kind: "collapsible", slot: "trigger", states: ["open", "closed"] },
 		},
 		content: {
 			name: "content",
 			element: "div",
 			aria: {
-				required: [],
+				role: "region",
+				required: [{ attr: "aria-labelledby", valueType: "aria-labelledby" }],
 				optional: [],
 			},
-			data: {
-				kind: "collapsible",
-				slot: "content",
-				states: ["open", "closed"],
-			},
+			data: { kind: "collapsible", slot: "content", states: ["open", "closed"] },
+		},
+		indicator: {
+			name: "indicator",
+			element: "span",
+			aria: { required: [], optional: [] },
+			data: { kind: "collapsible", slot: "indicator", states: ["open", "closed"] },
 		},
 	},
 
 	accessibleName: {
 		required: false,
-		sources: ["aria-label", "aria-labelledby", "content"],
+		sources: ["aria-label"],
 	},
 
 	focus: {
@@ -93,18 +68,13 @@ export const contract = {
 
 	keyboard: {
 		global: [
-			{ key: "Enter", action: "toggle", description: "Toggle collapsible content" },
-			{ key: "Space", action: "toggle", description: "Toggle collapsible content" },
+			{ key: "Enter", action: "toggle", description: "Toggle content visibility" },
+			{ key: "Space", action: "toggle", description: "Toggle content visibility" },
 		],
 	},
 
 	states: {
-		primary: "open",
-		all: ["open", "closed", "disabled"],
-		ariaMapping: {
-			expanded: "aria-expanded",
-			disabled: "aria-disabled",
-		},
+		all: ["open", "closed"],
 	},
 
 	interactions: {

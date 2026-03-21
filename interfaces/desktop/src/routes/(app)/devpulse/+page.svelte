@@ -241,7 +241,7 @@ $effect(() => {
 									class="inline-block h-1.5 w-1.5 rounded-full"
 									style="background: {healthColors[sub.status] ?? 'var(--text-muted)'}; box-shadow: 0 0 6px {healthColors[sub.status] ?? 'transparent'};"
 								></span>
-								{sub.status}
+								{sub.state ?? sub.status}
 							</span>
 						</div>
 					{/each}

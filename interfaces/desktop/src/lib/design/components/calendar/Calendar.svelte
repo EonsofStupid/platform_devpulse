@@ -1,34 +1,40 @@
 <!--
-	@component Calendar
+	@component Calendar (Root)
 	@kind calendar
 	@layer components
 
-	ColdLight Calendar root — manages state and provides context.
-	Compound component: sub-components consume context to render slots.
+	ColdLight Calendar — date selection, navigation, validation.
+	ColdLight-owned ARIA. Compound: Header, Grid, Cell.
+	Spectrum-aligned API: controlled/uncontrolled, validation, focus management.
 
-	ColdLight OWNS all ARIA. No MeltUI dependency.
-	Reference: WAI-ARIA APG Grid Pattern
+	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/grid/
 -->
 <script lang="ts">
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { type CalendarContext, setCalendarContext } from "./context.js";
-import { calendarRecipe } from "./recipe.js";
-import type { CalendarProps } from "./types.js";
+import { setCalendarContext } from "./context.js";
+import type { CalendarRootProps } from "./types.js";
 
 let {
-	value = undefined,
+	ids,
+	value: controlledValue,
+	defaultValue = null,
 	onValueChange,
-	month,
-	onMonthChange,
-	min,
-	max,
-	disabled = false,
+	focusedValue,
+	defaultFocusedValue,
+	onFocusChange,
+	visibleMonths = 1,
+	isDateUnavailable,
+	isDisabled = false,
+	isReadOnly = false,
+	isInvalid = false,
+	minValue,
+	maxValue,
+	firstDayOfWeek = "sun",
+	autoFocus = false,
 	locale = "en-US",
-	size = "md",
-	children,
-	class: className,
-	// ColdLight 8-axis props
+	dir = "ltr",
 	preset,
 	surface,
 	material,
@@ -40,87 +46,84 @@ let {
 	transition,
 	encoding,
 	radius,
-	// Rest spread
+	children,
+	class: className,
 	...rest
-}: CalendarProps = $props();
+}: CalendarRootProps = $props();
 
-const headingId = `cal-heading-${Math.random().toString(36).slice(2, 9)}`;
+const headingId = ids?.heading ?? `cal-heading-${Math.random().toString(36).slice(2, 9)}`;
 const today = new Date();
 today.setHours(0, 0, 0, 0);
 
+let internalValue = $state<Date | null | undefined>(defaultValue);
 let currentMonth = $state(new Date());
+let internalFocus = $state<Date | null>(defaultFocusedValue ?? null);
 
-$effect(() => {
-	const m = month ?? value;
-	if (m) currentMonth = m;
-});
+const selectedDate = $derived(controlledValue !== undefined ? controlledValue : internalValue);
+const focusedDate = $derived(focusedValue !== undefined ? focusedValue : internalFocus);
 
 function isSameDay(a: Date, b: Date): boolean {
-	return (
-		a.getFullYear() === b.getFullYear() &&
-		a.getMonth() === b.getMonth() &&
-		a.getDate() === b.getDate()
-	);
+	return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 
-const ctx: CalendarContext = {
-	get currentMonth() {
-		return currentMonth;
-	},
-	get selectedDate() {
-		return value;
-	},
+function isDateDisabledFn(date: Date): boolean {
+	if (isDisabled) return true;
+	if (minValue && date < minValue) return true;
+	if (maxValue && date > maxValue) return true;
+	if (isDateUnavailable?.(date)) return true;
+	return false;
+}
+
+const recipe = getRecipe("calendar.glass.void");
+// biome-ignore lint/suspicious/noExplicitAny: recipe classes accept resolved props
+const recipeClasses = recipe?.classes?.({} as any) ?? {};
+
+setCalendarContext({
+	get currentMonth() { return currentMonth; },
+	get selectedDate() { return selectedDate; },
+	get focusedDate() { return focusedDate; },
 	today,
-	get min() {
-		return min;
-	},
-	get max() {
-		return max;
-	},
-	get disabled() {
-		return disabled;
-	},
-	get locale() {
-		return locale;
-	},
-	get size() {
-		return size;
-	},
+	get minValue() { return minValue; },
+	get maxValue() { return maxValue; },
+	get isDisabled() { return isDisabled; },
+	get isReadOnly() { return isReadOnly; },
+	get isInvalid() { return isInvalid; },
+	get locale() { return locale; },
+	get dir() { return dir; },
+	get ids() { return ids ?? {}; },
+	get classes() { return recipeClasses; },
 	headingId,
+	get isDateUnavailable() { return isDateUnavailable; },
 	prevMonth() {
 		const prev = new Date(currentMonth);
 		prev.setMonth(prev.getMonth() - 1);
 		currentMonth = prev;
-		onMonthChange?.(prev);
 	},
 	nextMonth() {
 		const next = new Date(currentMonth);
 		next.setMonth(next.getMonth() + 1);
 		currentMonth = next;
-		onMonthChange?.(next);
 	},
 	selectDate(date: Date) {
-		if (disabled || ctx.isDateDisabled(date)) return;
-		onValueChange?.(date);
+		if (isDisabled || isReadOnly || isDateDisabledFn(date)) return;
+		internalValue = date;
+		onValueChange?.({ value: date });
 	},
-	isDateDisabled(date: Date): boolean {
-		if (disabled) return true;
-		if (min && date < min) return true;
-		if (max && date > max) return true;
-		return false;
+	focusDate(date: Date) {
+		internalFocus = date;
+		onFocusChange?.({ date });
 	},
-	isOutsideMonth(date: Date): boolean {
+	isDateDisabled: isDateDisabledFn,
+	isOutsideMonth(date: Date) {
 		return date.getMonth() !== currentMonth.getMonth();
 	},
-	isSelected(date: Date): boolean {
-		return value ? isSameDay(value, date) : false;
+	isSelected(date: Date) {
+		return selectedDate ? isSameDay(selectedDate, date) : false;
 	},
-	isToday(date: Date): boolean {
+	isToday(date: Date) {
 		return isSameDay(today, date);
 	},
-};
-
-setCalendarContext(ctx);
+});
 
 const visual = useColdLight(() => ({
 	preset,
@@ -134,20 +137,24 @@ const visual = useColdLight(() => ({
 	transition,
 	encoding,
 	radius,
-	size,
 }));
 
-const recipe = $derived(calendarRecipe({ size }));
+const rootClasses = $derived(
+	cn(recipeClasses.root, visual.segments, visual.radius, className),
+);
 </script>
 
 <div
+	id={ids?.root}
 	role="group"
 	aria-label="Calendar"
-	class={cn(recipe.root, visual.segments, visual.radius, className)}
+	aria-labelledby={headingId}
+	{dir}
 	data-kind="calendar"
 	data-slot="root"
-	data-state={disabled ? "disabled" : undefined}
+	data-state={isDisabled ? "disabled" : undefined}
 	data-encoding={visual.encoding || undefined}
+	class={rootClasses}
 	{...rest}
 >
 	{@render children?.()}

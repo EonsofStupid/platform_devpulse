@@ -8,7 +8,7 @@
  */
 
 import { invoke } from "@tauri-apps/api/core";
-import type { DashboardPayload } from "$lib/sys/generated/dashboard.types.js";
+import type { DashboardPayload, ProcessMetrics } from "$lib/sys/generated/dashboard.types.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
 import type { DashboardData, RecentProject } from "../types/devpulse.types.js";
 
@@ -33,10 +33,25 @@ export async function fetchDashboardData(): Promise<DashboardPayload> {
 }
 
 /**
+ * Fetch real process metrics from the OS via Tauri IPC.
+ * Returns actual RSS memory, CPU usage, PID — no proxies.
+ */
+export async function fetchProcessMetrics(): Promise<ProcessMetrics> {
+	try {
+		const metrics = await invoke<ProcessMetrics>("get_process_metrics");
+		return metrics;
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		logError("devpulse", `Process metrics fetch FAILED: ${msg}`);
+		return { memory_rss_bytes: 0, memory_virtual_bytes: 0, cpu_usage_percent: 0, uptime_secs: 0, pid: 0 };
+	}
+}
+
+/**
  * Map a DashboardPayload from the backend into the existing DashboardData shape
  * consumed by the dashboard page components.
  */
-export function mapPayloadToDashboard(payload: DashboardPayload): DashboardData {
+export function mapPayloadToDashboard(payload: DashboardPayload, metrics?: ProcessMetrics): DashboardData {
 	const recentProjects: RecentProject[] = payload.projects.map((p) => ({
 		id: p.id,
 		name: p.name,
@@ -67,13 +82,13 @@ export function mapPayloadToDashboard(payload: DashboardPayload): DashboardData 
 		recentProjects,
 		system: {
 			maestroLoad: {
-				label: "Maestro Control",
-				value: Math.min(payload.cache_stats.entry_count, 100),
+				label: "CPU",
+				value: metrics ? Math.round(metrics.cpu_usage_percent) : 0,
 				max: 100,
 				unit: "%",
 			},
 			contextLoad: {
-				label: "Context Load",
+				label: "Context",
 				value:
 					payload.daily_stats.length > 0
 						? Math.round(payload.daily_stats[0].avg_latency_ms / 10)
@@ -83,9 +98,9 @@ export function mapPayloadToDashboard(payload: DashboardPayload): DashboardData 
 			},
 			memoryUsage: {
 				label: "Memory",
-				value: Number((payload.cache_stats.entry_count / 1000).toFixed(1)),
-				max: Number((payload.cache_stats.max_capacity / 1000).toFixed(1)),
-				unit: "K",
+				value: metrics ? Number((metrics.memory_rss_bytes / (1024 * 1024 * 1024)).toFixed(2)) : 0,
+				max: metrics ? Number((metrics.memory_virtual_bytes / (1024 * 1024 * 1024)).toFixed(1)) : 8,
+				unit: "GB",
 			},
 			activityTimeline: {
 				label: "Activity",

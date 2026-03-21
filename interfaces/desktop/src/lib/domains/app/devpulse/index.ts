@@ -7,6 +7,7 @@
 export { devpulseState } from "./runes/devpulse.runes.svelte.js";
 export {
 	fetchDashboardData,
+	fetchProcessMetrics,
 	getEmptyDashboard,
 	mapPayloadToDashboard,
 } from "./services/devpulse.service.js";

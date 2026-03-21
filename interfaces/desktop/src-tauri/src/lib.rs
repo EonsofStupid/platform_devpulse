@@ -125,6 +125,7 @@ pub fn run() {
             commands::sys::guard::verify,
             commands::sys::logger::log,
             commands::sys::boot::get_boot_state,
+            commands::sys::metrics::get_process_metrics,
             commands::devmaestro::get_status,
             commands::devpulse::fetch_dashboard,
             commands::thinkmaestro::create_canvas,

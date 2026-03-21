@@ -1,23 +1,14 @@
-/**
- * @file Calendar Component Barrel
- * @kind calendar
- * @layer components
- *
- * Compound component: exports root + all sub-components.
- */
-
-export { default as Calendar } from "./Calendar.svelte";
-export { default as CalendarCell } from "./CalendarCell.svelte";
-export { default as CalendarGrid } from "./CalendarGrid.svelte";
-export { default as CalendarHeader } from "./CalendarHeader.svelte";
-export type { CalendarContext } from "./context.js";
-export { getCalendarContext, setCalendarContext } from "./context.js";
+export { default as Root } from "./Calendar.svelte";
+export { default as Header } from "./CalendarHeader.svelte";
+export { default as Grid } from "./CalendarGrid.svelte";
+export { default as Cell } from "./CalendarCell.svelte";
 export { contract as calendarComponentContract } from "./contract.js";
-export { calendarRecipe } from "./recipe.js";
 export type {
-	CalendarCellProps,
-	CalendarGridProps,
+	CalendarIds,
+	CalendarValueChangeDetails,
+	CalendarFocusChangeDetails,
+	CalendarRootProps,
 	CalendarHeaderProps,
-	CalendarProps,
-	Size as CalendarSize,
+	CalendarGridProps,
+	CalendarCellProps,
 } from "./types.js";

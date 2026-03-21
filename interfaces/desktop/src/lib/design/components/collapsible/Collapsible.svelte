@@ -1,32 +1,27 @@
 <!--
-	@component Collapsible
+	@component Collapsible (Root)
 	@kind collapsible
 	@layer components
 
-	ColdLight Collapsible — compound component root.
-	Creates MeltUI collapsible transport and sets context.
-	Sub-components (CollapsibleTrigger, CollapsibleContent) consume context
-	to access their slot attributes.
-
-	MeltUI transport adapter provides ARIA (aria-expanded, aria-controls).
-	ColdLight adds data-kind, data-slot, data-state.
-
+	Disclosure pattern — one trigger toggles one content panel.
+	Direct ARIA, no primitive needed.
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/
 -->
 <script lang="ts">
-import { useCollapsible } from "$lib/design/primitives/collapsible/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setCollapsibleContext } from "./context.js";
-import type { CollapsibleProps } from "./types.js";
+import type { CollapsibleRootProps } from "./types.js";
 
 let {
-	open = false,
+	ids,
+	open: controlledOpen,
+	defaultOpen = false,
 	onOpenChange,
+	onExitComplete,
 	disabled = false,
-	children,
-	class: className,
-	// ColdLight 8-axis props
+	dir = "ltr",
 	preset,
 	surface,
 	material,
@@ -38,20 +33,38 @@ let {
 	transition,
 	encoding,
 	radius,
-	size,
+	children,
+	class: className,
 	...rest
-}: CollapsibleProps = $props();
+}: CollapsibleRootProps = $props();
 
-const transport = createCollapsibleTransport({
-	open: () => open,
-	// biome-ignore lint/suspicious/noExplicitAny: callback value type from transport
-	onOpenChange: (v: any) => onOpenChange?.(v),
-	get disabled() {
-		return disabled;
-	},
+let internalOpen = $state(defaultOpen);
+const isOpen = $derived(controlledOpen !== undefined ? controlledOpen : internalOpen);
+
+const triggerId = ids?.trigger ?? `collapsible-trigger-${Math.random().toString(36).slice(2, 9)}`;
+const contentId = ids?.content ?? `collapsible-content-${Math.random().toString(36).slice(2, 9)}`;
+
+function toggle() {
+	if (disabled) return;
+	const next = !isOpen;
+	internalOpen = next;
+	onOpenChange?.({ open: next });
+}
+
+const recipe = getRecipe("collapsible.glass.void");
+// biome-ignore lint/suspicious/noExplicitAny: recipe classes accept resolved props
+const recipeClasses = recipe?.classes?.({} as any) ?? {};
+
+setCollapsibleContext({
+	get isOpen() { return isOpen; },
+	get disabled() { return disabled; },
+	get ids() { return ids ?? {}; },
+	get dir() { return dir; },
+	get classes() { return recipeClasses; },
+	triggerId,
+	contentId,
+	toggle,
 });
-
-setCollapsibleContext(transport);
 
 const visual = useColdLight(() => ({
 	preset,
@@ -65,16 +78,21 @@ const visual = useColdLight(() => ({
 	transition,
 	encoding,
 	radius,
-	size,
 }));
+
+const rootClasses = $derived(
+	cn(recipeClasses.root, visual.segments, visual.radius, className),
+);
 </script>
 
 <div
-	class={cn(visual.segments, visual.radius, className)}
+	id={ids?.root}
+	{dir}
 	data-kind="collapsible"
 	data-slot="root"
-	data-state={transport.states.open ? "open" : "closed"}
+	data-state={isOpen ? "open" : "closed"}
 	data-encoding={visual.encoding || undefined}
+	class={rootClasses}
 	{...rest}
 >
 	{@render children?.()}

@@ -9,6 +9,7 @@
 
 import {
 	fetchDashboardData,
+	fetchProcessMetrics,
 	getEmptyDashboard,
 	mapPayloadToDashboard,
 } from "../services/devpulse.service.js";
@@ -40,8 +41,11 @@ class DevPulseState {
 		this.loading = true;
 		this.error = null;
 		try {
-			const payload = await fetchDashboardData();
-			this.data = mapPayloadToDashboard(payload);
+			const [payload, metrics] = await Promise.all([
+				fetchDashboardData(),
+				fetchProcessMetrics(),
+			]);
+			this.data = mapPayloadToDashboard(payload, metrics);
 		} catch (e) {
 			this.error = e instanceof Error ? e.message : String(e);
 		} finally {

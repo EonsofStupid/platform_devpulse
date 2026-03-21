@@ -3,84 +3,104 @@
  * @kind calendar
  * @layer components
  *
- * Prop types for all Calendar sub-components.
- * ColdLight-owned — renders ARIA structure directly.
+ * Calendar with date selection, navigation, validation.
+ * Compound: Root, Header, Grid, Cell.
+ * ColdLight-owned ARIA — WAI-ARIA APG Grid Pattern.
  *
- * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/grid/
+ * Spectrum-aligned API: controlled/uncontrolled, validation,
+ * focusedValue, visibleMonths, isDateUnavailable, firstDayOfWeek.
+ *
+ * Uses native Date for now. @internationalized/date can be added later.
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
 
 // =============================================================================
-// SIZE
+// SHARED
 // =============================================================================
 
-export type Size = "sm" | "md" | "lg";
+export interface CalendarValueChangeDetails {
+	value: Date | undefined;
+}
+
+export interface CalendarFocusChangeDetails {
+	date: Date;
+}
+
+export interface CalendarIds {
+	root?: string;
+	heading?: string;
+	grid?: string;
+	prevButton?: string;
+	nextButton?: string;
+}
 
 // =============================================================================
-// ROOT PROPS
+// ROOT
 // =============================================================================
 
-/** Calendar root props — creates context and manages state */
-export interface CalendarProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps,
-		ColdLightProps {
-	children?: Snippet;
-	/** Currently selected date */
-	value?: Date | undefined;
-	/** Called when the selected date changes */
-	onValueChange?: (value: Date | undefined) => void;
-	/** Currently displayed month */
-	month?: Date;
-	/** Called when the displayed month changes */
-	onMonthChange?: (month: Date) => void;
-	/** Minimum selectable date */
-	min?: Date;
-	/** Maximum selectable date */
-	max?: Date;
-	/** Whether the calendar is disabled */
-	disabled?: boolean;
-	/** Locale for formatting (BCP 47 tag) */
+export interface CalendarRootProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
+		Omit<PreparedComponentProps, "size"> {
+	ids?: Partial<CalendarIds>;
+	/** Controlled selected date. */
+	value?: Date | null;
+	/** Initial value when uncontrolled. */
+	defaultValue?: Date | null;
+	/** Callback when selected date changes. */
+	onValueChange?: (details: CalendarValueChangeDetails) => void;
+	/** Controls the currently focused date. */
+	focusedValue?: Date | null;
+	/** Initial focused date when uncontrolled. */
+	defaultFocusedValue?: Date | null;
+	/** Callback when focused date changes. */
+	onFocusChange?: (details: CalendarFocusChangeDetails) => void;
+	/** Number of months to display at once. Default: 1. */
+	visibleMonths?: number;
+	/** Callback to check if a date is unavailable. */
+	isDateUnavailable?: (date: Date) => boolean;
+	/** Whether the calendar is disabled. */
+	isDisabled?: boolean;
+	/** Whether the calendar is read-only. */
+	isReadOnly?: boolean;
+	/** Whether the current selection is invalid. */
+	isInvalid?: boolean;
+	/** Minimum selectable date. */
+	minValue?: Date | null;
+	/** Maximum selectable date. */
+	maxValue?: Date | null;
+	/** Day that starts the week. Default: "sun". */
+	firstDayOfWeek?: "sun" | "mon" | "tue" | "wed" | "thu" | "fri" | "sat";
+	/** Whether to auto-focus the calendar on mount. */
+	autoFocus?: boolean;
+	/** Locale for formatting (BCP 47 tag). Default: "en-US". */
 	locale?: string;
-	/** Size variant */
-	size?: Size;
-}
-
-// =============================================================================
-// HEADER PROPS
-// =============================================================================
-
-/** CalendarHeader props — month/year display + navigation buttons */
-export interface CalendarHeaderProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps {
+	/** Text/writing direction. */
+	dir?: "ltr" | "rtl";
 	children?: Snippet;
 }
 
 // =============================================================================
-// GRID PROPS
+// SUB-COMPONENTS
 // =============================================================================
 
-/** CalendarGrid props — day grid with role="grid" */
-export interface CalendarGridProps
-	extends Omit<HTMLAttributes<HTMLTableElement>, "style" | "children">,
-		BaseProps {
+interface CalendarSlotProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
 	children?: Snippet;
+	class?: string;
 }
 
-// =============================================================================
-// CELL PROPS
-// =============================================================================
+/** CalendarHeader — month/year display + prev/next navigation. */
+export interface CalendarHeaderProps extends CalendarSlotProps {}
 
-/** CalendarCell props — individual day cell */
-export interface CalendarCellProps
-	extends Omit<HTMLButtonAttributes, "style" | "children">,
-		BaseProps {
+/** CalendarGrid — the day grid with role="grid". */
+export interface CalendarGridProps extends CalendarSlotProps {}
+
+/** CalendarCell — individual day cell button. */
+export interface CalendarCellProps extends Omit<HTMLButtonAttributes, "style" | "children" | "class"> {
 	children?: Snippet;
-	/** The date this cell represents */
+	class?: string;
+	/** The date this cell represents. */
 	date: Date;
 }

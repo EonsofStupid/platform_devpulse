@@ -1,21 +1,29 @@
 /**
- * @file Collapsible Context — Svelte context for compound component communication
+ * @file Collapsible Context
  * @kind collapsible
  * @layer components
- *
- * Symbol-keyed context + typed get/set helpers.
- * Root sets context; sub-components (CollapsibleTrigger, CollapsibleContent) consume it.
  */
 
 import { getContext, setContext } from "svelte";
-import type { CollapsibleTransport } from "$lib/design/api/dsadapters/meltui/_internal/collapsible/index.js";
+import type { CollapsibleIds } from "./types.js";
+
+export interface CollapsibleContext {
+	readonly isOpen: boolean;
+	readonly disabled: boolean;
+	readonly ids: Partial<CollapsibleIds>;
+	readonly dir: "ltr" | "rtl";
+	readonly classes: Record<string, string>;
+	readonly triggerId: string;
+	readonly contentId: string;
+	toggle(): void;
+}
 
 const COLLAPSIBLE_CTX = Symbol("coldlight-collapsible");
 
-export function setCollapsibleContext(transport: CollapsibleTransport): void {
-	setContext(COLLAPSIBLE_CTX, transport);
+export function setCollapsibleContext(ctx: CollapsibleContext): void {
+	setContext(COLLAPSIBLE_CTX, ctx);
 }
 
-export function getCollapsibleContext(): CollapsibleTransport {
-	return getContext<CollapsibleTransport>(COLLAPSIBLE_CTX);
+export function getCollapsibleContext(): CollapsibleContext {
+	return getContext<CollapsibleContext>(COLLAPSIBLE_CTX);
 }
