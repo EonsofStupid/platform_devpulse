@@ -1,60 +1,52 @@
 /**
- * @file Combobox Context — Svelte context for compound component coordination
+ * @file Combobox Context
  * @kind combobox
  * @layer components
- * @package @devpulse/coldlight
  *
- * Symbol-keyed context + typed get/set helpers.
- * Root component (Combobox.svelte) creates the transport and sets context.
- * All sub-components consume it via getComboboxContext().
- *
- * The combobox transport includes:
- * - slots: input, trigger, content, label (melt-managed ARIA attributes)
- * - states: open, value, inputValue, highlighted (reactive state)
- * - actions: getOption(), isSelected(), select() (item-level operations)
- *
- * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
+ * Maps useComboBox() hook return to the shape sub-components consume.
+ * Sub-components access ctx.slots.*, ctx.states.*, ctx.getOption(), etc.
  */
 
 import { getContext, setContext } from "svelte";
-import type {
-	ComboboxActions,
-	ComboboxTransport,
-} from "$lib/design/api/dsadapters/meltui/_internal/combobox/index.js";
+import type { UseComboBoxReturn } from "$lib/design/primitives/combobox/combobox.types.js";
 
-/**
- * Combined transport + actions + recipe type for the combobox context.
- *
- * Sub-components access:
- * - `ctx.slots.input` — melt ARIA attributes for the input element
- * - `ctx.states.open` — whether the listbox is open
- * - `ctx.getOption(value)` — melt ARIA attributes for an option element
- * - `ctx.isSelected(value)` — whether a specific value is selected
- * - `ctx.recipe` — per-slot class strings from the recipe registry (SSOT)
- * - `ctx.disabled` — whether the entire combobox is disabled
- */
-export type ComboboxContext<T = unknown> = ComboboxTransport<T> &
-	ComboboxActions<T> & {
-		/** Per-slot class strings resolved from the recipe registry (SSOT). */
-		recipe: Record<string, string>;
-		/** Whether the combobox is disabled. */
-		disabled: boolean;
+export interface ComboboxContext {
+	/** Slot attributes — spread onto elements. */
+	readonly slots: {
+		readonly input: UseComboBoxReturn["input"];
+		readonly trigger: UseComboBoxReturn["trigger"];
+		readonly content: UseComboBoxReturn["listbox"];
+		readonly label: UseComboBoxReturn["label"];
 	};
+	/** Reactive state. */
+	readonly states: {
+		readonly open: boolean;
+		readonly inputValue: string;
+		readonly selectedValue: string;
+		readonly highlightedId: string | null;
+	};
+	/** Get option attributes for a given value. */
+	getOption(value: string, label?: string): ReturnType<UseComboBoxReturn["getOption"]>;
+	/** Check if a value is selected. */
+	isSelected(value: string): boolean;
+	/** Svelte action to attach to the listbox element. */
+	attachListbox: UseComboBoxReturn["attachListbox"];
+	/** Per-slot recipe class strings. */
+	readonly recipe: Record<string, string>;
+	/** Whether the combobox is disabled. */
+	readonly disabled: boolean;
+	/** Size variant. */
+	readonly size: string;
+	/** Text direction. */
+	readonly dir: "ltr" | "rtl";
+}
 
 const COMBOBOX_CTX = Symbol("coldlight-combobox");
 
-/**
- * Set the combobox context from the root component.
- * Called once in Combobox.svelte during initialization.
- */
-export function setComboboxContext<T>(ctx: ComboboxContext<T>): void {
+export function setComboboxContext(ctx: ComboboxContext): void {
 	setContext(COMBOBOX_CTX, ctx);
 }
 
-/**
- * Get the combobox context from any sub-component.
- * Throws if called outside a Combobox compound component tree.
- */
-export function getComboboxContext<T = unknown>(): ComboboxContext<T> {
-	return getContext<ComboboxContext<T>>(COMBOBOX_CTX);
+export function getComboboxContext(): ComboboxContext {
+	return getContext<ComboboxContext>(COMBOBOX_CTX);
 }

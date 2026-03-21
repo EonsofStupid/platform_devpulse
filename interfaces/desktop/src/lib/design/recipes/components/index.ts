@@ -19,6 +19,8 @@ import "./color-field/index.js";
 import "./color-input/index.js";
 import "./color-slider/index.js";
 import "./color-swatch/index.js";
+import "./color-swatch-picker/index.js";
+import "./color-wheel/index.js";
 import "./combobox/index.js";
 import "./dialog/index.js";
 import "./form/index.js";
