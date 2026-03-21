@@ -37,7 +37,7 @@ pub use config::{
 };
 pub use health::{HealthStatus, SubsystemHealth, SystemHealth};
 pub use init::{InitEvent, InitStatus};
-pub use services::{Service, ServiceRole};
+pub use services::{Service, ServiceRole, ServiceState};
 
 // Re-export maestro persistence traits and types for Tauri command layer
 pub use devpulse_maestro::cortex::persistence::{
@@ -342,17 +342,18 @@ impl Platform {
 // ═══════════════════════════════════════════════════════════════
 
 /// Ping a single service and return its health.
-#[allow(clippy::cast_possible_truncation)] // Ping latency will never exceed u64 ms
+#[allow(clippy::cast_possible_truncation)]
 async fn ping_service<S: Service>(svc: &S) -> SubsystemHealth {
     let start = Instant::now();
     let result = svc.ping().await;
-    let latency = start.elapsed().as_millis() as u64;
+    let latency_us = start.elapsed().as_micros() as u64;
 
     match result {
         Ok(()) => SubsystemHealth {
             name: svc.name().to_string(),
+            state: svc.state(),
             status: HealthStatus::Healthy,
-            latency_ms: Some(latency),
+            latency_us: Some(latency_us),
             message: None,
         },
         Err(e) => {
@@ -363,8 +364,9 @@ async fn ping_service<S: Service>(svc: &S) -> SubsystemHealth {
             );
             SubsystemHealth {
                 name: svc.name().to_string(),
+                state: svc.state(),
                 status: HealthStatus::Down,
-                latency_ms: Some(latency),
+                latency_us: Some(latency_us),
                 message: Some(format!("{e:#}")),
             }
         }

@@ -1,3 +1,7 @@
 packages:
   - "interfaces/desktop"
   - "scripts/docs"
+
+onlyBuiltDependencies:
+  - "@eonsofstupid/shiki"
+  - "shiki"

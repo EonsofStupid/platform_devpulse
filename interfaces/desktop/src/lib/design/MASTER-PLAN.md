@@ -407,7 +407,7 @@ Build validator enforces: preset exists, recipe exists, contract exists, require
 | 11 | `data-kind`, `data-slot`, `data-state` — three data attributes | **Locked** |
 | 12 | Pre-release mode — no backwards compat, no shims. Aggressively reauthor. | **Locked** |
 | 13 | Compile-check after every file edit | **Locked** |
-| 14 | dsAdapter is working code — if it works, it works | **Locked** |
+
 | 15 | components/ IS the primitives — MeltUI direct where needed | **Locked** |
 
 ---

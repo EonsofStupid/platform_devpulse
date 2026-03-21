@@ -16,14 +16,8 @@ import { coldlightConfig } from "./coldlight.config.js";
 // ─── Import ALL contracts ────────────────────────────────────────────────────
 
 import {
-	// Melt-backed
-	accordionContract,
-	alertContract,
-	// P1-P3 Melt-backed
-	alertDialogContract,
 	aspectRatioContract,
 	avatarContract,
-	badgeContract,
 	boxContract,
 	breadcrumbContract,
 	buttonContract,
@@ -307,10 +301,7 @@ const ALL_CONTRACTS = [
 	textareaContract,
 	formFieldContract,
 	formContract,
-	// Display
-	badgeContract,
 	// Feedback
-	alertContract,
 	spinnerContract,
 	inlineMessageContract,
 	// Navigation
@@ -325,8 +316,6 @@ const ALL_CONTRACTS = [
 	// Typography
 	textContract,
 	headingContract,
-	// Melt-backed
-	accordionContract,
 	dialogContract,
 	tabsContract,
 	comboboxContract,
@@ -363,8 +352,6 @@ const ALL_CONTRACTS = [
 	searchInputContract,
 	stepsContract,
 	sheetContract,
-	// P1-P3 Melt-backed
-	alertDialogContract,
 	dropdownMenuContract,
 	contextMenuContract,
 	menubarContract,

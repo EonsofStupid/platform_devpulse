@@ -3,57 +3,56 @@
  * @kind alert-dialog
  * @layer components
  *
- * Prop types for all AlertDialog sub-components.
- * ColdLight-owned ARIA — extends dialog pattern with role="alertdialog".
- * Cancel button receives initial focus (safety pattern per APG).
+ * Confirmation/destructive action dialog. role="alertdialog".
+ * Focus trapped. Cancel + action buttons.
+ * Compound: Root, Trigger, Overlay, Content, Title, Description, Cancel, Action.
+ *
+ * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/
  */
 
 import type { Snippet } from "svelte";
-import type { HTMLAttributes, HTMLButtonAttributes, HTMLDialogAttributes } from "svelte/elements";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { HTMLAttributes } from "svelte/elements";
+import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
 
-/** AlertDialog root props — manages open state and provides context */
-export interface AlertDialogProps extends ColdLightProps {
-	/** Whether the alert dialog is open */
+export type AlertDialogVariant = "confirmation" | "information" | "destructive" | "error" | "warning";
+export type AlertDialogSize = "sm" | "md" | "lg";
+
+export interface AlertDialogOpenChangeDetails {
+	open: boolean;
+}
+
+export interface AlertDialogIds {
+	trigger?: string;
+	overlay?: string;
+	content?: string;
+	title?: string;
+	description?: string;
+	cancel?: string;
+	action?: string;
+}
+
+export interface AlertDialogRootProps extends PreparedComponentProps {
+	ids?: Partial<AlertDialogIds>;
 	open?: boolean;
-	/** Callback when open state changes */
-	onOpenChange?: (value: boolean) => void;
-	/** Content */
+	defaultOpen?: boolean;
+	onOpenChange?: (details: AlertDialogOpenChangeDetails) => void;
+	variant?: AlertDialogVariant;
+	size?: AlertDialogSize;
+	dir?: "ltr" | "rtl";
+	onCancel?: () => void;
+	onAction?: () => void;
 	children?: Snippet;
 }
 
-/** AlertDialogTrigger props — button that opens the alert dialog */
-export interface AlertDialogTriggerProps extends Omit<HTMLButtonAttributes, "style" | "children"> {
+interface AlertDialogSlotProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
 	children?: Snippet;
+	class?: string;
 }
 
-/** AlertDialogOverlay props — backdrop overlay */
-export interface AlertDialogOverlayProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {}
-
-/** AlertDialogContent props — main content area (native <dialog> element, role="alertdialog") */
-export interface AlertDialogContentProps extends Omit<HTMLDialogAttributes, "style" | "children"> {
-	children?: Snippet;
-}
-
-/** AlertDialogTitle props — title with aria linking */
-export interface AlertDialogTitleProps
-	extends Omit<HTMLAttributes<HTMLHeadingElement>, "style" | "children"> {
-	children?: Snippet;
-}
-
-/** AlertDialogDescription props — description with aria linking */
-export interface AlertDialogDescriptionProps
-	extends Omit<HTMLAttributes<HTMLParagraphElement>, "style" | "children"> {
-	children?: Snippet;
-}
-
-/** AlertDialogAction props — destructive/confirm action button */
-export interface AlertDialogActionProps extends Omit<HTMLButtonAttributes, "style" | "children"> {
-	children?: Snippet;
-}
-
-/** AlertDialogCancel props — cancel button (receives initial focus per APG safety pattern) */
-export interface AlertDialogCancelProps extends Omit<HTMLButtonAttributes, "style" | "children"> {
-	children?: Snippet;
-}
+export interface AlertDialogTriggerProps extends AlertDialogSlotProps {}
+export interface AlertDialogOverlayProps extends AlertDialogSlotProps {}
+export interface AlertDialogContentProps extends AlertDialogSlotProps {}
+export interface AlertDialogTitleProps extends AlertDialogSlotProps {}
+export interface AlertDialogDescriptionProps extends AlertDialogSlotProps {}
+export interface AlertDialogCancelProps extends AlertDialogSlotProps {}
+export interface AlertDialogActionProps extends AlertDialogSlotProps {}

@@ -1,38 +1,18 @@
 <!--
-	@component AlertDialogAction
+	@component AlertDialog.Action
 	@kind alert-dialog
 	@slot action
 	@layer components
-
-	Destructive/confirm action button.
-	Clicking confirms and closes the alert dialog.
-	ColdLight-owned ARIA.
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getAlertDialogContext } from "./context.js";
-import { alertDialogRecipe } from "./recipe.js";
 import type { AlertDialogActionProps } from "./types.js";
 
-let { children, class: className, onclick, ...rest }: AlertDialogActionProps = $props();
+let { children, class: className, ...rest }: AlertDialogActionProps = $props();
 const ctx = getAlertDialogContext();
-const recipe = alertDialogRecipe();
-
-function handleClick(e: MouseEvent & { currentTarget: HTMLButtonElement }): void {
-	if (typeof onclick === "function") {
-		onclick(e as MouseEvent & { currentTarget: EventTarget & HTMLButtonElement });
-	}
-	ctx.setOpen(false);
-}
 </script>
 
-<button
-	type="button"
-	onclick={handleClick}
-	class={cn(recipe.action, className)}
-	data-kind="alert-dialog"
-	data-slot="action"
-	{...rest}
->
+<button {...ctx.hook.action} id={ctx.ids.action} class={cn(ctx.classes.action, className)} {...rest}>
 	{@render children?.()}
 </button>

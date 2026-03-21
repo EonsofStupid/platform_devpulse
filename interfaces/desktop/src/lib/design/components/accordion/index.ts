@@ -1,18 +1,15 @@
-/**
- * @file Accordion Component Barrel
- * @kind accordion
- * @layer components
- */
-
-export { default as Accordion } from "./Accordion.svelte";
-export { default as AccordionContent } from "./AccordionContent.svelte";
-export { default as AccordionItem } from "./AccordionItem.svelte";
-export { default as AccordionTrigger } from "./AccordionTrigger.svelte";
+export { default as Root } from "./Accordion.svelte";
+export { default as Item } from "./AccordionItem.svelte";
+export { default as Trigger } from "./AccordionTrigger.svelte";
+export { default as Content } from "./AccordionContent.svelte";
+export { default as Indicator } from "./AccordionIndicator.svelte";
 export { contract as accordionComponentContract } from "./contract.js";
-export { accordionRecipe } from "./recipe.js";
 export type {
-	AccordionContentProps,
+	AccordionIds,
+	AccordionValueChangeDetails,
+	AccordionRootProps,
 	AccordionItemProps,
-	AccordionProps,
 	AccordionTriggerProps,
+	AccordionContentProps,
+	AccordionIndicatorProps,
 } from "./types.js";

@@ -1,29 +1,71 @@
 /**
- * @file Alert Types
+ * @file Alert Component Types
  * @kind alert
  * @layer components
+ *
+ * Alert is inline contextual feedback — role="alert", lives in document flow.
+ * NOT a dialog. NOT modal. For confirmations, use AlertDialog.
+ *
+ * Compound: Root, Icon, Title, Description, Action (dismiss area).
+ * Controlled/uncontrolled open state. Dismissible.
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
 
-export type AlertIntent = "info" | "success" | "warning" | "error";
+// =============================================================================
+// SHARED
+// =============================================================================
 
-export const ALERT_INTENT_PRESETS: Record<AlertIntent, string> = {
-	info: "panel-glass",
-	success: "panel-glass",
-	warning: "panel-glass",
-	error: "panel-glass",
+export type AlertVariant = "info" | "success" | "warning" | "error";
+
+export const ALERT_VARIANT_PRESETS: Record<AlertVariant, string> = {
+	info: "alert-info",
+	success: "alert-success",
+	warning: "alert-warning",
+	error: "alert-error",
 };
 
-export interface AlertProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps,
-		ColdLightProps {
-	children?: Snippet;
-	closable?: boolean;
-	onClose?: () => void;
-	intent?: AlertIntent;
+export interface AlertOpenChangeDetails {
+	open: boolean;
 }
+
+export interface AlertIds {
+	root?: string;
+	icon?: string;
+	title?: string;
+	description?: string;
+	action?: string;
+}
+
+// =============================================================================
+// ROOT
+// =============================================================================
+
+export interface AlertRootProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
+		PreparedComponentProps {
+	ids?: Partial<AlertIds>;
+	variant?: AlertVariant;
+	open?: boolean;
+	defaultOpen?: boolean;
+	onOpenChange?: (details: AlertOpenChangeDetails) => void;
+	dismissible?: boolean;
+	dir?: "ltr" | "rtl";
+	children?: Snippet;
+}
+
+// =============================================================================
+// SUB-COMPONENTS
+// =============================================================================
+
+interface AlertSlotProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+	children?: Snippet;
+	class?: string;
+}
+
+export interface AlertIconProps extends AlertSlotProps {}
+export interface AlertTitleProps extends AlertSlotProps {}
+export interface AlertDescriptionProps extends AlertSlotProps {}
+export interface AlertActionProps extends AlertSlotProps {}

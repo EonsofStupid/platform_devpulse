@@ -14,7 +14,7 @@
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/
 -->
 <script lang="ts">
-import { createCollapsibleTransport } from "$lib/design/api/dsadapters/meltui/_internal/collapsible/index.js";
+import { useCollapsible } from "$lib/design/primitives/collapsible/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setCollapsibleContext } from "./context.js";

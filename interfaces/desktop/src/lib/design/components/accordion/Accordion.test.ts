@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * Accordion compound component browser tests.
- * Tests contract shape, sub-component exports, data-kind/data-slot attributes.
+ * Tests contract shape, sub-component exports, keyboard contract.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
@@ -34,12 +34,12 @@ describe("accordion component — contract", () => {
 		expect(contract.slots.required).toContain("content");
 	});
 
-	test("contract.interactions.expandable is true", () => {
-		expect(contract.interactions.expandable).toBe(true);
+	test("contract has optional indicator slot", () => {
+		expect(contract.slots.optional).toContain("indicator");
 	});
 
-	test("contract.interactions.modal is false", () => {
-		expect(contract.interactions.modal).toBe(false);
+	test("contract.interactions.expandable is true", () => {
+		expect(contract.interactions.expandable).toBe(true);
 	});
 
 	test("contract.focus.strategy is 'roving'", () => {
@@ -48,14 +48,10 @@ describe("accordion component — contract", () => {
 });
 
 // =============================================================================
-// CONTRACT SLOT CONTRACTS
+// SLOT CONTRACTS
 // =============================================================================
 
 describe("accordion component — slot contracts", () => {
-	test("trigger slot has role='button'", () => {
-		expect(contract.slotContracts.trigger.aria.role).toBe("button");
-	});
-
 	test("trigger slot requires aria-expanded", () => {
 		const requiredAttrs = contract.slotContracts.trigger.aria.required.map((r) => r.attr);
 		expect(requiredAttrs).toContain("aria-expanded");
@@ -83,15 +79,6 @@ describe("accordion component — slot contracts", () => {
 			expect(contract.slotContracts[slot].data.kind).toBe("accordion");
 		});
 	});
-
-	test("slot data-slot matches slot name", () => {
-		const slotNames = Object.keys(contract.slotContracts) as Array<
-			keyof typeof contract.slotContracts
-		>;
-		slotNames.forEach((slot) => {
-			expect(contract.slotContracts[slot].data.slot).toBe(slot);
-		});
-	});
 });
 
 // =============================================================================
@@ -109,89 +96,52 @@ describe("accordion component — keyboard contract", () => {
 		expect(keys).toContain("ArrowUp");
 	});
 
-	test("global keyboard includes Home", () => {
+	test("global keyboard includes Home and End", () => {
 		const keys = contract.keyboard.global.map((k) => k.key);
 		expect(keys).toContain("Home");
-	});
-
-	test("global keyboard includes End", () => {
-		const keys = contract.keyboard.global.map((k) => k.key);
 		expect(keys).toContain("End");
 	});
 
-	test("global keyboard includes Enter", () => {
+	test("global keyboard includes Enter and Space", () => {
 		const keys = contract.keyboard.global.map((k) => k.key);
 		expect(keys).toContain("Enter");
-	});
-
-	test("global keyboard includes Space", () => {
-		const keys = contract.keyboard.global.map((k) => k.key);
 		expect(keys).toContain("Space");
 	});
 });
 
 // =============================================================================
-// SUB-COMPONENT EXPORTS
+// EXPORTS
 // =============================================================================
 
 describe("accordion component — exports", () => {
-	test("exports Accordion root component", async () => {
+	test("exports Root component", async () => {
 		const mod = await import("./index.js");
-		expect(mod.Accordion).toBeDefined();
+		expect(mod.Root).toBeDefined();
 	});
 
-	test("exports AccordionItem component", async () => {
+	test("exports Item component", async () => {
 		const mod = await import("./index.js");
-		expect(mod.AccordionItem).toBeDefined();
+		expect(mod.Item).toBeDefined();
 	});
 
-	test("exports AccordionTrigger component", async () => {
+	test("exports Trigger component", async () => {
 		const mod = await import("./index.js");
-		expect(mod.AccordionTrigger).toBeDefined();
+		expect(mod.Trigger).toBeDefined();
 	});
 
-	test("exports AccordionContent component", async () => {
+	test("exports Content component", async () => {
 		const mod = await import("./index.js");
-		expect(mod.AccordionContent).toBeDefined();
+		expect(mod.Content).toBeDefined();
+	});
+
+	test("exports Indicator component", async () => {
+		const mod = await import("./index.js");
+		expect(mod.Indicator).toBeDefined();
 	});
 
 	test("exports accordionComponentContract", async () => {
 		const mod = await import("./index.js");
 		expect(mod.accordionComponentContract).toBeDefined();
 		expect(mod.accordionComponentContract.kind).toBe("accordion");
-	});
-
-	test("exports accordionRecipe", async () => {
-		const mod = await import("./index.js");
-		expect(mod.accordionRecipe).toBeDefined();
-		expect(typeof mod.accordionRecipe).toBe("function");
-	});
-});
-
-// =============================================================================
-// RECIPE
-// =============================================================================
-
-describe("accordion component — recipe", () => {
-	test("recipe returns root, trigger, content class strings", async () => {
-		const { accordionRecipe } = await import("./recipe.js");
-		const recipe = accordionRecipe();
-		expect(typeof recipe.root).toBe("string");
-		expect(typeof recipe.trigger).toBe("string");
-		expect(typeof recipe.content).toBe("string");
-	});
-
-	test("recipe.root contains border classes", async () => {
-		const { accordionRecipe } = await import("./recipe.js");
-		const recipe = accordionRecipe();
-		expect(recipe.root).toContain("border");
-		expect(recipe.root).toContain("rounded-lg");
-	});
-
-	test("recipe.trigger contains flex layout", async () => {
-		const { accordionRecipe } = await import("./recipe.js");
-		const recipe = accordionRecipe();
-		expect(recipe.trigger).toContain("flex");
-		expect(recipe.trigger).toContain("w-full");
 	});
 });

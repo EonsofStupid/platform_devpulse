@@ -119,7 +119,7 @@ pub async fn boot_consolidated(
 
     tracing::info!(
         status = "ready",
-        latency_ms = start.elapsed().as_millis() as u64,
+        latency_us = start.elapsed().as_micros() as u64,
         path = %surreal_path.display(),
         namespaces = "system, user, global",
         "Consolidated SurrealDB booted"

@@ -5,17 +5,10 @@
  * @layer recipes
  * @package @devpulse/coldlight
  *
- * Recipe for the ColdLight alert component.
- * Fully prop-driven via DsSurfaceProps.
+ * Token-backed recipe for the Alert compound component.
+ * All spacing uses SD5 token scale (N = pixel value).
  *
- * Token strategy:
- *   - Component tokens:
- *       --alert-bg        → var(--surface-overlay)
- *       --alert-border    → var(--border-subtle)
- *   - Semantic text tokens:
- *       text-text-primary, text-text-secondary, text-text-muted
- *   - Encoding emitters:
- *       emitSegments(), radiusClass()
+ * Slot keys: root, icon, title, description, action, dismiss
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -26,20 +19,20 @@ import { emitSegments, radiusClass } from "../../utils.js";
 
 const SIZE_SCALE = {
 	sm: {
-		root: "gap-2 p-3 text-sm",
-		icon: "h-4 w-4",
+		root: "gap-8 p-12 text-sm",
+		icon: "size-3xs",
 		title: "text-sm",
 		description: "text-xs",
 	},
 	md: {
-		root: "gap-3 p-4 text-sm",
-		icon: "h-5 w-5",
+		root: "gap-12 p-16 text-sm",
+		icon: "size-2xs",
 		title: "text-sm",
 		description: "text-sm",
 	},
 	lg: {
-		root: "gap-4 p-5 text-base",
-		icon: "h-6 w-6",
+		root: "gap-16 p-20 text-base",
+		icon: "size-xs",
 		title: "text-base",
 		description: "text-sm",
 	},
@@ -76,6 +69,12 @@ registerRecipe({
 			icon: cn("shrink-0", s.icon, "text-[var(--alert-border)]"),
 			title: cn("font-semibold text-text-primary", s.title),
 			description: cn("text-text-secondary", s.description),
+			action: cn("shrink-0"),
+			dismiss: cn(
+				"shrink-0 cursor-pointer p-4",
+				"text-text-muted hover:text-text-primary",
+				"transition-colors",
+			),
 		};
 	},
 });

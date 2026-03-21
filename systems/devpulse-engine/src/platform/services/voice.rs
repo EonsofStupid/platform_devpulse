@@ -3,7 +3,7 @@
 //! Wraps the Kokoros adapter for text-to-speech synthesis.
 //! Part of the Maestro AI pipeline for voice output.
 
-use super::{Service, ServiceRole};
+use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
 use devpulse_maestro::cortex::persistence::KokorosAdapter;
 use std::sync::Arc;
@@ -44,7 +44,7 @@ impl Service for VoiceService {
         self.adapter.ping().await
     }
 
-    fn is_ready(&self) -> bool {
-        true
+    fn state(&self) -> ServiceState {
+        ServiceState::Ready
     }
 }

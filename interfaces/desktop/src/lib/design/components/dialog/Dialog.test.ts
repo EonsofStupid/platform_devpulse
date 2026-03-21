@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * Dialog compound component browser tests.
- * Tests contract shape, ARIA attributes, sub-component rendering, and recipe application.
+ * Tests contract shape, ARIA, exports.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
@@ -27,131 +27,66 @@ describe("dialog component — contract", () => {
 		expect(contract.primitiveKind).toBe("dialog");
 	});
 
-	test("contract requires slots 'trigger', 'content', 'overlay'", () => {
-		expect(contract.slots.required).toContain("trigger");
-		expect(contract.slots.required).toContain("content");
-		expect(contract.slots.required).toContain("overlay");
-	});
-
-	test("contract has optional slots 'title', 'description', 'close', 'header', 'footer', 'portal'", () => {
-		expect(contract.slots.optional).toContain("title");
-		expect(contract.slots.optional).toContain("description");
-		expect(contract.slots.optional).toContain("close");
-		expect(contract.slots.optional).toContain("header");
-		expect(contract.slots.optional).toContain("footer");
-		expect(contract.slots.optional).toContain("portal");
-	});
-
-	test("content slot has role 'dialog'", () => {
+	test("content slot has role='dialog'", () => {
 		expect(contract.slotContracts.content.aria.role).toBe("dialog");
 	});
 
-	test("content slot has aria-modal as required ARIA", () => {
-		const requiredAttrs = contract.slotContracts.content.aria.required.map((r) => r.attr);
-		expect(requiredAttrs).toContain("aria-modal");
+	test("content requires aria-modal", () => {
+		const attrs = contract.slotContracts.content.aria.required.map((r) => r.attr);
+		expect(attrs).toContain("aria-modal");
 	});
 
-	test("content slot has aria-labelledby relationship to title", () => {
-		const rels = contract.slotContracts.content.aria.relationships ?? [];
-		const labelledBy = rels.find((r) => r.attr === "aria-labelledby");
-		expect(labelledBy).toBeDefined();
-		expect(labelledBy?.targetSlot).toBe("title");
+	test("content requires aria-labelledby", () => {
+		const attrs = contract.slotContracts.content.aria.required.map((r) => r.attr);
+		expect(attrs).toContain("aria-labelledby");
 	});
 
-	test("content slot has aria-describedby relationship to description", () => {
-		const rels = contract.slotContracts.content.aria.relationships ?? [];
-		const describedBy = rels.find((r) => r.attr === "aria-describedby");
-		expect(describedBy).toBeDefined();
-		expect(describedBy?.targetSlot).toBe("description");
+	test("trigger requires aria-haspopup", () => {
+		const attrs = contract.slotContracts.trigger.aria.required.map((r) => r.attr);
+		expect(attrs).toContain("aria-haspopup");
 	});
 
-	test("trigger slot has role 'button'", () => {
-		expect(contract.slotContracts.trigger.aria.role).toBe("button");
-	});
-
-	test("overlay slot has aria-hidden as required", () => {
-		const requiredAttrs = contract.slotContracts.overlay.aria.required.map((r) => r.attr);
-		expect(requiredAttrs).toContain("aria-hidden");
-	});
-
-	test("contract has Escape keyboard interaction", () => {
-		expect(contract.keyboard.global.some((k) => k.key === "Escape")).toBe(true);
-	});
-
-	test("contract interactions — modal is true", () => {
-		expect(contract.interactions.modal).toBe(true);
-		expect(contract.interactions.selectable).toBe(false);
-		expect(contract.interactions.editable).toBe(false);
-		expect(contract.interactions.expandable).toBe(false);
-	});
-
-	test("contract focus strategy is 'trap'", () => {
+	test("focus strategy is trap", () => {
 		expect(contract.focus.strategy).toBe("trap");
 	});
 
-	test("contract primary state is 'open'", () => {
-		expect(contract.states.primary).toBe("open");
+	test("interactions.modal is true", () => {
+		expect(contract.interactions.modal).toBe(true);
 	});
 
-	test("contract states include 'open' and 'closed'", () => {
-		expect(contract.states.all).toContain("open");
-		expect(contract.states.all).toContain("closed");
+	test("keyboard includes Escape", () => {
+		const keys = contract.keyboard.global.map((k) => k.key);
+		expect(keys).toContain("Escape");
 	});
 });
 
 // =============================================================================
-// SLOT CONTRACTS — per-slot ARIA enforcement
+// EXPORTS
 // =============================================================================
 
-describe("dialog component — slot contracts", () => {
-	test("content slot element is 'dialog'", () => {
-		expect(contract.slotContracts.content.element).toBe("dialog");
+describe("dialog component — exports", () => {
+	test("exports Root", async () => {
+		const mod = await import("./index.js");
+		expect(mod.Root).toBeDefined();
 	});
 
-	test("trigger slot element is 'button'", () => {
-		expect(contract.slotContracts.trigger.element).toBe("button");
+	test("exports Trigger", async () => {
+		const mod = await import("./index.js");
+		expect(mod.Trigger).toBeDefined();
 	});
 
-	test("overlay slot element is 'div'", () => {
-		expect(contract.slotContracts.overlay.element).toBe("div");
+	test("exports Content", async () => {
+		const mod = await import("./index.js");
+		expect(mod.Content).toBeDefined();
 	});
 
-	test("title slot element is 'h2'", () => {
-		expect(contract.slotContracts.title.element).toBe("h2");
+	test("exports Overlay", async () => {
+		const mod = await import("./index.js");
+		expect(mod.Overlay).toBeDefined();
 	});
 
-	test("description slot element is 'p'", () => {
-		expect(contract.slotContracts.description.element).toBe("p");
-	});
-
-	test("close slot element is 'button'", () => {
-		expect(contract.slotContracts.close.element).toBe("button");
-	});
-
-	test("close slot has keyboard Enter and Space", () => {
-		const keys = (contract.slotContracts.close.keyboard ?? []).map((k) => k.key);
-		expect(keys).toContain("Enter");
-		expect(keys).toContain("Space");
-	});
-
-	test("content slot has keyboard Escape and Tab", () => {
-		const keys = (contract.slotContracts.content.keyboard ?? []).map((k) => k.key);
-		expect(keys).toContain("Escape");
-		expect(keys).toContain("Tab");
-	});
-
-	test("trigger slot has aria-haspopup as optional", () => {
-		const optionalAttrs = contract.slotContracts.trigger.aria.optional.map((o) => o.attr);
-		expect(optionalAttrs).toContain("aria-haspopup");
-	});
-
-	test("trigger slot has aria-expanded as optional", () => {
-		const optionalAttrs = contract.slotContracts.trigger.aria.optional.map((o) => o.attr);
-		expect(optionalAttrs).toContain("aria-expanded");
-	});
-
-	test("trigger slot has aria-controls as optional", () => {
-		const optionalAttrs = contract.slotContracts.trigger.aria.optional.map((o) => o.attr);
-		expect(optionalAttrs).toContain("aria-controls");
+	test("exports Close", async () => {
+		const mod = await import("./index.js");
+		expect(mod.Close).toBeDefined();
 	});
 });

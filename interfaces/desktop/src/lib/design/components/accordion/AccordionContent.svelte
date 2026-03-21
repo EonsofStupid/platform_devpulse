@@ -1,34 +1,32 @@
 <!--
-	@component AccordionContent
+	@component Accordion.Content
 	@kind accordion
+	@slot content
 	@layer components
 
-	Accordion content panel — conditionally rendered when item is expanded.
-	Reads per-item context for slot attributes.
-	MeltUI transport provides role="region", aria-labelledby.
-
-	Only rendered when item.states.isExpanded is true.
+	The expandable content panel. Role="region", aria-labelledby from hook.
+	Slides in/out with transition.
 -->
 <script lang="ts">
+import { slide } from "svelte/transition";
 import { cn } from "$lib/design/utils/cn.js";
-import { getAccordionItemContext } from "./context.js";
-import { accordionRecipe } from "./recipe.js";
+import { getAccordionContext, getAccordionItemContext } from "./context.js";
 import type { AccordionContentProps } from "./types.js";
 
 let { children, class: className, ...rest }: AccordionContentProps = $props();
-
+const ctx = getAccordionContext();
 const item = getAccordionItemContext();
-const recipe = accordionRecipe();
+
+const contentAttrs = $derived(ctx.hook.getContent(item.value));
+const isOpen = $derived(contentAttrs["data-state"] === "open");
 </script>
 
-{#if item.states.isExpanded}
+{#if isOpen}
 	<div
-		{...item.slots.content}
-		class={cn(recipe.content, className)}
-		data-kind="accordion"
-		data-slot="content"
-		data-state="open"
-		{...rest}
+		{...contentAttrs}
+		id={ctx.ids.content?.(item.value) ?? contentAttrs.id}
+		class={cn(ctx.classes.content, className)}
+		transition:slide={{ duration: 200 }}
 	>
 		{@render children?.()}
 	</div>

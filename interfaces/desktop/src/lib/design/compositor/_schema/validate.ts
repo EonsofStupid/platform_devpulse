@@ -12,7 +12,7 @@
  */
 
 import type { CompositorNode } from "../../effects/_schema/types.js";
-import type { ColdLightManifest } from "../../scanner.types.js";
+import type { ColdLightManifest } from "../../manifest.js";
 import type { NodeValidationError, NodeValidationResult } from "./types.js";
 
 /**

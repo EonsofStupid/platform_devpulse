@@ -3,8 +3,11 @@
  * @kind code
  * @layer components
  *
- * BUILD-TIME validated via `satisfies ComponentContract`.
- * Code is a semantic code display element — no ARIA complexity.
+ * Two components share this contract:
+ *   - InlineCode — simple <code> span (slot: inline)
+ *   - CodeBlock — compound (slots: root, header, content, copyButton)
+ *
+ * No complex ARIA. Purely structural.
  */
 
 import type { ComponentContract } from "$lib/design/components/_schema/contract.js";
@@ -12,26 +15,46 @@ import type { ComponentContract } from "$lib/design/components/_schema/contract.
 export const contract = {
 	kind: "code",
 	description:
-		"Code display component. Renders as inline <code> or block <pre><code>. Provides syntax styling via recipe. Supports language hint via data attribute.",
+		"Code display component. InlineCode renders <code> spans. CodeBlock is a compound component with header (filename/language), content (<pre><code> with Shiki integration), and copy button. Purely structural.",
 
 	slots: {
 		required: ["root"],
-		optional: [],
+		optional: ["inline", "header", "content", "copyButton"],
 	},
 
 	slotContracts: {
 		root: {
 			name: "root",
+			element: "div",
+			aria: { required: [], optional: [] },
+			data: { kind: "code", slot: "root", states: [] },
+		},
+		inline: {
+			name: "inline",
 			element: "code",
+			aria: { required: [], optional: [] },
+			data: { kind: "code", slot: "inline", states: [] },
+		},
+		header: {
+			name: "header",
+			element: "div",
+			aria: { required: [], optional: [] },
+			data: { kind: "code", slot: "header", states: [] },
+		},
+		content: {
+			name: "content",
+			element: "pre",
+			aria: { required: [], optional: [] },
+			data: { kind: "code", slot: "content", states: [] },
+		},
+		copyButton: {
+			name: "copyButton",
+			element: "button",
 			aria: {
-				required: [],
+				required: [{ attr: "aria-label", valueType: "aria-label" }],
 				optional: [],
 			},
-			data: {
-				kind: "code",
-				slot: "root",
-				states: [],
-			},
+			data: { kind: "code", slot: "copy-button", states: [] },
 		},
 	},
 

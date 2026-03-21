@@ -3,69 +3,68 @@
  * @kind dialog
  * @layer components
  *
- * Prop types for all Dialog sub-components.
- * Root provides adapter via context; sub-components spread slot attrs.
+ * Modal overlay dialog. Focus trap, scroll lock, escape dismiss.
+ * Compound: Root, Trigger, Overlay, Content, Header, Title, Description, Footer, Close.
+ * Behavioral — uses useDialog() primitive hook.
+ *
+ * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
  */
 
 import type { Snippet } from "svelte";
-import type { HTMLAttributes, HTMLButtonAttributes, HTMLDialogAttributes } from "svelte/elements";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { HTMLAttributes } from "svelte/elements";
+import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
 
-/** Dialog root props — creates adapter and provides context */
-export interface DialogProps extends ColdLightProps {
-	/** Whether the dialog is open */
+// =============================================================================
+// SHARED
+// =============================================================================
+
+export type DialogSize = "sm" | "md" | "lg" | "xl" | "fullscreen";
+
+export interface DialogOpenChangeDetails {
+	open: boolean;
+}
+
+export interface DialogIds {
+	trigger?: string;
+	overlay?: string;
+	content?: string;
+	title?: string;
+	description?: string;
+	close?: string;
+}
+
+// =============================================================================
+// ROOT
+// =============================================================================
+
+export interface DialogRootProps extends Omit<PreparedComponentProps, "size"> {
+	ids?: Partial<DialogIds>;
 	open?: boolean;
-	/** Callback when open state changes */
-	onOpenChange?: (value: boolean) => void;
-	/** Close on Escape key (default: true) */
-	closeOnEscape?: boolean;
-	/** Close on outside click (default: true) */
-	closeOnOutsideClick?: boolean;
-	/** Prevent scroll when open (default: true) */
+	defaultOpen?: boolean;
+	onOpenChange?: (details: DialogOpenChangeDetails) => void;
+	size?: DialogSize;
+	isDismissible?: boolean;
+	isKeyboardDismissDisabled?: boolean;
 	preventScroll?: boolean;
-	/** Content */
+	dir?: "ltr" | "rtl";
+	onExitComplete?: () => void;
 	children?: Snippet;
 }
 
-/** DialogTrigger props — button that opens the dialog */
-export interface DialogTriggerProps extends Omit<HTMLButtonAttributes, "style" | "children"> {
+// =============================================================================
+// SUB-COMPONENTS
+// =============================================================================
+
+interface DialogSlotProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
 	children?: Snippet;
+	class?: string;
 }
 
-/** DialogContent props — main content area (native <dialog> element) */
-export interface DialogContentProps extends Omit<HTMLDialogAttributes, "style" | "children"> {
-	children?: Snippet;
-}
-
-/** DialogOverlay props — backdrop overlay */
-export interface DialogOverlayProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {}
-
-/** DialogHeader props — header section wrapper */
-export interface DialogHeaderProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
-	children?: Snippet;
-}
-
-/** DialogFooter props — footer section wrapper */
-export interface DialogFooterProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
-	children?: Snippet;
-}
-
-/** DialogTitle props — title with aria linking */
-export interface DialogTitleProps
-	extends Omit<HTMLAttributes<HTMLHeadingElement>, "style" | "children"> {
-	children?: Snippet;
-}
-
-/** DialogDescription props — description with aria linking */
-export interface DialogDescriptionProps
-	extends Omit<HTMLAttributes<HTMLParagraphElement>, "style" | "children"> {
-	children?: Snippet;
-}
-
-/** DialogClose props — close button */
-export interface DialogCloseProps extends Omit<HTMLButtonAttributes, "style" | "children"> {
-	children?: Snippet;
-}
+export interface DialogTriggerProps extends DialogSlotProps {}
+export interface DialogOverlayProps extends DialogSlotProps {}
+export interface DialogContentProps extends DialogSlotProps {}
+export interface DialogHeaderProps extends DialogSlotProps {}
+export interface DialogTitleProps extends DialogSlotProps {}
+export interface DialogDescriptionProps extends DialogSlotProps {}
+export interface DialogFooterProps extends DialogSlotProps {}
+export interface DialogCloseProps extends DialogSlotProps {}

@@ -1,15 +1,10 @@
 <!--
-	@component AccordionItem
+	@component Accordion.Item
 	@kind accordion
+	@slot item
 	@layer components
 
-	Accordion item wrapper — creates per-item transport from root context.
-	Sets item context for AccordionTrigger and AccordionContent to consume.
-
-	Two-level context pattern:
-	1. Reads root AccordionTransport context
-	2. Calls transport.getItem() with item metadata
-	3. Sets AccordionItemTransport context for child sub-components
+	Wraps a single accordion section. Sets item context for Trigger/Content.
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
@@ -17,25 +12,20 @@ import { getAccordionContext, setAccordionItemContext } from "./context.js";
 import type { AccordionItemProps } from "./types.js";
 
 let { value, disabled = false, children, class: className, ...rest }: AccordionItemProps = $props();
+const ctx = getAccordionContext();
 
-const transport = getAccordionContext();
-const item = transport.getItem({
-	get id() {
-		return value;
-	},
-	get disabled() {
-		return disabled;
-	},
+setAccordionItemContext({
+	get value() { return value; },
+	get disabled() { return disabled; },
 });
-setAccordionItemContext(item);
+
+const itemAttrs = $derived(ctx.hook.getItem(value));
 </script>
 
 <div
-	class={cn(className)}
-	data-kind="accordion"
-	data-slot="item"
-	data-state={item.states.isExpanded ? "open" : "closed"}
-	{...rest}
+	{...itemAttrs}
+	id={ctx.ids.item?.(value)}
+	class={cn(ctx.classes.item, className)}
 >
 	{@render children?.()}
 </div>

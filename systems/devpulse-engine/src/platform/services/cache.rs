@@ -1,6 +1,6 @@
 //! Cache service wrapper (`Moka`).
 
-use super::{Service, ServiceRole};
+use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
 use devpulse_maestro::cortex::persistence::{MokaAdapter, MokaCacheConfig};
 use std::sync::Arc;
@@ -35,10 +35,10 @@ impl Service for CacheService {
     }
 
     async fn ping(&self) -> Result<()> {
-        self.adapter.ping()
+        self.adapter.ping().await
     }
 
-    fn is_ready(&self) -> bool {
-        true
+    fn state(&self) -> ServiceState {
+        ServiceState::Ready
     }
 }

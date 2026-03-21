@@ -1,31 +1,57 @@
 /**
- * @file Badge Types
+ * @file Badge Component Types
  * @kind badge
  * @layer components
+ *
+ * Badge is a structural presentational label — status indicator,
+ * count, notification dot. No complex ARIA. role="status" optional.
+ *
+ * Spectrum pattern: variant (semantic color) × fillStyle (bold/subtle/outline) × size.
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
 
-export type BadgeIntent = "default" | "info" | "success" | "warning" | "error";
-export type BadgeSize = "sm" | "md" | "lg";
+export type BadgeVariant =
+	| "neutral"
+	| "accent"
+	| "informative"
+	| "positive"
+	| "notice"
+	| "negative";
 
-export const BADGE_INTENT_PRESETS: Record<BadgeIntent, string> = {
-	default: "badge-ghost",
-	info: "badge-signal",
-	success: "badge-accent",
-	warning: "badge-signal",
-	error: "badge-signal",
+export type BadgeFillStyle = "bold" | "subtle" | "outline";
+
+export type BadgeSize = "sm" | "md" | "lg" | "xl";
+
+export type BadgeOverflowMode = "wrap" | "truncate";
+
+export const BADGE_VARIANT_PRESETS: Record<BadgeVariant, string> = {
+	neutral: "badge-ghost",
+	accent: "badge-accent",
+	informative: "badge-signal",
+	positive: "badge-accent",
+	notice: "badge-signal",
+	negative: "badge-signal",
 };
 
 export interface BadgeProps
-	extends Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children">,
-		BaseProps,
-		ColdLightProps {
-	children?: Snippet;
-	decorative?: boolean;
-	intent?: BadgeIntent;
+	extends Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children" | "class">,
+		PreparedComponentProps {
+	/** Element ID. */
+	id?: string;
+	/** Semantic color variant. Default: "neutral". */
+	variant?: BadgeVariant;
+	/** Fill style: bold (filled), subtle (tinted bg), outline (border only). Default: "bold". */
+	fillStyle?: BadgeFillStyle;
+	/** Size. Default: "md". */
 	size?: BadgeSize;
+	/** Text overflow behavior. Default: "wrap". */
+	overflowMode?: BadgeOverflowMode;
+	/** Whether the badge is purely decorative (aria-hidden). */
+	decorative?: boolean;
+	/** Text/writing direction. */
+	dir?: "ltr" | "rtl";
+	children?: Snippet;
 }

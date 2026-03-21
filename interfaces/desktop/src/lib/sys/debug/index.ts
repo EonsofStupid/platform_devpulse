@@ -1,14 +1,14 @@
 /**
- * @file src/lib/sys/debug/index.ts
- * @module @devpulse/sys/debug/index
+ * @file VibePulse — Devtools Suite Central Import
+ * @module @devpulse/sys/debug
  * @layer lib
  *
- * Debug Tools Registry
- * Central export for all dev-only debugging tools.
- * Feature-gated via DEBUG_FLAG.
+ * VibePulse is the devtools overlay portal (V icon).
+ * Every devtool registers here. Feature-gated via DEBUG_FLAG.
  *
- * @since 1.0.0
+ * Devtools:
+ *   - VPB (Visual Page Builder) — lives under design/, ColdLight devtool
+ *   - (future devtools register here)
  */
 
 export { __DEV__, isDev } from "./DEBUG_FLAG";
-export { Vpb, vpbConnection, vpbDocument, vpbPalette } from "./vpb/index.js";

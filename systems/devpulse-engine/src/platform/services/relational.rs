@@ -5,7 +5,7 @@
 //! - **User**: profiles, preferences, projects, sessions, turns,
 //!   anchors, open loops, corrections, learnings, concepts, psych
 
-use super::{Service, ServiceRole};
+use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
 use devpulse_maestro::cortex::persistence::LibSqlAdapter;
 use std::path::Path;
@@ -50,8 +50,8 @@ impl Service for RelationalService {
         self.adapter.ping().await
     }
 
-    fn is_ready(&self) -> bool {
-        true
+    fn state(&self) -> ServiceState {
+        ServiceState::Ready
     }
 
     async fn shutdown(&self) -> Result<()> {

@@ -3,7 +3,7 @@
 //! Wraps the outlines-core adapter for JSON schema → regex compilation.
 //! Used by the CAG pipeline to constrain LLM output to valid structures.
 
-use super::{Service, ServiceRole};
+use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
 use devpulse_maestro::cortex::persistence::OutlinesAdapter;
 use std::sync::Arc;
@@ -44,7 +44,7 @@ impl Service for GrammarService {
         self.adapter.ping()
     }
 
-    fn is_ready(&self) -> bool {
-        true
+    fn state(&self) -> ServiceState {
+        ServiceState::Ready
     }
 }

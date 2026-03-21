@@ -13,6 +13,6 @@ export interface InitEvent {
 	status: InitStatus;
 	/** Human-readable message. */
 	message: string | null;
-	/** How long this step took (populated on completion). */
-	latency_ms: number | null;
+	/** How long this step took in microseconds (populated on completion). */
+	latency_us: number | null;
 }

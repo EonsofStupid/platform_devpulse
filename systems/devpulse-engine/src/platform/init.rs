@@ -17,8 +17,9 @@ pub struct InitEvent {
     pub status: InitStatus,
     /// Human-readable message.
     pub message: Option<String>,
-    /// How long this step took (populated on completion).
-    pub latency_ms: Option<u64>,
+    /// How long this step took in microseconds (populated on completion).
+    /// Microseconds prevent sub-millisecond operations from reporting 0.
+    pub latency_us: Option<u64>,
 }
 
 /// Status of an initialization step.
@@ -42,7 +43,7 @@ impl InitEvent {
             step: step.to_string(),
             status: InitStatus::Running,
             message: Some(message.to_string()),
-            latency_ms: None,
+            latency_us: None,
         }
     }
 
@@ -52,18 +53,18 @@ impl InitEvent {
             step: step.to_string(),
             status: InitStatus::Ok,
             message: Some(message.to_string()),
-            latency_ms: None,
+            latency_us: None,
         }
     }
 
-    /// Create an "ok" event with measured latency.
-    #[allow(clippy::cast_possible_truncation)] // Duration of DB init will never exceed u64 ms
+    /// Create an "ok" event with measured latency in microseconds.
+    #[allow(clippy::cast_possible_truncation)]
     pub fn ok_with_latency(step: &str, duration: Duration) -> Self {
         Self {
             step: step.to_string(),
             status: InitStatus::Ok,
             message: None,
-            latency_ms: Some(duration.as_millis() as u64),
+            latency_us: Some(duration.as_micros() as u64),
         }
     }
 
@@ -73,7 +74,7 @@ impl InitEvent {
             step: step.to_string(),
             status: InitStatus::Error,
             message: Some(message.to_string()),
-            latency_ms: None,
+            latency_us: None,
         }
     }
 
@@ -83,7 +84,7 @@ impl InitEvent {
             step: step.to_string(),
             status: InitStatus::Skipped,
             message: Some("Disabled in config".to_string()),
-            latency_ms: None,
+            latency_us: None,
         }
     }
 }

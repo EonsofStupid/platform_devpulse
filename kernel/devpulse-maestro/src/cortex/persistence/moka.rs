@@ -54,11 +54,39 @@ impl MokaAdapter {
         Self::new(MokaCacheConfig::default())
     }
 
-    /// Health check — always succeeds for in-memory cache.
+    /// Health check — write, read, verify, delete a sentinel value.
+    ///
+    /// Proves the cache can actually store and retrieve data.
+    /// If any step fails, the cache is broken.
     ///
     /// # Errors
-    /// Never fails for an in-memory cache; returns `Ok(())` unconditionally.
-    pub fn ping(&self) -> Result<()> {
+    /// Returns error if the cache cannot complete a write/read/delete cycle.
+    pub async fn ping(&self) -> Result<()> {
+        const PING_KEY: &str = "__devpulse_health_check";
+        const PING_VAL: &[u8] = b"ping";
+
+        // Write
+        self.cache.insert(PING_KEY.to_string(), PING_VAL.to_vec()).await;
+
+        // Read and verify
+        let val = self.cache.get(PING_KEY).await;
+        match val {
+            Some(v) if v == PING_VAL => {}
+            Some(v) => {
+                anyhow::bail!(
+                    "Cache health check: read back wrong value (expected {} bytes, got {})",
+                    PING_VAL.len(),
+                    v.len()
+                );
+            }
+            None => {
+                anyhow::bail!("Cache health check: wrote sentinel but read returned None");
+            }
+        }
+
+        // Cleanup
+        self.cache.invalidate(PING_KEY).await;
+
         Ok(())
     }
 }
@@ -130,10 +158,10 @@ mod tests {
         assert_eq!(val, None);
     }
 
-    #[test]
-    fn moka_ping_always_ok() {
+    #[tokio::test]
+    async fn moka_ping_verifies_cache() {
         let cache = MokaAdapter::default_cache();
-        assert!(cache.ping().is_ok());
+        assert!(cache.ping().await.is_ok());
     }
 
     #[tokio::test]

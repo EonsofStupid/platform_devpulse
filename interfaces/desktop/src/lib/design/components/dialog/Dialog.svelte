@@ -1,30 +1,32 @@
 <!--
-	@component Dialog
+	@component Dialog (Root)
 	@kind dialog
 	@layer components
 
-	ColdLight Dialog root — creates ColdLightDialog adapter and provides via context.
-	Compound component: sub-components consume context to render slots.
+	Modal overlay dialog. Uses useDialog() primitive hook for
+	focus trap, scroll lock, dismiss, presence.
+	Sets context for sub-components.
 
-	ColdLight OWNS all ARIA. No MeltUI dependency.
-	Reference: WAI-ARIA APG Dialog (Modal) Pattern
+	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
 -->
 <script lang="ts">
-import { ColdLightDialog } from "$lib/design/api/dsadapters/coldlight/_internal/dialog/dialog.svelte.js";
+import { useDialog } from "$lib/design/primitives/dialog/use-dialog.svelte.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { cn } from "$lib/design/utils/cn.js";
+import { getRecipe } from "$lib/design/recipes/index.js";
 import { setDialogContext } from "./context.js";
-import type { DialogProps } from "./types.js";
+import type { DialogRootProps } from "./types.js";
 
 let {
-	open = false,
+	ids,
+	open: controlledOpen,
+	defaultOpen = false,
 	onOpenChange,
-	closeOnEscape = true,
-	closeOnOutsideClick = true,
+	size = "md",
+	isDismissible = true,
+	isKeyboardDismissDisabled = false,
 	preventScroll = true,
-	children,
-	class: className,
-	// ColdLight 8-axis props
+	dir = "ltr",
+	onExitComplete,
 	preset,
 	surface,
 	material,
@@ -36,18 +38,20 @@ let {
 	transition,
 	encoding,
 	radius,
-	size,
-}: DialogProps & { class?: string } = $props();
+	children,
+}: DialogRootProps = $props();
 
-const dialog = new ColdLightDialog({
-	open: () => open,
-	onOpenChange: (v) => onOpenChange?.(v),
-	closeOnEscape: () => closeOnEscape,
-	closeOnOutsideClick: () => closeOnOutsideClick,
-	preventScroll: () => preventScroll,
+const hook = useDialog({
+	open: controlledOpen ?? defaultOpen,
+	closeOnEscape: !isKeyboardDismissDisabled,
+	closeOnOutsideClick: isDismissible,
+	preventScroll,
+	onOpenChange: (v) => onOpenChange?.({ open: v }),
 });
 
-setDialogContext(dialog);
+const recipe = getRecipe("dialog.glass.void");
+// biome-ignore lint/suspicious/noExplicitAny: recipe classes accept resolved props
+const recipeClasses = recipe?.classes?.({} as any) ?? {};
 
 const visual = useColdLight(() => ({
 	preset,
@@ -60,16 +64,16 @@ const visual = useColdLight(() => ({
 	motion,
 	transition,
 	encoding,
-	radius,
-	size,
+	radius: radius ?? "lg",
 }));
+
+setDialogContext({
+	get hook() { return hook; },
+	get classes() { return recipeClasses; },
+	get ids() { return ids ?? {}; },
+	get dir() { return dir; },
+	get size() { return size; },
+});
 </script>
 
-<div
-	class={cn(visual.segments, visual.radius, className)}
-	data-kind="dialog"
-	data-slot="root"
-	data-encoding={visual.encoding || undefined}
->
-	{@render children?.()}
-</div>
+{@render children?.()}

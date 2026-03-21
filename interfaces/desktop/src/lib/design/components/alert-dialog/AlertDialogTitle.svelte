@@ -1,29 +1,18 @@
 <!--
-	@component AlertDialogTitle
+	@component AlertDialog.Title
 	@kind alert-dialog
 	@slot title
 	@layer components
-
-	Title element with ID for aria-labelledby linking.
-	ColdLight-owned ARIA.
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getAlertDialogContext } from "./context.js";
-import { alertDialogRecipe } from "./recipe.js";
 import type { AlertDialogTitleProps } from "./types.js";
 
 let { children, class: className, ...rest }: AlertDialogTitleProps = $props();
 const ctx = getAlertDialogContext();
-const recipe = alertDialogRecipe();
 </script>
 
-<h2
-	id={ctx.titleId}
-	class={cn(recipe.title, className)}
-	data-kind="alert-dialog"
-	data-slot="title"
-	{...rest}
->
+<h2 {...ctx.hook.title} id={ctx.ids.title ?? ctx.hook.title.id} class={cn(ctx.classes.title, className)} {...rest}>
 	{@render children?.()}
 </h2>

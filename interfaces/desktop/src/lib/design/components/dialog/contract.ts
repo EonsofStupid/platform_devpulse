@@ -3,33 +3,21 @@
  * @kind dialog
  * @layer components
  *
- * BUILD-TIME validated via `satisfies ComponentContract`.
- * TypeScript compiler enforces the shape — zero runtime overhead.
- *
- * Compound component: trigger, overlay, content, title, description, close,
- * header, footer, portal slots.
- *
- * Pattern: WAI-ARIA APG Dialog (Modal) Pattern
- * Reference: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
+ * Modal overlay dialog with focus trap, scroll lock, dismiss.
+ * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
  */
 
 import type { ComponentContract } from "$lib/design/components/_schema/contract.js";
 
-/**
- * Dialog component contract — compile-time enforced.
- *
- * `satisfies ComponentContract` validates shape at compile time.
- * Slot contracts are inlined for full static analysis.
- */
 export const contract = {
 	kind: "dialog",
 	description:
-		"Modal dialog overlay for focused interaction. Uses native <dialog> element with role='dialog', aria-modal, and focus trap. ColdLight-owned ARIA — no MeltUI dependency.",
+		"Modal overlay dialog with focus trap, scroll lock, escape dismiss. Uses native <dialog> showModal(). Compound: trigger, overlay, content, header, title, description, footer, close.",
 	apgPattern: "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/",
 
 	slots: {
-		required: ["trigger", "content", "overlay"],
-		optional: ["title", "description", "close", "header", "footer", "portal"],
+		required: ["content"],
+		optional: ["trigger", "overlay", "header", "title", "description", "footer", "close"],
 	},
 
 	slotContracts: {
@@ -37,150 +25,71 @@ export const contract = {
 			name: "trigger",
 			element: "button",
 			aria: {
-				role: "button",
-				required: [],
-				optional: [
+				required: [
 					{ attr: "aria-haspopup", valueType: "aria-haspopup" },
 					{ attr: "aria-expanded", valueType: "aria-expanded" },
 					{ attr: "aria-controls", valueType: "aria-controls" },
 				],
+				optional: [],
 			},
-			data: {
-				kind: "dialog",
-				slot: "trigger",
-				states: ["open", "closed"],
-			},
-			keyboard: [
-				{ key: "Enter", action: "open", description: "Open dialog" },
-				{ key: "Space", action: "open", description: "Open dialog" },
-			],
+			data: { kind: "dialog", slot: "trigger", states: ["open", "closed"] },
+		},
+		overlay: {
+			name: "overlay",
+			element: "div",
+			aria: { required: [], optional: [] },
+			data: { kind: "dialog", slot: "overlay", states: ["open", "closed"] },
 		},
 		content: {
 			name: "content",
 			element: "dialog",
 			aria: {
 				role: "dialog",
-				required: [{ attr: "aria-modal", valueType: "aria-modal" }],
-				optional: [
+				required: [
+					{ attr: "aria-modal", valueType: "aria-modal" },
 					{ attr: "aria-labelledby", valueType: "aria-labelledby" },
+				],
+				optional: [
 					{ attr: "aria-describedby", valueType: "aria-describedby" },
 				],
-				relationships: [
-					{ attr: "aria-labelledby", targetSlot: "title", required: false },
-					{ attr: "aria-describedby", targetSlot: "description", required: false },
-				],
 			},
-			data: {
-				kind: "dialog",
-				slot: "content",
-				states: ["open", "closed"],
-			},
-			keyboard: [
-				{ key: "Escape", action: "close", description: "Close dialog" },
-				{ key: "Tab", action: "exit", description: "Cycle focus within trap" },
-			],
-		},
-		overlay: {
-			name: "overlay",
-			element: "div",
-			aria: {
-				required: [{ attr: "aria-hidden", valueType: "aria-hidden" }],
-				optional: [],
-			},
-			data: {
-				kind: "dialog",
-				slot: "overlay",
-				states: ["open", "closed"],
-			},
-		},
-		title: {
-			name: "title",
-			element: "h2",
-			aria: {
-				required: [],
-				optional: [],
-			},
-			data: {
-				kind: "dialog",
-				slot: "title",
-				states: [],
-			},
-		},
-		description: {
-			name: "description",
-			element: "p",
-			aria: {
-				required: [],
-				optional: [],
-			},
-			data: {
-				kind: "dialog",
-				slot: "description",
-				states: [],
-			},
-		},
-		close: {
-			name: "close",
-			element: "button",
-			aria: {
-				role: "button",
-				required: [],
-				optional: [{ attr: "aria-label", valueType: "aria-label" }],
-			},
-			data: {
-				kind: "dialog",
-				slot: "close",
-				states: [],
-			},
-			keyboard: [
-				{ key: "Enter", action: "close", description: "Close dialog" },
-				{ key: "Space", action: "close", description: "Close dialog" },
-			],
+			data: { kind: "dialog", slot: "content", states: ["open", "closed"] },
 		},
 		header: {
 			name: "header",
 			element: "div",
-			aria: {
-				required: [],
-				optional: [],
-			},
-			data: {
-				kind: "dialog",
-				slot: "header",
-				states: [],
-			},
+			aria: { required: [], optional: [] },
+			data: { kind: "dialog", slot: "header", states: [] },
+		},
+		title: {
+			name: "title",
+			element: "h2",
+			aria: { required: [], optional: [] },
+			data: { kind: "dialog", slot: "title", states: [] },
+		},
+		description: {
+			name: "description",
+			element: "p",
+			aria: { required: [], optional: [] },
+			data: { kind: "dialog", slot: "description", states: [] },
 		},
 		footer: {
 			name: "footer",
 			element: "div",
-			aria: {
-				required: [],
-				optional: [],
-			},
-			data: {
-				kind: "dialog",
-				slot: "footer",
-				states: [],
-			},
+			aria: { required: [], optional: [] },
+			data: { kind: "dialog", slot: "footer", states: [] },
 		},
-		portal: {
-			name: "portal",
-			element: "div",
-			aria: {
-				required: [],
-				optional: [],
-			},
-			data: {
-				kind: "dialog",
-				slot: "portal",
-				states: [],
-			},
+		close: {
+			name: "close",
+			element: "button",
+			aria: { required: [], optional: [] },
+			data: { kind: "dialog", slot: "close", states: [] },
 		},
 	},
 
 	accessibleName: {
 		required: true,
-		sources: ["aria-label", "aria-labelledby"],
+		sources: ["aria-labelledby", "aria-label"],
 		defaultSlot: "title",
 	},
 
@@ -192,15 +101,14 @@ export const contract = {
 	},
 
 	keyboard: {
-		global: [{ key: "Escape", action: "close", description: "Close dialog" }],
+		global: [
+			{ key: "Escape", action: "close", description: "Close the dialog" },
+			{ key: "Tab", action: "focusNext", description: "Move focus within trap" },
+		],
 	},
 
 	states: {
-		primary: "open",
 		all: ["open", "closed"],
-		ariaMapping: {
-			open: "aria-expanded",
-		},
 	},
 
 	interactions: {

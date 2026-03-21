@@ -1,30 +1,26 @@
 <!--
-	@component AlertDialogOverlay
+	@component AlertDialog.Overlay
 	@kind alert-dialog
 	@slot overlay
 	@layer components
-
-	Backdrop overlay rendered when alert dialog is open.
-	ColdLight-owned: aria-hidden="true".
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getAlertDialogContext } from "./context.js";
-import { alertDialogRecipe } from "./recipe.js";
 import type { AlertDialogOverlayProps } from "./types.js";
 
-let { class: className, ...rest }: AlertDialogOverlayProps = $props();
+let { children, class: className, ...rest }: AlertDialogOverlayProps = $props();
 const ctx = getAlertDialogContext();
-const recipe = alertDialogRecipe();
 </script>
 
-{#if ctx.open}
+{#if ctx.hook.open}
 	<div
-		aria-hidden="true"
-		class={cn(recipe.overlay, className)}
-		data-kind="alert-dialog"
-		data-slot="overlay"
-		data-state={ctx.open ? "open" : "closed"}
+		{...ctx.hook.overlay}
+		use:ctx.hook.attachOverlay
+		id={ctx.ids.overlay}
+		class={cn(ctx.classes.overlay, className)}
 		{...rest}
-	></div>
+	>
+		{@render children?.()}
+	</div>
 {/if}

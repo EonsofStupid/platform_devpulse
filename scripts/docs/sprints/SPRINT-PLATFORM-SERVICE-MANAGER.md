@@ -32,8 +32,8 @@ The platform has 10 services. 7 load. 1 is disabled (Kokoros). 2 don't exist yet
 | Service | Feature | Compiled | Why |
 |---------|---------|----------|-----|
 | Kokoros (TTS) | `kokoros` | **NO** | Feature not in Tauri Cargo.toml. `enabled = false` in config. espeak-rs-sys crashes VS 2026 dict generation. |
-| Candle (ML) | — | **NO** | Declared in workspace (`candle-core = "0.8"`) but ZERO imports. Dead code. No adapter. No service. |
-| STT | — | **NO** | Doesn't exist at all. No adapter, no service, no config. |
+| Candle (Inference) | — | **NO** | Declared in workspace (`candle-core = "0.8"`). VALIDATED architecture decision (Candle + Qwen3 GGUF). No adapter or service wired yet. Needs: InferenceService with model manager, device allocation, four-layer rumination support. |
+| STT | — | **NO** | Doesn't exist at all. Likely Whisper via Candle or ORT when ready. |
 
 ### Infrastructure Gaps
 | Gap | Detail |
@@ -50,14 +50,25 @@ The platform has 10 services. 7 load. 1 is disabled (Kokoros). 2 don't exist yet
 ### AD-1: Fix Kokoros, don't defer it
 The espeak-rs-sys blocker has a documented fix path: patch `piper-rs/crates/espeak-rs-sys/build.rs` to detect the system install at `C:\Program Files (x86)\eSpeak\` and link against it instead of building from source. The MSI is already at `deps/espeak-ng-setup.msi`. Do it.
 
-### AD-2: Candle gets a real adapter or gets deleted
-No dead dependencies. Either wire Candle into the service layer as an inference runtime (for local model execution alongside Kokoros/ORT), or remove it from workspace Cargo.toml. No middle ground.
+### AD-2: Candle is the inference runtime (DECIDED)
+Candle + Qwen3 GGUF is the validated inference stack. Research compiled 2026-01-06, validated across multiple conversations. This is NOT dead code — it's the entire AI backbone.
 
-**OWNER DECISION REQUIRED**: What is Candle's role? Options:
-- A) **Inference service** — boot Candle as a service, load models for local LLM inference (e.g., embedding generation for RRO)
-- B) **Embedding engine** — Candle generates embeddings that feed into RRO vector store
-- C) **Delete** — ORT handles inference via Kokoros, Candle is redundant
-- D) **Defer with config** — Add config entry `enabled = false`, wire adapter, enable when ready
+**Decision: Option A — Full Inference Service**
+
+Candle provides:
+- **Embedder** (Qwen3-0.6B safetensors, CPU forced, 1024-dim) → feeds RRO vector store
+- **Reranker** (Qwen3-Reranker-0.6B GGUF q8_0, GPU P2) → scores CAG candidates
+- **LLM Brain** (Qwen3-VL-4B GGUF Q4_K_M, GPU P1) → autoregressive generation with rumination
+- **Background** (Qwen3-14B GGUF) → re-indexing, LoRA, memory consolidation
+
+Four-layer rumination architecture:
+- Keystroke (<50ms): 0.6B intent classification + query embedding
+- Pause (<500ms): 0.6B cross-encoder reranking
+- Send (2-5s): 4B autoregressive generation
+- Background (minutes): 14B heavy analysis
+
+Model management via `hf-hub` crate — download on first run, cache locally.
+outlines-core provides grammar-constrained token masking during generation (already compiled).
 
 ### AD-3: Service registry pattern replaces hardcoded fields
 The current `Platform` struct has 10 hardcoded `Option<Arc<Service>>` fields. Every new service means editing `Platform`, `BootedServices`, `boot::execute`, `Platform::health`, `Platform::shutdown`, and config types. That's 6+ files per service.
@@ -153,7 +164,7 @@ devpulse-engine = { path = "../../../systems/devpulse-engine", features = ["rro"
 ```toml
 [services.system.voice]
 enabled = true
-critical = false  # non-critical until proven stable
+critical = true
 kind = "kokoros"
 ```
 
@@ -164,44 +175,100 @@ Check `.userdata/system/kokoros/model/kokoro-v1.0.onnx` and `voices-v1.0.bin`. I
 
 ---
 
-### Phase 3: Candle ML Runtime (OWNER DECISION GATE)
+### Phase 3: Candle Inference Service
 
-**Blocked on AD-2 decision.** Depending on choice:
+**Goal**: Candle boots as a platform service. Model manager downloads/caches models. Device allocator assigns GPU/CPU. Health check verifies models are loaded.
 
-#### Option A/B: Inference/Embedding Service
-**Files**:
-- `kernel/devpulse-maestro/src/cortex/persistence/candle.rs` (NEW) — CandleAdapter
-- `systems/devpulse-engine/src/platform/services/inference.rs` (NEW) — InferenceService
-- Config entry in `platform.default.toml`
-- Register in boot pipeline
+#### Task 3.1: CandleAdapter in Maestro
+**File**: `kernel/devpulse-maestro/src/cortex/persistence/candle.rs` (NEW)
 
-#### Option C: Delete
-- Remove `candle-core`, `candle-transformers` from workspace `Cargo.toml`
-- Done
+The adapter manages the Candle runtime:
+- `ModelManager` — downloads GGUF/safetensors via `hf-hub`, caches to `.userdata/models/`
+- `DeviceAllocator` — CPU forced for embedder, GPU P1 for LLM, GPU P2 for reranker
+- `EmbedderBackend` — Qwen3-0.6B safetensors, 1024-dim L2-normalized output
+- `RerankerBackend` — Qwen3-Reranker-0.6B GGUF, yes/no logit scoring
+- `ping()` — verify at least embedder model is loaded and can produce a test embedding
+- `boot()` — load configured models based on available hardware
 
-#### Option D: Defer with config
-- Add config entry `enabled = false`
-- Wire stub adapter
-- Revisit when model selection is decided
+```rust
+pub struct CandleAdapter {
+    embedder: Option<EmbedderBackend>,
+    reranker: Option<RerankerBackend>,
+    // LLM deferred to Sprint 2 (generation loop)
+    model_dir: PathBuf,
+}
+```
+
+#### Task 3.2: InferenceService wrapper
+**File**: `systems/devpulse-engine/src/platform/services/inference.rs` (NEW)
+
+Implements `Service` trait. Config-driven model paths and device allocation.
+
+#### Task 3.3: Config entry
+**File**: `systems/devpulse-engine/platform.default.toml` (MODIFY)
+
+```toml
+[services.system.inference]
+enabled = true
+critical = true
+kind = "candle"
+model_dir = "system/models"
+# Models download on first boot via hf-hub
+embedder_repo = "unsloth/Qwen3-0.6B-GGUF"
+reranker_repo = "unsloth/Qwen3-Reranker-0.6B-GGUF"
+```
+
+#### Task 3.4: Feature gate
+**File**: `systems/devpulse-engine/Cargo.toml` (MODIFY)
+
+Add `candle` feature that pulls in `candle-core`, `candle-nn`, `candle-transformers`, `hf-hub`, `tokenizers`.
+
+#### Task 3.5: Wire embedder → RRO
+The embedder produces 1024-dim vectors. RRO consumes them. This is the CAG pipeline foundation:
+- Embed query → search RRO → rerank candidates → assemble context
+- Dimension assertion at boot: embedder.dim must match RRO collection.vector_size
+
+**VERIFY**: `cargo check -p devpulse-engine` after each file. Models download on first `cargo xtask run-dev`.
 
 ---
 
-### Phase 4: STT Service (Speech-to-Text)
+### Phase 4: STT Service (Speech-to-Text) — Whisper via Candle
 
-**OWNER DECISION GATE**: What STT engine?
+**Goal**: STT boots as a platform service. Whisper model loaded through Candle. Audio in, text out.
 
-Options:
-- A) **Whisper via Candle** — if Candle is kept, whisper.cpp via candle-transformers
-- B) **Whisper via ORT** — ONNX whisper model, same runtime as Kokoros
-- C) **External API** — Deepgram, AssemblyAI, etc. (not local-first)
-- D) **Defer** — TTS first, STT later
+#### Task 4.1: WhisperAdapter in Maestro
+**File**: `kernel/devpulse-maestro/src/cortex/persistence/stt.rs` (NEW)
 
-If A or B:
-**Files**:
-- `kernel/devpulse-maestro/src/cortex/persistence/stt.rs` (NEW) — STT adapter
-- `systems/devpulse-engine/src/platform/services/stt.rs` (NEW) — STTService
-- Config entry in `platform.default.toml`
-- Feature gate: `stt` (optional)
+Candle already has `candle-transformers::models::whisper` — use it directly.
+- Load Whisper GGUF via `hf-hub` (same model manager as inference service)
+- `boot()` — load model + tokenizer
+- `transcribe(audio: &[f32], sample_rate: u32) -> Result<String>`
+- `ping()` — verify model loaded
+
+Model: `ggerganov/whisper.cpp` GGUF or `openai/whisper-base` via candle-transformers.
+Device: CPU (Whisper is fast enough on CPU for real-time STT).
+
+#### Task 4.2: STTService wrapper
+**File**: `systems/devpulse-engine/src/platform/services/stt.rs` (NEW)
+
+Implements `Service` trait. `critical = true`.
+
+#### Task 4.3: Config entry
+**File**: `systems/devpulse-engine/platform.default.toml` (MODIFY)
+
+```toml
+[services.system.stt]
+enabled = true
+critical = true
+kind = "whisper"
+model_repo = "openai/whisper-base"
+device = "cpu"
+```
+
+#### Task 4.4: Feature gate
+Part of the `candle` feature — Whisper is in `candle-transformers`, no extra deps.
+
+**VERIFY**: `cargo check -p devpulse-engine`
 
 ---
 
@@ -369,14 +436,16 @@ Key changes:
 
 ---
 
-## Decision Gates (Owner MUST Decide Before Execution)
+## Decision Gates (ALL CLOSED)
 
-| # | Decision | Options | Blocks |
-|---|----------|---------|--------|
-| 1 | **Candle role** | A) Inference service, B) Embedding engine, C) Delete, D) Defer | Phase 3 |
-| 2 | **STT engine** | A) Whisper/Candle, B) Whisper/ORT, C) External API, D) Defer | Phase 4 |
-| 3 | **Kokoros criticality** | `critical = true` (boot fails) vs `critical = false` (degraded mode) | Phase 2 |
-| 4 | **Service registry now or later** | A) Phase 1 of this sprint, B) After all services load | Phase 1 ordering |
+| # | Decision | Resolution |
+|---|----------|------------|
+| 1 | **Candle role** | Full inference service (Candle + Qwen3 GGUF). Validated 2026-01-06. |
+| 2 | **STT engine** | Whisper via Candle. Same runtime, same device allocator, no external process. |
+| 3 | **Kokoros criticality** | `critical = true`. It loads or boot fails. Fix the espeak-rs-sys blocker. No degraded mode. |
+| 4 | **Service registry** | Phase 1. Built first. Everything else registers into it. |
+
+**Nothing defers. Nothing is optional. Every service loads or the platform doesn't start.**
 
 ---
 
@@ -419,10 +488,11 @@ Key changes:
 | `interfaces/desktop/src-tauri/Cargo.toml` | MODIFY (add kokoros feature) | 2 |
 | `systems/devpulse-engine/platform.default.toml` | MODIFY (enable voice) | 2 |
 | `xtask/src/commands/dev.rs` | MODIFY (health gate) | 6 |
-| `kernel/.../candle.rs` | NEW (if kept) | 3 |
-| `platform/services/inference.rs` | NEW (if kept) | 3 |
-| `kernel/.../stt.rs` | NEW (when decided) | 4 |
-| `platform/services/stt.rs` | NEW (when decided) | 4 |
+| `kernel/.../candle.rs` | NEW | 3 |
+| `platform/services/inference.rs` | NEW | 3 |
+| `systems/devpulse-engine/Cargo.toml` | MODIFY (candle feature) | 3 |
+| `kernel/.../stt.rs` | NEW (when STT decided) | 4 |
+| `platform/services/stt.rs` | NEW (when STT decided) | 4 |
 
 ---
 

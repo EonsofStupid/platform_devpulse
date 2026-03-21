@@ -364,6 +364,18 @@ define({
 });
 
 define({
+	kind: "code",
+	label: "Code",
+	engine: "coldlight",
+	defaultPreset: "code-block",
+	defaultRecipe: "code.glass.void",
+	blockCategory: "content",
+	requiredAxes: ["surface", "frame"],
+	compound: true,
+	container: true,
+});
+
+define({
 	kind: "spinner",
 	label: "Spinner",
 	engine: "coldlight",

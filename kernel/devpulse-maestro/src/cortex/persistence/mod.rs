@@ -236,9 +236,9 @@ impl PersistenceLayer {
     ///
     /// # Errors
     /// Returns error if `Moka` is not initialized.
-    pub fn ping_moka(&self) -> Result<()> {
+    pub async fn ping_moka(&self) -> Result<()> {
         if let Some(adapter) = &self.moka {
-            adapter.ping()
+            adapter.ping().await
         } else {
             anyhow::bail!("Moka cache not initialized")
         }

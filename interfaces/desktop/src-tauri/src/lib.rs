@@ -190,8 +190,14 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
                 InitStatus::Running => unreachable!(),
             };
             let latency_str = event
-                .latency_ms
-                .map(|ms| format!(" ({ms}ms)"))
+                .latency_us
+                .map(|us| {
+                    if us >= 1000 {
+                        format!(" ({}ms)", us / 1000)
+                    } else {
+                        format!(" ({us}µs)")
+                    }
+                })
                 .unwrap_or_default();
             let msg_str = event
                 .message
@@ -211,8 +217,14 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
         // Log completion events via tracing
         if event.status != InitStatus::Running {
             let latency_str = event
-                .latency_ms
-                .map(|ms| format!(" {ms}ms"))
+                .latency_us
+                .map(|us| {
+                    if us >= 1000 {
+                        format!(" {}ms", us / 1000)
+                    } else {
+                        format!(" {us}µs")
+                    }
+                })
                 .unwrap_or_default();
             let msg_str = event
                 .message

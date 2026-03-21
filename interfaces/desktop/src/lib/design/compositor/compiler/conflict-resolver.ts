@@ -9,7 +9,7 @@
  */
 
 import type { ComposedEffect } from "../../effects/_schema/types.js";
-import type { ColdLightManifest } from "../../scanner.types.js";
+import type { ColdLightManifest } from "../../manifest.js";
 
 /**
  * Check if two effects conflict via conflictGroup.

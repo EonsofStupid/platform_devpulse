@@ -3,35 +3,21 @@
  * @kind alert
  * @layer components
  *
- * BUILD-TIME validated via `satisfies ComponentContract`.
- * TypeScript compiler enforces the shape — zero runtime overhead.
- * Cross-references the alert PrimitiveContract for slot derivation.
- *
- * Pattern: Zag-style anatomy definition + React Spectrum layered contracts.
- * The component contract declares what the styled component MUST render.
- * Build scripts validate via Zod. App code pays zero cost.
- *
- * Reference: W3C WAI-ARIA APG Alert Pattern
- * https://www.w3.org/WAI/ARIA/apg/patterns/alert/
+ * Inline contextual feedback with role="alert".
+ * NOT a dialog. For confirmations, use AlertDialog.
+ * Compound: root, icon, title, description, action, dismiss.
  */
 
 import type { ComponentContract } from "$lib/design/components/_schema/contract.js";
 
-/**
- * Alert component contract — compile-time enforced.
- *
- * `satisfies ComponentContract` validates shape at compile time.
- * Slot contracts are inlined (not derived at runtime) for full static analysis.
- */
 export const contract = {
 	kind: "alert",
 	description:
-		"Static alert banner for important messages. Uses role='alert' which provides implicit aria-live='assertive'. Supports info, success, warning, and error intents.",
-	apgPattern: "https://www.w3.org/WAI/ARIA/apg/patterns/alert/",
+		"Inline contextual feedback with role='alert' and aria-live='assertive'. Variant-driven (info/success/warning/error). Dismissible. NOT modal — for confirmations use AlertDialog.",
 
 	slots: {
 		required: ["root"],
-		optional: ["icon", "title", "description", "action"],
+		optional: ["icon", "title", "description", "action", "dismiss"],
 	},
 
 	slotContracts: {
@@ -41,75 +27,48 @@ export const contract = {
 			aria: {
 				role: "alert",
 				required: [],
-				optional: [
-					{ attr: "aria-label", valueType: "aria-label" },
-					{ attr: "aria-labelledby", valueType: "aria-labelledby" },
-					{ attr: "aria-live", valueType: "aria-live" },
-				],
+				optional: [{ attr: "aria-live", valueType: "aria-live" }],
 			},
-			data: {
-				kind: "alert",
-				slot: "root",
-				states: [],
-			},
+			data: { kind: "alert", slot: "root", states: [] },
 		},
 		icon: {
 			name: "icon",
 			element: "span",
-			aria: {
-				required: [],
-				optional: [{ attr: "aria-hidden", valueType: "aria-hidden" }],
-			},
-			data: {
-				kind: "alert",
-				slot: "icon",
-				states: [],
-			},
+			aria: { required: [], optional: [] },
+			data: { kind: "alert", slot: "icon", states: [] },
 		},
 		title: {
 			name: "title",
-			element: "div",
-			aria: {
-				required: [],
-				optional: [],
-			},
-			data: {
-				kind: "alert",
-				slot: "title",
-				states: [],
-			},
+			element: "h5",
+			aria: { required: [], optional: [] },
+			data: { kind: "alert", slot: "title", states: [] },
 		},
 		description: {
 			name: "description",
-			element: "div",
-			aria: {
-				required: [],
-				optional: [],
-			},
-			data: {
-				kind: "alert",
-				slot: "description",
-				states: [],
-			},
+			element: "p",
+			aria: { required: [], optional: [] },
+			data: { kind: "alert", slot: "description", states: [] },
 		},
 		action: {
 			name: "action",
 			element: "div",
+			aria: { required: [], optional: [] },
+			data: { kind: "alert", slot: "action", states: [] },
+		},
+		dismiss: {
+			name: "dismiss",
+			element: "button",
 			aria: {
-				required: [],
+				required: [{ attr: "aria-label", valueType: "aria-label" }],
 				optional: [],
 			},
-			data: {
-				kind: "alert",
-				slot: "action",
-				states: [],
-			},
+			data: { kind: "alert", slot: "dismiss", states: [] },
 		},
 	},
 
 	accessibleName: {
 		required: false,
-		sources: ["content", "aria-label", "aria-labelledby"],
+		sources: ["content", "aria-label"],
 		defaultSlot: "title",
 	},
 

@@ -10,7 +10,7 @@
 
 import type { CompositorNode, EffectTrigger } from "../../effects/_schema/types.js";
 import { getEffect } from "../../effects/registry.js";
-import type { ColdLightManifest } from "../../scanner.types.js";
+import type { ColdLightManifest } from "../../manifest.js";
 import { deduplicateClasses } from "./conflict-resolver.js";
 
 export interface CssPassOutput {

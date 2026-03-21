@@ -1,25 +1,30 @@
 <!--
-	@component AlertDialog
+	@component AlertDialog (Root)
 	@kind alert-dialog
 	@layer components
 
-	ColdLight AlertDialog root — manages open state and provides context.
-	ColdLight-owned ARIA. No MeltUI dependency.
-	Extends dialog pattern with role="alertdialog" and APG safety pattern
-	(cancel button receives initial focus).
+	Confirmation/destructive action dialog. role="alertdialog".
+	Uses useAlertDialog() primitive hook.
 
-	Reference: WAI-ARIA APG Alert and Message Dialogs
+	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/
 -->
 <script lang="ts">
+import { useAlertDialog } from "$lib/design/primitives/alert-dialog/use-alert-dialog.svelte.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { type AlertDialogContext, setAlertDialogContext } from "./context.js";
-import type { AlertDialogProps } from "./types.js";
+import { getRecipe } from "$lib/design/recipes/index.js";
+import { setAlertDialogContext } from "./context.js";
+import type { AlertDialogRootProps } from "./types.js";
 
 let {
-	open = false,
+	ids,
+	open: controlledOpen,
+	defaultOpen = false,
 	onOpenChange,
-	children,
-	// ColdLight 8-axis props
+	variant = "confirmation",
+	size = "md",
+	dir = "ltr",
+	onCancel,
+	onAction,
 	preset,
 	surface,
 	material,
@@ -31,8 +36,19 @@ let {
 	transition,
 	encoding,
 	radius,
-	size,
-}: AlertDialogProps = $props();
+	children,
+}: AlertDialogRootProps = $props();
+
+const hook = useAlertDialog({
+	open: controlledOpen ?? defaultOpen,
+	onOpenChange: (v) => onOpenChange?.({ open: v }),
+	onCancel,
+	onAction,
+});
+
+const recipe = getRecipe("dialog.glass.void");
+// biome-ignore lint/suspicious/noExplicitAny: recipe classes accept resolved props
+const recipeClasses = recipe?.classes?.({} as any) ?? {};
 
 const visual = useColdLight(() => ({
 	preset,
@@ -45,58 +61,15 @@ const visual = useColdLight(() => ({
 	motion,
 	transition,
 	encoding,
-	radius,
-	size,
+	radius: radius ?? "lg",
 }));
 
-let triggerEl: HTMLElement | null = $state(null);
-let cancelEl: HTMLElement | null = $state(null);
-let contentEl: HTMLDialogElement | null = $state(null);
-
-const ids = {
-	content: `alert-dialog-content-${crypto.randomUUID().slice(0, 8)}`,
-	title: `alert-dialog-title-${crypto.randomUUID().slice(0, 8)}`,
-	description: `alert-dialog-description-${crypto.randomUUID().slice(0, 8)}`,
-};
-
-function setOpen(value: boolean): void {
-	open = value;
-	onOpenChange?.(value);
-}
-
-const ctx: AlertDialogContext = {
-	get open() {
-		return open;
-	},
-	setOpen,
-	titleId: ids.title,
-	descriptionId: ids.description,
-	contentId: ids.content,
-	registerTrigger(el: HTMLElement) {
-		triggerEl = el;
-	},
-	registerCancel(el: HTMLElement) {
-		cancelEl = el;
-	},
-	registerContent(el: HTMLDialogElement) {
-		contentEl = el;
-	},
-};
-
-setAlertDialogContext(ctx);
-
-// Focus cancel button when opening (APG safety pattern)
-$effect(() => {
-	if (open && cancelEl) {
-		// Defer focus to next tick so DOM is ready
-		requestAnimationFrame(() => {
-			cancelEl?.focus();
-		});
-	}
-	if (!open && triggerEl) {
-		// Restore focus to trigger on close
-		triggerEl?.focus();
-	}
+setAlertDialogContext({
+	get hook() { return hook; },
+	get classes() { return recipeClasses; },
+	get ids() { return ids ?? {}; },
+	get dir() { return dir; },
+	get variant() { return variant; },
 });
 </script>
 

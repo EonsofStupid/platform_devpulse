@@ -1,23 +1,27 @@
 <!--
-	@component Alert
+	@component Alert (Root)
 	@kind alert
 	@layer components
 
-	ColdLight Alert — builder-driven, 8-axis visual system.
+	Inline contextual feedback — role="alert", lives in document flow.
+	NOT a dialog. Dismissible with controlled/uncontrolled open state.
 -->
 <script lang="ts">
-import { createAlert } from "$lib/design/primitives/alert/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import AlertRoot from "$lib/design/primitives/alert/Alert.svelte";
+import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { alertRecipe } from "./recipe.js";
-import type { AlertProps } from "./types.js";
-import { ALERT_INTENT_PRESETS } from "./types.js";
+import { setAlertContext } from "./context.js";
+import type { AlertRootProps } from "./types.js";
+import { ALERT_VARIANT_PRESETS } from "./types.js";
 
 let {
-	intent = "info",
-	closable = false,
-	onClose,
+	ids,
+	variant = "info",
+	open: controlledOpen,
+	defaultOpen = true,
+	onOpenChange,
+	dismissible = false,
+	dir = "ltr",
 	preset,
 	surface,
 	material,
@@ -32,32 +36,83 @@ let {
 	children,
 	class: className,
 	...rest
-}: AlertProps = $props();
+}: AlertRootProps = $props();
 
-const builder = createAlert({
-	visible: true,
-	onVisibleChange: (v: boolean) => {
-		if (!v) onClose?.();
-	},
+let internalOpen = $state(defaultOpen);
+const isOpen = $derived(controlledOpen !== undefined ? controlledOpen : internalOpen);
+
+function handleDismiss() {
+	internalOpen = false;
+	onOpenChange?.({ open: false });
+}
+
+const recipe = getRecipe("alert.glass.void");
+// biome-ignore lint/suspicious/noExplicitAny: recipe classes accept resolved props
+const recipeClasses = recipe?.classes?.({} as any) ?? {};
+
+setAlertContext({
+	get classes() { return recipeClasses; },
+	get ids() { return ids ?? {}; },
+	get dir() { return dir; },
 });
 
 const visual = useColdLight(() => ({
-	preset: preset ?? ALERT_INTENT_PRESETS[intent as keyof typeof ALERT_INTENT_PRESETS],
-	surface: surface ?? "glass-void",
+	preset: preset ?? ALERT_VARIANT_PRESETS[variant as keyof typeof ALERT_VARIANT_PRESETS],
+	surface,
 	material,
-	depth: depth ?? "z1",
+	depth,
 	bevel,
 	glow,
-	frame: frame ?? "soft",
+	frame,
 	motion,
 	transition,
 	encoding,
 	radius: radius ?? "lg",
 }));
 
-const classes = $derived(cn(alertRecipe(), visual.segments, visual.radius, className));
+const rootClasses = $derived(
+	cn(recipeClasses.root, visual.segments, visual.radius, className),
+);
 </script>
 
-<AlertRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>
-	{@render children?.()}
-</AlertRoot>
+{#if isOpen}
+	<div
+		id={ids?.root}
+		role="alert"
+		aria-live="assertive"
+		{dir}
+		data-kind="alert"
+		data-slot="root"
+		data-variant={variant}
+		data-encoding={visual.encoding || undefined}
+		class={rootClasses}
+		{...rest}
+	>
+		{@render children?.()}
+		{#if dismissible}
+			<button
+				type="button"
+				data-kind="alert"
+				data-slot="dismiss"
+				class={cn(recipeClasses.dismiss, "shrink-0 cursor-pointer")}
+				aria-label="Dismiss alert"
+				onclick={handleDismiss}
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					class="size-3xs"
+					aria-hidden="true"
+				>
+					<path d="M18 6 6 18" />
+					<path d="m6 6 12 12" />
+				</svg>
+			</button>
+		{/if}
+	</div>
+{/if}

@@ -7,7 +7,7 @@
 //! Part of the two-tier retrieval pipeline:
 //!   RRO (broad ANN → top 50) → Moka (hot cache → top 10 instant)
 
-use super::{Service, ServiceRole};
+use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
 use devpulse_maestro::cortex::persistence::RroAdapter;
 use std::sync::Arc;
@@ -48,7 +48,7 @@ impl Service for VectorService {
         self.adapter.ping().await
     }
 
-    fn is_ready(&self) -> bool {
-        true
+    fn state(&self) -> ServiceState {
+        ServiceState::Ready
     }
 }

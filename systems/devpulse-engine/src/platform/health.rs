@@ -3,6 +3,7 @@
 //! These types are what Tauri and the frontend see.
 //! No maestro internals leak through these types.
 
+use crate::platform::services::ServiceState;
 use serde::Serialize;
 use ts_rs::TS;
 
@@ -24,10 +25,13 @@ pub struct SystemHealth {
 pub struct SubsystemHealth {
     /// Public name for this subsystem (`ip_term!()` applied at creation).
     pub name: String,
-    /// Current status.
+    /// Lifecycle state — Created, Booting, Ready, Degraded, or Failed.
+    pub state: ServiceState,
+    /// Ping result status — Healthy if ping succeeded, Down if it failed.
     pub status: HealthStatus,
-    /// Ping latency in milliseconds (if available).
-    pub latency_ms: Option<u64>,
+    /// Ping latency in microseconds. Microseconds prevent sub-millisecond
+    /// operations from rounding to 0 and lying about their cost.
+    pub latency_us: Option<u64>,
     /// Human-readable status message.
     pub message: Option<String>,
 }

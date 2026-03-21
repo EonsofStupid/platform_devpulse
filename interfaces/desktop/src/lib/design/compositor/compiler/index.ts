@@ -17,7 +17,7 @@
  */
 
 import type { CompilerOutput, CompositorNode } from "../../effects/_schema/types.js";
-import type { ColdLightManifest } from "../../scanner.types.js";
+import type { ColdLightManifest } from "../../manifest.js";
 import { detectConflicts } from "./conflict-resolver.js";
 import { cssPass } from "./css-pass.js";
 import { logicPass } from "./logic-pass.js";

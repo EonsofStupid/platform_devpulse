@@ -10,7 +10,7 @@
 
 import type { CompiledAction, CompositorNode } from "../../effects/_schema/types.js";
 import { getEffect } from "../../effects/registry.js";
-import type { ColdLightManifest } from "../../scanner.types.js";
+import type { ColdLightManifest } from "../../manifest.js";
 
 export interface LogicPassOutput {
 	/** Svelte actions to wire onto the element */

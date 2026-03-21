@@ -278,7 +278,7 @@ class PlatformState {
 		const info: SubsystemInfo = {
 			name: event.step,
 			state,
-			latencyMs: event.latency_ms,
+			latencyMs: event.latency_us,
 			message: event.message,
 			friendlyName,
 		};

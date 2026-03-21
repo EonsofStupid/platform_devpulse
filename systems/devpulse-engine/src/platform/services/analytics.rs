@@ -4,7 +4,7 @@
 //! - **System**: LLM call telemetry, ROTI metrics, layer budgets,
 //!   interaction timing, governance violations, daily aggregates.
 
-use super::{Service, ServiceRole};
+use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
 use devpulse_maestro::cortex::persistence::DuckDbAdapter;
 use std::path::Path;
@@ -49,8 +49,8 @@ impl Service for AnalyticsService {
         self.adapter.ping().await
     }
 
-    fn is_ready(&self) -> bool {
-        true
+    fn state(&self) -> ServiceState {
+        ServiceState::Ready
     }
 
     async fn shutdown(&self) -> Result<()> {

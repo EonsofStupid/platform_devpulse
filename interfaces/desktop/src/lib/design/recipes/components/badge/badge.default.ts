@@ -5,19 +5,8 @@
  * @layer recipes
  * @package @devpulse/coldlight
  *
- * Recipe for the ColdLight badge primitive.
- * Fully prop-driven via DsSurfaceProps.
- *
- * Token strategy:
- *   - Component tokens (from tokens.css, semantic → OKLCH):
- *       --badge-bg       → var(--surface-elevated)
- *       --badge-border   → var(--border-subtle)
- *       --badge-text     → var(--text-primary)
- *   - Encoding emitters:
- *       emitSegments()
- *
- * Intent via accent token. Size variants (sm/md/lg) drive height, padding, font-size.
- * All OKLCH — zero hardcoded colors.
+ * Token-backed recipe. All spacing uses SD5 token scale (N = pixel value).
+ * h-[var(--size-2xs)] = 20px, px-6 = 6px, px-10 = 10px, etc.
  */
 
 import { cn } from "$lib/design/utils/cn.js";
@@ -27,9 +16,10 @@ import { toPreset } from "../../types.js";
 import { emitSegments } from "../../utils.js";
 
 const SIZE_SCALE = {
-	sm: { root: "h-5 px-1.5 text-xs" },
-	md: { root: "h-6 px-2.5 text-xs" },
-	lg: { root: "h-7 px-3 text-sm" },
+	sm: { root: "h-[var(--size-2xs)] px-6 text-xs" },
+	md: { root: "h-[var(--size-xs)] px-10 text-xs" },
+	lg: { root: "h-[var(--size-sm)] px-12 text-sm" },
+	xl: { root: "h-[var(--size-md)] px-14 text-sm" },
 } as const;
 
 registerRecipe({
@@ -55,8 +45,7 @@ registerRecipe({
 			root: cn(
 				"inline-flex items-center justify-center",
 				s.root,
-				"rounded-full",
-				"font-medium",
+				"rounded-full font-medium",
 				emitSegments(toPreset(props)),
 				"border border-[var(--badge-border)]",
 				"bg-[var(--badge-bg)]",

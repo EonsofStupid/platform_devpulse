@@ -229,8 +229,8 @@ $effect(() => {
 						>
 							<div class={stack({ gap: "0" })}>
 								<Text size="sm" weight="semibold">{sub.name}</Text>
-								{#if sub.latency_ms != null}
-									<Text size="xs" color="muted">{sub.latency_ms}ms</Text>
+								{#if sub.latency_us != null}
+									<Text size="xs" color="muted">{sub.latency_us >= 1000 ? `${Math.round(sub.latency_us / 1000)}ms` : `${sub.latency_us}µs`}</Text>
 								{/if}
 							</div>
 							<span

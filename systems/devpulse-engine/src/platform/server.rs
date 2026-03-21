@@ -13,7 +13,7 @@
 //! the configured port (default :8822) and query any namespace/database in the
 //! consolidated graph store.
 
-use anyhow::{Context, Result};
+use anyhow::Result;
 use axum::extract::State;
 use axum::http::{HeaderMap, StatusCode};
 use axum::response::IntoResponse;
@@ -42,10 +42,9 @@ struct ServerState {
 /// runs until the tokio runtime shuts down.
 ///
 /// # Errors
-/// Returns error if the TCP listener cannot bind.
-/// Maximum number of ports to try before giving up.
-const MAX_PORT_ATTEMPTS: u16 = 10;
-
+/// Returns error if the TCP listener cannot bind to the configured port.
+/// No silent fallback — if the port is taken, this returns an error with
+/// a clear message telling the developer what to fix.
 pub async fn start(adapter: Arc<SurrealAdapter>, port: u16) -> Result<u16> {
     let state = ServerState { adapter };
 
@@ -55,31 +54,24 @@ pub async fn start(adapter: Arc<SurrealAdapter>, port: u16) -> Result<u16> {
         .route("/version", get(handle_version))
         .with_state(state);
 
-    // Try the configured port, then increment up to MAX_PORT_ATTEMPTS
-    let mut actual_port = port;
-    let listener = loop {
-        let bind = format!("{DEFAULT_BIND}:{actual_port}");
-        match TcpListener::bind(&bind).await {
-            Ok(listener) => break listener,
-            Err(e) => {
-                if actual_port - port >= MAX_PORT_ATTEMPTS {
-                    return Err(anyhow::anyhow!(
-                        "Failed to bind SurrealDB HTTP server: tried ports {port}-{actual_port}: {e}"
-                    ));
-                }
-                tracing::debug!(
-                    port = actual_port,
-                    "Port in use, trying next"
-                );
-                actual_port += 1;
-            }
-        }
-    };
+    // Bind to the configured port — NO silent fallback.
+    // If the configured port is in use, that's an error the developer must fix.
+    // Silent port fallback causes external tools (Claude Code, surreal CLI) to
+    // connect to the wrong port without knowing.
+    let bind = format!("{DEFAULT_BIND}:{port}");
+    let listener = TcpListener::bind(&bind).await.map_err(|e| {
+        anyhow::anyhow!(
+            "SurrealDB HTTP server failed to bind {bind}: {e}\n  \
+             Port {port} is already in use. Check for stale DevPulse processes \
+             or another SurrealDB instance.\n  \
+             Fix: kill the process on port {port}, or change \
+             [services.network.graph_api].port in platform.default.toml"
+        )
+    })?;
 
     tracing::info!(
-        bind = %format!("{DEFAULT_BIND}:{actual_port}"),
-        configured_port = port,
-        actual_port = actual_port,
+        bind = %bind,
+        port = port,
         "SurrealDB HTTP server listening"
     );
 
@@ -90,7 +82,7 @@ pub async fn start(adapter: Arc<SurrealAdapter>, port: u16) -> Result<u16> {
         }
     });
 
-    Ok(actual_port)
+    Ok(port)
 }
 
 /// `POST /sql` — execute `SurrealQL` query.

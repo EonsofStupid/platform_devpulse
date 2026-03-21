@@ -1,35 +1,28 @@
 <!--
-	@component AccordionTrigger
+	@component Accordion.Trigger
 	@kind accordion
+	@slot trigger
 	@layer components
 
-	Accordion trigger button — wrapped in heading element.
-	Reads per-item context for slot attributes.
-	MeltUI transport provides aria-expanded, aria-controls, keyboard handlers.
-
-	WAI-ARIA APG: trigger has role="button", aria-expanded, aria-controls.
-	Heading wraps the button for proper document outline.
+	The clickable button that toggles an item.
+	ARIA attrs (aria-expanded, aria-controls, keyboard) come from the hook.
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import { getAccordionItemContext } from "./context.js";
-import { accordionRecipe } from "./recipe.js";
+import { getAccordionContext, getAccordionItemContext } from "./context.js";
 import type { AccordionTriggerProps } from "./types.js";
 
 let { children, class: className, ...rest }: AccordionTriggerProps = $props();
-
+const ctx = getAccordionContext();
 const item = getAccordionItemContext();
-const recipe = accordionRecipe();
+
+const triggerAttrs = $derived(ctx.hook.getTrigger(item.value, item.disabled));
 </script>
 
-<h3 {...item.slots.heading} data-kind="accordion" data-slot="heading">
-	<button
-		{...item.slots.trigger}
-		class={cn(recipe.trigger, className)}
-		data-kind="accordion"
-		data-slot="trigger"
-		{...rest}
-	>
-		{@render children?.()}
-	</button>
-</h3>
+<button
+	{...triggerAttrs}
+	id={ctx.ids.trigger?.(item.value) ?? triggerAttrs.id}
+	class={cn(ctx.classes.trigger, className)}
+>
+	{@render children?.()}
+</button>

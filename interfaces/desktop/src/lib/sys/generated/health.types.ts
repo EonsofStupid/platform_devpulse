@@ -9,7 +9,8 @@ export type HealthStatus = "Healthy" | "Degraded" | "Down" | "Unknown";
 export interface SubsystemHealth {
 	name: string;
 	status: HealthStatus;
-	latency_ms: number | null;
+	/** Ping latency in microseconds. Prevents sub-ms operations from reporting 0. */
+	latency_us: number | null;
 	message: string | null;
 }
 

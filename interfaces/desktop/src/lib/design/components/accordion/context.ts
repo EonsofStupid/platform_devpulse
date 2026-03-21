@@ -4,42 +4,56 @@
  * @layer components
  *
  * TWO context levels:
- * 1. Root context: AccordionTransport (set by Accordion.svelte)
- * 2. Item context: AccordionItemTransport (set by AccordionItem.svelte)
- *
- * Symbol-keyed context + typed get/set helpers.
+ * 1. Root context: hook return + recipe classes + ids + dir
+ * 2. Item context: item value + disabled (set by Item, consumed by Trigger/Content)
  */
 
 import { getContext, setContext } from "svelte";
-import type {
-	AccordionItemTransport,
-	AccordionTransport,
-} from "$lib/design/primitives/accordion/index.js";
+import type { UseAccordionReturn } from "$lib/design/primitives/accordion/accordion.types.js";
+import type { AccordionIds } from "./types.js";
 
 // =============================================================================
-// ROOT CONTEXT — set by Accordion.svelte, consumed by AccordionItem.svelte
+// ROOT CONTEXT
 // =============================================================================
+
+export interface AccordionContext {
+	/** The useAccordion() hook return — provides ARIA attrs for each slot. */
+	readonly hook: UseAccordionReturn;
+	/** Per-slot recipe class strings. */
+	readonly classes: Record<string, string>;
+	/** Element IDs for composition. */
+	readonly ids: Partial<AccordionIds>;
+	/** Text/writing direction. */
+	readonly dir: "ltr" | "rtl";
+	/** Layout orientation. */
+	readonly orientation: "vertical" | "horizontal";
+}
 
 const ACCORDION_CTX = Symbol("coldlight-accordion");
 
-export function setAccordionContext(transport: AccordionTransport): void {
-	setContext(ACCORDION_CTX, transport);
+export function setAccordionContext(ctx: AccordionContext): void {
+	setContext(ACCORDION_CTX, ctx);
 }
 
-export function getAccordionContext(): AccordionTransport {
-	return getContext<AccordionTransport>(ACCORDION_CTX);
+export function getAccordionContext(): AccordionContext {
+	return getContext<AccordionContext>(ACCORDION_CTX);
 }
 
 // =============================================================================
-// ITEM CONTEXT — set by AccordionItem.svelte, consumed by Trigger/Content
+// ITEM CONTEXT — set by Item, consumed by Trigger/Content/Indicator
 // =============================================================================
+
+export interface AccordionItemContext {
+	readonly value: string;
+	readonly disabled: boolean;
+}
 
 const ACCORDION_ITEM_CTX = Symbol("coldlight-accordion-item");
 
-export function setAccordionItemContext(item: AccordionItemTransport): void {
-	setContext(ACCORDION_ITEM_CTX, item);
+export function setAccordionItemContext(ctx: AccordionItemContext): void {
+	setContext(ACCORDION_ITEM_CTX, ctx);
 }
 
-export function getAccordionItemContext(): AccordionItemTransport {
-	return getContext<AccordionItemTransport>(ACCORDION_ITEM_CTX);
+export function getAccordionItemContext(): AccordionItemContext {
+	return getContext<AccordionItemContext>(ACCORDION_ITEM_CTX);
 }

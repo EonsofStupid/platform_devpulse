@@ -21,6 +21,8 @@ use crate::platform::services::graph::GraphService;
 use crate::platform::services::relational::{RelationalService, SYSTEM_SCHEMA, USER_SCHEMA};
 #[cfg(feature = "rro")]
 use crate::platform::services::vector::VectorService;
+#[cfg(feature = "rro")]
+use crate::platform::services::Service;
 #[cfg(feature = "kokoros")]
 use crate::platform::services::voice::VoiceService;
 #[cfg(feature = "outlines")]
@@ -120,7 +122,7 @@ pub async fn execute(
         data_dir,
         &boot_config.services.system.vector,
         on_event,
-    );
+    ).await;
     #[cfg(not(feature = "rro"))]
     {
         if boot_config.services.system.vector.enabled {
@@ -261,7 +263,7 @@ async fn boot_relational(
             tracing::info!(
                 step = label,
                 status = "ready",
-                latency_ms = start.elapsed().as_millis() as u64,
+                latency_us = start.elapsed().as_micros() as u64,
                 path = %path.display(),
                 "LibSQL store booted"
             );
@@ -315,7 +317,7 @@ async fn boot_analytics(
             tracing::info!(
                 step = label,
                 status = "ready",
-                latency_ms = start.elapsed().as_millis() as u64,
+                latency_us = start.elapsed().as_micros() as u64,
                 path = %path.display(),
                 "DuckDB store booted"
             );
@@ -346,7 +348,7 @@ fn boot_cache(
     tracing::info!(
         step = "System cache",
         status = "ready",
-        latency_ms = start.elapsed().as_millis() as u64,
+        latency_us = start.elapsed().as_micros() as u64,
         "Moka cache booted"
     );
     on_event(InitEvent::ok_with_latency("System cache", start.elapsed()));
@@ -354,9 +356,13 @@ fn boot_cache(
 }
 
 /// Boot the vector store (RRO — embedded Qdrant).
+///
+/// RRO's `QdrantInstance::start()` spawns a background thread and returns
+/// immediately (~235µs). This does NOT mean the engine is ready. We must
+/// verify the engine is actually queryable before reporting healthy.
 #[cfg(feature = "rro")]
 #[allow(clippy::cast_possible_truncation)]
-fn boot_vector(
+async fn boot_vector(
     data_dir: &Path,
     entry: &config::VectorServiceEntry,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
@@ -376,21 +382,37 @@ fn boot_vector(
     #[allow(deprecated)]
     std::env::set_var("QDRANT__STORAGE__STORAGE_PATH", &storage_path);
 
-    match VectorService::boot(None) {
-        Ok(store) => {
-            tracing::info!(
-                step = "Vector store",
-                status = "ready",
-                latency_ms = start.elapsed().as_millis() as u64,
-                path = %storage_path.display(),
-                "RRO vector engine booted"
-            );
-            on_event(InitEvent::ok_with_latency("Vector store", start.elapsed()));
-            Some(Arc::new(store))
-        }
+    let store = match VectorService::boot(None) {
+        Ok(s) => Arc::new(s),
         Err(e) => {
             tracing::error!(step = "Vector store", error = ?e, "RRO failed to boot");
             on_event(InitEvent::error("Vector store", &format!("{e:#}")));
+            return None;
+        }
+    };
+
+    // Post-boot verification: prove the engine is actually queryable.
+    // QdrantInstance::start() returns in ~235µs because it spawns a thread.
+    // The engine may not be ready yet. Ping verifies it.
+    match store.ping().await {
+        Ok(()) => {
+            tracing::info!(
+                step = "Vector store",
+                status = "ready",
+                latency_us = start.elapsed().as_micros() as u64,
+                path = %storage_path.display(),
+                "RRO vector engine booted and verified"
+            );
+            on_event(InitEvent::ok_with_latency("Vector store", start.elapsed()));
+            Some(store)
+        }
+        Err(e) => {
+            tracing::error!(
+                step = "Vector store",
+                error = ?e,
+                "RRO started but engine is not queryable"
+            );
+            on_event(InitEvent::error("Vector store", &format!("Engine not ready: {e:#}")));
             None
         }
     }
@@ -418,7 +440,7 @@ async fn boot_voice(
             tracing::info!(
                 step = "Voice service",
                 status = "ready",
-                latency_ms = start.elapsed().as_millis() as u64,
+                latency_us = start.elapsed().as_micros() as u64,
                 model_path = %model_path.display(),
                 voices_path = %voices_path.display(),
                 "Kokoros TTS engine booted"
@@ -453,7 +475,7 @@ fn boot_grammar(
             tracing::info!(
                 step = "Grammar service",
                 status = "ready",
-                latency_ms = start.elapsed().as_millis() as u64,
+                latency_us = start.elapsed().as_micros() as u64,
                 "outlines-core grammar engine booted"
             );
             on_event(InitEvent::ok_with_latency("Grammar service", start.elapsed()));

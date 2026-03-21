@@ -1,31 +1,19 @@
 /**
- * @file AlertDialog Context — Svelte context for compound component communication
+ * @file AlertDialog Context
  * @kind alert-dialog
  * @layer components
- *
- * Symbol-keyed context + typed get/set helpers.
- * Root sets context; sub-components consume it.
  */
 
 import { getContext, setContext } from "svelte";
+import type { UseAlertDialogReturn } from "$lib/design/primitives/alert-dialog/alert-dialog.types.js";
+import type { AlertDialogIds, AlertDialogVariant } from "./types.js";
 
 export interface AlertDialogContext {
-	/** Whether the alert dialog is open */
-	readonly open: boolean;
-	/** Set the open state */
-	setOpen(value: boolean): void;
-	/** Generated ID for the title element */
-	readonly titleId: string;
-	/** Generated ID for the description element */
-	readonly descriptionId: string;
-	/** Generated ID for the content element */
-	readonly contentId: string;
-	/** Register trigger element for focus restore */
-	registerTrigger(el: HTMLElement): void;
-	/** Register cancel element for initial focus */
-	registerCancel(el: HTMLElement): void;
-	/** Register content element for focus trap */
-	registerContent(el: HTMLDialogElement): void;
+	readonly hook: UseAlertDialogReturn;
+	readonly classes: Record<string, string>;
+	readonly ids: Partial<AlertDialogIds>;
+	readonly dir: "ltr" | "rtl";
+	readonly variant: AlertDialogVariant;
 }
 
 const ALERT_DIALOG_CTX = Symbol("coldlight-alert-dialog");

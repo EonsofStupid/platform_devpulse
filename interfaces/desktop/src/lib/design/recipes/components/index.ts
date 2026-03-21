@@ -3,12 +3,14 @@
  * Importing this file triggers registerRecipe() for every component kind.
  */
 
+import "./accordion/index.js";
 import "./alert/index.js";
 import "./badge/index.js";
 import "./banner/index.js";
 import "./button/index.js";
 import "./callout/index.js";
 import "./card/index.js";
+import "./code/index.js";
 import "./checkbox/index.js";
 import "./color-input/index.js";
 import "./combobox/index.js";

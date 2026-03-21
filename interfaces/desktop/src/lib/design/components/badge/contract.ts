@@ -3,26 +3,16 @@
  * @kind badge
  * @layer components
  *
- * BUILD-TIME validated via `satisfies ComponentContract`.
- * TypeScript compiler enforces the shape — zero runtime overhead.
- *
- * Badge uses role="status" for live-region semantics.
- * Reference: W3C WAI-ARIA APG
- * https://www.w3.org/WAI/ARIA/apg/
+ * Structural presentational label. role="status" or role="presentation" (decorative).
+ * No complex ARIA, no keyboard, no focus management.
  */
 
 import type { ComponentContract } from "$lib/design/components/_schema/contract.js";
 
-/**
- * Badge component contract — compile-time enforced.
- *
- * `satisfies ComponentContract` validates shape at compile time.
- * Badge is a presentational status indicator with optional ARIA label.
- */
 export const contract = {
 	kind: "badge",
 	description:
-		"Status indicator badge for labels, counts, and notifications. Uses role='status' for live-region semantics. Supports intent-driven coloring.",
+		"Structural presentational label for status indicators, counts, and notifications. role='status' for live content, role='presentation' when decorative. Variant × fillStyle × size driven.",
 
 	slots: {
 		required: ["root"],
@@ -34,22 +24,20 @@ export const contract = {
 			name: "root",
 			element: "span",
 			aria: {
-				role: "status",
 				required: [],
-				optional: [{ attr: "aria-label", valueType: "aria-label" }],
+				optional: [
+					{ attr: "role", valueType: "role" },
+					{ attr: "aria-label", valueType: "aria-label" },
+					{ attr: "aria-hidden", valueType: "aria-hidden" },
+				],
 			},
-			data: {
-				kind: "badge",
-				slot: "root",
-				states: [],
-			},
+			data: { kind: "badge", slot: "root", states: [] },
 		},
 	},
 
 	accessibleName: {
 		required: false,
 		sources: ["content", "aria-label"],
-		defaultSlot: "root",
 	},
 
 	focus: {

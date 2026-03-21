@@ -15,9 +15,12 @@ pub mod voice;
 pub mod grammar;
 
 use anyhow::Result;
+use serde::Serialize;
+use ts_rs::TS;
 
 /// Identifies a service's role in the platform.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, TS)]
+#[ts(export)]
 pub enum ServiceRole {
     /// Relational service (`LibSQL`).
     Relational,
@@ -35,6 +38,25 @@ pub enum ServiceRole {
     Grammar,
 }
 
+/// Lifecycle state of a platform service.
+///
+/// Enterprise boot state machine. Services transition through these states
+/// during boot and runtime. The platform never lies about service state.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, TS)]
+#[ts(export)]
+pub enum ServiceState {
+    /// Service constructed but boot not yet attempted.
+    Created,
+    /// Boot in progress — initializing engine, opening files, connecting.
+    Booting,
+    /// Boot completed and health check passed. Serving requests.
+    Ready,
+    /// Was ready, but health check failed. May recover on next ping.
+    Degraded,
+    /// Boot failed or unrecoverable error. Not serving.
+    Failed,
+}
+
 /// Uniform interface for all platform services.
 #[allow(async_fn_in_trait)]
 pub trait Service: Send + Sync {
@@ -44,11 +66,11 @@ pub trait Service: Send + Sync {
     /// This service's role.
     fn role(&self) -> ServiceRole;
 
-    /// Ping the service — health check.
+    /// Ping the service — health check. Must do real work.
     async fn ping(&self) -> Result<()>;
 
-    /// Whether the service is ready to serve.
-    fn is_ready(&self) -> bool;
+    /// Current lifecycle state of this service.
+    fn state(&self) -> ServiceState;
 
     /// Graceful shutdown — flush and release resources.
     ///

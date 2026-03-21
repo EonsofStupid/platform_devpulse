@@ -1,28 +1,18 @@
 <!--
-	@component DialogHeader
+	@component Dialog.Header
 	@kind dialog
 	@slot header
 	@layer components
-
-	Header section wrapper for dialog title and description.
-	Applies recipe header classes.
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import { getRecipe } from "$lib/design/recipes/index.js";
+import { getDialogContext } from "./context.js";
 import type { DialogHeaderProps } from "./types.js";
 
 let { children, class: className, ...rest }: DialogHeaderProps = $props();
-const recipe = getRecipe("dialog.glass.void");
-// biome-ignore lint/suspicious/noExplicitAny: recipe classes accept any state
-const headerClass = recipe?.classes?.({} as any)?.header ?? "";
+const ctx = getDialogContext();
 </script>
 
-<div
-	class={cn(headerClass, className)}
-	data-kind="dialog"
-	data-slot="header"
-	{...rest}
->
+<div data-kind="dialog" data-slot="header" class={cn(ctx.classes.header, className)} {...rest}>
 	{@render children?.()}
 </div>
