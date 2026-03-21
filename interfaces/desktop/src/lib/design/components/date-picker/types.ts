@@ -3,93 +3,101 @@
  * @kind date-picker
  * @layer components
  *
- * Prop types for all DatePicker sub-components.
- * ColdLight-owned — combines date-field + calendar in a popover.
- *
- * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
+ * Combines DateField segmented input + Calendar popover.
+ * Compound: Root, Input (field), Trigger, Content (popover), Calendar.
+ * Spectrum-aligned: controlled/uncontrolled value + popover, validation, form.
  */
 
 import type { Snippet } from "svelte";
-import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { HTMLAttributes } from "svelte/elements";
+import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
 
-// =============================================================================
-// SIZE
-// =============================================================================
+export type DatePickerSize = "sm" | "md" | "lg" | "xl";
+export type DatePickerGranularity = "day" | "month" | "year" | "hour" | "minute" | "second";
 
-export type Size = "sm" | "md" | "lg";
+export interface DatePickerValueChangeDetails {
+	value: Date | null;
+}
 
-// =============================================================================
-// ROOT PROPS
-// =============================================================================
+export interface DatePickerOpenChangeDetails {
+	open: boolean;
+}
 
-/** DatePicker root props — manages combined field + popover state */
-export interface DatePickerProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps,
-		ColdLightProps {
-	children?: Snippet;
-	/** Current date value */
-	value?: Date | undefined;
-	/** Called when the date value changes */
-	onValueChange?: (value: Date | undefined) => void;
-	/** Whether the popover is open */
-	open?: boolean;
-	/** Called when the popover open state changes */
-	onOpenChange?: (open: boolean) => void;
-	/** Minimum selectable date */
-	min?: Date;
-	/** Maximum selectable date */
-	max?: Date;
-	/** Whether the picker is disabled */
-	disabled?: boolean;
-	/** Locale for formatting (BCP 47 tag) */
+export interface DatePickerIds {
+	root?: string;
+	field?: string;
+	trigger?: string;
+	content?: string;
+	label?: string;
+	description?: string;
+	errorMessage?: string;
+}
+
+export interface DatePickerRootProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
+		Omit<PreparedComponentProps, "size"> {
+	ids?: Partial<DatePickerIds>;
+	/** Controlled date value. */
+	value?: Date | null;
+	/** Initial value (uncontrolled). */
+	defaultValue?: Date | null;
+	/** Callback when value changes. */
+	onChange?: (details: DatePickerValueChangeDetails) => void;
+	/** Controlled popover open state. */
+	isOpen?: boolean;
+	/** Initial popover open state (uncontrolled). */
+	defaultOpen?: boolean;
+	/** Callback when popover opens/closes. */
+	onOpenChange?: (details: DatePickerOpenChangeDetails) => void;
+	/** Whether to close popover on date selection. Default: true. */
+	shouldCloseOnSelect?: boolean;
+	/** Segment granularity. Default: "day". */
+	granularity?: DatePickerGranularity;
+	/** Number of months visible in calendar. Default: 1. */
+	maxVisibleMonths?: number;
+	/** Callback to check if a date is unavailable. */
+	isDateUnavailable?: (date: Date) => boolean;
+	/** Minimum selectable date. */
+	minValue?: Date | null;
+	/** Maximum selectable date. */
+	maxValue?: Date | null;
+	/** First day of week. */
+	firstDayOfWeek?: "sun" | "mon" | "tue" | "wed" | "thu" | "fri" | "sat";
+	/** Whether disabled. */
+	isDisabled?: boolean;
+	/** Whether read-only. */
+	isReadOnly?: boolean;
+	/** Whether required. */
+	isRequired?: boolean;
+	/** Whether invalid. */
+	isInvalid?: boolean;
+	/** Validation function. */
+	validate?: (value: Date | null) => string | null | undefined;
+	/** Size. Default: "md". */
+	size?: DatePickerSize;
+	/** Locale (BCP 47). Default: "en-US". */
 	locale?: string;
-	/** Size variant */
-	size?: Size;
-}
-
-// =============================================================================
-// FIELD PROPS
-// =============================================================================
-
-/** DatePickerField props — embedded date-field for direct input */
-export interface DatePickerFieldProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps {
+	/** Label text. */
+	label?: string;
+	/** Description hint. */
+	description?: string;
+	/** Error message. */
+	errorMessage?: string;
+	/** Form input name (ISO 8601). */
+	name?: string;
+	/** Form element ID. */
+	form?: string;
+	/** RTL. */
+	dir?: "ltr" | "rtl";
 	children?: Snippet;
 }
 
-// =============================================================================
-// TRIGGER PROPS
-// =============================================================================
-
-/** DatePickerTrigger props — button that opens the calendar popover */
-export interface DatePickerTriggerProps
-	extends Omit<HTMLButtonAttributes, "style" | "children">,
-		BaseProps {
+interface DatePickerSlotProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
 	children?: Snippet;
+	class?: string;
 }
 
-// =============================================================================
-// CONTENT PROPS
-// =============================================================================
-
-/** DatePickerContent props — popover container for the calendar */
-export interface DatePickerContentProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps {
-	children?: Snippet;
-}
-
-// =============================================================================
-// CALENDAR PROPS
-// =============================================================================
-
-/** DatePickerCalendar props — embedded calendar within the popover */
-export interface DatePickerCalendarProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps {
-	children?: Snippet;
-}
+export interface DatePickerInputProps extends DatePickerSlotProps {}
+export interface DatePickerTriggerProps extends DatePickerSlotProps {}
+export interface DatePickerContentProps extends DatePickerSlotProps {}
+export interface DatePickerCalendarProps extends DatePickerSlotProps {}

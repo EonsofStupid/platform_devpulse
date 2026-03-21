@@ -1,44 +1,33 @@
-/**
- * @file DatePicker Context — Svelte context for compound component communication
- * @kind date-picker
- * @layer components
- *
- * Symbol-keyed context + typed get/set helpers.
- * Root sets context; sub-components consume it.
- * ColdLight-owned — no adapter dependency.
- */
-
 import { getContext, setContext } from "svelte";
 
 export interface DatePickerContext {
-	/** Current date value */
-	readonly value: Date | undefined;
-	/** Whether the popover is open */
-	readonly open: boolean;
-	/** Whether the picker is disabled */
-	readonly disabled: boolean;
-	/** Locale for formatting */
+	readonly value: Date | null | undefined;
+	readonly isOpen: boolean;
+	readonly isDisabled: boolean;
+	readonly isReadOnly: boolean;
+	readonly isRequired: boolean;
+	readonly isInvalid: boolean;
 	readonly locale: string;
-	/** Size variant */
-	readonly size: "sm" | "md" | "lg";
-	/** Minimum selectable date */
-	readonly min: Date | undefined;
-	/** Maximum selectable date */
-	readonly max: Date | undefined;
-	/** ID for the trigger element */
-	readonly triggerId: string;
-	/** ID for the content element */
-	readonly contentId: string;
-	/** Toggle the popover open/closed */
+	readonly size: string;
+	readonly dir: "ltr" | "rtl";
+	readonly classes: Record<string, string>;
+	readonly ids: {
+		readonly root: string;
+		readonly field: string;
+		readonly trigger: string;
+		readonly content: string;
+		readonly label: string;
+		readonly description: string;
+		readonly errorMessage: string;
+	};
+	readonly minValue: Date | null | undefined;
+	readonly maxValue: Date | null | undefined;
+	readonly shouldCloseOnSelect: boolean;
 	toggle(): void;
-	/** Open the popover */
 	openPopover(): void;
-	/** Close the popover */
 	closePopover(): void;
-	/** Select a date and close the popover */
 	selectDate(date: Date): void;
-	/** Update the date value (from field input) */
-	updateValue(date: Date | undefined): void;
+	updateValue(date: Date | null): void;
 }
 
 const DATE_PICKER_CTX = Symbol("coldlight-date-picker");
