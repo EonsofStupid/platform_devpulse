@@ -6,6 +6,7 @@
 import "./accordion/index.js";
 import "./alert/index.js";
 import "./avatar/index.js";
+import "./avatar-group/index.js";
 import "./badge/index.js";
 import "./banner/index.js";
 import "./button/index.js";

@@ -12,15 +12,18 @@ import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.
 import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/_internal/utils/uid.js";
+import { getAvatarGroupContext } from "$lib/design/components/avatar-group/context.js";
 import { setAvatarContext } from "./context.js";
 import type { AvatarRootProps, AvatarLoadStatus } from "./types.js";
+
+const groupCtx = getAvatarGroupContext();
 
 let {
 	ids: userIds,
 	src,
 	alt,
 	fallback,
-	size = 40,
+	size: sizeProp = 40,
 	onStatusChange,
 	isOverBackground = false,
 	dir = "ltr",
@@ -29,6 +32,9 @@ let {
 	class: className,
 	...rest
 }: AvatarRootProps = $props();
+
+// Inherit size from AvatarGroup context, fall back to prop
+const size = $derived(groupCtx?.size ?? sizeProp);
 
 const autoIds = createIds("avatar", ["root", "image", "fallback"] as const);
 const resolvedIds = $derived({
@@ -97,6 +103,7 @@ const rootClasses = $derived(
 	class={rootClasses}
 	style:width="{size}px"
 	style:height="{size}px"
+	style:margin-left={groupCtx ? "var(--avatar-group-overlap)" : undefined}
 	{...rest}
 >
 	{#if children}

@@ -2,6 +2,28 @@
 
 You take React Aria / Spectrum / Ark UI / Zag API references and produce properly authored ColdLight components for Svelte 5. No drift, no shortcuts, no old patterns.
 
+## Architecture (LOCKED 2026-03-21)
+
+ColdLight is **provider-driven** with a **layered architecture**:
+
+```
+DTCG JSON Tokens → SD5 → CSS + @theme + types
+  → Presets (named token compositions, const literal typed)
+    → Recipes (per-kind class generators, token-backed)
+      → Components (structural + behavioral, accept classes, unstyled by default)
+        → UI (design/ui/{kind}/ — provider-wrapped, style() macro, what users import)
+          → VPB (visual authoring, generates code)
+```
+
+**Components DO NOT import recipes directly.** They accept `class` and render it.
+The **UI layer** (`design/ui/`) wraps components with recipe + preset via provider.
+The **style() macro** is the composable effects API — takes token values, returns classes.
+
+When authoring a component, you produce:
+1. The **component** (structural/behavioral foundation)
+2. The **recipe** (centralized token-backed styling)
+3. The **UI wrapper** (provider + style() integration)
+
 ---
 
 ## Execution Order
@@ -12,7 +34,7 @@ When given a component API reference:
 - Read the full API table — every prop, slot, event, ARIA attribute
 - Classify: structural or behavioral (see decision tree below)
 - List all compound sub-components needed
-- Identify what the consumer code should look like
+- Identify what the consumer code should look like (UI layer import, not raw component)
 
 ### Step 2: Check Existing State
 ```bash
@@ -24,21 +46,41 @@ grep "{kind}Contract" registry.ts  # Phantom import to clean?
 If a primitive hook exists and is real (has ARIA, keyboard, state) — USE IT. Do not recreate.
 If a primitive hook is phantom (imports from deleted dsadapters) — DELETE and recreate from scratch.
 
-### Step 3: Author Files (in this order)
-1. `types.ts` — all prop types, IDs, callback details
-2. `context.ts` — Svelte context interface + get/set
-3. Root `.svelte` — creates hook (if behavioral) + recipe + context
+### Step 3: Author Component Layer (in this order)
+1. `components/{kind}/types.ts` — all prop types, IDs, callback details
+2. `components/{kind}/context.ts` — Svelte context interface + get/set
+3. Root `.svelte` — creates hook (if behavioral), sets context, renders structure
 4. Sub-component `.svelte` files — read context, render slots
-5. `contract.ts` — ComponentContract
-6. `index.ts` — named exports
-7. Recipe at `recipes/components/{kind}/`
-8. Register recipe in `recipes/components/index.ts` barrel
-9. Clean phantom contract imports from `registry.ts`
+5. `components/{kind}/contract.ts` — ComponentContract
+6. `components/{kind}/index.ts` — named exports
 
-### Step 4: Verify
-- `svelte-check --threshold error` — grep for the component name
-- Fix any errors
-- Re-read finished files and check against verification checklist
+**Components accept `class` prop but DO NOT import recipes or useColdLight.**
+They are unstyled structural/behavioral foundations.
+
+### Step 4: Author Recipe
+7. `recipes/components/{kind}/{kind}.default.ts` — registerRecipe() with token-backed classes
+8. `recipes/components/{kind}/types.ts` — recipe ID types
+9. `recipes/components/{kind}/index.ts` — barrel + side-effect import
+10. Register in `recipes/components/index.ts` barrel
+
+**Recipes produce per-slot class strings from DsSurfaceProps.**
+They use `emitSegments()`, `radiusClass()`, `toPreset()` from recipe utils.
+All spacing uses SD5 token scale (N = pixel value).
+
+### Step 5: Author UI Wrapper
+11. `ui/{kind}/{Kind}.svelte` — imports component, applies recipe + preset via provider
+12. `ui/{kind}/index.ts` — re-exports with styling applied
+
+**UI wrappers are what consumers actually import.**
+They call `getRecipe()`, `useColdLight()`, and pass resolved classes to the component.
+They apply the ColdLight provider's default preset.
+They integrate the style() macro for composable overrides.
+
+### Step 6: Cleanup + Verify
+13. Clean phantom contract imports from `registry.ts`
+14. `svelte-check --threshold error` — grep for the component name
+15. Fix any errors
+16. Re-read finished files and check against verification checklist
 
 ---
 
@@ -67,7 +109,8 @@ If a primitive hook is phantom (imports from deleted dsadapters) — DELETE and 
 
 ## Gold Standard: Behavioral Root (Accordion)
 
-This is what a finished behavioral Root looks like:
+Components are DUMB. No `useColdLight()`, no recipe imports, no `cn()` for visual classes.
+Visual treatment comes from `<StyleMacro>` wrapping the component at the consumer/UI level.
 
 ```svelte
 <!--
@@ -78,14 +121,12 @@ This is what a finished behavioral Root looks like:
 -->
 <script lang="ts">
 import { useAccordion } from "$lib/design/primitives/accordion/use-accordion.svelte.js";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { getRecipe } from "$lib/design/recipes/index.js";
-import { cn } from "$lib/design/utils/cn.js";
+import { createIds } from "$lib/design/_internal/utils/uid.js";
 import { setAccordionContext } from "./context.js";
 import type { AccordionRootProps } from "./types.js";
 
 let {
-  ids,
+  ids: userIds,
   type = "single",
   value: controlledValue,
   defaultValue,
@@ -94,11 +135,12 @@ let {
   disabled = false,
   dir = "ltr",
   orientation = "vertical",
-  preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius,
   children,
   class: className,
   ...rest
 }: AccordionRootProps = $props();
+
+const autoIds = createIds("accordion", ["root"] as const);
 
 const hook = useAccordion({
   type,
@@ -108,90 +150,86 @@ const hook = useAccordion({
   onValueChange: (v) => onValueChange?.({ value: v }),
 });
 
-const recipe = getRecipe("accordion.glass.void");
-const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
-
 setAccordionContext({
   get hook() { return hook; },
-  get classes() { return recipeClasses; },
-  get ids() { return ids ?? {}; },
+  get ids() { return userIds ?? {}; },
   get dir() { return dir; },
   get orientation() { return orientation; },
 });
-
-const visual = useColdLight(() => ({
-  preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius,
-}));
-
-const rootClasses = $derived(
-  cn(recipeClasses.root, visual.segments, visual.radius, className),
-);
 </script>
 
 <div
-  id={ids?.root}
+  id={userIds?.root ?? autoIds.root}
   {...hook.root}
   {dir}
+  data-kind="accordion"
+  data-slot="root"
   data-orientation={orientation}
-  data-encoding={visual.encoding || undefined}
-  class={rootClasses}
+  class={className}
   {...rest}
 >
   {@render children?.()}
 </div>
 ```
 
+Consumer wraps with StyleMacro:
+```svelte
+<StyleMacro kind="accordion">
+  <Accordion.Root type="single" collapsible>
+    ...
+  </Accordion.Root>
+</StyleMacro>
+```
+
 ## Gold Standard: Structural Root (Card)
 
 ```svelte
 <script lang="ts">
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { getRecipe } from "$lib/design/recipes/index.js";
-import { cn } from "$lib/design/utils/cn.js";
+import { createIds } from "$lib/design/_internal/utils/uid.js";
 import { setCardContext } from "./context.js";
 import type { CardRootProps } from "./types.js";
-import { CARD_VARIANT_PRESETS } from "./types.js";
 
 let {
-  ids, as = "div", orientation = "vertical", variant = "default",
+  ids: userIds, as = "div", orientation = "vertical",
   label, labelledBy, href, target, disabled = false, dir = "ltr",
-  preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius,
   children, class: className, ...rest
 }: CardRootProps = $props();
 
-const recipe = getRecipe("card.glass.void");
-const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
+const autoIds = createIds("card", ["root"] as const);
 
 setCardContext({
-  get classes() { return recipeClasses; },
   get orientation() { return orientation; },
   get dir() { return dir; },
-  get ids() { return ids ?? {}; },
+  get ids() { return userIds ?? {}; },
 });
-
-const visual = useColdLight(() => ({
-  preset: preset ?? CARD_VARIANT_PRESETS[variant],
-  surface, material, depth, bevel, glow, frame, motion, transition, encoding,
-  radius: radius ?? "lg",
-}));
-
-const rootClasses = $derived(
-  cn(recipeClasses.root, visual.segments, visual.radius,
-    orientation === "horizontal" ? "flex-row" : "flex-col",
-    "flex overflow-hidden",
-    disabled ? "pointer-events-none opacity-60" : undefined,
-    className),
-);
 </script>
 
-<!-- Element polymorphism: div/a/button based on `as` prop -->
+<div
+  id={userIds?.root ?? autoIds.root}
+  {dir}
+  role={label || labelledBy ? "group" : undefined}
+  aria-label={label || undefined}
+  data-kind="card"
+  data-slot="root"
+  data-orientation={orientation}
+  class={className}
+  {...rest}
+>
+  {@render children?.()}
+</div>
+```
+
+No `useColdLight()`. No `getRecipe()`. No `cn()`. No 8-axis props.
+Visual treatment via `<StyleMacro kind="card">` at the consumer level.
 ```
 
 ## Gold Standard: Sub-component
 
+Sub-components read ARIA from hook via context. Accept `class` for structural layout.
+No visual imports. No recipe. No `cn()` for visual composition.
+
 ```svelte
 <script lang="ts">
-import { cn } from "$lib/design/utils/cn.js";
 import { getAccordionContext, getAccordionItemContext } from "./context.js";
 import type { AccordionTriggerProps } from "./types.js";
 
@@ -205,48 +243,36 @@ const triggerAttrs = $derived(ctx.hook.getTrigger(item.value, item.disabled));
 <button
   {...triggerAttrs}
   id={ctx.ids.trigger?.(item.value) ?? triggerAttrs.id}
-  class={cn(ctx.classes.trigger, className)}
+  data-kind="accordion"
+  data-slot="trigger"
+  class={className}
+  {...rest}
 >
   {@render children?.()}
 </button>
 ```
 
-## Gold Standard: Recipe
+## Gold Standard: Colocated Visual
+
+Every component declares its default visual treatment in a colocated file:
 
 ```ts
-import { cn } from "$lib/design/utils/cn.js";
-import { registerRecipe } from "../../index.js";
-import type { DsSurfaceProps } from "../../types.js";
-import { toPreset } from "../../types.js";
-import { emitSegments, radiusClass } from "../../utils.js";
+// components/accordion/accordion.visual.ts
+import type { StyleMacroProps } from "$lib/design/style/macro-mappings.js";
 
-registerRecipe({
-  id: "accordion.glass.void",
-  kind: "accordion",
-  label: "Glass Void Accordion",
-  defaults: {
-    surface: "glass-void", material: "none", depth: "z1", bevel: "subtle",
-    glow: "none", frame: "soft", motion: "none", transition: "none",
-    radius: "md", size: "md",
-  },
-  classes: (props: DsSurfaceProps): Record<string, string> => ({
-    root: cn("accordion", emitSegments(toPreset(props)), radiusClass(props.radius)),
-    item: cn("accordion-item", "border-b border-[var(--border-subtle)]"),
-    trigger: cn("accordion-trigger", "flex w-full items-center justify-between",
-      "px-16 py-12", "text-sm font-medium text-text-primary",
-      "hover:bg-[var(--surface-hover)]", "transition-colors"),
-    content: cn("accordion-content", "px-16 pb-16", "text-sm text-text-secondary"),
-    indicator: cn("accordion-indicator", "shrink-0", "text-text-muted",
-      "transition-transform duration-200"),
-  }),
-});
+export const accordionVisual = {
+  backgroundColor: "layer-1",
+  borderColor: "subtle",
+  padding: "md",
+  gap: "none",
+  borderRadius: "md",
+  surface: "glass-void",
+  depth: "z1",
+} satisfies Partial<StyleMacroProps>;
 ```
 
-### Recipe utilities explained:
-- `emitSegments(toPreset(props))` — generates `v-s1 v-d2 v-b1` classes from 8-axis props
-- `radiusClass(props.radius)` — generates `rounded-{token}` class
-- `toPreset(props)` — converts DsSurfaceProps to Preset object for emission
-- Slots in recipe MUST match slots in contract
+Build step compiles all `*.visual.ts` into `design/style/compiled-base.ts`.
+StyleMacro reads this at runtime for kind defaults.
 
 ## Gold Standard: Consumer Usage
 
