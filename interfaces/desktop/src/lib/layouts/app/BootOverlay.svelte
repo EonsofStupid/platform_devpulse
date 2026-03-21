@@ -6,7 +6,7 @@
   Shows per-subsystem progress with status indicators and latencies.
   Fades out and unmounts when boot completes.
 
-  All layout via utils (hstack, stack, box → class strings).
+  All layout via utils (hstack, stack, box -> class strings).
   All visual via ColdLight components (Badge, Text, Progress).
 -->
 <script lang="ts">
@@ -125,8 +125,6 @@ $effect(() => {
 			value={platformState.progress}
 			max={100}
 			size="sm"
-			surface="glass-void"
-			glow="teal"
 			class="w-full"
 		/>
 

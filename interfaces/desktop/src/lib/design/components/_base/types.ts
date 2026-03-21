@@ -1,44 +1,24 @@
 /**
- * @file Prepared Component Base Types
+ * @file Component Base Types
  * @module @devpulse/coldlight/components/_base/types
  * @layer components
  *
- * Every prepared ColdLight component extends PreparedComponentProps.
- * This gives every component the 8-axis visual system, radius, size,
- * and class composition — all type-safe, all schema-driven.
+ * Components are DUMB. Structure + ARIA only.
+ * Visual treatment comes from StyleMacro at the usage site.
+ * Components accept class + children. That's it.
  */
 
 import type { Snippet } from "svelte";
-import type { ColdLightProps, ResolvedVisual } from "$lib/design/registry/resolve-visual.js";
 
 /**
- * Base props that EVERY prepared ColdLight component receives.
- *
- * Components extend this with their kind-specific props:
- * ```typescript
- * interface ButtonComponentProps extends PreparedComponentProps {
- *   intent?: ButtonIntent;
- *   pressed?: boolean;
- *   loading?: boolean;
- * }
- * ```
+ * Base props for all ColdLight components.
+ * class for structural layout + visual classes passed down from StyleMacro.
+ * children for content.
+ * NO visual props. NO 8-axis. NO preset. NO encoding.
  */
-export interface PreparedComponentProps extends ColdLightProps {
-	/** User-provided CSS classes — merged after ColdLight resolution */
+export interface ComponentProps {
+	/** CSS classes (structural + visual via StyleMacro) */
 	class?: string;
 	/** Children snippet */
 	children?: Snippet;
 }
-
-/**
- * Per-kind default presets.
- * Registered by each component kind — defines what visual config
- * a component starts with when no props are provided.
- */
-export interface ComponentDefaults {
-	readonly kind: string;
-	readonly defaultPreset: string;
-}
-
-/** Re-export for convenience */
-export type { ColdLightProps, ResolvedVisual };

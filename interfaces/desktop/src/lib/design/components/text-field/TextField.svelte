@@ -2,13 +2,12 @@
 	@component TextField
 	@kind text-field
 
-	ColdLight TextField — input with label, description, error.
-	Primitive provides ARIA linkage (label→input, error→aria-describedby).
-	Component adds visual via useColdLight.
+	ColdLight TextField — DUMB component.
+	Primitive provides ARIA linkage (label->input, error->aria-describedby).
+	Visual treatment via class prop from caller.
 -->
 <script lang="ts">
 import { useTextField } from "$lib/design/primitives/text-field/index.js";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TextFieldProps, TextFieldSize } from "./text-field.types.js";
 
@@ -33,17 +32,6 @@ let {
 	size = "md",
 	leading,
 	trailing,
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	class: className,
 	...rest
 }: TextFieldProps = $props();
@@ -60,26 +48,9 @@ const field = $derived(useTextField({
 	error: errorText,
 }));
 
-const visual = useColdLight(() => ({
-	preset: preset ?? "input-default",
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius: radius ?? "md",
-	size,
-}));
-
 const inputClasses = $derived(cn(
-	"w-full bg-transparent outline-none",
+	"w-full bg-transparent outline-none rounded-md",
 	SIZE_CLASSES[size] ?? SIZE_CLASSES.md,
-	visual.segments,
-	visual.radius,
 	"border border-border-subtle",
 	"focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current",
 	"disabled:pointer-events-none disabled:opacity-50",
@@ -108,7 +79,6 @@ const inputClasses = $derived(cn(
 			{...field.input}
 			{...rest}
 			class={cn(inputClasses, leading && "pl-10", trailing && "pr-10")}
-			data-encoding={visual.encoding || undefined}
 		/>
 
 		{#if trailing}

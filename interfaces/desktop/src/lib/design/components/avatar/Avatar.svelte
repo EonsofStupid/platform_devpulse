@@ -3,13 +3,10 @@
 	@kind avatar
 	@layer components
 
-	Thumbnail representation of user/entity.
-	Manages image load state. Shows fallback on error/loading.
-	Compound: Image + Fallback sub-components, or renders default inline.
+	DUMB compound component. Image load state management + fallback display.
+	Visual treatment via class prop from caller.
 -->
 <script lang="ts">
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/_internal/utils/uid.js";
 import { getAvatarGroupContext } from "$lib/design/components/avatar-group/context.js";
@@ -27,13 +24,11 @@ let {
 	onStatusChange,
 	isOverBackground = false,
 	dir = "ltr",
-	preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius,
 	children,
 	class: className,
 	...rest
 }: AvatarRootProps = $props();
 
-// Inherit size from AvatarGroup context, fall back to prop
 const size = $derived(groupCtx?.size ?? sizeProp);
 
 const autoIds = createIds("avatar", ["root", "image", "fallback"] as const);
@@ -56,16 +51,12 @@ function handleError() {
 	onStatusChange?.({ status: "error" });
 }
 
-// Reset status when src changes
 $effect(() => {
 	if (src) {
 		status = "loading";
 		onStatusChange?.({ status: "loading" });
 	}
 });
-
-const recipe = getRecipe("avatar.glass.void");
-const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
 
 setAvatarContext({
 	get src() { return src; },
@@ -75,20 +66,17 @@ setAvatarContext({
 	get size() { return size; },
 	get isOverBackground() { return isOverBackground; },
 	get dir() { return dir; },
-	get classes() { return recipeClasses; },
+	get classes() { return {}; },
 	get ids() { return resolvedIds; },
 	handleLoad,
 	handleError,
 });
 
-const visual = useColdLight(() => ({
-	preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding,
-	radius: radius ?? "full",
-}));
-
-const rootClasses = $derived(
-	cn(recipeClasses.root, visual.segments, visual.radius, className),
-);
+const rootClasses = $derived(cn(
+	"inline-flex items-center justify-center overflow-hidden rounded-full",
+	"bg-[var(--surface-elevated)] text-text-secondary font-medium text-sm",
+	className,
+));
 </script>
 
 <span
@@ -99,7 +87,6 @@ const rootClasses = $derived(
 	data-kind="avatar"
 	data-slot="root"
 	data-state={status}
-	data-encoding={visual.encoding || undefined}
 	class={rootClasses}
 	style:width="{size}px"
 	style:height="{size}px"
@@ -109,13 +96,12 @@ const rootClasses = $derived(
 	{#if children}
 		{@render children()}
 	{:else}
-		<!-- Default inline rendering when no compound sub-components used -->
 		{#if src && status !== "error"}
 			<img
 				id={resolvedIds.image}
 				{src}
 				{alt}
-				class={recipeClasses.image}
+				class="h-full w-full object-cover"
 				data-kind="avatar"
 				data-slot="image"
 				onload={handleLoad}
@@ -126,7 +112,7 @@ const rootClasses = $derived(
 		{#if status !== "loaded"}
 			<span
 				id={resolvedIds.fallback}
-				class={recipeClasses.fallback}
+				class="flex h-full w-full items-center justify-center"
 				data-kind="avatar"
 				data-slot="fallback"
 				aria-hidden="true"

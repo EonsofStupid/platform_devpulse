@@ -3,42 +3,39 @@
  * @kind button
  * @layer components
  *
- * Hook types re-exported from coldlight/primitives/button.
- * Component-specific types (intent, size, props) defined here.
+ * DUMB component. Structural + ARIA only.
+ * Visual treatment via class prop (StyleMacro or direct v-* utilities).
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLButtonAttributes } from "svelte/elements";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 import type { ButtonType } from "$lib/design/primitives/button/button.types.js";
 
-// Re-export hook types so consumers can import from one place
 export type { ButtonType, UseButtonProps, UseButtonReturn } from "$lib/design/primitives/button/button.types.js";
 
-// ── Component types ─────────────────────────────────────────────
-
 export type ButtonIntent = "primary" | "secondary" | "ghost" | "danger";
-
-export const BUTTON_INTENT_PRESETS: Record<ButtonIntent, string> = {
-	primary: "btn-primary",
-	secondary: "btn-secondary",
-	ghost: "btn-ghost",
-	danger: "btn-danger",
-};
-
 export type ButtonSize = "sm" | "md" | "lg";
 
 export interface ButtonProps
-	extends Omit<HTMLButtonAttributes, "style" | "children" | "disabled" | "type">,
-		ColdLightProps {
+	extends Omit<HTMLButtonAttributes, "style" | "children" | "disabled" | "type"> {
+	/** CSS classes — structural + visual from caller */
 	class?: string;
+	/** Children snippet */
 	children?: Snippet;
+	/** Disabled state */
 	disabled?: boolean;
+	/** Button type attribute */
 	type?: ButtonType;
+	/** Toggle pressed state */
 	pressed?: boolean;
+	/** Pressed state change callback */
 	onPressedChange?: (pressed: boolean) => void;
+	/** Loading state */
 	loading?: boolean;
+	/** Expanded state (menu trigger) */
 	expanded?: boolean;
+	/** Semantic intent — drives recipe structural classes */
 	intent?: ButtonIntent;
+	/** Size — drives recipe structural classes */
 	size?: ButtonSize;
 }

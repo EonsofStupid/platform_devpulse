@@ -3,14 +3,12 @@
  * @kind avatar
  * @layer components
  *
- * Thumbnail representation of user/entity.
- * Compound: Root, Image, Fallback.
- * Image load state tracking with fallback display.
+ * DUMB compound component. Image load state + fallback.
+ * Visual treatment via class prop from caller.
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
 
 export type AvatarLoadStatus = "loading" | "loaded" | "error";
 
@@ -25,24 +23,27 @@ export interface AvatarIds {
 }
 
 export interface AvatarRootProps
-	extends Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children" | "class" | "dir">,
-		Omit<PreparedComponentProps, "size"> {
+	extends Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children" | "class" | "dir"> {
+	/** CSS classes — structural + visual from caller */
+	class?: string;
+	/** Children snippet */
+	children?: Snippet;
+	/** Override auto-generated IDs */
 	ids?: Partial<AvatarIds>;
-	/** Image source URL. */
+	/** Image source URL */
 	src?: string;
 	/** Alt text for the image. Required for accessibility. */
 	alt: string;
-	/** Fallback text when image fails (default: first letter of alt). */
+	/** Fallback text when image fails (default: first letter of alt) */
 	fallback?: string;
 	/** Size in pixels. Default: 40. */
 	size?: number;
-	/** Callback when image load status changes. */
+	/** Callback when image load status changes */
 	onStatusChange?: (details: AvatarStatusChangeDetails) => void;
-	/** Whether over a colored background (adjusts border). */
+	/** Whether over a colored background (adjusts border) */
 	isOverBackground?: boolean;
-	/** Text/writing direction. */
+	/** Text/writing direction */
 	dir?: "ltr" | "rtl";
-	children?: Snippet;
 }
 
 interface AvatarSlotProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {

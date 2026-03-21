@@ -6,8 +6,6 @@
  * against taxonomy contracts with proper ARIA enforcement.
  */
 
-export type { ComponentSurfaceProps } from "./types.js";
-
 // ============================================
 // COMPONENTS
 // ============================================
@@ -21,7 +19,6 @@ export {
 	type ButtonType,
 	type UseButtonProps,
 	type UseButtonReturn,
-	BUTTON_INTENT_PRESETS,
 } from "./button/index.js";
 
 // ============================================

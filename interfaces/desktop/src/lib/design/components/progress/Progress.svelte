@@ -3,29 +3,18 @@
 	@kind progress
 	@layer components
 
-	ColdLight Progress — compound, 8-axis visual system.
+	DUMB component. Progressbar with ARIA.
+	Recipe provides size classes. Visual treatment via class prop from caller.
 -->
 <script lang="ts">
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { progressIndicatorRecipe, progressTrackRecipe } from "./recipe.js";
+import { progressTrackRecipe, progressIndicatorRecipe } from "./recipe.js";
 import type { ProgressProps } from "./types.js";
 
 let {
 	size = "md",
 	value = 0,
 	max = 100,
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	children,
 	class: className,
 	...rest
@@ -35,23 +24,7 @@ const clampedValue = $derived(value === null ? null : Math.min(Math.max(value ??
 const percentage = $derived(clampedValue === null ? undefined : (clampedValue / max) * 100);
 const indeterminate = $derived(value === null);
 
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius: radius ?? "full",
-}));
-
-const trackClasses = $derived(
-	cn(progressTrackRecipe({ size }), visual.segments, visual.radius, className),
-);
+const trackClasses = $derived(cn(progressTrackRecipe({ size }), className));
 const indicatorClasses = $derived(progressIndicatorRecipe());
 </script>
 
@@ -65,7 +38,6 @@ const indicatorClasses = $derived(progressIndicatorRecipe());
 	data-kind="progress"
 	data-slot="root"
 	data-state={indeterminate ? "indeterminate" : "determinate"}
-	data-encoding={visual.encoding || undefined}
 >
 	<div
 		class={indicatorClasses}

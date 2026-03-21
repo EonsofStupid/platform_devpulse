@@ -2,11 +2,11 @@
 	@component Text
 	@kind text
 
-	ColdLight Text — presentational typography component.
-	No ARIA hook needed. Semantic element via `as` prop. Styling via recipe + useColdLight.
+	ColdLight Text — DUMB component.
+	Semantic element via `as` prop. Recipe provides size/weight/color classes.
+	Visual treatment via class prop from caller.
 -->
 <script lang="ts">
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { textRecipe } from "./recipe.js";
 import type { TextProps } from "./types.js";
@@ -16,51 +16,24 @@ let {
 	size = "base",
 	weight = "normal",
 	color = "primary",
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	children,
 	class: className,
 	...rest
 }: TextProps = $props();
 
-const visual = useColdLight(() => ({
-	preset: preset ?? "text-default",
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-}));
-
-const classes = $derived(
-	cn(textRecipe({ size, weight, color }), visual.segments, visual.radius, className),
-);
+const classes = $derived(cn(textRecipe({ size, weight, color }), className));
 </script>
 
 {#if as === "p"}
-<p data-kind="text" data-slot="root" {...rest} class={classes} data-encoding={visual.encoding || undefined}>{@render children?.()}</p>
+<p data-kind="text" data-slot="root" {...rest} class={classes}>{@render children?.()}</p>
 {:else if as === "label"}
-<label data-kind="text" data-slot="root" {...rest} class={classes} data-encoding={visual.encoding || undefined}>{@render children?.()}</label>
+<label data-kind="text" data-slot="root" {...rest} class={classes}>{@render children?.()}</label>
 {:else if as === "em"}
-<em data-kind="text" data-slot="root" {...rest} class={classes} data-encoding={visual.encoding || undefined}>{@render children?.()}</em>
+<em data-kind="text" data-slot="root" {...rest} class={classes}>{@render children?.()}</em>
 {:else if as === "strong"}
-<strong data-kind="text" data-slot="root" {...rest} class={classes} data-encoding={visual.encoding || undefined}>{@render children?.()}</strong>
+<strong data-kind="text" data-slot="root" {...rest} class={classes}>{@render children?.()}</strong>
 {:else if as === "small"}
-<small data-kind="text" data-slot="root" {...rest} class={classes} data-encoding={visual.encoding || undefined}>{@render children?.()}</small>
+<small data-kind="text" data-slot="root" {...rest} class={classes}>{@render children?.()}</small>
 {:else}
-<span data-kind="text" data-slot="root" {...rest} class={classes} data-encoding={visual.encoding || undefined}>{@render children?.()}</span>
+<span data-kind="text" data-slot="root" {...rest} class={classes}>{@render children?.()}</span>
 {/if}

@@ -3,13 +3,14 @@
  * @kind widget
  * @layer blocks
  * @package @devpulse/coldlight
+ *
+ * DUMB block. Structure + slots only.
+ * Visual treatment via class prop from caller.
  */
 
 import type { Component, Snippet, SvelteComponent } from "svelte";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
 
 // Accepts both Svelte 5 Component and Svelte 4 class components (lucide-svelte)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 // biome-ignore lint/suspicious/noExplicitAny: Svelte 5 Component + Svelte 4 class component union requires any
 type IconComponent = Component<any> | (new (...args: any[]) => SvelteComponent);
 
@@ -20,67 +21,67 @@ export interface WidgetTab {
 	readonly label: string;
 }
 
-export interface WidgetProps extends ColdLightProps {
-	/** Widget title displayed in header. */
+export interface WidgetProps {
+	/** Widget title displayed in header */
 	title?: string;
-	/** Lucide icon component rendered before the title. */
+	/** Lucide icon component rendered before the title */
 	icon?: IconComponent;
-	/** Recipe ID override. @default "widget.glass.void" */
-	recipe?: string;
-	/** Tab definitions for chrome-style tab bar. */
+	/** Size — drives structural classes */
+	size?: WidgetSize;
+	/** Tab definitions for chrome-style tab bar */
 	tabs?: WidgetTab[];
-	/** Currently active tab ID. */
+	/** Currently active tab ID */
 	activeTab?: string;
-	/** Callback when active tab changes. */
+	/** Callback when active tab changes */
 	onTabChange?: (tabId: string) => void;
-	/** Main content slot. */
+	/** Main content slot */
 	children?: Snippet;
-	/** Custom header actions slot (right side of header). */
+	/** Custom header actions slot (right side of header) */
 	actions?: Snippet;
-	/** Custom footer slot. */
+	/** Custom footer slot */
 	footer?: Snippet;
-	/** Additional CSS class for root. */
+	/** CSS classes — structural + visual from caller */
 	class?: string;
 }
 
 export interface WidgetHeaderProps {
-	/** Widget title text. */
+	/** Widget title text */
 	title?: string;
-	/** Lucide icon component rendered before the title. */
+	/** Lucide icon component rendered before the title */
 	icon?: IconComponent;
-	/** Class string from recipe. */
+	/** Class string from recipe */
 	class?: string;
-	/** Title class from recipe. */
+	/** Title class from recipe */
 	titleClass?: string;
-	/** Actions class from recipe. */
+	/** Actions class from recipe */
 	actionsClass?: string;
-	/** Custom header actions slot. */
+	/** Custom header actions slot */
 	actions?: Snippet;
 }
 
 export interface WidgetTabsProps {
-	/** Tab definitions. */
+	/** Tab definitions */
 	tabs: WidgetTab[];
-	/** Currently active tab ID. */
+	/** Currently active tab ID */
 	activeTab?: string;
-	/** Tab change callback. */
+	/** Tab change callback */
 	onTabChange?: (tabId: string) => void;
-	/** Tabs container class from recipe. */
+	/** Tabs container class from recipe */
 	class?: string;
-	/** Individual tab class from recipe. */
+	/** Individual tab class from recipe */
 	tabClass?: string;
 }
 
 export interface WidgetContentProps {
-	/** Class string from recipe. */
+	/** Class string from recipe */
 	class?: string;
-	/** Content slot. */
+	/** Content slot */
 	children?: Snippet;
 }
 
 export interface WidgetFooterProps {
-	/** Class string from recipe. */
+	/** Class string from recipe */
 	class?: string;
-	/** Footer slot. */
+	/** Footer slot */
 	children?: Snippet;
 }

@@ -4,7 +4,7 @@
   @layer lib
 
   Top navigation bar. Parasite logo left, ColdLight icon buttons + avatar right.
-  All interactive elements use ColdLight components — zero raw HTML buttons.
+  All interactive elements use ColdLight components.
 
   @since 1.0.0
 -->
@@ -47,8 +47,7 @@ function onKey(e: KeyboardEvent): void {
 		<Button
 			intent="ghost"
 			size="sm"
-			radius="full"
-			class="h-8 w-8"
+			class="h-8 w-8 rounded-full"
 			title="Search"
 			aria-label="Search"
 			onclick={toggleSearch}
@@ -59,8 +58,7 @@ function onKey(e: KeyboardEvent): void {
 		<Button
 			intent="ghost"
 			size="sm"
-			radius="full"
-			class="h-8 w-8"
+			class="h-8 w-8 rounded-full"
 			title="Notifications"
 			aria-label="Notifications"
 		>
@@ -70,9 +68,7 @@ function onKey(e: KeyboardEvent): void {
 		<Button
 			intent="ghost"
 			size="sm"
-			glow="teal"
-			radius="full"
-			class="h-8 w-8"
+			class="h-8 w-8 rounded-full"
 			title="Open Chat"
 			aria-label="Open Chat"
 			onclick={openChat}
@@ -88,7 +84,6 @@ function onKey(e: KeyboardEvent): void {
 			>
 				<Input
 					size="sm"
-					preset="input-default"
 					class="w-64"
 					type="text"
 					value={searchQuery}

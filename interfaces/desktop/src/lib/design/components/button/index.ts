@@ -1,7 +1,6 @@
 export { default as Button } from "./Button.svelte";
 export { useButton } from "$lib/design/primitives/button/index.js";
 export {
-	BUTTON_INTENT_PRESETS,
 	type ButtonIntent,
 	type ButtonProps,
 	type ButtonSize,

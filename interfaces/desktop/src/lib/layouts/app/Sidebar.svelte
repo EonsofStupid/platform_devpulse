@@ -3,7 +3,7 @@
   @module @devpulse/layouts/app/Sidebar
   @layer lib
 
-  Vertical sidebar with Lucide icons and ColdLight primitives.
+  Vertical sidebar with Lucide icons and ColdLight components.
   Supports child route submenu via globalState.
 
   @consumers
@@ -81,12 +81,12 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 				<Button
 					intent={isActive(hub.href) ? "primary" : "ghost"}
 					size="sm"
-					radius="md"
-					surface={isActive(hub.href) ? "glass-void" : undefined}
-					glow={isActive(hub.href) ? "teal" : undefined}
-					class={isExpanded
-						? "w-full justify-start gap-3 px-3 py-2"
-						: "h-10 w-10 justify-self-end"}
+					class={cn(
+						isExpanded
+							? "w-full justify-start gap-3 px-3 py-2"
+							: "h-10 w-10 justify-self-end",
+						isActive(hub.href) && "rounded-md",
+					)}
 					aria-label={hub.label}
 					aria-current={isActive(hub.href) ? "page" : undefined}
 					title={hub.label}
@@ -104,7 +104,6 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 		<Button
 			intent="ghost"
 			size="sm"
-			radius="md"
 			class={isExpanded
 				? "w-full justify-start gap-3 px-3 py-2"
 				: "h-10 w-10 justify-self-end"}
@@ -135,7 +134,6 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 					<Button
 						intent="ghost"
 						size="sm"
-						radius="md"
 						class="w-full justify-start px-3 py-2 capitalize"
 						aria-current={isActive(route.path) ? "page" : undefined}
 						role="menuitem"

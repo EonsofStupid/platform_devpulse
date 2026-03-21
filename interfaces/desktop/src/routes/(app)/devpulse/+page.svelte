@@ -4,8 +4,7 @@
   @domain devpulse
 
   Cyberpunk HUD dashboard with gauges, charts, and glass panels.
-  Every Widget receives visual axis props that flow through
-  useColdLight() → resolveVisual() → 8-axis v-encoding classes.
+  Visual treatment via v-* utility classes on Widget class prop.
   Matches DASHBOARD-REFERENCE-01.
 -->
 <script lang="ts">
@@ -60,13 +59,7 @@ $effect(() => {
 		<Widget
 			title="Maestro Control"
 			icon={Gauge}
-			preset="widget-gauge"
-			surface="glass-deep"
-			depth="z2"
-			bevel="soft"
-			glow="teal"
-			frame="accent-teal"
-			radius="lg"
+			class="v-s3 v-d2 v-b2 v-g1 v-f2"
 		>
 			<div class="flex items-center justify-center py-4">
 				<RadialGauge
@@ -85,13 +78,7 @@ $effect(() => {
 		<Widget
 			title="System Overview"
 			icon={Activity}
-			preset="widget-stat"
-			surface="glass-deep"
-			depth="z2"
-			bevel="subtle"
-			glow="purple"
-			frame="soft"
-			radius="lg"
+			class="v-s3 v-d2 v-b1 v-g2 v-f1"
 		>
 			<div class="flex items-center justify-center gap-6 py-2">
 				<RadialGauge
@@ -120,12 +107,7 @@ $effect(() => {
 		<Widget
 			title="Developer Stats"
 			icon={TrendingUp}
-			preset="widget-stat"
-			surface="glass-deep"
-			depth="z1"
-			bevel="subtle"
-			frame="soft"
-			radius="lg"
+			class="v-s3 v-d1 v-b1 v-f1"
 		>
 			<div class={stack({ gap: "3" })}>
 				<div class={hstack({ justify: "between", align: "baseline" })}>
@@ -149,7 +131,7 @@ $effect(() => {
 				>
 					<span class="inline-block h-2 w-2 rounded-full animate-pulse bg-teal-400 shadow-[0_0_8px_var(--accent-teal-glow)]"></span>
 					<Text size="sm" weight="semibold">{devpulseState.data.user.streak}d streak</Text>
-					<Text size="xs" color="muted">· {devpulseState.data.user.lastActivity}</Text>
+					<Text size="xs" color="muted">{"\u00B7"} {devpulseState.data.user.lastActivity}</Text>
 				</div>
 			</div>
 		</Widget>
@@ -160,13 +142,7 @@ $effect(() => {
 		<Widget
 			title="Activity Timeline"
 			icon={BarChart3}
-			preset="widget-chart"
-			surface="glass-deep"
-			depth="z2"
-			bevel="soft"
-			glow="teal"
-			frame="accent-teal"
-			radius="lg"
+			class="v-s3 v-d2 v-b2 v-g1 v-f2"
 			tabs={[
 				{ id: "activity", label: "Activity" },
 				{ id: "commits", label: "Commits" },
@@ -212,12 +188,7 @@ $effect(() => {
 		<Widget
 			title="Store Health"
 			icon={HeartPulse}
-			preset="widget-stat"
-			surface="glass-deep"
-			depth="z1"
-			bevel="subtle"
-			frame="soft"
-			radius="lg"
+			class="v-s3 v-d1 v-b1 v-f1"
 		>
 			<div class={stack({ gap: "3" })}>
 				{#if platformState.health}
@@ -261,12 +232,7 @@ $effect(() => {
 		<Widget
 			title="Recent Projects"
 			icon={FolderGit2}
-			preset="widget-table"
-			surface="glass-deep"
-			depth="z1"
-			bevel="subtle"
-			frame="soft"
-			radius="lg"
+			class="v-s3 v-d1 v-b1 v-f1"
 			tabs={[
 				{ id: "all", label: "All" },
 				{ id: "active", label: "Active" },
