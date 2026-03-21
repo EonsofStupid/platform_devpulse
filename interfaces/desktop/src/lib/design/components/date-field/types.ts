@@ -3,82 +3,94 @@
  * @kind date-field
  * @layer components
  *
- * Prop types for all DateField sub-components.
- * ColdLight-owned — renders segmented date input with spinbutton ARIA.
- *
- * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/spinbutton/
+ * Segmented date input. Each part (month, day, year, hour, minute) is
+ * an individually editable segment with spinbutton ARIA.
+ * Spectrum-aligned: controlled/uncontrolled, validation, form, label.
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
 
-// =============================================================================
-// SIZE
-// =============================================================================
-
-export type Size = "sm" | "md" | "lg";
-
-// =============================================================================
-// GRANULARITY
-// =============================================================================
-
-export type Granularity = "day" | "month" | "year";
-
-// =============================================================================
-// SEGMENT
-// =============================================================================
+export type DateFieldSize = "sm" | "md" | "lg" | "xl";
+export type DateFieldGranularity = "day" | "month" | "year" | "hour" | "minute" | "second";
 
 export interface DateSegment {
-	type: "month" | "day" | "year" | "literal";
+	type: "month" | "day" | "year" | "hour" | "minute" | "second" | "dayPeriod" | "literal";
 	value: string;
 	placeholder: string;
-	/** Minimum value for this segment */
 	min: number;
-	/** Maximum value for this segment */
 	max: number;
-	/** Current numeric value (undefined if placeholder) */
 	numericValue: number | undefined;
 }
 
-// =============================================================================
-// ROOT PROPS
-// =============================================================================
-
-/** DateField root props — manages segmented date input state */
-export interface DateFieldProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps,
-		ColdLightProps {
-	children?: Snippet;
-	/** Current date value */
-	value?: Date | undefined;
-	/** Called when the date value changes */
-	onValueChange?: (value: Date | undefined) => void;
-	/** Segment granularity */
-	granularity?: Granularity;
-	/** Locale for formatting (BCP 47 tag) */
-	locale?: string;
-	/** Whether the field is disabled */
-	disabled?: boolean;
-	/** Whether the field is readonly */
-	readonly?: boolean;
-	/** Size variant */
-	size?: Size;
+export interface DateFieldValueChangeDetails {
+	value: Date | null;
 }
 
-// =============================================================================
-// SEGMENT PROPS
-// =============================================================================
+export interface DateFieldIds {
+	root?: string;
+	label?: string;
+	description?: string;
+	errorMessage?: string;
+}
 
-/** DateFieldSegment props — individual segment with spinbutton role */
-export interface DateFieldSegmentProps
-	extends Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children">,
-		BaseProps {
+export interface DateFieldRootProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
+		Omit<PreparedComponentProps, "size"> {
+	ids?: Partial<DateFieldIds>;
+	/** Controlled value. */
+	value?: Date | null;
+	/** Initial value when uncontrolled. */
+	defaultValue?: Date | null;
+	/** Callback when value changes. */
+	onChange?: (details: DateFieldValueChangeDetails) => void;
+	/** Segment granularity. Default: "day". */
+	granularity?: DateFieldGranularity;
+	/** 12 or 24 hour clock. Default: locale-dependent. */
+	hourCycle?: 12 | 24;
+	/** Whether to hide the time zone. Default: false. */
+	hideTimeZone?: boolean;
+	/** Locale (BCP 47). Default: "en-US". */
+	locale?: string;
+	/** Size variant. Default: "md". */
+	size?: DateFieldSize;
+	/** Whether the field is disabled. */
+	isDisabled?: boolean;
+	/** Whether the field is read-only. */
+	isReadOnly?: boolean;
+	/** Whether the field is required. */
+	isRequired?: boolean;
+	/** Whether the current value is invalid. */
+	isInvalid?: boolean;
+	/** Minimum allowed date. */
+	minValue?: Date | null;
+	/** Maximum allowed date. */
+	maxValue?: Date | null;
+	/** Validation function. */
+	validate?: (value: Date | null) => string | null | undefined;
+	/** Validation behavior. Default: "native". */
+	validationBehavior?: "native" | "aria";
+	/** Label text. */
+	label?: string;
+	/** Description hint text. */
+	description?: string;
+	/** Error message. */
+	errorMessage?: string;
+	/** Input name for form submission (ISO 8601 string). */
+	name?: string;
+	/** Form element ID. */
+	form?: string;
+	/** Whether to auto-focus on mount. */
+	autoFocus?: boolean;
+	/** Text/writing direction. */
+	dir?: "ltr" | "rtl";
 	children?: Snippet;
-	/** Segment data from context */
+}
+
+export interface DateFieldSegmentProps extends Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children" | "class"> {
+	children?: Snippet;
+	class?: string;
 	segment: DateSegment;
-	/** Index of this segment in the segment list */
 	index: number;
 }

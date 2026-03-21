@@ -1,44 +1,24 @@
 <!--
-	@component ComboboxInput — Gold Standard
+	@component Combobox.Input
 	@kind combobox
+	@slot input
 	@layer components
-	@package @devpulse/coldlight
 
-	Combobox text input — role="combobox".
-	MeltUI transport provides: aria-expanded, aria-controls, aria-activedescendant,
-	keyboard handlers (ArrowUp/Down, Enter, Escape, Home, End), focus management.
-
-	ColdLight adds: data-kind, data-slot, data-state, WAI-Adapt, ARIA 1.3.
-
-	APG: The input is the primary interactive element. Focus STAYS here.
-	Options are highlighted via aria-activedescendant, not DOM focus.
-
-	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
+	role="combobox" text input. All ARIA from useComboBox() hook.
+	Focus stays here — options highlighted via aria-activedescendant.
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getComboboxContext } from "./context.js";
 import type { ComboboxInputProps } from "./types.js";
 
-let {
-	class: className,
-	placeholder,
-	"adapt-purpose": adaptPurpose,
-	"aria-description": ariaDescription,
-}: ComboboxInputProps = $props();
-
+let { class: className, placeholder }: ComboboxInputProps = $props();
 const ctx = getComboboxContext();
-const { recipe } = ctx;
 </script>
 
 <input
-	{...ctx.slots.input}
-	class={cn(recipe.input, className)}
-	data-kind="combobox"
-	data-slot="input"
-	data-state={ctx.states.open ? "open" : "closed"}
-	data-adapt-action="filter"
-	data-adapt-purpose={adaptPurpose ?? "search-term"}
-	{...ariaDescription ? {"aria-description": ariaDescription} : {}}
+	{...ctx.hook.input}
+	class={cn(ctx.classes.input, className)}
+	data-state={ctx.hook.open ? "open" : "closed"}
 	{placeholder}
 />

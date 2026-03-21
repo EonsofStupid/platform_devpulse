@@ -1,31 +1,16 @@
 <!--
-	@component Combobox — Gold Standard
+	@component Combobox (Root)
 	@kind combobox
 	@layer components
-	@package @devpulse/coldlight
 
 	ColdLight Combobox — compound component root.
-	Creates MeltUI combobox transport, computes variant-driven recipe,
-	and sets context for all sub-components.
-
-	MeltUI transport adapter provides all ARIA semantics:
-	- role="combobox" on input, role="listbox" on content, role="option" on items
-	- aria-expanded, aria-controls, aria-activedescendant
-	- Full keyboard navigation (ArrowUp/Down, Enter, Escape, Home, End, Tab)
-	- Focus management via activedescendant pattern
-
-	ColdLight adds:
-	- data-kind="combobox", data-slot="root"
-	- WAI-Adapt: data-adapt-action, data-adapt-purpose, data-adapt-simplification
-	- ARIA 1.3: aria-description
-	- Variant-driven recipe (size, disabled) via context
+	Uses useComboBox() primitive hook for all ARIA and behavior.
+	Sets context for sub-components.
 
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
-	WAI-ARIA 1.3: https://w3c.github.io/aria/
-	WAI-Adapt: https://w3c.github.io/adapt/
 -->
 <script lang="ts">
-import { createComboboxTransport } from "$lib/design/api/dsadapters/meltui/_internal/combobox/index.js";
+import { useComboBox } from "$lib/design/primitives/combobox/use-combobox.svelte.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { getRecipe } from "$lib/design/recipes/index.js";
@@ -44,11 +29,6 @@ let {
 	disabled = false,
 	children,
 	class: className,
-	"adapt-action": adaptAction = "filter",
-	"adapt-purpose": adaptPurpose = "search-term",
-	"adapt-simplification": adaptSimplification = "critical",
-	"aria-description": ariaDescription,
-	// ColdLight 8-axis props
 	preset,
 	surface,
 	material,
@@ -60,44 +40,33 @@ let {
 	transition,
 	encoding,
 	radius,
+	...rest
 }: ComboboxProps = $props();
 
-const transport = createComboboxTransport({
-	get value() {
-		return value;
-	},
-	// biome-ignore lint/suspicious/noExplicitAny: callback value type from transport
-	onValueChange: (v: any) => onValueChange?.(v),
-	get inputValue() {
-		return inputValue;
-	},
-	// biome-ignore lint/suspicious/noExplicitAny: callback value type from transport
-	onInputValueChange: (v: any) => onInputValueChange?.(v),
-	get open() {
-		return open;
-	},
-	// biome-ignore lint/suspicious/noExplicitAny: callback value type from transport
-	onOpenChange: (v: any) => onOpenChange?.(v),
+const hook = useComboBox({
+	get inputValue() { return inputValue; },
+	onInputChange: (v) => onInputValueChange?.(v),
+	get selectedValue() { return value as string | undefined; },
+	onSelectedChange: (v) => onValueChange?.(v),
+	get open() { return open; },
+	onOpenChange: (v) => onOpenChange?.(v),
+	get disabled() { return disabled; },
 });
 
-// Resolve recipe from the SSOT registry
-// biome-ignore lint/style/noNonNullAssertion: recipe is registered at module level — always present
-const recipeDef = getRecipe("combobox.glass.void")!;
-const recipe = $derived(
-	recipeDef.classes?.({
+const recipeDef = getRecipe("combobox.glass.void");
+const recipeClasses = $derived(
+	recipeDef?.classes?.({
 		...recipeDef.defaults,
 		size,
 	} as DsSurfaceProps) ?? {},
 );
 
 setComboboxContext({
-	...transport,
-	get recipe() {
-		return recipe as Record<string, string>;
-	},
-	get disabled() {
-		return disabled;
-	},
+	get hook() { return hook; },
+	get classes() { return recipeClasses; },
+	get disabled() { return disabled; },
+	get size() { return size; },
+	dir: "ltr",
 });
 
 const visual = useColdLight(() => ({
@@ -112,20 +81,19 @@ const visual = useColdLight(() => ({
 	transition,
 	encoding,
 	radius,
-	size,
 }));
+
+const rootClasses = $derived(
+	cn(recipeClasses.wrapper, visual.segments, visual.radius, disabled && "opacity-50 pointer-events-none", className),
+);
 </script>
 
 <div
-	data-kind="combobox"
-	data-slot="root"
-	data-adapt-action={adaptAction}
-	data-adapt-purpose={adaptPurpose}
-	data-adapt-simplification={adaptSimplification}
-	{...ariaDescription ? {"aria-description": ariaDescription} : {}}
-	aria-disabled={disabled ? "true" : undefined}
-	class={cn(recipe.wrapper, visual.segments, visual.radius, disabled && "opacity-50 pointer-events-none", className)}
+	{...hook.root}
 	data-encoding={visual.encoding || undefined}
+	aria-disabled={disabled ? "true" : undefined}
+	class={rootClasses}
+	{...rest}
 >
 	{@render children?.()}
 </div>

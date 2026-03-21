@@ -22,6 +22,8 @@ import "./color-swatch/index.js";
 import "./color-swatch-picker/index.js";
 import "./color-wheel/index.js";
 import "./combobox/index.js";
+import "./contextual-help/index.js";
+import "./date-field/index.js";
 import "./dialog/index.js";
 import "./form/index.js";
 import "./form-field/index.js";

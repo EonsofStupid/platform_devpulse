@@ -1,44 +1,25 @@
-/**
- * @file DateField Context — Svelte context for compound component communication
- * @kind date-field
- * @layer components
- *
- * Symbol-keyed context + typed get/set helpers.
- * Root sets context; sub-components consume it.
- * ColdLight-owned — no adapter dependency.
- */
-
 import { getContext, setContext } from "svelte";
-import type { DateSegment, Granularity } from "./types.js";
+import type { DateFieldGranularity, DateFieldIds, DateSegment } from "./types.js";
 
 export interface DateFieldContext {
-	/** Current date value */
-	readonly value: Date | undefined;
-	/** Parsed segments for rendering */
+	readonly value: Date | null | undefined;
 	readonly segments: DateSegment[];
-	/** Segment granularity */
-	readonly granularity: Granularity;
-	/** Whether the field is disabled */
-	readonly disabled: boolean;
-	/** Whether the field is readonly */
-	readonly readonly: boolean;
-	/** Locale for formatting */
+	readonly granularity: DateFieldGranularity;
+	readonly isDisabled: boolean;
+	readonly isReadOnly: boolean;
+	readonly isRequired: boolean;
+	readonly isInvalid: boolean;
 	readonly locale: string;
-	/** Size variant */
-	readonly size: "sm" | "md" | "lg";
-	/** Currently focused segment index */
+	readonly size: string;
+	readonly dir: "ltr" | "rtl";
+	readonly classes: Record<string, string>;
+	readonly ids: { root: string; label: string; description: string; errorMessage: string };
 	readonly focusedIndex: number;
-	/** Focus a specific segment by index */
 	focusSegment(index: number): void;
-	/** Increment the value of a segment */
 	incrementSegment(index: number): void;
-	/** Decrement the value of a segment */
 	decrementSegment(index: number): void;
-	/** Set a segment value by typing */
 	setSegmentValue(index: number, numericValue: number): void;
-	/** Move focus to the next segment */
 	focusNextSegment(): void;
-	/** Move focus to the previous segment */
 	focusPrevSegment(): void;
 }
 
