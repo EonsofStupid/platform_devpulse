@@ -1,386 +1,406 @@
-# SPRINT: Platform Service Manager — IDE & AI as Managed Services
+# SPRINT: Platform Service Manager — All Services Loading, No Exceptions
 
 **Status**: PLANNED
-**Priority**: P3 (after P0 foundation fixes, P1 visual fidelity, P2 VPB)
-**Prerequisites**: SPRINT-FOUNDATION-V2 complete, SurrealDB fresh-install fix
-**Category**: Platform Wiring
+**Priority**: P0 — BLOCKING. Nothing else matters if the platform can't boot all its services.
+**Prerequisites**: None — this IS the prerequisite for everything else.
+**Category**: Foundation
 
 ---
 
-## Vision
+## Problem Statement
 
-DevPulse becomes the conductor. Cursor, VS Code (Antigravity), and Claude Code run as **real native processes** managed by the platform — same lifecycle pattern as SurrealDB, LibSQL, DuckDB, and RRO today. Your subscription, your tools, your rules.
+The platform has 10 services. 7 load. 1 is disabled (Kokoros). 2 don't exist yet (Candle ML runtime, STT). The project doesn't self-index. The xtask pipeline doesn't verify post-boot health. This sprint fixes all of it.
 
-```
-DevPulse Platform (Service Manager)
-├── Database Services (EXISTING — embedded)
-│   ├── LibSQL, DuckDB, SurrealDB, Moka, RRO, Kokoros, Outlines
-│   └── Lifecycle: Service trait → boot → ping → shutdown
-├── Network Services (EXISTING — embedded)
-│   └── SurrealDB HTTP API on :8822
-├── Tool Services (NEW — external processes)
-│   ├── Cursor        → real app, managed process
-│   ├── Antigravity   → real app, managed process
-│   ├── Claude Code   → real CLI, real subscription, PTY
-│   └── (future tools you build)
-└── Engine Services (EXISTING)
-    └── Maestro → sees everything, orchestrates
-```
+---
+
+## Honest State Audit (Verified 2026-03-20)
+
+### Services That Load
+| Service | Feature | Compiled | Boots | Health Check | Critical |
+|---------|---------|----------|-------|-------------|----------|
+| System LibSQL | always | yes | yes | yes | yes |
+| System DuckDB | always | yes | yes | yes | yes |
+| System SurrealDB | always | yes | yes | yes | yes |
+| System Moka | always | yes | yes | yes | yes |
+| User LibSQL | always | yes | yes | yes | yes |
+| User SurrealDB | always | yes | yes | yes | — |
+| Global SurrealDB | always | yes | yes | yes | — |
+| RRO (Qdrant) | `rro` | yes | yes | yes | yes |
+| Outlines | `outlines` | yes | yes | yes | yes |
+
+### Services That DON'T Load
+| Service | Feature | Compiled | Why |
+|---------|---------|----------|-----|
+| Kokoros (TTS) | `kokoros` | **NO** | Feature not in Tauri Cargo.toml. `enabled = false` in config. espeak-rs-sys crashes VS 2026 dict generation. |
+| Candle (ML) | — | **NO** | Declared in workspace (`candle-core = "0.8"`) but ZERO imports. Dead code. No adapter. No service. |
+| STT | — | **NO** | Doesn't exist at all. No adapter, no service, no config. |
+
+### Infrastructure Gaps
+| Gap | Detail |
+|-----|--------|
+| Post-boot health verification in xtask | `cargo xtask run-dev` fires and forgets. No feedback from boot pipeline to xtask. |
+| Project self-indexing | Seed data is hardcoded fake rows. Platform doesn't index the actual project it's running in. |
+| Logging service | Tracing + file appender exist but logging isn't a `Service` — no health check, no lifecycle. |
+| Service registry | Services are hardcoded fields on `Platform` struct. Adding a service means editing 5+ files. Not scalable. |
 
 ---
 
 ## Architecture Decisions
 
-### AD-1: Separate trait for external processes
+### AD-1: Fix Kokoros, don't defer it
+The espeak-rs-sys blocker has a documented fix path: patch `piper-rs/crates/espeak-rs-sys/build.rs` to detect the system install at `C:\Program Files (x86)\eSpeak\` and link against it instead of building from source. The MSI is already at `deps/espeak-ng-setup.msi`. Do it.
 
-The existing `Service` trait wraps embedded libraries (LibSQL, DuckDB, etc.). External processes have fundamentally different concerns: PID tracking, stdin/stdout/stderr, exit codes, restart policies, environment variables, working directories.
+### AD-2: Candle gets a real adapter or gets deleted
+No dead dependencies. Either wire Candle into the service layer as an inference runtime (for local model execution alongside Kokoros/ORT), or remove it from workspace Cargo.toml. No middle ground.
 
-**Decision**: New `ProcessService` trait extends the lifecycle model. Does NOT replace `Service` — they coexist.
+**OWNER DECISION REQUIRED**: What is Candle's role? Options:
+- A) **Inference service** — boot Candle as a service, load models for local LLM inference (e.g., embedding generation for RRO)
+- B) **Embedding engine** — Candle generates embeddings that feed into RRO vector store
+- C) **Delete** — ORT handles inference via Kokoros, Candle is redundant
+- D) **Defer with config** — Add config entry `enabled = false`, wire adapter, enable when ready
 
-### AD-2: Windows Job Objects for child process guarantees
+### AD-3: Service registry pattern replaces hardcoded fields
+The current `Platform` struct has 10 hardcoded `Option<Arc<Service>>` fields. Every new service means editing `Platform`, `BootedServices`, `boot::execute`, `Platform::health`, `Platform::shutdown`, and config types. That's 6+ files per service.
 
-`xtask/src/zombie.rs` already implements Windows Job Objects with `JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE`. This kernel-enforced guarantee (children die when parent dies) MUST be used for all managed tool processes. No zombies.
+Replace with a `ServiceRegistry` — a type-safe `HashMap<ServiceRole, Arc<dyn Service>>` that services register into during boot. Health, shutdown, and accessors iterate the registry. Adding a service means: write the adapter, add config, register at boot. Done.
 
-**Decision**: Extract Job Object logic from xtask into a shared crate (`devpulse-process` or inline in engine) so runtime can use it too.
+### AD-4: xtask gets post-boot health gate
+After launching `pnpm tauri dev`, xtask should poll the SurrealDB HTTP health endpoint (`GET http://127.0.0.1:8822/health`) to confirm the platform actually booted. Timeout + explicit failure message if it doesn't.
 
-### AD-3: Config-driven, same as everything else
+### AD-5: Project self-indexing is a boot phase
+After services are healthy, a new boot phase scans the project root and writes project metadata into the databases. This is dogfooding — DevPulse indexes itself.
 
-New `[services.tools.*]` section in `platform.default.toml`. Each tool service declares: executable path, args, env, working directory, restart policy, health check method.
-
-### AD-4: PTY for Claude Code
-
-Claude Code needs a real terminal (PTY), not just stdout piping. This enables interactive sessions, ANSI rendering, and proper terminal behavior. Use `portable-pty` or `conpty` on Windows.
-
-### AD-5: Tauri shell capabilities expansion
-
-Currently only `shell:allow-open`. Must enable `allow-execute`, `allow-spawn`, `allow-kill`, `allow-stdin-write` in capabilities config.
-
-### AD-6: Maestro observability
-
-Maestro already watches filesystem and databases. Tool services emit events on the same `platform:subsystem-status` channel. Maestro can observe what IDEs are running, what Claude Code is doing (via filesystem changes), and coordinate.
-
----
-
-## What's Already In Place
-
-| Component | Status | Location |
-|-----------|--------|----------|
-| Service trait | ✅ Exists | `systems/devpulse-engine/src/platform/services/mod.rs` |
-| Boot pipeline with events | ✅ Exists | `systems/devpulse-engine/src/platform/boot/mod.rs` |
-| Config system (TOML) | ✅ Exists | `systems/devpulse-engine/platform.default.toml` |
-| Health monitoring | ✅ Exists | `systems/devpulse-engine/src/platform/health.rs` |
-| BootStateTracker | ✅ Exists | `interfaces/desktop/src-tauri/src/state.rs` |
-| Windows Job Objects | ✅ Exists (xtask) | `xtask/src/zombie.rs` |
-| tauri-plugin-shell | ✅ Loaded | `src-tauri/src/lib.rs` line 38 |
-| Shell capabilities | ⚠️ Only `allow-open` | `src-tauri/capabilities/default.json` |
-| Process spawning | ❌ Not implemented | — |
-| PTY integration | ❌ Not implemented | — |
-| Tool service config | ❌ Not implemented | — |
-| Frontend tool panel | ❌ Not implemented | — |
+### AD-6: Logging becomes a service
+Tracing subscriber + file appender already work. Wrap them in a `LoggingService` that implements `Service`. Health check = verify log file is writable. Shutdown = flush all appenders. This makes logging observable alongside everything else.
 
 ---
 
 ## Phases
 
-### Phase 1: Process Service Foundation (Rust engine)
+### Phase 1: Service Registry (Rust Engine)
 
-**Goal**: The engine can launch, monitor, and kill external processes with zombie protection.
+**Goal**: Replace hardcoded service fields with a dynamic registry. This unblocks everything else — every subsequent phase just registers a new service.
 
-#### Task 1.1: ProcessService trait
-**File**: `systems/devpulse-engine/src/platform/services/process.rs` (NEW)
+#### Task 1.1: Define ServiceRegistry
+**File**: `systems/devpulse-engine/src/platform/services/registry.rs` (NEW)
 
 ```rust
-use anyhow::Result;
-use std::path::PathBuf;
-
-/// Restart behavior when a managed process exits.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum RestartPolicy {
-    /// Never restart — manual only.
-    Never,
-    /// Restart on non-zero exit code.
-    OnFailure,
-    /// Always restart (with backoff).
-    Always,
+/// Type-safe service registry.
+/// Services register at boot, queried by role.
+/// Health/shutdown iterate all registered services.
+pub struct ServiceRegistry {
+    services: Vec<Arc<dyn Service>>,
+    // Typed accessors via downcast for specific service types
 }
-
-/// Health check method for an external process.
-#[derive(Debug, Clone, serde::Deserialize)]
-#[serde(tag = "kind", rename_all = "snake_case")]
-pub enum HealthCheck {
-    /// Process is alive = healthy.
-    ProcessAlive,
-    /// HTTP GET returns 200.
-    Http { url: String },
-    /// TCP connect succeeds.
-    TcpPort { port: u16 },
-    /// Custom command exits 0.
-    Command { cmd: String, args: Vec<String> },
-}
-
-/// Runtime state of a managed process.
-#[derive(Debug)]
-pub struct ProcessHandle {
-    pub pid: u32,
-    pub child: tokio::process::Child,
-    pub started_at: std::time::Instant,
-}
-
-/// Configuration for a tool service (from TOML).
-#[derive(Debug, Clone, serde::Deserialize)]
-pub struct ToolServiceConfig {
-    pub enabled: bool,
-    pub critical: bool,
-    pub kind: String,
-    pub executable: PathBuf,
-    pub args: Vec<String>,
-    #[serde(default)]
-    pub env: Vec<(String, String)>,
-    pub working_dir: Option<PathBuf>,
-    pub restart: RestartPolicy,
-    pub health: HealthCheck,
-    /// Seconds to wait after spawn before first health check.
-    #[serde(default = "default_grace")]
-    pub grace_period_secs: u64,
-}
-
-fn default_grace() -> u64 { 5 }
 ```
 
-#### Task 1.2: Process manager
-**File**: `systems/devpulse-engine/src/platform/process_manager.rs` (NEW)
+- `register(service)` — add a service
+- `by_role(role) -> Option<&dyn Service>` — lookup
+- `health_all() -> Vec<SubsystemHealth>` — ping everything
+- `shutdown_all()` — reverse-order shutdown with deadlines
+- Typed accessors: `relational()`, `analytics()`, `graph()`, etc. via `Any` downcast
 
-Responsibilities:
-- Spawn processes with Job Object attachment (Windows) / process group (Unix)
-- Track PIDs and handles
-- Health check loop (configurable interval)
-- Restart with exponential backoff per `RestartPolicy`
-- Graceful shutdown: SIGTERM/TerminateProcess → wait → SIGKILL
-- Event emission on state changes (started, healthy, unhealthy, stopped, restarting)
-
-Extract Job Object logic from `xtask/src/zombie.rs` lines 58-74 into this module (or a shared utility).
-
-#### Task 1.3: Integrate into boot pipeline
-**File**: `systems/devpulse-engine/src/platform/boot/mod.rs` (MODIFY)
-
-Add a new boot phase after database services:
-```
-Phase 1: Preflight (directories, lock cleanup)
-Phase 2: Database services (existing)
-Phase 3: Network services (existing)
-Phase 4: Tool services (NEW) ← launches enabled tool processes
-Phase 5: Validation (existing, extended)
-```
-
-Tool services are non-blocking — the UI renders while they start. Events stream to frontend like database services do today.
-
-#### Task 1.4: Integrate into shutdown
+#### Task 1.2: Refactor Platform to use registry
 **File**: `systems/devpulse-engine/src/platform/mod.rs` (MODIFY)
 
-Shutdown order becomes:
-```
-1. Tool services (graceful SIGTERM, 10s deadline)
-2. Graph services
-3. Analytics services
-4. Cache services
-5. Relational services
-6. File lock release
-```
+Replace all `Option<Arc<*Service>>` fields with single `ServiceRegistry`. Accessors delegate to registry. Health and shutdown delegate to registry.
 
-Tools shut down FIRST because they may be writing to databases.
+#### Task 1.3: Refactor boot to register services
+**File**: `systems/devpulse-engine/src/platform/boot/mod.rs` (MODIFY)
 
-**Verification**: `cargo check -p devpulse-engine`
+`BootedServices` becomes a `ServiceRegistry`. Each boot helper registers into the registry instead of returning an `Option`.
+
+**VERIFY**: `cargo check -p devpulse-engine` after EACH file edit.
 
 ---
 
-### Phase 2: Configuration (TOML)
+### Phase 2: Fix Kokoros (Voice TTS)
 
-#### Task 2.1: Add tool service configs
-**File**: `systems/devpulse-engine/platform.default.toml` (MODIFY)
+**Goal**: Kokoros compiles and boots. TTS works.
 
+#### Task 2.1: Patch espeak-rs-sys build.rs
+**File**: `deps/piper-rs/crates/espeak-rs-sys/build.rs` (MODIFY)
+
+Add system install detection before source build:
+```rust
+// Check for system eSpeak install (Windows)
+let system_paths = [
+    "C:/Program Files (x86)/eSpeak/",
+    "C:/Program Files/eSpeak NG/",
+];
+for path in &system_paths {
+    if Path::new(path).exists() {
+        // Link against system install
+        println!("cargo:rustc-link-search=native={path}lib");
+        println!("cargo:rustc-link-lib=static=espeak-ng");
+        return; // Skip source build
+    }
+}
+// Fall through to existing source build
+```
+
+#### Task 2.2: Ensure eSpeak NG is installed
+**Prerequisite**: Run `deps/espeak-ng-setup.msi` or verify system install exists.
+
+#### Task 2.3: Enable kokoros feature
+**File**: `interfaces/desktop/src-tauri/Cargo.toml` (MODIFY)
 ```toml
-# ── Tool services ───────────────────────────────────────────────
-# IDE and AI tools managed as native processes.
-# Each tool is a real executable launched by the platform.
-# The platform manages lifecycle, health, and zombie prevention.
-
-[services.tools.cursor]
-enabled = false
-critical = false
-kind = "ide"
-executable = "cursor"
-args = ["--new-window", "."]
-env = []
-restart = "never"
-health = { kind = "process_alive" }
-grace_period_secs = 10
-
-[services.tools.antigravity]
-enabled = false
-critical = false
-kind = "ide"
-executable = "code"
-args = ["--new-window", "."]
-env = []
-restart = "never"
-health = { kind = "process_alive" }
-grace_period_secs = 10
-
-[services.tools.claude]
-enabled = false
-critical = false
-kind = "terminal"
-executable = "claude"
-args = []
-env = []
-restart = "on_failure"
-health = { kind = "process_alive" }
-grace_period_secs = 3
+devpulse-engine = { path = "../../../systems/devpulse-engine", features = ["rro", "outlines", "kokoros"] }
 ```
 
-#### Task 2.2: Config types
-**File**: `systems/devpulse-engine/src/platform/config.rs` (MODIFY)
-
-Add `ToolServicesConfig` struct and wire it into the existing config hierarchy under `services.tools`.
-
-**Verification**: `cargo check -p devpulse-engine` — config deserializes from TOML
-
----
-
-### Phase 3: Tauri Integration
-
-#### Task 3.1: Expand shell capabilities
-**File**: `interfaces/desktop/src-tauri/capabilities/default.json` (MODIFY)
-
-Add permissions:
-```json
-[
-  "core:default",
-  "shell:allow-open",
-  "shell:allow-execute",
-  "shell:allow-spawn",
-  "shell:allow-kill",
-  "shell:allow-stdin-write"
-]
+#### Task 2.4: Enable in config
+**File**: `systems/devpulse-engine/platform.default.toml` (MODIFY)
+```toml
+[services.system.voice]
+enabled = true
+critical = false  # non-critical until proven stable
+kind = "kokoros"
 ```
 
-#### Task 3.2: Tauri commands for tool service management
-**File**: `interfaces/desktop/src-tauri/src/commands/sys/tools.rs` (NEW)
+#### Task 2.5: Verify model files exist
+Check `.userdata/system/kokoros/model/kokoro-v1.0.onnx` and `voices-v1.0.bin`. If missing, document download/provision step.
 
-Commands:
-- `get_tool_services` → list all configured tools with status
-- `start_tool_service(name)` → start a specific tool
-- `stop_tool_service(name)` → stop a specific tool
-- `restart_tool_service(name)` → restart
-- `get_tool_health(name)` → health check result
-
-Register in `commands/mod.rs`.
-
-#### Task 3.3: Events
-Emit on the existing `platform:subsystem-status` channel:
-- `tool:starting`, `tool:healthy`, `tool:unhealthy`, `tool:stopped`, `tool:restarting`
-
-Frontend StatusBar already listens to this channel — tool services appear alongside database services automatically.
-
-**Verification**: `cargo check -p devpulse-desktop-app`
+**VERIFY**: `cargo check -p devpulse_desktop_backend` then `cargo xtask run-dev` → voice service boots.
 
 ---
 
-### Phase 4: PTY Integration (Claude Code)
+### Phase 3: Candle ML Runtime (OWNER DECISION GATE)
 
-#### Task 4.1: PTY crate
-**File**: `systems/devpulse-engine/Cargo.toml` (MODIFY)
+**Blocked on AD-2 decision.** Depending on choice:
 
-Add dependency: `portable-pty` (cross-platform PTY — uses ConPTY on Windows, openpty on Unix).
+#### Option A/B: Inference/Embedding Service
+**Files**:
+- `kernel/devpulse-maestro/src/cortex/persistence/candle.rs` (NEW) — CandleAdapter
+- `systems/devpulse-engine/src/platform/services/inference.rs` (NEW) — InferenceService
+- Config entry in `platform.default.toml`
+- Register in boot pipeline
 
-#### Task 4.2: Terminal session manager
-**File**: `systems/devpulse-engine/src/platform/terminal.rs` (NEW)
+#### Option C: Delete
+- Remove `candle-core`, `candle-transformers` from workspace `Cargo.toml`
+- Done
 
-Responsibilities:
-- Create PTY pairs (master/slave)
-- Spawn Claude Code (or any CLI) inside the PTY
-- Read output from master fd, emit as events
-- Write input to master fd from frontend
-- Handle resize events (SIGWINCH / ConPTY resize)
-
-#### Task 4.3: Tauri commands for terminal
-**File**: `interfaces/desktop/src-tauri/src/commands/sys/terminal.rs` (NEW)
-
-Commands:
-- `create_terminal_session(tool_name)` → returns session ID
-- `write_terminal(session_id, data)` → send keystrokes
-- `resize_terminal(session_id, cols, rows)` → resize
-- `close_terminal(session_id)` → teardown
-
-Events:
-- `terminal:output(session_id, data)` → raw ANSI output for frontend renderer
-
-**Verification**: `cargo check -p devpulse-desktop-app`
+#### Option D: Defer with config
+- Add config entry `enabled = false`
+- Wire stub adapter
+- Revisit when model selection is decided
 
 ---
 
-### Phase 5: Frontend — Service Panel (ColdLight)
+### Phase 4: STT Service (Speech-to-Text)
 
-#### Task 5.1: Tool service status in StatusBar
-**File**: `interfaces/desktop/src/lib/components/` (MODIFY existing StatusBar)
+**OWNER DECISION GATE**: What STT engine?
 
-Tool services appear as status indicators alongside database services. Click to expand.
+Options:
+- A) **Whisper via Candle** — if Candle is kept, whisper.cpp via candle-transformers
+- B) **Whisper via ORT** — ONNX whisper model, same runtime as Kokoros
+- C) **External API** — Deepgram, AssemblyAI, etc. (not local-first)
+- D) **Defer** — TTS first, STT later
 
-#### Task 5.2: Tool management panel
-**File**: `interfaces/desktop/src/routes/` or panel component (NEW)
-
-- List all tool services with status (running/stopped/error)
-- Start/stop/restart buttons
-- Health indicator (green/yellow/red)
-- Log tail for each tool
-
-#### Task 5.3: Terminal component (for Claude Code)
-**File**: `interfaces/desktop/src/lib/components/` (NEW)
-
-Integrate `xterm.js` (or `@nicco/term`) for terminal rendering:
-- Receives `terminal:output` events
-- Sends keystrokes via `write_terminal` command
-- Handles resize
-- ANSI color rendering
-- ColdLight-styled chrome around the terminal
-
-**Verification**: `pnpm svelte-check`
+If A or B:
+**Files**:
+- `kernel/devpulse-maestro/src/cortex/persistence/stt.rs` (NEW) — STT adapter
+- `systems/devpulse-engine/src/platform/services/stt.rs` (NEW) — STTService
+- Config entry in `platform.default.toml`
+- Feature gate: `stt` (optional)
 
 ---
 
-### Phase 6: Maestro Observability (Future)
+### Phase 5: Logging Service
 
-Not part of this sprint but designed for:
-- Maestro subscribes to tool service events
-- Can observe which IDE is active
-- Can observe Claude Code terminal output (opt-in)
-- Can coordinate: "Claude Code just modified X, update the knowledge graph"
-- Can route tasks: "send this to Cursor" vs "send this to Claude Code"
+**Goal**: Logging is a managed service with health checks.
+
+#### Task 5.1: LoggingService
+**File**: `systems/devpulse-engine/src/platform/services/logging.rs` (NEW)
+
+```rust
+pub struct LoggingService {
+    log_dir: PathBuf,
+    // Holds reference to tracing guard
+}
+
+impl Service for LoggingService {
+    fn name(&self) -> &'static str { "Logging" }
+    fn role(&self) -> ServiceRole { ServiceRole::Logging }
+    async fn ping(&self) -> Result<()> {
+        // Verify log directory is writable
+        // Verify log file exists and was written recently
+    }
+    fn is_ready(&self) -> bool { true }
+    async fn shutdown(&self) -> Result<()> {
+        // Flush all appenders
+    }
+}
+```
+
+#### Task 5.2: Add ServiceRole::Logging
+**File**: `systems/devpulse-engine/src/platform/services/mod.rs` (MODIFY)
+
+#### Task 5.3: Register in boot pipeline
+Boot logging FIRST (before all other services). Currently logging is initialized in `lib.rs` setup — move the service wrapper registration to boot phase 0.
+
+**VERIFY**: `cargo check -p devpulse-engine`
 
 ---
 
-## Decision Gates (Owner Must Approve)
+### Phase 6: xtask Post-Boot Health Gate
 
-| # | Decision | Options | Impact |
+**Goal**: `cargo xtask run-dev` confirms the platform actually booted before declaring success.
+
+#### Task 6.1: Health poll after launch
+**File**: `xtask/src/commands/dev.rs` (MODIFY)
+
+After spawning `pnpm tauri dev`, poll `http://127.0.0.1:8822/health` with:
+- 30 second timeout (services need time to boot)
+- 2 second poll interval
+- On success: print service health summary
+- On timeout: print FAILURE with boot.log location
+
+This is NOT blocking the tauri process — it runs in parallel. Just a health confirmation gate before xtask declares "all good".
+
+#### Task 6.2: Boot log tail on failure
+If health check times out, read and print `.userdata/logs/boot.log` tail (last 30 lines) so the developer sees exactly what failed.
+
+**VERIFY**: `cargo check -p xtask`
+
+---
+
+### Phase 7: Project Self-Indexing (Dogfooding)
+
+**Goal**: On first boot, the platform indexes the project it's running in.
+
+#### Task 7.1: Project indexer
+**File**: `systems/devpulse-engine/src/platform/boot/indexer.rs` (NEW)
+
+After all services are healthy:
+1. Read `Cargo.toml` → extract workspace members, dependencies
+2. Scan `interfaces/desktop/package.json` → frontend deps
+3. Scan directory structure → file counts by type
+4. Write to `projects/devpulse/` SurrealDB namespace:
+   - `project_meta` — name, root, tech stack
+   - `project_deps` — dependency graph
+   - `project_files` — file inventory by directory
+
+#### Task 7.2: Wire into boot pipeline
+**File**: `systems/devpulse-engine/src/platform/boot/mod.rs` (MODIFY)
+
+New boot phase 4 after service validation:
+```
+Phase 1: Preflight (directories)
+Phase 2: Service boots
+Phase 3: Validation (critical services)
+Phase 4: Project indexing (NEW)
+Phase 5: Health check
+```
+
+Only runs if project graph service is healthy. Non-critical — failure doesn't block boot.
+
+**VERIFY**: `cargo check -p devpulse-engine`
+
+---
+
+### Phase 8: Clean Modular Structure
+
+**Goal**: The `platform/` module structure scales for 15+ services without becoming a mess.
+
+#### Current Structure (good foundation)
+```
+systems/devpulse-engine/src/platform/
+├── boot/
+│   ├── mod.rs          # Boot orchestration
+│   ├── graph.rs        # SurrealDB consolidated boot
+│   ├── preflight.rs    # Directory creation
+│   └── retry.rs        # File-lock retry
+├── services/
+│   ├── mod.rs          # Service trait + ServiceRole
+│   ├── analytics.rs    # DuckDB
+│   ├── cache.rs        # Moka
+│   ├── grammar.rs      # outlines-core
+│   ├── graph.rs        # SurrealDB
+│   ├── relational.rs   # LibSQL
+│   ├── vector.rs       # RRO
+│   └── voice.rs        # Kokoros
+├── config.rs           # 874 lines — TOO BIG
+├── health.rs
+├── init.rs
+├── mod.rs
+└── server.rs
+```
+
+#### Target Structure
+```
+systems/devpulse-engine/src/platform/
+├── boot/
+│   ├── mod.rs          # Boot orchestration
+│   ├── graph.rs        # SurrealDB consolidated boot
+│   ├── indexer.rs      # Project self-indexing (NEW)
+│   ├── preflight.rs    # Directory creation
+│   └── retry.rs        # File-lock retry
+├── services/
+│   ├── mod.rs          # Service trait + ServiceRole
+│   ├── registry.rs     # ServiceRegistry (NEW)
+│   ├── analytics.rs    # DuckDB
+│   ├── cache.rs        # Moka
+│   ├── grammar.rs      # outlines-core
+│   ├── graph.rs        # SurrealDB
+│   ├── inference.rs    # Candle (NEW, if kept)
+│   ├── logging.rs      # Logging service (NEW)
+│   ├── relational.rs   # LibSQL
+│   ├── stt.rs          # STT (NEW, when ready)
+│   ├── vector.rs       # RRO
+│   └── voice.rs        # Kokoros
+├── config/
+│   ├── mod.rs          # Re-exports, PlatformBootConfig
+│   ├── services.rs     # All service config entries
+│   ├── network.rs      # Network config
+│   ├── windows.rs      # Windows hardening
+│   └── defaults.rs     # Serde default functions
+├── health.rs
+├── init.rs
+├── mod.rs
+└── server.rs
+```
+
+Key changes:
+- `config.rs` (874 lines) → split into `config/` module with logical sub-files
+- `services/registry.rs` — new service registry
+- New service files as services are added
+
+**VERIFY**: `cargo check -p devpulse-engine` after each move.
+
+---
+
+## Decision Gates (Owner MUST Decide Before Execution)
+
+| # | Decision | Options | Blocks |
 |---|----------|---------|--------|
-| 1 | PTY crate choice | `portable-pty` vs `conpty` + `openpty` directly | Phase 4 approach |
-| 2 | Terminal frontend | `xterm.js` vs custom ANSI renderer | Phase 5 complexity |
-| 3 | Tool auto-start | Should enabled tools launch on platform boot, or always manual? | UX behavior |
-| 4 | Executable discovery | Hardcoded paths vs PATH lookup vs user config? | Setup complexity |
-| 5 | Phase ordering | Build all of Phase 1-3 first, or interleave with frontend? | Sprint execution |
+| 1 | **Candle role** | A) Inference service, B) Embedding engine, C) Delete, D) Defer | Phase 3 |
+| 2 | **STT engine** | A) Whisper/Candle, B) Whisper/ORT, C) External API, D) Defer | Phase 4 |
+| 3 | **Kokoros criticality** | `critical = true` (boot fails) vs `critical = false` (degraded mode) | Phase 2 |
+| 4 | **Service registry now or later** | A) Phase 1 of this sprint, B) After all services load | Phase 1 ordering |
 
 ---
 
-## Risk Register
+## Execution Order
 
-| Risk | Mitigation |
-|------|------------|
-| Cursor/VS Code don't like being launched as child processes | They do — both support `--new-window` CLI. Tested pattern. |
-| Windows Job Objects kill IDE when DevPulse closes | Expected behavior. Document it. Add "detach" option if user wants IDE to outlive platform. |
-| PTY on Windows is historically painful | ConPTY (Windows 10+) is stable. `portable-pty` abstracts it. Windows 11 = no issues. |
-| Claude Code auth | No issue — CLI uses user's existing auth (~/.claude/). Platform just spawns it. |
-| Process zombies on crash | Job Objects handle this on Windows. Process groups + SIGKILL on Unix. Already proven in xtask. |
+1. **Phase 8** first (structure) — clean house before adding rooms
+2. **Phase 5** (logging service) — everything logs, should be first service
+3. **Phase 1** (service registry) — unblocks scalable service addition
+4. **Phase 2** (Kokoros) — real fix, not a workaround
+5. **Phase 6** (xtask health gate) — verify everything boots
+6. **Phase 7** (project indexing) — dogfooding
+7. **Phase 3 + 4** (Candle + STT) — after owner decisions
+
+---
+
+## Hard Rules During Execution
+
+1. `cargo check` after EVERY file edit. No exceptions.
+2. If a service fails to boot, STOP. Fix it. Do not proceed.
+3. No `enabled = false` to skip broken services. Fix or remove.
+4. No stub/placeholder adapters. Real implementation or nothing.
+5. No dead dependencies. Wire it or delete it.
+6. Every service gets a health check that actually verifies functionality, not just `true`.
+7. Config drives everything. No hardcoded paths, ports, or feature toggles in code.
 
 ---
 
@@ -388,29 +408,25 @@ Not part of this sprint but designed for:
 
 | File | Action | Phase |
 |------|--------|-------|
-| `systems/devpulse-engine/src/platform/services/process.rs` | NEW | 1 |
-| `systems/devpulse-engine/src/platform/services/mod.rs` | MODIFY (add module) | 1 |
-| `systems/devpulse-engine/src/platform/process_manager.rs` | NEW | 1 |
-| `systems/devpulse-engine/src/platform/boot/mod.rs` | MODIFY (Phase 4 boot) | 1 |
-| `systems/devpulse-engine/src/platform/mod.rs` | MODIFY (shutdown order) | 1 |
-| `systems/devpulse-engine/platform.default.toml` | MODIFY (tool configs) | 2 |
-| `systems/devpulse-engine/src/platform/config.rs` | MODIFY (config types) | 2 |
-| `interfaces/desktop/src-tauri/capabilities/default.json` | MODIFY (permissions) | 3 |
-| `interfaces/desktop/src-tauri/src/commands/sys/tools.rs` | NEW | 3 |
-| `interfaces/desktop/src-tauri/src/commands/sys/mod.rs` | MODIFY (register) | 3 |
-| `interfaces/desktop/src-tauri/src/commands/mod.rs` | MODIFY (register) | 3 |
-| `systems/devpulse-engine/Cargo.toml` | MODIFY (portable-pty) | 4 |
-| `systems/devpulse-engine/src/platform/terminal.rs` | NEW | 4 |
-| `interfaces/desktop/src-tauri/src/commands/sys/terminal.rs` | NEW | 4 |
-| Frontend StatusBar | MODIFY | 5 |
-| Frontend tool panel | NEW | 5 |
-| Frontend terminal component | NEW | 5 |
+| `platform/config.rs` → `platform/config/` | SPLIT | 8 |
+| `platform/services/registry.rs` | NEW | 1 |
+| `platform/services/mod.rs` | MODIFY (add registry, logging role) | 1, 5 |
+| `platform/mod.rs` | MODIFY (use registry) | 1 |
+| `platform/boot/mod.rs` | MODIFY (register pattern, indexer phase) | 1, 7 |
+| `platform/services/logging.rs` | NEW | 5 |
+| `platform/boot/indexer.rs` | NEW | 7 |
+| `deps/piper-rs/crates/espeak-rs-sys/build.rs` | MODIFY | 2 |
+| `interfaces/desktop/src-tauri/Cargo.toml` | MODIFY (add kokoros feature) | 2 |
+| `systems/devpulse-engine/platform.default.toml` | MODIFY (enable voice) | 2 |
+| `xtask/src/commands/dev.rs` | MODIFY (health gate) | 6 |
+| `kernel/.../candle.rs` | NEW (if kept) | 3 |
+| `platform/services/inference.rs` | NEW (if kept) | 3 |
+| `kernel/.../stt.rs` | NEW (when decided) | 4 |
+| `platform/services/stt.rs` | NEW (when decided) | 4 |
 
 ---
 
 ## Sprint Boundary
 
-**In scope**: Process lifecycle management, config, Tauri commands, PTY, basic frontend panel.
-**Out of scope**: Maestro AI coordination with tools, VizWizi integration, custom DevPulse extensions for Cursor/VS Code, multi-workspace support.
-
-Those are follow-on sprints once this foundation is solid.
+**In scope**: All services loading, clean structure, xtask health gate, project self-indexing, Kokoros fix, Candle decision.
+**Out of scope**: IDE/AI as managed services (P3), VPB, visual fidelity, frontend service panel. Those come after the foundation is solid.

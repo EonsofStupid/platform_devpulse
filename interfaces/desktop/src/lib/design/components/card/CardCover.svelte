@@ -11,16 +11,23 @@ import { cn } from "$lib/design/utils/cn.js";
 import { getCardContext } from "./context.js";
 import type { CardCoverProps } from "./types.js";
 
-let { position = "top", children, class: className, ...rest }: CardCoverProps = $props();
+let { position = "top", children, element, class: className, ...rest }: CardCoverProps = $props();
 const ctx = getCardContext();
+
+const attrs = $derived({
+	id: ctx.ids.cover,
+	"data-kind": "card" as const,
+	"data-slot": "cover" as const,
+	"data-position": position,
+	class: cn(ctx.classes.cover, "overflow-hidden", className),
+	...rest,
+});
 </script>
 
-<div
-	data-kind="card"
-	data-slot="cover"
-	data-position={position}
-	class={cn(ctx.classes.cover, "overflow-hidden", className)}
-	{...rest}
->
-	{@render children?.()}
-</div>
+{#if element}
+	{@render element(attrs)}
+{:else}
+	<div {...attrs}>
+		{@render children?.()}
+	</div>
+{/if}

@@ -10,6 +10,7 @@ export { contract as cardComponentContract } from "./contract.js";
 export {
 	CARD_VARIANT_PRESETS,
 	type CardAs,
+	type CardIds,
 	type CardOrientation,
 	type CardRootProps,
 	type CardVariant,

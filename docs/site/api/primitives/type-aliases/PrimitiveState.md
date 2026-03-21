@@ -24,6 +24,5 @@ Component layer adds ARIA, state, and recipes.
 
 87 primitives total:
   - 21 ColdLight-owned P0 (interactive + layout + typography + form + feedback + nav)
-  - 17 Melt-backed P0 (via dsAdapter transport)
   - 21 P1 (layout, display, interactive, navigation, overlay)
   - 28 P1-P3 (menus, dates, data display, misc)
