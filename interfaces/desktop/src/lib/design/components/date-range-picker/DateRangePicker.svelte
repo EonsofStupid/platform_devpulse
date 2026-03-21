@@ -1,144 +1,160 @@
 <!--
-	@component DateRangePicker
+	@component DateRangePicker (Root)
 	@kind date-range-picker
 	@layer components
 
-	ColdLight DateRangePicker root — combines date-range-field + range-calendar in popover.
-	Compound component: sub-components consume context to render slots.
-
-	ColdLight OWNS all ARIA. No MeltUI dependency.
-	Reference: WAI-ARIA APG Dialog (Modal) + Grid Pattern
+	Two DateFields (start/end) + RangeCalendar popover.
+	Manages range value state + popover open state.
 -->
 <script lang="ts">
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
+import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { type DateRangePickerContext, setDateRangePickerContext } from "./context.js";
-import { dateRangePickerRecipe } from "./recipe.js";
-import type { DateRange, DateRangePickerProps } from "./types.js";
+import { createIds } from "$lib/design/_internal/utils/uid.js";
+import { setDateRangePickerContext } from "./context.js";
+import type { DateRangePickerRootProps, DateRangeValue } from "./types.js";
 
 let {
-	startDate = undefined,
-	endDate = undefined,
-	onRangeChange,
-	open = false,
+	ids: userIds,
+	value: controlledValue,
+	defaultValue = null,
+	onChange,
+	isOpen: controlledOpen,
+	defaultOpen = false,
 	onOpenChange,
-	min,
-	max,
-	disabled = false,
-	locale = "en-US",
-	size = "md",
-	children,
-	class: className,
-	// ColdLight 8-axis props
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	// Rest spread
-	...rest
-}: DateRangePickerProps = $props();
+	shouldCloseOnSelect = true,
+	allowsNonContiguousRanges = false,
+	inline = false,
+	granularity = "day",
+	maxVisibleMonths = 1,
+	isDateUnavailable,
+	minValue, maxValue, firstDayOfWeek,
+	isDisabled = false, isReadOnly = false, isRequired = false,
+	isInvalid: controlledInvalid = false,
+	validate,
+	size = "md", locale = "en-US",
+	label, description, errorMessage,
+	startName, endName, form,
+	dir = "ltr",
+	preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius,
+	children, class: className, ...rest
+}: DateRangePickerRootProps = $props();
 
-const uid = Math.random().toString(36).slice(2, 9);
-const triggerId = `drp-trigger-${uid}`;
-const contentId = `drp-content-${uid}`;
-
-let isOpen = $state(false);
-
-$effect(() => {
-	isOpen = open;
+const autoIds = createIds("date-range-picker", ["root", "startField", "endField", "trigger", "content", "label", "description", "errorMessage"] as const);
+const resolvedIds = $derived({
+	root: userIds?.root ?? autoIds.root,
+	startField: userIds?.startField ?? autoIds.startField,
+	endField: userIds?.endField ?? autoIds.endField,
+	trigger: userIds?.trigger ?? autoIds.trigger,
+	content: userIds?.content ?? autoIds.content,
+	label: userIds?.label ?? autoIds.label,
+	description: userIds?.description ?? autoIds.description,
+	errorMessage: userIds?.errorMessage ?? autoIds.errorMessage,
 });
 
-const ctx: DateRangePickerContext = {
-	get startDate() {
-		return startDate;
-	},
-	get endDate() {
-		return endDate;
-	},
-	get open() {
-		return isOpen;
-	},
-	get disabled() {
-		return disabled;
-	},
-	get locale() {
-		return locale;
-	},
-	get size() {
-		return size;
-	},
-	get min() {
-		return min;
-	},
-	get max() {
-		return max;
-	},
-	triggerId,
-	contentId,
-	toggle() {
-		if (disabled) return;
-		isOpen = !isOpen;
-		onOpenChange?.(isOpen);
-	},
-	openPopover() {
-		if (disabled || isOpen) return;
-		isOpen = true;
-		onOpenChange?.(true);
-	},
-	closePopover() {
-		if (!isOpen) return;
-		isOpen = false;
-		onOpenChange?.(false);
-	},
-	selectRange(range: DateRange) {
-		if (disabled) return;
-		onRangeChange?.(range);
-		// Close only when both start and end are set
-		if (range.start && range.end) {
-			ctx.closePopover();
-		}
-	},
-	updateRange(range: DateRange) {
-		if (disabled) return;
-		onRangeChange?.(range);
-	},
-};
+let internalValue = $state<DateRangeValue | null>(defaultValue);
+$effect(() => { if (controlledValue !== undefined) internalValue = controlledValue; });
+const currentValue = $derived(controlledValue !== undefined ? controlledValue : internalValue);
 
-setDateRangePickerContext(ctx);
+let internalOpen = $state(defaultOpen);
+$effect(() => { if (controlledOpen !== undefined) internalOpen = controlledOpen; });
+const isOpen = $derived(controlledOpen !== undefined ? controlledOpen : internalOpen);
+
+const validationError = $derived(() => {
+	if (!validate || !currentValue) return null;
+	return validate(currentValue) ?? null;
+});
+const isInvalid = $derived(controlledInvalid || validationError() !== null);
+
+function toggle() { if (isDisabled || inline) return; const next = !isOpen; internalOpen = next; onOpenChange?.({ open: next }); }
+function openPopover() { if (isDisabled || isOpen || inline) return; internalOpen = true; onOpenChange?.({ open: true }); }
+function closePopover() { if (!isOpen) return; internalOpen = false; onOpenChange?.({ open: false }); }
+
+function selectRange(range: DateRangeValue) {
+	if (isDisabled || isReadOnly) return;
+	internalValue = range;
+	onChange?.({ value: range });
+	if (shouldCloseOnSelect && range.start && range.end) closePopover();
+}
+
+function updateStart(date: Date | null) {
+	if (isDisabled || isReadOnly) return;
+	const range: DateRangeValue = { start: date, end: currentValue?.end ?? null };
+	internalValue = range;
+	onChange?.({ value: range });
+}
+
+function updateEnd(date: Date | null) {
+	if (isDisabled || isReadOnly) return;
+	const range: DateRangeValue = { start: currentValue?.start ?? null, end: date };
+	internalValue = range;
+	onChange?.({ value: range });
+}
+
+const recipe = getRecipe("date-range-picker.glass.void");
+const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
+
+setDateRangePickerContext({
+	get value() { return currentValue; },
+	get isOpen() { return isOpen; },
+	get isDisabled() { return isDisabled; },
+	get isReadOnly() { return isReadOnly; },
+	get isRequired() { return isRequired; },
+	get isInvalid() { return isInvalid; },
+	get inline() { return inline; },
+	get locale() { return locale; },
+	get size() { return size; },
+	get dir() { return dir; },
+	get classes() { return recipeClasses; },
+	get ids() { return resolvedIds; },
+	get shouldCloseOnSelect() { return shouldCloseOnSelect; },
+	toggle, openPopover, closePopover, selectRange, updateStart, updateEnd,
+});
 
 const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	size,
+	preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius,
 }));
 
-const recipe = $derived(dateRangePickerRecipe({ size }));
+const rootClasses = $derived(cn(recipeClasses.root, visual.segments, visual.radius, className));
 </script>
 
 <div
+	id={resolvedIds.root}
+	{dir}
 	role="group"
-	class={cn(recipe.root, visual.segments, visual.radius, className)}
+	aria-labelledby={label ? resolvedIds.label : undefined}
+	aria-describedby={description ? resolvedIds.description : undefined}
+	aria-disabled={isDisabled || undefined}
 	data-kind="date-range-picker"
 	data-slot="root"
-	data-state={disabled ? "disabled" : undefined}
+	data-state={isDisabled ? "disabled" : isInvalid ? "invalid" : undefined}
+	data-inline={inline || undefined}
 	data-encoding={visual.encoding || undefined}
+	class={rootClasses}
 	{...rest}
 >
+	{#if label}
+		<label id={resolvedIds.label} class={recipeClasses.label} data-kind="date-range-picker" data-slot="label">
+			{label}{#if isRequired}<span aria-hidden="true" class="text-[var(--color-red-400)] ms-2">*</span>{/if}
+		</label>
+	{/if}
+
 	{@render children?.()}
+
+	{#if description}
+		<p id={resolvedIds.description} class={recipeClasses.description} data-kind="date-range-picker" data-slot="description">{description}</p>
+	{/if}
+
+	{#if isInvalid && (errorMessage || validationError())}
+		<p id={resolvedIds.errorMessage} role="alert" class={recipeClasses.errorMessage} data-kind="date-range-picker" data-slot="error-message">
+			{errorMessage ?? validationError()}
+		</p>
+	{/if}
+
+	{#if startName}
+		<input type="hidden" name={startName} value={currentValue?.start?.toISOString() ?? ""} {form} />
+	{/if}
+	{#if endName}
+		<input type="hidden" name={endName} value={currentValue?.end?.toISOString() ?? ""} {form} />
+	{/if}
 </div>

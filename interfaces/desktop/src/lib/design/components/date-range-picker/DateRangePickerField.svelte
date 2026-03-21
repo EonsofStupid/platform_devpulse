@@ -1,29 +1,31 @@
 <!--
-	@component DateRangePickerField
+	@component DateRangePicker.Input
 	@kind date-range-picker
 	@slot field
 	@layer components
 
-	Embedded date-range-field for direct range input.
-	ColdLight-owned ARIA — wraps start/end date-field segments.
+	Indexed input — index=0 for start, index=1 for end.
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getDateRangePickerContext } from "./context.js";
-import { dateRangePickerRecipe } from "./recipe.js";
-import type { DateRangePickerFieldProps } from "./types.js";
+import type { DateRangePickerInputProps } from "./types.js";
 
-let { children, class: className, ...rest }: DateRangePickerFieldProps = $props();
+let { index, children, class: className, ...rest }: DateRangePickerInputProps = $props();
 const ctx = getDateRangePickerContext();
-const recipe = $derived(dateRangePickerRecipe({ size: ctx.size }));
+
+const fieldId = $derived(index === 0 ? ctx.ids.startField : ctx.ids.endField);
 </script>
 
 <div
+	id={fieldId}
 	role="group"
-	class={cn(recipe.field, className)}
+	aria-label={index === 0 ? "Start date" : "End date"}
 	data-kind="date-range-picker"
 	data-slot="field"
-	data-state={ctx.disabled ? "disabled" : undefined}
+	data-index={index}
+	data-state={ctx.isDisabled ? "disabled" : undefined}
+	class={cn(ctx.classes.field, className)}
 	{...rest}
 >
 	{@render children?.()}

@@ -1,55 +1,43 @@
-/**
- * @file DateRangePicker Context — Svelte context for compound component communication
- * @kind date-range-picker
- * @layer components
- *
- * Symbol-keyed context + typed get/set helpers.
- * Root sets context; sub-components consume it.
- * ColdLight-owned — no adapter dependency.
- */
-
 import { getContext, setContext } from "svelte";
-import type { DateRange } from "./types.js";
+import type { DateRangePickerIds, DateRangeValue } from "./types.js";
 
 export interface DateRangePickerContext {
-	/** Start date of the range */
-	readonly startDate: Date | undefined;
-	/** End date of the range */
-	readonly endDate: Date | undefined;
-	/** Whether the popover is open */
-	readonly open: boolean;
-	/** Whether the picker is disabled */
-	readonly disabled: boolean;
-	/** Locale for formatting */
+	readonly value: DateRangeValue | null | undefined;
+	readonly isOpen: boolean;
+	readonly isDisabled: boolean;
+	readonly isReadOnly: boolean;
+	readonly isRequired: boolean;
+	readonly isInvalid: boolean;
+	readonly inline: boolean;
 	readonly locale: string;
-	/** Size variant */
-	readonly size: "sm" | "md" | "lg";
-	/** Minimum selectable date */
-	readonly min: Date | undefined;
-	/** Maximum selectable date */
-	readonly max: Date | undefined;
-	/** ID for the trigger element */
-	readonly triggerId: string;
-	/** ID for the content element */
-	readonly contentId: string;
-	/** Toggle the popover open/closed */
+	readonly size: string;
+	readonly dir: "ltr" | "rtl";
+	readonly classes: Record<string, string>;
+	readonly ids: {
+		readonly root: string;
+		readonly startField: string;
+		readonly endField: string;
+		readonly trigger: string;
+		readonly content: string;
+		readonly label: string;
+		readonly description: string;
+		readonly errorMessage: string;
+	};
+	readonly shouldCloseOnSelect: boolean;
 	toggle(): void;
-	/** Open the popover */
 	openPopover(): void;
-	/** Close the popover */
 	closePopover(): void;
-	/** Update the range (from calendar selection) and close */
-	selectRange(range: DateRange): void;
-	/** Update the range (from field input) without closing */
-	updateRange(range: DateRange): void;
+	selectRange(range: DateRangeValue): void;
+	updateStart(date: Date | null): void;
+	updateEnd(date: Date | null): void;
 }
 
-const DATE_RANGE_PICKER_CTX = Symbol("coldlight-date-range-picker");
+const CTX = Symbol("coldlight-date-range-picker");
 
 export function setDateRangePickerContext(ctx: DateRangePickerContext): void {
-	setContext(DATE_RANGE_PICKER_CTX, ctx);
+	setContext(CTX, ctx);
 }
 
 export function getDateRangePickerContext(): DateRangePickerContext {
-	return getContext<DateRangePickerContext>(DATE_RANGE_PICKER_CTX);
+	return getContext<DateRangePickerContext>(CTX);
 }

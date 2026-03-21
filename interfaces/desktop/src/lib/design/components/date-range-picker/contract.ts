@@ -1,166 +1,69 @@
-/**
- * @file DateRangePicker Component Contract
- * @kind date-range-picker
- * @layer components
- *
- * BUILD-TIME validated via `satisfies ComponentContract`.
- * TypeScript compiler enforces the shape — zero runtime overhead.
- *
- * Compound component: root, field, trigger, content, calendar.
- * ColdLight-owned ARIA — combines date-range-field + range-calendar in popover.
- *
- * Pattern: WAI-ARIA APG Dialog (Modal) + Grid
- * Reference: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
- */
-
 import type { ComponentContract } from "$lib/design/components/_schema/contract.js";
 
-/**
- * DateRangePicker component contract — compile-time enforced.
- *
- * Compound: root → field (start/end segments) + trigger + content (popover) → calendar
- */
 export const contract = {
 	kind: "date-range-picker",
 	description:
-		"Combined date range field and range calendar popover for date range selection. ColdLight-owned ARIA with popover dialog, dual spinbutton field segments, and range calendar grid.",
-	apgPattern: "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/",
+		"Two DateFields (start/end) + RangeCalendar popover. Range selection, presets, inline mode. Controlled/uncontrolled value and popover.",
 
 	slots: {
-		required: ["root", "field", "trigger", "content", "calendar"],
-		optional: [],
+		required: ["root"],
+		optional: ["field", "trigger", "content", "calendar", "label", "description", "errorMessage", "presetTrigger"],
 	},
 
 	slotContracts: {
 		root: {
 			name: "root",
 			element: "div",
-			aria: {
-				role: "group",
-				required: [],
-				optional: [
-					{ attr: "aria-label", valueType: "aria-label" },
-					{ attr: "aria-labelledby", valueType: "aria-labelledby" },
-				],
-			},
-			data: {
-				kind: "date-range-picker",
-				slot: "root",
-				states: ["disabled"],
-			},
+			aria: { role: "group", required: [], optional: [{ attr: "aria-labelledby", valueType: "aria-labelledby" }] },
+			data: { kind: "date-range-picker", slot: "root", states: [] },
 		},
 		field: {
 			name: "field",
 			element: "div",
-			aria: {
-				role: "group",
-				required: [],
-				optional: [
-					{ attr: "aria-labelledby", valueType: "aria-labelledby" },
-					{ attr: "aria-describedby", valueType: "aria-describedby" },
-				],
-			},
-			data: {
-				kind: "date-range-picker",
-				slot: "field",
-				states: ["focused", "disabled", "invalid"],
-			},
+			aria: { role: "group", required: [], optional: [{ attr: "aria-label", valueType: "aria-label" }] },
+			data: { kind: "date-range-picker", slot: "field", states: [] },
 		},
 		trigger: {
 			name: "trigger",
 			element: "button",
 			aria: {
-				role: "button",
-				required: [{ attr: "aria-haspopup", valueType: "aria-haspopup" }],
-				optional: [
-					{ attr: "aria-expanded", valueType: "aria-expanded" },
-					{ attr: "aria-controls", valueType: "aria-controls" },
-					{ attr: "aria-label", valueType: "aria-label" },
-				],
+				required: [{ attr: "aria-haspopup", valueType: "aria-haspopup" }, { attr: "aria-expanded", valueType: "aria-expanded" }],
+				optional: [{ attr: "aria-controls", valueType: "aria-controls" }],
 			},
-			data: {
-				kind: "date-range-picker",
-				slot: "trigger",
-				states: ["open", "closed"],
-			},
-			keyboard: [
-				{ key: "Enter", action: "toggle", description: "Toggle range calendar popover" },
-				{ key: "Space", action: "toggle", description: "Toggle range calendar popover" },
-				{ key: "ArrowDown", action: "open", description: "Open range calendar popover" },
-			],
+			data: { kind: "date-range-picker", slot: "trigger", states: ["open", "closed"] },
 		},
 		content: {
 			name: "content",
 			element: "div",
-			aria: {
-				role: "dialog",
-				required: [{ attr: "aria-modal", valueType: "aria-modal" }],
-				optional: [{ attr: "aria-label", valueType: "aria-label" }],
-			},
-			data: {
-				kind: "date-range-picker",
-				slot: "content",
-				states: ["open", "closed"],
-			},
-			keyboard: [{ key: "Escape", action: "close", description: "Close range calendar popover" }],
+			aria: { role: "dialog", required: [], optional: [{ attr: "aria-modal", valueType: "aria-modal" }] },
+			data: { kind: "date-range-picker", slot: "content", states: ["open", "closed"] },
 		},
 		calendar: {
-			name: "calendar",
-			element: "div",
-			aria: {
-				role: "grid",
-				required: [],
-				optional: [
-					{ attr: "aria-labelledby", valueType: "aria-labelledby" },
-					{ attr: "aria-multiselectable", valueType: "aria-multiselectable" },
-				],
-			},
-			data: {
-				kind: "date-range-picker",
-				slot: "calendar",
-				states: [],
-			},
-			keyboard: [
-				{ key: "Enter", action: "confirm", description: "Confirm range selection and close" },
-			],
+			name: "calendar", element: "div", aria: { required: [], optional: [] },
+			data: { kind: "date-range-picker", slot: "calendar", states: [] },
+		},
+		label: {
+			name: "label", element: "label", aria: { required: [], optional: [] },
+			data: { kind: "date-range-picker", slot: "label", states: [] },
+		},
+		description: {
+			name: "description", element: "p", aria: { required: [], optional: [] },
+			data: { kind: "date-range-picker", slot: "description", states: [] },
+		},
+		errorMessage: {
+			name: "errorMessage", element: "p", aria: { role: "alert", required: [], optional: [] },
+			data: { kind: "date-range-picker", slot: "error-message", states: [] },
+		},
+		presetTrigger: {
+			name: "presetTrigger", element: "button", aria: { required: [], optional: [] },
+			data: { kind: "date-range-picker", slot: "preset-trigger", states: [] },
 		},
 	},
 
-	accessibleName: {
-		required: false,
-		sources: ["aria-label", "aria-labelledby"],
-	},
-
-	focus: {
-		strategy: "activedescendant",
-		initialFocus: "field",
-		returnFocus: "trigger",
-		trapContainer: "content",
-	},
-
-	keyboard: {
-		global: [
-			{ key: "Escape", action: "close", description: "Close popover" },
-			{ key: "Enter", action: "confirm", description: "Confirm range selection" },
-			{ key: "ArrowDown", action: "open", description: "Open calendar from trigger" },
-		],
-	},
-
-	states: {
-		primary: "open",
-		all: ["open", "closed", "disabled", "invalid", "focused"],
-		ariaMapping: {
-			open: "aria-expanded",
-			disabled: "aria-disabled",
-		},
-	},
-
-	interactions: {
-		modal: true,
-		selectable: true,
-		editable: true,
-		expandable: true,
-	},
-
+	accessibleName: { required: false, sources: ["aria-label", "aria-labelledby"], defaultSlot: "label" },
+	focus: { strategy: "direct" },
+	keyboard: { global: [{ key: "Escape", action: "closePopover", description: "Close calendar popover" }] },
+	states: { all: ["open", "closed"] },
+	interactions: { modal: false, selectable: false, editable: true, expandable: true },
 	primitiveKind: "date-range-picker",
 } as const satisfies ComponentContract;

@@ -26,18 +26,31 @@ pub struct ProcessMetrics {
 
 /// Collect real process metrics from the OS.
 ///
-/// Creates a fresh `System` snapshot scoped to the current process.
-/// This is intentionally NOT cached — each call measures the real state.
+/// sysinfo requires TWO refreshes to compute CPU usage — the first call
+/// always returns 0%. We refresh twice with a small sleep between.
+/// Memory (RSS) is accurate on the first refresh.
 #[allow(clippy::cast_possible_truncation)]
 pub fn collect(uptime_secs: u64) -> ProcessMetrics {
     let pid = Pid::from_u32(std::process::id());
     let mut sys = System::new();
-    sys.refresh_processes(sysinfo::ProcessesToUpdate::Some(&[pid]), true);
+    let filter = sysinfo::ProcessesToUpdate::Some(&[pid]);
 
-    let (rss, virt, cpu) = sys
+    // First refresh — baseline for CPU delta calculation. RSS is valid here.
+    sys.refresh_processes(filter, true);
+
+    let (rss, virt) = sys
         .process(pid)
-        .map(|p| (p.memory(), p.virtual_memory(), p.cpu_usage()))
-        .unwrap_or((0, 0, 0.0));
+        .map(|p| (p.memory(), p.virtual_memory()))
+        .unwrap_or((0, 0));
+
+    // Brief pause then second refresh — CPU usage needs a delta between two samples.
+    std::thread::sleep(std::time::Duration::from_millis(200));
+    sys.refresh_processes(filter, true);
+
+    let cpu = sys
+        .process(pid)
+        .map(|p| p.cpu_usage())
+        .unwrap_or(0.0);
 
     ProcessMetrics {
         memory_rss_bytes: rss,

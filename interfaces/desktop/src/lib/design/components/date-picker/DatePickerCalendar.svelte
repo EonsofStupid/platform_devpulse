@@ -1,27 +1,26 @@
 <!--
-	@component DatePickerCalendar
+	@component DatePicker.Calendar
 	@kind date-picker
 	@slot calendar
 	@layer components
 
 	Embedded calendar within the popover.
-	ColdLight-owned — delegates to Calendar component context.
+	Consumer places Calendar.Root + sub-components inside,
+	or uses this as a styled container.
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getDatePickerContext } from "./context.js";
-import { datePickerRecipe } from "./recipe.js";
 import type { DatePickerCalendarProps } from "./types.js";
 
 let { children, class: className, ...rest }: DatePickerCalendarProps = $props();
 const ctx = getDatePickerContext();
-const recipe = $derived(datePickerRecipe({ size: ctx.size }));
 </script>
 
 <div
-	class={cn(recipe.calendar, className)}
 	data-kind="date-picker"
 	data-slot="calendar"
+	class={cn(ctx.classes.calendar, className)}
 	{...rest}
 >
 	{@render children?.()}

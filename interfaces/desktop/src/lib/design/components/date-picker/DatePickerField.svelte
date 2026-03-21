@@ -1,29 +1,25 @@
 <!--
-	@component DatePickerField
+	@component DatePicker.Input
 	@kind date-picker
 	@slot field
 	@layer components
-
-	Embedded date-field for direct date input.
-	ColdLight-owned ARIA — wraps date-field segments.
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getDatePickerContext } from "./context.js";
-import { datePickerRecipe } from "./recipe.js";
-import type { DatePickerFieldProps } from "./types.js";
+import type { DatePickerInputProps } from "./types.js";
 
-let { children, class: className, ...rest }: DatePickerFieldProps = $props();
+let { children, class: className, ...rest }: DatePickerInputProps = $props();
 const ctx = getDatePickerContext();
-const recipe = $derived(datePickerRecipe({ size: ctx.size }));
 </script>
 
 <div
+	id={ctx.ids.field}
 	role="group"
-	class={cn(recipe.field, className)}
 	data-kind="date-picker"
 	data-slot="field"
-	data-state={ctx.disabled ? "disabled" : undefined}
+	data-state={ctx.isDisabled ? "disabled" : undefined}
+	class={cn(ctx.classes.field, className)}
 	{...rest}
 >
 	{@render children?.()}

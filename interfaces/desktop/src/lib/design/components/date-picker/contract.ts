@@ -1,34 +1,13 @@
-/**
- * @file DatePicker Component Contract
- * @kind date-picker
- * @layer components
- *
- * BUILD-TIME validated via `satisfies ComponentContract`.
- * TypeScript compiler enforces the shape — zero runtime overhead.
- *
- * Compound component: root, field, trigger, content, calendar.
- * ColdLight-owned ARIA — combines date-field + calendar in popover.
- *
- * Pattern: WAI-ARIA APG Dialog (Modal) + Grid
- * Reference: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
- */
-
 import type { ComponentContract } from "$lib/design/components/_schema/contract.js";
 
-/**
- * DatePicker component contract — compile-time enforced.
- *
- * Compound: root → field + trigger + content (popover) → calendar
- */
 export const contract = {
 	kind: "date-picker",
 	description:
-		"Combined date field and calendar popover for date selection. ColdLight-owned ARIA with popover dialog pattern, date-field spinbutton segments, and calendar grid.",
-	apgPattern: "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/",
+		"Combines DateField segmented input + Calendar popover. Controlled/uncontrolled value and popover state. Validation, form integration, granularity, locale.",
 
 	slots: {
-		required: ["root", "field", "trigger", "content", "calendar"],
-		optional: [],
+		required: ["root"],
+		optional: ["field", "trigger", "content", "calendar", "label", "description", "errorMessage"],
 	},
 
 	slotContracts: {
@@ -39,55 +18,29 @@ export const contract = {
 				role: "group",
 				required: [],
 				optional: [
-					{ attr: "aria-label", valueType: "aria-label" },
-					{ attr: "aria-labelledby", valueType: "aria-labelledby" },
-				],
-			},
-			data: {
-				kind: "date-picker",
-				slot: "root",
-				states: ["disabled"],
-			},
-		},
-		field: {
-			name: "field",
-			element: "div",
-			aria: {
-				role: "group",
-				required: [],
-				optional: [
 					{ attr: "aria-labelledby", valueType: "aria-labelledby" },
 					{ attr: "aria-describedby", valueType: "aria-describedby" },
 				],
 			},
-			data: {
-				kind: "date-picker",
-				slot: "field",
-				states: ["focused", "disabled", "invalid"],
-			},
+			data: { kind: "date-picker", slot: "root", states: [] },
+		},
+		field: {
+			name: "field",
+			element: "div",
+			aria: { role: "group", required: [], optional: [] },
+			data: { kind: "date-picker", slot: "field", states: [] },
 		},
 		trigger: {
 			name: "trigger",
 			element: "button",
 			aria: {
-				role: "button",
-				required: [{ attr: "aria-haspopup", valueType: "aria-haspopup" }],
-				optional: [
+				required: [
+					{ attr: "aria-haspopup", valueType: "aria-haspopup" },
 					{ attr: "aria-expanded", valueType: "aria-expanded" },
-					{ attr: "aria-controls", valueType: "aria-controls" },
-					{ attr: "aria-label", valueType: "aria-label" },
 				],
+				optional: [{ attr: "aria-controls", valueType: "aria-controls" }],
 			},
-			data: {
-				kind: "date-picker",
-				slot: "trigger",
-				states: ["open", "closed"],
-			},
-			keyboard: [
-				{ key: "Enter", action: "toggle", description: "Toggle calendar popover" },
-				{ key: "Space", action: "toggle", description: "Toggle calendar popover" },
-				{ key: "ArrowDown", action: "open", description: "Open calendar popover" },
-			],
+			data: { kind: "date-picker", slot: "trigger", states: ["open", "closed"] },
 		},
 		content: {
 			name: "content",
@@ -97,64 +50,54 @@ export const contract = {
 				required: [{ attr: "aria-modal", valueType: "aria-modal" }],
 				optional: [{ attr: "aria-label", valueType: "aria-label" }],
 			},
-			data: {
-				kind: "date-picker",
-				slot: "content",
-				states: ["open", "closed"],
-			},
-			keyboard: [{ key: "Escape", action: "close", description: "Close calendar popover" }],
+			data: { kind: "date-picker", slot: "content", states: ["open", "closed"] },
 		},
 		calendar: {
 			name: "calendar",
 			element: "div",
-			aria: {
-				role: "grid",
-				required: [],
-				optional: [{ attr: "aria-labelledby", valueType: "aria-labelledby" }],
-			},
-			data: {
-				kind: "date-picker",
-				slot: "calendar",
-				states: [],
-			},
-			keyboard: [
-				{ key: "Enter", action: "confirm", description: "Confirm date selection and close" },
-			],
+			aria: { required: [], optional: [] },
+			data: { kind: "date-picker", slot: "calendar", states: [] },
+		},
+		label: {
+			name: "label",
+			element: "label",
+			aria: { required: [], optional: [] },
+			data: { kind: "date-picker", slot: "label", states: [] },
+		},
+		description: {
+			name: "description",
+			element: "p",
+			aria: { required: [], optional: [] },
+			data: { kind: "date-picker", slot: "description", states: [] },
+		},
+		errorMessage: {
+			name: "errorMessage",
+			element: "p",
+			aria: { role: "alert", required: [], optional: [] },
+			data: { kind: "date-picker", slot: "error-message", states: [] },
 		},
 	},
 
 	accessibleName: {
 		required: false,
 		sources: ["aria-label", "aria-labelledby"],
+		defaultSlot: "label",
 	},
 
-	focus: {
-		strategy: "activedescendant",
-		initialFocus: "field",
-		returnFocus: "trigger",
-		trapContainer: "content",
-	},
+	focus: { strategy: "direct" },
 
 	keyboard: {
 		global: [
-			{ key: "Escape", action: "close", description: "Close popover" },
-			{ key: "Enter", action: "confirm", description: "Confirm selection" },
-			{ key: "ArrowDown", action: "open", description: "Open calendar from trigger" },
+			{ key: "Escape", action: "closePopover", description: "Close calendar popover" },
+			{ key: "ArrowDown", action: "openPopover", description: "Open calendar popover" },
 		],
 	},
 
-	states: {
-		primary: "open",
-		all: ["open", "closed", "disabled", "invalid", "focused"],
-		ariaMapping: {
-			open: "aria-expanded",
-			disabled: "aria-disabled",
-		},
-	},
+	states: { all: ["open", "closed"] },
 
 	interactions: {
-		modal: true,
-		selectable: true,
+		modal: false,
+		selectable: false,
 		editable: true,
 		expandable: true,
 	},

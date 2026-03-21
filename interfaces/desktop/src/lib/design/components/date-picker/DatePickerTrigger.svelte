@@ -1,21 +1,16 @@
 <!--
-	@component DatePickerTrigger
+	@component DatePicker.Trigger
 	@kind date-picker
 	@slot trigger
 	@layer components
-
-	Button that opens/closes the calendar popover.
-	ColdLight-owned ARIA — aria-haspopup, aria-expanded, aria-controls.
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getDatePickerContext } from "./context.js";
-import { datePickerRecipe } from "./recipe.js";
 import type { DatePickerTriggerProps } from "./types.js";
 
 let { children, class: className, ...rest }: DatePickerTriggerProps = $props();
 const ctx = getDatePickerContext();
-const recipe = $derived(datePickerRecipe({ size: ctx.size }));
 
 function handleKeydown(e: KeyboardEvent) {
 	if (e.key === "ArrowDown") {
@@ -27,16 +22,16 @@ function handleKeydown(e: KeyboardEvent) {
 
 <button
 	type="button"
-	id={ctx.triggerId}
-	class={cn(recipe.trigger, className)}
+	id={ctx.ids.trigger}
 	aria-haspopup="dialog"
-	aria-expanded={ctx.open}
-	aria-controls={ctx.open ? ctx.contentId : undefined}
+	aria-expanded={ctx.isOpen}
+	aria-controls={ctx.isOpen ? ctx.ids.content : undefined}
 	aria-label="Open calendar"
+	disabled={ctx.isDisabled}
 	data-kind="date-picker"
 	data-slot="trigger"
-	data-state={ctx.open ? "open" : "closed"}
-	disabled={ctx.disabled}
+	data-state={ctx.isOpen ? "open" : "closed"}
+	class={cn(ctx.classes.trigger, className)}
 	onclick={() => ctx.toggle()}
 	onkeydown={handleKeydown}
 	{...rest}
@@ -44,6 +39,8 @@ function handleKeydown(e: KeyboardEvent) {
 	{#if children}
 		{@render children()}
 	{:else}
-		&#128197;
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3xs" aria-hidden="true">
+			<path d="M8 2v4" /><path d="M16 2v4" /><rect width="18" height="18" x="3" y="4" rx="2" /><path d="M3 10h18" />
+		</svg>
 	{/if}
 </button>

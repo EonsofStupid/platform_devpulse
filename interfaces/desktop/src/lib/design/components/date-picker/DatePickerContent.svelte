@@ -1,21 +1,19 @@
 <!--
-	@component DatePickerContent
+	@component DatePicker.Content
 	@kind date-picker
 	@slot content
 	@layer components
 
-	Popover container for the calendar.
-	ColdLight-owned ARIA — role="dialog", aria-modal, Escape to close.
+	Popover container for the calendar. role="dialog".
+	Escape to close.
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getDatePickerContext } from "./context.js";
-import { datePickerRecipe } from "./recipe.js";
 import type { DatePickerContentProps } from "./types.js";
 
 let { children, class: className, ...rest }: DatePickerContentProps = $props();
 const ctx = getDatePickerContext();
-const recipe = $derived(datePickerRecipe({ size: ctx.size }));
 
 function handleKeydown(e: KeyboardEvent) {
 	if (e.key === "Escape") {
@@ -25,16 +23,16 @@ function handleKeydown(e: KeyboardEvent) {
 }
 </script>
 
-{#if ctx.open}
+{#if ctx.isOpen}
 	<div
-		id={ctx.contentId}
+		id={ctx.ids.content}
 		role="dialog"
 		aria-modal="true"
 		aria-label="Choose date"
-		class={cn(recipe.content, className)}
 		data-kind="date-picker"
 		data-slot="content"
-		data-state={ctx.open ? "open" : "closed"}
+		data-state="open"
+		class={cn(ctx.classes.content, className)}
 		onkeydown={handleKeydown}
 		{...rest}
 	>

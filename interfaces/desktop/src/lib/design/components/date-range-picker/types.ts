@@ -3,104 +3,95 @@
  * @kind date-range-picker
  * @layer components
  *
- * Prop types for all DateRangePicker sub-components.
- * ColdLight-owned — combines date-range-field + range-calendar in a popover.
- *
- * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
+ * Two DateFields (start/end) + RangeCalendar popover.
+ * Spectrum + Ark UI aligned: range value, startName/endName, presets, inline.
  */
 
 import type { Snippet } from "svelte";
-import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { HTMLAttributes } from "svelte/elements";
+import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
 
-// =============================================================================
-// SIZE
-// =============================================================================
-
-export type Size = "sm" | "md" | "lg";
-
-// =============================================================================
-// DATE RANGE
-// =============================================================================
-
-export interface DateRange {
-	start: Date | undefined;
-	end: Date | undefined;
+export interface DateRangeValue {
+	start: Date | null;
+	end: Date | null;
 }
 
-// =============================================================================
-// ROOT PROPS
-// =============================================================================
+export interface DateRangePickerValueChangeDetails {
+	value: DateRangeValue;
+}
 
-/** DateRangePicker root props — manages range field + popover state */
-export interface DateRangePickerProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps,
-		ColdLightProps {
-	children?: Snippet;
-	/** Start date of the range */
-	startDate?: Date | undefined;
-	/** End date of the range */
-	endDate?: Date | undefined;
-	/** Called when the date range changes */
-	onRangeChange?: (range: DateRange) => void;
-	/** Whether the popover is open */
-	open?: boolean;
-	/** Called when the popover open state changes */
-	onOpenChange?: (open: boolean) => void;
-	/** Minimum selectable date */
-	min?: Date;
-	/** Maximum selectable date */
-	max?: Date;
-	/** Whether the picker is disabled */
-	disabled?: boolean;
-	/** Locale for formatting (BCP 47 tag) */
+export interface DateRangePickerOpenChangeDetails {
+	open: boolean;
+}
+
+export interface DateRangePickerIds {
+	root?: string;
+	startField?: string;
+	endField?: string;
+	trigger?: string;
+	content?: string;
+	label?: string;
+	description?: string;
+	errorMessage?: string;
+}
+
+export type DateRangePickerSize = "sm" | "md" | "lg" | "xl";
+export type DateRangePickerGranularity = "day" | "month" | "year" | "hour" | "minute" | "second";
+
+export interface PresetTriggerValue {
+	label: string;
+	value: DateRangeValue;
+}
+
+export interface DateRangePickerRootProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
+		Omit<PreparedComponentProps, "size"> {
+	ids?: Partial<DateRangePickerIds>;
+	value?: DateRangeValue | null;
+	defaultValue?: DateRangeValue | null;
+	onChange?: (details: DateRangePickerValueChangeDetails) => void;
+	isOpen?: boolean;
+	defaultOpen?: boolean;
+	onOpenChange?: (details: DateRangePickerOpenChangeDetails) => void;
+	shouldCloseOnSelect?: boolean;
+	allowsNonContiguousRanges?: boolean;
+	inline?: boolean;
+	granularity?: DateRangePickerGranularity;
+	maxVisibleMonths?: number;
+	isDateUnavailable?: (date: Date) => boolean;
+	minValue?: Date | null;
+	maxValue?: Date | null;
+	firstDayOfWeek?: "sun" | "mon" | "tue" | "wed" | "thu" | "fri" | "sat";
+	isDisabled?: boolean;
+	isReadOnly?: boolean;
+	isRequired?: boolean;
+	isInvalid?: boolean;
+	validate?: (value: DateRangeValue | null) => string | null | undefined;
+	size?: DateRangePickerSize;
 	locale?: string;
-	/** Size variant */
-	size?: Size;
-}
-
-// =============================================================================
-// FIELD PROPS
-// =============================================================================
-
-/** DateRangePickerField props — embedded date-range-field */
-export interface DateRangePickerFieldProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps {
+	label?: string;
+	description?: string;
+	errorMessage?: string;
+	startName?: string;
+	endName?: string;
+	form?: string;
+	dir?: "ltr" | "rtl";
 	children?: Snippet;
 }
 
-// =============================================================================
-// TRIGGER PROPS
-// =============================================================================
-
-/** DateRangePickerTrigger props — button that opens range calendar popover */
-export interface DateRangePickerTriggerProps
-	extends Omit<HTMLButtonAttributes, "style" | "children">,
-		BaseProps {
+interface DateRangePickerSlotProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
 	children?: Snippet;
+	class?: string;
 }
 
-// =============================================================================
-// CONTENT PROPS
-// =============================================================================
-
-/** DateRangePickerContent props — popover container for range calendar */
-export interface DateRangePickerContentProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps {
-	children?: Snippet;
+export interface DateRangePickerInputProps extends DateRangePickerSlotProps {
+	index: 0 | 1;
 }
 
-// =============================================================================
-// CALENDAR PROPS
-// =============================================================================
+export interface DateRangePickerTriggerProps extends DateRangePickerSlotProps {}
+export interface DateRangePickerContentProps extends DateRangePickerSlotProps {}
+export interface DateRangePickerCalendarProps extends DateRangePickerSlotProps {}
 
-/** DateRangePickerCalendar props — embedded range calendar */
-export interface DateRangePickerCalendarProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps {
-	children?: Snippet;
+export interface DateRangePickerPresetTriggerProps extends DateRangePickerSlotProps {
+	preset: PresetTriggerValue;
 }
