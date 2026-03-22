@@ -24,7 +24,7 @@ import {
 } from "lucide-svelte";
 import { page } from "$app/state";
 import { box } from "$lib/design/utils/box/index.js";
-import { Button } from "$lib/design/components/button/index.js";
+import { Button } from "$lib/design/ui/button/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { cn } from "$lib/design/utils/cn.js";

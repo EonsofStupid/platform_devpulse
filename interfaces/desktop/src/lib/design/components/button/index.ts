@@ -1,10 +1,10 @@
-export { default as Button } from "./Button.svelte";
-export { useButton } from "$lib/design/primitives/button/index.js";
-export {
-	type ButtonIntent,
-	type ButtonProps,
-	type ButtonSize,
-	type ButtonType,
-	type UseButtonProps,
-	type UseButtonReturn,
-} from "./button.types.js";
+/**
+ * @file Button Component — barrel export
+ * @kind button
+ *
+ * NOTE: Users should import from ui/button/, not here.
+ * This is the DUMB structural component.
+ */
+
+export { default as ButtonRoot } from "./Button.svelte";
+export type { ButtonProps, ButtonSize, ButtonType } from "./button.types.js";

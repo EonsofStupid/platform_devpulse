@@ -1,0 +1,24 @@
+/**
+ * StyleMacro Glue CSS — maps --cl-* vars to CSS properties on [data-kind].
+ * StyleMacro assembles composite shorthands in JS.
+ * This file just consumes the assembled values.
+ * Without this file, StyleMacro outputs vars into the void.
+ */
+
+[data-kind] {
+  background-color: var(--cl-bg);
+  backdrop-filter: blur(var(--cl-blur, 0));
+  box-shadow: var(--cl-shadow, none);
+  border: var(--cl-border, none);
+  animation: var(--cl-animation, none);
+  transition: var(--cl-transition, none);
+  font-family: var(--cl-font-family, inherit);
+  font-size: var(--cl-font-size, inherit);
+  font-weight: var(--cl-font-weight, inherit);
+  letter-spacing: var(--cl-letter-spacing, inherit);
+  line-height: var(--cl-line-height, inherit);
+  background-image: var(--cl-gradient, none);
+  color: var(--cl-color, inherit);
+  border-radius: var(--cl-radius, 0);
+  opacity: var(--cl-opacity, 1);
+}

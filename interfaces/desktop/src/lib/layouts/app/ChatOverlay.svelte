@@ -10,7 +10,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { GripVertical, Mic, Minus, Send, Sparkles, X } from "lucide-svelte";
 import { box } from "$lib/design/utils/box/index.js";
-import { Button } from "$lib/design/components/button/index.js";
+import { Button } from "$lib/design/ui/button/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { TextField as Input } from "$lib/design/components/text-field/index.js";
