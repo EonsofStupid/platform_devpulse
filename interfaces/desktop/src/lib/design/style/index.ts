@@ -22,4 +22,5 @@ export {
 	type TokenMapping,
 	propMappings,
 	macroKeys,
+	visualAxisKeys,
 } from "./macro-mappings.js";

@@ -5,6 +5,10 @@
  * $state-based global platform visual state.
  * VPB pushes updates via custom event. StyleMacro reads reactively.
  * One $state object for the entire application.
+ *
+ * 11-axis visual system (ADR-001 LOCKED):
+ *   backgroundColor, backgroundBlur, shadow, border, animation, transition,
+ *   typography, gradient, color, borderRadius, opacity
  */
 
 import type { StyleMacroProps } from "./macro-mappings.js";
@@ -18,18 +22,7 @@ export const platformBase = $state({
 	activeStyleId: "coldlight-default",
 
 	/** Global token defaults. Every StyleMacro falls back to these. */
-	globalTokens: {
-		backgroundColor: "layer-1",
-		color: "neutral",
-		borderColor: "subtle",
-		borderRadius: "md",
-		padding: "md",
-		gap: "md",
-		fontSize: "sm",
-		fontFamily: "sans",
-		surface: "glass-void",
-		depth: "z1",
-	} as Partial<StyleMacroProps>,
+	globalTokens: {} as Partial<StyleMacroProps>,
 });
 
 // =============================================================================
@@ -61,7 +54,6 @@ export function registerVpbListener(): void {
 		}
 
 		if (event.detail.newTokens) {
-			// Safe mutation of specific keys — does not nuke the whole object
 			Object.assign(platformBase.globalTokens, event.detail.newTokens);
 		}
 	}) as EventListener);

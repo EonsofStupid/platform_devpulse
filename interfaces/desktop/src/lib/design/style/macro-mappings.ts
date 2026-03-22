@@ -5,15 +5,22 @@
  * Maps camelCase TypeScript properties to CSS custom property names
  * and DTCG token categories. Lives in module scope — instantiated ONCE.
  *
- * 6-AXIS VISUAL SYSTEM:
- *   backgroundColor — color — background-color
- *   backgroundBlur  — dimension — backdrop-filter: blur()
- *   shadow          — shadow (array) — box-shadow (depth + bevel + glow composed)
- *   border          — border — border
- *   animation       — duration — animation
- *   transition      — transition — transition
+ * 11-AXIS VISUAL SYSTEM (each maps to a real DTCG type):
  *
- * Plus structural layout props (spacing, sizing, typography, z-index).
+ *   Axis              DTCG $type     CSS Property
+ *   ───────────────── ────────────── ────────────────────────────
+ *   backgroundColor   color          background-color
+ *   backgroundBlur    dimension      backdrop-filter: blur()
+ *   shadow            shadow         box-shadow (depth+bevel+glow)
+ *   border            border         border (color+width+style)
+ *   animation         duration       animation
+ *   transition        transition     transition (dur+delay+easing)
+ *   typography        typography     font-family/size/weight/spacing/height
+ *   gradient          gradient       background-image: linear-gradient()
+ *   color             color          color (foreground/text)
+ *   borderRadius      dimension      border-radius
+ *   opacity           number         opacity
+ *
  * All DTCG compliant. All produce SAFE CSS. No UNSAFE escape hatch.
  */
 
@@ -22,63 +29,30 @@
 // =============================================================================
 
 export interface StyleMacroProps {
-	// ── 6 Visual Axes (DTCG composite token values) ─────────────
-	/** Surface color/gradient. DTCG type: color. */
+	// ── 11 Visual Axes (each = 1 DTCG type) ─────────────────
+
+	/** Surface color. DTCG type: color. */
 	backgroundColor: string;
 	/** Material clarity/blur. DTCG type: dimension. */
 	backgroundBlur: string;
 	/** Depth + bevel + glow composed as shadow layers. DTCG type: shadow. */
 	shadow: string;
-	/** Frame/border treatment. DTCG type: border. */
+	/** Frame/border treatment. DTCG type: border (color + width + style). */
 	border: string;
 	/** Ambient motion. DTCG type: duration. */
 	animation: string;
-	/** User-triggered transitions. DTCG type: transition. */
+	/** User-triggered transitions. DTCG type: transition (duration + delay + timingFunction). */
 	transition: string;
-
-	// ── Text / Color ────────────────────────────────────────────
-	/** Text color. */
+	/** Text styling. DTCG type: typography (fontFamily + fontSize + fontWeight + letterSpacing + lineHeight). */
+	typography: string;
+	/** Gradient fill. DTCG type: gradient (array of color stops). */
+	gradient: string;
+	/** Foreground/text/icon color. DTCG type: color. */
 	color: string;
-	/** Accent color (links, focus rings, interactive). */
-	accentColor: string;
-
-	// ── Spacing ─────────────────────────────────────────────────
-	padding: string;
-	paddingX: string;
-	paddingY: string;
-	gap: string;
-	margin: string;
-
-	// ── Sizing ──────────────────────────────────────────────────
-	width: string;
-	height: string;
-	minWidth: string;
-	minHeight: string;
-	maxWidth: string;
-
-	// ── Border Radius ───────────────────────────────────────────
+	/** Corner shape. DTCG type: dimension. */
 	borderRadius: string;
-
-	// ── Typography ──────────────────────────────────────────────
-	fontSize: string;
-	fontWeight: string;
-	fontFamily: string;
-	lineHeight: string;
-	letterSpacing: string;
-	textAlign: string;
-
-	// ── Layout ──────────────────────────────────────────────────
-	display: string;
-	flexDirection: string;
-	alignItems: string;
-	justifyContent: string;
-	overflow: string;
-
-	// ── Opacity ─────────────────────────────────────────────────
+	/** Layer transparency. DTCG type: number. */
 	opacity: string;
-
-	// ── Z-Index ─────────────────────────────────────────────────
-	zIndex: string;
 }
 
 // =============================================================================
@@ -88,68 +62,81 @@ export interface StyleMacroProps {
 export interface TokenMapping {
 	/** The --cl- CSS custom property name. */
 	varName: string;
-	/** The DTCG token category for var() resolution. */
-	category: string;
-	/** Whether this is one of the 6 visual axes. */
-	visualAxis?: boolean;
+	/** The DTCG $type this axis maps to. */
+	dtcgType: string;
+	/** Whether this is a composite DTCG type (expands to multiple CSS properties). */
+	composite?: boolean;
+	/** For composite types: the sub-property CSS var names SD5 expand produces. */
+	expandsTo?: Record<string, string>;
 }
 
 export const propMappings: Record<keyof StyleMacroProps, TokenMapping> = {
-	// ── 6 Visual Axes ───────────────────────────────────────────
-	backgroundColor: { varName: "--cl-bg", category: "color", visualAxis: true },
-	backgroundBlur: { varName: "--cl-blur", category: "blur", visualAxis: true },
-	shadow: { varName: "--cl-shadow", category: "shadow", visualAxis: true },
-	border: { varName: "--cl-border", category: "border", visualAxis: true },
-	animation: { varName: "--cl-animation", category: "animation", visualAxis: true },
-	transition: { varName: "--cl-transition", category: "transition", visualAxis: true },
+	// ── Simple axes (1 token → 1 CSS property) ──────────────
+	backgroundColor: { varName: "--cl-bg", dtcgType: "color" },
+	backgroundBlur: { varName: "--cl-blur", dtcgType: "dimension" },
+	animation: { varName: "--cl-animation", dtcgType: "duration" },
+	color: { varName: "--cl-color", dtcgType: "color" },
+	borderRadius: { varName: "--cl-radius", dtcgType: "dimension" },
+	opacity: { varName: "--cl-opacity", dtcgType: "number" },
 
-	// ── Text / Color ────────────────────────────────────────────
-	color: { varName: "--cl-text", category: "color" },
-	accentColor: { varName: "--cl-accent", category: "color" },
-
-	// ── Spacing ─────────────────────────────────────────────────
-	padding: { varName: "--cl-p", category: "spacing" },
-	paddingX: { varName: "--cl-px", category: "spacing" },
-	paddingY: { varName: "--cl-py", category: "spacing" },
-	gap: { varName: "--cl-gap", category: "spacing" },
-	margin: { varName: "--cl-m", category: "spacing" },
-
-	// ── Sizing ──────────────────────────────────────────────────
-	width: { varName: "--cl-w", category: "size" },
-	height: { varName: "--cl-h", category: "size" },
-	minWidth: { varName: "--cl-min-w", category: "size" },
-	minHeight: { varName: "--cl-min-h", category: "size" },
-	maxWidth: { varName: "--cl-max-w", category: "size" },
-
-	// ── Border Radius ───────────────────────────────────────────
-	borderRadius: { varName: "--cl-radius", category: "radius" },
-
-	// ── Typography ──────────────────────────────────────────────
-	fontSize: { varName: "--cl-text-size", category: "text" },
-	fontWeight: { varName: "--cl-font-weight", category: "font-weight" },
-	fontFamily: { varName: "--cl-font", category: "font" },
-	lineHeight: { varName: "--cl-leading", category: "leading" },
-	letterSpacing: { varName: "--cl-tracking", category: "tracking" },
-	textAlign: { varName: "--cl-text-align", category: "text-align" },
-
-	// ── Layout ──────────────────────────────────────────────────
-	display: { varName: "--cl-display", category: "display" },
-	flexDirection: { varName: "--cl-flex-dir", category: "flex" },
-	alignItems: { varName: "--cl-align", category: "align" },
-	justifyContent: { varName: "--cl-justify", category: "justify" },
-	overflow: { varName: "--cl-overflow", category: "overflow" },
-
-	// ── Opacity ─────────────────────────────────────────────────
-	opacity: { varName: "--cl-opacity", category: "opacity" },
-
-	// ── Z-Index ─────────────────────────────────────────────────
-	zIndex: { varName: "--cl-z", category: "z" },
+	// ── Composite axes (1 token → multiple CSS properties) ──
+	shadow: {
+		varName: "--cl-shadow",
+		dtcgType: "shadow",
+		composite: true,
+		expandsTo: {
+			color: "--cl-shadow-color",
+			offsetX: "--cl-shadow-offset-x",
+			offsetY: "--cl-shadow-offset-y",
+			blur: "--cl-shadow-blur",
+			spread: "--cl-shadow-spread",
+		},
+	},
+	border: {
+		varName: "--cl-border",
+		dtcgType: "border",
+		composite: true,
+		expandsTo: {
+			color: "--cl-border-color",
+			width: "--cl-border-width",
+			style: "--cl-border-style",
+		},
+	},
+	transition: {
+		varName: "--cl-transition",
+		dtcgType: "transition",
+		composite: true,
+		expandsTo: {
+			duration: "--cl-transition-duration",
+			delay: "--cl-transition-delay",
+			timingFunction: "--cl-transition-easing",
+		},
+	},
+	typography: {
+		varName: "--cl-typography",
+		dtcgType: "typography",
+		composite: true,
+		expandsTo: {
+			fontFamily: "--cl-font-family",
+			fontSize: "--cl-font-size",
+			fontWeight: "--cl-font-weight",
+			letterSpacing: "--cl-letter-spacing",
+			lineHeight: "--cl-line-height",
+		},
+	},
+	gradient: {
+		varName: "--cl-gradient",
+		dtcgType: "gradient",
+		composite: true,
+		expandsTo: {
+			// Per-stop expansion: --cl-gradient-{index}-color, --cl-gradient-{index}-position
+			// Glue CSS assembles into linear-gradient()
+		},
+	},
 };
 
 // Pre-compute keys array for fast iteration
 export const macroKeys = Object.keys(propMappings) as Array<keyof StyleMacroProps>;
 
-// Pre-compute visual axis keys for encoding serialization
-export const visualAxisKeys = macroKeys.filter(
-	(key) => propMappings[key].visualAxis,
-);
+// All axes are visual axes — the macro only handles visual concerns
+export const visualAxisKeys = macroKeys;

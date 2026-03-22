@@ -2,8 +2,12 @@
  * @file Component Schema — ONE Registration, Many Outputs
  * @package @devpulse/coldlight
  *
- * This is the SINGLE source of truth for what a ColdLight component IS.
+ * SINGLE source of truth for what a ColdLight component IS.
  * One registration per kind. Everything else is generated from it.
+ *
+ * 11-AXIS VISUAL SYSTEM (ADR-001 LOCKED):
+ *   Every axis = 1 real DTCG $type. No invented types. No gaps.
+ *   Components ONLY consume DTCG composite style tokens (recipes).
  *
  *   → TypeScript types (compile-time)
  *   → JSON manifest (VPB editor introspection)
@@ -11,45 +15,27 @@
  *   → Token mapping (what visual axes apply per slot)
  *   → Slot structure (what children go where, what element, what role)
  *   → State machine (what states exist, what data-state values)
- *   → Recipe binding (which recipe IDs apply, defaults)
  *
- * The ARIA/behavior contract lives in dsAdapters (meltui or coldlight engine).
+ * The ARIA/behavior contract lives in primitive hooks (useButton, etc.).
  * This schema references it via `engine` but does NOT duplicate it.
- * The dsAdapter owns: role, aria-*, tabindex, focus, keyboard.
- * This schema owns: props, tokens, slots (visual), recipes, states (visual).
  *
  * Build-time:  ComponentSchemaZ.parse() — Zod validates
  * Compile-time: satisfies ComponentSchema — TypeScript enforces
  * Runtime:     JSON.stringify() — VPB consumes
- *
- * Pattern derived from: Plasmic registerComponent, Builder.io registerComponent,
- * Framer addPropertyControls, Storybook argTypes. Adapted for ColdLight's
- * token pipeline (SD5 → CSS Custom Properties → Tailwind v4 → v-* encoding).
  */
 
 import { z } from "zod";
 
 // =============================================================================
-// PROP TYPE — Discriminated union (ColdLight alpha iteratio.  After first study of Industry patterns,
-// we found that most prop types can be captured by a single discriminated union with a
-// "type" field. This keeps the schema simpler and more extensible. If we find we need more complex prop types in the future, we
-//  can always refactor to separate schemas. For now, this covers the common cases: string, number, boolean, enum, color, slot reference, event handler, object, and array.
-//  Each has its own specific fields for VPB editor
+// PROP TYPE — Discriminated union for VPB editor controls
 // =============================================================================
 
-/** Base fields every prop has regardless of type. */
 const PropBase = z.object({
-	/** Display label in VPB prop panel */
 	label: z.string().min(1),
-	/** Help text / tooltip in VPB */
 	description: z.string().optional(),
-	/** Whether the component requires this prop */
 	required: z.boolean().default(false),
-	/** Collapse into "Advanced" section in VPB */
 	advanced: z.boolean().default(false),
-	/** Conditionally hide in VPB based on other prop values */
 	hiddenWhen: z.string().optional(),
-	/** Group name for organizing in VPB prop panel */
 	group: z.string().optional(),
 });
 
@@ -78,52 +64,39 @@ const EnumPropSchema = PropBase.extend({
 	type: z.literal("enum"),
 	defaultValue: z.string().optional(),
 	options: z
-		.array(
-			z.object({
-				value: z.string(),
-				label: z.string(),
-			}),
-		)
+		.array(z.object({ value: z.string(), label: z.string() }))
 		.min(1),
-	/** Render as segmented control instead of dropdown */
 	segmented: z.boolean().default(false),
 });
 
 const ColorPropSchema = PropBase.extend({
 	type: z.literal("color"),
 	defaultValue: z.string().optional(),
-	/** Restrict to token palette or allow any */
 	tokenOnly: z.boolean().default(true),
 });
 
 const SlotPropSchema = PropBase.extend({
 	type: z.literal("slot"),
-	/** Which component kinds can be dropped into this slot */
 	allowedKinds: z.array(z.string()).optional(),
-	/** Whether this slot repeats per item (compound components) */
 	repeated: z.boolean().default(false),
 });
 
 const EventPropSchema = PropBase.extend({
 	type: z.literal("event"),
-	/** TypeScript signature as string for VPB display */
 	signature: z.string().min(1),
 });
 
 const ObjectPropSchema = PropBase.extend({
 	type: z.literal("object"),
-	/** TypeScript type as string for VPB introspection */
 	shape: z.string().min(1),
 });
 
 const ArrayPropSchema = PropBase.extend({
 	type: z.literal("array"),
-	/** TypeScript item type as string */
 	itemType: z.string().min(1),
 	defaultValue: z.array(z.unknown()).optional(),
 });
 
-/** Discriminated union of all prop types. */
 export const ComponentPropSchema = z.discriminatedUnion("type", [
 	StringPropSchema,
 	NumberPropSchema,
@@ -139,161 +112,118 @@ export const ComponentPropSchema = z.discriminatedUnion("type", [
 export type ComponentProp = z.infer<typeof ComponentPropSchema>;
 
 // =============================================================================
-// SLOT VISUAL — Per-slot token axis mapping
+// 11-AXIS SLOT TOKEN MAPPING (ADR-001 LOCKED — DTCG-aligned)
 // =============================================================================
 
 /**
- * Declares which token axes a slot receives from the 8-axis encoding system.
+ * Declares which of the 11 visual axes a slot receives from StyleMacro.
+ * Each axis = 1 real DTCG $type. Root slots typically get all axes.
+ * Child slots inherit or get none.
  *
- * Root slots typically get all axes. Child slots inherit or get none.
- * This drives: v-* class generation, VPB token controls, recipe resolution.
- *
- * Maps directly to TOKEN_CATEGORY_REGISTRY codes: s/z/d/b/g/f/m/t.
+ * This drives: VPB token controls, StyleMacro resolution, glue CSS application.
  */
 export const SlotTokenAxesSchema = z.object({
-	/** s: Surface treatment (glass-void, glass-deep, etc.) */
-	surface: z.boolean().default(false),
-	/** z: Material / z-depth */
-	material: z.boolean().default(false),
-	/** d: Shadow depth (z0–z4) */
-	depth: z.boolean().default(false),
-	/** b: Bevel treatment */
-	bevel: z.boolean().default(false),
-	/** g: Glow color */
-	glow: z.boolean().default(false),
-	/** f: Frame/border */
-	frame: z.boolean().default(false),
-	/** m: Motion animation */
-	motion: z.boolean().default(false),
-	/** t: Transition speed */
+	/** background-color. DTCG: color */
+	backgroundColor: z.boolean().default(false),
+	/** backdrop-filter: blur(). DTCG: dimension */
+	backgroundBlur: z.boolean().default(false),
+	/** box-shadow (depth+bevel+glow). DTCG: shadow */
+	shadow: z.boolean().default(false),
+	/** border (color+width+style). DTCG: border */
+	border: z.boolean().default(false),
+	/** animation. DTCG: duration */
+	animation: z.boolean().default(false),
+	/** transition (duration+delay+easing). DTCG: transition */
 	transition: z.boolean().default(false),
+	/** font-family/size/weight/spacing/height. DTCG: typography */
+	typography: z.boolean().default(false),
+	/** background-image gradient. DTCG: gradient */
+	gradient: z.boolean().default(false),
+	/** foreground/text/icon color. DTCG: color */
+	color: z.boolean().default(false),
+	/** border-radius. DTCG: dimension */
+	borderRadius: z.boolean().default(false),
+	/** opacity. DTCG: number */
+	opacity: z.boolean().default(false),
 });
 
 export type SlotTokenAxes = z.infer<typeof SlotTokenAxesSchema>;
 
-/** All axes enabled — for root slots. */
+/** All 11 axes enabled — for root slots. */
 export const ALL_AXES: SlotTokenAxes = {
-	surface: true,
-	material: true,
-	depth: true,
-	bevel: true,
-	glow: true,
-	frame: true,
-	motion: true,
+	backgroundColor: true,
+	backgroundBlur: true,
+	shadow: true,
+	border: true,
+	animation: true,
 	transition: true,
+	typography: true,
+	gradient: true,
+	color: true,
+	borderRadius: true,
+	opacity: true,
 };
 
 /** No axes — for child/structural slots that inherit from parent. */
 export const NO_AXES: SlotTokenAxes = {
-	surface: false,
-	material: false,
-	depth: false,
-	bevel: false,
-	glow: false,
-	frame: false,
-	motion: false,
+	backgroundColor: false,
+	backgroundBlur: false,
+	shadow: false,
+	border: false,
+	animation: false,
 	transition: false,
+	typography: false,
+	gradient: false,
+	color: false,
+	borderRadius: false,
+	opacity: false,
 };
 
 // =============================================================================
 // COMPONENT SLOT — Structure + visual declaration per slot
 // =============================================================================
 
-/**
- * Per-slot declaration combining structure and visual concerns.
- *
- * Structure: element, data-slot value, children mode.
- * Visual: which token axes apply, structural classes.
- * State: which data-state values this slot can have.
- *
- * ARIA is NOT here — it lives in the dsAdapter (engine layer).
- * This schema owns the visual/structural contract.
- */
 export const ComponentSlotSchema = z.object({
-	/** The data-slot value (e.g., "root", "trigger", "content") */
 	name: z.string().min(1),
-	/** HTML element this slot renders */
 	element: z.string().min(1),
-	/** Whether this slot is required in the component */
 	required: z.boolean(),
-	/** Whether this slot repeats per item (compound components) */
 	perItem: z.boolean().default(false),
-	/** Which token axes this slot receives */
 	tokenAxes: SlotTokenAxesSchema,
-	/** Base structural classes (Tailwind layout/spacing/typography) */
 	structural: z.string().default(""),
-	/** Valid data-state values for this slot */
 	states: z.array(z.string().min(1)).readonly(),
 });
 
 export type ComponentSlot = z.infer<typeof ComponentSlotSchema>;
 
 // =============================================================================
-// RECIPE BINDING — Links component to its recipe system
+// STYLE BINDING — Links component to DTCG composite style tokens (recipes)
 // =============================================================================
 
 /**
- * Declares how this component connects to the recipe system.
- * Recipe IDs follow the pattern: kind.name.variant
+ * Declares how this component connects to DTCG style token groups.
+ * Style IDs reference token groups in JSON: style.{id}.{axis}
+ * SD5 processes them. StyleMacro resolves them.
+ *
+ * NO JavaScript recipes. NO registerRecipe(). ONLY DTCG token group references.
  */
-export const RecipeBindingSchema = z.object({
-	/** Default recipe ID (e.g., "button.default.standard") */
-	defaultId: z.string().regex(/^[a-z][\w-]*\.[a-z][\w-]*\.[a-z][\w-]*$/),
-	/** All available recipe IDs for this kind */
-	availableIds: z.array(z.string()).readonly(),
-	/** Default DsSurfaceProps values (token axis defaults) */
-	defaults: z.object({
-		surface: z.string().optional(),
-		material: z.string().optional(),
-		depth: z.string().optional(),
-		bevel: z.string().optional(),
-		glow: z.string().optional(),
-		frame: z.string().optional(),
-		motion: z.string().optional(),
-		transition: z.string().optional(),
-		radius: z.string().optional(),
-		size: z.string().optional(),
-	}),
+export const StyleBindingSchema = z.object({
+	/** Default style ID (e.g., "button-primary") — references DTCG token group style.button-primary */
+	defaultStyleId: z.string().min(1),
+	/** All available style IDs for this kind */
+	availableStyleIds: z.array(z.string()).readonly(),
 });
 
-export type RecipeBinding = z.infer<typeof RecipeBindingSchema>;
+export type StyleBinding = z.infer<typeof StyleBindingSchema>;
 
 // =============================================================================
 // COMPONENT SCHEMA — THE UNIFIED TYPE
 // =============================================================================
 
-/**
- * The complete component registration.
- *
- * ONE of these per kind. Everything else is generated from it.
- *
- * This captures:
- *   - Identity (kind, display name, category, icon)
- *   - Props (typed, with VPB editor controls)
- *   - Slots (structure + token axes + states)
- *   - Recipe binding (default recipe, available recipes, token defaults)
- *   - Composition constraints (compound, allowed parents/children)
- *   - Engine reference (which dsAdapter provides ARIA/behavior)
- *
- * ARIA/behavior is NOT duplicated here — the dsAdapter schema owns that.
- * This schema and the dsAdapter schema are TWO HALVES of the same component:
- *   - ComponentSchema = visual + structural + props + tokens
- *   - AdapterSchema   = ARIA + focus + keyboard + state machine
- *
- * VPB reads BOTH as JSON to build the complete editor experience.
- */
 export const ComponentSchemaZ = z.object({
 	// ─── Identity ────────────────────────────────────────────────────────
-	/** Kebab-case kind identifier (e.g., "combobox", "button", "dialog") */
-	kind: z
-		.string()
-		.min(1)
-		.regex(/^[a-z][a-z0-9-]*$/),
-	/** Human-readable display name for VPB insert menu */
+	kind: z.string().min(1).regex(/^[a-z][a-z0-9-]*$/),
 	displayName: z.string().min(1),
-	/** Short description for VPB tooltip */
 	description: z.string().min(1),
-	/** VPB insert menu category */
 	category: z.enum([
 		"forms",
 		"layout",
@@ -305,54 +235,29 @@ export const ComponentSchemaZ = z.object({
 		"typography",
 		"utility",
 	]),
-	/** Icon identifier for VPB insert menu */
 	icon: z.string().optional(),
 
 	// ─── Engine Reference ────────────────────────────────────────────────
-	/**
-	 * Which dsAdapter provides ARIA/behavior for this component.
-	 * "coldlight" = ColdLight owns ARIA (60+ kinds, the default)
-	 * "meltui"    = MeltUI adapter provides ARIA (complex widgets only)
-	 *
-	 * The adapter schema is the SEPARATE source of truth for ARIA.
-	 * This field is a REFERENCE, not a duplication.
-	 */
 	engine: z.enum(["coldlight", "meltui"]),
 
 	// ─── Slots ───────────────────────────────────────────────────────────
-	/** Per-slot declarations — structure, token axes, states */
 	slots: z.record(z.string(), ComponentSlotSchema),
 
 	// ─── Props ───────────────────────────────────────────────────────────
-	/**
-	 * All consumer-facing props.
-	 * Drives: VPB prop panel, TypeScript types, code generation.
-	 * Key = prop name. Value = typed prop definition.
-	 */
 	props: z.record(z.string(), ComponentPropSchema),
 
-	// ─── Recipe ──────────────────────────────────────────────────────────
-	/** Links this component to the recipe system */
-	recipe: RecipeBindingSchema,
+	// ─── Style Binding (DTCG token groups — the recipes) ─────────────────
+	style: StyleBindingSchema,
 
 	// ─── Composition ─────────────────────────────────────────────────────
-	/** Whether this is a compound component (has per-item slots) */
 	compound: z.boolean(),
-	/** Which component kinds can be parents of this component */
 	allowedParents: z.array(z.string()).optional(),
-	/** Which component kinds can be children of this component */
 	allowedChildren: z.array(z.string()).optional(),
 
 	// ─── States ──────────────────────────────────────────────────────────
-	/**
-	 * All data-state values this component can be in.
-	 * These drive: CSS selectors via [data-state="x"], recipe state styles,
-	 * VPB state preview toggle.
-	 */
 	states: z.array(z.string().min(1)).readonly(),
 
 	// ─── Interactions ────────────────────────────────────────────────────
-	/** High-level interaction capabilities (for VPB filtering/grouping) */
 	interactions: z.object({
 		modal: z.boolean(),
 		selectable: z.boolean(),
@@ -367,60 +272,38 @@ export type ComponentSchema = z.infer<typeof ComponentSchemaZ>;
 // VALIDATION
 // =============================================================================
 
-/** Parse and validate. Throws ZodError if invalid. */
 export function parseComponentSchema(data: unknown): ComponentSchema {
 	return ComponentSchemaZ.parse(data);
 }
 
-/** Safe parse. */
 export function safeParseComponentSchema(data: unknown) {
 	return ComponentSchemaZ.safeParse(data);
 }
 
-/**
- * Deep validation — cross-checks internal consistency.
- * - All slot names in states must exist in slots
- * - perItem slots require compound=true
- * - Recipe defaults must reference valid token IDs
- * - Slot prop types must reference existing slots
- * - allowedParents/allowedChildren should be valid kind names
- */
 export function validateComponentSchema(schema: ComponentSchema): {
 	valid: boolean;
 	errors: string[];
 } {
 	const errors: string[] = [];
-	const _slotNames = new Set(Object.keys(schema.slots));
 
-	// perItem requires compound
 	for (const [name, slot] of Object.entries(schema.slots)) {
 		if (slot.perItem && !schema.compound) {
 			errors.push(`slot "${name}" is perItem but compound is false`);
 		}
 	}
 
-	// Slot props must reference existing slots
-	for (const [_propName, prop] of Object.entries(schema.props)) {
-		if (prop.type === "slot" && prop.allowedKinds) {
-			// allowedKinds is cross-component, can't validate here — noted for registry-level validation
-		}
-	}
-
-	// At least one slot must be required
 	const hasRequiredSlot = Object.values(schema.slots).some((s) => s.required);
 	if (!hasRequiredSlot) {
 		errors.push("component must have at least one required slot");
 	}
 
-	// Recipe default ID must be in available IDs
-	if (!schema.recipe.availableIds.includes(schema.recipe.defaultId)) {
-		errors.push(`recipe defaultId "${schema.recipe.defaultId}" not in availableIds`);
+	if (!schema.style.availableStyleIds.includes(schema.style.defaultStyleId)) {
+		errors.push(`style defaultStyleId "${schema.style.defaultStyleId}" not in availableStyleIds`);
 	}
 
-	// Recipe IDs must start with the kind
-	for (const id of schema.recipe.availableIds) {
-		if (!id.startsWith(`${schema.kind}.`)) {
-			errors.push(`recipe ID "${id}" must start with kind "${schema.kind}."`);
+	for (const id of schema.style.availableStyleIds) {
+		if (!id.startsWith(`${schema.kind}-`)) {
+			errors.push(`style ID "${id}" must start with kind "${schema.kind}-"`);
 		}
 	}
 
@@ -431,7 +314,6 @@ export function validateComponentSchema(schema: ComponentSchema): {
 // JSON EXPORT — For VPB consumption
 // =============================================================================
 
-/** Serialize to plain JSON for VPB. */
 export function toJSON(schema: ComponentSchema): Record<string, unknown> {
 	return JSON.parse(JSON.stringify(schema));
 }

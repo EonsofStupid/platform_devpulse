@@ -6,7 +6,7 @@
 	Compound: root / trigger / header / content / footer slots.
 -->
 <script lang="ts">
-import { createSidebar } from "$lib/design/api/dsadapters/coldlight/_internal/sidebar/index.js";
+import { createSidebar } from "$lib/design/components/sidebar/index.js";
 import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import SidebarRoot from "$lib/design/primitives/sidebar/Sidebar.svelte";
 import { cn } from "$lib/design/utils/cn.js";

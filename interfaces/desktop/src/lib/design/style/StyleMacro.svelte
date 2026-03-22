@@ -4,11 +4,18 @@
 
 	THE visual resolution component for ColdLight.
 
-	6-axis visual system:
-	  backgroundColor, backgroundBlur, shadow, border, animation, transition
+	11-axis visual system (each = 1 real DTCG $type):
+	  backgroundColor, backgroundBlur, shadow, border, animation, transition,
+	  typography, gradient, color, borderRadius, opacity
 
 	Resolution: local → kind → global. ONE $derived.by per instance.
-	Output: CSS custom properties + data attributes for VPB.
+	Output: --cl-* CSS custom properties + data-encoding for VPB.
+
+	For composite types (shadow, border, transition, typography, gradient):
+	  StyleMacro assembles the CSS shorthand from expanded DTCG sub-values.
+	  Sets BOTH the assembled shorthand AND individual sub-vars.
+	  Glue CSS consumes the assembled shorthand.
+	  VPB controls individual sub-values.
 -->
 <script lang="ts">
 import type { Snippet } from "svelte";
@@ -20,19 +27,18 @@ import {
 	type StyleMacroProps,
 } from "./macro-mappings.js";
 
-// Compiled base — generated at build from DTCG composite tokens
-// Graceful fallback when not yet generated
-let compiledBase: Record<string, Partial<StyleMacroProps>> = {};
+// Style token map — built at SD5 build time from DTCG token groups.
+// Maps style ID → axis → resolved CSS value.
+// e.g. compiledStyles["button-primary"].backgroundColor → "var(--color-teal-600)"
+let compiledStyles: Record<string, Partial<StyleMacroProps>> = {};
 
 interface Props {
-	/** Component kind — reads defaults from compiledBase[kind]. */
+	/** Component kind — for VPB identification. */
 	kind?: string;
-	/** Style ID — references a DTCG composite token directly. */
+	/** Style ID — references a DTCG token group (e.g. "button-primary"). */
 	style?: string;
-	/** Per-instance visual overrides. Highest priority. */
+	/** Per-instance axis overrides. Highest priority. */
 	localOverrides?: Partial<StyleMacroProps>;
-	/** Override the active style ID for this subtree. */
-	localStyleId?: string;
 	/** Content to wrap. */
 	children: Snippet;
 	/** Additional CSS class on the wrapper (structural layout only). */
@@ -41,37 +47,36 @@ interface Props {
 
 let {
 	kind,
-	style: styleRef,
+	style: styleId,
 	localOverrides,
-	localStyleId,
 	children,
 	class: className,
 }: Props = $props();
-
-let activeId = $derived(localStyleId ?? platformBase.activeStyleId);
 
 let resolved = $derived.by(() => {
 	let cssString = "";
 	let encoding = "";
 
-	const baseTokens = platformBase.globalTokens;
-	const kindDefaults = kind ? (compiledBase[kind] ?? {}) : {};
+	const globalDefaults = platformBase.globalTokens;
+	const styleDefaults = styleId ? (compiledStyles[styleId] ?? {}) : {};
 	const local = localOverrides ?? {};
 
 	for (let i = 0; i < macroKeys.length; i++) {
 		const key = macroKeys[i];
-		const value = local[key] ?? kindDefaults[key] ?? baseTokens[key];
+		const value = local[key] ?? styleDefaults[key] ?? globalDefaults[key];
 
 		if (value) {
 			const mapping = propMappings[key];
-			cssString += `${mapping.varName}: var(--${mapping.category}-${activeId}-${value}); `;
+			// Simple axes: set --cl-{name}: {value}
+			// The value IS the resolved CSS value (e.g. "var(--color-teal-600)")
+			cssString += `${mapping.varName}: ${value}; `;
 		}
 	}
 
-	// 6-axis encoding for VPB persistence
+	// 11-axis encoding for VPB persistence
 	for (let i = 0; i < visualAxisKeys.length; i++) {
 		const key = visualAxisKeys[i];
-		const value = local[key] ?? kindDefaults[key] ?? baseTokens[key];
+		const value = local[key] ?? styleDefaults[key] ?? globalDefaults[key];
 		if (value) {
 			encoding += `${key}:${value} `;
 		}
@@ -85,9 +90,8 @@ let resolved = $derived.by(() => {
 </script>
 
 <div
-	data-macro-id={activeId}
+	data-macro-id={styleId}
 	data-macro-kind={kind}
-	data-macro-style={styleRef}
 	data-encoding={resolved.encoding || undefined}
 	class={className || undefined}
 	style={resolved.css || undefined}
