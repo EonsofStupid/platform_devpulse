@@ -4,15 +4,55 @@
 
 @layer tokens.semantic {
   :root {
-  --text-style-display-lg: 700 32px/1.1 var(--font-display); /** Hero stats, page titles */
-  --text-style-display-sm: 600 24px/1.2 var(--font-display); /** Section headers, widget titles */
-  --text-style-heading-lg: 600 20px/1.3 var(--font-sans); /** Panel headers, card titles */
-  --text-style-heading-sm: 600 16px/1.4 var(--font-sans); /** Sub-headers, group labels */
-  --text-style-body: 400 14px/1.5 var(--font-sans); /** Default body text */
-  --text-style-body-sm: 400 13px/1.45 var(--font-sans); /** Secondary body, descriptions */
-  --text-style-caption: 500 12px/1.4 var(--font-sans); /** Captions, timestamps, metadata */
-  --text-style-overline: 600 11px/1.3 var(--font-sans); /** Overline labels, category tags */
-  --text-style-code: 400 13px/1.6 var(--font-mono); /** Code blocks, terminal output */
-  --text-style-stat: 700 24px/1.1 var(--font-display); /** Dashboard stat values, gauges */
+  --text-style-display-lg-font-size: 2rem; /** Hero stats, page titles */
+  --text-style-display-lg-font-family: Orbitron, system-ui, sans-serif; /** Hero stats, page titles */
+  --text-style-display-lg-font-weight: 700; /** Hero stats, page titles */
+  --text-style-display-lg-line-height: 1.1; /** Hero stats, page titles */
+  --text-style-display-lg-letter-spacing: 0.00125rem; /** Hero stats, page titles */
+  --text-style-display-sm-font-size: 1.5rem; /** Section headers, widget titles */
+  --text-style-display-sm-font-family: Orbitron, system-ui, sans-serif; /** Section headers, widget titles */
+  --text-style-display-sm-font-weight: 600; /** Section headers, widget titles */
+  --text-style-display-sm-line-height: 1.2; /** Section headers, widget titles */
+  --text-style-display-sm-letter-spacing: 0.000625rem; /** Section headers, widget titles */
+  --text-style-heading-lg-font-size: 1.25rem; /** Panel headers, card titles */
+  --text-style-heading-lg-font-family: Inter, system-ui, sans-serif; /** Panel headers, card titles */
+  --text-style-heading-lg-font-weight: 600; /** Panel headers, card titles */
+  --text-style-heading-lg-line-height: 1.3; /** Panel headers, card titles */
+  --text-style-heading-lg-letter-spacing: -0.000625rem; /** Panel headers, card titles */
+  --text-style-heading-sm-font-size: 1rem; /** Sub-headers, group labels */
+  --text-style-heading-sm-font-family: Inter, system-ui, sans-serif; /** Sub-headers, group labels */
+  --text-style-heading-sm-font-weight: 600; /** Sub-headers, group labels */
+  --text-style-heading-sm-line-height: 1.4; /** Sub-headers, group labels */
+  --text-style-heading-sm-letter-spacing: -0.0003125rem; /** Sub-headers, group labels */
+  --text-style-body-font-size: 0.875rem; /** Default body text */
+  --text-style-body-font-family: Inter, system-ui, sans-serif; /** Default body text */
+  --text-style-body-font-weight: 400; /** Default body text */
+  --text-style-body-line-height: 1.5; /** Default body text */
+  --text-style-body-letter-spacing: 0; /** Default body text */
+  --text-style-body-sm-font-size: 0.8125rem; /** Secondary body, descriptions */
+  --text-style-body-sm-font-family: Inter, system-ui, sans-serif; /** Secondary body, descriptions */
+  --text-style-body-sm-font-weight: 400; /** Secondary body, descriptions */
+  --text-style-body-sm-line-height: 1.45; /** Secondary body, descriptions */
+  --text-style-body-sm-letter-spacing: 0; /** Secondary body, descriptions */
+  --text-style-caption-font-size: 0.75rem; /** Captions, timestamps, metadata */
+  --text-style-caption-font-family: Inter, system-ui, sans-serif; /** Captions, timestamps, metadata */
+  --text-style-caption-font-weight: 500; /** Captions, timestamps, metadata */
+  --text-style-caption-line-height: 1.4; /** Captions, timestamps, metadata */
+  --text-style-caption-letter-spacing: 0.000625rem; /** Captions, timestamps, metadata */
+  --text-style-overline-font-size: 0.6875rem; /** Overline labels, category tags */
+  --text-style-overline-font-family: Inter, system-ui, sans-serif; /** Overline labels, category tags */
+  --text-style-overline-font-weight: 600; /** Overline labels, category tags */
+  --text-style-overline-line-height: 1.3; /** Overline labels, category tags */
+  --text-style-overline-letter-spacing: 0.005rem; /** Overline labels, category tags */
+  --text-style-code-font-size: 0.8125rem; /** Code blocks, terminal output */
+  --text-style-code-font-family: 'JetBrains Mono', 'Fira Code', monospace; /** Code blocks, terminal output */
+  --text-style-code-font-weight: 400; /** Code blocks, terminal output */
+  --text-style-code-line-height: 1.6; /** Code blocks, terminal output */
+  --text-style-code-letter-spacing: 0; /** Code blocks, terminal output */
+  --text-style-stat-font-size: 1.5rem; /** Dashboard stat values, gauges */
+  --text-style-stat-font-family: Orbitron, system-ui, sans-serif; /** Dashboard stat values, gauges */
+  --text-style-stat-font-weight: 700; /** Dashboard stat values, gauges */
+  --text-style-stat-line-height: 1.1; /** Dashboard stat values, gauges */
+  --text-style-stat-letter-spacing: 0.00125rem; /** Dashboard stat values, gauges */
   }
 }

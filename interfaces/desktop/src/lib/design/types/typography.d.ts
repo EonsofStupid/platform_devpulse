@@ -33,21 +33,81 @@ export type TextSizeRecord = {
 	'4xl': string;
 };
 
-export const TextStyleTokens = ['display-lg', 'display-sm', 'heading-lg', 'heading-sm', 'body', 'body-sm', 'caption', 'overline', 'code', 'stat'] as const;
+export const TextStyleTokens = ['display-lg-fontSize', 'display-lg-fontFamily', 'display-lg-fontWeight', 'display-lg-lineHeight', 'display-lg-letterSpacing', 'display-sm-fontSize', 'display-sm-fontFamily', 'display-sm-fontWeight', 'display-sm-lineHeight', 'display-sm-letterSpacing', 'heading-lg-fontSize', 'heading-lg-fontFamily', 'heading-lg-fontWeight', 'heading-lg-lineHeight', 'heading-lg-letterSpacing', 'heading-sm-fontSize', 'heading-sm-fontFamily', 'heading-sm-fontWeight', 'heading-sm-lineHeight', 'heading-sm-letterSpacing', 'body-fontSize', 'body-fontFamily', 'body-fontWeight', 'body-lineHeight', 'body-letterSpacing', 'body-sm-fontSize', 'body-sm-fontFamily', 'body-sm-fontWeight', 'body-sm-lineHeight', 'body-sm-letterSpacing', 'caption-fontSize', 'caption-fontFamily', 'caption-fontWeight', 'caption-lineHeight', 'caption-letterSpacing', 'overline-fontSize', 'overline-fontFamily', 'overline-fontWeight', 'overline-lineHeight', 'overline-letterSpacing', 'code-fontSize', 'code-fontFamily', 'code-fontWeight', 'code-lineHeight', 'code-letterSpacing', 'stat-fontSize', 'stat-fontFamily', 'stat-fontWeight', 'stat-lineHeight', 'stat-letterSpacing'] as const;
 export type TextStyleToken = (typeof TextStyleTokens)[number];
 
-export type TextStyleCSSVar = '--text-style-display-lg' | '--text-style-display-sm' | '--text-style-heading-lg' | '--text-style-heading-sm' | '--text-style-body' | '--text-style-body-sm' | '--text-style-caption' | '--text-style-overline' | '--text-style-code' | '--text-style-stat';
+export type TextStyleCSSVar = '--text-style-display-lg-font-size' | '--text-style-display-lg-font-family' | '--text-style-display-lg-font-weight' | '--text-style-display-lg-line-height' | '--text-style-display-lg-letter-spacing' | '--text-style-display-sm-font-size' | '--text-style-display-sm-font-family' | '--text-style-display-sm-font-weight' | '--text-style-display-sm-line-height' | '--text-style-display-sm-letter-spacing' | '--text-style-heading-lg-font-size' | '--text-style-heading-lg-font-family' | '--text-style-heading-lg-font-weight' | '--text-style-heading-lg-line-height' | '--text-style-heading-lg-letter-spacing' | '--text-style-heading-sm-font-size' | '--text-style-heading-sm-font-family' | '--text-style-heading-sm-font-weight' | '--text-style-heading-sm-line-height' | '--text-style-heading-sm-letter-spacing' | '--text-style-body-font-size' | '--text-style-body-font-family' | '--text-style-body-font-weight' | '--text-style-body-line-height' | '--text-style-body-letter-spacing' | '--text-style-body-sm-font-size' | '--text-style-body-sm-font-family' | '--text-style-body-sm-font-weight' | '--text-style-body-sm-line-height' | '--text-style-body-sm-letter-spacing' | '--text-style-caption-font-size' | '--text-style-caption-font-family' | '--text-style-caption-font-weight' | '--text-style-caption-line-height' | '--text-style-caption-letter-spacing' | '--text-style-overline-font-size' | '--text-style-overline-font-family' | '--text-style-overline-font-weight' | '--text-style-overline-line-height' | '--text-style-overline-letter-spacing' | '--text-style-code-font-size' | '--text-style-code-font-family' | '--text-style-code-font-weight' | '--text-style-code-line-height' | '--text-style-code-letter-spacing' | '--text-style-stat-font-size' | '--text-style-stat-font-family' | '--text-style-stat-font-weight' | '--text-style-stat-line-height' | '--text-style-stat-letter-spacing';
 
 export type TextStyleRecord = {
-	'display-lg': string;
-	'display-sm': string;
-	'heading-lg': string;
-	'heading-sm': string;
-	body: string;
-	'body-sm': string;
-	caption: string;
-	overline: string;
-	code: string;
-	stat: string;
+	'display-lg': {
+		fontSize: string;
+		fontFamily: string;
+		fontWeight: string;
+		lineHeight: string;
+		letterSpacing: string;
+	};
+	'display-sm': {
+		fontSize: string;
+		fontFamily: string;
+		fontWeight: string;
+		lineHeight: string;
+		letterSpacing: string;
+	};
+	'heading-lg': {
+		fontSize: string;
+		fontFamily: string;
+		fontWeight: string;
+		lineHeight: string;
+		letterSpacing: string;
+	};
+	'heading-sm': {
+		fontSize: string;
+		fontFamily: string;
+		fontWeight: string;
+		lineHeight: string;
+		letterSpacing: string;
+	};
+	body: {
+		fontSize: string;
+		fontFamily: string;
+		fontWeight: string;
+		lineHeight: string;
+		letterSpacing: string;
+	};
+	'body-sm': {
+		fontSize: string;
+		fontFamily: string;
+		fontWeight: string;
+		lineHeight: string;
+		letterSpacing: string;
+	};
+	caption: {
+		fontSize: string;
+		fontFamily: string;
+		fontWeight: string;
+		lineHeight: string;
+		letterSpacing: string;
+	};
+	overline: {
+		fontSize: string;
+		fontFamily: string;
+		fontWeight: string;
+		lineHeight: string;
+		letterSpacing: string;
+	};
+	code: {
+		fontSize: string;
+		fontFamily: string;
+		fontWeight: string;
+		lineHeight: string;
+		letterSpacing: string;
+	};
+	stat: {
+		fontSize: string;
+		fontFamily: string;
+		fontWeight: string;
+		lineHeight: string;
+		letterSpacing: string;
+	};
 };
 

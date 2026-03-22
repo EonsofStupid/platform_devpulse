@@ -3,15 +3,43 @@
  */
 
 @theme {
-  --drop-shadow-off: 0px 0px 0px 0px #00000000;
-  --drop-shadow-teal: 0px 0px 30px 12px #009076b3;
-  --drop-shadow-purple: 0px 0px 30px 12px #615ed6b3;
-  --drop-shadow-magenta: 0px 0px 30px 12px #ad36a7b3;
-  --drop-shadow-ember: 0px 0px 30px 12px #c53637b3;
-  --drop-shadow-frost: 0px 0px 30px 12px #1988a399;
-  --drop-shadow-cyber: 0px 0px 30px 12px #008f4ab3;
   --glow-spread-sm: 0.75rem;
   --glow-spread-md: 1.25rem;
   --glow-spread-lg: 1.875rem;
   --glow-spread-xl: 2.5rem;
+  --drop-shadow-off-color: oklch(0.0000 0.0000 0.00 / 0);
+  --drop-shadow-off-offsetX: 0;
+  --drop-shadow-off-offsetY: 0;
+  --drop-shadow-off-blur: 0;
+  --drop-shadow-off-spread: 0;
+  --drop-shadow-teal-color: oklch(0.5828 0.1109 173.95 / 0.7019607843137254);
+  --drop-shadow-teal-offsetX: 0;
+  --drop-shadow-teal-offsetY: 0;
+  --drop-shadow-teal-blur: 1.875rem;
+  --drop-shadow-teal-spread: 0.75rem;
+  --drop-shadow-purple-color: oklch(0.5500 0.1791 279.85 / 0.7019607843137254);
+  --drop-shadow-purple-offsetX: 0;
+  --drop-shadow-purple-offsetY: 0;
+  --drop-shadow-purple-blur: 1.875rem;
+  --drop-shadow-purple-spread: 0.75rem;
+  --drop-shadow-magenta-color: oklch(0.5492 0.1995 330.02 / 0.7019607843137254);
+  --drop-shadow-magenta-offsetX: 0;
+  --drop-shadow-magenta-offsetY: 0;
+  --drop-shadow-magenta-blur: 1.875rem;
+  --drop-shadow-magenta-spread: 0.75rem;
+  --drop-shadow-ember-color: oklch(0.5505 0.1800 25.02 / 0.7019607843137254);
+  --drop-shadow-ember-offsetX: 0;
+  --drop-shadow-ember-offsetY: 0;
+  --drop-shadow-ember-blur: 1.875rem;
+  --drop-shadow-ember-spread: 0.75rem;
+  --drop-shadow-frost-color: oklch(0.5813 0.0998 219.52 / 0.6);
+  --drop-shadow-frost-offsetX: 0;
+  --drop-shadow-frost-offsetY: 0;
+  --drop-shadow-frost-blur: 1.875rem;
+  --drop-shadow-frost-spread: 0.75rem;
+  --drop-shadow-cyber-color: oklch(0.5697 0.1476 152.69 / 0.7019607843137254);
+  --drop-shadow-cyber-offsetX: 0;
+  --drop-shadow-cyber-offsetY: 0;
+  --drop-shadow-cyber-blur: 1.875rem;
+  --drop-shadow-cyber-spread: 0.75rem;
 }

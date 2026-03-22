@@ -4,10 +4,50 @@
 
 @layer tokens.semantic {
   :root {
-  --elevation-flat: var(--shadow-z0); /** No elevation — inline content */
-  --elevation-card: var(--shadow-z1); /** Card, tile, badge */
-  --elevation-panel: var(--shadow-z2); /** Side panel, drawer */
-  --elevation-dropdown: var(--shadow-z3); /** Menu, dropdown, popover */
-  --elevation-modal: var(--shadow-z4); /** Dialog, modal, toast */
+  --elevation-flat-color: oklch(0.0000 0.0000 0.00 / 0); /** No elevation — inline content */
+  --elevation-flat-offset-x: 0; /** No elevation — inline content */
+  --elevation-flat-offset-y: 0; /** No elevation — inline content */
+  --elevation-flat-blur: 0; /** No elevation — inline content */
+  --elevation-flat-spread: 0; /** No elevation — inline content */
+  --elevation-card-1-color: oklch(0.0000 0.0000 0.00 / 0.12156862745098039); /** Card, tile, badge */
+  --elevation-card-1-offset-x: 0; /** Card, tile, badge */
+  --elevation-card-1-offset-y: 0.0625rem; /** Card, tile, badge */
+  --elevation-card-1-blur: 0.1875rem; /** Card, tile, badge */
+  --elevation-card-1-spread: 0; /** Card, tile, badge */
+  --elevation-card-2-color: oklch(0.0000 0.0000 0.00 / 0.23921568627450981); /** Card, tile, badge */
+  --elevation-card-2-offset-x: 0; /** Card, tile, badge */
+  --elevation-card-2-offset-y: 0.0625rem; /** Card, tile, badge */
+  --elevation-card-2-blur: 0.125rem; /** Card, tile, badge */
+  --elevation-card-2-spread: 0; /** Card, tile, badge */
+  --elevation-panel-1-color: oklch(0.0000 0.0000 0.00 / 0.14901960784313725); /** Side panel, drawer */
+  --elevation-panel-1-offset-x: 0; /** Side panel, drawer */
+  --elevation-panel-1-offset-y: 0.1875rem; /** Side panel, drawer */
+  --elevation-panel-1-blur: 0.375rem; /** Side panel, drawer */
+  --elevation-panel-1-spread: 0; /** Side panel, drawer */
+  --elevation-panel-2-color: oklch(0.0000 0.0000 0.00 / 0.12156862745098039); /** Side panel, drawer */
+  --elevation-panel-2-offset-x: 0; /** Side panel, drawer */
+  --elevation-panel-2-offset-y: 0.125rem; /** Side panel, drawer */
+  --elevation-panel-2-blur: 0.25rem; /** Side panel, drawer */
+  --elevation-panel-2-spread: 0; /** Side panel, drawer */
+  --elevation-dropdown-1-color: oklch(0.0000 0.0000 0.00 / 0.14901960784313725); /** Menu, dropdown, popover */
+  --elevation-dropdown-1-offset-x: 0; /** Menu, dropdown, popover */
+  --elevation-dropdown-1-offset-y: 0.625rem; /** Menu, dropdown, popover */
+  --elevation-dropdown-1-blur: 1.25rem; /** Menu, dropdown, popover */
+  --elevation-dropdown-1-spread: 0; /** Menu, dropdown, popover */
+  --elevation-dropdown-2-color: oklch(0.0000 0.0000 0.00 / 0.10196078431372549); /** Menu, dropdown, popover */
+  --elevation-dropdown-2-offset-x: 0; /** Menu, dropdown, popover */
+  --elevation-dropdown-2-offset-y: 0.1875rem; /** Menu, dropdown, popover */
+  --elevation-dropdown-2-blur: 0.375rem; /** Menu, dropdown, popover */
+  --elevation-dropdown-2-spread: 0; /** Menu, dropdown, popover */
+  --elevation-modal-1-color: oklch(0.0000 0.0000 0.00 / 0.14901960784313725); /** Dialog, modal, toast */
+  --elevation-modal-1-offset-x: 0; /** Dialog, modal, toast */
+  --elevation-modal-1-offset-y: 0.9375rem; /** Dialog, modal, toast */
+  --elevation-modal-1-blur: 1.5625rem; /** Dialog, modal, toast */
+  --elevation-modal-1-spread: 0; /** Dialog, modal, toast */
+  --elevation-modal-2-color: oklch(0.0000 0.0000 0.00 / 0.050980392156862744); /** Dialog, modal, toast */
+  --elevation-modal-2-offset-x: 0; /** Dialog, modal, toast */
+  --elevation-modal-2-offset-y: 0.3125rem; /** Dialog, modal, toast */
+  --elevation-modal-2-blur: 0.625rem; /** Dialog, modal, toast */
+  --elevation-modal-2-spread: 0; /** Dialog, modal, toast */
   }
 }

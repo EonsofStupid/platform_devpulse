@@ -205,11 +205,10 @@ const CSS_TRANSFORMS = [
 	transforms.colorOklch,
 	transforms.fontFamilyCss,
 	transforms.cubicBezierCss,
-	transforms.borderCssShorthand,
-	transforms.typographyCssShorthand,
-	transforms.transitionCssShorthand,
-	transforms.shadowCssShorthand,
-	clTransforms.gradientCssShorthand,
+	// NO shorthand transforms — ADR-001: ALL composites expand via expand:true
+	// SD5 expands shadow, border, transition, typography into named sub-properties
+	// StyleMacro assembles shorthand in $derived.by
+	clTransforms.gradientCssShorthand, // gradient has no built-in expand
 ];
 
 const TYPE_TRANSFORMS = [
@@ -462,6 +461,7 @@ const typesFile = (
 const config: Config = {
 	source: [`${paths.source}/*.json`],
 	usesDtcg: true,
+	expand: true,
 	preprocessors: [clPreprocessors.captureExtensions],
 	log: {
 		verbosity: logVerbosityLevels.verbose,

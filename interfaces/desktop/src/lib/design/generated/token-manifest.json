@@ -212,314 +212,6 @@
 			}
 		]
 	},
-	"bevel": {
-		"extensions": {},
-		"tokens": [
-			{
-				"name": "bevel-off",
-				"path": [
-					"bevel",
-					"off"
-				],
-				"cssVar": "--bevel-off",
-				"value": {
-					"color": "#00000000",
-					"offsetX": "0px",
-					"offsetY": "0px",
-					"blur": "0px",
-					"spread": "0px"
-				},
-				"type": "shadow",
-				"extensions": {
-					"inset": true,
-					"axis": "bevel",
-					"scope": "primitive"
-				}
-			},
-			{
-				"name": "bevel-subtle",
-				"path": [
-					"bevel",
-					"subtle"
-				],
-				"cssVar": "--bevel-subtle",
-				"value": [
-					{
-						"color": "#ffffff1a",
-						"offsetX": "0px",
-						"offsetY": "1px",
-						"blur": "0px",
-						"spread": "0px"
-					},
-					{
-						"color": "#00000029",
-						"offsetX": "0px",
-						"offsetY": "-1px",
-						"blur": "1px",
-						"spread": "0px"
-					}
-				],
-				"type": "shadow",
-				"extensions": {
-					"inset": true,
-					"axis": "bevel",
-					"scope": "primitive",
-					"svgFilter": {
-						"type": "specularLighting",
-						"surfaceScale": 1,
-						"specularConstant": 0.3,
-						"specularExponent": 30,
-						"lightPosition": {
-							"x": 0,
-							"y": -1,
-							"z": 1
-						}
-					}
-				}
-			},
-			{
-				"name": "bevel-soft",
-				"path": [
-					"bevel",
-					"soft"
-				],
-				"cssVar": "--bevel-soft",
-				"value": [
-					{
-						"color": "#ffffff1f",
-						"offsetX": "0px",
-						"offsetY": "1px",
-						"blur": "1px",
-						"spread": "0px"
-					},
-					{
-						"color": "#ffffff14",
-						"offsetX": "0px",
-						"offsetY": "2px",
-						"blur": "4px",
-						"spread": "0px"
-					},
-					{
-						"color": "#00000033",
-						"offsetX": "0px",
-						"offsetY": "-1px",
-						"blur": "3px",
-						"spread": "0px"
-					}
-				],
-				"type": "shadow",
-				"extensions": {
-					"inset": true,
-					"axis": "bevel",
-					"scope": "primitive",
-					"svgFilter": {
-						"type": "specularLighting",
-						"surfaceScale": 2,
-						"specularConstant": 0.5,
-						"specularExponent": 25,
-						"lightPosition": {
-							"x": 0,
-							"y": -1,
-							"z": 1.5
-						}
-					}
-				}
-			},
-			{
-				"name": "bevel-medium",
-				"path": [
-					"bevel",
-					"medium"
-				],
-				"cssVar": "--bevel-medium",
-				"value": [
-					{
-						"color": "#ffffff26",
-						"offsetX": "0px",
-						"offsetY": "1px",
-						"blur": "1px",
-						"spread": "0px"
-					},
-					{
-						"color": "#ffffff1a",
-						"offsetX": "0px",
-						"offsetY": "2px",
-						"blur": "5px",
-						"spread": "0px"
-					},
-					{
-						"color": "#00000040",
-						"offsetX": "0px",
-						"offsetY": "-1px",
-						"blur": "3px",
-						"spread": "0px"
-					},
-					{
-						"color": "#00000029",
-						"offsetX": "0px",
-						"offsetY": "-3px",
-						"blur": "6px",
-						"spread": "0px"
-					}
-				],
-				"type": "shadow",
-				"extensions": {
-					"inset": true,
-					"axis": "bevel",
-					"scope": "primitive",
-					"svgFilter": {
-						"type": "specularLighting",
-						"surfaceScale": 3,
-						"specularConstant": 0.65,
-						"specularExponent": 22,
-						"lightPosition": {
-							"x": 0,
-							"y": -1,
-							"z": 2
-						}
-					}
-				}
-			},
-			{
-				"name": "bevel-pronounced",
-				"path": [
-					"bevel",
-					"pronounced"
-				],
-				"cssVar": "--bevel-pronounced",
-				"value": [
-					{
-						"color": "#ffffff33",
-						"offsetX": "0px",
-						"offsetY": "1px",
-						"blur": "1px",
-						"spread": "0px"
-					},
-					{
-						"color": "#ffffff24",
-						"offsetX": "0px",
-						"offsetY": "2px",
-						"blur": "5px",
-						"spread": "0px"
-					},
-					{
-						"color": "#ffffff14",
-						"offsetX": "0px",
-						"offsetY": "4px",
-						"blur": "10px",
-						"spread": "0px"
-					},
-					{
-						"color": "#00000047",
-						"offsetX": "0px",
-						"offsetY": "-1px",
-						"blur": "3px",
-						"spread": "0px"
-					},
-					{
-						"color": "#00000033",
-						"offsetX": "0px",
-						"offsetY": "-4px",
-						"blur": "8px",
-						"spread": "0px"
-					}
-				],
-				"type": "shadow",
-				"extensions": {
-					"inset": true,
-					"axis": "bevel",
-					"scope": "primitive",
-					"svgFilter": {
-						"type": "specularLighting",
-						"surfaceScale": 4,
-						"specularConstant": 0.8,
-						"specularExponent": 20,
-						"lightPosition": {
-							"x": 0,
-							"y": -1,
-							"z": 2.5
-						}
-					}
-				}
-			},
-			{
-				"name": "bevel-deep",
-				"path": [
-					"bevel",
-					"deep"
-				],
-				"cssVar": "--bevel-deep",
-				"value": [
-					{
-						"color": "#ffffff3d",
-						"offsetX": "0px",
-						"offsetY": "1px",
-						"blur": "1px",
-						"spread": "0px"
-					},
-					{
-						"color": "#ffffff2e",
-						"offsetX": "0px",
-						"offsetY": "2px",
-						"blur": "4px",
-						"spread": "0px"
-					},
-					{
-						"color": "#ffffff1a",
-						"offsetX": "0px",
-						"offsetY": "4px",
-						"blur": "8px",
-						"spread": "0px"
-					},
-					{
-						"color": "#ffffff0d",
-						"offsetX": "0px",
-						"offsetY": "6px",
-						"blur": "14px",
-						"spread": "0px"
-					},
-					{
-						"color": "#00000052",
-						"offsetX": "0px",
-						"offsetY": "-1px",
-						"blur": "3px",
-						"spread": "0px"
-					},
-					{
-						"color": "#0000003d",
-						"offsetX": "0px",
-						"offsetY": "-4px",
-						"blur": "8px",
-						"spread": "0px"
-					},
-					{
-						"color": "#00000024",
-						"offsetX": "0px",
-						"offsetY": "-8px",
-						"blur": "16px",
-						"spread": "0px"
-					}
-				],
-				"type": "shadow",
-				"extensions": {
-					"inset": true,
-					"axis": "bevel",
-					"scope": "primitive",
-					"svgFilter": {
-						"type": "specularLighting",
-						"surfaceScale": 5,
-						"specularConstant": 0.9,
-						"specularExponent": 18,
-						"lightPosition": {
-							"x": 0,
-							"y": -1,
-							"z": 3
-						}
-					}
-				}
-			}
-		]
-	},
 	"blur": {
 		"extensions": {
 			"control": "slider",
@@ -739,71 +431,6 @@
 				"cssVar": "--border-divider",
 				"value": "#ffffff0f",
 				"type": "color",
-				"extensions": null
-			}
-		]
-	},
-	"borderPreset": {
-		"extensions": {},
-		"tokens": [
-			{
-				"name": "border-preset-default",
-				"path": [
-					"borderPreset",
-					"default"
-				],
-				"cssVar": "--border-preset-default",
-				"value": {
-					"color": "#005c4a38",
-					"width": "1px",
-					"style": "solid"
-				},
-				"type": "border",
-				"extensions": null
-			},
-			{
-				"name": "border-preset-strong",
-				"path": [
-					"borderPreset",
-					"strong"
-				],
-				"cssVar": "--border-preset-strong",
-				"value": {
-					"color": "#0078614d",
-					"width": "1px",
-					"style": "solid"
-				},
-				"type": "border",
-				"extensions": null
-			},
-			{
-				"name": "border-preset-focus",
-				"path": [
-					"borderPreset",
-					"focus"
-				],
-				"cssVar": "--border-preset-focus",
-				"value": {
-					"color": "#3ee0b7",
-					"width": "2px",
-					"style": "solid"
-				},
-				"type": "border",
-				"extensions": null
-			},
-			{
-				"name": "border-preset-divider",
-				"path": [
-					"borderPreset",
-					"divider"
-				],
-				"cssVar": "--border-preset-divider",
-				"value": {
-					"color": "#ffffff0f",
-					"width": "1px",
-					"style": "solid"
-				},
-				"type": "border",
 				"extensions": null
 			}
 		]
@@ -5412,29 +5039,133 @@
 				"extensions": null
 			},
 			{
-				"name": "card-depth",
+				"name": "card-depth-1-color",
 				"path": [
 					"card",
-					"depth"
+					"depth",
+					"1",
+					"color"
 				],
-				"cssVar": "--card-depth",
-				"value": [
-					{
-						"color": "#0000001f",
-						"offsetX": "0px",
-						"offsetY": "1px",
-						"blur": "3px",
-						"spread": "0px"
-					},
-					{
-						"color": "#0000003d",
-						"offsetX": "0px",
-						"offsetY": "1px",
-						"blur": "2px",
-						"spread": "0px"
-					}
+				"cssVar": "--card-depth-1-color",
+				"value": "#0000001f",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "card-depth-1-offset-x",
+				"path": [
+					"card",
+					"depth",
+					"1",
+					"offsetX"
 				],
-				"type": "shadow",
+				"cssVar": "--card-depth-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-depth-1-offset-y",
+				"path": [
+					"card",
+					"depth",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--card-depth-1-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-depth-1-blur",
+				"path": [
+					"card",
+					"depth",
+					"1",
+					"blur"
+				],
+				"cssVar": "--card-depth-1-blur",
+				"value": "3px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-depth-1-spread",
+				"path": [
+					"card",
+					"depth",
+					"1",
+					"spread"
+				],
+				"cssVar": "--card-depth-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-depth-2-color",
+				"path": [
+					"card",
+					"depth",
+					"2",
+					"color"
+				],
+				"cssVar": "--card-depth-2-color",
+				"value": "#0000003d",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "card-depth-2-offset-x",
+				"path": [
+					"card",
+					"depth",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--card-depth-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-depth-2-offset-y",
+				"path": [
+					"card",
+					"depth",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--card-depth-2-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-depth-2-blur",
+				"path": [
+					"card",
+					"depth",
+					"2",
+					"blur"
+				],
+				"cssVar": "--card-depth-2-blur",
+				"value": "2px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-depth-2-spread",
+				"path": [
+					"card",
+					"depth",
+					"2",
+					"spread"
+				],
+				"cssVar": "--card-depth-2-spread",
+				"value": "0px",
+				"type": "dimension",
 				"extensions": null
 			}
 		]
@@ -5622,29 +5353,133 @@
 				"extensions": null
 			},
 			{
-				"name": "toast-depth",
+				"name": "toast-depth-1-color",
 				"path": [
 					"toast",
-					"depth"
+					"depth",
+					"1",
+					"color"
 				],
-				"cssVar": "--toast-depth",
-				"value": [
-					{
-						"color": "#00000026",
-						"offsetX": "0px",
-						"offsetY": "10px",
-						"blur": "20px",
-						"spread": "0px"
-					},
-					{
-						"color": "#0000001a",
-						"offsetX": "0px",
-						"offsetY": "3px",
-						"blur": "6px",
-						"spread": "0px"
-					}
+				"cssVar": "--toast-depth-1-color",
+				"value": "#00000026",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "toast-depth-1-offset-x",
+				"path": [
+					"toast",
+					"depth",
+					"1",
+					"offsetX"
 				],
-				"type": "shadow",
+				"cssVar": "--toast-depth-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "toast-depth-1-offset-y",
+				"path": [
+					"toast",
+					"depth",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--toast-depth-1-offset-y",
+				"value": "10px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "toast-depth-1-blur",
+				"path": [
+					"toast",
+					"depth",
+					"1",
+					"blur"
+				],
+				"cssVar": "--toast-depth-1-blur",
+				"value": "20px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "toast-depth-1-spread",
+				"path": [
+					"toast",
+					"depth",
+					"1",
+					"spread"
+				],
+				"cssVar": "--toast-depth-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "toast-depth-2-color",
+				"path": [
+					"toast",
+					"depth",
+					"2",
+					"color"
+				],
+				"cssVar": "--toast-depth-2-color",
+				"value": "#0000001a",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "toast-depth-2-offset-x",
+				"path": [
+					"toast",
+					"depth",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--toast-depth-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "toast-depth-2-offset-y",
+				"path": [
+					"toast",
+					"depth",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--toast-depth-2-offset-y",
+				"value": "3px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "toast-depth-2-blur",
+				"path": [
+					"toast",
+					"depth",
+					"2",
+					"blur"
+				],
+				"cssVar": "--toast-depth-2-blur",
+				"value": "6px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "toast-depth-2-spread",
+				"path": [
+					"toast",
+					"depth",
+					"2",
+					"spread"
+				],
+				"cssVar": "--toast-depth-2-spread",
+				"value": "0px",
+				"type": "dimension",
 				"extensions": null
 			}
 		]
@@ -5686,29 +5521,133 @@
 				"extensions": null
 			},
 			{
-				"name": "panel-depth",
+				"name": "panel-depth-1-color",
 				"path": [
 					"panel",
-					"depth"
+					"depth",
+					"1",
+					"color"
 				],
-				"cssVar": "--panel-depth",
-				"value": [
-					{
-						"color": "#00000026",
-						"offsetX": "0px",
-						"offsetY": "3px",
-						"blur": "6px",
-						"spread": "0px"
-					},
-					{
-						"color": "#0000001f",
-						"offsetX": "0px",
-						"offsetY": "2px",
-						"blur": "4px",
-						"spread": "0px"
-					}
+				"cssVar": "--panel-depth-1-color",
+				"value": "#00000026",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "panel-depth-1-offset-x",
+				"path": [
+					"panel",
+					"depth",
+					"1",
+					"offsetX"
 				],
-				"type": "shadow",
+				"cssVar": "--panel-depth-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "panel-depth-1-offset-y",
+				"path": [
+					"panel",
+					"depth",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--panel-depth-1-offset-y",
+				"value": "3px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "panel-depth-1-blur",
+				"path": [
+					"panel",
+					"depth",
+					"1",
+					"blur"
+				],
+				"cssVar": "--panel-depth-1-blur",
+				"value": "6px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "panel-depth-1-spread",
+				"path": [
+					"panel",
+					"depth",
+					"1",
+					"spread"
+				],
+				"cssVar": "--panel-depth-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "panel-depth-2-color",
+				"path": [
+					"panel",
+					"depth",
+					"2",
+					"color"
+				],
+				"cssVar": "--panel-depth-2-color",
+				"value": "#0000001f",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "panel-depth-2-offset-x",
+				"path": [
+					"panel",
+					"depth",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--panel-depth-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "panel-depth-2-offset-y",
+				"path": [
+					"panel",
+					"depth",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--panel-depth-2-offset-y",
+				"value": "2px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "panel-depth-2-blur",
+				"path": [
+					"panel",
+					"depth",
+					"2",
+					"blur"
+				],
+				"cssVar": "--panel-depth-2-blur",
+				"value": "4px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "panel-depth-2-spread",
+				"path": [
+					"panel",
+					"depth",
+					"2",
+					"spread"
+				],
+				"cssVar": "--panel-depth-2-spread",
+				"value": "0px",
+				"type": "dimension",
 				"extensions": null
 			}
 		]
@@ -5750,29 +5689,133 @@
 				"extensions": null
 			},
 			{
-				"name": "dialog-depth",
+				"name": "dialog-depth-1-color",
 				"path": [
 					"dialog",
-					"depth"
+					"depth",
+					"1",
+					"color"
 				],
-				"cssVar": "--dialog-depth",
-				"value": [
-					{
-						"color": "#00000026",
-						"offsetX": "0px",
-						"offsetY": "15px",
-						"blur": "25px",
-						"spread": "0px"
-					},
-					{
-						"color": "#0000000d",
-						"offsetX": "0px",
-						"offsetY": "5px",
-						"blur": "10px",
-						"spread": "0px"
-					}
+				"cssVar": "--dialog-depth-1-color",
+				"value": "#00000026",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "dialog-depth-1-offset-x",
+				"path": [
+					"dialog",
+					"depth",
+					"1",
+					"offsetX"
 				],
-				"type": "shadow",
+				"cssVar": "--dialog-depth-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "dialog-depth-1-offset-y",
+				"path": [
+					"dialog",
+					"depth",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--dialog-depth-1-offset-y",
+				"value": "15px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "dialog-depth-1-blur",
+				"path": [
+					"dialog",
+					"depth",
+					"1",
+					"blur"
+				],
+				"cssVar": "--dialog-depth-1-blur",
+				"value": "25px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "dialog-depth-1-spread",
+				"path": [
+					"dialog",
+					"depth",
+					"1",
+					"spread"
+				],
+				"cssVar": "--dialog-depth-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "dialog-depth-2-color",
+				"path": [
+					"dialog",
+					"depth",
+					"2",
+					"color"
+				],
+				"cssVar": "--dialog-depth-2-color",
+				"value": "#0000000d",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "dialog-depth-2-offset-x",
+				"path": [
+					"dialog",
+					"depth",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--dialog-depth-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "dialog-depth-2-offset-y",
+				"path": [
+					"dialog",
+					"depth",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--dialog-depth-2-offset-y",
+				"value": "5px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "dialog-depth-2-blur",
+				"path": [
+					"dialog",
+					"depth",
+					"2",
+					"blur"
+				],
+				"cssVar": "--dialog-depth-2-blur",
+				"value": "10px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "dialog-depth-2-spread",
+				"path": [
+					"dialog",
+					"depth",
+					"2",
+					"spread"
+				],
+				"cssVar": "--dialog-depth-2-spread",
+				"value": "0px",
+				"type": "dimension",
 				"extensions": null
 			}
 		]
@@ -5923,29 +5966,133 @@
 				"extensions": null
 			},
 			{
-				"name": "menu-depth",
+				"name": "menu-depth-1-color",
 				"path": [
 					"menu",
-					"depth"
+					"depth",
+					"1",
+					"color"
 				],
-				"cssVar": "--menu-depth",
-				"value": [
-					{
-						"color": "#00000026",
-						"offsetX": "0px",
-						"offsetY": "10px",
-						"blur": "20px",
-						"spread": "0px"
-					},
-					{
-						"color": "#0000001a",
-						"offsetX": "0px",
-						"offsetY": "3px",
-						"blur": "6px",
-						"spread": "0px"
-					}
+				"cssVar": "--menu-depth-1-color",
+				"value": "#00000026",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "menu-depth-1-offset-x",
+				"path": [
+					"menu",
+					"depth",
+					"1",
+					"offsetX"
 				],
-				"type": "shadow",
+				"cssVar": "--menu-depth-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "menu-depth-1-offset-y",
+				"path": [
+					"menu",
+					"depth",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--menu-depth-1-offset-y",
+				"value": "10px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "menu-depth-1-blur",
+				"path": [
+					"menu",
+					"depth",
+					"1",
+					"blur"
+				],
+				"cssVar": "--menu-depth-1-blur",
+				"value": "20px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "menu-depth-1-spread",
+				"path": [
+					"menu",
+					"depth",
+					"1",
+					"spread"
+				],
+				"cssVar": "--menu-depth-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "menu-depth-2-color",
+				"path": [
+					"menu",
+					"depth",
+					"2",
+					"color"
+				],
+				"cssVar": "--menu-depth-2-color",
+				"value": "#0000001a",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "menu-depth-2-offset-x",
+				"path": [
+					"menu",
+					"depth",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--menu-depth-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "menu-depth-2-offset-y",
+				"path": [
+					"menu",
+					"depth",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--menu-depth-2-offset-y",
+				"value": "3px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "menu-depth-2-blur",
+				"path": [
+					"menu",
+					"depth",
+					"2",
+					"blur"
+				],
+				"cssVar": "--menu-depth-2-blur",
+				"value": "6px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "menu-depth-2-spread",
+				"path": [
+					"menu",
+					"depth",
+					"2",
+					"spread"
+				],
+				"cssVar": "--menu-depth-2-spread",
+				"value": "0px",
+				"type": "dimension",
 				"extensions": null
 			}
 		]
@@ -6222,6 +6369,1317 @@
 				"cssVar": "--tag-neutral-text",
 				"value": "#76e576",
 				"type": "color",
+				"extensions": null
+			}
+		]
+	},
+	"style": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "style-button-primary-background-color",
+				"path": [
+					"style",
+					"button-primary",
+					"backgroundColor"
+				],
+				"cssVar": "--style-button-primary-background-color",
+				"value": "#000305cc",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-background-blur",
+				"path": [
+					"style",
+					"button-primary",
+					"backgroundBlur"
+				],
+				"cssVar": "--style-button-primary-background-blur",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-animation",
+				"path": [
+					"style",
+					"button-primary",
+					"animation"
+				],
+				"cssVar": "--style-button-primary-animation",
+				"value": "0ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-color",
+				"path": [
+					"style",
+					"button-primary",
+					"color"
+				],
+				"cssVar": "--style-button-primary-color",
+				"value": "#ffffff",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-border-radius",
+				"path": [
+					"style",
+					"button-primary",
+					"borderRadius"
+				],
+				"cssVar": "--style-button-primary-border-radius",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-opacity",
+				"path": [
+					"style",
+					"button-primary",
+					"opacity"
+				],
+				"cssVar": "--style-button-primary-opacity",
+				"value": 1,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-button-secondary-background-color",
+				"path": [
+					"style",
+					"button-secondary",
+					"backgroundColor"
+				],
+				"cssVar": "--style-button-secondary-background-color",
+				"value": "#060a0ba6",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-button-secondary-background-blur",
+				"path": [
+					"style",
+					"button-secondary",
+					"backgroundBlur"
+				],
+				"cssVar": "--style-button-secondary-background-blur",
+				"value": "8px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-secondary-animation",
+				"path": [
+					"style",
+					"button-secondary",
+					"animation"
+				],
+				"cssVar": "--style-button-secondary-animation",
+				"value": "0ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "style-button-secondary-color",
+				"path": [
+					"style",
+					"button-secondary",
+					"color"
+				],
+				"cssVar": "--style-button-secondary-color",
+				"value": "#ededed",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-button-secondary-border-radius",
+				"path": [
+					"style",
+					"button-secondary",
+					"borderRadius"
+				],
+				"cssVar": "--style-button-secondary-border-radius",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-secondary-opacity",
+				"path": [
+					"style",
+					"button-secondary",
+					"opacity"
+				],
+				"cssVar": "--style-button-secondary-opacity",
+				"value": 1,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-button-ghost-background-color",
+				"path": [
+					"style",
+					"button-ghost",
+					"backgroundColor"
+				],
+				"cssVar": "--style-button-ghost-background-color",
+				"value": "#00000000",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-button-ghost-background-blur",
+				"path": [
+					"style",
+					"button-ghost",
+					"backgroundBlur"
+				],
+				"cssVar": "--style-button-ghost-background-blur",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-ghost-animation",
+				"path": [
+					"style",
+					"button-ghost",
+					"animation"
+				],
+				"cssVar": "--style-button-ghost-animation",
+				"value": "0ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "style-button-ghost-color",
+				"path": [
+					"style",
+					"button-ghost",
+					"color"
+				],
+				"cssVar": "--style-button-ghost-color",
+				"value": "#b8b8b8",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-button-ghost-border-radius",
+				"path": [
+					"style",
+					"button-ghost",
+					"borderRadius"
+				],
+				"cssVar": "--style-button-ghost-border-radius",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-ghost-opacity",
+				"path": [
+					"style",
+					"button-ghost",
+					"opacity"
+				],
+				"cssVar": "--style-button-ghost-opacity",
+				"value": 1,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-background-color",
+				"path": [
+					"style",
+					"button-danger",
+					"backgroundColor"
+				],
+				"cssVar": "--style-button-danger-background-color",
+				"value": "#000305cc",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-background-blur",
+				"path": [
+					"style",
+					"button-danger",
+					"backgroundBlur"
+				],
+				"cssVar": "--style-button-danger-background-blur",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-animation",
+				"path": [
+					"style",
+					"button-danger",
+					"animation"
+				],
+				"cssVar": "--style-button-danger-animation",
+				"value": "0ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-color",
+				"path": [
+					"style",
+					"button-danger",
+					"color"
+				],
+				"cssVar": "--style-button-danger-color",
+				"value": "#ffffff",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-border-radius",
+				"path": [
+					"style",
+					"button-danger",
+					"borderRadius"
+				],
+				"cssVar": "--style-button-danger-border-radius",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-opacity",
+				"path": [
+					"style",
+					"button-danger",
+					"opacity"
+				],
+				"cssVar": "--style-button-danger-opacity",
+				"value": 1,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-shadow-1-color",
+				"path": [
+					"style",
+					"button-primary",
+					"shadow",
+					"1",
+					"color"
+				],
+				"cssVar": "--style-button-primary-shadow-1-color",
+				"value": "#0000001f",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-shadow-1-offset-x",
+				"path": [
+					"style",
+					"button-primary",
+					"shadow",
+					"1",
+					"offsetX"
+				],
+				"cssVar": "--style-button-primary-shadow-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-shadow-1-offset-y",
+				"path": [
+					"style",
+					"button-primary",
+					"shadow",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--style-button-primary-shadow-1-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-shadow-1-blur",
+				"path": [
+					"style",
+					"button-primary",
+					"shadow",
+					"1",
+					"blur"
+				],
+				"cssVar": "--style-button-primary-shadow-1-blur",
+				"value": "3px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-shadow-1-spread",
+				"path": [
+					"style",
+					"button-primary",
+					"shadow",
+					"1",
+					"spread"
+				],
+				"cssVar": "--style-button-primary-shadow-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-shadow-2-color",
+				"path": [
+					"style",
+					"button-primary",
+					"shadow",
+					"2",
+					"color"
+				],
+				"cssVar": "--style-button-primary-shadow-2-color",
+				"value": "#0000003d",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-shadow-2-offset-x",
+				"path": [
+					"style",
+					"button-primary",
+					"shadow",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--style-button-primary-shadow-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-shadow-2-offset-y",
+				"path": [
+					"style",
+					"button-primary",
+					"shadow",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--style-button-primary-shadow-2-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-shadow-2-blur",
+				"path": [
+					"style",
+					"button-primary",
+					"shadow",
+					"2",
+					"blur"
+				],
+				"cssVar": "--style-button-primary-shadow-2-blur",
+				"value": "2px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-shadow-2-spread",
+				"path": [
+					"style",
+					"button-primary",
+					"shadow",
+					"2",
+					"spread"
+				],
+				"cssVar": "--style-button-primary-shadow-2-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-border-color",
+				"path": [
+					"style",
+					"button-primary",
+					"border",
+					"color"
+				],
+				"cssVar": "--style-button-primary-border-color",
+				"value": "#0078614d",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-border-width",
+				"path": [
+					"style",
+					"button-primary",
+					"border",
+					"width"
+				],
+				"cssVar": "--style-button-primary-border-width",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-border-style",
+				"path": [
+					"style",
+					"button-primary",
+					"border",
+					"style"
+				],
+				"cssVar": "--style-button-primary-border-style",
+				"value": "solid",
+				"type": "strokeStyle",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-transition-duration",
+				"path": [
+					"style",
+					"button-primary",
+					"transition",
+					"duration"
+				],
+				"cssVar": "--style-button-primary-transition-duration",
+				"value": "150ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-transition-delay",
+				"path": [
+					"style",
+					"button-primary",
+					"transition",
+					"delay"
+				],
+				"cssVar": "--style-button-primary-transition-delay",
+				"value": "0ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-transition-timing-function",
+				"path": [
+					"style",
+					"button-primary",
+					"transition",
+					"timingFunction"
+				],
+				"cssVar": "--style-button-primary-transition-timing-function",
+				"value": [
+					0,
+					0,
+					0.2,
+					1
+				],
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-typography-font-family",
+				"path": [
+					"style",
+					"button-primary",
+					"typography",
+					"fontFamily"
+				],
+				"cssVar": "--style-button-primary-typography-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-typography-font-size",
+				"path": [
+					"style",
+					"button-primary",
+					"typography",
+					"fontSize"
+				],
+				"cssVar": "--style-button-primary-typography-font-size",
+				"value": "14px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-typography-font-weight",
+				"path": [
+					"style",
+					"button-primary",
+					"typography",
+					"fontWeight"
+				],
+				"cssVar": "--style-button-primary-typography-font-weight",
+				"value": 500,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-typography-letter-spacing",
+				"path": [
+					"style",
+					"button-primary",
+					"typography",
+					"letterSpacing"
+				],
+				"cssVar": "--style-button-primary-typography-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-primary-typography-line-height",
+				"path": [
+					"style",
+					"button-primary",
+					"typography",
+					"lineHeight"
+				],
+				"cssVar": "--style-button-primary-typography-line-height",
+				"value": 1.5,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-button-secondary-shadow-color",
+				"path": [
+					"style",
+					"button-secondary",
+					"shadow",
+					"color"
+				],
+				"cssVar": "--style-button-secondary-shadow-color",
+				"value": "#00000000",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-button-secondary-shadow-offset-x",
+				"path": [
+					"style",
+					"button-secondary",
+					"shadow",
+					"offsetX"
+				],
+				"cssVar": "--style-button-secondary-shadow-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-secondary-shadow-offset-y",
+				"path": [
+					"style",
+					"button-secondary",
+					"shadow",
+					"offsetY"
+				],
+				"cssVar": "--style-button-secondary-shadow-offset-y",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-secondary-shadow-blur",
+				"path": [
+					"style",
+					"button-secondary",
+					"shadow",
+					"blur"
+				],
+				"cssVar": "--style-button-secondary-shadow-blur",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-secondary-shadow-spread",
+				"path": [
+					"style",
+					"button-secondary",
+					"shadow",
+					"spread"
+				],
+				"cssVar": "--style-button-secondary-shadow-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-secondary-border-color",
+				"path": [
+					"style",
+					"button-secondary",
+					"border",
+					"color"
+				],
+				"cssVar": "--style-button-secondary-border-color",
+				"value": "#005c4a38",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-button-secondary-border-width",
+				"path": [
+					"style",
+					"button-secondary",
+					"border",
+					"width"
+				],
+				"cssVar": "--style-button-secondary-border-width",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-secondary-border-style",
+				"path": [
+					"style",
+					"button-secondary",
+					"border",
+					"style"
+				],
+				"cssVar": "--style-button-secondary-border-style",
+				"value": "solid",
+				"type": "strokeStyle",
+				"extensions": null
+			},
+			{
+				"name": "style-button-secondary-transition-duration",
+				"path": [
+					"style",
+					"button-secondary",
+					"transition",
+					"duration"
+				],
+				"cssVar": "--style-button-secondary-transition-duration",
+				"value": "150ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "style-button-secondary-transition-delay",
+				"path": [
+					"style",
+					"button-secondary",
+					"transition",
+					"delay"
+				],
+				"cssVar": "--style-button-secondary-transition-delay",
+				"value": "0ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "style-button-secondary-transition-timing-function",
+				"path": [
+					"style",
+					"button-secondary",
+					"transition",
+					"timingFunction"
+				],
+				"cssVar": "--style-button-secondary-transition-timing-function",
+				"value": [
+					0,
+					0,
+					0.2,
+					1
+				],
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "style-button-secondary-typography-font-family",
+				"path": [
+					"style",
+					"button-secondary",
+					"typography",
+					"fontFamily"
+				],
+				"cssVar": "--style-button-secondary-typography-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "style-button-secondary-typography-font-size",
+				"path": [
+					"style",
+					"button-secondary",
+					"typography",
+					"fontSize"
+				],
+				"cssVar": "--style-button-secondary-typography-font-size",
+				"value": "14px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-secondary-typography-font-weight",
+				"path": [
+					"style",
+					"button-secondary",
+					"typography",
+					"fontWeight"
+				],
+				"cssVar": "--style-button-secondary-typography-font-weight",
+				"value": 500,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "style-button-secondary-typography-letter-spacing",
+				"path": [
+					"style",
+					"button-secondary",
+					"typography",
+					"letterSpacing"
+				],
+				"cssVar": "--style-button-secondary-typography-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-secondary-typography-line-height",
+				"path": [
+					"style",
+					"button-secondary",
+					"typography",
+					"lineHeight"
+				],
+				"cssVar": "--style-button-secondary-typography-line-height",
+				"value": 1.5,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-button-ghost-shadow-color",
+				"path": [
+					"style",
+					"button-ghost",
+					"shadow",
+					"color"
+				],
+				"cssVar": "--style-button-ghost-shadow-color",
+				"value": "#00000000",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-button-ghost-shadow-offset-x",
+				"path": [
+					"style",
+					"button-ghost",
+					"shadow",
+					"offsetX"
+				],
+				"cssVar": "--style-button-ghost-shadow-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-ghost-shadow-offset-y",
+				"path": [
+					"style",
+					"button-ghost",
+					"shadow",
+					"offsetY"
+				],
+				"cssVar": "--style-button-ghost-shadow-offset-y",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-ghost-shadow-blur",
+				"path": [
+					"style",
+					"button-ghost",
+					"shadow",
+					"blur"
+				],
+				"cssVar": "--style-button-ghost-shadow-blur",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-ghost-shadow-spread",
+				"path": [
+					"style",
+					"button-ghost",
+					"shadow",
+					"spread"
+				],
+				"cssVar": "--style-button-ghost-shadow-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-ghost-border-color",
+				"path": [
+					"style",
+					"button-ghost",
+					"border",
+					"color"
+				],
+				"cssVar": "--style-button-ghost-border-color",
+				"value": "#00000000",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-button-ghost-border-width",
+				"path": [
+					"style",
+					"button-ghost",
+					"border",
+					"width"
+				],
+				"cssVar": "--style-button-ghost-border-width",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-ghost-border-style",
+				"path": [
+					"style",
+					"button-ghost",
+					"border",
+					"style"
+				],
+				"cssVar": "--style-button-ghost-border-style",
+				"value": "solid",
+				"type": "strokeStyle",
+				"extensions": null
+			},
+			{
+				"name": "style-button-ghost-transition-duration",
+				"path": [
+					"style",
+					"button-ghost",
+					"transition",
+					"duration"
+				],
+				"cssVar": "--style-button-ghost-transition-duration",
+				"value": "150ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "style-button-ghost-transition-delay",
+				"path": [
+					"style",
+					"button-ghost",
+					"transition",
+					"delay"
+				],
+				"cssVar": "--style-button-ghost-transition-delay",
+				"value": "0ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "style-button-ghost-transition-timing-function",
+				"path": [
+					"style",
+					"button-ghost",
+					"transition",
+					"timingFunction"
+				],
+				"cssVar": "--style-button-ghost-transition-timing-function",
+				"value": [
+					0,
+					0,
+					0.2,
+					1
+				],
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "style-button-ghost-typography-font-family",
+				"path": [
+					"style",
+					"button-ghost",
+					"typography",
+					"fontFamily"
+				],
+				"cssVar": "--style-button-ghost-typography-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "style-button-ghost-typography-font-size",
+				"path": [
+					"style",
+					"button-ghost",
+					"typography",
+					"fontSize"
+				],
+				"cssVar": "--style-button-ghost-typography-font-size",
+				"value": "14px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-ghost-typography-font-weight",
+				"path": [
+					"style",
+					"button-ghost",
+					"typography",
+					"fontWeight"
+				],
+				"cssVar": "--style-button-ghost-typography-font-weight",
+				"value": 400,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "style-button-ghost-typography-letter-spacing",
+				"path": [
+					"style",
+					"button-ghost",
+					"typography",
+					"letterSpacing"
+				],
+				"cssVar": "--style-button-ghost-typography-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-ghost-typography-line-height",
+				"path": [
+					"style",
+					"button-ghost",
+					"typography",
+					"lineHeight"
+				],
+				"cssVar": "--style-button-ghost-typography-line-height",
+				"value": 1.5,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-shadow-1-color",
+				"path": [
+					"style",
+					"button-danger",
+					"shadow",
+					"1",
+					"color"
+				],
+				"cssVar": "--style-button-danger-shadow-1-color",
+				"value": "#0000001f",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-shadow-1-offset-x",
+				"path": [
+					"style",
+					"button-danger",
+					"shadow",
+					"1",
+					"offsetX"
+				],
+				"cssVar": "--style-button-danger-shadow-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-shadow-1-offset-y",
+				"path": [
+					"style",
+					"button-danger",
+					"shadow",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--style-button-danger-shadow-1-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-shadow-1-blur",
+				"path": [
+					"style",
+					"button-danger",
+					"shadow",
+					"1",
+					"blur"
+				],
+				"cssVar": "--style-button-danger-shadow-1-blur",
+				"value": "3px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-shadow-1-spread",
+				"path": [
+					"style",
+					"button-danger",
+					"shadow",
+					"1",
+					"spread"
+				],
+				"cssVar": "--style-button-danger-shadow-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-shadow-2-color",
+				"path": [
+					"style",
+					"button-danger",
+					"shadow",
+					"2",
+					"color"
+				],
+				"cssVar": "--style-button-danger-shadow-2-color",
+				"value": "#0000003d",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-shadow-2-offset-x",
+				"path": [
+					"style",
+					"button-danger",
+					"shadow",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--style-button-danger-shadow-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-shadow-2-offset-y",
+				"path": [
+					"style",
+					"button-danger",
+					"shadow",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--style-button-danger-shadow-2-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-shadow-2-blur",
+				"path": [
+					"style",
+					"button-danger",
+					"shadow",
+					"2",
+					"blur"
+				],
+				"cssVar": "--style-button-danger-shadow-2-blur",
+				"value": "2px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-shadow-2-spread",
+				"path": [
+					"style",
+					"button-danger",
+					"shadow",
+					"2",
+					"spread"
+				],
+				"cssVar": "--style-button-danger-shadow-2-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-border-color",
+				"path": [
+					"style",
+					"button-danger",
+					"border",
+					"color"
+				],
+				"cssVar": "--style-button-danger-border-color",
+				"value": "#a81515",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-border-width",
+				"path": [
+					"style",
+					"button-danger",
+					"border",
+					"width"
+				],
+				"cssVar": "--style-button-danger-border-width",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-border-style",
+				"path": [
+					"style",
+					"button-danger",
+					"border",
+					"style"
+				],
+				"cssVar": "--style-button-danger-border-style",
+				"value": "solid",
+				"type": "strokeStyle",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-transition-duration",
+				"path": [
+					"style",
+					"button-danger",
+					"transition",
+					"duration"
+				],
+				"cssVar": "--style-button-danger-transition-duration",
+				"value": "150ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-transition-delay",
+				"path": [
+					"style",
+					"button-danger",
+					"transition",
+					"delay"
+				],
+				"cssVar": "--style-button-danger-transition-delay",
+				"value": "0ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-transition-timing-function",
+				"path": [
+					"style",
+					"button-danger",
+					"transition",
+					"timingFunction"
+				],
+				"cssVar": "--style-button-danger-transition-timing-function",
+				"value": [
+					0,
+					0,
+					0.2,
+					1
+				],
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-typography-font-family",
+				"path": [
+					"style",
+					"button-danger",
+					"typography",
+					"fontFamily"
+				],
+				"cssVar": "--style-button-danger-typography-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-typography-font-size",
+				"path": [
+					"style",
+					"button-danger",
+					"typography",
+					"fontSize"
+				],
+				"cssVar": "--style-button-danger-typography-font-size",
+				"value": "14px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-typography-font-weight",
+				"path": [
+					"style",
+					"button-danger",
+					"typography",
+					"fontWeight"
+				],
+				"cssVar": "--style-button-danger-typography-font-weight",
+				"value": 500,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-typography-letter-spacing",
+				"path": [
+					"style",
+					"button-danger",
+					"typography",
+					"letterSpacing"
+				],
+				"cssVar": "--style-button-danger-typography-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-danger-typography-line-height",
+				"path": [
+					"style",
+					"button-danger",
+					"typography",
+					"lineHeight"
+				],
+				"cssVar": "--style-button-danger-typography-line-height",
+				"value": 1.5,
+				"type": "number",
 				"extensions": null
 			}
 		]
@@ -6515,130 +7973,6 @@
 			}
 		]
 	},
-	"glow": {
-		"extensions": {},
-		"tokens": [
-			{
-				"name": "glow-off",
-				"path": [
-					"glow",
-					"off"
-				],
-				"cssVar": "--glow-off",
-				"value": {
-					"color": "#00000000",
-					"offsetX": "0px",
-					"offsetY": "0px",
-					"blur": "0px",
-					"spread": "0px"
-				},
-				"type": "shadow",
-				"extensions": null
-			},
-			{
-				"name": "glow-teal",
-				"path": [
-					"glow",
-					"teal"
-				],
-				"cssVar": "--glow-teal",
-				"value": {
-					"color": "#009076b3",
-					"offsetX": "0px",
-					"offsetY": "0px",
-					"blur": "30px",
-					"spread": "12px"
-				},
-				"type": "shadow",
-				"extensions": null
-			},
-			{
-				"name": "glow-purple",
-				"path": [
-					"glow",
-					"purple"
-				],
-				"cssVar": "--glow-purple",
-				"value": {
-					"color": "#615ed6b3",
-					"offsetX": "0px",
-					"offsetY": "0px",
-					"blur": "30px",
-					"spread": "12px"
-				},
-				"type": "shadow",
-				"extensions": null
-			},
-			{
-				"name": "glow-magenta",
-				"path": [
-					"glow",
-					"magenta"
-				],
-				"cssVar": "--glow-magenta",
-				"value": {
-					"color": "#ad36a7b3",
-					"offsetX": "0px",
-					"offsetY": "0px",
-					"blur": "30px",
-					"spread": "12px"
-				},
-				"type": "shadow",
-				"extensions": null
-			},
-			{
-				"name": "glow-ember",
-				"path": [
-					"glow",
-					"ember"
-				],
-				"cssVar": "--glow-ember",
-				"value": {
-					"color": "#c53637b3",
-					"offsetX": "0px",
-					"offsetY": "0px",
-					"blur": "30px",
-					"spread": "12px"
-				},
-				"type": "shadow",
-				"extensions": null
-			},
-			{
-				"name": "glow-frost",
-				"path": [
-					"glow",
-					"frost"
-				],
-				"cssVar": "--glow-frost",
-				"value": {
-					"color": "#1988a399",
-					"offsetX": "0px",
-					"offsetY": "0px",
-					"blur": "30px",
-					"spread": "12px"
-				},
-				"type": "shadow",
-				"extensions": null
-			},
-			{
-				"name": "glow-cyber",
-				"path": [
-					"glow",
-					"cyber"
-				],
-				"cssVar": "--glow-cyber",
-				"value": {
-					"color": "#008f4ab3",
-					"offsetX": "0px",
-					"offsetY": "0px",
-					"blur": "30px",
-					"spread": "12px"
-				},
-				"type": "shadow",
-				"extensions": null
-			}
-		]
-	},
 	"glowSpread": {
 		"extensions": {},
 		"tokens": [
@@ -6685,321 +8019,6 @@
 				"value": "40px",
 				"type": "dimension",
 				"extensions": null
-			}
-		]
-	},
-	"gradient": {
-		"extensions": {},
-		"tokens": [
-			{
-				"name": "gradient-teal",
-				"path": [
-					"gradient",
-					"teal"
-				],
-				"cssVar": "--gradient-teal",
-				"value": [
-					{
-						"color": "#009076",
-						"position": 0
-					},
-					{
-						"color": "#005c4a",
-						"position": 1
-					}
-				],
-				"type": "gradient",
-				"extensions": {
-					"angle": "135deg",
-					"accent": "teal"
-				}
-			},
-			{
-				"name": "gradient-teal-glow",
-				"path": [
-					"gradient",
-					"teal-glow"
-				],
-				"cssVar": "--gradient-teal-glow",
-				"value": [
-					{
-						"color": "#00aa90",
-						"position": 0
-					},
-					{
-						"color": "#009076",
-						"position": 0.5
-					},
-					{
-						"color": "#004235",
-						"position": 1
-					}
-				],
-				"type": "gradient",
-				"extensions": {
-					"angle": "135deg",
-					"accent": "teal"
-				}
-			},
-			{
-				"name": "gradient-purple",
-				"path": [
-					"gradient",
-					"purple"
-				],
-				"cssVar": "--gradient-purple",
-				"value": [
-					{
-						"color": "#615ed6",
-						"position": 0
-					},
-					{
-						"color": "#3d3b8b",
-						"position": 1
-					}
-				],
-				"type": "gradient",
-				"extensions": {
-					"angle": "135deg",
-					"accent": "purple"
-				}
-			},
-			{
-				"name": "gradient-purple-glow",
-				"path": [
-					"gradient",
-					"purple-glow"
-				],
-				"cssVar": "--gradient-purple-glow",
-				"value": [
-					{
-						"color": "#7b7dea",
-						"position": 0
-					},
-					{
-						"color": "#615ed6",
-						"position": 0.5
-					},
-					{
-						"color": "#2b2a64",
-						"position": 1
-					}
-				],
-				"type": "gradient",
-				"extensions": {
-					"angle": "135deg",
-					"accent": "purple"
-				}
-			},
-			{
-				"name": "gradient-magenta",
-				"path": [
-					"gradient",
-					"magenta"
-				],
-				"cssVar": "--gradient-magenta",
-				"value": [
-					{
-						"color": "#ad36a7",
-						"position": 0
-					},
-					{
-						"color": "#6c2768",
-						"position": 1
-					}
-				],
-				"type": "gradient",
-				"extensions": {
-					"angle": "135deg",
-					"accent": "magenta"
-				}
-			},
-			{
-				"name": "gradient-ember",
-				"path": [
-					"gradient",
-					"ember"
-				],
-				"cssVar": "--gradient-ember",
-				"value": [
-					{
-						"color": "#c53637",
-						"position": 0
-					},
-					{
-						"color": "#7f2021",
-						"position": 1
-					}
-				],
-				"type": "gradient",
-				"extensions": {
-					"angle": "135deg",
-					"accent": "ember"
-				}
-			},
-			{
-				"name": "gradient-frost",
-				"path": [
-					"gradient",
-					"frost"
-				],
-				"cssVar": "--gradient-frost",
-				"value": [
-					{
-						"color": "#1988a3",
-						"position": 0
-					},
-					{
-						"color": "#00536c",
-						"position": 1
-					}
-				],
-				"type": "gradient",
-				"extensions": {
-					"angle": "135deg",
-					"accent": "frost"
-				}
-			},
-			{
-				"name": "gradient-cyber",
-				"path": [
-					"gradient",
-					"cyber"
-				],
-				"cssVar": "--gradient-cyber",
-				"value": [
-					{
-						"color": "#008f4a",
-						"position": 0
-					},
-					{
-						"color": "#005b2d",
-						"position": 1
-					}
-				],
-				"type": "gradient",
-				"extensions": {
-					"angle": "135deg",
-					"accent": "cyber"
-				}
-			},
-			{
-				"name": "gradient-void",
-				"path": [
-					"gradient",
-					"void"
-				],
-				"cssVar": "--gradient-void",
-				"value": [
-					{
-						"color": "#002920",
-						"position": 0
-					},
-					{
-						"color": "#001712",
-						"position": 0.5
-					},
-					{
-						"color": "#000000",
-						"position": 1
-					}
-				],
-				"type": "gradient",
-				"extensions": {
-					"angle": "180deg"
-				}
-			},
-			{
-				"name": "gradient-void-radial",
-				"path": [
-					"gradient",
-					"void-radial"
-				],
-				"cssVar": "--gradient-void-radial",
-				"value": [
-					{
-						"color": "#004235",
-						"position": 0
-					},
-					{
-						"color": "#001712",
-						"position": 0.6
-					},
-					{
-						"color": "#000000",
-						"position": 1
-					}
-				],
-				"type": "gradient",
-				"extensions": {
-					"angle": "circle at 50% 40%"
-				}
-			},
-			{
-				"name": "gradient-teal-purple",
-				"path": [
-					"gradient",
-					"teal-purple"
-				],
-				"cssVar": "--gradient-teal-purple",
-				"value": [
-					{
-						"color": "#009076",
-						"position": 0
-					},
-					{
-						"color": "#615ed6",
-						"position": 1
-					}
-				],
-				"type": "gradient",
-				"extensions": {
-					"angle": "135deg"
-				}
-			},
-			{
-				"name": "gradient-teal-cyber",
-				"path": [
-					"gradient",
-					"teal-cyber"
-				],
-				"cssVar": "--gradient-teal-cyber",
-				"value": [
-					{
-						"color": "#009076",
-						"position": 0
-					},
-					{
-						"color": "#008f4a",
-						"position": 1
-					}
-				],
-				"type": "gradient",
-				"extensions": {
-					"angle": "90deg"
-				}
-			},
-			{
-				"name": "gradient-ember-magenta",
-				"path": [
-					"gradient",
-					"ember-magenta"
-				],
-				"cssVar": "--gradient-ember-magenta",
-				"value": [
-					{
-						"color": "#c53637",
-						"position": 0
-					},
-					{
-						"color": "#ad36a7",
-						"position": 1
-					}
-				],
-				"type": "gradient",
-				"extensions": {
-					"angle": "135deg"
-				}
 			}
 		]
 	},
@@ -7667,258 +8686,6 @@
 				"cssVar": "--scrollbar-size-radius",
 				"value": "3px",
 				"type": "dimension",
-				"extensions": null
-			}
-		]
-	},
-	"shadow": {
-		"extensions": {},
-		"tokens": [
-			{
-				"name": "shadow-z0",
-				"path": [
-					"shadow",
-					"z0"
-				],
-				"cssVar": "--shadow-z0",
-				"value": {
-					"color": "#00000000",
-					"offsetX": "0px",
-					"offsetY": "0px",
-					"blur": "0px",
-					"spread": "0px"
-				},
-				"type": "shadow",
-				"extensions": null
-			},
-			{
-				"name": "shadow-z1",
-				"path": [
-					"shadow",
-					"z1"
-				],
-				"cssVar": "--shadow-z1",
-				"value": [
-					{
-						"color": "#0000001f",
-						"offsetX": "0px",
-						"offsetY": "1px",
-						"blur": "3px",
-						"spread": "0px"
-					},
-					{
-						"color": "#0000003d",
-						"offsetX": "0px",
-						"offsetY": "1px",
-						"blur": "2px",
-						"spread": "0px"
-					}
-				],
-				"type": "shadow",
-				"extensions": null
-			},
-			{
-				"name": "shadow-z2",
-				"path": [
-					"shadow",
-					"z2"
-				],
-				"cssVar": "--shadow-z2",
-				"value": [
-					{
-						"color": "#00000026",
-						"offsetX": "0px",
-						"offsetY": "3px",
-						"blur": "6px",
-						"spread": "0px"
-					},
-					{
-						"color": "#0000001f",
-						"offsetX": "0px",
-						"offsetY": "2px",
-						"blur": "4px",
-						"spread": "0px"
-					}
-				],
-				"type": "shadow",
-				"extensions": null
-			},
-			{
-				"name": "shadow-z3",
-				"path": [
-					"shadow",
-					"z3"
-				],
-				"cssVar": "--shadow-z3",
-				"value": [
-					{
-						"color": "#00000026",
-						"offsetX": "0px",
-						"offsetY": "10px",
-						"blur": "20px",
-						"spread": "0px"
-					},
-					{
-						"color": "#0000001a",
-						"offsetX": "0px",
-						"offsetY": "3px",
-						"blur": "6px",
-						"spread": "0px"
-					}
-				],
-				"type": "shadow",
-				"extensions": null
-			},
-			{
-				"name": "shadow-z4",
-				"path": [
-					"shadow",
-					"z4"
-				],
-				"cssVar": "--shadow-z4",
-				"value": [
-					{
-						"color": "#00000026",
-						"offsetX": "0px",
-						"offsetY": "15px",
-						"blur": "25px",
-						"spread": "0px"
-					},
-					{
-						"color": "#0000000d",
-						"offsetX": "0px",
-						"offsetY": "5px",
-						"blur": "10px",
-						"spread": "0px"
-					}
-				],
-				"type": "shadow",
-				"extensions": null
-			}
-		]
-	},
-	"elevation": {
-		"extensions": {},
-		"tokens": [
-			{
-				"name": "elevation-flat",
-				"path": [
-					"elevation",
-					"flat"
-				],
-				"cssVar": "--elevation-flat",
-				"value": {
-					"color": "#00000000",
-					"offsetX": "0px",
-					"offsetY": "0px",
-					"blur": "0px",
-					"spread": "0px"
-				},
-				"type": "shadow",
-				"extensions": null
-			},
-			{
-				"name": "elevation-card",
-				"path": [
-					"elevation",
-					"card"
-				],
-				"cssVar": "--elevation-card",
-				"value": [
-					{
-						"color": "#0000001f",
-						"offsetX": "0px",
-						"offsetY": "1px",
-						"blur": "3px",
-						"spread": "0px"
-					},
-					{
-						"color": "#0000003d",
-						"offsetX": "0px",
-						"offsetY": "1px",
-						"blur": "2px",
-						"spread": "0px"
-					}
-				],
-				"type": "shadow",
-				"extensions": null
-			},
-			{
-				"name": "elevation-panel",
-				"path": [
-					"elevation",
-					"panel"
-				],
-				"cssVar": "--elevation-panel",
-				"value": [
-					{
-						"color": "#00000026",
-						"offsetX": "0px",
-						"offsetY": "3px",
-						"blur": "6px",
-						"spread": "0px"
-					},
-					{
-						"color": "#0000001f",
-						"offsetX": "0px",
-						"offsetY": "2px",
-						"blur": "4px",
-						"spread": "0px"
-					}
-				],
-				"type": "shadow",
-				"extensions": null
-			},
-			{
-				"name": "elevation-dropdown",
-				"path": [
-					"elevation",
-					"dropdown"
-				],
-				"cssVar": "--elevation-dropdown",
-				"value": [
-					{
-						"color": "#00000026",
-						"offsetX": "0px",
-						"offsetY": "10px",
-						"blur": "20px",
-						"spread": "0px"
-					},
-					{
-						"color": "#0000001a",
-						"offsetX": "0px",
-						"offsetY": "3px",
-						"blur": "6px",
-						"spread": "0px"
-					}
-				],
-				"type": "shadow",
-				"extensions": null
-			},
-			{
-				"name": "elevation-modal",
-				"path": [
-					"elevation",
-					"modal"
-				],
-				"cssVar": "--elevation-modal",
-				"value": [
-					{
-						"color": "#00000026",
-						"offsetX": "0px",
-						"offsetY": "15px",
-						"blur": "25px",
-						"spread": "0px"
-					},
-					{
-						"color": "#0000000d",
-						"offsetX": "0px",
-						"offsetY": "5px",
-						"blur": "10px",
-						"spread": "0px"
-					}
-				],
-				"type": "shadow",
 				"extensions": null
 			}
 		]
@@ -9129,217 +9896,6361 @@
 			}
 		]
 	},
+	"bevel": {
+		"extensions": {
+			"inset": true,
+			"axis": "bevel",
+			"scope": "primitive"
+		},
+		"tokens": [
+			{
+				"name": "bevel-off-color",
+				"path": [
+					"bevel",
+					"off",
+					"color"
+				],
+				"cssVar": "--bevel-off-color",
+				"value": "#00000000",
+				"type": "color",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive"
+				}
+			},
+			{
+				"name": "bevel-off-offset-x",
+				"path": [
+					"bevel",
+					"off",
+					"offsetX"
+				],
+				"cssVar": "--bevel-off-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive"
+				}
+			},
+			{
+				"name": "bevel-off-offset-y",
+				"path": [
+					"bevel",
+					"off",
+					"offsetY"
+				],
+				"cssVar": "--bevel-off-offset-y",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive"
+				}
+			},
+			{
+				"name": "bevel-off-blur",
+				"path": [
+					"bevel",
+					"off",
+					"blur"
+				],
+				"cssVar": "--bevel-off-blur",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive"
+				}
+			},
+			{
+				"name": "bevel-off-spread",
+				"path": [
+					"bevel",
+					"off",
+					"spread"
+				],
+				"cssVar": "--bevel-off-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive"
+				}
+			},
+			{
+				"name": "bevel-subtle-1-color",
+				"path": [
+					"bevel",
+					"subtle",
+					"1",
+					"color"
+				],
+				"cssVar": "--bevel-subtle-1-color",
+				"value": "#ffffff1a",
+				"type": "color",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 1,
+						"specularConstant": 0.3,
+						"specularExponent": 30,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-subtle-1-offset-x",
+				"path": [
+					"bevel",
+					"subtle",
+					"1",
+					"offsetX"
+				],
+				"cssVar": "--bevel-subtle-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 1,
+						"specularConstant": 0.3,
+						"specularExponent": 30,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-subtle-1-offset-y",
+				"path": [
+					"bevel",
+					"subtle",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--bevel-subtle-1-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 1,
+						"specularConstant": 0.3,
+						"specularExponent": 30,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-subtle-1-blur",
+				"path": [
+					"bevel",
+					"subtle",
+					"1",
+					"blur"
+				],
+				"cssVar": "--bevel-subtle-1-blur",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 1,
+						"specularConstant": 0.3,
+						"specularExponent": 30,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-subtle-1-spread",
+				"path": [
+					"bevel",
+					"subtle",
+					"1",
+					"spread"
+				],
+				"cssVar": "--bevel-subtle-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 1,
+						"specularConstant": 0.3,
+						"specularExponent": 30,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-subtle-2-color",
+				"path": [
+					"bevel",
+					"subtle",
+					"2",
+					"color"
+				],
+				"cssVar": "--bevel-subtle-2-color",
+				"value": "#00000029",
+				"type": "color",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 1,
+						"specularConstant": 0.3,
+						"specularExponent": 30,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-subtle-2-offset-x",
+				"path": [
+					"bevel",
+					"subtle",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--bevel-subtle-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 1,
+						"specularConstant": 0.3,
+						"specularExponent": 30,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-subtle-2-offset-y",
+				"path": [
+					"bevel",
+					"subtle",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--bevel-subtle-2-offset-y",
+				"value": "-1px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 1,
+						"specularConstant": 0.3,
+						"specularExponent": 30,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-subtle-2-blur",
+				"path": [
+					"bevel",
+					"subtle",
+					"2",
+					"blur"
+				],
+				"cssVar": "--bevel-subtle-2-blur",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 1,
+						"specularConstant": 0.3,
+						"specularExponent": 30,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-subtle-2-spread",
+				"path": [
+					"bevel",
+					"subtle",
+					"2",
+					"spread"
+				],
+				"cssVar": "--bevel-subtle-2-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 1,
+						"specularConstant": 0.3,
+						"specularExponent": 30,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-soft-1-color",
+				"path": [
+					"bevel",
+					"soft",
+					"1",
+					"color"
+				],
+				"cssVar": "--bevel-soft-1-color",
+				"value": "#ffffff1f",
+				"type": "color",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 2,
+						"specularConstant": 0.5,
+						"specularExponent": 25,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-soft-1-offset-x",
+				"path": [
+					"bevel",
+					"soft",
+					"1",
+					"offsetX"
+				],
+				"cssVar": "--bevel-soft-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 2,
+						"specularConstant": 0.5,
+						"specularExponent": 25,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-soft-1-offset-y",
+				"path": [
+					"bevel",
+					"soft",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--bevel-soft-1-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 2,
+						"specularConstant": 0.5,
+						"specularExponent": 25,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-soft-1-blur",
+				"path": [
+					"bevel",
+					"soft",
+					"1",
+					"blur"
+				],
+				"cssVar": "--bevel-soft-1-blur",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 2,
+						"specularConstant": 0.5,
+						"specularExponent": 25,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-soft-1-spread",
+				"path": [
+					"bevel",
+					"soft",
+					"1",
+					"spread"
+				],
+				"cssVar": "--bevel-soft-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 2,
+						"specularConstant": 0.5,
+						"specularExponent": 25,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-soft-2-color",
+				"path": [
+					"bevel",
+					"soft",
+					"2",
+					"color"
+				],
+				"cssVar": "--bevel-soft-2-color",
+				"value": "#ffffff14",
+				"type": "color",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 2,
+						"specularConstant": 0.5,
+						"specularExponent": 25,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-soft-2-offset-x",
+				"path": [
+					"bevel",
+					"soft",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--bevel-soft-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 2,
+						"specularConstant": 0.5,
+						"specularExponent": 25,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-soft-2-offset-y",
+				"path": [
+					"bevel",
+					"soft",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--bevel-soft-2-offset-y",
+				"value": "2px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 2,
+						"specularConstant": 0.5,
+						"specularExponent": 25,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-soft-2-blur",
+				"path": [
+					"bevel",
+					"soft",
+					"2",
+					"blur"
+				],
+				"cssVar": "--bevel-soft-2-blur",
+				"value": "4px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 2,
+						"specularConstant": 0.5,
+						"specularExponent": 25,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-soft-2-spread",
+				"path": [
+					"bevel",
+					"soft",
+					"2",
+					"spread"
+				],
+				"cssVar": "--bevel-soft-2-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 2,
+						"specularConstant": 0.5,
+						"specularExponent": 25,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-soft-3-color",
+				"path": [
+					"bevel",
+					"soft",
+					"3",
+					"color"
+				],
+				"cssVar": "--bevel-soft-3-color",
+				"value": "#00000033",
+				"type": "color",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 2,
+						"specularConstant": 0.5,
+						"specularExponent": 25,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-soft-3-offset-x",
+				"path": [
+					"bevel",
+					"soft",
+					"3",
+					"offsetX"
+				],
+				"cssVar": "--bevel-soft-3-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 2,
+						"specularConstant": 0.5,
+						"specularExponent": 25,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-soft-3-offset-y",
+				"path": [
+					"bevel",
+					"soft",
+					"3",
+					"offsetY"
+				],
+				"cssVar": "--bevel-soft-3-offset-y",
+				"value": "-1px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 2,
+						"specularConstant": 0.5,
+						"specularExponent": 25,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-soft-3-blur",
+				"path": [
+					"bevel",
+					"soft",
+					"3",
+					"blur"
+				],
+				"cssVar": "--bevel-soft-3-blur",
+				"value": "3px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 2,
+						"specularConstant": 0.5,
+						"specularExponent": 25,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-soft-3-spread",
+				"path": [
+					"bevel",
+					"soft",
+					"3",
+					"spread"
+				],
+				"cssVar": "--bevel-soft-3-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 2,
+						"specularConstant": 0.5,
+						"specularExponent": 25,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 1.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-medium-1-color",
+				"path": [
+					"bevel",
+					"medium",
+					"1",
+					"color"
+				],
+				"cssVar": "--bevel-medium-1-color",
+				"value": "#ffffff26",
+				"type": "color",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 3,
+						"specularConstant": 0.65,
+						"specularExponent": 22,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-medium-1-offset-x",
+				"path": [
+					"bevel",
+					"medium",
+					"1",
+					"offsetX"
+				],
+				"cssVar": "--bevel-medium-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 3,
+						"specularConstant": 0.65,
+						"specularExponent": 22,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-medium-1-offset-y",
+				"path": [
+					"bevel",
+					"medium",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--bevel-medium-1-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 3,
+						"specularConstant": 0.65,
+						"specularExponent": 22,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-medium-1-blur",
+				"path": [
+					"bevel",
+					"medium",
+					"1",
+					"blur"
+				],
+				"cssVar": "--bevel-medium-1-blur",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 3,
+						"specularConstant": 0.65,
+						"specularExponent": 22,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-medium-1-spread",
+				"path": [
+					"bevel",
+					"medium",
+					"1",
+					"spread"
+				],
+				"cssVar": "--bevel-medium-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 3,
+						"specularConstant": 0.65,
+						"specularExponent": 22,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-medium-2-color",
+				"path": [
+					"bevel",
+					"medium",
+					"2",
+					"color"
+				],
+				"cssVar": "--bevel-medium-2-color",
+				"value": "#ffffff1a",
+				"type": "color",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 3,
+						"specularConstant": 0.65,
+						"specularExponent": 22,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-medium-2-offset-x",
+				"path": [
+					"bevel",
+					"medium",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--bevel-medium-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 3,
+						"specularConstant": 0.65,
+						"specularExponent": 22,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-medium-2-offset-y",
+				"path": [
+					"bevel",
+					"medium",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--bevel-medium-2-offset-y",
+				"value": "2px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 3,
+						"specularConstant": 0.65,
+						"specularExponent": 22,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-medium-2-blur",
+				"path": [
+					"bevel",
+					"medium",
+					"2",
+					"blur"
+				],
+				"cssVar": "--bevel-medium-2-blur",
+				"value": "5px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 3,
+						"specularConstant": 0.65,
+						"specularExponent": 22,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-medium-2-spread",
+				"path": [
+					"bevel",
+					"medium",
+					"2",
+					"spread"
+				],
+				"cssVar": "--bevel-medium-2-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 3,
+						"specularConstant": 0.65,
+						"specularExponent": 22,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-medium-3-color",
+				"path": [
+					"bevel",
+					"medium",
+					"3",
+					"color"
+				],
+				"cssVar": "--bevel-medium-3-color",
+				"value": "#00000040",
+				"type": "color",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 3,
+						"specularConstant": 0.65,
+						"specularExponent": 22,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-medium-3-offset-x",
+				"path": [
+					"bevel",
+					"medium",
+					"3",
+					"offsetX"
+				],
+				"cssVar": "--bevel-medium-3-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 3,
+						"specularConstant": 0.65,
+						"specularExponent": 22,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-medium-3-offset-y",
+				"path": [
+					"bevel",
+					"medium",
+					"3",
+					"offsetY"
+				],
+				"cssVar": "--bevel-medium-3-offset-y",
+				"value": "-1px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 3,
+						"specularConstant": 0.65,
+						"specularExponent": 22,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-medium-3-blur",
+				"path": [
+					"bevel",
+					"medium",
+					"3",
+					"blur"
+				],
+				"cssVar": "--bevel-medium-3-blur",
+				"value": "3px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 3,
+						"specularConstant": 0.65,
+						"specularExponent": 22,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-medium-3-spread",
+				"path": [
+					"bevel",
+					"medium",
+					"3",
+					"spread"
+				],
+				"cssVar": "--bevel-medium-3-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 3,
+						"specularConstant": 0.65,
+						"specularExponent": 22,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-medium-4-color",
+				"path": [
+					"bevel",
+					"medium",
+					"4",
+					"color"
+				],
+				"cssVar": "--bevel-medium-4-color",
+				"value": "#00000029",
+				"type": "color",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 3,
+						"specularConstant": 0.65,
+						"specularExponent": 22,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-medium-4-offset-x",
+				"path": [
+					"bevel",
+					"medium",
+					"4",
+					"offsetX"
+				],
+				"cssVar": "--bevel-medium-4-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 3,
+						"specularConstant": 0.65,
+						"specularExponent": 22,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-medium-4-offset-y",
+				"path": [
+					"bevel",
+					"medium",
+					"4",
+					"offsetY"
+				],
+				"cssVar": "--bevel-medium-4-offset-y",
+				"value": "-3px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 3,
+						"specularConstant": 0.65,
+						"specularExponent": 22,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-medium-4-blur",
+				"path": [
+					"bevel",
+					"medium",
+					"4",
+					"blur"
+				],
+				"cssVar": "--bevel-medium-4-blur",
+				"value": "6px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 3,
+						"specularConstant": 0.65,
+						"specularExponent": 22,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-medium-4-spread",
+				"path": [
+					"bevel",
+					"medium",
+					"4",
+					"spread"
+				],
+				"cssVar": "--bevel-medium-4-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 3,
+						"specularConstant": 0.65,
+						"specularExponent": 22,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-1-color",
+				"path": [
+					"bevel",
+					"pronounced",
+					"1",
+					"color"
+				],
+				"cssVar": "--bevel-pronounced-1-color",
+				"value": "#ffffff33",
+				"type": "color",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-1-offset-x",
+				"path": [
+					"bevel",
+					"pronounced",
+					"1",
+					"offsetX"
+				],
+				"cssVar": "--bevel-pronounced-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-1-offset-y",
+				"path": [
+					"bevel",
+					"pronounced",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--bevel-pronounced-1-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-1-blur",
+				"path": [
+					"bevel",
+					"pronounced",
+					"1",
+					"blur"
+				],
+				"cssVar": "--bevel-pronounced-1-blur",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-1-spread",
+				"path": [
+					"bevel",
+					"pronounced",
+					"1",
+					"spread"
+				],
+				"cssVar": "--bevel-pronounced-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-2-color",
+				"path": [
+					"bevel",
+					"pronounced",
+					"2",
+					"color"
+				],
+				"cssVar": "--bevel-pronounced-2-color",
+				"value": "#ffffff24",
+				"type": "color",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-2-offset-x",
+				"path": [
+					"bevel",
+					"pronounced",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--bevel-pronounced-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-2-offset-y",
+				"path": [
+					"bevel",
+					"pronounced",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--bevel-pronounced-2-offset-y",
+				"value": "2px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-2-blur",
+				"path": [
+					"bevel",
+					"pronounced",
+					"2",
+					"blur"
+				],
+				"cssVar": "--bevel-pronounced-2-blur",
+				"value": "5px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-2-spread",
+				"path": [
+					"bevel",
+					"pronounced",
+					"2",
+					"spread"
+				],
+				"cssVar": "--bevel-pronounced-2-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-3-color",
+				"path": [
+					"bevel",
+					"pronounced",
+					"3",
+					"color"
+				],
+				"cssVar": "--bevel-pronounced-3-color",
+				"value": "#ffffff14",
+				"type": "color",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-3-offset-x",
+				"path": [
+					"bevel",
+					"pronounced",
+					"3",
+					"offsetX"
+				],
+				"cssVar": "--bevel-pronounced-3-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-3-offset-y",
+				"path": [
+					"bevel",
+					"pronounced",
+					"3",
+					"offsetY"
+				],
+				"cssVar": "--bevel-pronounced-3-offset-y",
+				"value": "4px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-3-blur",
+				"path": [
+					"bevel",
+					"pronounced",
+					"3",
+					"blur"
+				],
+				"cssVar": "--bevel-pronounced-3-blur",
+				"value": "10px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-3-spread",
+				"path": [
+					"bevel",
+					"pronounced",
+					"3",
+					"spread"
+				],
+				"cssVar": "--bevel-pronounced-3-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-4-color",
+				"path": [
+					"bevel",
+					"pronounced",
+					"4",
+					"color"
+				],
+				"cssVar": "--bevel-pronounced-4-color",
+				"value": "#00000047",
+				"type": "color",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-4-offset-x",
+				"path": [
+					"bevel",
+					"pronounced",
+					"4",
+					"offsetX"
+				],
+				"cssVar": "--bevel-pronounced-4-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-4-offset-y",
+				"path": [
+					"bevel",
+					"pronounced",
+					"4",
+					"offsetY"
+				],
+				"cssVar": "--bevel-pronounced-4-offset-y",
+				"value": "-1px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-4-blur",
+				"path": [
+					"bevel",
+					"pronounced",
+					"4",
+					"blur"
+				],
+				"cssVar": "--bevel-pronounced-4-blur",
+				"value": "3px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-4-spread",
+				"path": [
+					"bevel",
+					"pronounced",
+					"4",
+					"spread"
+				],
+				"cssVar": "--bevel-pronounced-4-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-5-color",
+				"path": [
+					"bevel",
+					"pronounced",
+					"5",
+					"color"
+				],
+				"cssVar": "--bevel-pronounced-5-color",
+				"value": "#00000033",
+				"type": "color",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-5-offset-x",
+				"path": [
+					"bevel",
+					"pronounced",
+					"5",
+					"offsetX"
+				],
+				"cssVar": "--bevel-pronounced-5-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-5-offset-y",
+				"path": [
+					"bevel",
+					"pronounced",
+					"5",
+					"offsetY"
+				],
+				"cssVar": "--bevel-pronounced-5-offset-y",
+				"value": "-4px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-5-blur",
+				"path": [
+					"bevel",
+					"pronounced",
+					"5",
+					"blur"
+				],
+				"cssVar": "--bevel-pronounced-5-blur",
+				"value": "8px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-pronounced-5-spread",
+				"path": [
+					"bevel",
+					"pronounced",
+					"5",
+					"spread"
+				],
+				"cssVar": "--bevel-pronounced-5-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 4,
+						"specularConstant": 0.8,
+						"specularExponent": 20,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 2.5
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-1-color",
+				"path": [
+					"bevel",
+					"deep",
+					"1",
+					"color"
+				],
+				"cssVar": "--bevel-deep-1-color",
+				"value": "#ffffff3d",
+				"type": "color",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-1-offset-x",
+				"path": [
+					"bevel",
+					"deep",
+					"1",
+					"offsetX"
+				],
+				"cssVar": "--bevel-deep-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-1-offset-y",
+				"path": [
+					"bevel",
+					"deep",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--bevel-deep-1-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-1-blur",
+				"path": [
+					"bevel",
+					"deep",
+					"1",
+					"blur"
+				],
+				"cssVar": "--bevel-deep-1-blur",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-1-spread",
+				"path": [
+					"bevel",
+					"deep",
+					"1",
+					"spread"
+				],
+				"cssVar": "--bevel-deep-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-2-color",
+				"path": [
+					"bevel",
+					"deep",
+					"2",
+					"color"
+				],
+				"cssVar": "--bevel-deep-2-color",
+				"value": "#ffffff2e",
+				"type": "color",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-2-offset-x",
+				"path": [
+					"bevel",
+					"deep",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--bevel-deep-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-2-offset-y",
+				"path": [
+					"bevel",
+					"deep",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--bevel-deep-2-offset-y",
+				"value": "2px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-2-blur",
+				"path": [
+					"bevel",
+					"deep",
+					"2",
+					"blur"
+				],
+				"cssVar": "--bevel-deep-2-blur",
+				"value": "4px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-2-spread",
+				"path": [
+					"bevel",
+					"deep",
+					"2",
+					"spread"
+				],
+				"cssVar": "--bevel-deep-2-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-3-color",
+				"path": [
+					"bevel",
+					"deep",
+					"3",
+					"color"
+				],
+				"cssVar": "--bevel-deep-3-color",
+				"value": "#ffffff1a",
+				"type": "color",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-3-offset-x",
+				"path": [
+					"bevel",
+					"deep",
+					"3",
+					"offsetX"
+				],
+				"cssVar": "--bevel-deep-3-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-3-offset-y",
+				"path": [
+					"bevel",
+					"deep",
+					"3",
+					"offsetY"
+				],
+				"cssVar": "--bevel-deep-3-offset-y",
+				"value": "4px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-3-blur",
+				"path": [
+					"bevel",
+					"deep",
+					"3",
+					"blur"
+				],
+				"cssVar": "--bevel-deep-3-blur",
+				"value": "8px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-3-spread",
+				"path": [
+					"bevel",
+					"deep",
+					"3",
+					"spread"
+				],
+				"cssVar": "--bevel-deep-3-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-4-color",
+				"path": [
+					"bevel",
+					"deep",
+					"4",
+					"color"
+				],
+				"cssVar": "--bevel-deep-4-color",
+				"value": "#ffffff0d",
+				"type": "color",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-4-offset-x",
+				"path": [
+					"bevel",
+					"deep",
+					"4",
+					"offsetX"
+				],
+				"cssVar": "--bevel-deep-4-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-4-offset-y",
+				"path": [
+					"bevel",
+					"deep",
+					"4",
+					"offsetY"
+				],
+				"cssVar": "--bevel-deep-4-offset-y",
+				"value": "6px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-4-blur",
+				"path": [
+					"bevel",
+					"deep",
+					"4",
+					"blur"
+				],
+				"cssVar": "--bevel-deep-4-blur",
+				"value": "14px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-4-spread",
+				"path": [
+					"bevel",
+					"deep",
+					"4",
+					"spread"
+				],
+				"cssVar": "--bevel-deep-4-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-5-color",
+				"path": [
+					"bevel",
+					"deep",
+					"5",
+					"color"
+				],
+				"cssVar": "--bevel-deep-5-color",
+				"value": "#00000052",
+				"type": "color",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-5-offset-x",
+				"path": [
+					"bevel",
+					"deep",
+					"5",
+					"offsetX"
+				],
+				"cssVar": "--bevel-deep-5-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-5-offset-y",
+				"path": [
+					"bevel",
+					"deep",
+					"5",
+					"offsetY"
+				],
+				"cssVar": "--bevel-deep-5-offset-y",
+				"value": "-1px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-5-blur",
+				"path": [
+					"bevel",
+					"deep",
+					"5",
+					"blur"
+				],
+				"cssVar": "--bevel-deep-5-blur",
+				"value": "3px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-5-spread",
+				"path": [
+					"bevel",
+					"deep",
+					"5",
+					"spread"
+				],
+				"cssVar": "--bevel-deep-5-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-6-color",
+				"path": [
+					"bevel",
+					"deep",
+					"6",
+					"color"
+				],
+				"cssVar": "--bevel-deep-6-color",
+				"value": "#0000003d",
+				"type": "color",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-6-offset-x",
+				"path": [
+					"bevel",
+					"deep",
+					"6",
+					"offsetX"
+				],
+				"cssVar": "--bevel-deep-6-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-6-offset-y",
+				"path": [
+					"bevel",
+					"deep",
+					"6",
+					"offsetY"
+				],
+				"cssVar": "--bevel-deep-6-offset-y",
+				"value": "-4px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-6-blur",
+				"path": [
+					"bevel",
+					"deep",
+					"6",
+					"blur"
+				],
+				"cssVar": "--bevel-deep-6-blur",
+				"value": "8px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-6-spread",
+				"path": [
+					"bevel",
+					"deep",
+					"6",
+					"spread"
+				],
+				"cssVar": "--bevel-deep-6-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-7-color",
+				"path": [
+					"bevel",
+					"deep",
+					"7",
+					"color"
+				],
+				"cssVar": "--bevel-deep-7-color",
+				"value": "#00000024",
+				"type": "color",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-7-offset-x",
+				"path": [
+					"bevel",
+					"deep",
+					"7",
+					"offsetX"
+				],
+				"cssVar": "--bevel-deep-7-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-7-offset-y",
+				"path": [
+					"bevel",
+					"deep",
+					"7",
+					"offsetY"
+				],
+				"cssVar": "--bevel-deep-7-offset-y",
+				"value": "-8px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-7-blur",
+				"path": [
+					"bevel",
+					"deep",
+					"7",
+					"blur"
+				],
+				"cssVar": "--bevel-deep-7-blur",
+				"value": "16px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			},
+			{
+				"name": "bevel-deep-7-spread",
+				"path": [
+					"bevel",
+					"deep",
+					"7",
+					"spread"
+				],
+				"cssVar": "--bevel-deep-7-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": 5,
+						"specularConstant": 0.9,
+						"specularExponent": 18,
+						"lightPosition": {
+							"x": 0,
+							"y": -1,
+							"z": 3
+						}
+					}
+				}
+			}
+		]
+	},
+	"borderPreset": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "border-preset-default-color",
+				"path": [
+					"borderPreset",
+					"default",
+					"color"
+				],
+				"cssVar": "--border-preset-default-color",
+				"value": "#005c4a38",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "border-preset-default-width",
+				"path": [
+					"borderPreset",
+					"default",
+					"width"
+				],
+				"cssVar": "--border-preset-default-width",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "border-preset-default-style",
+				"path": [
+					"borderPreset",
+					"default",
+					"style"
+				],
+				"cssVar": "--border-preset-default-style",
+				"value": "solid",
+				"type": "strokeStyle",
+				"extensions": null
+			},
+			{
+				"name": "border-preset-strong-color",
+				"path": [
+					"borderPreset",
+					"strong",
+					"color"
+				],
+				"cssVar": "--border-preset-strong-color",
+				"value": "#0078614d",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "border-preset-strong-width",
+				"path": [
+					"borderPreset",
+					"strong",
+					"width"
+				],
+				"cssVar": "--border-preset-strong-width",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "border-preset-strong-style",
+				"path": [
+					"borderPreset",
+					"strong",
+					"style"
+				],
+				"cssVar": "--border-preset-strong-style",
+				"value": "solid",
+				"type": "strokeStyle",
+				"extensions": null
+			},
+			{
+				"name": "border-preset-focus-color",
+				"path": [
+					"borderPreset",
+					"focus",
+					"color"
+				],
+				"cssVar": "--border-preset-focus-color",
+				"value": "#3ee0b7",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "border-preset-focus-width",
+				"path": [
+					"borderPreset",
+					"focus",
+					"width"
+				],
+				"cssVar": "--border-preset-focus-width",
+				"value": "2px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "border-preset-focus-style",
+				"path": [
+					"borderPreset",
+					"focus",
+					"style"
+				],
+				"cssVar": "--border-preset-focus-style",
+				"value": "solid",
+				"type": "strokeStyle",
+				"extensions": null
+			},
+			{
+				"name": "border-preset-divider-color",
+				"path": [
+					"borderPreset",
+					"divider",
+					"color"
+				],
+				"cssVar": "--border-preset-divider-color",
+				"value": "#ffffff0f",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "border-preset-divider-width",
+				"path": [
+					"borderPreset",
+					"divider",
+					"width"
+				],
+				"cssVar": "--border-preset-divider-width",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "border-preset-divider-style",
+				"path": [
+					"borderPreset",
+					"divider",
+					"style"
+				],
+				"cssVar": "--border-preset-divider-style",
+				"value": "solid",
+				"type": "strokeStyle",
+				"extensions": null
+			}
+		]
+	},
+	"glow": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "glow-off-color",
+				"path": [
+					"glow",
+					"off",
+					"color"
+				],
+				"cssVar": "--glow-off-color",
+				"value": "#00000000",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "glow-off-offset-x",
+				"path": [
+					"glow",
+					"off",
+					"offsetX"
+				],
+				"cssVar": "--glow-off-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-off-offset-y",
+				"path": [
+					"glow",
+					"off",
+					"offsetY"
+				],
+				"cssVar": "--glow-off-offset-y",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-off-blur",
+				"path": [
+					"glow",
+					"off",
+					"blur"
+				],
+				"cssVar": "--glow-off-blur",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-off-spread",
+				"path": [
+					"glow",
+					"off",
+					"spread"
+				],
+				"cssVar": "--glow-off-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-teal-color",
+				"path": [
+					"glow",
+					"teal",
+					"color"
+				],
+				"cssVar": "--glow-teal-color",
+				"value": "#009076b3",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "glow-teal-offset-x",
+				"path": [
+					"glow",
+					"teal",
+					"offsetX"
+				],
+				"cssVar": "--glow-teal-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-teal-offset-y",
+				"path": [
+					"glow",
+					"teal",
+					"offsetY"
+				],
+				"cssVar": "--glow-teal-offset-y",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-teal-blur",
+				"path": [
+					"glow",
+					"teal",
+					"blur"
+				],
+				"cssVar": "--glow-teal-blur",
+				"value": "30px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-teal-spread",
+				"path": [
+					"glow",
+					"teal",
+					"spread"
+				],
+				"cssVar": "--glow-teal-spread",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-purple-color",
+				"path": [
+					"glow",
+					"purple",
+					"color"
+				],
+				"cssVar": "--glow-purple-color",
+				"value": "#615ed6b3",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "glow-purple-offset-x",
+				"path": [
+					"glow",
+					"purple",
+					"offsetX"
+				],
+				"cssVar": "--glow-purple-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-purple-offset-y",
+				"path": [
+					"glow",
+					"purple",
+					"offsetY"
+				],
+				"cssVar": "--glow-purple-offset-y",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-purple-blur",
+				"path": [
+					"glow",
+					"purple",
+					"blur"
+				],
+				"cssVar": "--glow-purple-blur",
+				"value": "30px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-purple-spread",
+				"path": [
+					"glow",
+					"purple",
+					"spread"
+				],
+				"cssVar": "--glow-purple-spread",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-magenta-color",
+				"path": [
+					"glow",
+					"magenta",
+					"color"
+				],
+				"cssVar": "--glow-magenta-color",
+				"value": "#ad36a7b3",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "glow-magenta-offset-x",
+				"path": [
+					"glow",
+					"magenta",
+					"offsetX"
+				],
+				"cssVar": "--glow-magenta-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-magenta-offset-y",
+				"path": [
+					"glow",
+					"magenta",
+					"offsetY"
+				],
+				"cssVar": "--glow-magenta-offset-y",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-magenta-blur",
+				"path": [
+					"glow",
+					"magenta",
+					"blur"
+				],
+				"cssVar": "--glow-magenta-blur",
+				"value": "30px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-magenta-spread",
+				"path": [
+					"glow",
+					"magenta",
+					"spread"
+				],
+				"cssVar": "--glow-magenta-spread",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-ember-color",
+				"path": [
+					"glow",
+					"ember",
+					"color"
+				],
+				"cssVar": "--glow-ember-color",
+				"value": "#c53637b3",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "glow-ember-offset-x",
+				"path": [
+					"glow",
+					"ember",
+					"offsetX"
+				],
+				"cssVar": "--glow-ember-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-ember-offset-y",
+				"path": [
+					"glow",
+					"ember",
+					"offsetY"
+				],
+				"cssVar": "--glow-ember-offset-y",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-ember-blur",
+				"path": [
+					"glow",
+					"ember",
+					"blur"
+				],
+				"cssVar": "--glow-ember-blur",
+				"value": "30px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-ember-spread",
+				"path": [
+					"glow",
+					"ember",
+					"spread"
+				],
+				"cssVar": "--glow-ember-spread",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-frost-color",
+				"path": [
+					"glow",
+					"frost",
+					"color"
+				],
+				"cssVar": "--glow-frost-color",
+				"value": "#1988a399",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "glow-frost-offset-x",
+				"path": [
+					"glow",
+					"frost",
+					"offsetX"
+				],
+				"cssVar": "--glow-frost-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-frost-offset-y",
+				"path": [
+					"glow",
+					"frost",
+					"offsetY"
+				],
+				"cssVar": "--glow-frost-offset-y",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-frost-blur",
+				"path": [
+					"glow",
+					"frost",
+					"blur"
+				],
+				"cssVar": "--glow-frost-blur",
+				"value": "30px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-frost-spread",
+				"path": [
+					"glow",
+					"frost",
+					"spread"
+				],
+				"cssVar": "--glow-frost-spread",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-cyber-color",
+				"path": [
+					"glow",
+					"cyber",
+					"color"
+				],
+				"cssVar": "--glow-cyber-color",
+				"value": "#008f4ab3",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "glow-cyber-offset-x",
+				"path": [
+					"glow",
+					"cyber",
+					"offsetX"
+				],
+				"cssVar": "--glow-cyber-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-cyber-offset-y",
+				"path": [
+					"glow",
+					"cyber",
+					"offsetY"
+				],
+				"cssVar": "--glow-cyber-offset-y",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-cyber-blur",
+				"path": [
+					"glow",
+					"cyber",
+					"blur"
+				],
+				"cssVar": "--glow-cyber-blur",
+				"value": "30px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glow-cyber-spread",
+				"path": [
+					"glow",
+					"cyber",
+					"spread"
+				],
+				"cssVar": "--glow-cyber-spread",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			}
+		]
+	},
+	"gradient": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "gradient-teal-1-color",
+				"path": [
+					"gradient",
+					"teal",
+					"1",
+					"color"
+				],
+				"cssVar": "--gradient-teal-1-color",
+				"value": "#009076",
+				"type": "color",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "teal"
+				}
+			},
+			{
+				"name": "gradient-teal-1-position",
+				"path": [
+					"gradient",
+					"teal",
+					"1",
+					"position"
+				],
+				"cssVar": "--gradient-teal-1-position",
+				"value": 0,
+				"type": "number",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "teal"
+				}
+			},
+			{
+				"name": "gradient-teal-2-color",
+				"path": [
+					"gradient",
+					"teal",
+					"2",
+					"color"
+				],
+				"cssVar": "--gradient-teal-2-color",
+				"value": "#005c4a",
+				"type": "color",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "teal"
+				}
+			},
+			{
+				"name": "gradient-teal-2-position",
+				"path": [
+					"gradient",
+					"teal",
+					"2",
+					"position"
+				],
+				"cssVar": "--gradient-teal-2-position",
+				"value": 1,
+				"type": "number",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "teal"
+				}
+			},
+			{
+				"name": "gradient-teal-glow-1-color",
+				"path": [
+					"gradient",
+					"teal-glow",
+					"1",
+					"color"
+				],
+				"cssVar": "--gradient-teal-glow-1-color",
+				"value": "#00aa90",
+				"type": "color",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "teal"
+				}
+			},
+			{
+				"name": "gradient-teal-glow-1-position",
+				"path": [
+					"gradient",
+					"teal-glow",
+					"1",
+					"position"
+				],
+				"cssVar": "--gradient-teal-glow-1-position",
+				"value": 0,
+				"type": "number",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "teal"
+				}
+			},
+			{
+				"name": "gradient-teal-glow-2-color",
+				"path": [
+					"gradient",
+					"teal-glow",
+					"2",
+					"color"
+				],
+				"cssVar": "--gradient-teal-glow-2-color",
+				"value": "#009076",
+				"type": "color",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "teal"
+				}
+			},
+			{
+				"name": "gradient-teal-glow-2-position",
+				"path": [
+					"gradient",
+					"teal-glow",
+					"2",
+					"position"
+				],
+				"cssVar": "--gradient-teal-glow-2-position",
+				"value": 0.5,
+				"type": "number",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "teal"
+				}
+			},
+			{
+				"name": "gradient-teal-glow-3-color",
+				"path": [
+					"gradient",
+					"teal-glow",
+					"3",
+					"color"
+				],
+				"cssVar": "--gradient-teal-glow-3-color",
+				"value": "#004235",
+				"type": "color",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "teal"
+				}
+			},
+			{
+				"name": "gradient-teal-glow-3-position",
+				"path": [
+					"gradient",
+					"teal-glow",
+					"3",
+					"position"
+				],
+				"cssVar": "--gradient-teal-glow-3-position",
+				"value": 1,
+				"type": "number",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "teal"
+				}
+			},
+			{
+				"name": "gradient-purple-1-color",
+				"path": [
+					"gradient",
+					"purple",
+					"1",
+					"color"
+				],
+				"cssVar": "--gradient-purple-1-color",
+				"value": "#615ed6",
+				"type": "color",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "purple"
+				}
+			},
+			{
+				"name": "gradient-purple-1-position",
+				"path": [
+					"gradient",
+					"purple",
+					"1",
+					"position"
+				],
+				"cssVar": "--gradient-purple-1-position",
+				"value": 0,
+				"type": "number",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "purple"
+				}
+			},
+			{
+				"name": "gradient-purple-2-color",
+				"path": [
+					"gradient",
+					"purple",
+					"2",
+					"color"
+				],
+				"cssVar": "--gradient-purple-2-color",
+				"value": "#3d3b8b",
+				"type": "color",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "purple"
+				}
+			},
+			{
+				"name": "gradient-purple-2-position",
+				"path": [
+					"gradient",
+					"purple",
+					"2",
+					"position"
+				],
+				"cssVar": "--gradient-purple-2-position",
+				"value": 1,
+				"type": "number",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "purple"
+				}
+			},
+			{
+				"name": "gradient-purple-glow-1-color",
+				"path": [
+					"gradient",
+					"purple-glow",
+					"1",
+					"color"
+				],
+				"cssVar": "--gradient-purple-glow-1-color",
+				"value": "#7b7dea",
+				"type": "color",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "purple"
+				}
+			},
+			{
+				"name": "gradient-purple-glow-1-position",
+				"path": [
+					"gradient",
+					"purple-glow",
+					"1",
+					"position"
+				],
+				"cssVar": "--gradient-purple-glow-1-position",
+				"value": 0,
+				"type": "number",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "purple"
+				}
+			},
+			{
+				"name": "gradient-purple-glow-2-color",
+				"path": [
+					"gradient",
+					"purple-glow",
+					"2",
+					"color"
+				],
+				"cssVar": "--gradient-purple-glow-2-color",
+				"value": "#615ed6",
+				"type": "color",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "purple"
+				}
+			},
+			{
+				"name": "gradient-purple-glow-2-position",
+				"path": [
+					"gradient",
+					"purple-glow",
+					"2",
+					"position"
+				],
+				"cssVar": "--gradient-purple-glow-2-position",
+				"value": 0.5,
+				"type": "number",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "purple"
+				}
+			},
+			{
+				"name": "gradient-purple-glow-3-color",
+				"path": [
+					"gradient",
+					"purple-glow",
+					"3",
+					"color"
+				],
+				"cssVar": "--gradient-purple-glow-3-color",
+				"value": "#2b2a64",
+				"type": "color",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "purple"
+				}
+			},
+			{
+				"name": "gradient-purple-glow-3-position",
+				"path": [
+					"gradient",
+					"purple-glow",
+					"3",
+					"position"
+				],
+				"cssVar": "--gradient-purple-glow-3-position",
+				"value": 1,
+				"type": "number",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "purple"
+				}
+			},
+			{
+				"name": "gradient-magenta-1-color",
+				"path": [
+					"gradient",
+					"magenta",
+					"1",
+					"color"
+				],
+				"cssVar": "--gradient-magenta-1-color",
+				"value": "#ad36a7",
+				"type": "color",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "magenta"
+				}
+			},
+			{
+				"name": "gradient-magenta-1-position",
+				"path": [
+					"gradient",
+					"magenta",
+					"1",
+					"position"
+				],
+				"cssVar": "--gradient-magenta-1-position",
+				"value": 0,
+				"type": "number",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "magenta"
+				}
+			},
+			{
+				"name": "gradient-magenta-2-color",
+				"path": [
+					"gradient",
+					"magenta",
+					"2",
+					"color"
+				],
+				"cssVar": "--gradient-magenta-2-color",
+				"value": "#6c2768",
+				"type": "color",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "magenta"
+				}
+			},
+			{
+				"name": "gradient-magenta-2-position",
+				"path": [
+					"gradient",
+					"magenta",
+					"2",
+					"position"
+				],
+				"cssVar": "--gradient-magenta-2-position",
+				"value": 1,
+				"type": "number",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "magenta"
+				}
+			},
+			{
+				"name": "gradient-ember-1-color",
+				"path": [
+					"gradient",
+					"ember",
+					"1",
+					"color"
+				],
+				"cssVar": "--gradient-ember-1-color",
+				"value": "#c53637",
+				"type": "color",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "ember"
+				}
+			},
+			{
+				"name": "gradient-ember-1-position",
+				"path": [
+					"gradient",
+					"ember",
+					"1",
+					"position"
+				],
+				"cssVar": "--gradient-ember-1-position",
+				"value": 0,
+				"type": "number",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "ember"
+				}
+			},
+			{
+				"name": "gradient-ember-2-color",
+				"path": [
+					"gradient",
+					"ember",
+					"2",
+					"color"
+				],
+				"cssVar": "--gradient-ember-2-color",
+				"value": "#7f2021",
+				"type": "color",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "ember"
+				}
+			},
+			{
+				"name": "gradient-ember-2-position",
+				"path": [
+					"gradient",
+					"ember",
+					"2",
+					"position"
+				],
+				"cssVar": "--gradient-ember-2-position",
+				"value": 1,
+				"type": "number",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "ember"
+				}
+			},
+			{
+				"name": "gradient-frost-1-color",
+				"path": [
+					"gradient",
+					"frost",
+					"1",
+					"color"
+				],
+				"cssVar": "--gradient-frost-1-color",
+				"value": "#1988a3",
+				"type": "color",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "frost"
+				}
+			},
+			{
+				"name": "gradient-frost-1-position",
+				"path": [
+					"gradient",
+					"frost",
+					"1",
+					"position"
+				],
+				"cssVar": "--gradient-frost-1-position",
+				"value": 0,
+				"type": "number",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "frost"
+				}
+			},
+			{
+				"name": "gradient-frost-2-color",
+				"path": [
+					"gradient",
+					"frost",
+					"2",
+					"color"
+				],
+				"cssVar": "--gradient-frost-2-color",
+				"value": "#00536c",
+				"type": "color",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "frost"
+				}
+			},
+			{
+				"name": "gradient-frost-2-position",
+				"path": [
+					"gradient",
+					"frost",
+					"2",
+					"position"
+				],
+				"cssVar": "--gradient-frost-2-position",
+				"value": 1,
+				"type": "number",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "frost"
+				}
+			},
+			{
+				"name": "gradient-cyber-1-color",
+				"path": [
+					"gradient",
+					"cyber",
+					"1",
+					"color"
+				],
+				"cssVar": "--gradient-cyber-1-color",
+				"value": "#008f4a",
+				"type": "color",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "cyber"
+				}
+			},
+			{
+				"name": "gradient-cyber-1-position",
+				"path": [
+					"gradient",
+					"cyber",
+					"1",
+					"position"
+				],
+				"cssVar": "--gradient-cyber-1-position",
+				"value": 0,
+				"type": "number",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "cyber"
+				}
+			},
+			{
+				"name": "gradient-cyber-2-color",
+				"path": [
+					"gradient",
+					"cyber",
+					"2",
+					"color"
+				],
+				"cssVar": "--gradient-cyber-2-color",
+				"value": "#005b2d",
+				"type": "color",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "cyber"
+				}
+			},
+			{
+				"name": "gradient-cyber-2-position",
+				"path": [
+					"gradient",
+					"cyber",
+					"2",
+					"position"
+				],
+				"cssVar": "--gradient-cyber-2-position",
+				"value": 1,
+				"type": "number",
+				"extensions": {
+					"angle": "135deg",
+					"accent": "cyber"
+				}
+			},
+			{
+				"name": "gradient-void-1-color",
+				"path": [
+					"gradient",
+					"void",
+					"1",
+					"color"
+				],
+				"cssVar": "--gradient-void-1-color",
+				"value": "#002920",
+				"type": "color",
+				"extensions": {
+					"angle": "180deg"
+				}
+			},
+			{
+				"name": "gradient-void-1-position",
+				"path": [
+					"gradient",
+					"void",
+					"1",
+					"position"
+				],
+				"cssVar": "--gradient-void-1-position",
+				"value": 0,
+				"type": "number",
+				"extensions": {
+					"angle": "180deg"
+				}
+			},
+			{
+				"name": "gradient-void-2-color",
+				"path": [
+					"gradient",
+					"void",
+					"2",
+					"color"
+				],
+				"cssVar": "--gradient-void-2-color",
+				"value": "#001712",
+				"type": "color",
+				"extensions": {
+					"angle": "180deg"
+				}
+			},
+			{
+				"name": "gradient-void-2-position",
+				"path": [
+					"gradient",
+					"void",
+					"2",
+					"position"
+				],
+				"cssVar": "--gradient-void-2-position",
+				"value": 0.5,
+				"type": "number",
+				"extensions": {
+					"angle": "180deg"
+				}
+			},
+			{
+				"name": "gradient-void-3-color",
+				"path": [
+					"gradient",
+					"void",
+					"3",
+					"color"
+				],
+				"cssVar": "--gradient-void-3-color",
+				"value": "#000000",
+				"type": "color",
+				"extensions": {
+					"angle": "180deg"
+				}
+			},
+			{
+				"name": "gradient-void-3-position",
+				"path": [
+					"gradient",
+					"void",
+					"3",
+					"position"
+				],
+				"cssVar": "--gradient-void-3-position",
+				"value": 1,
+				"type": "number",
+				"extensions": {
+					"angle": "180deg"
+				}
+			},
+			{
+				"name": "gradient-void-radial-1-color",
+				"path": [
+					"gradient",
+					"void-radial",
+					"1",
+					"color"
+				],
+				"cssVar": "--gradient-void-radial-1-color",
+				"value": "#004235",
+				"type": "color",
+				"extensions": {
+					"angle": "circle at 50% 40%"
+				}
+			},
+			{
+				"name": "gradient-void-radial-1-position",
+				"path": [
+					"gradient",
+					"void-radial",
+					"1",
+					"position"
+				],
+				"cssVar": "--gradient-void-radial-1-position",
+				"value": 0,
+				"type": "number",
+				"extensions": {
+					"angle": "circle at 50% 40%"
+				}
+			},
+			{
+				"name": "gradient-void-radial-2-color",
+				"path": [
+					"gradient",
+					"void-radial",
+					"2",
+					"color"
+				],
+				"cssVar": "--gradient-void-radial-2-color",
+				"value": "#001712",
+				"type": "color",
+				"extensions": {
+					"angle": "circle at 50% 40%"
+				}
+			},
+			{
+				"name": "gradient-void-radial-2-position",
+				"path": [
+					"gradient",
+					"void-radial",
+					"2",
+					"position"
+				],
+				"cssVar": "--gradient-void-radial-2-position",
+				"value": 0.6,
+				"type": "number",
+				"extensions": {
+					"angle": "circle at 50% 40%"
+				}
+			},
+			{
+				"name": "gradient-void-radial-3-color",
+				"path": [
+					"gradient",
+					"void-radial",
+					"3",
+					"color"
+				],
+				"cssVar": "--gradient-void-radial-3-color",
+				"value": "#000000",
+				"type": "color",
+				"extensions": {
+					"angle": "circle at 50% 40%"
+				}
+			},
+			{
+				"name": "gradient-void-radial-3-position",
+				"path": [
+					"gradient",
+					"void-radial",
+					"3",
+					"position"
+				],
+				"cssVar": "--gradient-void-radial-3-position",
+				"value": 1,
+				"type": "number",
+				"extensions": {
+					"angle": "circle at 50% 40%"
+				}
+			},
+			{
+				"name": "gradient-teal-purple-1-color",
+				"path": [
+					"gradient",
+					"teal-purple",
+					"1",
+					"color"
+				],
+				"cssVar": "--gradient-teal-purple-1-color",
+				"value": "#009076",
+				"type": "color",
+				"extensions": {
+					"angle": "135deg"
+				}
+			},
+			{
+				"name": "gradient-teal-purple-1-position",
+				"path": [
+					"gradient",
+					"teal-purple",
+					"1",
+					"position"
+				],
+				"cssVar": "--gradient-teal-purple-1-position",
+				"value": 0,
+				"type": "number",
+				"extensions": {
+					"angle": "135deg"
+				}
+			},
+			{
+				"name": "gradient-teal-purple-2-color",
+				"path": [
+					"gradient",
+					"teal-purple",
+					"2",
+					"color"
+				],
+				"cssVar": "--gradient-teal-purple-2-color",
+				"value": "#615ed6",
+				"type": "color",
+				"extensions": {
+					"angle": "135deg"
+				}
+			},
+			{
+				"name": "gradient-teal-purple-2-position",
+				"path": [
+					"gradient",
+					"teal-purple",
+					"2",
+					"position"
+				],
+				"cssVar": "--gradient-teal-purple-2-position",
+				"value": 1,
+				"type": "number",
+				"extensions": {
+					"angle": "135deg"
+				}
+			},
+			{
+				"name": "gradient-teal-cyber-1-color",
+				"path": [
+					"gradient",
+					"teal-cyber",
+					"1",
+					"color"
+				],
+				"cssVar": "--gradient-teal-cyber-1-color",
+				"value": "#009076",
+				"type": "color",
+				"extensions": {
+					"angle": "90deg"
+				}
+			},
+			{
+				"name": "gradient-teal-cyber-1-position",
+				"path": [
+					"gradient",
+					"teal-cyber",
+					"1",
+					"position"
+				],
+				"cssVar": "--gradient-teal-cyber-1-position",
+				"value": 0,
+				"type": "number",
+				"extensions": {
+					"angle": "90deg"
+				}
+			},
+			{
+				"name": "gradient-teal-cyber-2-color",
+				"path": [
+					"gradient",
+					"teal-cyber",
+					"2",
+					"color"
+				],
+				"cssVar": "--gradient-teal-cyber-2-color",
+				"value": "#008f4a",
+				"type": "color",
+				"extensions": {
+					"angle": "90deg"
+				}
+			},
+			{
+				"name": "gradient-teal-cyber-2-position",
+				"path": [
+					"gradient",
+					"teal-cyber",
+					"2",
+					"position"
+				],
+				"cssVar": "--gradient-teal-cyber-2-position",
+				"value": 1,
+				"type": "number",
+				"extensions": {
+					"angle": "90deg"
+				}
+			},
+			{
+				"name": "gradient-ember-magenta-1-color",
+				"path": [
+					"gradient",
+					"ember-magenta",
+					"1",
+					"color"
+				],
+				"cssVar": "--gradient-ember-magenta-1-color",
+				"value": "#c53637",
+				"type": "color",
+				"extensions": {
+					"angle": "135deg"
+				}
+			},
+			{
+				"name": "gradient-ember-magenta-1-position",
+				"path": [
+					"gradient",
+					"ember-magenta",
+					"1",
+					"position"
+				],
+				"cssVar": "--gradient-ember-magenta-1-position",
+				"value": 0,
+				"type": "number",
+				"extensions": {
+					"angle": "135deg"
+				}
+			},
+			{
+				"name": "gradient-ember-magenta-2-color",
+				"path": [
+					"gradient",
+					"ember-magenta",
+					"2",
+					"color"
+				],
+				"cssVar": "--gradient-ember-magenta-2-color",
+				"value": "#ad36a7",
+				"type": "color",
+				"extensions": {
+					"angle": "135deg"
+				}
+			},
+			{
+				"name": "gradient-ember-magenta-2-position",
+				"path": [
+					"gradient",
+					"ember-magenta",
+					"2",
+					"position"
+				],
+				"cssVar": "--gradient-ember-magenta-2-position",
+				"value": 1,
+				"type": "number",
+				"extensions": {
+					"angle": "135deg"
+				}
+			}
+		]
+	},
+	"shadow": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "shadow-z0-color",
+				"path": [
+					"shadow",
+					"z0",
+					"color"
+				],
+				"cssVar": "--shadow-z0-color",
+				"value": "#00000000",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z0-offset-x",
+				"path": [
+					"shadow",
+					"z0",
+					"offsetX"
+				],
+				"cssVar": "--shadow-z0-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z0-offset-y",
+				"path": [
+					"shadow",
+					"z0",
+					"offsetY"
+				],
+				"cssVar": "--shadow-z0-offset-y",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z0-blur",
+				"path": [
+					"shadow",
+					"z0",
+					"blur"
+				],
+				"cssVar": "--shadow-z0-blur",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z0-spread",
+				"path": [
+					"shadow",
+					"z0",
+					"spread"
+				],
+				"cssVar": "--shadow-z0-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z1-1-color",
+				"path": [
+					"shadow",
+					"z1",
+					"1",
+					"color"
+				],
+				"cssVar": "--shadow-z1-1-color",
+				"value": "#0000001f",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z1-1-offset-x",
+				"path": [
+					"shadow",
+					"z1",
+					"1",
+					"offsetX"
+				],
+				"cssVar": "--shadow-z1-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z1-1-offset-y",
+				"path": [
+					"shadow",
+					"z1",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--shadow-z1-1-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z1-1-blur",
+				"path": [
+					"shadow",
+					"z1",
+					"1",
+					"blur"
+				],
+				"cssVar": "--shadow-z1-1-blur",
+				"value": "3px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z1-1-spread",
+				"path": [
+					"shadow",
+					"z1",
+					"1",
+					"spread"
+				],
+				"cssVar": "--shadow-z1-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z1-2-color",
+				"path": [
+					"shadow",
+					"z1",
+					"2",
+					"color"
+				],
+				"cssVar": "--shadow-z1-2-color",
+				"value": "#0000003d",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z1-2-offset-x",
+				"path": [
+					"shadow",
+					"z1",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--shadow-z1-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z1-2-offset-y",
+				"path": [
+					"shadow",
+					"z1",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--shadow-z1-2-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z1-2-blur",
+				"path": [
+					"shadow",
+					"z1",
+					"2",
+					"blur"
+				],
+				"cssVar": "--shadow-z1-2-blur",
+				"value": "2px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z1-2-spread",
+				"path": [
+					"shadow",
+					"z1",
+					"2",
+					"spread"
+				],
+				"cssVar": "--shadow-z1-2-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z2-1-color",
+				"path": [
+					"shadow",
+					"z2",
+					"1",
+					"color"
+				],
+				"cssVar": "--shadow-z2-1-color",
+				"value": "#00000026",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z2-1-offset-x",
+				"path": [
+					"shadow",
+					"z2",
+					"1",
+					"offsetX"
+				],
+				"cssVar": "--shadow-z2-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z2-1-offset-y",
+				"path": [
+					"shadow",
+					"z2",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--shadow-z2-1-offset-y",
+				"value": "3px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z2-1-blur",
+				"path": [
+					"shadow",
+					"z2",
+					"1",
+					"blur"
+				],
+				"cssVar": "--shadow-z2-1-blur",
+				"value": "6px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z2-1-spread",
+				"path": [
+					"shadow",
+					"z2",
+					"1",
+					"spread"
+				],
+				"cssVar": "--shadow-z2-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z2-2-color",
+				"path": [
+					"shadow",
+					"z2",
+					"2",
+					"color"
+				],
+				"cssVar": "--shadow-z2-2-color",
+				"value": "#0000001f",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z2-2-offset-x",
+				"path": [
+					"shadow",
+					"z2",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--shadow-z2-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z2-2-offset-y",
+				"path": [
+					"shadow",
+					"z2",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--shadow-z2-2-offset-y",
+				"value": "2px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z2-2-blur",
+				"path": [
+					"shadow",
+					"z2",
+					"2",
+					"blur"
+				],
+				"cssVar": "--shadow-z2-2-blur",
+				"value": "4px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z2-2-spread",
+				"path": [
+					"shadow",
+					"z2",
+					"2",
+					"spread"
+				],
+				"cssVar": "--shadow-z2-2-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z3-1-color",
+				"path": [
+					"shadow",
+					"z3",
+					"1",
+					"color"
+				],
+				"cssVar": "--shadow-z3-1-color",
+				"value": "#00000026",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z3-1-offset-x",
+				"path": [
+					"shadow",
+					"z3",
+					"1",
+					"offsetX"
+				],
+				"cssVar": "--shadow-z3-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z3-1-offset-y",
+				"path": [
+					"shadow",
+					"z3",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--shadow-z3-1-offset-y",
+				"value": "10px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z3-1-blur",
+				"path": [
+					"shadow",
+					"z3",
+					"1",
+					"blur"
+				],
+				"cssVar": "--shadow-z3-1-blur",
+				"value": "20px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z3-1-spread",
+				"path": [
+					"shadow",
+					"z3",
+					"1",
+					"spread"
+				],
+				"cssVar": "--shadow-z3-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z3-2-color",
+				"path": [
+					"shadow",
+					"z3",
+					"2",
+					"color"
+				],
+				"cssVar": "--shadow-z3-2-color",
+				"value": "#0000001a",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z3-2-offset-x",
+				"path": [
+					"shadow",
+					"z3",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--shadow-z3-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z3-2-offset-y",
+				"path": [
+					"shadow",
+					"z3",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--shadow-z3-2-offset-y",
+				"value": "3px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z3-2-blur",
+				"path": [
+					"shadow",
+					"z3",
+					"2",
+					"blur"
+				],
+				"cssVar": "--shadow-z3-2-blur",
+				"value": "6px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z3-2-spread",
+				"path": [
+					"shadow",
+					"z3",
+					"2",
+					"spread"
+				],
+				"cssVar": "--shadow-z3-2-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z4-1-color",
+				"path": [
+					"shadow",
+					"z4",
+					"1",
+					"color"
+				],
+				"cssVar": "--shadow-z4-1-color",
+				"value": "#00000026",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z4-1-offset-x",
+				"path": [
+					"shadow",
+					"z4",
+					"1",
+					"offsetX"
+				],
+				"cssVar": "--shadow-z4-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z4-1-offset-y",
+				"path": [
+					"shadow",
+					"z4",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--shadow-z4-1-offset-y",
+				"value": "15px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z4-1-blur",
+				"path": [
+					"shadow",
+					"z4",
+					"1",
+					"blur"
+				],
+				"cssVar": "--shadow-z4-1-blur",
+				"value": "25px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z4-1-spread",
+				"path": [
+					"shadow",
+					"z4",
+					"1",
+					"spread"
+				],
+				"cssVar": "--shadow-z4-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z4-2-color",
+				"path": [
+					"shadow",
+					"z4",
+					"2",
+					"color"
+				],
+				"cssVar": "--shadow-z4-2-color",
+				"value": "#0000000d",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z4-2-offset-x",
+				"path": [
+					"shadow",
+					"z4",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--shadow-z4-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z4-2-offset-y",
+				"path": [
+					"shadow",
+					"z4",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--shadow-z4-2-offset-y",
+				"value": "5px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z4-2-blur",
+				"path": [
+					"shadow",
+					"z4",
+					"2",
+					"blur"
+				],
+				"cssVar": "--shadow-z4-2-blur",
+				"value": "10px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "shadow-z4-2-spread",
+				"path": [
+					"shadow",
+					"z4",
+					"2",
+					"spread"
+				],
+				"cssVar": "--shadow-z4-2-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			}
+		]
+	},
+	"elevation": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "elevation-flat-color",
+				"path": [
+					"elevation",
+					"flat",
+					"color"
+				],
+				"cssVar": "--elevation-flat-color",
+				"value": "#00000000",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "elevation-flat-offset-x",
+				"path": [
+					"elevation",
+					"flat",
+					"offsetX"
+				],
+				"cssVar": "--elevation-flat-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-flat-offset-y",
+				"path": [
+					"elevation",
+					"flat",
+					"offsetY"
+				],
+				"cssVar": "--elevation-flat-offset-y",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-flat-blur",
+				"path": [
+					"elevation",
+					"flat",
+					"blur"
+				],
+				"cssVar": "--elevation-flat-blur",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-flat-spread",
+				"path": [
+					"elevation",
+					"flat",
+					"spread"
+				],
+				"cssVar": "--elevation-flat-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-card-1-color",
+				"path": [
+					"elevation",
+					"card",
+					"1",
+					"color"
+				],
+				"cssVar": "--elevation-card-1-color",
+				"value": "#0000001f",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "elevation-card-1-offset-x",
+				"path": [
+					"elevation",
+					"card",
+					"1",
+					"offsetX"
+				],
+				"cssVar": "--elevation-card-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-card-1-offset-y",
+				"path": [
+					"elevation",
+					"card",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--elevation-card-1-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-card-1-blur",
+				"path": [
+					"elevation",
+					"card",
+					"1",
+					"blur"
+				],
+				"cssVar": "--elevation-card-1-blur",
+				"value": "3px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-card-1-spread",
+				"path": [
+					"elevation",
+					"card",
+					"1",
+					"spread"
+				],
+				"cssVar": "--elevation-card-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-card-2-color",
+				"path": [
+					"elevation",
+					"card",
+					"2",
+					"color"
+				],
+				"cssVar": "--elevation-card-2-color",
+				"value": "#0000003d",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "elevation-card-2-offset-x",
+				"path": [
+					"elevation",
+					"card",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--elevation-card-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-card-2-offset-y",
+				"path": [
+					"elevation",
+					"card",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--elevation-card-2-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-card-2-blur",
+				"path": [
+					"elevation",
+					"card",
+					"2",
+					"blur"
+				],
+				"cssVar": "--elevation-card-2-blur",
+				"value": "2px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-card-2-spread",
+				"path": [
+					"elevation",
+					"card",
+					"2",
+					"spread"
+				],
+				"cssVar": "--elevation-card-2-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-panel-1-color",
+				"path": [
+					"elevation",
+					"panel",
+					"1",
+					"color"
+				],
+				"cssVar": "--elevation-panel-1-color",
+				"value": "#00000026",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "elevation-panel-1-offset-x",
+				"path": [
+					"elevation",
+					"panel",
+					"1",
+					"offsetX"
+				],
+				"cssVar": "--elevation-panel-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-panel-1-offset-y",
+				"path": [
+					"elevation",
+					"panel",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--elevation-panel-1-offset-y",
+				"value": "3px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-panel-1-blur",
+				"path": [
+					"elevation",
+					"panel",
+					"1",
+					"blur"
+				],
+				"cssVar": "--elevation-panel-1-blur",
+				"value": "6px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-panel-1-spread",
+				"path": [
+					"elevation",
+					"panel",
+					"1",
+					"spread"
+				],
+				"cssVar": "--elevation-panel-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-panel-2-color",
+				"path": [
+					"elevation",
+					"panel",
+					"2",
+					"color"
+				],
+				"cssVar": "--elevation-panel-2-color",
+				"value": "#0000001f",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "elevation-panel-2-offset-x",
+				"path": [
+					"elevation",
+					"panel",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--elevation-panel-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-panel-2-offset-y",
+				"path": [
+					"elevation",
+					"panel",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--elevation-panel-2-offset-y",
+				"value": "2px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-panel-2-blur",
+				"path": [
+					"elevation",
+					"panel",
+					"2",
+					"blur"
+				],
+				"cssVar": "--elevation-panel-2-blur",
+				"value": "4px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-panel-2-spread",
+				"path": [
+					"elevation",
+					"panel",
+					"2",
+					"spread"
+				],
+				"cssVar": "--elevation-panel-2-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-dropdown-1-color",
+				"path": [
+					"elevation",
+					"dropdown",
+					"1",
+					"color"
+				],
+				"cssVar": "--elevation-dropdown-1-color",
+				"value": "#00000026",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "elevation-dropdown-1-offset-x",
+				"path": [
+					"elevation",
+					"dropdown",
+					"1",
+					"offsetX"
+				],
+				"cssVar": "--elevation-dropdown-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-dropdown-1-offset-y",
+				"path": [
+					"elevation",
+					"dropdown",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--elevation-dropdown-1-offset-y",
+				"value": "10px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-dropdown-1-blur",
+				"path": [
+					"elevation",
+					"dropdown",
+					"1",
+					"blur"
+				],
+				"cssVar": "--elevation-dropdown-1-blur",
+				"value": "20px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-dropdown-1-spread",
+				"path": [
+					"elevation",
+					"dropdown",
+					"1",
+					"spread"
+				],
+				"cssVar": "--elevation-dropdown-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-dropdown-2-color",
+				"path": [
+					"elevation",
+					"dropdown",
+					"2",
+					"color"
+				],
+				"cssVar": "--elevation-dropdown-2-color",
+				"value": "#0000001a",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "elevation-dropdown-2-offset-x",
+				"path": [
+					"elevation",
+					"dropdown",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--elevation-dropdown-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-dropdown-2-offset-y",
+				"path": [
+					"elevation",
+					"dropdown",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--elevation-dropdown-2-offset-y",
+				"value": "3px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-dropdown-2-blur",
+				"path": [
+					"elevation",
+					"dropdown",
+					"2",
+					"blur"
+				],
+				"cssVar": "--elevation-dropdown-2-blur",
+				"value": "6px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-dropdown-2-spread",
+				"path": [
+					"elevation",
+					"dropdown",
+					"2",
+					"spread"
+				],
+				"cssVar": "--elevation-dropdown-2-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-modal-1-color",
+				"path": [
+					"elevation",
+					"modal",
+					"1",
+					"color"
+				],
+				"cssVar": "--elevation-modal-1-color",
+				"value": "#00000026",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "elevation-modal-1-offset-x",
+				"path": [
+					"elevation",
+					"modal",
+					"1",
+					"offsetX"
+				],
+				"cssVar": "--elevation-modal-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-modal-1-offset-y",
+				"path": [
+					"elevation",
+					"modal",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--elevation-modal-1-offset-y",
+				"value": "15px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-modal-1-blur",
+				"path": [
+					"elevation",
+					"modal",
+					"1",
+					"blur"
+				],
+				"cssVar": "--elevation-modal-1-blur",
+				"value": "25px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-modal-1-spread",
+				"path": [
+					"elevation",
+					"modal",
+					"1",
+					"spread"
+				],
+				"cssVar": "--elevation-modal-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-modal-2-color",
+				"path": [
+					"elevation",
+					"modal",
+					"2",
+					"color"
+				],
+				"cssVar": "--elevation-modal-2-color",
+				"value": "#0000000d",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "elevation-modal-2-offset-x",
+				"path": [
+					"elevation",
+					"modal",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--elevation-modal-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-modal-2-offset-y",
+				"path": [
+					"elevation",
+					"modal",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--elevation-modal-2-offset-y",
+				"value": "5px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-modal-2-blur",
+				"path": [
+					"elevation",
+					"modal",
+					"2",
+					"blur"
+				],
+				"cssVar": "--elevation-modal-2-blur",
+				"value": "10px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "elevation-modal-2-spread",
+				"path": [
+					"elevation",
+					"modal",
+					"2",
+					"spread"
+				],
+				"cssVar": "--elevation-modal-2-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			}
+		]
+	},
 	"textStyle": {
 		"extensions": {},
 		"tokens": [
 			{
-				"name": "text-style-display-lg",
+				"name": "text-style-display-lg-font-size",
 				"path": [
 					"textStyle",
-					"display-lg"
+					"display-lg",
+					"fontSize"
 				],
-				"cssVar": "--text-style-display-lg",
-				"value": {
-					"fontSize": "32px",
-					"fontFamily": [
-						"Orbitron",
-						"system-ui",
-						"sans-serif"
-					],
-					"fontWeight": 700,
-					"lineHeight": 1.1,
-					"letterSpacing": "0.02em"
-				},
-				"type": "typography",
+				"cssVar": "--text-style-display-lg-font-size",
+				"value": "32px",
+				"type": "dimension",
 				"extensions": null
 			},
 			{
-				"name": "text-style-display-sm",
+				"name": "text-style-display-lg-font-family",
 				"path": [
 					"textStyle",
-					"display-sm"
+					"display-lg",
+					"fontFamily"
 				],
-				"cssVar": "--text-style-display-sm",
-				"value": {
-					"fontSize": "24px",
-					"fontFamily": [
-						"Orbitron",
-						"system-ui",
-						"sans-serif"
-					],
-					"fontWeight": 600,
-					"lineHeight": 1.2,
-					"letterSpacing": "0.01em"
-				},
-				"type": "typography",
+				"cssVar": "--text-style-display-lg-font-family",
+				"value": [
+					"Orbitron",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
 				"extensions": null
 			},
 			{
-				"name": "text-style-heading-lg",
+				"name": "text-style-display-lg-font-weight",
 				"path": [
 					"textStyle",
-					"heading-lg"
+					"display-lg",
+					"fontWeight"
 				],
-				"cssVar": "--text-style-heading-lg",
-				"value": {
-					"fontSize": "20px",
-					"fontFamily": [
-						"Inter",
-						"system-ui",
-						"sans-serif"
-					],
-					"fontWeight": 600,
-					"lineHeight": 1.3,
-					"letterSpacing": "-0.01em"
-				},
-				"type": "typography",
+				"cssVar": "--text-style-display-lg-font-weight",
+				"value": 700,
+				"type": "fontWeight",
 				"extensions": null
 			},
 			{
-				"name": "text-style-heading-sm",
+				"name": "text-style-display-lg-line-height",
 				"path": [
 					"textStyle",
-					"heading-sm"
+					"display-lg",
+					"lineHeight"
 				],
-				"cssVar": "--text-style-heading-sm",
-				"value": {
-					"fontSize": "16px",
-					"fontFamily": [
-						"Inter",
-						"system-ui",
-						"sans-serif"
-					],
-					"fontWeight": 600,
-					"lineHeight": 1.4,
-					"letterSpacing": "-0.005em"
-				},
-				"type": "typography",
+				"cssVar": "--text-style-display-lg-line-height",
+				"value": 1.1,
+				"type": "number",
 				"extensions": null
 			},
 			{
-				"name": "text-style-body",
+				"name": "text-style-display-lg-letter-spacing",
 				"path": [
 					"textStyle",
-					"body"
+					"display-lg",
+					"letterSpacing"
 				],
-				"cssVar": "--text-style-body",
-				"value": {
-					"fontSize": "14px",
-					"fontFamily": [
-						"Inter",
-						"system-ui",
-						"sans-serif"
-					],
-					"fontWeight": 400,
-					"lineHeight": 1.5,
-					"letterSpacing": "0em"
-				},
-				"type": "typography",
+				"cssVar": "--text-style-display-lg-letter-spacing",
+				"value": "0.02em",
+				"type": "dimension",
 				"extensions": null
 			},
 			{
-				"name": "text-style-body-sm",
+				"name": "text-style-display-sm-font-size",
 				"path": [
 					"textStyle",
-					"body-sm"
+					"display-sm",
+					"fontSize"
 				],
-				"cssVar": "--text-style-body-sm",
-				"value": {
-					"fontSize": "13px",
-					"fontFamily": [
-						"Inter",
-						"system-ui",
-						"sans-serif"
-					],
-					"fontWeight": 400,
-					"lineHeight": 1.45,
-					"letterSpacing": "0em"
-				},
-				"type": "typography",
+				"cssVar": "--text-style-display-sm-font-size",
+				"value": "24px",
+				"type": "dimension",
 				"extensions": null
 			},
 			{
-				"name": "text-style-caption",
+				"name": "text-style-display-sm-font-family",
 				"path": [
 					"textStyle",
-					"caption"
+					"display-sm",
+					"fontFamily"
 				],
-				"cssVar": "--text-style-caption",
-				"value": {
-					"fontSize": "12px",
-					"fontFamily": [
-						"Inter",
-						"system-ui",
-						"sans-serif"
-					],
-					"fontWeight": 500,
-					"lineHeight": 1.4,
-					"letterSpacing": "0.01em"
-				},
-				"type": "typography",
+				"cssVar": "--text-style-display-sm-font-family",
+				"value": [
+					"Orbitron",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
 				"extensions": null
 			},
 			{
-				"name": "text-style-overline",
+				"name": "text-style-display-sm-font-weight",
 				"path": [
 					"textStyle",
-					"overline"
+					"display-sm",
+					"fontWeight"
 				],
-				"cssVar": "--text-style-overline",
-				"value": {
-					"fontSize": "11px",
-					"fontFamily": [
-						"Inter",
-						"system-ui",
-						"sans-serif"
-					],
-					"fontWeight": 600,
-					"lineHeight": 1.3,
-					"letterSpacing": "0.08em"
-				},
-				"type": "typography",
+				"cssVar": "--text-style-display-sm-font-weight",
+				"value": 600,
+				"type": "fontWeight",
 				"extensions": null
 			},
 			{
-				"name": "text-style-code",
+				"name": "text-style-display-sm-line-height",
 				"path": [
 					"textStyle",
-					"code"
+					"display-sm",
+					"lineHeight"
 				],
-				"cssVar": "--text-style-code",
-				"value": {
-					"fontSize": "13px",
-					"fontFamily": [
-						"JetBrains Mono",
-						"Fira Code",
-						"monospace"
-					],
-					"fontWeight": 400,
-					"lineHeight": 1.6,
-					"letterSpacing": "0em"
-				},
-				"type": "typography",
+				"cssVar": "--text-style-display-sm-line-height",
+				"value": 1.2,
+				"type": "number",
 				"extensions": null
 			},
 			{
-				"name": "text-style-stat",
+				"name": "text-style-display-sm-letter-spacing",
 				"path": [
 					"textStyle",
-					"stat"
+					"display-sm",
+					"letterSpacing"
 				],
-				"cssVar": "--text-style-stat",
-				"value": {
-					"fontSize": "24px",
-					"fontFamily": [
-						"Orbitron",
-						"system-ui",
-						"sans-serif"
-					],
-					"fontWeight": 700,
-					"lineHeight": 1.1,
-					"letterSpacing": "0.02em"
-				},
-				"type": "typography",
+				"cssVar": "--text-style-display-sm-letter-spacing",
+				"value": "0.01em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-style-heading-lg-font-size",
+				"path": [
+					"textStyle",
+					"heading-lg",
+					"fontSize"
+				],
+				"cssVar": "--text-style-heading-lg-font-size",
+				"value": "20px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-style-heading-lg-font-family",
+				"path": [
+					"textStyle",
+					"heading-lg",
+					"fontFamily"
+				],
+				"cssVar": "--text-style-heading-lg-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "text-style-heading-lg-font-weight",
+				"path": [
+					"textStyle",
+					"heading-lg",
+					"fontWeight"
+				],
+				"cssVar": "--text-style-heading-lg-font-weight",
+				"value": 600,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "text-style-heading-lg-line-height",
+				"path": [
+					"textStyle",
+					"heading-lg",
+					"lineHeight"
+				],
+				"cssVar": "--text-style-heading-lg-line-height",
+				"value": 1.3,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "text-style-heading-lg-letter-spacing",
+				"path": [
+					"textStyle",
+					"heading-lg",
+					"letterSpacing"
+				],
+				"cssVar": "--text-style-heading-lg-letter-spacing",
+				"value": "-0.01em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-style-heading-sm-font-size",
+				"path": [
+					"textStyle",
+					"heading-sm",
+					"fontSize"
+				],
+				"cssVar": "--text-style-heading-sm-font-size",
+				"value": "16px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-style-heading-sm-font-family",
+				"path": [
+					"textStyle",
+					"heading-sm",
+					"fontFamily"
+				],
+				"cssVar": "--text-style-heading-sm-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "text-style-heading-sm-font-weight",
+				"path": [
+					"textStyle",
+					"heading-sm",
+					"fontWeight"
+				],
+				"cssVar": "--text-style-heading-sm-font-weight",
+				"value": 600,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "text-style-heading-sm-line-height",
+				"path": [
+					"textStyle",
+					"heading-sm",
+					"lineHeight"
+				],
+				"cssVar": "--text-style-heading-sm-line-height",
+				"value": 1.4,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "text-style-heading-sm-letter-spacing",
+				"path": [
+					"textStyle",
+					"heading-sm",
+					"letterSpacing"
+				],
+				"cssVar": "--text-style-heading-sm-letter-spacing",
+				"value": "-0.005em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-style-body-font-size",
+				"path": [
+					"textStyle",
+					"body",
+					"fontSize"
+				],
+				"cssVar": "--text-style-body-font-size",
+				"value": "14px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-style-body-font-family",
+				"path": [
+					"textStyle",
+					"body",
+					"fontFamily"
+				],
+				"cssVar": "--text-style-body-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "text-style-body-font-weight",
+				"path": [
+					"textStyle",
+					"body",
+					"fontWeight"
+				],
+				"cssVar": "--text-style-body-font-weight",
+				"value": 400,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "text-style-body-line-height",
+				"path": [
+					"textStyle",
+					"body",
+					"lineHeight"
+				],
+				"cssVar": "--text-style-body-line-height",
+				"value": 1.5,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "text-style-body-letter-spacing",
+				"path": [
+					"textStyle",
+					"body",
+					"letterSpacing"
+				],
+				"cssVar": "--text-style-body-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-style-body-sm-font-size",
+				"path": [
+					"textStyle",
+					"body-sm",
+					"fontSize"
+				],
+				"cssVar": "--text-style-body-sm-font-size",
+				"value": "13px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-style-body-sm-font-family",
+				"path": [
+					"textStyle",
+					"body-sm",
+					"fontFamily"
+				],
+				"cssVar": "--text-style-body-sm-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "text-style-body-sm-font-weight",
+				"path": [
+					"textStyle",
+					"body-sm",
+					"fontWeight"
+				],
+				"cssVar": "--text-style-body-sm-font-weight",
+				"value": 400,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "text-style-body-sm-line-height",
+				"path": [
+					"textStyle",
+					"body-sm",
+					"lineHeight"
+				],
+				"cssVar": "--text-style-body-sm-line-height",
+				"value": 1.45,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "text-style-body-sm-letter-spacing",
+				"path": [
+					"textStyle",
+					"body-sm",
+					"letterSpacing"
+				],
+				"cssVar": "--text-style-body-sm-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-style-caption-font-size",
+				"path": [
+					"textStyle",
+					"caption",
+					"fontSize"
+				],
+				"cssVar": "--text-style-caption-font-size",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-style-caption-font-family",
+				"path": [
+					"textStyle",
+					"caption",
+					"fontFamily"
+				],
+				"cssVar": "--text-style-caption-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "text-style-caption-font-weight",
+				"path": [
+					"textStyle",
+					"caption",
+					"fontWeight"
+				],
+				"cssVar": "--text-style-caption-font-weight",
+				"value": 500,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "text-style-caption-line-height",
+				"path": [
+					"textStyle",
+					"caption",
+					"lineHeight"
+				],
+				"cssVar": "--text-style-caption-line-height",
+				"value": 1.4,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "text-style-caption-letter-spacing",
+				"path": [
+					"textStyle",
+					"caption",
+					"letterSpacing"
+				],
+				"cssVar": "--text-style-caption-letter-spacing",
+				"value": "0.01em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-style-overline-font-size",
+				"path": [
+					"textStyle",
+					"overline",
+					"fontSize"
+				],
+				"cssVar": "--text-style-overline-font-size",
+				"value": "11px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-style-overline-font-family",
+				"path": [
+					"textStyle",
+					"overline",
+					"fontFamily"
+				],
+				"cssVar": "--text-style-overline-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "text-style-overline-font-weight",
+				"path": [
+					"textStyle",
+					"overline",
+					"fontWeight"
+				],
+				"cssVar": "--text-style-overline-font-weight",
+				"value": 600,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "text-style-overline-line-height",
+				"path": [
+					"textStyle",
+					"overline",
+					"lineHeight"
+				],
+				"cssVar": "--text-style-overline-line-height",
+				"value": 1.3,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "text-style-overline-letter-spacing",
+				"path": [
+					"textStyle",
+					"overline",
+					"letterSpacing"
+				],
+				"cssVar": "--text-style-overline-letter-spacing",
+				"value": "0.08em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-style-code-font-size",
+				"path": [
+					"textStyle",
+					"code",
+					"fontSize"
+				],
+				"cssVar": "--text-style-code-font-size",
+				"value": "13px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-style-code-font-family",
+				"path": [
+					"textStyle",
+					"code",
+					"fontFamily"
+				],
+				"cssVar": "--text-style-code-font-family",
+				"value": [
+					"JetBrains Mono",
+					"Fira Code",
+					"monospace"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "text-style-code-font-weight",
+				"path": [
+					"textStyle",
+					"code",
+					"fontWeight"
+				],
+				"cssVar": "--text-style-code-font-weight",
+				"value": 400,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "text-style-code-line-height",
+				"path": [
+					"textStyle",
+					"code",
+					"lineHeight"
+				],
+				"cssVar": "--text-style-code-line-height",
+				"value": 1.6,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "text-style-code-letter-spacing",
+				"path": [
+					"textStyle",
+					"code",
+					"letterSpacing"
+				],
+				"cssVar": "--text-style-code-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-style-stat-font-size",
+				"path": [
+					"textStyle",
+					"stat",
+					"fontSize"
+				],
+				"cssVar": "--text-style-stat-font-size",
+				"value": "24px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-style-stat-font-family",
+				"path": [
+					"textStyle",
+					"stat",
+					"fontFamily"
+				],
+				"cssVar": "--text-style-stat-font-family",
+				"value": [
+					"Orbitron",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "text-style-stat-font-weight",
+				"path": [
+					"textStyle",
+					"stat",
+					"fontWeight"
+				],
+				"cssVar": "--text-style-stat-font-weight",
+				"value": 700,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "text-style-stat-line-height",
+				"path": [
+					"textStyle",
+					"stat",
+					"lineHeight"
+				],
+				"cssVar": "--text-style-stat-line-height",
+				"value": 1.1,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "text-style-stat-letter-spacing",
+				"path": [
+					"textStyle",
+					"stat",
+					"letterSpacing"
+				],
+				"cssVar": "--text-style-stat-letter-spacing",
+				"value": "0.02em",
+				"type": "dimension",
 				"extensions": null
 			}
 		]

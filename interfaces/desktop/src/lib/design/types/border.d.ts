@@ -16,15 +16,31 @@ export type BorderRecord = {
 	divider: string;
 };
 
-export const BorderPresetTokens = ['default', 'strong', 'focus', 'divider'] as const;
+export const BorderPresetTokens = ['default-color', 'default-width', 'default-style', 'strong-color', 'strong-width', 'strong-style', 'focus-color', 'focus-width', 'focus-style', 'divider-color', 'divider-width', 'divider-style'] as const;
 export type BorderPresetToken = (typeof BorderPresetTokens)[number];
 
-export type BorderPresetCSSVar = '--border-preset-default' | '--border-preset-strong' | '--border-preset-focus' | '--border-preset-divider';
+export type BorderPresetCSSVar = '--border-preset-default-color' | '--border-preset-default-width' | '--border-preset-default-style' | '--border-preset-strong-color' | '--border-preset-strong-width' | '--border-preset-strong-style' | '--border-preset-focus-color' | '--border-preset-focus-width' | '--border-preset-focus-style' | '--border-preset-divider-color' | '--border-preset-divider-width' | '--border-preset-divider-style';
 
 export type BorderPresetRecord = {
-	default: string;
-	strong: string;
-	focus: string;
-	divider: string;
+	default: {
+		color: string;
+		width: string;
+		style: string;
+	};
+	strong: {
+		color: string;
+		width: string;
+		style: string;
+	};
+	focus: {
+		color: string;
+		width: string;
+		style: string;
+	};
+	divider: {
+		color: string;
+		width: string;
+		style: string;
+	};
 };
 

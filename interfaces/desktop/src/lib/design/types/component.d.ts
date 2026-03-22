@@ -177,15 +177,30 @@ export type BadgeRecord = {
 	border: string;
 };
 
-export const CardTokens = ['bg', 'border', 'depth'] as const;
+export const CardTokens = ['bg', 'border', 'depth-1-color', 'depth-1-offsetX', 'depth-1-offsetY', 'depth-1-blur', 'depth-1-spread', 'depth-2-color', 'depth-2-offsetX', 'depth-2-offsetY', 'depth-2-blur', 'depth-2-spread'] as const;
 export type CardToken = (typeof CardTokens)[number];
 
-export type CardCSSVar = '--card-bg' | '--card-border' | '--card-depth';
+export type CardCSSVar = '--card-bg' | '--card-border' | '--card-depth-1-color' | '--card-depth-1-offset-x' | '--card-depth-1-offset-y' | '--card-depth-1-blur' | '--card-depth-1-spread' | '--card-depth-2-color' | '--card-depth-2-offset-x' | '--card-depth-2-offset-y' | '--card-depth-2-blur' | '--card-depth-2-spread';
 
 export type CardRecord = {
 	bg: string;
 	border: string;
-	depth: string;
+	depth: {
+		'1': {
+			color: string;
+			offsetX: string;
+			offsetY: string;
+			blur: string;
+			spread: string;
+		};
+		'2': {
+			color: string;
+			offsetX: string;
+			offsetY: string;
+			blur: string;
+			spread: string;
+		};
+	};
 };
 
 export const AvatarTokens = ['bg', 'border'] as const;
@@ -240,39 +255,84 @@ export type AlertRecord = {
 	border: string;
 };
 
-export const ToastTokens = ['bg', 'border', 'depth'] as const;
+export const ToastTokens = ['bg', 'border', 'depth-1-color', 'depth-1-offsetX', 'depth-1-offsetY', 'depth-1-blur', 'depth-1-spread', 'depth-2-color', 'depth-2-offsetX', 'depth-2-offsetY', 'depth-2-blur', 'depth-2-spread'] as const;
 export type ToastToken = (typeof ToastTokens)[number];
 
-export type ToastCSSVar = '--toast-bg' | '--toast-border' | '--toast-depth';
+export type ToastCSSVar = '--toast-bg' | '--toast-border' | '--toast-depth-1-color' | '--toast-depth-1-offset-x' | '--toast-depth-1-offset-y' | '--toast-depth-1-blur' | '--toast-depth-1-spread' | '--toast-depth-2-color' | '--toast-depth-2-offset-x' | '--toast-depth-2-offset-y' | '--toast-depth-2-blur' | '--toast-depth-2-spread';
 
 export type ToastRecord = {
 	bg: string;
 	border: string;
-	depth: string;
+	depth: {
+		'1': {
+			color: string;
+			offsetX: string;
+			offsetY: string;
+			blur: string;
+			spread: string;
+		};
+		'2': {
+			color: string;
+			offsetX: string;
+			offsetY: string;
+			blur: string;
+			spread: string;
+		};
+	};
 };
 
-export const PanelTokens = ['bg', 'border', 'border-2', 'depth'] as const;
+export const PanelTokens = ['bg', 'border', 'border-2', 'depth-1-color', 'depth-1-offsetX', 'depth-1-offsetY', 'depth-1-blur', 'depth-1-spread', 'depth-2-color', 'depth-2-offsetX', 'depth-2-offsetY', 'depth-2-blur', 'depth-2-spread'] as const;
 export type PanelToken = (typeof PanelTokens)[number];
 
-export type PanelCSSVar = '--panel-bg' | '--panel-border' | '--panel-border-2' | '--panel-depth';
+export type PanelCSSVar = '--panel-bg' | '--panel-border' | '--panel-border-2' | '--panel-depth-1-color' | '--panel-depth-1-offset-x' | '--panel-depth-1-offset-y' | '--panel-depth-1-blur' | '--panel-depth-1-spread' | '--panel-depth-2-color' | '--panel-depth-2-offset-x' | '--panel-depth-2-offset-y' | '--panel-depth-2-blur' | '--panel-depth-2-spread';
 
 export type PanelRecord = {
 	bg: string;
 	border: string;
 	'border-2': string;
-	depth: string;
+	depth: {
+		'1': {
+			color: string;
+			offsetX: string;
+			offsetY: string;
+			blur: string;
+			spread: string;
+		};
+		'2': {
+			color: string;
+			offsetX: string;
+			offsetY: string;
+			blur: string;
+			spread: string;
+		};
+	};
 };
 
-export const DialogTokens = ['bg', 'border', 'border-focus', 'depth'] as const;
+export const DialogTokens = ['bg', 'border', 'border-focus', 'depth-1-color', 'depth-1-offsetX', 'depth-1-offsetY', 'depth-1-blur', 'depth-1-spread', 'depth-2-color', 'depth-2-offsetX', 'depth-2-offsetY', 'depth-2-blur', 'depth-2-spread'] as const;
 export type DialogToken = (typeof DialogTokens)[number];
 
-export type DialogCSSVar = '--dialog-bg' | '--dialog-border' | '--dialog-border-focus' | '--dialog-depth';
+export type DialogCSSVar = '--dialog-bg' | '--dialog-border' | '--dialog-border-focus' | '--dialog-depth-1-color' | '--dialog-depth-1-offset-x' | '--dialog-depth-1-offset-y' | '--dialog-depth-1-blur' | '--dialog-depth-1-spread' | '--dialog-depth-2-color' | '--dialog-depth-2-offset-x' | '--dialog-depth-2-offset-y' | '--dialog-depth-2-blur' | '--dialog-depth-2-spread';
 
 export type DialogRecord = {
 	bg: string;
 	border: string;
 	'border-focus': string;
-	depth: string;
+	depth: {
+		'1': {
+			color: string;
+			offsetX: string;
+			offsetY: string;
+			blur: string;
+			spread: string;
+		};
+		'2': {
+			color: string;
+			offsetX: string;
+			offsetY: string;
+			blur: string;
+			spread: string;
+		};
+	};
 };
 
 export const TabsTokens = ['bg', 'border', 'border-focus', 'bg-hover', 'bg-active', 'indicator'] as const;
@@ -300,16 +360,31 @@ export type AccordionRecord = {
 	'bg-hover': string;
 };
 
-export const MenuTokens = ['bg', 'border', 'bg-hover', 'depth'] as const;
+export const MenuTokens = ['bg', 'border', 'bg-hover', 'depth-1-color', 'depth-1-offsetX', 'depth-1-offsetY', 'depth-1-blur', 'depth-1-spread', 'depth-2-color', 'depth-2-offsetX', 'depth-2-offsetY', 'depth-2-blur', 'depth-2-spread'] as const;
 export type MenuToken = (typeof MenuTokens)[number];
 
-export type MenuCSSVar = '--menu-bg' | '--menu-border' | '--menu-bg-hover' | '--menu-depth';
+export type MenuCSSVar = '--menu-bg' | '--menu-border' | '--menu-bg-hover' | '--menu-depth-1-color' | '--menu-depth-1-offset-x' | '--menu-depth-1-offset-y' | '--menu-depth-1-blur' | '--menu-depth-1-spread' | '--menu-depth-2-color' | '--menu-depth-2-offset-x' | '--menu-depth-2-offset-y' | '--menu-depth-2-blur' | '--menu-depth-2-spread';
 
 export type MenuRecord = {
 	bg: string;
 	border: string;
 	'bg-hover': string;
-	depth: string;
+	depth: {
+		'1': {
+			color: string;
+			offsetX: string;
+			offsetY: string;
+			blur: string;
+			spread: string;
+		};
+		'2': {
+			color: string;
+			offsetX: string;
+			offsetY: string;
+			blur: string;
+			spread: string;
+		};
+	};
 };
 
 export const AppShellTokens = ['bg', 'border'] as const;
@@ -371,6 +446,160 @@ export type TagRecord = {
 	'neutral-bg': string;
 	'neutral-border': string;
 	'neutral-text': string;
+};
+
+export const StyleTokens = ['button-primary-backgroundColor', 'button-primary-backgroundBlur', 'button-primary-animation', 'button-primary-color', 'button-primary-borderRadius', 'button-primary-opacity', 'button-secondary-backgroundColor', 'button-secondary-backgroundBlur', 'button-secondary-animation', 'button-secondary-color', 'button-secondary-borderRadius', 'button-secondary-opacity', 'button-ghost-backgroundColor', 'button-ghost-backgroundBlur', 'button-ghost-animation', 'button-ghost-color', 'button-ghost-borderRadius', 'button-ghost-opacity', 'button-danger-backgroundColor', 'button-danger-backgroundBlur', 'button-danger-animation', 'button-danger-color', 'button-danger-borderRadius', 'button-danger-opacity', 'button-primary-shadow-1-color', 'button-primary-shadow-1-offsetX', 'button-primary-shadow-1-offsetY', 'button-primary-shadow-1-blur', 'button-primary-shadow-1-spread', 'button-primary-shadow-2-color', 'button-primary-shadow-2-offsetX', 'button-primary-shadow-2-offsetY', 'button-primary-shadow-2-blur', 'button-primary-shadow-2-spread', 'button-primary-border-color', 'button-primary-border-width', 'button-primary-border-style', 'button-primary-transition-duration', 'button-primary-transition-delay', 'button-primary-transition-timingFunction', 'button-primary-typography-fontFamily', 'button-primary-typography-fontSize', 'button-primary-typography-fontWeight', 'button-primary-typography-letterSpacing', 'button-primary-typography-lineHeight', 'button-secondary-shadow-color', 'button-secondary-shadow-offsetX', 'button-secondary-shadow-offsetY', 'button-secondary-shadow-blur', 'button-secondary-shadow-spread', 'button-secondary-border-color', 'button-secondary-border-width', 'button-secondary-border-style', 'button-secondary-transition-duration', 'button-secondary-transition-delay', 'button-secondary-transition-timingFunction', 'button-secondary-typography-fontFamily', 'button-secondary-typography-fontSize', 'button-secondary-typography-fontWeight', 'button-secondary-typography-letterSpacing', 'button-secondary-typography-lineHeight', 'button-ghost-shadow-color', 'button-ghost-shadow-offsetX', 'button-ghost-shadow-offsetY', 'button-ghost-shadow-blur', 'button-ghost-shadow-spread', 'button-ghost-border-color', 'button-ghost-border-width', 'button-ghost-border-style', 'button-ghost-transition-duration', 'button-ghost-transition-delay', 'button-ghost-transition-timingFunction', 'button-ghost-typography-fontFamily', 'button-ghost-typography-fontSize', 'button-ghost-typography-fontWeight', 'button-ghost-typography-letterSpacing', 'button-ghost-typography-lineHeight', 'button-danger-shadow-1-color', 'button-danger-shadow-1-offsetX', 'button-danger-shadow-1-offsetY', 'button-danger-shadow-1-blur', 'button-danger-shadow-1-spread', 'button-danger-shadow-2-color', 'button-danger-shadow-2-offsetX', 'button-danger-shadow-2-offsetY', 'button-danger-shadow-2-blur', 'button-danger-shadow-2-spread', 'button-danger-border-color', 'button-danger-border-width', 'button-danger-border-style', 'button-danger-transition-duration', 'button-danger-transition-delay', 'button-danger-transition-timingFunction', 'button-danger-typography-fontFamily', 'button-danger-typography-fontSize', 'button-danger-typography-fontWeight', 'button-danger-typography-letterSpacing', 'button-danger-typography-lineHeight'] as const;
+export type StyleToken = (typeof StyleTokens)[number];
+
+export type StyleCSSVar = '--style-button-primary-background-color' | '--style-button-primary-background-blur' | '--style-button-primary-animation' | '--style-button-primary-color' | '--style-button-primary-border-radius' | '--style-button-primary-opacity' | '--style-button-secondary-background-color' | '--style-button-secondary-background-blur' | '--style-button-secondary-animation' | '--style-button-secondary-color' | '--style-button-secondary-border-radius' | '--style-button-secondary-opacity' | '--style-button-ghost-background-color' | '--style-button-ghost-background-blur' | '--style-button-ghost-animation' | '--style-button-ghost-color' | '--style-button-ghost-border-radius' | '--style-button-ghost-opacity' | '--style-button-danger-background-color' | '--style-button-danger-background-blur' | '--style-button-danger-animation' | '--style-button-danger-color' | '--style-button-danger-border-radius' | '--style-button-danger-opacity' | '--style-button-primary-shadow-1-color' | '--style-button-primary-shadow-1-offset-x' | '--style-button-primary-shadow-1-offset-y' | '--style-button-primary-shadow-1-blur' | '--style-button-primary-shadow-1-spread' | '--style-button-primary-shadow-2-color' | '--style-button-primary-shadow-2-offset-x' | '--style-button-primary-shadow-2-offset-y' | '--style-button-primary-shadow-2-blur' | '--style-button-primary-shadow-2-spread' | '--style-button-primary-border-color' | '--style-button-primary-border-width' | '--style-button-primary-border-style' | '--style-button-primary-transition-duration' | '--style-button-primary-transition-delay' | '--style-button-primary-transition-timing-function' | '--style-button-primary-typography-font-family' | '--style-button-primary-typography-font-size' | '--style-button-primary-typography-font-weight' | '--style-button-primary-typography-letter-spacing' | '--style-button-primary-typography-line-height' | '--style-button-secondary-shadow-color' | '--style-button-secondary-shadow-offset-x' | '--style-button-secondary-shadow-offset-y' | '--style-button-secondary-shadow-blur' | '--style-button-secondary-shadow-spread' | '--style-button-secondary-border-color' | '--style-button-secondary-border-width' | '--style-button-secondary-border-style' | '--style-button-secondary-transition-duration' | '--style-button-secondary-transition-delay' | '--style-button-secondary-transition-timing-function' | '--style-button-secondary-typography-font-family' | '--style-button-secondary-typography-font-size' | '--style-button-secondary-typography-font-weight' | '--style-button-secondary-typography-letter-spacing' | '--style-button-secondary-typography-line-height' | '--style-button-ghost-shadow-color' | '--style-button-ghost-shadow-offset-x' | '--style-button-ghost-shadow-offset-y' | '--style-button-ghost-shadow-blur' | '--style-button-ghost-shadow-spread' | '--style-button-ghost-border-color' | '--style-button-ghost-border-width' | '--style-button-ghost-border-style' | '--style-button-ghost-transition-duration' | '--style-button-ghost-transition-delay' | '--style-button-ghost-transition-timing-function' | '--style-button-ghost-typography-font-family' | '--style-button-ghost-typography-font-size' | '--style-button-ghost-typography-font-weight' | '--style-button-ghost-typography-letter-spacing' | '--style-button-ghost-typography-line-height' | '--style-button-danger-shadow-1-color' | '--style-button-danger-shadow-1-offset-x' | '--style-button-danger-shadow-1-offset-y' | '--style-button-danger-shadow-1-blur' | '--style-button-danger-shadow-1-spread' | '--style-button-danger-shadow-2-color' | '--style-button-danger-shadow-2-offset-x' | '--style-button-danger-shadow-2-offset-y' | '--style-button-danger-shadow-2-blur' | '--style-button-danger-shadow-2-spread' | '--style-button-danger-border-color' | '--style-button-danger-border-width' | '--style-button-danger-border-style' | '--style-button-danger-transition-duration' | '--style-button-danger-transition-delay' | '--style-button-danger-transition-timing-function' | '--style-button-danger-typography-font-family' | '--style-button-danger-typography-font-size' | '--style-button-danger-typography-font-weight' | '--style-button-danger-typography-letter-spacing' | '--style-button-danger-typography-line-height';
+
+export type StyleRecord = {
+	'button-primary': {
+		backgroundColor: string;
+		backgroundBlur: string;
+		animation: string;
+		color: string;
+		borderRadius: string;
+		opacity: string;
+		shadow: {
+			'1': {
+				color: string;
+				offsetX: string;
+				offsetY: string;
+				blur: string;
+				spread: string;
+			};
+			'2': {
+				color: string;
+				offsetX: string;
+				offsetY: string;
+				blur: string;
+				spread: string;
+			};
+		};
+		border: {
+			color: string;
+			width: string;
+			style: string;
+		};
+		transition: {
+			duration: string;
+			delay: string;
+			timingFunction: string;
+		};
+		typography: {
+			fontFamily: string;
+			fontSize: string;
+			fontWeight: string;
+			letterSpacing: string;
+			lineHeight: string;
+		};
+	};
+	'button-secondary': {
+		backgroundColor: string;
+		backgroundBlur: string;
+		animation: string;
+		color: string;
+		borderRadius: string;
+		opacity: string;
+		shadow: {
+			color: string;
+			offsetX: string;
+			offsetY: string;
+			blur: string;
+			spread: string;
+		};
+		border: {
+			color: string;
+			width: string;
+			style: string;
+		};
+		transition: {
+			duration: string;
+			delay: string;
+			timingFunction: string;
+		};
+		typography: {
+			fontFamily: string;
+			fontSize: string;
+			fontWeight: string;
+			letterSpacing: string;
+			lineHeight: string;
+		};
+	};
+	'button-ghost': {
+		backgroundColor: string;
+		backgroundBlur: string;
+		animation: string;
+		color: string;
+		borderRadius: string;
+		opacity: string;
+		shadow: {
+			color: string;
+			offsetX: string;
+			offsetY: string;
+			blur: string;
+			spread: string;
+		};
+		border: {
+			color: string;
+			width: string;
+			style: string;
+		};
+		transition: {
+			duration: string;
+			delay: string;
+			timingFunction: string;
+		};
+		typography: {
+			fontFamily: string;
+			fontSize: string;
+			fontWeight: string;
+			letterSpacing: string;
+			lineHeight: string;
+		};
+	};
+	'button-danger': {
+		backgroundColor: string;
+		backgroundBlur: string;
+		animation: string;
+		color: string;
+		borderRadius: string;
+		opacity: string;
+		shadow: {
+			'1': {
+				color: string;
+				offsetX: string;
+				offsetY: string;
+				blur: string;
+				spread: string;
+			};
+			'2': {
+				color: string;
+				offsetX: string;
+				offsetY: string;
+				blur: string;
+				spread: string;
+			};
+		};
+		border: {
+			color: string;
+			width: string;
+			style: string;
+		};
+		transition: {
+			duration: string;
+			delay: string;
+			timingFunction: string;
+		};
+		typography: {
+			fontFamily: string;
+			fontSize: string;
+			fontWeight: string;
+			letterSpacing: string;
+			lineHeight: string;
+		};
+	};
 };
 
 export const EncodingTokens = ['axis-1', 'axis-2'] as const;

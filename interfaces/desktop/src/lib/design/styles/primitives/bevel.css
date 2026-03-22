@@ -4,11 +4,115 @@
 
 @layer tokens.primitives {
   :root {
-  --bevel-off: inset 0px 0px 0px 0px #00000000;
-  --bevel-subtle: inset 0px 1px 0px 0px #ffffff1a, inset 0px -1px 1px 0px #00000029; /** Visible edge highlight — light/dark pair */
-  --bevel-soft: inset 0px 1px 1px 0px #ffffff1f, inset 0px 2px 4px 0px #ffffff14, inset 0px -1px 3px 0px #00000033; /** Gentle depth — 3 layers with soft blur */
-  --bevel-medium: inset 0px 1px 1px 0px #ffffff26, inset 0px 2px 5px 0px #ffffff1a, inset 0px -1px 3px 0px #00000040, inset 0px -3px 6px 0px #00000029; /** Noticeable depth — 4 layers with graduated offsets */
-  --bevel-pronounced: inset 0px 1px 1px 0px #ffffff33, inset 0px 2px 5px 0px #ffffff24, inset 0px 4px 10px 0px #ffffff14, inset 0px -1px 3px 0px #00000047, inset 0px -4px 8px 0px #00000033; /** Strong neumorphic effect — 5 layers with wide blur range */
-  --bevel-deep: inset 0px 1px 1px 0px #ffffff3d, inset 0px 2px 4px 0px #ffffff2e, inset 0px 4px 8px 0px #ffffff1a, inset 0px 6px 14px 0px #ffffff0d, inset 0px -1px 3px 0px #00000052, inset 0px -4px 8px 0px #0000003d, inset 0px -8px 16px 0px #00000024; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-off-color: inset oklch(0.0000 0.0000 0.00 / 0);
+  --bevel-off-offset-x: 0;
+  --bevel-off-offset-y: 0;
+  --bevel-off-blur: 0;
+  --bevel-off-spread: 0;
+  --bevel-subtle-1-color: inset oklch(1.0000 0.0000 0.00 / 0.10196078431372549); /** Visible edge highlight — light/dark pair */
+  --bevel-subtle-1-offset-x: 0; /** Visible edge highlight — light/dark pair */
+  --bevel-subtle-1-offset-y: inset 0.0625rem; /** Visible edge highlight — light/dark pair */
+  --bevel-subtle-1-blur: 0; /** Visible edge highlight — light/dark pair */
+  --bevel-subtle-1-spread: 0; /** Visible edge highlight — light/dark pair */
+  --bevel-subtle-2-color: inset oklch(0.0000 0.0000 0.00 / 0.1607843137254902); /** Visible edge highlight — light/dark pair */
+  --bevel-subtle-2-offset-x: 0; /** Visible edge highlight — light/dark pair */
+  --bevel-subtle-2-offset-y: inset -0.0625rem; /** Visible edge highlight — light/dark pair */
+  --bevel-subtle-2-blur: inset 0.0625rem; /** Visible edge highlight — light/dark pair */
+  --bevel-subtle-2-spread: 0; /** Visible edge highlight — light/dark pair */
+  --bevel-soft-1-color: inset oklch(1.0000 0.0000 0.00 / 0.12156862745098039); /** Gentle depth — 3 layers with soft blur */
+  --bevel-soft-1-offset-x: 0; /** Gentle depth — 3 layers with soft blur */
+  --bevel-soft-1-offset-y: inset 0.0625rem; /** Gentle depth — 3 layers with soft blur */
+  --bevel-soft-1-blur: inset 0.0625rem; /** Gentle depth — 3 layers with soft blur */
+  --bevel-soft-1-spread: 0; /** Gentle depth — 3 layers with soft blur */
+  --bevel-soft-2-color: inset oklch(1.0000 0.0000 0.00 / 0.0784313725490196); /** Gentle depth — 3 layers with soft blur */
+  --bevel-soft-2-offset-x: 0; /** Gentle depth — 3 layers with soft blur */
+  --bevel-soft-2-offset-y: inset 0.125rem; /** Gentle depth — 3 layers with soft blur */
+  --bevel-soft-2-blur: inset 0.25rem; /** Gentle depth — 3 layers with soft blur */
+  --bevel-soft-2-spread: 0; /** Gentle depth — 3 layers with soft blur */
+  --bevel-soft-3-color: inset oklch(0.0000 0.0000 0.00 / 0.2); /** Gentle depth — 3 layers with soft blur */
+  --bevel-soft-3-offset-x: 0; /** Gentle depth — 3 layers with soft blur */
+  --bevel-soft-3-offset-y: inset -0.0625rem; /** Gentle depth — 3 layers with soft blur */
+  --bevel-soft-3-blur: inset 0.1875rem; /** Gentle depth — 3 layers with soft blur */
+  --bevel-soft-3-spread: 0; /** Gentle depth — 3 layers with soft blur */
+  --bevel-medium-1-color: inset oklch(1.0000 0.0000 0.00 / 0.14901960784313725); /** Noticeable depth — 4 layers with graduated offsets */
+  --bevel-medium-1-offset-x: 0; /** Noticeable depth — 4 layers with graduated offsets */
+  --bevel-medium-1-offset-y: inset 0.0625rem; /** Noticeable depth — 4 layers with graduated offsets */
+  --bevel-medium-1-blur: inset 0.0625rem; /** Noticeable depth — 4 layers with graduated offsets */
+  --bevel-medium-1-spread: 0; /** Noticeable depth — 4 layers with graduated offsets */
+  --bevel-medium-2-color: inset oklch(1.0000 0.0000 0.00 / 0.10196078431372549); /** Noticeable depth — 4 layers with graduated offsets */
+  --bevel-medium-2-offset-x: 0; /** Noticeable depth — 4 layers with graduated offsets */
+  --bevel-medium-2-offset-y: inset 0.125rem; /** Noticeable depth — 4 layers with graduated offsets */
+  --bevel-medium-2-blur: inset 0.3125rem; /** Noticeable depth — 4 layers with graduated offsets */
+  --bevel-medium-2-spread: 0; /** Noticeable depth — 4 layers with graduated offsets */
+  --bevel-medium-3-color: inset oklch(0.0000 0.0000 0.00 / 0.25098039215686274); /** Noticeable depth — 4 layers with graduated offsets */
+  --bevel-medium-3-offset-x: 0; /** Noticeable depth — 4 layers with graduated offsets */
+  --bevel-medium-3-offset-y: inset -0.0625rem; /** Noticeable depth — 4 layers with graduated offsets */
+  --bevel-medium-3-blur: inset 0.1875rem; /** Noticeable depth — 4 layers with graduated offsets */
+  --bevel-medium-3-spread: 0; /** Noticeable depth — 4 layers with graduated offsets */
+  --bevel-medium-4-color: inset oklch(0.0000 0.0000 0.00 / 0.1607843137254902); /** Noticeable depth — 4 layers with graduated offsets */
+  --bevel-medium-4-offset-x: 0; /** Noticeable depth — 4 layers with graduated offsets */
+  --bevel-medium-4-offset-y: inset -0.1875rem; /** Noticeable depth — 4 layers with graduated offsets */
+  --bevel-medium-4-blur: inset 0.375rem; /** Noticeable depth — 4 layers with graduated offsets */
+  --bevel-medium-4-spread: 0; /** Noticeable depth — 4 layers with graduated offsets */
+  --bevel-pronounced-1-color: inset oklch(1.0000 0.0000 0.00 / 0.2); /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-pronounced-1-offset-x: 0; /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-pronounced-1-offset-y: inset 0.0625rem; /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-pronounced-1-blur: inset 0.0625rem; /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-pronounced-1-spread: 0; /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-pronounced-2-color: inset oklch(1.0000 0.0000 0.00 / 0.1411764705882353); /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-pronounced-2-offset-x: 0; /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-pronounced-2-offset-y: inset 0.125rem; /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-pronounced-2-blur: inset 0.3125rem; /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-pronounced-2-spread: 0; /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-pronounced-3-color: inset oklch(1.0000 0.0000 0.00 / 0.0784313725490196); /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-pronounced-3-offset-x: 0; /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-pronounced-3-offset-y: inset 0.25rem; /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-pronounced-3-blur: inset 0.625rem; /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-pronounced-3-spread: 0; /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-pronounced-4-color: inset oklch(0.0000 0.0000 0.00 / 0.2784313725490196); /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-pronounced-4-offset-x: 0; /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-pronounced-4-offset-y: inset -0.0625rem; /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-pronounced-4-blur: inset 0.1875rem; /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-pronounced-4-spread: 0; /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-pronounced-5-color: inset oklch(0.0000 0.0000 0.00 / 0.2); /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-pronounced-5-offset-x: 0; /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-pronounced-5-offset-y: inset -0.25rem; /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-pronounced-5-blur: inset 0.5rem; /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-pronounced-5-spread: 0; /** Strong neumorphic effect — 5 layers with wide blur range */
+  --bevel-deep-1-color: inset oklch(1.0000 0.0000 0.00 / 0.23921568627450981); /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-1-offset-x: 0; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-1-offset-y: inset 0.0625rem; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-1-blur: inset 0.0625rem; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-1-spread: 0; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-2-color: inset oklch(1.0000 0.0000 0.00 / 0.1803921568627451); /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-2-offset-x: 0; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-2-offset-y: inset 0.125rem; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-2-blur: inset 0.25rem; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-2-spread: 0; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-3-color: inset oklch(1.0000 0.0000 0.00 / 0.10196078431372549); /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-3-offset-x: 0; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-3-offset-y: inset 0.25rem; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-3-blur: inset 0.5rem; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-3-spread: 0; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-4-color: inset oklch(1.0000 0.0000 0.00 / 0.050980392156862744); /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-4-offset-x: 0; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-4-offset-y: inset 0.375rem; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-4-blur: inset 0.875rem; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-4-spread: 0; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-5-color: inset oklch(0.0000 0.0000 0.00 / 0.3215686274509804); /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-5-offset-x: 0; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-5-offset-y: inset -0.0625rem; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-5-blur: inset 0.1875rem; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-5-spread: 0; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-6-color: inset oklch(0.0000 0.0000 0.00 / 0.23921568627450981); /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-6-offset-x: 0; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-6-offset-y: inset -0.25rem; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-6-blur: inset 0.5rem; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-6-spread: 0; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-7-color: inset oklch(0.0000 0.0000 0.00 / 0.1411764705882353); /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-7-offset-x: 0; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-7-offset-y: inset -0.5rem; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-7-blur: inset 1rem; /** Maximum CSS depth — 7 layers simulating true bevel relief */
+  --bevel-deep-7-spread: 0; /** Maximum CSS depth — 7 layers simulating true bevel relief */
   }
 }
