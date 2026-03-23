@@ -42,8 +42,7 @@ const styleId = $derived(`badge-${variant}`);
 			"inline-flex items-center gap-1 rounded-full border font-medium",
 			SIZE[size] ?? SIZE.md,
 			overflowMode === "truncate" && "truncate",
-			className,
-		)}
+			className)}
 	>
 		{@render children?.()}
 	</span>

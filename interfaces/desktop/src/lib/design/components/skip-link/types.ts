@@ -9,14 +9,14 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAnchorAttributes } from "svelte/elements";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
 /** SkipLink component props -- ColdLight 8-axis + ARIA + recipe + primitive */
 export interface SkipLinkComponentProps
 	extends Omit<HTMLAnchorAttributes, "style" | "children">,
 		BaseProps,
-		ColdLightProps {
+		ComponentProps {
 	children?: Snippet;
 	/** Target element ID to skip to. @default "#main-content" */
 	href?: string;

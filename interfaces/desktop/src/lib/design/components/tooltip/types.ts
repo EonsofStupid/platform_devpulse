@@ -11,14 +11,14 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
 // =============================================================================
 // ROOT PROPS
 // =============================================================================
 
-export interface TooltipProps extends BaseProps, ColdLightProps {
+export interface TooltipProps extends BaseProps, ComponentProps {
 	children?: Snippet;
 	/** Delay in ms before the tooltip opens on hover. @default 700 */
 	openDelay?: number;

@@ -11,14 +11,14 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAnchorAttributes, HTMLAttributes } from "svelte/elements";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
 // =============================================================================
 // ROOT PROPS
 // =============================================================================
 
-export interface LinkPreviewProps extends BaseProps, ColdLightProps {
+export interface LinkPreviewProps extends BaseProps, ComponentProps {
 	children?: Snippet;
 	/** Delay in ms before the preview opens on hover. @default 700 */
 	openDelay?: number;

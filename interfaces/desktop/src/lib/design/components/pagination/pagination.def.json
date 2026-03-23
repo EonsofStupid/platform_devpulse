@@ -1,0 +1,21 @@
+{
+  "kind": "pagination",
+  "label": "Pagination",
+  "category": "navigation",
+  "description": "Page navigation controls for browsing through paginated data sets",
+  "aria": null,
+  "container": false,
+  "containerSlots": [],
+  "compound": true,
+  "blockCategory": "navigation",
+  "requiredAxes": ["backgroundColor", "border", "borderRadius", "color", "typography"],
+  "defaultStyleId": "pagination-default",
+  "styleIds": ["pagination-default"],
+  "slots": {
+    "root": "all",
+    "prev": "none",
+    "next": "none",
+    "page": "none",
+    "ellipsis": "none"
+  }
+}

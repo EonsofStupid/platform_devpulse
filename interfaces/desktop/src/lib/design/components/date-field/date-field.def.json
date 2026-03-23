@@ -1,0 +1,19 @@
+{
+  "kind": "date-field",
+  "label": "Date Field",
+  "category": "interactive",
+  "description": "Segmented date input with individual fields for month, day, and year",
+  "aria": null,
+  "container": false,
+  "containerSlots": [],
+  "compound": true,
+  "blockCategory": "form",
+  "requiredAxes": ["backgroundColor", "border", "borderRadius", "typography", "color"],
+  "defaultStyleId": "date-field-default",
+  "styleIds": ["date-field-default"],
+  "slots": {
+    "root": "all",
+    "segment": "none",
+    "label": "none"
+  }
+}

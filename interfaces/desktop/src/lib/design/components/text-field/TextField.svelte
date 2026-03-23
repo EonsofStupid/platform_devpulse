@@ -76,8 +76,7 @@ const styleId = "text-field-default";
 					"disabled:pointer-events-none disabled:opacity-50",
 					SIZE[size] ?? SIZE.md,
 					leading && "pl-10",
-					trailing && "pr-10",
-				)}
+					trailing && "pr-10")}
 				data-kind="text-field"
 				data-slot="input"
 			/>

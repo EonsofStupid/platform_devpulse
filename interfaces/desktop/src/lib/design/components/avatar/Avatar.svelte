@@ -53,8 +53,7 @@ $effect(() => {
 		class={cn(
 			"inline-flex items-center justify-center overflow-hidden rounded-full",
 			"font-medium text-sm select-none",
-			className,
-		)}
+			className)}
 		style:width="{size}px"
 		style:height="{size}px"
 		{...rest}

@@ -7,8 +7,6 @@
 	Manages range value state + popover open state.
 -->
 <script lang="ts">
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/_internal/utils/uid.js";
 import { setDateRangePickerContext } from "./context.js";
@@ -36,7 +34,6 @@ let {
 	label, description, errorMessage,
 	startName, endName, form,
 	dir = "ltr",
-	preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius,
 	children, class: className, ...rest
 }: DateRangePickerRootProps = $props();
 
@@ -91,7 +88,6 @@ function updateEnd(date: Date | null) {
 	onChange?.({ value: range });
 }
 
-const recipe = getRecipe("date-range-picker.glass.void");
 const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
 
 setDateRangePickerContext({
@@ -105,17 +101,12 @@ setDateRangePickerContext({
 	get locale() { return locale; },
 	get size() { return size; },
 	get dir() { return dir; },
-	get classes() { return recipeClasses; },
 	get ids() { return resolvedIds; },
 	get shouldCloseOnSelect() { return shouldCloseOnSelect; },
 	toggle, openPopover, closePopover, selectRange, updateStart, updateEnd,
 });
 
-const visual = useColdLight(() => ({
-	preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius,
-}));
-
-const rootClasses = $derived(cn(recipeClasses.root, visual.segments, visual.radius, className));
+const rootClasses = $derived(cn(className));
 </script>
 
 <div
@@ -129,12 +120,11 @@ const rootClasses = $derived(cn(recipeClasses.root, visual.segments, visual.radi
 	data-slot="root"
 	data-state={isDisabled ? "disabled" : isInvalid ? "invalid" : undefined}
 	data-inline={inline || undefined}
-	data-encoding={visual.encoding || undefined}
 	class={rootClasses}
 	{...rest}
 >
 	{#if label}
-		<label id={resolvedIds.label} class={recipeClasses.label} data-kind="date-range-picker" data-slot="label">
+		<label id={resolvedIds.label} class={} data-kind="date-range-picker" data-slot="label">
 			{label}{#if isRequired}<span aria-hidden="true" class="text-[var(--color-red-400)] ms-2">*</span>{/if}
 		</label>
 	{/if}
@@ -142,11 +132,11 @@ const rootClasses = $derived(cn(recipeClasses.root, visual.segments, visual.radi
 	{@render children?.()}
 
 	{#if description}
-		<p id={resolvedIds.description} class={recipeClasses.description} data-kind="date-range-picker" data-slot="description">{description}</p>
+		<p id={resolvedIds.description} class={} data-kind="date-range-picker" data-slot="description">{description}</p>
 	{/if}
 
 	{#if isInvalid && (errorMessage || validationError())}
-		<p id={resolvedIds.errorMessage} role="alert" class={recipeClasses.errorMessage} data-kind="date-range-picker" data-slot="error-message">
+		<p id={resolvedIds.errorMessage} role="alert" class={} data-kind="date-range-picker" data-slot="error-message">
 			{errorMessage ?? validationError()}
 		</p>
 	{/if}

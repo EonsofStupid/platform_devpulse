@@ -14,14 +14,14 @@
  */
 
 import type { Snippet } from "svelte";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { SizeToken } from "$lib/design/recipes/types.js";
 
 // =============================================================================
 // ROOT — Combobox wrapper, creates transport + sets context
 // =============================================================================
 
-export interface ComboboxProps<T = unknown> extends Omit<ColdLightProps, "size"> {
+export interface ComboboxProps<T = unknown> extends ComponentProps {
 	children?: Snippet;
 	/** CSS class for the root wrapper element. */
 	class?: string;

@@ -9,7 +9,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type SheetSize = "sm" | "md" | "lg" | "xl" | "full";
@@ -19,7 +19,7 @@ export type SheetSide = "left" | "right" | "top" | "bottom";
 export interface SheetComponentProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
 		BaseProps,
-		Omit<ColdLightProps, "size"> {
+		ComponentProps {
 	children?: Snippet;
 	/** Trigger content snippet — rendered inside the trigger button */
 	trigger?: Snippet;

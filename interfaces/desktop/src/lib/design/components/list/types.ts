@@ -9,7 +9,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type ListSize = "sm" | "md" | "lg";
@@ -20,7 +20,7 @@ export type ListSpacing = "compact" | "default" | "relaxed";
 export interface ListComponentProps
 	extends Omit<HTMLAttributes<HTMLUListElement>, "style" | "children">,
 		BaseProps,
-		ColdLightProps {
+		ComponentProps {
 	children?: Snippet;
 	/** Size variant — controls font size */
 	size?: ListSize;

@@ -1,7 +1,7 @@
 /**
  * @file sys/logger.ts
  * @module @devpulse/sys/logger
- * @description Frontend logger — buffers before IPC, flushes to Rust tracing after.
+ * @description Frontend logger — captures EVERYTHING to the Rust tracing pipeline.
  *
  * All frontend log calls appear in the same session JSONL as backend logs,
  * tagged with target: "frontend" and the source module name.
@@ -9,6 +9,9 @@
  * Before IPC is ready, logs are buffered in memory AND written to console.
  * Once IPC connects, the buffer is flushed to Rust and all subsequent
  * logs go directly to the Rust tracing pipeline → session log file.
+ *
+ * Global error handlers capture ALL unhandled errors, promise rejections,
+ * and console.error calls — not just explicit logError() calls.
  */
 
 import { invoke } from "@tauri-apps/api/core";
@@ -25,6 +28,7 @@ interface BufferedLog {
 /** Pre-IPC buffer — flushed once Tauri IPC is available. */
 const buffer: BufferedLog[] = [];
 let ipcReady = false;
+let globalHandlersInstalled = false;
 
 /**
  * Mark IPC as ready and flush all buffered logs to Rust.
@@ -46,20 +50,75 @@ export function markIpcReady(): void {
 }
 
 /**
+ * Install global error handlers to capture ALL frontend errors.
+ * Call once at app startup (root layout onMount).
+ *
+ * Captures:
+ * - window.onerror (uncaught exceptions)
+ * - window.onunhandledrejection (unhandled promise rejections)
+ * - console.error (any console.error call, including Svelte render errors)
+ * - console.warn (any console.warn call)
+ */
+export function installGlobalHandlers(): void {
+	if (globalHandlersInstalled) return;
+	globalHandlersInstalled = true;
+
+	// Capture uncaught exceptions
+	window.addEventListener("error", (event) => {
+		const msg = event.error
+			? `${event.message} at ${event.filename}:${event.lineno}:${event.colno}\n${event.error.stack || ""}`
+			: event.message;
+		log("error", "frontend:uncaught", msg);
+	});
+
+	// Capture unhandled promise rejections
+	window.addEventListener("unhandledrejection", (event) => {
+		const reason = event.reason instanceof Error
+			? `${event.reason.message}\n${event.reason.stack || ""}`
+			: String(event.reason);
+		log("error", "frontend:unhandled_rejection", reason);
+	});
+
+	// Intercept console.error — captures Svelte render errors, library errors, etc.
+	const originalError = console.error;
+	console.error = (...args: unknown[]) => {
+		originalError.apply(console, args);
+		const msg = args.map((a) => (a instanceof Error ? `${a.message}\n${a.stack}` : String(a))).join(" ");
+		log("error", "frontend:console", msg);
+	};
+
+	// Intercept console.warn
+	const originalWarn = console.warn;
+	console.warn = (...args: unknown[]) => {
+		originalWarn.apply(console, args);
+		const msg = args.map((a) => String(a)).join(" ");
+		log("warn", "frontend:console", msg);
+	};
+}
+
+/**
  * Send a log message to the Rust backend via IPC.
- * Before IPC is ready, buffers in memory and writes to console.
+ * Before IPC is ready, buffers in memory AND writes to console.
  * After IPC is ready, sends directly to Rust tracing.
  */
 export function log(level: LogLevel, target: string, message: string): void {
 	const timestamp = new Date().toISOString();
 
 	// Always write to console so devtools captures it
-	const _consoleFn = level === "trace" ? "debug" : level;
+	const consoleFn = level === "error" ? "error" : level === "warn" ? "warn" : level === "debug" || level === "trace" ? "debug" : "log";
+	// Use original console to avoid infinite loop from intercepted console.error/warn
+	if (target !== "frontend:console") {
+		Function.prototype.apply.call(
+			console[consoleFn as keyof Console],
+			console,
+			[`[${target}] ${message}`],
+		);
+	}
 
 	if (ipcReady) {
-		invoke("log", { level, target, message }).catch((e) =>
-			console.warn("[logger] IPC log failed:", e),
-		);
+		invoke("log", { level, target, message }).catch(() => {
+			// Silent — if IPC fails, console already has it
+		});
 	} else {
 		buffer.push({ level, target, message, timestamp });
 	}

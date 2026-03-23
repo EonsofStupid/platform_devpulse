@@ -10,7 +10,7 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { SvelteSet } from "svelte/reactivity";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type ToggleGroupSize = "sm" | "md" | "lg";
@@ -27,7 +27,7 @@ export interface ToggleGroupItem {
 export interface ToggleGroupComponentProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
 		BaseProps,
-		ColdLightProps {
+		ComponentProps {
 	children?: Snippet;
 	/** Toggle items to render */
 	items?: ToggleGroupItem[];

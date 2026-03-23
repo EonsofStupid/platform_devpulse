@@ -107,23 +107,6 @@ impl Workspace {
         Ok(status)
     }
 
-    /// Run a tool in a specific directory. Blocks, errors on non-zero.
-    pub fn exec_in(&self, dir: &Path, program: &str, args: &[&str]) -> Result<ExitStatus> {
-        let status = self
-            .cmd(program)?
-            .args(args)
-            .current_dir(dir)
-            .status()
-            .with_context(|| {
-                format!("failed to start `{program}` in {}", dir.display())
-            })?;
-
-        if !status.success() {
-            let code = status.code().unwrap_or(-1);
-            anyhow::bail!("`{program}` exited with code {code}");
-        }
-        Ok(status)
-    }
 
     /// Spawn a tool in a directory WITHOUT blocking. Returns the `Child`.
     ///
@@ -297,6 +280,10 @@ impl BuildConfig {
     /// declared in `[build.deps.*.env]`, and sets extras.
     /// Logs every env var set so the user sees exactly what's happening.
     pub fn apply_env(&self, workspace_root: &std::path::Path) {
+        // Log toolchain SSOT so the developer sees exactly what target is configured
+        println!("  [toolchain] target = {} (from [build.toolchain])", self.toolchain.target);
+        println!("  [toolchain] msvc_crt = {} (from [build.toolchain])", self.toolchain.msvc_crt);
+
         let deps = [
             ("nasm", &self.deps.nasm),
             ("python", &self.deps.python),
@@ -319,6 +306,9 @@ impl BuildConfig {
                     println!("  [env] {key} = {value} (from [build.deps.{name}].extras)");
                 }
 
+                if let Some(ver) = &dep.version {
+                    println!("  [dep] {name}: expected version = {ver}");
+                }
                 if let Some(build_strategy) = &dep.build {
                     println!("  [build] {name}: strategy = {build_strategy}");
                 }

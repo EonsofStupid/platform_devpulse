@@ -12,7 +12,6 @@
 -->
 <script lang="ts">
 import { createSkipLink } from "$lib/design/api/dsadapters/coldlight/_internal/skip-link/index.js";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import SkipLinkRoot from "$lib/design/primitives/skip-link/SkipLink.svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import { skipLinkRecipe } from "./recipe.js";
@@ -24,20 +23,7 @@ let {
 	label = "Skip to main content",
 	children,
 	class: className,
-	// ColdLight 8-axis props
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	size,
-	// Rest spread
 	...rest
 }: SkipLinkComponentProps = $props();
 
@@ -47,26 +33,11 @@ const builder = createSkipLink({
 });
 
 // Resolve ColdLight visual
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	size,
-}));
-
 // Compose: structural recipe + ColdLight visual + user classes
-const classes = $derived(cn(skipLinkRecipe(), visual.segments, visual.radius, className));
+const classes = $derived(cn(skipLinkRecipe(), className));
 </script>
 
-<SkipLinkRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>
+<SkipLinkRoot {...builder.root} {...rest} class={classes}>
 	{#if children}
 		{@render children()}
 	{:else}

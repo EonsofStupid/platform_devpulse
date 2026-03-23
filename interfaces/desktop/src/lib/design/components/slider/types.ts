@@ -11,13 +11,13 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export interface SliderProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
 		BaseProps,
-		ColdLightProps {
+		ComponentProps {
 	children?: Snippet;
 	/** Minimum value. @default 0 */
 	min?: number;

@@ -1,0 +1,21 @@
+{
+  "kind": "notification-center",
+  "label": "Notification Center",
+  "category": "feedback",
+  "description": "Aggregated notification panel displaying a scrollable list of alerts and messages",
+  "aria": null,
+  "container": true,
+  "containerSlots": ["root"],
+  "compound": true,
+  "blockCategory": "feedback",
+  "requiredAxes": ["backgroundColor", "border", "borderRadius", "shadow", "color", "typography"],
+  "defaultStyleId": "notification-center-default",
+  "styleIds": ["notification-center-default"],
+  "slots": {
+    "root": "all",
+    "header": "none",
+    "list": "none",
+    "item": "none",
+    "empty": "none"
+  }
+}

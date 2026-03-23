@@ -11,8 +11,6 @@
 -->
 <script lang="ts">
 import { useDialog } from "$lib/design/primitives/dialog/use-dialog.svelte.js";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { getRecipe } from "$lib/design/recipes/index.js";
 import { setDialogContext } from "./context.js";
 import type { DialogRootProps } from "./types.js";
 
@@ -27,17 +25,6 @@ let {
 	preventScroll = true,
 	dir = "ltr",
 	onExitComplete,
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	children,
 }: DialogRootProps = $props();
 
@@ -49,27 +36,10 @@ const hook = useDialog({
 	onOpenChange: (v) => onOpenChange?.({ open: v }),
 });
 
-const recipe = getRecipe("dialog.glass.void");
-// biome-ignore lint/suspicious/noExplicitAny: recipe classes accept resolved props
 const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
-
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius: radius ?? "lg",
-}));
 
 setDialogContext({
 	get hook() { return hook; },
-	get classes() { return recipeClasses; },
 	get ids() { return ids ?? {}; },
 	get dir() { return dir; },
 	get size() { return size; },

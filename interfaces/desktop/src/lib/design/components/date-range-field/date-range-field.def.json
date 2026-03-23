@@ -1,0 +1,21 @@
+{
+  "kind": "date-range-field",
+  "label": "Date Range Field",
+  "category": "interactive",
+  "description": "Paired segmented date inputs for entering a start and end date range",
+  "aria": null,
+  "container": false,
+  "containerSlots": [],
+  "compound": true,
+  "blockCategory": "form",
+  "requiredAxes": ["backgroundColor", "border", "borderRadius", "typography", "color"],
+  "defaultStyleId": "date-range-field-default",
+  "styleIds": ["date-range-field-default"],
+  "slots": {
+    "root": "all",
+    "startField": "none",
+    "endField": "none",
+    "separator": "none",
+    "label": "none"
+  }
+}

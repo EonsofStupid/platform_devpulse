@@ -12,7 +12,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
 // =============================================================================
 // SHARED
@@ -37,7 +37,7 @@ export interface DialogIds {
 // ROOT
 // =============================================================================
 
-export interface DialogRootProps extends Omit<PreparedComponentProps, "size"> {
+export interface DialogRootProps extends ComponentProps {
 	ids?: Partial<DialogIds>;
 	open?: boolean;
 	defaultOpen?: boolean;

@@ -10,7 +10,6 @@
 -->
 <script lang="ts">
 import { createSliderTransport } from "$lib/design/api/dsadapters/meltui/_internal/slider/index.js";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setSliderContext } from "./context.js";
 import { sliderRecipe } from "./recipe.js";
@@ -26,20 +25,7 @@ let {
 	disabled = false,
 	children,
 	class: className,
-	// ColdLight 8-axis props
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	size,
-	// Rest spread
 	...rest
 }: SliderProps = $props();
 
@@ -65,31 +51,15 @@ const transport = createSliderTransport({
 
 setSliderContext(transport);
 
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	size,
-}));
-
 const recipe = sliderRecipe();
 </script>
 
 <div
 	{...transport.slots.root}
-	class={cn(recipe.root, visual.segments, visual.radius, className)}
+	class={cn(recipe.root, className)}
 	data-kind="slider"
 	data-slot="root"
 	data-orientation={orientation}
-	data-encoding={visual.encoding || undefined}
 	{...rest}
 >
 	{@render children?.()}

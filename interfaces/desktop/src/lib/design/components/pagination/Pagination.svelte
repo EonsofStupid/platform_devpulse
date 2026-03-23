@@ -9,7 +9,6 @@
 	Reference: WAI-ARIA APG Navigation Landmark
 -->
 <script lang="ts">
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import { cn } from "$lib/design/utils/cn.js";
 import {
 	paginationEllipsisRecipe,
@@ -29,19 +28,6 @@ let {
 	size = "md",
 	children,
 	class: className,
-	// ColdLight 8-axis props
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	// Rest spread
 	...rest
 }: PaginationComponentProps = $props();
 
@@ -53,8 +39,7 @@ function getPageRange(
 	current: number,
 	total: number,
 	sibs: number,
-	bounds: number,
-): (number | "ellipsis")[] {
+	bounds: number): (number | "ellipsis")[] {
 	const totalNumbers = sibs * 2 + 1 + bounds * 2;
 	if (totalNumbers >= total) {
 		return Array.from({ length: total }, (_, i) => i + 1);
@@ -99,23 +84,8 @@ const isFirstPage = $derived(page <= 1);
 const isLastPage = $derived(page >= totalPages);
 
 // Resolve ColdLight visual
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	size,
-}));
-
 // Compose: structural recipe + ColdLight visual + user classes
-const rootClasses = $derived(cn(paginationRootRecipe(), visual.segments, visual.radius, className));
+const rootClasses = $derived(cn(paginationRootRecipe(), className));
 </script>
 
 <nav
@@ -124,7 +94,6 @@ const rootClasses = $derived(cn(paginationRootRecipe(), visual.segments, visual.
 	aria-label="Pagination"
 	data-kind="pagination"
 	data-slot="root"
-	data-encoding={visual.encoding || undefined}
 >
 	<button
 		class={paginationNavRecipe({ size })}

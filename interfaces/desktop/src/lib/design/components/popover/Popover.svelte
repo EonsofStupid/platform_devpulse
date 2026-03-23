@@ -15,7 +15,6 @@
 -->
 <script lang="ts">
 import { createPopoverTransport } from "$lib/design/api/dsadapters/meltui/_internal/popover/index.js";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setPopoverContext } from "./context.js";
 import type { PopoverProps } from "./types.js";
@@ -29,18 +28,6 @@ let {
 	closeOnOutsideClick = true,
 	children,
 	class: className,
-	// ColdLight 8-axis props
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	size,
 }: PopoverProps = $props();
 
@@ -66,27 +53,12 @@ const transport = createPopoverTransport({
 
 setPopoverContext(transport);
 
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	size,
-}));
 </script>
 
 <div
-	class={cn(visual.segments, visual.radius, className)}
+	class={cn( className)}
 	data-kind="popover"
 	data-slot="root"
-	data-encoding={visual.encoding || undefined}
 >
 	{@render children?.()}
 </div>

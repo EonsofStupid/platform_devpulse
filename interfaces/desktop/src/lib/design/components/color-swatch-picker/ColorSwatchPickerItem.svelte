@@ -51,8 +51,7 @@ function handleKeyDown(e: KeyboardEvent) {
 	class={cn(
 		ctx.classes.item,
 		selected ? ctx.classes.itemSelected : undefined,
-		className,
-	)}
+		className)}
 	onclick={handleClick}
 	onkeydown={handleKeyDown}
 	{...rest}

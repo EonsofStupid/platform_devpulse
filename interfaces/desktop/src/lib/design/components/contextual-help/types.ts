@@ -12,7 +12,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
 export type ContextualHelpVariant = "info" | "help";
 export type ContextualHelpSize = "xs" | "sm";
@@ -35,7 +35,7 @@ export interface ContextualHelpOpenChangeDetails {
 
 export interface ContextualHelpRootProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		Omit<PreparedComponentProps, "size"> {
+		ComponentProps {
 	ids?: Partial<ContextualHelpIds>;
 	/** Info icon or help question mark. Default: "help". */
 	variant?: ContextualHelpVariant;

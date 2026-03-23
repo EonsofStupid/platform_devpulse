@@ -21,8 +21,7 @@ const headingText = $derived(
 	ctx.currentMonth.toLocaleDateString(ctx.locale, {
 		month: "long",
 		year: "numeric",
-	}),
-);
+	}));
 </script>
 
 <div

@@ -11,7 +11,6 @@
 -->
 <script lang="ts">
 import { createInputGroup } from "$lib/design/api/dsadapters/coldlight/_internal/input-group/index.js";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import InputGroupRoot from "$lib/design/primitives/input-group/InputGroup.svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import {
@@ -29,19 +28,6 @@ let {
 	suffix,
 	children,
 	class: className,
-	// ColdLight 8-axis props
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	// Rest spread
 	...rest
 }: InputGroupComponentProps = $props();
 
@@ -56,30 +42,14 @@ const builder = createInputGroup({
 });
 
 // Resolve ColdLight visual props
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	size,
-}));
-
 const rootClasses = $derived(
-	cn(inputGroupRecipe({ size }), visual.segments, visual.radius, className),
-);
+	cn(inputGroupRecipe({ size }), className));
 const prefixClasses = $derived(cn(inputGroupPrefixRecipe({ size })));
 const inputClasses = $derived(cn(inputGroupInputRecipe()));
 const suffixClasses = $derived(cn(inputGroupSuffixRecipe({ size })));
 </script>
 
-<InputGroupRoot {...builder.root} {...rest} class={rootClasses} data-encoding={visual.encoding || undefined}>
+<InputGroupRoot {...builder.root} {...rest} class={rootClasses}>
 	{#if prefix}
 		<div {...builder.prefix} class={prefixClasses}>
 			{@render prefix()}

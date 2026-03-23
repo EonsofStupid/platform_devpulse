@@ -11,9 +11,7 @@
 -->
 <script lang="ts">
 import { ColdLightTabs } from "$lib/design/api/dsadapters/coldlight/_internal/tabs/tabs.svelte.js";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { getRecipe } from "$lib/design/recipes/index.js";
 import { setTabsContext } from "./context.js";
 import type { TabsProps } from "./types.js";
 
@@ -25,18 +23,6 @@ let {
 	loop = true,
 	children,
 	class: className,
-	// ColdLight 8-axis props
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	size,
 	...rest
 }: TabsProps = $props();
@@ -51,32 +37,13 @@ const tabs = new ColdLightTabs({
 
 setTabsContext(tabs);
 
-const recipe = getRecipe("tabs.glass.void");
-// biome-ignore lint/suspicious/noExplicitAny: recipe classes accept any state
-const rootClass = recipe?.classes?.({} as any)?.root ?? "";
-
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	size,
-}));
 </script>
 
 <div
 	{...tabs.root}
-	class={cn(rootClass, visual.segments, visual.radius, className)}
+	class={cn(rootClass, className)}
 	data-kind="tabs"
 	data-slot="root"
-	data-encoding={visual.encoding || undefined}
 	{...rest}
 >
 	{@render children?.()}

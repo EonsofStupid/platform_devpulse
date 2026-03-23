@@ -7,7 +7,6 @@
 -->
 <script lang="ts">
 import { createCheckbox } from "$lib/design/primitives/checkbox/index.js";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import CheckboxRoot from "$lib/design/primitives/checkbox/Checkbox.svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import { checkboxRecipe } from "./recipe.js";
@@ -20,17 +19,6 @@ let {
 	indeterminate = false,
 	disabled = false,
 	onCheckedChange,
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	children,
 	class: className,
 	...rest
@@ -44,25 +32,10 @@ const builder = createCheckbox({
 	onCheckedChange: (v: any) => onCheckedChange?.(v),
 });
 
-const visual = useColdLight(() => ({
-	preset: preset ?? "input-default",
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius: radius ?? "sm",
-}));
-
 const classes = $derived(
-	cn(checkboxRecipe({ intent, size }), visual.segments, visual.radius, className),
-);
+	cn(checkboxRecipe({ intent, size }), className));
 </script>
 
-<CheckboxRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>
+<CheckboxRoot {...builder.root} {...rest} class={classes}>
 	{@render children?.()}
 </CheckboxRoot>

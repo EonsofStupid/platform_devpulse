@@ -7,7 +7,6 @@
 -->
 <script lang="ts">
 import { createScrollArea } from "$lib/design/api/dsadapters/coldlight/_internal/scroll-area/index.js";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import ScrollAreaRoot from "$lib/design/primitives/scroll-area/ScrollArea.svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import {
@@ -24,18 +23,6 @@ let {
 	label,
 	children,
 	class: className,
-	// ColdLight 8-axis props
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	...rest
 }: ScrollAreaComponentProps = $props();
 
@@ -48,30 +35,14 @@ const builder = createScrollArea({
 	},
 });
 
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	size,
-}));
-
 const rootClasses = $derived(
-	cn(scrollAreaRecipe({ size }), visual.segments, visual.radius, className),
-);
+	cn(scrollAreaRecipe({ size }), className));
 const viewportClasses = $derived(cn(scrollAreaViewportRecipe()));
 const scrollbarClasses = $derived(cn(scrollAreaScrollbarRecipe({ size, orientation })));
 const thumbClasses = $derived(cn(scrollAreaThumbRecipe()));
 </script>
 
-<ScrollAreaRoot {...builder.root} {...rest} class={rootClasses} data-encoding={visual.encoding || undefined}>
+<ScrollAreaRoot {...builder.root} {...rest} class={rootClasses}>
 	<div {...builder.viewport} class={viewportClasses} data-kind="scroll-area" data-slot="viewport">
 		{@render children?.()}
 	</div>

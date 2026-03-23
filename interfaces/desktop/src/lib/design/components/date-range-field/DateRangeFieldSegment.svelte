@@ -27,8 +27,7 @@ const recipe = $derived(dateRangeFieldRecipe({ size: ctx.size }));
 const isLiteral = $derived(segment.type === "literal");
 const isFocused = $derived(ctx.focusedField === field && ctx.focusedIndex === index);
 const displayValue = $derived(
-	segment.numericValue !== undefined ? segment.value : segment.placeholder,
-);
+	segment.numericValue !== undefined ? segment.value : segment.placeholder);
 
 function handleKeydown(e: KeyboardEvent) {
 	if (ctx.disabled || ctx.readonly || isLiteral) return;

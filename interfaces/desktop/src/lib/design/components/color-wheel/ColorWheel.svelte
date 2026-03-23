@@ -8,7 +8,6 @@
 	Auto-generated IDs. Form integration via hidden input.
 -->
 <script lang="ts">
-import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/_internal/utils/uid.js";
 import { setColorWheelContext } from "./context.js";
@@ -66,11 +65,8 @@ const drag = useWheelDrag({
 	},
 });
 
-const recipe = getRecipe("color-wheel.glass.void");
 const recipeClasses = $derived(
-	// biome-ignore lint/suspicious/noExplicitAny: recipe boundary
-	recipe?.classes?.({} as any) ?? {},
-);
+		recipe?.classes?.({} as any) ?? {});
 
 setColorWheelContext({
 	get hue() { return currentHue; },
@@ -78,7 +74,6 @@ setColorWheelContext({
 	get isDragging() { return drag.state.isDragging; },
 	get size() { return size; },
 	get dir() { return dir; },
-	get classes() { return recipeClasses; },
 	get ids() { return resolvedIds; },
 	trackAction: drag.trackAction,
 	thumbAction: drag.thumbAction,
@@ -94,7 +89,7 @@ setColorWheelContext({
 	data-kind="color-wheel"
 	data-slot="root"
 	data-dragging={drag.state.isDragging || undefined}
-	class={cn(recipeClasses.root, className)}
+	class={cn(className)}
 	style:width="{size}px"
 	style:height="{size}px"
 	{...rest}

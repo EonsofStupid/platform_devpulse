@@ -1,0 +1,19 @@
+{
+  "kind": "pin-input",
+  "label": "PIN Input",
+  "category": "interactive",
+  "description": "Segmented single-character input fields for entering verification codes or PINs",
+  "aria": null,
+  "container": false,
+  "containerSlots": [],
+  "compound": true,
+  "blockCategory": "form",
+  "requiredAxes": ["backgroundColor", "border", "borderRadius", "typography", "color"],
+  "defaultStyleId": "pin-input-default",
+  "styleIds": ["pin-input-default"],
+  "slots": {
+    "root": "all",
+    "cell": "none",
+    "label": "none"
+  }
+}

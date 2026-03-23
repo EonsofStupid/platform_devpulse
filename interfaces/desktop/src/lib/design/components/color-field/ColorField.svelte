@@ -8,8 +8,6 @@
 	$derived for reactive recipe classes and validation.
 -->
 <script lang="ts">
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/_internal/utils/uid.js";
 import { setColorFieldContext } from "./context.js";
@@ -35,17 +33,6 @@ let {
 	dir = "ltr",
 	form,
 	name,
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	children,
 	class: className,
 	...rest
@@ -97,11 +84,8 @@ function setValue(raw: string) {
 }
 
 // ── Recipe (reactive) ───────────────────────────────────────────
-const recipe = getRecipe("color-field.glass.void");
 const recipeClasses = $derived(
-	// biome-ignore lint/suspicious/noExplicitAny: recipe classes accept resolved props
-	recipe?.classes?.({} as any) ?? {},
-);
+		recipe?.classes?.({} as any) ?? {});
 
 // ── Context ─────────────────────────────────────────────────────
 setColorFieldContext({
@@ -115,7 +99,6 @@ setColorFieldContext({
 	get isInvalid() { return isInvalid; },
 	get validationError() { return validationError(); },
 	get dir() { return dir; },
-	get classes() { return recipeClasses; },
 	get placeholder() { return placeholder; },
 	get name() { return name; },
 	get form() { return form; },
@@ -128,23 +111,8 @@ setColorFieldContext({
 });
 
 // ── Visual ──────────────────────────────────────────────────────
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius: radius ?? "md",
-}));
-
 const rootClasses = $derived(
-	cn(recipeClasses.root, visual.segments, visual.radius, className),
-);
+	cn(className));
 </script>
 
 <div
@@ -155,7 +123,6 @@ const rootClasses = $derived(
 	data-invalid={isInvalid || undefined}
 	data-disabled={isDisabled || undefined}
 	data-readonly={isReadOnly || undefined}
-	data-encoding={visual.encoding || undefined}
 	class={rootClasses}
 	{...rest}
 >

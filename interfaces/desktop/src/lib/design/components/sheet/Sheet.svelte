@@ -7,7 +7,6 @@
 -->
 <script lang="ts">
 import { createSheet } from "$lib/design/api/dsadapters/coldlight/_internal/sheet/index.js";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { sheetOverlayRecipe, sheetRecipe } from "./recipe.js";
 import type { SheetComponentProps } from "./types.js";
@@ -23,35 +22,8 @@ let {
 	trigger,
 	children,
 	class: className,
-	// ColdLight 8-axis props
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	// Rest spread
 	...rest
 }: SheetComponentProps = $props();
-
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-}));
 
 const builder = createSheet({
 	get open() {
@@ -74,8 +46,7 @@ const builder = createSheet({
 });
 
 const contentClasses = $derived(
-	cn(sheetRecipe({ size, side }), visual.segments, visual.radius, className),
-);
+	cn(sheetRecipe({ size, side }), className));
 const overlayClasses = $derived(cn(sheetOverlayRecipe()));
 </script>
 
@@ -85,7 +56,7 @@ const overlayClasses = $derived(cn(sheetOverlayRecipe()));
 
 {#if builder.open}
 	<div {...builder.overlay} class={overlayClasses} data-kind="sheet" data-slot="overlay"></div>
-	<div {...builder.content} {...rest} class={contentClasses} data-kind="sheet" data-slot="content" data-encoding={visual.encoding || undefined}>
+	<div {...builder.content} {...rest} class={contentClasses} data-kind="sheet" data-slot="content">
 		{@render children?.()}
 		<button {...builder.close} class="absolute top-4 right-4 rounded-sm opacity-70 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus" data-kind="sheet" data-slot="close">
 			<span aria-hidden="true">&times;</span>

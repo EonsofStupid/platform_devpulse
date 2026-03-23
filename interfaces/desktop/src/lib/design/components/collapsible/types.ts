@@ -13,7 +13,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
 export interface CollapsibleOpenChangeDetails {
 	open: boolean;
@@ -27,7 +27,7 @@ export interface CollapsibleIds {
 
 export interface CollapsibleRootProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		PreparedComponentProps {
+		ComponentProps {
 	ids?: Partial<CollapsibleIds>;
 	/** Controlled open state. */
 	open?: boolean;

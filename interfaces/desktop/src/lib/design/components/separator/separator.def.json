@@ -1,0 +1,17 @@
+{
+  "kind": "separator",
+  "label": "Separator",
+  "category": "structural",
+  "description": "Horizontal or vertical divider line for visually separating content sections",
+  "aria": null,
+  "container": false,
+  "containerSlots": [],
+  "compound": false,
+  "blockCategory": "layout",
+  "requiredAxes": ["backgroundColor", "border"],
+  "defaultStyleId": "separator-default",
+  "styleIds": ["separator-default"],
+  "slots": {
+    "root": "all"
+  }
+}

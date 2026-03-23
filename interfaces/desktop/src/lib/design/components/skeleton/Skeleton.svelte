@@ -7,7 +7,6 @@
 -->
 <script lang="ts">
 import { createSkeleton } from "$lib/design/api/dsadapters/coldlight/_internal/skeleton/index.js";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import SkeletonRoot from "$lib/design/primitives/skeleton/Skeleton.svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import { skeletonRecipe } from "./recipe.js";
@@ -17,17 +16,6 @@ let {
 	variant = "text",
 	loading = true,
 	onLoadingChange,
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	class: className,
 	...rest
 }: SkeletonProps = $props();
@@ -38,23 +26,8 @@ const builder = createSkeleton({
 	onLoadingChange: (v: any) => onLoadingChange?.(v),
 });
 
-const visual = useColdLight(() => ({
-	preset: preset ?? "skeleton-default",
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-}));
-
 const classes = $derived(
-	cn(skeletonRecipe({ variant }), visual.segments, visual.radius, className),
-);
+	cn(skeletonRecipe({ variant }), className));
 </script>
 
-<SkeletonRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined} />
+<SkeletonRoot {...builder.root} {...rest} class={classes} />

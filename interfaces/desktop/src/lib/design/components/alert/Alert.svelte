@@ -7,8 +7,6 @@
 	NOT a dialog. Dismissible with controlled/uncontrolled open state.
 -->
 <script lang="ts">
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setAlertContext } from "./context.js";
 import type { AlertRootProps } from "./types.js";
@@ -22,17 +20,6 @@ let {
 	onOpenChange,
 	dismissible = false,
 	dir = "ltr",
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	children,
 	class: className,
 	...rest
@@ -46,33 +33,15 @@ function handleDismiss() {
 	onOpenChange?.({ open: false });
 }
 
-const recipe = getRecipe("alert.glass.void");
-// biome-ignore lint/suspicious/noExplicitAny: recipe classes accept resolved props
 const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
 
 setAlertContext({
-	get classes() { return recipeClasses; },
 	get ids() { return ids ?? {}; },
 	get dir() { return dir; },
 });
 
-const visual = useColdLight(() => ({
-	preset: preset ?? ALERT_VARIANT_PRESETS[variant as keyof typeof ALERT_VARIANT_PRESETS],
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius: radius ?? "lg",
-}));
-
 const rootClasses = $derived(
-	cn(recipeClasses.root, visual.segments, visual.radius, className),
-);
+	cn(className));
 </script>
 
 {#if isOpen}
@@ -84,7 +53,6 @@ const rootClasses = $derived(
 		data-kind="alert"
 		data-slot="root"
 		data-variant={variant}
-		data-encoding={visual.encoding || undefined}
 		class={rootClasses}
 		{...rest}
 	>
@@ -94,7 +62,7 @@ const rootClasses = $derived(
 				type="button"
 				data-kind="alert"
 				data-slot="dismiss"
-				class={cn(recipeClasses.dismiss, "shrink-0 cursor-pointer")}
+				class={cn("shrink-0 cursor-pointer")}
 				aria-label="Dismiss alert"
 				onclick={handleDismiss}
 			>

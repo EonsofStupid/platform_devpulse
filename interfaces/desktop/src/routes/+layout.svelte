@@ -9,12 +9,15 @@ import "$lib/design/recipes/components/index.js";
 import { onMount } from "svelte";
 import SvgFilters from "$lib/design/svg/filters/SvgFilters.svelte";
 import BootOverlay from "$lib/layouts/app/BootOverlay.svelte";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import { installGlobalHandlers, logError, logInfo } from "$lib/sys/logger.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 
 let { children } = $props();
 
 onMount(() => {
+	// Capture ALL frontend errors, warnings, promise rejections from the very start.
+	// Everything goes to the Rust tracing pipeline → session JSONL.
+	installGlobalHandlers();
 	logInfo("layout", "Root layout mounted");
 	// biome-ignore lint/suspicious/noExplicitAny: Tauri injects __TAURI_INTERNALS__ on window
 	logInfo("layout", `__TAURI_INTERNALS__: ${typeof (window as any).__TAURI_INTERNALS__}`);

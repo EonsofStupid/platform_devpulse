@@ -14,8 +14,6 @@
 	  - onCopy callback with details
 -->
 <script lang="ts">
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setCodeBlockContext } from "./context.js";
 import type { CodeBlockRootProps } from "./types.js";
@@ -29,24 +27,11 @@ let {
 	dir = "ltr",
 	disabled = false,
 	onCopy,
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	children,
 	class: className,
 	...rest
 }: CodeBlockRootProps = $props();
 
-const recipe = getRecipe("code.glass.void");
-// biome-ignore lint/suspicious/noExplicitAny: recipe classes accept resolved props
 const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
 
 function copyCode(value?: string) {
@@ -59,7 +44,6 @@ function copyCode(value?: string) {
 }
 
 setCodeBlockContext({
-	get classes() { return recipeClasses; },
 	get ids() { return ids ?? {}; },
 	get dir() { return dir; },
 	get language() { return language; },
@@ -69,29 +53,10 @@ setCodeBlockContext({
 	copyCode,
 });
 
-const visual = useColdLight(() => ({
-	preset: preset ?? "code-block",
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius: radius ?? "md",
-}));
-
 const rootClasses = $derived(
 	cn(
-		recipeClasses.root,
-		visual.segments,
-		visual.radius,
 		disabled ? "opacity-60" : undefined,
-		className,
-	),
-);
+		className));
 </script>
 
 <div
@@ -100,7 +65,6 @@ const rootClasses = $derived(
 	data-kind="code"
 	data-slot="root"
 	data-language={language || undefined}
-	data-encoding={visual.encoding || undefined}
 	class={rootClasses}
 	{...rest}
 >

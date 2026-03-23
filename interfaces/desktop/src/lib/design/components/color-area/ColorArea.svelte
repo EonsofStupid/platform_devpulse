@@ -9,8 +9,6 @@
 	Reactive recipe classes via $derived.
 -->
 <script lang="ts">
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { buildColorString, getChannelRange, percentToValue } from "./color-utils.js";
 import { setColorAreaContext } from "./context.js";
@@ -32,17 +30,6 @@ let {
 	form,
 	dir = "ltr",
 	step = 1,
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	children,
 	class: className,
 	...rest
@@ -77,11 +64,8 @@ const drag = useColorAreaDrag({
 const xValue = $derived(percentToValue(drag.state.xPercent, xRange));
 const yValue = $derived(percentToValue(drag.state.yPercent, yRange));
 
-const recipe = getRecipe("color-area.glass.void");
 const recipeClasses = $derived(
-	// biome-ignore lint/suspicious/noExplicitAny: recipe classes accept resolved props
-	recipe?.classes?.({} as any) ?? {},
-);
+		recipe?.classes?.({} as any) ?? {});
 
 setColorAreaContext({
 	get value() { return currentValue; },
@@ -92,35 +76,15 @@ setColorAreaContext({
 	get isDragging() { return drag.state.isDragging; },
 	get ids() { return ids ?? {}; },
 	get dir() { return dir; },
-	get classes() { return recipeClasses; },
 	get xPercent() { return drag.state.xPercent; },
 	get yPercent() { return drag.state.yPercent; },
 	thumbAction: drag.thumbAction,
 });
 
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius: radius ?? "md",
-}));
-
 const rootClasses = $derived(
 	cn(
-		recipeClasses.root,
-		visual.segments,
-		visual.radius,
 		isDisabled ? "pointer-events-none opacity-60" : undefined,
-		className,
-	),
-);
+		className));
 </script>
 
 <div
@@ -133,7 +97,6 @@ const rootClasses = $derived(
 	data-kind="color-area"
 	data-slot="root"
 	data-dragging={drag.state.isDragging || undefined}
-	data-encoding={visual.encoding || undefined}
 	class={rootClasses}
 	use:drag.action
 	{...rest}

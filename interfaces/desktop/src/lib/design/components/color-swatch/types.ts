@@ -10,7 +10,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { ColorValue } from "$lib/design/components/color-area/types.js";
 
 export type ColorSwatchSize = "xs" | "sm" | "md" | "lg";
@@ -18,7 +18,7 @@ export type ColorSwatchRounding = "default" | "none" | "full";
 
 export interface ColorSwatchProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir" | "role">,
-		Omit<PreparedComponentProps, "size" | "children"> {
+		ComponentProps {
 	/** Element ID. */
 	id?: string;
 	/** The color value to display. */

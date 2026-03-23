@@ -7,7 +7,6 @@
 -->
 <script lang="ts">
 import { createLabel } from "$lib/design/api/dsadapters/coldlight/_internal/label/index.js";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import LabelRoot from "$lib/design/primitives/label/Label.svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import { labelRecipe } from "./recipe.js";
@@ -18,17 +17,6 @@ let {
 	htmlFor,
 	disabled = false,
 	required = false,
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	children,
 	class: className,
 	...rest
@@ -39,24 +27,10 @@ const builder = createLabel({
 	disabled: () => disabled,
 });
 
-const visual = useColdLight(() => ({
-	preset: preset ?? "label-default",
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-}));
-
-const classes = $derived(cn(labelRecipe({ size }), visual.segments, visual.radius, className));
+const classes = $derived(cn(labelRecipe({ size }), className));
 </script>
 
-<LabelRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>
+<LabelRoot {...builder.root} {...rest} class={classes}>
 	{@render children?.()}
 	{#if required}<span aria-hidden="true">*</span>{/if}
 </LabelRoot>

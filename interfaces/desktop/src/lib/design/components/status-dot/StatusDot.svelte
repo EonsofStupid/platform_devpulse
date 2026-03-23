@@ -38,8 +38,7 @@ const styleId = $derived(`status-dot-${status}`);
 			`shadow-[0_0_var(--status-dot-root-glow-radius,0.375rem)_var(--status-dot-root-color-${status},currentColor)]`,
 			SIZE[size] ?? SIZE.md,
 			animate && "animate-pulse",
-			className,
-		)}
+			className)}
 		aria-hidden="true"
 	></span>
 </StyleMacro>

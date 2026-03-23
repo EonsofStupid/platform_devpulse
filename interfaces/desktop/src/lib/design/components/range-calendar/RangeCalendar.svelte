@@ -10,7 +10,6 @@
 	Reference: WAI-ARIA APG Grid Pattern
 -->
 <script lang="ts">
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { type RangeCalendarContext, setRangeCalendarContext } from "./context.js";
 import { rangeCalendarRecipe } from "./recipe.js";
@@ -29,19 +28,6 @@ let {
 	size = "md",
 	children,
 	class: className,
-	// ColdLight 8-axis props
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	// Rest spread
 	...rest
 }: RangeCalendarProps = $props();
 
@@ -160,32 +146,16 @@ const ctx: RangeCalendarContext = {
 
 setRangeCalendarContext(ctx);
 
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	size,
-}));
-
 const recipe = $derived(rangeCalendarRecipe({ size }));
 </script>
 
 <div
 	role="group"
 	aria-label="Range Calendar"
-	class={cn(recipe.root, visual.segments, visual.radius, className)}
+	class={cn(recipe.root, className)}
 	data-kind="range-calendar"
 	data-slot="root"
 	data-state={disabled ? "disabled" : undefined}
-	data-encoding={visual.encoding || undefined}
 	{...rest}
 >
 	{@render children?.()}

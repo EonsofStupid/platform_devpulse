@@ -1,0 +1,19 @@
+{
+  "kind": "toolbar",
+  "label": "Toolbar",
+  "category": "structural",
+  "description": "Horizontal grouping of action buttons and controls with keyboard arrow navigation",
+  "aria": "https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/",
+  "container": true,
+  "containerSlots": ["root"],
+  "compound": true,
+  "blockCategory": "layout",
+  "requiredAxes": ["backgroundColor", "border", "borderRadius"],
+  "defaultStyleId": "toolbar-default",
+  "styleIds": ["toolbar-default"],
+  "slots": {
+    "root": "all",
+    "group": "none",
+    "separator": "none"
+  }
+}

@@ -18,8 +18,6 @@
 -->
 <script lang="ts">
 import { slide } from "svelte/transition";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { BannerProps } from "./types.js";
 
@@ -55,24 +53,13 @@ function handleDismiss(e: MouseEvent) {
 	onOpenChange?.({ open: next });
 }
 
-const recipe = getRecipe("banner.glass.void");
-// biome-ignore lint/suspicious/noExplicitAny: recipe classes accept resolved props
 const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
-
-const visual = useColdLight(() => ({
-	preset: "banner-info",
-	radius: "none",
-}));
 
 const rootClasses = $derived(
 	cn(
-		recipeClasses.root,
 		POSITION_CLASSES[position] ?? POSITION_CLASSES.top,
-		visual.segments,
 		disabled ? "pointer-events-none opacity-60" : undefined,
-		className,
-	),
-);
+		className));
 </script>
 
 {#if isOpen}
@@ -81,14 +68,13 @@ const rootClasses = $derived(
 		data-kind="banner"
 		data-slot="root"
 		data-state={isOpen ? "open" : "closed"}
-		data-encoding={visual.encoding || undefined}
 		{dir}
 		class={rootClasses}
 		transition:slide={{ duration: 200 }}
 		onoutroend={onExitComplete}
 		{...rest}
 	>
-		<div class={cn("flex w-full items-center", recipeClasses.root ? "" : "gap-12")}>
+		<div class={cn("flex w-full items-center", ? "" : "gap-12")}>
 			<div class="flex min-w-0 flex-1 items-center gap-12">
 				{@render children?.()}
 			</div>
@@ -101,7 +87,7 @@ const rootClasses = $derived(
 						type="button"
 						data-kind="banner"
 						data-slot="dismiss"
-						class={cn(recipeClasses.dismiss, "shrink-0 cursor-pointer")}
+						class={cn("shrink-0 cursor-pointer")}
 						aria-label="Close banner"
 						{disabled}
 						onclick={handleDismiss}

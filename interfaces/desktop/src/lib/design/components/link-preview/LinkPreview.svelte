@@ -13,7 +13,6 @@
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/
 -->
 <script lang="ts">
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { LinkPreviewProps } from "./types.js";
 
@@ -24,42 +23,15 @@ let {
 	onOpenChange,
 	children,
 	class: className,
-	// ColdLight 8-axis props
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	size,
 }: LinkPreviewProps = $props();
 
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	size,
-}));
 </script>
 
 <div
-	class={cn(visual.segments, visual.radius, className)}
+	class={cn( className)}
 	data-kind="link-preview"
 	data-slot="root"
-	data-encoding={visual.encoding || undefined}
 >
 	{@render children?.()}
 </div>

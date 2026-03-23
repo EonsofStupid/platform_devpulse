@@ -10,8 +10,6 @@
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/grid/
 -->
 <script lang="ts">
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setCalendarContext } from "./context.js";
 import type { CalendarRootProps } from "./types.js";
@@ -35,17 +33,6 @@ let {
 	autoFocus = false,
 	locale = "en-US",
 	dir = "ltr",
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	children,
 	class: className,
 	...rest
@@ -74,10 +61,6 @@ function isDateDisabledFn(date: Date): boolean {
 	return false;
 }
 
-const recipe = getRecipe("calendar.glass.void");
-// biome-ignore lint/suspicious/noExplicitAny: recipe classes accept resolved props
-const recipeClasses = recipe?.classes?.({} as any) ?? {};
-
 setCalendarContext({
 	get currentMonth() { return currentMonth; },
 	get selectedDate() { return selectedDate; },
@@ -91,7 +74,6 @@ setCalendarContext({
 	get locale() { return locale; },
 	get dir() { return dir; },
 	get ids() { return ids ?? {}; },
-	get classes() { return recipeClasses; },
 	headingId,
 	get isDateUnavailable() { return isDateUnavailable; },
 	prevMonth() {
@@ -125,23 +107,8 @@ setCalendarContext({
 	},
 });
 
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-}));
-
 const rootClasses = $derived(
-	cn(recipeClasses.root, visual.segments, visual.radius, className),
-);
+	cn(className));
 </script>
 
 <div
@@ -153,7 +120,6 @@ const rootClasses = $derived(
 	data-kind="calendar"
 	data-slot="root"
 	data-state={isDisabled ? "disabled" : undefined}
-	data-encoding={visual.encoding || undefined}
 	class={rootClasses}
 	{...rest}
 >

@@ -11,7 +11,6 @@
 	ColdLight OWNS all ARIA. MeltUI transport handles toast lifecycle.
 -->
 <script lang="ts">
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ToasterComponentProps } from "./types.js";
 
@@ -21,41 +20,13 @@ let {
 	closeDelay = 5000,
 	children,
 	class: className,
-	// ColdLight 8-axis props
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	size,
-	// Rest spread
 	...rest
 }: ToasterComponentProps = $props();
 
 // Resolve ColdLight visual
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	size,
-}));
-
 // Compose: ColdLight visual + user classes
-const classes = $derived(cn(visual.segments, visual.radius, className));
+const classes = $derived(cn( className));
 </script>
 
 <div
@@ -64,7 +35,6 @@ const classes = $derived(cn(visual.segments, visual.radius, className));
 	data-kind="toaster"
 	data-slot="root"
 	data-position={position}
-	data-encoding={visual.encoding || undefined}
 	aria-label="Notifications"
 	role="region"
 >

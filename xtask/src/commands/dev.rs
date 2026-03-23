@@ -74,16 +74,23 @@ impl Task for Dev {
         };
 
         // ── Stage 3: Zombie cleanup ──
+        // Clean ALL platform ports — not just the dev server.
+        let graph_api_port = platform_config.services.network.graph_api.port;
         stage::section("Cleanup");
         let cleanup_start = Instant::now();
         zombie::cleanup(dev_port)?;
         log.stage_timed("zombie_cleanup", "OK", "stale processes cleaned", cleanup_start)?;
 
         // ── Stage 4: Port management ──
+        // Ensure ALL platform ports are free before launching anything.
         stage::section("Port Check");
         let port_start = Instant::now();
         net::ensure_port_free(dev_port)?;
-        log.stage_timed("port_check", "OK", &format!(":{} free", dev_port), port_start)?;
+        log.stage_timed("port_check", "OK", &format!(":{dev_port} free"), port_start)?;
+
+        let graph_port_start = Instant::now();
+        net::ensure_port_free(graph_api_port)?;
+        log.stage_timed("port_check", "OK", &format!(":{graph_api_port} free (SurrealDB HTTP)"), graph_port_start)?;
 
         // ── Stage 5: Pre-flight ──
         let preflight_start = Instant::now();

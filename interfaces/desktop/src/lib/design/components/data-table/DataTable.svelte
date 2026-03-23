@@ -13,7 +13,6 @@
 -->
 <script lang="ts">
 import { createDataTable } from "$lib/design/api/dsadapters/coldlight/_internal/data-table/index.js";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import DataTableRoot from "$lib/design/primitives/data-table/DataTable.svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import { dataTableRecipe } from "./recipe.js";
@@ -28,19 +27,6 @@ let {
 	colCount,
 	children,
 	class: className,
-	// ColdLight 8-axis props
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	// Rest spread
 	...rest
 }: DataTableComponentProps = $props();
 
@@ -57,27 +43,11 @@ const builder = createDataTable({
 });
 
 // Resolve ColdLight visual
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	size,
-}));
-
 // Compose: structural recipe + ColdLight visual + user classes
 const classes = $derived(
-	cn(dataTableRecipe({ size, variant }), visual.segments, visual.radius, className),
-);
+	cn(dataTableRecipe({ size, variant }), className));
 </script>
 
-<DataTableRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>
+<DataTableRoot {...builder.root} {...rest} class={classes}>
 	{@render children?.()}
 </DataTableRoot>

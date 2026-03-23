@@ -9,7 +9,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { ColorValue } from "$lib/design/components/color-area/types.js";
 
 export interface ColorWheelChangeDetails {
@@ -25,7 +25,7 @@ export interface ColorWheelIds {
 
 export interface ColorWheelRootProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		Omit<PreparedComponentProps, "size"> {
+		ComponentProps {
 	ids?: Partial<ColorWheelIds>;
 	/** Controlled color value. */
 	value?: ColorValue;

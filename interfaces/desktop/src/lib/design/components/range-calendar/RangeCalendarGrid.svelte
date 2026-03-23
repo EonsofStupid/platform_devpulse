@@ -21,8 +21,7 @@ const weekDayNames = $derived(
 	Array.from({ length: 7 }, (_, i) => {
 		const sunday = new Date(2024, 0, i - 1);
 		return sunday.toLocaleDateString(ctx.locale, { weekday: "short" });
-	}),
-);
+	}));
 
 function getCalendarDates(month: Date): Date[][] {
 	const year = month.getFullYear();

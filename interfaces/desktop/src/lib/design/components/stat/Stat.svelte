@@ -65,8 +65,7 @@ const sizeClasses = $derived(SIZE[size] ?? SIZE.md);
 					sizeClasses.value,
 					"tabular-nums",
 					"font-[family-name:var(--stat-root-value-font-family,var(--font-display))]",
-					"text-[var(--stat-root-value-color,var(--color-teal-400))]",
-				)}
+					"text-[var(--stat-root-value-color,var(--color-teal-400))]")}
 				style="text-shadow: 0 0 var(--stat-root-value-glow-radius, 0.75rem) var(--stat-root-value-glow-color, transparent);"
 			>
 				{value}{unit}

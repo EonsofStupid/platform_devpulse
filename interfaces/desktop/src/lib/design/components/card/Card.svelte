@@ -31,8 +31,7 @@ const rootClasses = $derived(cn(
 	"flex overflow-hidden",
 	orientation === "horizontal" ? "flex-row" : "flex-col",
 	disabled && "pointer-events-none opacity-60",
-	className,
-));
+	className));
 </script>
 
 <StyleMacro kind="card" style={styleId}>

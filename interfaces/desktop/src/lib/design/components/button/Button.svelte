@@ -45,8 +45,7 @@ const styleId = $derived(`button-${intent}`);
 			"focus-visible:outline-2 focus-visible:outline-offset-2",
 			"disabled:pointer-events-none disabled:opacity-50",
 			SIZE[size] ?? SIZE.md,
-			className,
-		)}
+			className)}
 	>
 		{@render children?.()}
 	</button>

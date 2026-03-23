@@ -9,7 +9,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
 export interface DateRangeValue {
 	start: Date | null;
@@ -45,7 +45,7 @@ export interface PresetTriggerValue {
 
 export interface DateRangePickerRootProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		Omit<PreparedComponentProps, "size"> {
+		ComponentProps {
 	ids?: Partial<DateRangePickerIds>;
 	value?: DateRangeValue | null;
 	defaultValue?: DateRangeValue | null;

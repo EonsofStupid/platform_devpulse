@@ -1,0 +1,20 @@
+{
+  "kind": "scroll-area",
+  "label": "Scroll Area",
+  "category": "structural",
+  "description": "Custom scrollable container with styled scrollbars and overflow management",
+  "aria": null,
+  "container": true,
+  "containerSlots": ["root"],
+  "compound": true,
+  "blockCategory": "layout",
+  "requiredAxes": ["backgroundColor", "borderRadius"],
+  "defaultStyleId": "scroll-area-default",
+  "styleIds": ["scroll-area-default"],
+  "slots": {
+    "root": "all",
+    "viewport": "none",
+    "scrollbar": "none",
+    "thumb": "none"
+  }
+}

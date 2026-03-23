@@ -7,7 +7,6 @@
 	No Shiki — just a styled code element.
 -->
 <script lang="ts">
-import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { InlineCodeProps } from "./types.js";
 
@@ -19,8 +18,6 @@ let {
 	...rest
 }: InlineCodeProps = $props();
 
-const recipe = getRecipe("code.glass.void");
-// biome-ignore lint/suspicious/noExplicitAny: recipe classes accept resolved props
 const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
 </script>
 
@@ -29,6 +26,6 @@ const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
 	{dir}
 	data-kind="code"
 	data-slot="inline"
-	class={cn(recipeClasses.inline, className)}
+	class={cn(className)}
 	{...rest}
 >{@render children?.()}</code>

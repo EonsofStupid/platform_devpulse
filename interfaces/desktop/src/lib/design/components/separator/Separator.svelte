@@ -7,7 +7,6 @@
 -->
 <script lang="ts">
 import { createSeparator } from "$lib/design/api/dsadapters/coldlight/_internal/separator/index.js";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import SeparatorRoot from "$lib/design/primitives/separator/Separator.svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import { separatorRecipe } from "./recipe.js";
@@ -17,17 +16,6 @@ let {
 	orientation = "horizontal",
 	decorative = false,
 	variant = "solid",
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	class: className,
 	...rest
 }: SeparatorProps = $props();
@@ -37,23 +25,8 @@ const builder = createSeparator({
 	decorative: () => decorative,
 });
 
-const visual = useColdLight(() => ({
-	preset: preset ?? "divider-default",
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius: radius ?? "none",
-}));
-
 const classes = $derived(
-	cn(separatorRecipe({ orientation, variant }), visual.segments, visual.radius, className),
-);
+	cn(separatorRecipe({ orientation, variant }), className));
 </script>
 
-<SeparatorRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined} />
+<SeparatorRoot {...builder.root} {...rest} class={classes} />

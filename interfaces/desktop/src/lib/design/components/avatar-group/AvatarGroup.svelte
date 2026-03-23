@@ -8,7 +8,6 @@
 	Shows +N overflow when maxVisible exceeded.
 -->
 <script lang="ts">
-import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/_internal/utils/uid.js";
 import { setAvatarGroupContext } from "./context.js";
@@ -43,7 +42,6 @@ setAvatarGroupContext({
 	get size() { return size; },
 });
 
-const recipe = getRecipe("avatar-group.glass.void");
 const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
 
 // Overlap is ~25% of avatar size
@@ -57,7 +55,7 @@ const overlapMargin = $derived(`-${Math.round(size * 0.25)}px`);
 	aria-label={label}
 	data-kind="avatar-group"
 	data-slot="root"
-	class={cn(recipeClasses.root, "flex items-center", className)}
+	class={cn("flex items-center", className)}
 	style:--avatar-group-overlap={overlapMargin}
 	{...rest}
 >
@@ -68,7 +66,7 @@ const overlapMargin = $derived(`-${Math.round(size * 0.25)}px`);
 			{@render overflow(overflowCount())}
 		{:else}
 			<span
-				class={cn(recipeClasses.overflow)}
+				class={cn()}
 				data-kind="avatar-group"
 				data-slot="overflow"
 				aria-hidden="true"

@@ -1,0 +1,19 @@
+{
+  "kind": "button",
+  "label": "Button",
+  "category": "interactive",
+  "description": "Clickable control that triggers an action or submits a form",
+  "aria": "https://www.w3.org/WAI/ARIA/apg/patterns/button/",
+  "container": false,
+  "containerSlots": [],
+  "compound": false,
+  "blockCategory": "form",
+  "requiredAxes": ["backgroundColor", "color", "borderRadius", "border", "shadow", "typography"],
+  "defaultStyleId": "button-default",
+  "styleIds": ["button-default", "button-primary", "button-secondary", "button-ghost", "button-destructive", "button-outline"],
+  "slots": {
+    "root": "all",
+    "icon": "none",
+    "label": "none"
+  }
+}

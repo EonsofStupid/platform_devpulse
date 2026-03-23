@@ -1,0 +1,22 @@
+{
+  "kind": "tree",
+  "label": "Tree",
+  "category": "composite",
+  "description": "Hierarchical list with expandable nodes for browsing nested data structures",
+  "aria": "https://www.w3.org/WAI/ARIA/apg/patterns/treeview/",
+  "container": true,
+  "containerSlots": ["root"],
+  "compound": true,
+  "blockCategory": "data",
+  "requiredAxes": ["border", "color", "typography"],
+  "defaultStyleId": "tree-default",
+  "styleIds": ["tree-default"],
+  "slots": {
+    "root": "all",
+    "item": "none",
+    "itemIcon": "none",
+    "itemContent": "none",
+    "group": "none",
+    "indicator": "none"
+  }
+}

@@ -7,8 +7,6 @@
 	Spectrum-aligned: controlled/uncontrolled, validation, form, label.
 -->
 <script lang="ts">
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/_internal/utils/uid.js";
 import { setDateFieldContext } from "./context.js";
@@ -35,7 +33,6 @@ let {
 	name,
 	form,
 	dir = "ltr",
-	preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius,
 	children,
 	class: className,
 	...rest
@@ -104,13 +101,11 @@ function rebuildDate(segType: string, newVal: number): Date {
 		segType === "day" ? newVal : base.getDate(),
 		segType === "hour" ? newVal : base.getHours(),
 		segType === "minute" ? newVal : base.getMinutes(),
-		segType === "second" ? newVal : base.getSeconds(),
-	);
+		segType === "second" ? newVal : base.getSeconds());
 }
 
 function emitChange(date: Date) { internalValue = date; onChange?.({ value: date }); }
 
-const recipe = getRecipe("date-field.glass.void");
 const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
 
 setDateFieldContext({
@@ -124,7 +119,6 @@ setDateFieldContext({
 	get locale() { return locale; },
 	get size() { return size; },
 	get dir() { return dir; },
-	get classes() { return recipeClasses; },
 	get ids() { return resolvedIds; },
 	get focusedIndex() { return focusedIndex; },
 	focusSegment(i) { focusedIndex = i; },
@@ -135,8 +129,7 @@ setDateFieldContext({
 	focusPrevSegment() { focusedIndex = Math.max(focusedIndex - 1, 0); },
 });
 
-const visual = useColdLight(() => ({ preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius }));
-const rootClasses = $derived(cn(recipeClasses.root, visual.segments, visual.radius, className));
+const rootClasses = $derived(cn(className));
 </script>
 
 <div
@@ -149,12 +142,11 @@ const rootClasses = $derived(cn(recipeClasses.root, visual.segments, visual.radi
 	data-kind="date-field"
 	data-slot="root"
 	data-state={isDisabled ? "disabled" : isReadOnly ? "readonly" : isInvalid ? "invalid" : undefined}
-	data-encoding={visual.encoding || undefined}
 	class={rootClasses}
 	{...rest}
 >
 	{#if label}
-		<label id={resolvedIds.label} class={recipeClasses.label} data-kind="date-field" data-slot="label">
+		<label id={resolvedIds.label} class={} data-kind="date-field" data-slot="label">
 			{label}{#if isRequired}<span aria-hidden="true" class="text-[var(--color-red-400)] ms-2">*</span>{/if}
 		</label>
 	{/if}
@@ -162,11 +154,11 @@ const rootClasses = $derived(cn(recipeClasses.root, visual.segments, visual.radi
 	{@render children?.()}
 
 	{#if description}
-		<p id={resolvedIds.description} class={recipeClasses.description} data-kind="date-field" data-slot="description">{description}</p>
+		<p id={resolvedIds.description} class={} data-kind="date-field" data-slot="description">{description}</p>
 	{/if}
 
 	{#if isInvalid && (errorMessage || validationError())}
-		<p id={resolvedIds.errorMessage} role="alert" class={recipeClasses.errorMessage} data-kind="date-field" data-slot="error-message">
+		<p id={resolvedIds.errorMessage} role="alert" class={} data-kind="date-field" data-slot="error-message">
 			{errorMessage ?? validationError()}
 		</p>
 	{/if}

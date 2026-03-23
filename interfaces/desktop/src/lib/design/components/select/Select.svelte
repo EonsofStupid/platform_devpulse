@@ -14,7 +14,6 @@
 -->
 <script lang="ts">
 import { createSelectTransport } from "$lib/design/api/dsadapters/meltui/_internal/select/index.js";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setSelectContext } from "./context.js";
 import type { SelectProps } from "./types.js";
@@ -27,18 +26,6 @@ let {
 	placeholder,
 	children,
 	class: className,
-	// ColdLight 8-axis props
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	size,
 	...rest
 }: SelectProps = $props();
@@ -58,27 +45,12 @@ const transport = createSelectTransport({
 
 setSelectContext(transport);
 
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	size,
-}));
 </script>
 
 <div
 	data-kind="select"
 	data-slot="root"
-	class={cn(visual.segments, visual.radius, className)}
-	data-encoding={visual.encoding || undefined}
+	class={cn( className)}
 	{...rest}
 >
 	{@render children?.()}

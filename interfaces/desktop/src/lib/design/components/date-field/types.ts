@@ -10,7 +10,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
 export type DateFieldSize = "sm" | "md" | "lg" | "xl";
 export type DateFieldGranularity = "day" | "month" | "year" | "hour" | "minute" | "second";
@@ -37,7 +37,7 @@ export interface DateFieldIds {
 
 export interface DateFieldRootProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		Omit<PreparedComponentProps, "size"> {
+		ComponentProps {
 	ids?: Partial<DateFieldIds>;
 	/** Controlled value. */
 	value?: Date | null;

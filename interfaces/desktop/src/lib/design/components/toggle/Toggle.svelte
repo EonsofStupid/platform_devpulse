@@ -7,7 +7,6 @@
 -->
 <script lang="ts">
 import { createToggleTransport } from "$lib/design/api/dsadapters/meltui/_internal/toggle/index.js";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { toggleRecipe } from "./recipe.js";
 import type { ToggleProps } from "./types.js";
@@ -17,17 +16,6 @@ let {
 	pressed = false,
 	onPressedChange,
 	disabled = false,
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	children,
 	class: className,
 	...rest
@@ -48,21 +36,7 @@ $effect(() => {
 	}
 });
 
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-}));
-
-const classes = $derived(cn(toggleRecipe({ size }), visual.segments, visual.radius, className));
+const classes = $derived(cn(toggleRecipe({ size }), className));
 </script>
 
 <button
@@ -72,7 +46,6 @@ const classes = $derived(cn(toggleRecipe({ size }), visual.segments, visual.radi
 	data-kind="toggle"
 	data-slot="root"
 	data-state={transport.states.pressed ? "on" : "off"}
-	data-encoding={visual.encoding || undefined}
 >
 	{@render children?.()}
 </button>

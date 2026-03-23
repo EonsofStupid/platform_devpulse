@@ -8,8 +8,6 @@
 	Sets context for sub-components.
 -->
 <script lang="ts">
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/_internal/utils/uid.js";
 import { setDatePickerContext } from "./context.js";
@@ -43,7 +41,6 @@ let {
 	name,
 	form,
 	dir = "ltr",
-	preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius,
 	children,
 	class: className,
 	...rest
@@ -111,7 +108,6 @@ function updateValue(date: Date | null) {
 }
 
 // Recipe
-const recipe = getRecipe("date-picker.glass.void");
 const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
 
 // Context
@@ -125,7 +121,6 @@ setDatePickerContext({
 	get locale() { return locale; },
 	get size() { return size; },
 	get dir() { return dir; },
-	get classes() { return recipeClasses; },
 	get ids() { return resolvedIds; },
 	get minValue() { return minValue; },
 	get maxValue() { return maxValue; },
@@ -134,11 +129,7 @@ setDatePickerContext({
 });
 
 // Visual
-const visual = useColdLight(() => ({
-	preset, surface, material, depth, bevel, glow, frame, motion, transition, encoding, radius,
-}));
-
-const rootClasses = $derived(cn(recipeClasses.root, visual.segments, visual.radius, className));
+const rootClasses = $derived(cn(className));
 </script>
 
 <div
@@ -151,12 +142,11 @@ const rootClasses = $derived(cn(recipeClasses.root, visual.segments, visual.radi
 	data-kind="date-picker"
 	data-slot="root"
 	data-state={isDisabled ? "disabled" : isInvalid ? "invalid" : undefined}
-	data-encoding={visual.encoding || undefined}
 	class={rootClasses}
 	{...rest}
 >
 	{#if label}
-		<label id={resolvedIds.label} for={resolvedIds.field} class={recipeClasses.label} data-kind="date-picker" data-slot="label">
+		<label id={resolvedIds.label} for={resolvedIds.field} class={} data-kind="date-picker" data-slot="label">
 			{label}{#if isRequired}<span aria-hidden="true" class="text-[var(--color-red-400)] ms-2">*</span>{/if}
 		</label>
 	{/if}
@@ -164,11 +154,11 @@ const rootClasses = $derived(cn(recipeClasses.root, visual.segments, visual.radi
 	{@render children?.()}
 
 	{#if description}
-		<p id={resolvedIds.description} class={recipeClasses.description} data-kind="date-picker" data-slot="description">{description}</p>
+		<p id={resolvedIds.description} class={} data-kind="date-picker" data-slot="description">{description}</p>
 	{/if}
 
 	{#if isInvalid && (errorMessage || validationError())}
-		<p id={resolvedIds.errorMessage} role="alert" class={recipeClasses.errorMessage} data-kind="date-picker" data-slot="error-message">
+		<p id={resolvedIds.errorMessage} role="alert" class={} data-kind="date-picker" data-slot="error-message">
 			{errorMessage ?? validationError()}
 		</p>
 	{/if}

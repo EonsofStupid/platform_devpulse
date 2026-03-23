@@ -12,7 +12,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes, HTMLInputAttributes } from "svelte/elements";
-import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { ColorChannel, ColorSpace, ColorValue } from "$lib/design/components/color-area/types.js";
 
 // =============================================================================
@@ -52,7 +52,7 @@ export type ColorFieldNecessityIndicator = "icon" | "label";
 
 export interface ColorFieldRootProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		Omit<PreparedComponentProps, "size"> {
+		ComponentProps {
 	ids?: Partial<ColorFieldIds>;
 	/** Size variant. Default: "md". */
 	size?: ColorFieldSize;

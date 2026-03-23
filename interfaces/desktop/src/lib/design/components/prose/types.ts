@@ -9,7 +9,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type ProseSize = "sm" | "base" | "lg";
@@ -18,7 +18,7 @@ export type ProseSize = "sm" | "base" | "lg";
 export interface ProseComponentProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
 		BaseProps,
-		Omit<ColdLightProps, "size"> {
+		ComponentProps {
 	children?: Snippet;
 	/** Prose size variant */
 	size?: ProseSize;

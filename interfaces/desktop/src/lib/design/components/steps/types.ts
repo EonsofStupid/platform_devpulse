@@ -9,7 +9,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type StepsSize = "sm" | "md" | "lg";
@@ -19,7 +19,7 @@ export type StepsOrientation = "horizontal" | "vertical";
 export interface StepsComponentProps
 	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children">,
 		BaseProps,
-		ColdLightProps {
+		ComponentProps {
 	children?: Snippet;
 	/** Size variant */
 	size?: StepsSize;

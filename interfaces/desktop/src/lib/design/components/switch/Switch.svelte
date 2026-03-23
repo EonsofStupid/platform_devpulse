@@ -7,7 +7,6 @@
 -->
 <script lang="ts">
 import { createSwitch } from "$lib/design/api/dsadapters/coldlight/_internal/switch/index.js";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import SwitchRoot from "$lib/design/primitives/switch/Switch.svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import { switchRecipe, switchThumbRecipe } from "./recipe.js";
@@ -18,17 +17,6 @@ let {
 	checked = false,
 	disabled = false,
 	onCheckedChange,
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	children,
 	class: className,
 	...rest
@@ -41,25 +29,11 @@ const builder = createSwitch({
 	onCheckedChange: (v: any) => onCheckedChange?.(v),
 });
 
-const visual = useColdLight(() => ({
-	preset: preset ?? "input-default",
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius: radius ?? "full",
-}));
-
-const classes = $derived(cn(switchRecipe({ size }), visual.segments, visual.radius, className));
+const classes = $derived(cn(switchRecipe({ size }), className));
 const thumbClasses = $derived(switchThumbRecipe({ size, checked }));
 </script>
 
-<SwitchRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>
+<SwitchRoot {...builder.root} {...rest} class={classes}>
 	<span {...builder.thumb} class={thumbClasses} data-slot="thumb"></span>
 	{@render children?.()}
 </SwitchRoot>

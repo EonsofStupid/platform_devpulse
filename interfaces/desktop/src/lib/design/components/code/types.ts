@@ -16,7 +16,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
 // =============================================================================
 // SHARED
@@ -49,7 +49,7 @@ export type CodeLanguage =
 /** Props for InlineCode — a simple <code> span. */
 export interface InlineCodeProps
 	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class" | "dir">,
-		PreparedComponentProps {
+		ComponentProps {
 	/** Element ID. */
 	id?: string;
 	/** Text/writing direction. */
@@ -78,7 +78,7 @@ export interface CodeBlockCopyDetails {
 /** Props for CodeBlock.Root — the outer container. */
 export interface CodeBlockRootProps
 	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class" | "dir">,
-		PreparedComponentProps {
+		ComponentProps {
 	/** Element IDs for composition. */
 	ids?: Partial<CodeBlockIds>;
 	/** Language hint — drives Shiki grammar + data attribute. */

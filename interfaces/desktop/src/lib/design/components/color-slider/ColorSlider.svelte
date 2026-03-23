@@ -8,8 +8,6 @@
 	Auto-generated IDs. Real channel values via color-utils.
 -->
 <script lang="ts">
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/_internal/utils/uid.js";
 import { getChannelRange, percentToValue, roundToStep } from "$lib/design/components/color-area/color-utils.js";
@@ -32,17 +30,6 @@ let {
 	form,
 	dir = "ltr",
 	step = 1,
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	children,
 	class: className,
 	...rest
@@ -94,11 +81,8 @@ const drag = useSliderDrag({
 const channelValue = $derived(roundToStep(percentToValue(drag.state.percent, range), range.step));
 
 // ── Recipe (reactive) ───────────────────────────────────────────
-const recipe = getRecipe("color-slider.glass.void");
 const recipeClasses = $derived(
-	// biome-ignore lint/suspicious/noExplicitAny: recipe classes accept resolved props
-	recipe?.classes?.({} as any) ?? {},
-);
+		recipe?.classes?.({} as any) ?? {});
 
 // ── Context ─────────────────────────────────────────────────────
 setColorSliderContext({
@@ -113,37 +97,17 @@ setColorSliderContext({
 	get channelMin() { return range.min; },
 	get channelMax() { return range.max; },
 	get dir() { return dir; },
-	get classes() { return recipeClasses; },
 	get ids() { return resolvedIds; },
 	trackAction: drag.trackAction,
 	thumbAction: drag.thumbAction,
 });
 
 // ── Visual ──────────────────────────────────────────────────────
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius: radius ?? "full",
-}));
-
 const rootClasses = $derived(
 	cn(
-		recipeClasses.root,
-		visual.segments,
-		visual.radius,
 		orientation === "vertical" ? "flex-col" : "flex-row",
 		isDisabled ? "pointer-events-none opacity-60" : undefined,
-		className,
-	),
-);
+		className));
 </script>
 
 <div
@@ -157,14 +121,13 @@ const rootClasses = $derived(
 	data-slot="root"
 	data-orientation={orientation}
 	data-dragging={drag.state.isDragging || undefined}
-	data-encoding={visual.encoding || undefined}
 	class={rootClasses}
 	{...rest}
 >
 	{#if label}
-		<label id={resolvedIds.label} for={resolvedIds.input} class={recipeClasses.label} data-kind="color-slider" data-slot="label">
+		<label id={resolvedIds.label} for={resolvedIds.input} class={} data-kind="color-slider" data-slot="label">
 			{label}
-			<span class={recipeClasses.valueDisplay}>{channelValue}</span>
+			<span class={}>{channelValue}</span>
 		</label>
 	{/if}
 

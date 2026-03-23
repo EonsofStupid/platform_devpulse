@@ -10,7 +10,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { ColorChannel, ColorSpace, ColorValue } from "$lib/design/components/color-area/types.js";
 
 // =============================================================================
@@ -37,7 +37,7 @@ export interface ColorSliderIds {
 
 export interface ColorSliderRootProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		PreparedComponentProps {
+		ComponentProps {
 	ids?: Partial<ColorSliderIds>;
 	/** Color channel this slider controls. Required. */
 	channel: ColorChannel;

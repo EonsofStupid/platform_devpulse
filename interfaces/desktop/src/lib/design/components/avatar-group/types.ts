@@ -10,7 +10,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
 export interface AvatarGroupIds {
 	root?: string;
@@ -18,7 +18,7 @@ export interface AvatarGroupIds {
 
 export interface AvatarGroupRootProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		Omit<PreparedComponentProps, "size"> {
+		ComponentProps {
 	ids?: Partial<AvatarGroupIds>;
 	/** Size in pixels passed to all child Avatars. Default: 24. */
 	size?: number;

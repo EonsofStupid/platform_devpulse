@@ -8,7 +8,6 @@
 	Compound: Heading, Content, Footer are children of the popover.
 -->
 <script lang="ts">
-import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/_internal/utils/uid.js";
 import { setContextualHelpContext } from "./context.js";
@@ -54,15 +53,11 @@ function toggle() {
 	onOpenChange?.({ open: next });
 }
 
-const recipe = getRecipe("contextual-help.glass.void");
 const recipeClasses = $derived(
-	// biome-ignore lint/suspicious/noExplicitAny: recipe boundary
-	recipe?.classes?.({} as any) ?? {},
-);
+		recipe?.classes?.({} as any) ?? {});
 
 setContextualHelpContext({
 	get isOpen() { return isOpen; },
-	get classes() { return recipeClasses; },
 	get ids() { return resolvedIds; },
 	get dir() { return dir; },
 	toggle,
@@ -80,7 +75,7 @@ const SIZE_CLASSES: Record<string, string> = {
 	data-kind="contextual-help"
 	data-slot="root"
 	data-variant={variant}
-	class={cn(recipeClasses.root, "relative inline-flex", className)}
+	class={cn("relative inline-flex", className)}
 	{...rest}
 >
 	<button
@@ -93,12 +88,10 @@ const SIZE_CLASSES: Record<string, string> = {
 		data-slot="trigger"
 		data-state={isOpen ? "open" : "closed"}
 		class={cn(
-			recipeClasses.trigger,
 			SIZE_CLASSES[size] ?? SIZE_CLASSES.xs,
 			"inline-flex items-center justify-center rounded-full",
 			"text-text-secondary hover:text-text-primary",
-			"transition-colors",
-		)}
+			"transition-colors")}
 		onclick={toggle}
 	>
 		{#if variant === "info"}
@@ -125,7 +118,7 @@ const SIZE_CLASSES: Record<string, string> = {
 			data-slot="popover"
 			data-state="open"
 			data-placement={placement}
-			class={cn(recipeClasses.popover)}
+			class={cn()}
 		>
 			{@render children?.()}
 		</div>

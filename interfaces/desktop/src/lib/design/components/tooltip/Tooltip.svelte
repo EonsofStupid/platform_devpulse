@@ -15,7 +15,6 @@
 -->
 <script lang="ts">
 import { createTooltipTransport } from "$lib/design/api/dsadapters/meltui/_internal/tooltip/index.js";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setTooltipContext } from "./context.js";
 import type { TooltipProps } from "./types.js";
@@ -30,18 +29,6 @@ let {
 	forceVisible = false,
 	children,
 	class: className,
-	// ColdLight 8-axis props
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	size,
 }: TooltipProps & { class?: string } = $props();
 
@@ -70,27 +57,12 @@ const transport = createTooltipTransport({
 
 setTooltipContext(transport);
 
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	size,
-}));
 </script>
 
 <div
-	class={cn(visual.segments, visual.radius, className)}
+	class={cn( className)}
 	data-kind="tooltip"
 	data-slot="root"
-	data-encoding={visual.encoding || undefined}
 >
 	{@render children?.()}
 </div>

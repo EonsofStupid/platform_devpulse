@@ -9,7 +9,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type ScrollAreaSize = "sm" | "md" | "lg";
@@ -19,7 +19,7 @@ export type ScrollAreaOrientation = "horizontal" | "vertical";
 export interface ScrollAreaComponentProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
 		BaseProps,
-		ColdLightProps {
+		ComponentProps {
 	children?: Snippet;
 	/** Size variant — controls scrollbar thumb size. @default "md" */
 	size?: ScrollAreaSize;

@@ -10,7 +10,6 @@
 	Reference: WAI-ARIA APG Spinbutton Pattern
 -->
 <script lang="ts">
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { type DateRangeFieldContext, setDateRangeFieldContext } from "./context.js";
 import { dateRangeFieldRecipe } from "./recipe.js";
@@ -27,19 +26,6 @@ let {
 	size = "md",
 	children,
 	class: className,
-	// ColdLight 8-axis props
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	// Rest spread
 	...rest
 }: DateRangeFieldProps = $props();
 
@@ -223,21 +209,6 @@ const ctx: DateRangeFieldContext = {
 
 setDateRangeFieldContext(ctx);
 
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	size,
-}));
-
 const recipe = $derived(dateRangeFieldRecipe({ size }));
 
 const rootState = $derived(disabled ? "disabled" : readonlyProp ? "readonly" : undefined);
@@ -245,11 +216,10 @@ const rootState = $derived(disabled ? "disabled" : readonlyProp ? "readonly" : u
 
 <div
 	role="group"
-	class={cn(recipe.root, visual.segments, visual.radius, className)}
+	class={cn(recipe.root, className)}
 	data-kind="date-range-field"
 	data-slot="root"
 	data-state={rootState}
-	data-encoding={visual.encoding || undefined}
 	{...rest}
 >
 	{@render children?.()}

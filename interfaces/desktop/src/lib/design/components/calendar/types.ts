@@ -15,7 +15,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
-import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
 // =============================================================================
 // SHARED
@@ -43,7 +43,7 @@ export interface CalendarIds {
 
 export interface CalendarRootProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		Omit<PreparedComponentProps, "size"> {
+		ComponentProps {
 	ids?: Partial<CalendarIds>;
 	/** Controlled selected date. */
 	value?: Date | null;

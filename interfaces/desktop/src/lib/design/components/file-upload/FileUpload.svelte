@@ -4,12 +4,11 @@
 	@layer components
 
 	ColdLight FileUpload — 8-axis visual system.
-	useColdLight() resolves visual props.
+	StyleMacro provides visual styling.
 
 	Provides a drop zone root with a hidden file input and trigger button.
 -->
 <script lang="ts">
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { FileUploadComponentProps } from "./types.js";
 
@@ -21,39 +20,11 @@ let {
 	onFilesChange,
 	children,
 	class: className,
-	// ColdLight 8-axis props
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	// Rest spread
 	...rest
 }: FileUploadComponentProps = $props();
 
 // Resolve ColdLight visual props
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	size,
-}));
-
-const classes = $derived(cn(visual.segments, visual.radius, className));
+const classes = $derived(cn( className));
 
 function handleChange(e: Event) {
 	const target = e.target as HTMLInputElement;
@@ -66,7 +37,6 @@ function handleChange(e: Event) {
 	class={classes}
 	data-kind="file-upload"
 	data-slot="root"
-	data-encoding={visual.encoding || undefined}
 	aria-disabled={disabled || undefined}
 >
 	{@render children?.()}

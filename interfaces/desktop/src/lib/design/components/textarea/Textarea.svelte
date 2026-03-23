@@ -7,7 +7,6 @@
 -->
 <script lang="ts">
 import { createTextarea } from "$lib/design/api/dsadapters/coldlight/_internal/textarea/index.js";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import TextareaRoot from "$lib/design/primitives/textarea/Textarea.svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import { textareaRecipe } from "./recipe.js";
@@ -21,17 +20,6 @@ let {
 	invalid = false,
 	rows,
 	onValueChange,
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	class: className,
 	...rest
 }: TextareaProps = $props();
@@ -46,21 +34,7 @@ const builder = createTextarea({
 	onValueChange: (v: any) => onValueChange?.(v),
 });
 
-const visual = useColdLight(() => ({
-	preset: preset ?? "textarea-default",
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius: radius ?? "md",
-}));
-
-const classes = $derived(cn(textareaRecipe({ size }), visual.segments, visual.radius, className));
+const classes = $derived(cn(textareaRecipe({ size }), className));
 </script>
 
-<TextareaRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined} />
+<TextareaRoot {...builder.root} {...rest} class={classes} />

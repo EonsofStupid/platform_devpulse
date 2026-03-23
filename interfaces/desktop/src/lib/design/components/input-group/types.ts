@@ -9,7 +9,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type InputGroupSize = "sm" | "md" | "lg";
@@ -18,7 +18,7 @@ export type InputGroupSize = "sm" | "md" | "lg";
 export interface InputGroupComponentProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "prefix" | "suffix">,
 		BaseProps,
-		ColdLightProps {
+		ComponentProps {
 	/** Main content slot (typically an input element) */
 	children?: Snippet;
 	/** Prefix addon content */

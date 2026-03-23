@@ -12,7 +12,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
 export type AlertDialogVariant = "confirmation" | "information" | "destructive" | "error" | "warning";
 export type AlertDialogSize = "sm" | "md" | "lg";
@@ -31,7 +31,7 @@ export interface AlertDialogIds {
 	action?: string;
 }
 
-export interface AlertDialogRootProps extends PreparedComponentProps {
+export interface AlertDialogRootProps extends ComponentProps {
 	ids?: Partial<AlertDialogIds>;
 	open?: boolean;
 	defaultOpen?: boolean;

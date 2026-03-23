@@ -8,7 +8,6 @@
 	Keyboard arrow navigation for swatch selection.
 -->
 <script lang="ts">
-import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/_internal/utils/uid.js";
 import { setColorSwatchPickerContext } from "./context.js";
@@ -52,11 +51,8 @@ function isSelected(color: string): boolean {
 	return selectedValue === color;
 }
 
-const recipe = getRecipe("color-swatch-picker.glass.void");
 const recipeClasses = $derived(
-	// biome-ignore lint/suspicious/noExplicitAny: recipe boundary
-	recipe?.classes?.({ density } as any) ?? {},
-);
+		recipe?.classes?.({ density } as any) ?? {});
 
 const DENSITY_GAP: Record<string, string> = {
 	compact: "gap-4",
@@ -69,7 +65,6 @@ setColorSwatchPickerContext({
 	get size() { return size; },
 	get rounding() { return rounding; },
 	get isDisabled() { return isDisabled; },
-	get classes() { return recipeClasses; },
 	select,
 	isSelected,
 });
@@ -84,7 +79,7 @@ setColorSwatchPickerContext({
 	data-kind="color-swatch-picker"
 	data-slot="root"
 	data-density={density}
-	class={cn(recipeClasses.root, "flex flex-wrap", DENSITY_GAP[density] ?? DENSITY_GAP.regular, className)}
+	class={cn("flex flex-wrap", DENSITY_GAP[density] ?? DENSITY_GAP.regular, className)}
 	{...rest}
 >
 	{@render children?.()}

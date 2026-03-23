@@ -6,7 +6,6 @@
 -->
 <script lang="ts">
 import { createSteps } from "$lib/design/api/dsadapters/coldlight/_internal/steps/index.js";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import StepsRoot from "$lib/design/primitives/steps/Steps.svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import { stepsRecipe } from "./recipe.js";
@@ -22,18 +21,6 @@ let {
 	disabled = false,
 	children,
 	class: className,
-	// ColdLight 8-axis props
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	...rest
 }: StepsComponentProps = $props();
 
@@ -53,26 +40,10 @@ const builder = createSteps({
 	},
 });
 
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	size,
-}));
-
 const classes = $derived(
-	cn(stepsRecipe({ size, orientation }), visual.segments, visual.radius, className),
-);
+	cn(stepsRecipe({ size, orientation }), className));
 </script>
 
-<StepsRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>
+<StepsRoot {...builder.root} {...rest} class={classes}>
 	{@render children?.()}
 </StepsRoot>

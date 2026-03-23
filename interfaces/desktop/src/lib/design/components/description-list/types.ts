@@ -9,7 +9,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ColdLightProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type DescriptionListSize = "sm" | "md" | "lg";
@@ -19,7 +19,7 @@ export type DescriptionListVariant = "default" | "inline" | "grid";
 export interface DescriptionListComponentProps
 	extends Omit<HTMLAttributes<HTMLDListElement>, "style" | "children">,
 		BaseProps,
-		ColdLightProps {
+		ComponentProps {
 	children?: Snippet;
 	/** Size variant — controls font size and spacing */
 	size?: DescriptionListSize;

@@ -1,0 +1,19 @@
+{
+  "kind": "color-area",
+  "label": "Color Area",
+  "category": "interactive",
+  "description": "Two-dimensional gradient surface for selecting saturation and lightness of a color",
+  "aria": null,
+  "container": false,
+  "containerSlots": [],
+  "compound": true,
+  "blockCategory": "form",
+  "requiredAxes": ["border", "borderRadius"],
+  "defaultStyleId": "color-area-default",
+  "styleIds": ["color-area-default"],
+  "slots": {
+    "root": "all",
+    "gradient": "none",
+    "thumb": "none"
+  }
+}

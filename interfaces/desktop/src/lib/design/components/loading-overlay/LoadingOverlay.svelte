@@ -12,7 +12,6 @@
 -->
 <script lang="ts">
 import { createLoadingOverlay } from "$lib/design/api/dsadapters/coldlight/_internal/loading-overlay/index.js";
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import LoadingOverlayRoot from "$lib/design/primitives/loading-overlay/LoadingOverlay.svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import { loadingOverlayRecipe } from "./recipe.js";
@@ -24,20 +23,7 @@ let {
 	onVisibleChange,
 	children,
 	class: className,
-	// ColdLight 8-axis props
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	size,
-	// Rest spread
 	...rest
 }: LoadingOverlayComponentProps = $props();
 
@@ -48,25 +34,10 @@ const builder = createLoadingOverlay({
 });
 
 // Resolve ColdLight visual
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	size,
-}));
-
 // Compose: structural recipe + ColdLight visual + user classes
-const classes = $derived(cn(loadingOverlayRecipe(), visual.segments, visual.radius, className));
+const classes = $derived(cn(loadingOverlayRecipe(), className));
 </script>
 
-<LoadingOverlayRoot {...builder.root} {...rest} class={classes} data-encoding={visual.encoding || undefined}>
+<LoadingOverlayRoot {...builder.root} {...rest} class={classes}>
 	{@render children?.()}
 </LoadingOverlayRoot>

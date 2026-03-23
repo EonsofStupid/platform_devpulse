@@ -10,7 +10,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
 export type DatePickerSize = "sm" | "md" | "lg" | "xl";
 export type DatePickerGranularity = "day" | "month" | "year" | "hour" | "minute" | "second";
@@ -35,7 +35,7 @@ export interface DatePickerIds {
 
 export interface DatePickerRootProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		Omit<PreparedComponentProps, "size"> {
+		ComponentProps {
 	ids?: Partial<DatePickerIds>;
 	/** Controlled date value. */
 	value?: Date | null;

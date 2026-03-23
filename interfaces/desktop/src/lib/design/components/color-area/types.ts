@@ -15,7 +15,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
 // =============================================================================
 // COLOR TYPES
@@ -57,7 +57,7 @@ export interface ColorAreaIds {
 
 export interface ColorAreaRootProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		PreparedComponentProps {
+		ComponentProps {
 	ids?: Partial<ColorAreaIds>;
 	/** Color space the area operates in. Default: "oklch". */
 	colorSpace?: ColorSpace;

@@ -13,7 +13,6 @@
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/
 -->
 <script lang="ts">
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { type NavigationMenuRootCtx, setNavigationMenuRootContext } from "./context.js";
 import { navigationMenuRecipe } from "./recipe.js";
@@ -23,37 +22,9 @@ let {
 	children,
 	"aria-label": ariaLabel = "Main navigation",
 	class: className,
-	// ColdLight 8-axis props
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	size,
-	// Rest spread
 	...rest
 }: NavigationMenuProps = $props();
-
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-	size,
-}));
 
 let activeItem = $state<string | undefined>(undefined);
 const recipe = navigationMenuRecipe();
@@ -79,10 +50,9 @@ setNavigationMenuRootContext(ctx);
 
 <nav
 	aria-label={ariaLabel}
-	class={cn(recipe.root, visual.segments, visual.radius, className)}
+	class={cn(recipe.root, className)}
 	data-kind="navigation-menu"
 	data-slot="root"
-	data-encoding={visual.encoding || undefined}
 	{...rest}
 >
 	<ul

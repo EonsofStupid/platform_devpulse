@@ -18,7 +18,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
 // =============================================================================
 // CALLBACK DETAILS
@@ -46,7 +46,7 @@ export interface BannerIds {
 /** Props for the ColdLight Banner component. */
 export interface BannerProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		PreparedComponentProps {
+		ComponentProps {
 	/** Element IDs for composition. */
 	ids?: Partial<BannerIds>;
 	/** Controlled open state. */

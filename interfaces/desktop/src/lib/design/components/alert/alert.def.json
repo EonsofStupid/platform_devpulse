@@ -1,0 +1,21 @@
+{
+  "kind": "alert",
+  "label": "Alert",
+  "category": "feedback",
+  "description": "Inline message conveying important contextual information with severity level",
+  "aria": "https://www.w3.org/WAI/ARIA/apg/patterns/alert/",
+  "container": true,
+  "containerSlots": ["content"],
+  "compound": true,
+  "blockCategory": "feedback",
+  "requiredAxes": ["backgroundColor", "border", "borderRadius", "color"],
+  "defaultStyleId": "alert-default",
+  "styleIds": ["alert-default", "alert-info", "alert-success", "alert-warning", "alert-error"],
+  "slots": {
+    "root": "all",
+    "icon": "none",
+    "title": "none",
+    "content": "none",
+    "action": "none"
+  }
+}

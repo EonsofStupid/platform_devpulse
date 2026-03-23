@@ -1,0 +1,20 @@
+{
+  "kind": "input-group",
+  "label": "Input Group",
+  "category": "structural",
+  "description": "Container that visually and semantically groups an input with addons like icons or buttons",
+  "aria": null,
+  "container": true,
+  "containerSlots": ["root"],
+  "compound": true,
+  "blockCategory": "form",
+  "requiredAxes": ["border", "borderRadius"],
+  "defaultStyleId": "input-group-default",
+  "styleIds": ["input-group-default"],
+  "slots": {
+    "root": "all",
+    "prepend": "none",
+    "input": "none",
+    "append": "none"
+  }
+}

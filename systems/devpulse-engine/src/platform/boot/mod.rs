@@ -332,7 +332,20 @@ async fn execute_inner(
         anyhow::bail!("FATAL: Grammar service (outlines-core) was enabled+critical but failed to boot");
     }
 
-    // All critical services passed — log the ready line
+    // Check for ANY failures — not just critical ones.
+    // SKIP is acceptable (disabled in config). FAIL is not.
+    if boot_log.has_failures() {
+        let total_ms = boot_log.elapsed_ms();
+        let count = boot_log.failure_count();
+        boot_log.boot_failed(
+            &format!("{count} service(s) failed — boot incomplete"),
+            total_ms,
+        );
+        anyhow::bail!(
+            "Boot incomplete: {count} service(s) failed. Check .userdata/logs/boot.log for details."
+        );
+    }
+
     let total_ms = boot_log.elapsed_ms();
     boot_log.ready(total_ms);
     tracing::info!(path = %boot_log.path().display(), total_ms, "boot.log written — all services confirmed");
@@ -379,7 +392,10 @@ fn validate_critical(
     // Collect failures instead of bailing immediately — report all at once
     let mut failures: Vec<&str> = Vec::new();
 
-    if system_relational.is_none() && boot_config.services.system.relational.enabled {
+    if system_relational.is_none()
+        && boot_config.services.system.relational.enabled
+        && boot_config.services.system.relational.critical
+    {
         boot_log.fail("VALIDATION", "System relational (LibSQL) is critical but failed");
         failures.push("System relational (LibSQL)");
     }
@@ -390,7 +406,10 @@ fn validate_critical(
         boot_log.fail("VALIDATION", "System analytics (DuckDB) is critical but failed");
         failures.push("System analytics (DuckDB)");
     }
-    if system_graph.is_none() && boot_config.services.system.graph.enabled {
+    if system_graph.is_none()
+        && boot_config.services.system.graph.enabled
+        && boot_config.services.system.graph.critical
+    {
         boot_log.fail("VALIDATION", "System graph (SurrealDB) is critical but failed");
         failures.push("System graph (SurrealDB)");
     }

@@ -1,0 +1,20 @@
+{
+  "kind": "loading-overlay",
+  "label": "Loading Overlay",
+  "category": "feedback",
+  "description": "Full-area translucent overlay with spinner indicating background loading state",
+  "aria": null,
+  "container": false,
+  "containerSlots": [],
+  "compound": true,
+  "blockCategory": "feedback",
+  "requiredAxes": ["backgroundColor", "opacity"],
+  "defaultStyleId": "loading-overlay-default",
+  "styleIds": ["loading-overlay-default"],
+  "slots": {
+    "root": "all",
+    "overlay": "none",
+    "spinner": "none",
+    "label": "none"
+  }
+}

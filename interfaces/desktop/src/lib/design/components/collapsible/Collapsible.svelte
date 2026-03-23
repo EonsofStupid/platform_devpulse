@@ -8,8 +8,6 @@
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/
 -->
 <script lang="ts">
-import { useColdLight } from "$lib/design/components/_base/use-coldlight.svelte.js";
-import { getRecipe } from "$lib/design/recipes/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setCollapsibleContext } from "./context.js";
 import type { CollapsibleRootProps } from "./types.js";
@@ -22,17 +20,6 @@ let {
 	onExitComplete,
 	disabled = false,
 	dir = "ltr",
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
 	children,
 	class: className,
 	...rest
@@ -51,8 +38,6 @@ function toggle() {
 	onOpenChange?.({ open: next });
 }
 
-const recipe = getRecipe("collapsible.glass.void");
-// biome-ignore lint/suspicious/noExplicitAny: recipe classes accept resolved props
 const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
 
 setCollapsibleContext({
@@ -60,29 +45,13 @@ setCollapsibleContext({
 	get disabled() { return disabled; },
 	get ids() { return ids ?? {}; },
 	get dir() { return dir; },
-	get classes() { return recipeClasses; },
 	triggerId,
 	contentId,
 	toggle,
 });
 
-const visual = useColdLight(() => ({
-	preset,
-	surface,
-	material,
-	depth,
-	bevel,
-	glow,
-	frame,
-	motion,
-	transition,
-	encoding,
-	radius,
-}));
-
 const rootClasses = $derived(
-	cn(recipeClasses.root, visual.segments, visual.radius, className),
-);
+	cn(className));
 </script>
 
 <div
@@ -91,7 +60,6 @@ const rootClasses = $derived(
 	data-kind="collapsible"
 	data-slot="root"
 	data-state={isOpen ? "open" : "closed"}
-	data-encoding={visual.encoding || undefined}
 	class={rootClasses}
 	{...rest}
 >

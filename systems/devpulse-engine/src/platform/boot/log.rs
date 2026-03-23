@@ -32,6 +32,7 @@ pub struct BootLog {
     file: fs::File,
     start: Instant,
     path: PathBuf,
+    fail_count: std::sync::atomic::AtomicU32,
 }
 
 impl BootLog {
@@ -71,6 +72,7 @@ impl BootLog {
             file,
             start: Instant::now(),
             path,
+            fail_count: std::sync::atomic::AtomicU32::new(0),
         };
 
         log.emit("[START] DevPulse Boot");
@@ -92,10 +94,21 @@ impl BootLog {
         self.emit(&line);
     }
 
-    /// Log a failed stage.
+    /// Log a failed stage. Increments the failure counter.
     pub fn fail(&self, stage: &str, error: &str) {
+        self.fail_count.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         let line = format!("[FAIL!] {stage}: {error}");
         self.emit(&line);
+    }
+
+    /// Returns true if any stage has FAILed during this boot.
+    pub fn has_failures(&self) -> bool {
+        self.fail_count.load(std::sync::atomic::Ordering::Relaxed) > 0
+    }
+
+    /// Number of stages that FAILed.
+    pub fn failure_count(&self) -> u32 {
+        self.fail_count.load(std::sync::atomic::Ordering::Relaxed)
     }
 
     /// Log a running/in-progress stage (no newline after — will be overwritten).

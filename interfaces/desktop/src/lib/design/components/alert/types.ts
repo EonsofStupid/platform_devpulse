@@ -12,7 +12,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
 // =============================================================================
 // SHARED
@@ -45,7 +45,7 @@ export interface AlertIds {
 
 export interface AlertRootProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		PreparedComponentProps {
+		ComponentProps {
 	ids?: Partial<AlertIds>;
 	variant?: AlertVariant;
 	open?: boolean;

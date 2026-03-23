@@ -18,8 +18,7 @@ const ctx = getColorSliderContext();
 const positionStyle = $derived(
 	ctx.orientation === "vertical"
 		? `bottom: ${ctx.percent * 100}%`
-		: `${ctx.dir === "rtl" ? "right" : "left"}: ${ctx.percent * 100}%`,
-);
+		: `${ctx.dir === "rtl" ? "right" : "left"}: ${ctx.percent * 100}%`);
 </script>
 
 <div
