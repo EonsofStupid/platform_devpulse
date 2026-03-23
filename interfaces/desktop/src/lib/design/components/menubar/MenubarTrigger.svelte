@@ -11,13 +11,13 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getMenubarMenuContext } from "./context.js";
-import { menubarRecipe } from "./recipe.js";
+import { menubarComposition } from "./composition.js";
 import type { MenubarTriggerProps } from "./types.js";
 
 let { children, class: className, ...rest }: MenubarTriggerProps = $props();
 
 const ctx = getMenubarMenuContext();
-const recipe = menubarRecipe();
+const composition = menubarComposition();
 </script>
 
 <button
@@ -34,7 +34,7 @@ const recipe = menubarRecipe();
 			if (!ctx.open) ctx.toggle();
 		}
 	}}
-	class={cn(recipe.trigger, className)}
+	class={cn(composition.trigger, className)}
 	data-kind="menubar"
 	data-slot="trigger"
 	data-state={ctx.open ? "open" : "closed"}

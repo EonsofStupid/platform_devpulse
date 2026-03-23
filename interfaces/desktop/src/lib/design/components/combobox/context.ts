@@ -3,7 +3,7 @@
  * @kind combobox
  * @layer components
  *
- * Exposes useComboBox() hook return + recipe classes to sub-components.
+ * Exposes useComboBox() hook return + composition classes to sub-components.
  * No adapters, no transport layer. Direct hook access.
  */
 

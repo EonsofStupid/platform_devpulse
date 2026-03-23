@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * Heading component browser tests — ARIA + structural only. ZERO visual.
- * Recipe/visual tests live in ui/heading/Heading.test.ts.
+ * Composition/visual tests live in ui/heading/Heading.test.ts.
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
  */

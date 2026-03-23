@@ -10,18 +10,18 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getDateRangeFieldContext } from "./context.js";
-import { dateRangeFieldRecipe } from "./recipe.js";
+import { dateRangeFieldComposition } from "./composition.js";
 import type { DateRangeFieldStartProps } from "./types.js";
 
 let { children, class: className, ...rest }: DateRangeFieldStartProps = $props();
 const ctx = getDateRangeFieldContext();
-const recipe = $derived(dateRangeFieldRecipe({ size: ctx.size }));
+const composition = $derived(dateRangeFieldComposition({ size: ctx.size }));
 </script>
 
 <div
 	role="group"
 	aria-label="Start date"
-	class={cn(recipe.field, className)}
+	class={cn(composition.field, className)}
 	data-kind="date-range-field"
 	data-slot="start-field"
 	data-state={ctx.disabled ? "disabled" : ctx.focusedField === "start" ? "focused" : undefined}

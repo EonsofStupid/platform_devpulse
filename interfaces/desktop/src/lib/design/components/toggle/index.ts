@@ -1,4 +1,4 @@
 export { contract as toggleComponentContract } from "./contract.js";
-export { toggleRecipe } from "./recipe.js";
+export { toggleComposition } from "./composition.js";
 export { default as Toggle } from "./Toggle.svelte";
 export type { ToggleProps, ToggleSize } from "./types.js";

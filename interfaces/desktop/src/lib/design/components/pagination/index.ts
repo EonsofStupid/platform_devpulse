@@ -7,9 +7,9 @@
 export { contract as paginationComponentContract } from "./contract.js";
 export { default as Pagination } from "./Pagination.svelte";
 export {
-	paginationEllipsisRecipe,
-	paginationNavRecipe,
-	paginationPageRecipe,
-	paginationRootRecipe,
-} from "./recipe.js";
+	paginationEllipsisComposition,
+	paginationNavComposition,
+	paginationPageComposition,
+	paginationRootComposition,
+} from "./composition.js";
 export type { PaginationComponentProps, PaginationSize } from "./types.js";

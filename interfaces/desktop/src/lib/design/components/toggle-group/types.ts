@@ -23,7 +23,7 @@ export interface ToggleGroupItem {
 	disabled?: boolean;
 }
 
-/** ToggleGroup component props — builder state + recipe + primitive */
+/** ToggleGroup component props — builder state + composition + primitive */
 export interface ToggleGroupComponentProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
 		BaseProps,

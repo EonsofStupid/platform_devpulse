@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * List component browser tests.
- * Tests ARIA application, builder attribute binding, recipe class application,
+ * Tests ARIA application, builder attribute binding, composition class application,
  * and prop forwarding through the component layer.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
@@ -85,8 +85,8 @@ describe("list component — ARIA attributes", () => {
 // RECIPE CLASSES — variant, size, spacing
 // =============================================================================
 
-describe("list component — recipe classes", () => {
-	test("applies recipe classes for default variant", async () => {
+describe("list component — composition classes", () => {
+	test("applies composition classes for default variant", async () => {
 		const { getByRole } = render(List);
 		const list = getByRole("list");
 		await expect.element(list).toHaveClass("list-none");
@@ -98,7 +98,7 @@ describe("list component — recipe classes", () => {
 		await expect.element(list).toHaveClass("list-disc");
 	});
 
-	test("passes class prop and merges with recipe", async () => {
+	test("passes class prop and merges with composition", async () => {
 		const { getByRole } = render(List, { props: { class: "custom-list" } });
 		const list = getByRole("list");
 		await expect.element(list).toHaveClass("custom-list");

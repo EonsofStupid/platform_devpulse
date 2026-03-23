@@ -4,7 +4,7 @@
 	@layer components
 
 	ColdLight FormField — builder-driven component.
-	Builder owns ALL ARIA semantics. Component adds recipe classes.
+	Builder owns ALL ARIA semantics. Component adds composition classes.
 
 	Compound builder with slots: root, label, control, description, error.
 	Provides aria-describedby, aria-invalid, aria-required linking.
@@ -14,12 +14,12 @@ import { createFormField } from "$lib/design/api/dsadapters/coldlight/_internal/
 import FormFieldRoot from "$lib/design/primitives/form-field/FormField.svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import {
-	formFieldControlRecipe,
-	formFieldDescriptionRecipe,
-	formFieldErrorRecipe,
-	formFieldLabelRecipe,
-	formFieldRecipe,
-} from "./recipe.js";
+	formFieldControlComposition,
+	formFieldDescriptionComposition,
+	formFieldErrorComposition,
+	formFieldLabelComposition,
+	formFieldComposition,
+} from "./composition.js";
 import type { FormFieldComponentProps } from "./types.js";
 
 let {
@@ -44,11 +44,11 @@ const builder = createFormField({
 
 // Resolve ColdLight visual props
 const rootClasses = $derived(
-	cn(formFieldRecipe({ size }), className));
-const labelClasses = $derived(cn(formFieldLabelRecipe({ size })));
-const controlClasses = $derived(cn(formFieldControlRecipe()));
-const descriptionClasses = $derived(cn(formFieldDescriptionRecipe({ size })));
-const errorClasses = $derived(cn(formFieldErrorRecipe({ size })));
+	cn(formFieldComposition({ size }), className));
+const labelClasses = $derived(cn(formFieldLabelComposition({ size })));
+const controlClasses = $derived(cn(formFieldControlComposition()));
+const descriptionClasses = $derived(cn(formFieldDescriptionComposition({ size })));
+const errorClasses = $derived(cn(formFieldErrorComposition({ size })));
 </script>
 
 <FormFieldRoot {...builder.root} {...rest} class={rootClasses}>

@@ -2,14 +2,14 @@
 	@component Sidebar
 	@kind sidebar
 	@layer components
-	ColdLight Sidebar — builder-driven. Builder owns ARIA. Component adds recipe.
+	ColdLight Sidebar — builder-driven. Builder owns ARIA. Component adds composition.
 	Compound: root / trigger / header / content / footer slots.
 -->
 <script lang="ts">
 import { createSidebar } from "$lib/design/components/sidebar/index.js";
 import SidebarRoot from "$lib/design/primitives/sidebar/Sidebar.svelte";
 import { cn } from "$lib/design/utils/cn.js";
-import { sidebarRecipe } from "./recipe.js";
+import { sidebarComposition } from "./composition.js";
 import type { SidebarComponentProps } from "./types.js";
 
 let {
@@ -36,7 +36,7 @@ const builder = createSidebar({
 
 const classes = $derived(
 	cn(
-		sidebarRecipe({ size, expanded: builder.expanded }),
+		sidebarComposition({ size, expanded: builder.expanded }),
 		className));
 </script>
 

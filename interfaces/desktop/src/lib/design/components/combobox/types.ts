@@ -46,7 +46,7 @@ export interface ComboboxProps<T = unknown> extends ComponentProps {
 	/**
 	 * Whether the entire combobox is disabled.
 	 * Disables input, trigger, and all options.
-	 * Recipe applies opacity-50 + pointer-events-none.
+	 * Composition applies opacity-50 + pointer-events-none.
 	 * @default false
 	 */
 	disabled?: boolean;

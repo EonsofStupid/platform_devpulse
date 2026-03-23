@@ -3,14 +3,14 @@
  * @kind code
  * @layer components
  *
- * Root sets context; sub-components consume it for recipe classes, ids, language, and copy.
+ * Root sets context; sub-components consume it for composition classes, ids, language, and copy.
  */
 
 import { getContext, setContext } from "svelte";
 import type { CodeBlockIds, CodeLanguage } from "./types.js";
 
 export interface CodeBlockContext {
-	/** Per-slot recipe class strings. */
+	/** Per-slot composition class strings. */
 	readonly classes: Record<string, string>;
 	/** Element IDs for composition. */
 	readonly ids: Partial<CodeBlockIds>;

@@ -52,8 +52,8 @@ describe("label component — ARIA", () => {
 	});
 });
 
-describe("label component — recipe", () => {
-	test("applies recipe base classes", async () => {
+describe("label component — composition", () => {
+	test("applies composition base classes", async () => {
 		const { container } = render(Label);
 		const label = container.querySelector("label");
 		expect(label?.className).toContain("font-medium");

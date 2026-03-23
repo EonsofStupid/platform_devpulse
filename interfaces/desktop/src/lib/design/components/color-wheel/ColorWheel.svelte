@@ -4,7 +4,7 @@
 	@layer components
 
 	Circular hue picker. Drags thumb around a ring for hue 0-360.
-	$state/$effect/$derived for controlled sync and reactive recipe.
+	$state/$effect/$derived for controlled sync and reactive composition.
 	Auto-generated IDs. Form integration via hidden input.
 -->
 <script lang="ts">

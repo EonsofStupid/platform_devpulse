@@ -3,14 +3,19 @@
 	@kind empty-state
 	@layer components
 
-	ColdLight EmptyState — builder-driven, 8-axis visual system.
+	Placeholder shown when content area has no data.
+	StyleMacro (visual). Structural wrapper for icon + heading + description + action.
 -->
 <script lang="ts">
-import { createEmptyState } from "$lib/design/api/dsadapters/coldlight/_internal/empty-state/index.js";
-import EmptyStateRoot from "$lib/design/primitives/empty-state/EmptyState.svelte";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { emptyStateRecipe } from "./recipe.js";
-import type { EmptyStateProps } from "./types.js";
+import type { EmptyStateProps, EmptyStateSize } from "./types.js";
+
+const SIZE: Record<EmptyStateSize, string> = {
+	sm: "py-8 px-4",
+	md: "py-12 px-6",
+	lg: "py-16 px-8",
+};
 
 let {
 	size = "md",
@@ -19,11 +24,16 @@ let {
 	...rest
 }: EmptyStateProps = $props();
 
-const builder = createEmptyState();
-
-const classes = $derived(cn(emptyStateRecipe({ size }), className));
+const styleId = "empty-state-default";
 </script>
 
-<EmptyStateRoot {...builder.root} {...rest} class={classes}>
-	{@render children?.()}
-</EmptyStateRoot>
+<StyleMacro kind="empty-state" style={styleId}>
+	<div
+		data-kind="empty-state"
+		data-slot="root"
+		class={cn("flex flex-col items-center justify-center text-center", SIZE[size] ?? SIZE.md, className)}
+		{...rest}
+	>
+		{@render children?.()}
+	</div>
+</StyleMacro>

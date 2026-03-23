@@ -8,18 +8,18 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getRadioGroupContext } from "./context.js";
-import { radioGroupRecipe } from "./recipe.js";
+import { radioGroupComposition } from "./composition.js";
 import type { RadioGroupLabelProps } from "./types.js";
 
 let { children, class: className, ...rest }: RadioGroupLabelProps = $props();
 
 const transport = getRadioGroupContext();
-const recipe = radioGroupRecipe();
+const composition = radioGroupComposition();
 </script>
 
 <span
 	{...transport.slots.label}
-	class={cn(recipe.label, className)}
+	class={cn(composition.label, className)}
 	data-kind="radio-group"
 	data-slot="label"
 	{...rest}

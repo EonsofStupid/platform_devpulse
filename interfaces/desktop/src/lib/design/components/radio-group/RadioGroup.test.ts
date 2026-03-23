@@ -6,7 +6,7 @@
 
 import { describe, expect, it } from "vitest";
 import { contract } from "./contract.js";
-import { radioGroupRecipe } from "./recipe.js";
+import { radioGroupComposition } from "./composition.js";
 
 describe("RadioGroup", () => {
 	describe("contract", () => {
@@ -29,9 +29,9 @@ describe("RadioGroup", () => {
 		});
 	});
 
-	describe("recipe", () => {
+	describe("composition", () => {
 		it("returns all slot class strings", () => {
-			const classes = radioGroupRecipe();
+			const classes = radioGroupComposition();
 			expect(classes.root).toBeTruthy();
 			expect(classes.item).toBeTruthy();
 			expect(classes.label).toBeTruthy();

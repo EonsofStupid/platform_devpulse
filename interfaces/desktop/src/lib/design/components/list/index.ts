@@ -6,5 +6,5 @@
 
 export { contract as listComponentContract } from "./contract.js";
 export { default as List } from "./List.svelte";
-export { listRecipe } from "./recipe.js";
+export { listComposition } from "./composition.js";
 export type { ListComponentProps, ListSize, ListSpacing, ListVariant } from "./types.js";

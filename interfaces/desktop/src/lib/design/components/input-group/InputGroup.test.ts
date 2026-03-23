@@ -49,8 +49,8 @@ describe("input-group component — ARIA", () => {
 	});
 });
 
-describe("input-group component — recipe", () => {
-	test("applies recipe base classes", async () => {
+describe("input-group component — composition", () => {
+	test("applies composition base classes", async () => {
 		const { container } = render(InputGroup, {
 			"aria-label": "Test",
 		});

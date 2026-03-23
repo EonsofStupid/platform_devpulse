@@ -9,18 +9,18 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getSelectContext } from "./context.js";
-import { selectRecipe } from "./recipe.js";
+import { selectComposition } from "./composition.js";
 import type { SelectGroupProps } from "./types.js";
 
 let { children, class: className, ...rest }: SelectGroupProps = $props();
 
 const transport = getSelectContext();
-const recipe = selectRecipe();
+const composition = selectComposition();
 </script>
 
 <div
 	{...transport.slots.group}
-	class={cn(recipe.group, className)}
+	class={cn(composition.group, className)}
 	data-kind="select"
 	data-slot="group"
 	{...rest}

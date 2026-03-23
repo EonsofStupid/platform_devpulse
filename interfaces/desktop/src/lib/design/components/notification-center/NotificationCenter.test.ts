@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * NotificationCenter component browser tests.
- * Tests ARIA compliance, data-state derivation, recipe application, and contract shape.
+ * Tests ARIA compliance, data-state derivation, composition application, and contract shape.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
@@ -97,8 +97,8 @@ describe("notification-center component — data-state", () => {
 // RECIPE CLASSES
 // =============================================================================
 
-describe("notification-center component — recipe", () => {
-	test("applies recipe base classes", async () => {
+describe("notification-center component — composition", () => {
+	test("applies composition base classes", async () => {
 		const { getByRole } = render(NotificationCenter);
 		const el = getByRole("log");
 		await expect.element(el).toHaveClass("flex");

@@ -6,10 +6,10 @@
 
 export { contract as scrollAreaComponentContract } from "./contract.js";
 export {
-	scrollAreaRecipe,
-	scrollAreaScrollbarRecipe,
-	scrollAreaThumbRecipe,
-	scrollAreaViewportRecipe,
-} from "./recipe.js";
+	scrollAreaComposition,
+	scrollAreaScrollbarComposition,
+	scrollAreaThumbComposition,
+	scrollAreaViewportComposition,
+} from "./composition.js";
 export { default as ScrollArea } from "./ScrollArea.svelte";
 export type { ScrollAreaComponentProps, ScrollAreaOrientation, ScrollAreaSize } from "./types.js";

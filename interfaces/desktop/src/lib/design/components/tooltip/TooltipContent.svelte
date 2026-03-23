@@ -5,26 +5,26 @@
 
 	Tooltip content panel — conditionally rendered when tooltip is open.
 	MeltUI transport provides role="tooltip" and positioning attributes.
-	Recipe provides visual styling.
+	Composition provides visual styling.
 
 	Only rendered when transport.states.open is true.
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getTooltipContext } from "./context.js";
-import { tooltipRecipe } from "./recipe.js";
+import { tooltipComposition } from "./composition.js";
 import type { TooltipContentProps } from "./types.js";
 
 let { children, class: className, ...rest }: TooltipContentProps = $props();
 
 const transport = getTooltipContext();
-const recipe = tooltipRecipe();
+const composition = tooltipComposition();
 </script>
 
 {#if transport.states.open}
 	<div
 		{...transport.slots.content}
-		class={cn(recipe.content, className)}
+		class={cn(composition.content, className)}
 		data-kind="tooltip"
 		data-slot="content"
 		data-state="open"

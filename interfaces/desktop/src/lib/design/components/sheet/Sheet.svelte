@@ -2,13 +2,13 @@
 	@component Sheet
 	@kind sheet
 	@layer components
-	ColdLight Sheet — builder-driven. Builder owns ARIA. Component adds recipe.
+	ColdLight Sheet — builder-driven. Builder owns ARIA. Component adds composition.
 	Compound: trigger / overlay / content / close slots.
 -->
 <script lang="ts">
 import { createSheet } from "$lib/design/api/dsadapters/coldlight/_internal/sheet/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { sheetOverlayRecipe, sheetRecipe } from "./recipe.js";
+import { sheetOverlayComposition, sheetComposition } from "./composition.js";
 import type { SheetComponentProps } from "./types.js";
 
 let {
@@ -45,8 +45,8 @@ const builder = createSheet({
 });
 
 const contentClasses = $derived(
-	cn(sheetRecipe({ size, side }), className));
-const overlayClasses = $derived(cn(sheetOverlayRecipe()));
+	cn(sheetComposition({ size, side }), className));
+const overlayClasses = $derived(cn(sheetOverlayComposition()));
 </script>
 
 <button {...builder.trigger} data-kind="sheet" data-slot="trigger">

@@ -3,7 +3,7 @@
 	@kind code
 	@layer components
 
-	Simple <code> span for inline code. Token-styled via centralized recipe.
+	Simple <code> span for inline code. Token-styled via centralized composition.
 	No Shiki — just a styled code element.
 -->
 <script lang="ts">

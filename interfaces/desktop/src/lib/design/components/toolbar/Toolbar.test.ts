@@ -4,7 +4,7 @@
  * @layer components
  *
  * Vitest browser tests — real Chromium via @vitest/browser-playwright.
- * Tests: recipe application, prop forwarding, ARIA attributes, builder integration.
+ * Tests: composition application, prop forwarding, ARIA attributes, builder integration.
  */
 
 import { describe, expect, it } from "vitest";
@@ -23,7 +23,7 @@ describe("Toolbar component", () => {
 		await expect.element(el).toHaveAttribute("aria-label", "Actions");
 	});
 
-	it("applies recipe classes for size", async () => {
+	it("applies composition classes for size", async () => {
 		const screen = render(Toolbar, {
 			props: { label: "Actions", size: "sm" },
 		});

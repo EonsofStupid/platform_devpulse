@@ -15,7 +15,7 @@ import {
 	type NavigationMenuItemCtx,
 	setNavigationMenuItemContext,
 } from "./context.js";
-import { navigationMenuRecipe } from "./recipe.js";
+import { navigationMenuComposition } from "./composition.js";
 import type { NavigationMenuItemProps } from "./types.js";
 
 let { children, value, class: className, ...rest }: NavigationMenuItemProps = $props();
@@ -59,11 +59,11 @@ const ctx: NavigationMenuItemCtx = {
 
 setNavigationMenuItemContext(ctx);
 
-const recipe = navigationMenuRecipe();
+const composition = navigationMenuComposition();
 </script>
 
 <li
-	class={cn(recipe.item, className)}
+	class={cn(composition.item, className)}
 	data-kind="navigation-menu"
 	data-slot="item"
 	data-state={isOpen ? "open" : "closed"}

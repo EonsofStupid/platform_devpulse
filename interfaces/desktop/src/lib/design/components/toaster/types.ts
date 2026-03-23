@@ -21,7 +21,7 @@ export type ToasterPosition =
 	| "bottom-center"
 	| "bottom-right";
 
-/** Toaster component props — ColdLight 8-axis + ARIA + recipe + primitive */
+/** Toaster component props — ColdLight 8-axis + ARIA + composition + primitive */
 export interface ToasterComponentProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
 		BaseProps,

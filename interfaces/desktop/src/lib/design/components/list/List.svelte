@@ -6,7 +6,7 @@
 	ColdLight List — wraps structureless ListRoot with:
 	- ARIA attributes (role="list", aria-label)
 	- Builder-driven attribute binding
-	- SD5 token-driven recipe (variant x size x spacing)
+	- SD5 token-driven composition (variant x size x spacing)
 
 	ColdLight OWNS all ARIA. Primitive is structural only.
 -->
@@ -14,7 +14,7 @@
 import { createList } from "$lib/design/api/dsadapters/coldlight/_internal/list/index.js";
 import ListRoot from "$lib/design/primitives/list/List.svelte";
 import { cn } from "$lib/design/utils/cn.js";
-import { listRecipe } from "./recipe.js";
+import { listComposition } from "./composition.js";
 import type { ListComponentProps } from "./types.js";
 
 let {
@@ -34,7 +34,7 @@ const builder = createList({
 });
 
 const classes = $derived(
-	cn(listRecipe({ size, variant, spacing }), className));
+	cn(listComposition({ size, variant, spacing }), className));
 </script>
 
 <ListRoot {...builder.root} {...rest} class={classes}>

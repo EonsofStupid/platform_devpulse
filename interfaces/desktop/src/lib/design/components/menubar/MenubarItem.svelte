@@ -10,7 +10,7 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getMenubarMenuContext } from "./context.js";
-import { menubarRecipe } from "./recipe.js";
+import { menubarComposition } from "./composition.js";
 import type { MenubarItemProps } from "./types.js";
 
 let {
@@ -22,7 +22,7 @@ let {
 }: MenubarItemProps = $props();
 
 const ctx = getMenubarMenuContext();
-const recipe = menubarRecipe();
+const composition = menubarComposition();
 
 function handleSelect(): void {
 	if (disabled) return;
@@ -42,7 +42,7 @@ function handleSelect(): void {
 			handleSelect();
 		}
 	}}
-	class={cn(recipe.item, className)}
+	class={cn(composition.item, className)}
 	data-kind="menubar"
 	data-slot="item"
 	data-state={disabled ? "disabled" : undefined}

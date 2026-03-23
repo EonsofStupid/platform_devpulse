@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * Spinner component browser tests.
- * Tests ARIA compliance, data-state derivation, recipe application, and contract shape.
+ * Tests ARIA compliance, data-state derivation, composition application, and contract shape.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
@@ -87,8 +87,8 @@ describe("spinner component — data-state", () => {
 // RECIPE CLASSES
 // =============================================================================
 
-describe("spinner component — recipe", () => {
-	test("applies recipe base classes", async () => {
+describe("spinner component — composition", () => {
+	test("applies composition base classes", async () => {
 		const { getByRole } = render(Spinner);
 		const el = getByRole("status");
 		await expect.element(el).toHaveClass("inline-block");

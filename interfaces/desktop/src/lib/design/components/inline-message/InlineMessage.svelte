@@ -3,14 +3,23 @@
 	@kind inline-message
 	@layer components
 
-	ColdLight InlineMessage — builder-driven, 8-axis visual system.
+	Inline contextual feedback. Hook (ARIA) + StyleMacro (visual).
+	Tone-driven: info, success, warning, error, help.
+	Unlike Alert, uses role="status" with polite live region.
 -->
 <script lang="ts">
-import { createInlineMessage } from "$lib/design/api/dsadapters/coldlight/_internal/inline-message/index.js";
-import InlineMessageRoot from "$lib/design/primitives/inline-message/InlineMessage.svelte";
+import { useInlineMessage } from "$lib/design/primitives/inline-message/index.js";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { inlineMessageRecipe } from "./recipe.js";
-import type { InlineMessageProps } from "./types.js";
+import type { InlineMessageProps, InlineMessageTone } from "./types.js";
+
+const TONE_PRESETS: Record<InlineMessageTone, string> = {
+	info: "inline-message-info",
+	success: "inline-message-success",
+	warning: "inline-message-warning",
+	error: "inline-message-error",
+	help: "inline-message-default",
+};
 
 let {
 	tone = "info",
@@ -19,12 +28,19 @@ let {
 	...rest
 }: InlineMessageProps = $props();
 
-const builder = createInlineMessage();
-
-const classes = $derived(
-	cn(inlineMessageRecipe({ tone }), className));
+const msg = $derived(useInlineMessage({ tone }));
+const styleId = $derived(TONE_PRESETS[tone] ?? "inline-message-default");
 </script>
 
-<InlineMessageRoot {...builder.root} {...rest} class={classes} data-state={tone}>
-	{@render children?.()}
-</InlineMessageRoot>
+<StyleMacro kind="inline-message" style={styleId}>
+	<div
+		{...msg.root}
+		data-kind="inline-message"
+		data-slot="root"
+		data-tone={tone}
+		class={cn(className)}
+		{...rest}
+	>
+		{@render children?.()}
+	</div>
+</StyleMacro>

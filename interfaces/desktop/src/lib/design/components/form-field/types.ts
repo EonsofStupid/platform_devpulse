@@ -14,7 +14,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type FormFieldSize = "sm" | "md" | "lg";
 
-/** FormField component props — builder state + recipe + primitive */
+/** FormField component props — builder state + composition + primitive */
 export interface FormFieldComponentProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
 		BaseProps,

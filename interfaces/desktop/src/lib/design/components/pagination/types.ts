@@ -14,7 +14,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type PaginationSize = "sm" | "md" | "lg";
 
-/** Pagination component props — ColdLight 8-axis + ARIA + recipe + primitive */
+/** Pagination component props — ColdLight 8-axis + ARIA + composition + primitive */
 export interface PaginationComponentProps
 	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children">,
 		BaseProps,

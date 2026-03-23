@@ -15,7 +15,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 export type ToolbarSize = "sm" | "md" | "lg";
 export type ToolbarOrientation = "horizontal" | "vertical";
 
-/** Toolbar component props — ColdLight 8-axis + ARIA + recipe */
+/** Toolbar component props — ColdLight 8-axis + ARIA + composition */
 export interface ToolbarComponentProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
 		BaseProps,

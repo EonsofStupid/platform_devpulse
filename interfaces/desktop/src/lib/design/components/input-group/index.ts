@@ -7,9 +7,9 @@
 export { contract as inputGroupComponentContract } from "./contract.js";
 export { default as InputGroup } from "./InputGroup.svelte";
 export {
-	inputGroupInputRecipe,
-	inputGroupPrefixRecipe,
-	inputGroupRecipe,
-	inputGroupSuffixRecipe,
-} from "./recipe.js";
+	inputGroupInputComposition,
+	inputGroupPrefixComposition,
+	inputGroupComposition,
+	inputGroupSuffixComposition,
+} from "./composition.js";
 export type { InputGroupComponentProps, InputGroupSize } from "./types.js";

@@ -6,7 +6,7 @@
 	ColdLight Toaster — wraps MeltUI toaster transport with:
 	- ARIA attributes (role="region", aria-label via transport)
 	- ColdLight 8-axis visual system
-	- SD5 token-driven recipe
+	- SD5 token-driven composition
 
 	ColdLight OWNS all ARIA. MeltUI transport handles toast lifecycle.
 -->

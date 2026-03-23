@@ -3,14 +3,22 @@
 	@kind textarea
 	@layer components
 
-	ColdLight Textarea — builder-driven, 8-axis visual system.
+	Multi-line text input. Hook (ARIA) + StyleMacro (visual).
+	Handles disabled, readonly, required, invalid states.
 -->
 <script lang="ts">
-import { createTextarea } from "$lib/design/api/dsadapters/coldlight/_internal/textarea/index.js";
-import TextareaRoot from "$lib/design/primitives/textarea/Textarea.svelte";
+import { useTextarea } from "$lib/design/primitives/textarea/index.js";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { textareaRecipe } from "./recipe.js";
 import type { TextareaProps } from "./types.js";
+
+type TextareaSize = "sm" | "md" | "lg";
+
+const SIZE: Record<TextareaSize, string> = {
+	sm: "text-sm px-2.5 py-1.5",
+	md: "text-sm px-3 py-2",
+	lg: "text-base px-4 py-2.5",
+};
 
 let {
 	size = "md",
@@ -24,16 +32,28 @@ let {
 	...rest
 }: TextareaProps = $props();
 
-const builder = createTextarea({
-	disabled: () => disabled,
-	readonly: () => readOnly,
-	required: () => required,
-	invalid: () => invalid,
-	rows: () => rows,
-		onValueChange: (v: any) => onValueChange?.(v),
-});
-
-const classes = $derived(cn(textareaRecipe({ size }), className));
+const textarea = $derived(useTextarea({ disabled, readonly: readOnly, required, invalid }));
+const styleId = "textarea-default";
 </script>
 
-<TextareaRoot {...builder.root} {...rest} class={classes} />
+<StyleMacro kind="textarea" style={styleId}>
+	<textarea
+		{...textarea.root}
+		{disabled}
+		readonly={readOnly}
+		{required}
+		{rows}
+		data-kind="textarea"
+		data-slot="root"
+		data-invalid={invalid || undefined}
+		class={cn(
+			"w-full rounded-md border bg-transparent",
+			"placeholder:text-muted-foreground",
+			"focus-visible:outline-2 focus-visible:outline-offset-2",
+			"disabled:pointer-events-none disabled:opacity-50",
+			SIZE[size as TextareaSize] ?? SIZE.md,
+			className)}
+		oninput={(e) => onValueChange?.((e.target as HTMLTextAreaElement).value)}
+		{...rest}
+	></textarea>
+</StyleMacro>

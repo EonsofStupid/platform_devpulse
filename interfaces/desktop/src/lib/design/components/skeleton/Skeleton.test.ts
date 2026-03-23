@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * Skeleton component browser tests.
- * Tests ARIA compliance, data-state derivation, recipe application, and contract shape.
+ * Tests ARIA compliance, data-state derivation, composition application, and contract shape.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
@@ -93,8 +93,8 @@ describe("skeleton component — data-state", () => {
 // RECIPE CLASSES
 // =============================================================================
 
-describe("skeleton component — recipe", () => {
-	test("applies recipe base classes", async () => {
+describe("skeleton component — composition", () => {
+	test("applies composition base classes", async () => {
 		const { getByRole } = render(Skeleton);
 		const el = getByRole("status");
 		await expect.element(el).toHaveClass("animate-pulse");

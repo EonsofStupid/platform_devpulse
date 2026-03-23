@@ -6,5 +6,5 @@
 
 export { contract as loadingOverlayComponentContract } from "./contract.js";
 export { default as LoadingOverlay } from "./LoadingOverlay.svelte";
-export { loadingOverlayRecipe } from "./recipe.js";
+export { loadingOverlayComposition } from "./composition.js";
 export type { LoadingOverlayComponentProps } from "./types.js";

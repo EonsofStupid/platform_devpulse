@@ -12,7 +12,7 @@ import type { HTMLAnchorAttributes } from "svelte/elements";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
-/** SkipLink component props -- ColdLight 8-axis + ARIA + recipe + primitive */
+/** SkipLink component props -- ColdLight 8-axis + ARIA + composition + primitive */
 export interface SkipLinkComponentProps
 	extends Omit<HTMLAnchorAttributes, "style" | "children">,
 		BaseProps,

@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * DescriptionList component browser tests.
- * Tests ARIA application, builder attribute binding, recipe class application,
+ * Tests ARIA application, builder attribute binding, composition class application,
  * and prop forwarding through the component layer.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
@@ -82,8 +82,8 @@ describe("description-list component — ARIA attributes", () => {
 // RECIPE CLASSES — variant and size
 // =============================================================================
 
-describe("description-list component — recipe classes", () => {
-	test("applies recipe classes for default variant", async () => {
+describe("description-list component — composition classes", () => {
+	test("applies composition classes for default variant", async () => {
 		const { container } = render(DescriptionList);
 		const dl = container.querySelector("dl");
 		// biome-ignore lint/style/noNonNullAssertion: test assertion — dl element always rendered
@@ -97,7 +97,7 @@ describe("description-list component — recipe classes", () => {
 		await expect.element(dl!).toHaveClass("text-sm");
 	});
 
-	test("passes class prop and merges with recipe", async () => {
+	test("passes class prop and merges with composition", async () => {
 		const { container } = render(DescriptionList, { props: { class: "custom-dl" } });
 		const dl = container.querySelector("dl");
 		// biome-ignore lint/style/noNonNullAssertion: test assertion — dl element always rendered

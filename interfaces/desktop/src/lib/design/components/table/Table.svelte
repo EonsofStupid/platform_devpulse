@@ -6,7 +6,7 @@
 	ColdLight Table — wraps structureless TableRoot with:
 	- ARIA attributes (aria-label, role="table")
 	- Builder-driven attribute binding
-	- SD5 token-driven recipe (variant x size)
+	- SD5 token-driven composition (variant x size)
 
 	ColdLight OWNS all ARIA. Primitive is structural only.
 	Reference: WAI-ARIA APG Table Pattern
@@ -15,7 +15,7 @@
 import { createTable } from "$lib/design/api/dsadapters/coldlight/_internal/table/index.js";
 import TableRoot from "$lib/design/primitives/table/Table.svelte";
 import { cn } from "$lib/design/utils/cn.js";
-import { tableRecipe } from "./recipe.js";
+import { tableComposition } from "./composition.js";
 import type { TableComponentProps } from "./types.js";
 
 let {
@@ -34,7 +34,7 @@ const builder = createTable({
 });
 
 const classes = $derived(
-	cn(tableRecipe({ size, variant }), className));
+	cn(tableComposition({ size, variant }), className));
 </script>
 
 <TableRoot {...builder.root} {...rest} class={classes}>

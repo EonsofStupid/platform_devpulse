@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * Textarea component browser tests.
- * Tests ARIA application, data-state derivation, recipe class application,
+ * Tests ARIA application, data-state derivation, composition class application,
  * and prop forwarding through the component layer.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
@@ -164,7 +164,7 @@ describe("textarea component — data-state", () => {
 // =============================================================================
 
 describe("textarea component — prop passthrough", () => {
-	test("passes class prop and applies recipe", async () => {
+	test("passes class prop and applies composition", async () => {
 		const { getByRole } = render(Textarea, { props: { class: "custom-class" } });
 		const textarea = getByRole("textbox");
 		await expect.element(textarea).toHaveClass("custom-class");

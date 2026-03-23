@@ -14,7 +14,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type TableOfContentsSize = "sm" | "md" | "lg";
 
-/** TableOfContents component props -- ColdLight 8-axis + ARIA + recipe + primitive */
+/** TableOfContents component props -- ColdLight 8-axis + ARIA + composition + primitive */
 export interface TableOfContentsComponentProps
 	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children">,
 		BaseProps,

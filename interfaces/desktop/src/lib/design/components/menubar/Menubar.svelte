@@ -13,7 +13,7 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { type MenubarRootCtx, setMenubarRootContext } from "./context.js";
-import { menubarRecipe } from "./recipe.js";
+import { menubarComposition } from "./composition.js";
 import type { MenubarProps } from "./types.js";
 
 let {
@@ -24,7 +24,7 @@ let {
 }: MenubarProps = $props();
 
 let activeMenu = $state<string | undefined>(undefined);
-const recipe = menubarRecipe();
+const composition = menubarComposition();
 
 function openMenu(value: string): void {
 	activeMenu = value;
@@ -48,7 +48,7 @@ setMenubarRootContext(ctx);
 <div
 	role="menubar"
 	aria-orientation="horizontal"
-	class={cn(recipe.root, className)}
+	class={cn(composition.root, className)}
 	data-kind="menubar"
 	data-slot="root"
 	{...rest}

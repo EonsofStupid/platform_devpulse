@@ -6,7 +6,7 @@
 
 import { describe, expect, it } from "vitest";
 import { contract } from "./contract.js";
-import { sliderRecipe } from "./recipe.js";
+import { sliderComposition } from "./composition.js";
 
 describe("Slider", () => {
 	describe("contract", () => {
@@ -32,9 +32,9 @@ describe("Slider", () => {
 		});
 	});
 
-	describe("recipe", () => {
+	describe("composition", () => {
 		it("returns all slot class strings", () => {
-			const classes = sliderRecipe();
+			const classes = sliderComposition();
 			expect(classes.root).toBeTruthy();
 			expect(classes.track).toBeTruthy();
 			expect(classes.range).toBeTruthy();

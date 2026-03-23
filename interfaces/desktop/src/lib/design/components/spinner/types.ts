@@ -6,16 +6,12 @@
 
 import type { HTMLAttributes } from "svelte/elements";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
-import type { SpinnerSize } from "./recipe.js";
 
-export type { SpinnerSize };
+export type SpinnerSize = "sm" | "md" | "lg";
 
 export interface SpinnerProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style">,
-		BaseProps,
+	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class">,
 		ComponentProps {
 	active?: boolean;
-	onActiveChange?: (active: boolean) => void;
 	size?: SpinnerSize;
 }

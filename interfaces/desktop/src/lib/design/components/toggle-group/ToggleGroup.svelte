@@ -4,7 +4,7 @@
 	@layer components
 
 	ColdLight ToggleGroup — builder-driven component.
-	Builder owns ALL ARIA semantics. Component adds recipe classes.
+	Builder owns ALL ARIA semantics. Component adds composition classes.
 
 	Compound builder with slots: root, item (via getItem method).
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/
@@ -13,7 +13,7 @@
 import { createToggleGroup } from "$lib/design/api/dsadapters/coldlight/_internal/toggle-group/index.js";
 import ToggleGroupRoot from "$lib/design/primitives/toggle-group/ToggleGroup.svelte";
 import { cn } from "$lib/design/utils/cn.js";
-import { toggleGroupItemRecipe, toggleGroupRecipe } from "./recipe.js";
+import { toggleGroupItemComposition, toggleGroupComposition } from "./composition.js";
 import type { ToggleGroupComponentProps } from "./types.js";
 
 let {
@@ -40,8 +40,8 @@ const builder = createToggleGroup({
 });
 
 const rootClasses = $derived(
-	cn(toggleGroupRecipe({ size, orientation }), className));
-const itemClasses = $derived(cn(toggleGroupItemRecipe({ size })));
+	cn(toggleGroupComposition({ size, orientation }), className));
+const itemClasses = $derived(cn(toggleGroupItemComposition({ size })));
 </script>
 
 <ToggleGroupRoot {...builder.root} {...rest} class={rootClasses}>

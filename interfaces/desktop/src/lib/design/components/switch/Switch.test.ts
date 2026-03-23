@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * Switch component browser tests.
- * Tests ARIA compliance, data-state derivation, recipe application, and contract shape.
+ * Tests ARIA compliance, data-state derivation, composition application, and contract shape.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
@@ -130,8 +130,8 @@ describe("switch component — thumb", () => {
 // RECIPE CLASSES
 // =============================================================================
 
-describe("switch component — recipe", () => {
-	test("applies recipe base classes", async () => {
+describe("switch component — composition", () => {
+	test("applies composition base classes", async () => {
 		const { getByRole } = render(Switch);
 		const el = getByRole("switch");
 		await expect.element(el).toHaveClass("inline-flex");

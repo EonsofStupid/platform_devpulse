@@ -26,20 +26,20 @@ export {
 	Box,
 	type BoxPadding,
 	type BoxProps,
-	boxRecipe,
+	boxComposition,
 } from "./box/index.js";
 export {
 	Container,
 	type ContainerProps,
 	type ContainerSize,
-	containerRecipe,
+	containerComposition,
 } from "./container/index.js";
 export {
 	Grid,
 	type GridColumns,
 	type GridGap,
 	type GridProps,
-	gridRecipe,
+	gridComposition,
 } from "./grid/index.js";
 export {
 	HStack,
@@ -47,14 +47,14 @@ export {
 	type HStackGap,
 	type HStackJustify,
 	type HStackProps,
-	hstackRecipe,
+	hstackComposition,
 } from "./hstack/index.js";
 export {
 	Stack,
 	type StackAlign,
 	type StackGap,
 	type StackProps,
-	stackRecipe,
+	stackComposition,
 } from "./stack/index.js";
 
 // ============================================
@@ -103,13 +103,13 @@ export {
 	Separator,
 	type SeparatorOrientation,
 	type SeparatorProps,
-	separatorRecipe,
+	separatorComposition,
 } from "./separator/index.js";
 export {
 	Stat,
 	type StatProps,
 	type StatSize,
-	statRecipe,
+	statComposition,
 } from "./stat/index.js";
 
 // ============================================

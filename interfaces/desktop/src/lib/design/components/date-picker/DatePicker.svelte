@@ -107,7 +107,7 @@ function updateValue(date: Date | null) {
 	onChange?.({ value: date });
 }
 
-// Recipe
+// Composition
 
 // Context
 setDatePickerContext({

@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * DataTable component browser tests.
- * Tests ARIA application, builder attribute binding, recipe class application,
+ * Tests ARIA application, builder attribute binding, composition class application,
  * and prop forwarding through the component layer.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
@@ -71,14 +71,14 @@ describe("data-table component — structural attributes", () => {
 // RECIPE CLASSES — variant and size
 // =============================================================================
 
-describe("data-table component — recipe classes", () => {
-	test("applies recipe classes for default variant", async () => {
+describe("data-table component — composition classes", () => {
+	test("applies composition classes for default variant", async () => {
 		const { container } = render(DataTable);
 		const root = container.querySelector("[data-kind='data-table']") as HTMLElement;
 		await expect.element(root).toHaveClass("w-full");
 	});
 
-	test("passes class prop and merges with recipe", async () => {
+	test("passes class prop and merges with composition", async () => {
 		const { container } = render(DataTable, { props: { class: "custom-dt" } });
 		const root = container.querySelector("[data-kind='data-table']") as HTMLElement;
 		await expect.element(root).toHaveClass("custom-dt");

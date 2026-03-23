@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * Table component browser tests.
- * Tests ARIA application, builder attribute binding, recipe class application,
+ * Tests ARIA application, builder attribute binding, composition class application,
  * and prop forwarding through the component layer.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
@@ -85,14 +85,14 @@ describe("table component — ARIA attributes", () => {
 // RECIPE CLASSES — variant and size
 // =============================================================================
 
-describe("table component — recipe classes", () => {
-	test("applies recipe classes for default variant", async () => {
+describe("table component — composition classes", () => {
+	test("applies composition classes for default variant", async () => {
 		const { getByRole } = render(Table);
 		const table = getByRole("table");
 		await expect.element(table).toHaveClass("w-full");
 	});
 
-	test("passes class prop and merges with recipe", async () => {
+	test("passes class prop and merges with composition", async () => {
 		const { getByRole } = render(Table, { props: { class: "custom-table" } });
 		const table = getByRole("table");
 		await expect.element(table).toHaveClass("custom-table");

@@ -7,6 +7,6 @@ import type { DsSurfaceProps } from "$lib/design/recipes/types.js";
 
 /** All styled components accept these surface prop overrides */
 export interface ComponentSurfaceProps extends Partial<DsSurfaceProps> {
-	/** Override the default recipe ID */
-	recipe?: string;
+	/** Override the default composition ID */
+	composition?: string;
 }

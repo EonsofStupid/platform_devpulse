@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * EmptyState component browser tests.
- * Tests ARIA compliance, recipe application, and contract shape.
+ * Tests ARIA compliance, composition application, and contract shape.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
@@ -69,8 +69,8 @@ describe("empty-state component — ARIA", () => {
 // RECIPE CLASSES
 // =============================================================================
 
-describe("empty-state component — recipe", () => {
-	test("applies recipe base classes", async () => {
+describe("empty-state component — composition", () => {
+	test("applies composition base classes", async () => {
 		const { getByRole } = render(EmptyState);
 		const el = getByRole("status");
 		await expect.element(el).toHaveClass("flex");

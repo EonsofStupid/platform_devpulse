@@ -12,7 +12,7 @@ import type { HTMLAttributes } from "svelte/elements";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
-/** NotificationCenter component props — ColdLight 8-axis + ARIA + recipe + primitive */
+/** NotificationCenter component props — ColdLight 8-axis + ARIA + composition + primitive */
 export interface NotificationCenterComponentProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
 		BaseProps,

@@ -11,7 +11,7 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getMenubarMenuContext } from "./context.js";
-import { menubarRecipe } from "./recipe.js";
+import { menubarComposition } from "./composition.js";
 import type { MenubarContentProps } from "./types.js";
 
 let {
@@ -24,7 +24,7 @@ let {
 }: MenubarContentProps = $props();
 
 const ctx = getMenubarMenuContext();
-const recipe = $derived(menubarRecipe({ size }));
+const composition = $derived(menubarComposition({ size }));
 </script>
 
 {#if ctx.open}
@@ -40,7 +40,7 @@ const recipe = $derived(menubarRecipe({ size }));
 				ctx.close();
 			}
 		}}
-		class={cn(recipe.content, className)}
+		class={cn(composition.content, className)}
 		data-kind="menubar"
 		data-slot="content"
 		data-state="open"

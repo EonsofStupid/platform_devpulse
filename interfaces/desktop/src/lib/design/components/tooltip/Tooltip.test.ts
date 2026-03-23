@@ -127,10 +127,10 @@ describe("tooltip component — exports", () => {
 		expect(mod.tooltipComponentContract.kind).toBe("tooltip");
 	});
 
-	test("exports tooltipRecipe", async () => {
+	test("exports tooltipComposition", async () => {
 		const mod = await import("./index.js");
-		expect(mod.tooltipRecipe).toBeDefined();
-		expect(typeof mod.tooltipRecipe).toBe("function");
+		expect(mod.tooltipComposition).toBeDefined();
+		expect(typeof mod.tooltipComposition).toBe("function");
 	});
 });
 
@@ -138,29 +138,29 @@ describe("tooltip component — exports", () => {
 // RECIPE
 // =============================================================================
 
-describe("tooltip component — recipe", () => {
-	test("recipe returns content and arrow class strings", async () => {
-		const { tooltipRecipe } = await import("./recipe.js");
-		const recipe = tooltipRecipe();
-		expect(typeof recipe.content).toBe("string");
-		expect(typeof recipe.arrow).toBe("string");
+describe("tooltip component — composition", () => {
+	test("composition returns content and arrow class strings", async () => {
+		const { tooltipComposition } = await import("./composition.js");
+		const composition = tooltipComposition();
+		expect(typeof composition.content).toBe("string");
+		expect(typeof composition.arrow).toBe("string");
 	});
 
-	test("recipe.content contains z-50 for proper layering", async () => {
-		const { tooltipRecipe } = await import("./recipe.js");
-		const recipe = tooltipRecipe();
-		expect(recipe.content).toContain("z-50");
+	test("composition.content contains z-50 for proper layering", async () => {
+		const { tooltipComposition } = await import("./composition.js");
+		const composition = tooltipComposition();
+		expect(composition.content).toContain("z-50");
 	});
 
-	test("recipe.content contains bg-neutral-900", async () => {
-		const { tooltipRecipe } = await import("./recipe.js");
-		const recipe = tooltipRecipe();
-		expect(recipe.content).toContain("bg-neutral-900");
+	test("composition.content contains bg-neutral-900", async () => {
+		const { tooltipComposition } = await import("./composition.js");
+		const composition = tooltipComposition();
+		expect(composition.content).toContain("bg-neutral-900");
 	});
 
-	test("recipe.content contains shadow-lg", async () => {
-		const { tooltipRecipe } = await import("./recipe.js");
-		const recipe = tooltipRecipe();
-		expect(recipe.content).toContain("shadow-lg");
+	test("composition.content contains shadow-lg", async () => {
+		const { tooltipComposition } = await import("./composition.js");
+		const composition = tooltipComposition();
+		expect(composition.content).toContain("shadow-lg");
 	});
 });

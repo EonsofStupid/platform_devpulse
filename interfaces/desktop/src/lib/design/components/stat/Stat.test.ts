@@ -6,7 +6,7 @@
  *
  * Stat component browser tests.
  * Tests ARIA compliance and contract shape.
- * Visual/recipe tests belong in ui/stat/ tests.
+ * Visual/composition tests belong in ui/stat/ tests.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte

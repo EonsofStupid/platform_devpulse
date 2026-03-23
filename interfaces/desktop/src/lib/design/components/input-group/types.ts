@@ -14,7 +14,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type InputGroupSize = "sm" | "md" | "lg";
 
-/** InputGroup component props — builder state + recipe + primitive */
+/** InputGroup component props — builder state + composition + primitive */
 export interface InputGroupComponentProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "prefix" | "suffix">,
 		BaseProps,

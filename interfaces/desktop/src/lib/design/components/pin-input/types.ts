@@ -14,7 +14,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type PinInputSize = "sm" | "md" | "lg";
 
-/** PinInput component props — ColdLight 8-axis + ARIA + recipe */
+/** PinInput component props — ColdLight 8-axis + ARIA + composition */
 export interface PinInputComponentProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
 		BaseProps,

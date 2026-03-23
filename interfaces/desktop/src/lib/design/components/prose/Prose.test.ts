@@ -54,7 +54,7 @@ describe("prose component — structural attributes", () => {
 // RECIPE CLASSES
 // =============================================================================
 
-describe("prose component — recipe classes", () => {
+describe("prose component — composition classes", () => {
 	test("applies prose class by default", async () => {
 		const { container } = render(Prose);
 		const el = container.querySelector("[data-kind='prose']") as HTMLElement;

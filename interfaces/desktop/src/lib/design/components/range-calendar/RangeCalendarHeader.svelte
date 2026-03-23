@@ -10,12 +10,12 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getRangeCalendarContext } from "./context.js";
-import { rangeCalendarRecipe } from "./recipe.js";
+import { rangeCalendarComposition } from "./composition.js";
 import type { RangeCalendarHeaderProps } from "./types.js";
 
 let { children, class: className, ...rest }: RangeCalendarHeaderProps = $props();
 const ctx = getRangeCalendarContext();
-const recipe = $derived(rangeCalendarRecipe({ size: ctx.size }));
+const composition = $derived(rangeCalendarComposition({ size: ctx.size }));
 
 const headingText = $derived(
 	ctx.currentMonth.toLocaleDateString(ctx.locale, {
@@ -25,7 +25,7 @@ const headingText = $derived(
 </script>
 
 <div
-	class={cn(recipe.header, className)}
+	class={cn(composition.header, className)}
 	data-kind="range-calendar"
 	data-slot="header"
 	{...rest}
@@ -35,7 +35,7 @@ const headingText = $derived(
 	{:else}
 		<button
 			type="button"
-			class={recipe.navButton}
+			class={composition.navButton}
 			aria-label="Previous month"
 			data-kind="range-calendar"
 			data-slot="prev-button"
@@ -46,7 +46,7 @@ const headingText = $derived(
 		</button>
 		<div
 			id={ctx.headingId}
-			class={recipe.heading}
+			class={composition.heading}
 			aria-live="polite"
 			data-kind="range-calendar"
 			data-slot="heading"
@@ -55,7 +55,7 @@ const headingText = $derived(
 		</div>
 		<button
 			type="button"
-			class={recipe.navButton}
+			class={composition.navButton}
 			aria-label="Next month"
 			data-kind="range-calendar"
 			data-slot="next-button"

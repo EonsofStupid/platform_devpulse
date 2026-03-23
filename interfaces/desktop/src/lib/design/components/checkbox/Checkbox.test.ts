@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * Checkbox component browser tests.
- * Tests ARIA compliance, data-state derivation, recipe application, and contract shape.
+ * Tests ARIA compliance, data-state derivation, composition application, and contract shape.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
@@ -133,8 +133,8 @@ describe("checkbox component — data-state", () => {
 // RECIPE CLASSES
 // =============================================================================
 
-describe("checkbox component — recipe", () => {
-	test("applies recipe base classes", async () => {
+describe("checkbox component — composition", () => {
+	test("applies composition base classes", async () => {
 		const { getByRole } = render(Checkbox);
 		const el = getByRole("checkbox");
 		await expect.element(el).toHaveClass("inline-flex");

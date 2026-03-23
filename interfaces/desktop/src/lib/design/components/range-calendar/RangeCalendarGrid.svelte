@@ -10,12 +10,12 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getRangeCalendarContext } from "./context.js";
-import { rangeCalendarRecipe } from "./recipe.js";
+import { rangeCalendarComposition } from "./composition.js";
 import type { RangeCalendarGridProps } from "./types.js";
 
 let { children, class: className, ...rest }: RangeCalendarGridProps = $props();
 const ctx = getRangeCalendarContext();
-const recipe = $derived(rangeCalendarRecipe({ size: ctx.size }));
+const composition = $derived(rangeCalendarComposition({ size: ctx.size }));
 
 const weekDayNames = $derived(
 	Array.from({ length: 7 }, (_, i) => {
@@ -52,7 +52,7 @@ const weeks = $derived(getCalendarDates(ctx.currentMonth));
 	role="grid"
 	aria-labelledby={ctx.headingId}
 	aria-multiselectable="true"
-	class={cn(recipe.grid, className)}
+	class={cn(composition.grid, className)}
 	data-kind="range-calendar"
 	data-slot="grid"
 	{...rest}
@@ -63,7 +63,7 @@ const weeks = $derived(getCalendarDates(ctx.currentMonth));
 		<thead>
 			<tr>
 				{#each weekDayNames as dayName}
-					<th scope="col" class={recipe.headCell} abbr={dayName}>
+					<th scope="col" class={composition.headCell} abbr={dayName}>
 						{dayName}
 					</th>
 				{/each}
@@ -85,7 +85,7 @@ const weeks = $derived(getCalendarDates(ctx.currentMonth));
 							<button
 								type="button"
 								role="gridcell"
-								class={recipe.cell}
+								class={composition.cell}
 								aria-selected={isSelected || isInRange}
 								aria-disabled={isDisabled || undefined}
 								aria-current={isToday ? "date" : undefined}

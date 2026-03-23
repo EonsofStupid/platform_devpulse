@@ -60,7 +60,7 @@ describe("kbd component — structural attributes", () => {
 // RECIPE CLASSES
 // =============================================================================
 
-describe("kbd component — recipe classes", () => {
+describe("kbd component — composition classes", () => {
 	test("applies base keycap styling", async () => {
 		const { container } = render(Kbd);
 		const el = container.querySelector("[data-kind='kbd']") as HTMLElement;

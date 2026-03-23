@@ -54,7 +54,7 @@ export const coldlightTheme = createCssVariablesTheme({
  * CSS custom properties that map Shiki's output to ColdLight tokens.
  *
  * These MUST be defined in CSS for the theme to render correctly.
- * The code recipe injects these on [data-kind="code"].
+ * The code composition injects these on [data-kind="code"].
  */
 export const COLDLIGHT_SHIKI_CSS_VARS = {
 	"--shiki-foreground": "var(--color-text-primary)",
@@ -99,7 +99,7 @@ export const COLDLIGHT_SHIKI_ANSI_VARS = {
 
 /**
  * Generate a complete CSS block with all ColdLight Shiki variables.
- * Inject this into your stylesheet or use the code recipe.
+ * Inject this into your stylesheet or use the code composition.
  *
  * ```ts
  * const css = coldlightShikiCss();

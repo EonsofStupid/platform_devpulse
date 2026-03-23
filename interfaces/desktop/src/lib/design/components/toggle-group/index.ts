@@ -5,7 +5,7 @@
  */
 
 export { contract as toggleGroupComponentContract } from "./contract.js";
-export { toggleGroupItemRecipe, toggleGroupRecipe } from "./recipe.js";
+export { toggleGroupItemComposition, toggleGroupComposition } from "./composition.js";
 export { default as ToggleGroup } from "./ToggleGroup.svelte";
 export type {
 	ToggleGroupComponentProps,

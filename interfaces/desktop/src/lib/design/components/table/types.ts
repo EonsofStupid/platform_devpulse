@@ -15,7 +15,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 export type TableSize = "sm" | "md" | "lg";
 export type TableVariant = "default" | "striped" | "bordered";
 
-/** Table component props — ARIA + recipe + ColdLight 8-axis */
+/** Table component props — ARIA + composition + ColdLight 8-axis */
 export interface TableComponentProps
 	extends Omit<HTMLAttributes<HTMLTableElement>, "style" | "children">,
 		BaseProps,

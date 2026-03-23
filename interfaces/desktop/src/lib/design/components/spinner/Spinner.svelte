@@ -3,29 +3,53 @@
 	@kind spinner
 	@layer components
 
-	ColdLight Spinner — builder-driven, 8-axis visual system.
+	Animated loading indicator. Hook (ARIA) + StyleMacro (visual).
+	role="status" with polite live region.
 -->
 <script lang="ts">
-import { createSpinner } from "$lib/design/api/dsadapters/coldlight/_internal/spinner/index.js";
-import SpinnerRoot from "$lib/design/primitives/spinner/Spinner.svelte";
+import { useSpinner } from "$lib/design/primitives/spinner/index.js";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { spinnerRecipe } from "./recipe.js";
-import type { SpinnerProps } from "./types.js";
+import type { SpinnerProps, SpinnerSize } from "./types.js";
+
+const SIZE: Record<SpinnerSize, string> = {
+	sm: "size-4",
+	md: "size-6",
+	lg: "size-8",
+};
 
 let {
-	size = "md",
 	active = true,
-	onActiveChange,
+	size = "md",
 	class: className,
 	...rest
 }: SpinnerProps = $props();
 
-const builder = createSpinner({
-	active: () => active,
-		onActiveChange: (v: any) => onActiveChange?.(v),
-});
-
-const classes = $derived(cn(spinnerRecipe({ size }), className));
+const spinner = $derived(useSpinner({ active }));
+const styleId = "spinner-default";
 </script>
 
-<SpinnerRoot {...builder.root} {...rest} class={classes} />
+{#if active}
+	<StyleMacro kind="spinner" style={styleId}>
+		<div
+			{...spinner.root}
+			data-kind="spinner"
+			data-slot="root"
+			data-state={active ? "active" : "idle"}
+			class={cn("inline-flex items-center justify-center animate-spin", SIZE[size] ?? SIZE.md, className)}
+			{...rest}
+		>
+			<svg
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2.5"
+				class="size-full"
+				aria-hidden="true"
+			>
+				<circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
+				<path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round" />
+			</svg>
+		</div>
+	</StyleMacro>
+{/if}

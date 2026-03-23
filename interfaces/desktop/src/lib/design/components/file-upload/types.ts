@@ -14,7 +14,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type FileUploadSize = "sm" | "md" | "lg";
 
-/** FileUpload component props — ColdLight 8-axis + ARIA + recipe */
+/** FileUpload component props — ColdLight 8-axis + ARIA + composition */
 export interface FileUploadComponentProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
 		BaseProps,

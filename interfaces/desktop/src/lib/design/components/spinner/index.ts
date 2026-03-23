@@ -8,6 +8,6 @@
  */
 
 export { contract as spinnerComponentContract } from "./contract.js";
-export { type SpinnerSize, spinnerRecipe } from "./recipe.js";
+export { type SpinnerSize, spinnerComposition } from "./composition.js";
 export { default as Spinner } from "./Spinner.svelte";
 export type { SpinnerProps } from "./types.js";

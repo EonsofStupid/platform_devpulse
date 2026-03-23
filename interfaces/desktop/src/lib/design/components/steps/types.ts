@@ -15,7 +15,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 export type StepsSize = "sm" | "md" | "lg";
 export type StepsOrientation = "horizontal" | "vertical";
 
-/** Steps component props — ARIA + recipe + ColdLight 8-axis */
+/** Steps component props — ARIA + composition + ColdLight 8-axis */
 export interface StepsComponentProps
 	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children">,
 		BaseProps,

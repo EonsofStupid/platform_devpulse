@@ -90,8 +90,8 @@ describe("toggle-group component — ARIA", () => {
 	});
 });
 
-describe("toggle-group component — recipe", () => {
-	test("applies recipe base classes", async () => {
+describe("toggle-group component — composition", () => {
+	test("applies composition base classes", async () => {
 		const { container } = render(ToggleGroup, {
 			items: [{ value: "a", label: "A" }],
 		});

@@ -4,7 +4,7 @@
 	@layer components
 
 	ColdLight InputGroup — builder-driven component.
-	Builder owns ALL ARIA semantics. Component adds recipe classes.
+	Builder owns ALL ARIA semantics. Component adds composition classes.
 
 	Compound builder with slots: root, prefix, input, suffix.
 	WAI-ARIA: role="group" to associate input with addons.
@@ -14,11 +14,11 @@ import { createInputGroup } from "$lib/design/api/dsadapters/coldlight/_internal
 import InputGroupRoot from "$lib/design/primitives/input-group/InputGroup.svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import {
-	inputGroupInputRecipe,
-	inputGroupPrefixRecipe,
-	inputGroupRecipe,
-	inputGroupSuffixRecipe,
-} from "./recipe.js";
+	inputGroupInputComposition,
+	inputGroupPrefixComposition,
+	inputGroupComposition,
+	inputGroupSuffixComposition,
+} from "./composition.js";
 import type { InputGroupComponentProps } from "./types.js";
 
 let {
@@ -43,10 +43,10 @@ const builder = createInputGroup({
 
 // Resolve ColdLight visual props
 const rootClasses = $derived(
-	cn(inputGroupRecipe({ size }), className));
-const prefixClasses = $derived(cn(inputGroupPrefixRecipe({ size })));
-const inputClasses = $derived(cn(inputGroupInputRecipe()));
-const suffixClasses = $derived(cn(inputGroupSuffixRecipe({ size })));
+	cn(inputGroupComposition({ size }), className));
+const prefixClasses = $derived(cn(inputGroupPrefixComposition({ size })));
+const inputClasses = $derived(cn(inputGroupInputComposition()));
+const suffixClasses = $derived(cn(inputGroupSuffixComposition({ size })));
 </script>
 
 <InputGroupRoot {...builder.root} {...rest} class={rootClasses}>

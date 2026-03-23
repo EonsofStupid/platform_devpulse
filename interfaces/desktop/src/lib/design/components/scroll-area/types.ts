@@ -15,7 +15,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 export type ScrollAreaSize = "sm" | "md" | "lg";
 export type ScrollAreaOrientation = "horizontal" | "vertical";
 
-/** ScrollArea component props — ARIA + recipe + ColdLight 8-axis */
+/** ScrollArea component props — ARIA + composition + ColdLight 8-axis */
 export interface ScrollAreaComponentProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
 		BaseProps,

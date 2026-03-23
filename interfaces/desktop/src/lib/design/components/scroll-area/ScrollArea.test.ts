@@ -4,7 +4,7 @@
  * @layer components
  *
  * Vitest browser tests — real Chromium via @vitest/browser-playwright.
- * Tests: recipe application, prop forwarding, ARIA attributes, builder integration.
+ * Tests: composition application, prop forwarding, ARIA attributes, builder integration.
  */
 
 import { describe, expect, it } from "vitest";
@@ -65,7 +65,7 @@ describe("ScrollArea component", () => {
 		await expect.element(scrollbar).toHaveAttribute("data-orientation", "horizontal");
 	});
 
-	it("applies recipe classes", async () => {
+	it("applies composition classes", async () => {
 		const screen = render(ScrollArea, {
 			props: { label: "Content" },
 		});

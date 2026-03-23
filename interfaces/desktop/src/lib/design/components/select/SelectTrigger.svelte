@@ -11,18 +11,18 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getSelectContext } from "./context.js";
-import { selectRecipe } from "./recipe.js";
+import { selectComposition } from "./composition.js";
 import type { SelectTriggerProps } from "./types.js";
 
 let { children, class: className, ...rest }: SelectTriggerProps = $props();
 
 const transport = getSelectContext();
-const recipe = selectRecipe();
+const composition = selectComposition();
 </script>
 
 <button
 	{...transport.slots.trigger}
-	class={cn(recipe.trigger, className)}
+	class={cn(composition.trigger, className)}
 	data-kind="select"
 	data-slot="trigger"
 	data-state={transport.states.open ? "open" : "closed"}

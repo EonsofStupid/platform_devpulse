@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * InlineMessage component browser tests.
- * Tests ARIA compliance, data-state derivation, recipe application, and contract shape.
+ * Tests ARIA compliance, data-state derivation, composition application, and contract shape.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
@@ -99,8 +99,8 @@ describe("inline-message component — data-state", () => {
 // RECIPE CLASSES
 // =============================================================================
 
-describe("inline-message component — recipe", () => {
-	test("applies recipe base classes", async () => {
+describe("inline-message component — composition", () => {
+	test("applies composition base classes", async () => {
 		const { getByRole } = render(InlineMessage);
 		const el = getByRole("status");
 		await expect.element(el).toHaveClass("inline-flex");

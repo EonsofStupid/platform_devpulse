@@ -15,7 +15,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 export type DescriptionListSize = "sm" | "md" | "lg";
 export type DescriptionListVariant = "default" | "inline" | "grid";
 
-/** DescriptionList component props — ARIA + recipe + ColdLight 8-axis */
+/** DescriptionList component props — ARIA + composition + ColdLight 8-axis */
 export interface DescriptionListComponentProps
 	extends Omit<HTMLAttributes<HTMLDListElement>, "style" | "children">,
 		BaseProps,

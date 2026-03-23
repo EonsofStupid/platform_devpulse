@@ -3,13 +3,23 @@
 	@kind toggle
 	@layer components
 
-	ColdLight Toggle — MeltUI transport + 8-axis visual system.
+	Pressable toggle button. Hook (ARIA aria-pressed) + StyleMacro (visual).
+
+	WAI-ARIA: button with aria-pressed
 -->
 <script lang="ts">
-import { createToggleTransport } from "$lib/design/api/dsadapters/meltui/_internal/toggle/index.js";
+import { useToggle } from "$lib/design/primitives/toggle/use-toggle.svelte.js";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { toggleRecipe } from "./recipe.js";
 import type { ToggleProps } from "./types.js";
+
+type ToggleSize = "sm" | "md" | "lg";
+
+const SIZE: Record<ToggleSize, string> = {
+	sm: "h-8 px-2 text-sm",
+	md: "h-10 px-3 text-sm",
+	lg: "h-12 px-4 text-base",
+};
 
 let {
 	size = "md",
@@ -21,31 +31,28 @@ let {
 	...rest
 }: ToggleProps = $props();
 
-const transport = createToggleTransport({
-	get disabled() {
-		return disabled;
-	},
-	get value() {
-		return pressed;
-	},
+const toggle = useToggle({
+	get pressed() { return pressed; },
+	get disabled() { return disabled; },
+	onPressedChange: (v) => onPressedChange?.(v),
 });
 
-$effect(() => {
-	if (onPressedChange && transport.states.pressed !== pressed) {
-		onPressedChange(transport.states.pressed);
-	}
-});
-
-const classes = $derived(cn(toggleRecipe({ size }), className));
+const styleId = "toggle-default";
 </script>
 
-<button
-	{...transport.slots.trigger}
-	{...rest}
-	class={classes}
-	data-kind="toggle"
-	data-slot="root"
-	data-state={transport.states.pressed ? "on" : "off"}
->
-	{@render children?.()}
-</button>
+<StyleMacro kind="toggle" style={styleId}>
+	<button
+		{...toggle.root}
+		{...rest}
+		data-kind="toggle"
+		data-slot="root"
+		class={cn(
+			"inline-flex items-center justify-center rounded-md font-medium cursor-pointer",
+			"focus-visible:outline-2 focus-visible:outline-offset-2",
+			"disabled:pointer-events-none disabled:opacity-50",
+			SIZE[size as ToggleSize] ?? SIZE.md,
+			className)}
+	>
+		{@render children?.()}
+	</button>
+</StyleMacro>

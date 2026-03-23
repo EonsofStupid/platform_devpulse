@@ -10,17 +10,17 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import { navigationMenuRecipe } from "./recipe.js";
+import { navigationMenuComposition } from "./composition.js";
 import type { NavigationMenuLinkProps } from "./types.js";
 
 let { children, active = false, class: className, ...rest }: NavigationMenuLinkProps = $props();
 
-const recipe = navigationMenuRecipe();
+const composition = navigationMenuComposition();
 </script>
 
 <a
 	aria-current={active ? "page" : undefined}
-	class={cn(recipe.link, className)}
+	class={cn(composition.link, className)}
 	data-kind="navigation-menu"
 	data-slot="link"
 	data-state={active ? "active" : undefined}

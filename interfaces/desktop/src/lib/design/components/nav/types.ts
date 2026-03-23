@@ -15,7 +15,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 export type NavSize = "sm" | "md" | "lg";
 export type NavOrientation = "horizontal" | "vertical";
 
-/** Nav component props — ColdLight 8-axis + ARIA + recipe */
+/** Nav component props — ColdLight 8-axis + ARIA + composition */
 export interface NavComponentProps
 	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children">,
 		BaseProps,

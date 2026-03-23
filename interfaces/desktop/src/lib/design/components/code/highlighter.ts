@@ -16,7 +16,7 @@
  * ```
  *
  * CSS: Ensure ColdLight Shiki CSS vars are defined on [data-kind="code"].
- * The code recipe handles this, or call coldlightShikiCss() to generate.
+ * The code composition handles this, or call coldlightShikiCss() to generate.
  */
 
 import type { BundledLanguage, BundledTheme, HighlighterGeneric } from "shiki";

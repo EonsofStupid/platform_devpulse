@@ -9,18 +9,18 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getRadioGroupContext } from "./context.js";
-import { radioGroupRecipe } from "./recipe.js";
+import { radioGroupComposition } from "./composition.js";
 import type { RadioGroupItemProps } from "./types.js";
 
 let { value, children, class: className, ...rest }: RadioGroupItemProps = $props();
 
 const transport = getRadioGroupContext();
-const recipe = radioGroupRecipe();
+const composition = radioGroupComposition();
 </script>
 
 <button
 	{...transport.item(value)}
-	class={cn(recipe.item, className)}
+	class={cn(composition.item, className)}
 	data-kind="radio-group"
 	data-slot="item"
 	{...rest}

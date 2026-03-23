@@ -14,7 +14,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type FormSize = "sm" | "md" | "lg";
 
-/** Form component props — builder state + recipe + primitive */
+/** Form component props — builder state + composition + primitive */
 export interface FormComponentProps
 	extends Omit<HTMLFormAttributes, "style" | "children">,
 		BaseProps,

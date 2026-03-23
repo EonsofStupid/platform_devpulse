@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * LoadingOverlay component browser tests.
- * Tests ARIA compliance, data-state derivation, recipe application, and contract shape.
+ * Tests ARIA compliance, data-state derivation, composition application, and contract shape.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
@@ -99,8 +99,8 @@ describe("loading-overlay component — data-state", () => {
 // RECIPE CLASSES
 // =============================================================================
 
-describe("loading-overlay component — recipe", () => {
-	test("applies recipe base classes", async () => {
+describe("loading-overlay component — composition", () => {
+	test("applies composition base classes", async () => {
 		const { getByRole } = render(LoadingOverlay, { props: { visible: true } });
 		const el = getByRole("alert");
 		await expect.element(el).toHaveClass("absolute");

@@ -10,7 +10,7 @@
 import { createNav } from "$lib/design/api/dsadapters/coldlight/_internal/nav/index.js";
 import NavRoot from "$lib/design/primitives/nav/Nav.svelte";
 import { cn } from "$lib/design/utils/cn.js";
-import { navRecipe } from "./recipe.js";
+import { navComposition } from "./composition.js";
 import type { NavComponentProps } from "./types.js";
 
 let {
@@ -26,7 +26,7 @@ let {
 const builder = createNav({ label: () => label });
 
 const classes = $derived(
-	cn(navRecipe({ size, orientation }), className));
+	cn(navComposition({ size, orientation }), className));
 </script>
 
 <NavRoot

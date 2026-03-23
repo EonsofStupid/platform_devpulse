@@ -5,7 +5,7 @@
 
 	Text input for editing color values — hex or per-channel.
 	Svelte 5 runes: $state for internal value, $effect for controlled sync,
-	$derived for reactive recipe classes and validation.
+	$derived for reactive composition classes and validation.
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * Code component browser tests.
- * Tests InlineCode and CodeBlock contract, structure, and recipe application.
+ * Tests InlineCode and CodeBlock contract, structure, and composition application.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte

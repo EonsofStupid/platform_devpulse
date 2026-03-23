@@ -6,7 +6,7 @@
  *
  * Separator component browser tests.
  * Tests ARIA application, builder attribute binding, and prop forwarding.
- * Visual/recipe tests (variant, ColdLight encoding) belong in ui/separator/ tests.
+ * Visual/composition tests (variant, ColdLight encoding) belong in ui/separator/ tests.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte

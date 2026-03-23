@@ -5,6 +5,6 @@
  */
 
 export { contract as sheetComponentContract } from "./contract.js";
-export { sheetOverlayRecipe, sheetRecipe } from "./recipe.js";
+export { sheetOverlayComposition, sheetComposition } from "./composition.js";
 export { default as Sheet } from "./Sheet.svelte";
 export type { SheetComponentProps, SheetSide, SheetSize } from "./types.js";

@@ -9,18 +9,18 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getSelectContext } from "./context.js";
-import { selectRecipe } from "./recipe.js";
+import { selectComposition } from "./composition.js";
 import type { SelectLabelProps } from "./types.js";
 
 let { children, class: className, ...rest }: SelectLabelProps = $props();
 
 const transport = getSelectContext();
-const recipe = selectRecipe();
+const composition = selectComposition();
 </script>
 
 <span
 	{...transport.slots.label}
-	class={cn(recipe.label, className)}
+	class={cn(composition.label, className)}
 	data-kind="select"
 	data-slot="label"
 	{...rest}

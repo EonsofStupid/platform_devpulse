@@ -3,30 +3,40 @@
 	@kind skeleton
 	@layer components
 
-	ColdLight Skeleton — builder-driven, 8-axis visual system.
+	Animated loading placeholder. Hook (ARIA) + StyleMacro (visual).
+	Variant determines shape: text (rounded), circular, rectangular.
 -->
 <script lang="ts">
-import { createSkeleton } from "$lib/design/api/dsadapters/coldlight/_internal/skeleton/index.js";
-import SkeletonRoot from "$lib/design/primitives/skeleton/Skeleton.svelte";
+import { useSkeleton } from "$lib/design/primitives/skeleton/index.js";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { skeletonRecipe } from "./recipe.js";
-import type { SkeletonProps } from "./types.js";
+import type { SkeletonProps, SkeletonVariant } from "./types.js";
+
+const VARIANT_CLASSES: Record<SkeletonVariant, string> = {
+	text: "h-4 w-full rounded",
+	circular: "size-10 rounded-full",
+	rectangular: "h-24 w-full rounded-md",
+};
 
 let {
-	variant = "text",
 	loading = true,
-	onLoadingChange,
+	variant = "text",
 	class: className,
 	...rest
 }: SkeletonProps = $props();
 
-const builder = createSkeleton({
-	loading: () => loading,
-		onLoadingChange: (v: any) => onLoadingChange?.(v),
-});
-
-const classes = $derived(
-	cn(skeletonRecipe({ variant }), className));
+const skeleton = $derived(useSkeleton({ loading }));
+const styleId = "skeleton-default";
 </script>
 
-<SkeletonRoot {...builder.root} {...rest} class={classes} />
+<StyleMacro kind="skeleton" style={styleId}>
+	<div
+		{...skeleton.root}
+		data-kind="skeleton"
+		data-slot="root"
+		data-state={loading ? "loading" : "loaded"}
+		data-variant={variant}
+		class={cn("animate-pulse", VARIANT_CLASSES[variant] ?? VARIANT_CLASSES.text, className)}
+		{...rest}
+	></div>
+</StyleMacro>

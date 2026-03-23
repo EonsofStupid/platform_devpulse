@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * Select compound component browser tests.
- * Tests contract shape, sub-component exports, recipe slots.
+ * Tests contract shape, sub-component exports, composition slots.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
@@ -198,10 +198,10 @@ describe("select component — exports", () => {
 		expect(mod.selectComponentContract.kind).toBe("select");
 	});
 
-	test("exports selectRecipe", async () => {
+	test("exports selectComposition", async () => {
 		const mod = await import("./index.js");
-		expect(mod.selectRecipe).toBeDefined();
-		expect(typeof mod.selectRecipe).toBe("function");
+		expect(mod.selectComposition).toBeDefined();
+		expect(typeof mod.selectComposition).toBe("function");
 	});
 });
 
@@ -209,42 +209,42 @@ describe("select component — exports", () => {
 // RECIPE
 // =============================================================================
 
-describe("select component — recipe", () => {
-	test("recipe returns all slot class strings", async () => {
-		const { selectRecipe } = await import("./recipe.js");
-		const recipe = selectRecipe();
-		expect(typeof recipe.trigger).toBe("string");
-		expect(typeof recipe.content).toBe("string");
-		expect(typeof recipe.item).toBe("string");
-		expect(typeof recipe.label).toBe("string");
-		expect(typeof recipe.group).toBe("string");
+describe("select component — composition", () => {
+	test("composition returns all slot class strings", async () => {
+		const { selectComposition } = await import("./composition.js");
+		const composition = selectComposition();
+		expect(typeof composition.trigger).toBe("string");
+		expect(typeof composition.content).toBe("string");
+		expect(typeof composition.item).toBe("string");
+		expect(typeof composition.label).toBe("string");
+		expect(typeof composition.group).toBe("string");
 	});
 
-	test("recipe.trigger contains flex layout", async () => {
-		const { selectRecipe } = await import("./recipe.js");
-		const recipe = selectRecipe();
-		expect(recipe.trigger).toContain("flex");
-		expect(recipe.trigger).toContain("w-full");
+	test("composition.trigger contains flex layout", async () => {
+		const { selectComposition } = await import("./composition.js");
+		const composition = selectComposition();
+		expect(composition.trigger).toContain("flex");
+		expect(composition.trigger).toContain("w-full");
 	});
 
-	test("recipe.trigger contains border classes", async () => {
-		const { selectRecipe } = await import("./recipe.js");
-		const recipe = selectRecipe();
-		expect(recipe.trigger).toContain("border");
-		expect(recipe.trigger).toContain("rounded-lg");
+	test("composition.trigger contains border classes", async () => {
+		const { selectComposition } = await import("./composition.js");
+		const composition = selectComposition();
+		expect(composition.trigger).toContain("border");
+		expect(composition.trigger).toContain("rounded-lg");
 	});
 
-	test("recipe.content contains z-index and border", async () => {
-		const { selectRecipe } = await import("./recipe.js");
-		const recipe = selectRecipe();
-		expect(recipe.content).toContain("z-50");
-		expect(recipe.content).toContain("border");
-		expect(recipe.content).toContain("rounded-lg");
+	test("composition.content contains z-index and border", async () => {
+		const { selectComposition } = await import("./composition.js");
+		const composition = selectComposition();
+		expect(composition.content).toContain("z-50");
+		expect(composition.content).toContain("border");
+		expect(composition.content).toContain("rounded-lg");
 	});
 
-	test("recipe.item contains cursor-pointer", async () => {
-		const { selectRecipe } = await import("./recipe.js");
-		const recipe = selectRecipe();
-		expect(recipe.item).toContain("cursor-pointer");
+	test("composition.item contains cursor-pointer", async () => {
+		const { selectComposition } = await import("./composition.js");
+		const composition = selectComposition();
+		expect(composition.item).toContain("cursor-pointer");
 	});
 });

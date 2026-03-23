@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * TableOfContents component browser tests.
- * Tests ARIA semantics, builder integration, and recipe application.
+ * Tests ARIA semantics, builder integration, and composition application.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
@@ -79,7 +79,7 @@ describe("table-of-contents component -- ARIA", () => {
 // RECIPE APPLICATION
 // =============================================================================
 
-describe("table-of-contents component -- recipe", () => {
+describe("table-of-contents component -- composition", () => {
 	test("passes class prop to element", async () => {
 		const { getByRole } = render(TableOfContents, { props: { class: "test-class" } });
 		const nav = getByRole("navigation");

@@ -4,7 +4,7 @@
 	@layer components
 
 	ColdLight Form — builder-driven component.
-	Builder owns ALL ARIA semantics. Component adds recipe classes.
+	Builder owns ALL ARIA semantics. Component adds composition classes.
 
 	Single root slot. Native <form> element with submit/reset handling.
 -->
@@ -12,7 +12,7 @@
 import { createForm } from "$lib/design/api/dsadapters/coldlight/_internal/form/index.js";
 import FormRoot from "$lib/design/primitives/form/Form.svelte";
 import { cn } from "$lib/design/utils/cn.js";
-import { formRecipe } from "./recipe.js";
+import { formComposition } from "./composition.js";
 import type { FormComponentProps } from "./types.js";
 
 let {
@@ -36,7 +36,7 @@ const builder = createForm({
 });
 
 // Resolve ColdLight visual props
-const classes = $derived(cn(formRecipe({ size }), className));
+const classes = $derived(cn(formComposition({ size }), className));
 </script>
 
 <FormRoot {...builder.root} {...rest} class={classes}>

@@ -2,13 +2,13 @@
 	@component Steps
 	@kind steps
 	@layer components
-	ColdLight Steps — builder-driven. Builder owns ARIA. Component adds recipe.
+	ColdLight Steps — builder-driven. Builder owns ARIA. Component adds composition.
 -->
 <script lang="ts">
 import { createSteps } from "$lib/design/api/dsadapters/coldlight/_internal/steps/index.js";
 import StepsRoot from "$lib/design/primitives/steps/Steps.svelte";
 import { cn } from "$lib/design/utils/cn.js";
-import { stepsRecipe } from "./recipe.js";
+import { stepsComposition } from "./composition.js";
 import type { StepsComponentProps } from "./types.js";
 
 let {
@@ -41,7 +41,7 @@ const builder = createSteps({
 });
 
 const classes = $derived(
-	cn(stepsRecipe({ size, orientation }), className));
+	cn(stepsComposition({ size, orientation }), className));
 </script>
 
 <StepsRoot {...builder.root} {...rest} class={classes}>

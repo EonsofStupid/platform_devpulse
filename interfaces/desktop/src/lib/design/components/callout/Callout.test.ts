@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * Callout component browser tests.
- * Tests ARIA compliance, data-state derivation, recipe application, and contract shape.
+ * Tests ARIA compliance, data-state derivation, composition application, and contract shape.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
@@ -93,8 +93,8 @@ describe("callout component — data-state", () => {
 // RECIPE CLASSES
 // =============================================================================
 
-describe("callout component — recipe", () => {
-	test("applies recipe base classes", async () => {
+describe("callout component — composition", () => {
+	test("applies composition base classes", async () => {
 		const { getByRole } = render(Callout);
 		const el = getByRole("note");
 		await expect.element(el).toHaveClass("relative");

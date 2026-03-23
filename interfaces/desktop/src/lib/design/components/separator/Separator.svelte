@@ -3,14 +3,19 @@
 	@kind separator
 	@layer components
 
-	ColdLight Separator — builder-driven, 8-axis visual system.
+	Horizontal or vertical divider. Hook (ARIA) + StyleMacro (visual).
+	Decorative separators are aria-hidden. Semantic ones use role="separator".
 -->
 <script lang="ts">
-import { createSeparator } from "$lib/design/api/dsadapters/coldlight/_internal/separator/index.js";
-import SeparatorRoot from "$lib/design/primitives/separator/Separator.svelte";
+import { useSeparator } from "$lib/design/primitives/separator/use-separator.svelte.js";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { separatorRecipe } from "./recipe.js";
-import type { SeparatorProps } from "./types.js";
+import type { SeparatorProps, SeparatorOrientation } from "./types.js";
+
+const ORIENTATION_CLASSES: Record<SeparatorOrientation, string> = {
+	horizontal: "h-px w-full",
+	vertical: "w-px h-full",
+};
 
 let {
 	orientation = "horizontal",
@@ -20,13 +25,18 @@ let {
 	...rest
 }: SeparatorProps = $props();
 
-const builder = createSeparator({
-	orientation: () => orientation,
-	decorative: () => decorative,
-});
-
-const classes = $derived(
-	cn(separatorRecipe({ orientation, variant }), className));
+const separator = $derived(useSeparator({ orientation, decorative }));
+const styleId = "separator-default";
 </script>
 
-<SeparatorRoot {...builder.root} {...rest} class={classes} />
+<StyleMacro kind="separator" style={styleId}>
+	<hr
+		{...separator.root}
+		data-kind="separator"
+		data-slot="root"
+		data-orientation={orientation}
+		data-variant={variant}
+		class={cn(ORIENTATION_CLASSES[orientation] ?? ORIENTATION_CLASSES.horizontal, className)}
+		{...rest}
+	/>
+</StyleMacro>

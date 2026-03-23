@@ -6,7 +6,7 @@
 	ColdLight DescriptionList — wraps structureless DescriptionListRoot with:
 	- ARIA attributes (aria-label)
 	- Builder-driven attribute binding for dt/dd semantics
-	- SD5 token-driven recipe (variant x size)
+	- SD5 token-driven composition (variant x size)
 
 	ColdLight OWNS all ARIA. Primitive is structural only.
 -->
@@ -14,7 +14,7 @@
 import { createDescriptionList } from "$lib/design/api/dsadapters/coldlight/_internal/description-list/index.js";
 import DescriptionListRoot from "$lib/design/primitives/description-list/DescriptionList.svelte";
 import { cn } from "$lib/design/utils/cn.js";
-import { descriptionListRecipe } from "./recipe.js";
+import { descriptionListComposition } from "./composition.js";
 import type { DescriptionListComponentProps } from "./types.js";
 
 let {
@@ -33,7 +33,7 @@ const builder = createDescriptionList({
 });
 
 const classes = $derived(
-	cn(descriptionListRecipe({ size, variant }), className));
+	cn(descriptionListComposition({ size, variant }), className));
 </script>
 
 <DescriptionListRoot {...builder.root} {...rest} class={classes}>

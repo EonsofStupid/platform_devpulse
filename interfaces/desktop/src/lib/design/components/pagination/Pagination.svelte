@@ -11,11 +11,11 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import {
-	paginationEllipsisRecipe,
-	paginationNavRecipe,
-	paginationPageRecipe,
-	paginationRootRecipe,
-} from "./recipe.js";
+	paginationEllipsisComposition,
+	paginationNavComposition,
+	paginationPageComposition,
+	paginationRootComposition,
+} from "./composition.js";
 import type { PaginationComponentProps } from "./types.js";
 
 let {
@@ -84,8 +84,8 @@ const isFirstPage = $derived(page <= 1);
 const isLastPage = $derived(page >= totalPages);
 
 // Resolve ColdLight visual
-// Compose: structural recipe + ColdLight visual + user classes
-const rootClasses = $derived(cn(paginationRootRecipe(), className));
+// Compose: structural composition + ColdLight visual + user classes
+const rootClasses = $derived(cn(paginationRootComposition(), className));
 </script>
 
 <nav
@@ -96,7 +96,7 @@ const rootClasses = $derived(cn(paginationRootRecipe(), className));
 	data-slot="root"
 >
 	<button
-		class={paginationNavRecipe({ size })}
+		class={paginationNavComposition({ size })}
 		data-kind="pagination"
 		data-slot="previous"
 		disabled={isFirstPage}
@@ -111,7 +111,7 @@ const rootClasses = $derived(cn(paginationRootRecipe(), className));
 	{#each pages as item, idx}
 		{#if item === "ellipsis"}
 			<span
-				class={paginationEllipsisRecipe({ size })}
+				class={paginationEllipsisComposition({ size })}
 				data-kind="pagination"
 				data-slot="ellipsis"
 				role="presentation"
@@ -121,7 +121,7 @@ const rootClasses = $derived(cn(paginationRootRecipe(), className));
 		{:else}
 			{@const isActive = item === page}
 			<button
-				class={paginationPageRecipe({ size, active: isActive })}
+				class={paginationPageComposition({ size, active: isActive })}
 				data-kind="pagination"
 				data-slot="page"
 				data-state={isActive ? "selected" : "idle"}
@@ -135,7 +135,7 @@ const rootClasses = $derived(cn(paginationRootRecipe(), className));
 	{/each}
 
 	<button
-		class={paginationNavRecipe({ size })}
+		class={paginationNavComposition({ size })}
 		data-kind="pagination"
 		data-slot="next"
 		disabled={isLastPage}

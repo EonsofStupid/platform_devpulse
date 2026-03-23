@@ -4,7 +4,7 @@
  * @layer components
  *
  * Vitest browser tests — real Chromium via @vitest/browser-playwright.
- * Tests: recipe application, prop forwarding, ARIA attributes, builder integration.
+ * Tests: composition application, prop forwarding, ARIA attributes, builder integration.
  */
 
 import { describe, expect, it } from "vitest";
@@ -77,7 +77,7 @@ describe("Sheet component", () => {
 		await expect.element(content).toHaveAttribute("data-side", "left");
 	});
 
-	it("applies recipe content classes with size and side", async () => {
+	it("applies composition content classes with size and side", async () => {
 		const screen = render(Sheet, {
 			props: { label: "Settings", open: true, size: "lg", side: "right" },
 		});

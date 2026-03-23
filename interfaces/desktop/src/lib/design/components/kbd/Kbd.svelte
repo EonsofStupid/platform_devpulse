@@ -3,14 +3,19 @@
 	@kind kbd
 	@layer components
 
-	ColdLight Kbd — builder-driven, 8-axis visual system.
+	Keyboard shortcut display. StyleMacro (visual). Pure presentation.
+	No ARIA hook needed — <kbd> is semantically correct natively.
 -->
 <script lang="ts">
-import { createKbd } from "$lib/design/api/dsadapters/coldlight/_internal/kbd/index.js";
-import KbdRoot from "$lib/design/primitives/kbd/Kbd.svelte";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { kbdRecipe } from "./recipe.js";
-import type { KbdProps } from "./types.js";
+import type { KbdProps, KbdSize } from "./types.js";
+
+const SIZE: Record<KbdSize, string> = {
+	sm: "px-1 py-0.5 text-xs",
+	md: "px-1.5 py-0.5 text-xs",
+	lg: "px-2 py-1 text-sm",
+};
 
 let {
 	size = "md",
@@ -19,11 +24,19 @@ let {
 	...rest
 }: KbdProps = $props();
 
-const builder = createKbd();
-
-const classes = $derived(cn(kbdRecipe({ size }), className));
+const styleId = "kbd-default";
 </script>
 
-<KbdRoot {...builder.root} {...rest} class={classes}>
-	{@render children?.()}
-</KbdRoot>
+<StyleMacro kind="kbd" style={styleId}>
+	<kbd
+		data-kind="kbd"
+		data-slot="root"
+		class={cn(
+			"inline-flex items-center justify-center rounded border font-mono",
+			SIZE[size] ?? SIZE.md,
+			className)}
+		{...rest}
+	>
+		{@render children?.()}
+	</kbd>
+</StyleMacro>

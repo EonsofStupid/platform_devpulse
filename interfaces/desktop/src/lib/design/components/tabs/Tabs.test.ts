@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * Tabs compound component browser tests.
- * Tests contract shape, ARIA attributes, sub-component rendering, and recipe application.
+ * Tests contract shape, ARIA attributes, sub-component rendering, and composition application.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte

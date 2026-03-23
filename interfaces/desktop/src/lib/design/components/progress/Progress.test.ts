@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * Progress component browser tests.
- * Tests ARIA application, data-state derivation, recipe class application,
+ * Tests ARIA application, data-state derivation, composition class application,
  * indicator width computation, and prop forwarding.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
@@ -167,7 +167,7 @@ describe("progress component — data-state", () => {
 // =============================================================================
 
 describe("progress component — prop passthrough", () => {
-	test("passes class prop and applies recipe", async () => {
+	test("passes class prop and applies composition", async () => {
 		const { getByRole } = render(Progress, { props: { value: 50, class: "custom-progress" } });
 		const progress = getByRole("progressbar");
 		await expect.element(progress).toHaveClass("custom-progress");

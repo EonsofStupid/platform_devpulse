@@ -15,7 +15,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 export type DataTableSize = "sm" | "md" | "lg";
 export type DataTableVariant = "default" | "striped" | "bordered";
 
-/** DataTable component props — ColdLight 8-axis + ARIA + recipe + primitive */
+/** DataTable component props — ColdLight 8-axis + ARIA + composition + primitive */
 export interface DataTableComponentProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
 		BaseProps,

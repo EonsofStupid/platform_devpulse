@@ -12,7 +12,7 @@
 import { createSliderTransport } from "$lib/design/api/dsadapters/meltui/_internal/slider/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setSliderContext } from "./context.js";
-import { sliderRecipe } from "./recipe.js";
+import { sliderComposition } from "./composition.js";
 import type { SliderProps } from "./types.js";
 
 let {
@@ -50,12 +50,12 @@ const transport = createSliderTransport({
 
 setSliderContext(transport);
 
-const recipe = sliderRecipe();
+const composition = sliderComposition();
 </script>
 
 <div
 	{...transport.slots.root}
-	class={cn(recipe.root, className)}
+	class={cn(composition.root, className)}
 	data-kind="slider"
 	data-slot="root"
 	data-orientation={orientation}

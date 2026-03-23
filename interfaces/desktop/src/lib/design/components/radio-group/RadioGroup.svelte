@@ -12,7 +12,7 @@
 import { createRadioGroupTransport } from "$lib/design/api/dsadapters/meltui/_internal/radio-group/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setRadioGroupContext } from "./context.js";
-import { radioGroupRecipe } from "./recipe.js";
+import { radioGroupComposition } from "./composition.js";
 import type { RadioGroupProps } from "./types.js";
 
 let {
@@ -49,12 +49,12 @@ const transport = createRadioGroupTransport({
 
 setRadioGroupContext(transport);
 
-const recipe = radioGroupRecipe();
+const composition = radioGroupComposition();
 </script>
 
 <div
 	{...transport.slots.root}
-	class={cn(recipe.root, orientation === "horizontal" ? "flex-row" : "flex-col", className)}
+	class={cn(composition.root, orientation === "horizontal" ? "flex-row" : "flex-col", className)}
 	data-kind="radio-group"
 	data-slot="root"
 	data-orientation={orientation}

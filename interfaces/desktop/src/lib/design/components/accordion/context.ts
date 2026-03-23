@@ -6,7 +6,7 @@
  * 1. Root context: hook return + ids + dir + orientation
  * 2. Item context: item value + disabled (set by Item, consumed by Trigger/Content)
  *
- * NO recipe classes. Visual comes from StyleMacro via [data-kind] glue CSS.
+ * NO composition classes. Visual comes from StyleMacro via [data-kind] glue CSS.
  */
 
 import { getContext, setContext } from "svelte";

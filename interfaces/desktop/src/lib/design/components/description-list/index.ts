@@ -6,7 +6,7 @@
 
 export { contract as descriptionListComponentContract } from "./contract.js";
 export { default as DescriptionList } from "./DescriptionList.svelte";
-export { descriptionListRecipe } from "./recipe.js";
+export { descriptionListComposition } from "./composition.js";
 export type {
 	DescriptionListComponentProps,
 	DescriptionListSize,

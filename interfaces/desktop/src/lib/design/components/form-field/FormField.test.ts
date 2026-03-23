@@ -86,8 +86,8 @@ describe("form-field component — ARIA", () => {
 	});
 });
 
-describe("form-field component — recipe", () => {
-	test("applies recipe base classes", async () => {
+describe("form-field component — composition", () => {
+	test("applies composition base classes", async () => {
 		const { container } = render(FormField, {
 			label: "Test",
 		});

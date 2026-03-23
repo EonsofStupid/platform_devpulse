@@ -3,44 +3,40 @@
 	@kind skip-link
 	@layer components
 
-	ColdLight SkipLink -- wraps structureless SkipLinkRoot with:
-	- ARIA attributes (aria-label, href via builder)
-	- Focus management (builder handles click -> focus target)
-	- SD5 token-driven recipe (sr-only + focus-visible)
-
-	ColdLight OWNS all ARIA. Primitive is structural only.
+	Screen reader skip navigation link. StyleMacro (visual).
+	sr-only until focused, then visible. Standard a11y pattern.
 -->
 <script lang="ts">
-import { createSkipLink } from "$lib/design/api/dsadapters/coldlight/_internal/skip-link/index.js";
-import SkipLinkRoot from "$lib/design/primitives/skip-link/SkipLink.svelte";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { skipLinkRecipe } from "./recipe.js";
 import type { SkipLinkComponentProps } from "./types.js";
 
 let {
-	// Kind-specific props
 	href = "#main-content",
 	label = "Skip to main content",
 	children,
 	class: className,
-	size,
 	...rest
 }: SkipLinkComponentProps = $props();
 
-const builder = createSkipLink({
-	href: () => href,
-	label: () => label,
-});
-
-// Resolve ColdLight visual
-// Compose: structural recipe + ColdLight visual + user classes
-const classes = $derived(cn(skipLinkRecipe(), className));
+const styleId = "skip-link-default";
 </script>
 
-<SkipLinkRoot {...builder.root} {...rest} class={classes}>
-	{#if children}
-		{@render children()}
-	{:else}
-		{label}
-	{/if}
-</SkipLinkRoot>
+<StyleMacro kind="skip-link" style={styleId}>
+	<a
+		{href}
+		data-kind="skip-link"
+		data-slot="root"
+		class={cn(
+			"sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999]",
+			"focus:px-4 focus:py-2 focus:rounded focus:font-medium focus:text-sm",
+			className)}
+		{...rest}
+	>
+		{#if children}
+			{@render children()}
+		{:else}
+			{label}
+		{/if}
+	</a>
+</StyleMacro>

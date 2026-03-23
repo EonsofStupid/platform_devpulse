@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * SkipLink component browser tests.
- * Tests ARIA semantics, builder integration, focus management, and recipe.
+ * Tests ARIA semantics, builder integration, focus management, and composition.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
@@ -92,7 +92,7 @@ describe("skip-link component -- default text", () => {
 // RECIPE APPLICATION
 // =============================================================================
 
-describe("skip-link component -- recipe", () => {
+describe("skip-link component -- composition", () => {
 	test("passes class prop to element", async () => {
 		const { getByRole } = render(SkipLink, { props: { class: "test-class" } });
 		const link = getByRole("link");

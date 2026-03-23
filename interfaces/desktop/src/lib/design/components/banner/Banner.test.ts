@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * Banner component browser tests.
- * Tests ARIA compliance, positioning, dismiss behavior, recipe application, and contract shape.
+ * Tests ARIA compliance, positioning, dismiss behavior, composition application, and contract shape.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte

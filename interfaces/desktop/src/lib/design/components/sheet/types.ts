@@ -15,7 +15,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 export type SheetSize = "sm" | "md" | "lg" | "xl" | "full";
 export type SheetSide = "left" | "right" | "top" | "bottom";
 
-/** Sheet component props — ARIA + recipe + primitive */
+/** Sheet component props — ARIA + composition + primitive */
 export interface SheetComponentProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
 		BaseProps,

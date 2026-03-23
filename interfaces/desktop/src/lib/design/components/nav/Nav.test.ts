@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * Nav component browser tests.
- * Tests ARIA semantics, builder integration, and recipe application.
+ * Tests ARIA semantics, builder integration, and composition application.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
@@ -68,7 +68,7 @@ describe("nav component -- ARIA", () => {
 // RECIPE APPLICATION
 // =============================================================================
 
-describe("nav component -- recipe", () => {
+describe("nav component -- composition", () => {
 	test("passes class prop to element", async () => {
 		const { getByRole } = render(Nav, { props: { class: "test-class" } });
 		const nav = getByRole("navigation");
