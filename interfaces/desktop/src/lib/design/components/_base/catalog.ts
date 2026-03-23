@@ -4,8 +4,8 @@
 
 import type { ComponentDef } from "./types.js";
 
-/** All registered component definitions, keyed by kind. */
-export const COMPONENT_MAP: Readonly<Record<string, ComponentDef>> = {
+/** Declarative inventory of every UI element — kind, category, ARIA pattern, slots, visual axes. */
+export const UI_CATALOG: Readonly<Record<string, ComponentDef>> = {
 	"accordion": {
 		"kind": "accordion",
 		"label": "Accordion",
@@ -2152,9 +2152,9 @@ export const COMPONENT_MAP: Readonly<Record<string, ComponentDef>> = {
 	}
 } as const;
 
-/** Type-safe lookup. Returns undefined if kind is not registered. */
-export function getComponentDef(kind: string): ComponentDef | undefined {
-	return COMPONENT_MAP[kind];
+/** Type-safe lookup. Returns undefined if kind is not in the catalog. */
+export function getCatalogEntry(kind: string): ComponentDef | undefined {
+	return UI_CATALOG[kind];
 }
 
 /** All registered kind names. */

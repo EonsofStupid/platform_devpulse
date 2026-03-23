@@ -26,7 +26,7 @@
 <script lang="ts">
   import { useButton } from "$lib/design/primitives/button/index.js";
   import { StyleMacro } from "$lib/design/style/index.js";
-  // no schema import needed — def is in component-map
+  // no schema import needed — def is in catalog
 
   const button = $derived(useButton({ disabled, loading, pressed }));
   const styleId = $derived(`button-${intent}`);
@@ -52,7 +52,7 @@ All composites expand. No shorthand. StyleMacro assembles in `$derived.by`.
 | `style/StyleMacro.svelte` | Visual provider |
 | `style/macro-mappings.ts` | 11 axes → --cl-* vars |
 | `components/_base/types.ts` | ComponentProps + ComponentDef + SlotAxes |
-| `components/_base/component-map.ts` | Const map, getComponentDef() |
+| `components/_base/catalog.ts` | UI catalog, getCatalogEntry() |
 | `schema/anatomy.schema.ts` | createAnatomy for primitives |
 | `generated/macro-base.css` | Glue CSS — [data-kind] consumes --cl-* |
 

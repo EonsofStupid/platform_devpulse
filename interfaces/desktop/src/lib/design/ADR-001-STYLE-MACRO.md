@@ -188,9 +188,9 @@ Primitives have anatomy. Components have `_base`.
 - `ComponentProps` — `class?: string`, `children?: Snippet`
 - `ComponentDef` — interface for const literal defs (kind, styleIds, slots)
 - `SlotAxes` — "all" | "none" | per-axis booleans
-- `component-map.ts` — const map of all defs. `getComponentDef(kind)`.
+- `catalog.ts` — UI catalog of all defs. `getCatalogEntry(kind)`.
 
-Every component has a colocated `{kind}.def.ts` — const literal `as const satisfies ComponentDef`. Added to component-map with one line. No Zod. No runtime validation. TypeScript validates at compile time.
+Every component has a colocated `{kind}.def.ts` — const literal `as const satisfies ComponentDef`. Added to catalog with one line. No Zod. No runtime validation. TypeScript validates at compile time.
 
 ---
 
@@ -251,7 +251,7 @@ Every component has a colocated `{kind}.def.ts` — const literal `as const sati
 - [ ] Structural size as const map in component
 - [ ] ZERO hardcoded colors/backgrounds/shadows in component
 - [ ] Const literal def declares axes + style IDs (`{kind}.def.ts`)
-- [ ] Def added to `_base/component-map.ts`
+- [ ] Def added to `_base/catalog.ts`
 - [ ] Schema validates + registers at import time
 - [ ] DTCG style tokens authored (`tokens/src/component.json` → `style.{kind}-{variant}`)
 - [ ] SD5 generates expanded sub-properties for style tokens

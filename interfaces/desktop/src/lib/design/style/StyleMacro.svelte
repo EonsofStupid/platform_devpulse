@@ -3,14 +3,14 @@
 	@package @devpulse/coldlight
 
 	Visual resolution provider.
-	Reads component def from component-map.
+	Reads component def from catalog.
 	Constructs --cl-* CSS vars from expanded DTCG style tokens.
 	Glue CSS on [data-kind] consumes --cl-* → browser paints.
 -->
 <script lang="ts">
 import type { Snippet } from "svelte";
 // StyleMacro resolves style IDs to DTCG token CSS vars directly.
-// No component-map dependency. Style ID + axis name → var() reference.
+// No catalog dependency. Style ID + axis name → var() reference.
 
 interface Props {
 	kind: string;
