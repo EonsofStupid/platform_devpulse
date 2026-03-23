@@ -22,8 +22,7 @@ let {
 
 const builder = createSpinner({
 	active: () => active,
-	// biome-ignore lint/suspicious/noExplicitAny: callback value type from builder
-	onActiveChange: (v: any) => onActiveChange?.(v),
+		onActiveChange: (v: any) => onActiveChange?.(v),
 });
 
 const classes = $derived(cn(spinnerRecipe({ size }), className));

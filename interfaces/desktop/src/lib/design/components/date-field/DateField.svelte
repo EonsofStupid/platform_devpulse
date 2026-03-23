@@ -106,8 +106,6 @@ function rebuildDate(segType: string, newVal: number): Date {
 
 function emitChange(date: Date) { internalValue = date; onChange?.({ value: date }); }
 
-const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
-
 setDateFieldContext({
 	get value() { return currentValue; },
 	get segments() { return segments; },

@@ -30,8 +30,7 @@ const builder = createTextarea({
 	required: () => required,
 	invalid: () => invalid,
 	rows: () => rows,
-	// biome-ignore lint/suspicious/noExplicitAny: callback value type from builder
-	onValueChange: (v: any) => onValueChange?.(v),
+		onValueChange: (v: any) => onValueChange?.(v),
 });
 
 const classes = $derived(cn(textareaRecipe({ size }), className));

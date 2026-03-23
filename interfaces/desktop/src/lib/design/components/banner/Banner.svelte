@@ -53,8 +53,6 @@ function handleDismiss(e: MouseEvent) {
 	onOpenChange?.({ open: next });
 }
 
-const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
-
 const rootClasses = $derived(
 	cn(
 		POSITION_CLASSES[position] ?? POSITION_CLASSES.top,
@@ -74,7 +72,7 @@ const rootClasses = $derived(
 		onoutroend={onExitComplete}
 		{...rest}
 	>
-		<div class={cn("flex w-full items-center", ? "" : "gap-12")}>
+		<div class={cn("flex w-full items-center gap-12")}>
 			<div class="flex min-w-0 flex-1 items-center gap-12">
 				{@render children?.()}
 			</div>

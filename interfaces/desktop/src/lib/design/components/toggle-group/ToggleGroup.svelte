@@ -32,10 +32,8 @@ let {
 
 const builder = createToggleGroup({
 	value: () => value,
-	// biome-ignore lint/suspicious/noExplicitAny: toggle group callback/multiple types vary by mode
-	onValueChange: ((v: any) => (onValueChange as any)?.(v)) as any,
-	// biome-ignore lint/suspicious/noExplicitAny: multiple type union requires cast
-	multiple: () => multiple as any,
+		onValueChange: ((v: any) => (onValueChange as any)?.(v)) as any,
+		multiple: () => multiple as any,
 	disabled: () => disabled,
 	orientation: () => orientation,
 	loop: () => loop,

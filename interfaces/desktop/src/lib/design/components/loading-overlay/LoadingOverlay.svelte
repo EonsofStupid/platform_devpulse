@@ -29,8 +29,7 @@ let {
 
 const builder = createLoadingOverlay({
 	visible: () => visible,
-	// biome-ignore lint/suspicious/noExplicitAny: callback value type from builder
-	onVisibleChange: (v: any) => onVisibleChange?.(v),
+		onVisibleChange: (v: any) => onVisibleChange?.(v),
 });
 
 // Resolve ColdLight visual

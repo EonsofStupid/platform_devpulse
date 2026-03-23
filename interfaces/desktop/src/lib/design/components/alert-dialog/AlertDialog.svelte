@@ -33,8 +33,6 @@ const hook = useAlertDialog({
 	onAction,
 });
 
-const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
-
 setAlertDialogContext({
 	get hook() { return hook; },
 	get ids() { return ids ?? {}; },

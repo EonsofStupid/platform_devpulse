@@ -108,7 +108,6 @@ function updateValue(date: Date | null) {
 }
 
 // Recipe
-const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
 
 // Context
 setDatePickerContext({

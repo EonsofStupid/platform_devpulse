@@ -39,7 +39,6 @@ const hook = useComboBox({
 	get disabled() { return disabled; },
 });
 
-const recipeClasses = $derived(
 	recipeDef?.classes?.({
 		...recipeDef.defaults,
 		size,

@@ -29,8 +29,7 @@ const builder = createSheet({
 	get open() {
 		return open;
 	},
-	// biome-ignore lint/suspicious/noExplicitAny: callback value type from builder
-	onOpenChange: (v: any) => onOpenChange?.(v),
+		onOpenChange: (v: any) => onOpenChange?.(v),
 	get label() {
 		return label;
 	},

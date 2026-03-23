@@ -32,8 +32,7 @@ const transport = createRadioGroupTransport({
 	get value() {
 		return value;
 	},
-	// biome-ignore lint/suspicious/noExplicitAny: callback value type from transport
-	onValueChange: (v: any) => onValueChange?.(v),
+		onValueChange: (v: any) => onValueChange?.(v),
 	get disabled() {
 		return disabled;
 	},

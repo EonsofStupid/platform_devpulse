@@ -53,7 +53,6 @@ function toggle() {
 	onOpenChange?.({ open: next });
 }
 
-const recipeClasses = $derived(
 		recipe?.classes?.({} as any) ?? {});
 
 setContextualHelpContext({

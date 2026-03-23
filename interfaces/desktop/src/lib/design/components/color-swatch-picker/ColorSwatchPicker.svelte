@@ -51,7 +51,6 @@ function isSelected(color: string): boolean {
 	return selectedValue === color;
 }
 
-const recipeClasses = $derived(
 		recipe?.classes?.({ density } as any) ?? {});
 
 const DENSITY_GAP: Record<string, string> = {

@@ -36,8 +36,6 @@ const hook = useDialog({
 	onOpenChange: (v) => onOpenChange?.({ open: v }),
 });
 
-const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
-
 setDialogContext({
 	get hook() { return hook; },
 	get ids() { return ids ?? {}; },

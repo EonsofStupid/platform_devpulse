@@ -65,7 +65,6 @@ const drag = useWheelDrag({
 	},
 });
 
-const recipeClasses = $derived(
 		recipe?.classes?.({} as any) ?? {});
 
 setColorWheelContext({

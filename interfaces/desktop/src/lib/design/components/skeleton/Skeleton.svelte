@@ -22,8 +22,7 @@ let {
 
 const builder = createSkeleton({
 	loading: () => loading,
-	// biome-ignore lint/suspicious/noExplicitAny: callback value type from builder
-	onLoadingChange: (v: any) => onLoadingChange?.(v),
+		onLoadingChange: (v: any) => onLoadingChange?.(v),
 });
 
 const classes = $derived(

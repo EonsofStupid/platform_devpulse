@@ -28,8 +28,7 @@ const builder = createCheckbox({
 	checked: () => checked,
 	indeterminate: () => indeterminate,
 	disabled: () => disabled,
-	// biome-ignore lint/suspicious/noExplicitAny: callback value type from builder
-	onCheckedChange: (v: any) => onCheckedChange?.(v),
+		onCheckedChange: (v: any) => onCheckedChange?.(v),
 });
 
 const classes = $derived(

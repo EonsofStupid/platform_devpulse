@@ -88,8 +88,6 @@ function updateEnd(date: Date | null) {
 	onChange?.({ value: range });
 }
 
-const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
-
 setDateRangePickerContext({
 	get value() { return currentValue; },
 	get isOpen() { return isOpen; },

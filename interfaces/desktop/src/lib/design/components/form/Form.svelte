@@ -31,8 +31,7 @@ const builder = createForm({
 	label: () => label,
 	disabled: () => disabled,
 	pending: () => pending,
-	// biome-ignore lint/suspicious/noExplicitAny: submit event type from builder
-	onSubmit: (e: any) => onSubmit?.(e),
+		onSubmit: (e: any) => onSubmit?.(e),
 	onReset: () => onReset?.(),
 });
 

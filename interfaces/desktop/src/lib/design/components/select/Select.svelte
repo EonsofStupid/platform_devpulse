@@ -34,13 +34,11 @@ const transport = createSelectTransport({
 	get value() {
 		return value;
 	},
-	// biome-ignore lint/suspicious/noExplicitAny: callback value type from transport
-	onValueChange: (v: any) => onValueChange?.(v),
+		onValueChange: (v: any) => onValueChange?.(v),
 	get open() {
 		return open;
 	},
-	// biome-ignore lint/suspicious/noExplicitAny: callback value type from transport
-	onOpenChange: (v: any) => onOpenChange?.(v),
+		onOpenChange: (v: any) => onOpenChange?.(v),
 });
 
 setSelectContext(transport);

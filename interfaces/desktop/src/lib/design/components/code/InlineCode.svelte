@@ -18,7 +18,6 @@ let {
 	...rest
 }: InlineCodeProps = $props();
 
-const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
 </script>
 
 <code

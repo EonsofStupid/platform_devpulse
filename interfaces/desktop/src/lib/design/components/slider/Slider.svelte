@@ -45,8 +45,7 @@ const transport = createSliderTransport({
 	get orientation() {
 		return orientation;
 	},
-	// biome-ignore lint/suspicious/noExplicitAny: callback value type from transport
-	onValueChange: (v: any) => onValueChange?.(v),
+		onValueChange: (v: any) => onValueChange?.(v),
 });
 
 setSliderContext(transport);

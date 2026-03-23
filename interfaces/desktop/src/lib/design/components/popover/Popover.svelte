@@ -35,8 +35,7 @@ const transport = createPopoverTransport({
 	get open() {
 		return open;
 	},
-	// biome-ignore lint/suspicious/noExplicitAny: callback value type from transport
-	onOpenChange: (v: any) => onOpenChange?.(v),
+		onOpenChange: (v: any) => onOpenChange?.(v),
 	get forceVisible() {
 		return forceVisible;
 	},

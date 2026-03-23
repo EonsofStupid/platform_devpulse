@@ -32,8 +32,6 @@ let {
 	...rest
 }: CodeBlockRootProps = $props();
 
-const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
-
 function copyCode(value?: string) {
 	if (disabled) return;
 	const text = value ?? "";

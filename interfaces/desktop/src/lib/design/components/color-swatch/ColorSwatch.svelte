@@ -25,7 +25,6 @@ let {
 
 const accessibleName = $derived(colorName ?? color);
 
-const recipeClasses = $derived(
 		recipe?.classes?.({ size, rounding } as any) ?? {});
 
 const rootClasses = $derived(

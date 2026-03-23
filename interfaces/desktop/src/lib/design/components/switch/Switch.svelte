@@ -25,8 +25,7 @@ let {
 const builder = createSwitch({
 	checked: () => checked,
 	disabled: () => disabled,
-	// biome-ignore lint/suspicious/noExplicitAny: callback value type from builder
-	onCheckedChange: (v: any) => onCheckedChange?.(v),
+		onCheckedChange: (v: any) => onCheckedChange?.(v),
 });
 
 const classes = $derived(cn(switchRecipe({ size }), className));

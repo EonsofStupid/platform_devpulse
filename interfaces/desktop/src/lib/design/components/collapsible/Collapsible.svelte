@@ -8,6 +8,7 @@
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/
 -->
 <script lang="ts">
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setCollapsibleContext } from "./context.js";
 import type { CollapsibleRootProps } from "./types.js";
@@ -38,8 +39,6 @@ function toggle() {
 	onOpenChange?.({ open: next });
 }
 
-const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
-
 setCollapsibleContext({
 	get isOpen() { return isOpen; },
 	get disabled() { return disabled; },
@@ -54,14 +53,16 @@ const rootClasses = $derived(
 	cn(className));
 </script>
 
-<div
-	id={ids?.root}
-	{dir}
-	data-kind="collapsible"
-	data-slot="root"
-	data-state={isOpen ? "open" : "closed"}
-	class={rootClasses}
-	{...rest}
->
-	{@render children?.()}
-</div>
+<StyleMacro kind="collapsible" style="collapsible-default">
+	<div
+		id={ids?.root}
+		{dir}
+		data-kind="collapsible"
+		data-slot="root"
+		data-state={isOpen ? "open" : "closed"}
+		class={rootClasses}
+		{...rest}
+	>
+		{@render children?.()}
+	</div>
+</StyleMacro>

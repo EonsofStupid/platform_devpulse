@@ -81,7 +81,6 @@ const drag = useSliderDrag({
 const channelValue = $derived(roundToStep(percentToValue(drag.state.percent, range), range.step));
 
 // ── Recipe (reactive) ───────────────────────────────────────────
-const recipeClasses = $derived(
 		recipe?.classes?.({} as any) ?? {});
 
 // ── Context ─────────────────────────────────────────────────────

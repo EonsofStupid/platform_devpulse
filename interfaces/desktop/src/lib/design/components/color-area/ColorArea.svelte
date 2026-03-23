@@ -64,7 +64,6 @@ const drag = useColorAreaDrag({
 const xValue = $derived(percentToValue(drag.state.xPercent, xRange));
 const yValue = $derived(percentToValue(drag.state.yPercent, yRange));
 
-const recipeClasses = $derived(
 		recipe?.classes?.({} as any) ?? {});
 
 setColorAreaContext({

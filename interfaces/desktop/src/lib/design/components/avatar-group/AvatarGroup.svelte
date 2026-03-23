@@ -42,8 +42,6 @@ setAvatarGroupContext({
 	get size() { return size; },
 });
 
-const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
-
 // Overlap is ~25% of avatar size
 const overlapMargin = $derived(`-${Math.round(size * 0.25)}px`);
 </script>

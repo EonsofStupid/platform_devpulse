@@ -30,8 +30,7 @@ let {
 
 const builder = createNotificationCenter({
 	open: () => open,
-	// biome-ignore lint/suspicious/noExplicitAny: callback value type from builder
-	onOpenChange: (v: any) => onOpenChange?.(v),
+		onOpenChange: (v: any) => onOpenChange?.(v),
 });
 
 // Resolve ColdLight visual

@@ -84,7 +84,6 @@ function setValue(raw: string) {
 }
 
 // ── Recipe (reactive) ───────────────────────────────────────────
-const recipeClasses = $derived(
 		recipe?.classes?.({} as any) ?? {});
 
 // ── Context ─────────────────────────────────────────────────────

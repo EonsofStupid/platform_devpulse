@@ -10,7 +10,6 @@
 import { cn } from "$lib/design/utils/cn.js";
 import { setAlertContext } from "./context.js";
 import type { AlertRootProps } from "./types.js";
-import { ALERT_VARIANT_PRESETS } from "./types.js";
 
 let {
 	ids,
@@ -32,8 +31,6 @@ function handleDismiss() {
 	internalOpen = false;
 	onOpenChange?.({ open: false });
 }
-
-const recipeClasses = $derived(recipe?.classes?.({} as any) ?? {});
 
 setAlertContext({
 	get ids() { return ids ?? {}; },
