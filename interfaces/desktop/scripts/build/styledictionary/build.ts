@@ -99,8 +99,16 @@ export * from './gradient.js';
 // ─── Build ───────────────────────────────────────────────────────────
 
 async function build() {
+	// Step 1: Collect colocated component tokens.ts → JSON for SD5
+	console.log('[SD5] Collecting colocated component tokens...');
+	const { execSync } = await import('node:child_process');
+	execSync('npx tsx scripts/build/styledictionary/collect-component-tokens.ts', {
+		cwd: process.cwd(),
+		stdio: 'inherit',
+	});
+
 	console.log('[SD5] Starting token build...');
-	console.log('[SD5] Source: tokens/src/*.json (flat domain files)');
+	console.log('[SD5] Source: tokens/src/*.json (flat domain files + collected component tokens)');
 	console.log('[SD5] Output: css/ (tier-aware), theme/ (per-domain), types/ (per-domain)');
 
 	const sd = new StyleDictionary(config);

@@ -41,7 +41,8 @@ thiserror = "2.0"
 
 # AI & Voice (The "Senses")
 candle-core = "0.8"
-candle-transformers = "0.8" 
+candle-nn = "0.8"
+candle-transformers = "0.8"
 outlines-core = "0.1"
 kokoros = { path = "../deps/kokoros/kokoros" }
 ort = { version = "=2.0.0-rc.12", default-features = false, features = ["std", "ndarray", "load-dynamic"] }

@@ -2,16 +2,16 @@
 	@component TextField
 	@kind text-field
 
-	ColdLight TextField — DUMB component.
-	Primitive provides ARIA linkage (label->input, error->aria-describedby).
-	Visual treatment via class prop from caller.
+	THE PRODUCT. Hook (ARIA label/input linkage) + StyleMacro (visual).
+	Size → structural Tailwind classes.
 -->
 <script lang="ts">
 import { useTextField } from "$lib/design/primitives/text-field/index.js";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TextFieldProps, TextFieldSize } from "./text-field.types.js";
 
-const SIZE_CLASSES: Record<TextFieldSize, string> = {
+const SIZE: Record<TextFieldSize, string> = {
 	sm: "h-8 px-3 text-sm",
 	md: "h-10 px-4 text-sm",
 	lg: "h-12 px-4 text-base",
@@ -48,51 +48,53 @@ const field = $derived(useTextField({
 	error: errorText,
 }));
 
-const inputClasses = $derived(cn(
-	"w-full bg-transparent outline-none rounded-md",
-	SIZE_CLASSES[size] ?? SIZE_CLASSES.md,
-	"border border-border-subtle",
-	"focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current",
-	"disabled:pointer-events-none disabled:opacity-50",
-	"placeholder:text-text-muted",
-	invalid && "border-[var(--color-red-400)]",
-	className,
-));
+const styleId = "text-field-default";
 </script>
 
-<div {...field.root}>
-	{#if labelText}
-		<label {...field.label} class="text-sm font-medium text-text-primary mb-1 block">
-			{labelText}
-			{#if required}<span class="text-[var(--color-red-400)]" aria-hidden="true"> *</span>{/if}
-		</label>
-	{/if}
-
-	<div class="relative flex items-center">
-		{#if leading}
-			<span class="absolute left-3 flex items-center text-text-muted">
-				{@render leading()}
-			</span>
+<StyleMacro kind="text-field" style={styleId}>
+	<div {...field.root} class={className}>
+		{#if labelText}
+			<label {...field.label} class="text-sm font-medium mb-1 block">
+				{labelText}
+				{#if required}<span aria-hidden="true"> *</span>{/if}
+			</label>
 		{/if}
 
-		<input
-			{...field.input}
-			{...rest}
-			class={cn(inputClasses, leading && "pl-10", trailing && "pr-10")}
-		/>
+		<div class="relative flex items-center">
+			{#if leading}
+				<span class="absolute left-3 flex items-center">
+					{@render leading()}
+				</span>
+			{/if}
 
-		{#if trailing}
-			<span class="absolute right-3 flex items-center text-text-muted">
-				{@render trailing()}
-			</span>
+			<input
+				{...field.input}
+				{...rest}
+				class={cn(
+					"w-full bg-transparent outline-none rounded-md border",
+					"focus-visible:outline-2 focus-visible:outline-offset-2",
+					"disabled:pointer-events-none disabled:opacity-50",
+					SIZE[size] ?? SIZE.md,
+					leading && "pl-10",
+					trailing && "pr-10",
+				)}
+				data-kind="text-field"
+				data-slot="input"
+			/>
+
+			{#if trailing}
+				<span class="absolute right-3 flex items-center">
+					{@render trailing()}
+				</span>
+			{/if}
+		</div>
+
+		{#if descriptionText && !invalid}
+			<p {...field.description} class="text-xs mt-1">{descriptionText}</p>
+		{/if}
+
+		{#if invalid && errorText}
+			<p {...field.error} class="text-xs mt-1">{errorText}</p>
 		{/if}
 	</div>
-
-	{#if descriptionText && !invalid}
-		<p {...field.description} class="text-xs text-text-muted mt-1">{descriptionText}</p>
-	{/if}
-
-	{#if invalid && errorText}
-		<p {...field.error} class="text-xs text-[var(--color-red-400)] mt-1">{errorText}</p>
-	{/if}
-</div>
+</StyleMacro>

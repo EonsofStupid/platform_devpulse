@@ -1,0 +1,544 @@
+{
+	"avatar": {
+		"root": {
+			"background": {
+				"$value": "{glass.deep}",
+				"$type": "color",
+				"$description": "Fallback background — deep glass"
+			},
+			"border": {
+				"color": {
+					"$value": "{border.subtle}",
+					"$type": "color",
+					"$description": "Border color around avatar"
+				},
+				"width": {
+					"$value": "2px",
+					"$type": "dimension",
+					"$description": "Border width"
+				}
+			},
+			"border-radius": {
+				"$value": "9999px",
+				"$type": "dimension",
+				"$description": "Full circle radius"
+			},
+			"color": {
+				"$value": "#e2e8f0",
+				"$type": "color",
+				"$description": "Fallback text color"
+			},
+			"font-size": {
+				"$value": "14px",
+				"$type": "dimension",
+				"$description": "Fallback text font size"
+			},
+			"font-weight": {
+				"$value": 500,
+				"$type": "number",
+				"$description": "Fallback text font weight — medium"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily",
+				"$description": "Font family for fallback text"
+			}
+		}
+	},
+	"sm": {},
+	"md": {},
+	"lg": {},
+	"xl": {},
+	"badge": {
+		"root": {
+			"background": {
+				"$value": "{glass.deep}",
+				"$type": "color",
+				"$description": "Default background — deep glass"
+			},
+			"border": {
+				"color": {
+					"$value": "{border.subtle}",
+					"$type": "color",
+					"$description": "Border color"
+				},
+				"width": {
+					"$value": "1px",
+					"$type": "dimension",
+					"$description": "Border width"
+				}
+			},
+			"border-radius": {
+				"$value": "9999px",
+				"$type": "dimension",
+				"$description": "Full pill radius"
+			},
+			"color": {
+				"$value": "#e2e8f0",
+				"$type": "color",
+				"$description": "Text color"
+			},
+			"padding-inline": {
+				"$value": "8px",
+				"$type": "dimension",
+				"$description": "Horizontal padding"
+			},
+			"padding-block": {
+				"$value": "2px",
+				"$type": "dimension",
+				"$description": "Vertical padding"
+			},
+			"font-size": {
+				"$value": "12px",
+				"$type": "dimension",
+				"$description": "Font size — xs"
+			},
+			"font-weight": {
+				"$value": 500,
+				"$type": "number",
+				"$description": "Font weight — medium"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily",
+				"$description": "Font family"
+			},
+			"gap": {
+				"$value": "4px",
+				"$type": "dimension",
+				"$description": "Gap between icon and label"
+			}
+		}
+	},
+	"button": {
+		"root": {
+			"background": {
+				"default": {
+					"$value": "{glass.deep}",
+					"$type": "color",
+					"$description": "Default background — deep glass surface"
+				},
+				"hover": {
+					"$value": "{glass.smoke}",
+					"$type": "color",
+					"$description": "Hover background — smoke glass"
+				}
+			},
+			"padding-inline": {
+				"$value": "16px",
+				"$type": "dimension",
+				"$description": "Horizontal padding"
+			},
+			"padding-block": {
+				"$value": "10px",
+				"$type": "dimension",
+				"$description": "Vertical padding"
+			},
+			"height": {
+				"$value": "40px",
+				"$type": "dimension",
+				"$description": "Default height (md)"
+			},
+			"border-radius": {
+				"$value": "{radius.lg}",
+				"$type": "dimension",
+				"$description": "Corner radius"
+			},
+			"border": {
+				"color": {
+					"$value": "{border.strong}",
+					"$type": "color",
+					"$description": "Border color"
+				},
+				"width": {
+					"$value": "1px",
+					"$type": "dimension",
+					"$description": "Border width"
+				}
+			},
+			"color": {
+				"default": {
+					"$value": "#ffffff",
+					"$type": "color",
+					"$description": "Text color — white on primary"
+				}
+			},
+			"shadow": {
+				"$value": "{shadow.z1}",
+				"$type": "shadow",
+				"$description": "Drop shadow — subtle elevation"
+			},
+			"font-size": {
+				"$value": "14px",
+				"$type": "dimension",
+				"$description": "Font size"
+			},
+			"font-weight": {
+				"$value": 500,
+				"$type": "number",
+				"$description": "Font weight — medium"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily",
+				"$description": "Font family — system sans"
+			},
+			"transition": {
+				"duration": {
+					"$value": "150ms",
+					"$type": "duration",
+					"$description": "Transition speed"
+				}
+			},
+			"gap": {
+				"$value": "8px",
+				"$type": "dimension",
+				"$description": "Gap between icon and label"
+			}
+		}
+	},
+	"card": {
+		"root": {
+			"background": {
+				"$value": "{glass.deep}",
+				"$type": "color",
+				"$description": "Default background — deep glass"
+			},
+			"border": {
+				"color": {
+					"$value": "{border.subtle}",
+					"$type": "color",
+					"$description": "Border color"
+				},
+				"width": {
+					"$value": "1px",
+					"$type": "dimension",
+					"$description": "Border width"
+				}
+			},
+			"border-radius": {
+				"$value": "{radius.lg}",
+				"$type": "dimension",
+				"$description": "Corner radius"
+			},
+			"shadow": {
+				"$value": "{shadow.z1}",
+				"$type": "shadow",
+				"$description": "Drop shadow — subtle elevation"
+			},
+			"padding": {
+				"$value": "16px",
+				"$type": "dimension",
+				"$description": "Inner padding"
+			},
+			"color": {
+				"$value": "#e2e8f0",
+				"$type": "color",
+				"$description": "Default text color within card"
+			},
+			"opacity": {
+				"disabled": {
+					"$value": 0.6,
+					"$type": "number",
+					"$description": "Opacity when disabled"
+				}
+			},
+			"transition": {
+				"duration": {
+					"$value": "150ms",
+					"$type": "duration",
+					"$description": "Transition speed for hover states"
+				}
+			}
+		}
+	},
+	"xs": {},
+	"2xl": {},
+	"3xl": {},
+	"heading": {
+		"root": {
+			"color": {
+				"$value": "#ffffff",
+				"$type": "color",
+				"$description": "Default heading text color"
+			},
+			"font-family": {
+				"$value": "{font.display}",
+				"$type": "fontFamily",
+				"$description": "Display font family for headings"
+			},
+			"font-weight": {
+				"h1": {
+					"$value": 700,
+					"$type": "number",
+					"$description": "Font weight for h1 — bold"
+				},
+				"h2": {
+					"$value": 700,
+					"$type": "number",
+					"$description": "Font weight for h2 — bold"
+				},
+				"h3": {
+					"$value": 600,
+					"$type": "number",
+					"$description": "Font weight for h3 — semibold"
+				},
+				"h4": {
+					"$value": 600,
+					"$type": "number",
+					"$description": "Font weight for h4 — semibold"
+				},
+				"h5": {
+					"$value": 500,
+					"$type": "number",
+					"$description": "Font weight for h5 — medium"
+				},
+				"h6": {
+					"$value": 500,
+					"$type": "number",
+					"$description": "Font weight for h6 — medium"
+				}
+			},
+			"letter-spacing": {
+				"$value": "-0.02em",
+				"$type": "dimension",
+				"$description": "Default letter spacing — tight tracking for headings"
+			},
+			"line-height": {
+				"$value": "1.2",
+				"$type": "number",
+				"$description": "Default line height — tight for headings"
+			},
+			"opacity": {
+				"$value": 1,
+				"$type": "number",
+				"$description": "Default opacity"
+			}
+		}
+	},
+	"progress": {
+		"track": {
+			"background": {
+				"$value": "{surface.inset}",
+				"$type": "color",
+				"$description": "Track background — inset surface"
+			},
+			"border-radius": {
+				"$value": "9999px",
+				"$type": "dimension",
+				"$description": "Track corner radius — fully rounded"
+			},
+			"height": {
+				"sm": {
+					"$value": "4px",
+					"$type": "dimension",
+					"$description": "Track height — small"
+				},
+				"md": {
+					"$value": "8px",
+					"$type": "dimension",
+					"$description": "Track height — medium"
+				},
+				"lg": {
+					"$value": "12px",
+					"$type": "dimension",
+					"$description": "Track height — large"
+				}
+			}
+		},
+		"fill": {
+			"background": {
+				"$value": "#2dd4bf",
+				"$type": "color",
+				"$description": "Fill bar background — teal accent"
+			},
+			"border-radius": {
+				"$value": "9999px",
+				"$type": "dimension",
+				"$description": "Fill bar corner radius — fully rounded"
+			},
+			"transition": {
+				"duration": {
+					"$value": "300ms",
+					"$type": "duration",
+					"$description": "Fill width transition speed"
+				}
+			}
+		}
+	},
+	"base": {},
+	"text": {
+		"root": {
+			"color": {
+				"primary": {
+					"$value": "#e2e8f0",
+					"$type": "color",
+					"$description": "Primary text color — high contrast"
+				},
+				"secondary": {
+					"$value": "#94a3b8",
+					"$type": "color",
+					"$description": "Secondary text color — muted"
+				},
+				"muted": {
+					"$value": "#64748b",
+					"$type": "color",
+					"$description": "Muted text color — low emphasis"
+				},
+				"accent": {
+					"$value": "#2dd4bf",
+					"$type": "color",
+					"$description": "Accent text color — teal highlight"
+				}
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily",
+				"$description": "Default font family — system sans"
+			},
+			"line-height": {
+				"$value": "1.5",
+				"$type": "number",
+				"$description": "Default line height — comfortable reading"
+			},
+			"letter-spacing": {
+				"$value": "0em",
+				"$type": "dimension",
+				"$description": "Default letter spacing — normal"
+			}
+		}
+	},
+	"text-field": {
+		"input": {
+			"background": {
+				"default": {
+					"$value": "{glass.void}",
+					"$type": "color",
+					"$description": "Default background — void glass"
+				},
+				"focus": {
+					"$value": "{glass.deep}",
+					"$type": "color",
+					"$description": "Focus background — deep glass"
+				}
+			},
+			"border": {
+				"color": {
+					"default": {
+						"$value": "{border.subtle}",
+						"$type": "color",
+						"$description": "Default border color"
+					},
+					"focus": {
+						"$value": "#2dd4bf",
+						"$type": "color",
+						"$description": "Focus border color — teal accent"
+					},
+					"invalid": {
+						"$value": "#f87171",
+						"$type": "color",
+						"$description": "Invalid border color — red"
+					}
+				},
+				"width": {
+					"$value": "1px",
+					"$type": "dimension",
+					"$description": "Border width"
+				}
+			},
+			"border-radius": {
+				"$value": "{radius.md}",
+				"$type": "dimension",
+				"$description": "Corner radius"
+			},
+			"padding-inline": {
+				"$value": "16px",
+				"$type": "dimension",
+				"$description": "Horizontal padding"
+			},
+			"padding-block": {
+				"$value": "10px",
+				"$type": "dimension",
+				"$description": "Vertical padding"
+			},
+			"color": {
+				"$value": "#e2e8f0",
+				"$type": "color",
+				"$description": "Input text color"
+			},
+			"placeholder-color": {
+				"$value": "#64748b",
+				"$type": "color",
+				"$description": "Placeholder text color"
+			},
+			"font-size": {
+				"$value": "14px",
+				"$type": "dimension",
+				"$description": "Font size"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily",
+				"$description": "Font family"
+			},
+			"shadow": {
+				"focus": {
+					"$value": "0 0 0 3px rgba(45, 212, 191, 0.15)",
+					"$type": "shadow",
+					"$description": "Focus ring shadow"
+				}
+			},
+			"height": {
+				"$value": "40px",
+				"$type": "dimension",
+				"$description": "Default height (md)"
+			}
+		},
+		"label": {
+			"color": {
+				"$value": "#e2e8f0",
+				"$type": "color",
+				"$description": "Label text color"
+			},
+			"font-size": {
+				"$value": "14px",
+				"$type": "dimension",
+				"$description": "Label font size"
+			},
+			"font-weight": {
+				"$value": 500,
+				"$type": "number",
+				"$description": "Label font weight — medium"
+			},
+			"margin-bottom": {
+				"$value": "4px",
+				"$type": "dimension",
+				"$description": "Space between label and input"
+			}
+		},
+		"description": {
+			"color": {
+				"$value": "#94a3b8",
+				"$type": "color",
+				"$description": "Description text color"
+			},
+			"font-size": {
+				"$value": "12px",
+				"$type": "dimension",
+				"$description": "Description font size"
+			}
+		},
+		"error": {
+			"color": {
+				"$value": "#f87171",
+				"$type": "color",
+				"$description": "Error message color"
+			},
+			"font-size": {
+				"$value": "12px",
+				"$type": "dimension",
+				"$description": "Error font size"
+			}
+		}
+	}
+}

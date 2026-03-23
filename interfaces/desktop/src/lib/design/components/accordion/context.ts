@@ -1,11 +1,12 @@
 /**
  * @file Accordion Context — Svelte context for compound component communication
  * @kind accordion
- * @layer components
  *
  * TWO context levels:
- * 1. Root context: hook return + recipe classes + ids + dir
+ * 1. Root context: hook return + ids + dir + orientation
  * 2. Item context: item value + disabled (set by Item, consumed by Trigger/Content)
+ *
+ * NO recipe classes. Visual comes from StyleMacro via [data-kind] glue CSS.
  */
 
 import { getContext, setContext } from "svelte";
@@ -17,15 +18,9 @@ import type { AccordionIds } from "./types.js";
 // =============================================================================
 
 export interface AccordionContext {
-	/** The useAccordion() hook return — provides ARIA attrs for each slot. */
 	readonly hook: UseAccordionReturn;
-	/** Per-slot recipe class strings. */
-	readonly classes: Record<string, string>;
-	/** Element IDs for composition. */
 	readonly ids: Partial<AccordionIds>;
-	/** Text/writing direction. */
 	readonly dir: "ltr" | "rtl";
-	/** Layout orientation. */
 	readonly orientation: "vertical" | "horizontal";
 }
 
@@ -40,7 +35,7 @@ export function getAccordionContext(): AccordionContext {
 }
 
 // =============================================================================
-// ITEM CONTEXT — set by Item, consumed by Trigger/Content/Indicator
+// ITEM CONTEXT
 // =============================================================================
 
 export interface AccordionItemContext {

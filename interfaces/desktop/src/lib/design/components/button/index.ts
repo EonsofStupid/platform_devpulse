@@ -1,10 +1,10 @@
 /**
- * @file Button Component — barrel export
+ * @file Button — public API
  * @kind button
- *
- * NOTE: Users should import from ui/button/, not here.
- * This is the DUMB structural component.
  */
 
-export { default as ButtonRoot } from "./Button.svelte";
-export type { ButtonProps, ButtonSize, ButtonType } from "./button.types.js";
+export { default as Button } from "./Button.svelte";
+export { ButtonSchema, CATEGORY, type ButtonSchemaProps } from "./schema.js";
+export { buttonTokens, buttonSizeTokens } from "./tokens.js";
+export { buttonRecipes } from "./recipe.js";
+export type { ButtonProps, ButtonIntent, ButtonSize, ButtonType } from "./button.types.js";

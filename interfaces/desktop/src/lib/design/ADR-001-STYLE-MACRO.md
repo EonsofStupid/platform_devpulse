@@ -1,176 +1,159 @@
-# ADR-001: StyleMacro — ColdLight Visual Resolution Architecture
+# ADR-001: ColdLight Visual Resolution Architecture
 
 **Status:** ACCEPTED — IRREVERSIBLE
 **Date:** 2026-03-21
-**Updated:** 2026-03-21 (11-axis, DTCG-aligned)
-**Replaces:** useColdLight(), resolveVisual(), registerRecipe(), 8-axis encoding, per-component visual resolution
+**Updated:** 2026-03-22 (2-layer enterprise pattern, 11-axis DTCG)
+**Replaces:** useColdLight(), resolveVisual(), registerRecipe(), 8-axis encoding, per-component visual resolution, 3-layer model, ui/ folder
 
 ---
 
 ## Decision
 
-All visual resolution in ColdLight flows through a single `<StyleMacro>` component. Components are pure structure + ARIA. UI wrappers are what users import.
+2-layer enterprise pattern. Primitive hooks for behavior. Components are the product — hook + StyleMacro in one file. No third layer. No dumb middle components. No ui/ folder.
 
 ---
 
-## 3-Layer Model (LOCKED)
+## 2-Layer Model (LOCKED)
 
 | Layer | Folder | Responsibility |
 |-------|--------|---------------|
-| **Component** | `components/{kind}/` | Pure structure + ARIA + `class` prop. No visual logic. No recipe imports. No style computation. |
-| **Recipe** | DTCG token group in JSON | 11-axis visual definitions. One token per axis, each with its real DTCG `$type`. SD5 processes them. NOT JavaScript. NOT `registerRecipe()`. |
-| **UI** | `ui/{kind}/` | What users import. Wraps component with `<StyleMacro>`. Connects recipe to component. Prop-driven. |
+| **Primitive Hook** | `primitives/{kind}/` | Pure behavior. WAI-ARIA APG. ARIA, keyboard, focus, state. Anatomy declares slots. Returns reactive attrs. NO styling. NO schema. |
+| **Component** | `components/{kind}/` | THE PRODUCT. What users import. Uses hook for ARIA + StyleMacro for visual. Prop-driven. Colocated schema for VPB. |
 
-### Component (Structure + ARIA)
+### Primitive Hook (Behavior)
 
-```svelte
-<!-- components/badge/Badge.svelte -->
-<script lang="ts">
-  import type { BadgeProps } from "./badge.types.js";
-  let { children, class: className, ...rest }: BadgeProps = $props();
-</script>
-<span data-kind="badge" data-slot="root" class={className} {...rest}>
-  {@render children?.()}
-</span>
+```
+primitives/{kind}/
+  {kind}.anatomy.ts       — createAnatomy(kind, slots) → data-kind + data-slot
+  {kind}.types.ts         — behavioral props, per-slot typed attrs, return type
+  use-{kind}.svelte.ts    — $state + $derived. ARIA, keyboard, focus, state.
+  index.ts                — barrel
 ```
 
-Components accept `class` + `children` + kind-specific behavioral props (disabled, pressed, expanded). Nothing visual.
-
-### Recipe (DTCG Token Group — one token per axis, real DTCG types)
-
-```json
-{
-  "style": {
-    "button-primary": {
-      "backgroundColor": { "$type": "color", "$value": "{color.teal-600}" },
-      "backgroundBlur": { "$type": "dimension", "$value": "{blur.none}" },
-      "shadow":         { "$type": "shadow", "$value": ["{shadow.z1}"] },
-      "border":         { "$type": "border", "$value": { "color": "{color.teal-500}", "width": "{border-width.thin}", "style": "solid" } },
-      "animation":      { "$type": "duration", "$value": "{motion.duration.none}" },
-      "transition":     { "$type": "transition", "$value": { "duration": "{motion.duration.fast}", "delay": "{motion.delay.none}", "timingFunction": "{motion.ease.out}" } },
-      "typography":     { "$type": "typography", "$value": { "fontFamily": "{font.sans}", "fontSize": "{text-size.sm}", "fontWeight": 500, "letterSpacing": "{tracking.normal}", "lineHeight": 1.5 } },
-      "gradient":       { "$type": "gradient", "$value": [{ "color": "{color.teal-600}", "position": 0 }, { "color": "{color.teal-500}", "position": 1 }] },
-      "color":          { "$type": "color", "$value": "{color.white}" },
-      "borderRadius":   { "$type": "dimension", "$value": "{radius.lg}" },
-      "opacity":        { "$type": "number", "$value": 1 }
-    }
-  }
-}
+```ts
+// Returns reactive attrs to spread onto elements
+const button = $derived(useButton({ disabled, loading, pressed }));
+// button.root → { data-kind: "button", data-slot: "root", role: "button", aria-disabled: ..., onclick: ... }
 ```
 
-Each axis is its own token with its REAL DTCG `$type`. The group name (`button-primary`) is the style ID. SD5 processes every token natively because they are spec-compliant. No invented types.
+### Component (The Product)
 
-### UI Wrapper (What Users Import)
+```
+components/{kind}/
+  {Kind}.svelte           — hook + StyleMacro in ONE file. The product.
+  {kind}.types.ts         — extends ComponentProps from _base. Intent + size + behavioral.
+  {kind}.def.ts            — const literal `as const satisfies ComponentDef`. No Zod.
+  index.ts                — barrel (public API, what users import)
+```
 
 ```svelte
-<!-- ui/badge/Badge.svelte -->
 <script lang="ts">
+  import { useButton } from "$lib/design/primitives/button/index.js";
   import { StyleMacro } from "$lib/design/style/index.js";
-  import BadgeRoot from "$lib/design/components/badge/Badge.svelte";
+  import "./button.schema.js";
+  import type { ButtonProps, ButtonSize } from "./button.types.js";
 
-  let { children, class: className, ...rest } = $props();
+  const SIZE: Record<ButtonSize, string> = {
+    sm: "h-8 px-3 text-sm gap-1.5",
+    md: "h-10 px-4 text-sm gap-2",
+    lg: "h-12 px-6 text-base gap-2.5",
+  };
+
+  let { intent = "primary", size = "md", disabled, loading, pressed,
+        onPressedChange, expanded, type, children, class: className, ...rest
+  }: ButtonProps = $props();
+
+  const button = $derived(useButton({ disabled, loading, pressed, onPressedChange, expanded, type }));
+  const styleId = $derived(`button-${intent}`);
 </script>
-<StyleMacro kind="badge">
-  <BadgeRoot class={className} {...rest}>
+
+<StyleMacro kind="button" style={styleId}>
+  <button {...button.root} {...rest} class="{SIZE[size] ?? SIZE.md} {className ?? ''}">
     {@render children?.()}
-  </BadgeRoot>
+  </button>
 </StyleMacro>
 ```
-
-Users import from `ui/`. They never touch `components/` directly. They never think about StyleMacro.
 
 ### Structural Sizing (NOT a visual axis)
 
-`size="md"` → `h-10 px-4 text-sm` is STRUCTURAL (height, padding, font-size). It is NOT one of the 11 visual axes. It does NOT go through StyleMacro.
+Size is structural (height, padding, font-size). Const map in the component. Not StyleMacro.
 
-Structural size maps live in the component as const maps:
+### Intent/Variant → Style ID
 
-```ts
-const SIZE: Record<ButtonSize, string> = {
-  sm: "h-8 px-3 text-sm gap-1.5",
-  md: "h-10 px-4 text-sm gap-2",
-  lg: "h-12 px-6 text-base gap-2.5",
-};
-```
-
-Components apply structural classes directly. StyleMacro handles visual treatment. These are separate concerns.
-
-### Intent / Variant → Style ID Mapping
-
-The UI wrapper maps semantic props to style IDs. This is the UI wrapper's job, not the component's:
-
-```svelte
-<!-- ui/button/Button.svelte -->
-<script lang="ts">
-  import { StyleMacro } from "$lib/design/style/index.js";
-  import ButtonRoot from "$lib/design/components/button/Button.svelte";
-
-  let { intent = "primary", size = "md", children, class: className, ...rest } = $props();
-
-  const styleId = $derived(`button-${intent}`);
-</script>
-<StyleMacro kind="button" style={styleId}>
-  <ButtonRoot {size} class={className} {...rest}>
-    {@render children?.()}
-  </ButtonRoot>
-</StyleMacro>
-```
-
-`intent="primary"` → `style="button-primary"` → StyleMacro resolves DTCG token group `style.button-primary` → 11-axis CSS custom properties.
+Component maps intent prop to style ID: `intent="primary"` → `style="button-primary"`.
+StyleMacro resolves the DTCG token group. Component owns this mapping.
 
 ---
 
 ## 11-Axis Visual System (LOCKED)
 
-Every axis maps to a real DTCG `$type`. No invented types. No gaps.
+Every axis = 1 real DTCG `$type`. No invented types. No gaps.
 
 | # | Axis | DTCG `$type` | CSS Property | Composite? |
 |---|------|-------------|-------------|------------|
 | 1 | `backgroundColor` | `color` | `background-color` | No |
 | 2 | `backgroundBlur` | `dimension` | `backdrop-filter: blur()` | No |
-| 3 | `shadow` | `shadow` | `box-shadow` (depth+bevel+glow as layers) | Yes — color, offsetX/Y, blur, spread, inset |
+| 3 | `shadow` | `shadow` | `box-shadow` | Yes — color, offsetX/Y, blur, spread, inset |
 | 4 | `border` | `border` | `border` | Yes — color, width, style |
 | 5 | `animation` | `duration` | `animation` | No |
 | 6 | `transition` | `transition` | `transition` | Yes — duration, delay, timingFunction |
-| 7 | `typography` | `typography` | `font-*`, `letter-spacing`, `line-height` | Yes — fontFamily, fontSize, fontWeight, letterSpacing, lineHeight |
-| 8 | `gradient` | `gradient` | `background-image: linear-gradient()` | Yes — array of color stops |
-| 9 | `color` | `color` | `color` (foreground/text/icon) | No |
+| 7 | `typography` | `typography` | `font-*`, spacing, height | Yes — fontFamily, fontSize, fontWeight, letterSpacing, lineHeight |
+| 8 | `gradient` | `gradient` | `background-image` | Yes — array of color stops |
+| 9 | `color` | `color` | `color` (foreground) | No |
 | 10 | `borderRadius` | `dimension` | `border-radius` | No |
 | 11 | `opacity` | `number` | `opacity` | No |
 
-### Composite Type Expansion (SD5 `expand: true` — ALL composites expand, NO shorthand)
+### Composite Expansion (SD5 `expand: true`, NO shorthand transforms)
 
-DTCG defines structured composites. SD5 expands every composite into individual CSS custom properties. The glue CSS assembles them into CSS shorthand. No shorthand transforms. Every sub-value is individually addressable by VPB.
+SD5 expands every composite into named sub-properties. Every sub-value individually addressable by VPB. More readable than shorthand — each value is named.
 
-| DTCG Type | Expands To |
-|-----------|-----------|
-| `shadow` | `--{name}-color`, `--{name}-offset-x`, `--{name}-offset-y`, `--{name}-blur`, `--{name}-spread`, `--{name}-inset` |
-| `border` | `--{name}-color`, `--{name}-width`, `--{name}-style` |
-| `transition` | `--{name}-duration`, `--{name}-delay`, `--{name}-timing-function` |
-| `typography` | `--{name}-font-family`, `--{name}-font-size`, `--{name}-font-weight`, `--{name}-letter-spacing`, `--{name}-line-height` |
-| `gradient` | `--{name}-{index}-color`, `--{name}-{index}-position` (per stop) |
+StyleMacro assembles shorthand in `$derived.by` from expanded sub-vars. Glue CSS consumes assembled values.
 
-### CSS Custom Property Names (StyleMacro output)
+### DTCG Style Tokens (Recipes)
 
-| Axis | `--cl-*` var | Composite sub-vars |
-|------|--------------|--------------------|
-| backgroundColor | `--cl-bg` | — |
-| backgroundBlur | `--cl-blur` | — |
-| shadow | `--cl-shadow` | `--cl-shadow-color`, `--cl-shadow-offset-x`, `--cl-shadow-offset-y`, `--cl-shadow-blur`, `--cl-shadow-spread` |
-| border | `--cl-border` | `--cl-border-color`, `--cl-border-width`, `--cl-border-style` |
-| animation | `--cl-animation` | — |
-| transition | `--cl-transition` | `--cl-transition-duration`, `--cl-transition-delay`, `--cl-transition-easing` |
-| typography | `--cl-typography` | `--cl-font-family`, `--cl-font-size`, `--cl-font-weight`, `--cl-letter-spacing`, `--cl-line-height` |
-| gradient | `--cl-gradient` | — (full shorthand) |
-| color | `--cl-color` | — |
-| borderRadius | `--cl-radius` | — |
-| opacity | `--cl-opacity` | — |
+Token groups in `tokens/src/component.json` under `style.{kind}-{variant}`:
+
+```json
+{
+  "style": {
+    "button-primary": {
+      "backgroundColor": { "$type": "color", "$value": "{glass.deep}" },
+      "backgroundBlur":  { "$type": "dimension", "$value": "{blur.lg}" },
+      "shadow":          { "$type": "shadow", "$value": "{shadow.z1}" },
+      "border":          { "$type": "border", "$value": { "color": "{border.strong}", "width": "1px", "style": "solid" } },
+      "animation":       { "$type": "duration", "$value": "0ms" },
+      "transition":      { "$type": "transition", "$value": { "duration": "150ms", "delay": "0ms", "timingFunction": [0, 0, 0.2, 1] } },
+      "typography":      { "$type": "typography", "$value": { "fontFamily": "{font.sans}", "fontSize": "14px", "fontWeight": 500, "letterSpacing": "0em", "lineHeight": 1.5 } },
+      "gradient":        { "$type": "gradient", "$value": [] },
+      "color":           { "$type": "color", "$value": "#ffffff" },
+      "borderRadius":    { "$type": "dimension", "$value": "{radius.lg}" },
+      "opacity":         { "$type": "number", "$value": 1 }
+    }
+  }
+}
+```
+
+Each axis = own token with real DTCG `$type`. SD5 expands composites. No invented types.
+
+---
+
+## StyleMacro Provider
+
+Three files in `design/style/`:
+
+| File | Purpose |
+|------|---------|
+| `base-state.svelte.ts` | `$state` global reactive theme. VPB pushes updates. |
+| `macro-mappings.ts` | 11 axes → `--cl-*` var names + DTCG types. |
+| `StyleMacro.svelte` | Schema-driven `$derived.by` resolver. Reads component's registered schema. Constructs var() refs to expanded SD5 output. Assembles composite shorthands. |
+
+### Resolution
+
+StyleMacro constructs `var(--style-{styleId}-{axis})` references from style ID. CSS cascade resolves at paint time.
 
 ### Glue CSS (`generated/macro-base.css`)
 
-Maps `--cl-*` vars to CSS properties on `[data-kind]` elements. Without this file, StyleMacro outputs vars into the void.
-
-**StyleMacro assembles composite shorthands in JavaScript** (inside `$derived.by`). The glue CSS just consumes the assembled values. CSS custom properties cannot dynamically compose N shadow layers or N gradient stops — that's JavaScript's job.
+Maps `--cl-*` vars to CSS properties on `[data-kind]` elements. StyleMacro assembles composites. Glue CSS consumes assembled values.
 
 ```css
 [data-kind] {
@@ -192,88 +175,36 @@ Maps `--cl-*` vars to CSS properties on `[data-kind]` elements. Without this fil
 }
 ```
 
-### Assembly Responsibility
-
-| Concern | Who | How |
-|---------|-----|-----|
-| Token storage | DTCG JSON | Structured composite objects. Expanded by SD5. |
-| Token → CSS custom properties | SD5 | `expand: true`. Each sub-value = own CSS property. |
-| Composite assembly → shorthand | StyleMacro `$derived.by` | Reads expanded sub-values, builds CSS shorthand string. |
-| Shorthand → paint | Glue CSS | `[data-kind]` rule consumes `--cl-*` vars. |
-| Individual sub-value control | VPB | Reads/writes individual expanded sub-value tokens. |
-
-Typography is the exception — it does NOT need shorthand assembly. Its 5 sub-values map to 5 separate CSS properties directly (font-family, font-size, font-weight, letter-spacing, line-height).
-
----
-
-## StyleMacro
-
-Three files in `design/style/`:
-
-| File | Purpose |
-|------|---------|
-| `base-state.svelte.ts` | `$state` global reactive theme. VPB pushes updates. |
-| `macro-mappings.ts` | Static dictionary: 11 axes → `--cl-*` var names + DTCG types. Pre-computed key arrays. |
-| `StyleMacro.svelte` | `$derived.by` resolver. Produces CSS custom properties + encoding on wrapper div. |
-
-### Resolution Order (later wins)
-
-```
-1. platformBase.globalTokens  ($state — VPB can update)
-2. compiledBase[kind]         (build-time — SD5 output from DTCG token groups)
-3. localOverrides             (per-instance prop on StyleMacro)
-```
-
-```ts
-const value = local[key] ?? kindDefaults[key] ?? baseTokens[key];
-```
-
-### Output
-
-```html
-<div
-  data-macro-id="coldlight-default"
-  data-macro-kind="badge"
-  data-encoding="backgroundColor:accent-teal shadow:none border:subtle color:teal-400 borderRadius:full opacity:1"
-  style="--cl-bg: var(--style-badge-default-background-color); --cl-shadow: var(--style-badge-default-shadow); ..."
->
-  <!-- component renders inside, [data-kind] rule consumes --cl-* vars -->
-</div>
-```
-
 ### VPB Integration
 
-VPB pushes updates via custom event:
-
-```ts
-window.dispatchEvent(new CustomEvent('vpb:style-update', {
-  detail: { newStyleId: 'dark-mode', newTokens: { backgroundColor: 'layer-2' } }
-}));
-```
-
-`platformBase` reacts. StyleMacro re-resolves. Browser repaints. One update, entire app.
+VPB pushes updates via custom event → `platformBase` `$state` reacts → StyleMacro re-resolves → browser repaints. One update, entire app. Or per-instance.
 
 ---
 
-## Performance
+## _base Contract (Styling, NOT Primitives)
 
-| Metric | Old (useColdLight) | New (StyleMacro) |
-|---|---|---|
-| Theme change, 1000 components | 1000 resolveVisual() + 1000 cn() + 1000 DOM class updates | 1 $derived.by + 1 style attribute + browser CSS cascade |
-| Object allocations per update | 1000 ResolvedVisual objects | 0 (string concatenation only) |
-| Memory | Getter-wrapped objects per component | One $state + one string per macro instance |
+Primitives have anatomy. Components have `_base`.
+
+- `ComponentProps` — `class?: string`, `children?: Snippet`
+- `ComponentDef` — interface for const literal defs (kind, styleIds, slots)
+- `SlotAxes` — "all" | "none" | per-axis booleans
+- `component-map.ts` — const map of all defs. `getComponentDef(kind)`.
+
+Every component has a colocated `{kind}.def.ts` — const literal `as const satisfies ComponentDef`. Added to component-map with one line. No Zod. No runtime validation. TypeScript validates at compile time.
 
 ---
 
-## Encoding Format (11-Axis)
+## Assembly Responsibility
 
-```
-backgroundColor:glass-void backgroundBlur:frosted shadow:card-elevated border:soft animation:none transition:fast typography:body-default gradient:none color:teal-400 borderRadius:full opacity:1
-```
-
-Space-separated `axis:value` pairs. Human-readable. VPB reads and writes this format.
-
-NOT the old `v-s1z0d2b1g0f1m0t2` format.
+| Concern | Who |
+|---------|-----|
+| Token storage | DTCG JSON — structured composite objects |
+| Token → CSS custom properties | SD5 — `expand: true`, each sub-value = own property |
+| Composite assembly → shorthand | StyleMacro `$derived.by` — reads expanded sub-vars, builds CSS shorthand |
+| Shorthand → paint | Glue CSS — `[data-kind]` consumes `--cl-*` vars |
+| Individual sub-value control | VPB — reads/writes individual expanded sub-values |
+| ARIA + keyboard + focus | Primitive hooks — WAI-ARIA APG compliant |
+| Structure + class + size | Component — extends _base, const map for size |
 
 ---
 
@@ -281,69 +212,61 @@ NOT the old `v-s1z0d2b1g0f1m0t2` format.
 
 | Deleted | Why |
 |---|---|
+| `ui/` folder | Over-engineered third layer. Component IS the product. |
 | `useColdLight()` | Per-component hook. Replaced by StyleMacro. |
-| `resolveVisual()` | Per-component resolution. Logic is in StyleMacro `$derived.by`. |
-| `components/_base/use-coldlight.svelte.ts` | The hook file. |
-| `registerRecipe()` / `recipes/` JS system | Recipes are DTCG token groups in JSON. SD5 processes them. |
-| `*.visual.ts` / `compiled-base.ts` | Recipes are in token JSON, not TypeScript. |
-| `cn()` in component `$derived` blocks | Components don't compute classes. |
-| `visual.segments` class approach | CSS custom properties instead. |
-| Getter hack return objects | `$derived.by` returns a plain string. |
-| 8-axis encoding (`v-s1z0d2b1g0f1m0t2`) | Replaced by 11-axis DTCG-aligned encoding. |
-| `ColdLightProps` interface | Components don't accept visual props. |
-| `registry/resolve-visual.ts` | Old resolution pipeline. |
-| `registry/presets.ts` | Old preset system. |
-| `registry/token-categories.ts` | Old 8-axis encoding SSOT. |
-| `registry/encoding.ts` | Old encoding system. |
-| `registry/kind-definitions.ts` | Old CDO definitions. |
-| JS `recipe.ts` files in component folders | Visual classes in JS. Replaced by DTCG JSON. |
+| `resolveVisual()` | Per-component resolution. |
+| `registerRecipe()` / `recipes/` JS | Recipes are DTCG token groups. |
+| `registry/` folder | Old 8-axis system. |
+| `_schema/` folder | References deleted modules. |
+| JS `recipe.ts` files | Visual classes in JS. |
+| `*.visual.ts` / `compiled-base.ts` | Recipes are in token JSON. |
+| `ColdLightProps` / `PreparedComponentProps` | Components extend ComponentProps. |
+| 8-axis encoding | Replaced by 11-axis DTCG. |
+| 3-layer model | Replaced by 2-layer. |
+| Dumb middle components | Over-engineered. |
+| Shorthand transforms in SD5 | Removed. Expand only. |
 
 ## What Stays
 
 | Asset | Why |
 |---|---|
-| DTCG JSON tokens | Source of truth. Unchanged. |
-| SD5 pipeline | Generates CSS vars the macro references. |
-| Primitive hooks | Behavioral ARIA (useButton, useAccordion, etc.). Unchanged. |
-| Component contracts | ARIA spec per slot. Unchanged. |
-| `data-kind` / `data-slot` / `data-state` | Three data attributes on components. Unchanged. |
-| `cn()` utility | Still used in UI wrappers for structural class composition. |
-| `_base/` | Contract that every component extends. Declares 11-axis schema. Automatic macro-driven provider. |
-
-## `_base` Contract (LOCKED)
-
-Every component extends `_base`. This is what makes StyleMacro automatic:
-
-- `ComponentProps` — `class` + `children` + kind-specific behavioral props. Zero visual.
-- `SlotTokenAxesSchema` — 11 DTCG axes. Declares which axes each slot receives.
-- Components extending `_base` automatically get `data-kind` → glue CSS applies → `--cl-*` vars cascade → browser paints.
-- ONE change to `platformBase.globalTokens` → every component that extends `_base` repaints.
-- ONE `localOverrides` on a specific StyleMacro → only that instance changes.
-
-Components ONLY consume DTCG composite style tokens (the recipes). No raw CSS values. No hardcoded colors. No JS recipe functions. No invented token names. The `_base` contract enforces this — if it's not in the 11 axes, it doesn't exist as a visual concern.
+| DTCG JSON tokens | Source of truth. |
+| SD5 pipeline (`expand: true`) | Generates expanded CSS vars. |
+| Primitive hooks | Behavioral ARIA. Unchanged. |
+| Anatomy (`createAnatomy`) | Slot declaration for primitives. |
+| `data-kind` / `data-slot` / `data-state` | Three data attributes. |
+| `_base` (ComponentProps, schema, registry) | Styling contract. |
+| `cn()` utility | Structural class composition. |
 
 ---
 
-## Consequences
+## Checklist — Per Component
 
-1. Every component authored before this ADR needs visual logic removed
-2. Components become pure structure — no visual imports, no style computation
-3. `ui/` folder must be created — this is what users import
-4. DTCG token group JSON files must be created for each component's recipe (11 axes per style)
-5. `generated/macro-base.css` must be created — glue CSS that maps `--cl-*` to CSS properties
-6. The old `recipes/` JS system must be deleted
-7. The old `registry/` folder must be deleted
-8. JS `recipe.ts` files in component folders must be deleted
-9. StyleMacro var() construction must reference actual SD5 output names
-10. VPB reads `data-encoding` + `data-macro-kind` from StyleMacro wrapper
+- [ ] Primitive hook exists (`primitives/{kind}/use-{kind}.svelte.ts`)
+- [ ] Anatomy declared (`{kind}.anatomy.ts`)
+- [ ] Primitive types with per-slot typed attrs (`{kind}.types.ts`)
+- [ ] Component extends ComponentProps (`components/{kind}/{kind}.types.ts`)
+- [ ] Component uses hook + StyleMacro in ONE file (`{Kind}.svelte`)
+- [ ] Intent/variant maps to style ID in component
+- [ ] Structural size as const map in component
+- [ ] ZERO hardcoded colors/backgrounds/shadows in component
+- [ ] Const literal def declares axes + style IDs (`{kind}.def.ts`)
+- [ ] Def added to `_base/component-map.ts`
+- [ ] Schema validates + registers at import time
+- [ ] DTCG style tokens authored (`tokens/src/component.json` → `style.{kind}-{variant}`)
+- [ ] SD5 generates expanded sub-properties for style tokens
+- [ ] Barrel exports component as public API (`index.ts`)
+- [ ] `pnpm svelte-check` — zero errors
+- [ ] `pnpm ds:tokens:build` — clean
+- [ ] Visual renders with token-driven styling
 
 ---
 
 ## Decision Record
 
 **Decided by:** Owner
-**Rationale:** Per-component visual resolution is a Svelte 5 anti-pattern. CSS custom properties + browser cascade is the correct approach. StyleMacro eliminates 95% of visual resolution code while improving performance by orders of magnitude. 11 axes cover every visual concern a UI compiler needs. Every axis maps to a real DTCG `$type` — no invented types, no gaps.
-**Irreversible:** Yes. This is the visual architecture. No going back to per-component hooks.
+**Rationale:** 2-layer pattern (hooks + styled components) is the enterprise standard in 2026. React Spectrum S2, Ark UI, Radix — none use a third layer. The 3-layer split was over-engineering. StyleMacro + primitive hooks give full ARIA compliance + full visual control + VPB integration in the minimum possible architecture. 11 axes cover every visual concern. Every axis = real DTCG type.
+**Irreversible:** Yes.
 
 ---
 

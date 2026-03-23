@@ -63,6 +63,9 @@ importers:
       '@xyflow/svelte':
         specifier: ^1.5.0
         version: 1.5.0(svelte@5.51.2)
+      a2ui:
+        specifier: github:eonsofstupid/a2ui
+        version: https://codeload.github.com/eonsofstupid/a2ui/tar.gz/dae4256acbf11e0f9c6a45c2a20b9fb50ff45898
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -75,6 +78,9 @@ importers:
       shiki:
         specifier: ^4.0.2
         version: 4.0.2
+      style-dictionary-utils:
+        specifier: ^6.0.1
+        version: 6.0.1(style-dictionary@5.3.1(tslib@2.8.1))
       svelte-sonner:
         specifier: ^1.0.7
         version: 1.0.7(svelte@5.51.2)
@@ -2050,6 +2056,10 @@ packages:
     resolution: {integrity: sha512-RB+RLnxPJFPrGvQ9rgO+4JOcsob6lD32OcF0QE0yg24oeW9q8KnTTNlugcDaIveEcCbclobJcZP+fLQ++sH0bw==}
     engines: {bun: '>=0.7.0', deno: '>=1.0.0', node: '>=18.0.0'}
 
+  a2ui@https://codeload.github.com/eonsofstupid/a2ui/tar.gz/dae4256acbf11e0f9c6a45c2a20b9fb50ff45898:
+    resolution: {tarball: https://codeload.github.com/eonsofstupid/a2ui/tar.gz/dae4256acbf11e0f9c6a45c2a20b9fb50ff45898}
+    version: 0.0.0
+
   abort-controller@3.0.0:
     resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
     engines: {node: '>=6.5'}
@@ -2414,6 +2424,9 @@ packages:
 
   color-name@1.1.4:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
+
+  color2k@2.0.3:
+    resolution: {integrity: sha512-zW190nQTIoXcGCaU08DvVNFTmQhUpnJfVuAKfWqUQkflXKpaDdpaYoM0iluLS9lgJNHyBF58KKA2FBEwkD7wog==}
 
   colorjs.io@0.5.2:
     resolution: {integrity: sha512-twmVoizEW7ylZSN32OgKdXRmo1qg+wT5/6C3xu5b9QsWzSFAhHLn2xd8ro0diCsKfCj1RdaTP/nrcW+vAoQPIw==}
@@ -4368,6 +4381,11 @@ packages:
 
   strnum@2.2.1:
     resolution: {integrity: sha512-BwRvNd5/QoAtyW1na1y1LsJGQNvRlkde6Q/ipqqEaivoMdV+B1OMOTVdwR+N/cwVUcIt9PYyHmV8HyexCZSupg==}
+
+  style-dictionary-utils@6.0.1:
+    resolution: {integrity: sha512-FvGdI94Fx9tuM3sbPBDOJw7poAQ3dAd+QuHYhe6Ab/KP5JjbdsNQe1DJ1CiOE8blkfdDGKCg+smteWyP2yMgnQ==}
+    peerDependencies:
+      style-dictionary: ^5
 
   style-dictionary@5.3.1:
     resolution: {integrity: sha512-JERfy+PNhIaG+EUSHyeznruSaaQpfHZO6kcxRYGPh3HZ3zNKiOJxp3tL4liQCzLTUBwf1geofMjQlVADR26vXA==}
@@ -6800,6 +6818,8 @@ snapshots:
 
   '@zip.js/zip.js@2.8.23': {}
 
+  a2ui@https://codeload.github.com/eonsofstupid/a2ui/tar.gz/dae4256acbf11e0f9c6a45c2a20b9fb50ff45898: {}
+
   abort-controller@3.0.0:
     dependencies:
       event-target-shim: 5.0.1
@@ -7173,6 +7193,8 @@ snapshots:
       color-name: 1.1.4
 
   color-name@1.1.4: {}
+
+  color2k@2.0.3: {}
 
   colorjs.io@0.5.2: {}
 
@@ -9194,6 +9216,12 @@ snapshots:
       min-indent: 1.0.1
 
   strnum@2.2.1: {}
+
+  style-dictionary-utils@6.0.1(style-dictionary@5.3.1(tslib@2.8.1)):
+    dependencies:
+      color2k: 2.0.3
+      colorjs.io: 0.5.2
+      style-dictionary: 5.3.1(tslib@2.8.1)
 
   style-dictionary@5.3.1(tslib@2.8.1):
     dependencies:

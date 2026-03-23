@@ -1,4 +1,11 @@
-export { contract as textComponentContract } from "./contract.js";
-export { textRecipe } from "./recipe.js";
+/**
+ * @file Text — public API
+ * @kind text
+ */
+
 export { default as Text } from "./Text.svelte";
-export type { TextAs, TextColor, TextProps, TextSize, TextWeight } from "./types.js";
+export { textDef } from "./text.def.js";
+export { TextSchema, CATEGORY, type TextSchemaProps } from "./schema.js";
+export { textTokens, textSizeTokens } from "./tokens.js";
+export { textRecipes } from "./recipe.js";
+export type { TextProps, TextAs, TextSize, TextWeight } from "./text.types.js";

@@ -49,16 +49,267 @@ export type OutlineOffsetRecord = {
 	lg: string;
 };
 
-export const ButtonTokens = ['bg', 'bg-hover', 'border', 'border-focus'] as const;
+export const AvatarTokens = ['root-background', 'root-border-color', 'root-border-width', 'root-border-radius', 'root-color', 'root-font-size', 'root-font-weight', 'root-font-family', 'bg', 'border'] as const;
+export type AvatarToken = (typeof AvatarTokens)[number];
+
+export type AvatarCSSVar = '--avatar-root-background' | '--avatar-root-border-color' | '--avatar-root-border-width' | '--avatar-root-border-radius' | '--avatar-root-color' | '--avatar-root-font-size' | '--avatar-root-font-weight' | '--avatar-root-font-family' | '--avatar-bg' | '--avatar-border';
+
+export type AvatarRecord = {
+	root: {
+		background: string;
+		border: {
+			color: string;
+			width: string;
+		};
+		'border-radius': string;
+		color: string;
+		'font-size': string;
+		'font-weight': string;
+		'font-family': string;
+	};
+	bg: string;
+	border: string;
+};
+
+export const BadgeTokens = ['root-background', 'root-border-color', 'root-border-width', 'root-border-radius', 'root-color', 'root-padding-inline', 'root-padding-block', 'root-font-size', 'root-font-weight', 'root-font-family', 'root-gap', 'bg', 'border'] as const;
+export type BadgeToken = (typeof BadgeTokens)[number];
+
+export type BadgeCSSVar = '--badge-root-background' | '--badge-root-border-color' | '--badge-root-border-width' | '--badge-root-border-radius' | '--badge-root-color' | '--badge-root-padding-inline' | '--badge-root-padding-block' | '--badge-root-font-size' | '--badge-root-font-weight' | '--badge-root-font-family' | '--badge-root-gap' | '--badge-bg' | '--badge-border';
+
+export type BadgeRecord = {
+	root: {
+		background: string;
+		border: {
+			color: string;
+			width: string;
+		};
+		'border-radius': string;
+		color: string;
+		'padding-inline': string;
+		'padding-block': string;
+		'font-size': string;
+		'font-weight': string;
+		'font-family': string;
+		gap: string;
+	};
+	bg: string;
+	border: string;
+};
+
+export const ButtonTokens = ['root-background-default', 'root-background-hover', 'root-padding-inline', 'root-padding-block', 'root-height', 'root-border-radius', 'root-border-color', 'root-border-width', 'root-color-default', 'root-font-size', 'root-font-weight', 'root-font-family', 'root-transition-duration', 'root-gap', 'bg', 'bg-hover', 'border', 'border-focus', 'root-shadow-1-color', 'root-shadow-1-offsetX', 'root-shadow-1-offsetY', 'root-shadow-1-blur', 'root-shadow-1-spread', 'root-shadow-2-color', 'root-shadow-2-offsetX', 'root-shadow-2-offsetY', 'root-shadow-2-blur', 'root-shadow-2-spread'] as const;
 export type ButtonToken = (typeof ButtonTokens)[number];
 
-export type ButtonCSSVar = '--button-bg' | '--button-bg-hover' | '--button-border' | '--button-border-focus';
+export type ButtonCSSVar = '--button-root-background-default' | '--button-root-background-hover' | '--button-root-padding-inline' | '--button-root-padding-block' | '--button-root-height' | '--button-root-border-radius' | '--button-root-border-color' | '--button-root-border-width' | '--button-root-color-default' | '--button-root-font-size' | '--button-root-font-weight' | '--button-root-font-family' | '--button-root-transition-duration' | '--button-root-gap' | '--button-bg' | '--button-bg-hover' | '--button-border' | '--button-border-focus' | '--button-root-shadow-1-color' | '--button-root-shadow-1-offset-x' | '--button-root-shadow-1-offset-y' | '--button-root-shadow-1-blur' | '--button-root-shadow-1-spread' | '--button-root-shadow-2-color' | '--button-root-shadow-2-offset-x' | '--button-root-shadow-2-offset-y' | '--button-root-shadow-2-blur' | '--button-root-shadow-2-spread';
 
 export type ButtonRecord = {
+	root: {
+		background: {
+			default: string;
+			hover: string;
+		};
+		'padding-inline': string;
+		'padding-block': string;
+		height: string;
+		'border-radius': string;
+		border: {
+			color: string;
+			width: string;
+		};
+		color: {
+			default: string;
+		};
+		'font-size': string;
+		'font-weight': string;
+		'font-family': string;
+		transition: {
+			duration: string;
+		};
+		gap: string;
+		shadow: {
+			'1': {
+				color: string;
+				offsetX: string;
+				offsetY: string;
+				blur: string;
+				spread: string;
+			};
+			'2': {
+				color: string;
+				offsetX: string;
+				offsetY: string;
+				blur: string;
+				spread: string;
+			};
+		};
+	};
 	bg: string;
 	'bg-hover': string;
 	border: string;
 	'border-focus': string;
+};
+
+export const CardTokens = ['root-background', 'root-border-color', 'root-border-width', 'root-border-radius', 'root-padding', 'root-color', 'root-opacity-disabled', 'root-transition-duration', 'bg', 'border', 'root-shadow-1-color', 'root-shadow-1-offsetX', 'root-shadow-1-offsetY', 'root-shadow-1-blur', 'root-shadow-1-spread', 'root-shadow-2-color', 'root-shadow-2-offsetX', 'root-shadow-2-offsetY', 'root-shadow-2-blur', 'root-shadow-2-spread', 'depth-1-color', 'depth-1-offsetX', 'depth-1-offsetY', 'depth-1-blur', 'depth-1-spread', 'depth-2-color', 'depth-2-offsetX', 'depth-2-offsetY', 'depth-2-blur', 'depth-2-spread'] as const;
+export type CardToken = (typeof CardTokens)[number];
+
+export type CardCSSVar = '--card-root-background' | '--card-root-border-color' | '--card-root-border-width' | '--card-root-border-radius' | '--card-root-padding' | '--card-root-color' | '--card-root-opacity-disabled' | '--card-root-transition-duration' | '--card-bg' | '--card-border' | '--card-root-shadow-1-color' | '--card-root-shadow-1-offset-x' | '--card-root-shadow-1-offset-y' | '--card-root-shadow-1-blur' | '--card-root-shadow-1-spread' | '--card-root-shadow-2-color' | '--card-root-shadow-2-offset-x' | '--card-root-shadow-2-offset-y' | '--card-root-shadow-2-blur' | '--card-root-shadow-2-spread' | '--card-depth-1-color' | '--card-depth-1-offset-x' | '--card-depth-1-offset-y' | '--card-depth-1-blur' | '--card-depth-1-spread' | '--card-depth-2-color' | '--card-depth-2-offset-x' | '--card-depth-2-offset-y' | '--card-depth-2-blur' | '--card-depth-2-spread';
+
+export type CardRecord = {
+	root: {
+		background: string;
+		border: {
+			color: string;
+			width: string;
+		};
+		'border-radius': string;
+		padding: string;
+		color: string;
+		opacity: {
+			disabled: string;
+		};
+		transition: {
+			duration: string;
+		};
+		shadow: {
+			'1': {
+				color: string;
+				offsetX: string;
+				offsetY: string;
+				blur: string;
+				spread: string;
+			};
+			'2': {
+				color: string;
+				offsetX: string;
+				offsetY: string;
+				blur: string;
+				spread: string;
+			};
+		};
+	};
+	bg: string;
+	border: string;
+	depth: {
+		'1': {
+			color: string;
+			offsetX: string;
+			offsetY: string;
+			blur: string;
+			spread: string;
+		};
+		'2': {
+			color: string;
+			offsetX: string;
+			offsetY: string;
+			blur: string;
+			spread: string;
+		};
+	};
+};
+
+export const HeadingTokens = ['root-color', 'root-font-family', 'root-font-weight-h1', 'root-font-weight-h2', 'root-font-weight-h3', 'root-font-weight-h4', 'root-font-weight-h5', 'root-font-weight-h6', 'root-letter-spacing', 'root-line-height', 'root-opacity'] as const;
+export type HeadingToken = (typeof HeadingTokens)[number];
+
+export type HeadingCSSVar = '--heading-root-color' | '--heading-root-font-family' | '--heading-root-font-weight-h1' | '--heading-root-font-weight-h2' | '--heading-root-font-weight-h3' | '--heading-root-font-weight-h4' | '--heading-root-font-weight-h5' | '--heading-root-font-weight-h6' | '--heading-root-letter-spacing' | '--heading-root-line-height' | '--heading-root-opacity';
+
+export type HeadingRecord = {
+	root: {
+		color: string;
+		'font-family': string;
+		'font-weight': {
+			h1: string;
+			h2: string;
+			h3: string;
+			h4: string;
+			h5: string;
+			h6: string;
+		};
+		'letter-spacing': string;
+		'line-height': string;
+		opacity: string;
+	};
+};
+
+export const ProgressTokens = ['track', 'fill-background', 'fill-border-radius', 'fill-transition-duration', 'bar'] as const;
+export type ProgressToken = (typeof ProgressTokens)[number];
+
+export type ProgressCSSVar = '--progress-track' | '--progress-fill-background' | '--progress-fill-border-radius' | '--progress-fill-transition-duration' | '--progress-bar';
+
+export type ProgressRecord = {
+	track: string;
+	fill: {
+		background: string;
+		'border-radius': string;
+		transition: {
+			duration: string;
+		};
+	};
+	bar: string;
+};
+
+export const TextTokens = ['root-color-primary', 'root-color-secondary', 'root-color-muted', 'root-color-accent', 'root-font-family', 'root-line-height', 'root-letter-spacing'] as const;
+export type TextToken = (typeof TextTokens)[number];
+
+export type TextCSSVar = '--text-root-color-primary' | '--text-root-color-secondary' | '--text-root-color-muted' | '--text-root-color-accent' | '--text-root-font-family' | '--text-root-line-height' | '--text-root-letter-spacing';
+
+export type TextRecord = {
+	root: {
+		color: {
+			primary: string;
+			secondary: string;
+			muted: string;
+			accent: string;
+		};
+		'font-family': string;
+		'line-height': string;
+		'letter-spacing': string;
+	};
+};
+
+export const TextFieldTokens = ['input-background-default', 'input-background-focus', 'input-border-color-default', 'input-border-color-focus', 'input-border-color-invalid', 'input-border-width', 'input-border-radius', 'input-padding-inline', 'input-padding-block', 'input-color', 'input-placeholder-color', 'input-font-size', 'input-font-family', 'input-shadow-focus', 'input-height', 'label-color', 'label-font-size', 'label-font-weight', 'label-margin-bottom', 'description-color', 'description-font-size', 'error-color', 'error-font-size'] as const;
+export type TextFieldToken = (typeof TextFieldTokens)[number];
+
+export type TextFieldCSSVar = '--text-field-input-background-default' | '--text-field-input-background-focus' | '--text-field-input-border-color-default' | '--text-field-input-border-color-focus' | '--text-field-input-border-color-invalid' | '--text-field-input-border-width' | '--text-field-input-border-radius' | '--text-field-input-padding-inline' | '--text-field-input-padding-block' | '--text-field-input-color' | '--text-field-input-placeholder-color' | '--text-field-input-font-size' | '--text-field-input-font-family' | '--text-field-input-shadow-focus' | '--text-field-input-height' | '--text-field-label-color' | '--text-field-label-font-size' | '--text-field-label-font-weight' | '--text-field-label-margin-bottom' | '--text-field-description-color' | '--text-field-description-font-size' | '--text-field-error-color' | '--text-field-error-font-size';
+
+export type TextFieldRecord = {
+	input: {
+		background: {
+			default: string;
+			focus: string;
+		};
+		border: {
+			color: {
+				default: string;
+				focus: string;
+				invalid: string;
+			};
+			width: string;
+		};
+		'border-radius': string;
+		'padding-inline': string;
+		'padding-block': string;
+		color: string;
+		'placeholder-color': string;
+		'font-size': string;
+		'font-family': string;
+		shadow: {
+			focus: string;
+		};
+		height: string;
+	};
+	label: {
+		color: string;
+		'font-size': string;
+		'font-weight': string;
+		'margin-bottom': string;
+	};
+	description: {
+		color: string;
+		'font-size': string;
+	};
+	error: {
+		color: string;
+		'font-size': string;
+	};
 };
 
 export const CheckboxTokens = ['bg', 'bg-checked', 'border', 'border-focus'] as const;
@@ -105,16 +356,6 @@ export type SliderRecord = {
 	range: string;
 	thumb: string;
 	'thumb-border': string;
-};
-
-export const ProgressTokens = ['track', 'bar'] as const;
-export type ProgressToken = (typeof ProgressTokens)[number];
-
-export type ProgressCSSVar = '--progress-track' | '--progress-bar';
-
-export type ProgressRecord = {
-	track: string;
-	bar: string;
 };
 
 export const InputTokens = ['bg', 'bg-focus', 'border', 'border-focus'] as const;
@@ -165,52 +406,6 @@ export type RadioGroupRecord = {
 	'bg-checked': string;
 	border: string;
 	'border-focus': string;
-};
-
-export const BadgeTokens = ['bg', 'border'] as const;
-export type BadgeToken = (typeof BadgeTokens)[number];
-
-export type BadgeCSSVar = '--badge-bg' | '--badge-border';
-
-export type BadgeRecord = {
-	bg: string;
-	border: string;
-};
-
-export const CardTokens = ['bg', 'border', 'depth-1-color', 'depth-1-offsetX', 'depth-1-offsetY', 'depth-1-blur', 'depth-1-spread', 'depth-2-color', 'depth-2-offsetX', 'depth-2-offsetY', 'depth-2-blur', 'depth-2-spread'] as const;
-export type CardToken = (typeof CardTokens)[number];
-
-export type CardCSSVar = '--card-bg' | '--card-border' | '--card-depth-1-color' | '--card-depth-1-offset-x' | '--card-depth-1-offset-y' | '--card-depth-1-blur' | '--card-depth-1-spread' | '--card-depth-2-color' | '--card-depth-2-offset-x' | '--card-depth-2-offset-y' | '--card-depth-2-blur' | '--card-depth-2-spread';
-
-export type CardRecord = {
-	bg: string;
-	border: string;
-	depth: {
-		'1': {
-			color: string;
-			offsetX: string;
-			offsetY: string;
-			blur: string;
-			spread: string;
-		};
-		'2': {
-			color: string;
-			offsetX: string;
-			offsetY: string;
-			blur: string;
-			spread: string;
-		};
-	};
-};
-
-export const AvatarTokens = ['bg', 'border'] as const;
-export type AvatarToken = (typeof AvatarTokens)[number];
-
-export type AvatarCSSVar = '--avatar-bg' | '--avatar-border';
-
-export type AvatarRecord = {
-	bg: string;
-	border: string;
 };
 
 export const TableTokens = ['bg', 'bg-2', 'bg-hover', 'border'] as const;
@@ -448,10 +643,10 @@ export type TagRecord = {
 	'neutral-text': string;
 };
 
-export const StyleTokens = ['button-primary-backgroundColor', 'button-primary-backgroundBlur', 'button-primary-animation', 'button-primary-color', 'button-primary-borderRadius', 'button-primary-opacity', 'button-secondary-backgroundColor', 'button-secondary-backgroundBlur', 'button-secondary-animation', 'button-secondary-color', 'button-secondary-borderRadius', 'button-secondary-opacity', 'button-ghost-backgroundColor', 'button-ghost-backgroundBlur', 'button-ghost-animation', 'button-ghost-color', 'button-ghost-borderRadius', 'button-ghost-opacity', 'button-danger-backgroundColor', 'button-danger-backgroundBlur', 'button-danger-animation', 'button-danger-color', 'button-danger-borderRadius', 'button-danger-opacity', 'button-primary-shadow-1-color', 'button-primary-shadow-1-offsetX', 'button-primary-shadow-1-offsetY', 'button-primary-shadow-1-blur', 'button-primary-shadow-1-spread', 'button-primary-shadow-2-color', 'button-primary-shadow-2-offsetX', 'button-primary-shadow-2-offsetY', 'button-primary-shadow-2-blur', 'button-primary-shadow-2-spread', 'button-primary-border-color', 'button-primary-border-width', 'button-primary-border-style', 'button-primary-transition-duration', 'button-primary-transition-delay', 'button-primary-transition-timingFunction', 'button-primary-typography-fontFamily', 'button-primary-typography-fontSize', 'button-primary-typography-fontWeight', 'button-primary-typography-letterSpacing', 'button-primary-typography-lineHeight', 'button-secondary-shadow-color', 'button-secondary-shadow-offsetX', 'button-secondary-shadow-offsetY', 'button-secondary-shadow-blur', 'button-secondary-shadow-spread', 'button-secondary-border-color', 'button-secondary-border-width', 'button-secondary-border-style', 'button-secondary-transition-duration', 'button-secondary-transition-delay', 'button-secondary-transition-timingFunction', 'button-secondary-typography-fontFamily', 'button-secondary-typography-fontSize', 'button-secondary-typography-fontWeight', 'button-secondary-typography-letterSpacing', 'button-secondary-typography-lineHeight', 'button-ghost-shadow-color', 'button-ghost-shadow-offsetX', 'button-ghost-shadow-offsetY', 'button-ghost-shadow-blur', 'button-ghost-shadow-spread', 'button-ghost-border-color', 'button-ghost-border-width', 'button-ghost-border-style', 'button-ghost-transition-duration', 'button-ghost-transition-delay', 'button-ghost-transition-timingFunction', 'button-ghost-typography-fontFamily', 'button-ghost-typography-fontSize', 'button-ghost-typography-fontWeight', 'button-ghost-typography-letterSpacing', 'button-ghost-typography-lineHeight', 'button-danger-shadow-1-color', 'button-danger-shadow-1-offsetX', 'button-danger-shadow-1-offsetY', 'button-danger-shadow-1-blur', 'button-danger-shadow-1-spread', 'button-danger-shadow-2-color', 'button-danger-shadow-2-offsetX', 'button-danger-shadow-2-offsetY', 'button-danger-shadow-2-blur', 'button-danger-shadow-2-spread', 'button-danger-border-color', 'button-danger-border-width', 'button-danger-border-style', 'button-danger-transition-duration', 'button-danger-transition-delay', 'button-danger-transition-timingFunction', 'button-danger-typography-fontFamily', 'button-danger-typography-fontSize', 'button-danger-typography-fontWeight', 'button-danger-typography-letterSpacing', 'button-danger-typography-lineHeight'] as const;
+export const StyleTokens = ['button-primary-backgroundColor', 'button-primary-backgroundBlur', 'button-primary-animation', 'button-primary-color', 'button-primary-borderRadius', 'button-primary-opacity', 'button-secondary-backgroundColor', 'button-secondary-backgroundBlur', 'button-secondary-animation', 'button-secondary-color', 'button-secondary-borderRadius', 'button-secondary-opacity', 'button-ghost-backgroundColor', 'button-ghost-backgroundBlur', 'button-ghost-animation', 'button-ghost-color', 'button-ghost-borderRadius', 'button-ghost-opacity', 'button-danger-backgroundColor', 'button-danger-backgroundBlur', 'button-danger-animation', 'button-danger-color', 'button-danger-borderRadius', 'button-danger-opacity', 'accordion-default-backgroundColor', 'accordion-default-backgroundBlur', 'accordion-default-animation', 'accordion-default-color', 'accordion-default-borderRadius', 'accordion-default-opacity', 'button-primary-shadow-1-color', 'button-primary-shadow-1-offsetX', 'button-primary-shadow-1-offsetY', 'button-primary-shadow-1-blur', 'button-primary-shadow-1-spread', 'button-primary-shadow-2-color', 'button-primary-shadow-2-offsetX', 'button-primary-shadow-2-offsetY', 'button-primary-shadow-2-blur', 'button-primary-shadow-2-spread', 'button-primary-border-color', 'button-primary-border-width', 'button-primary-border-style', 'button-primary-transition-duration', 'button-primary-transition-delay', 'button-primary-transition-timingFunction', 'button-primary-typography-fontFamily', 'button-primary-typography-fontSize', 'button-primary-typography-fontWeight', 'button-primary-typography-letterSpacing', 'button-primary-typography-lineHeight', 'button-secondary-shadow-color', 'button-secondary-shadow-offsetX', 'button-secondary-shadow-offsetY', 'button-secondary-shadow-blur', 'button-secondary-shadow-spread', 'button-secondary-border-color', 'button-secondary-border-width', 'button-secondary-border-style', 'button-secondary-transition-duration', 'button-secondary-transition-delay', 'button-secondary-transition-timingFunction', 'button-secondary-typography-fontFamily', 'button-secondary-typography-fontSize', 'button-secondary-typography-fontWeight', 'button-secondary-typography-letterSpacing', 'button-secondary-typography-lineHeight', 'button-ghost-shadow-color', 'button-ghost-shadow-offsetX', 'button-ghost-shadow-offsetY', 'button-ghost-shadow-blur', 'button-ghost-shadow-spread', 'button-ghost-border-color', 'button-ghost-border-width', 'button-ghost-border-style', 'button-ghost-transition-duration', 'button-ghost-transition-delay', 'button-ghost-transition-timingFunction', 'button-ghost-typography-fontFamily', 'button-ghost-typography-fontSize', 'button-ghost-typography-fontWeight', 'button-ghost-typography-letterSpacing', 'button-ghost-typography-lineHeight', 'button-danger-shadow-1-color', 'button-danger-shadow-1-offsetX', 'button-danger-shadow-1-offsetY', 'button-danger-shadow-1-blur', 'button-danger-shadow-1-spread', 'button-danger-shadow-2-color', 'button-danger-shadow-2-offsetX', 'button-danger-shadow-2-offsetY', 'button-danger-shadow-2-blur', 'button-danger-shadow-2-spread', 'button-danger-border-color', 'button-danger-border-width', 'button-danger-border-style', 'button-danger-transition-duration', 'button-danger-transition-delay', 'button-danger-transition-timingFunction', 'button-danger-typography-fontFamily', 'button-danger-typography-fontSize', 'button-danger-typography-fontWeight', 'button-danger-typography-letterSpacing', 'button-danger-typography-lineHeight', 'accordion-default-shadow-color', 'accordion-default-shadow-offsetX', 'accordion-default-shadow-offsetY', 'accordion-default-shadow-blur', 'accordion-default-shadow-spread', 'accordion-default-border-color', 'accordion-default-border-width', 'accordion-default-border-style', 'accordion-default-transition-duration', 'accordion-default-transition-delay', 'accordion-default-transition-timingFunction', 'accordion-default-typography-fontFamily', 'accordion-default-typography-fontSize', 'accordion-default-typography-fontWeight', 'accordion-default-typography-letterSpacing', 'accordion-default-typography-lineHeight'] as const;
 export type StyleToken = (typeof StyleTokens)[number];
 
-export type StyleCSSVar = '--style-button-primary-background-color' | '--style-button-primary-background-blur' | '--style-button-primary-animation' | '--style-button-primary-color' | '--style-button-primary-border-radius' | '--style-button-primary-opacity' | '--style-button-secondary-background-color' | '--style-button-secondary-background-blur' | '--style-button-secondary-animation' | '--style-button-secondary-color' | '--style-button-secondary-border-radius' | '--style-button-secondary-opacity' | '--style-button-ghost-background-color' | '--style-button-ghost-background-blur' | '--style-button-ghost-animation' | '--style-button-ghost-color' | '--style-button-ghost-border-radius' | '--style-button-ghost-opacity' | '--style-button-danger-background-color' | '--style-button-danger-background-blur' | '--style-button-danger-animation' | '--style-button-danger-color' | '--style-button-danger-border-radius' | '--style-button-danger-opacity' | '--style-button-primary-shadow-1-color' | '--style-button-primary-shadow-1-offset-x' | '--style-button-primary-shadow-1-offset-y' | '--style-button-primary-shadow-1-blur' | '--style-button-primary-shadow-1-spread' | '--style-button-primary-shadow-2-color' | '--style-button-primary-shadow-2-offset-x' | '--style-button-primary-shadow-2-offset-y' | '--style-button-primary-shadow-2-blur' | '--style-button-primary-shadow-2-spread' | '--style-button-primary-border-color' | '--style-button-primary-border-width' | '--style-button-primary-border-style' | '--style-button-primary-transition-duration' | '--style-button-primary-transition-delay' | '--style-button-primary-transition-timing-function' | '--style-button-primary-typography-font-family' | '--style-button-primary-typography-font-size' | '--style-button-primary-typography-font-weight' | '--style-button-primary-typography-letter-spacing' | '--style-button-primary-typography-line-height' | '--style-button-secondary-shadow-color' | '--style-button-secondary-shadow-offset-x' | '--style-button-secondary-shadow-offset-y' | '--style-button-secondary-shadow-blur' | '--style-button-secondary-shadow-spread' | '--style-button-secondary-border-color' | '--style-button-secondary-border-width' | '--style-button-secondary-border-style' | '--style-button-secondary-transition-duration' | '--style-button-secondary-transition-delay' | '--style-button-secondary-transition-timing-function' | '--style-button-secondary-typography-font-family' | '--style-button-secondary-typography-font-size' | '--style-button-secondary-typography-font-weight' | '--style-button-secondary-typography-letter-spacing' | '--style-button-secondary-typography-line-height' | '--style-button-ghost-shadow-color' | '--style-button-ghost-shadow-offset-x' | '--style-button-ghost-shadow-offset-y' | '--style-button-ghost-shadow-blur' | '--style-button-ghost-shadow-spread' | '--style-button-ghost-border-color' | '--style-button-ghost-border-width' | '--style-button-ghost-border-style' | '--style-button-ghost-transition-duration' | '--style-button-ghost-transition-delay' | '--style-button-ghost-transition-timing-function' | '--style-button-ghost-typography-font-family' | '--style-button-ghost-typography-font-size' | '--style-button-ghost-typography-font-weight' | '--style-button-ghost-typography-letter-spacing' | '--style-button-ghost-typography-line-height' | '--style-button-danger-shadow-1-color' | '--style-button-danger-shadow-1-offset-x' | '--style-button-danger-shadow-1-offset-y' | '--style-button-danger-shadow-1-blur' | '--style-button-danger-shadow-1-spread' | '--style-button-danger-shadow-2-color' | '--style-button-danger-shadow-2-offset-x' | '--style-button-danger-shadow-2-offset-y' | '--style-button-danger-shadow-2-blur' | '--style-button-danger-shadow-2-spread' | '--style-button-danger-border-color' | '--style-button-danger-border-width' | '--style-button-danger-border-style' | '--style-button-danger-transition-duration' | '--style-button-danger-transition-delay' | '--style-button-danger-transition-timing-function' | '--style-button-danger-typography-font-family' | '--style-button-danger-typography-font-size' | '--style-button-danger-typography-font-weight' | '--style-button-danger-typography-letter-spacing' | '--style-button-danger-typography-line-height';
+export type StyleCSSVar = '--style-button-primary-background-color' | '--style-button-primary-background-blur' | '--style-button-primary-animation' | '--style-button-primary-color' | '--style-button-primary-border-radius' | '--style-button-primary-opacity' | '--style-button-secondary-background-color' | '--style-button-secondary-background-blur' | '--style-button-secondary-animation' | '--style-button-secondary-color' | '--style-button-secondary-border-radius' | '--style-button-secondary-opacity' | '--style-button-ghost-background-color' | '--style-button-ghost-background-blur' | '--style-button-ghost-animation' | '--style-button-ghost-color' | '--style-button-ghost-border-radius' | '--style-button-ghost-opacity' | '--style-button-danger-background-color' | '--style-button-danger-background-blur' | '--style-button-danger-animation' | '--style-button-danger-color' | '--style-button-danger-border-radius' | '--style-button-danger-opacity' | '--style-accordion-default-background-color' | '--style-accordion-default-background-blur' | '--style-accordion-default-animation' | '--style-accordion-default-color' | '--style-accordion-default-border-radius' | '--style-accordion-default-opacity' | '--style-button-primary-shadow-1-color' | '--style-button-primary-shadow-1-offset-x' | '--style-button-primary-shadow-1-offset-y' | '--style-button-primary-shadow-1-blur' | '--style-button-primary-shadow-1-spread' | '--style-button-primary-shadow-2-color' | '--style-button-primary-shadow-2-offset-x' | '--style-button-primary-shadow-2-offset-y' | '--style-button-primary-shadow-2-blur' | '--style-button-primary-shadow-2-spread' | '--style-button-primary-border-color' | '--style-button-primary-border-width' | '--style-button-primary-border-style' | '--style-button-primary-transition-duration' | '--style-button-primary-transition-delay' | '--style-button-primary-transition-timing-function' | '--style-button-primary-typography-font-family' | '--style-button-primary-typography-font-size' | '--style-button-primary-typography-font-weight' | '--style-button-primary-typography-letter-spacing' | '--style-button-primary-typography-line-height' | '--style-button-secondary-shadow-color' | '--style-button-secondary-shadow-offset-x' | '--style-button-secondary-shadow-offset-y' | '--style-button-secondary-shadow-blur' | '--style-button-secondary-shadow-spread' | '--style-button-secondary-border-color' | '--style-button-secondary-border-width' | '--style-button-secondary-border-style' | '--style-button-secondary-transition-duration' | '--style-button-secondary-transition-delay' | '--style-button-secondary-transition-timing-function' | '--style-button-secondary-typography-font-family' | '--style-button-secondary-typography-font-size' | '--style-button-secondary-typography-font-weight' | '--style-button-secondary-typography-letter-spacing' | '--style-button-secondary-typography-line-height' | '--style-button-ghost-shadow-color' | '--style-button-ghost-shadow-offset-x' | '--style-button-ghost-shadow-offset-y' | '--style-button-ghost-shadow-blur' | '--style-button-ghost-shadow-spread' | '--style-button-ghost-border-color' | '--style-button-ghost-border-width' | '--style-button-ghost-border-style' | '--style-button-ghost-transition-duration' | '--style-button-ghost-transition-delay' | '--style-button-ghost-transition-timing-function' | '--style-button-ghost-typography-font-family' | '--style-button-ghost-typography-font-size' | '--style-button-ghost-typography-font-weight' | '--style-button-ghost-typography-letter-spacing' | '--style-button-ghost-typography-line-height' | '--style-button-danger-shadow-1-color' | '--style-button-danger-shadow-1-offset-x' | '--style-button-danger-shadow-1-offset-y' | '--style-button-danger-shadow-1-blur' | '--style-button-danger-shadow-1-spread' | '--style-button-danger-shadow-2-color' | '--style-button-danger-shadow-2-offset-x' | '--style-button-danger-shadow-2-offset-y' | '--style-button-danger-shadow-2-blur' | '--style-button-danger-shadow-2-spread' | '--style-button-danger-border-color' | '--style-button-danger-border-width' | '--style-button-danger-border-style' | '--style-button-danger-transition-duration' | '--style-button-danger-transition-delay' | '--style-button-danger-transition-timing-function' | '--style-button-danger-typography-font-family' | '--style-button-danger-typography-font-size' | '--style-button-danger-typography-font-weight' | '--style-button-danger-typography-letter-spacing' | '--style-button-danger-typography-line-height' | '--style-accordion-default-shadow-color' | '--style-accordion-default-shadow-offset-x' | '--style-accordion-default-shadow-offset-y' | '--style-accordion-default-shadow-blur' | '--style-accordion-default-shadow-spread' | '--style-accordion-default-border-color' | '--style-accordion-default-border-width' | '--style-accordion-default-border-style' | '--style-accordion-default-transition-duration' | '--style-accordion-default-transition-delay' | '--style-accordion-default-transition-timing-function' | '--style-accordion-default-typography-font-family' | '--style-accordion-default-typography-font-size' | '--style-accordion-default-typography-font-weight' | '--style-accordion-default-typography-letter-spacing' | '--style-accordion-default-typography-line-height';
 
 export type StyleRecord = {
 	'button-primary': {
@@ -581,6 +776,38 @@ export type StyleRecord = {
 				blur: string;
 				spread: string;
 			};
+		};
+		border: {
+			color: string;
+			width: string;
+			style: string;
+		};
+		transition: {
+			duration: string;
+			delay: string;
+			timingFunction: string;
+		};
+		typography: {
+			fontFamily: string;
+			fontSize: string;
+			fontWeight: string;
+			letterSpacing: string;
+			lineHeight: string;
+		};
+	};
+	'accordion-default': {
+		backgroundColor: string;
+		backgroundBlur: string;
+		animation: string;
+		color: string;
+		borderRadius: string;
+		opacity: string;
+		shadow: {
+			color: string;
+			offsetX: string;
+			offsetY: string;
+			blur: string;
+			spread: string;
 		};
 		border: {
 			color: string;

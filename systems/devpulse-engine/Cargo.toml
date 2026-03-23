@@ -10,6 +10,7 @@ engine = []
 rro = ["devpulse-maestro/rro"]
 kokoros = ["devpulse-maestro/kokoros"]
 outlines = ["devpulse-maestro/outlines"]
+candle = ["devpulse-maestro/candle"]
 
 [dependencies]
 # Core

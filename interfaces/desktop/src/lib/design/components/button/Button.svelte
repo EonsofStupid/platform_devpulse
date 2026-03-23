@@ -2,13 +2,14 @@
 	@component Button
 	@kind button
 
-	DUMB component. Structure + ARIA + structural size.
-	Primitive hook provides ARIA + keyboard + data-kind + data-slot.
-	ZERO visual logic. ZERO colors. ZERO token references.
-	Visual treatment via --cl-* cascade from StyleMacro (ui/ wrapper).
+	THE PRODUCT. Hook (ARIA) + StyleMacro (visual).
+	Intent → style ID → DTCG tokens.
+	Size → structural Tailwind classes.
 -->
 <script lang="ts">
 import { useButton } from "$lib/design/primitives/button/index.js";
+import { StyleMacro } from "$lib/design/style/index.js";
+import { cn } from "$lib/design/utils/cn.js";
 import type { ButtonProps, ButtonSize } from "./button.types.js";
 
 const SIZE: Record<ButtonSize, string> = {
@@ -18,11 +19,12 @@ const SIZE: Record<ButtonSize, string> = {
 };
 
 let {
+	intent = "primary",
 	size = "md",
+	disabled = false,
+	loading = false,
 	pressed,
 	onPressedChange,
-	loading = false,
-	disabled = false,
 	expanded,
 	type,
 	children,
@@ -31,12 +33,21 @@ let {
 }: ButtonProps = $props();
 
 const button = $derived(useButton({ disabled, loading, pressed, onPressedChange, expanded, type }));
+const styleId = $derived(`button-${intent}`);
 </script>
 
-<button
-	{...button.root}
-	{...rest}
-	class="inline-flex items-center justify-center font-medium cursor-pointer select-none focus-visible:outline-2 focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-50 {SIZE[size] ?? SIZE.md} {className ?? ''}"
->
-	{@render children?.()}
-</button>
+<StyleMacro kind="button" style={styleId}>
+	<button
+		{...button.root}
+		{...rest}
+		class={cn(
+			"inline-flex items-center justify-center font-medium cursor-pointer select-none",
+			"focus-visible:outline-2 focus-visible:outline-offset-2",
+			"disabled:pointer-events-none disabled:opacity-50",
+			SIZE[size] ?? SIZE.md,
+			className,
+		)}
+	>
+		{@render children?.()}
+	</button>
+</StyleMacro>

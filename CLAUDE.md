@@ -44,13 +44,17 @@ Config: `interfaces/desktop/src/lib/design/coldlight.config.ts`
 - **Style Dictionary v5** token pipeline (SD5 + DTCG 1.0)
 - **Fully tested** — Vitest browser tests (Chromium) + Playwright E2E
 
-### Layers
-1. **Tokens** — Design tokens (SD5 pipeline, 3-tier: global → semantic → component)
-2. **Primitives** — Unstyled, accessible components (ColdLight-owned ARIA by default, MeltUI adapter for complex widgets only)
-3. **Recipes** — Styling patterns applied via class prop
-4. **Components** — Styled: primitives + recipes, in `components/{kind}/` named folders with schema + tests
-5. **Blocks** — Page-level compositions (VPB)
-6. **Renderers** — Dynamic block rendering
+### 2-Layer Architecture (ADR-001 LOCKED)
+1. **Primitive Hooks** (`primitives/{kind}/`) — Pure behavior. WAI-ARIA APG. ARIA, keyboard, focus, state. No styling.
+2. **Components** (`components/{kind}/`) — THE PRODUCT. Hook + StyleMacro in one file. What users import. Prop-driven. Colocated schema for VPB.
+
+No `ui/` folder. No dumb middle layer. Component IS the product.
+
+### Supporting Systems
+- **Tokens** — DTCG JSON → SD5 pipeline (expand: true) → CSS custom properties
+- **StyleMacro** — Visual provider. 11-axis DTCG. Sets --cl-* vars. Glue CSS paints.
+- **_base** — Styling contract (ComponentProps, 11-axis Zod schema, registry)
+- **Blocks** — Page-level compositions (VPB)
 
 ### Key Dependencies
 - @melt-ui/svelte ^0.86.6 (OPTIONAL adapter — not imported directly by components) NO DONT YOU FUCKING DARTE ANYTHING THAT EXISTS RIGHT NOW IS FUCKING ALIGNED TO REACT SPECTRUM S2 PATTERN OWNED BY COLD LIGHT AND ITS FUCKING 100% SENIOR PATTERNS FOR THEM

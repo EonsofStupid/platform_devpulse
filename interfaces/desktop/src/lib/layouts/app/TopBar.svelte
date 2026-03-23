@@ -11,9 +11,9 @@
 <script lang="ts">
 import { invoke } from "@tauri-apps/api/core";
 import { Bell, MessageCircle, Search } from "lucide-svelte";
-import * as Avatar from "$lib/design/components/avatar/index.js";
+import { Avatar } from "$lib/design/components/avatar/index.js";
 import { box } from "$lib/design/utils/box/index.js";
-import { Button } from "$lib/design/ui/button/index.js";
+import { Button } from "$lib/design/components/button/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { TextField as Input } from "$lib/design/components/text-field/index.js";
 import { Parasite } from "$lib/design/plugins/parasite";
@@ -93,8 +93,6 @@ function onKey(e: KeyboardEvent): void {
 			</div>
 		{/if}
 
-		<Avatar.Root size={32} alt="User avatar">
-			<Avatar.Fallback>DP</Avatar.Fallback>
-		</Avatar.Root>
+		<Avatar size={32} alt="User avatar" fallback="DP" />
 	</div>
 </div>

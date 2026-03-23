@@ -1,12 +1,15 @@
-export { default as Root } from "./Avatar.svelte";
-export { default as Image } from "./AvatarImage.svelte";
-export { default as Fallback } from "./AvatarFallback.svelte";
-export { contract as avatarComponentContract } from "./contract.js";
+/**
+ * @file Avatar — public API
+ * @kind avatar
+ */
+
+export { default as Avatar } from "./Avatar.svelte";
+export { avatarDef } from "./avatar.def.js";
+export { AvatarSchema, CATEGORY, type AvatarSchemaProps } from "./schema.js";
+export { avatarTokens } from "./tokens.js";
+export { avatarRecipes } from "./recipe.js";
 export type {
-	AvatarIds,
+	AvatarProps,
 	AvatarLoadStatus,
 	AvatarStatusChangeDetails,
-	AvatarRootProps,
-	AvatarImageProps,
-	AvatarFallbackProps,
-} from "./types.js";
+} from "./avatar.types.js";

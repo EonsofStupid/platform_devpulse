@@ -85,6 +85,18 @@ impl Service for GraphService {
 /// Contains kernel FSM state machine, reasoning nodes/edges,
 /// state transitions, and HMM states. Never user-facing data.
 pub const SYSTEM_GRAPH_SCHEMA: &str = r"
+-- ══════════════════════════════════════════════════════════════
+-- System account — platform engine's dedicated access identity.
+-- All platform operations authenticate as this user.
+-- External tools (Claude Code, surreal sql) use root via HTTP API.
+-- ══════════════════════════════════════════════════════════════
+DEFINE USER IF NOT EXISTS devpulse_engine ON DATABASE PASSWORD 'dp_sys_2026!' ROLES OWNER;
+DEFINE ACCESS IF NOT EXISTS platform_access ON DATABASE TYPE RECORD
+    SIGNUP NONE
+    SIGNIN (
+        SELECT * FROM user WHERE name = $name AND crypto::argon2::compare(pass, $pass)
+    );
+
 -- Key-value store for signal-based access
 DEFINE TABLE IF NOT EXISTS kv SCHEMAFULL;
 DEFINE FIELD IF NOT EXISTS key ON kv TYPE string;
@@ -166,6 +178,9 @@ DEFINE INDEX IF NOT EXISTS rumination_session ON rumination_state FIELDS session
 /// Contains user knowledge relationships, memory graph with staging,
 /// learning patterns, and concept mastery connections.
 pub const USER_GRAPH_SCHEMA: &str = r"
+-- User scope system account — platform reads/writes user data only via this identity.
+DEFINE USER IF NOT EXISTS devpulse_engine ON DATABASE PASSWORD 'dp_usr_2026!' ROLES OWNER;
+
 -- Key-value store for signal-based access
 DEFINE TABLE IF NOT EXISTS kv SCHEMAFULL;
 DEFINE FIELD IF NOT EXISTS key ON kv TYPE string;
@@ -238,6 +253,9 @@ DEFINE INDEX IF NOT EXISTS corrections_absorbed ON corrections FIELDS absorbed;
 /// Cross-project shared knowledge: technology relationships,
 /// pattern recognition, project promotion signals, shared learnings.
 pub const GLOBAL_GRAPH_SCHEMA: &str = r"
+-- Global scope system account — cross-project knowledge access identity.
+DEFINE USER IF NOT EXISTS devpulse_engine ON DATABASE PASSWORD 'dp_glb_2026!' ROLES OWNER;
+
 -- Key-value store for signal-based access
 DEFINE TABLE IF NOT EXISTS kv SCHEMAFULL;
 DEFINE FIELD IF NOT EXISTS key ON kv TYPE string;

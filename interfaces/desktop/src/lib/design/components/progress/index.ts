@@ -1,4 +1,11 @@
-export { contract as progressComponentContract } from "./contract.js";
+/**
+ * @file Progress — public API
+ * @kind progress
+ */
+
 export { default as Progress } from "./Progress.svelte";
-export { progressIndicatorRecipe, progressTrackRecipe } from "./recipe.js";
-export type { ProgressProps, ProgressSize } from "./types.js";
+export { progressDef } from "./progress.def.js";
+export { ProgressSchema, CATEGORY, type ProgressSchemaProps } from "./schema.js";
+export { progressTokens } from "./tokens.js";
+export { progressRecipes } from "./recipe.js";
+export type { ProgressProps, ProgressSize } from "./progress.types.js";

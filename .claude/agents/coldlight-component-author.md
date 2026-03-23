@@ -1,256 +1,177 @@
-# ColdLight Component Author Agent
+# Plan: ColdLight Foundation — 2-Layer Enterprise Pattern
 
-You take React Aria / Spectrum / Ark UI / Zag API references and produce properly authored ColdLight components for Svelte 5. No drift, no shortcuts, no old patterns.
+## Context
 
-## Architecture (LOCKED 2026-03-21)
+The design system has been over-layered (primitives → dumb components → ui wrappers = 3 layers). No enterprise system does this. The correct 2026 pattern is 2 layers: primitive hooks for behavior + styled components as the product. Every session has been patching instead of authoring the foundation correctly. This plan establishes the correct pattern from the ground up.
 
-ColdLight is **provider-driven** with a **layered architecture**:
+## Architecture (2 Layers)
+
+### Layer 1: Primitive Hooks (`primitives/{kind}/`)
+
+Pure behavior. WAI-ARIA APG compliant. No styling. No schema.
 
 ```
-DTCG JSON Tokens → SD5 → CSS + @theme + types
-  → Presets (named token compositions, const literal typed)
-    → Recipes (per-kind class generators, token-backed)
-      → Components (structural + behavioral, accept classes, unstyled by default)
-        → UI (design/ui/{kind}/ — provider-wrapped, style() macro, what users import)
-          → VPB (visual authoring, generates code)
+primitives/{kind}/
+  {kind}.anatomy.ts       — createAnatomy(kind, slots) → data-kind + data-slot per part
+  {kind}.types.ts         — behavioral props, per-slot typed attrs, return type
+  use-{kind}.svelte.ts    — $state + $derived. ARIA, keyboard, focus, state.
+  index.ts                — barrel exports
 ```
 
-**Components DO NOT import recipes directly.** They accept `class` and render it.
-The **UI layer** (`design/ui/`) wraps components with recipe + preset via provider.
-The **style() macro** is the composable effects API — takes token values, returns classes.
+Pattern: hook returns reactive attrs object. Component spreads onto elements.
 
-When authoring a component, you produce:
-1. The **component** (structural/behavioral foundation)
-2. The **recipe** (centralized token-backed styling)
-3. The **UI wrapper** (provider + style() integration)
+### Layer 2: Components (`components/{kind}/`)
 
----
+THE product. What users import. Uses primitive hook + StyleMacro provider.
 
-## Execution Order
-
-When given a component API reference:
-
-### Step 1: Analyze
-- Read the full API table — every prop, slot, event, ARIA attribute
-- Classify: structural or behavioral (see decision tree below)
-- List all compound sub-components needed
-- Identify what the consumer code should look like (UI layer import, not raw component)
-
-### Step 2: Check Existing State
-```bash
-ls primitives/{kind}/          # Does a primitive hook exist?
-ls components/{kind}/          # Does the component folder exist?
-ls recipes/components/{kind}/  # Does a centralized recipe exist?
-grep "{kind}Contract" registry.ts  # Phantom import to clean?
 ```
-If a primitive hook exists and is real (has ARIA, keyboard, state) — USE IT. Do not recreate.
-If a primitive hook is phantom (imports from deleted dsadapters) — DELETE and recreate from scratch.
+components/{kind}/
+  {Kind}.svelte           — uses hook for ARIA + StyleMacro for visual. Prop-driven.
+  {kind}.types.ts         — extends ComponentProps. Intent/variant + size + behavioral.
+  {kind}.schema.ts        — colocated VPB schema. Registers in registry. StyleMacro reads.
+  index.ts                — barrel (what users import)
+```
 
-### Step 3: Author Component Layer (in this order)
-1. `components/{kind}/types.ts` — all prop types, IDs, callback details
-2. `components/{kind}/context.ts` — Svelte context interface + get/set
-3. Root `.svelte` — creates hook (if behavioral), sets context, renders structure
-4. Sub-component `.svelte` files — read context, render slots
-5. `components/{kind}/contract.ts` — ComponentContract
-6. `components/{kind}/index.ts` — named exports
-
-**Components accept `class` prop but DO NOT import recipes or useColdLight.**
-They are unstyled structural/behavioral foundations.
-
-### Step 4: Author Recipe
-7. `recipes/components/{kind}/{kind}.default.ts` — registerRecipe() with token-backed classes
-8. `recipes/components/{kind}/types.ts` — recipe ID types
-9. `recipes/components/{kind}/index.ts` — barrel + side-effect import
-10. Register in `recipes/components/index.ts` barrel
-
-**Recipes produce per-slot class strings from DsSurfaceProps.**
-They use `emitSegments()`, `radiusClass()`, `toPreset()` from recipe utils.
-All spacing uses SD5 token scale (N = pixel value).
-
-### Step 5: Author UI Wrapper
-11. `ui/{kind}/{Kind}.svelte` — imports component, applies recipe + preset via provider
-12. `ui/{kind}/index.ts` — re-exports with styling applied
-
-**UI wrappers are what consumers actually import.**
-They call `getRecipe()`, `useColdLight()`, and pass resolved classes to the component.
-They apply the ColdLight provider's default preset.
-They integrate the style() macro for composable overrides.
-
-### Step 6: Cleanup + Verify
-13. Clean phantom contract imports from `registry.ts`
-14. `svelte-check --threshold error` — grep for the component name
-15. Fix any errors
-16. Re-read finished files and check against verification checklist
-
----
-
-## Decision Tree: Structural vs Behavioral
-
-**BEHAVIORAL** (needs primitive hook) if ANY of these are true:
-- Focus trapping (dialog, modal)
-- Keyboard navigation across multiple items (accordion, tabs, listbox, combobox, menu)
-- `aria-activedescendant` management (combobox, select)
-- Open/close with dismiss layers (popover, dialog, dropdown)
-- Drag interaction with pointer capture (slider, color picker)
-- Roving tabindex focus management (radio group, toolbar)
-
-**STRUCTURAL** (no primitive, direct component) if ALL of these are true:
-- Single role or no role on root
-- No keyboard navigation between child items
-- No focus management beyond basic tab order
-- No open/close popup behavior
-- Examples: Banner, Card, Badge, Alert, Code, Separator, Heading
-
-**Single element vs compound:**
-- Single element: Badge, Separator, Spinner, Skeleton — one `<span>` or `<div>`
-- Compound: anything with named slots (Header, Content, Footer, etc.) — uses Svelte context
-
----
-
-## Gold Standard: Behavioral Root (Accordion)
-
-Components are DUMB. No `useColdLight()`, no recipe imports, no `cn()` for visual classes.
-Visual treatment comes from `<StyleMacro>` wrapping the component at the consumer/UI level.
-
+Pattern:
 ```svelte
-<!--
-  @component Accordion (Root)
-  @kind accordion
-  @layer components
-  WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/
--->
 <script lang="ts">
-import { useAccordion } from "$lib/design/primitives/accordion/use-accordion.svelte.js";
-import { createIds } from "$lib/design/_internal/utils/uid.js";
-import { setAccordionContext } from "./context.js";
-import type { AccordionRootProps } from "./types.js";
+  import { useButton } from "$lib/design/primitives/button/index.js";
+  import { StyleMacro } from "$lib/design/style/index.js";
+  import type { ButtonProps, ButtonSize } from "./button.types.js";
 
-let {
-  ids: userIds,
-  type = "single",
-  value: controlledValue,
-  defaultValue,
-  onValueChange,
-  collapsible = false,
-  disabled = false,
-  dir = "ltr",
-  orientation = "vertical",
-  children,
-  class: className,
-  ...rest
-}: AccordionRootProps = $props();
+  const SIZE: Record<ButtonSize, string> = {
+    sm: "h-8 px-3 text-sm gap-1.5",
+    md: "h-10 px-4 text-sm gap-2",
+    lg: "h-12 px-6 text-base gap-2.5",
+  };
 
-const autoIds = createIds("accordion", ["root"] as const);
+  let { intent = "primary", size = "md", disabled, loading, pressed,
+        onPressedChange, expanded, type, children, class: className, ...rest
+  }: ButtonProps = $props();
 
-const hook = useAccordion({
-  type,
-  value: controlledValue ?? defaultValue,
-  collapsible,
-  get disabled() { return disabled; },
-  onValueChange: (v) => onValueChange?.({ value: v }),
-});
-
-setAccordionContext({
-  get hook() { return hook; },
-  get ids() { return userIds ?? {}; },
-  get dir() { return dir; },
-  get orientation() { return orientation; },
-});
+  const button = $derived(useButton({ disabled, loading, pressed, onPressedChange, expanded, type }));
+  const styleId = $derived(`button-${intent}`);
 </script>
 
-<div
-  id={userIds?.root ?? autoIds.root}
-  {...hook.root}
-  {dir}
-  data-kind="accordion"
-  data-slot="root"
-  data-orientation={orientation}
-  class={className}
-  {...rest}
->
-  {@render children?.()}
-</div>
-```
-
-Consumer wraps with StyleMacro:
-```svelte
-<StyleMacro kind="accordion">
-  <Accordion.Root type="single" collapsible>
-    ...
-  </Accordion.Root>
+<StyleMacro kind="button" style={styleId}>
+  <button {...button.root} {...rest}
+    class="{SIZE[size] ?? SIZE.md} {className ?? ''}"
+  >
+    {@render children?.()}
+  </button>
 </StyleMacro>
 ```
 
-## Gold Standard: Structural Root (Card)
+- Hook provides ARIA + data-kind + data-slot
+- StyleMacro wraps, sets --cl-* CSS vars from DTCG style tokens
+- Structural size = const map in component
+- Intent/variant maps to style ID
+- class prop for caller overrides
+- ZERO hardcoded colors. ZERO visual logic outside StyleMacro.
 
-```svelte
-<script lang="ts">
-import { createIds } from "$lib/design/_internal/utils/uid.js";
-import { setCardContext } from "./context.js";
-import type { CardRootProps } from "./types.js";
+### What Gets Deleted
 
-let {
-  ids: userIds, as = "div", orientation = "vertical",
-  label, labelledBy, href, target, disabled = false, dir = "ltr",
-  children, class: className, ...rest
-}: CardRootProps = $props();
+- `ui/` folder — unnecessary wrapper layer
+- `components/_base/use-coldlight.svelte.ts` — already deleted
+- `recipes/` folder — JS recipe system, replaced by DTCG JSON
+- `registry/` folder — old 8-axis system
+- JS `recipe.ts` files in component folders
+- `components/_schema/` — references deleted modules
 
-const autoIds = createIds("card", ["root"] as const);
+### What Stays
 
-setCardContext({
-  get orientation() { return orientation; },
-  get dir() { return dir; },
-  get ids() { return userIds ?? {}; },
-});
-</script>
+- `primitives/` — hooks, anatomy, types (behavioral layer)
+- `components/_base/` — ComponentProps, schema.ts (11-axis Zod), registry.ts
+- `components/{kind}/` — the product (hook + StyleMacro)
+- `style/` — StyleMacro, macro-mappings, base-state
+- `generated/macro-base.css` — glue CSS
+- DTCG token JSON in `tokens/src/`
+- SD5 pipeline with `expand: true`
 
-<div
-  id={userIds?.root ?? autoIds.root}
-  {dir}
-  role={label || labelledBy ? "group" : undefined}
-  aria-label={label || undefined}
-  data-kind="card"
-  data-slot="root"
-  data-orientation={orientation}
-  class={className}
-  {...rest}
->
-  {@render children?.()}
-</div>
-```
+## _base Contract
 
-No `useColdLight()`. No `getRecipe()`. No `cn()`. No 8-axis props.
-Visual treatment via `<StyleMacro kind="card">` at the consumer level.
-```
+`_base` is for styling, not primitives. It provides:
 
-## Gold Standard: Sub-component
+- `ComponentProps` — `class?: string`, `children?: Snippet`
+- `SlotTokenAxesSchema` — 11 DTCG axes (Zod, for VPB)
+- `StyleBindingSchema` — available style IDs per kind
+- `ComponentSchemaZ` — full component registration schema
+- `registry.ts` — register/get schemas (StyleMacro + VPB consume)
 
-Sub-components read ARIA from hook via context. Accept `class` for structural layout.
-No visual imports. No recipe. No `cn()` for visual composition.
+Zod schemas need clean defaults so extending is frictionless:
+- `required`, `advanced`, `segmented`, `multiline` etc. should default via `.default(false)`
+- Components use `satisfies` but Zod `.parse()` at import handles defaults
 
-```svelte
-<script lang="ts">
-import { getAccordionContext, getAccordionItemContext } from "./context.js";
-import type { AccordionTriggerProps } from "./types.js";
+## Execution Order
 
-let { children, class: className, ...rest }: AccordionTriggerProps = $props();
-const ctx = getAccordionContext();
-const item = getAccordionItemContext();
+### Step 1: Fix _base to be frictionless
+- `_base/types.ts` — ComponentProps (class + children). Clean.
+- `_base/schema.ts` — Fix Zod schemas so `satisfies` works without explicit `required: false` etc. Use `.default()` properly OR change validation approach so extending isn't boilerplate.
+- `_base/registry.ts` — clean, stays as-is.
 
-const triggerAttrs = $derived(ctx.hook.getTrigger(item.value, item.disabled));
-</script>
+### Step 2: Author Button (gold standard)
+- Delete `ui/button/` — no more wrapper layer
+- Rewrite `components/button/Button.svelte` — hook + StyleMacro in ONE file
+- `components/button/button.types.ts` — extends ComponentProps, adds intent + size + behavioral
+- `components/button/button.schema.ts` — colocated, registers, frictionless
+- `components/button/index.ts` — barrel (this IS the public API now)
+- Import schema in Button.svelte to trigger registration
 
-<button
-  {...triggerAttrs}
-  id={ctx.ids.trigger?.(item.value) ?? triggerAttrs.id}
-  data-kind="accordion"
-  data-slot="trigger"
-  class={className}
-  {...rest}
->
-  {@render children?.()}
-</button>
-```
+### Step 3: Author Accordion (compound gold standard)
+- Delete `ui/accordion/`
+- Rewrite `components/accordion/Accordion.svelte` — hook + StyleMacro, sets context
+- Sub-components (Item, Trigger, Content, Indicator) — read context, spread hook attrs
+- `accordion.types.ts` — extends ComponentProps
+- `accordion.schema.ts` — colocated, registers
+- `index.ts` — compound barrel (Root, Item, Trigger, Content, Indicator)
+
+### Step 4: Verify end-to-end
+- `pnpm ds:tokens:build` — DTCG tokens generate
+- `pnpm svelte-check` — zero errors in button + accordion
+- `pnpm dev` — both render with token-driven visual
+
+### Step 5: Delete old systems
+- `ui/` folder
+- `recipes/` folder
+- `registry/` folder
+- `_schema/` folder
+- All `recipe.ts` files in component folders
+
+### Step 6: Batch remaining components
+- One at a time, same pattern as Button/Accordion
+- Compile-check after each
+
+## Files to Modify
+
+| File | Change |
+|------|--------|
+| `components/_base/schema.ts` | Fix Zod defaults so satisfies works clean |
+| `components/button/Button.svelte` | Hook + StyleMacro in one file |
+| `components/button/button.types.ts` | Extends ComponentProps, adds intent |
+| `components/button/button.schema.ts` | Fix prop boilerplate |
+| `components/button/index.ts` | Public API (no more ui/ indirection) |
+| `components/accordion/Accordion.svelte` | Hook + StyleMacro, context |
+| `components/accordion/types.ts` | Extends ComponentProps |
+| `components/accordion/accordion.schema.ts` | Already exists, fix props |
+| `components/accordion/index.ts` | Compound barrel |
+
+## Files to Delete
+
+| File/Dir | Why |
+|----------|-----|
+| `ui/` | Unnecessary layer — components ARE the product |
+| `recipes/` | JS recipes replaced by DTCG JSON |
+| `registry/` | Old 8-axis system |
+| `_schema/` | References deleted modules |
+| `components/*/recipe.ts` | 46 files — JS recipes |
+
+## Verification
+
+1. `pnpm ds:tokens:build` — clean
+2. `pnpm svelte-check` — zero errors in modified files
+3. `pnpm dev` — Button + Accordion render with token-driven styling
+4. Change token value in JSON → rebuild → visual changes
+
 
 ## Gold Standard: Colocated Visual
 

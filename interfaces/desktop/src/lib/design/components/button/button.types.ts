@@ -1,28 +1,26 @@
 /**
- * @file Button Component Types
+ * @file Button Types
  * @kind button
- *
- * DUMB component. Structure + ARIA + structural size.
- * ZERO visual. Visual comes from StyleMacro via ui/ wrapper.
  */
 
-import type { Snippet } from "svelte";
 import type { HTMLButtonAttributes } from "svelte/elements";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { ButtonType } from "$lib/design/primitives/button/button.types.js";
 
-export type { ButtonType, UseButtonProps, UseButtonReturn } from "$lib/design/primitives/button/button.types.js";
+export type { ButtonType } from "$lib/design/primitives/button/button.types.js";
 
+export type ButtonIntent = "primary" | "secondary" | "ghost" | "danger";
 export type ButtonSize = "sm" | "md" | "lg";
 
 export interface ButtonProps
-	extends Omit<HTMLButtonAttributes, "style" | "children" | "disabled" | "type"> {
-	class?: string;
-	children?: Snippet;
+	extends ComponentProps,
+		Omit<HTMLButtonAttributes, "style" | "children" | "class" | "disabled" | "type"> {
+	intent?: ButtonIntent;
+	size?: ButtonSize;
 	disabled?: boolean;
 	type?: ButtonType;
 	pressed?: boolean;
 	onPressedChange?: (pressed: boolean) => void;
 	loading?: boolean;
 	expanded?: boolean;
-	size?: ButtonSize;
 }

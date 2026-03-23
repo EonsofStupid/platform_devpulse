@@ -1,5 +1,11 @@
 import { getContext, setContext } from "svelte";
-import type { AvatarIds, AvatarLoadStatus } from "./types.js";
+import type { AvatarLoadStatus } from "./avatar.types.js";
+
+export interface AvatarIds {
+	root?: string;
+	image?: string;
+	fallback?: string;
+}
 
 export interface AvatarContext {
 	readonly src: string | undefined;

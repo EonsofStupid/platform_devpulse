@@ -1,22 +1,18 @@
 /**
- * @file TextField Component Types
+ * @file TextField Types
  * @kind text-field
- *
- * DUMB component. Input structure + ARIA only.
- * Visual treatment via class prop from caller.
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLInputAttributes } from "svelte/elements";
-
-export type { TextFieldType, UseTextFieldProps, UseTextFieldReturn } from "$lib/design/primitives/text-field/text-field.types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
 export type TextFieldSize = "sm" | "md" | "lg";
+export type TextFieldType = "text" | "email" | "password" | "url" | "tel";
 
 export interface TextFieldProps
-	extends Omit<HTMLInputAttributes, "style" | "children" | "value"> {
-	/** CSS classes — structural + visual from caller */
-	class?: string;
+	extends ComponentProps,
+		Omit<HTMLInputAttributes, "style" | "children" | "class" | "value" | "size"> {
 	/** Label text — rendered above the input */
 	label?: string;
 	/** Description text — rendered below the input */
@@ -28,14 +24,14 @@ export interface TextFieldProps
 	/** Callback on value change */
 	onValueChange?: (value: string) => void;
 	/** Input type. Default: "text" */
-	type?: "text" | "email" | "password" | "url" | "tel";
+	type?: TextFieldType;
 	/** Placeholder */
 	placeholder?: string;
 	disabled?: boolean;
 	readonly?: boolean;
 	required?: boolean;
 	invalid?: boolean;
-	/** Size — drives recipe structural class */
+	/** Size — structural class */
 	size?: TextFieldSize;
 	/** Leading content (icon, prefix) */
 	leading?: Snippet;

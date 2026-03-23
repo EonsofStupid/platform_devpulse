@@ -3,10 +3,18 @@
 //! The Tauri layer depends on `devpulse-engine` only — never on maestro.
 //! All kernel access goes through the Platform engine.
 //!
-//! # Boot Architecture: Progressive Hydration
-//! `setup()` returns instantly. Main window is visible immediately.
-//! Subsystems boot in background via spawned task.
-//! `StatusBar` shows real-time per-service progress.
+//! # Boot Architecture
+//!
+//! ## Dev mode (debug_assertions)
+//! **Blocking boot.** `setup()` does NOT return until every service is
+//! confirmed or failed. The window does not render until the platform is
+//! ready. Terminal shows real-time progress via boot.log sink (stderr).
+//! If a critical service fails, setup returns an error and the app exits.
+//!
+//! ## Release mode
+//! **Progressive hydration.** `setup()` returns instantly. Services boot
+//! in background. Frontend shows StatusBar with per-service progress.
+//! Window is visible immediately.
 
 pub mod commands;
 pub mod logging;
@@ -28,7 +36,6 @@ use tokio::sync::RwLock;
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-            // Second instance launched — focus the existing main window
             tracing::info!("Second instance detected — focusing existing window");
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.set_focus();
@@ -37,52 +44,10 @@ pub fn run() {
         }))
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
-            // Portable-first data directory resolution.
-            //
-            // Default: .userdata/ relative to project root (portable — nothing
-            // leaves the project boundary). Override: set portable.enabled = false
-            // in platform.toml to use OS-standard app data dirs.
-            //
-            // Dev mode always uses .userdata/ at project root.
-            // Release mode checks for .userdata/ next to the binary first
-            // (portable install), then falls back to OS app data dir.
-            let data_dir = if cfg!(debug_assertions) {
-                // Dev: CARGO_MANIFEST_DIR is valid at compile time.
-                // interfaces/desktop/src-tauri → up 3 levels → project root
-                let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-                let project_root = manifest
-                    .parent() // interfaces/desktop
-                    .and_then(|p| p.parent()) // interfaces
-                    .and_then(|p| p.parent()) // project root
-                    .expect("Failed to resolve project root from CARGO_MANIFEST_DIR");
-                let dev_data = project_root.join(".userdata");
-                std::fs::create_dir_all(&dev_data)
-                    .expect("Failed to create .userdata directory");
-                dev_data
-            } else {
-                // Release: CARGO_MANIFEST_DIR is a compile-time constant
-                // pointing to the build machine — NOT the deployed location.
-                // Use current_exe() to find the binary's actual location.
-                let exe_dir = std::env::current_exe()
-                    .expect("Failed to resolve current executable path")
-                    .parent()
-                    .expect("Executable has no parent directory")
-                    .to_path_buf();
-                let portable_dir = exe_dir.join(".userdata");
-                if portable_dir.exists() {
-                    portable_dir
-                } else {
-                    // Fall back to OS app data dir
-                    let os_dir = app.path()
-                        .app_data_dir()
-                        .expect("Failed to resolve app data dir");
-                    std::fs::create_dir_all(&os_dir)
-                        .expect("Failed to create app data directory");
-                    os_dir
-                }
-            };
+            // ── Data directory resolution ─────────────────────────
+            let data_dir = resolve_data_dir(app)?;
 
-            // Logging: rotate old logs, then init stderr + file together
+            // ── Logging: stderr + file ────────────────────────────
             let _ = logging::rotate_logs(&data_dir);
             match logging::init(&data_dir) {
                 Ok(guard) => {
@@ -90,31 +55,56 @@ pub fn run() {
                     std::mem::forget(guard);
                 }
                 Err(_) => {
-                    // Fall back to stderr-only logging
                     logging::init_stderr_only();
                 }
             }
             tracing::info!(data_dir = %data_dir.display(), "DevPulse Desktop starting");
 
-            // Register empty platform state — filled by background boot task
+            // ── Platform state (empty until boot completes) ───────
             app.manage(PlatformState {
                 platform: RwLock::new(None),
             });
             app.manage(BootStateTracker::new());
 
-            // Dev mode: Tauri's beforeDevCommand starts Vite and waits for it.
-            // Do NOT check Vite here — Tauri handles the race condition.
-            // The Rust backend just logs that it's in dev mode.
-            #[cfg(debug_assertions)]
-            tracing::info!("Dev mode — Tauri CLI manages Vite startup via beforeDevCommand");
-
-            // Spawn async boot task — setup returns IMMEDIATELY
+            // ── Boot strategy: blocking (dev) vs async (release) ──
+            //
+            // Dev mode: block here. Every service must confirm before
+            // the window renders. You see each stage in the terminal.
+            // If boot fails, the app exits with a clear error.
+            //
+            // Release mode: spawn background task. Window shows
+            // immediately with a loading indicator. Progressive hydration.
             let handle = app.handle().clone();
             let tracker = app.state::<BootStateTracker>();
             let tracker_clone = tracker.clone_tracker();
-            tauri::async_runtime::spawn(boot_task(handle, data_dir, tracker_clone));
 
-            tracing::info!("Setup complete — boot running in background");
+            if cfg!(debug_assertions) {
+                // ── DEV MODE: BLOCKING BOOT ───────────────────────
+                // Window is invisible (tauri.conf.json visible=false).
+                // Boot blocks here. Every service must confirm or fail.
+                // ONLY after boot succeeds does the window become visible.
+                tracing::info!("Dev mode — BLOCKING boot (window hidden until all services confirm)");
+                tauri::async_runtime::block_on(
+                    boot_task(handle, data_dir, tracker_clone)
+                );
+
+                // Boot complete — NOW show the window
+                if let Some(window) = app.get_webview_window("main") {
+                    let _ = window.show();
+                    let _ = window.set_focus();
+                    tracing::info!("Boot complete — window now visible");
+                } else {
+                    tracing::error!("Boot complete but main window not found");
+                }
+            } else {
+                // ── RELEASE MODE: ASYNC BOOT ──────────────────────
+                // Window starts hidden. boot_task shows it when ready.
+                tracing::info!("Release mode — async boot (window hidden until ready)");
+                tauri::async_runtime::spawn(
+                    boot_task(handle, data_dir, tracker_clone)
+                );
+            }
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -140,7 +130,6 @@ pub fn run() {
             if let tauri::RunEvent::Exit = event {
                 tracing::info!("Tauri exit event — initiating platform shutdown");
                 let state = app.state::<PlatformState>();
-                // Block on shutdown with the tokio runtime that's still alive
                 tauri::async_runtime::block_on(async {
                     let lock = state.platform.read().await;
                     if let Some(platform) = lock.as_ref() {
@@ -152,15 +141,52 @@ pub fn run() {
         });
 }
 
-/// Background boot task — boots all platform services and emits progress events.
+/// Resolve the data directory — portable-first.
 ///
-/// Writes `.userdata/logs/boot.log` on every run (overwritten, not appended).
-/// Human-readable summary so you can immediately see what booted and what didn't.
+/// Dev: `.userdata/` at project root (CARGO_MANIFEST_DIR → up 3 levels).
+/// Release: `.userdata/` next to binary (portable), or OS app data dir.
+fn resolve_data_dir(app: &tauri::App) -> Result<PathBuf, Box<dyn std::error::Error>> {
+    if cfg!(debug_assertions) {
+        let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let project_root = manifest
+            .parent() // interfaces/desktop
+            .and_then(|p| p.parent()) // interfaces
+            .and_then(|p| p.parent()) // project root
+            .expect("Failed to resolve project root from CARGO_MANIFEST_DIR");
+        let dev_data = project_root.join(".userdata");
+        std::fs::create_dir_all(&dev_data)
+            .expect("Failed to create .userdata directory");
+        Ok(dev_data)
+    } else {
+        let exe_dir = std::env::current_exe()
+            .expect("Failed to resolve current executable path")
+            .parent()
+            .expect("Executable has no parent directory")
+            .to_path_buf();
+        let portable_dir = exe_dir.join(".userdata");
+        if portable_dir.exists() {
+            Ok(portable_dir)
+        } else {
+            let os_dir = app.path()
+                .app_data_dir()
+                .expect("Failed to resolve app data dir");
+            std::fs::create_dir_all(&os_dir)
+                .expect("Failed to create app data directory");
+            Ok(os_dir)
+        }
+    }
+}
+
+/// Boot task — boots all platform services and emits progress events.
+///
+/// In dev mode this runs BLOCKING (setup waits for it).
+/// In release mode this runs as a spawned async task.
+///
+/// The engine's `BootLog` handles real-time file + stderr logging.
+/// This function handles Tauri-specific concerns: events, state, seeding.
 #[allow(clippy::too_many_lines)]
 async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateTracker) {
     use devpulse_engine::platform::InitEvent;
-    use std::fmt::Write as _;
-    use std::sync::Mutex;
 
     tracing::info!("Boot task started");
 
@@ -169,53 +195,17 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
         serde_json::json!({ "phase": "initializing" }),
     );
 
-    // Accumulate boot log lines for boot.log
-    let boot_lines: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
     let boot_start = std::time::Instant::now();
-
     let app_for_callback = app.clone();
     let tracker_for_callback = tracker.clone_tracker();
-    let lines_for_callback = Arc::clone(&boot_lines);
 
+    // Platform::boot() now writes boot.log in real-time via BootLog.
+    // The callback here is ONLY for Tauri event bridging + tracker.
     let result = Platform::boot(data_dir.clone(), move |event: InitEvent| {
-        // Accumulate in tracker BEFORE emitting (so frontend can catch up)
+        // Record in tracker (so get_boot_state IPC works)
         tracker_for_callback.record_event(event.clone());
 
-        // Build boot.log line
-        if event.status != InitStatus::Running {
-            let elapsed = boot_start.elapsed().as_secs_f64();
-            let status_tag = match event.status {
-                InitStatus::Ok => "   OK",
-                InitStatus::Error => "FAIL!",
-                InitStatus::Skipped => " SKIP",
-                InitStatus::Running => unreachable!(),
-            };
-            let latency_str = event
-                .latency_us
-                .map(|us| {
-                    if us >= 1000 {
-                        format!(" ({}ms)", us / 1000)
-                    } else {
-                        format!(" ({us}µs)")
-                    }
-                })
-                .unwrap_or_default();
-            let msg_str = event
-                .message
-                .as_deref()
-                .map(|m| format!(": {m}"))
-                .unwrap_or_default();
-            let line = format!(
-                "[+{elapsed:07.3}s] [{status_tag}] {}{msg_str}{latency_str}",
-                event.step
-            );
-
-            if let Ok(mut lines) = lines_for_callback.lock() {
-                lines.push(line);
-            }
-        }
-
-        // Log completion events via tracing
+        // Log completion events via tracing (for session log file)
         if event.status != InitStatus::Running {
             let latency_str = event
                 .latency_us
@@ -247,52 +237,23 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
     })
     .await;
 
-    // Build final boot.log content
-    let total_elapsed = boot_start.elapsed();
-    let mut log = String::with_capacity(4096);
-    let _ = writeln!(log, "# DevPulse Boot Log");
-    let _ = writeln!(log, "# {}", chrono::Local::now().format("%Y-%m-%d %H:%M:%S"));
-    let _ = writeln!(log, "# OS: {} {}", std::env::consts::OS, std::env::consts::ARCH);
-    let _ = writeln!(log, "# data_dir: {}", data_dir.display());
-    let config_source = if data_dir.join("platform.toml").exists() {
-        "platform.toml (user override)"
-    } else {
-        "platform.default.toml (embedded)"
-    };
-    let _ = writeln!(log, "# config: {config_source}");
-    let _ = writeln!(log, "#");
-
-    if let Ok(lines) = boot_lines.lock() {
-        for line in lines.iter() {
-            let _ = writeln!(log, "{line}");
-        }
-    }
-    let _ = writeln!(log);
+    let total_ms = boot_start.elapsed().as_millis() as u64;
 
     match result {
         Ok(platform) => {
-            tracing::info!("Boot complete — verifying health");
+            tracing::info!("Boot complete ({total_ms}ms) — verifying health");
             let health = platform.health().await;
 
-            let _ = writeln!(log, "# Health check:");
             for sub in &health.subsystems {
-                let _ = writeln!(log, "#   {}: {:?}", sub.name, sub.status);
-                tracing::info!(service = %sub.name, status = ?sub.status, "verified");
+                tracing::info!(service = %sub.name, status = ?sub.status, "health verified");
             }
-            let _ = writeln!(log, "#");
-            let _ = writeln!(
-                log,
-                "# Result: READY ({:.1}s total)",
-                total_elapsed.as_secs_f64()
-            );
-            tracing::info!(status = ?health.status, "Platform ready");
+            tracing::info!(status = ?health.status, total_ms, "Platform ready");
 
             // Dev mode: seed sample data if services are empty
             #[cfg(debug_assertions)]
             {
                 if let Err(e) = seed_dev_data(&platform).await {
                     tracing::warn!(error = %e, "Dev seed failed (non-fatal)");
-                    let _ = writeln!(log, "# WARNING: Dev seed failed: {e}");
                 }
             }
 
@@ -314,6 +275,13 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
                 }),
             );
 
+            // Show main window NOW — all services confirmed
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.show();
+                let _ = window.set_focus();
+                tracing::info!("Main window now visible — all services confirmed");
+            }
+
             // Open chat window AFTER boot — graceful lazy load
             tracing::info!("Opening Maestro Chat window");
             if let Err(e) = commands::window::open_chat_window(app.clone()).await {
@@ -321,13 +289,7 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
             }
         }
         Err(e) => {
-            let _ = writeln!(
-                log,
-                "# Result: FAILED ({:.1}s total)",
-                total_elapsed.as_secs_f64()
-            );
-            let _ = writeln!(log, "# Error: {e}");
-            tracing::error!(error = %e, "Platform boot failed");
+            tracing::error!(error = %e, total_ms, "Platform boot failed");
             tracker.set_failed(e.to_string());
             let _ = app.emit(
                 "platform:boot-phase",
@@ -337,14 +299,6 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
                 }),
             );
         }
-    }
-
-    // Write boot.log — overwrites every run
-    let boot_log_path = data_dir.join("logs").join("boot.log");
-    if let Err(e) = std::fs::write(&boot_log_path, &log) {
-        tracing::warn!(error = %e, "Failed to write boot.log");
-    } else {
-        tracing::info!(path = %boot_log_path.display(), "boot.log written");
     }
 }
 

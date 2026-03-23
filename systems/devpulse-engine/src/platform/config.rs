@@ -59,6 +59,12 @@ pub struct DatabaseConfig {
     pub voice_enabled: bool,
     /// Grammar service enabled (`outlines-core`).
     pub grammar_enabled: bool,
+    /// Embedder service enabled (Candle).
+    pub embedder_enabled: bool,
+    /// Whisper ASR service enabled (Candle).
+    pub whisper_enabled: bool,
+    /// DevForge service enabled (VSCode).
+    pub devforge_enabled: bool,
 }
 
 impl Default for DatabaseConfig {
@@ -74,6 +80,9 @@ impl Default for DatabaseConfig {
             vector_enabled: true,
             voice_enabled: true,
             grammar_enabled: true,
+            embedder_enabled: false,
+            whisper_enabled: false,
+            devforge_enabled: false,
         }
     }
 }
@@ -190,6 +199,15 @@ pub struct SystemServicesConfig {
     /// Grammar service (`outlines-core`) — structured generation engine.
     #[serde(default)]
     pub grammar: GrammarServiceEntry,
+    /// Embedder service (Candle — dense text embedding, CPU burst).
+    #[serde(default)]
+    pub embedder: EmbedderServiceEntry,
+    /// Whisper service (Candle — speech-to-text, CPU burst).
+    #[serde(default)]
+    pub whisper: WhisperServiceEntry,
+    /// DevForge service (managed VSCode process).
+    #[serde(default)]
+    pub devforge: DevForgeServiceEntry,
 }
 
 impl Default for SystemServicesConfig {
@@ -202,6 +220,9 @@ impl Default for SystemServicesConfig {
             vector: VectorServiceEntry::default(),
             voice: VoiceServiceEntry::default(),
             grammar: GrammarServiceEntry::default(),
+            embedder: EmbedderServiceEntry::default(),
+            whisper: WhisperServiceEntry::default(),
+            devforge: DevForgeServiceEntry::default(),
         }
     }
 }
@@ -610,6 +631,128 @@ impl Default for GrammarServiceEntry {
     }
 }
 
+/// Configuration for the embedder service (Candle — dense text embedding).
+#[derive(Debug, Clone, Deserialize)]
+pub struct EmbedderServiceEntry {
+    /// Whether this service is enabled.
+    #[serde(default)]
+    pub enabled: bool,
+    /// Whether boot fails if this service fails.
+    #[serde(default)]
+    pub critical: bool,
+    /// Service kind identifier.
+    #[serde(default = "default_candle_kind")]
+    pub kind: String,
+    /// Relative path from data directory for model files.
+    #[serde(default = "default_embedder_model_path")]
+    pub model_path: String,
+}
+
+impl Default for EmbedderServiceEntry {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            critical: false,
+            kind: default_candle_kind(),
+            model_path: default_embedder_model_path(),
+        }
+    }
+}
+
+impl EmbedderServiceEntry {
+    /// Resolve the model directory from data directory.
+    pub fn resolve_model_path(&self, data_dir: &Path) -> PathBuf {
+        data_dir.join(&self.model_path)
+    }
+}
+
+/// Configuration for the Whisper ASR service (Candle — speech-to-text).
+#[derive(Debug, Clone, Deserialize)]
+pub struct WhisperServiceEntry {
+    /// Whether this service is enabled.
+    #[serde(default)]
+    pub enabled: bool,
+    /// Whether boot fails if this service fails.
+    #[serde(default)]
+    pub critical: bool,
+    /// Service kind identifier.
+    #[serde(default = "default_candle_kind")]
+    pub kind: String,
+    /// Relative path from data directory for model files.
+    #[serde(default = "default_whisper_model_path")]
+    pub model_path: String,
+}
+
+impl Default for WhisperServiceEntry {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            critical: false,
+            kind: default_candle_kind(),
+            model_path: default_whisper_model_path(),
+        }
+    }
+}
+
+impl WhisperServiceEntry {
+    /// Resolve the model directory from data directory.
+    pub fn resolve_model_path(&self, data_dir: &Path) -> PathBuf {
+        data_dir.join(&self.model_path)
+    }
+}
+
+/// Configuration for the DevForge service (managed VSCode process).
+#[derive(Debug, Clone, Deserialize)]
+pub struct DevForgeServiceEntry {
+    /// Whether this service is enabled.
+    #[serde(default)]
+    pub enabled: bool,
+    /// Whether boot fails if this service fails.
+    #[serde(default)]
+    pub critical: bool,
+    /// Relative path from project root to the VSCode binary.
+    #[serde(default = "default_devforge_binary_path")]
+    pub binary_path: String,
+    /// Workspace path to open.
+    #[serde(default = "default_devforge_workspace_path")]
+    pub workspace_path: String,
+    /// Port for VSCode server.
+    #[serde(default = "default_devforge_port")]
+    pub port: u16,
+}
+
+impl Default for DevForgeServiceEntry {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            critical: false,
+            binary_path: default_devforge_binary_path(),
+            workspace_path: default_devforge_workspace_path(),
+            port: default_devforge_port(),
+        }
+    }
+}
+
+impl DevForgeServiceEntry {
+    /// Resolve the binary path from data directory.
+    pub fn resolve_binary_path(&self, _data_dir: &Path) -> PathBuf {
+        // Binary is relative to project root, not data dir
+        PathBuf::from(&self.binary_path)
+    }
+
+    /// Resolve the workspace path from data directory.
+    pub fn resolve_workspace_path(&self, _data_dir: &Path) -> PathBuf {
+        PathBuf::from(&self.workspace_path)
+    }
+}
+
+fn default_candle_kind() -> String { "candle".to_string() }
+fn default_embedder_model_path() -> String { "system/candle/embedder".to_string() }
+fn default_whisper_model_path() -> String { "system/candle/whisper".to_string() }
+fn default_devforge_binary_path() -> String { "deps/code-oss/bin/code-oss".to_string() }
+fn default_devforge_workspace_path() -> String { ".".to_string() }
+fn default_devforge_port() -> u16 { 8443 }
+
 // ═══════════════════════════════════════════════════════════════
 // Network services + boot gate
 // ═══════════════════════════════════════════════════════════════
@@ -765,6 +908,9 @@ impl PlatformBootConfig {
             vector_enabled: self.services.system.vector.enabled,
             voice_enabled: self.services.system.voice.enabled,
             grammar_enabled: self.services.system.grammar.enabled,
+            embedder_enabled: self.services.system.embedder.enabled,
+            whisper_enabled: self.services.system.whisper.enabled,
+            devforge_enabled: self.services.system.devforge.enabled,
         }
     }
 }

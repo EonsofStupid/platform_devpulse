@@ -8,6 +8,7 @@ default = []
 rro = ["dep:rro"]
 kokoros = ["dep:kokoros"]
 outlines = ["dep:outlines-core"]
+candle = ["dep:candle-core", "dep:candle-nn", "dep:candle-transformers", "dep:tokenizers", "dep:hf-hub"]
 
 [dependencies]
 # Core
@@ -27,6 +28,13 @@ moka = { workspace = true }
 rro = { workspace = true, optional = true }
 kokoros = { workspace = true, optional = true }
 outlines-core = { workspace = true, optional = true }
+
+# Candle inference (CPU-first, burst mode)
+candle-core = { workspace = true, optional = true }
+candle-nn = { workspace = true, optional = true }
+candle-transformers = { workspace = true, optional = true }
+tokenizers = { version = "0.21", optional = true, default-features = false, features = ["onig"] }
+hf-hub = { version = "0.4", optional = true, default-features = false, features = ["tokio"] }
 
 # Observability
 tracing = { workspace = true }

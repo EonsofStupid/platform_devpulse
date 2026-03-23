@@ -4518,9 +4518,481 @@
 			}
 		]
 	},
+	"avatar": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "avatar-root-background",
+				"path": [
+					"avatar",
+					"root",
+					"background"
+				],
+				"cssVar": "--avatar-root-background",
+				"value": "#000305cc",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "avatar-root-border-color",
+				"path": [
+					"avatar",
+					"root",
+					"border",
+					"color"
+				],
+				"cssVar": "--avatar-root-border-color",
+				"value": "#005c4a38",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "avatar-root-border-width",
+				"path": [
+					"avatar",
+					"root",
+					"border",
+					"width"
+				],
+				"cssVar": "--avatar-root-border-width",
+				"value": "2px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "avatar-root-border-radius",
+				"path": [
+					"avatar",
+					"root",
+					"border-radius"
+				],
+				"cssVar": "--avatar-root-border-radius",
+				"value": "9999px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "avatar-root-color",
+				"path": [
+					"avatar",
+					"root",
+					"color"
+				],
+				"cssVar": "--avatar-root-color",
+				"value": "#e2e8f0",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "avatar-root-font-size",
+				"path": [
+					"avatar",
+					"root",
+					"font-size"
+				],
+				"cssVar": "--avatar-root-font-size",
+				"value": "14px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "avatar-root-font-weight",
+				"path": [
+					"avatar",
+					"root",
+					"font-weight"
+				],
+				"cssVar": "--avatar-root-font-weight",
+				"value": 500,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "avatar-root-font-family",
+				"path": [
+					"avatar",
+					"root",
+					"font-family"
+				],
+				"cssVar": "--avatar-root-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "avatar-bg",
+				"path": [
+					"avatar",
+					"bg"
+				],
+				"cssVar": "--avatar-bg",
+				"value": "#191b1d",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "avatar-border",
+				"path": [
+					"avatar",
+					"border"
+				],
+				"cssVar": "--avatar-border",
+				"value": "#005c4a38",
+				"type": "color",
+				"extensions": null
+			}
+		]
+	},
+	"badge": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "badge-root-background",
+				"path": [
+					"badge",
+					"root",
+					"background"
+				],
+				"cssVar": "--badge-root-background",
+				"value": "#000305cc",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "badge-root-border-color",
+				"path": [
+					"badge",
+					"root",
+					"border",
+					"color"
+				],
+				"cssVar": "--badge-root-border-color",
+				"value": "#005c4a38",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "badge-root-border-width",
+				"path": [
+					"badge",
+					"root",
+					"border",
+					"width"
+				],
+				"cssVar": "--badge-root-border-width",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "badge-root-border-radius",
+				"path": [
+					"badge",
+					"root",
+					"border-radius"
+				],
+				"cssVar": "--badge-root-border-radius",
+				"value": "9999px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "badge-root-color",
+				"path": [
+					"badge",
+					"root",
+					"color"
+				],
+				"cssVar": "--badge-root-color",
+				"value": "#e2e8f0",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "badge-root-padding-inline",
+				"path": [
+					"badge",
+					"root",
+					"padding-inline"
+				],
+				"cssVar": "--badge-root-padding-inline",
+				"value": "8px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "badge-root-padding-block",
+				"path": [
+					"badge",
+					"root",
+					"padding-block"
+				],
+				"cssVar": "--badge-root-padding-block",
+				"value": "2px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "badge-root-font-size",
+				"path": [
+					"badge",
+					"root",
+					"font-size"
+				],
+				"cssVar": "--badge-root-font-size",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "badge-root-font-weight",
+				"path": [
+					"badge",
+					"root",
+					"font-weight"
+				],
+				"cssVar": "--badge-root-font-weight",
+				"value": 500,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "badge-root-font-family",
+				"path": [
+					"badge",
+					"root",
+					"font-family"
+				],
+				"cssVar": "--badge-root-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "badge-root-gap",
+				"path": [
+					"badge",
+					"root",
+					"gap"
+				],
+				"cssVar": "--badge-root-gap",
+				"value": "4px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "badge-bg",
+				"path": [
+					"badge",
+					"bg"
+				],
+				"cssVar": "--badge-bg",
+				"value": "#060a0ba6",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "badge-border",
+				"path": [
+					"badge",
+					"border"
+				],
+				"cssVar": "--badge-border",
+				"value": "#005c4a38",
+				"type": "color",
+				"extensions": null
+			}
+		]
+	},
 	"button": {
 		"extensions": {},
 		"tokens": [
+			{
+				"name": "button-root-background-default",
+				"path": [
+					"button",
+					"root",
+					"background",
+					"default"
+				],
+				"cssVar": "--button-root-background-default",
+				"value": "#000305cc",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "button-root-background-hover",
+				"path": [
+					"button",
+					"root",
+					"background",
+					"hover"
+				],
+				"cssVar": "--button-root-background-hover",
+				"value": "#060a0ba6",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "button-root-padding-inline",
+				"path": [
+					"button",
+					"root",
+					"padding-inline"
+				],
+				"cssVar": "--button-root-padding-inline",
+				"value": "16px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "button-root-padding-block",
+				"path": [
+					"button",
+					"root",
+					"padding-block"
+				],
+				"cssVar": "--button-root-padding-block",
+				"value": "10px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "button-root-height",
+				"path": [
+					"button",
+					"root",
+					"height"
+				],
+				"cssVar": "--button-root-height",
+				"value": "40px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "button-root-border-radius",
+				"path": [
+					"button",
+					"root",
+					"border-radius"
+				],
+				"cssVar": "--button-root-border-radius",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "button-root-border-color",
+				"path": [
+					"button",
+					"root",
+					"border",
+					"color"
+				],
+				"cssVar": "--button-root-border-color",
+				"value": "#0078614d",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "button-root-border-width",
+				"path": [
+					"button",
+					"root",
+					"border",
+					"width"
+				],
+				"cssVar": "--button-root-border-width",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "button-root-color-default",
+				"path": [
+					"button",
+					"root",
+					"color",
+					"default"
+				],
+				"cssVar": "--button-root-color-default",
+				"value": "#ffffff",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "button-root-font-size",
+				"path": [
+					"button",
+					"root",
+					"font-size"
+				],
+				"cssVar": "--button-root-font-size",
+				"value": "14px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "button-root-font-weight",
+				"path": [
+					"button",
+					"root",
+					"font-weight"
+				],
+				"cssVar": "--button-root-font-weight",
+				"value": 500,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "button-root-font-family",
+				"path": [
+					"button",
+					"root",
+					"font-family"
+				],
+				"cssVar": "--button-root-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "button-root-transition-duration",
+				"path": [
+					"button",
+					"root",
+					"transition",
+					"duration"
+				],
+				"cssVar": "--button-root-transition-duration",
+				"value": "150ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "button-root-gap",
+				"path": [
+					"button",
+					"root",
+					"gap"
+				],
+				"cssVar": "--button-root-gap",
+				"value": "8px",
+				"type": "dimension",
+				"extensions": null
+			},
 			{
 				"name": "button-bg",
 				"path": [
@@ -4563,6 +5035,1146 @@
 				"cssVar": "--button-border-focus",
 				"value": "#3ee0b7",
 				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "button-root-shadow-1-color",
+				"path": [
+					"button",
+					"root",
+					"shadow",
+					"1",
+					"color"
+				],
+				"cssVar": "--button-root-shadow-1-color",
+				"value": "#0000001f",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "button-root-shadow-1-offset-x",
+				"path": [
+					"button",
+					"root",
+					"shadow",
+					"1",
+					"offsetX"
+				],
+				"cssVar": "--button-root-shadow-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "button-root-shadow-1-offset-y",
+				"path": [
+					"button",
+					"root",
+					"shadow",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--button-root-shadow-1-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "button-root-shadow-1-blur",
+				"path": [
+					"button",
+					"root",
+					"shadow",
+					"1",
+					"blur"
+				],
+				"cssVar": "--button-root-shadow-1-blur",
+				"value": "3px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "button-root-shadow-1-spread",
+				"path": [
+					"button",
+					"root",
+					"shadow",
+					"1",
+					"spread"
+				],
+				"cssVar": "--button-root-shadow-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "button-root-shadow-2-color",
+				"path": [
+					"button",
+					"root",
+					"shadow",
+					"2",
+					"color"
+				],
+				"cssVar": "--button-root-shadow-2-color",
+				"value": "#0000003d",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "button-root-shadow-2-offset-x",
+				"path": [
+					"button",
+					"root",
+					"shadow",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--button-root-shadow-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "button-root-shadow-2-offset-y",
+				"path": [
+					"button",
+					"root",
+					"shadow",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--button-root-shadow-2-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "button-root-shadow-2-blur",
+				"path": [
+					"button",
+					"root",
+					"shadow",
+					"2",
+					"blur"
+				],
+				"cssVar": "--button-root-shadow-2-blur",
+				"value": "2px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "button-root-shadow-2-spread",
+				"path": [
+					"button",
+					"root",
+					"shadow",
+					"2",
+					"spread"
+				],
+				"cssVar": "--button-root-shadow-2-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			}
+		]
+	},
+	"card": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "card-root-background",
+				"path": [
+					"card",
+					"root",
+					"background"
+				],
+				"cssVar": "--card-root-background",
+				"value": "#000305cc",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "card-root-border-color",
+				"path": [
+					"card",
+					"root",
+					"border",
+					"color"
+				],
+				"cssVar": "--card-root-border-color",
+				"value": "#005c4a38",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "card-root-border-width",
+				"path": [
+					"card",
+					"root",
+					"border",
+					"width"
+				],
+				"cssVar": "--card-root-border-width",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-root-border-radius",
+				"path": [
+					"card",
+					"root",
+					"border-radius"
+				],
+				"cssVar": "--card-root-border-radius",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-root-padding",
+				"path": [
+					"card",
+					"root",
+					"padding"
+				],
+				"cssVar": "--card-root-padding",
+				"value": "16px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-root-color",
+				"path": [
+					"card",
+					"root",
+					"color"
+				],
+				"cssVar": "--card-root-color",
+				"value": "#e2e8f0",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "card-root-opacity-disabled",
+				"path": [
+					"card",
+					"root",
+					"opacity",
+					"disabled"
+				],
+				"cssVar": "--card-root-opacity-disabled",
+				"value": 0.6,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "card-root-transition-duration",
+				"path": [
+					"card",
+					"root",
+					"transition",
+					"duration"
+				],
+				"cssVar": "--card-root-transition-duration",
+				"value": "150ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "card-bg",
+				"path": [
+					"card",
+					"bg"
+				],
+				"cssVar": "--card-bg",
+				"value": "#000101e0",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "card-border",
+				"path": [
+					"card",
+					"border"
+				],
+				"cssVar": "--card-border",
+				"value": "#005c4a38",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "card-root-shadow-1-color",
+				"path": [
+					"card",
+					"root",
+					"shadow",
+					"1",
+					"color"
+				],
+				"cssVar": "--card-root-shadow-1-color",
+				"value": "#0000001f",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "card-root-shadow-1-offset-x",
+				"path": [
+					"card",
+					"root",
+					"shadow",
+					"1",
+					"offsetX"
+				],
+				"cssVar": "--card-root-shadow-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-root-shadow-1-offset-y",
+				"path": [
+					"card",
+					"root",
+					"shadow",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--card-root-shadow-1-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-root-shadow-1-blur",
+				"path": [
+					"card",
+					"root",
+					"shadow",
+					"1",
+					"blur"
+				],
+				"cssVar": "--card-root-shadow-1-blur",
+				"value": "3px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-root-shadow-1-spread",
+				"path": [
+					"card",
+					"root",
+					"shadow",
+					"1",
+					"spread"
+				],
+				"cssVar": "--card-root-shadow-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-root-shadow-2-color",
+				"path": [
+					"card",
+					"root",
+					"shadow",
+					"2",
+					"color"
+				],
+				"cssVar": "--card-root-shadow-2-color",
+				"value": "#0000003d",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "card-root-shadow-2-offset-x",
+				"path": [
+					"card",
+					"root",
+					"shadow",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--card-root-shadow-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-root-shadow-2-offset-y",
+				"path": [
+					"card",
+					"root",
+					"shadow",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--card-root-shadow-2-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-root-shadow-2-blur",
+				"path": [
+					"card",
+					"root",
+					"shadow",
+					"2",
+					"blur"
+				],
+				"cssVar": "--card-root-shadow-2-blur",
+				"value": "2px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-root-shadow-2-spread",
+				"path": [
+					"card",
+					"root",
+					"shadow",
+					"2",
+					"spread"
+				],
+				"cssVar": "--card-root-shadow-2-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-depth-1-color",
+				"path": [
+					"card",
+					"depth",
+					"1",
+					"color"
+				],
+				"cssVar": "--card-depth-1-color",
+				"value": "#0000001f",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "card-depth-1-offset-x",
+				"path": [
+					"card",
+					"depth",
+					"1",
+					"offsetX"
+				],
+				"cssVar": "--card-depth-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-depth-1-offset-y",
+				"path": [
+					"card",
+					"depth",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--card-depth-1-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-depth-1-blur",
+				"path": [
+					"card",
+					"depth",
+					"1",
+					"blur"
+				],
+				"cssVar": "--card-depth-1-blur",
+				"value": "3px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-depth-1-spread",
+				"path": [
+					"card",
+					"depth",
+					"1",
+					"spread"
+				],
+				"cssVar": "--card-depth-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-depth-2-color",
+				"path": [
+					"card",
+					"depth",
+					"2",
+					"color"
+				],
+				"cssVar": "--card-depth-2-color",
+				"value": "#0000003d",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "card-depth-2-offset-x",
+				"path": [
+					"card",
+					"depth",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--card-depth-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-depth-2-offset-y",
+				"path": [
+					"card",
+					"depth",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--card-depth-2-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-depth-2-blur",
+				"path": [
+					"card",
+					"depth",
+					"2",
+					"blur"
+				],
+				"cssVar": "--card-depth-2-blur",
+				"value": "2px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "card-depth-2-spread",
+				"path": [
+					"card",
+					"depth",
+					"2",
+					"spread"
+				],
+				"cssVar": "--card-depth-2-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			}
+		]
+	},
+	"heading": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "heading-root-color",
+				"path": [
+					"heading",
+					"root",
+					"color"
+				],
+				"cssVar": "--heading-root-color",
+				"value": "#ffffff",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "heading-root-font-family",
+				"path": [
+					"heading",
+					"root",
+					"font-family"
+				],
+				"cssVar": "--heading-root-font-family",
+				"value": [
+					"Orbitron",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "heading-root-font-weight-h1",
+				"path": [
+					"heading",
+					"root",
+					"font-weight",
+					"h1"
+				],
+				"cssVar": "--heading-root-font-weight-h1",
+				"value": 700,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "heading-root-font-weight-h2",
+				"path": [
+					"heading",
+					"root",
+					"font-weight",
+					"h2"
+				],
+				"cssVar": "--heading-root-font-weight-h2",
+				"value": 700,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "heading-root-font-weight-h3",
+				"path": [
+					"heading",
+					"root",
+					"font-weight",
+					"h3"
+				],
+				"cssVar": "--heading-root-font-weight-h3",
+				"value": 600,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "heading-root-font-weight-h4",
+				"path": [
+					"heading",
+					"root",
+					"font-weight",
+					"h4"
+				],
+				"cssVar": "--heading-root-font-weight-h4",
+				"value": 600,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "heading-root-font-weight-h5",
+				"path": [
+					"heading",
+					"root",
+					"font-weight",
+					"h5"
+				],
+				"cssVar": "--heading-root-font-weight-h5",
+				"value": 500,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "heading-root-font-weight-h6",
+				"path": [
+					"heading",
+					"root",
+					"font-weight",
+					"h6"
+				],
+				"cssVar": "--heading-root-font-weight-h6",
+				"value": 500,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "heading-root-letter-spacing",
+				"path": [
+					"heading",
+					"root",
+					"letter-spacing"
+				],
+				"cssVar": "--heading-root-letter-spacing",
+				"value": "-0.02em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "heading-root-line-height",
+				"path": [
+					"heading",
+					"root",
+					"line-height"
+				],
+				"cssVar": "--heading-root-line-height",
+				"value": "1.2",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "heading-root-opacity",
+				"path": [
+					"heading",
+					"root",
+					"opacity"
+				],
+				"cssVar": "--heading-root-opacity",
+				"value": 1,
+				"type": "number",
+				"extensions": null
+			}
+		]
+	},
+	"progress": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "progress-track",
+				"path": [
+					"progress",
+					"track"
+				],
+				"cssVar": "--progress-track",
+				"value": "#191b1d",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "progress-fill-background",
+				"path": [
+					"progress",
+					"fill",
+					"background"
+				],
+				"cssVar": "--progress-fill-background",
+				"value": "#2dd4bf",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "progress-fill-border-radius",
+				"path": [
+					"progress",
+					"fill",
+					"border-radius"
+				],
+				"cssVar": "--progress-fill-border-radius",
+				"value": "9999px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "progress-fill-transition-duration",
+				"path": [
+					"progress",
+					"fill",
+					"transition",
+					"duration"
+				],
+				"cssVar": "--progress-fill-transition-duration",
+				"value": "300ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "progress-bar",
+				"path": [
+					"progress",
+					"bar"
+				],
+				"cssVar": "--progress-bar",
+				"value": "#17d3a4",
+				"type": "color",
+				"extensions": null
+			}
+		]
+	},
+	"text": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "text-root-color-primary",
+				"path": [
+					"text",
+					"root",
+					"color",
+					"primary"
+				],
+				"cssVar": "--text-root-color-primary",
+				"value": "#e2e8f0",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "text-root-color-secondary",
+				"path": [
+					"text",
+					"root",
+					"color",
+					"secondary"
+				],
+				"cssVar": "--text-root-color-secondary",
+				"value": "#94a3b8",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "text-root-color-muted",
+				"path": [
+					"text",
+					"root",
+					"color",
+					"muted"
+				],
+				"cssVar": "--text-root-color-muted",
+				"value": "#64748b",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "text-root-color-accent",
+				"path": [
+					"text",
+					"root",
+					"color",
+					"accent"
+				],
+				"cssVar": "--text-root-color-accent",
+				"value": "#2dd4bf",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "text-root-font-family",
+				"path": [
+					"text",
+					"root",
+					"font-family"
+				],
+				"cssVar": "--text-root-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "text-root-line-height",
+				"path": [
+					"text",
+					"root",
+					"line-height"
+				],
+				"cssVar": "--text-root-line-height",
+				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "text-root-letter-spacing",
+				"path": [
+					"text",
+					"root",
+					"letter-spacing"
+				],
+				"cssVar": "--text-root-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			}
+		]
+	},
+	"text-field": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "text-field-input-background-default",
+				"path": [
+					"text-field",
+					"input",
+					"background",
+					"default"
+				],
+				"cssVar": "--text-field-input-background-default",
+				"value": "#000101e0",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "text-field-input-background-focus",
+				"path": [
+					"text-field",
+					"input",
+					"background",
+					"focus"
+				],
+				"cssVar": "--text-field-input-background-focus",
+				"value": "#000305cc",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "text-field-input-border-color-default",
+				"path": [
+					"text-field",
+					"input",
+					"border",
+					"color",
+					"default"
+				],
+				"cssVar": "--text-field-input-border-color-default",
+				"value": "#005c4a38",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "text-field-input-border-color-focus",
+				"path": [
+					"text-field",
+					"input",
+					"border",
+					"color",
+					"focus"
+				],
+				"cssVar": "--text-field-input-border-color-focus",
+				"value": "#2dd4bf",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "text-field-input-border-color-invalid",
+				"path": [
+					"text-field",
+					"input",
+					"border",
+					"color",
+					"invalid"
+				],
+				"cssVar": "--text-field-input-border-color-invalid",
+				"value": "#f87171",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "text-field-input-border-width",
+				"path": [
+					"text-field",
+					"input",
+					"border",
+					"width"
+				],
+				"cssVar": "--text-field-input-border-width",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-field-input-border-radius",
+				"path": [
+					"text-field",
+					"input",
+					"border-radius"
+				],
+				"cssVar": "--text-field-input-border-radius",
+				"value": "8px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-field-input-padding-inline",
+				"path": [
+					"text-field",
+					"input",
+					"padding-inline"
+				],
+				"cssVar": "--text-field-input-padding-inline",
+				"value": "16px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-field-input-padding-block",
+				"path": [
+					"text-field",
+					"input",
+					"padding-block"
+				],
+				"cssVar": "--text-field-input-padding-block",
+				"value": "10px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-field-input-color",
+				"path": [
+					"text-field",
+					"input",
+					"color"
+				],
+				"cssVar": "--text-field-input-color",
+				"value": "#e2e8f0",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "text-field-input-placeholder-color",
+				"path": [
+					"text-field",
+					"input",
+					"placeholder-color"
+				],
+				"cssVar": "--text-field-input-placeholder-color",
+				"value": "#64748b",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "text-field-input-font-size",
+				"path": [
+					"text-field",
+					"input",
+					"font-size"
+				],
+				"cssVar": "--text-field-input-font-size",
+				"value": "14px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-field-input-font-family",
+				"path": [
+					"text-field",
+					"input",
+					"font-family"
+				],
+				"cssVar": "--text-field-input-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "text-field-input-shadow-focus",
+				"path": [
+					"text-field",
+					"input",
+					"shadow",
+					"focus"
+				],
+				"cssVar": "--text-field-input-shadow-focus",
+				"value": "0 0 0 3px rgba(45, 212, 191, 0.15)",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "text-field-input-height",
+				"path": [
+					"text-field",
+					"input",
+					"height"
+				],
+				"cssVar": "--text-field-input-height",
+				"value": "40px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-field-label-color",
+				"path": [
+					"text-field",
+					"label",
+					"color"
+				],
+				"cssVar": "--text-field-label-color",
+				"value": "#e2e8f0",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "text-field-label-font-size",
+				"path": [
+					"text-field",
+					"label",
+					"font-size"
+				],
+				"cssVar": "--text-field-label-font-size",
+				"value": "14px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-field-label-font-weight",
+				"path": [
+					"text-field",
+					"label",
+					"font-weight"
+				],
+				"cssVar": "--text-field-label-font-weight",
+				"value": 500,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "text-field-label-margin-bottom",
+				"path": [
+					"text-field",
+					"label",
+					"margin-bottom"
+				],
+				"cssVar": "--text-field-label-margin-bottom",
+				"value": "4px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-field-description-color",
+				"path": [
+					"text-field",
+					"description",
+					"color"
+				],
+				"cssVar": "--text-field-description-color",
+				"value": "#94a3b8",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "text-field-description-font-size",
+				"path": [
+					"text-field",
+					"description",
+					"font-size"
+				],
+				"cssVar": "--text-field-description-font-size",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "text-field-error-color",
+				"path": [
+					"text-field",
+					"error",
+					"color"
+				],
+				"cssVar": "--text-field-error-color",
+				"value": "#f87171",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "text-field-error-font-size",
+				"path": [
+					"text-field",
+					"error",
+					"font-size"
+				],
+				"cssVar": "--text-field-error-font-size",
+				"value": "12px",
+				"type": "dimension",
 				"extensions": null
 			}
 		]
@@ -4736,33 +6348,6 @@
 				],
 				"cssVar": "--slider-thumb-border",
 				"value": "#3ee0b7",
-				"type": "color",
-				"extensions": null
-			}
-		]
-	},
-	"progress": {
-		"extensions": {},
-		"tokens": [
-			{
-				"name": "progress-track",
-				"path": [
-					"progress",
-					"track"
-				],
-				"cssVar": "--progress-track",
-				"value": "#191b1d",
-				"type": "color",
-				"extensions": null
-			},
-			{
-				"name": "progress-bar",
-				"path": [
-					"progress",
-					"bar"
-				],
-				"cssVar": "--progress-bar",
-				"value": "#17d3a4",
 				"type": "color",
 				"extensions": null
 			}
@@ -4981,217 +6566,6 @@
 				],
 				"cssVar": "--radio-group-border-focus",
 				"value": "#3ee0b7",
-				"type": "color",
-				"extensions": null
-			}
-		]
-	},
-	"badge": {
-		"extensions": {},
-		"tokens": [
-			{
-				"name": "badge-bg",
-				"path": [
-					"badge",
-					"bg"
-				],
-				"cssVar": "--badge-bg",
-				"value": "#060a0ba6",
-				"type": "color",
-				"extensions": null
-			},
-			{
-				"name": "badge-border",
-				"path": [
-					"badge",
-					"border"
-				],
-				"cssVar": "--badge-border",
-				"value": "#005c4a38",
-				"type": "color",
-				"extensions": null
-			}
-		]
-	},
-	"card": {
-		"extensions": {},
-		"tokens": [
-			{
-				"name": "card-bg",
-				"path": [
-					"card",
-					"bg"
-				],
-				"cssVar": "--card-bg",
-				"value": "#000101e0",
-				"type": "color",
-				"extensions": null
-			},
-			{
-				"name": "card-border",
-				"path": [
-					"card",
-					"border"
-				],
-				"cssVar": "--card-border",
-				"value": "#005c4a38",
-				"type": "color",
-				"extensions": null
-			},
-			{
-				"name": "card-depth-1-color",
-				"path": [
-					"card",
-					"depth",
-					"1",
-					"color"
-				],
-				"cssVar": "--card-depth-1-color",
-				"value": "#0000001f",
-				"type": "color",
-				"extensions": null
-			},
-			{
-				"name": "card-depth-1-offset-x",
-				"path": [
-					"card",
-					"depth",
-					"1",
-					"offsetX"
-				],
-				"cssVar": "--card-depth-1-offset-x",
-				"value": "0px",
-				"type": "dimension",
-				"extensions": null
-			},
-			{
-				"name": "card-depth-1-offset-y",
-				"path": [
-					"card",
-					"depth",
-					"1",
-					"offsetY"
-				],
-				"cssVar": "--card-depth-1-offset-y",
-				"value": "1px",
-				"type": "dimension",
-				"extensions": null
-			},
-			{
-				"name": "card-depth-1-blur",
-				"path": [
-					"card",
-					"depth",
-					"1",
-					"blur"
-				],
-				"cssVar": "--card-depth-1-blur",
-				"value": "3px",
-				"type": "dimension",
-				"extensions": null
-			},
-			{
-				"name": "card-depth-1-spread",
-				"path": [
-					"card",
-					"depth",
-					"1",
-					"spread"
-				],
-				"cssVar": "--card-depth-1-spread",
-				"value": "0px",
-				"type": "dimension",
-				"extensions": null
-			},
-			{
-				"name": "card-depth-2-color",
-				"path": [
-					"card",
-					"depth",
-					"2",
-					"color"
-				],
-				"cssVar": "--card-depth-2-color",
-				"value": "#0000003d",
-				"type": "color",
-				"extensions": null
-			},
-			{
-				"name": "card-depth-2-offset-x",
-				"path": [
-					"card",
-					"depth",
-					"2",
-					"offsetX"
-				],
-				"cssVar": "--card-depth-2-offset-x",
-				"value": "0px",
-				"type": "dimension",
-				"extensions": null
-			},
-			{
-				"name": "card-depth-2-offset-y",
-				"path": [
-					"card",
-					"depth",
-					"2",
-					"offsetY"
-				],
-				"cssVar": "--card-depth-2-offset-y",
-				"value": "1px",
-				"type": "dimension",
-				"extensions": null
-			},
-			{
-				"name": "card-depth-2-blur",
-				"path": [
-					"card",
-					"depth",
-					"2",
-					"blur"
-				],
-				"cssVar": "--card-depth-2-blur",
-				"value": "2px",
-				"type": "dimension",
-				"extensions": null
-			},
-			{
-				"name": "card-depth-2-spread",
-				"path": [
-					"card",
-					"depth",
-					"2",
-					"spread"
-				],
-				"cssVar": "--card-depth-2-spread",
-				"value": "0px",
-				"type": "dimension",
-				"extensions": null
-			}
-		]
-	},
-	"avatar": {
-		"extensions": {},
-		"tokens": [
-			{
-				"name": "avatar-bg",
-				"path": [
-					"avatar",
-					"bg"
-				],
-				"cssVar": "--avatar-bg",
-				"value": "#191b1d",
-				"type": "color",
-				"extensions": null
-			},
-			{
-				"name": "avatar-border",
-				"path": [
-					"avatar",
-					"border"
-				],
-				"cssVar": "--avatar-border",
-				"value": "#005c4a38",
 				"type": "color",
 				"extensions": null
 			}
@@ -6665,6 +8039,78 @@
 				"extensions": null
 			},
 			{
+				"name": "style-accordion-default-background-color",
+				"path": [
+					"style",
+					"accordion-default",
+					"backgroundColor"
+				],
+				"cssVar": "--style-accordion-default-background-color",
+				"value": "#000101e0",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-background-blur",
+				"path": [
+					"style",
+					"accordion-default",
+					"backgroundBlur"
+				],
+				"cssVar": "--style-accordion-default-background-blur",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-animation",
+				"path": [
+					"style",
+					"accordion-default",
+					"animation"
+				],
+				"cssVar": "--style-accordion-default-animation",
+				"value": "0ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-color",
+				"path": [
+					"style",
+					"accordion-default",
+					"color"
+				],
+				"cssVar": "--style-accordion-default-color",
+				"value": "#ededed",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-border-radius",
+				"path": [
+					"style",
+					"accordion-default",
+					"borderRadius"
+				],
+				"cssVar": "--style-accordion-default-border-radius",
+				"value": "8px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-opacity",
+				"path": [
+					"style",
+					"accordion-default",
+					"opacity"
+				],
+				"cssVar": "--style-accordion-default-opacity",
+				"value": 1,
+				"type": "number",
+				"extensions": null
+			},
+			{
 				"name": "style-button-primary-shadow-1-color",
 				"path": [
 					"style",
@@ -7678,6 +9124,223 @@
 					"lineHeight"
 				],
 				"cssVar": "--style-button-danger-typography-line-height",
+				"value": 1.5,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-shadow-color",
+				"path": [
+					"style",
+					"accordion-default",
+					"shadow",
+					"color"
+				],
+				"cssVar": "--style-accordion-default-shadow-color",
+				"value": "#00000000",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-shadow-offset-x",
+				"path": [
+					"style",
+					"accordion-default",
+					"shadow",
+					"offsetX"
+				],
+				"cssVar": "--style-accordion-default-shadow-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-shadow-offset-y",
+				"path": [
+					"style",
+					"accordion-default",
+					"shadow",
+					"offsetY"
+				],
+				"cssVar": "--style-accordion-default-shadow-offset-y",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-shadow-blur",
+				"path": [
+					"style",
+					"accordion-default",
+					"shadow",
+					"blur"
+				],
+				"cssVar": "--style-accordion-default-shadow-blur",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-shadow-spread",
+				"path": [
+					"style",
+					"accordion-default",
+					"shadow",
+					"spread"
+				],
+				"cssVar": "--style-accordion-default-shadow-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-border-color",
+				"path": [
+					"style",
+					"accordion-default",
+					"border",
+					"color"
+				],
+				"cssVar": "--style-accordion-default-border-color",
+				"value": "#005c4a38",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-border-width",
+				"path": [
+					"style",
+					"accordion-default",
+					"border",
+					"width"
+				],
+				"cssVar": "--style-accordion-default-border-width",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-border-style",
+				"path": [
+					"style",
+					"accordion-default",
+					"border",
+					"style"
+				],
+				"cssVar": "--style-accordion-default-border-style",
+				"value": "solid",
+				"type": "strokeStyle",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-transition-duration",
+				"path": [
+					"style",
+					"accordion-default",
+					"transition",
+					"duration"
+				],
+				"cssVar": "--style-accordion-default-transition-duration",
+				"value": "200ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-transition-delay",
+				"path": [
+					"style",
+					"accordion-default",
+					"transition",
+					"delay"
+				],
+				"cssVar": "--style-accordion-default-transition-delay",
+				"value": "0ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-transition-timing-function",
+				"path": [
+					"style",
+					"accordion-default",
+					"transition",
+					"timingFunction"
+				],
+				"cssVar": "--style-accordion-default-transition-timing-function",
+				"value": [
+					0,
+					0,
+					0.2,
+					1
+				],
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-typography-font-family",
+				"path": [
+					"style",
+					"accordion-default",
+					"typography",
+					"fontFamily"
+				],
+				"cssVar": "--style-accordion-default-typography-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-typography-font-size",
+				"path": [
+					"style",
+					"accordion-default",
+					"typography",
+					"fontSize"
+				],
+				"cssVar": "--style-accordion-default-typography-font-size",
+				"value": "14px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-typography-font-weight",
+				"path": [
+					"style",
+					"accordion-default",
+					"typography",
+					"fontWeight"
+				],
+				"cssVar": "--style-accordion-default-typography-font-weight",
+				"value": 400,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-typography-letter-spacing",
+				"path": [
+					"style",
+					"accordion-default",
+					"typography",
+					"letterSpacing"
+				],
+				"cssVar": "--style-accordion-default-typography-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-accordion-default-typography-line-height",
+				"path": [
+					"style",
+					"accordion-default",
+					"typography",
+					"lineHeight"
+				],
+				"cssVar": "--style-accordion-default-typography-line-height",
 				"value": 1.5,
 				"type": "number",
 				"extensions": null

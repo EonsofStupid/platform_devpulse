@@ -61,6 +61,11 @@ use services::vector::VectorService;
 use services::voice::VoiceService;
 #[cfg(feature = "outlines")]
 use services::grammar::GrammarService;
+#[cfg(feature = "candle")]
+use services::embedder::EmbedderService;
+#[cfg(feature = "candle")]
+use services::whisper::WhisperService;
+use services::devforge::DevForgeService;
 
 /// Platform engine — sole public API for persistence, health, config.
 ///
@@ -91,6 +96,14 @@ pub struct Platform {
     // ── Grammar (outlines-core) ─────────────────────────────────
     #[cfg(feature = "outlines")]
     grammar: Option<Arc<GrammarService>>,
+    // ── Embedder (Candle) ─────────────────────────────────────
+    #[cfg(feature = "candle")]
+    embedder: Option<Arc<EmbedderService>>,
+    // ── Whisper (Candle) ──────────────────────────────────────
+    #[cfg(feature = "candle")]
+    whisper: Option<Arc<WhisperService>>,
+    // ── DevForge (VSCode) ─────────────────────────────────────
+    devforge: Option<Arc<DevForgeService>>,
     // ── Meta ────────────────────────────────────────────────────
     boot_config: PlatformBootConfig,
     boot_time: Instant,
@@ -136,6 +149,11 @@ impl Platform {
             voice: booted.voice,
             #[cfg(feature = "outlines")]
             grammar: booted.grammar,
+            #[cfg(feature = "candle")]
+            embedder: booted.embedder,
+            #[cfg(feature = "candle")]
+            whisper: booted.whisper,
+            devforge: booted.devforge,
             boot_config,
             boot_time,
             data_dir,
@@ -177,6 +195,17 @@ impl Platform {
         }
         #[cfg(feature = "outlines")]
         if let Some(svc) = &self.grammar {
+            subsystems.push(ping_service(svc.as_ref()).await);
+        }
+        #[cfg(feature = "candle")]
+        if let Some(svc) = &self.embedder {
+            subsystems.push(ping_service(svc.as_ref()).await);
+        }
+        #[cfg(feature = "candle")]
+        if let Some(svc) = &self.whisper {
+            subsystems.push(ping_service(svc.as_ref()).await);
+        }
+        if let Some(svc) = &self.devforge {
             subsystems.push(ping_service(svc.as_ref()).await);
         }
 
@@ -270,6 +299,27 @@ impl Platform {
         self.global_graph.as_ref()
     }
 
+    // ── Candle scope accessors ──────────────────────────────────
+
+    /// Get the embedder service (if enabled and booted).
+    #[cfg(feature = "candle")]
+    pub fn embedder(&self) -> Option<&Arc<EmbedderService>> {
+        self.embedder.as_ref()
+    }
+
+    /// Get the whisper service (if enabled and booted).
+    #[cfg(feature = "candle")]
+    pub fn whisper(&self) -> Option<&Arc<WhisperService>> {
+        self.whisper.as_ref()
+    }
+
+    // ── DevForge accessor ────────────────────────────────────────
+
+    /// Get the DevForge service (if enabled and booted).
+    pub fn devforge(&self) -> Option<&Arc<DevForgeService>> {
+        self.devforge.as_ref()
+    }
+
     /// Graceful shutdown — close all services in reverse boot order.
     ///
     /// Flushes WALs, checkpoints databases, and releases file locks so the
@@ -290,6 +340,8 @@ impl Platform {
         // Cache (Moka) is in-memory — no-op shutdown, but call for consistency
         Self::shutdown_service_with_deadline(self.system_cache.as_ref(), &deadline, start).await;
         Self::shutdown_service_with_deadline(self.user_relational.as_ref(), &deadline, start).await;
+        // DevForge (child process) — kill first
+        Self::shutdown_service_with_deadline(self.devforge.as_ref(), &deadline, start).await;
         Self::shutdown_service_with_deadline(self.system_relational.as_ref(), &deadline, start).await;
 
         let elapsed = start.elapsed();

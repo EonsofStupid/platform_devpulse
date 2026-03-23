@@ -10,9 +10,10 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getAvatarContext } from "./context.js";
-import type { AvatarFallbackProps } from "./types.js";
+import type { Snippet } from "svelte";
+import type { HTMLAttributes } from "svelte/elements";
 
-let { children, class: className, ...rest }: AvatarFallbackProps = $props();
+let { children, class: className, ...rest }: Omit<HTMLAttributes<HTMLSpanElement>, "style" | "class" | "children"> & { class?: string; children?: Snippet } = $props();
 const ctx = getAvatarContext();
 </script>
 

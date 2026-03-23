@@ -8,6 +8,7 @@
 //! Uses the standard retry utility with exponential backoff on file lock errors.
 //! **NEVER delete data.** Transient failures must not destroy the knowledge graph.
 
+use crate::platform::boot::log::BootLog;
 use crate::platform::boot::retry;
 use crate::platform::config::{PlatformBootConfig, sanitize_path};
 use crate::platform::init::InitEvent;
@@ -29,6 +30,7 @@ pub async fn boot_consolidated(
     data_dir: &Path,
     boot_config: &PlatformBootConfig,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
+    boot_log: &BootLog,
 ) -> (
     Option<Arc<GraphService>>,
     Option<Arc<GraphService>>,
@@ -40,10 +42,12 @@ pub async fn boot_consolidated(
 
     if !any_graph_enabled {
         on_event(InitEvent::skipped("Graph store (SurrealDB)"));
+        boot_log.skip("Graph store", "all graph namespaces disabled");
         return (None, None, None);
     }
 
     on_event(InitEvent::running("Graph store", "Opening consolidated SurrealDB"));
+    boot_log.running("Graph store", "opening consolidated SurrealDB...");
     let start = Instant::now();
 
     // Single consolidated path for all graph namespaces
@@ -57,6 +61,7 @@ pub async fn boot_consolidated(
         if let Err(e) = std::fs::create_dir_all(parent) {
             tracing::error!(error = ?e, "Failed to create SurrealDB directory");
             on_event(InitEvent::error("Graph store", &format!("{e:#}")));
+            boot_log.fail("Graph store", &format!("directory creation failed: {e:#}"));
             return (None, None, None);
         }
     }
@@ -84,6 +89,7 @@ pub async fn boot_consolidated(
             Err(e) => {
                 tracing::error!(error = ?e, path = %surreal_path.display(), "SurrealDB boot failed after retries");
                 on_event(InitEvent::error("Graph store", &format!("{e:#}")));
+                boot_log.fail("Graph store", &format!("SurrealDB open failed: {e:#}"));
                 return (None, None, None);
             }
         }
@@ -117,6 +123,7 @@ pub async fn boot_consolidated(
         }
     }
 
+    let elapsed_ms = start.elapsed().as_millis() as u64;
     tracing::info!(
         status = "ready",
         latency_us = start.elapsed().as_micros() as u64,
@@ -125,24 +132,29 @@ pub async fn boot_consolidated(
         "Consolidated SurrealDB booted"
     );
     on_event(InitEvent::ok_with_latency("Graph store", start.elapsed()));
+    boot_log.ok("Graph store", &format!("SurrealDB consolidated 3 namespaces ({elapsed_ms}ms)"));
 
     // Start HTTP server on configured port
     let graph_api = &boot_config.services.network.graph_api;
     if graph_api.enabled {
         let api_port = graph_api.port;
         on_event(InitEvent::running("SurrealDB HTTP", &format!("Starting server on :{api_port}")));
+        boot_log.running("SurrealDB HTTP", &format!("starting on :{api_port}..."));
         match server::start(Arc::clone(&adapter), api_port).await {
             Ok(actual_port) => {
                 tracing::info!(configured_port = api_port, actual_port = actual_port, "SurrealDB HTTP server ready");
                 on_event(InitEvent::ok("SurrealDB HTTP", &format!("Listening on :{actual_port}")));
+                boot_log.ok("SurrealDB HTTP", &format!("listening on :{actual_port}"));
             }
             Err(e) => {
                 tracing::warn!(error = ?e, "SurrealDB HTTP server failed to start (non-fatal)");
                 on_event(InitEvent::error("SurrealDB HTTP", &format!("{e:#}")));
+                boot_log.fail("SurrealDB HTTP", &format!("{e:#} (non-fatal)"));
             }
         }
     } else {
         on_event(InitEvent::skipped("SurrealDB HTTP"));
+        boot_log.skip("SurrealDB HTTP", "disabled in config");
     }
 
     // Build scoped graph services from the shared adapter

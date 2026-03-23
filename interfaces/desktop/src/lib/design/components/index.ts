@@ -12,13 +12,10 @@
 
 export {
 	Button,
-	useButton,
 	type ButtonIntent,
 	type ButtonProps,
 	type ButtonSize,
 	type ButtonType,
-	type UseButtonProps,
-	type UseButtonReturn,
 } from "./button/index.js";
 
 // ============================================
@@ -69,16 +66,13 @@ export {
 	type HeadingLevel,
 	type HeadingProps,
 	type HeadingSize,
-	headingRecipe,
 } from "./heading/index.js";
 export {
 	Text,
 	type TextAs,
-	type TextColor,
 	type TextProps,
 	type TextSize,
 	type TextWeight,
-	textRecipe,
 } from "./text/index.js";
 
 // ============================================
@@ -86,13 +80,25 @@ export {
 // ============================================
 
 export {
+	Avatar,
+	type AvatarProps,
+	type AvatarLoadStatus,
+	type AvatarStatusChangeDetails,
+} from "./avatar/index.js";
+export {
 	Badge,
 	type BadgeProps,
 	type BadgeSize,
 	type BadgeVariant,
 	type BadgeFillStyle,
 } from "./badge/index.js";
-export * as Card from "./card/index.js";
+export {
+	Card,
+	type CardProps,
+	type CardVariant,
+	type CardAs,
+	type CardOrientation,
+} from "./card/index.js";
 export {
 	Separator,
 	type SeparatorOrientation,
@@ -105,3 +111,24 @@ export {
 	type StatSize,
 	statRecipe,
 } from "./stat/index.js";
+
+// ============================================
+// FORM
+// ============================================
+
+export {
+	TextField,
+	type TextFieldProps,
+	type TextFieldSize,
+	type TextFieldType,
+} from "./text-field/index.js";
+
+// ============================================
+// FEEDBACK
+// ============================================
+
+export {
+	Progress,
+	type ProgressProps,
+	type ProgressSize,
+} from "./progress/index.js";

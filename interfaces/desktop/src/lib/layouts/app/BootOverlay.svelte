@@ -59,7 +59,7 @@ $effect(() => {
 <div
 	class={cn(
 		"fixed inset-0 z-[9999] flex items-center justify-center",
-		"bg-[var(--surface-base,#0a0a0f)]",
+		"bg-[var(--surface-base)]",
 		"transition-opacity duration-500 ease-out",
 		fading && "opacity-0 pointer-events-none",
 	)}
@@ -138,7 +138,7 @@ $effect(() => {
 			<div
 				class={cn(
 					box({ paddingX: "12", paddingY: "8" }),
-					"w-full text-center v-f1 rounded-md border border-[var(--color-red-500)]/20 bg-[var(--color-red-500)]/10",
+					"w-full text-center v-f1 rounded-md border border-[var(--signal-error)]/20 bg-[var(--signal-error)]/10",
 				)}
 				data-kind="box"
 				data-slot="root"

@@ -1,44 +1,28 @@
 /**
- * @file Text Recipe
+ * @file Text Recipes — as const named presets
  * @kind text
- * @layer components
  *
- * Props → standard Tailwind v4 utility classes.
- * Colors map to @theme --color-text-* tokens.
- * Sizes map to @theme --font-size-* tokens.
+ * Each recipe overrides default token values for a visual family.
+ * SD5 processes as mode-specific token groups.
  */
 
-import { cn } from "$lib/design/utils/cn.js";
-
-type TextRecipeProps = { size?: string; weight?: string; color?: string };
-
-export function textRecipe(props: TextRecipeProps = {}): string {
-	const sizeMap: Record<string, string> = {
-		xs: "text-xs",
-		sm: "text-sm",
-		md: "text-base",
-		base: "text-base",
-		lg: "text-lg",
-		xl: "text-xl",
-		"2xl": "text-2xl",
-	};
-	const weightMap: Record<string, string> = {
-		normal: "font-normal",
-		medium: "font-medium",
-		semibold: "font-semibold",
-		bold: "font-bold",
-	};
-	const colorMap: Record<string, string> = {
-		primary: "text-text-primary",
-		secondary: "text-text-secondary",
-		muted: "text-text-muted",
-		inverted: "text-text-inverted",
-		link: "text-text-link",
-		error: "text-text-error",
-		success: "text-text-success",
-	};
-	const size = sizeMap[props.size ?? "base"] ?? "text-base";
-	const weight = weightMap[props.weight ?? "normal"] ?? "font-normal";
-	const color = colorMap[props.color ?? "primary"] ?? "text-text-primary";
-	return cn(size, weight, color);
-}
+export const textRecipes = {
+	"body-default": {
+		"text.root.color.primary": "#e2e8f0",
+		"text.root.font-family": "{font.sans}",
+		"text.root.line-height": "1.5",
+		"text.root.letter-spacing": "0em",
+	},
+	"caption-muted": {
+		"text.root.color.primary": "#64748b",
+		"text.root.font-family": "{font.sans}",
+		"text.root.line-height": "1.4",
+		"text.root.letter-spacing": "0.02em",
+	},
+	"code-mono": {
+		"text.root.color.primary": "#2dd4bf",
+		"text.root.font-family": "{font.mono}",
+		"text.root.line-height": "1.6",
+		"text.root.letter-spacing": "-0.01em",
+	},
+} as const;

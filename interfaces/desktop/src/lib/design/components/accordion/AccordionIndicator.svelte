@@ -2,13 +2,10 @@
 	@component Accordion.Indicator
 	@kind accordion
 	@slot indicator
-	@layer components
 
-	Caret/chevron that rotates based on item open state.
-	Reads data-state from item context.
+	Caret/chevron that rotates based on open state.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/utils/cn.js";
 import { getAccordionContext, getAccordionItemContext } from "./context.js";
 import type { AccordionIndicatorProps } from "./types.js";
 
@@ -24,7 +21,7 @@ const attrs = $derived({
 	"data-slot": "indicator" as const,
 	"data-state": isOpen ? "open" as const : "closed" as const,
 	"aria-hidden": true as const,
-	class: cn(ctx.classes.indicator, "transition-transform", isOpen ? "rotate-180" : "", className),
+	class: `transition-transform ${isOpen ? "rotate-180" : ""} ${className ?? ""}`.trim(),
 	...rest,
 });
 </script>

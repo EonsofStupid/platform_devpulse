@@ -1,39 +1,74 @@
-//! Boot pipeline — staged initialization of all platform stores.
+//! Boot pipeline — sequential, gated initialization of all platform services.
 //!
-//! Three phases:
+//! # Architecture
+//! This file is the **orchestrator only**. Each service has its own boot file:
+//! - [`relational`] — LibSQL (system + user)
+//! - [`analytics`] — DuckDB
+//! - [`graph`] — SurrealDB (consolidated: system + user + global namespaces)
+//! - [`cache`] — Moka
+//! - [`vector`] — RRO (embedded Qdrant)
+//! - [`voice`] — Kokoros TTS
+//! - [`grammar`] — outlines-core
+//!
+//! # Boot Sequence (strict order)
 //! 1. **Preflight** — validate config, create directory hierarchy
-//! 2. **Store boots** — initialize each store independently
-//! 3. **Validation** — verify critical stores booted, fail if not
+//! 2. **System relational** (LibSQL) — CRITICAL — kernel state, boot records
+//! 3. **System analytics** (DuckDB) — telemetry
+//! 4. **Graph store** (SurrealDB) — CRITICAL — consolidated 3 namespaces + HTTP API
+//! 5. **System cache** (Moka) — in-memory
+//! 6. **User relational** (LibSQL) — sessions, preferences
+//! 7. **Vector store** (RRO) — embeddings, retrieval
+//! 8. **Voice service** (Kokoros) — TTS engine
+//! 9. **Grammar service** (outlines-core) — structured generation
+//! 10. **Validation** — verify all critical services booted
 //!
-//! Non-critical store failures (analytics, cache, user stores) result in
-//! degraded mode (store = None). Critical store failures (system relational,
-//! system graph) cause boot to return an error.
+//! Each stage completes and is health-checked BEFORE the next begins.
+//! The boot log writes to file AND stderr in real time.
+//!
+//! # Failure Policy
+//! - Critical service failure → boot returns `Err`, UI must not render
+//! - Non-critical failure → degraded mode (service = None), boot continues
+//! - Feature-gated service enabled but not compiled → immediate `bail!`
 
+mod analytics;
+mod cache;
 pub mod graph;
+pub mod log;
 pub mod preflight;
+mod relational;
 pub mod retry;
+mod vector;
+mod voice;
+mod grammar;
+mod embedder;
+mod whisper;
+mod devforge;
 
-use crate::platform::config::{self, PlatformBootConfig, sanitize_path};
+use crate::platform::config::PlatformBootConfig;
 use crate::platform::init::InitEvent;
-use crate::platform::services::analytics::{AnalyticsService, SYSTEM_ANALYTICS_SCHEMA};
+use crate::platform::services::analytics::AnalyticsService;
 use crate::platform::services::cache::CacheService;
 use crate::platform::services::graph::GraphService;
 use crate::platform::services::relational::{RelationalService, SYSTEM_SCHEMA, USER_SCHEMA};
+use crate::platform::services::analytics::SYSTEM_ANALYTICS_SCHEMA;
 #[cfg(feature = "rro")]
 use crate::platform::services::vector::VectorService;
-#[cfg(feature = "rro")]
-use crate::platform::services::Service;
 #[cfg(feature = "kokoros")]
 use crate::platform::services::voice::VoiceService;
 #[cfg(feature = "outlines")]
 use crate::platform::services::grammar::GrammarService;
+#[cfg(feature = "candle")]
+use crate::platform::services::embedder::EmbedderService;
+#[cfg(feature = "candle")]
+use crate::platform::services::whisper::WhisperService;
+use crate::platform::services::devforge::DevForgeService;
 
 use anyhow::Result;
+use log::BootLog;
 use std::path::Path;
 use std::sync::Arc;
-use std::time::Instant;
 
-/// Collected store handles from a successful boot pipeline.
+/// Collected service handles from a successful boot pipeline.
 pub struct BootedServices {
     pub system_relational: Option<Arc<RelationalService>>,
     pub system_analytics: Option<Arc<AnalyticsService>>,
@@ -48,84 +83,100 @@ pub struct BootedServices {
     pub voice: Option<Arc<VoiceService>>,
     #[cfg(feature = "outlines")]
     pub grammar: Option<Arc<GrammarService>>,
+    #[cfg(feature = "candle")]
+    pub embedder: Option<Arc<EmbedderService>>,
+    #[cfg(feature = "candle")]
+    pub whisper: Option<Arc<WhisperService>>,
+    pub devforge: Option<Arc<DevForgeService>>,
 }
 
-/// Execute the full boot pipeline.
+/// Execute the full boot pipeline — sequential, gated, logged.
 ///
-/// # Phases
-/// 1. Preflight: create scoped directory hierarchy
-/// 2. Store boots: initialize each enabled store
-/// 3. Validation: verify critical stores are ready
+/// Opens a real-time boot log at `{data_dir}/logs/boot.log` that writes
+/// every stage result to disk AND stderr as it happens. If the process
+/// crashes mid-boot, everything up to that point is already on disk.
 ///
 /// # Errors
 /// Returns error if:
+/// - Boot log cannot be created
 /// - Preflight fails (directory creation)
-/// - A critical store (system relational, system graph) fails to boot
+/// - A critical service fails to boot
+/// - A feature-gated service is enabled but not compiled in
 pub async fn execute(
     data_dir: &Path,
     boot_config: &PlatformBootConfig,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
 ) -> Result<BootedServices> {
-    // ── Phase 1: Preflight ────────────────────────────────────
-    on_event(InitEvent::running("data layer", "Creating data directories"));
+    // ── Boot log: real-time sink to file + stderr ──────────────
+    let boot_log = BootLog::open(data_dir)?;
+
+    // ── Stage 1: Preflight — directory hierarchy ──────────────
+    on_event(InitEvent::running("preflight", "Creating data directories"));
+    boot_log.running("preflight", "creating data directories...");
     preflight::ensure_scoped_dirs(data_dir, boot_config)?;
-    on_event(InitEvent::ok("data layer", "Directories ready"));
+    on_event(InitEvent::ok("preflight", "Directories ready"));
+    boot_log.ok("preflight", "directories ready");
 
-    // ── Phase 2: Boot stores ──────────────────────────────────
-
-    // System relational (LibSQL) — CRITICAL
-    let system_relational = boot_relational(
+    // ── Stage 2: System relational (LibSQL) — CRITICAL ────────
+    let system_relational = relational::boot(
         data_dir,
         &boot_config.services.system.relational,
         &boot_config.windows,
         SYSTEM_SCHEMA,
         "System relational",
         on_event,
+        &boot_log,
     ).await;
 
-    // System analytics (DuckDB) — non-critical
-    let system_analytics = boot_analytics(
+    // ── Stage 3: System analytics (DuckDB) ────────────────────
+    let system_analytics = analytics::boot(
         data_dir,
         &boot_config.services.system.analytics,
         &boot_config.windows,
         SYSTEM_ANALYTICS_SCHEMA,
         "System analytics",
         on_event,
+        &boot_log,
     ).await;
 
-    // Consolidated graph (SurrealDB) — system graph is CRITICAL
+    // ── Stage 4: Graph store (SurrealDB) — CRITICAL ───────────
     let (system_graph, user_graph, global_graph) = graph::boot_consolidated(
         data_dir,
         boot_config,
         on_event,
+        &boot_log,
     ).await;
 
-    // System cache (Moka) — non-critical
-    let system_cache = boot_cache(
+    // ── Stage 5: System cache (Moka) ──────────────────────────
+    let system_cache = cache::boot(
         &boot_config.services.system.cache,
         on_event,
+        &boot_log,
     );
 
-    // User relational (LibSQL) — non-critical
-    let user_relational = boot_relational(
+    // ── Stage 6: User relational (LibSQL) ─────────────────────
+    let user_relational = relational::boot(
         data_dir,
         &boot_config.services.user.relational,
         &boot_config.windows,
         USER_SCHEMA,
         "User relational",
         on_event,
+        &boot_log,
     ).await;
 
-    // Vector store (RRO) — non-critical, feature-gated
+    // ── Stage 7: Vector store (RRO) — feature-gated ──────────
     #[cfg(feature = "rro")]
-    let vector = boot_vector(
+    let vector = vector::boot(
         data_dir,
         &boot_config.services.system.vector,
         on_event,
+        &boot_log,
     ).await;
     #[cfg(not(feature = "rro"))]
     {
         if boot_config.services.system.vector.enabled {
+            boot_log.fail("Vector store", "enabled in config but 'rro' feature not compiled");
             anyhow::bail!(
                 "FATAL: Vector store (RRO) is enabled in config but the 'rro' feature is not compiled in. \
                  Add features = [\"rro\"] to devpulse-engine dependency in src-tauri/Cargo.toml."
@@ -133,16 +184,18 @@ pub async fn execute(
         }
     }
 
-    // Voice service (Kokoros) — feature-gated
+    // ── Stage 8: Voice service (Kokoros) — feature-gated ──────
     #[cfg(feature = "kokoros")]
-    let voice = boot_voice(
+    let voice = voice::boot(
         data_dir,
         &boot_config.services.system.voice,
         on_event,
+        &boot_log,
     ).await;
     #[cfg(not(feature = "kokoros"))]
     {
         if boot_config.services.system.voice.enabled {
+            boot_log.fail("Voice service", "enabled in config but 'kokoros' feature not compiled");
             anyhow::bail!(
                 "FATAL: Voice service (Kokoros) is enabled in config but the 'kokoros' feature is not compiled in. \
                  Add features = [\"kokoros\"] to devpulse-engine dependency in src-tauri/Cargo.toml."
@@ -150,15 +203,17 @@ pub async fn execute(
         }
     }
 
-    // Grammar service (outlines-core) — feature-gated
+    // ── Stage 9: Grammar service (outlines-core) — feature-gated
     #[cfg(feature = "outlines")]
-    let grammar = boot_grammar(
+    let grammar = grammar::boot(
         &boot_config.services.system.grammar,
         on_event,
+        &boot_log,
     );
     #[cfg(not(feature = "outlines"))]
     {
         if boot_config.services.system.grammar.enabled {
+            boot_log.fail("Grammar service", "enabled in config but 'outlines' feature not compiled");
             anyhow::bail!(
                 "FATAL: Grammar service (outlines-core) is enabled in config but the 'outlines' feature is not compiled in. \
                  Add features = [\"outlines\"] to devpulse-engine dependency in src-tauri/Cargo.toml."
@@ -166,50 +221,91 @@ pub async fn execute(
         }
     }
 
-    // ── Phase 3: Validate ALL critical stores ──────────────────
-    if system_relational.is_none() && boot_config.services.system.relational.enabled {
-        anyhow::bail!(
-            "FATAL: System relational (LibSQL) was enabled but failed to boot"
-        );
+    // ── Stage 10: Embedder (Candle) — feature-gated ─────────
+    #[cfg(feature = "candle")]
+    let embedder = embedder::boot(
+        data_dir,
+        &boot_config.services.system.embedder,
+        on_event,
+        &boot_log,
+    ).await;
+    #[cfg(not(feature = "candle"))]
+    {
+        if boot_config.services.system.embedder.enabled {
+            boot_log.fail("Embedder service", "enabled in config but 'candle' feature not compiled");
+            anyhow::bail!(
+                "FATAL: Embedder service is enabled in config but the 'candle' feature is not compiled in. \
+                 Add features = [\"candle\"] to devpulse-engine dependency in src-tauri/Cargo.toml."
+            );
+        }
     }
-    if system_analytics.is_none() && boot_config.services.system.analytics.enabled && boot_config.services.system.analytics.critical {
-        anyhow::bail!(
-            "FATAL: System analytics (DuckDB) was enabled+critical but failed to boot"
-        );
+
+    // ── Stage 11: Whisper ASR (Candle) — feature-gated ────────
+    #[cfg(feature = "candle")]
+    let whisper = whisper::boot(
+        data_dir,
+        &boot_config.services.system.whisper,
+        on_event,
+        &boot_log,
+    ).await;
+    #[cfg(not(feature = "candle"))]
+    {
+        if boot_config.services.system.whisper.enabled {
+            boot_log.fail("Whisper service", "enabled in config but 'candle' feature not compiled");
+            anyhow::bail!(
+                "FATAL: Whisper service is enabled in config but the 'candle' feature is not compiled in. \
+                 Add features = [\"candle\"] to devpulse-engine dependency in src-tauri/Cargo.toml."
+            );
+        }
     }
-    if system_graph.is_none() && boot_config.services.system.graph.enabled {
-        anyhow::bail!(
-            "FATAL: System graph (SurrealDB) was enabled but failed to boot"
-        );
-    }
-    if system_cache.is_none() && boot_config.services.system.cache.enabled && boot_config.services.system.cache.critical {
-        anyhow::bail!(
-            "FATAL: System cache (Moka) was enabled+critical but failed to boot"
-        );
-    }
-    if user_relational.is_none() && boot_config.services.user.relational.enabled && boot_config.services.user.relational.critical {
-        anyhow::bail!(
-            "FATAL: User relational (LibSQL) was enabled+critical but failed to boot"
-        );
-    }
+
+    // ── Stage 12: DevForge (VSCode) ───────────────────────────
+    let devforge = devforge::boot(
+        data_dir,
+        &boot_config.services.system.devforge,
+        on_event,
+        &boot_log,
+    );
+
+    // ── Stage 13: Validate critical services ──────────────────
+    validate_critical(
+        &system_relational,
+        &system_analytics,
+        &system_graph,
+        &system_cache,
+        &user_relational,
+        boot_config,
+        &boot_log,
+    )?;
+
     #[cfg(feature = "rro")]
-    if vector.is_none() && boot_config.services.system.vector.enabled && boot_config.services.system.vector.critical {
-        anyhow::bail!(
-            "FATAL: Vector store (RRO/Qdrant) was enabled+critical but failed to boot"
-        );
+    if vector.is_none()
+        && boot_config.services.system.vector.enabled
+        && boot_config.services.system.vector.critical
+    {
+        boot_log.fail("Vector store", "enabled+critical but failed to boot");
+        anyhow::bail!("FATAL: Vector store (RRO/Qdrant) was enabled+critical but failed to boot");
     }
+
     #[cfg(feature = "kokoros")]
-    if voice.is_none() && boot_config.services.system.voice.enabled && boot_config.services.system.voice.critical {
-        anyhow::bail!(
-            "FATAL: Voice service (Kokoros) was enabled+critical but failed to boot"
-        );
+    if voice.is_none()
+        && boot_config.services.system.voice.enabled
+        && boot_config.services.system.voice.critical
+    {
+        boot_log.fail("Voice service", "enabled+critical but failed to boot");
+        anyhow::bail!("FATAL: Voice service (Kokoros) was enabled+critical but failed to boot");
     }
+
     #[cfg(feature = "outlines")]
-    if grammar.is_none() && boot_config.services.system.grammar.enabled && boot_config.services.system.grammar.critical {
-        anyhow::bail!(
-            "FATAL: Grammar service (outlines-core) was enabled+critical but failed to boot"
-        );
+    if grammar.is_none()
+        && boot_config.services.system.grammar.enabled
+        && boot_config.services.system.grammar.critical
+    {
+        boot_log.fail("Grammar service", "enabled+critical but failed to boot");
+        anyhow::bail!("FATAL: Grammar service (outlines-core) was enabled+critical but failed to boot");
     }
+
+    tracing::info!(path = %boot_log.path().display(), "boot.log written");
 
     Ok(BootedServices {
         system_relational,
@@ -225,266 +321,52 @@ pub async fn execute(
         voice,
         #[cfg(feature = "outlines")]
         grammar,
+        #[cfg(feature = "candle")]
+        embedder,
+        #[cfg(feature = "candle")]
+        whisper,
+        devforge,
     })
 }
 
-// ═══════════════════════════════════════════════════════════════
-// Simple store boot helpers
-// ═══════════════════════════════════════════════════════════════
-
-/// Boot a relational (`LibSQL`) store with file-lock retry.
-#[allow(clippy::cast_possible_truncation)]
-async fn boot_relational(
-    data_dir: &Path,
-    entry: &config::ServiceEntry,
-    win_config: &config::WindowsConfig,
-    schema: &'static str,
-    label: &'static str,
-    on_event: &(impl Fn(InitEvent) + Send + 'static),
-) -> Option<Arc<RelationalService>> {
-    if !entry.enabled {
-        on_event(InitEvent::skipped(label));
-        return None;
+/// Validate that all critical services booted successfully.
+fn validate_critical(
+    system_relational: &Option<Arc<RelationalService>>,
+    system_analytics: &Option<Arc<AnalyticsService>>,
+    system_graph: &Option<Arc<GraphService>>,
+    system_cache: &Option<Arc<CacheService>>,
+    user_relational: &Option<Arc<RelationalService>>,
+    boot_config: &PlatformBootConfig,
+    boot_log: &BootLog,
+) -> Result<()> {
+    if system_relational.is_none() && boot_config.services.system.relational.enabled {
+        boot_log.fail("VALIDATION", "System relational (LibSQL) is critical but failed");
+        anyhow::bail!("FATAL: System relational (LibSQL) was enabled but failed to boot");
     }
-    on_event(InitEvent::running(label, "Opening database"));
-    let start = Instant::now();
-    let raw_path = entry.resolve_path(data_dir);
-    let path = sanitize_path(&raw_path, win_config);
-    let retry_cfg = entry.retry.to_retry_config();
-
-    let result = retry::retry_on_lock_async(&retry_cfg, label, || {
-        let p = path.clone();
-        async move { RelationalService::boot(&p, schema, label).await }
-    })
-    .await;
-
-    match result {
-        Ok(store) => {
-            tracing::info!(
-                step = label,
-                status = "ready",
-                latency_us = start.elapsed().as_micros() as u64,
-                path = %path.display(),
-                "LibSQL store booted"
-            );
-            on_event(InitEvent::ok_with_latency(label, start.elapsed()));
-            Some(Arc::new(store))
-        }
-        Err(e) => {
-            tracing::error!(step = label, error = ?e, "LibSQL store failed to boot");
-            on_event(InitEvent::error(label, &format!("{e:#}")));
-            None
-        }
+    if system_analytics.is_none()
+        && boot_config.services.system.analytics.enabled
+        && boot_config.services.system.analytics.critical
+    {
+        boot_log.fail("VALIDATION", "System analytics (DuckDB) is critical but failed");
+        anyhow::bail!("FATAL: System analytics (DuckDB) was enabled+critical but failed to boot");
     }
-}
-
-/// Boot an analytics (`DuckDB`) store with file-lock retry.
-///
-/// `DuckDB` uses an exclusive file lock. On Windows hot-reload, the previous
-/// process may not have released its lock yet. Retry with exponential backoff.
-/// `DuckDB`'s `boot()` is synchronous — wrapped in `spawn_blocking` for async retry.
-#[allow(clippy::cast_possible_truncation)]
-async fn boot_analytics(
-    data_dir: &Path,
-    entry: &config::ServiceEntry,
-    win_config: &config::WindowsConfig,
-    schema: &'static str,
-    label: &'static str,
-    on_event: &(impl Fn(InitEvent) + Send + 'static),
-) -> Option<Arc<AnalyticsService>> {
-    if !entry.enabled {
-        on_event(InitEvent::skipped(label));
-        return None;
+    if system_graph.is_none() && boot_config.services.system.graph.enabled {
+        boot_log.fail("VALIDATION", "System graph (SurrealDB) is critical but failed");
+        anyhow::bail!("FATAL: System graph (SurrealDB) was enabled but failed to boot");
     }
-    on_event(InitEvent::running(label, "Opening database"));
-    let start = Instant::now();
-    let raw_path = entry.resolve_path(data_dir);
-    let path = sanitize_path(&raw_path, win_config);
-    let retry_cfg = entry.retry.to_retry_config();
-
-    let result = retry::retry_on_lock_async(&retry_cfg, label, || {
-        let p = path.clone();
-        async move {
-            tokio::task::spawn_blocking(move || AnalyticsService::boot(&p, schema, label))
-                .await
-                .map_err(|e| anyhow::anyhow!("DuckDB spawn_blocking failed: {e}"))?
-        }
-    })
-    .await;
-
-    match result {
-        Ok(store) => {
-            tracing::info!(
-                step = label,
-                status = "ready",
-                latency_us = start.elapsed().as_micros() as u64,
-                path = %path.display(),
-                "DuckDB store booted"
-            );
-            on_event(InitEvent::ok_with_latency(label, start.elapsed()));
-            Some(Arc::new(store))
-        }
-        Err(e) => {
-            tracing::error!(step = label, error = ?e, "DuckDB store failed to boot");
-            on_event(InitEvent::error(label, &format!("{e:#}")));
-            None
-        }
+    if system_cache.is_none()
+        && boot_config.services.system.cache.enabled
+        && boot_config.services.system.cache.critical
+    {
+        boot_log.fail("VALIDATION", "System cache (Moka) is critical but failed");
+        anyhow::bail!("FATAL: System cache (Moka) was enabled+critical but failed to boot");
     }
-}
-
-/// Boot the in-memory cache (Moka).
-#[allow(clippy::cast_possible_truncation)]
-fn boot_cache(
-    entry: &config::CacheServiceEntry,
-    on_event: &(impl Fn(InitEvent) + Send + 'static),
-) -> Option<Arc<CacheService>> {
-    if !entry.enabled {
-        on_event(InitEvent::skipped("System cache"));
-        return None;
+    if user_relational.is_none()
+        && boot_config.services.user.relational.enabled
+        && boot_config.services.user.relational.critical
+    {
+        boot_log.fail("VALIDATION", "User relational (LibSQL) is critical but failed");
+        anyhow::bail!("FATAL: User relational (LibSQL) was enabled+critical but failed to boot");
     }
-    on_event(InitEvent::running("System cache", "Initializing in-memory cache"));
-    let start = Instant::now();
-    let store = CacheService::boot(entry.to_moka_config());
-    tracing::info!(
-        step = "System cache",
-        status = "ready",
-        latency_us = start.elapsed().as_micros() as u64,
-        "Moka cache booted"
-    );
-    on_event(InitEvent::ok_with_latency("System cache", start.elapsed()));
-    Some(Arc::new(store))
-}
-
-/// Boot the vector store (RRO — embedded Qdrant).
-///
-/// RRO's `QdrantInstance::start()` spawns a background thread and returns
-/// immediately (~235µs). This does NOT mean the engine is ready. We must
-/// verify the engine is actually queryable before reporting healthy.
-#[cfg(feature = "rro")]
-#[allow(clippy::cast_possible_truncation)]
-async fn boot_vector(
-    data_dir: &Path,
-    entry: &config::VectorServiceEntry,
-    on_event: &(impl Fn(InitEvent) + Send + 'static),
-) -> Option<Arc<VectorService>> {
-    if !entry.enabled {
-        on_event(InitEvent::skipped("Vector store"));
-        return None;
-    }
-    on_event(InitEvent::running("Vector store", "Starting RRO engine"));
-    let start = Instant::now();
-    let storage_path = entry.resolve_path(data_dir);
-
-    // RRO uses QDRANT__STORAGE__STORAGE_PATH env var for its data dir
-    // TODO: Replace with boot parameter once RRO fork API is updated
-    // SAFETY: set_var is deprecated due to thread safety concerns,
-    // but RRO reads this at boot before any parallel access.
-    #[allow(deprecated)]
-    std::env::set_var("QDRANT__STORAGE__STORAGE_PATH", &storage_path);
-
-    let store = match VectorService::boot(None) {
-        Ok(s) => Arc::new(s),
-        Err(e) => {
-            tracing::error!(step = "Vector store", error = ?e, "RRO failed to boot");
-            on_event(InitEvent::error("Vector store", &format!("{e:#}")));
-            return None;
-        }
-    };
-
-    // Post-boot verification: prove the engine is actually queryable.
-    // QdrantInstance::start() returns in ~235µs because it spawns a thread.
-    // The engine may not be ready yet. Ping verifies it.
-    match store.ping().await {
-        Ok(()) => {
-            tracing::info!(
-                step = "Vector store",
-                status = "ready",
-                latency_us = start.elapsed().as_micros() as u64,
-                path = %storage_path.display(),
-                "RRO vector engine booted and verified"
-            );
-            on_event(InitEvent::ok_with_latency("Vector store", start.elapsed()));
-            Some(store)
-        }
-        Err(e) => {
-            tracing::error!(
-                step = "Vector store",
-                error = ?e,
-                "RRO started but engine is not queryable"
-            );
-            on_event(InitEvent::error("Vector store", &format!("Engine not ready: {e:#}")));
-            None
-        }
-    }
-}
-
-/// Boot the voice service (Kokoros — embedded TTS).
-#[cfg(feature = "kokoros")]
-#[allow(clippy::cast_possible_truncation)]
-async fn boot_voice(
-    data_dir: &Path,
-    entry: &config::VoiceServiceEntry,
-    on_event: &(impl Fn(InitEvent) + Send + 'static),
-) -> Option<Arc<VoiceService>> {
-    if !entry.enabled {
-        on_event(InitEvent::skipped("Voice service"));
-        return None;
-    }
-    on_event(InitEvent::running("Voice service", "Loading Kokoros TTS engine"));
-    let start = Instant::now();
-    let model_path = entry.resolve_model_path(data_dir);
-    let voices_path = entry.resolve_voices_path(data_dir);
-
-    match VoiceService::boot(&model_path, &voices_path).await {
-        Ok(store) => {
-            tracing::info!(
-                step = "Voice service",
-                status = "ready",
-                latency_us = start.elapsed().as_micros() as u64,
-                model_path = %model_path.display(),
-                voices_path = %voices_path.display(),
-                "Kokoros TTS engine booted"
-            );
-            on_event(InitEvent::ok_with_latency("Voice service", start.elapsed()));
-            Some(Arc::new(store))
-        }
-        Err(e) => {
-            tracing::error!(step = "Voice service", error = ?e, "Kokoros failed to boot");
-            on_event(InitEvent::error("Voice service", &format!("{e:#}")));
-            None
-        }
-    }
-}
-
-/// Boot the grammar service (outlines-core — structured generation).
-#[cfg(feature = "outlines")]
-#[allow(clippy::cast_possible_truncation)]
-fn boot_grammar(
-    entry: &config::GrammarServiceEntry,
-    on_event: &(impl Fn(InitEvent) + Send + 'static),
-) -> Option<Arc<GrammarService>> {
-    if !entry.enabled {
-        on_event(InitEvent::skipped("Grammar service"));
-        return None;
-    }
-    on_event(InitEvent::running("Grammar service", "Initializing outlines-core engine"));
-    let start = Instant::now();
-
-    match GrammarService::boot() {
-        Ok(store) => {
-            tracing::info!(
-                step = "Grammar service",
-                status = "ready",
-                latency_us = start.elapsed().as_micros() as u64,
-                "outlines-core grammar engine booted"
-            );
-            on_event(InitEvent::ok_with_latency("Grammar service", start.elapsed()));
-            Some(Arc::new(store))
-        }
-        Err(e) => {
-            tracing::error!(step = "Grammar service", error = ?e, "outlines-core failed to boot");
-            on_event(InitEvent::error("Grammar service", &format!("{e:#}")));
-            None
-        }
-    }
+    Ok(())
 }

@@ -4,12 +4,11 @@
 
   App shell frame — ColdLight 6-zone CSS Grid layout.
   Zones: topbar, sidebar (left), content, context (right), statusbar, overlay.
-  Consumes shell.app.default recipe. All styling token-backed.
+  All layout structural. Visual via token var() refs.
 -->
 <script lang="ts">
 import type { Snippet } from "svelte";
 import { cn } from "$lib/design/utils/cn.js";
-import { getRecipe } from "$lib/design/recipes/index.js";
 import { globalState } from "$lib/sys/runes/global.svelte";
 import Sidebar from "./Sidebar.svelte";
 import StatusBar from "./StatusBar.svelte";
@@ -24,16 +23,48 @@ let { children }: Props = $props();
 const isSidebarExpanded = $derived(globalState.sidebar_mode === "expanded");
 const isContextExpanded = $derived(globalState.context_mode === "expanded");
 
-const shell = getRecipe("shell.app.default");
-const slots = $derived(
-	shell?.classes?.({
-		...shell.defaults,
-	}) ?? {},
-);
+/** Structural layout classes per shell slot — no recipe import */
+const SLOTS = {
+	frame: "grid h-screen w-screen overflow-hidden grid-rows-[auto_1fr_auto] grid-cols-[auto_1fr_auto] font-sans",
+	topbar: cn(
+		"col-span-full flex items-center justify-between",
+		"h-12 px-4",
+		"border-b border-[var(--border-soft)]",
+	),
+	sidebar: cn(
+		"row-start-2 col-start-1 flex flex-col items-center",
+		"w-12 py-2 gap-2",
+		"border-r border-[var(--border-subtle)]",
+		"overflow-y-auto scrollbar-thin",
+	),
+	sidebarExpanded: cn(
+		"row-start-2 col-start-1 flex flex-col",
+		"w-56 py-2",
+		"border-r border-[var(--border-subtle)]",
+		"overflow-y-auto scrollbar-thin",
+	),
+	content: "row-start-2 col-start-2 overflow-y-auto scrollbar-thin p-6",
+	context: cn(
+		"row-start-2 col-start-3 w-0 overflow-hidden",
+		"border-l border-[var(--border-subtle)]",
+	),
+	contextExpanded: cn(
+		"row-start-2 col-start-3 w-72 overflow-y-auto scrollbar-thin",
+		"border-l border-[var(--border-subtle)]",
+	),
+	statusbar: cn(
+		"col-span-full flex items-center justify-between",
+		"h-7 px-4",
+		"border-t border-[var(--border-soft)]",
+		"text-xs text-[var(--text-muted)]",
+	),
+	overlay: "fixed inset-0 z-50 bg-transparent pointer-events-none",
+	overlayActive: "fixed inset-0 z-50 bg-[var(--overlay-bg)] pointer-events-auto",
+} as const;
 </script>
 
 <div
-	class={cn(slots.frame, "font-sans")}
+	class={SLOTS.frame}
 	data-kind="shell"
 	data-slot="frame"
 	data-layout="app"
@@ -41,29 +72,29 @@ const slots = $derived(
 	data-context={globalState.context_mode}
 	data-route={globalState.current_domain}
 >
-	<header data-kind="shell" data-slot="topbar" class={slots.topbar}>
+	<header data-kind="shell" data-slot="topbar" class={SLOTS.topbar}>
 		<TopBar />
 	</header>
 
-	<aside data-kind="shell" data-slot="sidebar" class={isSidebarExpanded ? slots.sidebarExpanded : slots.sidebar} data-expanded={isSidebarExpanded ? "true" : undefined}>
+	<aside data-kind="shell" data-slot="sidebar" class={isSidebarExpanded ? SLOTS.sidebarExpanded : SLOTS.sidebar} data-expanded={isSidebarExpanded ? "true" : undefined}>
 		<Sidebar />
 	</aside>
 
-	<main data-kind="shell" data-slot="content" class={slots.content}>
+	<main data-kind="shell" data-slot="content" class={SLOTS.content}>
 		{@render children()}
 	</main>
 
-	<aside data-kind="shell" data-slot="context" class={isContextExpanded ? slots.contextExpanded : slots.context} data-expanded={isContextExpanded ? "true" : undefined}>
+	<aside data-kind="shell" data-slot="context" class={isContextExpanded ? SLOTS.contextExpanded : SLOTS.context} data-expanded={isContextExpanded ? "true" : undefined}>
 	</aside>
 
-	<footer data-kind="shell" data-slot="statusbar" class={slots.statusbar}>
+	<footer data-kind="shell" data-slot="statusbar" class={SLOTS.statusbar}>
 		<StatusBar />
 	</footer>
 
 	<div
 		data-kind="shell"
 		data-slot="overlay"
-		class={globalState.overlay_active ? slots.overlayActive : slots.overlay}
+		class={globalState.overlay_active ? SLOTS.overlayActive : SLOTS.overlay}
 		role="button"
 		tabindex="-1"
 		onclick={() => globalState.hideOverlay()}

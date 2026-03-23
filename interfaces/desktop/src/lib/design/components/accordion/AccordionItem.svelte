@@ -2,12 +2,10 @@
 	@component Accordion.Item
 	@kind accordion
 	@slot item
-	@layer components
 
-	Wraps a single accordion section. Sets item context for Trigger/Content.
+	DUMB. Sets item context for Trigger/Content/Indicator.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/utils/cn.js";
 import { getAccordionContext, setAccordionItemContext } from "./context.js";
 import type { AccordionItemProps } from "./types.js";
 
@@ -25,7 +23,7 @@ const itemAttrs = $derived(ctx.hook.getItem(value));
 <div
 	{...itemAttrs}
 	id={ctx.ids.item?.(value)}
-	class={cn(ctx.classes.item, className)}
+	class={className}
 >
 	{@render children?.()}
 </div>

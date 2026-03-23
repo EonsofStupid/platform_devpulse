@@ -1,24 +1,48 @@
 /**
  * @file Component Base Types
- * @module @devpulse/coldlight/components/_base/types
- * @layer components
+ * @package @devpulse/coldlight
  *
- * Components are DUMB. Structure + ARIA only.
- * Visual treatment comes from StyleMacro at the usage site.
- * Components accept class + children. That's it.
+ * Every component extends ComponentProps.
+ * ComponentDef declares the component for StyleMacro + VPB.
+ * Const literal + satisfies. No Zod. TypeScript validates at compile time.
  */
 
 import type { Snippet } from "svelte";
 
-/**
- * Base props for all ColdLight components.
- * class for structural layout + visual classes passed down from StyleMacro.
- * children for content.
- * NO visual props. NO 8-axis. NO preset. NO encoding.
- */
+// =============================================================================
+// COMPONENT PROPS — what every component accepts
+// =============================================================================
+
 export interface ComponentProps {
-	/** CSS classes (structural + visual via StyleMacro) */
-	class?: string;
-	/** Children snippet */
+	class?: string | null | undefined;
 	children?: Snippet;
+}
+
+// =============================================================================
+// SLOT AXES — which visual axes a slot receives
+// =============================================================================
+
+export type SlotAxes = "all" | "none" | {
+	backgroundColor?: boolean;
+	backgroundBlur?: boolean;
+	shadow?: boolean;
+	border?: boolean;
+	animation?: boolean;
+	transition?: boolean;
+	typography?: boolean;
+	gradient?: boolean;
+	color?: boolean;
+	borderRadius?: boolean;
+	opacity?: boolean;
+};
+
+// =============================================================================
+// COMPONENT DEF — const literal per component
+// =============================================================================
+
+export interface ComponentDef {
+	readonly kind: string;
+	readonly defaultStyleId: string;
+	readonly styleIds: readonly string[];
+	readonly slots: Readonly<Record<string, SlotAxes>>;
 }

@@ -1,33 +1,24 @@
 /**
  * @file Accordion Component Types
  * @kind accordion
- * @layer components
  *
- * Compound behavioral component: Root, Item, Trigger, Content, Indicator.
+ * Compound component: Root, Item, Trigger, Content, Indicator.
+ * Extends ComponentProps from _base.
  * ARIA via useAccordion() primitive hook.
+ * ZERO visual props. Visual comes from StyleMacro via ui/ wrapper.
  *
- * Follows Ark UI / Zag API conventions:
- *   - ids for composition
- *   - dir for RTL
- *   - controlled (value) vs uncontrolled (defaultValue)
- *   - onValueChange with details
- *   - element render delegation on sub-components
- *   - collapsible, orientation, disabled
- *
- * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/
+ * API: Spectrum S2 (expandedKeys, density, size) + Zag (collapsible, orientation, dir)
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { PreparedComponentProps } from "$lib/design/components/_base/types.js";
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
 // =============================================================================
 // CALLBACK DETAILS
 // =============================================================================
 
-/** Details passed to onValueChange callback. */
 export interface AccordionValueChangeDetails {
-	/** The new expanded value(s). */
 	value: string | string[];
 }
 
@@ -35,7 +26,6 @@ export interface AccordionValueChangeDetails {
 // IDS
 // =============================================================================
 
-/** Element IDs for composition. */
 export interface AccordionIds {
 	root?: string;
 	item?: (value: string) => string;
@@ -47,20 +37,22 @@ export interface AccordionIds {
 // ROOT
 // =============================================================================
 
+export type AccordionSize = "sm" | "md" | "lg";
+
 export interface AccordionRootProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		PreparedComponentProps {
+	extends ComponentProps,
+		Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir"> {
 	/** Element IDs for composition. */
 	ids?: Partial<AccordionIds>;
-	/** Single (one at a time) or multiple (any number open). Default: "single". */
+	/** Single or multiple expansion. Default: "single". */
 	type?: "single" | "multiple";
-	/** Controlled expanded value. String for single, string[] for multiple. */
+	/** Controlled expanded value. */
 	value?: string | string[];
-	/** Initial value when uncontrolled. */
+	/** Initial value (uncontrolled). */
 	defaultValue?: string | string[];
 	/** Callback when expanded value changes. */
 	onValueChange?: (details: AccordionValueChangeDetails) => void;
-	/** Allow collapsing the last open item in single mode. Default: false. */
+	/** Allow collapsing last open item in single mode. Default: false. */
 	collapsible?: boolean;
 	/** Disable all items. Default: false. */
 	disabled?: boolean;
@@ -68,34 +60,27 @@ export interface AccordionRootProps
 	dir?: "ltr" | "rtl";
 	/** Layout orientation. Default: "vertical". */
 	orientation?: "vertical" | "horizontal";
-	children?: Snippet;
+	/** Structural size. */
+	size?: AccordionSize;
 }
 
 // =============================================================================
 // SUB-COMPONENTS
 // =============================================================================
 
-/** Shared base for accordion sub-component props. */
 interface AccordionSlotProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
 	children?: Snippet;
 	class?: string;
-	/** Render the element yourself. */
 	element?: Snippet<[HTMLAttributes<HTMLElement>]>;
 }
 
-/** Props for Accordion.Item */
 export interface AccordionItemProps extends AccordionSlotProps {
-	/** Unique identifier for this item. Required. */
 	value: string;
-	/** Disable this specific item. */
 	disabled?: boolean;
 }
 
-/** Props for Accordion.Trigger */
 export interface AccordionTriggerProps extends AccordionSlotProps {}
 
-/** Props for Accordion.Content */
 export interface AccordionContentProps extends AccordionSlotProps {}
 
-/** Props for Accordion.Indicator — the caret/chevron that rotates. */
 export interface AccordionIndicatorProps extends AccordionSlotProps {}

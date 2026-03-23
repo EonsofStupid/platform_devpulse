@@ -24,6 +24,10 @@ pub mod surreal;
 pub mod kokoros;
 #[cfg(feature = "outlines")]
 pub mod outlines;
+#[cfg(feature = "candle")]
+pub mod embedder;
+#[cfg(feature = "candle")]
+pub mod whisper;
 
 // Re-exports for convenience
 pub use config::{PersistenceConfig, StoreKind, SurrealNamespace};
@@ -37,6 +41,10 @@ pub use surreal::SurrealAdapter;
 pub use kokoros::KokorosAdapter;
 #[cfg(feature = "outlines")]
 pub use outlines::OutlinesAdapter;
+#[cfg(feature = "candle")]
+pub use embedder::CandleEmbedder;
+#[cfg(feature = "candle")]
+pub use whisper::WhisperAdapter;
 pub use traits::{
     AnalyticsAdapter, CacheAdapter, GraphAdapter, PersistenceAdapter, SparseVector, SqlAdapter,
     SqlRow, SqlValue, TypedPersistence, VectorAdapter, VectorMatch,

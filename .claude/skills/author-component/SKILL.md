@@ -1,91 +1,113 @@
 # Author Component
 
-Use this skill when the user wants a ColdLight component authored or reauthored per ADR-001.
+Author or reauthor a ColdLight component per ADR-001 (2-layer enterprise pattern).
 
 ## When to use
 - User says "author this component" or "create this component"
-- User pastes a component API reference (Spectrum, Ark UI, Zag)
-- User wants an existing component reauthored to ADR-001
+- User pastes a component API reference (Spectrum S2, Ark UI, Zag, Skeleton)
+- User wants an existing component reauthored
 
-## Architecture (ADR-001 — LOCKED, IRREVERSIBLE)
+## Architecture (2 Layers — ADR-001 LOCKED)
 
-### 3-Layer Model
+### Layer 1: Primitive Hook (`primitives/{kind}/`)
+- Pure behavior. WAI-ARIA APG. No styling. No schema.
+- `{kind}.anatomy.ts` — `createAnatomy(kind, slots)`
+- `{kind}.types.ts` — behavioral props, per-slot typed attrs, return type
+- `{kind}.a11y.ts` — APG reference, keyboard, roles
+- `use-{kind}.svelte.ts` — `$state` + `$derived`. ARIA, keyboard, focus.
+- NO .svelte components. NO .props.ts. Hook only.
 
-| Layer | Folder | What It Does |
-|-------|--------|-------------|
-| **Component** | `components/{kind}/` | DUMB. Structure + ARIA + structural size + `class`. Extends `_base`. ZERO visual logic. |
-| **Recipe** | DTCG token group in JSON | 11-axis visual definition. One token per axis, real DTCG `$type`. SD5 processes. NOT JavaScript. |
-| **UI** | `ui/{kind}/` | What users import. StyleMacro + component. Prop-driven. Maps intent/variant → style ID. |
+### Layer 2: Component (`components/{kind}/`) — THE PRODUCT
+- What users import. Hook + StyleMacro in ONE file.
+- `{Kind}.svelte` — uses hook for ARIA + StyleMacro for visual
+- `{kind}.types.ts` — extends ComponentProps from `_base`
+- `{kind}.def.ts` — const literal `as const satisfies ComponentDef`
+- `index.ts` — barrel (public API)
 
-### 11 Visual Axes (each = 1 real DTCG `$type`)
+**No `ui/` folder. No dumb middle layer. No Zod schemas. No registry.**
 
-backgroundColor (color), backgroundBlur (dimension), shadow (shadow), border (border), animation (duration), transition (transition), typography (typography), gradient (gradient), color (color), borderRadius (dimension), opacity (number)
-
-### Component Pattern (ZERO EXCEPTIONS)
+### Component Pattern
 
 ```svelte
-<!-- components/{kind}/{Kind}.svelte -->
 <script lang="ts">
   import { use{Kind} } from "$lib/design/primitives/{kind}/index.js";
+  import { StyleMacro } from "$lib/design/style/index.js";
+  import { cn } from "$lib/design/utils/cn.js";
   import type { {Kind}Props, {Kind}Size } from "./{kind}.types.js";
 
   const SIZE: Record<{Kind}Size, string> = {
-    sm: "h-8 px-3 text-sm gap-1.5",
-    md: "h-10 px-4 text-sm gap-2",
-    lg: "h-12 px-6 text-base gap-2.5",
+    sm: "...", md: "...", lg: "...",
   };
 
-  let { size = "md", children, class: className, ...rest }: {Kind}Props = $props();
-  const {kind} = $derived(use{Kind}({ /* behavioral props */ }));
-</script>
+  let { intent = "default", size = "md", children, class: className,
+        ...rest }: {Kind}Props = $props();
 
-<element {...{kind}.root} {...rest} class="{SIZE[size] ?? SIZE.md} {className ?? ''}">
-  {@render children?.()}
-</element>
-```
-
-- Primitive hook → ARIA + keyboard + `data-kind` + `data-slot`
-- Structural size → const map, applied directly
-- `class` prop → passthrough from caller
-- ZERO visual logic. ZERO colors. ZERO backgrounds. ZERO shadows. ZERO token references.
-
-### UI Wrapper Pattern
-
-```svelte
-<!-- ui/{kind}/{Kind}.svelte -->
-<script lang="ts">
-  import { StyleMacro } from "$lib/design/style/index.js";
-  import {Kind}Root from "$lib/design/components/{kind}/{Kind}.svelte";
-
-  let { intent = "default", size = "md", children, class: className, ...rest } = $props();
+  const hook = $derived(use{Kind}({ /* behavioral props */ }));
   const styleId = $derived(`{kind}-${intent}`);
 </script>
+
 <StyleMacro kind="{kind}" style={styleId}>
-  <{Kind}Root {size} class={className} {...rest}>
+  <element {...hook.root} {...rest}
+    class={cn("structural classes", SIZE[size] ?? SIZE.md, className)}>
     {@render children?.()}
-  </{Kind}Root>
+  </element>
 </StyleMacro>
 ```
 
-### Recipe (DTCG Token Group)
+### Def Pattern (const literal + map)
 
-Author in `tokens/src/style.json`:
+```ts
+// {kind}.def.ts
+import type { ComponentDef } from "$lib/design/components/_base/types.js";
 
+export const {kind}Def = {
+  kind: "{kind}",
+  defaultStyleId: "{kind}-default",
+  styleIds: ["{kind}-default"],
+  slots: { root: "all" },
+} as const satisfies ComponentDef;
+```
+
+Add one line to `_base/component-map.ts`:
+```ts
+import { {kind}Def } from "../{kind}/{kind}.def.js";
+// then add to map: {kind}: {kind}Def,
+```
+
+### Types Pattern
+
+```ts
+import type { ComponentProps } from "$lib/design/components/_base/types.js";
+
+export type {Kind}Intent = "default" | "primary" | ...;
+export type {Kind}Size = "sm" | "md" | "lg";
+
+export interface {Kind}Props extends ComponentProps,
+  Omit<HTML{Element}Attributes, "style" | "children" | "class" | ...> {
+  intent?: {Kind}Intent;
+  size?: {Kind}Size;
+  // behavioral props forwarded to hook
+}
+```
+
+### DTCG Style Tokens
+
+In `tokens/src/component.json` under `style.{kind}-{intent}`:
 ```json
 {
   "style": {
     "{kind}-default": {
-      "backgroundColor": { "$type": "color", "$value": "{color.glass-void}" },
-      "backgroundBlur": { "$type": "dimension", "$value": "{blur.none}" },
-      "shadow": { "$type": "shadow", "$value": "{shadow.none}" },
-      "border": { "$type": "border", "$value": { "color": "{border.subtle}", "width": "{border-width.thin}", "style": "solid" } },
-      "animation": { "$type": "duration", "$value": "{motion.duration.none}" },
-      "transition": { "$type": "transition", "$value": { "duration": "{motion.duration.fast}", "delay": "{motion.delay.none}", "timingFunction": "{motion.ease.out}" } },
-      "typography": { "$type": "typography", "$value": { "fontFamily": "{font.sans}", "fontSize": "{text-size.sm}", "fontWeight": 400, "letterSpacing": "{tracking.normal}", "lineHeight": 1.5 } },
-      "gradient": { "$type": "gradient", "$value": [] },
-      "color": { "$type": "color", "$value": "{text-primary}" },
-      "borderRadius": { "$type": "dimension", "$value": "{radius.md}" },
-      "opacity": { "$type": "number", "$value": 1 }
+      "backgroundColor": { "$type": "color", "$value": "..." },
+      "backgroundBlur":  { "$type": "dimension", "$value": "..." },
+      "shadow":          { "$type": "shadow", "$value": "..." },
+      "border":          { "$type": "border", "$value": { "color": "...", "width": "...", "style": "..." } },
+      "animation":       { "$type": "duration", "$value": "..." },
+      "transition":      { "$type": "transition", "$value": { "duration": "...", "delay": "...", "timingFunction": [...] } },
+      "typography":      { "$type": "typography", "$value": { "fontFamily": "...", "fontSize": "...", "fontWeight": ..., "letterSpacing": "...", "lineHeight": ... } },
+      "gradient":        { "$type": "gradient", "$value": [] },
+      "color":           { "$type": "color", "$value": "..." },
+      "borderRadius":    { "$type": "dimension", "$value": "..." },
+      "opacity":         { "$type": "number", "$value": 1 }
     }
   }
 }
@@ -93,30 +115,34 @@ Author in `tokens/src/style.json`:
 
 ## What to do
 
-1. **Read ADR-001** at `design/ADR-001-STYLE-MACRO.md`
-2. **Check existing state** — does a primitive hook exist? Does the component folder exist?
-3. **Author component** — DUMB. Structure + ARIA + structural size + class. Zero visual.
-4. **Author DTCG recipe** — 11-axis token group in JSON. One token per axis, real DTCG types.
-5. **Author UI wrapper** — StyleMacro + component. Maps intent → style ID.
-6. **Verify** — `pnpm svelte-check` — zero new errors
+1. **Check if primitive hook exists** — if not, author it (anatomy + types + a11y + hook)
+2. **Author component** — hook + StyleMacro in ONE file. Extends ComponentProps.
+3. **Author def** — const literal, add to component-map
+4. **Author DTCG style tokens** — 11-axis token group per intent/variant
+5. **Update consumers** — import from components/{kind}/
+6. **Verify** — `pnpm svelte-check`, `pnpm ds:tokens:build`
 
 ## BANNED
 
-- `useColdLight()` — DELETED
-- `registerRecipe()` — DELETED
-- `resolveVisual()` — DELETED
-- JS `recipe.ts` files — DELETED
-- Hardcoded colors in components — NEVER
-- `bg-[var(...)]` in components — NEVER
-- Visual classes in components — NEVER
-- Importing from `recipes/` — DELETED
-- Importing from `registry/` — DELETED
-- `ColdLightProps` — DELETED
-- Old 8-axis anything — DELETED
+- `ui/` folder
+- `useColdLight()`
+- `registerRecipe()` / `recipes/` folder
+- `registry/` folder
+- `_schema/` folder
+- Zod component schemas (schema.ts, registry.ts)
+- JS `recipe.ts` files
+- Hardcoded colors in components
+- Visual classes in components
+- `ColdLightProps` / `PreparedComponentProps`
+- `.svelte` components in primitives
+- `.props.ts` in primitives
+- Shorthand transforms in SD5
 
-## Key reference files
+## Key files
 - `design/ADR-001-STYLE-MACRO.md` — THE architecture
-- `design/style/macro-mappings.ts` — 11 axes → --cl-* vars
 - `design/style/StyleMacro.svelte` — the provider
-- `design/components/_base/schema.ts` — 11-axis schema, SlotTokenAxesSchema, StyleBindingSchema
-- `design/components/_base/types.ts` — ComponentProps (class + children)
+- `design/style/macro-mappings.ts` — 11 axes
+- `design/components/_base/types.ts` — ComponentProps + ComponentDef + SlotAxes
+- `design/components/_base/component-map.ts` — const map, getComponentDef()
+- `design/schema/anatomy.schema.ts` — createAnatomy for primitives
+- `design/generated/macro-base.css` — glue CSS, [data-kind] consumes --cl-*

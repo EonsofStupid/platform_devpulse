@@ -13,6 +13,11 @@ pub mod vector;
 pub mod voice;
 #[cfg(feature = "outlines")]
 pub mod grammar;
+#[cfg(feature = "candle")]
+pub mod embedder;
+#[cfg(feature = "candle")]
+pub mod whisper;
+pub mod devforge;
 
 use anyhow::Result;
 use serde::Serialize;
@@ -36,6 +41,12 @@ pub enum ServiceRole {
     Voice,
     /// Grammar service (`outlines-core`).
     Grammar,
+    /// Embedder service (Candle — dense text embedding).
+    Embedder,
+    /// Whisper service (Candle — speech-to-text).
+    Whisper,
+    /// DevForge service (managed VSCode process).
+    DevForge,
 }
 
 /// Lifecycle state of a platform service.

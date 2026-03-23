@@ -55,6 +55,11 @@ kind = "surreal"
 path = "system/surreal/reasoning"
 namespace = "system"
 database = "engine"
+# Dedicated system account — platform engine authenticates as this user.
+# Each scope (system, user, global) has its own account with OWNER role.
+# External tools use root via the HTTP API on :8822.
+system_user = "devpulse_engine"
+system_password = "dp_sys_2026!"
 # SurrealKV WAL flush on shutdown can take longer — extra generous
 retry = { max_retries = 5, base_delay_ms = 750 }
 
@@ -85,6 +90,35 @@ enabled = true
 critical = true
 kind = "outlines"
 
+[services.system.embedder]
+# Candle-based dense text embedder — CPU burst mode.
+# Used by CAG pipeline to generate vectors for RRO (Qdrant).
+# Model: BERT-family (e.g. all-MiniLM-L6-v2, bge-small-en-v1.5).
+# Download model files into .userdata/system/candle/embedder/ to enable.
+enabled = false
+critical = false
+kind = "candle"
+model_path = "system/candle/embedder"
+
+[services.system.whisper]
+# Candle-based Whisper ASR — CPU burst speech-to-text.
+# Transcribes audio to text on demand (not streaming).
+# Model: Whisper tiny/base/small (safetensors format).
+# Download model files into .userdata/system/candle/whisper/ to enable.
+enabled = false
+critical = false
+kind = "candle"
+model_path = "system/candle/whisper"
+
+[services.system.devforge]
+# Managed VSCode/code-oss process — dedicated editor instance.
+# Clone VSCode fork into deps/code-oss/ and build to enable.
+enabled = false
+critical = false
+binary_path = "deps/code-oss/bin/code-oss"
+workspace_path = "."
+port = 8443
+
 # ── User services ────────────────────────────────────────────────
 # User-owned data. Sessions, messages, tasks, preferences, personal memory.
 # All auto-saved and auto-managed — the user never touches this config.
@@ -103,6 +137,8 @@ kind = "surreal"
 path = "user/surreal/profile"
 namespace = "user"
 database = "profile"
+system_user = "devpulse_engine"
+system_password = "dp_usr_2026!"
 retry = { max_retries = 5, base_delay_ms = 750 }
 
 # ── Global services ──────────────────────────────────────────────
@@ -115,6 +151,8 @@ kind = "surreal"
 path = "global/surreal/knowledge"
 namespace = "global"
 database = "knowledge"
+system_user = "devpulse_engine"
+system_password = "dp_glb_2026!"
 retry = { max_retries = 5, base_delay_ms = 750 }
 
 # ── Project services ─────────────────────────────────────────────
@@ -238,4 +276,9 @@ ref = "main"
 [build.repos.surrealdb_src]
 url = "https://github.com/surrealdb/surrealdb"
 path = "deps/surrealdb-src"
+ref = "main"
+
+[build.repos.code_oss]
+url = "https://github.com/eonsofstupid/vscode"
+path = "deps/code-oss"
 ref = "main"

@@ -10,7 +10,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { GripVertical, Mic, Minus, Send, Sparkles, X } from "lucide-svelte";
 import { box } from "$lib/design/utils/box/index.js";
-import { Button } from "$lib/design/ui/button/index.js";
+import { Button } from "$lib/design/components/button/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { TextField as Input } from "$lib/design/components/text-field/index.js";
@@ -115,7 +115,7 @@ function formatTime(epoch: number): string {
 	data-layout="chat-overlay"
 >
 	<div
-		class={cn(box({ padding: "4" }), "v-s3 v-d2 v-b2 v-g1 v-f2 v-r3 flex flex-col overflow-hidden shadow-[0_8px_32px_rgb(0_0_0/0.5)]", minimized ? 'h-auto' : 'h-[520px]')}
+		class={cn(box({ padding: "4" }), "v-s3 v-d2 v-b2 v-g1 v-f2 v-r3 flex flex-col overflow-hidden v-d3", minimized ? 'h-auto' : 'h-[520px]')}
 		data-kind="box"
 		data-slot="root"
 	>
@@ -127,8 +127,8 @@ function formatTime(epoch: number): string {
 		>
 			<div class={hstack({ gap: "2", align: "center" })}>
 				<GripVertical size={12} class="text-text-muted" />
-				<Sparkles size={14} class="text-teal-400 drop-shadow-[0_0_6px_var(--accent-teal-glow)]" />
-				<Heading level={6} size="xs" class="font-display text-teal-300">Maestro</Heading>
+				<Sparkles size={14} class="text-[var(--color-teal-400)] drop-shadow-[0_0_6px_var(--glow-teal)]" />
+				<Heading level={6} size="xs" class="font-display text-[var(--color-teal-300)]">Maestro</Heading>
 			</div>
 			<div class={hstack({ gap: "1" })}>
 				<Button
@@ -163,7 +163,7 @@ function formatTime(epoch: number): string {
 					</div>
 				{:else if messages.length === 0}
 					<div class="flex flex-col items-center justify-center py-8 gap-2">
-						<Sparkles size={24} class="text-teal-400 drop-shadow-[0_0_8px_var(--accent-teal-glow)]" />
+						<Sparkles size={24} class="text-[var(--color-teal-400)] drop-shadow-[0_0_8px_var(--glow-teal)]" />
 						<Text size="sm" color="muted">No messages yet. Start a conversation.</Text>
 					</div>
 				{:else}
@@ -177,8 +177,8 @@ function formatTime(epoch: number): string {
 										data-slot="root"
 									>
 										<div class={cn(hstack({ gap: "1" }), "mb-1.5")}>
-											<Sparkles size={12} class="text-purple-300 drop-shadow-[0_0_6px_var(--accent-purple-glow)]" />
-											<Heading level={6} size="xs" class="font-display text-purple-300">Maestro</Heading>
+											<Sparkles size={12} class="text-[var(--color-purple-300)] drop-shadow-[0_0_6px_var(--glow-purple)]" />
+											<Heading level={6} size="xs" class="font-display text-[var(--color-purple-300)]">Maestro</Heading>
 										</div>
 										<Text size="sm" class="whitespace-pre-wrap leading-relaxed text-text-primary">{msg.content}</Text>
 									</div>

@@ -1,45 +1,29 @@
 <!--
-	@component Avatar (Root)
+	@component Avatar
 	@kind avatar
-	@layer components
 
-	DUMB compound component. Image load state management + fallback display.
-	Visual treatment via class prop from caller.
+	THE PRODUCT. Image with fallback + StyleMacro (visual).
+	Size → inline dimension. Load state → image/fallback display.
 -->
 <script lang="ts">
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { createIds } from "$lib/design/_internal/utils/uid.js";
-import { getAvatarGroupContext } from "$lib/design/components/avatar-group/context.js";
-import { setAvatarContext } from "./context.js";
-import type { AvatarRootProps, AvatarLoadStatus } from "./types.js";
-
-const groupCtx = getAvatarGroupContext();
+import type { AvatarProps, AvatarLoadStatus } from "./avatar.types.js";
 
 let {
-	ids: userIds,
 	src,
 	alt,
 	fallback,
-	size: sizeProp = 40,
+	size = 40,
 	onStatusChange,
-	isOverBackground = false,
-	dir = "ltr",
 	children,
 	class: className,
 	...rest
-}: AvatarRootProps = $props();
-
-const size = $derived(groupCtx?.size ?? sizeProp);
-
-const autoIds = createIds("avatar", ["root", "image", "fallback"] as const);
-const resolvedIds = $derived({
-	root: userIds?.root ?? autoIds.root,
-	image: userIds?.image ?? autoIds.image,
-	fallback: userIds?.fallback ?? autoIds.fallback,
-});
+}: AvatarProps = $props();
 
 let status = $state<AvatarLoadStatus>("loading");
 const fallbackText = $derived(fallback ?? alt?.charAt(0)?.toUpperCase() ?? "?");
+const styleId = "avatar-default";
 
 function handleLoad() {
 	status = "loaded";
@@ -57,68 +41,49 @@ $effect(() => {
 		onStatusChange?.({ status: "loading" });
 	}
 });
-
-setAvatarContext({
-	get src() { return src; },
-	get alt() { return alt; },
-	get fallbackText() { return fallbackText; },
-	get status() { return status; },
-	get size() { return size; },
-	get isOverBackground() { return isOverBackground; },
-	get dir() { return dir; },
-	get classes() { return {}; },
-	get ids() { return resolvedIds; },
-	handleLoad,
-	handleError,
-});
-
-const rootClasses = $derived(cn(
-	"inline-flex items-center justify-center overflow-hidden rounded-full",
-	"bg-[var(--surface-elevated)] text-text-secondary font-medium text-sm",
-	className,
-));
 </script>
 
-<span
-	id={resolvedIds.root}
-	{dir}
-	role="img"
-	aria-label={alt}
-	data-kind="avatar"
-	data-slot="root"
-	data-state={status}
-	class={rootClasses}
-	style:width="{size}px"
-	style:height="{size}px"
-	style:margin-left={groupCtx ? "var(--avatar-group-overlap)" : undefined}
-	{...rest}
->
-	{#if children}
-		{@render children()}
-	{:else}
-		{#if src && status !== "error"}
-			<img
-				id={resolvedIds.image}
-				{src}
-				{alt}
-				class="h-full w-full object-cover"
-				data-kind="avatar"
-				data-slot="image"
-				onload={handleLoad}
-				onerror={handleError}
-				style:display={status === "loaded" ? undefined : "none"}
-			/>
+<StyleMacro kind="avatar" style={styleId}>
+	<span
+		role="img"
+		aria-label={alt}
+		data-kind="avatar"
+		data-slot="root"
+		data-state={status}
+		class={cn(
+			"inline-flex items-center justify-center overflow-hidden rounded-full",
+			"font-medium text-sm select-none",
+			className,
+		)}
+		style:width="{size}px"
+		style:height="{size}px"
+		{...rest}
+	>
+		{#if children}
+			{@render children()}
+		{:else}
+			{#if src && status !== "error"}
+				<img
+					{src}
+					{alt}
+					class="h-full w-full object-cover"
+					data-kind="avatar"
+					data-slot="image"
+					onload={handleLoad}
+					onerror={handleError}
+					style:display={status === "loaded" ? undefined : "none"}
+				/>
+			{/if}
+			{#if status !== "loaded"}
+				<span
+					class="flex h-full w-full items-center justify-center"
+					data-kind="avatar"
+					data-slot="fallback"
+					aria-hidden="true"
+				>
+					{fallbackText}
+				</span>
+			{/if}
 		{/if}
-		{#if status !== "loaded"}
-			<span
-				id={resolvedIds.fallback}
-				class="flex h-full w-full items-center justify-center"
-				data-kind="avatar"
-				data-slot="fallback"
-				aria-hidden="true"
-			>
-				{fallbackText}
-			</span>
-		{/if}
-	{/if}
-</span>
+	</span>
+</StyleMacro>

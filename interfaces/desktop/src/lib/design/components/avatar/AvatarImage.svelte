@@ -9,9 +9,9 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getAvatarContext } from "./context.js";
-import type { AvatarImageProps } from "./types.js";
+import type { HTMLAttributes } from "svelte/elements";
 
-let { class: className, ...rest }: AvatarImageProps = $props();
+let { class: className, ...rest }: Omit<HTMLAttributes<HTMLImageElement>, "style" | "class"> & { class?: string } = $props();
 const ctx = getAvatarContext();
 </script>
 

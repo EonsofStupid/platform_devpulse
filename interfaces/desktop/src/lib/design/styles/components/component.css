@@ -17,10 +17,103 @@
   --outline-offset-sm: 0.0625rem;
   --outline-offset-md: 0.125rem;
   --outline-offset-lg: 0.25rem;
+  --avatar-root-background: var(--glass-deep); /** Fallback background — deep glass */
+  --avatar-root-border-color: var(--border-subtle); /** Border color around avatar */
+  --avatar-root-border-width: 0.125rem; /** Border width */
+  --avatar-root-border-radius: 624.9375rem; /** Full circle radius */
+  --avatar-root-color: oklch(0.9288 0.0126 255.51); /** Fallback text color */
+  --avatar-root-font-size: 0.875rem; /** Fallback text font size */
+  --avatar-root-font-weight: 500; /** Fallback text font weight — medium */
+  --avatar-root-font-family: var(--font-sans); /** Font family for fallback text */
+  --avatar-bg: var(--surface-subtle);
+  --avatar-border: var(--border-subtle);
+  --badge-root-background: var(--glass-deep); /** Default background — deep glass */
+  --badge-root-border-color: var(--border-subtle); /** Border color */
+  --badge-root-border-width: 0.0625rem; /** Border width */
+  --badge-root-border-radius: 624.9375rem; /** Full pill radius */
+  --badge-root-color: oklch(0.9288 0.0126 255.51); /** Text color */
+  --badge-root-padding-inline: 0.5rem; /** Horizontal padding */
+  --badge-root-padding-block: 0.125rem; /** Vertical padding */
+  --badge-root-font-size: 0.75rem; /** Font size — xs */
+  --badge-root-font-weight: 500; /** Font weight — medium */
+  --badge-root-font-family: var(--font-sans); /** Font family */
+  --badge-root-gap: 0.25rem; /** Gap between icon and label */
+  --badge-bg: var(--surface-raised);
+  --badge-border: var(--border-subtle);
+  --button-root-background-default: var(--glass-deep); /** Default background — deep glass surface */
+  --button-root-background-hover: var(--glass-smoke); /** Hover background — smoke glass */
+  --button-root-padding-inline: 1rem; /** Horizontal padding */
+  --button-root-padding-block: 0.625rem; /** Vertical padding */
+  --button-root-height: 2.5rem; /** Default height (md) */
+  --button-root-border-radius: var(--radius-lg); /** Corner radius */
+  --button-root-border-color: var(--border-strong); /** Border color */
+  --button-root-border-width: 0.0625rem; /** Border width */
+  --button-root-color-default: oklch(1.0000 0.0000 0.00); /** Text color — white on primary */
+  --button-root-font-size: 0.875rem; /** Font size */
+  --button-root-font-weight: 500; /** Font weight — medium */
+  --button-root-font-family: var(--font-sans); /** Font family — system sans */
+  --button-root-transition-duration: 150ms; /** Transition speed */
+  --button-root-gap: 0.5rem; /** Gap between icon and label */
   --button-bg: var(--surface-base);
   --button-bg-hover: var(--surface-raised);
   --button-border: var(--border-subtle);
   --button-border-focus: var(--border-focus);
+  --card-root-background: var(--glass-deep); /** Default background — deep glass */
+  --card-root-border-color: var(--border-subtle); /** Border color */
+  --card-root-border-width: 0.0625rem; /** Border width */
+  --card-root-border-radius: var(--radius-lg); /** Corner radius */
+  --card-root-padding: 1rem; /** Inner padding */
+  --card-root-color: oklch(0.9288 0.0126 255.51); /** Default text color within card */
+  --card-root-opacity-disabled: 0.6; /** Opacity when disabled */
+  --card-root-transition-duration: 150ms; /** Transition speed for hover states */
+  --card-bg: var(--surface-base);
+  --card-border: var(--border-subtle);
+  --heading-root-color: oklch(1.0000 0.0000 0.00); /** Default heading text color */
+  --heading-root-font-family: var(--font-display); /** Display font family for headings */
+  --heading-root-font-weight-h1: 700; /** Font weight for h1 — bold */
+  --heading-root-font-weight-h2: 700; /** Font weight for h2 — bold */
+  --heading-root-font-weight-h3: 600; /** Font weight for h3 — semibold */
+  --heading-root-font-weight-h4: 600; /** Font weight for h4 — semibold */
+  --heading-root-font-weight-h5: 500; /** Font weight for h5 — medium */
+  --heading-root-font-weight-h6: 500; /** Font weight for h6 — medium */
+  --heading-root-letter-spacing: -0.00125rem; /** Default letter spacing — tight tracking for headings */
+  --heading-root-line-height: 1.2; /** Default line height — tight for headings */
+  --heading-root-opacity: 1; /** Default opacity */
+  --progress-track: var(--surface-subtle);
+  --progress-fill-background: oklch(0.7845 0.1325 181.91); /** Fill bar background — teal accent */
+  --progress-fill-border-radius: 624.9375rem; /** Fill bar corner radius — fully rounded */
+  --progress-fill-transition-duration: 300ms; /** Fill width transition speed */
+  --progress-bar: var(--color-mint-500);
+  --text-root-color-primary: oklch(0.9288 0.0126 255.51); /** Primary text color — high contrast */
+  --text-root-color-secondary: oklch(0.7107 0.0351 256.79); /** Secondary text color — muted */
+  --text-root-color-muted: oklch(0.5544 0.0407 257.42); /** Muted text color — low emphasis */
+  --text-root-color-accent: oklch(0.7845 0.1325 181.91); /** Accent text color — teal highlight */
+  --text-root-font-family: var(--font-sans); /** Default font family — system sans */
+  --text-root-line-height: 1.5; /** Default line height — comfortable reading */
+  --text-root-letter-spacing: 0; /** Default letter spacing — normal */
+  --text-field-input-background-default: var(--glass-void); /** Default background — void glass */
+  --text-field-input-background-focus: var(--glass-deep); /** Focus background — deep glass */
+  --text-field-input-border-color-default: var(--border-subtle); /** Default border color */
+  --text-field-input-border-color-focus: oklch(0.7845 0.1325 181.91); /** Focus border color — teal accent */
+  --text-field-input-border-color-invalid: oklch(0.7106 0.1661 22.22); /** Invalid border color — red */
+  --text-field-input-border-width: 0.0625rem; /** Border width */
+  --text-field-input-border-radius: var(--radius-md); /** Corner radius */
+  --text-field-input-padding-inline: 1rem; /** Horizontal padding */
+  --text-field-input-padding-block: 0.625rem; /** Vertical padding */
+  --text-field-input-color: oklch(0.9288 0.0126 255.51); /** Input text color */
+  --text-field-input-placeholder-color: oklch(0.5544 0.0407 257.42); /** Placeholder text color */
+  --text-field-input-font-size: 0.875rem; /** Font size */
+  --text-field-input-font-family: var(--font-sans); /** Font family */
+  --text-field-input-shadow-focus: 0 0 0 3px rgba(45, 212, 191, 0.15); /** Focus ring shadow */
+  --text-field-input-height: 2.5rem; /** Default height (md) */
+  --text-field-label-color: oklch(0.9288 0.0126 255.51); /** Label text color */
+  --text-field-label-font-size: 0.875rem; /** Label font size */
+  --text-field-label-font-weight: 500; /** Label font weight — medium */
+  --text-field-label-margin-bottom: 0.25rem; /** Space between label and input */
+  --text-field-description-color: oklch(0.7107 0.0351 256.79); /** Description text color */
+  --text-field-description-font-size: 0.75rem; /** Description font size */
+  --text-field-error-color: oklch(0.7106 0.1661 22.22); /** Error message color */
+  --text-field-error-font-size: 0.75rem; /** Error font size */
   --checkbox-bg: var(--surface-base);
   --checkbox-bg-checked: var(--color-mint-500);
   --checkbox-border: var(--border-strong);
@@ -35,8 +128,6 @@
   --slider-range: var(--color-mint-500);
   --slider-thumb: var(--surface-raised);
   --slider-thumb-border: var(--border-focus);
-  --progress-track: var(--surface-subtle);
-  --progress-bar: var(--color-mint-500);
   --input-bg: var(--surface-inset);
   --input-bg-focus: var(--surface-raised);
   --input-border: var(--border-subtle);
@@ -55,12 +146,6 @@
   --radio-group-bg-checked: var(--color-mint-500);
   --radio-group-border: var(--border-strong);
   --radio-group-border-focus: var(--border-focus);
-  --badge-bg: var(--surface-raised);
-  --badge-border: var(--border-subtle);
-  --card-bg: var(--surface-base);
-  --card-border: var(--border-subtle);
-  --avatar-bg: var(--surface-subtle);
-  --avatar-border: var(--border-subtle);
   --table-bg: var(--surface-base);
   --table-bg-2: var(--surface-raised);
   --table-bg-hover: var(--surface-overlay);
@@ -136,6 +221,12 @@
   --style-button-danger-color: oklch(1.0000 0.0000 0.00);
   --style-button-danger-border-radius: var(--radius-lg);
   --style-button-danger-opacity: 1;
+  --style-accordion-default-background-color: var(--glass-void);
+  --style-accordion-default-background-blur: 0;
+  --style-accordion-default-animation: 0ms;
+  --style-accordion-default-color: var(--color-neutral-100);
+  --style-accordion-default-border-radius: var(--radius-md);
+  --style-accordion-default-opacity: 1;
   --encoding-axis-1: var(--color-indigo-400);
   --encoding-axis-2: var(--color-green-400);
   --graph-bg: var(--color-neutral-950);
@@ -163,6 +254,26 @@
   --scrollbar-size-width: 0.375rem; /** Scrollbar track width */
   --scrollbar-size-height: 0.375rem; /** Scrollbar track height */
   --scrollbar-size-radius: 0.1875rem; /** Scrollbar thumb border radius */
+  --button-root-shadow-1-color: oklch(0.0000 0.0000 0.00 / 0.12156862745098039); /** Drop shadow — subtle elevation */
+  --button-root-shadow-1-offset-x: 0; /** Drop shadow — subtle elevation */
+  --button-root-shadow-1-offset-y: 0.0625rem; /** Drop shadow — subtle elevation */
+  --button-root-shadow-1-blur: 0.1875rem; /** Drop shadow — subtle elevation */
+  --button-root-shadow-1-spread: 0; /** Drop shadow — subtle elevation */
+  --button-root-shadow-2-color: oklch(0.0000 0.0000 0.00 / 0.23921568627450981); /** Drop shadow — subtle elevation */
+  --button-root-shadow-2-offset-x: 0; /** Drop shadow — subtle elevation */
+  --button-root-shadow-2-offset-y: 0.0625rem; /** Drop shadow — subtle elevation */
+  --button-root-shadow-2-blur: 0.125rem; /** Drop shadow — subtle elevation */
+  --button-root-shadow-2-spread: 0; /** Drop shadow — subtle elevation */
+  --card-root-shadow-1-color: oklch(0.0000 0.0000 0.00 / 0.12156862745098039); /** Drop shadow — subtle elevation */
+  --card-root-shadow-1-offset-x: 0; /** Drop shadow — subtle elevation */
+  --card-root-shadow-1-offset-y: 0.0625rem; /** Drop shadow — subtle elevation */
+  --card-root-shadow-1-blur: 0.1875rem; /** Drop shadow — subtle elevation */
+  --card-root-shadow-1-spread: 0; /** Drop shadow — subtle elevation */
+  --card-root-shadow-2-color: oklch(0.0000 0.0000 0.00 / 0.23921568627450981); /** Drop shadow — subtle elevation */
+  --card-root-shadow-2-offset-x: 0; /** Drop shadow — subtle elevation */
+  --card-root-shadow-2-offset-y: 0.0625rem; /** Drop shadow — subtle elevation */
+  --card-root-shadow-2-blur: 0.125rem; /** Drop shadow — subtle elevation */
+  --card-root-shadow-2-spread: 0; /** Drop shadow — subtle elevation */
   --card-depth-1-color: oklch(0.0000 0.0000 0.00 / 0.12156862745098039);
   --card-depth-1-offset-x: 0;
   --card-depth-1-offset-y: 0.0625rem;
@@ -287,5 +398,21 @@
   --style-button-danger-typography-font-weight: 500;
   --style-button-danger-typography-letter-spacing: 0;
   --style-button-danger-typography-line-height: 1.5;
+  --style-accordion-default-shadow-color: oklch(0.0000 0.0000 0.00 / 0);
+  --style-accordion-default-shadow-offset-x: 0;
+  --style-accordion-default-shadow-offset-y: 0;
+  --style-accordion-default-shadow-blur: 0;
+  --style-accordion-default-shadow-spread: 0;
+  --style-accordion-default-border-color: var(--border-subtle);
+  --style-accordion-default-border-width: 0.0625rem;
+  --style-accordion-default-border-style: solid;
+  --style-accordion-default-transition-duration: 200ms;
+  --style-accordion-default-transition-delay: 0ms;
+  --style-accordion-default-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  --style-accordion-default-typography-font-family: Inter, system-ui, sans-serif;
+  --style-accordion-default-typography-font-size: 0.875rem;
+  --style-accordion-default-typography-font-weight: 400;
+  --style-accordion-default-typography-letter-spacing: 0;
+  --style-accordion-default-typography-line-height: 1.5;
   }
 }

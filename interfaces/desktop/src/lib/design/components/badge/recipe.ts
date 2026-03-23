@@ -1,37 +1,28 @@
 /**
- * @file Badge Recipe
+ * @file Badge Recipes — as const named presets
  * @kind badge
- * @layer components
  *
- * Props → standard Tailwind v4 utility classes.
- * Variant maps to semantic color tokens.
- * Size maps to structural dimension classes.
+ * Each recipe overrides default token values for a visual family.
+ * SD5 processes as mode-specific token groups.
  */
 
-import { cn } from "$lib/design/utils/cn.js";
-
-type BadgeRecipeProps = { variant?: string; size?: string };
-
-const SIZE_MAP: Record<string, string> = {
-	sm: "px-1.5 py-0.5 text-xs",
-	md: "px-2 py-0.5 text-xs",
-	lg: "px-2.5 py-1 text-sm",
-	xl: "px-3 py-1 text-sm",
-};
-
-const VARIANT_MAP: Record<string, string> = {
-	neutral: "bg-[var(--surface-elevated)] text-text-secondary border-border-subtle",
-	accent: "bg-[var(--color-teal-500)]/10 text-[var(--color-teal-400)] border-[var(--color-teal-500)]/20",
-	informative: "bg-[var(--color-purple-500)]/10 text-[var(--color-purple-400)] border-[var(--color-purple-500)]/20",
-	positive: "bg-[var(--color-teal-500)]/10 text-[var(--color-teal-400)] border-[var(--color-teal-500)]/20",
-	notice: "bg-[var(--color-purple-500)]/10 text-[var(--color-purple-400)] border-[var(--color-purple-500)]/20",
-	negative: "bg-[var(--color-red-500)]/10 text-[var(--color-red-400)] border-[var(--color-red-500)]/20",
-};
-
-const BASE = "inline-flex items-center gap-1 rounded-full border font-medium";
-
-export function badgeRecipe(props: BadgeRecipeProps = {}): string {
-	const variant = VARIANT_MAP[props.variant ?? "neutral"] ?? VARIANT_MAP.neutral;
-	const size = SIZE_MAP[props.size ?? "md"] ?? SIZE_MAP.md;
-	return cn(BASE, variant, size);
-}
+export const badgeRecipes = {
+	"neuro-pill": {
+		"badge.root.background": "{glass.deep}",
+		"badge.root.border.color": "{border.strong}",
+		"badge.root.shadow": "0 1px 3px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06)",
+		"badge.root.border-radius": "9999px",
+	},
+	"glass-tag": {
+		"badge.root.background": "{glass.smoke}",
+		"badge.root.border.color": "{border.subtle}",
+		"badge.root.shadow": "0 1px 2px rgba(0, 0, 0, 0.2)",
+		"badge.root.border-radius": "{radius.md}",
+	},
+	"flat-chip": {
+		"badge.root.background": "{surface.inset}",
+		"badge.root.border.color": "{border.divider}",
+		"badge.root.shadow": "{shadow.z0}",
+		"badge.root.border-radius": "{radius.sm}",
+	},
+} as const;
