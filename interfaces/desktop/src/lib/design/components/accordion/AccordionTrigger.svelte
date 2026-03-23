@@ -2,8 +2,9 @@
 	@component Accordion.Trigger
 	@kind accordion
 	@slot trigger
+	@layer components
 
-	DUMB. ARIA attrs from primitive hook via context.
+	ARIA attrs from primitive hook via context.
 -->
 <script lang="ts">
 import { getAccordionContext, getAccordionItemContext } from "./context.js";
@@ -19,6 +20,8 @@ const triggerAttrs = $derived(ctx.hook.getTrigger(item.value, item.disabled));
 <button
 	{...triggerAttrs}
 	id={ctx.ids.trigger?.(item.value) ?? triggerAttrs.id}
+	data-kind="accordion"
+	data-slot="trigger"
 	class={className}
 >
 	{@render children?.()}

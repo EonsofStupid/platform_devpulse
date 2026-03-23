@@ -19,7 +19,7 @@ const ctx = getAlertContext();
 	id={ctx.ids.action}
 	data-kind="alert"
 	data-slot="action"
-	class={cn(ctx.classes.action, className)}
+	class={cn(className)}
 	{...rest}
 >
 	{@render children?.()}

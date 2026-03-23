@@ -2,8 +2,9 @@
 	@component Accordion.Item
 	@kind accordion
 	@slot item
+	@layer components
 
-	DUMB. Sets item context for Trigger/Content/Indicator.
+	Sets item context for Trigger/Content/Indicator.
 -->
 <script lang="ts">
 import { getAccordionContext, setAccordionItemContext } from "./context.js";
@@ -23,6 +24,8 @@ const itemAttrs = $derived(ctx.hook.getItem(value));
 <div
 	{...itemAttrs}
 	id={ctx.ids.item?.(value)}
+	data-kind="accordion"
+	data-slot="item"
 	class={className}
 >
 	{@render children?.()}

@@ -7,6 +7,7 @@
 	No Shiki — just a styled code element.
 -->
 <script lang="ts">
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { InlineCodeProps } from "./types.js";
 
@@ -18,13 +19,16 @@ let {
 	...rest
 }: InlineCodeProps = $props();
 
+const styleId = "code-inline";
 </script>
 
-<code
-	{id}
-	{dir}
-	data-kind="code"
-	data-slot="inline"
-	class={cn(className)}
-	{...rest}
->{@render children?.()}</code>
+<StyleMacro kind="code" style={styleId}>
+	<code
+		{id}
+		{dir}
+		data-kind="code"
+		data-slot="inline"
+		class={cn(className)}
+		{...rest}
+	>{@render children?.()}</code>
+</StyleMacro>

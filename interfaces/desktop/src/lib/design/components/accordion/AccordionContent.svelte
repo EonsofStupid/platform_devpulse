@@ -2,8 +2,9 @@
 	@component Accordion.Content
 	@kind accordion
 	@slot content
+	@layer components
 
-	DUMB. Expandable panel with slide transition.
+	Expandable panel with slide transition.
 	ARIA (role=region, aria-labelledby) from primitive hook.
 -->
 <script lang="ts">
@@ -23,6 +24,8 @@ const isOpen = $derived(contentAttrs["data-state"] === "open");
 	<div
 		{...contentAttrs}
 		id={ctx.ids.content?.(item.value) ?? contentAttrs.id}
+		data-kind="accordion"
+		data-slot="content"
 		class={className}
 		transition:slide={{ duration: 200 }}
 	>

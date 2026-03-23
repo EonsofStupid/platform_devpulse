@@ -8,6 +8,7 @@
 	$derived for reactive recipe classes and validation.
 -->
 <script lang="ts">
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/_internal/utils/uid.js";
 import { setColorFieldContext } from "./context.js";
@@ -83,8 +84,7 @@ function setValue(raw: string) {
 	onChange?.({ value: val });
 }
 
-// ── Recipe (reactive) ───────────────────────────────────────────
-		recipe?.classes?.({} as any) ?? {});
+const styleId = "color-field-default";
 
 // ── Context ─────────────────────────────────────────────────────
 setColorFieldContext({
@@ -109,21 +109,20 @@ setColorFieldContext({
 	registerError,
 });
 
-// ── Visual ──────────────────────────────────────────────────────
-const rootClasses = $derived(
-	cn(className));
 </script>
 
-<div
-	id={resolvedIds.root}
-	{dir}
-	data-kind="color-field"
-	data-slot="root"
-	data-invalid={isInvalid || undefined}
-	data-disabled={isDisabled || undefined}
-	data-readonly={isReadOnly || undefined}
-	class={rootClasses}
-	{...rest}
->
-	{@render children?.()}
-</div>
+<StyleMacro kind="color-field" style={styleId}>
+	<div
+		id={resolvedIds.root}
+		{dir}
+		data-kind="color-field"
+		data-slot="root"
+		data-invalid={isInvalid || undefined}
+		data-disabled={isDisabled || undefined}
+		data-readonly={isReadOnly || undefined}
+		class={cn(className)}
+		{...rest}
+	>
+		{@render children?.()}
+	</div>
+</StyleMacro>

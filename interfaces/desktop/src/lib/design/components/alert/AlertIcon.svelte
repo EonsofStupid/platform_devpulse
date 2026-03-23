@@ -17,7 +17,7 @@ const ctx = getAlertContext();
 	id={ctx.ids.icon}
 	data-kind="alert"
 	data-slot="icon"
-	class={cn(ctx.classes.icon, className)}
+	class={cn(className)}
 	aria-hidden="true"
 	{...rest}
 >

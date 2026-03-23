@@ -8,6 +8,7 @@
 	Auto-generated IDs. Form integration via hidden input.
 -->
 <script lang="ts">
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/_internal/utils/uid.js";
 import { setColorWheelContext } from "./context.js";
@@ -65,7 +66,7 @@ const drag = useWheelDrag({
 	},
 });
 
-		recipe?.classes?.({} as any) ?? {});
+const styleId = "color-wheel-default";
 
 setColorWheelContext({
 	get hue() { return currentHue; },
@@ -79,6 +80,7 @@ setColorWheelContext({
 });
 </script>
 
+<StyleMacro kind="color-wheel" style={styleId}>
 <div
 	id={resolvedIds.root}
 	{dir}
@@ -99,3 +101,4 @@ setColorWheelContext({
 		<input type="hidden" {name} value={currentHue} {form} />
 	{/if}
 </div>
+</StyleMacro>

@@ -10,6 +10,7 @@
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/grid/
 -->
 <script lang="ts">
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setCalendarContext } from "./context.js";
 import type { CalendarRootProps } from "./types.js";
@@ -107,21 +108,22 @@ setCalendarContext({
 	},
 });
 
-const rootClasses = $derived(
-	cn(className));
+const styleId = "calendar-default";
 </script>
 
-<div
-	id={ids?.root}
-	role="group"
-	aria-label="Calendar"
-	aria-labelledby={headingId}
-	{dir}
-	data-kind="calendar"
-	data-slot="root"
-	data-state={isDisabled ? "disabled" : undefined}
-	class={rootClasses}
-	{...rest}
->
-	{@render children?.()}
-</div>
+<StyleMacro kind="calendar" style={styleId}>
+	<div
+		id={ids?.root}
+		role="group"
+		aria-label="Calendar"
+		aria-labelledby={headingId}
+		{dir}
+		data-kind="calendar"
+		data-slot="root"
+		data-state={isDisabled ? "disabled" : undefined}
+		class={cn(className)}
+		{...rest}
+	>
+		{@render children?.()}
+	</div>
+</StyleMacro>

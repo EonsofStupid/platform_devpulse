@@ -8,6 +8,7 @@
 	Compound: Heading, Content, Footer are children of the popover.
 -->
 <script lang="ts">
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/_internal/utils/uid.js";
 import { setContextualHelpContext } from "./context.js";
@@ -53,7 +54,7 @@ function toggle() {
 	onOpenChange?.({ open: next });
 }
 
-		recipe?.classes?.({} as any) ?? {});
+const styleId = "contextual-help-default";
 
 setContextualHelpContext({
 	get isOpen() { return isOpen; },
@@ -68,6 +69,7 @@ const SIZE_CLASSES: Record<string, string> = {
 };
 </script>
 
+<StyleMacro kind="contextual-help" style={styleId}>
 <div
 	id={resolvedIds.root}
 	{dir}
@@ -123,3 +125,4 @@ const SIZE_CLASSES: Record<string, string> = {
 		</div>
 	{/if}
 </div>
+</StyleMacro>

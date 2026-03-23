@@ -6,9 +6,10 @@
 	2D color picker surface. Pointer drag on root, keyboard on thumb.
 	Interaction via useColorAreaDrag Svelte action.
 	Real color values via channel ranges per color space.
-	Reactive recipe classes via $derived.
+	StyleMacro (visual). Hook via useColorAreaDrag action.
 -->
 <script lang="ts">
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { buildColorString, getChannelRange, percentToValue } from "./color-utils.js";
 import { setColorAreaContext } from "./context.js";
@@ -23,7 +24,7 @@ let {
 	xName,
 	yName,
 	value: controlledValue,
-	defaultValue = "",
+	defaultValue,
 	onChange,
 	onChangeEnd,
 	isDisabled = false,
@@ -35,7 +36,7 @@ let {
 	...rest
 }: ColorAreaRootProps = $props();
 
-let internalValue = $state(defaultValue);
+let internalValue = $state(defaultValue ?? "");
 const currentValue = $derived(controlledValue !== undefined ? controlledValue : internalValue);
 
 const xRange = $derived(getChannelRange(colorSpace, xChannel));
@@ -64,7 +65,7 @@ const drag = useColorAreaDrag({
 const xValue = $derived(percentToValue(drag.state.xPercent, xRange));
 const yValue = $derived(percentToValue(drag.state.yPercent, yRange));
 
-		recipe?.classes?.({} as any) ?? {});
+const styleId = "color-area-default";
 
 setColorAreaContext({
 	get value() { return currentValue; },
@@ -80,12 +81,9 @@ setColorAreaContext({
 	thumbAction: drag.thumbAction,
 });
 
-const rootClasses = $derived(
-	cn(
-		isDisabled ? "pointer-events-none opacity-60" : undefined,
-		className));
 </script>
 
+<StyleMacro kind="color-area" style={styleId}>
 <div
 	id={ids?.root}
 	{dir}
@@ -96,7 +94,7 @@ const rootClasses = $derived(
 	data-kind="color-area"
 	data-slot="root"
 	data-dragging={drag.state.isDragging || undefined}
-	class={rootClasses}
+	class={cn(isDisabled ? "pointer-events-none opacity-60" : undefined, className)}
 	use:drag.action
 	{...rest}
 >
@@ -109,3 +107,4 @@ const rootClasses = $derived(
 		<input type="hidden" name={yName} value={yValue} {form} />
 	{/if}
 </div>
+</StyleMacro>

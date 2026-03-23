@@ -18,7 +18,9 @@ const ctx = getAlertDialogContext();
 		{...ctx.hook.content}
 		use:ctx.hook.attachContent
 		id={ctx.ids.content}
-		class={cn(ctx.classes.content, className)}
+		data-kind="alert-dialog"
+		data-slot="content"
+		class={cn(className)}
 		{...rest}
 		open
 	>

@@ -13,6 +13,6 @@ let { children, class: className, ...rest }: AlertDialogCancelProps = $props();
 const ctx = getAlertDialogContext();
 </script>
 
-<button {...ctx.hook.cancel} id={ctx.ids.cancel} class={cn(ctx.classes.cancel, className)} {...rest}>
+<button {...ctx.hook.cancel} id={ctx.ids.cancel} data-kind="alert-dialog" data-slot="cancel" class={cn(className)} {...rest}>
 	{@render children?.()}
 </button>

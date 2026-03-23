@@ -10,7 +10,6 @@ import type { AlertDialogIds, AlertDialogVariant } from "./types.js";
 
 export interface AlertDialogContext {
 	readonly hook: UseAlertDialogReturn;
-	readonly classes: Record<string, string>;
 	readonly ids: Partial<AlertDialogIds>;
 	readonly dir: "ltr" | "rtl";
 	readonly variant: AlertDialogVariant;

@@ -11,6 +11,7 @@
 -->
 <script lang="ts">
 import { useComboBox } from "$lib/design/primitives/combobox/use-combobox.svelte.js";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setComboboxContext } from "./context.js";
 import type { ComboboxProps } from "./types.js";
@@ -39,10 +40,7 @@ const hook = useComboBox({
 	get disabled() { return disabled; },
 });
 
-	recipeDef?.classes?.({
-		...recipeDef.defaults,
-		size,
-	} as DsSurfaceProps) ?? {});
+const styleId = "combobox-default";
 
 setComboboxContext({
 	get hook() { return hook; },
@@ -51,15 +49,17 @@ setComboboxContext({
 	dir: "ltr",
 });
 
-const rootClasses = $derived(
-	cn(disabled && "opacity-50 pointer-events-none", className));
 </script>
 
-<div
-	{...hook.root}
-	aria-disabled={disabled ? "true" : undefined}
-	class={rootClasses}
-	{...rest}
->
-	{@render children?.()}
-</div>
+<StyleMacro kind="combobox" style={styleId}>
+	<div
+		{...hook.root}
+		data-kind="combobox"
+		data-slot="root"
+		aria-disabled={disabled ? "true" : undefined}
+		class={cn(disabled && "opacity-50 pointer-events-none", className)}
+		{...rest}
+	>
+		{@render children?.()}
+	</div>
+</StyleMacro>

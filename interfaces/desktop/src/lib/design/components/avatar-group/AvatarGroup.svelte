@@ -8,6 +8,7 @@
 	Shows +N overflow when maxVisible exceeded.
 -->
 <script lang="ts">
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/_internal/utils/uid.js";
 import { setAvatarGroupContext } from "./context.js";
@@ -29,9 +30,9 @@ let {
 const autoIds = createIds("avatar-group", ["root"] as const);
 const rootId = userIds?.root ?? autoIds.root;
 
-// Calculate overflow count
-// If total is provided, use it. Otherwise maxVisible is just a hint for CSS.
-const overflowCount = $derived(() => {
+const styleId = "avatar-group-default";
+
+const overflowCount = $derived.by(() => {
 	if (total !== undefined && maxVisible !== undefined) {
 		return Math.max(0, total - maxVisible);
 	}
@@ -42,37 +43,37 @@ setAvatarGroupContext({
 	get size() { return size; },
 });
 
-// Overlap is ~25% of avatar size
 const overlapMargin = $derived(`-${Math.round(size * 0.25)}px`);
 </script>
 
-<div
-	id={rootId}
-	{dir}
-	role="group"
-	aria-label={label}
-	data-kind="avatar-group"
-	data-slot="root"
-	class={cn("flex items-center", className)}
-	style:--avatar-group-overlap={overlapMargin}
-	{...rest}
->
-	{@render children?.()}
+<StyleMacro kind="avatar-group" style={styleId}>
+	<div
+		id={rootId}
+		{dir}
+		role="group"
+		aria-label={label}
+		data-kind="avatar-group"
+		data-slot="root"
+		class={cn("flex items-center", className)}
+		style:--avatar-group-overlap={overlapMargin}
+		{...rest}
+	>
+		{@render children?.()}
 
-	{#if overflowCount() > 0}
-		{#if overflow}
-			{@render overflow(overflowCount())}
-		{:else}
-			<span
-				class={cn()}
-				data-kind="avatar-group"
-				data-slot="overflow"
-				aria-hidden="true"
-				style:width="{size}px"
-				style:height="{size}px"
-			>
-				+{overflowCount()}
-			</span>
+		{#if overflowCount > 0}
+			{#if overflow}
+				{@render overflow(overflowCount)}
+			{:else}
+				<span
+					data-kind="avatar-group"
+					data-slot="overflow"
+					aria-hidden="true"
+					style:width="{size}px"
+					style:height="{size}px"
+				>
+					+{overflowCount}
+				</span>
+			{/if}
 		{/if}
-	{/if}
-</div>
+	</div>
+</StyleMacro>

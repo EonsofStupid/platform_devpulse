@@ -18,7 +18,9 @@ const ctx = getAlertDialogContext();
 		{...ctx.hook.overlay}
 		use:ctx.hook.attachOverlay
 		id={ctx.ids.overlay}
-		class={cn(ctx.classes.overlay, className)}
+		data-kind="alert-dialog"
+		data-slot="overlay"
+		class={cn(className)}
 		{...rest}
 	>
 		{@render children?.()}

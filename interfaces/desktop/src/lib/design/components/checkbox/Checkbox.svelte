@@ -3,14 +3,22 @@
 	@kind checkbox
 	@layer components
 
-	ColdLight Checkbox — builder-driven, 8-axis visual system.
+	Hook (ARIA) + StyleMacro (visual).
+	Tri-state: checked, unchecked, indeterminate.
+
+	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/
 -->
 <script lang="ts">
-import { createCheckbox } from "$lib/design/primitives/checkbox/index.js";
-import CheckboxRoot from "$lib/design/primitives/checkbox/Checkbox.svelte";
+import { useCheckbox } from "$lib/design/primitives/checkbox/use-checkbox.svelte.js";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { checkboxRecipe } from "./recipe.js";
-import type { CheckboxProps } from "./types.js";
+import type { CheckboxProps, CheckboxSize } from "./types.js";
+
+const SIZE: Record<CheckboxSize, string> = {
+	sm: "size-4",
+	md: "size-5",
+	lg: "size-6",
+};
 
 let {
 	intent = "default",
@@ -24,17 +32,31 @@ let {
 	...rest
 }: CheckboxProps = $props();
 
-const builder = createCheckbox({
-	checked: () => checked,
-	indeterminate: () => indeterminate,
-	disabled: () => disabled,
-		onCheckedChange: (v: any) => onCheckedChange?.(v),
+const checkbox = useCheckbox({
+	get checked() { return checked; },
+	get indeterminate() { return indeterminate; },
+	get disabled() { return disabled; },
+	onCheckedChange: (v) => onCheckedChange?.(v),
 });
 
-const classes = $derived(
-	cn(checkboxRecipe({ intent, size }), className));
+const styleId = $derived(`checkbox-${intent}`);
 </script>
 
-<CheckboxRoot {...builder.root} {...rest} class={classes}>
-	{@render children?.()}
-</CheckboxRoot>
+<StyleMacro kind="checkbox" style={styleId}>
+	<button
+		{...checkbox.root}
+		{...rest}
+		data-kind="checkbox"
+		data-slot="root"
+		class={cn(
+			"inline-flex items-center justify-center rounded border cursor-pointer",
+			"focus-visible:outline-2 focus-visible:outline-offset-2",
+			"disabled:pointer-events-none disabled:opacity-50",
+			SIZE[size] ?? SIZE.md,
+			className)}
+	>
+		<span {...checkbox.indicator} data-kind="checkbox" data-slot="indicator">
+			{@render children?.()}
+		</span>
+	</button>
+</StyleMacro>

@@ -4,38 +4,56 @@
  * @layer components
  * @package @devpulse/coldlight
  *
- * Alert component browser tests.
- * Tests contract shape, ARIA, variant, dismiss.
+ * Alert component tests.
+ * Validates catalog entry, exports, hook ARIA.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
- * Setup:  vitest-browser-svelte
  */
 
 import { describe, expect, test } from "vitest";
-import { contract } from "./contract.js";
+import { useAlert } from "$lib/design/primitives/alert/index.js";
 
 // =============================================================================
-// CONTRACT INTEGRITY
+// CATALOG ENTRY (def.json → catalog.ts)
 // =============================================================================
 
-describe("alert component — contract", () => {
-	test("contract.kind is 'alert'", () => {
-		expect(contract.kind).toBe("alert");
+describe("alert — catalog entry", () => {
+	test("def.json exists and has correct kind", async () => {
+		const def = await import("./alert.def.json");
+		expect(def.kind).toBe("alert");
 	});
 
-	test("contract root slot has role='alert'", () => {
-		expect(contract.slotContracts.root.aria.role).toBe("alert");
+	test("def.json declares required slots", async () => {
+		const def = await import("./alert.def.json");
+		expect(def.slots.root).toBe("all");
+		expect(def.slots).toHaveProperty("icon");
+		expect(def.slots).toHaveProperty("title");
+		expect(def.slots).toHaveProperty("content");
+		expect(def.slots).toHaveProperty("action");
 	});
 
-	test("contract has optional slots", () => {
-		expect(contract.slots.optional).toContain("icon");
-		expect(contract.slots.optional).toContain("title");
-		expect(contract.slots.optional).toContain("description");
-		expect(contract.slots.optional).toContain("dismiss");
+	test("def.json declares style IDs", async () => {
+		const def = await import("./alert.def.json");
+		expect(def.defaultStyleId).toBe("alert-default");
+		expect(def.styleIds).toContain("alert-info");
+		expect(def.styleIds).toContain("alert-error");
+	});
+});
+
+// =============================================================================
+// HOOK ARIA
+// =============================================================================
+
+describe("alert — hook ARIA", () => {
+	test("root has role=alert and aria-live=assertive", () => {
+		const alert = useAlert({ variant: "info" });
+		expect(alert.root.role).toBe("alert");
+		expect(alert.root["aria-live"]).toBe("assertive");
 	});
 
-	test("contract interactions are non-modal", () => {
-		expect(contract.interactions.modal).toBe(false);
+	test("dismiss has aria-label", () => {
+		const alert = useAlert({ dismissible: true });
+		expect(alert.dismiss["aria-label"]).toBe("Dismiss alert");
 	});
 });
 
@@ -43,7 +61,7 @@ describe("alert component — contract", () => {
 // EXPORTS
 // =============================================================================
 
-describe("alert component — exports", () => {
+describe("alert — exports", () => {
 	test("exports Root component", async () => {
 		const mod = await import("./index.js");
 		expect(mod.Root).toBeDefined();

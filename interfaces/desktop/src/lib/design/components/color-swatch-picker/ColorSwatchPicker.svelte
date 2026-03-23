@@ -8,6 +8,7 @@
 	Keyboard arrow navigation for swatch selection.
 -->
 <script lang="ts">
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/_internal/utils/uid.js";
 import { setColorSwatchPickerContext } from "./context.js";
@@ -51,7 +52,7 @@ function isSelected(color: string): boolean {
 	return selectedValue === color;
 }
 
-		recipe?.classes?.({ density } as any) ?? {});
+const styleId = "color-swatch-picker-default";
 
 const DENSITY_GAP: Record<string, string> = {
 	compact: "gap-4",
@@ -69,17 +70,19 @@ setColorSwatchPickerContext({
 });
 </script>
 
-<div
-	id={rootId}
-	{dir}
-	role="listbox"
-	aria-label="Color swatches"
-	aria-disabled={isDisabled || undefined}
-	data-kind="color-swatch-picker"
-	data-slot="root"
-	data-density={density}
-	class={cn("flex flex-wrap", DENSITY_GAP[density] ?? DENSITY_GAP.regular, className)}
-	{...rest}
->
-	{@render children?.()}
-</div>
+<StyleMacro kind="color-swatch-picker" style={styleId}>
+	<div
+		id={rootId}
+		{dir}
+		role="listbox"
+		aria-label="Color swatches"
+		aria-disabled={isDisabled || undefined}
+		data-kind="color-swatch-picker"
+		data-slot="root"
+		data-density={density}
+		class={cn("flex flex-wrap", DENSITY_GAP[density] ?? DENSITY_GAP.regular, className)}
+		{...rest}
+	>
+		{@render children?.()}
+	</div>
+</StyleMacro>

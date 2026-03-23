@@ -8,7 +8,6 @@ import { getContext, setContext } from "svelte";
 import type { AlertIds } from "./types.js";
 
 export interface AlertContext {
-	readonly classes: Record<string, string>;
 	readonly ids: Partial<AlertIds>;
 	readonly dir: "ltr" | "rtl";
 }

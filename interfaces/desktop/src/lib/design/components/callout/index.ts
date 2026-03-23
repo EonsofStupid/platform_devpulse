@@ -1,4 +1,2 @@
 export { default as Callout } from "./Callout.svelte";
-export { contract as calloutComponentContract } from "./contract.js";
-export { calloutRecipe } from "./recipe.js";
-export { CALLOUT_VARIANT_PRESETS, type CalloutProps, type CalloutVariant } from "./types.js";
+export { type CalloutProps, type CalloutVariant } from "./types.js";

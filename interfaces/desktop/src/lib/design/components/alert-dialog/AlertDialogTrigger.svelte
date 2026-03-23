@@ -13,6 +13,6 @@ let { children, class: className, ...rest }: AlertDialogTriggerProps = $props();
 const ctx = getAlertDialogContext();
 </script>
 
-<button {...ctx.hook.trigger} id={ctx.ids.trigger} class={cn(ctx.classes.trigger, className)}>
+<button {...ctx.hook.trigger} id={ctx.ids.trigger} data-kind="alert-dialog" data-slot="trigger" class={cn(className)}>
 	{@render children?.()}
 </button>

@@ -3,14 +3,21 @@
 	@kind callout
 	@layer components
 
-	ColdLight Callout — builder-driven, 8-axis visual system.
+	Highlighted information block. Variant-driven.
+	StyleMacro (visual). No complex ARIA needed — just a div with data attrs.
 -->
 <script lang="ts">
-import { createCallout } from "$lib/design/components/callout/index.js";
-import actual parts to make this component";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { calloutRecipe } from "./recipe.js";
-import type { CalloutProps } from "./types.js";
+import type { CalloutProps, CalloutVariant } from "./types.js";
+
+const VARIANT_PRESETS: Record<CalloutVariant, string> = {
+	info: "callout-info",
+	success: "callout-success",
+	warning: "callout-warning",
+	error: "callout-error",
+	tip: "callout-default",
+};
 
 let {
 	variant = "info",
@@ -19,11 +26,17 @@ let {
 	...rest
 }: CalloutProps = $props();
 
-const builder = createCallout();
-
-const classes = $derived(cn(calloutRecipe({ variant }), className));
+const styleId = $derived(VARIANT_PRESETS[variant] ?? "callout-default");
 </script>
 
-<CalloutRoot {...builder.root} {...rest} class={classes} data-state={variant}>
-	{@render children?.()}
-</CalloutRoot>
+<StyleMacro kind="callout" style={styleId}>
+	<div
+		data-kind="callout"
+		data-slot="root"
+		data-variant={variant}
+		class={cn(className)}
+		{...rest}
+	>
+		{@render children?.()}
+	</div>
+</StyleMacro>
