@@ -97,6 +97,17 @@ pub async fn boot_consolidated(
 
     let adapter = Arc::new(adapter);
 
+    // Create system account for HTTP API boundary on the system namespace.
+    // Embedded connection is implicit root — this user is for external tools
+    // (Claude Code, surreal sql CLI) connecting via HTTP on :8822.
+    let sys_user_ddl = format!(
+        "DEFINE USER IF NOT EXISTS {} ON NAMESPACE PASSWORD '{}' ROLES OWNER;",
+        sys_cfg.system_user, sys_cfg.system_password,
+    );
+    if let Err(e) = adapter.raw_query(&sys_user_ddl).await {
+        tracing::warn!(error = ?e, "Failed to create system user on system namespace (non-fatal)");
+    }
+
     // Initialize user namespace on the same instance
     let usr_cfg = &boot_config.services.user.graph;
     if usr_cfg.enabled {
@@ -107,6 +118,14 @@ pub async fn boot_consolidated(
         ).await {
             tracing::error!(error = ?e, "Failed to init user graph namespace");
             on_event(InitEvent::error("User graph namespace", &format!("{e:#}")));
+        }
+        // System account for user namespace HTTP API access
+        let usr_user_ddl = format!(
+            "DEFINE USER IF NOT EXISTS {} ON NAMESPACE PASSWORD '{}' ROLES OWNER;",
+            usr_cfg.system_user, usr_cfg.system_password,
+        );
+        if let Err(e) = adapter.raw_query(&usr_user_ddl).await {
+            tracing::warn!(error = ?e, "Failed to create system user on user namespace (non-fatal)");
         }
     }
 
@@ -120,6 +139,14 @@ pub async fn boot_consolidated(
         ).await {
             tracing::error!(error = ?e, "Failed to init global graph namespace");
             on_event(InitEvent::error("Global graph namespace", &format!("{e:#}")));
+        }
+        // System account for global namespace HTTP API access
+        let glb_user_ddl = format!(
+            "DEFINE USER IF NOT EXISTS {} ON NAMESPACE PASSWORD '{}' ROLES OWNER;",
+            glb_cfg.system_user, glb_cfg.system_password,
+        );
+        if let Err(e) = adapter.raw_query(&glb_user_ddl).await {
+            tracing::warn!(error = ?e, "Failed to create system user on global namespace (non-fatal)");
         }
     }
 
@@ -140,7 +167,9 @@ pub async fn boot_consolidated(
         let api_port = graph_api.port;
         on_event(InitEvent::running("SurrealDB HTTP", &format!("Starting server on :{api_port}")));
         boot_log.running("SurrealDB HTTP", &format!("starting on :{api_port}..."));
-        match server::start(Arc::clone(&adapter), api_port).await {
+        let sys_user = &boot_config.services.system.graph.system_user;
+        let sys_pass = &boot_config.services.system.graph.system_password;
+        match server::start(Arc::clone(&adapter), api_port, sys_user, sys_pass).await {
             Ok(actual_port) => {
                 tracing::info!(configured_port = api_port, actual_port = actual_port, "SurrealDB HTTP server ready");
                 on_event(InitEvent::ok("SurrealDB HTTP", &format!("Listening on :{actual_port}")));

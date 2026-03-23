@@ -340,10 +340,11 @@ impl ServiceEntry {
     }
 
     /// System analytics service defaults.
+    /// NOTE: critical=true matches platform.default.toml (SSOT).
     pub fn system_analytics_default() -> Self {
         Self {
             enabled: true,
-            critical: false,
+            critical: true,
             kind: "duckdb".to_string(),
             path: "system/duckdb/analytics.duckdb".to_string(),
             retry: ServiceRetryConfig::default(),

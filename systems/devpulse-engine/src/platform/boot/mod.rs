@@ -110,6 +110,33 @@ pub async fn execute(
     // ── Boot log: real-time sink to file + stderr ──────────────
     let boot_log = BootLog::open(data_dir)?;
 
+    // ── Boot timeout from config ──────────────────────────────
+    let timeout_dur = std::time::Duration::from_secs(boot_config.boot.timeout_secs);
+    let result = tokio::time::timeout(timeout_dur, execute_inner(data_dir, boot_config, on_event, &boot_log)).await;
+
+    match result {
+        Ok(inner_result) => inner_result,
+        Err(_elapsed) => {
+            let total_ms = boot_log.elapsed_ms();
+            boot_log.boot_failed(
+                &format!("Boot timed out after {}s", boot_config.boot.timeout_secs),
+                total_ms,
+            );
+            anyhow::bail!(
+                "FATAL: Boot timed out after {}s (configured in [boot].timeout_secs)",
+                boot_config.boot.timeout_secs
+            );
+        }
+    }
+}
+
+/// Inner boot pipeline — called by `execute()` under a timeout guard.
+async fn execute_inner(
+    data_dir: &Path,
+    boot_config: &PlatformBootConfig,
+    on_event: &(impl Fn(InitEvent) + Send + 'static),
+    boot_log: &BootLog,
+) -> Result<BootedServices> {
     // ── Stage 1: Preflight — directory hierarchy ──────────────
     on_event(InitEvent::running("preflight", "Creating data directories"));
     boot_log.running("preflight", "creating data directories...");
@@ -333,6 +360,11 @@ pub async fn execute(
 }
 
 /// Validate that all critical services booted successfully.
+///
+/// When `boot_config.boot.require_all_critical` is true (default), any critical
+/// service failure is fatal — boot returns an error and UI never renders.
+/// When false, critical failures are logged as warnings and boot continues
+/// in degraded mode.
 fn validate_critical(
     system_relational: &Option<Arc<RelationalService>>,
     system_analytics: &Option<Arc<AnalyticsService>>,
@@ -342,34 +374,62 @@ fn validate_critical(
     boot_config: &PlatformBootConfig,
     boot_log: &BootLog,
 ) -> Result<()> {
+    let strict = boot_config.boot.require_all_critical;
+
+    // Collect failures instead of bailing immediately — report all at once
+    let mut failures: Vec<&str> = Vec::new();
+
     if system_relational.is_none() && boot_config.services.system.relational.enabled {
         boot_log.fail("VALIDATION", "System relational (LibSQL) is critical but failed");
-        anyhow::bail!("FATAL: System relational (LibSQL) was enabled but failed to boot");
+        failures.push("System relational (LibSQL)");
     }
     if system_analytics.is_none()
         && boot_config.services.system.analytics.enabled
         && boot_config.services.system.analytics.critical
     {
         boot_log.fail("VALIDATION", "System analytics (DuckDB) is critical but failed");
-        anyhow::bail!("FATAL: System analytics (DuckDB) was enabled+critical but failed to boot");
+        failures.push("System analytics (DuckDB)");
     }
     if system_graph.is_none() && boot_config.services.system.graph.enabled {
         boot_log.fail("VALIDATION", "System graph (SurrealDB) is critical but failed");
-        anyhow::bail!("FATAL: System graph (SurrealDB) was enabled but failed to boot");
+        failures.push("System graph (SurrealDB)");
     }
     if system_cache.is_none()
         && boot_config.services.system.cache.enabled
         && boot_config.services.system.cache.critical
     {
         boot_log.fail("VALIDATION", "System cache (Moka) is critical but failed");
-        anyhow::bail!("FATAL: System cache (Moka) was enabled+critical but failed to boot");
+        failures.push("System cache (Moka)");
     }
     if user_relational.is_none()
         && boot_config.services.user.relational.enabled
         && boot_config.services.user.relational.critical
     {
         boot_log.fail("VALIDATION", "User relational (LibSQL) is critical but failed");
-        anyhow::bail!("FATAL: User relational (LibSQL) was enabled+critical but failed to boot");
+        failures.push("User relational (LibSQL)");
     }
+
+    if !failures.is_empty() {
+        let total_ms = boot_log.elapsed_ms();
+        if strict {
+            boot_log.boot_failed(
+                &format!("{} critical service(s) failed: {}", failures.len(), failures.join(", ")),
+                total_ms,
+            );
+            anyhow::bail!(
+                "FATAL: {} critical service(s) failed to boot: {}. \
+                 Set [boot].require_all_critical = false to allow degraded mode.",
+                failures.len(),
+                failures.join(", ")
+            );
+        } else {
+            // Degraded mode — log but continue
+            tracing::warn!(
+                failures = failures.join(", "),
+                "Critical services failed but require_all_critical=false — degraded mode"
+            );
+        }
+    }
+
     Ok(())
 }

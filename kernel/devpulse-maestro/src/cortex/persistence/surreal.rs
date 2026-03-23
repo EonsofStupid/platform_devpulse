@@ -132,6 +132,21 @@ impl SurrealAdapter {
         Ok(())
     }
 
+    /// Execute raw SurrealQL on the current namespace/database context.
+    ///
+    /// Used by the boot pipeline to run config-driven DDL (DEFINE USER, etc.)
+    /// that can't be in static schema constants because it contains runtime values.
+    ///
+    /// # Errors
+    /// Returns error if the query fails.
+    pub async fn raw_query(&self, surql: &str) -> Result<()> {
+        let db = self.db.read().await;
+        db.query(surql)
+            .await
+            .with_context(|| format!("raw_query failed: {}", surql.chars().take(80).collect::<String>()))?;
+        Ok(())
+    }
+
     /// Initialize an additional namespace/database with its own schema.
     ///
     /// Switches to the given ns/db context, runs the schema DDL, then

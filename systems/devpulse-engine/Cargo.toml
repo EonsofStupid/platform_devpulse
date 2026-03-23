@@ -28,6 +28,7 @@ devpulse-maestro = { path = "../../kernel/devpulse-maestro" }
 
 # HTTP server (SurrealDB endpoint on :8822)
 axum = "0.8"
+base64 = "0.22"
 
 # Config
 toml = "0.8"
