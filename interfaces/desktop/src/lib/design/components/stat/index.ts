@@ -1,4 +1,10 @@
-export { contract as statComponentContract } from "./contract.js";
-export { statRecipe } from "./recipe.js";
+/**
+ * @file Stat — public API
+ * @kind stat
+ */
+
 export { default as Stat } from "./Stat.svelte";
-export type { StatProps, StatSize } from "./types.js";
+export { StatSchema, CATEGORY, type StatSchemaProps } from "./schema.js";
+export { statTokens, statSizeTokens } from "./tokens.js";
+export { statRecipes } from "./recipe.js";
+export type { StatProps, StatSize } from "./stat.types.js";

@@ -246,6 +246,58 @@ export type ProgressRecord = {
 	bar: string;
 };
 
+export const StatTokens = ['root-value-font-family', 'root-value-font-size', 'root-value-font-weight', 'root-value-color', 'root-value-glow-radius', 'root-label-font-size', 'root-label-color', 'root-gap', 'root-value-glow-color-color', 'root-value-glow-color-offsetX', 'root-value-glow-color-offsetY', 'root-value-glow-color-blur', 'root-value-glow-color-spread'] as const;
+export type StatToken = (typeof StatTokens)[number];
+
+export type StatCSSVar = '--stat-root-value-font-family' | '--stat-root-value-font-size' | '--stat-root-value-font-weight' | '--stat-root-value-color' | '--stat-root-value-glow-radius' | '--stat-root-label-font-size' | '--stat-root-label-color' | '--stat-root-gap' | '--stat-root-value-glow-color-color' | '--stat-root-value-glow-color-offset-x' | '--stat-root-value-glow-color-offset-y' | '--stat-root-value-glow-color-blur' | '--stat-root-value-glow-color-spread';
+
+export type StatRecord = {
+	root: {
+		value: {
+			'font-family': string;
+			'font-size': string;
+			'font-weight': string;
+			color: string;
+			'glow-radius': string;
+			'glow-color': {
+				color: string;
+				offsetX: string;
+				offsetY: string;
+				blur: string;
+				spread: string;
+			};
+		};
+		label: {
+			'font-size': string;
+			color: string;
+		};
+		gap: string;
+	};
+};
+
+export const StatusDotTokens = ['root-size', 'root-border-radius', 'root-glow-radius', 'root-color-online', 'root-color-offline', 'root-color-loading', 'root-color-pending', 'root-color-hybrid', 'root-color-ready', 'root-color-failed', 'glow-radius'] as const;
+export type StatusDotToken = (typeof StatusDotTokens)[number];
+
+export type StatusDotCSSVar = '--status-dot-root-size' | '--status-dot-root-border-radius' | '--status-dot-root-glow-radius' | '--status-dot-root-color-online' | '--status-dot-root-color-offline' | '--status-dot-root-color-loading' | '--status-dot-root-color-pending' | '--status-dot-root-color-hybrid' | '--status-dot-root-color-ready' | '--status-dot-root-color-failed' | '--status-dot-glow-radius';
+
+export type StatusDotRecord = {
+	root: {
+		size: string;
+		'border-radius': string;
+		'glow-radius': string;
+		color: {
+			online: string;
+			offline: string;
+			loading: string;
+			pending: string;
+			hybrid: string;
+			ready: string;
+			failed: string;
+		};
+	};
+	'glow-radius': string;
+};
+
 export const TextTokens = ['root-color-primary', 'root-color-secondary', 'root-color-muted', 'root-color-accent', 'root-font-family', 'root-line-height', 'root-letter-spacing'] as const;
 export type TextToken = (typeof TextTokens)[number];
 
@@ -590,15 +642,6 @@ export type AppShellCSSVar = '--app-shell-bg' | '--app-shell-border';
 export type AppShellRecord = {
 	bg: string;
 	border: string;
-};
-
-export const StatusDotTokens = ['glow-radius'] as const;
-export type StatusDotToken = (typeof StatusDotTokens)[number];
-
-export type StatusDotCSSVar = '--status-dot-glow-radius';
-
-export type StatusDotRecord = {
-	'glow-radius': string;
 };
 
 export const SpinnerTokens = ['icon'] as const;

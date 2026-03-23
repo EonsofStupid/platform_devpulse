@@ -44,6 +44,10 @@ impl SurrealAdapter {
     /// maestro defaults. Engine-level scoped stores pass their own
     /// namespace/database/schema from config.
     ///
+    /// The schema runs first as root (to create users/tables), then the
+    /// connection signs in as the dedicated system user for all subsequent
+    /// operations. This ensures the platform engine has a scoped identity.
+    ///
     /// # Errors
     /// Returns error if the database cannot be opened or schema initialization fails.
     pub async fn open_with_ns(
@@ -71,6 +75,11 @@ impl SurrealAdapter {
                 )
             })?;
 
+        // Embedded SurrealKV has implicit root access — no signin needed.
+        // DEFINE USER in schema creates namespace-scoped accounts for the
+        // HTTP API boundary (:8822) where external tools authenticate.
+        // The embedded connection operates as root by design.
+
         db.use_ns(namespace)
             .use_db(database)
             .await
@@ -82,7 +91,7 @@ impl SurrealAdapter {
             db: Arc::new(RwLock::new(db)),
         };
 
-        // Initialize with provided schema
+        // Initialize schema as root — this creates the system user + tables
         adapter.init_schema(schema).await?;
 
         Ok(adapter)

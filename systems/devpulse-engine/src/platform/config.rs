@@ -388,6 +388,12 @@ pub struct GraphServiceEntry {
     /// `SurrealDB` database.
     #[serde(default)]
     pub database: String,
+    /// Dedicated system user for platform engine access.
+    #[serde(default = "default_system_user")]
+    pub system_user: String,
+    /// Password for the dedicated system user.
+    #[serde(default = "default_system_password")]
+    pub system_password: String,
     /// Per-service retry config.
     #[serde(default)]
     pub retry: ServiceRetryConfig,
@@ -409,6 +415,8 @@ impl GraphServiceEntry {
             path: "system/surreal/reasoning".to_string(),
             namespace: "system".to_string(),
             database: "engine".to_string(),
+            system_user: default_system_user(),
+            system_password: "dp_sys_2026!".to_string(),
             retry: ServiceRetryConfig::default(),
         }
     }
@@ -422,6 +430,8 @@ impl GraphServiceEntry {
             path: "user/surreal/profile".to_string(),
             namespace: "user".to_string(),
             database: "profile".to_string(),
+            system_user: default_system_user(),
+            system_password: "dp_usr_2026!".to_string(),
             retry: ServiceRetryConfig::default(),
         }
     }
@@ -435,6 +445,8 @@ impl GraphServiceEntry {
             path: "global/surreal/knowledge".to_string(),
             namespace: "global".to_string(),
             database: "knowledge".to_string(),
+            system_user: default_system_user(),
+            system_password: "dp_glb_2026!".to_string(),
             retry: ServiceRetryConfig::default(),
         }
     }
@@ -746,6 +758,8 @@ impl DevForgeServiceEntry {
     }
 }
 
+fn default_system_user() -> String { "devpulse_engine".to_string() }
+fn default_system_password() -> String { "dp_sys_2026!".to_string() }
 fn default_candle_kind() -> String { "candle".to_string() }
 fn default_embedder_model_path() -> String { "system/candle/embedder".to_string() }
 fn default_whisper_model_path() -> String { "system/candle/whisper".to_string() }

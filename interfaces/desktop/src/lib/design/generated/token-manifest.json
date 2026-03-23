@@ -5787,6 +5787,331 @@
 			}
 		]
 	},
+	"stat": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "stat-root-value-font-family",
+				"path": [
+					"stat",
+					"root",
+					"value",
+					"font-family"
+				],
+				"cssVar": "--stat-root-value-font-family",
+				"value": [
+					"Orbitron",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "stat-root-value-font-size",
+				"path": [
+					"stat",
+					"root",
+					"value",
+					"font-size"
+				],
+				"cssVar": "--stat-root-value-font-size",
+				"value": "24px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "stat-root-value-font-weight",
+				"path": [
+					"stat",
+					"root",
+					"value",
+					"font-weight"
+				],
+				"cssVar": "--stat-root-value-font-weight",
+				"value": 700,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "stat-root-value-color",
+				"path": [
+					"stat",
+					"root",
+					"value",
+					"color"
+				],
+				"cssVar": "--stat-root-value-color",
+				"value": "#00aa90",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "stat-root-value-glow-radius",
+				"path": [
+					"stat",
+					"root",
+					"value",
+					"glow-radius"
+				],
+				"cssVar": "--stat-root-value-glow-radius",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "stat-root-label-font-size",
+				"path": [
+					"stat",
+					"root",
+					"label",
+					"font-size"
+				],
+				"cssVar": "--stat-root-label-font-size",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "stat-root-label-color",
+				"path": [
+					"stat",
+					"root",
+					"label",
+					"color"
+				],
+				"cssVar": "--stat-root-label-color",
+				"value": "#6b6b6b",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "stat-root-gap",
+				"path": [
+					"stat",
+					"root",
+					"gap"
+				],
+				"cssVar": "--stat-root-gap",
+				"value": "4px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "stat-root-value-glow-color-color",
+				"path": [
+					"stat",
+					"root",
+					"value",
+					"glow-color",
+					"color"
+				],
+				"cssVar": "--stat-root-value-glow-color-color",
+				"value": "#009076b3",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "stat-root-value-glow-color-offset-x",
+				"path": [
+					"stat",
+					"root",
+					"value",
+					"glow-color",
+					"offsetX"
+				],
+				"cssVar": "--stat-root-value-glow-color-offset-x",
+				"value": "0px",
+				"type": "offsetX",
+				"extensions": null
+			},
+			{
+				"name": "stat-root-value-glow-color-offset-y",
+				"path": [
+					"stat",
+					"root",
+					"value",
+					"glow-color",
+					"offsetY"
+				],
+				"cssVar": "--stat-root-value-glow-color-offset-y",
+				"value": "0px",
+				"type": "offsetY",
+				"extensions": null
+			},
+			{
+				"name": "stat-root-value-glow-color-blur",
+				"path": [
+					"stat",
+					"root",
+					"value",
+					"glow-color",
+					"blur"
+				],
+				"cssVar": "--stat-root-value-glow-color-blur",
+				"value": "30px",
+				"type": "blur",
+				"extensions": null
+			},
+			{
+				"name": "stat-root-value-glow-color-spread",
+				"path": [
+					"stat",
+					"root",
+					"value",
+					"glow-color",
+					"spread"
+				],
+				"cssVar": "--stat-root-value-glow-color-spread",
+				"value": "12px",
+				"type": "spread",
+				"extensions": null
+			}
+		]
+	},
+	"status-dot": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "status-dot-root-size",
+				"path": [
+					"status-dot",
+					"root",
+					"size"
+				],
+				"cssVar": "--status-dot-root-size",
+				"value": "8px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "status-dot-root-border-radius",
+				"path": [
+					"status-dot",
+					"root",
+					"border-radius"
+				],
+				"cssVar": "--status-dot-root-border-radius",
+				"value": "9999px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "status-dot-root-glow-radius",
+				"path": [
+					"status-dot",
+					"root",
+					"glow-radius"
+				],
+				"cssVar": "--status-dot-root-glow-radius",
+				"value": "6px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "status-dot-root-color-online",
+				"path": [
+					"status-dot",
+					"root",
+					"color",
+					"online"
+				],
+				"cssVar": "--status-dot-root-color-online",
+				"value": "#00aa90",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "status-dot-root-color-offline",
+				"path": [
+					"status-dot",
+					"root",
+					"color",
+					"offline"
+				],
+				"cssVar": "--status-dot-root-color-offline",
+				"value": "#d31717",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "status-dot-root-color-loading",
+				"path": [
+					"status-dot",
+					"root",
+					"color",
+					"loading"
+				],
+				"cssVar": "--status-dot-root-color-loading",
+				"value": "#b73ee0",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "status-dot-root-color-pending",
+				"path": [
+					"status-dot",
+					"root",
+					"color",
+					"pending"
+				],
+				"cssVar": "--status-dot-root-color-pending",
+				"value": "#6b6b6b",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "status-dot-root-color-hybrid",
+				"path": [
+					"status-dot",
+					"root",
+					"color",
+					"hybrid"
+				],
+				"cssVar": "--status-dot-root-color-hybrid",
+				"value": "#b73ee0",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "status-dot-root-color-ready",
+				"path": [
+					"status-dot",
+					"root",
+					"color",
+					"ready"
+				],
+				"cssVar": "--status-dot-root-color-ready",
+				"value": "#00aa90",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "status-dot-root-color-failed",
+				"path": [
+					"status-dot",
+					"root",
+					"color",
+					"failed"
+				],
+				"cssVar": "--status-dot-root-color-failed",
+				"value": "#d31717",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "status-dot-glow-radius",
+				"path": [
+					"status-dot",
+					"glow-radius"
+				],
+				"cssVar": "--status-dot-glow-radius",
+				"value": "6px",
+				"type": "dimension",
+				"extensions": null
+			}
+		]
+	},
 	"text": {
 		"extensions": {},
 		"tokens": [
@@ -7494,22 +7819,6 @@
 				"cssVar": "--app-shell-border",
 				"value": "#005c4a38",
 				"type": "color",
-				"extensions": null
-			}
-		]
-	},
-	"status-dot": {
-		"extensions": {},
-		"tokens": [
-			{
-				"name": "status-dot-glow-radius",
-				"path": [
-					"status-dot",
-					"glow-radius"
-				],
-				"cssVar": "--status-dot-glow-radius",
-				"value": "6px",
-				"type": "dimension",
 				"extensions": null
 			}
 		]

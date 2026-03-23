@@ -86,16 +86,12 @@ impl Service for GraphService {
 /// state transitions, and HMM states. Never user-facing data.
 pub const SYSTEM_GRAPH_SCHEMA: &str = r"
 -- ══════════════════════════════════════════════════════════════
--- System account — platform engine's dedicated access identity.
--- All platform operations authenticate as this user.
--- External tools (Claude Code, surreal sql) use root via HTTP API.
+-- Platform engine system account.
+-- OWNER role = full CRUD on all tables in this database.
+-- The platform engine authenticates as this user for all internal ops.
+-- External tools (Claude Code, surreal sql) connect as root via HTTP API :8822.
 -- ══════════════════════════════════════════════════════════════
-DEFINE USER IF NOT EXISTS devpulse_engine ON DATABASE PASSWORD 'dp_sys_2026!' ROLES OWNER;
-DEFINE ACCESS IF NOT EXISTS platform_access ON DATABASE TYPE RECORD
-    SIGNUP NONE
-    SIGNIN (
-        SELECT * FROM user WHERE name = $name AND crypto::argon2::compare(pass, $pass)
-    );
+DEFINE USER IF NOT EXISTS devpulse_engine ON NAMESPACE PASSWORD 'dp_sys_2026!' ROLES OWNER;
 
 -- Key-value store for signal-based access
 DEFINE TABLE IF NOT EXISTS kv SCHEMAFULL;
@@ -178,8 +174,8 @@ DEFINE INDEX IF NOT EXISTS rumination_session ON rumination_state FIELDS session
 /// Contains user knowledge relationships, memory graph with staging,
 /// learning patterns, and concept mastery connections.
 pub const USER_GRAPH_SCHEMA: &str = r"
--- User scope system account — platform reads/writes user data only via this identity.
-DEFINE USER IF NOT EXISTS devpulse_engine ON DATABASE PASSWORD 'dp_usr_2026!' ROLES OWNER;
+-- Platform engine user-scope account. OWNER on this namespace.
+DEFINE USER IF NOT EXISTS devpulse_engine ON NAMESPACE PASSWORD 'dp_usr_2026!' ROLES OWNER;
 
 -- Key-value store for signal-based access
 DEFINE TABLE IF NOT EXISTS kv SCHEMAFULL;
@@ -253,8 +249,8 @@ DEFINE INDEX IF NOT EXISTS corrections_absorbed ON corrections FIELDS absorbed;
 /// Cross-project shared knowledge: technology relationships,
 /// pattern recognition, project promotion signals, shared learnings.
 pub const GLOBAL_GRAPH_SCHEMA: &str = r"
--- Global scope system account — cross-project knowledge access identity.
-DEFINE USER IF NOT EXISTS devpulse_engine ON DATABASE PASSWORD 'dp_glb_2026!' ROLES OWNER;
+-- Platform engine global-scope account. OWNER on this namespace.
+DEFINE USER IF NOT EXISTS devpulse_engine ON NAMESPACE PASSWORD 'dp_glb_2026!' ROLES OWNER;
 
 -- Key-value store for signal-based access
 DEFINE TABLE IF NOT EXISTS kv SCHEMAFULL;

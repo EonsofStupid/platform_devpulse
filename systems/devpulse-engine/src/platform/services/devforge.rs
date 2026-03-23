@@ -13,6 +13,7 @@ use std::process::Child;
 use std::sync::Mutex;
 
 /// DevForge service — managed VSCode process.
+#[allow(dead_code)] // Fields stored for restart/status reporting
 pub struct DevForgeService {
     child: Mutex<Option<Child>>,
     binary_path: PathBuf,

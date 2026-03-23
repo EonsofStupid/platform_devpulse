@@ -305,7 +305,10 @@ pub async fn execute(
         anyhow::bail!("FATAL: Grammar service (outlines-core) was enabled+critical but failed to boot");
     }
 
-    tracing::info!(path = %boot_log.path().display(), "boot.log written");
+    // All critical services passed — log the ready line
+    let total_ms = boot_log.elapsed_ms();
+    boot_log.ready(total_ms);
+    tracing::info!(path = %boot_log.path().display(), total_ms, "boot.log written — all services confirmed");
 
     Ok(BootedServices {
         system_relational,

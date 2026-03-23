@@ -114,12 +114,14 @@ impl BootLog {
     }
 
     /// Log a boot failure — critical service could not start.
+    #[allow(dead_code)] // Called by Platform when boot fails with context
     pub fn boot_failed(&self, error: &str, total_ms: u64) {
         let line = format!("[ABORT] Boot failed: {error} ({total_ms}ms total)");
         self.emit(&line);
     }
 
     /// Log a health check result after boot.
+    #[allow(dead_code)] // Wired when Platform.health() feeds back to boot.log
     pub fn health(&self, service: &str, status: &str, latency_us: Option<u64>) {
         let latency_str = latency_us
             .map(|us| {
@@ -137,6 +139,11 @@ impl BootLog {
     /// Get the path to the log file.
     pub fn path(&self) -> &Path {
         &self.path
+    }
+
+    /// Total elapsed milliseconds since boot started.
+    pub fn elapsed_ms(&self) -> u64 {
+        self.start.elapsed().as_millis() as u64
     }
 
     // ── Internal ───────────────────────────────────────────────

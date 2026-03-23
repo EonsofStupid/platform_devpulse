@@ -1,23 +1,26 @@
 /**
- * @file Stat Recipe — Structural Classes Only
+ * @file Stat Recipes — as const named presets
  * @kind stat
- * @layer components
  *
- * Visual appearance (surface, depth, glow, etc.) flows through
- * useColdLight() → resolveVisual(). Recipe provides ONLY structural layout.
- *
- * NO hardcoded v-encoding classes. NO legacy shortcodes.
+ * Captures neuromorphic text glow as a DTCG-aligned composition.
  */
 
-import { cn } from "$lib/design/utils/cn.js";
-
-type StatRecipeProps = { size?: string };
-
-export function statRecipe(props: StatRecipeProps = {}): string {
-	const sizeMap: Record<string, string> = {
-		sm: "p-3 text-sm",
-		md: "p-4 text-sm",
-		lg: "p-6 text-base",
-	};
-	return cn("stat-root", sizeMap[props.size ?? "md"] ?? "p-4 text-sm");
-}
+export const statRecipes = {
+	"neuro-glow": {
+		"stat.root.value.color": "{color.teal.400}",
+		"stat.root.value.glow-color": "{glow.teal}",
+		"stat.root.value.glow-radius": "12px",
+		"stat.root.value.font-family": "{font.display}",
+	},
+	"flat-clean": {
+		"stat.root.value.color": "{text.primary}",
+		"stat.root.value.glow-radius": "0px",
+		"stat.root.value.font-family": "{font.sans}",
+	},
+	"purple-glow": {
+		"stat.root.value.color": "{color.purple.400}",
+		"stat.root.value.glow-color": "{glow.purple}",
+		"stat.root.value.glow-radius": "12px",
+		"stat.root.value.font-family": "{font.display}",
+	},
+} as const;

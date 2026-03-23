@@ -366,6 +366,115 @@
 			}
 		}
 	},
+	"stat": {
+		"root": {
+			"value": {
+				"font-family": {
+					"$value": "{font.display}",
+					"$type": "fontFamily",
+					"$description": "Display font for stat value"
+				},
+				"font-size": {
+					"$value": "24px",
+					"$type": "dimension",
+					"$description": "Value font size (md)"
+				},
+				"font-weight": {
+					"$value": 700,
+					"$type": "number",
+					"$description": "Value font weight — bold"
+				},
+				"color": {
+					"$value": "{color.teal.400}",
+					"$type": "color",
+					"$description": "Value text color"
+				},
+				"glow-radius": {
+					"$value": "12px",
+					"$type": "dimension",
+					"$description": "Text glow blur radius"
+				},
+				"glow-color": {
+					"$value": "{glow.teal}",
+					"$type": "color",
+					"$description": "Text glow color"
+				}
+			},
+			"label": {
+				"font-size": {
+					"$value": "12px",
+					"$type": "dimension",
+					"$description": "Label font size"
+				},
+				"color": {
+					"$value": "{color.neutral.500}",
+					"$type": "color",
+					"$description": "Label text color"
+				}
+			},
+			"gap": {
+				"$value": "4px",
+				"$type": "dimension",
+				"$description": "Gap between label and value"
+			}
+		}
+	},
+	"status-dot": {
+		"root": {
+			"size": {
+				"$value": "8px",
+				"$type": "dimension",
+				"$description": "Dot diameter"
+			},
+			"border-radius": {
+				"$value": "9999px",
+				"$type": "dimension",
+				"$description": "Full circle"
+			},
+			"glow-radius": {
+				"$value": "6px",
+				"$type": "dimension",
+				"$description": "Glow blur radius for box-shadow"
+			},
+			"color": {
+				"online": {
+					"$value": "{color.teal.400}",
+					"$type": "color",
+					"$description": "Online/ready/success status"
+				},
+				"offline": {
+					"$value": "{color.red.500}",
+					"$type": "color",
+					"$description": "Offline/failed/error status"
+				},
+				"loading": {
+					"$value": "{color.purple.400}",
+					"$type": "color",
+					"$description": "Loading/connecting status"
+				},
+				"pending": {
+					"$value": "{color.neutral.500}",
+					"$type": "color",
+					"$description": "Pending/unknown status"
+				},
+				"hybrid": {
+					"$value": "{color.purple.400}",
+					"$type": "color",
+					"$description": "Hybrid/partial status"
+				},
+				"ready": {
+					"$value": "{color.teal.400}",
+					"$type": "color",
+					"$description": "Ready status (alias for online)"
+				},
+				"failed": {
+					"$value": "{color.red.500}",
+					"$type": "color",
+					"$description": "Failed status (alias for offline)"
+				}
+			}
+		}
+	},
 	"base": {},
 	"text": {
 		"root": {
