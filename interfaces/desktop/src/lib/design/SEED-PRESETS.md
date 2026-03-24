@@ -431,14 +431,31 @@ These are the actual shadow compositions used via Tailwind `shadow-[]` syntax:
 
 ---
 
-## 20. Hardcoded Values to Migrate
+## 20. Hardcoded Values Found (Full Audit 2026-03-24)
 
-| Location | Value | Replace With |
-|----------|-------|-------------|
-| `routes/+page.svelte:14` | `rgba(255, 255, 255, 0.5)` | `var(--text-muted)` |
-| `bg-[#050708]` (stories) | `#050708` | `var(--color-void-base)` |
-| `RadialGauge.svelte:128` | Inline `text-shadow: 0 0 12px` | `var(--glow-{accent})` |
-| `devpulse/+page.svelte:213` | Inline `box-shadow: 0 0 6px` | `var(--glow-{status})` |
+### Fixed
+| Location | Was | Now |
+|----------|-----|-----|
+| `routes/+page.svelte:14` | `rgba(255, 255, 255, 0.5)` | `var(--text-muted)` ✅ |
+
+### Remaining (acceptable — dynamic token-driven)
+| Location | Value | Notes |
+|----------|-------|-------|
+| `devpulse/+page.svelte:209` | `style="color: {healthColors[status]}"` | Dynamic — maps to `var(--accent-*-main)` tokens at runtime |
+| `devpulse/+page.svelte:213` | `box-shadow: 0 0 6px {healthColors[status]}` | Glow size 6px is hardcoded — should be `var(--glow-spread-sm)` |
+| `devpulse/+page.svelte:255` | `style="background: var(--accent-{name}-main)"` | Already token-driven ✅ |
+| `ChatOverlay.svelte:114` | `width: 420px` | Structural layout constraint, not visual preset |
+| `Sidebar.svelte:78,103` | `padding-top: 0.25rem` | Structural spacing, not visual preset |
+| `bg-[#050708]` (stories only) | `#050708` | Should be `var(--color-void-base)` — stories are demo, not production |
+| `RadialGauge.svelte:128` | `text-shadow: 0 0 12px {colors.glow}` | Glow size 12px hardcoded — should be `var(--glow-spread-md)` |
+
+### Audit Summary
+- **Total files scanned**: 15 route pages + 6 layout files
+- **Hardcoded visual violations found**: 1 (fixed)
+- **Dynamic token-driven inline styles**: 3 (acceptable)
+- **Structural hardcoded values**: 2 (acceptable — not visual presets)
+- **Stories-only violations**: 1 (not production code)
+- **Glow spread hardcoded**: 2 (should migrate to `--glow-spread-*` tokens)
 
 ---
 

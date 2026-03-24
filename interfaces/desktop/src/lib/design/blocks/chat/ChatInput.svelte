@@ -50,7 +50,8 @@ function handleKeydown(e: KeyboardEvent): void {
 	class={cn("flex items-center gap-2 px-3 py-2", className)}
 >
 	<TextField
-		bind:value={inputValue}
+		value={inputValue}
+		oninput={(e) => { inputValue = e.currentTarget.value; }}
 		{placeholder}
 		{disabled}
 		onkeydown={handleKeydown}
