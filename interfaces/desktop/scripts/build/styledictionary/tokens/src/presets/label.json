@@ -1,0 +1,143 @@
+{
+	"preset": {
+		"$description": "Label preset compositions — minimal text labels with no depth or visual weight. VPB creates new presets by writing to this file.",
+		"label": {
+			"default": {
+				"$value": {
+					"surface": "{glass.void}",
+					"depth": "{shadow.z0}",
+					"bevel": "{bevel.off}",
+					"glow": "{glow.teal}",
+					"frame": "{borderPreset.divider}",
+					"transition": "{transition.color}"
+				},
+				"$description": "Neuro-elevated — teal glow text, no surface or depth",
+				"$extensions": {
+					"com.coldlight": {
+						"kind": "label",
+						"intent": "default",
+						"encoding": "v-s0z0d0b0g1f0m0t1",
+						"axis": {
+							"surface": 0,
+							"material": 0,
+							"depth": 0,
+							"bevel": 0,
+							"glow": 1,
+							"frame": 0,
+							"motion": 0,
+							"transition": 1
+						},
+						"css": {
+							"background": "transparent",
+							"boxShadow": "none",
+							"border": "none",
+							"transition": "var(--transition-color)"
+						}
+					}
+				}
+			},
+			"glass": {
+				"$value": {
+					"surface": "{glass.void}",
+					"depth": "{shadow.z0}",
+					"bevel": "{bevel.off}",
+					"glow": "{glow.off}",
+					"frame": "{borderPreset.divider}",
+					"transition": "{transition.color}"
+				},
+				"$description": "Glass deep — transparent label, no treatment",
+				"$extensions": {
+					"com.coldlight": {
+						"kind": "label",
+						"intent": "glass",
+						"encoding": "v-s0z0d0b0g0f0m0t1",
+						"axis": {
+							"surface": 0,
+							"material": 0,
+							"depth": 0,
+							"bevel": 0,
+							"glow": 0,
+							"frame": 0,
+							"motion": 0,
+							"transition": 1
+						},
+						"css": {
+							"background": "transparent",
+							"boxShadow": "none",
+							"border": "none",
+							"transition": "var(--transition-color)"
+						}
+					}
+				}
+			},
+			"flat": {
+				"$value": {
+					"surface": "{glass.void}",
+					"depth": "{shadow.z0}",
+					"bevel": "{bevel.off}",
+					"glow": "{glow.off}",
+					"frame": "{borderPreset.divider}",
+					"transition": "{transition.color}"
+				},
+				"$description": "Flat minimal — plain text label",
+				"$extensions": {
+					"com.coldlight": {
+						"kind": "label",
+						"intent": "flat",
+						"encoding": "v-s0z0d0b0g0f0m0t1",
+						"axis": {
+							"surface": 0,
+							"material": 0,
+							"depth": 0,
+							"bevel": 0,
+							"glow": 0,
+							"frame": 0,
+							"motion": 0,
+							"transition": 1
+						},
+						"css": {
+							"background": "transparent",
+							"boxShadow": "none",
+							"border": "none",
+							"transition": "var(--transition-color)"
+						}
+					}
+				}
+			},
+			"matte": {
+				"$value": {
+					"surface": "{glass.void}",
+					"depth": "{shadow.z0}",
+					"bevel": "{bevel.off}",
+					"glow": "{glow.off}",
+					"frame": "{borderPreset.divider}",
+					"transition": "{transition.color}"
+				},
+				"$description": "Matte solid — plain text label, no visual treatment",
+				"$extensions": {
+					"com.coldlight": {
+						"kind": "label",
+						"intent": "matte",
+						"encoding": "v-s0z0d0b0g0f0m0t1",
+						"axis": {
+							"surface": 0,
+							"material": 0,
+							"depth": 0,
+							"bevel": 0,
+							"glow": 0,
+							"frame": 0,
+							"motion": 0,
+							"transition": 1
+						},
+						"css": {
+							"background": "transparent",
+							"boxShadow": "none",
+							"border": "none",
+							"transition": "var(--transition-color)"
+						}
+					}
+				}
+			}
+		}
+	}
+}

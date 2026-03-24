@@ -44,7 +44,7 @@ const state = $derived(
 <button
 	type="button"
 	role="gridcell"
-	class={cn(className, className)}
+	class={cn(className)}
 	aria-selected={isSelected || isInRange}
 	aria-disabled={isDisabled || undefined}
 	aria-current={isToday ? "date" : undefined}

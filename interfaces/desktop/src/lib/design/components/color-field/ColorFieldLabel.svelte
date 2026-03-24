@@ -23,6 +23,6 @@ const ctx = getColorFieldContext();
 >
 	{@render children?.()}
 	{#if ctx.isRequired}
-		<span aria-hidden="true" class={}>*</span>
+		<span aria-hidden="true" class="">*</span>
 	{/if}
 </label>

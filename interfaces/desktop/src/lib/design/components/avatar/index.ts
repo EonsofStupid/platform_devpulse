@@ -7,7 +7,6 @@ export { default as Avatar } from "./Avatar.svelte";
 export { avatarDef } from "./avatar.def.js";
 export { AvatarSchema, CATEGORY, type AvatarSchemaProps } from "./schema.js";
 export { avatarTokens } from "./tokens.js";
-export { avatarRecipes } from "./composition.js";
 export type {
 	AvatarProps,
 	AvatarLoadStatus,

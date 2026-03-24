@@ -19,7 +19,6 @@ export { default as NavigationMenuContent } from "./NavigationMenuContent.svelte
 export { default as NavigationMenuItem } from "./NavigationMenuItem.svelte";
 export { default as NavigationMenuLink } from "./NavigationMenuLink.svelte";
 export { default as NavigationMenuTrigger } from "./NavigationMenuTrigger.svelte";
-export { navigationMenuComposition } from "./composition.js";
 export type {
 	NavigationMenuContentProps,
 	NavigationMenuItemProps,

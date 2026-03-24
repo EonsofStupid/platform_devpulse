@@ -7,6 +7,7 @@
 	Native <dialog> element. showModal() for focus trap + top-layer.
 -->
 <script lang="ts">
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { getDialogContext } from "./context.js";
 import type { DialogContentProps } from "./types.js";
@@ -24,16 +25,18 @@ const SIZE_CLASSES: Record<string, string> = {
 </script>
 
 {#if ctx.hook.open}
-	<dialog
-		{...ctx.hook.content}
-		use:ctx.hook.attachContent
-		id={ctx.ids.content}
-		data-kind="dialog"
-		data-slot="content"
-		class={cn(SIZE_CLASSES[ctx.size] ?? SIZE_CLASSES.md, className)}
-		{...rest}
-		open
-	>
-		{@render children?.()}
-	</dialog>
+	<StyleMacro kind="dialog" style="dialog-default">
+		<dialog
+			{...ctx.hook.content}
+			use:ctx.hook.attachContent
+			id={ctx.ids.content}
+			data-kind="dialog"
+			data-slot="content"
+			class={cn(SIZE_CLASSES[ctx.size] ?? SIZE_CLASSES.md, className)}
+			{...rest}
+			open
+		>
+			{@render children?.()}
+		</dialog>
+	</StyleMacro>
 {/if}

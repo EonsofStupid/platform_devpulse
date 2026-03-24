@@ -19,7 +19,6 @@ export { default as MenubarItem } from "./MenubarItem.svelte";
 export { default as MenubarMenu } from "./MenubarMenu.svelte";
 export { default as MenubarSeparator } from "./MenubarSeparator.svelte";
 export { default as MenubarTrigger } from "./MenubarTrigger.svelte";
-export { menubarComposition } from "./composition.js";
 export type {
 	MenubarContentProps,
 	MenubarItemProps,

@@ -145,16 +145,19 @@ const ctx: RangeCalendarContext = {
 
 setRangeCalendarContext(ctx);
 
+const styleId = "range-calendar-default";
 </script>
 
-<div
-	role="group"
-	aria-label="Range Calendar"
-	class={cn(className, className)}
-	data-kind="range-calendar"
-	data-slot="root"
-	data-state={disabled ? "disabled" : undefined}
-	{...rest}
->
-	{@render children?.()}
-</div>
+<StyleMacro kind="range-calendar" style={styleId}>
+	<div
+		role="group"
+		aria-label="Range Calendar"
+		class={cn(className)}
+		data-kind="range-calendar"
+		data-slot="root"
+		data-state={disabled ? "disabled" : undefined}
+		{...rest}
+	>
+		{@render children?.()}
+	</div>
+</StyleMacro>

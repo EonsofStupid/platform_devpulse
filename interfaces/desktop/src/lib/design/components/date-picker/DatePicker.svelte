@@ -8,6 +8,7 @@
 	Sets context for sub-components.
 -->
 <script lang="ts">
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/_internal/utils/uid.js";
 import { setDatePickerContext } from "./context.js";
@@ -127,10 +128,10 @@ setDatePickerContext({
 	toggle, openPopover, closePopover, selectDate, updateValue,
 });
 
-// Visual
-const rootClasses = $derived(cn(className));
+const styleId = "date-picker-default";
 </script>
 
+<StyleMacro kind="date-picker" style={styleId}>
 <div
 	id={resolvedIds.root}
 	{dir}
@@ -141,11 +142,11 @@ const rootClasses = $derived(cn(className));
 	data-kind="date-picker"
 	data-slot="root"
 	data-state={isDisabled ? "disabled" : isInvalid ? "invalid" : undefined}
-	class={rootClasses}
+	class={cn(className)}
 	{...rest}
 >
 	{#if label}
-		<label id={resolvedIds.label} for={resolvedIds.field} class={} data-kind="date-picker" data-slot="label">
+		<label id={resolvedIds.label} for={resolvedIds.field} class="text-sm font-medium" data-kind="date-picker" data-slot="label">
 			{label}{#if isRequired}<span aria-hidden="true" class="text-[var(--color-red-400)] ms-2">*</span>{/if}
 		</label>
 	{/if}
@@ -153,11 +154,11 @@ const rootClasses = $derived(cn(className));
 	{@render children?.()}
 
 	{#if description}
-		<p id={resolvedIds.description} class={} data-kind="date-picker" data-slot="description">{description}</p>
+		<p id={resolvedIds.description} class="text-xs" data-kind="date-picker" data-slot="description">{description}</p>
 	{/if}
 
 	{#if isInvalid && (errorMessage || validationError())}
-		<p id={resolvedIds.errorMessage} role="alert" class={} data-kind="date-picker" data-slot="error-message">
+		<p id={resolvedIds.errorMessage} role="alert" class="text-xs text-red-500" data-kind="date-picker" data-slot="error-message">
 			{errorMessage ?? validationError()}
 		</p>
 	{/if}
@@ -166,3 +167,4 @@ const rootClasses = $derived(cn(className));
 		<input type="hidden" {name} value={currentValue?.toISOString() ?? ""} {form} />
 	{/if}
 </div>
+</StyleMacro>

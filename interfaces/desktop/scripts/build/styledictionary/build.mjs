@@ -119,6 +119,13 @@ async function build() {
 		stdio: 'inherit',
 	});
 
+	// Step 2: Expand preset shorthand → 11-axis DTCG in component.json
+	console.log('[SD5] Expanding preset styles...');
+	execSync('node scripts/build/styledictionary/collect-preset-styles.mjs', {
+		cwd: process.cwd(),
+		stdio: 'inherit',
+	});
+
 	console.log('[SD5] Starting token build...');
 	console.log('[SD5] Source: tokens/src/*.json (flat domain files + collected component tokens)');
 	console.log('[SD5] Output: styles/ (tier-aware), theme/ (per-domain), types/ (per-domain)');

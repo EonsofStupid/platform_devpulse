@@ -449,7 +449,7 @@ const typesFile = (dest, filter) => ({
 // ═══════════════════════════════════════════════════════════════
 
 const config = {
-	source: [`${paths.source}/*.json`],
+	source: [`${paths.source}/*.json`, `${paths.source}/presets/*.json`],
 	usesDtcg: true,
 	expand: true,
 	preprocessors: [clPreprocessors.captureExtensions],

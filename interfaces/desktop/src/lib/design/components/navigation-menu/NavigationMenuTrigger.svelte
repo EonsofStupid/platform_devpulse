@@ -34,7 +34,7 @@ const ctx = getNavigationMenuItemContext();
 			ctx.close();
 		}
 	}}
-	class={cn(className, className)}
+	class={cn(className)}
 	data-kind="navigation-menu"
 	data-slot="trigger"
 	data-state={ctx.open ? "open" : "closed"}

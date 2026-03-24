@@ -4,6 +4,5 @@
  * @layer components
  */
 
-export { tableOfContentsComposition } from "./composition.js";
 export { default as TableOfContents } from "./TableOfContents.svelte";
 export type { TableOfContentsComponentProps, TableOfContentsSize } from "./types.js";

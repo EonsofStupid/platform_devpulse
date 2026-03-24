@@ -59,7 +59,7 @@ function handleKeydown(e: KeyboardEvent) {
 
 {#if isLiteral}
 	<span
-		class={cn(className, className)}
+		class={cn(className)}
 		data-kind="date-range-field"
 		data-slot="literal"
 		aria-hidden="true"
@@ -70,7 +70,7 @@ function handleKeydown(e: KeyboardEvent) {
 {:else}
 	<span
 		role="spinbutton"
-		class={cn(className, className)}
+		class={cn(className)}
 		aria-valuemin={segment.min}
 		aria-valuemax={segment.max}
 		aria-valuenow={segment.numericValue ?? undefined}

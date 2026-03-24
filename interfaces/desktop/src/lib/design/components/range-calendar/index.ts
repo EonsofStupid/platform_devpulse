@@ -12,7 +12,6 @@ export { default as RangeCalendar } from "./RangeCalendar.svelte";
 export { default as RangeCalendarCell } from "./RangeCalendarCell.svelte";
 export { default as RangeCalendarGrid } from "./RangeCalendarGrid.svelte";
 export { default as RangeCalendarHeader } from "./RangeCalendarHeader.svelte";
-export { rangeCalendarComposition } from "./composition.js";
 export type {
 	DateRange,
 	RangeCalendarCellProps,

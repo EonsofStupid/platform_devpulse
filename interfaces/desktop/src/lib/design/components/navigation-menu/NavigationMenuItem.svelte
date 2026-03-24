@@ -61,7 +61,7 @@ setNavigationMenuItemContext(ctx);
 </script>
 
 <li
-	class={cn(className, className)}
+	class={cn(className)}
 	data-kind="navigation-menu"
 	data-slot="item"
 	data-state={isOpen ? "open" : "closed"}

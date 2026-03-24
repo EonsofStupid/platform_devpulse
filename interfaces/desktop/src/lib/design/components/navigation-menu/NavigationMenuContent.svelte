@@ -28,7 +28,7 @@ const ctx = getNavigationMenuItemContext();
 				ctx.close();
 			}
 		}}
-		class={cn(className, className)}
+		class={cn(className)}
 		data-kind="navigation-menu"
 		data-slot="content"
 		data-state="open"

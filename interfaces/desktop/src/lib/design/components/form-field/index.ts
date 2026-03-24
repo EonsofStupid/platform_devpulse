@@ -11,5 +11,4 @@ export {
 	formFieldErrorComposition,
 	formFieldLabelComposition,
 	formFieldComposition,
-} from "./composition.js";
 export type { FormFieldComponentProps, FormFieldSize } from "./types.js";

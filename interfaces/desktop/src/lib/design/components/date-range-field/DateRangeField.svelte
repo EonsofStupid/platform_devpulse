@@ -10,6 +10,7 @@
 	Reference: WAI-ARIA APG Spinbutton Pattern
 -->
 <script lang="ts">
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { type DateRangeFieldContext, setDateRangeFieldContext } from "./context.js";
 import type { DateRangeFieldProps, DateSegment } from "./types.js";
@@ -210,15 +211,18 @@ setDateRangeFieldContext(ctx);
 
 
 const rootState = $derived(disabled ? "disabled" : readonlyProp ? "readonly" : undefined);
+const styleId = "date-range-field-default";
 </script>
 
-<div
-	role="group"
-	class={cn(className, className)}
-	data-kind="date-range-field"
-	data-slot="root"
-	data-state={rootState}
-	{...rest}
->
-	{@render children?.()}
-</div>
+<StyleMacro kind="date-range-field" style={styleId}>
+	<div
+		role="group"
+		class={cn(className)}
+		data-kind="date-range-field"
+		data-slot="root"
+		data-state={rootState}
+		{...rest}
+	>
+		{@render children?.()}
+	</div>
+</StyleMacro>

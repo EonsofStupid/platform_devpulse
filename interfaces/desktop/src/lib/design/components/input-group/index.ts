@@ -10,5 +10,4 @@ export {
 	inputGroupPrefixComposition,
 	inputGroupComposition,
 	inputGroupSuffixComposition,
-} from "./composition.js";
 export type { InputGroupComponentProps, InputGroupSize } from "./types.js";

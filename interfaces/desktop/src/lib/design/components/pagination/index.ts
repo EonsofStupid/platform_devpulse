@@ -10,5 +10,4 @@ export {
 	paginationNavComposition,
 	paginationPageComposition,
 	paginationRootComposition,
-} from "./composition.js";
 export type { PaginationComponentProps, PaginationSize } from "./types.js";

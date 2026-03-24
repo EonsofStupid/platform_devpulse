@@ -18,7 +18,7 @@ let { children, active = false, class: className, ...rest }: NavigationMenuLinkP
 
 <a
 	aria-current={active ? "page" : undefined}
-	class={cn(className, className)}
+	class={cn(className)}
 	data-kind="navigation-menu"
 	data-slot="link"
 	data-state={active ? "active" : undefined}

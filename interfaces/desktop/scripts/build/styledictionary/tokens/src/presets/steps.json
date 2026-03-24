@@ -1,0 +1,145 @@
+{
+	"preset": {
+		"$description": "Steps preset compositions — each preset references 8-axis tokens to define a complete visual style. VPB creates new presets by writing to this file.",
+		"steps": {
+			"default": {
+				"$value": {
+					"surface": "{surface.overlay}",
+					"depth": "{shadow.z2}",
+					"bevel": "{bevel.soft}",
+					"glow": "{glow.teal}",
+					"frame": "{borderPreset.strong}",
+					"transition": "{transition.all-fast}"
+				},
+				"$description": "Default Steps — teal glow, glass surface, soft bevel",
+				"$extensions": {
+					"com.coldlight": {
+						"kind": "steps",
+						"intent": "default",
+						"encoding": "v-s3z0d2b2g1f1m0t1",
+						"axis": {
+							"surface": 3,
+							"material": 0,
+							"depth": 2,
+							"bevel": 2,
+							"glow": 1,
+							"frame": 1,
+							"motion": 0,
+							"transition": 1
+						},
+						"css": {
+							"background": "var(--glass-deep)",
+							"backdropFilter": "blur(12px)",
+							"boxShadow": "var(--shadow-z2), var(--bevel-soft), var(--glow-teal)",
+							"border": "1px solid var(--border-strong)",
+							"transition": "var(--transition-all-fast)"
+						}
+					}
+				}
+			},
+			"glass": {
+				"$value": {
+					"surface": "{surface.raised}",
+					"depth": "{shadow.z1}",
+					"bevel": "{bevel.subtle}",
+					"glow": "{glow.off}",
+					"frame": "{borderPreset.default}",
+					"transition": "{transition.all-fast}"
+				},
+				"$description": "Glass deep — subtle glass, no glow, light bevel",
+				"$extensions": {
+					"com.coldlight": {
+						"kind": "steps",
+						"intent": "glass",
+						"encoding": "v-s2z0d1b1g0f1m0t1",
+						"axis": {
+							"surface": 2,
+							"material": 0,
+							"depth": 1,
+							"bevel": 1,
+							"glow": 0,
+							"frame": 1,
+							"motion": 0,
+							"transition": 1
+						},
+						"css": {
+							"background": "var(--glass-smoke)",
+							"backdropFilter": "blur(8px)",
+							"boxShadow": "var(--shadow-z1), var(--bevel-subtle)",
+							"border": "1px solid var(--border-subtle)",
+							"transition": "var(--transition-all-fast)"
+						}
+					}
+				}
+			},
+			"flat": {
+				"$value": {
+					"surface": "{glass.void}",
+					"depth": "{shadow.z0}",
+					"bevel": "{bevel.off}",
+					"glow": "{glow.off}",
+					"frame": "{borderPreset.divider}",
+					"transition": "{transition.color}"
+				},
+				"$description": "Flat minimal — transparent, no depth, minimal border",
+				"$extensions": {
+					"com.coldlight": {
+						"kind": "steps",
+						"intent": "flat",
+						"encoding": "v-s0z0d0b0g0f0m0t1",
+						"axis": {
+							"surface": 0,
+							"material": 0,
+							"depth": 0,
+							"bevel": 0,
+							"glow": 0,
+							"frame": 0,
+							"motion": 0,
+							"transition": 1
+						},
+						"css": {
+							"background": "transparent",
+							"boxShadow": "none",
+							"border": "1px solid transparent",
+							"transition": "var(--transition-color)"
+						}
+					}
+				}
+			},
+			"matte": {
+				"$value": {
+					"surface": "{surface.base}",
+					"depth": "{shadow.z1}",
+					"bevel": "{bevel.off}",
+					"glow": "{glow.off}",
+					"frame": "{borderPreset.default}",
+					"transition": "{transition.all-fast}"
+				},
+				"$description": "Matte solid — opaque surface, light shadow, no bevel",
+				"$extensions": {
+					"com.coldlight": {
+						"kind": "steps",
+						"intent": "matte",
+						"encoding": "v-s1z0d1b0g0f1m0t1",
+						"axis": {
+							"surface": 1,
+							"material": 0,
+							"depth": 1,
+							"bevel": 0,
+							"glow": 0,
+							"frame": 1,
+							"motion": 0,
+							"transition": 1
+						},
+						"css": {
+							"background": "var(--surface-base)",
+							"boxShadow": "var(--shadow-z1)",
+							"border": "1px solid var(--border-subtle)",
+							"transition": "var(--transition-all-fast)"
+						}
+					}
+				}
+			}
+		}
+	}
+}

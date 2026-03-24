@@ -23,7 +23,7 @@ const headingText = $derived(
 </script>
 
 <div
-	class={cn(className, className)}
+	class={cn(className)}
 	data-kind="range-calendar"
 	data-slot="header"
 	{...rest}

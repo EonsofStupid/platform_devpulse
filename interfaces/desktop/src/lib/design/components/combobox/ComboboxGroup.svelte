@@ -27,7 +27,7 @@ const labelId = uid("combobox-group");
 >
 	<div
 		id={labelId}
-		class={}
+		class=""
 		data-kind="combobox"
 		data-slot="group-label"
 	>

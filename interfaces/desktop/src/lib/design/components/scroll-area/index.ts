@@ -9,6 +9,5 @@ export {
 	scrollAreaScrollbarComposition,
 	scrollAreaThumbComposition,
 	scrollAreaViewportComposition,
-} from "./composition.js";
 export { default as ScrollArea } from "./ScrollArea.svelte";
 export type { ScrollAreaComponentProps, ScrollAreaOrientation, ScrollAreaSize } from "./types.js";

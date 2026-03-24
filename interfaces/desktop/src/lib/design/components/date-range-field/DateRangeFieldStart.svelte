@@ -19,7 +19,7 @@ const ctx = getDateRangeFieldContext();
 <div
 	role="group"
 	aria-label="Start date"
-	class={cn(className, className)}
+	class={cn(className)}
 	data-kind="date-range-field"
 	data-slot="start-field"
 	data-state={ctx.disabled ? "disabled" : ctx.focusedField === "start" ? "focused" : undefined}

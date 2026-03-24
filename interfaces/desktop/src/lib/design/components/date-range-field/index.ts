@@ -12,7 +12,6 @@ export { default as DateRangeField } from "./DateRangeField.svelte";
 export { default as DateRangeFieldEnd } from "./DateRangeFieldEnd.svelte";
 export { default as DateRangeFieldSegment } from "./DateRangeFieldSegment.svelte";
 export { default as DateRangeFieldStart } from "./DateRangeFieldStart.svelte";
-export { dateRangeFieldComposition } from "./composition.js";
 export type {
 	DateRange,
 	DateRangeFieldEndProps,

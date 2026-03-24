@@ -33,7 +33,7 @@ const headingText = $derived(
 		<button
 			type="button"
 			id={ctx.ids.prevButton}
-			class={}
+			class=""
 			aria-label="Previous month"
 			data-kind="calendar"
 			data-slot="prev-button"
@@ -44,7 +44,7 @@ const headingText = $derived(
 		</button>
 		<div
 			id={ctx.headingId}
-			class={}
+			class=""
 			aria-live="polite"
 			data-kind="calendar"
 			data-slot="heading"
@@ -54,7 +54,7 @@ const headingText = $derived(
 		<button
 			type="button"
 			id={ctx.ids.nextButton}
-			class={}
+			class=""
 			aria-label="Next month"
 			data-kind="calendar"
 			data-slot="next-button"

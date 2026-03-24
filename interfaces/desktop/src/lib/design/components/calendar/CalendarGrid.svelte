@@ -61,7 +61,7 @@ const weeks = $derived(getCalendarDates(ctx.currentMonth));
 		<thead>
 			<tr>
 				{#each weekDayNames as dayName}
-					<th scope="col" class={} abbr={dayName}>
+					<th scope="col" class="" abbr={dayName}>
 						{dayName}
 					</th>
 				{/each}
@@ -80,7 +80,7 @@ const weeks = $derived(getCalendarDates(ctx.currentMonth));
 							<button
 								type="button"
 								role="gridcell"
-								class={}
+								class=""
 								aria-selected={isSelected}
 								aria-disabled={isDateDisabled || undefined}
 								aria-current={isToday ? "date" : undefined}

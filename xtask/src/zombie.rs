@@ -18,9 +18,17 @@
 //!
 //! On startup, scans for leftover processes from crashed sessions and
 //! terminates them before they block the dev port or hold cargo locks.
+//!
+//! **Every subprocess call has a timeout.** If any OS tool (tasklist,
+//! PowerShell, taskkill) hangs, we print a warning and move on. The
+//! pipeline NEVER freezes silently.
 
 use crate::stage::Stage;
 use anyhow::Result;
+
+/// Max seconds any single subprocess (tasklist, taskkill, powershell) is
+/// allowed to run before we kill it and move on.
+const SUBPROCESS_TIMEOUT_SECS: u64 = 5;
 
 // ── Job Object (Windows) ─────────────────────────────────────────
 
@@ -112,13 +120,59 @@ mod job {
 #[cfg(windows)]
 pub use job::JobGuard;
 
+// ── Timeout helper ──────────────────────────────────────────────
+
+/// Run a subprocess with a timeout. Returns Ok(output) if it finishes
+/// in time, or Err with a message if it times out (subprocess is killed).
+/// Prints progress so the pipeline is NEVER silent.
+fn run_with_timeout(
+    cmd: &str,
+    args: &[&str],
+    timeout_secs: u64,
+) -> Result<std::process::Output, String> {
+    use std::process::{Command, Stdio};
+    use std::time::{Duration, Instant};
+
+    let mut child = Command::new(cmd)
+        .args(args)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .map_err(|e| format!("failed to spawn {cmd}: {e}"))?;
+
+    let deadline = Instant::now() + Duration::from_secs(timeout_secs);
+
+    loop {
+        match child.try_wait() {
+            Ok(Some(_status)) => {
+                // Exited — collect output
+                return child
+                    .wait_with_output()
+                    .map_err(|e| format!("{cmd} wait_with_output: {e}"));
+            }
+            Ok(None) => {
+                if Instant::now() >= deadline {
+                    let _ = child.kill();
+                    let _ = child.wait();
+                    return Err(format!(
+                        "{cmd} timed out after {timeout_secs}s — killed and moving on"
+                    ));
+                }
+                std::thread::sleep(Duration::from_millis(50));
+            }
+            Err(e) => {
+                return Err(format!("{cmd} try_wait error: {e}"));
+            }
+        }
+    }
+}
+
 // ── Stale process cleanup ────────────────────────────────────────
 
 /// Process names that can become zombies from crashed dev sessions.
 ///
 /// Must include ALL binary names that appear in our process tree:
 /// - The Tauri app binary and backend
-/// - cargo/rustc that hold the build lock
 /// - Previous xtask instances that froze
 /// - cargo-tauri (the Tauri CLI invoked by pnpm)
 const ZOMBIE_NAMES: &[&str] = &[
@@ -151,71 +205,101 @@ pub fn clear_build_lock_holders() -> Result<u32> {
     let stage = Stage::start("build lock scan");
 
     #[cfg(windows)]
-    let killed = {
-        use std::process::Command;
-        let my_pid = std::process::id();
-        let mut killed = 0u32;
-
-        // cargo and rustc are the only processes that hold Cargo's file lock.
-        for name in &["cargo", "rustc"] {
-            let check = Command::new("tasklist")
-                .args(["/FI", &format!("IMAGENAME eq {name}.exe"), "/NH", "/FO", "CSV"])
-                .output();
-
-            let Ok(output) = check else { continue };
-            let stdout = String::from_utf8_lossy(&output.stdout);
-
-            if stdout.contains("INFO:") || stdout.trim().is_empty() {
-                continue;
-            }
-
-            for line in stdout.lines() {
-                let line = line.trim();
-                if line.is_empty() || line.starts_with("\"Image") {
-                    continue;
-                }
-                if let Some(pid) = parse_csv_pid(line) {
-                    if pid == my_pid {
-                        continue;
-                    }
-                    println!("  [>>] killing stale {name}.exe (PID {pid}) — would block build lock");
-                    let _ = Command::new("taskkill")
-                        .args(["/F", "/T", "/PID", &pid.to_string()])
-                        .output();
-                    killed += 1;
-                }
-            }
-        }
-        killed
-    };
+    let killed = clear_build_lock_windows();
 
     #[cfg(not(windows))]
-    let killed = {
-        use std::process::Command;
-        let my_pid = std::process::id();
-        let mut killed = 0u32;
+    let killed = clear_build_lock_unix();
 
-        for name in &["cargo", "rustc"] {
-            let pgrep = Command::new("pgrep").args(["-x", name]).output();
-            let Ok(output) = pgrep else { continue };
-            let stdout = String::from_utf8_lossy(&output.stdout);
-
-            for pid in stdout.lines() {
-                let pid = pid.trim();
-                if pid.is_empty() { continue; }
-                if pid.parse::<u32>().ok() == Some(my_pid) { continue; }
-                println!("  [>>] killing stale {name} (PID {pid}) — would block build lock");
-                let _ = Command::new("kill").args(["-9", pid]).output();
-                killed += 1;
-            }
-        }
-        killed
-    };
+    let killed = killed?;
 
     if killed == 0 {
         stage.ok_with("no stale cargo/rustc — build lock is free");
     } else {
         stage.ok_with(format!("killed {killed} stale process(es) holding build lock"));
+    }
+
+    Ok(killed)
+}
+
+#[cfg(windows)]
+fn clear_build_lock_windows() -> Result<u32> {
+    use std::process::Command;
+
+    let my_pid = std::process::id();
+    let mut killed = 0u32;
+
+    for name in &["cargo", "rustc"] {
+        println!("    scanning for stale {name}.exe ...");
+
+        let output = match run_with_timeout(
+            "tasklist",
+            &["/FI", &format!("IMAGENAME eq {name}.exe"), "/NH", "/FO", "CSV"],
+            SUBPROCESS_TIMEOUT_SECS,
+        ) {
+            Ok(o) => o,
+            Err(msg) => {
+                eprintln!("  [!!] {msg}");
+                continue;
+            }
+        };
+
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        if stdout.contains("INFO:") || stdout.trim().is_empty() {
+            continue;
+        }
+
+        for line in stdout.lines() {
+            let line = line.trim();
+            if line.is_empty() || line.starts_with("\"Image") {
+                continue;
+            }
+            if let Some(pid) = parse_csv_pid(line) {
+                if pid == my_pid {
+                    continue;
+                }
+                println!("  [>>] killing stale {name}.exe (PID {pid}) — would block build lock");
+                let _ = Command::new("taskkill")
+                    .args(["/F", "/T", "/PID", &pid.to_string()])
+                    .output();
+                killed += 1;
+            }
+        }
+    }
+
+    Ok(killed)
+}
+
+#[cfg(not(windows))]
+fn clear_build_lock_unix() -> Result<u32> {
+    use std::process::Command;
+
+    let my_pid = std::process::id();
+    let mut killed = 0u32;
+
+    for name in &["cargo", "rustc"] {
+        println!("    scanning for stale {name} ...");
+
+        let output = match run_with_timeout("pgrep", &["-x", name], SUBPROCESS_TIMEOUT_SECS) {
+            Ok(o) => o,
+            Err(msg) => {
+                eprintln!("  [!!] {msg}");
+                continue;
+            }
+        };
+
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        for pid in stdout.lines() {
+            let pid = pid.trim();
+            if pid.is_empty() {
+                continue;
+            }
+            if pid.parse::<u32>().ok() == Some(my_pid) {
+                continue;
+            }
+            println!("  [>>] killing stale {name} (PID {pid}) — would block build lock");
+            let _ = Command::new("kill").args(["-9", pid]).output();
+            killed += 1;
+        }
     }
 
     Ok(killed)
@@ -246,19 +330,26 @@ pub fn cleanup(dev_port: u16) -> Result<u32> {
 
 #[cfg(windows)]
 fn cleanup_windows(dev_port: u16) -> Result<u32> {
-    use std::process::Command;
-
+    let my_pid = std::process::id();
     let mut killed = 0u32;
 
-    // Phase 1: Kill by process name
+    // Phase 1: Kill by process name — each tasklist call is timeout-guarded.
     for name in ZOMBIE_NAMES {
-        let check = Command::new("tasklist")
-            .args(["/FI", &format!("IMAGENAME eq {name}.exe"), "/NH", "/FO", "CSV"])
-            .output();
+        println!("    scanning for stale {name}.exe ...");
 
-        let Ok(output) = check else { continue };
+        let output = match run_with_timeout(
+            "tasklist",
+            &["/FI", &format!("IMAGENAME eq {name}.exe"), "/NH", "/FO", "CSV"],
+            SUBPROCESS_TIMEOUT_SECS,
+        ) {
+            Ok(o) => o,
+            Err(msg) => {
+                eprintln!("  [!!] {msg}");
+                continue;
+            }
+        };
+
         let stdout = String::from_utf8_lossy(&output.stdout);
-
         if stdout.contains("INFO:") || stdout.trim().is_empty() {
             continue;
         }
@@ -269,25 +360,27 @@ fn cleanup_windows(dev_port: u16) -> Result<u32> {
                 continue;
             }
             if let Some(pid) = parse_csv_pid(line) {
-                if pid == std::process::id() {
+                if pid == my_pid {
                     continue;
                 }
                 println!("  [>>] killing stale {name}.exe (PID {pid})");
-                let _ = Command::new("taskkill")
-                    .args(["/F", "/T", "/PID", &pid.to_string()])
-                    .output();
+                // taskkill can also hang — timeout it too
+                if let Err(msg) = run_with_timeout(
+                    "taskkill",
+                    &["/F", "/T", "/PID", &pid.to_string()],
+                    SUBPROCESS_TIMEOUT_SECS,
+                ) {
+                    eprintln!("  [!!] {msg}");
+                }
                 killed += 1;
             }
         }
     }
 
-    // Phase 2: Kill by command-line pattern via PowerShell (single invocation)
+    // Phase 2: Kill by command-line pattern via PowerShell (single invocation).
     // Uses Get-CimInstance (fast) instead of Get-WmiObject (deprecated, hangs).
-    // All patterns checked in one PowerShell process with a 10s timeout.
+    // Entire phase is timeout-guarded.
     let patterns = zombie_patterns(dev_port);
-    let my_pid = std::process::id();
-
-    // Build a single PowerShell filter for all patterns
     let conditions: Vec<String> = patterns
         .iter()
         .map(|p| format!("$_.CommandLine -like '*{p}*'"))
@@ -298,43 +391,23 @@ fn cleanup_windows(dev_port: u16) -> Result<u32> {
         "Get-CimInstance Win32_Process | \
          Where-Object {{ ({filter}) -and $_.ProcessId -ne {my_pid} }} | \
          ForEach-Object {{ \
-             Write-Host \"  [>>] killing stale PID $($_.ProcessId) (matched: $($_.CommandLine))\"; \
+             Write-Host \"  [>>] killing stale PID $($_.ProcessId)\"; \
              Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue \
          }}"
     );
 
-    if let Ok(mut child) = Command::new("powershell")
-        .args(["-NoProfile", "-Command", &ps_script])
-        .stdout(std::process::Stdio::piped())
-        .stderr(std::process::Stdio::null())
-        .spawn()
-    {
-        // 10 second timeout — if CIM is broken, don't block the pipeline
-        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(10);
-        let mut timed_out = false;
-        loop {
-            match child.try_wait() {
-                Ok(Some(_)) => break,
-                Ok(None) => {
-                    if std::time::Instant::now() >= deadline {
-                        eprintln!("  [!!] PowerShell zombie scan timed out (10s) — skipping");
-                        let _ = child.kill();
-                        let _ = child.wait();
-                        timed_out = true;
-                        break;
-                    }
-                    std::thread::sleep(std::time::Duration::from_millis(100));
-                }
-                Err(_) => break,
-            }
+    println!("    scanning command lines for dev process patterns ...");
+    match run_with_timeout(
+        "powershell",
+        &["-NoProfile", "-Command", &ps_script],
+        10, // PowerShell+CIM gets a longer leash but still bounded
+    ) {
+        Ok(output) => {
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            killed += stdout.matches("[>>]").count() as u32;
         }
-
-        if !timed_out {
-            // Process already exited — safe to read stdout
-            if let Ok(output) = child.wait_with_output() {
-                let stdout = String::from_utf8_lossy(&output.stdout);
-                killed += stdout.matches("[>>]").count() as u32;
-            }
+        Err(msg) => {
+            eprintln!("  [!!] {msg}");
         }
     }
 
@@ -343,25 +416,31 @@ fn cleanup_windows(dev_port: u16) -> Result<u32> {
 
 #[cfg(not(windows))]
 fn cleanup_unix(_dev_port: u16) -> Result<u32> {
-    use std::process::Command;
-
+    let my_pid = std::process::id();
     let mut killed = 0u32;
 
     for name in ZOMBIE_NAMES {
-        let pgrep = Command::new("pgrep").args(["-f", name]).output();
-        let Ok(output) = pgrep else { continue };
-        let stdout = String::from_utf8_lossy(&output.stdout);
+        println!("    scanning for stale {name} ...");
 
+        let output = match run_with_timeout("pgrep", &["-f", name], SUBPROCESS_TIMEOUT_SECS) {
+            Ok(o) => o,
+            Err(msg) => {
+                eprintln!("  [!!] {msg}");
+                continue;
+            }
+        };
+
+        let stdout = String::from_utf8_lossy(&output.stdout);
         for pid in stdout.lines() {
             let pid = pid.trim();
             if pid.is_empty() {
                 continue;
             }
-            if pid.parse::<u32>().ok() == Some(std::process::id()) {
+            if pid.parse::<u32>().ok() == Some(my_pid) {
                 continue;
             }
             println!("  [>>] killing stale {name} (PID {pid})");
-            let _ = Command::new("kill").args(["-9", pid]).output();
+            let _ = run_with_timeout("kill", &["-9", pid], SUBPROCESS_TIMEOUT_SECS);
             killed += 1;
         }
     }

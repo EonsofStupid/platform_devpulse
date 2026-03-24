@@ -1,0 +1,145 @@
+{
+	"preset": {
+		"$description": "Avatar preset compositions — circular image containers with glass border glow and subtle bevel. VPB creates new presets by writing to this file.",
+		"avatar": {
+			"default": {
+				"$value": {
+					"surface": "{surface.overlay}",
+					"depth": "{shadow.z1}",
+					"bevel": "{bevel.subtle}",
+					"glow": "{glow.teal}",
+					"frame": "{borderPreset.strong}",
+					"transition": "{transition.all-fast}"
+				},
+				"$description": "Neuro-elevated — glass border with teal glow ring, subtle bevel",
+				"$extensions": {
+					"com.coldlight": {
+						"kind": "avatar",
+						"intent": "default",
+						"encoding": "v-s3z0d1b1g1f1m0t1",
+						"axis": {
+							"surface": 3,
+							"material": 0,
+							"depth": 1,
+							"bevel": 1,
+							"glow": 1,
+							"frame": 1,
+							"motion": 0,
+							"transition": 1
+						},
+						"css": {
+							"background": "var(--glass-deep)",
+							"backdropFilter": "blur(8px)",
+							"boxShadow": "var(--shadow-z1), var(--bevel-subtle), var(--glow-teal)",
+							"border": "2px solid var(--border-strong)",
+							"transition": "var(--transition-all-fast)"
+						}
+					}
+				}
+			},
+			"glass": {
+				"$value": {
+					"surface": "{glass.deep}",
+					"depth": "{shadow.z1}",
+					"bevel": "{bevel.soft}",
+					"glow": "{glow.teal}",
+					"frame": "{borderPreset.default}",
+					"transition": "{transition.all-fast}"
+				},
+				"$description": "Glass-deep — deep glass frame, teal glow halo, soft bevel",
+				"$extensions": {
+					"com.coldlight": {
+						"kind": "avatar",
+						"intent": "glass",
+						"encoding": "v-s4z0d1b2g1f0m0t1",
+						"axis": {
+							"surface": 4,
+							"material": 0,
+							"depth": 1,
+							"bevel": 2,
+							"glow": 1,
+							"frame": 0,
+							"motion": 0,
+							"transition": 1
+						},
+						"css": {
+							"background": "var(--glass-deep)",
+							"backdropFilter": "blur(12px)",
+							"boxShadow": "var(--shadow-z1), var(--bevel-soft), var(--glow-teal)",
+							"border": "2px solid var(--border-subtle)",
+							"transition": "var(--transition-all-fast)"
+						}
+					}
+				}
+			},
+			"flat": {
+				"$value": {
+					"surface": "{surface.base}",
+					"depth": "{shadow.z0}",
+					"bevel": "{bevel.off}",
+					"glow": "{glow.off}",
+					"frame": "{borderPreset.default}",
+					"transition": "{transition.color}"
+				},
+				"$description": "Flat-minimal — solid surface, simple border, no effects",
+				"$extensions": {
+					"com.coldlight": {
+						"kind": "avatar",
+						"intent": "flat",
+						"encoding": "v-s1z0d0b0g0f1m0t1",
+						"axis": {
+							"surface": 1,
+							"material": 0,
+							"depth": 0,
+							"bevel": 0,
+							"glow": 0,
+							"frame": 1,
+							"motion": 0,
+							"transition": 1
+						},
+						"css": {
+							"background": "var(--surface-base)",
+							"boxShadow": "none",
+							"border": "2px solid var(--border-default)",
+							"transition": "var(--transition-color)"
+						}
+					}
+				}
+			},
+			"matte": {
+				"$value": {
+					"surface": "{surface.raised}",
+					"depth": "{shadow.z1}",
+					"bevel": "{bevel.medium}",
+					"glow": "{glow.off}",
+					"frame": "{borderPreset.strong}",
+					"transition": "{transition.all-normal}"
+				},
+				"$description": "Matte-solid — raised surface, medium bevel, strong frame, no glow",
+				"$extensions": {
+					"com.coldlight": {
+						"kind": "avatar",
+						"intent": "matte",
+						"encoding": "v-s2z0d1b3g0f1m0t2",
+						"axis": {
+							"surface": 2,
+							"material": 0,
+							"depth": 1,
+							"bevel": 3,
+							"glow": 0,
+							"frame": 1,
+							"motion": 0,
+							"transition": 2
+						},
+						"css": {
+							"background": "var(--surface-raised)",
+							"boxShadow": "var(--shadow-z1), var(--bevel-medium)",
+							"border": "2px solid var(--border-strong)",
+							"transition": "var(--transition-all-normal)"
+						}
+					}
+				}
+			}
+		}
+	}
+}

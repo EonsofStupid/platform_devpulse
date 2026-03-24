@@ -13,6 +13,7 @@
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/
 -->
 <script lang="ts">
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { type NavigationMenuRootCtx, setNavigationMenuRootContext } from "./context.js";
 import type { NavigationMenuProps } from "./types.js";
@@ -46,18 +47,20 @@ const ctx: NavigationMenuRootCtx = {
 setNavigationMenuRootContext(ctx);
 </script>
 
-<nav
-	aria-label={ariaLabel}
-	class={cn(className, className)}
-	data-kind="navigation-menu"
-	data-slot="root"
-	{...rest}
->
-	<ul
-		class={className}
+<StyleMacro kind="navigation-menu" style="navigation-menu-default">
+	<nav
+		aria-label={ariaLabel}
+		class={cn("relative", className)}
 		data-kind="navigation-menu"
-		data-slot="list"
+		data-slot="root"
+		{...rest}
 	>
-		{@render children?.()}
-	</ul>
-</nav>
+		<ul
+			class="flex items-center gap-1"
+			data-kind="navigation-menu"
+			data-slot="list"
+		>
+			{@render children?.()}
+		</ul>
+	</nav>
+</StyleMacro>

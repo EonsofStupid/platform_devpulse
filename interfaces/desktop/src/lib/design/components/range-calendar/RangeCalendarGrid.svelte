@@ -50,7 +50,7 @@ const weeks = $derived(getCalendarDates(ctx.currentMonth));
 	role="grid"
 	aria-labelledby={ctx.headingId}
 	aria-multiselectable="true"
-	class={cn(className, className)}
+	class={cn(className)}
 	data-kind="range-calendar"
 	data-slot="grid"
 	{...rest}
