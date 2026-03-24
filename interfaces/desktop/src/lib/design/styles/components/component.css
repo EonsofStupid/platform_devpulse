@@ -2394,6 +2394,55 @@
   --style-widget-matte-color: oklch(0.9461 0.0000 0.00);
   --style-widget-matte-border-radius: 0.5rem;
   --style-widget-matte-opacity: 1;
+  --style-badge-ember-glow-background-color: oklch(0.0901 0.0170 224.61 / 0.8);
+  --style-badge-ember-glow-background-blur: 0.75rem;
+  --style-badge-ember-glow-animation: 0ms;
+  --style-badge-ember-glow-transition: all 150ms cubic-bezier(0, 0, 0.2, 1);
+  --style-badge-ember-glow-color: oklch(1.0000 0.0000 0.00);
+  --style-badge-ember-glow-border-radius: 0.75rem;
+  --style-badge-ember-glow-opacity: 1;
+  --style-badge-glass-label-background-color: oklch(0.1402 0.0079 212.35 / 0.6509803921568628);
+  --style-badge-glass-label-background-blur: 0.5rem;
+  --style-badge-glass-label-animation: 0ms;
+  --style-badge-glass-label-transition: color, background-color, border-color 150ms cubic-bezier(0, 0, 0.2, 1);
+  --style-badge-glass-label-color: oklch(0.9461 0.0000 0.00);
+  --style-badge-glass-label-border-radius: 0.75rem;
+  --style-badge-glass-label-opacity: 1;
+  --style-button-voice-active-background-color: oklch(0.0901 0.0170 224.61 / 0.8);
+  --style-button-voice-active-background-blur: 0.75rem;
+  --style-button-voice-active-animation: 0ms;
+  --style-button-voice-active-transition: all 150ms cubic-bezier(0, 0, 0.2, 1);
+  --style-button-voice-active-color: oklch(1.0000 0.0000 0.00);
+  --style-button-voice-active-border-radius: 0.75rem;
+  --style-button-voice-active-opacity: 1;
+  --style-chat-bubble-ai-background-color: oklch(0.0901 0.0170 224.61 / 0.8);
+  --style-chat-bubble-ai-background-blur: 0.75rem;
+  --style-chat-bubble-ai-animation: 0ms;
+  --style-chat-bubble-ai-transition: all 150ms cubic-bezier(0, 0, 0.2, 1);
+  --style-chat-bubble-ai-color: oklch(1.0000 0.0000 0.00);
+  --style-chat-bubble-ai-border-radius: 0.75rem;
+  --style-chat-bubble-ai-opacity: 1;
+  --style-chat-bubble-user-background-color: oklch(0.1402 0.0079 212.35 / 0.6509803921568628);
+  --style-chat-bubble-user-background-blur: 0.5rem;
+  --style-chat-bubble-user-animation: 0ms;
+  --style-chat-bubble-user-transition: all 150ms cubic-bezier(0, 0, 0.2, 1);
+  --style-chat-bubble-user-color: oklch(0.9461 0.0000 0.00);
+  --style-chat-bubble-user-border-radius: 0.75rem;
+  --style-chat-bubble-user-opacity: 1;
+  --style-chat-bubble-system-background-color: oklch(0.0608 0.0104 194.77 / 0.8784313725490196);
+  --style-chat-bubble-system-background-blur: 0;
+  --style-chat-bubble-system-animation: 0ms;
+  --style-chat-bubble-system-transition: color, background-color, border-color 150ms cubic-bezier(0, 0, 0.2, 1);
+  --style-chat-bubble-system-color: oklch(0.7826 0.0000 0.00);
+  --style-chat-bubble-system-border-radius: 0.5rem;
+  --style-chat-bubble-system-opacity: 1;
+  --style-tabs-chrome-background-color: oklch(0.0901 0.0170 224.61 / 0.8);
+  --style-tabs-chrome-background-blur: 0.75rem;
+  --style-tabs-chrome-animation: 0ms;
+  --style-tabs-chrome-transition: all 150ms cubic-bezier(0, 0, 0.2, 1);
+  --style-tabs-chrome-color: oklch(1.0000 0.0000 0.00);
+  --style-tabs-chrome-border-radius: 0.75rem;
+  --style-tabs-chrome-opacity: 1;
   --encoding-axis-1: oklch(0.5133 0.2290 286.54);
   --encoding-axis-2: oklch(0.7946 0.2392 142.91);
   --graph-bg: oklch(0.1591 0.0000 0.00);
@@ -7717,6 +7766,117 @@
   --style-widget-matte-typography-font-weight: 400;
   --style-widget-matte-typography-letter-spacing: 0;
   --style-widget-matte-typography-line-height: 1.5;
+  --style-badge-ember-glow-shadow-1-color: oklch(0.0000 0.0000 0.00 / 0.12156862745098039);
+  --style-badge-ember-glow-shadow-1-offset-x: 0;
+  --style-badge-ember-glow-shadow-1-offset-y: 0.0625rem;
+  --style-badge-ember-glow-shadow-1-blur: 0.1875rem;
+  --style-badge-ember-glow-shadow-1-spread: 0;
+  --style-badge-ember-glow-shadow-2-color: oklch(0.0000 0.0000 0.00 / 0.23921568627450981);
+  --style-badge-ember-glow-shadow-2-offset-x: 0;
+  --style-badge-ember-glow-shadow-2-offset-y: 0.0625rem;
+  --style-badge-ember-glow-shadow-2-blur: 0.125rem;
+  --style-badge-ember-glow-shadow-2-spread: 0;
+  --style-badge-ember-glow-border-color: oklch(0.5106 0.0979 173.17 / 0.30196078431372547);
+  --style-badge-ember-glow-border-width: 0.0625rem;
+  --style-badge-ember-glow-border-style: solid;
+  --style-badge-ember-glow-typography-font-family: Inter, system-ui, sans-serif;
+  --style-badge-ember-glow-typography-font-size: 0.875rem;
+  --style-badge-ember-glow-typography-font-weight: 400;
+  --style-badge-ember-glow-typography-letter-spacing: 0;
+  --style-badge-ember-glow-typography-line-height: 1.5;
+  --style-badge-glass-label-shadow-color: oklch(0.0000 0.0000 0.00 / 0);
+  --style-badge-glass-label-shadow-offset-x: 0;
+  --style-badge-glass-label-shadow-offset-y: 0;
+  --style-badge-glass-label-shadow-blur: 0;
+  --style-badge-glass-label-shadow-spread: 0;
+  --style-badge-glass-label-border-color: oklch(0.4234 0.0810 173.37 / 0.2196078431372549);
+  --style-badge-glass-label-border-width: 0.0625rem;
+  --style-badge-glass-label-border-style: solid;
+  --style-badge-glass-label-typography-font-family: Inter, system-ui, sans-serif;
+  --style-badge-glass-label-typography-font-size: 0.875rem;
+  --style-badge-glass-label-typography-font-weight: 400;
+  --style-badge-glass-label-typography-letter-spacing: 0;
+  --style-badge-glass-label-typography-line-height: 1.5;
+  --style-button-voice-active-shadow-1-color: oklch(0.0000 0.0000 0.00 / 0.14901960784313725);
+  --style-button-voice-active-shadow-1-offset-x: 0;
+  --style-button-voice-active-shadow-1-offset-y: 0.625rem;
+  --style-button-voice-active-shadow-1-blur: 1.25rem;
+  --style-button-voice-active-shadow-1-spread: 0;
+  --style-button-voice-active-shadow-2-color: oklch(0.0000 0.0000 0.00 / 0.10196078431372549);
+  --style-button-voice-active-shadow-2-offset-x: 0;
+  --style-button-voice-active-shadow-2-offset-y: 0.1875rem;
+  --style-button-voice-active-shadow-2-blur: 0.375rem;
+  --style-button-voice-active-shadow-2-spread: 0;
+  --style-button-voice-active-border-color: oklch(0.5106 0.0979 173.17 / 0.30196078431372547);
+  --style-button-voice-active-border-width: 0.0625rem;
+  --style-button-voice-active-border-style: solid;
+  --style-button-voice-active-typography-font-family: Inter, system-ui, sans-serif;
+  --style-button-voice-active-typography-font-size: 0.875rem;
+  --style-button-voice-active-typography-font-weight: 400;
+  --style-button-voice-active-typography-letter-spacing: 0;
+  --style-button-voice-active-typography-line-height: 1.5;
+  --style-chat-bubble-ai-shadow-1-color: oklch(0.0000 0.0000 0.00 / 0.12156862745098039);
+  --style-chat-bubble-ai-shadow-1-offset-x: 0;
+  --style-chat-bubble-ai-shadow-1-offset-y: 0.0625rem;
+  --style-chat-bubble-ai-shadow-1-blur: 0.1875rem;
+  --style-chat-bubble-ai-shadow-1-spread: 0;
+  --style-chat-bubble-ai-shadow-2-color: oklch(0.0000 0.0000 0.00 / 0.23921568627450981);
+  --style-chat-bubble-ai-shadow-2-offset-x: 0;
+  --style-chat-bubble-ai-shadow-2-offset-y: 0.0625rem;
+  --style-chat-bubble-ai-shadow-2-blur: 0.125rem;
+  --style-chat-bubble-ai-shadow-2-spread: 0;
+  --style-chat-bubble-ai-border-color: oklch(0.5106 0.0979 173.17 / 0.30196078431372547);
+  --style-chat-bubble-ai-border-width: 0.0625rem;
+  --style-chat-bubble-ai-border-style: solid;
+  --style-chat-bubble-ai-typography-font-family: Inter, system-ui, sans-serif;
+  --style-chat-bubble-ai-typography-font-size: 0.875rem;
+  --style-chat-bubble-ai-typography-font-weight: 400;
+  --style-chat-bubble-ai-typography-letter-spacing: 0;
+  --style-chat-bubble-ai-typography-line-height: 1.5;
+  --style-chat-bubble-user-shadow-color: oklch(0.0000 0.0000 0.00 / 0);
+  --style-chat-bubble-user-shadow-offset-x: 0;
+  --style-chat-bubble-user-shadow-offset-y: 0;
+  --style-chat-bubble-user-shadow-blur: 0;
+  --style-chat-bubble-user-shadow-spread: 0;
+  --style-chat-bubble-user-border-color: oklch(0.4234 0.0810 173.37 / 0.2196078431372549);
+  --style-chat-bubble-user-border-width: 0.0625rem;
+  --style-chat-bubble-user-border-style: solid;
+  --style-chat-bubble-user-typography-font-family: Inter, system-ui, sans-serif;
+  --style-chat-bubble-user-typography-font-size: 0.875rem;
+  --style-chat-bubble-user-typography-font-weight: 400;
+  --style-chat-bubble-user-typography-letter-spacing: 0;
+  --style-chat-bubble-user-typography-line-height: 1.5;
+  --style-chat-bubble-system-shadow-color: oklch(0.0000 0.0000 0.00 / 0);
+  --style-chat-bubble-system-shadow-offset-x: 0;
+  --style-chat-bubble-system-shadow-offset-y: 0;
+  --style-chat-bubble-system-shadow-blur: 0;
+  --style-chat-bubble-system-shadow-spread: 0;
+  --style-chat-bubble-system-border-color: oklch(1.0000 0.0000 0.00 / 0.058823529411764705);
+  --style-chat-bubble-system-border-width: 0.0625rem;
+  --style-chat-bubble-system-border-style: solid;
+  --style-chat-bubble-system-typography-font-family: Inter, system-ui, sans-serif;
+  --style-chat-bubble-system-typography-font-size: 0.875rem;
+  --style-chat-bubble-system-typography-font-weight: 400;
+  --style-chat-bubble-system-typography-letter-spacing: 0;
+  --style-chat-bubble-system-typography-line-height: 1.5;
+  --style-tabs-chrome-shadow-1-color: oklch(0.0000 0.0000 0.00 / 0.14901960784313725);
+  --style-tabs-chrome-shadow-1-offset-x: 0;
+  --style-tabs-chrome-shadow-1-offset-y: 0.1875rem;
+  --style-tabs-chrome-shadow-1-blur: 0.375rem;
+  --style-tabs-chrome-shadow-1-spread: 0;
+  --style-tabs-chrome-shadow-2-color: oklch(0.0000 0.0000 0.00 / 0.12156862745098039);
+  --style-tabs-chrome-shadow-2-offset-x: 0;
+  --style-tabs-chrome-shadow-2-offset-y: 0.125rem;
+  --style-tabs-chrome-shadow-2-blur: 0.25rem;
+  --style-tabs-chrome-shadow-2-spread: 0;
+  --style-tabs-chrome-border-color: oklch(0.5106 0.0979 173.17 / 0.30196078431372547);
+  --style-tabs-chrome-border-width: 0.0625rem;
+  --style-tabs-chrome-border-style: solid;
+  --style-tabs-chrome-typography-font-family: Inter, system-ui, sans-serif;
+  --style-tabs-chrome-typography-font-size: 0.875rem;
+  --style-tabs-chrome-typography-font-weight: 400;
+  --style-tabs-chrome-typography-letter-spacing: 0;
+  --style-tabs-chrome-typography-line-height: 1.5;
   --preset-accordion-default-surface: oklch(0.0901 0.0170 224.61 / 0.8); /** Default Accordion — teal glow, glass surface, soft bevel */
   --preset-accordion-default-depth: [object Object],[object Object]; /** Default Accordion — teal glow, glass surface, soft bevel */
   --preset-accordion-default-bevel: [object Object],[object Object],[object Object]; /** Default Accordion — teal glow, glass surface, soft bevel */
@@ -8057,6 +8217,42 @@
   --preset-badge-matte-frame-width: 1px; /** Matte-solid — raised surface, soft bevel, no glow */
   --preset-badge-matte-frame-style: solid; /** Matte-solid — raised surface, soft bevel, no glow */
   --preset-badge-matte-transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1); /** Matte-solid — raised surface, soft bevel, no glow */
+  --preset-badge-ember-glow-surface: oklch(0.0901 0.0170 224.61 / 0.8); /** Ember glow badge — orange/red emission for warnings and active states */
+  --preset-badge-ember-glow-depth: [object Object],[object Object]; /** Ember glow badge — orange/red emission for warnings and active states */
+  --preset-badge-ember-glow-bevel-color: oklch(0.0000 0.0000 0.00 / 0); /** Ember glow badge — orange/red emission for warnings and active states */
+  --preset-badge-ember-glow-bevel-offset-x: 0px; /** Ember glow badge — orange/red emission for warnings and active states */
+  --preset-badge-ember-glow-bevel-offset-y: 0px; /** Ember glow badge — orange/red emission for warnings and active states */
+  --preset-badge-ember-glow-bevel-blur: 0px; /** Ember glow badge — orange/red emission for warnings and active states */
+  --preset-badge-ember-glow-bevel-spread: 0px; /** Ember glow badge — orange/red emission for warnings and active states */
+  --preset-badge-ember-glow-glow-color: oklch(0.5505 0.1800 25.02 / 0.7019607843137254); /** Ember glow badge — orange/red emission for warnings and active states */
+  --preset-badge-ember-glow-glow-offset-x: 0px; /** Ember glow badge — orange/red emission for warnings and active states */
+  --preset-badge-ember-glow-glow-offset-y: 0px; /** Ember glow badge — orange/red emission for warnings and active states */
+  --preset-badge-ember-glow-glow-blur: 30px; /** Ember glow badge — orange/red emission for warnings and active states */
+  --preset-badge-ember-glow-glow-spread: 12px; /** Ember glow badge — orange/red emission for warnings and active states */
+  --preset-badge-ember-glow-frame-color: oklch(0.5106 0.0979 173.17 / 0.30196078431372547); /** Ember glow badge — orange/red emission for warnings and active states */
+  --preset-badge-ember-glow-frame-width: 1px; /** Ember glow badge — orange/red emission for warnings and active states */
+  --preset-badge-ember-glow-frame-style: solid; /** Ember glow badge — orange/red emission for warnings and active states */
+  --preset-badge-ember-glow-transition: all 150ms cubic-bezier(0, 0, 0.2, 1); /** Ember glow badge — orange/red emission for warnings and active states */
+  --preset-badge-glass-label-surface: oklch(0.1402 0.0079 212.35 / 0.6509803921568628); /** Glass label — floating section label with glass background */
+  --preset-badge-glass-label-depth-color: oklch(0.0000 0.0000 0.00 / 0); /** Glass label — floating section label with glass background */
+  --preset-badge-glass-label-depth-offset-x: 0px; /** Glass label — floating section label with glass background */
+  --preset-badge-glass-label-depth-offset-y: 0px; /** Glass label — floating section label with glass background */
+  --preset-badge-glass-label-depth-blur: 0px; /** Glass label — floating section label with glass background */
+  --preset-badge-glass-label-depth-spread: 0px; /** Glass label — floating section label with glass background */
+  --preset-badge-glass-label-bevel-color: oklch(0.0000 0.0000 0.00 / 0); /** Glass label — floating section label with glass background */
+  --preset-badge-glass-label-bevel-offset-x: 0px; /** Glass label — floating section label with glass background */
+  --preset-badge-glass-label-bevel-offset-y: 0px; /** Glass label — floating section label with glass background */
+  --preset-badge-glass-label-bevel-blur: 0px; /** Glass label — floating section label with glass background */
+  --preset-badge-glass-label-bevel-spread: 0px; /** Glass label — floating section label with glass background */
+  --preset-badge-glass-label-glow-color: oklch(0.0000 0.0000 0.00 / 0); /** Glass label — floating section label with glass background */
+  --preset-badge-glass-label-glow-offset-x: 0px; /** Glass label — floating section label with glass background */
+  --preset-badge-glass-label-glow-offset-y: 0px; /** Glass label — floating section label with glass background */
+  --preset-badge-glass-label-glow-blur: 0px; /** Glass label — floating section label with glass background */
+  --preset-badge-glass-label-glow-spread: 0px; /** Glass label — floating section label with glass background */
+  --preset-badge-glass-label-frame-color: oklch(0.4234 0.0810 173.37 / 0.2196078431372549); /** Glass label — floating section label with glass background */
+  --preset-badge-glass-label-frame-width: 1px; /** Glass label — floating section label with glass background */
+  --preset-badge-glass-label-frame-style: solid; /** Glass label — floating section label with glass background */
+  --preset-badge-glass-label-transition: color, background-color, border-color 150ms cubic-bezier(0, 0, 0.2, 1); /** Glass label — floating section label with glass background */
   --preset-banner-default-surface: oklch(0.0901 0.0170 224.61 / 0.8); /** Default Banner — teal glow, glass surface, soft bevel */
   --preset-banner-default-depth: [object Object],[object Object]; /** Default Banner — teal glow, glass surface, soft bevel */
   --preset-banner-default-bevel: [object Object],[object Object],[object Object]; /** Default Banner — teal glow, glass surface, soft bevel */
@@ -8173,6 +8369,18 @@
   --preset-button-danger-frame-width: 1px; /** Danger action — ember glow, glass surface, soft bevel */
   --preset-button-danger-frame-style: solid; /** Danger action — ember glow, glass surface, soft bevel */
   --preset-button-danger-transition: all 150ms cubic-bezier(0, 0, 0.2, 1); /** Danger action — ember glow, glass surface, soft bevel */
+  --preset-button-voice-active-surface: oklch(0.0901 0.0170 224.61 / 0.8); /** Voice active — ember/red glow, pulsing, circular */
+  --preset-button-voice-active-depth: [object Object],[object Object]; /** Voice active — ember/red glow, pulsing, circular */
+  --preset-button-voice-active-bevel: [object Object],[object Object],[object Object]; /** Voice active — ember/red glow, pulsing, circular */
+  --preset-button-voice-active-glow-color: oklch(0.5505 0.1800 25.02 / 0.7019607843137254); /** Voice active — ember/red glow, pulsing, circular */
+  --preset-button-voice-active-glow-offset-x: 0px; /** Voice active — ember/red glow, pulsing, circular */
+  --preset-button-voice-active-glow-offset-y: 0px; /** Voice active — ember/red glow, pulsing, circular */
+  --preset-button-voice-active-glow-blur: 30px; /** Voice active — ember/red glow, pulsing, circular */
+  --preset-button-voice-active-glow-spread: 12px; /** Voice active — ember/red glow, pulsing, circular */
+  --preset-button-voice-active-frame-color: oklch(0.5106 0.0979 173.17 / 0.30196078431372547); /** Voice active — ember/red glow, pulsing, circular */
+  --preset-button-voice-active-frame-width: 1px; /** Voice active — ember/red glow, pulsing, circular */
+  --preset-button-voice-active-frame-style: solid; /** Voice active — ember/red glow, pulsing, circular */
+  --preset-button-voice-active-transition: all 150ms cubic-bezier(0, 0, 0.2, 1); /** Voice active — ember/red glow, pulsing, circular */
   --preset-calendar-default-surface: oklch(0.0901 0.0170 224.61 / 0.8); /** Neuro-elevated — glass grid surface, teal selection glow, soft bevel */
   --preset-calendar-default-depth: [object Object],[object Object]; /** Neuro-elevated — glass grid surface, teal selection glow, soft bevel */
   --preset-calendar-default-bevel: [object Object],[object Object],[object Object]; /** Neuro-elevated — glass grid surface, teal selection glow, soft bevel */
@@ -8341,6 +8549,58 @@
   --preset-card-matte-frame-width: 1px; /** Matte-solid — raised surface, strong bevel, medium depth, no glow */
   --preset-card-matte-frame-style: solid; /** Matte-solid — raised surface, strong bevel, medium depth, no glow */
   --preset-card-matte-transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1); /** Matte-solid — raised surface, strong bevel, medium depth, no glow */
+  --preset-chat-bubble-ai-surface: oklch(0.0901 0.0170 224.61 / 0.8); /** AI message bubble — glass deep, teal left border glow, subtle bevel */
+  --preset-chat-bubble-ai-depth: [object Object],[object Object]; /** AI message bubble — glass deep, teal left border glow, subtle bevel */
+  --preset-chat-bubble-ai-bevel: [object Object],[object Object]; /** AI message bubble — glass deep, teal left border glow, subtle bevel */
+  --preset-chat-bubble-ai-glow-color: oklch(0.5828 0.1109 173.95 / 0.7019607843137254); /** AI message bubble — glass deep, teal left border glow, subtle bevel */
+  --preset-chat-bubble-ai-glow-offset-x: 0px; /** AI message bubble — glass deep, teal left border glow, subtle bevel */
+  --preset-chat-bubble-ai-glow-offset-y: 0px; /** AI message bubble — glass deep, teal left border glow, subtle bevel */
+  --preset-chat-bubble-ai-glow-blur: 30px; /** AI message bubble — glass deep, teal left border glow, subtle bevel */
+  --preset-chat-bubble-ai-glow-spread: 12px; /** AI message bubble — glass deep, teal left border glow, subtle bevel */
+  --preset-chat-bubble-ai-frame-color: oklch(0.5106 0.0979 173.17 / 0.30196078431372547); /** AI message bubble — glass deep, teal left border glow, subtle bevel */
+  --preset-chat-bubble-ai-frame-width: 1px; /** AI message bubble — glass deep, teal left border glow, subtle bevel */
+  --preset-chat-bubble-ai-frame-style: solid; /** AI message bubble — glass deep, teal left border glow, subtle bevel */
+  --preset-chat-bubble-ai-transition: all 150ms cubic-bezier(0, 0, 0.2, 1); /** AI message bubble — glass deep, teal left border glow, subtle bevel */
+  --preset-chat-bubble-user-surface: oklch(0.1402 0.0079 212.35 / 0.6509803921568628); /** User message bubble — subtle glass, no glow, minimal */
+  --preset-chat-bubble-user-depth-color: oklch(0.0000 0.0000 0.00 / 0); /** User message bubble — subtle glass, no glow, minimal */
+  --preset-chat-bubble-user-depth-offset-x: 0px; /** User message bubble — subtle glass, no glow, minimal */
+  --preset-chat-bubble-user-depth-offset-y: 0px; /** User message bubble — subtle glass, no glow, minimal */
+  --preset-chat-bubble-user-depth-blur: 0px; /** User message bubble — subtle glass, no glow, minimal */
+  --preset-chat-bubble-user-depth-spread: 0px; /** User message bubble — subtle glass, no glow, minimal */
+  --preset-chat-bubble-user-bevel-color: oklch(0.0000 0.0000 0.00 / 0); /** User message bubble — subtle glass, no glow, minimal */
+  --preset-chat-bubble-user-bevel-offset-x: 0px; /** User message bubble — subtle glass, no glow, minimal */
+  --preset-chat-bubble-user-bevel-offset-y: 0px; /** User message bubble — subtle glass, no glow, minimal */
+  --preset-chat-bubble-user-bevel-blur: 0px; /** User message bubble — subtle glass, no glow, minimal */
+  --preset-chat-bubble-user-bevel-spread: 0px; /** User message bubble — subtle glass, no glow, minimal */
+  --preset-chat-bubble-user-glow-color: oklch(0.0000 0.0000 0.00 / 0); /** User message bubble — subtle glass, no glow, minimal */
+  --preset-chat-bubble-user-glow-offset-x: 0px; /** User message bubble — subtle glass, no glow, minimal */
+  --preset-chat-bubble-user-glow-offset-y: 0px; /** User message bubble — subtle glass, no glow, minimal */
+  --preset-chat-bubble-user-glow-blur: 0px; /** User message bubble — subtle glass, no glow, minimal */
+  --preset-chat-bubble-user-glow-spread: 0px; /** User message bubble — subtle glass, no glow, minimal */
+  --preset-chat-bubble-user-frame-color: oklch(0.4234 0.0810 173.37 / 0.2196078431372549); /** User message bubble — subtle glass, no glow, minimal */
+  --preset-chat-bubble-user-frame-width: 1px; /** User message bubble — subtle glass, no glow, minimal */
+  --preset-chat-bubble-user-frame-style: solid; /** User message bubble — subtle glass, no glow, minimal */
+  --preset-chat-bubble-user-transition: all 150ms cubic-bezier(0, 0, 0.2, 1); /** User message bubble — subtle glass, no glow, minimal */
+  --preset-chat-bubble-system-surface: oklch(0.0608 0.0104 194.77 / 0.8784313725490196); /** System message — transparent, divider border, minimal */
+  --preset-chat-bubble-system-depth-color: oklch(0.0000 0.0000 0.00 / 0); /** System message — transparent, divider border, minimal */
+  --preset-chat-bubble-system-depth-offset-x: 0px; /** System message — transparent, divider border, minimal */
+  --preset-chat-bubble-system-depth-offset-y: 0px; /** System message — transparent, divider border, minimal */
+  --preset-chat-bubble-system-depth-blur: 0px; /** System message — transparent, divider border, minimal */
+  --preset-chat-bubble-system-depth-spread: 0px; /** System message — transparent, divider border, minimal */
+  --preset-chat-bubble-system-bevel-color: oklch(0.0000 0.0000 0.00 / 0); /** System message — transparent, divider border, minimal */
+  --preset-chat-bubble-system-bevel-offset-x: 0px; /** System message — transparent, divider border, minimal */
+  --preset-chat-bubble-system-bevel-offset-y: 0px; /** System message — transparent, divider border, minimal */
+  --preset-chat-bubble-system-bevel-blur: 0px; /** System message — transparent, divider border, minimal */
+  --preset-chat-bubble-system-bevel-spread: 0px; /** System message — transparent, divider border, minimal */
+  --preset-chat-bubble-system-glow-color: oklch(0.0000 0.0000 0.00 / 0); /** System message — transparent, divider border, minimal */
+  --preset-chat-bubble-system-glow-offset-x: 0px; /** System message — transparent, divider border, minimal */
+  --preset-chat-bubble-system-glow-offset-y: 0px; /** System message — transparent, divider border, minimal */
+  --preset-chat-bubble-system-glow-blur: 0px; /** System message — transparent, divider border, minimal */
+  --preset-chat-bubble-system-glow-spread: 0px; /** System message — transparent, divider border, minimal */
+  --preset-chat-bubble-system-frame-color: oklch(1.0000 0.0000 0.00 / 0.058823529411764705); /** System message — transparent, divider border, minimal */
+  --preset-chat-bubble-system-frame-width: 1px; /** System message — transparent, divider border, minimal */
+  --preset-chat-bubble-system-frame-style: solid; /** System message — transparent, divider border, minimal */
+  --preset-chat-bubble-system-transition: color, background-color, border-color 150ms cubic-bezier(0, 0, 0.2, 1); /** System message — transparent, divider border, minimal */
   --preset-checkbox-default-surface: oklch(0.1395 0.0048 262.80); /** Neuro-elevated — inset bevel well, teal glow when checked, strong frame */
   --preset-checkbox-default-depth: [object Object],[object Object]; /** Neuro-elevated — inset bevel well, teal glow when checked, strong frame */
   --preset-checkbox-default-bevel: [object Object],[object Object],[object Object]; /** Neuro-elevated — inset bevel well, teal glow when checked, strong frame */
@@ -11757,6 +12017,18 @@
   --preset-tabs-matte-frame-width: 1px; /** Matte solid — opaque surface, light shadow, no bevel */
   --preset-tabs-matte-frame-style: solid; /** Matte solid — opaque surface, light shadow, no bevel */
   --preset-tabs-matte-transition: all 150ms cubic-bezier(0, 0, 0.2, 1); /** Matte solid — opaque surface, light shadow, no bevel */
+  --preset-tabs-chrome-surface: oklch(0.0901 0.0170 224.61 / 0.8); /** Chrome tabs — curved top corners, active tab merges with container glass, teal underline glow */
+  --preset-tabs-chrome-depth: [object Object],[object Object]; /** Chrome tabs — curved top corners, active tab merges with container glass, teal underline glow */
+  --preset-tabs-chrome-bevel: [object Object],[object Object],[object Object]; /** Chrome tabs — curved top corners, active tab merges with container glass, teal underline glow */
+  --preset-tabs-chrome-glow-color: oklch(0.5828 0.1109 173.95 / 0.7019607843137254); /** Chrome tabs — curved top corners, active tab merges with container glass, teal underline glow */
+  --preset-tabs-chrome-glow-offset-x: 0px; /** Chrome tabs — curved top corners, active tab merges with container glass, teal underline glow */
+  --preset-tabs-chrome-glow-offset-y: 0px; /** Chrome tabs — curved top corners, active tab merges with container glass, teal underline glow */
+  --preset-tabs-chrome-glow-blur: 30px; /** Chrome tabs — curved top corners, active tab merges with container glass, teal underline glow */
+  --preset-tabs-chrome-glow-spread: 12px; /** Chrome tabs — curved top corners, active tab merges with container glass, teal underline glow */
+  --preset-tabs-chrome-frame-color: oklch(0.5106 0.0979 173.17 / 0.30196078431372547); /** Chrome tabs — curved top corners, active tab merges with container glass, teal underline glow */
+  --preset-tabs-chrome-frame-width: 1px; /** Chrome tabs — curved top corners, active tab merges with container glass, teal underline glow */
+  --preset-tabs-chrome-frame-style: solid; /** Chrome tabs — curved top corners, active tab merges with container glass, teal underline glow */
+  --preset-tabs-chrome-transition: all 150ms cubic-bezier(0, 0, 0.2, 1); /** Chrome tabs — curved top corners, active tab merges with container glass, teal underline glow */
   --preset-text-field-default-surface: oklch(0.0901 0.0170 224.61 / 0.8); /** Default Text field — teal glow, glass surface, soft bevel */
   --preset-text-field-default-depth: [object Object],[object Object]; /** Default Text field — teal glow, glass surface, soft bevel */
   --preset-text-field-default-bevel: [object Object],[object Object],[object Object]; /** Default Text field — teal glow, glass surface, soft bevel */

@@ -139,6 +139,33 @@
 						}
 					}
 				}
+			},
+			"voice-active": {
+				"$value": {
+					"surface": "{surface.overlay}",
+					"depth": "{shadow.z3}",
+					"bevel": "{bevel.soft}",
+					"glow": "{glow.ember}",
+					"frame": "{borderPreset.strong}",
+					"transition": "{transition.all-fast}"
+				},
+				"$description": "Voice active — ember/red glow, pulsing, circular",
+				"$extensions": {
+					"com.coldlight": {
+						"kind": "button",
+						"intent": "voice-active",
+						"encoding": "v-s3z0d3b2g4f1m1t1",
+						"axis": { "surface": 3, "material": 0, "depth": 3, "bevel": 2, "glow": 4, "frame": 1, "motion": 1, "transition": 1 },
+						"css": {
+							"background": "var(--accent-ember-fill)",
+							"borderRadius": "var(--radius-full)",
+							"boxShadow": "0 0 16px var(--accent-ember-glow), var(--shadow-z3), var(--bevel-soft)",
+							"border": "1px solid var(--accent-ember-main)",
+							"animation": "var(--motion-animation-pulse-glow)",
+							"transition": "var(--transition-all-fast)"
+						}
+					}
+				}
 			}
 		}
 	}

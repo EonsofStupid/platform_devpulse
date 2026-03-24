@@ -138,6 +138,54 @@
 						}
 					}
 				}
+			},
+			"ember-glow": {
+				"$value": {
+					"surface": "{surface.overlay}",
+					"depth": "{shadow.z1}",
+					"bevel": "{bevel.off}",
+					"glow": "{glow.ember}",
+					"frame": "{borderPreset.strong}",
+					"transition": "{transition.all-fast}"
+				},
+				"$description": "Ember glow badge — orange/red emission for warnings and active states",
+				"$extensions": {
+					"com.coldlight": {
+						"kind": "badge",
+						"intent": "ember-glow",
+						"encoding": "v-s3z0d1b0g4f1m0t1",
+						"axis": { "surface": 3, "material": 0, "depth": 1, "bevel": 0, "glow": 4, "frame": 1, "motion": 0, "transition": 1 },
+						"css": {
+							"background": "var(--accent-ember-fill)",
+							"color": "var(--accent-ember-main)",
+							"boxShadow": "0 0 8px var(--accent-ember-glow)",
+							"border": "1px solid var(--accent-ember-main)"
+						}
+					}
+				}
+			},
+			"glass-label": {
+				"$value": {
+					"surface": "{surface.raised}",
+					"depth": "{shadow.z0}",
+					"bevel": "{bevel.off}",
+					"glow": "{glow.off}",
+					"frame": "{borderPreset.default}",
+					"transition": "{transition.color}"
+				},
+				"$description": "Glass label — floating section label with glass background",
+				"$extensions": {
+					"com.coldlight": {
+						"kind": "badge",
+						"intent": "glass-label",
+						"encoding": "v-s2z0d0b0g0f1m0t1",
+						"axis": { "surface": 2, "material": 0, "depth": 0, "bevel": 0, "glow": 0, "frame": 1, "motion": 0, "transition": 1 },
+						"css": {
+							"background": "var(--glass-smoke)",
+							"border": "1px solid var(--border-subtle)"
+						}
+					}
+				}
 			}
 		}
 	}

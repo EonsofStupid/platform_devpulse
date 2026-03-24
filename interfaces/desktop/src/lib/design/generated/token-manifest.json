@@ -34208,6 +34208,594 @@
 				"extensions": null
 			},
 			{
+				"name": "style-badge-ember-glow-background-color",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"backgroundColor"
+				],
+				"cssVar": "--style-badge-ember-glow-background-color",
+				"value": "#000305cc",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-ember-glow-background-blur",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"backgroundBlur"
+				],
+				"cssVar": "--style-badge-ember-glow-background-blur",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-ember-glow-animation",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"animation"
+				],
+				"cssVar": "--style-badge-ember-glow-animation",
+				"value": "0ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-ember-glow-transition",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"transition"
+				],
+				"cssVar": "--style-badge-ember-glow-transition",
+				"value": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+				"type": "transition",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-ember-glow-color",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"color"
+				],
+				"cssVar": "--style-badge-ember-glow-color",
+				"value": "#ffffff",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-ember-glow-border-radius",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"borderRadius"
+				],
+				"cssVar": "--style-badge-ember-glow-border-radius",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-ember-glow-opacity",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"opacity"
+				],
+				"cssVar": "--style-badge-ember-glow-opacity",
+				"value": 1,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-glass-label-background-color",
+				"path": [
+					"style",
+					"badge-glass-label",
+					"backgroundColor"
+				],
+				"cssVar": "--style-badge-glass-label-background-color",
+				"value": "#060a0ba6",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-glass-label-background-blur",
+				"path": [
+					"style",
+					"badge-glass-label",
+					"backgroundBlur"
+				],
+				"cssVar": "--style-badge-glass-label-background-blur",
+				"value": "8px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-glass-label-animation",
+				"path": [
+					"style",
+					"badge-glass-label",
+					"animation"
+				],
+				"cssVar": "--style-badge-glass-label-animation",
+				"value": "0ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-glass-label-transition",
+				"path": [
+					"style",
+					"badge-glass-label",
+					"transition"
+				],
+				"cssVar": "--style-badge-glass-label-transition",
+				"value": "color, background-color, border-color 150ms cubic-bezier(0, 0, 0.2, 1)",
+				"type": "transition",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-glass-label-color",
+				"path": [
+					"style",
+					"badge-glass-label",
+					"color"
+				],
+				"cssVar": "--style-badge-glass-label-color",
+				"value": "#ededed",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-glass-label-border-radius",
+				"path": [
+					"style",
+					"badge-glass-label",
+					"borderRadius"
+				],
+				"cssVar": "--style-badge-glass-label-border-radius",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-glass-label-opacity",
+				"path": [
+					"style",
+					"badge-glass-label",
+					"opacity"
+				],
+				"cssVar": "--style-badge-glass-label-opacity",
+				"value": 1,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-background-color",
+				"path": [
+					"style",
+					"button-voice-active",
+					"backgroundColor"
+				],
+				"cssVar": "--style-button-voice-active-background-color",
+				"value": "#000305cc",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-background-blur",
+				"path": [
+					"style",
+					"button-voice-active",
+					"backgroundBlur"
+				],
+				"cssVar": "--style-button-voice-active-background-blur",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-animation",
+				"path": [
+					"style",
+					"button-voice-active",
+					"animation"
+				],
+				"cssVar": "--style-button-voice-active-animation",
+				"value": "0ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-transition",
+				"path": [
+					"style",
+					"button-voice-active",
+					"transition"
+				],
+				"cssVar": "--style-button-voice-active-transition",
+				"value": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+				"type": "transition",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-color",
+				"path": [
+					"style",
+					"button-voice-active",
+					"color"
+				],
+				"cssVar": "--style-button-voice-active-color",
+				"value": "#ffffff",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-border-radius",
+				"path": [
+					"style",
+					"button-voice-active",
+					"borderRadius"
+				],
+				"cssVar": "--style-button-voice-active-border-radius",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-opacity",
+				"path": [
+					"style",
+					"button-voice-active",
+					"opacity"
+				],
+				"cssVar": "--style-button-voice-active-opacity",
+				"value": 1,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-background-color",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"backgroundColor"
+				],
+				"cssVar": "--style-chat-bubble-ai-background-color",
+				"value": "#000305cc",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-background-blur",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"backgroundBlur"
+				],
+				"cssVar": "--style-chat-bubble-ai-background-blur",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-animation",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"animation"
+				],
+				"cssVar": "--style-chat-bubble-ai-animation",
+				"value": "0ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-transition",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"transition"
+				],
+				"cssVar": "--style-chat-bubble-ai-transition",
+				"value": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+				"type": "transition",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-color",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"color"
+				],
+				"cssVar": "--style-chat-bubble-ai-color",
+				"value": "#ffffff",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-border-radius",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"borderRadius"
+				],
+				"cssVar": "--style-chat-bubble-ai-border-radius",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-opacity",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"opacity"
+				],
+				"cssVar": "--style-chat-bubble-ai-opacity",
+				"value": 1,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-user-background-color",
+				"path": [
+					"style",
+					"chat-bubble-user",
+					"backgroundColor"
+				],
+				"cssVar": "--style-chat-bubble-user-background-color",
+				"value": "#060a0ba6",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-user-background-blur",
+				"path": [
+					"style",
+					"chat-bubble-user",
+					"backgroundBlur"
+				],
+				"cssVar": "--style-chat-bubble-user-background-blur",
+				"value": "8px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-user-animation",
+				"path": [
+					"style",
+					"chat-bubble-user",
+					"animation"
+				],
+				"cssVar": "--style-chat-bubble-user-animation",
+				"value": "0ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-user-transition",
+				"path": [
+					"style",
+					"chat-bubble-user",
+					"transition"
+				],
+				"cssVar": "--style-chat-bubble-user-transition",
+				"value": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+				"type": "transition",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-user-color",
+				"path": [
+					"style",
+					"chat-bubble-user",
+					"color"
+				],
+				"cssVar": "--style-chat-bubble-user-color",
+				"value": "#ededed",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-user-border-radius",
+				"path": [
+					"style",
+					"chat-bubble-user",
+					"borderRadius"
+				],
+				"cssVar": "--style-chat-bubble-user-border-radius",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-user-opacity",
+				"path": [
+					"style",
+					"chat-bubble-user",
+					"opacity"
+				],
+				"cssVar": "--style-chat-bubble-user-opacity",
+				"value": 1,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-system-background-color",
+				"path": [
+					"style",
+					"chat-bubble-system",
+					"backgroundColor"
+				],
+				"cssVar": "--style-chat-bubble-system-background-color",
+				"value": "#000101e0",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-system-background-blur",
+				"path": [
+					"style",
+					"chat-bubble-system",
+					"backgroundBlur"
+				],
+				"cssVar": "--style-chat-bubble-system-background-blur",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-system-animation",
+				"path": [
+					"style",
+					"chat-bubble-system",
+					"animation"
+				],
+				"cssVar": "--style-chat-bubble-system-animation",
+				"value": "0ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-system-transition",
+				"path": [
+					"style",
+					"chat-bubble-system",
+					"transition"
+				],
+				"cssVar": "--style-chat-bubble-system-transition",
+				"value": "color, background-color, border-color 150ms cubic-bezier(0, 0, 0.2, 1)",
+				"type": "transition",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-system-color",
+				"path": [
+					"style",
+					"chat-bubble-system",
+					"color"
+				],
+				"cssVar": "--style-chat-bubble-system-color",
+				"value": "#b8b8b8",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-system-border-radius",
+				"path": [
+					"style",
+					"chat-bubble-system",
+					"borderRadius"
+				],
+				"cssVar": "--style-chat-bubble-system-border-radius",
+				"value": "8px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-system-opacity",
+				"path": [
+					"style",
+					"chat-bubble-system",
+					"opacity"
+				],
+				"cssVar": "--style-chat-bubble-system-opacity",
+				"value": 1,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-background-color",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"backgroundColor"
+				],
+				"cssVar": "--style-tabs-chrome-background-color",
+				"value": "#000305cc",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-background-blur",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"backgroundBlur"
+				],
+				"cssVar": "--style-tabs-chrome-background-blur",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-animation",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"animation"
+				],
+				"cssVar": "--style-tabs-chrome-animation",
+				"value": "0ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-transition",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"transition"
+				],
+				"cssVar": "--style-tabs-chrome-transition",
+				"value": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+				"type": "transition",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-color",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"color"
+				],
+				"cssVar": "--style-tabs-chrome-color",
+				"value": "#ffffff",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-border-radius",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"borderRadius"
+				],
+				"cssVar": "--style-tabs-chrome-border-radius",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-opacity",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"opacity"
+				],
+				"cssVar": "--style-tabs-chrome-opacity",
+				"value": 1,
+				"type": "number",
+				"extensions": null
+			},
+			{
 				"name": "style-button-primary-shadow-1-color",
 				"path": [
 					"style",
@@ -105652,6 +106240,1517 @@
 				"value": 1.5,
 				"type": "number",
 				"extensions": null
+			},
+			{
+				"name": "style-badge-ember-glow-shadow-1-color",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"shadow",
+					"1",
+					"color"
+				],
+				"cssVar": "--style-badge-ember-glow-shadow-1-color",
+				"value": "#0000001f",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-ember-glow-shadow-1-offset-x",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"shadow",
+					"1",
+					"offsetX"
+				],
+				"cssVar": "--style-badge-ember-glow-shadow-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-ember-glow-shadow-1-offset-y",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"shadow",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--style-badge-ember-glow-shadow-1-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-ember-glow-shadow-1-blur",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"shadow",
+					"1",
+					"blur"
+				],
+				"cssVar": "--style-badge-ember-glow-shadow-1-blur",
+				"value": "3px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-ember-glow-shadow-1-spread",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"shadow",
+					"1",
+					"spread"
+				],
+				"cssVar": "--style-badge-ember-glow-shadow-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-ember-glow-shadow-2-color",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"shadow",
+					"2",
+					"color"
+				],
+				"cssVar": "--style-badge-ember-glow-shadow-2-color",
+				"value": "#0000003d",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-ember-glow-shadow-2-offset-x",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"shadow",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--style-badge-ember-glow-shadow-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-ember-glow-shadow-2-offset-y",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"shadow",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--style-badge-ember-glow-shadow-2-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-ember-glow-shadow-2-blur",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"shadow",
+					"2",
+					"blur"
+				],
+				"cssVar": "--style-badge-ember-glow-shadow-2-blur",
+				"value": "2px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-ember-glow-shadow-2-spread",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"shadow",
+					"2",
+					"spread"
+				],
+				"cssVar": "--style-badge-ember-glow-shadow-2-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-ember-glow-border-color",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"border",
+					"color"
+				],
+				"cssVar": "--style-badge-ember-glow-border-color",
+				"value": "#0078614d",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-ember-glow-border-width",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"border",
+					"width"
+				],
+				"cssVar": "--style-badge-ember-glow-border-width",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-ember-glow-border-style",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"border",
+					"style"
+				],
+				"cssVar": "--style-badge-ember-glow-border-style",
+				"value": "solid",
+				"type": "strokeStyle",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-ember-glow-typography-font-family",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"typography",
+					"fontFamily"
+				],
+				"cssVar": "--style-badge-ember-glow-typography-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-ember-glow-typography-font-size",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"typography",
+					"fontSize"
+				],
+				"cssVar": "--style-badge-ember-glow-typography-font-size",
+				"value": "14px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-ember-glow-typography-font-weight",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"typography",
+					"fontWeight"
+				],
+				"cssVar": "--style-badge-ember-glow-typography-font-weight",
+				"value": 400,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-ember-glow-typography-letter-spacing",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"typography",
+					"letterSpacing"
+				],
+				"cssVar": "--style-badge-ember-glow-typography-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-ember-glow-typography-line-height",
+				"path": [
+					"style",
+					"badge-ember-glow",
+					"typography",
+					"lineHeight"
+				],
+				"cssVar": "--style-badge-ember-glow-typography-line-height",
+				"value": 1.5,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-glass-label-shadow-color",
+				"path": [
+					"style",
+					"badge-glass-label",
+					"shadow",
+					"color"
+				],
+				"cssVar": "--style-badge-glass-label-shadow-color",
+				"value": "#00000000",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-glass-label-shadow-offset-x",
+				"path": [
+					"style",
+					"badge-glass-label",
+					"shadow",
+					"offsetX"
+				],
+				"cssVar": "--style-badge-glass-label-shadow-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-glass-label-shadow-offset-y",
+				"path": [
+					"style",
+					"badge-glass-label",
+					"shadow",
+					"offsetY"
+				],
+				"cssVar": "--style-badge-glass-label-shadow-offset-y",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-glass-label-shadow-blur",
+				"path": [
+					"style",
+					"badge-glass-label",
+					"shadow",
+					"blur"
+				],
+				"cssVar": "--style-badge-glass-label-shadow-blur",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-glass-label-shadow-spread",
+				"path": [
+					"style",
+					"badge-glass-label",
+					"shadow",
+					"spread"
+				],
+				"cssVar": "--style-badge-glass-label-shadow-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-glass-label-border-color",
+				"path": [
+					"style",
+					"badge-glass-label",
+					"border",
+					"color"
+				],
+				"cssVar": "--style-badge-glass-label-border-color",
+				"value": "#005c4a38",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-glass-label-border-width",
+				"path": [
+					"style",
+					"badge-glass-label",
+					"border",
+					"width"
+				],
+				"cssVar": "--style-badge-glass-label-border-width",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-glass-label-border-style",
+				"path": [
+					"style",
+					"badge-glass-label",
+					"border",
+					"style"
+				],
+				"cssVar": "--style-badge-glass-label-border-style",
+				"value": "solid",
+				"type": "strokeStyle",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-glass-label-typography-font-family",
+				"path": [
+					"style",
+					"badge-glass-label",
+					"typography",
+					"fontFamily"
+				],
+				"cssVar": "--style-badge-glass-label-typography-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-glass-label-typography-font-size",
+				"path": [
+					"style",
+					"badge-glass-label",
+					"typography",
+					"fontSize"
+				],
+				"cssVar": "--style-badge-glass-label-typography-font-size",
+				"value": "14px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-glass-label-typography-font-weight",
+				"path": [
+					"style",
+					"badge-glass-label",
+					"typography",
+					"fontWeight"
+				],
+				"cssVar": "--style-badge-glass-label-typography-font-weight",
+				"value": 400,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-glass-label-typography-letter-spacing",
+				"path": [
+					"style",
+					"badge-glass-label",
+					"typography",
+					"letterSpacing"
+				],
+				"cssVar": "--style-badge-glass-label-typography-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-badge-glass-label-typography-line-height",
+				"path": [
+					"style",
+					"badge-glass-label",
+					"typography",
+					"lineHeight"
+				],
+				"cssVar": "--style-badge-glass-label-typography-line-height",
+				"value": 1.5,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-shadow-1-color",
+				"path": [
+					"style",
+					"button-voice-active",
+					"shadow",
+					"1",
+					"color"
+				],
+				"cssVar": "--style-button-voice-active-shadow-1-color",
+				"value": "#00000026",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-shadow-1-offset-x",
+				"path": [
+					"style",
+					"button-voice-active",
+					"shadow",
+					"1",
+					"offsetX"
+				],
+				"cssVar": "--style-button-voice-active-shadow-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-shadow-1-offset-y",
+				"path": [
+					"style",
+					"button-voice-active",
+					"shadow",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--style-button-voice-active-shadow-1-offset-y",
+				"value": "10px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-shadow-1-blur",
+				"path": [
+					"style",
+					"button-voice-active",
+					"shadow",
+					"1",
+					"blur"
+				],
+				"cssVar": "--style-button-voice-active-shadow-1-blur",
+				"value": "20px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-shadow-1-spread",
+				"path": [
+					"style",
+					"button-voice-active",
+					"shadow",
+					"1",
+					"spread"
+				],
+				"cssVar": "--style-button-voice-active-shadow-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-shadow-2-color",
+				"path": [
+					"style",
+					"button-voice-active",
+					"shadow",
+					"2",
+					"color"
+				],
+				"cssVar": "--style-button-voice-active-shadow-2-color",
+				"value": "#0000001a",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-shadow-2-offset-x",
+				"path": [
+					"style",
+					"button-voice-active",
+					"shadow",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--style-button-voice-active-shadow-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-shadow-2-offset-y",
+				"path": [
+					"style",
+					"button-voice-active",
+					"shadow",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--style-button-voice-active-shadow-2-offset-y",
+				"value": "3px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-shadow-2-blur",
+				"path": [
+					"style",
+					"button-voice-active",
+					"shadow",
+					"2",
+					"blur"
+				],
+				"cssVar": "--style-button-voice-active-shadow-2-blur",
+				"value": "6px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-shadow-2-spread",
+				"path": [
+					"style",
+					"button-voice-active",
+					"shadow",
+					"2",
+					"spread"
+				],
+				"cssVar": "--style-button-voice-active-shadow-2-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-border-color",
+				"path": [
+					"style",
+					"button-voice-active",
+					"border",
+					"color"
+				],
+				"cssVar": "--style-button-voice-active-border-color",
+				"value": "#0078614d",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-border-width",
+				"path": [
+					"style",
+					"button-voice-active",
+					"border",
+					"width"
+				],
+				"cssVar": "--style-button-voice-active-border-width",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-border-style",
+				"path": [
+					"style",
+					"button-voice-active",
+					"border",
+					"style"
+				],
+				"cssVar": "--style-button-voice-active-border-style",
+				"value": "solid",
+				"type": "strokeStyle",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-typography-font-family",
+				"path": [
+					"style",
+					"button-voice-active",
+					"typography",
+					"fontFamily"
+				],
+				"cssVar": "--style-button-voice-active-typography-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-typography-font-size",
+				"path": [
+					"style",
+					"button-voice-active",
+					"typography",
+					"fontSize"
+				],
+				"cssVar": "--style-button-voice-active-typography-font-size",
+				"value": "14px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-typography-font-weight",
+				"path": [
+					"style",
+					"button-voice-active",
+					"typography",
+					"fontWeight"
+				],
+				"cssVar": "--style-button-voice-active-typography-font-weight",
+				"value": 400,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-typography-letter-spacing",
+				"path": [
+					"style",
+					"button-voice-active",
+					"typography",
+					"letterSpacing"
+				],
+				"cssVar": "--style-button-voice-active-typography-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-button-voice-active-typography-line-height",
+				"path": [
+					"style",
+					"button-voice-active",
+					"typography",
+					"lineHeight"
+				],
+				"cssVar": "--style-button-voice-active-typography-line-height",
+				"value": 1.5,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-shadow-1-color",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"shadow",
+					"1",
+					"color"
+				],
+				"cssVar": "--style-chat-bubble-ai-shadow-1-color",
+				"value": "#0000001f",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-shadow-1-offset-x",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"shadow",
+					"1",
+					"offsetX"
+				],
+				"cssVar": "--style-chat-bubble-ai-shadow-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-shadow-1-offset-y",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"shadow",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--style-chat-bubble-ai-shadow-1-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-shadow-1-blur",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"shadow",
+					"1",
+					"blur"
+				],
+				"cssVar": "--style-chat-bubble-ai-shadow-1-blur",
+				"value": "3px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-shadow-1-spread",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"shadow",
+					"1",
+					"spread"
+				],
+				"cssVar": "--style-chat-bubble-ai-shadow-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-shadow-2-color",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"shadow",
+					"2",
+					"color"
+				],
+				"cssVar": "--style-chat-bubble-ai-shadow-2-color",
+				"value": "#0000003d",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-shadow-2-offset-x",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"shadow",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--style-chat-bubble-ai-shadow-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-shadow-2-offset-y",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"shadow",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--style-chat-bubble-ai-shadow-2-offset-y",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-shadow-2-blur",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"shadow",
+					"2",
+					"blur"
+				],
+				"cssVar": "--style-chat-bubble-ai-shadow-2-blur",
+				"value": "2px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-shadow-2-spread",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"shadow",
+					"2",
+					"spread"
+				],
+				"cssVar": "--style-chat-bubble-ai-shadow-2-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-border-color",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"border",
+					"color"
+				],
+				"cssVar": "--style-chat-bubble-ai-border-color",
+				"value": "#0078614d",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-border-width",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"border",
+					"width"
+				],
+				"cssVar": "--style-chat-bubble-ai-border-width",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-border-style",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"border",
+					"style"
+				],
+				"cssVar": "--style-chat-bubble-ai-border-style",
+				"value": "solid",
+				"type": "strokeStyle",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-typography-font-family",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"typography",
+					"fontFamily"
+				],
+				"cssVar": "--style-chat-bubble-ai-typography-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-typography-font-size",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"typography",
+					"fontSize"
+				],
+				"cssVar": "--style-chat-bubble-ai-typography-font-size",
+				"value": "14px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-typography-font-weight",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"typography",
+					"fontWeight"
+				],
+				"cssVar": "--style-chat-bubble-ai-typography-font-weight",
+				"value": 400,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-typography-letter-spacing",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"typography",
+					"letterSpacing"
+				],
+				"cssVar": "--style-chat-bubble-ai-typography-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-ai-typography-line-height",
+				"path": [
+					"style",
+					"chat-bubble-ai",
+					"typography",
+					"lineHeight"
+				],
+				"cssVar": "--style-chat-bubble-ai-typography-line-height",
+				"value": 1.5,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-user-shadow-color",
+				"path": [
+					"style",
+					"chat-bubble-user",
+					"shadow",
+					"color"
+				],
+				"cssVar": "--style-chat-bubble-user-shadow-color",
+				"value": "#00000000",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-user-shadow-offset-x",
+				"path": [
+					"style",
+					"chat-bubble-user",
+					"shadow",
+					"offsetX"
+				],
+				"cssVar": "--style-chat-bubble-user-shadow-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-user-shadow-offset-y",
+				"path": [
+					"style",
+					"chat-bubble-user",
+					"shadow",
+					"offsetY"
+				],
+				"cssVar": "--style-chat-bubble-user-shadow-offset-y",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-user-shadow-blur",
+				"path": [
+					"style",
+					"chat-bubble-user",
+					"shadow",
+					"blur"
+				],
+				"cssVar": "--style-chat-bubble-user-shadow-blur",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-user-shadow-spread",
+				"path": [
+					"style",
+					"chat-bubble-user",
+					"shadow",
+					"spread"
+				],
+				"cssVar": "--style-chat-bubble-user-shadow-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-user-border-color",
+				"path": [
+					"style",
+					"chat-bubble-user",
+					"border",
+					"color"
+				],
+				"cssVar": "--style-chat-bubble-user-border-color",
+				"value": "#005c4a38",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-user-border-width",
+				"path": [
+					"style",
+					"chat-bubble-user",
+					"border",
+					"width"
+				],
+				"cssVar": "--style-chat-bubble-user-border-width",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-user-border-style",
+				"path": [
+					"style",
+					"chat-bubble-user",
+					"border",
+					"style"
+				],
+				"cssVar": "--style-chat-bubble-user-border-style",
+				"value": "solid",
+				"type": "strokeStyle",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-user-typography-font-family",
+				"path": [
+					"style",
+					"chat-bubble-user",
+					"typography",
+					"fontFamily"
+				],
+				"cssVar": "--style-chat-bubble-user-typography-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-user-typography-font-size",
+				"path": [
+					"style",
+					"chat-bubble-user",
+					"typography",
+					"fontSize"
+				],
+				"cssVar": "--style-chat-bubble-user-typography-font-size",
+				"value": "14px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-user-typography-font-weight",
+				"path": [
+					"style",
+					"chat-bubble-user",
+					"typography",
+					"fontWeight"
+				],
+				"cssVar": "--style-chat-bubble-user-typography-font-weight",
+				"value": 400,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-user-typography-letter-spacing",
+				"path": [
+					"style",
+					"chat-bubble-user",
+					"typography",
+					"letterSpacing"
+				],
+				"cssVar": "--style-chat-bubble-user-typography-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-user-typography-line-height",
+				"path": [
+					"style",
+					"chat-bubble-user",
+					"typography",
+					"lineHeight"
+				],
+				"cssVar": "--style-chat-bubble-user-typography-line-height",
+				"value": 1.5,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-system-shadow-color",
+				"path": [
+					"style",
+					"chat-bubble-system",
+					"shadow",
+					"color"
+				],
+				"cssVar": "--style-chat-bubble-system-shadow-color",
+				"value": "#00000000",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-system-shadow-offset-x",
+				"path": [
+					"style",
+					"chat-bubble-system",
+					"shadow",
+					"offsetX"
+				],
+				"cssVar": "--style-chat-bubble-system-shadow-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-system-shadow-offset-y",
+				"path": [
+					"style",
+					"chat-bubble-system",
+					"shadow",
+					"offsetY"
+				],
+				"cssVar": "--style-chat-bubble-system-shadow-offset-y",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-system-shadow-blur",
+				"path": [
+					"style",
+					"chat-bubble-system",
+					"shadow",
+					"blur"
+				],
+				"cssVar": "--style-chat-bubble-system-shadow-blur",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-system-shadow-spread",
+				"path": [
+					"style",
+					"chat-bubble-system",
+					"shadow",
+					"spread"
+				],
+				"cssVar": "--style-chat-bubble-system-shadow-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-system-border-color",
+				"path": [
+					"style",
+					"chat-bubble-system",
+					"border",
+					"color"
+				],
+				"cssVar": "--style-chat-bubble-system-border-color",
+				"value": "#ffffff0f",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-system-border-width",
+				"path": [
+					"style",
+					"chat-bubble-system",
+					"border",
+					"width"
+				],
+				"cssVar": "--style-chat-bubble-system-border-width",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-system-border-style",
+				"path": [
+					"style",
+					"chat-bubble-system",
+					"border",
+					"style"
+				],
+				"cssVar": "--style-chat-bubble-system-border-style",
+				"value": "solid",
+				"type": "strokeStyle",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-system-typography-font-family",
+				"path": [
+					"style",
+					"chat-bubble-system",
+					"typography",
+					"fontFamily"
+				],
+				"cssVar": "--style-chat-bubble-system-typography-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-system-typography-font-size",
+				"path": [
+					"style",
+					"chat-bubble-system",
+					"typography",
+					"fontSize"
+				],
+				"cssVar": "--style-chat-bubble-system-typography-font-size",
+				"value": "14px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-system-typography-font-weight",
+				"path": [
+					"style",
+					"chat-bubble-system",
+					"typography",
+					"fontWeight"
+				],
+				"cssVar": "--style-chat-bubble-system-typography-font-weight",
+				"value": 400,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-system-typography-letter-spacing",
+				"path": [
+					"style",
+					"chat-bubble-system",
+					"typography",
+					"letterSpacing"
+				],
+				"cssVar": "--style-chat-bubble-system-typography-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-chat-bubble-system-typography-line-height",
+				"path": [
+					"style",
+					"chat-bubble-system",
+					"typography",
+					"lineHeight"
+				],
+				"cssVar": "--style-chat-bubble-system-typography-line-height",
+				"value": 1.5,
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-shadow-1-color",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"shadow",
+					"1",
+					"color"
+				],
+				"cssVar": "--style-tabs-chrome-shadow-1-color",
+				"value": "#00000026",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-shadow-1-offset-x",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"shadow",
+					"1",
+					"offsetX"
+				],
+				"cssVar": "--style-tabs-chrome-shadow-1-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-shadow-1-offset-y",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"shadow",
+					"1",
+					"offsetY"
+				],
+				"cssVar": "--style-tabs-chrome-shadow-1-offset-y",
+				"value": "3px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-shadow-1-blur",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"shadow",
+					"1",
+					"blur"
+				],
+				"cssVar": "--style-tabs-chrome-shadow-1-blur",
+				"value": "6px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-shadow-1-spread",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"shadow",
+					"1",
+					"spread"
+				],
+				"cssVar": "--style-tabs-chrome-shadow-1-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-shadow-2-color",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"shadow",
+					"2",
+					"color"
+				],
+				"cssVar": "--style-tabs-chrome-shadow-2-color",
+				"value": "#0000001f",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-shadow-2-offset-x",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"shadow",
+					"2",
+					"offsetX"
+				],
+				"cssVar": "--style-tabs-chrome-shadow-2-offset-x",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-shadow-2-offset-y",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"shadow",
+					"2",
+					"offsetY"
+				],
+				"cssVar": "--style-tabs-chrome-shadow-2-offset-y",
+				"value": "2px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-shadow-2-blur",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"shadow",
+					"2",
+					"blur"
+				],
+				"cssVar": "--style-tabs-chrome-shadow-2-blur",
+				"value": "4px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-shadow-2-spread",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"shadow",
+					"2",
+					"spread"
+				],
+				"cssVar": "--style-tabs-chrome-shadow-2-spread",
+				"value": "0px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-border-color",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"border",
+					"color"
+				],
+				"cssVar": "--style-tabs-chrome-border-color",
+				"value": "#0078614d",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-border-width",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"border",
+					"width"
+				],
+				"cssVar": "--style-tabs-chrome-border-width",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-border-style",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"border",
+					"style"
+				],
+				"cssVar": "--style-tabs-chrome-border-style",
+				"value": "solid",
+				"type": "strokeStyle",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-typography-font-family",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"typography",
+					"fontFamily"
+				],
+				"cssVar": "--style-tabs-chrome-typography-font-family",
+				"value": [
+					"Inter",
+					"system-ui",
+					"sans-serif"
+				],
+				"type": "fontFamily",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-typography-font-size",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"typography",
+					"fontSize"
+				],
+				"cssVar": "--style-tabs-chrome-typography-font-size",
+				"value": "14px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-typography-font-weight",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"typography",
+					"fontWeight"
+				],
+				"cssVar": "--style-tabs-chrome-typography-font-weight",
+				"value": 400,
+				"type": "fontWeight",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-typography-letter-spacing",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"typography",
+					"letterSpacing"
+				],
+				"cssVar": "--style-tabs-chrome-typography-letter-spacing",
+				"value": "0em",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-tabs-chrome-typography-line-height",
+				"path": [
+					"style",
+					"tabs-chrome",
+					"typography",
+					"lineHeight"
+				],
+				"cssVar": "--style-tabs-chrome-typography-line-height",
+				"value": 1.5,
+				"type": "number",
+				"extensions": null
 			}
 		]
 	},
@@ -126488,6 +128587,1200 @@
 				}
 			},
 			{
+				"name": "preset-badge-ember-glow-surface",
+				"path": [
+					"preset",
+					"badge",
+					"ember-glow",
+					"surface"
+				],
+				"cssVar": "--preset-badge-ember-glow-surface",
+				"value": "#000305cc",
+				"type": "surface",
+				"extensions": {
+					"kind": "badge",
+					"intent": "ember-glow",
+					"encoding": "v-s3z0d1b0g4f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 0,
+						"glow": 4,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"color": "var(--accent-ember-main)",
+						"boxShadow": "0 0 8px var(--accent-ember-glow)",
+						"border": "1px solid var(--accent-ember-main)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-ember-glow-depth",
+				"path": [
+					"preset",
+					"badge",
+					"ember-glow",
+					"depth"
+				],
+				"cssVar": "--preset-badge-ember-glow-depth",
+				"value": [
+					{
+						"color": "#0000001f",
+						"offsetX": "0px",
+						"offsetY": "1px",
+						"blur": "3px",
+						"spread": "0px"
+					},
+					{
+						"color": "#0000003d",
+						"offsetX": "0px",
+						"offsetY": "1px",
+						"blur": "2px",
+						"spread": "0px"
+					}
+				],
+				"type": "depth",
+				"extensions": {
+					"kind": "badge",
+					"intent": "ember-glow",
+					"encoding": "v-s3z0d1b0g4f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 0,
+						"glow": 4,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"color": "var(--accent-ember-main)",
+						"boxShadow": "0 0 8px var(--accent-ember-glow)",
+						"border": "1px solid var(--accent-ember-main)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-ember-glow-bevel-color",
+				"path": [
+					"preset",
+					"badge",
+					"ember-glow",
+					"bevel",
+					"color"
+				],
+				"cssVar": "--preset-badge-ember-glow-bevel-color",
+				"value": "#00000000",
+				"type": "color",
+				"extensions": {
+					"kind": "badge",
+					"intent": "ember-glow",
+					"encoding": "v-s3z0d1b0g4f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 0,
+						"glow": 4,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"color": "var(--accent-ember-main)",
+						"boxShadow": "0 0 8px var(--accent-ember-glow)",
+						"border": "1px solid var(--accent-ember-main)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-ember-glow-bevel-offset-x",
+				"path": [
+					"preset",
+					"badge",
+					"ember-glow",
+					"bevel",
+					"offsetX"
+				],
+				"cssVar": "--preset-badge-ember-glow-bevel-offset-x",
+				"value": "0px",
+				"type": "offsetX",
+				"extensions": {
+					"kind": "badge",
+					"intent": "ember-glow",
+					"encoding": "v-s3z0d1b0g4f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 0,
+						"glow": 4,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"color": "var(--accent-ember-main)",
+						"boxShadow": "0 0 8px var(--accent-ember-glow)",
+						"border": "1px solid var(--accent-ember-main)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-ember-glow-bevel-offset-y",
+				"path": [
+					"preset",
+					"badge",
+					"ember-glow",
+					"bevel",
+					"offsetY"
+				],
+				"cssVar": "--preset-badge-ember-glow-bevel-offset-y",
+				"value": "0px",
+				"type": "offsetY",
+				"extensions": {
+					"kind": "badge",
+					"intent": "ember-glow",
+					"encoding": "v-s3z0d1b0g4f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 0,
+						"glow": 4,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"color": "var(--accent-ember-main)",
+						"boxShadow": "0 0 8px var(--accent-ember-glow)",
+						"border": "1px solid var(--accent-ember-main)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-ember-glow-bevel-blur",
+				"path": [
+					"preset",
+					"badge",
+					"ember-glow",
+					"bevel",
+					"blur"
+				],
+				"cssVar": "--preset-badge-ember-glow-bevel-blur",
+				"value": "0px",
+				"type": "blur",
+				"extensions": {
+					"kind": "badge",
+					"intent": "ember-glow",
+					"encoding": "v-s3z0d1b0g4f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 0,
+						"glow": 4,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"color": "var(--accent-ember-main)",
+						"boxShadow": "0 0 8px var(--accent-ember-glow)",
+						"border": "1px solid var(--accent-ember-main)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-ember-glow-bevel-spread",
+				"path": [
+					"preset",
+					"badge",
+					"ember-glow",
+					"bevel",
+					"spread"
+				],
+				"cssVar": "--preset-badge-ember-glow-bevel-spread",
+				"value": "0px",
+				"type": "spread",
+				"extensions": {
+					"kind": "badge",
+					"intent": "ember-glow",
+					"encoding": "v-s3z0d1b0g4f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 0,
+						"glow": 4,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"color": "var(--accent-ember-main)",
+						"boxShadow": "0 0 8px var(--accent-ember-glow)",
+						"border": "1px solid var(--accent-ember-main)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-ember-glow-glow-color",
+				"path": [
+					"preset",
+					"badge",
+					"ember-glow",
+					"glow",
+					"color"
+				],
+				"cssVar": "--preset-badge-ember-glow-glow-color",
+				"value": "#c53637b3",
+				"type": "color",
+				"extensions": {
+					"kind": "badge",
+					"intent": "ember-glow",
+					"encoding": "v-s3z0d1b0g4f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 0,
+						"glow": 4,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"color": "var(--accent-ember-main)",
+						"boxShadow": "0 0 8px var(--accent-ember-glow)",
+						"border": "1px solid var(--accent-ember-main)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-ember-glow-glow-offset-x",
+				"path": [
+					"preset",
+					"badge",
+					"ember-glow",
+					"glow",
+					"offsetX"
+				],
+				"cssVar": "--preset-badge-ember-glow-glow-offset-x",
+				"value": "0px",
+				"type": "offsetX",
+				"extensions": {
+					"kind": "badge",
+					"intent": "ember-glow",
+					"encoding": "v-s3z0d1b0g4f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 0,
+						"glow": 4,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"color": "var(--accent-ember-main)",
+						"boxShadow": "0 0 8px var(--accent-ember-glow)",
+						"border": "1px solid var(--accent-ember-main)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-ember-glow-glow-offset-y",
+				"path": [
+					"preset",
+					"badge",
+					"ember-glow",
+					"glow",
+					"offsetY"
+				],
+				"cssVar": "--preset-badge-ember-glow-glow-offset-y",
+				"value": "0px",
+				"type": "offsetY",
+				"extensions": {
+					"kind": "badge",
+					"intent": "ember-glow",
+					"encoding": "v-s3z0d1b0g4f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 0,
+						"glow": 4,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"color": "var(--accent-ember-main)",
+						"boxShadow": "0 0 8px var(--accent-ember-glow)",
+						"border": "1px solid var(--accent-ember-main)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-ember-glow-glow-blur",
+				"path": [
+					"preset",
+					"badge",
+					"ember-glow",
+					"glow",
+					"blur"
+				],
+				"cssVar": "--preset-badge-ember-glow-glow-blur",
+				"value": "30px",
+				"type": "blur",
+				"extensions": {
+					"kind": "badge",
+					"intent": "ember-glow",
+					"encoding": "v-s3z0d1b0g4f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 0,
+						"glow": 4,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"color": "var(--accent-ember-main)",
+						"boxShadow": "0 0 8px var(--accent-ember-glow)",
+						"border": "1px solid var(--accent-ember-main)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-ember-glow-glow-spread",
+				"path": [
+					"preset",
+					"badge",
+					"ember-glow",
+					"glow",
+					"spread"
+				],
+				"cssVar": "--preset-badge-ember-glow-glow-spread",
+				"value": "12px",
+				"type": "spread",
+				"extensions": {
+					"kind": "badge",
+					"intent": "ember-glow",
+					"encoding": "v-s3z0d1b0g4f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 0,
+						"glow": 4,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"color": "var(--accent-ember-main)",
+						"boxShadow": "0 0 8px var(--accent-ember-glow)",
+						"border": "1px solid var(--accent-ember-main)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-ember-glow-frame-color",
+				"path": [
+					"preset",
+					"badge",
+					"ember-glow",
+					"frame",
+					"color"
+				],
+				"cssVar": "--preset-badge-ember-glow-frame-color",
+				"value": "#0078614d",
+				"type": "color",
+				"extensions": {
+					"kind": "badge",
+					"intent": "ember-glow",
+					"encoding": "v-s3z0d1b0g4f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 0,
+						"glow": 4,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"color": "var(--accent-ember-main)",
+						"boxShadow": "0 0 8px var(--accent-ember-glow)",
+						"border": "1px solid var(--accent-ember-main)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-ember-glow-frame-width",
+				"path": [
+					"preset",
+					"badge",
+					"ember-glow",
+					"frame",
+					"width"
+				],
+				"cssVar": "--preset-badge-ember-glow-frame-width",
+				"value": "1px",
+				"type": "width",
+				"extensions": {
+					"kind": "badge",
+					"intent": "ember-glow",
+					"encoding": "v-s3z0d1b0g4f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 0,
+						"glow": 4,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"color": "var(--accent-ember-main)",
+						"boxShadow": "0 0 8px var(--accent-ember-glow)",
+						"border": "1px solid var(--accent-ember-main)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-ember-glow-frame-style",
+				"path": [
+					"preset",
+					"badge",
+					"ember-glow",
+					"frame",
+					"style"
+				],
+				"cssVar": "--preset-badge-ember-glow-frame-style",
+				"value": "solid",
+				"type": "style",
+				"extensions": {
+					"kind": "badge",
+					"intent": "ember-glow",
+					"encoding": "v-s3z0d1b0g4f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 0,
+						"glow": 4,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"color": "var(--accent-ember-main)",
+						"boxShadow": "0 0 8px var(--accent-ember-glow)",
+						"border": "1px solid var(--accent-ember-main)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-ember-glow-transition",
+				"path": [
+					"preset",
+					"badge",
+					"ember-glow",
+					"transition"
+				],
+				"cssVar": "--preset-badge-ember-glow-transition",
+				"value": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+				"type": "transition",
+				"extensions": {
+					"kind": "badge",
+					"intent": "ember-glow",
+					"encoding": "v-s3z0d1b0g4f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 0,
+						"glow": 4,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"color": "var(--accent-ember-main)",
+						"boxShadow": "0 0 8px var(--accent-ember-glow)",
+						"border": "1px solid var(--accent-ember-main)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-glass-label-surface",
+				"path": [
+					"preset",
+					"badge",
+					"glass-label",
+					"surface"
+				],
+				"cssVar": "--preset-badge-glass-label-surface",
+				"value": "#060a0ba6",
+				"type": "surface",
+				"extensions": {
+					"kind": "badge",
+					"intent": "glass-label",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-glass-label-depth-color",
+				"path": [
+					"preset",
+					"badge",
+					"glass-label",
+					"depth",
+					"color"
+				],
+				"cssVar": "--preset-badge-glass-label-depth-color",
+				"value": "#00000000",
+				"type": "color",
+				"extensions": {
+					"kind": "badge",
+					"intent": "glass-label",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-glass-label-depth-offset-x",
+				"path": [
+					"preset",
+					"badge",
+					"glass-label",
+					"depth",
+					"offsetX"
+				],
+				"cssVar": "--preset-badge-glass-label-depth-offset-x",
+				"value": "0px",
+				"type": "offsetX",
+				"extensions": {
+					"kind": "badge",
+					"intent": "glass-label",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-glass-label-depth-offset-y",
+				"path": [
+					"preset",
+					"badge",
+					"glass-label",
+					"depth",
+					"offsetY"
+				],
+				"cssVar": "--preset-badge-glass-label-depth-offset-y",
+				"value": "0px",
+				"type": "offsetY",
+				"extensions": {
+					"kind": "badge",
+					"intent": "glass-label",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-glass-label-depth-blur",
+				"path": [
+					"preset",
+					"badge",
+					"glass-label",
+					"depth",
+					"blur"
+				],
+				"cssVar": "--preset-badge-glass-label-depth-blur",
+				"value": "0px",
+				"type": "blur",
+				"extensions": {
+					"kind": "badge",
+					"intent": "glass-label",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-glass-label-depth-spread",
+				"path": [
+					"preset",
+					"badge",
+					"glass-label",
+					"depth",
+					"spread"
+				],
+				"cssVar": "--preset-badge-glass-label-depth-spread",
+				"value": "0px",
+				"type": "spread",
+				"extensions": {
+					"kind": "badge",
+					"intent": "glass-label",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-glass-label-bevel-color",
+				"path": [
+					"preset",
+					"badge",
+					"glass-label",
+					"bevel",
+					"color"
+				],
+				"cssVar": "--preset-badge-glass-label-bevel-color",
+				"value": "#00000000",
+				"type": "color",
+				"extensions": {
+					"kind": "badge",
+					"intent": "glass-label",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-glass-label-bevel-offset-x",
+				"path": [
+					"preset",
+					"badge",
+					"glass-label",
+					"bevel",
+					"offsetX"
+				],
+				"cssVar": "--preset-badge-glass-label-bevel-offset-x",
+				"value": "0px",
+				"type": "offsetX",
+				"extensions": {
+					"kind": "badge",
+					"intent": "glass-label",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-glass-label-bevel-offset-y",
+				"path": [
+					"preset",
+					"badge",
+					"glass-label",
+					"bevel",
+					"offsetY"
+				],
+				"cssVar": "--preset-badge-glass-label-bevel-offset-y",
+				"value": "0px",
+				"type": "offsetY",
+				"extensions": {
+					"kind": "badge",
+					"intent": "glass-label",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-glass-label-bevel-blur",
+				"path": [
+					"preset",
+					"badge",
+					"glass-label",
+					"bevel",
+					"blur"
+				],
+				"cssVar": "--preset-badge-glass-label-bevel-blur",
+				"value": "0px",
+				"type": "blur",
+				"extensions": {
+					"kind": "badge",
+					"intent": "glass-label",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-glass-label-bevel-spread",
+				"path": [
+					"preset",
+					"badge",
+					"glass-label",
+					"bevel",
+					"spread"
+				],
+				"cssVar": "--preset-badge-glass-label-bevel-spread",
+				"value": "0px",
+				"type": "spread",
+				"extensions": {
+					"kind": "badge",
+					"intent": "glass-label",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-glass-label-glow-color",
+				"path": [
+					"preset",
+					"badge",
+					"glass-label",
+					"glow",
+					"color"
+				],
+				"cssVar": "--preset-badge-glass-label-glow-color",
+				"value": "#00000000",
+				"type": "color",
+				"extensions": {
+					"kind": "badge",
+					"intent": "glass-label",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-glass-label-glow-offset-x",
+				"path": [
+					"preset",
+					"badge",
+					"glass-label",
+					"glow",
+					"offsetX"
+				],
+				"cssVar": "--preset-badge-glass-label-glow-offset-x",
+				"value": "0px",
+				"type": "offsetX",
+				"extensions": {
+					"kind": "badge",
+					"intent": "glass-label",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-glass-label-glow-offset-y",
+				"path": [
+					"preset",
+					"badge",
+					"glass-label",
+					"glow",
+					"offsetY"
+				],
+				"cssVar": "--preset-badge-glass-label-glow-offset-y",
+				"value": "0px",
+				"type": "offsetY",
+				"extensions": {
+					"kind": "badge",
+					"intent": "glass-label",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-glass-label-glow-blur",
+				"path": [
+					"preset",
+					"badge",
+					"glass-label",
+					"glow",
+					"blur"
+				],
+				"cssVar": "--preset-badge-glass-label-glow-blur",
+				"value": "0px",
+				"type": "blur",
+				"extensions": {
+					"kind": "badge",
+					"intent": "glass-label",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-glass-label-glow-spread",
+				"path": [
+					"preset",
+					"badge",
+					"glass-label",
+					"glow",
+					"spread"
+				],
+				"cssVar": "--preset-badge-glass-label-glow-spread",
+				"value": "0px",
+				"type": "spread",
+				"extensions": {
+					"kind": "badge",
+					"intent": "glass-label",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-glass-label-frame-color",
+				"path": [
+					"preset",
+					"badge",
+					"glass-label",
+					"frame",
+					"color"
+				],
+				"cssVar": "--preset-badge-glass-label-frame-color",
+				"value": "#005c4a38",
+				"type": "color",
+				"extensions": {
+					"kind": "badge",
+					"intent": "glass-label",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-glass-label-frame-width",
+				"path": [
+					"preset",
+					"badge",
+					"glass-label",
+					"frame",
+					"width"
+				],
+				"cssVar": "--preset-badge-glass-label-frame-width",
+				"value": "1px",
+				"type": "width",
+				"extensions": {
+					"kind": "badge",
+					"intent": "glass-label",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-glass-label-frame-style",
+				"path": [
+					"preset",
+					"badge",
+					"glass-label",
+					"frame",
+					"style"
+				],
+				"cssVar": "--preset-badge-glass-label-frame-style",
+				"value": "solid",
+				"type": "style",
+				"extensions": {
+					"kind": "badge",
+					"intent": "glass-label",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)"
+					}
+				}
+			},
+			{
+				"name": "preset-badge-glass-label-transition",
+				"path": [
+					"preset",
+					"badge",
+					"glass-label",
+					"transition"
+				],
+				"cssVar": "--preset-badge-glass-label-transition",
+				"value": "color, background-color, border-color 150ms cubic-bezier(0, 0, 0.2, 1)",
+				"type": "transition",
+				"extensions": {
+					"kind": "badge",
+					"intent": "glass-label",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)"
+					}
+				}
+			},
+			{
 				"name": "preset-banner-default-surface",
 				"path": [
 					"preset",
@@ -130646,6 +133939,471 @@
 						"backdropFilter": "blur(12px)",
 						"boxShadow": "var(--shadow-z2), var(--bevel-soft), var(--glow-ember)",
 						"border": "1px solid var(--border-strong)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-button-voice-active-surface",
+				"path": [
+					"preset",
+					"button",
+					"voice-active",
+					"surface"
+				],
+				"cssVar": "--preset-button-voice-active-surface",
+				"value": "#000305cc",
+				"type": "surface",
+				"extensions": {
+					"kind": "button",
+					"intent": "voice-active",
+					"encoding": "v-s3z0d3b2g4f1m1t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 3,
+						"bevel": 2,
+						"glow": 4,
+						"frame": 1,
+						"motion": 1,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"borderRadius": "var(--radius-full)",
+						"boxShadow": "0 0 16px var(--accent-ember-glow), var(--shadow-z3), var(--bevel-soft)",
+						"border": "1px solid var(--accent-ember-main)",
+						"animation": "var(--motion-animation-pulse-glow)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-button-voice-active-depth",
+				"path": [
+					"preset",
+					"button",
+					"voice-active",
+					"depth"
+				],
+				"cssVar": "--preset-button-voice-active-depth",
+				"value": [
+					{
+						"color": "#00000026",
+						"offsetX": "0px",
+						"offsetY": "10px",
+						"blur": "20px",
+						"spread": "0px"
+					},
+					{
+						"color": "#0000001a",
+						"offsetX": "0px",
+						"offsetY": "3px",
+						"blur": "6px",
+						"spread": "0px"
+					}
+				],
+				"type": "depth",
+				"extensions": {
+					"kind": "button",
+					"intent": "voice-active",
+					"encoding": "v-s3z0d3b2g4f1m1t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 3,
+						"bevel": 2,
+						"glow": 4,
+						"frame": 1,
+						"motion": 1,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"borderRadius": "var(--radius-full)",
+						"boxShadow": "0 0 16px var(--accent-ember-glow), var(--shadow-z3), var(--bevel-soft)",
+						"border": "1px solid var(--accent-ember-main)",
+						"animation": "var(--motion-animation-pulse-glow)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-button-voice-active-bevel",
+				"path": [
+					"preset",
+					"button",
+					"voice-active",
+					"bevel"
+				],
+				"cssVar": "--preset-button-voice-active-bevel",
+				"value": [
+					{
+						"color": "#ffffff1f",
+						"offsetX": "0px",
+						"offsetY": "1px",
+						"blur": "1px",
+						"spread": "0px"
+					},
+					{
+						"color": "#ffffff14",
+						"offsetX": "0px",
+						"offsetY": "2px",
+						"blur": "4px",
+						"spread": "0px"
+					},
+					{
+						"color": "#00000033",
+						"offsetX": "0px",
+						"offsetY": "-1px",
+						"blur": "3px",
+						"spread": "0px"
+					}
+				],
+				"type": "bevel",
+				"extensions": {
+					"kind": "button",
+					"intent": "voice-active",
+					"encoding": "v-s3z0d3b2g4f1m1t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 3,
+						"bevel": 2,
+						"glow": 4,
+						"frame": 1,
+						"motion": 1,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"borderRadius": "var(--radius-full)",
+						"boxShadow": "0 0 16px var(--accent-ember-glow), var(--shadow-z3), var(--bevel-soft)",
+						"border": "1px solid var(--accent-ember-main)",
+						"animation": "var(--motion-animation-pulse-glow)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-button-voice-active-glow-color",
+				"path": [
+					"preset",
+					"button",
+					"voice-active",
+					"glow",
+					"color"
+				],
+				"cssVar": "--preset-button-voice-active-glow-color",
+				"value": "#c53637b3",
+				"type": "color",
+				"extensions": {
+					"kind": "button",
+					"intent": "voice-active",
+					"encoding": "v-s3z0d3b2g4f1m1t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 3,
+						"bevel": 2,
+						"glow": 4,
+						"frame": 1,
+						"motion": 1,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"borderRadius": "var(--radius-full)",
+						"boxShadow": "0 0 16px var(--accent-ember-glow), var(--shadow-z3), var(--bevel-soft)",
+						"border": "1px solid var(--accent-ember-main)",
+						"animation": "var(--motion-animation-pulse-glow)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-button-voice-active-glow-offset-x",
+				"path": [
+					"preset",
+					"button",
+					"voice-active",
+					"glow",
+					"offsetX"
+				],
+				"cssVar": "--preset-button-voice-active-glow-offset-x",
+				"value": "0px",
+				"type": "offsetX",
+				"extensions": {
+					"kind": "button",
+					"intent": "voice-active",
+					"encoding": "v-s3z0d3b2g4f1m1t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 3,
+						"bevel": 2,
+						"glow": 4,
+						"frame": 1,
+						"motion": 1,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"borderRadius": "var(--radius-full)",
+						"boxShadow": "0 0 16px var(--accent-ember-glow), var(--shadow-z3), var(--bevel-soft)",
+						"border": "1px solid var(--accent-ember-main)",
+						"animation": "var(--motion-animation-pulse-glow)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-button-voice-active-glow-offset-y",
+				"path": [
+					"preset",
+					"button",
+					"voice-active",
+					"glow",
+					"offsetY"
+				],
+				"cssVar": "--preset-button-voice-active-glow-offset-y",
+				"value": "0px",
+				"type": "offsetY",
+				"extensions": {
+					"kind": "button",
+					"intent": "voice-active",
+					"encoding": "v-s3z0d3b2g4f1m1t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 3,
+						"bevel": 2,
+						"glow": 4,
+						"frame": 1,
+						"motion": 1,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"borderRadius": "var(--radius-full)",
+						"boxShadow": "0 0 16px var(--accent-ember-glow), var(--shadow-z3), var(--bevel-soft)",
+						"border": "1px solid var(--accent-ember-main)",
+						"animation": "var(--motion-animation-pulse-glow)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-button-voice-active-glow-blur",
+				"path": [
+					"preset",
+					"button",
+					"voice-active",
+					"glow",
+					"blur"
+				],
+				"cssVar": "--preset-button-voice-active-glow-blur",
+				"value": "30px",
+				"type": "blur",
+				"extensions": {
+					"kind": "button",
+					"intent": "voice-active",
+					"encoding": "v-s3z0d3b2g4f1m1t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 3,
+						"bevel": 2,
+						"glow": 4,
+						"frame": 1,
+						"motion": 1,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"borderRadius": "var(--radius-full)",
+						"boxShadow": "0 0 16px var(--accent-ember-glow), var(--shadow-z3), var(--bevel-soft)",
+						"border": "1px solid var(--accent-ember-main)",
+						"animation": "var(--motion-animation-pulse-glow)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-button-voice-active-glow-spread",
+				"path": [
+					"preset",
+					"button",
+					"voice-active",
+					"glow",
+					"spread"
+				],
+				"cssVar": "--preset-button-voice-active-glow-spread",
+				"value": "12px",
+				"type": "spread",
+				"extensions": {
+					"kind": "button",
+					"intent": "voice-active",
+					"encoding": "v-s3z0d3b2g4f1m1t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 3,
+						"bevel": 2,
+						"glow": 4,
+						"frame": 1,
+						"motion": 1,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"borderRadius": "var(--radius-full)",
+						"boxShadow": "0 0 16px var(--accent-ember-glow), var(--shadow-z3), var(--bevel-soft)",
+						"border": "1px solid var(--accent-ember-main)",
+						"animation": "var(--motion-animation-pulse-glow)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-button-voice-active-frame-color",
+				"path": [
+					"preset",
+					"button",
+					"voice-active",
+					"frame",
+					"color"
+				],
+				"cssVar": "--preset-button-voice-active-frame-color",
+				"value": "#0078614d",
+				"type": "color",
+				"extensions": {
+					"kind": "button",
+					"intent": "voice-active",
+					"encoding": "v-s3z0d3b2g4f1m1t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 3,
+						"bevel": 2,
+						"glow": 4,
+						"frame": 1,
+						"motion": 1,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"borderRadius": "var(--radius-full)",
+						"boxShadow": "0 0 16px var(--accent-ember-glow), var(--shadow-z3), var(--bevel-soft)",
+						"border": "1px solid var(--accent-ember-main)",
+						"animation": "var(--motion-animation-pulse-glow)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-button-voice-active-frame-width",
+				"path": [
+					"preset",
+					"button",
+					"voice-active",
+					"frame",
+					"width"
+				],
+				"cssVar": "--preset-button-voice-active-frame-width",
+				"value": "1px",
+				"type": "width",
+				"extensions": {
+					"kind": "button",
+					"intent": "voice-active",
+					"encoding": "v-s3z0d3b2g4f1m1t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 3,
+						"bevel": 2,
+						"glow": 4,
+						"frame": 1,
+						"motion": 1,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"borderRadius": "var(--radius-full)",
+						"boxShadow": "0 0 16px var(--accent-ember-glow), var(--shadow-z3), var(--bevel-soft)",
+						"border": "1px solid var(--accent-ember-main)",
+						"animation": "var(--motion-animation-pulse-glow)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-button-voice-active-frame-style",
+				"path": [
+					"preset",
+					"button",
+					"voice-active",
+					"frame",
+					"style"
+				],
+				"cssVar": "--preset-button-voice-active-frame-style",
+				"value": "solid",
+				"type": "style",
+				"extensions": {
+					"kind": "button",
+					"intent": "voice-active",
+					"encoding": "v-s3z0d3b2g4f1m1t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 3,
+						"bevel": 2,
+						"glow": 4,
+						"frame": 1,
+						"motion": 1,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"borderRadius": "var(--radius-full)",
+						"boxShadow": "0 0 16px var(--accent-ember-glow), var(--shadow-z3), var(--bevel-soft)",
+						"border": "1px solid var(--accent-ember-main)",
+						"animation": "var(--motion-animation-pulse-glow)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-button-voice-active-transition",
+				"path": [
+					"preset",
+					"button",
+					"voice-active",
+					"transition"
+				],
+				"cssVar": "--preset-button-voice-active-transition",
+				"value": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+				"type": "transition",
+				"extensions": {
+					"kind": "button",
+					"intent": "voice-active",
+					"encoding": "v-s3z0d3b2g4f1m1t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 3,
+						"bevel": 2,
+						"glow": 4,
+						"frame": 1,
+						"motion": 1,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--accent-ember-fill)",
+						"borderRadius": "var(--radius-full)",
+						"boxShadow": "0 0 16px var(--accent-ember-glow), var(--shadow-z3), var(--bevel-soft)",
+						"border": "1px solid var(--accent-ember-main)",
+						"animation": "var(--motion-animation-pulse-glow)",
 						"transition": "var(--transition-all-fast)"
 					}
 				}
@@ -136729,6 +140487,1820 @@
 						"boxShadow": "var(--shadow-z2), var(--bevel-strong)",
 						"border": "1px solid var(--border-strong)",
 						"transition": "var(--transition-all-normal)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-ai-surface",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"ai",
+					"surface"
+				],
+				"cssVar": "--preset-chat-bubble-ai-surface",
+				"value": "#000305cc",
+				"type": "surface",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "ai",
+					"encoding": "v-s3z0d1b1g1f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 1,
+						"glow": 1,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-deep)",
+						"backdropFilter": "blur(8px)",
+						"boxShadow": "var(--shadow-z1), var(--bevel-subtle), inset 3px 0 8px var(--accent-teal-glow)",
+						"borderLeft": "2px solid var(--accent-teal-main)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-ai-depth",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"ai",
+					"depth"
+				],
+				"cssVar": "--preset-chat-bubble-ai-depth",
+				"value": [
+					{
+						"color": "#0000001f",
+						"offsetX": "0px",
+						"offsetY": "1px",
+						"blur": "3px",
+						"spread": "0px"
+					},
+					{
+						"color": "#0000003d",
+						"offsetX": "0px",
+						"offsetY": "1px",
+						"blur": "2px",
+						"spread": "0px"
+					}
+				],
+				"type": "depth",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "ai",
+					"encoding": "v-s3z0d1b1g1f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 1,
+						"glow": 1,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-deep)",
+						"backdropFilter": "blur(8px)",
+						"boxShadow": "var(--shadow-z1), var(--bevel-subtle), inset 3px 0 8px var(--accent-teal-glow)",
+						"borderLeft": "2px solid var(--accent-teal-main)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-ai-bevel",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"ai",
+					"bevel"
+				],
+				"cssVar": "--preset-chat-bubble-ai-bevel",
+				"value": [
+					{
+						"color": "#ffffff1a",
+						"offsetX": "0px",
+						"offsetY": "1px",
+						"blur": "0px",
+						"spread": "0px"
+					},
+					{
+						"color": "#00000029",
+						"offsetX": "0px",
+						"offsetY": "-1px",
+						"blur": "1px",
+						"spread": "0px"
+					}
+				],
+				"type": "bevel",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "ai",
+					"encoding": "v-s3z0d1b1g1f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 1,
+						"glow": 1,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-deep)",
+						"backdropFilter": "blur(8px)",
+						"boxShadow": "var(--shadow-z1), var(--bevel-subtle), inset 3px 0 8px var(--accent-teal-glow)",
+						"borderLeft": "2px solid var(--accent-teal-main)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-ai-glow-color",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"ai",
+					"glow",
+					"color"
+				],
+				"cssVar": "--preset-chat-bubble-ai-glow-color",
+				"value": "#009076b3",
+				"type": "color",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "ai",
+					"encoding": "v-s3z0d1b1g1f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 1,
+						"glow": 1,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-deep)",
+						"backdropFilter": "blur(8px)",
+						"boxShadow": "var(--shadow-z1), var(--bevel-subtle), inset 3px 0 8px var(--accent-teal-glow)",
+						"borderLeft": "2px solid var(--accent-teal-main)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-ai-glow-offset-x",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"ai",
+					"glow",
+					"offsetX"
+				],
+				"cssVar": "--preset-chat-bubble-ai-glow-offset-x",
+				"value": "0px",
+				"type": "offsetX",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "ai",
+					"encoding": "v-s3z0d1b1g1f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 1,
+						"glow": 1,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-deep)",
+						"backdropFilter": "blur(8px)",
+						"boxShadow": "var(--shadow-z1), var(--bevel-subtle), inset 3px 0 8px var(--accent-teal-glow)",
+						"borderLeft": "2px solid var(--accent-teal-main)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-ai-glow-offset-y",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"ai",
+					"glow",
+					"offsetY"
+				],
+				"cssVar": "--preset-chat-bubble-ai-glow-offset-y",
+				"value": "0px",
+				"type": "offsetY",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "ai",
+					"encoding": "v-s3z0d1b1g1f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 1,
+						"glow": 1,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-deep)",
+						"backdropFilter": "blur(8px)",
+						"boxShadow": "var(--shadow-z1), var(--bevel-subtle), inset 3px 0 8px var(--accent-teal-glow)",
+						"borderLeft": "2px solid var(--accent-teal-main)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-ai-glow-blur",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"ai",
+					"glow",
+					"blur"
+				],
+				"cssVar": "--preset-chat-bubble-ai-glow-blur",
+				"value": "30px",
+				"type": "blur",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "ai",
+					"encoding": "v-s3z0d1b1g1f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 1,
+						"glow": 1,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-deep)",
+						"backdropFilter": "blur(8px)",
+						"boxShadow": "var(--shadow-z1), var(--bevel-subtle), inset 3px 0 8px var(--accent-teal-glow)",
+						"borderLeft": "2px solid var(--accent-teal-main)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-ai-glow-spread",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"ai",
+					"glow",
+					"spread"
+				],
+				"cssVar": "--preset-chat-bubble-ai-glow-spread",
+				"value": "12px",
+				"type": "spread",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "ai",
+					"encoding": "v-s3z0d1b1g1f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 1,
+						"glow": 1,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-deep)",
+						"backdropFilter": "blur(8px)",
+						"boxShadow": "var(--shadow-z1), var(--bevel-subtle), inset 3px 0 8px var(--accent-teal-glow)",
+						"borderLeft": "2px solid var(--accent-teal-main)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-ai-frame-color",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"ai",
+					"frame",
+					"color"
+				],
+				"cssVar": "--preset-chat-bubble-ai-frame-color",
+				"value": "#0078614d",
+				"type": "color",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "ai",
+					"encoding": "v-s3z0d1b1g1f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 1,
+						"glow": 1,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-deep)",
+						"backdropFilter": "blur(8px)",
+						"boxShadow": "var(--shadow-z1), var(--bevel-subtle), inset 3px 0 8px var(--accent-teal-glow)",
+						"borderLeft": "2px solid var(--accent-teal-main)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-ai-frame-width",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"ai",
+					"frame",
+					"width"
+				],
+				"cssVar": "--preset-chat-bubble-ai-frame-width",
+				"value": "1px",
+				"type": "width",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "ai",
+					"encoding": "v-s3z0d1b1g1f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 1,
+						"glow": 1,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-deep)",
+						"backdropFilter": "blur(8px)",
+						"boxShadow": "var(--shadow-z1), var(--bevel-subtle), inset 3px 0 8px var(--accent-teal-glow)",
+						"borderLeft": "2px solid var(--accent-teal-main)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-ai-frame-style",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"ai",
+					"frame",
+					"style"
+				],
+				"cssVar": "--preset-chat-bubble-ai-frame-style",
+				"value": "solid",
+				"type": "style",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "ai",
+					"encoding": "v-s3z0d1b1g1f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 1,
+						"glow": 1,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-deep)",
+						"backdropFilter": "blur(8px)",
+						"boxShadow": "var(--shadow-z1), var(--bevel-subtle), inset 3px 0 8px var(--accent-teal-glow)",
+						"borderLeft": "2px solid var(--accent-teal-main)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-ai-transition",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"ai",
+					"transition"
+				],
+				"cssVar": "--preset-chat-bubble-ai-transition",
+				"value": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+				"type": "transition",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "ai",
+					"encoding": "v-s3z0d1b1g1f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 1,
+						"bevel": 1,
+						"glow": 1,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-deep)",
+						"backdropFilter": "blur(8px)",
+						"boxShadow": "var(--shadow-z1), var(--bevel-subtle), inset 3px 0 8px var(--accent-teal-glow)",
+						"borderLeft": "2px solid var(--accent-teal-main)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-user-surface",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"user",
+					"surface"
+				],
+				"cssVar": "--preset-chat-bubble-user-surface",
+				"value": "#060a0ba6",
+				"type": "surface",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "user",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-user-depth-color",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"user",
+					"depth",
+					"color"
+				],
+				"cssVar": "--preset-chat-bubble-user-depth-color",
+				"value": "#00000000",
+				"type": "color",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "user",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-user-depth-offset-x",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"user",
+					"depth",
+					"offsetX"
+				],
+				"cssVar": "--preset-chat-bubble-user-depth-offset-x",
+				"value": "0px",
+				"type": "offsetX",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "user",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-user-depth-offset-y",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"user",
+					"depth",
+					"offsetY"
+				],
+				"cssVar": "--preset-chat-bubble-user-depth-offset-y",
+				"value": "0px",
+				"type": "offsetY",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "user",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-user-depth-blur",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"user",
+					"depth",
+					"blur"
+				],
+				"cssVar": "--preset-chat-bubble-user-depth-blur",
+				"value": "0px",
+				"type": "blur",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "user",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-user-depth-spread",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"user",
+					"depth",
+					"spread"
+				],
+				"cssVar": "--preset-chat-bubble-user-depth-spread",
+				"value": "0px",
+				"type": "spread",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "user",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-user-bevel-color",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"user",
+					"bevel",
+					"color"
+				],
+				"cssVar": "--preset-chat-bubble-user-bevel-color",
+				"value": "#00000000",
+				"type": "color",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "user",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-user-bevel-offset-x",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"user",
+					"bevel",
+					"offsetX"
+				],
+				"cssVar": "--preset-chat-bubble-user-bevel-offset-x",
+				"value": "0px",
+				"type": "offsetX",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "user",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-user-bevel-offset-y",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"user",
+					"bevel",
+					"offsetY"
+				],
+				"cssVar": "--preset-chat-bubble-user-bevel-offset-y",
+				"value": "0px",
+				"type": "offsetY",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "user",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-user-bevel-blur",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"user",
+					"bevel",
+					"blur"
+				],
+				"cssVar": "--preset-chat-bubble-user-bevel-blur",
+				"value": "0px",
+				"type": "blur",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "user",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-user-bevel-spread",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"user",
+					"bevel",
+					"spread"
+				],
+				"cssVar": "--preset-chat-bubble-user-bevel-spread",
+				"value": "0px",
+				"type": "spread",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "user",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-user-glow-color",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"user",
+					"glow",
+					"color"
+				],
+				"cssVar": "--preset-chat-bubble-user-glow-color",
+				"value": "#00000000",
+				"type": "color",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "user",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-user-glow-offset-x",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"user",
+					"glow",
+					"offsetX"
+				],
+				"cssVar": "--preset-chat-bubble-user-glow-offset-x",
+				"value": "0px",
+				"type": "offsetX",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "user",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-user-glow-offset-y",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"user",
+					"glow",
+					"offsetY"
+				],
+				"cssVar": "--preset-chat-bubble-user-glow-offset-y",
+				"value": "0px",
+				"type": "offsetY",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "user",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-user-glow-blur",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"user",
+					"glow",
+					"blur"
+				],
+				"cssVar": "--preset-chat-bubble-user-glow-blur",
+				"value": "0px",
+				"type": "blur",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "user",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-user-glow-spread",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"user",
+					"glow",
+					"spread"
+				],
+				"cssVar": "--preset-chat-bubble-user-glow-spread",
+				"value": "0px",
+				"type": "spread",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "user",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-user-frame-color",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"user",
+					"frame",
+					"color"
+				],
+				"cssVar": "--preset-chat-bubble-user-frame-color",
+				"value": "#005c4a38",
+				"type": "color",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "user",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-user-frame-width",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"user",
+					"frame",
+					"width"
+				],
+				"cssVar": "--preset-chat-bubble-user-frame-width",
+				"value": "1px",
+				"type": "width",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "user",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-user-frame-style",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"user",
+					"frame",
+					"style"
+				],
+				"cssVar": "--preset-chat-bubble-user-frame-style",
+				"value": "solid",
+				"type": "style",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "user",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-user-transition",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"user",
+					"transition"
+				],
+				"cssVar": "--preset-chat-bubble-user-transition",
+				"value": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+				"type": "transition",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "user",
+					"encoding": "v-s2z0d0b0g0f1m0t1",
+					"axis": {
+						"surface": 2,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-smoke)",
+						"border": "1px solid var(--border-subtle)",
+						"borderRadius": "var(--radius-lg)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-system-surface",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"system",
+					"surface"
+				],
+				"cssVar": "--preset-chat-bubble-system-surface",
+				"value": "#000101e0",
+				"type": "surface",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "system",
+					"encoding": "v-s0z0d0b0g0f0m0t1",
+					"axis": {
+						"surface": 0,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 0,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "transparent",
+						"border": "1px solid var(--border-divider)",
+						"borderRadius": "var(--radius-md)",
+						"transition": "var(--transition-color)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-system-depth-color",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"system",
+					"depth",
+					"color"
+				],
+				"cssVar": "--preset-chat-bubble-system-depth-color",
+				"value": "#00000000",
+				"type": "color",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "system",
+					"encoding": "v-s0z0d0b0g0f0m0t1",
+					"axis": {
+						"surface": 0,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 0,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "transparent",
+						"border": "1px solid var(--border-divider)",
+						"borderRadius": "var(--radius-md)",
+						"transition": "var(--transition-color)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-system-depth-offset-x",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"system",
+					"depth",
+					"offsetX"
+				],
+				"cssVar": "--preset-chat-bubble-system-depth-offset-x",
+				"value": "0px",
+				"type": "offsetX",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "system",
+					"encoding": "v-s0z0d0b0g0f0m0t1",
+					"axis": {
+						"surface": 0,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 0,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "transparent",
+						"border": "1px solid var(--border-divider)",
+						"borderRadius": "var(--radius-md)",
+						"transition": "var(--transition-color)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-system-depth-offset-y",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"system",
+					"depth",
+					"offsetY"
+				],
+				"cssVar": "--preset-chat-bubble-system-depth-offset-y",
+				"value": "0px",
+				"type": "offsetY",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "system",
+					"encoding": "v-s0z0d0b0g0f0m0t1",
+					"axis": {
+						"surface": 0,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 0,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "transparent",
+						"border": "1px solid var(--border-divider)",
+						"borderRadius": "var(--radius-md)",
+						"transition": "var(--transition-color)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-system-depth-blur",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"system",
+					"depth",
+					"blur"
+				],
+				"cssVar": "--preset-chat-bubble-system-depth-blur",
+				"value": "0px",
+				"type": "blur",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "system",
+					"encoding": "v-s0z0d0b0g0f0m0t1",
+					"axis": {
+						"surface": 0,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 0,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "transparent",
+						"border": "1px solid var(--border-divider)",
+						"borderRadius": "var(--radius-md)",
+						"transition": "var(--transition-color)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-system-depth-spread",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"system",
+					"depth",
+					"spread"
+				],
+				"cssVar": "--preset-chat-bubble-system-depth-spread",
+				"value": "0px",
+				"type": "spread",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "system",
+					"encoding": "v-s0z0d0b0g0f0m0t1",
+					"axis": {
+						"surface": 0,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 0,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "transparent",
+						"border": "1px solid var(--border-divider)",
+						"borderRadius": "var(--radius-md)",
+						"transition": "var(--transition-color)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-system-bevel-color",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"system",
+					"bevel",
+					"color"
+				],
+				"cssVar": "--preset-chat-bubble-system-bevel-color",
+				"value": "#00000000",
+				"type": "color",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "system",
+					"encoding": "v-s0z0d0b0g0f0m0t1",
+					"axis": {
+						"surface": 0,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 0,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "transparent",
+						"border": "1px solid var(--border-divider)",
+						"borderRadius": "var(--radius-md)",
+						"transition": "var(--transition-color)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-system-bevel-offset-x",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"system",
+					"bevel",
+					"offsetX"
+				],
+				"cssVar": "--preset-chat-bubble-system-bevel-offset-x",
+				"value": "0px",
+				"type": "offsetX",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "system",
+					"encoding": "v-s0z0d0b0g0f0m0t1",
+					"axis": {
+						"surface": 0,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 0,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "transparent",
+						"border": "1px solid var(--border-divider)",
+						"borderRadius": "var(--radius-md)",
+						"transition": "var(--transition-color)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-system-bevel-offset-y",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"system",
+					"bevel",
+					"offsetY"
+				],
+				"cssVar": "--preset-chat-bubble-system-bevel-offset-y",
+				"value": "0px",
+				"type": "offsetY",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "system",
+					"encoding": "v-s0z0d0b0g0f0m0t1",
+					"axis": {
+						"surface": 0,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 0,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "transparent",
+						"border": "1px solid var(--border-divider)",
+						"borderRadius": "var(--radius-md)",
+						"transition": "var(--transition-color)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-system-bevel-blur",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"system",
+					"bevel",
+					"blur"
+				],
+				"cssVar": "--preset-chat-bubble-system-bevel-blur",
+				"value": "0px",
+				"type": "blur",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "system",
+					"encoding": "v-s0z0d0b0g0f0m0t1",
+					"axis": {
+						"surface": 0,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 0,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "transparent",
+						"border": "1px solid var(--border-divider)",
+						"borderRadius": "var(--radius-md)",
+						"transition": "var(--transition-color)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-system-bevel-spread",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"system",
+					"bevel",
+					"spread"
+				],
+				"cssVar": "--preset-chat-bubble-system-bevel-spread",
+				"value": "0px",
+				"type": "spread",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "system",
+					"encoding": "v-s0z0d0b0g0f0m0t1",
+					"axis": {
+						"surface": 0,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 0,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "transparent",
+						"border": "1px solid var(--border-divider)",
+						"borderRadius": "var(--radius-md)",
+						"transition": "var(--transition-color)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-system-glow-color",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"system",
+					"glow",
+					"color"
+				],
+				"cssVar": "--preset-chat-bubble-system-glow-color",
+				"value": "#00000000",
+				"type": "color",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "system",
+					"encoding": "v-s0z0d0b0g0f0m0t1",
+					"axis": {
+						"surface": 0,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 0,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "transparent",
+						"border": "1px solid var(--border-divider)",
+						"borderRadius": "var(--radius-md)",
+						"transition": "var(--transition-color)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-system-glow-offset-x",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"system",
+					"glow",
+					"offsetX"
+				],
+				"cssVar": "--preset-chat-bubble-system-glow-offset-x",
+				"value": "0px",
+				"type": "offsetX",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "system",
+					"encoding": "v-s0z0d0b0g0f0m0t1",
+					"axis": {
+						"surface": 0,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 0,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "transparent",
+						"border": "1px solid var(--border-divider)",
+						"borderRadius": "var(--radius-md)",
+						"transition": "var(--transition-color)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-system-glow-offset-y",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"system",
+					"glow",
+					"offsetY"
+				],
+				"cssVar": "--preset-chat-bubble-system-glow-offset-y",
+				"value": "0px",
+				"type": "offsetY",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "system",
+					"encoding": "v-s0z0d0b0g0f0m0t1",
+					"axis": {
+						"surface": 0,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 0,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "transparent",
+						"border": "1px solid var(--border-divider)",
+						"borderRadius": "var(--radius-md)",
+						"transition": "var(--transition-color)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-system-glow-blur",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"system",
+					"glow",
+					"blur"
+				],
+				"cssVar": "--preset-chat-bubble-system-glow-blur",
+				"value": "0px",
+				"type": "blur",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "system",
+					"encoding": "v-s0z0d0b0g0f0m0t1",
+					"axis": {
+						"surface": 0,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 0,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "transparent",
+						"border": "1px solid var(--border-divider)",
+						"borderRadius": "var(--radius-md)",
+						"transition": "var(--transition-color)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-system-glow-spread",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"system",
+					"glow",
+					"spread"
+				],
+				"cssVar": "--preset-chat-bubble-system-glow-spread",
+				"value": "0px",
+				"type": "spread",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "system",
+					"encoding": "v-s0z0d0b0g0f0m0t1",
+					"axis": {
+						"surface": 0,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 0,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "transparent",
+						"border": "1px solid var(--border-divider)",
+						"borderRadius": "var(--radius-md)",
+						"transition": "var(--transition-color)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-system-frame-color",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"system",
+					"frame",
+					"color"
+				],
+				"cssVar": "--preset-chat-bubble-system-frame-color",
+				"value": "#ffffff0f",
+				"type": "color",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "system",
+					"encoding": "v-s0z0d0b0g0f0m0t1",
+					"axis": {
+						"surface": 0,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 0,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "transparent",
+						"border": "1px solid var(--border-divider)",
+						"borderRadius": "var(--radius-md)",
+						"transition": "var(--transition-color)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-system-frame-width",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"system",
+					"frame",
+					"width"
+				],
+				"cssVar": "--preset-chat-bubble-system-frame-width",
+				"value": "1px",
+				"type": "width",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "system",
+					"encoding": "v-s0z0d0b0g0f0m0t1",
+					"axis": {
+						"surface": 0,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 0,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "transparent",
+						"border": "1px solid var(--border-divider)",
+						"borderRadius": "var(--radius-md)",
+						"transition": "var(--transition-color)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-system-frame-style",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"system",
+					"frame",
+					"style"
+				],
+				"cssVar": "--preset-chat-bubble-system-frame-style",
+				"value": "solid",
+				"type": "style",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "system",
+					"encoding": "v-s0z0d0b0g0f0m0t1",
+					"axis": {
+						"surface": 0,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 0,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "transparent",
+						"border": "1px solid var(--border-divider)",
+						"borderRadius": "var(--radius-md)",
+						"transition": "var(--transition-color)"
+					}
+				}
+			},
+			{
+				"name": "preset-chat-bubble-system-transition",
+				"path": [
+					"preset",
+					"chat-bubble",
+					"system",
+					"transition"
+				],
+				"cssVar": "--preset-chat-bubble-system-transition",
+				"value": "color, background-color, border-color 150ms cubic-bezier(0, 0, 0.2, 1)",
+				"type": "transition",
+				"extensions": {
+					"kind": "chat-bubble",
+					"intent": "system",
+					"encoding": "v-s0z0d0b0g0f0m0t1",
+					"axis": {
+						"surface": 0,
+						"material": 0,
+						"depth": 0,
+						"bevel": 0,
+						"glow": 0,
+						"frame": 0,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "transparent",
+						"border": "1px solid var(--border-divider)",
+						"borderRadius": "var(--radius-md)",
+						"transition": "var(--transition-color)"
 					}
 				}
 			},
@@ -258327,6 +263899,471 @@
 						"background": "var(--surface-base)",
 						"boxShadow": "var(--shadow-z1)",
 						"border": "1px solid var(--border-subtle)",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-tabs-chrome-surface",
+				"path": [
+					"preset",
+					"tabs",
+					"chrome",
+					"surface"
+				],
+				"cssVar": "--preset-tabs-chrome-surface",
+				"value": "#000305cc",
+				"type": "surface",
+				"extensions": {
+					"kind": "tabs",
+					"intent": "chrome",
+					"encoding": "v-s3z0d2b2g1f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 2,
+						"bevel": 2,
+						"glow": 1,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-deep)",
+						"backdropFilter": "blur(12px)",
+						"boxShadow": "var(--shadow-z2), var(--bevel-soft), 0 2px 8px var(--glow-teal)",
+						"border": "1px solid var(--border-strong)",
+						"borderRadius": "8px 8px 0 0",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-tabs-chrome-depth",
+				"path": [
+					"preset",
+					"tabs",
+					"chrome",
+					"depth"
+				],
+				"cssVar": "--preset-tabs-chrome-depth",
+				"value": [
+					{
+						"color": "#00000026",
+						"offsetX": "0px",
+						"offsetY": "3px",
+						"blur": "6px",
+						"spread": "0px"
+					},
+					{
+						"color": "#0000001f",
+						"offsetX": "0px",
+						"offsetY": "2px",
+						"blur": "4px",
+						"spread": "0px"
+					}
+				],
+				"type": "depth",
+				"extensions": {
+					"kind": "tabs",
+					"intent": "chrome",
+					"encoding": "v-s3z0d2b2g1f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 2,
+						"bevel": 2,
+						"glow": 1,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-deep)",
+						"backdropFilter": "blur(12px)",
+						"boxShadow": "var(--shadow-z2), var(--bevel-soft), 0 2px 8px var(--glow-teal)",
+						"border": "1px solid var(--border-strong)",
+						"borderRadius": "8px 8px 0 0",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-tabs-chrome-bevel",
+				"path": [
+					"preset",
+					"tabs",
+					"chrome",
+					"bevel"
+				],
+				"cssVar": "--preset-tabs-chrome-bevel",
+				"value": [
+					{
+						"color": "#ffffff1f",
+						"offsetX": "0px",
+						"offsetY": "1px",
+						"blur": "1px",
+						"spread": "0px"
+					},
+					{
+						"color": "#ffffff14",
+						"offsetX": "0px",
+						"offsetY": "2px",
+						"blur": "4px",
+						"spread": "0px"
+					},
+					{
+						"color": "#00000033",
+						"offsetX": "0px",
+						"offsetY": "-1px",
+						"blur": "3px",
+						"spread": "0px"
+					}
+				],
+				"type": "bevel",
+				"extensions": {
+					"kind": "tabs",
+					"intent": "chrome",
+					"encoding": "v-s3z0d2b2g1f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 2,
+						"bevel": 2,
+						"glow": 1,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-deep)",
+						"backdropFilter": "blur(12px)",
+						"boxShadow": "var(--shadow-z2), var(--bevel-soft), 0 2px 8px var(--glow-teal)",
+						"border": "1px solid var(--border-strong)",
+						"borderRadius": "8px 8px 0 0",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-tabs-chrome-glow-color",
+				"path": [
+					"preset",
+					"tabs",
+					"chrome",
+					"glow",
+					"color"
+				],
+				"cssVar": "--preset-tabs-chrome-glow-color",
+				"value": "#009076b3",
+				"type": "color",
+				"extensions": {
+					"kind": "tabs",
+					"intent": "chrome",
+					"encoding": "v-s3z0d2b2g1f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 2,
+						"bevel": 2,
+						"glow": 1,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-deep)",
+						"backdropFilter": "blur(12px)",
+						"boxShadow": "var(--shadow-z2), var(--bevel-soft), 0 2px 8px var(--glow-teal)",
+						"border": "1px solid var(--border-strong)",
+						"borderRadius": "8px 8px 0 0",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-tabs-chrome-glow-offset-x",
+				"path": [
+					"preset",
+					"tabs",
+					"chrome",
+					"glow",
+					"offsetX"
+				],
+				"cssVar": "--preset-tabs-chrome-glow-offset-x",
+				"value": "0px",
+				"type": "offsetX",
+				"extensions": {
+					"kind": "tabs",
+					"intent": "chrome",
+					"encoding": "v-s3z0d2b2g1f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 2,
+						"bevel": 2,
+						"glow": 1,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-deep)",
+						"backdropFilter": "blur(12px)",
+						"boxShadow": "var(--shadow-z2), var(--bevel-soft), 0 2px 8px var(--glow-teal)",
+						"border": "1px solid var(--border-strong)",
+						"borderRadius": "8px 8px 0 0",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-tabs-chrome-glow-offset-y",
+				"path": [
+					"preset",
+					"tabs",
+					"chrome",
+					"glow",
+					"offsetY"
+				],
+				"cssVar": "--preset-tabs-chrome-glow-offset-y",
+				"value": "0px",
+				"type": "offsetY",
+				"extensions": {
+					"kind": "tabs",
+					"intent": "chrome",
+					"encoding": "v-s3z0d2b2g1f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 2,
+						"bevel": 2,
+						"glow": 1,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-deep)",
+						"backdropFilter": "blur(12px)",
+						"boxShadow": "var(--shadow-z2), var(--bevel-soft), 0 2px 8px var(--glow-teal)",
+						"border": "1px solid var(--border-strong)",
+						"borderRadius": "8px 8px 0 0",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-tabs-chrome-glow-blur",
+				"path": [
+					"preset",
+					"tabs",
+					"chrome",
+					"glow",
+					"blur"
+				],
+				"cssVar": "--preset-tabs-chrome-glow-blur",
+				"value": "30px",
+				"type": "blur",
+				"extensions": {
+					"kind": "tabs",
+					"intent": "chrome",
+					"encoding": "v-s3z0d2b2g1f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 2,
+						"bevel": 2,
+						"glow": 1,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-deep)",
+						"backdropFilter": "blur(12px)",
+						"boxShadow": "var(--shadow-z2), var(--bevel-soft), 0 2px 8px var(--glow-teal)",
+						"border": "1px solid var(--border-strong)",
+						"borderRadius": "8px 8px 0 0",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-tabs-chrome-glow-spread",
+				"path": [
+					"preset",
+					"tabs",
+					"chrome",
+					"glow",
+					"spread"
+				],
+				"cssVar": "--preset-tabs-chrome-glow-spread",
+				"value": "12px",
+				"type": "spread",
+				"extensions": {
+					"kind": "tabs",
+					"intent": "chrome",
+					"encoding": "v-s3z0d2b2g1f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 2,
+						"bevel": 2,
+						"glow": 1,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-deep)",
+						"backdropFilter": "blur(12px)",
+						"boxShadow": "var(--shadow-z2), var(--bevel-soft), 0 2px 8px var(--glow-teal)",
+						"border": "1px solid var(--border-strong)",
+						"borderRadius": "8px 8px 0 0",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-tabs-chrome-frame-color",
+				"path": [
+					"preset",
+					"tabs",
+					"chrome",
+					"frame",
+					"color"
+				],
+				"cssVar": "--preset-tabs-chrome-frame-color",
+				"value": "#0078614d",
+				"type": "color",
+				"extensions": {
+					"kind": "tabs",
+					"intent": "chrome",
+					"encoding": "v-s3z0d2b2g1f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 2,
+						"bevel": 2,
+						"glow": 1,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-deep)",
+						"backdropFilter": "blur(12px)",
+						"boxShadow": "var(--shadow-z2), var(--bevel-soft), 0 2px 8px var(--glow-teal)",
+						"border": "1px solid var(--border-strong)",
+						"borderRadius": "8px 8px 0 0",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-tabs-chrome-frame-width",
+				"path": [
+					"preset",
+					"tabs",
+					"chrome",
+					"frame",
+					"width"
+				],
+				"cssVar": "--preset-tabs-chrome-frame-width",
+				"value": "1px",
+				"type": "width",
+				"extensions": {
+					"kind": "tabs",
+					"intent": "chrome",
+					"encoding": "v-s3z0d2b2g1f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 2,
+						"bevel": 2,
+						"glow": 1,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-deep)",
+						"backdropFilter": "blur(12px)",
+						"boxShadow": "var(--shadow-z2), var(--bevel-soft), 0 2px 8px var(--glow-teal)",
+						"border": "1px solid var(--border-strong)",
+						"borderRadius": "8px 8px 0 0",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-tabs-chrome-frame-style",
+				"path": [
+					"preset",
+					"tabs",
+					"chrome",
+					"frame",
+					"style"
+				],
+				"cssVar": "--preset-tabs-chrome-frame-style",
+				"value": "solid",
+				"type": "style",
+				"extensions": {
+					"kind": "tabs",
+					"intent": "chrome",
+					"encoding": "v-s3z0d2b2g1f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 2,
+						"bevel": 2,
+						"glow": 1,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-deep)",
+						"backdropFilter": "blur(12px)",
+						"boxShadow": "var(--shadow-z2), var(--bevel-soft), 0 2px 8px var(--glow-teal)",
+						"border": "1px solid var(--border-strong)",
+						"borderRadius": "8px 8px 0 0",
+						"transition": "var(--transition-all-fast)"
+					}
+				}
+			},
+			{
+				"name": "preset-tabs-chrome-transition",
+				"path": [
+					"preset",
+					"tabs",
+					"chrome",
+					"transition"
+				],
+				"cssVar": "--preset-tabs-chrome-transition",
+				"value": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+				"type": "transition",
+				"extensions": {
+					"kind": "tabs",
+					"intent": "chrome",
+					"encoding": "v-s3z0d2b2g1f1m0t1",
+					"axis": {
+						"surface": 3,
+						"material": 0,
+						"depth": 2,
+						"bevel": 2,
+						"glow": 1,
+						"frame": 1,
+						"motion": 0,
+						"transition": 1
+					},
+					"css": {
+						"background": "var(--glass-deep)",
+						"backdropFilter": "blur(12px)",
+						"boxShadow": "var(--shadow-z2), var(--bevel-soft), 0 2px 8px var(--glow-teal)",
+						"border": "1px solid var(--border-strong)",
+						"borderRadius": "8px 8px 0 0",
 						"transition": "var(--transition-all-fast)"
 					}
 				}

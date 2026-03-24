@@ -17136,6 +17136,377 @@
 				"$type": "number",
 				"$value": 1
 			}
+		},
+		"badge-ember-glow": {
+			"$description": "Ember glow badge — orange/red emission for warnings and active states",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.overlay}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "{blur.lg}"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.strong}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "#ffffff"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.lg}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"badge-glass-label": {
+			"$description": "Glass label — floating section label with glass background",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.raised}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "{blur.md}"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z0}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.default}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.color}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.lg}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"button-voice-active": {
+			"$description": "Voice active — ember/red glow, pulsing, circular",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.overlay}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "{blur.lg}"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z3}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.strong}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "#ffffff"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.lg}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"chat-bubble-ai": {
+			"$description": "AI message bubble — glass deep, teal left border glow, subtle bevel",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.overlay}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "{blur.lg}"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.strong}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "#ffffff"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.lg}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"chat-bubble-user": {
+			"$description": "User message bubble — subtle glass, no glow, minimal",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.raised}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "{blur.md}"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z0}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.default}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.lg}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"chat-bubble-system": {
+			"$description": "System message — transparent, divider border, minimal",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{glass.void}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z0}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.divider}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.color}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.300}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"tabs-chrome": {
+			"$description": "Chrome tabs — curved top corners, active tab merges with container glass, teal underline glow",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.overlay}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "{blur.lg}"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z2}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.strong}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "#ffffff"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.lg}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
 		}
 	},
 	"encoding": {

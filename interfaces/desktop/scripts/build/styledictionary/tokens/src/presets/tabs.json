@@ -138,6 +138,33 @@
 						}
 					}
 				}
+			},
+			"chrome": {
+				"$value": {
+					"surface": "{surface.overlay}",
+					"depth": "{shadow.z2}",
+					"bevel": "{bevel.soft}",
+					"glow": "{glow.teal}",
+					"frame": "{borderPreset.strong}",
+					"transition": "{transition.all-fast}"
+				},
+				"$description": "Chrome tabs — curved top corners, active tab merges with container glass, teal underline glow",
+				"$extensions": {
+					"com.coldlight": {
+						"kind": "tabs",
+						"intent": "chrome",
+						"encoding": "v-s3z0d2b2g1f1m0t1",
+						"axis": { "surface": 3, "material": 0, "depth": 2, "bevel": 2, "glow": 1, "frame": 1, "motion": 0, "transition": 1 },
+						"css": {
+							"background": "var(--glass-deep)",
+							"backdropFilter": "blur(12px)",
+							"boxShadow": "var(--shadow-z2), var(--bevel-soft), 0 2px 8px var(--glow-teal)",
+							"border": "1px solid var(--border-strong)",
+							"borderRadius": "8px 8px 0 0",
+							"transition": "var(--transition-all-fast)"
+						}
+					}
+				}
 			}
 		}
 	}
