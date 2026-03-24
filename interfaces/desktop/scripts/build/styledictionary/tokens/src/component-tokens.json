@@ -24,7 +24,7 @@
 				"$description": "Full circle radius"
 			},
 			"color": {
-				"$value": "#e2e8f0",
+				"$value": "oklch(0.9319 0.0177 20.01)",
 				"$type": "color",
 				"$description": "Fallback text color"
 			},
@@ -74,7 +74,7 @@
 				"$description": "Full pill radius"
 			},
 			"color": {
-				"$value": "#e2e8f0",
+				"$value": "oklch(0.9319 0.0177 20.01)",
 				"$type": "color",
 				"$description": "Text color"
 			},
@@ -158,7 +158,7 @@
 			},
 			"color": {
 				"default": {
-					"$value": "#ffffff",
+					"$value": "oklch(1.0032 0.0305 28.88)",
 					"$type": "color",
 					"$description": "Text color — white on primary"
 				}
@@ -232,7 +232,7 @@
 				"$description": "Inner padding"
 			},
 			"color": {
-				"$value": "#e2e8f0",
+				"$value": "oklch(0.9319 0.0177 20.01)",
 				"$type": "color",
 				"$description": "Default text color within card"
 			},
@@ -258,7 +258,7 @@
 	"heading": {
 		"root": {
 			"color": {
-				"$value": "#ffffff",
+				"$value": "oklch(1.0032 0.0305 28.88)",
 				"$type": "color",
 				"$description": "Default heading text color"
 			},
@@ -348,7 +348,7 @@
 		},
 		"fill": {
 			"background": {
-				"$value": "#2dd4bf",
+				"$value": "oklch(0.7887 0.0798 173.06)",
 				"$type": "color",
 				"$description": "Fill bar background — teal accent"
 			},
@@ -480,22 +480,22 @@
 		"root": {
 			"color": {
 				"primary": {
-					"$value": "#e2e8f0",
+					"$value": "oklch(0.9319 0.0177 20.01)",
 					"$type": "color",
 					"$description": "Primary text color — high contrast"
 				},
 				"secondary": {
-					"$value": "#94a3b8",
+					"$value": "oklch(0.7134 0.0118 250.59)",
 					"$type": "color",
 					"$description": "Secondary text color — muted"
 				},
 				"muted": {
-					"$value": "#64748b",
+					"$value": "oklch(0.5566 0.021 234.93)",
 					"$type": "color",
 					"$description": "Muted text color — low emphasis"
 				},
 				"accent": {
-					"$value": "#2dd4bf",
+					"$value": "oklch(0.7887 0.0798 173.06)",
 					"$type": "color",
 					"$description": "Accent text color — teal highlight"
 				}
@@ -539,12 +539,12 @@
 						"$description": "Default border color"
 					},
 					"focus": {
-						"$value": "#2dd4bf",
+						"$value": "oklch(0.7887 0.0798 173.06)",
 						"$type": "color",
 						"$description": "Focus border color — teal accent"
 					},
 					"invalid": {
-						"$value": "#f87171",
+						"$value": "oklch(0.7113 0.1693 15.9)",
 						"$type": "color",
 						"$description": "Invalid border color — red"
 					}
@@ -571,12 +571,12 @@
 				"$description": "Vertical padding"
 			},
 			"color": {
-				"$value": "#e2e8f0",
+				"$value": "oklch(0.9319 0.0177 20.01)",
 				"$type": "color",
 				"$description": "Input text color"
 			},
 			"placeholder-color": {
-				"$value": "#64748b",
+				"$value": "oklch(0.5566 0.021 234.93)",
 				"$type": "color",
 				"$description": "Placeholder text color"
 			},
@@ -605,7 +605,7 @@
 		},
 		"label": {
 			"color": {
-				"$value": "#e2e8f0",
+				"$value": "oklch(0.9319 0.0177 20.01)",
 				"$type": "color",
 				"$description": "Label text color"
 			},
@@ -627,7 +627,7 @@
 		},
 		"description": {
 			"color": {
-				"$value": "#94a3b8",
+				"$value": "oklch(0.7134 0.0118 250.59)",
 				"$type": "color",
 				"$description": "Description text color"
 			},
@@ -639,7 +639,7 @@
 		},
 		"error": {
 			"color": {
-				"$value": "#f87171",
+				"$value": "oklch(0.7113 0.1693 15.9)",
 				"$type": "color",
 				"$description": "Error message color"
 			},

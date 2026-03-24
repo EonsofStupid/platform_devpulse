@@ -23,17 +23,17 @@ export const textFieldTokens = {
 		$description: "Default border color",
 	},
 	"text-field.input.border.color.focus": {
-		$value: "#2dd4bf",
+		$value: "oklch(0.7887 0.0798 173.06)",
 		$type: "color",
 		$description: "Focus border color — teal accent",
 	},
 	"text-field.input.border.color.invalid": {
-		$value: "#f87171",
+		$value: "oklch(0.7113 0.1693 15.9)",
 		$type: "color",
 		$description: "Invalid border color — red",
 	},
 	"text-field.input.border.width": {
-		$value: "1px",
+		$value: "0.0625rem",
 		$type: "dimension",
 		$description: "Border width",
 	},
@@ -43,27 +43,27 @@ export const textFieldTokens = {
 		$description: "Corner radius",
 	},
 	"text-field.input.padding-inline": {
-		$value: "16px",
+		$value: "1rem",
 		$type: "dimension",
 		$description: "Horizontal padding",
 	},
 	"text-field.input.padding-block": {
-		$value: "10px",
+		$value: "0.625rem",
 		$type: "dimension",
 		$description: "Vertical padding",
 	},
 	"text-field.input.color": {
-		$value: "#e2e8f0",
+		$value: "oklch(0.9319 0.0177 20.01)",
 		$type: "color",
 		$description: "Input text color",
 	},
 	"text-field.input.placeholder-color": {
-		$value: "#64748b",
+		$value: "oklch(0.5566 0.021 234.93)",
 		$type: "color",
 		$description: "Placeholder text color",
 	},
 	"text-field.input.font-size": {
-		$value: "14px",
+		$value: "0.875rem",
 		$type: "dimension",
 		$description: "Font size",
 	},
@@ -73,22 +73,22 @@ export const textFieldTokens = {
 		$description: "Font family",
 	},
 	"text-field.input.shadow.focus": {
-		$value: "0 0 0 3px rgba(45, 212, 191, 0.15)",
+		$value: "0 0 0 0.1875rem rgba(45, 212, 191, 0.15)",
 		$type: "shadow",
 		$description: "Focus ring shadow",
 	},
 	"text-field.input.height": {
-		$value: "40px",
+		$value: "2.5rem",
 		$type: "dimension",
 		$description: "Default height (md)",
 	},
 	"text-field.label.color": {
-		$value: "#e2e8f0",
+		$value: "oklch(0.9319 0.0177 20.01)",
 		$type: "color",
 		$description: "Label text color",
 	},
 	"text-field.label.font-size": {
-		$value: "14px",
+		$value: "0.875rem",
 		$type: "dimension",
 		$description: "Label font size",
 	},
@@ -98,27 +98,27 @@ export const textFieldTokens = {
 		$description: "Label font weight — medium",
 	},
 	"text-field.label.margin-bottom": {
-		$value: "4px",
+		$value: "0.25rem",
 		$type: "dimension",
 		$description: "Space between label and input",
 	},
 	"text-field.description.color": {
-		$value: "#94a3b8",
+		$value: "oklch(0.7134 0.0118 250.59)",
 		$type: "color",
 		$description: "Description text color",
 	},
 	"text-field.description.font-size": {
-		$value: "12px",
+		$value: "0.75rem",
 		$type: "dimension",
 		$description: "Description font size",
 	},
 	"text-field.error.color": {
-		$value: "#f87171",
+		$value: "oklch(0.7113 0.1693 15.9)",
 		$type: "color",
 		$description: "Error message color",
 	},
 	"text-field.error.font-size": {
-		$value: "12px",
+		$value: "0.75rem",
 		$type: "dimension",
 		$description: "Error font size",
 	},
@@ -127,18 +127,18 @@ export const textFieldTokens = {
 /** Size-specific token overrides */
 export const textFieldSizeTokens = {
 	sm: {
-		"text-field.input.height": { $value: "32px", $type: "dimension" as const },
-		"text-field.input.padding-inline": { $value: "12px", $type: "dimension" as const },
-		"text-field.input.font-size": { $value: "14px", $type: "dimension" as const },
+		"text-field.input.height": { $value: "2rem", $type: "dimension" as const },
+		"text-field.input.padding-inline": { $value: "0.75rem", $type: "dimension" as const },
+		"text-field.input.font-size": { $value: "0.875rem", $type: "dimension" as const },
 	},
 	md: {
-		"text-field.input.height": { $value: "40px", $type: "dimension" as const },
-		"text-field.input.padding-inline": { $value: "16px", $type: "dimension" as const },
-		"text-field.input.font-size": { $value: "14px", $type: "dimension" as const },
+		"text-field.input.height": { $value: "2.5rem", $type: "dimension" as const },
+		"text-field.input.padding-inline": { $value: "1rem", $type: "dimension" as const },
+		"text-field.input.font-size": { $value: "0.875rem", $type: "dimension" as const },
 	},
 	lg: {
-		"text-field.input.height": { $value: "48px", $type: "dimension" as const },
-		"text-field.input.padding-inline": { $value: "16px", $type: "dimension" as const },
-		"text-field.input.font-size": { $value: "16px", $type: "dimension" as const },
+		"text-field.input.height": { $value: "3rem", $type: "dimension" as const },
+		"text-field.input.padding-inline": { $value: "1rem", $type: "dimension" as const },
+		"text-field.input.font-size": { $value: "1rem", $type: "dimension" as const },
 	},
 } as const;

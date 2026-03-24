@@ -4,17 +4,17 @@
 
 @layer tokens.primitives {
 	:root {
-		--bevel-off: inset 0px 0px 0px 0px #00000000;
+		--bevel-off: inset 0px 0px 0px 0px oklch(0 0 0 / 0);
 		--bevel-subtle:
-			inset 0px 1px 0px 0px #ffffff0a, inset 0px -1px 0px 0px #00000014; /** Barely visible edge highlight — single light/dark pair */
+			inset 0px 1px 0px 0px oklch(1.0032 0.0305 28.88 / 0.039), inset 0px -1px 0px 0px oklch(0 0 0 / 0.078); /** Barely visible edge highlight — single light/dark pair */
 		--bevel-soft:
-			inset 0px 1px 1px 0px #ffffff0d, inset 0px 2px 3px 0px #ffffff08,
-			inset 0px -1px 2px 0px #0000001f; /** Gentle depth — 3 layers with soft blur */
+			inset 0px 1px 1px 0px oklch(1.0032 0.0305 28.88 / 0.051), inset 0px 2px 3px 0px oklch(1.0032 0.0305 28.88 / 0.031),
+			inset 0px -1px 2px 0px oklch(0 0 0 / 0.122); /** Gentle depth — 3 layers with soft blur */
 		--bevel-medium:
-			inset 0px 1px 1px 0px #ffffff12, inset 0px 2px 4px 0px #ffffff0a, inset 0px -1px 2px 0px #00000024, inset 0px -3px 5px 0px #00000018; /** Noticeable depth — 4 layers with graduated offsets */
+			inset 0px 1px 1px 0px oklch(1.0032 0.0305 28.88 / 0.071), inset 0px 2px 4px 0px oklch(1.0032 0.0305 28.88 / 0.039), inset 0px -1px 2px 0px oklch(0 0 0 / 0.141), inset 0px -3px 5px 0px oklch(0 0 0 / 0.094); /** Noticeable depth — 4 layers with graduated offsets */
 		--bevel-pronounced:
-			inset 0px 1px 1px 0px #ffffff1a, inset 0px 2px 4px 0px #ffffff0f, inset 0px 4px 8px 0px #ffffff08, inset 0px -1px 2px 0px #00000029, inset 0px -3px 6px 0px #0000001a; /** Strong neumorphic effect — 5 layers with wide blur range */
+			inset 0px 1px 1px 0px oklch(1.0032 0.0305 28.88 / 0.102), inset 0px 2px 4px 0px oklch(1.0032 0.0305 28.88 / 0.059), inset 0px 4px 8px 0px oklch(1.0032 0.0305 28.88 / 0.031), inset 0px -1px 2px 0px oklch(0 0 0 / 0.161), inset 0px -3px 6px 0px oklch(0 0 0 / 0.102); /** Strong neumorphic effect — 5 layers with wide blur range */
 		--bevel-deep:
-			inset 0px 1px 1px 0px #ffffff1f, inset 0px 2px 4px 0px #ffffff14, inset 0px 4px 8px 0px #ffffff0a, inset 0px 6px 12px 0px #ffffff05, inset 0px -1px 3px 0px #00000033, inset 0px -4px 8px 0px #00000024; /** Maximum CSS depth — 6 layers simulating true bevel relief */
+			inset 0px 1px 1px 0px oklch(1.0032 0.0305 28.88 / 0.122), inset 0px 2px 4px 0px oklch(1.0032 0.0305 28.88 / 0.078), inset 0px 4px 8px 0px oklch(1.0032 0.0305 28.88 / 0.039), inset 0px 6px 12px 0px oklch(1.0032 0.0305 28.88 / 0.02), inset 0px -1px 3px 0px oklch(0 0 0 / 0.2), inset 0px -4px 8px 0px oklch(0 0 0 / 0.141); /** Maximum CSS depth — 6 layers simulating true bevel relief */
 	}
 }

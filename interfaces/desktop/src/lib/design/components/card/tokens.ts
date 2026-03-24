@@ -18,7 +18,7 @@ export const cardTokens = {
 		$description: "Border color",
 	},
 	"card.root.border.width": {
-		$value: "1px",
+		$value: "0.0625rem",
 		$type: "dimension",
 		$description: "Border width",
 	},
@@ -33,12 +33,12 @@ export const cardTokens = {
 		$description: "Drop shadow — subtle elevation",
 	},
 	"card.root.padding": {
-		$value: "16px",
+		$value: "1rem",
 		$type: "dimension",
 		$description: "Inner padding",
 	},
 	"card.root.color": {
-		$value: "#e2e8f0",
+		$value: "oklch(0.9319 0.0177 20.01)",
 		$type: "color",
 		$description: "Default text color within card",
 	},

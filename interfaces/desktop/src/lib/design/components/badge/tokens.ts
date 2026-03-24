@@ -18,32 +18,32 @@ export const badgeTokens = {
 		$description: "Border color",
 	},
 	"badge.root.border.width": {
-		$value: "1px",
+		$value: "0.0625rem",
 		$type: "dimension",
 		$description: "Border width",
 	},
 	"badge.root.border-radius": {
-		$value: "9999px",
+		$value: "624.9375rem",
 		$type: "dimension",
 		$description: "Full pill radius",
 	},
 	"badge.root.color": {
-		$value: "#e2e8f0",
+		$value: "oklch(0.9319 0.0177 20.01)",
 		$type: "color",
 		$description: "Text color",
 	},
 	"badge.root.padding-inline": {
-		$value: "8px",
+		$value: "0.5rem",
 		$type: "dimension",
 		$description: "Horizontal padding",
 	},
 	"badge.root.padding-block": {
-		$value: "2px",
+		$value: "0.125rem",
 		$type: "dimension",
 		$description: "Vertical padding",
 	},
 	"badge.root.font-size": {
-		$value: "12px",
+		$value: "0.75rem",
 		$type: "dimension",
 		$description: "Font size — xs",
 	},
@@ -58,7 +58,7 @@ export const badgeTokens = {
 		$description: "Font family",
 	},
 	"badge.root.gap": {
-		$value: "4px",
+		$value: "0.25rem",
 		$type: "dimension",
 		$description: "Gap between icon and label",
 	},
@@ -67,23 +67,23 @@ export const badgeTokens = {
 /** Size-specific token overrides */
 export const badgeSizeTokens = {
 	sm: {
-		"badge.root.padding-inline": { $value: "6px", $type: "dimension" as const },
-		"badge.root.padding-block": { $value: "2px", $type: "dimension" as const },
-		"badge.root.font-size": { $value: "12px", $type: "dimension" as const },
+		"badge.root.padding-inline": { $value: "0.375rem", $type: "dimension" as const },
+		"badge.root.padding-block": { $value: "0.125rem", $type: "dimension" as const },
+		"badge.root.font-size": { $value: "0.75rem", $type: "dimension" as const },
 	},
 	md: {
-		"badge.root.padding-inline": { $value: "8px", $type: "dimension" as const },
-		"badge.root.padding-block": { $value: "2px", $type: "dimension" as const },
-		"badge.root.font-size": { $value: "12px", $type: "dimension" as const },
+		"badge.root.padding-inline": { $value: "0.5rem", $type: "dimension" as const },
+		"badge.root.padding-block": { $value: "0.125rem", $type: "dimension" as const },
+		"badge.root.font-size": { $value: "0.75rem", $type: "dimension" as const },
 	},
 	lg: {
-		"badge.root.padding-inline": { $value: "10px", $type: "dimension" as const },
-		"badge.root.padding-block": { $value: "4px", $type: "dimension" as const },
-		"badge.root.font-size": { $value: "14px", $type: "dimension" as const },
+		"badge.root.padding-inline": { $value: "0.625rem", $type: "dimension" as const },
+		"badge.root.padding-block": { $value: "0.25rem", $type: "dimension" as const },
+		"badge.root.font-size": { $value: "0.875rem", $type: "dimension" as const },
 	},
 	xl: {
-		"badge.root.padding-inline": { $value: "12px", $type: "dimension" as const },
-		"badge.root.padding-block": { $value: "4px", $type: "dimension" as const },
-		"badge.root.font-size": { $value: "14px", $type: "dimension" as const },
+		"badge.root.padding-inline": { $value: "0.75rem", $type: "dimension" as const },
+		"badge.root.padding-block": { $value: "0.25rem", $type: "dimension" as const },
+		"badge.root.font-size": { $value: "0.875rem", $type: "dimension" as const },
 	},
 } as const;

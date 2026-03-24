@@ -18,17 +18,17 @@ export const buttonTokens = {
 		$description: "Hover background — smoke glass",
 	},
 	"button.root.padding-inline": {
-		$value: "16px",
+		$value: "1rem",
 		$type: "dimension",
 		$description: "Horizontal padding",
 	},
 	"button.root.padding-block": {
-		$value: "10px",
+		$value: "0.625rem",
 		$type: "dimension",
 		$description: "Vertical padding",
 	},
 	"button.root.height": {
-		$value: "40px",
+		$value: "2.5rem",
 		$type: "dimension",
 		$description: "Default height (md)",
 	},
@@ -43,12 +43,12 @@ export const buttonTokens = {
 		$description: "Border color",
 	},
 	"button.root.border.width": {
-		$value: "1px",
+		$value: "0.0625rem",
 		$type: "dimension",
 		$description: "Border width",
 	},
 	"button.root.color.default": {
-		$value: "#ffffff",
+		$value: "oklch(1.0032 0.0305 28.88)",
 		$type: "color",
 		$description: "Text color — white on primary",
 	},
@@ -58,7 +58,7 @@ export const buttonTokens = {
 		$description: "Drop shadow — subtle elevation",
 	},
 	"button.root.font-size": {
-		$value: "14px",
+		$value: "0.875rem",
 		$type: "dimension",
 		$description: "Font size",
 	},
@@ -78,7 +78,7 @@ export const buttonTokens = {
 		$description: "Transition speed",
 	},
 	"button.root.gap": {
-		$value: "8px",
+		$value: "0.5rem",
 		$type: "dimension",
 		$description: "Gap between icon and label",
 	},
@@ -87,24 +87,24 @@ export const buttonTokens = {
 /** Size-specific token overrides */
 export const buttonSizeTokens = {
 	sm: {
-		"button.root.height": { $value: "32px", $type: "dimension" as const },
-		"button.root.padding-inline": { $value: "12px", $type: "dimension" as const },
-		"button.root.padding-block": { $value: "6px", $type: "dimension" as const },
-		"button.root.font-size": { $value: "14px", $type: "dimension" as const },
-		"button.root.gap": { $value: "6px", $type: "dimension" as const },
+		"button.root.height": { $value: "2rem", $type: "dimension" as const },
+		"button.root.padding-inline": { $value: "0.75rem", $type: "dimension" as const },
+		"button.root.padding-block": { $value: "0.375rem", $type: "dimension" as const },
+		"button.root.font-size": { $value: "0.875rem", $type: "dimension" as const },
+		"button.root.gap": { $value: "0.375rem", $type: "dimension" as const },
 	},
 	md: {
-		"button.root.height": { $value: "40px", $type: "dimension" as const },
-		"button.root.padding-inline": { $value: "16px", $type: "dimension" as const },
-		"button.root.padding-block": { $value: "10px", $type: "dimension" as const },
-		"button.root.font-size": { $value: "14px", $type: "dimension" as const },
-		"button.root.gap": { $value: "8px", $type: "dimension" as const },
+		"button.root.height": { $value: "2.5rem", $type: "dimension" as const },
+		"button.root.padding-inline": { $value: "1rem", $type: "dimension" as const },
+		"button.root.padding-block": { $value: "0.625rem", $type: "dimension" as const },
+		"button.root.font-size": { $value: "0.875rem", $type: "dimension" as const },
+		"button.root.gap": { $value: "0.5rem", $type: "dimension" as const },
 	},
 	lg: {
-		"button.root.height": { $value: "48px", $type: "dimension" as const },
-		"button.root.padding-inline": { $value: "24px", $type: "dimension" as const },
-		"button.root.padding-block": { $value: "12px", $type: "dimension" as const },
-		"button.root.font-size": { $value: "16px", $type: "dimension" as const },
-		"button.root.gap": { $value: "10px", $type: "dimension" as const },
+		"button.root.height": { $value: "3rem", $type: "dimension" as const },
+		"button.root.padding-inline": { $value: "1.5rem", $type: "dimension" as const },
+		"button.root.padding-block": { $value: "0.75rem", $type: "dimension" as const },
+		"button.root.font-size": { $value: "1rem", $type: "dimension" as const },
+		"button.root.gap": { $value: "0.625rem", $type: "dimension" as const },
 	},
 } as const;

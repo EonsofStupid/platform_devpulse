@@ -8,22 +8,22 @@
 
 export const textTokens = {
 	"text.root.color.primary": {
-		$value: "#e2e8f0",
+		$value: "oklch(0.9319 0.0177 20.01)",
 		$type: "color",
 		$description: "Primary text color — high contrast",
 	},
 	"text.root.color.secondary": {
-		$value: "#94a3b8",
+		$value: "oklch(0.7134 0.0118 250.59)",
 		$type: "color",
 		$description: "Secondary text color — muted",
 	},
 	"text.root.color.muted": {
-		$value: "#64748b",
+		$value: "oklch(0.5566 0.021 234.93)",
 		$type: "color",
 		$description: "Muted text color — low emphasis",
 	},
 	"text.root.color.accent": {
-		$value: "#2dd4bf",
+		$value: "oklch(0.7887 0.0798 173.06)",
 		$type: "color",
 		$description: "Accent text color — teal highlight",
 	},
@@ -47,31 +47,31 @@ export const textTokens = {
 /** Size-specific token overrides */
 export const textSizeTokens = {
 	xs: {
-		"text.root.font-size": { $value: "12px", $type: "dimension" as const },
+		"text.root.font-size": { $value: "0.75rem", $type: "dimension" as const },
 		"text.root.line-height": { $value: "1.5", $type: "number" as const },
 	},
 	sm: {
-		"text.root.font-size": { $value: "14px", $type: "dimension" as const },
+		"text.root.font-size": { $value: "0.875rem", $type: "dimension" as const },
 		"text.root.line-height": { $value: "1.5", $type: "number" as const },
 	},
 	base: {
-		"text.root.font-size": { $value: "16px", $type: "dimension" as const },
+		"text.root.font-size": { $value: "1rem", $type: "dimension" as const },
 		"text.root.line-height": { $value: "1.5", $type: "number" as const },
 	},
 	lg: {
-		"text.root.font-size": { $value: "18px", $type: "dimension" as const },
+		"text.root.font-size": { $value: "1.125rem", $type: "dimension" as const },
 		"text.root.line-height": { $value: "1.4", $type: "number" as const },
 	},
 	xl: {
-		"text.root.font-size": { $value: "20px", $type: "dimension" as const },
+		"text.root.font-size": { $value: "1.25rem", $type: "dimension" as const },
 		"text.root.line-height": { $value: "1.4", $type: "number" as const },
 	},
 	"2xl": {
-		"text.root.font-size": { $value: "24px", $type: "dimension" as const },
+		"text.root.font-size": { $value: "1.5rem", $type: "dimension" as const },
 		"text.root.line-height": { $value: "1.3", $type: "number" as const },
 	},
 	"3xl": {
-		"text.root.font-size": { $value: "30px", $type: "dimension" as const },
+		"text.root.font-size": { $value: "1.875rem", $type: "dimension" as const },
 		"text.root.line-height": { $value: "1.2", $type: "number" as const },
 	},
 } as const;

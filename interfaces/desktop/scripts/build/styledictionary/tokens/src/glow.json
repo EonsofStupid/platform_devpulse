@@ -3,33 +3,83 @@
 		"$type": "shadow",
 		"$description": "Emission halo shadows per accent color. Heavy neumorphic — 30px blur, 12px spread, 70%+ opacity.",
 		"off": {
-			"$value": { "color": "#00000000", "offsetX": "0px", "offsetY": "0px", "blur": "0px", "spread": "0px" }
+			"$value": {
+				"color": "oklch(0 0 0 / 0)",
+				"offsetX": "0px",
+				"offsetY": "0px",
+				"blur": "0px",
+				"spread": "0px"
+			}
 		},
 		"teal": {
-			"$value": { "color": "#009076b3", "offsetX": "0px", "offsetY": "0px", "blur": "30px", "spread": "12px" }
+			"$value": {
+				"color": "oklch(0.586 0.0624 164.59 / 0.702)",
+				"offsetX": "0px",
+				"offsetY": "0px",
+				"blur": "30px",
+				"spread": "12px"
+			}
 		},
 		"purple": {
-			"$value": { "color": "#615ed6b3", "offsetX": "0px", "offsetY": "0px", "blur": "30px", "spread": "12px" }
+			"$value": {
+				"color": "oklch(0.5517 0.1399 232.9 / 0.702)",
+				"offsetX": "0px",
+				"offsetY": "0px",
+				"blur": "30px",
+				"spread": "12px"
+			}
 		},
 		"magenta": {
-			"$value": { "color": "#ad36a7b3", "offsetX": "0px", "offsetY": "0px", "blur": "30px", "spread": "12px" }
+			"$value": {
+				"color": "oklch(0.5513 0.1128 329.06 / 0.702)",
+				"offsetX": "0px",
+				"offsetY": "0px",
+				"blur": "30px",
+				"spread": "12px"
+			}
 		},
 		"ember": {
-			"$value": { "color": "#c53637b3", "offsetX": "0px", "offsetY": "0px", "blur": "30px", "spread": "12px" }
+			"$value": {
+				"color": "oklch(0.5507 0.1776 16.41 / 0.702)",
+				"offsetX": "0px",
+				"offsetY": "0px",
+				"blur": "30px",
+				"spread": "12px"
+			}
 		},
 		"frost": {
-			"$value": { "color": "#1988a399", "offsetX": "0px", "offsetY": "0px", "blur": "30px", "spread": "12px" }
+			"$value": {
+				"color": "oklch(0.5844 0.0833 202.74 / 0.6)",
+				"offsetX": "0px",
+				"offsetY": "0px",
+				"blur": "30px",
+				"spread": "12px"
+			}
 		},
 		"cyber": {
-			"$value": { "color": "#008f4ab3", "offsetX": "0px", "offsetY": "0px", "blur": "30px", "spread": "12px" }
+			"$value": {
+				"color": "oklch(0.5725 0.0715 136.04 / 0.702)",
+				"offsetX": "0px",
+				"offsetY": "0px",
+				"blur": "30px",
+				"spread": "12px"
+			}
 		}
 	},
 	"glowSpread": {
 		"$type": "dimension",
 		"$description": "Glow spread radius scale",
-		"sm": { "$value": "12px" },
-		"md": { "$value": "20px" },
-		"lg": { "$value": "30px" },
-		"xl": { "$value": "40px" }
+		"sm": {
+			"$value": "12px"
+		},
+		"md": {
+			"$value": "20px"
+		},
+		"lg": {
+			"$value": "30px"
+		},
+		"xl": {
+			"$value": "40px"
+		}
 	}
 }

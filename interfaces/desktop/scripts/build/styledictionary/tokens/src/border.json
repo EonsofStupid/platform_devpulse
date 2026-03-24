@@ -2,36 +2,61 @@
 	"borderWidth": {
 		"$type": "dimension",
 		"$description": "Border width scale (px → rem via SD5 transform)",
-		"thin":   { "$value": "1px", "$description": "Default border, dividers, grid lines" },
-		"medium": { "$value": "2px", "$description": "Focus rings, emphasis borders" },
-		"thick":  { "$value": "3px", "$description": "Active state, strong emphasis" }
+		"thin": {
+			"$value": "1px",
+			"$description": "Default border, dividers, grid lines"
+		},
+		"medium": {
+			"$value": "2px",
+			"$description": "Focus rings, emphasis borders"
+		},
+		"thick": {
+			"$value": "3px",
+			"$description": "Active state, strong emphasis"
+		}
 	},
 	"outlineOffset": {
 		"$type": "dimension",
 		"$description": "Outline offset scale (px → rem via SD5 transform)",
-		"sm": { "$value": "1px" },
-		"md": { "$value": "2px" },
-		"lg": { "$value": "4px" }
+		"sm": {
+			"$value": "1px"
+		},
+		"md": {
+			"$value": "2px"
+		},
+		"lg": {
+			"$value": "4px"
+		}
 	},
 	"border": {
 		"$type": "color",
 		"$description": "Named border color presets",
 		"subtle": {
-			"$value": "#005c4a38",
+			"$value": "oklch(0.4256 0.0453 163.89 / 0.22)",
 			"$description": "Default container border",
-			"$extensions": { "com.coldlight": { "cssRuntime": true, "cssExpression": "oklch(from var(--color-mint-700) l c h / 0.22)" } }
+			"$extensions": {
+				"com.coldlight": {
+					"cssRuntime": true,
+					"cssExpression": "oklch(from var(--color-mint-700) l c h / 0.22)"
+				}
+			}
 		},
 		"strong": {
-			"$value": "#0078614d",
+			"$value": "oklch(0.5133 0.0547 163.65 / 0.302)",
 			"$description": "Emphasized container border",
-			"$extensions": { "com.coldlight": { "cssRuntime": true, "cssExpression": "oklch(from var(--color-mint-600) l c h / 0.30)" } }
+			"$extensions": {
+				"com.coldlight": {
+					"cssRuntime": true,
+					"cssExpression": "oklch(from var(--color-mint-600) l c h / 0.30)"
+				}
+			}
 		},
 		"focus": {
 			"$value": "{color.mint.400}",
 			"$description": "Focus ring color"
 		},
 		"divider": {
-			"$value": "#ffffff0f",
+			"$value": "oklch(1.0032 0.0305 28.88 / 0.059)",
 			"$description": "Section separator"
 		}
 	},
@@ -39,19 +64,35 @@
 		"$type": "border",
 		"$description": "Named border presets — complete color + width + style",
 		"default": {
-			"$value": { "color": "{border.subtle}", "width": "1px", "style": "solid" },
+			"$value": {
+				"color": "{border.subtle}",
+				"width": "1px",
+				"style": "solid"
+			},
 			"$description": "Standard container border"
 		},
 		"strong": {
-			"$value": { "color": "{border.strong}", "width": "1px", "style": "solid" },
+			"$value": {
+				"color": "{border.strong}",
+				"width": "1px",
+				"style": "solid"
+			},
 			"$description": "Emphasized container border"
 		},
 		"focus": {
-			"$value": { "color": "{border.focus}", "width": "2px", "style": "solid" },
+			"$value": {
+				"color": "{border.focus}",
+				"width": "2px",
+				"style": "solid"
+			},
 			"$description": "Focus ring"
 		},
 		"divider": {
-			"$value": { "color": "{border.divider}", "width": "1px", "style": "solid" },
+			"$value": {
+				"color": "{border.divider}",
+				"width": "1px",
+				"style": "solid"
+			},
 			"$description": "Section separator"
 		}
 	}

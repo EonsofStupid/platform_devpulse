@@ -2,29 +2,68 @@
 	"glass": {
 		"$type": "color",
 		"$description": "Glass surface fills — translucent with alpha",
-		"void":   { "$value": "#000101e0" },
-		"deep":   { "$value": "#000305cc" },
-		"smoke":  { "$value": "#060a0ba6" },
-		"frost":  { "$value": "#dee6e966" },
-		"teal":   { "$value": "#000704bf" },
-		"purple": { "$value": "#030017bf" }
+		"void": {
+			"$value": "oklch(0.0612 0.0072 185.78 / 0.878)"
+		},
+		"deep": {
+			"$value": "oklch(0.0906 0.0149 205.53 / 0.8)"
+		},
+		"smoke": {
+			"$value": "oklch(0.1407 0.0033 189.37 / 0.651)"
+		},
+		"frost": {
+			"$value": "oklch(0.9228 0.0189 30.62 / 0.4)"
+		},
+		"teal": {
+			"$value": "oklch(0.1149 0.0123 158.92 / 0.749)"
+		},
+		"purple": {
+			"$value": "oklch(0.1001 0.0644 218.28 / 0.749)"
+		}
 	},
 	"matte": {
 		"$type": "color",
 		"$description": "Matte surface fills — opaque flat finishes",
-		"dark":   { "$value": "#08090b" },
-		"medium": { "$value": "#191b1d" },
-		"light":  { "$value": "#2c2e30" }
+		"dark": {
+			"$value": "oklch(0.14 0.0014 314.64)"
+		},
+		"medium": {
+			"$value": "oklch(0.2216 0.0023 9.36)"
+		},
+		"light": {
+			"$value": "oklch(0.301 0.005 20.6)"
+		}
 	},
 	"surface": {
 		"$type": "color",
 		"$description": "Named surface presets — what the layer IS",
-		"base":     { "$value": "{glass.void}", "$description": "App background" },
-		"raised":   { "$value": "{glass.smoke}", "$description": "Card, panel on top of base" },
-		"overlay":  { "$value": "{glass.deep}", "$description": "Dialog, popover, dropdown" },
-		"frosted":  { "$value": "{glass.frost}", "$description": "Frosted glass toolbar, header" },
-		"inset":    { "$value": "{matte.dark}", "$description": "Inset well, input background" },
-		"subtle":   { "$value": "{matte.medium}", "$description": "Subtle raised area, sidebar" },
-		"chrome":   { "$value": "{matte.light}", "$description": "UI chrome, toolbar background" }
+		"base": {
+			"$value": "{glass.void}",
+			"$description": "App background"
+		},
+		"raised": {
+			"$value": "{glass.smoke}",
+			"$description": "Card, panel on top of base"
+		},
+		"overlay": {
+			"$value": "{glass.deep}",
+			"$description": "Dialog, popover, dropdown"
+		},
+		"frosted": {
+			"$value": "{glass.frost}",
+			"$description": "Frosted glass toolbar, header"
+		},
+		"inset": {
+			"$value": "{matte.dark}",
+			"$description": "Inset well, input background"
+		},
+		"subtle": {
+			"$value": "{matte.medium}",
+			"$description": "Subtle raised area, sidebar"
+		},
+		"chrome": {
+			"$value": "{matte.light}",
+			"$description": "UI chrome, toolbar background"
+		}
 	}
 }

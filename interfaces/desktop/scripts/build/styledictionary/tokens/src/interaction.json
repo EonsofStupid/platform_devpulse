@@ -2,9 +2,21 @@
 	"interaction": {
 		"$type": "color",
 		"$description": "Named interaction state presets",
-		"hover":    { "$value": "#ffffff0f", "$description": "Hover overlay — subtle lighten" },
-		"active":   { "$value": "#ffffff1a", "$description": "Active/pressed overlay" },
-		"selected": { "$value": "#ffffff26", "$description": "Selected/checked overlay" },
-		"disabled": { "$value": "#ffffff08", "$description": "Disabled state overlay" }
+		"hover": {
+			"$value": "oklch(1.0032 0.0305 28.88 / 0.059)",
+			"$description": "Hover overlay — subtle lighten"
+		},
+		"active": {
+			"$value": "oklch(1.0032 0.0305 28.88 / 0.102)",
+			"$description": "Active/pressed overlay"
+		},
+		"selected": {
+			"$value": "oklch(1.0032 0.0305 28.88 / 0.149)",
+			"$description": "Selected/checked overlay"
+		},
+		"disabled": {
+			"$value": "oklch(1.0032 0.0305 28.88 / 0.031)",
+			"$description": "Disabled state overlay"
+		}
 	}
 }

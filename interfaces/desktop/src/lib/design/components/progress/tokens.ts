@@ -13,32 +13,32 @@ export const progressTokens = {
 		$description: "Track background — inset surface",
 	},
 	"progress.track.border-radius": {
-		$value: "9999px",
+		$value: "624.9375rem",
 		$type: "dimension",
 		$description: "Track corner radius — fully rounded",
 	},
 	"progress.track.height.sm": {
-		$value: "4px",
+		$value: "0.25rem",
 		$type: "dimension",
 		$description: "Track height — small",
 	},
 	"progress.track.height.md": {
-		$value: "8px",
+		$value: "0.5rem",
 		$type: "dimension",
 		$description: "Track height — medium",
 	},
 	"progress.track.height.lg": {
-		$value: "12px",
+		$value: "0.75rem",
 		$type: "dimension",
 		$description: "Track height — large",
 	},
 	"progress.fill.background": {
-		$value: "#2dd4bf",
+		$value: "oklch(0.7887 0.0798 173.06)",
 		$type: "color",
 		$description: "Fill bar background — teal accent",
 	},
 	"progress.fill.border-radius": {
-		$value: "9999px",
+		$value: "624.9375rem",
 		$type: "dimension",
 		$description: "Fill bar corner radius — fully rounded",
 	},

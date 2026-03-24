@@ -8,7 +8,7 @@
 
 export const headingTokens = {
 	"heading.root.color": {
-		$value: "#ffffff",
+		$value: "oklch(1.0032 0.0305 28.88)",
 		$type: "color",
 		$description: "Default heading text color",
 	},
@@ -67,31 +67,31 @@ export const headingTokens = {
 /** Size-specific token overrides */
 export const headingSizeTokens = {
 	xs: {
-		"heading.root.font-size": { $value: "12px", $type: "dimension" as const },
+		"heading.root.font-size": { $value: "0.75rem", $type: "dimension" as const },
 		"heading.root.letter-spacing": { $value: "0em", $type: "dimension" as const },
 	},
 	sm: {
-		"heading.root.font-size": { $value: "14px", $type: "dimension" as const },
+		"heading.root.font-size": { $value: "0.875rem", $type: "dimension" as const },
 		"heading.root.letter-spacing": { $value: "-0.01em", $type: "dimension" as const },
 	},
 	md: {
-		"heading.root.font-size": { $value: "16px", $type: "dimension" as const },
+		"heading.root.font-size": { $value: "1rem", $type: "dimension" as const },
 		"heading.root.letter-spacing": { $value: "-0.01em", $type: "dimension" as const },
 	},
 	lg: {
-		"heading.root.font-size": { $value: "18px", $type: "dimension" as const },
+		"heading.root.font-size": { $value: "1.125rem", $type: "dimension" as const },
 		"heading.root.letter-spacing": { $value: "-0.02em", $type: "dimension" as const },
 	},
 	xl: {
-		"heading.root.font-size": { $value: "20px", $type: "dimension" as const },
+		"heading.root.font-size": { $value: "1.25rem", $type: "dimension" as const },
 		"heading.root.letter-spacing": { $value: "-0.02em", $type: "dimension" as const },
 	},
 	"2xl": {
-		"heading.root.font-size": { $value: "24px", $type: "dimension" as const },
+		"heading.root.font-size": { $value: "1.5rem", $type: "dimension" as const },
 		"heading.root.letter-spacing": { $value: "-0.03em", $type: "dimension" as const },
 	},
 	"3xl": {
-		"heading.root.font-size": { $value: "30px", $type: "dimension" as const },
+		"heading.root.font-size": { $value: "1.875rem", $type: "dimension" as const },
 		"heading.root.letter-spacing": { $value: "-0.03em", $type: "dimension" as const },
 	},
 } as const;

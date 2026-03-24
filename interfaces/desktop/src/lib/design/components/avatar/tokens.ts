@@ -18,22 +18,22 @@ export const avatarTokens = {
 		$description: "Border color around avatar",
 	},
 	"avatar.root.border.width": {
-		$value: "2px",
+		$value: "0.125rem",
 		$type: "dimension",
 		$description: "Border width",
 	},
 	"avatar.root.border-radius": {
-		$value: "9999px",
+		$value: "624.9375rem",
 		$type: "dimension",
 		$description: "Full circle radius",
 	},
 	"avatar.root.color": {
-		$value: "#e2e8f0",
+		$value: "oklch(0.9319 0.0177 20.01)",
 		$type: "color",
 		$description: "Fallback text color",
 	},
 	"avatar.root.font-size": {
-		$value: "14px",
+		$value: "0.875rem",
 		$type: "dimension",
 		$description: "Fallback text font size",
 	},
