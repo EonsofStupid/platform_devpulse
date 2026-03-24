@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Alert preset compositions — banner notifications with glow borders and glass surfaces. VPB creates new presets by writing to this file.",
 		"alert": {
 			"default": {
 				"$value": {

@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Avatar preset compositions — circular image containers with glass border glow and subtle bevel. VPB creates new presets by writing to this file.",
 		"avatar": {
 			"default": {
 				"$value": {

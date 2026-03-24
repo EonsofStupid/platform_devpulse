@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Form field preset compositions — container for label + input + help text groupings. VPB creates new presets by writing to this file.",
 		"form-field": {
 			"default": {
 				"$value": {

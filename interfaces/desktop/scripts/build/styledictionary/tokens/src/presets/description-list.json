@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Description list preset compositions — each preset references 8-axis tokens to define a complete visual style. VPB creates new presets by writing to this file.",
 		"description-list": {
 			"default": {
 				"$value": {

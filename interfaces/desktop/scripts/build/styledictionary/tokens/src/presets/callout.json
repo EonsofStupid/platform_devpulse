@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Callout preset compositions — info/warning/error callouts with glow borders and glass surface. VPB creates new presets by writing to this file.",
 		"callout": {
 			"default": {
 				"$value": {

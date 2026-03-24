@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Inline message preset compositions — contextual messages with teal/amber/red glow variants. VPB creates new presets by writing to this file.",
 		"inline-message": {
 			"default": {
 				"$value": {

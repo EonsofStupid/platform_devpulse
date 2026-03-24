@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Scroll area preset compositions — custom scrollbar container. VPB creates new presets by writing to this file.",
 		"scroll-area": {
 			"default": {
 				"$value": {

@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Combobox preset compositions — autocomplete input with glass surface and dropdown with depth. VPB creates new presets by writing to this file.",
 		"combobox": {
 			"default": {
 				"$value": {

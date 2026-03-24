@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Checkbox preset compositions — check controls with inset bevel and teal glow when checked. VPB creates new presets by writing to this file.",
 		"checkbox": {
 			"default": {
 				"$value": {

@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Contextual help preset compositions — help popovers with glass surface and teal accent. VPB creates new presets by writing to this file.",
 		"contextual-help": {
 			"default": {
 				"$value": {

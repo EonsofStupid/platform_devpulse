@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Link preview preset compositions — popover cards that display URL previews with rich visual treatment. VPB creates new presets by writing to this file.",
 		"link-preview": {
 			"default": {
 				"$value": {

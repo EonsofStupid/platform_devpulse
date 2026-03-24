@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Badge preset compositions — small pill indicators with glass surface and teal glow on status. VPB creates new presets by writing to this file.",
 		"badge": {
 			"default": {
 				"$value": {

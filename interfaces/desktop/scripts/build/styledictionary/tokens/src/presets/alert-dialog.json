@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Alert dialog preset compositions — modal dialogs with heavy glass overlay and strong depth. VPB creates new presets by writing to this file.",
 		"alert-dialog": {
 			"default": {
 				"$value": {

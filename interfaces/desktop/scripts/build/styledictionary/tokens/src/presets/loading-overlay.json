@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Loading overlay preset compositions — glass overlay surfaces for loading states. VPB creates new presets by writing to this file.",
 		"loading-overlay": {
 			"default": {
 				"$value": {

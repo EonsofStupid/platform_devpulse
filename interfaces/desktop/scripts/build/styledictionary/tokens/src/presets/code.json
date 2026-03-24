@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Code block preset compositions — code containers with deep glass, inset shadow, and monospace treatment. VPB creates new presets by writing to this file.",
 		"code": {
 			"default": {
 				"$value": {

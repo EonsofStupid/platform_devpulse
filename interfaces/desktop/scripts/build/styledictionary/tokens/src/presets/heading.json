@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Heading preset compositions — typographic headings with minimal depth. VPB creates new presets by writing to this file.",
 		"heading": {
 			"default": {
 				"$value": {

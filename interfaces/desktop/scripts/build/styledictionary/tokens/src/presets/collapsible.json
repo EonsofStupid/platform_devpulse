@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Collapsible preset compositions — expand/collapse containers with subtle glass and minimal depth. VPB creates new presets by writing to this file.",
 		"collapsible": {
 			"default": {
 				"$value": {

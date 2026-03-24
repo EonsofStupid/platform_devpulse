@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Progress preset compositions — progress bar with teal fill. VPB creates new presets by writing to this file.",
 		"progress": {
 			"default": {
 				"$value": {

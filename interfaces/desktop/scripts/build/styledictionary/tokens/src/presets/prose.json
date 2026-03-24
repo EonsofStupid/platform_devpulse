@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Prose preset compositions — rich text container. VPB creates new presets by writing to this file.",
 		"prose": {
 			"default": {
 				"$value": {

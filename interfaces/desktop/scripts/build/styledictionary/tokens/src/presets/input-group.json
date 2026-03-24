@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Input group preset compositions — container for grouped input elements with shared visual treatment. VPB creates new presets by writing to this file.",
 		"input-group": {
 			"default": {
 				"$value": {

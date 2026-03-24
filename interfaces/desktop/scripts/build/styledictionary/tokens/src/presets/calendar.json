@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Calendar preset compositions — date grid with glass surface, subtle depth, and teal selection glow. VPB creates new presets by writing to this file.",
 		"calendar": {
 			"default": {
 				"$value": {

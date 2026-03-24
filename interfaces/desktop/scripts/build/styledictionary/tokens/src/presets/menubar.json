@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Menubar preset compositions — horizontal menu bar with glass and depth treatments. VPB creates new presets by writing to this file.",
 		"menubar": {
 			"default": {
 				"$value": {

@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "List preset compositions — list containers with visual grouping treatment. VPB creates new presets by writing to this file.",
 		"list": {
 			"default": {
 				"$value": {

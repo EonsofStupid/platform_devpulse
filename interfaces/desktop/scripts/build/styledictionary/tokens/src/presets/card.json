@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Card preset compositions — content containers with glass-deep surface, medium depth, and soft bevel. VPB creates new presets by writing to this file.",
 		"card": {
 			"default": {
 				"$value": {

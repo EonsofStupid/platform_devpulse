@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Popover preset compositions — floating panel with strong depth. VPB creates new presets by writing to this file.",
 		"popover": {
 			"default": {
 				"$value": {

@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Range calendar preset compositions — calendar range picker. VPB creates new presets by writing to this file.",
 		"range-calendar": {
 			"default": {
 				"$value": {

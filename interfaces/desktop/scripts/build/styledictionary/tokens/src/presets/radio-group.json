@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Radio group preset compositions — radio buttons with inset bevel. VPB creates new presets by writing to this file.",
 		"radio-group": {
 			"default": {
 				"$value": {

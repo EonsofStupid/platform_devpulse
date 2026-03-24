@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Kbd preset compositions — keyboard shortcut badges with inset bevel for key-cap effect. VPB creates new presets by writing to this file.",
 		"kbd": {
 			"default": {
 				"$value": {

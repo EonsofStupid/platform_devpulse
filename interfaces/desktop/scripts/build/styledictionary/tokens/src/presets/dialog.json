@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Dialog preset compositions — modal containers with heavy glass, strong depth, and soft bevel. VPB creates new presets by writing to this file.",
 		"dialog": {
 			"default": {
 				"$value": {

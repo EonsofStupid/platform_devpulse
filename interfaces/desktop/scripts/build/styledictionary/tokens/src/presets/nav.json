@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Nav preset compositions — navigation containers with glass and depth treatments. VPB creates new presets by writing to this file.",
 		"nav": {
 			"default": {
 				"$value": {

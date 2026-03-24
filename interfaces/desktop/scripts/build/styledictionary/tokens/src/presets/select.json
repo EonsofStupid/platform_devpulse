@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Select preset compositions — dropdown select. VPB creates new presets by writing to this file.",
 		"select": {
 			"default": {
 				"$value": {

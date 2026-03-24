@@ -1,6 +1,5 @@
 {
 	"preset": {
-		"$description": "Label preset compositions — minimal text labels with no depth or visual weight. VPB creates new presets by writing to this file.",
 		"label": {
 			"default": {
 				"$value": {
