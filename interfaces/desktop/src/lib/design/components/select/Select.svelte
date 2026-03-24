@@ -1,12 +1,17 @@
 <!--
-	@component Select (Root)
+	@component Select
 	@kind select
-	@layer components
-
-	Dropdown selection. Hook (ARIA) + StyleMacro (visual).
-	Compound: Trigger, Content, Item, Label, Group.
-
-	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
+	@layer component
+	@category interactive
+	@description Dropdown control for choosing a single value from a predefined list of options
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/listbox/
+	@container false
+	@compound true
+	@blockCategory form
+	@defaultStyle select-default
+	@styleIds select-default
+	@requiredAxes backgroundColor, border, borderRadius, shadow, typography, color
+	@slots root:all, trigger:none, content:none, item:none, group:none, label:none
 -->
 <script lang="ts">
 import { useSelect } from "$lib/design/primitives/select/use-select.svelte.js";

@@ -1,12 +1,16 @@
 <!--
-	@component FileUpload
+	@component File Upload
 	@kind file-upload
-	@layer components
-
-	ColdLight FileUpload — 8-axis visual system.
-	StyleMacro provides visual styling.
-
-	Provides a drop zone root with a hidden file input and trigger button.
+	@layer component
+	@category interactive
+	@description Drag-and-drop or click-to-browse control for selecting and uploading files
+	@container false
+	@compound true
+	@blockCategory form
+	@defaultStyle file-upload-default
+	@styleIds file-upload-default
+	@requiredAxes backgroundColor, border, borderRadius, color, typography
+	@slots root:all, dropzone:none, trigger:none, fileList:none, label:none
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";

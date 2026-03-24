@@ -1,11 +1,17 @@
 <!--
-	@component ColorSlider (Root)
+	@component Color Slider
 	@kind color-slider
-	@layer components
-
-	1D color channel slider. Single thumb on a gradient track.
-	Svelte 5: $state, $derived, $effect for controlled sync.
-	Auto-generated IDs. Real channel values via color-utils.
+	@layer component
+	@category interactive
+	@description Single-axis slider for adjusting one channel of a color value such as hue or alpha
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/slider/
+	@container false
+	@compound true
+	@blockCategory form
+	@defaultStyle color-slider-default
+	@styleIds color-slider-default
+	@requiredAxes border, borderRadius
+	@slots root:all, track:none, thumb:none, label:none
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

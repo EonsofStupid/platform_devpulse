@@ -1,12 +1,17 @@
 <!--
 	@component Switch
 	@kind switch
-	@layer components
-
-	On/off toggle. Hook (ARIA role="switch") + StyleMacro (visual).
-	Controlled/uncontrolled checked state.
-
-	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/switch/
+	@layer component
+	@category interactive
+	@description Toggle control for switching between two mutually exclusive states like on and off
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/switch/
+	@container false
+	@compound true
+	@blockCategory form
+	@defaultStyle switch-default
+	@styleIds switch-default
+	@requiredAxes backgroundColor, border, borderRadius, color
+	@slots root:all, thumb:none, label:none
 -->
 <script lang="ts">
 import { useSwitch } from "$lib/design/primitives/switch/use-switch.svelte.js";

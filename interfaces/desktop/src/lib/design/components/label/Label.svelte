@@ -1,10 +1,16 @@
 <!--
 	@component Label
 	@kind label
-	@layer components
-
-	Accessible form label. Hook (ARIA) + StyleMacro (visual).
-	Associates with form control via htmlFor.
+	@layer component
+	@category content
+	@description Accessible text label associated with a form control via htmlFor
+	@container false
+	@compound false
+	@blockCategory form
+	@defaultStyle label-default
+	@styleIds label-default
+	@requiredAxes typography, color
+	@slots root:all
 -->
 <script lang="ts">
 import { useLabel } from "$lib/design/primitives/label/use-label.svelte.js";

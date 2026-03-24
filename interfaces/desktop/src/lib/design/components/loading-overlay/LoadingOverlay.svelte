@@ -1,10 +1,16 @@
 <!--
-	@component LoadingOverlay
+	@component Loading Overlay
 	@kind loading-overlay
-	@layer components
-
-	Full-area loading overlay. Hook (ARIA) + StyleMacro (visual).
-	Covers parent container with semi-transparent backdrop + spinner.
+	@layer component
+	@category feedback
+	@description Full-area translucent overlay with spinner indicating background loading state
+	@container false
+	@compound true
+	@blockCategory feedback
+	@defaultStyle loading-overlay-default
+	@styleIds loading-overlay-default
+	@requiredAxes backgroundColor, opacity
+	@slots root:all, overlay:none, spinner:none, label:none
 -->
 <script lang="ts">
 import { useLoadingOverlay } from "$lib/design/primitives/loading-overlay/index.js";

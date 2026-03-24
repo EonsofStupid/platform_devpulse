@@ -1,11 +1,16 @@
 <!--
-	@component DatePicker (Root)
+	@component Date Picker
 	@kind date-picker
-	@layer components
-
-	Combines DateField segmented input + Calendar popover.
-	Manages value state + popover open state.
-	Sets context for sub-components.
+	@layer component
+	@category interactive
+	@description Date field with an attached calendar popover for visual date selection
+	@container false
+	@compound true
+	@blockCategory form
+	@defaultStyle date-picker-default
+	@styleIds date-picker-default
+	@requiredAxes backgroundColor, border, borderRadius, shadow, typography, color
+	@slots root:all, field:none, trigger:none, calendar:none, label:none
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

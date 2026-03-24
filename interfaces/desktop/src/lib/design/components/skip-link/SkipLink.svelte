@@ -1,10 +1,17 @@
 <!--
-	@component SkipLink
+	@component Skip Link
 	@kind skip-link
-	@layer components
-
-	Screen reader skip navigation link. StyleMacro (visual).
-	sr-only until focused, then visible. Standard a11y pattern.
+	@layer component
+	@category navigation
+	@description Visually hidden link that becomes visible on focus for keyboard users to skip to main content
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/link/
+	@container false
+	@compound false
+	@blockCategory navigation
+	@defaultStyle skip-link-default
+	@styleIds skip-link-default
+	@requiredAxes backgroundColor, color, typography
+	@slots root:all
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

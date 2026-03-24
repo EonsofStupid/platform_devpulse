@@ -1,10 +1,16 @@
 <!--
-	@component DateRangePicker (Root)
+	@component Date Range Picker
 	@kind date-range-picker
-	@layer components
-
-	Two DateFields (start/end) + RangeCalendar popover.
-	Manages range value state + popover open state.
+	@layer component
+	@category interactive
+	@description Date range field with an attached dual-calendar popover for visual range selection
+	@container false
+	@compound true
+	@blockCategory form
+	@defaultStyle date-range-picker-default
+	@styleIds date-range-picker-default
+	@requiredAxes backgroundColor, border, borderRadius, shadow, typography, color
+	@slots root:all, field:none, trigger:none, calendar:none, label:none
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

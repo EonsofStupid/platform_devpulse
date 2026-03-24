@@ -1,12 +1,16 @@
 <!--
-	@component PinInput
+	@component PIN Input
 	@kind pin-input
-	@layer components
-
-	ColdLight PinInput — 8-axis visual system.
-	StyleMacro provides visual styling.
-
-	Renders a row of individual character input fields for PIN/OTP entry.
+	@layer component
+	@category interactive
+	@description Segmented single-character input fields for entering verification codes or PINs
+	@container false
+	@compound true
+	@blockCategory form
+	@defaultStyle pin-input-default
+	@styleIds pin-input-default
+	@requiredAxes backgroundColor, border, borderRadius, typography, color
+	@slots root:all, cell:none, label:none
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";

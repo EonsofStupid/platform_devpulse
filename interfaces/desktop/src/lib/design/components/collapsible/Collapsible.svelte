@@ -1,11 +1,18 @@
 <!--
-	@component Collapsible (Root)
+	@component Collapsible
 	@kind collapsible
-	@layer components
-
-	Disclosure pattern — one trigger toggles one content panel.
-	Direct ARIA, no primitive needed.
-	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/
+	@layer component
+	@category structural
+	@description Disclosure widget that toggles visibility of a single content region
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/
+	@container true
+	@containerSlots content
+	@compound true
+	@blockCategory layout
+	@defaultStyle collapsible-default
+	@styleIds collapsible-default
+	@requiredAxes border
+	@slots root:all, trigger:none, content:none
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

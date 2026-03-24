@@ -1,10 +1,17 @@
 <!--
 	@component Button
 	@kind button
-
-	THE PRODUCT. Hook (ARIA) + StyleMacro (visual).
-	Intent → style ID → DTCG tokens.
-	Size → structural Tailwind classes.
+	@layer component
+	@category interactive
+	@description Clickable control that triggers an action or submits a form
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/button/
+	@container false
+	@compound false
+	@blockCategory form
+	@defaultStyle button-default
+	@styleIds button-default, button-primary, button-secondary, button-ghost, button-destructive, button-outline
+	@requiredAxes backgroundColor, color, borderRadius, border, shadow, typography
+	@slots root:all, icon:none, label:none
 -->
 <script lang="ts">
 import { useButton } from "$lib/design/primitives/button/index.js";

@@ -1,16 +1,17 @@
 {
 	"$schema": "coldlight/ui-catalog",
-	"generatedAt": "2026-03-24T05:58:24.624Z",
+	"generatedAt": "2026-03-24T06:22:20.834Z",
 	"total": 77,
 	"byLayer": {
-		"component": 77,
-		"block": 0
+		"component": 75,
+		"components": 1,
+		"blocks": 1
 	},
 	"byCategory": {
 		"structural": 12,
-		"content": 17,
+		"content": 18,
 		"interactive": 26,
-		"composite": 11,
+		"composite": 10,
 		"feedback": 9,
 		"navigation": 2
 	},
@@ -45,13 +46,13 @@
 		"table",
 		"tabs",
 		"toaster",
-		"toolbar",
-		"tree"
+		"toolbar"
 	],
 	"elements": [
 		{
 			"kind": "accordion",
 			"label": "Accordion",
+			"layer": "component",
 			"category": "composite",
 			"description": "Vertically stacked set of expandable sections that reveal or hide associated content",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/accordion/",
@@ -77,11 +78,35 @@
 				"indicator": "none",
 				"content": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"accordion-default": {
+					"background-color": "oklch(0.0608 0.0104 194.77 / 0.8784313725490196)",
+					"background-blur": "0",
+					"animation": "0ms",
+					"color": "oklch(0.9461 0.0000 0.00)",
+					"border-radius": "0.5rem",
+					"opacity": "1",
+					"shadow-color": "oklch(0.0000 0.0000 0.00 / 0)",
+					"shadow-offset-x": "0",
+					"shadow-offset-y": "0",
+					"shadow-blur": "0",
+					"shadow-spread": "0",
+					"border-color": "oklch(0.4234 0.0810 173.37 / 0.2196078431372549)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "alert",
 			"label": "Alert",
+			"layer": "component",
 			"category": "feedback",
 			"description": "Inline message conveying important contextual information with severity level",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/alert/",
@@ -112,11 +137,41 @@
 				"content": "none",
 				"action": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"alert-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "alert-dialog",
 			"label": "Alert Dialog",
+			"layer": "component",
 			"category": "feedback",
 			"description": "Modal dialog requiring user acknowledgment before proceeding with a destructive or critical action",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/",
@@ -145,11 +200,41 @@
 				"description": "none",
 				"footer": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"alert-dialog-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.9375rem",
+					"shadow-1-blur": "1.5625rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.050980392156862744)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.3125rem",
+					"shadow-2-blur": "0.625rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "avatar",
 			"label": "Avatar",
+			"layer": "component",
 			"category": "content",
 			"description": "Displays a user or entity image with a text or icon fallback when the image is unavailable",
 			"aria": null,
@@ -171,11 +256,41 @@
 				"image": "none",
 				"fallback": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"avatar-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.0625rem",
+					"shadow-1-blur": "0.1875rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.23921568627450981)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.0625rem",
+					"shadow-2-blur": "0.125rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "avatar-group",
 			"label": "Avatar Group",
+			"layer": "component",
 			"category": "content",
 			"description": "Horizontally stacked collection of avatars with overflow indicator for group display",
 			"aria": null,
@@ -196,11 +311,41 @@
 				"root": "all",
 				"overflow": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"avatar-group-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "badge",
 			"label": "Badge",
+			"layer": "component",
 			"category": "content",
 			"description": "Compact label for status, counts, or categorical metadata",
 			"aria": null,
@@ -226,11 +371,12 @@
 			"slots": {
 				"root": "all"
 			},
-			"layer": "component"
+			"domain": null
 		},
 		{
 			"kind": "banner",
 			"label": "Banner",
+			"layer": "component",
 			"category": "feedback",
 			"description": "Full-width notification strip for site-wide announcements or system status",
 			"aria": null,
@@ -260,11 +406,41 @@
 				"action": "none",
 				"dismiss": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"banner-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "button",
 			"label": "Button",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Clickable control that triggers an action or submits a form",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/button/",
@@ -294,11 +470,82 @@
 				"icon": "none",
 				"label": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"button-primary": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.0625rem",
+					"shadow-1-blur": "0.1875rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.23921568627450981)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.0625rem",
+					"shadow-2-blur": "0.125rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "500",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				},
+				"button-secondary": {
+					"background-color": "oklch(0.1402 0.0079 212.35 / 0.6509803921568628)",
+					"background-blur": "0.5rem",
+					"animation": "0ms",
+					"color": "oklch(0.9461 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-color": "oklch(0.0000 0.0000 0.00 / 0)",
+					"shadow-offset-x": "0",
+					"shadow-offset-y": "0",
+					"shadow-blur": "0",
+					"shadow-spread": "0",
+					"border-color": "oklch(0.4234 0.0810 173.37 / 0.2196078431372549)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "500",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				},
+				"button-ghost": {
+					"background-color": "oklch(0.0000 0.0000 0.00 / 0)",
+					"background-blur": "0",
+					"animation": "0ms",
+					"color": "oklch(0.7826 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-color": "oklch(0.0000 0.0000 0.00 / 0)",
+					"shadow-offset-x": "0",
+					"shadow-offset-y": "0",
+					"shadow-blur": "0",
+					"shadow-spread": "0",
+					"border-color": "oklch(0.0000 0.0000 0.00 / 0)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "calendar",
 			"label": "Calendar",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Date grid allowing single date selection with month and year navigation",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/grid/",
@@ -324,11 +571,41 @@
 				"cell": "none",
 				"nav": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"calendar-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "callout",
 			"label": "Callout",
+			"layer": "component",
 			"category": "feedback",
 			"description": "Highlighted block drawing attention to supplementary or important information",
 			"aria": null,
@@ -357,11 +634,41 @@
 				"icon": "none",
 				"content": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"callout-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.0625rem",
+					"shadow-1-blur": "0.1875rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.23921568627450981)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.0625rem",
+					"shadow-2-blur": "0.125rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "card",
 			"label": "Card",
+			"layer": "component",
 			"category": "structural",
 			"description": "Surface container for grouping related content with optional header and footer regions",
 			"aria": null,
@@ -393,11 +700,41 @@
 				"body": "none",
 				"footer": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"card-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "checkbox",
 			"label": "Checkbox",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Binary or tri-state toggle control for selecting options in a form",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/",
@@ -420,38 +757,91 @@
 				"indicator": "none",
 				"label": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"checkbox-default": {
+					"background-color": "oklch(0.1395 0.0048 262.80)",
+					"background-blur": "0",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(0.7826 0.0000 0.00)",
+					"border-radius": "0.5rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.0625rem",
+					"shadow-1-blur": "0.1875rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.23921568627450981)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.0625rem",
+					"shadow-2-blur": "0.125rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "code",
-			"label": "Code",
+			"label": "CodeBlock (Root)",
+			"layer": "components",
 			"category": "content",
-			"description": "Inline or block code display with monospace typography and optional syntax highlighting",
+			"description": "CodeBlock (Root) component",
 			"aria": null,
 			"container": false,
 			"containerSlots": [],
 			"compound": false,
 			"blockCategory": "content",
-			"requiredAxes": [
-				"backgroundColor",
-				"borderRadius",
-				"typography",
-				"color"
-			],
+			"requiredAxes": [],
 			"defaultStyleId": "code-default",
 			"styleIds": [
-				"code-default",
-				"code-inline",
-				"code-block"
+				"code-default"
 			],
 			"slots": {
 				"root": "all"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"code-default": {
+					"background-color": "oklch(0.1395 0.0048 262.80)",
+					"background-blur": "0",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(0.7826 0.0000 0.00)",
+					"border-radius": "0.5rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "collapsible",
 			"label": "Collapsible",
+			"layer": "component",
 			"category": "structural",
 			"description": "Disclosure widget that toggles visibility of a single content region",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/",
@@ -473,11 +863,41 @@
 				"trigger": "none",
 				"content": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"collapsible-default": {
+					"background-color": "oklch(0.2208 0.0050 248.05)",
+					"background-blur": "0",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(0.7826 0.0000 0.00)",
+					"border-radius": "0.5rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.0625rem",
+					"shadow-1-blur": "0.1875rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.23921568627450981)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.0625rem",
+					"shadow-2-blur": "0.125rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.4234 0.0810 173.37 / 0.2196078431372549)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "color-area",
 			"label": "Color Area",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Two-dimensional gradient surface for selecting saturation and lightness of a color",
 			"aria": null,
@@ -498,11 +918,41 @@
 				"gradient": "none",
 				"thumb": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"color-area-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "color-field",
 			"label": "Color Field",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Text input for entering and editing color values in hex, RGB, or HSL notation",
 			"aria": null,
@@ -527,11 +977,41 @@
 				"swatch": "none",
 				"label": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"color-field-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "color-slider",
 			"label": "Color Slider",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Single-axis slider for adjusting one channel of a color value such as hue or alpha",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/slider/",
@@ -553,11 +1033,41 @@
 				"thumb": "none",
 				"label": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"color-slider-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "color-swatch",
 			"label": "Color Swatch",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Small preview rectangle displaying a single color value",
 			"aria": null,
@@ -576,11 +1086,41 @@
 			"slots": {
 				"root": "all"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"color-swatch-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "color-swatch-picker",
 			"label": "Color Swatch Picker",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Grid of selectable color swatches for choosing from a predefined palette",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/listbox/",
@@ -600,11 +1140,41 @@
 				"root": "all",
 				"swatch": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"color-swatch-picker-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "color-wheel",
 			"label": "Color Wheel",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Circular hue selector for picking colors along the 360-degree color spectrum",
 			"aria": null,
@@ -624,11 +1194,41 @@
 				"track": "none",
 				"thumb": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"color-wheel-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "combobox",
 			"label": "Combobox",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Text input combined with a filterable dropdown list for selecting or entering a value",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/combobox/",
@@ -656,11 +1256,41 @@
 				"option": "none",
 				"label": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"combobox-default": {
+					"background-color": "oklch(0.1395 0.0048 262.80)",
+					"background-blur": "0",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(0.7826 0.0000 0.00)",
+					"border-radius": "0.5rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "contextual-help",
 			"label": "Contextual Help",
+			"layer": "component",
 			"category": "composite",
 			"description": "Inline help trigger that reveals explanatory content in a popover or tooltip",
 			"aria": null,
@@ -687,11 +1317,41 @@
 				"trigger": "none",
 				"content": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"contextual-help-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "data-table",
 			"label": "Data Table",
+			"layer": "component",
 			"category": "composite",
 			"description": "Feature-rich table with sorting, filtering, pagination, and row selection powered by TanStack Table",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/grid/",
@@ -721,11 +1381,41 @@
 				"cell": "none",
 				"footer": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"data-table-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "date-field",
 			"label": "Date Field",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Segmented date input with individual fields for month, day, and year",
 			"aria": null,
@@ -749,11 +1439,41 @@
 				"segment": "none",
 				"label": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"date-field-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "date-picker",
 			"label": "Date Picker",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Date field with an attached calendar popover for visual date selection",
 			"aria": null,
@@ -780,11 +1500,41 @@
 				"calendar": "none",
 				"label": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"date-picker-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "date-range-field",
 			"label": "Date Range Field",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Paired segmented date inputs for entering a start and end date range",
 			"aria": null,
@@ -810,11 +1560,41 @@
 				"separator": "none",
 				"label": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"date-range-field-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "date-range-picker",
 			"label": "Date Range Picker",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Date range field with an attached dual-calendar popover for visual range selection",
 			"aria": null,
@@ -841,11 +1621,41 @@
 				"calendar": "none",
 				"label": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"date-range-picker-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "description-list",
 			"label": "Description List",
+			"layer": "component",
 			"category": "content",
 			"description": "Key-value pair list for displaying metadata, definitions, or attribute summaries",
 			"aria": null,
@@ -869,11 +1679,41 @@
 				"term": "none",
 				"detail": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"description-list-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "dialog",
 			"label": "Dialog",
+			"layer": "component",
 			"category": "structural",
 			"description": "Modal overlay window for focused tasks, confirmations, or complex form input",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/",
@@ -903,11 +1743,41 @@
 				"footer": "none",
 				"close": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"dialog-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.9375rem",
+					"shadow-1-blur": "1.5625rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.050980392156862744)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.3125rem",
+					"shadow-2-blur": "0.625rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "empty-state",
 			"label": "Empty State",
+			"layer": "component",
 			"category": "content",
 			"description": "Placeholder display shown when a view has no data, with optional illustration and call to action",
 			"aria": null,
@@ -932,11 +1802,41 @@
 				"description": "none",
 				"action": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"empty-state-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "file-upload",
 			"label": "File Upload",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Drag-and-drop or click-to-browse control for selecting and uploading files",
 			"aria": null,
@@ -962,11 +1862,41 @@
 				"fileList": "none",
 				"label": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"file-upload-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "form",
 			"label": "Form",
+			"layer": "component",
 			"category": "structural",
 			"description": "Semantic form container managing validation state and submission for grouped form fields",
 			"aria": null,
@@ -984,11 +1914,41 @@
 			"slots": {
 				"root": "all"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"form-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "form-field",
 			"label": "Form Field",
+			"layer": "component",
 			"category": "structural",
 			"description": "Wrapper providing label, description, and error message layout for a single form control",
 			"aria": null,
@@ -1013,11 +1973,41 @@
 				"control": "none",
 				"error": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"form-field-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "heading",
 			"label": "Heading",
+			"layer": "component",
 			"category": "content",
 			"description": "Semantic heading element for section titles with configurable level and visual size",
 			"aria": null,
@@ -1036,11 +2026,41 @@
 			"slots": {
 				"root": "all"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"heading-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "color, background-color, border-color 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.0625rem",
+					"shadow-1-blur": "0.1875rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.23921568627450981)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.0625rem",
+					"shadow-2-blur": "0.125rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(1.0000 0.0000 0.00 / 0.058823529411764705)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "inline-message",
 			"label": "Inline Message",
+			"layer": "component",
 			"category": "feedback",
 			"description": "Compact contextual message displayed adjacent to a form field or content area",
 			"aria": null,
@@ -1065,11 +2085,41 @@
 				"icon": "none",
 				"content": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"inline-message-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "input-group",
 			"label": "Input Group",
+			"layer": "component",
 			"category": "structural",
 			"description": "Container that visually and semantically groups an input with addons like icons or buttons",
 			"aria": null,
@@ -1093,11 +2143,41 @@
 				"input": "none",
 				"append": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"input-group-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "kbd",
 			"label": "Keyboard Shortcut",
+			"layer": "component",
 			"category": "content",
 			"description": "Styled representation of a keyboard key or shortcut combination",
 			"aria": null,
@@ -1120,11 +2200,41 @@
 			"slots": {
 				"root": "all"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"kbd-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.0625rem",
+					"shadow-1-blur": "0.1875rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.23921568627450981)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.0625rem",
+					"shadow-2-blur": "0.125rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "label",
 			"label": "Label",
+			"layer": "component",
 			"category": "content",
 			"description": "Accessible text label associated with a form control via htmlFor",
 			"aria": null,
@@ -1143,11 +2253,36 @@
 			"slots": {
 				"root": "all"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"label-default": {
+					"background-color": "oklch(0.0608 0.0104 194.77 / 0.8784313725490196)",
+					"background-blur": "0",
+					"animation": "0ms",
+					"transition": "color, background-color, border-color 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(0.7826 0.0000 0.00)",
+					"border-radius": "0.5rem",
+					"opacity": "1",
+					"shadow-color": "oklch(0.0000 0.0000 0.00 / 0)",
+					"shadow-offset-x": "0",
+					"shadow-offset-y": "0",
+					"shadow-blur": "0",
+					"shadow-spread": "0",
+					"border-color": "oklch(1.0000 0.0000 0.00 / 0.058823529411764705)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "link-preview",
 			"label": "Link Preview",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Hover or focus-triggered popover showing a rich preview of a linked resource",
 			"aria": null,
@@ -1175,11 +2310,41 @@
 				"title": "none",
 				"description": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"link-preview-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.625rem",
+					"shadow-1-blur": "1.25rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.10196078431372549)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.1875rem",
+					"shadow-2-blur": "0.375rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "list",
 			"label": "List",
+			"layer": "component",
 			"category": "composite",
 			"description": "Ordered or unordered collection of items with optional selection and keyboard navigation",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/listbox/",
@@ -1204,11 +2369,41 @@
 				"itemIcon": "none",
 				"itemContent": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"list-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "loading-overlay",
 			"label": "Loading Overlay",
+			"layer": "component",
 			"category": "feedback",
 			"description": "Full-area translucent overlay with spinner indicating background loading state",
 			"aria": null,
@@ -1230,11 +2425,41 @@
 				"spinner": "none",
 				"label": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"loading-overlay-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.625rem",
+					"shadow-1-blur": "1.25rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.10196078431372549)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.1875rem",
+					"shadow-2-blur": "0.375rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(1.0000 0.0000 0.00 / 0.058823529411764705)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "menubar",
 			"label": "Menubar",
+			"layer": "component",
 			"category": "composite",
 			"description": "Horizontal bar of dropdown menus for application-level navigation and actions",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/menubar/",
@@ -1262,11 +2487,41 @@
 				"item": "none",
 				"separator": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"menubar-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "nav",
 			"label": "Nav",
+			"layer": "component",
 			"category": "composite",
 			"description": "Vertical or horizontal navigation list for site or section-level wayfinding",
 			"aria": null,
@@ -1293,11 +2548,41 @@
 				"group": "none",
 				"groupLabel": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"nav-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "navigation-menu",
 			"label": "Navigation Menu",
+			"layer": "component",
 			"category": "composite",
 			"description": "Multi-level navigation with dropdown panels for organizing complex site hierarchies",
 			"aria": null,
@@ -1329,11 +2614,41 @@
 				"indicator": "none",
 				"viewport": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"navigation-menu-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "notification-center",
 			"label": "Notification Center",
+			"layer": "component",
 			"category": "feedback",
 			"description": "Aggregated notification panel displaying a scrollable list of alerts and messages",
 			"aria": null,
@@ -1362,11 +2677,41 @@
 				"item": "none",
 				"empty": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"notification-center-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "pagination",
 			"label": "Pagination",
+			"layer": "component",
 			"category": "navigation",
 			"description": "Page navigation controls for browsing through paginated data sets",
 			"aria": null,
@@ -1392,11 +2737,41 @@
 				"page": "none",
 				"ellipsis": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"pagination-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "pin-input",
 			"label": "PIN Input",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Segmented single-character input fields for entering verification codes or PINs",
 			"aria": null,
@@ -1420,11 +2795,41 @@
 				"cell": "none",
 				"label": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"pin-input-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "popover",
 			"label": "Popover",
+			"layer": "component",
 			"category": "structural",
 			"description": "Floating panel anchored to a trigger element for displaying contextual content",
 			"aria": null,
@@ -1451,11 +2856,41 @@
 				"arrow": "none",
 				"close": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"popover-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "progress",
 			"label": "Progress",
+			"layer": "component",
 			"category": "content",
 			"description": "Determinate or indeterminate progress bar indicating task completion",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/meter/",
@@ -1477,11 +2912,41 @@
 				"track": "none",
 				"fill": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"progress-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "prose",
 			"label": "Prose",
+			"layer": "component",
 			"category": "content",
 			"description": "Rich text container with typographic defaults for rendering long-form markdown or HTML content",
 			"aria": null,
@@ -1502,11 +2967,41 @@
 			"slots": {
 				"root": "all"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"prose-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "radio-group",
 			"label": "Radio Group",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Mutually exclusive option set where only one item can be selected at a time",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/radio/",
@@ -1531,11 +3026,41 @@
 				"indicator": "none",
 				"label": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"radio-group-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "range-calendar",
 			"label": "Range Calendar",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Calendar grid supporting start and end date selection for defining date ranges",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/grid/",
@@ -1561,11 +3086,41 @@
 				"cell": "none",
 				"nav": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"range-calendar-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "scroll-area",
 			"label": "Scroll Area",
+			"layer": "component",
 			"category": "structural",
 			"description": "Custom scrollable container with styled scrollbars and overflow management",
 			"aria": null,
@@ -1589,11 +3144,41 @@
 				"scrollbar": "none",
 				"thumb": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"scroll-area-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "select",
 			"label": "Select",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Dropdown control for choosing a single value from a predefined list of options",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/listbox/",
@@ -1621,11 +3206,41 @@
 				"group": "none",
 				"label": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"select-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "separator",
 			"label": "Separator",
+			"layer": "component",
 			"category": "structural",
 			"description": "Horizontal or vertical divider line for visually separating content sections",
 			"aria": null,
@@ -1644,11 +3259,41 @@
 			"slots": {
 				"root": "all"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"separator-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "sheet",
 			"label": "Sheet",
+			"layer": "component",
 			"category": "structural",
 			"description": "Slide-in panel from a screen edge for secondary content or navigation",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/",
@@ -1677,11 +3322,41 @@
 				"footer": "none",
 				"close": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"sheet-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "sidebar",
 			"label": "Sidebar",
+			"layer": "component",
 			"category": "structural",
 			"description": "Persistent or collapsible side navigation panel for application-level wayfinding",
 			"aria": null,
@@ -1707,11 +3382,41 @@
 				"footer": "none",
 				"toggle": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"sidebar-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "skeleton",
 			"label": "Skeleton",
+			"layer": "component",
 			"category": "content",
 			"description": "Animated placeholder shape indicating content is loading",
 			"aria": null,
@@ -1731,11 +3436,41 @@
 			"slots": {
 				"root": "all"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"skeleton-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "skip-link",
 			"label": "Skip Link",
+			"layer": "component",
 			"category": "navigation",
 			"description": "Visually hidden link that becomes visible on focus for keyboard users to skip to main content",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/link/",
@@ -1755,11 +3490,41 @@
 			"slots": {
 				"root": "all"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"skip-link-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "slider",
 			"label": "Slider",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Draggable track control for selecting a numeric value or range within a defined interval",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/slider/",
@@ -1784,11 +3549,41 @@
 				"thumb": "none",
 				"label": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"slider-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "spinner",
 			"label": "Spinner",
+			"layer": "component",
 			"category": "content",
 			"description": "Animated circular indicator for indeterminate loading states",
 			"aria": null,
@@ -1807,11 +3602,41 @@
 			"slots": {
 				"root": "all"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"spinner-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "stat",
 			"label": "Stat",
+			"layer": "component",
 			"category": "content",
 			"description": "Numeric display for key metrics with optional label, trend indicator, and delta",
 			"aria": null,
@@ -1834,11 +3659,41 @@
 				"delta": "none",
 				"icon": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"stat-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "status-dot",
 			"label": "Status Dot",
+			"layer": "component",
 			"category": "content",
 			"description": "Small colored circle indicating online, offline, busy, or other presence states",
 			"aria": null,
@@ -1862,11 +3717,41 @@
 			"slots": {
 				"root": "all"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"status-dot-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "steps",
 			"label": "Steps",
+			"layer": "component",
 			"category": "composite",
 			"description": "Multi-step progress indicator showing sequential workflow stages and current position",
 			"aria": null,
@@ -1896,11 +3781,41 @@
 				"description": "none",
 				"content": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"steps-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "switch",
 			"label": "Switch",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Toggle control for switching between two mutually exclusive states like on and off",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/switch/",
@@ -1923,11 +3838,41 @@
 				"thumb": "none",
 				"label": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"switch-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "table",
 			"label": "Table",
+			"layer": "component",
 			"category": "composite",
 			"description": "Semantic HTML table with styled header, body, and footer for presenting tabular data",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/grid/",
@@ -1957,11 +3902,41 @@
 				"footer": "none",
 				"caption": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"table-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "table-of-contents",
 			"label": "Table of Contents",
+			"layer": "component",
 			"category": "content",
 			"description": "Auto-generated navigation list of page headings with scroll-spy active state tracking",
 			"aria": null,
@@ -1984,11 +3959,41 @@
 				"link": "none",
 				"indicator": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"table-of-contents-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "tabs",
 			"label": "Tabs",
+			"layer": "component",
 			"category": "composite",
 			"description": "Tabbed interface for switching between mutually exclusive content panels",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/tabs/",
@@ -2016,11 +4021,41 @@
 				"content": "none",
 				"indicator": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"tabs-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "text",
 			"label": "Text",
+			"layer": "component",
 			"category": "content",
 			"description": "Body text element with configurable size, weight, and semantic element",
 			"aria": null,
@@ -2039,11 +4074,41 @@
 			"slots": {
 				"root": "all"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"text-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "text-field",
 			"label": "Text Field",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Single-line text input with integrated label and validation support",
 			"aria": null,
@@ -2067,11 +4132,41 @@
 				"input": "none",
 				"label": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"text-field-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "textarea",
 			"label": "Textarea",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Multi-line text input for longer form content such as comments or descriptions",
 			"aria": null,
@@ -2095,11 +4190,41 @@
 				"input": "none",
 				"label": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"textarea-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "toaster",
 			"label": "Toaster",
+			"layer": "component",
 			"category": "feedback",
 			"description": "Toast notification manager rendering transient messages in a stacked viewport region",
 			"aria": null,
@@ -2129,11 +4254,41 @@
 				"action": "none",
 				"close": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"toaster-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.625rem",
+					"shadow-1-blur": "1.25rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.10196078431372549)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.1875rem",
+					"shadow-2-blur": "0.375rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "toggle",
 			"label": "Toggle",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Pressable button that toggles between an active and inactive state",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/button/",
@@ -2154,11 +4309,41 @@
 			"slots": {
 				"root": "all"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"toggle-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "toggle-group",
 			"label": "Toggle Group",
+			"layer": "component",
 			"category": "interactive",
 			"description": "Set of toggle buttons allowing single or multiple selection within a group",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/",
@@ -2180,11 +4365,41 @@
 				"root": "all",
 				"item": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"toggle-group-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "toolbar",
 			"label": "Toolbar",
+			"layer": "component",
 			"category": "structural",
 			"description": "Horizontal grouping of action buttons and controls with keyboard arrow navigation",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/",
@@ -2208,11 +4423,41 @@
 				"group": "none",
 				"separator": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"toolbar-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
 			"kind": "tooltip",
 			"label": "Tooltip",
+			"layer": "component",
 			"category": "feedback",
 			"description": "Floating text label that appears on hover or focus to provide supplementary information",
 			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/",
@@ -2237,38 +4482,86 @@
 				"content": "none",
 				"arrow": "none"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"tooltip-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		},
 		{
-			"kind": "tree",
-			"label": "Tree",
-			"category": "composite",
-			"description": "Hierarchical list with expandable nodes for browsing nested data structures",
-			"aria": "https://www.w3.org/WAI/ARIA/apg/patterns/treeview/",
-			"container": true,
-			"containerSlots": [
-				"root"
-			],
-			"compound": true,
-			"blockCategory": "data",
-			"requiredAxes": [
-				"border",
-				"color",
-				"typography"
-			],
-			"defaultStyleId": "tree-default",
+			"kind": "widget",
+			"label": "RadialGauge",
+			"layer": "blocks",
+			"category": "content",
+			"description": "RadialGauge component",
+			"aria": null,
+			"container": false,
+			"containerSlots": [],
+			"compound": false,
+			"blockCategory": "content",
+			"requiredAxes": [],
+			"defaultStyleId": "widget-default",
 			"styleIds": [
-				"tree-default"
+				"widget-default"
 			],
 			"slots": {
-				"root": "all",
-				"item": "none",
-				"itemIcon": "none",
-				"itemContent": "none",
-				"group": "none",
-				"indicator": "none"
+				"root": "all"
 			},
-			"layer": "component"
+			"domain": null,
+			"presets": {
+				"widget-default": {
+					"background-color": "oklch(0.0901 0.0170 224.61 / 0.8)",
+					"background-blur": "0.75rem",
+					"animation": "0ms",
+					"transition": "all 150ms cubic-bezier(0, 0, 0.2, 1)",
+					"color": "oklch(1.0000 0.0000 0.00)",
+					"border-radius": "0.75rem",
+					"opacity": "1",
+					"shadow-1-color": "oklch(0.0000 0.0000 0.00 / 0.14901960784313725)",
+					"shadow-1-offset-x": "0",
+					"shadow-1-offset-y": "0.1875rem",
+					"shadow-1-blur": "0.375rem",
+					"shadow-1-spread": "0",
+					"shadow-2-color": "oklch(0.0000 0.0000 0.00 / 0.12156862745098039)",
+					"shadow-2-offset-x": "0",
+					"shadow-2-offset-y": "0.125rem",
+					"shadow-2-blur": "0.25rem",
+					"shadow-2-spread": "0",
+					"border-color": "oklch(0.5106 0.0979 173.17 / 0.30196078431372547)",
+					"border-width": "0.0625rem",
+					"border-style": "solid",
+					"typography-font-family": "Inter, system-ui, sans-serif",
+					"typography-font-size": "0.875rem",
+					"typography-font-weight": "400",
+					"typography-letter-spacing": "0",
+					"typography-line-height": "1.5"
+				}
+			}
 		}
 	]
 }

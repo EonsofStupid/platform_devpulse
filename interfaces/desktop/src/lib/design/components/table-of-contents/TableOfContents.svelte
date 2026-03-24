@@ -1,8 +1,16 @@
 <!--
-	@component TableOfContents
+	@component Table of Contents
 	@kind table-of-contents
-	@layer components
-	Hook (ARIA) + StyleMacro (visual).
+	@layer component
+	@category content
+	@description Auto-generated navigation list of page headings with scroll-spy active state tracking
+	@container false
+	@compound true
+	@blockCategory navigation
+	@defaultStyle table-of-contents-default
+	@styleIds table-of-contents-default
+	@requiredAxes border, color, typography
+	@slots root:all, item:none, link:none, indicator:none
 -->
 <script lang="ts">
 import { useTableOfContents } from "$lib/design/primitives/table-of-contents/index.js";

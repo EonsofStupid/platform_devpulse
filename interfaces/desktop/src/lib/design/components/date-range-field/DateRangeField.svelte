@@ -1,13 +1,16 @@
 <!--
-	@component DateRangeField
+	@component Date Range Field
 	@kind date-range-field
-	@layer components
-
-	ColdLight DateRangeField root — manages two segmented date fields for range.
-	Compound component: sub-components consume context to render segments.
-
-	ColdLight OWNS all ARIA. No MeltUI dependency.
-	Reference: WAI-ARIA APG Spinbutton Pattern
+	@layer component
+	@category interactive
+	@description Paired segmented date inputs for entering a start and end date range
+	@container false
+	@compound true
+	@blockCategory form
+	@defaultStyle date-range-field-default
+	@styleIds date-range-field-default
+	@requiredAxes backgroundColor, border, borderRadius, typography, color
+	@slots root:all, startField:none, endField:none, separator:none, label:none
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

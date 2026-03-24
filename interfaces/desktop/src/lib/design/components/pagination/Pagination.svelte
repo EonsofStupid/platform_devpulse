@@ -1,8 +1,16 @@
 <!--
 	@component Pagination
 	@kind pagination
-	@layer components
-	Hook (ARIA) + StyleMacro (visual).
+	@layer component
+	@category navigation
+	@description Page navigation controls for browsing through paginated data sets
+	@container false
+	@compound true
+	@blockCategory navigation
+	@defaultStyle pagination-default
+	@styleIds pagination-default
+	@requiredAxes backgroundColor, border, borderRadius, color, typography
+	@slots root:all, prev:none, next:none, page:none, ellipsis:none
 -->
 <script lang="ts">
 import { usePagination } from "$lib/design/primitives/pagination/index.js";

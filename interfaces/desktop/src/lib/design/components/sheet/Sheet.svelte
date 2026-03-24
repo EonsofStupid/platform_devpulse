@@ -1,12 +1,18 @@
 <!--
 	@component Sheet
 	@kind sheet
-	@layer components
-
-	Slide-in panel from edge. Hook (ARIA dialog) + StyleMacro (visual).
-	Focus trap, scroll lock, dismiss on escape/outside click.
-
-	WAI-ARIA: role="dialog", aria-modal="true"
+	@layer component
+	@category structural
+	@description Slide-in panel from a screen edge for secondary content or navigation
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
+	@container true
+	@containerSlots content, footer
+	@compound true
+	@blockCategory layout
+	@defaultStyle sheet-default
+	@styleIds sheet-default
+	@requiredAxes backgroundColor, shadow, border
+	@slots root:all, overlay:none, content:none, header:none, body:none, footer:none, close:none
 -->
 <script lang="ts">
 import { useSheet } from "$lib/design/primitives/sheet/use-sheet.svelte.js";

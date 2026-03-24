@@ -1,11 +1,16 @@
 <!--
-	@component InlineMessage
+	@component Inline Message
 	@kind inline-message
-	@layer components
-
-	Inline contextual feedback. Hook (ARIA) + StyleMacro (visual).
-	Tone-driven: info, success, warning, error, help.
-	Unlike Alert, uses role="status" with polite live region.
+	@layer component
+	@category feedback
+	@description Compact contextual message displayed adjacent to a form field or content area
+	@container false
+	@compound true
+	@blockCategory feedback
+	@defaultStyle inline-message-default
+	@styleIds inline-message-default, inline-message-info, inline-message-success, inline-message-warning, inline-message-error
+	@requiredAxes color, typography
+	@slots root:all, icon:none, content:none
 -->
 <script lang="ts">
 import { useInlineMessage } from "$lib/design/primitives/inline-message/index.js";

@@ -1,11 +1,16 @@
 <!--
-	@component ColorField (Root)
+	@component Color Field
 	@kind color-field
-	@layer components
-
-	Text input for editing color values — hex or per-channel.
-	Svelte 5 runes: $state for internal value, $effect for controlled sync,
-	$derived for reactive composition classes and validation.
+	@layer component
+	@category interactive
+	@description Text input for entering and editing color values in hex, RGB, or HSL notation
+	@container false
+	@compound true
+	@blockCategory form
+	@defaultStyle color-field-default
+	@styleIds color-field-default
+	@requiredAxes backgroundColor, border, borderRadius, typography, color
+	@slots root:all, input:none, swatch:none, label:none
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

@@ -1,9 +1,16 @@
 <!--
 	@component Form
 	@kind form
-	@layer components
-
-	Form container. Hook (ARIA) + StyleMacro (visual).
+	@layer component
+	@category structural
+	@description Semantic form container managing validation state and submission for grouped form fields
+	@container true
+	@containerSlots root
+	@compound false
+	@blockCategory form
+	@defaultStyle form-default
+	@styleIds form-default
+	@slots root:all
 -->
 <script lang="ts">
 import { useForm } from "$lib/design/primitives/form/index.js";

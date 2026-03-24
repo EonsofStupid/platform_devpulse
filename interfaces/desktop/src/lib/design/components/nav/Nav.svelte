@@ -1,9 +1,17 @@
 <!--
 	@component Nav
 	@kind nav
-	@layer components
-
-	Navigation container. Hook (ARIA) + StyleMacro (visual).
+	@layer component
+	@category composite
+	@description Vertical or horizontal navigation list for site or section-level wayfinding
+	@container true
+	@containerSlots root
+	@compound true
+	@blockCategory navigation
+	@defaultStyle nav-default
+	@styleIds nav-default
+	@requiredAxes backgroundColor, border, color, typography
+	@slots root:all, item:none, link:none, group:none, groupLabel:none
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

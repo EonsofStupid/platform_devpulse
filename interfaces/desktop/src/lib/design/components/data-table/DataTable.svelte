@@ -1,8 +1,18 @@
 <!--
-	@component DataTable
+	@component Data Table
 	@kind data-table
-	@layer components
-	Hook (ARIA) + StyleMacro (visual).
+	@layer component
+	@category composite
+	@description Feature-rich table with sorting, filtering, pagination, and row selection powered by TanStack Table
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/grid/
+	@container true
+	@containerSlots root
+	@compound true
+	@blockCategory data
+	@defaultStyle data-table-default
+	@styleIds data-table-default
+	@requiredAxes backgroundColor, border, borderRadius, typography, color
+	@slots root:all, header:none, headerCell:none, body:none, row:none, cell:none, footer:none
 -->
 <script lang="ts">
 import { useDataTable } from "$lib/design/primitives/data-table/index.js";

@@ -1,10 +1,16 @@
 <!--
 	@component Stat
 	@kind stat
-
-	THE PRODUCT. Metric display with display font + text glow.
-	Accent drives glow color. Size drives typography scale.
-	All visual from DTCG tokens.
+	@layer component
+	@category content
+	@description Numeric display for key metrics with optional label, trend indicator, and delta
+	@container false
+	@compound true
+	@blockCategory data
+	@defaultStyle stat-default
+	@styleIds stat-default
+	@requiredAxes typography, color
+	@slots root:all, value:none, label:none, delta:none, icon:none
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

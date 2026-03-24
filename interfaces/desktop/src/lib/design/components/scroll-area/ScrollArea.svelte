@@ -1,8 +1,17 @@
 <!--
-	@component ScrollArea
+	@component Scroll Area
 	@kind scroll-area
-	@layer components
-	Hook (ARIA) + StyleMacro (visual).
+	@layer component
+	@category structural
+	@description Custom scrollable container with styled scrollbars and overflow management
+	@container true
+	@containerSlots root
+	@compound true
+	@blockCategory layout
+	@defaultStyle scroll-area-default
+	@styleIds scroll-area-default
+	@requiredAxes backgroundColor, borderRadius
+	@slots root:all, viewport:none, scrollbar:none, thumb:none
 -->
 <script lang="ts">
 import { useScrollArea } from "$lib/design/primitives/scroll-area/index.js";

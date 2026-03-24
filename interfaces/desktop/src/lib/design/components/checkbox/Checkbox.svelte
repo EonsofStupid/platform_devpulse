@@ -1,12 +1,17 @@
 <!--
 	@component Checkbox
 	@kind checkbox
-	@layer components
-
-	Hook (ARIA) + StyleMacro (visual).
-	Tri-state: checked, unchecked, indeterminate.
-
-	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/
+	@layer component
+	@category interactive
+	@description Binary or tri-state toggle control for selecting options in a form
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/
+	@container false
+	@compound true
+	@blockCategory form
+	@defaultStyle checkbox-default
+	@styleIds checkbox-default
+	@requiredAxes backgroundColor, border, borderRadius, color
+	@slots root:all, indicator:none, label:none
 -->
 <script lang="ts">
 import { useCheckbox } from "$lib/design/primitives/checkbox/use-checkbox.svelte.js";

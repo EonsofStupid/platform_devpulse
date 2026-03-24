@@ -1,11 +1,17 @@
 <!--
-	@component ContextualHelp (Root)
+	@component Contextual Help
 	@kind contextual-help
-	@layer components
-
-	Help/info popover triggered by an icon button.
-	Manages open/close state, renders trigger + popover.
-	Compound: Heading, Content, Footer are children of the popover.
+	@layer component
+	@category composite
+	@description Inline help trigger that reveals explanatory content in a popover or tooltip
+	@container true
+	@containerSlots content
+	@compound true
+	@blockCategory content
+	@defaultStyle contextual-help-default
+	@styleIds contextual-help-default
+	@requiredAxes backgroundColor, border, borderRadius, shadow, typography, color
+	@slots root:all, trigger:none, content:none
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

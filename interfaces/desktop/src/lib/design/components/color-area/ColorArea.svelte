@@ -1,12 +1,16 @@
 <!--
-	@component ColorArea (Root)
+	@component Color Area
 	@kind color-area
-	@layer components
-
-	2D color picker surface. Pointer drag on root, keyboard on thumb.
-	Interaction via useColorAreaDrag Svelte action.
-	Real color values via channel ranges per color space.
-	StyleMacro (visual). Hook via useColorAreaDrag action.
+	@layer component
+	@category interactive
+	@description Two-dimensional gradient surface for selecting saturation and lightness of a color
+	@container false
+	@compound true
+	@blockCategory form
+	@defaultStyle color-area-default
+	@styleIds color-area-default
+	@requiredAxes border, borderRadius
+	@slots root:all, gradient:none, thumb:none
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

@@ -1,8 +1,17 @@
 <!--
-	@component FormField
+	@component Form Field
 	@kind form-field
-	@layer components
-	Hook (ARIA) + StyleMacro (visual).
+	@layer component
+	@category structural
+	@description Wrapper providing label, description, and error message layout for a single form control
+	@container true
+	@containerSlots control
+	@compound true
+	@blockCategory form
+	@defaultStyle form-field-default
+	@styleIds form-field-default
+	@requiredAxes typography, color
+	@slots root:all, label:none, description:none, control:none, error:none
 -->
 <script lang="ts">
 import { useFormField } from "$lib/design/primitives/form-field/index.js";

@@ -1,14 +1,18 @@
 <!--
 	@component Menubar
 	@kind menubar
-	@slot root
-	@layer components
-
-	ColdLight Menubar root — horizontal menu bar container.
-	ARIA: role="menubar", aria-orientation="horizontal".
-	Creates root context for menu coordination (only one menu open at a time).
-
-	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/menubar/
+	@layer component
+	@category composite
+	@description Horizontal bar of dropdown menus for application-level navigation and actions
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/menubar/
+	@container true
+	@containerSlots root
+	@compound true
+	@blockCategory navigation
+	@defaultStyle menubar-default
+	@styleIds menubar-default
+	@requiredAxes backgroundColor, border, color, typography
+	@slots root:all, menu:none, trigger:none, content:none, item:none, separator:none
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

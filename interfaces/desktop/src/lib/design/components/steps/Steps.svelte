@@ -1,8 +1,17 @@
 <!--
 	@component Steps
 	@kind steps
-	@layer components
-	Hook (ARIA) + StyleMacro (visual).
+	@layer component
+	@category composite
+	@description Multi-step progress indicator showing sequential workflow stages and current position
+	@container true
+	@containerSlots content
+	@compound true
+	@blockCategory navigation
+	@defaultStyle steps-default
+	@styleIds steps-default
+	@requiredAxes backgroundColor, border, borderRadius, color, typography
+	@slots root:all, step:none, indicator:none, separator:none, title:none, description:none, content:none
 -->
 <script lang="ts">
 import { useSteps } from "$lib/design/primitives/steps/index.js";

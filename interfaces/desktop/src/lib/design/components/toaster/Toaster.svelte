@@ -1,8 +1,17 @@
 <!--
 	@component Toaster
 	@kind toaster
-	@layer components
-	Hook (ARIA) + StyleMacro (visual).
+	@layer component
+	@category feedback
+	@description Toast notification manager rendering transient messages in a stacked viewport region
+	@container true
+	@containerSlots root
+	@compound true
+	@blockCategory feedback
+	@defaultStyle toaster-default
+	@styleIds toaster-default
+	@requiredAxes backgroundColor, border, borderRadius, shadow, color, typography
+	@slots root:all, toast:none, title:none, description:none, action:none, close:none
 -->
 <script lang="ts">
 import { useToaster } from "$lib/design/primitives/toaster/index.js";

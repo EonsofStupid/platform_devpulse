@@ -1,10 +1,17 @@
 <!--
-	@component EmptyState
+	@component Empty State
 	@kind empty-state
-	@layer components
-
-	Placeholder shown when content area has no data.
-	StyleMacro (visual). Structural wrapper for icon + heading + description + action.
+	@layer component
+	@category content
+	@description Placeholder display shown when a view has no data, with optional illustration and call to action
+	@container true
+	@containerSlots content
+	@compound true
+	@blockCategory content
+	@defaultStyle empty-state-default
+	@styleIds empty-state-default
+	@requiredAxes color, typography
+	@slots root:all, illustration:none, title:none, description:none, action:none
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

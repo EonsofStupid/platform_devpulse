@@ -1,9 +1,16 @@
 <!--
 	@component Heading
 	@kind heading
-
-	THE PRODUCT. Hook (data attrs) + StyleMacro (visual).
-	Level → semantic element. Size → structural classes.
+	@layer component
+	@category content
+	@description Semantic heading element for section titles with configurable level and visual size
+	@container false
+	@compound false
+	@blockCategory content
+	@defaultStyle heading-default
+	@styleIds heading-default
+	@requiredAxes typography, color
+	@slots root:all
 -->
 <script lang="ts">
 import { useHeading } from "$lib/design/primitives/heading/index.js";

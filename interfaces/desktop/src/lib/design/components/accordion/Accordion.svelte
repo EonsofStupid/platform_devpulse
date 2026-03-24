@@ -1,12 +1,18 @@
 <!--
-	@component Accordion (Root)
+	@component Accordion
 	@kind accordion
-	@layer components
-
-	Compound disclosure component. Hook (ARIA) + StyleMacro (visual).
-	Sub-components: Item, Trigger, Content, Indicator.
-
-	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/
+	@layer component
+	@category composite
+	@description Vertically stacked set of expandable sections that reveal or hide associated content
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/accordion/
+	@container true
+	@containerSlots content
+	@compound true
+	@blockCategory layout
+	@defaultStyle accordion-default
+	@styleIds accordion-default
+	@requiredAxes backgroundColor, border, borderRadius
+	@slots root:all, item:none, trigger:none, indicator:none, content:none
 -->
 <script lang="ts">
 import { useAccordion } from "$lib/design/primitives/accordion/use-accordion.svelte.js";

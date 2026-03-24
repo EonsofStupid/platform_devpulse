@@ -1,8 +1,17 @@
 <!--
-	@component NotificationCenter
+	@component Notification Center
 	@kind notification-center
-	@layer components
-	Hook (ARIA) + StyleMacro (visual).
+	@layer component
+	@category feedback
+	@description Aggregated notification panel displaying a scrollable list of alerts and messages
+	@container true
+	@containerSlots root
+	@compound true
+	@blockCategory feedback
+	@defaultStyle notification-center-default
+	@styleIds notification-center-default
+	@requiredAxes backgroundColor, border, borderRadius, shadow, color, typography
+	@slots root:all, header:none, list:none, item:none, empty:none
 -->
 <script lang="ts">
 import { useNotificationCenter } from "$lib/design/primitives/notification-center/index.js";

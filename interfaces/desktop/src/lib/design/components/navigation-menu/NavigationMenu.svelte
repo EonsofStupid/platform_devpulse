@@ -1,16 +1,17 @@
 <!--
-	@component NavigationMenu
+	@component Navigation Menu
 	@kind navigation-menu
-	@slot root
-	@layer components
-
-	ColdLight NavigationMenu root — semantic <nav> element with <ul> list.
-	ColdLight OWNS all ARIA. No MeltUI dependency.
-	Uses roving tabindex across top-level items.
-
-	ARIA: role="navigation" (implicit via <nav>), aria-label.
-
-	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/
+	@layer component
+	@category composite
+	@description Multi-level navigation with dropdown panels for organizing complex site hierarchies
+	@container true
+	@containerSlots content
+	@compound true
+	@blockCategory navigation
+	@defaultStyle navigation-menu-default
+	@styleIds navigation-menu-default
+	@requiredAxes backgroundColor, border, borderRadius, shadow, color, typography
+	@slots root:all, list:none, item:none, trigger:none, content:none, link:none, indicator:none, viewport:none
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

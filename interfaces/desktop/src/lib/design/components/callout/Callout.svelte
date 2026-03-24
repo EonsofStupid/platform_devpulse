@@ -1,10 +1,17 @@
 <!--
 	@component Callout
 	@kind callout
-	@layer components
-
-	Highlighted information block. Variant-driven.
-	StyleMacro (visual). No complex ARIA needed — just a div with data attrs.
+	@layer component
+	@category feedback
+	@description Highlighted block drawing attention to supplementary or important information
+	@container true
+	@containerSlots content
+	@compound true
+	@blockCategory feedback
+	@defaultStyle callout-default
+	@styleIds callout-default, callout-info, callout-success, callout-warning, callout-error
+	@requiredAxes backgroundColor, border, borderRadius, color
+	@slots root:all, icon:none, content:none
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

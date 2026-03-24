@@ -1,8 +1,16 @@
 <!--
-	@component LinkPreview
+	@component Link Preview
 	@kind link-preview
-	@layer components
-	Hook (ARIA) + StyleMacro (visual).
+	@layer component
+	@category interactive
+	@description Hover or focus-triggered popover showing a rich preview of a linked resource
+	@container false
+	@compound true
+	@blockCategory content
+	@defaultStyle link-preview-default
+	@styleIds link-preview-default
+	@requiredAxes backgroundColor, border, borderRadius, shadow, typography, color
+	@slots root:all, trigger:none, content:none, image:none, title:none, description:none
 -->
 <script lang="ts">
 import { useLinkPreview } from "$lib/design/primitives/link-preview/index.js";

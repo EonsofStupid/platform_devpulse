@@ -1,10 +1,16 @@
 <!--
-	@component StatusDot
+	@component Status Dot
 	@kind status-dot
-
-	THE PRODUCT. Status indicator dot with color + glow from DTCG tokens.
-	Status prop drives which color token is used.
-	Animate prop adds pulse animation for loading states.
+	@layer component
+	@category content
+	@description Small colored circle indicating online, offline, busy, or other presence states
+	@container false
+	@compound false
+	@blockCategory content
+	@defaultStyle status-dot-default
+	@styleIds status-dot-default, status-dot-online, status-dot-offline, status-dot-busy, status-dot-away
+	@requiredAxes backgroundColor, border, borderRadius
+	@slots root:all
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

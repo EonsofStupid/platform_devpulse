@@ -1,12 +1,18 @@
 <!--
-	@component Alert (Root)
+	@component Alert
 	@kind alert
-	@layer components
-
-	Inline contextual feedback — role="alert", lives in document flow.
-	Hook (ARIA) + StyleMacro (visual). What users import.
-
-	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/alert/
+	@layer component
+	@category feedback
+	@description Inline message conveying important contextual information with severity level
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/alert/
+	@container true
+	@containerSlots content
+	@compound true
+	@blockCategory feedback
+	@defaultStyle alert-default
+	@styleIds alert-default, alert-info, alert-success, alert-warning, alert-error
+	@requiredAxes backgroundColor, border, borderRadius, color
+	@slots root:all, icon:none, title:none, content:none, action:none
 -->
 <script lang="ts">
 import { useAlert } from "$lib/design/primitives/alert/index.js";

@@ -1,10 +1,17 @@
 <!--
 	@component Card
 	@kind card
-
-	THE PRODUCT. StyleMacro (visual).
-	Variant → style ID → DTCG tokens.
-	Supports element polymorphism: div (default), a (link), button (clickable).
+	@layer component
+	@category structural
+	@description Surface container for grouping related content with optional header and footer regions
+	@container true
+	@containerSlots header, body, footer
+	@compound true
+	@blockCategory layout
+	@defaultStyle card-default
+	@styleIds card-default, card-outlined, card-elevated, card-ghost, card-glow
+	@requiredAxes backgroundColor, shadow, border, borderRadius
+	@slots root:all, header:none, body:none, footer:none
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

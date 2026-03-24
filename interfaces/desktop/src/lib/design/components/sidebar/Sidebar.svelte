@@ -1,8 +1,17 @@
 <!--
 	@component Sidebar
 	@kind sidebar
-	@layer components
-	Hook (ARIA) + StyleMacro (visual).
+	@layer component
+	@category structural
+	@description Persistent or collapsible side navigation panel for application-level wayfinding
+	@container true
+	@containerSlots content
+	@compound true
+	@blockCategory layout
+	@defaultStyle sidebar-default
+	@styleIds sidebar-default
+	@requiredAxes backgroundColor, border, shadow
+	@slots root:all, header:none, content:none, footer:none, toggle:none
 -->
 <script lang="ts">
 import { useSidebar } from "$lib/design/primitives/sidebar/index.js";

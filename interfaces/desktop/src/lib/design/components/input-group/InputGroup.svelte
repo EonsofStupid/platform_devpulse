@@ -1,8 +1,17 @@
 <!--
-	@component InputGroup
+	@component Input Group
 	@kind input-group
-	@layer components
-	Hook (ARIA) + StyleMacro (visual).
+	@layer component
+	@category structural
+	@description Container that visually and semantically groups an input with addons like icons or buttons
+	@container true
+	@containerSlots root
+	@compound true
+	@blockCategory form
+	@defaultStyle input-group-default
+	@styleIds input-group-default
+	@requiredAxes border, borderRadius
+	@slots root:all, prepend:none, input:none, append:none
 -->
 <script lang="ts">
 import { useInputGroup } from "$lib/design/primitives/input-group/index.js";

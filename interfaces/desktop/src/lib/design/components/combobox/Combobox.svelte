@@ -1,13 +1,17 @@
 <!--
-	@component Combobox (Root)
+	@component Combobox
 	@kind combobox
-	@layer components
-
-	ColdLight Combobox — compound component root.
-	Uses useComboBox() primitive hook for all ARIA and behavior.
-	Sets context for sub-components.
-
-	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
+	@layer component
+	@category interactive
+	@description Text input combined with a filterable dropdown list for selecting or entering a value
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
+	@container false
+	@compound true
+	@blockCategory form
+	@defaultStyle combobox-default
+	@styleIds combobox-default
+	@requiredAxes backgroundColor, border, borderRadius, shadow, typography, color
+	@slots root:all, input:none, trigger:none, listbox:none, option:none, label:none
 -->
 <script lang="ts">
 import { useComboBox } from "$lib/design/primitives/combobox/use-combobox.svelte.js";

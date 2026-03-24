@@ -1,12 +1,18 @@
 <!--
-	@component AlertDialog (Root)
+	@component Alert Dialog
 	@kind alert-dialog
-	@layer components
-
-	Confirmation/destructive action dialog. role="alertdialog".
-	Uses useAlertDialog() primitive hook.
-
-	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/
+	@layer component
+	@category feedback
+	@description Modal dialog requiring user acknowledgment before proceeding with a destructive or critical action
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/
+	@container true
+	@containerSlots content, footer
+	@compound true
+	@blockCategory feedback
+	@defaultStyle alert-dialog-default
+	@styleIds alert-dialog-default
+	@requiredAxes backgroundColor, shadow, borderRadius, border
+	@slots root:all, overlay:none, content:none, title:none, description:none, footer:none
 -->
 <script lang="ts">
 import { useAlertDialog } from "$lib/design/primitives/alert-dialog/use-alert-dialog.svelte.js";

@@ -1,9 +1,16 @@
 <!--
 	@component Avatar
 	@kind avatar
-
-	THE PRODUCT. Image with fallback + StyleMacro (visual).
-	Size → inline dimension. Load state → image/fallback display.
+	@layer component
+	@category content
+	@description Displays a user or entity image with a text or icon fallback when the image is unavailable
+	@container false
+	@compound true
+	@blockCategory content
+	@defaultStyle avatar-default
+	@styleIds avatar-default
+	@requiredAxes backgroundColor, borderRadius, border
+	@slots root:all, image:none, fallback:none
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

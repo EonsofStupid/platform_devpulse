@@ -1,9 +1,17 @@
 <!--
 	@component Progress
 	@kind progress
-
-	THE PRODUCT. Hook (ARIA progressbar) + StyleMacro (visual).
-	Size → structural classes. Value/min/max → ARIA + fill width.
+	@layer component
+	@category content
+	@description Determinate or indeterminate progress bar indicating task completion
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/meter/
+	@container false
+	@compound true
+	@blockCategory feedback
+	@defaultStyle progress-default
+	@styleIds progress-default
+	@requiredAxes backgroundColor, borderRadius, color
+	@slots root:all, track:none, fill:none
 -->
 <script lang="ts">
 import { useProgress } from "$lib/design/primitives/progress/index.js";

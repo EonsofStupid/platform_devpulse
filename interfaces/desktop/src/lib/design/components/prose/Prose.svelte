@@ -1,10 +1,17 @@
 <!--
 	@component Prose
 	@kind prose
-	@layer components
-
-	Rich text content container. StyleMacro (visual).
-	Applies typographic styling to child HTML (markdown output, etc).
+	@layer component
+	@category content
+	@description Rich text container with typographic defaults for rendering long-form markdown or HTML content
+	@container true
+	@containerSlots root
+	@compound false
+	@blockCategory content
+	@defaultStyle prose-default
+	@styleIds prose-default
+	@requiredAxes typography, color
+	@slots root:all
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

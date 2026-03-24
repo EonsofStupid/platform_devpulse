@@ -1,10 +1,16 @@
 <!--
-	@component Kbd
+	@component Keyboard Shortcut
 	@kind kbd
-	@layer components
-
-	Keyboard shortcut display. StyleMacro (visual). Pure presentation.
-	No ARIA hook needed — <kbd> is semantically correct natively.
+	@layer component
+	@category content
+	@description Styled representation of a keyboard key or shortcut combination
+	@container false
+	@compound false
+	@blockCategory content
+	@defaultStyle kbd-default
+	@styleIds kbd-default
+	@requiredAxes backgroundColor, border, borderRadius, typography, color, shadow
+	@slots root:all
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

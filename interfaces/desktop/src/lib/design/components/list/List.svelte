@@ -1,8 +1,18 @@
 <!--
 	@component List
 	@kind list
-	@layer components
-	List container. Hook (ARIA) + StyleMacro (visual).
+	@layer component
+	@category composite
+	@description Ordered or unordered collection of items with optional selection and keyboard navigation
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/listbox/
+	@container true
+	@containerSlots root
+	@compound true
+	@blockCategory data
+	@defaultStyle list-default
+	@styleIds list-default
+	@requiredAxes border, color, typography
+	@slots root:all, item:none, itemIcon:none, itemContent:none
 -->
 <script lang="ts">
 import { useList } from "$lib/design/primitives/list/index.js";

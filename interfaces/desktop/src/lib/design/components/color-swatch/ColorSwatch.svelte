@@ -1,11 +1,16 @@
 <!--
-	@component ColorSwatch
+	@component Color Swatch
 	@kind color-swatch
-	@layer components
-
-	Presentational colored square. Single element, no compound.
-	role="img" with accessible color name.
-	Checkerboard background for alpha transparency visibility.
+	@layer component
+	@category interactive
+	@description Small preview rectangle displaying a single color value
+	@container false
+	@compound false
+	@blockCategory form
+	@defaultStyle color-swatch-default
+	@styleIds color-swatch-default
+	@requiredAxes border, borderRadius
+	@slots root:all
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

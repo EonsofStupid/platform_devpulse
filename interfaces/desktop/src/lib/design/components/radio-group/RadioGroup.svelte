@@ -1,12 +1,17 @@
 <!--
-	@component RadioGroup (Root)
+	@component Radio Group
 	@kind radio-group
-	@layer components
-
-	Radio button group. Hook (ARIA) + StyleMacro (visual).
-	Compound: Item, Label.
-
-	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/radio/
+	@layer component
+	@category interactive
+	@description Mutually exclusive option set where only one item can be selected at a time
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/radio/
+	@container false
+	@compound true
+	@blockCategory form
+	@defaultStyle radio-group-default
+	@styleIds radio-group-default
+	@requiredAxes backgroundColor, border, borderRadius, color, typography
+	@slots root:all, item:none, indicator:none, label:none
 -->
 <script lang="ts">
 import { useRadioGroup } from "$lib/design/primitives/radio-group/use-radio-group.svelte.js";

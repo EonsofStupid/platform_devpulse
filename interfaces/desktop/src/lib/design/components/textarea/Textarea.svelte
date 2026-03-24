@@ -1,10 +1,16 @@
 <!--
 	@component Textarea
 	@kind textarea
-	@layer components
-
-	Multi-line text input. Hook (ARIA) + StyleMacro (visual).
-	Handles disabled, readonly, required, invalid states.
+	@layer component
+	@category interactive
+	@description Multi-line text input for longer form content such as comments or descriptions
+	@container false
+	@compound true
+	@blockCategory form
+	@defaultStyle textarea-default
+	@styleIds textarea-default
+	@requiredAxes backgroundColor, border, borderRadius, typography, color
+	@slots root:all, input:none, label:none
 -->
 <script lang="ts">
 import { useTextarea } from "$lib/design/primitives/textarea/index.js";

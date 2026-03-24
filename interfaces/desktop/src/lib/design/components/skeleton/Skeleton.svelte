@@ -1,10 +1,16 @@
 <!--
 	@component Skeleton
 	@kind skeleton
-	@layer components
-
-	Animated loading placeholder. Hook (ARIA) + StyleMacro (visual).
-	Variant determines shape: text (rounded), circular, rectangular.
+	@layer component
+	@category content
+	@description Animated placeholder shape indicating content is loading
+	@container false
+	@compound false
+	@blockCategory feedback
+	@defaultStyle skeleton-default
+	@styleIds skeleton-default
+	@requiredAxes backgroundColor, borderRadius, animation
+	@slots root:all
 -->
 <script lang="ts">
 import { useSkeleton } from "$lib/design/primitives/skeleton/index.js";

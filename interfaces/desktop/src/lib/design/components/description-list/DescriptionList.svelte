@@ -1,8 +1,17 @@
 <!--
-	@component DescriptionList
+	@component Description List
 	@kind description-list
-	@layer components
-	Hook (ARIA) + StyleMacro (visual).
+	@layer component
+	@category content
+	@description Key-value pair list for displaying metadata, definitions, or attribute summaries
+	@container true
+	@containerSlots root
+	@compound true
+	@blockCategory content
+	@defaultStyle description-list-default
+	@styleIds description-list-default
+	@requiredAxes typography, color, border
+	@slots root:all, term:none, detail:none
 -->
 <script lang="ts">
 import { useDescriptionList } from "$lib/design/primitives/description-list/index.js";

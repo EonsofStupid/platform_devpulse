@@ -1,12 +1,17 @@
 <!--
-	@component Slider (Root)
+	@component Slider
 	@kind slider
-	@layer components
-
-	Range slider. Hook (ARIA role="slider") + StyleMacro (visual).
-	Compound: Track, Range (fill), Thumb.
-
-	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/slider/
+	@layer component
+	@category interactive
+	@description Draggable track control for selecting a numeric value or range within a defined interval
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/slider/
+	@container false
+	@compound true
+	@blockCategory form
+	@defaultStyle slider-default
+	@styleIds slider-default
+	@requiredAxes backgroundColor, border, borderRadius, color
+	@slots root:all, track:none, range:none, thumb:none, label:none
 -->
 <script lang="ts">
 import { useSlider } from "$lib/design/primitives/slider/use-slider.svelte.js";

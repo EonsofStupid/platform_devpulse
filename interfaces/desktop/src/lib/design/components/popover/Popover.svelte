@@ -1,12 +1,17 @@
 <!--
 	@component Popover
 	@kind popover
-	@layer components
-
-	Floating content panel. Hook (ARIA) + StyleMacro (visual).
-	Trigger opens content, dismiss on escape/outside click.
-
-	WAI-ARIA: aria-haspopup, aria-expanded on trigger.
+	@layer component
+	@category structural
+	@description Floating panel anchored to a trigger element for displaying contextual content
+	@container true
+	@containerSlots content
+	@compound true
+	@blockCategory layout
+	@defaultStyle popover-default
+	@styleIds popover-default
+	@requiredAxes backgroundColor, border, borderRadius, shadow
+	@slots root:all, trigger:none, content:none, arrow:none, close:none
 -->
 <script lang="ts">
 import { usePopover } from "$lib/design/primitives/popover/use-popover.svelte.js";

@@ -1,11 +1,16 @@
 <!--
-	@component ColorWheel (Root)
+	@component Color Wheel
 	@kind color-wheel
-	@layer components
-
-	Circular hue picker. Drags thumb around a ring for hue 0-360.
-	$state/$effect/$derived for controlled sync and reactive composition.
-	Auto-generated IDs. Form integration via hidden input.
+	@layer component
+	@category interactive
+	@description Circular hue selector for picking colors along the 360-degree color spectrum
+	@container false
+	@compound true
+	@blockCategory form
+	@defaultStyle color-wheel-default
+	@styleIds color-wheel-default
+	@requiredAxes border
+	@slots root:all, track:none, thumb:none
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

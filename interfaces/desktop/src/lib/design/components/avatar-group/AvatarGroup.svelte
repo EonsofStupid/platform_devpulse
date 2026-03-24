@@ -1,11 +1,17 @@
 <!--
-	@component AvatarGroup
+	@component Avatar Group
 	@kind avatar-group
-	@layer components
-
-	Layout container for overlapping avatars.
-	Passes size to Avatar children via context.
-	Shows +N overflow when maxVisible exceeded.
+	@layer component
+	@category content
+	@description Horizontally stacked collection of avatars with overflow indicator for group display
+	@container true
+	@containerSlots root
+	@compound false
+	@blockCategory content
+	@defaultStyle avatar-group-default
+	@styleIds avatar-group-default
+	@requiredAxes border
+	@slots root:all, overflow:none
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

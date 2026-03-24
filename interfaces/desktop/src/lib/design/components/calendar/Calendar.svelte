@@ -1,13 +1,17 @@
 <!--
-	@component Calendar (Root)
+	@component Calendar
 	@kind calendar
-	@layer components
-
-	ColdLight Calendar — date selection, navigation, validation.
-	ColdLight-owned ARIA. Compound: Header, Grid, Cell.
-	Spectrum-aligned API: controlled/uncontrolled, validation, focus management.
-
-	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/grid/
+	@layer component
+	@category interactive
+	@description Date grid allowing single date selection with month and year navigation
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/grid/
+	@container false
+	@compound true
+	@blockCategory form
+	@defaultStyle calendar-default
+	@styleIds calendar-default
+	@requiredAxes backgroundColor, border, borderRadius, color, typography
+	@slots root:all, header:none, grid:none, cell:none, nav:none
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

@@ -1,11 +1,17 @@
 <!--
 	@component Toggle
 	@kind toggle
-	@layer components
-
-	Pressable toggle button. Hook (ARIA aria-pressed) + StyleMacro (visual).
-
-	WAI-ARIA: button with aria-pressed
+	@layer component
+	@category interactive
+	@description Pressable button that toggles between an active and inactive state
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/button/
+	@container false
+	@compound false
+	@blockCategory form
+	@defaultStyle toggle-default
+	@styleIds toggle-default
+	@requiredAxes backgroundColor, border, borderRadius, color
+	@slots root:all
 -->
 <script lang="ts">
 import { useToggle } from "$lib/design/primitives/toggle/use-toggle.svelte.js";

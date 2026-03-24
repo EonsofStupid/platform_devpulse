@@ -1,10 +1,16 @@
 <!--
 	@component Spinner
 	@kind spinner
-	@layer components
-
-	Animated loading indicator. Hook (ARIA) + StyleMacro (visual).
-	role="status" with polite live region.
+	@layer component
+	@category content
+	@description Animated circular indicator for indeterminate loading states
+	@container false
+	@compound false
+	@blockCategory feedback
+	@defaultStyle spinner-default
+	@styleIds spinner-default
+	@requiredAxes color, animation
+	@slots root:all
 -->
 <script lang="ts">
 import { useSpinner } from "$lib/design/primitives/spinner/index.js";

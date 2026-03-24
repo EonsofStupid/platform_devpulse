@@ -1,9 +1,16 @@
 <!--
 	@component Text
 	@kind text
-
-	THE PRODUCT. StyleMacro (visual).
-	Element via `as` prop. Size + weight → structural classes.
+	@layer component
+	@category content
+	@description Body text element with configurable size, weight, and semantic element
+	@container false
+	@compound false
+	@blockCategory content
+	@defaultStyle text-default
+	@styleIds text-default
+	@requiredAxes typography, color
+	@slots root:all
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

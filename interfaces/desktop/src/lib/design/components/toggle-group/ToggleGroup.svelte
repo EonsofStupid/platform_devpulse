@@ -1,8 +1,17 @@
 <!--
-	@component ToggleGroup
+	@component Toggle Group
 	@kind toggle-group
-	@layer components
-	Hook (ARIA) + StyleMacro (visual).
+	@layer component
+	@category interactive
+	@description Set of toggle buttons allowing single or multiple selection within a group
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/
+	@container false
+	@compound true
+	@blockCategory form
+	@defaultStyle toggle-group-default
+	@styleIds toggle-group-default
+	@requiredAxes backgroundColor, border, borderRadius, color
+	@slots root:all, item:none
 -->
 <script lang="ts">
 import { useToggleGroup } from "$lib/design/primitives/toggle-group/index.js";

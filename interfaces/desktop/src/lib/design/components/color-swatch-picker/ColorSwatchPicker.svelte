@@ -1,11 +1,17 @@
 <!--
-	@component ColorSwatchPicker
+	@component Color Swatch Picker
 	@kind color-swatch-picker
-	@layer components
-
-	Selectable grid of color swatches.
-	role="listbox" — each swatch child should be wrapped as role="option".
-	Keyboard arrow navigation for swatch selection.
+	@layer component
+	@category interactive
+	@description Grid of selectable color swatches for choosing from a predefined palette
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/listbox/
+	@container false
+	@compound true
+	@blockCategory form
+	@defaultStyle color-swatch-picker-default
+	@styleIds color-swatch-picker-default
+	@requiredAxes border, borderRadius
+	@slots root:all, swatch:none
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

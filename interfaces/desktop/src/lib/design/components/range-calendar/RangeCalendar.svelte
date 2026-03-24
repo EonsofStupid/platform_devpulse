@@ -1,13 +1,17 @@
 <!--
-	@component RangeCalendar
+	@component Range Calendar
 	@kind range-calendar
-	@layer components
-
-	ColdLight RangeCalendar root — manages start/end date range state.
-	Compound component: sub-components consume context to render slots.
-
-	ColdLight OWNS all ARIA. No MeltUI dependency.
-	Reference: WAI-ARIA APG Grid Pattern
+	@layer component
+	@category interactive
+	@description Calendar grid supporting start and end date selection for defining date ranges
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/grid/
+	@container false
+	@compound true
+	@blockCategory form
+	@defaultStyle range-calendar-default
+	@styleIds range-calendar-default
+	@requiredAxes backgroundColor, border, borderRadius, color, typography
+	@slots root:all, header:none, grid:none, cell:none, nav:none
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";

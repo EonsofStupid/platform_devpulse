@@ -1,9 +1,16 @@
 <!--
-	@component TextField
+	@component Text Field
 	@kind text-field
-
-	THE PRODUCT. Hook (ARIA label/input linkage) + StyleMacro (visual).
-	Size → structural Tailwind classes.
+	@layer component
+	@category interactive
+	@description Single-line text input with integrated label and validation support
+	@container false
+	@compound true
+	@blockCategory form
+	@defaultStyle text-field-default
+	@styleIds text-field-default
+	@requiredAxes backgroundColor, border, borderRadius, typography, color
+	@slots root:all, input:none, label:none
 -->
 <script lang="ts">
 import { useTextField } from "$lib/design/primitives/text-field/index.js";

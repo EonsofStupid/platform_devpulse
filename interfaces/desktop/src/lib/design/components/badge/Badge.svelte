@@ -1,10 +1,16 @@
 <!--
 	@component Badge
 	@kind badge
-
-	THE PRODUCT. Hook (ARIA) + StyleMacro (visual).
-	Variant → style ID → DTCG tokens.
-	Size → structural Tailwind classes.
+	@layer component
+	@category content
+	@description Compact label for status, counts, or categorical metadata
+	@container false
+	@compound false
+	@blockCategory content
+	@defaultStyle badge-neutral
+	@styleIds badge-neutral, badge-accent, badge-positive, badge-negative, badge-notice, badge-informative
+	@requiredAxes backgroundColor, color, borderRadius, typography
+	@slots root:all
 -->
 <script lang="ts">
 import { useBadge } from "$lib/design/primitives/badge/index.js";

@@ -1,10 +1,16 @@
 <!--
-	@component DateField (Root)
+	@component Date Field
 	@kind date-field
-	@layer components
-
-	Segmented date input. Each part is an individually editable spinbutton.
-	Spectrum-aligned: controlled/uncontrolled, validation, form, label.
+	@layer component
+	@category interactive
+	@description Segmented date input with individual fields for month, day, and year
+	@container false
+	@compound true
+	@blockCategory form
+	@defaultStyle date-field-default
+	@styleIds date-field-default
+	@requiredAxes backgroundColor, border, borderRadius, typography, color
+	@slots root:all, segment:none, label:none
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";

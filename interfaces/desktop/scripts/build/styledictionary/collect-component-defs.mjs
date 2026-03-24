@@ -3,117 +3,91 @@
  * @file collect-component-defs.mjs
  * @package @devpulse/coldlight
  *
- * Scans all {kind}/{kind}.def.json files from components/ AND blocks/.
+ * S2-style annotation extraction. Scans .svelte files for @key annotations,
+ * generates the UI Catalog. No .def.json files — metadata lives IN the component.
+ *
  * Generates:
  *   1. catalog.ts — UI_CATALOG const map + getCatalogEntry() lookup
- *   2. ui-catalog.json — full catalog for VPB editor / manifest
- *
- * Every renderable UI element (component, block, widget, layout, template)
- * gets a .def.json and appears in the catalog.
+ *   2. ui-catalog.json — full catalog for VPB with resolved preset values
  *
  * Run before SD5 build: included in build.mjs pipeline.
  */
 
-import { readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { scanAnnotations } from './scan-annotations.mjs';
 
-const COMPONENTS_DIR = resolve('src/lib/design/components');
-const BLOCKS_DIR = resolve('src/lib/design/blocks');
 const OUTPUT_MAP = resolve('src/lib/design/components/_base/catalog.ts');
 const OUTPUT_CATALOG = resolve('src/lib/design/generated/ui-catalog.json');
+const CSS_OUTPUT = resolve('src/lib/design/styles/components/component.css');
+
+// Sources to scan — order matters (components first, then blocks, utils, layouts)
+const SOURCES = [
+	{ dir: resolve('src/lib/design/components'), defaultLayer: 'component' },
+	{ dir: resolve('src/lib/design/blocks'), defaultLayer: 'block' },
+	{ dir: resolve('src/lib/layouts'), defaultLayer: 'layout' },
+];
 
 /**
- * Scan a directory for {kind}/{kind}.def.json files.
- * @param {string} dir - directory to scan
- * @param {string} defaultLayer - layer to assign if not in def
+ * Extract resolved preset values from compiled component.css.
+ * Reads --style-{kind}-{intent}-{axis} vars and groups them by styleId.
+ *
+ * @returns {Record<string, Record<string, string>>}
  */
-function scanDefs(dir, defaultLayer) {
-	if (!existsSync(dir)) return [];
+function extractResolvedPresets() {
+	if (!existsSync(CSS_OUTPUT)) return {};
 
-	const kinds = readdirSync(dir, { withFileTypes: true })
-		.filter((d) => d.isDirectory() && !d.name.startsWith('_') && !d.name.startsWith('.'))
-		.map((d) => d.name)
-		.sort();
+	const css = readFileSync(CSS_OUTPUT, 'utf-8');
+	const presets = {};
 
-	const defs = [];
+	// Match: --style-{styleId}-{axis}: {value};
+	const pattern = /--style-([a-z][a-z0-9-]*?)-(background-color|background-blur|animation|transition|color|border-radius|opacity|shadow-\d+-color|shadow-\d+-offset-x|shadow-\d+-offset-y|shadow-\d+-blur|shadow-\d+-spread|shadow-color|shadow-offset-x|shadow-offset-y|shadow-blur|shadow-spread|border-color|border-width|border-style|typography-font-family|typography-font-size|typography-font-weight|typography-letter-spacing|typography-line-height|gradient):\s*(.+?);/g;
 
-	for (const kind of kinds) {
-		const defPath = join(dir, kind, `${kind}.def.json`);
-		try {
-			const raw = readFileSync(defPath, 'utf-8');
-			const def = JSON.parse(raw);
+	let m;
+	while ((m = pattern.exec(css)) !== null) {
+		const styleId = m[1];
+		const axis = m[2];
+		const value = m[3].trim();
 
-			// Validate required fields
-			const required = ['kind', 'label', 'category', 'description', 'container', 'compound', 'blockCategory', 'requiredAxes', 'defaultStyleId', 'styleIds', 'slots'];
-			const missingFields = required.filter((f) => !(f in def));
-			if (missingFields.length > 0) {
-				console.error(`  [ERROR] ${kind}.def.json missing fields: ${missingFields.join(', ')}`);
-				process.exit(1);
-			}
-
-			if (def.kind !== kind) {
-				console.error(`  [ERROR] ${kind}.def.json has kind="${def.kind}" but folder is "${kind}"`);
-				process.exit(1);
-			}
-
-			// Assign layer if not already set
-			if (!def.layer) {
-				def.layer = defaultLayer;
-			}
-
-			defs.push(def);
-			console.log(`  [def] ${kind}: ${def.layer}/${def.category} — ${def.label}`);
-		} catch {
-			// No .def.json — skip silently (blocks may not all have defs yet)
-		}
+		if (!presets[styleId]) presets[styleId] = {};
+		presets[styleId][axis] = value;
 	}
 
-	// Also scan subdirectories (e.g., blocks/widgets/)
-	for (const kind of kinds) {
-		const subDir = join(dir, kind);
-		const subKinds = readdirSync(subDir, { withFileTypes: true })
-			.filter((d) => d.isDirectory() && !d.name.startsWith('_') && !d.name.startsWith('.'))
-			.map((d) => d.name);
-
-		for (const subKind of subKinds) {
-			const defPath = join(subDir, subKind, `${subKind}.def.json`);
-			try {
-				const raw = readFileSync(defPath, 'utf-8');
-				const def = JSON.parse(raw);
-				if (!def.layer) def.layer = defaultLayer;
-				defs.push(def);
-				console.log(`  [def] ${subKind}: ${def.layer}/${def.category} — ${def.label}`);
-			} catch {
-				// No def — skip
-			}
-		}
-	}
-
-	return defs;
+	return presets;
 }
 
 function collect() {
-	// Scan components (layer: "component") and blocks (layer: "block")
-	const componentDefs = scanDefs(COMPONENTS_DIR, 'component');
-	const blockDefs = scanDefs(BLOCKS_DIR, 'block');
-	const allDefs = [...componentDefs, ...blockDefs];
+	console.log('[catalog] Scanning annotations...');
+	const defs = scanAnnotations(SOURCES);
 
-	if (componentDefs.length === 0) {
-		console.error('\n  [ERROR] No component .def.json files found');
+	if (defs.length === 0) {
+		console.error('\n  [ERROR] No annotated .svelte files found');
 		process.exit(1);
+	}
+
+	// Log each def
+	for (const def of defs) {
+		console.log(`  [def] ${def.kind}: ${def.layer}/${def.category} — ${def.label}`);
+	}
+
+	// Count by layer
+	const byLayer = {};
+	for (const def of defs) {
+		byLayer[def.layer] = (byLayer[def.layer] || 0) + 1;
 	}
 
 	// Generate catalog.ts
 	const mapLines = [
 		'/**',
 		' * AUTO-GENERATED by collect-component-defs.mjs — DO NOT EDIT',
+		' * Source: @annotations in .svelte files (S2 pattern)',
 		' */',
 		'',
 		'import type { UIDef } from "./types.js";',
 		'',
-		'/** Declarative inventory of every renderable UI element — components, blocks, widgets, layouts. */',
+		'/** Declarative inventory of every renderable UI element. */',
 		`export const UI_CATALOG: Readonly<Record<string, UIDef>> = ${JSON.stringify(
-			Object.fromEntries(allDefs.map((d) => [d.kind, d])),
+			Object.fromEntries(defs.map((d) => [d.kind, d])),
 			null,
 			'\t',
 		)} as const;`,
@@ -124,7 +98,7 @@ function collect() {
 		'}',
 		'',
 		'/** All registered kind names. */',
-		`export const UI_KINDS = [${allDefs.map((d) => `'${d.kind}'`).join(', ')}] as const;`,
+		`export const UI_KINDS = [${defs.map((d) => `'${d.kind}'`).join(', ')}] as const;`,
 		'export type UIKind = (typeof UI_KINDS)[number];',
 		'',
 		'/** @deprecated Use UI_KINDS */',
@@ -132,49 +106,66 @@ function collect() {
 		'/** @deprecated Use UIKind */',
 		'export type ComponentKind = UIKind;',
 		'',
-		`/** Elements by category. */`,
-		`export const STRUCTURAL_KINDS = [${allDefs.filter((d) => d.category === 'structural').map((d) => `'${d.kind}'`).join(', ')}] as const;`,
-		`export const CONTENT_KINDS = [${allDefs.filter((d) => d.category === 'content').map((d) => `'${d.kind}'`).join(', ')}] as const;`,
-		`export const INTERACTIVE_KINDS = [${allDefs.filter((d) => d.category === 'interactive').map((d) => `'${d.kind}'`).join(', ')}] as const;`,
-		`export const COMPOSITE_KINDS = [${allDefs.filter((d) => d.category === 'composite').map((d) => `'${d.kind}'`).join(', ')}] as const;`,
-		`export const FEEDBACK_KINDS = [${allDefs.filter((d) => d.category === 'feedback').map((d) => `'${d.kind}'`).join(', ')}] as const;`,
-		`export const NAVIGATION_KINDS = [${allDefs.filter((d) => d.category === 'navigation').map((d) => `'${d.kind}'`).join(', ')}] as const;`,
-		'',
 		`/** Elements by layer. */`,
-		`export const COMPONENT_LAYER_KINDS = [${allDefs.filter((d) => d.layer === 'component').map((d) => `'${d.kind}'`).join(', ')}] as const;`,
-		`export const BLOCK_LAYER_KINDS = [${allDefs.filter((d) => d.layer === 'block').map((d) => `'${d.kind}'`).join(', ')}] as const;`,
+		...Object.keys(byLayer).map((layer) =>
+			`export const ${layer.toUpperCase()}_KINDS = [${defs.filter((d) => d.layer === layer).map((d) => `'${d.kind}'`).join(', ')}] as const;`,
+		),
+		'',
+		`/** Elements by category. */`,
+		`export const STRUCTURAL_KINDS = [${defs.filter((d) => d.category === 'structural').map((d) => `'${d.kind}'`).join(', ')}] as const;`,
+		`export const CONTENT_KINDS = [${defs.filter((d) => d.category === 'content').map((d) => `'${d.kind}'`).join(', ')}] as const;`,
+		`export const INTERACTIVE_KINDS = [${defs.filter((d) => d.category === 'interactive').map((d) => `'${d.kind}'`).join(', ')}] as const;`,
+		`export const COMPOSITE_KINDS = [${defs.filter((d) => d.category === 'composite').map((d) => `'${d.kind}'`).join(', ')}] as const;`,
+		`export const FEEDBACK_KINDS = [${defs.filter((d) => d.category === 'feedback').map((d) => `'${d.kind}'`).join(', ')}] as const;`,
+		`export const NAVIGATION_KINDS = [${defs.filter((d) => d.category === 'navigation').map((d) => `'${d.kind}'`).join(', ')}] as const;`,
 		'',
 		`/** Container elements (accept children). */`,
-		`export const CONTAINER_KINDS = [${allDefs.filter((d) => d.container).map((d) => `'${d.kind}'`).join(', ')}] as const;`,
+		`export const CONTAINER_KINDS = [${defs.filter((d) => d.container).map((d) => `'${d.kind}'`).join(', ')}] as const;`,
 		'',
 	];
 
 	writeFileSync(OUTPUT_MAP, mapLines.join('\n'));
-	console.log(`\n[defs] catalog.ts — ${allDefs.length} UI elements registered (${componentDefs.length} components, ${blockDefs.length} blocks)`);
 
-	// Generate ui-catalog.json for VPB / manifest
+	// Extract resolved preset values from compiled CSS (if available)
+	const resolvedPresets = extractResolvedPresets();
+
+	// Attach resolved values to each def
+	const defsWithPresets = defs.map((def) => {
+		const presets = {};
+		for (const styleId of def.styleIds) {
+			if (resolvedPresets[styleId]) {
+				presets[styleId] = resolvedPresets[styleId];
+			}
+		}
+		return { ...def, presets: Object.keys(presets).length > 0 ? presets : undefined };
+	});
+
+	// Generate ui-catalog.json
 	const catalog = {
 		$schema: 'coldlight/ui-catalog',
 		generatedAt: new Date().toISOString(),
-		total: allDefs.length,
-		byLayer: {
-			component: componentDefs.length,
-			block: blockDefs.length,
-		},
+		total: defs.length,
+		byLayer,
 		byCategory: {
-			structural: allDefs.filter((d) => d.category === 'structural').length,
-			content: allDefs.filter((d) => d.category === 'content').length,
-			interactive: allDefs.filter((d) => d.category === 'interactive').length,
-			composite: allDefs.filter((d) => d.category === 'composite').length,
-			feedback: allDefs.filter((d) => d.category === 'feedback').length,
-			navigation: allDefs.filter((d) => d.category === 'navigation').length,
+			structural: defs.filter((d) => d.category === 'structural').length,
+			content: defs.filter((d) => d.category === 'content').length,
+			interactive: defs.filter((d) => d.category === 'interactive').length,
+			composite: defs.filter((d) => d.category === 'composite').length,
+			feedback: defs.filter((d) => d.category === 'feedback').length,
+			navigation: defs.filter((d) => d.category === 'navigation').length,
 		},
-		containers: allDefs.filter((d) => d.container).map((d) => d.kind),
-		elements: allDefs,
+		containers: defs.filter((d) => d.container).map((d) => d.kind),
+		elements: defsWithPresets,
 	};
 
 	writeFileSync(OUTPUT_CATALOG, JSON.stringify(catalog, null, '\t'));
-	console.log(`[defs] ui-catalog.json — ${allDefs.length} elements, ${catalog.containers.length} containers`);
+
+	const layerStr = Object.entries(byLayer).map(([k, v]) => `${v} ${k}s`).join(', ');
+	console.log(`\n[catalog] catalog.ts — ${defs.length} UI elements (${layerStr})`);
+	console.log(`[catalog] ui-catalog.json — ${defs.length} elements, ${catalog.containers.length} containers`);
+	if (Object.keys(resolvedPresets).length > 0) {
+		console.log(`[catalog] Resolved preset values attached: ${Object.keys(resolvedPresets).length} style IDs`);
+	}
 }
 
 collect();

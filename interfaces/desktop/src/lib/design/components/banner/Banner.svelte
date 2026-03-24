@@ -1,11 +1,17 @@
 <!--
 	@component Banner
 	@kind banner
-	@layer components
-
-	Sticky/fixed site-wide announcement container.
-	Hook (ARIA) + StyleMacro (visual).
-	Controlled/uncontrolled open state. Dismissible.
+	@layer component
+	@category feedback
+	@description Full-width notification strip for site-wide announcements or system status
+	@container true
+	@containerSlots content
+	@compound true
+	@blockCategory feedback
+	@defaultStyle banner-default
+	@styleIds banner-default, banner-info, banner-success, banner-warning, banner-error
+	@requiredAxes backgroundColor, color, border
+	@slots root:all, icon:none, content:none, action:none, dismiss:none
 -->
 <script lang="ts">
 import { slide } from "svelte/transition";

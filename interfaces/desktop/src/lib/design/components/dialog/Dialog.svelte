@@ -1,13 +1,18 @@
 <!--
-	@component Dialog (Root)
+	@component Dialog
 	@kind dialog
-	@layer components
-
-	Modal overlay dialog. Uses useDialog() primitive hook for
-	focus trap, scroll lock, dismiss, presence.
-	Sets context for sub-components.
-
-	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
+	@layer component
+	@category structural
+	@description Modal overlay window for focused tasks, confirmations, or complex form input
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
+	@container true
+	@containerSlots content, footer
+	@compound true
+	@blockCategory layout
+	@defaultStyle dialog-default
+	@styleIds dialog-default
+	@requiredAxes backgroundColor, shadow, borderRadius, border
+	@slots root:all, overlay:none, content:none, header:none, body:none, footer:none, close:none
 -->
 <script lang="ts">
 import { useDialog } from "$lib/design/primitives/dialog/use-dialog.svelte.js";

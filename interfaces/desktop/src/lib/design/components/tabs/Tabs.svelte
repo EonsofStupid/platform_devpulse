@@ -1,12 +1,18 @@
 <!--
-	@component Tabs (Root)
+	@component Tabs
 	@kind tabs
-	@layer components
-
-	Tabbed interface. Hook (ARIA) + StyleMacro (visual).
-	Compound: List, Trigger, Content.
-
-	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/tabs/
+	@layer component
+	@category composite
+	@description Tabbed interface for switching between mutually exclusive content panels
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/tabs/
+	@container true
+	@containerSlots content
+	@compound true
+	@blockCategory layout
+	@defaultStyle tabs-default
+	@styleIds tabs-default
+	@requiredAxes backgroundColor, border, borderRadius, color, typography
+	@slots root:all, list:none, trigger:none, content:none, indicator:none
 -->
 <script lang="ts">
 import { useTabs } from "$lib/design/primitives/tabs/use-tabs.svelte.js";

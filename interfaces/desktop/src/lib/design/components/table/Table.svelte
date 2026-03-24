@@ -1,8 +1,18 @@
 <!--
 	@component Table
 	@kind table
-	@layer components
-	Data table. Hook (ARIA) + StyleMacro (visual).
+	@layer component
+	@category composite
+	@description Semantic HTML table with styled header, body, and footer for presenting tabular data
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/grid/
+	@container true
+	@containerSlots root
+	@compound true
+	@blockCategory data
+	@defaultStyle table-default
+	@styleIds table-default
+	@requiredAxes backgroundColor, border, color, typography
+	@slots root:all, header:none, headerCell:none, body:none, row:none, cell:none, footer:none, caption:none
 -->
 <script lang="ts">
 import { useTable } from "/design/primitives/table/use-table.svelte.js";

@@ -1,10 +1,18 @@
 <!--
 	@component Toolbar
 	@kind toolbar
-	@layer components
-
-	Toolbar container. Hook (ARIA) + StyleMacro (visual).
-	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/
+	@layer component
+	@category structural
+	@description Horizontal grouping of action buttons and controls with keyboard arrow navigation
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/
+	@container true
+	@containerSlots root
+	@compound true
+	@blockCategory layout
+	@defaultStyle toolbar-default
+	@styleIds toolbar-default
+	@requiredAxes backgroundColor, border, borderRadius
+	@slots root:all, group:none, separator:none
 -->
 <script lang="ts">
 import { StyleMacro } from "$lib/design/style/index.js";
