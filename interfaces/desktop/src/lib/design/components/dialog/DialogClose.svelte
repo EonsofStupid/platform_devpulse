@@ -16,7 +16,9 @@ const ctx = getDialogContext();
 <button
 	{...ctx.hook.close}
 	id={ctx.ids.close}
-	class={cn(ctx.classes.close, className)}
+	data-kind="dialog"
+	data-slot="close"
+	class={cn(className)}
 	{...rest}
 >
 	{#if children}

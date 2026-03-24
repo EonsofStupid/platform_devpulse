@@ -13,6 +13,6 @@ let { children, class: className, ...rest }: DialogHeaderProps = $props();
 const ctx = getDialogContext();
 </script>
 
-<div data-kind="dialog" data-slot="header" class={cn(ctx.classes.header, className)} {...rest}>
+<div data-kind="dialog" data-slot="header" class={cn(className)} {...rest}>
 	{@render children?.()}
 </div>

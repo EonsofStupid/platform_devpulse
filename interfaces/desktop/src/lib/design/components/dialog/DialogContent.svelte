@@ -28,7 +28,9 @@ const SIZE_CLASSES: Record<string, string> = {
 		{...ctx.hook.content}
 		use:ctx.hook.attachContent
 		id={ctx.ids.content}
-		class={cn(ctx.classes.content, SIZE_CLASSES[ctx.size] ?? SIZE_CLASSES.md, className)}
+		data-kind="dialog"
+		data-slot="content"
+		class={cn(SIZE_CLASSES[ctx.size] ?? SIZE_CLASSES.md, className)}
 		{...rest}
 		open
 	>

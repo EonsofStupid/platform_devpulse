@@ -116,13 +116,17 @@ pub use job::JobGuard;
 
 /// Process names that can become zombies from crashed dev sessions.
 ///
-/// Must include ALL binary names that appear in our process tree.
-/// `devpulse-desktop-app` is the actual Tauri binary name (set in tauri.conf.json).
+/// Must include ALL binary names that appear in our process tree:
+/// - The Tauri app binary and backend
+/// - cargo/rustc that hold the build lock
+/// - Previous xtask instances that froze
+/// - cargo-tauri (the Tauri CLI invoked by pnpm)
 const ZOMBIE_NAMES: &[&str] = &[
     "devpulse-desktop-app",
     "devpulse_desktop_backend",
     "devpulse-desktop-backend",
     "cargo-tauri",
+    "xtask",
 ];
 
 /// Build command-line patterns that identify DevPulse dev processes.
@@ -135,6 +139,86 @@ fn zombie_patterns(dev_port: u16) -> Vec<String> {
         "node_modules/.bin/tauri".to_string(),
         "node_modules\\.bin\\tauri".to_string(),
     ]
+}
+
+/// Kill stale cargo/rustc processes that would hold the build directory lock.
+///
+/// Called before `cargo check` to guarantee the lock is free. If zombies from
+/// a crashed session are sitting on the lock, we'd block forever with zero
+/// output — the exact "frozen pipeline" bug. This makes the failure visible
+/// and recovers automatically.
+pub fn clear_build_lock_holders() -> Result<u32> {
+    let stage = Stage::start("build lock scan");
+
+    #[cfg(windows)]
+    let killed = {
+        use std::process::Command;
+        let my_pid = std::process::id();
+        let mut killed = 0u32;
+
+        // cargo and rustc are the only processes that hold Cargo's file lock.
+        for name in &["cargo", "rustc"] {
+            let check = Command::new("tasklist")
+                .args(["/FI", &format!("IMAGENAME eq {name}.exe"), "/NH", "/FO", "CSV"])
+                .output();
+
+            let Ok(output) = check else { continue };
+            let stdout = String::from_utf8_lossy(&output.stdout);
+
+            if stdout.contains("INFO:") || stdout.trim().is_empty() {
+                continue;
+            }
+
+            for line in stdout.lines() {
+                let line = line.trim();
+                if line.is_empty() || line.starts_with("\"Image") {
+                    continue;
+                }
+                if let Some(pid) = parse_csv_pid(line) {
+                    if pid == my_pid {
+                        continue;
+                    }
+                    println!("  [>>] killing stale {name}.exe (PID {pid}) — would block build lock");
+                    let _ = Command::new("taskkill")
+                        .args(["/F", "/T", "/PID", &pid.to_string()])
+                        .output();
+                    killed += 1;
+                }
+            }
+        }
+        killed
+    };
+
+    #[cfg(not(windows))]
+    let killed = {
+        use std::process::Command;
+        let my_pid = std::process::id();
+        let mut killed = 0u32;
+
+        for name in &["cargo", "rustc"] {
+            let pgrep = Command::new("pgrep").args(["-x", name]).output();
+            let Ok(output) = pgrep else { continue };
+            let stdout = String::from_utf8_lossy(&output.stdout);
+
+            for pid in stdout.lines() {
+                let pid = pid.trim();
+                if pid.is_empty() { continue; }
+                if pid.parse::<u32>().ok() == Some(my_pid) { continue; }
+                println!("  [>>] killing stale {name} (PID {pid}) — would block build lock");
+                let _ = Command::new("kill").args(["-9", pid]).output();
+                killed += 1;
+            }
+        }
+        killed
+    };
+
+    if killed == 0 {
+        stage.ok_with("no stale cargo/rustc — build lock is free");
+    } else {
+        stage.ok_with(format!("killed {killed} stale process(es) holding build lock"));
+    }
+
+    Ok(killed)
 }
 
 /// Scan for and kill zombie processes from previous dev sessions.
@@ -197,29 +281,60 @@ fn cleanup_windows(dev_port: u16) -> Result<u32> {
         }
     }
 
-    // Phase 2: Kill by command-line pattern via PowerShell
-    // PowerShell can kill process trees even when taskkill can't
+    // Phase 2: Kill by command-line pattern via PowerShell (single invocation)
+    // Uses Get-CimInstance (fast) instead of Get-WmiObject (deprecated, hangs).
+    // All patterns checked in one PowerShell process with a 10s timeout.
     let patterns = zombie_patterns(dev_port);
-    for pattern in &patterns {
-        let ps = Command::new("powershell")
-            .args([
-                "-NoProfile",
-                "-Command",
-                &format!(
-                    "Get-WmiObject Win32_Process | \
-                     Where-Object {{ $_.CommandLine -like '*{pattern}*' -and $_.ProcessId -ne {} }} | \
-                     ForEach-Object {{ \
-                         Write-Host \"  [>>] killing stale PID $($_.ProcessId) (matched: {pattern})\"; \
-                         Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue \
-                     }}",
-                    std::process::id()
-                ),
-            ])
-            .output();
+    let my_pid = std::process::id();
 
-        if let Ok(output) = ps {
-            let stdout = String::from_utf8_lossy(&output.stdout);
-            killed += stdout.matches("[>>]").count() as u32;
+    // Build a single PowerShell filter for all patterns
+    let conditions: Vec<String> = patterns
+        .iter()
+        .map(|p| format!("$_.CommandLine -like '*{p}*'"))
+        .collect();
+    let filter = conditions.join(" -or ");
+
+    let ps_script = format!(
+        "Get-CimInstance Win32_Process | \
+         Where-Object {{ ({filter}) -and $_.ProcessId -ne {my_pid} }} | \
+         ForEach-Object {{ \
+             Write-Host \"  [>>] killing stale PID $($_.ProcessId) (matched: $($_.CommandLine))\"; \
+             Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue \
+         }}"
+    );
+
+    if let Ok(mut child) = Command::new("powershell")
+        .args(["-NoProfile", "-Command", &ps_script])
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::null())
+        .spawn()
+    {
+        // 10 second timeout — if CIM is broken, don't block the pipeline
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(10);
+        let mut timed_out = false;
+        loop {
+            match child.try_wait() {
+                Ok(Some(_)) => break,
+                Ok(None) => {
+                    if std::time::Instant::now() >= deadline {
+                        eprintln!("  [!!] PowerShell zombie scan timed out (10s) — skipping");
+                        let _ = child.kill();
+                        let _ = child.wait();
+                        timed_out = true;
+                        break;
+                    }
+                    std::thread::sleep(std::time::Duration::from_millis(100));
+                }
+                Err(_) => break,
+            }
+        }
+
+        if !timed_out {
+            // Process already exited — safe to read stdout
+            if let Ok(output) = child.wait_with_output() {
+                let stdout = String::from_utf8_lossy(&output.stdout);
+                killed += stdout.matches("[>>]").count() as u32;
+            }
         }
     }
 

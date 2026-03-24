@@ -13,6 +13,6 @@ let { children, class: className, ...rest }: DialogTitleProps = $props();
 const ctx = getDialogContext();
 </script>
 
-<h2 {...ctx.hook.title} id={ctx.ids.title ?? ctx.hook.title.id} class={cn(ctx.classes.title, className)} {...rest}>
+<h2 {...ctx.hook.title} id={ctx.ids.title ?? ctx.hook.title.id} data-kind="dialog" data-slot="title" class={cn(className)} {...rest}>
 	{@render children?.()}
 </h2>

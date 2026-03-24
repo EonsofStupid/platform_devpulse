@@ -10,7 +10,6 @@ import type { DialogIds, DialogSize } from "./types.js";
 
 export interface DialogContext {
 	readonly hook: UseDialogReturn;
-	readonly classes: Record<string, string>;
 	readonly ids: Partial<DialogIds>;
 	readonly dir: "ltr" | "rtl";
 	readonly size: DialogSize;

@@ -17,7 +17,9 @@ const ctx = getDialogContext();
 	{...ctx.hook.trigger}
 	use:ctx.hook.attachTrigger
 	id={ctx.ids.trigger}
-	class={cn(ctx.classes.trigger, className)}
+	data-kind="dialog"
+	data-slot="trigger"
+	class={cn(className)}
 >
 	{@render children?.()}
 </button>

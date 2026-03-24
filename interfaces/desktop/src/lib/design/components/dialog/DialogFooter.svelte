@@ -13,6 +13,6 @@ let { children, class: className, ...rest }: DialogFooterProps = $props();
 const ctx = getDialogContext();
 </script>
 
-<div data-kind="dialog" data-slot="footer" class={cn(ctx.classes.footer, className)} {...rest}>
+<div data-kind="dialog" data-slot="footer" class={cn(className)} {...rest}>
 	{@render children?.()}
 </div>

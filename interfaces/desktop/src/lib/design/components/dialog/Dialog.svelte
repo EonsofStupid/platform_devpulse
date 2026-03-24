@@ -17,7 +17,7 @@ import type { DialogRootProps } from "./types.js";
 let {
 	ids,
 	open: controlledOpen,
-	defaultOpen = false,
+	defaultOpen,
 	onOpenChange,
 	size = "md",
 	isDismissible = true,
@@ -29,10 +29,10 @@ let {
 }: DialogRootProps = $props();
 
 const hook = useDialog({
-	open: controlledOpen ?? defaultOpen,
-	closeOnEscape: !isKeyboardDismissDisabled,
-	closeOnOutsideClick: isDismissible,
-	preventScroll,
+	get open() { return controlledOpen ?? defaultOpen ?? false; },
+	get closeOnEscape() { return !isKeyboardDismissDisabled; },
+	get closeOnOutsideClick() { return isDismissible; },
+	get preventScroll() { return preventScroll; },
 	onOpenChange: (v) => onOpenChange?.({ open: v }),
 });
 

@@ -97,6 +97,18 @@ impl Task for Dev {
         Preflight.run(ws)?;
         log.stage_timed("preflight", "OK", "toolchain validated", preflight_start)?;
 
+        // ── Stage 5.5: Build lock scan ──
+        // Kill stale cargo/rustc from crashed sessions BEFORE we touch cargo.
+        // Without this, cargo check blocks forever on the file lock with zero output.
+        stage::section("Build Lock");
+        let lock_start = Instant::now();
+        let lock_killed = zombie::clear_build_lock_holders()?;
+        if lock_killed > 0 {
+            log.stage_timed("build_lock", "OK", &format!("killed {lock_killed} lock holder(s)"), lock_start)?;
+        } else {
+            log.stage_timed("build_lock", "OK", "lock is free", lock_start)?;
+        }
+
         // ── Stage 6: Backend compile with live progress ──
         let estimated = stage::estimate_crate_count(ws.root(), "devpulse_desktop_backend");
         if estimated > 0 {
