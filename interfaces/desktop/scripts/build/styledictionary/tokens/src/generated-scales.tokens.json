@@ -1,0 +1,664 @@
+{
+	"$description": "Auto-generated from formulas. Do not hand-edit. Modify generate-scales.mjs instead.",
+	"spacing": {
+		"1": {
+			"$value": "0.25rem",
+			"$type": "dimension"
+		},
+		"2": {
+			"$value": "0.5rem",
+			"$type": "dimension"
+		},
+		"3": {
+			"$value": "0.75rem",
+			"$type": "dimension"
+		},
+		"4": {
+			"$value": "1rem",
+			"$type": "dimension"
+		},
+		"5": {
+			"$value": "1.25rem",
+			"$type": "dimension"
+		},
+		"6": {
+			"$value": "1.5rem",
+			"$type": "dimension"
+		},
+		"8": {
+			"$value": "2rem",
+			"$type": "dimension"
+		},
+		"10": {
+			"$value": "2.5rem",
+			"$type": "dimension"
+		},
+		"12": {
+			"$value": "3rem",
+			"$type": "dimension"
+		},
+		"16": {
+			"$value": "4rem",
+			"$type": "dimension"
+		},
+		"20": {
+			"$value": "5rem",
+			"$type": "dimension"
+		},
+		"24": {
+			"$value": "6rem",
+			"$type": "dimension"
+		},
+		"32": {
+			"$value": "8rem",
+			"$type": "dimension"
+		}
+	},
+	"fontSize": {
+		"xs": {
+			"$value": "0.64rem",
+			"$type": "dimension"
+		},
+		"sm": {
+			"$value": "0.8rem",
+			"$type": "dimension"
+		},
+		"base": {
+			"$value": "1rem",
+			"$type": "dimension"
+		},
+		"lg": {
+			"$value": "1.25rem",
+			"$type": "dimension"
+		},
+		"xl": {
+			"$value": "1.5625rem",
+			"$type": "dimension"
+		},
+		"2xl": {
+			"$value": "1.9531rem",
+			"$type": "dimension"
+		},
+		"3xl": {
+			"$value": "2.4414rem",
+			"$type": "dimension"
+		},
+		"4xl": {
+			"$value": "3.0518rem",
+			"$type": "dimension"
+		},
+		"5xl": {
+			"$value": "3.8147rem",
+			"$type": "dimension"
+		}
+	},
+	"radius": {
+		"none": {
+			"$value": "0",
+			"$type": "dimension"
+		},
+		"xs": {
+			"$value": "0.125rem",
+			"$type": "dimension"
+		},
+		"sm": {
+			"$value": "0.25rem",
+			"$type": "dimension"
+		},
+		"md": {
+			"$value": "0.5rem",
+			"$type": "dimension"
+		},
+		"lg": {
+			"$value": "0.75rem",
+			"$type": "dimension"
+		},
+		"xl": {
+			"$value": "1rem",
+			"$type": "dimension"
+		},
+		"2xl": {
+			"$value": "1.5rem",
+			"$type": "dimension"
+		},
+		"full": {
+			"$value": "9999px",
+			"$type": "dimension"
+		}
+	},
+	"blur": {
+		"off": {
+			"$value": "0",
+			"$type": "dimension"
+		},
+		"sm": {
+			"$value": "0.25rem",
+			"$type": "dimension"
+		},
+		"md": {
+			"$value": "0.5rem",
+			"$type": "dimension"
+		},
+		"lg": {
+			"$value": "0.75rem",
+			"$type": "dimension"
+		},
+		"xl": {
+			"$value": "1rem",
+			"$type": "dimension"
+		},
+		"2xl": {
+			"$value": "1.5rem",
+			"$type": "dimension"
+		}
+	},
+	"opacity": {
+		"10": {
+			"$value": 0.1,
+			"$type": "number"
+		},
+		"20": {
+			"$value": 0.2,
+			"$type": "number"
+		},
+		"30": {
+			"$value": 0.3,
+			"$type": "number"
+		},
+		"40": {
+			"$value": 0.4,
+			"$type": "number"
+		},
+		"50": {
+			"$value": 0.5,
+			"$type": "number"
+		},
+		"60": {
+			"$value": 0.6,
+			"$type": "number"
+		},
+		"70": {
+			"$value": 0.7,
+			"$type": "number"
+		},
+		"80": {
+			"$value": 0.8,
+			"$type": "number"
+		},
+		"90": {
+			"$value": 0.9,
+			"$type": "number"
+		},
+		"100": {
+			"$value": 1,
+			"$type": "number"
+		}
+	},
+	"shadow": {
+		"z0": {
+			"$value": "none",
+			"$type": "shadow"
+		},
+		"z1": {
+			"$value": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.15), 0 0.0188rem 0.0938rem oklch(0 0 0 / 0.1)",
+			"$type": "shadow"
+		},
+		"z2": {
+			"$value": "0 0.1875rem 0.5625rem oklch(0 0 0 / 0.15), 0 0.0563rem 0.2813rem oklch(0 0 0 / 0.1)",
+			"$type": "shadow"
+		},
+		"z3": {
+			"$value": "0 0.625rem 1.875rem oklch(0 0 0 / 0.15), 0 0.1875rem 0.9375rem oklch(0 0 0 / 0.1)",
+			"$type": "shadow"
+		},
+		"z4": {
+			"$value": "0 0.9375rem 2.8125rem oklch(0 0 0 / 0.15), 0 0.2813rem 1.4063rem oklch(0 0 0 / 0.1)",
+			"$type": "shadow"
+		}
+	},
+	"color": {
+		"$type": "color",
+		"teal": {
+			"50": {
+				"$value": "oklch(0.97 0.08 173)",
+				"$type": "color"
+			},
+			"100": {
+				"$value": "oklch(0.885 0.08 173)",
+				"$type": "color"
+			},
+			"200": {
+				"$value": "oklch(0.8 0.08 173)",
+				"$type": "color"
+			},
+			"300": {
+				"$value": "oklch(0.715 0.08 173)",
+				"$type": "color"
+			},
+			"400": {
+				"$value": "oklch(0.63 0.08 173)",
+				"$type": "color"
+			},
+			"500": {
+				"$value": "oklch(0.545 0.08 173)",
+				"$type": "color"
+			},
+			"600": {
+				"$value": "oklch(0.46 0.08 173)",
+				"$type": "color"
+			},
+			"700": {
+				"$value": "oklch(0.375 0.08 173)",
+				"$type": "color"
+			},
+			"800": {
+				"$value": "oklch(0.29 0.08 173)",
+				"$type": "color"
+			},
+			"900": {
+				"$value": "oklch(0.205 0.08 173)",
+				"$type": "color"
+			},
+			"950": {
+				"$value": "oklch(0.12 0.08 173)",
+				"$type": "color"
+			}
+		},
+		"purple": {
+			"50": {
+				"$value": "oklch(0.97 0.12 280)",
+				"$type": "color"
+			},
+			"100": {
+				"$value": "oklch(0.885 0.12 280)",
+				"$type": "color"
+			},
+			"200": {
+				"$value": "oklch(0.8 0.12 280)",
+				"$type": "color"
+			},
+			"300": {
+				"$value": "oklch(0.715 0.12 280)",
+				"$type": "color"
+			},
+			"400": {
+				"$value": "oklch(0.63 0.12 280)",
+				"$type": "color"
+			},
+			"500": {
+				"$value": "oklch(0.545 0.12 280)",
+				"$type": "color"
+			},
+			"600": {
+				"$value": "oklch(0.46 0.12 280)",
+				"$type": "color"
+			},
+			"700": {
+				"$value": "oklch(0.375 0.12 280)",
+				"$type": "color"
+			},
+			"800": {
+				"$value": "oklch(0.29 0.12 280)",
+				"$type": "color"
+			},
+			"900": {
+				"$value": "oklch(0.205 0.12 280)",
+				"$type": "color"
+			},
+			"950": {
+				"$value": "oklch(0.12 0.12 280)",
+				"$type": "color"
+			}
+		},
+		"magenta": {
+			"50": {
+				"$value": "oklch(0.97 0.14 330)",
+				"$type": "color"
+			},
+			"100": {
+				"$value": "oklch(0.885 0.14 330)",
+				"$type": "color"
+			},
+			"200": {
+				"$value": "oklch(0.8 0.14 330)",
+				"$type": "color"
+			},
+			"300": {
+				"$value": "oklch(0.715 0.14 330)",
+				"$type": "color"
+			},
+			"400": {
+				"$value": "oklch(0.63 0.14 330)",
+				"$type": "color"
+			},
+			"500": {
+				"$value": "oklch(0.545 0.14 330)",
+				"$type": "color"
+			},
+			"600": {
+				"$value": "oklch(0.46 0.14 330)",
+				"$type": "color"
+			},
+			"700": {
+				"$value": "oklch(0.375 0.14 330)",
+				"$type": "color"
+			},
+			"800": {
+				"$value": "oklch(0.29 0.14 330)",
+				"$type": "color"
+			},
+			"900": {
+				"$value": "oklch(0.205 0.14 330)",
+				"$type": "color"
+			},
+			"950": {
+				"$value": "oklch(0.12 0.14 330)",
+				"$type": "color"
+			}
+		},
+		"ember": {
+			"50": {
+				"$value": "oklch(0.97 0.12 25)",
+				"$type": "color"
+			},
+			"100": {
+				"$value": "oklch(0.885 0.12 25)",
+				"$type": "color"
+			},
+			"200": {
+				"$value": "oklch(0.8 0.12 25)",
+				"$type": "color"
+			},
+			"300": {
+				"$value": "oklch(0.715 0.12 25)",
+				"$type": "color"
+			},
+			"400": {
+				"$value": "oklch(0.63 0.12 25)",
+				"$type": "color"
+			},
+			"500": {
+				"$value": "oklch(0.545 0.12 25)",
+				"$type": "color"
+			},
+			"600": {
+				"$value": "oklch(0.46 0.12 25)",
+				"$type": "color"
+			},
+			"700": {
+				"$value": "oklch(0.375 0.12 25)",
+				"$type": "color"
+			},
+			"800": {
+				"$value": "oklch(0.29 0.12 25)",
+				"$type": "color"
+			},
+			"900": {
+				"$value": "oklch(0.205 0.12 25)",
+				"$type": "color"
+			},
+			"950": {
+				"$value": "oklch(0.12 0.12 25)",
+				"$type": "color"
+			}
+		},
+		"frost": {
+			"50": {
+				"$value": "oklch(0.97 0.06 220)",
+				"$type": "color"
+			},
+			"100": {
+				"$value": "oklch(0.885 0.06 220)",
+				"$type": "color"
+			},
+			"200": {
+				"$value": "oklch(0.8 0.06 220)",
+				"$type": "color"
+			},
+			"300": {
+				"$value": "oklch(0.715 0.06 220)",
+				"$type": "color"
+			},
+			"400": {
+				"$value": "oklch(0.63 0.06 220)",
+				"$type": "color"
+			},
+			"500": {
+				"$value": "oklch(0.545 0.06 220)",
+				"$type": "color"
+			},
+			"600": {
+				"$value": "oklch(0.46 0.06 220)",
+				"$type": "color"
+			},
+			"700": {
+				"$value": "oklch(0.375 0.06 220)",
+				"$type": "color"
+			},
+			"800": {
+				"$value": "oklch(0.29 0.06 220)",
+				"$type": "color"
+			},
+			"900": {
+				"$value": "oklch(0.205 0.06 220)",
+				"$type": "color"
+			},
+			"950": {
+				"$value": "oklch(0.12 0.06 220)",
+				"$type": "color"
+			}
+		},
+		"cyber": {
+			"50": {
+				"$value": "oklch(0.97 0.1 160)",
+				"$type": "color"
+			},
+			"100": {
+				"$value": "oklch(0.885 0.1 160)",
+				"$type": "color"
+			},
+			"200": {
+				"$value": "oklch(0.8 0.1 160)",
+				"$type": "color"
+			},
+			"300": {
+				"$value": "oklch(0.715 0.1 160)",
+				"$type": "color"
+			},
+			"400": {
+				"$value": "oklch(0.63 0.1 160)",
+				"$type": "color"
+			},
+			"500": {
+				"$value": "oklch(0.545 0.1 160)",
+				"$type": "color"
+			},
+			"600": {
+				"$value": "oklch(0.46 0.1 160)",
+				"$type": "color"
+			},
+			"700": {
+				"$value": "oklch(0.375 0.1 160)",
+				"$type": "color"
+			},
+			"800": {
+				"$value": "oklch(0.29 0.1 160)",
+				"$type": "color"
+			},
+			"900": {
+				"$value": "oklch(0.205 0.1 160)",
+				"$type": "color"
+			},
+			"950": {
+				"$value": "oklch(0.12 0.1 160)",
+				"$type": "color"
+			}
+		}
+	},
+	"gradient": {
+		"surface-teal": {
+			"$value": "linear-gradient(180deg, oklch(0.13 0.02 173), oklch(0.07 0.02 173))",
+			"$type": "gradient",
+			"$description": "teal surface depth gradient"
+		},
+		"glow-teal": {
+			"$value": "radial-gradient(oklch(0.24 0.06 173 / 0.4), transparent)",
+			"$type": "gradient",
+			"$description": "teal glow radial"
+		},
+		"accent-teal": {
+			"$value": "linear-gradient(135deg, oklch(0.24 0.08 173), oklch(0.04 0.04 173))",
+			"$type": "gradient",
+			"$description": "teal accent dramatic gradient"
+		},
+		"surface-purple": {
+			"$value": "linear-gradient(180deg, oklch(0.13 0.03 280), oklch(0.07 0.03 280))",
+			"$type": "gradient",
+			"$description": "purple surface depth gradient"
+		},
+		"glow-purple": {
+			"$value": "radial-gradient(oklch(0.24 0.09 280 / 0.4), transparent)",
+			"$type": "gradient",
+			"$description": "purple glow radial"
+		},
+		"accent-purple": {
+			"$value": "linear-gradient(135deg, oklch(0.24 0.12 280), oklch(0.04 0.06 280))",
+			"$type": "gradient",
+			"$description": "purple accent dramatic gradient"
+		},
+		"surface-ember": {
+			"$value": "linear-gradient(180deg, oklch(0.13 0.02 25), oklch(0.07 0.02 25))",
+			"$type": "gradient",
+			"$description": "ember surface depth gradient"
+		},
+		"glow-ember": {
+			"$value": "radial-gradient(oklch(0.24 0.06 25 / 0.4), transparent)",
+			"$type": "gradient",
+			"$description": "ember glow radial"
+		},
+		"accent-ember": {
+			"$value": "linear-gradient(135deg, oklch(0.24 0.08 25), oklch(0.04 0.04 25))",
+			"$type": "gradient",
+			"$description": "ember accent dramatic gradient"
+		},
+		"surface-frost": {
+			"$value": "linear-gradient(180deg, oklch(0.13 0.015 220), oklch(0.07 0.015 220))",
+			"$type": "gradient",
+			"$description": "frost surface depth gradient"
+		},
+		"glow-frost": {
+			"$value": "radial-gradient(oklch(0.24 0.045 220 / 0.4), transparent)",
+			"$type": "gradient",
+			"$description": "frost glow radial"
+		},
+		"accent-frost": {
+			"$value": "linear-gradient(135deg, oklch(0.24 0.06 220), oklch(0.04 0.03 220))",
+			"$type": "gradient",
+			"$description": "frost accent dramatic gradient"
+		},
+		"surface-cyber": {
+			"$value": "linear-gradient(180deg, oklch(0.13 0.02 160), oklch(0.07 0.02 160))",
+			"$type": "gradient",
+			"$description": "cyber surface depth gradient"
+		},
+		"glow-cyber": {
+			"$value": "radial-gradient(oklch(0.24 0.06 160 / 0.4), transparent)",
+			"$type": "gradient",
+			"$description": "cyber glow radial"
+		},
+		"accent-cyber": {
+			"$value": "linear-gradient(135deg, oklch(0.24 0.08 160), oklch(0.04 0.04 160))",
+			"$type": "gradient",
+			"$description": "cyber accent dramatic gradient"
+		},
+		"surface-magenta": {
+			"$value": "linear-gradient(180deg, oklch(0.13 0.03 330), oklch(0.07 0.03 330))",
+			"$type": "gradient",
+			"$description": "magenta surface depth gradient"
+		},
+		"glow-magenta": {
+			"$value": "radial-gradient(oklch(0.24 0.09 330 / 0.4), transparent)",
+			"$type": "gradient",
+			"$description": "magenta glow radial"
+		},
+		"accent-magenta": {
+			"$value": "linear-gradient(135deg, oklch(0.24 0.12 330), oklch(0.04 0.06 330))",
+			"$type": "gradient",
+			"$description": "magenta accent dramatic gradient"
+		}
+	},
+	"easing": {
+		"linear": {
+			"$value": "cubic-bezier(0, 0, 1, 1)",
+			"$type": "cubicBezier"
+		},
+		"ease-in": {
+			"$value": "cubic-bezier(0.4, 0, 1, 1)",
+			"$type": "cubicBezier"
+		},
+		"ease-out": {
+			"$value": "cubic-bezier(0, 0, 0.2, 1)",
+			"$type": "cubicBezier"
+		},
+		"ease-in-out": {
+			"$value": "cubic-bezier(0.4, 0, 0.2, 1)",
+			"$type": "cubicBezier"
+		},
+		"spring": {
+			"$value": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+			"$type": "cubicBezier"
+		},
+		"bounce": {
+			"$value": "cubic-bezier(0.68, -0.55, 0.27, 1.55)",
+			"$type": "cubicBezier"
+		}
+	},
+	"duration": {
+		"snap": {
+			"$value": "50ms",
+			"$type": "duration"
+		},
+		"fast": {
+			"$value": "150ms",
+			"$type": "duration"
+		},
+		"normal": {
+			"$value": "250ms",
+			"$type": "duration"
+		},
+		"smooth": {
+			"$value": "400ms",
+			"$type": "duration"
+		},
+		"glacial": {
+			"$value": "700ms",
+			"$type": "duration"
+		},
+		"moderate": {
+			"$value": "3000ms",
+			"$type": "duration"
+		}
+	},
+	"meshGradient": {
+		"aurora": {
+			"$value": "linear-gradient(135deg, oklch(0.55 0.08 173), oklch(0.5 0.1 200), oklch(0.45 0.12 280))",
+			"$type": "gradient",
+			"$description": "Aurora — teal to cyan to purple"
+		},
+		"sunset": {
+			"$value": "linear-gradient(135deg, oklch(0.55 0.12 25), oklch(0.5 0.14 330), oklch(0.45 0.12 280))",
+			"$type": "gradient",
+			"$description": "Sunset — ember to magenta to purple"
+		},
+		"frost": {
+			"$value": "linear-gradient(135deg, oklch(0.55 0.06 220), oklch(0.5 0.08 173), oklch(0.45 0.1 160))",
+			"$type": "gradient",
+			"$description": "Frost — frost to teal to cyber"
+		},
+		"void": {
+			"$value": "linear-gradient(180deg, oklch(0.12 0.01 224), oklch(0.06 0.005 224))",
+			"$type": "gradient",
+			"$description": "Void — deep dark descent"
+		}
+	}
+}

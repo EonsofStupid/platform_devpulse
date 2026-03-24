@@ -37,7 +37,7 @@
 			"$extensions": {
 				"com.coldlight": {
 					"cssRuntime": true,
-					"cssExpression": "oklch(from var(--color-mint-700) l c h / 0.22)"
+					"cssExpression": "oklch(from var(--color-teal-700) l c h / 0.22)"
 				}
 			}
 		},
@@ -47,12 +47,12 @@
 			"$extensions": {
 				"com.coldlight": {
 					"cssRuntime": true,
-					"cssExpression": "oklch(from var(--color-mint-600) l c h / 0.30)"
+					"cssExpression": "oklch(from var(--color-teal-600) l c h / 0.30)"
 				}
 			}
 		},
 		"focus": {
-			"$value": "{color.mint.400}",
+			"$value": "{color.teal.400}",
 			"$description": "Focus ring color"
 		},
 		"divider": {

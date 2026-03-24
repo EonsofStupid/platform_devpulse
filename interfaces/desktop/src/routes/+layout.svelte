@@ -1,7 +1,7 @@
 <script lang="ts">
 import "../app.css";
-// Style presets are now compiled via SD5 DTCG pipeline (collect-preset-styles.mjs)
-// No side-effect registration needed — CSS custom properties are in component.css
+// Style presets compiled via SD5 DTCG pipeline → components.generated.css
+// Loaded via app.css → design/index.css → css/index.css import chain
 import { onMount } from "svelte";
 import SvgFilters from "$lib/design/svg/filters/SvgFilters.svelte";
 import BootOverlay from "$lib/layouts/app/BootOverlay.svelte";

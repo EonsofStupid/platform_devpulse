@@ -29,10 +29,6 @@ import {
 // COLDLIGHT CUSTOM NAMES — constants, zero raw strings
 // ═══════════════════════════════════════════════════════════════
 
-/** Custom transform names — ColdLight extensions to SD5 */
-const clTransforms = {
-	gradientCssShorthand: 'gradient/css/shorthand',
-};
 
 /** Custom format names — ColdLight extensions to SD5 */
 const clFormats = {
@@ -40,6 +36,11 @@ const clFormats = {
 	tailwindTheme: 'coldlight/tailwind-theme',
 	types: 'coldlight/types',
 	manifest: 'coldlight/manifest',
+};
+
+/** Custom transform names */
+const clTransforms = {
+	gradientCssShorthand: 'coldlight/gradient-css-shorthand',
 };
 
 /** Custom preprocessor names */
@@ -449,7 +450,7 @@ const typesFile = (dest, filter) => ({
 // ═══════════════════════════════════════════════════════════════
 
 const config = {
-	source: [`${paths.source}/*.json`, `${paths.source}/presets/*.json`],
+	source: [`${paths.source}/*.json`],
 	usesDtcg: true,
 	expand: true,
 	preprocessors: [clPreprocessors.captureExtensions],
@@ -500,10 +501,15 @@ const config = {
 
 		// ── CSS: Components ───────────────────────────────────────
 		'css-components': {
-			transforms: CSS_TRANSFORMS,
+			transformGroup: 'css',
 			buildPath: `${paths.design}/styles/${layers.components}/`,
 			files: [
-				cssFile('component.css', isComponent, layers.components, { outputReferences: false }),
+				{
+					destination: 'components.generated.css',
+					format: 'css/variables',
+					filter: isComponent,
+					options: { outputReferences: false },
+				},
 			],
 		},
 

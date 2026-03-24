@@ -28,4 +28,4 @@
 @import "../styles/semantic/text-styles.css";
 
 /* ── Components ──────────────────────────────────────────── */
-@import "../styles/components/component.css";
+@import "../styles/components/components.generated.css";

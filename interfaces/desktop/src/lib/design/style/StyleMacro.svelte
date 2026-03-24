@@ -33,32 +33,23 @@ let resolved = $derived.by(() => {
 	const p = `--style-${id}`;
 	const parts: string[] = [];
 
-	// Simple axes
+	// Direct mapping — each --cl-* reads the --style-* var directly.
+	// No assembly. No expanded sub-properties. The preset value IS the final value.
 	parts.push(`--cl-bg: var(${p}-background-color, transparent)`);
-	parts.push(`--cl-blur: var(${p}-background-blur, 0)`);
+	parts.push(`--cl-blur: var(${p}-backdrop-filter, 0)`);
+	parts.push(`--cl-shadow: var(${p}-box-shadow, none)`);
+	parts.push(`--cl-border: var(${p}-border-width, 0) solid var(${p}-border-color, transparent)`);
 	parts.push(`--cl-animation: var(${p}-animation, none)`);
+	parts.push(`--cl-transition: all var(${p}-transition-duration, 150ms) var(${p}-transition-timing-function, ease-out)`);
 	parts.push(`--cl-color: var(${p}-color, inherit)`);
 	parts.push(`--cl-radius: var(${p}-border-radius, 0)`);
 	parts.push(`--cl-opacity: var(${p}-opacity, 1)`);
-
-	// Border (assembled from expanded)
-	parts.push(`--cl-border: var(${p}-border-width, 0) var(${p}-border-style, none) var(${p}-border-color, transparent)`);
-
-	// Transition (assembled from expanded)
-	parts.push(`--cl-transition: all var(${p}-transition-duration, 0ms) var(${p}-transition-timing-function, ease) var(${p}-transition-delay, 0ms)`);
-
-	// Shadow (layer 1, fallback to single)
-	parts.push(`--cl-shadow: var(${p}-shadow-1-offset-x, var(${p}-shadow-offset-x, 0)) var(${p}-shadow-1-offset-y, var(${p}-shadow-offset-y, 0)) var(${p}-shadow-1-blur, var(${p}-shadow-blur, 0)) var(${p}-shadow-1-spread, var(${p}-shadow-spread, 0)) var(${p}-shadow-1-color, var(${p}-shadow-color, transparent))`);
-
-	// Typography (individual props)
-	parts.push(`--cl-font-family: var(${p}-typography-font-family, inherit)`);
-	parts.push(`--cl-font-size: var(${p}-typography-font-size, inherit)`);
-	parts.push(`--cl-font-weight: var(${p}-typography-font-weight, inherit)`);
-	parts.push(`--cl-letter-spacing: var(${p}-typography-letter-spacing, 0)`);
-	parts.push(`--cl-line-height: var(${p}-typography-line-height, inherit)`);
-
-	// Gradient
 	parts.push(`--cl-gradient: var(${p}-gradient, none)`);
+	parts.push(`--cl-font-family: var(${p}-font-family, inherit)`);
+	parts.push(`--cl-font-size: var(${p}-font-size, inherit)`);
+	parts.push(`--cl-font-weight: var(${p}-font-weight, inherit)`);
+	parts.push(`--cl-letter-spacing: var(${p}-letter-spacing, 0)`);
+	parts.push(`--cl-line-height: var(${p}-line-height, inherit)`);
 
 	return {
 		css: parts.join("; "),
