@@ -16,7 +16,7 @@ import type { CollapsibleRootProps } from "./types.js";
 let {
 	ids,
 	open: controlledOpen,
-	defaultOpen = false,
+	defaultOpen,
 	onOpenChange,
 	onExitComplete,
 	disabled = false,
@@ -26,11 +26,13 @@ let {
 	...rest
 }: CollapsibleRootProps = $props();
 
-let internalOpen = $state(defaultOpen);
+let internalOpen = $state(defaultOpen ?? false);
 const isOpen = $derived(controlledOpen !== undefined ? controlledOpen : internalOpen);
 
-const triggerId = ids?.trigger ?? `collapsible-trigger-${Math.random().toString(36).slice(2, 9)}`;
-const contentId = ids?.content ?? `collapsible-content-${Math.random().toString(36).slice(2, 9)}`;
+const fallbackTriggerId = `collapsible-trigger-${Math.random().toString(36).slice(2, 9)}`;
+const fallbackContentId = `collapsible-content-${Math.random().toString(36).slice(2, 9)}`;
+const triggerId = $derived(ids?.trigger ?? fallbackTriggerId);
+const contentId = $derived(ids?.content ?? fallbackContentId);
 
 function toggle() {
 	if (disabled) return;
@@ -44,13 +46,10 @@ setCollapsibleContext({
 	get disabled() { return disabled; },
 	get ids() { return ids ?? {}; },
 	get dir() { return dir; },
-	triggerId,
-	contentId,
+	get triggerId() { return triggerId; },
+	get contentId() { return contentId; },
 	toggle,
 });
-
-const rootClasses = $derived(
-	cn(className));
 </script>
 
 <StyleMacro kind="collapsible" style="collapsible-default">
@@ -60,7 +59,7 @@ const rootClasses = $derived(
 		data-kind="collapsible"
 		data-slot="root"
 		data-state={isOpen ? "open" : "closed"}
-		class={rootClasses}
+		class={cn(className)}
 		{...rest}
 	>
 		{@render children?.()}

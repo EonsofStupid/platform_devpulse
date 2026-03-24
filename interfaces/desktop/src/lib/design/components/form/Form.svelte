@@ -3,16 +3,12 @@
 	@kind form
 	@layer components
 
-	ColdLight Form — builder-driven component.
-	Builder owns ALL ARIA semantics. Component adds composition classes.
-
-	Single root slot. Native <form> element with submit/reset handling.
+	Form container. Hook (ARIA) + StyleMacro (visual).
 -->
 <script lang="ts">
-import { createForm } from "$lib/design/api/dsadapters/coldlight/_internal/form/index.js";
-import FormRoot from "$lib/design/primitives/form/Form.svelte";
+import { useForm } from "$lib/design/primitives/form/index.js";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { formComposition } from "./composition.js";
 import type { FormComponentProps } from "./types.js";
 
 let {
@@ -27,18 +23,20 @@ let {
 	...rest
 }: FormComponentProps = $props();
 
-const builder = createForm({
-	label: () => label,
-	disabled: () => disabled,
-	pending: () => pending,
-		onSubmit: (e: any) => onSubmit?.(e),
-	onReset: () => onReset?.(),
-});
-
-// Resolve ColdLight visual props
-const classes = $derived(cn(formComposition({ size }), className));
+const form = $derived(useForm({ label, disabled, pending }));
+const styleId = "form-default";
 </script>
 
-<FormRoot {...builder.root} {...rest} class={classes}>
-	{@render children?.()}
-</FormRoot>
+<StyleMacro kind="form" style={styleId}>
+	<form
+		{...form.root}
+		data-kind="form"
+		data-slot="root"
+		class={cn("flex flex-col gap-6", className)}
+		onsubmit={(e) => { e.preventDefault(); onSubmit?.(e); }}
+		onreset={() => onReset?.()}
+		{...rest}
+	>
+		{@render children?.()}
+	</form>
+</StyleMacro>

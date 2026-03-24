@@ -2,41 +2,21 @@
 	@component Table
 	@kind table
 	@layer components
-
-	ColdLight Table — wraps structureless TableRoot with:
-	- ARIA attributes (aria-label, role="table")
-	- Builder-driven attribute binding
-	- SD5 token-driven composition (variant x size)
-
-	ColdLight OWNS all ARIA. Primitive is structural only.
-	Reference: WAI-ARIA APG Table Pattern
+	Data table. Hook (ARIA) + StyleMacro (visual).
 -->
 <script lang="ts">
-import { createTable } from "$lib/design/api/dsadapters/coldlight/_internal/table/index.js";
-import TableRoot from "$lib/design/primitives/table/Table.svelte";
-import { cn } from "$lib/design/utils/cn.js";
-import { tableComposition } from "./composition.js";
+import { useTable } from "/design/primitives/table/use-table.svelte.js";
+import { StyleMacro } from "/design/style/index.js";
+import { cn } from "/design/utils/cn.js";
 import type { TableComponentProps } from "./types.js";
-
-let {
-	size = "md",
-	variant = "default",
-	label,
-	children,
-	class: className,
-	...rest
-}: TableComponentProps = $props();
-
-const builder = createTable({
-	get label() {
-		return label;
-	},
-});
-
-const classes = $derived(
-	cn(tableComposition({ size, variant }), className));
+let { size = "md", variant = "default", label, children, class: className, ...rest }: TableComponentProps = ();
+const table = useTable({ label });
+const styleId = "table-default";
 </script>
-
-<TableRoot {...builder.root} {...rest} class={classes}>
-	{@render children?.()}
-</TableRoot>
+<StyleMacro kind="table" style={styleId}>
+	<div class="w-full overflow-auto" data-kind="table" data-slot="wrapper">
+		<table {...table.root} data-kind="table" data-slot="root" data-variant={variant} class={cn("w-full caption-bottom text-sm", className)} {...rest}>
+			{@render children?.()}
+		</table>
+	</div>
+</StyleMacro>

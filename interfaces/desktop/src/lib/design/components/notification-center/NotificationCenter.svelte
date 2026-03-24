@@ -2,42 +2,17 @@
 	@component NotificationCenter
 	@kind notification-center
 	@layer components
-
-	ColdLight NotificationCenter — wraps structureless NotificationCenter primitive with:
-	- ARIA attributes (role="log", aria-live="polite", aria-relevant="additions")
-	- State derivation (data-state: open/closed)
-	- SD5 token-driven composition
-	- Keyboard: Escape to close
-
-	ColdLight OWNS all ARIA. Primitive is structural only.
+	Hook (ARIA) + StyleMacro (visual).
 -->
 <script lang="ts">
-import { createNotificationCenter } from "$lib/design/api/dsadapters/coldlight/_internal/notification-center/index.js";
-import NotificationCenterRoot from "$lib/design/primitives/notification-center/NotificationCenter.svelte";
+import { useNotificationCenter } from "$lib/design/primitives/notification-center/index.js";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { notificationCenterComposition } from "./composition.js";
 import type { NotificationCenterComponentProps } from "./types.js";
-
-let {
-	// Kind-specific props
-	open = false,
-	onOpenChange,
-	children,
-	class: className,
-	size,
-	...rest
-}: NotificationCenterComponentProps = $props();
-
-const builder = createNotificationCenter({
-	open: () => open,
-		onOpenChange: (v: any) => onOpenChange?.(v),
-});
-
-// Resolve ColdLight visual
-// Compose: structural composition + ColdLight visual + user classes
-const classes = $derived(cn(notificationCenterComposition(), className));
+let { open = false, onOpenChange, children, class: className, ...rest }: NotificationCenterComponentProps = $props();
+const nc = $derived(useNotificationCenter({ open }));
+const styleId = "notification-center-default";
 </script>
-
-<NotificationCenterRoot {...builder.root} {...rest} class={classes}>
-	{@render children?.()}
-</NotificationCenterRoot>
+<StyleMacro kind="notification-center" style={styleId}>
+	<div {...nc.root} data-kind="notification-center" data-slot="root" data-state={open ? "open" : "closed"} class={cn("fixed z-50 flex flex-col gap-2", className)} {...rest}>{@render children?.()}</div>
+</StyleMacro>

@@ -2,65 +2,21 @@
 	@component InputGroup
 	@kind input-group
 	@layer components
-
-	ColdLight InputGroup — builder-driven component.
-	Builder owns ALL ARIA semantics. Component adds composition classes.
-
-	Compound builder with slots: root, prefix, input, suffix.
-	WAI-ARIA: role="group" to associate input with addons.
+	Hook (ARIA) + StyleMacro (visual).
 -->
 <script lang="ts">
-import { createInputGroup } from "$lib/design/api/dsadapters/coldlight/_internal/input-group/index.js";
-import InputGroupRoot from "$lib/design/primitives/input-group/InputGroup.svelte";
+import { useInputGroup } from "$lib/design/primitives/input-group/index.js";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import {
-	inputGroupInputComposition,
-	inputGroupPrefixComposition,
-	inputGroupComposition,
-	inputGroupSuffixComposition,
-} from "./composition.js";
 import type { InputGroupComponentProps } from "./types.js";
-
-let {
-	size = "md",
-	disabled = false,
-	prefix,
-	suffix,
-	children,
-	class: className,
-	...rest
-}: InputGroupComponentProps = $props();
-
-const builder = createInputGroup({
-	disabled: () => disabled,
-	get "aria-label"() {
-		return rest["aria-label"];
-	},
-	get "aria-labelledby"() {
-		return rest["aria-labelledby"];
-	},
-});
-
-// Resolve ColdLight visual props
-const rootClasses = $derived(
-	cn(inputGroupComposition({ size }), className));
-const prefixClasses = $derived(cn(inputGroupPrefixComposition({ size })));
-const inputClasses = $derived(cn(inputGroupInputComposition()));
-const suffixClasses = $derived(cn(inputGroupSuffixComposition({ size })));
+let { size = "md", disabled = false, prefix, suffix, children, class: className, ...rest }: InputGroupComponentProps = $props();
+const ig = $derived(useInputGroup({ disabled }));
+const styleId = "input-group-default";
 </script>
-
-<InputGroupRoot {...builder.root} {...rest} class={rootClasses}>
-	{#if prefix}
-		<div {...builder.prefix} class={prefixClasses}>
-			{@render prefix()}
-		</div>
-	{/if}
-	<div {...builder.input} class={inputClasses}>
-		{@render children?.()}
+<StyleMacro kind="input-group" style={styleId}>
+	<div {...ig.root} data-kind="input-group" data-slot="root" class={cn("flex items-center rounded-md border", disabled && "opacity-50 pointer-events-none", className)} {...rest}>
+		{#if prefix}<div data-kind="input-group" data-slot="prefix" class="flex items-center px-3">{@render prefix()}</div>{/if}
+		<div data-kind="input-group" data-slot="input" class="flex-1 min-w-0">{@render children?.()}</div>
+		{#if suffix}<div data-kind="input-group" data-slot="suffix" class="flex items-center px-3">{@render suffix()}</div>{/if}
 	</div>
-	{#if suffix}
-		<div {...builder.suffix} class={suffixClasses}>
-			{@render suffix()}
-		</div>
-	{/if}
-</InputGroupRoot>
+</StyleMacro>

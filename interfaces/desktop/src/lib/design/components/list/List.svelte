@@ -2,41 +2,19 @@
 	@component List
 	@kind list
 	@layer components
-
-	ColdLight List — wraps structureless ListRoot with:
-	- ARIA attributes (role="list", aria-label)
-	- Builder-driven attribute binding
-	- SD5 token-driven composition (variant x size x spacing)
-
-	ColdLight OWNS all ARIA. Primitive is structural only.
+	List container. Hook (ARIA) + StyleMacro (visual).
 -->
 <script lang="ts">
-import { createList } from "$lib/design/api/dsadapters/coldlight/_internal/list/index.js";
-import ListRoot from "$lib/design/primitives/list/List.svelte";
+import { useList } from "$lib/design/primitives/list/index.js";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { listComposition } from "./composition.js";
 import type { ListComponentProps } from "./types.js";
-
-let {
-	size = "md",
-	variant = "none",
-	spacing = "default",
-	label,
-	children,
-	class: className,
-	...rest
-}: ListComponentProps = $props();
-
-const builder = createList({
-	get label() {
-		return label;
-	},
-});
-
-const classes = $derived(
-	cn(listComposition({ size, variant, spacing }), className));
+let { size = "md", variant = "none", spacing = "default", label, children, class: className, ...rest }: ListComponentProps = $props();
+const list = $derived(useList({ label }));
+const styleId = "list-default";
 </script>
-
-<ListRoot {...builder.root} {...rest} class={classes}>
-	{@render children?.()}
-</ListRoot>
+<StyleMacro kind="list" style={styleId}>
+	<ul {...list.root} data-kind="list" data-slot="root" data-variant={variant} class={cn("flex flex-col", className)} {...rest}>
+		{@render children?.()}
+	</ul>
+</StyleMacro>

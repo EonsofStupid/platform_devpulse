@@ -2,41 +2,17 @@
 	@component Toaster
 	@kind toaster
 	@layer components
-
-	ColdLight Toaster — wraps MeltUI toaster transport with:
-	- ARIA attributes (role="region", aria-label via transport)
-	- ColdLight 8-axis visual system
-	- SD5 token-driven composition
-
-	ColdLight OWNS all ARIA. MeltUI transport handles toast lifecycle.
+	Hook (ARIA) + StyleMacro (visual).
 -->
 <script lang="ts">
+import { useToaster } from "$lib/design/primitives/toaster/index.js";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ToasterComponentProps } from "./types.js";
-
-let {
-	// Kind-specific props
-	position = "bottom-right",
-	closeDelay = 5000,
-	children,
-	class: className,
-	size,
-	...rest
-}: ToasterComponentProps = $props();
-
-// Resolve ColdLight visual
-// Compose: ColdLight visual + user classes
-const classes = $derived(cn( className));
+let { position = "bottom-right", closeDelay = 5000, children, class: className, ...rest }: ToasterComponentProps = $props();
+const toaster = $derived(useToaster({ position }));
+const styleId = "toaster-default";
 </script>
-
-<div
-	{...rest}
-	class={classes}
-	data-kind="toaster"
-	data-slot="root"
-	data-position={position}
-	aria-label="Notifications"
-	role="region"
->
-	{@render children?.()}
-</div>
+<StyleMacro kind="toaster" style={styleId}>
+	<div {...toaster.root} data-kind="toaster" data-slot="root" data-position={position} class={cn("fixed z-50 flex flex-col gap-2", className)} {...rest}>{@render children?.()}</div>
+</StyleMacro>

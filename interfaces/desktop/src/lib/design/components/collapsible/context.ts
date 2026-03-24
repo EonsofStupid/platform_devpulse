@@ -12,7 +12,6 @@ export interface CollapsibleContext {
 	readonly disabled: boolean;
 	readonly ids: Partial<CollapsibleIds>;
 	readonly dir: "ltr" | "rtl";
-	readonly classes: Record<string, string>;
 	readonly triggerId: string;
 	readonly contentId: string;
 	toggle(): void;

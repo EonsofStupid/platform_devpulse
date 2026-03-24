@@ -2,66 +2,22 @@
 	@component FormField
 	@kind form-field
 	@layer components
-
-	ColdLight FormField — builder-driven component.
-	Builder owns ALL ARIA semantics. Component adds composition classes.
-
-	Compound builder with slots: root, label, control, description, error.
-	Provides aria-describedby, aria-invalid, aria-required linking.
+	Hook (ARIA) + StyleMacro (visual).
 -->
 <script lang="ts">
-import { createFormField } from "$lib/design/api/dsadapters/coldlight/_internal/form-field/index.js";
-import FormFieldRoot from "$lib/design/primitives/form-field/FormField.svelte";
+import { useFormField } from "$lib/design/primitives/form-field/index.js";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import {
-	formFieldControlComposition,
-	formFieldDescriptionComposition,
-	formFieldErrorComposition,
-	formFieldLabelComposition,
-	formFieldComposition,
-} from "./composition.js";
 import type { FormFieldComponentProps } from "./types.js";
-
-let {
-	size = "md",
-	label,
-	description,
-	error,
-	invalid = false,
-	required = false,
-	disabled = false,
-	children,
-	class: className,
-	...rest
-}: FormFieldComponentProps = $props();
-
-const builder = createFormField({
-	invalid: () => invalid,
-	required: () => required,
-	disabled: () => disabled,
-	error: () => error,
-});
-
-// Resolve ColdLight visual props
-const rootClasses = $derived(
-	cn(formFieldComposition({ size }), className));
-const labelClasses = $derived(cn(formFieldLabelComposition({ size })));
-const controlClasses = $derived(cn(formFieldControlComposition()));
-const descriptionClasses = $derived(cn(formFieldDescriptionComposition({ size })));
-const errorClasses = $derived(cn(formFieldErrorComposition({ size })));
+let { size = "md", label, description, error, invalid = false, required = false, disabled = false, children, class: className, ...rest }: FormFieldComponentProps = $props();
+const field = $derived(useFormField({ invalid, required, disabled }));
+const styleId = "form-field-default";
 </script>
-
-<FormFieldRoot {...builder.root} {...rest} class={rootClasses}>
-	{#if label}
-		<label {...builder.label} class={labelClasses}>{label}</label>
-	{/if}
-	<div {...builder.control} class={controlClasses}>
-		{@render children?.()}
+<StyleMacro kind="form-field" style={styleId}>
+	<div {...field.root} class={cn("flex flex-col gap-1.5", className)} {...rest}>
+		{#if label}<label {...field.label} data-kind="form-field" data-slot="label" class="text-sm font-medium">{label}{#if required}<span aria-hidden="true" class="text-red-500 ml-0.5">*</span>{/if}</label>{/if}
+		<div data-kind="form-field" data-slot="control">{@render children?.()}</div>
+		{#if description}<p {...field.description} data-kind="form-field" data-slot="description" class="text-xs">{description}</p>{/if}
+		{#if invalid && error}<p {...field.error} data-kind="form-field" data-slot="error" class="text-xs text-red-500">{error}</p>{/if}
 	</div>
-	{#if description}
-		<p {...builder.description} class={descriptionClasses}>{description}</p>
-	{/if}
-	{#if invalid && error}
-		<p {...builder.error} class={errorClasses}>{error}</p>
-	{/if}
-</FormFieldRoot>
+</StyleMacro>

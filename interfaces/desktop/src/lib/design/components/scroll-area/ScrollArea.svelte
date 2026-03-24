@@ -2,51 +2,19 @@
 	@component ScrollArea
 	@kind scroll-area
 	@layer components
-	ColdLight ScrollArea — builder-driven. Builder owns ARIA. Component adds composition.
-	Compound: root / viewport / scrollbar / thumb slots.
+	Hook (ARIA) + StyleMacro (visual).
 -->
 <script lang="ts">
-import { createScrollArea } from "$lib/design/api/dsadapters/coldlight/_internal/scroll-area/index.js";
-import ScrollAreaRoot from "$lib/design/primitives/scroll-area/ScrollArea.svelte";
+import { useScrollArea } from "$lib/design/primitives/scroll-area/index.js";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import {
-	scrollAreaComposition,
-	scrollAreaScrollbarComposition,
-	scrollAreaThumbComposition,
-	scrollAreaViewportComposition,
-} from "./composition.js";
 import type { ScrollAreaComponentProps } from "./types.js";
-
-let {
-	size = "md",
-	orientation = "vertical",
-	label,
-	children,
-	class: className,
-	...rest
-}: ScrollAreaComponentProps = $props();
-
-const builder = createScrollArea({
-	get label() {
-		return label;
-	},
-	get orientation() {
-		return orientation;
-	},
-});
-
-const rootClasses = $derived(
-	cn(scrollAreaComposition({ size }), className));
-const viewportClasses = $derived(cn(scrollAreaViewportComposition()));
-const scrollbarClasses = $derived(cn(scrollAreaScrollbarComposition({ size, orientation })));
-const thumbClasses = $derived(cn(scrollAreaThumbComposition()));
+let { size = "md", orientation = "vertical", label, children, class: className, ...rest }: ScrollAreaComponentProps = $props();
+const scrollArea = $derived(useScrollArea({ label, orientation }));
+const styleId = "scroll-area-default";
 </script>
-
-<ScrollAreaRoot {...builder.root} {...rest} class={rootClasses}>
-	<div {...builder.viewport} class={viewportClasses} data-kind="scroll-area" data-slot="viewport">
-		{@render children?.()}
+<StyleMacro kind="scroll-area" style={styleId}>
+	<div {...scrollArea.root} data-kind="scroll-area" data-slot="root" class={cn("relative overflow-hidden", className)} {...rest}>
+		<div data-kind="scroll-area" data-slot="viewport" class="h-full w-full overflow-auto">{@render children?.()}</div>
 	</div>
-	<div {...builder.scrollbar} class={scrollbarClasses} data-kind="scroll-area" data-slot="scrollbar">
-		<div {...builder.thumb} class={thumbClasses} data-kind="scroll-area" data-slot="thumb"></div>
-	</div>
-</ScrollAreaRoot>
+</StyleMacro>

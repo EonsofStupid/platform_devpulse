@@ -2,58 +2,21 @@
 	@component Sidebar
 	@kind sidebar
 	@layer components
-	ColdLight Sidebar — builder-driven. Builder owns ARIA. Component adds composition.
-	Compound: root / trigger / header / content / footer slots.
+	Hook (ARIA) + StyleMacro (visual).
 -->
 <script lang="ts">
-import { createSidebar } from "$lib/design/components/sidebar/index.js";
-import SidebarRoot from "$lib/design/primitives/sidebar/Sidebar.svelte";
+import { useSidebar } from "$lib/design/primitives/sidebar/index.js";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { sidebarComposition } from "./composition.js";
 import type { SidebarComponentProps } from "./types.js";
-
-let {
-	size = "md",
-	expanded = true,
-	onExpandedChange,
-	label,
-	header,
-	footer,
-	children,
-	class: className,
-	...rest
-}: SidebarComponentProps = $props();
-
-const builder = createSidebar({
-	get expanded() {
-		return expanded;
-	},
-	onExpandedChange: (v: boolean) => onExpandedChange?.(v),
-	get label() {
-		return label;
-	},
-});
-
-const classes = $derived(
-	cn(
-		sidebarComposition({ size, expanded: builder.expanded }),
-		className));
+let { size = "md", expanded = true, onExpandedChange, label, header, footer, children, class: className, ...rest }: SidebarComponentProps = $props();
+const sidebar = $derived(useSidebar({ label, expanded }));
+const styleId = "sidebar-default";
 </script>
-
-<SidebarRoot {...builder.root} {...rest} class={classes}>
-	{#if header}
-		<div {...builder.header} data-kind="sidebar" data-slot="header">
-			{@render header()}
-		</div>
-	{/if}
-
-	<div {...builder.content} data-kind="sidebar" data-slot="content" class="flex-1 overflow-y-auto">
-		{@render children?.()}
-	</div>
-
-	{#if footer}
-		<div {...builder.footer} data-kind="sidebar" data-slot="footer">
-			{@render footer()}
-		</div>
-	{/if}
-</SidebarRoot>
+<StyleMacro kind="sidebar" style={styleId}>
+	<aside {...sidebar.root} data-kind="sidebar" data-slot="root" data-state={expanded ? "expanded" : "collapsed"} class={cn("flex flex-col h-full", className)} {...rest}>
+		{#if header}<div data-kind="sidebar" data-slot="header">{@render header()}</div>{/if}
+		<div data-kind="sidebar" data-slot="content" class="flex-1 overflow-y-auto">{@render children?.()}</div>
+		{#if footer}<div data-kind="sidebar" data-slot="footer">{@render footer()}</div>{/if}
+	</aside>
+</StyleMacro>

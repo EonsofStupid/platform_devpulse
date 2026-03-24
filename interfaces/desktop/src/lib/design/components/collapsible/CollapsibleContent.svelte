@@ -22,7 +22,7 @@ const ctx = getCollapsibleContext();
 		data-kind="collapsible"
 		data-slot="content"
 		data-state="open"
-		class={cn(ctx.classes.content, className)}
+		class={cn(className)}
 		transition:slide={{ duration: 200 }}
 		{...rest}
 	>

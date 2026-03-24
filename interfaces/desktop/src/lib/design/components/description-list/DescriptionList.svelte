@@ -2,40 +2,17 @@
 	@component DescriptionList
 	@kind description-list
 	@layer components
-
-	ColdLight DescriptionList — wraps structureless DescriptionListRoot with:
-	- ARIA attributes (aria-label)
-	- Builder-driven attribute binding for dt/dd semantics
-	- SD5 token-driven composition (variant x size)
-
-	ColdLight OWNS all ARIA. Primitive is structural only.
+	Hook (ARIA) + StyleMacro (visual).
 -->
 <script lang="ts">
-import { createDescriptionList } from "$lib/design/api/dsadapters/coldlight/_internal/description-list/index.js";
-import DescriptionListRoot from "$lib/design/primitives/description-list/DescriptionList.svelte";
+import { useDescriptionList } from "$lib/design/primitives/description-list/index.js";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { descriptionListComposition } from "./composition.js";
 import type { DescriptionListComponentProps } from "./types.js";
-
-let {
-	size = "md",
-	variant = "default",
-	label,
-	children,
-	class: className,
-	...rest
-}: DescriptionListComponentProps = $props();
-
-const builder = createDescriptionList({
-	get label() {
-		return label;
-	},
-});
-
-const classes = $derived(
-	cn(descriptionListComposition({ size, variant }), className));
+let { size = "md", variant = "default", label, children, class: className, ...rest }: DescriptionListComponentProps = $props();
+const dl = $derived(useDescriptionList({ label }));
+const styleId = "description-list-default";
 </script>
-
-<DescriptionListRoot {...builder.root} {...rest} class={classes}>
-	{@render children?.()}
-</DescriptionListRoot>
+<StyleMacro kind="description-list" style={styleId}>
+	<dl {...dl.root} data-kind="description-list" data-slot="root" data-variant={variant} class={cn(className)} {...rest}>{@render children?.()}</dl>
+</StyleMacro>
