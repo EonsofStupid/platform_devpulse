@@ -97,7 +97,21 @@ impl Task for Dev {
         Preflight.run(ws)?;
         log.stage_timed("preflight", "OK", "toolchain validated", preflight_start)?;
 
-        // ── Stage 5.5: Build lock scan ──
+        // ── Stage 5.5: External dep builds (only when source changed) ──
+        stage::section("External Dependencies");
+        let deps_start = Instant::now();
+        match crate::commands::build_deps::build_all(ws) {
+            Ok(()) => {
+                log.stage_timed("dep_builds", "OK", "external deps checked", deps_start)?;
+            }
+            Err(e) => {
+                // Non-fatal — DevForge/etc can be disabled
+                log.stage_timed("dep_builds", "WARN", &format!("{e:#}"), deps_start)?;
+                eprintln!("  [WARN] External dep build issue: {e:#}");
+            }
+        }
+
+        // ── Stage 5.6: Build lock scan ──
         // Kill stale cargo/rustc from crashed sessions BEFORE we touch cargo.
         // Without this, cargo check blocks forever on the file lock with zero output.
         stage::section("Build Lock");
