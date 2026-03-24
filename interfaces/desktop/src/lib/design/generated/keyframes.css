@@ -103,11 +103,59 @@
 	}
 }
 
-@keyframes spin {
+@keyframes cl-spin {
 	from {
 		transform: rotate(0deg);
 	}
 	to {
 		transform: rotate(360deg);
+	}
+}
+
+@keyframes cl-grow {
+	from {
+		transform: scale(0.8);
+		opacity: 0;
+	}
+	to {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+@keyframes cl-shrink {
+	from {
+		transform: scale(1);
+		opacity: 1;
+	}
+	to {
+		transform: scale(0.8);
+		opacity: 0;
+	}
+}
+
+@keyframes cl-shake {
+	0%, 100% { transform: translateX(0); }
+	10%, 50%, 90% { transform: translateX(-0.25rem); }
+	30%, 70% { transform: translateX(0.25rem); }
+}
+
+@keyframes cl-float {
+	0%, 100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-0.5rem);
+	}
+}
+
+@keyframes cl-flip {
+	from {
+		transform: perspective(25rem) rotateY(90deg);
+		opacity: 0;
+	}
+	to {
+		transform: perspective(25rem) rotateY(0);
+		opacity: 1;
 	}
 }

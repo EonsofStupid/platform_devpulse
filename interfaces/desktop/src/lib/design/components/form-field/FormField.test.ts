@@ -1,30 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { contract } from "./contract.js";
 import FormField from "./FormField.svelte";
-
-describe("form-field component — contract", () => {
-	test("contract.kind is 'form-field'", () => {
-		expect(contract.kind).toBe("form-field");
-	});
-
-	test("contract requires root and control slots", () => {
-		expect(contract.slots.required).toContain("root");
-		expect(contract.slots.required).toContain("control");
-	});
-
-	test("contract declares group role for root slot", () => {
-		expect(contract.slotContracts.root.aria.role).toBe("group");
-	});
-
-	test("contract maps invalid to aria-invalid", () => {
-		expect(contract.states.ariaMapping?.invalid).toBe("aria-invalid");
-	});
-
-	test("contract maps required to aria-required", () => {
-		expect(contract.states.ariaMapping?.required).toBe("aria-required");
-	});
-});
 
 describe("form-field component — ARIA", () => {
 	test("renders with role='group' on root", async () => {

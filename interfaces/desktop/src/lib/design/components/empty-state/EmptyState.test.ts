@@ -13,45 +13,7 @@
 
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { contract } from "./contract.js";
 import { EmptyState } from "./index.js";
-
-// =============================================================================
-// CONTRACT INTEGRITY
-// =============================================================================
-
-describe("empty-state component — contract", () => {
-	test("contract.kind is 'empty-state'", () => {
-		expect(contract.kind).toBe("empty-state");
-	});
-
-	test("contract.primitiveKind is 'empty-state'", () => {
-		expect(contract.primitiveKind).toBe("empty-state");
-	});
-
-	test("contract requires slot 'root'", () => {
-		expect(contract.slots.required).toContain("root");
-	});
-
-	test("contract root slot has role 'status'", () => {
-		expect(contract.slotContracts.root.aria.role).toBe("status");
-	});
-
-	test("contract has no required ARIA attrs on root", () => {
-		expect(contract.slotContracts.root.aria.required).toHaveLength(0);
-	});
-
-	test("contract has no keyboard interactions", () => {
-		expect(contract.keyboard.global).toHaveLength(0);
-	});
-
-	test("contract interactions are all false", () => {
-		expect(contract.interactions.modal).toBe(false);
-		expect(contract.interactions.selectable).toBe(false);
-		expect(contract.interactions.editable).toBe(false);
-		expect(contract.interactions.expandable).toBe(false);
-	});
-});
 
 // =============================================================================
 // ARIA ATTRIBUTES

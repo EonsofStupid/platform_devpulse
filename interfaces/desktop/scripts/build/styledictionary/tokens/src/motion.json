@@ -58,6 +58,30 @@
 			"scale-in": {
 				"$value": "scale-in 250ms ease-out forwards",
 				"$extensions": { "com.coldlight": { "type": "animation", "keyframe": "scale-in", "iterationCount": 1, "fillMode": "forwards" } }
+			},
+			"grow": {
+				"$value": "cl-grow 300ms ease-out forwards",
+				"$extensions": { "com.coldlight": { "type": "animation", "keyframe": "cl-grow", "iterationCount": 1, "fillMode": "forwards" } }
+			},
+			"shrink": {
+				"$value": "cl-shrink 200ms ease-in forwards",
+				"$extensions": { "com.coldlight": { "type": "animation", "keyframe": "cl-shrink", "iterationCount": 1, "fillMode": "forwards" } }
+			},
+			"shake": {
+				"$value": "cl-shake 400ms ease-in-out",
+				"$extensions": { "com.coldlight": { "type": "animation", "keyframe": "cl-shake", "iterationCount": 1 } }
+			},
+			"spin": {
+				"$value": "cl-spin 1s linear infinite",
+				"$extensions": { "com.coldlight": { "type": "animation", "keyframe": "cl-spin", "iterationCount": "infinite" } }
+			},
+			"float": {
+				"$value": "cl-float 6s ease-in-out infinite",
+				"$extensions": { "com.coldlight": { "type": "animation", "keyframe": "cl-float", "iterationCount": "infinite" } }
+			},
+			"flip": {
+				"$value": "cl-flip 600ms ease-in-out forwards",
+				"$extensions": { "com.coldlight": { "type": "animation", "keyframe": "cl-flip", "iterationCount": 1, "fillMode": "forwards" } }
 			}
 		}
 	},

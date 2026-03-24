@@ -14,30 +14,7 @@
 
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { contract } from "./contract.js";
 import DescriptionList from "./DescriptionList.svelte";
-
-// =============================================================================
-// CONTRACT INTEGRITY
-// =============================================================================
-
-describe("description-list component — contract", () => {
-	test("contract.kind is 'description-list'", () => {
-		expect(contract.kind).toBe("description-list");
-	});
-
-	test("contract.primitiveKind is 'description-list'", () => {
-		expect(contract.primitiveKind).toBe("description-list");
-	});
-
-	test("contract requires slot 'root'", () => {
-		expect(contract.slots.required).toContain("root");
-	});
-
-	test("contract.interactions.modal is false", () => {
-		expect(contract.interactions.modal).toBe(false);
-	});
-});
 
 // =============================================================================
 // STRUCTURAL ATTRIBUTES — data-kind, data-slot

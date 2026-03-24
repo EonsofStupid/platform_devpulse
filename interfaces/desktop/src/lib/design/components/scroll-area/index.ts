@@ -4,10 +4,5 @@
  * @layer components
  */
 
-export {
-	scrollAreaComposition,
-	scrollAreaScrollbarComposition,
-	scrollAreaThumbComposition,
-	scrollAreaViewportComposition,
 export { default as ScrollArea } from "./ScrollArea.svelte";
 export type { ScrollAreaComponentProps, ScrollAreaOrientation, ScrollAreaSize } from "./types.js";

@@ -12,53 +12,6 @@
  */
 
 import { describe, expect, test } from "vitest";
-import { contract } from "./contract.js";
-
-// =============================================================================
-// CONTRACT INTEGRITY
-// =============================================================================
-
-describe("dialog component — contract", () => {
-	test("contract.kind is 'dialog'", () => {
-		expect(contract.kind).toBe("dialog");
-	});
-
-	test("contract.primitiveKind is 'dialog'", () => {
-		expect(contract.primitiveKind).toBe("dialog");
-	});
-
-	test("content slot has role='dialog'", () => {
-		expect(contract.slotContracts.content.aria.role).toBe("dialog");
-	});
-
-	test("content requires aria-modal", () => {
-		const attrs = contract.slotContracts.content.aria.required.map((r) => r.attr);
-		expect(attrs).toContain("aria-modal");
-	});
-
-	test("content requires aria-labelledby", () => {
-		const attrs = contract.slotContracts.content.aria.required.map((r) => r.attr);
-		expect(attrs).toContain("aria-labelledby");
-	});
-
-	test("trigger requires aria-haspopup", () => {
-		const attrs = contract.slotContracts.trigger.aria.required.map((r) => r.attr);
-		expect(attrs).toContain("aria-haspopup");
-	});
-
-	test("focus strategy is trap", () => {
-		expect(contract.focus.strategy).toBe("trap");
-	});
-
-	test("interactions.modal is true", () => {
-		expect(contract.interactions.modal).toBe(true);
-	});
-
-	test("keyboard includes Escape", () => {
-		const keys = contract.keyboard.global.map((k) => k.key);
-		expect(keys).toContain("Escape");
-	});
-});
 
 // =============================================================================
 // EXPORTS

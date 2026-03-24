@@ -5,9 +5,4 @@
  */
 
 export { default as Pagination } from "./Pagination.svelte";
-export {
-	paginationEllipsisComposition,
-	paginationNavComposition,
-	paginationPageComposition,
-	paginationRootComposition,
 export type { PaginationComponentProps, PaginationSize } from "./types.js";

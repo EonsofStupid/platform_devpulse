@@ -4,11 +4,16 @@
  *
  * Merge class names. Filters falsy values. ColdLight's class composition utility.
  */
-export function cn(...inputs: (string | false | null | undefined)[]): string {
-	return inputs.filter(Boolean).join(" ");
+import clsx from "clsx";
+import type { ClassValue } from "clsx";
+
+export type { ClassValue } from "clsx";
+
+export function cn(...inputs: ClassValue[]): string {
+	return clsx(...inputs);
 }
 
 /** Base props for any element that accepts a class. */
 export interface BaseProps {
-	class?: string | undefined;
+	class?: ClassValue | undefined | null;
 }

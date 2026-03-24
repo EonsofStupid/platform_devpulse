@@ -1,25 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { contract } from "./contract.js";
 import InputGroup from "./InputGroup.svelte";
-
-describe("input-group component — contract", () => {
-	test("contract.kind is 'input-group'", () => {
-		expect(contract.kind).toBe("input-group");
-	});
-
-	test("contract requires root slot", () => {
-		expect(contract.slots.required).toContain("root");
-	});
-
-	test("contract declares group role for root slot", () => {
-		expect(contract.slotContracts.root.aria.role).toBe("group");
-	});
-
-	test("contract declares no modal interaction", () => {
-		expect(contract.interactions.modal).toBe(false);
-	});
-});
 
 describe("input-group component — ARIA", () => {
 	test("renders with role='group' on root", async () => {

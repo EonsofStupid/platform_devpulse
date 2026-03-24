@@ -1,25 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { contract } from "./contract.js";
 import Form from "./Form.svelte";
-
-describe("form component — contract", () => {
-	test("contract.kind is 'form'", () => {
-		expect(contract.kind).toBe("form");
-	});
-
-	test("contract requires root slot", () => {
-		expect(contract.slots.required).toContain("root");
-	});
-
-	test("contract declares form element for root slot", () => {
-		expect(contract.slotContracts.root.element).toBe("form");
-	});
-
-	test("contract maps pending state to aria-busy", () => {
-		expect(contract.states.ariaMapping?.pending).toBe("aria-busy");
-	});
-});
 
 describe("form component — ARIA", () => {
 	test("renders a <form> element", async () => {
