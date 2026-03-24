@@ -4,7 +4,6 @@
  * @layer components
  */
 
-export { contract as formFieldComponentContract } from "./contract.js";
 export { default as FormField } from "./FormField.svelte";
 export {
 	formFieldControlComposition,

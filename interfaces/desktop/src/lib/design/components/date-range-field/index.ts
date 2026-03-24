@@ -8,7 +8,6 @@
 
 export type { DateRangeFieldContext } from "./context.js";
 export { getDateRangeFieldContext, setDateRangeFieldContext } from "./context.js";
-export { contract as dateRangeFieldComponentContract } from "./contract.js";
 export { default as DateRangeField } from "./DateRangeField.svelte";
 export { default as DateRangeFieldEnd } from "./DateRangeFieldEnd.svelte";
 export { default as DateRangeFieldSegment } from "./DateRangeFieldSegment.svelte";

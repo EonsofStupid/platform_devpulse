@@ -17,7 +17,7 @@ const ctx = getContextualHelpContext();
 	id={ctx.ids.heading}
 	data-kind="contextual-help"
 	data-slot="heading"
-	class={cn(ctx.classes.heading, className)}
+	class={cn(className)}
 	{...rest}
 >
 	{@render children?.()}

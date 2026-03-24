@@ -12,7 +12,6 @@ export interface DateRangePickerContext {
 	readonly locale: string;
 	readonly size: string;
 	readonly dir: "ltr" | "rtl";
-	readonly classes: Record<string, string>;
 	readonly ids: {
 		readonly root: string;
 		readonly startField: string;

@@ -16,7 +16,6 @@ export interface ColorAreaContext {
 	readonly isDragging: boolean;
 	readonly ids: Partial<ColorAreaIds>;
 	readonly dir: "ltr" | "rtl";
-	readonly classes: Record<string, string>;
 	readonly xPercent: number;
 	readonly yPercent: number;
 	/** Svelte action for keyboard on thumb. */

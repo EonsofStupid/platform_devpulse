@@ -20,7 +20,7 @@ const ctx = getAvatarContext();
 {#if ctx.status !== "loaded"}
 	<span
 		id={ctx.ids.fallback}
-		class={cn(ctx.classes.fallback, className)}
+		class={cn(className)}
 		data-kind="avatar"
 		data-slot="fallback"
 		aria-hidden="true"

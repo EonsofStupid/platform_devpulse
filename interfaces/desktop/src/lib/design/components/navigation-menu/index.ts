@@ -14,7 +14,6 @@ export {
 	setNavigationMenuItemContext,
 	setNavigationMenuRootContext,
 } from "./context.js";
-export { contract as navigationMenuComponentContract } from "./contract.js";
 export { default as NavigationMenu } from "./NavigationMenu.svelte";
 export { default as NavigationMenuContent } from "./NavigationMenuContent.svelte";
 export { default as NavigationMenuItem } from "./NavigationMenuItem.svelte";

@@ -18,7 +18,7 @@ const ctx = getComboboxContext();
 
 <input
 	{...ctx.hook.input}
-	class={cn(ctx.classes.input, className)}
+	class={cn(className)}
 	data-state={ctx.hook.open ? "open" : "closed"}
 	{placeholder}
 />

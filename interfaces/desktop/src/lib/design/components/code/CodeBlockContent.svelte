@@ -20,7 +20,7 @@ const attrs = $derived({
 	id: ctx.ids.content,
 	"data-kind": "code" as const,
 	"data-slot": "content" as const,
-	class: cn(ctx.classes.content, className),
+	class: cn(className),
 	...rest,
 });
 </script>

@@ -15,7 +15,6 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { type NavigationMenuRootCtx, setNavigationMenuRootContext } from "./context.js";
-import { navigationMenuComposition } from "./composition.js";
 import type { NavigationMenuProps } from "./types.js";
 
 let {
@@ -27,7 +26,6 @@ let {
 }: NavigationMenuProps = $props();
 
 let activeItem = $state<string | undefined>(undefined);
-const composition = navigationMenuComposition();
 
 function openItem(value: string): void {
 	activeItem = value;
@@ -50,13 +48,13 @@ setNavigationMenuRootContext(ctx);
 
 <nav
 	aria-label={ariaLabel}
-	class={cn(composition.root, className)}
+	class={cn(className, className)}
 	data-kind="navigation-menu"
 	data-slot="root"
 	{...rest}
 >
 	<ul
-		class={composition.list}
+		class={className}
 		data-kind="navigation-menu"
 		data-slot="list"
 	>

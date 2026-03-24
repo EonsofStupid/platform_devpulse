@@ -50,7 +50,7 @@ const weeks = $derived(getCalendarDates(ctx.currentMonth));
 	role="grid"
 	id={ctx.ids.grid}
 	aria-labelledby={ctx.headingId}
-	class={cn(ctx.classes.grid, className)}
+	class={cn(className)}
 	data-kind="calendar"
 	data-slot="grid"
 	{...rest}
@@ -61,7 +61,7 @@ const weeks = $derived(getCalendarDates(ctx.currentMonth));
 		<thead>
 			<tr>
 				{#each weekDayNames as dayName}
-					<th scope="col" class={ctx.classes.headCell} abbr={dayName}>
+					<th scope="col" class={} abbr={dayName}>
 						{dayName}
 					</th>
 				{/each}
@@ -80,7 +80,7 @@ const weeks = $derived(getCalendarDates(ctx.currentMonth));
 							<button
 								type="button"
 								role="gridcell"
-								class={ctx.classes.cell}
+								class={}
 								aria-selected={isSelected}
 								aria-disabled={isDateDisabled || undefined}
 								aria-current={isToday ? "date" : undefined}

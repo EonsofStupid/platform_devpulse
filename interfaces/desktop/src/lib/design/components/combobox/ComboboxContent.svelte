@@ -20,7 +20,7 @@ const ctx = getComboboxContext();
 	<div
 		{...ctx.hook.listbox}
 		use:ctx.hook.attachListbox
-		class={cn(ctx.classes.content, className)}
+		class={cn(className)}
 		data-kind="combobox"
 		data-slot="content"
 		data-state="open"

@@ -22,7 +22,7 @@ ctx.registerDescription();
 	id={ctx.ids.description}
 	data-kind="color-field"
 	data-slot="description"
-	class={cn(ctx.classes.description, className)}
+	class={cn(className)}
 	{...rest}
 >
 	{@render children?.()}

@@ -11,7 +11,6 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getMenubarMenuContext } from "./context.js";
-import { menubarComposition } from "./composition.js";
 import type { MenubarContentProps } from "./types.js";
 
 let {
@@ -24,7 +23,6 @@ let {
 }: MenubarContentProps = $props();
 
 const ctx = getMenubarMenuContext();
-const composition = $derived(menubarComposition({ size }));
 </script>
 
 {#if ctx.open}
@@ -40,7 +38,7 @@ const composition = $derived(menubarComposition({ size }));
 				ctx.close();
 			}
 		}}
-		class={cn(composition.content, className)}
+		class={cn("absolute z-50 min-w-[8rem] overflow-hidden rounded-md border py-1", className)}
 		data-kind="menubar"
 		data-slot="content"
 		data-state="open"

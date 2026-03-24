@@ -31,7 +31,7 @@ function handleKeydown(e: KeyboardEvent) {
 	data-kind="date-picker"
 	data-slot="trigger"
 	data-state={ctx.isOpen ? "open" : "closed"}
-	class={cn(ctx.classes.trigger, className)}
+	class={cn(className)}
 	onclick={() => ctx.toggle()}
 	onkeydown={handleKeydown}
 	{...rest}

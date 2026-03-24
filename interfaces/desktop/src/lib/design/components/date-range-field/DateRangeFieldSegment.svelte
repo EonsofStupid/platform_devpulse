@@ -10,7 +10,6 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getDateRangeFieldContext } from "./context.js";
-import { dateRangeFieldComposition } from "./composition.js";
 import type { DateRangeFieldSegmentProps } from "./types.js";
 
 let {
@@ -22,7 +21,6 @@ let {
 	...rest
 }: DateRangeFieldSegmentProps = $props();
 const ctx = getDateRangeFieldContext();
-const composition = $derived(dateRangeFieldComposition({ size: ctx.size }));
 
 const isLiteral = $derived(segment.type === "literal");
 const isFocused = $derived(ctx.focusedField === field && ctx.focusedIndex === index);
@@ -61,7 +59,7 @@ function handleKeydown(e: KeyboardEvent) {
 
 {#if isLiteral}
 	<span
-		class={cn(composition.literal, className)}
+		class={cn(className, className)}
 		data-kind="date-range-field"
 		data-slot="literal"
 		aria-hidden="true"
@@ -72,7 +70,7 @@ function handleKeydown(e: KeyboardEvent) {
 {:else}
 	<span
 		role="spinbutton"
-		class={cn(composition.segment, className)}
+		class={cn(className, className)}
 		aria-valuemin={segment.min}
 		aria-valuemax={segment.max}
 		aria-valuenow={segment.numericValue ?? undefined}

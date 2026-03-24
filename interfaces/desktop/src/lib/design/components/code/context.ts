@@ -11,7 +11,6 @@ import type { CodeBlockIds, CodeLanguage } from "./types.js";
 
 export interface CodeBlockContext {
 	/** Per-slot composition class strings. */
-	readonly classes: Record<string, string>;
 	/** Element IDs for composition. */
 	readonly ids: Partial<CodeBlockIds>;
 	/** Text/writing direction. */

@@ -25,7 +25,7 @@ const fieldId = $derived(index === 0 ? ctx.ids.startField : ctx.ids.endField);
 	data-slot="field"
 	data-index={index}
 	data-state={ctx.isDisabled ? "disabled" : undefined}
-	class={cn(ctx.classes.field, className)}
+	class={cn(className)}
 	{...rest}
 >
 	{@render children?.()}

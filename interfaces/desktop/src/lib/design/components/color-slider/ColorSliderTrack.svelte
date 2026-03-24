@@ -23,7 +23,7 @@ const ctx = getColorSliderContext();
 	data-slot="track"
 	data-orientation={ctx.orientation}
 	data-dragging={ctx.isDragging || undefined}
-	class={cn(ctx.classes.track, className)}
+	class={cn(className)}
 	{...rest}
 >
 	{@render children?.()}

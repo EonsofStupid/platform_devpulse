@@ -3,7 +3,6 @@ import type { ContextualHelpIds } from "./types.js";
 
 export interface ContextualHelpContext {
 	readonly isOpen: boolean;
-	readonly classes: Record<string, string>;
 	readonly ids: { root: string; trigger: string; popover: string; heading: string };
 	readonly dir: "ltr" | "rtl";
 	toggle(): void;

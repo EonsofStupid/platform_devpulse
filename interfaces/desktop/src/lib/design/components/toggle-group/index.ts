@@ -4,7 +4,6 @@
  * @layer components
  */
 
-export { contract as toggleGroupComponentContract } from "./contract.js";
 export { toggleGroupItemComposition, toggleGroupComposition } from "./composition.js";
 export { default as ToggleGroup } from "./ToggleGroup.svelte";
 export type {

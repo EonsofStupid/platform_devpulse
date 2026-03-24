@@ -12,7 +12,6 @@ export interface DateFieldContext {
 	readonly locale: string;
 	readonly size: string;
 	readonly dir: "ltr" | "rtl";
-	readonly classes: Record<string, string>;
 	readonly ids: { root: string; label: string; description: string; errorMessage: string };
 	readonly focusedIndex: number;
 	focusSegment(index: number): void;

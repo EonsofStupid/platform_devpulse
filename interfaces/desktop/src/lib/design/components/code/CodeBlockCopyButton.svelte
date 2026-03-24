@@ -18,7 +18,7 @@ const attrs = $derived({
 	id: ctx.ids.copyButton,
 	"data-kind": "code" as const,
 	"data-slot": "copy-button" as const,
-	class: cn(ctx.classes.copyButton, className),
+	class: cn(className),
 	...rest,
 });
 

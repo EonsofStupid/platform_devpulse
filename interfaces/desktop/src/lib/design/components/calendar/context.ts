@@ -20,7 +20,6 @@ export interface CalendarContext {
 	readonly locale: string;
 	readonly dir: "ltr" | "rtl";
 	readonly ids: Partial<CalendarIds>;
-	readonly classes: Record<string, string>;
 	readonly headingId: string;
 	readonly isDateUnavailable: ((date: Date) => boolean) | undefined;
 	prevMonth(): void;

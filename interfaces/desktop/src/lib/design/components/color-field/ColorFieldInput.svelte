@@ -76,7 +76,7 @@ function ariaErrorMessage(): string | undefined {
 	aria-errormessage={ariaErrorMessage()}
 	data-kind="color-field"
 	data-slot="input"
-	class={cn(ctx.classes.input, className)}
+	class={cn(className)}
 	oninput={handleInput}
 	onwheel={handleWheel}
 	{...rest}

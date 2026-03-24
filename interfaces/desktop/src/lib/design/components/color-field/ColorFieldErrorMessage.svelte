@@ -24,7 +24,7 @@ ctx.registerError();
 		role="alert"
 		data-kind="color-field"
 		data-slot="error-message"
-		class={cn(ctx.classes.errorMessage, className)}
+		class={cn(className)}
 		{...rest}
 	>
 		{#if children}

@@ -35,7 +35,7 @@ const yValue = $derived(roundToStep(percentToValue(ctx.yPercent, yRange), yRange
 	data-kind="color-area"
 	data-slot="thumb"
 	data-dragging={ctx.isDragging || undefined}
-	class={cn(ctx.classes.thumb, className)}
+	class={cn(className)}
 	style:left="{ctx.xPercent * 100}%"
 	style:bottom="{ctx.yPercent * 100}%"
 	{...rest}

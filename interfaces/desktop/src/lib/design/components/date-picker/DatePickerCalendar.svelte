@@ -20,7 +20,7 @@ const ctx = getDatePickerContext();
 <div
 	data-kind="date-picker"
 	data-slot="calendar"
-	class={cn(ctx.classes.calendar, className)}
+	class={cn(className)}
 	{...rest}
 >
 	{@render children?.()}

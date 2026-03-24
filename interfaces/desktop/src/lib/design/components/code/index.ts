@@ -8,7 +8,6 @@ export { default as Content } from "./CodeBlockContent.svelte";
 export { default as CopyButton } from "./CodeBlockCopyButton.svelte";
 
 // Contract
-export { contract as codeComponentContract } from "./contract.js";
 
 // Types
 export type {

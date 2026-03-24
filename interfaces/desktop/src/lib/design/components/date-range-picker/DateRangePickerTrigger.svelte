@@ -24,7 +24,7 @@ const ctx = getDateRangePickerContext();
 	data-kind="date-range-picker"
 	data-slot="trigger"
 	data-state={ctx.isOpen ? "open" : "closed"}
-	class={cn(ctx.classes.trigger, className)}
+	class={cn(className)}
 	onclick={() => ctx.toggle()}
 	{...rest}
 >

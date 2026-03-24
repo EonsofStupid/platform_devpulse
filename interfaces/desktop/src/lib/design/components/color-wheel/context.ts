@@ -12,7 +12,6 @@ export interface ColorWheelContext {
 	readonly isDragging: boolean;
 	readonly size: number;
 	readonly dir: "ltr" | "rtl";
-	readonly classes: Record<string, string>;
 	readonly ids: { root: string; track: string; thumb: string };
 	readonly trackAction: (node: HTMLElement) => { destroy: () => void };
 	readonly thumbAction: (node: HTMLElement) => { destroy: () => void };

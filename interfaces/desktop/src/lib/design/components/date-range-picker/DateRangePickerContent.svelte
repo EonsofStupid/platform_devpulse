@@ -26,7 +26,7 @@ function handleKeydown(e: KeyboardEvent) {
 		data-kind="date-range-picker"
 		data-slot="content"
 		data-state={ctx.isOpen ? "open" : "closed"}
-		class={cn(ctx.classes.content, className)}
+		class={cn(className)}
 		onkeydown={ctx.inline ? undefined : handleKeydown}
 		{...rest}
 	>

@@ -15,7 +15,7 @@ const ctx = getComboboxContext();
 
 <label
 	{...ctx.hook.label}
-	class={cn(ctx.classes.label, className)}
+	class={cn(className)}
 	data-kind="combobox"
 	data-slot="label"
 >

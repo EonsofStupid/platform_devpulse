@@ -19,7 +19,7 @@ const ctx = getComboboxContext();
 	role="status"
 	aria-live="polite"
 	aria-atomic="true"
-	class={cn(ctx.classes.empty, className)}
+	class={cn(className)}
 	data-kind="combobox"
 	data-slot="empty"
 >

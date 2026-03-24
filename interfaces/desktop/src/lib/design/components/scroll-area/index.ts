@@ -4,7 +4,6 @@
  * @layer components
  */
 
-export { contract as scrollAreaComponentContract } from "./contract.js";
 export {
 	scrollAreaComposition,
 	scrollAreaScrollbarComposition,

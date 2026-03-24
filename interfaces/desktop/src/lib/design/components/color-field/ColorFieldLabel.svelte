@@ -18,11 +18,11 @@ const ctx = getColorFieldContext();
 	for={ctx.ids.input}
 	data-kind="color-field"
 	data-slot="label"
-	class={cn(ctx.classes.label, className)}
+	class={cn(className)}
 	{...rest}
 >
 	{@render children?.()}
 	{#if ctx.isRequired}
-		<span aria-hidden="true" class={ctx.classes.necessityIndicator}>*</span>
+		<span aria-hidden="true" class={}>*</span>
 	{/if}
 </label>

@@ -40,7 +40,7 @@ function handleKeydown(e: KeyboardEvent) {
 
 {#if isLiteral}
 	<span
-		class={cn(ctx.classes.literal, className)}
+		class={cn(className)}
 		data-kind="date-field"
 		data-slot="literal"
 		aria-hidden="true"
@@ -51,7 +51,7 @@ function handleKeydown(e: KeyboardEvent) {
 {:else}
 	<span
 		role="spinbutton"
-		class={cn(ctx.classes.segment, className)}
+		class={cn(className)}
 		aria-valuemin={segment.min}
 		aria-valuemax={segment.max}
 		aria-valuenow={segment.numericValue ?? undefined}

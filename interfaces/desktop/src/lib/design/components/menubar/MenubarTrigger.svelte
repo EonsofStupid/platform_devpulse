@@ -11,13 +11,11 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getMenubarMenuContext } from "./context.js";
-import { menubarComposition } from "./composition.js";
 import type { MenubarTriggerProps } from "./types.js";
 
 let { children, class: className, ...rest }: MenubarTriggerProps = $props();
 
 const ctx = getMenubarMenuContext();
-const composition = menubarComposition();
 </script>
 
 <button
@@ -34,7 +32,7 @@ const composition = menubarComposition();
 			if (!ctx.open) ctx.toggle();
 		}
 	}}
-	class={cn(composition.trigger, className)}
+	class={cn("inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium cursor-pointer", className)}
 	data-kind="menubar"
 	data-slot="trigger"
 	data-state={ctx.open ? "open" : "closed"}

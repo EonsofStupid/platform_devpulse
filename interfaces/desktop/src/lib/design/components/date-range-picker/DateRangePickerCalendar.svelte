@@ -16,7 +16,7 @@ const ctx = getDateRangePickerContext();
 <div
 	data-kind="date-range-picker"
 	data-slot="calendar"
-	class={cn(ctx.classes.calendar, className)}
+	class={cn(className)}
 	{...rest}
 >
 	{@render children?.()}

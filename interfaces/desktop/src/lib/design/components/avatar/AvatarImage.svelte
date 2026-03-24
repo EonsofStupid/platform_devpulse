@@ -20,7 +20,7 @@ const ctx = getAvatarContext();
 		id={ctx.ids.image}
 		src={ctx.src}
 		alt={ctx.alt}
-		class={cn(ctx.classes.image, className)}
+		class={cn(className)}
 		data-kind="avatar"
 		data-slot="image"
 		onload={() => ctx.handleLoad()}

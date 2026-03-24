@@ -21,13 +21,13 @@ const labelId = uid("combobox-group");
 <div
 	role="group"
 	aria-labelledby={labelId}
-	class={cn(ctx.classes.group, className)}
+	class={cn(className)}
 	data-kind="combobox"
 	data-slot="group"
 >
 	<div
 		id={labelId}
-		class={ctx.classes.groupLabel}
+		class={}
 		data-kind="combobox"
 		data-slot="group-label"
 	>

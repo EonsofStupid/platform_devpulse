@@ -15,7 +15,6 @@ export interface AvatarContext {
 	readonly size: number;
 	readonly isOverBackground: boolean;
 	readonly dir: "ltr" | "rtl";
-	readonly classes: Record<string, string>;
 	readonly ids: { root: string; image: string; fallback: string };
 	handleLoad(): void;
 	handleError(): void;

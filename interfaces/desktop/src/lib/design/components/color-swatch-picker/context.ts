@@ -13,7 +13,6 @@ export interface ColorSwatchPickerContext {
 	readonly size: ColorSwatchSize;
 	readonly rounding: ColorSwatchRounding;
 	readonly isDisabled: boolean;
-	readonly classes: Record<string, string>;
 	select(color: ColorValue): void;
 	isSelected(color: ColorValue): boolean;
 }

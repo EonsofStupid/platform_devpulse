@@ -8,7 +8,6 @@
 
 export type { RangeCalendarContext } from "./context.js";
 export { getRangeCalendarContext, setRangeCalendarContext } from "./context.js";
-export { contract as rangeCalendarComponentContract } from "./contract.js";
 export { default as RangeCalendar } from "./RangeCalendar.svelte";
 export { default as RangeCalendarCell } from "./RangeCalendarCell.svelte";
 export { default as RangeCalendarGrid } from "./RangeCalendarGrid.svelte";

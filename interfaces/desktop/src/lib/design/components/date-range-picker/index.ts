@@ -4,7 +4,6 @@ export { default as Trigger } from "./DateRangePickerTrigger.svelte";
 export { default as Content } from "./DateRangePickerContent.svelte";
 export { default as Calendar } from "./DateRangePickerCalendar.svelte";
 export { default as PresetTrigger } from "./DateRangePickerPresetTrigger.svelte";
-export { contract as dateRangePickerComponentContract } from "./contract.js";
 export type {
 	DateRangeValue,
 	DateRangePickerIds,

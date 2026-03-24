@@ -10,12 +10,10 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getRangeCalendarContext } from "./context.js";
-import { rangeCalendarComposition } from "./composition.js";
 import type { RangeCalendarCellProps } from "./types.js";
 
 let { date, children, class: className, ...rest }: RangeCalendarCellProps = $props();
 const ctx = getRangeCalendarContext();
-const composition = $derived(rangeCalendarComposition({ size: ctx.size }));
 
 const isRangeStart = $derived(ctx.isRangeStart(date));
 const isRangeEnd = $derived(ctx.isRangeEnd(date));
@@ -46,7 +44,7 @@ const state = $derived(
 <button
 	type="button"
 	role="gridcell"
-	class={cn(composition.cell, className)}
+	class={cn(className, className)}
 	aria-selected={isSelected || isInRange}
 	aria-disabled={isDisabled || undefined}
 	aria-current={isToday ? "date" : undefined}

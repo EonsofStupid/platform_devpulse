@@ -12,7 +12,6 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { type DateRangeFieldContext, setDateRangeFieldContext } from "./context.js";
-import { dateRangeFieldComposition } from "./composition.js";
 import type { DateRangeFieldProps, DateSegment } from "./types.js";
 
 let {
@@ -209,14 +208,13 @@ const ctx: DateRangeFieldContext = {
 
 setDateRangeFieldContext(ctx);
 
-const composition = $derived(dateRangeFieldComposition({ size }));
 
 const rootState = $derived(disabled ? "disabled" : readonlyProp ? "readonly" : undefined);
 </script>
 
 <div
 	role="group"
-	class={cn(composition.root, className)}
+	class={cn(className, className)}
 	data-kind="date-range-field"
 	data-slot="root"
 	data-state={rootState}

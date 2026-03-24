@@ -11,13 +11,11 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getNavigationMenuItemContext } from "./context.js";
-import { navigationMenuComposition } from "./composition.js";
 import type { NavigationMenuTriggerProps } from "./types.js";
 
 let { children, class: className, ...rest }: NavigationMenuTriggerProps = $props();
 
 const ctx = getNavigationMenuItemContext();
-const composition = navigationMenuComposition();
 </script>
 
 <button
@@ -36,7 +34,7 @@ const composition = navigationMenuComposition();
 			ctx.close();
 		}
 	}}
-	class={cn(composition.trigger, className)}
+	class={cn(className, className)}
 	data-kind="navigation-menu"
 	data-slot="trigger"
 	data-state={ctx.open ? "open" : "closed"}

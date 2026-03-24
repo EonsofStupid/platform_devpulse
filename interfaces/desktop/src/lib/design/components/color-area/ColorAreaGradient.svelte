@@ -18,7 +18,7 @@ const ctx = getColorAreaContext();
 <div
 	data-kind="color-area"
 	data-slot="gradient"
-	class={cn(ctx.classes.gradient, className)}
+	class={cn(className)}
 	{...rest}
 >
 	{#if children}

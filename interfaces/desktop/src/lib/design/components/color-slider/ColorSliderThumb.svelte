@@ -36,7 +36,7 @@ const positionStyle = $derived(
 	data-kind="color-slider"
 	data-slot="thumb"
 	data-dragging={ctx.isDragging || undefined}
-	class={cn(ctx.classes.thumb, className)}
+	class={cn(className)}
 	style={positionStyle}
 	{...rest}
 >

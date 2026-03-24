@@ -6,7 +6,6 @@ export { default as Title } from "./AlertDialogTitle.svelte";
 export { default as Description } from "./AlertDialogDescription.svelte";
 export { default as Cancel } from "./AlertDialogCancel.svelte";
 export { default as Action } from "./AlertDialogAction.svelte";
-export { contract as alertDialogComponentContract } from "./contract.js";
 export type {
 	AlertDialogIds,
 	AlertDialogOpenChangeDetails,

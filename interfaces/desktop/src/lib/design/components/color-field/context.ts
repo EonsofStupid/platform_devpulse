@@ -19,7 +19,6 @@ export interface ColorFieldContext {
 	readonly isInvalid: boolean;
 	readonly validationError: string | null;
 	readonly dir: "ltr" | "rtl";
-	readonly classes: Record<string, string>;
 	readonly placeholder: string;
 	readonly name: string | undefined;
 	readonly form: string | undefined;

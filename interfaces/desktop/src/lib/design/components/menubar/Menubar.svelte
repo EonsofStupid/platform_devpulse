@@ -11,9 +11,9 @@
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/menubar/
 -->
 <script lang="ts">
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { type MenubarRootCtx, setMenubarRootContext } from "./context.js";
-import { menubarComposition } from "./composition.js";
 import type { MenubarProps } from "./types.js";
 
 let {
@@ -24,7 +24,7 @@ let {
 }: MenubarProps = $props();
 
 let activeMenu = $state<string | undefined>(undefined);
-const composition = menubarComposition();
+const styleId = "menubar-default";
 
 function openMenu(value: string): void {
 	activeMenu = value;
@@ -45,13 +45,15 @@ const ctx: MenubarRootCtx = {
 setMenubarRootContext(ctx);
 </script>
 
-<div
-	role="menubar"
-	aria-orientation="horizontal"
-	class={cn(composition.root, className)}
-	data-kind="menubar"
-	data-slot="root"
-	{...rest}
->
-	{@render children?.()}
-</div>
+<StyleMacro kind="menubar" style={styleId}>
+	<div
+		role="menubar"
+		aria-orientation="horizontal"
+		class={cn("flex items-center", className)}
+		data-kind="menubar"
+		data-slot="root"
+		{...rest}
+	>
+		{@render children?.()}
+	</div>
+</StyleMacro>

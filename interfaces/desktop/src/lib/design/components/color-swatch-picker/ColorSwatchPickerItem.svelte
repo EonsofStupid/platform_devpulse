@@ -49,8 +49,8 @@ function handleKeyDown(e: KeyboardEvent) {
 	data-slot="item"
 	data-selected={selected || undefined}
 	class={cn(
-		ctx.classes.item,
-		selected ? ctx.classes.itemSelected : undefined,
+		,
+		selected ?  : undefined,
 		className)}
 	onclick={handleClick}
 	onkeydown={handleKeyDown}

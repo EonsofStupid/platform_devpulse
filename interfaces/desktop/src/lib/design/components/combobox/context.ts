@@ -12,7 +12,6 @@ import type { UseComboBoxReturn } from "$lib/design/primitives/combobox/combobox
 
 export interface ComboboxContext {
 	readonly hook: UseComboBoxReturn;
-	readonly classes: Record<string, string>;
 	readonly disabled: boolean;
 	readonly size: string;
 	readonly dir: "ltr" | "rtl";

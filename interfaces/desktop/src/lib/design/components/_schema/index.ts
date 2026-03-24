@@ -7,7 +7,6 @@
  */
 
 // ComponentContractSchema + validation
-export * from "./contract.js";
 // ARIA value schemas + slot schemas
 export * from "./schema.js";
 

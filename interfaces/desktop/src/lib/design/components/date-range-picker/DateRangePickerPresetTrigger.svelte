@@ -23,7 +23,7 @@ function handleClick() {
 	type="button"
 	data-kind="date-range-picker"
 	data-slot="preset-trigger"
-	class={cn(ctx.classes.presetTrigger, className)}
+	class={cn(className)}
 	disabled={ctx.isDisabled}
 	onclick={handleClick}
 	{...rest}

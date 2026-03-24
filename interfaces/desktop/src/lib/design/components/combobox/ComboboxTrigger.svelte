@@ -17,7 +17,7 @@ const ctx = getComboboxContext();
 
 <button
 	{...ctx.hook.trigger}
-	class={cn(ctx.classes.trigger, className)}
+	class={cn(className)}
 	data-state={ctx.hook.open ? "open" : "closed"}
 	aria-label={ariaLabel}
 >

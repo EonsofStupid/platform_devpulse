@@ -20,7 +20,6 @@ export interface ColorSliderContext {
 	readonly channelMin: number;
 	readonly channelMax: number;
 	readonly dir: "ltr" | "rtl";
-	readonly classes: Record<string, string>;
 	readonly ids: {
 		readonly root: string;
 		readonly track: string;

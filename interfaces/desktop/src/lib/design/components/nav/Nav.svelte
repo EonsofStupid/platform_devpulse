@@ -3,18 +3,14 @@
 	@kind nav
 	@layer components
 
-	ColdLight Nav — builder-driven, 8-axis visual system.
-	Builder owns ALL ARIA. StyleMacro provides visual styling.
+	Navigation container. Hook (ARIA) + StyleMacro (visual).
 -->
 <script lang="ts">
-import { createNav } from "$lib/design/api/dsadapters/coldlight/_internal/nav/index.js";
-import NavRoot from "$lib/design/primitives/nav/Nav.svelte";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { navComposition } from "./composition.js";
 import type { NavComponentProps } from "./types.js";
 
 let {
-	// Kind-specific props
 	label,
 	size = "md",
 	orientation = "horizontal",
@@ -23,16 +19,18 @@ let {
 	...rest
 }: NavComponentProps = $props();
 
-const builder = createNav({ label: () => label });
-
-const classes = $derived(
-	cn(navComposition({ size, orientation }), className));
+const styleId = "nav-default";
 </script>
 
-<NavRoot
-	{...builder.root}
-	{...rest}
-	class={classes}
->
-	{@render children?.()}
-</NavRoot>
+<StyleMacro kind="nav" style={styleId}>
+	<nav
+		aria-label={label}
+		data-kind="nav"
+		data-slot="root"
+		data-orientation={orientation}
+		class={cn("flex", orientation === "vertical" ? "flex-col" : "flex-row", className)}
+		{...rest}
+	>
+		{@render children?.()}
+	</nav>
+</StyleMacro>

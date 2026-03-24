@@ -37,7 +37,7 @@ const thumbY = $derived(ctx.size / 2 - ringRadius * Math.sin(angleRad));
 	data-kind="color-wheel"
 	data-slot="thumb"
 	data-dragging={ctx.isDragging || undefined}
-	class={cn(ctx.classes.thumb, className)}
+	class={cn(className)}
 	style:left="{thumbX}px"
 	style:top="{thumbY}px"
 	{...rest}

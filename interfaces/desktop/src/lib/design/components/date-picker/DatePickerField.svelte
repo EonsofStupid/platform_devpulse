@@ -19,7 +19,7 @@ const ctx = getDatePickerContext();
 	data-kind="date-picker"
 	data-slot="field"
 	data-state={ctx.isDisabled ? "disabled" : undefined}
-	class={cn(ctx.classes.field, className)}
+	class={cn(className)}
 	{...rest}
 >
 	{@render children?.()}

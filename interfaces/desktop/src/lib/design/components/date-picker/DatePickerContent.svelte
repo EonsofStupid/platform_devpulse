@@ -32,7 +32,7 @@ function handleKeydown(e: KeyboardEvent) {
 		data-kind="date-picker"
 		data-slot="content"
 		data-state="open"
-		class={cn(ctx.classes.content, className)}
+		class={cn(className)}
 		onkeydown={handleKeydown}
 		{...rest}
 	>

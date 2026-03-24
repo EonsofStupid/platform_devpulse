@@ -4,7 +4,6 @@
  * @layer components
  */
 
-export { contract as inputGroupComponentContract } from "./contract.js";
 export { default as InputGroup } from "./InputGroup.svelte";
 export {
 	inputGroupInputComposition,

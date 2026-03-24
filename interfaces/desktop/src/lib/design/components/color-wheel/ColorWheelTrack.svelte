@@ -21,7 +21,7 @@ const ctx = getColorWheelContext();
 	id={ctx.ids.track}
 	data-kind="color-wheel"
 	data-slot="track"
-	class={cn(ctx.classes.track, className)}
+	class={cn(className)}
 	{...rest}
 >
 	{@render children?.()}

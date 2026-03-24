@@ -9,17 +9,14 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import { menubarComposition } from "./composition.js";
 import type { MenubarSeparatorProps } from "./types.js";
 
 let { class: className, ...rest }: MenubarSeparatorProps = $props();
-
-const composition = menubarComposition();
 </script>
 
 <div
 	role="separator"
-	class={cn(composition.separator, className)}
+	class={cn("h-px my-1", className)}
 	data-kind="menubar"
 	data-slot="separator"
 	{...rest}

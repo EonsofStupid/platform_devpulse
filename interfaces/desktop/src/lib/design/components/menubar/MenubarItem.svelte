@@ -10,7 +10,6 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getMenubarMenuContext } from "./context.js";
-import { menubarComposition } from "./composition.js";
 import type { MenubarItemProps } from "./types.js";
 
 let {
@@ -22,7 +21,6 @@ let {
 }: MenubarItemProps = $props();
 
 const ctx = getMenubarMenuContext();
-const composition = menubarComposition();
 
 function handleSelect(): void {
 	if (disabled) return;
@@ -42,7 +40,7 @@ function handleSelect(): void {
 			handleSelect();
 		}
 	}}
-	class={cn(composition.item, className)}
+	class={cn("relative flex cursor-pointer select-none items-center px-2 py-1.5 text-sm", className)}
 	data-kind="menubar"
 	data-slot="item"
 	data-state={disabled ? "disabled" : undefined}

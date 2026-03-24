@@ -4,7 +4,6 @@
  * @layer components
  */
 
-export { contract as paginationComponentContract } from "./contract.js";
 export { default as Pagination } from "./Pagination.svelte";
 export {
 	paginationEllipsisComposition,

@@ -3,7 +3,6 @@ export { default as Input } from "./DatePickerField.svelte";
 export { default as Trigger } from "./DatePickerTrigger.svelte";
 export { default as Content } from "./DatePickerContent.svelte";
 export { default as Calendar } from "./DatePickerCalendar.svelte";
-export { contract as datePickerComponentContract } from "./contract.js";
 export type {
 	DatePickerIds,
 	DatePickerValueChangeDetails,

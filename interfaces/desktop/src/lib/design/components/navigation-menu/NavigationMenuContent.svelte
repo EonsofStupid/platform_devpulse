@@ -11,13 +11,11 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getNavigationMenuItemContext } from "./context.js";
-import { navigationMenuComposition } from "./composition.js";
 import type { NavigationMenuContentProps } from "./types.js";
 
 let { children, size = "md", class: className, ...rest }: NavigationMenuContentProps = $props();
 
 const ctx = getNavigationMenuItemContext();
-const composition = $derived(navigationMenuComposition({ size }));
 </script>
 
 {#if ctx.open}
@@ -30,7 +28,7 @@ const composition = $derived(navigationMenuComposition({ size }));
 				ctx.close();
 			}
 		}}
-		class={cn(composition.content, className)}
+		class={cn(className, className)}
 		data-kind="navigation-menu"
 		data-slot="content"
 		data-state="open"

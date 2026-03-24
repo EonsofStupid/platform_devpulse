@@ -16,7 +16,7 @@ const ctx = getContextualHelpContext();
 <div
 	data-kind="contextual-help"
 	data-slot="footer"
-	class={cn(ctx.classes.footer, className)}
+	class={cn(className)}
 	{...rest}
 >
 	{@render children?.()}

@@ -20,7 +20,7 @@ const isSelected = $derived(ctx.hook.selectedValue === value);
 
 <div
 	{...optionAttrs}
-	class={cn(ctx.classes.item, className)}
+	class={cn(className)}
 	data-state={isSelected ? "selected" : undefined}
 >
 	{@render children?.()}

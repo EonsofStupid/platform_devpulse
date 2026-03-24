@@ -10,18 +10,16 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getDateRangeFieldContext } from "./context.js";
-import { dateRangeFieldComposition } from "./composition.js";
 import type { DateRangeFieldEndProps } from "./types.js";
 
 let { children, class: className, ...rest }: DateRangeFieldEndProps = $props();
 const ctx = getDateRangeFieldContext();
-const composition = $derived(dateRangeFieldComposition({ size: ctx.size }));
 </script>
 
 <div
 	role="group"
 	aria-label="End date"
-	class={cn(composition.field, className)}
+	class={cn(className, className)}
 	data-kind="date-range-field"
 	data-slot="end-field"
 	data-state={ctx.disabled ? "disabled" : ctx.focusedField === "end" ? "focused" : undefined}

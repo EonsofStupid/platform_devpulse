@@ -3,18 +3,15 @@
 	@kind toolbar
 	@layer components
 
-	ColdLight Toolbar — builder-driven, 8-axis visual system.
-	Builder owns ALL ARIA. StyleMacro provides visual styling.
+	Toolbar container. Hook (ARIA) + StyleMacro (visual).
+	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/
 -->
 <script lang="ts">
-import { createToolbar } from "$lib/design/api/dsadapters/coldlight/_internal/toolbar/index.js";
-import ToolbarRoot from "$lib/design/primitives/toolbar/Toolbar.svelte";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { toolbarComposition } from "./composition.js";
 import type { ToolbarComponentProps } from "./types.js";
 
 let {
-	// Kind-specific props
 	size = "md",
 	orientation = "horizontal",
 	label,
@@ -25,29 +22,21 @@ let {
 	...rest
 }: ToolbarComponentProps = $props();
 
-const builder = createToolbar({
-	get label() {
-		return label;
-	},
-	get orientation() {
-		return orientation;
-	},
-	get disabled() {
-		return disabled;
-	},
-	get loop() {
-		return loop;
-	},
-});
-
-const classes = $derived(
-	cn(toolbarComposition({ size, orientation }), className));
+const styleId = "toolbar-default";
 </script>
 
-<ToolbarRoot
-	{...builder.root}
-	{...rest}
-	class={classes}
->
-	{@render children?.()}
-</ToolbarRoot>
+<StyleMacro kind="toolbar" style={styleId}>
+	<div
+		role="toolbar"
+		aria-label={label}
+		aria-orientation={orientation}
+		aria-disabled={disabled || undefined}
+		data-kind="toolbar"
+		data-slot="root"
+		data-orientation={orientation}
+		class={cn("flex items-center gap-1", orientation === "vertical" ? "flex-col" : "flex-row", disabled && "opacity-50 pointer-events-none", className)}
+		{...rest}
+	>
+		{@render children?.()}
+	</div>
+</StyleMacro>

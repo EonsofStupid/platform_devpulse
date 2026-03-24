@@ -12,7 +12,6 @@
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { type RangeCalendarContext, setRangeCalendarContext } from "./context.js";
-import { rangeCalendarComposition } from "./composition.js";
 import type { RangeCalendarProps } from "./types.js";
 
 let {
@@ -146,13 +145,12 @@ const ctx: RangeCalendarContext = {
 
 setRangeCalendarContext(ctx);
 
-const composition = $derived(rangeCalendarComposition({ size }));
 </script>
 
 <div
 	role="group"
 	aria-label="Range Calendar"
-	class={cn(composition.root, className)}
+	class={cn(className, className)}
 	data-kind="range-calendar"
 	data-slot="root"
 	data-state={disabled ? "disabled" : undefined}
