@@ -138,6 +138,45 @@
 						}
 					}
 				}
+			},
+			"stark": {
+				"$value": {
+					"surface": "{surface.base}",
+					"depth": "{shadow.z1}",
+					"bevel": "{bevel.off}",
+					"glow": "{glow.off}",
+					"frame": "{borderPreset.subtle}",
+					"transition": "{transition.all-fast}"
+				},
+				"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+				"$extensions": {
+					"com.coldlight": {
+						"kind": "list",
+						"intent": "stark",
+						"encoding": "v-s1z0d1b0g0f1m0t1",
+						"axis": {
+							"surface": 1,
+							"material": 0,
+							"depth": 1,
+							"bevel": 0,
+							"glow": 0,
+							"frame": 1,
+							"motion": 0,
+							"transition": 1
+						},
+						"css": {
+							"background": "linear-gradient(180deg, oklch(0.14 0.01 224), oklch(0.1 0.008 224))",
+							"border-color": "oklch(0.3 0.02 224 / 0.25)",
+							"border-width": "0.0625rem",
+							"border-style": "solid",
+							"border-radius": "var(--radius-md)",
+							"box-shadow": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.2)",
+							"color": "oklch(0.93 0.015 224)",
+							"transition-duration": "var(--motion-duration-fast)",
+							"transition-timing-function": "var(--motion-ease-out)"
+						}
+					}
+				}
 			}
 		}
 	}

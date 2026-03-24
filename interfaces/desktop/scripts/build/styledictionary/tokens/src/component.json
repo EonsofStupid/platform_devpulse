@@ -17507,6 +17507,4193 @@
 				"$type": "number",
 				"$value": 1
 			}
+		},
+		"accordion-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"alert-dialog-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"alert-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"avatar-group-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"avatar-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"badge-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"banner-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"button-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"calendar-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"callout-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"card-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"chat-bubble-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"checkbox-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"code-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"collapsible-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"color-area-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"color-field-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"color-slider-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"color-swatch-picker-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"color-swatch-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"color-wheel-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"combobox-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"contextual-help-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"data-table-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"date-field-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"date-picker-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"date-range-field-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"date-range-picker-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"description-list-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"dialog-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"empty-state-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"file-upload-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"form-field-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"form-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"heading-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"inline-message-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"input-group-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"kbd-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"label-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"link-preview-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"list-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"loading-overlay-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"menubar-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"nav-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"navigation-menu-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"notification-center-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"pagination-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"pin-input-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"popover-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"progress-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"prose-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"radio-group-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"range-calendar-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"scroll-area-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"select-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"separator-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"sheet-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"sidebar-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"skeleton-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"skip-link-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"slider-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"spinner-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"stat-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"status-dot-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"steps-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"switch-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"table-of-contents-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"table-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"tabs-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"text-field-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"text-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"textarea-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"toaster-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"toggle-group-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"toggle-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"toolbar-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"tooltip-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"tree-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"widget-stark": {
+			"$description": "Stark — crisp 2D neumorphism. Linear-gradient surface, single shadow, zero blur. Fast cold load.",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.subtle}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
 		}
 	},
 	"encoding": {
