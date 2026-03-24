@@ -105,9 +105,9 @@ export * from './gradient.js';
 // ─── Build ───────────────────────────────────────────────────────────
 
 async function build() {
-	// Step 0: Collect component definitions → component-map.ts + registry.json
-	console.log('[SD5] Collecting component definitions...');
-	execSync('node scripts/build/styledictionary/collect-component-defs.mjs', {
+	// Step 0: Scan element annotations → ui-catalog.json
+	console.log('[SD5] Scanning element seed definitions...');
+	execSync('node scripts/build/styledictionary/collect-element-seed-defs.mjs', {
 		cwd: process.cwd(),
 		stdio: 'inherit',
 	});

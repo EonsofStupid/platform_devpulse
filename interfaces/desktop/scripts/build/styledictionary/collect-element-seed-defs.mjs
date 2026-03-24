@@ -17,7 +17,6 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { scanAnnotations } from './scan-annotations.mjs';
 
-const OUTPUT_MAP = resolve('src/lib/design/components/_base/catalog.ts');
 const OUTPUT_CATALOG = resolve('src/lib/design/generated/ui-catalog.json');
 const CSS_OUTPUT = resolve('src/lib/design/styles/components/component.css');
 

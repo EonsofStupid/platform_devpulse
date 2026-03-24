@@ -8,7 +8,7 @@
  * Style presets are resolved at build time (SD5 DTCG pipeline), not here.
  */
 
-import { getCatalogEntry } from "$lib/design/components/_base/catalog.js";
+import catalogData from "$lib/design/generated/ui-catalog.json" with { type: "json" };
 import { idGen } from "$lib/design/utils/idGen.js";
 import type { BlockNode } from "./schema.js";
 
@@ -17,8 +17,8 @@ import type { BlockNode } from "./schema.js";
  * Uses the catalog's defaultStyleId as the initial preset.
  */
 export function createBlockNode(kind: string, presetId?: string): BlockNode {
-	const entry = getCatalogEntry(kind);
-	const styleId = presetId ?? entry?.defaultStyleId ?? `${kind}-default`;
+	const entry = catalogData.elements.find((e: { kind: string }) => e.kind === kind);
+	const styleId = presetId ?? (entry as { defaultStyleId?: string })?.defaultStyleId ?? `${kind}-default`;
 
 	return {
 		id: idGen("blk"),
