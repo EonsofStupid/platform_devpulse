@@ -1,27 +1,27 @@
 <!--
-	@component RadioGroupLabel
+	@component RadioGroup.Label
 	@kind radio-group
+	@slot label
 	@layer components
 
-	Radio group label — associates a text label with the group.
+	Label for a radio item. ARIA from hook.getLabel(value).
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getRadioGroupContext } from "./context.js";
-import { radioGroupComposition } from "./composition.js";
 import type { RadioGroupLabelProps } from "./types.js";
 
-let { children, class: className, ...rest }: RadioGroupLabelProps = $props();
+let { value, children, class: className, ...rest }: RadioGroupLabelProps = $props();
+const ctx = getRadioGroupContext();
 
-const transport = getRadioGroupContext();
-const composition = radioGroupComposition();
+const labelAttrs = $derived(ctx.hook.getLabel(value));
 </script>
 
 <span
-	{...transport.slots.label}
-	class={cn(composition.label, className)}
+	{...labelAttrs}
 	data-kind="radio-group"
 	data-slot="label"
+	class={cn("text-sm cursor-pointer", className)}
 	{...rest}
 >
 	{@render children?.()}

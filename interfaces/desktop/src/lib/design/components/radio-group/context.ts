@@ -1,20 +1,22 @@
 /**
- * @file RadioGroup Context — Svelte context for compound component communication
+ * @file RadioGroup Context
  * @kind radio-group
  * @layer components
- *
- * Symbol-keyed context + typed get/set helpers.
  */
 
 import { getContext, setContext } from "svelte";
-import type { RadioGroupTransport } from "$lib/design/api/dsadapters/meltui/_internal/radio-group/index.js";
+import type { UseRadioGroupReturn } from "$lib/design/primitives/radio-group/radio-group.types.js";
+
+export interface RadioGroupContext {
+	readonly hook: UseRadioGroupReturn;
+}
 
 const RADIO_GROUP_CTX = Symbol("coldlight-radio-group");
 
-export function setRadioGroupContext(transport: RadioGroupTransport): void {
-	setContext(RADIO_GROUP_CTX, transport);
+export function setRadioGroupContext(ctx: RadioGroupContext): void {
+	setContext(RADIO_GROUP_CTX, ctx);
 }
 
-export function getRadioGroupContext(): RadioGroupTransport {
-	return getContext<RadioGroupTransport>(RADIO_GROUP_CTX);
+export function getRadioGroupContext(): RadioGroupContext {
+	return getContext<RadioGroupContext>(RADIO_GROUP_CTX);
 }
