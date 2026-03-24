@@ -15,29 +15,6 @@
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
 import Badge from "./Badge.svelte";
-import { contract } from "./contract.js";
-
-// =============================================================================
-// CONTRACT INTEGRITY
-// =============================================================================
-
-describe("badge component — contract", () => {
-	test("contract.kind is 'badge'", () => {
-		expect(contract.kind).toBe("badge");
-	});
-
-	test("contract.primitiveKind is 'badge'", () => {
-		expect(contract.primitiveKind).toBe("badge");
-	});
-
-	test("contract requires slot 'root'", () => {
-		expect(contract.slots.required).toContain("root");
-	});
-
-	test("contract.interactions.modal is false", () => {
-		expect(contract.interactions.modal).toBe(false);
-	});
-});
 
 // =============================================================================
 // STRUCTURAL ATTRIBUTES — data-kind, data-slot

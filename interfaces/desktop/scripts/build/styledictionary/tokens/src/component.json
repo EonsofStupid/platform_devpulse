@@ -16924,6 +16924,218 @@
 				"$type": "number",
 				"$value": 1
 			}
+		},
+		"widget-default": {
+			"$description": "Dashboard widget — glass overlay, teal glow, soft bevel, z2 depth",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.overlay}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "{blur.lg}"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z2}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.strong}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "#ffffff"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.lg}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"widget-glass": {
+			"$description": "Glass deep widget",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.raised}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "{blur.md}"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.default}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.lg}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"widget-flat": {
+			"$description": "Flat minimal widget",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{glass.void}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z0}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.divider}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.color}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.300}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
+		},
+		"widget-matte": {
+			"$description": "Matte solid widget",
+			"backgroundColor": {
+				"$type": "color",
+				"$value": "{surface.base}"
+			},
+			"backgroundBlur": {
+				"$type": "dimension",
+				"$value": "0px"
+			},
+			"shadow": {
+				"$type": "shadow",
+				"$value": "{shadow.z1}"
+			},
+			"border": {
+				"$type": "border",
+				"$value": "{borderPreset.default}"
+			},
+			"animation": {
+				"$type": "duration",
+				"$value": "0ms"
+			},
+			"transition": {
+				"$type": "transition",
+				"$value": "{transition.all-fast}"
+			},
+			"typography": {
+				"$type": "typography",
+				"$value": {
+					"fontFamily": "{font.sans}",
+					"fontSize": "14px",
+					"fontWeight": 400,
+					"letterSpacing": "0em",
+					"lineHeight": 1.5
+				}
+			},
+			"gradient": {
+				"$type": "gradient",
+				"$value": []
+			},
+			"color": {
+				"$type": "color",
+				"$value": "{color.neutral.100}"
+			},
+			"borderRadius": {
+				"$type": "dimension",
+				"$value": "{radius.md}"
+			},
+			"opacity": {
+				"$type": "number",
+				"$value": 1
+			}
 		}
 	},
 	"encoding": {

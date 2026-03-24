@@ -15,7 +15,7 @@
 
 import type { Snippet } from "svelte";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { SizeToken } from "$lib/design/recipes/types.js";
+type SizeToken = "sm" | "md" | "lg";
 
 // =============================================================================
 // ROOT — Combobox wrapper, creates transport + sets context

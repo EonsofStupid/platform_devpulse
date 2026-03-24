@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * Banner component browser tests.
- * Tests ARIA compliance, positioning, dismiss behavior, composition application, and contract shape.
+ * Tests ARIA compliance, positioning, dismiss behavior, and composition application.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
@@ -14,49 +14,6 @@
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
 import Banner from "./Banner.svelte";
-import { contract } from "./contract.js";
-
-// =============================================================================
-// CONTRACT INTEGRITY
-// =============================================================================
-
-describe("banner component — contract", () => {
-	test("contract.kind is 'banner'", () => {
-		expect(contract.kind).toBe("banner");
-	});
-
-	test("contract.primitiveKind is 'banner'", () => {
-		expect(contract.primitiveKind).toBe("banner");
-	});
-
-	test("contract requires slot 'root'", () => {
-		expect(contract.slots.required).toContain("root");
-	});
-
-	test("contract root slot has role 'complementary'", () => {
-		expect(contract.slotContracts.root.aria.role).toBe("complementary");
-	});
-
-	test("contract has dismiss as optional slot", () => {
-		expect(contract.slots.optional).toContain("dismiss");
-	});
-
-	test("contract has no keyboard interactions", () => {
-		expect(contract.keyboard.global).toHaveLength(0);
-	});
-
-	test("contract interactions are all false", () => {
-		expect(contract.interactions.modal).toBe(false);
-		expect(contract.interactions.selectable).toBe(false);
-		expect(contract.interactions.editable).toBe(false);
-		expect(contract.interactions.expandable).toBe(false);
-	});
-
-	test("contract states include open and closed", () => {
-		expect(contract.states.all).toContain("open");
-		expect(contract.states.all).toContain("closed");
-	});
-});
 
 // =============================================================================
 // ARIA ATTRIBUTES

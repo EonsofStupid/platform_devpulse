@@ -424,11 +424,11 @@ StyleDictionary.registerFormat({
 // FILE DEFINITION HELPERS
 // ═══════════════════════════════════════════════════════════════
 
-const cssFile = (dest, filter, sublayer) => ({
+const cssFile = (dest, filter, sublayer, extraOpts = {}) => ({
 	destination: dest,
 	format: clFormats.css,
 	filter,
-	options: { outputReferences: true, sublayer },
+	options: { outputReferences: true, sublayer, ...extraOpts },
 });
 
 const themeFile = (dest, filter, opts = {}) => ({
@@ -503,7 +503,7 @@ const config = {
 			transforms: CSS_TRANSFORMS,
 			buildPath: `${paths.design}/styles/${layers.components}/`,
 			files: [
-				cssFile('component.css', isComponent, layers.components),
+				cssFile('component.css', isComponent, layers.components, { outputReferences: false }),
 			],
 		},
 

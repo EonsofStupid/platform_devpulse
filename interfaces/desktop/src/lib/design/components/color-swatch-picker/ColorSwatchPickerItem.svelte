@@ -48,10 +48,7 @@ function handleKeyDown(e: KeyboardEvent) {
 	data-kind="color-swatch-picker"
 	data-slot="item"
 	data-selected={selected || undefined}
-	class={cn(
-		,
-		selected ?  : undefined,
-		className)}
+	class={cn(className)}
 	onclick={handleClick}
 	onkeydown={handleKeyDown}
 	{...rest}

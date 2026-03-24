@@ -11,7 +11,20 @@
  */
 
 import { z } from "zod";
-import { type DsSurfaceProps, DsSurfacePropsSchema } from "$lib/design/recipes/types.js";
+import type { VisualAxisProps } from "$lib/design/components/types.js";
+
+/** Zod schema for visual axis props — validated at VPB boundaries */
+const VisualAxisPropsSchema = z.object({
+	surface: z.string().optional(),
+	depth: z.string().optional(),
+	bevel: z.string().optional(),
+	glow: z.string().optional(),
+	frame: z.string().optional(),
+	radius: z.string().optional(),
+	motion: z.string().optional(),
+	transition: z.string().optional(),
+	preset: z.string().optional(),
+});
 
 // =============================================================================
 // BlockNode — the atomic unit VPB stores
@@ -32,7 +45,7 @@ export const BlockNodeSchema: z.ZodType = z.lazy(() =>
 		id: z.string().min(1),
 		kind: z.string().min(1),
 		recipe: z.string().min(1),
-		props: DsSurfacePropsSchema.partial(),
+		props: VisualAxisPropsSchema.partial(),
 		slots: z.record(z.string(), z.array(BlockNodeSchema)).optional(),
 		binds: z.record(z.string(), z.string()).optional(),
 		meta: BlockNodeMetaSchema.optional(),
@@ -44,7 +57,7 @@ export interface BlockNode {
 	id: string;
 	kind: string;
 	recipe: string;
-	props: Partial<DsSurfaceProps>;
+	props: Partial<VisualAxisProps>;
 	slots?: Record<string, BlockNode[]>;
 	binds?: Record<string, string>;
 	meta?: BlockNodeMeta;

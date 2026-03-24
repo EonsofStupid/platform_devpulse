@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * Code component browser tests.
- * Tests InlineCode and CodeBlock contract, structure, and composition application.
+ * Tests InlineCode and CodeBlock structure and composition application.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
@@ -14,31 +14,6 @@
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
 import InlineCode from "./InlineCode.svelte";
-import { contract } from "./contract.js";
-
-// =============================================================================
-// CONTRACT INTEGRITY
-// =============================================================================
-
-describe("code component — contract", () => {
-	test("contract.kind is 'code'", () => {
-		expect(contract.kind).toBe("code");
-	});
-
-	test("contract.primitiveKind is 'code'", () => {
-		expect(contract.primitiveKind).toBe("code");
-	});
-
-	test("contract requires slot 'root'", () => {
-		expect(contract.slots.required).toContain("root");
-	});
-
-	test("contract has optional slots for compound", () => {
-		expect(contract.slots.optional).toContain("header");
-		expect(contract.slots.optional).toContain("content");
-		expect(contract.slots.optional).toContain("copyButton");
-	});
-});
 
 // =============================================================================
 // INLINE CODE

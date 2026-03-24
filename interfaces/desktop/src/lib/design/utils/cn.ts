@@ -10,5 +10,5 @@ export function cn(...inputs: (string | false | null | undefined)[]): string {
 
 /** Base props for any element that accepts a class. */
 export interface BaseProps {
-	class?: string | null | undefined;
+	class?: string | undefined;
 }

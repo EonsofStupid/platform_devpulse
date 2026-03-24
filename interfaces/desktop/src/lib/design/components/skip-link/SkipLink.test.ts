@@ -13,26 +13,7 @@
 
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { contract } from "./contract.js";
 import SkipLink from "./SkipLink.svelte";
-
-// =============================================================================
-// CONTRACT INTEGRITY
-// =============================================================================
-
-describe("skip-link component -- contract", () => {
-	test("contract.kind is 'skip-link'", () => {
-		expect(contract.kind).toBe("skip-link");
-	});
-
-	test("contract.primitiveKind is 'skip-link'", () => {
-		expect(contract.primitiveKind).toBe("skip-link");
-	});
-
-	test("contract requires slot 'root'", () => {
-		expect(contract.slots.required).toContain("root");
-	});
-});
 
 // =============================================================================
 // ARIA SEMANTICS

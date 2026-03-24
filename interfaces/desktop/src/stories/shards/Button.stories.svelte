@@ -116,9 +116,9 @@
 		</div>
 
 		<div class="flex items-center gap-4">
-			<Button size="lg" glow="purple" surface="glass-void">Custom Glow</Button>
-			<Button size="lg" depth="z4" bevel="medium">Deep Bevel</Button>
-			<Button size="lg" surface="glass-frost">Frost Surface</Button>
+			<Button size="lg" intent="primary">Custom Glow</Button>
+			<Button size="lg" intent="secondary">Deep Bevel</Button>
+			<Button size="lg" intent="ghost">Frost Surface</Button>
 		</div>
 	</div>
 </Story>
@@ -144,58 +144,34 @@
 		<div>
 			<p class="text-sm text-zinc-500 font-mono mb-4">DTCG Token Resolution Chain — each row overrides one axis at a time</p>
 
-			<!-- Row 1: Surface axis progression -->
-			<p class="text-xs text-zinc-600 font-mono mb-2">surface: transparent → glass-void → glass-deep → glass-frost</p>
+			<!-- Row 1: Intent variants -->
+			<p class="text-xs text-zinc-600 font-mono mb-2">intent: primary → secondary → ghost → danger</p>
 			<div class="flex items-center gap-4 mb-6">
-				<Button surface="transparent">Transparent</Button>
-				<Button surface="glass-void">Glass Void</Button>
-				<Button surface="glass-deep">Glass Deep</Button>
-				<Button surface="glass-smoke">Glass Smoke</Button>
-				<Button surface="glass-frost">Glass Frost</Button>
+				<Button intent="primary">Primary</Button>
+				<Button intent="secondary">Secondary</Button>
+				<Button intent="ghost">Ghost</Button>
+				<Button intent="danger">Danger</Button>
 			</div>
 
-			<!-- Row 2: Depth axis progression -->
-			<p class="text-xs text-zinc-600 font-mono mb-2">depth: z0 → z1 → z2 → z3 → z4</p>
+			<!-- Row 2: Size variants -->
+			<p class="text-xs text-zinc-600 font-mono mb-2">size: sm → md → lg</p>
 			<div class="flex items-center gap-4 mb-6">
-				<Button depth="z0">z0 (flat)</Button>
-				<Button depth="z1">z1</Button>
-				<Button depth="z2">z2</Button>
-				<Button depth="z3">z3</Button>
-				<Button depth="z4">z4 (max)</Button>
+				<Button size="sm">Small</Button>
+				<Button size="md">Medium</Button>
+				<Button size="lg">Large</Button>
 			</div>
 
-			<!-- Row 3: Glow axis — each is a DTCG shadow composite token -->
-			<p class="text-xs text-zinc-600 font-mono mb-2">glow: off → teal → purple → magenta → ember → cyber</p>
-			<div class="flex items-center gap-4 mb-6">
-				<Button glow="off">No Glow</Button>
-				<Button glow="teal">Teal</Button>
-				<Button glow="purple">Purple</Button>
-				<Button glow="magenta">Magenta</Button>
-				<Button glow="ember">Ember</Button>
-				<Button glow="cyber">Cyber</Button>
-			</div>
-
-			<!-- Row 4: Bevel axis — multi-layer inset shadow composites -->
-			<p class="text-xs text-zinc-600 font-mono mb-2">bevel: off → subtle → soft → medium → pronounced</p>
-			<div class="flex items-center gap-4 mb-6">
-				<Button bevel="off">No Bevel</Button>
-				<Button bevel="subtle">Subtle</Button>
-				<Button bevel="soft">Soft</Button>
-				<Button bevel="medium">Medium</Button>
-				<Button bevel="pronounced">Pronounced</Button>
-			</div>
-
-			<!-- Row 5: Full composition — multiple axes combined -->
-			<p class="text-xs text-zinc-600 font-mono mb-2">Full composite: surface + depth + bevel + glow in one token pass</p>
+			<!-- Row 3: Combined intent + size -->
+			<p class="text-xs text-zinc-600 font-mono mb-2">Combined: intent + size composition</p>
 			<div class="flex items-center gap-4">
-				<Button surface="glass-deep" depth="z3" bevel="medium" glow="teal" size="lg">
-					Deep Glass + Teal
+				<Button intent="primary" size="lg">
+					Primary Large
 				</Button>
-				<Button surface="glass-frost" depth="z1" bevel="subtle" glow="purple" size="lg">
-					Frost + Purple
+				<Button intent="secondary" size="lg">
+					Secondary Large
 				</Button>
-				<Button surface="glass-void" depth="z4" bevel="pronounced" glow="ember" size="lg">
-					Void + Ember
+				<Button intent="danger" size="lg">
+					Danger Large
 				</Button>
 			</div>
 		</div>

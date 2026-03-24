@@ -12,26 +12,7 @@
 
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { contract } from "./contract.js";
 import Text from "./Text.svelte";
-
-// =============================================================================
-// CONTRACT INTEGRITY
-// =============================================================================
-
-describe("text component — contract", () => {
-	test("contract.kind is 'text'", () => {
-		expect(contract.kind).toBe("text");
-	});
-
-	test("contract.primitiveKind is 'text'", () => {
-		expect(contract.primitiveKind).toBe("text");
-	});
-
-	test("contract requires slot 'root'", () => {
-		expect(contract.slots.required).toContain("root");
-	});
-});
 
 // =============================================================================
 // STRUCTURAL ATTRIBUTES

@@ -16,12 +16,9 @@ export type SystemId = "coldlight";
 export type CategoryId = "primitives" | "components" | "effects" | "svg" | "composites";
 
 /**
- * ARIA state provider — SSOT is primitives/_schema/types.ts
- * (derived from config/coldlight/vocabularies.cfg.ts).
- * Imported and re-exported for config type consumption.
+ * ARIA state provider — describes which ARIA states a primitive manages.
  */
-import type { AriaStateProvider } from "../../primitives/_schema/types.js";
-export type { AriaStateProvider };
+export type AriaStateProvider = "expanded" | "selected" | "checked" | "pressed" | "disabled" | "invalid" | "required" | "readonly" | "hidden";
 
 /**
  * Design-system adapter identifier.

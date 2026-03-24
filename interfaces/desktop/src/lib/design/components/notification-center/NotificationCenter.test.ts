@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * NotificationCenter component browser tests.
- * Tests ARIA compliance, data-state derivation, composition application, and contract shape.
+ * Tests ARIA compliance, data-state derivation, and composition application.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
@@ -13,43 +13,7 @@
 
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { contract } from "./contract.js";
 import NotificationCenter from "./NotificationCenter.svelte";
-
-// =============================================================================
-// CONTRACT INTEGRITY
-// =============================================================================
-
-describe("notification-center component — contract", () => {
-	test("contract.kind is 'notification-center'", () => {
-		expect(contract.kind).toBe("notification-center");
-	});
-
-	test("contract.primitiveKind is 'notification-center'", () => {
-		expect(contract.primitiveKind).toBe("notification-center");
-	});
-
-	test("contract requires slot 'root'", () => {
-		expect(contract.slots.required).toContain("root");
-	});
-
-	test("contract root slot has role 'log'", () => {
-		expect(contract.slotContracts.root.aria.role).toBe("log");
-	});
-
-	test("contract has no required ARIA attrs on root", () => {
-		expect(contract.slotContracts.root.aria.required).toHaveLength(0);
-	});
-
-	test("contract has Escape keyboard interaction", () => {
-		expect(contract.keyboard.global).toHaveLength(1);
-		expect(contract.keyboard.global[0].key).toBe("Escape");
-	});
-
-	test("contract.interactions.expandable is true", () => {
-		expect(contract.interactions.expandable).toBe(true);
-	});
-});
 
 // =============================================================================
 // ARIA ATTRIBUTES

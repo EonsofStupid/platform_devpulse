@@ -14,7 +14,7 @@ import type { Snippet } from "svelte";
 // =============================================================================
 
 export interface ComponentProps {
-	class?: string | null | undefined;
+	class?: string | undefined;
 	children?: Snippet;
 }
 

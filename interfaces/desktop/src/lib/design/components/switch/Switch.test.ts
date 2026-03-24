@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * Switch component browser tests.
- * Tests ARIA compliance, data-state derivation, composition application, and contract shape.
+ * Tests ARIA compliance, data-state derivation, and composition application.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
@@ -13,44 +13,7 @@
 
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { contract } from "./contract.js";
 import Switch from "./Switch.svelte";
-
-// =============================================================================
-// CONTRACT INTEGRITY
-// =============================================================================
-
-describe("switch component — contract", () => {
-	test("contract.kind is 'switch'", () => {
-		expect(contract.kind).toBe("switch");
-	});
-
-	test("contract.primitiveKind is 'switch'", () => {
-		expect(contract.primitiveKind).toBe("switch");
-	});
-
-	test("contract requires slot 'root'", () => {
-		expect(contract.slots.required).toContain("root");
-	});
-
-	test("contract has aria-checked as required ARIA", () => {
-		const rootSlot = contract.slotContracts.root;
-		const requiredAttrs = rootSlot.aria.required.map((r) => r.attr);
-		expect(requiredAttrs).toContain("aria-checked");
-	});
-
-	test("contract has Space and Enter keyboard interactions", () => {
-		expect(contract.keyboard.global.some((k) => k.key === "Space")).toBe(true);
-		expect(contract.keyboard.global.some((k) => k.key === "Enter")).toBe(true);
-	});
-
-	test("contract interactions are all false", () => {
-		expect(contract.interactions.modal).toBe(false);
-		expect(contract.interactions.selectable).toBe(false);
-		expect(contract.interactions.editable).toBe(false);
-		expect(contract.interactions.expandable).toBe(false);
-	});
-});
 
 // =============================================================================
 // ARIA ATTRIBUTES

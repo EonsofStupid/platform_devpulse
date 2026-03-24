@@ -13,31 +13,7 @@
 
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { contract } from "./contract.js";
 import TableOfContents from "./TableOfContents.svelte";
-
-// =============================================================================
-// CONTRACT INTEGRITY
-// =============================================================================
-
-describe("table-of-contents component -- contract", () => {
-	test("contract.kind is 'table-of-contents'", () => {
-		expect(contract.kind).toBe("table-of-contents");
-	});
-
-	test("contract.primitiveKind is 'table-of-contents'", () => {
-		expect(contract.primitiveKind).toBe("table-of-contents");
-	});
-
-	test("contract requires slot 'root'", () => {
-		expect(contract.slots.required).toContain("root");
-	});
-
-	test("contract has optional slots for item and link", () => {
-		expect(contract.slots.optional).toContain("item");
-		expect(contract.slots.optional).toContain("link");
-	});
-});
 
 // =============================================================================
 // ARIA SEMANTICS

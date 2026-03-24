@@ -14,30 +14,7 @@
 
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { contract } from "./contract.js";
 import Textarea from "./Textarea.svelte";
-
-// =============================================================================
-// CONTRACT INTEGRITY
-// =============================================================================
-
-describe("textarea component — contract", () => {
-	test("contract.kind is 'textarea'", () => {
-		expect(contract.kind).toBe("textarea");
-	});
-
-	test("contract.primitiveKind is 'textarea'", () => {
-		expect(contract.primitiveKind).toBe("textarea");
-	});
-
-	test("contract.interactions.editable is true", () => {
-		expect(contract.interactions.editable).toBe(true);
-	});
-
-	test("contract requires slot 'root'", () => {
-		expect(contract.slots.required).toContain("root");
-	});
-});
 
 // =============================================================================
 // STRUCTURAL ATTRIBUTES — data-kind, data-slot

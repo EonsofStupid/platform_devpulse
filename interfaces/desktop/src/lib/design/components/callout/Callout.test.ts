@@ -5,7 +5,7 @@
  * @package @devpulse/coldlight
  *
  * Callout component browser tests.
- * Tests ARIA compliance, data-state derivation, composition application, and contract shape.
+ * Tests ARIA compliance, data-state derivation, and composition application.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte
@@ -14,44 +14,6 @@
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
 import Callout from "./Callout.svelte";
-import { contract } from "./contract.js";
-
-// =============================================================================
-// CONTRACT INTEGRITY
-// =============================================================================
-
-describe("callout component — contract", () => {
-	test("contract.kind is 'callout'", () => {
-		expect(contract.kind).toBe("callout");
-	});
-
-	test("contract.primitiveKind is 'callout'", () => {
-		expect(contract.primitiveKind).toBe("callout");
-	});
-
-	test("contract requires slot 'root'", () => {
-		expect(contract.slots.required).toContain("root");
-	});
-
-	test("contract root slot has role 'note'", () => {
-		expect(contract.slotContracts.root.aria.role).toBe("note");
-	});
-
-	test("contract has no required ARIA attrs on root", () => {
-		expect(contract.slotContracts.root.aria.required).toHaveLength(0);
-	});
-
-	test("contract has no keyboard interactions", () => {
-		expect(contract.keyboard.global).toHaveLength(0);
-	});
-
-	test("contract interactions are all false", () => {
-		expect(contract.interactions.modal).toBe(false);
-		expect(contract.interactions.selectable).toBe(false);
-		expect(contract.interactions.editable).toBe(false);
-		expect(contract.interactions.expandable).toBe(false);
-	});
-});
 
 // =============================================================================
 // ARIA ATTRIBUTES

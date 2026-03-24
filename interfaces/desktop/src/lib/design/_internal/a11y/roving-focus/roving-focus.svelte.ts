@@ -24,7 +24,7 @@ export function useRovingFocus(config: RovingFocusConfig): void {
 		if (!container) return;
 
 		function getItems(): HTMLElement[] {
-			return Array.from(container?.querySelectorAll<HTMLElement>(config.itemSelector)).filter(
+			return Array.from(container!.querySelectorAll<HTMLElement>(config.itemSelector)).filter(
 				(el) => !el.hasAttribute(disabledAttr),
 			);
 		}
@@ -41,7 +41,7 @@ export function useRovingFocus(config: RovingFocusConfig): void {
 
 			const nextKey = getNextKey(dir, orientation);
 			const prevKey = getPrevKey(dir, orientation);
-			const currentIndex = items.indexOf(document.activeElement);
+			const currentIndex = items.indexOf(document.activeElement as HTMLElement);
 
 			let nextIndex: number | null = null;
 

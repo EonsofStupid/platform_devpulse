@@ -1,1 +1,0 @@
-import "./widget.default.js";

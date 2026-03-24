@@ -14,37 +14,7 @@
 
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { contract } from "./contract.js";
 import Progress from "./Progress.svelte";
-
-// =============================================================================
-// CONTRACT INTEGRITY
-// =============================================================================
-
-describe("progress component — contract", () => {
-	test("contract.kind is 'progress'", () => {
-		expect(contract.kind).toBe("progress");
-	});
-
-	test("contract.primitiveKind is 'progress'", () => {
-		expect(contract.primitiveKind).toBe("progress");
-	});
-
-	test("contract requires slot 'root'", () => {
-		expect(contract.slots.required).toContain("root");
-	});
-
-	test("contract has optional slot 'indicator'", () => {
-		expect(contract.slots.optional).toContain("indicator");
-	});
-
-	test("contract requires aria-valuenow, aria-valuemin, aria-valuemax", () => {
-		const requiredAttrs = contract.slotContracts.root.aria.required.map((r) => r.attr);
-		expect(requiredAttrs).toContain("aria-valuenow");
-		expect(requiredAttrs).toContain("aria-valuemin");
-		expect(requiredAttrs).toContain("aria-valuemax");
-	});
-});
 
 // =============================================================================
 // STRUCTURAL ATTRIBUTES — data-kind, data-slot

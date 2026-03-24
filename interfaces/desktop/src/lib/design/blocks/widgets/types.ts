@@ -9,6 +9,7 @@
  */
 
 import type { Component, Snippet, SvelteComponent } from "svelte";
+import type { ComponentSurfaceProps } from "$lib/design/components/types.js";
 
 // Accepts both Svelte 5 Component and Svelte 4 class components (lucide-svelte)
 // biome-ignore lint/suspicious/noExplicitAny: Svelte 5 Component + Svelte 4 class component union requires any
@@ -21,7 +22,7 @@ export interface WidgetTab {
 	readonly label: string;
 }
 
-export interface WidgetProps {
+export interface WidgetProps extends ComponentSurfaceProps {
 	/** Widget title displayed in header */
 	title?: string;
 	/** Lucide icon component rendered before the title */

@@ -1,11 +1,7 @@
 <script lang="ts">
 import "../app.css";
-// biome-ignore lint/style/noRestrictedImports: root layout side-effect registration
-import "$lib/design/recipes/layouts/shell/index.js";
-// biome-ignore lint/style/noRestrictedImports: root layout side-effect registration
-import "$lib/design/recipes/blocks/widget/index.js";
-// biome-ignore lint/style/noRestrictedImports: root layout side-effect registration
-import "$lib/design/recipes/components/index.js";
+// Style presets are now compiled via SD5 DTCG pipeline (collect-preset-styles.mjs)
+// No side-effect registration needed — CSS custom properties are in component.css
 import { onMount } from "svelte";
 import SvgFilters from "$lib/design/svg/filters/SvgFilters.svelte";
 import BootOverlay from "$lib/layouts/app/BootOverlay.svelte";

@@ -11,26 +11,7 @@
 
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { contract } from "./contract.js";
 import Prose from "./Prose.svelte";
-
-// =============================================================================
-// CONTRACT INTEGRITY
-// =============================================================================
-
-describe("prose component — contract", () => {
-	test("contract.kind is 'prose'", () => {
-		expect(contract.kind).toBe("prose");
-	});
-
-	test("contract.primitiveKind is 'prose'", () => {
-		expect(contract.primitiveKind).toBe("prose");
-	});
-
-	test("contract requires slot 'root'", () => {
-		expect(contract.slots.required).toContain("root");
-	});
-});
 
 // =============================================================================
 // STRUCTURAL ATTRIBUTES

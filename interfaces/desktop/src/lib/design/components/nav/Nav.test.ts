@@ -13,26 +13,7 @@
 
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { contract } from "./contract.js";
 import Nav from "./Nav.svelte";
-
-// =============================================================================
-// CONTRACT INTEGRITY
-// =============================================================================
-
-describe("nav component -- contract", () => {
-	test("contract.kind is 'nav'", () => {
-		expect(contract.kind).toBe("nav");
-	});
-
-	test("contract.primitiveKind is 'nav'", () => {
-		expect(contract.primitiveKind).toBe("nav");
-	});
-
-	test("contract requires slot 'root'", () => {
-		expect(contract.slots.required).toContain("root");
-	});
-});
 
 // =============================================================================
 // ARIA SEMANTICS

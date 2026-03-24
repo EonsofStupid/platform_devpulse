@@ -4,32 +4,27 @@
  * @package @devpulse/coldlight
  *
  * Factory function for creating new BlockNode instances.
- * Looks up the recipe registry, applies defaults, generates unique IDs.
+ * Looks up the catalog for default style IDs, generates unique IDs.
+ * Style presets are resolved at build time (SD5 DTCG pipeline), not here.
  */
 
-import { getRecipe, getRecipesForKind } from "$lib/design/recipes/index.js";
+import { getCatalogEntry } from "$lib/design/components/_base/catalog.js";
 import { idGen } from "$lib/design/utils/idGen.js";
 import type { BlockNode } from "./schema.js";
 
 /**
  * Create a new BlockNode for a given kind.
- * Uses the specified recipe or falls back to the first available recipe for the kind.
+ * Uses the catalog's defaultStyleId as the initial preset.
  */
-export function createBlockNode(kind: string, recipeId?: string): BlockNode {
-	const recipes = getRecipesForKind(kind);
-	const recipe = recipeId ? getRecipe(recipeId) : recipes[0];
-
-	if (!recipe) {
-		throw new Error(
-			`[VPB] No recipe found for kind "${kind}"${recipeId ? ` (tried "${recipeId}")` : ""}`,
-		);
-	}
+export function createBlockNode(kind: string, presetId?: string): BlockNode {
+	const entry = getCatalogEntry(kind);
+	const styleId = presetId ?? entry?.defaultStyleId ?? `${kind}-default`;
 
 	return {
 		id: idGen("blk"),
 		kind,
-		recipe: recipe.id,
-		props: { ...recipe.defaults },
+		recipe: styleId,
+		props: {},
 	};
 }
 

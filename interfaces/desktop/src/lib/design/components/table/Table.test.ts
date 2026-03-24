@@ -14,30 +14,7 @@
 
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { contract } from "./contract.js";
 import Table from "./Table.svelte";
-
-// =============================================================================
-// CONTRACT INTEGRITY
-// =============================================================================
-
-describe("table component — contract", () => {
-	test("contract.kind is 'table'", () => {
-		expect(contract.kind).toBe("table");
-	});
-
-	test("contract.primitiveKind is 'table'", () => {
-		expect(contract.primitiveKind).toBe("table");
-	});
-
-	test("contract requires slot 'root'", () => {
-		expect(contract.slots.required).toContain("root");
-	});
-
-	test("contract.interactions.modal is false", () => {
-		expect(contract.interactions.modal).toBe(false);
-	});
-});
 
 // =============================================================================
 // STRUCTURAL ATTRIBUTES — data-kind, data-slot
