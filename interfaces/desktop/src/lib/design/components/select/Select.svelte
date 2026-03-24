@@ -1,19 +1,16 @@
 <!--
-	@component Select
+	@component Select (Root)
 	@kind select
 	@layer components
 
-	ColdLight Select — compound component root.
-	Creates MeltUI select transport and sets root context.
-	Renderless root — children are the trigger and content.
+	Dropdown selection. Hook (ARIA) + StyleMacro (visual).
+	Compound: Trigger, Content, Item, Label, Group.
 
-	MeltUI transport adapter provides ARIA.
-	ColdLight adds data-kind, data-slot, data-state.
-
-	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/listbox/
+	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
 -->
 <script lang="ts">
-import { createSelectTransport } from "$lib/design/api/dsadapters/meltui/_internal/select/index.js";
+import { useSelect } from "$lib/design/primitives/select/use-select.svelte.js";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setSelectContext } from "./context.js";
 import type { SelectProps } from "./types.js";
@@ -24,32 +21,35 @@ let {
 	open,
 	onOpenChange,
 	placeholder,
+	disabled = false,
 	children,
 	class: className,
-	size,
 	...rest
 }: SelectProps = $props();
 
-const transport = createSelectTransport({
-	get value() {
-		return value;
-	},
-		onValueChange: (v: any) => onValueChange?.(v),
-	get open() {
-		return open;
-	},
-		onOpenChange: (v: any) => onOpenChange?.(v),
+const hook = useSelect({
+	get value() { return value; },
+	get open() { return open; },
+	get disabled() { return disabled; },
+	onValueChange: (v) => onValueChange?.(v),
+	onOpenChange: (v) => onOpenChange?.(v),
+	placeholder,
 });
 
-setSelectContext(transport);
+const styleId = "select-default";
 
+setSelectContext({
+	get hook() { return hook; },
+	get placeholder() { return placeholder; },
+});
 </script>
 
-<div
-	data-kind="select"
-	data-slot="root"
-	class={cn( className)}
-	{...rest}
->
-	{@render children?.()}
-</div>
+<StyleMacro kind="select" style={styleId}>
+	<div
+		{...hook.root}
+		class={cn(disabled && "opacity-50 pointer-events-none", className)}
+		{...rest}
+	>
+		{@render children?.()}
+	</div>
+</StyleMacro>

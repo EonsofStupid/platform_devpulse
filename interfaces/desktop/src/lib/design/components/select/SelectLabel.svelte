@@ -1,29 +1,26 @@
 <!--
-	@component SelectLabel
+	@component Select.Label
 	@kind select
+	@slot label
 	@layer components
 
-	Select label — associates a text label with the select.
-	MeltUI transport provides id linking for accessibility.
+	Accessible label for the select. ARIA from hook via context.
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getSelectContext } from "./context.js";
-import { selectComposition } from "./composition.js";
 import type { SelectLabelProps } from "./types.js";
 
 let { children, class: className, ...rest }: SelectLabelProps = $props();
-
-const transport = getSelectContext();
-const composition = selectComposition();
+const ctx = getSelectContext();
 </script>
 
-<span
-	{...transport.slots.label}
-	class={cn(composition.label, className)}
+<label
+	{...ctx.hook.label}
 	data-kind="select"
 	data-slot="label"
+	class={cn("text-sm font-medium", className)}
 	{...rest}
 >
 	{@render children?.()}
-</span>
+</label>

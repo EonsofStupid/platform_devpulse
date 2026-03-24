@@ -1,16 +1,16 @@
 <!--
-	@component Tabs
+	@component Tabs (Root)
 	@kind tabs
 	@layer components
 
-	ColdLight Tabs root — creates ColdLightTabs adapter and provides via context.
-	Compound component: sub-components consume context to render slots.
+	Tabbed interface. Hook (ARIA) + StyleMacro (visual).
+	Compound: List, Trigger, Content.
 
-	ColdLight OWNS all ARIA. No MeltUI dependency.
-	Reference: WAI-ARIA APG Tabs Pattern
+	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/tabs/
 -->
 <script lang="ts">
-import { ColdLightTabs } from "$lib/design/api/dsadapters/coldlight/_internal/tabs/tabs.svelte.js";
+import { useTabs } from "$lib/design/primitives/tabs/use-tabs.svelte.js";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setTabsContext } from "./context.js";
 import type { TabsProps } from "./types.js";
@@ -23,28 +23,33 @@ let {
 	loop = true,
 	children,
 	class: className,
-	size,
 	...rest
 }: TabsProps = $props();
 
-const tabs = new ColdLightTabs({
-	value: () => value,
+const hook = useTabs({
+	get value() { return value; },
 	onValueChange: (v) => onValueChange?.(v),
-	orientation: () => orientation,
-	activateOnFocus: () => activateOnFocus,
-	loop: () => loop,
+	orientation,
+	activateOnFocus,
+	loop,
 });
 
-setTabsContext(tabs);
+const styleId = "tabs-default";
 
+setTabsContext({
+	get hook() { return hook; },
+});
 </script>
 
-<div
-	{...tabs.root}
-	class={cn(rootClass, className)}
-	data-kind="tabs"
-	data-slot="root"
-	{...rest}
->
-	{@render children?.()}
-</div>
+<StyleMacro kind="tabs" style={styleId}>
+	<div
+		{...hook.root}
+		data-kind="tabs"
+		data-slot="root"
+		data-orientation={orientation}
+		class={cn(className)}
+		{...rest}
+	>
+		{@render children?.()}
+	</div>
+</StyleMacro>

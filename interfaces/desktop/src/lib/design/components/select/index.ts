@@ -4,8 +4,6 @@
  * @layer components
  */
 
-export { contract as selectComponentContract } from "./contract.js";
-export { selectComposition } from "./composition.js";
 export { default as Select } from "./Select.svelte";
 export { default as SelectContent } from "./SelectContent.svelte";
 export { default as SelectGroup } from "./SelectGroup.svelte";

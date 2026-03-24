@@ -1,21 +1,22 @@
 /**
- * @file Tabs Context — Svelte context for compound component communication
+ * @file Tabs Context
  * @kind tabs
  * @layer components
- *
- * Symbol-keyed context + typed get/set helpers.
- * Root sets context; sub-components consume it.
  */
 
 import { getContext, setContext } from "svelte";
-import type { ColdLightTabs } from "$lib/design/api/dsadapters/coldlight/_internal/tabs/tabs.svelte.js";
+import type { UseTabsReturn } from "$lib/design/primitives/tabs/tabs.types.js";
+
+export interface TabsContext {
+	readonly hook: UseTabsReturn;
+}
 
 const TABS_CTX = Symbol("coldlight-tabs");
 
-export function setTabsContext(tabs: ColdLightTabs): void {
-	setContext(TABS_CTX, tabs);
+export function setTabsContext(ctx: TabsContext): void {
+	setContext(TABS_CTX, ctx);
 }
 
-export function getTabsContext(): ColdLightTabs {
-	return getContext<ColdLightTabs>(TABS_CTX);
+export function getTabsContext(): TabsContext {
+	return getContext<TabsContext>(TABS_CTX);
 }

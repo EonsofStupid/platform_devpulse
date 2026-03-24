@@ -1,18 +1,18 @@
 <!--
-	@component Slider
+	@component Slider (Root)
 	@kind slider
 	@layer components
 
-	ColdLight Slider — compound component root.
-	Creates MeltUI slider transport and sets root context.
+	Range slider. Hook (ARIA role="slider") + StyleMacro (visual).
+	Compound: Track, Range (fill), Thumb.
 
 	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/slider/
 -->
 <script lang="ts">
-import { createSliderTransport } from "$lib/design/api/dsadapters/meltui/_internal/slider/index.js";
+import { useSlider } from "$lib/design/primitives/slider/use-slider.svelte.js";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setSliderContext } from "./context.js";
-import { sliderComposition } from "./composition.js";
 import type { SliderProps } from "./types.js";
 
 let {
@@ -25,41 +25,65 @@ let {
 	disabled = false,
 	children,
 	class: className,
-	size,
 	...rest
 }: SliderProps = $props();
 
-const transport = createSliderTransport({
-	get min() {
-		return min;
-	},
-	get max() {
-		return max;
-	},
-	get value() {
-		return value;
-	},
-	get step() {
-		return step;
-	},
-	get orientation() {
-		return orientation;
-	},
-		onValueChange: (v: any) => onValueChange?.(v),
+const hook = useSlider({
+	get min() { return min; },
+	get max() { return max; },
+	get value() { return value; },
+	get step() { return step; },
+	get disabled() { return disabled; },
+	onValueChange: (v) => onValueChange?.(v),
 });
 
-setSliderContext(transport);
+const styleId = "slider-default";
 
-const composition = sliderComposition();
+setSliderContext({
+	get hook() { return hook; },
+});
 </script>
 
-<div
-	{...transport.slots.root}
-	class={cn(composition.root, className)}
-	data-kind="slider"
-	data-slot="root"
-	data-orientation={orientation}
-	{...rest}
->
-	{@render children?.()}
-</div>
+<StyleMacro kind="slider" style={styleId}>
+	<div
+		{...hook.root}
+		data-orientation={orientation}
+		class={cn(
+			"relative flex w-full touch-none select-none items-center",
+			orientation === "vertical" && "flex-col h-full",
+			disabled && "opacity-50 pointer-events-none",
+			className)}
+		{...rest}
+	>
+		{#if children}
+			{@render children()}
+		{:else}
+			<div
+				{...hook.track}
+				data-kind="slider"
+				data-slot="track"
+				class={cn(
+					"relative grow overflow-hidden rounded-full",
+					orientation === "horizontal" ? "h-2 w-full" : "w-2 h-full")}
+			>
+				<div
+					data-kind="slider"
+					data-slot="range"
+					class="absolute rounded-full"
+					style={orientation === "horizontal"
+						? `left: 0; width: ${hook.percent}%; height: 100%`
+						: `bottom: 0; height: ${hook.percent}%; width: 100%`}
+				></div>
+			</div>
+			<div
+				{...hook.thumb}
+				data-kind="slider"
+				data-slot="thumb"
+				class="block size-5 rounded-full border-2 shadow-sm cursor-grab active:cursor-grabbing focus-visible:outline-2 focus-visible:outline-offset-2"
+				style={orientation === "horizontal"
+					? `left: ${hook.percent}%`
+					: `bottom: ${hook.percent}%`}
+			></div>
+		{/if}
+	</div>
+</StyleMacro>

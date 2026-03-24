@@ -1,31 +1,30 @@
 <!--
-	@component SelectContent
+	@component Select.Content
 	@kind select
+	@slot content
 	@layer components
 
-	Select content — the dropdown listbox container.
-	Only visible when open state is true.
-	MeltUI transport provides role="listbox", ARIA attributes.
+	Dropdown listbox container. Visible when open. ARIA from hook via context.
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getSelectContext } from "./context.js";
-import { selectComposition } from "./composition.js";
 import type { SelectContentProps } from "./types.js";
 
 let { children, class: className, ...rest }: SelectContentProps = $props();
-
-const transport = getSelectContext();
-const composition = selectComposition();
+const ctx = getSelectContext();
 </script>
 
-{#if transport.states.open}
+{#if ctx.hook.open}
 	<div
-		{...transport.slots.content}
-		class={cn(composition.content, className)}
+		{...ctx.hook.listbox}
+		use:ctx.hook.attachListbox
 		data-kind="select"
 		data-slot="content"
 		data-state="open"
+		class={cn(
+			"absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border py-1",
+			className)}
 		{...rest}
 	>
 		{@render children?.()}

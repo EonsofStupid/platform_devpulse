@@ -1,30 +1,25 @@
 <!--
-	@component TooltipTrigger
+	@component Tooltip.Trigger
 	@kind tooltip
+	@slot trigger
 	@layer components
 
-	Tooltip trigger element — the hover/focus target.
-	Renders as <span> wrapper so it can wrap any element.
-	MeltUI slot attrs contain hover/focus event handlers.
-
-	ARIA attributes are provided by the MeltUI transport (aria-describedby, etc).
+	Element that triggers the tooltip on hover/focus. ARIA from hook.
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getTooltipContext } from "./context.js";
-import type { TooltipTriggerProps } from "./types.js";
 
-let { children, class: className, ...rest }: TooltipTriggerProps = $props();
-
-const transport = getTooltipContext();
+let { children, class: className, ...rest }: { children?: import("svelte").Snippet; class?: string; [key: string]: unknown } = $props();
+const ctx = getTooltipContext();
 </script>
 
-<span
-	{...transport.slots.trigger}
-	class={cn(className)}
+<div
+	{...ctx.hook.trigger}
 	data-kind="tooltip"
 	data-slot="trigger"
+	class={cn("inline-flex", className)}
 	{...rest}
 >
 	{@render children?.()}
-</span>
+</div>

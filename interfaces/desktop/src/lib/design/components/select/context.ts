@@ -1,21 +1,25 @@
 /**
- * @file Select Context — Svelte context for compound component communication
+ * @file Select Context
  * @kind select
  * @layer components
  *
- * Symbol-keyed context + typed get/set helpers.
- * Root sets context; sub-components consume it.
+ * Symbol-keyed context distributes useSelect hook to sub-components.
  */
 
 import { getContext, setContext } from "svelte";
-import type { SelectTransport } from "$lib/design/api/dsadapters/meltui/_internal/select/index.js";
+import type { UseSelectReturn } from "$lib/design/primitives/select/select.types.js";
+
+export interface SelectContext {
+	readonly hook: UseSelectReturn;
+	readonly placeholder?: string;
+}
 
 const SELECT_CTX = Symbol("coldlight-select");
 
-export function setSelectContext<T>(transport: SelectTransport<T>): void {
-	setContext(SELECT_CTX, transport);
+export function setSelectContext(ctx: SelectContext): void {
+	setContext(SELECT_CTX, ctx);
 }
 
-export function getSelectContext<T = unknown>(): SelectTransport<T> {
-	return getContext<SelectTransport<T>>(SELECT_CTX);
+export function getSelectContext(): SelectContext {
+	return getContext<SelectContext>(SELECT_CTX);
 }

@@ -1,12 +1,10 @@
 <!--
-	@component TabsContent
+	@component Tabs.Content
 	@kind tabs
 	@slot content
 	@layer components
 
-	Tab panel with role="tabpanel".
-	Parameterized by value — spreads adapter getContent() slot attrs
-	(role, aria-labelledby, tabindex, hidden, data-state).
+	Tab panel. ARIA from hook.getContent(value). Hidden when inactive.
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
@@ -14,16 +12,19 @@ import { getTabsContext } from "./context.js";
 import type { TabsContentProps } from "./types.js";
 
 let { value, children, class: className, ...rest }: TabsContentProps = $props();
-const tabs = getTabsContext();
-const slotAttrs = $derived(tabs.getContent(value));
+const ctx = getTabsContext();
+
+const contentAttrs = $derived(ctx.hook.getContent(value));
 </script>
 
 <div
-	{...slotAttrs}
-	class={cn(contentClass, className)}
+	{...contentAttrs}
 	data-kind="tabs"
 	data-slot="content"
+	class={cn("mt-2", className)}
 	{...rest}
 >
-	{@render children?.()}
+	{#if !contentAttrs.hidden}
+		{@render children?.()}
+	{/if}
 </div>

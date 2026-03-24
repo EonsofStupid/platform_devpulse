@@ -1,26 +1,23 @@
 <!--
-	@component SliderRange
+	@component Slider.Range
 	@kind slider
+	@slot range
 	@layer components
 
-	Slider range — the filled portion of the track.
+	Fill bar showing current value position.
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
 import { getSliderContext } from "./context.js";
-import { sliderComposition } from "./composition.js";
-import type { SliderRangeProps } from "./types.js";
 
-let { class: className, ...rest }: SliderRangeProps = $props();
-
-const transport = getSliderContext();
-const composition = sliderComposition();
+let { class: className, ...rest }: { class?: string; [key: string]: unknown } = $props();
+const ctx = getSliderContext();
 </script>
 
 <div
-	{...transport.slots.range}
-	class={cn(composition.range, className)}
 	data-kind="slider"
 	data-slot="range"
+	class={cn("absolute h-full rounded-full", className)}
+	style:width="{ctx.hook.percent}%"
 	{...rest}
 ></div>

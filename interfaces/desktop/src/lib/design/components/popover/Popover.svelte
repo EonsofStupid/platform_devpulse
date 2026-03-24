@@ -3,18 +3,14 @@
 	@kind popover
 	@layer components
 
-	ColdLight Popover — compound component root.
-	Creates MeltUI popover transport and sets context.
-	Sub-components (PopoverTrigger, PopoverContent, PopoverArrow)
-	consume context to access their slot attributes.
+	Floating content panel. Hook (ARIA) + StyleMacro (visual).
+	Trigger opens content, dismiss on escape/outside click.
 
-	MeltUI transport adapter provides ARIA and positioning.
-	ColdLight adds data-kind, data-slot, data-state, ColdLight 8-axis visual.
-
-	WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/popover/
+	WAI-ARIA: aria-haspopup, aria-expanded on trigger.
 -->
 <script lang="ts">
-import { createPopoverTransport } from "$lib/design/api/dsadapters/meltui/_internal/popover/index.js";
+import { usePopover } from "$lib/design/primitives/popover/use-popover.svelte.js";
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setPopoverContext } from "./context.js";
 import type { PopoverProps } from "./types.js";
@@ -22,42 +18,51 @@ import type { PopoverProps } from "./types.js";
 let {
 	open,
 	onOpenChange,
-	forceVisible = false,
-	sameWidth = false,
 	closeOnEscape = true,
 	closeOnOutsideClick = true,
+	trigger,
+	content,
 	children,
 	class: className,
-	size,
 }: PopoverProps = $props();
 
-const transport = createPopoverTransport({
-	get open() {
-		return open;
-	},
-		onOpenChange: (v: any) => onOpenChange?.(v),
-	get forceVisible() {
-		return forceVisible;
-	},
-	get sameWidth() {
-		return sameWidth;
-	},
-	get closeOnEscape() {
-		return closeOnEscape;
-	},
-	get closeOnOutsideClick() {
-		return closeOnOutsideClick;
-	},
+const hook = usePopover({
+	get open() { return open; },
+	onOpenChange: (v) => onOpenChange?.(v),
+	get closeOnEscape() { return closeOnEscape; },
+	get closeOnOutsideClick() { return closeOnOutsideClick; },
 });
 
-setPopoverContext(transport);
+const styleId = "popover-default";
 
+setPopoverContext({
+	get hook() { return hook; },
+});
 </script>
 
-<div
-	class={cn( className)}
-	data-kind="popover"
-	data-slot="root"
->
+<div data-kind="popover" data-slot="root" class={cn("relative inline-block", className)}>
+	{#if trigger}
+		<button {...hook.trigger} data-kind="popover" data-slot="trigger">
+			{@render trigger()}
+		</button>
+	{/if}
+
+	{#if hook.open}
+		<StyleMacro kind="popover" style={styleId}>
+			<div
+				{...hook.content}
+				use:hook.attachContent
+				data-kind="popover"
+				data-slot="content"
+				data-state="open"
+				class="absolute z-50 mt-2 rounded-md border"
+			>
+				{#if content}
+					{@render content()}
+				{/if}
+			</div>
+		</StyleMacro>
+	{/if}
+
 	{@render children?.()}
 </div>

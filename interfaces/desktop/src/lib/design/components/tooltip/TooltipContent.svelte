@@ -1,35 +1,32 @@
 <!--
-	@component TooltipContent
+	@component Tooltip.Content
 	@kind tooltip
+	@slot content
 	@layer components
 
-	Tooltip content panel — conditionally rendered when tooltip is open.
-	MeltUI transport provides role="tooltip" and positioning attributes.
-	Composition provides visual styling.
-
-	Only rendered when transport.states.open is true.
+	Floating tooltip content. StyleMacro (visual). Visible when hook.open.
 -->
 <script lang="ts">
+import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { getTooltipContext } from "./context.js";
-import { tooltipComposition } from "./composition.js";
-import type { TooltipContentProps } from "./types.js";
 
-let { children, class: className, ...rest }: TooltipContentProps = $props();
+let { children, class: className, ...rest }: { children?: import("svelte").Snippet; class?: string; [key: string]: unknown } = $props();
+const ctx = getTooltipContext();
 
-const transport = getTooltipContext();
-const composition = tooltipComposition();
+const styleId = "tooltip-default";
 </script>
 
-{#if transport.states.open}
-	<div
-		{...transport.slots.content}
-		class={cn(composition.content, className)}
-		data-kind="tooltip"
-		data-slot="content"
-		data-state="open"
-		{...rest}
-	>
-		{@render children?.()}
-	</div>
+{#if ctx.hook.open}
+	<StyleMacro kind="tooltip" style={styleId}>
+		<div
+			{...ctx.hook.content}
+			data-kind="tooltip"
+			data-slot="content"
+			class={cn("absolute z-50 px-3 py-1.5 text-sm rounded-md", className)}
+			{...rest}
+		>
+			{@render children?.()}
+		</div>
+	</StyleMacro>
 {/if}
