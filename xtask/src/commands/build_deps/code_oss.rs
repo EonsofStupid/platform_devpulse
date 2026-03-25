@@ -37,7 +37,17 @@ impl DepBuild for CodeOss {
     }
 
     fn enabled(&self, ws: &Workspace) -> bool {
-        // Enabled if source directory exists and has a package.json
+        // Respect [services.system.devforge].enabled from platform.default.toml
+        let config_enabled = ws.platform_config()
+            .ok()
+            .and_then(|c| c.services.system.devforge)
+            .is_some_and(|d| d.enabled);
+
+        if !config_enabled {
+            return false;
+        }
+
+        // Also need the source to exist
         let source = ws.root().join(self.source_dir());
         source.join("package.json").exists()
     }

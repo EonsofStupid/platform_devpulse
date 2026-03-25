@@ -1,0 +1,88 @@
+/**
+ * @file generated/aliases.css
+ * @package @devpulse/coldlight
+ *
+ * Bridge tokens — semantic aliases and composites that consumers reference
+ * but the SD5 DTCG-expanded output does not emit as shorthands.
+ *
+ * NOT auto-generated. Safe across SD5 rebuilds.
+ * All values derive from SD5 primitives via var() — no hardcoded colors.
+ *
+ * Categories:
+ *   1. Glow composites (box-shadow shorthands from expanded DTCG)
+ *   2. Border aliases (--border-soft, --border-emphasis)
+ *   3. Overlay aliases (--overlay-bg → --overlay-scrim)
+ *   4. Accent tokens (--accent-{hue}-main/glow/fill)
+ *   5. SVG tokens (gauge track/tick colors)
+ *   6. StatusBar tokens (--status-dot-glow-radius)
+ */
+
+:root {
+  /* ── 1. Glow composites ──────────────────────────────────────────────
+     SD5 expanded glows into individual DTCG properties (color, offset, blur, spread).
+     variants.css and focus.css reference the shorthand box-shadow value.
+     ──────────────────────────────────────────────────────────────────── */
+  --glow-off: var(--glow-off-offset-x) var(--glow-off-offset-y) var(--glow-off-blur) var(--glow-off-spread) var(--glow-off-color);
+  --glow-teal: var(--glow-teal-offset-x) var(--glow-teal-offset-y) var(--glow-teal-blur) var(--glow-teal-spread) var(--glow-teal-color);
+  --glow-purple: var(--glow-purple-offset-x) var(--glow-purple-offset-y) var(--glow-purple-blur) var(--glow-purple-spread) var(--glow-purple-color);
+  --glow-magenta: var(--glow-magenta-offset-x) var(--glow-magenta-offset-y) var(--glow-magenta-blur) var(--glow-magenta-spread) var(--glow-magenta-color);
+  --glow-ember: var(--glow-ember-offset-x) var(--glow-ember-offset-y) var(--glow-ember-blur) var(--glow-ember-spread) var(--glow-ember-color);
+  --glow-frost: var(--glow-frost-offset-x) var(--glow-frost-offset-y) var(--glow-frost-blur) var(--glow-frost-spread) var(--glow-frost-color);
+  --glow-cyber: var(--glow-cyber-offset-x) var(--glow-cyber-offset-y) var(--glow-cyber-blur) var(--glow-cyber-spread) var(--glow-cyber-color);
+
+  /* ── 2. Border aliases ───────────────────────────────────────────────
+     SD5 emits --border-subtle, --border-strong, --border-focus, --border-divider.
+     Frame.svelte & component tokens reference --border-soft and --border-emphasis.
+     ──────────────────────────────────────────────────────────────────── */
+  --border-soft: oklch(from var(--color-teal-600) l c h / 0.30);
+  --border-emphasis: var(--border-strong);
+
+  /* ── 3. Overlay aliases ──────────────────────────────────────────────
+     SD5 emits --overlay-scrim / --overlay-scrim-heavy.
+     Frame.svelte references --overlay-bg.
+     ──────────────────────────────────────────────────────────────────── */
+  --overlay-bg: var(--overlay-scrim);
+  --overlay-bg-heavy: var(--overlay-scrim-heavy);
+
+  /* ── 4. Accent tokens ────────────────────────────────────────────────
+     Semantic accent aliases from palette scale.
+     Consumed by: RadialGauge, SparkLine, ThreadList, devpulse dashboard, chat page.
+     -main  → 400 level (primary indicator)
+     -glow  → 400 level at 0.35 alpha (drop-shadow, box-shadow)
+     -fill  → 400 level at 0.08 alpha (sparkline area fill)
+     ──────────────────────────────────────────────────────────────────── */
+  --accent-teal-main: var(--color-teal-400);
+  --accent-teal-glow: oklch(0.63 0.08 173 / 0.35);
+  --accent-teal-fill: oklch(0.63 0.08 173 / 0.08);
+
+  --accent-purple-main: var(--color-purple-400);
+  --accent-purple-glow: oklch(0.63 0.12 280 / 0.35);
+  --accent-purple-fill: oklch(0.63 0.12 280 / 0.08);
+
+  --accent-magenta-main: var(--color-magenta-400);
+  --accent-magenta-glow: oklch(0.63 0.14 330 / 0.35);
+  --accent-magenta-fill: oklch(0.63 0.14 330 / 0.08);
+
+  --accent-ember-main: var(--color-ember-400);
+  --accent-ember-glow: oklch(0.63 0.12 25 / 0.35);
+  --accent-ember-fill: oklch(0.63 0.12 25 / 0.08);
+
+  --accent-frost-main: var(--color-frost-400);
+  --accent-frost-glow: oklch(0.63 0.06 220 / 0.35);
+  --accent-frost-fill: oklch(0.63 0.06 220 / 0.08);
+
+  --accent-cyber-main: var(--color-cyber-400);
+  --accent-cyber-glow: oklch(0.63 0.1 160 / 0.35);
+  --accent-cyber-fill: oklch(0.63 0.1 160 / 0.08);
+
+  /* ── 5. SVG tokens ───────────────────────────────────────────────────
+     RadialGauge SVG track + tick marks.
+     ──────────────────────────────────────────────────────────────────── */
+  --svg-track-stroke: oklch(1 0 0 / 0.06);
+  --svg-track-tick-stroke: oklch(1 0 0 / 0.12);
+
+  /* ── 6. StatusBar tokens ─────────────────────────────────────────────
+     Status dot glow effect.
+     ──────────────────────────────────────────────────────────────────── */
+  --status-dot-glow-radius: 6px;
+}

@@ -115,7 +115,7 @@ model_path = "system/candle/whisper"
 # Clone VSCode fork into deps/code-oss/ and build to enable.
 enabled = false
 critical = false
-binary_path = "deps/code-oss/bin/code-oss"
+binary_path = "devforge/"
 workspace_path = "."
 port = 8443
 

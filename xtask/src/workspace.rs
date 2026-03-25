@@ -322,6 +322,25 @@ impl BuildConfig {
 pub struct PlatformServicesConfig {
     /// Network services (ports, bind addresses).
     pub network: PlatformNetworkConfig,
+    /// System services (databases, devforge, voice, etc.).
+    #[serde(default)]
+    pub system: PlatformSystemServicesConfig,
+}
+
+/// System services — enabled flags control what xtask builds.
+#[derive(Debug, Default, Deserialize)]
+pub struct PlatformSystemServicesConfig {
+    /// DevForge (code-oss) service.
+    #[serde(default)]
+    pub devforge: Option<ServiceEntry>,
+}
+
+/// A service entry — only the fields xtask cares about.
+#[derive(Debug, Deserialize)]
+pub struct ServiceEntry {
+    /// Whether this service is enabled.
+    #[serde(default)]
+    pub enabled: bool,
 }
 
 /// Network services — ports are the SSOT.

@@ -12,23 +12,26 @@
 /* 2. SD5-generated Tailwind @theme registrations */
 @import "./theme/index.css";
 
-/* 3. Variant encoding — @utility classes (v-s, v-z, v-d, v-b, v-g, v-f, v-m, v-t) */
+/* 3. Bridge tokens — aliases and composites not emitted as shorthands by SD5 */
+@import "./generated/aliases.css";
+
+/* 4. Variant encoding — @utility classes (v-s, v-z, v-d, v-b, v-g, v-f, v-m, v-t) */
 @import "./generated/variants.css";
 
-/* 4. Typography utilities */
+/* 5. Typography utilities */
 @import "./generated/typography.css";
 
-/* 5. Focus ring styles */
+/* 6. Focus ring styles */
 @import "./generated/focus.css";
 
-/* 6. Scrollbar theming */
+/* 7. Scrollbar theming */
 @import "./generated/scrollbars.css";
 
-/* 7. Animation keyframes */
+/* 8. Animation keyframes */
 @import "./generated/keyframes.css";
 
-/* 8. SVG Filters (neumorphism) */
+/* 9. SVG Filters (neumorphism) */
 @import "./svg/filters/filters.css";
 
-/* 9. StyleMacro glue — maps --cl-* vars to CSS properties on [data-kind] */
+/* 10. StyleMacro glue — maps --cl-* vars to CSS properties on [data-kind] */
 @import "./generated/macro-base.css";

@@ -226,9 +226,9 @@ fn clear_build_lock_windows() -> Result<u32> {
     use std::process::Command;
 
     let my_pid = std::process::id();
-    // Also protect our parent cargo.exe — it spawned us via `cargo xtask`.
-    // Killing it with /T (tree kill) would kill xtask itself.
-    let parent_pid = get_parent_pid_windows();
+    // Protect our entire ancestor chain — cargo.exe spawned us via `cargo xtask`,
+    // and that cargo may itself have a parent (terminal, IDE, etc.).
+    let ancestors = get_ancestor_pids_windows();
     let mut killed = 0u32;
 
     for name in &["cargo", "rustc"] {
@@ -260,13 +260,13 @@ fn clear_build_lock_windows() -> Result<u32> {
                 if pid == my_pid {
                     continue;
                 }
-                if Some(pid) == parent_pid {
-                    println!("    skipping {name}.exe (PID {pid}) — parent process");
+                if ancestors.contains(&pid) {
+                    println!("    skipping {name}.exe (PID {pid}) — ancestor process");
                     continue;
                 }
                 println!("  [>>] killing stale {name}.exe (PID {pid}) — would block build lock");
                 let _ = Command::new("taskkill")
-                    .args(["/F", "/T", "/PID", &pid.to_string()])
+                    .args(["/F", "/PID", &pid.to_string()])
                     .output();
                 killed += 1;
             }
@@ -276,22 +276,41 @@ fn clear_build_lock_windows() -> Result<u32> {
     Ok(killed)
 }
 
-/// Get the parent process ID on Windows via WMI.
+/// Collect the full ancestor chain of cargo.exe PIDs that lead to us.
+/// We must never kill any of these — they're our own process tree.
 #[cfg(windows)]
-fn get_parent_pid_windows() -> Option<u32> {
-    let my_pid = std::process::id();
-    let output = std::process::Command::new("wmic")
-        .args(["process", "where", &format!("ProcessId={my_pid}"), "get", "ParentProcessId", "/value"])
-        .output()
-        .ok()?;
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    for line in stdout.lines() {
-        let line = line.trim();
-        if let Some(val) = line.strip_prefix("ParentProcessId=") {
-            return val.trim().parse::<u32>().ok();
+fn get_ancestor_pids_windows() -> Vec<u32> {
+    let mut ancestors = Vec::new();
+    let mut current = std::process::id();
+
+    // Walk up the process tree (max 10 levels to avoid infinite loops)
+    for _ in 0..10 {
+        match get_parent_pid_of(current) {
+            Some(parent) if parent != 0 && parent != current => {
+                ancestors.push(parent);
+                current = parent;
+            }
+            _ => break,
         }
     }
-    None
+    ancestors
+}
+
+/// Get the parent PID of a specific process via PowerShell (reliable, unlike wmic).
+#[cfg(windows)]
+fn get_parent_pid_of(pid: u32) -> Option<u32> {
+    let output = run_with_timeout(
+        "powershell",
+        &[
+            "-NoProfile",
+            "-Command",
+            &format!("(Get-CimInstance Win32_Process -Filter \"ProcessId={pid}\").ParentProcessId"),
+        ],
+        SUBPROCESS_TIMEOUT_SECS,
+    )
+    .ok()?;
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    stdout.trim().parse::<u32>().ok()
 }
 
 #[cfg(not(windows))]
