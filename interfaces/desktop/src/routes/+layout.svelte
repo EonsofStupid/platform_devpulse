@@ -5,6 +5,7 @@ import "../app.css";
 import { onMount } from "svelte";
 import SvgFilters from "$lib/design/svg/filters/SvgFilters.svelte";
 import BootOverlay from "$lib/layouts/app/BootOverlay.svelte";
+import TokenDebugOverlay from "$lib/design/debug/TokenDebugOverlay.svelte";
 import { installGlobalHandlers, logError, logInfo } from "$lib/sys/logger.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 
@@ -31,4 +32,5 @@ onMount(() => {
 
 <SvgFilters />
 <BootOverlay />
+<TokenDebugOverlay />
 {@render children()}

@@ -38,7 +38,7 @@
 			"icons/icon.ico"
 		],
 		"resources": {
-			"D:\\devforge\\*": "devforge/"
+			"D:\\localdev\\devforge\\*": "devforge/"
 		}
 	}
 }
