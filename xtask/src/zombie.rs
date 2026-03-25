@@ -226,6 +226,9 @@ fn clear_build_lock_windows() -> Result<u32> {
     use std::process::Command;
 
     let my_pid = std::process::id();
+    // Also protect our parent cargo.exe — it spawned us via `cargo xtask`.
+    // Killing it with /T (tree kill) would kill xtask itself.
+    let parent_pid = get_parent_pid_windows();
     let mut killed = 0u32;
 
     for name in &["cargo", "rustc"] {
@@ -257,6 +260,10 @@ fn clear_build_lock_windows() -> Result<u32> {
                 if pid == my_pid {
                     continue;
                 }
+                if Some(pid) == parent_pid {
+                    println!("    skipping {name}.exe (PID {pid}) — parent process");
+                    continue;
+                }
                 println!("  [>>] killing stale {name}.exe (PID {pid}) — would block build lock");
                 let _ = Command::new("taskkill")
                     .args(["/F", "/T", "/PID", &pid.to_string()])
@@ -267,6 +274,24 @@ fn clear_build_lock_windows() -> Result<u32> {
     }
 
     Ok(killed)
+}
+
+/// Get the parent process ID on Windows via WMI.
+#[cfg(windows)]
+fn get_parent_pid_windows() -> Option<u32> {
+    let my_pid = std::process::id();
+    let output = std::process::Command::new("wmic")
+        .args(["process", "where", &format!("ProcessId={my_pid}"), "get", "ParentProcessId", "/value"])
+        .output()
+        .ok()?;
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    for line in stdout.lines() {
+        let line = line.trim();
+        if let Some(val) = line.strip_prefix("ParentProcessId=") {
+            return val.trim().parse::<u32>().ok();
+        }
+    }
+    None
 }
 
 #[cfg(not(windows))]

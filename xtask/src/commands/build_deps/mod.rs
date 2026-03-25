@@ -110,7 +110,9 @@ pub fn build_all(ws: &Workspace) -> Result<()> {
             }
             Err(e) => {
                 s.fail(format!("build failed: {e:#}"));
-                return Err(e).context(format!("failed to build dep: {}", dep.name()));
+                // Non-fatal — warn and continue. Optional deps (code-oss)
+                // should not block the entire dev server.
+                println!("  [WARN] External dep build issue: {e:#}");
             }
         }
     }
