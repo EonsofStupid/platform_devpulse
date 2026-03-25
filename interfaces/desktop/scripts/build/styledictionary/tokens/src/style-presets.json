@@ -1956,6 +1956,192 @@
 			},
 			"$description": "chat bubble — matte solid"
 		},
+		"dynamic-background-boot": {
+			"background-color": {
+				"$value": "oklch(0.05 0.015 224)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "none",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "transparent",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "dynamic background — boot screen with logo"
+		},
+		"dynamic-background-devpulse": {
+			"background-color": {
+				"$value": "oklch(0.05 0.015 224)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "none",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "transparent",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "dynamic background — devpulse hub teal circuit"
+		},
+		"dynamic-background-overmind": {
+			"background-color": {
+				"$value": "oklch(0.05 0.02 280)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "none",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "transparent",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "dynamic background — overmind hub purple bioluminescent"
+		},
+		"dynamic-background-wiredfront": {
+			"background-color": {
+				"$value": "oklch(0.04 0.01 200)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "none",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "transparent",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "dynamic background — wiredfront hub high contrast"
+		},
+		"dynamic-background-devforge": {
+			"background-color": {
+				"$value": "oklch(0.05 0.015 25)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "none",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "transparent",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "dynamic background — devforge hub ember"
+		},
+		"dynamic-background-maestro": {
+			"background-color": {
+				"$value": "oklch(0.04 0.02 173)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "none",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.9319 0.015 224)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "transparent",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "dynamic background — maestro hub deep teal"
+		},
 		"chat-context-panel-default": {
 			"background-color": {
 				"$value": "oklch(0.06 0.012 224 / 0.85)",

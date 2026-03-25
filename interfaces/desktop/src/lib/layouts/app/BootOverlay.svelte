@@ -20,6 +20,7 @@
 -->
 <script lang="ts">
 import { Badge, type BadgeVariant } from "$lib/design/components/badge/index.js";
+import { DynamicBackground } from "$lib/design/components/dynamic-background/index.js";
 import { Progress } from "$lib/design/components/progress/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { cn } from "$lib/design/utils/cn.js";
@@ -68,13 +69,16 @@ $effect(() => {
 <div
 	class={cn(
 		"fixed inset-0 z-[9999] flex items-center justify-center",
-		"bg-[var(--surface-base)]",
 		"transition-opacity duration-500 ease-out",
 		fading && "opacity-0 pointer-events-none",
 	)}
 	aria-label="Platform booting"
 	role="status"
 >
+	<DynamicBackground
+		variant="boot"
+		src="/imgs/backgrounds/maincontentbackground.png"
+	/>
 	<div class={cn(stack({ gap: "24", align: "center" }), "min-w-[320px] max-w-[400px] p-[var(--space-32)]")}>
 		<!-- Wordmark -->
 		<div class={stack({ gap: "4", align: "center" })}>

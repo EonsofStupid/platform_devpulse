@@ -9101,6 +9101,510 @@
 				"extensions": null
 			},
 			{
+				"name": "style-dynamic-background-boot-background-color",
+				"path": [
+					"style",
+					"dynamic-background-boot",
+					"background-color"
+				],
+				"cssVar": "--style-dynamic-background-boot-background-color",
+				"value": "oklch(0.05 0.015 224)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-boot-border-radius",
+				"path": [
+					"style",
+					"dynamic-background-boot",
+					"border-radius"
+				],
+				"cssVar": "--style-dynamic-background-boot-border-radius",
+				"value": "0",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-boot-box-shadow",
+				"path": [
+					"style",
+					"dynamic-background-boot",
+					"box-shadow"
+				],
+				"cssVar": "--style-dynamic-background-boot-box-shadow",
+				"value": "none",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-boot-color",
+				"path": [
+					"style",
+					"dynamic-background-boot",
+					"color"
+				],
+				"cssVar": "--style-dynamic-background-boot-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-boot-border-color",
+				"path": [
+					"style",
+					"dynamic-background-boot",
+					"border-color"
+				],
+				"cssVar": "--style-dynamic-background-boot-border-color",
+				"value": "transparent",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-boot-border-width",
+				"path": [
+					"style",
+					"dynamic-background-boot",
+					"border-width"
+				],
+				"cssVar": "--style-dynamic-background-boot-border-width",
+				"value": "0",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-boot-opacity",
+				"path": [
+					"style",
+					"dynamic-background-boot",
+					"opacity"
+				],
+				"cssVar": "--style-dynamic-background-boot-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-devpulse-background-color",
+				"path": [
+					"style",
+					"dynamic-background-devpulse",
+					"background-color"
+				],
+				"cssVar": "--style-dynamic-background-devpulse-background-color",
+				"value": "oklch(0.05 0.015 224)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-devpulse-border-radius",
+				"path": [
+					"style",
+					"dynamic-background-devpulse",
+					"border-radius"
+				],
+				"cssVar": "--style-dynamic-background-devpulse-border-radius",
+				"value": "0",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-devpulse-box-shadow",
+				"path": [
+					"style",
+					"dynamic-background-devpulse",
+					"box-shadow"
+				],
+				"cssVar": "--style-dynamic-background-devpulse-box-shadow",
+				"value": "none",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-devpulse-color",
+				"path": [
+					"style",
+					"dynamic-background-devpulse",
+					"color"
+				],
+				"cssVar": "--style-dynamic-background-devpulse-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-devpulse-border-color",
+				"path": [
+					"style",
+					"dynamic-background-devpulse",
+					"border-color"
+				],
+				"cssVar": "--style-dynamic-background-devpulse-border-color",
+				"value": "transparent",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-devpulse-border-width",
+				"path": [
+					"style",
+					"dynamic-background-devpulse",
+					"border-width"
+				],
+				"cssVar": "--style-dynamic-background-devpulse-border-width",
+				"value": "0",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-devpulse-opacity",
+				"path": [
+					"style",
+					"dynamic-background-devpulse",
+					"opacity"
+				],
+				"cssVar": "--style-dynamic-background-devpulse-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-overmind-background-color",
+				"path": [
+					"style",
+					"dynamic-background-overmind",
+					"background-color"
+				],
+				"cssVar": "--style-dynamic-background-overmind-background-color",
+				"value": "oklch(0.05 0.02 280)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-overmind-border-radius",
+				"path": [
+					"style",
+					"dynamic-background-overmind",
+					"border-radius"
+				],
+				"cssVar": "--style-dynamic-background-overmind-border-radius",
+				"value": "0",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-overmind-box-shadow",
+				"path": [
+					"style",
+					"dynamic-background-overmind",
+					"box-shadow"
+				],
+				"cssVar": "--style-dynamic-background-overmind-box-shadow",
+				"value": "none",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-overmind-color",
+				"path": [
+					"style",
+					"dynamic-background-overmind",
+					"color"
+				],
+				"cssVar": "--style-dynamic-background-overmind-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-overmind-border-color",
+				"path": [
+					"style",
+					"dynamic-background-overmind",
+					"border-color"
+				],
+				"cssVar": "--style-dynamic-background-overmind-border-color",
+				"value": "transparent",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-overmind-border-width",
+				"path": [
+					"style",
+					"dynamic-background-overmind",
+					"border-width"
+				],
+				"cssVar": "--style-dynamic-background-overmind-border-width",
+				"value": "0",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-overmind-opacity",
+				"path": [
+					"style",
+					"dynamic-background-overmind",
+					"opacity"
+				],
+				"cssVar": "--style-dynamic-background-overmind-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-wiredfront-background-color",
+				"path": [
+					"style",
+					"dynamic-background-wiredfront",
+					"background-color"
+				],
+				"cssVar": "--style-dynamic-background-wiredfront-background-color",
+				"value": "oklch(0.04 0.01 200)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-wiredfront-border-radius",
+				"path": [
+					"style",
+					"dynamic-background-wiredfront",
+					"border-radius"
+				],
+				"cssVar": "--style-dynamic-background-wiredfront-border-radius",
+				"value": "0",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-wiredfront-box-shadow",
+				"path": [
+					"style",
+					"dynamic-background-wiredfront",
+					"box-shadow"
+				],
+				"cssVar": "--style-dynamic-background-wiredfront-box-shadow",
+				"value": "none",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-wiredfront-color",
+				"path": [
+					"style",
+					"dynamic-background-wiredfront",
+					"color"
+				],
+				"cssVar": "--style-dynamic-background-wiredfront-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-wiredfront-border-color",
+				"path": [
+					"style",
+					"dynamic-background-wiredfront",
+					"border-color"
+				],
+				"cssVar": "--style-dynamic-background-wiredfront-border-color",
+				"value": "transparent",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-wiredfront-border-width",
+				"path": [
+					"style",
+					"dynamic-background-wiredfront",
+					"border-width"
+				],
+				"cssVar": "--style-dynamic-background-wiredfront-border-width",
+				"value": "0",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-wiredfront-opacity",
+				"path": [
+					"style",
+					"dynamic-background-wiredfront",
+					"opacity"
+				],
+				"cssVar": "--style-dynamic-background-wiredfront-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-devforge-background-color",
+				"path": [
+					"style",
+					"dynamic-background-devforge",
+					"background-color"
+				],
+				"cssVar": "--style-dynamic-background-devforge-background-color",
+				"value": "oklch(0.05 0.015 25)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-devforge-border-radius",
+				"path": [
+					"style",
+					"dynamic-background-devforge",
+					"border-radius"
+				],
+				"cssVar": "--style-dynamic-background-devforge-border-radius",
+				"value": "0",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-devforge-box-shadow",
+				"path": [
+					"style",
+					"dynamic-background-devforge",
+					"box-shadow"
+				],
+				"cssVar": "--style-dynamic-background-devforge-box-shadow",
+				"value": "none",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-devforge-color",
+				"path": [
+					"style",
+					"dynamic-background-devforge",
+					"color"
+				],
+				"cssVar": "--style-dynamic-background-devforge-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-devforge-border-color",
+				"path": [
+					"style",
+					"dynamic-background-devforge",
+					"border-color"
+				],
+				"cssVar": "--style-dynamic-background-devforge-border-color",
+				"value": "transparent",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-devforge-border-width",
+				"path": [
+					"style",
+					"dynamic-background-devforge",
+					"border-width"
+				],
+				"cssVar": "--style-dynamic-background-devforge-border-width",
+				"value": "0",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-devforge-opacity",
+				"path": [
+					"style",
+					"dynamic-background-devforge",
+					"opacity"
+				],
+				"cssVar": "--style-dynamic-background-devforge-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-maestro-background-color",
+				"path": [
+					"style",
+					"dynamic-background-maestro",
+					"background-color"
+				],
+				"cssVar": "--style-dynamic-background-maestro-background-color",
+				"value": "oklch(0.04 0.02 173)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-maestro-border-radius",
+				"path": [
+					"style",
+					"dynamic-background-maestro",
+					"border-radius"
+				],
+				"cssVar": "--style-dynamic-background-maestro-border-radius",
+				"value": "0",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-maestro-box-shadow",
+				"path": [
+					"style",
+					"dynamic-background-maestro",
+					"box-shadow"
+				],
+				"cssVar": "--style-dynamic-background-maestro-box-shadow",
+				"value": "none",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-maestro-color",
+				"path": [
+					"style",
+					"dynamic-background-maestro",
+					"color"
+				],
+				"cssVar": "--style-dynamic-background-maestro-color",
+				"value": "oklch(0.9319 0.015 224)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-maestro-border-color",
+				"path": [
+					"style",
+					"dynamic-background-maestro",
+					"border-color"
+				],
+				"cssVar": "--style-dynamic-background-maestro-border-color",
+				"value": "transparent",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-maestro-border-width",
+				"path": [
+					"style",
+					"dynamic-background-maestro",
+					"border-width"
+				],
+				"cssVar": "--style-dynamic-background-maestro-border-width",
+				"value": "0",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "style-dynamic-background-maestro-opacity",
+				"path": [
+					"style",
+					"dynamic-background-maestro",
+					"opacity"
+				],
+				"cssVar": "--style-dynamic-background-maestro-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
 				"name": "style-chat-context-panel-default-background-color",
 				"path": [
 					"style",
