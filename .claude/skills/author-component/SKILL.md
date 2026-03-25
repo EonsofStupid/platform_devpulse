@@ -1,11 +1,13 @@
 # Author Component
 
 Author or reauthor a ColdLight component per ADR-001 (2-layer enterprise pattern).
+Zero exceptions. No backwards compat. No shortcuts.
 
 ## When to use
 - User says "author this component" or "create this component"
 - User pastes a component API reference (Spectrum S2, Ark UI, Zag, Skeleton)
 - User wants an existing component reauthored
+- User says "align this component"
 
 ## Architecture (2 Layers — ADR-001 LOCKED)
 
@@ -20,107 +22,164 @@ Author or reauthor a ColdLight component per ADR-001 (2-layer enterprise pattern
 ### Layer 2: Component (`components/{kind}/`) — THE PRODUCT
 - What users import. Hook + StyleMacro in ONE file.
 - `{Kind}.svelte` — uses hook for ARIA + StyleMacro for visual
-- `{kind}.types.ts` — extends ComponentProps from `_base`
-- `{kind}.def.ts` — const literal `as const satisfies ComponentDef`
+- `{kind}.types.ts` — extends UIBaseProps from `_base`
 - `index.ts` — barrel (public API)
 
 **No `ui/` folder. No dumb middle layer. No Zod schemas. No registry.**
 
-### Component Pattern
+## MANDATORY Component Contract
+
+Every ColdLight component MUST have ALL of the following. No exceptions.
+
+### 1. @defaults annotation header
+
+In the HTML comment block at the top of the .svelte file. These are the SSOT seed values. The scanner extracts them into the DTCG pipeline. Values here MUST match what's in `style-presets.json`.
+
+```html
+<!--
+	@component {Kind Name}
+	@kind {kind}
+	@layer component
+	@category {category}
+	@description {one-line description}
+	@container {true|false}
+	@containerSlots {slot names if container}
+	@compound {true|false}
+	@blockCategory {block category}
+	@defaultStyle {kind}-default
+	@styleIds {kind}-default, {kind}-stark, {kind}-glass, {kind}-flat, {kind}-matte
+	@requiredAxes backgroundColor, border, borderRadius, shadow, color, opacity
+	@slots root:all
+	@defaults {
+		"background-color": "oklch(...)",
+		"border-radius": "...",
+		"box-shadow": "...",
+		"color": "oklch(...)",
+		"border-color": "oklch(...)",
+		"border-width": "...",
+		"backdrop-filter": "blur(...)",
+		"opacity": "1"
+}
+-->
+```
+
+### 2. `intent` prop — THE style selector
+
+**Every component uses `intent` as the prop that selects the DTCG style preset.** Not `style`. Not `variant`. Not `accent`. Not `tone`. `intent`.
+
+Exception: components where the semantic concept truly IS a variant (e.g. ChatBubble `variant="ai"|"user"|"system"` where the variants are functionally different, not just visually different). In those cases use `variant` — but the styleId still derives from it.
+
+```typescript
+// Types
+export type {Kind}Intent = "default" | "primary" | "ghost" | "destructive";
+
+// Component
+let { intent = "default", ... }: {Kind}Props = $props();
+const styleId = $derived(`{kind}-${intent}`);
+```
+
+### 3. `styleId` via `$derived` — ALWAYS
+
+Never hardcode `const styleId = "{kind}-default"`. Always derive:
+
+```typescript
+const styleId = $derived(`{kind}-${intent}`);
+```
+
+### 4. StyleMacro wrapper — ALWAYS
 
 ```svelte
-<script lang="ts">
-  import { use{Kind} } from "$lib/design/primitives/{kind}/index.js";
-  import { StyleMacro } from "$lib/design/style/index.js";
-  import { cn } from "$lib/design/utils/cn.js";
-  import type { {Kind}Props, {Kind}Size } from "./{kind}.types.js";
-
-  const SIZE: Record<{Kind}Size, string> = {
-    sm: "...", md: "...", lg: "...",
-  };
-
-  let { intent = "default", size = "md", children, class: className,
-        ...rest }: {Kind}Props = $props();
-
-  const hook = $derived(use{Kind}({ /* behavioral props */ }));
-  const styleId = $derived(`{kind}-${intent}`);
-</script>
-
 <StyleMacro kind="{kind}" style={styleId}>
-  <element {...hook.root} {...rest}
-    class={cn("structural classes", SIZE[size] ?? SIZE.md, className)}>
-    {@render children?.()}
-  </element>
+	<element data-kind="{kind}" data-slot="{slot-name}" ...>
+		...
+	</element>
 </StyleMacro>
 ```
 
-### Def Pattern (const literal + map)
+### 5. data-kind + data-slot — ALWAYS
 
-```ts
-// {kind}.def.ts
-import type { ComponentDef } from "$lib/design/components/_base/types.js";
+- `data-kind="{kind}"` on the root element
+- `data-slot` = the structural slot name this component fills (e.g. "topbar", "root", "mode-selector")
+- For standalone components: `data-slot="root"`
+- For components that fill a parent grid/layout slot: `data-slot="{zone-name}"`
 
-export const {kind}Def = {
-  kind: "{kind}",
-  defaultStyleId: "{kind}-default",
-  styleIds: ["{kind}-default"],
-  slots: { root: "all" },
-} as const satisfies ComponentDef;
-```
+### 6. WAI-ARIA — ALWAYS
 
-Add one line to `_base/component-map.ts`:
-```ts
-import { {kind}Def } from "../{kind}/{kind}.def.js";
-// then add to map: {kind}: {kind}Def,
-```
+Every interactive component must have proper ARIA from its primitive hook. Every structural component must have the correct landmark role.
 
-### Types Pattern
+### 7. DTCG presets in style-presets.json — ALWAYS
 
-```ts
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+Every component needs AT MINIMUM a `{kind}-default` preset entry. Standard set is 5 presets:
+- `{kind}-default` — neuro-elevated (the flagship look)
+- `{kind}-stark` — crisp 2D, gradient background, hard edges
+- `{kind}-glass` — deep glass, heavy blur, translucent
+- `{kind}-flat` — minimal, no shadows, subtle borders
+- `{kind}-matte` — solid, subtle shadow, no blur
 
-export type {Kind}Intent = "default" | "primary" | ...;
-export type {Kind}Size = "sm" | "md" | "lg";
-
-export interface {Kind}Props extends ComponentProps,
-  Omit<HTML{Element}Attributes, "style" | "children" | "class" | ...> {
-  intent?: {Kind}Intent;
-  size?: {Kind}Size;
-  // behavioral props forwarded to hook
-}
-```
-
-### DTCG Style Tokens
-
-In `tokens/src/component.json` under `style.{kind}-{intent}`:
+Each preset has 8 axes:
 ```json
 {
-  "style": {
-    "{kind}-default": {
-      "backgroundColor": { "$type": "color", "$value": "..." },
-      "backgroundBlur":  { "$type": "dimension", "$value": "..." },
-      "shadow":          { "$type": "shadow", "$value": "..." },
-      "border":          { "$type": "border", "$value": { "color": "...", "width": "...", "style": "..." } },
-      "animation":       { "$type": "duration", "$value": "..." },
-      "transition":      { "$type": "transition", "$value": { "duration": "...", "delay": "...", "timingFunction": [...] } },
-      "typography":      { "$type": "typography", "$value": { "fontFamily": "...", "fontSize": "...", "fontWeight": ..., "letterSpacing": "...", "lineHeight": ... } },
-      "gradient":        { "$type": "gradient", "$value": [] },
-      "color":           { "$type": "color", "$value": "..." },
-      "borderRadius":    { "$type": "dimension", "$value": "..." },
-      "opacity":         { "$type": "number", "$value": 1 }
-    }
-  }
+	"background-color": { "$value": "oklch(...)", "$type": "color" },
+	"border-radius": { "$value": "...", "$type": "dimension" },
+	"box-shadow": { "$value": "...", "$type": "shadow" },
+	"color": { "$value": "oklch(...)", "$type": "color" },
+	"border-color": { "$value": "oklch(...)", "$type": "color" },
+	"border-width": { "$value": "...", "$type": "dimension" },
+	"backdrop-filter": { "$value": "blur(...)", "$type": "dimension" },
+	"opacity": { "$value": "1", "$type": "number" }
 }
 ```
+
+### 8. Types — UIBaseProps + .js extensions
+
+```typescript
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
+
+export type {Kind}Intent = "default" | "stark" | "glass" | "flat" | "matte";
+
+export interface {Kind}Props extends UIBaseProps {
+	intent?: {Kind}Intent;
+	// ... component-specific props
+}
+```
+
+### 9. Barrel export — index.ts
+
+```typescript
+export { default as {Kind} } from "./{Kind}.svelte";
+export type { {Kind}Props, {Kind}Intent } from "./{kind}.types.js";
+```
+
+### 10. All values from tokens — NO hardcoded values
+
+- All colors: oklch from tokens
+- All sizes: rem from tokens
+- All shadows: from token pipeline
+- All border-radius: from token pipeline
+- Structural Tailwind classes (flex, grid, gap, padding) are fine — those are layout, not visual
 
 ## What to do
 
 1. **Check if primitive hook exists** — if not, author it (anatomy + types + a11y + hook)
-2. **Author component** — hook + StyleMacro in ONE file. Extends ComponentProps.
-3. **Author def** — const literal, add to component-map
-4. **Author DTCG style tokens** — 11-axis token group per intent/variant
-5. **Update consumers** — import from components/{kind}/
-6. **Verify** — `pnpm svelte-check`, `pnpm ds:tokens:build`
+2. **Author component** — hook + StyleMacro in ONE file. Extends UIBaseProps. `intent` prop. `$derived` styleId.
+3. **Author @defaults header** — seed values matching the default preset in style-presets.json
+4. **Author DTCG style presets** — 5 presets (default, stark, glass, flat, matte) in style-presets.json
+5. **Rebuild tokens** — `pnpm ds:tokens:build`
+6. **Update consumers** — import from components/{kind}/
+7. **Verify** — `pnpm svelte-check` 0 errors
+
+## Reauthoring an existing component
+
+When fixing an existing component to align:
+
+1. Read the existing component fully
+2. Check if it has a primitive hook — if not, note it but don't block on it
+3. Replace hardcoded `styleId = "{kind}-default"` with `$derived(\`{kind}-${intent}\`)`
+4. Add `intent` prop to the types file (with correct Intent type union)
+5. Add `intent` to `$props()` destructuring with default `"default"`
+6. Verify @defaults header has correct values
+7. Verify @styleIds lists all available presets
+8. `pnpm svelte-check` after EACH file edit
 
 ## BANNED
 
@@ -128,21 +187,20 @@ In `tokens/src/component.json` under `style.{kind}-{intent}`:
 - `useColdLight()`
 - `registerRecipe()` / `recipes/` folder
 - `registry/` folder
-- `_schema/` folder
-- Zod component schemas (schema.ts, registry.ts)
-- JS `recipe.ts` files
+- Zod component schemas
+- Hardcoded `styleId = "{kind}-default"` (MUST be $derived)
+- `style` as a prop name for preset selection (use `intent`)
+- `tone` as a prop name for preset selection (use `intent`)
+- `accent` as a prop name for preset selection (use `intent`)
 - Hardcoded colors in components
-- Visual classes in components
-- `ColdLightProps` / `PreparedComponentProps`
+- Visual CSS classes that bypass the token pipeline
 - `.svelte` components in primitives
-- `.props.ts` in primitives
 - Shorthand transforms in SD5
+- Backwards compatibility shims
 
 ## Key files
 - `design/ADR-001-STYLE-MACRO.md` — THE architecture
 - `design/style/StyleMacro.svelte` — the provider
-- `design/style/macro-mappings.ts` — 11 axes
-- `design/components/_base/types.ts` — ComponentProps + ComponentDef + SlotAxes
-- `design/components/_base/component-map.ts` — const map, getComponentDef()
-- `design/schema/anatomy.schema.ts` — createAnatomy for primitives
 - `design/generated/macro-base.css` — glue CSS, [data-kind] consumes --cl-*
+- `design/components/_base/types.ts` — UIBaseProps
+- `scripts/build/styledictionary/tokens/src/style-presets.json` — DTCG presets SSOT
