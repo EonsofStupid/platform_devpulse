@@ -8,7 +8,7 @@
 	@compound false
 	@blockCategory content
 	@defaultStyle badge-neutral
-	@styleIds badge-neutral, badge-accent, badge-positive, badge-negative, badge-notice, badge-informative
+	@styleIds badge-default, badge-stark, badge-glass, badge-flat, badge-matte
 	@requiredAxes backgroundColor, color, borderRadius, typography
 	@slots root:all
 	@defaults {
@@ -35,6 +35,7 @@ const SIZE: Record<BadgeSize, string> = {
 
 let {
 	variant = "neutral",
+	intent = "default",
 	fillStyle = "bold",
 	size = "md",
 	overflowMode = "wrap",
@@ -45,7 +46,7 @@ let {
 }: BadgeProps = $props();
 
 const badge = $derived(useBadge({ variant, fillStyle, size, decorative }));
-const styleId = $derived(`badge-${variant}`);
+const styleId = $derived(`badge-${intent}`);
 </script>
 
 <StyleMacro kind="badge" style={styleId}>

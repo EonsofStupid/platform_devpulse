@@ -33,12 +33,13 @@ let {
 	rounding = "default",
 	dir = "ltr",
 	children,
+	intent = "default",
 	class: className,
 	...rest
 }: ColorSwatchProps = $props();
 
 const accessibleName = $derived(colorName ?? color);
-const styleId = "color-swatch-default";
+const styleId = $derived(`color-swatch-${intent}`);
 </script>
 
 <StyleMacro kind="color-swatch" style={styleId}>

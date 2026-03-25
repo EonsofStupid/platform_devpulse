@@ -14,6 +14,7 @@ export type BadgeVariant =
 	| "notice"
 	| "negative";
 
+export type BadgeIntent = "default" | "stark" | "glass" | "flat" | "matte";
 export type BadgeFillStyle = "bold" | "subtle" | "outline";
 export type BadgeSize = "sm" | "md" | "lg" | "xl";
 export type BadgeOverflowMode = "wrap" | "truncate";
@@ -23,6 +24,8 @@ export interface BadgeProps
 		Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children" | "class"> {
 	/** Semantic color variant — maps to styleId */
 	variant?: BadgeVariant;
+	/** Visual intent — maps to style preset. Default: "default". */
+	intent?: BadgeIntent;
 	/** Fill style */
 	fillStyle?: BadgeFillStyle;
 	/** Size — structural class */

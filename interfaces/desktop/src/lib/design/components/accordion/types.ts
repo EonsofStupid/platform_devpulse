@@ -38,6 +38,7 @@ export interface AccordionIds {
 // =============================================================================
 
 export type AccordionSize = "sm" | "md" | "lg";
+export type AccordionIntent = "default" | "stark" | "glass" | "flat" | "matte";
 
 export interface AccordionRootProps
 	extends ComponentProps,
@@ -62,6 +63,8 @@ export interface AccordionRootProps
 	orientation?: "vertical" | "horizontal";
 	/** Structural size. */
 	size?: AccordionSize;
+	/** Visual intent — selects the style preset */
+	intent?: AccordionIntent;
 }
 
 // =============================================================================

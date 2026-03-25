@@ -29,6 +29,7 @@ let {
 	disabled = false,
 	onCopy,
 	children,
+	intent = "default",
 	class: className,
 	...rest
 }: CodeBlockRootProps = $props();
@@ -52,7 +53,7 @@ setCodeBlockContext({
 	copyCode,
 });
 
-const styleId = "code-default";
+const styleId = $derived(`code-${intent}`);
 </script>
 
 <StyleMacro kind="code" style={styleId}>

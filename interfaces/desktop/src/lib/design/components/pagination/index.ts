@@ -5,4 +5,4 @@
  */
 
 export { default as Pagination } from "./Pagination.svelte";
-export type { PaginationComponentProps, PaginationSize } from "./types.js";
+export type { PaginationComponentProps, PaginationIntent, PaginationSize } from "./types.js";

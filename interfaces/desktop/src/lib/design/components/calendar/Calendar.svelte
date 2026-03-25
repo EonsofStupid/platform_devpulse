@@ -47,6 +47,7 @@ let {
 	locale = "en-US",
 	dir = "ltr",
 	children,
+	intent = "default",
 	class: className,
 	...rest
 }: CalendarRootProps = $props();
@@ -120,7 +121,7 @@ setCalendarContext({
 	},
 });
 
-const styleId = "calendar-default";
+const styleId = $derived(`calendar-${intent}`);
 </script>
 
 <StyleMacro kind="calendar" style={styleId}>

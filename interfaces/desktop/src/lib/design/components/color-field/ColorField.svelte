@@ -48,6 +48,7 @@ let {
 	form,
 	name,
 	children,
+	intent = "default",
 	class: className,
 	...rest
 }: ColorFieldRootProps = $props();
@@ -97,7 +98,7 @@ function setValue(raw: string) {
 	onChange?.({ value: val });
 }
 
-const styleId = "color-field-default";
+const styleId = $derived(`color-field-${intent}`);
 
 // ── Context ─────────────────────────────────────────────────────
 setColorFieldContext({

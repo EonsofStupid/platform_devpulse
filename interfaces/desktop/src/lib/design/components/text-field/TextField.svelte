@@ -8,7 +8,7 @@
 	@compound true
 	@blockCategory form
 	@defaultStyle text-field-default
-	@styleIds text-field-default
+	@styleIds text-field-default, text-field-stark, text-field-glass, text-field-flat, text-field-matte
 	@requiredAxes backgroundColor, border, borderRadius, typography, color
 	@slots root:all, input:none, label:none
 	@defaults {
@@ -45,6 +45,7 @@ let {
 	required = false,
 	invalid = false,
 	size = "md",
+	intent = "default",
 	leading,
 	trailing,
 	class: className,
@@ -63,7 +64,7 @@ const field = $derived(useTextField({
 	error: errorText,
 }));
 
-const styleId = "text-field-default";
+const styleId = $derived(`text-field-${intent}`);
 </script>
 
 <StyleMacro kind="text-field" style={styleId}>

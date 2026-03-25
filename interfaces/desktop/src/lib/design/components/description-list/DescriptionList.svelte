@@ -26,9 +26,9 @@ import { useDescriptionList } from "$lib/design/primitives/description-list/inde
 import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { DescriptionListComponentProps } from "./types.js";
-let { size = "md", variant = "default", label, children, class: className, ...rest }: DescriptionListComponentProps = $props();
+let { size = "md", variant = "default", intent = "default", label, children, class: className, ...rest }: DescriptionListComponentProps = $props();
 const dl = $derived(useDescriptionList({ label }));
-const styleId = "description-list-default";
+const styleId = $derived(`description-list-${intent}`);
 </script>
 <StyleMacro kind="description-list" style={styleId}>
 	<dl {...dl.root} data-kind="description-list" data-slot="root" data-variant={variant} class={cn(className)} {...rest}>{@render children?.()}</dl>

@@ -9,6 +9,7 @@ export { default as Empty } from "./ComboboxEmpty.svelte";
 export { default as Announce } from "./ComboboxAnnounce.svelte";
 export type { ComboboxContext } from "./context.js";
 export type {
+	ComboboxIntent,
 	ComboboxProps,
 	ComboboxInputProps,
 	ComboboxTriggerProps,

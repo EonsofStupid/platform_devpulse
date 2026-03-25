@@ -26,9 +26,9 @@ import { useFormField } from "$lib/design/primitives/form-field/index.js";
 import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { FormFieldComponentProps } from "./types.js";
-let { size = "md", label, description, error, invalid = false, required = false, disabled = false, children, class: className, ...rest }: FormFieldComponentProps = $props();
+let { intent = "default", size = "md", label, description, error, invalid = false, required = false, disabled = false, children, class: className, ...rest }: FormFieldComponentProps = $props();
 const field = $derived(useFormField({ invalid, required, disabled }));
-const styleId = "form-field-default";
+const styleId = $derived(`form-field-${intent}`);
 </script>
 <StyleMacro kind="form-field" style={styleId}>
 	<div {...field.root} class={cn("flex flex-col gap-1.5", className)} {...rest}>

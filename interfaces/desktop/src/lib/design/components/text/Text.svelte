@@ -8,7 +8,7 @@
 	@compound false
 	@blockCategory content
 	@defaultStyle text-default
-	@styleIds text-default
+	@styleIds text-default, text-stark, text-glass, text-flat, text-matte
 	@requiredAxes typography, color
 	@slots root:all
 	@defaults {
@@ -44,6 +44,7 @@ const WEIGHT: Record<TextWeight, string> = {
 };
 
 let {
+	intent = "default",
 	as = "span",
 	size = "base",
 	weight = "normal",
@@ -52,7 +53,7 @@ let {
 	...rest
 }: TextProps = $props();
 
-const styleId = "text-default";
+const styleId = $derived(`text-${intent}`);
 const classes = $derived(cn(SIZE[size] ?? SIZE.base, WEIGHT[weight] ?? WEIGHT.normal, className));
 </script>
 

@@ -9,7 +9,7 @@
 	@compound true
 	@blockCategory feedback
 	@defaultStyle banner-default
-	@styleIds banner-default, banner-info, banner-success, banner-warning, banner-error
+	@styleIds banner-default, banner-stark, banner-glass, banner-flat, banner-matte, banner-info, banner-success, banner-warning, banner-error
 	@requiredAxes backgroundColor, color, border
 	@slots root:all, icon:none, content:none, action:none, dismiss:none
 	@defaults {
@@ -43,6 +43,7 @@ let {
 	disabled = false,
 	dir = "ltr",
 	dismissible = true,
+	intent = "default",
 	children,
 	dismiss,
 	class: className,
@@ -53,7 +54,7 @@ let {
 const banner = $derived(useBanner({ disabled }));
 
 // --- Visual ---
-const styleId = "banner-default";
+const styleId = $derived(`banner-${intent}`);
 
 // --- State ---
 let internalOpen = $state(defaultOpen ?? true);

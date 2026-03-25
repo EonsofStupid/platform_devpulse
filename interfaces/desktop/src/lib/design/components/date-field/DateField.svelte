@@ -48,6 +48,7 @@ let {
 	name,
 	form,
 	dir = "ltr",
+	intent = "default",
 	children,
 	class: className,
 	...rest
@@ -142,7 +143,7 @@ setDateFieldContext({
 	focusPrevSegment() { focusedIndex = Math.max(focusedIndex - 1, 0); },
 });
 
-const styleId = "date-field-default";
+const styleId = $derived(`date-field-${intent}`);
 </script>
 
 <StyleMacro kind="date-field" style={styleId}>

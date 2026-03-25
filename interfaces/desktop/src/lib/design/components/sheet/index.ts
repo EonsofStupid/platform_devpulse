@@ -5,4 +5,4 @@
  */
 
 export { default as Sheet } from "./Sheet.svelte";
-export type { SheetComponentProps, SheetSide, SheetSize } from "./types.js";
+export type { SheetComponentProps, SheetIntent, SheetSide, SheetSize } from "./types.js";

@@ -37,6 +37,7 @@ let {
 	onOpenChange,
 	size = "md",
 	disabled = false,
+	intent = "default",
 	children,
 	class: className,
 	...rest
@@ -52,7 +53,7 @@ const hook = useComboBox({
 	get disabled() { return disabled; },
 });
 
-const styleId = "combobox-default";
+const styleId = $derived(`combobox-${intent}`);
 
 setComboboxContext({
 	get hook() { return hook; },

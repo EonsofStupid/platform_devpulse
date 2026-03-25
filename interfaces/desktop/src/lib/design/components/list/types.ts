@@ -15,6 +15,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 export type ListSize = "sm" | "md" | "lg";
 export type ListVariant = "none" | "disc" | "decimal";
 export type ListSpacing = "compact" | "default" | "relaxed";
+export type ListIntent = "default" | "stark" | "glass" | "flat" | "matte";
 
 /** List component props — ARIA + composition + ColdLight 8-axis */
 export interface ListComponentProps
@@ -22,6 +23,8 @@ export interface ListComponentProps
 		BaseProps,
 		ComponentProps {
 	children?: Snippet;
+	/** Style intent preset */
+	intent?: ListIntent;
 	/** Size variant — controls font size */
 	size?: ListSize;
 	/** List marker style — controls list-style-type */

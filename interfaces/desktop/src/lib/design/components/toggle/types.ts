@@ -11,6 +11,8 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type ToggleSize = "sm" | "md" | "lg";
 
+export type ToggleIntent = "default" | "stark" | "glass" | "flat" | "matte";
+
 export interface ToggleProps
 	extends Omit<HTMLButtonAttributes, "style" | "children" | "disabled">,
 		BaseProps,
@@ -19,5 +21,7 @@ export interface ToggleProps
 	pressed?: boolean;
 	onPressedChange?: (pressed: boolean) => void;
 	disabled?: boolean;
+	/** Style intent. Default: "default". */
+	intent?: ToggleIntent;
 	size?: ToggleSize;
 }

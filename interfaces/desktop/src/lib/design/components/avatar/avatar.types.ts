@@ -7,6 +7,7 @@ import type { HTMLAttributes } from "svelte/elements";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
 export type AvatarLoadStatus = "loading" | "loaded" | "error";
+export type AvatarIntent = "default" | "stark" | "glass" | "flat" | "matte";
 
 export interface AvatarStatusChangeDetails {
 	status: AvatarLoadStatus;
@@ -23,6 +24,8 @@ export interface AvatarProps
 	fallback?: string;
 	/** Size in pixels. Default: 40. */
 	size?: number;
+	/** Visual intent — selects the style preset */
+	intent?: AvatarIntent;
 	/** Callback when image load status changes */
 	onStatusChange?: (details: AvatarStatusChangeDetails) => void;
 }

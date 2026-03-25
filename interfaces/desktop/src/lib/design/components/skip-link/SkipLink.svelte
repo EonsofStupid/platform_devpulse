@@ -30,11 +30,12 @@ let {
 	href = "#main-content",
 	label = "Skip to main content",
 	children,
+	intent = "default",
 	class: className,
 	...rest
 }: SkipLinkComponentProps = $props();
 
-const styleId = "skip-link-default";
+const styleId = $derived(`skip-link-${intent}`);
 </script>
 
 <StyleMacro kind="skip-link" style={styleId}>

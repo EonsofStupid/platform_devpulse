@@ -14,6 +14,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type ScrollAreaSize = "sm" | "md" | "lg";
 export type ScrollAreaOrientation = "horizontal" | "vertical";
+export type ScrollAreaIntent = "default" | "stark" | "glass" | "flat" | "matte";
 
 /** ScrollArea component props — ARIA + composition + ColdLight 8-axis */
 export interface ScrollAreaComponentProps
@@ -21,6 +22,8 @@ export interface ScrollAreaComponentProps
 		BaseProps,
 		ComponentProps {
 	children?: Snippet;
+	/** Style intent preset */
+	intent?: ScrollAreaIntent;
 	/** Size variant — controls scrollbar thumb size. @default "md" */
 	size?: ScrollAreaSize;
 	/** Orientation of the scrollbar. @default "vertical" */

@@ -33,13 +33,14 @@ const SIZE: Record<EmptyStateSize, string> = {
 };
 
 let {
+	intent = "default",
 	size = "md",
 	children,
 	class: className,
 	...rest
 }: EmptyStateProps = $props();
 
-const styleId = "empty-state-default";
+const styleId = $derived(`empty-state-${intent}`);
 </script>
 
 <StyleMacro kind="empty-state" style={styleId}>

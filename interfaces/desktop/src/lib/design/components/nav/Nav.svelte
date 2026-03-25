@@ -27,6 +27,7 @@ import { cn } from "$lib/design/utils/cn.js";
 import type { NavComponentProps } from "./types.js";
 
 let {
+	intent = "default",
 	label,
 	size = "md",
 	orientation = "horizontal",
@@ -35,7 +36,7 @@ let {
 	...rest
 }: NavComponentProps = $props();
 
-const styleId = "nav-default";
+const styleId = $derived(`nav-${intent}`);
 </script>
 
 <StyleMacro kind="nav" style={styleId}>

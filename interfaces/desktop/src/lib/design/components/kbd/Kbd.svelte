@@ -32,13 +32,14 @@ const SIZE: Record<KbdSize, string> = {
 };
 
 let {
+	intent = "default",
 	size = "md",
 	children,
 	class: className,
 	...rest
 }: KbdProps = $props();
 
-const styleId = "kbd-default";
+const styleId = $derived(`kbd-${intent}`);
 </script>
 
 <StyleMacro kind="kbd" style={styleId}>

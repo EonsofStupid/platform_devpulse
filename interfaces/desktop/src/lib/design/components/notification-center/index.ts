@@ -5,4 +5,4 @@
  */
 
 export { default as NotificationCenter } from "./NotificationCenter.svelte";
-export type { NotificationCenterComponentProps } from "./types.js";
+export type { NotificationCenterComponentProps, NotificationCenterIntent } from "./types.js";

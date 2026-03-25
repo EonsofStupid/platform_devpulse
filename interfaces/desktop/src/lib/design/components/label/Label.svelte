@@ -8,7 +8,7 @@
 	@compound false
 	@blockCategory form
 	@defaultStyle label-default
-	@styleIds label-default
+	@styleIds label-default, label-stark, label-glass, label-flat, label-matte
 	@requiredAxes typography, color
 	@slots root:all
 	@defaults {
@@ -34,6 +34,7 @@ const SIZE: Record<LabelSize, string> = {
 
 let {
 	size = "md",
+	intent = "default",
 	htmlFor,
 	disabled = false,
 	required = false,
@@ -43,7 +44,7 @@ let {
 }: LabelProps = $props();
 
 const label = $derived(useLabel({ htmlFor, disabled }));
-const styleId = "label-default";
+const styleId = $derived(`label-${intent}`);
 </script>
 
 <StyleMacro kind="label" style={styleId}>

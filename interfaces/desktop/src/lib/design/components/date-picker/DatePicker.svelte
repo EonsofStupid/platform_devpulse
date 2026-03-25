@@ -55,6 +55,7 @@ let {
 	name,
 	form,
 	dir = "ltr",
+	intent = "default",
 	children,
 	class: className,
 	...rest
@@ -141,7 +142,7 @@ setDatePickerContext({
 	toggle, openPopover, closePopover, selectDate, updateValue,
 });
 
-const styleId = "date-picker-default";
+const styleId = $derived(`date-picker-${intent}`);
 </script>
 
 <StyleMacro kind="date-picker" style={styleId}>

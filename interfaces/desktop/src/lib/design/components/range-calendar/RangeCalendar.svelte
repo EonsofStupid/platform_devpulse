@@ -38,6 +38,7 @@ let {
 	disabled = false,
 	locale = "en-US",
 	size = "md",
+	intent = "default",
 	children,
 	class: className,
 	...rest
@@ -158,7 +159,7 @@ const ctx: RangeCalendarContext = {
 
 setRangeCalendarContext(ctx);
 
-const styleId = "range-calendar-default";
+const styleId = $derived(`range-calendar-${intent}`);
 </script>
 
 <StyleMacro kind="range-calendar" style={styleId}>

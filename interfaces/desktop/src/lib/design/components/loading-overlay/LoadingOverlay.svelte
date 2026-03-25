@@ -27,6 +27,7 @@ import { cn } from "$lib/design/utils/cn.js";
 import type { LoadingOverlayComponentProps } from "./types.js";
 
 let {
+	intent = "default",
 	visible = false,
 	children,
 	class: className,
@@ -34,7 +35,7 @@ let {
 }: LoadingOverlayComponentProps = $props();
 
 const overlay = $derived(useLoadingOverlay({ visible }));
-const styleId = "loading-overlay-default";
+const styleId = $derived(`loading-overlay-${intent}`);
 </script>
 
 {#if visible}

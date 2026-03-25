@@ -9,7 +9,7 @@
 	@compound true
 	@blockCategory layout
 	@defaultStyle card-default
-	@styleIds card-default, card-outlined, card-elevated, card-ghost, card-glow
+	@styleIds card-default, card-stark, card-glass, card-flat, card-matte
 	@requiredAxes backgroundColor, shadow, border, borderRadius
 	@slots root:all, header:none, body:none, footer:none
 	@defaults {
@@ -30,6 +30,7 @@ let {
 	as = "div",
 	orientation = "vertical",
 	variant = "default",
+	intent = "default",
 	label,
 	labelledBy,
 	href,
@@ -40,7 +41,7 @@ let {
 	...rest
 }: CardProps = $props();
 
-const styleId = $derived(`card-${variant}`);
+const styleId = $derived(`card-${intent}`);
 
 const rootClasses = $derived(cn(
 	"flex overflow-hidden",

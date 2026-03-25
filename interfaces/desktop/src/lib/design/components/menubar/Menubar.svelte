@@ -29,13 +29,14 @@ import { type MenubarRootCtx, setMenubarRootContext } from "./context.js";
 import type { MenubarProps } from "./types.js";
 
 let {
+	intent = "default",
 	children,
 	class: className,
 	...rest
 }: MenubarProps = $props();
 
 let activeMenu = $state<string | undefined>(undefined);
-const styleId = "menubar-default";
+const styleId = $derived(`menubar-${intent}`);
 
 function openMenu(value: string): void {
 	activeMenu = value;

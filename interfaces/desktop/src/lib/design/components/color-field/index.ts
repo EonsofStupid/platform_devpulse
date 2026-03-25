@@ -16,4 +16,5 @@ export type {
 	ColorFieldErrorMessageProps,
 	ColorFieldValidationBehavior,
 	ColorFieldNecessityIndicator,
+	ColorFieldIntent,
 } from "./types.js";

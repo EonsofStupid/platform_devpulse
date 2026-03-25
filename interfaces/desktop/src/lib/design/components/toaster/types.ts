@@ -13,6 +13,8 @@ import type { HTMLAttributes } from "svelte/elements";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
+export type ToasterIntent = "default" | "stark" | "glass" | "flat" | "matte";
+
 export type ToasterPosition =
 	| "top-left"
 	| "top-center"
@@ -29,6 +31,8 @@ export interface ToasterComponentProps
 	children?: Snippet;
 	/** Position of the toast container. @default "bottom-right" */
 	position?: ToasterPosition;
+	/** Style intent. Default: "default". */
+	intent?: ToasterIntent;
 	/** Default auto-dismiss delay in ms. @default 5000 */
 	closeDelay?: number;
 }

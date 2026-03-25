@@ -14,6 +14,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type DescriptionListSize = "sm" | "md" | "lg";
 export type DescriptionListVariant = "default" | "inline" | "grid";
+export type DescriptionListIntent = "default" | "stark" | "glass" | "flat" | "matte";
 
 /** DescriptionList component props — ARIA + composition + ColdLight 8-axis */
 export interface DescriptionListComponentProps
@@ -21,6 +22,8 @@ export interface DescriptionListComponentProps
 		BaseProps,
 		ComponentProps {
 	children?: Snippet;
+	/** Style intent. Default: "default". */
+	intent?: DescriptionListIntent;
 	/** Size variant — controls font size and spacing */
 	size?: DescriptionListSize;
 	/** Layout variant — controls term/detail arrangement */

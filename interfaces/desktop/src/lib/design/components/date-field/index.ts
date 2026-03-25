@@ -1,6 +1,7 @@
 export { default as Root } from "./DateField.svelte";
 export { default as Segment } from "./DateFieldSegment.svelte";
 export type {
+	DateFieldIntent,
 	DateFieldIds,
 	DateFieldValueChangeDetails,
 	DateFieldRootProps,

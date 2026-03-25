@@ -11,10 +11,10 @@ import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { getTooltipContext } from "./context.js";
 
-let { children, class: className, ...rest }: { children?: import("svelte").Snippet; class?: string; [key: string]: unknown } = $props();
+let { intent = "default", children, class: className, ...rest }: { intent?: import("./types.js").TooltipIntent; children?: import("svelte").Snippet; class?: string; [key: string]: unknown } = $props();
 const ctx = getTooltipContext();
 
-const styleId = "tooltip-default";
+const styleId = $derived(`tooltip-${intent}`);
 </script>
 
 {#if ctx.hook.open}

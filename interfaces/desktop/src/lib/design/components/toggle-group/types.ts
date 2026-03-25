@@ -14,6 +14,8 @@ import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type ToggleGroupSize = "sm" | "md" | "lg";
+
+export type ToggleGroupIntent = "default" | "stark" | "glass" | "flat" | "matte";
 export type ToggleGroupOrientation = "horizontal" | "vertical";
 
 /** Item definition for toggle group */
@@ -45,4 +47,6 @@ export interface ToggleGroupComponentProps
 	orientation?: ToggleGroupOrientation;
 	/** Whether arrow keys loop. @default true */
 	loop?: boolean;
+	/** Style intent. Default: "default". */
+	intent?: ToggleGroupIntent;
 }

@@ -15,11 +15,12 @@ let {
 	id,
 	dir = "ltr",
 	children,
+	intent = "inline",
 	class: className,
 	...rest
 }: InlineCodeProps = $props();
 
-const styleId = "code-inline";
+const styleId = $derived(`code-${intent}`);
 </script>
 
 <StyleMacro kind="code" style={styleId}>

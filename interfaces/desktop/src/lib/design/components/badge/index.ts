@@ -8,6 +8,7 @@ export { BadgeSchema, CATEGORY, type BadgeSchemaProps } from "./schema.js";
 export { badgeTokens, badgeSizeTokens } from "./tokens.js";
 export type {
 	BadgeProps,
+	BadgeIntent,
 	BadgeVariant,
 	BadgeFillStyle,
 	BadgeSize,

@@ -10,9 +10,13 @@ import type { Snippet } from "svelte";
 import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
+export type RadioGroupIntent = "default" | "stark" | "glass" | "flat" | "matte";
+
 export interface RadioGroupProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class">,
 		ComponentProps {
+	/** Style intent preset */
+	intent?: RadioGroupIntent;
 	children?: Snippet;
 	value?: string;
 	onValueChange?: (value: string) => void;

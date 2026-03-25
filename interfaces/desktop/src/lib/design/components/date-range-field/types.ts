@@ -19,6 +19,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 // =============================================================================
 
 export type Size = "sm" | "md" | "lg";
+export type DateRangeFieldIntent = "default" | "stark" | "glass" | "flat" | "matte";
 
 // =============================================================================
 // GRANULARITY
@@ -58,6 +59,8 @@ export interface DateRangeFieldProps
 		BaseProps,
 		ComponentProps {
 	children?: Snippet;
+	/** Style intent. Default: "default". */
+	intent?: DateRangeFieldIntent;
 	/** Start date of the range */
 	startDate?: Date | undefined;
 	/** End date of the range */

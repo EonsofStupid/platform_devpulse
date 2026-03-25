@@ -37,6 +37,7 @@ let {
 	dir = "ltr",
 	children,
 	overflow,
+	intent = "default",
 	class: className,
 	...rest
 }: AvatarGroupRootProps = $props();
@@ -44,7 +45,7 @@ let {
 const autoIds = createIds("avatar-group", ["root"] as const);
 const rootId = userIds?.root ?? autoIds.root;
 
-const styleId = "avatar-group-default";
+const styleId = $derived(`avatar-group-${intent}`);
 
 const overflowCount = $derived.by(() => {
 	if (total !== undefined && maxVisible !== undefined) {

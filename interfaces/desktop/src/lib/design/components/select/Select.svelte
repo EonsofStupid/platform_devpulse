@@ -35,6 +35,7 @@ let {
 	onOpenChange,
 	placeholder,
 	disabled = false,
+	intent = "default",
 	children,
 	class: className,
 	...rest
@@ -49,7 +50,7 @@ const hook = useSelect({
 	placeholder,
 });
 
-const styleId = "select-default";
+const styleId = $derived(`select-${intent}`);
 
 setSelectContext({
 	get hook() { return hook; },

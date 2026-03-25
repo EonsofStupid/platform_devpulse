@@ -27,6 +27,7 @@ import { cn } from "$lib/design/utils/cn.js";
 import type { FormComponentProps } from "./types.js";
 
 let {
+	intent = "default",
 	size = "md",
 	label,
 	disabled = false,
@@ -39,7 +40,7 @@ let {
 }: FormComponentProps = $props();
 
 const form = $derived(useForm({ label, disabled, pending }));
-const styleId = "form-default";
+const styleId = $derived(`form-${intent}`);
 </script>
 
 <StyleMacro kind="form" style={styleId}>

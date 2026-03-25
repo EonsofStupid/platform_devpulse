@@ -33,6 +33,7 @@ let {
 	onOpenChange,
 	closeOnEscape = true,
 	closeOnOutsideClick = true,
+	intent = "default",
 	trigger,
 	content,
 	children,
@@ -46,7 +47,7 @@ const hook = usePopover({
 	get closeOnOutsideClick() { return closeOnOutsideClick; },
 });
 
-const styleId = "popover-default";
+const styleId = $derived(`popover-${intent}`);
 
 setPopoverContext({
 	get hook() { return hook; },

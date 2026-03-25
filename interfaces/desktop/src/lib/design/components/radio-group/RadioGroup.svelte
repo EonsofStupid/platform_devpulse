@@ -35,6 +35,7 @@ let {
 	required = false,
 	loop = true,
 	orientation = "vertical",
+	intent = "default",
 	children,
 	class: className,
 	...rest
@@ -49,7 +50,7 @@ const hook = useRadioGroup({
 	onValueChange: (v) => onValueChange?.(v),
 });
 
-const styleId = "radio-group-default";
+const styleId = $derived(`radio-group-${intent}`);
 
 setRadioGroupContext({
 	get hook() { return hook; },

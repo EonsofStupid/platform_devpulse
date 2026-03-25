@@ -3,6 +3,7 @@ export { default as Header } from "./CalendarHeader.svelte";
 export { default as Grid } from "./CalendarGrid.svelte";
 export { default as Cell } from "./CalendarCell.svelte";
 export type {
+	CalendarIntent,
 	CalendarIds,
 	CalendarValueChangeDetails,
 	CalendarFocusChangeDetails,

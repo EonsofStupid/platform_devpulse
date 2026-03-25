@@ -49,6 +49,7 @@ let {
 	label, description, errorMessage,
 	startName, endName, form,
 	dir = "ltr",
+	intent = "default",
 	children, class: className, ...rest
 }: DateRangePickerRootProps = $props();
 
@@ -119,7 +120,7 @@ setDateRangePickerContext({
 	toggle, openPopover, closePopover, selectRange, updateStart, updateEnd,
 });
 
-const styleId = "date-range-picker-default";
+const styleId = $derived(`date-range-picker-${intent}`);
 </script>
 
 <StyleMacro kind="date-range-picker" style={styleId}>

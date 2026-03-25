@@ -39,6 +39,7 @@ let {
 	shouldFlip = true,
 	offset = 8,
 	dir = "ltr",
+	intent = "default",
 	children,
 	class: className,
 	...rest
@@ -68,7 +69,7 @@ function toggle() {
 	onOpenChange?.({ open: next });
 }
 
-const styleId = "contextual-help-default";
+const styleId = $derived(`contextual-help-${intent}`);
 
 setContextualHelpContext({
 	get isOpen() { return isOpen; },

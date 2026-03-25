@@ -36,6 +36,7 @@ export interface BannerOpenChangeDetails {
 
 /** Viewport edge the banner sticks to. */
 export type BannerPosition = "top" | "bottom";
+export type BannerIntent = "default" | "stark" | "glass" | "flat" | "matte";
 
 /** Element IDs for composition. */
 export interface BannerIds {
@@ -65,6 +66,8 @@ export interface BannerProps
 	dir?: "ltr" | "rtl";
 	/** Whether to show the built-in dismiss button. Default: true. */
 	dismissible?: boolean;
+	/** Visual intent — selects the style preset */
+	intent?: BannerIntent;
 	/** Content snippet. */
 	children?: Snippet;
 	/** Override the dismiss button rendering. */

@@ -5,4 +5,4 @@
  */
 
 export { default as List } from "./List.svelte";
-export type { ListComponentProps, ListSize, ListSpacing, ListVariant } from "./types.js";
+export type { ListComponentProps, ListIntent, ListSize, ListSpacing, ListVariant } from "./types.js";

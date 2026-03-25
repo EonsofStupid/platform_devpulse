@@ -5,4 +5,4 @@
  */
 
 export { default as InputGroup } from "./InputGroup.svelte";
-export type { InputGroupComponentProps, InputGroupSize } from "./types.js";
+export type { InputGroupComponentProps, InputGroupIntent, InputGroupSize } from "./types.js";

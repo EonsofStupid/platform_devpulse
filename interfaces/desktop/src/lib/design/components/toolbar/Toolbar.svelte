@@ -34,11 +34,12 @@ let {
 	disabled = false,
 	loop = true,
 	children,
+	intent = "default",
 	class: className,
 	...rest
 }: ToolbarComponentProps = $props();
 
-const styleId = "toolbar-default";
+const styleId = $derived(`toolbar-${intent}`);
 </script>
 
 <StyleMacro kind="toolbar" style={styleId}>

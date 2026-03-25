@@ -42,12 +42,13 @@ let {
 	invalid = false,
 	rows,
 	onValueChange,
+	intent = "default",
 	class: className,
 	...rest
 }: TextareaProps = $props();
 
 const textarea = $derived(useTextarea({ disabled, readonly: readOnly, required, invalid }));
-const styleId = "textarea-default";
+const styleId = $derived(`textarea-${intent}`);
 </script>
 
 <StyleMacro kind="textarea" style={styleId}>

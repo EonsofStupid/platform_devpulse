@@ -34,12 +34,13 @@ const SIZE: Record<ProseSize, string> = {
 
 let {
 	size = "base",
+	intent = "default",
 	children,
 	class: className,
 	...rest
 }: ProseComponentProps = $props();
 
-const styleId = "prose-default";
+const styleId = $derived(`prose-${intent}`);
 </script>
 
 <StyleMacro kind="prose" style={styleId}>

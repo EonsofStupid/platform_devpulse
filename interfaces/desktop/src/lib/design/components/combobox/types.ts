@@ -18,6 +18,12 @@ import type { ComponentProps } from "$lib/design/components/_base/types.js";
 type SizeToken = "sm" | "md" | "lg";
 
 // =============================================================================
+// INTENT
+// =============================================================================
+
+export type ComboboxIntent = "default" | "stark" | "glass" | "flat" | "matte";
+
+// =============================================================================
 // ROOT — Combobox wrapper, creates transport + sets context
 // =============================================================================
 
@@ -25,6 +31,8 @@ export interface ComboboxProps<T = unknown> extends ComponentProps {
 	children?: Snippet;
 	/** CSS class for the root wrapper element. */
 	class?: string;
+	/** Style intent. Default: "default". */
+	intent?: ComboboxIntent;
 	/** Initial/controlled selected value. */
 	value?: T;
 	/** Called when the selected value changes. */

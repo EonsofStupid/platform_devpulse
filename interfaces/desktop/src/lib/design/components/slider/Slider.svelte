@@ -37,6 +37,7 @@ let {
 	onValueChange,
 	disabled = false,
 	children,
+	intent = "default",
 	class: className,
 	...rest
 }: SliderProps = $props();
@@ -50,7 +51,7 @@ const hook = useSlider({
 	onValueChange: (v) => onValueChange?.(v),
 });
 
-const styleId = "slider-default";
+const styleId = $derived(`slider-${intent}`);
 
 setSliderContext({
 	get hook() { return hook; },

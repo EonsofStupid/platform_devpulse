@@ -25,7 +25,7 @@ import { usePagination } from "$lib/design/primitives/pagination/index.js";
 import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { PaginationComponentProps } from "./types.js";
-let { page = 1, totalPages, onPageChange, siblings = 1, boundaries = 1, size = "md", children, class: className, ...rest }: PaginationComponentProps = $props();
+let { page = 1, totalPages, onPageChange, siblings = 1, boundaries = 1, size = "md", intent = "default", children, class: className, ...rest }: PaginationComponentProps = $props();
 const pagination = usePagination();
 function getPageRange(current: number, total: number, sibs: number, bounds: number): (number | string)[] {
 	const totalNumbers = sibs * 2 + 1 + bounds * 2;
@@ -43,7 +43,7 @@ function getPageRange(current: number, total: number, sibs: number, bounds: numb
 const pages = $derived(getPageRange(page, totalPages, siblings, boundaries));
 const isFirstPage = $derived(page <= 1);
 const isLastPage = $derived(page >= totalPages);
-const styleId = "pagination-default";
+const styleId = $derived(`pagination-${intent}`);
 </script>
 <StyleMacro kind="pagination" style={styleId}>
 	<nav {...pagination.root} data-kind="pagination" data-slot="root" class={cn("flex items-center gap-1", className)} {...rest}>

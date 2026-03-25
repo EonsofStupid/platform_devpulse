@@ -1,2 +1,2 @@
 export { default as Separator } from "./Separator.svelte";
-export type { SeparatorOrientation, SeparatorProps, SeparatorVariant } from "./types.js";
+export type { SeparatorIntent, SeparatorOrientation, SeparatorProps, SeparatorVariant } from "./types.js";

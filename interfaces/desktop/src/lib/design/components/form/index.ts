@@ -5,4 +5,4 @@
  */
 
 export { default as Form } from "./Form.svelte";
-export type { FormComponentProps, FormSize } from "./types.js";
+export type { FormComponentProps, FormIntent, FormSize } from "./types.js";

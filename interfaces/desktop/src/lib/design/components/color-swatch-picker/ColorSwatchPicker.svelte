@@ -39,6 +39,7 @@ let {
 	isDisabled = false,
 	dir = "ltr",
 	children,
+	intent = "default",
 	class: className,
 	...rest
 }: ColorSwatchPickerRootProps = $props();
@@ -66,7 +67,7 @@ function isSelected(color: string): boolean {
 	return selectedValue === color;
 }
 
-const styleId = "color-swatch-picker-default";
+const styleId = $derived(`color-swatch-picker-${intent}`);
 
 const DENSITY_GAP: Record<string, string> = {
 	compact: "gap-4",

@@ -13,6 +13,8 @@ import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type StepsSize = "sm" | "md" | "lg";
+
+export type StepsIntent = "default" | "stark" | "glass" | "flat" | "matte";
 export type StepsOrientation = "horizontal" | "vertical";
 
 /** Steps component props — ARIA + composition + ColdLight 8-axis */
@@ -35,4 +37,6 @@ export interface StepsComponentProps
 	linear?: boolean;
 	/** Disable the entire steps component. @default false */
 	disabled?: boolean;
+	/** Style intent. Default: "default". */
+	intent?: StepsIntent;
 }

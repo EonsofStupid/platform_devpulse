@@ -40,6 +40,7 @@ let {
 	form,
 	dir = "ltr",
 	children,
+	intent = "default",
 	class: className,
 	...rest
 }: ColorWheelRootProps = $props();
@@ -79,7 +80,7 @@ const drag = useWheelDrag({
 	},
 });
 
-const styleId = "color-wheel-default";
+const styleId = $derived(`color-wheel-${intent}`);
 
 setColorWheelContext({
 	get hue() { return currentHue; },

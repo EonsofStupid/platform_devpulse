@@ -50,6 +50,7 @@ let {
 	label,
 	closeOnEscape = true,
 	closeOnOutsideClick = true,
+	intent = "default",
 	trigger,
 	children,
 	class: className,
@@ -64,7 +65,7 @@ const hook = useSheet({
 	get closeOnOutsideClick() { return closeOnOutsideClick; },
 });
 
-const styleId = "sheet-default";
+const styleId = $derived(`sheet-${intent}`);
 </script>
 
 {#if trigger}

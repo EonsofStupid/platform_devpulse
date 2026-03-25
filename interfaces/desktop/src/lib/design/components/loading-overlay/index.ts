@@ -5,4 +5,4 @@
  */
 
 export { default as LoadingOverlay } from "./LoadingOverlay.svelte";
-export type { LoadingOverlayComponentProps } from "./types.js";
+export type { LoadingOverlayComponentProps, LoadingOverlayIntent } from "./types.js";

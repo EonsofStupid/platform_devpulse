@@ -32,6 +32,8 @@ export type ColorChannel =
 /** Color value — string representation (e.g., "oklch(0.65 0.12 176)"). */
 export type ColorValue = string;
 
+export type ColorAreaIntent = "default" | "stark" | "glass" | "flat" | "matte";
+
 // =============================================================================
 // CALLBACK DETAILS
 // =============================================================================
@@ -85,6 +87,8 @@ export interface ColorAreaRootProps
 	dir?: "ltr" | "rtl";
 	/** Step size for keyboard channel adjustment. Default: 1. */
 	step?: number;
+	/** Style intent. Default: "default". */
+	intent?: ColorAreaIntent;
 	children?: Snippet;
 }
 

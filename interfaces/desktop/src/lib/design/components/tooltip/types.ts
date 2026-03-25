@@ -14,6 +14,8 @@ import type { HTMLAttributes } from "svelte/elements";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
+export type TooltipIntent = "default" | "stark" | "glass" | "flat" | "matte";
+
 // =============================================================================
 // ROOT PROPS
 // =============================================================================

@@ -26,9 +26,9 @@ import { useInputGroup } from "$lib/design/primitives/input-group/index.js";
 import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { InputGroupComponentProps } from "./types.js";
-let { size = "md", disabled = false, prefix, suffix, children, class: className, ...rest }: InputGroupComponentProps = $props();
+let { intent = "default", size = "md", disabled = false, prefix, suffix, children, class: className, ...rest }: InputGroupComponentProps = $props();
 const ig = $derived(useInputGroup({ disabled }));
-const styleId = "input-group-default";
+const styleId = $derived(`input-group-${intent}`);
 </script>
 <StyleMacro kind="input-group" style={styleId}>
 	<div {...ig.root} data-kind="input-group" data-slot="root" class={cn("flex items-center rounded-md border", disabled && "opacity-50 pointer-events-none", className)} {...rest}>

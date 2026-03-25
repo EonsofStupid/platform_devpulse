@@ -8,7 +8,7 @@
 	@compound false
 	@blockCategory content
 	@defaultStyle heading-default
-	@styleIds heading-default
+	@styleIds heading-default, heading-stark, heading-glass, heading-flat, heading-matte
 	@requiredAxes typography, color
 	@slots root:all
 	@defaults {
@@ -37,6 +37,7 @@ const SIZE: Record<HeadingSize, string> = {
 };
 
 let {
+	intent = "default",
 	level = 2,
 	size = "lg",
 	children,
@@ -45,7 +46,7 @@ let {
 }: HeadingProps = $props();
 
 const heading = $derived(useHeading({ level }));
-const styleId = "heading-default";
+const styleId = $derived(`heading-${intent}`);
 </script>
 
 <StyleMacro kind="heading" style={styleId}>

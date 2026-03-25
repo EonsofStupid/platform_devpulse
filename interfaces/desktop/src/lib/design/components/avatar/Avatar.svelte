@@ -8,7 +8,7 @@
 	@compound true
 	@blockCategory content
 	@defaultStyle avatar-default
-	@styleIds avatar-default
+	@styleIds avatar-default, avatar-stark, avatar-glass, avatar-flat, avatar-matte
 	@requiredAxes backgroundColor, borderRadius, border
 	@slots root:all, image:none, fallback:none
 	@defaults {
@@ -30,6 +30,7 @@ let {
 	alt,
 	fallback,
 	size = 40,
+	intent = "default",
 	onStatusChange,
 	children,
 	class: className,
@@ -38,7 +39,7 @@ let {
 
 let status = $state<AvatarLoadStatus>("loading");
 const fallbackText = $derived(fallback ?? alt?.charAt(0)?.toUpperCase() ?? "?");
-const styleId = "avatar-default";
+const styleId = $derived(`avatar-${intent}`);
 
 function handleLoad() {
 	status = "loaded";

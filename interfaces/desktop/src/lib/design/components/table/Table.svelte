@@ -27,9 +27,9 @@ import { useTable } from "$lib/design/primitives/table/use-table.svelte.js";
 import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TableComponentProps } from "./types.js";
-let { size = "md", variant = "default", label, children, class: className, ...rest }: TableComponentProps = $props();
+let { size = "md", variant = "default", label, intent = "default", children, class: className, ...rest }: TableComponentProps = $props();
 const table = useTable();
-const styleId = "table-default";
+const styleId = $derived(`table-${intent}`);
 </script>
 <StyleMacro kind="table" style={styleId}>
 	<div class="w-full overflow-auto" data-kind="table" data-slot="wrapper">

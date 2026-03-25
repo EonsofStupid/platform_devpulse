@@ -26,9 +26,9 @@ import { useScrollArea } from "$lib/design/primitives/scroll-area/index.js";
 import { StyleMacro } from "$lib/design/style/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ScrollAreaComponentProps } from "./types.js";
-let { size = "md", orientation = "vertical", label, children, class: className, ...rest }: ScrollAreaComponentProps = $props();
+let { size = "md", orientation = "vertical", intent = "default", label, children, class: className, ...rest }: ScrollAreaComponentProps = $props();
 const scrollArea = $derived(useScrollArea({ label, orientation }));
-const styleId = "scroll-area-default";
+const styleId = $derived(`scroll-area-${intent}`);
 </script>
 <StyleMacro kind="scroll-area" style={styleId}>
 	<div {...scrollArea.root} data-kind="scroll-area" data-slot="root" class={cn("relative overflow-hidden", className)} {...rest}>

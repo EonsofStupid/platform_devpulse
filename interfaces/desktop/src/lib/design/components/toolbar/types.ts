@@ -13,6 +13,8 @@ import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type ToolbarSize = "sm" | "md" | "lg";
+
+export type ToolbarIntent = "default" | "stark" | "glass" | "flat" | "matte";
 export type ToolbarOrientation = "horizontal" | "vertical";
 
 /** Toolbar component props — ColdLight 8-axis + ARIA + composition */
@@ -31,4 +33,6 @@ export interface ToolbarComponentProps
 	disabled?: boolean;
 	/** Whether arrow keys loop. @default true */
 	loop?: boolean;
+	/** Style intent. Default: "default". */
+	intent?: ToolbarIntent;
 }

@@ -13,6 +13,7 @@ import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type FormSize = "sm" | "md" | "lg";
+export type FormIntent = "default" | "stark" | "glass" | "flat" | "matte";
 
 /** Form component props — builder state + composition + primitive */
 export interface FormComponentProps
@@ -20,6 +21,8 @@ export interface FormComponentProps
 		BaseProps,
 		ComponentProps {
 	children?: Snippet;
+	/** Style intent preset */
+	intent?: FormIntent;
 	/** Size variant — propagates to child form fields via CSS */
 	size?: FormSize;
 	/** Accessible label for the form. */

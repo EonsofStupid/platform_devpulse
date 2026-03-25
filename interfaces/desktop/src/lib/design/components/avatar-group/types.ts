@@ -12,6 +12,8 @@ import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
+export type AvatarGroupIntent = "default" | "stark" | "glass" | "flat" | "matte";
+
 export interface AvatarGroupIds {
 	root?: string;
 }
@@ -28,6 +30,8 @@ export interface AvatarGroupRootProps
 	maxVisible?: number;
 	/** Total count — used with maxVisible for +N calculation when not all children rendered. */
 	total?: number;
+	/** Style intent. Default: "default". */
+	intent?: AvatarGroupIntent;
 	/** Text/writing direction. */
 	dir?: "ltr" | "rtl";
 	/** Avatar children. */

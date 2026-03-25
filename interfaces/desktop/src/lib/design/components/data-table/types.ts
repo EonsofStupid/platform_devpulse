@@ -14,6 +14,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type DataTableSize = "sm" | "md" | "lg";
 export type DataTableVariant = "default" | "striped" | "bordered";
+export type DataTableIntent = "default" | "stark" | "glass" | "flat" | "matte";
 
 /** DataTable component props — ColdLight 8-axis + ARIA + composition + primitive */
 export interface DataTableComponentProps
@@ -21,6 +22,8 @@ export interface DataTableComponentProps
 		BaseProps,
 		ComponentProps {
 	children?: Snippet;
+	/** Style intent. Default: "default". */
+	intent?: DataTableIntent;
 	/** Size variant — controls cell padding and font size */
 	size?: DataTableSize;
 	/** Visual variant — controls border and striping */

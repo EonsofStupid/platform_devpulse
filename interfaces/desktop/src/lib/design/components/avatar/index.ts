@@ -10,4 +10,5 @@ export type {
 	AvatarProps,
 	AvatarLoadStatus,
 	AvatarStatusChangeDetails,
+	AvatarIntent,
 } from "./avatar.types.js";

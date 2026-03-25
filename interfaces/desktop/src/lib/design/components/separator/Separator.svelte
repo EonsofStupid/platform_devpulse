@@ -35,12 +35,13 @@ let {
 	orientation = "horizontal",
 	decorative = false,
 	variant = "solid",
+	intent = "default",
 	class: className,
 	...rest
 }: SeparatorProps = $props();
 
 const separator = $derived(useSeparator({ orientation, decorative }));
-const styleId = "separator-default";
+const styleId = $derived(`separator-${intent}`);
 </script>
 
 <StyleMacro kind="separator" style={styleId}>

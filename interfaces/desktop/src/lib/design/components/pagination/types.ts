@@ -13,6 +13,7 @@ import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type PaginationSize = "sm" | "md" | "lg";
+export type PaginationIntent = "default" | "stark" | "glass" | "flat" | "matte";
 
 /** Pagination component props — ColdLight 8-axis + ARIA + composition + primitive */
 export interface PaginationComponentProps
@@ -20,6 +21,8 @@ export interface PaginationComponentProps
 		BaseProps,
 		ComponentProps {
 	children?: Snippet;
+	/** Style intent preset */
+	intent?: PaginationIntent;
 	/** Current active page (1-indexed). @default 1 */
 	page?: number;
 	/** Total number of pages */

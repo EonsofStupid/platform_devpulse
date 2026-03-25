@@ -46,6 +46,7 @@ let {
 	dir = "ltr",
 	step = 1,
 	children,
+	intent = "default",
 	class: className,
 	...rest
 }: ColorSliderRootProps = $props();
@@ -95,7 +96,7 @@ const drag = useSliderDrag({
 // ── Derived channel value ───────────────────────────────────────
 const channelValue = $derived(roundToStep(percentToValue(drag.state.percent, range), range.step));
 
-const styleId = "color-slider-default";
+const styleId = $derived(`color-slider-${intent}`);
 
 // ── Context ─────────────────────────────────────────────────────
 setColorSliderContext({

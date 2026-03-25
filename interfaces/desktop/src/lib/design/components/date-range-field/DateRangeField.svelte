@@ -35,6 +35,7 @@ let {
 	disabled = false,
 	readonly: readonlyProp = false,
 	size = "md",
+	intent = "default",
 	children,
 	class: className,
 	...rest
@@ -222,7 +223,7 @@ setDateRangeFieldContext(ctx);
 
 
 const rootState = $derived(disabled ? "disabled" : readonlyProp ? "readonly" : undefined);
-const styleId = "date-range-field-default";
+const styleId = $derived(`date-range-field-${intent}`);
 </script>
 
 <StyleMacro kind="date-range-field" style={styleId}>

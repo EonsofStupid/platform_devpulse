@@ -35,12 +35,13 @@ const VARIANT_CLASSES: Record<SkeletonVariant, string> = {
 let {
 	loading = true,
 	variant = "text",
+	intent = "default",
 	class: className,
 	...rest
 }: SkeletonProps = $props();
 
 const skeleton = $derived(useSkeleton({ loading }));
-const styleId = "skeleton-default";
+const styleId = $derived(`skeleton-${intent}`);
 </script>
 
 <StyleMacro kind="skeleton" style={styleId}>

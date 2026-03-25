@@ -9,10 +9,13 @@ import type { HTMLAttributes } from "svelte/elements";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
 export type KbdSize = "sm" | "md" | "lg";
+export type KbdIntent = "default" | "stark" | "glass" | "flat" | "matte";
 
 export interface KbdProps
 	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class">,
 		ComponentProps {
 	children?: Snippet;
+	/** Style intent preset */
+	intent?: KbdIntent;
 	size?: KbdSize;
 }

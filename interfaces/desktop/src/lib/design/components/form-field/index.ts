@@ -5,4 +5,4 @@
  */
 
 export { default as FormField } from "./FormField.svelte";
-export type { FormFieldComponentProps, FormFieldSize } from "./types.js";
+export type { FormFieldComponentProps, FormFieldIntent, FormFieldSize } from "./types.js";

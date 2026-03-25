@@ -12,12 +12,16 @@ import type { HTMLAttributes } from "svelte/elements";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
+export type LoadingOverlayIntent = "default" | "stark" | "glass" | "flat" | "matte";
+
 /** LoadingOverlay component props — ColdLight 8-axis + ARIA + composition + primitive */
 export interface LoadingOverlayComponentProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
 		BaseProps,
 		ComponentProps {
 	children?: Snippet;
+	/** Style intent preset */
+	intent?: LoadingOverlayIntent;
 	/** Whether the overlay is visible */
 	visible?: boolean;
 	/** Called when visible state changes */

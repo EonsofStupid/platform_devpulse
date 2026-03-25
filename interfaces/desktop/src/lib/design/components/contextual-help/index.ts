@@ -3,6 +3,7 @@ export { default as Heading } from "./ContextualHelpHeading.svelte";
 export { default as Content } from "./ContextualHelpContent.svelte";
 export { default as Footer } from "./ContextualHelpFooter.svelte";
 export type {
+	ContextualHelpIntent,
 	ContextualHelpIds,
 	ContextualHelpOpenChangeDetails,
 	ContextualHelpRootProps,

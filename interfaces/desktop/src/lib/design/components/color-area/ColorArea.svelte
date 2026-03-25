@@ -44,6 +44,7 @@ let {
 	dir = "ltr",
 	step = 1,
 	children,
+	intent = "default",
 	class: className,
 	...rest
 }: ColorAreaRootProps = $props();
@@ -77,7 +78,7 @@ const drag = useColorAreaDrag({
 const xValue = $derived(percentToValue(drag.state.xPercent, xRange));
 const yValue = $derived(percentToValue(drag.state.yPercent, yRange));
 
-const styleId = "color-area-default";
+const styleId = $derived(`color-area-${intent}`);
 
 setColorAreaContext({
 	get value() { return currentValue; },

@@ -41,6 +41,7 @@ let {
 	disabled = false,
 	onCheckedChange,
 	children,
+	intent = "default",
 	class: className,
 	...rest
 }: SwitchProps = $props();
@@ -51,7 +52,7 @@ const sw = useSwitch({
 	onCheckedChange: (v) => onCheckedChange?.(v),
 });
 
-const styleId = "switch-default";
+const styleId = $derived(`switch-${intent}`);
 const sizeClasses = $derived(SIZE[size as SwitchSize] ?? SIZE.md);
 </script>
 

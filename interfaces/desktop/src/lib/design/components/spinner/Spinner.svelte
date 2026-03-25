@@ -35,12 +35,13 @@ const SIZE: Record<SpinnerSize, string> = {
 let {
 	active = true,
 	size = "md",
+	intent = "default",
 	class: className,
 	...rest
 }: SpinnerProps = $props();
 
 const spinner = $derived(useSpinner({ active }));
-const styleId = "spinner-default";
+const styleId = $derived(`spinner-${intent}`);
 </script>
 
 {#if active}

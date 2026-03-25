@@ -9,7 +9,7 @@
 	@compound true
 	@blockCategory feedback
 	@defaultStyle progress-default
-	@styleIds progress-default
+	@styleIds progress-default, progress-stark, progress-glass, progress-flat, progress-matte
 	@requiredAxes backgroundColor, borderRadius, color
 	@slots root:all, track:none, fill:none
 	@defaults {
@@ -34,6 +34,7 @@ const SIZE: Record<ProgressSize, string> = {
 };
 
 let {
+	intent = "default",
 	value = 0,
 	min = 0,
 	max = 100,
@@ -50,7 +51,7 @@ const progress = $derived(useProgress({
 	"aria-label": rest["aria-label"],
 	"aria-labelledby": rest["aria-labelledby"],
 }));
-const styleId = "progress-default";
+const styleId = $derived(`progress-${intent}`);
 </script>
 
 <StyleMacro kind="progress" style={styleId}>

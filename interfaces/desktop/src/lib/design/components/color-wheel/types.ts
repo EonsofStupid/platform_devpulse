@@ -12,6 +12,8 @@ import type { HTMLAttributes } from "svelte/elements";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { ColorValue } from "$lib/design/components/color-area/types.js";
 
+export type ColorWheelIntent = "default" | "stark" | "glass" | "flat" | "matte";
+
 export interface ColorWheelChangeDetails {
 	value: ColorValue;
 	hue: number;
@@ -45,6 +47,8 @@ export interface ColorWheelRootProps
 	form?: string;
 	/** Text/writing direction. */
 	dir?: "ltr" | "rtl";
+	/** Style intent. Default: "default". */
+	intent?: ColorWheelIntent;
 	children?: Snippet;
 }
 

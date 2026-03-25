@@ -8,4 +8,5 @@ export type {
 	ColorSliderRootProps,
 	ColorSliderTrackProps,
 	ColorSliderThumbProps,
+	ColorSliderIntent,
 } from "./types.js";

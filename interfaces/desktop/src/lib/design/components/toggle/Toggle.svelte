@@ -41,6 +41,7 @@ let {
 	onPressedChange,
 	disabled = false,
 	children,
+	intent = "default",
 	class: className,
 	...rest
 }: ToggleProps = $props();
@@ -51,7 +52,7 @@ const toggle = useToggle({
 	onPressedChange: (v) => onPressedChange?.(v),
 });
 
-const styleId = "toggle-default";
+const styleId = $derived(`toggle-${intent}`);
 </script>
 
 <StyleMacro kind="toggle" style={styleId}>

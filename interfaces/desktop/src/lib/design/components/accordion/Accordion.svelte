@@ -10,7 +10,7 @@
 	@compound true
 	@blockCategory layout
 	@defaultStyle accordion-default
-	@styleIds accordion-default
+	@styleIds accordion-default, accordion-stark, accordion-glass, accordion-flat, accordion-matte
 	@requiredAxes backgroundColor, border, borderRadius
 	@slots root:all, item:none, trigger:none, indicator:none, content:none
 	@defaults {
@@ -46,6 +46,7 @@ let {
 	dir = "ltr",
 	orientation = "vertical",
 	size = "md",
+	intent = "default",
 	children,
 	class: className,
 	...rest
@@ -59,7 +60,7 @@ const hook = useAccordion({
 	onValueChange: (v) => onValueChange?.({ value: v }),
 });
 
-const styleId = "accordion-default";
+const styleId = $derived(`accordion-${intent}`);
 
 setAccordionContext({
 	get hook() { return hook; },

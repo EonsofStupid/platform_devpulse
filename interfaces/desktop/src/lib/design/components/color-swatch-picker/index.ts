@@ -5,4 +5,5 @@ export type {
 	ColorSwatchPickerChangeDetails,
 	ColorSwatchPickerRootProps,
 	ColorSwatchPickerDensity,
+	ColorSwatchPickerIntent,
 } from "./types.js";

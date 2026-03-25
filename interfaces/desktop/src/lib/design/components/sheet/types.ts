@@ -10,12 +10,15 @@ import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
 export type SheetSize = "sm" | "md" | "lg" | "xl" | "full";
 export type SheetSide = "left" | "right" | "top" | "bottom";
+export type SheetIntent = "default" | "stark" | "glass" | "flat" | "matte";
 
 export interface SheetComponentProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class">,
 		ComponentProps {
 	children?: Snippet;
 	trigger?: Snippet;
+	/** Style intent preset */
+	intent?: SheetIntent;
 	size?: SheetSize;
 	side?: SheetSide;
 	open?: boolean;

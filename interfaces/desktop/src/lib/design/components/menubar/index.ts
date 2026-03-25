@@ -21,6 +21,7 @@ export { default as MenubarSeparator } from "./MenubarSeparator.svelte";
 export { default as MenubarTrigger } from "./MenubarTrigger.svelte";
 export type {
 	MenubarContentProps,
+	MenubarIntent,
 	MenubarItemProps,
 	MenubarMenuProps,
 	MenubarProps,

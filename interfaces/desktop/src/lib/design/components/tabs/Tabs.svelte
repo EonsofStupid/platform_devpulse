@@ -36,6 +36,7 @@ let {
 	activateOnFocus = true,
 	loop = true,
 	children,
+	intent = "default",
 	class: className,
 	...rest
 }: TabsProps = $props();
@@ -48,7 +49,7 @@ const hook = useTabs({
 	loop,
 });
 
-const styleId = "tabs-default";
+const styleId = $derived(`tabs-${intent}`);
 
 setTabsContext({
 	get hook() { return hook; },
