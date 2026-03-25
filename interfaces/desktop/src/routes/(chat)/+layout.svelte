@@ -1,9 +1,9 @@
 <script lang="ts">
-import { ChatFrame } from "$lib/layouts/chat";
+import { ChatShell } from "$lib/layouts/chat";
 
 let { children } = $props();
 </script>
 
-<ChatFrame>
+<ChatShell>
 	{@render children()}
-</ChatFrame>
+</ChatShell>

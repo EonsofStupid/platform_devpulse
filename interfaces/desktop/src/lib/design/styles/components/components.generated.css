@@ -3,6 +3,78 @@
  */
 
 :root {
+  --backdrop-grid-size-neural: 28px; /** Chat — neural network feel, tightest grid */
+  --backdrop-grid-size-magenta: 32px; /** OverMind grid spacing */
+  --backdrop-grid-size-purple: 36px; /** Maestro grid spacing */
+  --backdrop-grid-size-cyber: 38px; /** WiredFront grid spacing */
+  --backdrop-grid-size-teal: 40px; /** DevPulse default grid spacing */
+  --backdrop-grid-size-ember: 44px; /** DevForge grid spacing */
+  --backdrop-grid-line-width: 1px;
+  --border-width-thin: 1px; /** Default border, dividers, grid lines */
+  --border-width-medium: 2px; /** Focus rings, emphasis borders */
+  --border-width-thick: 3px; /** Active state, strong emphasis */
+  --outline-offset-sm: 1px;
+  --outline-offset-md: 2px;
+  --outline-offset-lg: 4px;
+  --chat-z-index: 1000; /** Chat window z-index layer */
+  --chat-overlay-z: 1001; /** Chat overlay z-index (above chat frame) */
+  --chat-idle-opacity: 0.35; /** Opacity when not engaged */
+  --chat-engaged-opacity: 1; /** Opacity when engaged */
+  --chat-width: 25rem; /** Default chat window width */
+  --chat-min-width: 20rem; /** Minimum chat window width */
+  --chat-max-width: 37.5rem; /** Maximum chat window width */
+  --chat-height: 60vh; /** Default chat window height */
+  --chat-min-height: 25rem; /** Minimum chat window height */
+  --chat-topbar-height: 2.5rem; /** Chat topbar row height */
+  --chat-footer-height: 3.5rem; /** Chat footer row height */
+  --chat-sidebar-width: 3.5rem; /** Chat mode selector column width */
+  --chat-context-width: 12rem; /** Chat context panel column width */
+  --chat-grid-gap: 0.25rem; /** Gap between chat grid zones */
+  --chat-transition-duration: 300ms; /** State change transition duration */
+  --chat-mode-developer: oklch(0.7 0.15 173); /** Developer mode accent color (teal) */
+  --chat-mode-planning: oklch(0.65 0.15 300); /** Planning mode accent color (purple) */
+  --chat-mode-image: oklch(0.7 0.15 60); /** Image mode accent color (orange) */
+  --chat-mode-general: oklch(0.6 0.02 224); /** General mode accent color (muted) */
+  --chat-voice-active: oklch(0.7 0.18 145); /** Voice active indicator color */
+  --chat-voice-pulse: 0 0 0.75rem oklch(0.7 0.18 145); /** Voice active pulse glow */
+  --font-size-xs: 0.64rem;
+  --font-size-sm: 0.8rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5625rem;
+  --font-size-2xl: 1.9531rem;
+  --font-size-3xl: 2.4414rem;
+  --font-size-4xl: 3.0518rem;
+  --font-size-5xl: 3.8147rem;
+  --opacity-10: 0.1;
+  --opacity-20: 0.2;
+  --opacity-30: 0.3;
+  --opacity-40: 0.4;
+  --opacity-50: 0.5;
+  --opacity-60: 0.6;
+  --opacity-70: 0.7;
+  --opacity-80: 0.8;
+  --opacity-90: 0.9;
+  --opacity-100: 1;
+  --easing-linear: cubic-bezier(0, 0, 1, 1);
+  --easing-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --easing-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --easing-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --easing-bounce: cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  --duration-snap: 50ms;
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-smooth: 400ms;
+  --duration-glacial: 700ms;
+  --duration-moderate: 3000ms;
+  --mesh-gradient-aurora: linear-gradient(135deg, oklch(0.55 0.08 173), oklch(0.5 0.1 200), oklch(0.45 0.12 280)); /** Aurora — teal to cyan to purple */
+  --mesh-gradient-sunset: linear-gradient(135deg, oklch(0.55 0.12 25), oklch(0.5 0.14 330), oklch(0.45 0.12 280)); /** Sunset — ember to magenta to purple */
+  --mesh-gradient-frost: linear-gradient(135deg, oklch(0.55 0.06 220), oklch(0.5 0.08 173), oklch(0.45 0.1 160)); /** Frost — frost to teal to cyber */
+  --mesh-gradient-void: linear-gradient(180deg, oklch(0.12 0.01 224), oklch(0.06 0.005 224)); /** Void — deep dark descent */
+  --scrollbar-size-width: 6px; /** Scrollbar track width */
+  --scrollbar-size-height: 6px; /** Scrollbar track height */
+  --scrollbar-size-radius: 3px; /** Scrollbar thumb border radius */
   --style-accordion-default-background-color: oklch(0.0901 0.017 224.61 / 0.8);
   --style-accordion-default-border-radius: 0.75rem;
   --style-accordion-default-box-shadow: 0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24);
@@ -447,6 +519,228 @@
   --style-chat-bubble-matte-border-color: oklch(0.4234 0.081 173.37 / 0.22);
   --style-chat-bubble-matte-border-width: 0.0625rem;
   --style-chat-bubble-matte-opacity: 1;
+  --style-chat-context-panel-default-background-color: oklch(0.06 0.012 224 / 0.85);
+  --style-chat-context-panel-default-border-radius: 0;
+  --style-chat-context-panel-default-box-shadow: inset 0.0625rem 0 0.25rem oklch(0 0 0 / 0.15);
+  --style-chat-context-panel-default-color: oklch(0.9319 0.015 224);
+  --style-chat-context-panel-default-border-color: oklch(0.4234 0.081 173.37 / 0.15);
+  --style-chat-context-panel-default-border-width: 0.0625rem;
+  --style-chat-context-panel-default-backdrop-filter: blur(1.25rem);
+  --style-chat-context-panel-default-opacity: 1;
+  --style-chat-context-panel-stark-background-color: oklch(0.08 0.008 224);
+  --style-chat-context-panel-stark-border-radius: 0;
+  --style-chat-context-panel-stark-box-shadow: inset 0.0625rem 0 0.125rem oklch(0 0 0 / 0.2);
+  --style-chat-context-panel-stark-color: oklch(0.93 0.015 224);
+  --style-chat-context-panel-stark-border-color: oklch(0.3 0.02 224 / 0.2);
+  --style-chat-context-panel-stark-border-width: 0.0625rem;
+  --style-chat-context-panel-stark-opacity: 1;
+  --style-chat-context-panel-glass-background-color: oklch(0.04 0.008 200 / 0.7);
+  --style-chat-context-panel-glass-border-radius: 0;
+  --style-chat-context-panel-glass-box-shadow: inset 0.0625rem 0 0.375rem oklch(0 0 0 / 0.18);
+  --style-chat-context-panel-glass-color: oklch(0.9319 0.015 224);
+  --style-chat-context-panel-glass-border-color: oklch(0.5106 0.0979 173.17 / 0.2);
+  --style-chat-context-panel-glass-border-width: 0.0625rem;
+  --style-chat-context-panel-glass-backdrop-filter: blur(1.5rem);
+  --style-chat-context-panel-glass-opacity: 0.95;
+  --style-chat-context-panel-flat-background-color: oklch(0.1 0.004 262.8);
+  --style-chat-context-panel-flat-border-radius: 0;
+  --style-chat-context-panel-flat-box-shadow: none;
+  --style-chat-context-panel-flat-color: oklch(0.9319 0.015 224);
+  --style-chat-context-panel-flat-border-color: oklch(0.3 0.02 224 / 0.1);
+  --style-chat-context-panel-flat-border-width: 0.0625rem;
+  --style-chat-context-panel-flat-opacity: 1;
+  --style-chat-context-panel-matte-background-color: oklch(0.1 0.003 189.37);
+  --style-chat-context-panel-matte-border-radius: 0;
+  --style-chat-context-panel-matte-box-shadow: inset 0.0625rem 0 0.1875rem oklch(0 0 0 / 0.1);
+  --style-chat-context-panel-matte-color: oklch(0.9319 0.015 224);
+  --style-chat-context-panel-matte-border-color: oklch(0.4234 0.081 173.37 / 0.15);
+  --style-chat-context-panel-matte-border-width: 0.0625rem;
+  --style-chat-context-panel-matte-opacity: 1;
+  --style-chat-dashboard-default-background-color: oklch(0.1 0.017 224.61 / 0.7);
+  --style-chat-dashboard-default-border-radius: 0;
+  --style-chat-dashboard-default-box-shadow: none;
+  --style-chat-dashboard-default-color: oklch(0.9319 0.015 224);
+  --style-chat-dashboard-default-border-color: rgba(0, 0, 0, 0);
+  --style-chat-dashboard-default-border-width: 0;
+  --style-chat-dashboard-default-backdrop-filter: blur(0.5rem);
+  --style-chat-dashboard-default-opacity: 1;
+  --style-chat-dashboard-stark-background-color: oklch(0.12 0.01 224);
+  --style-chat-dashboard-stark-border-radius: 0;
+  --style-chat-dashboard-stark-box-shadow: none;
+  --style-chat-dashboard-stark-color: oklch(0.93 0.015 224);
+  --style-chat-dashboard-stark-border-color: rgba(0, 0, 0, 0);
+  --style-chat-dashboard-stark-border-width: 0;
+  --style-chat-dashboard-stark-opacity: 1;
+  --style-chat-dashboard-glass-background-color: oklch(0.07 0.01 200 / 0.6);
+  --style-chat-dashboard-glass-border-radius: 0;
+  --style-chat-dashboard-glass-box-shadow: none;
+  --style-chat-dashboard-glass-color: oklch(0.9319 0.015 224);
+  --style-chat-dashboard-glass-border-color: rgba(0, 0, 0, 0);
+  --style-chat-dashboard-glass-border-width: 0;
+  --style-chat-dashboard-glass-backdrop-filter: blur(0.75rem);
+  --style-chat-dashboard-glass-opacity: 0.95;
+  --style-chat-dashboard-flat-background-color: oklch(0.13 0.004 262.8);
+  --style-chat-dashboard-flat-border-radius: 0;
+  --style-chat-dashboard-flat-box-shadow: none;
+  --style-chat-dashboard-flat-color: oklch(0.9319 0.015 224);
+  --style-chat-dashboard-flat-border-color: rgba(0, 0, 0, 0);
+  --style-chat-dashboard-flat-border-width: 0;
+  --style-chat-dashboard-flat-opacity: 1;
+  --style-chat-dashboard-matte-background-color: oklch(0.13 0.003 189.37);
+  --style-chat-dashboard-matte-border-radius: 0;
+  --style-chat-dashboard-matte-box-shadow: none;
+  --style-chat-dashboard-matte-color: oklch(0.9319 0.015 224);
+  --style-chat-dashboard-matte-border-color: rgba(0, 0, 0, 0);
+  --style-chat-dashboard-matte-border-width: 0;
+  --style-chat-dashboard-matte-opacity: 1;
+  --style-chat-footer-default-background-color: oklch(0.07 0.015 224 / 0.9);
+  --style-chat-footer-default-border-radius: 0;
+  --style-chat-footer-default-box-shadow: 0 -0.0625rem 0.1875rem oklch(0 0 0 / 0.1);
+  --style-chat-footer-default-color: oklch(0.9319 0.015 224);
+  --style-chat-footer-default-border-color: oklch(0.4234 0.081 173.37 / 0.2);
+  --style-chat-footer-default-border-width: 0.0625rem;
+  --style-chat-footer-default-backdrop-filter: blur(0.75rem);
+  --style-chat-footer-default-opacity: 1;
+  --style-chat-footer-stark-background-color: oklch(0.09 0.008 224);
+  --style-chat-footer-stark-border-radius: 0;
+  --style-chat-footer-stark-box-shadow: 0 -0.0625rem 0.125rem oklch(0 0 0 / 0.15);
+  --style-chat-footer-stark-color: oklch(0.93 0.015 224);
+  --style-chat-footer-stark-border-color: oklch(0.3 0.02 224 / 0.2);
+  --style-chat-footer-stark-border-width: 0.0625rem;
+  --style-chat-footer-stark-opacity: 1;
+  --style-chat-footer-glass-background-color: oklch(0.05 0.008 200 / 0.75);
+  --style-chat-footer-glass-border-radius: 0;
+  --style-chat-footer-glass-box-shadow: 0 -0.125rem 0.375rem oklch(0 0 0 / 0.12);
+  --style-chat-footer-glass-color: oklch(0.9319 0.015 224);
+  --style-chat-footer-glass-border-color: oklch(0.5106 0.0979 173.17 / 0.25);
+  --style-chat-footer-glass-border-width: 0.0625rem;
+  --style-chat-footer-glass-backdrop-filter: blur(1rem);
+  --style-chat-footer-glass-opacity: 0.95;
+  --style-chat-footer-flat-background-color: oklch(0.12 0.004 262.8);
+  --style-chat-footer-flat-border-radius: 0;
+  --style-chat-footer-flat-box-shadow: none;
+  --style-chat-footer-flat-color: oklch(0.9319 0.015 224);
+  --style-chat-footer-flat-border-color: oklch(0.3 0.02 224 / 0.12);
+  --style-chat-footer-flat-border-width: 0.0625rem;
+  --style-chat-footer-flat-opacity: 1;
+  --style-chat-footer-matte-background-color: oklch(0.12 0.003 189.37);
+  --style-chat-footer-matte-border-radius: 0;
+  --style-chat-footer-matte-box-shadow: 0 -0.0625rem 0.1875rem oklch(0 0 0 / 0.08);
+  --style-chat-footer-matte-color: oklch(0.9319 0.015 224);
+  --style-chat-footer-matte-border-color: oklch(0.4234 0.081 173.37 / 0.18);
+  --style-chat-footer-matte-border-width: 0.0625rem;
+  --style-chat-footer-matte-opacity: 1;
+  --style-chat-frame-default-background-color: oklch(0.0901 0.017 224.61 / 0.8);
+  --style-chat-frame-default-border-radius: 0.75rem;
+  --style-chat-frame-default-box-shadow: 0 0.25rem 1rem oklch(0 0 0 / 0.3), 0 0 2rem oklch(0.5106 0.0979 173.17 / 0.08);
+  --style-chat-frame-default-color: oklch(0.9319 0.015 224);
+  --style-chat-frame-default-border-color: oklch(0.5106 0.0979 173.17 / 0.22);
+  --style-chat-frame-default-border-width: 0.0625rem;
+  --style-chat-frame-default-backdrop-filter: blur(1rem);
+  --style-chat-frame-default-opacity: 1;
+  --style-chat-frame-stark-background-color: linear-gradient(180deg, oklch(0.11 0.01 224), oklch(0.08 0.008 224));
+  --style-chat-frame-stark-border-radius: 0.5rem;
+  --style-chat-frame-stark-box-shadow: 0 0.125rem 0.5rem oklch(0 0 0 / 0.35);
+  --style-chat-frame-stark-color: oklch(0.93 0.015 224);
+  --style-chat-frame-stark-border-color: oklch(0.3 0.02 224 / 0.3);
+  --style-chat-frame-stark-border-width: 0.0625rem;
+  --style-chat-frame-stark-opacity: 1;
+  --style-chat-frame-glass-background-color: oklch(0.0612 0.0072 185.78 / 0.65);
+  --style-chat-frame-glass-border-radius: 0.75rem;
+  --style-chat-frame-glass-box-shadow: 0 0.375rem 1.5rem oklch(0 0 0 / 0.25), 0 0 3rem oklch(0.5106 0.0979 173.17 / 0.06);
+  --style-chat-frame-glass-color: oklch(0.9319 0.015 224);
+  --style-chat-frame-glass-border-color: oklch(0.5106 0.0979 173.17 / 0.3);
+  --style-chat-frame-glass-border-width: 0.0625rem;
+  --style-chat-frame-glass-backdrop-filter: blur(1.5rem);
+  --style-chat-frame-glass-opacity: 0.95;
+  --style-chat-frame-flat-background-color: oklch(0.1395 0.0048 262.8);
+  --style-chat-frame-flat-border-radius: 0.5rem;
+  --style-chat-frame-flat-box-shadow: none;
+  --style-chat-frame-flat-color: oklch(0.9319 0.015 224);
+  --style-chat-frame-flat-border-color: oklch(0.3 0.02 224 / 0.15);
+  --style-chat-frame-flat-border-width: 0.0625rem;
+  --style-chat-frame-flat-opacity: 1;
+  --style-chat-frame-matte-background-color: oklch(0.1407 0.0033 189.37);
+  --style-chat-frame-matte-border-radius: 0.5rem;
+  --style-chat-frame-matte-box-shadow: 0 0.125rem 0.5rem oklch(0 0 0 / 0.2);
+  --style-chat-frame-matte-color: oklch(0.9319 0.015 224);
+  --style-chat-frame-matte-border-color: oklch(0.4234 0.081 173.37 / 0.22);
+  --style-chat-frame-matte-border-width: 0.0625rem;
+  --style-chat-frame-matte-opacity: 1;
+  --style-chat-sidebar-default-background-color: oklch(0.08 0.015 224 / 0.85);
+  --style-chat-sidebar-default-border-radius: 0;
+  --style-chat-sidebar-default-box-shadow: 0.0625rem 0 0.25rem oklch(0 0 0 / 0.1);
+  --style-chat-sidebar-default-color: oklch(0.9319 0.015 224);
+  --style-chat-sidebar-default-border-color: oklch(0.4234 0.081 173.37 / 0.18);
+  --style-chat-sidebar-default-border-width: 0.0625rem;
+  --style-chat-sidebar-default-backdrop-filter: blur(0.75rem);
+  --style-chat-sidebar-default-opacity: 1;
+  --style-chat-sidebar-stark-background-color: oklch(0.1 0.008 224);
+  --style-chat-sidebar-stark-border-radius: 0;
+  --style-chat-sidebar-stark-box-shadow: 0.0625rem 0 0.125rem oklch(0 0 0 / 0.15);
+  --style-chat-sidebar-stark-color: oklch(0.93 0.015 224);
+  --style-chat-sidebar-stark-border-color: oklch(0.3 0.02 224 / 0.2);
+  --style-chat-sidebar-stark-border-width: 0.0625rem;
+  --style-chat-sidebar-stark-opacity: 1;
+  --style-chat-sidebar-glass-background-color: oklch(0.05 0.008 200 / 0.7);
+  --style-chat-sidebar-glass-border-radius: 0;
+  --style-chat-sidebar-glass-box-shadow: 0.0625rem 0 0.375rem oklch(0 0 0 / 0.12);
+  --style-chat-sidebar-glass-color: oklch(0.9319 0.015 224);
+  --style-chat-sidebar-glass-border-color: oklch(0.5106 0.0979 173.17 / 0.25);
+  --style-chat-sidebar-glass-border-width: 0.0625rem;
+  --style-chat-sidebar-glass-backdrop-filter: blur(1rem);
+  --style-chat-sidebar-glass-opacity: 0.95;
+  --style-chat-sidebar-flat-background-color: oklch(0.12 0.004 262.8);
+  --style-chat-sidebar-flat-border-radius: 0;
+  --style-chat-sidebar-flat-box-shadow: none;
+  --style-chat-sidebar-flat-color: oklch(0.9319 0.015 224);
+  --style-chat-sidebar-flat-border-color: oklch(0.3 0.02 224 / 0.1);
+  --style-chat-sidebar-flat-border-width: 0.0625rem;
+  --style-chat-sidebar-flat-opacity: 1;
+  --style-chat-sidebar-matte-background-color: oklch(0.11 0.003 189.37);
+  --style-chat-sidebar-matte-border-radius: 0;
+  --style-chat-sidebar-matte-box-shadow: 0.0625rem 0 0.1875rem oklch(0 0 0 / 0.08);
+  --style-chat-sidebar-matte-color: oklch(0.9319 0.015 224);
+  --style-chat-sidebar-matte-border-color: oklch(0.4234 0.081 173.37 / 0.15);
+  --style-chat-sidebar-matte-border-width: 0.0625rem;
+  --style-chat-sidebar-matte-opacity: 1;
+  --style-chat-topbar-default-background-color: oklch(0.07 0.015 224 / 0.9);
+  --style-chat-topbar-default-border-radius: 0;
+  --style-chat-topbar-default-box-shadow: 0 0.0625rem 0.25rem oklch(0 0 0 / 0.15);
+  --style-chat-topbar-default-color: oklch(0.9319 0.015 224);
+  --style-chat-topbar-default-border-color: oklch(0.5106 0.0979 173.17 / 0.2);
+  --style-chat-topbar-default-border-width: 0.0625rem;
+  --style-chat-topbar-default-backdrop-filter: blur(0.75rem);
+  --style-chat-topbar-default-opacity: 1;
+  --style-chat-topbar-stark-background-color: oklch(0.09 0.008 224);
+  --style-chat-topbar-stark-border-radius: 0;
+  --style-chat-topbar-stark-box-shadow: 0 0.0625rem 0.125rem oklch(0 0 0 / 0.2);
+  --style-chat-topbar-stark-color: oklch(0.93 0.015 224);
+  --style-chat-topbar-stark-border-color: oklch(0.3 0.02 224 / 0.25);
+  --style-chat-topbar-stark-border-width: 0.0625rem;
+  --style-chat-topbar-stark-opacity: 1;
+  --style-chat-topbar-glass-background-color: oklch(0.05 0.008 200 / 0.75);
+  --style-chat-topbar-glass-border-radius: 0;
+  --style-chat-topbar-glass-box-shadow: 0 0.125rem 0.375rem oklch(0 0 0 / 0.12);
+  --style-chat-topbar-glass-color: oklch(0.9319 0.015 224);
+  --style-chat-topbar-glass-border-color: oklch(0.5106 0.0979 173.17 / 0.3);
+  --style-chat-topbar-glass-border-width: 0.0625rem;
+  --style-chat-topbar-glass-backdrop-filter: blur(1rem);
+  --style-chat-topbar-glass-opacity: 0.95;
+  --style-chat-topbar-flat-background-color: oklch(0.12 0.004 262.8);
+  --style-chat-topbar-flat-border-radius: 0;
+  --style-chat-topbar-flat-box-shadow: none;
+  --style-chat-topbar-flat-color: oklch(0.9319 0.015 224);
+  --style-chat-topbar-flat-border-color: oklch(0.3 0.02 224 / 0.12);
+  --style-chat-topbar-flat-border-width: 0.0625rem;
+  --style-chat-topbar-flat-opacity: 1;
+  --style-chat-topbar-matte-background-color: oklch(0.12 0.003 189.37);
+  --style-chat-topbar-matte-border-radius: 0;
+  --style-chat-topbar-matte-box-shadow: 0 0.0625rem 0.1875rem oklch(0 0 0 / 0.1);
+  --style-chat-topbar-matte-color: oklch(0.9319 0.015 224);
+  --style-chat-topbar-matte-border-color: oklch(0.4234 0.081 173.37 / 0.2);
+  --style-chat-topbar-matte-border-width: 0.0625rem;
+  --style-chat-topbar-matte-opacity: 1;
   --style-checkbox-default-background-color: oklch(0.0901 0.017 224.61 / 0.8);
   --style-checkbox-default-border-radius: 0.75rem;
   --style-checkbox-default-box-shadow: 0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24);

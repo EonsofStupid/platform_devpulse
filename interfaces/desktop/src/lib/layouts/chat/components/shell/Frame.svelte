@@ -2,26 +2,22 @@
   @file src/lib/layouts/chat/components/shell/Frame.svelte
   @module @devpulse/layouts/chat/Frame
 
-  Chat window frame — ColdLight glass styling.
-  Structural layout inline. Visual via token var() refs.
-  Renders in a separate Tauri child window.
+  Chat window layout composition.
+  Composes ColdLight central library components into the 5-zone grid shell.
+  This is a LAYOUT — it wires state and composes components. Not a component itself.
 
-	@defaults {
-		"background-color": "oklch(0.0901 0.017 224.61 / 0.8)",
-		"border-radius": "0.75rem",
-		"box-shadow": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
-		"color": "oklch(0.9319 0.015 224)",
-		"border-color": "oklch(0.4234 0.081 173.37 / 0.22)",
-		"border-width": "0.0625rem"
-}
+  Rendered in a separate Tauri child window via open_chat_window.
 -->
 <script lang="ts">
 import type { Snippet } from "svelte";
-import { cn } from "$lib/design/utils/cn.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Heading } from "$lib/design/components/heading/index.js";
-import { platformState } from "$lib/sys/runes/platformState.svelte.js";
+import { invoke } from "@tauri-apps/api/core";
+import { ChatFrame } from "$lib/design/components/chat-frame/index.js";
+import { ChatTopBar } from "$lib/design/components/chat-topbar/index.js";
+import { ChatSidebar } from "$lib/design/components/chat-sidebar/index.js";
+import { ChatDashboard } from "$lib/design/components/chat-dashboard/index.js";
+import { ChatFooter } from "$lib/design/components/chat-footer/index.js";
+import { ChatContextPanel } from "$lib/design/components/chat-context-panel/index.js";
+import { globalState } from "$lib/sys/runes/global.svelte.js";
 
 interface Props {
 	children: Snippet;
@@ -29,51 +25,45 @@ interface Props {
 
 let { children }: Props = $props();
 
-const STATUS_COLORS: Record<string, string> = {
-	online: "bg-[var(--color-teal-400)] shadow-[0_0_var(--status-dot-glow-radius)_var(--color-teal-400)]",
-	offline: "bg-[var(--signal-error)] shadow-[0_0_var(--status-dot-glow-radius)_var(--signal-error)]",
-	hybrid: "bg-[var(--color-purple-400)] shadow-[0_0_var(--status-dot-glow-radius)_var(--color-purple-400)]",
-};
+const chatState = $derived(
+	globalState.chat_minimized ? "minimized" : globalState.chat_open ? "open" : "closed",
+);
 
-const SLOTS = {
-	frame: "grid h-screen w-screen overflow-hidden grid-rows-[auto_1fr] font-sans bg-[var(--surface-base)]",
-	topbar: cn(
-		"flex items-center justify-between",
-		"h-10 px-3",
-		"border-b border-[var(--border-soft)]",
-	),
-	dashboard: "overflow-y-auto scrollbar-thin",
-} as const;
+function handleMinimize(): void {
+	globalState.minimizeChat();
+}
+
+function handleClose(): void {
+	invoke("close_window", { label: "chat" });
+}
+
+function handleModeChange(mode: "developer" | "planning" | "image" | "general"): void {
+	globalState.setMode(mode);
+}
 </script>
 
-<div
-	class={SLOTS.frame}
-	data-kind="shell"
-	data-slot="frame"
-	data-layout="chat"
-	data-state="open"
+<ChatFrame
+	state={chatState}
+	engaged={true}
+	contextCollapsed={false}
 >
-	<header data-kind="shell" data-slot="topbar" class={SLOTS.topbar}>
-		<div class={hstack({ gap: "4", align: "center" })}>
-			<Heading level={6} size="xs" class="font-display">
-				Maestro Chat
-			</Heading>
-		</div>
-		<Badge
-			variant="neutral"
-			size="sm"
-			class="gap-1.5"
-			data-status={platformState.connectionStatus}
-			title="Platform: {platformState.connectionStatus}"
-		>
-			<span
-				class={cn("h-2 w-2 rounded-full", STATUS_COLORS[platformState.connectionStatus] ?? STATUS_COLORS.offline)}
-				aria-hidden="true"
-			></span>
-		</Badge>
-	</header>
+	<ChatTopBar
+		hubLabel={globalState.current_domain.toUpperCase()}
+		title="CORTEX MEMORY"
+		onMinimize={handleMinimize}
+		onClose={handleClose}
+	/>
 
-	<main data-kind="shell" data-slot="dashboard" class={SLOTS.dashboard}>
+	<ChatSidebar
+		mode={globalState.chat_mode}
+		onModeChange={handleModeChange}
+	/>
+
+	<ChatDashboard>
 		{@render children()}
-	</main>
-</div>
+	</ChatDashboard>
+
+	<ChatFooter disabled={false} />
+
+	<ChatContextPanel collapsed={false} />
+</ChatFrame>

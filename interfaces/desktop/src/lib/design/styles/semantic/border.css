@@ -4,10 +4,10 @@
 
 @layer tokens.semantic {
   :root {
-  --border-subtle: oklch(0.4234 0.0810 173.37 / 0.2196078431372549); /** Default container border */
-  --border-strong: oklch(0.5106 0.0979 173.17 / 0.30196078431372547); /** Emphasized container border */
-  --border-focus: var(--color-mint-400); /** Focus ring color */
-  --border-divider: oklch(1.0000 0.0000 0.00 / 0.058823529411764705); /** Section separator */
+  --border-subtle: oklch(0.4256 0.0453 163.89 / 0.22); /** Default container border */
+  --border-strong: oklch(0.5133 0.0547 163.65 / 0.302); /** Emphasized container border */
+  --border-focus: var(--color-teal-400); /** Focus ring color */
+  --border-divider: oklch(1.0032 0.0305 28.88 / 0.059); /** Section separator */
   --border-preset-default-color: var(--border-subtle); /** Standard container border */
   --border-preset-default-width: 0.0625rem; /** Standard container border */
   --border-preset-default-style: solid; /** Standard container border */

@@ -5,13 +5,12 @@
 @layer tokens.primitives {
   :root {
   --radius-none: 0;
-  --radius-2xs: 0.0625rem;
-  --radius-xs: 0.125rem;
-  --radius-sm: 0.25rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-2xl: 1.5rem;
+  --radius-xs: 0.0078125rem;
+  --radius-sm: 0.015625rem;
+  --radius-md: 0.03125rem;
+  --radius-lg: 0.046875rem;
+  --radius-xl: 0.0625rem;
+  --radius-2xl: 0.09375rem;
   --radius-full: 624.9375rem;
   }
 }

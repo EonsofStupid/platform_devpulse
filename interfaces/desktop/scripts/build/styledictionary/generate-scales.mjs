@@ -109,13 +109,83 @@ function round(n) {
 // ─── Scale Definitions (formulas) ───────────────────────────────────
 
 const SCALES = {
-	// Spacing: base 0.25rem, ratio 2
-	spacing: (() => {
-		const names = ['1', '2', '3', '4', '5', '6', '8', '10', '12', '16', '20', '24', '32'];
-		const values = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 2.5, 3, 4, 5, 6, 8];
+	// Space scale: matches --space-* in spacing.css
+	space: (() => {
+		const entries = {
+			'0': '0', '1': '0.0625rem', '2': '0.125rem', '3': '0.1875rem',
+			'4': '0.25rem', '5': '0.3125rem', '6': '0.375rem', '7': '0.4375rem',
+			'8': '0.5rem', '9': '0.5625rem', '10': '0.625rem', '11': '0.6875rem',
+			'12': '0.75rem', '14': '0.875rem', '16': '1rem', '18': '1.125rem',
+			'20': '1.25rem', '24': '1.5rem', '28': '1.75rem', '32': '2rem',
+			'36': '2.25rem', '40': '2.5rem', '44': '2.75rem', '48': '3rem',
+			'56': '3.5rem', '64': '4rem', '72': '4.5rem', '80': '5rem',
+			'96': '6rem', '112': '7rem', '128': '8rem',
+		};
 		const result = {};
-		for (let i = 0; i < names.length; i++) {
-			result[names[i]] = { $value: `${values[i]}rem`, $type: 'dimension' };
+		for (const [name, val] of Object.entries(entries)) {
+			result[name] = { $value: val, $type: 'dimension' };
+		}
+		return result;
+	})(),
+
+	// Padding composites: matches --padding-* in spacing.css
+	padding: (() => {
+		const entries = {
+			'xs-y': '0.25rem', 'xs-x': '0.5rem',
+			'sm-y': '0.375rem', 'sm-x': '0.75rem',
+			'md-y': '0.5rem', 'md-x': '1rem',
+			'lg-y': '0.75rem', 'lg-x': '1.5rem',
+			'xl-y': '1rem', 'xl-x': '2rem',
+			'2xl-y': '1.5rem', '2xl-x': '3rem',
+		};
+		const result = {};
+		for (const [name, val] of Object.entries(entries)) {
+			result[name] = { $value: val, $type: 'dimension' };
+		}
+		return result;
+	})(),
+
+	// Size scale: matches --size-* in spacing.css
+	size: (() => {
+		const entries = {
+			'3xs': '1rem', '2xs': '1.25rem', 'xs': '1.5rem',
+			'sm': '2rem', 'md': '2.5rem', 'lg': '3rem',
+			'xl': '3.5rem', '2xl': '4rem', '3xl': '5rem',
+			'4xl': '6rem', '5xl': '8rem',
+			'container-xs': '20rem', 'container-sm': '40rem',
+			'container-md': '48rem', 'container-lg': '64rem',
+			'container-xl': '80rem', 'container-2xl': '96rem',
+		};
+		const result = {};
+		for (const [name, val] of Object.entries(entries)) {
+			result[name] = { $value: val, $type: 'dimension' };
+		}
+		return result;
+	})(),
+
+	// Breakpoints: matches --breakpoint-* in spacing.css
+	breakpoint: (() => {
+		const entries = {
+			'xs': '20rem', 'sm': '40rem', 'md': '48rem',
+			'lg': '64rem', 'xl': '80rem', '2xl': '96rem',
+		};
+		const result = {};
+		for (const [name, val] of Object.entries(entries)) {
+			result[name] = { $value: val, $type: 'dimension' };
+		}
+		return result;
+	})(),
+
+	// Z-index scale: matches --z-index-* in spacing.css
+	zIndex: (() => {
+		const entries = {
+			'base': '0', 'raised': '10', 'dropdown': '100',
+			'sticky': '200', 'overlay': '300', 'modal': '400',
+			'popover': '500', 'toast': '600', 'tooltip': '700',
+		};
+		const result = {};
+		for (const [name, val] of Object.entries(entries)) {
+			result[name] = { $value: val, $type: 'number' };
 		}
 		return result;
 	})(),

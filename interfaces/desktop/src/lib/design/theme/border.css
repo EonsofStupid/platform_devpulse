@@ -3,20 +3,20 @@
  */
 
 @theme {
-  --border-subtle: oklch(0.4234 0.0810 173.37 / 0.2196078431372549);
-  --border-strong: oklch(0.5106 0.0979 173.17 / 0.30196078431372547);
-  --border-focus: oklch(0.8147 0.1438 171.59);
-  --border-divider: oklch(1.0000 0.0000 0.00 / 0.058823529411764705);
-  --border-preset-default-color: oklch(0.4234 0.0810 173.37 / 0.2196078431372549);
+  --border-subtle: oklch(0.4256 0.0453 163.89 / 0.22);
+  --border-strong: oklch(0.5133 0.0547 163.65 / 0.302);
+  --border-focus: oklch(0.63 0.08 173);
+  --border-divider: oklch(1.0032 0.0305 28.88 / 0.059);
+  --border-preset-default-color: oklch(0.4256 0.0453 163.89 / 0.22);
   --border-preset-default-width: 0.0625rem;
   --border-preset-default-style: solid;
-  --border-preset-strong-color: oklch(0.5106 0.0979 173.17 / 0.30196078431372547);
+  --border-preset-strong-color: oklch(0.5133 0.0547 163.65 / 0.302);
   --border-preset-strong-width: 0.0625rem;
   --border-preset-strong-style: solid;
-  --border-preset-focus-color: oklch(0.8147 0.1438 171.59);
+  --border-preset-focus-color: oklch(0.63 0.08 173);
   --border-preset-focus-width: 0.125rem;
   --border-preset-focus-style: solid;
-  --border-preset-divider-color: oklch(1.0000 0.0000 0.00 / 0.058823529411764705);
+  --border-preset-divider-color: oklch(1.0032 0.0305 28.88 / 0.059);
   --border-preset-divider-width: 0.0625rem;
   --border-preset-divider-style: solid;
 }

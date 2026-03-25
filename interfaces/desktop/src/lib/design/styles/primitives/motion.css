@@ -25,5 +25,11 @@
   --motion-animation-slide-up: slide-up 300ms ease-out forwards;
   --motion-animation-slide-down: slide-down 300ms ease-out forwards;
   --motion-animation-scale-in: scale-in 250ms ease-out forwards;
+  --motion-animation-grow: cl-grow 300ms ease-out forwards;
+  --motion-animation-shrink: cl-shrink 200ms ease-in forwards;
+  --motion-animation-shake: cl-shake 400ms ease-in-out;
+  --motion-animation-spin: cl-spin 1s linear infinite;
+  --motion-animation-float: cl-float 6s ease-in-out infinite;
+  --motion-animation-flip: cl-flip 600ms ease-in-out forwards;
   }
 }

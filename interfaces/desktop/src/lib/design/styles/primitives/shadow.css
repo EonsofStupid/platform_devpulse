@@ -4,50 +4,10 @@
 
 @layer tokens.primitives {
   :root {
-  --shadow-z0-color: oklch(0.0000 0.0000 0.00 / 0);
-  --shadow-z0-offset-x: 0;
-  --shadow-z0-offset-y: 0;
-  --shadow-z0-blur: 0;
-  --shadow-z0-spread: 0;
-  --shadow-z1-1-color: oklch(0.0000 0.0000 0.00 / 0.12156862745098039);
-  --shadow-z1-1-offset-x: 0;
-  --shadow-z1-1-offset-y: 0.0625rem;
-  --shadow-z1-1-blur: 0.1875rem;
-  --shadow-z1-1-spread: 0;
-  --shadow-z1-2-color: oklch(0.0000 0.0000 0.00 / 0.23921568627450981);
-  --shadow-z1-2-offset-x: 0;
-  --shadow-z1-2-offset-y: 0.0625rem;
-  --shadow-z1-2-blur: 0.125rem;
-  --shadow-z1-2-spread: 0;
-  --shadow-z2-1-color: oklch(0.0000 0.0000 0.00 / 0.14901960784313725);
-  --shadow-z2-1-offset-x: 0;
-  --shadow-z2-1-offset-y: 0.1875rem;
-  --shadow-z2-1-blur: 0.375rem;
-  --shadow-z2-1-spread: 0;
-  --shadow-z2-2-color: oklch(0.0000 0.0000 0.00 / 0.12156862745098039);
-  --shadow-z2-2-offset-x: 0;
-  --shadow-z2-2-offset-y: 0.125rem;
-  --shadow-z2-2-blur: 0.25rem;
-  --shadow-z2-2-spread: 0;
-  --shadow-z3-1-color: oklch(0.0000 0.0000 0.00 / 0.14901960784313725);
-  --shadow-z3-1-offset-x: 0;
-  --shadow-z3-1-offset-y: 0.625rem;
-  --shadow-z3-1-blur: 1.25rem;
-  --shadow-z3-1-spread: 0;
-  --shadow-z3-2-color: oklch(0.0000 0.0000 0.00 / 0.10196078431372549);
-  --shadow-z3-2-offset-x: 0;
-  --shadow-z3-2-offset-y: 0.1875rem;
-  --shadow-z3-2-blur: 0.375rem;
-  --shadow-z3-2-spread: 0;
-  --shadow-z4-1-color: oklch(0.0000 0.0000 0.00 / 0.14901960784313725);
-  --shadow-z4-1-offset-x: 0;
-  --shadow-z4-1-offset-y: 0.9375rem;
-  --shadow-z4-1-blur: 1.5625rem;
-  --shadow-z4-1-spread: 0;
-  --shadow-z4-2-color: oklch(0.0000 0.0000 0.00 / 0.050980392156862744);
-  --shadow-z4-2-offset-x: 0;
-  --shadow-z4-2-offset-y: 0.3125rem;
-  --shadow-z4-2-blur: 0.625rem;
-  --shadow-z4-2-spread: 0;
+  --shadow-z0: none;
+  --shadow-z1: 0 0.0625rem 0.1875rem oklch(0 0 0 / 0.15), 0 0.0188rem 0.0938rem oklch(0 0 0 / 0.1);
+  --shadow-z2: 0 0.1875rem 0.5625rem oklch(0 0 0 / 0.15), 0 0.0563rem 0.2813rem oklch(0 0 0 / 0.1);
+  --shadow-z3: 0 0.625rem 1.875rem oklch(0 0 0 / 0.15), 0 0.1875rem 0.9375rem oklch(0 0 0 / 0.1);
+  --shadow-z4: 0 0.9375rem 2.8125rem oklch(0 0 0 / 0.15), 0 0.2813rem 1.4063rem oklch(0 0 0 / 0.1);
   }
 }

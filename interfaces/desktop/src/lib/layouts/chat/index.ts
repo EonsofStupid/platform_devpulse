@@ -1,1 +1,1 @@
-export { default as ChatFrame } from "./components/shell/Frame.svelte";
+export { default as ChatShell } from "./components/shell/Frame.svelte";

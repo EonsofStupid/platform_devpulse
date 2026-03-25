@@ -4,14 +4,14 @@
 
 @layer tokens.primitives {
   :root {
-  --glass-void: oklch(0.0608 0.0104 194.77 / 0.8784313725490196);
-  --glass-deep: oklch(0.0901 0.0170 224.61 / 0.8);
-  --glass-smoke: oklch(0.1402 0.0079 212.35 / 0.6509803921568628);
-  --glass-frost: oklch(0.9197 0.0095 222.06 / 0.4);
-  --glass-teal: oklch(0.1143 0.0228 169.40 / 0.7490196078431373);
-  --glass-purple: oklch(0.1012 0.0603 282.04 / 0.7490196078431373);
-  --matte-dark: oklch(0.1395 0.0048 262.80);
-  --matte-medium: oklch(0.2208 0.0050 248.05);
-  --matte-light: oklch(0.2999 0.0046 247.98);
+  --glass-void: oklch(0.0612 0.0072 185.78 / 0.878);
+  --glass-deep: oklch(0.0906 0.0149 205.53 / 0.8);
+  --glass-smoke: oklch(0.1407 0.0033 189.37 / 0.651);
+  --glass-frost: oklch(0.9228 0.0189 30.62 / 0.4);
+  --glass-teal: oklch(0.1149 0.0123 158.92 / 0.749);
+  --glass-purple: oklch(0.1001 0.0644 218.28 / 0.749);
+  --matte-dark: oklch(0.14 0.0014 314.64);
+  --matte-medium: oklch(0.2216 0.0023 9.36);
+  --matte-light: oklch(0.301 0.005 20.6);
   }
 }
