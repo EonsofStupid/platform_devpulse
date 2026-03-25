@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useRadioGroup } from "$lib/design/primitives/radio-group/use-radio-group.svelte.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setRadioGroupContext } from "./context.js";
 import type { RadioGroupProps } from "./types.js";

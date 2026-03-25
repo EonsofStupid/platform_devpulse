@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useSwitch } from "$lib/design/primitives/switch/use-switch.svelte.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SwitchProps } from "./types.js";
 

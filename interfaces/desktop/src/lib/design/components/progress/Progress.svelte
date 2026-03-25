@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useProgress } from "$lib/design/primitives/progress/index.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ProgressProps, ProgressSize } from "./progress.types.js";
 

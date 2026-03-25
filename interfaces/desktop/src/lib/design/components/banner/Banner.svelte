@@ -24,7 +24,7 @@
 <script lang="ts">
 import { slide } from "svelte/transition";
 import { useBanner } from "$lib/design/primitives/banner/index.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { BannerProps } from "./types.js";
 

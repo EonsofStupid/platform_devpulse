@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import Text from "$lib/design/components/text/Text.svelte";
 import type { ChatBubbleProps } from "./types.js";

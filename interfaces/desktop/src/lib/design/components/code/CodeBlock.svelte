@@ -14,7 +14,7 @@
 	  - onCopy callback with details
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setCodeBlockContext } from "./context.js";
 import type { CodeBlockRootProps } from "./types.js";

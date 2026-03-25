@@ -7,7 +7,7 @@
 	Floating tooltip content. StyleMacro (visual). Visible when hook.open.
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { getTooltipContext } from "./context.js";
 

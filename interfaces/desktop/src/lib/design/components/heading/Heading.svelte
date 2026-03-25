@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { useHeading } from "$lib/design/primitives/heading/index.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { HeadingProps, HeadingSize } from "./heading.types.js";
 

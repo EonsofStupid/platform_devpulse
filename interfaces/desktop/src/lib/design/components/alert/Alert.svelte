@@ -24,7 +24,7 @@
 -->
 <script lang="ts">
 import { useAlert } from "$lib/design/primitives/alert/index.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setAlertContext } from "./context.js";
 import { ALERT_VARIANT_PRESETS, type AlertRootProps } from "./types.js";

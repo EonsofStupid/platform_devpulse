@@ -24,7 +24,7 @@
 -->
 <script lang="ts">
 import { useDataTable } from "$lib/design/primitives/data-table/index.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { DataTableComponentProps } from "./types.js";
 let { size = "md", variant = "default", intent = "default", label, rowCount, colCount, children, class: className, ...rest }: DataTableComponentProps = $props();

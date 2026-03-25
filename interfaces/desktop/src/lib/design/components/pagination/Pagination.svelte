@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { usePagination } from "$lib/design/primitives/pagination/index.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { PaginationComponentProps } from "./types.js";
 let { page = 1, totalPages, onPageChange, siblings = 1, boundaries = 1, size = "md", intent = "default", children, class: className, ...rest }: PaginationComponentProps = $props();

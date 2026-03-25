@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useSidebar } from "$lib/design/primitives/sidebar/index.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SidebarComponentProps } from "./types.js";
 let { size = "md", expanded = true, onExpandedChange, label, header, footer, intent = "default", children, class: className, ...rest }: SidebarComponentProps = $props();

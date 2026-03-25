@@ -11,7 +11,7 @@
  *   typography, gradient, color, borderRadius, opacity
  */
 
-import type { StyleMacroProps } from "../styles/macro-mappings.js";
+import type { StyleMacroProps } from "./macro-mappings.js";
 
 // =============================================================================
 // PLATFORM BASE STATE

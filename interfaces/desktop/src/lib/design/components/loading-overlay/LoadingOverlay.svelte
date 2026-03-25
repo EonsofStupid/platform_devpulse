@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { useLoadingOverlay } from "$lib/design/primitives/loading-overlay/index.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { LoadingOverlayComponentProps } from "./types.js";
 

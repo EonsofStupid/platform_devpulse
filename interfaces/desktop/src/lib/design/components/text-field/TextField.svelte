@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { useTextField } from "$lib/design/primitives/text-field/index.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TextFieldProps, TextFieldSize } from "./text-field.types.js";
 

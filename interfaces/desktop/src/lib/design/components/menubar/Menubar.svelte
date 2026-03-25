@@ -23,7 +23,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { type MenubarRootCtx, setMenubarRootContext } from "./context.js";
 import type { MenubarProps } from "./types.js";

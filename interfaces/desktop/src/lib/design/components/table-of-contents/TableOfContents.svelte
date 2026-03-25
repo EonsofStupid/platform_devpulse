@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { useTableOfContents } from "$lib/design/primitives/table-of-contents/index.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TableOfContentsComponentProps } from "./types.js";
 let { label = "Table of contents", activeId, onActiveIdChange, size = "md", intent = "default", children, class: className, ...rest }: TableOfContentsComponentProps = $props();

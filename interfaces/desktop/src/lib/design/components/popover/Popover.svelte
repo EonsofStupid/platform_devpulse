@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { usePopover } from "$lib/design/primitives/popover/use-popover.svelte.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setPopoverContext } from "./context.js";
 import type { PopoverProps } from "./types.js";

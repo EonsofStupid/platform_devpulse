@@ -24,7 +24,7 @@
 -->
 <script lang="ts">
 import { useList } from "$lib/design/primitives/list/index.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ListComponentProps } from "./types.js";
 let { intent = "default", size = "md", variant = "none", spacing = "default", label, children, class: className, ...rest }: ListComponentProps = $props();

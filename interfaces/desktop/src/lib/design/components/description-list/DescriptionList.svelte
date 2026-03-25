@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useDescriptionList } from "$lib/design/primitives/description-list/index.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { DescriptionListComponentProps } from "./types.js";
 let { size = "md", variant = "default", intent = "default", label, children, class: className, ...rest }: DescriptionListComponentProps = $props();

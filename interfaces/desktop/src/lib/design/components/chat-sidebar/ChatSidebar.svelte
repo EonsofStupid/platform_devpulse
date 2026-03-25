@@ -19,7 +19,7 @@
 	}
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { Button } from "$lib/design/components/button/index.js";
 import type { ChatSidebarProps, ChatMode } from "./types.js";

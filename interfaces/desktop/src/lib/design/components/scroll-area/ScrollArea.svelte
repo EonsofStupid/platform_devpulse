@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useScrollArea } from "$lib/design/primitives/scroll-area/index.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ScrollAreaComponentProps } from "./types.js";
 let { size = "md", orientation = "vertical", intent = "default", label, children, class: className, ...rest }: ScrollAreaComponentProps = $props();

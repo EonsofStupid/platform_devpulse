@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useFormField } from "$lib/design/primitives/form-field/index.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { FormFieldComponentProps } from "./types.js";
 let { intent = "default", size = "md", label, description, error, invalid = false, required = false, disabled = false, children, class: className, ...rest }: FormFieldComponentProps = $props();

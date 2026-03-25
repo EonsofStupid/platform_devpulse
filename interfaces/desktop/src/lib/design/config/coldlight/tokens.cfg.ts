@@ -45,19 +45,19 @@ export const TOKENS = {
 		/** CSS custom properties → :root { --token-name: value; } */
 		css: {
 			enabled: true,
-			output: "src/lib/design/style/tokens.css",
+			output: "src/lib/design/styles/tokens.css",
 		},
 
 		/** Tailwind v4 @theme block → @theme { --color-*: oklch(...); } */
 		theme: {
 			enabled: true,
-			output: "src/lib/design/style/tailwind.css",
+			output: "src/lib/design/styles/tailwind.css",
 		},
 
 		/** TypeScript union types + runtime arrays from tokens.enums */
 		types: {
 			enabled: true,
-			output: "src/lib/design/style/types.ts",
+			output: "src/lib/design/styles/types.ts",
 		},
 	},
 

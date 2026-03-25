@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { useLinkPreview } from "$lib/design/primitives/link-preview/index.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { LinkPreviewProps } from "./types.js";
 let { intent = "default", openDelay = 700, closeDelay = 300, open, onOpenChange, children, class: className }: LinkPreviewProps = $props();

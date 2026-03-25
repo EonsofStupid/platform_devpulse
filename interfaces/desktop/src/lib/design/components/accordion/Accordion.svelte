@@ -24,7 +24,7 @@
 -->
 <script lang="ts">
 import { useAccordion } from "$lib/design/primitives/accordion/use-accordion.svelte.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setAccordionContext } from "./context.js";
 import type { AccordionRootProps, AccordionSize } from "./types.js";

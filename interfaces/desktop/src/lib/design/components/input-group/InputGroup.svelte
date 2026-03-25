@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useInputGroup } from "$lib/design/primitives/input-group/index.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { InputGroupComponentProps } from "./types.js";
 let { intent = "default", size = "md", disabled = false, prefix, suffix, children, class: className, ...rest }: InputGroupComponentProps = $props();

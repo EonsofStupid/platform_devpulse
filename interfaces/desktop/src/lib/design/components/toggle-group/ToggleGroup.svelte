@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useToggleGroup } from "$lib/design/primitives/toggle-group/index.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ToggleGroupComponentProps } from "./types.js";
 let { size = "md", value, onValueChange, multiple = false, disabled = false, orientation = "horizontal", loop = true, intent = "default", children, class: className, ...rest }: ToggleGroupComponentProps = $props();

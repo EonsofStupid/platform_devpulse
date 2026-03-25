@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { useLabel } from "$lib/design/primitives/label/use-label.svelte.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { LabelProps, LabelSize } from "./types.js";
 

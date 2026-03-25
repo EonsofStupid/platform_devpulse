@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useSelect } from "$lib/design/primitives/select/use-select.svelte.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setSelectContext } from "./context.js";
 import type { SelectProps } from "./types.js";

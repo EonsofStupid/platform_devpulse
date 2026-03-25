@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useNotificationCenter } from "$lib/design/primitives/notification-center/index.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { NotificationCenterComponentProps } from "./types.js";
 let { open = false, onOpenChange, intent = "default", children, class: className, ...rest }: NotificationCenterComponentProps = $props();

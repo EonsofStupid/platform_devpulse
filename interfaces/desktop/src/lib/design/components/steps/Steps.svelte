@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useSteps } from "$lib/design/primitives/steps/index.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { StepsComponentProps } from "./types.js";
 let { size = "md", orientation = "horizontal", activeStep = 0, onActiveStepChange, label, linear = true, disabled = false, intent = "default", children, class: className, ...rest }: StepsComponentProps = $props();

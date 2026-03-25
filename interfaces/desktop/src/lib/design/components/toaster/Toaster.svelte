@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useToaster } from "$lib/design/primitives/toaster/index.js";
-import { StyleMacro } from "$lib/design/style/index.js";
+import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ToasterComponentProps } from "./types.js";
 let { position = "bottom-right", closeDelay = 5000, intent = "default", children, class: className, ...rest }: ToasterComponentProps = $props();
