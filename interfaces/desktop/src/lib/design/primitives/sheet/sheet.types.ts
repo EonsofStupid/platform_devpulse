@@ -1,4 +1,4 @@
-import type { HTMLAttributes, HTMLButtonAttributes, HTMLDialogAttributes } from "svelte/elements";
+import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
 
 export type SheetSide = "top" | "right" | "bottom" | "left";
 
@@ -22,7 +22,7 @@ export type SheetOverlayAttrs = HTMLAttributes<HTMLDivElement> & {
 	"data-state": "open" | "closed";
 };
 
-export type SheetContentAttrs = HTMLDialogAttributes & {
+export type SheetContentAttrs = HTMLAttributes<HTMLDivElement> & {
 	"data-kind": "sheet";
 	"data-slot": "content";
 	"data-state": "open" | "closed";
@@ -53,7 +53,7 @@ export interface UseSheetReturn {
 	readonly title: SheetTitleAttrs;
 	readonly description: SheetDescriptionAttrs;
 	readonly close: SheetCloseAttrs;
-	attachContent: (node: HTMLDialogElement) => { destroy(): void };
+	attachContent: (node: HTMLDivElement) => { destroy(): void };
 	attachOverlay: (node: HTMLElement) => { destroy(): void };
 	attachTrigger: (node: HTMLElement) => { destroy(): void };
 }

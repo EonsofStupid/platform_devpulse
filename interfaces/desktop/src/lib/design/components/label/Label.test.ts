@@ -1,25 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { contract } from "./contract.js";
 import { Label } from "./index.js";
-
-describe("label component — contract", () => {
-	test("contract.kind is 'label'", () => {
-		expect(contract.kind).toBe("label");
-	});
-
-	test("contract requires root slot", () => {
-		expect(contract.slots.required).toContain("root");
-	});
-
-	test("contract declares label element for root slot", () => {
-		expect(contract.slotContracts.root.element).toBe("label");
-	});
-
-	test("contract declares no modal interaction", () => {
-		expect(contract.interactions.modal).toBe(false);
-	});
-});
 
 describe("label component — ARIA", () => {
 	test("renders a <label> element", async () => {

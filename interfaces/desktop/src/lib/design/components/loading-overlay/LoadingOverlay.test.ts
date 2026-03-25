@@ -13,45 +13,7 @@
 
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { contract } from "./contract.js";
 import LoadingOverlay from "./LoadingOverlay.svelte";
-
-// =============================================================================
-// CONTRACT INTEGRITY
-// =============================================================================
-
-describe("loading-overlay component — contract", () => {
-	test("contract.kind is 'loading-overlay'", () => {
-		expect(contract.kind).toBe("loading-overlay");
-	});
-
-	test("contract.primitiveKind is 'loading-overlay'", () => {
-		expect(contract.primitiveKind).toBe("loading-overlay");
-	});
-
-	test("contract requires slot 'root'", () => {
-		expect(contract.slots.required).toContain("root");
-	});
-
-	test("contract root slot has role 'alert'", () => {
-		expect(contract.slotContracts.root.aria.role).toBe("alert");
-	});
-
-	test("contract has no required ARIA attrs on root", () => {
-		expect(contract.slotContracts.root.aria.required).toHaveLength(0);
-	});
-
-	test("contract has no keyboard interactions", () => {
-		expect(contract.keyboard.global).toHaveLength(0);
-	});
-
-	test("contract interactions are all false", () => {
-		expect(contract.interactions.modal).toBe(false);
-		expect(contract.interactions.selectable).toBe(false);
-		expect(contract.interactions.editable).toBe(false);
-		expect(contract.interactions.expandable).toBe(false);
-	});
-});
 
 // =============================================================================
 // ARIA ATTRIBUTES

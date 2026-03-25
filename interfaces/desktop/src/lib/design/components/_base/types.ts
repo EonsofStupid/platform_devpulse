@@ -9,7 +9,7 @@
  */
 
 import type { Snippet } from "svelte";
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "svelte/elements";
 
 // =============================================================================
 // UI BASE PROPS — what every renderable UI element accepts

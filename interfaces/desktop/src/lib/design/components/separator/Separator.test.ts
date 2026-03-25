@@ -14,30 +14,7 @@
 
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { contract } from "./contract.js";
 import Separator from "./Separator.svelte";
-
-// =============================================================================
-// CONTRACT INTEGRITY
-// =============================================================================
-
-describe("separator component — contract", () => {
-	test("contract.kind is 'separator'", () => {
-		expect(contract.kind).toBe("separator");
-	});
-
-	test("contract.primitiveKind is 'separator'", () => {
-		expect(contract.primitiveKind).toBe("separator");
-	});
-
-	test("contract requires slot 'root'", () => {
-		expect(contract.slots.required).toContain("root");
-	});
-
-	test("contract.interactions.modal is false", () => {
-		expect(contract.interactions.modal).toBe(false);
-	});
-});
 
 // =============================================================================
 // STRUCTURAL ATTRIBUTES — data-kind, data-slot

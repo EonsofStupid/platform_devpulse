@@ -7,6 +7,15 @@
   COMPOSITION of library components: Card (root), Heading (title), Tabs (tabs).
   Visual treatment flows through Card → StyleMacro → preset pipeline.
   Block = composition of components. No duplicate markup. No hardcoded CSS.
+
+	@defaults {
+		"background-color": "oklch(0.0901 0.017 224.61 / 0.8)",
+		"border-radius": "0.75rem",
+		"box-shadow": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+		"color": "oklch(0.9319 0.015 224)",
+		"border-color": "oklch(0.4234 0.081 173.37 / 0.22)",
+		"border-width": "0.0625rem"
+}
 -->
 <script lang="ts">
 import Card from "$lib/design/components/card/Card.svelte";
@@ -42,7 +51,7 @@ let {
 
 // Card variant resolves to a style preset ID
 // If preset is provided, use it directly. Otherwise use card-default.
-const cardVariant = $derived(preset ?? "default");
+const cardVariant = $derived((preset ?? "default") as import("$lib/design/components/card/card.types.js").CardVariant);
 </script>
 
 <Card

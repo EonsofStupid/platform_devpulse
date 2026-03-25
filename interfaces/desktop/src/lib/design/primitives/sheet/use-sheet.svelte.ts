@@ -22,7 +22,7 @@ export function useSheet(props: UseSheetProps = {}): UseSheetReturn {
 	const closeOnOutsideClick = props.closeOnOutsideClick ?? true;
 
 	let isOpen = $state(props.open ?? false);
-	let contentEl: HTMLDialogElement | null = null;
+	let contentEl: HTMLDivElement | null = null;
 	let overlayEl: HTMLElement | null = null;
 	let triggerEl: HTMLElement | null = null;
 
@@ -31,10 +31,6 @@ export function useSheet(props: UseSheetProps = {}): UseSheetReturn {
 		if (value) {
 			isOpen = true;
 			props.onOpenChange?.(true);
-			tick().then(() => {
-				contentEl?.showModal?.();
-				overlayEl?.showPopover?.();
-			});
 		} else {
 			isOpen = false;
 			props.onOpenChange?.(false);
@@ -81,13 +77,8 @@ export function useSheet(props: UseSheetProps = {}): UseSheetReturn {
 		onclick: () => setOpen(false),
 	});
 
-	function attachContent(node: HTMLDialogElement): { destroy(): void } {
+	function attachContent(node: HTMLDivElement): { destroy(): void } {
 		contentEl = node;
-		if (isOpen)
-			tick().then(() => {
-				contentEl?.showModal?.();
-				overlayEl?.showPopover?.();
-			});
 		useScrollLock(() => isOpen);
 		if (closeOnOutsideClick) {
 			useDismissLayer({
@@ -100,8 +91,6 @@ export function useSheet(props: UseSheetProps = {}): UseSheetReturn {
 			open: () => isOpen,
 			node: () => contentEl,
 			onExitComplete: () => {
-				contentEl?.close?.();
-				overlayEl?.hidePopover?.();
 				triggerEl?.focus();
 			},
 		});

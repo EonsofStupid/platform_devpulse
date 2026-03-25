@@ -40,10 +40,8 @@ describe("combobox component — exports", () => {
 		expect(mod.Group).toBeDefined();
 	});
 
-	test("exports a11y utilities", async () => {
+	test("exports Announce", async () => {
 		const mod = await import("./index.js");
-		expect(mod.comboboxKeyboardMap).toBeDefined();
-		expect(mod.comboboxFocusConfig).toBeDefined();
-		expect(mod.comboboxAnnouncements).toBeDefined();
+		expect(mod.Announce).toBeDefined();
 	});
 });

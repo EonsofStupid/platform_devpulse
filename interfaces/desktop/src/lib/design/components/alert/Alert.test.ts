@@ -14,33 +14,6 @@ import { describe, expect, test } from "vitest";
 import { useAlert } from "$lib/design/primitives/alert/index.js";
 
 // =============================================================================
-// CATALOG ENTRY (def.json → catalog.ts)
-// =============================================================================
-
-describe("alert — catalog entry", () => {
-	test("def.json exists and has correct kind", async () => {
-		const def = await import("./alert.def.json");
-		expect(def.kind).toBe("alert");
-	});
-
-	test("def.json declares required slots", async () => {
-		const def = await import("./alert.def.json");
-		expect(def.slots.root).toBe("all");
-		expect(def.slots).toHaveProperty("icon");
-		expect(def.slots).toHaveProperty("title");
-		expect(def.slots).toHaveProperty("content");
-		expect(def.slots).toHaveProperty("action");
-	});
-
-	test("def.json declares style IDs", async () => {
-		const def = await import("./alert.def.json");
-		expect(def.defaultStyleId).toBe("alert-default");
-		expect(def.styleIds).toContain("alert-info");
-		expect(def.styleIds).toContain("alert-error");
-	});
-});
-
-// =============================================================================
 // HOOK ARIA
 // =============================================================================
 

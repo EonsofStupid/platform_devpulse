@@ -19,13 +19,3 @@ export type {
 	ComboboxEmptyProps,
 	ComboboxAnnounceProps,
 } from "./types.js";
-export {
-	auditCombobox,
-	comboboxAdaptAttrs,
-	comboboxAnnouncements,
-	comboboxFocusConfig,
-	comboboxKeyboardMap,
-	comboboxLiveRegions,
-	comboboxRelationships,
-	comboboxSlotAdapt,
-} from "./a11y.js";

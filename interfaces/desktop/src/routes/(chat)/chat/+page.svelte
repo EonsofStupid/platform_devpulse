@@ -133,7 +133,7 @@ function formatTime(epoch: number): string {
 	</div>
 
 	<!-- Right panel — context visualization placeholder -->
-	<Card variant="glass" class="w-72 border-l border-[var(--border-subtle)] shrink-0 hidden lg:flex flex-col items-center justify-center">
+	<Card variant="ghost" class="w-72 border-l border-[var(--border-subtle)] shrink-0 hidden lg:flex flex-col items-center justify-center">
 		<Text size="sm" class="text-[var(--text-muted)]">Context visualization</Text>
 	</Card>
 </div>

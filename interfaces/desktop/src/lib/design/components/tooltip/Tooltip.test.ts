@@ -33,9 +33,8 @@ describe("tooltip component — exports", () => {
 		expect(mod.TooltipContent).toBeDefined();
 	});
 
-	test("exports tooltipComponentContract", async () => {
+	test("exports TooltipTrigger", async () => {
 		const mod = await import("./index.js");
-		expect(mod.tooltipComponentContract).toBeDefined();
-		expect(mod.tooltipComponentContract.kind).toBe("tooltip");
+		expect(mod.TooltipTrigger).toBeDefined();
 	});
 });

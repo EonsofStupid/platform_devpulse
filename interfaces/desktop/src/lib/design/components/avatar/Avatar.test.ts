@@ -1,18 +1,18 @@
 import { describe, expect, test } from "vitest";
 
 describe("avatar — exports", () => {
-	test("exports Root", async () => {
+	test("exports Avatar", async () => {
 		const mod = await import("./index.js");
-		expect(mod.Root).toBeDefined();
+		expect(mod.Avatar).toBeDefined();
 	});
 
-	test("exports Image", async () => {
+	test("exports AvatarSchema", async () => {
 		const mod = await import("./index.js");
-		expect(mod.Image).toBeDefined();
+		expect(mod.AvatarSchema).toBeDefined();
 	});
 
-	test("exports Fallback", async () => {
+	test("exports avatarTokens", async () => {
 		const mod = await import("./index.js");
-		expect(mod.Fallback).toBeDefined();
+		expect(mod.avatarTokens).toBeDefined();
 	});
 });

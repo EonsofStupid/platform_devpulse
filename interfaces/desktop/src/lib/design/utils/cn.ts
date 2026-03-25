@@ -5,11 +5,12 @@
  * Merge class names. Filters falsy values. ColdLight's class composition utility.
  */
 import clsx from "clsx";
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "svelte/elements";
+import type { ClassValue as ClsxClassValue } from "clsx";
 
-export type { ClassValue } from "clsx";
+export type { ClassValue } from "svelte/elements";
 
-export function cn(...inputs: ClassValue[]): string {
+export function cn(...inputs: ClsxClassValue[]): string {
 	return clsx(...inputs);
 }
 

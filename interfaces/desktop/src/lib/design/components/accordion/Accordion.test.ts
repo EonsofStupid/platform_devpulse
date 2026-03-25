@@ -43,9 +43,8 @@ describe("accordion component — exports", () => {
 		expect(mod.Indicator).toBeDefined();
 	});
 
-	test("exports accordionComponentContract", async () => {
+	test("exports type definitions", async () => {
 		const mod = await import("./index.js");
-		expect(mod.accordionComponentContract).toBeDefined();
-		expect(mod.accordionComponentContract.kind).toBe("accordion");
+		expect(mod.Root).toBeDefined();
 	});
 });

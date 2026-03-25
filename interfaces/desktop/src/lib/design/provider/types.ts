@@ -5,7 +5,8 @@
  * and any overrides that flow down to all ColdLight components.
  */
 
-import type { AccentColor } from "../style/types.js";
+/** Accent color palette names available in the design system. */
+export type AccentColor = "teal" | "purple" | "magenta" | "ember" | "frost" | "cyber";
 
 export type ColorScheme = "dark" | "light";
 

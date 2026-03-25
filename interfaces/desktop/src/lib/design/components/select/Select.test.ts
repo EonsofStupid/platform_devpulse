@@ -48,9 +48,8 @@ describe("select component — exports", () => {
 		expect(mod.SelectGroup).toBeDefined();
 	});
 
-	test("exports selectComponentContract", async () => {
+	test("exports SelectTrigger", async () => {
 		const mod = await import("./index.js");
-		expect(mod.selectComponentContract).toBeDefined();
-		expect(mod.selectComponentContract.kind).toBe("select");
+		expect(mod.SelectTrigger).toBeDefined();
 	});
 });

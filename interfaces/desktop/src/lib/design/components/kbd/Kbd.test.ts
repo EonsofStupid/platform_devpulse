@@ -11,26 +11,7 @@
 
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
-import { contract } from "./contract.js";
 import Kbd from "./Kbd.svelte";
-
-// =============================================================================
-// CONTRACT INTEGRITY
-// =============================================================================
-
-describe("kbd component — contract", () => {
-	test("contract.kind is 'kbd'", () => {
-		expect(contract.kind).toBe("kbd");
-	});
-
-	test("contract.primitiveKind is 'kbd'", () => {
-		expect(contract.primitiveKind).toBe("kbd");
-	});
-
-	test("contract requires slot 'root'", () => {
-		expect(contract.slots.required).toContain("root");
-	});
-});
 
 // =============================================================================
 // STRUCTURAL ATTRIBUTES

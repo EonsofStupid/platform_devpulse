@@ -35,7 +35,7 @@ export function useTypeahead(config: TypeaheadConfig): TypeaheadReturn {
 		const items = config.getItems();
 		if (items.length === 0) return;
 
-		const currentIndex = items.indexOf(document.activeElement);
+		const currentIndex = items.indexOf(document.activeElement as HTMLElement);
 		const startIndex = currentIndex >= 0 ? currentIndex : 0;
 
 		for (let i = 0; i < items.length; i++) {

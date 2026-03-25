@@ -26,11 +26,11 @@ export const ButtonSchema = baseComponentSchema.extend({
 	action: z.object({
 		event: z.object({
 			name: z.string(),
-			context: z.record(z.unknown()).optional(),
+			context: z.record(z.string(), z.unknown()).optional(),
 		}).optional(),
 		functionCall: z.object({
 			call: z.string(),
-			args: z.record(z.unknown()),
+			args: z.record(z.string(), z.unknown()),
 		}).optional(),
 	}).optional().describe("Action dispatched on click."),
 });

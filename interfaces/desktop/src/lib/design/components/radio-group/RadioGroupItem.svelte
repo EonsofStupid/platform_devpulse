@@ -18,7 +18,7 @@ const radioAttrs = $derived(ctx.hook.getRadio(value, disabled));
 </script>
 
 <button
-	{...radioAttrs}
+	{...radioAttrs as any}
 	data-kind="radio-group"
 	data-slot="item"
 	class={cn(

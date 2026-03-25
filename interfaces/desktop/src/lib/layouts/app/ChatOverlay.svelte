@@ -5,6 +5,15 @@
 
   Embeds the Maestro chat as a draggable overlay within the main app window.
   Toggle via Ctrl+Shift+C. Draggable by the title bar.
+
+	@defaults {
+		"background-color": "oklch(0.0901 0.017 224.61 / 0.8)",
+		"border-radius": "0.75rem",
+		"box-shadow": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+		"color": "oklch(0.9319 0.015 224)",
+		"border-color": "oklch(0.4234 0.081 173.37 / 0.22)",
+		"border-width": "0.0625rem"
+}
 -->
 <script lang="ts">
 import { invoke } from "@tauri-apps/api/core";
@@ -134,8 +143,7 @@ function formatTime(epoch: number): string {
 				<Button
 					intent="ghost"
 					size="sm"
-					radius="full"
-					class="h-6 w-6"
+					class="h-6 w-6 rounded-full"
 					onclick={() => (minimized = !minimized)}
 					title={minimized ? "Expand" : "Minimize"}
 				>
@@ -144,8 +152,7 @@ function formatTime(epoch: number): string {
 				<Button
 					intent="ghost"
 					size="sm"
-					radius="full"
-					class="h-6 w-6"
+					class="h-6 w-6 rounded-full"
 					onclick={() => (open = false)}
 					title="Close"
 				>
@@ -205,10 +212,7 @@ function formatTime(epoch: number): string {
 				<Button
 					intent="ghost"
 					size="sm"
-					glow="teal"
-					frame="glow"
-					radius="full"
-					class="h-7 w-7 shrink-0"
+					class="h-7 w-7 shrink-0 rounded-full"
 					title="Voice input"
 				>
 					<Mic size={12} />
@@ -219,19 +223,13 @@ function formatTime(epoch: number): string {
 					oninput={(e) => { inputValue = e.currentTarget.value; }}
 					onkeydown={handleKeydown}
 					placeholder="Ask Maestro..."
-					preset="chat-input"
-					surface="glass-void"
-					frame="soft"
 					size="sm"
 					class="flex-1"
 				/>
 				<Button
 					intent="ghost"
 					size="sm"
-					glow={canSend ? "teal" : undefined}
-					frame={canSend ? "glow" : undefined}
-					radius="full"
-					class="h-7 w-7 shrink-0"
+					class="h-7 w-7 shrink-0 rounded-full"
 					onclick={sendMessage}
 					disabled={!canSend}
 					title={platformState.isReady ? "Send" : "Waiting for platform..."}
