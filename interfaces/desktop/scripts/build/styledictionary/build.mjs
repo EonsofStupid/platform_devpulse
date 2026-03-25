@@ -27,31 +27,33 @@ const INDEX_CSS = `/* AUTO-GENERATED — DO NOT EDIT */
 @layer tokens.primitives, tokens.semantic, tokens.components;
 
 /* ── Primitives ──────────────────────────────────────────── */
-@import "../styles/primitives/color.css";
-@import "../styles/primitives/shadow.css";
-@import "../styles/primitives/bevel.css";
-@import "../styles/primitives/glow.css";
-@import "../styles/primitives/blur.css";
-@import "../styles/primitives/surface.css";
-@import "../styles/primitives/radius.css";
-@import "../styles/primitives/spacing.css";
-@import "../styles/primitives/typography.css";
-@import "../styles/primitives/motion.css";
-@import "../styles/primitives/gradient.css";
+@import "./primitives/color.css";
+@import "./primitives/shadow.css";
+@import "./primitives/bevel.css";
+@import "./primitives/glow.css";
+@import "./primitives/blur.css";
+@import "./primitives/surface.css";
+@import "./primitives/radius.css";
+@import "./primitives/spacing.css";
+@import "./primitives/typography.css";
+@import "./primitives/motion.css";
+@import "./primitives/gradient.css";
 
 /* ── Semantic ────────────────────────────────────────────── */
-@import "../styles/semantic/elevation.css";
-@import "../styles/semantic/surface.css";
-@import "../styles/semantic/border.css";
-@import "../styles/semantic/transition.css";
-@import "../styles/semantic/interaction.css";
-@import "../styles/semantic/overlay.css";
-@import "../styles/semantic/scrollbar.css";
-@import "../styles/semantic/backdrop.css";
-@import "../styles/semantic/text-styles.css";
+@import "./semantic/elevation.css";
+@import "./semantic/surface.css";
+@import "./semantic/border.css";
+@import "./semantic/transition.css";
+@import "./semantic/interaction.css";
+@import "./semantic/overlay.css";
+@import "./semantic/scrollbar.css";
+@import "./semantic/backdrop.css";
+@import "./semantic/text-styles.css";
+@import "./semantic/text.css";
+@import "./semantic/signal.css";
 
 /* ── Components ──────────────────────────────────────────── */
-@import "../styles/components/component.css";
+@import "./components/components.generated.css";
 `;
 
 // ─── Barrel: Theme imports (per-domain composable) ───────────────────
@@ -81,6 +83,8 @@ const INDEX_THEME = `/* AUTO-GENERATED — DO NOT EDIT */
 @import "./overlay.css";
 @import "./scrollbar.css";
 @import "./backdrop.css";
+@import "./text.css";
+@import "./signal.css";
 `;
 
 // ─── Barrel: TypeScript re-exports ───────────────────────────────────
@@ -100,6 +104,8 @@ export * from './interaction.js';
 export * from './backdrop.js';
 export * from './component.js';
 export * from './gradient.js';
+export * from './text.js';
+export * from './signal.js';
 `;
 
 // ─── Build ───────────────────────────────────────────────────────────

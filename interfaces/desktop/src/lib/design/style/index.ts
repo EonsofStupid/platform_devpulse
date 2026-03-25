@@ -23,4 +23,4 @@ export {
 	propMappings,
 	macroKeys,
 	visualAxisKeys,
-} from "./macro-mappings.js";
+} from "../styles/macro-mappings.js";
