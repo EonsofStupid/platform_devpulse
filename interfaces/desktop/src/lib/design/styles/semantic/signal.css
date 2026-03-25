@@ -1,0 +1,12 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@layer tokens.semantic {
+  :root {
+  --signal-success: oklch(0.65 0.18 145); /** Positive outcome, confirmed, complete */
+  --signal-warning: oklch(0.75 0.15 85); /** Caution, degraded, needs attention */
+  --signal-error: oklch(0.60 0.20 25); /** Failure, destructive, blocking */
+  --signal-info: oklch(0.65 0.14 230); /** Informational, neutral status update */
+  }
+}

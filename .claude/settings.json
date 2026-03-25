@@ -11,7 +11,8 @@
       "WebSearch",
       "Skill",
       "TodoWrite",
-      "NotebookEdit"
+      "NotebookEdit",
+      "Edit(/.claude/skills/align-components/**)"
     ],
     "deny": [
       "Bash(rm -rf /*)",

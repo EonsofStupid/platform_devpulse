@@ -2666,6 +2666,3208 @@
 				"value": "oklch(0.12 0.1 160)",
 				"type": "color",
 				"extensions": null
+			},
+			{
+				"name": "color-void-50",
+				"path": [
+					"color",
+					"void",
+					"50"
+				],
+				"cssVar": "--color-void-50",
+				"value": "oklch(0.97 0.01 220)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-void-100",
+				"path": [
+					"color",
+					"void",
+					"100"
+				],
+				"cssVar": "--color-void-100",
+				"value": "oklch(0.885 0.01 220)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-void-200",
+				"path": [
+					"color",
+					"void",
+					"200"
+				],
+				"cssVar": "--color-void-200",
+				"value": "oklch(0.8 0.01 220)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-void-300",
+				"path": [
+					"color",
+					"void",
+					"300"
+				],
+				"cssVar": "--color-void-300",
+				"value": "oklch(0.715 0.01 220)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-void-400",
+				"path": [
+					"color",
+					"void",
+					"400"
+				],
+				"cssVar": "--color-void-400",
+				"value": "oklch(0.63 0.01 220)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-void-500",
+				"path": [
+					"color",
+					"void",
+					"500"
+				],
+				"cssVar": "--color-void-500",
+				"value": "oklch(0.545 0.01 220)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-void-600",
+				"path": [
+					"color",
+					"void",
+					"600"
+				],
+				"cssVar": "--color-void-600",
+				"value": "oklch(0.46 0.01 220)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-void-700",
+				"path": [
+					"color",
+					"void",
+					"700"
+				],
+				"cssVar": "--color-void-700",
+				"value": "oklch(0.375 0.01 220)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-void-800",
+				"path": [
+					"color",
+					"void",
+					"800"
+				],
+				"cssVar": "--color-void-800",
+				"value": "oklch(0.29 0.01 220)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-void-900",
+				"path": [
+					"color",
+					"void",
+					"900"
+				],
+				"cssVar": "--color-void-900",
+				"value": "oklch(0.205 0.01 220)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-void-950",
+				"path": [
+					"color",
+					"void",
+					"950"
+				],
+				"cssVar": "--color-void-950",
+				"value": "oklch(0.12 0.01 220)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-void-base",
+				"path": [
+					"color",
+					"void",
+					"base"
+				],
+				"cssVar": "--color-void-base",
+				"value": "oklch(0.08 0.01 220)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-red-50",
+				"path": [
+					"color",
+					"red",
+					"50"
+				],
+				"cssVar": "--color-red-50",
+				"value": "oklch(0.97 0.16 17)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-red-100",
+				"path": [
+					"color",
+					"red",
+					"100"
+				],
+				"cssVar": "--color-red-100",
+				"value": "oklch(0.885 0.16 17)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-red-200",
+				"path": [
+					"color",
+					"red",
+					"200"
+				],
+				"cssVar": "--color-red-200",
+				"value": "oklch(0.8 0.16 17)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-red-300",
+				"path": [
+					"color",
+					"red",
+					"300"
+				],
+				"cssVar": "--color-red-300",
+				"value": "oklch(0.715 0.16 17)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-red-400",
+				"path": [
+					"color",
+					"red",
+					"400"
+				],
+				"cssVar": "--color-red-400",
+				"value": "oklch(0.63 0.16 17)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-red-500",
+				"path": [
+					"color",
+					"red",
+					"500"
+				],
+				"cssVar": "--color-red-500",
+				"value": "oklch(0.545 0.16 17)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-red-600",
+				"path": [
+					"color",
+					"red",
+					"600"
+				],
+				"cssVar": "--color-red-600",
+				"value": "oklch(0.46 0.16 17)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-red-700",
+				"path": [
+					"color",
+					"red",
+					"700"
+				],
+				"cssVar": "--color-red-700",
+				"value": "oklch(0.375 0.16 17)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-red-800",
+				"path": [
+					"color",
+					"red",
+					"800"
+				],
+				"cssVar": "--color-red-800",
+				"value": "oklch(0.29 0.16 17)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-red-900",
+				"path": [
+					"color",
+					"red",
+					"900"
+				],
+				"cssVar": "--color-red-900",
+				"value": "oklch(0.205 0.16 17)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-red-950",
+				"path": [
+					"color",
+					"red",
+					"950"
+				],
+				"cssVar": "--color-red-950",
+				"value": "oklch(0.12 0.16 17)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-red-orange-50",
+				"path": [
+					"color",
+					"red-orange",
+					"50"
+				],
+				"cssVar": "--color-red-orange-50",
+				"value": "oklch(0.97 0.14 38)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-red-orange-100",
+				"path": [
+					"color",
+					"red-orange",
+					"100"
+				],
+				"cssVar": "--color-red-orange-100",
+				"value": "oklch(0.885 0.14 38)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-red-orange-200",
+				"path": [
+					"color",
+					"red-orange",
+					"200"
+				],
+				"cssVar": "--color-red-orange-200",
+				"value": "oklch(0.8 0.14 38)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-red-orange-300",
+				"path": [
+					"color",
+					"red-orange",
+					"300"
+				],
+				"cssVar": "--color-red-orange-300",
+				"value": "oklch(0.715 0.14 38)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-red-orange-400",
+				"path": [
+					"color",
+					"red-orange",
+					"400"
+				],
+				"cssVar": "--color-red-orange-400",
+				"value": "oklch(0.63 0.14 38)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-red-orange-500",
+				"path": [
+					"color",
+					"red-orange",
+					"500"
+				],
+				"cssVar": "--color-red-orange-500",
+				"value": "oklch(0.545 0.14 38)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-red-orange-600",
+				"path": [
+					"color",
+					"red-orange",
+					"600"
+				],
+				"cssVar": "--color-red-orange-600",
+				"value": "oklch(0.46 0.14 38)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-red-orange-700",
+				"path": [
+					"color",
+					"red-orange",
+					"700"
+				],
+				"cssVar": "--color-red-orange-700",
+				"value": "oklch(0.375 0.14 38)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-red-orange-800",
+				"path": [
+					"color",
+					"red-orange",
+					"800"
+				],
+				"cssVar": "--color-red-orange-800",
+				"value": "oklch(0.29 0.14 38)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-red-orange-900",
+				"path": [
+					"color",
+					"red-orange",
+					"900"
+				],
+				"cssVar": "--color-red-orange-900",
+				"value": "oklch(0.205 0.14 38)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-red-orange-950",
+				"path": [
+					"color",
+					"red-orange",
+					"950"
+				],
+				"cssVar": "--color-red-orange-950",
+				"value": "oklch(0.12 0.14 38)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-orange-50",
+				"path": [
+					"color",
+					"orange",
+					"50"
+				],
+				"cssVar": "--color-orange-50",
+				"value": "oklch(0.97 0.13 58)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-orange-100",
+				"path": [
+					"color",
+					"orange",
+					"100"
+				],
+				"cssVar": "--color-orange-100",
+				"value": "oklch(0.885 0.13 58)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-orange-200",
+				"path": [
+					"color",
+					"orange",
+					"200"
+				],
+				"cssVar": "--color-orange-200",
+				"value": "oklch(0.8 0.13 58)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-orange-300",
+				"path": [
+					"color",
+					"orange",
+					"300"
+				],
+				"cssVar": "--color-orange-300",
+				"value": "oklch(0.715 0.13 58)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-orange-400",
+				"path": [
+					"color",
+					"orange",
+					"400"
+				],
+				"cssVar": "--color-orange-400",
+				"value": "oklch(0.63 0.13 58)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-orange-500",
+				"path": [
+					"color",
+					"orange",
+					"500"
+				],
+				"cssVar": "--color-orange-500",
+				"value": "oklch(0.545 0.13 58)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-orange-600",
+				"path": [
+					"color",
+					"orange",
+					"600"
+				],
+				"cssVar": "--color-orange-600",
+				"value": "oklch(0.46 0.13 58)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-orange-700",
+				"path": [
+					"color",
+					"orange",
+					"700"
+				],
+				"cssVar": "--color-orange-700",
+				"value": "oklch(0.375 0.13 58)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-orange-800",
+				"path": [
+					"color",
+					"orange",
+					"800"
+				],
+				"cssVar": "--color-orange-800",
+				"value": "oklch(0.29 0.13 58)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-orange-900",
+				"path": [
+					"color",
+					"orange",
+					"900"
+				],
+				"cssVar": "--color-orange-900",
+				"value": "oklch(0.205 0.13 58)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-orange-950",
+				"path": [
+					"color",
+					"orange",
+					"950"
+				],
+				"cssVar": "--color-orange-950",
+				"value": "oklch(0.12 0.13 58)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-amber-50",
+				"path": [
+					"color",
+					"amber",
+					"50"
+				],
+				"cssVar": "--color-amber-50",
+				"value": "oklch(0.97 0.13 87)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-amber-100",
+				"path": [
+					"color",
+					"amber",
+					"100"
+				],
+				"cssVar": "--color-amber-100",
+				"value": "oklch(0.885 0.13 87)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-amber-200",
+				"path": [
+					"color",
+					"amber",
+					"200"
+				],
+				"cssVar": "--color-amber-200",
+				"value": "oklch(0.8 0.13 87)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-amber-300",
+				"path": [
+					"color",
+					"amber",
+					"300"
+				],
+				"cssVar": "--color-amber-300",
+				"value": "oklch(0.715 0.13 87)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-amber-400",
+				"path": [
+					"color",
+					"amber",
+					"400"
+				],
+				"cssVar": "--color-amber-400",
+				"value": "oklch(0.63 0.13 87)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-amber-500",
+				"path": [
+					"color",
+					"amber",
+					"500"
+				],
+				"cssVar": "--color-amber-500",
+				"value": "oklch(0.545 0.13 87)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-amber-600",
+				"path": [
+					"color",
+					"amber",
+					"600"
+				],
+				"cssVar": "--color-amber-600",
+				"value": "oklch(0.46 0.13 87)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-amber-700",
+				"path": [
+					"color",
+					"amber",
+					"700"
+				],
+				"cssVar": "--color-amber-700",
+				"value": "oklch(0.375 0.13 87)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-amber-800",
+				"path": [
+					"color",
+					"amber",
+					"800"
+				],
+				"cssVar": "--color-amber-800",
+				"value": "oklch(0.29 0.13 87)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-amber-900",
+				"path": [
+					"color",
+					"amber",
+					"900"
+				],
+				"cssVar": "--color-amber-900",
+				"value": "oklch(0.205 0.13 87)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-amber-950",
+				"path": [
+					"color",
+					"amber",
+					"950"
+				],
+				"cssVar": "--color-amber-950",
+				"value": "oklch(0.12 0.13 87)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-yellow-50",
+				"path": [
+					"color",
+					"yellow",
+					"50"
+				],
+				"cssVar": "--color-yellow-50",
+				"value": "oklch(0.97 0.15 110)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-yellow-100",
+				"path": [
+					"color",
+					"yellow",
+					"100"
+				],
+				"cssVar": "--color-yellow-100",
+				"value": "oklch(0.885 0.15 110)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-yellow-200",
+				"path": [
+					"color",
+					"yellow",
+					"200"
+				],
+				"cssVar": "--color-yellow-200",
+				"value": "oklch(0.8 0.15 110)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-yellow-300",
+				"path": [
+					"color",
+					"yellow",
+					"300"
+				],
+				"cssVar": "--color-yellow-300",
+				"value": "oklch(0.715 0.15 110)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-yellow-400",
+				"path": [
+					"color",
+					"yellow",
+					"400"
+				],
+				"cssVar": "--color-yellow-400",
+				"value": "oklch(0.63 0.15 110)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-yellow-500",
+				"path": [
+					"color",
+					"yellow",
+					"500"
+				],
+				"cssVar": "--color-yellow-500",
+				"value": "oklch(0.545 0.15 110)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-yellow-600",
+				"path": [
+					"color",
+					"yellow",
+					"600"
+				],
+				"cssVar": "--color-yellow-600",
+				"value": "oklch(0.46 0.15 110)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-yellow-700",
+				"path": [
+					"color",
+					"yellow",
+					"700"
+				],
+				"cssVar": "--color-yellow-700",
+				"value": "oklch(0.375 0.15 110)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-yellow-800",
+				"path": [
+					"color",
+					"yellow",
+					"800"
+				],
+				"cssVar": "--color-yellow-800",
+				"value": "oklch(0.29 0.15 110)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-yellow-900",
+				"path": [
+					"color",
+					"yellow",
+					"900"
+				],
+				"cssVar": "--color-yellow-900",
+				"value": "oklch(0.205 0.15 110)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-yellow-950",
+				"path": [
+					"color",
+					"yellow",
+					"950"
+				],
+				"cssVar": "--color-yellow-950",
+				"value": "oklch(0.12 0.15 110)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-chartreuse-50",
+				"path": [
+					"color",
+					"chartreuse",
+					"50"
+				],
+				"cssVar": "--color-chartreuse-50",
+				"value": "oklch(0.97 0.16 124)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-chartreuse-100",
+				"path": [
+					"color",
+					"chartreuse",
+					"100"
+				],
+				"cssVar": "--color-chartreuse-100",
+				"value": "oklch(0.885 0.16 124)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-chartreuse-200",
+				"path": [
+					"color",
+					"chartreuse",
+					"200"
+				],
+				"cssVar": "--color-chartreuse-200",
+				"value": "oklch(0.8 0.16 124)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-chartreuse-300",
+				"path": [
+					"color",
+					"chartreuse",
+					"300"
+				],
+				"cssVar": "--color-chartreuse-300",
+				"value": "oklch(0.715 0.16 124)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-chartreuse-400",
+				"path": [
+					"color",
+					"chartreuse",
+					"400"
+				],
+				"cssVar": "--color-chartreuse-400",
+				"value": "oklch(0.63 0.16 124)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-chartreuse-500",
+				"path": [
+					"color",
+					"chartreuse",
+					"500"
+				],
+				"cssVar": "--color-chartreuse-500",
+				"value": "oklch(0.545 0.16 124)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-chartreuse-600",
+				"path": [
+					"color",
+					"chartreuse",
+					"600"
+				],
+				"cssVar": "--color-chartreuse-600",
+				"value": "oklch(0.46 0.16 124)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-chartreuse-700",
+				"path": [
+					"color",
+					"chartreuse",
+					"700"
+				],
+				"cssVar": "--color-chartreuse-700",
+				"value": "oklch(0.375 0.16 124)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-chartreuse-800",
+				"path": [
+					"color",
+					"chartreuse",
+					"800"
+				],
+				"cssVar": "--color-chartreuse-800",
+				"value": "oklch(0.29 0.16 124)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-chartreuse-900",
+				"path": [
+					"color",
+					"chartreuse",
+					"900"
+				],
+				"cssVar": "--color-chartreuse-900",
+				"value": "oklch(0.205 0.16 124)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-chartreuse-950",
+				"path": [
+					"color",
+					"chartreuse",
+					"950"
+				],
+				"cssVar": "--color-chartreuse-950",
+				"value": "oklch(0.12 0.16 124)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-lime-50",
+				"path": [
+					"color",
+					"lime",
+					"50"
+				],
+				"cssVar": "--color-lime-50",
+				"value": "oklch(0.97 0.17 134)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-lime-100",
+				"path": [
+					"color",
+					"lime",
+					"100"
+				],
+				"cssVar": "--color-lime-100",
+				"value": "oklch(0.885 0.17 134)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-lime-200",
+				"path": [
+					"color",
+					"lime",
+					"200"
+				],
+				"cssVar": "--color-lime-200",
+				"value": "oklch(0.8 0.17 134)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-lime-300",
+				"path": [
+					"color",
+					"lime",
+					"300"
+				],
+				"cssVar": "--color-lime-300",
+				"value": "oklch(0.715 0.17 134)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-lime-400",
+				"path": [
+					"color",
+					"lime",
+					"400"
+				],
+				"cssVar": "--color-lime-400",
+				"value": "oklch(0.63 0.17 134)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-lime-500",
+				"path": [
+					"color",
+					"lime",
+					"500"
+				],
+				"cssVar": "--color-lime-500",
+				"value": "oklch(0.545 0.17 134)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-lime-600",
+				"path": [
+					"color",
+					"lime",
+					"600"
+				],
+				"cssVar": "--color-lime-600",
+				"value": "oklch(0.46 0.17 134)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-lime-700",
+				"path": [
+					"color",
+					"lime",
+					"700"
+				],
+				"cssVar": "--color-lime-700",
+				"value": "oklch(0.375 0.17 134)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-lime-800",
+				"path": [
+					"color",
+					"lime",
+					"800"
+				],
+				"cssVar": "--color-lime-800",
+				"value": "oklch(0.29 0.17 134)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-lime-900",
+				"path": [
+					"color",
+					"lime",
+					"900"
+				],
+				"cssVar": "--color-lime-900",
+				"value": "oklch(0.205 0.17 134)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-lime-950",
+				"path": [
+					"color",
+					"lime",
+					"950"
+				],
+				"cssVar": "--color-lime-950",
+				"value": "oklch(0.12 0.17 134)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-yellow-50",
+				"path": [
+					"color",
+					"green-yellow",
+					"50"
+				],
+				"cssVar": "--color-green-yellow-50",
+				"value": "oklch(0.97 0.18 140)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-yellow-100",
+				"path": [
+					"color",
+					"green-yellow",
+					"100"
+				],
+				"cssVar": "--color-green-yellow-100",
+				"value": "oklch(0.885 0.18 140)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-yellow-200",
+				"path": [
+					"color",
+					"green-yellow",
+					"200"
+				],
+				"cssVar": "--color-green-yellow-200",
+				"value": "oklch(0.8 0.18 140)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-yellow-300",
+				"path": [
+					"color",
+					"green-yellow",
+					"300"
+				],
+				"cssVar": "--color-green-yellow-300",
+				"value": "oklch(0.715 0.18 140)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-yellow-400",
+				"path": [
+					"color",
+					"green-yellow",
+					"400"
+				],
+				"cssVar": "--color-green-yellow-400",
+				"value": "oklch(0.63 0.18 140)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-yellow-500",
+				"path": [
+					"color",
+					"green-yellow",
+					"500"
+				],
+				"cssVar": "--color-green-yellow-500",
+				"value": "oklch(0.545 0.18 140)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-yellow-600",
+				"path": [
+					"color",
+					"green-yellow",
+					"600"
+				],
+				"cssVar": "--color-green-yellow-600",
+				"value": "oklch(0.46 0.18 140)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-yellow-700",
+				"path": [
+					"color",
+					"green-yellow",
+					"700"
+				],
+				"cssVar": "--color-green-yellow-700",
+				"value": "oklch(0.375 0.18 140)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-yellow-800",
+				"path": [
+					"color",
+					"green-yellow",
+					"800"
+				],
+				"cssVar": "--color-green-yellow-800",
+				"value": "oklch(0.29 0.18 140)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-yellow-900",
+				"path": [
+					"color",
+					"green-yellow",
+					"900"
+				],
+				"cssVar": "--color-green-yellow-900",
+				"value": "oklch(0.205 0.18 140)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-yellow-950",
+				"path": [
+					"color",
+					"green-yellow",
+					"950"
+				],
+				"cssVar": "--color-green-yellow-950",
+				"value": "oklch(0.12 0.18 140)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-50",
+				"path": [
+					"color",
+					"green",
+					"50"
+				],
+				"cssVar": "--color-green-50",
+				"value": "oklch(0.97 0.18 143)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-100",
+				"path": [
+					"color",
+					"green",
+					"100"
+				],
+				"cssVar": "--color-green-100",
+				"value": "oklch(0.885 0.18 143)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-200",
+				"path": [
+					"color",
+					"green",
+					"200"
+				],
+				"cssVar": "--color-green-200",
+				"value": "oklch(0.8 0.18 143)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-300",
+				"path": [
+					"color",
+					"green",
+					"300"
+				],
+				"cssVar": "--color-green-300",
+				"value": "oklch(0.715 0.18 143)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-400",
+				"path": [
+					"color",
+					"green",
+					"400"
+				],
+				"cssVar": "--color-green-400",
+				"value": "oklch(0.63 0.18 143)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-500",
+				"path": [
+					"color",
+					"green",
+					"500"
+				],
+				"cssVar": "--color-green-500",
+				"value": "oklch(0.545 0.18 143)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-600",
+				"path": [
+					"color",
+					"green",
+					"600"
+				],
+				"cssVar": "--color-green-600",
+				"value": "oklch(0.46 0.18 143)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-700",
+				"path": [
+					"color",
+					"green",
+					"700"
+				],
+				"cssVar": "--color-green-700",
+				"value": "oklch(0.375 0.18 143)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-800",
+				"path": [
+					"color",
+					"green",
+					"800"
+				],
+				"cssVar": "--color-green-800",
+				"value": "oklch(0.29 0.18 143)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-900",
+				"path": [
+					"color",
+					"green",
+					"900"
+				],
+				"cssVar": "--color-green-900",
+				"value": "oklch(0.205 0.18 143)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-950",
+				"path": [
+					"color",
+					"green",
+					"950"
+				],
+				"cssVar": "--color-green-950",
+				"value": "oklch(0.12 0.18 143)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-cyan-50",
+				"path": [
+					"color",
+					"green-cyan",
+					"50"
+				],
+				"cssVar": "--color-green-cyan-50",
+				"value": "oklch(0.97 0.16 150)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-cyan-100",
+				"path": [
+					"color",
+					"green-cyan",
+					"100"
+				],
+				"cssVar": "--color-green-cyan-100",
+				"value": "oklch(0.885 0.16 150)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-cyan-200",
+				"path": [
+					"color",
+					"green-cyan",
+					"200"
+				],
+				"cssVar": "--color-green-cyan-200",
+				"value": "oklch(0.8 0.16 150)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-cyan-300",
+				"path": [
+					"color",
+					"green-cyan",
+					"300"
+				],
+				"cssVar": "--color-green-cyan-300",
+				"value": "oklch(0.715 0.16 150)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-cyan-400",
+				"path": [
+					"color",
+					"green-cyan",
+					"400"
+				],
+				"cssVar": "--color-green-cyan-400",
+				"value": "oklch(0.63 0.16 150)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-cyan-500",
+				"path": [
+					"color",
+					"green-cyan",
+					"500"
+				],
+				"cssVar": "--color-green-cyan-500",
+				"value": "oklch(0.545 0.16 150)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-cyan-600",
+				"path": [
+					"color",
+					"green-cyan",
+					"600"
+				],
+				"cssVar": "--color-green-cyan-600",
+				"value": "oklch(0.46 0.16 150)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-cyan-700",
+				"path": [
+					"color",
+					"green-cyan",
+					"700"
+				],
+				"cssVar": "--color-green-cyan-700",
+				"value": "oklch(0.375 0.16 150)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-cyan-800",
+				"path": [
+					"color",
+					"green-cyan",
+					"800"
+				],
+				"cssVar": "--color-green-cyan-800",
+				"value": "oklch(0.29 0.16 150)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-cyan-900",
+				"path": [
+					"color",
+					"green-cyan",
+					"900"
+				],
+				"cssVar": "--color-green-cyan-900",
+				"value": "oklch(0.205 0.16 150)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-green-cyan-950",
+				"path": [
+					"color",
+					"green-cyan",
+					"950"
+				],
+				"cssVar": "--color-green-cyan-950",
+				"value": "oklch(0.12 0.16 150)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-spring-50",
+				"path": [
+					"color",
+					"spring",
+					"50"
+				],
+				"cssVar": "--color-spring-50",
+				"value": "oklch(0.97 0.14 155)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-spring-100",
+				"path": [
+					"color",
+					"spring",
+					"100"
+				],
+				"cssVar": "--color-spring-100",
+				"value": "oklch(0.885 0.14 155)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-spring-200",
+				"path": [
+					"color",
+					"spring",
+					"200"
+				],
+				"cssVar": "--color-spring-200",
+				"value": "oklch(0.8 0.14 155)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-spring-300",
+				"path": [
+					"color",
+					"spring",
+					"300"
+				],
+				"cssVar": "--color-spring-300",
+				"value": "oklch(0.715 0.14 155)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-spring-400",
+				"path": [
+					"color",
+					"spring",
+					"400"
+				],
+				"cssVar": "--color-spring-400",
+				"value": "oklch(0.63 0.14 155)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-spring-500",
+				"path": [
+					"color",
+					"spring",
+					"500"
+				],
+				"cssVar": "--color-spring-500",
+				"value": "oklch(0.545 0.14 155)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-spring-600",
+				"path": [
+					"color",
+					"spring",
+					"600"
+				],
+				"cssVar": "--color-spring-600",
+				"value": "oklch(0.46 0.14 155)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-spring-700",
+				"path": [
+					"color",
+					"spring",
+					"700"
+				],
+				"cssVar": "--color-spring-700",
+				"value": "oklch(0.375 0.14 155)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-spring-800",
+				"path": [
+					"color",
+					"spring",
+					"800"
+				],
+				"cssVar": "--color-spring-800",
+				"value": "oklch(0.29 0.14 155)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-spring-900",
+				"path": [
+					"color",
+					"spring",
+					"900"
+				],
+				"cssVar": "--color-spring-900",
+				"value": "oklch(0.205 0.14 155)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-spring-950",
+				"path": [
+					"color",
+					"spring",
+					"950"
+				],
+				"cssVar": "--color-spring-950",
+				"value": "oklch(0.12 0.14 155)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-mint-50",
+				"path": [
+					"color",
+					"mint",
+					"50"
+				],
+				"cssVar": "--color-mint-50",
+				"value": "oklch(0.97 0.12 170)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-mint-100",
+				"path": [
+					"color",
+					"mint",
+					"100"
+				],
+				"cssVar": "--color-mint-100",
+				"value": "oklch(0.885 0.12 170)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-mint-200",
+				"path": [
+					"color",
+					"mint",
+					"200"
+				],
+				"cssVar": "--color-mint-200",
+				"value": "oklch(0.8 0.12 170)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-mint-300",
+				"path": [
+					"color",
+					"mint",
+					"300"
+				],
+				"cssVar": "--color-mint-300",
+				"value": "oklch(0.715 0.12 170)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-mint-400",
+				"path": [
+					"color",
+					"mint",
+					"400"
+				],
+				"cssVar": "--color-mint-400",
+				"value": "oklch(0.63 0.12 170)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-mint-500",
+				"path": [
+					"color",
+					"mint",
+					"500"
+				],
+				"cssVar": "--color-mint-500",
+				"value": "oklch(0.545 0.12 170)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-mint-600",
+				"path": [
+					"color",
+					"mint",
+					"600"
+				],
+				"cssVar": "--color-mint-600",
+				"value": "oklch(0.46 0.12 170)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-mint-700",
+				"path": [
+					"color",
+					"mint",
+					"700"
+				],
+				"cssVar": "--color-mint-700",
+				"value": "oklch(0.375 0.12 170)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-mint-800",
+				"path": [
+					"color",
+					"mint",
+					"800"
+				],
+				"cssVar": "--color-mint-800",
+				"value": "oklch(0.29 0.12 170)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-mint-900",
+				"path": [
+					"color",
+					"mint",
+					"900"
+				],
+				"cssVar": "--color-mint-900",
+				"value": "oklch(0.205 0.12 170)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-mint-950",
+				"path": [
+					"color",
+					"mint",
+					"950"
+				],
+				"cssVar": "--color-mint-950",
+				"value": "oklch(0.12 0.12 170)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-cyan-50",
+				"path": [
+					"color",
+					"cyan",
+					"50"
+				],
+				"cssVar": "--color-cyan-50",
+				"value": "oklch(0.97 0.11 195)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-cyan-100",
+				"path": [
+					"color",
+					"cyan",
+					"100"
+				],
+				"cssVar": "--color-cyan-100",
+				"value": "oklch(0.885 0.11 195)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-cyan-200",
+				"path": [
+					"color",
+					"cyan",
+					"200"
+				],
+				"cssVar": "--color-cyan-200",
+				"value": "oklch(0.8 0.11 195)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-cyan-300",
+				"path": [
+					"color",
+					"cyan",
+					"300"
+				],
+				"cssVar": "--color-cyan-300",
+				"value": "oklch(0.715 0.11 195)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-cyan-400",
+				"path": [
+					"color",
+					"cyan",
+					"400"
+				],
+				"cssVar": "--color-cyan-400",
+				"value": "oklch(0.63 0.11 195)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-cyan-500",
+				"path": [
+					"color",
+					"cyan",
+					"500"
+				],
+				"cssVar": "--color-cyan-500",
+				"value": "oklch(0.545 0.11 195)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-cyan-600",
+				"path": [
+					"color",
+					"cyan",
+					"600"
+				],
+				"cssVar": "--color-cyan-600",
+				"value": "oklch(0.46 0.11 195)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-cyan-700",
+				"path": [
+					"color",
+					"cyan",
+					"700"
+				],
+				"cssVar": "--color-cyan-700",
+				"value": "oklch(0.375 0.11 195)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-cyan-800",
+				"path": [
+					"color",
+					"cyan",
+					"800"
+				],
+				"cssVar": "--color-cyan-800",
+				"value": "oklch(0.29 0.11 195)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-cyan-900",
+				"path": [
+					"color",
+					"cyan",
+					"900"
+				],
+				"cssVar": "--color-cyan-900",
+				"value": "oklch(0.205 0.11 195)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-cyan-950",
+				"path": [
+					"color",
+					"cyan",
+					"950"
+				],
+				"cssVar": "--color-cyan-950",
+				"value": "oklch(0.12 0.11 195)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-sky-50",
+				"path": [
+					"color",
+					"sky",
+					"50"
+				],
+				"cssVar": "--color-sky-50",
+				"value": "oklch(0.97 0.1 225)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-sky-100",
+				"path": [
+					"color",
+					"sky",
+					"100"
+				],
+				"cssVar": "--color-sky-100",
+				"value": "oklch(0.885 0.1 225)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-sky-200",
+				"path": [
+					"color",
+					"sky",
+					"200"
+				],
+				"cssVar": "--color-sky-200",
+				"value": "oklch(0.8 0.1 225)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-sky-300",
+				"path": [
+					"color",
+					"sky",
+					"300"
+				],
+				"cssVar": "--color-sky-300",
+				"value": "oklch(0.715 0.1 225)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-sky-400",
+				"path": [
+					"color",
+					"sky",
+					"400"
+				],
+				"cssVar": "--color-sky-400",
+				"value": "oklch(0.63 0.1 225)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-sky-500",
+				"path": [
+					"color",
+					"sky",
+					"500"
+				],
+				"cssVar": "--color-sky-500",
+				"value": "oklch(0.545 0.1 225)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-sky-600",
+				"path": [
+					"color",
+					"sky",
+					"600"
+				],
+				"cssVar": "--color-sky-600",
+				"value": "oklch(0.46 0.1 225)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-sky-700",
+				"path": [
+					"color",
+					"sky",
+					"700"
+				],
+				"cssVar": "--color-sky-700",
+				"value": "oklch(0.375 0.1 225)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-sky-800",
+				"path": [
+					"color",
+					"sky",
+					"800"
+				],
+				"cssVar": "--color-sky-800",
+				"value": "oklch(0.29 0.1 225)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-sky-900",
+				"path": [
+					"color",
+					"sky",
+					"900"
+				],
+				"cssVar": "--color-sky-900",
+				"value": "oklch(0.205 0.1 225)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-sky-950",
+				"path": [
+					"color",
+					"sky",
+					"950"
+				],
+				"cssVar": "--color-sky-950",
+				"value": "oklch(0.12 0.1 225)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-azure-50",
+				"path": [
+					"color",
+					"azure",
+					"50"
+				],
+				"cssVar": "--color-azure-50",
+				"value": "oklch(0.97 0.13 250)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-azure-100",
+				"path": [
+					"color",
+					"azure",
+					"100"
+				],
+				"cssVar": "--color-azure-100",
+				"value": "oklch(0.885 0.13 250)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-azure-200",
+				"path": [
+					"color",
+					"azure",
+					"200"
+				],
+				"cssVar": "--color-azure-200",
+				"value": "oklch(0.8 0.13 250)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-azure-300",
+				"path": [
+					"color",
+					"azure",
+					"300"
+				],
+				"cssVar": "--color-azure-300",
+				"value": "oklch(0.715 0.13 250)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-azure-400",
+				"path": [
+					"color",
+					"azure",
+					"400"
+				],
+				"cssVar": "--color-azure-400",
+				"value": "oklch(0.63 0.13 250)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-azure-500",
+				"path": [
+					"color",
+					"azure",
+					"500"
+				],
+				"cssVar": "--color-azure-500",
+				"value": "oklch(0.545 0.13 250)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-azure-600",
+				"path": [
+					"color",
+					"azure",
+					"600"
+				],
+				"cssVar": "--color-azure-600",
+				"value": "oklch(0.46 0.13 250)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-azure-700",
+				"path": [
+					"color",
+					"azure",
+					"700"
+				],
+				"cssVar": "--color-azure-700",
+				"value": "oklch(0.375 0.13 250)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-azure-800",
+				"path": [
+					"color",
+					"azure",
+					"800"
+				],
+				"cssVar": "--color-azure-800",
+				"value": "oklch(0.29 0.13 250)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-azure-900",
+				"path": [
+					"color",
+					"azure",
+					"900"
+				],
+				"cssVar": "--color-azure-900",
+				"value": "oklch(0.205 0.13 250)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-azure-950",
+				"path": [
+					"color",
+					"azure",
+					"950"
+				],
+				"cssVar": "--color-azure-950",
+				"value": "oklch(0.12 0.13 250)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-royal-50",
+				"path": [
+					"color",
+					"royal",
+					"50"
+				],
+				"cssVar": "--color-royal-50",
+				"value": "oklch(0.97 0.16 265)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-royal-100",
+				"path": [
+					"color",
+					"royal",
+					"100"
+				],
+				"cssVar": "--color-royal-100",
+				"value": "oklch(0.885 0.16 265)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-royal-200",
+				"path": [
+					"color",
+					"royal",
+					"200"
+				],
+				"cssVar": "--color-royal-200",
+				"value": "oklch(0.8 0.16 265)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-royal-300",
+				"path": [
+					"color",
+					"royal",
+					"300"
+				],
+				"cssVar": "--color-royal-300",
+				"value": "oklch(0.715 0.16 265)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-royal-400",
+				"path": [
+					"color",
+					"royal",
+					"400"
+				],
+				"cssVar": "--color-royal-400",
+				"value": "oklch(0.63 0.16 265)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-royal-500",
+				"path": [
+					"color",
+					"royal",
+					"500"
+				],
+				"cssVar": "--color-royal-500",
+				"value": "oklch(0.545 0.16 265)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-royal-600",
+				"path": [
+					"color",
+					"royal",
+					"600"
+				],
+				"cssVar": "--color-royal-600",
+				"value": "oklch(0.46 0.16 265)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-royal-700",
+				"path": [
+					"color",
+					"royal",
+					"700"
+				],
+				"cssVar": "--color-royal-700",
+				"value": "oklch(0.375 0.16 265)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-royal-800",
+				"path": [
+					"color",
+					"royal",
+					"800"
+				],
+				"cssVar": "--color-royal-800",
+				"value": "oklch(0.29 0.16 265)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-royal-900",
+				"path": [
+					"color",
+					"royal",
+					"900"
+				],
+				"cssVar": "--color-royal-900",
+				"value": "oklch(0.205 0.16 265)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-royal-950",
+				"path": [
+					"color",
+					"royal",
+					"950"
+				],
+				"cssVar": "--color-royal-950",
+				"value": "oklch(0.12 0.16 265)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-blue-50",
+				"path": [
+					"color",
+					"blue",
+					"50"
+				],
+				"cssVar": "--color-blue-50",
+				"value": "oklch(0.97 0.18 270)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-blue-100",
+				"path": [
+					"color",
+					"blue",
+					"100"
+				],
+				"cssVar": "--color-blue-100",
+				"value": "oklch(0.885 0.18 270)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-blue-200",
+				"path": [
+					"color",
+					"blue",
+					"200"
+				],
+				"cssVar": "--color-blue-200",
+				"value": "oklch(0.8 0.18 270)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-blue-300",
+				"path": [
+					"color",
+					"blue",
+					"300"
+				],
+				"cssVar": "--color-blue-300",
+				"value": "oklch(0.715 0.18 270)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-blue-400",
+				"path": [
+					"color",
+					"blue",
+					"400"
+				],
+				"cssVar": "--color-blue-400",
+				"value": "oklch(0.63 0.18 270)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-blue-500",
+				"path": [
+					"color",
+					"blue",
+					"500"
+				],
+				"cssVar": "--color-blue-500",
+				"value": "oklch(0.545 0.18 270)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-blue-600",
+				"path": [
+					"color",
+					"blue",
+					"600"
+				],
+				"cssVar": "--color-blue-600",
+				"value": "oklch(0.46 0.18 270)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-blue-700",
+				"path": [
+					"color",
+					"blue",
+					"700"
+				],
+				"cssVar": "--color-blue-700",
+				"value": "oklch(0.375 0.18 270)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-blue-800",
+				"path": [
+					"color",
+					"blue",
+					"800"
+				],
+				"cssVar": "--color-blue-800",
+				"value": "oklch(0.29 0.18 270)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-blue-900",
+				"path": [
+					"color",
+					"blue",
+					"900"
+				],
+				"cssVar": "--color-blue-900",
+				"value": "oklch(0.205 0.18 270)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-blue-950",
+				"path": [
+					"color",
+					"blue",
+					"950"
+				],
+				"cssVar": "--color-blue-950",
+				"value": "oklch(0.12 0.18 270)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-indigo-50",
+				"path": [
+					"color",
+					"indigo",
+					"50"
+				],
+				"cssVar": "--color-indigo-50",
+				"value": "oklch(0.97 0.17 285)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-indigo-100",
+				"path": [
+					"color",
+					"indigo",
+					"100"
+				],
+				"cssVar": "--color-indigo-100",
+				"value": "oklch(0.885 0.17 285)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-indigo-200",
+				"path": [
+					"color",
+					"indigo",
+					"200"
+				],
+				"cssVar": "--color-indigo-200",
+				"value": "oklch(0.8 0.17 285)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-indigo-300",
+				"path": [
+					"color",
+					"indigo",
+					"300"
+				],
+				"cssVar": "--color-indigo-300",
+				"value": "oklch(0.715 0.17 285)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-indigo-400",
+				"path": [
+					"color",
+					"indigo",
+					"400"
+				],
+				"cssVar": "--color-indigo-400",
+				"value": "oklch(0.63 0.17 285)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-indigo-500",
+				"path": [
+					"color",
+					"indigo",
+					"500"
+				],
+				"cssVar": "--color-indigo-500",
+				"value": "oklch(0.545 0.17 285)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-indigo-600",
+				"path": [
+					"color",
+					"indigo",
+					"600"
+				],
+				"cssVar": "--color-indigo-600",
+				"value": "oklch(0.46 0.17 285)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-indigo-700",
+				"path": [
+					"color",
+					"indigo",
+					"700"
+				],
+				"cssVar": "--color-indigo-700",
+				"value": "oklch(0.375 0.17 285)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-indigo-800",
+				"path": [
+					"color",
+					"indigo",
+					"800"
+				],
+				"cssVar": "--color-indigo-800",
+				"value": "oklch(0.29 0.17 285)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-indigo-900",
+				"path": [
+					"color",
+					"indigo",
+					"900"
+				],
+				"cssVar": "--color-indigo-900",
+				"value": "oklch(0.205 0.17 285)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-indigo-950",
+				"path": [
+					"color",
+					"indigo",
+					"950"
+				],
+				"cssVar": "--color-indigo-950",
+				"value": "oklch(0.12 0.17 285)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-violet-50",
+				"path": [
+					"color",
+					"violet",
+					"50"
+				],
+				"cssVar": "--color-violet-50",
+				"value": "oklch(0.97 0.17 300)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-violet-100",
+				"path": [
+					"color",
+					"violet",
+					"100"
+				],
+				"cssVar": "--color-violet-100",
+				"value": "oklch(0.885 0.17 300)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-violet-200",
+				"path": [
+					"color",
+					"violet",
+					"200"
+				],
+				"cssVar": "--color-violet-200",
+				"value": "oklch(0.8 0.17 300)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-violet-300",
+				"path": [
+					"color",
+					"violet",
+					"300"
+				],
+				"cssVar": "--color-violet-300",
+				"value": "oklch(0.715 0.17 300)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-violet-400",
+				"path": [
+					"color",
+					"violet",
+					"400"
+				],
+				"cssVar": "--color-violet-400",
+				"value": "oklch(0.63 0.17 300)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-violet-500",
+				"path": [
+					"color",
+					"violet",
+					"500"
+				],
+				"cssVar": "--color-violet-500",
+				"value": "oklch(0.545 0.17 300)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-violet-600",
+				"path": [
+					"color",
+					"violet",
+					"600"
+				],
+				"cssVar": "--color-violet-600",
+				"value": "oklch(0.46 0.17 300)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-violet-700",
+				"path": [
+					"color",
+					"violet",
+					"700"
+				],
+				"cssVar": "--color-violet-700",
+				"value": "oklch(0.375 0.17 300)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-violet-800",
+				"path": [
+					"color",
+					"violet",
+					"800"
+				],
+				"cssVar": "--color-violet-800",
+				"value": "oklch(0.29 0.17 300)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-violet-900",
+				"path": [
+					"color",
+					"violet",
+					"900"
+				],
+				"cssVar": "--color-violet-900",
+				"value": "oklch(0.205 0.17 300)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-violet-950",
+				"path": [
+					"color",
+					"violet",
+					"950"
+				],
+				"cssVar": "--color-violet-950",
+				"value": "oklch(0.12 0.17 300)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-rose-50",
+				"path": [
+					"color",
+					"rose",
+					"50"
+				],
+				"cssVar": "--color-rose-50",
+				"value": "oklch(0.97 0.16 340)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-rose-100",
+				"path": [
+					"color",
+					"rose",
+					"100"
+				],
+				"cssVar": "--color-rose-100",
+				"value": "oklch(0.885 0.16 340)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-rose-200",
+				"path": [
+					"color",
+					"rose",
+					"200"
+				],
+				"cssVar": "--color-rose-200",
+				"value": "oklch(0.8 0.16 340)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-rose-300",
+				"path": [
+					"color",
+					"rose",
+					"300"
+				],
+				"cssVar": "--color-rose-300",
+				"value": "oklch(0.715 0.16 340)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-rose-400",
+				"path": [
+					"color",
+					"rose",
+					"400"
+				],
+				"cssVar": "--color-rose-400",
+				"value": "oklch(0.63 0.16 340)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-rose-500",
+				"path": [
+					"color",
+					"rose",
+					"500"
+				],
+				"cssVar": "--color-rose-500",
+				"value": "oklch(0.545 0.16 340)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-rose-600",
+				"path": [
+					"color",
+					"rose",
+					"600"
+				],
+				"cssVar": "--color-rose-600",
+				"value": "oklch(0.46 0.16 340)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-rose-700",
+				"path": [
+					"color",
+					"rose",
+					"700"
+				],
+				"cssVar": "--color-rose-700",
+				"value": "oklch(0.375 0.16 340)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-rose-800",
+				"path": [
+					"color",
+					"rose",
+					"800"
+				],
+				"cssVar": "--color-rose-800",
+				"value": "oklch(0.29 0.16 340)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-rose-900",
+				"path": [
+					"color",
+					"rose",
+					"900"
+				],
+				"cssVar": "--color-rose-900",
+				"value": "oklch(0.205 0.16 340)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-rose-950",
+				"path": [
+					"color",
+					"rose",
+					"950"
+				],
+				"cssVar": "--color-rose-950",
+				"value": "oklch(0.12 0.16 340)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-pink-50",
+				"path": [
+					"color",
+					"pink",
+					"50"
+				],
+				"cssVar": "--color-pink-50",
+				"value": "oklch(0.97 0.15 350)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-pink-100",
+				"path": [
+					"color",
+					"pink",
+					"100"
+				],
+				"cssVar": "--color-pink-100",
+				"value": "oklch(0.885 0.15 350)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-pink-200",
+				"path": [
+					"color",
+					"pink",
+					"200"
+				],
+				"cssVar": "--color-pink-200",
+				"value": "oklch(0.8 0.15 350)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-pink-300",
+				"path": [
+					"color",
+					"pink",
+					"300"
+				],
+				"cssVar": "--color-pink-300",
+				"value": "oklch(0.715 0.15 350)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-pink-400",
+				"path": [
+					"color",
+					"pink",
+					"400"
+				],
+				"cssVar": "--color-pink-400",
+				"value": "oklch(0.63 0.15 350)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-pink-500",
+				"path": [
+					"color",
+					"pink",
+					"500"
+				],
+				"cssVar": "--color-pink-500",
+				"value": "oklch(0.545 0.15 350)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-pink-600",
+				"path": [
+					"color",
+					"pink",
+					"600"
+				],
+				"cssVar": "--color-pink-600",
+				"value": "oklch(0.46 0.15 350)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-pink-700",
+				"path": [
+					"color",
+					"pink",
+					"700"
+				],
+				"cssVar": "--color-pink-700",
+				"value": "oklch(0.375 0.15 350)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-pink-800",
+				"path": [
+					"color",
+					"pink",
+					"800"
+				],
+				"cssVar": "--color-pink-800",
+				"value": "oklch(0.29 0.15 350)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-pink-900",
+				"path": [
+					"color",
+					"pink",
+					"900"
+				],
+				"cssVar": "--color-pink-900",
+				"value": "oklch(0.205 0.15 350)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-pink-950",
+				"path": [
+					"color",
+					"pink",
+					"950"
+				],
+				"cssVar": "--color-pink-950",
+				"value": "oklch(0.12 0.15 350)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-crimson-50",
+				"path": [
+					"color",
+					"crimson",
+					"50"
+				],
+				"cssVar": "--color-crimson-50",
+				"value": "oklch(0.97 0.16 10)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-crimson-100",
+				"path": [
+					"color",
+					"crimson",
+					"100"
+				],
+				"cssVar": "--color-crimson-100",
+				"value": "oklch(0.885 0.16 10)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-crimson-200",
+				"path": [
+					"color",
+					"crimson",
+					"200"
+				],
+				"cssVar": "--color-crimson-200",
+				"value": "oklch(0.8 0.16 10)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-crimson-300",
+				"path": [
+					"color",
+					"crimson",
+					"300"
+				],
+				"cssVar": "--color-crimson-300",
+				"value": "oklch(0.715 0.16 10)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-crimson-400",
+				"path": [
+					"color",
+					"crimson",
+					"400"
+				],
+				"cssVar": "--color-crimson-400",
+				"value": "oklch(0.63 0.16 10)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-crimson-500",
+				"path": [
+					"color",
+					"crimson",
+					"500"
+				],
+				"cssVar": "--color-crimson-500",
+				"value": "oklch(0.545 0.16 10)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-crimson-600",
+				"path": [
+					"color",
+					"crimson",
+					"600"
+				],
+				"cssVar": "--color-crimson-600",
+				"value": "oklch(0.46 0.16 10)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-crimson-700",
+				"path": [
+					"color",
+					"crimson",
+					"700"
+				],
+				"cssVar": "--color-crimson-700",
+				"value": "oklch(0.375 0.16 10)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-crimson-800",
+				"path": [
+					"color",
+					"crimson",
+					"800"
+				],
+				"cssVar": "--color-crimson-800",
+				"value": "oklch(0.29 0.16 10)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-crimson-900",
+				"path": [
+					"color",
+					"crimson",
+					"900"
+				],
+				"cssVar": "--color-crimson-900",
+				"value": "oklch(0.205 0.16 10)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-crimson-950",
+				"path": [
+					"color",
+					"crimson",
+					"950"
+				],
+				"cssVar": "--color-crimson-950",
+				"value": "oklch(0.12 0.16 10)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-neutral-50",
+				"path": [
+					"color",
+					"neutral",
+					"50"
+				],
+				"cssVar": "--color-neutral-50",
+				"value": "oklch(0.97 0 0)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-neutral-100",
+				"path": [
+					"color",
+					"neutral",
+					"100"
+				],
+				"cssVar": "--color-neutral-100",
+				"value": "oklch(0.885 0 0)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-neutral-200",
+				"path": [
+					"color",
+					"neutral",
+					"200"
+				],
+				"cssVar": "--color-neutral-200",
+				"value": "oklch(0.8 0 0)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-neutral-300",
+				"path": [
+					"color",
+					"neutral",
+					"300"
+				],
+				"cssVar": "--color-neutral-300",
+				"value": "oklch(0.715 0 0)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-neutral-400",
+				"path": [
+					"color",
+					"neutral",
+					"400"
+				],
+				"cssVar": "--color-neutral-400",
+				"value": "oklch(0.63 0 0)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-neutral-500",
+				"path": [
+					"color",
+					"neutral",
+					"500"
+				],
+				"cssVar": "--color-neutral-500",
+				"value": "oklch(0.545 0 0)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-neutral-600",
+				"path": [
+					"color",
+					"neutral",
+					"600"
+				],
+				"cssVar": "--color-neutral-600",
+				"value": "oklch(0.46 0 0)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-neutral-700",
+				"path": [
+					"color",
+					"neutral",
+					"700"
+				],
+				"cssVar": "--color-neutral-700",
+				"value": "oklch(0.375 0 0)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-neutral-800",
+				"path": [
+					"color",
+					"neutral",
+					"800"
+				],
+				"cssVar": "--color-neutral-800",
+				"value": "oklch(0.29 0 0)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-neutral-900",
+				"path": [
+					"color",
+					"neutral",
+					"900"
+				],
+				"cssVar": "--color-neutral-900",
+				"value": "oklch(0.205 0 0)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-neutral-950",
+				"path": [
+					"color",
+					"neutral",
+					"950"
+				],
+				"cssVar": "--color-neutral-950",
+				"value": "oklch(0.12 0 0)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-white",
+				"path": [
+					"color",
+					"white"
+				],
+				"cssVar": "--color-white",
+				"value": "oklch(1 0 0)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "color-black",
+				"path": [
+					"color",
+					"black"
+				],
+				"cssVar": "--color-black",
+				"value": "oklch(0 0 0)",
+				"type": "color",
+				"extensions": null
 			}
 		]
 	},
@@ -3765,6 +6967,55 @@
 				"cssVar": "--scrollbar-size-radius",
 				"value": "3px",
 				"type": "dimension",
+				"extensions": null
+			}
+		]
+	},
+	"signal": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "signal-success",
+				"path": [
+					"signal",
+					"success"
+				],
+				"cssVar": "--signal-success",
+				"value": "oklch(0.65 0.18 145)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "signal-warning",
+				"path": [
+					"signal",
+					"warning"
+				],
+				"cssVar": "--signal-warning",
+				"value": "oklch(0.75 0.15 85)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "signal-error",
+				"path": [
+					"signal",
+					"error"
+				],
+				"cssVar": "--signal-error",
+				"value": "oklch(0.60 0.20 25)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "signal-info",
+				"path": [
+					"signal",
+					"info"
+				],
+				"cssVar": "--signal-info",
+				"value": "oklch(0.65 0.14 230)",
+				"type": "color",
 				"extensions": null
 			}
 		]
@@ -42204,6 +45455,88 @@
 				],
 				"cssVar": "--surface-chrome",
 				"value": "oklch(0.301 0.005 20.6)",
+				"type": "color",
+				"extensions": null
+			}
+		]
+	},
+	"text": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "text-primary",
+				"path": [
+					"text",
+					"primary"
+				],
+				"cssVar": "--text-primary",
+				"value": "oklch(0.95 0.01 220)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "text-secondary",
+				"path": [
+					"text",
+					"secondary"
+				],
+				"cssVar": "--text-secondary",
+				"value": "oklch(0.72 0.02 220)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "text-muted",
+				"path": [
+					"text",
+					"muted"
+				],
+				"cssVar": "--text-muted",
+				"value": "oklch(0.50 0.02 220)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "text-disabled",
+				"path": [
+					"text",
+					"disabled"
+				],
+				"cssVar": "--text-disabled",
+				"value": "oklch(0.35 0.01 220)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "text-accent",
+				"path": [
+					"text",
+					"accent"
+				],
+				"cssVar": "--text-accent",
+				"value": "oklch(0.75 0.14 180)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "text-inverse",
+				"path": [
+					"text",
+					"inverse"
+				],
+				"cssVar": "--text-inverse",
+				"value": "oklch(0.10 0.01 220)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "text-link",
+				"path": [
+					"text",
+					"link"
+				],
+				"cssVar": "--text-link",
+				"value": "oklch(0.70 0.12 220)",
 				"type": "color",
 				"extensions": null
 			}

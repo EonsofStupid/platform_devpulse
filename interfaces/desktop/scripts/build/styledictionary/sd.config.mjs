@@ -73,6 +73,7 @@ const tiers = {
 	semantic: [
 		'elevation', 'surface', 'border', 'borderPreset', 'transition',
 		'interaction', 'overlay', 'scrollbar', 'backdrop', 'textStyle',
+		'text', 'signal',
 	],
 };
 
@@ -496,6 +497,8 @@ const config = {
 				cssFile('scrollbar.css', pathFilter('scrollbar'), layers.semantic),
 				cssFile('backdrop.css', pathFilter('backdrop'), layers.semantic),
 				cssFile('text-styles.css', pathFilter('textStyle'), layers.semantic),
+			cssFile('text.css', pathFilter('text'), layers.semantic),
+			cssFile('signal.css', pathFilter('signal'), layers.semantic),
 			],
 		},
 
@@ -533,6 +536,8 @@ const config = {
 		'theme-scrollbar': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('scrollbar.css', pathFilter('scrollbar'))] },
 		'theme-backdrop': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('backdrop.css', pathFilter('backdrop'))] },
 		'theme-gradient': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('gradient.css', pathFilter('gradient'))] },
+		'theme-text': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('text.css', pathFilter('text'))] },
+		'theme-signal': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('signal.css', pathFilter('signal'))] },
 
 		// ── TypeScript Types ──────────────────────────────────────
 		'types-primitives': {
@@ -557,6 +562,8 @@ const config = {
 				typesFile('border.d.ts', pathFilter('border', 'borderPreset')),
 				typesFile('interaction.d.ts', pathFilter('interaction', 'overlay', 'scrollbar')),
 				typesFile('backdrop.d.ts', pathFilter('backdrop')),
+				typesFile('text.d.ts', pathFilter('text')),
+				typesFile('signal.d.ts', pathFilter('signal')),
 			],
 		},
 		'types-components': {

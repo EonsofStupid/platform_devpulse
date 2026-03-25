@@ -1,0 +1,22 @@
+{
+	"signal": {
+		"$type": "color",
+		"$description": "Semantic signal colors — status and feedback",
+		"success": {
+			"$value": "oklch(0.65 0.18 145)",
+			"$description": "Positive outcome, confirmed, complete"
+		},
+		"warning": {
+			"$value": "oklch(0.75 0.15 85)",
+			"$description": "Caution, degraded, needs attention"
+		},
+		"error": {
+			"$value": "oklch(0.60 0.20 25)",
+			"$description": "Failure, destructive, blocking"
+		},
+		"info": {
+			"$value": "oklch(0.65 0.14 230)",
+			"$description": "Informational, neutral status update"
+		}
+	}
+}

@@ -12,7 +12,7 @@ body {
 	margin: 0;
 	padding: 0;
 	background: var(--color-void-base);
-	color: var(--color-text-primary);
+	color: var(--text-primary);
 	font-family: var(--font-sans);
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;

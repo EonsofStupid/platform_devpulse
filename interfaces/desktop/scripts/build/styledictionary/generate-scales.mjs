@@ -77,6 +77,17 @@ function colorRamp(hue, chroma, stops = 11) {
 	return result;
 }
 
+/** Void color ramp: ultra-low chroma dark scale with a base anchor */
+function voidRamp(hue, chroma) {
+	const ramp = colorRamp(hue, chroma);
+	ramp.base = {
+		$value: `oklch(0.08 ${chroma} ${hue})`,
+		$type: 'color',
+		$description: 'Void base — deepest app background',
+	};
+	return ramp;
+}
+
 /** Gradient pairs: lightness-shifted for surface depth */
 function gradientPairs(hues) {
 	const result = {};
@@ -249,15 +260,49 @@ const SCALES = {
 	// Shadows: depth z0-z4
 	shadow: shadowScale(5, 0.0625, 0.1875, 'oklch(0 0 0'),
 
-	// Color ramps: 6 brand hues
+	// Color ramps: brand hues + full spectrum + neutrals
 	color: {
 		$type: 'color',
+
+		// ── Brand hues (6 primaries) ──────────────────────────
 		teal: colorRamp(173, 0.08),
 		purple: colorRamp(280, 0.12),
 		magenta: colorRamp(330, 0.14),
 		ember: colorRamp(25, 0.12),
 		frost: colorRamp(220, 0.06),
 		cyber: colorRamp(160, 0.1),
+
+		// ── App background ────────────────────────────────────
+		void: voidRamp(220, 0.01),
+
+		// ── Full spectrum (30° hue wheel) ─────────────────────
+		red: colorRamp(17, 0.16),
+		'red-orange': colorRamp(38, 0.14),
+		orange: colorRamp(58, 0.13),
+		amber: colorRamp(87, 0.13),
+		yellow: colorRamp(110, 0.15),
+		chartreuse: colorRamp(124, 0.16),
+		lime: colorRamp(134, 0.17),
+		'green-yellow': colorRamp(140, 0.18),
+		green: colorRamp(143, 0.18),
+		'green-cyan': colorRamp(150, 0.16),
+		spring: colorRamp(155, 0.14),
+		mint: colorRamp(170, 0.12),
+		cyan: colorRamp(195, 0.11),
+		sky: colorRamp(225, 0.1),
+		azure: colorRamp(250, 0.13),
+		royal: colorRamp(265, 0.16),
+		blue: colorRamp(270, 0.18),
+		indigo: colorRamp(285, 0.17),
+		violet: colorRamp(300, 0.17),
+		rose: colorRamp(340, 0.16),
+		pink: colorRamp(350, 0.15),
+		crimson: colorRamp(10, 0.16),
+
+		// ── Achromatic ────────────────────────────────────────
+		neutral: colorRamp(0, 0),
+		white: { $value: 'oklch(1 0 0)', $type: 'color' },
+		black: { $value: 'oklch(0 0 0)', $type: 'color' },
 	},
 
 	// Gradients: formula-generated from hue definitions

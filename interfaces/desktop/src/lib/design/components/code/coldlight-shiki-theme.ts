@@ -57,7 +57,7 @@ export const coldlightTheme = createCssVariablesTheme({
  * The code composition injects these on [data-kind="code"].
  */
 export const COLDLIGHT_SHIKI_CSS_VARS = {
-	"--shiki-foreground": "var(--color-text-primary)",
+	"--shiki-foreground": "var(--text-primary)",
 	"--shiki-background": "var(--color-void-base)",
 	"--shiki-token-constant": "var(--color-magenta-400)",
 	"--shiki-token-string": "var(--color-amber-300)",
@@ -67,7 +67,7 @@ export const COLDLIGHT_SHIKI_CSS_VARS = {
 	"--shiki-token-function": "var(--color-frost-400)",
 	"--shiki-token-string-expression": "var(--color-amber-300)",
 	"--shiki-token-punctuation": "var(--color-neutral-400)",
-	"--shiki-token-link": "var(--color-text-link)",
+	"--shiki-token-link": "var(--text-link)",
 } as const;
 
 /**
