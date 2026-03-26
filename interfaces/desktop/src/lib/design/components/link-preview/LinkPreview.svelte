@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { useLinkPreview } from "$lib/design/primitives/link-preview/index.js";
+import { useLinkPreview } from "$lib/design/behaviors/link-preview/index.js";
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { LinkPreviewProps } from "./types.js";

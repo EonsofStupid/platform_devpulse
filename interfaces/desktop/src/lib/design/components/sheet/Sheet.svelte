@@ -23,7 +23,7 @@
 }
 -->
 <script lang="ts">
-import { useSheet } from "$lib/design/primitives/sheet/use-sheet.svelte.js";
+import { useSheet } from "$lib/design/behaviors/sheet/use-sheet.svelte.js";
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SheetComponentProps, SheetSize, SheetSide } from "./types.js";

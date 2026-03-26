@@ -7,7 +7,7 @@ import type { HTMLAttributes, HTMLAnchorAttributes } from "svelte/elements";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
 export type CardVariant = "default" | "outlined" | "elevated" | "ghost" | "glow";
-export type CardIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type CardIntent = "default" | "stark" | "glass" | "flat" | "matte" | "primary" | "secondary" | "ghost" | "danger";
 export type CardOrientation = "vertical" | "horizontal";
 export type CardAs = "div" | "a" | "button";
 

@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useCheckbox } from "$lib/design/primitives/checkbox/use-checkbox.svelte.js";
+import { useCheckbox } from "$lib/design/behaviors/checkbox/use-checkbox.svelte.js";
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { CheckboxProps, CheckboxSize } from "./types.js";

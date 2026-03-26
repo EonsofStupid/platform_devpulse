@@ -23,7 +23,7 @@
 }
 -->
 <script lang="ts">
-import { useAlertDialog } from "$lib/design/primitives/alert-dialog/use-alert-dialog.svelte.js";
+import { useAlertDialog } from "$lib/design/behaviors/alert-dialog/use-alert-dialog.svelte.js";
 import { setAlertDialogContext } from "./context.js";
 import type { AlertDialogRootProps } from "./types.js";
 

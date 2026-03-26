@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { useSpinner } from "$lib/design/primitives/spinner/index.js";
+import { useSpinner } from "$lib/design/behaviors/spinner/index.js";
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SpinnerProps, SpinnerSize } from "./types.js";

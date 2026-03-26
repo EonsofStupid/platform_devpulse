@@ -23,7 +23,7 @@
 }
 -->
 <script lang="ts">
-import { useTable } from "$lib/design/primitives/table/use-table.svelte.js";
+import { useTable } from "$lib/design/behaviors/table/use-table.svelte.js";
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TableComponentProps } from "./types.js";

@@ -23,7 +23,7 @@
 }
 -->
 <script lang="ts">
-import { useAlert } from "$lib/design/primitives/alert/index.js";
+import { useAlert } from "$lib/design/behaviors/alert/index.js";
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setAlertContext } from "./context.js";

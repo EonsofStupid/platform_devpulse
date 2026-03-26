@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useScrollArea } from "$lib/design/primitives/scroll-area/index.js";
+import { useScrollArea } from "$lib/design/behaviors/scroll-area/index.js";
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ScrollAreaComponentProps } from "./types.js";

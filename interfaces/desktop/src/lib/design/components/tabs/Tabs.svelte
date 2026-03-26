@@ -23,7 +23,7 @@
 }
 -->
 <script lang="ts">
-import { useTabs } from "$lib/design/primitives/tabs/use-tabs.svelte.js";
+import { useTabs } from "$lib/design/behaviors/tabs/use-tabs.svelte.js";
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setTabsContext } from "./context.js";

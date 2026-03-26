@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useToggle } from "$lib/design/primitives/toggle/use-toggle.svelte.js";
+import { useToggle } from "$lib/design/behaviors/toggle/use-toggle.svelte.js";
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ToggleProps } from "./types.js";

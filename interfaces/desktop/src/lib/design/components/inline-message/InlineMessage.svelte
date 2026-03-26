@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { useInlineMessage } from "$lib/design/primitives/inline-message/index.js";
+import { useInlineMessage } from "$lib/design/behaviors/inline-message/index.js";
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { InlineMessageProps, InlineMessageTone } from "./types.js";

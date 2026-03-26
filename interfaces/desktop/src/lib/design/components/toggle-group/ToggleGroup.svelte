@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useToggleGroup } from "$lib/design/primitives/toggle-group/index.js";
+import { useToggleGroup } from "$lib/design/behaviors/toggle-group/index.js";
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ToggleGroupComponentProps } from "./types.js";

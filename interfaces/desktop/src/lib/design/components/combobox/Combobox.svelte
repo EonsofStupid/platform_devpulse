@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useComboBox } from "$lib/design/primitives/combobox/use-combobox.svelte.js";
+import { useComboBox } from "$lib/design/behaviors/combobox/use-combobox.svelte.js";
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setComboboxContext } from "./context.js";

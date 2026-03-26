@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useFormField } from "$lib/design/primitives/form-field/index.js";
+import { useFormField } from "$lib/design/behaviors/form-field/index.js";
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { FormFieldComponentProps } from "./types.js";

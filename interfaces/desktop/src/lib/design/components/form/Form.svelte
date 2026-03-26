@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { useForm } from "$lib/design/primitives/form/index.js";
+import { useForm } from "$lib/design/behaviors/form/index.js";
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { FormComponentProps } from "./types.js";

@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { usePagination } from "$lib/design/primitives/pagination/index.js";
+import { usePagination } from "$lib/design/behaviors/pagination/index.js";
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { PaginationComponentProps } from "./types.js";

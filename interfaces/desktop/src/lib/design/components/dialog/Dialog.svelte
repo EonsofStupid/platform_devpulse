@@ -23,7 +23,7 @@
 }
 -->
 <script lang="ts">
-import { useDialog } from "$lib/design/primitives/dialog/use-dialog.svelte.js";
+import { useDialog } from "$lib/design/behaviors/dialog/use-dialog.svelte.js";
 import { setDialogContext } from "./context.js";
 import type { DialogRootProps } from "./types.js";
 

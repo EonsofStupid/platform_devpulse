@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { useTextarea } from "$lib/design/primitives/textarea/index.js";
+import { useTextarea } from "$lib/design/behaviors/textarea/index.js";
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TextareaProps } from "./types.js";

@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useNotificationCenter } from "$lib/design/primitives/notification-center/index.js";
+import { useNotificationCenter } from "$lib/design/behaviors/notification-center/index.js";
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { NotificationCenterComponentProps } from "./types.js";

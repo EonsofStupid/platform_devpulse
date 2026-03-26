@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useToaster } from "$lib/design/primitives/toaster/index.js";
+import { useToaster } from "$lib/design/behaviors/toaster/index.js";
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ToasterComponentProps } from "./types.js";

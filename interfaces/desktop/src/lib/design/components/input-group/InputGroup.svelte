@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useInputGroup } from "$lib/design/primitives/input-group/index.js";
+import { useInputGroup } from "$lib/design/behaviors/input-group/index.js";
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { InputGroupComponentProps } from "./types.js";

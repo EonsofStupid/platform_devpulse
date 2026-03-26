@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useSidebar } from "$lib/design/primitives/sidebar/index.js";
+import { useSidebar } from "$lib/design/behaviors/sidebar/index.js";
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SidebarComponentProps } from "./types.js";

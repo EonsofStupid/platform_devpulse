@@ -23,7 +23,7 @@
 }
 -->
 <script lang="ts">
-import { useList } from "$lib/design/primitives/list/index.js";
+import { useList } from "$lib/design/behaviors/list/index.js";
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ListComponentProps } from "./types.js";

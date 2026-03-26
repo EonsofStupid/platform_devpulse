@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { useTableOfContents } from "$lib/design/primitives/table-of-contents/index.js";
+import { useTableOfContents } from "$lib/design/behaviors/table-of-contents/index.js";
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TableOfContentsComponentProps } from "./types.js";

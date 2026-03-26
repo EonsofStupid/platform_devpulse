@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useSteps } from "$lib/design/primitives/steps/index.js";
+import { useSteps } from "$lib/design/behaviors/steps/index.js";
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { StepsComponentProps } from "./types.js";

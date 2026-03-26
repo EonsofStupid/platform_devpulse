@@ -50,12 +50,12 @@ let {
 	...rest
 }: WidgetProps = $props();
 
-// Card variant — intent flows through to Card's StyleMacro
-const cardVariant = $derived((preset ?? intent ?? "default") as import("$lib/design/components/card/card.types.js").CardVariant);
+// Intent flows through to Card's StyleMacro
+const resolvedIntent = $derived((preset ?? intent ?? "default") as import("$lib/design/components/card/card.types.js").CardIntent);
 </script>
 
 <Card
-	intent={cardVariant}
+	intent={resolvedIntent}
 	class={cn("flex flex-col", className)}
 	{...rest}
 >

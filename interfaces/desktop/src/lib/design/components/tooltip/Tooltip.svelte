@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useTooltip } from "$lib/design/primitives/tooltip/use-tooltip.svelte.js";
+import { useTooltip } from "$lib/design/behaviors/tooltip/use-tooltip.svelte.js";
 import { setTooltipContext } from "./context.js";
 
 let {

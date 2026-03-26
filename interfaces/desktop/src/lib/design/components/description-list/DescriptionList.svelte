@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { useDescriptionList } from "$lib/design/primitives/description-list/index.js";
+import { useDescriptionList } from "$lib/design/behaviors/description-list/index.js";
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { DescriptionListComponentProps } from "./types.js";

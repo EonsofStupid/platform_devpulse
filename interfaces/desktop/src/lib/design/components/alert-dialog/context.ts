@@ -5,7 +5,7 @@
  */
 
 import { getContext, setContext } from "svelte";
-import type { UseAlertDialogReturn } from "$lib/design/primitives/alert-dialog/alert-dialog.types.js";
+import type { UseAlertDialogReturn } from "$lib/design/behaviors/alert-dialog/alert-dialog.types.js";
 import type { AlertDialogIds, AlertDialogVariant } from "./types.js";
 
 export interface AlertDialogContext {
