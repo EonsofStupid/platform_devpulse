@@ -27,7 +27,7 @@
  * ```
  */
 
-import { kbd } from "../../_internal/utils/kbd.js";
+import { kbd } from "../_internal/utils/kbd.js";
 import type { MoveEvent, UseMoveProps, UseMoveReturn } from "./move.types.js";
 
 const KEYBOARD_STEP = 1;

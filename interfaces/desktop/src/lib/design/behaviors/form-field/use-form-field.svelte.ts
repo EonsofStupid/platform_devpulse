@@ -1,4 +1,4 @@
-import { createIds } from "../../_internal/utils/uid.js";
+import { createIds } from "../_internal/utils/uid.js";
 export interface UseFormFieldOptions { invalid?: boolean; required?: boolean; disabled?: boolean; }
 export function useFormField(opts: UseFormFieldOptions) {
 	const ids = createIds("form-field", ["root", "label", "control", "description", "error"] as const);

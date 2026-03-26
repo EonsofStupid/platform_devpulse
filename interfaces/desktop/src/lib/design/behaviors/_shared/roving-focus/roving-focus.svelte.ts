@@ -9,7 +9,7 @@
  * @see https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/#kbd_roving_tabindex
  */
 
-import { getNextKey, getPrevKey, kbd } from "../../../_internal/utils/kbd.js";
+import { getNextKey, getPrevKey, kbd } from "../../_internal/utils/kbd.js";
 import type { RovingFocusConfig } from "./types.js";
 
 export function useRovingFocus(config: RovingFocusConfig): void {

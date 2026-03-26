@@ -7,7 +7,7 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/tabs/
  */
 
-import { uid } from "../../_internal/utils/uid.js";
+import { uid } from "../_internal/utils/uid.js";
 import { tabsAnatomy } from "./tabs.anatomy.js";
 import type { UseTabsProps, UseTabsReturn } from "./tabs.types.js";
 

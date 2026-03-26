@@ -1,5 +1,5 @@
 import type { HTMLAttributes, HTMLLabelAttributes } from "svelte/elements";
-import type { Orientation } from "../../_internal/utils/kbd.js";
+import type { Orientation } from "../_internal/utils/kbd.js";
 
 export type ColorChannel = "hue" | "saturation" | "lightness" | "alpha" | "red" | "green" | "blue";
 

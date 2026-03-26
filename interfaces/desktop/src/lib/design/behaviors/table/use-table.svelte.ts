@@ -8,7 +8,7 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/grid/
  */
 
-import { uid } from "../../_internal/utils/uid.js";
+import { uid } from "../_internal/utils/uid.js";
 import { tableAnatomy } from "./table.anatomy.js";
 import type { SortDirection, UseTableProps, UseTableReturn } from "./table.types.js";
 

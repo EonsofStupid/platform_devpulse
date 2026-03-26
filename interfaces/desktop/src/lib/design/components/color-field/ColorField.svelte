@@ -23,7 +23,7 @@
 <script lang="ts">
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { createIds } from "$lib/design/_internal/utils/uid.js";
+import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
 import { setColorFieldContext } from "./context.js";
 import type { ColorFieldRootProps } from "./types.js";
 

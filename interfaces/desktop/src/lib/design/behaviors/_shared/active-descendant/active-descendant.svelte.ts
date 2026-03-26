@@ -9,7 +9,7 @@
  * @see https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/#kbd_focus_activedescendant
  */
 
-import { kbd } from "../../../_internal/utils/kbd.js";
+import { kbd } from "../../_internal/utils/kbd.js";
 import type { ActiveDescendantConfig, ActiveDescendantReturn } from "./types.js";
 
 export function useActiveDescendant(config: ActiveDescendantConfig): ActiveDescendantReturn {

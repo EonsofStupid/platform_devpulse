@@ -8,8 +8,8 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/accordion/
  */
 
-import { kbd } from "../../_internal/utils/kbd.js";
-import { uid } from "../../_internal/utils/uid.js";
+import { kbd } from "../_internal/utils/kbd.js";
+import { uid } from "../_internal/utils/uid.js";
 import { accordionAnatomy } from "./accordion.anatomy.js";
 import type { UseAccordionProps, UseAccordionReturn } from "./accordion.types.js";
 

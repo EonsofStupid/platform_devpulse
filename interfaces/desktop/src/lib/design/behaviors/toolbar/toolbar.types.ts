@@ -1,5 +1,5 @@
 import type { HTMLAttributes } from "svelte/elements";
-import type { Orientation } from "../../_internal/utils/kbd.js";
+import type { Orientation } from "../_internal/utils/kbd.js";
 
 export interface UseToolbarProps {
 	label?: string;

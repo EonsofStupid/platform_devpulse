@@ -21,9 +21,9 @@
  * ```
  */
 
-import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
-import { kbd } from "../../_internal/utils/kbd.js";
-import { createIds } from "../../_internal/utils/uid.js";
+import { dataAttr, disabledAttr } from "../_internal/utils/data-attr.js";
+import { kbd } from "../_internal/utils/kbd.js";
+import { createIds } from "../_internal/utils/uid.js";
 import { colorSliderAnatomy } from "./color-slider.anatomy.js";
 import type {
 	ColorChannel,

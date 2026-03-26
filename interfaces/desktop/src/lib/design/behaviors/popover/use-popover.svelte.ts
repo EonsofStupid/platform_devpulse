@@ -10,7 +10,7 @@
 import { useDismissLayer } from "../_shared/dismiss-layer/index.js";
 import { useEscapeLayer } from "../_shared/escape-layer/index.js";
 import { usePresence } from "../_shared/presence/index.js";
-import { createIds } from "../../_internal/utils/uid.js";
+import { createIds } from "../_internal/utils/uid.js";
 import { popoverAnatomy } from "./popover.anatomy.js";
 import type { UsePopoverProps, UsePopoverReturn } from "./popover.types.js";
 

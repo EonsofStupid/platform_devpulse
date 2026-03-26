@@ -5,8 +5,8 @@
  * No custom ARIA roles needed — browser handles label association natively.
  */
 
-import { dataAttr } from "../../_internal/utils/data-attr.js";
-import { uid } from "../../_internal/utils/uid.js";
+import { dataAttr } from "../_internal/utils/data-attr.js";
+import { uid } from "../_internal/utils/uid.js";
 import { labelAnatomy } from "./label.anatomy.js";
 import type { UseLabelProps, UseLabelReturn } from "./label.types.js";
 

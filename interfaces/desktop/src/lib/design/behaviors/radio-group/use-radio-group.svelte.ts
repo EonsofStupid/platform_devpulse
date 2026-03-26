@@ -22,9 +22,9 @@
  * ```
  */
 
-import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
-import { kbd } from "../../_internal/utils/kbd.js";
-import { uid } from "../../_internal/utils/uid.js";
+import { dataAttr, disabledAttr } from "../_internal/utils/data-attr.js";
+import { kbd } from "../_internal/utils/kbd.js";
+import { uid } from "../_internal/utils/uid.js";
 import { radioGroupAnatomy } from "./radio-group.anatomy.js";
 import type { UseRadioGroupProps, UseRadioGroupReturn } from "./radio-group.types.js";
 

@@ -18,8 +18,8 @@
  * ```
  */
 
-import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
-import { createIds } from "../../_internal/utils/uid.js";
+import { dataAttr, disabledAttr } from "../_internal/utils/data-attr.js";
+import { createIds } from "../_internal/utils/uid.js";
 import { colorFieldAnatomy } from "./color-field.anatomy.js";
 import type { UseColorFieldProps, UseColorFieldReturn } from "./color-field.types.js";
 

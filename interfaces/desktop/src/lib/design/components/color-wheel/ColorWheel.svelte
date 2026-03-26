@@ -23,7 +23,7 @@
 <script lang="ts">
 import { StyleMacro } from "$lib/design/styles/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { createIds } from "$lib/design/_internal/utils/uid.js";
+import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
 import { setColorWheelContext } from "./context.js";
 import { useWheelDrag } from "./use-wheel-drag.svelte.js";
 import type { ColorWheelRootProps } from "./types.js";

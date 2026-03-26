@@ -7,9 +7,9 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/button/
  */
 
-import { disabledAttr } from "../../_internal/utils/data-attr.js";
-import { kbd } from "../../_internal/utils/kbd.js";
-import { uid } from "../../_internal/utils/uid.js";
+import { disabledAttr } from "../_internal/utils/data-attr.js";
+import { kbd } from "../_internal/utils/kbd.js";
+import { uid } from "../_internal/utils/uid.js";
 import { toggleAnatomy } from "./toggle.anatomy.js";
 import type { UseToggleProps, UseToggleReturn } from "./toggle.types.js";
 

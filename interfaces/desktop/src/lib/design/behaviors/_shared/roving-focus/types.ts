@@ -1,4 +1,4 @@
-import type { Direction, Orientation } from "../../../_internal/utils/kbd.js";
+import type { Direction, Orientation } from "../../_internal/utils/kbd.js";
 
 export interface RovingFocusConfig {
 	/** The container element that holds focusable items. */

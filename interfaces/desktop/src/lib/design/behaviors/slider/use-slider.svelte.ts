@@ -22,9 +22,9 @@
  * ```
  */
 
-import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
-import { kbd } from "../../_internal/utils/kbd.js";
-import { createIds } from "../../_internal/utils/uid.js";
+import { dataAttr, disabledAttr } from "../_internal/utils/data-attr.js";
+import { kbd } from "../_internal/utils/kbd.js";
+import { createIds } from "../_internal/utils/uid.js";
 import { sliderAnatomy } from "./slider.anatomy.js";
 import type { UseSliderProps, UseSliderReturn } from "./slider.types.js";
 
