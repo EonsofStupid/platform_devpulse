@@ -10,11 +10,11 @@ import type { BreadcrumbsPrimitiveProps } from "./breadcrumbs.props.js";
 let { children, class: className, ...rest }: BreadcrumbsPrimitiveProps = $props();
 </script>
 
-<div
+<nav
 	data-kind="breadcrumbs"
 	data-slot="root"
 	class={cn(className)}
 	{...rest}
 >
 	{@render children?.()}
-</div>
+</nav>
