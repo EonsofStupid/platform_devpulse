@@ -1,7 +1,7 @@
 # MASTER SPRINT PLAN — ColdLight Design System
 
 > **The owner directs ColdLight. ColdLight directs everything.**
-> **ColdLight OWNS everything by default. MeltUI is an exception-only adapter.**
+> **ColdLight OWNS everything .**
 
 ---
 

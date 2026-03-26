@@ -1,6 +1,6 @@
 # MASTER SPRINT PLAN — ColdLight Components
 
-> **ColdLight OWNS everything. MeltUI is an optional adapter, NOT the default.**
+> **ColdLight OWNS everything.**
 > **Every component is ColdLight-owned unless the contract explicitly justifies adapter delegation.**
 > **The owner directs ColdLight. Config serves the owner.**
 

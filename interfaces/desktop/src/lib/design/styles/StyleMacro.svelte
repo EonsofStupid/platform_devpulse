@@ -31,12 +31,22 @@ import type { Snippet } from "svelte";
  * ONE map. Per-project configurable.
  * Components speak intent. Tokens speak visual. This translates.
  */
+/**
+ * Intent → visual preset mapping.
+ * Semantic intents resolve to visual names.
+ * Visual names pass through unchanged (they ARE the preset).
+ */
 const INTENT_MAP: Record<string, string> = {
 	primary: "glass",
 	secondary: "matte",
 	ghost: "flat",
 	danger: "stark",
 	default: "default",
+	// Visual names pass through — they ARE presets
+	glass: "glass",
+	matte: "matte",
+	flat: "flat",
+	stark: "stark",
 };
 
 interface Props {

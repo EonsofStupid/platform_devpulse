@@ -8,9 +8,9 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
  */
 
-import { useDismissLayer } from "../../_internal/a11y/dismiss-layer/index.js";
-import { useEscapeLayer } from "../../_internal/a11y/escape-layer/index.js";
-import { usePresence } from "../../_internal/a11y/presence/index.js";
+import { useDismissLayer } from "../a11y/dismiss-layer/index.js";
+import { useEscapeLayer } from "../a11y/escape-layer/index.js";
+import { usePresence } from "../a11y/presence/index.js";
 import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
 import { kbd } from "../../_internal/utils/kbd.js";
 import { uid } from "../../_internal/utils/uid.js";

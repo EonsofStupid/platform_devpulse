@@ -26,6 +26,10 @@ const INTENT_MAP: Record<string, string> = {
 	ghost: "flat",
 	danger: "stark",
 	default: "default",
+	glass: "glass",
+	matte: "matte",
+	flat: "flat",
+	stark: "stark",
 };
 
 /**

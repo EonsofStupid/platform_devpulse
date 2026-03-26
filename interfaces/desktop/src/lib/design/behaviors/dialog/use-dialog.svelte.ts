@@ -30,9 +30,9 @@
  */
 
 import { tick } from "svelte";
-import { useDismissLayer } from "../../_internal/a11y/dismiss-layer/index.js";
-import { usePresence } from "../../_internal/a11y/presence/index.js";
-import { useScrollLock } from "../../_internal/a11y/scroll-lock/index.js";
+import { useDismissLayer } from "../a11y/dismiss-layer/index.js";
+import { usePresence } from "../a11y/presence/index.js";
+import { useScrollLock } from "../a11y/scroll-lock/index.js";
 import { createIds } from "../../_internal/utils/uid.js";
 import { dialogAnatomy } from "./dialog.anatomy.js";
 import type { UseDialogProps, UseDialogReturn } from "./dialog.types.js";
