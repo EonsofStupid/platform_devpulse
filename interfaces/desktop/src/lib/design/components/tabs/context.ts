@@ -5,7 +5,7 @@
  */
 
 import { getContext, setContext } from "svelte";
-import type { UseTabsReturn } from "$lib/design/primitives/tabs/tabs.types.js";
+import type { UseTabsReturn } from "$lib/design/behaviors/tabs/tabs.types.js";
 
 export interface TabsContext {
 	readonly hook: UseTabsReturn;

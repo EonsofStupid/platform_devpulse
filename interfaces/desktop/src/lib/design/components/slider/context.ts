@@ -5,7 +5,7 @@
  */
 
 import { getContext, setContext } from "svelte";
-import type { UseSliderReturn } from "$lib/design/primitives/slider/slider.types.js";
+import type { UseSliderReturn } from "$lib/design/behaviors/slider/slider.types.js";
 
 export interface SliderContext {
 	readonly hook: UseSliderReturn;

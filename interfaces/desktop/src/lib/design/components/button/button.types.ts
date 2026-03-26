@@ -5,9 +5,9 @@
 
 import type { HTMLButtonAttributes } from "svelte/elements";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { ButtonType } from "$lib/design/primitives/button/button.types.js";
+import type { ButtonType } from "$lib/design/behaviors/button/button.types.js";
 
-export type { ButtonType } from "$lib/design/primitives/button/button.types.js";
+export type { ButtonType } from "$lib/design/behaviors/button/button.types.js";
 
 export type ButtonIntent = "primary" | "secondary" | "ghost" | "danger";
 export type ButtonSize = "sm" | "md" | "lg";

@@ -5,7 +5,7 @@
  */
 
 import { getContext, setContext } from "svelte";
-import type { UseTooltipReturn } from "$lib/design/primitives/tooltip/tooltip.types.js";
+import type { UseTooltipReturn } from "$lib/design/behaviors/tooltip/tooltip.types.js";
 
 export interface TooltipContext {
 	readonly hook: UseTooltipReturn;

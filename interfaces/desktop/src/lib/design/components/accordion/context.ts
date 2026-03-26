@@ -10,7 +10,7 @@
  */
 
 import { getContext, setContext } from "svelte";
-import type { UseAccordionReturn } from "$lib/design/primitives/accordion/accordion.types.js";
+import type { UseAccordionReturn } from "$lib/design/behaviors/accordion/accordion.types.js";
 import type { AccordionIds } from "./types.js";
 
 // =============================================================================
