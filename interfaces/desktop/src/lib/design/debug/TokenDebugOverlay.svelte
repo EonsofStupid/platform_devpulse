@@ -107,17 +107,17 @@ function scan() {
 
 	// 2. Check inline styles and computed styles on actual elements
 	for (const el of allElements) {
-		const computed = getComputedStyle(el);
+		const elComputed = getComputedStyle(el);
 		const inlineStyle = (el as HTMLElement).style?.cssText || "";
 
-		// Check inline style var() refs
+		// Check inline style var() refs — resolve against THE ELEMENT, not :root
 		let match: RegExpExecArray | null;
 		const regex = /var\(--([a-zA-Z0-9_-]+)/g;
 		while ((match = regex.exec(inlineStyle)) !== null) {
 			const varName = `--${match[1]}`;
-			const value = rootStyle.getPropertyValue(varName).trim();
+			const value = elComputed.getPropertyValue(varName).trim();
 			const tag = el.tagName.toLowerCase();
-			const kind = (el as HTMLElement).dataset?.kind || "";
+			const kind = (el as HTMLElement).dataset?.kind || (el as HTMLElement).dataset?.svgKind || "";
 			const selector = kind ? `${tag}[data-kind="${kind}"]` : tag;
 			const key = `${selector}::${varName}`;
 			if (seen.has(key)) continue;
@@ -139,7 +139,7 @@ function scan() {
 			const classRegex = /var\(--([a-zA-Z0-9_-]+)/g;
 			while ((match = classRegex.exec(classList)) !== null) {
 				const varName = `--${match[1]}`;
-				const value = rootStyle.getPropertyValue(varName).trim();
+				const value = elComputed.getPropertyValue(varName).trim();
 				const tag = el.tagName.toLowerCase();
 				const key = `class:${tag}::${varName}`;
 				if (seen.has(key)) continue;
