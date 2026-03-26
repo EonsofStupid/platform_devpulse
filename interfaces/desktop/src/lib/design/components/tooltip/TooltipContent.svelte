@@ -14,11 +14,10 @@ import { getTooltipContext } from "./context.js";
 let { intent = "default", children, class: className, ...rest }: { intent?: import("./types.js").TooltipIntent; children?: import("svelte").Snippet; class?: string; [key: string]: unknown } = $props();
 const ctx = getTooltipContext();
 
-const styleId = $derived(`tooltip-${intent}`);
 </script>
 
 {#if ctx.hook.open}
-	<StyleMacro kind="tooltip" style={styleId}>
+	<StyleMacro kind="tooltip" intent={intent}>
 		<div
 			{...ctx.hook.content}
 			data-kind="tooltip"

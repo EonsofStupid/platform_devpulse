@@ -47,7 +47,6 @@ const hook = usePopover({
 	get closeOnOutsideClick() { return closeOnOutsideClick; },
 });
 
-const styleId = $derived(`popover-${intent}`);
 
 setPopoverContext({
 	get hook() { return hook; },
@@ -62,7 +61,7 @@ setPopoverContext({
 	{/if}
 
 	{#if hook.open}
-		<StyleMacro kind="popover" style={styleId}>
+		<StyleMacro kind="popover" intent={intent}>
 			<div
 				{...hook.content}
 				use:hook.attachContent

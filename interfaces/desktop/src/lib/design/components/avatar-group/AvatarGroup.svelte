@@ -45,7 +45,6 @@ let {
 const autoIds = createIds("avatar-group", ["root"] as const);
 const rootId = userIds?.root ?? autoIds.root;
 
-const styleId = $derived(`avatar-group-${intent}`);
 
 const overflowCount = $derived.by(() => {
 	if (total !== undefined && maxVisible !== undefined) {
@@ -61,7 +60,7 @@ setAvatarGroupContext({
 const overlapMargin = $derived(`-${Math.round(size * 0.25)}px`);
 </script>
 
-<StyleMacro kind="avatar-group" style={styleId}>
+<StyleMacro kind="avatar-group" intent={intent}>
 	<div
 		id={rootId}
 		{dir}

@@ -36,10 +36,9 @@ let {
 	...rest
 }: NavComponentProps = $props();
 
-const styleId = $derived(`nav-${intent}`);
 </script>
 
-<StyleMacro kind="nav" style={styleId}>
+<StyleMacro kind="nav" intent={intent}>
 	<nav
 		aria-label={label}
 		data-kind="nav"

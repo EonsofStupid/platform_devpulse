@@ -33,10 +33,9 @@ let {
 	...rest
 }: DynamicBackgroundProps = $props();
 
-const styleId = $derived(`dynamic-background-${style ?? variant}`);
 </script>
 
-<StyleMacro kind="dynamic-background" style={styleId}>
+<StyleMacro kind="dynamic-background" style={`dynamic-background-${variant}`}>
 	<div
 		aria-hidden="true"
 		data-kind="dynamic-background"

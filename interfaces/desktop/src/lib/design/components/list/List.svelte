@@ -29,9 +29,8 @@ import { cn } from "$lib/design/utils/cn.js";
 import type { ListComponentProps } from "./types.js";
 let { intent = "default", size = "md", variant = "none", spacing = "default", label, children, class: className, ...rest }: ListComponentProps = $props();
 const list = $derived(useList({ label }));
-const styleId = $derived(`list-${intent}`);
 </script>
-<StyleMacro kind="list" style={styleId}>
+<StyleMacro kind="list" intent={intent}>
 	<ul {...list.root} data-kind="list" data-slot="root" data-variant={variant} class={cn("flex flex-col", className)} {...rest}>
 		{@render children?.()}
 	</ul>

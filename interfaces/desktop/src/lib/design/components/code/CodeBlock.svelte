@@ -53,10 +53,9 @@ setCodeBlockContext({
 	copyCode,
 });
 
-const styleId = $derived(`code-${intent}`);
 </script>
 
-<StyleMacro kind="code" style={styleId}>
+<StyleMacro kind="code" intent={intent}>
 	<div
 		id={ids?.root}
 		{dir}

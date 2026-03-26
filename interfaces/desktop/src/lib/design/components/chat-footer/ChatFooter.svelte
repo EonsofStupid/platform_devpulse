@@ -38,7 +38,6 @@ let {
 
 let inputValue = $state("");
 
-const styleId = $derived(`chat-footer-${style ?? "default"}`);
 
 function handleSend() {
 	const trimmed = inputValue.trim();
@@ -55,7 +54,7 @@ function handleKeydown(event: KeyboardEvent) {
 }
 </script>
 
-<StyleMacro kind="chat-footer" style={styleId}>
+<StyleMacro kind="chat-footer" intent="default">
 	<div
 		role="form"
 		aria-label="Send message"

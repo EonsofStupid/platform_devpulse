@@ -28,9 +28,8 @@ import { cn } from "$lib/design/utils/cn.js";
 import type { FormFieldComponentProps } from "./types.js";
 let { intent = "default", size = "md", label, description, error, invalid = false, required = false, disabled = false, children, class: className, ...rest }: FormFieldComponentProps = $props();
 const field = $derived(useFormField({ invalid, required, disabled }));
-const styleId = $derived(`form-field-${intent}`);
 </script>
-<StyleMacro kind="form-field" style={styleId}>
+<StyleMacro kind="form-field" intent={intent}>
 	<div {...field.root} class={cn("flex flex-col gap-1.5", className)} {...rest}>
 		{#if label}<label {...field.label} data-kind="form-field" data-slot="label" class="text-sm font-medium">{label}{#if required}<span aria-hidden="true" class="text-red-500 ml-0.5">*</span>{/if}</label>{/if}
 		<div data-kind="form-field" data-slot="control">{@render children?.()}</div>

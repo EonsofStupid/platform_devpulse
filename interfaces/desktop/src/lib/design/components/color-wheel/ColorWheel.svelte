@@ -80,7 +80,6 @@ const drag = useWheelDrag({
 	},
 });
 
-const styleId = $derived(`color-wheel-${intent}`);
 
 setColorWheelContext({
 	get hue() { return currentHue; },
@@ -94,7 +93,7 @@ setColorWheelContext({
 });
 </script>
 
-<StyleMacro kind="color-wheel" style={styleId}>
+<StyleMacro kind="color-wheel" intent={intent}>
 <div
 	id={resolvedIds.root}
 	{dir}

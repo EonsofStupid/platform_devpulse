@@ -50,7 +50,6 @@ const hook = useSelect({
 	placeholder,
 });
 
-const styleId = $derived(`select-${intent}`);
 
 setSelectContext({
 	get hook() { return hook; },
@@ -58,7 +57,7 @@ setSelectContext({
 });
 </script>
 
-<StyleMacro kind="select" style={styleId}>
+<StyleMacro kind="select" intent={intent}>
 	<div
 		{...hook.root}
 		class={cn(disabled && "opacity-50 pointer-events-none", className)}

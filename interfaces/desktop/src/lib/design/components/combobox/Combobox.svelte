@@ -53,7 +53,6 @@ const hook = useComboBox({
 	get disabled() { return disabled; },
 });
 
-const styleId = $derived(`combobox-${intent}`);
 
 setComboboxContext({
 	get hook() { return hook; },
@@ -64,7 +63,7 @@ setComboboxContext({
 
 </script>
 
-<StyleMacro kind="combobox" style={styleId}>
+<StyleMacro kind="combobox" intent={intent}>
 	<div
 		{...hook.root}
 		data-kind="combobox"

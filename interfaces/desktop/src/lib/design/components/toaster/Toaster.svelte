@@ -28,8 +28,7 @@ import { cn } from "$lib/design/utils/cn.js";
 import type { ToasterComponentProps } from "./types.js";
 let { position = "bottom-right", closeDelay = 5000, intent = "default", children, class: className, ...rest }: ToasterComponentProps = $props();
 const toaster = $derived(useToaster({ position }));
-const styleId = $derived(`toaster-${intent}`);
 </script>
-<StyleMacro kind="toaster" style={styleId}>
+<StyleMacro kind="toaster" intent={intent}>
 	<div {...toaster.root} data-kind="toaster" data-slot="root" data-position={position} class={cn("fixed z-50 flex flex-col gap-2", className)} {...rest}>{@render children?.()}</div>
 </StyleMacro>

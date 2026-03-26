@@ -87,7 +87,7 @@ function onKey(e: KeyboardEvent): void {
 
 		{#if searchOpen}
 			<div
-				class={cn(box({}), "v-s0 v-r3 absolute right-4 top-12 z-[var(--z-dropdown)] p-2")}
+				class={cn(box({}), "absolute right-4 top-12 z-[var(--z-dropdown)] p-2")}
 				data-kind="box"
 				data-slot="root"
 			>

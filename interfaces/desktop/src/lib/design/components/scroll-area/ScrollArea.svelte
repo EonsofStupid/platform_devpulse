@@ -28,9 +28,8 @@ import { cn } from "$lib/design/utils/cn.js";
 import type { ScrollAreaComponentProps } from "./types.js";
 let { size = "md", orientation = "vertical", intent = "default", label, children, class: className, ...rest }: ScrollAreaComponentProps = $props();
 const scrollArea = $derived(useScrollArea({ label, orientation }));
-const styleId = $derived(`scroll-area-${intent}`);
 </script>
-<StyleMacro kind="scroll-area" style={styleId}>
+<StyleMacro kind="scroll-area" intent={intent}>
 	<div {...scrollArea.root} data-kind="scroll-area" data-slot="root" class={cn("relative overflow-hidden", className)} {...rest}>
 		<div data-kind="scroll-area" data-slot="viewport" class="h-full w-full overflow-auto">{@render children?.()}</div>
 	</div>

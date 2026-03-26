@@ -41,10 +41,9 @@ let {
 }: SeparatorProps = $props();
 
 const separator = $derived(useSeparator({ orientation, decorative }));
-const styleId = $derived(`separator-${intent}`);
 </script>
 
-<StyleMacro kind="separator" style={styleId}>
+<StyleMacro kind="separator" intent={intent}>
 	<hr
 		{...separator.root}
 		data-kind="separator"

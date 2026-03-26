@@ -52,10 +52,9 @@ const toggle = useToggle({
 	onPressedChange: (v) => onPressedChange?.(v),
 });
 
-const styleId = $derived(`toggle-${intent}`);
 </script>
 
-<StyleMacro kind="toggle" style={styleId}>
+<StyleMacro kind="toggle" intent={intent}>
 	<button
 		{...toggle.root}
 		{...rest}

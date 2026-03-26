@@ -40,10 +40,9 @@ let {
 	...rest
 }: ProseComponentProps = $props();
 
-const styleId = $derived(`prose-${intent}`);
 </script>
 
-<StyleMacro kind="prose" style={styleId}>
+<StyleMacro kind="prose" intent={intent}>
 	<div
 		data-kind="prose"
 		data-slot="root"

@@ -27,8 +27,7 @@ import { cn } from "$lib/design/utils/cn.js";
 import type { LinkPreviewProps } from "./types.js";
 let { intent = "default", openDelay = 700, closeDelay = 300, open, onOpenChange, children, class: className }: LinkPreviewProps = $props();
 const lp = $derived(useLinkPreview({ openDelay, closeDelay }));
-const styleId = $derived(`link-preview-${intent}`);
 </script>
-<StyleMacro kind="link-preview" style={styleId}>
+<StyleMacro kind="link-preview" intent={intent}>
 	<div data-kind="link-preview" data-slot="root" class={cn("relative inline-block", className)}>{@render children?.()}</div>
 </StyleMacro>

@@ -38,10 +38,9 @@ let {
 	...rest
 }: ChatTopBarProps = $props();
 
-const styleId = $derived(`chat-topbar-${style ?? "default"}`);
 </script>
 
-<StyleMacro kind="chat-topbar" style={styleId}>
+<StyleMacro kind="chat-topbar" intent="default">
 	<div
 		role="banner"
 		data-kind="chat-topbar"

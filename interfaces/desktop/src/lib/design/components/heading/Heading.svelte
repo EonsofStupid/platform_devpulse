@@ -46,10 +46,9 @@ let {
 }: HeadingProps = $props();
 
 const heading = $derived(useHeading({ level }));
-const styleId = $derived(`heading-${intent}`);
 </script>
 
-<StyleMacro kind="heading" style={styleId}>
+<StyleMacro kind="heading" intent={intent}>
 	{#if level === 1}
 		<h1 {...heading.root} {...rest} class={cn("font-bold", SIZE[size] ?? SIZE.lg, className)}>
 			{@render children?.()}

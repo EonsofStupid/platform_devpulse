@@ -38,6 +38,7 @@ let {
 	actions,
 	footer,
 	class: className,
+	intent = "default",
 	// Visual axis props — forwarded to Card
 	surface,
 	depth,
@@ -49,13 +50,12 @@ let {
 	...rest
 }: WidgetProps = $props();
 
-// Card variant resolves to a style preset ID
-// If preset is provided, use it directly. Otherwise use card-default.
-const cardVariant = $derived((preset ?? "default") as import("$lib/design/components/card/card.types.js").CardVariant);
+// Card variant — intent flows through to Card's StyleMacro
+const cardVariant = $derived((preset ?? intent ?? "default") as import("$lib/design/components/card/card.types.js").CardVariant);
 </script>
 
 <Card
-	variant={cardVariant}
+	intent={cardVariant}
 	class={cn("flex flex-col", className)}
 	{...rest}
 >

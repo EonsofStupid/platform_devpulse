@@ -89,7 +89,7 @@ function formatTime(epoch: number): string {
 
 <div class="flex h-full">
 	<!-- Thread sidebar -->
-	<Card variant="default" class="w-48 border-r border-[var(--border-subtle)] shrink-0">
+	<Card intent="default" class="w-48 border-r border-[var(--border-subtle)] shrink-0">
 		<ThreadList
 			{threads}
 			activeId={activeThreadId}
@@ -133,7 +133,7 @@ function formatTime(epoch: number): string {
 	</div>
 
 	<!-- Right panel — context visualization placeholder -->
-	<Card variant="ghost" class="w-72 border-l border-[var(--border-subtle)] shrink-0 hidden lg:flex flex-col items-center justify-center">
+	<Card intent="ghost" class="w-72 border-l border-[var(--border-subtle)] shrink-0 hidden lg:flex flex-col items-center justify-center">
 		<Text size="sm" class="text-[var(--text-muted)]">Context visualization</Text>
 	</Card>
 </div>

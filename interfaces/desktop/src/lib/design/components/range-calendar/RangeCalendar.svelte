@@ -159,10 +159,9 @@ const ctx: RangeCalendarContext = {
 
 setRangeCalendarContext(ctx);
 
-const styleId = $derived(`range-calendar-${intent}`);
 </script>
 
-<StyleMacro kind="range-calendar" style={styleId}>
+<StyleMacro kind="range-calendar" intent={intent}>
 	<div
 		role="group"
 		aria-label="Range Calendar"

@@ -50,14 +50,13 @@ const hook = useRadioGroup({
 	onValueChange: (v) => onValueChange?.(v),
 });
 
-const styleId = $derived(`radio-group-${intent}`);
 
 setRadioGroupContext({
 	get hook() { return hook; },
 });
 </script>
 
-<StyleMacro kind="radio-group" style={styleId}>
+<StyleMacro kind="radio-group" intent={intent}>
 	<div
 		{...hook.root}
 		data-orientation={orientation}

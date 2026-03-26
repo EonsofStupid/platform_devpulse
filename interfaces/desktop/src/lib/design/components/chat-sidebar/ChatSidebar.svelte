@@ -40,10 +40,9 @@ let {
 	...rest
 }: ChatSidebarProps = $props();
 
-const styleId = $derived(`chat-sidebar-${style ?? "default"}`);
 </script>
 
-<StyleMacro kind="chat-sidebar" style={styleId}>
+<StyleMacro kind="chat-sidebar" intent="default">
 	<nav
 		aria-label="Chat modes"
 		data-kind="chat-sidebar"

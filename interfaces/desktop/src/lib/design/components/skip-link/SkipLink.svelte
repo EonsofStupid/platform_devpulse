@@ -35,10 +35,9 @@ let {
 	...rest
 }: SkipLinkComponentProps = $props();
 
-const styleId = $derived(`skip-link-${intent}`);
 </script>
 
-<StyleMacro kind="skip-link" style={styleId}>
+<StyleMacro kind="skip-link" intent={intent}>
 	<a
 		{href}
 		data-kind="skip-link"

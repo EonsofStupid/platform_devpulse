@@ -96,7 +96,6 @@ const drag = useSliderDrag({
 // ── Derived channel value ───────────────────────────────────────
 const channelValue = $derived(roundToStep(percentToValue(drag.state.percent, range), range.step));
 
-const styleId = $derived(`color-slider-${intent}`);
 
 // ── Context ─────────────────────────────────────────────────────
 setColorSliderContext({
@@ -118,7 +117,7 @@ setColorSliderContext({
 
 </script>
 
-<StyleMacro kind="color-slider" style={styleId}>
+<StyleMacro kind="color-slider" intent={intent}>
 	<div
 		id={resolvedIds.root}
 		{dir}

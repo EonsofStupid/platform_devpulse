@@ -78,7 +78,6 @@ const drag = useColorAreaDrag({
 const xValue = $derived(percentToValue(drag.state.xPercent, xRange));
 const yValue = $derived(percentToValue(drag.state.yPercent, yRange));
 
-const styleId = $derived(`color-area-${intent}`);
 
 setColorAreaContext({
 	get value() { return currentValue; },
@@ -96,7 +95,7 @@ setColorAreaContext({
 
 </script>
 
-<StyleMacro kind="color-area" style={styleId}>
+<StyleMacro kind="color-area" intent={intent}>
 <div
 	id={ids?.root}
 	{dir}

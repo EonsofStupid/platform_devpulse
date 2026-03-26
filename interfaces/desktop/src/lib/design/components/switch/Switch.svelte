@@ -52,11 +52,10 @@ const sw = useSwitch({
 	onCheckedChange: (v) => onCheckedChange?.(v),
 });
 
-const styleId = $derived(`switch-${intent}`);
 const sizeClasses = $derived(SIZE[size as SwitchSize] ?? SIZE.md);
 </script>
 
-<StyleMacro kind="switch" style={styleId}>
+<StyleMacro kind="switch" intent={intent}>
 	<button
 		{...sw.root}
 		{...rest}

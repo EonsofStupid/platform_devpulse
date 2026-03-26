@@ -98,7 +98,6 @@ function setValue(raw: string) {
 	onChange?.({ value: val });
 }
 
-const styleId = $derived(`color-field-${intent}`);
 
 // ── Context ─────────────────────────────────────────────────────
 setColorFieldContext({
@@ -125,7 +124,7 @@ setColorFieldContext({
 
 </script>
 
-<StyleMacro kind="color-field" style={styleId}>
+<StyleMacro kind="color-field" intent={intent}>
 	<div
 		id={resolvedIds.root}
 		{dir}

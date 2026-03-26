@@ -44,10 +44,9 @@ let {
 }: LabelProps = $props();
 
 const label = $derived(useLabel({ htmlFor, disabled }));
-const styleId = $derived(`label-${intent}`);
 </script>
 
-<StyleMacro kind="label" style={styleId}>
+<StyleMacro kind="label" intent={intent}>
 	<label
 		{...label.root}
 		for={htmlFor}

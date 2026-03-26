@@ -23,6 +23,8 @@ export interface WidgetTab {
 }
 
 export interface WidgetProps extends ComponentSurfaceProps {
+	/** Semantic intent — resolved by StyleMacro to visual preset */
+	intent?: string;
 	/** Widget title displayed in header */
 	title?: string;
 	/** Lucide icon component rendered before the title */

@@ -28,9 +28,8 @@ import { cn } from "$lib/design/utils/cn.js";
 import type { InputGroupComponentProps } from "./types.js";
 let { intent = "default", size = "md", disabled = false, prefix, suffix, children, class: className, ...rest }: InputGroupComponentProps = $props();
 const ig = $derived(useInputGroup({ disabled }));
-const styleId = $derived(`input-group-${intent}`);
 </script>
-<StyleMacro kind="input-group" style={styleId}>
+<StyleMacro kind="input-group" intent={intent}>
 	<div {...ig.root} data-kind="input-group" data-slot="root" class={cn("flex items-center rounded-md border", disabled && "opacity-50 pointer-events-none", className)} {...rest}>
 		{#if prefix}<div data-kind="input-group" data-slot="prefix" class="flex items-center px-3">{@render prefix()}</div>{/if}
 		<div data-kind="input-group" data-slot="input" class="flex-1 min-w-0">{@render children?.()}</div>

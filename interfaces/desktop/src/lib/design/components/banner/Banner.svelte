@@ -54,7 +54,6 @@ let {
 const banner = $derived(useBanner({ disabled }));
 
 // --- Visual ---
-const styleId = $derived(`banner-${intent}`);
 
 // --- State ---
 let internalOpen = $state(defaultOpen ?? true);
@@ -68,7 +67,7 @@ function handleDismiss(e: MouseEvent) {
 </script>
 
 {#if isOpen}
-	<StyleMacro kind="banner" style={styleId}>
+	<StyleMacro kind="banner" intent={intent}>
 		<div
 			id={ids?.root}
 			{...banner.root}

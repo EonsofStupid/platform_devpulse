@@ -42,10 +42,9 @@ let {
 }: InlineMessageProps = $props();
 
 const msg = $derived(useInlineMessage({ tone }));
-const styleId = $derived(TONE_PRESETS[tone] ?? "inline-message-default");
 </script>
 
-<StyleMacro kind="inline-message" style={styleId}>
+<StyleMacro kind="inline-message" intent="default">
 	<div
 		{...msg.root}
 		data-kind="inline-message"

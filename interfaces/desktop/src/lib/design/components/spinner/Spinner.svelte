@@ -41,11 +41,10 @@ let {
 }: SpinnerProps = $props();
 
 const spinner = $derived(useSpinner({ active }));
-const styleId = $derived(`spinner-${intent}`);
 </script>
 
 {#if active}
-	<StyleMacro kind="spinner" style={styleId}>
+	<StyleMacro kind="spinner" intent={intent}>
 		<div
 			{...spinner.root}
 			data-kind="spinner"

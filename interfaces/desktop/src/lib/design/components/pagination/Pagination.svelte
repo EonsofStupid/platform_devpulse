@@ -43,9 +43,8 @@ function getPageRange(current: number, total: number, sibs: number, bounds: numb
 const pages = $derived(getPageRange(page, totalPages, siblings, boundaries));
 const isFirstPage = $derived(page <= 1);
 const isLastPage = $derived(page >= totalPages);
-const styleId = $derived(`pagination-${intent}`);
 </script>
-<StyleMacro kind="pagination" style={styleId}>
+<StyleMacro kind="pagination" intent={intent}>
 	<nav {...pagination.root} data-kind="pagination" data-slot="root" class={cn("flex items-center gap-1", className)} {...rest}>
 		<button data-kind="pagination" data-slot="previous" disabled={isFirstPage} aria-label="Previous page" class="inline-flex items-center justify-center size-9 rounded-md cursor-pointer disabled:opacity-50 disabled:pointer-events-none" onclick={() => { if (!isFirstPage) onPageChange?.(page - 1); }}>&lsaquo;</button>
 		{#each pages as item}

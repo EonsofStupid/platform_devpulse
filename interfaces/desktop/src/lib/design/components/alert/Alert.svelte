@@ -46,7 +46,6 @@ let {
 const alert = $derived(useAlert({ variant, dismissible }));
 
 // --- Visual (variant → style ID → DTCG tokens) ---
-const styleId = $derived(ALERT_VARIANT_PRESETS[variant] ?? "alert-default");
 
 // --- State ---
 let internalOpen = $state(defaultOpen ?? true);
@@ -65,7 +64,7 @@ setAlertContext({
 </script>
 
 {#if isOpen}
-	<StyleMacro kind="alert" style={styleId}>
+	<StyleMacro kind="alert" intent={variant}>
 		<div
 			id={ids?.root}
 			{...alert.root}

@@ -33,10 +33,9 @@ let {
 	...rest
 }: ChatContextPanelProps = $props();
 
-const styleId = $derived(`chat-context-panel-${style ?? "default"}`);
 </script>
 
-<StyleMacro kind="chat-context-panel" style={styleId}>
+<StyleMacro kind="chat-context-panel" intent="default">
 	<aside
 		aria-label="Cortex memory"
 		data-kind="chat-context-panel"

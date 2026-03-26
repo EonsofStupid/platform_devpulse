@@ -121,10 +121,9 @@ setCalendarContext({
 	},
 });
 
-const styleId = $derived(`calendar-${intent}`);
 </script>
 
-<StyleMacro kind="calendar" style={styleId}>
+<StyleMacro kind="calendar" intent={intent}>
 	<div
 		id={ids?.root}
 		role="group"

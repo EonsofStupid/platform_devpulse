@@ -24,7 +24,7 @@ import { devpulseState } from "$lib/domains/app/devpulse/index.js";
 	>
 		<div class={gridLayout({ columns: "3", gap: "3" })}>
 			{#each devpulseState.recentProjects as project (project.id)}
-				<Card variant="outlined">
+				<Card intent="default">
 					<div class={stack({ gap: "2" })}>
 						<Text weight="semibold">{project.name}</Text>
 						<Text size="xs">{project.language} · {project.branch}</Text>

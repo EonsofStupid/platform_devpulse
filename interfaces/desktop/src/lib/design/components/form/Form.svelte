@@ -40,10 +40,9 @@ let {
 }: FormComponentProps = $props();
 
 const form = $derived(useForm({ label, disabled, pending }));
-const styleId = $derived(`form-${intent}`);
 </script>
 
-<StyleMacro kind="form" style={styleId}>
+<StyleMacro kind="form" intent={intent}>
 	<form
 		{...form.root}
 		data-kind="form"

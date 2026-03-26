@@ -142,10 +142,9 @@ setDatePickerContext({
 	toggle, openPopover, closePopover, selectDate, updateValue,
 });
 
-const styleId = $derived(`date-picker-${intent}`);
 </script>
 
-<StyleMacro kind="date-picker" style={styleId}>
+<StyleMacro kind="date-picker" intent={intent}>
 <div
 	id={resolvedIds.root}
 	{dir}

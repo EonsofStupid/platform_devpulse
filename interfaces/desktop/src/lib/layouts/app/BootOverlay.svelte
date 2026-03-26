@@ -99,7 +99,7 @@ $effect(() => {
 				<div
 					class={cn(
 						box({ paddingX: "12", paddingY: "6" }),
-						"v-s0 v-b1 v-f1 rounded-md",
+						"rounded-md",
 						sub.state === "skipped" && "opacity-50",
 					)}
 					data-kind="box"
@@ -151,7 +151,7 @@ $effect(() => {
 			<div
 				class={cn(
 					box({ paddingX: "12", paddingY: "8" }),
-					"w-full text-center v-f1 rounded-md border border-[var(--signal-error)]/20 bg-[var(--signal-error)]/10",
+					"w-full text-center rounded-md border border-[var(--signal-error)]/20 bg-[var(--signal-error)]/10",
 				)}
 				data-kind="box"
 				data-slot="root"

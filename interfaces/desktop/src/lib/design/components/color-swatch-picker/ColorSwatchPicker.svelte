@@ -67,7 +67,6 @@ function isSelected(color: string): boolean {
 	return selectedValue === color;
 }
 
-const styleId = $derived(`color-swatch-picker-${intent}`);
 
 const DENSITY_GAP: Record<string, string> = {
 	compact: "gap-4",
@@ -85,7 +84,7 @@ setColorSwatchPickerContext({
 });
 </script>
 
-<StyleMacro kind="color-swatch-picker" style={styleId}>
+<StyleMacro kind="color-swatch-picker" intent={intent}>
 	<div
 		id={rootId}
 		{dir}

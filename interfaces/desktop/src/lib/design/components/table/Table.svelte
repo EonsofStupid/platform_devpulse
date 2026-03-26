@@ -29,9 +29,8 @@ import { cn } from "$lib/design/utils/cn.js";
 import type { TableComponentProps } from "./types.js";
 let { size = "md", variant = "default", label, intent = "default", children, class: className, ...rest }: TableComponentProps = $props();
 const table = useTable();
-const styleId = $derived(`table-${intent}`);
 </script>
-<StyleMacro kind="table" style={styleId}>
+<StyleMacro kind="table" intent={intent}>
 	<div class="w-full overflow-auto" data-kind="table" data-slot="wrapper">
 		<table {...table.root} aria-label={label} data-kind="table" data-slot="root" data-variant={variant} class={cn("w-full caption-bottom text-sm", className)} {...rest}>
 			{@render children?.()}

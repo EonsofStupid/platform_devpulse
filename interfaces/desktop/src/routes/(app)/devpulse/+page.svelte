@@ -59,7 +59,7 @@ $effect(() => {
 		<Widget
 			title="Maestro Control"
 			icon={Gauge}
-			class="v-s3 v-d2 v-b2 v-g1 v-f2"
+			intent="glass"
 		>
 			<div class="flex items-center justify-center py-4">
 				<RadialGauge
@@ -78,7 +78,7 @@ $effect(() => {
 		<Widget
 			title="System Overview"
 			icon={Activity}
-			class="v-s3 v-d2 v-b1 v-g2 v-f1"
+			intent="glass"
 		>
 			<div class="flex items-center justify-center gap-6 py-2">
 				<RadialGauge
@@ -107,7 +107,7 @@ $effect(() => {
 		<Widget
 			title="Developer Stats"
 			icon={TrendingUp}
-			class="v-s3 v-d1 v-b1 v-f1"
+			intent="default"
 		>
 			<div class={stack({ gap: "3" })}>
 				<div class={hstack({ justify: "between", align: "baseline" })}>
@@ -125,7 +125,7 @@ $effect(() => {
 					</div>
 				</div>
 				<div
-					class={cn(box({}), "v-s0 v-b1 v-f1 v-r2 flex items-center gap-2 px-3 py-2")}
+					class={cn(box({}), "flex items-center gap-2 px-3 py-2")}
 					data-kind="box"
 					data-slot="root"
 				>
@@ -142,7 +142,7 @@ $effect(() => {
 		<Widget
 			title="Activity Timeline"
 			icon={BarChart3}
-			class="v-s3 v-d2 v-b2 v-g1 v-f2"
+			intent="glass"
 			tabs={[
 				{ id: "activity", label: "Activity" },
 				{ id: "commits", label: "Commits" },
@@ -188,13 +188,13 @@ $effect(() => {
 		<Widget
 			title="Store Health"
 			icon={HeartPulse}
-			class="v-s3 v-d1 v-b1 v-f1"
+			intent="default"
 		>
 			<div class={stack({ gap: "3" })}>
 				{#if platformState.health}
 					{#each platformState.health.subsystems as sub}
 						<div
-							class={cn(box({}), "v-s0 v-b1 v-f1 v-r2 flex items-center justify-between px-3 py-2")}
+							class={cn(box({}), "flex items-center justify-between px-3 py-2")}
 							data-kind="box"
 							data-slot="root"
 						>
@@ -232,7 +232,7 @@ $effect(() => {
 		<Widget
 			title="Recent Projects"
 			icon={FolderGit2}
-			class="v-s3 v-d1 v-b1 v-f1"
+			intent="default"
 			tabs={[
 				{ id: "all", label: "All" },
 				{ id: "active", label: "Active" },
@@ -244,7 +244,7 @@ $effect(() => {
 				{#each devpulseState.recentProjects as project (project.id)}
 					{@const accentName = langColors[project.language] ?? "teal"}
 					<div
-						class={cn(box({}), "v-s0 v-b1 v-f1 v-r2 p-3")}
+						class={cn(box({}), "p-3")}
 						data-kind="box"
 						data-slot="root"
 					>

@@ -40,10 +40,9 @@ let {
 	...rest
 }: EmptyStateProps = $props();
 
-const styleId = $derived(`empty-state-${intent}`);
 </script>
 
-<StyleMacro kind="empty-state" style={styleId}>
+<StyleMacro kind="empty-state" intent={intent}>
 	<div
 		data-kind="empty-state"
 		data-slot="root"

@@ -223,10 +223,9 @@ setDateRangeFieldContext(ctx);
 
 
 const rootState = $derived(disabled ? "disabled" : readonlyProp ? "readonly" : undefined);
-const styleId = $derived(`date-range-field-${intent}`);
 </script>
 
-<StyleMacro kind="date-range-field" style={styleId}>
+<StyleMacro kind="date-range-field" intent={intent}>
 	<div
 		role="group"
 		class={cn(className)}

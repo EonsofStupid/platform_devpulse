@@ -41,10 +41,9 @@ let {
 	...rest
 }: CalloutProps = $props();
 
-const styleId = $derived(VARIANT_PRESETS[variant] ?? "callout-default");
 </script>
 
-<StyleMacro kind="callout" style={styleId}>
+<StyleMacro kind="callout" intent={variant}>
 	<div
 		data-kind="callout"
 		data-slot="root"

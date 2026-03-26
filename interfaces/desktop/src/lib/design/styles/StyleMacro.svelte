@@ -2,18 +2,49 @@
 	@component StyleMacro
 	@package @devpulse/coldlight
 
-	Visual resolution provider.
-	Reads component def from catalog.
-	Constructs --cl-* CSS vars from expanded DTCG style tokens.
-	Glue CSS on [data-kind] consumes --cl-* → browser paints.
+	Visual resolution provider — the SOLE authority for element styling.
+
+	Components pass `kind` + `intent`. StyleMacro resolves intent to a
+	visual preset name, constructs --cl-* CSS vars from the DTCG preset
+	tokens, and the glue CSS on [data-kind] paints the element.
+
+	Intent → Visual Preset mapping (configurable per project):
+	  primary   → glass
+	  secondary → matte
+	  ghost     → flat
+	  danger    → stark
+	  default   → default
+
+	Pipeline:
+	  Component: intent="primary"
+	  → StyleMacro: resolves to "button-glass"
+	  → reads --style-button-glass-* from SD5 output
+	  → sets --cl-bg, --cl-shadow, etc. on wrapper div
+	  → macro-base.css: [data-kind] { background-color: var(--cl-bg); ... }
+	  → browser paints
 -->
 <script lang="ts">
 import type { Snippet } from "svelte";
-// StyleMacro resolves style IDs to DTCG token CSS vars directly.
-// No catalog dependency. Style ID + axis name → var() reference.
+
+/**
+ * Intent → visual preset mapping.
+ * ONE map. Per-project configurable.
+ * Components speak intent. Tokens speak visual. This translates.
+ */
+const INTENT_MAP: Record<string, string> = {
+	primary: "glass",
+	secondary: "matte",
+	ghost: "flat",
+	danger: "stark",
+	default: "default",
+};
 
 interface Props {
+	/** Component kind identifier (e.g., "button", "card", "widget") */
 	kind: string;
+	/** Semantic intent — resolved to visual preset via INTENT_MAP */
+	intent?: string;
+	/** Direct style ID override — bypasses intent resolution. Use for custom presets. */
 	style?: string;
 	children: Snippet;
 	class?: string;
@@ -21,16 +52,17 @@ interface Props {
 
 let {
 	kind,
-	style: styleId,
+	intent = "default",
+	style: styleOverride,
 	children,
 	class: className,
 }: Props = $props();
 
 let resolved = $derived.by(() => {
-	const id = styleId;
-	if (!id) return { css: "", encoding: "" };
-
-	const p = `--style-${id}`;
+	// Style override takes precedence (for custom/domain-specific presets)
+	// Otherwise resolve intent → visual preset name
+	const visual = styleOverride ?? `${kind}-${INTENT_MAP[intent] ?? INTENT_MAP.default}`;
+	const p = `--style-${visual}`;
 	const parts: string[] = [];
 
 	// Direct mapping — each --cl-* reads the --style-* var directly.
@@ -53,15 +85,14 @@ let resolved = $derived.by(() => {
 
 	return {
 		css: parts.join("; "),
-		encoding: id,
+		styleId: visual,
 	};
 });
 </script>
 
 <div
-	data-macro-id={styleId}
-	data-macro-kind={kind}
-	data-encoding={resolved.encoding || undefined}
+	data-kind={kind}
+	data-style={resolved.styleId || undefined}
 	class={className || undefined}
 	style={resolved.css || undefined}
 >

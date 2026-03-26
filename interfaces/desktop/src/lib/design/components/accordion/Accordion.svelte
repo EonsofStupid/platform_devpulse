@@ -60,7 +60,6 @@ const hook = useAccordion({
 	onValueChange: (v) => onValueChange?.({ value: v }),
 });
 
-const styleId = $derived(`accordion-${intent}`);
 
 setAccordionContext({
 	get hook() { return hook; },
@@ -70,7 +69,7 @@ setAccordionContext({
 });
 </script>
 
-<StyleMacro kind="accordion" style={styleId}>
+<StyleMacro kind="accordion" intent={intent}>
 	<div
 		id={ids?.root}
 		{...hook.root}

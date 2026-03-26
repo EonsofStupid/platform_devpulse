@@ -49,14 +49,13 @@ const hook = useTabs({
 	loop,
 });
 
-const styleId = $derived(`tabs-${intent}`);
 
 setTabsContext({
 	get hook() { return hook; },
 });
 </script>
 
-<StyleMacro kind="tabs" style={styleId}>
+<StyleMacro kind="tabs" intent={intent}>
 	<div
 		{...hook.root}
 		data-kind="tabs"

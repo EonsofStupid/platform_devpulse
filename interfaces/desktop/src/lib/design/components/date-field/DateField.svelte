@@ -143,10 +143,9 @@ setDateFieldContext({
 	focusPrevSegment() { focusedIndex = Math.max(focusedIndex - 1, 0); },
 });
 
-const styleId = $derived(`date-field-${intent}`);
 </script>
 
-<StyleMacro kind="date-field" style={styleId}>
+<StyleMacro kind="date-field" intent={intent}>
 <div
 	id={resolvedIds.root}
 	{dir}

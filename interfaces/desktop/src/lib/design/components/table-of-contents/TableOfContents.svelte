@@ -27,8 +27,7 @@ import { cn } from "$lib/design/utils/cn.js";
 import type { TableOfContentsComponentProps } from "./types.js";
 let { label = "Table of contents", activeId, onActiveIdChange, size = "md", intent = "default", children, class: className, ...rest }: TableOfContentsComponentProps = $props();
 const toc = $derived(useTableOfContents({ label }));
-const styleId = $derived(`table-of-contents-${intent}`);
 </script>
-<StyleMacro kind="table-of-contents" style={styleId}>
+<StyleMacro kind="table-of-contents" intent={intent}>
 	<nav {...toc.root} data-kind="table-of-contents" data-slot="root" class={cn("flex flex-col", className)} {...rest}>{@render children?.()}</nav>
 </StyleMacro>

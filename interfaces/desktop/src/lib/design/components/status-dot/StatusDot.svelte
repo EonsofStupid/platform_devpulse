@@ -38,10 +38,9 @@ let {
 	class: className,
 }: StatusDotProps = $props();
 
-const styleId = $derived(`status-dot-${status}`);
 </script>
 
-<StyleMacro kind="status-dot" style={styleId}>
+<StyleMacro kind="status-dot" intent="default">
 	<span
 		data-kind="status-dot"
 		data-slot="root"

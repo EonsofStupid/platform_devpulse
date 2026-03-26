@@ -39,10 +39,9 @@ let {
 }: ColorSwatchProps = $props();
 
 const accessibleName = $derived(colorName ?? color);
-const styleId = $derived(`color-swatch-${intent}`);
 </script>
 
-<StyleMacro kind="color-swatch" style={styleId}>
+<StyleMacro kind="color-swatch" intent={intent}>
 	<div
 		{id}
 		{dir}

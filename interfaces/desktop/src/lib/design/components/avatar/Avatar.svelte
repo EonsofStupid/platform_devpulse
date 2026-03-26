@@ -39,7 +39,6 @@ let {
 
 let status = $state<AvatarLoadStatus>("loading");
 const fallbackText = $derived(fallback ?? alt?.charAt(0)?.toUpperCase() ?? "?");
-const styleId = $derived(`avatar-${intent}`);
 
 function handleLoad() {
 	status = "loaded";
@@ -59,7 +58,7 @@ $effect(() => {
 });
 </script>
 
-<StyleMacro kind="avatar" style={styleId}>
+<StyleMacro kind="avatar" intent={intent}>
 	<span
 		role="img"
 		aria-label={alt}

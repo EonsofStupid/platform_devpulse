@@ -69,7 +69,6 @@ function toggle() {
 	onOpenChange?.({ open: next });
 }
 
-const styleId = $derived(`contextual-help-${intent}`);
 
 setContextualHelpContext({
 	get isOpen() { return isOpen; },
@@ -84,7 +83,7 @@ const SIZE_CLASSES: Record<string, string> = {
 };
 </script>
 
-<StyleMacro kind="contextual-help" style={styleId}>
+<StyleMacro kind="contextual-help" intent={intent}>
 <div
 	id={resolvedIds.root}
 	{dir}

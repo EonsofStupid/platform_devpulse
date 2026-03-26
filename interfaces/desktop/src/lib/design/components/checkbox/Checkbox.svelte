@@ -52,10 +52,9 @@ const checkbox = useCheckbox({
 	onCheckedChange: (v) => onCheckedChange?.(v),
 });
 
-const styleId = $derived(`checkbox-${intent}`);
 </script>
 
-<StyleMacro kind="checkbox" style={styleId}>
+<StyleMacro kind="checkbox" intent={intent}>
 	<button
 		{...checkbox.root}
 		{...rest}

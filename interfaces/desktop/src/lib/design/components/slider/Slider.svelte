@@ -51,14 +51,13 @@ const hook = useSlider({
 	onValueChange: (v) => onValueChange?.(v),
 });
 
-const styleId = $derived(`slider-${intent}`);
 
 setSliderContext({
 	get hook() { return hook; },
 });
 </script>
 
-<StyleMacro kind="slider" style={styleId}>
+<StyleMacro kind="slider" intent={intent}>
 	<div
 		{...hook.root}
 		data-orientation={orientation}

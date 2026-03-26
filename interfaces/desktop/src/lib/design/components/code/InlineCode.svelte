@@ -20,10 +20,9 @@ let {
 	...rest
 }: InlineCodeProps = $props();
 
-const styleId = $derived(`code-${intent}`);
 </script>
 
-<StyleMacro kind="code" style={styleId}>
+<StyleMacro kind="code" intent={intent}>
 	<code
 		{id}
 		{dir}

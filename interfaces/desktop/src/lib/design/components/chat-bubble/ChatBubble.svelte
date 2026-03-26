@@ -36,10 +36,9 @@ let {
 	...rest
 }: ChatBubbleProps = $props();
 
-const styleId = $derived(`chat-bubble-${variant}`);
 </script>
 
-<StyleMacro kind="chat-bubble" style={styleId}>
+<StyleMacro kind="chat-bubble" intent={variant}>
 	<div
 		data-kind="chat-bubble"
 		data-slot="root"

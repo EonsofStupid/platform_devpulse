@@ -39,10 +39,9 @@ let {
 	...rest
 }: ToolbarComponentProps = $props();
 
-const styleId = $derived(`toolbar-${intent}`);
 </script>
 
-<StyleMacro kind="toolbar" style={styleId}>
+<StyleMacro kind="toolbar" intent={intent}>
 	<div
 		role="toolbar"
 		aria-label={label}

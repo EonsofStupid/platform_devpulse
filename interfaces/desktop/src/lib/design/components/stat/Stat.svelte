@@ -50,11 +50,10 @@ let {
 	class: className,
 }: StatProps = $props();
 
-const styleId = $derived(`stat-${accent}`);
 const sizeClasses = $derived(SIZE[size] ?? SIZE.md);
 </script>
 
-<StyleMacro kind="stat" style={styleId}>
+<StyleMacro kind="stat" intent="default">
 	<div
 		data-kind="stat"
 		data-slot="root"

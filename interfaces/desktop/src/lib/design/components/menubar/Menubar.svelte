@@ -36,7 +36,6 @@ let {
 }: MenubarProps = $props();
 
 let activeMenu = $state<string | undefined>(undefined);
-const styleId = $derived(`menubar-${intent}`);
 
 function openMenu(value: string): void {
 	activeMenu = value;
@@ -57,7 +56,7 @@ const ctx: MenubarRootCtx = {
 setMenubarRootContext(ctx);
 </script>
 
-<StyleMacro kind="menubar" style={styleId}>
+<StyleMacro kind="menubar" intent={intent}>
 	<div
 		role="menubar"
 		aria-orientation="horizontal"

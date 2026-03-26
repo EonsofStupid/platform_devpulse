@@ -28,8 +28,7 @@ import { cn } from "$lib/design/utils/cn.js";
 import type { DescriptionListComponentProps } from "./types.js";
 let { size = "md", variant = "default", intent = "default", label, children, class: className, ...rest }: DescriptionListComponentProps = $props();
 const dl = $derived(useDescriptionList({ label }));
-const styleId = $derived(`description-list-${intent}`);
 </script>
-<StyleMacro kind="description-list" style={styleId}>
+<StyleMacro kind="description-list" intent={intent}>
 	<dl {...dl.root} data-kind="description-list" data-slot="root" data-variant={variant} class={cn(className)} {...rest}>{@render children?.()}</dl>
 </StyleMacro>

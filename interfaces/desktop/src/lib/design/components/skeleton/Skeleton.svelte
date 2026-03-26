@@ -41,10 +41,9 @@ let {
 }: SkeletonProps = $props();
 
 const skeleton = $derived(useSkeleton({ loading }));
-const styleId = $derived(`skeleton-${intent}`);
 </script>
 
-<StyleMacro kind="skeleton" style={styleId}>
+<StyleMacro kind="skeleton" intent={intent}>
 	<div
 		{...skeleton.root}
 		data-kind="skeleton"

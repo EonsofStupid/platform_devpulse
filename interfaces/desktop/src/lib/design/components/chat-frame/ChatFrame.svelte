@@ -37,10 +37,9 @@ let {
 	...rest
 }: ChatFrameProps = $props();
 
-const styleId = $derived(`chat-frame-${style ?? "default"}`);
 </script>
 
-<StyleMacro kind="chat-frame" style={styleId}>
+<StyleMacro kind="chat-frame" intent="default">
 	<div
 		role="dialog"
 		aria-label="Maestro Chat"

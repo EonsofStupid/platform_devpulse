@@ -53,11 +53,10 @@ let {
 	...rest
 }: TextProps = $props();
 
-const styleId = $derived(`text-${intent}`);
 const classes = $derived(cn(SIZE[size] ?? SIZE.base, WEIGHT[weight] ?? WEIGHT.normal, className));
 </script>
 
-<StyleMacro kind="text" style={styleId}>
+<StyleMacro kind="text" intent={intent}>
 	{#if as === "p"}
 		<p data-kind="text" data-slot="root" {...rest} class={classes}>{@render children?.()}</p>
 	{:else if as === "label"}

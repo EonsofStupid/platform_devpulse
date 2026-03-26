@@ -51,10 +51,9 @@ const progress = $derived(useProgress({
 	"aria-label": rest["aria-label"],
 	"aria-labelledby": rest["aria-labelledby"],
 }));
-const styleId = $derived(`progress-${intent}`);
 </script>
 
-<StyleMacro kind="progress" style={styleId}>
+<StyleMacro kind="progress" intent={intent}>
 	<div
 		{...progress.root}
 		class={cn("w-full overflow-hidden rounded-full", SIZE[size] ?? SIZE.md, className)}

@@ -132,7 +132,7 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 	{#if globalState.sidebar_submenu && submenuRoutes.length > 0}
 		<div
 			data-slot="submenu"
-			class={cn(box({}), "v-s3 v-d2 v-r2 absolute left-full top-0 z-[var(--z-dropdown)] flex h-full w-48 flex-col gap-1 p-2")}
+			class={cn(box({}), "absolute left-full top-0 z-[var(--z-dropdown)] flex h-full w-48 flex-col gap-1 p-2")}
 			role="menu"
 		>
 			<Text size="xs" color="muted" class="mb-1 px-2 font-semibold uppercase tracking-wider">

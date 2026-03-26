@@ -48,10 +48,9 @@ let {
 }: ButtonProps = $props();
 
 const button = $derived(useButton({ disabled, loading, pressed, onPressedChange, expanded, type }));
-const styleId = $derived(`button-${intent}`);
 </script>
 
-<StyleMacro kind="button" style={styleId}>
+<StyleMacro kind="button" {intent}>
 	<button
 		{...button.root}
 		{...rest}

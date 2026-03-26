@@ -39,10 +39,9 @@ let {
 	...rest
 }: KbdProps = $props();
 
-const styleId = $derived(`kbd-${intent}`);
 </script>
 
-<StyleMacro kind="kbd" style={styleId}>
+<StyleMacro kind="kbd" intent={intent}>
 	<kbd
 		data-kind="kbd"
 		data-slot="root"

@@ -41,7 +41,6 @@ let {
 	...rest
 }: CardProps = $props();
 
-const styleId = $derived(`card-${intent}`);
 
 const rootClasses = $derived(cn(
 	"flex overflow-hidden",
@@ -50,7 +49,7 @@ const rootClasses = $derived(cn(
 	className));
 </script>
 
-<StyleMacro kind="card" style={styleId}>
+<StyleMacro kind="card" intent={intent}>
 	{#if as === "a"}
 		<a
 			{href}

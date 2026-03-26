@@ -46,10 +46,9 @@ let {
 }: BadgeProps = $props();
 
 const badge = $derived(useBadge({ variant, fillStyle, size, decorative }));
-const styleId = $derived(`badge-${intent}`);
 </script>
 
-<StyleMacro kind="badge" style={styleId}>
+<StyleMacro kind="badge" intent={intent}>
 	<span
 		{...badge.root}
 		{...rest}

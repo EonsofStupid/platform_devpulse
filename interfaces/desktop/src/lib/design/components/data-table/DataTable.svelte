@@ -29,8 +29,7 @@ import { cn } from "$lib/design/utils/cn.js";
 import type { DataTableComponentProps } from "./types.js";
 let { size = "md", variant = "default", intent = "default", label, rowCount, colCount, children, class: className, ...rest }: DataTableComponentProps = $props();
 const dt = $derived(useDataTable({ label, rowCount, colCount }));
-const styleId = $derived(`data-table-${intent}`);
 </script>
-<StyleMacro kind="data-table" style={styleId}>
+<StyleMacro kind="data-table" intent={intent}>
 	<div {...dt.root} data-kind="data-table" data-slot="root" data-variant={variant} class={cn("w-full overflow-auto", className)} {...rest}>{@render children?.()}</div>
 </StyleMacro>

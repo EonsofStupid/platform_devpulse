@@ -35,11 +35,10 @@ let {
 }: LoadingOverlayComponentProps = $props();
 
 const overlay = $derived(useLoadingOverlay({ visible }));
-const styleId = $derived(`loading-overlay-${intent}`);
 </script>
 
 {#if visible}
-	<StyleMacro kind="loading-overlay" style={styleId}>
+	<StyleMacro kind="loading-overlay" intent={intent}>
 		<div
 			{...overlay.root}
 			data-kind="loading-overlay"

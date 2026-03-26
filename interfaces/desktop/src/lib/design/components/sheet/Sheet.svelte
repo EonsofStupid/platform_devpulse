@@ -65,7 +65,6 @@ const hook = useSheet({
 	get closeOnOutsideClick() { return closeOnOutsideClick; },
 });
 
-const styleId = $derived(`sheet-${intent}`);
 </script>
 
 {#if trigger}
@@ -80,7 +79,7 @@ const styleId = $derived(`sheet-${intent}`);
 {/if}
 
 {#if hook.open}
-	<StyleMacro kind="sheet" style={styleId}>
+	<StyleMacro kind="sheet" intent={intent}>
 		<div
 			{...hook.overlay}
 			use:hook.attachOverlay

@@ -48,10 +48,9 @@ let {
 }: TextareaProps = $props();
 
 const textarea = $derived(useTextarea({ disabled, readonly: readOnly, required, invalid }));
-const styleId = $derived(`textarea-${intent}`);
 </script>
 
-<StyleMacro kind="textarea" style={styleId}>
+<StyleMacro kind="textarea" intent={intent}>
 	<textarea
 		{...textarea.root}
 		{disabled}

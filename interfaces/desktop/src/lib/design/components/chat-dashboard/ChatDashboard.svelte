@@ -29,10 +29,9 @@ let {
 	...rest
 }: ChatDashboardProps = $props();
 
-const styleId = $derived(`chat-dashboard-${style ?? "default"}`);
 </script>
 
-<StyleMacro kind="chat-dashboard" style={styleId}>
+<StyleMacro kind="chat-dashboard" intent="default">
 	<div
 		role="log"
 		aria-live="polite"

@@ -64,10 +64,9 @@ const field = $derived(useTextField({
 	error: errorText,
 }));
 
-const styleId = $derived(`text-field-${intent}`);
 </script>
 
-<StyleMacro kind="text-field" style={styleId}>
+<StyleMacro kind="text-field" intent={intent}>
 	<div {...field.root} class={className}>
 		{#if labelText}
 			<label {...field.label} class="text-sm font-medium mb-1 block">
