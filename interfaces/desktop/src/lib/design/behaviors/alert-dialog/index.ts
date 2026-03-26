@@ -1,6 +1,9 @@
-export { default as AlertDialogPrimitive } from "./AlertDialog.svelte";
-export { alertDialogA11y } from "./alert-dialog.a11y.js";
-export { alertDialogAnatomy } from "./alert-dialog.anatomy.js";
-export type { AlertDialogPrimitiveProps } from "./alert-dialog.props.js";
-export type { UseAlertDialogProps, UseAlertDialogReturn } from "./alert-dialog.types.js";
+/**
+ * @file behaviors/alert-dialog/index.ts
+ * @package @devpulse/coldlight
+ * @layer behavior
+ */
+
 export { useAlertDialog } from "./use-alert-dialog.svelte.js";
+export type * from "./alert-dialog.types.js";
+export { alertDialogAnatomy } from "./alert-dialog.anatomy.js";

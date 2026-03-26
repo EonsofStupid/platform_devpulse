@@ -1,1 +1,7 @@
-export { useNotificationCenter, type UseNotificationCenterOptions } from "./use-notification-center.svelte.js";
+/**
+ * @file behaviors/notification-center/index.ts
+ * @package @devpulse/coldlight
+ * @layer behavior
+ */
+
+export { useNotificationCenter } from "./use-notification-center.svelte.js";

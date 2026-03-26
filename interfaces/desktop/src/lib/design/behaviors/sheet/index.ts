@@ -1,6 +1,9 @@
-export { default as SheetPrimitive } from "./Sheet.svelte";
-export { sheetA11y } from "./sheet.a11y.js";
-export { sheetAnatomy } from "./sheet.anatomy.js";
-export type { SheetPrimitiveProps } from "./sheet.props.js";
-export type { SheetSide, UseSheetProps, UseSheetReturn } from "./sheet.types.js";
+/**
+ * @file behaviors/sheet/index.ts
+ * @package @devpulse/coldlight
+ * @layer behavior
+ */
+
 export { useSheet } from "./use-sheet.svelte.js";
+export type * from "./sheet.types.js";
+export { sheetAnatomy } from "./sheet.anatomy.js";

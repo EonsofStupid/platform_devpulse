@@ -1,1 +1,7 @@
-export { useSkeleton, type UseSkeletonOptions } from "./use-skeleton.svelte.js";
+/**
+ * @file behaviors/skeleton/index.ts
+ * @package @devpulse/coldlight
+ * @layer behavior
+ */
+
+export { useSkeleton } from "./use-skeleton.svelte.js";

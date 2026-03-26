@@ -1,6 +1,9 @@
-export { default as LinkPrimitive } from "./Link.svelte";
-export { linkA11y } from "./link.a11y.js";
-export { linkAnatomy } from "./link.anatomy.js";
-export type { LinkPrimitiveProps } from "./link.props.js";
-export type { UseLinkProps, UseLinkReturn } from "./link.types.js";
+/**
+ * @file behaviors/link/index.ts
+ * @package @devpulse/coldlight
+ * @layer behavior
+ */
+
 export { useLink } from "./use-link.svelte.js";
+export type * from "./link.types.js";
+export { linkAnatomy } from "./link.anatomy.js";

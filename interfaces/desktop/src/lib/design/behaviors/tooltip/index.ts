@@ -1,6 +1,9 @@
-export { default as TooltipPrimitive } from "./Tooltip.svelte";
-export { tooltipA11y } from "./tooltip.a11y.js";
-export { tooltipAnatomy } from "./tooltip.anatomy.js";
-export type { TooltipPrimitiveProps } from "./tooltip.props.js";
-export type { UseTooltipProps, UseTooltipReturn } from "./tooltip.types.js";
+/**
+ * @file behaviors/tooltip/index.ts
+ * @package @devpulse/coldlight
+ * @layer behavior
+ */
+
 export { useTooltip } from "./use-tooltip.svelte.js";
+export type * from "./tooltip.types.js";
+export { tooltipAnatomy } from "./tooltip.anatomy.js";

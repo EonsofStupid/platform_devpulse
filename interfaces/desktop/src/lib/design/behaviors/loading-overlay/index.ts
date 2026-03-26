@@ -1,1 +1,7 @@
-export { useLoadingOverlay, type UseLoadingOverlayOptions } from "./use-loading-overlay.svelte.js";
+/**
+ * @file behaviors/loading-overlay/index.ts
+ * @package @devpulse/coldlight
+ * @layer behavior
+ */
+
+export { useLoadingOverlay } from "./use-loading-overlay.svelte.js";

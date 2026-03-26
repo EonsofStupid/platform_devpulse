@@ -1,6 +1,9 @@
-export { default as MeterPrimitive } from "./Meter.svelte";
-export { meterA11y } from "./meter.a11y.js";
-export { meterAnatomy } from "./meter.anatomy.js";
-export type { MeterPrimitiveProps } from "./meter.props.js";
-export type { MeterStatus, UseMeterProps, UseMeterReturn } from "./meter.types.js";
+/**
+ * @file behaviors/meter/index.ts
+ * @package @devpulse/coldlight
+ * @layer behavior
+ */
+
 export { useMeter } from "./use-meter.svelte.js";
+export type * from "./meter.types.js";
+export { meterAnatomy } from "./meter.anatomy.js";

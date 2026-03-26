@@ -33,18 +33,16 @@ const HIDDEN_STYLES: Partial<CSSStyleDeclaration> = {
  * @param node - The element to hide visually
  */
 export function visuallyHidden(node: HTMLElement): () => void {
-	const originalStyles: Partial<CSSStyleDeclaration> = {};
+	const saved: Record<string, string> = {};
 
-	// Save originals and apply hidden styles
-	Object.entries(HIDDEN_STYLES).forEach(([key, value]) => {
-		const k = key as keyof CSSStyleDeclaration;
-		originalStyles[k] = node.style[k] as string;
-		(node.style as Record<string, string>)[key] = value as string;
+	Object.entries(HIDDEN_STYLES).forEach(([prop, val]) => {
+		saved[prop] = node.style.getPropertyValue(prop);
+		node.style.setProperty(prop, val as string);
 	});
 
 	return () => {
-		Object.entries(originalStyles).forEach(([key, value]) => {
-			(node.style as Record<string, string>)[key] = (value as string) ?? "";
+		Object.entries(saved).forEach(([prop, val]) => {
+			node.style.setProperty(prop, val);
 		});
 	};
 }

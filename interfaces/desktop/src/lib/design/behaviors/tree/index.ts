@@ -1,6 +1,9 @@
-export { default as TreePrimitive } from "./Tree.svelte";
-export { treeA11y } from "./tree.a11y.js";
-export { treeAnatomy } from "./tree.anatomy.js";
-export type { TreePrimitiveProps } from "./tree.props.js";
-export type { UseTreeProps, UseTreeReturn } from "./tree.types.js";
+/**
+ * @file behaviors/tree/index.ts
+ * @package @devpulse/coldlight
+ * @layer behavior
+ */
+
 export { useTree } from "./use-tree.svelte.js";
+export type * from "./tree.types.js";
+export { treeAnatomy } from "./tree.anatomy.js";

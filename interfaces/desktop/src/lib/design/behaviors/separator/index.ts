@@ -1,6 +1,9 @@
-export { default as SeparatorPrimitive } from "./Separator.svelte";
-export { separatorA11y } from "./separator.a11y.js";
-export { separatorAnatomy } from "./separator.anatomy.js";
-export type { SeparatorPrimitiveProps } from "./separator.props.js";
-export type { UseSeparatorProps, UseSeparatorReturn } from "./separator.types.js";
+/**
+ * @file behaviors/separator/index.ts
+ * @package @devpulse/coldlight
+ * @layer behavior
+ */
+
 export { useSeparator } from "./use-separator.svelte.js";
+export type * from "./separator.types.js";
+export { separatorAnatomy } from "./separator.anatomy.js";

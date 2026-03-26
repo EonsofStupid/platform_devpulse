@@ -1,1 +1,7 @@
-export { useBanner, type UseBannerOptions } from "./use-banner.svelte.js";
+/**
+ * @file behaviors/banner/index.ts
+ * @package @devpulse/coldlight
+ * @layer behavior
+ */
+
+export { useBanner } from "./use-banner.svelte.js";

@@ -1,6 +1,9 @@
-export { default as ListboxPrimitive } from "./Listbox.svelte";
-export { listboxA11y } from "./listbox.a11y.js";
-export { listboxAnatomy } from "./listbox.anatomy.js";
-export type { ListboxPrimitiveProps } from "./listbox.props.js";
-export type { UseListBoxProps, UseListBoxReturn } from "./listbox.types.js";
+/**
+ * @file behaviors/listbox/index.ts
+ * @package @devpulse/coldlight
+ * @layer behavior
+ */
+
 export { useListBox } from "./use-listbox.svelte.js";
+export type * from "./listbox.types.js";
+export { listboxAnatomy } from "./listbox.anatomy.js";

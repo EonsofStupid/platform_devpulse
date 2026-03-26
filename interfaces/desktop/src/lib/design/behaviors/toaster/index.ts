@@ -1,1 +1,7 @@
-export { useToaster, type UseToasterOptions } from "./use-toaster.svelte.js";
+/**
+ * @file behaviors/toaster/index.ts
+ * @package @devpulse/coldlight
+ * @layer behavior
+ */
+
+export { useToaster } from "./use-toaster.svelte.js";

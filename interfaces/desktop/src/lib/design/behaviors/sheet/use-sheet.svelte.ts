@@ -8,9 +8,9 @@
  */
 
 import { tick } from "svelte";
-import { useDismissLayer } from "../a11y/dismiss-layer/index.js";
-import { usePresence } from "../a11y/presence/index.js";
-import { useScrollLock } from "../a11y/scroll-lock/index.js";
+import { useDismissLayer } from "../_shared/dismiss-layer/index.js";
+import { usePresence } from "../_shared/presence/index.js";
+import { useScrollLock } from "../_shared/scroll-lock/index.js";
 import { createIds } from "../../_internal/utils/uid.js";
 import { sheetAnatomy } from "./sheet.anatomy.js";
 import type { UseSheetProps, UseSheetReturn } from "./sheet.types.js";

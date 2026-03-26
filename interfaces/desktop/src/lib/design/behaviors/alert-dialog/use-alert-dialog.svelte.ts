@@ -9,8 +9,8 @@
  */
 
 import { tick } from "svelte";
-import { usePresence } from "../a11y/presence/index.js";
-import { useScrollLock } from "../a11y/scroll-lock/index.js";
+import { usePresence } from "../_shared/presence/index.js";
+import { useScrollLock } from "../_shared/scroll-lock/index.js";
 import { createIds } from "../../_internal/utils/uid.js";
 import { alertDialogAnatomy } from "./alert-dialog.anatomy.js";
 import type { UseAlertDialogProps, UseAlertDialogReturn } from "./alert-dialog.types.js";

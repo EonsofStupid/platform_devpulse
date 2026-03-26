@@ -1,1 +1,7 @@
-export { useTextarea, type UseTextareaOptions } from "./use-textarea.svelte.js";
+/**
+ * @file behaviors/textarea/index.ts
+ * @package @devpulse/coldlight
+ * @layer behavior
+ */
+
+export { useTextarea } from "./use-textarea.svelte.js";

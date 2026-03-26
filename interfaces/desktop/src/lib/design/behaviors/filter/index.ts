@@ -1,2 +1,7 @@
-export type { UseFilterProps, UseFilterReturn } from "./filter.types.js";
-export { useFilter } from "./use-filter.js";
+/**
+ * @file behaviors/filter/index.ts
+ * @package @devpulse/coldlight
+ * @layer behavior
+ */
+
+export type * from "./filter.types.js";

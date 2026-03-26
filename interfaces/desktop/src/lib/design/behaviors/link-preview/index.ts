@@ -1,1 +1,7 @@
-export { useLinkPreview, type UseLinkPreviewOptions } from "./use-link-preview.svelte.js";
+/**
+ * @file behaviors/link-preview/index.ts
+ * @package @devpulse/coldlight
+ * @layer behavior
+ */
+
+export { useLinkPreview } from "./use-link-preview.svelte.js";

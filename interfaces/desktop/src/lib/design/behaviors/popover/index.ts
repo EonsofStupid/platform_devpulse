@@ -1,6 +1,9 @@
-export { default as PopoverPrimitive } from "./Popover.svelte";
-export { popoverA11y } from "./popover.a11y.js";
-export { popoverAnatomy } from "./popover.anatomy.js";
-export type { PopoverPrimitiveProps } from "./popover.props.js";
-export type { UsePopoverProps, UsePopoverReturn } from "./popover.types.js";
+/**
+ * @file behaviors/popover/index.ts
+ * @package @devpulse/coldlight
+ * @layer behavior
+ */
+
 export { usePopover } from "./use-popover.svelte.js";
+export type * from "./popover.types.js";
+export { popoverAnatomy } from "./popover.anatomy.js";
