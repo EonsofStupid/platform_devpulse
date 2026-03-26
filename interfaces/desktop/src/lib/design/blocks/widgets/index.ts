@@ -5,9 +5,6 @@
  * @package @devpulse/coldlight
  */
 
-// SVG data-viz components — re-exported from central library for backward compat
-export { RadialGauge } from "$lib/design/components/radial-gauge/index.js";
-export { SparkLine } from "$lib/design/components/spark-line/index.js";
 export type {
 	WidgetContentProps,
 	WidgetFooterProps,

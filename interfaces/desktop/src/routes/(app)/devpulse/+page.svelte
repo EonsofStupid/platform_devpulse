@@ -9,7 +9,9 @@
 -->
 <script lang="ts">
 import { Activity, BarChart3, FolderGit2, Gauge, HeartPulse, TrendingUp } from "lucide-svelte";
-import { RadialGauge, SparkLine, Widget } from "$lib/design/blocks/widgets/index.js";
+import { RadialGauge } from "$lib/design/components/radial-gauge/index.js";
+import { SparkLine } from "$lib/design/components/spark-line/index.js";
+import { Widget } from "$lib/design/blocks/widgets/index.js";
 import { box } from "$lib/design/utils/box/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
@@ -68,6 +70,7 @@ $effect(() => {
 					label={devpulseState.data.system.maestroLoad.label}
 					unit="%"
 					accent="teal"
+					intent="glass"
 					size={200}
 				/>
 			</div>
@@ -87,6 +90,7 @@ $effect(() => {
 					label="Context"
 					unit="%"
 					accent="purple"
+					intent="glass"
 					size={130}
 					strokeWidth={6}
 				/>
@@ -96,6 +100,7 @@ $effect(() => {
 					label="Memory"
 					unit="GB"
 					accent="cyber"
+					intent="glass"
 					size={130}
 					strokeWidth={6}
 				/>
@@ -154,6 +159,7 @@ $effect(() => {
 				<SparkLine
 					data={[...devpulseState.data.system.activityTimeline.data]}
 					accent="teal"
+					intent="glass"
 					width={600}
 					height={100}
 					lineWidth={2}
@@ -164,6 +170,7 @@ $effect(() => {
 						<SparkLine
 							data={[...devpulseState.data.system.commitHistory.data]}
 							accent="purple"
+							intent="glass"
 							width={280}
 							height={50}
 							lineWidth={1.5}
@@ -174,6 +181,7 @@ $effect(() => {
 						<SparkLine
 							data={[...devpulseState.data.system.buildHealth.data]}
 							accent="cyber"
+							intent="glass"
 							width={280}
 							height={50}
 							lineWidth={1.5}
