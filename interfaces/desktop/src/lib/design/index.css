@@ -32,3 +32,9 @@
 
 /* 9. StyleMacro glue — maps --cl-* vars to CSS properties on [data-kind] */
 @import "./generated/macro-base.css";
+
+/* 10. SVG StyleMacro glue — maps --cl-svg-* vars to SVG elements on [data-svg-kind] */
+@import "./svg/svg-macro-base.css";
+
+/* 11. SVG preset tokens — SD5 generated from svg-presets.json */
+@import "./svg/presets/svg-presets.generated.css";

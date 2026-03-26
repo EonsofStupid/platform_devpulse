@@ -5,8 +5,9 @@
  * @package @devpulse/coldlight
  */
 
-export { default as RadialGauge } from "./RadialGauge.svelte";
-export { default as SparkLine } from "./SparkLine.svelte";
+// SVG data-viz components — re-exported from central library for backward compat
+export { RadialGauge } from "$lib/design/components/radial-gauge/index.js";
+export { SparkLine } from "$lib/design/components/spark-line/index.js";
 export type {
 	WidgetContentProps,
 	WidgetFooterProps,

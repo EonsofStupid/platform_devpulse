@@ -118,7 +118,8 @@ const pathFilter =
 
 const isPrimitive = pathFilter(...tiers.primitive);
 const isSemantic = pathFilter(...tiers.semantic);
-const isComponent = (token) => !isPrimitive(token) && !isSemantic(token);
+const isSvgPreset = pathFilter('svg-style');
+const isComponent = (token) => !isPrimitive(token) && !isSemantic(token) && !isSvgPreset(token);
 
 // ═══════════════════════════════════════════════════════════════
 // $EXTENSIONS HELPERS
@@ -562,6 +563,20 @@ const config = {
 					format: 'css/variables',
 					filter: isComponent,
 					options: { outputReferences: false },
+				},
+			],
+		},
+
+		// ── CSS: SVG Presets ──────────────────────────────────────
+		'css-svg-presets': {
+			transformGroup: 'css',
+			buildPath: `${paths.design}/svg/presets/`,
+			files: [
+				{
+					destination: 'svg-presets.generated.css',
+					format: 'css/variables',
+					filter: isSvgPreset,
+					options: { outputReferences: true },
 				},
 			],
 		},
