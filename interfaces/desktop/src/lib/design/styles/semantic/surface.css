@@ -11,5 +11,6 @@
   --surface-inset: var(--matte-dark); /** Inset well, input background */
   --surface-subtle: var(--matte-medium); /** Subtle raised area, sidebar */
   --surface-chrome: var(--matte-light); /** UI chrome, toolbar background */
+  --surface-primary: var(--glass-void); /** Generic primary surface — alias of base */
   }
 }

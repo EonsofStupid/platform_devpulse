@@ -19,10 +19,11 @@ A sprint is NOT "read the file and start coding." It's a pipeline:
 ```
 
 ### Phase 0: Preflight
-1. Load context from SurrealDB (if running)
-2. Read CLAUDE.md, MASTER-PLAN.md, active sprint doc
+1. Run `/preflight` — loads SurrealDB context via curl (health → dev_profile → rejections → learnings → patterns → memories → decisions)
+2. Read CLAUDE.md, ADR.md, active sprint doc
 3. Verify disk state matches expectations
 4. Report what you know and what you don't
+5. Check rejections — do NOT proceed if sprint contradicts a locked rejection
 
 ### Phase 1: Audit (before writing any code)
 1. Find and read the sprint file from `scripts/docs/sprints/`

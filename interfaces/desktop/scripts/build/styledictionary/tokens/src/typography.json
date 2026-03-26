@@ -6,6 +6,18 @@
 		"sans":    { "$value": ["Inter", "system-ui", "sans-serif"] },
 		"mono":    { "$value": ["JetBrains Mono", "Fira Code", "monospace"] }
 	},
+	"fontFeatureSettings": {
+		"$description": "OpenType font feature settings per stack — enables ligatures, tabular nums, etc.",
+		"sans":    { "$value": "\"cv01\" 1, \"cv02\" 1", "$type": "string" },
+		"display": { "$value": "\"tnum\" 1", "$type": "string" },
+		"mono":    { "$value": "\"liga\" 1, \"calt\" 1, \"zero\" 1", "$type": "string" }
+	},
+	"fontVariationSettings": {
+		"$description": "Variable font axis settings per stack — weight, width, optical size",
+		"sans":    { "$value": "normal", "$type": "string" },
+		"display": { "$value": "normal", "$type": "string" },
+		"mono":    { "$value": "normal", "$type": "string" }
+	},
 	"textSize": {
 		"$type": "dimension",
 		"$description": "Text size scale (px → rem via SD5 transform)",

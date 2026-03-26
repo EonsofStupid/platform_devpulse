@@ -49,14 +49,45 @@ Use AskUserQuestion with:
 - 2-4 concrete options
 - Include "Need more research" option if applicable
 
-### 3. Update Sprint Document
+### 3. Store Decision in SurrealDB
+
+After decision is made, persist it so future sessions see it:
+
+```bash
+# Store the decision
+curl -s -X POST http://127.0.0.1:8822/sql \
+  -H "Accept: application/json" -H "NS: system" -H "DB: engine" \
+  -H "Authorization: Basic $(echo -n 'devpulse_engine:dp_sys_2026!' | base64)" \
+  -d "CREATE nodes SET
+    kind = 'decision',
+    title = '{brief title}',
+    decision = '{what was decided}',
+    rationale = '{why}',
+    sprint = '{sprint name}',
+    created_at = time::now();"
+```
+
+If the decision reveals a rejection (owner said NO to something):
+```bash
+curl -s -X POST http://127.0.0.1:8822/sql \
+  -H "Accept: application/json" -H "NS: global" -H "DB: knowledge" \
+  -H "Authorization: Basic $(echo -n 'devpulse_engine:dp_sys_2026!' | base64)" \
+  -d "CREATE rejections SET
+    what = '{thing rejected}',
+    reason = '{why rejected}',
+    created_at = time::now();"
+```
+
+If SurrealDB is not running, skip — but note it in the parking lot doc.
+
+### 4. Update Sprint Document
 After decision is made:
 1. Read the sprint file
 2. Add a `## Decisions` section if not present
 3. Record: decision, rationale, timestamp
 4. Update any affected task descriptions
 
-### 4. Resume Implementation
+### 5. Resume Implementation
 - Mark parking lot item as RESOLVED
 - Continue from where you stopped
 - Re-read sprint file before continuing (MANDATORY)

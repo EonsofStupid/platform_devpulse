@@ -91,7 +91,37 @@ If new errors appear from your fix:
 - Fix the consumers too — do NOT revert your fix
 - This is the cascade. Embrace it. Fix forward.
 
-### 5. Gate Check
+### 5. Store Correction in SurrealDB
+
+After fixing, persist what was wrong and how it was fixed:
+
+```bash
+curl -s -X POST http://127.0.0.1:8822/sql \
+  -H "Accept: application/json" -H "NS: user" -H "DB: profile" \
+  -H "Authorization: Basic $(echo -n 'devpulse_engine:dp_sys_2026!' | base64)" \
+  -d "CREATE corrections SET
+    issue = '{what was wrong}',
+    root_cause = '{actual root cause}',
+    fix = '{what was changed}',
+    files = ['{file1}', '{file2}'],
+    created_at = time::now();"
+```
+
+If the correction reveals a pattern that should be avoided in future:
+```bash
+curl -s -X POST http://127.0.0.1:8822/sql \
+  -H "Accept: application/json" -H "NS: global" -H "DB: knowledge" \
+  -H "Authorization: Basic $(echo -n 'devpulse_engine:dp_sys_2026!' | base64)" \
+  -d "CREATE shared_learnings SET
+    content = '{what to avoid and why}',
+    severity = 'major',
+    category = 'correction',
+    created_at = time::now();"
+```
+
+If SurrealDB is not running, skip — but note the correction in the sprint doc.
+
+### 6. Gate Check
 
 After all corrections are complete, run `/gate` checks mentally:
 - Did I create any new duplicate definitions? → NO

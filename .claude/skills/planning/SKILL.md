@@ -20,7 +20,42 @@ Before implementation or when parking lot requires research:
 
 ## Protocol
 
-### 1. SSOT Mapping (NEW — do this FIRST)
+### 0. Load Context from SurrealDB (FIRST)
+
+Before researching, check what's already known:
+
+```bash
+# Check if app is running
+curl -s http://127.0.0.1:8822/health
+
+# Load existing decisions (don't relitigate)
+curl -s -X POST http://127.0.0.1:8822/sql \
+  -H "Accept: application/json" -H "NS: system" -H "DB: engine" \
+  -H "Authorization: Basic $(echo -n 'devpulse_engine:dp_sys_2026!' | base64)" \
+  -d "SELECT * FROM nodes WHERE kind = 'decision';"
+
+# Load rejections (don't suggest these)
+curl -s -X POST http://127.0.0.1:8822/sql \
+  -H "Accept: application/json" -H "NS: global" -H "DB: knowledge" \
+  -H "Authorization: Basic $(echo -n 'devpulse_engine:dp_sys_2026!' | base64)" \
+  -d "SELECT * FROM rejections;"
+
+# Load learnings (don't repeat mistakes)
+curl -s -X POST http://127.0.0.1:8822/sql \
+  -H "Accept: application/json" -H "NS: global" -H "DB: knowledge" \
+  -H "Authorization: Basic $(echo -n 'devpulse_engine:dp_sys_2026!' | base64)" \
+  -d "SELECT * FROM shared_learnings;"
+
+# Load patterns (follow established practices)
+curl -s -X POST http://127.0.0.1:8822/sql \
+  -H "Accept: application/json" -H "NS: global" -H "DB: knowledge" \
+  -H "Authorization: Basic $(echo -n 'devpulse_engine:dp_sys_2026!' | base64)" \
+  -d "SELECT * FROM patterns;"
+```
+
+If SurrealDB is down, proceed with file-based context. Note it.
+
+### 1. SSOT Mapping (do this FIRST)
 
 Before researching anything else, map what already exists:
 

@@ -112,6 +112,26 @@ GATE CHECK: {timestamp}
 RESULT: BLOCKED (2 failures) / CLEAR (0 failures)
 ```
 
+## Store Violations in SurrealDB
+
+When gate finds FAIL results, store them as learnings so future sessions see the pattern:
+
+```bash
+# Store a gate violation as a learning
+curl -s -X POST http://127.0.0.1:8822/sql \
+  -H "Accept: application/json" -H "NS: global" -H "DB: knowledge" \
+  -H "Authorization: Basic $(echo -n 'devpulse_engine:dp_sys_2026!' | base64)" \
+  -d "CREATE shared_learnings SET
+    content = '{description of the violation}',
+    severity = 'major',
+    category = 'gate-violation',
+    check = '{which check failed}',
+    file = '{file path}',
+    created_at = time::now();"
+```
+
+If SurrealDB is not running, skip — violations are still reported in gate output.
+
 ## Integration
 
 Run `/gate` before every commit. If BLOCKED:

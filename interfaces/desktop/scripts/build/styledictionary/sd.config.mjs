@@ -41,6 +41,7 @@ const clFormats = {
 /** Custom transform names */
 const clTransforms = {
 	gradientCssShorthand: 'coldlight/gradient-css-shorthand',
+	shadowCssShorthand: 'coldlight/shadow-css-shorthand',
 };
 
 /** Custom preprocessor names */
@@ -67,7 +68,8 @@ const tiers = {
 	primitive: [
 		'color', 'shadow', 'bevel', 'glow', 'glowSpread', 'blur',
 		'glass', 'matte', 'radius', 'space', 'padding', 'size', 'breakpoint',
-		'zIndex', 'font', 'textSize', 'leading', 'tracking',
+		'zIndex', 'font', 'fontFeatureSettings', 'fontVariationSettings',
+		'textSize', 'leading', 'tracking',
 		'motion', 'gradient',
 	],
 	semantic: [
@@ -123,6 +125,64 @@ const isComponent = (token) => !isPrimitive(token) && !isSemantic(token);
 // ═══════════════════════════════════════════════════════════════
 
 const isInsetShadow = (token) => token.$extensions?.[CL_EXT]?.inset === true;
+
+// ═══════════════════════════════════════════════════════════════
+// HELPER: px → rem conversion (matches SD5 sizePxToRem behavior)
+// ═══════════════════════════════════════════════════════════════
+
+const pxToRem = (val) => {
+	if (typeof val !== 'string') return String(val);
+	const match = val.match(/^(-?[\d.]+)px$/);
+	if (!match) return val;
+	const num = parseFloat(match[1]);
+	if (num === 0) return '0';
+	return `${num / 16}rem`;
+};
+
+// ═══════════════════════════════════════════════════════════════
+// CUSTOM TRANSFORM: shadow/css/shorthand
+//
+// DTCG shadow: single object or array of { color, offsetX, offsetY, blur, spread }.
+// SD5 has no built-in compositor — expand:true decomposes into useless sub-properties.
+// This transform composes the full CSS box-shadow shorthand:
+//   [inset] offsetX offsetY blur spread color
+// Multi-layer shadows are comma-joined.
+// Dimensional values are converted px → rem.
+// Inset is read from $extensions.com.coldlight.inset.
+// String-valued shadow tokens (already CSS shorthand) are skipped.
+// ═══════════════════════════════════════════════════════════════
+
+StyleDictionary.registerTransform({
+	name: clTransforms.shadowCssShorthand,
+	type: transformTypes.value,
+	transitive: true,
+	filter: (token) => {
+		const type = token.$type ?? token.type;
+		if (type !== 'shadow') return false;
+		const val = token.$value ?? token.value;
+		return val !== null && typeof val === 'object';
+	},
+	transform: (token) => {
+		const val = token.$value ?? token.value;
+		const inset = token.$extensions?.[CL_EXT]?.inset === true;
+		const layers = Array.isArray(val) ? val : [val];
+
+		return layers
+			.map((layer) => {
+				const parts = [];
+				if (inset) parts.push('inset');
+				parts.push(
+					pxToRem(layer.offsetX),
+					pxToRem(layer.offsetY),
+					pxToRem(layer.blur),
+					pxToRem(layer.spread),
+					layer.color,
+				);
+				return parts.join(' ');
+			})
+			.join(', ');
+	},
+});
 
 // ═══════════════════════════════════════════════════════════════
 // CUSTOM TRANSFORM: gradient/css/shorthand
@@ -202,10 +262,8 @@ const CSS_TRANSFORMS = [
 	transforms.colorOklch,
 	transforms.fontFamilyCss,
 	transforms.cubicBezierCss,
-	// NO shorthand transforms — ADR-001: ALL composites expand via expand:true
-	// SD5 expands shadow, border, transition, typography into named sub-properties
-	// StyleMacro assembles shorthand in $derived.by
-	clTransforms.gradientCssShorthand, // gradient has no built-in expand
+	clTransforms.shadowCssShorthand, // DTCG shadow objects → CSS shorthand (px→rem, inset, multi-layer)
+	clTransforms.gradientCssShorthand, // DTCG gradient → linear-gradient() CSS shorthand
 ];
 
 const TYPE_TRANSFORMS = [
@@ -238,7 +296,6 @@ function toTw4VarName(token) {
 // CUSTOM FORMAT: coldlight/css
 //
 // CSS custom properties wrapped in @layer tokens.{sublayer}.
-// Inset shadows get the `inset` keyword prepended.
 // ═══════════════════════════════════════════════════════════════
 
 StyleDictionary.registerFormat({
@@ -252,22 +309,9 @@ StyleDictionary.registerFormat({
 			usesDtcg: true,
 		});
 
-		const lines = dictionary.allTokens.map((token) => {
-			let line = formatter(token);
-
-			if (isInsetShadow(token)) {
-				line = line.replace(/:\s*(.+);/, (match, val) => {
-					if (val === '0' || val === 'none') return match;
-					const insetVal = val
-						.split(', ')
-						.map((s) => `inset ${s.trim()}`)
-						.join(', ');
-					return `: ${insetVal};`;
-				});
-			}
-
-			return line;
-		});
+		// Inset handling is done by coldlight/shadow-css-shorthand transform.
+		// No format-level shadow mutation needed.
+		const lines = dictionary.allTokens.map(formatter);
 
 		const layer = options.sublayer
 			? `@layer tokens.${options.sublayer}`
@@ -453,7 +497,13 @@ const typesFile = (dest, filter) => ({
 const config = {
 	source: [`${paths.source}/*.json`],
 	usesDtcg: true,
-	expand: true,
+	expand: (token) => {
+		// Shadow tokens are composed to CSS shorthand by coldlight/shadow-css-shorthand.
+		// All other composite types (border, transition, typography) still expand.
+		const type = token.$type ?? token.type;
+		if (type === 'shadow') return false;
+		return true;
+	},
 	preprocessors: [clPreprocessors.captureExtensions],
 	log: {
 		verbosity: logVerbosityLevels.verbose,
@@ -477,7 +527,7 @@ const config = {
 				cssFile('surface.css', pathFilter('glass', 'matte'), layers.primitives),
 				cssFile('radius.css', pathFilter('radius'), layers.primitives),
 				cssFile('spacing.css', pathFilter('space', 'padding', 'size', 'breakpoint', 'zIndex'), layers.primitives),
-				cssFile('typography.css', pathFilter('font', 'textSize', 'leading', 'tracking'), layers.primitives),
+				cssFile('typography.css', pathFilter('font', 'fontFeatureSettings', 'fontVariationSettings', 'textSize', 'leading', 'tracking'), layers.primitives),
 				cssFile('motion.css', pathFilter('motion'), layers.primitives),
 				cssFile('gradient.css', pathFilter('gradient'), layers.primitives),
 			],
@@ -526,7 +576,7 @@ const config = {
 		'theme-surface': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('surface.css', pathFilter('glass', 'matte', 'surface'))] },
 		'theme-radius': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('radius.css', pathFilter('radius'))] },
 		'theme-spacing': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('spacing.css', pathFilter('space', 'padding', 'size', 'breakpoint', 'zIndex'))] },
-		'theme-typography': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('typography.css', pathFilter('font', 'textSize'))] },
+		'theme-typography': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('typography.css', pathFilter('font', 'fontFeatureSettings', 'fontVariationSettings', 'textSize'))] },
 		'theme-text-style': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('text-style.css', pathFilter('textStyle'))] },
 		'theme-motion': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('motion.css', pathFilter('motion'))] },
 		'theme-transition': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('transition.css', pathFilter('transition'))] },

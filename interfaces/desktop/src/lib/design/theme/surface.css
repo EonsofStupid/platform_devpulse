@@ -19,4 +19,5 @@
   --surface-inset: oklch(0.14 0.0014 314.64);
   --surface-subtle: oklch(0.2216 0.0023 9.36);
   --surface-chrome: oklch(0.301 0.005 20.6);
+  --surface-primary: oklch(0.0612 0.0072 185.78 / 0.878);
 }

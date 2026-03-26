@@ -10,18 +10,31 @@ This is not optional. This is not a suggestion. Every AI agent (Claude, Cursor, 
 
 ### 0.1 Load Context from SurrealDB
 ```bash
-# Check if SurrealDB is running
-surreal sql --endpoint http://127.0.0.1:8822 --username root --password root --namespace global --database knowledge --hide-welcome --json <<< "SELECT count() FROM preferences GROUP ALL;"
+# Check if DevPulse app is running (embedded SurrealKV on :8822)
+curl -s http://127.0.0.1:8822/health
+# Expected: {"status":"healthy","engine":"surrealkv"}
 ```
-If running, query:
+
+**IMPORTANT:** Do NOT use `surreal sql` CLI — it requires `/rpc` which is not exposed.
+Use `curl` with Basic Auth. Credentials: `devpulse_engine:dp_sys_2026!`
+
+Query pattern:
+```bash
+curl -s -X POST http://127.0.0.1:8822/sql \
+  -H "Accept: application/json" -H "NS: {namespace}" -H "DB: {database}" \
+  -H "Authorization: Basic $(echo -n 'devpulse_engine:dp_sys_2026!' | base64)" \
+  -d "{SURREALQL}"
+```
+
+If healthy, query these (priority order):
 - `global/knowledge/dev_profile` — WHO is the developer, their style, preferences
 - `global/knowledge/rejections` — what they've REJECTED (do NOT suggest these)
-- `global/knowledge/preferences` — coding style, communication rules
-- `global/knowledge/learnings` — mistakes to NEVER repeat (severity=critical FIRST)
-- `projects/devpulse/context` — current state, active sprint, blockers
-- `projects/devpulse/tasks` — pending/in_progress work
-- `projects/devpulse/architecture` — rules you MUST follow
-- `projects/devpulse/decisions` — decisions already made (do NOT relitigate)
+- `global/knowledge/shared_learnings` — mistakes to NEVER repeat
+- `global/knowledge/patterns` — coding patterns
+- `user/profile/memories` — user long-term memory
+- `user/profile/corrections` — user corrections
+- `system/engine/rumination_state` — current reasoning state
+- `system/engine/nodes` — knowledge graph nodes
 
 ### 0.2 Read Source of Truth Documents
 In order:
@@ -40,11 +53,12 @@ Do NOT assume files exist. Check:
 
 ### 0.4 Check Running Services
 ```bash
-# SurrealDB
-surreal sql --endpoint http://127.0.0.1:8822 --username root --password root --hide-welcome <<< "INFO FOR ROOT;"
+# DevPulse app (embedded SurrealKV + all services)
+curl -s http://127.0.0.1:8822/health
+# Expected: {"status":"healthy","engine":"surrealkv"}
 
-# Dev server (if relevant)
-# Tauri (if relevant)
+# Dev server (if relevant — port 1420)
+# curl -s http://127.0.0.1:1420/ > /dev/null && echo "UP" || echo "DOWN"
 ```
 
 ---

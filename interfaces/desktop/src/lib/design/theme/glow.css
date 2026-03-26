@@ -3,43 +3,15 @@
  */
 
 @theme {
+  --drop-shadow-off: 0 0 0 0 oklch(0 0 0 / 0);
+  --drop-shadow-teal: 0 0 1.875rem 0.75rem oklch(0.586 0.0624 164.59 / 0.702);
+  --drop-shadow-purple: 0 0 1.875rem 0.75rem oklch(0.5517 0.1399 232.9 / 0.702);
+  --drop-shadow-magenta: 0 0 1.875rem 0.75rem oklch(0.5513 0.1128 329.06 / 0.702);
+  --drop-shadow-ember: 0 0 1.875rem 0.75rem oklch(0.5507 0.1776 16.41 / 0.702);
+  --drop-shadow-frost: 0 0 1.875rem 0.75rem oklch(0.5844 0.0833 202.74 / 0.6);
+  --drop-shadow-cyber: 0 0 1.875rem 0.75rem oklch(0.5725 0.0715 136.04 / 0.702);
   --glow-spread-sm: 0.75rem;
   --glow-spread-md: 1.25rem;
   --glow-spread-lg: 1.875rem;
   --glow-spread-xl: 2.5rem;
-  --drop-shadow-off-color: oklch(0 0 0 / 0);
-  --drop-shadow-off-offsetX: 0;
-  --drop-shadow-off-offsetY: 0;
-  --drop-shadow-off-blur: 0;
-  --drop-shadow-off-spread: 0;
-  --drop-shadow-teal-color: oklch(0.586 0.0624 164.59 / 0.702);
-  --drop-shadow-teal-offsetX: 0;
-  --drop-shadow-teal-offsetY: 0;
-  --drop-shadow-teal-blur: 1.875rem;
-  --drop-shadow-teal-spread: 0.75rem;
-  --drop-shadow-purple-color: oklch(0.5517 0.1399 232.9 / 0.702);
-  --drop-shadow-purple-offsetX: 0;
-  --drop-shadow-purple-offsetY: 0;
-  --drop-shadow-purple-blur: 1.875rem;
-  --drop-shadow-purple-spread: 0.75rem;
-  --drop-shadow-magenta-color: oklch(0.5513 0.1128 329.06 / 0.702);
-  --drop-shadow-magenta-offsetX: 0;
-  --drop-shadow-magenta-offsetY: 0;
-  --drop-shadow-magenta-blur: 1.875rem;
-  --drop-shadow-magenta-spread: 0.75rem;
-  --drop-shadow-ember-color: oklch(0.5507 0.1776 16.41 / 0.702);
-  --drop-shadow-ember-offsetX: 0;
-  --drop-shadow-ember-offsetY: 0;
-  --drop-shadow-ember-blur: 1.875rem;
-  --drop-shadow-ember-spread: 0.75rem;
-  --drop-shadow-frost-color: oklch(0.5844 0.0833 202.74 / 0.6);
-  --drop-shadow-frost-offsetX: 0;
-  --drop-shadow-frost-offsetY: 0;
-  --drop-shadow-frost-blur: 1.875rem;
-  --drop-shadow-frost-spread: 0.75rem;
-  --drop-shadow-cyber-color: oklch(0.5725 0.0715 136.04 / 0.702);
-  --drop-shadow-cyber-offsetX: 0;
-  --drop-shadow-cyber-offsetY: 0;
-  --drop-shadow-cyber-blur: 1.875rem;
-  --drop-shadow-cyber-spread: 0.75rem;
 }

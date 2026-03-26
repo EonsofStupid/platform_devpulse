@@ -7,6 +7,12 @@
   --font-display: Orbitron, system-ui, sans-serif;
   --font-sans: Inter, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-feature-settings-sans: "cv01" 1, "cv02" 1;
+  --font-feature-settings-display: "tnum" 1;
+  --font-feature-settings-mono: "liga" 1, "calt" 1, "zero" 1;
+  --font-variation-settings-sans: normal;
+  --font-variation-settings-display: normal;
+  --font-variation-settings-mono: normal;
   --text-size-3xs: 0.5rem; /** Encoding labels, micro metadata */
   --text-size-2xs: 0.625rem; /** Legend text, tiny labels */
   --text-size-xs: 0.75rem;

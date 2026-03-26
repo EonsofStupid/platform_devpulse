@@ -29,10 +29,10 @@ export type MatteRecord = {
 	light: string;
 };
 
-export const SurfaceTokens = ['base', 'raised', 'overlay', 'frosted', 'inset', 'subtle', 'chrome'] as const;
+export const SurfaceTokens = ['base', 'raised', 'overlay', 'frosted', 'inset', 'subtle', 'chrome', 'primary'] as const;
 export type SurfaceToken = (typeof SurfaceTokens)[number];
 
-export type SurfaceCSSVar = '--surface-base' | '--surface-raised' | '--surface-overlay' | '--surface-frosted' | '--surface-inset' | '--surface-subtle' | '--surface-chrome';
+export type SurfaceCSSVar = '--surface-base' | '--surface-raised' | '--surface-overlay' | '--surface-frosted' | '--surface-inset' | '--surface-subtle' | '--surface-chrome' | '--surface-primary';
 
 export type SurfaceRecord = {
 	base: string;
@@ -42,5 +42,6 @@ export type SurfaceRecord = {
 	inset: string;
 	subtle: string;
 	chrome: string;
+	primary: string;
 };
 

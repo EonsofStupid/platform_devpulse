@@ -64,6 +64,10 @@
 		"chrome": {
 			"$value": "{matte.light}",
 			"$description": "UI chrome, toolbar background"
+		},
+		"primary": {
+			"$value": "{glass.void}",
+			"$description": "Generic primary surface — alias of base"
 		}
 	}
 }

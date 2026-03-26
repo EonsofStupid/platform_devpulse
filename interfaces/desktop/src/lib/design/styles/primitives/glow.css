@@ -4,44 +4,16 @@
 
 @layer tokens.primitives {
   :root {
+  --glow-off: 0 0 0 0 oklch(0 0 0 / 0);
+  --glow-teal: 0 0 1.875rem 0.75rem oklch(0.586 0.0624 164.59 / 0.702);
+  --glow-purple: 0 0 1.875rem 0.75rem oklch(0.5517 0.1399 232.9 / 0.702);
+  --glow-magenta: 0 0 1.875rem 0.75rem oklch(0.5513 0.1128 329.06 / 0.702);
+  --glow-ember: 0 0 1.875rem 0.75rem oklch(0.5507 0.1776 16.41 / 0.702);
+  --glow-frost: 0 0 1.875rem 0.75rem oklch(0.5844 0.0833 202.74 / 0.6);
+  --glow-cyber: 0 0 1.875rem 0.75rem oklch(0.5725 0.0715 136.04 / 0.702);
   --glow-spread-sm: 0.75rem;
   --glow-spread-md: 1.25rem;
   --glow-spread-lg: 1.875rem;
   --glow-spread-xl: 2.5rem;
-  --glow-off-color: oklch(0 0 0 / 0);
-  --glow-off-offset-x: 0;
-  --glow-off-offset-y: 0;
-  --glow-off-blur: 0;
-  --glow-off-spread: 0;
-  --glow-teal-color: oklch(0.586 0.0624 164.59 / 0.702);
-  --glow-teal-offset-x: 0;
-  --glow-teal-offset-y: 0;
-  --glow-teal-blur: 1.875rem;
-  --glow-teal-spread: 0.75rem;
-  --glow-purple-color: oklch(0.5517 0.1399 232.9 / 0.702);
-  --glow-purple-offset-x: 0;
-  --glow-purple-offset-y: 0;
-  --glow-purple-blur: 1.875rem;
-  --glow-purple-spread: 0.75rem;
-  --glow-magenta-color: oklch(0.5513 0.1128 329.06 / 0.702);
-  --glow-magenta-offset-x: 0;
-  --glow-magenta-offset-y: 0;
-  --glow-magenta-blur: 1.875rem;
-  --glow-magenta-spread: 0.75rem;
-  --glow-ember-color: oklch(0.5507 0.1776 16.41 / 0.702);
-  --glow-ember-offset-x: 0;
-  --glow-ember-offset-y: 0;
-  --glow-ember-blur: 1.875rem;
-  --glow-ember-spread: 0.75rem;
-  --glow-frost-color: oklch(0.5844 0.0833 202.74 / 0.6);
-  --glow-frost-offset-x: 0;
-  --glow-frost-offset-y: 0;
-  --glow-frost-blur: 1.875rem;
-  --glow-frost-spread: 0.75rem;
-  --glow-cyber-color: oklch(0.5725 0.0715 136.04 / 0.702);
-  --glow-cyber-offset-x: 0;
-  --glow-cyber-offset-y: 0;
-  --glow-cyber-blur: 1.875rem;
-  --glow-cyber-spread: 0.75rem;
   }
 }
