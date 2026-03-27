@@ -18,8 +18,8 @@ export interface RadialGaugeProps {
 	unit?: string;
 	/** Accent hue — drives stroke, glow, text color */
 	accent?: SvgAccent;
-	/** Visual intent — resolved to preset (default, glass, stark, flat, matte) */
-	intent?: SvgIntent;
+	/** Visual preset — resolved to preset (default, glass, stark, flat, matte) */
+	preset?: SvgIntent;
 	/** Diameter in px (structural, not a visual axis) */
 	size?: number;
 	/** Ring stroke width in px (structural override) */

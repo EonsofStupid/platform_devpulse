@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useButton } from "$lib/design/behaviors/button/index.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ButtonProps, ButtonSize } from "./button.types.js";
 
@@ -34,7 +34,7 @@ const SIZE: Record<ButtonSize, string> = {
 };
 
 let {
-	intent = "primary",
+	preset = "primary",
 	size = "md",
 	disabled = false,
 	loading = false,
@@ -48,19 +48,21 @@ let {
 }: ButtonProps = $props();
 
 const button = $derived(useButton({ disabled, loading, pressed, onPressedChange, expanded, type }));
+
+const m = $derived(resolveMacro({ kind: "button", preset }));
 </script>
 
-<StyleMacro kind="button" {intent}>
-	<button
-		{...button.root}
-		{...rest}
-		class={cn(
-			"inline-flex items-center justify-center font-medium cursor-pointer select-none",
-			"focus-visible:outline-2 focus-visible:outline-offset-2",
-			"disabled:pointer-events-none disabled:opacity-50",
-			SIZE[size] ?? SIZE.md,
-			className)}
-	>
-		{@render children?.()}
-	</button>
-</StyleMacro>
+<button
+	{...button.root}
+	{...rest}
+	{...m.dataAttrs}
+	style={cssVarString(m.cssVars)}
+	class={cn(
+		"inline-flex items-center justify-center font-medium cursor-pointer select-none",
+		"focus-visible:outline-2 focus-visible:outline-offset-2",
+		"disabled:pointer-events-none disabled:opacity-50",
+		SIZE[size] ?? SIZE.md,
+		className)}
+>
+	{@render children?.()}
+</button>

@@ -13,7 +13,7 @@ export { default as SelectTrigger } from "./SelectTrigger.svelte";
 export type {
 	SelectContentProps,
 	SelectGroupProps,
-	SelectIntent,
+	SelectPreset,
 	SelectItemProps,
 	SelectLabelProps,
 	SelectProps,

@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { useInlineMessage } from "$lib/design/behaviors/inline-message/index.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { InlineMessageProps, InlineMessageTone } from "./types.js";
 
@@ -42,17 +42,17 @@ let {
 }: InlineMessageProps = $props();
 
 const msg = $derived(useInlineMessage({ tone }));
+const m = $derived(resolveMacro({ kind: "inline-message", preset: "default" }));
 </script>
 
-<StyleMacro kind="inline-message" intent="default">
-	<div
-		{...msg.root}
-		data-kind="inline-message"
-		data-slot="root"
-		data-tone={tone}
-		class={cn(className)}
-		{...rest}
-	>
-		{@render children?.()}
-	</div>
-</StyleMacro>
+<div
+	{...msg.root}
+	{...m.dataAttrs}
+	style={cssVarString(m.cssVars)}
+	data-slot="root"
+	data-tone={tone}
+	class={cn(className)}
+	{...rest}
+>
+	{@render children?.()}
+</div>

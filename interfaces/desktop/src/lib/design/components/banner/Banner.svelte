@@ -22,9 +22,10 @@
 }
 -->
 <script lang="ts">
+import { untrack } from "svelte";
 import { slide } from "svelte/transition";
 import { useBanner } from "$lib/design/behaviors/banner/index.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { BannerProps } from "./types.js";
 
@@ -43,7 +44,7 @@ let {
 	disabled = false,
 	dir = "ltr",
 	dismissible = true,
-	intent = "default",
+	preset = "default",
 	children,
 	dismiss,
 	class: className,
@@ -56,7 +57,7 @@ const banner = $derived(useBanner({ disabled }));
 // --- Visual ---
 
 // --- State ---
-let internalOpen = $state(defaultOpen ?? true);
+let internalOpen = $state(untrack(() => defaultOpen ?? true));
 const isOpen = $derived(controlledOpen !== undefined ? controlledOpen : internalOpen);
 
 function handleDismiss(e: MouseEvent) {
@@ -64,61 +65,62 @@ function handleDismiss(e: MouseEvent) {
 	internalOpen = false;
 	onOpenChange?.({ open: false });
 }
+
+const m = $derived(resolveMacro({ kind: "banner", preset }));
 </script>
 
 {#if isOpen}
-	<StyleMacro kind="banner" intent={intent}>
-		<div
-			id={ids?.root}
-			{...banner.root}
-			{dir}
-			data-kind="banner"
-			data-slot="root"
-			data-state={isOpen ? "open" : "closed"}
-			class={cn(
-				POSITION_CLASSES[position] ?? POSITION_CLASSES.top,
-				disabled ? "pointer-events-none opacity-60" : undefined,
-				className)}
-			transition:slide={{ duration: 200 }}
-			onoutroend={onExitComplete}
-			{...rest}
-		>
-			<div class="flex w-full items-center gap-12">
-				<div class="flex min-w-0 flex-1 items-center gap-12">
-					{@render children?.()}
-				</div>
-				{#if dismissible}
-					{#if dismiss}
-						{@render dismiss()}
-					{:else}
-						<button
-							id={ids?.dismiss}
-							type="button"
-							{...banner.dismiss}
-							data-kind="banner"
-							data-slot="dismiss"
-							class={cn("shrink-0 cursor-pointer")}
-							{disabled}
-							onclick={handleDismiss}
-						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="2"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								class="size-3xs"
-								aria-hidden="true"
-							>
-								<path d="M18 6 6 18" />
-								<path d="m6 6 12 12" />
-							</svg>
-						</button>
-					{/if}
-				{/if}
+	<div
+		id={ids?.root}
+		{...banner.root}
+		{dir}
+		{...m.dataAttrs}
+		data-slot="root"
+		data-state={isOpen ? "open" : "closed"}
+		style={cssVarString(m.cssVars)}
+		class={cn(
+			POSITION_CLASSES[position] ?? POSITION_CLASSES.top,
+			disabled ? "pointer-events-none opacity-60" : undefined,
+			className)}
+		transition:slide={{ duration: 200 }}
+		onoutroend={onExitComplete}
+		{...rest}
+	>
+		<div class="flex w-full items-center gap-12">
+			<div class="flex min-w-0 flex-1 items-center gap-12">
+				{@render children?.()}
 			</div>
+			{#if dismissible}
+				{#if dismiss}
+					{@render dismiss()}
+				{:else}
+					<button
+						id={ids?.dismiss}
+						type="button"
+						{...banner.dismiss}
+						data-kind="banner"
+						data-slot="dismiss"
+						class={cn("shrink-0 cursor-pointer")}
+						{disabled}
+						onclick={handleDismiss}
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							class="size-3xs"
+							aria-hidden="true"
+						>
+							<path d="M18 6 6 18" />
+							<path d="m6 6 12 12" />
+						</svg>
+					</button>
+				{/if}
+			{/if}
 		</div>
-	</StyleMacro>
+	</div>
 {/if}

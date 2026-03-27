@@ -14,7 +14,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type SidebarSize = "sm" | "md" | "lg";
 
-export type SidebarIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type SidebarPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 /** Sidebar component props — ARIA + composition + ColdLight 8-axis */
 export interface SidebarComponentProps
@@ -34,6 +34,6 @@ export interface SidebarComponentProps
 	onExpandedChange?: (expanded: boolean) => void;
 	/** Accessible label for the sidebar navigation. */
 	label?: string;
-	/** Style intent. Default: "default". */
-	intent?: SidebarIntent;
+	/** Style preset. Default: "default". */
+	preset?: SidebarPreset;
 }

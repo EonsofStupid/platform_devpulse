@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useSwitch } from "$lib/design/behaviors/switch/use-switch.svelte.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SwitchProps } from "./types.js";
 
@@ -41,7 +41,7 @@ let {
 	disabled = false,
 	onCheckedChange,
 	children,
-	intent = "default",
+	preset = "default",
 	class: className,
 	...rest
 }: SwitchProps = $props();
@@ -53,13 +53,14 @@ const sw = useSwitch({
 });
 
 const sizeClasses = $derived(SIZE[size as SwitchSize] ?? SIZE.md);
+const m = $derived(resolveMacro({ kind: "switch", preset }));
 </script>
 
-<StyleMacro kind="switch" intent={intent}>
-	<button
+<button
 		{...sw.root}
 		{...rest}
-		data-kind="switch"
+		{...m.dataAttrs}
+		style={cssVarString(m.cssVars)}
 		data-slot="root"
 		class={cn(
 			"relative inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent",
@@ -78,4 +79,3 @@ const sizeClasses = $derived(SIZE[size as SwitchSize] ?? SIZE.md);
 		></span>
 		{@render children?.()}
 	</button>
-</StyleMacro>

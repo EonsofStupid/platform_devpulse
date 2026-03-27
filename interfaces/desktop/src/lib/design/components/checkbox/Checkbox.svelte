@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useCheckbox } from "$lib/design/behaviors/checkbox/use-checkbox.svelte.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { CheckboxProps, CheckboxSize } from "./types.js";
 
@@ -34,7 +34,7 @@ const SIZE: Record<CheckboxSize, string> = {
 };
 
 let {
-	intent = "default",
+	preset = "default",
 	size = "md",
 	checked = false,
 	indeterminate = false,
@@ -52,23 +52,23 @@ const checkbox = useCheckbox({
 	onCheckedChange: (v) => onCheckedChange?.(v),
 });
 
+const m = $derived(resolveMacro({ kind: "checkbox", preset }));
 </script>
 
-<StyleMacro kind="checkbox" intent={intent}>
-	<button
-		{...checkbox.root}
-		{...rest}
-		data-kind="checkbox"
-		data-slot="root"
-		class={cn(
-			"inline-flex items-center justify-center rounded border cursor-pointer",
-			"focus-visible:outline-2 focus-visible:outline-offset-2",
-			"disabled:pointer-events-none disabled:opacity-50",
-			SIZE[size] ?? SIZE.md,
-			className)}
-	>
-		<span {...checkbox.indicator} data-kind="checkbox" data-slot="indicator">
-			{@render children?.()}
-		</span>
-	</button>
-</StyleMacro>
+<button
+	{...checkbox.root}
+	{...rest}
+	{...m.dataAttrs}
+	data-slot="root"
+	style={cssVarString(m.cssVars)}
+	class={cn(
+		"inline-flex items-center justify-center rounded border cursor-pointer",
+		"focus-visible:outline-2 focus-visible:outline-offset-2",
+		"disabled:pointer-events-none disabled:opacity-50",
+		SIZE[size] ?? SIZE.md,
+		className)}
+>
+	<span {...checkbox.indicator} data-kind="checkbox" data-slot="indicator">
+		{@render children?.()}
+	</span>
+</button>

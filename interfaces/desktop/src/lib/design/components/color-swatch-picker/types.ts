@@ -24,7 +24,7 @@ export interface ColorSwatchPickerIds {
 
 export type ColorSwatchPickerDensity = "compact" | "regular" | "spacious";
 
-export type ColorSwatchPickerIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type ColorSwatchPickerPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 export interface ColorSwatchPickerRootProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
@@ -42,8 +42,8 @@ export interface ColorSwatchPickerRootProps
 	rounding?: ColorSwatchRounding;
 	/** Gap density. Default: "regular". */
 	density?: ColorSwatchPickerDensity;
-	/** Style intent. Default: "default". */
-	intent?: ColorSwatchPickerIntent;
+	/** Style preset. Default: "default". */
+	preset?: ColorSwatchPickerPreset;
 	/** Whether the picker is disabled. */
 	isDisabled?: boolean;
 	/** Text/writing direction. */

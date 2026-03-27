@@ -8,6 +8,8 @@
   --border-strong: oklch(0.5133 0.0547 163.65 / 0.302); /** Emphasized container border */
   --border-focus: var(--color-teal-400); /** Focus ring color */
   --border-divider: oklch(1.0032 0.0305 28.88 / 0.059); /** Section separator */
+  --border-soft: oklch(0.5133 0.0547 163.65 / 0.30); /** Soft container border — alias for strong at same opacity */
+  --border-emphasis: var(--border-strong); /** Emphasized border — alias for strong */
   --border-preset-default-color: var(--border-subtle); /** Standard container border */
   --border-preset-default-width: 0.0625rem; /** Standard container border */
   --border-preset-default-style: solid; /** Standard container border */

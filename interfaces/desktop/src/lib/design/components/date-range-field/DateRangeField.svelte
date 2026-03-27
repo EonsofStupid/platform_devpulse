@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { type DateRangeFieldContext, setDateRangeFieldContext } from "./context.js";
 import type { DateRangeFieldProps, DateSegment } from "./types.js";
@@ -35,11 +35,12 @@ let {
 	disabled = false,
 	readonly: readonlyProp = false,
 	size = "md",
-	intent = "default",
+	preset = "default",
 	children,
 	class: className,
 	...rest
 }: DateRangeFieldProps = $props();
+const m = $derived(resolveMacro({ kind: "date-range-field", preset }));
 
 let focusedField = $state<"start" | "end">("start");
 let focusedIndex = $state(0);
@@ -225,15 +226,14 @@ setDateRangeFieldContext(ctx);
 const rootState = $derived(disabled ? "disabled" : readonlyProp ? "readonly" : undefined);
 </script>
 
-<StyleMacro kind="date-range-field" intent={intent}>
 	<div
 		role="group"
 		class={cn(className)}
-		data-kind="date-range-field"
+		{...m.dataAttrs}
+		style={cssVarString(m.cssVars)}
 		data-slot="root"
 		data-state={rootState}
 		{...rest}
 	>
 		{@render children?.()}
 	</div>
-</StyleMacro>

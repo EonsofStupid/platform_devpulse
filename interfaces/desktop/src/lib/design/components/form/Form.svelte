@@ -22,12 +22,12 @@
 -->
 <script lang="ts">
 import { useForm } from "$lib/design/behaviors/form/index.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { FormComponentProps } from "./types.js";
 
 let {
-	intent = "default",
+	preset = "default",
 	size = "md",
 	label,
 	disabled = false,
@@ -40,18 +40,18 @@ let {
 }: FormComponentProps = $props();
 
 const form = $derived(useForm({ label, disabled, pending }));
+const m = $derived(resolveMacro({ kind: "form", preset }));
 </script>
 
-<StyleMacro kind="form" intent={intent}>
-	<form
-		{...form.root}
-		data-kind="form"
-		data-slot="root"
-		class={cn("flex flex-col gap-6", className)}
-		onsubmit={(e) => { e.preventDefault(); onSubmit?.(e); }}
-		onreset={() => onReset?.()}
-		{...rest}
-	>
-		{@render children?.()}
-	</form>
-</StyleMacro>
+<form
+	{...form.root}
+	{...m.dataAttrs}
+	style={cssVarString(m.cssVars)}
+	data-slot="root"
+	class={cn("flex flex-col gap-6", className)}
+	onsubmit={(e) => { e.preventDefault(); onSubmit?.(e); }}
+	onreset={() => onReset?.()}
+	{...rest}
+>
+	{@render children?.()}
+</form>

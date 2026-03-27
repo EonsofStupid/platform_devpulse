@@ -23,14 +23,14 @@ let {
 	label = "",
 	unit = "%",
 	accent = "teal",
-	intent = "default",
+	preset = "default",
 	size = 180,
 	strokeWidth = 8,
 	class: className = "",
 }: RadialGaugeProps = $props();
 
 // SVG macro resolver — pure $derived, no wrapper component
-const svg = $derived(resolveSvgMacro({ kind: "radial-gauge", intent, accent }));
+const svg = $derived(resolveSvgMacro({ kind: "radial-gauge", intent: preset, accent }));
 
 // Geometry (structural — not visual axes)
 const cx = $derived(size / 2);

@@ -16,7 +16,7 @@ import type { ColorValue } from "$lib/design/components/color-area/types.js";
 export type ColorSwatchSize = "xs" | "sm" | "md" | "lg";
 export type ColorSwatchRounding = "default" | "none" | "full";
 
-export type ColorSwatchIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type ColorSwatchPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 export interface ColorSwatchProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir" | "role">,
@@ -31,8 +31,8 @@ export interface ColorSwatchProps
 	size?: ColorSwatchSize;
 	/** Corner rounding. Default: "default". */
 	rounding?: ColorSwatchRounding;
-	/** Style intent. Default: "default". */
-	intent?: ColorSwatchIntent;
+	/** Style preset. Default: "default". */
+	preset?: ColorSwatchPreset;
 	/** Text/writing direction. */
 	dir?: "ltr" | "rtl";
 	/** Optional children rendered inside the swatch. */

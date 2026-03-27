@@ -41,7 +41,7 @@ export interface CalendarIds {
 // INTENT
 // =============================================================================
 
-export type CalendarIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type CalendarPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 // =============================================================================
 // ROOT
@@ -51,8 +51,8 @@ export interface CalendarRootProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
 		ComponentProps {
 	ids?: Partial<CalendarIds>;
-	/** Style intent. Default: "default". */
-	intent?: CalendarIntent;
+	/** Style preset. Default: "default". */
+	preset?: CalendarPreset;
 	/** Controlled selected date. */
 	value?: Date | null;
 	/** Initial value when uncontrolled. */

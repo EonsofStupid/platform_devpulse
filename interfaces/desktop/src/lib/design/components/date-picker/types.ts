@@ -14,7 +14,7 @@ import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
 export type DatePickerSize = "sm" | "md" | "lg" | "xl";
 export type DatePickerGranularity = "day" | "month" | "year" | "hour" | "minute" | "second";
-export type DatePickerIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type DatePickerPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 export interface DatePickerValueChangeDetails {
 	value: Date | null;
@@ -38,8 +38,8 @@ export interface DatePickerRootProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
 		ComponentProps {
 	ids?: Partial<DatePickerIds>;
-	/** Style intent. Default: "default". */
-	intent?: DatePickerIntent;
+	/** Style preset. Default: "default". */
+	preset?: DatePickerPreset;
 	/** Controlled date value. */
 	value?: Date | null;
 	/** Initial value (uncontrolled). */

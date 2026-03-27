@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
 import { setDateFieldContext } from "./context.js";
@@ -48,11 +48,12 @@ let {
 	name,
 	form,
 	dir = "ltr",
-	intent = "default",
+	preset = "default",
 	children,
 	class: className,
 	...rest
 }: DateFieldRootProps = $props();
+const m = $derived(resolveMacro({ kind: "date-field", preset }));
 
 const autoIds = createIds("date-field", ["root", "label", "description", "errorMessage"] as const);
 const resolvedIds = $derived({
@@ -62,8 +63,8 @@ const resolvedIds = $derived({
 	errorMessage: userIds?.errorMessage ?? autoIds.errorMessage,
 });
 
-let internalValue = $state<Date | null>(defaultValue);
-$effect(() => { if (controlledValue !== undefined) internalValue = controlledValue; });
+let internalValue = $state<Date | null>(null);
+$effect(() => { if (controlledValue !== undefined) { internalValue = controlledValue; } else if (internalValue === null && defaultValue !== undefined) { internalValue = defaultValue; } });
 const currentValue = $derived(controlledValue !== undefined ? controlledValue : internalValue);
 
 const validationError = $derived(() => {
@@ -145,7 +146,6 @@ setDateFieldContext({
 
 </script>
 
-<StyleMacro kind="date-field" intent={intent}>
 <div
 	id={resolvedIds.root}
 	{dir}
@@ -153,16 +153,17 @@ setDateFieldContext({
 	aria-labelledby={label ? resolvedIds.label : undefined}
 	aria-describedby={description ? resolvedIds.description : undefined}
 	aria-disabled={isDisabled || undefined}
-	data-kind="date-field"
+	{...m.dataAttrs}
+	style={cssVarString(m.cssVars)}
 	data-slot="root"
 	data-state={isDisabled ? "disabled" : isReadOnly ? "readonly" : isInvalid ? "invalid" : undefined}
 	class={cn(className)}
 	{...rest}
 >
 	{#if label}
-		<label id={resolvedIds.label} class="text-sm font-medium" data-kind="date-field" data-slot="label">
+		<span id={resolvedIds.label} class="text-sm font-medium" data-kind="date-field" data-slot="label">
 			{label}{#if isRequired}<span aria-hidden="true" class="text-[var(--color-red-400)] ms-2">*</span>{/if}
-		</label>
+		</span>
 	{/if}
 
 	{@render children?.()}
@@ -181,4 +182,3 @@ setDateFieldContext({
 		<input type="hidden" {name} value={currentValue?.toISOString() ?? ""} {form} />
 	{/if}
 </div>
-</StyleMacro>

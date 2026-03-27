@@ -51,11 +51,11 @@ let {
 }: WidgetProps = $props();
 
 // Intent flows through to Card's StyleMacro
-const resolvedIntent = $derived((preset ?? intent ?? "default") as import("$lib/design/components/card/card.types.js").CardIntent);
+const resolvedIntent = $derived((preset ?? intent ?? "default") as import("$lib/design/components/card/card.types.js").CardPreset);
 </script>
 
 <Card
-	intent={resolvedIntent}
+	preset={resolvedIntent}
 	class={cn("flex flex-col", className)}
 	{...rest}
 >
@@ -63,7 +63,8 @@ const resolvedIntent = $derived((preset ?? intent ?? "default") as import("$lib/
 		<div class="flex items-center justify-between px-4 pt-3 pb-2" data-slot="header">
 			<div class="flex items-center gap-2">
 				{#if icon}
-					<svelte:component this={icon} size={16} class="text-[var(--cl-color,var(--color-teal-400))]" />
+					{@const Icon = icon}
+					<Icon size={16} class="text-[var(--cl-color,var(--color-teal-400))]" />
 				{/if}
 				{#if title}
 					<Heading level={3} size="sm" class="font-semibold">{title}</Heading>

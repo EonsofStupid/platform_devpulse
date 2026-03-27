@@ -5,4 +5,4 @@
  */
 
 export { default as ScrollArea } from "./ScrollArea.svelte";
-export type { ScrollAreaComponentProps, ScrollAreaIntent, ScrollAreaOrientation, ScrollAreaSize } from "./types.js";
+export type { ScrollAreaComponentProps, ScrollAreaPreset, ScrollAreaOrientation, ScrollAreaSize } from "./types.js";

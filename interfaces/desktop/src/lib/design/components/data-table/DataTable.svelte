@@ -24,12 +24,11 @@
 -->
 <script lang="ts">
 import { useDataTable } from "$lib/design/behaviors/data-table/index.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { DataTableComponentProps } from "./types.js";
-let { size = "md", variant = "default", intent = "default", label, rowCount, colCount, children, class: className, ...rest }: DataTableComponentProps = $props();
+let { size = "md", variant = "default", preset = "default", label, rowCount, colCount, children, class: className, ...rest }: DataTableComponentProps = $props();
 const dt = $derived(useDataTable({ label, rowCount, colCount }));
+const m = $derived(resolveMacro({ kind: "data-table", preset }));
 </script>
-<StyleMacro kind="data-table" intent={intent}>
-	<div {...dt.root} data-kind="data-table" data-slot="root" data-variant={variant} class={cn("w-full overflow-auto", className)} {...rest}>{@render children?.()}</div>
-</StyleMacro>
+<div {...dt.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" data-variant={variant} class={cn("w-full overflow-auto", className)} {...rest}>{@render children?.()}</div>

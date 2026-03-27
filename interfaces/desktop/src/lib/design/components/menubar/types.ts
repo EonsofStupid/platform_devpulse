@@ -19,7 +19,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 // =============================================================================
 
 export type MenubarSize = "sm" | "md" | "lg";
-export type MenubarIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type MenubarPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 // =============================================================================
 // ROOT PROPS
@@ -30,8 +30,8 @@ export interface MenubarProps
 		BaseProps,
 		ComponentProps {
 	children?: Snippet;
-	/** Style intent preset */
-	intent?: MenubarIntent;
+	/** Style preset preset */
+	preset?: MenubarPreset;
 }
 
 // =============================================================================

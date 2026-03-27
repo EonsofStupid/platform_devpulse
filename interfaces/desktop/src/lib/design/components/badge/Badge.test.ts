@@ -6,7 +6,7 @@
  *
  * Badge component browser tests.
  * Tests ARIA application, structural attributes, and prop forwarding.
- * Visual/composition tests (intent, size) belong in ui/badge/ tests.
+ * Visual/composition tests (preset, size) belong in ui/badge/ tests.
  *
  * Runner: Vitest browser mode (Chromium via Playwright)
  * Setup:  vitest-browser-svelte

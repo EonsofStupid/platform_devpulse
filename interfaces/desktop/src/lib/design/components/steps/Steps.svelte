@@ -23,12 +23,11 @@
 -->
 <script lang="ts">
 import { useSteps } from "$lib/design/behaviors/steps/index.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { StepsComponentProps } from "./types.js";
-let { size = "md", orientation = "horizontal", activeStep = 0, onActiveStepChange, label, linear = true, disabled = false, intent = "default", children, class: className, ...rest }: StepsComponentProps = $props();
+let { size = "md", orientation = "horizontal", activeStep = 0, onActiveStepChange, label, linear = true, disabled = false, preset = "default", children, class: className, ...rest }: StepsComponentProps = $props();
 const steps = $derived(useSteps({ label, activeStep, disabled }));
+const m = $derived(resolveMacro({ kind: "steps", preset }));
 </script>
-<StyleMacro kind="steps" intent={intent}>
-	<div {...steps.root} data-kind="steps" data-slot="root" data-orientation={orientation} data-active-step={activeStep} class={cn("flex", orientation === "horizontal" ? "flex-row items-center" : "flex-col", className)} {...rest}>{@render children?.()}</div>
-</StyleMacro>
+<div {...steps.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" data-orientation={orientation} data-active-step={activeStep} class={cn("flex", orientation === "horizontal" ? "flex-row items-center" : "flex-col", className)} {...rest}>{@render children?.()}</div>

@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
 import { setColorSwatchPickerContext } from "./context.js";
@@ -39,19 +39,21 @@ let {
 	isDisabled = false,
 	dir = "ltr",
 	children,
-	intent = "default",
+	preset = "default",
 	class: className,
 	...rest
 }: ColorSwatchPickerRootProps = $props();
 
 const autoIds = createIds("color-swatch-picker", ["root"] as const);
-const rootId = userIds?.root ?? autoIds.root;
+const rootId = $derived(userIds?.root ?? autoIds.root);
 
-let internalValue = $state(defaultValue);
+let internalValue = $state<string | undefined>(undefined);
 
 $effect(() => {
 	if (controlledValue !== undefined) {
 		internalValue = controlledValue;
+	} else if (internalValue === undefined && defaultValue !== undefined) {
+		internalValue = defaultValue;
 	}
 });
 
@@ -82,21 +84,22 @@ setColorSwatchPickerContext({
 	select,
 	isSelected,
 });
+
+const m = $derived(resolveMacro({ kind: "color-swatch-picker", preset }));
 </script>
 
-<StyleMacro kind="color-swatch-picker" intent={intent}>
-	<div
-		id={rootId}
-		{dir}
-		role="listbox"
-		aria-label="Color swatches"
-		aria-disabled={isDisabled || undefined}
-		data-kind="color-swatch-picker"
-		data-slot="root"
-		data-density={density}
-		class={cn("flex flex-wrap", DENSITY_GAP[density] ?? DENSITY_GAP.regular, className)}
-		{...rest}
-	>
-		{@render children?.()}
-	</div>
-</StyleMacro>
+<div
+	id={rootId}
+	{dir}
+	role="listbox"
+	aria-label="Color swatches"
+	aria-disabled={isDisabled || undefined}
+	{...m.dataAttrs}
+	data-slot="root"
+	data-density={density}
+	style={cssVarString(m.cssVars)}
+	class={cn("flex flex-wrap", DENSITY_GAP[density] ?? DENSITY_GAP.regular, className)}
+	{...rest}
+>
+	{@render children?.()}
+</div>

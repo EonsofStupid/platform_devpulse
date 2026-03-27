@@ -11,7 +11,7 @@ import type { Snippet } from "svelte";
 import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
-export type TabsIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type TabsPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 /** Tabs root props — creates adapter and provides context */
 export interface TabsProps
@@ -27,8 +27,8 @@ export interface TabsProps
 	activateOnFocus?: boolean;
 	/** Loop keyboard navigation (default: true) */
 	loop?: boolean;
-	/** Style intent. Default: "default". */
-	intent?: TabsIntent;
+	/** Style preset. Default: "default". */
+	preset?: TabsPreset;
 	/** Content */
 	children?: Snippet;
 }

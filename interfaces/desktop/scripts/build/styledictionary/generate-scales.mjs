@@ -117,61 +117,102 @@ function round(n) {
 	return Math.round(n * 10000) / 10000;
 }
 
+// ─── Fluid Clamp ────────────────────────────────────────────────────
+
+/** Fluid clamp: linear interpolation between two viewport-size pairs */
+function computeFluid(minPx, maxPx, minVP = 320, maxVP = 1440, base = 16) {
+	const slope = (maxPx - minPx) / (maxVP - minVP);
+	const intercept = minPx - slope * minVP;
+	const slopeVw = round(slope * 100);
+	const interceptRem = round(intercept / base);
+	const minRem = round(minPx / base);
+	const maxRem = round(maxPx / base);
+	const sign = interceptRem >= 0 ? ' + ' : ' - ';
+	const absIntercept = round(Math.abs(interceptRem));
+	return `clamp(${minRem}rem, ${slopeVw}vw${sign}${absIntercept}rem, ${maxRem}rem)`;
+}
+
+/** Fluid dimension token — threshold gate: sub-2px delta → static */
+function fluidDim(minPx, maxPx, threshold = 2) {
+	if (Math.abs(maxPx - minPx) < threshold) {
+		return { $value: `${round(minPx / 16)}rem`, $type: 'dimension' };
+	}
+	return { $value: computeFluid(minPx, maxPx), $type: 'dimension' };
+}
+
 // ─── Scale Definitions (formulas) ───────────────────────────────────
 
 const SCALES = {
-	// Space scale: matches --space-* in spacing.css
+	// Space scale: fluid clamp — threshold gate collapses sub-2px deltas to static
 	space: (() => {
-		const entries = {
-			'0': '0', '1': '0.0625rem', '2': '0.125rem', '3': '0.1875rem',
-			'4': '0.25rem', '5': '0.3125rem', '6': '0.375rem', '7': '0.4375rem',
-			'8': '0.5rem', '9': '0.5625rem', '10': '0.625rem', '11': '0.6875rem',
-			'12': '0.75rem', '14': '0.875rem', '16': '1rem', '18': '1.125rem',
-			'20': '1.25rem', '24': '1.5rem', '28': '1.75rem', '32': '2rem',
-			'36': '2.25rem', '40': '2.5rem', '44': '2.75rem', '48': '3rem',
-			'56': '3.5rem', '64': '4rem', '72': '4.5rem', '80': '5rem',
-			'96': '6rem', '112': '7rem', '128': '8rem',
+		return {
+			'0':   { $value: '0', $type: 'dimension' },
+			'1':   fluidDim(1, 1),
+			'2':   fluidDim(2, 2),
+			'3':   fluidDim(3, 3),
+			'4':   fluidDim(4, 5),
+			'5':   fluidDim(5, 6),
+			'6':   fluidDim(6, 7),
+			'7':   fluidDim(7, 8),
+			'8':   fluidDim(8, 10),
+			'9':   fluidDim(9, 11),
+			'10':  fluidDim(10, 12),
+			'11':  fluidDim(11, 13),
+			'12':  fluidDim(12, 14),
+			'14':  fluidDim(14, 16),
+			'16':  fluidDim(16, 20),
+			'18':  fluidDim(18, 22),
+			'20':  fluidDim(20, 26),
+			'24':  fluidDim(24, 32),
+			'28':  fluidDim(28, 36),
+			'32':  fluidDim(32, 44),
+			'36':  fluidDim(36, 48),
+			'40':  fluidDim(40, 56),
+			'44':  fluidDim(44, 60),
+			'48':  fluidDim(48, 64),
+			'56':  fluidDim(56, 76),
+			'64':  fluidDim(64, 88),
+			'72':  fluidDim(72, 100),
+			'80':  fluidDim(80, 112),
+			'96':  fluidDim(96, 124),
+			'112': fluidDim(112, 144),
+			'128': fluidDim(128, 164),
 		};
-		const result = {};
-		for (const [name, val] of Object.entries(entries)) {
-			result[name] = { $value: val, $type: 'dimension' };
-		}
-		return result;
 	})(),
 
-	// Padding composites: matches --padding-* in spacing.css
+	// Padding: fluid clamp
 	padding: (() => {
-		const entries = {
-			'xs-y': '0.25rem', 'xs-x': '0.5rem',
-			'sm-y': '0.375rem', 'sm-x': '0.75rem',
-			'md-y': '0.5rem', 'md-x': '1rem',
-			'lg-y': '0.75rem', 'lg-x': '1.5rem',
-			'xl-y': '1rem', 'xl-x': '2rem',
-			'2xl-y': '1.5rem', '2xl-x': '3rem',
+		return {
+			'xs-y': fluidDim(4, 5),    'xs-x': fluidDim(8, 10),
+			'sm-y': fluidDim(6, 8),    'sm-x': fluidDim(12, 16),
+			'md-y': fluidDim(8, 12),   'md-x': fluidDim(16, 22),
+			'lg-y': fluidDim(12, 16),  'lg-x': fluidDim(24, 32),
+			'xl-y': fluidDim(16, 22),  'xl-x': fluidDim(32, 44),
+			'2xl-y': fluidDim(24, 32), '2xl-x': fluidDim(48, 64),
 		};
-		const result = {};
-		for (const [name, val] of Object.entries(entries)) {
-			result[name] = { $value: val, $type: 'dimension' };
-		}
-		return result;
 	})(),
 
-	// Size scale: matches --size-* in spacing.css
+	// Size scale: fluid clamp — component/container sizes
 	size: (() => {
-		const entries = {
-			'3xs': '1rem', '2xs': '1.25rem', 'xs': '1.5rem',
-			'sm': '2rem', 'md': '2.5rem', 'lg': '3rem',
-			'xl': '3.5rem', '2xl': '4rem', '3xl': '5rem',
-			'4xl': '6rem', '5xl': '8rem',
-			'container-xs': '20rem', 'container-sm': '40rem',
-			'container-md': '48rem', 'container-lg': '64rem',
-			'container-xl': '80rem', 'container-2xl': '96rem',
+		return {
+			'3xs':  fluidDim(16, 18),
+			'2xs':  fluidDim(20, 24),
+			'xs':   fluidDim(24, 28),
+			'sm':   fluidDim(32, 38),
+			'md':   fluidDim(40, 48),
+			'lg':   fluidDim(48, 58),
+			'xl':   fluidDim(56, 68),
+			'2xl':  fluidDim(64, 80),
+			'3xl':  fluidDim(80, 100),
+			'4xl':  fluidDim(96, 120),
+			'5xl':  fluidDim(128, 160),
+			'container-xs':  fluidDim(320, 320),   // static — min container
+			'container-sm':  fluidDim(640, 640),   // static
+			'container-md':  fluidDim(768, 768),   // static
+			'container-lg':  fluidDim(1024, 1024), // static
+			'container-xl':  fluidDim(1280, 1280), // static
+			'container-2xl': fluidDim(1536, 1536), // static
 		};
-		const result = {};
-		for (const [name, val] of Object.entries(entries)) {
-			result[name] = { $value: val, $type: 'dimension' };
-		}
-		return result;
 	})(),
 
 	// Breakpoints: matches --breakpoint-* in spacing.css
@@ -201,39 +242,39 @@ const SCALES = {
 		return result;
 	})(),
 
-	// Typography: modular scale, major third (1.25)
-	fontSize: (() => {
-		const base = 1;
-		const ratio = 1.25;
-		const names = ['xs', 'sm', 'base', 'lg', 'xl', '2xl', '3xl', '4xl', '5xl'];
-		const steps = [-2, -1, 0, 1, 2, 3, 4, 5, 6];
+	// Typography: fluid compounding scale (minor third at mobile → perfect fourth at desktop)
+	// Key is "textSize" to match SD5 pathFilter — SD5 remaps to --text-size-* in CSS
+	textSize: (() => {
+		const baseMin = 16;
+		const baseMax = 18;
+		const ratioMin = 1.2;
+		const ratioMax = 1.333;
+		const names = ['3xs', '2xs', 'xs', 'sm', 'base', 'lg', 'xl', '2xl', '3xl', '4xl', '5xl'];
+		const steps = [-4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6];
 		const result = {};
 		for (let i = 0; i < names.length; i++) {
-			result[names[i]] = {
-				$value: `${round(base * Math.pow(ratio, steps[i]))}rem`,
-				$type: 'dimension',
-			};
+			let minPx = baseMin * Math.pow(ratioMin, steps[i]);
+			let maxPx = baseMax * Math.pow(ratioMax, steps[i]);
+			// Fix inversion at negative steps where steeper desktop ratio
+			// makes small sizes smaller than mobile small sizes
+			if (minPx > maxPx) [minPx, maxPx] = [maxPx, minPx];
+			result[names[i]] = fluidDim(minPx, maxPx);
 		}
 		return result;
 	})(),
 
-	// Border radius: geometric
+	// Border radius: fluid (gentle scaling)
 	radius: (() => {
-		const entries = {
-			none: '0',
-			xs: '0.125rem',
-			sm: '0.25rem',
-			md: '0.5rem',
-			lg: '0.75rem',
-			xl: '1rem',
-			'2xl': '1.5rem',
-			full: '9999px',
+		return {
+			none: { $value: '0', $type: 'dimension' },
+			xs:   fluidDim(2, 2),
+			sm:   fluidDim(4, 5),
+			md:   fluidDim(8, 10),
+			lg:   fluidDim(12, 14),
+			xl:   fluidDim(16, 20),
+			'2xl': fluidDim(24, 28),
+			full: { $value: '9999px', $type: 'dimension' },
 		};
-		const result = {};
-		for (const [name, val] of Object.entries(entries)) {
-			result[name] = { $value: val, $type: 'dimension' };
-		}
-		return result;
 	})(),
 
 	// Blur: geometric

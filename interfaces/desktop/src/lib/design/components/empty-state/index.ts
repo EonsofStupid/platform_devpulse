@@ -1,2 +1,2 @@
 export { default as EmptyState } from "./EmptyState.svelte";
-export type { EmptyStateIntent, EmptyStateProps, EmptyStateSize } from "./types.js";
+export type { EmptyStatePreset, EmptyStateProps, EmptyStateSize } from "./types.js";

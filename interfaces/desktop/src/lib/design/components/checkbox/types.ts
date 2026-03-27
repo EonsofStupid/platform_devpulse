@@ -9,7 +9,7 @@ import type { HTMLButtonAttributes } from "svelte/elements";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
-export type CheckboxIntent = "default";
+export type CheckboxPreset = "default";
 export type CheckboxSize = "sm" | "md" | "lg";
 
 export interface CheckboxProps
@@ -21,6 +21,6 @@ export interface CheckboxProps
 	checked?: boolean;
 	indeterminate?: boolean;
 	onCheckedChange?: (checked: boolean) => void;
-	intent?: CheckboxIntent;
+	preset?: CheckboxPreset;
 	size?: CheckboxSize;
 }

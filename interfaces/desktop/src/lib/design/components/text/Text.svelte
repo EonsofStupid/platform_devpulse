@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TextProps, TextSize, TextWeight } from "./text.types.js";
 
@@ -44,7 +44,7 @@ const WEIGHT: Record<TextWeight, string> = {
 };
 
 let {
-	intent = "default",
+	preset = "default",
 	as = "span",
 	size = "base",
 	weight = "normal",
@@ -54,22 +54,21 @@ let {
 }: TextProps = $props();
 
 const classes = $derived(cn(SIZE[size] ?? SIZE.base, WEIGHT[weight] ?? WEIGHT.normal, className));
+const m = $derived(resolveMacro({ kind: "text", preset }));
 </script>
 
-<StyleMacro kind="text" intent={intent}>
-	{#if as === "p"}
-		<p data-kind="text" data-slot="root" {...rest} class={classes}>{@render children?.()}</p>
+{#if as === "p"}
+		<p {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" {...rest} class={classes}>{@render children?.()}</p>
 	{:else if as === "label"}
-		<label data-kind="text" data-slot="root" {...rest} class={classes}>{@render children?.()}</label>
+		<label {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" {...rest} class={classes}>{@render children?.()}</label>
 	{:else if as === "em"}
-		<em data-kind="text" data-slot="root" {...rest} class={classes}>{@render children?.()}</em>
+		<em {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" {...rest} class={classes}>{@render children?.()}</em>
 	{:else if as === "strong"}
-		<strong data-kind="text" data-slot="root" {...rest} class={classes}>{@render children?.()}</strong>
+		<strong {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" {...rest} class={classes}>{@render children?.()}</strong>
 	{:else if as === "small"}
-		<small data-kind="text" data-slot="root" {...rest} class={classes}>{@render children?.()}</small>
+		<small {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" {...rest} class={classes}>{@render children?.()}</small>
 	{:else if as === "div"}
-		<div data-kind="text" data-slot="root" {...rest} class={classes}>{@render children?.()}</div>
+		<div {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" {...rest} class={classes}>{@render children?.()}</div>
 	{:else}
-		<span data-kind="text" data-slot="root" {...rest} class={classes}>{@render children?.()}</span>
+		<span {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" {...rest} class={classes}>{@render children?.()}</span>
 	{/if}
-</StyleMacro>

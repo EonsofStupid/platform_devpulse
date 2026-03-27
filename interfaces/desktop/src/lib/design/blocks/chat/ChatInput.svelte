@@ -58,7 +58,7 @@ function handleKeydown(e: KeyboardEvent): void {
 		class="flex-1"
 	/>
 	<Button
-		intent="primary"
+		preset="primary"
 		size="sm"
 		{disabled}
 		onclick={handleSend}
@@ -68,7 +68,7 @@ function handleKeydown(e: KeyboardEvent): void {
 	</Button>
 	{#if onVoice}
 		<Button
-			intent={voiceActive ? "danger" : "ghost"}
+			preset={voiceActive ? "danger" : "ghost"}
 			size="sm"
 			onclick={onVoice}
 			aria-label={voiceActive ? "Stop voice" : "Start voice"}

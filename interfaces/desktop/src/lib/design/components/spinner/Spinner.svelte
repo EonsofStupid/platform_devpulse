@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { useSpinner } from "$lib/design/behaviors/spinner/index.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SpinnerProps, SpinnerSize } from "./types.js";
 
@@ -35,19 +35,20 @@ const SIZE: Record<SpinnerSize, string> = {
 let {
 	active = true,
 	size = "md",
-	intent = "default",
+	preset = "default",
 	class: className,
 	...rest
 }: SpinnerProps = $props();
 
 const spinner = $derived(useSpinner({ active }));
+const m = $derived(resolveMacro({ kind: "spinner", preset }));
 </script>
 
 {#if active}
-	<StyleMacro kind="spinner" intent={intent}>
 		<div
 			{...spinner.root}
-			data-kind="spinner"
+			{...m.dataAttrs}
+			style={cssVarString(m.cssVars)}
 			data-slot="root"
 			data-state={active ? "active" : "idle"}
 			class={cn("inline-flex items-center justify-center animate-spin", SIZE[size] ?? SIZE.md, className)}
@@ -65,5 +66,4 @@ const spinner = $derived(useSpinner({ active }));
 				<path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round" />
 			</svg>
 		</div>
-	</StyleMacro>
 {/if}

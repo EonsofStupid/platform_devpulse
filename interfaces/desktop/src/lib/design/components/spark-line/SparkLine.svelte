@@ -20,7 +20,7 @@ import type { SparkLineProps } from "./spark-line.types.js";
 let {
 	data = [],
 	accent = "teal",
-	intent = "default",
+	preset = "default",
 	width = 200,
 	height = 60,
 	area = true,
@@ -30,7 +30,7 @@ let {
 }: SparkLineProps = $props();
 
 // SVG macro resolver — pure $derived
-const svg = $derived(resolveSvgMacro({ kind: "spark-line", intent, accent }));
+const svg = $derived(resolveSvgMacro({ kind: "spark-line", intent: preset, accent }));
 
 const padding = 4;
 

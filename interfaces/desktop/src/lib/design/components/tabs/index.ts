@@ -13,5 +13,5 @@ export type {
 	TabsListProps,
 	TabsProps,
 	TabsTriggerProps,
-	TabsIntent,
+	TabsPreset,
 } from "./types.js";

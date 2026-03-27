@@ -19,7 +19,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 // =============================================================================
 
 export type Size = "sm" | "md" | "lg";
-export type RangeCalendarIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type RangeCalendarPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 // =============================================================================
 // DATE RANGE
@@ -60,8 +60,8 @@ export interface RangeCalendarProps
 	locale?: string;
 	/** Size variant */
 	size?: Size;
-	/** Style intent preset */
-	intent?: RangeCalendarIntent;
+	/** Style preset preset */
+	preset?: RangeCalendarPreset;
 }
 
 // =============================================================================

@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
 import { setAvatarGroupContext } from "./context.js";
@@ -37,13 +37,13 @@ let {
 	dir = "ltr",
 	children,
 	overflow,
-	intent = "default",
+	preset = "default",
 	class: className,
 	...rest
 }: AvatarGroupRootProps = $props();
 
 const autoIds = createIds("avatar-group", ["root"] as const);
-const rootId = userIds?.root ?? autoIds.root;
+const rootId = $derived(userIds?.root ?? autoIds.root);
 
 
 const overflowCount = $derived.by(() => {
@@ -58,36 +58,37 @@ setAvatarGroupContext({
 });
 
 const overlapMargin = $derived(`-${Math.round(size * 0.25)}px`);
+
+const m = $derived(resolveMacro({ kind: "avatar-group", preset }));
 </script>
 
-<StyleMacro kind="avatar-group" intent={intent}>
-	<div
-		id={rootId}
-		{dir}
-		role="group"
-		aria-label={label}
-		data-kind="avatar-group"
-		data-slot="root"
-		class={cn("flex items-center", className)}
-		style:--avatar-group-overlap={overlapMargin}
-		{...rest}
-	>
-		{@render children?.()}
+<div
+	id={rootId}
+	{dir}
+	role="group"
+	aria-label={label}
+	{...m.dataAttrs}
+	data-slot="root"
+	style={cssVarString(m.cssVars)}
+	class={cn("flex items-center", className)}
+	style:--avatar-group-overlap={overlapMargin}
+	{...rest}
+>
+	{@render children?.()}
 
-		{#if overflowCount > 0}
-			{#if overflow}
-				{@render overflow(overflowCount)}
-			{:else}
-				<span
-					data-kind="avatar-group"
-					data-slot="overflow"
-					aria-hidden="true"
-					style:width="{size}px"
-					style:height="{size}px"
-				>
-					+{overflowCount}
-				</span>
-			{/if}
+	{#if overflowCount > 0}
+		{#if overflow}
+			{@render overflow(overflowCount)}
+		{:else}
+			<span
+				data-kind="avatar-group"
+				data-slot="overflow"
+				aria-hidden="true"
+				style:width="{size}px"
+				style:height="{size}px"
+			>
+				+{overflowCount}
+			</span>
 		{/if}
-	</div>
-</StyleMacro>
+	{/if}
+</div>

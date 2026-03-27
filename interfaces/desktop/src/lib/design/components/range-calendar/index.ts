@@ -17,7 +17,7 @@ export type {
 	RangeCalendarCellProps,
 	RangeCalendarGridProps,
 	RangeCalendarHeaderProps,
-	RangeCalendarIntent,
+	RangeCalendarPreset,
 	RangeCalendarProps,
 	Size as RangeCalendarSize,
 } from "./types.js";

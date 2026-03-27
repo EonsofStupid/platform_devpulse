@@ -24,7 +24,7 @@
 -->
 <script lang="ts">
 import { useAccordion } from "$lib/design/behaviors/accordion/use-accordion.svelte.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setAccordionContext } from "./context.js";
 import type { AccordionRootProps, AccordionSize } from "./types.js";
@@ -46,19 +46,19 @@ let {
 	dir = "ltr",
 	orientation = "vertical",
 	size = "md",
-	intent = "default",
+	preset = "default",
 	children,
 	class: className,
 	...rest
 }: AccordionRootProps = $props();
 
-const hook = useAccordion({
+const hook = $derived(useAccordion({
 	type,
 	value: controlledValue ?? defaultValue,
 	collapsible,
 	get disabled() { return disabled; },
 	onValueChange: (v) => onValueChange?.({ value: v }),
-});
+}));
 
 
 setAccordionContext({
@@ -67,19 +67,20 @@ setAccordionContext({
 	get dir() { return dir; },
 	get orientation() { return orientation; },
 });
+
+const m = $derived(resolveMacro({ kind: "accordion", preset }));
 </script>
 
-<StyleMacro kind="accordion" intent={intent}>
-	<div
-		id={ids?.root}
-		{...hook.root}
-		{dir}
-		data-kind="accordion"
-		data-slot="root"
-		data-orientation={orientation}
-		class={cn(SIZE[size] ?? SIZE.md, className)}
-		{...rest}
-	>
-		{@render children?.()}
-	</div>
-</StyleMacro>
+<div
+	id={ids?.root}
+	{...hook.root}
+	{dir}
+	{...m.dataAttrs}
+	data-slot="root"
+	data-orientation={orientation}
+	style={cssVarString(m.cssVars)}
+	class={cn(SIZE[size] ?? SIZE.md, className)}
+	{...rest}
+>
+	{@render children?.()}
+</div>

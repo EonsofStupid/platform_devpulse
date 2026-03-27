@@ -14,13 +14,13 @@ import type { ComponentProps } from "$lib/design/components/_base/types.js";
 // ROOT
 // =============================================================================
 
-export type SelectIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type SelectPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 export interface SelectProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class">,
 		ComponentProps {
-	/** Style intent preset */
-	intent?: SelectIntent;
+	/** Style preset preset */
+	preset?: SelectPreset;
 	children?: Snippet;
 	value?: string;
 	onValueChange?: (value: string) => void;

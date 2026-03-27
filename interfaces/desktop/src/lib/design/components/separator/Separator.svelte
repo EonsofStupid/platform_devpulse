@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { useSeparator } from "$lib/design/behaviors/separator/use-separator.svelte.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SeparatorProps, SeparatorOrientation } from "./types.js";
 
@@ -35,22 +35,22 @@ let {
 	orientation = "horizontal",
 	decorative = false,
 	variant = "solid",
-	intent = "default",
+	preset = "default",
 	class: className,
 	...rest
 }: SeparatorProps = $props();
 
 const separator = $derived(useSeparator({ orientation, decorative }));
+const m = $derived(resolveMacro({ kind: "separator", preset }));
 </script>
 
-<StyleMacro kind="separator" intent={intent}>
-	<hr
+<hr
 		{...separator.root}
-		data-kind="separator"
+		{...m.dataAttrs}
+		style={cssVarString(m.cssVars)}
 		data-slot="root"
 		data-orientation={orientation}
 		data-variant={variant}
 		class={cn(ORIENTATION_CLASSES[orientation] ?? ORIENTATION_CLASSES.horizontal, className)}
 		{...rest}
 	/>
-</StyleMacro>

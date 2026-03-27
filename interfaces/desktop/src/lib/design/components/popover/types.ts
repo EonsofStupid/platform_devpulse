@@ -7,10 +7,10 @@
 import type { Snippet } from "svelte";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
-export type PopoverIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type PopoverPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 export interface PopoverProps extends ComponentProps {
-	intent?: PopoverIntent;
+	preset?: PopoverPreset;
 	children?: Snippet;
 	trigger?: Snippet;
 	content?: Snippet;

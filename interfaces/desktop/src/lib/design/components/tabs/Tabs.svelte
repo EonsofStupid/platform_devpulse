@@ -24,7 +24,7 @@
 -->
 <script lang="ts">
 import { useTabs } from "$lib/design/behaviors/tabs/use-tabs.svelte.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setTabsContext } from "./context.js";
 import type { TabsProps } from "./types.js";
@@ -36,7 +36,7 @@ let {
 	activateOnFocus = true,
 	loop = true,
 	children,
-	intent = "default",
+	preset = "default",
 	class: className,
 	...rest
 }: TabsProps = $props();
@@ -44,21 +44,23 @@ let {
 const hook = useTabs({
 	get value() { return value; },
 	onValueChange: (v) => onValueChange?.(v),
-	orientation,
-	activateOnFocus,
-	loop,
+	get orientation() { return orientation; },
+	get activateOnFocus() { return activateOnFocus; },
+	get loop() { return loop; },
 });
 
 
 setTabsContext({
 	get hook() { return hook; },
 });
+
+const m = $derived(resolveMacro({ kind: "tabs", preset }));
 </script>
 
-<StyleMacro kind="tabs" intent={intent}>
-	<div
+<div
 		{...hook.root}
-		data-kind="tabs"
+		{...m.dataAttrs}
+		style={cssVarString(m.cssVars)}
 		data-slot="root"
 		data-orientation={orientation}
 		class={cn(className)}
@@ -66,4 +68,3 @@ setTabsContext({
 	>
 		{@render children?.()}
 	</div>
-</StyleMacro>

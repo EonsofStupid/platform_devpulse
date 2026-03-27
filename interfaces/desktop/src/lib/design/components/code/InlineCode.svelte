@@ -7,7 +7,7 @@
 	No Shiki — just a styled code element.
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { InlineCodeProps } from "./types.js";
 
@@ -15,20 +15,20 @@ let {
 	id,
 	dir = "ltr",
 	children,
-	intent = "inline",
+	preset = "inline",
 	class: className,
 	...rest
 }: InlineCodeProps = $props();
 
+const m = $derived(resolveMacro({ kind: "code", preset }));
 </script>
 
-<StyleMacro kind="code" intent={intent}>
-	<code
-		{id}
-		{dir}
-		data-kind="code"
-		data-slot="inline"
-		class={cn(className)}
-		{...rest}
-	>{@render children?.()}</code>
-</StyleMacro>
+<code
+	{id}
+	{dir}
+	{...m.dataAttrs}
+	data-slot="inline"
+	style={cssVarString(m.cssVars)}
+	class={cn(className)}
+	{...rest}
+>{@render children?.()}</code>

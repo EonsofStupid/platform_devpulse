@@ -13,7 +13,7 @@ import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type ProseSize = "sm" | "base" | "lg";
-export type ProseIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type ProsePreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 /** Prose component props — rich text container + ColdLight 8-axis */
 export interface ProseComponentProps
@@ -21,8 +21,8 @@ export interface ProseComponentProps
 		BaseProps,
 		ComponentProps {
 	children?: Snippet;
-	/** Style intent preset */
-	intent?: ProseIntent;
+	/** Style preset preset */
+	preset?: ProsePreset;
 	/** Prose size variant */
 	size?: ProseSize;
 }

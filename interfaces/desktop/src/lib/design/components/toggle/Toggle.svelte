@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useToggle } from "$lib/design/behaviors/toggle/use-toggle.svelte.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ToggleProps } from "./types.js";
 
@@ -41,7 +41,7 @@ let {
 	onPressedChange,
 	disabled = false,
 	children,
-	intent = "default",
+	preset = "default",
 	class: className,
 	...rest
 }: ToggleProps = $props();
@@ -52,13 +52,15 @@ const toggle = useToggle({
 	onPressedChange: (v) => onPressedChange?.(v),
 });
 
+const m = $derived(resolveMacro({ kind: "toggle", preset }));
+
 </script>
 
-<StyleMacro kind="toggle" intent={intent}>
-	<button
+<button
 		{...toggle.root}
 		{...rest}
-		data-kind="toggle"
+		{...m.dataAttrs}
+		style={cssVarString(m.cssVars)}
 		data-slot="root"
 		class={cn(
 			"inline-flex items-center justify-center rounded-md font-medium cursor-pointer",
@@ -69,4 +71,3 @@ const toggle = useToggle({
 	>
 		{@render children?.()}
 	</button>
-</StyleMacro>

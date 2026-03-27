@@ -88,7 +88,7 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 		{#each navHubs as hub (hub.id)}
 			<a href={hub.href} onclick={() => handleHubClick(hub)} class="contents">
 				<Button
-					intent={isActive(hub.href) ? "primary" : "ghost"}
+					preset={isActive(hub.href) ? "primary" : "ghost"}
 					size="sm"
 					class={cn(
 						isExpanded
@@ -111,7 +111,7 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 
 	<div class={stack({ gap: "1" })} style="padding-bottom: 0.25rem;">
 		<Button
-			intent="ghost"
+			preset="ghost"
 			size="sm"
 			class={isExpanded
 				? "w-full justify-start gap-3 px-3 py-2"
@@ -141,7 +141,7 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 			{#each submenuRoutes as route (route.path)}
 				<a href={route.path} onclick={handleSubmenuNav} class="contents">
 					<Button
-						intent="ghost"
+						preset="ghost"
 						size="sm"
 						class="w-full justify-start px-3 py-2 capitalize"
 						aria-current={isActive(route.path) ? "page" : undefined}

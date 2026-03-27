@@ -4,7 +4,7 @@ export { default as Trigger } from "./DatePickerTrigger.svelte";
 export { default as Content } from "./DatePickerContent.svelte";
 export { default as Calendar } from "./DatePickerCalendar.svelte";
 export type {
-	DatePickerIntent,
+	DatePickerPreset,
 	DatePickerIds,
 	DatePickerValueChangeDetails,
 	DatePickerOpenChangeDetails,

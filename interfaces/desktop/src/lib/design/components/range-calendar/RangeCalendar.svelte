@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { type RangeCalendarContext, setRangeCalendarContext } from "./context.js";
 import type { RangeCalendarProps } from "./types.js";
@@ -38,7 +38,7 @@ let {
 	disabled = false,
 	locale = "en-US",
 	size = "md",
-	intent = "default",
+	preset = "default",
 	children,
 	class: className,
 	...rest
@@ -159,18 +159,19 @@ const ctx: RangeCalendarContext = {
 
 setRangeCalendarContext(ctx);
 
+const m = $derived(resolveMacro({ kind: "range-calendar", preset }));
+
 </script>
 
-<StyleMacro kind="range-calendar" intent={intent}>
-	<div
+<div
 		role="group"
 		aria-label="Range Calendar"
 		class={cn(className)}
-		data-kind="range-calendar"
+		{...m.dataAttrs}
+		style={cssVarString(m.cssVars)}
 		data-slot="root"
 		data-state={disabled ? "disabled" : undefined}
 		{...rest}
 	>
 		{@render children?.()}
 	</div>
-</StyleMacro>

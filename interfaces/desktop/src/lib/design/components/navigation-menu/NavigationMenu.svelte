@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { type NavigationMenuRootCtx, setNavigationMenuRootContext } from "./context.js";
 import type { NavigationMenuProps } from "./types.js";
@@ -53,22 +53,23 @@ const ctx: NavigationMenuRootCtx = {
 };
 
 setNavigationMenuRootContext(ctx);
+
+const m = $derived(resolveMacro({ kind: "navigation-menu", preset: "default" }));
 </script>
 
-<StyleMacro kind="navigation-menu" style="navigation-menu-default">
-	<nav
-		aria-label={ariaLabel}
-		class={cn("relative", className)}
+<nav
+	aria-label={ariaLabel}
+	class={cn("relative", className)}
+	{...m.dataAttrs}
+	style={cssVarString(m.cssVars)}
+	data-slot="root"
+	{...rest}
+>
+	<ul
+		class="flex items-center gap-1"
 		data-kind="navigation-menu"
-		data-slot="root"
-		{...rest}
+		data-slot="list"
 	>
-		<ul
-			class="flex items-center gap-1"
-			data-kind="navigation-menu"
-			data-slot="list"
-		>
-			{@render children?.()}
-		</ul>
-	</nav>
-</StyleMacro>
+		{@render children?.()}
+	</ul>
+</nav>

@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import Text from "$lib/design/components/text/Text.svelte";
 import type { ChatBubbleProps } from "./types.js";
@@ -36,28 +36,28 @@ let {
 	...rest
 }: ChatBubbleProps = $props();
 
+const m = $derived(resolveMacro({ kind: "chat-bubble", preset: variant }));
 </script>
 
-<StyleMacro kind="chat-bubble" intent={variant}>
-	<div
-		data-kind="chat-bubble"
-		data-slot="root"
-		data-variant={variant}
-		class={cn("flex flex-col gap-1 px-4 py-3", className)}
-		{...rest}
-	>
-		{#if author || timestamp}
-			<div class="flex items-center justify-between gap-2">
-				{#if author}
-					<Text size="xs" weight="semibold" class="text-[var(--text-accent)]">{author}</Text>
-				{/if}
-				{#if timestamp}
-					<Text size="xs" class="text-[var(--text-muted)]">{timestamp}</Text>
-				{/if}
-			</div>
-		{/if}
-		<div data-slot="content">
-			{@render children?.()}
+<div
+	{...m.dataAttrs}
+	data-slot="root"
+	data-variant={variant}
+	style={cssVarString(m.cssVars)}
+	class={cn("flex flex-col gap-1 px-4 py-3", className)}
+	{...rest}
+>
+	{#if author || timestamp}
+		<div class="flex items-center justify-between gap-2">
+			{#if author}
+				<Text size="xs" weight="semibold" class="text-[var(--text-accent)]">{author}</Text>
+			{/if}
+			{#if timestamp}
+				<Text size="xs" class="text-[var(--text-muted)]">{timestamp}</Text>
+			{/if}
 		</div>
+	{/if}
+	<div data-slot="content">
+		{@render children?.()}
 	</div>
-</StyleMacro>
+</div>

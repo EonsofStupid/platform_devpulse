@@ -44,7 +44,7 @@ export interface ColorFieldIds {
 // ROOT
 // =============================================================================
 
-export type ColorFieldIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type ColorFieldPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 export type ColorFieldSize = "sm" | "md" | "lg" | "xl";
 export type ColorFieldLabelPosition = "top" | "side";
@@ -92,8 +92,8 @@ export interface ColorFieldRootProps
 	form?: string;
 	/** Input name for form submission. */
 	name?: string;
-	/** Style intent. Default: "default". */
-	intent?: ColorFieldIntent;
+	/** Style preset. Default: "default". */
+	preset?: ColorFieldPreset;
 	children?: Snippet;
 }
 

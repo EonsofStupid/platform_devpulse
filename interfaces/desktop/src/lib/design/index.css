@@ -12,10 +12,7 @@
 /* 2. SD5-generated Tailwind @theme registrations */
 @import "./theme/index.css";
 
-/* 3. Bridge tokens — aliases not emitted directly by SD5 */
-@import "./generated/aliases.css";
-
-/* 4. Typography utilities */
+/* 3. Typography utilities */
 @import "./generated/typography.css";
 
 /* 5. Focus ring styles */

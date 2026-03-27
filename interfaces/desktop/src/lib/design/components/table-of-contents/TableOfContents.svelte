@@ -22,12 +22,11 @@
 -->
 <script lang="ts">
 import { useTableOfContents } from "$lib/design/behaviors/table-of-contents/index.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TableOfContentsComponentProps } from "./types.js";
-let { label = "Table of contents", activeId, onActiveIdChange, size = "md", intent = "default", children, class: className, ...rest }: TableOfContentsComponentProps = $props();
+let { label = "Table of contents", activeId, onActiveIdChange, size = "md", preset = "default", children, class: className, ...rest }: TableOfContentsComponentProps = $props();
 const toc = $derived(useTableOfContents({ label }));
+const m = $derived(resolveMacro({ kind: "table-of-contents", preset }));
 </script>
-<StyleMacro kind="table-of-contents" intent={intent}>
-	<nav {...toc.root} data-kind="table-of-contents" data-slot="root" class={cn("flex flex-col", className)} {...rest}>{@render children?.()}</nav>
-</StyleMacro>
+<nav {...toc.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" class={cn("flex flex-col", className)} {...rest}>{@render children?.()}</nav>

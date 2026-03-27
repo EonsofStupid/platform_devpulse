@@ -3,34 +3,31 @@
 // Triggered by UserPromptSubmit hook (async, non-blocking)
 // Writes to: agents/claude (chat + sessions tables)
 // Reads SURREAL_SESSION_RECORD_ID from CLAUDE_ENV_FILE for record linking
+//
+// Uses curl to HTTP /sql endpoint (surreal sql CLI cannot connect — /rpc not exposed)
+// Auth: devpulse_engine:dp_sys_2026! via Basic Auth
 
 const { spawnSync } = require("child_process");
 const fs = require("fs");
 
-const ENDPOINT = "http://127.0.0.1:8822";
-const USER = "root";
-const PASS = "root";
+const ENDPOINT = "http://127.0.0.1:8822/sql";
+const AUTH = "Basic " + Buffer.from("devpulse_engine:dp_sys_2026!").toString("base64");
 
 function query(ns, db, sql) {
 	try {
-		const result = spawnSync(
-			"surreal",
-			[
-				"sql",
-				"--endpoint", ENDPOINT,
-				"--namespace", ns,
-				"--database", db,
-				"--username", USER,
-				"--password", PASS,
-				"--hide-welcome",
-			],
-			{
-				input: sql,
-				encoding: "utf-8",
-				timeout: 5000,
-			},
-		);
-		return result.status === 0;
+		const result = spawnSync("curl", [
+			"-s", "-X", "POST", ENDPOINT,
+			"-H", "Accept: application/json",
+			"-H", `NS: ${ns}`,
+			"-H", `DB: ${db}`,
+			"-H", `Authorization: ${AUTH}`,
+			"-d", sql,
+		], {
+			encoding: "utf-8",
+			timeout: 5000,
+		});
+		if (result.error || result.status !== 0) return false;
+		return true;
 	} catch (e) {
 		return false;
 	}
@@ -94,7 +91,7 @@ if (sessionRecordId && sessionId) {
 	// Full insert with typed record link
 	query(
 		"agents", "claude",
-		`INSERT INTO chat { role: 'user', content: '${safePrompt}', session_id: '${sessionId}', session: ${sessionRecordId} };`,
+		`INSERT INTO chat { role: 'user', content: '${safePrompt}', session_id: '${sessionId}', session: ${sessionRecordId}, created_at: time::now() };`,
 	);
 	// Update session message count
 	query(
@@ -106,7 +103,7 @@ if (sessionRecordId && sessionId) {
 	const fallbackSid = hookData.session_id || "unknown";
 	query(
 		"agents", "claude",
-		`INSERT INTO chat { role: 'user', content: '${safePrompt}', session_id: '${fallbackSid}' };`,
+		`INSERT INTO chat { role: 'user', content: '${safePrompt}', session_id: '${fallbackSid}', created_at: time::now() };`,
 	);
 }
 

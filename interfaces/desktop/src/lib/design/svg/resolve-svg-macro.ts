@@ -15,22 +15,7 @@
 
 import type { SvgAccent, SvgMacroOptions, SvgMacroResolved } from "./svg-types.js";
 import { SVG_AXIS_MAP, SVG_AXIS_KEYS, SVG_PRESET_PREFIX, SVG_ACCENT_PREFIX } from "./svg-macro-mappings.js";
-
-/**
- * Intent → visual preset mapping.
- * Same map as HTML StyleMacro. One source of truth for intent resolution.
- */
-const INTENT_MAP: Record<string, string> = {
-	primary: "glass",
-	secondary: "matte",
-	ghost: "flat",
-	danger: "stark",
-	default: "default",
-	glass: "glass",
-	matte: "matte",
-	flat: "flat",
-	stark: "stark",
-};
+import { resolveIntent } from "../style-macro/intent.js";
 
 /**
  * Accent → CSS var mapping.
@@ -55,7 +40,7 @@ const ACCENT_VARS: Record<SvgAccent, { main: string; glow: string; fill: string 
  * @returns CSS custom property string for structural axes
  */
 export function resolveSvgPreset(kind: string, intent: string): string {
-	const visual = INTENT_MAP[intent] ?? INTENT_MAP.default;
+	const visual = resolveIntent(intent);
 	const prefix = `${SVG_PRESET_PREFIX}-${kind}-${visual}`;
 	const parts: string[] = [];
 

@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { useSkeleton } from "$lib/design/behaviors/skeleton/index.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SkeletonProps, SkeletonVariant } from "./types.js";
 
@@ -35,22 +35,22 @@ const VARIANT_CLASSES: Record<SkeletonVariant, string> = {
 let {
 	loading = true,
 	variant = "text",
-	intent = "default",
+	preset = "default",
 	class: className,
 	...rest
 }: SkeletonProps = $props();
 
 const skeleton = $derived(useSkeleton({ loading }));
+const m = $derived(resolveMacro({ kind: "skeleton", preset }));
 </script>
 
-<StyleMacro kind="skeleton" intent={intent}>
-	<div
+<div
 		{...skeleton.root}
-		data-kind="skeleton"
+		{...m.dataAttrs}
+		style={cssVarString(m.cssVars)}
 		data-slot="root"
 		data-state={loading ? "loading" : "loaded"}
 		data-variant={variant}
 		class={cn("animate-pulse", VARIANT_CLASSES[variant] ?? VARIANT_CLASSES.text, className)}
 		{...rest}
 	></div>
-</StyleMacro>

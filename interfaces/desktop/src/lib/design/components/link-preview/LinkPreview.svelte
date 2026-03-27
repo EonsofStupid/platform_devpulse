@@ -22,12 +22,11 @@
 -->
 <script lang="ts">
 import { useLinkPreview } from "$lib/design/behaviors/link-preview/index.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { LinkPreviewProps } from "./types.js";
-let { intent = "default", openDelay = 700, closeDelay = 300, open, onOpenChange, children, class: className }: LinkPreviewProps = $props();
+let { preset = "default", openDelay = 700, closeDelay = 300, open, onOpenChange, children, class: className }: LinkPreviewProps = $props();
 const lp = $derived(useLinkPreview({ openDelay, closeDelay }));
+const m = $derived(resolveMacro({ kind: "link-preview", preset }));
 </script>
-<StyleMacro kind="link-preview" intent={intent}>
-	<div data-kind="link-preview" data-slot="root" class={cn("relative inline-block", className)}>{@render children?.()}</div>
-</StyleMacro>
+<div {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" class={cn("relative inline-block", className)}>{@render children?.()}</div>

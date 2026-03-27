@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { useTextarea } from "$lib/design/behaviors/textarea/index.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TextareaProps } from "./types.js";
 
@@ -42,22 +42,23 @@ let {
 	invalid = false,
 	rows,
 	onValueChange,
-	intent = "default",
+	preset = "default",
 	class: className,
 	...rest
 }: TextareaProps = $props();
 
 const textarea = $derived(useTextarea({ disabled, readonly: readOnly, required, invalid }));
+const m = $derived(resolveMacro({ kind: "textarea", preset }));
 </script>
 
-<StyleMacro kind="textarea" intent={intent}>
-	<textarea
+<textarea
 		{...textarea.root}
 		{disabled}
 		readonly={readOnly}
 		{required}
 		{rows}
-		data-kind="textarea"
+		{...m.dataAttrs}
+		style={cssVarString(m.cssVars)}
 		data-slot="root"
 		data-invalid={invalid || undefined}
 		class={cn(
@@ -70,4 +71,3 @@ const textarea = $derived(useTextarea({ disabled, readonly: readOnly, required, 
 		oninput={(e) => onValueChange?.((e.target as HTMLTextAreaElement).value)}
 		{...rest}
 	></textarea>
-</StyleMacro>

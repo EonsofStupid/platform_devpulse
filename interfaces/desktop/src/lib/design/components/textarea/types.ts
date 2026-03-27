@@ -10,7 +10,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type TextareaSize = "sm" | "md" | "lg";
 
-export type TextareaIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type TextareaPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 export interface TextareaProps
 	extends Omit<HTMLTextareaAttributes, "style" | "disabled" | "readonly" | "required" | "rows">,
@@ -22,7 +22,7 @@ export interface TextareaProps
 	invalid?: boolean;
 	rows?: number;
 	onValueChange?: (value: string) => void;
-	/** Style intent. Default: "default". */
-	intent?: TextareaIntent;
+	/** Style preset. Default: "default". */
+	preset?: TextareaPreset;
 	size?: TextareaSize;
 }

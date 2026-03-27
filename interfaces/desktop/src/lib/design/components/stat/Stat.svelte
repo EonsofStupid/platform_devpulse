@@ -15,7 +15,7 @@
 	<Stat label="CPU" value={14} unit="%" accent="teal" size="lg" glow />
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { StatProps, StatSize } from "./stat.types.js";
 
@@ -43,18 +43,19 @@ let {
 	size = "md",
 	accent = "teal",
 	glow = false,
-	intent = "default",
+	preset = "default",
 	children,
 	class: className,
 }: StatProps = $props();
 
 const sizeClasses = $derived(SIZE[size] ?? SIZE.md);
 const colors = $derived(ACCENT_COLOR[accent as AccentName] ?? ACCENT_COLOR.teal);
+const m = $derived(resolveMacro({ kind: "stat", preset }));
 </script>
 
-<StyleMacro kind="stat" {intent}>
-	<div
-		data-kind="stat"
+<div
+		{...m.dataAttrs}
+		style={cssVarString(m.cssVars)}
 		data-slot="root"
 		class={cn("flex flex-col gap-1", className)}
 	>
@@ -83,4 +84,3 @@ const colors = $derived(ACCENT_COLOR[accent as AccentName] ?? ACCENT_COLOR.teal)
 			</span>
 		{/if}
 	</div>
-</StyleMacro>

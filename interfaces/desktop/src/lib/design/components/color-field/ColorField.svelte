@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
 import { setColorFieldContext } from "./context.js";
@@ -48,7 +48,7 @@ let {
 	form,
 	name,
 	children,
-	intent = "default",
+	preset = "default",
 	class: className,
 	...rest
 }: ColorFieldRootProps = $props();
@@ -64,11 +64,13 @@ const resolvedIds = $derived({
 });
 
 // ── Controlled / uncontrolled value ─────────────────────────────
-let internalValue = $state<string | null>(defaultValue);
+let internalValue = $state<string | null>(null);
 
 $effect(() => {
 	if (controlledValue !== undefined) {
 		internalValue = controlledValue;
+	} else if (internalValue === null && defaultValue !== undefined) {
+		internalValue = defaultValue;
 	}
 });
 
@@ -122,20 +124,20 @@ setColorFieldContext({
 	registerError,
 });
 
+const m = $derived(resolveMacro({ kind: "color-field", preset }));
 </script>
 
-<StyleMacro kind="color-field" intent={intent}>
-	<div
-		id={resolvedIds.root}
-		{dir}
-		data-kind="color-field"
-		data-slot="root"
-		data-invalid={isInvalid || undefined}
-		data-disabled={isDisabled || undefined}
-		data-readonly={isReadOnly || undefined}
-		class={cn(className)}
-		{...rest}
-	>
-		{@render children?.()}
-	</div>
-</StyleMacro>
+<div
+	id={resolvedIds.root}
+	{dir}
+	{...m.dataAttrs}
+	data-slot="root"
+	data-invalid={isInvalid || undefined}
+	data-disabled={isDisabled || undefined}
+	data-readonly={isReadOnly || undefined}
+	style={cssVarString(m.cssVars)}
+	class={cn(className)}
+	{...rest}
+>
+	{@render children?.()}
+</div>

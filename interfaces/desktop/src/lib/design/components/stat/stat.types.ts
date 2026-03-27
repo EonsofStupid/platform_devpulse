@@ -23,8 +23,8 @@ export interface StatProps extends ComponentProps {
 	accent?: "teal" | "purple" | "magenta" | "ember" | "frost" | "cyber";
 	/** Enable glow on the value text */
 	glow?: boolean;
-	/** Visual intent */
-	intent?: string;
+	/** Visual preset */
+	preset?: string;
 	/** Custom children override */
 	children?: Snippet;
 }

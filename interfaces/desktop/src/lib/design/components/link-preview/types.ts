@@ -18,12 +18,12 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 // ROOT PROPS
 // =============================================================================
 
-export type LinkPreviewIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type LinkPreviewPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 export interface LinkPreviewProps extends BaseProps, ComponentProps {
 	children?: Snippet;
-	/** Style intent preset */
-	intent?: LinkPreviewIntent;
+	/** Style preset preset */
+	preset?: LinkPreviewPreset;
 	/** Delay in ms before the preview opens on hover. @default 700 */
 	openDelay?: number;
 	/** Delay in ms before the preview closes after leaving. @default 300 */

@@ -23,7 +23,8 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { untrack } from "svelte";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setCollapsibleContext } from "./context.js";
 import type { CollapsibleRootProps } from "./types.js";
@@ -41,7 +42,7 @@ let {
 	...rest
 }: CollapsibleRootProps = $props();
 
-let internalOpen = $state(defaultOpen ?? false);
+let internalOpen = $state(untrack(() => defaultOpen ?? false));
 const isOpen = $derived(controlledOpen !== undefined ? controlledOpen : internalOpen);
 
 const fallbackTriggerId = `collapsible-trigger-${Math.random().toString(36).slice(2, 9)}`;
@@ -65,18 +66,19 @@ setCollapsibleContext({
 	get contentId() { return contentId; },
 	toggle,
 });
+
+const m = $derived(resolveMacro({ kind: "collapsible", preset: "default" }));
 </script>
 
-<StyleMacro kind="collapsible" style="collapsible-default">
-	<div
-		id={ids?.root}
-		{dir}
-		data-kind="collapsible"
-		data-slot="root"
-		data-state={isOpen ? "open" : "closed"}
-		class={cn(className)}
-		{...rest}
-	>
-		{@render children?.()}
-	</div>
-</StyleMacro>
+<div
+	id={ids?.root}
+	{dir}
+	{...m.dataAttrs}
+	data-slot="root"
+	data-state={isOpen ? "open" : "closed"}
+	style={cssVarString(m.cssVars)}
+	class={cn(className)}
+	{...rest}
+>
+	{@render children?.()}
+</div>

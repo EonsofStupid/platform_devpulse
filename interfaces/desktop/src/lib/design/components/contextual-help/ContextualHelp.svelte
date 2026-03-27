@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
 import { setContextualHelpContext } from "./context.js";
@@ -39,7 +39,7 @@ let {
 	shouldFlip = true,
 	offset = 8,
 	dir = "ltr",
-	intent = "default",
+	preset = "default",
 	children,
 	class: className,
 	...rest
@@ -53,11 +53,13 @@ const resolvedIds = $derived({
 	heading: userIds?.heading ?? autoIds.heading,
 });
 
-let internalOpen = $state(defaultOpen);
+let internalOpen = $state(false);
 
 $effect(() => {
 	if (controlledOpen !== undefined) {
 		internalOpen = controlledOpen;
+	} else if (!internalOpen && defaultOpen) {
+		internalOpen = defaultOpen;
 	}
 });
 
@@ -81,15 +83,17 @@ const SIZE_CLASSES: Record<string, string> = {
 	xs: "size-[var(--size-2xs)]",
 	sm: "size-[var(--size-xs)]",
 };
+
+const m = $derived(resolveMacro({ kind: "contextual-help", preset }));
 </script>
 
-<StyleMacro kind="contextual-help" intent={intent}>
 <div
 	id={resolvedIds.root}
 	{dir}
-	data-kind="contextual-help"
+	{...m.dataAttrs}
 	data-slot="root"
 	data-variant={variant}
+	style={cssVarString(m.cssVars)}
 	class={cn("relative inline-flex", className)}
 	{...rest}
 >
@@ -139,4 +143,3 @@ const SIZE_CLASSES: Record<string, string> = {
 		</div>
 	{/if}
 </div>
-</StyleMacro>

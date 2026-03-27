@@ -6,15 +6,15 @@
 import type { HTMLAttributes } from "svelte/elements";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
-export type HeadingIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type HeadingPreset = "default" | "stark" | "glass" | "flat" | "matte";
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 export type HeadingSize = "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
 
 export interface HeadingProps
 	extends ComponentProps,
 		Omit<HTMLAttributes<HTMLHeadingElement>, "style" | "children" | "class"> {
-	/** Style intent preset */
-	intent?: HeadingIntent;
+	/** Style preset preset */
+	preset?: HeadingPreset;
 	/** Heading level (1-6) */
 	level?: HeadingLevel;
 	/** Size — structural class */

@@ -21,7 +21,7 @@ type SizeToken = "sm" | "md" | "lg";
 // INTENT
 // =============================================================================
 
-export type ComboboxIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type ComboboxPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 // =============================================================================
 // ROOT — Combobox wrapper, creates transport + sets context
@@ -31,8 +31,8 @@ export interface ComboboxProps<T = unknown> extends ComponentProps {
 	children?: Snippet;
 	/** CSS class for the root wrapper element. */
 	class?: string;
-	/** Style intent. Default: "default". */
-	intent?: ComboboxIntent;
+	/** Style preset. Default: "default". */
+	preset?: ComboboxPreset;
 	/** Initial/controlled selected value. */
 	value?: T;
 	/** Called when the selected value changes. */

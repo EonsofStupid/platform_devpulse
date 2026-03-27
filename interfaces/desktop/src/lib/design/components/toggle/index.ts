@@ -1,2 +1,2 @@
 export { default as Toggle } from "./Toggle.svelte";
-export type { ToggleProps, ToggleSize, ToggleIntent } from "./types.js";
+export type { ToggleProps, ToggleSize, TogglePreset } from "./types.js";

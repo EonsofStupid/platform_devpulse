@@ -19,7 +19,7 @@ import type { ColorChannel, ColorSpace, ColorValue } from "$lib/design/component
 
 export type SliderOrientation = "horizontal" | "vertical";
 
-export type ColorSliderIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type ColorSliderPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 export interface ColorSliderChangeDetails {
 	value: ColorValue;
@@ -67,8 +67,8 @@ export interface ColorSliderRootProps
 	dir?: "ltr" | "rtl";
 	/** Keyboard step size. Default: 1. */
 	step?: number;
-	/** Style intent. Default: "default". */
-	intent?: ColorSliderIntent;
+	/** Style preset. Default: "default". */
+	preset?: ColorSliderPreset;
 	children?: Snippet;
 }
 

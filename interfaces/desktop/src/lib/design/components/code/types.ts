@@ -42,7 +42,7 @@ export type CodeLanguage =
 	| "text"
 	| (string & {});
 
-export type CodeIntent = "default" | "inline" | "stark" | "glass" | "flat" | "matte";
+export type CodePreset = "default" | "inline" | "stark" | "glass" | "flat" | "matte";
 
 // =============================================================================
 // INLINE CODE
@@ -56,8 +56,8 @@ export interface InlineCodeProps
 	id?: string;
 	/** Text/writing direction. */
 	dir?: "ltr" | "rtl";
-	/** Style intent. Default: "inline". */
-	intent?: CodeIntent;
+	/** Style preset. Default: "inline". */
+	preset?: CodePreset;
 	children?: Snippet;
 }
 
@@ -95,8 +95,8 @@ export interface CodeBlockRootProps
 	highlightLines?: number[];
 	/** Text/writing direction. */
 	dir?: "ltr" | "rtl";
-	/** Style intent. Default: "default". */
-	intent?: CodeIntent;
+	/** Style preset. Default: "default". */
+	preset?: CodePreset;
 	/** Whether the code block is disabled (copy disabled). */
 	disabled?: boolean;
 	/** Callback when code is copied. */

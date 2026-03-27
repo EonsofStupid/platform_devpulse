@@ -19,7 +19,7 @@ export type {
 	CodeBlockHeaderProps,
 	CodeBlockContentProps,
 	CodeBlockCopyButtonProps,
-	CodeIntent,
+	CodePreset,
 } from "./types.js";
 
 // Theme + Highlighter

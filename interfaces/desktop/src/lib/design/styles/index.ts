@@ -1,12 +1,10 @@
 /**
- * @file ColdLight Style System — Public API
+ * @file ColdLight Styles — Supporting Exports
  * @package @devpulse/coldlight
  *
- * The entire visual resolution system for ColdLight.
+ * The primary styling API is in $lib/design/style-macro.
+ * This barrel exports supporting utilities (VPB state, mappings).
  */
-
-// The component
-export { default as StyleMacro } from "./StyleMacro.svelte";
 
 // Global state + VPB integration
 export {

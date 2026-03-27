@@ -19,7 +19,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { DynamicBackgroundProps } from "./types.js";
 
@@ -33,27 +33,27 @@ let {
 	...rest
 }: DynamicBackgroundProps = $props();
 
+const m = $derived(resolveMacro({ kind: "dynamic-background", preset: "default" }));
+const mergedStyle = $derived([cssVarString(m.cssVars), src ? `background-image: url('${src}');` : ""].filter(Boolean).join(" "));
 </script>
 
-<StyleMacro kind="dynamic-background" style={`dynamic-background-${variant}`}>
-	<div
-		aria-hidden="true"
-		data-kind="dynamic-background"
-		data-slot="root"
-		data-variant={variant}
-		data-animated={String(animated)}
-		class={cn(
-			"fixed inset-0 -z-10 overflow-hidden",
-			"bg-cover bg-center bg-no-repeat",
-			animated && "animate-[breathe_8s_ease-in-out_infinite]",
-			className,
-		)}
-		style={src ? `background-image: url('${src}');` : undefined}
-		{...rest}
-	>
-		{@render children?.()}
-	</div>
-</StyleMacro>
+<div
+	aria-hidden="true"
+	{...m.dataAttrs}
+	style={mergedStyle}
+	data-slot="root"
+	data-variant={variant}
+	data-animated={String(animated)}
+	class={cn(
+		"fixed inset-0 -z-10 overflow-hidden",
+		"bg-cover bg-center bg-no-repeat",
+		animated && "animate-[breathe_8s_ease-in-out_infinite]",
+		className,
+	)}
+	{...rest}
+>
+	{@render children?.()}
+</div>
 
 <style>
 	@keyframes breathe {

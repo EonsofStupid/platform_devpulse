@@ -54,7 +54,7 @@ function onKey(e: KeyboardEvent): void {
 
 	<div class={hstack({ gap: "2", align: "center" })}>
 		<Button
-			intent="ghost"
+			preset="ghost"
 			size="sm"
 			class="h-8 w-8 rounded-full"
 			title="Search"
@@ -65,7 +65,7 @@ function onKey(e: KeyboardEvent): void {
 		</Button>
 
 		<Button
-			intent="ghost"
+			preset="ghost"
 			size="sm"
 			class="h-8 w-8 rounded-full"
 			title="Notifications"
@@ -75,7 +75,7 @@ function onKey(e: KeyboardEvent): void {
 		</Button>
 
 		<Button
-			intent="ghost"
+			preset="ghost"
 			size="sm"
 			class="h-8 w-8 rounded-full"
 			title="Open Chat"

@@ -14,7 +14,7 @@ export { default as Indicator } from "./AccordionIndicator.svelte";
 export type {
 	AccordionIds,
 	AccordionSize,
-	AccordionIntent,
+	AccordionPreset,
 	AccordionValueChangeDetails,
 	AccordionRootProps,
 	AccordionItemProps,

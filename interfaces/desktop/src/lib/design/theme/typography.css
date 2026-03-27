@@ -3,6 +3,17 @@
  */
 
 @theme {
+  --text-3xs: clamp(0.4823rem, -0.1799vw + 0.5182rem, 0.3563rem);
+  --text-2xs: 0.5787rem;
+  --text-xs: 0.6944rem;
+  --text-sm: 0.8333rem;
+  --text-base: clamp(1rem, 0.1786vw + 0.9643rem, 1.125rem);
+  --text-lg: clamp(1.2rem, 0.428vw + 1.1144rem, 1.4996rem);
+  --text-xl: clamp(1.44rem, 0.7986vw + 1.2803rem, 1.999rem);
+  --text-2xl: clamp(1.728rem, 1.3381vw + 1.4604rem, 2.6647rem);
+  --text-3xl: clamp(2.0736rem, 2.112vw + 1.6512rem, 3.552rem);
+  --text-4xl: clamp(2.4883rem, 3.2093vw + 1.8465rem, 4.7348rem);
+  --text-5xl: clamp(2.986rem, 4.7508vw + 2.0358rem, 6.3115rem);
   --font-display: Orbitron, system-ui, sans-serif;
   --font-sans: Inter, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
@@ -12,14 +23,4 @@
   --font-variation-settings-sans: normal;
   --font-variation-settings-display: normal;
   --font-variation-settings-mono: normal;
-  --text-3xs: 0.5rem;
-  --text-2xs: 0.625rem;
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.25rem;
-  --text-2xl: 1.5rem;
-  --text-3xl: 1.875rem;
-  --text-4xl: 2.25rem;
 }

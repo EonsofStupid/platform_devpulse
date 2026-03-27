@@ -22,12 +22,12 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { NavComponentProps } from "./types.js";
 
 let {
-	intent = "default",
+	preset = "default",
 	label,
 	size = "md",
 	orientation = "horizontal",
@@ -36,17 +36,17 @@ let {
 	...rest
 }: NavComponentProps = $props();
 
+const m = $derived(resolveMacro({ kind: "nav", preset }));
 </script>
 
-<StyleMacro kind="nav" intent={intent}>
-	<nav
-		aria-label={label}
-		data-kind="nav"
-		data-slot="root"
-		data-orientation={orientation}
-		class={cn("flex", orientation === "vertical" ? "flex-col" : "flex-row", className)}
-		{...rest}
-	>
-		{@render children?.()}
-	</nav>
-</StyleMacro>
+<nav
+	aria-label={label}
+	{...m.dataAttrs}
+	style={cssVarString(m.cssVars)}
+	data-slot="root"
+	data-orientation={orientation}
+	class={cn("flex", orientation === "vertical" ? "flex-col" : "flex-row", className)}
+	{...rest}
+>
+	{@render children?.()}
+</nav>

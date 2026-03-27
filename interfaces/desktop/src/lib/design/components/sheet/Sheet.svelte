@@ -24,7 +24,7 @@
 -->
 <script lang="ts">
 import { useSheet } from "$lib/design/behaviors/sheet/use-sheet.svelte.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SheetComponentProps, SheetSize, SheetSide } from "./types.js";
 
@@ -50,7 +50,7 @@ let {
 	label,
 	closeOnEscape = true,
 	closeOnOutsideClick = true,
-	intent = "default",
+	preset = "default",
 	trigger,
 	children,
 	class: className,
@@ -65,13 +65,15 @@ const hook = useSheet({
 	get closeOnOutsideClick() { return closeOnOutsideClick; },
 });
 
+const m = $derived(resolveMacro({ kind: "sheet", preset }));
+
 </script>
 
 {#if trigger}
 	<button
 		{...hook.trigger}
 		use:hook.attachTrigger
-		data-kind="sheet"
+		{...m.dataAttrs}
 		data-slot="trigger"
 	>
 		{@render trigger()}
@@ -79,18 +81,18 @@ const hook = useSheet({
 {/if}
 
 {#if hook.open}
-	<StyleMacro kind="sheet" intent={intent}>
 		<div
 			{...hook.overlay}
 			use:hook.attachOverlay
-			data-kind="sheet"
+			{...m.dataAttrs}
 			data-slot="overlay"
 			class="fixed inset-0 z-50"
 		></div>
 		<div
 			{...hook.content}
 			use:hook.attachContent
-			data-kind="sheet"
+			{...m.dataAttrs}
+			style={cssVarString(m.cssVars)}
 			data-slot="content"
 			data-side={side}
 			class={cn(
@@ -103,7 +105,7 @@ const hook = useSheet({
 			{@render children?.()}
 			<button
 				{...hook.close}
-				data-kind="sheet"
+				{...m.dataAttrs}
 				data-slot="close"
 				class="absolute top-4 right-4 cursor-pointer opacity-70 hover:opacity-100"
 			>
@@ -114,5 +116,4 @@ const hook = useSheet({
 				</svg>
 			</button>
 		</div>
-	</StyleMacro>
 {/if}

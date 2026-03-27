@@ -12,7 +12,7 @@ import type { HTMLAnchorAttributes } from "svelte/elements";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
-export type SkipLinkIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type SkipLinkPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 /** SkipLink component props -- ColdLight 8-axis + ARIA + composition + primitive */
 export interface SkipLinkComponentProps
@@ -24,6 +24,6 @@ export interface SkipLinkComponentProps
 	href?: string;
 	/** Visible label text. @default "Skip to main content" */
 	label?: string;
-	/** Style intent. Default: "default". */
-	intent?: SkipLinkIntent;
+	/** Style preset. Default: "default". */
+	preset?: SkipLinkPreset;
 }

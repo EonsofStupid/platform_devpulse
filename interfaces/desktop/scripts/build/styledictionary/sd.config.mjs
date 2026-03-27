@@ -42,6 +42,7 @@ const clFormats = {
 const clTransforms = {
 	gradientCssShorthand: 'coldlight/gradient-css-shorthand',
 	shadowCssShorthand: 'coldlight/shadow-css-shorthand',
+	dimensionToCss: 'coldlight/dimension-to-css',
 };
 
 /** Custom preprocessor names */
@@ -75,7 +76,7 @@ const tiers = {
 	semantic: [
 		'elevation', 'surface', 'border', 'borderPreset', 'transition',
 		'interaction', 'overlay', 'scrollbar', 'backdrop', 'textStyle',
-		'text', 'signal',
+		'text', 'signal', 'accent',
 	],
 };
 
@@ -252,6 +253,51 @@ StyleDictionary.registerPreprocessor({
 });
 
 // ═══════════════════════════════════════════════════════════════
+// CUSTOM TRANSFORM: coldlight/dimension-to-css
+//
+// Replaces SD5 built-in sizePxToRem for ColdLight's fluid token pipeline.
+//
+// ColdLight tokens are a mix of:
+//   - Static px values → convert to rem (same as sizePxToRem)
+//   - Fluid clamp() strings → already in final rem+vw format, pass through
+//   - Static rem values → already final, pass through
+//   - Keyword values (inherit, none, 0) → pass through
+//
+// SD5's built-in sizePxToRem fails on clamp() because it tries to
+// parseFloat a complex CSS function. This transform handles all cases.
+// ═══════════════════════════════════════════════════════════════
+
+StyleDictionary.registerTransform({
+	name: clTransforms.dimensionToCss,
+	type: transformTypes.value,
+	filter: (token) => {
+		const type = token.$type ?? token.type;
+		return type === 'dimension';
+	},
+	transform: (token) => {
+		const val = String(token.$value ?? token.value ?? '');
+
+		// Already final: clamp(), rem, keywords
+		if (val.startsWith('clamp(')) return val;
+		if (val.endsWith('rem')) return val;
+		if (val === 'inherit' || val === 'none' || val === '0' || val === 'unset') return val;
+
+		// px → rem conversion
+		if (val.endsWith('px')) {
+			const px = parseFloat(val);
+			if (!Number.isNaN(px)) return `${px / 16}rem`;
+		}
+
+		// Bare number → assume px, convert to rem
+		const num = parseFloat(val);
+		if (!Number.isNaN(num) && num !== 0) return `${num / 16}rem`;
+
+		// Fallback — return as-is
+		return val;
+	},
+});
+
+// ═══════════════════════════════════════════════════════════════
 // TRANSFORM STACKS
 // ═══════════════════════════════════════════════════════════════
 
@@ -259,7 +305,7 @@ const CSS_TRANSFORMS = [
 	transforms.attributeCti,
 	transforms.nameKebab,
 	transforms.timeSeconds,
-	transforms.sizePxToRem,
+	clTransforms.dimensionToCss,
 	transforms.colorOklch,
 	transforms.fontFamilyCss,
 	transforms.cubicBezierCss,
@@ -468,6 +514,67 @@ StyleDictionary.registerFormat({
 });
 
 // ═══════════════════════════════════════════════════════════════
+// CUSTOM FORMAT: coldlight/tailwind-typography
+//
+// Composed text style @utility blocks for Tailwind v4.
+// text-display-lg → applies all 5 properties in one class.
+// Also registers @theme vars for individual access.
+// ═══════════════════════════════════════════════════════════════
+
+StyleDictionary.registerFormat({
+	name: 'coldlight/tailwind-typography',
+	format: async ({ dictionary, file }) => {
+		const header = await fileHeader({ file });
+		const groups = new Map();
+
+		// Group expanded textStyle tokens by style name
+		// SD5 expands typography composites: path = ['textStyle', 'display-lg', 'fontSize']
+		// The last path segment is the camelCase property name from DTCG
+		for (const token of dictionary.allTokens) {
+			if (token.path[0] !== 'textStyle') continue;
+			const styleName = token.path[1];
+			const prop = token.path[token.path.length - 1]; // camelCase: fontSize, fontWeight, etc.
+			if (!groups.has(styleName)) groups.set(styleName, {});
+			groups.get(styleName)[prop] = token.$value ?? token.value;
+		}
+
+		const themeLines = [];
+		const utilityBlocks = [];
+
+		for (const [name, props] of groups) {
+			// @theme vars for individual access + intellisense
+			if (props.fontSize) themeLines.push(`  --font-size-${name}: ${props.fontSize};`);
+			if (props.lineHeight) themeLines.push(`  --leading-${name}: ${props.lineHeight};`);
+			if (props.fontWeight) themeLines.push(`  --font-weight-${name}: ${props.fontWeight};`);
+			if (props.letterSpacing) themeLines.push(`  --tracking-${name}: ${props.letterSpacing};`);
+			if (props.fontFamily) themeLines.push(`  --font-${name}: ${props.fontFamily};`);
+
+			// @utility block — applies all properties in one class
+			const utilLines = [];
+			if (props.fontSize) utilLines.push(`\tfont-size: var(--font-size-${name});`);
+			if (props.lineHeight) utilLines.push(`\tline-height: var(--leading-${name});`);
+			if (props.fontWeight) utilLines.push(`\tfont-weight: var(--font-weight-${name});`);
+			if (props.letterSpacing) utilLines.push(`\tletter-spacing: var(--tracking-${name});`);
+			if (props.fontFamily) utilLines.push(`\tfont-family: var(--font-${name});`);
+
+			if (utilLines.length > 0) {
+				utilityBlocks.push(`@utility text-${name} {\n${utilLines.join('\n')}\n}`);
+			}
+		}
+
+		const parts = [header];
+		if (themeLines.length > 0) {
+			parts.push(`@theme {\n${themeLines.join('\n')}\n}\n`);
+		}
+		if (utilityBlocks.length > 0) {
+			parts.push(utilityBlocks.join('\n\n'));
+		}
+
+		return parts.join('\n');
+	},
+});
+
+// ═══════════════════════════════════════════════════════════════
 // FILE DEFINITION HELPERS
 // ═══════════════════════════════════════════════════════════════
 
@@ -550,12 +657,13 @@ const config = {
 				cssFile('text-styles.css', pathFilter('textStyle'), layers.semantic),
 			cssFile('text.css', pathFilter('text'), layers.semantic),
 			cssFile('signal.css', pathFilter('signal'), layers.semantic),
+			cssFile('accent.css', pathFilter('accent'), layers.semantic),
 			],
 		},
 
 		// ── CSS: Components ───────────────────────────────────────
 		'css-components': {
-			transformGroup: 'css',
+			transforms: CSS_TRANSFORMS,
 			buildPath: `${paths.design}/styles/${layers.components}/`,
 			files: [
 				{
@@ -569,7 +677,7 @@ const config = {
 
 		// ── CSS: SVG Presets ──────────────────────────────────────
 		'css-svg-presets': {
-			transformGroup: 'css',
+			transforms: CSS_TRANSFORMS,
 			buildPath: `${paths.design}/svg/presets/`,
 			files: [
 				{
@@ -582,7 +690,19 @@ const config = {
 		},
 
 		// ── Theme: per-domain @theme files ────────────────────────
-		'theme-color': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('color.css', pathFilter('color'))] },
+		// Color: ONLY brand hues + utility colors. Full spectrum stays in :root CSS only.
+		'theme-color': {
+			transforms: CSS_TRANSFORMS,
+			buildPath: `${paths.design}/theme/`,
+			files: [themeFile('color.css', (token) => {
+				if (token.path[0] !== 'color') return false;
+				const BRAND = new Set(['teal', 'purple', 'magenta', 'ember', 'frost', 'cyber', 'void', 'neutral']);
+				// white/black are path length 2: ['color', 'white']
+				if (token.path.length === 2) return true;
+				// Brand hues: ['color', 'teal', '500']
+				return BRAND.has(token.path[1]);
+			})],
+		},
 		'theme-shadow': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('shadow.css', pathFilter('shadow'))] },
 		'theme-elevation': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('elevation.css', pathFilter('elevation'))] },
 		'theme-bevel': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('bevel.css', pathFilter('bevel'))] },
@@ -593,6 +713,15 @@ const config = {
 		'theme-spacing': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('spacing.css', pathFilter('space', 'padding', 'size', 'breakpoint', 'zIndex'))] },
 		'theme-typography': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('typography.css', pathFilter('font', 'fontFeatureSettings', 'fontVariationSettings', 'textSize'))] },
 		'theme-text-style': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('text-style.css', pathFilter('textStyle'))] },
+		'theme-text-composed': {
+			transforms: CSS_TRANSFORMS,
+			buildPath: `${paths.design}/theme/`,
+			files: [{
+				destination: 'text-composed.css',
+				format: 'coldlight/tailwind-typography',
+				filter: pathFilter('textStyle'),
+			}],
+		},
 		'theme-motion': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('motion.css', pathFilter('motion'))] },
 		'theme-transition': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('transition.css', pathFilter('transition'))] },
 		'theme-border': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('border.css', pathFilter('border', 'borderPreset'))] },
@@ -603,6 +732,7 @@ const config = {
 		'theme-gradient': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('gradient.css', pathFilter('gradient'))] },
 		'theme-text': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('text.css', pathFilter('text'))] },
 		'theme-signal': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('signal.css', pathFilter('signal'))] },
+		'theme-accent': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('accent.css', pathFilter('accent'))] },
 
 		// ── TypeScript Types ──────────────────────────────────────
 		'types-primitives': {
@@ -629,6 +759,7 @@ const config = {
 				typesFile('backdrop.d.ts', pathFilter('backdrop')),
 				typesFile('text.d.ts', pathFilter('text')),
 				typesFile('signal.d.ts', pathFilter('signal')),
+				typesFile('accent.d.ts', pathFilter('accent')),
 			],
 		},
 		'types-components': {

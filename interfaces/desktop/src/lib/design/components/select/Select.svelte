@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useSelect } from "$lib/design/behaviors/select/use-select.svelte.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setSelectContext } from "./context.js";
 import type { SelectProps } from "./types.js";
@@ -35,7 +35,7 @@ let {
 	onOpenChange,
 	placeholder,
 	disabled = false,
-	intent = "default",
+	preset = "default",
 	children,
 	class: className,
 	...rest
@@ -47,7 +47,7 @@ const hook = useSelect({
 	get disabled() { return disabled; },
 	onValueChange: (v) => onValueChange?.(v),
 	onOpenChange: (v) => onOpenChange?.(v),
-	placeholder,
+	get placeholder() { return placeholder; },
 });
 
 
@@ -55,14 +55,16 @@ setSelectContext({
 	get hook() { return hook; },
 	get placeholder() { return placeholder; },
 });
+
+const m = $derived(resolveMacro({ kind: "select", preset }));
 </script>
 
-<StyleMacro kind="select" intent={intent}>
-	<div
+<div
 		{...hook.root}
+		{...m.dataAttrs}
+		style={cssVarString(m.cssVars)}
 		class={cn(disabled && "opacity-50 pointer-events-none", className)}
 		{...rest}
 	>
 		{@render children?.()}
 	</div>
-</StyleMacro>

@@ -6,4 +6,4 @@
 export { default as Card } from "./Card.svelte";
 export { CardSchema, CATEGORY, type CardSchemaProps } from "./schema.js";
 export { cardTokens } from "./tokens.js";
-export type { CardProps, CardIntent, CardVariant, CardAs, CardOrientation } from "./card.types.js";
+export type { CardProps, CardPreset, CardVariant, CardAs, CardOrientation } from "./card.types.js";

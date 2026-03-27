@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { useTextField } from "$lib/design/behaviors/text-field/index.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TextFieldProps, TextFieldSize } from "./text-field.types.js";
 
@@ -45,7 +45,7 @@ let {
 	required = false,
 	invalid = false,
 	size = "md",
-	intent = "default",
+	preset = "default",
 	leading,
 	trailing,
 	class: className,
@@ -64,10 +64,11 @@ const field = $derived(useTextField({
 	error: errorText,
 }));
 
+const m = $derived(resolveMacro({ kind: "text-field", preset }));
+
 </script>
 
-<StyleMacro kind="text-field" intent={intent}>
-	<div {...field.root} class={className}>
+<div {...field.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} class={className}>
 		{#if labelText}
 			<label {...field.label} class="text-sm font-medium mb-1 block">
 				{labelText}
@@ -111,4 +112,3 @@ const field = $derived(useTextField({
 			<p {...field.error} class="text-xs mt-1">{errorText}</p>
 		{/if}
 	</div>
-</StyleMacro>

@@ -5,4 +5,4 @@
  */
 
 export { default as TableOfContents } from "./TableOfContents.svelte";
-export type { TableOfContentsComponentProps, TableOfContentsSize, TableOfContentsIntent } from "./types.js";
+export type { TableOfContentsComponentProps, TableOfContentsSize, TableOfContentsPreset } from "./types.js";

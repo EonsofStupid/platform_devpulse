@@ -23,7 +23,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ToolbarComponentProps } from "./types.js";
 
@@ -34,20 +34,21 @@ let {
 	disabled = false,
 	loop = true,
 	children,
-	intent = "default",
+	preset = "default",
 	class: className,
 	...rest
 }: ToolbarComponentProps = $props();
+const m = $derived(resolveMacro({ kind: "toolbar", preset }));
 
 </script>
 
-<StyleMacro kind="toolbar" intent={intent}>
-	<div
+<div
 		role="toolbar"
 		aria-label={label}
 		aria-orientation={orientation}
 		aria-disabled={disabled || undefined}
-		data-kind="toolbar"
+		{...m.dataAttrs}
+		style={cssVarString(m.cssVars)}
 		data-slot="root"
 		data-orientation={orientation}
 		class={cn("flex items-center gap-1", orientation === "vertical" ? "flex-col" : "flex-row", disabled && "opacity-50 pointer-events-none", className)}
@@ -55,4 +56,3 @@ let {
 	>
 		{@render children?.()}
 	</div>
-</StyleMacro>

@@ -13,7 +13,7 @@ import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type FormFieldSize = "sm" | "md" | "lg";
-export type FormFieldIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type FormFieldPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 /** FormField component props — builder state + composition + primitive */
 export interface FormFieldComponentProps
@@ -22,8 +22,8 @@ export interface FormFieldComponentProps
 		ComponentProps {
 	/** Control input slot */
 	children?: Snippet;
-	/** Style intent preset */
-	intent?: FormFieldIntent;
+	/** Style preset preset */
+	preset?: FormFieldPreset;
 	/** Label text */
 	label?: string;
 	/** Description / help text */

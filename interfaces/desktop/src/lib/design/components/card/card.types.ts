@@ -7,7 +7,7 @@ import type { HTMLAttributes, HTMLAnchorAttributes } from "svelte/elements";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
 export type CardVariant = "default" | "outlined" | "elevated" | "ghost" | "glow";
-export type CardIntent = "default" | "stark" | "glass" | "flat" | "matte" | "primary" | "secondary" | "ghost" | "danger";
+export type CardPreset = "default" | "stark" | "glass" | "flat" | "matte" | "primary" | "secondary" | "ghost" | "danger";
 export type CardOrientation = "vertical" | "horizontal";
 export type CardAs = "div" | "a" | "button";
 
@@ -20,8 +20,8 @@ export interface CardProps
 	orientation?: CardOrientation;
 	/** Visual variant — maps to styleId. Default: "default". */
 	variant?: CardVariant;
-	/** Visual intent — maps to style preset. Default: "default". */
-	intent?: CardIntent;
+	/** Visual preset — maps to style preset. Default: "default". */
+	preset?: CardPreset;
 	/** Optional accessible label. */
 	label?: string;
 	/** ID of element that labels this card. */

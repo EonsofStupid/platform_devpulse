@@ -85,7 +85,7 @@ $effect(() => {
 			<Text size="lg" weight="bold">DevPulse</Text>
 			<div class={hstack({ gap: "8", align: "center", justify: "center" })}>
 				<span
-					class="inline-block w-1.5 h-1.5 rounded-full bg-[var(--glow-teal-color)] shrink-0 animate-pulse"
+					class="inline-block w-1.5 h-1.5 rounded-full bg-[var(--accent-teal-main)] shrink-0 animate-pulse"
 				></span>
 				<Text size="xs" color="muted">{platformState.bootStepLabel}</Text>
 			</div>

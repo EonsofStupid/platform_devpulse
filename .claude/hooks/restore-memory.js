@@ -8,13 +8,15 @@
 //   agents/claude     — recent sessions, unresolved blockers
 //
 // Creates a session in agents/claude and writes the record ID to CLAUDE_ENV_FILE
+//
+// Uses curl to HTTP /sql endpoint (surreal sql CLI cannot connect — /rpc not exposed)
+// Auth: devpulse_engine:dp_sys_2026! via Basic Auth
 
 const { spawnSync } = require("child_process");
 const fs = require("fs");
 
-const ENDPOINT = "http://127.0.0.1:8822";
-const USER = "root";
-const PASS = "root";
+const ENDPOINT = "http://127.0.0.1:8822/sql";
+const AUTH = "Basic " + Buffer.from("devpulse_engine:dp_sys_2026!").toString("base64");
 
 // Read hook input from stdin for CLAUDE_ENV_FILE
 let hookData = {};
@@ -27,27 +29,24 @@ try {
 
 function query(ns, db, sql) {
 	try {
-		const result = spawnSync(
-			"surreal",
-			[
-				"sql",
-				"--endpoint", ENDPOINT,
-				"--namespace", ns,
-				"--database", db,
-				"--username", USER,
-				"--password", PASS,
-				"--hide-welcome",
-				"--json",
-			],
-			{
-				input: sql,
-				encoding: "utf-8",
-				timeout: 10000,
-			},
-		);
+		const result = spawnSync("curl", [
+			"-s", "-X", "POST", ENDPOINT,
+			"-H", "Accept: application/json",
+			"-H", `NS: ${ns}`,
+			"-H", `DB: ${db}`,
+			"-H", `Authorization: ${AUTH}`,
+			"-d", sql,
+		], {
+			encoding: "utf-8",
+			timeout: 10000,
+		});
 		if (result.error || result.status !== 0) return [];
 		const parsed = JSON.parse(result.stdout);
-		return parsed[0] || [];
+		// SurrealDB HTTP returns array of results, each with "result" key
+		if (Array.isArray(parsed) && parsed[0] && Array.isArray(parsed[0].result)) {
+			return parsed[0].result;
+		}
+		return [];
 	} catch (e) {
 		return [];
 	}
@@ -56,15 +55,26 @@ function query(ns, db, sql) {
 // Check if SurrealDB is accessible
 const testResult = query("global", "knowledge", "SELECT count() AS c FROM preferences GROUP ALL;");
 if (testResult.length === 0) {
-	console.log("[Banter: SurrealDB not accessible on port 8822 - skipping memory restore]");
-	process.exit(0);
+	// Try a simpler connectivity test
+	try {
+		const health = spawnSync("curl", ["-s", "http://127.0.0.1:8822/health"], {
+			encoding: "utf-8",
+			timeout: 3000,
+		});
+		if (!health.stdout || !health.stdout.includes("healthy")) {
+			console.log("[Banter: SurrealDB not accessible on port 8822 - skipping memory restore]");
+			process.exit(0);
+		}
+	} catch (e) {
+		console.log("[Banter: SurrealDB not accessible on port 8822 - skipping memory restore]");
+		process.exit(0);
+	}
 }
 
 // ── Create or find active session ──
 const cwd = hookData.cwd || process.cwd();
 const safeCwd = cwd.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
 
-// Check for an active (unclosed) session first
 let sessionRecordId = null;
 let sessionId = null;
 
@@ -74,14 +84,12 @@ const activeSession = query(
 );
 
 if (activeSession.length > 0 && activeSession[0].id) {
-	// Reuse active session
 	sessionRecordId = activeSession[0].id;
 	sessionId = activeSession[0].session_id;
 } else {
-	// Create new session (rand::uuid() returns UUID type, cast to string for schema)
 	const created = query(
 		"agents", "claude",
-		`CREATE sessions SET session_id = <string> rand::uuid(), project = '${safeCwd}', started_at = time::now();`,
+		`CREATE sessions SET session_id = <string> rand::uuid(), project = '${safeCwd}', started_at = time::now(), message_count = 0;`,
 	);
 	if (created.length > 0 && created[0].id) {
 		sessionRecordId = created[0].id;
@@ -98,12 +106,10 @@ if (sessionRecordId && hookData.env_file) {
 		} catch (e) {
 			// file may not exist yet
 		}
-		// Remove old session vars if present
 		envContent = envContent
 			.split("\n")
 			.filter(l => !l.startsWith("SURREAL_SESSION_RECORD_ID=") && !l.startsWith("SURREAL_SESSION_ID="))
 			.join("\n");
-		// Append new session vars
 		envContent = envContent.trim();
 		if (envContent) envContent += "\n";
 		envContent += `SURREAL_SESSION_RECORD_ID=${sessionRecordId}\n`;

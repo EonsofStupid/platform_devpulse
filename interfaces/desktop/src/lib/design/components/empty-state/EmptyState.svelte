@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { EmptyStateProps, EmptyStateSize } from "./types.js";
 
@@ -33,22 +33,22 @@ const SIZE: Record<EmptyStateSize, string> = {
 };
 
 let {
-	intent = "default",
+	preset = "default",
 	size = "md",
 	children,
 	class: className,
 	...rest
 }: EmptyStateProps = $props();
 
+const m = $derived(resolveMacro({ kind: "empty-state", preset }));
 </script>
 
-<StyleMacro kind="empty-state" intent={intent}>
-	<div
-		data-kind="empty-state"
-		data-slot="root"
-		class={cn("flex flex-col items-center justify-center text-center", SIZE[size] ?? SIZE.md, className)}
-		{...rest}
-	>
-		{@render children?.()}
-	</div>
-</StyleMacro>
+<div
+	{...m.dataAttrs}
+	style={cssVarString(m.cssVars)}
+	data-slot="root"
+	class={cn("flex flex-col items-center justify-center text-center", SIZE[size] ?? SIZE.md, className)}
+	{...rest}
+>
+	{@render children?.()}
+</div>

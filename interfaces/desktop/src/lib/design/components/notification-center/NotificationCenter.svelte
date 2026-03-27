@@ -23,12 +23,11 @@
 -->
 <script lang="ts">
 import { useNotificationCenter } from "$lib/design/behaviors/notification-center/index.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { NotificationCenterComponentProps } from "./types.js";
-let { open = false, onOpenChange, intent = "default", children, class: className, ...rest }: NotificationCenterComponentProps = $props();
+let { open = false, onOpenChange, preset = "default", children, class: className, ...rest }: NotificationCenterComponentProps = $props();
 const nc = $derived(useNotificationCenter({ open }));
+const m = $derived(resolveMacro({ kind: "notification-center", preset }));
 </script>
-<StyleMacro kind="notification-center" intent={intent}>
-	<div {...nc.root} data-kind="notification-center" data-slot="root" data-state={open ? "open" : "closed"} class={cn("fixed z-50 flex flex-col gap-2", className)} {...rest}>{@render children?.()}</div>
-</StyleMacro>
+<div {...nc.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" data-state={open ? "open" : "closed"} class={cn("fixed z-50 flex flex-col gap-2", className)} {...rest}>{@render children?.()}</div>

@@ -5,4 +5,4 @@
  */
 
 export { default as SkipLink } from "./SkipLink.svelte";
-export type { SkipLinkComponentProps, SkipLinkIntent } from "./types.js";
+export type { SkipLinkComponentProps, SkipLinkPreset } from "./types.js";

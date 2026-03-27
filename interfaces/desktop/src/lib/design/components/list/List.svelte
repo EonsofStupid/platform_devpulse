@@ -24,14 +24,13 @@
 -->
 <script lang="ts">
 import { useList } from "$lib/design/behaviors/list/index.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ListComponentProps } from "./types.js";
-let { intent = "default", size = "md", variant = "none", spacing = "default", label, children, class: className, ...rest }: ListComponentProps = $props();
+let { preset = "default", size = "md", variant = "none", spacing = "default", label, children, class: className, ...rest }: ListComponentProps = $props();
 const list = $derived(useList({ label }));
+const m = $derived(resolveMacro({ kind: "list", preset }));
 </script>
-<StyleMacro kind="list" intent={intent}>
-	<ul {...list.root} data-kind="list" data-slot="root" data-variant={variant} class={cn("flex flex-col", className)} {...rest}>
-		{@render children?.()}
-	</ul>
-</StyleMacro>
+<ul {...list.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" data-variant={variant} class={cn("flex flex-col", className)} {...rest}>
+	{@render children?.()}
+</ul>

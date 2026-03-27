@@ -10,7 +10,7 @@ export type {
 	ColorAreaRootProps,
 	ColorAreaThumbProps,
 	ColorAreaGradientProps,
-	ColorAreaIntent,
+	ColorAreaPreset,
 } from "./types.js";
 export {
 	getChannelRange,

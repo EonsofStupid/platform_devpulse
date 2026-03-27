@@ -19,7 +19,7 @@
 	}
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { Button } from "$lib/design/components/button/index.js";
 import type { ChatSidebarProps, ChatMode } from "./types.js";
@@ -40,26 +40,26 @@ let {
 	...rest
 }: ChatSidebarProps = $props();
 
+const m = $derived(resolveMacro({ kind: "chat-sidebar", preset: "default" }));
 </script>
 
-<StyleMacro kind="chat-sidebar" intent="default">
-	<nav
-		aria-label="Chat modes"
-		data-kind="chat-sidebar"
-		data-slot="mode-selector"
-		data-mode={mode}
-		class={cn("flex flex-col items-center gap-2", className)}
-		{...rest}
-	>
-		{#each availableModes as m (m)}
-			<Button
-				intent={mode === m ? "primary" : "ghost"}
-				size="sm"
-				aria-pressed={mode === m}
-				onclick={() => onModeChange?.(m)}
-			>
-				{MODE_LABELS[m]}
-			</Button>
-		{/each}
-	</nav>
-</StyleMacro>
+<nav
+	aria-label="Chat modes"
+	{...m.dataAttrs}
+	data-slot="mode-selector"
+	data-mode={mode}
+	style={cssVarString(m.cssVars)}
+	class={cn("flex flex-col items-center gap-2", className)}
+	{...rest}
+>
+	{#each availableModes as m (m)}
+		<Button
+			preset={mode === m ? "primary" : "ghost"}
+			size="sm"
+			aria-pressed={mode === m}
+			onclick={() => onModeChange?.(m)}
+		>
+			{MODE_LABELS[m]}
+		</Button>
+	{/each}
+</nav>

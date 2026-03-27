@@ -9,6 +9,14 @@
 		"scrim-heavy": {
 			"$value": "oklch(0.0971 0.0114 185.78 / 0.6)",
 			"$description": "Heavy backdrop for critical dialogs"
+		},
+		"bg": {
+			"$value": "{overlay.scrim}",
+			"$description": "Alias — overlay background (same as scrim)"
+		},
+		"bg-heavy": {
+			"$value": "{overlay.scrim-heavy}",
+			"$description": "Alias — heavy overlay background (same as scrim-heavy)"
 		}
 	}
 }

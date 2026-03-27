@@ -22,7 +22,8 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { untrack } from "svelte";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setCalendarContext } from "./context.js";
 import type { CalendarRootProps } from "./types.js";
@@ -47,18 +48,18 @@ let {
 	locale = "en-US",
 	dir = "ltr",
 	children,
-	intent = "default",
+	preset = "default",
 	class: className,
 	...rest
 }: CalendarRootProps = $props();
 
-const headingId = ids?.heading ?? `cal-heading-${Math.random().toString(36).slice(2, 9)}`;
+const headingId = untrack(() => ids?.heading ?? `cal-heading-${Math.random().toString(36).slice(2, 9)}`);
 const today = new Date();
 today.setHours(0, 0, 0, 0);
 
-let internalValue = $state<Date | null | undefined>(defaultValue);
+let internalValue = $state<Date | null | undefined>(untrack(() => defaultValue));
 let currentMonth = $state(new Date());
-let internalFocus = $state<Date | null>(defaultFocusedValue ?? null);
+let internalFocus = $state<Date | null>(untrack(() => defaultFocusedValue ?? null));
 
 const selectedDate = $derived(controlledValue !== undefined ? controlledValue : internalValue);
 const focusedDate = $derived(focusedValue !== undefined ? focusedValue : internalFocus);
@@ -121,21 +122,21 @@ setCalendarContext({
 	},
 });
 
+const m = $derived(resolveMacro({ kind: "calendar", preset }));
 </script>
 
-<StyleMacro kind="calendar" intent={intent}>
-	<div
-		id={ids?.root}
-		role="group"
-		aria-label="Calendar"
-		aria-labelledby={headingId}
-		{dir}
-		data-kind="calendar"
-		data-slot="root"
-		data-state={isDisabled ? "disabled" : undefined}
-		class={cn(className)}
-		{...rest}
-	>
-		{@render children?.()}
-	</div>
-</StyleMacro>
+<div
+	id={ids?.root}
+	role="group"
+	aria-label="Calendar"
+	aria-labelledby={headingId}
+	{dir}
+	{...m.dataAttrs}
+	data-slot="root"
+	data-state={isDisabled ? "disabled" : undefined}
+	style={cssVarString(m.cssVars)}
+	class={cn(className)}
+	{...rest}
+>
+	{@render children?.()}
+</div>

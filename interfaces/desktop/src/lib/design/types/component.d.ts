@@ -78,23 +78,6 @@ export type ChatRecord = {
 	'voice-pulse': string;
 };
 
-export const FontSizeTokens = ['xs', 'sm', 'base', 'lg', 'xl', '2xl', '3xl', '4xl', '5xl'] as const;
-export type FontSizeToken = (typeof FontSizeTokens)[number];
-
-export type FontSizeCSSVar = '--font-size-xs' | '--font-size-sm' | '--font-size-base' | '--font-size-lg' | '--font-size-xl' | '--font-size-2xl' | '--font-size-3xl' | '--font-size-4xl' | '--font-size-5xl';
-
-export type FontSizeRecord = {
-	xs: string;
-	sm: string;
-	base: string;
-	lg: string;
-	xl: string;
-	'2xl': string;
-	'3xl': string;
-	'4xl': string;
-	'5xl': string;
-};
-
 export const OpacityTokens = ['10', '20', '30', '40', '50', '60', '70', '80', '90', '100'] as const;
 export type OpacityToken = (typeof OpacityTokens)[number];
 

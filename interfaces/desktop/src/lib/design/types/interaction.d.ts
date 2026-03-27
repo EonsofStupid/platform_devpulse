@@ -16,14 +16,16 @@ export type InteractionRecord = {
 	disabled: string;
 };
 
-export const OverlayTokens = ['scrim', 'scrim-heavy'] as const;
+export const OverlayTokens = ['scrim', 'scrim-heavy', 'bg', 'bg-heavy'] as const;
 export type OverlayToken = (typeof OverlayTokens)[number];
 
-export type OverlayCSSVar = '--overlay-scrim' | '--overlay-scrim-heavy';
+export type OverlayCSSVar = '--overlay-scrim' | '--overlay-scrim-heavy' | '--overlay-bg' | '--overlay-bg-heavy';
 
 export type OverlayRecord = {
 	scrim: string;
 	'scrim-heavy': string;
+	bg: string;
+	'bg-heavy': string;
 };
 
 export const ScrollbarTokens = ['thumb', 'thumb-hover'] as const;

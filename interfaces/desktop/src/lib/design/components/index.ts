@@ -12,7 +12,7 @@
 
 export {
 	Button,
-	type ButtonIntent,
+	type ButtonPreset,
 	type ButtonProps,
 	type ButtonSize,
 	type ButtonType,

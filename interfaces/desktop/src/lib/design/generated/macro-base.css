@@ -1,24 +1,85 @@
 /**
- * StyleMacro Glue CSS — maps --cl-* vars to CSS properties on [data-kind].
- * StyleMacro assembles composite shorthands in JS.
- * This file just consumes the assembled values.
- * Without this file, StyleMacro outputs vars into the void.
+ * ColdLight Glue CSS — Family-Split Selectors
+ * Per MACRO-LAW.md Law 5.
+ *
+ * Each visual family targets its own data-cl-* attribute.
+ * Components receive only the families their preset uses.
+ * Families are derived at build time by derive-kind-families.mjs.
+ *
+ * Families:
+ *   [data-cl-surface]     — background, borders, shadows
+ *   [data-cl-text]        — typography properties
+ *   [data-cl-frame]       — dimensional (radius, border-width, padding)
+ *   [data-cl-interactive] — cursor, focus, hover, disabled
+ *   [data-cl-layout]      — gap, flow
+ *   [data-cl-overlay]     — backdrop-filter, z-index
  */
 
+/* ── Universal: every [data-kind] element ──────────────── */
 [data-kind] {
-  background-color: var(--cl-bg);
-  backdrop-filter: blur(var(--cl-blur, 0));
-  box-shadow: var(--cl-shadow, none);
-  border: var(--cl-border, none);
+  box-sizing: border-box;
+  transition-duration: var(--cl-transition-duration, 150ms);
+  transition-timing-function: var(--cl-transition-easing, ease-out);
+  transition-property: background-color, border-color, box-shadow, color, opacity, filter;
+  opacity: var(--cl-opacity, 1);
   animation: var(--cl-animation, none);
-  transition: var(--cl-transition, none);
+}
+
+/* ── Surface: background, borders, shadows ─────────────── */
+[data-cl-surface] {
+  background-color: var(--cl-bg);
+  border-color: var(--cl-border, transparent);
+  box-shadow: var(--cl-shadow, none);
+  background-image: var(--cl-gradient, none);
+}
+
+/* ── Text: typography properties ───────────────────────── */
+[data-cl-text] {
+  color: var(--cl-fg, var(--cl-color, inherit));
   font-family: var(--cl-font-family, inherit);
   font-size: var(--cl-font-size, inherit);
   font-weight: var(--cl-font-weight, inherit);
-  letter-spacing: var(--cl-letter-spacing, inherit);
+  letter-spacing: var(--cl-letter-spacing, 0);
   line-height: var(--cl-line-height, inherit);
-  background-image: var(--cl-gradient, none);
-  color: var(--cl-color, inherit);
+}
+
+/* ── Frame: dimensional properties ─────────────────────── */
+[data-cl-frame] {
   border-radius: var(--cl-radius, 0);
-  opacity: var(--cl-opacity, 1);
+  border-width: var(--cl-border-width, 0);
+  border-style: var(--cl-border-style, solid);
+}
+
+/* ── Interactive: behavioral visual properties ─────────── */
+[data-cl-interactive] {
+  cursor: pointer;
+  outline-offset: var(--cl-focus-offset, 2px);
+  -webkit-tap-highlight-color: transparent;
+}
+[data-cl-interactive]:focus-visible {
+  outline: 2px solid var(--cl-focus-ring, currentColor);
+  outline-offset: var(--cl-focus-offset, 2px);
+}
+[data-cl-interactive]:disabled,
+[data-cl-interactive][aria-disabled="true"] {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+[data-cl-interactive]:hover {
+  filter: var(--cl-hover-filter, brightness(1.1));
+}
+[data-cl-interactive]:active {
+  filter: var(--cl-active-filter, brightness(0.9));
+}
+
+/* ── Layout: spacing and flow ──────────────────────────── */
+[data-cl-layout] {
+  gap: var(--cl-gap);
+}
+
+/* ── Overlay: layering and backdrop ────────────────────── */
+[data-cl-overlay] {
+  backdrop-filter: var(--cl-backdrop, none);
+  z-index: var(--cl-z, auto);
+  isolation: isolate;
 }

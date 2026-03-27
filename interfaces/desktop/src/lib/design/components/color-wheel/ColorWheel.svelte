@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
 import { setColorWheelContext } from "./context.js";
@@ -40,7 +40,7 @@ let {
 	form,
 	dir = "ltr",
 	children,
-	intent = "default",
+	preset = "default",
 	class: className,
 	...rest
 }: ColorWheelRootProps = $props();
@@ -91,18 +91,20 @@ setColorWheelContext({
 	trackAction: drag.trackAction,
 	thumbAction: drag.thumbAction,
 });
+
+const m = $derived(resolveMacro({ kind: "color-wheel", preset }));
 </script>
 
-<StyleMacro kind="color-wheel" intent={intent}>
 <div
 	id={resolvedIds.root}
 	{dir}
 	role="group"
 	aria-label="Color wheel"
 	aria-disabled={isDisabled || undefined}
-	data-kind="color-wheel"
+	{...m.dataAttrs}
 	data-slot="root"
 	data-dragging={drag.state.isDragging || undefined}
+	style={cssVarString(m.cssVars)}
 	class={cn(className)}
 	style:width="{size}px"
 	style:height="{size}px"
@@ -114,4 +116,3 @@ setColorWheelContext({
 		<input type="hidden" {name} value={currentHue} {form} />
 	{/if}
 </div>
-</StyleMacro>

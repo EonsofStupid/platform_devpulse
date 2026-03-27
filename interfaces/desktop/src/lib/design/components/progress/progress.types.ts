@@ -6,14 +6,14 @@
 import type { HTMLAttributes } from "svelte/elements";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
-export type ProgressIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type ProgressPreset = "default" | "stark" | "glass" | "flat" | "matte";
 export type ProgressSize = "sm" | "md" | "lg";
 
 export interface ProgressProps
 	extends ComponentProps,
 		Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class"> {
-	/** Visual intent — maps to styleId */
-	intent?: ProgressIntent;
+	/** Visual preset — maps to styleId */
+	preset?: ProgressPreset;
 	/** Current value (null = indeterminate) */
 	value?: number | null;
 	/** Minimum value */

@@ -19,7 +19,7 @@
 	}
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import Text from "$lib/design/components/text/Text.svelte";
 import Heading from "$lib/design/components/heading/Heading.svelte";
@@ -38,38 +38,38 @@ let {
 	...rest
 }: ChatTopBarProps = $props();
 
+const m = $derived(resolveMacro({ kind: "chat-topbar", preset: "default" }));
 </script>
 
-<StyleMacro kind="chat-topbar" intent="default">
-	<div
-		role="banner"
-		data-kind="chat-topbar"
-		data-slot="topbar"
-		class={cn("flex items-center justify-between", className)}
-		{...rest}
-	>
-		<div class="flex items-center gap-2">
-			{#if hubLabel}
-				<Text size="xs" weight="semibold">{hubLabel}</Text>
-			{/if}
-			{#if title}
-				<Heading level={6} size="xs">{title}</Heading>
-			{/if}
-		</div>
-		<div class="flex items-center gap-1">
-			{#if children}
-				{@render children()}
-			{/if}
-			{#if onMinimize}
-				<Button intent="ghost" size="sm" onclick={onMinimize}>
-					<Minus size={14} />
-				</Button>
-			{/if}
-			{#if onClose}
-				<Button intent="ghost" size="sm" onclick={onClose}>
-					<X size={14} />
-				</Button>
-			{/if}
-		</div>
+<div
+	role="banner"
+	{...m.dataAttrs}
+	data-slot="topbar"
+	style={cssVarString(m.cssVars)}
+	class={cn("flex items-center justify-between", className)}
+	{...rest}
+>
+	<div class="flex items-center gap-2">
+		{#if hubLabel}
+			<Text size="xs" weight="semibold">{hubLabel}</Text>
+		{/if}
+		{#if title}
+			<Heading level={6} size="xs">{title}</Heading>
+		{/if}
 	</div>
-</StyleMacro>
+	<div class="flex items-center gap-1">
+		{#if children}
+			{@render children()}
+		{/if}
+		{#if onMinimize}
+			<Button preset="ghost" size="sm" onclick={onMinimize}>
+				<Minus size={14} />
+			</Button>
+		{/if}
+		{#if onClose}
+			<Button preset="ghost" size="sm" onclick={onClose}>
+				<X size={14} />
+			</Button>
+		{/if}
+	</div>
+</div>

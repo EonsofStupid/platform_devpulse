@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useSlider } from "$lib/design/behaviors/slider/use-slider.svelte.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setSliderContext } from "./context.js";
 import type { SliderProps } from "./types.js";
@@ -37,7 +37,7 @@ let {
 	onValueChange,
 	disabled = false,
 	children,
-	intent = "default",
+	preset = "default",
 	class: className,
 	...rest
 }: SliderProps = $props();
@@ -55,11 +55,14 @@ const hook = useSlider({
 setSliderContext({
 	get hook() { return hook; },
 });
+
+const m = $derived(resolveMacro({ kind: "slider", preset }));
 </script>
 
-<StyleMacro kind="slider" intent={intent}>
-	<div
+<div
 		{...hook.root}
+		{...m.dataAttrs}
+		style={cssVarString(m.cssVars)}
 		data-orientation={orientation}
 		class={cn(
 			"relative flex w-full touch-none select-none items-center",
@@ -99,4 +102,3 @@ setSliderContext({
 			></div>
 		{/if}
 	</div>
-</StyleMacro>

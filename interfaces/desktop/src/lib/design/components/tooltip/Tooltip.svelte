@@ -31,7 +31,7 @@ let {
 	children,
 }: { openDelay?: number; closeDelay?: number; children?: import("svelte").Snippet } = $props();
 
-const hook = useTooltip({ openDelay, closeDelay });
+const hook = useTooltip({ get openDelay() { return openDelay; }, get closeDelay() { return closeDelay; } });
 
 setTooltipContext({
 	get hook() { return hook; },

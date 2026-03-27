@@ -18,7 +18,7 @@
 	}
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ChatDashboardProps } from "./types.js";
 
@@ -29,18 +29,18 @@ let {
 	...rest
 }: ChatDashboardProps = $props();
 
+const m = $derived(resolveMacro({ kind: "chat-dashboard", preset: "default" }));
 </script>
 
-<StyleMacro kind="chat-dashboard" intent="default">
-	<div
-		role="log"
-		aria-live="polite"
-		aria-label="Chat messages"
-		data-kind="chat-dashboard"
-		data-slot="chat-dashboard"
-		class={cn("flex flex-col overflow-y-auto scrollbar-thin", className)}
-		{...rest}
-	>
-		{@render children?.()}
-	</div>
-</StyleMacro>
+<div
+	role="log"
+	aria-live="polite"
+	aria-label="Chat messages"
+	{...m.dataAttrs}
+	data-slot="chat-dashboard"
+	style={cssVarString(m.cssVars)}
+	class={cn("flex flex-col overflow-y-auto scrollbar-thin", className)}
+	{...rest}
+>
+	{@render children?.()}
+</div>

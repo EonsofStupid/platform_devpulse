@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ColorSwatchProps } from "./types.js";
 
@@ -33,31 +33,32 @@ let {
 	rounding = "default",
 	dir = "ltr",
 	children,
-	intent = "default",
+	preset = "default",
 	class: className,
 	...rest
 }: ColorSwatchProps = $props();
 
 const accessibleName = $derived(colorName ?? color);
+
+const m = $derived(resolveMacro({ kind: "color-swatch", preset }));
 </script>
 
-<StyleMacro kind="color-swatch" intent={intent}>
-	<div
-		{id}
-		{dir}
-		role="img"
-		aria-roledescription="color swatch"
-		aria-label={accessibleName}
-		data-kind="color-swatch"
-		data-slot="root"
-		data-size={size}
-		data-rounding={rounding}
-		class={cn(className)}
-		style:background-color={color}
-		{...rest}
-	>
-		{#if children}
-			{@render children()}
-		{/if}
-	</div>
-</StyleMacro>
+<div
+	{id}
+	{dir}
+	role="img"
+	aria-roledescription="color swatch"
+	aria-label={accessibleName}
+	{...m.dataAttrs}
+	data-slot="root"
+	data-size={size}
+	data-rounding={rounding}
+	style={cssVarString(m.cssVars)}
+	class={cn(className)}
+	style:background-color={color}
+	{...rest}
+>
+	{#if children}
+		{@render children()}
+	{/if}
+</div>

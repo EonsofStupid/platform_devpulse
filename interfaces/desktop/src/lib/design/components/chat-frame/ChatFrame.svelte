@@ -23,7 +23,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ChatFrameProps } from "./types.js";
 
@@ -37,25 +37,25 @@ let {
 	...rest
 }: ChatFrameProps = $props();
 
+const m = $derived(resolveMacro({ kind: "chat-frame", preset: "default" }));
 </script>
 
-<StyleMacro kind="chat-frame" intent="default">
-	<div
-		role="dialog"
-		aria-label="Maestro Chat"
-		aria-modal="false"
-		data-kind="chat-frame"
-		data-slot="root"
-		data-layout="chat"
-		data-state={state}
-		data-engaged={String(engaged)}
-		data-context-collapsed={String(contextCollapsed)}
-		class={cn("chat-frame overflow-hidden font-sans", className)}
-		{...rest}
-	>
-		{@render children()}
-	</div>
-</StyleMacro>
+<div
+	role="dialog"
+	aria-label="Maestro Chat"
+	aria-modal="false"
+	{...m.dataAttrs}
+	data-slot="root"
+	data-layout="chat"
+	data-state={state}
+	data-engaged={String(engaged)}
+	data-context-collapsed={String(contextCollapsed)}
+	style={cssVarString(m.cssVars)}
+	class={cn("chat-frame overflow-hidden font-sans", className)}
+	{...rest}
+>
+	{@render children()}
+</div>
 
 <style>
 	/* ── Grid Structure ─────────────────────────────────────── */

@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SkipLinkComponentProps } from "./types.js";
 
@@ -30,17 +30,18 @@ let {
 	href = "#main-content",
 	label = "Skip to main content",
 	children,
-	intent = "default",
+	preset = "default",
 	class: className,
 	...rest
 }: SkipLinkComponentProps = $props();
+const m = $derived(resolveMacro({ kind: "skip-link", preset }));
 
 </script>
 
-<StyleMacro kind="skip-link" intent={intent}>
-	<a
+<a
 		{href}
-		data-kind="skip-link"
+		{...m.dataAttrs}
+		style={cssVarString(m.cssVars)}
 		data-slot="root"
 		class={cn(
 			"sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999]",
@@ -54,4 +55,3 @@ let {
 			{label}
 		{/if}
 	</a>
-</StyleMacro>

@@ -51,6 +51,7 @@ const INDEX_CSS = `/* AUTO-GENERATED — DO NOT EDIT */
 @import "./semantic/text-styles.css";
 @import "./semantic/text.css";
 @import "./semantic/signal.css";
+@import "./semantic/accent.css";
 
 /* ── Components ──────────────────────────────────────────── */
 @import "./components/components.generated.css";
@@ -85,6 +86,8 @@ const INDEX_THEME = `/* AUTO-GENERATED — DO NOT EDIT */
 @import "./backdrop.css";
 @import "./text.css";
 @import "./signal.css";
+@import "./accent.css";
+@import "./text-composed.css";
 `;
 
 // ─── Barrel: TypeScript re-exports ───────────────────────────────────
@@ -106,6 +109,7 @@ export * from './component.js';
 export * from './gradient.js';
 export * from './text.js';
 export * from './signal.js';
+export * from './accent.js';
 `;
 
 // ─── Build ───────────────────────────────────────────────────────────
@@ -128,6 +132,13 @@ async function build() {
 	// Step 2: Expand preset shorthand → 11-axis DTCG in component.json
 	console.log('[SD5] Expanding preset styles...');
 	execSync('node scripts/build/styledictionary/collect-preset-styles.mjs', {
+		cwd: process.cwd(),
+		stdio: 'inherit',
+	});
+
+	// Step 3: Derive kind → family mapping from enriched presets
+	console.log('[SD5] Deriving kind families...');
+	execSync('node scripts/build/styledictionary/derive-kind-families.mjs', {
 		cwd: process.cwd(),
 		stdio: 'inherit',
 	});

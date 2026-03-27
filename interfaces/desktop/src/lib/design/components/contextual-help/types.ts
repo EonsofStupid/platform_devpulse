@@ -14,7 +14,7 @@ import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
-export type ContextualHelpIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type ContextualHelpPreset = "default" | "stark" | "glass" | "flat" | "matte";
 export type ContextualHelpVariant = "info" | "help";
 export type ContextualHelpSize = "xs" | "sm";
 export type ContextualHelpPlacement =
@@ -38,8 +38,8 @@ export interface ContextualHelpRootProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
 		ComponentProps {
 	ids?: Partial<ContextualHelpIds>;
-	/** Style intent. Default: "default". */
-	intent?: ContextualHelpIntent;
+	/** Style preset. Default: "default". */
+	preset?: ContextualHelpPreset;
 	/** Info icon or help question mark. Default: "help". */
 	variant?: ContextualHelpVariant;
 	/** Size of the trigger button. Default: "xs". */

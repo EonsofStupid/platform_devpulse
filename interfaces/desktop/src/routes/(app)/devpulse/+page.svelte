@@ -61,7 +61,7 @@ $effect(() => {
 		<Widget
 			title="Maestro Control"
 			icon={Gauge}
-			intent="glass"
+			preset="glass"
 		>
 			<div class="flex items-center justify-center py-4">
 				<RadialGauge
@@ -70,7 +70,7 @@ $effect(() => {
 					label={devpulseState.data.system.maestroLoad.label}
 					unit="%"
 					accent="teal"
-					intent="glass"
+					preset="glass"
 					size={200}
 				/>
 			</div>
@@ -81,7 +81,7 @@ $effect(() => {
 		<Widget
 			title="System Overview"
 			icon={Activity}
-			intent="glass"
+			preset="glass"
 		>
 			<div class="flex items-center justify-center gap-6 py-2">
 				<RadialGauge
@@ -90,7 +90,7 @@ $effect(() => {
 					label="Context"
 					unit="%"
 					accent="purple"
-					intent="glass"
+					preset="glass"
 					size={130}
 					strokeWidth={6}
 				/>
@@ -100,7 +100,7 @@ $effect(() => {
 					label="Memory"
 					unit="GB"
 					accent="cyber"
-					intent="glass"
+					preset="glass"
 					size={130}
 					strokeWidth={6}
 				/>
@@ -112,7 +112,7 @@ $effect(() => {
 		<Widget
 			title="Developer Stats"
 			icon={TrendingUp}
-			intent="default"
+			preset="default"
 		>
 			<div class={stack({ gap: "3" })}>
 				<div class={hstack({ justify: "between", align: "baseline" })}>
@@ -147,7 +147,7 @@ $effect(() => {
 		<Widget
 			title="Activity Timeline"
 			icon={BarChart3}
-			intent="glass"
+			preset="glass"
 			tabs={[
 				{ id: "activity", label: "Activity" },
 				{ id: "commits", label: "Commits" },
@@ -159,7 +159,7 @@ $effect(() => {
 				<SparkLine
 					data={[...devpulseState.data.system.activityTimeline.data]}
 					accent="teal"
-					intent="glass"
+					preset="glass"
 					width={600}
 					height={100}
 					lineWidth={2}
@@ -170,7 +170,7 @@ $effect(() => {
 						<SparkLine
 							data={[...devpulseState.data.system.commitHistory.data]}
 							accent="purple"
-							intent="glass"
+							preset="glass"
 							width={280}
 							height={50}
 							lineWidth={1.5}
@@ -181,7 +181,7 @@ $effect(() => {
 						<SparkLine
 							data={[...devpulseState.data.system.buildHealth.data]}
 							accent="cyber"
-							intent="glass"
+							preset="glass"
 							width={280}
 							height={50}
 							lineWidth={1.5}
@@ -196,7 +196,7 @@ $effect(() => {
 		<Widget
 			title="Store Health"
 			icon={HeartPulse}
-			intent="default"
+			preset="default"
 		>
 			<div class={stack({ gap: "3" })}>
 				{#if platformState.health}
@@ -240,7 +240,7 @@ $effect(() => {
 		<Widget
 			title="Recent Projects"
 			icon={FolderGit2}
-			intent="default"
+			preset="default"
 			tabs={[
 				{ id: "all", label: "All" },
 				{ id: "active", label: "Active" },

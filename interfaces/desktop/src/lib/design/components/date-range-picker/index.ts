@@ -5,7 +5,7 @@ export { default as Content } from "./DateRangePickerContent.svelte";
 export { default as Calendar } from "./DateRangePickerCalendar.svelte";
 export { default as PresetTrigger } from "./DateRangePickerPresetTrigger.svelte";
 export type {
-	DateRangePickerIntent,
+	DateRangePickerPreset,
 	DateRangeValue,
 	DateRangePickerIds,
 	DateRangePickerValueChangeDetails,

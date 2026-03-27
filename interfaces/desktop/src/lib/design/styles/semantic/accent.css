@@ -1,0 +1,26 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@layer tokens.semantic {
+  :root {
+  --accent-teal-main: var(--color-teal-400); /** Primary indicator color */
+  --accent-teal-glow: oklch(0.63 0.08 173 / 0.35); /** Drop-shadow / box-shadow emission */
+  --accent-teal-fill: oklch(0.63 0.08 173 / 0.08); /** Sparkline area fill, subtle bg tint */
+  --accent-purple-main: var(--color-purple-400); /** Primary indicator color */
+  --accent-purple-glow: oklch(0.63 0.12 280 / 0.35); /** Drop-shadow / box-shadow emission */
+  --accent-purple-fill: oklch(0.63 0.12 280 / 0.08); /** Sparkline area fill, subtle bg tint */
+  --accent-magenta-main: var(--color-magenta-400); /** Primary indicator color */
+  --accent-magenta-glow: oklch(0.63 0.14 330 / 0.35); /** Drop-shadow / box-shadow emission */
+  --accent-magenta-fill: oklch(0.63 0.14 330 / 0.08); /** Sparkline area fill, subtle bg tint */
+  --accent-ember-main: var(--color-ember-400); /** Primary indicator color */
+  --accent-ember-glow: oklch(0.63 0.12 25 / 0.35); /** Drop-shadow / box-shadow emission */
+  --accent-ember-fill: oklch(0.63 0.12 25 / 0.08); /** Sparkline area fill, subtle bg tint */
+  --accent-frost-main: var(--color-frost-400); /** Primary indicator color */
+  --accent-frost-glow: oklch(0.63 0.06 220 / 0.35); /** Drop-shadow / box-shadow emission */
+  --accent-frost-fill: oklch(0.63 0.06 220 / 0.08); /** Sparkline area fill, subtle bg tint */
+  --accent-cyber-main: var(--color-cyber-400); /** Primary indicator color */
+  --accent-cyber-glow: oklch(0.63 0.1 160 / 0.35); /** Drop-shadow / box-shadow emission */
+  --accent-cyber-fill: oklch(0.63 0.1 160 / 0.08); /** Sparkline area fill, subtle bg tint */
+  }
+}

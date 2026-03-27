@@ -19,7 +19,7 @@
 	}
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { TextField } from "$lib/design/components/text-field/index.js";
 import { Button } from "$lib/design/components/button/index.js";
@@ -52,38 +52,39 @@ function handleKeydown(event: KeyboardEvent) {
 		handleSend();
 	}
 }
+
+const m = $derived(resolveMacro({ kind: "chat-footer", preset: "default" }));
 </script>
 
-<StyleMacro kind="chat-footer" intent="default">
-	<div
-		role="form"
-		aria-label="Send message"
-		data-kind="chat-footer"
-		data-slot="chat-footer"
-		class={cn("flex items-center gap-2", className)}
-		{...rest}
-	>
-		<TextField
-			placeholder="Type a message..."
-			value={inputValue}
-			onValueChange={(v) => (inputValue = v)}
+<div
+	role="form"
+	aria-label="Send message"
+	{...m.dataAttrs}
+	data-slot="chat-footer"
+	style={cssVarString(m.cssVars)}
+	class={cn("flex items-center gap-2", className)}
+	{...rest}
+>
+	<TextField
+		placeholder="Type a message..."
+		value={inputValue}
+		onValueChange={(v) => (inputValue = v)}
+		{disabled}
+		onkeydown={handleKeydown}
+		class="flex-1"
+	/>
+	<Button preset="primary" size="sm" onclick={handleSend} {disabled}>
+		<Send size={16} />
+	</Button>
+	{#if onVoice}
+		<Button
+			preset={voiceActive ? "primary" : "ghost"}
+			size="sm"
+			aria-pressed={voiceActive}
+			onclick={onVoice}
 			{disabled}
-			onkeydown={handleKeydown}
-			class="flex-1"
-		/>
-		<Button intent="primary" size="sm" onclick={handleSend} {disabled}>
-			<Send size={16} />
+		>
+			<Mic size={16} />
 		</Button>
-		{#if onVoice}
-			<Button
-				intent={voiceActive ? "primary" : "ghost"}
-				size="sm"
-				aria-pressed={voiceActive}
-				onclick={onVoice}
-				{disabled}
-			>
-				<Mic size={16} />
-			</Button>
-		{/if}
-	</div>
-</StyleMacro>
+	{/if}
+</div>

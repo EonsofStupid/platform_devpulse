@@ -28,6 +28,7 @@
 @import "./semantic/text-styles.css";
 @import "./semantic/text.css";
 @import "./semantic/signal.css";
+@import "./semantic/accent.css";
 
 /* ── Components ──────────────────────────────────────────── */
 @import "./components/components.generated.css";

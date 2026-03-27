@@ -27,12 +27,12 @@
   --text-style-body-font-family: Inter, system-ui, sans-serif;
   --text-style-body-font-weight: 400;
   --text-style-body-line-height: 1.5;
-  --text-style-body-letter-spacing: 0;
+  --text-style-body-letter-spacing: 0em;
   --text-style-body-sm-font-size: 0.8125rem;
   --text-style-body-sm-font-family: Inter, system-ui, sans-serif;
   --text-style-body-sm-font-weight: 400;
   --text-style-body-sm-line-height: 1.45;
-  --text-style-body-sm-letter-spacing: 0;
+  --text-style-body-sm-letter-spacing: 0em;
   --text-style-caption-font-size: 0.75rem;
   --text-style-caption-font-family: Inter, system-ui, sans-serif;
   --text-style-caption-font-weight: 500;
@@ -47,7 +47,7 @@
   --text-style-code-font-family: 'JetBrains Mono', 'Fira Code', monospace;
   --text-style-code-font-weight: 400;
   --text-style-code-line-height: 1.6;
-  --text-style-code-letter-spacing: 0;
+  --text-style-code-letter-spacing: 0em;
   --text-style-stat-font-size: 1.5rem;
   --text-style-stat-font-family: Orbitron, system-ui, sans-serif;
   --text-style-stat-font-weight: 700;

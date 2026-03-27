@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { buildColorString, getChannelRange, percentToValue } from "./color-utils.js";
 import { setColorAreaContext } from "./context.js";
@@ -44,12 +44,13 @@ let {
 	dir = "ltr",
 	step = 1,
 	children,
-	intent = "default",
+	preset = "default",
 	class: className,
 	...rest
 }: ColorAreaRootProps = $props();
 
-let internalValue = $state(defaultValue ?? "");
+let internalValue = $state("");
+$effect.pre(() => { if (controlledValue !== undefined) { internalValue = controlledValue; } else if (internalValue === "" && defaultValue) { internalValue = defaultValue; } });
 const currentValue = $derived(controlledValue !== undefined ? controlledValue : internalValue);
 
 const xRange = $derived(getChannelRange(colorSpace, xChannel));
@@ -93,9 +94,9 @@ setColorAreaContext({
 	thumbAction: drag.thumbAction,
 });
 
+const m = $derived(resolveMacro({ kind: "color-area", preset }));
 </script>
 
-<StyleMacro kind="color-area" intent={intent}>
 <div
 	id={ids?.root}
 	{dir}
@@ -103,9 +104,10 @@ setColorAreaContext({
 	aria-roledescription="2d color picker"
 	aria-label="Color picker"
 	aria-disabled={isDisabled || undefined}
-	data-kind="color-area"
+	{...m.dataAttrs}
 	data-slot="root"
 	data-dragging={drag.state.isDragging || undefined}
+	style={cssVarString(m.cssVars)}
 	class={cn(isDisabled ? "pointer-events-none opacity-60" : undefined, className)}
 	use:drag.action
 	{...rest}
@@ -119,4 +121,3 @@ setColorAreaContext({
 		<input type="hidden" name={yName} value={yValue} {form} />
 	{/if}
 </div>
-</StyleMacro>

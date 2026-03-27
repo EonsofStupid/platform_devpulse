@@ -5,4 +5,4 @@
  */
 
 export { default as Prose } from "./Prose.svelte";
-export type { ProseComponentProps, ProseIntent, ProseSize } from "./types.js";
+export type { ProseComponentProps, ProsePreset, ProseSize } from "./types.js";

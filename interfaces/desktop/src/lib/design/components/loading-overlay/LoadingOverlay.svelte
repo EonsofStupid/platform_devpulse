@@ -22,12 +22,12 @@
 -->
 <script lang="ts">
 import { useLoadingOverlay } from "$lib/design/behaviors/loading-overlay/index.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { LoadingOverlayComponentProps } from "./types.js";
 
 let {
-	intent = "default",
+	preset = "default",
 	visible = false,
 	children,
 	class: className,
@@ -35,30 +35,30 @@ let {
 }: LoadingOverlayComponentProps = $props();
 
 const overlay = $derived(useLoadingOverlay({ visible }));
+const m = $derived(resolveMacro({ kind: "loading-overlay", preset }));
 </script>
 
 {#if visible}
-	<StyleMacro kind="loading-overlay" intent={intent}>
-		<div
-			{...overlay.root}
-			data-kind="loading-overlay"
-			data-slot="root"
-			data-state={visible ? "visible" : "hidden"}
-			class={cn(
-				"absolute inset-0 z-50 flex items-center justify-center",
-				className)}
-			{...rest}
-		>
-			{#if children}
-				{@render children()}
-			{:else}
-				<div class="animate-spin size-6" data-kind="loading-overlay" data-slot="spinner" aria-hidden="true">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="size-full">
-						<circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
-						<path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round" />
-					</svg>
-				</div>
-			{/if}
-		</div>
-	</StyleMacro>
+	<div
+		{...overlay.root}
+		{...m.dataAttrs}
+		style={cssVarString(m.cssVars)}
+		data-slot="root"
+		data-state={visible ? "visible" : "hidden"}
+		class={cn(
+			"absolute inset-0 z-50 flex items-center justify-center",
+			className)}
+		{...rest}
+	>
+		{#if children}
+			{@render children()}
+		{:else}
+			<div class="animate-spin size-6" data-kind="loading-overlay" data-slot="spinner" aria-hidden="true">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="size-full">
+					<circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
+					<path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round" />
+				</svg>
+			</div>
+		{/if}
+	</div>
 {/if}

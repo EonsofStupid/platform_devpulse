@@ -14,7 +14,7 @@ import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
 export type DateFieldSize = "sm" | "md" | "lg" | "xl";
 export type DateFieldGranularity = "day" | "month" | "year" | "hour" | "minute" | "second";
-export type DateFieldIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type DateFieldPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 export interface DateSegment {
 	type: "month" | "day" | "year" | "hour" | "minute" | "second" | "dayPeriod" | "literal";
@@ -40,8 +40,8 @@ export interface DateFieldRootProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
 		ComponentProps {
 	ids?: Partial<DateFieldIds>;
-	/** Style intent. Default: "default". */
-	intent?: DateFieldIntent;
+	/** Style preset. Default: "default". */
+	preset?: DateFieldPreset;
 	/** Controlled value. */
 	value?: Date | null;
 	/** Initial value when uncontrolled. */

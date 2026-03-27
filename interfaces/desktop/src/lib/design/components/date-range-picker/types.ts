@@ -37,7 +37,7 @@ export interface DateRangePickerIds {
 
 export type DateRangePickerSize = "sm" | "md" | "lg" | "xl";
 export type DateRangePickerGranularity = "day" | "month" | "year" | "hour" | "minute" | "second";
-export type DateRangePickerIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type DateRangePickerPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 export interface PresetTriggerValue {
 	label: string;
@@ -48,8 +48,8 @@ export interface DateRangePickerRootProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
 		ComponentProps {
 	ids?: Partial<DateRangePickerIds>;
-	/** Style intent. Default: "default". */
-	intent?: DateRangePickerIntent;
+	/** Style preset. Default: "default". */
+	preset?: DateRangePickerPreset;
 	value?: DateRangeValue | null;
 	defaultValue?: DateRangeValue | null;
 	onChange?: (details: DateRangePickerValueChangeDetails) => void;

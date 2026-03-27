@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { AvatarProps, AvatarLoadStatus } from "./avatar.types.js";
 
@@ -30,7 +30,7 @@ let {
 	alt,
 	fallback,
 	size = 40,
-	intent = "default",
+	preset = "default",
 	onStatusChange,
 	children,
 	class: className,
@@ -56,48 +56,49 @@ $effect(() => {
 		onStatusChange?.({ status: "loading" });
 	}
 });
+
+const m = $derived(resolveMacro({ kind: "avatar", preset }));
 </script>
 
-<StyleMacro kind="avatar" intent={intent}>
-	<span
-		role="img"
-		aria-label={alt}
-		data-kind="avatar"
-		data-slot="root"
-		data-state={status}
-		class={cn(
-			"inline-flex items-center justify-center overflow-hidden rounded-full",
-			"font-medium text-sm select-none",
-			className)}
-		style:width="{size}px"
-		style:height="{size}px"
-		{...rest}
-	>
-		{#if children}
-			{@render children()}
-		{:else}
-			{#if src && status !== "error"}
-				<img
-					{src}
-					{alt}
-					class="h-full w-full object-cover"
-					data-kind="avatar"
-					data-slot="image"
-					onload={handleLoad}
-					onerror={handleError}
-					style:display={status === "loaded" ? undefined : "none"}
-				/>
-			{/if}
-			{#if status !== "loaded"}
-				<span
-					class="flex h-full w-full items-center justify-center"
-					data-kind="avatar"
-					data-slot="fallback"
-					aria-hidden="true"
-				>
-					{fallbackText}
-				</span>
-			{/if}
+<span
+	role="img"
+	aria-label={alt}
+	{...m.dataAttrs}
+	data-slot="root"
+	data-state={status}
+	style={cssVarString(m.cssVars)}
+	class={cn(
+		"inline-flex items-center justify-center overflow-hidden rounded-full",
+		"font-medium text-sm select-none",
+		className)}
+	style:width="{size}px"
+	style:height="{size}px"
+	{...rest}
+>
+	{#if children}
+		{@render children()}
+	{:else}
+		{#if src && status !== "error"}
+			<img
+				{src}
+				{alt}
+				class="h-full w-full object-cover"
+				data-kind="avatar"
+				data-slot="image"
+				onload={handleLoad}
+				onerror={handleError}
+				style:display={status === "loaded" ? undefined : "none"}
+			/>
 		{/if}
-	</span>
-</StyleMacro>
+		{#if status !== "loaded"}
+			<span
+				class="flex h-full w-full items-center justify-center"
+				data-kind="avatar"
+				data-slot="fallback"
+				aria-hidden="true"
+			>
+				{fallbackText}
+			</span>
+		{/if}
+	{/if}
+</span>

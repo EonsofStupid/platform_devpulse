@@ -7,7 +7,7 @@
 export { default as DescriptionList } from "./DescriptionList.svelte";
 export type {
 	DescriptionListComponentProps,
-	DescriptionListIntent,
+	DescriptionListPreset,
 	DescriptionListSize,
 	DescriptionListVariant,
 } from "./types.js";

@@ -13,7 +13,7 @@ import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type InputGroupSize = "sm" | "md" | "lg";
-export type InputGroupIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type InputGroupPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 /** InputGroup component props — builder state + composition + primitive */
 export interface InputGroupComponentProps
@@ -22,8 +22,8 @@ export interface InputGroupComponentProps
 		ComponentProps {
 	/** Main content slot (typically an input element) */
 	children?: Snippet;
-	/** Style intent preset */
-	intent?: InputGroupIntent;
+	/** Style preset preset */
+	preset?: InputGroupPreset;
 	/** Prefix addon content */
 	prefix?: Snippet;
 	/** Suffix addon content */

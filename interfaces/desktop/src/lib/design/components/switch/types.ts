@@ -11,7 +11,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type SwitchSize = "sm" | "md" | "lg";
 
-export type SwitchIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type SwitchPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 export interface SwitchProps
 	extends Omit<HTMLButtonAttributes, "style" | "children" | "disabled">,
@@ -21,7 +21,7 @@ export interface SwitchProps
 	disabled?: boolean;
 	checked?: boolean;
 	onCheckedChange?: (checked: boolean) => void;
-	/** Style intent. Default: "default". */
-	intent?: SwitchIntent;
+	/** Style preset. Default: "default". */
+	preset?: SwitchPreset;
 	size?: SwitchSize;
 }

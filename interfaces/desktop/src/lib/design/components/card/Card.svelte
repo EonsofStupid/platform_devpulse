@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { CardProps } from "./card.types.js";
 
@@ -30,7 +30,7 @@ let {
 	as = "div",
 	orientation = "vertical",
 	variant = "default",
-	intent = "default",
+	preset = "default",
 	label,
 	labelledBy,
 	href,
@@ -47,50 +47,53 @@ const rootClasses = $derived(cn(
 	orientation === "horizontal" ? "flex-row" : "flex-col",
 	disabled && "pointer-events-none opacity-60",
 	className));
+
+const m = $derived(resolveMacro({ kind: "card", preset }));
 </script>
 
-<StyleMacro kind="card" intent={intent}>
-	{#if as === "a"}
-		<a
-			{href}
-			{target}
-			aria-label={label || undefined}
-			aria-labelledby={labelledBy || undefined}
-			aria-disabled={disabled || undefined}
-			data-kind="card"
-			data-slot="root"
-			data-orientation={orientation}
-			class={rootClasses}
-			{...rest}
-		>
-			{@render children?.()}
-		</a>
-	{:else if as === "button"}
-		<button
-			type="button"
-			{disabled}
-			aria-label={label || undefined}
-			aria-labelledby={labelledBy || undefined}
-			data-kind="card"
-			data-slot="root"
-			data-orientation={orientation}
-			class={rootClasses}
-			{...rest}
-		>
-			{@render children?.()}
-		</button>
-	{:else}
-		<div
-			role={label || labelledBy ? "group" : undefined}
-			aria-label={label || undefined}
-			aria-labelledby={labelledBy || undefined}
-			data-kind="card"
-			data-slot="root"
-			data-orientation={orientation}
-			class={rootClasses}
-			{...rest}
-		>
-			{@render children?.()}
-		</div>
-	{/if}
-</StyleMacro>
+{#if as === "a"}
+	<a
+		{href}
+		{target}
+		aria-label={label || undefined}
+		aria-labelledby={labelledBy || undefined}
+		aria-disabled={disabled || undefined}
+		{...m.dataAttrs}
+		data-slot="root"
+		data-orientation={orientation}
+		style={cssVarString(m.cssVars)}
+		class={rootClasses}
+		{...rest}
+	>
+		{@render children?.()}
+	</a>
+{:else if as === "button"}
+	<button
+		type="button"
+		{disabled}
+		aria-label={label || undefined}
+		aria-labelledby={labelledBy || undefined}
+		{...m.dataAttrs}
+		data-slot="root"
+		data-orientation={orientation}
+		style={cssVarString(m.cssVars)}
+		class={rootClasses}
+		{...rest}
+	>
+		{@render children?.()}
+	</button>
+{:else}
+	<div
+		role={label || labelledBy ? "group" : undefined}
+		aria-label={label || undefined}
+		aria-labelledby={labelledBy || undefined}
+		{...m.dataAttrs}
+		data-slot="root"
+		data-orientation={orientation}
+		style={cssVarString(m.cssVars)}
+		class={rootClasses}
+		{...rest}
+	>
+		{@render children?.()}
+	</div>
+{/if}

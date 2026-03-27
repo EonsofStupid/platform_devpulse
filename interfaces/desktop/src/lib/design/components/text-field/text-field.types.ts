@@ -9,7 +9,7 @@ import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
 export type TextFieldSize = "sm" | "md" | "lg";
 export type TextFieldType = "text" | "email" | "password" | "url" | "tel";
-export type TextFieldIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type TextFieldPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 export interface TextFieldProps
 	extends ComponentProps,
@@ -34,8 +34,8 @@ export interface TextFieldProps
 	invalid?: boolean;
 	/** Size — structural class */
 	size?: TextFieldSize;
-	/** Visual intent — selects the style preset */
-	intent?: TextFieldIntent;
+	/** Visual preset — selects the style preset */
+	preset?: TextFieldPreset;
 	/** Leading content (icon, prefix) */
 	leading?: Snippet;
 	/** Trailing content (icon, button) */

@@ -58,6 +58,14 @@
 		"divider": {
 			"$value": "oklch(1.0032 0.0305 28.88 / 0.059)",
 			"$description": "Section separator"
+		},
+		"soft": {
+			"$value": "oklch(0.5133 0.0547 163.65 / 0.30)",
+			"$description": "Soft container border — alias for strong at same opacity"
+		},
+		"emphasis": {
+			"$value": "{border.strong}",
+			"$description": "Emphasized border — alias for strong"
 		}
 	},
 	"borderPreset": {

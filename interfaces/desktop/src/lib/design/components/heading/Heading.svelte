@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { useHeading } from "$lib/design/behaviors/heading/index.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { HeadingProps, HeadingSize } from "./heading.types.js";
 
@@ -37,7 +37,7 @@ const SIZE: Record<HeadingSize, string> = {
 };
 
 let {
-	intent = "default",
+	preset = "default",
 	level = 2,
 	size = "lg",
 	children,
@@ -46,32 +46,31 @@ let {
 }: HeadingProps = $props();
 
 const heading = $derived(useHeading({ level }));
+const m = $derived(resolveMacro({ kind: "heading", preset }));
 </script>
 
-<StyleMacro kind="heading" intent={intent}>
-	{#if level === 1}
-		<h1 {...heading.root} {...rest} class={cn("font-bold", SIZE[size] ?? SIZE.lg, className)}>
-			{@render children?.()}
-		</h1>
-	{:else if level === 2}
-		<h2 {...heading.root} {...rest} class={cn("font-bold", SIZE[size] ?? SIZE.lg, className)}>
-			{@render children?.()}
-		</h2>
-	{:else if level === 3}
-		<h3 {...heading.root} {...rest} class={cn("font-semibold", SIZE[size] ?? SIZE.lg, className)}>
-			{@render children?.()}
-		</h3>
-	{:else if level === 4}
-		<h4 {...heading.root} {...rest} class={cn("font-semibold", SIZE[size] ?? SIZE.lg, className)}>
-			{@render children?.()}
-		</h4>
-	{:else if level === 5}
-		<h5 {...heading.root} {...rest} class={cn("font-medium", SIZE[size] ?? SIZE.lg, className)}>
-			{@render children?.()}
-		</h5>
-	{:else}
-		<h6 {...heading.root} {...rest} class={cn("font-medium", SIZE[size] ?? SIZE.lg, className)}>
-			{@render children?.()}
-		</h6>
-	{/if}
-</StyleMacro>
+{#if level === 1}
+	<h1 {...heading.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} {...rest} class={cn("font-bold", SIZE[size] ?? SIZE.lg, className)}>
+		{@render children?.()}
+	</h1>
+{:else if level === 2}
+	<h2 {...heading.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} {...rest} class={cn("font-bold", SIZE[size] ?? SIZE.lg, className)}>
+		{@render children?.()}
+	</h2>
+{:else if level === 3}
+	<h3 {...heading.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} {...rest} class={cn("font-semibold", SIZE[size] ?? SIZE.lg, className)}>
+		{@render children?.()}
+	</h3>
+{:else if level === 4}
+	<h4 {...heading.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} {...rest} class={cn("font-semibold", SIZE[size] ?? SIZE.lg, className)}>
+		{@render children?.()}
+	</h4>
+{:else if level === 5}
+	<h5 {...heading.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} {...rest} class={cn("font-medium", SIZE[size] ?? SIZE.lg, className)}>
+		{@render children?.()}
+	</h5>
+{:else}
+	<h6 {...heading.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} {...rest} class={cn("font-medium", SIZE[size] ?? SIZE.lg, className)}>
+		{@render children?.()}
+	</h6>
+{/if}

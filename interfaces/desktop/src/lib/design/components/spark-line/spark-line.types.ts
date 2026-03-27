@@ -12,8 +12,8 @@ export interface SparkLineProps {
 	data?: number[];
 	/** Accent hue — drives stroke, glow, fill color */
 	accent?: SvgAccent;
-	/** Visual intent — resolved to preset */
-	intent?: SvgIntent;
+	/** Visual preset — resolved to preset */
+	preset?: SvgIntent;
 	/** Chart width in px (structural) */
 	width?: number;
 	/** Chart height in px (structural) */

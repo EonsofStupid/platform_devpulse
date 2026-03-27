@@ -10,5 +10,5 @@ export type {
 	ToggleGroupItem,
 	ToggleGroupOrientation,
 	ToggleGroupSize,
-	ToggleGroupIntent,
+	ToggleGroupPreset,
 } from "./types.js";

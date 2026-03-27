@@ -14,7 +14,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type TableOfContentsSize = "sm" | "md" | "lg";
 
-export type TableOfContentsIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type TableOfContentsPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 /** TableOfContents component props -- ColdLight 8-axis + ARIA + composition + primitive */
 export interface TableOfContentsComponentProps
@@ -30,6 +30,6 @@ export interface TableOfContentsComponentProps
 	onActiveIdChange?: (id: string | undefined) => void;
 	/** Size variant */
 	size?: TableOfContentsSize;
-	/** Style intent. Default: "default". */
-	intent?: TableOfContentsIntent;
+	/** Style preset. Default: "default". */
+	preset?: TableOfContentsPreset;
 }

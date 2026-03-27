@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useRadioGroup } from "$lib/design/behaviors/radio-group/use-radio-group.svelte.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setRadioGroupContext } from "./context.js";
 import type { RadioGroupProps } from "./types.js";
@@ -35,7 +35,7 @@ let {
 	required = false,
 	loop = true,
 	orientation = "vertical",
-	intent = "default",
+	preset = "default",
 	children,
 	class: className,
 	...rest
@@ -45,8 +45,8 @@ const hook = useRadioGroup({
 	get value() { return value; },
 	get disabled() { return disabled; },
 	get required() { return required; },
-	orientation,
-	loop,
+	get orientation() { return orientation; },
+	get loop() { return loop; },
 	onValueChange: (v) => onValueChange?.(v),
 });
 
@@ -54,11 +54,14 @@ const hook = useRadioGroup({
 setRadioGroupContext({
 	get hook() { return hook; },
 });
+
+const m = $derived(resolveMacro({ kind: "radio-group", preset }));
 </script>
 
-<StyleMacro kind="radio-group" intent={intent}>
-	<div
+<div
 		{...hook.root}
+		{...m.dataAttrs}
+		style={cssVarString(m.cssVars)}
 		data-orientation={orientation}
 		class={cn(
 			"flex gap-2",
@@ -68,4 +71,3 @@ setRadioGroupContext({
 	>
 		{@render children?.()}
 	</div>
-</StyleMacro>

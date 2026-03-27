@@ -23,14 +23,13 @@
 -->
 <script lang="ts">
 import { useScrollArea } from "$lib/design/behaviors/scroll-area/index.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ScrollAreaComponentProps } from "./types.js";
-let { size = "md", orientation = "vertical", intent = "default", label, children, class: className, ...rest }: ScrollAreaComponentProps = $props();
+let { size = "md", orientation = "vertical", preset = "default", label, children, class: className, ...rest }: ScrollAreaComponentProps = $props();
 const scrollArea = $derived(useScrollArea({ label, orientation }));
+const m = $derived(resolveMacro({ kind: "scroll-area", preset }));
 </script>
-<StyleMacro kind="scroll-area" intent={intent}>
-	<div {...scrollArea.root} data-kind="scroll-area" data-slot="root" class={cn("relative overflow-hidden", className)} {...rest}>
+<div {...scrollArea.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" class={cn("relative overflow-hidden", className)} {...rest}>
 		<div data-kind="scroll-area" data-slot="viewport" class="h-full w-full overflow-auto">{@render children?.()}</div>
 	</div>
-</StyleMacro>

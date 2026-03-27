@@ -5,4 +5,4 @@
  */
 
 export { default as Toolbar } from "./Toolbar.svelte";
-export type { ToolbarComponentProps, ToolbarOrientation, ToolbarSize, ToolbarIntent } from "./types.js";
+export type { ToolbarComponentProps, ToolbarOrientation, ToolbarSize, ToolbarPreset } from "./types.js";

@@ -5,4 +5,4 @@
  */
 
 export { default as Sidebar } from "./Sidebar.svelte";
-export type { SidebarComponentProps, SidebarSize, SidebarIntent } from "./types.js";
+export type { SidebarComponentProps, SidebarSize, SidebarPreset } from "./types.js";

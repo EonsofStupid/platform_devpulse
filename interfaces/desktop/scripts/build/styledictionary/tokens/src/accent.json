@@ -1,0 +1,36 @@
+{
+	"accent": {
+		"$type": "color",
+		"$description": "Semantic accent aliases — main (indicator), glow (shadow/emission), fill (area fill). One triplet per brand hue.",
+		"teal": {
+			"main": { "$value": "{color.teal.400}", "$description": "Primary indicator color" },
+			"glow": { "$value": "oklch(0.63 0.08 173 / 0.35)", "$description": "Drop-shadow / box-shadow emission" },
+			"fill": { "$value": "oklch(0.63 0.08 173 / 0.08)", "$description": "Sparkline area fill, subtle bg tint" }
+		},
+		"purple": {
+			"main": { "$value": "{color.purple.400}", "$description": "Primary indicator color" },
+			"glow": { "$value": "oklch(0.63 0.12 280 / 0.35)", "$description": "Drop-shadow / box-shadow emission" },
+			"fill": { "$value": "oklch(0.63 0.12 280 / 0.08)", "$description": "Sparkline area fill, subtle bg tint" }
+		},
+		"magenta": {
+			"main": { "$value": "{color.magenta.400}", "$description": "Primary indicator color" },
+			"glow": { "$value": "oklch(0.63 0.14 330 / 0.35)", "$description": "Drop-shadow / box-shadow emission" },
+			"fill": { "$value": "oklch(0.63 0.14 330 / 0.08)", "$description": "Sparkline area fill, subtle bg tint" }
+		},
+		"ember": {
+			"main": { "$value": "{color.ember.400}", "$description": "Primary indicator color" },
+			"glow": { "$value": "oklch(0.63 0.12 25 / 0.35)", "$description": "Drop-shadow / box-shadow emission" },
+			"fill": { "$value": "oklch(0.63 0.12 25 / 0.08)", "$description": "Sparkline area fill, subtle bg tint" }
+		},
+		"frost": {
+			"main": { "$value": "{color.frost.400}", "$description": "Primary indicator color" },
+			"glow": { "$value": "oklch(0.63 0.06 220 / 0.35)", "$description": "Drop-shadow / box-shadow emission" },
+			"fill": { "$value": "oklch(0.63 0.06 220 / 0.08)", "$description": "Sparkline area fill, subtle bg tint" }
+		},
+		"cyber": {
+			"main": { "$value": "{color.cyber.400}", "$description": "Primary indicator color" },
+			"glow": { "$value": "oklch(0.63 0.1 160 / 0.35)", "$description": "Drop-shadow / box-shadow emission" },
+			"fill": { "$value": "oklch(0.63 0.1 160 / 0.08)", "$description": "Sparkline area fill, subtle bg tint" }
+		}
+	}
+}

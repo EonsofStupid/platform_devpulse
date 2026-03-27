@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
 import { setDatePickerContext } from "./context.js";
@@ -55,11 +55,12 @@ let {
 	name,
 	form,
 	dir = "ltr",
-	intent = "default",
+	preset = "default",
 	children,
 	class: className,
 	...rest
 }: DatePickerRootProps = $props();
+const m = $derived(resolveMacro({ kind: "date-picker", preset }));
 
 // IDs
 const autoIds = createIds("date-picker", ["root", "field", "trigger", "content", "label", "description", "errorMessage"] as const);
@@ -74,13 +75,13 @@ const resolvedIds = $derived({
 });
 
 // Value state
-let internalValue = $state<Date | null>(defaultValue);
-$effect(() => { if (controlledValue !== undefined) internalValue = controlledValue; });
+let internalValue = $state<Date | null>(null);
+$effect(() => { if (controlledValue !== undefined) { internalValue = controlledValue; } else if (internalValue === null && defaultValue !== undefined) { internalValue = defaultValue; } });
 const currentValue = $derived(controlledValue !== undefined ? controlledValue : internalValue);
 
 // Open state
-let internalOpen = $state(defaultOpen);
-$effect(() => { if (controlledOpen !== undefined) internalOpen = controlledOpen; });
+let internalOpen = $state(false);
+$effect(() => { if (controlledOpen !== undefined) { internalOpen = controlledOpen; } else if (!internalOpen && defaultOpen) { internalOpen = defaultOpen; } });
 const isOpen = $derived(controlledOpen !== undefined ? controlledOpen : internalOpen);
 
 // Validation
@@ -144,7 +145,6 @@ setDatePickerContext({
 
 </script>
 
-<StyleMacro kind="date-picker" intent={intent}>
 <div
 	id={resolvedIds.root}
 	{dir}
@@ -152,7 +152,8 @@ setDatePickerContext({
 	aria-labelledby={label ? resolvedIds.label : undefined}
 	aria-describedby={description ? resolvedIds.description : undefined}
 	aria-disabled={isDisabled || undefined}
-	data-kind="date-picker"
+	{...m.dataAttrs}
+	style={cssVarString(m.cssVars)}
 	data-slot="root"
 	data-state={isDisabled ? "disabled" : isInvalid ? "invalid" : undefined}
 	class={cn(className)}
@@ -180,4 +181,3 @@ setDatePickerContext({
 		<input type="hidden" {name} value={currentValue?.toISOString() ?? ""} {form} />
 	{/if}
 </div>
-</StyleMacro>

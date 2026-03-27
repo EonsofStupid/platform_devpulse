@@ -23,13 +23,13 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { type MenubarRootCtx, setMenubarRootContext } from "./context.js";
 import type { MenubarProps } from "./types.js";
 
 let {
-	intent = "default",
+	preset = "default",
 	children,
 	class: className,
 	...rest
@@ -54,17 +54,18 @@ const ctx: MenubarRootCtx = {
 };
 
 setMenubarRootContext(ctx);
+
+const m = $derived(resolveMacro({ kind: "menubar", preset }));
 </script>
 
-<StyleMacro kind="menubar" intent={intent}>
-	<div
-		role="menubar"
-		aria-orientation="horizontal"
-		class={cn("flex items-center", className)}
-		data-kind="menubar"
-		data-slot="root"
-		{...rest}
-	>
-		{@render children?.()}
-	</div>
-</StyleMacro>
+<div
+	role="menubar"
+	aria-orientation="horizontal"
+	class={cn("flex items-center", className)}
+	{...m.dataAttrs}
+	style={cssVarString(m.cssVars)}
+	data-slot="root"
+	{...rest}
+>
+	{@render children?.()}
+</div>

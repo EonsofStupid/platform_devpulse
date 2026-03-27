@@ -5,12 +5,12 @@
 @layer tokens.primitives {
   :root {
   --radius-none: 0;
-  --radius-xs: 0.0078125rem;
-  --radius-sm: 0.015625rem;
-  --radius-md: 0.03125rem;
-  --radius-lg: 0.046875rem;
-  --radius-xl: 0.0625rem;
-  --radius-2xl: 0.09375rem;
+  --radius-xs: 0.125rem;
+  --radius-sm: 0.25rem;
+  --radius-md: clamp(0.5rem, 0.1786vw + 0.4643rem, 0.625rem);
+  --radius-lg: clamp(0.75rem, 0.1786vw + 0.7143rem, 0.875rem);
+  --radius-xl: clamp(1rem, 0.3571vw + 0.9286rem, 1.25rem);
+  --radius-2xl: clamp(1.5rem, 0.3571vw + 1.4286rem, 1.75rem);
   --radius-full: 624.9375rem;
   }
 }

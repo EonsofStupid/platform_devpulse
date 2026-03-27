@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useComboBox } from "$lib/design/behaviors/combobox/use-combobox.svelte.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setComboboxContext } from "./context.js";
 import type { ComboboxProps } from "./types.js";
@@ -37,7 +37,7 @@ let {
 	onOpenChange,
 	size = "md",
 	disabled = false,
-	intent = "default",
+	preset = "default",
 	children,
 	class: className,
 	...rest
@@ -61,17 +61,17 @@ setComboboxContext({
 	dir: "ltr",
 });
 
+const m = $derived(resolveMacro({ kind: "combobox", preset }));
 </script>
 
-<StyleMacro kind="combobox" intent={intent}>
-	<div
-		{...hook.root}
-		data-kind="combobox"
-		data-slot="root"
-		aria-disabled={disabled ? "true" : undefined}
-		class={cn(disabled && "opacity-50 pointer-events-none", className)}
-		{...rest}
-	>
-		{@render children?.()}
-	</div>
-</StyleMacro>
+<div
+	{...hook.root}
+	{...m.dataAttrs}
+	data-slot="root"
+	aria-disabled={disabled ? "true" : undefined}
+	style={cssVarString(m.cssVars)}
+	class={cn(disabled && "opacity-50 pointer-events-none", className)}
+	{...rest}
+>
+	{@render children?.()}
+</div>

@@ -20,7 +20,7 @@
 	}
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import Text from "$lib/design/components/text/Text.svelte";
 import type { ChatContextPanelProps } from "./types.js";
@@ -33,21 +33,21 @@ let {
 	...rest
 }: ChatContextPanelProps = $props();
 
+const m = $derived(resolveMacro({ kind: "chat-context-panel", preset: "default" }));
 </script>
 
-<StyleMacro kind="chat-context-panel" intent="default">
-	<aside
-		aria-label="Cortex memory"
-		data-kind="chat-context-panel"
-		data-slot="context-panel"
-		data-collapsed={String(collapsed)}
-		class={cn("overflow-hidden", className)}
-		{...rest}
-	>
-		{#if children}
-			{@render children()}
-		{:else}
-			<Text size="sm">Cortex visualization</Text>
-		{/if}
-	</aside>
-</StyleMacro>
+<aside
+	aria-label="Cortex memory"
+	{...m.dataAttrs}
+	data-slot="context-panel"
+	data-collapsed={String(collapsed)}
+	style={cssVarString(m.cssVars)}
+	class={cn("overflow-hidden", className)}
+	{...rest}
+>
+	{#if children}
+		{@render children()}
+	{:else}
+		<Text size="sm">Cortex visualization</Text>
+	{/if}
+</aside>

@@ -1,0 +1,24 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@theme {
+  --accent-teal-main: oklch(0.63 0.08 173);
+  --accent-teal-glow: oklch(0.63 0.08 173 / 0.35);
+  --accent-teal-fill: oklch(0.63 0.08 173 / 0.08);
+  --accent-purple-main: oklch(0.63 0.12 280);
+  --accent-purple-glow: oklch(0.63 0.12 280 / 0.35);
+  --accent-purple-fill: oklch(0.63 0.12 280 / 0.08);
+  --accent-magenta-main: oklch(0.63 0.14 330);
+  --accent-magenta-glow: oklch(0.63 0.14 330 / 0.35);
+  --accent-magenta-fill: oklch(0.63 0.14 330 / 0.08);
+  --accent-ember-main: oklch(0.63 0.12 25);
+  --accent-ember-glow: oklch(0.63 0.12 25 / 0.35);
+  --accent-ember-fill: oklch(0.63 0.12 25 / 0.08);
+  --accent-frost-main: oklch(0.63 0.06 220);
+  --accent-frost-glow: oklch(0.63 0.06 220 / 0.35);
+  --accent-frost-fill: oklch(0.63 0.06 220 / 0.08);
+  --accent-cyber-main: oklch(0.63 0.1 160);
+  --accent-cyber-glow: oklch(0.63 0.1 160 / 0.35);
+  --accent-cyber-fill: oklch(0.63 0.1 160 / 0.08);
+}

@@ -14,7 +14,7 @@
 	  - onCopy callback with details
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setCodeBlockContext } from "./context.js";
 import type { CodeBlockRootProps } from "./types.js";
@@ -29,7 +29,7 @@ let {
 	disabled = false,
 	onCopy,
 	children,
-	intent = "default",
+	preset = "default",
 	class: className,
 	...rest
 }: CodeBlockRootProps = $props();
@@ -53,18 +53,18 @@ setCodeBlockContext({
 	copyCode,
 });
 
+const m = $derived(resolveMacro({ kind: "code", preset }));
 </script>
 
-<StyleMacro kind="code" intent={intent}>
-	<div
-		id={ids?.root}
-		{dir}
-		data-kind="code"
-		data-slot="root"
-		data-language={language || undefined}
-		class={cn(disabled ? "opacity-60" : undefined, className)}
-		{...rest}
-	>
-		{@render children?.()}
-	</div>
-</StyleMacro>
+<div
+	id={ids?.root}
+	{dir}
+	{...m.dataAttrs}
+	data-slot="root"
+	data-language={language || undefined}
+	style={cssVarString(m.cssVars)}
+	class={cn(disabled ? "opacity-60" : undefined, className)}
+	{...rest}
+>
+	{@render children?.()}
+</div>

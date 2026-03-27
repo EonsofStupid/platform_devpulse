@@ -6,5 +6,7 @@
   :root {
   --overlay-scrim: oklch(0.0971 0.0114 185.78 / 0.4); /** Standard modal backdrop */
   --overlay-scrim-heavy: oklch(0.0971 0.0114 185.78 / 0.6); /** Heavy backdrop for critical dialogs */
+  --overlay-bg: var(--overlay-scrim); /** Alias — overlay background (same as scrim) */
+  --overlay-bg-heavy: var(--overlay-scrim-heavy); /** Alias — heavy overlay background (same as scrim-heavy) */
   }
 }

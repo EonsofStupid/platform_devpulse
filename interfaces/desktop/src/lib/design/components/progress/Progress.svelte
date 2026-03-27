@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useProgress } from "$lib/design/behaviors/progress/index.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ProgressProps, ProgressSize } from "./progress.types.js";
 
@@ -34,7 +34,7 @@ const SIZE: Record<ProgressSize, string> = {
 };
 
 let {
-	intent = "default",
+	preset = "default",
 	value = 0,
 	min = 0,
 	max = 100,
@@ -43,6 +43,7 @@ let {
 	class: className,
 	...rest
 }: ProgressProps = $props();
+const m = $derived(resolveMacro({ kind: "progress", preset }));
 
 const progress = $derived(useProgress({
 	value,
@@ -53,9 +54,10 @@ const progress = $derived(useProgress({
 }));
 </script>
 
-<StyleMacro kind="progress" intent={intent}>
-	<div
+<div
 		{...progress.root}
+		{...m.dataAttrs}
+		style={cssVarString(m.cssVars)}
 		class={cn("w-full overflow-hidden rounded-full", SIZE[size] ?? SIZE.md, className)}
 	>
 		<div
@@ -73,4 +75,3 @@ const progress = $derived(useProgress({
 		</div>
 		{@render children?.()}
 	</div>
-</StyleMacro>

@@ -28,12 +28,12 @@
   --text-style-body-font-family: Inter, system-ui, sans-serif; /** Default body text */
   --text-style-body-font-weight: 400; /** Default body text */
   --text-style-body-line-height: 1.5; /** Default body text */
-  --text-style-body-letter-spacing: 0; /** Default body text */
+  --text-style-body-letter-spacing: 0em; /** Default body text */
   --text-style-body-sm-font-size: 0.8125rem; /** Secondary body, descriptions */
   --text-style-body-sm-font-family: Inter, system-ui, sans-serif; /** Secondary body, descriptions */
   --text-style-body-sm-font-weight: 400; /** Secondary body, descriptions */
   --text-style-body-sm-line-height: 1.45; /** Secondary body, descriptions */
-  --text-style-body-sm-letter-spacing: 0; /** Secondary body, descriptions */
+  --text-style-body-sm-letter-spacing: 0em; /** Secondary body, descriptions */
   --text-style-caption-font-size: 0.75rem; /** Captions, timestamps, metadata */
   --text-style-caption-font-family: Inter, system-ui, sans-serif; /** Captions, timestamps, metadata */
   --text-style-caption-font-weight: 500; /** Captions, timestamps, metadata */
@@ -48,7 +48,7 @@
   --text-style-code-font-family: 'JetBrains Mono', 'Fira Code', monospace; /** Code blocks, terminal output */
   --text-style-code-font-weight: 400; /** Code blocks, terminal output */
   --text-style-code-line-height: 1.6; /** Code blocks, terminal output */
-  --text-style-code-letter-spacing: 0; /** Code blocks, terminal output */
+  --text-style-code-letter-spacing: 0em; /** Code blocks, terminal output */
   --text-style-stat-font-size: 1.5rem; /** Dashboard stat values, gauges */
   --text-style-stat-font-family: Orbitron, system-ui, sans-serif; /** Dashboard stat values, gauges */
   --text-style-stat-font-weight: 700; /** Dashboard stat values, gauges */

@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
 import { getChannelRange, percentToValue, roundToStep } from "$lib/design/components/color-area/color-utils.js";
@@ -46,7 +46,7 @@ let {
 	dir = "ltr",
 	step = 1,
 	children,
-	intent = "default",
+	preset = "default",
 	class: className,
 	...rest
 }: ColorSliderRootProps = $props();
@@ -65,11 +65,13 @@ const resolvedIds = $derived({
 const range = $derived(getChannelRange(colorSpace, channel));
 
 // ── Value state ─────────────────────────────────────────────────
-let internalValue = $state(defaultValue);
+let internalValue = $state("");
 
 $effect(() => {
 	if (controlledValue !== undefined) {
 		internalValue = controlledValue;
+	} else if (internalValue === "" && defaultValue !== undefined) {
+		internalValue = defaultValue;
 	}
 });
 
@@ -115,37 +117,36 @@ setColorSliderContext({
 	thumbAction: drag.thumbAction,
 });
 
+const m = $derived(resolveMacro({ kind: "color-slider", preset }));
 </script>
 
-<StyleMacro kind="color-slider" intent={intent}>
-	<div
-		id={resolvedIds.root}
-		{dir}
-		role="group"
-		aria-label={label ?? `${channel} slider`}
-		aria-orientation={orientation}
-		aria-disabled={isDisabled || undefined}
-		data-kind="color-slider"
-		data-slot="root"
-		data-orientation={orientation}
-		data-dragging={drag.state.isDragging || undefined}
-		class={cn(
-			orientation === "vertical" ? "flex-col" : "flex-row",
-			isDisabled ? "pointer-events-none opacity-60" : undefined,
-			className)}
-		{...rest}
-	>
-		{#if label}
-			<label id={resolvedIds.label} for={resolvedIds.input} data-kind="color-slider" data-slot="label">
-				{label}
-				<span>{channelValue}</span>
-			</label>
-		{/if}
+<div
+	id={resolvedIds.root}
+	{dir}
+	role="group"
+	aria-label={label ?? `${channel} slider`}
+	aria-disabled={isDisabled || undefined}
+	{...m.dataAttrs}
+	data-slot="root"
+	data-orientation={orientation}
+	data-dragging={drag.state.isDragging || undefined}
+	style={cssVarString(m.cssVars)}
+	class={cn(
+		orientation === "vertical" ? "flex-col" : "flex-row",
+		isDisabled ? "pointer-events-none opacity-60" : undefined,
+		className)}
+	{...rest}
+>
+	{#if label}
+		<label id={resolvedIds.label} for={resolvedIds.input} data-kind="color-slider" data-slot="label">
+			{label}
+			<span>{channelValue}</span>
+		</label>
+	{/if}
 
-		{@render children?.()}
+	{@render children?.()}
 
-		{#if name}
-			<input type="hidden" id={resolvedIds.input} {name} value={channelValue} {form} />
-		{/if}
-	</div>
-</StyleMacro>
+	{#if name}
+		<input type="hidden" id={resolvedIds.input} {name} value={channelValue} {form} />
+	{/if}
+</div>

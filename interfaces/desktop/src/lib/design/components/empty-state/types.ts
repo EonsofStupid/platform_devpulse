@@ -10,14 +10,14 @@ import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type EmptyStateSize = "sm" | "md" | "lg";
-export type EmptyStateIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type EmptyStatePreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 export interface EmptyStateProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
 		BaseProps,
 		ComponentProps {
 	children?: Snippet;
-	/** Style intent preset */
-	intent?: EmptyStateIntent;
+	/** Style preset preset */
+	preset?: EmptyStatePreset;
 	size?: EmptyStateSize;
 }

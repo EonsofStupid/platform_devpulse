@@ -3,5 +3,5 @@ export type {
 	ColorSwatchProps,
 	ColorSwatchSize,
 	ColorSwatchRounding,
-	ColorSwatchIntent,
+	ColorSwatchPreset,
 } from "./types.js";

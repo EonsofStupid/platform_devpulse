@@ -7,5 +7,5 @@ export type {
 	ColorWheelRootProps,
 	ColorWheelTrackProps,
 	ColorWheelThumbProps,
-	ColorWheelIntent,
+	ColorWheelPreset,
 } from "./types.js";

@@ -22,10 +22,11 @@
 -->
 <script lang="ts">
 import { usePagination } from "$lib/design/behaviors/pagination/index.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { PaginationComponentProps } from "./types.js";
-let { page = 1, totalPages, onPageChange, siblings = 1, boundaries = 1, size = "md", intent = "default", children, class: className, ...rest }: PaginationComponentProps = $props();
+let { page = 1, totalPages, onPageChange, siblings = 1, boundaries = 1, size = "md", preset = "default", children, class: className, ...rest }: PaginationComponentProps = $props();
+const m = $derived(resolveMacro({ kind: "pagination", preset }));
 const pagination = usePagination();
 function getPageRange(current: number, total: number, sibs: number, bounds: number): (number | string)[] {
 	const totalNumbers = sibs * 2 + 1 + bounds * 2;
@@ -44,8 +45,7 @@ const pages = $derived(getPageRange(page, totalPages, siblings, boundaries));
 const isFirstPage = $derived(page <= 1);
 const isLastPage = $derived(page >= totalPages);
 </script>
-<StyleMacro kind="pagination" intent={intent}>
-	<nav {...pagination.root} data-kind="pagination" data-slot="root" class={cn("flex items-center gap-1", className)} {...rest}>
+<nav {...pagination.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" class={cn("flex items-center gap-1", className)} {...rest}>
 		<button data-kind="pagination" data-slot="previous" disabled={isFirstPage} aria-label="Previous page" class="inline-flex items-center justify-center size-9 rounded-md cursor-pointer disabled:opacity-50 disabled:pointer-events-none" onclick={() => { if (!isFirstPage) onPageChange?.(page - 1); }}>&lsaquo;</button>
 		{#each pages as item}
 			{#if item === "ellipsis"}
@@ -57,4 +57,3 @@ const isLastPage = $derived(page >= totalPages);
 		{/each}
 		<button data-kind="pagination" data-slot="next" disabled={isLastPage} aria-label="Next page" class="inline-flex items-center justify-center size-9 rounded-md cursor-pointer disabled:opacity-50 disabled:pointer-events-none" onclick={() => { if (!isLastPage) onPageChange?.(page + 1); }}>&rsaquo;</button>
 	</nav>
-</StyleMacro>

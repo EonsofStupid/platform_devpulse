@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
 import { setDateRangePickerContext } from "./context.js";
@@ -49,9 +49,10 @@ let {
 	label, description, errorMessage,
 	startName, endName, form,
 	dir = "ltr",
-	intent = "default",
+	preset = "default",
 	children, class: className, ...rest
 }: DateRangePickerRootProps = $props();
+const m = $derived(resolveMacro({ kind: "date-range-picker", preset }));
 
 const autoIds = createIds("date-range-picker", ["root", "startField", "endField", "trigger", "content", "label", "description", "errorMessage"] as const);
 const resolvedIds = $derived({
@@ -65,12 +66,12 @@ const resolvedIds = $derived({
 	errorMessage: userIds?.errorMessage ?? autoIds.errorMessage,
 });
 
-let internalValue = $state<DateRangeValue | null>(defaultValue);
-$effect(() => { if (controlledValue !== undefined) internalValue = controlledValue; });
+let internalValue = $state<DateRangeValue | null>(null);
+$effect(() => { if (controlledValue !== undefined) { internalValue = controlledValue; } else if (internalValue === null && defaultValue !== undefined) { internalValue = defaultValue; } });
 const currentValue = $derived(controlledValue !== undefined ? controlledValue : internalValue);
 
-let internalOpen = $state(defaultOpen);
-$effect(() => { if (controlledOpen !== undefined) internalOpen = controlledOpen; });
+let internalOpen = $state(false);
+$effect(() => { if (controlledOpen !== undefined) { internalOpen = controlledOpen; } else if (!internalOpen && defaultOpen) { internalOpen = defaultOpen; } });
 const isOpen = $derived(controlledOpen !== undefined ? controlledOpen : internalOpen);
 
 const validationError = $derived(() => {
@@ -122,7 +123,6 @@ setDateRangePickerContext({
 
 </script>
 
-<StyleMacro kind="date-range-picker" intent={intent}>
 <div
 	id={resolvedIds.root}
 	{dir}
@@ -130,7 +130,8 @@ setDateRangePickerContext({
 	aria-labelledby={label ? resolvedIds.label : undefined}
 	aria-describedby={description ? resolvedIds.description : undefined}
 	aria-disabled={isDisabled || undefined}
-	data-kind="date-range-picker"
+	{...m.dataAttrs}
+	style={cssVarString(m.cssVars)}
 	data-slot="root"
 	data-state={isDisabled ? "disabled" : isInvalid ? "invalid" : undefined}
 	data-inline={inline || undefined}
@@ -138,9 +139,9 @@ setDateRangePickerContext({
 	{...rest}
 >
 	{#if label}
-		<label id={resolvedIds.label} class="text-sm font-medium" data-kind="date-range-picker" data-slot="label">
+		<span id={resolvedIds.label} class="text-sm font-medium" data-kind="date-range-picker" data-slot="label">
 			{label}{#if isRequired}<span aria-hidden="true" class="text-[var(--color-red-400)] ms-2">*</span>{/if}
-		</label>
+		</span>
 	{/if}
 
 	{@render children?.()}
@@ -162,4 +163,3 @@ setDateRangePickerContext({
 		<input type="hidden" name={endName} value={currentValue?.end?.toISOString() ?? ""} {form} />
 	{/if}
 </div>
-</StyleMacro>

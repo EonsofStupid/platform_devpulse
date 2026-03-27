@@ -24,16 +24,15 @@
 -->
 <script lang="ts">
 import { useTable } from "$lib/design/behaviors/table/use-table.svelte.js";
-import { StyleMacro } from "$lib/design/styles/index.js";
+import { resolveMacro, cssVarString } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TableComponentProps } from "./types.js";
-let { size = "md", variant = "default", label, intent = "default", children, class: className, ...rest }: TableComponentProps = $props();
+let { size = "md", variant = "default", label, preset = "default", children, class: className, ...rest }: TableComponentProps = $props();
 const table = useTable();
+const m = $derived(resolveMacro({ kind: "table", preset }));
 </script>
-<StyleMacro kind="table" intent={intent}>
-	<div class="w-full overflow-auto" data-kind="table" data-slot="wrapper">
+<div class="w-full overflow-auto" {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="wrapper">
 		<table {...table.root} aria-label={label} data-kind="table" data-slot="root" data-variant={variant} class={cn("w-full caption-bottom text-sm", className)} {...rest}>
 			{@render children?.()}
 		</table>
 	</div>
-</StyleMacro>

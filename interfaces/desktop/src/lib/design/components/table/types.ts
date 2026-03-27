@@ -14,7 +14,7 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type TableSize = "sm" | "md" | "lg";
 
-export type TableIntent = "default" | "stark" | "glass" | "flat" | "matte";
+export type TablePreset = "default" | "stark" | "glass" | "flat" | "matte";
 export type TableVariant = "default" | "striped" | "bordered";
 
 /** Table component props — ARIA + composition + ColdLight 8-axis */
@@ -29,6 +29,6 @@ export interface TableComponentProps
 	variant?: TableVariant;
 	/** Accessible label for the table */
 	label?: string;
-	/** Style intent. Default: "default". */
-	intent?: TableIntent;
+	/** Style preset. Default: "default". */
+	preset?: TablePreset;
 }
