@@ -1,6 +1,6 @@
 export { default as Root } from "./AvatarGroup.svelte";
 export type {
 	AvatarGroupIds,
-	AvatarGroupRootProps,
 	AvatarGroupPreset,
+	AvatarGroupRootProps,
 } from "./types.js";

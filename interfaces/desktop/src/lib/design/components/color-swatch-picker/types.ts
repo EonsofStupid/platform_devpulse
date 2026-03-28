@@ -12,7 +12,10 @@ import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type { ColorValue } from "$lib/design/components/color-area/types.js";
-import type { ColorSwatchRounding, ColorSwatchSize } from "$lib/design/components/color-swatch/types.js";
+import type {
+	ColorSwatchRounding,
+	ColorSwatchSize,
+} from "$lib/design/components/color-swatch/types.js";
 
 export interface ColorSwatchPickerChangeDetails {
 	value: ColorValue;

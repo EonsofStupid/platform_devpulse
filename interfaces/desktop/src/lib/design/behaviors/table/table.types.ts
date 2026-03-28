@@ -51,5 +51,8 @@ export interface UseTableReturn {
 	readonly body: TableBodyAttrs;
 	getRow(key: string, options?: { disabled?: boolean }): TableRowAttrs;
 	getCell(): TableCellAttrs;
-	getColumnHeader(options?: { sortDirection?: SortDirection; onSort?: () => void }): TableColumnHeaderAttrs;
+	getColumnHeader(options?: {
+		sortDirection?: SortDirection;
+		onSort?: () => void;
+	}): TableColumnHeaderAttrs;
 }

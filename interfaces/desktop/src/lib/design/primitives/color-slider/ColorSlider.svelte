@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { ColorSliderPrimitiveProps } from "./color-slider.props.js";
+import type { ColorSliderPrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: ColorSliderPrimitiveProps = $props();
 </script>

@@ -21,9 +21,9 @@
 }
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
-import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cn } from "$lib/design/utils/cn.js";
 import { setDateRangePickerContext } from "./context.js";
 import type { DateRangePickerRootProps, DateRangeValue } from "./types.js";
 
@@ -41,20 +41,40 @@ let {
 	granularity = "day",
 	maxVisibleMonths = 1,
 	isDateUnavailable,
-	minValue, maxValue, firstDayOfWeek,
-	isDisabled = false, isReadOnly = false, isRequired = false,
+	minValue,
+	maxValue,
+	firstDayOfWeek,
+	isDisabled = false,
+	isReadOnly = false,
+	isRequired = false,
 	isInvalid: controlledInvalid = false,
 	validate,
-	size = "md", locale = "en-US",
-	label, description, errorMessage,
-	startName, endName, form,
+	size = "md",
+	locale = "en-US",
+	label,
+	description,
+	errorMessage,
+	startName,
+	endName,
+	form,
 	dir = "ltr",
 	preset = "default",
-	children, class: className, ...rest
+	children,
+	class: className,
+	...rest
 }: DateRangePickerRootProps = $props();
 const m = $derived(resolveMacro({ kind: "date-range-picker", preset }));
 
-const autoIds = createIds("date-range-picker", ["root", "startField", "endField", "trigger", "content", "label", "description", "errorMessage"] as const);
+const autoIds = createIds("date-range-picker", [
+	"root",
+	"startField",
+	"endField",
+	"trigger",
+	"content",
+	"label",
+	"description",
+	"errorMessage",
+] as const);
 const resolvedIds = $derived({
 	root: userIds?.root ?? autoIds.root,
 	startField: userIds?.startField ?? autoIds.startField,
@@ -67,11 +87,23 @@ const resolvedIds = $derived({
 });
 
 let internalValue = $state<DateRangeValue | null>(null);
-$effect(() => { if (controlledValue !== undefined) { internalValue = controlledValue; } else if (internalValue === null && defaultValue !== undefined) { internalValue = defaultValue; } });
+$effect(() => {
+	if (controlledValue !== undefined) {
+		internalValue = controlledValue;
+	} else if (internalValue === null && defaultValue !== undefined) {
+		internalValue = defaultValue;
+	}
+});
 const currentValue = $derived(controlledValue !== undefined ? controlledValue : internalValue);
 
 let internalOpen = $state(false);
-$effect(() => { if (controlledOpen !== undefined) { internalOpen = controlledOpen; } else if (!internalOpen && defaultOpen) { internalOpen = defaultOpen; } });
+$effect(() => {
+	if (controlledOpen !== undefined) {
+		internalOpen = controlledOpen;
+	} else if (!internalOpen && defaultOpen) {
+		internalOpen = defaultOpen;
+	}
+});
 const isOpen = $derived(controlledOpen !== undefined ? controlledOpen : internalOpen);
 
 const validationError = $derived(() => {
@@ -80,9 +112,22 @@ const validationError = $derived(() => {
 });
 const isInvalid = $derived(controlledInvalid || validationError() !== null);
 
-function toggle() { if (isDisabled || inline) return; const next = !isOpen; internalOpen = next; onOpenChange?.({ open: next }); }
-function openPopover() { if (isDisabled || isOpen || inline) return; internalOpen = true; onOpenChange?.({ open: true }); }
-function closePopover() { if (!isOpen) return; internalOpen = false; onOpenChange?.({ open: false }); }
+function toggle() {
+	if (isDisabled || inline) return;
+	const next = !isOpen;
+	internalOpen = next;
+	onOpenChange?.({ open: next });
+}
+function openPopover() {
+	if (isDisabled || isOpen || inline) return;
+	internalOpen = true;
+	onOpenChange?.({ open: true });
+}
+function closePopover() {
+	if (!isOpen) return;
+	internalOpen = false;
+	onOpenChange?.({ open: false });
+}
 
 function selectRange(range: DateRangeValue) {
 	if (isDisabled || isReadOnly) return;
@@ -106,21 +151,49 @@ function updateEnd(date: Date | null) {
 }
 
 setDateRangePickerContext({
-	get value() { return currentValue; },
-	get isOpen() { return isOpen; },
-	get isDisabled() { return isDisabled; },
-	get isReadOnly() { return isReadOnly; },
-	get isRequired() { return isRequired; },
-	get isInvalid() { return isInvalid; },
-	get inline() { return inline; },
-	get locale() { return locale; },
-	get size() { return size; },
-	get dir() { return dir; },
-	get ids() { return resolvedIds; },
-	get shouldCloseOnSelect() { return shouldCloseOnSelect; },
-	toggle, openPopover, closePopover, selectRange, updateStart, updateEnd,
+	get value() {
+		return currentValue;
+	},
+	get isOpen() {
+		return isOpen;
+	},
+	get isDisabled() {
+		return isDisabled;
+	},
+	get isReadOnly() {
+		return isReadOnly;
+	},
+	get isRequired() {
+		return isRequired;
+	},
+	get isInvalid() {
+		return isInvalid;
+	},
+	get inline() {
+		return inline;
+	},
+	get locale() {
+		return locale;
+	},
+	get size() {
+		return size;
+	},
+	get dir() {
+		return dir;
+	},
+	get ids() {
+		return resolvedIds;
+	},
+	get shouldCloseOnSelect() {
+		return shouldCloseOnSelect;
+	},
+	toggle,
+	openPopover,
+	closePopover,
+	selectRange,
+	updateStart,
+	updateEnd,
 });
-
 </script>
 
 <div

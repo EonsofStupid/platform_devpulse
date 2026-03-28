@@ -68,6 +68,34 @@
 			"$description": "Emphasized border — alias for strong"
 		}
 	},
+	"borderRise": {
+		"$type": "border",
+		"$description": "Luminance-based border rise — light edge on dark surface, creates raised appearance",
+		"subtle": {
+			"$value": {
+				"color": "oklch(1.0032 0.0305 28.88 / 0.059)",
+				"width": "1px",
+				"style": "solid"
+			},
+			"$description": "Barely visible luminance edge — inputs, secondary containers"
+		},
+		"soft": {
+			"$value": {
+				"color": "oklch(1.0032 0.0305 28.88 / 0.102)",
+				"width": "1px",
+				"style": "solid"
+			},
+			"$description": "Visible luminance edge — cards, primary containers"
+		},
+		"strong": {
+			"$value": {
+				"color": "oklch(1.0032 0.0305 28.88 / 0.161)",
+				"width": "1px",
+				"style": "solid"
+			},
+			"$description": "Prominent luminance edge — elevated containers, dialogs"
+		}
+	},
 	"borderPreset": {
 		"$type": "border",
 		"$description": "Named border presets — complete color + width + style",

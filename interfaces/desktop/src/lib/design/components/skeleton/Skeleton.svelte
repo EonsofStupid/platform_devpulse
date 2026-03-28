@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { useSkeleton } from "$lib/design/behaviors/skeleton/index.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SkeletonProps, SkeletonVariant } from "./types.js";
 

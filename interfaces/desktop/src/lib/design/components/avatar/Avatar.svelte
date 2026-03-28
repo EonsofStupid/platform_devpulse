@@ -21,9 +21,9 @@
 }
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
-import type { AvatarProps, AvatarLoadStatus } from "./avatar.types.js";
+import type { AvatarLoadStatus, AvatarProps } from "./avatar.types.js";
 
 let {
 	src,

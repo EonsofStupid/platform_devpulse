@@ -21,9 +21,9 @@
 }
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
-import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cn } from "$lib/design/utils/cn.js";
 import { setDatePickerContext } from "./context.js";
 import type { DatePickerRootProps } from "./types.js";
 
@@ -63,7 +63,15 @@ let {
 const m = $derived(resolveMacro({ kind: "date-picker", preset }));
 
 // IDs
-const autoIds = createIds("date-picker", ["root", "field", "trigger", "content", "label", "description", "errorMessage"] as const);
+const autoIds = createIds("date-picker", [
+	"root",
+	"field",
+	"trigger",
+	"content",
+	"label",
+	"description",
+	"errorMessage",
+] as const);
 const resolvedIds = $derived({
 	root: userIds?.root ?? autoIds.root,
 	field: userIds?.field ?? autoIds.field,
@@ -76,12 +84,24 @@ const resolvedIds = $derived({
 
 // Value state
 let internalValue = $state<Date | null>(null);
-$effect(() => { if (controlledValue !== undefined) { internalValue = controlledValue; } else if (internalValue === null && defaultValue !== undefined) { internalValue = defaultValue; } });
+$effect(() => {
+	if (controlledValue !== undefined) {
+		internalValue = controlledValue;
+	} else if (internalValue === null && defaultValue !== undefined) {
+		internalValue = defaultValue;
+	}
+});
 const currentValue = $derived(controlledValue !== undefined ? controlledValue : internalValue);
 
 // Open state
 let internalOpen = $state(false);
-$effect(() => { if (controlledOpen !== undefined) { internalOpen = controlledOpen; } else if (!internalOpen && defaultOpen) { internalOpen = defaultOpen; } });
+$effect(() => {
+	if (controlledOpen !== undefined) {
+		internalOpen = controlledOpen;
+	} else if (!internalOpen && defaultOpen) {
+		internalOpen = defaultOpen;
+	}
+});
 const isOpen = $derived(controlledOpen !== undefined ? controlledOpen : internalOpen);
 
 // Validation
@@ -127,22 +147,51 @@ function updateValue(date: Date | null) {
 
 // Context
 setDatePickerContext({
-	get value() { return currentValue; },
-	get isOpen() { return isOpen; },
-	get isDisabled() { return isDisabled; },
-	get isReadOnly() { return isReadOnly; },
-	get isRequired() { return isRequired; },
-	get isInvalid() { return isInvalid; },
-	get locale() { return locale; },
-	get size() { return size; },
-	get dir() { return dir; },
-	get ids() { return resolvedIds; },
-	get minValue() { return minValue; },
-	get maxValue() { return maxValue; },
-	get shouldCloseOnSelect() { return shouldCloseOnSelect; },
-	toggle, openPopover, closePopover, selectDate, updateValue,
+	get value() {
+		return currentValue;
+	},
+	get isOpen() {
+		return isOpen;
+	},
+	get isDisabled() {
+		return isDisabled;
+	},
+	get isReadOnly() {
+		return isReadOnly;
+	},
+	get isRequired() {
+		return isRequired;
+	},
+	get isInvalid() {
+		return isInvalid;
+	},
+	get locale() {
+		return locale;
+	},
+	get size() {
+		return size;
+	},
+	get dir() {
+		return dir;
+	},
+	get ids() {
+		return resolvedIds;
+	},
+	get minValue() {
+		return minValue;
+	},
+	get maxValue() {
+		return maxValue;
+	},
+	get shouldCloseOnSelect() {
+		return shouldCloseOnSelect;
+	},
+	toggle,
+	openPopover,
+	closePopover,
+	selectDate,
+	updateValue,
 });
-
 </script>
 
 <div

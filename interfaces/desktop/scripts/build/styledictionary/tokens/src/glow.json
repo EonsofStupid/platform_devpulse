@@ -64,6 +64,15 @@
 				"blur": "30px",
 				"spread": "12px"
 			}
+		},
+		"blue": {
+			"$value": {
+				"color": "oklch(0.5412 0.1105 249.72 / 0.702)",
+				"offsetX": "0px",
+				"offsetY": "0px",
+				"blur": "30px",
+				"spread": "12px"
+			}
 		}
 	},
 	"glowSpread": {

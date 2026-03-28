@@ -25,8 +25,8 @@
 -->
 <script lang="ts">
 import { Badge } from "$lib/design/components/badge/index.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
 import { Text } from "$lib/design/components/text/index.js";
+import { hstack } from "$lib/design/utils/hstack/index.js";
 import { DEV_MODE, devLabel, resolveLabel } from "$lib/sys/generated/terminology.js";
 import { getIcon } from "$lib/sys/generated/terminology-icons.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";

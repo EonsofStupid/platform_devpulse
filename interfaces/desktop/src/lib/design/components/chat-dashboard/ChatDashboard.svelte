@@ -18,16 +18,11 @@
 	}
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ChatDashboardProps } from "./types.js";
 
-let {
-	style,
-	children,
-	class: className,
-	...rest
-}: ChatDashboardProps = $props();
+let { style, children, class: className, ...rest }: ChatDashboardProps = $props();
 
 const m = $derived(resolveMacro({ kind: "chat-dashboard", preset: "default" }));
 </script>

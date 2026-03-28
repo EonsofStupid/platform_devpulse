@@ -6,7 +6,7 @@
  */
 
 import { cn } from "$lib/design/utils/cn.js";
-import type { ContainerSize, ContainerProps } from "./container.types.js";
+import type { ContainerProps, ContainerSize } from "./container.types.js";
 
 function resolveMaxWidth(size: ContainerSize): string {
 	if (size === "full") return "max-w-full";

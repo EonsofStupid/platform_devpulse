@@ -1,5 +1,5 @@
 import { getContext, setContext } from "svelte";
-import type { DateRangePickerIds, DateRangeValue } from "./types.js";
+import type { DateRangeValue } from "./types.js";
 
 export interface DateRangePickerContext {
 	readonly value: DateRangeValue | null | undefined;

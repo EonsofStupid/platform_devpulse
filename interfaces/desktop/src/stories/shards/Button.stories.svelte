@@ -1,41 +1,41 @@
 <script module>
-	import { defineMeta } from '@storybook/addon-svelte-csf';
+import { defineMeta } from "@storybook/addon-svelte-csf";
 
-	const { Story } = defineMeta({
-		title: 'ColdLight/Button',
-		tags: ['autodocs'],
-		argTypes: {
-			intent: {
-				control: 'select',
-				options: ['primary', 'secondary', 'ghost', 'danger'],
-				description: 'Visual intent — maps to a named preset',
-			},
-			size: {
-				control: 'select',
-				options: ['sm', 'md', 'lg'],
-				description: 'Size — height, padding, font size',
-			},
-			disabled: {
-				control: 'boolean',
-				description: 'Disabled state — aria-disabled + pointer-events-none',
-			},
-			loading: {
-				control: 'boolean',
-				description: 'Loading state — aria-busy + visual indicator',
-			},
-			label: {
-				control: 'text',
-				description: 'Button text content',
-			},
+const { Story } = defineMeta({
+	title: "ColdLight/Button",
+	tags: ["autodocs"],
+	argTypes: {
+		intent: {
+			control: "select",
+			options: ["primary", "secondary", "ghost", "danger"],
+			description: "Visual intent — maps to a named preset",
 		},
-		args: {
-			intent: 'primary',
-			size: 'md',
-			disabled: false,
-			loading: false,
-			label: 'Save Changes',
+		size: {
+			control: "select",
+			options: ["sm", "md", "lg"],
+			description: "Size — height, padding, font size",
 		},
-	});
+		disabled: {
+			control: "boolean",
+			description: "Disabled state — aria-disabled + pointer-events-none",
+		},
+		loading: {
+			control: "boolean",
+			description: "Loading state — aria-busy + visual indicator",
+		},
+		label: {
+			control: "text",
+			description: "Button text content",
+		},
+	},
+	args: {
+		intent: "primary",
+		size: "md",
+		disabled: false,
+		loading: false,
+		label: "Save Changes",
+	},
+});
 </script>
 
 <script lang="ts">

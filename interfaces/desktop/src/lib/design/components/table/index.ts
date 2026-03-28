@@ -5,4 +5,4 @@
  */
 
 export { default as Table } from "./Table.svelte";
-export type { TableComponentProps, TableSize, TableVariant, TablePreset } from "./types.js";
+export type { TableComponentProps, TablePreset, TableSize, TableVariant } from "./types.js";

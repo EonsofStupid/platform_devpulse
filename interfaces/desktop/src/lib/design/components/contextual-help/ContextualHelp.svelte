@@ -22,9 +22,9 @@
 }
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
-import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cn } from "$lib/design/utils/cn.js";
 import { setContextualHelpContext } from "./context.js";
 import type { ContextualHelpRootProps } from "./types.js";
 
@@ -71,11 +71,16 @@ function toggle() {
 	onOpenChange?.({ open: next });
 }
 
-
 setContextualHelpContext({
-	get isOpen() { return isOpen; },
-	get ids() { return resolvedIds; },
-	get dir() { return dir; },
+	get isOpen() {
+		return isOpen;
+	},
+	get ids() {
+		return resolvedIds;
+	},
+	get dir() {
+		return dir;
+	},
 	toggle,
 });
 

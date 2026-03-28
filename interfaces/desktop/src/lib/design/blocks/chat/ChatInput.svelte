@@ -13,7 +13,7 @@
 	@slots root:all
 -->
 <script lang="ts">
-import { Send, Mic } from "lucide-svelte";
+import { Mic, Send } from "lucide-svelte";
 import Button from "$lib/design/components/button/Button.svelte";
 import TextField from "$lib/design/components/text-field/TextField.svelte";
 import { cn } from "$lib/design/utils/cn.js";

@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useSlider } from "$lib/design/behaviors/slider/use-slider.svelte.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setSliderContext } from "./context.js";
 import type { SliderProps } from "./types.js";
@@ -43,17 +43,28 @@ let {
 }: SliderProps = $props();
 
 const hook = useSlider({
-	get min() { return min; },
-	get max() { return max; },
-	get value() { return value; },
-	get step() { return step; },
-	get disabled() { return disabled; },
+	get min() {
+		return min;
+	},
+	get max() {
+		return max;
+	},
+	get value() {
+		return value;
+	},
+	get step() {
+		return step;
+	},
+	get disabled() {
+		return disabled;
+	},
 	onValueChange: (v) => onValueChange?.(v),
 });
 
-
 setSliderContext({
-	get hook() { return hook; },
+	get hook() {
+		return hook;
+	},
 });
 
 const m = $derived(resolveMacro({ kind: "slider", preset }));

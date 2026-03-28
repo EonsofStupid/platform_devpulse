@@ -97,7 +97,8 @@ export function useColorSlider(props: UseColorSliderProps = {}): UseColorSliderR
 		(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
 
 		function updateFromPointer(clientX: number, clientY: number): void {
-			const rect = track!.getBoundingClientRect();
+			const rect = track?.getBoundingClientRect();
+			if (!rect) return;
 			const isHorizontal = orientation === "horizontal";
 			const pos = isHorizontal ? clientX - rect.left : rect.bottom - clientY;
 			const size = isHorizontal ? rect.width : rect.height;

@@ -42,18 +42,34 @@ let {
 }: DialogRootProps = $props();
 
 const hook = useDialog({
-	get open() { return controlledOpen ?? defaultOpen ?? false; },
-	get closeOnEscape() { return !isKeyboardDismissDisabled; },
-	get closeOnOutsideClick() { return isDismissible; },
-	get preventScroll() { return preventScroll; },
+	get open() {
+		return controlledOpen ?? defaultOpen ?? false;
+	},
+	get closeOnEscape() {
+		return !isKeyboardDismissDisabled;
+	},
+	get closeOnOutsideClick() {
+		return isDismissible;
+	},
+	get preventScroll() {
+		return preventScroll;
+	},
 	onOpenChange: (v) => onOpenChange?.({ open: v }),
 });
 
 setDialogContext({
-	get hook() { return hook; },
-	get ids() { return ids ?? {}; },
-	get dir() { return dir; },
-	get size() { return size; },
+	get hook() {
+		return hook;
+	},
+	get ids() {
+		return ids ?? {};
+	},
+	get dir() {
+		return dir;
+	},
+	get size() {
+		return size;
+	},
 });
 </script>
 

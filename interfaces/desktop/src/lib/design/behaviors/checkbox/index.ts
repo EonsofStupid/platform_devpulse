@@ -4,6 +4,6 @@
  * @layer behavior
  */
 
-export { useCheckbox } from "./use-checkbox.svelte.js";
-export type * from "./checkbox.types.js";
 export { checkboxAnatomy } from "./checkbox.anatomy.js";
+export type * from "./checkbox.types.js";
+export { useCheckbox } from "./use-checkbox.svelte.js";

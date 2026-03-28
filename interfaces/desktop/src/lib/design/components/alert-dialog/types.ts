@@ -14,7 +14,12 @@ import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
-export type AlertDialogVariant = "confirmation" | "information" | "destructive" | "error" | "warning";
+export type AlertDialogVariant =
+	| "confirmation"
+	| "information"
+	| "destructive"
+	| "error"
+	| "warning";
 export type AlertDialogSize = "sm" | "md" | "lg";
 
 export interface AlertDialogOpenChangeDetails {
@@ -44,7 +49,8 @@ export interface AlertDialogRootProps extends ComponentProps {
 	children?: Snippet;
 }
 
-interface AlertDialogSlotProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface AlertDialogSlotProps
+	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
 	children?: Snippet;
 	class?: string;
 }

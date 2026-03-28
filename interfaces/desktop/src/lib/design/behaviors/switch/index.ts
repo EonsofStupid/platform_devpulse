@@ -4,6 +4,6 @@
  * @layer behavior
  */
 
-export { useSwitch } from "./use-switch.svelte.js";
-export type * from "./switch.types.js";
 export { switchAnatomy } from "./switch.anatomy.js";
+export type * from "./switch.types.js";
+export { useSwitch } from "./use-switch.svelte.js";

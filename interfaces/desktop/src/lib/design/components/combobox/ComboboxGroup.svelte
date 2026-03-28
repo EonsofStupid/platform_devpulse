@@ -8,8 +8,8 @@
 	role="group" with aria-labelledby.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/utils/cn.js";
 import { uid } from "$lib/design/behaviors/_internal/utils/uid.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { getComboboxContext } from "./context.js";
 import type { ComboboxGroupProps } from "./types.js";
 

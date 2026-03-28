@@ -15,20 +15,40 @@
  *   observer/ — Intersection, resize, media query, overflow detection
  */
 
-// Focus management
-export { focusTrap, focusReturn, rovingFocus, type RovingFocusOptions } from "./focus/index.js";
+// Accessibility wiring
+export {
+	type AriaAttrsOptions,
+	type AriaLinkOptions,
+	type AriaLinkType,
+	type AriaState,
+	ariaAttrs,
+	ariaLink,
+} from "./aria/index.js";
 
 // Dismiss triggers
 export { clickOutside, escapeKey } from "./dismiss/index.js";
-
+// Focus management
+export { focusReturn, focusTrap, type RovingFocusOptions, rovingFocus } from "./focus/index.js";
 // Keyboard interaction
-export { keyboardHandler, typeahead, type KeyMap, type TypeaheadOptions } from "./keyboard/index.js";
-
-// Accessibility wiring
-export { ariaAttrs, ariaLink, type AriaAttrsOptions, type AriaState, type AriaLinkOptions, type AriaLinkType } from "./aria/index.js";
+export {
+	type KeyMap,
+	keyboardHandler,
+	type TypeaheadOptions,
+	typeahead,
+} from "./keyboard/index.js";
 
 // Layout / DOM manipulation
-export { portal, visuallyHidden, scrollLock } from "./layout/index.js";
+export { portal, scrollLock, visuallyHidden } from "./layout/index.js";
 
 // Browser observer APIs
-export { intersection, resize, mediaQuery, overflow, type IntersectionOptions, type ResizeOptions, type MediaQueryOptions, type OverflowOptions, type OverflowState } from "./observer/index.js";
+export {
+	type IntersectionOptions,
+	intersection,
+	type MediaQueryOptions,
+	mediaQuery,
+	type OverflowOptions,
+	type OverflowState,
+	overflow,
+	type ResizeOptions,
+	resize,
+} from "./observer/index.js";

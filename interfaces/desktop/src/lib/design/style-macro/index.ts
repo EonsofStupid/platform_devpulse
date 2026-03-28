@@ -13,21 +13,19 @@
  * ```
  */
 
+// The format helper — the ONLY bridge to DOM
+export { cssVarString } from "./css-var-string.js";
+// Shared intent resolution — Law 6
+export { INTENT_MAP, resolveIntent } from "./intent.js";
 // The resolver — Law 1
 export { resolveMacro } from "./resolve.js";
 
-// The format helper — the ONLY bridge to DOM
-export { cssVarString } from "./css-var-string.js";
-
-// Shared intent resolution — Law 6
-export { resolveIntent, INTENT_MAP } from "./intent.js";
-
 // Types — public contract
 export type {
+	CssFamily,
+	KindString,
+	MacroDataAttrs,
 	MacroInput,
 	MacroState,
 	ResolvedMacro,
-	MacroDataAttrs,
-	KindString,
-	CssFamily,
 } from "./types.js";

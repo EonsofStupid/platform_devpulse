@@ -73,9 +73,10 @@ export function installGlobalHandlers(): void {
 
 	// Capture unhandled promise rejections
 	window.addEventListener("unhandledrejection", (event) => {
-		const reason = event.reason instanceof Error
-			? `${event.reason.message}\n${event.reason.stack || ""}`
-			: String(event.reason);
+		const reason =
+			event.reason instanceof Error
+				? `${event.reason.message}\n${event.reason.stack || ""}`
+				: String(event.reason);
 		log("error", "frontend:unhandled_rejection", reason);
 	});
 
@@ -83,7 +84,9 @@ export function installGlobalHandlers(): void {
 	const originalError = console.error;
 	console.error = (...args: unknown[]) => {
 		originalError.apply(console, args);
-		const msg = args.map((a) => (a instanceof Error ? `${a.message}\n${a.stack}` : String(a))).join(" ");
+		const msg = args
+			.map((a) => (a instanceof Error ? `${a.message}\n${a.stack}` : String(a)))
+			.join(" ");
 		log("error", "frontend:console", msg);
 	};
 
@@ -105,14 +108,20 @@ export function log(level: LogLevel, target: string, message: string): void {
 	const timestamp = new Date().toISOString();
 
 	// Always write to console so devtools captures it
-	const consoleFn = level === "error" ? "error" : level === "warn" ? "warn" : level === "debug" || level === "trace" ? "debug" : "log";
+	const consoleFn =
+		level === "error"
+			? "error"
+			: level === "warn"
+				? "warn"
+				: level === "debug" || level === "trace"
+					? "debug"
+					: "log";
 	// Use original console to avoid infinite loop from intercepted console.error/warn
 	if (target !== "frontend:console") {
-		Function.prototype.apply.call(
-			console[consoleFn as keyof Console],
-			console,
-			[`[${target}] ${message}`],
-		);
+		// biome-ignore lint/suspicious/noConsole: intentional logging facade — this IS the console wrapper
+		Function.prototype.apply.call(console[consoleFn as keyof Console], console, [
+			`[${target}] ${message}`,
+		]);
 	}
 
 	if (ipcReady) {

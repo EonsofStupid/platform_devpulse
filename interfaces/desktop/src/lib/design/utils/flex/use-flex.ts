@@ -42,11 +42,7 @@ const JUSTIFY: Record<string, string> = {
 export function flex(props: FlexProps = {}): string {
 	const dir = props.direction ?? "row";
 	const wrapClass =
-		props.wrap === "reverse"
-			? "flex-wrap-reverse"
-			: props.wrap === true
-				? "flex-wrap"
-				: undefined;
+		props.wrap === "reverse" ? "flex-wrap-reverse" : props.wrap === true ? "flex-wrap" : undefined;
 
 	return cn(
 		"flex",

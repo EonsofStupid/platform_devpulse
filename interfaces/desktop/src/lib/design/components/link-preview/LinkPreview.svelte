@@ -22,10 +22,19 @@
 -->
 <script lang="ts">
 import { useLinkPreview } from "$lib/design/behaviors/link-preview/index.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { LinkPreviewProps } from "./types.js";
-let { preset = "default", openDelay = 700, closeDelay = 300, open, onOpenChange, children, class: className }: LinkPreviewProps = $props();
+
+let {
+	preset = "default",
+	openDelay = 700,
+	closeDelay = 300,
+	open,
+	onOpenChange,
+	children,
+	class: className,
+}: LinkPreviewProps = $props();
 const lp = $derived(useLinkPreview({ openDelay, closeDelay }));
 const m = $derived(resolveMacro({ kind: "link-preview", preset }));
 </script>

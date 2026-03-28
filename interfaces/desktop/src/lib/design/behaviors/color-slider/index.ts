@@ -4,6 +4,6 @@
  * @layer behavior
  */
 
-export { useColorSlider } from "./use-color-slider.svelte.js";
-export type * from "./color-slider.types.js";
 export { colorSliderAnatomy } from "./color-slider.anatomy.js";
+export type * from "./color-slider.types.js";
+export { useColorSlider } from "./use-color-slider.svelte.js";

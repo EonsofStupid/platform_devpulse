@@ -23,10 +23,19 @@
 -->
 <script lang="ts">
 import { useScrollArea } from "$lib/design/behaviors/scroll-area/index.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ScrollAreaComponentProps } from "./types.js";
-let { size = "md", orientation = "vertical", preset = "default", label, children, class: className, ...rest }: ScrollAreaComponentProps = $props();
+
+let {
+	size = "md",
+	orientation = "vertical",
+	preset = "default",
+	label,
+	children,
+	class: className,
+	...rest
+}: ScrollAreaComponentProps = $props();
 const scrollArea = $derived(useScrollArea({ label, orientation }));
 const m = $derived(resolveMacro({ kind: "scroll-area", preset }));
 </script>

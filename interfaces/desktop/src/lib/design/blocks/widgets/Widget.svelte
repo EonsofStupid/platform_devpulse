@@ -51,7 +51,9 @@ let {
 }: WidgetProps = $props();
 
 // Intent flows through to Card's StyleMacro
-const resolvedIntent = $derived((preset ?? intent ?? "default") as import("$lib/design/components/card/card.types.js").CardPreset);
+const resolvedIntent = $derived(
+	(preset ?? intent ?? "default") as import("$lib/design/components/card/card.types.js").CardPreset,
+);
 </script>
 
 <Card

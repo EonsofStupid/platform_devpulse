@@ -4,7 +4,7 @@
  * DTCG-typed props. Padding via SD5 --space-*, max-width via --size-*.
  */
 
-import type { SpaceToken, SizeToken } from "$lib/design/types/spacing.js";
+import type { SizeToken, SpaceToken } from "$lib/design/types/spacing.js";
 
 export interface BoxProps {
 	/** Uniform padding. SpaceToken key resolving to --space-{token}. */

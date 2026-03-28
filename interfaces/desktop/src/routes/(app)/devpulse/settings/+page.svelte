@@ -5,11 +5,11 @@
 -->
 <script lang="ts">
 import { Widget } from "$lib/design/blocks/widgets/index.js";
+import { Text } from "$lib/design/components/text/index.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { container } from "$lib/design/utils/container/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { cn } from "$lib/design/utils/cn.js";
 </script>
 
 <div class={cn(container({}), "container-md")} data-page="devpulse-settings">

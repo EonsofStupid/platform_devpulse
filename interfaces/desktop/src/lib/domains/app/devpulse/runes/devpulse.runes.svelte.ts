@@ -41,10 +41,7 @@ class DevPulseState {
 		this.loading = true;
 		this.error = null;
 		try {
-			const [payload, metrics] = await Promise.all([
-				fetchDashboardData(),
-				fetchProcessMetrics(),
-			]);
+			const [payload, metrics] = await Promise.all([fetchDashboardData(), fetchProcessMetrics()]);
 			this.data = mapPayloadToDashboard(payload, metrics);
 		} catch (e) {
 			this.error = e instanceof Error ? e.message : String(e);

@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useSelect } from "$lib/design/behaviors/select/use-select.svelte.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setSelectContext } from "./context.js";
 import type { SelectProps } from "./types.js";
@@ -42,18 +42,29 @@ let {
 }: SelectProps = $props();
 
 const hook = useSelect({
-	get value() { return value; },
-	get open() { return open; },
-	get disabled() { return disabled; },
+	get value() {
+		return value;
+	},
+	get open() {
+		return open;
+	},
+	get disabled() {
+		return disabled;
+	},
 	onValueChange: (v) => onValueChange?.(v),
 	onOpenChange: (v) => onOpenChange?.(v),
-	get placeholder() { return placeholder; },
+	get placeholder() {
+		return placeholder;
+	},
 });
 
-
 setSelectContext({
-	get hook() { return hook; },
-	get placeholder() { return placeholder; },
+	get hook() {
+		return hook;
+	},
+	get placeholder() {
+		return placeholder;
+	},
 });
 
 const m = $derived(resolveMacro({ kind: "select", preset }));

@@ -15,8 +15,8 @@
 <script lang="ts">
 import Card from "$lib/design/components/card/Card.svelte";
 import Heading from "$lib/design/components/heading/Heading.svelte";
-import Slider from "$lib/design/components/slider/Slider.svelte";
 import Label from "$lib/design/components/label/Label.svelte";
+import Slider from "$lib/design/components/slider/Slider.svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import type { GovernanceControlsProps } from "./types.js";
 

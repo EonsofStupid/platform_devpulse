@@ -39,7 +39,7 @@ let {
 }: PinInputComponentProps = $props();
 
 // Resolve ColdLight visual props
-const classes = $derived(cn( className));
+const classes = $derived(cn(className));
 </script>
 
 <div

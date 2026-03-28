@@ -17,7 +17,7 @@ let { children, class: className, ...rest }: ColorWheelThumbProps = $props();
 const ctx = getColorWheelContext();
 
 // Position thumb on the ring circumference
-const ringRadius = $derived((ctx.size / 2) - 12); // 12px inset for track width
+const ringRadius = $derived(ctx.size / 2 - 12); // 12px inset for track width
 const angleRad = $derived(ctx.hue * (Math.PI / 180));
 const thumbX = $derived(ctx.size / 2 + ringRadius * Math.cos(angleRad));
 const thumbY = $derived(ctx.size / 2 - ringRadius * Math.sin(angleRad));

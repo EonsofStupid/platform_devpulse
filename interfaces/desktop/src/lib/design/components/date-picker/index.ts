@@ -1,18 +1,18 @@
 export { default as Root } from "./DatePicker.svelte";
+export { default as Calendar } from "./DatePickerCalendar.svelte";
+export { default as Content } from "./DatePickerContent.svelte";
 export { default as Input } from "./DatePickerField.svelte";
 export { default as Trigger } from "./DatePickerTrigger.svelte";
-export { default as Content } from "./DatePickerContent.svelte";
-export { default as Calendar } from "./DatePickerCalendar.svelte";
 export type {
-	DatePickerPreset,
+	DatePickerCalendarProps,
+	DatePickerContentProps,
+	DatePickerGranularity,
 	DatePickerIds,
-	DatePickerValueChangeDetails,
+	DatePickerInputProps,
 	DatePickerOpenChangeDetails,
+	DatePickerPreset,
 	DatePickerRootProps,
 	DatePickerSize,
-	DatePickerGranularity,
-	DatePickerInputProps,
 	DatePickerTriggerProps,
-	DatePickerContentProps,
-	DatePickerCalendarProps,
+	DatePickerValueChangeDetails,
 } from "./types.js";

@@ -31,15 +31,11 @@ const JUSTIFY_MAP: Record<NonNullable<GridLayoutProps["justifyItems"]>, string> 
 };
 
 function resolveColumns(columns: number | string): string {
-	return typeof columns === "number"
-		? `grid-cols-${columns}`
-		: `grid-cols-[${columns}]`;
+	return typeof columns === "number" ? `grid-cols-${columns}` : `grid-cols-[${columns}]`;
 }
 
 function resolveRows(rows: number | string): string {
-	return typeof rows === "number"
-		? `grid-rows-${rows}`
-		: `grid-rows-[${rows}]`;
+	return typeof rows === "number" ? `grid-rows-${rows}` : `grid-rows-[${rows}]`;
 }
 
 export function gridLayout(props: GridLayoutProps = {}): string {

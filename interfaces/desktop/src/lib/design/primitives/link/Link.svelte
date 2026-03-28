@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { LinkPrimitiveProps } from "./link.props.js";
+import type { LinkPrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: LinkPrimitiveProps = $props();
 </script>

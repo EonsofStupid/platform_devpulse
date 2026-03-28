@@ -30,10 +30,10 @@
  */
 
 import { tick } from "svelte";
+import { createIds } from "../_internal/utils/uid.js";
 import { useDismissLayer } from "../_shared/dismiss-layer/index.js";
 import { usePresence } from "../_shared/presence/index.js";
 import { useScrollLock } from "../_shared/scroll-lock/index.js";
-import { createIds } from "../_internal/utils/uid.js";
 import { dialogAnatomy } from "./dialog.anatomy.js";
 import type { UseDialogProps, UseDialogReturn } from "./dialog.types.js";
 

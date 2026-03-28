@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { usePopover } from "$lib/design/behaviors/popover/use-popover.svelte.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setPopoverContext } from "./context.js";
 import type { PopoverProps } from "./types.js";
@@ -41,15 +41,22 @@ let {
 }: PopoverProps = $props();
 
 const hook = usePopover({
-	get open() { return open; },
+	get open() {
+		return open;
+	},
 	onOpenChange: (v) => onOpenChange?.(v),
-	get closeOnEscape() { return closeOnEscape; },
-	get closeOnOutsideClick() { return closeOnOutsideClick; },
+	get closeOnEscape() {
+		return closeOnEscape;
+	},
+	get closeOnOutsideClick() {
+		return closeOnOutsideClick;
+	},
 });
 
-
 setPopoverContext({
-	get hook() { return hook; },
+	get hook() {
+		return hook;
+	},
 });
 
 const m = $derived(resolveMacro({ kind: "popover", preset }));

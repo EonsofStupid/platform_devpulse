@@ -24,7 +24,7 @@ export function useRovingFocus(config: RovingFocusConfig): void {
 		if (!container) return;
 
 		function getItems(): HTMLElement[] {
-			return Array.from(container!.querySelectorAll<HTMLElement>(config.itemSelector)).filter(
+			return Array.from(container?.querySelectorAll<HTMLElement>(config.itemSelector) ?? []).filter(
 				(el) => !el.hasAttribute(disabledAttr),
 			);
 		}

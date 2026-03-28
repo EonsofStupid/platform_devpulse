@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { useLoadingOverlay } from "$lib/design/behaviors/loading-overlay/index.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { LoadingOverlayComponentProps } from "./types.js";
 

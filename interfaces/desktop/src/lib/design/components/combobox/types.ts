@@ -15,6 +15,7 @@
 
 import type { Snippet } from "svelte";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
+
 type SizeToken = "sm" | "md" | "lg";
 
 // =============================================================================

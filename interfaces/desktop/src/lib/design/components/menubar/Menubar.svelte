@@ -23,17 +23,12 @@
 }
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { type MenubarRootCtx, setMenubarRootContext } from "./context.js";
 import type { MenubarProps } from "./types.js";
 
-let {
-	preset = "default",
-	children,
-	class: className,
-	...rest
-}: MenubarProps = $props();
+let { preset = "default", children, class: className, ...rest }: MenubarProps = $props();
 
 let activeMenu = $state<string | undefined>(undefined);
 

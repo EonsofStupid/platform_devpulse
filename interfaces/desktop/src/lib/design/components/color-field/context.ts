@@ -5,7 +5,11 @@
  */
 
 import { getContext, setContext } from "svelte";
-import type { ColorChannel, ColorSpace, ColorValue } from "$lib/design/components/color-area/types.js";
+import type {
+	ColorChannel,
+	ColorSpace,
+	ColorValue,
+} from "$lib/design/components/color-area/types.js";
 import type { ColorFieldSize } from "./types.js";
 
 export interface ColorFieldContext {

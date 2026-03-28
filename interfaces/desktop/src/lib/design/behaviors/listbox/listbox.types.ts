@@ -33,6 +33,9 @@ export interface UseListBoxReturn {
 	readonly value: string | string[];
 	readonly highlightedId: string | null;
 	readonly root: ListboxRootAttrs;
-	getOption(optionValue: string, options?: { disabled?: boolean; label?: string }): ListboxOptionAttrs;
+	getOption(
+		optionValue: string,
+		options?: { disabled?: boolean; label?: string },
+	): ListboxOptionAttrs;
 	getGroup(label: string): ListboxGroupAttrs;
 }

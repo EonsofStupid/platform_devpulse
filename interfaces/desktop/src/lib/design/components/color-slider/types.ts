@@ -11,7 +11,11 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { ColorChannel, ColorSpace, ColorValue } from "$lib/design/components/color-area/types.js";
+import type {
+	ColorChannel,
+	ColorSpace,
+	ColorValue,
+} from "$lib/design/components/color-area/types.js";
 
 // =============================================================================
 // SHARED
@@ -76,7 +80,8 @@ export interface ColorSliderRootProps
 // SUB-COMPONENTS
 // =============================================================================
 
-interface ColorSliderSlotProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface ColorSliderSlotProps
+	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
 	children?: Snippet;
 	class?: string;
 }

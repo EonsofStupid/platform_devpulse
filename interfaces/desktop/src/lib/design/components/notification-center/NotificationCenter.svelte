@@ -23,10 +23,18 @@
 -->
 <script lang="ts">
 import { useNotificationCenter } from "$lib/design/behaviors/notification-center/index.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { NotificationCenterComponentProps } from "./types.js";
-let { open = false, onOpenChange, preset = "default", children, class: className, ...rest }: NotificationCenterComponentProps = $props();
+
+let {
+	open = false,
+	onOpenChange,
+	preset = "default",
+	children,
+	class: className,
+	...rest
+}: NotificationCenterComponentProps = $props();
 const nc = $derived(useNotificationCenter({ open }));
 const m = $derived(resolveMacro({ kind: "notification-center", preset }));
 </script>

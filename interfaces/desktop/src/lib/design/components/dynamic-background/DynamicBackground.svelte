@@ -19,7 +19,7 @@
 }
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { DynamicBackgroundProps } from "./types.js";
 
@@ -34,7 +34,11 @@ let {
 }: DynamicBackgroundProps = $props();
 
 const m = $derived(resolveMacro({ kind: "dynamic-background", preset: "default" }));
-const mergedStyle = $derived([cssVarString(m.cssVars), src ? `background-image: url('${src}');` : ""].filter(Boolean).join(" "));
+const mergedStyle = $derived(
+	[cssVarString(m.cssVars), src ? `background-image: url('${src}');` : ""]
+		.filter(Boolean)
+		.join(" "),
+);
 </script>
 
 <div

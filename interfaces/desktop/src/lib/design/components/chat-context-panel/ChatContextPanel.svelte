@@ -20,9 +20,9 @@
 	}
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
-import { cn } from "$lib/design/utils/cn.js";
 import Text from "$lib/design/components/text/Text.svelte";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cn } from "$lib/design/utils/cn.js";
 import type { ChatContextPanelProps } from "./types.js";
 
 let {

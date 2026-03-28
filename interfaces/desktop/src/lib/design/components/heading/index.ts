@@ -4,6 +4,6 @@
  */
 
 export { default as Heading } from "./Heading.svelte";
-export { HeadingSchema, CATEGORY, type HeadingSchemaProps } from "./schema.js";
-export { headingTokens, headingSizeTokens } from "./tokens.js";
-export type { HeadingProps, HeadingPreset, HeadingLevel, HeadingSize } from "./heading.types.js";
+export type { HeadingLevel, HeadingPreset, HeadingProps, HeadingSize } from "./heading.types.js";
+export { CATEGORY, HeadingSchema, type HeadingSchemaProps } from "./schema.js";
+export { headingSizeTokens, headingTokens } from "./tokens.js";

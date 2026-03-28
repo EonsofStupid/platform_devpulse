@@ -1,21 +1,21 @@
 export { default as Root } from "./ColorArea.svelte";
-export { default as Thumb } from "./ColorAreaThumb.svelte";
 export { default as Gradient } from "./ColorAreaGradient.svelte";
-export type {
-	ColorSpace,
-	ColorChannel,
-	ColorValue,
-	ColorAreaIds,
-	ColorAreaChangeDetails,
-	ColorAreaRootProps,
-	ColorAreaThumbProps,
-	ColorAreaGradientProps,
-	ColorAreaPreset,
-} from "./types.js";
+export { default as Thumb } from "./ColorAreaThumb.svelte";
 export {
+	buildColorString,
+	type ChannelRange,
 	getChannelRange,
 	percentToValue,
 	valueToPercent,
-	buildColorString,
-	type ChannelRange,
 } from "./color-utils.js";
+export type {
+	ColorAreaChangeDetails,
+	ColorAreaGradientProps,
+	ColorAreaIds,
+	ColorAreaPreset,
+	ColorAreaRootProps,
+	ColorAreaThumbProps,
+	ColorChannel,
+	ColorSpace,
+	ColorValue,
+} from "./types.js";

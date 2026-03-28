@@ -51,10 +51,12 @@ export function useWheelDrag(props: UseWheelDragProps): {
 		let handled = true;
 
 		switch (e.key) {
-			case "ArrowRight": case "ArrowUp":
+			case "ArrowRight":
+			case "ArrowUp":
 				angle = normalizeAngle(angle + delta);
 				break;
-			case "ArrowLeft": case "ArrowDown":
+			case "ArrowLeft":
+			case "ArrowDown":
 				angle = normalizeAngle(angle - delta);
 				break;
 			case "PageUp":
@@ -80,7 +82,16 @@ export function useWheelDrag(props: UseWheelDragProps): {
 	}
 
 	function onKeyUp(e: KeyboardEvent) {
-		const keys = ["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End"];
+		const keys = [
+			"ArrowRight",
+			"ArrowLeft",
+			"ArrowUp",
+			"ArrowDown",
+			"PageUp",
+			"PageDown",
+			"Home",
+			"End",
+		];
 		if (keys.includes(e.key)) {
 			props.onChangeEnd(angle);
 		}
@@ -105,7 +116,11 @@ export function useWheelDrag(props: UseWheelDragProps): {
 		function endDrag(e: PointerEvent) {
 			if (!isDragging) return;
 			isDragging = false;
-			try { node.releasePointerCapture(e.pointerId); } catch { /* */ }
+			try {
+				node.releasePointerCapture(e.pointerId);
+			} catch {
+				/* */
+			}
 			props.onChangeEnd(angle);
 		}
 
@@ -140,8 +155,12 @@ export function useWheelDrag(props: UseWheelDragProps): {
 
 	return {
 		state: {
-			get angle() { return angle; },
-			get isDragging() { return isDragging; },
+			get angle() {
+				return angle;
+			},
+			get isDragging() {
+				return isDragging;
+			},
 		},
 		trackAction,
 		thumbAction,

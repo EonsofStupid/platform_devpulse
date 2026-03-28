@@ -43,12 +43,18 @@ export function typeahead(node: HTMLElement, options: () => TypeaheadOptions): (
 		// Only handle printable characters
 		if (event.key.length !== 1 || event.ctrlKey || event.metaKey || event.altKey) return;
 
-		const { onMatch, itemSelector = '[role="option"], [role="menuitem"], li', timeout = 500 } = options();
+		const {
+			onMatch,
+			itemSelector = '[role="option"], [role="menuitem"], li',
+			timeout = 500,
+		} = options();
 
 		buffer += event.key.toLowerCase();
 
 		if (timer) clearTimeout(timer);
-		timer = setTimeout(() => { buffer = ""; }, timeout);
+		timer = setTimeout(() => {
+			buffer = "";
+		}, timeout);
 
 		const items = Array.from(node.querySelectorAll<HTMLElement>(itemSelector));
 		const match = items.find((item) => {

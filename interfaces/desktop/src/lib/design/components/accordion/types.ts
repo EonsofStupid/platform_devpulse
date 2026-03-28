@@ -71,7 +71,8 @@ export interface AccordionRootProps
 // SUB-COMPONENTS
 // =============================================================================
 
-interface AccordionSlotProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface AccordionSlotProps
+	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
 	children?: Snippet;
 	class?: string;
 	element?: Snippet<[HTMLAttributes<HTMLElement>]>;

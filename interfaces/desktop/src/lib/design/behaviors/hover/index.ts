@@ -4,5 +4,5 @@
  * @layer behavior
  */
 
-export { useHover } from "./use-hover.svelte.js";
 export type * from "./hover.types.js";
+export { useHover } from "./use-hover.svelte.js";

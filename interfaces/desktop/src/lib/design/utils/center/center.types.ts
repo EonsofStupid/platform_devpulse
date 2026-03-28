@@ -5,8 +5,7 @@
  * Returns Tailwind class strings — no inline styles.
  */
 
-import type { SizeToken } from "$lib/design/types/spacing.js";
-import type { SpaceToken } from "$lib/design/types/spacing.js";
+import type { SizeToken, SpaceToken } from "$lib/design/types/spacing.js";
 
 export interface CenterProps {
 	/** Max width constraint via --size-{token}. */

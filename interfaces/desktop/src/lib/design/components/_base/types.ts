@@ -27,13 +27,7 @@ export type ComponentProps = UIBaseProps;
 // UI LAYER — which architectural layer the element belongs to
 // =============================================================================
 
-export type UILayer =
-	| "component"
-	| "block"
-	| "layout"
-	| "template"
-	| "widget"
-	| "background";
+export type UILayer = "component" | "block" | "layout" | "template" | "widget" | "background";
 
 // =============================================================================
 // UI CATEGORY — structural role for the VPB editor
@@ -84,9 +78,12 @@ export type VisualAxis =
 // SLOT AXES — which visual axes a slot receives
 // =============================================================================
 
-export type SlotAxes = "all" | "none" | {
-	[K in VisualAxis]?: boolean;
-};
+export type SlotAxes =
+	| "all"
+	| "none"
+	| {
+			[K in VisualAxis]?: boolean;
+	  };
 
 // =============================================================================
 // UI DEF — const literal per UI element, auto-generated into ui-catalog

@@ -4,5 +4,5 @@
  * @layer behavior
  */
 
-export { useFocus } from "./use-focus.svelte.js";
 export type * from "./focus.types.js";
+export { useFocus } from "./use-focus.svelte.js";

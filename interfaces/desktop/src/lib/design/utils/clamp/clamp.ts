@@ -9,7 +9,7 @@
  * Size: --size-3xs (1rem) through --size-container-2xl (96rem)
  */
 
-import type { SpaceToken, SizeToken, PaddingToken } from "$lib/design/types/spacing.js";
+import type { PaddingToken, SizeToken, SpaceToken } from "$lib/design/types/spacing.js";
 
 /** DTCG-typed CSS custom property for space tokens. */
 export type SpaceCSSProperty = `--space-${SpaceToken}`;
@@ -56,11 +56,11 @@ export function clampFluid(
 export const FLUID_SPACE = {
 	"3xs": clampFluid("--space-2", "--space-4"),
 	"2xs": clampFluid("--space-4", "--space-8"),
-	"xs":  clampFluid("--space-6", "--space-12"),
-	"sm":  clampFluid("--space-8", "--space-16"),
-	"md":  clampFluid("--space-12", "--space-24"),
-	"lg":  clampFluid("--space-16", "--space-32"),
-	"xl":  clampFluid("--space-24", "--space-48"),
+	xs: clampFluid("--space-6", "--space-12"),
+	sm: clampFluid("--space-8", "--space-16"),
+	md: clampFluid("--space-12", "--space-24"),
+	lg: clampFluid("--space-16", "--space-32"),
+	xl: clampFluid("--space-24", "--space-48"),
 	"2xl": clampFluid("--space-32", "--space-64"),
 	"3xl": clampFluid("--space-48", "--space-96"),
 	"4xl": clampFluid("--space-64", "--space-128"),
@@ -71,11 +71,11 @@ export const FLUID_SPACE = {
  * Inputs reference DTCG SizeToken values via CSS custom properties.
  */
 export const FLUID_SIZE = {
-	"icon":    clampFluid("--size-2xs", "--size-xs"),
-	"button":  clampFluid("--size-sm", "--size-lg"),
-	"panel":   clampFluid("--size-container-xs", "--size-container-md"),
-	"section": clampFluid("--size-container-sm", "--size-container-lg"),
-	"page":    clampFluid("--size-container-md", "--size-container-2xl"),
+	icon: clampFluid("--size-2xs", "--size-xs"),
+	button: clampFluid("--size-sm", "--size-lg"),
+	panel: clampFluid("--size-container-xs", "--size-container-md"),
+	section: clampFluid("--size-container-sm", "--size-container-lg"),
+	page: clampFluid("--size-container-md", "--size-container-2xl"),
 } as const;
 
 /**

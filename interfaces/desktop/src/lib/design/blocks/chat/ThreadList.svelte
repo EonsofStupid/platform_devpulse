@@ -18,12 +18,7 @@ import Text from "$lib/design/components/text/Text.svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ThreadListProps } from "./types.js";
 
-let {
-	threads,
-	activeId,
-	onSelect,
-	class: className,
-}: ThreadListProps = $props();
+let { threads, activeId, onSelect, class: className }: ThreadListProps = $props();
 </script>
 
 <nav

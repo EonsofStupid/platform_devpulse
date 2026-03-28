@@ -8,7 +8,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { HeadingPrimitiveProps } from "./heading.props.js";
+import type { HeadingPrimitiveProps } from "./types.js";
 
 let { children, class: className, level = 2, ...rest }: HeadingPrimitiveProps = $props();
 </script>

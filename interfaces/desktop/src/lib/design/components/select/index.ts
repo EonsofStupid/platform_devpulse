@@ -13,9 +13,9 @@ export { default as SelectTrigger } from "./SelectTrigger.svelte";
 export type {
 	SelectContentProps,
 	SelectGroupProps,
-	SelectPreset,
 	SelectItemProps,
 	SelectLabelProps,
+	SelectPreset,
 	SelectProps,
 	SelectTriggerProps,
 } from "./types.js";

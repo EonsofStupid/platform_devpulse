@@ -9,14 +9,14 @@
   Rendered in a separate Tauri child window via open_chat_window.
 -->
 <script lang="ts">
-import type { Snippet } from "svelte";
 import { invoke } from "@tauri-apps/api/core";
-import { ChatFrame } from "$lib/design/components/chat-frame/index.js";
-import { ChatTopBar } from "$lib/design/components/chat-topbar/index.js";
-import { ChatSidebar } from "$lib/design/components/chat-sidebar/index.js";
+import type { Snippet } from "svelte";
+import { ChatContextPanel } from "$lib/design/components/chat-context-panel/index.js";
 import { ChatDashboard } from "$lib/design/components/chat-dashboard/index.js";
 import { ChatFooter } from "$lib/design/components/chat-footer/index.js";
-import { ChatContextPanel } from "$lib/design/components/chat-context-panel/index.js";
+import { ChatFrame } from "$lib/design/components/chat-frame/index.js";
+import { ChatSidebar } from "$lib/design/components/chat-sidebar/index.js";
+import { ChatTopBar } from "$lib/design/components/chat-topbar/index.js";
 import { globalState } from "$lib/sys/runes/global.svelte.js";
 
 interface Props {

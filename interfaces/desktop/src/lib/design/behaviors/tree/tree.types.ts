@@ -31,7 +31,10 @@ export type TreeGroupAttrs = HTMLAttributes<HTMLDivElement> & {
 
 export interface UseTreeReturn {
 	readonly root: TreeRootAttrs;
-	getItem(key: string, options?: { hasChildren?: boolean; level?: number; disabled?: boolean }): TreeItemAttrs;
+	getItem(
+		key: string,
+		options?: { hasChildren?: boolean; level?: number; disabled?: boolean },
+	): TreeItemAttrs;
 	getGroup(): TreeGroupAttrs;
 	toggleExpanded(key: string): void;
 }

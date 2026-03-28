@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { SheetPrimitiveProps } from "./sheet.props.js";
+import type { SheetPrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: SheetPrimitiveProps = $props();
 </script>

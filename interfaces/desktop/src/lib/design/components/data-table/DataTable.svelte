@@ -24,10 +24,21 @@
 -->
 <script lang="ts">
 import { useDataTable } from "$lib/design/behaviors/data-table/index.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { DataTableComponentProps } from "./types.js";
-let { size = "md", variant = "default", preset = "default", label, rowCount, colCount, children, class: className, ...rest }: DataTableComponentProps = $props();
+
+let {
+	size = "md",
+	variant = "default",
+	preset = "default",
+	label,
+	rowCount,
+	colCount,
+	children,
+	class: className,
+	...rest
+}: DataTableComponentProps = $props();
 const dt = $derived(useDataTable({ label, rowCount, colCount }));
 const m = $derived(resolveMacro({ kind: "data-table", preset }));
 </script>

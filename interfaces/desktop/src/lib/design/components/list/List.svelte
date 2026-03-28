@@ -24,10 +24,20 @@
 -->
 <script lang="ts">
 import { useList } from "$lib/design/behaviors/list/index.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ListComponentProps } from "./types.js";
-let { preset = "default", size = "md", variant = "none", spacing = "default", label, children, class: className, ...rest }: ListComponentProps = $props();
+
+let {
+	preset = "default",
+	size = "md",
+	variant = "none",
+	spacing = "default",
+	label,
+	children,
+	class: className,
+	...rest
+}: ListComponentProps = $props();
 const list = $derived(useList({ label }));
 const m = $derived(resolveMacro({ kind: "list", preset }));
 </script>

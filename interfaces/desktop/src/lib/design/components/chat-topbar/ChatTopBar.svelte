@@ -19,12 +19,12 @@
 	}
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
-import { cn } from "$lib/design/utils/cn.js";
-import Text from "$lib/design/components/text/Text.svelte";
-import Heading from "$lib/design/components/heading/Heading.svelte";
-import { Button } from "$lib/design/components/button/index.js";
 import { Minus, X } from "lucide-svelte";
+import { Button } from "$lib/design/components/button/index.js";
+import Heading from "$lib/design/components/heading/Heading.svelte";
+import Text from "$lib/design/components/text/Text.svelte";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cn } from "$lib/design/utils/cn.js";
 import type { ChatTopBarProps } from "./types.js";
 
 let {

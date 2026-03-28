@@ -21,12 +21,12 @@
 }
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
-import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cn } from "$lib/design/utils/cn.js";
 import { setColorWheelContext } from "./context.js";
-import { useWheelDrag } from "./use-wheel-drag.svelte.js";
 import type { ColorWheelRootProps } from "./types.js";
+import { useWheelDrag } from "./use-wheel-drag.svelte.js";
 
 let {
 	ids: userIds,
@@ -80,14 +80,25 @@ const drag = useWheelDrag({
 	},
 });
 
-
 setColorWheelContext({
-	get hue() { return currentHue; },
-	get isDisabled() { return isDisabled; },
-	get isDragging() { return drag.state.isDragging; },
-	get size() { return size; },
-	get dir() { return dir; },
-	get ids() { return resolvedIds; },
+	get hue() {
+		return currentHue;
+	},
+	get isDisabled() {
+		return isDisabled;
+	},
+	get isDragging() {
+		return drag.state.isDragging;
+	},
+	get size() {
+		return size;
+	},
+	get dir() {
+		return dir;
+	},
+	get ids() {
+		return resolvedIds;
+	},
 	trackAction: drag.trackAction,
 	thumbAction: drag.thumbAction,
 });

@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { useTextarea } from "$lib/design/behaviors/textarea/index.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TextareaProps } from "./types.js";
 

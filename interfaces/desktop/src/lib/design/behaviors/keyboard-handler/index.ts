@@ -4,5 +4,5 @@
  * @layer behavior
  */
 
-export { useKeyboard } from "./use-keyboard.svelte.js";
 export type * from "./keyboard-handler.types.js";
+export { useKeyboard } from "./use-keyboard.svelte.js";

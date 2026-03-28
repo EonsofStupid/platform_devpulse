@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { RadioGroupPrimitiveProps } from "./radio-group.props.js";
+import type { RadioGroupPrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: RadioGroupPrimitiveProps = $props();
 </script>

@@ -1,5 +1,5 @@
 import { getContext, setContext } from "svelte";
-import type { DateFieldGranularity, DateFieldIds, DateSegment } from "./types.js";
+import type { DateFieldGranularity, DateSegment } from "./types.js";
 
 export interface DateFieldContext {
 	readonly value: Date | null | undefined;

@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { NumberFieldPrimitiveProps } from "./number-field.props.js";
+import type { NumberFieldPrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: NumberFieldPrimitiveProps = $props();
 </script>

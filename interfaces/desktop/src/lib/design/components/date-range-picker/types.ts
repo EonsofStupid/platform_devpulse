@@ -82,7 +82,8 @@ export interface DateRangePickerRootProps
 	children?: Snippet;
 }
 
-interface DateRangePickerSlotProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface DateRangePickerSlotProps
+	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
 	children?: Snippet;
 	class?: string;
 }

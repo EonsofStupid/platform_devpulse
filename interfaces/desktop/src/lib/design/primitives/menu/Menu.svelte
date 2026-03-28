@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { MenuPrimitiveProps } from "./menu.props.js";
+import type { MenuPrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: MenuPrimitiveProps = $props();
 </script>

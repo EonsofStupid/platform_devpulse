@@ -22,13 +22,30 @@
 -->
 <script lang="ts">
 import { usePagination } from "$lib/design/behaviors/pagination/index.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { PaginationComponentProps } from "./types.js";
-let { page = 1, totalPages, onPageChange, siblings = 1, boundaries = 1, size = "md", preset = "default", children, class: className, ...rest }: PaginationComponentProps = $props();
+
+let {
+	page = 1,
+	totalPages,
+	onPageChange,
+	siblings = 1,
+	boundaries = 1,
+	size = "md",
+	preset = "default",
+	children,
+	class: className,
+	...rest
+}: PaginationComponentProps = $props();
 const m = $derived(resolveMacro({ kind: "pagination", preset }));
 const pagination = usePagination();
-function getPageRange(current: number, total: number, sibs: number, bounds: number): (number | string)[] {
+function getPageRange(
+	current: number,
+	total: number,
+	sibs: number,
+	bounds: number,
+): (number | string)[] {
 	const totalNumbers = sibs * 2 + 1 + bounds * 2;
 	if (totalNumbers >= total) return Array.from({ length: total }, (_, i) => i + 1);
 	const leftSibIdx = Math.max(current - sibs, bounds + 1);

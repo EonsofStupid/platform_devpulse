@@ -37,7 +37,9 @@ export function intersection(node: HTMLElement, options: () => IntersectionOptio
 
 	const observer = new IntersectionObserver(
 		(entries) => {
-			entries.forEach((entry) => onIntersect(entry));
+			entries.forEach((entry) => {
+				onIntersect(entry);
+			});
 		},
 		{ root, rootMargin, threshold },
 	);

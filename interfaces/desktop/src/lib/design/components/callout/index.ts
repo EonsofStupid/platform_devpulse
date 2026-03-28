@@ -1,2 +1,2 @@
 export { default as Callout } from "./Callout.svelte";
-export { type CalloutProps, type CalloutVariant } from "./types.js";
+export type { CalloutProps, CalloutVariant } from "./types.js";

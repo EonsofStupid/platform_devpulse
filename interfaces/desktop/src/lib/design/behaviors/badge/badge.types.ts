@@ -1,10 +1,31 @@
 import type { HTMLAttributes } from "svelte/elements";
 
 export type BadgeVariant =
-	| "accent" | "informative" | "neutral" | "positive" | "notice" | "negative"
-	| "gray" | "red" | "orange" | "yellow" | "chartreuse" | "celery"
-	| "green" | "seafoam" | "cyan" | "blue" | "indigo" | "purple"
-	| "fuchsia" | "magenta" | "pink" | "turquoise" | "brown" | "cinnamon" | "silver";
+	| "accent"
+	| "informative"
+	| "neutral"
+	| "positive"
+	| "notice"
+	| "negative"
+	| "gray"
+	| "red"
+	| "orange"
+	| "yellow"
+	| "chartreuse"
+	| "celery"
+	| "green"
+	| "seafoam"
+	| "cyan"
+	| "blue"
+	| "indigo"
+	| "purple"
+	| "fuchsia"
+	| "magenta"
+	| "pink"
+	| "turquoise"
+	| "brown"
+	| "cinnamon"
+	| "silver";
 
 export type BadgeFillStyle = "bold" | "subtle" | "outline";
 export type BadgeSize = "sm" | "md" | "lg" | "xl";

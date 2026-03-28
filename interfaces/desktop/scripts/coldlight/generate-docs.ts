@@ -45,7 +45,7 @@ const TYPEDOC_OUTPUT = toPosix(path.join(OUTPUT_DIR, "typedoc"));
 const TYPEDOC_JSON = toPosix(path.join(OUTPUT_DIR, "api.json"));
 
 // Exports to skip (config files that cause TypeDoc issues)
-const SKIP_EXPORTS = new Set(["./config", "./vite-plugin", "./tailwind-preset"]);
+const _SKIP_EXPORTS = new Set(["./config", "./vite-plugin", "./tailwind-preset"]);
 
 // File patterns to exclude
 const EXCLUDE_PATTERNS = ["**/node_modules/**", "**/.cowlevel/**", "**/*.test.ts", "**/*.spec.ts"];
@@ -88,46 +88,51 @@ function readPackageJson(): PackageJson {
 	return JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
 }
 
-function extractEntryPoints(pkg: PackageJson): EntryPoint[] {
-	const exports = pkg.exports;
-	if (!exports) {
-		console.warn("⚠️  No exports map, using index.ts");
-		const absPath = toPosix(path.join(COLDLIGHT_ROOT, "index.ts"));
-		return [{ name: ".", relativePath: "./index.ts", absolutePath: absPath }];
-	}
-
+function extractEntryPoints(_pkg: PackageJson): EntryPoint[] {
 	const entries: EntryPoint[] = [];
 
-	for (const [name, value] of Object.entries(exports)) {
-		// Skip config exports
-		if (SKIP_EXPORTS.has(name)) {
-			continue;
+	// Scan known ColdLight directories for index.ts entry points
+	const SCAN_DIRS = ["style-macro", "behaviors", "components", "blocks", "primitives", "utils"];
+
+	for (const dir of SCAN_DIRS) {
+		const dirPath = path.join(COLDLIGHT_ROOT, dir);
+		if (!fs.existsSync(dirPath)) continue;
+
+		// Check for top-level index.ts
+		const topIndex = toPosix(path.join(dirPath, "index.ts"));
+		if (fs.existsSync(topIndex)) {
+			entries.push({
+				name: `./${dir}`,
+				relativePath: `./${dir}/index.ts`,
+				absolutePath: topIndex,
+			});
 		}
 
-		// Extract import path
-		let importPath: string | undefined;
-		if (typeof value === "string") {
-			importPath = value;
-		} else if (value && typeof value === "object") {
-			importPath = value.import || value.svelte || value.default;
+		// Check for per-kind index.ts files
+		const subDirs = fs
+			.readdirSync(dirPath, { withFileTypes: true })
+			.filter((d) => d.isDirectory() && !d.name.startsWith("_") && !d.name.startsWith("."));
+
+		for (const sub of subDirs) {
+			const subIndex = toPosix(path.join(dirPath, sub.name, "index.ts"));
+			if (fs.existsSync(subIndex)) {
+				entries.push({
+					name: `./${dir}/${sub.name}`,
+					relativePath: `./${dir}/${sub.name}/index.ts`,
+					absolutePath: subIndex,
+				});
+			}
 		}
+	}
 
-		if (!importPath) continue;
-
-		// Skip non-TS and .d.ts files
-		if (!importPath.endsWith(".ts") || importPath.endsWith(".d.ts")) {
-			continue;
-		}
-
-		const absolutePath = toPosix(path.resolve(COLDLIGHT_ROOT, importPath));
-
-		// Verify exists
-		if (!fs.existsSync(absolutePath)) {
-			console.warn(`⚠️  Missing: ${absolutePath}`);
-			continue;
-		}
-
-		entries.push({ name, relativePath: importPath, absolutePath });
+	// Also check coldlight.config.ts
+	const configPath = toPosix(path.join(COLDLIGHT_ROOT, "coldlight.config.ts"));
+	if (fs.existsSync(configPath)) {
+		entries.push({
+			name: "./config",
+			relativePath: "./coldlight.config.ts",
+			absolutePath: configPath,
+		});
 	}
 
 	return entries;

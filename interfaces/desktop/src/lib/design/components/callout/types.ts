@@ -11,7 +11,6 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type CalloutVariant = "info" | "success" | "warning" | "error" | "tip";
 
-
 export interface CalloutProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
 		BaseProps,

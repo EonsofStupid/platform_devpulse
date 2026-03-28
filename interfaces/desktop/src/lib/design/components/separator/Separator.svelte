@@ -22,9 +22,9 @@
 -->
 <script lang="ts">
 import { useSeparator } from "$lib/design/behaviors/separator/use-separator.svelte.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
-import type { SeparatorProps, SeparatorOrientation } from "./types.js";
+import type { SeparatorOrientation, SeparatorProps } from "./types.js";
 
 const ORIENTATION_CLASSES: Record<SeparatorOrientation, string> = {
 	horizontal: "h-px w-full",

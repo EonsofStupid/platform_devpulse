@@ -4,6 +4,6 @@
  * @layer behavior
  */
 
-export { useButton } from "./use-button.svelte.js";
-export type * from "./button.types.js";
 export { buttonAnatomy } from "./button.anatomy.js";
+export type * from "./button.types.js";
+export { useButton } from "./use-button.svelte.js";

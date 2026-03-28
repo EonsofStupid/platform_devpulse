@@ -5,10 +5,10 @@
 -->
 <script lang="ts">
 import { Widget } from "$lib/design/blocks/widgets/index.js";
+import { Text } from "$lib/design/components/text/index.js";
 import { gridLayout } from "$lib/design/utils/grid-layout/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import { devpulseState } from "$lib/domains/app/devpulse/index.js";
 </script>
 

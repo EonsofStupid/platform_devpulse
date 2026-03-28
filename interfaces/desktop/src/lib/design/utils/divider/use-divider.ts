@@ -6,7 +6,7 @@
  */
 
 import { cn } from "$lib/design/utils/cn.js";
-import type { UseDividerProps, UseDividerReturn, UseDividerAttrs } from "./divider.types.js";
+import type { UseDividerAttrs, UseDividerProps, UseDividerReturn } from "./divider.types.js";
 
 export function useDivider(props: UseDividerProps = {}): UseDividerReturn {
 	const orientation = props.orientation ?? "horizontal";

@@ -42,23 +42,23 @@ export {
 
 export {
 	Avatar,
-	type AvatarProps,
 	type AvatarLoadStatus,
+	type AvatarProps,
 	type AvatarStatusChangeDetails,
 } from "./avatar/index.js";
 export {
 	Badge,
+	type BadgeFillStyle,
 	type BadgeProps,
 	type BadgeSize,
 	type BadgeVariant,
-	type BadgeFillStyle,
 } from "./badge/index.js";
 export {
 	Card,
-	type CardProps,
-	type CardVariant,
 	type CardAs,
 	type CardOrientation,
+	type CardProps,
+	type CardVariant,
 } from "./card/index.js";
 export {
 	Separator,

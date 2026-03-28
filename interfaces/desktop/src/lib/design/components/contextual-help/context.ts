@@ -1,5 +1,4 @@
 import { getContext, setContext } from "svelte";
-import type { ContextualHelpIds } from "./types.js";
 
 export interface ContextualHelpContext {
 	readonly isOpen: boolean;

@@ -25,8 +25,16 @@ body {
 [data-layout="app"] {
 	background:
 		radial-gradient(ellipse 60% 50% at 50% 40%, var(--backdrop-glow-teal) 0%, transparent 70%),
-		linear-gradient(var(--backdrop-grid-teal) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)),
-		linear-gradient(90deg, var(--backdrop-grid-teal) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)), var(--color-void-base);
+		linear-gradient(
+			var(--backdrop-grid-teal) var(--backdrop-grid-line-width),
+			transparent var(--backdrop-grid-line-width)
+		),
+		linear-gradient(
+			90deg,
+			var(--backdrop-grid-teal) var(--backdrop-grid-line-width),
+			transparent var(--backdrop-grid-line-width)
+		),
+		var(--color-void-base);
 	background-size:
 		100% 100%,
 		var(--backdrop-grid-size-teal) var(--backdrop-grid-size-teal),
@@ -43,8 +51,16 @@ body {
 [data-layout="app"][data-route="devpulse"] {
 	background:
 		radial-gradient(ellipse 60% 50% at 50% 40%, var(--backdrop-glow-teal) 0%, transparent 70%),
-		linear-gradient(var(--backdrop-grid-teal) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)),
-		linear-gradient(90deg, var(--backdrop-grid-teal) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)), var(--color-void-base);
+		linear-gradient(
+			var(--backdrop-grid-teal) var(--backdrop-grid-line-width),
+			transparent var(--backdrop-grid-line-width)
+		),
+		linear-gradient(
+			90deg,
+			var(--backdrop-grid-teal) var(--backdrop-grid-line-width),
+			transparent var(--backdrop-grid-line-width)
+		),
+		var(--color-void-base);
 	background-size:
 		100% 100%,
 		var(--backdrop-grid-size-teal) var(--backdrop-grid-size-teal),
@@ -55,8 +71,16 @@ body {
 [data-layout="app"][data-route="maestro"] {
 	background:
 		radial-gradient(ellipse 60% 50% at 50% 40%, var(--backdrop-glow-purple) 0%, transparent 70%),
-		linear-gradient(var(--backdrop-grid-purple) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)),
-		linear-gradient(90deg, var(--backdrop-grid-purple) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)), var(--color-void-base);
+		linear-gradient(
+			var(--backdrop-grid-purple) var(--backdrop-grid-line-width),
+			transparent var(--backdrop-grid-line-width)
+		),
+		linear-gradient(
+			90deg,
+			var(--backdrop-grid-purple) var(--backdrop-grid-line-width),
+			transparent var(--backdrop-grid-line-width)
+		),
+		var(--color-void-base);
 	background-size:
 		100% 100%,
 		var(--backdrop-grid-size-purple) var(--backdrop-grid-size-purple),
@@ -67,8 +91,15 @@ body {
 [data-layout="app"][data-route="overmind"] {
 	background:
 		radial-gradient(ellipse 60% 50% at 50% 40%, var(--backdrop-glow-magenta) 0%, transparent 70%),
-		linear-gradient(var(--backdrop-grid-magenta) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)),
-		linear-gradient(90deg, var(--backdrop-grid-magenta) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)),
+		linear-gradient(
+			var(--backdrop-grid-magenta) var(--backdrop-grid-line-width),
+			transparent var(--backdrop-grid-line-width)
+		),
+		linear-gradient(
+			90deg,
+			var(--backdrop-grid-magenta) var(--backdrop-grid-line-width),
+			transparent var(--backdrop-grid-line-width)
+		),
 		var(--color-void-base);
 	background-size:
 		100% 100%,
@@ -80,8 +111,16 @@ body {
 [data-layout="app"][data-route="devforge"] {
 	background:
 		radial-gradient(ellipse 60% 50% at 50% 40%, var(--backdrop-glow-ember) 0%, transparent 70%),
-		linear-gradient(var(--backdrop-grid-ember) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)),
-		linear-gradient(90deg, var(--backdrop-grid-ember) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)), var(--color-void-base);
+		linear-gradient(
+			var(--backdrop-grid-ember) var(--backdrop-grid-line-width),
+			transparent var(--backdrop-grid-line-width)
+		),
+		linear-gradient(
+			90deg,
+			var(--backdrop-grid-ember) var(--backdrop-grid-line-width),
+			transparent var(--backdrop-grid-line-width)
+		),
+		var(--color-void-base);
 	background-size:
 		100% 100%,
 		var(--backdrop-grid-size-ember) var(--backdrop-grid-size-ember),
@@ -92,8 +131,16 @@ body {
 [data-layout="app"][data-route="wiredfront"] {
 	background:
 		radial-gradient(ellipse 60% 50% at 50% 40%, var(--backdrop-glow-cyber) 0%, transparent 70%),
-		linear-gradient(var(--backdrop-grid-cyber) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)),
-		linear-gradient(90deg, var(--backdrop-grid-cyber) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)), var(--color-void-base);
+		linear-gradient(
+			var(--backdrop-grid-cyber) var(--backdrop-grid-line-width),
+			transparent var(--backdrop-grid-line-width)
+		),
+		linear-gradient(
+			90deg,
+			var(--backdrop-grid-cyber) var(--backdrop-grid-line-width),
+			transparent var(--backdrop-grid-line-width)
+		),
+		var(--color-void-base);
 	background-size:
 		100% 100%,
 		var(--backdrop-grid-size-cyber) var(--backdrop-grid-size-cyber),
@@ -113,8 +160,16 @@ body {
 			var(--backdrop-glow-purple-fade) 50%,
 			transparent 80%
 		),
-		linear-gradient(var(--backdrop-grid-purple) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)),
-		linear-gradient(90deg, var(--backdrop-grid-purple) var(--backdrop-grid-line-width), transparent var(--backdrop-grid-line-width)), var(--color-void-base);
+		linear-gradient(
+			var(--backdrop-grid-purple) var(--backdrop-grid-line-width),
+			transparent var(--backdrop-grid-line-width)
+		),
+		linear-gradient(
+			90deg,
+			var(--backdrop-grid-purple) var(--backdrop-grid-line-width),
+			transparent var(--backdrop-grid-line-width)
+		),
+		var(--color-void-base);
 	background-size:
 		100% 100%,
 		var(--backdrop-grid-size-neural) var(--backdrop-grid-size-neural),

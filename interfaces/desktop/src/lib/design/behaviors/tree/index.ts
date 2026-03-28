@@ -4,6 +4,6 @@
  * @layer behavior
  */
 
-export { useTree } from "./use-tree.svelte.js";
-export type * from "./tree.types.js";
 export { treeAnatomy } from "./tree.anatomy.js";
+export type * from "./tree.types.js";
+export { useTree } from "./use-tree.svelte.js";

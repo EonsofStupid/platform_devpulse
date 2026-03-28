@@ -36,7 +36,7 @@ let {
 }: FileUploadComponentProps = $props();
 
 // Resolve ColdLight visual props
-const classes = $derived(cn( className));
+const classes = $derived(cn(className));
 
 function handleChange(e: Event) {
 	const target = e.target as HTMLInputElement;

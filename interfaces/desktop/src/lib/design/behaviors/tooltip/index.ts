@@ -4,6 +4,6 @@
  * @layer behavior
  */
 
-export { useTooltip } from "./use-tooltip.svelte.js";
-export type * from "./tooltip.types.js";
 export { tooltipAnatomy } from "./tooltip.anatomy.js";
+export type * from "./tooltip.types.js";
+export { useTooltip } from "./use-tooltip.svelte.js";

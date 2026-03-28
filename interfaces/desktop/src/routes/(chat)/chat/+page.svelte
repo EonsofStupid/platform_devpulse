@@ -33,7 +33,7 @@ let sending = $state(false);
 const blockMessages = $derived<BlockChatMessage[]>(
 	messages.map((msg) => ({
 		id: String(msg.id),
-		variant: msg.role === "assistant" ? "ai" as const : "user" as const,
+		variant: msg.role === "assistant" ? ("ai" as const) : ("user" as const),
 		author: msg.role === "assistant" ? "Maestro" : undefined,
 		content: msg.content,
 		timestamp: msg.created_at ? formatTime(msg.created_at) : undefined,

@@ -23,10 +23,23 @@
 -->
 <script lang="ts">
 import { useSteps } from "$lib/design/behaviors/steps/index.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { StepsComponentProps } from "./types.js";
-let { size = "md", orientation = "horizontal", activeStep = 0, onActiveStepChange, label, linear = true, disabled = false, preset = "default", children, class: className, ...rest }: StepsComponentProps = $props();
+
+let {
+	size = "md",
+	orientation = "horizontal",
+	activeStep = 0,
+	onActiveStepChange,
+	label,
+	linear = true,
+	disabled = false,
+	preset = "default",
+	children,
+	class: className,
+	...rest
+}: StepsComponentProps = $props();
 const steps = $derived(useSteps({ label, activeStep, disabled }));
 const m = $derived(resolveMacro({ kind: "steps", preset }));
 </script>

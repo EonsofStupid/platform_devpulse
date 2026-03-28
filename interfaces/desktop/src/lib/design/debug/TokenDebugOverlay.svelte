@@ -46,13 +46,21 @@ let filtered = $derived(
 
 // Group by var name for dedup view
 let groupedByVar = $derived(() => {
-	const map = new Map<string, { count: number; property: string; resolved: string; status: string }>();
+	const map = new Map<
+		string,
+		{ count: number; property: string; resolved: string; status: string }
+	>();
 	for (const r of missing) {
 		const existing = map.get(r.varName);
 		if (existing) {
 			existing.count++;
 		} else {
-			map.set(r.varName, { count: 1, property: r.property, resolved: r.resolved, status: r.status });
+			map.set(r.varName, {
+				count: 1,
+				property: r.property,
+				resolved: r.resolved,
+				status: r.status,
+			});
 		}
 	}
 	return [...map.entries()].sort((a, b) => b[1].count - a[1].count);
@@ -77,10 +85,8 @@ function scan() {
 		try {
 			for (const rule of sheet.cssRules) {
 				const text = rule.cssText;
-				let match: RegExpExecArray | null;
-				const regex = /var\(--([a-zA-Z0-9_-]+)/g;
-				while ((match = regex.exec(text)) !== null) {
-					allVarNames.add(`--${match[1]}`);
+				for (const m of text.matchAll(/var\(--([a-zA-Z0-9_-]+)/g)) {
+					allVarNames.add(`--${m[1]}`);
 				}
 			}
 		} catch {
@@ -111,10 +117,8 @@ function scan() {
 		const inlineStyle = (el as HTMLElement).style?.cssText || "";
 
 		// Check inline style var() refs — resolve against THE ELEMENT, not :root
-		let match: RegExpExecArray | null;
-		const regex = /var\(--([a-zA-Z0-9_-]+)/g;
-		while ((match = regex.exec(inlineStyle)) !== null) {
-			const varName = `--${match[1]}`;
+		for (const m of inlineStyle.matchAll(/var\(--([a-zA-Z0-9_-]+)/g)) {
+			const varName = `--${m[1]}`;
 			const value = elComputed.getPropertyValue(varName).trim();
 			const tag = el.tagName.toLowerCase();
 			const kind = (el as HTMLElement).dataset?.kind || (el as HTMLElement).dataset?.svgKind || "";
@@ -136,9 +140,8 @@ function scan() {
 		// Check class-based var() refs (Tailwind arbitrary values like text-[var(--foo)])
 		const classList = (el as HTMLElement).className;
 		if (typeof classList === "string" && classList.includes("var(--")) {
-			const classRegex = /var\(--([a-zA-Z0-9_-]+)/g;
-			while ((match = classRegex.exec(classList)) !== null) {
-				const varName = `--${match[1]}`;
+			for (const cm of classList.matchAll(/var\(--([a-zA-Z0-9_-]+)/g)) {
+				const varName = `--${cm[1]}`;
 				const value = elComputed.getPropertyValue(varName).trim();
 				const tag = el.tagName.toLowerCase();
 				const key = `class:${tag}::${varName}`;

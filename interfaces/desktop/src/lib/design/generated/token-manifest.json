@@ -664,6 +664,54 @@
 				}
 			},
 			{
+				"name": "bevel-pressed",
+				"path": [
+					"bevel",
+					"pressed"
+				],
+				"cssVar": "--bevel-pressed",
+				"value": [
+					{
+						"color": "oklch(0 0 0 / 0.278)",
+						"offsetX": "0px",
+						"offsetY": "1px",
+						"blur": "3px",
+						"spread": "0px"
+					},
+					{
+						"color": "oklch(0 0 0 / 0.161)",
+						"offsetX": "0px",
+						"offsetY": "2px",
+						"blur": "6px",
+						"spread": "0px"
+					},
+					{
+						"color": "oklch(1.0032 0.0305 28.88 / 0.051)",
+						"offsetX": "0px",
+						"offsetY": "-1px",
+						"blur": "1px",
+						"spread": "0px"
+					}
+				],
+				"type": "shadow",
+				"extensions": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": -2,
+						"specularConstant": 0.3,
+						"specularExponent": 30,
+						"lightPosition": {
+							"x": 0,
+							"y": 1,
+							"z": 1
+						}
+					}
+				}
+			},
+			{
 				"name": "bevel-deep",
 				"path": [
 					"bevel",
@@ -6644,6 +6692,39 @@
 				"value": "linear-gradient(135deg, oklch(0.24 0.12 330), oklch(0.04 0.06 330))",
 				"type": "gradient",
 				"extensions": null
+			},
+			{
+				"name": "gradient-animated-1",
+				"path": [
+					"gradient",
+					"animated-1"
+				],
+				"cssVar": "--gradient-animated-1",
+				"value": "oklch(0.1407 0.0433 220.15 / 0.6)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "gradient-animated-2",
+				"path": [
+					"gradient",
+					"animated-2"
+				],
+				"cssVar": "--gradient-animated-2",
+				"value": "oklch(0.1206 0.0595 280.32 / 0.4)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "gradient-teal-purple",
+				"path": [
+					"gradient",
+					"teal-purple"
+				],
+				"cssVar": "--gradient-teal-purple",
+				"value": "oklch(0.1149 0.0423 190.54 / 0.702)",
+				"type": "color",
+				"extensions": null
 			}
 		]
 	},
@@ -6959,6 +7040,23 @@
 				},
 				"type": "shadow",
 				"extensions": null
+			},
+			{
+				"name": "glow-blue",
+				"path": [
+					"glow",
+					"blue"
+				],
+				"cssVar": "--glow-blue",
+				"value": {
+					"color": "oklch(0.5412 0.1105 249.72 / 0.702)",
+					"offsetX": "0px",
+					"offsetY": "0px",
+					"blur": "30px",
+					"spread": "12px"
+				},
+				"type": "shadow",
+				"extensions": null
 			}
 		]
 	},
@@ -7007,6 +7105,44 @@
 				"cssVar": "--glow-spread-xl",
 				"value": "40px",
 				"type": "dimension",
+				"extensions": null
+			}
+		]
+	},
+	"gradientDuration": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "gradient-duration-slow",
+				"path": [
+					"gradientDuration",
+					"slow"
+				],
+				"cssVar": "--gradient-duration-slow",
+				"value": "25000ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "gradient-duration-medium",
+				"path": [
+					"gradientDuration",
+					"medium"
+				],
+				"cssVar": "--gradient-duration-medium",
+				"value": "15000ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "gradient-duration-fast",
+				"path": [
+					"gradientDuration",
+					"fast"
+				],
+				"cssVar": "--gradient-duration-fast",
+				"value": "8000ms",
+				"type": "duration",
 				"extensions": null
 			}
 		]
@@ -93993,6 +94129,28 @@
 				"extensions": null
 			},
 			{
+				"name": "glass-standard",
+				"path": [
+					"glass",
+					"standard"
+				],
+				"cssVar": "--glass-standard",
+				"value": "oklch(0.1206 0.0095 200.12 / 0.702)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "glass-light",
+				"path": [
+					"glass",
+					"light"
+				],
+				"cssVar": "--glass-light",
+				"value": "oklch(0.1809 0.0065 195.41 / 0.549)",
+				"type": "color",
+				"extensions": null
+			},
+			{
 				"name": "glass-frost",
 				"path": [
 					"glass",
@@ -94023,6 +94181,77 @@
 				"cssVar": "--glass-purple",
 				"value": "oklch(0.1001 0.0644 218.28 / 0.749)",
 				"type": "color",
+				"extensions": null
+			}
+		]
+	},
+	"glassBlur": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "glass-blur-void",
+				"path": [
+					"glassBlur",
+					"void"
+				],
+				"cssVar": "--glass-blur-void",
+				"value": "20px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glass-blur-deep",
+				"path": [
+					"glassBlur",
+					"deep"
+				],
+				"cssVar": "--glass-blur-deep",
+				"value": "16px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glass-blur-smoke",
+				"path": [
+					"glassBlur",
+					"smoke"
+				],
+				"cssVar": "--glass-blur-smoke",
+				"value": "14px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glass-blur-standard",
+				"path": [
+					"glassBlur",
+					"standard"
+				],
+				"cssVar": "--glass-blur-standard",
+				"value": "12px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glass-blur-light",
+				"path": [
+					"glassBlur",
+					"light"
+				],
+				"cssVar": "--glass-blur-light",
+				"value": "8px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "glass-blur-frost",
+				"path": [
+					"glassBlur",
+					"frost"
+				],
+				"cssVar": "--glass-blur-frost",
+				"value": "6px",
+				"type": "dimension",
 				"extensions": null
 			}
 		]
@@ -96767,6 +96996,119 @@
 				"cssVar": "--font-variation-settings-mono",
 				"value": "normal",
 				"type": "string",
+				"extensions": null
+			}
+		]
+	},
+	"borderRise": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "border-rise-subtle-color",
+				"path": [
+					"borderRise",
+					"subtle",
+					"color"
+				],
+				"cssVar": "--border-rise-subtle-color",
+				"value": "oklch(1.0032 0.0305 28.88 / 0.059)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "border-rise-subtle-width",
+				"path": [
+					"borderRise",
+					"subtle",
+					"width"
+				],
+				"cssVar": "--border-rise-subtle-width",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "border-rise-subtle-style",
+				"path": [
+					"borderRise",
+					"subtle",
+					"style"
+				],
+				"cssVar": "--border-rise-subtle-style",
+				"value": "solid",
+				"type": "strokeStyle",
+				"extensions": null
+			},
+			{
+				"name": "border-rise-soft-color",
+				"path": [
+					"borderRise",
+					"soft",
+					"color"
+				],
+				"cssVar": "--border-rise-soft-color",
+				"value": "oklch(1.0032 0.0305 28.88 / 0.102)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "border-rise-soft-width",
+				"path": [
+					"borderRise",
+					"soft",
+					"width"
+				],
+				"cssVar": "--border-rise-soft-width",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "border-rise-soft-style",
+				"path": [
+					"borderRise",
+					"soft",
+					"style"
+				],
+				"cssVar": "--border-rise-soft-style",
+				"value": "solid",
+				"type": "strokeStyle",
+				"extensions": null
+			},
+			{
+				"name": "border-rise-strong-color",
+				"path": [
+					"borderRise",
+					"strong",
+					"color"
+				],
+				"cssVar": "--border-rise-strong-color",
+				"value": "oklch(1.0032 0.0305 28.88 / 0.161)",
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "border-rise-strong-width",
+				"path": [
+					"borderRise",
+					"strong",
+					"width"
+				],
+				"cssVar": "--border-rise-strong-width",
+				"value": "1px",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "border-rise-strong-style",
+				"path": [
+					"borderRise",
+					"strong",
+					"style"
+				],
+				"cssVar": "--border-rise-strong-style",
+				"value": "solid",
+				"type": "strokeStyle",
 				"extensions": null
 			}
 		]

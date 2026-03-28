@@ -1,2 +1,2 @@
 export { default as Skeleton } from "./Skeleton.svelte";
-export type { SkeletonProps, SkeletonVariant, SkeletonPreset } from "./types.js";
+export type { SkeletonPreset, SkeletonProps, SkeletonVariant } from "./types.js";

@@ -9,10 +9,10 @@
 	Renders a ColorSwatch internally.
 -->
 <script lang="ts">
+import type { ColorValue } from "$lib/design/components/color-area/types.js";
 import { ColorSwatch } from "$lib/design/components/color-swatch/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { getColorSwatchPickerContext } from "./context.js";
-import type { ColorValue } from "$lib/design/components/color-area/types.js";
 
 let {
 	color,

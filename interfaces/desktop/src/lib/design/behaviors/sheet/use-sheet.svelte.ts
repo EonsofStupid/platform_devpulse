@@ -7,11 +7,10 @@
  * Parts: trigger, overlay, content, title, description, close.
  */
 
-import { tick } from "svelte";
+import { createIds } from "../_internal/utils/uid.js";
 import { useDismissLayer } from "../_shared/dismiss-layer/index.js";
 import { usePresence } from "../_shared/presence/index.js";
 import { useScrollLock } from "../_shared/scroll-lock/index.js";
-import { createIds } from "../_internal/utils/uid.js";
 import { sheetAnatomy } from "./sheet.anatomy.js";
 import type { UseSheetProps, UseSheetReturn } from "./sheet.types.js";
 
@@ -23,7 +22,7 @@ export function useSheet(props: UseSheetProps = {}): UseSheetReturn {
 
 	let isOpen = $state(props.open ?? false);
 	let contentEl: HTMLDivElement | null = null;
-	let overlayEl: HTMLElement | null = null;
+	let _overlayEl: HTMLElement | null = null;
 	let triggerEl: HTMLElement | null = null;
 
 	function setOpen(value: boolean): void {
@@ -102,10 +101,10 @@ export function useSheet(props: UseSheetProps = {}): UseSheetReturn {
 	}
 
 	function attachOverlay(node: HTMLElement): { destroy(): void } {
-		overlayEl = node;
+		_overlayEl = node;
 		return {
 			destroy() {
-				overlayEl = null;
+				_overlayEl = null;
 			},
 		};
 	}

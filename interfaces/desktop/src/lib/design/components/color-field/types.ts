@@ -13,7 +13,11 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes, HTMLInputAttributes } from "svelte/elements";
 import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { ColorChannel, ColorSpace, ColorValue } from "$lib/design/components/color-area/types.js";
+import type {
+	ColorChannel,
+	ColorSpace,
+	ColorValue,
+} from "$lib/design/components/color-area/types.js";
 
 // =============================================================================
 // CALLBACK DETAILS
@@ -101,7 +105,8 @@ export interface ColorFieldRootProps
 // SUB-COMPONENTS
 // =============================================================================
 
-interface ColorFieldSlotProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface ColorFieldSlotProps
+	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
 	children?: Snippet;
 	class?: string;
 }
@@ -117,7 +122,8 @@ export interface ColorFieldLabelProps extends ColorFieldSlotProps {
 }
 
 /** The text input element. */
-export interface ColorFieldInputProps extends Omit<HTMLInputAttributes, "style" | "children" | "class"> {
+export interface ColorFieldInputProps
+	extends Omit<HTMLInputAttributes, "style" | "children" | "class"> {
 	class?: string;
 }
 

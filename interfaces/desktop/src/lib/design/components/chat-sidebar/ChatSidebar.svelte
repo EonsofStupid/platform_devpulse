@@ -19,10 +19,10 @@
 	}
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
-import { cn } from "$lib/design/utils/cn.js";
 import { Button } from "$lib/design/components/button/index.js";
-import type { ChatSidebarProps, ChatMode } from "./types.js";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cn } from "$lib/design/utils/cn.js";
+import type { ChatMode, ChatSidebarProps } from "./types.js";
 
 const MODE_LABELS: Record<ChatMode, string> = {
 	developer: "DEV",

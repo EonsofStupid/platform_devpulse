@@ -11,7 +11,11 @@ import { cn } from "$lib/design/utils/cn.js";
 import { getComboboxContext } from "./context.js";
 import type { ComboboxTriggerProps } from "./types.js";
 
-let { children, class: className, "aria-label": ariaLabel = "Toggle options" }: ComboboxTriggerProps = $props();
+let {
+	children,
+	class: className,
+	"aria-label": ariaLabel = "Toggle options",
+}: ComboboxTriggerProps = $props();
 const ctx = getComboboxContext();
 </script>
 

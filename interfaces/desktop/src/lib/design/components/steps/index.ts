@@ -5,4 +5,4 @@
  */
 
 export { default as Steps } from "./Steps.svelte";
-export type { StepsComponentProps, StepsOrientation, StepsSize, StepsPreset } from "./types.js";
+export type { StepsComponentProps, StepsOrientation, StepsPreset, StepsSize } from "./types.js";

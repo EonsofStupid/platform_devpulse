@@ -8,12 +8,19 @@
 	Default: first letter of alt text.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/utils/cn.js";
-import { getAvatarContext } from "./context.js";
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
+import { cn } from "$lib/design/utils/cn.js";
+import { getAvatarContext } from "./context.js";
 
-let { children, class: className, ...rest }: Omit<HTMLAttributes<HTMLSpanElement>, "style" | "class" | "children"> & { class?: string; children?: Snippet } = $props();
+let {
+	children,
+	class: className,
+	...rest
+}: Omit<HTMLAttributes<HTMLSpanElement>, "style" | "class" | "children"> & {
+	class?: string;
+	children?: Snippet;
+} = $props();
 const ctx = getAvatarContext();
 </script>
 

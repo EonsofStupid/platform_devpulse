@@ -52,7 +52,8 @@ export interface ColorWheelRootProps
 	children?: Snippet;
 }
 
-interface ColorWheelSlotProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface ColorWheelSlotProps
+	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
 	children?: Snippet;
 	class?: string;
 }

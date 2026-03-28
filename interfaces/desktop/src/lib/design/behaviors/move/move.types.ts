@@ -12,7 +12,10 @@ export interface UseMoveProps {
 	onMoveEnd?: () => void;
 }
 
-export type MovePropsAttrs = Pick<HTMLAttributes<HTMLElement>, "onpointerdown" | "onkeydown" | "tabindex">;
+export type MovePropsAttrs = Pick<
+	HTMLAttributes<HTMLElement>,
+	"onpointerdown" | "onkeydown" | "tabindex"
+>;
 
 export interface UseMoveReturn {
 	readonly moveProps: MovePropsAttrs;

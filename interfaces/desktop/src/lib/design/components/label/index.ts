@@ -1,2 +1,2 @@
 export { default as Label } from "./Label.svelte";
-export type { LabelProps, LabelSize, LabelPreset } from "./types.js";
+export type { LabelPreset, LabelProps, LabelSize } from "./types.js";

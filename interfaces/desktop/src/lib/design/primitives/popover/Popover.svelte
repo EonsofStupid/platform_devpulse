@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { PopoverPrimitiveProps } from "./popover.props.js";
+import type { PopoverPrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: PopoverPrimitiveProps = $props();
 </script>

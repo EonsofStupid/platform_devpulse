@@ -11,7 +11,7 @@ export interface UseBannerOptions {
 	disabled?: boolean;
 }
 
-export function useBanner(opts: UseBannerOptions) {
+export function useBanner(_opts: UseBannerOptions) {
 	return {
 		root: {
 			role: "region" as const,

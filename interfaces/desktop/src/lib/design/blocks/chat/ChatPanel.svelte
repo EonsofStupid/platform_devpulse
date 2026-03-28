@@ -18,8 +18,8 @@ import Card from "$lib/design/components/card/Card.svelte";
 import Heading from "$lib/design/components/heading/Heading.svelte";
 import Separator from "$lib/design/components/separator/Separator.svelte";
 import { cn } from "$lib/design/utils/cn.js";
-import ChatThread from "./ChatThread.svelte";
 import ChatInput from "./ChatInput.svelte";
+import ChatThread from "./ChatThread.svelte";
 import type { ChatPanelProps } from "./types.js";
 
 let {

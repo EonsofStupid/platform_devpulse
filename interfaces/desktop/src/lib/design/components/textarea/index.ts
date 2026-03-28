@@ -1,2 +1,2 @@
 export { default as Textarea } from "./Textarea.svelte";
-export type { TextareaProps, TextareaSize, TextareaPreset } from "./types.js";
+export type { TextareaPreset, TextareaProps, TextareaSize } from "./types.js";

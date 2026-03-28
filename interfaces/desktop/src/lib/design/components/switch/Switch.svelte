@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useSwitch } from "$lib/design/behaviors/switch/use-switch.svelte.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SwitchProps } from "./types.js";
 
@@ -47,8 +47,12 @@ let {
 }: SwitchProps = $props();
 
 const sw = useSwitch({
-	get checked() { return checked; },
-	get disabled() { return disabled; },
+	get checked() {
+		return checked;
+	},
+	get disabled() {
+		return disabled;
+	},
 	onCheckedChange: (v) => onCheckedChange?.(v),
 });
 

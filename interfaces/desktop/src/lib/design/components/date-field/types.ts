@@ -91,7 +91,8 @@ export interface DateFieldRootProps
 	children?: Snippet;
 }
 
-export interface DateFieldSegmentProps extends Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children" | "class"> {
+export interface DateFieldSegmentProps
+	extends Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children" | "class"> {
 	children?: Snippet;
 	class?: string;
 	segment: DateSegment;

@@ -4,13 +4,13 @@
  */
 
 export { default as Badge } from "./Badge.svelte";
-export { BadgeSchema, CATEGORY, type BadgeSchemaProps } from "./schema.js";
-export { badgeTokens, badgeSizeTokens } from "./tokens.js";
 export type {
-	BadgeProps,
-	BadgePreset,
-	BadgeVariant,
 	BadgeFillStyle,
-	BadgeSize,
 	BadgeOverflowMode,
+	BadgePreset,
+	BadgeProps,
+	BadgeSize,
+	BadgeVariant,
 } from "./badge.types.js";
+export { BadgeSchema, type BadgeSchemaProps, CATEGORY } from "./schema.js";
+export { badgeSizeTokens, badgeTokens } from "./tokens.js";

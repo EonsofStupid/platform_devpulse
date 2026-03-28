@@ -44,7 +44,8 @@ export interface CollapsibleRootProps
 	children?: Snippet;
 }
 
-interface CollapsibleSlotProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface CollapsibleSlotProps
+	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
 	children?: Snippet;
 	class?: string;
 }

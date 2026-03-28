@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { TreePrimitiveProps } from "./tree.props.js";
+import type { TreePrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: TreePrimitiveProps = $props();
 </script>

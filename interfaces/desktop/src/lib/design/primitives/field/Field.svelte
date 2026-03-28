@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { FieldPrimitiveProps } from "./field.props.js";
+import type { FieldPrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: FieldPrimitiveProps = $props();
 </script>

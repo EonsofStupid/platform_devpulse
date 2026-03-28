@@ -24,7 +24,7 @@
 -->
 <script lang="ts">
 import { useAccordion } from "$lib/design/behaviors/accordion/use-accordion.svelte.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setAccordionContext } from "./context.js";
 import type { AccordionRootProps, AccordionSize } from "./types.js";
@@ -52,20 +52,31 @@ let {
 	...rest
 }: AccordionRootProps = $props();
 
-const hook = $derived(useAccordion({
-	type,
-	value: controlledValue ?? defaultValue,
-	collapsible,
-	get disabled() { return disabled; },
-	onValueChange: (v) => onValueChange?.({ value: v }),
-}));
-
+const hook = $derived(
+	useAccordion({
+		type,
+		value: controlledValue ?? defaultValue,
+		collapsible,
+		get disabled() {
+			return disabled;
+		},
+		onValueChange: (v) => onValueChange?.({ value: v }),
+	}),
+);
 
 setAccordionContext({
-	get hook() { return hook; },
-	get ids() { return ids ?? {}; },
-	get dir() { return dir; },
-	get orientation() { return orientation; },
+	get hook() {
+		return hook;
+	},
+	get ids() {
+		return ids ?? {};
+	},
+	get dir() {
+		return dir;
+	},
+	get orientation() {
+		return orientation;
+	},
 });
 
 const m = $derived(resolveMacro({ kind: "accordion", preset }));

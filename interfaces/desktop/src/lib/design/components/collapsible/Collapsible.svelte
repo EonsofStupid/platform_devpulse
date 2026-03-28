@@ -24,7 +24,7 @@
 -->
 <script lang="ts">
 import { untrack } from "svelte";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setCollapsibleContext } from "./context.js";
 import type { CollapsibleRootProps } from "./types.js";
@@ -58,12 +58,24 @@ function toggle() {
 }
 
 setCollapsibleContext({
-	get isOpen() { return isOpen; },
-	get disabled() { return disabled; },
-	get ids() { return ids ?? {}; },
-	get dir() { return dir; },
-	get triggerId() { return triggerId; },
-	get contentId() { return contentId; },
+	get isOpen() {
+		return isOpen;
+	},
+	get disabled() {
+		return disabled;
+	},
+	get ids() {
+		return ids ?? {};
+	},
+	get dir() {
+		return dir;
+	},
+	get triggerId() {
+		return triggerId;
+	},
+	get contentId() {
+		return contentId;
+	},
 	toggle,
 });
 

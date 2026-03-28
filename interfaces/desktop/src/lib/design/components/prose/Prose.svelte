@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ProseComponentProps, ProseSize } from "./types.js";
 
@@ -40,7 +40,6 @@ let {
 	...rest
 }: ProseComponentProps = $props();
 const m = $derived(resolveMacro({ kind: "prose", preset }));
-
 </script>
 
 <div

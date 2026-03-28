@@ -24,10 +24,19 @@
 -->
 <script lang="ts">
 import { useTable } from "$lib/design/behaviors/table/use-table.svelte.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TableComponentProps } from "./types.js";
-let { size = "md", variant = "default", label, preset = "default", children, class: className, ...rest }: TableComponentProps = $props();
+
+let {
+	size = "md",
+	variant = "default",
+	label,
+	preset = "default",
+	children,
+	class: className,
+	...rest
+}: TableComponentProps = $props();
 const table = useTable();
 const m = $derived(resolveMacro({ kind: "table", preset }));
 </script>

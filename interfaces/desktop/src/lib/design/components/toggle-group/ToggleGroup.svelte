@@ -23,10 +23,23 @@
 -->
 <script lang="ts">
 import { useToggleGroup } from "$lib/design/behaviors/toggle-group/index.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ToggleGroupComponentProps } from "./types.js";
-let { size = "md", value, onValueChange, multiple = false, disabled = false, orientation = "horizontal", loop = true, preset = "default", children, class: className, ...rest }: ToggleGroupComponentProps = $props();
+
+let {
+	size = "md",
+	value,
+	onValueChange,
+	multiple = false,
+	disabled = false,
+	orientation = "horizontal",
+	loop = true,
+	preset = "default",
+	children,
+	class: className,
+	...rest
+}: ToggleGroupComponentProps = $props();
 const tg = $derived(useToggleGroup({ disabled, orientation }));
 const m = $derived(resolveMacro({ kind: "toggle-group", preset }));
 </script>

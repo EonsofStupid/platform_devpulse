@@ -12,7 +12,6 @@
  *   3. Write barrel index files (CSS, theme, types)
  */
 
-import { execSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
 import StyleDictionary from 'style-dictionary';
 import config from './sd.config.mjs';
@@ -153,6 +152,14 @@ async function build() {
 	writeFileSync(`${OUT}/styles/index.css`, INDEX_CSS);
 	writeFileSync(`${OUT}/theme/index.css`, INDEX_THEME);
 	writeFileSync(`${OUT}/types/index.d.ts`, INDEX_DTS);
+
+	// Format generated .d.ts files to pass biome checks
+	const { execSync } = await import('node:child_process');
+	try {
+		execSync(`npx biome format --write ${OUT}/types/`, { stdio: 'pipe' });
+	} catch {
+		// Non-fatal — formatting is a convenience, not a build requirement
+	}
 
 	console.log('[SD5] Build complete.');
 	console.log(`  Styles: ${OUT}/styles/index.css`);

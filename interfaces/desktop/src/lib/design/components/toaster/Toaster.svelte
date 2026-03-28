@@ -23,10 +23,18 @@
 -->
 <script lang="ts">
 import { useToaster } from "$lib/design/behaviors/toaster/index.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ToasterComponentProps } from "./types.js";
-let { position = "bottom-right", closeDelay = 5000, preset = "default", children, class: className, ...rest }: ToasterComponentProps = $props();
+
+let {
+	position = "bottom-right",
+	closeDelay = 5000,
+	preset = "default",
+	children,
+	class: className,
+	...rest
+}: ToasterComponentProps = $props();
 const toaster = $derived(useToaster({ position }));
 const m = $derived(resolveMacro({ kind: "toaster", preset }));
 </script>

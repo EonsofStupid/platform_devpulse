@@ -1,7 +1,7 @@
 export { default as ColorSwatch } from "./ColorSwatch.svelte";
 export type {
-	ColorSwatchProps,
-	ColorSwatchSize,
-	ColorSwatchRounding,
 	ColorSwatchPreset,
+	ColorSwatchProps,
+	ColorSwatchRounding,
+	ColorSwatchSize,
 } from "./types.js";

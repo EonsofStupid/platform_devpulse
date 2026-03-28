@@ -17,9 +17,9 @@ import {
 } from "lucide-svelte";
 import { Widget } from "$lib/design/blocks/widgets/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";
+import { Text } from "$lib/design/components/text/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 </script>
 
 <div class="grid grid-cols-12 gap-4" data-page="wiredfront-dashboard">

@@ -22,9 +22,9 @@
 }
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
-import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cn } from "$lib/design/utils/cn.js";
 import { setAvatarGroupContext } from "./context.js";
 import type { AvatarGroupRootProps } from "./types.js";
 
@@ -45,7 +45,6 @@ let {
 const autoIds = createIds("avatar-group", ["root"] as const);
 const rootId = $derived(userIds?.root ?? autoIds.root);
 
-
 const overflowCount = $derived.by(() => {
 	if (total !== undefined && maxVisible !== undefined) {
 		return Math.max(0, total - maxVisible);
@@ -54,7 +53,9 @@ const overflowCount = $derived.by(() => {
 });
 
 setAvatarGroupContext({
-	get size() { return size; },
+	get size() {
+		return size;
+	},
 });
 
 const overlapMargin = $derived(`-${Math.round(size * 0.25)}px`);

@@ -24,7 +24,7 @@
 -->
 <script lang="ts">
 import { useAlert } from "$lib/design/behaviors/alert/index.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setAlertContext } from "./context.js";
 import { ALERT_VARIANT_PRESETS, type AlertRootProps } from "./types.js";
@@ -49,10 +49,13 @@ const alert = $derived(useAlert({ variant, dismissible }));
 
 // --- State ---
 const initialOpen = $derived(defaultOpen ?? true);
-let internalOpen = $state<boolean>(undefined!);
+let internalOpen = $state<boolean>(false);
 let initialized = false;
 $effect.pre(() => {
-	if (!initialized) { internalOpen = initialOpen; initialized = true; }
+	if (!initialized) {
+		internalOpen = initialOpen;
+		initialized = true;
+	}
 });
 const isOpen = $derived(controlledOpen !== undefined ? controlledOpen : internalOpen);
 
@@ -63,8 +66,12 @@ function handleDismiss() {
 
 // --- Context for sub-components ---
 setAlertContext({
-	get ids() { return ids ?? {}; },
-	get dir() { return dir; },
+	get ids() {
+		return ids ?? {};
+	},
+	get dir() {
+		return dir;
+	},
 });
 
 const m = $derived(resolveMacro({ kind: "alert", preset: variant }));

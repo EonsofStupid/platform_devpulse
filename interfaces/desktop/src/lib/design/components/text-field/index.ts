@@ -3,7 +3,12 @@
  * @kind text-field
  */
 
+export { CATEGORY, TextFieldSchema, type TextFieldSchemaProps } from "./schema.js";
 export { default as TextField } from "./TextField.svelte";
-export { TextFieldSchema, CATEGORY, type TextFieldSchemaProps } from "./schema.js";
-export { textFieldTokens, textFieldSizeTokens } from "./tokens.js";
-export type { TextFieldProps, TextFieldSize, TextFieldType, TextFieldPreset } from "./text-field.types.js";
+export type {
+	TextFieldPreset,
+	TextFieldProps,
+	TextFieldSize,
+	TextFieldType,
+} from "./text-field.types.js";
+export { textFieldSizeTokens, textFieldTokens } from "./tokens.js";

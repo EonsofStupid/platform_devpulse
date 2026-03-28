@@ -12,7 +12,7 @@ export interface UseAlertOptions {
 	dismissible?: boolean;
 }
 
-export function useAlert(opts: UseAlertOptions) {
+export function useAlert(_opts: UseAlertOptions) {
 	return {
 		root: {
 			role: "alert" as const,

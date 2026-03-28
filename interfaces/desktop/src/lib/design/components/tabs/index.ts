@@ -11,7 +11,7 @@ export { default as TabsTrigger } from "./TabsTrigger.svelte";
 export type {
 	TabsContentProps,
 	TabsListProps,
+	TabsPreset,
 	TabsProps,
 	TabsTriggerProps,
-	TabsPreset,
 } from "./types.js";

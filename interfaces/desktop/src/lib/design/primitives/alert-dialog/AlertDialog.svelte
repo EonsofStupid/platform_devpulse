@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { AlertDialogPrimitiveProps } from "./alert-dialog.props.js";
+import type { AlertDialogPrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: AlertDialogPrimitiveProps = $props();
 </script>

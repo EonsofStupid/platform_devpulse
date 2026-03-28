@@ -24,7 +24,7 @@
 -->
 <script lang="ts">
 import { useTabs } from "$lib/design/behaviors/tabs/use-tabs.svelte.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setTabsContext } from "./context.js";
 import type { TabsProps } from "./types.js";
@@ -42,16 +42,25 @@ let {
 }: TabsProps = $props();
 
 const hook = useTabs({
-	get value() { return value; },
+	get value() {
+		return value;
+	},
 	onValueChange: (v) => onValueChange?.(v),
-	get orientation() { return orientation; },
-	get activateOnFocus() { return activateOnFocus; },
-	get loop() { return loop; },
+	get orientation() {
+		return orientation;
+	},
+	get activateOnFocus() {
+		return activateOnFocus;
+	},
+	get loop() {
+		return loop;
+	},
 });
 
-
 setTabsContext({
-	get hook() { return hook; },
+	get hook() {
+		return hook;
+	},
 });
 
 const m = $derived(resolveMacro({ kind: "tabs", preset }));

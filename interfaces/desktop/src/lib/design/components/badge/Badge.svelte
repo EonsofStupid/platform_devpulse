@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { useBadge } from "$lib/design/behaviors/badge/index.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { BadgeProps, BadgeSize } from "./badge.types.js";
 

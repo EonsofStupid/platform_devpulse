@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { SwitchPrimitiveProps } from "./switch.props.js";
+import type { SwitchPrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: SwitchPrimitiveProps = $props();
 </script>

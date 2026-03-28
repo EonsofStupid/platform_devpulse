@@ -1,43 +1,43 @@
 <script module>
-	import { defineMeta } from '@storybook/addon-svelte-csf';
+import { defineMeta } from "@storybook/addon-svelte-csf";
 
-	const { Story } = defineMeta({
-		title: 'Blocks/Panel',
-		tags: ['autodocs'],
-		argTypes: {
-			title: {
-				control: 'text',
-				description: 'Panel header title',
-			},
-			surface: {
-				control: 'select',
-				options: ['glass-void', 'glass-deep', 'glass-smoke', 'glass-frost', 'matte-dark'],
-				description: 'Surface axis — backdrop fill + blur',
-			},
-			depth: {
-				control: 'select',
-				options: ['z0', 'z1', 'z2', 'z3', 'z4'],
-				description: 'Depth axis — elevation shadow',
-			},
-			bevel: {
-				control: 'select',
-				options: ['off', 'subtle', 'soft', 'medium', 'pronounced', 'deep'],
-				description: 'Bevel axis — neumorphic inset shadows',
-			},
-			glow: {
-				control: 'select',
-				options: ['off', 'teal', 'purple', 'magenta', 'ember', 'frost', 'cyber'],
-				description: 'Glow axis — emission halo',
-			},
+const { Story } = defineMeta({
+	title: "Blocks/Panel",
+	tags: ["autodocs"],
+	argTypes: {
+		title: {
+			control: "text",
+			description: "Panel header title",
 		},
-		args: {
-			title: 'Glass Panel',
-			surface: 'glass-deep',
-			depth: 'z2',
-			bevel: 'soft',
-			glow: 'teal',
+		surface: {
+			control: "select",
+			options: ["glass-void", "glass-deep", "glass-smoke", "glass-frost", "matte-dark"],
+			description: "Surface axis — backdrop fill + blur",
 		},
-	});
+		depth: {
+			control: "select",
+			options: ["z0", "z1", "z2", "z3", "z4"],
+			description: "Depth axis — elevation shadow",
+		},
+		bevel: {
+			control: "select",
+			options: ["off", "subtle", "soft", "medium", "pronounced", "deep"],
+			description: "Bevel axis — neumorphic inset shadows",
+		},
+		glow: {
+			control: "select",
+			options: ["off", "teal", "purple", "magenta", "ember", "frost", "cyber"],
+			description: "Glow axis — emission halo",
+		},
+	},
+	args: {
+		title: "Glass Panel",
+		surface: "glass-deep",
+		depth: "z2",
+		bevel: "soft",
+		glow: "teal",
+	},
+});
 </script>
 
 <script lang="ts">

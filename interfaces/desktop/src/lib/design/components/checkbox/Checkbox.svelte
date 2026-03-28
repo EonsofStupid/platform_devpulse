@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useCheckbox } from "$lib/design/behaviors/checkbox/use-checkbox.svelte.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { CheckboxProps, CheckboxSize } from "./types.js";
 
@@ -46,9 +46,15 @@ let {
 }: CheckboxProps = $props();
 
 const checkbox = useCheckbox({
-	get checked() { return checked; },
-	get indeterminate() { return indeterminate; },
-	get disabled() { return disabled; },
+	get checked() {
+		return checked;
+	},
+	get indeterminate() {
+		return indeterminate;
+	},
+	get disabled() {
+		return disabled;
+	},
 	onCheckedChange: (v) => onCheckedChange?.(v),
 });
 

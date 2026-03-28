@@ -11,7 +11,16 @@
 // =============================================================================
 
 /** Surface type — glass material / opacity / blur tier */
-export type SurfaceToken = "glass-void" | "glass-smoke" | "glass-deep" | "glass-frost" | "glass-teal" | "glass-purple" | "matte-dark" | "matte-medium" | "matte-light";
+export type SurfaceToken =
+	| "glass-void"
+	| "glass-smoke"
+	| "glass-deep"
+	| "glass-frost"
+	| "glass-teal"
+	| "glass-purple"
+	| "matte-dark"
+	| "matte-medium"
+	| "matte-light";
 
 /** Shadow depth tier — z0 (flat) through z4 (floating) */
 export type DepthToken = "z0" | "z1" | "z2" | "z3" | "z4";
@@ -23,7 +32,16 @@ export type BevelToken = "off" | "subtle" | "soft" | "medium" | "pronounced" | "
 export type GlowToken = "off" | "teal" | "purple" | "magenta" | "ember" | "frost" | "cyber";
 
 /** Border frame style */
-export type FrameToken = "off" | "divider" | "default" | "strong" | "focus" | "soft" | "glow" | "accent-teal" | "accent-purple";
+export type FrameToken =
+	| "off"
+	| "divider"
+	| "default"
+	| "strong"
+	| "focus"
+	| "soft"
+	| "glow"
+	| "accent-teal"
+	| "accent-purple";
 
 /** Border radius tier */
 export type RadiusToken = "none" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "full";

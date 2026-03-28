@@ -4,6 +4,6 @@
  * @layer behavior
  */
 
-export { useAccordion } from "./use-accordion.svelte.js";
-export type * from "./accordion.types.js";
 export { accordionAnatomy } from "./accordion.anatomy.js";
+export type * from "./accordion.types.js";
+export { useAccordion } from "./use-accordion.svelte.js";

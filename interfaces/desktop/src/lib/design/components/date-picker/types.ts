@@ -95,7 +95,8 @@ export interface DatePickerRootProps
 	children?: Snippet;
 }
 
-interface DatePickerSlotProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface DatePickerSlotProps
+	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
 	children?: Snippet;
 	class?: string;
 }

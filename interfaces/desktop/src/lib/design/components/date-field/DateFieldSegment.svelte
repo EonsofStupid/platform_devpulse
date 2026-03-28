@@ -18,16 +18,30 @@ const ctx = getDateFieldContext();
 
 const isLiteral = $derived(segment.type === "literal");
 const isFocused = $derived(ctx.focusedIndex === index);
-const displayValue = $derived(segment.numericValue !== undefined ? segment.value : segment.placeholder);
+const displayValue = $derived(
+	segment.numericValue !== undefined ? segment.value : segment.placeholder,
+);
 
 function handleKeydown(e: KeyboardEvent) {
 	if (ctx.isDisabled || ctx.isReadOnly || isLiteral) return;
 
 	switch (e.key) {
-		case "ArrowUp": e.preventDefault(); ctx.incrementSegment(index); break;
-		case "ArrowDown": e.preventDefault(); ctx.decrementSegment(index); break;
-		case "ArrowLeft": e.preventDefault(); ctx.focusPrevSegment(); break;
-		case "ArrowRight": e.preventDefault(); ctx.focusNextSegment(); break;
+		case "ArrowUp":
+			e.preventDefault();
+			ctx.incrementSegment(index);
+			break;
+		case "ArrowDown":
+			e.preventDefault();
+			ctx.decrementSegment(index);
+			break;
+		case "ArrowLeft":
+			e.preventDefault();
+			ctx.focusPrevSegment();
+			break;
+		case "ArrowRight":
+			e.preventDefault();
+			ctx.focusNextSegment();
+			break;
 		default:
 			if (/^\d$/.test(e.key)) {
 				e.preventDefault();

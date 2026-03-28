@@ -7,11 +7,14 @@
 	The avatar image. Tracks load/error state via context.
 -->
 <script lang="ts">
+import type { HTMLAttributes } from "svelte/elements";
 import { cn } from "$lib/design/utils/cn.js";
 import { getAvatarContext } from "./context.js";
-import type { HTMLAttributes } from "svelte/elements";
 
-let { class: className, ...rest }: Omit<HTMLAttributes<HTMLImageElement>, "style" | "class"> & { class?: string } = $props();
+let {
+	class: className,
+	...rest
+}: Omit<HTMLAttributes<HTMLImageElement>, "style" | "class"> & { class?: string } = $props();
 const ctx = getAvatarContext();
 </script>
 

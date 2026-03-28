@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SkipLinkComponentProps } from "./types.js";
 
@@ -35,7 +35,6 @@ let {
 	...rest
 }: SkipLinkComponentProps = $props();
 const m = $derived(resolveMacro({ kind: "skip-link", preset }));
-
 </script>
 
 <a

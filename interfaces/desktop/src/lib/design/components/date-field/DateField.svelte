@@ -21,9 +21,9 @@
 }
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
-import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cn } from "$lib/design/utils/cn.js";
 import { setDateFieldContext } from "./context.js";
 import type { DateFieldRootProps, DateSegment } from "./types.js";
 
@@ -64,7 +64,13 @@ const resolvedIds = $derived({
 });
 
 let internalValue = $state<Date | null>(null);
-$effect(() => { if (controlledValue !== undefined) { internalValue = controlledValue; } else if (internalValue === null && defaultValue !== undefined) { internalValue = defaultValue; } });
+$effect(() => {
+	if (controlledValue !== undefined) {
+		internalValue = controlledValue;
+	} else if (internalValue === null && defaultValue !== undefined) {
+		internalValue = defaultValue;
+	}
+});
 const currentValue = $derived(controlledValue !== undefined ? controlledValue : internalValue);
 
 const validationError = $derived(() => {
@@ -81,25 +87,102 @@ function buildSegments(date: Date | null | undefined, gran: string): DateSegment
 	const d = date ? date.getDate() : undefined;
 	const y = date ? date.getFullYear() : undefined;
 
-	segs.push({ type: "month", value: m !== undefined ? String(m).padStart(2, "0") : "", placeholder: "MM", min: 1, max: 12, numericValue: m });
+	segs.push({
+		type: "month",
+		value: m !== undefined ? String(m).padStart(2, "0") : "",
+		placeholder: "MM",
+		min: 1,
+		max: 12,
+		numericValue: m,
+	});
 	if (gran !== "month" && gran !== "year") {
-		segs.push({ type: "literal", value: "/", placeholder: "/", min: 0, max: 0, numericValue: undefined });
-		segs.push({ type: "day", value: d !== undefined ? String(d).padStart(2, "0") : "", placeholder: "DD", min: 1, max: 31, numericValue: d });
+		segs.push({
+			type: "literal",
+			value: "/",
+			placeholder: "/",
+			min: 0,
+			max: 0,
+			numericValue: undefined,
+		});
+		segs.push({
+			type: "day",
+			value: d !== undefined ? String(d).padStart(2, "0") : "",
+			placeholder: "DD",
+			min: 1,
+			max: 31,
+			numericValue: d,
+		});
 	}
-	segs.push({ type: "literal", value: "/", placeholder: "/", min: 0, max: 0, numericValue: undefined });
-	segs.push({ type: "year", value: y !== undefined ? String(y) : "", placeholder: "YYYY", min: 1, max: 9999, numericValue: y });
+	segs.push({
+		type: "literal",
+		value: "/",
+		placeholder: "/",
+		min: 0,
+		max: 0,
+		numericValue: undefined,
+	});
+	segs.push({
+		type: "year",
+		value: y !== undefined ? String(y) : "",
+		placeholder: "YYYY",
+		min: 1,
+		max: 9999,
+		numericValue: y,
+	});
 
 	if (gran === "hour" || gran === "minute" || gran === "second") {
 		const h = date ? date.getHours() : undefined;
 		const min = date ? date.getMinutes() : undefined;
-		segs.push({ type: "literal", value: " ", placeholder: " ", min: 0, max: 0, numericValue: undefined });
-		segs.push({ type: "hour", value: h !== undefined ? String(h).padStart(2, "0") : "", placeholder: "HH", min: 0, max: 23, numericValue: h });
-		segs.push({ type: "literal", value: ":", placeholder: ":", min: 0, max: 0, numericValue: undefined });
-		segs.push({ type: "minute", value: min !== undefined ? String(min).padStart(2, "0") : "", placeholder: "MM", min: 0, max: 59, numericValue: min });
+		segs.push({
+			type: "literal",
+			value: " ",
+			placeholder: " ",
+			min: 0,
+			max: 0,
+			numericValue: undefined,
+		});
+		segs.push({
+			type: "hour",
+			value: h !== undefined ? String(h).padStart(2, "0") : "",
+			placeholder: "HH",
+			min: 0,
+			max: 23,
+			numericValue: h,
+		});
+		segs.push({
+			type: "literal",
+			value: ":",
+			placeholder: ":",
+			min: 0,
+			max: 0,
+			numericValue: undefined,
+		});
+		segs.push({
+			type: "minute",
+			value: min !== undefined ? String(min).padStart(2, "0") : "",
+			placeholder: "MM",
+			min: 0,
+			max: 59,
+			numericValue: min,
+		});
 		if (gran === "second") {
 			const s = date ? date.getSeconds() : undefined;
-			segs.push({ type: "literal", value: ":", placeholder: ":", min: 0, max: 0, numericValue: undefined });
-			segs.push({ type: "second", value: s !== undefined ? String(s).padStart(2, "0") : "", placeholder: "SS", min: 0, max: 59, numericValue: s });
+			segs.push({
+				type: "literal",
+				value: ":",
+				placeholder: ":",
+				min: 0,
+				max: 0,
+				numericValue: undefined,
+			});
+			segs.push({
+				type: "second",
+				value: s !== undefined ? String(s).padStart(2, "0") : "",
+				placeholder: "SS",
+				min: 0,
+				max: 59,
+				numericValue: s,
+			});
 		}
 	}
 	return segs;
@@ -108,7 +191,9 @@ function buildSegments(date: Date | null | undefined, gran: string): DateSegment
 const segments = $derived(buildSegments(currentValue, granularity));
 const editableSegments = $derived(segments.filter((s) => s.type !== "literal"));
 
-function clamp(seg: DateSegment, val: number): number { return Math.min(Math.max(val, seg.min), seg.max); }
+function clamp(seg: DateSegment, val: number): number {
+	return Math.min(Math.max(val, seg.min), seg.max);
+}
 
 function rebuildDate(segType: string, newVal: number): Date {
 	const base = currentValue ?? new Date();
@@ -118,32 +203,77 @@ function rebuildDate(segType: string, newVal: number): Date {
 		segType === "day" ? newVal : base.getDate(),
 		segType === "hour" ? newVal : base.getHours(),
 		segType === "minute" ? newVal : base.getMinutes(),
-		segType === "second" ? newVal : base.getSeconds());
+		segType === "second" ? newVal : base.getSeconds(),
+	);
 }
 
-function emitChange(date: Date) { internalValue = date; onChange?.({ value: date }); }
+function emitChange(date: Date) {
+	internalValue = date;
+	onChange?.({ value: date });
+}
 
 setDateFieldContext({
-	get value() { return currentValue; },
-	get segments() { return segments; },
-	get granularity() { return granularity; },
-	get isDisabled() { return isDisabled; },
-	get isReadOnly() { return isReadOnly; },
-	get isRequired() { return isRequired; },
-	get isInvalid() { return isInvalid; },
-	get locale() { return locale; },
-	get size() { return size; },
-	get dir() { return dir; },
-	get ids() { return resolvedIds; },
-	get focusedIndex() { return focusedIndex; },
-	focusSegment(i) { focusedIndex = i; },
-	incrementSegment(i) { if (isDisabled || isReadOnly) return; const s = editableSegments[i]; if (s) emitChange(rebuildDate(s.type, clamp(s, (s.numericValue ?? s.min) + 1))); },
-	decrementSegment(i) { if (isDisabled || isReadOnly) return; const s = editableSegments[i]; if (s) emitChange(rebuildDate(s.type, clamp(s, (s.numericValue ?? s.min) - 1))); },
-	setSegmentValue(i, v) { if (isDisabled || isReadOnly) return; const s = editableSegments[i]; if (s) emitChange(rebuildDate(s.type, clamp(s, v))); },
-	focusNextSegment() { focusedIndex = Math.min(focusedIndex + 1, editableSegments.length - 1); },
-	focusPrevSegment() { focusedIndex = Math.max(focusedIndex - 1, 0); },
+	get value() {
+		return currentValue;
+	},
+	get segments() {
+		return segments;
+	},
+	get granularity() {
+		return granularity;
+	},
+	get isDisabled() {
+		return isDisabled;
+	},
+	get isReadOnly() {
+		return isReadOnly;
+	},
+	get isRequired() {
+		return isRequired;
+	},
+	get isInvalid() {
+		return isInvalid;
+	},
+	get locale() {
+		return locale;
+	},
+	get size() {
+		return size;
+	},
+	get dir() {
+		return dir;
+	},
+	get ids() {
+		return resolvedIds;
+	},
+	get focusedIndex() {
+		return focusedIndex;
+	},
+	focusSegment(i) {
+		focusedIndex = i;
+	},
+	incrementSegment(i) {
+		if (isDisabled || isReadOnly) return;
+		const s = editableSegments[i];
+		if (s) emitChange(rebuildDate(s.type, clamp(s, (s.numericValue ?? s.min) + 1)));
+	},
+	decrementSegment(i) {
+		if (isDisabled || isReadOnly) return;
+		const s = editableSegments[i];
+		if (s) emitChange(rebuildDate(s.type, clamp(s, (s.numericValue ?? s.min) - 1)));
+	},
+	setSegmentValue(i, v) {
+		if (isDisabled || isReadOnly) return;
+		const s = editableSegments[i];
+		if (s) emitChange(rebuildDate(s.type, clamp(s, v)));
+	},
+	focusNextSegment() {
+		focusedIndex = Math.min(focusedIndex + 1, editableSegments.length - 1);
+	},
+	focusPrevSegment() {
+		focusedIndex = Math.max(focusedIndex - 1, 0);
+	},
 });
-
 </script>
 
 <div

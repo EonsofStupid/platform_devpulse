@@ -428,15 +428,17 @@ StyleDictionary.registerFormat({
 			const leafNames = [
 				...new Set(tokens.map((t) => t.path.slice(1).join('-'))),
 			];
+			const tokenItems = leafNames.map((v) => `\t"${v}"`).join(',\n');
 			out.push(
-				`export const ${pascal}Tokens = [${leafNames.map((v) => `'${v}'`).join(', ')}] as const;`,
+				`export const ${pascal}Tokens = [\n${tokenItems},\n] as const;`,
 				`export type ${pascal}Token = (typeof ${pascal}Tokens)[number];`,
 				'',
 			);
 
-			const vars = tokens.map((t) => `'--${t.name}'`);
+			const vars = tokens.map((t) => `"--${t.name}"`);
+			const varLines = vars.map((v) => `\t| ${v}`).join('\n');
 			out.push(
-				`export type ${pascal}CSSVar = ${vars.join(' | ')};`,
+				`export type ${pascal}CSSVar =\n${varLines};`,
 				'',
 			);
 
@@ -454,7 +456,7 @@ StyleDictionary.registerFormat({
 				const pad = '\t'.repeat(depth);
 				return Object.entries(obj)
 					.map(([k, v]) => {
-						const key = /^\d/.test(k) || k.includes('-') ? `'${k}'` : k;
+						const key = /^\d/.test(k) || k.includes('-') ? `"${k}"` : k;
 						if (typeof v === 'string')
 							return `${pad}\t${key}: string;`;
 						return `${pad}\t${key}: {\n${serialize(v, depth + 1)}\n${pad}\t};`;

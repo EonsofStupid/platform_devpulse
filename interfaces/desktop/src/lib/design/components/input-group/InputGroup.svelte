@@ -23,10 +23,20 @@
 -->
 <script lang="ts">
 import { useInputGroup } from "$lib/design/behaviors/input-group/index.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { InputGroupComponentProps } from "./types.js";
-let { preset = "default", size = "md", disabled = false, prefix, suffix, children, class: className, ...rest }: InputGroupComponentProps = $props();
+
+let {
+	preset = "default",
+	size = "md",
+	disabled = false,
+	prefix,
+	suffix,
+	children,
+	class: className,
+	...rest
+}: InputGroupComponentProps = $props();
 const ig = $derived(useInputGroup({ disabled }));
 const m = $derived(resolveMacro({ kind: "input-group", preset }));
 </script>

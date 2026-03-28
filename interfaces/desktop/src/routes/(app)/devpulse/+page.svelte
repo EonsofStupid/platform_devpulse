@@ -9,14 +9,14 @@
 -->
 <script lang="ts">
 import { Activity, BarChart3, FolderGit2, Gauge, HeartPulse, TrendingUp } from "lucide-svelte";
+import { Widget } from "$lib/design/blocks/widgets/index.js";
 import { RadialGauge } from "$lib/design/components/radial-gauge/index.js";
 import { SparkLine } from "$lib/design/components/spark-line/index.js";
-import { Widget } from "$lib/design/blocks/widgets/index.js";
+import { Text } from "$lib/design/components/text/index.js";
 import { box } from "$lib/design/utils/box/index.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { cn } from "$lib/design/utils/cn.js";
 import { devpulseState } from "$lib/domains/app/devpulse/index.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 

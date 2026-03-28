@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { TextFieldPrimitiveProps } from "./text-field.props.js";
+import type { TextFieldPrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: TextFieldPrimitiveProps = $props();
 </script>

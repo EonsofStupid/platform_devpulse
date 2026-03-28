@@ -19,7 +19,7 @@ const isOpen = $derived(itemAttrs["data-state"] === "open");
 const attrs = $derived({
 	"data-kind": "accordion" as const,
 	"data-slot": "indicator" as const,
-	"data-state": isOpen ? "open" as const : "closed" as const,
+	"data-state": isOpen ? ("open" as const) : ("closed" as const),
 	"aria-hidden": true as const,
 	class: `transition-transform ${isOpen ? "rotate-180" : ""} ${className ?? ""}`.trim(),
 	...rest,

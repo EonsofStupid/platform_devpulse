@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { type DateRangeFieldContext, setDateRangeFieldContext } from "./context.js";
 import type { DateRangeFieldProps, DateSegment } from "./types.js";
@@ -221,7 +221,6 @@ const ctx: DateRangeFieldContext = {
 };
 
 setDateRangeFieldContext(ctx);
-
 
 const rootState = $derived(disabled ? "disabled" : readonlyProp ? "readonly" : undefined);
 </script>

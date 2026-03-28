@@ -55,7 +55,8 @@ export interface DialogRootProps extends ComponentProps {
 // SUB-COMPONENTS
 // =============================================================================
 
-interface DialogSlotProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface DialogSlotProps
+	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
 	children?: Snippet;
 	class?: string;
 }

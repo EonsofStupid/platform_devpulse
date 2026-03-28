@@ -23,10 +23,22 @@
 -->
 <script lang="ts">
 import { useSidebar } from "$lib/design/behaviors/sidebar/index.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SidebarComponentProps } from "./types.js";
-let { size = "md", expanded = true, onExpandedChange, label, header, footer, preset = "default", children, class: className, ...rest }: SidebarComponentProps = $props();
+
+let {
+	size = "md",
+	expanded = true,
+	onExpandedChange,
+	label,
+	header,
+	footer,
+	preset = "default",
+	children,
+	class: className,
+	...rest
+}: SidebarComponentProps = $props();
 const sidebar = $derived(useSidebar({ label, expanded }));
 const m = $derived(resolveMacro({ kind: "sidebar", preset }));
 </script>

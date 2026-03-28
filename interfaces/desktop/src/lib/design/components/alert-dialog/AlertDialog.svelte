@@ -40,18 +40,28 @@ let {
 	children,
 }: AlertDialogRootProps = $props();
 
-const hook = $derived(useAlertDialog({
-	open: controlledOpen ?? defaultOpen,
-	onOpenChange: (v) => onOpenChange?.({ open: v }),
-	onCancel,
-	onAction,
-}));
+const hook = $derived(
+	useAlertDialog({
+		open: controlledOpen ?? defaultOpen,
+		onOpenChange: (v) => onOpenChange?.({ open: v }),
+		onCancel,
+		onAction,
+	}),
+);
 
 setAlertDialogContext({
-	get hook() { return hook; },
-	get ids() { return ids ?? {}; },
-	get dir() { return dir; },
-	get variant() { return variant; },
+	get hook() {
+		return hook;
+	},
+	get ids() {
+		return ids ?? {};
+	},
+	get dir() {
+		return dir;
+	},
+	get variant() {
+		return variant;
+	},
 });
 </script>
 

@@ -38,7 +38,8 @@ const state = $derived(
 							? "disabled"
 							: isOutside
 								? "outside-month"
-								: undefined);
+								: undefined,
+);
 </script>
 
 <button

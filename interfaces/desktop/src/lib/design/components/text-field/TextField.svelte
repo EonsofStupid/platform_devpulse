@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { useTextField } from "$lib/design/behaviors/text-field/index.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TextFieldProps, TextFieldSize } from "./text-field.types.js";
 
@@ -52,20 +52,21 @@ let {
 	...rest
 }: TextFieldProps = $props();
 
-const field = $derived(useTextField({
-	value,
-	onValueChange,
-	type,
-	placeholder,
-	disabled,
-	readonly: readOnly,
-	required,
-	invalid,
-	error: errorText,
-}));
+const field = $derived(
+	useTextField({
+		value,
+		onValueChange,
+		type,
+		placeholder,
+		disabled,
+		readonly: readOnly,
+		required,
+		invalid,
+		error: errorText,
+	}),
+);
 
 const m = $derived(resolveMacro({ kind: "text-field", preset }));
-
 </script>
 
 <div {...field.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} class={className}>

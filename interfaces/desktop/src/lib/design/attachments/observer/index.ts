@@ -7,7 +7,7 @@
  * Browser observer API attachments.
  */
 
-export { intersection, type IntersectionOptions } from "./intersection.js";
-export { resize, type ResizeOptions } from "./resize.js";
-export { mediaQuery, type MediaQueryOptions } from "./media-query.js";
-export { overflow, type OverflowOptions, type OverflowState } from "./overflow.js";
+export { type IntersectionOptions, intersection } from "./intersection.js";
+export { type MediaQueryOptions, mediaQuery } from "./media-query.js";
+export { type OverflowOptions, type OverflowState, overflow } from "./overflow.js";
+export { type ResizeOptions, resize } from "./resize.js";

@@ -4,6 +4,6 @@
  * @layer behavior
  */
 
-export { useMenu } from "./use-menu.svelte.js";
-export type * from "./menu.types.js";
 export { menuAnatomy } from "./menu.anatomy.js";
+export type * from "./menu.types.js";
+export { useMenu } from "./use-menu.svelte.js";

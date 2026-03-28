@@ -11,8 +11,8 @@
   @slots root
 -->
 <script lang="ts">
-import { cn } from "$lib/design/utils/cn.js";
 import type { HTMLAttributes } from "svelte/elements";
+import { cn } from "$lib/design/utils/cn.js";
 
 interface DotProps extends Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children"> {
 	class?: string;

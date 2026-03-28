@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { AccordionPrimitiveProps } from "./accordion.props.js";
+import type { AccordionPrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: AccordionPrimitiveProps = $props();
 </script>

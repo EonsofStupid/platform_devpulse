@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useToggle } from "$lib/design/behaviors/toggle/use-toggle.svelte.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ToggleProps } from "./types.js";
 
@@ -47,13 +47,16 @@ let {
 }: ToggleProps = $props();
 
 const toggle = useToggle({
-	get pressed() { return pressed; },
-	get disabled() { return disabled; },
+	get pressed() {
+		return pressed;
+	},
+	get disabled() {
+		return disabled;
+	},
 	onPressedChange: (v) => onPressedChange?.(v),
 });
 
 const m = $derived(resolveMacro({ kind: "toggle", preset }));
-
 </script>
 
 <button

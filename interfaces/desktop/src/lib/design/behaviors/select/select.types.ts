@@ -59,6 +59,9 @@ export interface UseSelectReturn {
 	readonly valueDisplay: SelectValueAttrs;
 	readonly listbox: SelectListboxAttrs;
 	readonly label: SelectLabelAttrs;
-	getOption(optionValue: string, options?: { disabled?: boolean; label?: string }): SelectOptionAttrs;
+	getOption(
+		optionValue: string,
+		options?: { disabled?: boolean; label?: string },
+	): SelectOptionAttrs;
 	attachListbox: (node: HTMLElement) => { destroy(): void };
 }

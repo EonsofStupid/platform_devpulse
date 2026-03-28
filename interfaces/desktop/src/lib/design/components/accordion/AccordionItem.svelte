@@ -14,8 +14,12 @@ let { value, disabled = false, children, class: className, ...rest }: AccordionI
 const ctx = getAccordionContext();
 
 setAccordionItemContext({
-	get value() { return value; },
-	get disabled() { return disabled; },
+	get value() {
+		return value;
+	},
+	get disabled() {
+		return disabled;
+	},
 });
 
 const itemAttrs = $derived(ctx.hook.getItem(value));

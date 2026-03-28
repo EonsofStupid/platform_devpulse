@@ -1,24 +1,66 @@
 {
 	"glass": {
 		"$type": "color",
-		"$description": "Glass surface fills — translucent with alpha",
+		"$description": "Glass surface fills — translucent with alpha. 7-tier system from opaque to transparent.",
 		"void": {
-			"$value": "oklch(0.0612 0.0072 185.78 / 0.878)"
+			"$value": "oklch(0.0612 0.0072 185.78 / 0.878)",
+			"$description": "Darkest glass — near-opaque, deep space"
 		},
 		"deep": {
-			"$value": "oklch(0.0906 0.0149 205.53 / 0.8)"
+			"$value": "oklch(0.0906 0.0149 205.53 / 0.8)",
+			"$description": "Heavy glass — overlays, inputs, chat panels"
 		},
 		"smoke": {
-			"$value": "oklch(0.1407 0.0033 189.37 / 0.651)"
+			"$value": "oklch(0.1407 0.0033 189.37 / 0.651)",
+			"$description": "Smoky glass — raised cards, panels"
+		},
+		"standard": {
+			"$value": "oklch(0.1206 0.0095 200.12 / 0.702)",
+			"$description": "Default glass — most common container treatment"
+		},
+		"light": {
+			"$value": "oklch(0.1809 0.0065 195.41 / 0.549)",
+			"$description": "Light glass — secondary panels, toolbars"
 		},
 		"frost": {
-			"$value": "oklch(0.9228 0.0189 30.62 / 0.4)"
+			"$value": "oklch(0.9228 0.0189 30.62 / 0.4)",
+			"$description": "Frosted glass — light mode, headers"
 		},
 		"teal": {
-			"$value": "oklch(0.1149 0.0123 158.92 / 0.749)"
+			"$value": "oklch(0.1149 0.0123 158.92 / 0.749)",
+			"$description": "Teal-tinted glass — accent panels"
 		},
 		"purple": {
-			"$value": "oklch(0.1001 0.0644 218.28 / 0.749)"
+			"$value": "oklch(0.1001 0.0644 218.28 / 0.749)",
+			"$description": "Purple-tinted glass — accent panels"
+		}
+	},
+	"glassBlur": {
+		"$type": "dimension",
+		"$description": "Backdrop-filter blur per glass tier (px → rem via SD5 transform)",
+		"void": {
+			"$value": "20px",
+			"$description": "Maximum blur — near-opaque surfaces"
+		},
+		"deep": {
+			"$value": "16px",
+			"$description": "Heavy blur — overlays, deep panels"
+		},
+		"smoke": {
+			"$value": "14px",
+			"$description": "Strong blur — raised surfaces"
+		},
+		"standard": {
+			"$value": "12px",
+			"$description": "Default blur — most containers"
+		},
+		"light": {
+			"$value": "8px",
+			"$description": "Light blur — secondary surfaces"
+		},
+		"frost": {
+			"$value": "6px",
+			"$description": "Gentle blur — frosted glass"
 		}
 	},
 	"matte": {

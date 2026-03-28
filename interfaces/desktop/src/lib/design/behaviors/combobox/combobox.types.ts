@@ -1,4 +1,9 @@
-import type { HTMLAttributes, HTMLButtonAttributes, HTMLInputAttributes, HTMLLabelAttributes } from "svelte/elements";
+import type {
+	HTMLAttributes,
+	HTMLButtonAttributes,
+	HTMLInputAttributes,
+	HTMLLabelAttributes,
+} from "svelte/elements";
 
 export interface UseComboBoxProps {
 	inputValue?: string;

@@ -10,9 +10,9 @@
   @slots root
 -->
 <script lang="ts">
-import { cn } from "$lib/design/utils/cn.js";
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
+import { cn } from "$lib/design/utils/cn.js";
 
 interface RowProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
 	children?: Snippet;

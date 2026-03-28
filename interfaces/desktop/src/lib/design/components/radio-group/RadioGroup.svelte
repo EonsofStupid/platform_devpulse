@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useRadioGroup } from "$lib/design/behaviors/radio-group/use-radio-group.svelte.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setRadioGroupContext } from "./context.js";
 import type { RadioGroupProps } from "./types.js";
@@ -42,17 +42,28 @@ let {
 }: RadioGroupProps = $props();
 
 const hook = useRadioGroup({
-	get value() { return value; },
-	get disabled() { return disabled; },
-	get required() { return required; },
-	get orientation() { return orientation; },
-	get loop() { return loop; },
+	get value() {
+		return value;
+	},
+	get disabled() {
+		return disabled;
+	},
+	get required() {
+		return required;
+	},
+	get orientation() {
+		return orientation;
+	},
+	get loop() {
+		return loop;
+	},
 	onValueChange: (v) => onValueChange?.(v),
 });
 
-
 setRadioGroupContext({
-	get hook() { return hook; },
+	get hook() {
+		return hook;
+	},
 });
 
 const m = $derived(resolveMacro({ kind: "radio-group", preset }));

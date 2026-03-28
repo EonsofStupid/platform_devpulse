@@ -5,4 +5,9 @@
  */
 
 export { default as DataTable } from "./DataTable.svelte";
-export type { DataTableComponentProps, DataTablePreset, DataTableSize, DataTableVariant } from "./types.js";
+export type {
+	DataTableComponentProps,
+	DataTablePreset,
+	DataTableSize,
+	DataTableVariant,
+} from "./types.js";

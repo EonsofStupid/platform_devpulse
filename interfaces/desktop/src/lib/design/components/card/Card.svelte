@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { CardProps } from "./card.types.js";
 
@@ -41,12 +41,14 @@ let {
 	...rest
 }: CardProps = $props();
 
-
-const rootClasses = $derived(cn(
-	"flex overflow-hidden",
-	orientation === "horizontal" ? "flex-row" : "flex-col",
-	disabled && "pointer-events-none opacity-60",
-	className));
+const rootClasses = $derived(
+	cn(
+		"flex overflow-hidden",
+		orientation === "horizontal" ? "flex-row" : "flex-col",
+		disabled && "pointer-events-none opacity-60",
+		className,
+	),
+);
 
 const m = $derived(resolveMacro({ kind: "card", preset }));
 </script>

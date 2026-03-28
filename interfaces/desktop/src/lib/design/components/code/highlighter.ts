@@ -20,8 +20,12 @@
  */
 
 import type { BundledLanguage, BundledTheme, HighlighterGeneric } from "shiki";
+import {
+	COLDLIGHT_SHIKI_CSS_VARS,
+	coldlightShikiCss,
+	coldlightTheme,
+} from "./coldlight-shiki-theme.js";
 import type { CodeLanguage } from "./types.js";
-import { coldlightTheme, COLDLIGHT_SHIKI_CSS_VARS, coldlightShikiCss } from "./coldlight-shiki-theme.js";
 
 // =============================================================================
 // TYPES

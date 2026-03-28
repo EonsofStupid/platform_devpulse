@@ -6,8 +6,8 @@
  * This universal load handles the redirect in SPA/Tauri mode.
  */
 
-import { redirect } from "@sveltejs/kit";
 import type { Load } from "@sveltejs/kit";
+import { redirect } from "@sveltejs/kit";
 
 export const load: Load = async () => {
 	redirect(302, "/devpulse");

@@ -7,7 +7,7 @@
  */
 
 import { headingAnatomy } from "./heading.anatomy.js";
-import type { UseHeadingProps, UseHeadingReturn, HeadingLevel } from "./heading.types.js";
+import type { HeadingLevel, UseHeadingProps, UseHeadingReturn } from "./heading.types.js";
 
 export function useHeading(props: UseHeadingProps = {}): UseHeadingReturn {
 	const level: HeadingLevel = props.level ?? 2;

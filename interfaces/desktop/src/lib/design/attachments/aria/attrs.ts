@@ -135,7 +135,9 @@ function applyAll(node: HTMLElement, slotSpec: SlotSpec, state: AriaState): void
 		node.setAttribute("role", aria.role);
 	}
 
-	aria.required.forEach((attr) => applyAttr(node, attr, state));
+	aria.required.forEach((attr) => {
+		applyAttr(node, attr, state);
+	});
 
 	aria.optional.forEach((attr) => {
 		const stateKey = ARIA_STATE_MAP[attr];

@@ -7,6 +7,6 @@
  * Focus management attachments.
  */
 
-export { focusTrap } from "./trap.js";
 export { focusReturn } from "./return.js";
-export { rovingFocus, type RovingFocusOptions } from "./roving.js";
+export { type RovingFocusOptions, rovingFocus } from "./roving.js";
+export { focusTrap } from "./trap.js";

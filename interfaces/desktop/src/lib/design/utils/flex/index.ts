@@ -1,8 +1,8 @@
-export { flex } from "./use-flex.js";
 export type {
 	FlexAlign,
 	FlexDirection,
 	FlexJustify,
-	FlexWrap,
 	FlexProps,
+	FlexWrap,
 } from "./flex.types.js";
+export { flex } from "./use-flex.js";

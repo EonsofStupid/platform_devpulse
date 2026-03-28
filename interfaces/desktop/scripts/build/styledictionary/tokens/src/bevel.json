@@ -208,6 +208,50 @@
 				}
 			}
 		},
+		"pressed": {
+			"$description": "Inset/pressed bevel — inverted depth for inputs, wells, pressed states",
+			"$value": [
+				{
+					"color": "oklch(0 0 0 / 0.278)",
+					"offsetX": "0px",
+					"offsetY": "1px",
+					"blur": "3px",
+					"spread": "0px"
+				},
+				{
+					"color": "oklch(0 0 0 / 0.161)",
+					"offsetX": "0px",
+					"offsetY": "2px",
+					"blur": "6px",
+					"spread": "0px"
+				},
+				{
+					"color": "oklch(1.0032 0.0305 28.88 / 0.051)",
+					"offsetX": "0px",
+					"offsetY": "-1px",
+					"blur": "1px",
+					"spread": "0px"
+				}
+			],
+			"$extensions": {
+				"com.coldlight": {
+					"inset": true,
+					"axis": "bevel",
+					"scope": "primitive",
+					"svgFilter": {
+						"type": "specularLighting",
+						"surfaceScale": -2,
+						"specularConstant": 0.3,
+						"specularExponent": 30,
+						"lightPosition": {
+							"x": 0,
+							"y": 1,
+							"z": 1
+						}
+					}
+				}
+			}
+		},
 		"deep": {
 			"$description": "Maximum CSS depth — 7 layers simulating true bevel relief",
 			"$value": [

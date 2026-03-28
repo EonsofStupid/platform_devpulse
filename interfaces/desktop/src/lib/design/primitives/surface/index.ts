@@ -1,9 +1,8 @@
 /**
- * @file primitives/surface/index.ts
+ * @file primitives/surface — Universal semantic container.
  * @package @devpulse/coldlight
- * @layer primitive
- *
- * Styled rectangle container — the universal visual building block.
  */
 
 export { default as Surface } from "./Surface.svelte";
+export type { SurfaceElement, SurfaceProps } from "./types.js";
+export { surfaceSpec } from "./surface.spec.js";

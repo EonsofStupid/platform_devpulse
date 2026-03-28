@@ -6,93 +6,81 @@
  */
 
 export { ariaAnnounce } from "./ariaAnnounce.js";
-export { cn } from "./cn.js";
-export { idGen, idGenPair } from "./idGen.js";
-export { slotMerge } from "./slotMerge.js";
-export { tokenResolve } from "./tokenResolve.js";
-
+// ── Layout Utilities ────────────────────────────────────────────
+export {
+	type AspectRatioValue,
+	type UseAspectRatioProps,
+	type UseAspectRatioReturn,
+	useAspectRatio,
+} from "./aspect-ratio/index.js";
+export {
+	type BoxProps,
+	box,
+} from "./box/index.js";
+export {
+	type CenterProps,
+	center,
+} from "./center/index.js";
 // ── Fluid Responsive ────────────────────────────────────────────
 export {
 	clampFluid,
 	clampValue,
-	FLUID_SPACE,
-	FLUID_SIZE,
 	FLUID_PADDING,
-	type FluidSpace,
-	type FluidSize,
+	FLUID_SIZE,
+	FLUID_SPACE,
 	type FluidPadding,
+	type FluidSize,
+	type FluidSpace,
 } from "./clamp/index.js";
-
-// ── Layout Utilities ────────────────────────────────────────────
+export { cn } from "./cn.js";
 export {
-	useAspectRatio,
-	type AspectRatioValue,
-	type UseAspectRatioProps,
-	type UseAspectRatioReturn,
-} from "./aspect-ratio/index.js";
-
-export {
-	box,
-	type BoxProps,
-} from "./box/index.js";
-
-export {
-	center,
-	type CenterProps,
-} from "./center/index.js";
-
-export {
-	useSpacer,
-	type UseSpacerProps,
-	type UseSpacerReturn,
-} from "./spacer/index.js";
-
-export {
-	container,
-	type ContainerSize,
 	type ContainerProps,
+	type ContainerSize,
+	container,
 } from "./container/index.js";
-
 export {
-	flex,
-	type FlexAlign,
-	type FlexDirection,
-	type FlexJustify,
-	type FlexWrap,
-	type FlexProps,
-} from "./flex/index.js";
-
-export {
-	useDivider,
 	type DividerOrientation,
 	type UseDividerAttrs,
 	type UseDividerProps,
 	type UseDividerReturn,
+	useDivider,
 } from "./divider/index.js";
-
 export {
-	gridLayout,
+	type FlexAlign,
+	type FlexDirection,
+	type FlexJustify,
+	type FlexProps,
+	type FlexWrap,
+	flex,
+} from "./flex/index.js";
+export {
 	type GridLayoutProps,
+	gridLayout,
 } from "./grid-layout/index.js";
-
 export {
-	hstack,
 	type HStackProps,
+	hstack,
 } from "./hstack/index.js";
-
+export { idGen, idGenPair } from "./idGen.js";
+export { slotMerge } from "./slotMerge.js";
 export {
-	stack,
+	type UseSpacerProps,
+	type UseSpacerReturn,
+	useSpacer,
+} from "./spacer/index.js";
+export {
 	type StackProps,
+	stack,
 } from "./stack/index.js";
-
 export {
-	useSticky,
 	type UseStickyProps,
 	type UseStickyReturn,
+	useSticky,
 } from "./sticky/index.js";
+export { tokenResolve } from "./tokenResolve.js";
 
 export {
-	useVisuallyHidden,
 	type UseVisuallyHiddenProps,
 	type UseVisuallyHiddenReturn,
+	useVisuallyHidden,
 } from "./visually-hidden/index.js";

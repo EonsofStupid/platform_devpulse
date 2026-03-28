@@ -4,11 +4,11 @@
  */
 
 export { default as Avatar } from "./Avatar.svelte";
-export { AvatarSchema, CATEGORY, type AvatarSchemaProps } from "./schema.js";
-export { avatarTokens } from "./tokens.js";
 export type {
-	AvatarProps,
 	AvatarLoadStatus,
-	AvatarStatusChangeDetails,
 	AvatarPreset,
+	AvatarProps,
+	AvatarStatusChangeDetails,
 } from "./avatar.types.js";
+export { AvatarSchema, type AvatarSchemaProps, CATEGORY } from "./schema.js";
+export { avatarTokens } from "./tokens.js";

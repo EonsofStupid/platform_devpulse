@@ -31,8 +31,8 @@
  * ```
  */
 
-import type { MacroInput, ResolvedMacro, MacroDataAttrs, CssFamily } from "./types.js";
 import { resolveIntent } from "./intent.js";
+import type { CssFamily, MacroDataAttrs, MacroInput, ResolvedMacro } from "./types.js";
 
 // ═══════════════════════════════════════════════════════════════
 // KIND_FAMILIES — generated at build time by deriveKindFamilies

@@ -6,7 +6,10 @@
 
 import { getContext, setContext } from "svelte";
 import type { ColorValue } from "$lib/design/components/color-area/types.js";
-import type { ColorSwatchRounding, ColorSwatchSize } from "$lib/design/components/color-swatch/types.js";
+import type {
+	ColorSwatchRounding,
+	ColorSwatchSize,
+} from "$lib/design/components/color-swatch/types.js";
 
 export interface ColorSwatchPickerContext {
 	readonly selectedValue: ColorValue | undefined;

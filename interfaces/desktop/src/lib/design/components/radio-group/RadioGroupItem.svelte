@@ -11,7 +11,13 @@ import { cn } from "$lib/design/utils/cn.js";
 import { getRadioGroupContext } from "./context.js";
 import type { RadioGroupItemProps } from "./types.js";
 
-let { value, disabled = false, children, class: className, ...rest }: RadioGroupItemProps = $props();
+let {
+	value,
+	disabled = false,
+	children,
+	class: className,
+	...rest
+}: RadioGroupItemProps = $props();
 const ctx = getRadioGroupContext();
 
 const radioAttrs = $derived(ctx.hook.getRadio(value, disabled));

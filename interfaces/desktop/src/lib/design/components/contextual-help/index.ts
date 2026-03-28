@@ -1,16 +1,16 @@
 export { default as Root } from "./ContextualHelp.svelte";
-export { default as Heading } from "./ContextualHelpHeading.svelte";
 export { default as Content } from "./ContextualHelpContent.svelte";
 export { default as Footer } from "./ContextualHelpFooter.svelte";
+export { default as Heading } from "./ContextualHelpHeading.svelte";
 export type {
-	ContextualHelpPreset,
-	ContextualHelpIds,
-	ContextualHelpOpenChangeDetails,
-	ContextualHelpRootProps,
-	ContextualHelpVariant,
-	ContextualHelpSize,
-	ContextualHelpPlacement,
-	ContextualHelpHeadingProps,
 	ContextualHelpContentProps,
 	ContextualHelpFooterProps,
+	ContextualHelpHeadingProps,
+	ContextualHelpIds,
+	ContextualHelpOpenChangeDetails,
+	ContextualHelpPlacement,
+	ContextualHelpPreset,
+	ContextualHelpRootProps,
+	ContextualHelpSize,
+	ContextualHelpVariant,
 } from "./types.js";

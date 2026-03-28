@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { BreadcrumbsPrimitiveProps } from "./breadcrumbs.props.js";
+import type { BreadcrumbsPrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: BreadcrumbsPrimitiveProps = $props();
 </script>

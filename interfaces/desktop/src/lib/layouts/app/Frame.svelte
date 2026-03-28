@@ -34,7 +34,8 @@ const isContextExpanded = $derived(globalState.context_mode === "expanded");
 
 /** Structural layout classes per shell slot — no recipe import */
 const SLOTS = {
-	frame: "grid h-screen w-screen overflow-hidden grid-rows-[auto_1fr_auto] grid-cols-[auto_1fr_auto] font-sans",
+	frame:
+		"grid h-screen w-screen overflow-hidden grid-rows-[auto_1fr_auto] grid-cols-[auto_1fr_auto] font-sans",
 	topbar: cn(
 		"col-span-full flex items-center justify-between",
 		"h-12 px-4",

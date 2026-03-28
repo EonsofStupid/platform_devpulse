@@ -1,12 +1,12 @@
 export { default as Root } from "./ColorSlider.svelte";
-export { default as Track } from "./ColorSliderTrack.svelte";
 export { default as Thumb } from "./ColorSliderThumb.svelte";
+export { default as Track } from "./ColorSliderTrack.svelte";
 export type {
-	SliderOrientation,
-	ColorSliderIds,
 	ColorSliderChangeDetails,
-	ColorSliderRootProps,
-	ColorSliderTrackProps,
-	ColorSliderThumbProps,
+	ColorSliderIds,
 	ColorSliderPreset,
+	ColorSliderRootProps,
+	ColorSliderThumbProps,
+	ColorSliderTrackProps,
+	SliderOrientation,
 } from "./types.js";

@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { BadgePrimitiveProps } from "./badge.props.js";
+import type { BadgePrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: BadgePrimitiveProps = $props();
 </script>

@@ -9,6 +9,6 @@ export type {
 	ToggleGroupComponentProps,
 	ToggleGroupItem,
 	ToggleGroupOrientation,
-	ToggleGroupSize,
 	ToggleGroupPreset,
+	ToggleGroupSize,
 } from "./types.js";

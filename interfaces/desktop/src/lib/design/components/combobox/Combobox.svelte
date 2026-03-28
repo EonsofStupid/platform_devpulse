@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useComboBox } from "$lib/design/behaviors/combobox/use-combobox.svelte.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setComboboxContext } from "./context.js";
 import type { ComboboxProps } from "./types.js";
@@ -44,20 +44,33 @@ let {
 }: ComboboxProps = $props();
 
 const hook = useComboBox({
-	get inputValue() { return inputValue; },
+	get inputValue() {
+		return inputValue;
+	},
 	onInputChange: (v) => onInputValueChange?.(v),
-	get selectedValue() { return value as string | undefined; },
+	get selectedValue() {
+		return value as string | undefined;
+	},
 	onSelectedChange: (v) => onValueChange?.(v),
-	get open() { return open; },
+	get open() {
+		return open;
+	},
 	onOpenChange: (v) => onOpenChange?.(v),
-	get disabled() { return disabled; },
+	get disabled() {
+		return disabled;
+	},
 });
 
-
 setComboboxContext({
-	get hook() { return hook; },
-	get disabled() { return disabled; },
-	get size() { return size; },
+	get hook() {
+		return hook;
+	},
+	get disabled() {
+		return disabled;
+	},
+	get size() {
+		return size;
+	},
 	dir: "ltr",
 });
 

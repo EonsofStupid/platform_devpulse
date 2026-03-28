@@ -4,10 +4,16 @@
  * @layer components
  */
 
-import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 import type { Snippet } from "svelte";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 
-export type BackgroundVariant = "boot" | "devpulse" | "overmind" | "wiredfront" | "devforge" | "maestro";
+export type BackgroundVariant =
+	| "boot"
+	| "devpulse"
+	| "overmind"
+	| "wiredfront"
+	| "devforge"
+	| "maestro";
 
 export interface DynamicBackgroundProps extends UIBaseProps {
 	/** Which domain/state background to show */

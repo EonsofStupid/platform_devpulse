@@ -4,5 +4,5 @@
  * @layer behavior
  */
 
-export { useMove } from "./use-move.svelte.js";
 export type * from "./move.types.js";
+export { useMove } from "./use-move.svelte.js";

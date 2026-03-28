@@ -61,10 +61,4 @@ export type KindString = PrimitiveKind | SubElementKind;
 // ═══════════════════════════════════════════════════════════════
 
 /** Visual family names — derived from presets at build time */
-export type CssFamily =
-	| "surface"
-	| "text"
-	| "frame"
-	| "interactive"
-	| "layout"
-	| "overlay";
+export type CssFamily = "surface" | "text" | "frame" | "interactive" | "layout" | "overlay";

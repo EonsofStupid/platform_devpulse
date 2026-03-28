@@ -7,5 +7,5 @@
  * Keyboard interaction attachments.
  */
 
-export { keyboardHandler, type KeyMap } from "./handler.js";
-export { typeahead, type TypeaheadOptions } from "./typeahead.js";
+export { type KeyMap, keyboardHandler } from "./handler.js";
+export { type TypeaheadOptions, typeahead } from "./typeahead.js";

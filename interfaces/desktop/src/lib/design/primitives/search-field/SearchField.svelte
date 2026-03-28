@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { SearchFieldPrimitiveProps } from "./search-field.props.js";
+import type { SearchFieldPrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: SearchFieldPrimitiveProps = $props();
 </script>

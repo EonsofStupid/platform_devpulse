@@ -1,26 +1,26 @@
-import type { Preview } from '@storybook/sveltekit'
+import type { Preview } from "@storybook/sveltekit";
 
 // Import ColdLight token CSS — provides all CSS custom properties
-import '../src/lib/design/css/index.css';
+import "../src/lib/design/css/index.css";
 // Import Tailwind for utility classes used by recipes
-import '../src/app.css';
+import "../src/app.css";
 
 const preview: Preview = {
-  parameters: {
-    controls: {
-      matchers: {
-       color: /(background|color)$/i,
-       date: /Date$/i,
-      },
-    },
+	parameters: {
+		controls: {
+			matchers: {
+				color: /(background|color)$/i,
+				date: /Date$/i,
+			},
+		},
 
-    a11y: {
-      // 'todo' - show a11y violations in the test UI only
-      // 'error' - fail CI on a11y violations
-      // 'off' - skip a11y checks entirely
-      test: 'todo'
-    }
-  },
+		a11y: {
+			// 'todo' - show a11y violations in the test UI only
+			// 'error' - fail CI on a11y violations
+			// 'off' - skip a11y checks entirely
+			test: "todo",
+		},
+	},
 };
 
 export default preview;

@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { KbdProps, KbdSize } from "./types.js";
 
@@ -31,13 +31,7 @@ const SIZE: Record<KbdSize, string> = {
 	lg: "px-2 py-1 text-sm",
 };
 
-let {
-	preset = "default",
-	size = "md",
-	children,
-	class: className,
-	...rest
-}: KbdProps = $props();
+let { preset = "default", size = "md", children, class: className, ...rest }: KbdProps = $props();
 
 const m = $derived(resolveMacro({ kind: "kbd", preset }));
 </script>

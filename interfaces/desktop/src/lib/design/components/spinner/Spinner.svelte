@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { useSpinner } from "$lib/design/behaviors/spinner/index.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SpinnerProps, SpinnerSize } from "./types.js";
 

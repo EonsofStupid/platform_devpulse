@@ -25,7 +25,7 @@
 import { untrack } from "svelte";
 import { slide } from "svelte/transition";
 import { useBanner } from "$lib/design/behaviors/banner/index.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { BannerProps } from "./types.js";
 
@@ -60,7 +60,7 @@ const banner = $derived(useBanner({ disabled }));
 let internalOpen = $state(untrack(() => defaultOpen ?? true));
 const isOpen = $derived(controlledOpen !== undefined ? controlledOpen : internalOpen);
 
-function handleDismiss(e: MouseEvent) {
+function handleDismiss(_e: MouseEvent) {
 	if (disabled) return;
 	internalOpen = false;
 	onOpenChange?.({ open: false });

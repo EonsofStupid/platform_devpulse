@@ -35,7 +35,7 @@ export function useSliderDrag(props: UseSliderDragProps): {
 	}
 
 	/** Set percent externally (e.g., from controlled value sync). */
-	function setPercent(v: number) {
+	function _setPercent(v: number) {
 		percent = clamp(v);
 	}
 
@@ -49,13 +49,26 @@ export function useSliderDrag(props: UseSliderDragProps): {
 		const decrease = props.vertical() ? "ArrowDown" : "ArrowLeft";
 
 		switch (e.key) {
-			case increase: percent = clamp(percent + delta); break;
-			case decrease: percent = clamp(percent - delta); break;
-			case "PageUp": percent = clamp(percent + delta * 10); break;
-			case "PageDown": percent = clamp(percent - delta * 10); break;
-			case "Home": percent = 0; break;
-			case "End": percent = 1; break;
-			default: handled = false;
+			case increase:
+				percent = clamp(percent + delta);
+				break;
+			case decrease:
+				percent = clamp(percent - delta);
+				break;
+			case "PageUp":
+				percent = clamp(percent + delta * 10);
+				break;
+			case "PageDown":
+				percent = clamp(percent - delta * 10);
+				break;
+			case "Home":
+				percent = 0;
+				break;
+			case "End":
+				percent = 1;
+				break;
+			default:
+				handled = false;
 		}
 
 		if (handled) {
@@ -65,7 +78,16 @@ export function useSliderDrag(props: UseSliderDragProps): {
 	}
 
 	function onKeyUp(e: KeyboardEvent) {
-		const keys = ["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End"];
+		const keys = [
+			"ArrowRight",
+			"ArrowLeft",
+			"ArrowUp",
+			"ArrowDown",
+			"PageUp",
+			"PageDown",
+			"Home",
+			"End",
+		];
 		if (keys.includes(e.key)) {
 			props.onChangeEnd(percent);
 		}
@@ -101,7 +123,11 @@ export function useSliderDrag(props: UseSliderDragProps): {
 		function endDrag(e: PointerEvent) {
 			if (!isDragging) return;
 			isDragging = false;
-			try { node.releasePointerCapture(e.pointerId); } catch { /* already released */ }
+			try {
+				node.releasePointerCapture(e.pointerId);
+			} catch {
+				/* already released */
+			}
 			props.onChangeEnd(percent);
 		}
 
@@ -136,8 +162,12 @@ export function useSliderDrag(props: UseSliderDragProps): {
 
 	return {
 		state: {
-			get percent() { return percent; },
-			get isDragging() { return isDragging; },
+			get percent() {
+				return percent;
+			},
+			get isDragging() {
+				return isDragging;
+			},
 		},
 		trackAction,
 		thumbAction,

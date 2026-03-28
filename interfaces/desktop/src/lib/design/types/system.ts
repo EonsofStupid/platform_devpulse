@@ -12,4 +12,3 @@ export interface ColdLightDataAttrs {
 	"data-state"?: string;
 	"data-disabled"?: "" | undefined;
 }
-

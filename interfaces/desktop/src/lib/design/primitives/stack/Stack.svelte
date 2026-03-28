@@ -10,9 +10,9 @@
   @slots root
 -->
 <script lang="ts">
-import { cn } from "$lib/design/utils/cn.js";
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
+import { cn } from "$lib/design/utils/cn.js";
 
 interface StackProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
 	children?: Snippet;
@@ -42,14 +42,7 @@ const JUSTIFY: Record<string, string> = {
 	evenly: "justify-evenly",
 };
 
-let {
-	children,
-	class: className,
-	gap = "0",
-	align,
-	justify,
-	...rest
-}: StackProps = $props();
+let { children, class: className, gap = "0", align, justify, ...rest }: StackProps = $props();
 </script>
 
 <div

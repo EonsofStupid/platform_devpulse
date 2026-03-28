@@ -18,10 +18,18 @@ export type ContextualHelpPreset = "default" | "stark" | "glass" | "flat" | "mat
 export type ContextualHelpVariant = "info" | "help";
 export type ContextualHelpSize = "xs" | "sm";
 export type ContextualHelpPlacement =
-	| "top" | "top start" | "top end"
-	| "bottom" | "bottom start" | "bottom end"
-	| "left" | "left start" | "left end"
-	| "right" | "right start" | "right end";
+	| "top"
+	| "top start"
+	| "top end"
+	| "bottom"
+	| "bottom start"
+	| "bottom end"
+	| "left"
+	| "left start"
+	| "left end"
+	| "right"
+	| "right start"
+	| "right end";
 
 export interface ContextualHelpIds {
 	root?: string;
@@ -62,7 +70,8 @@ export interface ContextualHelpRootProps
 	children?: Snippet;
 }
 
-interface ContextualHelpSlotProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface ContextualHelpSlotProps
+	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
 	children?: Snippet;
 	class?: string;
 }

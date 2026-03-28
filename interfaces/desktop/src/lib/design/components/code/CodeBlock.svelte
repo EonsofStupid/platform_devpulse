@@ -14,7 +14,7 @@
 	  - onCopy callback with details
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setCodeBlockContext } from "./context.js";
 import type { CodeBlockRootProps } from "./types.js";
@@ -44,12 +44,24 @@ function copyCode(value?: string) {
 }
 
 setCodeBlockContext({
-	get ids() { return ids ?? {}; },
-	get dir() { return dir; },
-	get language() { return language; },
-	get filename() { return filename; },
-	get lineNumbers() { return lineNumbers; },
-	get disabled() { return disabled; },
+	get ids() {
+		return ids ?? {};
+	},
+	get dir() {
+		return dir;
+	},
+	get language() {
+		return language;
+	},
+	get filename() {
+		return filename;
+	},
+	get lineNumbers() {
+		return lineNumbers;
+	},
+	get disabled() {
+		return disabled;
+	},
 	copyCode,
 });
 

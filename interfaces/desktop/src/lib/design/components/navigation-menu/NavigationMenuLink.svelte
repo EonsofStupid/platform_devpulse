@@ -13,7 +13,6 @@ import { cn } from "$lib/design/utils/cn.js";
 import type { NavigationMenuLinkProps } from "./types.js";
 
 let { children, active = false, class: className, ...rest }: NavigationMenuLinkProps = $props();
-
 </script>
 
 <a

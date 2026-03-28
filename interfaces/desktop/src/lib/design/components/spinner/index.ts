@@ -8,4 +8,4 @@
  */
 
 export { default as Spinner } from "./Spinner.svelte";
-export type { SpinnerProps, SpinnerPreset } from "./types.js";
+export type { SpinnerPreset, SpinnerProps } from "./types.js";

@@ -1,7 +1,8 @@
 /**
- * @file primitives/text/index.ts
+ * @file primitives/text — Polymorphic text element.
  * @package @devpulse/coldlight
- * @layer primitive
  */
 
 export { default as TextPrimitive } from "./Text.svelte";
+export type { TextElement, TextProps } from "./types.js";
+export { textSpec } from "./text.spec.js";

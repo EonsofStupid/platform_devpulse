@@ -20,11 +20,16 @@ const isDateDisabled = $derived(ctx.isDateDisabled(date));
 const isOutside = $derived(ctx.isOutsideMonth(date));
 
 const state = $derived(
-	isSelected ? "selected"
-	: isToday ? "today"
-	: isDateDisabled ? "disabled"
-	: isOutside ? "outside-month"
-	: undefined);
+	isSelected
+		? "selected"
+		: isToday
+			? "today"
+			: isDateDisabled
+				? "disabled"
+				: isOutside
+					? "outside-month"
+					: undefined,
+);
 </script>
 
 <button

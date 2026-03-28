@@ -13,7 +13,10 @@ export const StatSchema = baseComponentSchema.extend({
 	label: z.string().optional().describe("Label for the metric."),
 	unit: z.string().optional().describe("Unit suffix (%, ms, GB)."),
 	size: z.enum(["sm", "md", "lg"]).default("md").describe("Size variant."),
-	accent: z.enum(["teal", "purple", "ember", "cyber"]).default("teal").describe("Accent color for glow."),
+	accent: z
+		.enum(["teal", "purple", "ember", "cyber"])
+		.default("teal")
+		.describe("Accent color for glow."),
 });
 
 export type StatSchemaProps = z.infer<typeof StatSchema>;

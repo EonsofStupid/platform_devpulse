@@ -23,10 +23,19 @@
 -->
 <script lang="ts">
 import { useDescriptionList } from "$lib/design/behaviors/description-list/index.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { DescriptionListComponentProps } from "./types.js";
-let { size = "md", variant = "default", preset = "default", label, children, class: className, ...rest }: DescriptionListComponentProps = $props();
+
+let {
+	size = "md",
+	variant = "default",
+	preset = "default",
+	label,
+	children,
+	class: className,
+	...rest
+}: DescriptionListComponentProps = $props();
 const dl = $derived(useDescriptionList({ label }));
 const m = $derived(resolveMacro({ kind: "description-list", preset }));
 </script>

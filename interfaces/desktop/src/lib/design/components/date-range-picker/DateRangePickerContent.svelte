@@ -13,7 +13,10 @@ let { children, class: className, ...rest }: DateRangePickerContentProps = $prop
 const ctx = getDateRangePickerContext();
 
 function handleKeydown(e: KeyboardEvent) {
-	if (e.key === "Escape") { e.preventDefault(); ctx.closePopover(); }
+	if (e.key === "Escape") {
+		e.preventDefault();
+		ctx.closePopover();
+	}
 }
 </script>
 

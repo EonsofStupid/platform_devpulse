@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useButton } from "$lib/design/behaviors/button/index.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ButtonProps, ButtonSize } from "./button.types.js";
 

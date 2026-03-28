@@ -19,11 +19,11 @@
 	}
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
-import { cn } from "$lib/design/utils/cn.js";
-import { TextField } from "$lib/design/components/text-field/index.js";
+import { Mic, Send } from "lucide-svelte";
 import { Button } from "$lib/design/components/button/index.js";
-import { Send, Mic } from "lucide-svelte";
+import { TextField } from "$lib/design/components/text-field/index.js";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cn } from "$lib/design/utils/cn.js";
 import type { ChatFooterProps } from "./types.js";
 
 let {
@@ -37,7 +37,6 @@ let {
 }: ChatFooterProps = $props();
 
 let inputValue = $state("");
-
 
 function handleSend() {
 	const trimmed = inputValue.trim();

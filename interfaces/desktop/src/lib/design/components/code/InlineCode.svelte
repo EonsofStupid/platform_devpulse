@@ -7,7 +7,7 @@
 	No Shiki — just a styled code element.
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { InlineCodeProps } from "./types.js";
 

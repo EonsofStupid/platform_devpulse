@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { SelectPrimitiveProps } from "./select.props.js";
+import type { SelectPrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: SelectPrimitiveProps = $props();
 </script>

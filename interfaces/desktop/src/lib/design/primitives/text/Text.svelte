@@ -1,36 +1,33 @@
 <!--
-  @component TextPrimitive
+  @component Text
   @kind text
   @layer primitive
-  @category structural
-  @description Styled text span — the universal text building block.
-  Renders a span (or p, strong, em, small) with data-kind="text".
-  Size, weight, color, family applied via class or CSS custom properties.
-
-  @element span
+  @category display
+  @description Polymorphic text element. Renders as span, p, strong, em, small, or div.
+  @element svelte:element
   @slots root
+  @spec text.spec.ts
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { Snippet } from "svelte";
-import type { HTMLAttributes } from "svelte/elements";
+import { enforceSlot } from "$lib/design/schema/enforce.js";
+import { textSpec } from "./text.spec.js";
+import type { TextProps } from "./types.js";
 
-interface TextPrimitiveProps extends Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children"> {
-	children?: Snippet;
-	class?: string;
-	as?: "span" | "p" | "strong" | "em" | "small" | "div";
-}
+let { children, class: className, as = "span", ...rest }: TextProps = $props();
 
-let {
-	children,
-	class: className,
-	as = "span",
-	...rest
-}: TextPrimitiveProps = $props();
+let rootEl: HTMLElement | undefined = $state();
+
+$effect(() => {
+	if (import.meta.env.DEV && rootEl) {
+		enforceSlot(rootEl, textSpec, "root");
+	}
+});
 </script>
 
 <svelte:element
 	this={as}
+	bind:this={rootEl}
 	data-kind="text"
 	data-slot="root"
 	class={cn(className)}

@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { ToolbarPrimitiveProps } from "./toolbar.props.js";
+import type { ToolbarPrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: ToolbarPrimitiveProps = $props();
 </script>

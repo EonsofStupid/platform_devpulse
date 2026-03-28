@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { ColorFieldPrimitiveProps } from "./color-field.props.js";
+import type { ColorFieldPrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: ColorFieldPrimitiveProps = $props();
 </script>

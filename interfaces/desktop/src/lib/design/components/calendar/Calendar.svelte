@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { untrack } from "svelte";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setCalendarContext } from "./context.js";
 import type { CalendarRootProps } from "./types.js";
@@ -53,7 +53,9 @@ let {
 	...rest
 }: CalendarRootProps = $props();
 
-const headingId = untrack(() => ids?.heading ?? `cal-heading-${Math.random().toString(36).slice(2, 9)}`);
+const headingId = untrack(
+	() => ids?.heading ?? `cal-heading-${Math.random().toString(36).slice(2, 9)}`,
+);
 const today = new Date();
 today.setHours(0, 0, 0, 0);
 
@@ -65,7 +67,11 @@ const selectedDate = $derived(controlledValue !== undefined ? controlledValue : 
 const focusedDate = $derived(focusedValue !== undefined ? focusedValue : internalFocus);
 
 function isSameDay(a: Date, b: Date): boolean {
-	return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+	return (
+		a.getFullYear() === b.getFullYear() &&
+		a.getMonth() === b.getMonth() &&
+		a.getDate() === b.getDate()
+	);
 }
 
 function isDateDisabledFn(date: Date): boolean {
@@ -77,20 +83,44 @@ function isDateDisabledFn(date: Date): boolean {
 }
 
 setCalendarContext({
-	get currentMonth() { return currentMonth; },
-	get selectedDate() { return selectedDate; },
-	get focusedDate() { return focusedDate; },
+	get currentMonth() {
+		return currentMonth;
+	},
+	get selectedDate() {
+		return selectedDate;
+	},
+	get focusedDate() {
+		return focusedDate;
+	},
 	today,
-	get minValue() { return minValue; },
-	get maxValue() { return maxValue; },
-	get isDisabled() { return isDisabled; },
-	get isReadOnly() { return isReadOnly; },
-	get isInvalid() { return isInvalid; },
-	get locale() { return locale; },
-	get dir() { return dir; },
-	get ids() { return ids ?? {}; },
+	get minValue() {
+		return minValue;
+	},
+	get maxValue() {
+		return maxValue;
+	},
+	get isDisabled() {
+		return isDisabled;
+	},
+	get isReadOnly() {
+		return isReadOnly;
+	},
+	get isInvalid() {
+		return isInvalid;
+	},
+	get locale() {
+		return locale;
+	},
+	get dir() {
+		return dir;
+	},
+	get ids() {
+		return ids ?? {};
+	},
 	headingId,
-	get isDateUnavailable() { return isDateUnavailable; },
+	get isDateUnavailable() {
+		return isDateUnavailable;
+	},
 	prevMonth() {
 		const prev = new Date(currentMonth);
 		prev.setMonth(prev.getMonth() - 1);

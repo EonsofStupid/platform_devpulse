@@ -1,22 +1,22 @@
 export { default as Root } from "./DateRangePicker.svelte";
-export { default as Input } from "./DateRangePickerField.svelte";
-export { default as Trigger } from "./DateRangePickerTrigger.svelte";
-export { default as Content } from "./DateRangePickerContent.svelte";
 export { default as Calendar } from "./DateRangePickerCalendar.svelte";
+export { default as Content } from "./DateRangePickerContent.svelte";
+export { default as Input } from "./DateRangePickerField.svelte";
 export { default as PresetTrigger } from "./DateRangePickerPresetTrigger.svelte";
+export { default as Trigger } from "./DateRangePickerTrigger.svelte";
 export type {
-	DateRangePickerPreset,
-	DateRangeValue,
+	DateRangePickerCalendarProps,
+	DateRangePickerContentProps,
+	DateRangePickerGranularity,
 	DateRangePickerIds,
-	DateRangePickerValueChangeDetails,
+	DateRangePickerInputProps,
 	DateRangePickerOpenChangeDetails,
+	DateRangePickerPreset,
+	DateRangePickerPresetTriggerProps,
 	DateRangePickerRootProps,
 	DateRangePickerSize,
-	DateRangePickerGranularity,
-	DateRangePickerInputProps,
 	DateRangePickerTriggerProps,
-	DateRangePickerContentProps,
-	DateRangePickerCalendarProps,
-	DateRangePickerPresetTriggerProps,
+	DateRangePickerValueChangeDetails,
+	DateRangeValue,
 	PresetTriggerValue,
 } from "./types.js";

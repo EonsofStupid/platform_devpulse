@@ -4,6 +4,6 @@
  * @layer behavior
  */
 
-export { useBreadcrumbs } from "./use-breadcrumbs.svelte.js";
-export type * from "./breadcrumbs.types.js";
 export { breadcrumbsAnatomy } from "./breadcrumbs.anatomy.js";
+export type * from "./breadcrumbs.types.js";
+export { useBreadcrumbs } from "./use-breadcrumbs.svelte.js";

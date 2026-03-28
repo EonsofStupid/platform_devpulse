@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { ComboboxPrimitiveProps } from "./combobox.props.js";
+import type { ComboboxPrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: ComboboxPrimitiveProps = $props();
 </script>

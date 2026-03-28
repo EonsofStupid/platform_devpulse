@@ -4,6 +4,6 @@
  * @layer behavior
  */
 
-export { useToolbar } from "./use-toolbar.svelte.js";
-export type * from "./toolbar.types.js";
 export { toolbarAnatomy } from "./toolbar.anatomy.js";
+export type * from "./toolbar.types.js";
+export { useToolbar } from "./use-toolbar.svelte.js";

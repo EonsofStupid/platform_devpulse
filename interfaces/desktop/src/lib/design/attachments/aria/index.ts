@@ -7,5 +7,5 @@
  * Accessibility wiring attachments.
  */
 
-export { ariaAttrs, type AriaAttrsOptions, type AriaState } from "./attrs.js";
-export { ariaLink, type AriaLinkOptions, type AriaLinkType } from "./link.js";
+export { type AriaAttrsOptions, type AriaState, ariaAttrs } from "./attrs.js";
+export { type AriaLinkOptions, type AriaLinkType, ariaLink } from "./link.js";

@@ -1,9 +1,8 @@
 /**
- * @file primitives/checkbox/index.ts
+ * @file primitives/checkbox — Tri-state checkbox with ARIA APG compliance.
  * @package @devpulse/coldlight
- * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as Checkbox } from "./Checkbox.svelte";
+export { default as CheckboxPrimitive } from "./Checkbox.svelte";
+export type { CheckboxRootProps, CheckboxIndicatorProps, CheckboxLabelProps } from "./types.js";
+export { checkboxSpec } from "./checkbox.spec.js";

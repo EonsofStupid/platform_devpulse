@@ -3,9 +3,9 @@ import "../app.css";
 // Style presets compiled via SD5 DTCG pipeline → components.generated.css
 // Loaded via app.css → design/index.css → css/index.css import chain
 import { onMount } from "svelte";
+import TokenDebugOverlay from "$lib/design/debug/TokenDebugOverlay.svelte";
 import SvgFilters from "$lib/design/svg/filters/SvgFilters.svelte";
 import BootOverlay from "$lib/layouts/app/BootOverlay.svelte";
-import TokenDebugOverlay from "$lib/design/debug/TokenDebugOverlay.svelte";
 import { installGlobalHandlers, logError, logInfo } from "$lib/sys/logger.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 

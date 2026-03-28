@@ -4,5 +4,5 @@
  * @layer behavior
  */
 
-export { useLocale } from "./use-locale.svelte.js";
 export type * from "./locale.types.js";
+export { useLocale } from "./use-locale.svelte.js";

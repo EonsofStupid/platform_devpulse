@@ -18,7 +18,17 @@ export type CategoryId = "primitives" | "components" | "effects" | "svg" | "comp
 /**
  * ARIA state provider — describes which ARIA states a primitive manages.
  */
-export type AriaStateProvider = "coldlight" | "expanded" | "selected" | "checked" | "pressed" | "disabled" | "invalid" | "required" | "readonly" | "hidden";
+export type AriaStateProvider =
+	| "coldlight"
+	| "expanded"
+	| "selected"
+	| "checked"
+	| "pressed"
+	| "disabled"
+	| "invalid"
+	| "required"
+	| "readonly"
+	| "hidden";
 
 /**
  * Design-system adapter identifier.

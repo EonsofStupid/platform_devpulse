@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { LabelPrimitiveProps } from "./label.props.js";
+import type { LabelPrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: LabelPrimitiveProps = $props();
 </script>

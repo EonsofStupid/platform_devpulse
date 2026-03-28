@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { TablePrimitiveProps } from "./table.props.js";
+import type { TablePrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: TablePrimitiveProps = $props();
 </script>

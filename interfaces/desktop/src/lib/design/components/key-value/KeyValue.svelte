@@ -19,12 +19,7 @@ const SIZE: Record<KeyValueSize, { label: string; value: string }> = {
 	lg: { label: "text-base", value: "text-base font-bold" },
 };
 
-let {
-	label,
-	value,
-	size = "sm",
-	class: className,
-}: KeyValueProps = $props();
+let { label, value, size = "sm", class: className }: KeyValueProps = $props();
 
 const s = $derived(SIZE[size] ?? SIZE.sm);
 </script>

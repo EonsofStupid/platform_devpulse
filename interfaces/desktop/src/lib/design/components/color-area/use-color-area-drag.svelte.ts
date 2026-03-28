@@ -50,15 +50,34 @@ export function useColorAreaDrag(props: UseColorAreaDragProps): {
 		let handled = true;
 
 		switch (e.key) {
-			case "ArrowRight": xPercent = clamp(xPercent + delta); break;
-			case "ArrowLeft": xPercent = clamp(xPercent - delta); break;
-			case "ArrowUp": yPercent = clamp(yPercent + delta); break;
-			case "ArrowDown": yPercent = clamp(yPercent - delta); break;
-			case "PageUp": yPercent = clamp(yPercent + delta * 10); break;
-			case "PageDown": yPercent = clamp(yPercent - delta * 10); break;
-			case "Home": xPercent = 0; yPercent = 0; break;
-			case "End": xPercent = 1; yPercent = 1; break;
-			default: handled = false;
+			case "ArrowRight":
+				xPercent = clamp(xPercent + delta);
+				break;
+			case "ArrowLeft":
+				xPercent = clamp(xPercent - delta);
+				break;
+			case "ArrowUp":
+				yPercent = clamp(yPercent + delta);
+				break;
+			case "ArrowDown":
+				yPercent = clamp(yPercent - delta);
+				break;
+			case "PageUp":
+				yPercent = clamp(yPercent + delta * 10);
+				break;
+			case "PageDown":
+				yPercent = clamp(yPercent - delta * 10);
+				break;
+			case "Home":
+				xPercent = 0;
+				yPercent = 0;
+				break;
+			case "End":
+				xPercent = 1;
+				yPercent = 1;
+				break;
+			default:
+				handled = false;
 		}
 
 		if (handled) {
@@ -68,7 +87,18 @@ export function useColorAreaDrag(props: UseColorAreaDragProps): {
 	}
 
 	function onKeyUp(e: KeyboardEvent) {
-		if (["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End"].includes(e.key)) {
+		if (
+			[
+				"ArrowRight",
+				"ArrowLeft",
+				"ArrowUp",
+				"ArrowDown",
+				"PageUp",
+				"PageDown",
+				"Home",
+				"End",
+			].includes(e.key)
+		) {
 			props.onChangeEnd(xPercent, yPercent);
 		}
 	}
@@ -99,7 +129,11 @@ export function useColorAreaDrag(props: UseColorAreaDragProps): {
 		function endDrag(e: PointerEvent) {
 			if (!isDragging) return;
 			isDragging = false;
-			try { node.releasePointerCapture(e.pointerId); } catch { /* already released */ }
+			try {
+				node.releasePointerCapture(e.pointerId);
+			} catch {
+				/* already released */
+			}
 			props.onChangeEnd(xPercent, yPercent);
 		}
 
@@ -135,9 +169,15 @@ export function useColorAreaDrag(props: UseColorAreaDragProps): {
 
 	return {
 		state: {
-			get xPercent() { return xPercent; },
-			get yPercent() { return yPercent; },
-			get isDragging() { return isDragging; },
+			get xPercent() {
+				return xPercent;
+			},
+			get yPercent() {
+				return yPercent;
+			},
+			get isDragging() {
+				return isDragging;
+			},
 		},
 		action,
 		thumbAction,

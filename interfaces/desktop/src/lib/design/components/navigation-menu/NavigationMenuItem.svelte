@@ -57,7 +57,6 @@ const ctx: NavigationMenuItemCtx = {
 };
 
 setNavigationMenuItemContext(ctx);
-
 </script>
 
 <li

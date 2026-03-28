@@ -7,7 +7,6 @@
 
 import { cn } from "$lib/design/utils/cn.js";
 import type { HStackProps } from "./hstack.types.js";
-import type { SpaceToken } from "$lib/design/types/spacing.js";
 
 const ALIGN: Record<string, string> = {
 	start: "items-start",

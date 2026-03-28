@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { TogglePrimitiveProps } from "./toggle.props.js";
+import type { TogglePrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: TogglePrimitiveProps = $props();
 </script>

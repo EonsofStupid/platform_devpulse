@@ -8,12 +8,12 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
  */
 
-import { useDismissLayer } from "../_shared/dismiss-layer/index.js";
-import { useEscapeLayer } from "../_shared/escape-layer/index.js";
-import { usePresence } from "../_shared/presence/index.js";
 import { dataAttr, disabledAttr } from "../_internal/utils/data-attr.js";
 import { kbd } from "../_internal/utils/kbd.js";
 import { uid } from "../_internal/utils/uid.js";
+import { useDismissLayer } from "../_shared/dismiss-layer/index.js";
+import { useEscapeLayer } from "../_shared/escape-layer/index.js";
+import { usePresence } from "../_shared/presence/index.js";
 import { selectAnatomy } from "./select.anatomy.js";
 import type { UseSelectProps, UseSelectReturn } from "./select.types.js";
 

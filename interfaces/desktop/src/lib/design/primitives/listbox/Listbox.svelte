@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { ListboxPrimitiveProps } from "./listbox.props.js";
+import type { ListboxPrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: ListboxPrimitiveProps = $props();
 </script>

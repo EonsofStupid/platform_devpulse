@@ -94,7 +94,8 @@ export interface CalendarRootProps
 // SUB-COMPONENTS
 // =============================================================================
 
-interface CalendarSlotProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface CalendarSlotProps
+	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
 	children?: Snippet;
 	class?: string;
 }
@@ -106,7 +107,8 @@ export interface CalendarHeaderProps extends CalendarSlotProps {}
 export interface CalendarGridProps extends CalendarSlotProps {}
 
 /** CalendarCell — individual day cell button. */
-export interface CalendarCellProps extends Omit<HTMLButtonAttributes, "style" | "children" | "class"> {
+export interface CalendarCellProps
+	extends Omit<HTMLButtonAttributes, "style" | "children" | "class"> {
 	children?: Snippet;
 	class?: string;
 	/** The date this cell represents. */

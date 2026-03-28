@@ -21,12 +21,12 @@
 }
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { buildColorString, getChannelRange, percentToValue } from "./color-utils.js";
 import { setColorAreaContext } from "./context.js";
-import { useColorAreaDrag } from "./use-color-area-drag.svelte.js";
 import type { ColorAreaRootProps } from "./types.js";
+import { useColorAreaDrag } from "./use-color-area-drag.svelte.js";
 
 let {
 	ids,
@@ -50,7 +50,13 @@ let {
 }: ColorAreaRootProps = $props();
 
 let internalValue = $state("");
-$effect.pre(() => { if (controlledValue !== undefined) { internalValue = controlledValue; } else if (internalValue === "" && defaultValue) { internalValue = defaultValue; } });
+$effect.pre(() => {
+	if (controlledValue !== undefined) {
+		internalValue = controlledValue;
+	} else if (internalValue === "" && defaultValue) {
+		internalValue = defaultValue;
+	}
+});
 const currentValue = $derived(controlledValue !== undefined ? controlledValue : internalValue);
 
 const xRange = $derived(getChannelRange(colorSpace, xChannel));
@@ -65,7 +71,7 @@ function emitColor(x: number, y: number) {
 const drag = useColorAreaDrag({
 	disabled: () => isDisabled,
 	rtl: () => dir === "rtl",
-	step: () => (step / 100),
+	step: () => step / 100,
 	onChange(x, y) {
 		const val = emitColor(x, y);
 		internalValue = val;
@@ -79,18 +85,37 @@ const drag = useColorAreaDrag({
 const xValue = $derived(percentToValue(drag.state.xPercent, xRange));
 const yValue = $derived(percentToValue(drag.state.yPercent, yRange));
 
-
 setColorAreaContext({
-	get value() { return currentValue; },
-	get colorSpace() { return colorSpace; },
-	get xChannel() { return xChannel; },
-	get yChannel() { return yChannel; },
-	get isDisabled() { return isDisabled; },
-	get isDragging() { return drag.state.isDragging; },
-	get ids() { return ids ?? {}; },
-	get dir() { return dir; },
-	get xPercent() { return drag.state.xPercent; },
-	get yPercent() { return drag.state.yPercent; },
+	get value() {
+		return currentValue;
+	},
+	get colorSpace() {
+		return colorSpace;
+	},
+	get xChannel() {
+		return xChannel;
+	},
+	get yChannel() {
+		return yChannel;
+	},
+	get isDisabled() {
+		return isDisabled;
+	},
+	get isDragging() {
+		return drag.state.isDragging;
+	},
+	get ids() {
+		return ids ?? {};
+	},
+	get dir() {
+		return dir;
+	},
+	get xPercent() {
+		return drag.state.xPercent;
+	},
+	get yPercent() {
+		return drag.state.yPercent;
+	},
 	thumbAction: drag.thumbAction,
 });
 

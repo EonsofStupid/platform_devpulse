@@ -21,9 +21,9 @@
 }
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
-import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cn } from "$lib/design/utils/cn.js";
 import { setColorFieldContext } from "./context.js";
 import type { ColorFieldRootProps } from "./types.js";
 
@@ -54,7 +54,13 @@ let {
 }: ColorFieldRootProps = $props();
 
 // ── Auto-generated IDs with user overrides ──────────────────────
-const autoIds = createIds("color-field", ["root", "input", "label", "description", "errorMessage"] as const);
+const autoIds = createIds("color-field", [
+	"root",
+	"input",
+	"label",
+	"description",
+	"errorMessage",
+] as const);
 const resolvedIds = $derived({
 	root: userIds?.root ?? autoIds.root,
 	input: userIds?.input ?? autoIds.input,
@@ -89,8 +95,12 @@ const isInvalid = $derived(controlledInvalid || validationError() !== null);
 let hasDescription = $state(false);
 let hasError = $state(false);
 
-function registerDescription() { hasDescription = true; }
-function registerError() { hasError = true; }
+function registerDescription() {
+	hasDescription = true;
+}
+function registerError() {
+	hasError = true;
+}
 
 // ── Value mutation ──────────────────────────────────────────────
 function setValue(raw: string) {
@@ -100,25 +110,56 @@ function setValue(raw: string) {
 	onChange?.({ value: val });
 }
 
-
 // ── Context ─────────────────────────────────────────────────────
 setColorFieldContext({
-	get value() { return currentValue; },
-	get channel() { return channel; },
-	get colorSpace() { return colorSpace; },
-	get size() { return size; },
-	get isDisabled() { return isDisabled; },
-	get isReadOnly() { return isReadOnly; },
-	get isRequired() { return isRequired; },
-	get isInvalid() { return isInvalid; },
-	get validationError() { return validationError(); },
-	get dir() { return dir; },
-	get placeholder() { return placeholder; },
-	get name() { return name; },
-	get form() { return form; },
-	get ids() { return resolvedIds; },
-	get hasDescription() { return hasDescription; },
-	get hasError() { return hasError; },
+	get value() {
+		return currentValue;
+	},
+	get channel() {
+		return channel;
+	},
+	get colorSpace() {
+		return colorSpace;
+	},
+	get size() {
+		return size;
+	},
+	get isDisabled() {
+		return isDisabled;
+	},
+	get isReadOnly() {
+		return isReadOnly;
+	},
+	get isRequired() {
+		return isRequired;
+	},
+	get isInvalid() {
+		return isInvalid;
+	},
+	get validationError() {
+		return validationError();
+	},
+	get dir() {
+		return dir;
+	},
+	get placeholder() {
+		return placeholder;
+	},
+	get name() {
+		return name;
+	},
+	get form() {
+		return form;
+	},
+	get ids() {
+		return resolvedIds;
+	},
+	get hasDescription() {
+		return hasDescription;
+	},
+	get hasError() {
+		return hasError;
+	},
 	setValue,
 	registerDescription,
 	registerError,

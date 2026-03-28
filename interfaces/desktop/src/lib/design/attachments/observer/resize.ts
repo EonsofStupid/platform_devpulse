@@ -35,7 +35,9 @@ export function resize(node: HTMLElement, options: () => ResizeOptions): () => v
 	const { onResize, box = "content-box" } = options();
 
 	const observer = new ResizeObserver((entries) => {
-		entries.forEach((entry) => onResize(entry));
+		entries.forEach((entry) => {
+			onResize(entry);
+		});
 	});
 
 	observer.observe(node, { box });

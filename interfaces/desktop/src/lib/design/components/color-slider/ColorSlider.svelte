@@ -22,13 +22,17 @@
 }
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
-import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
-import { getChannelRange, percentToValue, roundToStep } from "$lib/design/components/color-area/color-utils.js";
+import {
+	getChannelRange,
+	percentToValue,
+	roundToStep,
+} from "$lib/design/components/color-area/color-utils.js";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cn } from "$lib/design/utils/cn.js";
 import { setColorSliderContext } from "./context.js";
-import { useSliderDrag } from "./use-slider-drag.svelte.js";
 import type { ColorSliderRootProps } from "./types.js";
+import { useSliderDrag } from "./use-slider-drag.svelte.js";
 
 let {
 	ids: userIds,
@@ -98,21 +102,44 @@ const drag = useSliderDrag({
 // ── Derived channel value ───────────────────────────────────────
 const channelValue = $derived(roundToStep(percentToValue(drag.state.percent, range), range.step));
 
-
 // ── Context ─────────────────────────────────────────────────────
 setColorSliderContext({
-	get value() { return currentValue; },
-	get channel() { return channel; },
-	get colorSpace() { return colorSpace; },
-	get orientation() { return orientation; },
-	get isDisabled() { return isDisabled; },
-	get isDragging() { return drag.state.isDragging; },
-	get percent() { return drag.state.percent; },
-	get channelValue() { return channelValue; },
-	get channelMin() { return range.min; },
-	get channelMax() { return range.max; },
-	get dir() { return dir; },
-	get ids() { return resolvedIds; },
+	get value() {
+		return currentValue;
+	},
+	get channel() {
+		return channel;
+	},
+	get colorSpace() {
+		return colorSpace;
+	},
+	get orientation() {
+		return orientation;
+	},
+	get isDisabled() {
+		return isDisabled;
+	},
+	get isDragging() {
+		return drag.state.isDragging;
+	},
+	get percent() {
+		return drag.state.percent;
+	},
+	get channelValue() {
+		return channelValue;
+	},
+	get channelMin() {
+		return range.min;
+	},
+	get channelMax() {
+		return range.max;
+	},
+	get dir() {
+		return dir;
+	},
+	get ids() {
+		return resolvedIds;
+	},
 	trackAction: drag.trackAction,
 	thumbAction: drag.thumbAction,
 });

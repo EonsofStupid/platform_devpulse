@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { ProgressPrimitiveProps } from "./progress.props.js";
+import type { ProgressPrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: ProgressPrimitiveProps = $props();
 </script>

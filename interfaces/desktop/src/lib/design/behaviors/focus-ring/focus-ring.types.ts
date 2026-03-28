@@ -4,7 +4,10 @@ export interface UseFocusRingProps {
 	autoFocus?: boolean;
 }
 
-export type FocusRingPropsAttrs = Pick<HTMLAttributes<HTMLElement>, "onfocus" | "onblur" | "autofocus"> & {
+export type FocusRingPropsAttrs = Pick<
+	HTMLAttributes<HTMLElement>,
+	"onfocus" | "onblur" | "autofocus"
+> & {
 	"data-focus-visible"?: "";
 };
 

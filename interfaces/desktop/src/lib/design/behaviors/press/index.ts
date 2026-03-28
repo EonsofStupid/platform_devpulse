@@ -4,5 +4,5 @@
  * @layer behavior
  */
 
-export { usePress } from "./use-press.svelte.js";
 export type * from "./press.types.js";
+export { usePress } from "./use-press.svelte.js";

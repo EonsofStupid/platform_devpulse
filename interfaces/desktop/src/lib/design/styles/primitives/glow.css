@@ -11,6 +11,7 @@
   --glow-ember: 0 0 1.875rem 0.75rem oklch(0.5507 0.1776 16.41 / 0.702);
   --glow-frost: 0 0 1.875rem 0.75rem oklch(0.5844 0.0833 202.74 / 0.6);
   --glow-cyber: 0 0 1.875rem 0.75rem oklch(0.5725 0.0715 136.04 / 0.702);
+  --glow-blue: 0 0 1.875rem 0.75rem oklch(0.5412 0.1105 249.72 / 0.702);
   --glow-spread-sm: 0.75rem;
   --glow-spread-md: 1.25rem;
   --glow-spread-lg: 1.875rem;

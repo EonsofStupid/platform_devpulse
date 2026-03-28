@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { TagGroupPrimitiveProps } from "./tag-group.props.js";
+import type { TagGroupPrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: TagGroupPrimitiveProps = $props();
 </script>

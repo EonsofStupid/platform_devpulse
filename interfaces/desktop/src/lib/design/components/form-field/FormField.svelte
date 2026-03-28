@@ -23,10 +23,23 @@
 -->
 <script lang="ts">
 import { useFormField } from "$lib/design/behaviors/form-field/index.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { FormFieldComponentProps } from "./types.js";
-let { preset = "default", size = "md", label, description, error, invalid = false, required = false, disabled = false, children, class: className, ...rest }: FormFieldComponentProps = $props();
+
+let {
+	preset = "default",
+	size = "md",
+	label,
+	description,
+	error,
+	invalid = false,
+	required = false,
+	disabled = false,
+	children,
+	class: className,
+	...rest
+}: FormFieldComponentProps = $props();
 const field = $derived(useFormField({ invalid, required, disabled }));
 const m = $derived(resolveMacro({ kind: "form-field", preset }));
 </script>

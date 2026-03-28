@@ -10,9 +10,9 @@
   @slots root
 -->
 <script lang="ts">
-import { cn } from "$lib/design/utils/cn.js";
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
+import { cn } from "$lib/design/utils/cn.js";
 
 interface IconSlotProps extends Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children"> {
 	children?: Snippet;
@@ -21,12 +21,7 @@ interface IconSlotProps extends Omit<HTMLAttributes<HTMLSpanElement>, "style" | 
 	size?: string;
 }
 
-let {
-	children,
-	class: className,
-	size = "size-4",
-	...rest
-}: IconSlotProps = $props();
+let { children, class: className, size = "size-4", ...rest }: IconSlotProps = $props();
 </script>
 
 <span

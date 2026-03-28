@@ -23,8 +23,8 @@ import { Badge, type BadgeVariant } from "$lib/design/components/badge/index.js"
 import { DynamicBackground } from "$lib/design/components/dynamic-background/index.js";
 import { Progress } from "$lib/design/components/progress/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import { cn } from "$lib/design/utils/cn.js";
 import { box } from "$lib/design/utils/box/index.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { DEV_MODE, devLabel, resolveLabel } from "$lib/sys/generated/terminology.js";
@@ -39,28 +39,40 @@ const subsystems = $derived(platformState.subsystemList());
 
 function stateToVariant(state: SubsystemState): BadgeVariant {
 	switch (state) {
-		case "ready": return "positive";
-		case "loading": return "informative";
-		case "failed": return "negative";
-		case "skipped": return "neutral";
-		case "pending": return "neutral";
+		case "ready":
+			return "positive";
+		case "loading":
+			return "informative";
+		case "failed":
+			return "negative";
+		case "skipped":
+			return "neutral";
+		case "pending":
+			return "neutral";
 	}
 }
 
 function stateToLabel(state: SubsystemState, latencyMs: number | null): string {
 	switch (state) {
-		case "pending": return "";
-		case "loading": return "...";
-		case "ready": return latencyMs !== null ? `${latencyMs}ms` : "ok";
-		case "skipped": return "disabled";
-		case "failed": return "failed";
+		case "pending":
+			return "";
+		case "loading":
+			return "...";
+		case "ready":
+			return latencyMs !== null ? `${latencyMs}ms` : "ok";
+		case "skipped":
+			return "disabled";
+		case "failed":
+			return "failed";
 	}
 }
 
 $effect(() => {
 	if (platformState.isReady && !fading) {
 		fading = true;
-		setTimeout(() => { visible = false; }, 600);
+		setTimeout(() => {
+			visible = false;
+		}, 600);
 	}
 });
 </script>

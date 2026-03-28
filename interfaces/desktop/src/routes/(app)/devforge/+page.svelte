@@ -8,10 +8,10 @@
 import { GitBranch, Hammer, Package, Server, Terminal } from "lucide-svelte";
 import { Widget } from "$lib/design/blocks/widgets/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { cn } from "$lib/design/utils/cn.js";
+import { hstack } from "$lib/design/utils/hstack/index.js";
+import { stack } from "$lib/design/utils/stack/index.js";
 </script>
 
 <div class="grid grid-cols-12 gap-4" data-page="devforge-dashboard">

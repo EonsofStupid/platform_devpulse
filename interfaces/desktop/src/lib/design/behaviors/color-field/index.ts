@@ -4,6 +4,6 @@
  * @layer behavior
  */
 
-export { useColorField } from "./use-color-field.svelte.js";
-export type * from "./color-field.types.js";
 export { colorFieldAnatomy } from "./color-field.anatomy.js";
+export type * from "./color-field.types.js";
+export { useColorField } from "./use-color-field.svelte.js";

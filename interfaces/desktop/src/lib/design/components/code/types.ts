@@ -105,7 +105,8 @@ export interface CodeBlockRootProps
 }
 
 /** Shared base for code block sub-component props. */
-interface CodeBlockSlotProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface CodeBlockSlotProps
+	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
 	children?: Snippet;
 	class?: string;
 	/** Render the element yourself. */

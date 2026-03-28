@@ -11,7 +11,7 @@ export interface UseInlineMessageOptions {
 	tone?: string;
 }
 
-export function useInlineMessage(opts: UseInlineMessageOptions) {
+export function useInlineMessage(_opts: UseInlineMessageOptions) {
 	return {
 		root: {
 			role: "status" as const,

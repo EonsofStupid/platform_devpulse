@@ -7,7 +7,10 @@ export interface UseHoverProps {
 	disabled?: boolean;
 }
 
-export type HoverPropsAttrs = Pick<HTMLAttributes<HTMLElement>, "onpointerenter" | "onpointerleave">;
+export type HoverPropsAttrs = Pick<
+	HTMLAttributes<HTMLElement>,
+	"onpointerenter" | "onpointerleave"
+>;
 
 export interface UseHoverReturn {
 	readonly hovered: boolean;

@@ -22,9 +22,9 @@
 }
 -->
 <script lang="ts">
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
-import { cn } from "$lib/design/utils/cn.js";
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cn } from "$lib/design/utils/cn.js";
 import { setColorSwatchPickerContext } from "./context.js";
 import type { ColorSwatchPickerRootProps } from "./types.js";
 
@@ -69,7 +69,6 @@ function isSelected(color: string): boolean {
 	return selectedValue === color;
 }
 
-
 const DENSITY_GAP: Record<string, string> = {
 	compact: "gap-4",
 	regular: "gap-8",
@@ -77,10 +76,18 @@ const DENSITY_GAP: Record<string, string> = {
 };
 
 setColorSwatchPickerContext({
-	get selectedValue() { return selectedValue; },
-	get size() { return size; },
-	get rounding() { return rounding; },
-	get isDisabled() { return isDisabled; },
+	get selectedValue() {
+		return selectedValue;
+	},
+	get size() {
+		return size;
+	},
+	get rounding() {
+		return rounding;
+	},
+	get isDisabled() {
+		return isDisabled;
+	},
 	select,
 	isSelected,
 });

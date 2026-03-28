@@ -7,18 +7,18 @@
  */
 
 export { default as Root } from "./Accordion.svelte";
-export { default as Item } from "./AccordionItem.svelte";
-export { default as Trigger } from "./AccordionTrigger.svelte";
 export { default as Content } from "./AccordionContent.svelte";
 export { default as Indicator } from "./AccordionIndicator.svelte";
+export { default as Item } from "./AccordionItem.svelte";
+export { default as Trigger } from "./AccordionTrigger.svelte";
 export type {
-	AccordionIds,
-	AccordionSize,
-	AccordionPreset,
-	AccordionValueChangeDetails,
-	AccordionRootProps,
-	AccordionItemProps,
-	AccordionTriggerProps,
 	AccordionContentProps,
+	AccordionIds,
 	AccordionIndicatorProps,
+	AccordionItemProps,
+	AccordionPreset,
+	AccordionRootProps,
+	AccordionSize,
+	AccordionTriggerProps,
+	AccordionValueChangeDetails,
 } from "./types.js";

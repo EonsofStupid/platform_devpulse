@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { useProgress } from "$lib/design/behaviors/progress/index.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ProgressProps, ProgressSize } from "./progress.types.js";
 
@@ -45,13 +45,15 @@ let {
 }: ProgressProps = $props();
 const m = $derived(resolveMacro({ kind: "progress", preset }));
 
-const progress = $derived(useProgress({
-	value,
-	min,
-	max,
-	"aria-label": rest["aria-label"],
-	"aria-labelledby": rest["aria-labelledby"],
-}));
+const progress = $derived(
+	useProgress({
+		value,
+		min,
+		max,
+		"aria-label": rest["aria-label"],
+		"aria-labelledby": rest["aria-labelledby"],
+	}),
+);
 </script>
 
 <div

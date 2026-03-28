@@ -24,21 +24,21 @@
 -->
 <script lang="ts">
 import { useSheet } from "$lib/design/behaviors/sheet/use-sheet.svelte.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
-import type { SheetComponentProps, SheetSize, SheetSide } from "./types.js";
+import type { SheetComponentProps, SheetSide, SheetSize } from "./types.js";
 
 const SIZE_CLASSES: Record<SheetSide, Record<SheetSize, string>> = {
-	left:   { sm: "w-64", md: "w-80", lg: "w-96", xl: "w-[480px]", full: "w-full" },
-	right:  { sm: "w-64", md: "w-80", lg: "w-96", xl: "w-[480px]", full: "w-full" },
-	top:    { sm: "h-32", md: "h-48", lg: "h-64", xl: "h-96", full: "h-full" },
+	left: { sm: "w-64", md: "w-80", lg: "w-96", xl: "w-[480px]", full: "w-full" },
+	right: { sm: "w-64", md: "w-80", lg: "w-96", xl: "w-[480px]", full: "w-full" },
+	top: { sm: "h-32", md: "h-48", lg: "h-64", xl: "h-96", full: "h-full" },
 	bottom: { sm: "h-32", md: "h-48", lg: "h-64", xl: "h-96", full: "h-full" },
 };
 
 const SIDE_CLASSES: Record<SheetSide, string> = {
-	left:   "inset-y-0 left-0",
-	right:  "inset-y-0 right-0",
-	top:    "inset-x-0 top-0",
+	left: "inset-y-0 left-0",
+	right: "inset-y-0 right-0",
+	top: "inset-x-0 top-0",
 	bottom: "inset-x-0 bottom-0",
 };
 
@@ -58,15 +58,22 @@ let {
 }: SheetComponentProps = $props();
 
 const hook = useSheet({
-	get open() { return open; },
+	get open() {
+		return open;
+	},
 	onOpenChange: (v) => onOpenChange?.(v),
-	get side() { return side; },
-	get closeOnEscape() { return closeOnEscape; },
-	get closeOnOutsideClick() { return closeOnOutsideClick; },
+	get side() {
+		return side;
+	},
+	get closeOnEscape() {
+		return closeOnEscape;
+	},
+	get closeOnOutsideClick() {
+		return closeOnOutsideClick;
+	},
 });
 
 const m = $derived(resolveMacro({ kind: "sheet", preset }));
-
 </script>
 
 {#if trigger}

@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { GridListPrimitiveProps } from "./grid-list.props.js";
+import type { GridListPrimitiveProps } from "./types.js";
 
 let { children, class: className, ...rest }: GridListPrimitiveProps = $props();
 </script>

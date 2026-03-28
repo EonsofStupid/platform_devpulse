@@ -4,6 +4,6 @@
  */
 
 export { default as StatusDot } from "./StatusDot.svelte";
-export { StatusDotSchema, CATEGORY, type StatusDotSchemaProps } from "./schema.js";
-export { statusDotTokens, statusDotSizeTokens } from "./tokens.js";
-export type { StatusDotProps, StatusDotStatus, StatusDotSize } from "./status-dot.types.js";
+export { CATEGORY, StatusDotSchema, type StatusDotSchemaProps } from "./schema.js";
+export type { StatusDotProps, StatusDotSize, StatusDotStatus } from "./status-dot.types.js";
+export { statusDotSizeTokens, statusDotTokens } from "./tokens.js";

@@ -26,8 +26,15 @@ export type ColorSpace = "oklch" | "hsl" | "hsb" | "rgb";
 
 /** Color channel identifiers per color space. */
 export type ColorChannel =
-	| "hue" | "saturation" | "lightness" | "brightness"
-	| "chroma" | "red" | "green" | "blue" | "alpha";
+	| "hue"
+	| "saturation"
+	| "lightness"
+	| "brightness"
+	| "chroma"
+	| "red"
+	| "green"
+	| "blue"
+	| "alpha";
 
 /** Color value — string representation (e.g., "oklch(0.65 0.12 176)"). */
 export type ColorValue = string;
@@ -96,7 +103,8 @@ export interface ColorAreaRootProps
 // SUB-COMPONENTS
 // =============================================================================
 
-interface ColorAreaSlotProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface ColorAreaSlotProps
+	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
 	children?: Snippet;
 	class?: string;
 }

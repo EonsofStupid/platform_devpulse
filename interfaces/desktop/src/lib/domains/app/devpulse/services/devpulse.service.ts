@@ -43,7 +43,13 @@ export async function fetchProcessMetrics(): Promise<ProcessMetrics> {
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
 		logError("devpulse", `Process metrics fetch FAILED: ${msg}`);
-		return { memory_rss_bytes: 0, memory_virtual_bytes: 0, cpu_usage_percent: 0, uptime_secs: 0, pid: 0 };
+		return {
+			memory_rss_bytes: 0,
+			memory_virtual_bytes: 0,
+			cpu_usage_percent: 0,
+			uptime_secs: 0,
+			pid: 0,
+		};
 	}
 }
 
@@ -51,7 +57,10 @@ export async function fetchProcessMetrics(): Promise<ProcessMetrics> {
  * Map a DashboardPayload from the backend into the existing DashboardData shape
  * consumed by the dashboard page components.
  */
-export function mapPayloadToDashboard(payload: DashboardPayload, metrics?: ProcessMetrics): DashboardData {
+export function mapPayloadToDashboard(
+	payload: DashboardPayload,
+	metrics?: ProcessMetrics,
+): DashboardData {
 	const recentProjects: RecentProject[] = payload.projects.map((p) => ({
 		id: p.id,
 		name: p.name,

@@ -22,10 +22,20 @@
 -->
 <script lang="ts">
 import { useTableOfContents } from "$lib/design/behaviors/table-of-contents/index.js";
-import { resolveMacro, cssVarString } from "$lib/design/style-macro";
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TableOfContentsComponentProps } from "./types.js";
-let { label = "Table of contents", activeId, onActiveIdChange, size = "md", preset = "default", children, class: className, ...rest }: TableOfContentsComponentProps = $props();
+
+let {
+	label = "Table of contents",
+	activeId,
+	onActiveIdChange,
+	size = "md",
+	preset = "default",
+	children,
+	class: className,
+	...rest
+}: TableOfContentsComponentProps = $props();
 const toc = $derived(useTableOfContents({ label }));
 const m = $derived(resolveMacro({ kind: "table-of-contents", preset }));
 </script>

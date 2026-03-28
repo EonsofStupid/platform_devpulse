@@ -16,7 +16,7 @@
 -->
 <script lang="ts">
 import { cn } from "$lib/design/utils/cn.js";
-import type { StatusDotProps, StatusDotStatus, StatusDotSize } from "./status-dot.types.js";
+import type { StatusDotProps, StatusDotSize, StatusDotStatus } from "./status-dot.types.js";
 
 /**
  * Status → token color mapping.

@@ -19,10 +19,7 @@ import Text from "$lib/design/components/text/Text.svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ChatThreadProps } from "./types.js";
 
-let {
-	messages,
-	class: className,
-}: ChatThreadProps = $props();
+let { messages, class: className }: ChatThreadProps = $props();
 </script>
 
 <div
