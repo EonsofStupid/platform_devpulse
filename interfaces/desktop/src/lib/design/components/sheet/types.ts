@@ -5,25 +5,20 @@
  */
 
 import type { Snippet } from "svelte";
-import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { SheetPrimitiveProps } from "$lib/design/primitives/sheet/index.js";
+
+export type { SheetSide } from "$lib/design/primitives/sheet/index.js";
 
 export type SheetSize = "sm" | "md" | "lg" | "xl" | "full";
-export type SheetSide = "left" | "right" | "top" | "bottom";
 export type SheetPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
-export interface SheetComponentProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class">,
-		ComponentProps {
-	children?: Snippet;
+export interface SheetComponentProps extends SheetPrimitiveProps {
+	/** Trigger snippet rendered as a button that opens the sheet */
 	trigger?: Snippet;
-	/** Style preset preset */
+	/** Visual preset — selects style configuration. Default: "default" */
 	preset?: SheetPreset;
+	/** Sheet width/height. Default: "md" */
 	size?: SheetSize;
-	side?: SheetSide;
-	open?: boolean;
-	onOpenChange?: (open: boolean) => void;
+	/** Accessible label for the sheet */
 	label?: string;
-	closeOnEscape?: boolean;
-	closeOnOutsideClick?: boolean;
 }

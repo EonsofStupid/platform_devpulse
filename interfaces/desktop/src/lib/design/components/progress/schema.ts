@@ -1,24 +1,21 @@
 /**
- * @file Progress Schema — Zod 4
+ * @file Progress Schema — ArkType
  * @kind progress
  *
  * Extends _base. Declares props + token consumption.
- * z.toJSONSchema() → A2UI catalog entry at build time.
+ * .toJsonSchema() → A2UI catalog entry at build time.
  */
 
-import { z } from "zod";
+import { type } from "arktype";
 import { baseComponentSchema } from "../_base/schema.js";
 
 export const CATEGORY = "feedback" as const;
 
-export const ProgressSchema = baseComponentSchema.extend({
-	value: z.number().nullable().default(0).describe("Current value. null = indeterminate."),
-	min: z.number().default(0).describe("Minimum value."),
-	max: z.number().default(100).describe("Maximum value."),
-	size: z
-		.enum(["sm", "md", "lg"])
-		.default("md")
-		.describe("Structural size. Controls track height."),
+export const ProgressSchema = baseComponentSchema.and({
+	value: type("number | null").default(0),
+	min: type("number").default(0),
+	max: type("number").default(100),
+	size: type("'sm' | 'md' | 'lg'").default("md"),
 });
 
-export type ProgressSchemaProps = z.infer<typeof ProgressSchema>;
+export type ProgressSchemaProps = typeof ProgressSchema.infer;

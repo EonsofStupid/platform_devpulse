@@ -5,14 +5,13 @@
  *
  * Confirmation/destructive action dialog. role="alertdialog".
  * Focus trapped. Cancel + action buttons.
- * Compound: Root, Trigger, Overlay, Content, Title, Description, Cancel, Action.
  *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { AlertDialogPrimitiveProps } from "$lib/design/primitives/alert-dialog/index.js";
 
 export type AlertDialogVariant =
 	| "confirmation"
@@ -21,6 +20,7 @@ export type AlertDialogVariant =
 	| "error"
 	| "warning";
 export type AlertDialogSize = "sm" | "md" | "lg";
+export type AlertDialogPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 export interface AlertDialogOpenChangeDetails {
 	open: boolean;
@@ -36,21 +36,27 @@ export interface AlertDialogIds {
 	action?: string;
 }
 
-export interface AlertDialogRootProps extends ComponentProps {
+export interface AlertDialogRootProps extends Omit<AlertDialogPrimitiveProps, "onOpenChange"> {
 	ids?: Partial<AlertDialogIds>;
-	open?: boolean;
-	defaultOpen?: boolean;
-	onOpenChange?: (details: AlertDialogOpenChangeDetails) => void;
+	/** Visual preset — selects style configuration. Default: "default" */
+	preset?: AlertDialogPreset;
+	/** Semantic variant. Default: "confirmation" */
 	variant?: AlertDialogVariant;
+	/** Dialog size. Default: "md" */
 	size?: AlertDialogSize;
+	/** Default open state (uncontrolled). */
+	defaultOpen?: boolean;
+	/** Callback when open state changes */
+	onOpenChange?: (details: AlertDialogOpenChangeDetails) => void;
+	/** Text direction. Default: "ltr" */
 	dir?: "ltr" | "rtl";
+	/** Callback when cancel button is pressed */
 	onCancel?: () => void;
+	/** Callback when action button is pressed */
 	onAction?: () => void;
-	children?: Snippet;
 }
 
-interface AlertDialogSlotProps
-	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface AlertDialogSlotProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
 	children?: Snippet;
 	class?: string;
 }

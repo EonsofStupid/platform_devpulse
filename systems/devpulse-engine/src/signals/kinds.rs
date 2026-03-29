@@ -1,11 +1,10 @@
 //! Sink kinds - where signals get routed.
 
 use serde::{Deserialize, Serialize};
-use ts_rs::TS;
+use specta::Type;
 
 /// Destination for signal routing.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize, TS)]
-#[ts(export)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize, Type)]
 pub enum SinkKind {
     /// Broadcast to all subscribers (Desktop, UI updates)
     Broadcast,

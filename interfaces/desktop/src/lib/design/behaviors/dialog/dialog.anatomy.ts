@@ -1,10 +1,5 @@
-import { createAnatomy } from "../../schema/anatomy.schema.js";
-
-export const dialogAnatomy = createAnatomy("dialog", [
-	"trigger",
-	"overlay",
-	"content",
-	"title",
-	"description",
-	"close",
-] as const);
+/**
+ * Re-export anatomy from primitives — primitives own structure,
+ * behaviors add interaction on top.
+ */
+export { dialogAnatomy } from "$lib/design/primitives/dialog/anatomy.js";

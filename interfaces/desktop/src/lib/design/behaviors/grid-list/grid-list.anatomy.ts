@@ -1,3 +1,5 @@
-import { createAnatomy } from "../../schema/anatomy.schema.js";
-
-export const gridListAnatomy = createAnatomy("grid-list", ["root", "item"] as const);
+/**
+ * Re-export anatomy from primitives — primitives own structure,
+ * behaviors add interaction on top.
+ */
+export { gridListAnatomy } from "$lib/design/primitives/grid-list/anatomy.js";

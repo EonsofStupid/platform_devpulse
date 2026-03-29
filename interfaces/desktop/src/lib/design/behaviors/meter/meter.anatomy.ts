@@ -1,3 +1,5 @@
-import { createAnatomy } from "../../schema/anatomy.schema.js";
-
-export const meterAnatomy = createAnatomy("meter", ["root", "track", "fill", "label"] as const);
+/**
+ * Re-export anatomy from primitives — primitives own structure,
+ * behaviors add interaction on top.
+ */
+export { meterAnatomy } from "$lib/design/primitives/meter/anatomy.js";

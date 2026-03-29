@@ -1,9 +1,8 @@
 /**
- * @file primitives/search-field/index.ts
+ * @file primitives/search-field — Structural contract for search query inputs.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as SearchField } from "./SearchField.svelte";
+export { searchFieldAnatomy } from "./anatomy.js";
+export type { SearchFieldPrimitiveProps } from "./types.js";

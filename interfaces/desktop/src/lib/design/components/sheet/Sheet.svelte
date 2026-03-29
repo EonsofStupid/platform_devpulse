@@ -24,6 +24,7 @@
 -->
 <script lang="ts">
 import { useSheet } from "$lib/design/behaviors/sheet/use-sheet.svelte.js";
+import { sheetAnatomy } from "$lib/design/primitives/sheet/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SheetComponentProps, SheetSide, SheetSize } from "./types.js";
@@ -78,10 +79,10 @@ const m = $derived(resolveMacro({ kind: "sheet", preset }));
 
 {#if trigger}
 	<button
+		{...sheetAnatomy.attrs.trigger}
 		{...hook.trigger}
 		use:hook.attachTrigger
 		{...m.dataAttrs}
-		data-slot="trigger"
 	>
 		{@render trigger()}
 	</button>
@@ -89,18 +90,19 @@ const m = $derived(resolveMacro({ kind: "sheet", preset }));
 
 {#if hook.open}
 		<div
+			{...sheetAnatomy.attrs.overlay}
 			{...hook.overlay}
 			use:hook.attachOverlay
 			{...m.dataAttrs}
-			data-slot="overlay"
 			class="fixed inset-0 z-50"
 		></div>
 		<div
+			{...sheetAnatomy.attrs.content}
 			{...hook.content}
 			use:hook.attachContent
+			{...rest}
 			{...m.dataAttrs}
 			style={cssVarString(m.cssVars)}
-			data-slot="content"
 			data-side={side}
 			class={cn(
 				"fixed z-50 flex flex-col",
@@ -111,9 +113,9 @@ const m = $derived(resolveMacro({ kind: "sheet", preset }));
 		>
 			{@render children?.()}
 			<button
+				{...sheetAnatomy.attrs.close}
 				{...hook.close}
 				{...m.dataAttrs}
-				data-slot="close"
 				class="absolute top-4 right-4 cursor-pointer opacity-70 hover:opacity-100"
 			>
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"

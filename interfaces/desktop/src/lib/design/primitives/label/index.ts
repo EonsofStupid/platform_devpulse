@@ -1,9 +1,8 @@
 /**
- * @file primitives/label/index.ts
+ * @file primitives/label — Structural contract for form control labels.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as Label } from "./Label.svelte";
+export { labelAnatomy } from "./anatomy.js";
+export type { LabelPrimitiveProps } from "./types.js";

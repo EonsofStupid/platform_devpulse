@@ -1,8 +1,5 @@
-import { createAnatomy } from "../../schema/anatomy.schema.js";
-
-export const accordionAnatomy = createAnatomy("accordion", [
-	"root",
-	"item",
-	"trigger",
-	"content",
-] as const);
+/**
+ * Re-export anatomy from primitives — primitives own structure,
+ * behaviors add interaction on top.
+ */
+export { accordionAnatomy } from "$lib/design/primitives/accordion/anatomy.js";

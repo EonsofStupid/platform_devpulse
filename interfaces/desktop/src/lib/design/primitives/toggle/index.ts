@@ -1,9 +1,8 @@
 /**
- * @file primitives/toggle/index.ts
+ * @file primitives/toggle — Structural contract for pressable on/off controls.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as Toggle } from "./Toggle.svelte";
+export { toggleAnatomy } from "./anatomy.js";
+export type { TogglePrimitiveProps } from "./types.js";

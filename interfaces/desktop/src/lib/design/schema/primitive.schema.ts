@@ -11,14 +11,14 @@
  * Change this schema → every primitive inherits the change.
  */
 
-import { z } from "zod";
-import { A11ySpecSchema } from "./a11y.schema.js";
+import { type } from "arktype";
+import { type A11ySpec, A11ySpecSchema } from "./a11y.schema.js";
 
 // =============================================================================
 // PRIMITIVE CATEGORY
 // =============================================================================
 
-export const PrimitiveCategorySchema = z.enum([
+export const PRIMITIVE_CATEGORIES = [
 	"interactive", // button, checkbox, switch, toggle
 	"form", // input, textarea, select, combobox, slider
 	"overlay", // dialog, popover, tooltip, sheet
@@ -26,62 +26,72 @@ export const PrimitiveCategorySchema = z.enum([
 	"layout", // box, flex, grid, stack, center, spacer
 	"display", // badge, kbd, code, skeleton, spinner
 	"feedback", // alert, progress, steps
-]);
+] as const;
+
+export const PrimitiveCategorySchema = type.enumerated(...PRIMITIVE_CATEGORIES);
 
 // =============================================================================
 // BASE PRIMITIVE SCHEMA
 // =============================================================================
 
-export const BasePrimitiveSchema = z
-	.object({
-		/** Kebab-case kind identifier. Matches folder name, data-kind, behavior hook. */
-		kind: z.string().regex(/^[a-z][a-z0-9-]*$/),
-		/** Human-readable label. */
-		label: z.string(),
-		/** What this primitive does — one sentence. */
-		description: z.string(),
-		/** Functional category. */
-		category: PrimitiveCategorySchema,
-		/** Behavior hook name (null for structural/layout primitives). */
-		behaviorHook: z.string().nullable(),
-		/** Whether this is a compound primitive (multiple sub-elements). */
-		compound: z.boolean(),
-		/** Accessibility specification — includes per-slot element, role, ARIA attrs. */
-		a11y: A11ySpecSchema,
-	})
-	.refine(
-		(data) => {
-			// Interactive/form/overlay/navigation primitives MUST have a behavior hook
-			const needsHook = ["interactive", "form", "overlay", "navigation"].includes(data.category);
-			if (needsHook && !data.behaviorHook) {
-				return false;
-			}
-			return true;
-		},
-		{
-			message: "Interactive, form, overlay, and navigation primitives must declare a behaviorHook",
-		},
-	)
-	.refine(
-		(data) => {
-			// Compound primitives must have more than one slot
-			if (data.compound && Object.keys(data.a11y.slots).length < 2) {
-				return false;
-			}
-			return true;
-		},
-		{ message: "Compound primitives must declare at least 2 slots" },
-	);
+const BasePrimitiveBase = type({
+	/** Kebab-case kind identifier. Matches folder name, data-kind, behavior hook. */
+	kind: /^[a-z][a-z0-9-]*$/,
+	/** Human-readable label. */
+	label: "string",
+	/** What this primitive does — one sentence. */
+	description: "string",
+	/** Functional category. */
+	category: PrimitiveCategorySchema,
+	/** Behavior hook name (null for structural/layout primitives). */
+	behaviorHook: "string | null",
+	/** Whether this is a compound primitive (multiple sub-elements). */
+	compound: "boolean",
+	/** Accessibility specification — includes per-slot element, role, ARIA attrs. */
+	a11y: A11ySpecSchema,
+});
 
-export type PrimitiveCategory = z.infer<typeof PrimitiveCategorySchema>;
-export type PrimitiveSpec = z.infer<typeof BasePrimitiveSchema>;
+export const BasePrimitiveSchema = BasePrimitiveBase.narrow((data, ctx) => {
+	// Interactive/form/overlay/navigation primitives MUST have a behavior hook
+	const needsHook = ["interactive", "form", "overlay", "navigation"].includes(data.category);
+	if (needsHook && !data.behaviorHook) {
+		ctx.mustBe(
+			"a primitive with a behaviorHook (required for interactive, form, overlay, and navigation categories)",
+		);
+		return false;
+	}
+
+	// Compound primitives must have more than one slot
+	if (data.compound && Object.keys(data.a11y.slots).length < 2) {
+		ctx.mustBe("a compound primitive with at least 2 slots");
+		return false;
+	}
+
+	return true;
+});
+
+export type PrimitiveCategory = typeof PrimitiveCategorySchema.infer;
+
+/** Full primitive spec with defaults resolved */
+export interface PrimitiveSpec {
+	kind: string;
+	label: string;
+	description: string;
+	category: PrimitiveCategory;
+	behaviorHook: string | null;
+	compound: boolean;
+	a11y: A11ySpec;
+}
+
+/** Input type for definePrimitive — slot fields can omit defaults */
+export type PrimitiveSpecInput = typeof BasePrimitiveBase.infer;
 
 // =============================================================================
 // definePrimitive() — the authoring function
 // =============================================================================
 
 /**
- * Declare a primitive's full contract. Validated at declaration time via Zod.
+ * Declare a primitive's full contract. Validated at declaration time via ArkType.
  * If the spec is invalid, this throws immediately. No invalid primitives exist.
  *
  * This is the SSOT for what a primitive IS. The .svelte file must match.
@@ -124,8 +134,8 @@ export type PrimitiveSpec = z.infer<typeof BasePrimitiveSchema>;
  * });
  * ```
  */
-export function definePrimitive(spec: z.input<typeof BasePrimitiveSchema>): PrimitiveSpec {
-	return BasePrimitiveSchema.parse(spec);
+export function definePrimitive(spec: PrimitiveSpecInput): PrimitiveSpec {
+	return BasePrimitiveSchema.assert(spec as never) as unknown as PrimitiveSpec;
 }
 
 // =============================================================================
@@ -133,18 +143,18 @@ export function definePrimitive(spec: z.input<typeof BasePrimitiveSchema>): Prim
 // =============================================================================
 
 /**
- * Safe-parse a primitive spec. Returns success/failure without throwing.
+ * Safe-validate a primitive spec. Returns success/failure without throwing.
  */
 export function validatePrimitive(spec: unknown): {
 	success: boolean;
 	data?: PrimitiveSpec;
-	error?: z.ZodError;
+	errors?: string[];
 } {
-	return BasePrimitiveSchema.safeParse(spec) as {
-		success: boolean;
-		data?: PrimitiveSpec;
-		error?: z.ZodError;
-	};
+	const result = BasePrimitiveSchema(spec);
+	if (result instanceof type.errors) {
+		return { success: false, errors: result.map((e) => e.message) };
+	}
+	return { success: true, data: result as unknown as PrimitiveSpec };
 }
 
 /**

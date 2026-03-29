@@ -1,9 +1,8 @@
 /**
- * @file primitives/tree/index.ts
+ * @file primitives/tree — Structural contract for hierarchical expandable lists.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as Tree } from "./Tree.svelte";
+export { treeAnatomy } from "./anatomy.js";
+export type { TreePrimitiveProps, TreeSelectionMode } from "./types.js";

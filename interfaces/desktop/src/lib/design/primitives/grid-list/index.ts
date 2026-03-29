@@ -1,9 +1,8 @@
 /**
- * @file primitives/grid-list/index.ts
+ * @file primitives/grid-list — Structural contract for 2D selectable item grids.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as GridList } from "./GridList.svelte";
+export { gridListAnatomy } from "./anatomy.js";
+export type { GridListPrimitiveProps, GridListSelectionMode } from "./types.js";

@@ -7,7 +7,23 @@ export interface TabsContext {
 	readonly hook: UseTabsReturn;
 }
 
-/** Props for the Tabs root container. */
+/**
+ * Props for the Tabs root container.
+ *
+ * Tabs organize content into panels, one visible at a time. Supports
+ * automatic (select on focus) and manual (select on Enter/Space) activation.
+ *
+ * @example
+ * ```svelte
+ * <div {...tabsAnatomy.attrs.root}>
+ *   <div {...tabsAnatomy.attrs.list} role="tablist">
+ *     <button {...tabsAnatomy.attrs.trigger} role="tab" aria-selected={true}>Tab 1</button>
+ *     <button {...tabsAnatomy.attrs.trigger} role="tab">Tab 2</button>
+ *   </div>
+ *   <div {...tabsAnatomy.attrs.content} role="tabpanel">Panel 1 content</div>
+ * </div>
+ * ```
+ */
 export interface TabsRootProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "children">,
 		UseTabsProps {
@@ -36,4 +52,12 @@ export interface TabsContentProps extends Omit<HTMLAttributes<HTMLDivElement>, "
 	value: string;
 	children?: Snippet;
 	class?: string;
+}
+
+/** Compound type mapping slot names to their prop interfaces. */
+export interface TabsParts {
+	readonly root: TabsRootProps;
+	readonly list: TabsListProps;
+	readonly trigger: TabsTriggerProps;
+	readonly content: TabsContentProps;
 }

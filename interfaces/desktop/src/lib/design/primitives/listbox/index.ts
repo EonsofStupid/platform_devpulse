@@ -1,9 +1,8 @@
 /**
- * @file primitives/listbox/index.ts
+ * @file primitives/listbox — Structural contract for single-column selectable lists.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as Listbox } from "./Listbox.svelte";
+export { listboxAnatomy } from "./anatomy.js";
+export type { ListboxPrimitiveProps, ListboxSelectionMode } from "./types.js";

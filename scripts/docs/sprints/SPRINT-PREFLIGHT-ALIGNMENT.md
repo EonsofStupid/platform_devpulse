@@ -66,15 +66,7 @@ const LAYOUT_PRIMITIVES = ['stack', 'row', 'separator', 'dot', 'icon-slot',
 3. All other primitive folders: `.svelte` is optional
 4. If folder has neither `.svelte` nor `anatomy.ts` → warning (incomplete primitive)
 
-### STOP — Owner Decision Required
-
-**Question**: Should `anatomy.ts` be REQUIRED for all primitives, or only for contract
-primitives that don't have `.svelte`?
-
-**Options**:
-A) Required for ALL primitives — consistent structure, every primitive declares its parts
-B) Required only for primitives WITHOUT `.svelte` — layout primitives skip anatomy since they are the structure
-C) Optional everywhere — anatomy is good practice but not enforced
+### DECIDED: anatomy.ts REQUIRED for ALL primitives. No exceptions.
 
 ---
 
@@ -127,23 +119,10 @@ const NAMING_RULES: NamingRule[] = [
 - Remove `"contracts": "*.contract.ts"` — contracts are not a current pattern
 - Remove `"registries": "*.registry.ts"` — registries are not a current pattern
 
-### STOP — Owner Decision Required
+### DECIDED: Standardize on `.state.svelte.ts`, `.service.ts`, `.types.ts`
 
-**Question**: What naming conventions do you want enforced?
-
-Current domain structure (from devpulse — the working example):
-```
-domains/app/devpulse/
-  index.ts
-  runes/devpulse.runes.svelte.ts    ← .runes.svelte.ts or .state.svelte.ts?
-  services/devpulse.service.ts      ← .service.ts or .svc.ts?
-  types/devpulse.types.ts           ← .types.ts
-```
-
-**Options**:
-A) Match what exists: `.runes.svelte.ts`, `.service.ts`, `.types.ts`
-B) Standardize: `.state.svelte.ts`, `.service.ts`, `.types.ts`
-C) Owner defines naming convention
+Rename existing `devpulse.runes.svelte.ts` → `devpulse.state.svelte.ts`.
+"State" is universal. "Runes" leaks framework internals.
 
 ---
 
@@ -161,13 +140,11 @@ B) **Implement route helper** — Author `$lib/sys/generated/ROUTES.ts` with typ
 C) **Simplify** — Change check to just verify routes use `$lib/sys/routing/` imports
    instead of raw strings. Less strict but immediately useful.
 
-### STOP — Owner Decision Required
-
-**Question**: Implement typed route helper now, defer, or simplify?
+### DECIDED: Merge into component-structure. Typed route codegen is a separate 50-line script, not a dependency. No Prisma.
 
 ---
 
-## Fix 4: `component-structure` → Rewrite for Macro Law
+## Fix 4: `component-structure` → Rewrite for Macro Law (MERGED: includes typed-routes + taxonomy checks)
 
 **File**: `scripts/docs/preflight/checks/check.component-structure.ts`
 
@@ -198,15 +175,17 @@ const REQUIRED_FILES = ['types.ts', 'index.ts'];
 
 **Then import in preflight.ts** to enable it.
 
-### STOP — Owner Decision Required
+### DECIDED: Enable now as ERROR. Error messages must be positive and instructive —
+tell AI/vibers exactly what to do. ColdLight teaches, not just blocks.
 
-**Question**: Enable this check NOW (will report failures for 109 unaligned components)
-or enable AFTER Phase 4 component alignment?
-
-**Options**:
-A) Enable now as WARNING — reports but doesn't block commits
-B) Enable now as ERROR — blocks commits until all 109 are fixed (Phase 4 first)
-C) Enable after Phase 4 — add to sprint backlog
+Example error message format:
+```
+[ColdLight] components/card/Card.svelte
+  Missing: resolveMacro import from style-macro
+  Fix: Add `import { resolveMacro, cssVarString } from "$lib/design/style-macro";`
+  Then: `const m = $derived(resolveMacro({ kind: "card", preset }));`
+  Docs: MACRO-LAW.md Law 1 — One public styling path
+```
 
 ---
 
@@ -227,9 +206,7 @@ B) **Delete** — The `coldlight-verify` script already checks for style-macro i
 C) **Merge into component-structure** — Add anatomy/behavior import checks to Fix 4
    instead of having a separate check.
 
-### STOP — Owner Decision Required
-
-**Question**: Rewrite as behavior/anatomy import check, delete, or merge?
+### DECIDED: Merge into component-structure (Fix 4). Delete this file.
 
 ---
 

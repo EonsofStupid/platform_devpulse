@@ -15,4 +15,5 @@
 
 /// Connect to a peer for real-time collaboration.
 #[tauri::command]
+#[specta::specta]
 pub fn connect_peer() {}

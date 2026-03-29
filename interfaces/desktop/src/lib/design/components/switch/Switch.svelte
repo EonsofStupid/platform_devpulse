@@ -23,11 +23,10 @@
 -->
 <script lang="ts">
 import { useSwitch } from "$lib/design/behaviors/switch/use-switch.svelte.js";
+import { switchAnatomy } from "$lib/design/primitives/switch/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
-import type { SwitchProps } from "./types.js";
-
-type SwitchSize = "sm" | "md" | "lg";
+import type { SwitchProps, SwitchSize } from "./types.js";
 
 const SIZE: Record<SwitchSize, { track: string; thumb: string }> = {
 	sm: { track: "h-5 w-9", thumb: "size-3.5" },
@@ -56,16 +55,16 @@ const sw = useSwitch({
 	onCheckedChange: (v) => onCheckedChange?.(v),
 });
 
-const sizeClasses = $derived(SIZE[size as SwitchSize] ?? SIZE.md);
+const sizeClasses = $derived(SIZE[size] ?? SIZE.md);
 const m = $derived(resolveMacro({ kind: "switch", preset }));
 </script>
 
 <button
+		{...switchAnatomy.attrs.root}
 		{...sw.root}
 		{...rest}
 		{...m.dataAttrs}
 		style={cssVarString(m.cssVars)}
-		data-slot="root"
 		class={cn(
 			"relative inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent",
 			"transition-colors focus-visible:outline-2 focus-visible:outline-offset-2",
@@ -74,9 +73,8 @@ const m = $derived(resolveMacro({ kind: "switch", preset }));
 			className)}
 	>
 		<span
+			{...switchAnatomy.attrs.thumb}
 			{...sw.thumb}
-			data-kind="switch"
-			data-slot="thumb"
 			class={cn(
 				"pointer-events-none block rounded-full shadow-sm transition-transform",
 				sizeClasses.thumb)}

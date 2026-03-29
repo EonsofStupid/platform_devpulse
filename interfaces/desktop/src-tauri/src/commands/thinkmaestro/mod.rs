@@ -15,4 +15,5 @@
 
 /// Create a new thinking canvas session.
 #[tauri::command]
+#[specta::specta]
 pub fn create_canvas() {}

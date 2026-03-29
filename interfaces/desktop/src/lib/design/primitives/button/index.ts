@@ -1,8 +1,8 @@
 /**
- * @file primitives/button — Interactive button with ARIA APG compliance.
+ * @file primitives/button — Structural contract for clickable controls.
  * @package @devpulse/coldlight
+ * @layer primitive
  */
 
-export { default as ButtonPrimitive } from "./Button.svelte";
-export type { ButtonPrimitiveProps } from "./types.js";
-export { buttonSpec } from "./button.spec.js";
+export { buttonAnatomy } from "./anatomy.js";
+export type { ButtonPrimitiveProps, ButtonType } from "./types.js";

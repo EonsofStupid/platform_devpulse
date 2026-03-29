@@ -1,9 +1,8 @@
 /**
- * @file primitives/combobox/index.ts
+ * @file primitives/combobox — Structural contract for text input with filterable dropdown.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as Combobox } from "./Combobox.svelte";
+export { comboboxAnatomy } from "./anatomy.js";
+export type { ComboboxAutocomplete, ComboboxPrimitiveProps } from "./types.js";

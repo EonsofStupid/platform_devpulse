@@ -9,13 +9,13 @@
  * - VPB (accessibility inspector)
  */
 
-import { z } from "zod";
+import { type } from "arktype";
 
 // =============================================================================
 // HTML Element — what a slot is allowed to render
 // =============================================================================
 
-export const HtmlElementSchema = z.enum([
+export const HTML_ELEMENTS = [
 	// Sectioning
 	"div",
 	"section",
@@ -65,15 +65,17 @@ export const HtmlElementSchema = z.enum([
 	"progress",
 	// Dynamic
 	"svelte:element",
-]);
+] as const;
 
-export type HtmlElement = z.infer<typeof HtmlElementSchema>;
+export const HtmlElementSchema = type.enumerated(...HTML_ELEMENTS);
+
+export type HtmlElement = typeof HtmlElementSchema.infer;
 
 // =============================================================================
 // ARIA Role — WAI-ARIA 1.2 roles
 // =============================================================================
 
-export const AriaRoleSchema = z.enum([
+export const ARIA_ROLES = [
 	// Widget
 	"button",
 	"checkbox",
@@ -137,70 +139,96 @@ export const AriaRoleSchema = z.enum([
 	"alert",
 	"log",
 	"timer",
-]);
+] as const;
 
-export type AriaRole = z.infer<typeof AriaRoleSchema>;
+export const AriaRoleSchema = type.enumerated(...ARIA_ROLES);
+
+export type AriaRole = typeof AriaRoleSchema.infer;
 
 // =============================================================================
 // Focus Strategy
 // =============================================================================
 
-export const FocusStrategySchema = z.enum([
+export const FOCUS_STRATEGIES = [
 	"direct", // element itself receives focus
 	"roving", // roving tabindex across children (tabs, radio-group)
 	"activedescendant", // aria-activedescendant on container (combobox, listbox)
 	"trap", // focus trapped within (dialog, modal)
 	"none", // no focus management (layout primitives)
-]);
+] as const;
+
+export const FocusStrategySchema = type.enumerated(...FOCUS_STRATEGIES);
 
 // =============================================================================
 // Keyboard Binding
 // =============================================================================
 
-export const KeyboardBindingSchema = z.object({
-	key: z.string(),
-	action: z.string(),
-	condition: z.string().optional(),
+export const KeyboardBindingSchema = type({
+	key: "string",
+	action: "string",
+	"condition?": "string",
 });
 
 // =============================================================================
 // Slot Spec — full declaration for ONE anatomy slot
 // =============================================================================
 
-export const SlotSpecSchema = z.object({
+export const SlotSpecSchema = type({
 	/** What HTML element this slot renders */
 	element: HtmlElementSchema,
 	/** ARIA role (null = native semantics, no explicit role) */
-	role: AriaRoleSchema.nullable().default(null),
+	"role?": AriaRoleSchema.or("null"),
 	/** Required ARIA attributes on this slot */
-	ariaAttrs: z.array(z.string()).default([]),
+	"ariaAttrs?": "string[]",
 	/** Decorative: aria-hidden="true", not in a11y tree */
-	decorative: z.boolean().default(false),
+	"decorative?": "boolean",
 	/** Accepts children (snippets) */
-	container: z.boolean().default(true),
+	"container?": "boolean",
 	/** Slot may not be in DOM at all times (e.g., dialog content when closed) */
-	optional: z.boolean().default(false),
+	"optional?": "boolean",
 	/** Brief purpose description */
-	description: z.string(),
+	description: "string",
 });
 
-export type SlotSpec = z.infer<typeof SlotSpecSchema>;
+/** SlotSpec with defaults applied — what consumers use after validation */
+export interface SlotSpec {
+	element: HtmlElement;
+	role: AriaRole | null;
+	ariaAttrs: string[];
+	decorative: boolean;
+	container: boolean;
+	optional: boolean;
+	description: string;
+}
+
+/** SlotSpec input — what authors write (optional fields have defaults) */
+export type SlotSpecInput = typeof SlotSpecSchema.infer;
 
 // =============================================================================
 // A11y Spec — the full accessibility contract
 // =============================================================================
 
-export const A11ySpecSchema = z.object({
+export const A11ySpecSchema = type({
 	/** Per-slot specs: element type, role, required attrs */
-	slots: z.record(z.string(), SlotSpecSchema),
+	slots: type({ "[string]": SlotSpecSchema }),
 	/** Keyboard interactions this primitive handles */
-	keyboard: z.array(KeyboardBindingSchema),
+	keyboard: KeyboardBindingSchema.array(),
 	/** Focus management strategy */
 	focusStrategy: FocusStrategySchema,
 	/** WAI-ARIA APG reference URL */
-	apgPattern: z.string().url().optional(),
+	"apgPattern?": "string.url",
 });
 
-export type FocusStrategy = z.infer<typeof FocusStrategySchema>;
-export type KeyboardBinding = z.infer<typeof KeyboardBindingSchema>;
-export type A11ySpec = z.infer<typeof A11ySpecSchema>;
+export type FocusStrategy = typeof FocusStrategySchema.infer;
+export type KeyboardBinding = typeof KeyboardBindingSchema.infer;
+
+/** A11ySpec with defaults applied — what consumers use after validation */
+export interface A11ySpec {
+	slots: Record<string, SlotSpec>;
+	keyboard: KeyboardBinding[];
+	focusStrategy: FocusStrategy;
+	apgPattern?: string;
+}
+
+/** A11ySpec input — what authors write (slot fields can omit defaults) */
+export type A11ySpecInput = typeof A11ySpecSchema.infer;

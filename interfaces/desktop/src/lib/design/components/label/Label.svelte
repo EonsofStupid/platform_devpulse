@@ -22,6 +22,7 @@
 -->
 <script lang="ts">
 import { useLabel } from "$lib/design/behaviors/label/use-label.svelte.js";
+import { labelAnatomy } from "$lib/design/primitives/label/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { LabelProps, LabelSize } from "./types.js";
@@ -48,18 +49,18 @@ const m = $derived(resolveMacro({ kind: "label", preset }));
 </script>
 
 <label
+	{...labelAnatomy.attrs.root}
 	{...label.root}
 	for={htmlFor}
+	{...rest}
 	{...m.dataAttrs}
 	style={cssVarString(m.cssVars)}
-	data-slot="root"
 	data-disabled={disabled || undefined}
 	class={cn(
 		"font-medium",
 		disabled && "opacity-60 pointer-events-none",
 		SIZE[size] ?? SIZE.md,
 		className)}
-	{...rest}
 >
 	{@render children?.()}
 	{#if required}<span aria-hidden="true" class="text-red-500 ml-0.5">*</span>{/if}

@@ -3,7 +3,7 @@
 //! This is what gets broadcast. Each variant carries a typed payload.
 
 use serde::{Deserialize, Serialize};
-use ts_rs::TS;
+use specta::Type;
 
 use super::kinds::SinkKind;
 use super::payloads::{
@@ -13,8 +13,7 @@ use super::payloads::{
 /// The master enum of all signal output types.
 ///
 /// Each variant maps to specific sinks for routing.
-#[derive(Clone, Debug, Serialize, Deserialize, TS)]
-#[ts(export)]
+#[derive(Clone, Debug, Serialize, Deserialize, Type)]
 pub enum SignalVariant {
     /// Chat message (LLM response, user message)
     Chat(ChatPayload),

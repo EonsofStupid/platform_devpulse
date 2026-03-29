@@ -3,12 +3,11 @@
 //! This is THE envelope. Every signal in the system carries this.
 
 use serde::{Deserialize, Serialize};
-use ts_rs::TS;
+use specta::Type;
 use uuid::Uuid;
 
 /// Who created this signal - provenance tracking.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize, TS)]
-#[ts(export)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize, Type)]
 pub enum SignalSource {
     /// Human input (keyboard, mouse, voice)
     User,
@@ -26,8 +25,7 @@ pub enum SignalSource {
 /// - Tracing: Follow any output back to its input via `correlation_id`
 /// - Replay: Reconstruct sessions from stored headers
 /// - Debugging: Know exactly when/where/who created each signal
-#[derive(Clone, Debug, Serialize, Deserialize, TS)]
-#[ts(export)]
+#[derive(Clone, Debug, Serialize, Deserialize, Type)]
 pub struct SignalHeader {
     /// Unique identity for this signal (Uuid v7 for time-ordering)
     pub id: Uuid,

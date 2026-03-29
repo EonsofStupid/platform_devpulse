@@ -1,8 +1,9 @@
 /**
- * @file primitives/text — Polymorphic text element.
+ * @file primitives/text — Structural contract for polymorphic text elements.
  * @package @devpulse/coldlight
+ * @layer primitive
  */
 
+export { textAnatomy } from "./anatomy.js";
 export { default as TextPrimitive } from "./Text.svelte";
-export type { TextElement, TextProps } from "./types.js";
-export { textSpec } from "./text.spec.js";
+export type { TextElement, TextPrimitiveProps } from "./types.js";

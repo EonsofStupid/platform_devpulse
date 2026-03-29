@@ -9,6 +9,7 @@ use tauri::State;
 /// # Errors
 /// Returns error if platform is still booting.
 #[tauri::command]
+#[specta::specta]
 pub async fn get_settings(state: State<'_, PlatformState>) -> Result<PlatformConfig, String> {
     let lock = state.platform.read().await;
     match lock.as_ref() {

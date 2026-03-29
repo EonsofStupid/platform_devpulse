@@ -3,26 +3,16 @@
   @kind row
   @layer primitive
   @category structural
-  @description Horizontal flex layout with gap. For inline content, key-value pairs,
-  health rows, stat rows, toolbar items.
-
+  @description Horizontal flex layout with gap.
   @element div
   @slots root
+  @spec row.spec.ts
 -->
 <script lang="ts">
-import type { Snippet } from "svelte";
-import type { HTMLAttributes } from "svelte/elements";
+import { enforceSlot } from "$lib/design/schema/enforce.js";
 import { cn } from "$lib/design/utils/cn.js";
-
-interface RowProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
-	children?: Snippet;
-	class?: string;
-	gap?: string;
-	align?: "start" | "center" | "end" | "stretch" | "baseline";
-	justify?: "start" | "center" | "end" | "between" | "around" | "evenly";
-	/** Wrap children when they overflow */
-	wrap?: boolean;
-}
+import { rowSpec } from "./row.spec.js";
+import type { RowPrimitiveProps } from "./types.js";
 
 const ALIGN: Record<string, string> = {
 	start: "items-start",
@@ -49,10 +39,19 @@ let {
 	justify,
 	wrap = false,
 	...rest
-}: RowProps = $props();
+}: RowPrimitiveProps = $props();
+
+let rootEl: HTMLDivElement | undefined = $state();
+
+$effect(() => {
+	if (import.meta.env.DEV && rootEl) {
+		enforceSlot(rootEl, rowSpec, "root");
+	}
+});
 </script>
 
 <div
+	bind:this={rootEl}
 	data-kind="row"
 	data-slot="root"
 	class={cn(

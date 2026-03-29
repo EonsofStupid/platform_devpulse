@@ -1,20 +1,19 @@
 /**
- * @file StatusDot Schema — Zod 4
+ * @file StatusDot Schema — ArkType
  * @kind status-dot
  */
 
-import { z } from "zod";
+import { type } from "arktype";
 import { baseComponentSchema } from "../_base/schema.js";
 
 export const CATEGORY = "feedback" as const;
 
-export const StatusDotSchema = baseComponentSchema.extend({
-	status: z
-		.enum(["online", "offline", "loading", "ready", "failed", "pending", "hybrid"])
-		.default("pending")
-		.describe("Current status. Drives color + glow from tokens."),
-	size: z.enum(["sm", "md", "lg"]).default("md").describe("Dot size."),
-	animate: z.boolean().default(false).describe("Pulse animation for loading states."),
+export const StatusDotSchema = baseComponentSchema.and({
+	status: type(
+		"'online' | 'offline' | 'loading' | 'ready' | 'failed' | 'pending' | 'hybrid'",
+	).default("pending"),
+	size: type("'sm' | 'md' | 'lg'").default("md"),
+	animate: type("boolean").default(false),
 });
 
-export type StatusDotSchemaProps = z.infer<typeof StatusDotSchema>;
+export type StatusDotSchemaProps = typeof StatusDotSchema.infer;

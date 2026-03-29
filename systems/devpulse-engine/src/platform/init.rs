@@ -4,12 +4,11 @@
 //! real-time progress for each database and subsystem.
 
 use serde::Serialize;
+use specta::Type;
 use std::time::Duration;
-use ts_rs::TS;
 
 /// Event emitted during platform initialization.
-#[derive(Debug, Clone, Serialize, TS)]
-#[ts(export)]
+#[derive(Debug, Clone, Serialize, Type)]
 pub struct InitEvent {
     /// Step name (public-safe, `ip_term!()` already applied).
     pub step: String,
@@ -23,8 +22,7 @@ pub struct InitEvent {
 }
 
 /// Status of an initialization step.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, TS)]
-#[ts(export)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Type)]
 pub enum InitStatus {
     /// Step is currently executing.
     Running,

@@ -15,4 +15,5 @@
 
 /// Verify system guard checks.
 #[tauri::command]
+#[specta::specta]
 pub fn verify() {}

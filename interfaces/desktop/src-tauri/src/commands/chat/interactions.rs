@@ -15,4 +15,5 @@
 
 /// Post a reaction to a chat message.
 #[tauri::command]
+#[specta::specta]
 pub fn post_reaction() {}

@@ -11,8 +11,8 @@
 -->
 <script lang="ts">
 import { useButton } from "$lib/design/behaviors/button/use-button.svelte.js";
-import { cn } from "$lib/design/utils/cn.js";
 import { enforceSlot } from "$lib/design/schema/enforce.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { buttonSpec } from "./button.spec.js";
 import type { ButtonPrimitiveProps } from "./types.js";
 
@@ -31,12 +31,24 @@ let {
 }: ButtonPrimitiveProps = $props();
 
 const hook = useButton({
-	get disabled() { return disabled; },
-	get loading() { return loading; },
-	get pressed() { return pressed; },
-	get onPressedChange() { return onPressedChange; },
-	get expanded() { return expanded; },
-	get type() { return type ?? undefined; },
+	get disabled() {
+		return disabled;
+	},
+	get loading() {
+		return loading;
+	},
+	get pressed() {
+		return pressed;
+	},
+	get onPressedChange() {
+		return onPressedChange;
+	},
+	get expanded() {
+		return expanded;
+	},
+	get type() {
+		return type ?? undefined;
+	},
 });
 
 let rootEl: HTMLButtonElement | undefined = $state();

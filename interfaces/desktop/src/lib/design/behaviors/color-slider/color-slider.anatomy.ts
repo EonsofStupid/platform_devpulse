@@ -1,8 +1,5 @@
-import { createAnatomy } from "../../schema/anatomy.schema.js";
-
-export const colorSliderAnatomy = createAnatomy("color-slider", [
-	"root",
-	"track",
-	"thumb",
-	"label",
-] as const);
+/**
+ * Re-export anatomy from primitives — primitives own structure,
+ * behaviors add interaction on top.
+ */
+export { colorSliderAnatomy } from "$lib/design/primitives/color-slider/anatomy.js";

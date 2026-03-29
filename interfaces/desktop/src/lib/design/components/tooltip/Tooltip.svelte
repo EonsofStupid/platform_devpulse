@@ -24,12 +24,9 @@
 <script lang="ts">
 import { useTooltip } from "$lib/design/behaviors/tooltip/use-tooltip.svelte.js";
 import { setTooltipContext } from "./context.js";
+import type { TooltipProps } from "./types.js";
 
-let {
-	openDelay = 700,
-	closeDelay = 300,
-	children,
-}: { openDelay?: number; closeDelay?: number; children?: import("svelte").Snippet } = $props();
+let { openDelay = 700, closeDelay = 300, children }: TooltipProps = $props();
 
 const hook = useTooltip({
 	get openDelay() {

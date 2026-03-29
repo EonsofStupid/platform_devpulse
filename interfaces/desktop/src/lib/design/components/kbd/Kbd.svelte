@@ -21,6 +21,7 @@
 }
 -->
 <script lang="ts">
+import { kbdAnatomy } from "$lib/design/primitives/kbd/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { KbdProps, KbdSize } from "./types.js";
@@ -37,14 +38,14 @@ const m = $derived(resolveMacro({ kind: "kbd", preset }));
 </script>
 
 <kbd
+	{...kbdAnatomy.attrs.root}
+	{...rest}
 	{...m.dataAttrs}
 	style={cssVarString(m.cssVars)}
-	data-slot="root"
 	class={cn(
 		"inline-flex items-center justify-center rounded border font-mono",
 		SIZE[size] ?? SIZE.md,
 		className)}
-	{...rest}
 >
 	{@render children?.()}
 </kbd>

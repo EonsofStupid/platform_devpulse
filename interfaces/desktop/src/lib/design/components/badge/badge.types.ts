@@ -3,8 +3,7 @@
  * @kind badge
  */
 
-import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { BadgePrimitiveProps } from "$lib/design/primitives/badge/index.js";
 
 export type BadgeVariant =
 	| "neutral"
@@ -19,16 +18,14 @@ export type BadgeFillStyle = "bold" | "subtle" | "outline";
 export type BadgeSize = "sm" | "md" | "lg" | "xl";
 export type BadgeOverflowMode = "wrap" | "truncate";
 
-export interface BadgeProps
-	extends ComponentProps,
-		Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children" | "class"> {
+export interface BadgeProps extends BadgePrimitiveProps {
 	/** Semantic color variant — maps to styleId */
 	variant?: BadgeVariant;
-	/** Visual preset — maps to style preset. Default: "default". */
+	/** Visual preset — selects style configuration. Default: "default" */
 	preset?: BadgePreset;
 	/** Fill style */
 	fillStyle?: BadgeFillStyle;
-	/** Size — structural class */
+	/** Size class. Default: "md" */
 	size?: BadgeSize;
 	/** Text overflow behavior */
 	overflowMode?: BadgeOverflowMode;

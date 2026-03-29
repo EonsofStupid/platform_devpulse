@@ -3,23 +3,20 @@
  * @kind text
  */
 
-import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { TextPrimitiveProps } from "$lib/design/primitives/text/index.js";
 
 export type TextAs = "span" | "p" | "div" | "label" | "strong" | "em" | "small";
 export type TextPreset = "default" | "stark" | "glass" | "flat" | "matte";
 export type TextSize = "xs" | "sm" | "base" | "lg" | "xl" | "2xl" | "3xl";
 export type TextWeight = "light" | "normal" | "medium" | "semibold" | "bold";
 
-export interface TextProps
-	extends ComponentProps,
-		Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children" | "class"> {
-	/** Style preset preset */
+export interface TextProps extends Omit<TextPrimitiveProps, "as"> {
+	/** Visual preset — selects style configuration. Default: "default" */
 	preset?: TextPreset;
-	/** Semantic HTML element */
+	/** Semantic HTML element. Default: "span" */
 	as?: TextAs;
-	/** Text size — structural class */
+	/** Text size class. Default: "base" */
 	size?: TextSize;
-	/** Font weight — structural class */
+	/** Font weight class. Default: "normal" */
 	weight?: TextWeight;
 }

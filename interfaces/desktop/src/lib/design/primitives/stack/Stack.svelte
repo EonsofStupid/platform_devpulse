@@ -4,26 +4,15 @@
   @layer primitive
   @category structural
   @description Vertical flex layout with gap. The most common layout primitive.
-  Flex direction column, configurable gap, align, justify.
-
   @element div
   @slots root
+  @spec stack.spec.ts
 -->
 <script lang="ts">
-import type { Snippet } from "svelte";
-import type { HTMLAttributes } from "svelte/elements";
+import { enforceSlot } from "$lib/design/schema/enforce.js";
 import { cn } from "$lib/design/utils/cn.js";
-
-interface StackProps extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children"> {
-	children?: Snippet;
-	class?: string;
-	/** Gap between children. Tailwind gap class (e.g., "1", "2", "3", "4") */
-	gap?: string;
-	/** Cross-axis alignment */
-	align?: "start" | "center" | "end" | "stretch" | "baseline";
-	/** Main-axis justification */
-	justify?: "start" | "center" | "end" | "between" | "around" | "evenly";
-}
+import { stackSpec } from "./stack.spec.js";
+import type { StackPrimitiveProps } from "./types.js";
 
 const ALIGN: Record<string, string> = {
 	start: "items-start",
@@ -42,10 +31,26 @@ const JUSTIFY: Record<string, string> = {
 	evenly: "justify-evenly",
 };
 
-let { children, class: className, gap = "0", align, justify, ...rest }: StackProps = $props();
+let {
+	children,
+	class: className,
+	gap = "0",
+	align,
+	justify,
+	...rest
+}: StackPrimitiveProps = $props();
+
+let rootEl: HTMLDivElement | undefined = $state();
+
+$effect(() => {
+	if (import.meta.env.DEV && rootEl) {
+		enforceSlot(rootEl, stackSpec, "root");
+	}
+});
 </script>
 
 <div
+	bind:this={rootEl}
 	data-kind="stack"
 	data-slot="root"
 	class={cn(

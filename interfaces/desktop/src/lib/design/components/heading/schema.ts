@@ -1,25 +1,19 @@
 /**
- * @file Heading Schema — Zod 4
+ * @file Heading Schema — ArkType
  * @kind heading
  *
  * Extends _base. Declares props + token consumption.
- * z.toJSONSchema() → A2UI catalog entry at build time.
+ * .toJsonSchema() → A2UI catalog entry at build time.
  */
 
-import { z } from "zod";
+import { type } from "arktype";
 import { baseComponentSchema } from "../_base/schema.js";
 
 export const CATEGORY = "typography" as const;
 
-export const HeadingSchema = baseComponentSchema.extend({
-	level: z
-		.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5), z.literal(6)])
-		.default(2)
-		.describe("Heading level (1-6). Maps to semantic h1-h6 element."),
-	size: z
-		.enum(["xs", "sm", "md", "lg", "xl", "2xl", "3xl"])
-		.default("lg")
-		.describe("Structural size. Controls font-size independent of level."),
+export const HeadingSchema = baseComponentSchema.and({
+	level: type("1 | 2 | 3 | 4 | 5 | 6").default(2),
+	size: type("'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'").default("lg"),
 });
 
-export type HeadingSchemaProps = z.infer<typeof HeadingSchema>;
+export type HeadingSchemaProps = typeof HeadingSchema.infer;

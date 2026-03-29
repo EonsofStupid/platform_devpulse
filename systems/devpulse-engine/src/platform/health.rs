@@ -5,11 +5,10 @@
 
 use crate::platform::services::ServiceState;
 use serde::Serialize;
-use ts_rs::TS;
+use specta::Type;
 
 /// Overall system health status.
-#[derive(Debug, Clone, Serialize, TS)]
-#[ts(export)]
+#[derive(Debug, Clone, Serialize, Type)]
 pub struct SystemHealth {
     /// Aggregate status across all subsystems.
     pub status: HealthStatus,
@@ -20,8 +19,7 @@ pub struct SystemHealth {
 }
 
 /// Health of an individual subsystem (database, cache, etc.).
-#[derive(Debug, Clone, Serialize, TS)]
-#[ts(export)]
+#[derive(Debug, Clone, Serialize, Type)]
 pub struct SubsystemHealth {
     /// Public name for this subsystem (`ip_term!()` applied at creation).
     pub name: String,
@@ -37,8 +35,7 @@ pub struct SubsystemHealth {
 }
 
 /// Health status enum.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, TS)]
-#[ts(export)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Type)]
 pub enum HealthStatus {
     /// Subsystem is operational.
     Healthy,

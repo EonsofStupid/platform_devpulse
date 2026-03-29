@@ -11,6 +11,7 @@ use tauri::State;
 ///
 /// Returns health if platform is booted, or a "booting" status if still initializing.
 #[tauri::command]
+#[specta::specta]
 #[allow(clippy::missing_errors_doc)]
 pub async fn get_status(state: State<'_, PlatformState>) -> Result<SystemHealth, String> {
     let lock = state.platform.read().await;

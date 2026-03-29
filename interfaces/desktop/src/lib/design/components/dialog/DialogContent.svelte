@@ -7,6 +7,7 @@
 	Native <dialog> element. showModal() for focus trap + top-layer.
 -->
 <script lang="ts">
+import { dialogAnatomy } from "$lib/design/primitives/dialog/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { getDialogContext } from "./context.js";
@@ -27,12 +28,12 @@ const SIZE_CLASSES: Record<string, string> = {
 
 {#if ctx.hook.open}
 		<dialog
+			{...dialogAnatomy.attrs.content}
 			{...ctx.hook.content}
 			use:ctx.hook.attachContent
 			id={ctx.ids.content}
 			{...m.dataAttrs}
 			style={cssVarString(m.cssVars)}
-			data-slot="content"
 			class={cn(SIZE_CLASSES[ctx.size] ?? SIZE_CLASSES.md, className)}
 			{...rest}
 			open

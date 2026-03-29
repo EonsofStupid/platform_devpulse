@@ -1,9 +1,8 @@
 /**
- * @file primitives/radio-group/index.ts
+ * @file primitives/radio-group — Structural contract for mutually exclusive selection.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as RadioGroup } from "./RadioGroup.svelte";
+export { radioGroupAnatomy } from "./anatomy.js";
+export type { RadioGroupOrientation, RadioGroupPrimitiveProps } from "./types.js";

@@ -7,21 +7,13 @@
 	Floating tooltip content. StyleMacro (visual). Visible when hook.open.
 -->
 <script lang="ts">
+import { tooltipAnatomy } from "$lib/design/primitives/tooltip/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { getTooltipContext } from "./context.js";
+import type { TooltipContentProps } from "./types.js";
 
-let {
-	preset = "default",
-	children,
-	class: className,
-	...rest
-}: {
-	preset?: import("./types.js").TooltipPreset;
-	children?: import("svelte").Snippet;
-	class?: string;
-	[key: string]: unknown;
-} = $props();
+let { preset = "default", children, class: className, ...rest }: TooltipContentProps = $props();
 const ctx = getTooltipContext();
 
 const m = $derived(resolveMacro({ kind: "tooltip", preset }));
@@ -29,12 +21,12 @@ const m = $derived(resolveMacro({ kind: "tooltip", preset }));
 
 {#if ctx.hook.open}
 		<div
+			{...tooltipAnatomy.attrs.content}
 			{...ctx.hook.content}
+			{...rest}
 			{...m.dataAttrs}
 			style={cssVarString(m.cssVars)}
-			data-slot="content"
 			class={cn("absolute z-50 px-3 py-1.5 text-sm rounded-md", className)}
-			{...rest}
 		>
 			{@render children?.()}
 		</div>

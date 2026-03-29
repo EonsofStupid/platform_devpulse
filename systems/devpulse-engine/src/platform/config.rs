@@ -11,9 +11,9 @@
 //! - **project**: Per-project namespaced data (created on demand)
 
 use serde::{Deserialize, Serialize};
+use specta::Type;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
-use ts_rs::TS;
 
 // ═══════════════════════════════════════════════════════════════
 // Public types (TS-exported)
@@ -23,8 +23,7 @@ use ts_rs::TS;
 ///
 /// This is what Tauri and the frontend see for settings display.
 /// Wraps maestro's `PersistenceConfig` without exposing it.
-#[derive(Debug, Clone, Serialize, Deserialize, TS)]
-#[ts(export)]
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct PlatformConfig {
     /// Root data directory path.
     pub data_dir: String,
@@ -35,8 +34,7 @@ pub struct PlatformConfig {
 }
 
 /// Database subsystem configuration (public-safe names).
-#[derive(Debug, Clone, Serialize, Deserialize, TS)]
-#[ts(export)]
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[allow(clippy::struct_excessive_bools)] // TS-exported config — bools are the natural shape
 pub struct DatabaseConfig {
     /// System relational store enabled (`LibSQL`).

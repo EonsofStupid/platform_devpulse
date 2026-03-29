@@ -1,9 +1,5 @@
-import { createAnatomy } from "../../schema/anatomy.schema.js";
-
-export const textFieldAnatomy = createAnatomy("text-field", [
-	"root",
-	"input",
-	"label",
-	"description",
-	"error",
-] as const);
+/**
+ * Re-export anatomy from primitives — primitives own structure,
+ * behaviors add interaction on top.
+ */
+export { textFieldAnatomy } from "$lib/design/primitives/text-field/anatomy.js";

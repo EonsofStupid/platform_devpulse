@@ -8,12 +8,13 @@
  * from definitions/) and queried by SvgFilters.svelte and the scanner.
  *
  * Pattern mirrors effects/registry.ts:
- * - registerFilter() validates via Zod in DEV mode
+ * - registerFilter() validates via ArkType in DEV mode
  * - getFilter() is O(1) lookup
  * - getAllFilters() returns the full list for SvgFilters.svelte rendering
  * - getAllFiltersForManifest() serializes for JSON manifest
  */
 
+import { type } from "arktype";
 import { FilterDefSchema } from "../_schema/schema.js";
 import type { FilterDef, ManifestSvgFilter, SvgFilterCategory } from "../_schema/types.js";
 
@@ -36,10 +37,10 @@ const categoryIndex = new Map<SvgFilterCategory, Set<string>>();
 export function registerFilter(definition: FilterDef): void {
 	// DEV-mode schema validation
 	if (import.meta.env?.DEV) {
-		const result = FilterDefSchema.safeParse(definition);
-		if (!result.success) {
+		const result = FilterDefSchema(definition);
+		if (result instanceof type.errors) {
 			throw new Error(
-				`[ColdLight] Invalid SVG filter definition "${definition.id}": ${result.error.message}`,
+				`[ColdLight] Invalid SVG filter definition "${definition.id}": ${result.summary}`,
 			);
 		}
 	}

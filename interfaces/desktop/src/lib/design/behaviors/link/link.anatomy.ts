@@ -1,3 +1,5 @@
-import { createAnatomy } from "../../schema/anatomy.schema.js";
-
-export const linkAnatomy = createAnatomy("link", ["root"] as const);
+/**
+ * Re-export anatomy from primitives — primitives own structure,
+ * behaviors add interaction on top.
+ */
+export { linkAnatomy } from "$lib/design/primitives/link/anatomy.js";

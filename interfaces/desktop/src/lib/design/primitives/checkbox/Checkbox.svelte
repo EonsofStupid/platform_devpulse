@@ -11,8 +11,8 @@
 -->
 <script lang="ts">
 import { useCheckbox } from "$lib/design/behaviors/checkbox/use-checkbox.svelte.js";
-import { cn } from "$lib/design/utils/cn.js";
 import { enforceSlot } from "$lib/design/schema/enforce.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { checkboxSpec } from "./checkbox.spec.js";
 import type { CheckboxRootProps } from "./types.js";
 
@@ -36,15 +36,33 @@ let {
 }: CheckboxRootProps = $props();
 
 const hook = useCheckbox({
-	get checked() { return checked; },
-	get onCheckedChange() { return onCheckedChange; },
-	get indeterminate() { return indeterminate; },
-	get onIndeterminateChange() { return onIndeterminateChange; },
-	get disabled() { return disabled ?? undefined; },
-	get required() { return required ?? undefined; },
-	get "aria-label"() { return ariaLabel ?? undefined; },
-	get "aria-labelledby"() { return ariaLabelledby ?? undefined; },
-	get "aria-describedby"() { return ariaDescribedby ?? undefined; },
+	get checked() {
+		return checked;
+	},
+	get onCheckedChange() {
+		return onCheckedChange;
+	},
+	get indeterminate() {
+		return indeterminate;
+	},
+	get onIndeterminateChange() {
+		return onIndeterminateChange;
+	},
+	get disabled() {
+		return disabled ?? undefined;
+	},
+	get required() {
+		return required ?? undefined;
+	},
+	get "aria-label"() {
+		return ariaLabel ?? undefined;
+	},
+	get "aria-labelledby"() {
+		return ariaLabelledby ?? undefined;
+	},
+	get "aria-describedby"() {
+		return ariaDescribedby ?? undefined;
+	},
 });
 
 let rootEl: HTMLButtonElement | undefined = $state();

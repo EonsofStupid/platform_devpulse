@@ -9,13 +9,14 @@ pub mod interactions;
 use crate::state::PlatformState;
 use devpulse_engine::platform::SqlAdapter;
 use serde::Serialize;
+use specta::Type;
 use tauri::State;
 
 /// A chat message returned to the frontend.
 ///
 /// Serialized as JSON over IPC via `send_message`. The frontend renders
 /// these in the chat panel, keyed by `id` for dedup.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Type)]
 pub struct ChatMessage {
     /// Auto-increment primary key from the `messages` table.
     pub id: i64,
@@ -31,6 +32,7 @@ pub struct ChatMessage {
 
 /// Send a chat message — persists to `LibSQL` and returns the stored message.
 #[tauri::command]
+#[specta::specta]
 #[allow(clippy::missing_errors_doc)]
 pub async fn send_message(
     content: String,

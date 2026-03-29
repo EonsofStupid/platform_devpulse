@@ -5,20 +5,20 @@
  *
  * Modal overlay dialog. Focus trap, scroll lock, escape dismiss.
  * Compound: Root, Trigger, Overlay, Content, Header, Title, Description, Footer, Close.
- * Behavioral — uses useDialog() primitive hook.
  *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { DialogPrimitiveProps } from "$lib/design/primitives/dialog/index.js";
 
 // =============================================================================
 // SHARED
 // =============================================================================
 
 export type DialogSize = "sm" | "md" | "lg" | "xl" | "fullscreen";
+export type DialogPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 export interface DialogOpenChangeDetails {
 	open: boolean;
@@ -37,26 +37,31 @@ export interface DialogIds {
 // ROOT
 // =============================================================================
 
-export interface DialogRootProps extends ComponentProps {
+export interface DialogRootProps extends Omit<DialogPrimitiveProps, "onOpenChange"> {
 	ids?: Partial<DialogIds>;
-	open?: boolean;
-	defaultOpen?: boolean;
-	onOpenChange?: (details: DialogOpenChangeDetails) => void;
+	/** Visual preset — selects style configuration. Default: "default" */
+	preset?: DialogPreset;
+	/** Dialog content size. Default: "md" */
 	size?: DialogSize;
+	/** Whether clicking outside dismisses the dialog. Default: true */
 	isDismissible?: boolean;
+	/** Whether Escape key dismissal is disabled. Default: false */
 	isKeyboardDismissDisabled?: boolean;
-	preventScroll?: boolean;
+	/** Text direction for RTL support. Default: "ltr" */
 	dir?: "ltr" | "rtl";
+	/** Callback when exit animation completes */
 	onExitComplete?: () => void;
-	children?: Snippet;
+	/** Default open state (uncontrolled). */
+	defaultOpen?: boolean;
+	/** Callback when open state changes */
+	onOpenChange?: (details: DialogOpenChangeDetails) => void;
 }
 
 // =============================================================================
 // SUB-COMPONENTS
 // =============================================================================
 
-interface DialogSlotProps
-	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface DialogSlotProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
 	children?: Snippet;
 	class?: string;
 }

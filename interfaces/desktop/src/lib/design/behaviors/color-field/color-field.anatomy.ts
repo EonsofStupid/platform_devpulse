@@ -1,8 +1,5 @@
-import { createAnatomy } from "../../schema/anatomy.schema.js";
-
-export const colorFieldAnatomy = createAnatomy("color-field", [
-	"root",
-	"input",
-	"label",
-	"swatch",
-] as const);
+/**
+ * Re-export anatomy from primitives — primitives own structure,
+ * behaviors add interaction on top.
+ */
+export { colorFieldAnatomy } from "$lib/design/primitives/color-field/anatomy.js";

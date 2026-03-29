@@ -1,9 +1,11 @@
 /**
- * @file primitives/field/index.ts
+ * @file primitives/field — Structural contract for form input containers.
  * @package @devpulse/coldlight
  * @layer primitive
  *
- * Structural primitive — visual shell, no behavior.
+ * The field primitive is the foundation for ALL form inputs in ColdLight.
+ * TextField, Select, Combobox, DatePicker — they all compose from this.
  */
 
-export { default as Field } from "./Field.svelte";
+export { fieldAnatomy } from "./anatomy.js";
+export type { FieldOrientation, FieldPrimitiveProps } from "./types.js";

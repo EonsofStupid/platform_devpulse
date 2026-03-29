@@ -1,11 +1,5 @@
-import { createAnatomy } from "../../schema/anatomy.schema.js";
-
-export const menuAnatomy = createAnatomy("menu", [
-	"root",
-	"trigger",
-	"content",
-	"item",
-	"separator",
-	"group",
-	"label",
-] as const);
+/**
+ * Re-export anatomy from primitives — primitives own structure,
+ * behaviors add interaction on top.
+ */
+export { menuAnatomy } from "$lib/design/primitives/menu/anatomy.js";

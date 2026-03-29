@@ -1,9 +1,8 @@
 /**
- * @file primitives/select/index.ts
+ * @file primitives/select — Structural contract for dropdown value pickers.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as Select } from "./Select.svelte";
+export { selectAnatomy } from "./anatomy.js";
+export type { SelectPrimitiveProps } from "./types.js";

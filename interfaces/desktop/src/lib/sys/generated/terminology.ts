@@ -1,6 +1,6 @@
 /**
  * AUTO-GENERATED from kernel_terms.toml — DO NOT EDIT
- * Generated: 2026-03-27T16:39:22.434Z
+ * Generated: 2026-03-28T07:00:19.433Z
  * Source: systems/devpulse-engine/ip/kernel_terms.toml
  *
  * Regenerate: pnpm generate:terminology
@@ -338,10 +338,10 @@ export const TERMS: Record<string, Term> = {
 		category: "algorithms",
 		context: ["logs","traces"],
 	},
-	"Clyffy": {
-		engine: "Clffy",
-		prod: "Clyffy",
-		dev: "Clffy",
+	"Gus": {
+		engine: "Gus",
+		prod: "Gus",
+		dev: "Maestro",
 		category: "architecture",
 		context: ["logs","traces","ui-text"],
 	},

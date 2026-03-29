@@ -25,6 +25,7 @@ use state::{BootStateTracker, PlatformState};
 use std::path::PathBuf;
 use std::sync::Arc;
 use tauri::{Emitter, Manager};
+use tauri_specta::{collect_commands, Builder};
 use tokio::sync::RwLock;
 
 /// Bootstrap and run the Tauri application.
@@ -34,6 +35,34 @@ use tokio::sync::RwLock;
 #[allow(clippy::expect_used, clippy::too_many_lines)]
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // ── specta: typed IPC bindings ──────────────────────────────
+    let builder = Builder::<tauri::Wry>::new().commands(collect_commands![
+        commands::chat::send_message,
+        commands::chat::history::load_recent,
+        commands::chat::interactions::post_reaction,
+        commands::sys::config::get_settings,
+        commands::sys::guard::verify,
+        commands::sys::logger::log,
+        commands::sys::boot::get_boot_state,
+        commands::sys::metrics::get_process_metrics,
+        commands::devmaestro::get_status,
+        commands::devpulse::fetch_dashboard,
+        commands::thinkmaestro::create_canvas,
+        commands::wiredfront::connect_peer,
+        commands::window::open_chat_window,
+        commands::window::close_window,
+        commands::window::focus_window,
+    ]);
+
+    // Dev: export typed TS bindings on every build
+    #[cfg(debug_assertions)]
+    builder
+        .export(
+            specta_typescript::Typescript::default(),
+            "../src/lib/sys/generated/bindings.ts",
+        )
+        .expect("Failed to export specta TypeScript bindings");
+
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             tracing::info!("Second instance detected — focusing existing window");
@@ -43,7 +72,9 @@ pub fn run() {
             }
         }))
         .plugin(tauri_plugin_shell::init())
-        .setup(|app| {
+        .invoke_handler(builder.invoke_handler())
+        .setup(move |app| {
+            builder.mount_events(app);
             // ── Data directory resolution ─────────────────────────
             let data_dir = resolve_data_dir(app)?;
 
@@ -107,23 +138,6 @@ pub fn run() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![
-            commands::chat::send_message,
-            commands::chat::history::load_recent,
-            commands::chat::interactions::post_reaction,
-            commands::sys::config::get_settings,
-            commands::sys::guard::verify,
-            commands::sys::logger::log,
-            commands::sys::boot::get_boot_state,
-            commands::sys::metrics::get_process_metrics,
-            commands::devmaestro::get_status,
-            commands::devpulse::fetch_dashboard,
-            commands::thinkmaestro::create_canvas,
-            commands::wiredfront::connect_peer,
-            commands::window::open_chat_window,
-            commands::window::close_window,
-            commands::window::focus_window,
-        ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
         .run(|app, event| {

@@ -7,23 +7,20 @@
 	Element that triggers the tooltip on hover/focus. ARIA from hook.
 -->
 <script lang="ts">
+import { tooltipAnatomy } from "$lib/design/primitives/tooltip/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { getTooltipContext } from "./context.js";
+import type { TooltipTriggerProps } from "./types.js";
 
-let {
-	children,
-	class: className,
-	...rest
-}: { children?: import("svelte").Snippet; class?: string; [key: string]: unknown } = $props();
+let { children, class: className, ...rest }: TooltipTriggerProps = $props();
 const ctx = getTooltipContext();
 </script>
 
 <div
+	{...tooltipAnatomy.attrs.trigger}
 	{...ctx.hook.trigger}
-	data-kind="tooltip"
-	data-slot="trigger"
-	class={cn("inline-flex", className)}
 	{...rest}
+	class={cn("inline-flex", className)}
 >
 	{@render children?.()}
 </div>

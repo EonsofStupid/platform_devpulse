@@ -1,9 +1,8 @@
 /**
- * @file primitives/tag-group/index.ts
+ * @file primitives/tag-group — Structural contract for tag/chip collections.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as TagGroup } from "./TagGroup.svelte";
+export { tagGroupAnatomy } from "./anatomy.js";
+export type { TagGroupPrimitiveProps, TagGroupSelectionMode } from "./types.js";

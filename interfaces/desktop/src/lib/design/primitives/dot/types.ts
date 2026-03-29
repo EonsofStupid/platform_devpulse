@@ -1,15 +1,28 @@
 import type { HTMLAttributes } from "svelte/elements";
 
-/** Props for the Dot primitive — colored circle indicator. */
-export interface DotPrimitiveProps
-	extends Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children"> {
+/**
+ * Structural props for the Dot primitive.
+ *
+ * A dot is a small colored circle indicating status (online/offline,
+ * active/inactive, severity). Decorative by default — provide aria-label
+ * when the dot communicates meaningful information.
+ *
+ * @example
+ * ```svelte
+ * <span {...dotAnatomy.attrs.root} aria-hidden="true" />
+ * <!-- or with meaning: -->
+ * <span {...dotAnatomy.attrs.root} aria-label="Online" />
+ * ```
+ */
+export interface DotPrimitiveProps extends Omit<HTMLAttributes<HTMLSpanElement>, "children"> {
+	/** Additional CSS classes */
 	class?: string;
 	/** Dot diameter. Default: 0.5rem */
 	size?: string;
-	/** Dot color. CSS value or var() reference */
+	/** Dot color. CSS value or token var() reference */
 	color?: string;
-	/** Glow halo using the same color */
+	/** Glow halo effect using the same color */
 	glow?: boolean;
-	/** Pulse animation */
+	/** Pulse animation for attention */
 	animate?: boolean;
 }

@@ -4,24 +4,14 @@
  * @layer components
  */
 
-import type { Snippet } from "svelte";
-import type { HTMLButtonAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { SwitchPrimitiveProps } from "$lib/design/primitives/switch/index.js";
 
 export type SwitchSize = "sm" | "md" | "lg";
-
 export type SwitchPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
-export interface SwitchProps
-	extends Omit<HTMLButtonAttributes, "style" | "children" | "disabled">,
-		BaseProps,
-		ComponentProps {
-	children?: Snippet;
-	disabled?: boolean;
-	checked?: boolean;
-	onCheckedChange?: (checked: boolean) => void;
-	/** Style preset. Default: "default". */
+export interface SwitchProps extends SwitchPrimitiveProps {
+	/** Visual preset — selects style configuration. Default: "default" */
 	preset?: SwitchPreset;
+	/** Size class. Default: "md" */
 	size?: SwitchSize;
 }

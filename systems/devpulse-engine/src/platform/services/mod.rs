@@ -21,11 +21,10 @@ pub mod devforge;
 
 use anyhow::Result;
 use serde::Serialize;
-use ts_rs::TS;
+use specta::Type;
 
 /// Identifies a service's role in the platform.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, TS)]
-#[ts(export)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Type)]
 pub enum ServiceRole {
     /// Relational service (`LibSQL`).
     Relational,
@@ -53,8 +52,7 @@ pub enum ServiceRole {
 ///
 /// Enterprise boot state machine. Services transition through these states
 /// during boot and runtime. The platform never lies about service state.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, TS)]
-#[ts(export)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Type)]
 pub enum ServiceState {
     /// Service constructed but boot not yet attempted.
     Created,

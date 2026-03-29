@@ -1,3 +1,5 @@
-import { createAnatomy } from "../../schema/anatomy.schema.js";
-
-export const tooltipAnatomy = createAnatomy("tooltip", ["trigger", "content"] as const);
+/**
+ * Re-export anatomy from primitives — primitives own structure,
+ * behaviors add interaction on top.
+ */
+export { tooltipAnatomy } from "$lib/design/primitives/tooltip/anatomy.js";

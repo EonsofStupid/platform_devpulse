@@ -1,19 +1,19 @@
 /**
- * @file Component Base Schema — Zod 4
+ * @file Component Base Schema — ArkType
  * @package @devpulse/coldlight
  *
- * Base schema all ColdLight components extend via .extend().
- * z.toJSONSchema() generates A2UI catalog entries at build time.
+ * Base schema all ColdLight components extend via .and().
+ * .toJsonSchema() generates A2UI catalog entries at build time.
  *
  * Per A2UI spec §4.3 — id, component, weight.
  */
 
-import { z } from "zod";
+import { type } from "arktype";
 
-export const baseComponentSchema = z.object({
-	id: z.string().describe("Unique component identifier within the surface."),
-	component: z.string().describe("Component type name from the catalog."),
-	weight: z.number().optional().describe("Flex-grow weight when inside a Row or Column."),
-});
+export const baseComponentSchema = type({
+	id: "string",
+	component: "string",
+	"weight?": "number",
+}).describe("Base component schema — id, component type, optional flex weight.");
 
-export type BaseComponentProps = z.infer<typeof baseComponentSchema>;
+export type BaseComponentProps = typeof baseComponentSchema.infer;

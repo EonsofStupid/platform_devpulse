@@ -23,6 +23,7 @@
 -->
 <script lang="ts">
 import { useButton } from "$lib/design/behaviors/button/index.js";
+import { buttonAnatomy } from "$lib/design/primitives/button/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ButtonProps, ButtonSize } from "./button.types.js";
@@ -53,6 +54,7 @@ const m = $derived(resolveMacro({ kind: "button", preset }));
 </script>
 
 <button
+	{...buttonAnatomy.attrs.root}
 	{...button.root}
 	{...rest}
 	{...m.dataAttrs}

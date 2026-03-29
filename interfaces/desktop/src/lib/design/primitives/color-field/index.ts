@@ -1,9 +1,8 @@
 /**
- * @file primitives/color-field/index.ts
+ * @file primitives/color-field — Structural contract for text-based color input.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as ColorField } from "./ColorField.svelte";
+export { colorFieldAnatomy } from "./anatomy.js";
+export type { ColorFieldPrimitiveProps, ColorFormat } from "./types.js";

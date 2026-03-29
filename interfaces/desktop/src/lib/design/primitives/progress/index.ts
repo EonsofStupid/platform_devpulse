@@ -1,9 +1,8 @@
 /**
- * @file primitives/progress/index.ts
+ * @file primitives/progress — Structural contract for task completion indicators.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as Progress } from "./Progress.svelte";
+export { progressAnatomy } from "./anatomy.js";
+export type { ProgressPrimitiveProps } from "./types.js";

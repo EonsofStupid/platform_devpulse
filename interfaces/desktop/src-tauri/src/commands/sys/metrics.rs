@@ -9,6 +9,7 @@ use devpulse_engine::platform::ProcessMetrics;
 /// pretending to be memory. The frontend calls this to populate
 /// system gauges with honest data.
 #[tauri::command]
+#[specta::specta]
 #[allow(clippy::missing_errors_doc)]
 pub async fn get_process_metrics(
     state: tauri::State<'_, PlatformState>,

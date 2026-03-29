@@ -1,9 +1,8 @@
 /**
- * @file primitives/switch/index.ts
+ * @file primitives/switch — Structural contract for binary on/off toggles.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as Switch } from "./Switch.svelte";
+export { switchAnatomy } from "./anatomy.js";
+export type { SwitchPrimitiveProps } from "./types.js";

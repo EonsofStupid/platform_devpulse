@@ -22,6 +22,7 @@
 -->
 <script lang="ts">
 import { useSeparator } from "$lib/design/behaviors/separator/use-separator.svelte.js";
+import { separatorAnatomy } from "$lib/design/primitives/separator/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SeparatorOrientation, SeparatorProps } from "./types.js";
@@ -45,12 +46,12 @@ const m = $derived(resolveMacro({ kind: "separator", preset }));
 </script>
 
 <hr
+		{...separatorAnatomy.attrs.root}
 		{...separator.root}
+		{...rest}
 		{...m.dataAttrs}
 		style={cssVarString(m.cssVars)}
-		data-slot="root"
 		data-orientation={orientation}
 		data-variant={variant}
 		class={cn(ORIENTATION_CLASSES[orientation] ?? ORIENTATION_CLASSES.horizontal, className)}
-		{...rest}
 	/>

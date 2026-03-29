@@ -1,9 +1,5 @@
-import { createAnatomy } from "../../schema/anatomy.schema.js";
-
-export const breadcrumbsAnatomy = createAnatomy("breadcrumbs", [
-	"root",
-	"list",
-	"item",
-	"link",
-	"separator",
-] as const);
+/**
+ * Re-export anatomy from primitives — primitives own structure,
+ * behaviors add interaction on top.
+ */
+export { breadcrumbsAnatomy } from "$lib/design/primitives/breadcrumbs/anatomy.js";

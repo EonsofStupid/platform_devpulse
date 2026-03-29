@@ -1,10 +1,10 @@
 //! Typed payloads for each `SignalVariant`.
 //!
 //! These are the actual data payloads that signals carry.
-//! All payloads derive `TS` for TypeScript generation via ts-rs.
+//! All payloads derive `Type` for TypeScript generation via specta.
 
 use serde::{Deserialize, Serialize};
-use ts_rs::TS;
+use specta::Type;
 use uuid::Uuid;
 
 // =============================================================================
@@ -12,8 +12,7 @@ use uuid::Uuid;
 // =============================================================================
 
 /// Chat message payload - LLM responses, user messages.
-#[derive(Clone, Debug, Serialize, Deserialize, TS)]
-#[ts(export)]
+#[derive(Clone, Debug, Serialize, Deserialize, Type)]
 pub struct ChatPayload {
     /// The message content.
     pub content: String,
@@ -24,8 +23,7 @@ pub struct ChatPayload {
 }
 
 /// Chat message role.
-#[derive(Clone, Debug, Serialize, Deserialize, TS)]
-#[ts(export)]
+#[derive(Clone, Debug, Serialize, Deserialize, Type)]
 pub enum ChatRole {
     /// Human user message.
     User,
@@ -40,8 +38,7 @@ pub enum ChatRole {
 // =============================================================================
 
 /// Analytics event payload - metrics, usage tracking.
-#[derive(Clone, Debug, Serialize, Deserialize, TS)]
-#[ts(export)]
+#[derive(Clone, Debug, Serialize, Deserialize, Type)]
 pub struct AnalyticsPayload {
     /// Event classification (e.g., `page_view`, `feature_used`, `error`).
     pub event_type: AnalyticsEventType,
@@ -50,8 +47,7 @@ pub struct AnalyticsPayload {
 }
 
 /// Analytics event classification.
-#[derive(Clone, Debug, Serialize, Deserialize, TS)]
-#[ts(export)]
+#[derive(Clone, Debug, Serialize, Deserialize, Type)]
 pub enum AnalyticsEventType {
     /// User viewed a page/screen.
     PageView,
@@ -68,8 +64,7 @@ pub enum AnalyticsEventType {
 }
 
 /// Structured analytics properties.
-#[derive(Clone, Debug, Default, Serialize, Deserialize, TS)]
-#[ts(export)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, Type)]
 pub struct AnalyticsProperties {
     /// User identifier (anonymized).
     pub user_id: Option<Uuid>,
@@ -94,8 +89,7 @@ pub struct AnalyticsProperties {
 // =============================================================================
 
 /// Context payload - RAG results, retrieved context.
-#[derive(Clone, Debug, Serialize, Deserialize, TS)]
-#[ts(export)]
+#[derive(Clone, Debug, Serialize, Deserialize, Type)]
 pub struct ContextPayload {
     /// Retrieved context chunks.
     pub chunks: Vec<ContextChunk>,
@@ -104,8 +98,7 @@ pub struct ContextPayload {
 }
 
 /// A single context chunk from retrieval.
-#[derive(Clone, Debug, Serialize, Deserialize, TS)]
-#[ts(export)]
+#[derive(Clone, Debug, Serialize, Deserialize, Type)]
 pub struct ContextChunk {
     /// The retrieved text content.
     pub content: String,
@@ -120,8 +113,7 @@ pub struct ContextChunk {
 // =============================================================================
 
 /// Inference metrics payload - model performance data.
-#[derive(Clone, Debug, Serialize, Deserialize, TS)]
-#[ts(export)]
+#[derive(Clone, Debug, Serialize, Deserialize, Type)]
 pub struct InferencePayload {
     /// Input token count.
     pub tokens_in: u32,
@@ -138,8 +130,7 @@ pub struct InferencePayload {
 // =============================================================================
 
 /// System status payload - health checks, state changes.
-#[derive(Clone, Debug, Serialize, Deserialize, TS)]
-#[ts(export)]
+#[derive(Clone, Debug, Serialize, Deserialize, Type)]
 pub struct SystemPayload {
     /// Current system status.
     pub status: SystemStatus,
@@ -148,8 +139,7 @@ pub struct SystemPayload {
 }
 
 /// System status enum.
-#[derive(Clone, Debug, Serialize, Deserialize, TS)]
-#[ts(export)]
+#[derive(Clone, Debug, Serialize, Deserialize, Type)]
 pub enum SystemStatus {
     /// System is ready to process requests.
     Ready,

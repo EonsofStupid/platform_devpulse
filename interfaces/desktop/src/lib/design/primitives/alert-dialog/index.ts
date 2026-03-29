@@ -1,9 +1,11 @@
 /**
- * @file primitives/alert-dialog/index.ts
+ * @file primitives/alert-dialog — Structural contract for modal confirmations.
  * @package @devpulse/coldlight
  * @layer primitive
  *
- * Structural primitive — visual shell, no behavior.
+ * Alert dialogs require explicit user decisions — cancel or action.
+ * Uses role="alertdialog" for urgent screen reader announcements.
  */
 
-export { default as AlertDialog } from "./AlertDialog.svelte";
+export { alertDialogAnatomy } from "./anatomy.js";
+export type { AlertDialogPrimitiveProps } from "./types.js";

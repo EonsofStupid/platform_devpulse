@@ -1,9 +1,12 @@
 /**
- * @file primitives/separator/index.ts
+ * @file primitives/separator — Structural contract for content dividers.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
+export { separatorAnatomy } from "./anatomy.js";
 export { default as Separator } from "./Separator.svelte";
+export type {
+	SeparatorOrientation,
+	SeparatorPrimitiveProps,
+} from "./types.js";

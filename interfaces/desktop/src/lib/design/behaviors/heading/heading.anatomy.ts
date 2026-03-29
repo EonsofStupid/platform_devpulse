@@ -1,3 +1,5 @@
-import { createAnatomy } from "../../schema/anatomy.schema.js";
-
-export const headingAnatomy = createAnatomy("heading", ["root"] as const);
+/**
+ * Re-export anatomy from primitives — primitives own structure,
+ * behaviors add interaction on top.
+ */
+export { headingAnatomy } from "$lib/design/primitives/heading/anatomy.js";

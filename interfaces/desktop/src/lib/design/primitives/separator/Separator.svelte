@@ -1,23 +1,32 @@
 <!--
-  @component SeparatorPrimitive
+  @component Separator
   @kind separator
-  @slot root
+  @layer primitive
+  @category structural
+  @description Visual divider between content sections.
   @element hr
+  @slots root
+  @spec separator.spec.ts
 -->
 <script lang="ts">
-import type { HTMLAttributes } from "svelte/elements";
+import { enforceSlot } from "$lib/design/schema/enforce.js";
 import { cn } from "$lib/design/utils/cn.js";
-
-interface SeparatorPrimitiveProps
-	extends Omit<HTMLAttributes<HTMLHRElement>, "style" | "children"> {
-	class?: string;
-	orientation?: "horizontal" | "vertical";
-}
+import { separatorSpec } from "./separator.spec.js";
+import type { SeparatorPrimitiveProps } from "./types.js";
 
 let { class: className, orientation = "horizontal", ...rest }: SeparatorPrimitiveProps = $props();
+
+let rootEl: HTMLHRElement | undefined = $state();
+
+$effect(() => {
+	if (import.meta.env.DEV && rootEl) {
+		enforceSlot(rootEl, separatorSpec, "root");
+	}
+});
 </script>
 
 <hr
+	bind:this={rootEl}
 	data-kind="separator"
 	data-slot="root"
 	data-orientation={orientation}

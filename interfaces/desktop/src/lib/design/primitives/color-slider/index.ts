@@ -1,9 +1,8 @@
 /**
- * @file primitives/color-slider/index.ts
+ * @file primitives/color-slider — Structural contract for single-axis color channel selection.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as ColorSlider } from "./ColorSlider.svelte";
+export { colorSliderAnatomy } from "./anatomy.js";
+export type { ColorSliderOrientation, ColorSliderPrimitiveProps } from "./types.js";

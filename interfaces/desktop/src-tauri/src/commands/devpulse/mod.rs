@@ -8,10 +8,11 @@ use devpulse_engine::platform::{
     AnalyticsAdapter, CacheAdapter, SqlAdapter,
 };
 use serde::Serialize;
+use specta::Type;
 use tauri::State;
 
 /// A project row from `LibSQL` — maps 1:1 to the `projects` table.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Type)]
 pub struct ProjectRow {
     /// Application-generated string key, not a DB auto-increment.
     pub id: String,
@@ -30,7 +31,7 @@ pub struct ProjectRow {
 /// One row per day from the `DuckDB` `daily_stats` table.
 ///
 /// Populated by the analytics pipeline, not by user actions directly.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Type)]
 pub struct DailyStatsRow {
     /// `YYYY-MM-DD` string from `DuckDB` `DATE` column cast to text.
     pub date: String,
@@ -45,7 +46,7 @@ pub struct DailyStatsRow {
 }
 
 /// Snapshot of the Moka in-memory cache. Changes between calls.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Type)]
 pub struct CacheStats {
     /// Live count — may decrease between calls due to TTL eviction.
     pub entry_count: u64,
@@ -54,7 +55,7 @@ pub struct CacheStats {
 }
 
 /// Aggregate counts from `LibSQL` — cheap `COUNT(*)` queries, not row scans.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Type)]
 pub struct MessageStats {
     /// All messages ever stored. Includes both user and assistant roles.
     pub total_messages: i64,
@@ -65,7 +66,7 @@ pub struct MessageStats {
 /// Single IPC response for the dashboard route. Assembles data from all services.
 ///
 /// `LibSQL` may be unavailable during early boot — fields fall back to empty/zero.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Type)]
 pub struct DashboardPayload {
     /// Most recently accessed projects, hard-capped at 8. Sorted by `last_accessed DESC`.
     pub projects: Vec<ProjectRow>,
@@ -88,6 +89,7 @@ pub struct DashboardPayload {
 /// - `DuckDB`: `daily_stats` (last 20 days)
 /// - Moka: cache stats (entry count / capacity)
 #[tauri::command]
+#[specta::specta]
 #[allow(clippy::missing_errors_doc, clippy::too_many_lines)]
 pub async fn fetch_dashboard(
     state: State<'_, PlatformState>,

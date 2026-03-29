@@ -3,16 +3,12 @@
  * @kind tooltip
  * @layer components
  *
- * Compound component props for Tooltip root + sub-components.
- * MeltUI transport adapter provides ARIA and positioning.
- *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { TooltipPrimitiveProps } from "$lib/design/primitives/tooltip/index.js";
 
 export type TooltipPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
@@ -20,21 +16,12 @@ export type TooltipPreset = "default" | "stark" | "glass" | "flat" | "matte";
 // ROOT PROPS
 // =============================================================================
 
-export interface TooltipProps extends BaseProps, ComponentProps {
-	children?: Snippet;
-	/** Delay in ms before the tooltip opens on hover. @default 700 */
-	openDelay?: number;
-	/** Delay in ms before the tooltip closes after leaving. @default 300 */
-	closeDelay?: number;
-	/** Controlled open state. */
-	open?: boolean;
-	/** Called when open state changes. */
-	onOpenChange?: (value: boolean) => void;
-	/** Whether to close the tooltip when pointer is pressed down. @default true */
+export interface TooltipProps extends TooltipPrimitiveProps {
+	/** Whether to close the tooltip when pointer is pressed down. Default: true */
 	closeOnPointerDown?: boolean;
-	/** Whether to disable hoverable content. @default false */
+	/** Whether to disable hoverable content. Default: false */
 	disableHoverableContent?: boolean;
-	/** Whether to force the tooltip visible. @default false */
+	/** Whether to force the tooltip visible. Default: false */
 	forceVisible?: boolean;
 }
 
@@ -42,18 +29,18 @@ export interface TooltipProps extends BaseProps, ComponentProps {
 // TRIGGER PROPS
 // =============================================================================
 
-export interface TooltipTriggerProps
-	extends Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children">,
-		BaseProps {
+export interface TooltipTriggerProps extends Omit<HTMLAttributes<HTMLSpanElement>, "children"> {
 	children?: Snippet;
+	class?: string;
 }
 
 // =============================================================================
 // CONTENT PROPS
 // =============================================================================
 
-export interface TooltipContentProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps {
+export interface TooltipContentProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
 	children?: Snippet;
+	class?: string;
+	/** Visual preset — selects style configuration. Default: "default" */
+	preset?: TooltipPreset;
 }

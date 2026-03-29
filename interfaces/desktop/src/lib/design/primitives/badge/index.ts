@@ -1,9 +1,8 @@
 /**
- * @file primitives/badge/index.ts
+ * @file primitives/badge — Structural contract for compact status indicators.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as Badge } from "./Badge.svelte";
+export { badgeAnatomy } from "./anatomy.js";
+export type { BadgePrimitiveProps } from "./types.js";

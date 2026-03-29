@@ -1,29 +1,20 @@
 /**
- * @file Text Schema — Zod 4
+ * @file Text Schema — ArkType
  * @kind text
  *
  * Extends _base. Declares props + token consumption.
- * z.toJSONSchema() → A2UI catalog entry at build time.
+ * .toJsonSchema() → A2UI catalog entry at build time.
  */
 
-import { z } from "zod";
+import { type } from "arktype";
 import { baseComponentSchema } from "../_base/schema.js";
 
 export const CATEGORY = "typography" as const;
 
-export const TextSchema = baseComponentSchema.extend({
-	as: z
-		.enum(["span", "p", "div", "label", "strong", "em", "small"])
-		.default("span")
-		.describe("Semantic HTML element to render."),
-	size: z
-		.enum(["xs", "sm", "base", "lg", "xl", "2xl", "3xl"])
-		.default("base")
-		.describe("Text size. Controls font-size."),
-	weight: z
-		.enum(["light", "normal", "medium", "semibold", "bold"])
-		.default("normal")
-		.describe("Font weight. Structural class."),
+export const TextSchema = baseComponentSchema.and({
+	as: type("'span' | 'p' | 'div' | 'label' | 'strong' | 'em' | 'small'").default("span"),
+	size: type("'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl'").default("base"),
+	weight: type("'light' | 'normal' | 'medium' | 'semibold' | 'bold'").default("normal"),
 });
 
-export type TextSchemaProps = z.infer<typeof TextSchema>;
+export type TextSchemaProps = typeof TextSchema.infer;

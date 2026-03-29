@@ -23,11 +23,10 @@
 -->
 <script lang="ts">
 import { useToggle } from "$lib/design/behaviors/toggle/use-toggle.svelte.js";
+import { toggleAnatomy } from "$lib/design/primitives/toggle/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
-import type { ToggleProps } from "./types.js";
-
-type ToggleSize = "sm" | "md" | "lg";
+import type { ToggleProps, ToggleSize } from "./types.js";
 
 const SIZE: Record<ToggleSize, string> = {
 	sm: "h-8 px-2 text-sm",
@@ -60,16 +59,16 @@ const m = $derived(resolveMacro({ kind: "toggle", preset }));
 </script>
 
 <button
+		{...toggleAnatomy.attrs.root}
 		{...toggle.root}
 		{...rest}
 		{...m.dataAttrs}
 		style={cssVarString(m.cssVars)}
-		data-slot="root"
 		class={cn(
 			"inline-flex items-center justify-center rounded-md font-medium cursor-pointer",
 			"focus-visible:outline-2 focus-visible:outline-offset-2",
 			"disabled:pointer-events-none disabled:opacity-50",
-			SIZE[size as ToggleSize] ?? SIZE.md,
+			SIZE[size] ?? SIZE.md,
 			className)}
 	>
 		{@render children?.()}

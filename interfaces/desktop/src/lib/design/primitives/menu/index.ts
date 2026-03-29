@@ -1,9 +1,8 @@
 /**
- * @file primitives/menu/index.ts
+ * @file primitives/menu — Structural contract for popup action lists.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as Menu } from "./Menu.svelte";
+export { menuAnatomy } from "./anatomy.js";
+export type { MenuPrimitiveProps } from "./types.js";

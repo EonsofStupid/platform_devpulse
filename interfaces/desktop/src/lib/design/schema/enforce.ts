@@ -17,7 +17,7 @@
  */
 
 import type { SlotSpec } from "./a11y.schema.js";
-import { HtmlElementSchema } from "./a11y.schema.js";
+import { HTML_ELEMENTS } from "./a11y.schema.js";
 import type { PrimitiveSpec } from "./primitive.schema.js";
 
 // =============================================================================
@@ -108,9 +108,7 @@ function getImplicitRole(node: Element): string | null {
 // ALLOWED POLYMORPHIC ELEMENTS — derived from schema, not hardcoded
 // =============================================================================
 
-const POLYMORPHIC_ELEMENTS = new Set(
-	(HtmlElementSchema.options as readonly string[]).filter((e) => e !== "svelte:element"),
-);
+const POLYMORPHIC_ELEMENTS = new Set<string>(HTML_ELEMENTS.filter((e) => e !== "svelte:element"));
 
 // =============================================================================
 // VALIDATORS

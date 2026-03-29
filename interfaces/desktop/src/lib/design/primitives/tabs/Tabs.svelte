@@ -11,10 +11,10 @@
 -->
 <script lang="ts">
 import { useTabs } from "$lib/design/behaviors/tabs/use-tabs.svelte.js";
-import { cn } from "$lib/design/utils/cn.js";
 import { enforceSlot } from "$lib/design/schema/enforce.js";
-import { tabsSpec } from "./tabs.spec.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { setTabsPrimitiveContext } from "./context.js";
+import { tabsSpec } from "./tabs.spec.js";
 import type { TabsRootProps } from "./types.js";
 
 let {
@@ -31,15 +31,27 @@ let {
 }: TabsRootProps = $props();
 
 const hook = useTabs({
-	get value() { return value; },
-	get orientation() { return orientation; },
-	get activateOnFocus() { return activateOnFocus; },
-	get loop() { return loop; },
-	onValueChange,
+	get value() {
+		return value;
+	},
+	get orientation() {
+		return orientation;
+	},
+	get activateOnFocus() {
+		return activateOnFocus;
+	},
+	get loop() {
+		return loop;
+	},
+	get onValueChange() {
+		return onValueChange;
+	},
 });
 
 setTabsPrimitiveContext({
-	get hook() { return hook; },
+	get hook() {
+		return hook;
+	},
 });
 
 let rootEl: HTMLDivElement | undefined = $state();

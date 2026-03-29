@@ -4,27 +4,15 @@
   @layer primitive
   @category structural
   @description Colored circle indicator. The simplest visual atom.
-  Size and color applied via class or inline style.
-  Used by StatusDot (adds status→color mapping), health indicators, accent dots.
-
   @element span
   @slots root
+  @spec dot.spec.ts
 -->
 <script lang="ts">
-import type { HTMLAttributes } from "svelte/elements";
+import { enforceSlot } from "$lib/design/schema/enforce.js";
 import { cn } from "$lib/design/utils/cn.js";
-
-interface DotProps extends Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children"> {
-	class?: string;
-	/** Dot diameter. Default: 0.5rem */
-	size?: string;
-	/** Dot color. CSS value or var() reference */
-	color?: string;
-	/** Glow halo using the same color */
-	glow?: boolean;
-	/** Pulse animation */
-	animate?: boolean;
-}
+import { dotSpec } from "./dot.spec.js";
+import type { DotPrimitiveProps } from "./types.js";
 
 let {
 	class: className,
@@ -33,10 +21,19 @@ let {
 	glow = false,
 	animate = false,
 	...rest
-}: DotProps = $props();
+}: DotPrimitiveProps = $props();
+
+let rootEl: HTMLSpanElement | undefined = $state();
+
+$effect(() => {
+	if (import.meta.env.DEV && rootEl) {
+		enforceSlot(rootEl, dotSpec, "root");
+	}
+});
 </script>
 
 <span
+	bind:this={rootEl}
 	data-kind="dot"
 	data-slot="root"
 	class={cn(

@@ -1,9 +1,8 @@
 /**
- * @file primitives/sheet/index.ts
+ * @file primitives/sheet — Structural contract for sliding edge panels.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as Sheet } from "./Sheet.svelte";
+export { sheetAnatomy } from "./anatomy.js";
+export type { SheetPrimitiveProps, SheetSide } from "./types.js";

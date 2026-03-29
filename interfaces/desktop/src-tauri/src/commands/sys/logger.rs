@@ -9,6 +9,7 @@
 /// Maps frontend log levels to tracing macros. All messages are tagged
 /// with `target: "frontend"` and include the source module name.
 #[tauri::command]
+#[specta::specta]
 #[allow(clippy::needless_pass_by_value)]
 pub fn log(level: String, target: String, message: String) {
     match level.as_str() {

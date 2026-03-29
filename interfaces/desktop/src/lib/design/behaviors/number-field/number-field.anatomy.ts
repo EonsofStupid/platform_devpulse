@@ -1,8 +1,5 @@
-import { createAnatomy } from "../../schema/anatomy.schema.js";
-
-export const numberFieldAnatomy = createAnatomy("number-field", [
-	"root",
-	"input",
-	"increment",
-	"decrement",
-] as const);
+/**
+ * Re-export anatomy from primitives — primitives own structure,
+ * behaviors add interaction on top.
+ */
+export { numberFieldAnatomy } from "$lib/design/primitives/number-field/anatomy.js";

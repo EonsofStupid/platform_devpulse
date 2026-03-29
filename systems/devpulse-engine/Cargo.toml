@@ -16,7 +16,7 @@ candle = ["devpulse-maestro/candle"]
 # Core
 serde = { workspace = true }
 serde_json = { workspace = true }
-ts-rs = { workspace = true }
+specta = { workspace = true }
 uuid = { workspace = true }
 tokio = { workspace = true }
 anyhow = { workspace = true }

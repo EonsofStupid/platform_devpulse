@@ -1,3 +1,5 @@
-import { createAnatomy } from "../../schema/anatomy.schema.js";
-
-export const buttonAnatomy = createAnatomy("button", ["root", "icon", "label"] as const);
+/**
+ * Re-export anatomy from primitives — primitives own structure,
+ * behaviors add interaction on top.
+ */
+export { buttonAnatomy } from "$lib/design/primitives/button/anatomy.js";

@@ -7,6 +7,7 @@
 
 use devpulse_engine::platform::{InitEvent, SystemHealth};
 use serde::Serialize;
+use specta::Type;
 use std::sync::{Arc, Mutex};
 
 use devpulse_engine::platform::Platform;
@@ -23,7 +24,7 @@ pub struct PlatformState {
 }
 
 /// Boot phase — serialized to frontend as `PascalCase`.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Type)]
 pub enum BootPhase {
     /// Platform is still starting up — services initializing.
     Initializing,
@@ -34,7 +35,7 @@ pub enum BootPhase {
 }
 
 /// Snapshot of boot state — returned by `get_boot_state` command.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Type)]
 pub struct BootSnapshot {
     /// Current boot phase.
     pub phase: BootPhase,

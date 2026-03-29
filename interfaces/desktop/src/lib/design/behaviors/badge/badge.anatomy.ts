@@ -1,3 +1,5 @@
-import { createAnatomy } from "../../schema/anatomy.schema.js";
-
-export const badgeAnatomy = createAnatomy("badge", ["root", "icon", "label"] as const);
+/**
+ * Re-export anatomy from primitives — primitives own structure,
+ * behaviors add interaction on top.
+ */
+export { badgeAnatomy } from "$lib/design/primitives/badge/anatomy.js";

@@ -1,9 +1,12 @@
 /**
- * @file primitives/accordion/index.ts
+ * @file primitives/accordion — Structural contract for vertically stacked disclosure panels.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as Accordion } from "./Accordion.svelte";
+export { accordionAnatomy } from "./anatomy.js";
+export type {
+	AccordionOrientation,
+	AccordionPrimitiveProps,
+	AccordionType,
+} from "./types.js";

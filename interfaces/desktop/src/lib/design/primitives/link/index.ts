@@ -1,9 +1,8 @@
 /**
- * @file primitives/link/index.ts
+ * @file primitives/link — Structural contract for navigational anchors and action links.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as Link } from "./Link.svelte";
+export { linkAnatomy } from "./anatomy.js";
+export type { LinkCurrent, LinkPrimitiveProps } from "./types.js";

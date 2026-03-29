@@ -21,6 +21,7 @@
 }
 -->
 <script lang="ts">
+import { textAnatomy } from "$lib/design/primitives/text/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TextProps, TextSize, TextWeight } from "./text.types.js";
@@ -58,17 +59,17 @@ const m = $derived(resolveMacro({ kind: "text", preset }));
 </script>
 
 {#if as === "p"}
-		<p {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" {...rest} class={classes}>{@render children?.()}</p>
+		<p {...textAnatomy.attrs.root} {...rest} {...m.dataAttrs} style={cssVarString(m.cssVars)} class={classes}>{@render children?.()}</p>
 	{:else if as === "label"}
-		<label {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" {...rest} class={classes}>{@render children?.()}</label>
+		<label {...textAnatomy.attrs.root} {...rest} {...m.dataAttrs} style={cssVarString(m.cssVars)} class={classes}>{@render children?.()}</label>
 	{:else if as === "em"}
-		<em {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" {...rest} class={classes}>{@render children?.()}</em>
+		<em {...textAnatomy.attrs.root} {...rest} {...m.dataAttrs} style={cssVarString(m.cssVars)} class={classes}>{@render children?.()}</em>
 	{:else if as === "strong"}
-		<strong {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" {...rest} class={classes}>{@render children?.()}</strong>
+		<strong {...textAnatomy.attrs.root} {...rest} {...m.dataAttrs} style={cssVarString(m.cssVars)} class={classes}>{@render children?.()}</strong>
 	{:else if as === "small"}
-		<small {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" {...rest} class={classes}>{@render children?.()}</small>
+		<small {...textAnatomy.attrs.root} {...rest} {...m.dataAttrs} style={cssVarString(m.cssVars)} class={classes}>{@render children?.()}</small>
 	{:else if as === "div"}
-		<div {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" {...rest} class={classes}>{@render children?.()}</div>
+		<div {...textAnatomy.attrs.root} {...rest} {...m.dataAttrs} style={cssVarString(m.cssVars)} class={classes}>{@render children?.()}</div>
 	{:else}
-		<span {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" {...rest} class={classes}>{@render children?.()}</span>
+		<span {...textAnatomy.attrs.root} {...rest} {...m.dataAttrs} style={cssVarString(m.cssVars)} class={classes}>{@render children?.()}</span>
 	{/if}

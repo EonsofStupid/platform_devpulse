@@ -1,9 +1,11 @@
 /**
- * @file primitives/tooltip/index.ts
+ * @file primitives/tooltip — Structural contract for supplementary hover/focus text.
  * @package @devpulse/coldlight
  * @layer primitive
  *
- * Structural primitive — visual shell, no behavior.
+ * Tooltips are TEXT ONLY — no interactive content. For interactive
+ * floating content, use the popover primitive instead.
  */
 
-export { default as Tooltip } from "./Tooltip.svelte";
+export { tooltipAnatomy } from "./anatomy.js";
+export type { TooltipPlacement, TooltipPrimitiveProps } from "./types.js";

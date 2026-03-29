@@ -1,3 +1,5 @@
-import { createAnatomy } from "../../schema/anatomy.schema.js";
-
-export const separatorAnatomy = createAnatomy("separator", ["root"] as const);
+/**
+ * Re-export anatomy from primitives — primitives own structure,
+ * behaviors add interaction on top.
+ */
+export { separatorAnatomy } from "$lib/design/primitives/separator/anatomy.js";

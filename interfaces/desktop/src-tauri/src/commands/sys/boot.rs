@@ -10,6 +10,7 @@ use crate::state::BootStateTracker;
 /// Called by the frontend on mount before registering live event listeners.
 /// This eliminates the race condition where events fire before listeners exist.
 #[tauri::command]
+#[specta::specta]
 #[allow(clippy::missing_errors_doc)]
 pub async fn get_boot_state(
     tracker: tauri::State<'_, BootStateTracker>,

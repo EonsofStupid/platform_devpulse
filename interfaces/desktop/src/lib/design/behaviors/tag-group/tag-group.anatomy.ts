@@ -1,9 +1,5 @@
-import { createAnatomy } from "../../schema/anatomy.schema.js";
-
-export const tagGroupAnatomy = createAnatomy("tag-group", [
-	"root",
-	"tag",
-	"label",
-	"description",
-	"remove",
-] as const);
+/**
+ * Re-export anatomy from primitives — primitives own structure,
+ * behaviors add interaction on top.
+ */
+export { tagGroupAnatomy } from "$lib/design/primitives/tag-group/anatomy.js";

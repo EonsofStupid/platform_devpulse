@@ -1,3 +1,5 @@
-import { createAnatomy } from "../../schema/anatomy.schema.js";
-
-export const treeAnatomy = createAnatomy("tree", ["root", "item", "group"] as const);
+/**
+ * Re-export anatomy from primitives — primitives own structure,
+ * behaviors add interaction on top.
+ */
+export { treeAnatomy } from "$lib/design/primitives/tree/anatomy.js";

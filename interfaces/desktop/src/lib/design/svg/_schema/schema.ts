@@ -1,107 +1,103 @@
 /**
- * @file SVG Filter & Blank Zod Schemas
+ * @file SVG Filter & Blank ArkType Schemas
  * @layer svg
  * @package @devpulse/coldlight
  *
- * Zod validation schemas for SVG filter definitions and blank shapes.
+ * ArkType validation schemas for SVG filter definitions and blank shapes.
  * Used for DEV-mode validation in the filter registry.
  */
 
-import { z } from "zod";
+import { type } from "arktype";
 import { BLANK_SHAPES, SVG_FILTER_CATEGORIES, SVG_FILTER_PRIMITIVES } from "./types.js";
 
 // =============================================================================
 // VOCABULARY SCHEMAS
 // =============================================================================
 
-export const SvgFilterCategorySchema = z.enum(SVG_FILTER_CATEGORIES);
-export const SvgFilterPrimitiveSchema = z.enum(SVG_FILTER_PRIMITIVES);
-export const BlankShapeSchema = z.enum(BLANK_SHAPES);
+export const SvgFilterCategorySchema = type.enumerated(...SVG_FILTER_CATEGORIES);
+export const SvgFilterPrimitiveSchema = type.enumerated(...SVG_FILTER_PRIMITIVES);
+export const BlankShapeSchema = type.enumerated(...BLANK_SHAPES);
 
 // =============================================================================
 // FILTER COMPONENT SCHEMAS
 // =============================================================================
 
-export const FilterParamSchema = z.object({
-	cssProperty: z.string().startsWith("--"),
-	defaultValue: z.union([z.string(), z.number()]),
-	description: z.string().min(1),
+export const FilterParamSchema = type({
+	cssProperty: /^--/,
+	defaultValue: "string | number",
+	description: "string > 0",
 });
 
-export const FilterStepChildSchema = z.object({
-	tag: z.string().min(1),
-	attrs: z.record(z.string(), z.union([z.string(), z.number()])),
+export const FilterStepChildSchema = type({
+	tag: "string > 0",
+	attrs: "Record<string, string | number>",
 });
 
-export const FilterStepSchema = z.object({
+export const FilterStepSchema = type({
 	primitive: SvgFilterPrimitiveSchema,
-	attrs: z.record(z.string(), z.union([z.string(), z.number()])),
-	result: z.string().optional(),
-	in: z.string().optional(),
-	in2: z.string().optional(),
-	children: z.array(FilterStepChildSchema).optional(),
+	attrs: "Record<string, string | number>",
+	"result?": "string",
+	"in?": "string",
+	"in2?": "string",
+	"children?": FilterStepChildSchema.array(),
 });
 
 // =============================================================================
 // FILTER DEFINITION SCHEMA
 // =============================================================================
 
-export const FilterDefSchema = z.object({
-	id: z
-		.string()
-		.regex(/^[a-z][a-z0-9]*(-[a-z][a-z0-9]*)*$/, "Filter ID must be lowercase kebab-case"),
+export const FilterDefSchema = type({
+	id: /^[a-z][a-z0-9]*(-[a-z][a-z0-9]*)*$/,
 	category: SvgFilterCategorySchema,
-	label: z.string().min(1),
-	description: z.string().min(1),
-	params: z.array(FilterParamSchema),
-	steps: z.array(FilterStepSchema).min(1),
-	filterUnits: z.enum(["userSpaceOnUse", "objectBoundingBox"]).optional(),
-	filterMargin: z.number().min(0).max(100).optional(),
-	cssClass: z.string().regex(/^filter-[a-z][a-z0-9-]*$/, "CSS class must start with 'filter-'"),
-	effectId: z.string().optional(),
+	label: "string > 0",
+	description: "string > 0",
+	params: FilterParamSchema.array(),
+	steps: type("unknown[]").narrow((v) => v.length >= 1),
+	"filterUnits?": "'userSpaceOnUse' | 'objectBoundingBox'",
+	"filterMargin?": "0 <= number <= 100",
+	cssClass: /^filter-[a-z][a-z0-9-]*$/,
+	"effectId?": "string",
 });
 
 // =============================================================================
 // SHAPE OUTPUT SCHEMA
 // =============================================================================
 
-export const ShapeOutputSchema = z.object({
-	tag: z.enum(["rect", "circle", "ellipse", "path", "polygon"]),
-	attrs: z.record(z.string(), z.union([z.string(), z.number()])),
+export const ShapeOutputSchema = type({
+	tag: "'rect' | 'circle' | 'ellipse' | 'path' | 'polygon'",
+	attrs: "Record<string, string | number>",
 });
 
 // =============================================================================
 // SURFACE SPEC SCHEMA
 // =============================================================================
 
-export const SurfaceSpecSchema = z.object({
+export const SurfaceSpecSchema = type({
 	shape: BlankShapeSchema,
-	filters: z.array(z.string()),
-	molecules: z.array(z.string()),
-	accentFilter: z.string().optional(),
-	noiseFilter: z.string().optional(),
+	filters: "string[]",
+	molecules: "string[]",
+	"accentFilter?": "string",
+	"noiseFilter?": "string",
 });
 
 // =============================================================================
 // MANIFEST SCHEMAS
 // =============================================================================
 
-export const ManifestSvgFilterSchema = z.object({
-	id: z.string(),
+export const ManifestSvgFilterSchema = type({
+	id: "string",
 	category: SvgFilterCategorySchema,
-	label: z.string(),
-	description: z.string(),
-	cssClass: z.string(),
-	params: z.array(
-		z.object({
-			cssProperty: z.string(),
-			defaultValue: z.union([z.string(), z.number()]),
-		}),
-	),
-	effectId: z.string().optional(),
+	label: "string",
+	description: "string",
+	cssClass: "string",
+	params: type({
+		cssProperty: "string",
+		defaultValue: "string | number",
+	}).array(),
+	"effectId?": "string",
 });
 
-export const ManifestSvgBlankSchema = z.object({
+export const ManifestSvgBlankSchema = type({
 	shape: BlankShapeSchema,
-	availableFilters: z.array(z.string()),
+	availableFilters: "string[]",
 });

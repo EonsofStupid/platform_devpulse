@@ -23,6 +23,7 @@
 -->
 <script lang="ts">
 import { useCheckbox } from "$lib/design/behaviors/checkbox/use-checkbox.svelte.js";
+import { checkboxAnatomy } from "$lib/design/primitives/checkbox/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { CheckboxProps, CheckboxSize } from "./types.js";
@@ -62,10 +63,10 @@ const m = $derived(resolveMacro({ kind: "checkbox", preset }));
 </script>
 
 <button
+	{...checkboxAnatomy.attrs.root}
 	{...checkbox.root}
 	{...rest}
 	{...m.dataAttrs}
-	data-slot="root"
 	style={cssVarString(m.cssVars)}
 	class={cn(
 		"inline-flex items-center justify-center rounded border cursor-pointer",
@@ -74,7 +75,7 @@ const m = $derived(resolveMacro({ kind: "checkbox", preset }));
 		SIZE[size] ?? SIZE.md,
 		className)}
 >
-	<span {...checkbox.indicator} data-kind="checkbox" data-slot="indicator">
+	<span {...checkboxAnatomy.attrs.indicator} {...checkbox.indicator}>
 		{@render children?.()}
 	</span>
 </button>

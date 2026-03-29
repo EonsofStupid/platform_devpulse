@@ -9,12 +9,12 @@
   @spec text.spec.ts
 -->
 <script lang="ts">
-import { cn } from "$lib/design/utils/cn.js";
 import { enforceSlot } from "$lib/design/schema/enforce.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { textSpec } from "./text.spec.js";
-import type { TextProps } from "./types.js";
+import type { TextPrimitiveProps } from "./types.js";
 
-let { children, class: className, as = "span", ...rest }: TextProps = $props();
+let { children, class: className, as = "span", ...rest }: TextPrimitiveProps = $props();
 
 let rootEl: HTMLElement | undefined = $state();
 

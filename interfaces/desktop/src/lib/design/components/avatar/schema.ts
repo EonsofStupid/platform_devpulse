@@ -1,24 +1,21 @@
 /**
- * @file Avatar Schema — Zod 4
+ * @file Avatar Schema — ArkType
  * @kind avatar
  *
  * Extends _base. Declares props + token consumption.
- * z.toJSONSchema() → A2UI catalog entry at build time.
+ * .toJsonSchema() → A2UI catalog entry at build time.
  */
 
-import { z } from "zod";
+import { type } from "arktype";
 import { baseComponentSchema } from "../_base/schema.js";
 
 export const CATEGORY = "display" as const;
 
-export const AvatarSchema = baseComponentSchema.extend({
-	src: z.string().optional().describe("Image source URL."),
-	alt: z.string().describe("Alt text for the image. Required for accessibility."),
-	fallback: z
-		.string()
-		.optional()
-		.describe("Fallback text when image fails. Default: first letter of alt."),
-	size: z.number().default(40).describe("Size in pixels. Default: 40."),
+export const AvatarSchema = baseComponentSchema.and({
+	"src?": "string",
+	alt: "string",
+	"fallback?": "string",
+	size: type("number").default(40),
 });
 
-export type AvatarSchemaProps = z.infer<typeof AvatarSchema>;
+export type AvatarSchemaProps = typeof AvatarSchema.infer;

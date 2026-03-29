@@ -10,12 +10,12 @@
   @spec surface.spec.ts
 -->
 <script lang="ts">
-import { cn } from "$lib/design/utils/cn.js";
 import { enforceSlot } from "$lib/design/schema/enforce.js";
+import { cn } from "$lib/design/utils/cn.js";
 import { surfaceSpec } from "./surface.spec.js";
-import type { SurfaceProps } from "./types.js";
+import type { SurfacePrimitiveProps } from "./types.js";
 
-let { children, class: className, as = "div", ...rest }: SurfaceProps = $props();
+let { children, class: className, as = "div", ...rest }: SurfacePrimitiveProps = $props();
 
 let rootEl: HTMLElement | undefined = $state();
 

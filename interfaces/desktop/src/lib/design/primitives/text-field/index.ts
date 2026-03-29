@@ -1,9 +1,8 @@
 /**
- * @file primitives/text-field/index.ts
+ * @file primitives/text-field — Structural contract for text input fields.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as TextField } from "./TextField.svelte";
+export { textFieldAnatomy } from "./anatomy.js";
+export type { TextFieldPrimitiveProps, TextFieldType } from "./types.js";

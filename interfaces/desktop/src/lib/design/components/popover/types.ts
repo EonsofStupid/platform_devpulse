@@ -5,17 +5,15 @@
  */
 
 import type { Snippet } from "svelte";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { PopoverPrimitiveProps } from "$lib/design/primitives/popover/index.js";
 
 export type PopoverPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
-export interface PopoverProps extends ComponentProps {
+export interface PopoverProps extends PopoverPrimitiveProps {
+	/** Visual preset — selects style configuration. Default: "default" */
 	preset?: PopoverPreset;
-	children?: Snippet;
+	/** Trigger snippet rendered as a button */
 	trigger?: Snippet;
+	/** Content snippet rendered in the floating panel */
 	content?: Snippet;
-	open?: boolean;
-	onOpenChange?: (value: boolean) => void;
-	closeOnEscape?: boolean;
-	closeOnOutsideClick?: boolean;
 }

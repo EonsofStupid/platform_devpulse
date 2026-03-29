@@ -1,9 +1,8 @@
 /**
- * @file primitives/number-field/index.ts
+ * @file primitives/number-field — Structural contract for numeric input with steppers.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as NumberField } from "./NumberField.svelte";
+export { numberFieldAnatomy } from "./anatomy.js";
+export type { NumberFieldPrimitiveProps } from "./types.js";

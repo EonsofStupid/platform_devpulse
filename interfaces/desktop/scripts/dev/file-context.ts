@@ -10,7 +10,6 @@
  * @since 1.0.0
  */
 
-import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -316,13 +315,6 @@ function resolveLayer(namespace: Namespace, localPath: string): string {
 // KIND RESOLUTION
 // =============================================================================
 
-/**
- * Extract the primitive/component "kind" from a path like
- * `primitives/button/types.ts` → "button"
- * `api/adapters/meltui/_internal/dialog/factory.ts` → "dialog"
- * `components/button/Button.svelte` → "button"
- * `recipes/components/dialog/index.ts` → "dialog"
- */
 function resolveKind(namespace: Namespace, localPath: string): string | null {
 	if (namespace !== "@devpulse/coldlight") return null;
 
@@ -342,52 +334,6 @@ function resolveKind(namespace: Namespace, localPath: string): string | null {
 	}
 
 	return null;
-}
-
-// =============================================================================
-// CONTRACT LOADING
-// =============================================================================
-
-function tryLoadContract(
-	filePath: string,
-	kind: string | null,
-): { hasContract: boolean; ariaStateProvider: string | null } {
-	if (!kind) return { hasContract: false, ariaStateProvider: null };
-
-	// Look for contract.ts in the same primitive directory
-	const dir = path.dirname(filePath);
-
-	// If we're in a primitive folder, check there
-	const contractPath = path.join(dir, "contract.ts");
-	if (fs.existsSync(contractPath)) {
-		try {
-			const content = fs.readFileSync(contractPath, "utf-8");
-			const providerMatch = content.match(/ariaStateProvider:\s*["'](\w+)["']/);
-			return {
-				hasContract: true,
-				ariaStateProvider: providerMatch ? providerMatch[1] : null,
-			};
-		} catch {
-			return { hasContract: true, ariaStateProvider: null };
-		}
-	}
-
-	// If we're in _internal/{kind}/, check primitives/{kind}/contract.ts
-	const primitiveContractPath = path.join(ROOTS.design, "primitives", kind, "contract.ts");
-	if (fs.existsSync(primitiveContractPath)) {
-		try {
-			const content = fs.readFileSync(primitiveContractPath, "utf-8");
-			const providerMatch = content.match(/ariaStateProvider:\s*["'](\w+)["']/);
-			return {
-				hasContract: true,
-				ariaStateProvider: providerMatch ? providerMatch[1] : null,
-			};
-		} catch {
-			return { hasContract: true, ariaStateProvider: null };
-		}
-	}
-
-	return { hasContract: false, ariaStateProvider: null };
 }
 
 // =============================================================================
@@ -428,7 +374,8 @@ export function resolveFileContext(filePath: string): FileContext {
 	const layer = resolveLayer(namespace, localPath);
 	const kind = resolveKind(namespace, localPath);
 	const kindPascal = kind ? toPascalCase(kind) : null;
-	const { hasContract, ariaStateProvider } = tryLoadContract(abs, kind);
+	const hasContract = false;
+	const ariaStateProvider = null;
 
 	const platformRel = relativeUnder(ROOTS.platform, abs);
 

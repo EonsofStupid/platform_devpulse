@@ -1,9 +1,5 @@
-import { createAnatomy } from "../../schema/anatomy.schema.js";
-
-export const fieldAnatomy = createAnatomy("field", [
-	"root",
-	"label",
-	"control",
-	"description",
-	"error",
-] as const);
+/**
+ * Re-export anatomy from primitives — primitives own structure,
+ * behaviors add interaction on top.
+ */
+export { fieldAnatomy } from "$lib/design/primitives/field/anatomy.js";

@@ -18,12 +18,12 @@ import { createReport, formatReport, writeJsonReport } from './report.js';
 import type { CheckContext, CheckResult, FixResult, PolicyConfig, DryRunState } from '../types.js';
 
 // Import all checks to register them
-import '../checks/check.domain-boundaries.js';
-import '../checks/check.typed-routes.js';
-import '../checks/check.naming.js';
-import '../checks/check.primitive-structure.js';
-import '../checks/check.no-style-primitives.js';
-import '../checks/check.aria-primitives.js';
+import "../checks/check.domain-boundaries.js";
+import "../checks/check.naming.js";
+import "../checks/check.primitive-structure.js";
+import "../checks/check.no-style-primitives.js";
+import "../checks/check.aria-primitives.js";
+import "../checks/check.component-structure.js";
 
 // Import all fixers
 import '../fixers/fix.domain-index.js';

@@ -6,7 +6,7 @@
 use std::sync::Arc;
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use ts_rs::TS;
+use specta::Type;
 
 use super::header::{SignalHeader, SignalSource};
 use super::variants::SignalVariant;
@@ -40,14 +40,13 @@ where
 /// The complete signal packet for broadcast.
 ///
 /// Uses `Arc<SignalVariant>` for zero-copy fanout to multiple subscribers.
-#[derive(Clone, Debug, Serialize, Deserialize, TS)]
-#[ts(export)]
+#[derive(Clone, Debug, Serialize, Deserialize, Type)]
 pub struct Signal {
     /// The 4 atomic metadata fields.
     pub header: SignalHeader,
     /// The typed payload (Arc-wrapped for zero-copy).
     #[serde(serialize_with = "serialize_arc", deserialize_with = "deserialize_arc")]
-    #[ts(type = "SignalVariant")]
+    #[specta(type = SignalVariant)]
     pub payload: Arc<SignalVariant>,
 }
 

@@ -22,6 +22,7 @@
 -->
 <script lang="ts">
 import { useHeading } from "$lib/design/behaviors/heading/index.js";
+import { headingAnatomy } from "$lib/design/primitives/heading/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { HeadingProps, HeadingSize } from "./heading.types.js";
@@ -36,6 +37,15 @@ const SIZE: Record<HeadingSize, string> = {
 	"3xl": "text-3xl",
 };
 
+const WEIGHT: Record<number, string> = {
+	1: "font-bold",
+	2: "font-bold",
+	3: "font-semibold",
+	4: "font-semibold",
+	5: "font-medium",
+	6: "font-medium",
+};
+
 let {
 	preset = "default",
 	level = 2,
@@ -47,30 +57,17 @@ let {
 
 const heading = $derived(useHeading({ level }));
 const m = $derived(resolveMacro({ kind: "heading", preset }));
+const tag = $derived(`h${level}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6");
 </script>
 
-{#if level === 1}
-	<h1 {...heading.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} {...rest} class={cn("font-bold", SIZE[size] ?? SIZE.lg, className)}>
-		{@render children?.()}
-	</h1>
-{:else if level === 2}
-	<h2 {...heading.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} {...rest} class={cn("font-bold", SIZE[size] ?? SIZE.lg, className)}>
-		{@render children?.()}
-	</h2>
-{:else if level === 3}
-	<h3 {...heading.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} {...rest} class={cn("font-semibold", SIZE[size] ?? SIZE.lg, className)}>
-		{@render children?.()}
-	</h3>
-{:else if level === 4}
-	<h4 {...heading.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} {...rest} class={cn("font-semibold", SIZE[size] ?? SIZE.lg, className)}>
-		{@render children?.()}
-	</h4>
-{:else if level === 5}
-	<h5 {...heading.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} {...rest} class={cn("font-medium", SIZE[size] ?? SIZE.lg, className)}>
-		{@render children?.()}
-	</h5>
-{:else}
-	<h6 {...heading.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} {...rest} class={cn("font-medium", SIZE[size] ?? SIZE.lg, className)}>
-		{@render children?.()}
-	</h6>
-{/if}
+<svelte:element
+	this={tag}
+	{...headingAnatomy.attrs.root}
+	{...heading.root}
+	{...rest}
+	{...m.dataAttrs}
+	style={cssVarString(m.cssVars)}
+	class={cn(WEIGHT[level] ?? WEIGHT[2], SIZE[size] ?? SIZE.lg, className)}
+>
+	{@render children?.()}
+</svelte:element>

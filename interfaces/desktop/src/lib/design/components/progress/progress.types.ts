@@ -3,27 +3,14 @@
  * @kind progress
  */
 
-import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { ProgressPrimitiveProps } from "$lib/design/primitives/progress/index.js";
 
 export type ProgressPreset = "default" | "stark" | "glass" | "flat" | "matte";
 export type ProgressSize = "sm" | "md" | "lg";
 
-export interface ProgressProps
-	extends ComponentProps,
-		Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class"> {
-	/** Visual preset — maps to styleId */
+export interface ProgressProps extends ProgressPrimitiveProps {
+	/** Visual preset — selects style configuration. Default: "default" */
 	preset?: ProgressPreset;
-	/** Current value (null = indeterminate) */
-	value?: number | null;
-	/** Minimum value */
-	min?: number;
-	/** Maximum value */
-	max?: number;
-	/** Size — structural class */
+	/** Size class. Default: "md" */
 	size?: ProgressSize;
-	/** Accessible label */
-	"aria-label"?: string;
-	/** ID of labelling element */
-	"aria-labelledby"?: string;
 }

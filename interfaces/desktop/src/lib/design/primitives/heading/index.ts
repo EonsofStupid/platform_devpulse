@@ -1,9 +1,12 @@
 /**
- * @file primitives/heading/index.ts
+ * @file primitives/heading — Structural contract for section headings.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as Heading } from "./Heading.svelte";
+export { headingAnatomy } from "./anatomy.js";
+export type {
+	HeadingElement,
+	HeadingLevel,
+	HeadingPrimitiveProps,
+} from "./types.js";

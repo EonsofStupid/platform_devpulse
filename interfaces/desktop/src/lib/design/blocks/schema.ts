@@ -1,29 +1,29 @@
 /**
- * @file Block Schema — Zod-validated BlockNode + BlockDocument
+ * @file Block Schema — ArkType-validated BlockNode + BlockDocument
  * @layer blocks
  * @package @devpulse/coldlight
  *
  * The core data model for VPB. BlockNodes are serializable typed data
- * validated by Zod — no CSS, no DOM refs, no functions.
+ * validated by ArkType — no CSS, no DOM refs, no functions.
  *
  * VPB stores: kind + recipe + props + slots
  * VPB NEVER stores: class names, raw colors, inline styles
  */
 
-import { z } from "zod";
+import { type } from "arktype";
 import type { VisualAxisProps } from "$lib/design/components/types.js";
 
-/** Zod schema for visual axis props — validated at VPB boundaries */
-const VisualAxisPropsSchema = z.object({
-	surface: z.string().optional(),
-	depth: z.string().optional(),
-	bevel: z.string().optional(),
-	glow: z.string().optional(),
-	frame: z.string().optional(),
-	radius: z.string().optional(),
-	motion: z.string().optional(),
-	transition: z.string().optional(),
-	preset: z.string().optional(),
+/** ArkType schema for visual axis props — validated at VPB boundaries */
+const VisualAxisPropsSchema = type({
+	"surface?": "string",
+	"depth?": "string",
+	"bevel?": "string",
+	"glow?": "string",
+	"frame?": "string",
+	"radius?": "string",
+	"motion?": "string",
+	"transition?": "string",
+	"preset?": "string",
 });
 
 // =============================================================================
@@ -31,26 +31,13 @@ const VisualAxisPropsSchema = z.object({
 // =============================================================================
 
 /** Metadata for VPB UI only — does not affect rendering. */
-export const BlockNodeMetaSchema = z.object({
-	label: z.string().optional(),
-	locked: z.boolean().optional(),
-	collapsed: z.boolean().optional(),
+export const BlockNodeMetaSchema = type({
+	"label?": "string",
+	"locked?": "boolean",
+	"collapsed?": "boolean",
 });
 
-export type BlockNodeMeta = z.infer<typeof BlockNodeMetaSchema>;
-
-/** Recursive BlockNode schema — a node in the block tree. */
-export const BlockNodeSchema: z.ZodType = z.lazy(() =>
-	z.object({
-		id: z.string().min(1),
-		kind: z.string().min(1),
-		recipe: z.string().min(1),
-		props: VisualAxisPropsSchema.partial(),
-		slots: z.record(z.string(), z.array(BlockNodeSchema)).optional(),
-		binds: z.record(z.string(), z.string()).optional(),
-		meta: BlockNodeMetaSchema.optional(),
-	}),
-);
+export type BlockNodeMeta = typeof BlockNodeMetaSchema.infer;
 
 /** A node in the VPB block tree. */
 export interface BlockNode {
@@ -63,17 +50,32 @@ export interface BlockNode {
 	meta?: BlockNodeMeta;
 }
 
+/** Recursive BlockNode schema — a node in the block tree. */
+const blockNodeDef = type.module({
+	node: {
+		id: "string > 0",
+		kind: "string > 0",
+		recipe: "string > 0",
+		props: VisualAxisPropsSchema,
+		"slots?": "Record<string, node[]>",
+		"binds?": "Record<string, string>",
+		"meta?": BlockNodeMetaSchema,
+	},
+});
+
+export const BlockNodeSchema = blockNodeDef.node;
+
 // =============================================================================
 // BlockDocument — a complete VPB document (page/layout)
 // =============================================================================
 
-export const BlockDocumentSchema = z.object({
-	id: z.string().min(1),
-	version: z.literal(1),
-	label: z.string().min(1),
-	root: z.array(BlockNodeSchema),
-	createdAt: z.string().datetime(),
-	updatedAt: z.string().datetime(),
+export const BlockDocumentSchema = type({
+	id: "string > 0",
+	version: "'1'",
+	label: "string > 0",
+	root: BlockNodeSchema.array(),
+	createdAt: "string.date.iso",
+	updatedAt: "string.date.iso",
 });
 
 /** A complete VPB document (page/layout). */

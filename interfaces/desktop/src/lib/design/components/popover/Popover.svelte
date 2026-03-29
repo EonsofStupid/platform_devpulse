@@ -23,6 +23,7 @@
 -->
 <script lang="ts">
 import { usePopover } from "$lib/design/behaviors/popover/use-popover.svelte.js";
+import { popoverAnatomy } from "$lib/design/primitives/popover/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setPopoverContext } from "./context.js";
@@ -62,20 +63,20 @@ setPopoverContext({
 const m = $derived(resolveMacro({ kind: "popover", preset }));
 </script>
 
-<div data-kind="popover" data-slot="root" class={cn("relative inline-block", className)}>
+<div data-kind="popover" class={cn("relative inline-block", className)}>
 	{#if trigger}
-		<button {...hook.trigger} data-kind="popover" data-slot="trigger">
+		<button {...popoverAnatomy.attrs.trigger} {...hook.trigger}>
 			{@render trigger()}
 		</button>
 	{/if}
 
 	{#if hook.open}
 		<div
+				{...popoverAnatomy.attrs.content}
 				{...hook.content}
 				use:hook.attachContent
 				{...m.dataAttrs}
 				style={cssVarString(m.cssVars)}
-				data-slot="content"
 				data-state="open"
 				class="absolute z-50 mt-2 rounded-md border"
 			>

@@ -1,97 +1,84 @@
 {
-  "$schema": "./schemas/cowlevel.schema.json",
-  "version": "1.0.0",
-  "description": "DevPulse Enterprise Documentation Policy - Requirements Matrix",
-  "targetPath": "interfaces/desktop/src",
-  "rules": {
-    "domain-boundaries": {
-      "description": "Routes import from domain index.ts or features/",
-      "tier": 1,
-      "scope": ["routes/**/*.svelte", "routes/**/*.ts"],
-      "enforcement": "error",
-      "autofix": false,
-      "allowedImports": [
-        "$lib/domains/{ns}/{domain}/index.ts",
-        "$lib/domains/{ns}/{domain}/features/",
-        "$lib/sys/",
-        "$lib/design/",
-        "$app/",
-        "svelte/"
-      ]
-    },
-    "typed-routes": {
-      "description": "No raw string routes - must use typed route helpers",
-      "tier": 1,
-      "scope": ["**/*.svelte", "**/*.ts"],
-      "enforcement": "error",
-      "autofix": false,
-      "allowlist": [
-        "lib/sys/generated/",
-        "child-routes",
-        "+error.svelte"
-      ]
-    },
-    "naming-conventions": {
-      "description": "Enforce naming patterns per file type",
-      "tier": 3,
-      "scope": ["lib/**/*"],
-      "enforcement": "warning",
-      "autofix": true,
-      "patterns": {
-        "state": "*.state.svelte.ts",
-        "services": "*.svc.ts",
-        "contracts": "*.contract.ts",
-        "registries": "*.registry.ts"
-      }
-    },
-    "primitive-structure": {
-      "description": "Every primitive folder must have types.ts, index.ts, and .svelte files",
-      "tier": 1,
-      "scope": ["lib/design/primitives/**/*"],
-      "enforcement": "error",
-      "autofix": false
-    },
-    "no-style-primitives": {
-      "description": "Primitives are unstyled shells - no <style> tags allowed",
-      "tier": 1,
-      "scope": ["lib/design/primitives/**/*.svelte"],
-      "enforcement": "error",
-      "autofix": false
-    },
-    "aria-primitives": {
-      "description": "Every primitive must use semantic HTML, role attributes, or use:aria action",
-      "tier": 1,
-      "scope": ["lib/design/primitives/**/*.svelte"],
-      "enforcement": "error",
-      "autofix": false
-    }
-  },
-  "kindMatrix": {
-    "route": {
-      "lifecycle": ["load", "action", "render"],
-      "requiredDocs": ["@description"]
-    },
-    "domain": {
-      "lifecycle": ["init", "ready", "destroy"],
-      "requiredDocs": ["@description", "@module"],
-      "requiredExports": ["index.ts"]
-    },
-    "component": {
-      "lifecycle": ["mount", "update", "destroy"],
-      "requiredDocs": ["@description", "@props"],
-      "patterns": {
-        "feature": "*.svelte"
-      }
-    },
-    "state": {
-      "lifecycle": ["create", "update", "subscribe"],
-      "requiredDocs": ["@description"],
-      "patterns": ["*.state.svelte.ts"]
-    },
-    "service": {
-      "lifecycle": ["init", "call", "dispose"],
-      "requiredDocs": ["@description", "@param", "@returns"],
-      "patterns": ["*.svc.ts"]
-    }
-  }
+	"$schema": "./schemas/cowlevel.schema.json",
+	"version": "2.0.0",
+	"description": "DevPulse Enterprise Documentation Policy — Macro Law aligned",
+	"targetPath": "interfaces/desktop/src",
+	"rules": {
+		"domain-boundaries": {
+			"description": "Routes import from domain index.ts — domains are pure logic, no .svelte rendering",
+			"tier": 1,
+			"scope": ["routes/**/*.svelte", "routes/**/*.ts"],
+			"enforcement": "error",
+			"autofix": false
+		},
+		"naming-conventions": {
+			"description": "Standardized naming: *.state.svelte.ts, *.service.ts, *.types.ts. No .svelte in domains/.",
+			"tier": 3,
+			"scope": ["lib/**/*"],
+			"enforcement": "warning",
+			"autofix": true,
+			"patterns": {
+				"state": "*.state.svelte.ts",
+				"services": "*.service.ts",
+				"types": "*.types.ts"
+			}
+		},
+		"primitive-structure": {
+			"description": "Every primitive: types.ts + index.ts + anatomy.ts. Layout primitives also need .svelte.",
+			"tier": 1,
+			"scope": ["lib/design/primitives/**/*"],
+			"enforcement": "error",
+			"autofix": false,
+			"layoutPrimitives": [
+				"stack", "row", "separator", "dot", "icon-slot",
+				"surface", "text", "heading", "label"
+			]
+		},
+		"no-style-primitives": {
+			"description": "Primitives are unstyled structural shells — no <style> tags",
+			"tier": 1,
+			"scope": ["lib/design/primitives/**/*.svelte"],
+			"enforcement": "error",
+			"autofix": false
+		},
+		"aria-primitives": {
+			"description": "Every primitive must use semantic HTML or ARIA attributes",
+			"tier": 1,
+			"scope": ["lib/design/primitives/**/*.svelte"],
+			"enforcement": "error",
+			"autofix": false
+		},
+		"component-structure": {
+			"description": "Macro Law: types.ts + index.ts + .svelte with resolveMacro + data-kind + preset (not intent)",
+			"tier": 1,
+			"scope": ["lib/design/components/**/*"],
+			"enforcement": "error",
+			"autofix": false
+		}
+	},
+	"kindMatrix": {
+		"route": {
+			"lifecycle": ["load", "action", "render"],
+			"requiredDocs": ["@description"]
+		},
+		"domain": {
+			"lifecycle": ["init", "ready", "destroy"],
+			"requiredDocs": ["@description", "@module"],
+			"requiredExports": ["index.ts"]
+		},
+		"component": {
+			"lifecycle": ["mount", "update", "destroy"],
+			"requiredDocs": ["@description", "@props"]
+		},
+		"state": {
+			"lifecycle": ["create", "update", "subscribe"],
+			"requiredDocs": ["@description"],
+			"patterns": ["*.state.svelte.ts"]
+		},
+		"service": {
+			"lifecycle": ["init", "call", "dispose"],
+			"requiredDocs": ["@description", "@param", "@returns"],
+			"patterns": ["*.service.ts"]
+		}
+	}
 }

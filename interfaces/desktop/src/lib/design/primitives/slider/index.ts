@@ -1,9 +1,8 @@
 /**
- * @file primitives/slider/index.ts
+ * @file primitives/slider — Structural contract for continuous value selection.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as Slider } from "./Slider.svelte";
+export { sliderAnatomy } from "./anatomy.js";
+export type { SliderOrientation, SliderPrimitiveProps } from "./types.js";

@@ -1,10 +1,5 @@
-import { createAnatomy } from "../../schema/anatomy.schema.js";
-
-export const tableAnatomy = createAnatomy("table", [
-	"root",
-	"header",
-	"body",
-	"row",
-	"cell",
-	"column-header",
-] as const);
+/**
+ * Re-export anatomy from primitives — primitives own structure,
+ * behaviors add interaction on top.
+ */
+export { tableAnatomy } from "$lib/design/primitives/table/anatomy.js";

@@ -1,9 +1,8 @@
 /**
- * @file primitives/toolbar/index.ts
+ * @file primitives/toolbar — Structural contract for grouped action controls.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as Toolbar } from "./Toolbar.svelte";
+export { toolbarAnatomy } from "./anatomy.js";
+export type { ToolbarOrientation, ToolbarPrimitiveProps } from "./types.js";

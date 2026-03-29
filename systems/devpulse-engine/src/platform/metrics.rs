@@ -4,12 +4,11 @@
 //! resource estimates. No faking, no proxying cache counts as memory.
 
 use serde::Serialize;
+use specta::Type;
 use sysinfo::{Pid, System};
-use ts_rs::TS;
 
 /// Real process metrics from the OS. Every field is a measurement, not a guess.
-#[derive(Debug, Clone, Serialize, TS)]
-#[ts(export)]
+#[derive(Debug, Clone, Serialize, Type)]
 pub struct ProcessMetrics {
     /// Process RSS (resident set size) in bytes. This is real memory usage.
     pub memory_rss_bytes: u64,

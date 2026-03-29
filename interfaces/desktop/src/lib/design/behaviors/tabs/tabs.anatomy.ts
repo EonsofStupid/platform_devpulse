@@ -1,3 +1,5 @@
-import { createAnatomy } from "../../schema/anatomy.schema.js";
-
-export const tabsAnatomy = createAnatomy("tabs", ["root", "list", "trigger", "content"] as const);
+/**
+ * Re-export anatomy from primitives — primitives own structure,
+ * behaviors add interaction on top.
+ */
+export { tabsAnatomy } from "$lib/design/primitives/tabs/anatomy.js";

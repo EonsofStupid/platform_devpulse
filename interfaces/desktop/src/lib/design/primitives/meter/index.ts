@@ -1,9 +1,8 @@
 /**
- * @file primitives/meter/index.ts
+ * @file primitives/meter — Structural contract for scalar measurement display.
  * @package @devpulse/coldlight
  * @layer primitive
- *
- * Structural primitive — visual shell, no behavior.
  */
 
-export { default as Meter } from "./Meter.svelte";
+export { meterAnatomy } from "./anatomy.js";
+export type { MeterPrimitiveProps } from "./types.js";

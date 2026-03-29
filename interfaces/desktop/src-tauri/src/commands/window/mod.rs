@@ -12,6 +12,7 @@ use tauri::Manager;
 /// # Errors
 /// Returns an error string if the window cannot be focused or created.
 #[tauri::command]
+#[specta::specta]
 pub async fn open_chat_window(app: tauri::AppHandle) -> Result<(), String> {
     if let Some(window) = app.get_webview_window("chat") {
         window.set_focus().map_err(|e| e.to_string())?;
@@ -33,6 +34,7 @@ pub async fn open_chat_window(app: tauri::AppHandle) -> Result<(), String> {
 /// # Errors
 /// Returns an error string if the window cannot be closed.
 #[tauri::command]
+#[specta::specta]
 pub async fn close_window(label: String, app: tauri::AppHandle) -> Result<(), String> {
     if let Some(window) = app.get_webview_window(&label) {
         window.close().map_err(|e| e.to_string())?;
@@ -45,6 +47,7 @@ pub async fn close_window(label: String, app: tauri::AppHandle) -> Result<(), St
 /// # Errors
 /// Returns an error string if the window cannot be focused.
 #[tauri::command]
+#[specta::specta]
 pub async fn focus_window(label: String, app: tauri::AppHandle) -> Result<(), String> {
     if let Some(window) = app.get_webview_window(&label) {
         window.set_focus().map_err(|e| e.to_string())?;

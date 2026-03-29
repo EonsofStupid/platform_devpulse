@@ -1,235 +1,201 @@
 /**
  * @file preflight/checks/check.naming.ts
- * @description Verify naming conventions
+ * @description Verify naming conventions — standardized for AI and viber clarity.
  *
  * RULES:
- * - Domain pages: *.page.svelte
- * - Rune state modules: *.state.svelte.ts
- * - Services: *.svc.ts
- * - Contracts: *.contract.ts
- * - Registries: *.registry.ts
+ * - Rune state modules: *.state.svelte.ts (NOT .runes.svelte.ts)
+ * - Services: *.service.ts (NOT .svc.ts)
+ * - Types: *.types.ts
+ * - No .svelte files in domains/ (pure logic only)
  */
 
-import fs from 'fs';
-import path from 'path';
-import { registry } from '../engine/registry.js';
-import type { Check, CheckContext, CheckResult } from '../types.js';
+import fs from "fs";
+import path from "path";
+import { registry } from "../engine/registry.js";
+import type { Check, CheckContext, CheckResult } from "../types.js";
 
 interface NamingRule {
-  location: RegExp;
-  patterns: { expected: RegExp; actual: RegExp; description: string; suggestion: string }[];
+	location: RegExp;
+	patterns: {
+		expected: RegExp;
+		actual: RegExp;
+		description: string;
+		suggestion: string;
+	}[];
 }
 
 const NAMING_RULES: NamingRule[] = [
-  {
-    // Domain pages should be *.page.svelte
-    location: /\/domains\/.*\/pages\//,
-    patterns: [
-      {
-        expected: /\.page\.svelte$/,
-        actual: /\.svelte$/,
-        description: 'Domain page component',
-        suggestion: 'Rename to *.page.svelte',
-      },
-    ],
-  },
-  {
-    // State modules should be *.state.svelte.ts
-    location: /\/domains\/.*\/state\//,
-    patterns: [
-      {
-        expected: /\.state\.svelte\.ts$/,
-        actual: /\.ts$/,
-        description: 'State module',
-        suggestion: 'Rename to *.state.svelte.ts',
-      },
-    ],
-  },
-  {
-    // Services should be *.svc.ts
-    location: /\/domains\/.*\/services\//,
-    patterns: [
-      {
-        expected: /\.svc\.ts$/,
-        actual: /\.ts$/,
-        description: 'Service module',
-        suggestion: 'Rename to *.svc.ts',
-      },
-    ],
-  },
-  {
-    // Contracts in domains should be *.contract.ts
-    location: /\/domains\/.*\/contracts\//,
-    patterns: [
-      {
-        expected: /\.contract\.ts$/,
-        actual: /\.ts$/,
-        description: 'Contract module',
-        suggestion: 'Rename to *.contract.ts',
-      },
-    ],
-  },
-  {
-    // System contracts should be *.contract.ts
-    location: /\/sys\/contracts\//,
-    patterns: [
-      {
-        expected: /\.contract\.ts$/,
-        actual: /\.ts$/,
-        description: 'System contract',
-        suggestion: 'Rename to *.contract.ts',
-      },
-    ],
-  },
-  {
-    // Registries should be *.registry.ts
-    location: /\/sys\/registries\//,
-    patterns: [
-      {
-        expected: /\.registry\.ts$/,
-        actual: /\.ts$/,
-        description: 'Registry module',
-        suggestion: 'Rename to *.registry.ts',
-      },
-    ],
-  },
+	{
+		// Rune state files — must use .state.svelte.ts, not .runes.svelte.ts
+		location: /\/domains\/.*\/runes\//,
+		patterns: [
+			{
+				expected: /\.state\.svelte\.ts$/,
+				actual: /\.svelte\.ts$/,
+				description: "State module",
+				suggestion:
+					'Rename to *.state.svelte.ts — "state" is universal, "runes" leaks framework internals',
+			},
+		],
+	},
+	{
+		// Service files — must use .service.ts
+		location: /\/domains\/.*\/services\//,
+		patterns: [
+			{
+				expected: /\.service\.ts$/,
+				actual: /\.ts$/,
+				description: "Service module",
+				suggestion: "Rename to *.service.ts for consistent domain service naming",
+			},
+		],
+	},
+	{
+		// Type files — must use .types.ts
+		location: /\/domains\/.*\/types\//,
+		patterns: [
+			{
+				expected: /\.types\.ts$/,
+				actual: /\.ts$/,
+				description: "Type definition",
+				suggestion: "Rename to *.types.ts for consistent type file naming",
+			},
+		],
+	},
 ];
 
 /** Files to skip in naming checks */
 const SKIP_FILES = [
-  'index.ts',
-  'index.js',
-  'types.ts',
-  'types.d.ts',
-  'constants.ts',
-  'utils.ts',
+	"index.ts",
+	"index.js",
+	"types.ts",
+	"types.d.ts",
+	"constants.ts",
+	"utils.ts",
 ];
 
 function shouldSkip(filePath: string): boolean {
-  const basename = path.basename(filePath);
+	const basename = path.basename(filePath);
 
-  // Skip non-source files
-  if (!filePath.endsWith('.ts') && !filePath.endsWith('.svelte')) {
-    return true;
-  }
+	if (!filePath.endsWith(".ts") && !filePath.endsWith(".svelte")) {
+		return true;
+	}
 
-  // Skip common utility files
-  if (SKIP_FILES.includes(basename)) {
-    return true;
-  }
+	if (SKIP_FILES.includes(basename)) {
+		return true;
+	}
 
-  // Skip test files
-  if (basename.includes('.test.') || basename.includes('.spec.')) {
-    return true;
-  }
+	if (basename.includes(".test.") || basename.includes(".spec.")) {
+		return true;
+	}
 
-  // Skip type declaration files
-  if (basename.endsWith('.d.ts')) {
-    return true;
-  }
+	if (basename.endsWith(".d.ts")) {
+		return true;
+	}
 
-  return false;
+	return false;
 }
 
 function checkFileName(filePath: string): CheckResult | null {
-  if (shouldSkip(filePath)) {
-    return null;
-  }
+	if (shouldSkip(filePath)) {
+		return null;
+	}
 
-  const basename = path.basename(filePath);
+	const basename = path.basename(filePath);
 
-  for (const rule of NAMING_RULES) {
-    if (!rule.location.test(filePath)) {
-      continue;
-    }
+	// HARD RULE: No .svelte files in domains/ — domains are pure logic
+	if (
+		filePath.includes("/domains/") &&
+		basename.endsWith(".svelte") &&
+		!basename.endsWith(".svelte.ts")
+	) {
+		return {
+			checkId: "naming-conventions",
+			status: "fail",
+			severity: "error",
+			message: `"${basename}" is a .svelte file inside domains/ — domains must be pure logic (runes, services, types)`,
+			file: filePath,
+			suggestion:
+				"Move rendering to design/ (components, blocks) or routes/ (thin pages). Domains contain NO .svelte rendering files.",
+			autoFixable: false,
+		};
+	}
 
-    for (const pattern of rule.patterns) {
-      // Check if file matches the actual pattern (e.g., ends with .ts)
-      if (pattern.actual.test(basename)) {
-        // Check if it DOESN'T match the expected pattern
-        if (!pattern.expected.test(basename)) {
-          const expectedName = basename.replace(
-            pattern.actual,
-            pattern.expected.source.replace(/\\\./g, '.').replace(/\$$/, '')
-          );
+	for (const rule of NAMING_RULES) {
+		if (!rule.location.test(filePath)) {
+			continue;
+		}
 
-          return {
-            checkId: 'naming-conventions',
-            status: 'fail',
-            severity: 'warning',
-            message: `${pattern.description} "${basename}" does not follow naming convention`,
-            file: filePath,
-            suggestion: `${pattern.suggestion} (e.g., ${expectedName})`,
-            autoFixable: true,
-          };
-        }
-      }
-    }
-  }
+		for (const pattern of rule.patterns) {
+			if (pattern.actual.test(basename)) {
+				if (!pattern.expected.test(basename)) {
+					return {
+						checkId: "naming-conventions",
+						status: "fail",
+						severity: "warning",
+						message: `${pattern.description} "${basename}" does not follow naming convention`,
+						file: filePath,
+						suggestion: pattern.suggestion,
+						autoFixable: true,
+					};
+				}
+			}
+		}
+	}
 
-  return null;
+	return null;
 }
 
 const namingCheck: Check = {
-  id: 'naming-conventions',
-  name: 'Naming Conventions',
-  description: 'Verify file naming conventions are followed',
+	id: "naming-conventions",
+	name: "Naming Conventions",
+	description:
+		"Verify file naming: *.state.svelte.ts for runes, *.service.ts for services, *.types.ts for types. No .svelte in domains/.",
 
-  async run(ctx: CheckContext): Promise<CheckResult[]> {
-    const results: CheckResult[] = [];
+	async run(ctx: CheckContext): Promise<CheckResult[]> {
+		const results: CheckResult[] = [];
 
-    if (ctx.files.length === 0) {
-      results.push({
-        checkId: 'naming-conventions',
-        status: 'pass',
-        severity: 'info',
-        message: 'No files to check',
-      });
-      return results;
-    }
+		if (ctx.files.length === 0) {
+			results.push({
+				checkId: "naming-conventions",
+				status: "pass",
+				severity: "info",
+				message: "No files to check",
+			});
+			return results;
+		}
 
-    let checkedCount = 0;
-    let violations = 0;
+		let checkedCount = 0;
+		let violations = 0;
 
-    for (const file of ctx.files) {
-      const absolutePath = path.join(ctx.platformRoot, file);
+		for (const file of ctx.files) {
+			const absolutePath = path.join(ctx.platformRoot, file);
 
-      if (!fs.existsSync(absolutePath)) {
-        continue;
-      }
+			if (!fs.existsSync(absolutePath)) {
+				continue;
+			}
 
-      checkedCount++;
-      const result = checkFileName(file);
+			checkedCount++;
+			const result = checkFileName(file);
 
-      if (result) {
-        results.push(result);
-        violations++;
-      }
-    }
+			if (result) {
+				results.push(result);
+				violations++;
+			}
+		}
 
-    // Add summary
-    if (violations === 0) {
-      results.push({
-        checkId: 'naming-conventions',
-        status: 'pass',
-        severity: 'info',
-        message: `${checkedCount} files checked - all follow naming conventions`,
-      });
-    } else {
-      // Add a summary result
-      results.push({
-        checkId: 'naming-conventions',
-        status: 'fail',
-        severity: 'warning',
-        message: `${violations} naming convention violations found in ${checkedCount} files`,
-      });
-    }
+		if (violations === 0) {
+			results.push({
+				checkId: "naming-conventions",
+				status: "pass",
+				severity: "info",
+				message: `${checkedCount} files checked — all follow naming conventions`,
+			});
+		}
 
-    return results;
-  },
+		return results;
+	},
 };
 
-// Register the check
 registry.registerCheck(namingCheck);
-
 export { namingCheck };

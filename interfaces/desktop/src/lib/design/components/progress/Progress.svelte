@@ -23,6 +23,7 @@
 -->
 <script lang="ts">
 import { useProgress } from "$lib/design/behaviors/progress/index.js";
+import { progressAnatomy } from "$lib/design/primitives/progress/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ProgressProps, ProgressSize } from "./progress.types.js";
@@ -50,29 +51,28 @@ const progress = $derived(
 		value,
 		min,
 		max,
-		"aria-label": rest["aria-label"],
-		"aria-labelledby": rest["aria-labelledby"],
+		"aria-label": rest["aria-label"] ?? undefined,
+		"aria-labelledby": rest["aria-labelledby"] ?? undefined,
 	}),
 );
 </script>
 
 <div
+		{...progressAnatomy.attrs.root}
 		{...progress.root}
 		{...m.dataAttrs}
 		style={cssVarString(m.cssVars)}
 		class={cn("w-full overflow-hidden rounded-full", SIZE[size] ?? SIZE.md, className)}
 	>
 		<div
+			{...progressAnatomy.attrs.track}
 			{...progress.track}
 			class="relative h-full w-full"
-			data-kind="progress"
-			data-slot="track"
 		>
 			<div
+				{...progressAnatomy.attrs.fill}
 				{...progress.fill}
 				class="h-full transition-[width] duration-300 ease-out"
-				data-kind="progress"
-				data-slot="fill"
 			></div>
 		</div>
 		{@render children?.()}
