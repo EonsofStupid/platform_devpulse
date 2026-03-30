@@ -7,7 +7,7 @@ edition = "2021"
 default = []
 rro = ["dep:rro"]
 kokoros = ["dep:kokoros"]
-outlines = ["dep:outlines-core"]
+llguidance = ["dep:llguidance"]
 candle = ["dep:candle-core", "dep:candle-nn", "dep:candle-transformers", "dep:tokenizers", "dep:hf-hub"]
 
 [dependencies]
