@@ -68,7 +68,7 @@ body {
 		100% 100%;
 }
 
-[data-layout="app"][data-route="maestro"] {
+[data-layout="app"][data-route="clyffy"] {
 	background:
 		radial-gradient(ellipse 60% 50% at 50% 40%, var(--backdrop-glow-purple) 0%, transparent 70%),
 		linear-gradient(

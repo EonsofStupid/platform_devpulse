@@ -1,6 +1,6 @@
 /**
  * AUTO-GENERATED from kernel_terms.toml — DO NOT EDIT
- * Generated: 2026-03-28T07:00:19.433Z
+ * Generated: 2026-03-30T05:33:41.755Z
  * Source: systems/devpulse-engine/ip/kernel_terms.toml
  *
  * Regenerate: pnpm generate:terminology
@@ -341,7 +341,7 @@ export const TERMS: Record<string, Term> = {
 	"Gus": {
 		engine: "Gus",
 		prod: "Gus",
-		dev: "Maestro",
+		dev: "Clyffy",
 		category: "architecture",
 		context: ["logs","traces","ui-text"],
 	},
@@ -428,10 +428,10 @@ export const FEATURES: Record<string, Feature> = {
 		prod: "Long-Term Memory",
 		dev: "Viper Memory",
 	},
-	"maestro_thoughts": {
+	"clyffy_thoughts": {
 		enabled: false,
 		prod: "Thought Process",
-		dev: "Maestro Thoughts",
+		dev: "Clyffy Thoughts",
 	},
 	"journey_analytics": {
 		enabled: false,

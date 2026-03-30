@@ -90,7 +90,7 @@ export function mapPayloadToDashboard(
 		},
 		recentProjects,
 		system: {
-			maestroLoad: {
+			clyffyLoad: {
 				label: "CPU",
 				value: metrics ? Math.round(metrics.cpu_usage_percent) : 0,
 				max: 100,
@@ -134,7 +134,7 @@ export function getEmptyDashboard(): DashboardData {
 		community: { friends: 0, groups: 0, contributions: 0 },
 		recentProjects: [],
 		system: {
-			maestroLoad: { label: "Maestro Control", value: 0, max: 100, unit: "%" },
+			clyffyLoad: { label: "Clyffy Control", value: 0, max: 100, unit: "%" },
 			contextLoad: { label: "Context Load", value: 0, max: 100, unit: "%" },
 			memoryUsage: { label: "Memory", value: 0, max: 8, unit: "GB" },
 			activityTimeline: { label: "Activity", data: [0] },

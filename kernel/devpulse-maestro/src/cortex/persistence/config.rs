@@ -98,7 +98,7 @@ impl Default for PersistenceConfig {
 }
 
 /// `SurrealDB` namespace configuration.
-/// Follows: maestro/devpulse/reasoning/ pattern with sub-categories.
+/// Follows: clyffy/devpulse/reasoning/ pattern with sub-categories.
 pub struct SurrealNamespace {
     /// Namespace name.
     pub namespace: &'static str,
@@ -109,7 +109,7 @@ pub struct SurrealNamespace {
 impl SurrealNamespace {
     /// Main reasoning namespace
     pub const REASONING: Self = Self {
-        namespace: "maestro",
+        namespace: "clyffy",
         database: "devpulse",
     };
 }

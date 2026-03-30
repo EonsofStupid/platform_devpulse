@@ -18,7 +18,7 @@ jobs:
       releases_created: ${{ steps.release.outputs.releases_created }}
       coldlight_released: ${{ steps.release.outputs['interfaces/desktop/src/lib/design--release_created'] }}
       engine_released: ${{ steps.release.outputs['systems/devpulse-engine--release_created'] }}
-      maestro_released: ${{ steps.release.outputs['kernel/devpulse-maestro--release_created'] }}
+      clyffy_released: ${{ steps.release.outputs['kernel/devpulse-clyffy--release_created'] }}
       desktop_released: ${{ steps.release.outputs['interfaces/desktop--release_created'] }}
     steps:
       - uses: googleapis/release-please-action@v4

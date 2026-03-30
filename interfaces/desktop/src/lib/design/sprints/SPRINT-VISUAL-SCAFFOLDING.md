@@ -184,7 +184,7 @@ Replace raw HTML with ColdLight primitives + child route submenu.
   - overmind → `Brain`
   - wiredfront → `Radio`
   - devforge → `Wrench`
-  - maestro → `Sparkles`
+  - clyffy → `Sparkles`
   - expand/collapse → `PanelLeftOpen` / `PanelLeftClose`
 - [ ] Each nav item: `Tooltip` > `TooltipTrigger` > `Button` + `ButtonIcon`
 - [ ] Active state via `aria-current="page"` (surfaces.css already styles this)

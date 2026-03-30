@@ -1,4 +1,4 @@
-//! Persistence layer for Maestro
+//! Persistence layer for Clyffy
 //!
 //! Five embedded stores for different workloads:
 //! - `LibSQL`: Relational data (users, settings, projects, messages)

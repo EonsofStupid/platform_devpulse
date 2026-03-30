@@ -46,7 +46,7 @@ Chat has MORE business logic than app shell:
 - [ ] **Interactions**: Render AI-structured responses
 - [ ] **Voice button**: Toggle state only
 
-Domain logic (data fetching, AI communication) lives in `domains/chat/` and `domains/maestro/` — NOT here.
+Domain logic (data fetching, AI communication) lives in `domains/chat/` and `domains/clyffy/` — NOT here.
 
 ---
 

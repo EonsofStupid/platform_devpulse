@@ -5,7 +5,7 @@
 :root {
   --backdrop-grid-size-neural: 1.75rem; /** Chat — neural network feel, tightest grid */
   --backdrop-grid-size-magenta: 2rem; /** OverMind grid spacing */
-  --backdrop-grid-size-purple: 2.25rem; /** Maestro grid spacing */
+  --backdrop-grid-size-purple: 2.25rem; /** Clyffy grid spacing */
   --backdrop-grid-size-cyber: 2.375rem; /** WiredFront grid spacing */
   --backdrop-grid-size-teal: 2.5rem; /** DevPulse default grid spacing */
   --backdrop-grid-size-ember: 2.75rem; /** DevForge grid spacing */

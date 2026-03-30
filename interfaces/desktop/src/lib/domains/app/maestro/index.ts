@@ -1,6 +1,6 @@
 /**
- * @file domains/app/maestro/index.ts
- * @module @devpulse/domains/app/maestro
+ * @file domains/app/clyffy/index.ts
+ * @module @devpulse/domains/app/clyffy
  * @description AI orchestrator frontend
  */
 

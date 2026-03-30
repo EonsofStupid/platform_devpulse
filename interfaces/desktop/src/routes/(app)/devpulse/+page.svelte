@@ -59,15 +59,15 @@ $effect(() => {
 	<!-- Row 1: Gauges + Stats -->
 	<div class="col-span-4">
 		<Widget
-			title="Maestro Control"
+			title="Clyffy Control"
 			icon={Gauge}
 			preset="glass"
 		>
 			<div class="flex items-center justify-center py-4">
 				<RadialGauge
-					value={devpulseState.data.system.maestroLoad.value}
-					max={devpulseState.data.system.maestroLoad.max}
-					label={devpulseState.data.system.maestroLoad.label}
+					value={devpulseState.data.system.clyffyLoad.value}
+					max={devpulseState.data.system.clyffyLoad.max}
+					label={devpulseState.data.system.clyffyLoad.label}
 					unit="%"
 					accent="teal"
 					preset="glass"

@@ -58,9 +58,9 @@ export type DevForgeFeature = ???
 ```
 Status: NEEDS DEFINITION
 
-**maestro** (hidden, order: 11)
+**clyffy** (hidden, order: 11)
 ```typescript
-export type MaestroFeature = ???
+export type ClyffyFeature = ???
 ```
 Status: NEEDS DEFINITION
 
@@ -90,8 +90,8 @@ After parking lot items resolved:
 - [ ] 2.2 Add defaultFeature to OVERMIND_DOMAIN
 - [ ] 2.3 Add DevForgeFeature type to devforge.contract.ts
 - [ ] 2.4 Add defaultFeature to DEVFORGE_DOMAIN
-- [ ] 2.5 Add MaestroFeature type to maestro.contract.ts
-- [ ] 2.6 Add defaultFeature to MAESTRO_DOMAIN
+- [ ] 2.5 Add ClyffyFeature type to clyffy.contract.ts
+- [ ] 2.6 Add defaultFeature to CLYFFY_DOMAIN
 - [ ] 2.7 Verify: `pnpm svelte-check` passes
 - [ ] 2.8 COMMIT: `feat(contracts): add feature types to all domain contracts`
 
@@ -103,7 +103,7 @@ After parking lot items resolved:
 - [ ] 3.2 Verify overmind/ structure matches devpulse pattern
 - [ ] 3.3 Verify wiredfront/ structure matches devpulse pattern
 - [ ] 3.4 Verify devforge/ structure matches devpulse pattern
-- [ ] 3.5 Verify maestro/ structure matches devpulse pattern
+- [ ] 3.5 Verify clyffy/ structure matches devpulse pattern
 - [ ] 3.6 Run `pnpm dev` - no errors
 - [ ] 3.7 Navigate to each domain URL manually
 - [ ] 3.8 COMMIT: `chore: verify colocated routing structure`
@@ -122,7 +122,7 @@ After parking lot items resolved:
 
 - [ ] User defines OvermindFeature
 - [ ] User defines DevForgeFeature
-- [ ] User defines MaestroFeature
+- [ ] User defines ClyffyFeature
 - [ ] User confirms ui-demo deletion scope
 
 ---

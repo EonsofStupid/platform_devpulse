@@ -21,7 +21,7 @@ Use `ip_term!("TERM")` macro. The macro handles remapping for engine builds.
 Use the PUBLIC EQUIVALENT from the "engine" column in `kernel_terms.toml`. Never the kernel term.
 
 ### In Desktop Tauri Code
-NEVER import `devpulse-maestro`. Use `devpulse-engine` only. All kernel access goes through the Platform facade.
+NEVER import `devpulse-clyffy`. Use `devpulse-engine` only. All kernel access goes through the Platform facade.
 
 ## Forbidden Terms (outside kernel/)
 
@@ -33,7 +33,7 @@ NEVER import `devpulse-maestro`. Use `devpulse-engine` only. All kernel access g
 
 **Algorithms**: HMM, Hidden Markov Model, state transition matrix, RRF fusion, Reciprocal Rank Fusion, CAG, Context-Augmented Generation, RAG pipeline, Retrieval-Augmented Generation, RKYV, zero-copy deserialization, BM25, cross-encoder, dense retrieval, hybrid search, reranking, speculative decoding, RRO, Reasoning Ready Object
 
-**Architecture**: Maestro, Cortex, Trinity, OverMind
+**Architecture**: Cortex, Trinity
 
 ## Public Equivalents (use these instead)
 
@@ -41,7 +41,6 @@ NEVER import `devpulse-maestro`. Use `devpulse-engine` only. All kernel access g
 |-------------|-------------------|
 | DIARY | Memory |
 | GUARDIAN | Quality Check |
-| Maestro | Gus |
 | Cortex | knowledge engine |
 | Trinity | data layer |
 | rumination | thinking |

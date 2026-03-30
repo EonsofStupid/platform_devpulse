@@ -1,9 +1,9 @@
 <!--
-  @file Maestro Chat
+  @file Clyffy Chat
   @route /chat
   @domain chat
 
-  Cyberpunk HUD chat interface for the Maestro AI assistant.
+  Cyberpunk HUD chat interface for the Clyffy AI assistant.
   Built entirely from ColdLight central library components + chat blocks.
   Messages persist to LibSQL via Tauri IPC.
 -->
@@ -34,7 +34,7 @@ const blockMessages = $derived<BlockChatMessage[]>(
 	messages.map((msg) => ({
 		id: String(msg.id),
 		variant: msg.role === "assistant" ? ("ai" as const) : ("user" as const),
-		author: msg.role === "assistant" ? "Maestro" : undefined,
+		author: msg.role === "assistant" ? "Clyffy" : undefined,
 		content: msg.content,
 		timestamp: msg.created_at ? formatTime(msg.created_at) : undefined,
 	})),

@@ -20,11 +20,11 @@ flowchart TD
     subgraph "systems/engine"
         Engine[DevPulse Engine - Rust]
     end
-    subgraph "kernel/maestro"
-        Maestro[AI Orchestrator - Rust]
+    subgraph "kernel/clyffy"
+        Clyffy[AI Orchestrator - Rust]
     end
     Tauri --> Engine
-    Engine --> Maestro
+    Engine --> Clyffy
 ```
 
 ## Namespaces
@@ -37,7 +37,7 @@ flowchart TD
 | `@devpulse/routes` | SvelteKit routes | Svelte |
 | `@devpulse/tauri` | Desktop commands | Rust |
 | `@devpulse/engine` | Signal engine | Rust |
-| `@devpulse/maestro` | AI orchestrator | Rust |
+| `@devpulse/clyffy` | AI orchestrator | Rust |
 | `@devpulse/scripts` | Build automation | TypeScript |
 
 ## Quick Links

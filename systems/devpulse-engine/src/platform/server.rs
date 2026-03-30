@@ -22,7 +22,7 @@ use axum::http::{HeaderMap, StatusCode};
 use axum::response::IntoResponse;
 use axum::routing::{get, post};
 use axum::Router;
-use devpulse_maestro::cortex::persistence::SurrealAdapter;
+use devpulse_clyffy::cortex::persistence::SurrealAdapter;
 use std::sync::Arc;
 use tokio::net::TcpListener;
 

@@ -3,7 +3,7 @@
 > **Goal**: A directory structure that physically manifests the "Dynamic Persona" architecture.
 > **Philosophy**: Folders are not just storage; they are functional components of the Agentic Lifecycle.
 
-## 1. Cortex (`kernel/devpulse-maestro`)
+## 1. Cortex (`kernel/devpulse-clyffy`)
 **Role**: The "cortex" (State, Reasoning, Safety).
 **Pattern**: Hexagonal Architecture (Ports & Adapters).
 

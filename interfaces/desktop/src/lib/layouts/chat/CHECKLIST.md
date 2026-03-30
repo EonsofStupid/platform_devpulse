@@ -161,8 +161,8 @@ type(layouts/chat/interactions): message
 
 - [ ] Read/write `global.chat_*` state
 - [ ] Read `global.current_domain` (for mode availability)
-- [ ] Emit events to Maestro via event bus
-- [ ] Listen to events from Maestro
+- [ ] Emit events to Clyffy via event bus
+- [ ] Listen to events from Clyffy
 - [ ] Have UI state for interactions
 
 ### layouts/chat CANNOT:
@@ -247,7 +247,7 @@ test('chat overlay floats above content', async ({ page }) => {
 
 ## Event Bus Contract Validation
 
-### Outbound Events (Chat → Maestro)
+### Outbound Events (Chat → Clyffy)
 
 | Event | Payload | Validated |
 |-------|---------|-----------|
@@ -257,15 +257,15 @@ test('chat overlay floats above content', async ({ page }) => {
 | `chat:voice-start` | `void` | [ ] |
 | `chat:voice-end` | `{ audio: Blob }` | [ ] |
 
-### Inbound Events (Maestro → Chat)
+### Inbound Events (Clyffy → Chat)
 
 | Event | Handler | Validated |
 |-------|---------|-----------|
-| `maestro:message-receive` | MessageThread | [ ] |
-| `maestro:interaction-request` | RenderInteraction | [ ] |
-| `maestro:thinking-start` | ShowThinkingIndicator | [ ] |
-| `maestro:thinking-end` | HideThinkingIndicator | [ ] |
-| `maestro:cortex-update` | UpdateCortexPanel | [ ] |
+| `clyffy:message-receive` | MessageThread | [ ] |
+| `clyffy:interaction-request` | RenderInteraction | [ ] |
+| `clyffy:thinking-start` | ShowThinkingIndicator | [ ] |
+| `clyffy:thinking-end` | HideThinkingIndicator | [ ] |
+| `clyffy:cortex-update` | UpdateCortexPanel | [ ] |
 
 ---
 

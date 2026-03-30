@@ -13,7 +13,7 @@
 *   **`lib/cfg/`**
     *   `flags.ts` (SSOT: Feature Flags & IP Protection)
     *   `devpulse/` (Home Config)
-    *   `maestro/` (The AI Kernel)
+    *   `clyffy/` (The AI Kernel)
         *   `minions/` (Persona, Voice, Identity)
         *   `general.ts` (Global AI Settings, MCP Config)
     *   `overmind/` (The ThinkSpace - Top Level)
@@ -48,7 +48,7 @@ class UIState {
 export const ui = new UIState(); // Singleton
 ```
 
-## 3. Maestro Domain Architecture (`src/lib/domains/app/maestro/`)
+## 3. Clyffy Domain Architecture (`src/lib/domains/app/clyffy/`)
 > **Goal**: The "God Mode" AI wrapper, but with a strict "Layman Safe" usage policy.
 
 *   `cortex/` (**Layman Safe / Read Only**)
@@ -71,5 +71,5 @@ export const ui = new UIState(); // Singleton
 ## 3. Execution Plan
 1.  **Refactor**: Move `app_state.svelte.ts` -> `lib/sys/runes/global.svelte.ts`.
 2.  **Scaffold Config**: Create the `lib/cfg` structure.
-3.  **Scaffold Runes**: Create `ui.svelte.ts` and `maestro.svelte.ts`.
+3.  **Scaffold Runes**: Create `ui.svelte.ts` and `clyffy.svelte.ts`.
 4.  **Wiring**: Connect `Frame.svelte` to `ui.sidebar`.

@@ -1,6 +1,6 @@
 //! Service modules — one wrapper per database engine.
 //!
-//! Each service wraps a maestro adapter with a uniform `Service` trait
+//! Each service wraps a clyffy adapter with a uniform `Service` trait
 //! for config-driven boot and health orchestration.
 
 pub mod analytics;

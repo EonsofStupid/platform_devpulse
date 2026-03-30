@@ -472,7 +472,7 @@ function main(): void {
 			ROOTS.routes,
 			path.join(ROOTS.tauri, "src"),
 			path.join(ROOTS.engine, "src"),
-			path.join(ROOTS.maestro, "src"),
+			path.join(ROOTS.clyffy, "src"),
 			ROOTS.scripts,
 			ROOTS.desktopScripts,
 		].filter((d) => fs.existsSync(d));

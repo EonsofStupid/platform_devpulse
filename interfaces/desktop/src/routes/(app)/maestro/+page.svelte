@@ -1,7 +1,7 @@
 <!--
-  @file Maestro Dashboard
-  @route /maestro
-  @domain maestro
+  @file Clyffy Dashboard
+  @route /clyffy
+  @domain clyffy
   Hub: Orchestrator, Minion Fleet, Knowledge Base (RAG/CAG/HyDE), Inference Cache (KV), Context Window
   NOTE: IP-sensitive labels gated behind flags.DEV_MODE
 -->
@@ -16,7 +16,7 @@ import { stack } from "$lib/design/utils/stack/index.js";
 import { DEV_MODE } from "$lib/sys/generated/terminology.js";
 </script>
 
-<div class="grid grid-cols-12 gap-4" data-page="maestro-dashboard">
+<div class="grid grid-cols-12 gap-4" data-page="clyffy-dashboard">
 	<!-- Row 1: Orchestrator + Minion Fleet -->
 	<div class="col-span-4">
 		<Widget
@@ -45,7 +45,7 @@ import { DEV_MODE } from "$lib/sys/generated/terminology.js";
 				{#if DEV_MODE}
 					<div class={hstack({ justify: "between" })}>
 						<Text size="xs" color="muted">Engine</Text>
-						<Text size="xs" color="muted">Maestro Kernel</Text>
+						<Text size="xs" color="muted">Clyffy Kernel</Text>
 					</div>
 				{/if}
 			</div>

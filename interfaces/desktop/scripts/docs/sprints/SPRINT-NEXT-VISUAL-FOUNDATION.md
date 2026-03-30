@@ -31,7 +31,7 @@ For each file:
 - `routes/(app)/devpulse/settings/+page.svelte`
 - `routes/(app)/devpulse/stats/+page.svelte`
 - `routes/(app)/devforge/+page.svelte`
-- `routes/(app)/maestro/+page.svelte`
+- `routes/(app)/clyffy/+page.svelte`
 - `routes/(app)/overmind/+page.svelte`
 - `routes/(app)/wiredfront/+page.svelte`
 
@@ -266,7 +266,7 @@ ChatOverlay at `lib/layouts/app/ChatOverlay.svelte` duplicates the entire chat U
 
 ### What's FAKE / stub:
 - DevForge frontend: Widget blocks with hardcoded fake data ✗
-- Maestro frontend: Widget blocks with fake data (no Candle LLM yet) ✗
+- Clyffy frontend: Widget blocks with fake data (no Candle LLM yet) ✗
 - OverMind frontend: Widget blocks with fake data ✗
 - WiredFront frontend: Widget blocks with fake data ✗
 

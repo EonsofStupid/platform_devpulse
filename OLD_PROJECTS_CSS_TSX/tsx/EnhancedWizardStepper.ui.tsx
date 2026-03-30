@@ -1,9 +1,9 @@
-// File: C:/Users/jessa/Downloads/makers/makers/client/src/domains/admin/features/DataMaestro/components/import/EnhancedWizardStepper.ui.tsx
+// File: C:/Users/jessa/Downloads/makers/makers/client/src/domains/admin/features/DataClyffy/components/import/EnhancedWizardStepper.ui.tsx
 import { ArrowRight, CheckCircle, Circle, Clock, Sparkles } from 'lucide-react';
 import type React from 'react';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/common/lib/cn.utl';
-import { MaestroTooltip } from '../../utils/tooltip';
+import { ClyffyTooltip } from '../../utils/tooltip';
 
 interface Step {
   id: number;
@@ -46,7 +46,7 @@ export const EnhancedWizardStepper: React.FC<EnhancedWizardStepperProps> = ({
   };
 
   return (
-    <MaestroTooltip id="import.wizard">
+    <ClyffyTooltip id="import.wizard">
       <Card className={cn('glass-rich border-neon-cyan/30 overflow-hidden hover-glow', className)}>
         <div className="p-6 bg-gradient-to-br from-slate-900/90 to-blue-900/30">
           <div className="flex items-center justify-between mb-6">
@@ -222,6 +222,6 @@ export const EnhancedWizardStepper: React.FC<EnhancedWizardStepperProps> = ({
           </div>
         </div>
       </Card>
-    </MaestroTooltip>
+    </ClyffyTooltip>
   );
 };

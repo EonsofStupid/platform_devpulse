@@ -14,11 +14,11 @@
 | Top nav tabs ("IoT PALETTES") | Tabs | tabs | EXISTS |
 | Tab bar with underline glow | TabsTrigger | tabs | EXISTS — needs glow preset |
 
-### Left Column — Maestro Control Widget
+### Left Column — Clyffy Control Widget
 | Element | Component | Primitive | Status |
 |---------|-----------|-----------|--------|
 | Widget container (glass panel) | Card → Widget block | — | EXISTS |
-| Widget title "Maestro Control" | Heading | heading | EXISTS |
+| Widget title "Clyffy Control" | Heading | heading | EXISTS |
 | Radial gauge (large circle) | RadialGauge block | — | EXISTS |
 | Gauge tick marks | RadialGauge internal | — | EXISTS |
 | Gauge value text (glow) | Text | — | EXISTS — needs glow text preset |

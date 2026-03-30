@@ -5,7 +5,7 @@
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
-use devpulse_maestro::cortex::persistence::OutlinesAdapter;
+use devpulse_clyffy::cortex::persistence::OutlinesAdapter;
 use std::sync::Arc;
 
 /// Grammar service backed by outlines-core (structured generation).

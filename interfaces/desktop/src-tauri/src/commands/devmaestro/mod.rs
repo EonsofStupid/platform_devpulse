@@ -1,7 +1,7 @@
-//! `DevMaestro` commands — system status and health checks.
+//! `DevClyffy` commands — system status and health checks.
 //!
 //! These commands delegate to the Platform engine.
-//! No maestro types are exposed — only engine public types.
+//! No clyffy types are exposed — only engine public types.
 
 use crate::state::PlatformState;
 use devpulse_engine::platform::SystemHealth;

@@ -24,7 +24,7 @@ One system. Three surfaces. One database. One identity.
    │   VibePulse (VS Code) │ │ Claude Code  │ │  DevPulse (Desktop)  │
    │   Addon to DevPulse   │ │   Hooks      │ │  Tauri + Rust        │
    │   Popup teaching UI   │ │   Skills     │ │  Embedded SurrealDB  │
-   │   SurrealDB manager   │ │   Memory     │ │  Maestro kernel      │
+   │   SurrealDB manager   │ │   Memory     │ │  Clyffy kernel      │
    │   Lesson engine       │ │   Preflight  │ │  ColdLight UI        │
    └──────────┬────────────┘ └──────┬───────┘ └──────────┬──────────┘
               │                     │                     │
@@ -89,7 +89,7 @@ One system. Three surfaces. One database. One identity.
 
 ### 3. DevPulse — Desktop Platform
 
-**What it is**: The Tauri desktop app. Embedded SurrealDB runs inside the binary. Maestro kernel orchestrates AI workloads. ColdLight renders the UI. Zero external dependencies at runtime.
+**What it is**: The Tauri desktop app. Embedded SurrealDB runs inside the binary. Clyffy kernel orchestrates AI workloads. ColdLight renders the UI. Zero external dependencies at runtime.
 
 **Location**: `D:\localdev\platform_devpulse\`
 
@@ -103,7 +103,7 @@ One system. Three surfaces. One database. One identity.
 - ColdLight: 87+ primitives, 80+ components, recipe system, token pipeline
 
 **What it needs**:
-- Hub dashboards (OverMind, WiredFront, DevForge, Maestro, DevPulse)
+- Hub dashboards (OverMind, WiredFront, DevForge, Clyffy, DevPulse)
 - Data flow from standalone SurrealDB → embedded instance
 - Lesson rendering via VibePulse bridge
 - Chat UI beyond plain text
@@ -241,7 +241,7 @@ Any machine. Full context in seconds. No cloud. No accounts. No API keys for mem
 **Status**: Plan written, awaiting approval
 - Fix broken recipe wiring
 - Wire StatusBar icons
-- Build hub dashboards (OverMind, WiredFront, DevForge, Maestro, DevPulse)
+- Build hub dashboards (OverMind, WiredFront, DevForge, Clyffy, DevPulse)
 - Boost visual token values
 
 ### Phase C: VibePulse as DevPulse Addon
@@ -351,7 +351,7 @@ scripts/docs/preflight/
 
 ### Kernel (Sensitive IP)
 ```
-kernel/devpulse-maestro/src/
+kernel/devpulse-clyffy/src/
 ├── cortex/persistence/
 │   └── surreal.rs                # Embedded SurrealDB adapter (355 lines, REAL)
 ├── cortex/minions/               # Sub-agents (Guardian, Diary)
@@ -372,7 +372,7 @@ systems/devpulse-engine/src/
 
 | Internal (Kernel) | Public (DevPulse) | What It Is |
 |---|---|---|
-| Maestro | Gus | AI orchestrator |
+| Clyffy | Gus | AI orchestrator |
 | Cortex | Knowledge Engine | Memory + reasoning |
 | Diary | Memory Minion | Context persistence sub-agent |
 | Guardian | Quality Check | Verification sub-agent |

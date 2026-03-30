@@ -10,7 +10,7 @@
 - [ ] **Profile Optimization**: Are `[profile.dev]` and `[profile.release]` configured for compile times (dev) vs performance (release)?
 
 ## 2. Crate Topology & Integrity
-- [ ] **Dependency Graph**: Does `kernel/maestro` (IP) strictly depend on `kernel/engine` (Facade), and NEVER the inverse?
+- [ ] **Dependency Graph**: Does `kernel/clyffy` (IP) strictly depend on `kernel/engine` (Facade), and NEVER the inverse?
 - [ ] **Circular Dependency Check**: Are `systems/` crates properly isolated?
 - [ ] **Feature Flags**: Are dependencies like `tokio`, `serde` enabled with *only* necessary features to reduce bloat?
 

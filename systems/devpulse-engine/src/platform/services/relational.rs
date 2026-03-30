@@ -7,7 +7,7 @@
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
-use devpulse_maestro::cortex::persistence::LibSqlAdapter;
+use devpulse_clyffy::cortex::persistence::LibSqlAdapter;
 use std::path::Path;
 use std::sync::Arc;
 
@@ -378,7 +378,7 @@ CREATE TABLE IF NOT EXISTS user_concepts (
     introduced_at INTEGER,
     demonstrated_at INTEGER,
     mastery_level INTEGER DEFAULT 0,         -- 0=unknown 1=introduced 2=demonstrated 3=mastered
-    times_used_by_maestro INTEGER DEFAULT 0,
+    times_used_by_clyffy INTEGER DEFAULT 0,
     times_used_by_user INTEGER DEFAULT 0,
     last_referenced INTEGER,
     current_depth INTEGER DEFAULT 3,         -- 3=full explain 2=brief 1=assume known 0=expert

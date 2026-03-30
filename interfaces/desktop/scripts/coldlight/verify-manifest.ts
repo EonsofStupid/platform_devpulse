@@ -4,9 +4,13 @@
  * @package @devpulse/coldlight
  *
  * Verifies that components follow Macro Law:
- * 1. Every component .svelte imports resolveMacro from style-macro
- * 2. Every component .svelte has data-kind on semantic root
- * 3. Components with behaviors import from behaviors/
+ * 1. Root components that render DOM must import resolveMacro (or resolveSvgMacro)
+ * 2. Root components must have data-kind on semantic root
+ *
+ * Exemptions:
+ * - Sub-components (e.g. DialogContent.svelte) inherit from parent — no resolveMacro needed
+ * - Renderless roots (only {@render children?.()}) have no DOM to put data-kind on
+ * - SVG components use resolveSvgMacro instead of style-macro
  *
  * Usage: pnpm coldlight:verify
  */
@@ -20,73 +24,124 @@ const DESKTOP_ROOT = path.resolve(__dirname, "../..");
 const DESIGN_ROOT = path.resolve(DESKTOP_ROOT, "src/lib/design");
 const COMPONENTS_ROOT = path.resolve(DESIGN_ROOT, "components");
 
+const EXCLUDED_DIRS = [".claude", "sprints", "_transport", "_base", "_internal"];
+
 interface Violation {
 	file: string;
 	rule: string;
 	message: string;
 }
 
-function getComponentFiles(): string[] {
-	const files: string[] = [];
-	if (!fs.existsSync(COMPONENTS_ROOT)) return files;
-
-	const kinds = fs
-		.readdirSync(COMPONENTS_ROOT, { withFileTypes: true })
-		.filter((d) => d.isDirectory() && !d.name.startsWith("_") && !d.name.startsWith("."));
-
-	for (const kind of kinds) {
-		const kindDir = path.join(COMPONENTS_ROOT, kind.name);
-		const svelteFiles = fs.readdirSync(kindDir).filter((f) => f.endsWith(".svelte"));
-		for (const f of svelteFiles) {
-			files.push(path.join(kindDir, f));
-		}
-	}
-	return files;
+/** Convert kebab-case to PascalCase: "alert-dialog" → "AlertDialog" */
+function toPascal(kind: string): string {
+	return kind
+		.split("-")
+		.map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+		.join("");
 }
 
-function checkFile(filePath: string): Violation[] {
+/**
+ * Classify a .svelte file:
+ * - "root": The main component (Button.svelte for button/)
+ * - "sub": A compound child (DialogContent.svelte)
+ */
+function classifyFile(fileName: string, kind: string): "root" | "sub" {
+	const rootName = `${toPascal(kind)}.svelte`;
+	return fileName === rootName ? "root" : "sub";
+}
+
+/**
+ * Detect if a .svelte file is renderless (no DOM output).
+ * Renderless components are context providers that just render children.
+ */
+function isRenderless(content: string): boolean {
+	const templateStart = content.lastIndexOf("</script>");
+	if (templateStart === -1) return true;
+	const template = content.slice(templateStart + 9).trim();
+
+	const stripped = template
+		.replace(/<!--[\s\S]*?-->/g, "")
+		.replace(/\{@render\s+children\?\.\(\)\}/g, "")
+		.trim();
+
+	return stripped === "" || stripped === "{@render children?.()}";
+}
+
+function getComponentDirs(): string[] {
+	if (!fs.existsSync(COMPONENTS_ROOT)) return [];
+
+	return fs
+		.readdirSync(COMPONENTS_ROOT, { withFileTypes: true })
+		.filter((d) => d.isDirectory() && !EXCLUDED_DIRS.includes(d.name) && !d.name.startsWith("."))
+		.map((d) => d.name);
+}
+
+function checkFile(filePath: string, kind: string, fileName: string): Violation[] {
 	const violations: Violation[] = [];
 	const content = fs.readFileSync(filePath, "utf-8");
 	const rel = path.relative(DESKTOP_ROOT, filePath).replace(/\\/g, "/");
 
-	// Rule 1: Must import resolveMacro from style-macro
-	if (!content.includes("style-macro")) {
-		violations.push({
-			file: rel,
-			rule: "macro-law-1",
-			message:
-				"Missing import from style-macro (resolveMacro). Every component must use resolveMacro().",
-		});
+	const role = classifyFile(fileName, kind);
+	const renderless = isRenderless(content);
+
+	// Only root components that render DOM need the macro resolver
+	const needsResolver = role === "root" && !renderless;
+
+	// Rule 1: Must import resolveMacro (HTML) or resolveSvgMacro (SVG)
+	if (needsResolver) {
+		const hasStyleResolver = content.includes("style-macro") || content.includes("resolveSvgMacro");
+
+		if (!hasStyleResolver) {
+			violations.push({
+				file: rel,
+				rule: "macro-law-1",
+				message:
+					"Missing import from style-macro (resolveMacro). Root components must use resolveMacro().",
+			});
+		}
 	}
 
 	// Rule 2: Must have data-kind attribute (via spread or direct)
-	if (
-		!content.includes("data-kind") &&
-		!content.includes("m.dataAttrs") &&
-		!content.includes("dataAttrs")
-	) {
-		violations.push({
-			file: rel,
-			rule: "macro-law-2",
-			message:
-				"Missing data-kind attribute on semantic root. Spread m.dataAttrs or set data-kind directly.",
-		});
+	if (needsResolver) {
+		if (
+			!content.includes("data-kind") &&
+			!content.includes("dataAttrs") &&
+			!content.includes("Anatomy")
+		) {
+			violations.push({
+				file: rel,
+				rule: "macro-law-2",
+				message:
+					"Missing data-kind attribute on semantic root. Spread m.dataAttrs or set data-kind directly.",
+			});
+		}
 	}
 
 	return violations;
 }
 
 function main(): void {
-	const files = getComponentFiles();
+	const dirs = getComponentDirs();
 	const allViolations: Violation[] = [];
+	let totalFiles = 0;
 
-	for (const file of files) {
-		const v = checkFile(file);
-		allViolations.push(...v);
+	for (const kind of dirs) {
+		const kindDir = path.join(COMPONENTS_ROOT, kind);
+		const svelteFiles = fs
+			.readdirSync(kindDir)
+			.filter((f) => f.endsWith(".svelte") && !f.includes(".test."));
+
+		for (const f of svelteFiles) {
+			totalFiles++;
+			const v = checkFile(path.join(kindDir, f), kind, f);
+			allViolations.push(...v);
+		}
 	}
 
 	if (allViolations.length === 0) {
-		console.log(`[ColdLight] All ${files.length} component files pass architecture verification.`);
+		console.log(
+			`[ColdLight] All ${totalFiles} component files across ${dirs.length} kinds pass architecture verification.`,
+		);
 		return;
 	}
 
@@ -96,11 +151,7 @@ function main(): void {
 		console.error(`    ${v.message}\n`);
 	}
 
-	// Non-fatal during alignment sprint — report but don't block
-	// Change to process.exit(1) after Phase 4 component alignment is complete
-	console.warn(
-		`[ColdLight] ${allViolations.length} violations reported (non-blocking during alignment sprint).`,
-	);
+	process.exit(1);
 }
 
 main();

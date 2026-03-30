@@ -1,4 +1,4 @@
-# MAESTRO DOMAIN (The AI Interface)
+# CLYFFY DOMAIN (The AI Interface)
 > **Protocol**: IP_PROTECTION.md (Strict Enforcement)
 
 ## 1. Structure & Constraints
@@ -25,5 +25,5 @@
 *   **Content**: Latency, Memory Usage, System Health.
 
 ## 2. Integration
-*   This domain is driven by **Runes** in `src/lib/sys/runes/maestro.svelte.ts`.
-*   It is configured by `src/lib/cfg/maestro/`.
+*   This domain is driven by **Runes** in `src/lib/sys/runes/clyffy.svelte.ts`.
+*   It is configured by `src/lib/cfg/clyffy/`.

@@ -57,7 +57,7 @@ flowchart TD
     Scanner --> |walks| Routes[routes/]
     Scanner --> |walks| Tauri[src-tauri/]
     Scanner --> |walks| Engine[engine/]
-    Scanner --> |walks| Maestro[maestro/]
+    Scanner --> |walks| Clyffy[clyffy/]
     Scanner --> |walks| Scripts[scripts/]
     Scanner --> Manifest[devpulse.manifest.json]
     Manifest --> Inventory[generate-inventory.ts]

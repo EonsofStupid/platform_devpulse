@@ -148,7 +148,7 @@ All built with the ColdLight contract system:
 #### Sidebar.svelte — NEEDS FULL REWRITE
 - Uses raw `<a>` elements with emoji icons (🏠🎨🧠📡🔧🎭)
 - CSS tooltip hack (`.tooltipWrap`) references deleted layout.css
-- 6 nav items: devpulse, ui-demo, overmind, wiredfront, devforge, maestro
+- 6 nav items: devpulse, ui-demo, overmind, wiredfront, devforge, clyffy
 - Missing: ColdLight Button/Tooltip primitives, Lucide icons, child route overlay
 
 #### StatusBar.svelte — NEEDS FULL REWRITE
@@ -171,7 +171,7 @@ routes/
     │   └── community/
     │       └── +page.svelte — Community page
     ├── devforge/+page.svelte
-    ├── maestro/+page.svelte
+    ├── clyffy/+page.svelte
     ├── overmind/+page.svelte
     ├── wiredfront/+page.svelte
     ├── ui-demo/+page.svelte

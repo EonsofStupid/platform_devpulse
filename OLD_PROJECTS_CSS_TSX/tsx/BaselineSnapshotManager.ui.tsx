@@ -1,7 +1,7 @@
-// File: C:/Users/jessa/Downloads/makers/makers/client/src/domains/admin/features/DataMaestro/DataManage/components/BaselineSnapshotManager.ui.tsx
+// File: C:/Users/jessa/Downloads/makers/makers/client/src/domains/admin/features/DataClyffy/DataManage/components/BaselineSnapshotManager.ui.tsx
 import { Clock, Database, Plus, Shield } from 'lucide-react';
 import React, { useEffect } from 'react';
-import { useBaselineStore } from '@/admin/features/DataMaestro/stores/Baseline/Baseline.store';
+import { useBaselineStore } from '@/admin/features/DataClyffy/stores/Baseline/Baseline.store';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';

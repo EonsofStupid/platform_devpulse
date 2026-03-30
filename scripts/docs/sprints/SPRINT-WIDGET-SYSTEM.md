@@ -9,7 +9,7 @@
 
 ## Problem Statement
 
-The Widget block exists and is gold standard. But the dashboard needs purpose-built widgets for: system resource monitoring (real sysinfo data), Maestro/Clyffy persona display with profile switching, service health grids, and chrome-style tabbed interfaces that work across every domain dashboard. These must be properly authored through the ColdLight pipeline — not hacked together.
+The Widget block exists and is gold standard. But the dashboard needs purpose-built widgets for: system resource monitoring (real sysinfo data), Clyffy/Clyffy persona display with profile switching, service health grids, and chrome-style tabbed interfaces that work across every domain dashboard. These must be properly authored through the ColdLight pipeline — not hacked together.
 
 ---
 
@@ -43,20 +43,20 @@ The Widget block exists and is gold standard. But the dashboard needs purpose-bu
 ### What's Missing
 
 1. **SysInfoWidget** — Purpose-built for real process metrics (RSS, CPU, service health)
-2. **PersonaWidget** — Shows active AI expert (Maestro/Clyffy), profile switching, status indicator
+2. **PersonaWidget** — Shows active AI expert (Clyffy/Clyffy), profile switching, status indicator
 3. **ServiceHealthGrid** — Grid of all platform services with state, latency, health status
 4. **Chrome tabs as reusable pattern** — WidgetTabs needs to use real Tabs component (see SPRINT-TABS-FIX)
-5. **Dashboard block compositions** — DashboardMetrics, DashboardCharts, DashboardMaestro, DashboardOverview
+5. **Dashboard block compositions** — DashboardMetrics, DashboardCharts, DashboardClyffy, DashboardOverview
 
 ### Persona System Design
 
 **STOP — Owner Decision Required**
 
-How does the Maestro/Clyffy persona system work?
+How does the Clyffy/Clyffy persona system work?
 
 **What I understand:**
-- Maestro is the AI orchestrator kernel
-- Clyffy is your general persona/profile for Maestro
+- Clyffy is the AI orchestrator kernel
+- Clyffy is your general persona/profile for Clyffy
 - You want the ability to build default profiles
 - The persona widget shows which expert is active
 - Profile switching changes the AI's behavior/personality
@@ -99,7 +99,7 @@ Consumes `SystemHealth` from boot state or periodic health polls.
 **Location**: `blocks/widgets/PersonaWidget.svelte`
 
 Shows active AI persona:
-- Persona name (Maestro/Clyffy/custom)
+- Persona name (Clyffy/Clyffy/custom)
 - Status indicator (active/idle/processing)
 - Avatar or icon
 - Profile switcher dropdown
@@ -120,7 +120,7 @@ Add to `recipes/blocks/widget/`:
 ### Task 6: Dashboard block compositions
 Fill `blocks/dashboards/` with proper blocks that compose widgets:
 - `DashboardMetrics.svelte` — SysInfoWidget + ServiceHealthGrid
-- `DashboardMaestro.svelte` — PersonaWidget + chat summary + context load
+- `DashboardClyffy.svelte` — PersonaWidget + chat summary + context load
 
 ### Task 7: Wire to real data
 - SysInfoWidget calls `invoke("get_process_metrics")` on mount + interval
@@ -171,7 +171,7 @@ blocks/widgets/
 | `blocks/widgets/PersonaWidget.svelte` | NEW |
 | `blocks/widgets/types.ts` | MODIFY — add new block types |
 | `blocks/dashboards/DashboardMetrics.svelte` | NEW |
-| `blocks/dashboards/DashboardMaestro.svelte` | NEW |
+| `blocks/dashboards/DashboardClyffy.svelte` | NEW |
 | `registry/presets.ts` | MODIFY — add 3 presets |
 | `recipes/blocks/widget/` | NEW recipe files |
 | `routes/(app)/devpulse/+page.svelte` | MODIFY — use new blocks |

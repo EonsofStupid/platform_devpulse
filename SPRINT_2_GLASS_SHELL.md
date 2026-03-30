@@ -29,4 +29,4 @@
 ## 3. Verification
 - [ ] Launch `cargo xtask verify-dogfood`
 - [ ] Verify Sidebar toggle works.
-- [ ] Verify Background changes when "DevMaestro" is clicked.
+- [ ] Verify Background changes when "DevClyffy" is clicked.

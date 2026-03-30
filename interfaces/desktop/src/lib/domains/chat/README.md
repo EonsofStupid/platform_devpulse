@@ -32,7 +32,7 @@ The **Chat Domain** handles all chat business logic, state management, and servi
 │                                  │                                           │
 │                    ┌─────────────▼─────────────┐                             │
 │                    │      EVENT BUS            │                             │
-│                    │   (Maestro Integration)   │                             │
+│                    │   (Clyffy Integration)   │                             │
 │                    └───────────────────────────┘                             │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
@@ -48,7 +48,7 @@ The **Chat Domain** handles all chat business logic, state management, and servi
 |-------|----------|----------------|
 | **Visual** | `layouts/chat/` | UI components, styling, animations |
 | **Logic** | `domains/chat/` | State, validation, service calls |
-| **AI** | `domains/maestro/` | LLM orchestration, context management |
+| **AI** | `domains/clyffy/` | LLM orchestration, context management |
 
 ### Data Flow
 
@@ -66,7 +66,7 @@ flowchart TB
         F[tools/]
     end
 
-    subgraph AI["domains/maestro (Orchestration)"]
+    subgraph AI["domains/clyffy (Orchestration)"]
         G[minions/]
         H[cortex/]
     end
@@ -219,9 +219,9 @@ interface ChatTool {
 
 ## Engine Facade Integration
 
-> **ADR-PENDING**: Chat domain communicates with Maestro via event bus.
+> **ADR-PENDING**: Chat domain communicates with Clyffy via event bus.
 
-### Outbound Events (Chat → Maestro)
+### Outbound Events (Chat → Clyffy)
 
 ```typescript
 type ChatOutboundEvent =
@@ -231,14 +231,14 @@ type ChatOutboundEvent =
     | { type: 'chat:tool-invoke'; payload: { toolId: string; input: unknown } };
 ```
 
-### Inbound Events (Maestro → Chat)
+### Inbound Events (Clyffy → Chat)
 
 ```typescript
 type ChatInboundEvent =
-    | { type: 'maestro:message'; payload: { content: string; author: string } }
-    | { type: 'maestro:interaction-request'; payload: InteractionRequest }
-    | { type: 'maestro:tool-result'; payload: { toolId: string; result: unknown } }
-    | { type: 'maestro:thinking'; payload: { active: boolean } };
+    | { type: 'clyffy:message'; payload: { content: string; author: string } }
+    | { type: 'clyffy:interaction-request'; payload: InteractionRequest }
+    | { type: 'clyffy:tool-result'; payload: { toolId: string; result: unknown } }
+    | { type: 'clyffy:thinking'; payload: { active: boolean } };
 ```
 
 ---
@@ -266,7 +266,7 @@ type ChatInboundEvent =
 | ADR | Status | Title |
 |-----|--------|-------|
 | ADR-006 | PENDING | Interaction component contracts |
-| ADR-007 | PENDING | Maestro event bus protocol |
+| ADR-007 | PENDING | Clyffy event bus protocol |
 | ADR-008 | PENDING | Chat mode configuration schema |
 | ADR-009 | PENDING | Tool registration and validation |
 
@@ -277,7 +277,7 @@ type ChatInboundEvent =
 | Resource | Path | Purpose |
 |----------|------|---------|
 | Chat Layout | `layouts/chat/` | Visual layer |
-| Maestro Domain | `domains/maestro/` | AI orchestration |
+| Clyffy Domain | `domains/clyffy/` | AI orchestration |
 | GlobalState | `sys/runes/global.svelte.ts` | Shared state |
 
 ---

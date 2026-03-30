@@ -1,4 +1,4 @@
-// File: C:/Users/jessa/Downloads/makers/makers/client/src/domains/admin/features/DataMaestro/pages/ImportWizard.pg.tsx
+// File: C:/Users/jessa/Downloads/makers/makers/client/src/domains/admin/features/DataClyffy/pages/ImportWizard.pg.tsx
 import { motion } from 'framer-motion';
 import { ArrowLeft, Crown, Database, Sparkles, Zap } from 'lucide-react';
 import type React from 'react';
@@ -14,20 +14,20 @@ import {
   UniversalImportStep,
   WizardStepRenderer,
 } from '../components/import';
-// Data Maestro Integration
-import { MaestroErrorBoundary } from '../components';
-import { useEnhancedMaestroPermissions } from '../guards/EnhancedMaestroPermissionGuard';
-import { DashboardTooltip, ImportTooltip } from '../utils/tooltip/MaestroTooltip';
+// Data Clyffy Integration
+import { ClyffyErrorBoundary } from '../components';
+import { useEnhancedClyffyPermissions } from '../guards/EnhancedClyffyPermissionGuard';
+import { DashboardTooltip, ImportTooltip } from '../utils/tooltip/ClyffyTooltip';
 
-import { MaestroOperationWrapper, MaestroProgressBar } from '../components/MaestroVisualFeedback';
+import { ClyffyOperationWrapper, ClyffyProgressBar } from '../components/ClyffyVisualFeedback';
 import { useImportWizardStore } from '../stores/import-wizard.store';
-import type { DataMaestroItemType } from '../hooks/useImport/useDataMaestroImport';
-import { maestroToast } from '../services/maestro-toast-enhanced';
+import type { DataClyffyItemType } from '../hooks/useImport/useDataClyffyImport';
+import { clyffyToast } from '../services/clyffy-toast-enhanced';
 
 export const ImportWizard: React.FC = () => {
   const { sessionId } = useParams<{ sessionId?: string }>();
   const router = useRouter();
-  const permissions = useEnhancedMaestroPermissions();
+  const permissions = useEnhancedClyffyPermissions();
 
   // Zustand store
   const {
@@ -69,7 +69,7 @@ export const ImportWizard: React.FC = () => {
 
     try {
       setLoading(true);
-      maestroToast.spooky('Summoning Import Session', {
+      clyffyToast.spooky('Summoning Import Session', {
         description: 'Retrieving your magical data processing session...',
       });
 
@@ -83,7 +83,7 @@ export const ImportWizard: React.FC = () => {
 
       setSession(data);
       setSessionId(sessionId);
-      setItemType((data.type as DataMaestroItemType) || null);
+      setItemType((data.type as DataClyffyItemType) || null);
 
       const mappings = data.column_mappings;
       if (mappings && typeof mappings === 'object') {
@@ -146,15 +146,15 @@ export const ImportWizard: React.FC = () => {
 
       setCurrentStep(targetStep);
 
-      maestroToast.success('Session Restored Successfully', {
+      clyffyToast.success('Session Restored Successfully', {
         description: `Continuing from step ${targetStep}: ${steps[targetStep - 1]?.title}`,
       });
     } catch (error: unknown) {
-      maestroToast.error('Session Loading Failed', {
+      clyffyToast.error('Session Loading Failed', {
         description: error instanceof Error ? error.message : 'Failed to retrieve import session',
         action: {
           label: 'Return to Hub',
-          onClick: () => router.navigate({ to: '/admin/maestro/import' }),
+          onClick: () => router.navigate({ to: '/admin/clyffy/import' }),
         },
       });
     } finally {
@@ -181,7 +181,7 @@ export const ImportWizard: React.FC = () => {
             setImportStrategy(data.importStrategy);
             updateData.metadata.item_type = data.itemType;
             updateData.metadata.import_strategy = data.importStrategy;
-            maestroToast.festive('Import Configuration Set', {
+            clyffyToast.festive('Import Configuration Set', {
               description: data.itemType
                 ? `Ready to import ${data.itemType.replace('mi3dp_', '').replace('_', ' ')} with ${data.importStrategy} strategy`
                 : `Import strategy set to ${data.importStrategy}`,
@@ -189,7 +189,7 @@ export const ImportWizard: React.FC = () => {
             break;
           case 2:
             setSession(data.session);
-            maestroToast.spooky('File Upload Complete', {
+            clyffyToast.spooky('File Upload Complete', {
               description: 'Your data file has been processed and validated!',
             });
             break;
@@ -198,20 +198,20 @@ export const ImportWizard: React.FC = () => {
             updateData.metadata.new_fields = data.newFields;
             updateData.metadata.auto_id_config = data.autoIdConfig;
             updateData.status = 'mapped';
-            maestroToast.success('Field Mapping Complete', {
+            clyffyToast.success('Field Mapping Complete', {
               description: `Mapped ${Object.keys(data.mappings).length} columns successfully`,
             });
             break;
           case 4:
             updateData.metadata.schema_evolution = data;
             updateData.status = 'schema_evolved';
-            maestroToast.festive('Schema Evolution Complete', {
+            clyffyToast.festive('Schema Evolution Complete', {
               description: 'Database structure has been enhanced for your data',
             });
             break;
           case 5:
             updateData.status = 'previewed';
-            maestroToast.info('Data Preview Complete', {
+            clyffyToast.info('Data Preview Complete', {
               description: 'Ready to proceed with AI analysis and validation',
             });
             break;
@@ -220,7 +220,7 @@ export const ImportWizard: React.FC = () => {
             updateData.metadata.ai_analysis = data;
             updateData.metadata.approved_gaps = data.approvedGaps;
             updateData.status = 'ai_analyzed';
-            maestroToast.spooky('AI Analysis Complete', {
+            clyffyToast.spooky('AI Analysis Complete', {
               description: 'Your data has been enhanced with artificial intelligence',
             });
             break;
@@ -229,11 +229,11 @@ export const ImportWizard: React.FC = () => {
             updateData.metadata.enterprise_validation = data;
             updateData.status = 'baseline_validated';
             if (permissions.isSuperAdmin) {
-              maestroToast.critical('Enterprise Validation Complete', {
+              clyffyToast.critical('Enterprise Validation Complete', {
                 description: 'Data meets all enterprise security and quality standards',
               });
             } else {
-              maestroToast.success('Validation Complete', {
+              clyffyToast.success('Validation Complete', {
                 description: 'Data has been validated and approved for import',
               });
             }
@@ -241,7 +241,7 @@ export const ImportWizard: React.FC = () => {
           case 8:
             updateData.metadata.validated_data = data;
             updateData.status = 'validated';
-            maestroToast.festive('Final Validation Complete', {
+            clyffyToast.festive('Final Validation Complete', {
               description: 'All systems green! Ready for import execution',
             });
             break;
@@ -256,7 +256,7 @@ export const ImportWizard: React.FC = () => {
         markStepCompleted(step);
       }
     } catch (error: unknown) {
-      maestroToast.error('Progress Save Failed', {
+      clyffyToast.error('Progress Save Failed', {
         description: error instanceof Error ? error.message : 'Failed to save wizard progress',
         action: {
           label: 'Retry',
@@ -342,8 +342,8 @@ export const ImportWizard: React.FC = () => {
   };
 
   return (
-    <MaestroErrorBoundary>
-      <MaestroOperationWrapper
+    <ClyffyErrorBoundary>
+      <ClyffyOperationWrapper
         isLoading={loading}
         loadingMessage="Processing import wizard..."
         variant="festive"
@@ -361,7 +361,7 @@ export const ImportWizard: React.FC = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => router.navigate({ to: '/admin/maestro/import' })}
+                    onClick={() => router.navigate({ to: '/admin/clyffy/import' })}
                     className="border-gray-600 text-gray-300 hover:bg-gray-800 font-orbitron hover-glow"
                   >
                     <ArrowLeft className="w-4 h-4 mr-2" />
@@ -461,7 +461,7 @@ export const ImportWizard: React.FC = () => {
             </motion.div>
 
             {/* Progress Bar */}
-            <MaestroProgressBar
+            <ClyffyProgressBar
               progress={(currentStep / steps.length) * 100}
               currentStep={steps[currentStep - 1]?.title}
               variant="spooky"
@@ -503,7 +503,7 @@ export const ImportWizard: React.FC = () => {
             </div>
           </div>
         </div>
-      </MaestroOperationWrapper>
-    </MaestroErrorBoundary>
+      </ClyffyOperationWrapper>
+    </ClyffyErrorBoundary>
   );
 };

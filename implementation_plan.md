@@ -1,34 +1,34 @@
 # M1 Foundation Scaffold: Build Plan
 
 > **Status**: AWAITING APPROVAL
-> **Pattern**: Incremental (Maestro → Engine → Databases)
+> **Pattern**: Incremental (Clyffy → Engine → Databases)
 
 ---
 
-## Phase 1: Maestro/Cortex Scaffold
+## Phase 1: Clyffy/Cortex Scaffold
 
 ### 1.1 Delete Legacy Flat Files
 ```bash
-rm kernel/devpulse-maestro/src/memory.rs
-rm kernel/devpulse-maestro/src/reasoning.rs
+rm kernel/devpulse-clyffy/src/memory.rs
+rm kernel/devpulse-clyffy/src/reasoning.rs
 ```
 
 ### 1.2 Create Hexagonal Directory Tree
 ```bash
-mkdir -p kernel/devpulse-maestro/src/cortex/traits
-mkdir -p kernel/devpulse-maestro/src/cortex/adapters
-mkdir -p kernel/devpulse-maestro/src/cortex/domain
+mkdir -p kernel/devpulse-clyffy/src/cortex/traits
+mkdir -p kernel/devpulse-clyffy/src/cortex/adapters
+mkdir -p kernel/devpulse-clyffy/src/cortex/domain
 ```
 
 ### 1.3 Create Trait Definitions (Ports)
-**File**: `kernel/devpulse-maestro/src/cortex/traits/mod.rs`
+**File**: `kernel/devpulse-clyffy/src/cortex/traits/mod.rs`
 ```rust
 pub mod memory;
 pub mod reasoning;
 pub mod security;
 ```
 
-**File**: `kernel/devpulse-maestro/src/cortex/traits/memory.rs`
+**File**: `kernel/devpulse-clyffy/src/cortex/traits/memory.rs`
 ```rust
 /// The Memory Port (Contract)
 pub trait MemoryBank {
@@ -37,7 +37,7 @@ pub trait MemoryBank {
 }
 ```
 
-**File**: `kernel/devpulse-maestro/src/cortex/traits/reasoning.rs`
+**File**: `kernel/devpulse-clyffy/src/cortex/traits/reasoning.rs`
 ```rust
 /// The Reasoning Port (Contract)
 pub trait ReasoningEngine {
@@ -45,7 +45,7 @@ pub trait ReasoningEngine {
 }
 ```
 
-**File**: `kernel/devpulse-maestro/src/cortex/traits/security.rs`
+**File**: `kernel/devpulse-clyffy/src/cortex/traits/security.rs`
 ```rust
 /// The Identity Port (Contract)
 pub trait IdentityProvider {
@@ -54,14 +54,14 @@ pub trait IdentityProvider {
 ```
 
 ### 1.4 Create Stub Adapters (Implementations)
-**File**: `kernel/devpulse-maestro/src/cortex/adapters/mod.rs`
+**File**: `kernel/devpulse-clyffy/src/cortex/adapters/mod.rs`
 ```rust
 pub mod surreal;
 pub mod hmm;
 pub mod buffer;
 ```
 
-**File**: `kernel/devpulse-maestro/src/cortex/adapters/surreal.rs`
+**File**: `kernel/devpulse-clyffy/src/cortex/adapters/surreal.rs`
 ```rust
 use crate::cortex::traits::memory::MemoryBank;
 
@@ -77,7 +77,7 @@ impl MemoryBank for SurrealAdapter {
 }
 ```
 
-**File**: `kernel/devpulse-maestro/src/cortex/adapters/hmm.rs`
+**File**: `kernel/devpulse-clyffy/src/cortex/adapters/hmm.rs`
 ```rust
 use crate::cortex::traits::reasoning::ReasoningEngine;
 
@@ -90,7 +90,7 @@ impl ReasoningEngine for HmmAdapter {
 }
 ```
 
-**File**: `kernel/devpulse-maestro/src/cortex/adapters/buffer.rs`
+**File**: `kernel/devpulse-clyffy/src/cortex/adapters/buffer.rs`
 ```rust
 use crate::cortex::traits::security::IdentityProvider;
 
@@ -104,24 +104,24 @@ impl IdentityProvider for BufferAdapter {
 ```
 
 ### 1.5 Create Domain Logic
-**File**: `kernel/devpulse-maestro/src/cortex/domain/mod.rs`
+**File**: `kernel/devpulse-clyffy/src/cortex/domain/mod.rs`
 ```rust
 pub mod agents;
 pub mod factory;
 ```
 
-**File**: `kernel/devpulse-maestro/src/cortex/domain/agents.rs`
+**File**: `kernel/devpulse-clyffy/src/cortex/domain/agents.rs`
 ```rust
 // Agent logic using only traits (no direct adapter imports)
 ```
 
-**File**: `kernel/devpulse-maestro/src/cortex/domain/factory.rs`
+**File**: `kernel/devpulse-clyffy/src/cortex/domain/factory.rs`
 ```rust
 // Factory logic
 ```
 
 ### 1.6 Create Wiring (DI Container)
-**File**: `kernel/devpulse-maestro/src/cortex/wiring.rs`
+**File**: `kernel/devpulse-clyffy/src/cortex/wiring.rs`
 ```rust
 use crate::cortex::adapters::surreal::SurrealAdapter;
 use crate::cortex::adapters::hmm::HmmAdapter;
@@ -144,7 +144,7 @@ impl CortexWiring {
 ```
 
 ### 1.7 Update Root Module
-**File**: `kernel/devpulse-maestro/src/cortex/mod.rs`
+**File**: `kernel/devpulse-clyffy/src/cortex/mod.rs`
 ```rust
 pub mod traits;
 pub mod adapters;
@@ -152,7 +152,7 @@ pub mod domain;
 pub mod wiring;
 ```
 
-**File**: `kernel/devpulse-maestro/src/lib.rs`
+**File**: `kernel/devpulse-clyffy/src/lib.rs`
 ```rust
 pub mod cortex;
 
@@ -169,7 +169,7 @@ impl Cortex {
 
 ### 1.8 Verification
 ```bash
-cd kernel/devpulse-maestro
+cd kernel/devpulse-clyffy
 cargo check
 ```
 
@@ -330,8 +330,8 @@ rkyv = { version = "0.7", features = ["validation"] }
 candle-core = "0.8"
 ```
 
-### 3.2 Add to Maestro Cargo.toml
-**File**: `kernel/devpulse-maestro/Cargo.toml`
+### 3.2 Add to Clyffy Cargo.toml
+**File**: `kernel/devpulse-clyffy/Cargo.toml`
 ```toml
 [dependencies]
 surrealdb = { workspace = true }
@@ -359,10 +359,10 @@ cargo check --workspace
 
 ## Approval Gate
 
-**Status**: Awaiting user review of Phase 1 (Maestro scaffold structure)
+**Status**: Awaiting user review of Phase 1 (Clyffy scaffold structure)
 
 Once Phase 1 approved:
-- [ ] Execute Maestro scaffold
+- [ ] Execute Clyffy scaffold
 - [ ] User reviews
 - [ ] Execute Engine scaffold
 - [ ] User reviews

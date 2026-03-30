@@ -18,7 +18,7 @@
 ## 3. Architecture Integrity
 - [x] **Type Alignment Plan**: Define how `kernel/engine` types sync to `interfaces/desktop`.
     - *Resolution*: **Strict Automation** (`ts-rs` export on Engine signals).
-- [x] **Dependency Graph Validation**: Ensure strict layer separation (Maestro -> Engine -> Desktop).
+- [x] **Dependency Graph Validation**: Ensure strict layer separation (Clyffy -> Engine -> Desktop).
     - *Resolution*: Enforced by `xtask` orchestrator.
 
 ## 4. Lab Separation

@@ -7,7 +7,7 @@
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
-use devpulse_maestro::cortex::persistence::SurrealAdapter;
+use devpulse_clyffy::cortex::persistence::SurrealAdapter;
 use std::path::Path;
 use std::sync::Arc;
 

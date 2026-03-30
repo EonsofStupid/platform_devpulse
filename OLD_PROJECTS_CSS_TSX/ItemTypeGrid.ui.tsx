@@ -1,4 +1,4 @@
-// File: C:/Users/jessa/Downloads/makers/makers/client/src/domains/admin/features/DataMaestro/components/ItemTypeGrid.ui.tsx
+// File: C:/Users/jessa/Downloads/makers/makers/client/src/domains/admin/features/DataClyffy/components/ItemTypeGrid.ui.tsx
 import { motion } from 'framer-motion';
 import {
   BarChart3,
@@ -20,7 +20,7 @@ import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import type { ItemType } from '@/types/data-maestro-types';
+import type { ItemType } from '@/types/data-clyffy-types';
 
 interface ItemTypeGridProps {
   itemTypes: ItemType[];

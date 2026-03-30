@@ -49,7 +49,7 @@
 		},
 		"purple": {
 			"$value": "36px",
-			"$description": "Maestro grid spacing"
+			"$description": "Clyffy grid spacing"
 		},
 		"cyber": {
 			"$value": "38px",

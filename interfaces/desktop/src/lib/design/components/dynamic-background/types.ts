@@ -13,7 +13,7 @@ export type BackgroundVariant =
 	| "overmind"
 	| "wiredfront"
 	| "devforge"
-	| "maestro";
+	| "clyffy";
 
 export interface DynamicBackgroundProps extends UIBaseProps {
 	/** Which domain/state background to show */

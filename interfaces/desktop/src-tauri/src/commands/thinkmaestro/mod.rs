@@ -1,4 +1,4 @@
-//! @file src-tauri/src/commands/thinkmaestro/mod.rs
+//! @file src-tauri/src/commands/thinkclyffy/mod.rs
 //! @name mod.rs
 //! @layer tauri
 //!

@@ -103,7 +103,7 @@
 |-------|-----|-------|
 | `--glow-off` | — | No emission |
 | `--glow-teal` | DevPulse | Primary teal glow |
-| `--glow-purple` | Maestro | Purple glow |
+| `--glow-purple` | Clyffy | Purple glow |
 | `--glow-magenta` | OverMind | Magenta glow |
 | `--glow-ember` | DevForge | Orange/red glow |
 | `--glow-frost` | — | Cool white glow |
@@ -127,7 +127,7 @@ Each hub has a full accent triplet:
 | Hub | Main | Glow | Fill |
 |-----|------|------|------|
 | teal (DevPulse) | `--accent-teal-main` | `--accent-teal-glow` | `--accent-teal-fill` |
-| purple (Maestro) | `--accent-purple-main` | `--accent-purple-glow` | `--accent-purple-fill` |
+| purple (Clyffy) | `--accent-purple-main` | `--accent-purple-glow` | `--accent-purple-fill` |
 | magenta (OverMind) | `--accent-magenta-main` | `--accent-magenta-glow` | `--accent-magenta-fill` |
 | ember (DevForge) | `--accent-ember-main` | `--accent-ember-glow` | `--accent-ember-fill` |
 | cyber (WiredFront) | `--accent-cyber-main` | `--accent-cyber-glow` | `--accent-cyber-fill` |
@@ -282,8 +282,8 @@ Each hub has a full accent triplet:
 | Token | Hub |
 |-------|-----|
 | `--backdrop-glow-teal` | DevPulse |
-| `--backdrop-glow-purple` | Maestro |
-| `--backdrop-glow-purple-fade` | Maestro (faded) |
+| `--backdrop-glow-purple` | Clyffy |
+| `--backdrop-glow-purple-fade` | Clyffy (faded) |
 | `--backdrop-glow-magenta` | OverMind |
 | `--backdrop-glow-ember` | DevForge |
 | `--backdrop-glow-cyber` | WiredFront |
@@ -292,7 +292,7 @@ Each hub has a full accent triplet:
 | Token | Hub |
 |-------|-----|
 | `--backdrop-grid-teal` | DevPulse |
-| `--backdrop-grid-purple` | Maestro |
+| `--backdrop-grid-purple` | Clyffy |
 | `--backdrop-grid-magenta` | OverMind |
 | `--backdrop-grid-ember` | DevForge |
 | `--backdrop-grid-cyber` | WiredFront |
@@ -302,7 +302,7 @@ Each hub has a full accent triplet:
 | Token | Hub |
 |-------|-----|
 | `--backdrop-grid-size-teal` | DevPulse spacing |
-| `--backdrop-grid-size-purple` | Maestro spacing |
+| `--backdrop-grid-size-purple` | Clyffy spacing |
 | `--backdrop-grid-size-magenta` | OverMind spacing |
 | `--backdrop-grid-size-ember` | DevForge spacing |
 | `--backdrop-grid-size-cyber` | WiredFront spacing |
@@ -375,7 +375,7 @@ Each hub has a full accent triplet:
 ### Mint (Secondary)
 `--color-mint-200` through `--color-mint-900` (8 steps used)
 
-### Purple (Maestro)
+### Purple (Clyffy)
 `--color-purple-50` through `--color-purple-900` (10 steps)
 
 ### Magenta (OverMind)
@@ -475,7 +475,7 @@ The four combinable base families. Every component kind starts from one of these
 | Hub | Glow Override | Frame Override | Backdrop |
 |-----|--------------|----------------|----------|
 | DevPulse | `--glow-teal` | `--border-style-accent-teal` | `--backdrop-glow-teal` |
-| Maestro | `--glow-purple` | `--border-style-accent-purple` | `--backdrop-glow-purple` |
+| Clyffy | `--glow-purple` | `--border-style-accent-purple` | `--backdrop-glow-purple` |
 | OverMind | `--glow-magenta` | — | `--backdrop-glow-magenta` |
 | DevForge | `--glow-ember` | — | `--backdrop-glow-ember` |
 | WiredFront | `--glow-cyber` | — | `--backdrop-glow-cyber` |
@@ -492,4 +492,4 @@ VPB reads this document to:
 4. **Detect hardcoded values** — any raw color/size not through `var()` = violation
 5. **Generate presets** — user selects tokens per axis → VPB writes DTCG JSON → SD5 compiles
 6. **Import external projects** — scan for matching `var()` patterns, deduplicate, absorb
-7. **Domain scoping** — presets can declare a hub scope (devpulse, maestro, etc.) or be platform-wide
+7. **Domain scoping** — presets can declare a hub scope (devpulse, clyffy, etc.) or be platform-wide

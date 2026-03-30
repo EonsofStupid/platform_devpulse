@@ -5,7 +5,7 @@
 ## 1. Domain Hierarchy (The Flow)
 1.  **`Home` (DevPulse)**: The Entry Point. The Central Hub.
 2.  **`OverMind` (Sandbox)**: The Lab. (Navigation from Home).
-3.  **`Projects` (DevMaestro)**: The Work. (Navigation from Home).
+3.  **`Projects` (DevClyffy)**: The Work. (Navigation from Home).
 4.  **`WiredFront` (Overlay)**: The Face. (Always available).
 
 ## 2. Phase 1: The Home Domain (DevPulse)

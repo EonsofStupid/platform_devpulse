@@ -410,12 +410,12 @@ Run `pnpm headers:fix` to patch missing tags and inject missing headers.
 | @devpulse/domains/app | 29 |
 | @devpulse/domains/chat | 1 |
 | @devpulse/domains/common | 1 |
-| @devpulse/domains/maestro | 1 |
+| @devpulse/domains/clyffy | 1 |
 | @devpulse/domains/notify | 1 |
 | @devpulse/routes | 15 |
 | @devpulse/tauri | 14 |
 | @devpulse/engine | 14 |
-| @devpulse/maestro | 45 |
+| @devpulse/clyffy | 45 |
 | @devpulse/scripts | 26 |
 
 ---

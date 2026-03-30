@@ -1,4 +1,4 @@
-// File: C:/Users/jessa/Downloads/makers/makers/client/src/domains/admin/features/DataMaestro/pages/DataManagement/SingleEntryCreator.tsx
+// File: C:/Users/jessa/Downloads/makers/makers/client/src/domains/admin/features/DataClyffy/pages/DataManagement/SingleEntryCreator.tsx
 import type React from 'react';
 import { useState } from 'react';
 import { useSearch, useRouter } from '@tanstack/react-router';
@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Mi3dpPartsService } from '@/domains/admin/features/DataMaestro/services/Mi3dpParts';
+import { Mi3dpPartsService } from '@/domains/admin/features/DataClyffy/services/Mi3dpParts';
 
 import { ArrowLeft, Cpu, Database, FileText, Sparkles, Wrench } from 'lucide-react';
 import { useRouter as useTanstackRouter } from '@tanstack/react-router';
@@ -91,7 +91,7 @@ export const SingleEntryCreator: React.FC = () => {
       title: '✨ Redirecting to CMS',
       description: 'Opening rich content editor for CMS content creation',
     });
-    navigate('/admin/maestro/cms/create');
+    navigate('/admin/clyffy/cms/create');
   };
 
   const handlePartsSubmit = async (data: PartsFormData) => {
@@ -119,7 +119,7 @@ export const SingleEntryCreator: React.FC = () => {
         description: `${config.name} created successfully with magical precision`,
       });
 
-      navigate('/admin/maestro/data-management');
+      navigate('/admin/clyffy/data-management');
     } catch (error: any) {
       toast({
         title: 'Error',
@@ -153,7 +153,7 @@ export const SingleEntryCreator: React.FC = () => {
         description: `${config.name} created successfully with magical precision`,
       });
 
-      navigate('/admin/maestro/data-management');
+      navigate('/admin/clyffy/data-management');
     } catch (error: any) {
       toast({
         title: 'Error',
@@ -189,7 +189,7 @@ export const SingleEntryCreator: React.FC = () => {
         description: `${config.name} created successfully with magical precision`,
       });
 
-      navigate('/admin/maestro/data-management');
+      navigate('/admin/clyffy/data-management');
     } catch (error: any) {
       toast({
         title: 'Error',
@@ -202,10 +202,10 @@ export const SingleEntryCreator: React.FC = () => {
   };
 
   const handleCancel = () => {
-    navigateRouter.navigate({ to: '/admin/maestro/data-management' });
-    navigateRouter.navigate({ to: '/admin/maestro/data-management' });
-    navigateRouter.navigate({ to: '/admin/maestro/data-management' });
-    navigateRouter.navigate({ to: '/admin/maestro/data-management' });
+    navigateRouter.navigate({ to: '/admin/clyffy/data-management' });
+    navigateRouter.navigate({ to: '/admin/clyffy/data-management' });
+    navigateRouter.navigate({ to: '/admin/clyffy/data-management' });
+    navigateRouter.navigate({ to: '/admin/clyffy/data-management' });
   };
 
   const renderForm = () => {
@@ -245,7 +245,7 @@ export const SingleEntryCreator: React.FC = () => {
                 CMS Content Creation
               </h3>
               <p className="text-gray-300 font-rajdhani text-lg mb-6">
-                Rich content with visual editor and Data Maestro item linking
+                Rich content with visual editor and Data Clyffy item linking
               </p>
             </div>
             <Button
@@ -267,7 +267,7 @@ export const SingleEntryCreator: React.FC = () => {
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
         <Button
-          onClick={() => navigate('/admin/maestro/data-management')}
+          onClick={() => navigate('/admin/clyffy/data-management')}
           variant="ghost"
           size="sm"
           className="text-gray-400 hover:text-neon-cyan hover:bg-neon-cyan/20 hover:scale-105 transition-all duration-300"

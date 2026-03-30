@@ -28,7 +28,7 @@ sequential {
 	`$str` where {
 		$str <: string_fragment(),
 		$str <: or {
-			r"Maestro",
+			r"Clyffy",
 			r"Cortex",
 			r"Trinity",
 			r"OverMind"

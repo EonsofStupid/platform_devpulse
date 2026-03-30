@@ -10,7 +10,7 @@
 |-------|--------|--------|
 | DashboardMetrics | Stat cards + widgets | Pending |
 | DashboardCharts | Chart-focused layout | Pending |
-| DashboardMaestro | AI orchestrator view | Pending |
+| DashboardClyffy | AI orchestrator view | Pending |
 | DashboardOverview | Summary view | Pending |
 
 ---
@@ -19,7 +19,7 @@
 
 - [ ] DashboardMetrics.svelte created
 - [ ] DashboardCharts.svelte created
-- [ ] DashboardMaestro.svelte created
+- [ ] DashboardClyffy.svelte created
 - [ ] DashboardOverview.svelte created
 - [ ] All presets in recipes/presets/dashboards/
 - [ ] All exports in index.ts

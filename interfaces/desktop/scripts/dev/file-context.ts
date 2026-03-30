@@ -45,7 +45,7 @@ export const ROOTS = {
 	/** Signal engine */
 	engine: path.resolve(DESKTOP_ROOT, "../../systems/devpulse-engine"),
 	/** AI orchestrator kernel */
-	maestro: path.resolve(DESKTOP_ROOT, "../../kernel/devpulse-maestro"),
+	clyffy: path.resolve(DESKTOP_ROOT, "../../kernel/devpulse-clyffy"),
 	/** Build/doc scripts */
 	scripts: path.resolve(DESKTOP_ROOT, "../../scripts"),
 	/** Desktop-local scripts */
@@ -65,7 +65,7 @@ export type Namespace =
 	| "@devpulse/routes"
 	| "@devpulse/tauri"
 	| "@devpulse/engine"
-	| "@devpulse/maestro"
+	| "@devpulse/clyffy"
 	| "@devpulse/scripts";
 
 export interface FileContext {
@@ -213,9 +213,9 @@ function resolveNamespace(filePath: string): {
 	}
 
 	// AI orchestrator
-	const maestroRel = relativeUnder(ROOTS.maestro, filePath);
-	if (maestroRel !== null) {
-		return { namespace: "@devpulse/maestro", localPath: maestroRel, root: ROOTS.maestro };
+	const clyffyRel = relativeUnder(ROOTS.clyffy, filePath);
+	if (clyffyRel !== null) {
+		return { namespace: "@devpulse/clyffy", localPath: clyffyRel, root: ROOTS.clyffy };
 	}
 
 	// Desktop-local scripts (interfaces/desktop/scripts/)
@@ -302,10 +302,10 @@ function resolveLayer(namespace: Namespace, localPath: string): string {
 		return "engine";
 	}
 
-	if (namespace === "@devpulse/maestro") {
+	if (namespace === "@devpulse/clyffy") {
 		if (localPath.startsWith("src/cortex/")) return "cortex";
 		if (localPath.startsWith("src/config/")) return "config";
-		return "maestro";
+		return "clyffy";
 	}
 
 	return "scripts";

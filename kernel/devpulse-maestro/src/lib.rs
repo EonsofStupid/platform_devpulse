@@ -1,4 +1,4 @@
-//! `DevPulse` Maestro — AI orchestrator kernel.
+//! `DevPulse` Clyffy — AI orchestrator kernel.
 
 /// Cortex subsystem — persistence, reasoning, minions, KV cache.
 pub mod cortex;

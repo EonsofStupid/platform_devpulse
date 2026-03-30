@@ -28,14 +28,14 @@ INSERT INTO architecture { layer: 'design', rule: 'three_tier_tokens', descripti
 -- Sys
 INSERT INTO architecture { layer: 'sys', rule: 'typed_routes', description: 'Navigation uses typed route helpers, not raw strings.', examples: ['href={route("dashboard")}'], anti_examples: ['href="/dashboard"'] };
 
--- Engine/Maestro
-INSERT INTO architecture { layer: 'engine', rule: 'engine_is_facade', description: 'Engine is a PUBLIC facade of Maestro. Desktop imports signals from engine, NEVER from maestro.', enforced_by: 'crate boundaries' };
-INSERT INTO architecture { layer: 'maestro', rule: 'maestro_is_kernel', description: 'Maestro is SENSITIVE IP. Pure logic. No UI dependencies. Emits signals via engine.', enforced_by: 'crate boundaries + unsafe_code = forbid' };
-INSERT INTO architecture { layer: 'engine', rule: 'signal_1to1_mapping', description: 'Every Maestro internal signal MUST have a 1:1 layman-friendly parallel in engine. Sensitive names replaced with useful logging-safe names.', enforced_by: 'TODO: enforcement tooling' };
+-- Engine/Clyffy
+INSERT INTO architecture { layer: 'engine', rule: 'engine_is_facade', description: 'Engine is a PUBLIC facade of Clyffy. Desktop imports signals from engine, NEVER from clyffy.', enforced_by: 'crate boundaries' };
+INSERT INTO architecture { layer: 'clyffy', rule: 'clyffy_is_kernel', description: 'Clyffy is SENSITIVE IP. Pure logic. No UI dependencies. Emits signals via engine.', enforced_by: 'crate boundaries + unsafe_code = forbid' };
+INSERT INTO architecture { layer: 'engine', rule: 'signal_1to1_mapping', description: 'Every Clyffy internal signal MUST have a 1:1 layman-friendly parallel in engine. Sensitive names replaced with useful logging-safe names.', enforced_by: 'TODO: enforcement tooling' };
 
 -- Databases
 INSERT INTO architecture { layer: 'platform', rule: 'embedded_databases', description: 'All platform DBs compile into binary: SurrealDB (kv-rocksdb), DuckDB, libSQL, Moka, Fjall. No Docker. No external servers.', enforced_by: 'Cargo.toml workspace deps' };
-INSERT INTO architecture { layer: 'platform', rule: 'surrealdb_dual_instance', description: 'TWO SurrealDB instances: embedded (Maestro, sensitive IP) + standalone (dev machine, AI agent memory). Zero shared data.', enforced_by: 'architecture' };
+INSERT INTO architecture { layer: 'platform', rule: 'surrealdb_dual_instance', description: 'TWO SurrealDB instances: embedded (Clyffy, sensitive IP) + standalone (dev machine, AI agent memory). Zero shared data.', enforced_by: 'architecture' };
 
 -- =============================================================================
 -- CONTEXT (current state)
@@ -77,4 +77,4 @@ INSERT INTO file_conventions { pattern: '{Name}.test.ts', convention: 'Vitest br
 INSERT INTO decisions { sprint: 'surrealdb-setup', title: 'ColdLight owns ARIA by default', decision: 'All primitives are Archetype A (ColdLight-owned WAI-ARIA APG). Melt UI dsAdapter is exception only.', reasoning: 'Previous sessions incorrectly coded components as "owned by ARIA as ARIA" — wrong. ColdLight should own ARIA directly.', trade_offs: 'More work per primitive, but no adapter overhead for 90% of components.' };
 INSERT INTO decisions { sprint: 'surrealdb-setup', title: 'SD5 drives token pipeline', decision: 'Style Dictionary v5 + DTCG 1.0 format drives everything. Not SD4.', reasoning: 'SD5 is current. DTCG 1.0 is the standard interchange format. TW4 @theme consumes SD5 output directly.' };
 INSERT INTO decisions { sprint: 'surrealdb-setup', title: 'Catalog not taxonomy, semantics not components', decision: 'Renamed taxonomy/ to catalog/. Layer 5 is semantics/ not components/.', reasoning: 'Better terminology. Catalog = the spine. Semantics = primitive + recipe.' };
-INSERT INTO decisions { sprint: 'surrealdb-setup', title: 'Dual SurrealDB instances', decision: 'Embedded (Rust kv-rocksdb) for Maestro IP + Standalone (server) for AI agent memory.', reasoning: 'Sensitive IP never leaves the binary. AI memory is accessible to any tool via WebSocket.' };
+INSERT INTO decisions { sprint: 'surrealdb-setup', title: 'Dual SurrealDB instances', decision: 'Embedded (Rust kv-rocksdb) for Clyffy IP + Standalone (server) for AI agent memory.', reasoning: 'Sensitive IP never leaves the binary. AI memory is accessible to any tool via WebSocket.' };

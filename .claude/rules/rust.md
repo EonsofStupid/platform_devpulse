@@ -1,7 +1,7 @@
 ---
 paths:
   - "systems/engine/**/*.rs"
-  - "kernel/maestro/**/*.rs"
+  - "kernel/clyffy/**/*.rs"
   - "alpha/**/*.rs"
 ---
 

@@ -7,8 +7,8 @@ platform_devpulse/
 ├── interfaces/desktop/     # Tauri + SvelteKit 5 desktop app
 │   ├── src/                # SvelteKit app source
 │   └── src-ui/             # UI layer
-├── systems/engine/         # Rust engine, managed by desktop facade for Maestro
-├── kernel/maestro/         # SENSITIVE IP - AI orchestrator kernel
+├── systems/engine/         # Rust engine, managed by desktop facade for Clyffy
+├── kernel/clyffy/         # SENSITIVE IP - AI orchestrator kernel
 │                           # Minions, CAG, RAG, HYDE, KV cache tier
 └── lab/                    # Separate - observer pattern, subscribes only
 ```
@@ -27,7 +27,7 @@ platform_devpulse/
 - **Local-first** hybrid web app
 - Web traffic funneled via angryvibers and devpulse.app
 - Desktop facade manages Rust engine
-- Maestro kernel orchestrates AI workloads
+- Clyffy kernel orchestrates AI workloads
 
 ## Design System: ColdLight (@devpulse/coldlight)
 

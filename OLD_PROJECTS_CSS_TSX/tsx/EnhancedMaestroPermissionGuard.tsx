@@ -1,5 +1,5 @@
-// File: C:/Users/jessa/Downloads/makers/makers/client/src/domains/admin/features/DataMaestro/guards/EnhancedMaestroPermissionGuard.tsx
-// Enhanced Data Maestro Permission Guard
+// File: C:/Users/jessa/Downloads/makers/makers/client/src/domains/admin/features/DataClyffy/guards/EnhancedClyffyPermissionGuard.tsx
+// Enhanced Data Clyffy Permission Guard
 // Granular role-based access control with super_admin workflows and approval systems
 
 import { AlertTriangle, CheckCircle, Crown, Lock, Shield, Users } from 'lucide-react';
@@ -11,8 +11,8 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-export type MaestroRole = 'super_admin' | 'admin' | 'editor' | 'viewer';
-export type MaestroOperation =
+export type ClyffyRole = 'super_admin' | 'admin' | 'editor' | 'viewer';
+export type ClyffyOperation =
   | 'view_dashboard'
   | 'create_items'
   | 'edit_items'
@@ -37,7 +37,7 @@ export type MaestroOperation =
 export type ApprovalStatus = 'pending' | 'approved' | 'denied' | 'not_required';
 
 interface OperationApproval {
-  operation: MaestroOperation;
+  operation: ClyffyOperation;
   requester: string;
   timestamp: Date;
   status: ApprovalStatus;
@@ -45,7 +45,7 @@ interface OperationApproval {
   reason?: string;
 }
 
-const ENHANCED_PERMISSION_MATRIX: Record<MaestroRole, MaestroOperation[]> = {
+const ENHANCED_PERMISSION_MATRIX: Record<ClyffyRole, ClyffyOperation[]> = {
   super_admin: [
     // Full system access
     'view_dashboard',
@@ -96,7 +96,7 @@ const ENHANCED_PERMISSION_MATRIX: Record<MaestroRole, MaestroOperation[]> = {
 };
 
 // Operations that require super_admin approval even for admins
-const SUPER_ADMIN_APPROVAL_REQUIRED: MaestroOperation[] = [
+const SUPER_ADMIN_APPROVAL_REQUIRED: ClyffyOperation[] = [
   'critical_operations',
   'schema_evolution',
   'system_maintenance',
@@ -104,19 +104,19 @@ const SUPER_ADMIN_APPROVAL_REQUIRED: MaestroOperation[] = [
   'emergency_access',
 ];
 
-interface EnhancedMaestroPermissionGuardProps {
+interface EnhancedClyffyPermissionGuardProps {
   children: React.ReactNode;
-  requiredOperation: MaestroOperation;
-  userRole?: MaestroRole;
+  requiredOperation: ClyffyOperation;
+  userRole?: ClyffyRole;
   requiresApproval?: boolean;
   fallbackComponent?: React.ReactNode;
   showToast?: boolean;
-  approvalCallback?: (operation: MaestroOperation) => void;
+  approvalCallback?: (operation: ClyffyOperation) => void;
 }
 
-// Map database user roles to Maestro roles
-const mapDatabaseRoleToMaestroRole = (dbRole: string | undefined): MaestroRole => {
-  console.log('Enhanced Guard - Mapping database role to maestro role:', dbRole);
+// Map database user roles to Clyffy roles
+const mapDatabaseRoleToClyffyRole = (dbRole: string | undefined): ClyffyRole => {
+  console.log('Enhanced Guard - Mapping database role to clyffy role:', dbRole);
 
   switch (dbRole) {
     case 'super_admin':
@@ -132,7 +132,7 @@ const mapDatabaseRoleToMaestroRole = (dbRole: string | undefined): MaestroRole =
 };
 
 // Get current user role from actual user data
-const getCurrentUserRole = (): MaestroRole => {
+const getCurrentUserRole = (): ClyffyRole => {
   const { user } = useAuth();
   const { profile } = useUser();
 
@@ -145,33 +145,33 @@ const getCurrentUserRole = (): MaestroRole => {
 
   // Use profile role if available (most reliable)
   if (profile?.role) {
-    const maestroRole = mapDatabaseRoleToMaestroRole(profile.role);
-    console.log('Enhanced Guard - Mapped profile role:', profile.role, '→', maestroRole);
-    return maestroRole;
+    const clyffyRole = mapDatabaseRoleToClyffyRole(profile.role);
+    console.log('Enhanced Guard - Mapped profile role:', profile.role, '→', clyffyRole);
+    return clyffyRole;
   }
 
   // Fallback to user metadata role
   if (user?.user_metadata?.role) {
-    const maestroRole = mapDatabaseRoleToMaestroRole(user.user_metadata.role);
+    const clyffyRole = mapDatabaseRoleToClyffyRole(user.user_metadata.role);
     console.log(
       'Enhanced Guard - Mapped user metadata role:',
       user.user_metadata.role,
       '→',
-      maestroRole,
+      clyffyRole,
     );
-    return maestroRole;
+    return clyffyRole;
   }
 
   // Fallback to app metadata role
   if (user?.app_metadata?.role) {
-    const maestroRole = mapDatabaseRoleToMaestroRole(user.app_metadata.role);
+    const clyffyRole = mapDatabaseRoleToClyffyRole(user.app_metadata.role);
     console.log(
       'Enhanced Guard - Mapped app metadata role:',
       user.app_metadata.role,
       '→',
-      maestroRole,
+      clyffyRole,
     );
-    return maestroRole;
+    return clyffyRole;
   }
 
   console.log('Enhanced Guard - No role found, defaulting to viewer');
@@ -183,26 +183,26 @@ const getCurrentUserId = (): string => {
   return user?.id || 'anonymous';
 };
 
-const hasDirectPermission = (userRole: MaestroRole, operation: MaestroOperation): boolean => {
+const hasDirectPermission = (userRole: ClyffyRole, operation: ClyffyOperation): boolean => {
   const hasAccess = ENHANCED_PERMISSION_MATRIX[userRole].includes(operation);
   console.log('Enhanced Guard - Permission check:', userRole, operation, '→', hasAccess);
   return hasAccess;
 };
 
 const requiresSuperAdminApproval = (
-  userRole: MaestroRole,
-  operation: MaestroOperation,
+  userRole: ClyffyRole,
+  operation: ClyffyOperation,
 ): boolean => {
   return userRole !== 'super_admin' && SUPER_ADMIN_APPROVAL_REQUIRED.includes(operation);
 };
 
 // Mock approval system (replace with real backend)
-const getApprovalStatus = (operation: MaestroOperation, userId: string): ApprovalStatus => {
+const getApprovalStatus = (operation: ClyffyOperation, userId: string): ApprovalStatus => {
   const key = `approval_${operation}_${userId}`;
   return (localStorage.getItem(key) as ApprovalStatus) || 'not_required';
 };
 
-const requestApproval = (operation: MaestroOperation, userId: string): void => {
+const requestApproval = (operation: ClyffyOperation, userId: string): void => {
   const key = `approval_${operation}_${userId}`;
   localStorage.setItem(key, 'pending');
   toast.info('Approval Pending', {
@@ -210,7 +210,7 @@ const requestApproval = (operation: MaestroOperation, userId: string): void => {
   });
 };
 
-export const EnhancedMaestroPermissionGuard: React.FC<EnhancedMaestroPermissionGuardProps> = ({
+export const EnhancedClyffyPermissionGuard: React.FC<EnhancedClyffyPermissionGuardProps> = ({
   children,
   requiredOperation,
   userRole,
@@ -229,7 +229,7 @@ export const EnhancedMaestroPermissionGuard: React.FC<EnhancedMaestroPermissionG
     ? getApprovalStatus(requiredOperation, userId)
     : 'not_required';
 
-  console.log('EnhancedMaestroPermissionGuard:', {
+  console.log('EnhancedClyffyPermissionGuard:', {
     requiredOperation,
     currentRole,
     hasAccess,
@@ -295,7 +295,7 @@ export const EnhancedMaestroPermissionGuard: React.FC<EnhancedMaestroPermissionG
                 <span className="text-amber-400 font-semibold animate-pulse">Pending Review</span>
               </div>
               <Button
-                onClick={() => router.navigate({ to: '/admin/maestro' })}
+                onClick={() => router.navigate({ to: '/admin/clyffy' })}
                 variant="outline"
                 className="border-amber-500/50 text-amber-400 hover:bg-amber-500/10 font-orbitron"
               >
@@ -367,7 +367,7 @@ export const EnhancedMaestroPermissionGuard: React.FC<EnhancedMaestroPermissionG
             </div>
             <div className="flex gap-3 justify-center">
               <Button
-                onClick={() => router.navigate({ to: '/admin/maestro' })}
+                onClick={() => router.navigate({ to: '/admin/clyffy' })}
                 variant="outline"
                 className="border-neon-cyan/50 text-neon-cyan hover:bg-neon-cyan/10 font-orbitron"
               >
@@ -400,24 +400,24 @@ export const EnhancedMaestroPermissionGuard: React.FC<EnhancedMaestroPermissionG
 };
 
 // Enhanced permissions hook with approval workflow support
-export const useEnhancedMaestroPermissions = (userRole?: MaestroRole) => {
+export const useEnhancedClyffyPermissions = (userRole?: ClyffyRole) => {
   const currentRole = userRole || getCurrentUserRole();
   const userId = getCurrentUserId();
 
   return {
     role: currentRole,
     userId,
-    can: (operation: MaestroOperation) => hasDirectPermission(currentRole, operation),
-    canWithApproval: (operation: MaestroOperation) => {
+    can: (operation: ClyffyOperation) => hasDirectPermission(currentRole, operation),
+    canWithApproval: (operation: ClyffyOperation) => {
       const hasAccess = hasDirectPermission(currentRole, operation);
       const needsApproval = requiresSuperAdminApproval(currentRole, operation);
       const approvalStatus = needsApproval ? getApprovalStatus(operation, userId) : 'not_required';
       return hasAccess || approvalStatus === 'approved';
     },
-    needsApproval: (operation: MaestroOperation) =>
+    needsApproval: (operation: ClyffyOperation) =>
       requiresSuperAdminApproval(currentRole, operation),
-    getApprovalStatus: (operation: MaestroOperation) => getApprovalStatus(operation, userId),
-    requestApproval: (operation: MaestroOperation) => requestApproval(operation, userId),
+    getApprovalStatus: (operation: ClyffyOperation) => getApprovalStatus(operation, userId),
+    requestApproval: (operation: ClyffyOperation) => requestApproval(operation, userId),
     isSuperAdmin: currentRole === 'super_admin',
     isAdmin: currentRole === 'admin' || currentRole === 'super_admin',
     isEditor: ['editor', 'admin', 'super_admin'].includes(currentRole),
@@ -428,7 +428,7 @@ export const useEnhancedMaestroPermissions = (userRole?: MaestroRole) => {
 
 // Role management utilities for super admins
 export const useRoleManagement = () => {
-  const permissions = useEnhancedMaestroPermissions();
+  const permissions = useEnhancedClyffyPermissions();
 
   if (!permissions.isSuperAdmin) {
     throw new Error('Role management requires super_admin privileges');
@@ -436,7 +436,7 @@ export const useRoleManagement = () => {
 
   return {
     // Mock functions - replace with real backend calls
-    approveRequest: (operation: MaestroOperation, userId: string) => {
+    approveRequest: (operation: ClyffyOperation, userId: string) => {
       const key = `approval_${operation}_${userId}`;
       localStorage.setItem(key, 'approved');
       toast.success('Approval Granted', {
@@ -444,7 +444,7 @@ export const useRoleManagement = () => {
       });
     },
 
-    denyRequest: (operation: MaestroOperation, userId: string, reason?: string) => {
+    denyRequest: (operation: ClyffyOperation, userId: string, reason?: string) => {
       const key = `approval_${operation}_${userId}`;
       localStorage.setItem(key, 'denied');
       toast.error('Approval Denied', {
@@ -457,7 +457,7 @@ export const useRoleManagement = () => {
       return [];
     },
 
-    setUserRole: (userId: string, role: MaestroRole) => {
+    setUserRole: (userId: string, role: ClyffyRole) => {
       // Mock function - replace with real backend call
       toast.success('Role Updated', {
         description: `User role changed to ${role}`,

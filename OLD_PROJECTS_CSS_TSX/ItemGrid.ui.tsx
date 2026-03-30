@@ -1,4 +1,4 @@
-// File: C:/Users/jessa/Downloads/makers/makers/client/src/domains/admin/features/DataMaestro/components/ItemGrid.ui.tsx
+// File: C:/Users/jessa/Downloads/makers/makers/client/src/domains/admin/features/DataClyffy/components/ItemGrid.ui.tsx
 import { motion } from 'framer-motion';
 import {
   Calendar,
@@ -26,7 +26,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { Item } from '@/types/data-maestro-types';
+import type { Item } from '@/types/data-clyffy-types';
 
 interface ItemGridProps {
   items: Item[];

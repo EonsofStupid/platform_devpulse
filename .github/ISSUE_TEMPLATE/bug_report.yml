@@ -9,7 +9,7 @@ body:
       options:
         - Desktop App
         - Engine (Rust)
-        - Maestro Kernel
+        - Clyffy Kernel
         - ColdLight Design System
         - CI/Tooling
     validations:
@@ -23,7 +23,7 @@ body:
         - N/A
         - DevPulse
         - DevForge
-        - Maestro
+        - Clyffy
         - Overmind
         - WiredFront
     validations:

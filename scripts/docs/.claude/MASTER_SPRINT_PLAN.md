@@ -96,10 +96,10 @@ There are **63 sprint files** in `scripts/docs/sprints/`. Many are duplicative o
    - Expose full error chain (remove `.context()` hiding)
    - Fix path handling: `SurrealKv` gets Windows backslashes in path
    - Convert path to forward slashes or use canonical form
-   - File: `kernel/devpulse-maestro/src/cortex/persistence/surreal.rs`
+   - File: `kernel/devpulse-clyffy/src/cortex/persistence/surreal.rs`
 
 2. **Verify LibSQL health check works**
-   - File: `kernel/devpulse-maestro/src/cortex/persistence/libsql.rs`
+   - File: `kernel/devpulse-clyffy/src/cortex/persistence/libsql.rs`
    - The ping does `SELECT 1` — should work, but need to verify after boot
 
 3. **Verify log files actually persist**

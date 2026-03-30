@@ -36,10 +36,10 @@
       "include-component-in-tag": true,
       "tag-separator": "-"
     },
-    "kernel/devpulse-maestro": {
+    "kernel/devpulse-clyffy": {
       "release-type": "rust",
-      "package-name": "devpulse-maestro",
-      "component": "devpulse-maestro",
+      "package-name": "devpulse-clyffy",
+      "component": "devpulse-clyffy",
       "changelog-path": "CHANGELOG.md",
       "include-component-in-tag": true,
       "tag-separator": "-"

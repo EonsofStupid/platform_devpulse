@@ -10,7 +10,7 @@ graph TB
     subgraph DevPulse["DevPulse Platform"]
         Desktop[Desktop App<br/>SvelteKit + Tauri]
         Engine[Engine<br/>Rust]
-        Maestro[Maestro Kernel<br/>AI Orchestrator]
+        Clyffy[Clyffy Kernel<br/>AI Orchestrator]
     end
 
     subgraph External["External Systems"]
@@ -22,8 +22,8 @@ graph TB
     Dev --> Desktop
     Admin --> Desktop
     Desktop --> Engine
-    Engine --> Maestro
-    Maestro --> AI
+    Engine --> Clyffy
+    Clyffy --> AI
     Engine --> DB
     Desktop --> API
 
@@ -32,5 +32,5 @@ graph TB
     classDef external fill:#999999,stroke:#666666,color:#fff
 
     class Dev,Admin user
-    class Desktop,Engine,Maestro internal
+    class Desktop,Engine,Clyffy internal
     class API,DB,AI external

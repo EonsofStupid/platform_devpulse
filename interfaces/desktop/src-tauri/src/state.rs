@@ -18,7 +18,7 @@ use tokio::sync::RwLock;
 /// `platform` is `None` during boot and `Some(Arc<Platform>)` after.
 /// Commands must handle the `None` case gracefully.
 pub struct PlatformState {
-    /// Platform engine (owns all services, bridges to maestro kernel).
+    /// Platform engine (owns all services, bridges to clyffy kernel).
     /// None while boot task is running, Some after completion.
     pub platform: RwLock<Option<Arc<Platform>>>,
 }

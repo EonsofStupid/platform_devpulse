@@ -1,7 +1,7 @@
 /**
  * @fileoverview general.ts
- * @file src/lib/cfg/maestro/general.ts
- * @module @devpulse/cfg/maestro/general
+ * @file src/lib/cfg/clyffy/general.ts
+ * @module @devpulse/cfg/clyffy/general
  * @layer lib
  *
  * @description
@@ -17,7 +17,7 @@
  * @since 1.0.0
  */
 
-// MAESTRO CONFIGURATION (The AI Kernel)
+// CLYFFY CONFIGURATION (The AI Kernel)
 // Persistence: SurrealDB (Embedded) + RocksDB (Connectors)
 // Serialization: Rkyv
 
@@ -31,9 +31,9 @@ export interface MinionConfig {
 	voice_enabled: boolean;
 }
 
-export const maestroConfig = {
+export const clyffyConfig = {
 	// Identity
-	system_name: "Maestro",
+	system_name: "Clyffy",
 	version: "1.0.0",
 
 	// Kernel Settings

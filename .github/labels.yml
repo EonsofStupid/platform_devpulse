@@ -34,7 +34,7 @@
 - name: "area: engine"
   color: "bfd4f2"
   description: Rust signal engine
-- name: "area: maestro"
+- name: "area: clyffy"
   color: "d4c5f9"
   description: AI kernel
 - name: "area: coldlight"

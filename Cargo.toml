@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
-    "kernel/devpulse-maestro",
+    "kernel/devpulse-clyffy",
     "systems/devpulse-engine",
     "systems/*", 
     "interfaces/desktop/src-tauri",

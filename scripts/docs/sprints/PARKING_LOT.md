@@ -12,7 +12,7 @@ During research for the Platform Reality sprint, I verified the actual Rust engi
 ### The Problem
 - `MEMORY.md` says: **PostgreSQL** — Relational store. Prod label: "Data Store"
 - `platform.default.toml` says: `kind = "libsql"`, `path = "libsql/platform.db"`
-- `systems/devpulse-engine/src/platform/stores/relational.rs` wraps `LibSqlAdapter` from maestro
+- `systems/devpulse-engine/src/platform/stores/relational.rs` wraps `LibSqlAdapter` from clyffy
 - There is ZERO PostgreSQL code anywhere in the engine
 
 The boot-labels consolidation needs to know the correct dev-mode label. If it's LibSQL, the dev label is "LibSQL". If the plan is to migrate to PostgreSQL, the label should reflect that.

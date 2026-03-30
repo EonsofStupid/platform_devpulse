@@ -31,7 +31,7 @@ pub struct Persona {
 impl Default for Persona {
     fn default() -> Self {
         Self {
-            name: "Maestro Observer".into(),
+            name: "Clyffy Observer".into(),
             role: MinionRole::SystemKernel,
             voice_tone: VoiceTone::Objective,
             instructions: "Monitor system health. Report anomalies.".into(),

@@ -1074,17 +1074,17 @@ const engineRust: FileSchemaRule = {
 };
 
 // =============================================================================
-// RUST — MAESTRO
+// RUST — CLYFFY
 // =============================================================================
 
-const maestroRust: FileSchemaRule = {
-	name: "maestro-rust",
+const clyffyRust: FileSchemaRule = {
+	name: "clyffy-rust",
 	match: /\.rs$/,
-	namespace: "@devpulse/maestro",
+	namespace: "@devpulse/clyffy",
 	language: "rust",
 	requiredTags: ["@file", "@module"],
 	generateHeader: (ctx) => `//! @file ${ctx.localPath}
-//! @module @devpulse/maestro
+//! @module @devpulse/clyffy
 //!
 //! AI orchestrator: ${ctx.baseName}.
 
@@ -1201,7 +1201,7 @@ export const FILE_SCHEMA: readonly FileSchemaRule[] = [
 	// ── Rust ──────────────────────────────────────────────────────────────────
 	tauriRust,
 	engineRust,
-	maestroRust,
+	clyffyRust,
 
 	// ── Scripts ───────────────────────────────────────────────────────────────
 	scriptFile,

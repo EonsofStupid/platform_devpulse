@@ -31,7 +31,7 @@ anyhow = "1.0"
 
 ## REQUIRED_STEP 2: The Facade Rule
 - Engine processes `StandardSignal` variants transparently.
-- Engine routes `ProprietarySignal` variants blindly to Maestro. Do NOT attempt to unwrap `ProprietarySignal`.
+- Engine routes `ProprietarySignal` variants blindly to Clyffy. Do NOT attempt to unwrap `ProprietarySignal`.
 
 ## REQUIRED_STEP 3: Elite Build Protocol
 - Zero warnings. Implement logic or remove dead code.

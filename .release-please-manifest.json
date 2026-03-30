@@ -2,5 +2,5 @@
   "interfaces/desktop/src/lib/design": "0.1.0",
   "interfaces/desktop": "0.1.0",
   "systems/devpulse-engine": "0.1.0",
-  "kernel/devpulse-maestro": "0.1.0"
+  "kernel/devpulse-clyffy": "0.1.0"
 }

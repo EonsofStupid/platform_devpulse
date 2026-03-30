@@ -24,7 +24,7 @@ It is the frontend for DevPulse's **proprietary in-house broadcasting and collab
     *   These are *destinations*, not the *definition* of the tool.
 3.  **Unified Asset Management:**
     *   **Pix:** Instant screenshot sharing with context.
-    *   **Vix:** High-def recordings with automated AI highlights (Maestro).
+    *   **Vix:** High-def recordings with automated AI highlights (Clyffy).
 
 ---
 

@@ -1,4 +1,4 @@
-// File: C:/Users/jessa/Downloads/makers/makers/client/src/domains/admin/features/DataMaestro/components/UniversalContentCreator.ui.tsx
+// File: C:/Users/jessa/Downloads/makers/makers/client/src/domains/admin/features/DataClyffy/components/UniversalContentCreator.ui.tsx
 import { motion } from 'framer-motion';
 import { ArrowLeft, Database, FileText, Plus, Sparkles } from 'lucide-react';
 import React from 'react';
@@ -6,8 +6,8 @@ import { useRouter } from '@tanstack/react-router';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MaestroTooltip } from '../utils/tooltip/MaestroTooltip';
-import { MaestroPermissionGuard, useMaestroPermissions } from '../guards/MaestroPermissionGuard';
+import { ClyffyTooltip } from '../utils/tooltip/ClyffyTooltip';
+import { ClyffyPermissionGuard, useClyffyPermissions } from '../guards/ClyffyPermissionGuard';
 import {
   type ContentType,
   useContentCreationStore,
@@ -26,7 +26,7 @@ const getIconComponent = (iconName: string) => {
 
 export const UniversalContentCreator: React.FC = () => {
   const router = useRouter();
-  const permissions = useMaestroPermissions();
+  const permissions = useClyffyPermissions();
   const { availableContentTypes, selectedContentType, setContentType, resetCreation } =
     useContentCreationStore();
 
@@ -36,7 +36,7 @@ export const UniversalContentCreator: React.FC = () => {
   }, [resetCreation]);
 
   const handleContentTypeSelect = (contentType: ContentType) => {
-    maestroToast.info(`Selected ${contentType.replace('_', ' ')}`, {
+    clyffyToast.info(`Selected ${contentType.replace('_', ' ')}`, {
       description: 'Proceeding to content creation flow',
     });
 
@@ -44,14 +44,14 @@ export const UniversalContentCreator: React.FC = () => {
 
     // Route based on content type
     if (contentType === 'database_item') {
-      router.navigate({ to: '/admin/maestro/data-management/entities/new' });
+      router.navigate({ to: '/admin/clyffy/data-management/entities/new' });
     } else if (contentType === 'cms_content') {
-      router.navigate({ to: '/admin/maestro/cms/create' });
+      router.navigate({ to: '/admin/clyffy/cms/create' });
     }
   };
 
   const handleBack = () => {
-    router.navigate({ to: '/admin/maestro' });
+    router.navigate({ to: '/admin/clyffy' });
   };
 
   return (
@@ -71,7 +71,7 @@ export const UniversalContentCreator: React.FC = () => {
               className="text-gray-400 hover:text-neon-cyan hover:bg-neon-cyan/20 hover:scale-105 transition-all duration-300 font-rajdhani"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Data Maestro
+              Back to Data Clyffy
             </Button>
           </div>
           <div className="text-center flex-1">
@@ -115,7 +115,7 @@ export const UniversalContentCreator: React.FC = () => {
                   transition={{ delay: index * 0.1 + 0.3 }}
                   className="rich-entrance-animation"
                 >
-                  <MaestroPermissionGuard
+                  <ClyffyPermissionGuard
                     requiredOperation={contentType.permission as any}
                     showToast={false}
                     fallbackComponent={
@@ -130,7 +130,7 @@ export const UniversalContentCreator: React.FC = () => {
                       </Card>
                     }
                   >
-                    <MaestroTooltip
+                    <ClyffyTooltip
                       id={`content.${contentType.id}`}
                       customConfig={{
                         title: contentType.name,
@@ -182,8 +182,8 @@ export const UniversalContentCreator: React.FC = () => {
                           )}
                         </CardContent>
                       </Card>
-                    </MaestroTooltip>
-                  </MaestroPermissionGuard>
+                    </ClyffyTooltip>
+                  </ClyffyPermissionGuard>
                 </motion.div>
               );
             })}
@@ -219,7 +219,7 @@ export const UniversalContentCreator: React.FC = () => {
                   <h4 className="text-lg font-orbitron neon-text-purple mb-2">CMS Content</h4>
                   <p className="text-gray-300 font-rajdhani">
                     Choose this for rich content like blog posts, documentation, or landing pages.
-                    Includes visual editor and Data Maestro item linking.
+                    Includes visual editor and Data Clyffy item linking.
                   </p>
                 </div>
               </div>

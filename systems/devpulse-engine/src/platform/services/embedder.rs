@@ -8,7 +8,7 @@
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
-use devpulse_maestro::cortex::persistence::CandleEmbedder;
+use devpulse_clyffy::cortex::persistence::CandleEmbedder;
 use std::sync::Arc;
 
 /// Embedder service backed by Candle (CPU burst mode).

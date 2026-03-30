@@ -1,7 +1,7 @@
-//! `DevPulse` engine — owns all platform services and bridges to maestro kernel.
+//! `DevPulse` engine — owns all platform services and bridges to clyffy kernel.
 //!
 //! The engine is the **sole boundary** between the desktop app (Tauri) and
-//! the kernel (Maestro). Tauri depends on this crate only — never on Maestro
+//! the kernel (Clyffy). Tauri depends on this crate only — never on Clyffy
 //! directly.
 //!
 //! # Feature Gates
@@ -43,7 +43,7 @@ use signals::{Signal, SignalRouter, SignalSource, SignalVariant, SystemPayload, 
 /// The Engine — signal router and public API.
 ///
 /// Engine owns the signal router. This is the public facade.
-/// Maestro subscribes to signals for internal processing.
+/// Clyffy subscribes to signals for internal processing.
 pub struct Engine {
     router: SignalRouter,
 }

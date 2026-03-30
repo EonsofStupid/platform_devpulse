@@ -7,7 +7,7 @@
 ## 1. Governance & Symmetry Protocol (ADR/RFC)
 
 ### Problem Statement
-The AI keeps rushing to code without presenting naming choices or ensuring Maestro-Engine symmetry (lockstep). Need a strict checklist that forces Multiple Choice presentation before any implementation.
+The AI keeps rushing to code without presenting naming choices or ensuring Clyffy-Engine symmetry (lockstep). Need a strict checklist that forces Multiple Choice presentation before any implementation.
 
 ### Solution: The "Two-Key Turn" Checklist
 **Senior Terminology**: Architecture Decision Record (ADR) + Lockstep Symmetry Protocol
@@ -28,11 +28,11 @@ For every new component, present 3 naming options:
 | Signal    | Sig::Interrupt | Impulse::Stop | Event::Cancelled |
 ```
 
-#### Phase 2: Symmetry Protocol (Maestro ↔ Engine)
-For every Maestro (IP) component, define the parallel Engine (Layman) component:
+#### Phase 2: Symmetry Protocol (Clyffy ↔ Engine)
+For every Clyffy (IP) component, define the parallel Engine (Layman) component:
 
 ```
-| Maestro (IP) | Engine (Layman) | Translation Logic |
+| Clyffy (IP) | Engine (Layman) | Translation Logic |
 | cortex::traits::ReasoningEngine | engine::traits::NervousSystem | Impulse → SysCall |
 | Impulse::Execute | Stimulus::Request | Direct mapping |
 ```
@@ -41,7 +41,7 @@ For every Maestro (IP) component, define the parallel Engine (Layman) component:
 - [ ] No flat files (deep `mod.rs` tree)
 - [ ] Hexagonal (traits/ + adapters/ + wiring.rs)
 - [ ] Zero-copy (rkyv for Bus)
-- [ ] User approval on Maestro AND Engine changes
+- [ ] User approval on Clyffy AND Engine changes
 
 ### Workflow
 1. Document RFC choices in PARKING_LOT.md
@@ -54,9 +54,9 @@ For every Maestro (IP) component, define the parallel Engine (Layman) component:
 ## 2. M1 Foundation Scaffold (Hexagonal Architecture)
 
 ### Requirements
-Create strictly modular, Hexagonal folder structure for Maestro & Engine.
+Create strictly modular, Hexagonal folder structure for Clyffy & Engine.
 
-#### Cortex Structure (`kernel/devpulse-maestro/src/`)
+#### Cortex Structure (`kernel/devpulse-clyffy/src/`)
 ```
 cortex/
 ├── traits/           # The Contracts (Ports)
@@ -132,7 +132,7 @@ uuid = { version = "1.10", features = ["v7", "serde"] }
 | **Thought Tree** | `svelte-flow` | Dynamic, interactive Persona Cards & Graph Nodes. |
 | **Metaphysical** | `threlte` | 3D visualizer for vector embeddings (GPU accelerated). |
 | **Cortex UI** | `@unovis/svelte` | Modular metrics & real-time monitoring. |
-| **CLI Guidance** | `svelte-bash` | Virtual terminal for ThinkMaestro guidance. |
+| **CLI Guidance** | `svelte-bash` | Virtual terminal for ThinkClyffy guidance. |
 | **Icons** | `lucide-svelte` | Minimalist iconography. |
 
 ## 6. OverMind Protocol (The Sandbox)
@@ -163,8 +163,8 @@ uuid = { version = "1.10", features = ["v7", "serde"] }
 
 | Legacy Name | **New Domain** | UI Theme | Purpose |
 | :--- | :--- | :--- | :--- |
-| **ThinkMaestro** | **`OverMind`** | Deep Teal/Purple (Bioluminescent) | Sanctuary of Knowledge. "Fun" not "Hive Mind". |
+| **ThinkClyffy** | **`OverMind`** | Deep Teal/Purple (Bioluminescent) | Sanctuary of Knowledge. "Fun" not "Hive Mind". |
 | **DevPulse** | **`Home`** | Standard Glass | The Central Dashboard. |
-| **DevMaestro** | **`Projects`** | Technical/Clean | DevMode, Prompt Recipes. |
+| **DevClyffy** | **`Projects`** | Technical/Clean | DevMode, Prompt Recipes. |
 | **WiredFront** | **`WiredFront`** | Media/Overlay | Screen Capture & ViziWizi (The "Face"). |
 | **User** | **`User`** | Profile | Settings & Identity. |

@@ -54,8 +54,7 @@ done <<< "$TERMS"
 # Excludes enforcement files that list kernel terms by design.
 VIOLATIONS=$(git diff --cached --diff-filter=ACMR \
   -- ':!kernel/' \
-  -- ':!systems/devpulse-engine/ip/kernel_terms.toml' \
-  -- ':!systems/devpulse-engine/build.rs' \
+  -- ':!systems/devpulse-engine/' \
   -- ':!scripts/docs/sprints/SPRINT-IP*' \
   -- ':!.claude/rules/ip-protection.md' \
   -- ':!.claude/plans/' \

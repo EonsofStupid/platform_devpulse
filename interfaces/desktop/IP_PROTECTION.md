@@ -9,7 +9,7 @@
 *   **Default**: ALL IP-related flags must default to `false` (Public Safe Mode).
 
 ### Protected Zones (IP)
-1.  **Maestro's Inner Monologue**: The raw "Thought Process" or internal prompt construction.
+1.  **Clyffy's Inner Monologue**: The raw "Thought Process" or internal prompt construction.
 2.  **Dynamic Builder UI**: The middleware that generates UI from AI.
 3.  **Detailed Analytics**: The "Journey" emotional graphing algorithms.
 4.  **Minion Personality Matrix**: The raw "Gus" or "Architect" logic.
@@ -18,11 +18,11 @@
 > **Rule**: Before writing ANY component code, you must check:
 
 - [ ] **Is this IP?** (Is it a unique differentiator or internal tool?)
-- [ ] **If YES**: Is there a flag in `lib/cfg/flags.ts`? (e.g., `ENABLE_MAESTRO_DEBUG`)
+- [ ] **If YES**: Is there a flag in `lib/cfg/flags.ts`? (e.g., `ENABLE_CLYFFY_DEBUG`)
 - [ ] **Is the Component Guarded?**
     ```svelte
-    {#if flags.MAESTRO_DEBUG}
-       <MaestroThoughtProcess />
+    {#if flags.CLYFFY_DEBUG}
+       <ClyffyThoughtProcess />
     {/if}
     ```
 - [ ] **Is the Logic Guarded?** (Rust/TS logic requires the same flag check).

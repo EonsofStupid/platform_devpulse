@@ -1,8 +1,8 @@
-// File: C:/Users/jessa/Downloads/makers/makers/client/src/domains/admin/features/DataMaestro/components/import/WizardStepRenderer.tsx
+// File: C:/Users/jessa/Downloads/makers/makers/client/src/domains/admin/features/DataClyffy/components/import/WizardStepRenderer.tsx
 import type React from 'react';
-import type { DataGap } from '@/admin/features/datamaestro/services/ai-data-correction.service';
-import type { EnterpriseValidation } from '@/admin/features/datamaestro/types/enterprise-import.types';
-import { MaestroTooltip } from '../../utils/tooltip';
+import type { DataGap } from '@/admin/features/dataclyffy/services/ai-data-correction.service';
+import type { EnterpriseValidation } from '@/admin/features/dataclyffy/types/enterprise-import.types';
+import { ClyffyTooltip } from '../../utils/tooltip';
 import { BaselineProtectionStep } from './BaselineProtectionStep.ui';
 import { CategoryManagementStep } from './CategoryManagementStep.ui';
 import { DataPreviewStep } from './DataPreviewStep.ui';
@@ -45,12 +45,12 @@ export const WizardStepRenderer: React.FC<WizardStepRendererProps> = ({
   onBackStep,
 }) => {
   const renderStepWithTooltip = (step: React.ReactNode, tooltipId: string) => (
-    <MaestroTooltip id={tooltipId}>
+    <ClyffyTooltip id={tooltipId}>
       <div className="glass-rich rich-interactive-element hover-glow transition-all duration-300">
         <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 via-transparent to-neon-purple/5 rounded-lg -z-10" />
         <div className="relative z-10">{step}</div>
       </div>
-    </MaestroTooltip>
+    </ClyffyTooltip>
   );
 
   switch (currentStep) {

@@ -1,7 +1,7 @@
 //! Health check types for the platform engine.
 //!
 //! These types are what Tauri and the frontend see.
-//! No maestro internals leak through these types.
+//! No clyffy internals leak through these types.
 
 use crate::platform::services::ServiceState;
 use serde::Serialize;

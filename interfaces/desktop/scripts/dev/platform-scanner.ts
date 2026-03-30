@@ -616,7 +616,7 @@ function scanFileList(dir: string): FileSummary[] {
 }
 
 // =============================================================================
-// NAMESPACE SCANNING (sys, domains, routes, tauri, engine, maestro, scripts)
+// NAMESPACE SCANNING (sys, domains, routes, tauri, engine, clyffy, scripts)
 // =============================================================================
 
 function scanNamespace(rootDir: string): NamespaceSummary {
@@ -676,7 +676,7 @@ function aggregateHeaderCompliance(): HeaderComplianceReport {
 		ROOTS.routes,
 		path.join(ROOTS.tauri, "src"),
 		path.join(ROOTS.engine, "src"),
-		path.join(ROOTS.maestro, "src"),
+		path.join(ROOTS.clyffy, "src"),
 		ROOTS.scripts,
 		ROOTS.desktopScripts,
 	].filter((d) => fs.existsSync(d));
@@ -736,7 +736,7 @@ function computeStats(
 		"@devpulse/routes": manifest.routes.fileCount,
 		"@devpulse/tauri": manifest.tauri.fileCount,
 		"@devpulse/engine": manifest.engine.fileCount,
-		"@devpulse/maestro": manifest.maestro.fileCount,
+		"@devpulse/clyffy": manifest.clyffy.fileCount,
 		"@devpulse/scripts": manifest.scripts.fileCount,
 	};
 
@@ -834,7 +834,7 @@ export function scanPlatform(): PlatformScanResult {
 	const routes = scanNamespace(ROOTS.routes);
 	const tauri = scanNamespace(path.join(ROOTS.tauri, "src"));
 	const engine = scanNamespace(path.join(ROOTS.engine, "src"));
-	const maestro = scanNamespace(path.join(ROOTS.maestro, "src"));
+	const clyffy = scanNamespace(path.join(ROOTS.clyffy, "src"));
 	const scripts = scanNamespace(ROOTS.scripts);
 
 	// ── Header Compliance ────────────────────────────────────────────────────
@@ -865,7 +865,7 @@ export function scanPlatform(): PlatformScanResult {
 		routes,
 		tauri,
 		engine,
-		maestro,
+		clyffy,
 		scripts,
 	};
 
@@ -972,7 +972,7 @@ function printReport(result: PlatformScanResult): void {
 	console.log(`  routes:  ${manifest.routes.fileCount} files`);
 	console.log(`  tauri:   ${manifest.tauri.fileCount} files`);
 	console.log(`  engine:  ${manifest.engine.fileCount} files`);
-	console.log(`  maestro: ${manifest.maestro.fileCount} files`);
+	console.log(`  clyffy: ${manifest.clyffy.fileCount} files`);
 	console.log(`  scripts: ${manifest.scripts.fileCount} files\n`);
 
 	// ── Header Compliance ────────────────────────────────────────────────────

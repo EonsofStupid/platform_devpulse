@@ -1,4 +1,4 @@
-// File: C:/Users/jessa/Downloads/makers/makers/client/src/domains/admin/features/DataMaestro/Overview/VisualAttributeEditor.ui.tsx
+// File: C:/Users/jessa/Downloads/makers/makers/client/src/domains/admin/features/DataClyffy/Overview/VisualAttributeEditor.ui.tsx
 import { motion } from 'framer-motion';
 import {
   Calendar,
@@ -34,7 +34,7 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import type { AttributeDataType, AttributeDefinition } from '@/types/data-maestro-types';
+import type { AttributeDataType, AttributeDefinition } from '@/types/data-clyffy-types';
 
 interface VisualAttributeEditorProps {
   attributes: Record<string, any>;

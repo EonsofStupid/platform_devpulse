@@ -13,7 +13,7 @@
 - `src-tauri/src/commands/`: The API Surface.
 - `src-tauri/src/sys/`: Guard, Config, Logger.
 - `src/lib/layouts/`: The Shells (Chat vs App).
-- `src/lib/domains/`: Bounded Visual Contexts (DevMaestro, WiredFront).
+- `src/lib/domains/`: Bounded Visual Contexts (DevClyffy, WiredFront).
 
 ## Maintenance Checklist
 - [ ] **Command Register**: Did you add your new command to `commands/mod.rs` implementation AND `connect_commands()`?

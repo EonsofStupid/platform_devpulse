@@ -1,6 +1,6 @@
 //! `DevPulse` Desktop — Tauri backend.
 //!
-//! The Tauri layer depends on `devpulse-engine` only — never on maestro.
+//! The Tauri layer depends on `devpulse-engine` only — never on clyffy.
 //! All kernel access goes through the Platform engine.
 //!
 //! # Boot Architecture
@@ -45,9 +45,9 @@ pub fn run() {
         commands::sys::logger::log,
         commands::sys::boot::get_boot_state,
         commands::sys::metrics::get_process_metrics,
-        commands::devmaestro::get_status,
+        commands::devclyffy::get_status,
         commands::devpulse::fetch_dashboard,
-        commands::thinkmaestro::create_canvas,
+        commands::thinkclyffy::create_canvas,
         commands::wiredfront::connect_peer,
         commands::window::open_chat_window,
         commands::window::close_window,
@@ -297,7 +297,7 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
             }
 
             // Open chat window AFTER boot — graceful lazy load
-            tracing::info!("Opening Maestro Chat window");
+            tracing::info!("Opening Clyffy Chat window");
             if let Err(e) = commands::window::open_chat_window(app.clone()).await {
                 tracing::warn!(error = %e, "Chat window failed to open (non-fatal)");
             }
@@ -383,7 +383,7 @@ async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
 
                     INSERT INTO projects (id, name, root_path, project_type) VALUES
                         ('proj-1', 'platform_devpulse', 'D:/localdev/platform_devpulse', 'personal'),
-                        ('proj-2', 'maestro-kernel', 'D:/localdev/platform_devpulse/kernel', 'personal'),
+                        ('proj-2', 'clyffy-kernel', 'D:/localdev/platform_devpulse/kernel', 'personal'),
                         ('proj-3', 'coldlight-tokens', 'D:/localdev/platform_devpulse/interfaces/desktop/src/lib/design', 'personal'),
                         ('proj-4', 'signal-router', 'D:/localdev/platform_devpulse/systems/devpulse-engine', 'personal');
 

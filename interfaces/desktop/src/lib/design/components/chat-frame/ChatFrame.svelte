@@ -42,7 +42,7 @@ const m = $derived(resolveMacro({ kind: "chat-frame", preset: "default" }));
 
 <div
 	role="dialog"
-	aria-label="Maestro Chat"
+	aria-label="Clyffy Chat"
 	aria-modal="false"
 	{...m.dataAttrs}
 	data-slot="root"

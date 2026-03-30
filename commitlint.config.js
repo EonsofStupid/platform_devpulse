@@ -24,7 +24,7 @@ module.exports = {
       [
         // Core
         'engine',
-        'maestro',
+        'clyffy',
         'desktop',
         
         // Design System

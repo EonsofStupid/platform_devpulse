@@ -1,11 +1,11 @@
 //! Voice service wrapper (`Kokoros` — embedded TTS engine).
 //!
 //! Wraps the Kokoros adapter for text-to-speech synthesis.
-//! Part of the Maestro AI pipeline for voice output.
+//! Part of the Clyffy AI pipeline for voice output.
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
-use devpulse_maestro::cortex::persistence::KokorosAdapter;
+use devpulse_clyffy::cortex::persistence::KokorosAdapter;
 use std::sync::Arc;
 
 /// Voice service backed by Kokoros (embedded ONNX TTS).

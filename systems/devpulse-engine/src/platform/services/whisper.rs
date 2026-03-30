@@ -8,7 +8,7 @@
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
-use devpulse_maestro::cortex::persistence::WhisperAdapter;
+use devpulse_clyffy::cortex::persistence::WhisperAdapter;
 use std::sync::{Arc, Mutex};
 
 /// Whisper ASR service backed by Candle (CPU burst mode).

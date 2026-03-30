@@ -1720,7 +1720,7 @@ Total: 285 .svelte files
 - routes\(app)\devpulse\projects\+page.svelte
 - routes\(app)\devpulse\settings\+page.svelte
 - routes\(app)\devpulse\stats\+page.svelte
-- routes\(app)\maestro\+page.svelte
+- routes\(app)\clyffy\+page.svelte
 - routes\(app)\overmind\+page.svelte
 - routes\(app)\ui-demo\+page.svelte
 - routes\(app)\wiredfront\+page.svelte
@@ -1788,7 +1788,7 @@ Total: 285 .svelte files
 - routes\(app)\devpulse\projects\+page.svelte
 - routes\(app)\devpulse\settings\+page.svelte
 - routes\(app)\devpulse\stats\+page.svelte
-- routes\(app)\maestro\+page.svelte
+- routes\(app)\clyffy\+page.svelte
 - routes\(app)\overmind\+page.svelte
 - routes\(app)\ui-demo\+page.svelte
 - routes\(app)\wiredfront\+page.svelte

@@ -7,7 +7,7 @@
 <!-- Which part of the platform does this touch? -->
 - [ ] Desktop App (SvelteKit/Tauri)
 - [ ] Engine (Rust)
-- [ ] Maestro Kernel (Rust)
+- [ ] Clyffy Kernel (Rust)
 - [ ] ColdLight Design System
 - [ ] CI/Tooling
 

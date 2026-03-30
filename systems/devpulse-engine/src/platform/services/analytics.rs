@@ -6,7 +6,7 @@
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
-use devpulse_maestro::cortex::persistence::DuckDbAdapter;
+use devpulse_clyffy::cortex::persistence::DuckDbAdapter;
 use std::path::Path;
 use std::sync::Arc;
 

@@ -132,7 +132,7 @@ export interface UIDef {
 	/** Per-slot visual axis assignment. Keys are slot names. */
 	readonly slots: Readonly<Record<string, SlotAxes>>;
 
-	/** Optional: domain scope (e.g., "devforge", "maestro"). Null = platform-wide. */
+	/** Optional: domain scope (e.g., "devforge", "clyffy"). Null = platform-wide. */
 	readonly domain?: string | null;
 }
 

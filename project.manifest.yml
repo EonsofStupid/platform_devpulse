@@ -43,10 +43,10 @@ organizations:
 # HUBS (Domain Modules)
 # ============================================
 hubs:
-  - id: maestro-ai
-    name: "MaestroAI"
-    slug: maestro-ai
-    path: kernel/devpulse-maestro
+  - id: clyffy-ai
+    name: "ClyffyAI"
+    slug: clyffy-ai
+    path: kernel/devpulse-clyffy
     type: core
     description: "AI orchestration kernel"
     
@@ -68,17 +68,17 @@ hubs:
         type: tool
         description: "Image and video editor"
         
-  - id: devmaestro
-    name: "DevMaestro"
-    slug: devmaestro
-    path: interfaces/desktop/src/lib/domains/devmaestro
+  - id: devclyffy
+    name: "DevClyffy"
+    slug: devclyffy
+    path: interfaces/desktop/src/lib/domains/devclyffy
     type: dev-tools
     description: "Developer tools and debugging"
     
   - id: overmind
     name: "OverMind"
     slug: overmind
-    path: interfaces/desktop/src/lib/domains/thinkmaestro
+    path: interfaces/desktop/src/lib/domains/thinkclyffy
     type: planning
     description: "Planning, research, and ideation"
     
@@ -116,9 +116,9 @@ services:
       - rust
     description: "Public API facade"
     
-  - id: maestro
-    name: "Maestro Kernel"
-    path: kernel/devpulse-maestro
+  - id: clyffy
+    name: "Clyffy Kernel"
+    path: kernel/devpulse-clyffy
     tech:
       - rust
     description: "Proprietary AI orchestration"

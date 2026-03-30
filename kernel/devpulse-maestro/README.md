@@ -1,4 +1,4 @@
-# Kernel: devpulse-maestro (The Blackbox)
+# Kernel: devpulse-clyffy (The Blackbox)
 
 > **ROLE**: The "Brain". Proprietary IP. Pure Logic.
 > **ACCESS**: `unsafe_code = "forbid"`. NO UI DEPENDENCIES.

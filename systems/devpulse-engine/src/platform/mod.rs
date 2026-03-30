@@ -1,13 +1,13 @@
 //! Platform engine — the sole public API for persistence, health, and config.
 //!
 //! The engine owns every service lifecycle: boot, health, shutdown.
-//! Maestro (kernel) provides low-level adapters. The engine wraps them
+//! Clyffy (kernel) provides low-level adapters. The engine wraps them
 //! into managed services with config-driven boot and health orchestration.
 //! Tauri desktop is the thin facade that calls into this engine via IPC.
 //!
 //! # Architecture
 //! ```text
-//! Tauri (facade) -> Platform Engine (this) -> Services -> Maestro adapters (private)
+//! Tauri (facade) -> Platform Engine (this) -> Services -> Clyffy adapters (private)
 //!              |
 //!              +-- SystemHealth (public type)
 //!              +-- InitEvent (public type)
@@ -41,8 +41,8 @@ pub use init::{InitEvent, InitStatus};
 pub use metrics::ProcessMetrics;
 pub use services::{Service, ServiceRole, ServiceState};
 
-// Re-export maestro persistence traits and types for Tauri command layer
-pub use devpulse_maestro::cortex::persistence::{
+// Re-export clyffy persistence traits and types for Tauri command layer
+pub use devpulse_clyffy::cortex::persistence::{
     AnalyticsAdapter, CacheAdapter, SqlAdapter, SqlRow, SqlValue,
 };
 
@@ -69,7 +69,7 @@ use services::devforge::DevForgeService;
 
 /// Platform engine — sole public API for persistence, health, config.
 ///
-/// Owns all service lifecycles. Tauri talks to this, never to maestro directly.
+/// Owns all service lifecycles. Tauri talks to this, never to clyffy directly.
 /// All user-facing strings pass through `ip_term!()` at this boundary.
 ///
 /// Services are organized by scope:

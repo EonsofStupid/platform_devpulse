@@ -1,7 +1,7 @@
 <!--
-  @file src/lib/domains/app/devmaestro/pages/DevDashboard.svelte
+  @file src/lib/domains/app/devclyffy/pages/DevDashboard.svelte
   @name DevDashboard.svelte
-  @module @devpulse/domains/app/devmaestro/pages/DevDashboard
+  @module @devpulse/domains/app/devclyffy/pages/DevDashboard
   @layer lib
 
   @description

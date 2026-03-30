@@ -14,7 +14,7 @@
 | All stores have typed state | ⬜ | |
 | Mode configs match `ChatModeConfig` contract | ⬜ | |
 | Tool schemas are valid JSON Schema | ⬜ | |
-| Event types match Maestro protocol | ⬜ | |
+| Event types match Clyffy protocol | ⬜ | |
 
 ---
 
@@ -35,7 +35,7 @@
  * @service MessageService
  * @description Handles message send/receive operations
  * @fires chat:send
- * @listens maestro:message
+ * @listens clyffy:message
  */
 ```
 
@@ -110,14 +110,14 @@ export const messages = $state<Message[]>([]);
 
 | Event | Direction | Types | Handler | Status |
 |-------|-----------|-------|---------|--------|
-| `chat:send` | → Maestro | ⬜ | ⬜ | TODO |
-| `chat:mode-change` | → Maestro | ⬜ | ⬜ | TODO |
-| `chat:interaction-response` | → Maestro | ⬜ | ⬜ | TODO |
-| `chat:tool-invoke` | → Maestro | ⬜ | ⬜ | TODO |
-| `maestro:message` | ← Maestro | ⬜ | ⬜ | TODO |
-| `maestro:interaction-request` | ← Maestro | ⬜ | ⬜ | TODO |
-| `maestro:tool-result` | ← Maestro | ⬜ | ⬜ | TODO |
-| `maestro:thinking` | ← Maestro | ⬜ | ⬜ | TODO |
+| `chat:send` | → Clyffy | ⬜ | ⬜ | TODO |
+| `chat:mode-change` | → Clyffy | ⬜ | ⬜ | TODO |
+| `chat:interaction-response` | → Clyffy | ⬜ | ⬜ | TODO |
+| `chat:tool-invoke` | → Clyffy | ⬜ | ⬜ | TODO |
+| `clyffy:message` | ← Clyffy | ⬜ | ⬜ | TODO |
+| `clyffy:interaction-request` | ← Clyffy | ⬜ | ⬜ | TODO |
+| `clyffy:tool-result` | ← Clyffy | ⬜ | ⬜ | TODO |
+| `clyffy:thinking` | ← Clyffy | ⬜ | ⬜ | TODO |
 
 ---
 
@@ -133,7 +133,7 @@ export const messages = $state<Message[]>([]);
  * @author DevPulse
  *
  * @fires chat:send - When user sends a message
- * @listens maestro:message - When AI responds
+ * @listens clyffy:message - When AI responds
  *
  * @example
  * import { MessageService } from './message.service';

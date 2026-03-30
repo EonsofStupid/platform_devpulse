@@ -92,8 +92,8 @@
 ### 2.6 Domain Component in Central Library
 - **Severity**: MODERATE
 - **Location**: `blocks/governance/GovernanceControls.svelte`
-- **Problem**: GovernanceControls is a domain-specific composition (CAG/Maestro UI). It belongs in `domains/`, not in the central library.
-- **Fix**: Move to `domains/app/maestro/` or extract generic "parameter panel" primitive.
+- **Problem**: GovernanceControls is a domain-specific composition (CAG/Clyffy UI). It belongs in `domains/`, not in the central library.
+- **Fix**: Move to `domains/app/clyffy/` or extract generic "parameter panel" primitive.
 
 ---
 
@@ -108,7 +108,7 @@
 ### 3.2 Badge Uses `variant` Not `intent` in Routes
 - **Severity**: HIGH
 - **Location**: 5 route files, 16 Badge instances
-- **Files**: devforge/+page, maestro/+page, overmind/+page, wiredfront/+page, StatusBar.svelte
+- **Files**: devforge/+page, clyffy/+page, overmind/+page, wiredfront/+page, StatusBar.svelte
 - **Problem**: Routes pass `variant="neutral"` / `variant="positive"` to Badge. Badge has both `variant` and `intent` props. `variant` is destructured but only used for data attribute, not for StyleMacro.
 - **Fix**: Either route Badge `variant` through to StyleMacro, or change routes to use `intent`.
 

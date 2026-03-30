@@ -67,7 +67,7 @@ const LONG_TERMS = [
 	"speculative decoding",
 	"Reasoning Ready Object",
 	// Architecture
-	"Maestro",
+	"Clyffy",
 	"Cortex",
 	"Trinity",
 	"OverMind",
@@ -83,14 +83,14 @@ const SHORT_TERM_REGEXES = SHORT_TERMS.map((term) => [term, new RegExp(`\\b${ter
 // SPRINT-LAUNCHER-UI. These are baselined — not ignored, just documented.
 // New files must NEVER be added to this list without a sprint plan to fix them.
 const BASELINED_PATHS = [
-	// Frontend maestro dashboard (will be renamed to "Gus" dashboard)
-	"domains/maestro/",
-	"routes/(app)/maestro/",
+	// Frontend clyffy dashboard (will be renamed to "Gus" dashboard)
+	"domains/clyffy/",
+	"routes/(app)/clyffy/",
 	"routes/(app)/overmind/",
 	"routes/(app)/devpulse/",
 	"routes/(chat)/chat/",
 	// System config (will use ip_term equivalents)
-	"sys/cfg/maestro/",
+	"sys/cfg/clyffy/",
 	// Layout components (sidebar labels, chat frame)
 	"layouts/app/Sidebar.svelte",
 	"layouts/chat/components/shell/Frame.svelte",

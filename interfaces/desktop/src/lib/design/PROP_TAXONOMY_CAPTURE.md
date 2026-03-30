@@ -23,7 +23,7 @@ These aren't "styling" — they're how the system stays registry-first.
 | `recipeId` | enum | Registry-backed | Required |
 | `presetId` | enum? | Registry-backed | Optional shortcut for defaults |
 | `intent` | enum | `neutral` \| `info` \| `success` \| `warning` \| `danger` | Semantic meaning |
-| `tone` | enum | `app` \| `chat` \| `maestro` | Rune context → preset selection |
+| `tone` | enum | `app` \| `chat` \| `clyffy` | Rune context → preset selection |
 | `state` | enum | `default` \| `hover` \| `active` \| `focus` \| `disabled` \| `loading` \| `readonly` | Interaction state |
 | `density` | enum | `comfortable` \| `compact` \| `dense` | UI density |
 | `importance` | enum | `standard` \| `elevated` \| `critical` | Visual priority |
@@ -169,7 +169,7 @@ Non-negotiable for an app platform.
 
 ## 6) TYPOGRAPHY (Text System)
 
-Consistent across app/chat/maestro.
+Consistent across app/chat/clyffy.
 
 ### Font + Size
 
@@ -387,7 +387,7 @@ Where most design systems are too shallow. COLD LIGHT is not.
 
 ---
 
-## TONE SYSTEM (3-Tier: Maestro / App / Chat)
+## TONE SYSTEM (3-Tier: Clyffy / App / Chat)
 
 `tone` = rune context
 
@@ -398,7 +398,7 @@ Rune context picks:
 - Default density
 
 So:
-- **Maestro** notifications can be "mad scientist"
+- **Clyffy** notifications can be "mad scientist"
 - **Chat** can be "retro cyber"
 - **App** can be "space/lab"
 
@@ -750,10 +750,10 @@ Example: `virtual:coldlight-registry` returns JSON-like typed exports.
 
 ## TONE SYSTEM (Runes → Preset Selection)
 
-Context lanes (Maestro/App/Chat) select preset families. Tokens remain global and stable.
+Context lanes (Clyffy/App/Chat) select preset families. Tokens remain global and stable.
 
 ```
-✅ notify(domain="maestro") → presetId "notify.maestro.madScientist"
+✅ notify(domain="clyffy") → presetId "notify.clyffy.madScientist"
 ✅ notify(domain="chat") → presetId "notify.chat.cyberRetro"
 ✅ notify(domain="app") → presetId "notify.app.spaceParticle"
 ```
@@ -1533,7 +1533,7 @@ src/lib/design/taxonomy/
 ```typescript
 // design/taxonomy/props/core.props.ts
 export type DsIntent = "neutral" | "info" | "success" | "warning" | "danger";
-export type DsTone = "app" | "chat" | "maestro";
+export type DsTone = "app" | "chat" | "clyffy";
 export type DsState =
   | "default"
   | "hover"
@@ -1679,7 +1679,7 @@ import { z } from "zod";
 
 export const zDsCoreProps = z.object({
   intent: z.enum(["neutral", "info", "success", "warning", "danger"]),
-  tone: z.enum(["app", "chat", "maestro"]),
+  tone: z.enum(["app", "chat", "clyffy"]),
   state: z.enum(["default","hover","active","focus","disabled","loading","readonly"]),
   density: z.enum(["comfortable","compact","dense"]),
 

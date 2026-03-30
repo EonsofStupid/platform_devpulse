@@ -144,8 +144,8 @@ export const LatestSection: React.FC<LatestSectionProps> = ({
             </h3>
             <p className="font-rajdhani text-gray-300 text-lg">
               {selectedCategory
-                ? `Create some ${selectedCategory} content through the Data Maestro admin panel.`
-                : 'Create content through the Data Maestro admin panel to see it here.'}
+                ? `Create some ${selectedCategory} content through the Data Clyffy admin panel.`
+                : 'Create content through the Data Clyffy admin panel to see it here.'}
             </p>
           </div>
         )}

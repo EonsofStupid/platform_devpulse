@@ -40,7 +40,7 @@ src/
 │       ├── overmind/               <- COLOCATED
 │       ├── devforge/               <- COLOCATED
 │       ├── wiredfront/             <- COLOCATED
-│       └── maestro/                <- COLOCATED
+│       └── clyffy/                <- COLOCATED
 ├── lib/
 │   ├── layouts/                    <- STAYS (shared app shell)
 │   │   ├── app/
@@ -71,7 +71,7 @@ src/
 - [x] Copy lib/domains/app/overmind/* → routes/(app)/overmind/
 - [x] Copy lib/domains/app/ui-demo/* → routes/(app)/ui-demo/
 - [x] Copy lib/domains/app/wiredfront/* → routes/(app)/wiredfront/
-- [x] Copy lib/domains/app/maestro/* → routes/(app)/maestro/
+- [x] Copy lib/domains/app/clyffy/* → routes/(app)/clyffy/
 
 ### Phase 2: Update +page.svelte Imports [DONE]
 - [x] devpulse/+page.svelte: `'./features/dashboard/pages/DevPulseDashboard.svelte'`
@@ -87,7 +87,7 @@ Remove obsolete `pageModule` from DomainMetadata (URL-driven routing doesn't nee
 - [x] Update domain.contract.ts: remove pageModule, add optional route
 - [x] Update devpulse.contract.ts: remove pageModule
 - [ ] Update devforge.contract.ts: remove pageModule
-- [ ] Update maestro.contract.ts: remove pageModule
+- [ ] Update clyffy.contract.ts: remove pageModule
 - [ ] Update overmind.contract.ts: remove pageModule
 - [ ] Update ui-demo.contract.ts: remove pageModule
 - [ ] Update wiredfront.contract.ts: remove pageModule
@@ -153,7 +153,7 @@ export interface DomainMetadata {
 After app/ deletion, lib/domains/ still contains:
 - `chat/` - empty (README only)
 - `common/` - empty
-- `maestro/` - empty (README only)
+- `clyffy/` - empty (README only)
 - `notify/` - empty
 
 These are scaffolding for future domains. Leave as-is or delete if not needed.

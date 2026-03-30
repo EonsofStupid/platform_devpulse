@@ -9,7 +9,7 @@
 	@compound false
 	@blockCategory layout
 	@defaultStyle dynamic-background-boot
-	@styleIds dynamic-background-boot, dynamic-background-devpulse, dynamic-background-overmind, dynamic-background-wiredfront, dynamic-background-devforge, dynamic-background-maestro
+	@styleIds dynamic-background-boot, dynamic-background-devpulse, dynamic-background-overmind, dynamic-background-wiredfront, dynamic-background-devforge, dynamic-background-clyffy
 	@requiredAxes backgroundColor, color, opacity
 	@slots root:all
 	@defaults {

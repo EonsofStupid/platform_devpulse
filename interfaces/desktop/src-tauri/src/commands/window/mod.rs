@@ -1,13 +1,13 @@
 //! Window management commands.
 //!
 //! Commands:
-//! - `open_chat_window`: Open or focus the Maestro Chat window
+//! - `open_chat_window`: Open or focus the Clyffy Chat window
 //! - `close_window`: Close a window by label
 //! - `focus_window`: Focus a window by label
 
 use tauri::Manager;
 
-/// Open or focus the Maestro Chat child window.
+/// Open or focus the Clyffy Chat child window.
 ///
 /// # Errors
 /// Returns an error string if the window cannot be focused or created.
@@ -18,7 +18,7 @@ pub async fn open_chat_window(app: tauri::AppHandle) -> Result<(), String> {
         window.set_focus().map_err(|e| e.to_string())?;
     } else {
         tauri::WebviewWindowBuilder::new(&app, "chat", tauri::WebviewUrl::App("/chat".into()))
-            .title("Maestro Chat")
+            .title("Clyffy Chat")
             .inner_size(450.0, 600.0)
             .decorations(false)
             .transparent(true)

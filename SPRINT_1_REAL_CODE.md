@@ -108,8 +108,8 @@ serde_json = "1.0"
 ### `src-tauri/src/commands/mod.rs`
 ```rust
 pub mod chat;
-pub mod devmaestro;
-pub mod thinkmaestro;
+pub mod devclyffy;
+pub mod thinkclyffy;
 pub mod wiredfront;
 pub mod sys;
 ```
@@ -141,8 +141,8 @@ pub fn get_settings() -> String {
 
 ## 3. Empty Stubs (To be filled in later sprints, but must compile)
 *   `commands/chat/interactions.rs`: `pub fn post_reaction() {}`
-*   `commands/devmaestro/mod.rs`: `pub fn get_status() {}`
-*   `commands/thinkmaestro/mod.rs`: `pub fn create_canvas() {}`
+*   `commands/devclyffy/mod.rs`: `pub fn get_status() {}`
+*   `commands/thinkclyffy/mod.rs`: `pub fn create_canvas() {}`
 *   `commands/wiredfront/mod.rs`: `pub fn connect_peer() {}`
 ## 4. Frontend Configuration (Required for `npm run dev`)
 
@@ -209,9 +209,9 @@ export default defineConfig({
 </html>
 ```
 
-## 5. Kernel: `devpulse-maestro` (The Cortex)
+## 5. Kernel: `devpulse-clyffy` (The Cortex)
 
-### `kernel/devpulse-maestro/src/lib.rs`
+### `kernel/devpulse-clyffy/src/lib.rs`
 ```rust
 pub mod memory;
 pub mod reasoning;
@@ -237,7 +237,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-devpulse-maestro = { path = "../../kernel/devpulse-maestro" }
+devpulse-clyffy = { path = "../../kernel/devpulse-clyffy" }
 serde = { workspace = true }
 ts-rs = { workspace = true }
 uuid = { workspace = true }
@@ -247,7 +247,7 @@ uuid = { workspace = true }
 ```rust
 pub mod signals;
 
-use devpulse_maestro::Cortex;
+use devpulse_clyffy::Cortex;
 
 pub struct Engine {
     cortex: Cortex,

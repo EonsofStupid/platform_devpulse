@@ -7,7 +7,7 @@
 - [ ] `d:/localdev/platform_devpulse/Cargo.toml`
 
 ## 2. Backend Architecture
-- [ ] `d:/localdev/platform_devpulse/kernel/devpulse-maestro/Cargo.toml`
+- [ ] `d:/localdev/platform_devpulse/kernel/devpulse-clyffy/Cargo.toml`
 - [ ] `d:/localdev/platform_devpulse/systems/devpulse-engine/Cargo.toml`
 
 ## 3. Operations (xtask)
@@ -19,8 +19,8 @@
 - [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src-tauri/src/main.rs`
 - [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src-tauri/src/lib.rs`
 - [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src-tauri/src/commands/mod.rs`
-- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src-tauri/src/commands/devmaestro/mod.rs`
-- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src-tauri/src/commands/thinkmaestro/mod.rs`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src-tauri/src/commands/devclyffy/mod.rs`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src-tauri/src/commands/thinkclyffy/mod.rs`
 - [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src-tauri/src/commands/wiredfront/mod.rs`
 - [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src-tauri/src/commands/chat/mod.rs`
 - [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src-tauri/src/commands/chat/interactions.rs`
@@ -41,11 +41,11 @@
 - [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/layouts/chat/overlays/ModeSelector.svelte`
 
 **Domains**
-- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/devmaestro/DevmaestroFrame.svelte`
-- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/devmaestro/DevDashboard.svelte`
-- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/thinkmaestro/ThinkmaestroFrame.svelte`
-- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/thinkmaestro/ThinkDashboard.svelte`
-- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/thinkmaestro/Canvas.svelte`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/devclyffy/DevclyffyFrame.svelte`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/devclyffy/DevDashboard.svelte`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/thinkclyffy/ThinkclyffyFrame.svelte`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/thinkclyffy/ThinkDashboard.svelte`
+- [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/thinkclyffy/Canvas.svelte`
 - [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/wiredfront/WiredfrontFrame.svelte`
 - [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/wiredfront/WiredDashboard.svelte`
 - [ ] `d:/localdev/platform_devpulse/interfaces/desktop/src/lib/domains/wiredfront/ConnectionHub.svelte`

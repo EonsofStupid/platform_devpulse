@@ -33,7 +33,7 @@ enum Commands {
     RunDev,
     /// Verify the setup: svelte-check + cargo check.
     Verify,
-    /// Verify IP boundary: desktop must not depend on maestro.
+    /// Verify IP boundary: desktop must not depend on clyffy.
     VerifyIpBoundary,
 }
 

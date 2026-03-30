@@ -269,15 +269,15 @@ interface ConfirmationProps {
 
 ## Engine Facade Integration
 
-> **ADR-PENDING**: Chat communicates with Maestro via event bus.
+> **ADR-PENDING**: Chat communicates with Clyffy via event bus.
 
 ### Rules
 
 1. **No direct Tauri commands** from chat components
 2. **Event bus pattern** for AI communication
-3. **Type alignment** with Maestro kernel types
+3. **Type alignment** with Clyffy kernel types
 
-### Events (Chat → Maestro)
+### Events (Chat → Clyffy)
 
 ```typescript
 interface ChatOutboundEvents {
@@ -289,15 +289,15 @@ interface ChatOutboundEvents {
 }
 ```
 
-### Events (Maestro → Chat)
+### Events (Clyffy → Chat)
 
 ```typescript
 interface ChatInboundEvents {
-    'maestro:message-receive': { content: string; author: 'gus' | 'system' };
-    'maestro:interaction-request': InteractionRequest;
-    'maestro:thinking-start': void;
-    'maestro:thinking-end': void;
-    'maestro:cortex-update': CortexVisualization;
+    'clyffy:message-receive': { content: string; author: 'gus' | 'system' };
+    'clyffy:interaction-request': InteractionRequest;
+    'clyffy:thinking-start': void;
+    'clyffy:thinking-end': void;
+    'clyffy:cortex-update': CortexVisualization;
 }
 ```
 
@@ -425,7 +425,7 @@ class GlobalState {
 | ADR-004 | PENDING | Chat overlay z-index layering |
 | ADR-005 | PENDING | Mode availability rules |
 | ADR-006 | PENDING | Interaction component contracts |
-| ADR-007 | PENDING | Maestro event bus protocol |
+| ADR-007 | PENDING | Clyffy event bus protocol |
 
 ---
 
@@ -435,7 +435,7 @@ class GlobalState {
 |----------|------|---------|
 | App Shell | `layouts/app/README.md` | Renders underneath |
 | Chat Domain | `domains/chat/` | Business logic |
-| Maestro | `domains/maestro/` | AI interface |
+| Clyffy | `domains/clyffy/` | AI interface |
 | GlobalState | `sys/runes/global.svelte.ts` | Shared state |
 | Reference 01 | `design/REFERENCES/CHAT-REFERENCE-01.png` | Design spec |
 | Reference 02 | `design/REFERENCES/CHAT-REFERENCE-02.png` | Design spec |

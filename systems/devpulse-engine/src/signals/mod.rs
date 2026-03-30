@@ -2,10 +2,10 @@
 //!
 //! # Architecture
 //!
-//! Engine owns the signal types. Maestro subscribes.
+//! Engine owns the signal types. Clyffy subscribes.
 //!
 //! ```text
-//! Desktop -> Engine.emit(Signal) -> SignalRouter -> Maestro.subscribe()
+//! Desktop -> Engine.emit(Signal) -> SignalRouter -> Clyffy.subscribe()
 //!                                                -> Desktop.subscribe()
 //!                                                -> Analytics sink
 //! ```

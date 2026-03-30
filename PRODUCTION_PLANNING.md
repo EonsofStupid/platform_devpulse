@@ -12,7 +12,7 @@
 [workspace]
 resolver = "2"
 members = [
-    "kernel/devpulse-maestro",
+    "kernel/devpulse-clyffy",
     "systems/devpulse-engine",
     "systems/*", 
     "interfaces/*",
@@ -55,15 +55,15 @@ fs_extra = "1.3" # File manipulation
 
 ## 2. Backend Architecture (Separation of Concerns)
 
-### 2.1 Kernel: `devpulse-maestro` (The IP)
-**Path**: `kernel/devpulse-maestro`
+### 2.1 Kernel: `devpulse-clyffy` (The IP)
+**Path**: `kernel/devpulse-clyffy`
 **Role**: Proprietary Logic (The Cortex).
 > **Beta 1 Vision**: The Cortex will evolve into the **RRO** (Reasoning Ready Object).
 > - **Internal**: Uses embedded `SurrealDB` for local state/graphs.
 > - **External Lobe**: Connects to Cloud `Qdrant` (RocksDB) via encoded handshake for massive memory.
 > - **Current Scaffold**: Must expose `persistence` module to support this future dual-lobe structure.
 **Strictness**: `deny(warnings)` (D3).
-**Guardrail**: `kernel/devpulse-maestro/_MAINTENANCE.md`
+**Guardrail**: `kernel/devpulse-clyffy/_MAINTENANCE.md`
 > "The Law of Duplication": Verify with `grep` before adding types.
 
 ### 2.2 Systems: `devpulse-engine` (The Facade)
@@ -132,8 +132,8 @@ pub fn run() {
             commands::chat::interactions::post_reaction,
             
             // Workspaces
-            commands::devmaestro::get_status,
-            commands::thinkmaestro::create_canvas,
+            commands::devclyffy::get_status,
+            commands::thinkclyffy::create_canvas,
             
             // Media
             commands::wiredfront::connect_peer,
@@ -149,13 +149,13 @@ pub fn run() {
 #### `src/commands/mod.rs`
 ```rust
 pub mod chat;
-pub mod devmaestro;
-pub mod thinkmaestro;
+pub mod devclyffy;
+pub mod thinkclyffy;
 pub mod wiredfront;
 pub mod sys;
 ```
 
-#### `src/commands/devmaestro/mod.rs`
+#### `src/commands/devclyffy/mod.rs`
 ```rust
 // Future: pub mod debugging;
 // Future: pub mod execution;
@@ -169,7 +169,7 @@ pub fn get_status() {}
 pub fn connect_peer() {}
 ```
 
-#### `src/commands/thinkmaestro/mod.rs`
+#### `src/commands/thinkclyffy/mod.rs`
 ```rust
 pub fn create_canvas() {}
 ```
@@ -212,11 +212,11 @@ pub mod history;
 - `Sidebar.svelte`
 
 #### `domains/` (Bounded Contexts)
-- **`devmaestro/`** (Production IDE View)
-    - `DevmaestroFrame.svelte`
-    - `DevmaestroDashboard.svelte`
-- **`thinkmaestro/`** (planning, research testing, learning, ideations)
-    - `ThinkmaestroFrame.svelte`
+- **`devclyffy/`** (Production IDE View)
+    - `DevclyffyFrame.svelte`
+    - `DevclyffyDashboard.svelte`
+- **`thinkclyffy/`** (planning, research testing, learning, ideations)
+    - `ThinkclyffyFrame.svelte`
     - `Canvas.svelte`
 - **`wiredfront/`** (Media Command Center)
     > **Role**: All things Image, Video, Broadcast.
@@ -243,7 +243,7 @@ pub mod history;
 | :--- | :--- | :--- |
 | `bad_desktop/.../wiredfront` | `domains/wiredfront` | **Refactor**: Convert Stores to Runes. Strict Signal I/O. |
 | `bad_desktop/.../pixvix` | `domains/wiredfront` (Merged) | **Integrate**: PixVix becomes the "Overlay Mode" of WiredFront. |
-| `bad_desktop/.../overmind` | `domains/thinkmaestro` | **Rewrite**: Old canvas logic -> New `ThinkSpace` Canvas. |
+| `bad_desktop/.../overmind` | `domains/thinkclyffy` | **Rewrite**: Old canvas logic -> New `ThinkSpace` Canvas. |
 | `scripts/` | `systems/xtask` | **Port**: Convert Python/Shell scripts to safe Rust `xtask` binaries. |
 
 ## 6. Execution Plan (The "Blank" Scaffold)
@@ -255,7 +255,7 @@ If promoted to `PRODUCTION_PLANNING.md`, I will execute the following **EXACT** 
 
 ### 5.1 Backend Skeleton
 - [ ] `Cargo.toml` (Root) -> *Content as defined in Section 1.*
-- [ ] `kernel/devpulse-maestro/Cargo.toml` -> *Content as defined in Section 2.1.*
+- [ ] `kernel/devpulse-clyffy/Cargo.toml` -> *Content as defined in Section 2.1.*
 - [ ] `systems/devpulse-engine/Cargo.toml` -> *Content as defined in Section 2.2.*
 - [ ] `systems/devpulse-engine/Cargo.toml` -> *Content as defined in Section 2.2.*
 
@@ -273,8 +273,8 @@ If promoted to `PRODUCTION_PLANNING.md`, I will execute the following **EXACT** 
 - [ ] `interfaces/desktop/src-tauri/src/main.rs`
 - [ ] `interfaces/desktop/src-tauri/src/lib.rs`
 - [ ] `interfaces/desktop/src-tauri/src/commands/mod.rs`
-- [ ] `interfaces/desktop/src-tauri/src/commands/devmaestro/mod.rs`
-- [ ] `interfaces/desktop/src-tauri/src/commands/thinkmaestro/mod.rs`
+- [ ] `interfaces/desktop/src-tauri/src/commands/devclyffy/mod.rs`
+- [ ] `interfaces/desktop/src-tauri/src/commands/thinkclyffy/mod.rs`
 - [ ] `interfaces/desktop/src-tauri/src/commands/wiredfront/mod.rs`
 - [ ] `interfaces/desktop/src-tauri/src/commands/chat/{mod,interactions}.rs`
 - [ ] `interfaces/desktop/src-tauri/src/commands/sys/{mod,config,logger,guard}.rs`
@@ -282,9 +282,9 @@ If promoted to `PRODUCTION_PLANNING.md`, I will execute the following **EXACT** 
 - [ ] `interfaces/desktop/src/lib/layouts/chat/{Frame,TopBar,LeftSidebar,QuickMenu}.svelte`
 - [ ] `interfaces/desktop/src/lib/layouts/chat/panels/{ContextPanel,HistoryPanel}.svelte`
 - [ ] `interfaces/desktop/src/lib/layouts/chat/overlays/{CommandPalette,ModeSelector}.svelte`
-- [ ] `interfaces/desktop/src/lib/domains/devmaestro/{DevmaestroFrame,DevDashboard}.svelte`
-- [ ] `interfaces/desktop/src/lib/domains/thinkmaestro/{ThinkmaestroFrame,ThinkDashboard}.svelte`
-- [ ] `interfaces/desktop/src/lib/domains/thinkmaestro/Canvas.svelte`
+- [ ] `interfaces/desktop/src/lib/domains/devclyffy/{DevclyffyFrame,DevDashboard}.svelte`
+- [ ] `interfaces/desktop/src/lib/domains/thinkclyffy/{ThinkclyffyFrame,ThinkDashboard}.svelte`
+- [ ] `interfaces/desktop/src/lib/domains/thinkclyffy/Canvas.svelte`
 - [ ] `interfaces/desktop/src/lib/domains/wiredfront/{WiredfrontFrame,WiredDashboard}.svelte`
 - [ ] `interfaces/desktop/src/lib/domains/wiredfront/ConnectionHub.svelte`
 - [ ] `interfaces/desktop/src/lib/domains/wiredfront/ViziWiziEditor.svelte`

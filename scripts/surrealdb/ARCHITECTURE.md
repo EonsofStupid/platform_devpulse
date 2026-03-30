@@ -10,7 +10,7 @@
 
 DevPulse uses TWO completely separate SurrealDB instances. They share ZERO data. Different processes, different storage, different auth.
 
-### Instance 1: EMBEDDED (Platform Binary — Maestro/Clyffy)
+### Instance 1: EMBEDDED (Platform Binary — Clyffy/Clyffy)
 
 Compiles into the Rust binary via `surrealdb` crate. No server process. No network. Ships with the app.
 
@@ -23,8 +23,8 @@ surrealdb = { version = "2.6", default-features = false, features = ["kv-mem", "
 use surrealdb::Surreal;
 use surrealdb::engine::local::RocksDb;
 
-let db = Surreal::new::<RocksDb>("./data/maestro.db").await?;
-db.use_ns("maestro").use_db("orchestration").await?;
+let db = Surreal::new::<RocksDb>("./data/clyffy.db").await?;
+db.use_ns("clyffy").use_db("orchestration").await?;
 ```
 
 **Contains:** Sensitive IP. AI orchestration state. CAG/RAG caches. Minion tasks. Knowledge graphs.
@@ -200,7 +200,7 @@ DEFINE API "/provision" FOR post
 ### architecture
 | Field | Type | Description |
 |-------|------|-------------|
-| layer | string | routes, domains, design, sys, engine, maestro |
+| layer | string | routes, domains, design, sys, engine, clyffy |
 | rule | string | Rule identifier |
 | description | string | Full description |
 | enforced_by | option\<string\> | preflight, biome, scanner, etc. |
@@ -400,13 +400,13 @@ scripts/surrealdb/
 
 ---
 
-## Embedded Instance Namespaces (Maestro)
+## Embedded Instance Namespaces (Clyffy)
 
 For the embedded SurrealDB in the platform binary:
 
 ```
 Embedded SurrealDB (RocksDB, ships with app)
-├── NS: maestro
+├── NS: clyffy
 │   ├── DB: orchestration      AI workload state, minion tasks, scheduling
 │   ├── DB: knowledge          Knowledge graphs, embeddings metadata
 │   └── DB: cache              CAG/RAG cache, hot context
@@ -423,7 +423,7 @@ Embedded SurrealDB (RocksDB, ships with app)
 
 | Database | Crate/Binary | Purpose | Embedded? |
 |----------|-------------|---------|-----------|
-| SurrealDB (embedded) | `surrealdb 2.6` kv-rocksdb | Maestro state, knowledge graphs | Yes |
+| SurrealDB (embedded) | `surrealdb 2.6` kv-rocksdb | Clyffy state, knowledge graphs | Yes |
 | SurrealDB (standalone) | `surreal.exe` v3.0.0 | AI agent memory, project knowledge | No (server) |
 | DuckDB | `duckdb 1.1` | Analytics, OLAP queries | Yes |
 | libSQL | `libsql 0.9` | Relational data, user data | Yes |

@@ -16,7 +16,7 @@ Per FOUNDATION.md section 4.3:
 import { createWebSocketStream } from '$lib/sys/streams/websocket.stream.js';
 
 const stream = createWebSocketStream({
-  id: 'maestro-events',
+  id: 'clyffy-events',
   source: 'ws://localhost:8080/events',
 });
 

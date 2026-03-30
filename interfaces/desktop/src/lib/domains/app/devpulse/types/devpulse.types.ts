@@ -38,7 +38,7 @@ export interface TimeSeriesData {
 }
 
 export interface SystemStatus {
-	readonly maestroLoad: GaugeData;
+	readonly clyffyLoad: GaugeData;
 	readonly contextLoad: GaugeData;
 	readonly memoryUsage: GaugeData;
 	readonly activityTimeline: TimeSeriesData;

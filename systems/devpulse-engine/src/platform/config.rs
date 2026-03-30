@@ -22,7 +22,7 @@ use std::time::Duration;
 /// Public platform configuration.
 ///
 /// This is what Tauri and the frontend see for settings display.
-/// Wraps maestro's `PersistenceConfig` without exposing it.
+/// Wraps clyffy's `PersistenceConfig` without exposing it.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct PlatformConfig {
     /// Root data directory path.
@@ -530,8 +530,8 @@ impl Default for CacheServiceEntry {
 
 impl CacheServiceEntry {
     /// Convert to a `MokaCacheConfig`.
-    pub fn to_moka_config(&self) -> devpulse_maestro::cortex::persistence::MokaCacheConfig {
-        devpulse_maestro::cortex::persistence::MokaCacheConfig {
+    pub fn to_moka_config(&self) -> devpulse_clyffy::cortex::persistence::MokaCacheConfig {
+        devpulse_clyffy::cortex::persistence::MokaCacheConfig {
             max_capacity: self.max_capacity,
             time_to_live: Duration::from_secs(self.time_to_live_secs),
             time_to_idle: Duration::from_secs(self.time_to_idle_secs),

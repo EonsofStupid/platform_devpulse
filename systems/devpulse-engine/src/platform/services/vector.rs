@@ -9,7 +9,7 @@
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
-use devpulse_maestro::cortex::persistence::RroAdapter;
+use devpulse_clyffy::cortex::persistence::RroAdapter;
 use std::sync::Arc;
 
 /// Vector store backed by RRO (embedded Qdrant).

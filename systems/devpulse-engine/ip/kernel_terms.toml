@@ -457,14 +457,8 @@ severity = "hard"
 # CATEGORY: Architecture Terms
 # ─────────────────────────────────────────────────────────────
 
-[[terms]]
-kernel = "Maestro"
-engine = "Gus"
-prod = "Gus"
-dev = "Maestro"
-category = "architecture"
-context = ["logs", "traces", "ui-text"]
-severity = "hard"
+# Clyffy — PUBLIC name, not protected. Allowed everywhere.
+# OverMind — PUBLIC route name, not protected.
 
 [[terms]]
 kernel = "Cortex"
@@ -482,15 +476,6 @@ prod = "System"
 dev = "Trinity"
 category = "architecture"
 context = ["logs", "traces"]
-severity = "hard"
-
-[[terms]]
-kernel = "OverMind"
-engine = "sandbox"
-prod = "Playground"
-dev = "OverMind"
-category = "architecture"
-context = ["logs", "traces", "ui-text"]
 severity = "hard"
 
 # ─────────────────────────────────────────────────────────────
@@ -557,10 +542,10 @@ enabled = false
 prod = "Long-Term Memory"
 dev = "Viper Memory"
 
-[features.maestro_thoughts]
+[features.clyffy_thoughts]
 enabled = false
 prod = "Thought Process"
-dev = "Maestro Thoughts"
+dev = "Clyffy Thoughts"
 
 [features.journey_analytics]
 enabled = false

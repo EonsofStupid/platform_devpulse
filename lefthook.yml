@@ -27,7 +27,7 @@ pre-commit:
       glob: "*.{rs,ts,svelte,json}"
       run: bash scripts/hooks/ip-boundary-check.sh
 
-    # Block --dp- and --cl- prefixes from ever entering the codebase
+    # Block legacy vendor prefixes (--dp-, --tw-, etc.) — --cl-* is ColdLight's own namespace
     no-legacy-prefixes:
       glob: "interfaces/desktop/src/**/*.{ts,svelte,css}"
       run: bash scripts/hooks/no-legacy-prefixes.sh

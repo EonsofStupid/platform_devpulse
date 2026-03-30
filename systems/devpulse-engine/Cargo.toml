@@ -7,10 +7,10 @@ edition = "2021"
 default = ["kernel"]
 kernel = []
 engine = []
-rro = ["devpulse-maestro/rro"]
-kokoros = ["devpulse-maestro/kokoros"]
-outlines = ["devpulse-maestro/outlines"]
-candle = ["devpulse-maestro/candle"]
+rro = ["devpulse-clyffy/rro"]
+kokoros = ["devpulse-clyffy/kokoros"]
+outlines = ["devpulse-clyffy/outlines"]
+candle = ["devpulse-clyffy/candle"]
 
 [dependencies]
 # Core
@@ -24,7 +24,7 @@ tracing = { workspace = true }
 chrono = { workspace = true }
 
 # Kernel (the brain — always linked, facade controls exposure)
-devpulse-maestro = { path = "../../kernel/devpulse-maestro" }
+devpulse-clyffy = { path = "../../kernel/devpulse-clyffy" }
 
 # HTTP server (SurrealDB endpoint on :8822)
 axum = "0.8"

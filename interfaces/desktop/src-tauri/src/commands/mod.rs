@@ -14,9 +14,9 @@
 //! @since 1.0.0
 
 pub mod chat;
-pub mod devmaestro;
+pub mod devclyffy;
 pub mod devpulse;
 pub mod sys;
-pub mod thinkmaestro;
+pub mod thinkclyffy;
 pub mod window;
 pub mod wiredfront;

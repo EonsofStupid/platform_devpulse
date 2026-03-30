@@ -23,9 +23,9 @@ The following infrastructure is now in place:
 ### Commit Scopes Configured
 
 ```
-Core:       engine, maestro, desktop
+Core:       engine, clyffy, desktop
 Design:     coldlight, primitives, tokens, recipes, taxonomy
-Hubs:       wiredfront, pixvix, viziwizi, devmaestro, overmind
+Hubs:       wiredfront, pixvix, viziwizi, devclyffy, overmind
 Infra:      xtask, ci, deps, config, lab
 Docs:       docs, changelog
 ```
@@ -37,7 +37,7 @@ Docs:       docs, changelog
 | ColdLight | `coldlight-v{version}` | `coldlight-v0.1.0` |
 | Desktop | `devpulse-desktop-v{version}` | `devpulse-desktop-v0.1.0` |
 | Engine | `devpulse-engine-v{version}` | `devpulse-engine-v0.1.0` |
-| Maestro | `devpulse-maestro-v{version}` | `devpulse-maestro-v0.1.0` |
+| Clyffy | `devpulse-clyffy-v{version}` | `devpulse-clyffy-v0.1.0` |
 
 ### Svelte 5 Props Extractor (Replaces sveld)
 

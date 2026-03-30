@@ -19,7 +19,7 @@ To ensure methodic imports and zero-relative-path-madness, we will standardize t
 ## 2. The Topology Standard (The "Map")
 | Domain Location | Scope | Content |
 | :--- | :--- | :--- |
-| **`$domains/maestro`** | **SHARED** | The AI Kernel (Cortex, Minions). Available to App & Chat. |
+| **`$domains/clyffy`** | **SHARED** | The AI Kernel (Cortex, Minions). Available to App & Chat. |
 | **`$domains/chat`** | **SHARED** | The Chat Engine (Interactions, Tools). |
 | **`$domains/app/*`** | **PRIVATE** | Product Silos (`devpulse`, `overmind`, `wiredfront`). |
 

@@ -1,4 +1,4 @@
-// File: C:/Users/jessa/Downloads/makers/makers/client/src/domains/admin/features/DataMaestro/DataManage/pages/RowManagementInterface.pg.tsx
+// File: C:/Users/jessa/Downloads/makers/makers/client/src/domains/admin/features/DataClyffy/DataManage/pages/RowManagementInterface.pg.tsx
 import {
   AlertTriangle,
   CheckCircle,

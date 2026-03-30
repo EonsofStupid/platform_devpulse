@@ -1,7 +1,7 @@
 //! `SurrealDB` adapter for reasoning system
 //!
 //! Handles: reasoning graph, state transitions, knowledge relationships
-//! Namespace: maestro/devpulse/reasoning/ with sub-categories
+//! Namespace: clyffy/devpulse/reasoning/ with sub-categories
 //!
 //! This is the "brain" storage for the AI reasoning system.
 
@@ -24,7 +24,7 @@ pub struct SurrealAdapter {
 impl SurrealAdapter {
     /// Open database at path with `SurrealKV` backend (pure Rust).
     ///
-    /// Uses the default maestro reasoning namespace/database/schema.
+    /// Uses the default clyffy reasoning namespace/database/schema.
     ///
     /// # Errors
     /// Returns error if the database cannot be opened or schema initialization fails.
@@ -41,7 +41,7 @@ impl SurrealAdapter {
     /// Open database at path with explicit namespace, database, and schema.
     ///
     /// This is the primary constructor — `open()` delegates here with
-    /// maestro defaults. Engine-level scoped stores pass their own
+    /// clyffy defaults. Engine-level scoped stores pass their own
     /// namespace/database/schema from config.
     ///
     /// The schema runs first as root (to create users/tables), then the

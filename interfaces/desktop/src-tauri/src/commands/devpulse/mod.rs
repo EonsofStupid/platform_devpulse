@@ -49,9 +49,9 @@ pub struct DailyStatsRow {
 #[derive(Debug, Serialize, Type)]
 pub struct CacheStats {
     /// Live count — may decrease between calls due to TTL eviction.
-    pub entry_count: u64,
+    pub entry_count: u32,
     /// Hard ceiling configured at boot. Entries beyond this are evicted LRU.
-    pub max_capacity: u64,
+    pub max_capacity: u32,
 }
 
 /// Aggregate counts from `LibSQL` — cheap `COUNT(*)` queries, not row scans.
@@ -204,8 +204,8 @@ pub async fn fetch_dashboard(
     let cache_stats = if let Some(svc) = platform.cache() {
         let (entry_count, max_capacity) = svc.adapter().stats();
         CacheStats {
-            entry_count,
-            max_capacity,
+            entry_count: entry_count as u32,
+            max_capacity: max_capacity as u32,
         }
     } else {
         CacheStats {

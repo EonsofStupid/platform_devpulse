@@ -130,7 +130,7 @@ fn crate_layer(name: &str) -> &'static str {
         // Platform crates (ours)
         "devpulse_desktop_backend" | "devpulse-desktop-app" => "tauri backend",
         "devpulse-engine" => "platform engine",
-        "devpulse-maestro" => "ai kernel",
+        "devpulse-clyffy" => "ai kernel",
         // Database drivers
         "surrealdb" | "surrealdb-core" | "surrealdb-core2" => "graph service (SurrealDB)",
         "surrealkv" | "surrealcs" => "graph service (kv engine)",

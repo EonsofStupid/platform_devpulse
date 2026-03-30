@@ -55,9 +55,9 @@ multiple-versions = "warn"
 wildcards = "allow"
 # Deny known bad crates
 deny = [
-    # Desktop must NEVER depend on maestro directly.
+    # Desktop must NEVER depend on clyffy directly.
     # All kernel access goes through the engine facade.
-    { name = "devpulse-maestro", wrappers = ["devpulse-engine"] },
+    { name = "devpulse-clyffy", wrappers = ["devpulse-engine"] },
 ]
 
 [sources]
