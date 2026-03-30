@@ -51,7 +51,7 @@ function handleKeydown(e: KeyboardEvent): void {
 >
 	<TextField
 		value={inputValue}
-		oninput={(e) => { inputValue = e.currentTarget.value; }}
+		oninput={(e) => { inputValue = (e.currentTarget as HTMLInputElement).value; }}
 		{placeholder}
 		{disabled}
 		onkeydown={handleKeydown}
