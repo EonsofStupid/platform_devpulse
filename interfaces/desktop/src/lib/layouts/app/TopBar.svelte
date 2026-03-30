@@ -96,7 +96,7 @@ function onKey(e: KeyboardEvent): void {
 					class="w-64"
 					type="text"
 					value={searchQuery}
-					oninput={(e) => { searchQuery = e.currentTarget.value; }}
+					oninput={(e) => { searchQuery = (e.currentTarget as HTMLInputElement).value; }}
 					placeholder="Search..."
 				/>
 			</div>
