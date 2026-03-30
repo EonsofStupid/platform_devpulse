@@ -23,6 +23,7 @@
 -->
 <script lang="ts">
 import { useComboBox } from "$lib/design/behaviors/combobox/use-combobox.svelte.js";
+import { comboboxAnatomy } from "$lib/design/primitives/combobox/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setComboboxContext } from "./context.js";
@@ -78,13 +79,13 @@ const m = $derived(resolveMacro({ kind: "combobox", preset }));
 </script>
 
 <div
+	{...comboboxAnatomy.attrs.root}
 	{...hook.root}
+	{...rest}
 	{...m.dataAttrs}
-	data-slot="root"
 	aria-disabled={disabled ? "true" : undefined}
 	style={cssVarString(m.cssVars)}
 	class={cn(disabled && "opacity-50 pointer-events-none", className)}
-	{...rest}
 >
 	{@render children?.()}
 </div>

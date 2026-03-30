@@ -23,6 +23,7 @@
 -->
 <script lang="ts">
 import { useNotificationCenter } from "$lib/design/behaviors/notification-center/index.js";
+import { notificationCenterAnatomy } from "$lib/design/primitives/notification-center/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { NotificationCenterComponentProps } from "./types.js";
@@ -38,4 +39,4 @@ let {
 const nc = $derived(useNotificationCenter({ open }));
 const m = $derived(resolveMacro({ kind: "notification-center", preset }));
 </script>
-<div {...nc.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" data-state={open ? "open" : "closed"} class={cn("fixed z-50 flex flex-col gap-2", className)} {...rest}>{@render children?.()}</div>
+<div {...notificationCenterAnatomy.attrs.root} {...nc.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-state={open ? "open" : "closed"} class={cn("fixed z-50 flex flex-col gap-2", className)} {...rest}>{@render children?.()}</div>

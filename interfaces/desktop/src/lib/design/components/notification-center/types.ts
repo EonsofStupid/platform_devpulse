@@ -7,20 +7,13 @@
  * Component layer owns ARIA — primitive is structureless.
  */
 
-import type { Snippet } from "svelte";
-import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { NotificationCenterPrimitiveProps } from "$lib/design/primitives/notification-center/index.js";
 
 export type NotificationCenterPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
-/** NotificationCenter component props — ColdLight 8-axis + ARIA + composition + primitive */
-export interface NotificationCenterComponentProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps,
-		ComponentProps {
-	children?: Snippet;
-	/** Style preset preset */
+/** NotificationCenter component props — extends primitive + preset */
+export interface NotificationCenterComponentProps extends NotificationCenterPrimitiveProps {
+	/** Style preset */
 	preset?: NotificationCenterPreset;
 	/** Whether the notification center panel is open */
 	open?: boolean;

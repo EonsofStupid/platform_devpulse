@@ -3,30 +3,20 @@
  * @kind toolbar
  * @layer components
  *
- * Extends primitive with ARIA state props, visual preset, and sizing.
- * Component layer owns ARIA — primitive is structureless.
+ * Extends ToolbarPrimitiveProps with visual preset, sizing, and ARIA state.
  */
 
-import type { Snippet } from "svelte";
-import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { ToolbarPrimitiveProps } from "$lib/design/primitives/toolbar/index.js";
 
 export type ToolbarSize = "sm" | "md" | "lg";
 
 export type ToolbarPreset = "default" | "stark" | "glass" | "flat" | "matte";
 export type ToolbarOrientation = "horizontal" | "vertical";
 
-/** Toolbar component props — ColdLight 8-axis + ARIA + composition */
-export interface ToolbarComponentProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps,
-		ComponentProps {
-	children?: Snippet;
+/** Toolbar component props — primitive + ColdLight visual */
+export interface ToolbarComponentProps extends ToolbarPrimitiveProps {
 	/** Size variant */
 	size?: ToolbarSize;
-	/** Orientation for keyboard navigation. @default "horizontal" */
-	orientation?: ToolbarOrientation;
 	/** Accessible label for the toolbar */
 	label?: string;
 	/** Disable the entire toolbar. @default false */

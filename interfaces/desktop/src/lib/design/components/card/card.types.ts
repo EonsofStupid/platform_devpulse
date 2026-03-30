@@ -4,7 +4,7 @@
  */
 
 import type { HTMLAnchorAttributes, HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 
 export type CardVariant = "default" | "outlined" | "elevated" | "ghost" | "glow";
 export type CardPreset =
@@ -21,8 +21,8 @@ export type CardOrientation = "vertical" | "horizontal";
 export type CardAs = "div" | "a" | "button";
 
 export interface CardProps
-	extends ComponentProps,
-		Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+	extends UIBaseProps,
+		Omit<HTMLAttributes<HTMLElement>, "children" | "class"> {
 	/** Render as div (default), anchor, or button. */
 	as?: CardAs;
 	/** Layout direction. Default: "vertical". */

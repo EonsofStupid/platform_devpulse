@@ -11,8 +11,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 
 // =============================================================================
 // SIZE
@@ -36,9 +35,8 @@ export interface DateRange {
 
 /** RangeCalendar root props — manages date range selection state */
 export interface RangeCalendarProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps,
-		ComponentProps {
+	extends UIBaseProps,
+		Omit<HTMLAttributes<HTMLDivElement>, "children"> {
 	children?: Snippet;
 	/** Start date of the range */
 	startDate?: Date | undefined;
@@ -69,9 +67,7 @@ export interface RangeCalendarProps
 // =============================================================================
 
 /** RangeCalendarHeader props — month/year display + navigation */
-export interface RangeCalendarHeaderProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps {
+export interface RangeCalendarHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
 	children?: Snippet;
 }
 
@@ -80,9 +76,7 @@ export interface RangeCalendarHeaderProps
 // =============================================================================
 
 /** RangeCalendarGrid props — day grid with role="grid" */
-export interface RangeCalendarGridProps
-	extends Omit<HTMLAttributes<HTMLTableElement>, "style" | "children">,
-		BaseProps {
+export interface RangeCalendarGridProps extends Omit<HTMLAttributes<HTMLTableElement>, "children"> {
 	children?: Snippet;
 }
 
@@ -91,9 +85,7 @@ export interface RangeCalendarGridProps
 // =============================================================================
 
 /** RangeCalendarCell props — individual day cell with range awareness */
-export interface RangeCalendarCellProps
-	extends Omit<HTMLButtonAttributes, "style" | "children">,
-		BaseProps {
+export interface RangeCalendarCellProps extends Omit<HTMLButtonAttributes, "children"> {
 	children?: Snippet;
 	/** The date this cell represents */
 	date: Date;

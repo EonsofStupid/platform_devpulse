@@ -23,6 +23,7 @@
 -->
 <script lang="ts">
 import { useSelect } from "$lib/design/behaviors/select/use-select.svelte.js";
+import { selectAnatomy } from "$lib/design/primitives/select/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setSelectContext } from "./context.js";
@@ -71,11 +72,12 @@ const m = $derived(resolveMacro({ kind: "select", preset }));
 </script>
 
 <div
+		{...selectAnatomy.attrs.root}
 		{...hook.root}
+		{...rest}
 		{...m.dataAttrs}
 		style={cssVarString(m.cssVars)}
 		class={cn(disabled && "opacity-50 pointer-events-none", className)}
-		{...rest}
 	>
 		{@render children?.()}
 	</div>

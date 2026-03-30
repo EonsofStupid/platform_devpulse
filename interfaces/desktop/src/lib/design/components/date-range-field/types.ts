@@ -3,16 +3,15 @@
  * @kind date-range-field
  * @layer components
  *
- * Prop types for all DateRangeField sub-components.
- * ColdLight-owned — renders two segmented date fields for range input.
+ * No matching primitive — extends UIBaseProps.
+ * Renders two segmented date fields for range input.
  *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/spinbutton/
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 
 // =============================================================================
 // SIZE
@@ -55,10 +54,8 @@ export interface DateSegment {
 
 /** DateRangeField root props — manages start/end segmented fields */
 export interface DateRangeFieldProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps,
-		ComponentProps {
-	children?: Snippet;
+	extends Omit<HTMLAttributes<HTMLDivElement>, "children">,
+		UIBaseProps {
 	/** Style preset. Default: "default". */
 	preset?: DateRangeFieldPreset;
 	/** Start date of the range */
@@ -84,17 +81,15 @@ export interface DateRangeFieldProps
 // =============================================================================
 
 /** DateRangeFieldStart props — start date field container */
-export interface DateRangeFieldStartProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps {
+export interface DateRangeFieldStartProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
 	children?: Snippet;
+	class?: string;
 }
 
 /** DateRangeFieldEnd props — end date field container */
-export interface DateRangeFieldEndProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps {
+export interface DateRangeFieldEndProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
 	children?: Snippet;
+	class?: string;
 }
 
 // =============================================================================
@@ -103,9 +98,9 @@ export interface DateRangeFieldEndProps
 
 /** DateRangeFieldSegment props — individual segment with spinbutton role */
 export interface DateRangeFieldSegmentProps
-	extends Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children">,
-		BaseProps {
+	extends Omit<HTMLAttributes<HTMLSpanElement>, "children"> {
 	children?: Snippet;
+	class?: string;
 	/** Segment data */
 	segment: DateSegment;
 	/** Index of this segment */

@@ -27,6 +27,8 @@ let {
 	size = 180,
 	strokeWidth = 8,
 	class: className = "",
+	children: _,
+	...rest
 }: RadialGaugeProps = $props();
 
 // SVG macro resolver — pure $derived, no wrapper component
@@ -42,7 +44,7 @@ const dashOffset = $derived(circumference * (1 - pct));
 const displayValue = $derived(Math.round(value));
 </script>
 
-<div class="relative inline-flex items-center justify-center {className}">
+<div class="relative inline-flex items-center justify-center {className}" data-kind="radial-gauge" data-slot="root" {...rest}>
 	<svg
 		width={size}
 		height={size}

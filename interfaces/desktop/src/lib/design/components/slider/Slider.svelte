@@ -23,6 +23,7 @@
 -->
 <script lang="ts">
 import { useSlider } from "$lib/design/behaviors/slider/use-slider.svelte.js";
+import { sliderAnatomy } from "$lib/design/primitives/slider/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setSliderContext } from "./context.js";
@@ -71,7 +72,9 @@ const m = $derived(resolveMacro({ kind: "slider", preset }));
 </script>
 
 <div
+		{...sliderAnatomy.attrs.root}
 		{...hook.root}
+		{...rest}
 		{...m.dataAttrs}
 		style={cssVarString(m.cssVars)}
 		data-orientation={orientation}
@@ -80,15 +83,13 @@ const m = $derived(resolveMacro({ kind: "slider", preset }));
 			orientation === "vertical" && "flex-col h-full",
 			disabled && "opacity-50 pointer-events-none",
 			className)}
-		{...rest}
 	>
 		{#if children}
 			{@render children()}
 		{:else}
 			<div
+				{...sliderAnatomy.attrs.track}
 				{...hook.track}
-				data-kind="slider"
-				data-slot="track"
 				class={cn(
 					"relative grow overflow-hidden rounded-full",
 					orientation === "horizontal" ? "h-2 w-full" : "w-2 h-full")}
@@ -103,9 +104,8 @@ const m = $derived(resolveMacro({ kind: "slider", preset }));
 				></div>
 			</div>
 			<div
+				{...sliderAnatomy.attrs.thumb}
 				{...hook.thumb}
-				data-kind="slider"
-				data-slot="thumb"
 				class="block size-5 rounded-full border-2 shadow-sm cursor-grab active:cursor-grabbing focus-visible:outline-2 focus-visible:outline-offset-2"
 				style={orientation === "horizontal"
 					? `left: ${hook.percent}%`

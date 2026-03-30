@@ -7,18 +7,12 @@
  * marketing CTAs, cookie consent, notifications. NOT an alert — see Alert
  * for inline contextual feedback with role="alert".
  *
- * Follows Ark UI / Zag API conventions:
- *   - Controlled (open) vs uncontrolled (defaultOpen) state
- *   - onOpenChange callback with details
- *   - onExitComplete animation lifecycle
- *   - ids for composition
- *   - dir for RTL
- *   - element render delegation on sub-components
+ * No matching primitive — uses UIBaseProps.
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 
 // =============================================================================
 // CALLBACK DETAILS
@@ -45,9 +39,7 @@ export interface BannerIds {
 }
 
 /** Props for the ColdLight Banner component. */
-export interface BannerProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		ComponentProps {
+export interface BannerProps extends Omit<HTMLAttributes<HTMLDivElement>, "children">, UIBaseProps {
 	/** Element IDs for composition. */
 	ids?: Partial<BannerIds>;
 	/** Controlled open state. */

@@ -7,6 +7,7 @@
 	Individual radio button. ARIA from hook.getRadio(value).
 -->
 <script lang="ts">
+import { radioGroupAnatomy } from "$lib/design/primitives/radio-group/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { getRadioGroupContext } from "./context.js";
 import type { RadioGroupItemProps } from "./types.js";
@@ -24,15 +25,14 @@ const radioAttrs = $derived(ctx.hook.getRadio(value, disabled));
 </script>
 
 <button
+	{...radioGroupAnatomy.attrs.radio}
 	{...radioAttrs as any}
-	data-kind="radio-group"
-	data-slot="item"
+	{...rest}
 	class={cn(
 		"inline-flex items-center justify-center size-5 rounded-full border-2 cursor-pointer",
 		"focus-visible:outline-2 focus-visible:outline-offset-2",
 		"disabled:pointer-events-none disabled:opacity-50",
 		className)}
-	{...rest}
 >
 	{#if children}
 		{@render children()}

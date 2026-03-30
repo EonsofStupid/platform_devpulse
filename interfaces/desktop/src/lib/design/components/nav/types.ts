@@ -7,10 +7,8 @@
  * Component layer owns ARIA -- primitive is structureless.
  */
 
-import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 
 export type NavSize = "sm" | "md" | "lg";
 export type NavOrientation = "horizontal" | "vertical";
@@ -18,11 +16,9 @@ export type NavPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 /** Nav component props — ColdLight 8-axis + ARIA + composition */
 export interface NavComponentProps
-	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children">,
-		BaseProps,
-		ComponentProps {
-	children?: Snippet;
-	/** Style preset preset */
+	extends UIBaseProps,
+		Omit<HTMLAttributes<HTMLElement>, "children" | "class"> {
+	/** Style preset */
 	preset?: NavPreset;
 	/** Accessible label for the navigation landmark */
 	label?: string;

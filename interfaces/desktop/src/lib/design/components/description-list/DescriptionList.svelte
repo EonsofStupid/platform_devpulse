@@ -23,9 +23,10 @@
 -->
 <script lang="ts">
 import { useDescriptionList } from "$lib/design/behaviors/description-list/index.js";
+import { descriptionListAnatomy } from "$lib/design/primitives/description-list/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
-import type { DescriptionListComponentProps } from "./types.js";
+import type { DescriptionListProps } from "./types.js";
 
 let {
 	size = "md",
@@ -35,8 +36,8 @@ let {
 	children,
 	class: className,
 	...rest
-}: DescriptionListComponentProps = $props();
+}: DescriptionListProps = $props();
 const dl = $derived(useDescriptionList({ label }));
 const m = $derived(resolveMacro({ kind: "description-list", preset }));
 </script>
-<dl {...dl.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" data-variant={variant} class={cn(className)} {...rest}>{@render children?.()}</dl>
+<dl {...descriptionListAnatomy.attrs.root} {...dl.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-variant={variant} class={cn(className)} {...rest}>{@render children?.()}</dl>

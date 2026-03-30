@@ -12,12 +12,12 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes, HTMLInputAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
 import type {
 	ColorChannel,
 	ColorSpace,
 	ColorValue,
 } from "$lib/design/components/color-area/types.js";
+import type { ColorFieldPrimitiveProps } from "$lib/design/primitives/color-field/index.js";
 
 // =============================================================================
 // CALLBACK DETAILS
@@ -57,8 +57,8 @@ export type ColorFieldValidationBehavior = "native" | "aria";
 export type ColorFieldNecessityIndicator = "icon" | "label";
 
 export interface ColorFieldRootProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		ComponentProps {
+	extends Omit<ColorFieldPrimitiveProps, "onChange" | "children" | "value">,
+		Omit<HTMLAttributes<HTMLDivElement>, "children" | "class" | "dir"> {
 	ids?: Partial<ColorFieldIds>;
 	/** Size variant. Default: "md". */
 	size?: ColorFieldSize;
@@ -105,8 +105,7 @@ export interface ColorFieldRootProps
 // SUB-COMPONENTS
 // =============================================================================
 
-interface ColorFieldSlotProps
-	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface ColorFieldSlotProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
 	children?: Snippet;
 	class?: string;
 }
@@ -122,8 +121,7 @@ export interface ColorFieldLabelProps extends ColorFieldSlotProps {
 }
 
 /** The text input element. */
-export interface ColorFieldInputProps
-	extends Omit<HTMLInputAttributes, "style" | "children" | "class"> {
+export interface ColorFieldInputProps extends Omit<HTMLInputAttributes, "children"> {
 	class?: string;
 }
 

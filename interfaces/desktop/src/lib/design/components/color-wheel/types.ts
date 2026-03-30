@@ -5,11 +5,13 @@
  *
  * Circular hue picker. User drags a thumb around a ring to select hue 0-360.
  * Compound: Root, Track (the ring), Thumb.
+ *
+ * No matching primitive — extends UIBaseProps.
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 import type { ColorValue } from "$lib/design/components/color-area/types.js";
 
 export type ColorWheelPreset = "default" | "stark" | "glass" | "flat" | "matte";
@@ -26,8 +28,8 @@ export interface ColorWheelIds {
 }
 
 export interface ColorWheelRootProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		ComponentProps {
+	extends Omit<HTMLAttributes<HTMLDivElement>, "children" | "class" | "dir">,
+		UIBaseProps {
 	ids?: Partial<ColorWheelIds>;
 	/** Controlled color value. */
 	value?: ColorValue;
@@ -52,8 +54,7 @@ export interface ColorWheelRootProps
 	children?: Snippet;
 }
 
-interface ColorWheelSlotProps
-	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface ColorWheelSlotProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
 	children?: Snippet;
 	class?: string;
 }

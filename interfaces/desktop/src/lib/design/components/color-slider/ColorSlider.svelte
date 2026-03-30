@@ -28,6 +28,7 @@ import {
 	percentToValue,
 	roundToStep,
 } from "$lib/design/components/color-area/color-utils.js";
+import { colorSliderAnatomy } from "$lib/design/primitives/color-slider/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setColorSliderContext } from "./context.js";
@@ -148,13 +149,14 @@ const m = $derived(resolveMacro({ kind: "color-slider", preset }));
 </script>
 
 <div
+	{...colorSliderAnatomy.attrs.root}
 	id={resolvedIds.root}
 	{dir}
 	role="group"
 	aria-label={label ?? `${channel} slider`}
 	aria-disabled={isDisabled || undefined}
+	{...rest}
 	{...m.dataAttrs}
-	data-slot="root"
 	data-orientation={orientation}
 	data-dragging={drag.state.isDragging || undefined}
 	style={cssVarString(m.cssVars)}
@@ -162,7 +164,6 @@ const m = $derived(resolveMacro({ kind: "color-slider", preset }));
 		orientation === "vertical" ? "flex-col" : "flex-row",
 		isDisabled ? "pointer-events-none opacity-60" : undefined,
 		className)}
-	{...rest}
 >
 	{#if label}
 		<label id={resolvedIds.label} for={resolvedIds.input} data-kind="color-slider" data-slot="label">

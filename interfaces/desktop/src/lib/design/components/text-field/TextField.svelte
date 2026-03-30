@@ -22,6 +22,7 @@
 -->
 <script lang="ts">
 import { useTextField } from "$lib/design/behaviors/text-field/index.js";
+import { textFieldAnatomy } from "$lib/design/primitives/text-field/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TextFieldProps, TextFieldSize } from "./text-field.types.js";
@@ -69,7 +70,7 @@ const field = $derived(
 const m = $derived(resolveMacro({ kind: "text-field", preset }));
 </script>
 
-<div {...field.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} class={className}>
+<div {...textFieldAnatomy.attrs.root} {...field.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} class={className}>
 		{#if labelText}
 			<label {...field.label} class="text-sm font-medium mb-1 block">
 				{labelText}
@@ -85,6 +86,7 @@ const m = $derived(resolveMacro({ kind: "text-field", preset }));
 			{/if}
 
 			<input
+				{...textFieldAnatomy.attrs.input}
 				{...field.input}
 				{...rest}
 				class={cn(
@@ -94,8 +96,6 @@ const m = $derived(resolveMacro({ kind: "text-field", preset }));
 					SIZE[size] ?? SIZE.md,
 					leading && "pl-10",
 					trailing && "pr-10")}
-				data-kind="text-field"
-				data-slot="input"
 			/>
 
 			{#if trailing}

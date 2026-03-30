@@ -3,26 +3,18 @@
  * @kind table
  * @layer components
  *
- * Extends primitive with ARIA label props and sizing.
- * Component layer owns ARIA — primitive is structureless.
+ * Extends TablePrimitiveProps with visual preset and sizing.
  */
 
-import type { Snippet } from "svelte";
-import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { TablePrimitiveProps } from "$lib/design/primitives/table/index.js";
 
 export type TableSize = "sm" | "md" | "lg";
 
 export type TablePreset = "default" | "stark" | "glass" | "flat" | "matte";
 export type TableVariant = "default" | "striped" | "bordered";
 
-/** Table component props — ARIA + composition + ColdLight 8-axis */
-export interface TableComponentProps
-	extends Omit<HTMLAttributes<HTMLTableElement>, "style" | "children">,
-		BaseProps,
-		ComponentProps {
-	children?: Snippet;
+/** Table component props — primitive + ColdLight visual */
+export interface TableComponentProps extends TablePrimitiveProps {
 	/** Size variant — controls cell padding and font size */
 	size?: TableSize;
 	/** Visual variant — controls border and striping */

@@ -23,6 +23,7 @@
 -->
 <script lang="ts">
 import { useToaster } from "$lib/design/behaviors/toaster/index.js";
+import { toasterAnatomy } from "$lib/design/primitives/toaster/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ToasterComponentProps } from "./types.js";
@@ -38,4 +39,4 @@ let {
 const toaster = $derived(useToaster({ position }));
 const m = $derived(resolveMacro({ kind: "toaster", preset }));
 </script>
-<div {...toaster.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" data-position={position} class={cn("fixed z-50 flex flex-col gap-2", className)} {...rest}>{@render children?.()}</div>
+<div {...toasterAnatomy.attrs.root} {...toaster.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-position={position} class={cn("fixed z-50 flex flex-col gap-2", className)} {...rest}>{@render children?.()}</div>

@@ -5,23 +5,18 @@
  *
  * Extends primitive with ARIA label and visual sizing props.
  * Component layer owns ARIA — primitive is structureless.
+ *
+ * Extends DescriptionListPrimitiveProps from primitives.
  */
 
-import type { Snippet } from "svelte";
-import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { DescriptionListPrimitiveProps } from "$lib/design/primitives/description-list/index.js";
 
 export type DescriptionListSize = "sm" | "md" | "lg";
 export type DescriptionListVariant = "default" | "inline" | "grid";
 export type DescriptionListPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
-/** DescriptionList component props — ARIA + composition + ColdLight 8-axis */
-export interface DescriptionListComponentProps
-	extends Omit<HTMLAttributes<HTMLDListElement>, "style" | "children">,
-		BaseProps,
-		ComponentProps {
-	children?: Snippet;
+/** DescriptionList component props — extends primitive + ARIA + ColdLight preset */
+export interface DescriptionListProps extends DescriptionListPrimitiveProps {
 	/** Style preset. Default: "default". */
 	preset?: DescriptionListPreset;
 	/** Size variant — controls font size and spacing */

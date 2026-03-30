@@ -3,23 +3,21 @@
  * @kind pin-input
  * @layer components
  *
- * Extends primitive with builder state props, visual sizing.
- * Component layer owns ARIA via builder — primitive is structureless.
+ * No matching primitive — extends UIBaseProps.
  */
 
-import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 
 export type PinInputSize = "sm" | "md" | "lg";
+export type PinInputPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
-/** PinInput component props — ColdLight 8-axis + ARIA + composition */
+/** PinInput component props — UIBaseProps + HTML + domain */
 export interface PinInputComponentProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps,
-		ComponentProps {
-	children?: Snippet;
+	extends Omit<HTMLAttributes<HTMLDivElement>, "children">,
+		UIBaseProps {
+	/** Style preset */
+	preset?: PinInputPreset;
 	/** Size variant */
 	size?: PinInputSize;
 	/** Number of pin fields. @default 4 */

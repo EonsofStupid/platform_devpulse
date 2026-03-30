@@ -3,34 +3,18 @@
  * @kind toaster
  * @layer components
  *
- * Extends primitive with ColdLight 8-axis visual props.
+ * Extends primitive with ColdLight visual props.
  * Component layer owns ARIA — primitive is structureless.
- * Wraps MeltUI toaster via transport adapter.
  */
 
-import type { Snippet } from "svelte";
-import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { ToasterPrimitiveProps } from "$lib/design/primitives/toaster/index.js";
 
 export type ToasterPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
-export type ToasterPosition =
-	| "top-left"
-	| "top-center"
-	| "top-right"
-	| "bottom-left"
-	| "bottom-center"
-	| "bottom-right";
+export type { ToasterPosition } from "$lib/design/primitives/toaster/index.js";
 
-/** Toaster component props — ColdLight 8-axis + ARIA + composition + primitive */
-export interface ToasterComponentProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps,
-		ComponentProps {
-	children?: Snippet;
-	/** Position of the toast container. @default "bottom-right" */
-	position?: ToasterPosition;
+/** Toaster component props — extends primitive + preset */
+export interface ToasterComponentProps extends ToasterPrimitiveProps {
 	/** Style preset. Default: "default". */
 	preset?: ToasterPreset;
 	/** Default auto-dismiss delay in ms. @default 5000 */

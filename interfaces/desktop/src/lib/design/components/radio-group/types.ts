@@ -8,13 +8,11 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { RadioGroupPrimitiveProps } from "$lib/design/primitives/radio-group/index.js";
 
 export type RadioGroupPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
-export interface RadioGroupProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class">,
-		ComponentProps {
+export interface RadioGroupProps extends RadioGroupPrimitiveProps {
 	/** Style preset preset */
 	preset?: RadioGroupPreset;
 	children?: Snippet;
@@ -26,16 +24,14 @@ export interface RadioGroupProps
 	orientation?: "horizontal" | "vertical";
 }
 
-export interface RadioGroupItemProps
-	extends Omit<HTMLButtonAttributes, "style" | "children" | "class"> {
+export interface RadioGroupItemProps extends Omit<HTMLButtonAttributes, "children"> {
 	children?: Snippet;
 	class?: string;
 	value: string;
 	disabled?: boolean;
 }
 
-export interface RadioGroupLabelProps
-	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+export interface RadioGroupLabelProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
 	children?: Snippet;
 	class?: string;
 	value: string;

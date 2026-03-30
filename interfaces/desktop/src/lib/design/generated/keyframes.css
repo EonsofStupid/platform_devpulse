@@ -159,3 +159,69 @@
 		opacity: 1;
 	}
 }
+
+/* ── Preset family animations ──────────────────────────── */
+
+@keyframes cl-glow-pulse {
+	0%, 100% {
+		box-shadow: 0 0 0.5rem 0 oklch(0.7 0.15 180 / 0.15);
+		border-color: oklch(0.7 0.15 180 / 0.3);
+	}
+	50% {
+		box-shadow: 0 0 1rem 0.125rem oklch(0.7 0.15 180 / 0.25);
+		border-color: oklch(0.7 0.15 180 / 0.45);
+	}
+}
+
+@keyframes cl-crt-flicker {
+	0%, 100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.97;
+	}
+}
+
+@keyframes cl-scanline {
+	0% {
+		background-position: 0 0;
+	}
+	100% {
+		background-position: 0 100%;
+	}
+}
+
+@keyframes cl-neon-buzz {
+	0%, 100% {
+		opacity: 1;
+		text-shadow: 0 0 0.25rem currentColor;
+	}
+	33% {
+		opacity: 0.95;
+		text-shadow: 0 0 0.375rem currentColor;
+	}
+	66% {
+		opacity: 0.98;
+		text-shadow: 0 0 0.1875rem currentColor;
+	}
+}
+
+@keyframes cl-specular-sweep {
+	0% {
+		background-position: -100% 0;
+	}
+	100% {
+		background-position: 200% 0;
+	}
+}
+
+@keyframes cl-alert-pulse {
+	0%, 100% {
+		box-shadow: 0 0 0 0 oklch(0.65 0.22 25 / 0.2);
+		border-color: oklch(0.65 0.22 25 / 0.5);
+	}
+	50% {
+		box-shadow: 0 0 1rem 0.25rem oklch(0.65 0.22 25 / 0.35);
+		border-color: oklch(0.65 0.22 25 / 0.7);
+	}
+}

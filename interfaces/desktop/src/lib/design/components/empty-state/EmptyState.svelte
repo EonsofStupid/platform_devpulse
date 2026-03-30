@@ -22,6 +22,7 @@
 }
 -->
 <script lang="ts">
+import { emptyStateAnatomy } from "$lib/design/primitives/empty-state/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { EmptyStateProps, EmptyStateSize } from "./types.js";
@@ -44,9 +45,9 @@ const m = $derived(resolveMacro({ kind: "empty-state", preset }));
 </script>
 
 <div
+	{...emptyStateAnatomy.attrs.root}
 	{...m.dataAttrs}
 	style={cssVarString(m.cssVars)}
-	data-slot="root"
 	class={cn("flex flex-col items-center justify-center text-center", SIZE[size] ?? SIZE.md, className)}
 	{...rest}
 >

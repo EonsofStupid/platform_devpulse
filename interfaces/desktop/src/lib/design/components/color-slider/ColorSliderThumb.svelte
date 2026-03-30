@@ -8,6 +8,7 @@
 	Keyboard action for arrow/page/home/end navigation.
 -->
 <script lang="ts">
+import { colorSliderAnatomy } from "$lib/design/primitives/color-slider/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { getColorSliderContext } from "./context.js";
 import type { ColorSliderThumbProps } from "./types.js";
@@ -23,6 +24,7 @@ const positionStyle = $derived(
 </script>
 
 <div
+	{...colorSliderAnatomy.attrs.thumb}
 	use:ctx.thumbAction
 	id={ctx.ids.thumb}
 	role="slider"
@@ -34,12 +36,10 @@ const positionStyle = $derived(
 	aria-orientation={ctx.orientation}
 	aria-disabled={ctx.isDisabled || undefined}
 	tabindex={ctx.isDisabled ? -1 : 0}
-	data-kind="color-slider"
-	data-slot="thumb"
+	{...rest}
 	data-dragging={ctx.isDragging || undefined}
 	class={cn(className)}
 	style={positionStyle}
-	{...rest}
 >
 	{#if children}
 		{@render children()}

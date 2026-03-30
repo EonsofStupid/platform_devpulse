@@ -3,14 +3,13 @@
  * @kind date-picker
  * @layer components
  *
+ * No matching primitive — extends UIBaseProps.
  * Combines DateField segmented input + Calendar popover.
- * Compound: Root, Input (field), Trigger, Content (popover), Calendar.
- * Spectrum-aligned: controlled/uncontrolled value + popover, validation, form.
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 
 export type DatePickerSize = "sm" | "md" | "lg" | "xl";
 export type DatePickerGranularity = "day" | "month" | "year" | "hour" | "minute" | "second";
@@ -35,8 +34,8 @@ export interface DatePickerIds {
 }
 
 export interface DatePickerRootProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		ComponentProps {
+	extends Omit<HTMLAttributes<HTMLDivElement>, "children" | "class" | "dir">,
+		UIBaseProps {
 	ids?: Partial<DatePickerIds>;
 	/** Style preset. Default: "default". */
 	preset?: DatePickerPreset;
@@ -95,8 +94,7 @@ export interface DatePickerRootProps
 	children?: Snippet;
 }
 
-interface DatePickerSlotProps
-	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface DatePickerSlotProps extends Omit<HTMLAttributes<HTMLElement>, "children" | "class"> {
 	children?: Snippet;
 	class?: string;
 }

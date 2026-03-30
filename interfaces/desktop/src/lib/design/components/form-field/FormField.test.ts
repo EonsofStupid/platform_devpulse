@@ -5,6 +5,7 @@ import FormField from "./FormField.svelte";
 describe("form-field component — ARIA", () => {
 	test("renders with role='group' on root", async () => {
 		const { container } = render(FormField, {
+			name: "email",
 			label: "Email",
 		});
 		const root = container.querySelector("[data-kind='form-field']");
@@ -14,6 +15,7 @@ describe("form-field component — ARIA", () => {
 
 	test("renders label element", async () => {
 		const { container } = render(FormField, {
+			name: "username",
 			label: "Username",
 		});
 		const label = container.querySelector("label");
@@ -23,6 +25,7 @@ describe("form-field component — ARIA", () => {
 
 	test("renders description text", async () => {
 		const { container } = render(FormField, {
+			name: "email",
 			label: "Email",
 			description: "We will never share your email.",
 		});
@@ -33,6 +36,7 @@ describe("form-field component — ARIA", () => {
 
 	test("renders error message when invalid", async () => {
 		const { container } = render(FormField, {
+			name: "email",
 			label: "Email",
 			invalid: true,
 			error: "Email is required",
@@ -44,6 +48,7 @@ describe("form-field component — ARIA", () => {
 
 	test("error has role='alert' and aria-live='polite'", async () => {
 		const { container } = render(FormField, {
+			name: "name",
 			label: "Name",
 			invalid: true,
 			error: "Required field",
@@ -54,6 +59,7 @@ describe("form-field component — ARIA", () => {
 
 	test("renders data-required on root when required", async () => {
 		const { container } = render(FormField, {
+			name: "name",
 			label: "Name",
 			required: true,
 		});
@@ -65,6 +71,7 @@ describe("form-field component — ARIA", () => {
 describe("form-field component — composition", () => {
 	test("applies composition base classes", async () => {
 		const { container } = render(FormField, {
+			name: "test",
 			label: "Test",
 		});
 		const root = container.querySelector("[data-kind='form-field']");
@@ -74,6 +81,7 @@ describe("form-field component — composition", () => {
 
 	test("applies size variant classes", async () => {
 		const { container } = render(FormField, {
+			name: "test",
 			size: "sm",
 			label: "Test",
 		});

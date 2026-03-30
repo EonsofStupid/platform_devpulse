@@ -3,26 +3,18 @@
  * @kind input-group
  * @layer components
  *
- * Extends primitive with builder state props, visual sizing.
- * Component layer owns ARIA via builder — primitive is structureless.
+ * Extends InputGroupPrimitiveProps with visual preset, size, and addon slots.
  */
 
 import type { Snippet } from "svelte";
-import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { InputGroupPrimitiveProps } from "$lib/design/primitives/input-group/index.js";
 
 export type InputGroupSize = "sm" | "md" | "lg";
 export type InputGroupPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
-/** InputGroup component props — builder state + composition + primitive */
-export interface InputGroupComponentProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "prefix" | "suffix">,
-		BaseProps,
-		ComponentProps {
-	/** Main content slot (typically an input element) */
-	children?: Snippet;
-	/** Style preset preset */
+/** InputGroup component props — extends primitive with preset + size + addon slots */
+export interface InputGroupComponentProps extends Omit<InputGroupPrimitiveProps, "prefix"> {
+	/** Style preset */
 	preset?: InputGroupPreset;
 	/** Prefix addon content */
 	prefix?: Snippet;
@@ -30,10 +22,4 @@ export interface InputGroupComponentProps
 	suffix?: Snippet;
 	/** Size variant */
 	size?: InputGroupSize;
-	/** Disable the entire input group. @default false */
-	disabled?: boolean;
-	/** Accessible label for the group. */
-	"aria-label"?: string;
-	/** ID of the labelling element. */
-	"aria-labelledby"?: string;
 }

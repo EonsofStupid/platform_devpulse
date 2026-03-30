@@ -23,6 +23,7 @@
 -->
 <script lang="ts">
 import { useToggleGroup } from "$lib/design/behaviors/toggle-group/index.js";
+import { toggleGroupAnatomy } from "$lib/design/primitives/toggle-group/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ToggleGroupComponentProps } from "./types.js";
@@ -43,4 +44,4 @@ let {
 const tg = $derived(useToggleGroup({ disabled, orientation }));
 const m = $derived(resolveMacro({ kind: "toggle-group", preset }));
 </script>
-<div {...tg.root as any} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" data-orientation={orientation} class={cn("inline-flex items-center rounded-md", className)} {...rest}>{@render children?.()}</div>
+<div {...toggleGroupAnatomy.attrs.root} {...tg.root as any} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-orientation={orientation} class={cn("inline-flex items-center rounded-md", className)} {...rest}>{@render children?.()}</div>

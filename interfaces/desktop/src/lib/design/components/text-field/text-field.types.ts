@@ -4,16 +4,13 @@
  */
 
 import type { Snippet } from "svelte";
-import type { HTMLInputAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { TextFieldPrimitiveProps } from "$lib/design/primitives/text-field/index.js";
 
 export type TextFieldSize = "sm" | "md" | "lg";
 export type TextFieldType = "text" | "email" | "password" | "url" | "tel";
 export type TextFieldPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
-export interface TextFieldProps
-	extends ComponentProps,
-		Omit<HTMLInputAttributes, "style" | "children" | "class" | "value" | "size"> {
+export interface TextFieldProps extends TextFieldPrimitiveProps {
 	/** Label text — rendered above the input */
 	label?: string;
 	/** Description text — rendered below the input */

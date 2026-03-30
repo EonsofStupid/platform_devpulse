@@ -22,14 +22,17 @@
 }
 -->
 <script lang="ts">
+import type { ProseSize } from "$lib/design/primitives/prose/index.js";
+import { proseAnatomy } from "$lib/design/primitives/prose/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
-import type { ProseComponentProps, ProseSize } from "./types.js";
+import type { ProseProps } from "./types.js";
 
 const SIZE: Record<ProseSize, string> = {
 	sm: "prose-sm",
 	base: "prose",
 	lg: "prose-lg",
+	xl: "prose-xl",
 };
 
 let {
@@ -38,14 +41,14 @@ let {
 	children,
 	class: className,
 	...rest
-}: ProseComponentProps = $props();
+}: ProseProps = $props();
 const m = $derived(resolveMacro({ kind: "prose", preset }));
 </script>
 
 <div
+		{...proseAnatomy.attrs.root}
 		{...m.dataAttrs}
 		style={cssVarString(m.cssVars)}
-		data-slot="root"
 		class={cn(SIZE[size] ?? SIZE.base, className)}
 		{...rest}
 	>

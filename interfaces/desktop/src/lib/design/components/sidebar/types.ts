@@ -3,25 +3,18 @@
  * @kind sidebar
  * @layer components
  *
- * Extends primitive with ARIA state props, expand/collapse, and sizing.
- * Component layer owns ARIA — primitive is structureless.
+ * Extends SidebarPrimitiveProps with visual preset, sizing, and expand/collapse state.
  */
 
 import type { Snippet } from "svelte";
-import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { SidebarPrimitiveProps } from "$lib/design/primitives/sidebar/index.js";
 
 export type SidebarSize = "sm" | "md" | "lg";
 
 export type SidebarPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
-/** Sidebar component props — ARIA + composition + ColdLight 8-axis */
-export interface SidebarComponentProps
-	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children">,
-		BaseProps,
-		ComponentProps {
-	children?: Snippet;
+/** Sidebar component props — primitive + ColdLight visual */
+export interface SidebarComponentProps extends Omit<SidebarPrimitiveProps, "onStateChange"> {
 	/** Header content snippet */
 	header?: Snippet;
 	/** Footer content snippet */

@@ -3,39 +3,22 @@
  * @kind form-field
  * @layer components
  *
- * Extends primitive with builder state props, visual sizing.
- * Component layer owns ARIA via builder — primitive is structureless.
+ * Extends FormFieldPrimitiveProps with visual preset and size.
  */
 
-import type { Snippet } from "svelte";
-import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { FormFieldPrimitiveProps } from "$lib/design/primitives/form-field/index.js";
 
 export type FormFieldSize = "sm" | "md" | "lg";
 export type FormFieldPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
-/** FormField component props — builder state + composition + primitive */
-export interface FormFieldComponentProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps,
-		ComponentProps {
-	/** Control input slot */
-	children?: Snippet;
-	/** Style preset preset */
+/** FormField component props — extends primitive with preset + size */
+export interface FormFieldComponentProps extends FormFieldPrimitiveProps {
+	/** Style preset */
 	preset?: FormFieldPreset;
 	/** Label text */
 	label?: string;
 	/** Description / help text */
 	description?: string;
-	/** Error message text */
-	error?: string;
 	/** Size variant */
 	size?: FormFieldSize;
-	/** Whether the field is invalid. @default false */
-	invalid?: boolean;
-	/** Whether the field is required. @default false */
-	required?: boolean;
-	/** Whether the field is disabled. @default false */
-	disabled?: boolean;
 }

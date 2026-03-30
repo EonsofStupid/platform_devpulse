@@ -22,6 +22,7 @@
 }
 -->
 <script lang="ts">
+import { skipLinkAnatomy } from "$lib/design/primitives/skip-link/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SkipLinkComponentProps } from "./types.js";
@@ -38,10 +39,10 @@ const m = $derived(resolveMacro({ kind: "skip-link", preset }));
 </script>
 
 <a
+		{...skipLinkAnatomy.attrs.root}
 		{href}
 		{...m.dataAttrs}
 		style={cssVarString(m.cssVars)}
-		data-slot="root"
 		class={cn(
 			"sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999]",
 			"focus:px-4 focus:py-2 focus:rounded focus:font-medium focus:text-sm",

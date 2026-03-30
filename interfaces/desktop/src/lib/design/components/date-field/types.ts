@@ -3,14 +3,14 @@
  * @kind date-field
  * @layer components
  *
+ * No matching primitive — extends UIBaseProps.
  * Segmented date input. Each part (month, day, year, hour, minute) is
  * an individually editable segment with spinbutton ARIA.
- * Spectrum-aligned: controlled/uncontrolled, validation, form, label.
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 
 export type DateFieldSize = "sm" | "md" | "lg" | "xl";
 export type DateFieldGranularity = "day" | "month" | "year" | "hour" | "minute" | "second";
@@ -37,8 +37,8 @@ export interface DateFieldIds {
 }
 
 export interface DateFieldRootProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		ComponentProps {
+	extends Omit<HTMLAttributes<HTMLDivElement>, "children" | "class" | "dir">,
+		UIBaseProps {
 	ids?: Partial<DateFieldIds>;
 	/** Style preset. Default: "default". */
 	preset?: DateFieldPreset;
@@ -88,11 +88,10 @@ export interface DateFieldRootProps
 	autoFocus?: boolean;
 	/** Text/writing direction. */
 	dir?: "ltr" | "rtl";
-	children?: Snippet;
 }
 
 export interface DateFieldSegmentProps
-	extends Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children" | "class"> {
+	extends Omit<HTMLAttributes<HTMLSpanElement>, "children" | "class"> {
 	children?: Snippet;
 	class?: string;
 	segment: DateSegment;

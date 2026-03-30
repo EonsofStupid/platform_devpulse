@@ -15,6 +15,7 @@
 	<StatusDot status="loading" animate />
 -->
 <script lang="ts">
+import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { StatusDotProps, StatusDotSize, StatusDotStatus } from "./status-dot.types.js";
 
@@ -46,6 +47,7 @@ let {
 	animate = false,
 	glow = false,
 	class: className,
+	...rest
 }: StatusDotProps = $props();
 
 const color = $derived(STATUS_COLOR[status] ?? STATUS_COLOR.pending);
@@ -63,4 +65,5 @@ const dim = $derived(SIZE_PX[size] ?? SIZE_PX.md);
 	)}
 	style="width: {dim}; height: {dim}; background: {color};{glow ? ` box-shadow: 0 0 0.375rem ${color};` : ''}"
 	aria-hidden="true"
+	{...rest}
 ></span>

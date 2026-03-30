@@ -23,6 +23,7 @@
 -->
 <script lang="ts">
 import { useSidebar } from "$lib/design/behaviors/sidebar/index.js";
+import { sidebarAnatomy } from "$lib/design/primitives/sidebar/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SidebarComponentProps } from "./types.js";
@@ -42,7 +43,7 @@ let {
 const sidebar = $derived(useSidebar({ label, expanded }));
 const m = $derived(resolveMacro({ kind: "sidebar", preset }));
 </script>
-<aside {...sidebar.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" data-state={expanded ? "expanded" : "collapsed"} class={cn("flex flex-col h-full", className)} {...rest}>
+<aside {...sidebarAnatomy.attrs.root} {...sidebar.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-state={expanded ? "expanded" : "collapsed"} class={cn("flex flex-col h-full", className)} {...rest}>
 		{#if header}<div data-kind="sidebar" data-slot="header">{@render header()}</div>{/if}
 		<div data-kind="sidebar" data-slot="content" class="flex-1 overflow-y-auto">{@render children?.()}</div>
 		{#if footer}<div data-kind="sidebar" data-slot="footer">{@render footer()}</div>{/if}

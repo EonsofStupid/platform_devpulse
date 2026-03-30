@@ -5,9 +5,10 @@
  * @category data-viz
  */
 
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 import type { SvgAccent, SvgIntent } from "$lib/design/svg/svg-types.js";
 
-export interface SparkLineProps {
+export interface SparkLineProps extends UIBaseProps {
 	/** Data points (y-values) */
 	data?: number[];
 	/** Accent hue — drives stroke, glow, fill color */
@@ -24,6 +25,4 @@ export interface SparkLineProps {
 	lineWidth?: number;
 	/** Show glow effect on the line */
 	glow?: boolean;
-	/** Additional CSS classes */
-	class?: string;
 }

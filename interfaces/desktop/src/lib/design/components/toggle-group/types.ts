@@ -5,18 +5,19 @@
  *
  * Extends primitive with builder state props, visual sizing.
  * Component layer owns ARIA via builder — primitive is structureless.
+ *
+ * Note: primitive uses onValueChange(string | string[]) but component
+ * uses SvelteSet — so we Omit and re-declare.
  */
 
 import type { Snippet } from "svelte";
-import type { HTMLAttributes } from "svelte/elements";
 import type { SvelteSet } from "svelte/reactivity";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { ToggleGroupPrimitiveProps } from "$lib/design/primitives/toggle-group/index.js";
 
 export type ToggleGroupSize = "sm" | "md" | "lg";
 
 export type ToggleGroupPreset = "default" | "stark" | "glass" | "flat" | "matte";
-export type ToggleGroupOrientation = "horizontal" | "vertical";
+export type { ToggleGroupOrientation } from "$lib/design/primitives/toggle-group/index.js";
 
 /** Item definition for toggle group */
 export interface ToggleGroupItem {
@@ -27,9 +28,7 @@ export interface ToggleGroupItem {
 
 /** ToggleGroup component props — builder state + composition + primitive */
 export interface ToggleGroupComponentProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps,
-		ComponentProps {
+	extends Omit<ToggleGroupPrimitiveProps, "onValueChange" | "value" | "children"> {
 	children?: Snippet;
 	/** Toggle items to render */
 	items?: ToggleGroupItem[];
@@ -41,10 +40,6 @@ export interface ToggleGroupComponentProps
 	onValueChange?: ((value: string | undefined) => void) | ((value: SvelteSet<string>) => void);
 	/** Allow multiple items pressed simultaneously. @default false */
 	multiple?: boolean;
-	/** Disable the entire group. @default false */
-	disabled?: boolean;
-	/** Orientation for arrow key navigation. @default "horizontal" */
-	orientation?: ToggleGroupOrientation;
 	/** Whether arrow keys loop. @default true */
 	loop?: boolean;
 	/** Style preset. Default: "default". */

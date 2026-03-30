@@ -8,7 +8,7 @@
  * @example
  * ```svelte
  * import { resolveMacro, cssVarString } from '$lib/design/style-macro';
- * const m = $derived(resolveMacro({ kind: 'button', preset }));
+ * const m = $derived(resolveMacro({ kind: 'button', preset: 'primary' }));
  * <button {...m.dataAttrs} style={cssVarString(m.cssVars)}>
  * ```
  */
@@ -23,7 +23,6 @@ export { resolveMacro } from "./resolve.js";
 // Types — public contract
 export type {
 	CssFamily,
-	KindString,
 	MacroDataAttrs,
 	MacroInput,
 	MacroState,

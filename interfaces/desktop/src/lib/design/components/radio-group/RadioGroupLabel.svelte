@@ -7,6 +7,7 @@
 	Label for a radio item. ARIA from hook.getLabel(value).
 -->
 <script lang="ts">
+import { radioGroupAnatomy } from "$lib/design/primitives/radio-group/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { getRadioGroupContext } from "./context.js";
 import type { RadioGroupLabelProps } from "./types.js";
@@ -18,11 +19,10 @@ const labelAttrs = $derived(ctx.hook.getLabel(value));
 </script>
 
 <span
+	{...radioGroupAnatomy.attrs.label}
 	{...labelAttrs}
-	data-kind="radio-group"
-	data-slot="label"
-	class={cn("text-sm cursor-pointer", className)}
 	{...rest}
+	class={cn("text-sm cursor-pointer", className)}
 >
 	{@render children?.()}
 </span>

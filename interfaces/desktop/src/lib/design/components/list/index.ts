@@ -6,8 +6,8 @@
 
 export { default as List } from "./List.svelte";
 export type {
-	ListComponentProps,
 	ListPreset,
+	ListProps,
 	ListSize,
 	ListSpacing,
 	ListVariant,

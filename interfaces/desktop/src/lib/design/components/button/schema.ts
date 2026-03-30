@@ -11,22 +11,24 @@ import { baseComponentSchema } from "../_base/schema.js";
 
 export const CATEGORY = "interactive" as const;
 
-export const ButtonSchema = baseComponentSchema.and({
-	variant: type("'primary' | 'secondary' | 'ghost' | 'danger'").default("primary"),
-	size: type("'sm' | 'md' | 'lg'").default("md"),
-	"child?": "string",
-	disabled: type("boolean").default(false),
-	loading: type("boolean").default(false),
-	"action?": type({
-		"event?": type({
-			name: "string",
-			"context?": "Record<string, unknown>",
+export const ButtonSchema = baseComponentSchema
+	.merge({
+		variant: type("'primary' | 'secondary' | 'ghost' | 'danger'").default("primary"),
+		size: type("'sm' | 'md' | 'lg'").default("md"),
+		"child?": "string",
+		disabled: type("boolean").default(false),
+		loading: type("boolean").default(false),
+		"action?": type({
+			"event?": type({
+				name: "string",
+				"context?": "Record<string, unknown>",
+			}),
+			"functionCall?": type({
+				call: "string",
+				args: "Record<string, unknown>",
+			}),
 		}),
-		"functionCall?": type({
-			call: "string",
-			args: "Record<string, unknown>",
-		}),
-	}),
-});
+	})
+	.describe("Button — interactive control with variant and action dispatch");
 
 export type ButtonSchemaProps = typeof ButtonSchema.infer;

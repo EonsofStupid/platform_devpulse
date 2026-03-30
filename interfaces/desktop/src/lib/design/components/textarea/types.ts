@@ -4,18 +4,13 @@
  * @layer components
  */
 
-import type { HTMLTextareaAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { TextareaPrimitiveProps } from "$lib/design/primitives/textarea/index.js";
 
 export type TextareaSize = "sm" | "md" | "lg";
 
 export type TextareaPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
-export interface TextareaProps
-	extends Omit<HTMLTextareaAttributes, "style" | "disabled" | "readonly" | "required" | "rows">,
-		BaseProps,
-		ComponentProps {
+export interface TextareaProps extends TextareaPrimitiveProps {
 	disabled?: boolean;
 	readonly?: boolean;
 	required?: boolean;

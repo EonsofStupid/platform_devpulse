@@ -135,7 +135,7 @@ export type PrimitiveSpecInput = typeof BasePrimitiveBase.infer;
  * ```
  */
 export function definePrimitive(spec: PrimitiveSpecInput): PrimitiveSpec {
-	return BasePrimitiveSchema.assert(spec as never) as unknown as PrimitiveSpec;
+	return BasePrimitiveSchema.from(spec) as PrimitiveSpec;
 }
 
 // =============================================================================
@@ -154,7 +154,7 @@ export function validatePrimitive(spec: unknown): {
 	if (result instanceof type.errors) {
 		return { success: false, errors: result.map((e) => e.message) };
 	}
-	return { success: true, data: result as unknown as PrimitiveSpec };
+	return { success: true, data: result as PrimitiveSpec };
 }
 
 /**

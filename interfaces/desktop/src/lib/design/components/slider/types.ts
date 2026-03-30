@@ -4,22 +4,17 @@
  * @layer components
  *
  * Compound component props for Slider root + sub-components.
- * MeltUI transport adapter provides ARIA — types declare structural props only.
  *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/slider/
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { SliderPrimitiveProps } from "$lib/design/primitives/slider/index.js";
 
 export type SliderPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
-export interface SliderProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps,
-		ComponentProps {
+export interface SliderProps extends SliderPrimitiveProps {
 	children?: Snippet;
 	/** Minimum value. @default 0 */
 	min?: number;
@@ -39,18 +34,16 @@ export interface SliderProps
 	preset?: SliderPreset;
 }
 
-export interface SliderTrackProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps {
+export interface SliderTrackProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
 	children?: Snippet;
+	class?: string;
 }
 
-export interface SliderRangeProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps {}
+export interface SliderRangeProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+	class?: string;
+}
 
-export interface SliderThumbProps
-	extends Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children">,
-		BaseProps {
+export interface SliderThumbProps extends Omit<HTMLAttributes<HTMLSpanElement>, "children"> {
 	children?: Snippet;
+	class?: string;
 }

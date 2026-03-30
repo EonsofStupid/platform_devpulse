@@ -190,7 +190,12 @@ export const SlotSpecSchema = type({
 	description: "string",
 });
 
-/** SlotSpec with defaults applied — what consumers use after validation */
+/**
+ * SlotSpec with defaults applied — what consumers use after validation.
+ * Manual interface because schema has optional fields (role, ariaAttrs, etc.)
+ * that callers omit but downstream code (enforce.ts) expects as present.
+ * Defaults are applied by callers, not by ArkType validation.
+ */
 export interface SlotSpec {
 	element: HtmlElement;
 	role: AriaRole | null;
@@ -222,7 +227,10 @@ export const A11ySpecSchema = type({
 export type FocusStrategy = typeof FocusStrategySchema.infer;
 export type KeyboardBinding = typeof KeyboardBindingSchema.infer;
 
-/** A11ySpec with defaults applied — what consumers use after validation */
+/**
+ * A11ySpec with defaults applied — what consumers use after validation.
+ * Manual interface: slots use SlotSpec (with required fields) not SlotSpecInput.
+ */
 export interface A11ySpec {
 	slots: Record<string, SlotSpec>;
 	keyboard: KeyboardBinding[];

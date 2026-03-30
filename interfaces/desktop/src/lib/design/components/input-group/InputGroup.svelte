@@ -23,6 +23,7 @@
 -->
 <script lang="ts">
 import { useInputGroup } from "$lib/design/behaviors/input-group/index.js";
+import { inputGroupAnatomy } from "$lib/design/primitives/input-group/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { InputGroupComponentProps } from "./types.js";
@@ -40,7 +41,7 @@ let {
 const ig = $derived(useInputGroup({ disabled }));
 const m = $derived(resolveMacro({ kind: "input-group", preset }));
 </script>
-<div {...ig.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" class={cn("flex items-center rounded-md border", disabled && "opacity-50 pointer-events-none", className)} {...rest}>
+<div {...inputGroupAnatomy.attrs.root} {...ig.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} class={cn("flex items-center rounded-md border", disabled && "opacity-50 pointer-events-none", className)} {...rest}>
 	{#if prefix}<div data-kind="input-group" data-slot="prefix" class="flex items-center px-3">{@render prefix()}</div>{/if}
 	<div data-kind="input-group" data-slot="input" class="flex-1 min-w-0">{@render children?.()}</div>
 	{#if suffix}<div data-kind="input-group" data-slot="suffix" class="flex items-center px-3">{@render suffix()}</div>{/if}

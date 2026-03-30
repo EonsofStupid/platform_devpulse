@@ -23,6 +23,7 @@
 }
 -->
 <script lang="ts">
+import { toolbarAnatomy } from "$lib/design/primitives/toolbar/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ToolbarComponentProps } from "./types.js";
@@ -46,9 +47,9 @@ const m = $derived(resolveMacro({ kind: "toolbar", preset }));
 		aria-label={label}
 		aria-orientation={orientation}
 		aria-disabled={disabled || undefined}
+		{...toolbarAnatomy.attrs.root}
 		{...m.dataAttrs}
 		style={cssVarString(m.cssVars)}
-		data-slot="root"
 		data-orientation={orientation}
 		class={cn("flex items-center gap-1", orientation === "vertical" ? "flex-col" : "flex-row", disabled && "opacity-50 pointer-events-none", className)}
 		{...rest}

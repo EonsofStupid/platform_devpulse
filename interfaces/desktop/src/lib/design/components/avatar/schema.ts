@@ -11,11 +11,13 @@ import { baseComponentSchema } from "../_base/schema.js";
 
 export const CATEGORY = "display" as const;
 
-export const AvatarSchema = baseComponentSchema.and({
-	"src?": "string",
-	alt: "string",
-	"fallback?": "string",
-	size: type("number").default(40),
-});
+export const AvatarSchema = baseComponentSchema
+	.merge({
+		"src?": "string",
+		alt: "string",
+		"fallback?": "string",
+		size: type("number").default(40),
+	})
+	.describe("Avatar — user image with fallback initials");
 
 export type AvatarSchemaProps = typeof AvatarSchema.infer;

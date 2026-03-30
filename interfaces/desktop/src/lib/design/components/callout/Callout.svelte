@@ -24,19 +24,17 @@
 <script lang="ts">
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
-import type { CalloutProps, CalloutVariant } from "./types.js";
+import type { CalloutProps } from "./types.js";
 
-const VARIANT_PRESETS: Record<CalloutVariant, string> = {
-	info: "callout-info",
-	success: "callout-success",
-	warning: "callout-warning",
-	error: "callout-error",
-	tip: "callout-default",
-};
+let {
+	variant = "info",
+	preset = "default",
+	children,
+	class: className,
+	...rest
+}: CalloutProps = $props();
 
-let { variant = "info", children, class: className, ...rest }: CalloutProps = $props();
-
-const m = $derived(resolveMacro({ kind: "callout", preset: variant }));
+const m = $derived(resolveMacro({ kind: "callout", preset }));
 </script>
 
 <div

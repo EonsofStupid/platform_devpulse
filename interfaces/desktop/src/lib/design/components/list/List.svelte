@@ -24,9 +24,10 @@
 -->
 <script lang="ts">
 import { useList } from "$lib/design/behaviors/list/index.js";
+import { listAnatomy } from "$lib/design/primitives/list/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
-import type { ListComponentProps } from "./types.js";
+import type { ListProps } from "./types.js";
 
 let {
 	preset = "default",
@@ -37,10 +38,10 @@ let {
 	children,
 	class: className,
 	...rest
-}: ListComponentProps = $props();
+}: ListProps = $props();
 const list = $derived(useList({ label }));
 const m = $derived(resolveMacro({ kind: "list", preset }));
 </script>
-<ul {...list.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" data-variant={variant} class={cn("flex flex-col", className)} {...rest}>
+<ul {...listAnatomy.attrs.root} {...list.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-variant={variant} class={cn("flex flex-col", className)} {...rest}>
 	{@render children?.()}
 </ul>

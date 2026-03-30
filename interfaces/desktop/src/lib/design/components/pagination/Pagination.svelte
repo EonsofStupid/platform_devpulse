@@ -22,6 +22,7 @@
 -->
 <script lang="ts">
 import { usePagination } from "$lib/design/behaviors/pagination/index.js";
+import { paginationAnatomy } from "$lib/design/primitives/pagination/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { PaginationComponentProps } from "./types.js";
@@ -62,7 +63,7 @@ const pages = $derived(getPageRange(page, totalPages, siblings, boundaries));
 const isFirstPage = $derived(page <= 1);
 const isLastPage = $derived(page >= totalPages);
 </script>
-<nav {...pagination.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" class={cn("flex items-center gap-1", className)} {...rest}>
+<nav {...paginationAnatomy.attrs.root} {...pagination.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} class={cn("flex items-center gap-1", className)} {...rest}>
 		<button data-kind="pagination" data-slot="previous" disabled={isFirstPage} aria-label="Previous page" class="inline-flex items-center justify-center size-9 rounded-md cursor-pointer disabled:opacity-50 disabled:pointer-events-none" onclick={() => { if (!isFirstPage) onPageChange?.(page - 1); }}>&lsaquo;</button>
 		{#each pages as item}
 			{#if item === "ellipsis"}

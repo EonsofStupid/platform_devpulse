@@ -22,6 +22,7 @@
 -->
 <script lang="ts">
 import { useForm } from "$lib/design/behaviors/form/index.js";
+import { formAnatomy } from "$lib/design/primitives/form/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { FormComponentProps } from "./types.js";
@@ -44,10 +45,10 @@ const m = $derived(resolveMacro({ kind: "form", preset }));
 </script>
 
 <form
+	{...formAnatomy.attrs.root}
 	{...form.root}
 	{...m.dataAttrs}
 	style={cssVarString(m.cssVars)}
-	data-slot="root"
 	class={cn("flex flex-col gap-6", className)}
 	onsubmit={(e) => { e.preventDefault(); onSubmit?.(e); }}
 	onreset={() => onReset?.()}

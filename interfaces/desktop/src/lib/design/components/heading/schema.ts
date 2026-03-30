@@ -11,9 +11,11 @@ import { baseComponentSchema } from "../_base/schema.js";
 
 export const CATEGORY = "typography" as const;
 
-export const HeadingSchema = baseComponentSchema.and({
-	level: type("1 | 2 | 3 | 4 | 5 | 6").default(2),
-	size: type("'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'").default("lg"),
-});
+export const HeadingSchema = baseComponentSchema
+	.merge({
+		level: type("1 | 2 | 3 | 4 | 5 | 6").default(2),
+		size: type("'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'").default("lg"),
+	})
+	.describe("Heading — semantic heading level with independent visual size");
 
 export type HeadingSchemaProps = typeof HeadingSchema.infer;

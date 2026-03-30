@@ -3,23 +3,21 @@
  * @kind file-upload
  * @layer components
  *
- * Extends primitive with builder state props, visual sizing.
- * Component layer owns ARIA via builder — primitive is structureless.
+ * No matching primitive — extends UIBaseProps.
  */
 
-import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 
 export type FileUploadSize = "sm" | "md" | "lg";
+export type FileUploadPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
-/** FileUpload component props — ColdLight 8-axis + ARIA + composition */
+/** FileUpload component props — UIBaseProps + HTML + domain */
 export interface FileUploadComponentProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps,
-		ComponentProps {
-	children?: Snippet;
+	extends Omit<HTMLAttributes<HTMLDivElement>, "children">,
+		UIBaseProps {
+	/** Style preset */
+	preset?: FileUploadPreset;
 	/** Size variant */
 	size?: FileUploadSize;
 	/** Accepted file types (MIME types or extensions). @default undefined */

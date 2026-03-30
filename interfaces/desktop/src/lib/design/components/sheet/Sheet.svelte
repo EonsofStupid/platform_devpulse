@@ -116,7 +116,7 @@ const m = $derived(resolveMacro({ kind: "sheet", preset }));
 				{...sheetAnatomy.attrs.close}
 				{...hook.close}
 				{...m.dataAttrs}
-				class="absolute top-4 right-4 cursor-pointer opacity-70 hover:opacity-100"
+				class="absolute top-4 end-4 cursor-pointer opacity-70 hover:opacity-100"
 			>
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
 					stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"

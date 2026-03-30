@@ -22,6 +22,7 @@
 -->
 <script lang="ts">
 import { useLoadingOverlay } from "$lib/design/behaviors/loading-overlay/index.js";
+import { loadingOverlayAnatomy } from "$lib/design/primitives/loading-overlay/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { LoadingOverlayComponentProps } from "./types.js";
@@ -40,10 +41,10 @@ const m = $derived(resolveMacro({ kind: "loading-overlay", preset }));
 
 {#if visible}
 	<div
+		{...loadingOverlayAnatomy.attrs.root}
 		{...overlay.root}
 		{...m.dataAttrs}
 		style={cssVarString(m.cssVars)}
-		data-slot="root"
 		data-state={visible ? "visible" : "hidden"}
 		class={cn(
 			"absolute inset-0 z-50 flex items-center justify-center",

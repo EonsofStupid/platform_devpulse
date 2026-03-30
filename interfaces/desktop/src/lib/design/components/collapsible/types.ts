@@ -4,16 +4,12 @@
  * @layer components
  *
  * Disclosure pattern — one trigger toggles one content panel.
- * Compound: Root, Trigger, Content, Indicator.
- * Direct ARIA — aria-expanded, aria-controls, keyboard enter/space.
- *
- * Ark UI / Zag aligned API.
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 
 export interface CollapsibleOpenChangeDetails {
 	open: boolean;
@@ -26,8 +22,8 @@ export interface CollapsibleIds {
 }
 
 export interface CollapsibleRootProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		ComponentProps {
+	extends UIBaseProps,
+		Omit<HTMLAttributes<HTMLDivElement>, "children" | "class" | "dir"> {
 	ids?: Partial<CollapsibleIds>;
 	/** Controlled open state. */
 	open?: boolean;
@@ -41,11 +37,9 @@ export interface CollapsibleRootProps
 	disabled?: boolean;
 	/** Text/writing direction. */
 	dir?: "ltr" | "rtl";
-	children?: Snippet;
 }
 
-interface CollapsibleSlotProps
-	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface CollapsibleSlotProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
 	children?: Snippet;
 	class?: string;
 }

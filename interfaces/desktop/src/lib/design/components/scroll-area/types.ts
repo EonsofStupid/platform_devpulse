@@ -3,31 +3,21 @@
  * @kind scroll-area
  * @layer components
  *
- * Extends primitive with ARIA state props and sizing.
- * Component layer owns ARIA — primitive is structureless.
+ * Extends ScrollAreaPrimitiveProps with visual preset and sizing.
  */
 
-import type { Snippet } from "svelte";
-import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { ScrollAreaPrimitiveProps } from "$lib/design/primitives/scroll-area/index.js";
 
 export type ScrollAreaSize = "sm" | "md" | "lg";
 export type ScrollAreaOrientation = "horizontal" | "vertical";
 export type ScrollAreaPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
-/** ScrollArea component props — ARIA + composition + ColdLight 8-axis */
-export interface ScrollAreaComponentProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps,
-		ComponentProps {
-	children?: Snippet;
-	/** Style preset preset */
+/** ScrollArea component props — primitive + ColdLight visual */
+export interface ScrollAreaComponentProps extends ScrollAreaPrimitiveProps {
+	/** Style preset. Default: "default". */
 	preset?: ScrollAreaPreset;
 	/** Size variant — controls scrollbar thumb size. @default "md" */
 	size?: ScrollAreaSize;
-	/** Orientation of the scrollbar. @default "vertical" */
-	orientation?: ScrollAreaOrientation;
 	/** Accessible label for the scroll region. */
 	label?: string;
 }

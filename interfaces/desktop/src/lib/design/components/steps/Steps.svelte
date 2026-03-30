@@ -23,6 +23,7 @@
 -->
 <script lang="ts">
 import { useSteps } from "$lib/design/behaviors/steps/index.js";
+import { stepsAnatomy } from "$lib/design/primitives/steps/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { StepsComponentProps } from "./types.js";
@@ -43,4 +44,4 @@ let {
 const steps = $derived(useSteps({ label, activeStep, disabled }));
 const m = $derived(resolveMacro({ kind: "steps", preset }));
 </script>
-<div {...steps.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" data-orientation={orientation} data-active-step={activeStep} class={cn("flex", orientation === "horizontal" ? "flex-row items-center" : "flex-col", className)} {...rest}>{@render children?.()}</div>
+<div {...stepsAnatomy.attrs.root} {...steps.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-orientation={orientation} data-active-step={activeStep} class={cn("flex", orientation === "horizontal" ? "flex-row items-center" : "flex-col", className)} {...rest}>{@render children?.()}</div>

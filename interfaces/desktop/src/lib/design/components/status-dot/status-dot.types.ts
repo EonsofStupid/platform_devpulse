@@ -5,7 +5,8 @@
  * @category feedback
  */
 
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { HTMLAttributes } from "svelte/elements";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 
 export type StatusDotStatus =
 	| "online"
@@ -17,7 +18,9 @@ export type StatusDotStatus =
 	| "hybrid";
 export type StatusDotSize = "sm" | "md" | "lg";
 
-export interface StatusDotProps extends ComponentProps {
+export interface StatusDotProps
+	extends UIBaseProps,
+		Omit<HTMLAttributes<HTMLSpanElement>, "children" | "class"> {
 	/** Health/presence state — maps to signal/text token colors */
 	status?: StatusDotStatus;
 	/** Dot diameter */

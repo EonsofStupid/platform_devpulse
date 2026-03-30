@@ -3,16 +3,13 @@
  * @kind link-preview
  * @layer components
  *
- * Compound component props for LinkPreview root + sub-components.
  * Tooltip-like hover preview for links.
- *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAnchorAttributes, HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 
 // =============================================================================
 // ROOT PROPS
@@ -20,38 +17,33 @@ import type { BaseProps } from "$lib/design/utils/cn.js";
 
 export type LinkPreviewPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
-export interface LinkPreviewProps extends BaseProps, ComponentProps {
-	children?: Snippet;
-	/** Style preset preset */
+export interface LinkPreviewProps extends UIBaseProps {
+	/** Visual preset — selects style configuration. Default: "default" */
 	preset?: LinkPreviewPreset;
-	/** Delay in ms before the preview opens on hover. @default 700 */
+	/** Delay in ms before the preview opens on hover. Default: 700 */
 	openDelay?: number;
-	/** Delay in ms before the preview closes after leaving. @default 300 */
+	/** Delay in ms before the preview closes after leaving. Default: 300 */
 	closeDelay?: number;
 	/** Controlled open state. */
 	open?: boolean;
 	/** Called when open state changes. */
 	onOpenChange?: (value: boolean) => void;
-	/** CSS class for the root element. */
-	class?: string;
 }
 
 // =============================================================================
 // TRIGGER PROPS
 // =============================================================================
 
-export interface LinkPreviewTriggerProps
-	extends Omit<HTMLAnchorAttributes, "style" | "children">,
-		BaseProps {
+export interface LinkPreviewTriggerProps extends Omit<HTMLAnchorAttributes, "children"> {
 	children?: Snippet;
+	class?: string;
 }
 
 // =============================================================================
 // CONTENT PROPS
 // =============================================================================
 
-export interface LinkPreviewContentProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps {
+export interface LinkPreviewContentProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
 	children?: Snippet;
+	class?: string;
 }

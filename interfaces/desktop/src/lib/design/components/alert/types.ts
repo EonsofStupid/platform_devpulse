@@ -12,7 +12,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 
 // =============================================================================
 // SHARED
@@ -44,8 +44,8 @@ export interface AlertIds {
 // =============================================================================
 
 export interface AlertRootProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		ComponentProps {
+	extends UIBaseProps,
+		Omit<HTMLAttributes<HTMLDivElement>, "children" | "class" | "dir"> {
 	ids?: Partial<AlertIds>;
 	variant?: AlertVariant;
 	open?: boolean;
@@ -53,14 +53,13 @@ export interface AlertRootProps
 	onOpenChange?: (details: AlertOpenChangeDetails) => void;
 	dismissible?: boolean;
 	dir?: "ltr" | "rtl";
-	children?: Snippet;
 }
 
 // =============================================================================
 // SUB-COMPONENTS
 // =============================================================================
 
-interface AlertSlotProps extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface AlertSlotProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
 	children?: Snippet;
 	class?: string;
 }

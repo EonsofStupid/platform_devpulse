@@ -11,8 +11,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 
 // =============================================================================
 // SIZE
@@ -26,11 +25,9 @@ export type MenubarPreset = "default" | "stark" | "glass" | "flat" | "matte";
 // =============================================================================
 
 export interface MenubarProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps,
-		ComponentProps {
-	children?: Snippet;
-	/** Style preset preset */
+	extends UIBaseProps,
+		Omit<HTMLAttributes<HTMLDivElement>, "children" | "class"> {
+	/** Style preset */
 	preset?: MenubarPreset;
 }
 
@@ -38,7 +35,7 @@ export interface MenubarProps
 // MENU PROPS — each menu within the bar
 // =============================================================================
 
-export interface MenubarMenuProps extends BaseProps {
+export interface MenubarMenuProps {
 	children?: Snippet;
 	/** Controlled open state */
 	open?: boolean;
@@ -50,10 +47,9 @@ export interface MenubarMenuProps extends BaseProps {
 // TRIGGER PROPS
 // =============================================================================
 
-export interface MenubarTriggerProps
-	extends Omit<HTMLButtonAttributes, "style" | "children">,
-		BaseProps {
+export interface MenubarTriggerProps extends Omit<HTMLButtonAttributes, "children"> {
 	children?: Snippet;
+	class?: UIBaseProps["class"];
 }
 
 // =============================================================================
@@ -61,9 +57,9 @@ export interface MenubarTriggerProps
 // =============================================================================
 
 export interface MenubarContentProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps {
+	extends Omit<HTMLAttributes<HTMLDivElement>, "children" | "class"> {
 	children?: Snippet;
+	class?: UIBaseProps["class"];
 	/** Size variant */
 	size?: MenubarSize;
 	/** Preferred side */
@@ -77,9 +73,9 @@ export interface MenubarContentProps
 // =============================================================================
 
 export interface MenubarItemProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps {
+	extends Omit<HTMLAttributes<HTMLDivElement>, "children" | "class"> {
 	children?: Snippet;
+	class?: UIBaseProps["class"];
 	/** Whether the item is disabled */
 	disabled?: boolean;
 	/** Called when the item is selected */
@@ -90,6 +86,6 @@ export interface MenubarItemProps
 // SEPARATOR PROPS
 // =============================================================================
 
-export interface MenubarSeparatorProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style">,
-		BaseProps {}
+export interface MenubarSeparatorProps extends Omit<HTMLAttributes<HTMLDivElement>, "class"> {
+	class?: UIBaseProps["class"];
+}

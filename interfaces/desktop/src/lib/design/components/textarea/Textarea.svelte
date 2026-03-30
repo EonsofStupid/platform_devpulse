@@ -22,6 +22,7 @@
 -->
 <script lang="ts">
 import { useTextarea } from "$lib/design/behaviors/textarea/index.js";
+import { textareaAnatomy } from "$lib/design/primitives/textarea/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TextareaProps } from "./types.js";
@@ -52,14 +53,17 @@ const m = $derived(resolveMacro({ kind: "textarea", preset }));
 </script>
 
 <textarea
-		{...textarea.root}
+		{...textareaAnatomy.attrs.input}
+		aria-invalid={textarea.root["aria-invalid"]}
+		aria-required={textarea.root["aria-required"]}
+		aria-disabled={textarea.root["aria-disabled"]}
+		aria-readonly={textarea.root["aria-readonly"]}
 		{disabled}
 		readonly={readOnly}
 		{required}
 		{rows}
 		{...m.dataAttrs}
 		style={cssVarString(m.cssVars)}
-		data-slot="root"
 		data-invalid={invalid || undefined}
 		class={cn(
 			"w-full rounded-md border bg-transparent",
@@ -69,5 +73,4 @@ const m = $derived(resolveMacro({ kind: "textarea", preset }));
 			SIZE[size as TextareaSize] ?? SIZE.md,
 			className)}
 		oninput={(e) => onValueChange?.((e.target as HTMLTextAreaElement).value)}
-		{...rest}
 	></textarea>

@@ -4,7 +4,7 @@
  */
 
 import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 
 export type AvatarLoadStatus = "loading" | "loaded" | "error";
 export type AvatarPreset = "default" | "stark" | "glass" | "flat" | "matte";
@@ -14,8 +14,8 @@ export interface AvatarStatusChangeDetails {
 }
 
 export interface AvatarProps
-	extends ComponentProps,
-		Omit<HTMLAttributes<HTMLSpanElement>, "style" | "children" | "class"> {
+	extends UIBaseProps,
+		Omit<HTMLAttributes<HTMLSpanElement>, "children" | "class"> {
 	/** Image source URL */
 	src?: string;
 	/** Alt text for the image. Required for accessibility. */

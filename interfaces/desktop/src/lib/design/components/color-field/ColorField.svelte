@@ -22,6 +22,7 @@
 -->
 <script lang="ts">
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
+import { colorFieldAnatomy } from "$lib/design/primitives/color-field/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setColorFieldContext } from "./context.js";
@@ -169,16 +170,16 @@ const m = $derived(resolveMacro({ kind: "color-field", preset }));
 </script>
 
 <div
+	{...colorFieldAnatomy.attrs.root}
 	id={resolvedIds.root}
 	{dir}
+	{...rest}
 	{...m.dataAttrs}
-	data-slot="root"
 	data-invalid={isInvalid || undefined}
 	data-disabled={isDisabled || undefined}
 	data-readonly={isReadOnly || undefined}
 	style={cssVarString(m.cssVars)}
 	class={cn(className)}
-	{...rest}
 >
 	{@render children?.()}
 </div>

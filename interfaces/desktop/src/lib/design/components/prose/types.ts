@@ -5,24 +5,16 @@
  *
  * Rich text content container with prose styling.
  * Markdown-friendly — applies typographic styling to child HTML.
+ *
+ * Extends ProsePrimitiveProps from primitives.
  */
 
-import type { Snippet } from "svelte";
-import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { ProsePrimitiveProps } from "$lib/design/primitives/prose/index.js";
 
-export type ProseSize = "sm" | "base" | "lg";
 export type ProsePreset = "default" | "stark" | "glass" | "flat" | "matte";
 
-/** Prose component props — rich text container + ColdLight 8-axis */
-export interface ProseComponentProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps,
-		ComponentProps {
-	children?: Snippet;
-	/** Style preset preset */
+/** Prose component props — extends primitive + ColdLight preset */
+export interface ProseProps extends ProsePrimitiveProps {
+	/** Style preset. Default: "default". */
 	preset?: ProsePreset;
-	/** Prose size variant */
-	size?: ProseSize;
 }

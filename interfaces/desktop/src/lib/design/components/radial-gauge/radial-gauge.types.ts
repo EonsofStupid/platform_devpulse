@@ -5,9 +5,13 @@
  * @category data-viz
  */
 
+import type { HTMLAttributes } from "svelte/elements";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 import type { SvgAccent, SvgIntent } from "$lib/design/svg/svg-types.js";
 
-export interface RadialGaugeProps {
+export interface RadialGaugeProps
+	extends UIBaseProps,
+		Omit<HTMLAttributes<HTMLDivElement>, "children" | "class"> {
 	/** Current value */
 	value?: number;
 	/** Maximum value */
@@ -24,6 +28,4 @@ export interface RadialGaugeProps {
 	size?: number;
 	/** Ring stroke width in px (structural override) */
 	strokeWidth?: number;
-	/** Additional CSS classes on wrapper */
-	class?: string;
 }

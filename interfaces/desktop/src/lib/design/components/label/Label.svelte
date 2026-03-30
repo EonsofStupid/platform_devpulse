@@ -63,5 +63,5 @@ const m = $derived(resolveMacro({ kind: "label", preset }));
 		className)}
 >
 	{@render children?.()}
-	{#if required}<span aria-hidden="true" class="text-red-500 ml-0.5">*</span>{/if}
+	{#if required}<span aria-hidden="true" class="text-red-500 ms-0.5">*</span>{/if}
 </label>

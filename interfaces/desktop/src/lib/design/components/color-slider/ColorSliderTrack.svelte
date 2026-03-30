@@ -8,6 +8,7 @@
 	Consumer styles the gradient via CSS background on this element.
 -->
 <script lang="ts">
+import { colorSliderAnatomy } from "$lib/design/primitives/color-slider/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { getColorSliderContext } from "./context.js";
 import type { ColorSliderTrackProps } from "./types.js";
@@ -17,14 +18,13 @@ const ctx = getColorSliderContext();
 </script>
 
 <div
+	{...colorSliderAnatomy.attrs.track}
 	use:ctx.trackAction
 	id={ctx.ids.track}
-	data-kind="color-slider"
-	data-slot="track"
+	{...rest}
 	data-orientation={ctx.orientation}
 	data-dragging={ctx.isDragging || undefined}
 	class={cn(className)}
-	{...rest}
 >
 	{@render children?.()}
 </div>

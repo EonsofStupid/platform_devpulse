@@ -7,23 +7,14 @@
  * Component layer owns ARIA — primitive is structureless.
  */
 
-import type { Snippet } from "svelte";
-import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { LoadingOverlayPrimitiveProps } from "$lib/design/primitives/loading-overlay/index.js";
 
 export type LoadingOverlayPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
-/** LoadingOverlay component props — ColdLight 8-axis + ARIA + composition + primitive */
-export interface LoadingOverlayComponentProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps,
-		ComponentProps {
-	children?: Snippet;
-	/** Style preset preset */
+/** LoadingOverlay component props — extends primitive + preset */
+export interface LoadingOverlayComponentProps extends LoadingOverlayPrimitiveProps {
+	/** Style preset */
 	preset?: LoadingOverlayPreset;
-	/** Whether the overlay is visible */
-	visible?: boolean;
 	/** Called when visible state changes */
 	onVisibleChange?: (visible: boolean) => void;
 }

@@ -15,7 +15,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 
 // =============================================================================
 // SHARED
@@ -48,8 +48,8 @@ export type CalendarPreset = "default" | "stark" | "glass" | "flat" | "matte";
 // =============================================================================
 
 export interface CalendarRootProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		ComponentProps {
+	extends UIBaseProps,
+		Omit<HTMLAttributes<HTMLDivElement>, "children" | "class" | "dir"> {
 	ids?: Partial<CalendarIds>;
 	/** Style preset. Default: "default". */
 	preset?: CalendarPreset;
@@ -94,8 +94,7 @@ export interface CalendarRootProps
 // SUB-COMPONENTS
 // =============================================================================
 
-interface CalendarSlotProps
-	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface CalendarSlotProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
 	children?: Snippet;
 	class?: string;
 }
@@ -107,8 +106,7 @@ export interface CalendarHeaderProps extends CalendarSlotProps {}
 export interface CalendarGridProps extends CalendarSlotProps {}
 
 /** CalendarCell — individual day cell button. */
-export interface CalendarCellProps
-	extends Omit<HTMLButtonAttributes, "style" | "children" | "class"> {
+export interface CalendarCellProps extends Omit<HTMLButtonAttributes, "children"> {
 	children?: Snippet;
 	class?: string;
 	/** The date this cell represents. */

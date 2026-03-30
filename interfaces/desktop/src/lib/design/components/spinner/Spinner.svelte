@@ -22,6 +22,7 @@
 -->
 <script lang="ts">
 import { useSpinner } from "$lib/design/behaviors/spinner/index.js";
+import { spinnerAnatomy } from "$lib/design/primitives/spinner/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SpinnerProps, SpinnerSize } from "./types.js";
@@ -46,10 +47,10 @@ const m = $derived(resolveMacro({ kind: "spinner", preset }));
 
 {#if active}
 		<div
+			{...spinnerAnatomy.attrs.root}
 			{...spinner.root}
 			{...m.dataAttrs}
 			style={cssVarString(m.cssVars)}
-			data-slot="root"
 			data-state={active ? "active" : "idle"}
 			class={cn("inline-flex items-center justify-center animate-spin", SIZE[size] ?? SIZE.md, className)}
 			{...rest}

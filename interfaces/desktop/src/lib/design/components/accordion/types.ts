@@ -3,16 +3,12 @@
  * @kind accordion
  *
  * Compound component: Root, Item, Trigger, Content, Indicator.
- * Extends ComponentProps from _base.
- * ARIA via useAccordion() primitive hook.
- * ZERO visual props. Visual comes from StyleMacro via ui/ wrapper.
- *
- * API: Spectrum S2 (expandedKeys, density, size) + Zag (collapsible, orientation, dir)
+ * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { AccordionPrimitiveProps } from "$lib/design/primitives/accordion/index.js";
 
 // =============================================================================
 // CALLBACK DETAILS
@@ -40,30 +36,16 @@ export interface AccordionIds {
 export type AccordionSize = "sm" | "md" | "lg";
 export type AccordionPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
-export interface AccordionRootProps
-	extends ComponentProps,
-		Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir"> {
+export interface AccordionRootProps extends Omit<AccordionPrimitiveProps, "onValueChange"> {
 	/** Element IDs for composition. */
 	ids?: Partial<AccordionIds>;
-	/** Single or multiple expansion. Default: "single". */
-	type?: "single" | "multiple";
-	/** Controlled expanded value. */
-	value?: string | string[];
-	/** Initial value (uncontrolled). */
-	defaultValue?: string | string[];
 	/** Callback when expanded value changes. */
 	onValueChange?: (details: AccordionValueChangeDetails) => void;
-	/** Allow collapsing last open item in single mode. Default: false. */
-	collapsible?: boolean;
-	/** Disable all items. Default: false. */
-	disabled?: boolean;
 	/** Text/writing direction. Default: "ltr". */
 	dir?: "ltr" | "rtl";
-	/** Layout orientation. Default: "vertical". */
-	orientation?: "vertical" | "horizontal";
-	/** Structural size. */
+	/** Structural size. Default: "md" */
 	size?: AccordionSize;
-	/** Visual preset — selects the style preset */
+	/** Visual preset — selects style configuration. Default: "default" */
 	preset?: AccordionPreset;
 }
 
@@ -71,8 +53,7 @@ export interface AccordionRootProps
 // SUB-COMPONENTS
 // =============================================================================
 
-interface AccordionSlotProps
-	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface AccordionSlotProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
 	children?: Snippet;
 	class?: string;
 	element?: Snippet<[HTMLAttributes<HTMLElement>]>;
@@ -84,7 +65,5 @@ export interface AccordionItemProps extends AccordionSlotProps {
 }
 
 export interface AccordionTriggerProps extends AccordionSlotProps {}
-
 export interface AccordionContentProps extends AccordionSlotProps {}
-
 export interface AccordionIndicatorProps extends AccordionSlotProps {}

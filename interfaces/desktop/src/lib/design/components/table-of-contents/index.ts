@@ -6,7 +6,7 @@
 
 export { default as TableOfContents } from "./TableOfContents.svelte";
 export type {
-	TableOfContentsComponentProps,
 	TableOfContentsPreset,
+	TableOfContentsProps,
 	TableOfContentsSize,
 } from "./types.js";

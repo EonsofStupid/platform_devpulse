@@ -3,13 +3,13 @@
  * @kind date-range-picker
  * @layer components
  *
+ * No matching primitive — extends UIBaseProps.
  * Two DateFields (start/end) + RangeCalendar popover.
- * Spectrum + Ark UI aligned: range value, startName/endName, presets, inline.
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 
 export interface DateRangeValue {
 	start: Date | null;
@@ -45,8 +45,8 @@ export interface PresetTriggerValue {
 }
 
 export interface DateRangePickerRootProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		ComponentProps {
+	extends Omit<HTMLAttributes<HTMLDivElement>, "children" | "class" | "dir">,
+		UIBaseProps {
 	ids?: Partial<DateRangePickerIds>;
 	/** Style preset. Default: "default". */
 	preset?: DateRangePickerPreset;
@@ -82,8 +82,7 @@ export interface DateRangePickerRootProps
 	children?: Snippet;
 }
 
-interface DateRangePickerSlotProps
-	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface DateRangePickerSlotProps extends Omit<HTMLAttributes<HTMLElement>, "children" | "class"> {
 	children?: Snippet;
 	class?: string;
 }

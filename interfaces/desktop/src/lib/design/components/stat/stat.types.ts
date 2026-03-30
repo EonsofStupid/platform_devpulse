@@ -6,11 +6,14 @@
  */
 
 import type { Snippet } from "svelte";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { HTMLAttributes } from "svelte/elements";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 
 export type StatSize = "sm" | "md" | "lg";
 
-export interface StatProps extends ComponentProps {
+export interface StatProps
+	extends UIBaseProps,
+		Omit<HTMLAttributes<HTMLDivElement>, "children" | "class"> {
 	/** The metric value */
 	value?: string | number;
 	/** Label above the value */

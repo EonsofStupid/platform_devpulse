@@ -22,6 +22,7 @@
 -->
 <script lang="ts">
 import { useSkeleton } from "$lib/design/behaviors/skeleton/index.js";
+import { skeletonAnatomy } from "$lib/design/primitives/skeleton/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SkeletonProps, SkeletonVariant } from "./types.js";
@@ -45,10 +46,10 @@ const m = $derived(resolveMacro({ kind: "skeleton", preset }));
 </script>
 
 <div
+		{...skeletonAnatomy.attrs.root}
 		{...skeleton.root}
 		{...m.dataAttrs}
 		style={cssVarString(m.cssVars)}
-		data-slot="root"
 		data-state={loading ? "loading" : "loaded"}
 		data-variant={variant}
 		class={cn("animate-pulse", VARIANT_CLASSES[variant] ?? VARIANT_CLASSES.text, className)}

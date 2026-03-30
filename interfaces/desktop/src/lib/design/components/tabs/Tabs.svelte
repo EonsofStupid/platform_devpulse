@@ -24,6 +24,7 @@
 -->
 <script lang="ts">
 import { useTabs } from "$lib/design/behaviors/tabs/use-tabs.svelte.js";
+import { tabsAnatomy } from "$lib/design/primitives/tabs/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setTabsContext } from "./context.js";
@@ -67,13 +68,13 @@ const m = $derived(resolveMacro({ kind: "tabs", preset }));
 </script>
 
 <div
+		{...tabsAnatomy.attrs.root}
 		{...hook.root}
+		{...rest}
 		{...m.dataAttrs}
 		style={cssVarString(m.cssVars)}
-		data-slot="root"
 		data-orientation={orientation}
 		class={cn(className)}
-		{...rest}
 	>
 		{@render children?.()}
 	</div>

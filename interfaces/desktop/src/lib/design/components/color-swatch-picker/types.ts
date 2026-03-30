@@ -6,11 +6,13 @@
  * Selectable grid of ColorSwatch components.
  * role="listbox" with role="option" on each swatch wrapper.
  * Keyboard arrow navigation, Enter/Space to select.
+ *
+ * No matching primitive — extends UIBaseProps.
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 import type { ColorValue } from "$lib/design/components/color-area/types.js";
 import type {
 	ColorSwatchRounding,
@@ -30,8 +32,8 @@ export type ColorSwatchPickerDensity = "compact" | "regular" | "spacious";
 export type ColorSwatchPickerPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 export interface ColorSwatchPickerRootProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		ComponentProps {
+	extends Omit<HTMLAttributes<HTMLDivElement>, "children" | "class" | "dir">,
+		UIBaseProps {
 	ids?: Partial<ColorSwatchPickerIds>;
 	/** Controlled selected color value. */
 	value?: ColorValue;

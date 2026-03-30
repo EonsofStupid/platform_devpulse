@@ -5,7 +5,7 @@
  * Every renderable UI element extends UIBaseProps.
  * UIDef declares the element for StyleMacro, VPB, and the UI Catalog.
  * Components, blocks, widgets, layouts, templates — all extend _base.
- * Const literal + satisfies. No Zod. TypeScript validates at compile time.
+ * Const literal + satisfies. ArkType validates at boundaries. TypeScript validates at compile time.
  */
 
 import type { Snippet } from "svelte";

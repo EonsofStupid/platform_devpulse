@@ -6,6 +6,9 @@
  * These types are the public API contract. No escape hatches.
  */
 
+import type { KindName } from "../visual/kind-names.js";
+import type { PresetId, SemanticIntent } from "../visual/preset-id.js";
+
 // ═══════════════════════════════════════════════════════════════
 // INPUT
 // ═══════════════════════════════════════════════════════════════
@@ -15,10 +18,10 @@ export type MacroState = "default" | "disabled" | "active";
 
 /** What the component provides to the resolver */
 export interface MacroInput {
-	/** Scoped kind string (e.g., "button", "card/header") */
-	kind: string;
-	/** Preset name — defaults to "default" */
-	preset?: string;
+	/** Scoped kind string — KindName for primitives, any string for domain components */
+	kind: KindName | `${KindName}/${string}` | (string & {});
+	/** Preset ID or semantic intent — resolved to concrete PresetId */
+	preset?: PresetId | SemanticIntent | (string & {});
 	/** Runtime state — defaults to "default" */
 	state?: MacroState;
 }
@@ -42,19 +45,6 @@ export interface ResolvedMacro {
 	/** CSS custom property map — serialized via cssVarString() */
 	cssVars: Record<`--cl-${string}`, string>;
 }
-
-// ═══════════════════════════════════════════════════════════════
-// KIND STRINGS
-// ═══════════════════════════════════════════════════════════════
-
-/** Top-level kind — simple name */
-export type PrimitiveKind = string;
-
-/** Sub-element kind — parent/element (slash separator) */
-export type SubElementKind = `${string}/${string}`;
-
-/** Any valid kind string */
-export type KindString = PrimitiveKind | SubElementKind;
 
 // ═══════════════════════════════════════════════════════════════
 // FAMILIES

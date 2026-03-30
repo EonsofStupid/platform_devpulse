@@ -52,7 +52,7 @@ export const FilterDefSchema = type({
 	label: "string > 0",
 	description: "string > 0",
 	params: FilterParamSchema.array(),
-	steps: type("unknown[]").narrow((v) => v.length >= 1),
+	steps: FilterStepSchema.array().atLeastLength(1),
 	"filterUnits?": "'userSpaceOnUse' | 'objectBoundingBox'",
 	"filterMargin?": "0 <= number <= 100",
 	cssClass: /^filter-[a-z][a-z0-9-]*$/,

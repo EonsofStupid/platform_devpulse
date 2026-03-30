@@ -12,11 +12,13 @@
  *   - ids for composition
  *   - dir for RTL
  *   - element render delegation on sub-components
+ *
+ * No matching primitive — extends UIBaseProps.
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 
 // =============================================================================
 // SHARED
@@ -50,8 +52,8 @@ export type CodePreset = "default" | "inline" | "stark" | "glass" | "flat" | "ma
 
 /** Props for InlineCode — a simple <code> span. */
 export interface InlineCodeProps
-	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class" | "dir">,
-		ComponentProps {
+	extends Omit<HTMLAttributes<HTMLElement>, "children" | "class" | "dir">,
+		UIBaseProps {
 	/** Element ID. */
 	id?: string;
 	/** Text/writing direction. */
@@ -81,8 +83,8 @@ export interface CodeBlockCopyDetails {
 
 /** Props for CodeBlock.Root — the outer container. */
 export interface CodeBlockRootProps
-	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class" | "dir">,
-		ComponentProps {
+	extends Omit<HTMLAttributes<HTMLElement>, "children" | "class" | "dir">,
+		UIBaseProps {
 	/** Element IDs for composition. */
 	ids?: Partial<CodeBlockIds>;
 	/** Language hint — drives Shiki grammar + data attribute. */
@@ -105,8 +107,7 @@ export interface CodeBlockRootProps
 }
 
 /** Shared base for code block sub-component props. */
-interface CodeBlockSlotProps
-	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface CodeBlockSlotProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
 	children?: Snippet;
 	class?: string;
 	/** Render the element yourself. */

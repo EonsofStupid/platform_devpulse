@@ -259,14146 +259,1760 @@ export type ScrollbarSizeRecord = {
 	radius: string;
 };
 
-export const StyleTokens = [
-	"accordion-default-background-color",
-	"accordion-default-border-radius",
-	"accordion-default-box-shadow",
-	"accordion-default-color",
-	"accordion-default-border-color",
-	"accordion-default-border-width",
-	"accordion-default-backdrop-filter",
-	"accordion-default-opacity",
-	"accordion-default-animation",
-	"accordion-default-transition-duration",
-	"accordion-default-transition-timing-function",
-	"accordion-default-gradient",
-	"accordion-default-font-family",
-	"accordion-default-font-size",
-	"accordion-default-font-weight",
-	"accordion-default-letter-spacing",
-	"accordion-default-line-height",
-	"accordion-stark-background-color",
-	"accordion-stark-border-radius",
-	"accordion-stark-box-shadow",
-	"accordion-stark-color",
-	"accordion-stark-border-color",
-	"accordion-stark-border-width",
-	"accordion-stark-opacity",
-	"accordion-stark-animation",
-	"accordion-stark-transition-duration",
-	"accordion-stark-transition-timing-function",
-	"accordion-stark-gradient",
-	"accordion-stark-font-family",
-	"accordion-stark-font-size",
-	"accordion-stark-font-weight",
-	"accordion-stark-letter-spacing",
-	"accordion-stark-line-height",
-	"accordion-glass-background-color",
-	"accordion-glass-border-radius",
-	"accordion-glass-box-shadow",
-	"accordion-glass-color",
-	"accordion-glass-border-color",
-	"accordion-glass-border-width",
-	"accordion-glass-backdrop-filter",
-	"accordion-glass-opacity",
-	"accordion-glass-animation",
-	"accordion-glass-transition-duration",
-	"accordion-glass-transition-timing-function",
-	"accordion-glass-gradient",
-	"accordion-glass-font-family",
-	"accordion-glass-font-size",
-	"accordion-glass-font-weight",
-	"accordion-glass-letter-spacing",
-	"accordion-glass-line-height",
-	"accordion-flat-background-color",
-	"accordion-flat-border-radius",
-	"accordion-flat-box-shadow",
-	"accordion-flat-color",
-	"accordion-flat-border-color",
-	"accordion-flat-border-width",
-	"accordion-flat-opacity",
-	"accordion-flat-animation",
-	"accordion-flat-transition-duration",
-	"accordion-flat-transition-timing-function",
-	"accordion-flat-gradient",
-	"accordion-flat-font-family",
-	"accordion-flat-font-size",
-	"accordion-flat-font-weight",
-	"accordion-flat-letter-spacing",
-	"accordion-flat-line-height",
-	"accordion-matte-background-color",
-	"accordion-matte-border-radius",
-	"accordion-matte-box-shadow",
-	"accordion-matte-color",
-	"accordion-matte-border-color",
-	"accordion-matte-border-width",
-	"accordion-matte-opacity",
-	"accordion-matte-animation",
-	"accordion-matte-transition-duration",
-	"accordion-matte-transition-timing-function",
-	"accordion-matte-gradient",
-	"accordion-matte-font-family",
-	"accordion-matte-font-size",
-	"accordion-matte-font-weight",
-	"accordion-matte-letter-spacing",
-	"accordion-matte-line-height",
-	"alert-dialog-default-background-color",
-	"alert-dialog-default-border-radius",
-	"alert-dialog-default-box-shadow",
-	"alert-dialog-default-color",
-	"alert-dialog-default-border-color",
-	"alert-dialog-default-border-width",
-	"alert-dialog-default-backdrop-filter",
-	"alert-dialog-default-opacity",
-	"alert-dialog-default-animation",
-	"alert-dialog-default-transition-duration",
-	"alert-dialog-default-transition-timing-function",
-	"alert-dialog-default-gradient",
-	"alert-dialog-default-font-family",
-	"alert-dialog-default-font-size",
-	"alert-dialog-default-font-weight",
-	"alert-dialog-default-letter-spacing",
-	"alert-dialog-default-line-height",
-	"alert-dialog-stark-background-color",
-	"alert-dialog-stark-border-radius",
-	"alert-dialog-stark-box-shadow",
-	"alert-dialog-stark-color",
-	"alert-dialog-stark-border-color",
-	"alert-dialog-stark-border-width",
-	"alert-dialog-stark-opacity",
-	"alert-dialog-stark-animation",
-	"alert-dialog-stark-transition-duration",
-	"alert-dialog-stark-transition-timing-function",
-	"alert-dialog-stark-gradient",
-	"alert-dialog-stark-font-family",
-	"alert-dialog-stark-font-size",
-	"alert-dialog-stark-font-weight",
-	"alert-dialog-stark-letter-spacing",
-	"alert-dialog-stark-line-height",
-	"alert-dialog-glass-background-color",
-	"alert-dialog-glass-border-radius",
-	"alert-dialog-glass-box-shadow",
-	"alert-dialog-glass-color",
-	"alert-dialog-glass-border-color",
-	"alert-dialog-glass-border-width",
-	"alert-dialog-glass-backdrop-filter",
-	"alert-dialog-glass-opacity",
-	"alert-dialog-glass-animation",
-	"alert-dialog-glass-transition-duration",
-	"alert-dialog-glass-transition-timing-function",
-	"alert-dialog-glass-gradient",
-	"alert-dialog-glass-font-family",
-	"alert-dialog-glass-font-size",
-	"alert-dialog-glass-font-weight",
-	"alert-dialog-glass-letter-spacing",
-	"alert-dialog-glass-line-height",
-	"alert-dialog-flat-background-color",
-	"alert-dialog-flat-border-radius",
-	"alert-dialog-flat-box-shadow",
-	"alert-dialog-flat-color",
-	"alert-dialog-flat-border-color",
-	"alert-dialog-flat-border-width",
-	"alert-dialog-flat-opacity",
-	"alert-dialog-flat-animation",
-	"alert-dialog-flat-transition-duration",
-	"alert-dialog-flat-transition-timing-function",
-	"alert-dialog-flat-gradient",
-	"alert-dialog-flat-font-family",
-	"alert-dialog-flat-font-size",
-	"alert-dialog-flat-font-weight",
-	"alert-dialog-flat-letter-spacing",
-	"alert-dialog-flat-line-height",
-	"alert-dialog-matte-background-color",
-	"alert-dialog-matte-border-radius",
-	"alert-dialog-matte-box-shadow",
-	"alert-dialog-matte-color",
-	"alert-dialog-matte-border-color",
-	"alert-dialog-matte-border-width",
-	"alert-dialog-matte-opacity",
-	"alert-dialog-matte-animation",
-	"alert-dialog-matte-transition-duration",
-	"alert-dialog-matte-transition-timing-function",
-	"alert-dialog-matte-gradient",
-	"alert-dialog-matte-font-family",
-	"alert-dialog-matte-font-size",
-	"alert-dialog-matte-font-weight",
-	"alert-dialog-matte-letter-spacing",
-	"alert-dialog-matte-line-height",
-	"alert-default-background-color",
-	"alert-default-border-radius",
-	"alert-default-box-shadow",
-	"alert-default-color",
-	"alert-default-border-color",
-	"alert-default-border-width",
-	"alert-default-backdrop-filter",
-	"alert-default-opacity",
-	"alert-default-animation",
-	"alert-default-transition-duration",
-	"alert-default-transition-timing-function",
-	"alert-default-gradient",
-	"alert-default-font-family",
-	"alert-default-font-size",
-	"alert-default-font-weight",
-	"alert-default-letter-spacing",
-	"alert-default-line-height",
-	"alert-stark-background-color",
-	"alert-stark-border-radius",
-	"alert-stark-box-shadow",
-	"alert-stark-color",
-	"alert-stark-border-color",
-	"alert-stark-border-width",
-	"alert-stark-opacity",
-	"alert-stark-animation",
-	"alert-stark-transition-duration",
-	"alert-stark-transition-timing-function",
-	"alert-stark-gradient",
-	"alert-stark-font-family",
-	"alert-stark-font-size",
-	"alert-stark-font-weight",
-	"alert-stark-letter-spacing",
-	"alert-stark-line-height",
-	"alert-glass-background-color",
-	"alert-glass-border-radius",
-	"alert-glass-box-shadow",
-	"alert-glass-color",
-	"alert-glass-border-color",
-	"alert-glass-border-width",
-	"alert-glass-backdrop-filter",
-	"alert-glass-opacity",
-	"alert-glass-animation",
-	"alert-glass-transition-duration",
-	"alert-glass-transition-timing-function",
-	"alert-glass-gradient",
-	"alert-glass-font-family",
-	"alert-glass-font-size",
-	"alert-glass-font-weight",
-	"alert-glass-letter-spacing",
-	"alert-glass-line-height",
-	"alert-flat-background-color",
-	"alert-flat-border-radius",
-	"alert-flat-box-shadow",
-	"alert-flat-color",
-	"alert-flat-border-color",
-	"alert-flat-border-width",
-	"alert-flat-opacity",
-	"alert-flat-animation",
-	"alert-flat-transition-duration",
-	"alert-flat-transition-timing-function",
-	"alert-flat-gradient",
-	"alert-flat-font-family",
-	"alert-flat-font-size",
-	"alert-flat-font-weight",
-	"alert-flat-letter-spacing",
-	"alert-flat-line-height",
-	"alert-matte-background-color",
-	"alert-matte-border-radius",
-	"alert-matte-box-shadow",
-	"alert-matte-color",
-	"alert-matte-border-color",
-	"alert-matte-border-width",
-	"alert-matte-opacity",
-	"alert-matte-animation",
-	"alert-matte-transition-duration",
-	"alert-matte-transition-timing-function",
-	"alert-matte-gradient",
-	"alert-matte-font-family",
-	"alert-matte-font-size",
-	"alert-matte-font-weight",
-	"alert-matte-letter-spacing",
-	"alert-matte-line-height",
-	"avatar-group-default-background-color",
-	"avatar-group-default-border-radius",
-	"avatar-group-default-box-shadow",
-	"avatar-group-default-color",
-	"avatar-group-default-border-color",
-	"avatar-group-default-border-width",
-	"avatar-group-default-backdrop-filter",
-	"avatar-group-default-opacity",
-	"avatar-group-default-animation",
-	"avatar-group-default-transition-duration",
-	"avatar-group-default-transition-timing-function",
-	"avatar-group-default-gradient",
-	"avatar-group-default-font-family",
-	"avatar-group-default-font-size",
-	"avatar-group-default-font-weight",
-	"avatar-group-default-letter-spacing",
-	"avatar-group-default-line-height",
-	"avatar-group-stark-background-color",
-	"avatar-group-stark-border-radius",
-	"avatar-group-stark-box-shadow",
-	"avatar-group-stark-color",
-	"avatar-group-stark-border-color",
-	"avatar-group-stark-border-width",
-	"avatar-group-stark-opacity",
-	"avatar-group-stark-animation",
-	"avatar-group-stark-transition-duration",
-	"avatar-group-stark-transition-timing-function",
-	"avatar-group-stark-gradient",
-	"avatar-group-stark-font-family",
-	"avatar-group-stark-font-size",
-	"avatar-group-stark-font-weight",
-	"avatar-group-stark-letter-spacing",
-	"avatar-group-stark-line-height",
-	"avatar-group-glass-background-color",
-	"avatar-group-glass-border-radius",
-	"avatar-group-glass-box-shadow",
-	"avatar-group-glass-color",
-	"avatar-group-glass-border-color",
-	"avatar-group-glass-border-width",
-	"avatar-group-glass-backdrop-filter",
-	"avatar-group-glass-opacity",
-	"avatar-group-glass-animation",
-	"avatar-group-glass-transition-duration",
-	"avatar-group-glass-transition-timing-function",
-	"avatar-group-glass-gradient",
-	"avatar-group-glass-font-family",
-	"avatar-group-glass-font-size",
-	"avatar-group-glass-font-weight",
-	"avatar-group-glass-letter-spacing",
-	"avatar-group-glass-line-height",
-	"avatar-group-flat-background-color",
-	"avatar-group-flat-border-radius",
-	"avatar-group-flat-box-shadow",
-	"avatar-group-flat-color",
-	"avatar-group-flat-border-color",
-	"avatar-group-flat-border-width",
-	"avatar-group-flat-opacity",
-	"avatar-group-flat-animation",
-	"avatar-group-flat-transition-duration",
-	"avatar-group-flat-transition-timing-function",
-	"avatar-group-flat-gradient",
-	"avatar-group-flat-font-family",
-	"avatar-group-flat-font-size",
-	"avatar-group-flat-font-weight",
-	"avatar-group-flat-letter-spacing",
-	"avatar-group-flat-line-height",
-	"avatar-group-matte-background-color",
-	"avatar-group-matte-border-radius",
-	"avatar-group-matte-box-shadow",
-	"avatar-group-matte-color",
-	"avatar-group-matte-border-color",
-	"avatar-group-matte-border-width",
-	"avatar-group-matte-opacity",
-	"avatar-group-matte-animation",
-	"avatar-group-matte-transition-duration",
-	"avatar-group-matte-transition-timing-function",
-	"avatar-group-matte-gradient",
-	"avatar-group-matte-font-family",
-	"avatar-group-matte-font-size",
-	"avatar-group-matte-font-weight",
-	"avatar-group-matte-letter-spacing",
-	"avatar-group-matte-line-height",
-	"avatar-default-background-color",
-	"avatar-default-border-radius",
-	"avatar-default-box-shadow",
-	"avatar-default-color",
-	"avatar-default-border-color",
-	"avatar-default-border-width",
-	"avatar-default-backdrop-filter",
-	"avatar-default-opacity",
-	"avatar-default-animation",
-	"avatar-default-transition-duration",
-	"avatar-default-transition-timing-function",
-	"avatar-default-gradient",
-	"avatar-default-font-family",
-	"avatar-default-font-size",
-	"avatar-default-font-weight",
-	"avatar-default-letter-spacing",
-	"avatar-default-line-height",
-	"avatar-stark-background-color",
-	"avatar-stark-border-radius",
-	"avatar-stark-box-shadow",
-	"avatar-stark-color",
-	"avatar-stark-border-color",
-	"avatar-stark-border-width",
-	"avatar-stark-opacity",
-	"avatar-stark-animation",
-	"avatar-stark-transition-duration",
-	"avatar-stark-transition-timing-function",
-	"avatar-stark-gradient",
-	"avatar-stark-font-family",
-	"avatar-stark-font-size",
-	"avatar-stark-font-weight",
-	"avatar-stark-letter-spacing",
-	"avatar-stark-line-height",
-	"avatar-glass-background-color",
-	"avatar-glass-border-radius",
-	"avatar-glass-box-shadow",
-	"avatar-glass-color",
-	"avatar-glass-border-color",
-	"avatar-glass-border-width",
-	"avatar-glass-backdrop-filter",
-	"avatar-glass-opacity",
-	"avatar-glass-animation",
-	"avatar-glass-transition-duration",
-	"avatar-glass-transition-timing-function",
-	"avatar-glass-gradient",
-	"avatar-glass-font-family",
-	"avatar-glass-font-size",
-	"avatar-glass-font-weight",
-	"avatar-glass-letter-spacing",
-	"avatar-glass-line-height",
-	"avatar-flat-background-color",
-	"avatar-flat-border-radius",
-	"avatar-flat-box-shadow",
-	"avatar-flat-color",
-	"avatar-flat-border-color",
-	"avatar-flat-border-width",
-	"avatar-flat-opacity",
-	"avatar-flat-animation",
-	"avatar-flat-transition-duration",
-	"avatar-flat-transition-timing-function",
-	"avatar-flat-gradient",
-	"avatar-flat-font-family",
-	"avatar-flat-font-size",
-	"avatar-flat-font-weight",
-	"avatar-flat-letter-spacing",
-	"avatar-flat-line-height",
-	"avatar-matte-background-color",
-	"avatar-matte-border-radius",
-	"avatar-matte-box-shadow",
-	"avatar-matte-color",
-	"avatar-matte-border-color",
-	"avatar-matte-border-width",
-	"avatar-matte-opacity",
-	"avatar-matte-animation",
-	"avatar-matte-transition-duration",
-	"avatar-matte-transition-timing-function",
-	"avatar-matte-gradient",
-	"avatar-matte-font-family",
-	"avatar-matte-font-size",
-	"avatar-matte-font-weight",
-	"avatar-matte-letter-spacing",
-	"avatar-matte-line-height",
-	"badge-default-background-color",
-	"badge-default-border-radius",
-	"badge-default-box-shadow",
-	"badge-default-color",
-	"badge-default-border-color",
-	"badge-default-border-width",
-	"badge-default-backdrop-filter",
-	"badge-default-opacity",
-	"badge-default-animation",
-	"badge-default-transition-duration",
-	"badge-default-transition-timing-function",
-	"badge-default-gradient",
-	"badge-default-font-family",
-	"badge-default-font-size",
-	"badge-default-font-weight",
-	"badge-default-letter-spacing",
-	"badge-default-line-height",
-	"badge-stark-background-color",
-	"badge-stark-border-radius",
-	"badge-stark-box-shadow",
-	"badge-stark-color",
-	"badge-stark-border-color",
-	"badge-stark-border-width",
-	"badge-stark-opacity",
-	"badge-stark-animation",
-	"badge-stark-transition-duration",
-	"badge-stark-transition-timing-function",
-	"badge-stark-gradient",
-	"badge-stark-font-family",
-	"badge-stark-font-size",
-	"badge-stark-font-weight",
-	"badge-stark-letter-spacing",
-	"badge-stark-line-height",
-	"badge-glass-background-color",
-	"badge-glass-border-radius",
-	"badge-glass-box-shadow",
-	"badge-glass-color",
-	"badge-glass-border-color",
-	"badge-glass-border-width",
-	"badge-glass-backdrop-filter",
-	"badge-glass-opacity",
-	"badge-glass-animation",
-	"badge-glass-transition-duration",
-	"badge-glass-transition-timing-function",
-	"badge-glass-gradient",
-	"badge-glass-font-family",
-	"badge-glass-font-size",
-	"badge-glass-font-weight",
-	"badge-glass-letter-spacing",
-	"badge-glass-line-height",
-	"badge-flat-background-color",
-	"badge-flat-border-radius",
-	"badge-flat-box-shadow",
-	"badge-flat-color",
-	"badge-flat-border-color",
-	"badge-flat-border-width",
-	"badge-flat-opacity",
-	"badge-flat-animation",
-	"badge-flat-transition-duration",
-	"badge-flat-transition-timing-function",
-	"badge-flat-gradient",
-	"badge-flat-font-family",
-	"badge-flat-font-size",
-	"badge-flat-font-weight",
-	"badge-flat-letter-spacing",
-	"badge-flat-line-height",
-	"badge-matte-background-color",
-	"badge-matte-border-radius",
-	"badge-matte-box-shadow",
-	"badge-matte-color",
-	"badge-matte-border-color",
-	"badge-matte-border-width",
-	"badge-matte-opacity",
-	"badge-matte-animation",
-	"badge-matte-transition-duration",
-	"badge-matte-transition-timing-function",
-	"badge-matte-gradient",
-	"badge-matte-font-family",
-	"badge-matte-font-size",
-	"badge-matte-font-weight",
-	"badge-matte-letter-spacing",
-	"badge-matte-line-height",
-	"banner-default-background-color",
-	"banner-default-border-radius",
-	"banner-default-box-shadow",
-	"banner-default-color",
-	"banner-default-border-color",
-	"banner-default-border-width",
-	"banner-default-backdrop-filter",
-	"banner-default-opacity",
-	"banner-default-animation",
-	"banner-default-transition-duration",
-	"banner-default-transition-timing-function",
-	"banner-default-gradient",
-	"banner-default-font-family",
-	"banner-default-font-size",
-	"banner-default-font-weight",
-	"banner-default-letter-spacing",
-	"banner-default-line-height",
-	"banner-stark-background-color",
-	"banner-stark-border-radius",
-	"banner-stark-box-shadow",
-	"banner-stark-color",
-	"banner-stark-border-color",
-	"banner-stark-border-width",
-	"banner-stark-opacity",
-	"banner-stark-animation",
-	"banner-stark-transition-duration",
-	"banner-stark-transition-timing-function",
-	"banner-stark-gradient",
-	"banner-stark-font-family",
-	"banner-stark-font-size",
-	"banner-stark-font-weight",
-	"banner-stark-letter-spacing",
-	"banner-stark-line-height",
-	"banner-glass-background-color",
-	"banner-glass-border-radius",
-	"banner-glass-box-shadow",
-	"banner-glass-color",
-	"banner-glass-border-color",
-	"banner-glass-border-width",
-	"banner-glass-backdrop-filter",
-	"banner-glass-opacity",
-	"banner-glass-animation",
-	"banner-glass-transition-duration",
-	"banner-glass-transition-timing-function",
-	"banner-glass-gradient",
-	"banner-glass-font-family",
-	"banner-glass-font-size",
-	"banner-glass-font-weight",
-	"banner-glass-letter-spacing",
-	"banner-glass-line-height",
-	"banner-flat-background-color",
-	"banner-flat-border-radius",
-	"banner-flat-box-shadow",
-	"banner-flat-color",
-	"banner-flat-border-color",
-	"banner-flat-border-width",
-	"banner-flat-opacity",
-	"banner-flat-animation",
-	"banner-flat-transition-duration",
-	"banner-flat-transition-timing-function",
-	"banner-flat-gradient",
-	"banner-flat-font-family",
-	"banner-flat-font-size",
-	"banner-flat-font-weight",
-	"banner-flat-letter-spacing",
-	"banner-flat-line-height",
-	"banner-matte-background-color",
-	"banner-matte-border-radius",
-	"banner-matte-box-shadow",
-	"banner-matte-color",
-	"banner-matte-border-color",
-	"banner-matte-border-width",
-	"banner-matte-opacity",
-	"banner-matte-animation",
-	"banner-matte-transition-duration",
-	"banner-matte-transition-timing-function",
-	"banner-matte-gradient",
-	"banner-matte-font-family",
-	"banner-matte-font-size",
-	"banner-matte-font-weight",
-	"banner-matte-letter-spacing",
-	"banner-matte-line-height",
-	"button-default-background-color",
-	"button-default-border-radius",
-	"button-default-box-shadow",
-	"button-default-color",
-	"button-default-border-color",
-	"button-default-border-width",
-	"button-default-backdrop-filter",
-	"button-default-opacity",
-	"button-default-animation",
-	"button-default-transition-duration",
-	"button-default-transition-timing-function",
-	"button-default-gradient",
-	"button-default-font-family",
-	"button-default-font-size",
-	"button-default-font-weight",
-	"button-default-letter-spacing",
-	"button-default-line-height",
-	"button-stark-background-color",
-	"button-stark-border-radius",
-	"button-stark-box-shadow",
-	"button-stark-color",
-	"button-stark-border-color",
-	"button-stark-border-width",
-	"button-stark-opacity",
-	"button-stark-animation",
-	"button-stark-transition-duration",
-	"button-stark-transition-timing-function",
-	"button-stark-gradient",
-	"button-stark-font-family",
-	"button-stark-font-size",
-	"button-stark-font-weight",
-	"button-stark-letter-spacing",
-	"button-stark-line-height",
-	"button-glass-background-color",
-	"button-glass-border-radius",
-	"button-glass-box-shadow",
-	"button-glass-color",
-	"button-glass-border-color",
-	"button-glass-border-width",
-	"button-glass-backdrop-filter",
-	"button-glass-opacity",
-	"button-glass-animation",
-	"button-glass-transition-duration",
-	"button-glass-transition-timing-function",
-	"button-glass-gradient",
-	"button-glass-font-family",
-	"button-glass-font-size",
-	"button-glass-font-weight",
-	"button-glass-letter-spacing",
-	"button-glass-line-height",
-	"button-flat-background-color",
-	"button-flat-border-radius",
-	"button-flat-box-shadow",
-	"button-flat-color",
-	"button-flat-border-color",
-	"button-flat-border-width",
-	"button-flat-opacity",
-	"button-flat-animation",
-	"button-flat-transition-duration",
-	"button-flat-transition-timing-function",
-	"button-flat-gradient",
-	"button-flat-font-family",
-	"button-flat-font-size",
-	"button-flat-font-weight",
-	"button-flat-letter-spacing",
-	"button-flat-line-height",
-	"button-matte-background-color",
-	"button-matte-border-radius",
-	"button-matte-box-shadow",
-	"button-matte-color",
-	"button-matte-border-color",
-	"button-matte-border-width",
-	"button-matte-opacity",
-	"button-matte-animation",
-	"button-matte-transition-duration",
-	"button-matte-transition-timing-function",
-	"button-matte-gradient",
-	"button-matte-font-family",
-	"button-matte-font-size",
-	"button-matte-font-weight",
-	"button-matte-letter-spacing",
-	"button-matte-line-height",
-	"calendar-default-background-color",
-	"calendar-default-border-radius",
-	"calendar-default-box-shadow",
-	"calendar-default-color",
-	"calendar-default-border-color",
-	"calendar-default-border-width",
-	"calendar-default-backdrop-filter",
-	"calendar-default-opacity",
-	"calendar-default-animation",
-	"calendar-default-transition-duration",
-	"calendar-default-transition-timing-function",
-	"calendar-default-gradient",
-	"calendar-default-font-family",
-	"calendar-default-font-size",
-	"calendar-default-font-weight",
-	"calendar-default-letter-spacing",
-	"calendar-default-line-height",
-	"calendar-stark-background-color",
-	"calendar-stark-border-radius",
-	"calendar-stark-box-shadow",
-	"calendar-stark-color",
-	"calendar-stark-border-color",
-	"calendar-stark-border-width",
-	"calendar-stark-opacity",
-	"calendar-stark-animation",
-	"calendar-stark-transition-duration",
-	"calendar-stark-transition-timing-function",
-	"calendar-stark-gradient",
-	"calendar-stark-font-family",
-	"calendar-stark-font-size",
-	"calendar-stark-font-weight",
-	"calendar-stark-letter-spacing",
-	"calendar-stark-line-height",
-	"calendar-glass-background-color",
-	"calendar-glass-border-radius",
-	"calendar-glass-box-shadow",
-	"calendar-glass-color",
-	"calendar-glass-border-color",
-	"calendar-glass-border-width",
-	"calendar-glass-backdrop-filter",
-	"calendar-glass-opacity",
-	"calendar-glass-animation",
-	"calendar-glass-transition-duration",
-	"calendar-glass-transition-timing-function",
-	"calendar-glass-gradient",
-	"calendar-glass-font-family",
-	"calendar-glass-font-size",
-	"calendar-glass-font-weight",
-	"calendar-glass-letter-spacing",
-	"calendar-glass-line-height",
-	"calendar-flat-background-color",
-	"calendar-flat-border-radius",
-	"calendar-flat-box-shadow",
-	"calendar-flat-color",
-	"calendar-flat-border-color",
-	"calendar-flat-border-width",
-	"calendar-flat-opacity",
-	"calendar-flat-animation",
-	"calendar-flat-transition-duration",
-	"calendar-flat-transition-timing-function",
-	"calendar-flat-gradient",
-	"calendar-flat-font-family",
-	"calendar-flat-font-size",
-	"calendar-flat-font-weight",
-	"calendar-flat-letter-spacing",
-	"calendar-flat-line-height",
-	"calendar-matte-background-color",
-	"calendar-matte-border-radius",
-	"calendar-matte-box-shadow",
-	"calendar-matte-color",
-	"calendar-matte-border-color",
-	"calendar-matte-border-width",
-	"calendar-matte-opacity",
-	"calendar-matte-animation",
-	"calendar-matte-transition-duration",
-	"calendar-matte-transition-timing-function",
-	"calendar-matte-gradient",
-	"calendar-matte-font-family",
-	"calendar-matte-font-size",
-	"calendar-matte-font-weight",
-	"calendar-matte-letter-spacing",
-	"calendar-matte-line-height",
-	"callout-default-background-color",
-	"callout-default-border-radius",
-	"callout-default-box-shadow",
-	"callout-default-color",
-	"callout-default-border-color",
-	"callout-default-border-width",
-	"callout-default-backdrop-filter",
-	"callout-default-opacity",
-	"callout-default-animation",
-	"callout-default-transition-duration",
-	"callout-default-transition-timing-function",
-	"callout-default-gradient",
-	"callout-default-font-family",
-	"callout-default-font-size",
-	"callout-default-font-weight",
-	"callout-default-letter-spacing",
-	"callout-default-line-height",
-	"callout-stark-background-color",
-	"callout-stark-border-radius",
-	"callout-stark-box-shadow",
-	"callout-stark-color",
-	"callout-stark-border-color",
-	"callout-stark-border-width",
-	"callout-stark-opacity",
-	"callout-stark-animation",
-	"callout-stark-transition-duration",
-	"callout-stark-transition-timing-function",
-	"callout-stark-gradient",
-	"callout-stark-font-family",
-	"callout-stark-font-size",
-	"callout-stark-font-weight",
-	"callout-stark-letter-spacing",
-	"callout-stark-line-height",
-	"callout-glass-background-color",
-	"callout-glass-border-radius",
-	"callout-glass-box-shadow",
-	"callout-glass-color",
-	"callout-glass-border-color",
-	"callout-glass-border-width",
-	"callout-glass-backdrop-filter",
-	"callout-glass-opacity",
-	"callout-glass-animation",
-	"callout-glass-transition-duration",
-	"callout-glass-transition-timing-function",
-	"callout-glass-gradient",
-	"callout-glass-font-family",
-	"callout-glass-font-size",
-	"callout-glass-font-weight",
-	"callout-glass-letter-spacing",
-	"callout-glass-line-height",
-	"callout-flat-background-color",
-	"callout-flat-border-radius",
-	"callout-flat-box-shadow",
-	"callout-flat-color",
-	"callout-flat-border-color",
-	"callout-flat-border-width",
-	"callout-flat-opacity",
-	"callout-flat-animation",
-	"callout-flat-transition-duration",
-	"callout-flat-transition-timing-function",
-	"callout-flat-gradient",
-	"callout-flat-font-family",
-	"callout-flat-font-size",
-	"callout-flat-font-weight",
-	"callout-flat-letter-spacing",
-	"callout-flat-line-height",
-	"callout-matte-background-color",
-	"callout-matte-border-radius",
-	"callout-matte-box-shadow",
-	"callout-matte-color",
-	"callout-matte-border-color",
-	"callout-matte-border-width",
-	"callout-matte-opacity",
-	"callout-matte-animation",
-	"callout-matte-transition-duration",
-	"callout-matte-transition-timing-function",
-	"callout-matte-gradient",
-	"callout-matte-font-family",
-	"callout-matte-font-size",
-	"callout-matte-font-weight",
-	"callout-matte-letter-spacing",
-	"callout-matte-line-height",
-	"card-default-background-color",
-	"card-default-border-radius",
-	"card-default-box-shadow",
-	"card-default-color",
-	"card-default-border-color",
-	"card-default-border-width",
-	"card-default-backdrop-filter",
-	"card-default-opacity",
-	"card-default-animation",
-	"card-default-transition-duration",
-	"card-default-transition-timing-function",
-	"card-default-gradient",
-	"card-default-font-family",
-	"card-default-font-size",
-	"card-default-font-weight",
-	"card-default-letter-spacing",
-	"card-default-line-height",
-	"card-stark-background-color",
-	"card-stark-border-radius",
-	"card-stark-box-shadow",
-	"card-stark-color",
-	"card-stark-border-color",
-	"card-stark-border-width",
-	"card-stark-opacity",
-	"card-stark-animation",
-	"card-stark-transition-duration",
-	"card-stark-transition-timing-function",
-	"card-stark-gradient",
-	"card-stark-font-family",
-	"card-stark-font-size",
-	"card-stark-font-weight",
-	"card-stark-letter-spacing",
-	"card-stark-line-height",
-	"card-glass-background-color",
-	"card-glass-border-radius",
-	"card-glass-box-shadow",
-	"card-glass-color",
-	"card-glass-border-color",
-	"card-glass-border-width",
-	"card-glass-backdrop-filter",
-	"card-glass-opacity",
-	"card-glass-animation",
-	"card-glass-transition-duration",
-	"card-glass-transition-timing-function",
-	"card-glass-gradient",
-	"card-glass-font-family",
-	"card-glass-font-size",
-	"card-glass-font-weight",
-	"card-glass-letter-spacing",
-	"card-glass-line-height",
-	"card-flat-background-color",
-	"card-flat-border-radius",
-	"card-flat-box-shadow",
-	"card-flat-color",
-	"card-flat-border-color",
-	"card-flat-border-width",
-	"card-flat-opacity",
-	"card-flat-animation",
-	"card-flat-transition-duration",
-	"card-flat-transition-timing-function",
-	"card-flat-gradient",
-	"card-flat-font-family",
-	"card-flat-font-size",
-	"card-flat-font-weight",
-	"card-flat-letter-spacing",
-	"card-flat-line-height",
-	"card-matte-background-color",
-	"card-matte-border-radius",
-	"card-matte-box-shadow",
-	"card-matte-color",
-	"card-matte-border-color",
-	"card-matte-border-width",
-	"card-matte-opacity",
-	"card-matte-animation",
-	"card-matte-transition-duration",
-	"card-matte-transition-timing-function",
-	"card-matte-gradient",
-	"card-matte-font-family",
-	"card-matte-font-size",
-	"card-matte-font-weight",
-	"card-matte-letter-spacing",
-	"card-matte-line-height",
-	"chat-bubble-default-background-color",
-	"chat-bubble-default-border-radius",
-	"chat-bubble-default-box-shadow",
-	"chat-bubble-default-color",
-	"chat-bubble-default-border-color",
-	"chat-bubble-default-border-width",
-	"chat-bubble-default-backdrop-filter",
-	"chat-bubble-default-opacity",
-	"chat-bubble-default-animation",
-	"chat-bubble-default-transition-duration",
-	"chat-bubble-default-transition-timing-function",
-	"chat-bubble-default-gradient",
-	"chat-bubble-default-font-family",
-	"chat-bubble-default-font-size",
-	"chat-bubble-default-font-weight",
-	"chat-bubble-default-letter-spacing",
-	"chat-bubble-default-line-height",
-	"chat-bubble-stark-background-color",
-	"chat-bubble-stark-border-radius",
-	"chat-bubble-stark-box-shadow",
-	"chat-bubble-stark-color",
-	"chat-bubble-stark-border-color",
-	"chat-bubble-stark-border-width",
-	"chat-bubble-stark-opacity",
-	"chat-bubble-stark-animation",
-	"chat-bubble-stark-transition-duration",
-	"chat-bubble-stark-transition-timing-function",
-	"chat-bubble-stark-gradient",
-	"chat-bubble-stark-font-family",
-	"chat-bubble-stark-font-size",
-	"chat-bubble-stark-font-weight",
-	"chat-bubble-stark-letter-spacing",
-	"chat-bubble-stark-line-height",
-	"chat-bubble-glass-background-color",
-	"chat-bubble-glass-border-radius",
-	"chat-bubble-glass-box-shadow",
-	"chat-bubble-glass-color",
-	"chat-bubble-glass-border-color",
-	"chat-bubble-glass-border-width",
-	"chat-bubble-glass-backdrop-filter",
-	"chat-bubble-glass-opacity",
-	"chat-bubble-glass-animation",
-	"chat-bubble-glass-transition-duration",
-	"chat-bubble-glass-transition-timing-function",
-	"chat-bubble-glass-gradient",
-	"chat-bubble-glass-font-family",
-	"chat-bubble-glass-font-size",
-	"chat-bubble-glass-font-weight",
-	"chat-bubble-glass-letter-spacing",
-	"chat-bubble-glass-line-height",
-	"chat-bubble-flat-background-color",
-	"chat-bubble-flat-border-radius",
-	"chat-bubble-flat-box-shadow",
-	"chat-bubble-flat-color",
-	"chat-bubble-flat-border-color",
-	"chat-bubble-flat-border-width",
-	"chat-bubble-flat-opacity",
-	"chat-bubble-flat-animation",
-	"chat-bubble-flat-transition-duration",
-	"chat-bubble-flat-transition-timing-function",
-	"chat-bubble-flat-gradient",
-	"chat-bubble-flat-font-family",
-	"chat-bubble-flat-font-size",
-	"chat-bubble-flat-font-weight",
-	"chat-bubble-flat-letter-spacing",
-	"chat-bubble-flat-line-height",
-	"chat-bubble-matte-background-color",
-	"chat-bubble-matte-border-radius",
-	"chat-bubble-matte-box-shadow",
-	"chat-bubble-matte-color",
-	"chat-bubble-matte-border-color",
-	"chat-bubble-matte-border-width",
-	"chat-bubble-matte-opacity",
-	"chat-bubble-matte-animation",
-	"chat-bubble-matte-transition-duration",
-	"chat-bubble-matte-transition-timing-function",
-	"chat-bubble-matte-gradient",
-	"chat-bubble-matte-font-family",
-	"chat-bubble-matte-font-size",
-	"chat-bubble-matte-font-weight",
-	"chat-bubble-matte-letter-spacing",
-	"chat-bubble-matte-line-height",
-	"dynamic-background-boot-background-color",
-	"dynamic-background-boot-border-radius",
-	"dynamic-background-boot-box-shadow",
-	"dynamic-background-boot-color",
-	"dynamic-background-boot-border-color",
-	"dynamic-background-boot-border-width",
-	"dynamic-background-boot-opacity",
-	"dynamic-background-boot-animation",
-	"dynamic-background-boot-transition-duration",
-	"dynamic-background-boot-transition-timing-function",
-	"dynamic-background-boot-gradient",
-	"dynamic-background-boot-font-family",
-	"dynamic-background-boot-font-size",
-	"dynamic-background-boot-font-weight",
-	"dynamic-background-boot-letter-spacing",
-	"dynamic-background-boot-line-height",
-	"dynamic-background-devpulse-background-color",
-	"dynamic-background-devpulse-border-radius",
-	"dynamic-background-devpulse-box-shadow",
-	"dynamic-background-devpulse-color",
-	"dynamic-background-devpulse-border-color",
-	"dynamic-background-devpulse-border-width",
-	"dynamic-background-devpulse-opacity",
-	"dynamic-background-devpulse-animation",
-	"dynamic-background-devpulse-transition-duration",
-	"dynamic-background-devpulse-transition-timing-function",
-	"dynamic-background-devpulse-gradient",
-	"dynamic-background-devpulse-font-family",
-	"dynamic-background-devpulse-font-size",
-	"dynamic-background-devpulse-font-weight",
-	"dynamic-background-devpulse-letter-spacing",
-	"dynamic-background-devpulse-line-height",
-	"dynamic-background-overmind-background-color",
-	"dynamic-background-overmind-border-radius",
-	"dynamic-background-overmind-box-shadow",
-	"dynamic-background-overmind-color",
-	"dynamic-background-overmind-border-color",
-	"dynamic-background-overmind-border-width",
-	"dynamic-background-overmind-opacity",
-	"dynamic-background-overmind-animation",
-	"dynamic-background-overmind-transition-duration",
-	"dynamic-background-overmind-transition-timing-function",
-	"dynamic-background-overmind-gradient",
-	"dynamic-background-overmind-font-family",
-	"dynamic-background-overmind-font-size",
-	"dynamic-background-overmind-font-weight",
-	"dynamic-background-overmind-letter-spacing",
-	"dynamic-background-overmind-line-height",
-	"dynamic-background-wiredfront-background-color",
-	"dynamic-background-wiredfront-border-radius",
-	"dynamic-background-wiredfront-box-shadow",
-	"dynamic-background-wiredfront-color",
-	"dynamic-background-wiredfront-border-color",
-	"dynamic-background-wiredfront-border-width",
-	"dynamic-background-wiredfront-opacity",
-	"dynamic-background-wiredfront-animation",
-	"dynamic-background-wiredfront-transition-duration",
-	"dynamic-background-wiredfront-transition-timing-function",
-	"dynamic-background-wiredfront-gradient",
-	"dynamic-background-wiredfront-font-family",
-	"dynamic-background-wiredfront-font-size",
-	"dynamic-background-wiredfront-font-weight",
-	"dynamic-background-wiredfront-letter-spacing",
-	"dynamic-background-wiredfront-line-height",
-	"dynamic-background-devforge-background-color",
-	"dynamic-background-devforge-border-radius",
-	"dynamic-background-devforge-box-shadow",
-	"dynamic-background-devforge-color",
-	"dynamic-background-devforge-border-color",
-	"dynamic-background-devforge-border-width",
-	"dynamic-background-devforge-opacity",
-	"dynamic-background-devforge-animation",
-	"dynamic-background-devforge-transition-duration",
-	"dynamic-background-devforge-transition-timing-function",
-	"dynamic-background-devforge-gradient",
-	"dynamic-background-devforge-font-family",
-	"dynamic-background-devforge-font-size",
-	"dynamic-background-devforge-font-weight",
-	"dynamic-background-devforge-letter-spacing",
-	"dynamic-background-devforge-line-height",
-	"dynamic-background-maestro-background-color",
-	"dynamic-background-maestro-border-radius",
-	"dynamic-background-maestro-box-shadow",
-	"dynamic-background-maestro-color",
-	"dynamic-background-maestro-border-color",
-	"dynamic-background-maestro-border-width",
-	"dynamic-background-maestro-opacity",
-	"dynamic-background-maestro-animation",
-	"dynamic-background-maestro-transition-duration",
-	"dynamic-background-maestro-transition-timing-function",
-	"dynamic-background-maestro-gradient",
-	"dynamic-background-maestro-font-family",
-	"dynamic-background-maestro-font-size",
-	"dynamic-background-maestro-font-weight",
-	"dynamic-background-maestro-letter-spacing",
-	"dynamic-background-maestro-line-height",
-	"chat-context-panel-default-background-color",
-	"chat-context-panel-default-border-radius",
-	"chat-context-panel-default-box-shadow",
-	"chat-context-panel-default-color",
-	"chat-context-panel-default-border-color",
-	"chat-context-panel-default-border-width",
-	"chat-context-panel-default-backdrop-filter",
-	"chat-context-panel-default-opacity",
-	"chat-context-panel-default-animation",
-	"chat-context-panel-default-transition-duration",
-	"chat-context-panel-default-transition-timing-function",
-	"chat-context-panel-default-gradient",
-	"chat-context-panel-default-font-family",
-	"chat-context-panel-default-font-size",
-	"chat-context-panel-default-font-weight",
-	"chat-context-panel-default-letter-spacing",
-	"chat-context-panel-default-line-height",
-	"chat-context-panel-stark-background-color",
-	"chat-context-panel-stark-border-radius",
-	"chat-context-panel-stark-box-shadow",
-	"chat-context-panel-stark-color",
-	"chat-context-panel-stark-border-color",
-	"chat-context-panel-stark-border-width",
-	"chat-context-panel-stark-opacity",
-	"chat-context-panel-stark-animation",
-	"chat-context-panel-stark-transition-duration",
-	"chat-context-panel-stark-transition-timing-function",
-	"chat-context-panel-stark-gradient",
-	"chat-context-panel-stark-font-family",
-	"chat-context-panel-stark-font-size",
-	"chat-context-panel-stark-font-weight",
-	"chat-context-panel-stark-letter-spacing",
-	"chat-context-panel-stark-line-height",
-	"chat-context-panel-glass-background-color",
-	"chat-context-panel-glass-border-radius",
-	"chat-context-panel-glass-box-shadow",
-	"chat-context-panel-glass-color",
-	"chat-context-panel-glass-border-color",
-	"chat-context-panel-glass-border-width",
-	"chat-context-panel-glass-backdrop-filter",
-	"chat-context-panel-glass-opacity",
-	"chat-context-panel-glass-animation",
-	"chat-context-panel-glass-transition-duration",
-	"chat-context-panel-glass-transition-timing-function",
-	"chat-context-panel-glass-gradient",
-	"chat-context-panel-glass-font-family",
-	"chat-context-panel-glass-font-size",
-	"chat-context-panel-glass-font-weight",
-	"chat-context-panel-glass-letter-spacing",
-	"chat-context-panel-glass-line-height",
-	"chat-context-panel-flat-background-color",
-	"chat-context-panel-flat-border-radius",
-	"chat-context-panel-flat-box-shadow",
-	"chat-context-panel-flat-color",
-	"chat-context-panel-flat-border-color",
-	"chat-context-panel-flat-border-width",
-	"chat-context-panel-flat-opacity",
-	"chat-context-panel-flat-animation",
-	"chat-context-panel-flat-transition-duration",
-	"chat-context-panel-flat-transition-timing-function",
-	"chat-context-panel-flat-gradient",
-	"chat-context-panel-flat-font-family",
-	"chat-context-panel-flat-font-size",
-	"chat-context-panel-flat-font-weight",
-	"chat-context-panel-flat-letter-spacing",
-	"chat-context-panel-flat-line-height",
-	"chat-context-panel-matte-background-color",
-	"chat-context-panel-matte-border-radius",
-	"chat-context-panel-matte-box-shadow",
-	"chat-context-panel-matte-color",
-	"chat-context-panel-matte-border-color",
-	"chat-context-panel-matte-border-width",
-	"chat-context-panel-matte-opacity",
-	"chat-context-panel-matte-animation",
-	"chat-context-panel-matte-transition-duration",
-	"chat-context-panel-matte-transition-timing-function",
-	"chat-context-panel-matte-gradient",
-	"chat-context-panel-matte-font-family",
-	"chat-context-panel-matte-font-size",
-	"chat-context-panel-matte-font-weight",
-	"chat-context-panel-matte-letter-spacing",
-	"chat-context-panel-matte-line-height",
-	"chat-dashboard-default-background-color",
-	"chat-dashboard-default-border-radius",
-	"chat-dashboard-default-box-shadow",
-	"chat-dashboard-default-color",
-	"chat-dashboard-default-border-color",
-	"chat-dashboard-default-border-width",
-	"chat-dashboard-default-backdrop-filter",
-	"chat-dashboard-default-opacity",
-	"chat-dashboard-default-animation",
-	"chat-dashboard-default-transition-duration",
-	"chat-dashboard-default-transition-timing-function",
-	"chat-dashboard-default-gradient",
-	"chat-dashboard-default-font-family",
-	"chat-dashboard-default-font-size",
-	"chat-dashboard-default-font-weight",
-	"chat-dashboard-default-letter-spacing",
-	"chat-dashboard-default-line-height",
-	"chat-dashboard-stark-background-color",
-	"chat-dashboard-stark-border-radius",
-	"chat-dashboard-stark-box-shadow",
-	"chat-dashboard-stark-color",
-	"chat-dashboard-stark-border-color",
-	"chat-dashboard-stark-border-width",
-	"chat-dashboard-stark-opacity",
-	"chat-dashboard-stark-animation",
-	"chat-dashboard-stark-transition-duration",
-	"chat-dashboard-stark-transition-timing-function",
-	"chat-dashboard-stark-gradient",
-	"chat-dashboard-stark-font-family",
-	"chat-dashboard-stark-font-size",
-	"chat-dashboard-stark-font-weight",
-	"chat-dashboard-stark-letter-spacing",
-	"chat-dashboard-stark-line-height",
-	"chat-dashboard-glass-background-color",
-	"chat-dashboard-glass-border-radius",
-	"chat-dashboard-glass-box-shadow",
-	"chat-dashboard-glass-color",
-	"chat-dashboard-glass-border-color",
-	"chat-dashboard-glass-border-width",
-	"chat-dashboard-glass-backdrop-filter",
-	"chat-dashboard-glass-opacity",
-	"chat-dashboard-glass-animation",
-	"chat-dashboard-glass-transition-duration",
-	"chat-dashboard-glass-transition-timing-function",
-	"chat-dashboard-glass-gradient",
-	"chat-dashboard-glass-font-family",
-	"chat-dashboard-glass-font-size",
-	"chat-dashboard-glass-font-weight",
-	"chat-dashboard-glass-letter-spacing",
-	"chat-dashboard-glass-line-height",
-	"chat-dashboard-flat-background-color",
-	"chat-dashboard-flat-border-radius",
-	"chat-dashboard-flat-box-shadow",
-	"chat-dashboard-flat-color",
-	"chat-dashboard-flat-border-color",
-	"chat-dashboard-flat-border-width",
-	"chat-dashboard-flat-opacity",
-	"chat-dashboard-flat-animation",
-	"chat-dashboard-flat-transition-duration",
-	"chat-dashboard-flat-transition-timing-function",
-	"chat-dashboard-flat-gradient",
-	"chat-dashboard-flat-font-family",
-	"chat-dashboard-flat-font-size",
-	"chat-dashboard-flat-font-weight",
-	"chat-dashboard-flat-letter-spacing",
-	"chat-dashboard-flat-line-height",
-	"chat-dashboard-matte-background-color",
-	"chat-dashboard-matte-border-radius",
-	"chat-dashboard-matte-box-shadow",
-	"chat-dashboard-matte-color",
-	"chat-dashboard-matte-border-color",
-	"chat-dashboard-matte-border-width",
-	"chat-dashboard-matte-opacity",
-	"chat-dashboard-matte-animation",
-	"chat-dashboard-matte-transition-duration",
-	"chat-dashboard-matte-transition-timing-function",
-	"chat-dashboard-matte-gradient",
-	"chat-dashboard-matte-font-family",
-	"chat-dashboard-matte-font-size",
-	"chat-dashboard-matte-font-weight",
-	"chat-dashboard-matte-letter-spacing",
-	"chat-dashboard-matte-line-height",
-	"chat-footer-default-background-color",
-	"chat-footer-default-border-radius",
-	"chat-footer-default-box-shadow",
-	"chat-footer-default-color",
-	"chat-footer-default-border-color",
-	"chat-footer-default-border-width",
-	"chat-footer-default-backdrop-filter",
-	"chat-footer-default-opacity",
-	"chat-footer-default-animation",
-	"chat-footer-default-transition-duration",
-	"chat-footer-default-transition-timing-function",
-	"chat-footer-default-gradient",
-	"chat-footer-default-font-family",
-	"chat-footer-default-font-size",
-	"chat-footer-default-font-weight",
-	"chat-footer-default-letter-spacing",
-	"chat-footer-default-line-height",
-	"chat-footer-stark-background-color",
-	"chat-footer-stark-border-radius",
-	"chat-footer-stark-box-shadow",
-	"chat-footer-stark-color",
-	"chat-footer-stark-border-color",
-	"chat-footer-stark-border-width",
-	"chat-footer-stark-opacity",
-	"chat-footer-stark-animation",
-	"chat-footer-stark-transition-duration",
-	"chat-footer-stark-transition-timing-function",
-	"chat-footer-stark-gradient",
-	"chat-footer-stark-font-family",
-	"chat-footer-stark-font-size",
-	"chat-footer-stark-font-weight",
-	"chat-footer-stark-letter-spacing",
-	"chat-footer-stark-line-height",
-	"chat-footer-glass-background-color",
-	"chat-footer-glass-border-radius",
-	"chat-footer-glass-box-shadow",
-	"chat-footer-glass-color",
-	"chat-footer-glass-border-color",
-	"chat-footer-glass-border-width",
-	"chat-footer-glass-backdrop-filter",
-	"chat-footer-glass-opacity",
-	"chat-footer-glass-animation",
-	"chat-footer-glass-transition-duration",
-	"chat-footer-glass-transition-timing-function",
-	"chat-footer-glass-gradient",
-	"chat-footer-glass-font-family",
-	"chat-footer-glass-font-size",
-	"chat-footer-glass-font-weight",
-	"chat-footer-glass-letter-spacing",
-	"chat-footer-glass-line-height",
-	"chat-footer-flat-background-color",
-	"chat-footer-flat-border-radius",
-	"chat-footer-flat-box-shadow",
-	"chat-footer-flat-color",
-	"chat-footer-flat-border-color",
-	"chat-footer-flat-border-width",
-	"chat-footer-flat-opacity",
-	"chat-footer-flat-animation",
-	"chat-footer-flat-transition-duration",
-	"chat-footer-flat-transition-timing-function",
-	"chat-footer-flat-gradient",
-	"chat-footer-flat-font-family",
-	"chat-footer-flat-font-size",
-	"chat-footer-flat-font-weight",
-	"chat-footer-flat-letter-spacing",
-	"chat-footer-flat-line-height",
-	"chat-footer-matte-background-color",
-	"chat-footer-matte-border-radius",
-	"chat-footer-matte-box-shadow",
-	"chat-footer-matte-color",
-	"chat-footer-matte-border-color",
-	"chat-footer-matte-border-width",
-	"chat-footer-matte-opacity",
-	"chat-footer-matte-animation",
-	"chat-footer-matte-transition-duration",
-	"chat-footer-matte-transition-timing-function",
-	"chat-footer-matte-gradient",
-	"chat-footer-matte-font-family",
-	"chat-footer-matte-font-size",
-	"chat-footer-matte-font-weight",
-	"chat-footer-matte-letter-spacing",
-	"chat-footer-matte-line-height",
-	"chat-frame-default-background-color",
-	"chat-frame-default-border-radius",
-	"chat-frame-default-box-shadow",
-	"chat-frame-default-color",
-	"chat-frame-default-border-color",
-	"chat-frame-default-border-width",
-	"chat-frame-default-backdrop-filter",
-	"chat-frame-default-opacity",
-	"chat-frame-default-animation",
-	"chat-frame-default-transition-duration",
-	"chat-frame-default-transition-timing-function",
-	"chat-frame-default-gradient",
-	"chat-frame-default-font-family",
-	"chat-frame-default-font-size",
-	"chat-frame-default-font-weight",
-	"chat-frame-default-letter-spacing",
-	"chat-frame-default-line-height",
-	"chat-frame-stark-background-color",
-	"chat-frame-stark-border-radius",
-	"chat-frame-stark-box-shadow",
-	"chat-frame-stark-color",
-	"chat-frame-stark-border-color",
-	"chat-frame-stark-border-width",
-	"chat-frame-stark-opacity",
-	"chat-frame-stark-animation",
-	"chat-frame-stark-transition-duration",
-	"chat-frame-stark-transition-timing-function",
-	"chat-frame-stark-gradient",
-	"chat-frame-stark-font-family",
-	"chat-frame-stark-font-size",
-	"chat-frame-stark-font-weight",
-	"chat-frame-stark-letter-spacing",
-	"chat-frame-stark-line-height",
-	"chat-frame-glass-background-color",
-	"chat-frame-glass-border-radius",
-	"chat-frame-glass-box-shadow",
-	"chat-frame-glass-color",
-	"chat-frame-glass-border-color",
-	"chat-frame-glass-border-width",
-	"chat-frame-glass-backdrop-filter",
-	"chat-frame-glass-opacity",
-	"chat-frame-glass-animation",
-	"chat-frame-glass-transition-duration",
-	"chat-frame-glass-transition-timing-function",
-	"chat-frame-glass-gradient",
-	"chat-frame-glass-font-family",
-	"chat-frame-glass-font-size",
-	"chat-frame-glass-font-weight",
-	"chat-frame-glass-letter-spacing",
-	"chat-frame-glass-line-height",
-	"chat-frame-flat-background-color",
-	"chat-frame-flat-border-radius",
-	"chat-frame-flat-box-shadow",
-	"chat-frame-flat-color",
-	"chat-frame-flat-border-color",
-	"chat-frame-flat-border-width",
-	"chat-frame-flat-opacity",
-	"chat-frame-flat-animation",
-	"chat-frame-flat-transition-duration",
-	"chat-frame-flat-transition-timing-function",
-	"chat-frame-flat-gradient",
-	"chat-frame-flat-font-family",
-	"chat-frame-flat-font-size",
-	"chat-frame-flat-font-weight",
-	"chat-frame-flat-letter-spacing",
-	"chat-frame-flat-line-height",
-	"chat-frame-matte-background-color",
-	"chat-frame-matte-border-radius",
-	"chat-frame-matte-box-shadow",
-	"chat-frame-matte-color",
-	"chat-frame-matte-border-color",
-	"chat-frame-matte-border-width",
-	"chat-frame-matte-opacity",
-	"chat-frame-matte-animation",
-	"chat-frame-matte-transition-duration",
-	"chat-frame-matte-transition-timing-function",
-	"chat-frame-matte-gradient",
-	"chat-frame-matte-font-family",
-	"chat-frame-matte-font-size",
-	"chat-frame-matte-font-weight",
-	"chat-frame-matte-letter-spacing",
-	"chat-frame-matte-line-height",
-	"chat-sidebar-default-background-color",
-	"chat-sidebar-default-border-radius",
-	"chat-sidebar-default-box-shadow",
-	"chat-sidebar-default-color",
-	"chat-sidebar-default-border-color",
-	"chat-sidebar-default-border-width",
-	"chat-sidebar-default-backdrop-filter",
-	"chat-sidebar-default-opacity",
-	"chat-sidebar-default-animation",
-	"chat-sidebar-default-transition-duration",
-	"chat-sidebar-default-transition-timing-function",
-	"chat-sidebar-default-gradient",
-	"chat-sidebar-default-font-family",
-	"chat-sidebar-default-font-size",
-	"chat-sidebar-default-font-weight",
-	"chat-sidebar-default-letter-spacing",
-	"chat-sidebar-default-line-height",
-	"chat-sidebar-stark-background-color",
-	"chat-sidebar-stark-border-radius",
-	"chat-sidebar-stark-box-shadow",
-	"chat-sidebar-stark-color",
-	"chat-sidebar-stark-border-color",
-	"chat-sidebar-stark-border-width",
-	"chat-sidebar-stark-opacity",
-	"chat-sidebar-stark-animation",
-	"chat-sidebar-stark-transition-duration",
-	"chat-sidebar-stark-transition-timing-function",
-	"chat-sidebar-stark-gradient",
-	"chat-sidebar-stark-font-family",
-	"chat-sidebar-stark-font-size",
-	"chat-sidebar-stark-font-weight",
-	"chat-sidebar-stark-letter-spacing",
-	"chat-sidebar-stark-line-height",
-	"chat-sidebar-glass-background-color",
-	"chat-sidebar-glass-border-radius",
-	"chat-sidebar-glass-box-shadow",
-	"chat-sidebar-glass-color",
-	"chat-sidebar-glass-border-color",
-	"chat-sidebar-glass-border-width",
-	"chat-sidebar-glass-backdrop-filter",
-	"chat-sidebar-glass-opacity",
-	"chat-sidebar-glass-animation",
-	"chat-sidebar-glass-transition-duration",
-	"chat-sidebar-glass-transition-timing-function",
-	"chat-sidebar-glass-gradient",
-	"chat-sidebar-glass-font-family",
-	"chat-sidebar-glass-font-size",
-	"chat-sidebar-glass-font-weight",
-	"chat-sidebar-glass-letter-spacing",
-	"chat-sidebar-glass-line-height",
-	"chat-sidebar-flat-background-color",
-	"chat-sidebar-flat-border-radius",
-	"chat-sidebar-flat-box-shadow",
-	"chat-sidebar-flat-color",
-	"chat-sidebar-flat-border-color",
-	"chat-sidebar-flat-border-width",
-	"chat-sidebar-flat-opacity",
-	"chat-sidebar-flat-animation",
-	"chat-sidebar-flat-transition-duration",
-	"chat-sidebar-flat-transition-timing-function",
-	"chat-sidebar-flat-gradient",
-	"chat-sidebar-flat-font-family",
-	"chat-sidebar-flat-font-size",
-	"chat-sidebar-flat-font-weight",
-	"chat-sidebar-flat-letter-spacing",
-	"chat-sidebar-flat-line-height",
-	"chat-sidebar-matte-background-color",
-	"chat-sidebar-matte-border-radius",
-	"chat-sidebar-matte-box-shadow",
-	"chat-sidebar-matte-color",
-	"chat-sidebar-matte-border-color",
-	"chat-sidebar-matte-border-width",
-	"chat-sidebar-matte-opacity",
-	"chat-sidebar-matte-animation",
-	"chat-sidebar-matte-transition-duration",
-	"chat-sidebar-matte-transition-timing-function",
-	"chat-sidebar-matte-gradient",
-	"chat-sidebar-matte-font-family",
-	"chat-sidebar-matte-font-size",
-	"chat-sidebar-matte-font-weight",
-	"chat-sidebar-matte-letter-spacing",
-	"chat-sidebar-matte-line-height",
-	"chat-topbar-default-background-color",
-	"chat-topbar-default-border-radius",
-	"chat-topbar-default-box-shadow",
-	"chat-topbar-default-color",
-	"chat-topbar-default-border-color",
-	"chat-topbar-default-border-width",
-	"chat-topbar-default-backdrop-filter",
-	"chat-topbar-default-opacity",
-	"chat-topbar-default-animation",
-	"chat-topbar-default-transition-duration",
-	"chat-topbar-default-transition-timing-function",
-	"chat-topbar-default-gradient",
-	"chat-topbar-default-font-family",
-	"chat-topbar-default-font-size",
-	"chat-topbar-default-font-weight",
-	"chat-topbar-default-letter-spacing",
-	"chat-topbar-default-line-height",
-	"chat-topbar-stark-background-color",
-	"chat-topbar-stark-border-radius",
-	"chat-topbar-stark-box-shadow",
-	"chat-topbar-stark-color",
-	"chat-topbar-stark-border-color",
-	"chat-topbar-stark-border-width",
-	"chat-topbar-stark-opacity",
-	"chat-topbar-stark-animation",
-	"chat-topbar-stark-transition-duration",
-	"chat-topbar-stark-transition-timing-function",
-	"chat-topbar-stark-gradient",
-	"chat-topbar-stark-font-family",
-	"chat-topbar-stark-font-size",
-	"chat-topbar-stark-font-weight",
-	"chat-topbar-stark-letter-spacing",
-	"chat-topbar-stark-line-height",
-	"chat-topbar-glass-background-color",
-	"chat-topbar-glass-border-radius",
-	"chat-topbar-glass-box-shadow",
-	"chat-topbar-glass-color",
-	"chat-topbar-glass-border-color",
-	"chat-topbar-glass-border-width",
-	"chat-topbar-glass-backdrop-filter",
-	"chat-topbar-glass-opacity",
-	"chat-topbar-glass-animation",
-	"chat-topbar-glass-transition-duration",
-	"chat-topbar-glass-transition-timing-function",
-	"chat-topbar-glass-gradient",
-	"chat-topbar-glass-font-family",
-	"chat-topbar-glass-font-size",
-	"chat-topbar-glass-font-weight",
-	"chat-topbar-glass-letter-spacing",
-	"chat-topbar-glass-line-height",
-	"chat-topbar-flat-background-color",
-	"chat-topbar-flat-border-radius",
-	"chat-topbar-flat-box-shadow",
-	"chat-topbar-flat-color",
-	"chat-topbar-flat-border-color",
-	"chat-topbar-flat-border-width",
-	"chat-topbar-flat-opacity",
-	"chat-topbar-flat-animation",
-	"chat-topbar-flat-transition-duration",
-	"chat-topbar-flat-transition-timing-function",
-	"chat-topbar-flat-gradient",
-	"chat-topbar-flat-font-family",
-	"chat-topbar-flat-font-size",
-	"chat-topbar-flat-font-weight",
-	"chat-topbar-flat-letter-spacing",
-	"chat-topbar-flat-line-height",
-	"chat-topbar-matte-background-color",
-	"chat-topbar-matte-border-radius",
-	"chat-topbar-matte-box-shadow",
-	"chat-topbar-matte-color",
-	"chat-topbar-matte-border-color",
-	"chat-topbar-matte-border-width",
-	"chat-topbar-matte-opacity",
-	"chat-topbar-matte-animation",
-	"chat-topbar-matte-transition-duration",
-	"chat-topbar-matte-transition-timing-function",
-	"chat-topbar-matte-gradient",
-	"chat-topbar-matte-font-family",
-	"chat-topbar-matte-font-size",
-	"chat-topbar-matte-font-weight",
-	"chat-topbar-matte-letter-spacing",
-	"chat-topbar-matte-line-height",
-	"checkbox-default-background-color",
-	"checkbox-default-border-radius",
-	"checkbox-default-box-shadow",
-	"checkbox-default-color",
-	"checkbox-default-border-color",
-	"checkbox-default-border-width",
-	"checkbox-default-backdrop-filter",
-	"checkbox-default-opacity",
-	"checkbox-default-animation",
-	"checkbox-default-transition-duration",
-	"checkbox-default-transition-timing-function",
-	"checkbox-default-gradient",
-	"checkbox-default-font-family",
-	"checkbox-default-font-size",
-	"checkbox-default-font-weight",
-	"checkbox-default-letter-spacing",
-	"checkbox-default-line-height",
-	"checkbox-stark-background-color",
-	"checkbox-stark-border-radius",
-	"checkbox-stark-box-shadow",
-	"checkbox-stark-color",
-	"checkbox-stark-border-color",
-	"checkbox-stark-border-width",
-	"checkbox-stark-opacity",
-	"checkbox-stark-animation",
-	"checkbox-stark-transition-duration",
-	"checkbox-stark-transition-timing-function",
-	"checkbox-stark-gradient",
-	"checkbox-stark-font-family",
-	"checkbox-stark-font-size",
-	"checkbox-stark-font-weight",
-	"checkbox-stark-letter-spacing",
-	"checkbox-stark-line-height",
-	"checkbox-glass-background-color",
-	"checkbox-glass-border-radius",
-	"checkbox-glass-box-shadow",
-	"checkbox-glass-color",
-	"checkbox-glass-border-color",
-	"checkbox-glass-border-width",
-	"checkbox-glass-backdrop-filter",
-	"checkbox-glass-opacity",
-	"checkbox-glass-animation",
-	"checkbox-glass-transition-duration",
-	"checkbox-glass-transition-timing-function",
-	"checkbox-glass-gradient",
-	"checkbox-glass-font-family",
-	"checkbox-glass-font-size",
-	"checkbox-glass-font-weight",
-	"checkbox-glass-letter-spacing",
-	"checkbox-glass-line-height",
-	"checkbox-flat-background-color",
-	"checkbox-flat-border-radius",
-	"checkbox-flat-box-shadow",
-	"checkbox-flat-color",
-	"checkbox-flat-border-color",
-	"checkbox-flat-border-width",
-	"checkbox-flat-opacity",
-	"checkbox-flat-animation",
-	"checkbox-flat-transition-duration",
-	"checkbox-flat-transition-timing-function",
-	"checkbox-flat-gradient",
-	"checkbox-flat-font-family",
-	"checkbox-flat-font-size",
-	"checkbox-flat-font-weight",
-	"checkbox-flat-letter-spacing",
-	"checkbox-flat-line-height",
-	"checkbox-matte-background-color",
-	"checkbox-matte-border-radius",
-	"checkbox-matte-box-shadow",
-	"checkbox-matte-color",
-	"checkbox-matte-border-color",
-	"checkbox-matte-border-width",
-	"checkbox-matte-opacity",
-	"checkbox-matte-animation",
-	"checkbox-matte-transition-duration",
-	"checkbox-matte-transition-timing-function",
-	"checkbox-matte-gradient",
-	"checkbox-matte-font-family",
-	"checkbox-matte-font-size",
-	"checkbox-matte-font-weight",
-	"checkbox-matte-letter-spacing",
-	"checkbox-matte-line-height",
-	"code-default-background-color",
-	"code-default-border-radius",
-	"code-default-box-shadow",
-	"code-default-color",
-	"code-default-border-color",
-	"code-default-border-width",
-	"code-default-backdrop-filter",
-	"code-default-opacity",
-	"code-default-animation",
-	"code-default-transition-duration",
-	"code-default-transition-timing-function",
-	"code-default-gradient",
-	"code-default-font-family",
-	"code-default-font-size",
-	"code-default-font-weight",
-	"code-default-letter-spacing",
-	"code-default-line-height",
-	"code-stark-background-color",
-	"code-stark-border-radius",
-	"code-stark-box-shadow",
-	"code-stark-color",
-	"code-stark-border-color",
-	"code-stark-border-width",
-	"code-stark-opacity",
-	"code-stark-animation",
-	"code-stark-transition-duration",
-	"code-stark-transition-timing-function",
-	"code-stark-gradient",
-	"code-stark-font-family",
-	"code-stark-font-size",
-	"code-stark-font-weight",
-	"code-stark-letter-spacing",
-	"code-stark-line-height",
-	"code-glass-background-color",
-	"code-glass-border-radius",
-	"code-glass-box-shadow",
-	"code-glass-color",
-	"code-glass-border-color",
-	"code-glass-border-width",
-	"code-glass-backdrop-filter",
-	"code-glass-opacity",
-	"code-glass-animation",
-	"code-glass-transition-duration",
-	"code-glass-transition-timing-function",
-	"code-glass-gradient",
-	"code-glass-font-family",
-	"code-glass-font-size",
-	"code-glass-font-weight",
-	"code-glass-letter-spacing",
-	"code-glass-line-height",
-	"code-flat-background-color",
-	"code-flat-border-radius",
-	"code-flat-box-shadow",
-	"code-flat-color",
-	"code-flat-border-color",
-	"code-flat-border-width",
-	"code-flat-opacity",
-	"code-flat-animation",
-	"code-flat-transition-duration",
-	"code-flat-transition-timing-function",
-	"code-flat-gradient",
-	"code-flat-font-family",
-	"code-flat-font-size",
-	"code-flat-font-weight",
-	"code-flat-letter-spacing",
-	"code-flat-line-height",
-	"code-matte-background-color",
-	"code-matte-border-radius",
-	"code-matte-box-shadow",
-	"code-matte-color",
-	"code-matte-border-color",
-	"code-matte-border-width",
-	"code-matte-opacity",
-	"code-matte-animation",
-	"code-matte-transition-duration",
-	"code-matte-transition-timing-function",
-	"code-matte-gradient",
-	"code-matte-font-family",
-	"code-matte-font-size",
-	"code-matte-font-weight",
-	"code-matte-letter-spacing",
-	"code-matte-line-height",
-	"collapsible-default-background-color",
-	"collapsible-default-border-radius",
-	"collapsible-default-box-shadow",
-	"collapsible-default-color",
-	"collapsible-default-border-color",
-	"collapsible-default-border-width",
-	"collapsible-default-backdrop-filter",
-	"collapsible-default-opacity",
-	"collapsible-default-animation",
-	"collapsible-default-transition-duration",
-	"collapsible-default-transition-timing-function",
-	"collapsible-default-gradient",
-	"collapsible-default-font-family",
-	"collapsible-default-font-size",
-	"collapsible-default-font-weight",
-	"collapsible-default-letter-spacing",
-	"collapsible-default-line-height",
-	"collapsible-stark-background-color",
-	"collapsible-stark-border-radius",
-	"collapsible-stark-box-shadow",
-	"collapsible-stark-color",
-	"collapsible-stark-border-color",
-	"collapsible-stark-border-width",
-	"collapsible-stark-opacity",
-	"collapsible-stark-animation",
-	"collapsible-stark-transition-duration",
-	"collapsible-stark-transition-timing-function",
-	"collapsible-stark-gradient",
-	"collapsible-stark-font-family",
-	"collapsible-stark-font-size",
-	"collapsible-stark-font-weight",
-	"collapsible-stark-letter-spacing",
-	"collapsible-stark-line-height",
-	"collapsible-glass-background-color",
-	"collapsible-glass-border-radius",
-	"collapsible-glass-box-shadow",
-	"collapsible-glass-color",
-	"collapsible-glass-border-color",
-	"collapsible-glass-border-width",
-	"collapsible-glass-backdrop-filter",
-	"collapsible-glass-opacity",
-	"collapsible-glass-animation",
-	"collapsible-glass-transition-duration",
-	"collapsible-glass-transition-timing-function",
-	"collapsible-glass-gradient",
-	"collapsible-glass-font-family",
-	"collapsible-glass-font-size",
-	"collapsible-glass-font-weight",
-	"collapsible-glass-letter-spacing",
-	"collapsible-glass-line-height",
-	"collapsible-flat-background-color",
-	"collapsible-flat-border-radius",
-	"collapsible-flat-box-shadow",
-	"collapsible-flat-color",
-	"collapsible-flat-border-color",
-	"collapsible-flat-border-width",
-	"collapsible-flat-opacity",
-	"collapsible-flat-animation",
-	"collapsible-flat-transition-duration",
-	"collapsible-flat-transition-timing-function",
-	"collapsible-flat-gradient",
-	"collapsible-flat-font-family",
-	"collapsible-flat-font-size",
-	"collapsible-flat-font-weight",
-	"collapsible-flat-letter-spacing",
-	"collapsible-flat-line-height",
-	"collapsible-matte-background-color",
-	"collapsible-matte-border-radius",
-	"collapsible-matte-box-shadow",
-	"collapsible-matte-color",
-	"collapsible-matte-border-color",
-	"collapsible-matte-border-width",
-	"collapsible-matte-opacity",
-	"collapsible-matte-animation",
-	"collapsible-matte-transition-duration",
-	"collapsible-matte-transition-timing-function",
-	"collapsible-matte-gradient",
-	"collapsible-matte-font-family",
-	"collapsible-matte-font-size",
-	"collapsible-matte-font-weight",
-	"collapsible-matte-letter-spacing",
-	"collapsible-matte-line-height",
-	"color-area-default-background-color",
-	"color-area-default-border-radius",
-	"color-area-default-box-shadow",
-	"color-area-default-color",
-	"color-area-default-border-color",
-	"color-area-default-border-width",
-	"color-area-default-backdrop-filter",
-	"color-area-default-opacity",
-	"color-area-default-animation",
-	"color-area-default-transition-duration",
-	"color-area-default-transition-timing-function",
-	"color-area-default-gradient",
-	"color-area-default-font-family",
-	"color-area-default-font-size",
-	"color-area-default-font-weight",
-	"color-area-default-letter-spacing",
-	"color-area-default-line-height",
-	"color-area-stark-background-color",
-	"color-area-stark-border-radius",
-	"color-area-stark-box-shadow",
-	"color-area-stark-color",
-	"color-area-stark-border-color",
-	"color-area-stark-border-width",
-	"color-area-stark-opacity",
-	"color-area-stark-animation",
-	"color-area-stark-transition-duration",
-	"color-area-stark-transition-timing-function",
-	"color-area-stark-gradient",
-	"color-area-stark-font-family",
-	"color-area-stark-font-size",
-	"color-area-stark-font-weight",
-	"color-area-stark-letter-spacing",
-	"color-area-stark-line-height",
-	"color-area-glass-background-color",
-	"color-area-glass-border-radius",
-	"color-area-glass-box-shadow",
-	"color-area-glass-color",
-	"color-area-glass-border-color",
-	"color-area-glass-border-width",
-	"color-area-glass-backdrop-filter",
-	"color-area-glass-opacity",
-	"color-area-glass-animation",
-	"color-area-glass-transition-duration",
-	"color-area-glass-transition-timing-function",
-	"color-area-glass-gradient",
-	"color-area-glass-font-family",
-	"color-area-glass-font-size",
-	"color-area-glass-font-weight",
-	"color-area-glass-letter-spacing",
-	"color-area-glass-line-height",
-	"color-area-flat-background-color",
-	"color-area-flat-border-radius",
-	"color-area-flat-box-shadow",
-	"color-area-flat-color",
-	"color-area-flat-border-color",
-	"color-area-flat-border-width",
-	"color-area-flat-opacity",
-	"color-area-flat-animation",
-	"color-area-flat-transition-duration",
-	"color-area-flat-transition-timing-function",
-	"color-area-flat-gradient",
-	"color-area-flat-font-family",
-	"color-area-flat-font-size",
-	"color-area-flat-font-weight",
-	"color-area-flat-letter-spacing",
-	"color-area-flat-line-height",
-	"color-area-matte-background-color",
-	"color-area-matte-border-radius",
-	"color-area-matte-box-shadow",
-	"color-area-matte-color",
-	"color-area-matte-border-color",
-	"color-area-matte-border-width",
-	"color-area-matte-opacity",
-	"color-area-matte-animation",
-	"color-area-matte-transition-duration",
-	"color-area-matte-transition-timing-function",
-	"color-area-matte-gradient",
-	"color-area-matte-font-family",
-	"color-area-matte-font-size",
-	"color-area-matte-font-weight",
-	"color-area-matte-letter-spacing",
-	"color-area-matte-line-height",
-	"color-field-default-background-color",
-	"color-field-default-border-radius",
-	"color-field-default-box-shadow",
-	"color-field-default-color",
-	"color-field-default-border-color",
-	"color-field-default-border-width",
-	"color-field-default-backdrop-filter",
-	"color-field-default-opacity",
-	"color-field-default-animation",
-	"color-field-default-transition-duration",
-	"color-field-default-transition-timing-function",
-	"color-field-default-gradient",
-	"color-field-default-font-family",
-	"color-field-default-font-size",
-	"color-field-default-font-weight",
-	"color-field-default-letter-spacing",
-	"color-field-default-line-height",
-	"color-field-stark-background-color",
-	"color-field-stark-border-radius",
-	"color-field-stark-box-shadow",
-	"color-field-stark-color",
-	"color-field-stark-border-color",
-	"color-field-stark-border-width",
-	"color-field-stark-opacity",
-	"color-field-stark-animation",
-	"color-field-stark-transition-duration",
-	"color-field-stark-transition-timing-function",
-	"color-field-stark-gradient",
-	"color-field-stark-font-family",
-	"color-field-stark-font-size",
-	"color-field-stark-font-weight",
-	"color-field-stark-letter-spacing",
-	"color-field-stark-line-height",
-	"color-field-glass-background-color",
-	"color-field-glass-border-radius",
-	"color-field-glass-box-shadow",
-	"color-field-glass-color",
-	"color-field-glass-border-color",
-	"color-field-glass-border-width",
-	"color-field-glass-backdrop-filter",
-	"color-field-glass-opacity",
-	"color-field-glass-animation",
-	"color-field-glass-transition-duration",
-	"color-field-glass-transition-timing-function",
-	"color-field-glass-gradient",
-	"color-field-glass-font-family",
-	"color-field-glass-font-size",
-	"color-field-glass-font-weight",
-	"color-field-glass-letter-spacing",
-	"color-field-glass-line-height",
-	"color-field-flat-background-color",
-	"color-field-flat-border-radius",
-	"color-field-flat-box-shadow",
-	"color-field-flat-color",
-	"color-field-flat-border-color",
-	"color-field-flat-border-width",
-	"color-field-flat-opacity",
-	"color-field-flat-animation",
-	"color-field-flat-transition-duration",
-	"color-field-flat-transition-timing-function",
-	"color-field-flat-gradient",
-	"color-field-flat-font-family",
-	"color-field-flat-font-size",
-	"color-field-flat-font-weight",
-	"color-field-flat-letter-spacing",
-	"color-field-flat-line-height",
-	"color-field-matte-background-color",
-	"color-field-matte-border-radius",
-	"color-field-matte-box-shadow",
-	"color-field-matte-color",
-	"color-field-matte-border-color",
-	"color-field-matte-border-width",
-	"color-field-matte-opacity",
-	"color-field-matte-animation",
-	"color-field-matte-transition-duration",
-	"color-field-matte-transition-timing-function",
-	"color-field-matte-gradient",
-	"color-field-matte-font-family",
-	"color-field-matte-font-size",
-	"color-field-matte-font-weight",
-	"color-field-matte-letter-spacing",
-	"color-field-matte-line-height",
-	"color-slider-default-background-color",
-	"color-slider-default-border-radius",
-	"color-slider-default-box-shadow",
-	"color-slider-default-color",
-	"color-slider-default-border-color",
-	"color-slider-default-border-width",
-	"color-slider-default-backdrop-filter",
-	"color-slider-default-opacity",
-	"color-slider-default-animation",
-	"color-slider-default-transition-duration",
-	"color-slider-default-transition-timing-function",
-	"color-slider-default-gradient",
-	"color-slider-default-font-family",
-	"color-slider-default-font-size",
-	"color-slider-default-font-weight",
-	"color-slider-default-letter-spacing",
-	"color-slider-default-line-height",
-	"color-slider-stark-background-color",
-	"color-slider-stark-border-radius",
-	"color-slider-stark-box-shadow",
-	"color-slider-stark-color",
-	"color-slider-stark-border-color",
-	"color-slider-stark-border-width",
-	"color-slider-stark-opacity",
-	"color-slider-stark-animation",
-	"color-slider-stark-transition-duration",
-	"color-slider-stark-transition-timing-function",
-	"color-slider-stark-gradient",
-	"color-slider-stark-font-family",
-	"color-slider-stark-font-size",
-	"color-slider-stark-font-weight",
-	"color-slider-stark-letter-spacing",
-	"color-slider-stark-line-height",
-	"color-slider-glass-background-color",
-	"color-slider-glass-border-radius",
-	"color-slider-glass-box-shadow",
-	"color-slider-glass-color",
-	"color-slider-glass-border-color",
-	"color-slider-glass-border-width",
-	"color-slider-glass-backdrop-filter",
-	"color-slider-glass-opacity",
-	"color-slider-glass-animation",
-	"color-slider-glass-transition-duration",
-	"color-slider-glass-transition-timing-function",
-	"color-slider-glass-gradient",
-	"color-slider-glass-font-family",
-	"color-slider-glass-font-size",
-	"color-slider-glass-font-weight",
-	"color-slider-glass-letter-spacing",
-	"color-slider-glass-line-height",
-	"color-slider-flat-background-color",
-	"color-slider-flat-border-radius",
-	"color-slider-flat-box-shadow",
-	"color-slider-flat-color",
-	"color-slider-flat-border-color",
-	"color-slider-flat-border-width",
-	"color-slider-flat-opacity",
-	"color-slider-flat-animation",
-	"color-slider-flat-transition-duration",
-	"color-slider-flat-transition-timing-function",
-	"color-slider-flat-gradient",
-	"color-slider-flat-font-family",
-	"color-slider-flat-font-size",
-	"color-slider-flat-font-weight",
-	"color-slider-flat-letter-spacing",
-	"color-slider-flat-line-height",
-	"color-slider-matte-background-color",
-	"color-slider-matte-border-radius",
-	"color-slider-matte-box-shadow",
-	"color-slider-matte-color",
-	"color-slider-matte-border-color",
-	"color-slider-matte-border-width",
-	"color-slider-matte-opacity",
-	"color-slider-matte-animation",
-	"color-slider-matte-transition-duration",
-	"color-slider-matte-transition-timing-function",
-	"color-slider-matte-gradient",
-	"color-slider-matte-font-family",
-	"color-slider-matte-font-size",
-	"color-slider-matte-font-weight",
-	"color-slider-matte-letter-spacing",
-	"color-slider-matte-line-height",
-	"color-swatch-picker-default-background-color",
-	"color-swatch-picker-default-border-radius",
-	"color-swatch-picker-default-box-shadow",
-	"color-swatch-picker-default-color",
-	"color-swatch-picker-default-border-color",
-	"color-swatch-picker-default-border-width",
-	"color-swatch-picker-default-backdrop-filter",
-	"color-swatch-picker-default-opacity",
-	"color-swatch-picker-default-animation",
-	"color-swatch-picker-default-transition-duration",
-	"color-swatch-picker-default-transition-timing-function",
-	"color-swatch-picker-default-gradient",
-	"color-swatch-picker-default-font-family",
-	"color-swatch-picker-default-font-size",
-	"color-swatch-picker-default-font-weight",
-	"color-swatch-picker-default-letter-spacing",
-	"color-swatch-picker-default-line-height",
-	"color-swatch-picker-stark-background-color",
-	"color-swatch-picker-stark-border-radius",
-	"color-swatch-picker-stark-box-shadow",
-	"color-swatch-picker-stark-color",
-	"color-swatch-picker-stark-border-color",
-	"color-swatch-picker-stark-border-width",
-	"color-swatch-picker-stark-opacity",
-	"color-swatch-picker-stark-animation",
-	"color-swatch-picker-stark-transition-duration",
-	"color-swatch-picker-stark-transition-timing-function",
-	"color-swatch-picker-stark-gradient",
-	"color-swatch-picker-stark-font-family",
-	"color-swatch-picker-stark-font-size",
-	"color-swatch-picker-stark-font-weight",
-	"color-swatch-picker-stark-letter-spacing",
-	"color-swatch-picker-stark-line-height",
-	"color-swatch-picker-glass-background-color",
-	"color-swatch-picker-glass-border-radius",
-	"color-swatch-picker-glass-box-shadow",
-	"color-swatch-picker-glass-color",
-	"color-swatch-picker-glass-border-color",
-	"color-swatch-picker-glass-border-width",
-	"color-swatch-picker-glass-backdrop-filter",
-	"color-swatch-picker-glass-opacity",
-	"color-swatch-picker-glass-animation",
-	"color-swatch-picker-glass-transition-duration",
-	"color-swatch-picker-glass-transition-timing-function",
-	"color-swatch-picker-glass-gradient",
-	"color-swatch-picker-glass-font-family",
-	"color-swatch-picker-glass-font-size",
-	"color-swatch-picker-glass-font-weight",
-	"color-swatch-picker-glass-letter-spacing",
-	"color-swatch-picker-glass-line-height",
-	"color-swatch-picker-flat-background-color",
-	"color-swatch-picker-flat-border-radius",
-	"color-swatch-picker-flat-box-shadow",
-	"color-swatch-picker-flat-color",
-	"color-swatch-picker-flat-border-color",
-	"color-swatch-picker-flat-border-width",
-	"color-swatch-picker-flat-opacity",
-	"color-swatch-picker-flat-animation",
-	"color-swatch-picker-flat-transition-duration",
-	"color-swatch-picker-flat-transition-timing-function",
-	"color-swatch-picker-flat-gradient",
-	"color-swatch-picker-flat-font-family",
-	"color-swatch-picker-flat-font-size",
-	"color-swatch-picker-flat-font-weight",
-	"color-swatch-picker-flat-letter-spacing",
-	"color-swatch-picker-flat-line-height",
-	"color-swatch-picker-matte-background-color",
-	"color-swatch-picker-matte-border-radius",
-	"color-swatch-picker-matte-box-shadow",
-	"color-swatch-picker-matte-color",
-	"color-swatch-picker-matte-border-color",
-	"color-swatch-picker-matte-border-width",
-	"color-swatch-picker-matte-opacity",
-	"color-swatch-picker-matte-animation",
-	"color-swatch-picker-matte-transition-duration",
-	"color-swatch-picker-matte-transition-timing-function",
-	"color-swatch-picker-matte-gradient",
-	"color-swatch-picker-matte-font-family",
-	"color-swatch-picker-matte-font-size",
-	"color-swatch-picker-matte-font-weight",
-	"color-swatch-picker-matte-letter-spacing",
-	"color-swatch-picker-matte-line-height",
-	"color-swatch-default-background-color",
-	"color-swatch-default-border-radius",
-	"color-swatch-default-box-shadow",
-	"color-swatch-default-color",
-	"color-swatch-default-border-color",
-	"color-swatch-default-border-width",
-	"color-swatch-default-backdrop-filter",
-	"color-swatch-default-opacity",
-	"color-swatch-default-animation",
-	"color-swatch-default-transition-duration",
-	"color-swatch-default-transition-timing-function",
-	"color-swatch-default-gradient",
-	"color-swatch-default-font-family",
-	"color-swatch-default-font-size",
-	"color-swatch-default-font-weight",
-	"color-swatch-default-letter-spacing",
-	"color-swatch-default-line-height",
-	"color-swatch-stark-background-color",
-	"color-swatch-stark-border-radius",
-	"color-swatch-stark-box-shadow",
-	"color-swatch-stark-color",
-	"color-swatch-stark-border-color",
-	"color-swatch-stark-border-width",
-	"color-swatch-stark-opacity",
-	"color-swatch-stark-animation",
-	"color-swatch-stark-transition-duration",
-	"color-swatch-stark-transition-timing-function",
-	"color-swatch-stark-gradient",
-	"color-swatch-stark-font-family",
-	"color-swatch-stark-font-size",
-	"color-swatch-stark-font-weight",
-	"color-swatch-stark-letter-spacing",
-	"color-swatch-stark-line-height",
-	"color-swatch-glass-background-color",
-	"color-swatch-glass-border-radius",
-	"color-swatch-glass-box-shadow",
-	"color-swatch-glass-color",
-	"color-swatch-glass-border-color",
-	"color-swatch-glass-border-width",
-	"color-swatch-glass-backdrop-filter",
-	"color-swatch-glass-opacity",
-	"color-swatch-glass-animation",
-	"color-swatch-glass-transition-duration",
-	"color-swatch-glass-transition-timing-function",
-	"color-swatch-glass-gradient",
-	"color-swatch-glass-font-family",
-	"color-swatch-glass-font-size",
-	"color-swatch-glass-font-weight",
-	"color-swatch-glass-letter-spacing",
-	"color-swatch-glass-line-height",
-	"color-swatch-flat-background-color",
-	"color-swatch-flat-border-radius",
-	"color-swatch-flat-box-shadow",
-	"color-swatch-flat-color",
-	"color-swatch-flat-border-color",
-	"color-swatch-flat-border-width",
-	"color-swatch-flat-opacity",
-	"color-swatch-flat-animation",
-	"color-swatch-flat-transition-duration",
-	"color-swatch-flat-transition-timing-function",
-	"color-swatch-flat-gradient",
-	"color-swatch-flat-font-family",
-	"color-swatch-flat-font-size",
-	"color-swatch-flat-font-weight",
-	"color-swatch-flat-letter-spacing",
-	"color-swatch-flat-line-height",
-	"color-swatch-matte-background-color",
-	"color-swatch-matte-border-radius",
-	"color-swatch-matte-box-shadow",
-	"color-swatch-matte-color",
-	"color-swatch-matte-border-color",
-	"color-swatch-matte-border-width",
-	"color-swatch-matte-opacity",
-	"color-swatch-matte-animation",
-	"color-swatch-matte-transition-duration",
-	"color-swatch-matte-transition-timing-function",
-	"color-swatch-matte-gradient",
-	"color-swatch-matte-font-family",
-	"color-swatch-matte-font-size",
-	"color-swatch-matte-font-weight",
-	"color-swatch-matte-letter-spacing",
-	"color-swatch-matte-line-height",
-	"color-wheel-default-background-color",
-	"color-wheel-default-border-radius",
-	"color-wheel-default-box-shadow",
-	"color-wheel-default-color",
-	"color-wheel-default-border-color",
-	"color-wheel-default-border-width",
-	"color-wheel-default-backdrop-filter",
-	"color-wheel-default-opacity",
-	"color-wheel-default-animation",
-	"color-wheel-default-transition-duration",
-	"color-wheel-default-transition-timing-function",
-	"color-wheel-default-gradient",
-	"color-wheel-default-font-family",
-	"color-wheel-default-font-size",
-	"color-wheel-default-font-weight",
-	"color-wheel-default-letter-spacing",
-	"color-wheel-default-line-height",
-	"color-wheel-stark-background-color",
-	"color-wheel-stark-border-radius",
-	"color-wheel-stark-box-shadow",
-	"color-wheel-stark-color",
-	"color-wheel-stark-border-color",
-	"color-wheel-stark-border-width",
-	"color-wheel-stark-opacity",
-	"color-wheel-stark-animation",
-	"color-wheel-stark-transition-duration",
-	"color-wheel-stark-transition-timing-function",
-	"color-wheel-stark-gradient",
-	"color-wheel-stark-font-family",
-	"color-wheel-stark-font-size",
-	"color-wheel-stark-font-weight",
-	"color-wheel-stark-letter-spacing",
-	"color-wheel-stark-line-height",
-	"color-wheel-glass-background-color",
-	"color-wheel-glass-border-radius",
-	"color-wheel-glass-box-shadow",
-	"color-wheel-glass-color",
-	"color-wheel-glass-border-color",
-	"color-wheel-glass-border-width",
-	"color-wheel-glass-backdrop-filter",
-	"color-wheel-glass-opacity",
-	"color-wheel-glass-animation",
-	"color-wheel-glass-transition-duration",
-	"color-wheel-glass-transition-timing-function",
-	"color-wheel-glass-gradient",
-	"color-wheel-glass-font-family",
-	"color-wheel-glass-font-size",
-	"color-wheel-glass-font-weight",
-	"color-wheel-glass-letter-spacing",
-	"color-wheel-glass-line-height",
-	"color-wheel-flat-background-color",
-	"color-wheel-flat-border-radius",
-	"color-wheel-flat-box-shadow",
-	"color-wheel-flat-color",
-	"color-wheel-flat-border-color",
-	"color-wheel-flat-border-width",
-	"color-wheel-flat-opacity",
-	"color-wheel-flat-animation",
-	"color-wheel-flat-transition-duration",
-	"color-wheel-flat-transition-timing-function",
-	"color-wheel-flat-gradient",
-	"color-wheel-flat-font-family",
-	"color-wheel-flat-font-size",
-	"color-wheel-flat-font-weight",
-	"color-wheel-flat-letter-spacing",
-	"color-wheel-flat-line-height",
-	"color-wheel-matte-background-color",
-	"color-wheel-matte-border-radius",
-	"color-wheel-matte-box-shadow",
-	"color-wheel-matte-color",
-	"color-wheel-matte-border-color",
-	"color-wheel-matte-border-width",
-	"color-wheel-matte-opacity",
-	"color-wheel-matte-animation",
-	"color-wheel-matte-transition-duration",
-	"color-wheel-matte-transition-timing-function",
-	"color-wheel-matte-gradient",
-	"color-wheel-matte-font-family",
-	"color-wheel-matte-font-size",
-	"color-wheel-matte-font-weight",
-	"color-wheel-matte-letter-spacing",
-	"color-wheel-matte-line-height",
-	"combobox-default-background-color",
-	"combobox-default-border-radius",
-	"combobox-default-box-shadow",
-	"combobox-default-color",
-	"combobox-default-border-color",
-	"combobox-default-border-width",
-	"combobox-default-backdrop-filter",
-	"combobox-default-opacity",
-	"combobox-default-animation",
-	"combobox-default-transition-duration",
-	"combobox-default-transition-timing-function",
-	"combobox-default-gradient",
-	"combobox-default-font-family",
-	"combobox-default-font-size",
-	"combobox-default-font-weight",
-	"combobox-default-letter-spacing",
-	"combobox-default-line-height",
-	"combobox-stark-background-color",
-	"combobox-stark-border-radius",
-	"combobox-stark-box-shadow",
-	"combobox-stark-color",
-	"combobox-stark-border-color",
-	"combobox-stark-border-width",
-	"combobox-stark-opacity",
-	"combobox-stark-animation",
-	"combobox-stark-transition-duration",
-	"combobox-stark-transition-timing-function",
-	"combobox-stark-gradient",
-	"combobox-stark-font-family",
-	"combobox-stark-font-size",
-	"combobox-stark-font-weight",
-	"combobox-stark-letter-spacing",
-	"combobox-stark-line-height",
-	"combobox-glass-background-color",
-	"combobox-glass-border-radius",
-	"combobox-glass-box-shadow",
-	"combobox-glass-color",
-	"combobox-glass-border-color",
-	"combobox-glass-border-width",
-	"combobox-glass-backdrop-filter",
-	"combobox-glass-opacity",
-	"combobox-glass-animation",
-	"combobox-glass-transition-duration",
-	"combobox-glass-transition-timing-function",
-	"combobox-glass-gradient",
-	"combobox-glass-font-family",
-	"combobox-glass-font-size",
-	"combobox-glass-font-weight",
-	"combobox-glass-letter-spacing",
-	"combobox-glass-line-height",
-	"combobox-flat-background-color",
-	"combobox-flat-border-radius",
-	"combobox-flat-box-shadow",
-	"combobox-flat-color",
-	"combobox-flat-border-color",
-	"combobox-flat-border-width",
-	"combobox-flat-opacity",
-	"combobox-flat-animation",
-	"combobox-flat-transition-duration",
-	"combobox-flat-transition-timing-function",
-	"combobox-flat-gradient",
-	"combobox-flat-font-family",
-	"combobox-flat-font-size",
-	"combobox-flat-font-weight",
-	"combobox-flat-letter-spacing",
-	"combobox-flat-line-height",
-	"combobox-matte-background-color",
-	"combobox-matte-border-radius",
-	"combobox-matte-box-shadow",
-	"combobox-matte-color",
-	"combobox-matte-border-color",
-	"combobox-matte-border-width",
-	"combobox-matte-opacity",
-	"combobox-matte-animation",
-	"combobox-matte-transition-duration",
-	"combobox-matte-transition-timing-function",
-	"combobox-matte-gradient",
-	"combobox-matte-font-family",
-	"combobox-matte-font-size",
-	"combobox-matte-font-weight",
-	"combobox-matte-letter-spacing",
-	"combobox-matte-line-height",
-	"contextual-help-default-background-color",
-	"contextual-help-default-border-radius",
-	"contextual-help-default-box-shadow",
-	"contextual-help-default-color",
-	"contextual-help-default-border-color",
-	"contextual-help-default-border-width",
-	"contextual-help-default-backdrop-filter",
-	"contextual-help-default-opacity",
-	"contextual-help-default-animation",
-	"contextual-help-default-transition-duration",
-	"contextual-help-default-transition-timing-function",
-	"contextual-help-default-gradient",
-	"contextual-help-default-font-family",
-	"contextual-help-default-font-size",
-	"contextual-help-default-font-weight",
-	"contextual-help-default-letter-spacing",
-	"contextual-help-default-line-height",
-	"contextual-help-stark-background-color",
-	"contextual-help-stark-border-radius",
-	"contextual-help-stark-box-shadow",
-	"contextual-help-stark-color",
-	"contextual-help-stark-border-color",
-	"contextual-help-stark-border-width",
-	"contextual-help-stark-opacity",
-	"contextual-help-stark-animation",
-	"contextual-help-stark-transition-duration",
-	"contextual-help-stark-transition-timing-function",
-	"contextual-help-stark-gradient",
-	"contextual-help-stark-font-family",
-	"contextual-help-stark-font-size",
-	"contextual-help-stark-font-weight",
-	"contextual-help-stark-letter-spacing",
-	"contextual-help-stark-line-height",
-	"contextual-help-glass-background-color",
-	"contextual-help-glass-border-radius",
-	"contextual-help-glass-box-shadow",
-	"contextual-help-glass-color",
-	"contextual-help-glass-border-color",
-	"contextual-help-glass-border-width",
-	"contextual-help-glass-backdrop-filter",
-	"contextual-help-glass-opacity",
-	"contextual-help-glass-animation",
-	"contextual-help-glass-transition-duration",
-	"contextual-help-glass-transition-timing-function",
-	"contextual-help-glass-gradient",
-	"contextual-help-glass-font-family",
-	"contextual-help-glass-font-size",
-	"contextual-help-glass-font-weight",
-	"contextual-help-glass-letter-spacing",
-	"contextual-help-glass-line-height",
-	"contextual-help-flat-background-color",
-	"contextual-help-flat-border-radius",
-	"contextual-help-flat-box-shadow",
-	"contextual-help-flat-color",
-	"contextual-help-flat-border-color",
-	"contextual-help-flat-border-width",
-	"contextual-help-flat-opacity",
-	"contextual-help-flat-animation",
-	"contextual-help-flat-transition-duration",
-	"contextual-help-flat-transition-timing-function",
-	"contextual-help-flat-gradient",
-	"contextual-help-flat-font-family",
-	"contextual-help-flat-font-size",
-	"contextual-help-flat-font-weight",
-	"contextual-help-flat-letter-spacing",
-	"contextual-help-flat-line-height",
-	"contextual-help-matte-background-color",
-	"contextual-help-matte-border-radius",
-	"contextual-help-matte-box-shadow",
-	"contextual-help-matte-color",
-	"contextual-help-matte-border-color",
-	"contextual-help-matte-border-width",
-	"contextual-help-matte-opacity",
-	"contextual-help-matte-animation",
-	"contextual-help-matte-transition-duration",
-	"contextual-help-matte-transition-timing-function",
-	"contextual-help-matte-gradient",
-	"contextual-help-matte-font-family",
-	"contextual-help-matte-font-size",
-	"contextual-help-matte-font-weight",
-	"contextual-help-matte-letter-spacing",
-	"contextual-help-matte-line-height",
-	"data-table-default-background-color",
-	"data-table-default-border-radius",
-	"data-table-default-box-shadow",
-	"data-table-default-color",
-	"data-table-default-border-color",
-	"data-table-default-border-width",
-	"data-table-default-backdrop-filter",
-	"data-table-default-opacity",
-	"data-table-default-animation",
-	"data-table-default-transition-duration",
-	"data-table-default-transition-timing-function",
-	"data-table-default-gradient",
-	"data-table-default-font-family",
-	"data-table-default-font-size",
-	"data-table-default-font-weight",
-	"data-table-default-letter-spacing",
-	"data-table-default-line-height",
-	"data-table-stark-background-color",
-	"data-table-stark-border-radius",
-	"data-table-stark-box-shadow",
-	"data-table-stark-color",
-	"data-table-stark-border-color",
-	"data-table-stark-border-width",
-	"data-table-stark-opacity",
-	"data-table-stark-animation",
-	"data-table-stark-transition-duration",
-	"data-table-stark-transition-timing-function",
-	"data-table-stark-gradient",
-	"data-table-stark-font-family",
-	"data-table-stark-font-size",
-	"data-table-stark-font-weight",
-	"data-table-stark-letter-spacing",
-	"data-table-stark-line-height",
-	"data-table-glass-background-color",
-	"data-table-glass-border-radius",
-	"data-table-glass-box-shadow",
-	"data-table-glass-color",
-	"data-table-glass-border-color",
-	"data-table-glass-border-width",
-	"data-table-glass-backdrop-filter",
-	"data-table-glass-opacity",
-	"data-table-glass-animation",
-	"data-table-glass-transition-duration",
-	"data-table-glass-transition-timing-function",
-	"data-table-glass-gradient",
-	"data-table-glass-font-family",
-	"data-table-glass-font-size",
-	"data-table-glass-font-weight",
-	"data-table-glass-letter-spacing",
-	"data-table-glass-line-height",
-	"data-table-flat-background-color",
-	"data-table-flat-border-radius",
-	"data-table-flat-box-shadow",
-	"data-table-flat-color",
-	"data-table-flat-border-color",
-	"data-table-flat-border-width",
-	"data-table-flat-opacity",
-	"data-table-flat-animation",
-	"data-table-flat-transition-duration",
-	"data-table-flat-transition-timing-function",
-	"data-table-flat-gradient",
-	"data-table-flat-font-family",
-	"data-table-flat-font-size",
-	"data-table-flat-font-weight",
-	"data-table-flat-letter-spacing",
-	"data-table-flat-line-height",
-	"data-table-matte-background-color",
-	"data-table-matte-border-radius",
-	"data-table-matte-box-shadow",
-	"data-table-matte-color",
-	"data-table-matte-border-color",
-	"data-table-matte-border-width",
-	"data-table-matte-opacity",
-	"data-table-matte-animation",
-	"data-table-matte-transition-duration",
-	"data-table-matte-transition-timing-function",
-	"data-table-matte-gradient",
-	"data-table-matte-font-family",
-	"data-table-matte-font-size",
-	"data-table-matte-font-weight",
-	"data-table-matte-letter-spacing",
-	"data-table-matte-line-height",
-	"date-field-default-background-color",
-	"date-field-default-border-radius",
-	"date-field-default-box-shadow",
-	"date-field-default-color",
-	"date-field-default-border-color",
-	"date-field-default-border-width",
-	"date-field-default-backdrop-filter",
-	"date-field-default-opacity",
-	"date-field-default-animation",
-	"date-field-default-transition-duration",
-	"date-field-default-transition-timing-function",
-	"date-field-default-gradient",
-	"date-field-default-font-family",
-	"date-field-default-font-size",
-	"date-field-default-font-weight",
-	"date-field-default-letter-spacing",
-	"date-field-default-line-height",
-	"date-field-stark-background-color",
-	"date-field-stark-border-radius",
-	"date-field-stark-box-shadow",
-	"date-field-stark-color",
-	"date-field-stark-border-color",
-	"date-field-stark-border-width",
-	"date-field-stark-opacity",
-	"date-field-stark-animation",
-	"date-field-stark-transition-duration",
-	"date-field-stark-transition-timing-function",
-	"date-field-stark-gradient",
-	"date-field-stark-font-family",
-	"date-field-stark-font-size",
-	"date-field-stark-font-weight",
-	"date-field-stark-letter-spacing",
-	"date-field-stark-line-height",
-	"date-field-glass-background-color",
-	"date-field-glass-border-radius",
-	"date-field-glass-box-shadow",
-	"date-field-glass-color",
-	"date-field-glass-border-color",
-	"date-field-glass-border-width",
-	"date-field-glass-backdrop-filter",
-	"date-field-glass-opacity",
-	"date-field-glass-animation",
-	"date-field-glass-transition-duration",
-	"date-field-glass-transition-timing-function",
-	"date-field-glass-gradient",
-	"date-field-glass-font-family",
-	"date-field-glass-font-size",
-	"date-field-glass-font-weight",
-	"date-field-glass-letter-spacing",
-	"date-field-glass-line-height",
-	"date-field-flat-background-color",
-	"date-field-flat-border-radius",
-	"date-field-flat-box-shadow",
-	"date-field-flat-color",
-	"date-field-flat-border-color",
-	"date-field-flat-border-width",
-	"date-field-flat-opacity",
-	"date-field-flat-animation",
-	"date-field-flat-transition-duration",
-	"date-field-flat-transition-timing-function",
-	"date-field-flat-gradient",
-	"date-field-flat-font-family",
-	"date-field-flat-font-size",
-	"date-field-flat-font-weight",
-	"date-field-flat-letter-spacing",
-	"date-field-flat-line-height",
-	"date-field-matte-background-color",
-	"date-field-matte-border-radius",
-	"date-field-matte-box-shadow",
-	"date-field-matte-color",
-	"date-field-matte-border-color",
-	"date-field-matte-border-width",
-	"date-field-matte-opacity",
-	"date-field-matte-animation",
-	"date-field-matte-transition-duration",
-	"date-field-matte-transition-timing-function",
-	"date-field-matte-gradient",
-	"date-field-matte-font-family",
-	"date-field-matte-font-size",
-	"date-field-matte-font-weight",
-	"date-field-matte-letter-spacing",
-	"date-field-matte-line-height",
-	"date-picker-default-background-color",
-	"date-picker-default-border-radius",
-	"date-picker-default-box-shadow",
-	"date-picker-default-color",
-	"date-picker-default-border-color",
-	"date-picker-default-border-width",
-	"date-picker-default-backdrop-filter",
-	"date-picker-default-opacity",
-	"date-picker-default-animation",
-	"date-picker-default-transition-duration",
-	"date-picker-default-transition-timing-function",
-	"date-picker-default-gradient",
-	"date-picker-default-font-family",
-	"date-picker-default-font-size",
-	"date-picker-default-font-weight",
-	"date-picker-default-letter-spacing",
-	"date-picker-default-line-height",
-	"date-picker-stark-background-color",
-	"date-picker-stark-border-radius",
-	"date-picker-stark-box-shadow",
-	"date-picker-stark-color",
-	"date-picker-stark-border-color",
-	"date-picker-stark-border-width",
-	"date-picker-stark-opacity",
-	"date-picker-stark-animation",
-	"date-picker-stark-transition-duration",
-	"date-picker-stark-transition-timing-function",
-	"date-picker-stark-gradient",
-	"date-picker-stark-font-family",
-	"date-picker-stark-font-size",
-	"date-picker-stark-font-weight",
-	"date-picker-stark-letter-spacing",
-	"date-picker-stark-line-height",
-	"date-picker-glass-background-color",
-	"date-picker-glass-border-radius",
-	"date-picker-glass-box-shadow",
-	"date-picker-glass-color",
-	"date-picker-glass-border-color",
-	"date-picker-glass-border-width",
-	"date-picker-glass-backdrop-filter",
-	"date-picker-glass-opacity",
-	"date-picker-glass-animation",
-	"date-picker-glass-transition-duration",
-	"date-picker-glass-transition-timing-function",
-	"date-picker-glass-gradient",
-	"date-picker-glass-font-family",
-	"date-picker-glass-font-size",
-	"date-picker-glass-font-weight",
-	"date-picker-glass-letter-spacing",
-	"date-picker-glass-line-height",
-	"date-picker-flat-background-color",
-	"date-picker-flat-border-radius",
-	"date-picker-flat-box-shadow",
-	"date-picker-flat-color",
-	"date-picker-flat-border-color",
-	"date-picker-flat-border-width",
-	"date-picker-flat-opacity",
-	"date-picker-flat-animation",
-	"date-picker-flat-transition-duration",
-	"date-picker-flat-transition-timing-function",
-	"date-picker-flat-gradient",
-	"date-picker-flat-font-family",
-	"date-picker-flat-font-size",
-	"date-picker-flat-font-weight",
-	"date-picker-flat-letter-spacing",
-	"date-picker-flat-line-height",
-	"date-picker-matte-background-color",
-	"date-picker-matte-border-radius",
-	"date-picker-matte-box-shadow",
-	"date-picker-matte-color",
-	"date-picker-matte-border-color",
-	"date-picker-matte-border-width",
-	"date-picker-matte-opacity",
-	"date-picker-matte-animation",
-	"date-picker-matte-transition-duration",
-	"date-picker-matte-transition-timing-function",
-	"date-picker-matte-gradient",
-	"date-picker-matte-font-family",
-	"date-picker-matte-font-size",
-	"date-picker-matte-font-weight",
-	"date-picker-matte-letter-spacing",
-	"date-picker-matte-line-height",
-	"date-range-field-default-background-color",
-	"date-range-field-default-border-radius",
-	"date-range-field-default-box-shadow",
-	"date-range-field-default-color",
-	"date-range-field-default-border-color",
-	"date-range-field-default-border-width",
-	"date-range-field-default-backdrop-filter",
-	"date-range-field-default-opacity",
-	"date-range-field-default-animation",
-	"date-range-field-default-transition-duration",
-	"date-range-field-default-transition-timing-function",
-	"date-range-field-default-gradient",
-	"date-range-field-default-font-family",
-	"date-range-field-default-font-size",
-	"date-range-field-default-font-weight",
-	"date-range-field-default-letter-spacing",
-	"date-range-field-default-line-height",
-	"date-range-field-stark-background-color",
-	"date-range-field-stark-border-radius",
-	"date-range-field-stark-box-shadow",
-	"date-range-field-stark-color",
-	"date-range-field-stark-border-color",
-	"date-range-field-stark-border-width",
-	"date-range-field-stark-opacity",
-	"date-range-field-stark-animation",
-	"date-range-field-stark-transition-duration",
-	"date-range-field-stark-transition-timing-function",
-	"date-range-field-stark-gradient",
-	"date-range-field-stark-font-family",
-	"date-range-field-stark-font-size",
-	"date-range-field-stark-font-weight",
-	"date-range-field-stark-letter-spacing",
-	"date-range-field-stark-line-height",
-	"date-range-field-glass-background-color",
-	"date-range-field-glass-border-radius",
-	"date-range-field-glass-box-shadow",
-	"date-range-field-glass-color",
-	"date-range-field-glass-border-color",
-	"date-range-field-glass-border-width",
-	"date-range-field-glass-backdrop-filter",
-	"date-range-field-glass-opacity",
-	"date-range-field-glass-animation",
-	"date-range-field-glass-transition-duration",
-	"date-range-field-glass-transition-timing-function",
-	"date-range-field-glass-gradient",
-	"date-range-field-glass-font-family",
-	"date-range-field-glass-font-size",
-	"date-range-field-glass-font-weight",
-	"date-range-field-glass-letter-spacing",
-	"date-range-field-glass-line-height",
-	"date-range-field-flat-background-color",
-	"date-range-field-flat-border-radius",
-	"date-range-field-flat-box-shadow",
-	"date-range-field-flat-color",
-	"date-range-field-flat-border-color",
-	"date-range-field-flat-border-width",
-	"date-range-field-flat-opacity",
-	"date-range-field-flat-animation",
-	"date-range-field-flat-transition-duration",
-	"date-range-field-flat-transition-timing-function",
-	"date-range-field-flat-gradient",
-	"date-range-field-flat-font-family",
-	"date-range-field-flat-font-size",
-	"date-range-field-flat-font-weight",
-	"date-range-field-flat-letter-spacing",
-	"date-range-field-flat-line-height",
-	"date-range-field-matte-background-color",
-	"date-range-field-matte-border-radius",
-	"date-range-field-matte-box-shadow",
-	"date-range-field-matte-color",
-	"date-range-field-matte-border-color",
-	"date-range-field-matte-border-width",
-	"date-range-field-matte-opacity",
-	"date-range-field-matte-animation",
-	"date-range-field-matte-transition-duration",
-	"date-range-field-matte-transition-timing-function",
-	"date-range-field-matte-gradient",
-	"date-range-field-matte-font-family",
-	"date-range-field-matte-font-size",
-	"date-range-field-matte-font-weight",
-	"date-range-field-matte-letter-spacing",
-	"date-range-field-matte-line-height",
-	"date-range-picker-default-background-color",
-	"date-range-picker-default-border-radius",
-	"date-range-picker-default-box-shadow",
-	"date-range-picker-default-color",
-	"date-range-picker-default-border-color",
-	"date-range-picker-default-border-width",
-	"date-range-picker-default-backdrop-filter",
-	"date-range-picker-default-opacity",
-	"date-range-picker-default-animation",
-	"date-range-picker-default-transition-duration",
-	"date-range-picker-default-transition-timing-function",
-	"date-range-picker-default-gradient",
-	"date-range-picker-default-font-family",
-	"date-range-picker-default-font-size",
-	"date-range-picker-default-font-weight",
-	"date-range-picker-default-letter-spacing",
-	"date-range-picker-default-line-height",
-	"date-range-picker-stark-background-color",
-	"date-range-picker-stark-border-radius",
-	"date-range-picker-stark-box-shadow",
-	"date-range-picker-stark-color",
-	"date-range-picker-stark-border-color",
-	"date-range-picker-stark-border-width",
-	"date-range-picker-stark-opacity",
-	"date-range-picker-stark-animation",
-	"date-range-picker-stark-transition-duration",
-	"date-range-picker-stark-transition-timing-function",
-	"date-range-picker-stark-gradient",
-	"date-range-picker-stark-font-family",
-	"date-range-picker-stark-font-size",
-	"date-range-picker-stark-font-weight",
-	"date-range-picker-stark-letter-spacing",
-	"date-range-picker-stark-line-height",
-	"date-range-picker-glass-background-color",
-	"date-range-picker-glass-border-radius",
-	"date-range-picker-glass-box-shadow",
-	"date-range-picker-glass-color",
-	"date-range-picker-glass-border-color",
-	"date-range-picker-glass-border-width",
-	"date-range-picker-glass-backdrop-filter",
-	"date-range-picker-glass-opacity",
-	"date-range-picker-glass-animation",
-	"date-range-picker-glass-transition-duration",
-	"date-range-picker-glass-transition-timing-function",
-	"date-range-picker-glass-gradient",
-	"date-range-picker-glass-font-family",
-	"date-range-picker-glass-font-size",
-	"date-range-picker-glass-font-weight",
-	"date-range-picker-glass-letter-spacing",
-	"date-range-picker-glass-line-height",
-	"date-range-picker-flat-background-color",
-	"date-range-picker-flat-border-radius",
-	"date-range-picker-flat-box-shadow",
-	"date-range-picker-flat-color",
-	"date-range-picker-flat-border-color",
-	"date-range-picker-flat-border-width",
-	"date-range-picker-flat-opacity",
-	"date-range-picker-flat-animation",
-	"date-range-picker-flat-transition-duration",
-	"date-range-picker-flat-transition-timing-function",
-	"date-range-picker-flat-gradient",
-	"date-range-picker-flat-font-family",
-	"date-range-picker-flat-font-size",
-	"date-range-picker-flat-font-weight",
-	"date-range-picker-flat-letter-spacing",
-	"date-range-picker-flat-line-height",
-	"date-range-picker-matte-background-color",
-	"date-range-picker-matte-border-radius",
-	"date-range-picker-matte-box-shadow",
-	"date-range-picker-matte-color",
-	"date-range-picker-matte-border-color",
-	"date-range-picker-matte-border-width",
-	"date-range-picker-matte-opacity",
-	"date-range-picker-matte-animation",
-	"date-range-picker-matte-transition-duration",
-	"date-range-picker-matte-transition-timing-function",
-	"date-range-picker-matte-gradient",
-	"date-range-picker-matte-font-family",
-	"date-range-picker-matte-font-size",
-	"date-range-picker-matte-font-weight",
-	"date-range-picker-matte-letter-spacing",
-	"date-range-picker-matte-line-height",
-	"description-list-default-background-color",
-	"description-list-default-border-radius",
-	"description-list-default-box-shadow",
-	"description-list-default-color",
-	"description-list-default-border-color",
-	"description-list-default-border-width",
-	"description-list-default-backdrop-filter",
-	"description-list-default-opacity",
-	"description-list-default-animation",
-	"description-list-default-transition-duration",
-	"description-list-default-transition-timing-function",
-	"description-list-default-gradient",
-	"description-list-default-font-family",
-	"description-list-default-font-size",
-	"description-list-default-font-weight",
-	"description-list-default-letter-spacing",
-	"description-list-default-line-height",
-	"description-list-stark-background-color",
-	"description-list-stark-border-radius",
-	"description-list-stark-box-shadow",
-	"description-list-stark-color",
-	"description-list-stark-border-color",
-	"description-list-stark-border-width",
-	"description-list-stark-opacity",
-	"description-list-stark-animation",
-	"description-list-stark-transition-duration",
-	"description-list-stark-transition-timing-function",
-	"description-list-stark-gradient",
-	"description-list-stark-font-family",
-	"description-list-stark-font-size",
-	"description-list-stark-font-weight",
-	"description-list-stark-letter-spacing",
-	"description-list-stark-line-height",
-	"description-list-glass-background-color",
-	"description-list-glass-border-radius",
-	"description-list-glass-box-shadow",
-	"description-list-glass-color",
-	"description-list-glass-border-color",
-	"description-list-glass-border-width",
-	"description-list-glass-backdrop-filter",
-	"description-list-glass-opacity",
-	"description-list-glass-animation",
-	"description-list-glass-transition-duration",
-	"description-list-glass-transition-timing-function",
-	"description-list-glass-gradient",
-	"description-list-glass-font-family",
-	"description-list-glass-font-size",
-	"description-list-glass-font-weight",
-	"description-list-glass-letter-spacing",
-	"description-list-glass-line-height",
-	"description-list-flat-background-color",
-	"description-list-flat-border-radius",
-	"description-list-flat-box-shadow",
-	"description-list-flat-color",
-	"description-list-flat-border-color",
-	"description-list-flat-border-width",
-	"description-list-flat-opacity",
-	"description-list-flat-animation",
-	"description-list-flat-transition-duration",
-	"description-list-flat-transition-timing-function",
-	"description-list-flat-gradient",
-	"description-list-flat-font-family",
-	"description-list-flat-font-size",
-	"description-list-flat-font-weight",
-	"description-list-flat-letter-spacing",
-	"description-list-flat-line-height",
-	"description-list-matte-background-color",
-	"description-list-matte-border-radius",
-	"description-list-matte-box-shadow",
-	"description-list-matte-color",
-	"description-list-matte-border-color",
-	"description-list-matte-border-width",
-	"description-list-matte-opacity",
-	"description-list-matte-animation",
-	"description-list-matte-transition-duration",
-	"description-list-matte-transition-timing-function",
-	"description-list-matte-gradient",
-	"description-list-matte-font-family",
-	"description-list-matte-font-size",
-	"description-list-matte-font-weight",
-	"description-list-matte-letter-spacing",
-	"description-list-matte-line-height",
-	"dialog-default-background-color",
-	"dialog-default-border-radius",
-	"dialog-default-box-shadow",
-	"dialog-default-color",
-	"dialog-default-border-color",
-	"dialog-default-border-width",
-	"dialog-default-backdrop-filter",
-	"dialog-default-opacity",
-	"dialog-default-animation",
-	"dialog-default-transition-duration",
-	"dialog-default-transition-timing-function",
-	"dialog-default-gradient",
-	"dialog-default-font-family",
-	"dialog-default-font-size",
-	"dialog-default-font-weight",
-	"dialog-default-letter-spacing",
-	"dialog-default-line-height",
-	"dialog-stark-background-color",
-	"dialog-stark-border-radius",
-	"dialog-stark-box-shadow",
-	"dialog-stark-color",
-	"dialog-stark-border-color",
-	"dialog-stark-border-width",
-	"dialog-stark-opacity",
-	"dialog-stark-animation",
-	"dialog-stark-transition-duration",
-	"dialog-stark-transition-timing-function",
-	"dialog-stark-gradient",
-	"dialog-stark-font-family",
-	"dialog-stark-font-size",
-	"dialog-stark-font-weight",
-	"dialog-stark-letter-spacing",
-	"dialog-stark-line-height",
-	"dialog-glass-background-color",
-	"dialog-glass-border-radius",
-	"dialog-glass-box-shadow",
-	"dialog-glass-color",
-	"dialog-glass-border-color",
-	"dialog-glass-border-width",
-	"dialog-glass-backdrop-filter",
-	"dialog-glass-opacity",
-	"dialog-glass-animation",
-	"dialog-glass-transition-duration",
-	"dialog-glass-transition-timing-function",
-	"dialog-glass-gradient",
-	"dialog-glass-font-family",
-	"dialog-glass-font-size",
-	"dialog-glass-font-weight",
-	"dialog-glass-letter-spacing",
-	"dialog-glass-line-height",
-	"dialog-flat-background-color",
-	"dialog-flat-border-radius",
-	"dialog-flat-box-shadow",
-	"dialog-flat-color",
-	"dialog-flat-border-color",
-	"dialog-flat-border-width",
-	"dialog-flat-opacity",
-	"dialog-flat-animation",
-	"dialog-flat-transition-duration",
-	"dialog-flat-transition-timing-function",
-	"dialog-flat-gradient",
-	"dialog-flat-font-family",
-	"dialog-flat-font-size",
-	"dialog-flat-font-weight",
-	"dialog-flat-letter-spacing",
-	"dialog-flat-line-height",
-	"dialog-matte-background-color",
-	"dialog-matte-border-radius",
-	"dialog-matte-box-shadow",
-	"dialog-matte-color",
-	"dialog-matte-border-color",
-	"dialog-matte-border-width",
-	"dialog-matte-opacity",
-	"dialog-matte-animation",
-	"dialog-matte-transition-duration",
-	"dialog-matte-transition-timing-function",
-	"dialog-matte-gradient",
-	"dialog-matte-font-family",
-	"dialog-matte-font-size",
-	"dialog-matte-font-weight",
-	"dialog-matte-letter-spacing",
-	"dialog-matte-line-height",
-	"empty-state-default-background-color",
-	"empty-state-default-border-radius",
-	"empty-state-default-box-shadow",
-	"empty-state-default-color",
-	"empty-state-default-border-color",
-	"empty-state-default-border-width",
-	"empty-state-default-backdrop-filter",
-	"empty-state-default-opacity",
-	"empty-state-default-animation",
-	"empty-state-default-transition-duration",
-	"empty-state-default-transition-timing-function",
-	"empty-state-default-gradient",
-	"empty-state-default-font-family",
-	"empty-state-default-font-size",
-	"empty-state-default-font-weight",
-	"empty-state-default-letter-spacing",
-	"empty-state-default-line-height",
-	"empty-state-stark-background-color",
-	"empty-state-stark-border-radius",
-	"empty-state-stark-box-shadow",
-	"empty-state-stark-color",
-	"empty-state-stark-border-color",
-	"empty-state-stark-border-width",
-	"empty-state-stark-opacity",
-	"empty-state-stark-animation",
-	"empty-state-stark-transition-duration",
-	"empty-state-stark-transition-timing-function",
-	"empty-state-stark-gradient",
-	"empty-state-stark-font-family",
-	"empty-state-stark-font-size",
-	"empty-state-stark-font-weight",
-	"empty-state-stark-letter-spacing",
-	"empty-state-stark-line-height",
-	"empty-state-glass-background-color",
-	"empty-state-glass-border-radius",
-	"empty-state-glass-box-shadow",
-	"empty-state-glass-color",
-	"empty-state-glass-border-color",
-	"empty-state-glass-border-width",
-	"empty-state-glass-backdrop-filter",
-	"empty-state-glass-opacity",
-	"empty-state-glass-animation",
-	"empty-state-glass-transition-duration",
-	"empty-state-glass-transition-timing-function",
-	"empty-state-glass-gradient",
-	"empty-state-glass-font-family",
-	"empty-state-glass-font-size",
-	"empty-state-glass-font-weight",
-	"empty-state-glass-letter-spacing",
-	"empty-state-glass-line-height",
-	"empty-state-flat-background-color",
-	"empty-state-flat-border-radius",
-	"empty-state-flat-box-shadow",
-	"empty-state-flat-color",
-	"empty-state-flat-border-color",
-	"empty-state-flat-border-width",
-	"empty-state-flat-opacity",
-	"empty-state-flat-animation",
-	"empty-state-flat-transition-duration",
-	"empty-state-flat-transition-timing-function",
-	"empty-state-flat-gradient",
-	"empty-state-flat-font-family",
-	"empty-state-flat-font-size",
-	"empty-state-flat-font-weight",
-	"empty-state-flat-letter-spacing",
-	"empty-state-flat-line-height",
-	"empty-state-matte-background-color",
-	"empty-state-matte-border-radius",
-	"empty-state-matte-box-shadow",
-	"empty-state-matte-color",
-	"empty-state-matte-border-color",
-	"empty-state-matte-border-width",
-	"empty-state-matte-opacity",
-	"empty-state-matte-animation",
-	"empty-state-matte-transition-duration",
-	"empty-state-matte-transition-timing-function",
-	"empty-state-matte-gradient",
-	"empty-state-matte-font-family",
-	"empty-state-matte-font-size",
-	"empty-state-matte-font-weight",
-	"empty-state-matte-letter-spacing",
-	"empty-state-matte-line-height",
-	"file-upload-default-background-color",
-	"file-upload-default-border-radius",
-	"file-upload-default-box-shadow",
-	"file-upload-default-color",
-	"file-upload-default-border-color",
-	"file-upload-default-border-width",
-	"file-upload-default-backdrop-filter",
-	"file-upload-default-opacity",
-	"file-upload-default-animation",
-	"file-upload-default-transition-duration",
-	"file-upload-default-transition-timing-function",
-	"file-upload-default-gradient",
-	"file-upload-default-font-family",
-	"file-upload-default-font-size",
-	"file-upload-default-font-weight",
-	"file-upload-default-letter-spacing",
-	"file-upload-default-line-height",
-	"file-upload-stark-background-color",
-	"file-upload-stark-border-radius",
-	"file-upload-stark-box-shadow",
-	"file-upload-stark-color",
-	"file-upload-stark-border-color",
-	"file-upload-stark-border-width",
-	"file-upload-stark-opacity",
-	"file-upload-stark-animation",
-	"file-upload-stark-transition-duration",
-	"file-upload-stark-transition-timing-function",
-	"file-upload-stark-gradient",
-	"file-upload-stark-font-family",
-	"file-upload-stark-font-size",
-	"file-upload-stark-font-weight",
-	"file-upload-stark-letter-spacing",
-	"file-upload-stark-line-height",
-	"file-upload-glass-background-color",
-	"file-upload-glass-border-radius",
-	"file-upload-glass-box-shadow",
-	"file-upload-glass-color",
-	"file-upload-glass-border-color",
-	"file-upload-glass-border-width",
-	"file-upload-glass-backdrop-filter",
-	"file-upload-glass-opacity",
-	"file-upload-glass-animation",
-	"file-upload-glass-transition-duration",
-	"file-upload-glass-transition-timing-function",
-	"file-upload-glass-gradient",
-	"file-upload-glass-font-family",
-	"file-upload-glass-font-size",
-	"file-upload-glass-font-weight",
-	"file-upload-glass-letter-spacing",
-	"file-upload-glass-line-height",
-	"file-upload-flat-background-color",
-	"file-upload-flat-border-radius",
-	"file-upload-flat-box-shadow",
-	"file-upload-flat-color",
-	"file-upload-flat-border-color",
-	"file-upload-flat-border-width",
-	"file-upload-flat-opacity",
-	"file-upload-flat-animation",
-	"file-upload-flat-transition-duration",
-	"file-upload-flat-transition-timing-function",
-	"file-upload-flat-gradient",
-	"file-upload-flat-font-family",
-	"file-upload-flat-font-size",
-	"file-upload-flat-font-weight",
-	"file-upload-flat-letter-spacing",
-	"file-upload-flat-line-height",
-	"file-upload-matte-background-color",
-	"file-upload-matte-border-radius",
-	"file-upload-matte-box-shadow",
-	"file-upload-matte-color",
-	"file-upload-matte-border-color",
-	"file-upload-matte-border-width",
-	"file-upload-matte-opacity",
-	"file-upload-matte-animation",
-	"file-upload-matte-transition-duration",
-	"file-upload-matte-transition-timing-function",
-	"file-upload-matte-gradient",
-	"file-upload-matte-font-family",
-	"file-upload-matte-font-size",
-	"file-upload-matte-font-weight",
-	"file-upload-matte-letter-spacing",
-	"file-upload-matte-line-height",
-	"form-field-default-background-color",
-	"form-field-default-border-radius",
-	"form-field-default-box-shadow",
-	"form-field-default-color",
-	"form-field-default-border-color",
-	"form-field-default-border-width",
-	"form-field-default-backdrop-filter",
-	"form-field-default-opacity",
-	"form-field-default-animation",
-	"form-field-default-transition-duration",
-	"form-field-default-transition-timing-function",
-	"form-field-default-gradient",
-	"form-field-default-font-family",
-	"form-field-default-font-size",
-	"form-field-default-font-weight",
-	"form-field-default-letter-spacing",
-	"form-field-default-line-height",
-	"form-field-stark-background-color",
-	"form-field-stark-border-radius",
-	"form-field-stark-box-shadow",
-	"form-field-stark-color",
-	"form-field-stark-border-color",
-	"form-field-stark-border-width",
-	"form-field-stark-opacity",
-	"form-field-stark-animation",
-	"form-field-stark-transition-duration",
-	"form-field-stark-transition-timing-function",
-	"form-field-stark-gradient",
-	"form-field-stark-font-family",
-	"form-field-stark-font-size",
-	"form-field-stark-font-weight",
-	"form-field-stark-letter-spacing",
-	"form-field-stark-line-height",
-	"form-field-glass-background-color",
-	"form-field-glass-border-radius",
-	"form-field-glass-box-shadow",
-	"form-field-glass-color",
-	"form-field-glass-border-color",
-	"form-field-glass-border-width",
-	"form-field-glass-backdrop-filter",
-	"form-field-glass-opacity",
-	"form-field-glass-animation",
-	"form-field-glass-transition-duration",
-	"form-field-glass-transition-timing-function",
-	"form-field-glass-gradient",
-	"form-field-glass-font-family",
-	"form-field-glass-font-size",
-	"form-field-glass-font-weight",
-	"form-field-glass-letter-spacing",
-	"form-field-glass-line-height",
-	"form-field-flat-background-color",
-	"form-field-flat-border-radius",
-	"form-field-flat-box-shadow",
-	"form-field-flat-color",
-	"form-field-flat-border-color",
-	"form-field-flat-border-width",
-	"form-field-flat-opacity",
-	"form-field-flat-animation",
-	"form-field-flat-transition-duration",
-	"form-field-flat-transition-timing-function",
-	"form-field-flat-gradient",
-	"form-field-flat-font-family",
-	"form-field-flat-font-size",
-	"form-field-flat-font-weight",
-	"form-field-flat-letter-spacing",
-	"form-field-flat-line-height",
-	"form-field-matte-background-color",
-	"form-field-matte-border-radius",
-	"form-field-matte-box-shadow",
-	"form-field-matte-color",
-	"form-field-matte-border-color",
-	"form-field-matte-border-width",
-	"form-field-matte-opacity",
-	"form-field-matte-animation",
-	"form-field-matte-transition-duration",
-	"form-field-matte-transition-timing-function",
-	"form-field-matte-gradient",
-	"form-field-matte-font-family",
-	"form-field-matte-font-size",
-	"form-field-matte-font-weight",
-	"form-field-matte-letter-spacing",
-	"form-field-matte-line-height",
-	"form-default-background-color",
-	"form-default-border-radius",
-	"form-default-box-shadow",
-	"form-default-color",
-	"form-default-border-color",
-	"form-default-border-width",
-	"form-default-backdrop-filter",
-	"form-default-opacity",
-	"form-default-animation",
-	"form-default-transition-duration",
-	"form-default-transition-timing-function",
-	"form-default-gradient",
-	"form-default-font-family",
-	"form-default-font-size",
-	"form-default-font-weight",
-	"form-default-letter-spacing",
-	"form-default-line-height",
-	"form-stark-background-color",
-	"form-stark-border-radius",
-	"form-stark-box-shadow",
-	"form-stark-color",
-	"form-stark-border-color",
-	"form-stark-border-width",
-	"form-stark-opacity",
-	"form-stark-animation",
-	"form-stark-transition-duration",
-	"form-stark-transition-timing-function",
-	"form-stark-gradient",
-	"form-stark-font-family",
-	"form-stark-font-size",
-	"form-stark-font-weight",
-	"form-stark-letter-spacing",
-	"form-stark-line-height",
-	"form-glass-background-color",
-	"form-glass-border-radius",
-	"form-glass-box-shadow",
-	"form-glass-color",
-	"form-glass-border-color",
-	"form-glass-border-width",
-	"form-glass-backdrop-filter",
-	"form-glass-opacity",
-	"form-glass-animation",
-	"form-glass-transition-duration",
-	"form-glass-transition-timing-function",
-	"form-glass-gradient",
-	"form-glass-font-family",
-	"form-glass-font-size",
-	"form-glass-font-weight",
-	"form-glass-letter-spacing",
-	"form-glass-line-height",
-	"form-flat-background-color",
-	"form-flat-border-radius",
-	"form-flat-box-shadow",
-	"form-flat-color",
-	"form-flat-border-color",
-	"form-flat-border-width",
-	"form-flat-opacity",
-	"form-flat-animation",
-	"form-flat-transition-duration",
-	"form-flat-transition-timing-function",
-	"form-flat-gradient",
-	"form-flat-font-family",
-	"form-flat-font-size",
-	"form-flat-font-weight",
-	"form-flat-letter-spacing",
-	"form-flat-line-height",
-	"form-matte-background-color",
-	"form-matte-border-radius",
-	"form-matte-box-shadow",
-	"form-matte-color",
-	"form-matte-border-color",
-	"form-matte-border-width",
-	"form-matte-opacity",
-	"form-matte-animation",
-	"form-matte-transition-duration",
-	"form-matte-transition-timing-function",
-	"form-matte-gradient",
-	"form-matte-font-family",
-	"form-matte-font-size",
-	"form-matte-font-weight",
-	"form-matte-letter-spacing",
-	"form-matte-line-height",
-	"heading-default-background-color",
-	"heading-default-border-radius",
-	"heading-default-box-shadow",
-	"heading-default-color",
-	"heading-default-border-color",
-	"heading-default-border-width",
-	"heading-default-backdrop-filter",
-	"heading-default-opacity",
-	"heading-default-animation",
-	"heading-default-transition-duration",
-	"heading-default-transition-timing-function",
-	"heading-default-gradient",
-	"heading-default-font-family",
-	"heading-default-font-size",
-	"heading-default-font-weight",
-	"heading-default-letter-spacing",
-	"heading-default-line-height",
-	"heading-stark-background-color",
-	"heading-stark-border-radius",
-	"heading-stark-box-shadow",
-	"heading-stark-color",
-	"heading-stark-border-color",
-	"heading-stark-border-width",
-	"heading-stark-opacity",
-	"heading-stark-animation",
-	"heading-stark-transition-duration",
-	"heading-stark-transition-timing-function",
-	"heading-stark-gradient",
-	"heading-stark-font-family",
-	"heading-stark-font-size",
-	"heading-stark-font-weight",
-	"heading-stark-letter-spacing",
-	"heading-stark-line-height",
-	"heading-glass-background-color",
-	"heading-glass-border-radius",
-	"heading-glass-box-shadow",
-	"heading-glass-color",
-	"heading-glass-border-color",
-	"heading-glass-border-width",
-	"heading-glass-backdrop-filter",
-	"heading-glass-opacity",
-	"heading-glass-animation",
-	"heading-glass-transition-duration",
-	"heading-glass-transition-timing-function",
-	"heading-glass-gradient",
-	"heading-glass-font-family",
-	"heading-glass-font-size",
-	"heading-glass-font-weight",
-	"heading-glass-letter-spacing",
-	"heading-glass-line-height",
-	"heading-flat-background-color",
-	"heading-flat-border-radius",
-	"heading-flat-box-shadow",
-	"heading-flat-color",
-	"heading-flat-border-color",
-	"heading-flat-border-width",
-	"heading-flat-opacity",
-	"heading-flat-animation",
-	"heading-flat-transition-duration",
-	"heading-flat-transition-timing-function",
-	"heading-flat-gradient",
-	"heading-flat-font-family",
-	"heading-flat-font-size",
-	"heading-flat-font-weight",
-	"heading-flat-letter-spacing",
-	"heading-flat-line-height",
-	"heading-matte-background-color",
-	"heading-matte-border-radius",
-	"heading-matte-box-shadow",
-	"heading-matte-color",
-	"heading-matte-border-color",
-	"heading-matte-border-width",
-	"heading-matte-opacity",
-	"heading-matte-animation",
-	"heading-matte-transition-duration",
-	"heading-matte-transition-timing-function",
-	"heading-matte-gradient",
-	"heading-matte-font-family",
-	"heading-matte-font-size",
-	"heading-matte-font-weight",
-	"heading-matte-letter-spacing",
-	"heading-matte-line-height",
-	"inline-message-default-background-color",
-	"inline-message-default-border-radius",
-	"inline-message-default-box-shadow",
-	"inline-message-default-color",
-	"inline-message-default-border-color",
-	"inline-message-default-border-width",
-	"inline-message-default-backdrop-filter",
-	"inline-message-default-opacity",
-	"inline-message-default-animation",
-	"inline-message-default-transition-duration",
-	"inline-message-default-transition-timing-function",
-	"inline-message-default-gradient",
-	"inline-message-default-font-family",
-	"inline-message-default-font-size",
-	"inline-message-default-font-weight",
-	"inline-message-default-letter-spacing",
-	"inline-message-default-line-height",
-	"inline-message-stark-background-color",
-	"inline-message-stark-border-radius",
-	"inline-message-stark-box-shadow",
-	"inline-message-stark-color",
-	"inline-message-stark-border-color",
-	"inline-message-stark-border-width",
-	"inline-message-stark-opacity",
-	"inline-message-stark-animation",
-	"inline-message-stark-transition-duration",
-	"inline-message-stark-transition-timing-function",
-	"inline-message-stark-gradient",
-	"inline-message-stark-font-family",
-	"inline-message-stark-font-size",
-	"inline-message-stark-font-weight",
-	"inline-message-stark-letter-spacing",
-	"inline-message-stark-line-height",
-	"inline-message-glass-background-color",
-	"inline-message-glass-border-radius",
-	"inline-message-glass-box-shadow",
-	"inline-message-glass-color",
-	"inline-message-glass-border-color",
-	"inline-message-glass-border-width",
-	"inline-message-glass-backdrop-filter",
-	"inline-message-glass-opacity",
-	"inline-message-glass-animation",
-	"inline-message-glass-transition-duration",
-	"inline-message-glass-transition-timing-function",
-	"inline-message-glass-gradient",
-	"inline-message-glass-font-family",
-	"inline-message-glass-font-size",
-	"inline-message-glass-font-weight",
-	"inline-message-glass-letter-spacing",
-	"inline-message-glass-line-height",
-	"inline-message-flat-background-color",
-	"inline-message-flat-border-radius",
-	"inline-message-flat-box-shadow",
-	"inline-message-flat-color",
-	"inline-message-flat-border-color",
-	"inline-message-flat-border-width",
-	"inline-message-flat-opacity",
-	"inline-message-flat-animation",
-	"inline-message-flat-transition-duration",
-	"inline-message-flat-transition-timing-function",
-	"inline-message-flat-gradient",
-	"inline-message-flat-font-family",
-	"inline-message-flat-font-size",
-	"inline-message-flat-font-weight",
-	"inline-message-flat-letter-spacing",
-	"inline-message-flat-line-height",
-	"inline-message-matte-background-color",
-	"inline-message-matte-border-radius",
-	"inline-message-matte-box-shadow",
-	"inline-message-matte-color",
-	"inline-message-matte-border-color",
-	"inline-message-matte-border-width",
-	"inline-message-matte-opacity",
-	"inline-message-matte-animation",
-	"inline-message-matte-transition-duration",
-	"inline-message-matte-transition-timing-function",
-	"inline-message-matte-gradient",
-	"inline-message-matte-font-family",
-	"inline-message-matte-font-size",
-	"inline-message-matte-font-weight",
-	"inline-message-matte-letter-spacing",
-	"inline-message-matte-line-height",
-	"input-group-default-background-color",
-	"input-group-default-border-radius",
-	"input-group-default-box-shadow",
-	"input-group-default-color",
-	"input-group-default-border-color",
-	"input-group-default-border-width",
-	"input-group-default-backdrop-filter",
-	"input-group-default-opacity",
-	"input-group-default-animation",
-	"input-group-default-transition-duration",
-	"input-group-default-transition-timing-function",
-	"input-group-default-gradient",
-	"input-group-default-font-family",
-	"input-group-default-font-size",
-	"input-group-default-font-weight",
-	"input-group-default-letter-spacing",
-	"input-group-default-line-height",
-	"input-group-stark-background-color",
-	"input-group-stark-border-radius",
-	"input-group-stark-box-shadow",
-	"input-group-stark-color",
-	"input-group-stark-border-color",
-	"input-group-stark-border-width",
-	"input-group-stark-opacity",
-	"input-group-stark-animation",
-	"input-group-stark-transition-duration",
-	"input-group-stark-transition-timing-function",
-	"input-group-stark-gradient",
-	"input-group-stark-font-family",
-	"input-group-stark-font-size",
-	"input-group-stark-font-weight",
-	"input-group-stark-letter-spacing",
-	"input-group-stark-line-height",
-	"input-group-glass-background-color",
-	"input-group-glass-border-radius",
-	"input-group-glass-box-shadow",
-	"input-group-glass-color",
-	"input-group-glass-border-color",
-	"input-group-glass-border-width",
-	"input-group-glass-backdrop-filter",
-	"input-group-glass-opacity",
-	"input-group-glass-animation",
-	"input-group-glass-transition-duration",
-	"input-group-glass-transition-timing-function",
-	"input-group-glass-gradient",
-	"input-group-glass-font-family",
-	"input-group-glass-font-size",
-	"input-group-glass-font-weight",
-	"input-group-glass-letter-spacing",
-	"input-group-glass-line-height",
-	"input-group-flat-background-color",
-	"input-group-flat-border-radius",
-	"input-group-flat-box-shadow",
-	"input-group-flat-color",
-	"input-group-flat-border-color",
-	"input-group-flat-border-width",
-	"input-group-flat-opacity",
-	"input-group-flat-animation",
-	"input-group-flat-transition-duration",
-	"input-group-flat-transition-timing-function",
-	"input-group-flat-gradient",
-	"input-group-flat-font-family",
-	"input-group-flat-font-size",
-	"input-group-flat-font-weight",
-	"input-group-flat-letter-spacing",
-	"input-group-flat-line-height",
-	"input-group-matte-background-color",
-	"input-group-matte-border-radius",
-	"input-group-matte-box-shadow",
-	"input-group-matte-color",
-	"input-group-matte-border-color",
-	"input-group-matte-border-width",
-	"input-group-matte-opacity",
-	"input-group-matte-animation",
-	"input-group-matte-transition-duration",
-	"input-group-matte-transition-timing-function",
-	"input-group-matte-gradient",
-	"input-group-matte-font-family",
-	"input-group-matte-font-size",
-	"input-group-matte-font-weight",
-	"input-group-matte-letter-spacing",
-	"input-group-matte-line-height",
-	"kbd-default-background-color",
-	"kbd-default-border-radius",
-	"kbd-default-box-shadow",
-	"kbd-default-color",
-	"kbd-default-border-color",
-	"kbd-default-border-width",
-	"kbd-default-backdrop-filter",
-	"kbd-default-opacity",
-	"kbd-default-animation",
-	"kbd-default-transition-duration",
-	"kbd-default-transition-timing-function",
-	"kbd-default-gradient",
-	"kbd-default-font-family",
-	"kbd-default-font-size",
-	"kbd-default-font-weight",
-	"kbd-default-letter-spacing",
-	"kbd-default-line-height",
-	"kbd-stark-background-color",
-	"kbd-stark-border-radius",
-	"kbd-stark-box-shadow",
-	"kbd-stark-color",
-	"kbd-stark-border-color",
-	"kbd-stark-border-width",
-	"kbd-stark-opacity",
-	"kbd-stark-animation",
-	"kbd-stark-transition-duration",
-	"kbd-stark-transition-timing-function",
-	"kbd-stark-gradient",
-	"kbd-stark-font-family",
-	"kbd-stark-font-size",
-	"kbd-stark-font-weight",
-	"kbd-stark-letter-spacing",
-	"kbd-stark-line-height",
-	"kbd-glass-background-color",
-	"kbd-glass-border-radius",
-	"kbd-glass-box-shadow",
-	"kbd-glass-color",
-	"kbd-glass-border-color",
-	"kbd-glass-border-width",
-	"kbd-glass-backdrop-filter",
-	"kbd-glass-opacity",
-	"kbd-glass-animation",
-	"kbd-glass-transition-duration",
-	"kbd-glass-transition-timing-function",
-	"kbd-glass-gradient",
-	"kbd-glass-font-family",
-	"kbd-glass-font-size",
-	"kbd-glass-font-weight",
-	"kbd-glass-letter-spacing",
-	"kbd-glass-line-height",
-	"kbd-flat-background-color",
-	"kbd-flat-border-radius",
-	"kbd-flat-box-shadow",
-	"kbd-flat-color",
-	"kbd-flat-border-color",
-	"kbd-flat-border-width",
-	"kbd-flat-opacity",
-	"kbd-flat-animation",
-	"kbd-flat-transition-duration",
-	"kbd-flat-transition-timing-function",
-	"kbd-flat-gradient",
-	"kbd-flat-font-family",
-	"kbd-flat-font-size",
-	"kbd-flat-font-weight",
-	"kbd-flat-letter-spacing",
-	"kbd-flat-line-height",
-	"kbd-matte-background-color",
-	"kbd-matte-border-radius",
-	"kbd-matte-box-shadow",
-	"kbd-matte-color",
-	"kbd-matte-border-color",
-	"kbd-matte-border-width",
-	"kbd-matte-opacity",
-	"kbd-matte-animation",
-	"kbd-matte-transition-duration",
-	"kbd-matte-transition-timing-function",
-	"kbd-matte-gradient",
-	"kbd-matte-font-family",
-	"kbd-matte-font-size",
-	"kbd-matte-font-weight",
-	"kbd-matte-letter-spacing",
-	"kbd-matte-line-height",
-	"label-default-background-color",
-	"label-default-border-radius",
-	"label-default-box-shadow",
-	"label-default-color",
-	"label-default-border-color",
-	"label-default-border-width",
-	"label-default-backdrop-filter",
-	"label-default-opacity",
-	"label-default-animation",
-	"label-default-transition-duration",
-	"label-default-transition-timing-function",
-	"label-default-gradient",
-	"label-default-font-family",
-	"label-default-font-size",
-	"label-default-font-weight",
-	"label-default-letter-spacing",
-	"label-default-line-height",
-	"label-stark-background-color",
-	"label-stark-border-radius",
-	"label-stark-box-shadow",
-	"label-stark-color",
-	"label-stark-border-color",
-	"label-stark-border-width",
-	"label-stark-opacity",
-	"label-stark-animation",
-	"label-stark-transition-duration",
-	"label-stark-transition-timing-function",
-	"label-stark-gradient",
-	"label-stark-font-family",
-	"label-stark-font-size",
-	"label-stark-font-weight",
-	"label-stark-letter-spacing",
-	"label-stark-line-height",
-	"label-glass-background-color",
-	"label-glass-border-radius",
-	"label-glass-box-shadow",
-	"label-glass-color",
-	"label-glass-border-color",
-	"label-glass-border-width",
-	"label-glass-backdrop-filter",
-	"label-glass-opacity",
-	"label-glass-animation",
-	"label-glass-transition-duration",
-	"label-glass-transition-timing-function",
-	"label-glass-gradient",
-	"label-glass-font-family",
-	"label-glass-font-size",
-	"label-glass-font-weight",
-	"label-glass-letter-spacing",
-	"label-glass-line-height",
-	"label-flat-background-color",
-	"label-flat-border-radius",
-	"label-flat-box-shadow",
-	"label-flat-color",
-	"label-flat-border-color",
-	"label-flat-border-width",
-	"label-flat-opacity",
-	"label-flat-animation",
-	"label-flat-transition-duration",
-	"label-flat-transition-timing-function",
-	"label-flat-gradient",
-	"label-flat-font-family",
-	"label-flat-font-size",
-	"label-flat-font-weight",
-	"label-flat-letter-spacing",
-	"label-flat-line-height",
-	"label-matte-background-color",
-	"label-matte-border-radius",
-	"label-matte-box-shadow",
-	"label-matte-color",
-	"label-matte-border-color",
-	"label-matte-border-width",
-	"label-matte-opacity",
-	"label-matte-animation",
-	"label-matte-transition-duration",
-	"label-matte-transition-timing-function",
-	"label-matte-gradient",
-	"label-matte-font-family",
-	"label-matte-font-size",
-	"label-matte-font-weight",
-	"label-matte-letter-spacing",
-	"label-matte-line-height",
-	"link-preview-default-background-color",
-	"link-preview-default-border-radius",
-	"link-preview-default-box-shadow",
-	"link-preview-default-color",
-	"link-preview-default-border-color",
-	"link-preview-default-border-width",
-	"link-preview-default-backdrop-filter",
-	"link-preview-default-opacity",
-	"link-preview-default-animation",
-	"link-preview-default-transition-duration",
-	"link-preview-default-transition-timing-function",
-	"link-preview-default-gradient",
-	"link-preview-default-font-family",
-	"link-preview-default-font-size",
-	"link-preview-default-font-weight",
-	"link-preview-default-letter-spacing",
-	"link-preview-default-line-height",
-	"link-preview-stark-background-color",
-	"link-preview-stark-border-radius",
-	"link-preview-stark-box-shadow",
-	"link-preview-stark-color",
-	"link-preview-stark-border-color",
-	"link-preview-stark-border-width",
-	"link-preview-stark-opacity",
-	"link-preview-stark-animation",
-	"link-preview-stark-transition-duration",
-	"link-preview-stark-transition-timing-function",
-	"link-preview-stark-gradient",
-	"link-preview-stark-font-family",
-	"link-preview-stark-font-size",
-	"link-preview-stark-font-weight",
-	"link-preview-stark-letter-spacing",
-	"link-preview-stark-line-height",
-	"link-preview-glass-background-color",
-	"link-preview-glass-border-radius",
-	"link-preview-glass-box-shadow",
-	"link-preview-glass-color",
-	"link-preview-glass-border-color",
-	"link-preview-glass-border-width",
-	"link-preview-glass-backdrop-filter",
-	"link-preview-glass-opacity",
-	"link-preview-glass-animation",
-	"link-preview-glass-transition-duration",
-	"link-preview-glass-transition-timing-function",
-	"link-preview-glass-gradient",
-	"link-preview-glass-font-family",
-	"link-preview-glass-font-size",
-	"link-preview-glass-font-weight",
-	"link-preview-glass-letter-spacing",
-	"link-preview-glass-line-height",
-	"link-preview-flat-background-color",
-	"link-preview-flat-border-radius",
-	"link-preview-flat-box-shadow",
-	"link-preview-flat-color",
-	"link-preview-flat-border-color",
-	"link-preview-flat-border-width",
-	"link-preview-flat-opacity",
-	"link-preview-flat-animation",
-	"link-preview-flat-transition-duration",
-	"link-preview-flat-transition-timing-function",
-	"link-preview-flat-gradient",
-	"link-preview-flat-font-family",
-	"link-preview-flat-font-size",
-	"link-preview-flat-font-weight",
-	"link-preview-flat-letter-spacing",
-	"link-preview-flat-line-height",
-	"link-preview-matte-background-color",
-	"link-preview-matte-border-radius",
-	"link-preview-matte-box-shadow",
-	"link-preview-matte-color",
-	"link-preview-matte-border-color",
-	"link-preview-matte-border-width",
-	"link-preview-matte-opacity",
-	"link-preview-matte-animation",
-	"link-preview-matte-transition-duration",
-	"link-preview-matte-transition-timing-function",
-	"link-preview-matte-gradient",
-	"link-preview-matte-font-family",
-	"link-preview-matte-font-size",
-	"link-preview-matte-font-weight",
-	"link-preview-matte-letter-spacing",
-	"link-preview-matte-line-height",
-	"list-default-background-color",
-	"list-default-border-radius",
-	"list-default-box-shadow",
-	"list-default-color",
-	"list-default-border-color",
-	"list-default-border-width",
-	"list-default-backdrop-filter",
-	"list-default-opacity",
-	"list-default-animation",
-	"list-default-transition-duration",
-	"list-default-transition-timing-function",
-	"list-default-gradient",
-	"list-default-font-family",
-	"list-default-font-size",
-	"list-default-font-weight",
-	"list-default-letter-spacing",
-	"list-default-line-height",
-	"list-stark-background-color",
-	"list-stark-border-radius",
-	"list-stark-box-shadow",
-	"list-stark-color",
-	"list-stark-border-color",
-	"list-stark-border-width",
-	"list-stark-opacity",
-	"list-stark-animation",
-	"list-stark-transition-duration",
-	"list-stark-transition-timing-function",
-	"list-stark-gradient",
-	"list-stark-font-family",
-	"list-stark-font-size",
-	"list-stark-font-weight",
-	"list-stark-letter-spacing",
-	"list-stark-line-height",
-	"list-glass-background-color",
-	"list-glass-border-radius",
-	"list-glass-box-shadow",
-	"list-glass-color",
-	"list-glass-border-color",
-	"list-glass-border-width",
-	"list-glass-backdrop-filter",
-	"list-glass-opacity",
-	"list-glass-animation",
-	"list-glass-transition-duration",
-	"list-glass-transition-timing-function",
-	"list-glass-gradient",
-	"list-glass-font-family",
-	"list-glass-font-size",
-	"list-glass-font-weight",
-	"list-glass-letter-spacing",
-	"list-glass-line-height",
-	"list-flat-background-color",
-	"list-flat-border-radius",
-	"list-flat-box-shadow",
-	"list-flat-color",
-	"list-flat-border-color",
-	"list-flat-border-width",
-	"list-flat-opacity",
-	"list-flat-animation",
-	"list-flat-transition-duration",
-	"list-flat-transition-timing-function",
-	"list-flat-gradient",
-	"list-flat-font-family",
-	"list-flat-font-size",
-	"list-flat-font-weight",
-	"list-flat-letter-spacing",
-	"list-flat-line-height",
-	"list-matte-background-color",
-	"list-matte-border-radius",
-	"list-matte-box-shadow",
-	"list-matte-color",
-	"list-matte-border-color",
-	"list-matte-border-width",
-	"list-matte-opacity",
-	"list-matte-animation",
-	"list-matte-transition-duration",
-	"list-matte-transition-timing-function",
-	"list-matte-gradient",
-	"list-matte-font-family",
-	"list-matte-font-size",
-	"list-matte-font-weight",
-	"list-matte-letter-spacing",
-	"list-matte-line-height",
-	"loading-overlay-default-background-color",
-	"loading-overlay-default-border-radius",
-	"loading-overlay-default-box-shadow",
-	"loading-overlay-default-color",
-	"loading-overlay-default-border-color",
-	"loading-overlay-default-border-width",
-	"loading-overlay-default-backdrop-filter",
-	"loading-overlay-default-opacity",
-	"loading-overlay-default-animation",
-	"loading-overlay-default-transition-duration",
-	"loading-overlay-default-transition-timing-function",
-	"loading-overlay-default-gradient",
-	"loading-overlay-default-font-family",
-	"loading-overlay-default-font-size",
-	"loading-overlay-default-font-weight",
-	"loading-overlay-default-letter-spacing",
-	"loading-overlay-default-line-height",
-	"loading-overlay-stark-background-color",
-	"loading-overlay-stark-border-radius",
-	"loading-overlay-stark-box-shadow",
-	"loading-overlay-stark-color",
-	"loading-overlay-stark-border-color",
-	"loading-overlay-stark-border-width",
-	"loading-overlay-stark-opacity",
-	"loading-overlay-stark-animation",
-	"loading-overlay-stark-transition-duration",
-	"loading-overlay-stark-transition-timing-function",
-	"loading-overlay-stark-gradient",
-	"loading-overlay-stark-font-family",
-	"loading-overlay-stark-font-size",
-	"loading-overlay-stark-font-weight",
-	"loading-overlay-stark-letter-spacing",
-	"loading-overlay-stark-line-height",
-	"loading-overlay-glass-background-color",
-	"loading-overlay-glass-border-radius",
-	"loading-overlay-glass-box-shadow",
-	"loading-overlay-glass-color",
-	"loading-overlay-glass-border-color",
-	"loading-overlay-glass-border-width",
-	"loading-overlay-glass-backdrop-filter",
-	"loading-overlay-glass-opacity",
-	"loading-overlay-glass-animation",
-	"loading-overlay-glass-transition-duration",
-	"loading-overlay-glass-transition-timing-function",
-	"loading-overlay-glass-gradient",
-	"loading-overlay-glass-font-family",
-	"loading-overlay-glass-font-size",
-	"loading-overlay-glass-font-weight",
-	"loading-overlay-glass-letter-spacing",
-	"loading-overlay-glass-line-height",
-	"loading-overlay-flat-background-color",
-	"loading-overlay-flat-border-radius",
-	"loading-overlay-flat-box-shadow",
-	"loading-overlay-flat-color",
-	"loading-overlay-flat-border-color",
-	"loading-overlay-flat-border-width",
-	"loading-overlay-flat-opacity",
-	"loading-overlay-flat-animation",
-	"loading-overlay-flat-transition-duration",
-	"loading-overlay-flat-transition-timing-function",
-	"loading-overlay-flat-gradient",
-	"loading-overlay-flat-font-family",
-	"loading-overlay-flat-font-size",
-	"loading-overlay-flat-font-weight",
-	"loading-overlay-flat-letter-spacing",
-	"loading-overlay-flat-line-height",
-	"loading-overlay-matte-background-color",
-	"loading-overlay-matte-border-radius",
-	"loading-overlay-matte-box-shadow",
-	"loading-overlay-matte-color",
-	"loading-overlay-matte-border-color",
-	"loading-overlay-matte-border-width",
-	"loading-overlay-matte-opacity",
-	"loading-overlay-matte-animation",
-	"loading-overlay-matte-transition-duration",
-	"loading-overlay-matte-transition-timing-function",
-	"loading-overlay-matte-gradient",
-	"loading-overlay-matte-font-family",
-	"loading-overlay-matte-font-size",
-	"loading-overlay-matte-font-weight",
-	"loading-overlay-matte-letter-spacing",
-	"loading-overlay-matte-line-height",
-	"menubar-default-background-color",
-	"menubar-default-border-radius",
-	"menubar-default-box-shadow",
-	"menubar-default-color",
-	"menubar-default-border-color",
-	"menubar-default-border-width",
-	"menubar-default-backdrop-filter",
-	"menubar-default-opacity",
-	"menubar-default-animation",
-	"menubar-default-transition-duration",
-	"menubar-default-transition-timing-function",
-	"menubar-default-gradient",
-	"menubar-default-font-family",
-	"menubar-default-font-size",
-	"menubar-default-font-weight",
-	"menubar-default-letter-spacing",
-	"menubar-default-line-height",
-	"menubar-stark-background-color",
-	"menubar-stark-border-radius",
-	"menubar-stark-box-shadow",
-	"menubar-stark-color",
-	"menubar-stark-border-color",
-	"menubar-stark-border-width",
-	"menubar-stark-opacity",
-	"menubar-stark-animation",
-	"menubar-stark-transition-duration",
-	"menubar-stark-transition-timing-function",
-	"menubar-stark-gradient",
-	"menubar-stark-font-family",
-	"menubar-stark-font-size",
-	"menubar-stark-font-weight",
-	"menubar-stark-letter-spacing",
-	"menubar-stark-line-height",
-	"menubar-glass-background-color",
-	"menubar-glass-border-radius",
-	"menubar-glass-box-shadow",
-	"menubar-glass-color",
-	"menubar-glass-border-color",
-	"menubar-glass-border-width",
-	"menubar-glass-backdrop-filter",
-	"menubar-glass-opacity",
-	"menubar-glass-animation",
-	"menubar-glass-transition-duration",
-	"menubar-glass-transition-timing-function",
-	"menubar-glass-gradient",
-	"menubar-glass-font-family",
-	"menubar-glass-font-size",
-	"menubar-glass-font-weight",
-	"menubar-glass-letter-spacing",
-	"menubar-glass-line-height",
-	"menubar-flat-background-color",
-	"menubar-flat-border-radius",
-	"menubar-flat-box-shadow",
-	"menubar-flat-color",
-	"menubar-flat-border-color",
-	"menubar-flat-border-width",
-	"menubar-flat-opacity",
-	"menubar-flat-animation",
-	"menubar-flat-transition-duration",
-	"menubar-flat-transition-timing-function",
-	"menubar-flat-gradient",
-	"menubar-flat-font-family",
-	"menubar-flat-font-size",
-	"menubar-flat-font-weight",
-	"menubar-flat-letter-spacing",
-	"menubar-flat-line-height",
-	"menubar-matte-background-color",
-	"menubar-matte-border-radius",
-	"menubar-matte-box-shadow",
-	"menubar-matte-color",
-	"menubar-matte-border-color",
-	"menubar-matte-border-width",
-	"menubar-matte-opacity",
-	"menubar-matte-animation",
-	"menubar-matte-transition-duration",
-	"menubar-matte-transition-timing-function",
-	"menubar-matte-gradient",
-	"menubar-matte-font-family",
-	"menubar-matte-font-size",
-	"menubar-matte-font-weight",
-	"menubar-matte-letter-spacing",
-	"menubar-matte-line-height",
-	"nav-default-background-color",
-	"nav-default-border-radius",
-	"nav-default-box-shadow",
-	"nav-default-color",
-	"nav-default-border-color",
-	"nav-default-border-width",
-	"nav-default-backdrop-filter",
-	"nav-default-opacity",
-	"nav-default-animation",
-	"nav-default-transition-duration",
-	"nav-default-transition-timing-function",
-	"nav-default-gradient",
-	"nav-default-font-family",
-	"nav-default-font-size",
-	"nav-default-font-weight",
-	"nav-default-letter-spacing",
-	"nav-default-line-height",
-	"nav-stark-background-color",
-	"nav-stark-border-radius",
-	"nav-stark-box-shadow",
-	"nav-stark-color",
-	"nav-stark-border-color",
-	"nav-stark-border-width",
-	"nav-stark-opacity",
-	"nav-stark-animation",
-	"nav-stark-transition-duration",
-	"nav-stark-transition-timing-function",
-	"nav-stark-gradient",
-	"nav-stark-font-family",
-	"nav-stark-font-size",
-	"nav-stark-font-weight",
-	"nav-stark-letter-spacing",
-	"nav-stark-line-height",
-	"nav-glass-background-color",
-	"nav-glass-border-radius",
-	"nav-glass-box-shadow",
-	"nav-glass-color",
-	"nav-glass-border-color",
-	"nav-glass-border-width",
-	"nav-glass-backdrop-filter",
-	"nav-glass-opacity",
-	"nav-glass-animation",
-	"nav-glass-transition-duration",
-	"nav-glass-transition-timing-function",
-	"nav-glass-gradient",
-	"nav-glass-font-family",
-	"nav-glass-font-size",
-	"nav-glass-font-weight",
-	"nav-glass-letter-spacing",
-	"nav-glass-line-height",
-	"nav-flat-background-color",
-	"nav-flat-border-radius",
-	"nav-flat-box-shadow",
-	"nav-flat-color",
-	"nav-flat-border-color",
-	"nav-flat-border-width",
-	"nav-flat-opacity",
-	"nav-flat-animation",
-	"nav-flat-transition-duration",
-	"nav-flat-transition-timing-function",
-	"nav-flat-gradient",
-	"nav-flat-font-family",
-	"nav-flat-font-size",
-	"nav-flat-font-weight",
-	"nav-flat-letter-spacing",
-	"nav-flat-line-height",
-	"nav-matte-background-color",
-	"nav-matte-border-radius",
-	"nav-matte-box-shadow",
-	"nav-matte-color",
-	"nav-matte-border-color",
-	"nav-matte-border-width",
-	"nav-matte-opacity",
-	"nav-matte-animation",
-	"nav-matte-transition-duration",
-	"nav-matte-transition-timing-function",
-	"nav-matte-gradient",
-	"nav-matte-font-family",
-	"nav-matte-font-size",
-	"nav-matte-font-weight",
-	"nav-matte-letter-spacing",
-	"nav-matte-line-height",
-	"navigation-menu-default-background-color",
-	"navigation-menu-default-border-radius",
-	"navigation-menu-default-box-shadow",
-	"navigation-menu-default-color",
-	"navigation-menu-default-border-color",
-	"navigation-menu-default-border-width",
-	"navigation-menu-default-backdrop-filter",
-	"navigation-menu-default-opacity",
-	"navigation-menu-default-animation",
-	"navigation-menu-default-transition-duration",
-	"navigation-menu-default-transition-timing-function",
-	"navigation-menu-default-gradient",
-	"navigation-menu-default-font-family",
-	"navigation-menu-default-font-size",
-	"navigation-menu-default-font-weight",
-	"navigation-menu-default-letter-spacing",
-	"navigation-menu-default-line-height",
-	"navigation-menu-stark-background-color",
-	"navigation-menu-stark-border-radius",
-	"navigation-menu-stark-box-shadow",
-	"navigation-menu-stark-color",
-	"navigation-menu-stark-border-color",
-	"navigation-menu-stark-border-width",
-	"navigation-menu-stark-opacity",
-	"navigation-menu-stark-animation",
-	"navigation-menu-stark-transition-duration",
-	"navigation-menu-stark-transition-timing-function",
-	"navigation-menu-stark-gradient",
-	"navigation-menu-stark-font-family",
-	"navigation-menu-stark-font-size",
-	"navigation-menu-stark-font-weight",
-	"navigation-menu-stark-letter-spacing",
-	"navigation-menu-stark-line-height",
-	"navigation-menu-glass-background-color",
-	"navigation-menu-glass-border-radius",
-	"navigation-menu-glass-box-shadow",
-	"navigation-menu-glass-color",
-	"navigation-menu-glass-border-color",
-	"navigation-menu-glass-border-width",
-	"navigation-menu-glass-backdrop-filter",
-	"navigation-menu-glass-opacity",
-	"navigation-menu-glass-animation",
-	"navigation-menu-glass-transition-duration",
-	"navigation-menu-glass-transition-timing-function",
-	"navigation-menu-glass-gradient",
-	"navigation-menu-glass-font-family",
-	"navigation-menu-glass-font-size",
-	"navigation-menu-glass-font-weight",
-	"navigation-menu-glass-letter-spacing",
-	"navigation-menu-glass-line-height",
-	"navigation-menu-flat-background-color",
-	"navigation-menu-flat-border-radius",
-	"navigation-menu-flat-box-shadow",
-	"navigation-menu-flat-color",
-	"navigation-menu-flat-border-color",
-	"navigation-menu-flat-border-width",
-	"navigation-menu-flat-opacity",
-	"navigation-menu-flat-animation",
-	"navigation-menu-flat-transition-duration",
-	"navigation-menu-flat-transition-timing-function",
-	"navigation-menu-flat-gradient",
-	"navigation-menu-flat-font-family",
-	"navigation-menu-flat-font-size",
-	"navigation-menu-flat-font-weight",
-	"navigation-menu-flat-letter-spacing",
-	"navigation-menu-flat-line-height",
-	"navigation-menu-matte-background-color",
-	"navigation-menu-matte-border-radius",
-	"navigation-menu-matte-box-shadow",
-	"navigation-menu-matte-color",
-	"navigation-menu-matte-border-color",
-	"navigation-menu-matte-border-width",
-	"navigation-menu-matte-opacity",
-	"navigation-menu-matte-animation",
-	"navigation-menu-matte-transition-duration",
-	"navigation-menu-matte-transition-timing-function",
-	"navigation-menu-matte-gradient",
-	"navigation-menu-matte-font-family",
-	"navigation-menu-matte-font-size",
-	"navigation-menu-matte-font-weight",
-	"navigation-menu-matte-letter-spacing",
-	"navigation-menu-matte-line-height",
-	"notification-center-default-background-color",
-	"notification-center-default-border-radius",
-	"notification-center-default-box-shadow",
-	"notification-center-default-color",
-	"notification-center-default-border-color",
-	"notification-center-default-border-width",
-	"notification-center-default-backdrop-filter",
-	"notification-center-default-opacity",
-	"notification-center-default-animation",
-	"notification-center-default-transition-duration",
-	"notification-center-default-transition-timing-function",
-	"notification-center-default-gradient",
-	"notification-center-default-font-family",
-	"notification-center-default-font-size",
-	"notification-center-default-font-weight",
-	"notification-center-default-letter-spacing",
-	"notification-center-default-line-height",
-	"notification-center-stark-background-color",
-	"notification-center-stark-border-radius",
-	"notification-center-stark-box-shadow",
-	"notification-center-stark-color",
-	"notification-center-stark-border-color",
-	"notification-center-stark-border-width",
-	"notification-center-stark-opacity",
-	"notification-center-stark-animation",
-	"notification-center-stark-transition-duration",
-	"notification-center-stark-transition-timing-function",
-	"notification-center-stark-gradient",
-	"notification-center-stark-font-family",
-	"notification-center-stark-font-size",
-	"notification-center-stark-font-weight",
-	"notification-center-stark-letter-spacing",
-	"notification-center-stark-line-height",
-	"notification-center-glass-background-color",
-	"notification-center-glass-border-radius",
-	"notification-center-glass-box-shadow",
-	"notification-center-glass-color",
-	"notification-center-glass-border-color",
-	"notification-center-glass-border-width",
-	"notification-center-glass-backdrop-filter",
-	"notification-center-glass-opacity",
-	"notification-center-glass-animation",
-	"notification-center-glass-transition-duration",
-	"notification-center-glass-transition-timing-function",
-	"notification-center-glass-gradient",
-	"notification-center-glass-font-family",
-	"notification-center-glass-font-size",
-	"notification-center-glass-font-weight",
-	"notification-center-glass-letter-spacing",
-	"notification-center-glass-line-height",
-	"notification-center-flat-background-color",
-	"notification-center-flat-border-radius",
-	"notification-center-flat-box-shadow",
-	"notification-center-flat-color",
-	"notification-center-flat-border-color",
-	"notification-center-flat-border-width",
-	"notification-center-flat-opacity",
-	"notification-center-flat-animation",
-	"notification-center-flat-transition-duration",
-	"notification-center-flat-transition-timing-function",
-	"notification-center-flat-gradient",
-	"notification-center-flat-font-family",
-	"notification-center-flat-font-size",
-	"notification-center-flat-font-weight",
-	"notification-center-flat-letter-spacing",
-	"notification-center-flat-line-height",
-	"notification-center-matte-background-color",
-	"notification-center-matte-border-radius",
-	"notification-center-matte-box-shadow",
-	"notification-center-matte-color",
-	"notification-center-matte-border-color",
-	"notification-center-matte-border-width",
-	"notification-center-matte-opacity",
-	"notification-center-matte-animation",
-	"notification-center-matte-transition-duration",
-	"notification-center-matte-transition-timing-function",
-	"notification-center-matte-gradient",
-	"notification-center-matte-font-family",
-	"notification-center-matte-font-size",
-	"notification-center-matte-font-weight",
-	"notification-center-matte-letter-spacing",
-	"notification-center-matte-line-height",
-	"pagination-default-background-color",
-	"pagination-default-border-radius",
-	"pagination-default-box-shadow",
-	"pagination-default-color",
-	"pagination-default-border-color",
-	"pagination-default-border-width",
-	"pagination-default-backdrop-filter",
-	"pagination-default-opacity",
-	"pagination-default-animation",
-	"pagination-default-transition-duration",
-	"pagination-default-transition-timing-function",
-	"pagination-default-gradient",
-	"pagination-default-font-family",
-	"pagination-default-font-size",
-	"pagination-default-font-weight",
-	"pagination-default-letter-spacing",
-	"pagination-default-line-height",
-	"pagination-stark-background-color",
-	"pagination-stark-border-radius",
-	"pagination-stark-box-shadow",
-	"pagination-stark-color",
-	"pagination-stark-border-color",
-	"pagination-stark-border-width",
-	"pagination-stark-opacity",
-	"pagination-stark-animation",
-	"pagination-stark-transition-duration",
-	"pagination-stark-transition-timing-function",
-	"pagination-stark-gradient",
-	"pagination-stark-font-family",
-	"pagination-stark-font-size",
-	"pagination-stark-font-weight",
-	"pagination-stark-letter-spacing",
-	"pagination-stark-line-height",
-	"pagination-glass-background-color",
-	"pagination-glass-border-radius",
-	"pagination-glass-box-shadow",
-	"pagination-glass-color",
-	"pagination-glass-border-color",
-	"pagination-glass-border-width",
-	"pagination-glass-backdrop-filter",
-	"pagination-glass-opacity",
-	"pagination-glass-animation",
-	"pagination-glass-transition-duration",
-	"pagination-glass-transition-timing-function",
-	"pagination-glass-gradient",
-	"pagination-glass-font-family",
-	"pagination-glass-font-size",
-	"pagination-glass-font-weight",
-	"pagination-glass-letter-spacing",
-	"pagination-glass-line-height",
-	"pagination-flat-background-color",
-	"pagination-flat-border-radius",
-	"pagination-flat-box-shadow",
-	"pagination-flat-color",
-	"pagination-flat-border-color",
-	"pagination-flat-border-width",
-	"pagination-flat-opacity",
-	"pagination-flat-animation",
-	"pagination-flat-transition-duration",
-	"pagination-flat-transition-timing-function",
-	"pagination-flat-gradient",
-	"pagination-flat-font-family",
-	"pagination-flat-font-size",
-	"pagination-flat-font-weight",
-	"pagination-flat-letter-spacing",
-	"pagination-flat-line-height",
-	"pagination-matte-background-color",
-	"pagination-matte-border-radius",
-	"pagination-matte-box-shadow",
-	"pagination-matte-color",
-	"pagination-matte-border-color",
-	"pagination-matte-border-width",
-	"pagination-matte-opacity",
-	"pagination-matte-animation",
-	"pagination-matte-transition-duration",
-	"pagination-matte-transition-timing-function",
-	"pagination-matte-gradient",
-	"pagination-matte-font-family",
-	"pagination-matte-font-size",
-	"pagination-matte-font-weight",
-	"pagination-matte-letter-spacing",
-	"pagination-matte-line-height",
-	"pin-input-default-background-color",
-	"pin-input-default-border-radius",
-	"pin-input-default-box-shadow",
-	"pin-input-default-color",
-	"pin-input-default-border-color",
-	"pin-input-default-border-width",
-	"pin-input-default-backdrop-filter",
-	"pin-input-default-opacity",
-	"pin-input-default-animation",
-	"pin-input-default-transition-duration",
-	"pin-input-default-transition-timing-function",
-	"pin-input-default-gradient",
-	"pin-input-default-font-family",
-	"pin-input-default-font-size",
-	"pin-input-default-font-weight",
-	"pin-input-default-letter-spacing",
-	"pin-input-default-line-height",
-	"pin-input-stark-background-color",
-	"pin-input-stark-border-radius",
-	"pin-input-stark-box-shadow",
-	"pin-input-stark-color",
-	"pin-input-stark-border-color",
-	"pin-input-stark-border-width",
-	"pin-input-stark-opacity",
-	"pin-input-stark-animation",
-	"pin-input-stark-transition-duration",
-	"pin-input-stark-transition-timing-function",
-	"pin-input-stark-gradient",
-	"pin-input-stark-font-family",
-	"pin-input-stark-font-size",
-	"pin-input-stark-font-weight",
-	"pin-input-stark-letter-spacing",
-	"pin-input-stark-line-height",
-	"pin-input-glass-background-color",
-	"pin-input-glass-border-radius",
-	"pin-input-glass-box-shadow",
-	"pin-input-glass-color",
-	"pin-input-glass-border-color",
-	"pin-input-glass-border-width",
-	"pin-input-glass-backdrop-filter",
-	"pin-input-glass-opacity",
-	"pin-input-glass-animation",
-	"pin-input-glass-transition-duration",
-	"pin-input-glass-transition-timing-function",
-	"pin-input-glass-gradient",
-	"pin-input-glass-font-family",
-	"pin-input-glass-font-size",
-	"pin-input-glass-font-weight",
-	"pin-input-glass-letter-spacing",
-	"pin-input-glass-line-height",
-	"pin-input-flat-background-color",
-	"pin-input-flat-border-radius",
-	"pin-input-flat-box-shadow",
-	"pin-input-flat-color",
-	"pin-input-flat-border-color",
-	"pin-input-flat-border-width",
-	"pin-input-flat-opacity",
-	"pin-input-flat-animation",
-	"pin-input-flat-transition-duration",
-	"pin-input-flat-transition-timing-function",
-	"pin-input-flat-gradient",
-	"pin-input-flat-font-family",
-	"pin-input-flat-font-size",
-	"pin-input-flat-font-weight",
-	"pin-input-flat-letter-spacing",
-	"pin-input-flat-line-height",
-	"pin-input-matte-background-color",
-	"pin-input-matte-border-radius",
-	"pin-input-matte-box-shadow",
-	"pin-input-matte-color",
-	"pin-input-matte-border-color",
-	"pin-input-matte-border-width",
-	"pin-input-matte-opacity",
-	"pin-input-matte-animation",
-	"pin-input-matte-transition-duration",
-	"pin-input-matte-transition-timing-function",
-	"pin-input-matte-gradient",
-	"pin-input-matte-font-family",
-	"pin-input-matte-font-size",
-	"pin-input-matte-font-weight",
-	"pin-input-matte-letter-spacing",
-	"pin-input-matte-line-height",
-	"popover-default-background-color",
-	"popover-default-border-radius",
-	"popover-default-box-shadow",
-	"popover-default-color",
-	"popover-default-border-color",
-	"popover-default-border-width",
-	"popover-default-backdrop-filter",
-	"popover-default-opacity",
-	"popover-default-animation",
-	"popover-default-transition-duration",
-	"popover-default-transition-timing-function",
-	"popover-default-gradient",
-	"popover-default-font-family",
-	"popover-default-font-size",
-	"popover-default-font-weight",
-	"popover-default-letter-spacing",
-	"popover-default-line-height",
-	"popover-stark-background-color",
-	"popover-stark-border-radius",
-	"popover-stark-box-shadow",
-	"popover-stark-color",
-	"popover-stark-border-color",
-	"popover-stark-border-width",
-	"popover-stark-opacity",
-	"popover-stark-animation",
-	"popover-stark-transition-duration",
-	"popover-stark-transition-timing-function",
-	"popover-stark-gradient",
-	"popover-stark-font-family",
-	"popover-stark-font-size",
-	"popover-stark-font-weight",
-	"popover-stark-letter-spacing",
-	"popover-stark-line-height",
-	"popover-glass-background-color",
-	"popover-glass-border-radius",
-	"popover-glass-box-shadow",
-	"popover-glass-color",
-	"popover-glass-border-color",
-	"popover-glass-border-width",
-	"popover-glass-backdrop-filter",
-	"popover-glass-opacity",
-	"popover-glass-animation",
-	"popover-glass-transition-duration",
-	"popover-glass-transition-timing-function",
-	"popover-glass-gradient",
-	"popover-glass-font-family",
-	"popover-glass-font-size",
-	"popover-glass-font-weight",
-	"popover-glass-letter-spacing",
-	"popover-glass-line-height",
-	"popover-flat-background-color",
-	"popover-flat-border-radius",
-	"popover-flat-box-shadow",
-	"popover-flat-color",
-	"popover-flat-border-color",
-	"popover-flat-border-width",
-	"popover-flat-opacity",
-	"popover-flat-animation",
-	"popover-flat-transition-duration",
-	"popover-flat-transition-timing-function",
-	"popover-flat-gradient",
-	"popover-flat-font-family",
-	"popover-flat-font-size",
-	"popover-flat-font-weight",
-	"popover-flat-letter-spacing",
-	"popover-flat-line-height",
-	"popover-matte-background-color",
-	"popover-matte-border-radius",
-	"popover-matte-box-shadow",
-	"popover-matte-color",
-	"popover-matte-border-color",
-	"popover-matte-border-width",
-	"popover-matte-opacity",
-	"popover-matte-animation",
-	"popover-matte-transition-duration",
-	"popover-matte-transition-timing-function",
-	"popover-matte-gradient",
-	"popover-matte-font-family",
-	"popover-matte-font-size",
-	"popover-matte-font-weight",
-	"popover-matte-letter-spacing",
-	"popover-matte-line-height",
-	"progress-default-background-color",
-	"progress-default-border-radius",
-	"progress-default-box-shadow",
-	"progress-default-color",
-	"progress-default-border-color",
-	"progress-default-border-width",
-	"progress-default-backdrop-filter",
-	"progress-default-opacity",
-	"progress-default-animation",
-	"progress-default-transition-duration",
-	"progress-default-transition-timing-function",
-	"progress-default-gradient",
-	"progress-default-font-family",
-	"progress-default-font-size",
-	"progress-default-font-weight",
-	"progress-default-letter-spacing",
-	"progress-default-line-height",
-	"progress-stark-background-color",
-	"progress-stark-border-radius",
-	"progress-stark-box-shadow",
-	"progress-stark-color",
-	"progress-stark-border-color",
-	"progress-stark-border-width",
-	"progress-stark-opacity",
-	"progress-stark-animation",
-	"progress-stark-transition-duration",
-	"progress-stark-transition-timing-function",
-	"progress-stark-gradient",
-	"progress-stark-font-family",
-	"progress-stark-font-size",
-	"progress-stark-font-weight",
-	"progress-stark-letter-spacing",
-	"progress-stark-line-height",
-	"progress-glass-background-color",
-	"progress-glass-border-radius",
-	"progress-glass-box-shadow",
-	"progress-glass-color",
-	"progress-glass-border-color",
-	"progress-glass-border-width",
-	"progress-glass-backdrop-filter",
-	"progress-glass-opacity",
-	"progress-glass-animation",
-	"progress-glass-transition-duration",
-	"progress-glass-transition-timing-function",
-	"progress-glass-gradient",
-	"progress-glass-font-family",
-	"progress-glass-font-size",
-	"progress-glass-font-weight",
-	"progress-glass-letter-spacing",
-	"progress-glass-line-height",
-	"progress-flat-background-color",
-	"progress-flat-border-radius",
-	"progress-flat-box-shadow",
-	"progress-flat-color",
-	"progress-flat-border-color",
-	"progress-flat-border-width",
-	"progress-flat-opacity",
-	"progress-flat-animation",
-	"progress-flat-transition-duration",
-	"progress-flat-transition-timing-function",
-	"progress-flat-gradient",
-	"progress-flat-font-family",
-	"progress-flat-font-size",
-	"progress-flat-font-weight",
-	"progress-flat-letter-spacing",
-	"progress-flat-line-height",
-	"progress-matte-background-color",
-	"progress-matte-border-radius",
-	"progress-matte-box-shadow",
-	"progress-matte-color",
-	"progress-matte-border-color",
-	"progress-matte-border-width",
-	"progress-matte-opacity",
-	"progress-matte-animation",
-	"progress-matte-transition-duration",
-	"progress-matte-transition-timing-function",
-	"progress-matte-gradient",
-	"progress-matte-font-family",
-	"progress-matte-font-size",
-	"progress-matte-font-weight",
-	"progress-matte-letter-spacing",
-	"progress-matte-line-height",
-	"prose-default-background-color",
-	"prose-default-border-radius",
-	"prose-default-box-shadow",
-	"prose-default-color",
-	"prose-default-border-color",
-	"prose-default-border-width",
-	"prose-default-backdrop-filter",
-	"prose-default-opacity",
-	"prose-default-animation",
-	"prose-default-transition-duration",
-	"prose-default-transition-timing-function",
-	"prose-default-gradient",
-	"prose-default-font-family",
-	"prose-default-font-size",
-	"prose-default-font-weight",
-	"prose-default-letter-spacing",
-	"prose-default-line-height",
-	"prose-stark-background-color",
-	"prose-stark-border-radius",
-	"prose-stark-box-shadow",
-	"prose-stark-color",
-	"prose-stark-border-color",
-	"prose-stark-border-width",
-	"prose-stark-opacity",
-	"prose-stark-animation",
-	"prose-stark-transition-duration",
-	"prose-stark-transition-timing-function",
-	"prose-stark-gradient",
-	"prose-stark-font-family",
-	"prose-stark-font-size",
-	"prose-stark-font-weight",
-	"prose-stark-letter-spacing",
-	"prose-stark-line-height",
-	"prose-glass-background-color",
-	"prose-glass-border-radius",
-	"prose-glass-box-shadow",
-	"prose-glass-color",
-	"prose-glass-border-color",
-	"prose-glass-border-width",
-	"prose-glass-backdrop-filter",
-	"prose-glass-opacity",
-	"prose-glass-animation",
-	"prose-glass-transition-duration",
-	"prose-glass-transition-timing-function",
-	"prose-glass-gradient",
-	"prose-glass-font-family",
-	"prose-glass-font-size",
-	"prose-glass-font-weight",
-	"prose-glass-letter-spacing",
-	"prose-glass-line-height",
-	"prose-flat-background-color",
-	"prose-flat-border-radius",
-	"prose-flat-box-shadow",
-	"prose-flat-color",
-	"prose-flat-border-color",
-	"prose-flat-border-width",
-	"prose-flat-opacity",
-	"prose-flat-animation",
-	"prose-flat-transition-duration",
-	"prose-flat-transition-timing-function",
-	"prose-flat-gradient",
-	"prose-flat-font-family",
-	"prose-flat-font-size",
-	"prose-flat-font-weight",
-	"prose-flat-letter-spacing",
-	"prose-flat-line-height",
-	"prose-matte-background-color",
-	"prose-matte-border-radius",
-	"prose-matte-box-shadow",
-	"prose-matte-color",
-	"prose-matte-border-color",
-	"prose-matte-border-width",
-	"prose-matte-opacity",
-	"prose-matte-animation",
-	"prose-matte-transition-duration",
-	"prose-matte-transition-timing-function",
-	"prose-matte-gradient",
-	"prose-matte-font-family",
-	"prose-matte-font-size",
-	"prose-matte-font-weight",
-	"prose-matte-letter-spacing",
-	"prose-matte-line-height",
-	"radio-group-default-background-color",
-	"radio-group-default-border-radius",
-	"radio-group-default-box-shadow",
-	"radio-group-default-color",
-	"radio-group-default-border-color",
-	"radio-group-default-border-width",
-	"radio-group-default-backdrop-filter",
-	"radio-group-default-opacity",
-	"radio-group-default-animation",
-	"radio-group-default-transition-duration",
-	"radio-group-default-transition-timing-function",
-	"radio-group-default-gradient",
-	"radio-group-default-font-family",
-	"radio-group-default-font-size",
-	"radio-group-default-font-weight",
-	"radio-group-default-letter-spacing",
-	"radio-group-default-line-height",
-	"radio-group-stark-background-color",
-	"radio-group-stark-border-radius",
-	"radio-group-stark-box-shadow",
-	"radio-group-stark-color",
-	"radio-group-stark-border-color",
-	"radio-group-stark-border-width",
-	"radio-group-stark-opacity",
-	"radio-group-stark-animation",
-	"radio-group-stark-transition-duration",
-	"radio-group-stark-transition-timing-function",
-	"radio-group-stark-gradient",
-	"radio-group-stark-font-family",
-	"radio-group-stark-font-size",
-	"radio-group-stark-font-weight",
-	"radio-group-stark-letter-spacing",
-	"radio-group-stark-line-height",
-	"radio-group-glass-background-color",
-	"radio-group-glass-border-radius",
-	"radio-group-glass-box-shadow",
-	"radio-group-glass-color",
-	"radio-group-glass-border-color",
-	"radio-group-glass-border-width",
-	"radio-group-glass-backdrop-filter",
-	"radio-group-glass-opacity",
-	"radio-group-glass-animation",
-	"radio-group-glass-transition-duration",
-	"radio-group-glass-transition-timing-function",
-	"radio-group-glass-gradient",
-	"radio-group-glass-font-family",
-	"radio-group-glass-font-size",
-	"radio-group-glass-font-weight",
-	"radio-group-glass-letter-spacing",
-	"radio-group-glass-line-height",
-	"radio-group-flat-background-color",
-	"radio-group-flat-border-radius",
-	"radio-group-flat-box-shadow",
-	"radio-group-flat-color",
-	"radio-group-flat-border-color",
-	"radio-group-flat-border-width",
-	"radio-group-flat-opacity",
-	"radio-group-flat-animation",
-	"radio-group-flat-transition-duration",
-	"radio-group-flat-transition-timing-function",
-	"radio-group-flat-gradient",
-	"radio-group-flat-font-family",
-	"radio-group-flat-font-size",
-	"radio-group-flat-font-weight",
-	"radio-group-flat-letter-spacing",
-	"radio-group-flat-line-height",
-	"radio-group-matte-background-color",
-	"radio-group-matte-border-radius",
-	"radio-group-matte-box-shadow",
-	"radio-group-matte-color",
-	"radio-group-matte-border-color",
-	"radio-group-matte-border-width",
-	"radio-group-matte-opacity",
-	"radio-group-matte-animation",
-	"radio-group-matte-transition-duration",
-	"radio-group-matte-transition-timing-function",
-	"radio-group-matte-gradient",
-	"radio-group-matte-font-family",
-	"radio-group-matte-font-size",
-	"radio-group-matte-font-weight",
-	"radio-group-matte-letter-spacing",
-	"radio-group-matte-line-height",
-	"range-calendar-default-background-color",
-	"range-calendar-default-border-radius",
-	"range-calendar-default-box-shadow",
-	"range-calendar-default-color",
-	"range-calendar-default-border-color",
-	"range-calendar-default-border-width",
-	"range-calendar-default-backdrop-filter",
-	"range-calendar-default-opacity",
-	"range-calendar-default-animation",
-	"range-calendar-default-transition-duration",
-	"range-calendar-default-transition-timing-function",
-	"range-calendar-default-gradient",
-	"range-calendar-default-font-family",
-	"range-calendar-default-font-size",
-	"range-calendar-default-font-weight",
-	"range-calendar-default-letter-spacing",
-	"range-calendar-default-line-height",
-	"range-calendar-stark-background-color",
-	"range-calendar-stark-border-radius",
-	"range-calendar-stark-box-shadow",
-	"range-calendar-stark-color",
-	"range-calendar-stark-border-color",
-	"range-calendar-stark-border-width",
-	"range-calendar-stark-opacity",
-	"range-calendar-stark-animation",
-	"range-calendar-stark-transition-duration",
-	"range-calendar-stark-transition-timing-function",
-	"range-calendar-stark-gradient",
-	"range-calendar-stark-font-family",
-	"range-calendar-stark-font-size",
-	"range-calendar-stark-font-weight",
-	"range-calendar-stark-letter-spacing",
-	"range-calendar-stark-line-height",
-	"range-calendar-glass-background-color",
-	"range-calendar-glass-border-radius",
-	"range-calendar-glass-box-shadow",
-	"range-calendar-glass-color",
-	"range-calendar-glass-border-color",
-	"range-calendar-glass-border-width",
-	"range-calendar-glass-backdrop-filter",
-	"range-calendar-glass-opacity",
-	"range-calendar-glass-animation",
-	"range-calendar-glass-transition-duration",
-	"range-calendar-glass-transition-timing-function",
-	"range-calendar-glass-gradient",
-	"range-calendar-glass-font-family",
-	"range-calendar-glass-font-size",
-	"range-calendar-glass-font-weight",
-	"range-calendar-glass-letter-spacing",
-	"range-calendar-glass-line-height",
-	"range-calendar-flat-background-color",
-	"range-calendar-flat-border-radius",
-	"range-calendar-flat-box-shadow",
-	"range-calendar-flat-color",
-	"range-calendar-flat-border-color",
-	"range-calendar-flat-border-width",
-	"range-calendar-flat-opacity",
-	"range-calendar-flat-animation",
-	"range-calendar-flat-transition-duration",
-	"range-calendar-flat-transition-timing-function",
-	"range-calendar-flat-gradient",
-	"range-calendar-flat-font-family",
-	"range-calendar-flat-font-size",
-	"range-calendar-flat-font-weight",
-	"range-calendar-flat-letter-spacing",
-	"range-calendar-flat-line-height",
-	"range-calendar-matte-background-color",
-	"range-calendar-matte-border-radius",
-	"range-calendar-matte-box-shadow",
-	"range-calendar-matte-color",
-	"range-calendar-matte-border-color",
-	"range-calendar-matte-border-width",
-	"range-calendar-matte-opacity",
-	"range-calendar-matte-animation",
-	"range-calendar-matte-transition-duration",
-	"range-calendar-matte-transition-timing-function",
-	"range-calendar-matte-gradient",
-	"range-calendar-matte-font-family",
-	"range-calendar-matte-font-size",
-	"range-calendar-matte-font-weight",
-	"range-calendar-matte-letter-spacing",
-	"range-calendar-matte-line-height",
-	"scroll-area-default-background-color",
-	"scroll-area-default-border-radius",
-	"scroll-area-default-box-shadow",
-	"scroll-area-default-color",
-	"scroll-area-default-border-color",
-	"scroll-area-default-border-width",
-	"scroll-area-default-backdrop-filter",
-	"scroll-area-default-opacity",
-	"scroll-area-default-animation",
-	"scroll-area-default-transition-duration",
-	"scroll-area-default-transition-timing-function",
-	"scroll-area-default-gradient",
-	"scroll-area-default-font-family",
-	"scroll-area-default-font-size",
-	"scroll-area-default-font-weight",
-	"scroll-area-default-letter-spacing",
-	"scroll-area-default-line-height",
-	"scroll-area-stark-background-color",
-	"scroll-area-stark-border-radius",
-	"scroll-area-stark-box-shadow",
-	"scroll-area-stark-color",
-	"scroll-area-stark-border-color",
-	"scroll-area-stark-border-width",
-	"scroll-area-stark-opacity",
-	"scroll-area-stark-animation",
-	"scroll-area-stark-transition-duration",
-	"scroll-area-stark-transition-timing-function",
-	"scroll-area-stark-gradient",
-	"scroll-area-stark-font-family",
-	"scroll-area-stark-font-size",
-	"scroll-area-stark-font-weight",
-	"scroll-area-stark-letter-spacing",
-	"scroll-area-stark-line-height",
-	"scroll-area-glass-background-color",
-	"scroll-area-glass-border-radius",
-	"scroll-area-glass-box-shadow",
-	"scroll-area-glass-color",
-	"scroll-area-glass-border-color",
-	"scroll-area-glass-border-width",
-	"scroll-area-glass-backdrop-filter",
-	"scroll-area-glass-opacity",
-	"scroll-area-glass-animation",
-	"scroll-area-glass-transition-duration",
-	"scroll-area-glass-transition-timing-function",
-	"scroll-area-glass-gradient",
-	"scroll-area-glass-font-family",
-	"scroll-area-glass-font-size",
-	"scroll-area-glass-font-weight",
-	"scroll-area-glass-letter-spacing",
-	"scroll-area-glass-line-height",
-	"scroll-area-flat-background-color",
-	"scroll-area-flat-border-radius",
-	"scroll-area-flat-box-shadow",
-	"scroll-area-flat-color",
-	"scroll-area-flat-border-color",
-	"scroll-area-flat-border-width",
-	"scroll-area-flat-opacity",
-	"scroll-area-flat-animation",
-	"scroll-area-flat-transition-duration",
-	"scroll-area-flat-transition-timing-function",
-	"scroll-area-flat-gradient",
-	"scroll-area-flat-font-family",
-	"scroll-area-flat-font-size",
-	"scroll-area-flat-font-weight",
-	"scroll-area-flat-letter-spacing",
-	"scroll-area-flat-line-height",
-	"scroll-area-matte-background-color",
-	"scroll-area-matte-border-radius",
-	"scroll-area-matte-box-shadow",
-	"scroll-area-matte-color",
-	"scroll-area-matte-border-color",
-	"scroll-area-matte-border-width",
-	"scroll-area-matte-opacity",
-	"scroll-area-matte-animation",
-	"scroll-area-matte-transition-duration",
-	"scroll-area-matte-transition-timing-function",
-	"scroll-area-matte-gradient",
-	"scroll-area-matte-font-family",
-	"scroll-area-matte-font-size",
-	"scroll-area-matte-font-weight",
-	"scroll-area-matte-letter-spacing",
-	"scroll-area-matte-line-height",
-	"select-default-background-color",
-	"select-default-border-radius",
-	"select-default-box-shadow",
-	"select-default-color",
-	"select-default-border-color",
-	"select-default-border-width",
-	"select-default-backdrop-filter",
-	"select-default-opacity",
-	"select-default-animation",
-	"select-default-transition-duration",
-	"select-default-transition-timing-function",
-	"select-default-gradient",
-	"select-default-font-family",
-	"select-default-font-size",
-	"select-default-font-weight",
-	"select-default-letter-spacing",
-	"select-default-line-height",
-	"select-stark-background-color",
-	"select-stark-border-radius",
-	"select-stark-box-shadow",
-	"select-stark-color",
-	"select-stark-border-color",
-	"select-stark-border-width",
-	"select-stark-opacity",
-	"select-stark-animation",
-	"select-stark-transition-duration",
-	"select-stark-transition-timing-function",
-	"select-stark-gradient",
-	"select-stark-font-family",
-	"select-stark-font-size",
-	"select-stark-font-weight",
-	"select-stark-letter-spacing",
-	"select-stark-line-height",
-	"select-glass-background-color",
-	"select-glass-border-radius",
-	"select-glass-box-shadow",
-	"select-glass-color",
-	"select-glass-border-color",
-	"select-glass-border-width",
-	"select-glass-backdrop-filter",
-	"select-glass-opacity",
-	"select-glass-animation",
-	"select-glass-transition-duration",
-	"select-glass-transition-timing-function",
-	"select-glass-gradient",
-	"select-glass-font-family",
-	"select-glass-font-size",
-	"select-glass-font-weight",
-	"select-glass-letter-spacing",
-	"select-glass-line-height",
-	"select-flat-background-color",
-	"select-flat-border-radius",
-	"select-flat-box-shadow",
-	"select-flat-color",
-	"select-flat-border-color",
-	"select-flat-border-width",
-	"select-flat-opacity",
-	"select-flat-animation",
-	"select-flat-transition-duration",
-	"select-flat-transition-timing-function",
-	"select-flat-gradient",
-	"select-flat-font-family",
-	"select-flat-font-size",
-	"select-flat-font-weight",
-	"select-flat-letter-spacing",
-	"select-flat-line-height",
-	"select-matte-background-color",
-	"select-matte-border-radius",
-	"select-matte-box-shadow",
-	"select-matte-color",
-	"select-matte-border-color",
-	"select-matte-border-width",
-	"select-matte-opacity",
-	"select-matte-animation",
-	"select-matte-transition-duration",
-	"select-matte-transition-timing-function",
-	"select-matte-gradient",
-	"select-matte-font-family",
-	"select-matte-font-size",
-	"select-matte-font-weight",
-	"select-matte-letter-spacing",
-	"select-matte-line-height",
-	"separator-default-background-color",
-	"separator-default-border-radius",
-	"separator-default-box-shadow",
-	"separator-default-color",
-	"separator-default-border-color",
-	"separator-default-border-width",
-	"separator-default-backdrop-filter",
-	"separator-default-opacity",
-	"separator-default-animation",
-	"separator-default-transition-duration",
-	"separator-default-transition-timing-function",
-	"separator-default-gradient",
-	"separator-default-font-family",
-	"separator-default-font-size",
-	"separator-default-font-weight",
-	"separator-default-letter-spacing",
-	"separator-default-line-height",
-	"separator-stark-background-color",
-	"separator-stark-border-radius",
-	"separator-stark-box-shadow",
-	"separator-stark-color",
-	"separator-stark-border-color",
-	"separator-stark-border-width",
-	"separator-stark-opacity",
-	"separator-stark-animation",
-	"separator-stark-transition-duration",
-	"separator-stark-transition-timing-function",
-	"separator-stark-gradient",
-	"separator-stark-font-family",
-	"separator-stark-font-size",
-	"separator-stark-font-weight",
-	"separator-stark-letter-spacing",
-	"separator-stark-line-height",
-	"separator-glass-background-color",
-	"separator-glass-border-radius",
-	"separator-glass-box-shadow",
-	"separator-glass-color",
-	"separator-glass-border-color",
-	"separator-glass-border-width",
-	"separator-glass-backdrop-filter",
-	"separator-glass-opacity",
-	"separator-glass-animation",
-	"separator-glass-transition-duration",
-	"separator-glass-transition-timing-function",
-	"separator-glass-gradient",
-	"separator-glass-font-family",
-	"separator-glass-font-size",
-	"separator-glass-font-weight",
-	"separator-glass-letter-spacing",
-	"separator-glass-line-height",
-	"separator-flat-background-color",
-	"separator-flat-border-radius",
-	"separator-flat-box-shadow",
-	"separator-flat-color",
-	"separator-flat-border-color",
-	"separator-flat-border-width",
-	"separator-flat-opacity",
-	"separator-flat-animation",
-	"separator-flat-transition-duration",
-	"separator-flat-transition-timing-function",
-	"separator-flat-gradient",
-	"separator-flat-font-family",
-	"separator-flat-font-size",
-	"separator-flat-font-weight",
-	"separator-flat-letter-spacing",
-	"separator-flat-line-height",
-	"separator-matte-background-color",
-	"separator-matte-border-radius",
-	"separator-matte-box-shadow",
-	"separator-matte-color",
-	"separator-matte-border-color",
-	"separator-matte-border-width",
-	"separator-matte-opacity",
-	"separator-matte-animation",
-	"separator-matte-transition-duration",
-	"separator-matte-transition-timing-function",
-	"separator-matte-gradient",
-	"separator-matte-font-family",
-	"separator-matte-font-size",
-	"separator-matte-font-weight",
-	"separator-matte-letter-spacing",
-	"separator-matte-line-height",
-	"sheet-default-background-color",
-	"sheet-default-border-radius",
-	"sheet-default-box-shadow",
-	"sheet-default-color",
-	"sheet-default-border-color",
-	"sheet-default-border-width",
-	"sheet-default-backdrop-filter",
-	"sheet-default-opacity",
-	"sheet-default-animation",
-	"sheet-default-transition-duration",
-	"sheet-default-transition-timing-function",
-	"sheet-default-gradient",
-	"sheet-default-font-family",
-	"sheet-default-font-size",
-	"sheet-default-font-weight",
-	"sheet-default-letter-spacing",
-	"sheet-default-line-height",
-	"sheet-stark-background-color",
-	"sheet-stark-border-radius",
-	"sheet-stark-box-shadow",
-	"sheet-stark-color",
-	"sheet-stark-border-color",
-	"sheet-stark-border-width",
-	"sheet-stark-opacity",
-	"sheet-stark-animation",
-	"sheet-stark-transition-duration",
-	"sheet-stark-transition-timing-function",
-	"sheet-stark-gradient",
-	"sheet-stark-font-family",
-	"sheet-stark-font-size",
-	"sheet-stark-font-weight",
-	"sheet-stark-letter-spacing",
-	"sheet-stark-line-height",
-	"sheet-glass-background-color",
-	"sheet-glass-border-radius",
-	"sheet-glass-box-shadow",
-	"sheet-glass-color",
-	"sheet-glass-border-color",
-	"sheet-glass-border-width",
-	"sheet-glass-backdrop-filter",
-	"sheet-glass-opacity",
-	"sheet-glass-animation",
-	"sheet-glass-transition-duration",
-	"sheet-glass-transition-timing-function",
-	"sheet-glass-gradient",
-	"sheet-glass-font-family",
-	"sheet-glass-font-size",
-	"sheet-glass-font-weight",
-	"sheet-glass-letter-spacing",
-	"sheet-glass-line-height",
-	"sheet-flat-background-color",
-	"sheet-flat-border-radius",
-	"sheet-flat-box-shadow",
-	"sheet-flat-color",
-	"sheet-flat-border-color",
-	"sheet-flat-border-width",
-	"sheet-flat-opacity",
-	"sheet-flat-animation",
-	"sheet-flat-transition-duration",
-	"sheet-flat-transition-timing-function",
-	"sheet-flat-gradient",
-	"sheet-flat-font-family",
-	"sheet-flat-font-size",
-	"sheet-flat-font-weight",
-	"sheet-flat-letter-spacing",
-	"sheet-flat-line-height",
-	"sheet-matte-background-color",
-	"sheet-matte-border-radius",
-	"sheet-matte-box-shadow",
-	"sheet-matte-color",
-	"sheet-matte-border-color",
-	"sheet-matte-border-width",
-	"sheet-matte-opacity",
-	"sheet-matte-animation",
-	"sheet-matte-transition-duration",
-	"sheet-matte-transition-timing-function",
-	"sheet-matte-gradient",
-	"sheet-matte-font-family",
-	"sheet-matte-font-size",
-	"sheet-matte-font-weight",
-	"sheet-matte-letter-spacing",
-	"sheet-matte-line-height",
-	"sidebar-default-background-color",
-	"sidebar-default-border-radius",
-	"sidebar-default-box-shadow",
-	"sidebar-default-color",
-	"sidebar-default-border-color",
-	"sidebar-default-border-width",
-	"sidebar-default-backdrop-filter",
-	"sidebar-default-opacity",
-	"sidebar-default-animation",
-	"sidebar-default-transition-duration",
-	"sidebar-default-transition-timing-function",
-	"sidebar-default-gradient",
-	"sidebar-default-font-family",
-	"sidebar-default-font-size",
-	"sidebar-default-font-weight",
-	"sidebar-default-letter-spacing",
-	"sidebar-default-line-height",
-	"sidebar-stark-background-color",
-	"sidebar-stark-border-radius",
-	"sidebar-stark-box-shadow",
-	"sidebar-stark-color",
-	"sidebar-stark-border-color",
-	"sidebar-stark-border-width",
-	"sidebar-stark-opacity",
-	"sidebar-stark-animation",
-	"sidebar-stark-transition-duration",
-	"sidebar-stark-transition-timing-function",
-	"sidebar-stark-gradient",
-	"sidebar-stark-font-family",
-	"sidebar-stark-font-size",
-	"sidebar-stark-font-weight",
-	"sidebar-stark-letter-spacing",
-	"sidebar-stark-line-height",
-	"sidebar-glass-background-color",
-	"sidebar-glass-border-radius",
-	"sidebar-glass-box-shadow",
-	"sidebar-glass-color",
-	"sidebar-glass-border-color",
-	"sidebar-glass-border-width",
-	"sidebar-glass-backdrop-filter",
-	"sidebar-glass-opacity",
-	"sidebar-glass-animation",
-	"sidebar-glass-transition-duration",
-	"sidebar-glass-transition-timing-function",
-	"sidebar-glass-gradient",
-	"sidebar-glass-font-family",
-	"sidebar-glass-font-size",
-	"sidebar-glass-font-weight",
-	"sidebar-glass-letter-spacing",
-	"sidebar-glass-line-height",
-	"sidebar-flat-background-color",
-	"sidebar-flat-border-radius",
-	"sidebar-flat-box-shadow",
-	"sidebar-flat-color",
-	"sidebar-flat-border-color",
-	"sidebar-flat-border-width",
-	"sidebar-flat-opacity",
-	"sidebar-flat-animation",
-	"sidebar-flat-transition-duration",
-	"sidebar-flat-transition-timing-function",
-	"sidebar-flat-gradient",
-	"sidebar-flat-font-family",
-	"sidebar-flat-font-size",
-	"sidebar-flat-font-weight",
-	"sidebar-flat-letter-spacing",
-	"sidebar-flat-line-height",
-	"sidebar-matte-background-color",
-	"sidebar-matte-border-radius",
-	"sidebar-matte-box-shadow",
-	"sidebar-matte-color",
-	"sidebar-matte-border-color",
-	"sidebar-matte-border-width",
-	"sidebar-matte-opacity",
-	"sidebar-matte-animation",
-	"sidebar-matte-transition-duration",
-	"sidebar-matte-transition-timing-function",
-	"sidebar-matte-gradient",
-	"sidebar-matte-font-family",
-	"sidebar-matte-font-size",
-	"sidebar-matte-font-weight",
-	"sidebar-matte-letter-spacing",
-	"sidebar-matte-line-height",
-	"skeleton-default-background-color",
-	"skeleton-default-border-radius",
-	"skeleton-default-box-shadow",
-	"skeleton-default-color",
-	"skeleton-default-border-color",
-	"skeleton-default-border-width",
-	"skeleton-default-backdrop-filter",
-	"skeleton-default-opacity",
-	"skeleton-default-animation",
-	"skeleton-default-transition-duration",
-	"skeleton-default-transition-timing-function",
-	"skeleton-default-gradient",
-	"skeleton-default-font-family",
-	"skeleton-default-font-size",
-	"skeleton-default-font-weight",
-	"skeleton-default-letter-spacing",
-	"skeleton-default-line-height",
-	"skeleton-stark-background-color",
-	"skeleton-stark-border-radius",
-	"skeleton-stark-box-shadow",
-	"skeleton-stark-color",
-	"skeleton-stark-border-color",
-	"skeleton-stark-border-width",
-	"skeleton-stark-opacity",
-	"skeleton-stark-animation",
-	"skeleton-stark-transition-duration",
-	"skeleton-stark-transition-timing-function",
-	"skeleton-stark-gradient",
-	"skeleton-stark-font-family",
-	"skeleton-stark-font-size",
-	"skeleton-stark-font-weight",
-	"skeleton-stark-letter-spacing",
-	"skeleton-stark-line-height",
-	"skeleton-glass-background-color",
-	"skeleton-glass-border-radius",
-	"skeleton-glass-box-shadow",
-	"skeleton-glass-color",
-	"skeleton-glass-border-color",
-	"skeleton-glass-border-width",
-	"skeleton-glass-backdrop-filter",
-	"skeleton-glass-opacity",
-	"skeleton-glass-animation",
-	"skeleton-glass-transition-duration",
-	"skeleton-glass-transition-timing-function",
-	"skeleton-glass-gradient",
-	"skeleton-glass-font-family",
-	"skeleton-glass-font-size",
-	"skeleton-glass-font-weight",
-	"skeleton-glass-letter-spacing",
-	"skeleton-glass-line-height",
-	"skeleton-flat-background-color",
-	"skeleton-flat-border-radius",
-	"skeleton-flat-box-shadow",
-	"skeleton-flat-color",
-	"skeleton-flat-border-color",
-	"skeleton-flat-border-width",
-	"skeleton-flat-opacity",
-	"skeleton-flat-animation",
-	"skeleton-flat-transition-duration",
-	"skeleton-flat-transition-timing-function",
-	"skeleton-flat-gradient",
-	"skeleton-flat-font-family",
-	"skeleton-flat-font-size",
-	"skeleton-flat-font-weight",
-	"skeleton-flat-letter-spacing",
-	"skeleton-flat-line-height",
-	"skeleton-matte-background-color",
-	"skeleton-matte-border-radius",
-	"skeleton-matte-box-shadow",
-	"skeleton-matte-color",
-	"skeleton-matte-border-color",
-	"skeleton-matte-border-width",
-	"skeleton-matte-opacity",
-	"skeleton-matte-animation",
-	"skeleton-matte-transition-duration",
-	"skeleton-matte-transition-timing-function",
-	"skeleton-matte-gradient",
-	"skeleton-matte-font-family",
-	"skeleton-matte-font-size",
-	"skeleton-matte-font-weight",
-	"skeleton-matte-letter-spacing",
-	"skeleton-matte-line-height",
-	"skip-link-default-background-color",
-	"skip-link-default-border-radius",
-	"skip-link-default-box-shadow",
-	"skip-link-default-color",
-	"skip-link-default-border-color",
-	"skip-link-default-border-width",
-	"skip-link-default-backdrop-filter",
-	"skip-link-default-opacity",
-	"skip-link-default-animation",
-	"skip-link-default-transition-duration",
-	"skip-link-default-transition-timing-function",
-	"skip-link-default-gradient",
-	"skip-link-default-font-family",
-	"skip-link-default-font-size",
-	"skip-link-default-font-weight",
-	"skip-link-default-letter-spacing",
-	"skip-link-default-line-height",
-	"skip-link-stark-background-color",
-	"skip-link-stark-border-radius",
-	"skip-link-stark-box-shadow",
-	"skip-link-stark-color",
-	"skip-link-stark-border-color",
-	"skip-link-stark-border-width",
-	"skip-link-stark-opacity",
-	"skip-link-stark-animation",
-	"skip-link-stark-transition-duration",
-	"skip-link-stark-transition-timing-function",
-	"skip-link-stark-gradient",
-	"skip-link-stark-font-family",
-	"skip-link-stark-font-size",
-	"skip-link-stark-font-weight",
-	"skip-link-stark-letter-spacing",
-	"skip-link-stark-line-height",
-	"skip-link-glass-background-color",
-	"skip-link-glass-border-radius",
-	"skip-link-glass-box-shadow",
-	"skip-link-glass-color",
-	"skip-link-glass-border-color",
-	"skip-link-glass-border-width",
-	"skip-link-glass-backdrop-filter",
-	"skip-link-glass-opacity",
-	"skip-link-glass-animation",
-	"skip-link-glass-transition-duration",
-	"skip-link-glass-transition-timing-function",
-	"skip-link-glass-gradient",
-	"skip-link-glass-font-family",
-	"skip-link-glass-font-size",
-	"skip-link-glass-font-weight",
-	"skip-link-glass-letter-spacing",
-	"skip-link-glass-line-height",
-	"skip-link-flat-background-color",
-	"skip-link-flat-border-radius",
-	"skip-link-flat-box-shadow",
-	"skip-link-flat-color",
-	"skip-link-flat-border-color",
-	"skip-link-flat-border-width",
-	"skip-link-flat-opacity",
-	"skip-link-flat-animation",
-	"skip-link-flat-transition-duration",
-	"skip-link-flat-transition-timing-function",
-	"skip-link-flat-gradient",
-	"skip-link-flat-font-family",
-	"skip-link-flat-font-size",
-	"skip-link-flat-font-weight",
-	"skip-link-flat-letter-spacing",
-	"skip-link-flat-line-height",
-	"skip-link-matte-background-color",
-	"skip-link-matte-border-radius",
-	"skip-link-matte-box-shadow",
-	"skip-link-matte-color",
-	"skip-link-matte-border-color",
-	"skip-link-matte-border-width",
-	"skip-link-matte-opacity",
-	"skip-link-matte-animation",
-	"skip-link-matte-transition-duration",
-	"skip-link-matte-transition-timing-function",
-	"skip-link-matte-gradient",
-	"skip-link-matte-font-family",
-	"skip-link-matte-font-size",
-	"skip-link-matte-font-weight",
-	"skip-link-matte-letter-spacing",
-	"skip-link-matte-line-height",
-	"slider-default-background-color",
-	"slider-default-border-radius",
-	"slider-default-box-shadow",
-	"slider-default-color",
-	"slider-default-border-color",
-	"slider-default-border-width",
-	"slider-default-backdrop-filter",
-	"slider-default-opacity",
-	"slider-default-animation",
-	"slider-default-transition-duration",
-	"slider-default-transition-timing-function",
-	"slider-default-gradient",
-	"slider-default-font-family",
-	"slider-default-font-size",
-	"slider-default-font-weight",
-	"slider-default-letter-spacing",
-	"slider-default-line-height",
-	"slider-stark-background-color",
-	"slider-stark-border-radius",
-	"slider-stark-box-shadow",
-	"slider-stark-color",
-	"slider-stark-border-color",
-	"slider-stark-border-width",
-	"slider-stark-opacity",
-	"slider-stark-animation",
-	"slider-stark-transition-duration",
-	"slider-stark-transition-timing-function",
-	"slider-stark-gradient",
-	"slider-stark-font-family",
-	"slider-stark-font-size",
-	"slider-stark-font-weight",
-	"slider-stark-letter-spacing",
-	"slider-stark-line-height",
-	"slider-glass-background-color",
-	"slider-glass-border-radius",
-	"slider-glass-box-shadow",
-	"slider-glass-color",
-	"slider-glass-border-color",
-	"slider-glass-border-width",
-	"slider-glass-backdrop-filter",
-	"slider-glass-opacity",
-	"slider-glass-animation",
-	"slider-glass-transition-duration",
-	"slider-glass-transition-timing-function",
-	"slider-glass-gradient",
-	"slider-glass-font-family",
-	"slider-glass-font-size",
-	"slider-glass-font-weight",
-	"slider-glass-letter-spacing",
-	"slider-glass-line-height",
-	"slider-flat-background-color",
-	"slider-flat-border-radius",
-	"slider-flat-box-shadow",
-	"slider-flat-color",
-	"slider-flat-border-color",
-	"slider-flat-border-width",
-	"slider-flat-opacity",
-	"slider-flat-animation",
-	"slider-flat-transition-duration",
-	"slider-flat-transition-timing-function",
-	"slider-flat-gradient",
-	"slider-flat-font-family",
-	"slider-flat-font-size",
-	"slider-flat-font-weight",
-	"slider-flat-letter-spacing",
-	"slider-flat-line-height",
-	"slider-matte-background-color",
-	"slider-matte-border-radius",
-	"slider-matte-box-shadow",
-	"slider-matte-color",
-	"slider-matte-border-color",
-	"slider-matte-border-width",
-	"slider-matte-opacity",
-	"slider-matte-animation",
-	"slider-matte-transition-duration",
-	"slider-matte-transition-timing-function",
-	"slider-matte-gradient",
-	"slider-matte-font-family",
-	"slider-matte-font-size",
-	"slider-matte-font-weight",
-	"slider-matte-letter-spacing",
-	"slider-matte-line-height",
-	"spinner-default-background-color",
-	"spinner-default-border-radius",
-	"spinner-default-box-shadow",
-	"spinner-default-color",
-	"spinner-default-border-color",
-	"spinner-default-border-width",
-	"spinner-default-backdrop-filter",
-	"spinner-default-opacity",
-	"spinner-default-animation",
-	"spinner-default-transition-duration",
-	"spinner-default-transition-timing-function",
-	"spinner-default-gradient",
-	"spinner-default-font-family",
-	"spinner-default-font-size",
-	"spinner-default-font-weight",
-	"spinner-default-letter-spacing",
-	"spinner-default-line-height",
-	"spinner-stark-background-color",
-	"spinner-stark-border-radius",
-	"spinner-stark-box-shadow",
-	"spinner-stark-color",
-	"spinner-stark-border-color",
-	"spinner-stark-border-width",
-	"spinner-stark-opacity",
-	"spinner-stark-animation",
-	"spinner-stark-transition-duration",
-	"spinner-stark-transition-timing-function",
-	"spinner-stark-gradient",
-	"spinner-stark-font-family",
-	"spinner-stark-font-size",
-	"spinner-stark-font-weight",
-	"spinner-stark-letter-spacing",
-	"spinner-stark-line-height",
-	"spinner-glass-background-color",
-	"spinner-glass-border-radius",
-	"spinner-glass-box-shadow",
-	"spinner-glass-color",
-	"spinner-glass-border-color",
-	"spinner-glass-border-width",
-	"spinner-glass-backdrop-filter",
-	"spinner-glass-opacity",
-	"spinner-glass-animation",
-	"spinner-glass-transition-duration",
-	"spinner-glass-transition-timing-function",
-	"spinner-glass-gradient",
-	"spinner-glass-font-family",
-	"spinner-glass-font-size",
-	"spinner-glass-font-weight",
-	"spinner-glass-letter-spacing",
-	"spinner-glass-line-height",
-	"spinner-flat-background-color",
-	"spinner-flat-border-radius",
-	"spinner-flat-box-shadow",
-	"spinner-flat-color",
-	"spinner-flat-border-color",
-	"spinner-flat-border-width",
-	"spinner-flat-opacity",
-	"spinner-flat-animation",
-	"spinner-flat-transition-duration",
-	"spinner-flat-transition-timing-function",
-	"spinner-flat-gradient",
-	"spinner-flat-font-family",
-	"spinner-flat-font-size",
-	"spinner-flat-font-weight",
-	"spinner-flat-letter-spacing",
-	"spinner-flat-line-height",
-	"spinner-matte-background-color",
-	"spinner-matte-border-radius",
-	"spinner-matte-box-shadow",
-	"spinner-matte-color",
-	"spinner-matte-border-color",
-	"spinner-matte-border-width",
-	"spinner-matte-opacity",
-	"spinner-matte-animation",
-	"spinner-matte-transition-duration",
-	"spinner-matte-transition-timing-function",
-	"spinner-matte-gradient",
-	"spinner-matte-font-family",
-	"spinner-matte-font-size",
-	"spinner-matte-font-weight",
-	"spinner-matte-letter-spacing",
-	"spinner-matte-line-height",
-	"stat-default-background-color",
-	"stat-default-border-radius",
-	"stat-default-box-shadow",
-	"stat-default-color",
-	"stat-default-border-color",
-	"stat-default-border-width",
-	"stat-default-backdrop-filter",
-	"stat-default-opacity",
-	"stat-default-animation",
-	"stat-default-transition-duration",
-	"stat-default-transition-timing-function",
-	"stat-default-gradient",
-	"stat-default-font-family",
-	"stat-default-font-size",
-	"stat-default-font-weight",
-	"stat-default-letter-spacing",
-	"stat-default-line-height",
-	"stat-stark-background-color",
-	"stat-stark-border-radius",
-	"stat-stark-box-shadow",
-	"stat-stark-color",
-	"stat-stark-border-color",
-	"stat-stark-border-width",
-	"stat-stark-opacity",
-	"stat-stark-animation",
-	"stat-stark-transition-duration",
-	"stat-stark-transition-timing-function",
-	"stat-stark-gradient",
-	"stat-stark-font-family",
-	"stat-stark-font-size",
-	"stat-stark-font-weight",
-	"stat-stark-letter-spacing",
-	"stat-stark-line-height",
-	"stat-glass-background-color",
-	"stat-glass-border-radius",
-	"stat-glass-box-shadow",
-	"stat-glass-color",
-	"stat-glass-border-color",
-	"stat-glass-border-width",
-	"stat-glass-backdrop-filter",
-	"stat-glass-opacity",
-	"stat-glass-animation",
-	"stat-glass-transition-duration",
-	"stat-glass-transition-timing-function",
-	"stat-glass-gradient",
-	"stat-glass-font-family",
-	"stat-glass-font-size",
-	"stat-glass-font-weight",
-	"stat-glass-letter-spacing",
-	"stat-glass-line-height",
-	"stat-flat-background-color",
-	"stat-flat-border-radius",
-	"stat-flat-box-shadow",
-	"stat-flat-color",
-	"stat-flat-border-color",
-	"stat-flat-border-width",
-	"stat-flat-opacity",
-	"stat-flat-animation",
-	"stat-flat-transition-duration",
-	"stat-flat-transition-timing-function",
-	"stat-flat-gradient",
-	"stat-flat-font-family",
-	"stat-flat-font-size",
-	"stat-flat-font-weight",
-	"stat-flat-letter-spacing",
-	"stat-flat-line-height",
-	"stat-matte-background-color",
-	"stat-matte-border-radius",
-	"stat-matte-box-shadow",
-	"stat-matte-color",
-	"stat-matte-border-color",
-	"stat-matte-border-width",
-	"stat-matte-opacity",
-	"stat-matte-animation",
-	"stat-matte-transition-duration",
-	"stat-matte-transition-timing-function",
-	"stat-matte-gradient",
-	"stat-matte-font-family",
-	"stat-matte-font-size",
-	"stat-matte-font-weight",
-	"stat-matte-letter-spacing",
-	"stat-matte-line-height",
-	"status-dot-default-background-color",
-	"status-dot-default-border-radius",
-	"status-dot-default-box-shadow",
-	"status-dot-default-color",
-	"status-dot-default-border-color",
-	"status-dot-default-border-width",
-	"status-dot-default-backdrop-filter",
-	"status-dot-default-opacity",
-	"status-dot-default-animation",
-	"status-dot-default-transition-duration",
-	"status-dot-default-transition-timing-function",
-	"status-dot-default-gradient",
-	"status-dot-default-font-family",
-	"status-dot-default-font-size",
-	"status-dot-default-font-weight",
-	"status-dot-default-letter-spacing",
-	"status-dot-default-line-height",
-	"status-dot-stark-background-color",
-	"status-dot-stark-border-radius",
-	"status-dot-stark-box-shadow",
-	"status-dot-stark-color",
-	"status-dot-stark-border-color",
-	"status-dot-stark-border-width",
-	"status-dot-stark-opacity",
-	"status-dot-stark-animation",
-	"status-dot-stark-transition-duration",
-	"status-dot-stark-transition-timing-function",
-	"status-dot-stark-gradient",
-	"status-dot-stark-font-family",
-	"status-dot-stark-font-size",
-	"status-dot-stark-font-weight",
-	"status-dot-stark-letter-spacing",
-	"status-dot-stark-line-height",
-	"status-dot-glass-background-color",
-	"status-dot-glass-border-radius",
-	"status-dot-glass-box-shadow",
-	"status-dot-glass-color",
-	"status-dot-glass-border-color",
-	"status-dot-glass-border-width",
-	"status-dot-glass-backdrop-filter",
-	"status-dot-glass-opacity",
-	"status-dot-glass-animation",
-	"status-dot-glass-transition-duration",
-	"status-dot-glass-transition-timing-function",
-	"status-dot-glass-gradient",
-	"status-dot-glass-font-family",
-	"status-dot-glass-font-size",
-	"status-dot-glass-font-weight",
-	"status-dot-glass-letter-spacing",
-	"status-dot-glass-line-height",
-	"status-dot-flat-background-color",
-	"status-dot-flat-border-radius",
-	"status-dot-flat-box-shadow",
-	"status-dot-flat-color",
-	"status-dot-flat-border-color",
-	"status-dot-flat-border-width",
-	"status-dot-flat-opacity",
-	"status-dot-flat-animation",
-	"status-dot-flat-transition-duration",
-	"status-dot-flat-transition-timing-function",
-	"status-dot-flat-gradient",
-	"status-dot-flat-font-family",
-	"status-dot-flat-font-size",
-	"status-dot-flat-font-weight",
-	"status-dot-flat-letter-spacing",
-	"status-dot-flat-line-height",
-	"status-dot-matte-background-color",
-	"status-dot-matte-border-radius",
-	"status-dot-matte-box-shadow",
-	"status-dot-matte-color",
-	"status-dot-matte-border-color",
-	"status-dot-matte-border-width",
-	"status-dot-matte-opacity",
-	"status-dot-matte-animation",
-	"status-dot-matte-transition-duration",
-	"status-dot-matte-transition-timing-function",
-	"status-dot-matte-gradient",
-	"status-dot-matte-font-family",
-	"status-dot-matte-font-size",
-	"status-dot-matte-font-weight",
-	"status-dot-matte-letter-spacing",
-	"status-dot-matte-line-height",
-	"steps-default-background-color",
-	"steps-default-border-radius",
-	"steps-default-box-shadow",
-	"steps-default-color",
-	"steps-default-border-color",
-	"steps-default-border-width",
-	"steps-default-backdrop-filter",
-	"steps-default-opacity",
-	"steps-default-animation",
-	"steps-default-transition-duration",
-	"steps-default-transition-timing-function",
-	"steps-default-gradient",
-	"steps-default-font-family",
-	"steps-default-font-size",
-	"steps-default-font-weight",
-	"steps-default-letter-spacing",
-	"steps-default-line-height",
-	"steps-stark-background-color",
-	"steps-stark-border-radius",
-	"steps-stark-box-shadow",
-	"steps-stark-color",
-	"steps-stark-border-color",
-	"steps-stark-border-width",
-	"steps-stark-opacity",
-	"steps-stark-animation",
-	"steps-stark-transition-duration",
-	"steps-stark-transition-timing-function",
-	"steps-stark-gradient",
-	"steps-stark-font-family",
-	"steps-stark-font-size",
-	"steps-stark-font-weight",
-	"steps-stark-letter-spacing",
-	"steps-stark-line-height",
-	"steps-glass-background-color",
-	"steps-glass-border-radius",
-	"steps-glass-box-shadow",
-	"steps-glass-color",
-	"steps-glass-border-color",
-	"steps-glass-border-width",
-	"steps-glass-backdrop-filter",
-	"steps-glass-opacity",
-	"steps-glass-animation",
-	"steps-glass-transition-duration",
-	"steps-glass-transition-timing-function",
-	"steps-glass-gradient",
-	"steps-glass-font-family",
-	"steps-glass-font-size",
-	"steps-glass-font-weight",
-	"steps-glass-letter-spacing",
-	"steps-glass-line-height",
-	"steps-flat-background-color",
-	"steps-flat-border-radius",
-	"steps-flat-box-shadow",
-	"steps-flat-color",
-	"steps-flat-border-color",
-	"steps-flat-border-width",
-	"steps-flat-opacity",
-	"steps-flat-animation",
-	"steps-flat-transition-duration",
-	"steps-flat-transition-timing-function",
-	"steps-flat-gradient",
-	"steps-flat-font-family",
-	"steps-flat-font-size",
-	"steps-flat-font-weight",
-	"steps-flat-letter-spacing",
-	"steps-flat-line-height",
-	"steps-matte-background-color",
-	"steps-matte-border-radius",
-	"steps-matte-box-shadow",
-	"steps-matte-color",
-	"steps-matte-border-color",
-	"steps-matte-border-width",
-	"steps-matte-opacity",
-	"steps-matte-animation",
-	"steps-matte-transition-duration",
-	"steps-matte-transition-timing-function",
-	"steps-matte-gradient",
-	"steps-matte-font-family",
-	"steps-matte-font-size",
-	"steps-matte-font-weight",
-	"steps-matte-letter-spacing",
-	"steps-matte-line-height",
-	"switch-default-background-color",
-	"switch-default-border-radius",
-	"switch-default-box-shadow",
-	"switch-default-color",
-	"switch-default-border-color",
-	"switch-default-border-width",
-	"switch-default-backdrop-filter",
-	"switch-default-opacity",
-	"switch-default-animation",
-	"switch-default-transition-duration",
-	"switch-default-transition-timing-function",
-	"switch-default-gradient",
-	"switch-default-font-family",
-	"switch-default-font-size",
-	"switch-default-font-weight",
-	"switch-default-letter-spacing",
-	"switch-default-line-height",
-	"switch-stark-background-color",
-	"switch-stark-border-radius",
-	"switch-stark-box-shadow",
-	"switch-stark-color",
-	"switch-stark-border-color",
-	"switch-stark-border-width",
-	"switch-stark-opacity",
-	"switch-stark-animation",
-	"switch-stark-transition-duration",
-	"switch-stark-transition-timing-function",
-	"switch-stark-gradient",
-	"switch-stark-font-family",
-	"switch-stark-font-size",
-	"switch-stark-font-weight",
-	"switch-stark-letter-spacing",
-	"switch-stark-line-height",
-	"switch-glass-background-color",
-	"switch-glass-border-radius",
-	"switch-glass-box-shadow",
-	"switch-glass-color",
-	"switch-glass-border-color",
-	"switch-glass-border-width",
-	"switch-glass-backdrop-filter",
-	"switch-glass-opacity",
-	"switch-glass-animation",
-	"switch-glass-transition-duration",
-	"switch-glass-transition-timing-function",
-	"switch-glass-gradient",
-	"switch-glass-font-family",
-	"switch-glass-font-size",
-	"switch-glass-font-weight",
-	"switch-glass-letter-spacing",
-	"switch-glass-line-height",
-	"switch-flat-background-color",
-	"switch-flat-border-radius",
-	"switch-flat-box-shadow",
-	"switch-flat-color",
-	"switch-flat-border-color",
-	"switch-flat-border-width",
-	"switch-flat-opacity",
-	"switch-flat-animation",
-	"switch-flat-transition-duration",
-	"switch-flat-transition-timing-function",
-	"switch-flat-gradient",
-	"switch-flat-font-family",
-	"switch-flat-font-size",
-	"switch-flat-font-weight",
-	"switch-flat-letter-spacing",
-	"switch-flat-line-height",
-	"switch-matte-background-color",
-	"switch-matte-border-radius",
-	"switch-matte-box-shadow",
-	"switch-matte-color",
-	"switch-matte-border-color",
-	"switch-matte-border-width",
-	"switch-matte-opacity",
-	"switch-matte-animation",
-	"switch-matte-transition-duration",
-	"switch-matte-transition-timing-function",
-	"switch-matte-gradient",
-	"switch-matte-font-family",
-	"switch-matte-font-size",
-	"switch-matte-font-weight",
-	"switch-matte-letter-spacing",
-	"switch-matte-line-height",
-	"table-of-contents-default-background-color",
-	"table-of-contents-default-border-radius",
-	"table-of-contents-default-box-shadow",
-	"table-of-contents-default-color",
-	"table-of-contents-default-border-color",
-	"table-of-contents-default-border-width",
-	"table-of-contents-default-backdrop-filter",
-	"table-of-contents-default-opacity",
-	"table-of-contents-default-animation",
-	"table-of-contents-default-transition-duration",
-	"table-of-contents-default-transition-timing-function",
-	"table-of-contents-default-gradient",
-	"table-of-contents-default-font-family",
-	"table-of-contents-default-font-size",
-	"table-of-contents-default-font-weight",
-	"table-of-contents-default-letter-spacing",
-	"table-of-contents-default-line-height",
-	"table-of-contents-stark-background-color",
-	"table-of-contents-stark-border-radius",
-	"table-of-contents-stark-box-shadow",
-	"table-of-contents-stark-color",
-	"table-of-contents-stark-border-color",
-	"table-of-contents-stark-border-width",
-	"table-of-contents-stark-opacity",
-	"table-of-contents-stark-animation",
-	"table-of-contents-stark-transition-duration",
-	"table-of-contents-stark-transition-timing-function",
-	"table-of-contents-stark-gradient",
-	"table-of-contents-stark-font-family",
-	"table-of-contents-stark-font-size",
-	"table-of-contents-stark-font-weight",
-	"table-of-contents-stark-letter-spacing",
-	"table-of-contents-stark-line-height",
-	"table-of-contents-glass-background-color",
-	"table-of-contents-glass-border-radius",
-	"table-of-contents-glass-box-shadow",
-	"table-of-contents-glass-color",
-	"table-of-contents-glass-border-color",
-	"table-of-contents-glass-border-width",
-	"table-of-contents-glass-backdrop-filter",
-	"table-of-contents-glass-opacity",
-	"table-of-contents-glass-animation",
-	"table-of-contents-glass-transition-duration",
-	"table-of-contents-glass-transition-timing-function",
-	"table-of-contents-glass-gradient",
-	"table-of-contents-glass-font-family",
-	"table-of-contents-glass-font-size",
-	"table-of-contents-glass-font-weight",
-	"table-of-contents-glass-letter-spacing",
-	"table-of-contents-glass-line-height",
-	"table-of-contents-flat-background-color",
-	"table-of-contents-flat-border-radius",
-	"table-of-contents-flat-box-shadow",
-	"table-of-contents-flat-color",
-	"table-of-contents-flat-border-color",
-	"table-of-contents-flat-border-width",
-	"table-of-contents-flat-opacity",
-	"table-of-contents-flat-animation",
-	"table-of-contents-flat-transition-duration",
-	"table-of-contents-flat-transition-timing-function",
-	"table-of-contents-flat-gradient",
-	"table-of-contents-flat-font-family",
-	"table-of-contents-flat-font-size",
-	"table-of-contents-flat-font-weight",
-	"table-of-contents-flat-letter-spacing",
-	"table-of-contents-flat-line-height",
-	"table-of-contents-matte-background-color",
-	"table-of-contents-matte-border-radius",
-	"table-of-contents-matte-box-shadow",
-	"table-of-contents-matte-color",
-	"table-of-contents-matte-border-color",
-	"table-of-contents-matte-border-width",
-	"table-of-contents-matte-opacity",
-	"table-of-contents-matte-animation",
-	"table-of-contents-matte-transition-duration",
-	"table-of-contents-matte-transition-timing-function",
-	"table-of-contents-matte-gradient",
-	"table-of-contents-matte-font-family",
-	"table-of-contents-matte-font-size",
-	"table-of-contents-matte-font-weight",
-	"table-of-contents-matte-letter-spacing",
-	"table-of-contents-matte-line-height",
-	"table-default-background-color",
-	"table-default-border-radius",
-	"table-default-box-shadow",
-	"table-default-color",
-	"table-default-border-color",
-	"table-default-border-width",
-	"table-default-backdrop-filter",
-	"table-default-opacity",
-	"table-default-animation",
-	"table-default-transition-duration",
-	"table-default-transition-timing-function",
-	"table-default-gradient",
-	"table-default-font-family",
-	"table-default-font-size",
-	"table-default-font-weight",
-	"table-default-letter-spacing",
-	"table-default-line-height",
-	"table-stark-background-color",
-	"table-stark-border-radius",
-	"table-stark-box-shadow",
-	"table-stark-color",
-	"table-stark-border-color",
-	"table-stark-border-width",
-	"table-stark-opacity",
-	"table-stark-animation",
-	"table-stark-transition-duration",
-	"table-stark-transition-timing-function",
-	"table-stark-gradient",
-	"table-stark-font-family",
-	"table-stark-font-size",
-	"table-stark-font-weight",
-	"table-stark-letter-spacing",
-	"table-stark-line-height",
-	"table-glass-background-color",
-	"table-glass-border-radius",
-	"table-glass-box-shadow",
-	"table-glass-color",
-	"table-glass-border-color",
-	"table-glass-border-width",
-	"table-glass-backdrop-filter",
-	"table-glass-opacity",
-	"table-glass-animation",
-	"table-glass-transition-duration",
-	"table-glass-transition-timing-function",
-	"table-glass-gradient",
-	"table-glass-font-family",
-	"table-glass-font-size",
-	"table-glass-font-weight",
-	"table-glass-letter-spacing",
-	"table-glass-line-height",
-	"table-flat-background-color",
-	"table-flat-border-radius",
-	"table-flat-box-shadow",
-	"table-flat-color",
-	"table-flat-border-color",
-	"table-flat-border-width",
-	"table-flat-opacity",
-	"table-flat-animation",
-	"table-flat-transition-duration",
-	"table-flat-transition-timing-function",
-	"table-flat-gradient",
-	"table-flat-font-family",
-	"table-flat-font-size",
-	"table-flat-font-weight",
-	"table-flat-letter-spacing",
-	"table-flat-line-height",
-	"table-matte-background-color",
-	"table-matte-border-radius",
-	"table-matte-box-shadow",
-	"table-matte-color",
-	"table-matte-border-color",
-	"table-matte-border-width",
-	"table-matte-opacity",
-	"table-matte-animation",
-	"table-matte-transition-duration",
-	"table-matte-transition-timing-function",
-	"table-matte-gradient",
-	"table-matte-font-family",
-	"table-matte-font-size",
-	"table-matte-font-weight",
-	"table-matte-letter-spacing",
-	"table-matte-line-height",
-	"tabs-default-background-color",
-	"tabs-default-border-radius",
-	"tabs-default-box-shadow",
-	"tabs-default-color",
-	"tabs-default-border-color",
-	"tabs-default-border-width",
-	"tabs-default-backdrop-filter",
-	"tabs-default-opacity",
-	"tabs-default-animation",
-	"tabs-default-transition-duration",
-	"tabs-default-transition-timing-function",
-	"tabs-default-gradient",
-	"tabs-default-font-family",
-	"tabs-default-font-size",
-	"tabs-default-font-weight",
-	"tabs-default-letter-spacing",
-	"tabs-default-line-height",
-	"tabs-stark-background-color",
-	"tabs-stark-border-radius",
-	"tabs-stark-box-shadow",
-	"tabs-stark-color",
-	"tabs-stark-border-color",
-	"tabs-stark-border-width",
-	"tabs-stark-opacity",
-	"tabs-stark-animation",
-	"tabs-stark-transition-duration",
-	"tabs-stark-transition-timing-function",
-	"tabs-stark-gradient",
-	"tabs-stark-font-family",
-	"tabs-stark-font-size",
-	"tabs-stark-font-weight",
-	"tabs-stark-letter-spacing",
-	"tabs-stark-line-height",
-	"tabs-glass-background-color",
-	"tabs-glass-border-radius",
-	"tabs-glass-box-shadow",
-	"tabs-glass-color",
-	"tabs-glass-border-color",
-	"tabs-glass-border-width",
-	"tabs-glass-backdrop-filter",
-	"tabs-glass-opacity",
-	"tabs-glass-animation",
-	"tabs-glass-transition-duration",
-	"tabs-glass-transition-timing-function",
-	"tabs-glass-gradient",
-	"tabs-glass-font-family",
-	"tabs-glass-font-size",
-	"tabs-glass-font-weight",
-	"tabs-glass-letter-spacing",
-	"tabs-glass-line-height",
-	"tabs-flat-background-color",
-	"tabs-flat-border-radius",
-	"tabs-flat-box-shadow",
-	"tabs-flat-color",
-	"tabs-flat-border-color",
-	"tabs-flat-border-width",
-	"tabs-flat-opacity",
-	"tabs-flat-animation",
-	"tabs-flat-transition-duration",
-	"tabs-flat-transition-timing-function",
-	"tabs-flat-gradient",
-	"tabs-flat-font-family",
-	"tabs-flat-font-size",
-	"tabs-flat-font-weight",
-	"tabs-flat-letter-spacing",
-	"tabs-flat-line-height",
-	"tabs-matte-background-color",
-	"tabs-matte-border-radius",
-	"tabs-matte-box-shadow",
-	"tabs-matte-color",
-	"tabs-matte-border-color",
-	"tabs-matte-border-width",
-	"tabs-matte-opacity",
-	"tabs-matte-animation",
-	"tabs-matte-transition-duration",
-	"tabs-matte-transition-timing-function",
-	"tabs-matte-gradient",
-	"tabs-matte-font-family",
-	"tabs-matte-font-size",
-	"tabs-matte-font-weight",
-	"tabs-matte-letter-spacing",
-	"tabs-matte-line-height",
-	"text-field-default-background-color",
-	"text-field-default-border-radius",
-	"text-field-default-box-shadow",
-	"text-field-default-color",
-	"text-field-default-border-color",
-	"text-field-default-border-width",
-	"text-field-default-backdrop-filter",
-	"text-field-default-opacity",
-	"text-field-default-animation",
-	"text-field-default-transition-duration",
-	"text-field-default-transition-timing-function",
-	"text-field-default-gradient",
-	"text-field-default-font-family",
-	"text-field-default-font-size",
-	"text-field-default-font-weight",
-	"text-field-default-letter-spacing",
-	"text-field-default-line-height",
-	"text-field-stark-background-color",
-	"text-field-stark-border-radius",
-	"text-field-stark-box-shadow",
-	"text-field-stark-color",
-	"text-field-stark-border-color",
-	"text-field-stark-border-width",
-	"text-field-stark-opacity",
-	"text-field-stark-animation",
-	"text-field-stark-transition-duration",
-	"text-field-stark-transition-timing-function",
-	"text-field-stark-gradient",
-	"text-field-stark-font-family",
-	"text-field-stark-font-size",
-	"text-field-stark-font-weight",
-	"text-field-stark-letter-spacing",
-	"text-field-stark-line-height",
-	"text-field-glass-background-color",
-	"text-field-glass-border-radius",
-	"text-field-glass-box-shadow",
-	"text-field-glass-color",
-	"text-field-glass-border-color",
-	"text-field-glass-border-width",
-	"text-field-glass-backdrop-filter",
-	"text-field-glass-opacity",
-	"text-field-glass-animation",
-	"text-field-glass-transition-duration",
-	"text-field-glass-transition-timing-function",
-	"text-field-glass-gradient",
-	"text-field-glass-font-family",
-	"text-field-glass-font-size",
-	"text-field-glass-font-weight",
-	"text-field-glass-letter-spacing",
-	"text-field-glass-line-height",
-	"text-field-flat-background-color",
-	"text-field-flat-border-radius",
-	"text-field-flat-box-shadow",
-	"text-field-flat-color",
-	"text-field-flat-border-color",
-	"text-field-flat-border-width",
-	"text-field-flat-opacity",
-	"text-field-flat-animation",
-	"text-field-flat-transition-duration",
-	"text-field-flat-transition-timing-function",
-	"text-field-flat-gradient",
-	"text-field-flat-font-family",
-	"text-field-flat-font-size",
-	"text-field-flat-font-weight",
-	"text-field-flat-letter-spacing",
-	"text-field-flat-line-height",
-	"text-field-matte-background-color",
-	"text-field-matte-border-radius",
-	"text-field-matte-box-shadow",
-	"text-field-matte-color",
-	"text-field-matte-border-color",
-	"text-field-matte-border-width",
-	"text-field-matte-opacity",
-	"text-field-matte-animation",
-	"text-field-matte-transition-duration",
-	"text-field-matte-transition-timing-function",
-	"text-field-matte-gradient",
-	"text-field-matte-font-family",
-	"text-field-matte-font-size",
-	"text-field-matte-font-weight",
-	"text-field-matte-letter-spacing",
-	"text-field-matte-line-height",
-	"text-default-background-color",
-	"text-default-border-radius",
-	"text-default-box-shadow",
-	"text-default-color",
-	"text-default-border-color",
-	"text-default-border-width",
-	"text-default-backdrop-filter",
-	"text-default-opacity",
-	"text-default-animation",
-	"text-default-transition-duration",
-	"text-default-transition-timing-function",
-	"text-default-gradient",
-	"text-default-font-family",
-	"text-default-font-size",
-	"text-default-font-weight",
-	"text-default-letter-spacing",
-	"text-default-line-height",
-	"text-stark-background-color",
-	"text-stark-border-radius",
-	"text-stark-box-shadow",
-	"text-stark-color",
-	"text-stark-border-color",
-	"text-stark-border-width",
-	"text-stark-opacity",
-	"text-stark-animation",
-	"text-stark-transition-duration",
-	"text-stark-transition-timing-function",
-	"text-stark-gradient",
-	"text-stark-font-family",
-	"text-stark-font-size",
-	"text-stark-font-weight",
-	"text-stark-letter-spacing",
-	"text-stark-line-height",
-	"text-glass-background-color",
-	"text-glass-border-radius",
-	"text-glass-box-shadow",
-	"text-glass-color",
-	"text-glass-border-color",
-	"text-glass-border-width",
-	"text-glass-backdrop-filter",
-	"text-glass-opacity",
-	"text-glass-animation",
-	"text-glass-transition-duration",
-	"text-glass-transition-timing-function",
-	"text-glass-gradient",
-	"text-glass-font-family",
-	"text-glass-font-size",
-	"text-glass-font-weight",
-	"text-glass-letter-spacing",
-	"text-glass-line-height",
-	"text-flat-background-color",
-	"text-flat-border-radius",
-	"text-flat-box-shadow",
-	"text-flat-color",
-	"text-flat-border-color",
-	"text-flat-border-width",
-	"text-flat-opacity",
-	"text-flat-animation",
-	"text-flat-transition-duration",
-	"text-flat-transition-timing-function",
-	"text-flat-gradient",
-	"text-flat-font-family",
-	"text-flat-font-size",
-	"text-flat-font-weight",
-	"text-flat-letter-spacing",
-	"text-flat-line-height",
-	"text-matte-background-color",
-	"text-matte-border-radius",
-	"text-matte-box-shadow",
-	"text-matte-color",
-	"text-matte-border-color",
-	"text-matte-border-width",
-	"text-matte-opacity",
-	"text-matte-animation",
-	"text-matte-transition-duration",
-	"text-matte-transition-timing-function",
-	"text-matte-gradient",
-	"text-matte-font-family",
-	"text-matte-font-size",
-	"text-matte-font-weight",
-	"text-matte-letter-spacing",
-	"text-matte-line-height",
-	"textarea-default-background-color",
-	"textarea-default-border-radius",
-	"textarea-default-box-shadow",
-	"textarea-default-color",
-	"textarea-default-border-color",
-	"textarea-default-border-width",
-	"textarea-default-backdrop-filter",
-	"textarea-default-opacity",
-	"textarea-default-animation",
-	"textarea-default-transition-duration",
-	"textarea-default-transition-timing-function",
-	"textarea-default-gradient",
-	"textarea-default-font-family",
-	"textarea-default-font-size",
-	"textarea-default-font-weight",
-	"textarea-default-letter-spacing",
-	"textarea-default-line-height",
-	"textarea-stark-background-color",
-	"textarea-stark-border-radius",
-	"textarea-stark-box-shadow",
-	"textarea-stark-color",
-	"textarea-stark-border-color",
-	"textarea-stark-border-width",
-	"textarea-stark-opacity",
-	"textarea-stark-animation",
-	"textarea-stark-transition-duration",
-	"textarea-stark-transition-timing-function",
-	"textarea-stark-gradient",
-	"textarea-stark-font-family",
-	"textarea-stark-font-size",
-	"textarea-stark-font-weight",
-	"textarea-stark-letter-spacing",
-	"textarea-stark-line-height",
-	"textarea-glass-background-color",
-	"textarea-glass-border-radius",
-	"textarea-glass-box-shadow",
-	"textarea-glass-color",
-	"textarea-glass-border-color",
-	"textarea-glass-border-width",
-	"textarea-glass-backdrop-filter",
-	"textarea-glass-opacity",
-	"textarea-glass-animation",
-	"textarea-glass-transition-duration",
-	"textarea-glass-transition-timing-function",
-	"textarea-glass-gradient",
-	"textarea-glass-font-family",
-	"textarea-glass-font-size",
-	"textarea-glass-font-weight",
-	"textarea-glass-letter-spacing",
-	"textarea-glass-line-height",
-	"textarea-flat-background-color",
-	"textarea-flat-border-radius",
-	"textarea-flat-box-shadow",
-	"textarea-flat-color",
-	"textarea-flat-border-color",
-	"textarea-flat-border-width",
-	"textarea-flat-opacity",
-	"textarea-flat-animation",
-	"textarea-flat-transition-duration",
-	"textarea-flat-transition-timing-function",
-	"textarea-flat-gradient",
-	"textarea-flat-font-family",
-	"textarea-flat-font-size",
-	"textarea-flat-font-weight",
-	"textarea-flat-letter-spacing",
-	"textarea-flat-line-height",
-	"textarea-matte-background-color",
-	"textarea-matte-border-radius",
-	"textarea-matte-box-shadow",
-	"textarea-matte-color",
-	"textarea-matte-border-color",
-	"textarea-matte-border-width",
-	"textarea-matte-opacity",
-	"textarea-matte-animation",
-	"textarea-matte-transition-duration",
-	"textarea-matte-transition-timing-function",
-	"textarea-matte-gradient",
-	"textarea-matte-font-family",
-	"textarea-matte-font-size",
-	"textarea-matte-font-weight",
-	"textarea-matte-letter-spacing",
-	"textarea-matte-line-height",
-	"toaster-default-background-color",
-	"toaster-default-border-radius",
-	"toaster-default-box-shadow",
-	"toaster-default-color",
-	"toaster-default-border-color",
-	"toaster-default-border-width",
-	"toaster-default-backdrop-filter",
-	"toaster-default-opacity",
-	"toaster-default-animation",
-	"toaster-default-transition-duration",
-	"toaster-default-transition-timing-function",
-	"toaster-default-gradient",
-	"toaster-default-font-family",
-	"toaster-default-font-size",
-	"toaster-default-font-weight",
-	"toaster-default-letter-spacing",
-	"toaster-default-line-height",
-	"toaster-stark-background-color",
-	"toaster-stark-border-radius",
-	"toaster-stark-box-shadow",
-	"toaster-stark-color",
-	"toaster-stark-border-color",
-	"toaster-stark-border-width",
-	"toaster-stark-opacity",
-	"toaster-stark-animation",
-	"toaster-stark-transition-duration",
-	"toaster-stark-transition-timing-function",
-	"toaster-stark-gradient",
-	"toaster-stark-font-family",
-	"toaster-stark-font-size",
-	"toaster-stark-font-weight",
-	"toaster-stark-letter-spacing",
-	"toaster-stark-line-height",
-	"toaster-glass-background-color",
-	"toaster-glass-border-radius",
-	"toaster-glass-box-shadow",
-	"toaster-glass-color",
-	"toaster-glass-border-color",
-	"toaster-glass-border-width",
-	"toaster-glass-backdrop-filter",
-	"toaster-glass-opacity",
-	"toaster-glass-animation",
-	"toaster-glass-transition-duration",
-	"toaster-glass-transition-timing-function",
-	"toaster-glass-gradient",
-	"toaster-glass-font-family",
-	"toaster-glass-font-size",
-	"toaster-glass-font-weight",
-	"toaster-glass-letter-spacing",
-	"toaster-glass-line-height",
-	"toaster-flat-background-color",
-	"toaster-flat-border-radius",
-	"toaster-flat-box-shadow",
-	"toaster-flat-color",
-	"toaster-flat-border-color",
-	"toaster-flat-border-width",
-	"toaster-flat-opacity",
-	"toaster-flat-animation",
-	"toaster-flat-transition-duration",
-	"toaster-flat-transition-timing-function",
-	"toaster-flat-gradient",
-	"toaster-flat-font-family",
-	"toaster-flat-font-size",
-	"toaster-flat-font-weight",
-	"toaster-flat-letter-spacing",
-	"toaster-flat-line-height",
-	"toaster-matte-background-color",
-	"toaster-matte-border-radius",
-	"toaster-matte-box-shadow",
-	"toaster-matte-color",
-	"toaster-matte-border-color",
-	"toaster-matte-border-width",
-	"toaster-matte-opacity",
-	"toaster-matte-animation",
-	"toaster-matte-transition-duration",
-	"toaster-matte-transition-timing-function",
-	"toaster-matte-gradient",
-	"toaster-matte-font-family",
-	"toaster-matte-font-size",
-	"toaster-matte-font-weight",
-	"toaster-matte-letter-spacing",
-	"toaster-matte-line-height",
-	"toggle-group-default-background-color",
-	"toggle-group-default-border-radius",
-	"toggle-group-default-box-shadow",
-	"toggle-group-default-color",
-	"toggle-group-default-border-color",
-	"toggle-group-default-border-width",
-	"toggle-group-default-backdrop-filter",
-	"toggle-group-default-opacity",
-	"toggle-group-default-animation",
-	"toggle-group-default-transition-duration",
-	"toggle-group-default-transition-timing-function",
-	"toggle-group-default-gradient",
-	"toggle-group-default-font-family",
-	"toggle-group-default-font-size",
-	"toggle-group-default-font-weight",
-	"toggle-group-default-letter-spacing",
-	"toggle-group-default-line-height",
-	"toggle-group-stark-background-color",
-	"toggle-group-stark-border-radius",
-	"toggle-group-stark-box-shadow",
-	"toggle-group-stark-color",
-	"toggle-group-stark-border-color",
-	"toggle-group-stark-border-width",
-	"toggle-group-stark-opacity",
-	"toggle-group-stark-animation",
-	"toggle-group-stark-transition-duration",
-	"toggle-group-stark-transition-timing-function",
-	"toggle-group-stark-gradient",
-	"toggle-group-stark-font-family",
-	"toggle-group-stark-font-size",
-	"toggle-group-stark-font-weight",
-	"toggle-group-stark-letter-spacing",
-	"toggle-group-stark-line-height",
-	"toggle-group-glass-background-color",
-	"toggle-group-glass-border-radius",
-	"toggle-group-glass-box-shadow",
-	"toggle-group-glass-color",
-	"toggle-group-glass-border-color",
-	"toggle-group-glass-border-width",
-	"toggle-group-glass-backdrop-filter",
-	"toggle-group-glass-opacity",
-	"toggle-group-glass-animation",
-	"toggle-group-glass-transition-duration",
-	"toggle-group-glass-transition-timing-function",
-	"toggle-group-glass-gradient",
-	"toggle-group-glass-font-family",
-	"toggle-group-glass-font-size",
-	"toggle-group-glass-font-weight",
-	"toggle-group-glass-letter-spacing",
-	"toggle-group-glass-line-height",
-	"toggle-group-flat-background-color",
-	"toggle-group-flat-border-radius",
-	"toggle-group-flat-box-shadow",
-	"toggle-group-flat-color",
-	"toggle-group-flat-border-color",
-	"toggle-group-flat-border-width",
-	"toggle-group-flat-opacity",
-	"toggle-group-flat-animation",
-	"toggle-group-flat-transition-duration",
-	"toggle-group-flat-transition-timing-function",
-	"toggle-group-flat-gradient",
-	"toggle-group-flat-font-family",
-	"toggle-group-flat-font-size",
-	"toggle-group-flat-font-weight",
-	"toggle-group-flat-letter-spacing",
-	"toggle-group-flat-line-height",
-	"toggle-group-matte-background-color",
-	"toggle-group-matte-border-radius",
-	"toggle-group-matte-box-shadow",
-	"toggle-group-matte-color",
-	"toggle-group-matte-border-color",
-	"toggle-group-matte-border-width",
-	"toggle-group-matte-opacity",
-	"toggle-group-matte-animation",
-	"toggle-group-matte-transition-duration",
-	"toggle-group-matte-transition-timing-function",
-	"toggle-group-matte-gradient",
-	"toggle-group-matte-font-family",
-	"toggle-group-matte-font-size",
-	"toggle-group-matte-font-weight",
-	"toggle-group-matte-letter-spacing",
-	"toggle-group-matte-line-height",
-	"toggle-default-background-color",
-	"toggle-default-border-radius",
-	"toggle-default-box-shadow",
-	"toggle-default-color",
-	"toggle-default-border-color",
-	"toggle-default-border-width",
-	"toggle-default-backdrop-filter",
-	"toggle-default-opacity",
-	"toggle-default-animation",
-	"toggle-default-transition-duration",
-	"toggle-default-transition-timing-function",
-	"toggle-default-gradient",
-	"toggle-default-font-family",
-	"toggle-default-font-size",
-	"toggle-default-font-weight",
-	"toggle-default-letter-spacing",
-	"toggle-default-line-height",
-	"toggle-stark-background-color",
-	"toggle-stark-border-radius",
-	"toggle-stark-box-shadow",
-	"toggle-stark-color",
-	"toggle-stark-border-color",
-	"toggle-stark-border-width",
-	"toggle-stark-opacity",
-	"toggle-stark-animation",
-	"toggle-stark-transition-duration",
-	"toggle-stark-transition-timing-function",
-	"toggle-stark-gradient",
-	"toggle-stark-font-family",
-	"toggle-stark-font-size",
-	"toggle-stark-font-weight",
-	"toggle-stark-letter-spacing",
-	"toggle-stark-line-height",
-	"toggle-glass-background-color",
-	"toggle-glass-border-radius",
-	"toggle-glass-box-shadow",
-	"toggle-glass-color",
-	"toggle-glass-border-color",
-	"toggle-glass-border-width",
-	"toggle-glass-backdrop-filter",
-	"toggle-glass-opacity",
-	"toggle-glass-animation",
-	"toggle-glass-transition-duration",
-	"toggle-glass-transition-timing-function",
-	"toggle-glass-gradient",
-	"toggle-glass-font-family",
-	"toggle-glass-font-size",
-	"toggle-glass-font-weight",
-	"toggle-glass-letter-spacing",
-	"toggle-glass-line-height",
-	"toggle-flat-background-color",
-	"toggle-flat-border-radius",
-	"toggle-flat-box-shadow",
-	"toggle-flat-color",
-	"toggle-flat-border-color",
-	"toggle-flat-border-width",
-	"toggle-flat-opacity",
-	"toggle-flat-animation",
-	"toggle-flat-transition-duration",
-	"toggle-flat-transition-timing-function",
-	"toggle-flat-gradient",
-	"toggle-flat-font-family",
-	"toggle-flat-font-size",
-	"toggle-flat-font-weight",
-	"toggle-flat-letter-spacing",
-	"toggle-flat-line-height",
-	"toggle-matte-background-color",
-	"toggle-matte-border-radius",
-	"toggle-matte-box-shadow",
-	"toggle-matte-color",
-	"toggle-matte-border-color",
-	"toggle-matte-border-width",
-	"toggle-matte-opacity",
-	"toggle-matte-animation",
-	"toggle-matte-transition-duration",
-	"toggle-matte-transition-timing-function",
-	"toggle-matte-gradient",
-	"toggle-matte-font-family",
-	"toggle-matte-font-size",
-	"toggle-matte-font-weight",
-	"toggle-matte-letter-spacing",
-	"toggle-matte-line-height",
-	"toolbar-default-background-color",
-	"toolbar-default-border-radius",
-	"toolbar-default-box-shadow",
-	"toolbar-default-color",
-	"toolbar-default-border-color",
-	"toolbar-default-border-width",
-	"toolbar-default-backdrop-filter",
-	"toolbar-default-opacity",
-	"toolbar-default-animation",
-	"toolbar-default-transition-duration",
-	"toolbar-default-transition-timing-function",
-	"toolbar-default-gradient",
-	"toolbar-default-font-family",
-	"toolbar-default-font-size",
-	"toolbar-default-font-weight",
-	"toolbar-default-letter-spacing",
-	"toolbar-default-line-height",
-	"toolbar-stark-background-color",
-	"toolbar-stark-border-radius",
-	"toolbar-stark-box-shadow",
-	"toolbar-stark-color",
-	"toolbar-stark-border-color",
-	"toolbar-stark-border-width",
-	"toolbar-stark-opacity",
-	"toolbar-stark-animation",
-	"toolbar-stark-transition-duration",
-	"toolbar-stark-transition-timing-function",
-	"toolbar-stark-gradient",
-	"toolbar-stark-font-family",
-	"toolbar-stark-font-size",
-	"toolbar-stark-font-weight",
-	"toolbar-stark-letter-spacing",
-	"toolbar-stark-line-height",
-	"toolbar-glass-background-color",
-	"toolbar-glass-border-radius",
-	"toolbar-glass-box-shadow",
-	"toolbar-glass-color",
-	"toolbar-glass-border-color",
-	"toolbar-glass-border-width",
-	"toolbar-glass-backdrop-filter",
-	"toolbar-glass-opacity",
-	"toolbar-glass-animation",
-	"toolbar-glass-transition-duration",
-	"toolbar-glass-transition-timing-function",
-	"toolbar-glass-gradient",
-	"toolbar-glass-font-family",
-	"toolbar-glass-font-size",
-	"toolbar-glass-font-weight",
-	"toolbar-glass-letter-spacing",
-	"toolbar-glass-line-height",
-	"toolbar-flat-background-color",
-	"toolbar-flat-border-radius",
-	"toolbar-flat-box-shadow",
-	"toolbar-flat-color",
-	"toolbar-flat-border-color",
-	"toolbar-flat-border-width",
-	"toolbar-flat-opacity",
-	"toolbar-flat-animation",
-	"toolbar-flat-transition-duration",
-	"toolbar-flat-transition-timing-function",
-	"toolbar-flat-gradient",
-	"toolbar-flat-font-family",
-	"toolbar-flat-font-size",
-	"toolbar-flat-font-weight",
-	"toolbar-flat-letter-spacing",
-	"toolbar-flat-line-height",
-	"toolbar-matte-background-color",
-	"toolbar-matte-border-radius",
-	"toolbar-matte-box-shadow",
-	"toolbar-matte-color",
-	"toolbar-matte-border-color",
-	"toolbar-matte-border-width",
-	"toolbar-matte-opacity",
-	"toolbar-matte-animation",
-	"toolbar-matte-transition-duration",
-	"toolbar-matte-transition-timing-function",
-	"toolbar-matte-gradient",
-	"toolbar-matte-font-family",
-	"toolbar-matte-font-size",
-	"toolbar-matte-font-weight",
-	"toolbar-matte-letter-spacing",
-	"toolbar-matte-line-height",
-	"tooltip-default-background-color",
-	"tooltip-default-border-radius",
-	"tooltip-default-box-shadow",
-	"tooltip-default-color",
-	"tooltip-default-border-color",
-	"tooltip-default-border-width",
-	"tooltip-default-backdrop-filter",
-	"tooltip-default-opacity",
-	"tooltip-default-animation",
-	"tooltip-default-transition-duration",
-	"tooltip-default-transition-timing-function",
-	"tooltip-default-gradient",
-	"tooltip-default-font-family",
-	"tooltip-default-font-size",
-	"tooltip-default-font-weight",
-	"tooltip-default-letter-spacing",
-	"tooltip-default-line-height",
-	"tooltip-stark-background-color",
-	"tooltip-stark-border-radius",
-	"tooltip-stark-box-shadow",
-	"tooltip-stark-color",
-	"tooltip-stark-border-color",
-	"tooltip-stark-border-width",
-	"tooltip-stark-opacity",
-	"tooltip-stark-animation",
-	"tooltip-stark-transition-duration",
-	"tooltip-stark-transition-timing-function",
-	"tooltip-stark-gradient",
-	"tooltip-stark-font-family",
-	"tooltip-stark-font-size",
-	"tooltip-stark-font-weight",
-	"tooltip-stark-letter-spacing",
-	"tooltip-stark-line-height",
-	"tooltip-glass-background-color",
-	"tooltip-glass-border-radius",
-	"tooltip-glass-box-shadow",
-	"tooltip-glass-color",
-	"tooltip-glass-border-color",
-	"tooltip-glass-border-width",
-	"tooltip-glass-backdrop-filter",
-	"tooltip-glass-opacity",
-	"tooltip-glass-animation",
-	"tooltip-glass-transition-duration",
-	"tooltip-glass-transition-timing-function",
-	"tooltip-glass-gradient",
-	"tooltip-glass-font-family",
-	"tooltip-glass-font-size",
-	"tooltip-glass-font-weight",
-	"tooltip-glass-letter-spacing",
-	"tooltip-glass-line-height",
-	"tooltip-flat-background-color",
-	"tooltip-flat-border-radius",
-	"tooltip-flat-box-shadow",
-	"tooltip-flat-color",
-	"tooltip-flat-border-color",
-	"tooltip-flat-border-width",
-	"tooltip-flat-opacity",
-	"tooltip-flat-animation",
-	"tooltip-flat-transition-duration",
-	"tooltip-flat-transition-timing-function",
-	"tooltip-flat-gradient",
-	"tooltip-flat-font-family",
-	"tooltip-flat-font-size",
-	"tooltip-flat-font-weight",
-	"tooltip-flat-letter-spacing",
-	"tooltip-flat-line-height",
-	"tooltip-matte-background-color",
-	"tooltip-matte-border-radius",
-	"tooltip-matte-box-shadow",
-	"tooltip-matte-color",
-	"tooltip-matte-border-color",
-	"tooltip-matte-border-width",
-	"tooltip-matte-opacity",
-	"tooltip-matte-animation",
-	"tooltip-matte-transition-duration",
-	"tooltip-matte-transition-timing-function",
-	"tooltip-matte-gradient",
-	"tooltip-matte-font-family",
-	"tooltip-matte-font-size",
-	"tooltip-matte-font-weight",
-	"tooltip-matte-letter-spacing",
-	"tooltip-matte-line-height",
-	"tree-default-background-color",
-	"tree-default-border-radius",
-	"tree-default-box-shadow",
-	"tree-default-color",
-	"tree-default-border-color",
-	"tree-default-border-width",
-	"tree-default-backdrop-filter",
-	"tree-default-opacity",
-	"tree-default-animation",
-	"tree-default-transition-duration",
-	"tree-default-transition-timing-function",
-	"tree-default-gradient",
-	"tree-default-font-family",
-	"tree-default-font-size",
-	"tree-default-font-weight",
-	"tree-default-letter-spacing",
-	"tree-default-line-height",
-	"tree-stark-background-color",
-	"tree-stark-border-radius",
-	"tree-stark-box-shadow",
-	"tree-stark-color",
-	"tree-stark-border-color",
-	"tree-stark-border-width",
-	"tree-stark-opacity",
-	"tree-stark-animation",
-	"tree-stark-transition-duration",
-	"tree-stark-transition-timing-function",
-	"tree-stark-gradient",
-	"tree-stark-font-family",
-	"tree-stark-font-size",
-	"tree-stark-font-weight",
-	"tree-stark-letter-spacing",
-	"tree-stark-line-height",
-	"tree-glass-background-color",
-	"tree-glass-border-radius",
-	"tree-glass-box-shadow",
-	"tree-glass-color",
-	"tree-glass-border-color",
-	"tree-glass-border-width",
-	"tree-glass-backdrop-filter",
-	"tree-glass-opacity",
-	"tree-glass-animation",
-	"tree-glass-transition-duration",
-	"tree-glass-transition-timing-function",
-	"tree-glass-gradient",
-	"tree-glass-font-family",
-	"tree-glass-font-size",
-	"tree-glass-font-weight",
-	"tree-glass-letter-spacing",
-	"tree-glass-line-height",
-	"tree-flat-background-color",
-	"tree-flat-border-radius",
-	"tree-flat-box-shadow",
-	"tree-flat-color",
-	"tree-flat-border-color",
-	"tree-flat-border-width",
-	"tree-flat-opacity",
-	"tree-flat-animation",
-	"tree-flat-transition-duration",
-	"tree-flat-transition-timing-function",
-	"tree-flat-gradient",
-	"tree-flat-font-family",
-	"tree-flat-font-size",
-	"tree-flat-font-weight",
-	"tree-flat-letter-spacing",
-	"tree-flat-line-height",
-	"tree-matte-background-color",
-	"tree-matte-border-radius",
-	"tree-matte-box-shadow",
-	"tree-matte-color",
-	"tree-matte-border-color",
-	"tree-matte-border-width",
-	"tree-matte-opacity",
-	"tree-matte-animation",
-	"tree-matte-transition-duration",
-	"tree-matte-transition-timing-function",
-	"tree-matte-gradient",
-	"tree-matte-font-family",
-	"tree-matte-font-size",
-	"tree-matte-font-weight",
-	"tree-matte-letter-spacing",
-	"tree-matte-line-height",
-	"widget-default-background-color",
-	"widget-default-border-radius",
-	"widget-default-box-shadow",
-	"widget-default-color",
-	"widget-default-border-color",
-	"widget-default-border-width",
-	"widget-default-backdrop-filter",
-	"widget-default-opacity",
-	"widget-default-animation",
-	"widget-default-transition-duration",
-	"widget-default-transition-timing-function",
-	"widget-default-gradient",
-	"widget-default-font-family",
-	"widget-default-font-size",
-	"widget-default-font-weight",
-	"widget-default-letter-spacing",
-	"widget-default-line-height",
-	"widget-stark-background-color",
-	"widget-stark-border-radius",
-	"widget-stark-box-shadow",
-	"widget-stark-color",
-	"widget-stark-border-color",
-	"widget-stark-border-width",
-	"widget-stark-opacity",
-	"widget-stark-animation",
-	"widget-stark-transition-duration",
-	"widget-stark-transition-timing-function",
-	"widget-stark-gradient",
-	"widget-stark-font-family",
-	"widget-stark-font-size",
-	"widget-stark-font-weight",
-	"widget-stark-letter-spacing",
-	"widget-stark-line-height",
-	"widget-glass-background-color",
-	"widget-glass-border-radius",
-	"widget-glass-box-shadow",
-	"widget-glass-color",
-	"widget-glass-border-color",
-	"widget-glass-border-width",
-	"widget-glass-backdrop-filter",
-	"widget-glass-opacity",
-	"widget-glass-animation",
-	"widget-glass-transition-duration",
-	"widget-glass-transition-timing-function",
-	"widget-glass-gradient",
-	"widget-glass-font-family",
-	"widget-glass-font-size",
-	"widget-glass-font-weight",
-	"widget-glass-letter-spacing",
-	"widget-glass-line-height",
-	"widget-flat-background-color",
-	"widget-flat-border-radius",
-	"widget-flat-box-shadow",
-	"widget-flat-color",
-	"widget-flat-border-color",
-	"widget-flat-border-width",
-	"widget-flat-opacity",
-	"widget-flat-animation",
-	"widget-flat-transition-duration",
-	"widget-flat-transition-timing-function",
-	"widget-flat-gradient",
-	"widget-flat-font-family",
-	"widget-flat-font-size",
-	"widget-flat-font-weight",
-	"widget-flat-letter-spacing",
-	"widget-flat-line-height",
-	"widget-matte-background-color",
-	"widget-matte-border-radius",
-	"widget-matte-box-shadow",
-	"widget-matte-color",
-	"widget-matte-border-color",
-	"widget-matte-border-width",
-	"widget-matte-opacity",
-	"widget-matte-animation",
-	"widget-matte-transition-duration",
-	"widget-matte-transition-timing-function",
-	"widget-matte-gradient",
-	"widget-matte-font-family",
-	"widget-matte-font-size",
-	"widget-matte-font-weight",
-	"widget-matte-letter-spacing",
-	"widget-matte-line-height",
+export const PresetTokens = [
+	"neuro-elevated-background-color",
+	"neuro-elevated-border-radius",
+	"neuro-elevated-box-shadow",
+	"neuro-elevated-color",
+	"neuro-elevated-border-color",
+	"neuro-elevated-border-width",
+	"neuro-elevated-backdrop-filter",
+	"neuro-elevated-opacity",
+	"neuro-elevated-animation",
+	"neuro-elevated-transition-duration",
+	"neuro-elevated-transition-timing-function",
+	"neuro-elevated-gradient",
+	"neuro-elevated-font-family",
+	"neuro-elevated-font-size",
+	"neuro-elevated-font-weight",
+	"neuro-elevated-letter-spacing",
+	"neuro-elevated-line-height",
+	"neuro-elevated-hover-box-shadow",
+	"neuro-elevated-hover-border-color",
+	"neuro-elevated-active-background-color",
+	"neuro-elevated-active-box-shadow",
+	"neuro-elevated-disabled-color",
+	"neuro-elevated-disabled-opacity",
+	"neuro-deep-background-color",
+	"neuro-deep-border-radius",
+	"neuro-deep-box-shadow",
+	"neuro-deep-color",
+	"neuro-deep-border-color",
+	"neuro-deep-border-width",
+	"neuro-deep-backdrop-filter",
+	"neuro-deep-opacity",
+	"neuro-deep-animation",
+	"neuro-deep-transition-duration",
+	"neuro-deep-transition-timing-function",
+	"neuro-deep-gradient",
+	"neuro-deep-font-family",
+	"neuro-deep-font-size",
+	"neuro-deep-font-weight",
+	"neuro-deep-letter-spacing",
+	"neuro-deep-line-height",
+	"neuro-deep-hover-background-color",
+	"neuro-deep-active-background-color",
+	"neuro-deep-disabled-color",
+	"neuro-deep-disabled-opacity",
+	"neuro-minimal-background-color",
+	"neuro-minimal-border-radius",
+	"neuro-minimal-box-shadow",
+	"neuro-minimal-color",
+	"neuro-minimal-border-color",
+	"neuro-minimal-border-width",
+	"neuro-minimal-backdrop-filter",
+	"neuro-minimal-opacity",
+	"neuro-minimal-animation",
+	"neuro-minimal-transition-duration",
+	"neuro-minimal-transition-timing-function",
+	"neuro-minimal-gradient",
+	"neuro-minimal-font-family",
+	"neuro-minimal-font-size",
+	"neuro-minimal-font-weight",
+	"neuro-minimal-letter-spacing",
+	"neuro-minimal-line-height",
+	"neuro-minimal-hover-background-color",
+	"neuro-minimal-active-background-color",
+	"neuro-minimal-disabled-color",
+	"neuro-minimal-disabled-opacity",
+	"neuro-solid-background-color",
+	"neuro-solid-border-radius",
+	"neuro-solid-box-shadow",
+	"neuro-solid-color",
+	"neuro-solid-border-color",
+	"neuro-solid-border-width",
+	"neuro-solid-backdrop-filter",
+	"neuro-solid-opacity",
+	"neuro-solid-animation",
+	"neuro-solid-transition-duration",
+	"neuro-solid-transition-timing-function",
+	"neuro-solid-gradient",
+	"neuro-solid-font-family",
+	"neuro-solid-font-size",
+	"neuro-solid-font-weight",
+	"neuro-solid-letter-spacing",
+	"neuro-solid-line-height",
+	"neuro-solid-hover-box-shadow",
+	"neuro-solid-active-background-color",
+	"neuro-solid-disabled-color",
+	"neuro-solid-disabled-opacity",
+	"neuro-glow-background-color",
+	"neuro-glow-border-radius",
+	"neuro-glow-box-shadow",
+	"neuro-glow-color",
+	"neuro-glow-border-color",
+	"neuro-glow-border-width",
+	"neuro-glow-backdrop-filter",
+	"neuro-glow-opacity",
+	"neuro-glow-animation",
+	"neuro-glow-transition-duration",
+	"neuro-glow-transition-timing-function",
+	"neuro-glow-gradient",
+	"neuro-glow-font-family",
+	"neuro-glow-font-size",
+	"neuro-glow-font-weight",
+	"neuro-glow-letter-spacing",
+	"neuro-glow-line-height",
+	"neuro-glow-hover-box-shadow",
+	"neuro-glow-hover-border-color",
+	"neuro-glow-active-background-color",
+	"neuro-glow-active-border-color",
+	"neuro-glow-disabled-color",
+	"neuro-glow-disabled-opacity",
+	"neuro-glow-disabled-animation",
+	"neuro-muted-background-color",
+	"neuro-muted-border-radius",
+	"neuro-muted-box-shadow",
+	"neuro-muted-color",
+	"neuro-muted-border-color",
+	"neuro-muted-border-width",
+	"neuro-muted-backdrop-filter",
+	"neuro-muted-opacity",
+	"neuro-muted-animation",
+	"neuro-muted-transition-duration",
+	"neuro-muted-transition-timing-function",
+	"neuro-muted-gradient",
+	"neuro-muted-font-family",
+	"neuro-muted-font-size",
+	"neuro-muted-font-weight",
+	"neuro-muted-letter-spacing",
+	"neuro-muted-line-height",
+	"neuro-muted-hover-background-color",
+	"neuro-muted-hover-opacity",
+	"neuro-muted-disabled-color",
+	"neuro-muted-disabled-opacity",
+	"glass-elevated-background-color",
+	"glass-elevated-border-radius",
+	"glass-elevated-box-shadow",
+	"glass-elevated-color",
+	"glass-elevated-border-color",
+	"glass-elevated-border-width",
+	"glass-elevated-backdrop-filter",
+	"glass-elevated-opacity",
+	"glass-elevated-animation",
+	"glass-elevated-transition-duration",
+	"glass-elevated-transition-timing-function",
+	"glass-elevated-gradient",
+	"glass-elevated-font-family",
+	"glass-elevated-font-size",
+	"glass-elevated-font-weight",
+	"glass-elevated-letter-spacing",
+	"glass-elevated-line-height",
+	"glass-elevated-hover-background-color",
+	"glass-elevated-hover-box-shadow",
+	"glass-elevated-hover-border-color",
+	"glass-elevated-active-background-color",
+	"glass-elevated-active-box-shadow",
+	"glass-elevated-disabled-background-color",
+	"glass-elevated-disabled-opacity",
+	"glass-elevated-disabled-border-color",
+	"glass-elevated-disabled-animation",
+	"glass-deep-background-color",
+	"glass-deep-border-radius",
+	"glass-deep-box-shadow",
+	"glass-deep-color",
+	"glass-deep-border-color",
+	"glass-deep-border-width",
+	"glass-deep-backdrop-filter",
+	"glass-deep-opacity",
+	"glass-deep-animation",
+	"glass-deep-transition-duration",
+	"glass-deep-transition-timing-function",
+	"glass-deep-gradient",
+	"glass-deep-font-family",
+	"glass-deep-font-size",
+	"glass-deep-font-weight",
+	"glass-deep-letter-spacing",
+	"glass-deep-line-height",
+	"glass-deep-hover-background-color",
+	"glass-deep-hover-box-shadow",
+	"glass-deep-hover-border-color",
+	"glass-deep-active-background-color",
+	"glass-deep-active-box-shadow",
+	"glass-deep-disabled-background-color",
+	"glass-deep-disabled-opacity",
+	"glass-deep-disabled-border-color",
+	"glass-minimal-background-color",
+	"glass-minimal-border-radius",
+	"glass-minimal-box-shadow",
+	"glass-minimal-color",
+	"glass-minimal-border-color",
+	"glass-minimal-border-width",
+	"glass-minimal-backdrop-filter",
+	"glass-minimal-opacity",
+	"glass-minimal-animation",
+	"glass-minimal-transition-duration",
+	"glass-minimal-transition-timing-function",
+	"glass-minimal-gradient",
+	"glass-minimal-font-family",
+	"glass-minimal-font-size",
+	"glass-minimal-font-weight",
+	"glass-minimal-letter-spacing",
+	"glass-minimal-line-height",
+	"glass-minimal-hover-background-color",
+	"glass-minimal-hover-border-color",
+	"glass-minimal-active-background-color",
+	"glass-minimal-disabled-background-color",
+	"glass-minimal-disabled-color",
+	"glass-minimal-disabled-opacity",
+	"glass-solid-background-color",
+	"glass-solid-border-radius",
+	"glass-solid-box-shadow",
+	"glass-solid-color",
+	"glass-solid-border-color",
+	"glass-solid-border-width",
+	"glass-solid-backdrop-filter",
+	"glass-solid-opacity",
+	"glass-solid-animation",
+	"glass-solid-transition-duration",
+	"glass-solid-transition-timing-function",
+	"glass-solid-gradient",
+	"glass-solid-font-family",
+	"glass-solid-font-size",
+	"glass-solid-font-weight",
+	"glass-solid-letter-spacing",
+	"glass-solid-line-height",
+	"glass-solid-hover-background-color",
+	"glass-solid-hover-box-shadow",
+	"glass-solid-hover-border-color",
+	"glass-solid-active-background-color",
+	"glass-solid-active-box-shadow",
+	"glass-solid-disabled-background-color",
+	"glass-solid-disabled-opacity",
+	"glass-solid-disabled-border-color",
+	"glass-glow-background-color",
+	"glass-glow-border-radius",
+	"glass-glow-box-shadow",
+	"glass-glow-color",
+	"glass-glow-border-color",
+	"glass-glow-border-width",
+	"glass-glow-backdrop-filter",
+	"glass-glow-opacity",
+	"glass-glow-animation",
+	"glass-glow-transition-duration",
+	"glass-glow-transition-timing-function",
+	"glass-glow-gradient",
+	"glass-glow-font-family",
+	"glass-glow-font-size",
+	"glass-glow-font-weight",
+	"glass-glow-letter-spacing",
+	"glass-glow-line-height",
+	"glass-glow-hover-background-color",
+	"glass-glow-hover-box-shadow",
+	"glass-glow-hover-border-color",
+	"glass-glow-active-background-color",
+	"glass-glow-active-box-shadow",
+	"glass-glow-disabled-background-color",
+	"glass-glow-disabled-opacity",
+	"glass-glow-disabled-border-color",
+	"glass-glow-disabled-animation",
+	"glass-muted-background-color",
+	"glass-muted-border-radius",
+	"glass-muted-box-shadow",
+	"glass-muted-color",
+	"glass-muted-border-color",
+	"glass-muted-border-width",
+	"glass-muted-backdrop-filter",
+	"glass-muted-opacity",
+	"glass-muted-animation",
+	"glass-muted-transition-duration",
+	"glass-muted-transition-timing-function",
+	"glass-muted-gradient",
+	"glass-muted-font-family",
+	"glass-muted-font-size",
+	"glass-muted-font-weight",
+	"glass-muted-letter-spacing",
+	"glass-muted-line-height",
+	"glass-muted-hover-background-color",
+	"glass-muted-hover-opacity",
+	"glass-muted-hover-border-color",
+	"glass-muted-active-background-color",
+	"glass-muted-active-opacity",
+	"glass-muted-disabled-background-color",
+	"glass-muted-disabled-color",
+	"glass-muted-disabled-opacity",
+	"retro-elevated-background-color",
+	"retro-elevated-border-radius",
+	"retro-elevated-box-shadow",
+	"retro-elevated-color",
+	"retro-elevated-border-color",
+	"retro-elevated-border-width",
+	"retro-elevated-backdrop-filter",
+	"retro-elevated-opacity",
+	"retro-elevated-animation",
+	"retro-elevated-transition-duration",
+	"retro-elevated-transition-timing-function",
+	"retro-elevated-gradient",
+	"retro-elevated-font-family",
+	"retro-elevated-font-size",
+	"retro-elevated-font-weight",
+	"retro-elevated-letter-spacing",
+	"retro-elevated-line-height",
+	"retro-elevated-hover-background-color",
+	"retro-elevated-hover-box-shadow",
+	"retro-elevated-hover-border-color",
+	"retro-elevated-active-background-color",
+	"retro-elevated-active-box-shadow",
+	"retro-elevated-disabled-color",
+	"retro-elevated-disabled-opacity",
+	"retro-elevated-disabled-animation",
+	"retro-deep-background-color",
+	"retro-deep-border-radius",
+	"retro-deep-box-shadow",
+	"retro-deep-color",
+	"retro-deep-border-color",
+	"retro-deep-border-width",
+	"retro-deep-backdrop-filter",
+	"retro-deep-opacity",
+	"retro-deep-animation",
+	"retro-deep-transition-duration",
+	"retro-deep-transition-timing-function",
+	"retro-deep-gradient",
+	"retro-deep-font-family",
+	"retro-deep-font-size",
+	"retro-deep-font-weight",
+	"retro-deep-letter-spacing",
+	"retro-deep-line-height",
+	"retro-deep-hover-color",
+	"retro-deep-hover-border-color",
+	"retro-deep-active-background-color",
+	"retro-deep-disabled-color",
+	"retro-deep-disabled-opacity",
+	"retro-deep-disabled-animation",
+	"retro-minimal-background-color",
+	"retro-minimal-border-radius",
+	"retro-minimal-box-shadow",
+	"retro-minimal-color",
+	"retro-minimal-border-color",
+	"retro-minimal-border-width",
+	"retro-minimal-backdrop-filter",
+	"retro-minimal-opacity",
+	"retro-minimal-animation",
+	"retro-minimal-transition-duration",
+	"retro-minimal-transition-timing-function",
+	"retro-minimal-gradient",
+	"retro-minimal-font-family",
+	"retro-minimal-font-size",
+	"retro-minimal-font-weight",
+	"retro-minimal-letter-spacing",
+	"retro-minimal-line-height",
+	"retro-minimal-hover-background-color",
+	"retro-minimal-hover-border-color",
+	"retro-minimal-active-background-color",
+	"retro-minimal-disabled-color",
+	"retro-minimal-disabled-opacity",
+	"retro-solid-background-color",
+	"retro-solid-border-radius",
+	"retro-solid-box-shadow",
+	"retro-solid-color",
+	"retro-solid-border-color",
+	"retro-solid-border-width",
+	"retro-solid-backdrop-filter",
+	"retro-solid-opacity",
+	"retro-solid-animation",
+	"retro-solid-transition-duration",
+	"retro-solid-transition-timing-function",
+	"retro-solid-gradient",
+	"retro-solid-font-family",
+	"retro-solid-font-size",
+	"retro-solid-font-weight",
+	"retro-solid-letter-spacing",
+	"retro-solid-line-height",
+	"retro-solid-hover-background-color",
+	"retro-solid-hover-box-shadow",
+	"retro-solid-active-background-color",
+	"retro-solid-active-box-shadow",
+	"retro-solid-disabled-background-color",
+	"retro-solid-disabled-opacity",
+	"retro-glow-background-color",
+	"retro-glow-border-radius",
+	"retro-glow-box-shadow",
+	"retro-glow-color",
+	"retro-glow-border-color",
+	"retro-glow-border-width",
+	"retro-glow-backdrop-filter",
+	"retro-glow-opacity",
+	"retro-glow-animation",
+	"retro-glow-transition-duration",
+	"retro-glow-transition-timing-function",
+	"retro-glow-gradient",
+	"retro-glow-font-family",
+	"retro-glow-font-size",
+	"retro-glow-font-weight",
+	"retro-glow-letter-spacing",
+	"retro-glow-line-height",
+	"retro-glow-hover-color",
+	"retro-glow-hover-box-shadow",
+	"retro-glow-hover-border-color",
+	"retro-glow-active-background-color",
+	"retro-glow-disabled-color",
+	"retro-glow-disabled-opacity",
+	"retro-glow-disabled-animation",
+	"retro-muted-background-color",
+	"retro-muted-border-radius",
+	"retro-muted-box-shadow",
+	"retro-muted-color",
+	"retro-muted-border-color",
+	"retro-muted-border-width",
+	"retro-muted-backdrop-filter",
+	"retro-muted-opacity",
+	"retro-muted-animation",
+	"retro-muted-transition-duration",
+	"retro-muted-transition-timing-function",
+	"retro-muted-gradient",
+	"retro-muted-font-family",
+	"retro-muted-font-size",
+	"retro-muted-font-weight",
+	"retro-muted-letter-spacing",
+	"retro-muted-line-height",
+	"retro-muted-hover-color",
+	"retro-muted-hover-opacity",
+	"retro-muted-disabled-color",
+	"retro-muted-disabled-opacity",
+	"chrome-elevated-background-color",
+	"chrome-elevated-border-radius",
+	"chrome-elevated-box-shadow",
+	"chrome-elevated-color",
+	"chrome-elevated-border-color",
+	"chrome-elevated-border-width",
+	"chrome-elevated-backdrop-filter",
+	"chrome-elevated-opacity",
+	"chrome-elevated-animation",
+	"chrome-elevated-transition-duration",
+	"chrome-elevated-transition-timing-function",
+	"chrome-elevated-gradient",
+	"chrome-elevated-font-family",
+	"chrome-elevated-font-size",
+	"chrome-elevated-font-weight",
+	"chrome-elevated-letter-spacing",
+	"chrome-elevated-line-height",
+	"chrome-elevated-hover-background-color",
+	"chrome-elevated-hover-gradient",
+	"chrome-elevated-hover-box-shadow",
+	"chrome-elevated-hover-border-color",
+	"chrome-elevated-active-background-color",
+	"chrome-elevated-active-gradient",
+	"chrome-elevated-active-box-shadow",
+	"chrome-elevated-disabled-background-color",
+	"chrome-elevated-disabled-opacity",
+	"chrome-elevated-disabled-gradient",
+	"chrome-elevated-disabled-border-color",
+	"chrome-elevated-disabled-animation",
+	"chrome-deep-background-color",
+	"chrome-deep-border-radius",
+	"chrome-deep-box-shadow",
+	"chrome-deep-color",
+	"chrome-deep-border-color",
+	"chrome-deep-border-width",
+	"chrome-deep-backdrop-filter",
+	"chrome-deep-opacity",
+	"chrome-deep-animation",
+	"chrome-deep-transition-duration",
+	"chrome-deep-transition-timing-function",
+	"chrome-deep-gradient",
+	"chrome-deep-font-family",
+	"chrome-deep-font-size",
+	"chrome-deep-font-weight",
+	"chrome-deep-letter-spacing",
+	"chrome-deep-line-height",
+	"chrome-deep-hover-background-color",
+	"chrome-deep-hover-box-shadow",
+	"chrome-deep-hover-border-color",
+	"chrome-deep-active-background-color",
+	"chrome-deep-active-box-shadow",
+	"chrome-deep-disabled-background-color",
+	"chrome-deep-disabled-opacity",
+	"chrome-deep-disabled-gradient",
+	"chrome-deep-disabled-border-color",
+	"chrome-minimal-background-color",
+	"chrome-minimal-border-radius",
+	"chrome-minimal-box-shadow",
+	"chrome-minimal-color",
+	"chrome-minimal-border-color",
+	"chrome-minimal-border-width",
+	"chrome-minimal-backdrop-filter",
+	"chrome-minimal-opacity",
+	"chrome-minimal-animation",
+	"chrome-minimal-transition-duration",
+	"chrome-minimal-transition-timing-function",
+	"chrome-minimal-gradient",
+	"chrome-minimal-font-family",
+	"chrome-minimal-font-size",
+	"chrome-minimal-font-weight",
+	"chrome-minimal-letter-spacing",
+	"chrome-minimal-line-height",
+	"chrome-minimal-hover-background-color",
+	"chrome-minimal-hover-box-shadow",
+	"chrome-minimal-hover-border-color",
+	"chrome-minimal-active-background-color",
+	"chrome-minimal-active-box-shadow",
+	"chrome-minimal-disabled-background-color",
+	"chrome-minimal-disabled-color",
+	"chrome-minimal-disabled-opacity",
+	"chrome-minimal-disabled-border-color",
+	"chrome-solid-background-color",
+	"chrome-solid-border-radius",
+	"chrome-solid-box-shadow",
+	"chrome-solid-color",
+	"chrome-solid-border-color",
+	"chrome-solid-border-width",
+	"chrome-solid-backdrop-filter",
+	"chrome-solid-opacity",
+	"chrome-solid-animation",
+	"chrome-solid-transition-duration",
+	"chrome-solid-transition-timing-function",
+	"chrome-solid-gradient",
+	"chrome-solid-font-family",
+	"chrome-solid-font-size",
+	"chrome-solid-font-weight",
+	"chrome-solid-letter-spacing",
+	"chrome-solid-line-height",
+	"chrome-solid-hover-background-color",
+	"chrome-solid-hover-box-shadow",
+	"chrome-solid-hover-border-color",
+	"chrome-solid-active-background-color",
+	"chrome-solid-active-box-shadow",
+	"chrome-solid-disabled-background-color",
+	"chrome-solid-disabled-color",
+	"chrome-solid-disabled-opacity",
+	"chrome-solid-disabled-border-color",
+	"chrome-glow-background-color",
+	"chrome-glow-border-radius",
+	"chrome-glow-box-shadow",
+	"chrome-glow-color",
+	"chrome-glow-border-color",
+	"chrome-glow-border-width",
+	"chrome-glow-backdrop-filter",
+	"chrome-glow-opacity",
+	"chrome-glow-animation",
+	"chrome-glow-transition-duration",
+	"chrome-glow-transition-timing-function",
+	"chrome-glow-gradient",
+	"chrome-glow-font-family",
+	"chrome-glow-font-size",
+	"chrome-glow-font-weight",
+	"chrome-glow-letter-spacing",
+	"chrome-glow-line-height",
+	"chrome-glow-hover-background-color",
+	"chrome-glow-hover-box-shadow",
+	"chrome-glow-hover-border-color",
+	"chrome-glow-active-background-color",
+	"chrome-glow-active-box-shadow",
+	"chrome-glow-disabled-background-color",
+	"chrome-glow-disabled-opacity",
+	"chrome-glow-disabled-gradient",
+	"chrome-glow-disabled-border-color",
+	"chrome-glow-disabled-animation",
+	"chrome-muted-background-color",
+	"chrome-muted-border-radius",
+	"chrome-muted-box-shadow",
+	"chrome-muted-color",
+	"chrome-muted-border-color",
+	"chrome-muted-border-width",
+	"chrome-muted-backdrop-filter",
+	"chrome-muted-opacity",
+	"chrome-muted-animation",
+	"chrome-muted-transition-duration",
+	"chrome-muted-transition-timing-function",
+	"chrome-muted-gradient",
+	"chrome-muted-font-family",
+	"chrome-muted-font-size",
+	"chrome-muted-font-weight",
+	"chrome-muted-letter-spacing",
+	"chrome-muted-line-height",
+	"chrome-muted-hover-background-color",
+	"chrome-muted-hover-opacity",
+	"chrome-muted-hover-border-color",
+	"chrome-muted-active-background-color",
+	"chrome-muted-active-opacity",
+	"chrome-muted-disabled-background-color",
+	"chrome-muted-disabled-color",
+	"chrome-muted-disabled-opacity",
+	"flat-elevated-background-color",
+	"flat-elevated-border-radius",
+	"flat-elevated-box-shadow",
+	"flat-elevated-color",
+	"flat-elevated-border-color",
+	"flat-elevated-border-width",
+	"flat-elevated-backdrop-filter",
+	"flat-elevated-opacity",
+	"flat-elevated-animation",
+	"flat-elevated-transition-duration",
+	"flat-elevated-transition-timing-function",
+	"flat-elevated-gradient",
+	"flat-elevated-font-family",
+	"flat-elevated-font-size",
+	"flat-elevated-font-weight",
+	"flat-elevated-letter-spacing",
+	"flat-elevated-line-height",
+	"flat-elevated-hover-background-color",
+	"flat-elevated-active-background-color",
+	"flat-elevated-disabled-background-color",
+	"flat-elevated-disabled-color",
+	"flat-elevated-disabled-opacity",
+	"flat-deep-background-color",
+	"flat-deep-border-radius",
+	"flat-deep-box-shadow",
+	"flat-deep-color",
+	"flat-deep-border-color",
+	"flat-deep-border-width",
+	"flat-deep-backdrop-filter",
+	"flat-deep-opacity",
+	"flat-deep-animation",
+	"flat-deep-transition-duration",
+	"flat-deep-transition-timing-function",
+	"flat-deep-gradient",
+	"flat-deep-font-family",
+	"flat-deep-font-size",
+	"flat-deep-font-weight",
+	"flat-deep-letter-spacing",
+	"flat-deep-line-height",
+	"flat-deep-hover-background-color",
+	"flat-deep-active-background-color",
+	"flat-deep-disabled-background-color",
+	"flat-deep-disabled-color",
+	"flat-deep-disabled-opacity",
+	"flat-minimal-background-color",
+	"flat-minimal-border-radius",
+	"flat-minimal-box-shadow",
+	"flat-minimal-color",
+	"flat-minimal-border-color",
+	"flat-minimal-border-width",
+	"flat-minimal-backdrop-filter",
+	"flat-minimal-opacity",
+	"flat-minimal-animation",
+	"flat-minimal-transition-duration",
+	"flat-minimal-transition-timing-function",
+	"flat-minimal-gradient",
+	"flat-minimal-font-family",
+	"flat-minimal-font-size",
+	"flat-minimal-font-weight",
+	"flat-minimal-letter-spacing",
+	"flat-minimal-line-height",
+	"flat-minimal-hover-background-color",
+	"flat-minimal-active-background-color",
+	"flat-minimal-disabled-color",
+	"flat-minimal-disabled-opacity",
+	"flat-solid-background-color",
+	"flat-solid-border-radius",
+	"flat-solid-box-shadow",
+	"flat-solid-color",
+	"flat-solid-border-color",
+	"flat-solid-border-width",
+	"flat-solid-backdrop-filter",
+	"flat-solid-opacity",
+	"flat-solid-animation",
+	"flat-solid-transition-duration",
+	"flat-solid-transition-timing-function",
+	"flat-solid-gradient",
+	"flat-solid-font-family",
+	"flat-solid-font-size",
+	"flat-solid-font-weight",
+	"flat-solid-letter-spacing",
+	"flat-solid-line-height",
+	"flat-solid-hover-background-color",
+	"flat-solid-hover-border-color",
+	"flat-solid-active-background-color",
+	"flat-solid-disabled-background-color",
+	"flat-solid-disabled-color",
+	"flat-solid-disabled-opacity",
+	"flat-solid-disabled-border-color",
+	"flat-glow-background-color",
+	"flat-glow-border-radius",
+	"flat-glow-box-shadow",
+	"flat-glow-color",
+	"flat-glow-border-color",
+	"flat-glow-border-width",
+	"flat-glow-backdrop-filter",
+	"flat-glow-opacity",
+	"flat-glow-animation",
+	"flat-glow-transition-duration",
+	"flat-glow-transition-timing-function",
+	"flat-glow-gradient",
+	"flat-glow-font-family",
+	"flat-glow-font-size",
+	"flat-glow-font-weight",
+	"flat-glow-letter-spacing",
+	"flat-glow-line-height",
+	"flat-glow-hover-background-color",
+	"flat-glow-active-background-color",
+	"flat-glow-disabled-background-color",
+	"flat-glow-disabled-color",
+	"flat-glow-disabled-opacity",
+	"flat-muted-background-color",
+	"flat-muted-border-radius",
+	"flat-muted-box-shadow",
+	"flat-muted-color",
+	"flat-muted-border-color",
+	"flat-muted-border-width",
+	"flat-muted-backdrop-filter",
+	"flat-muted-opacity",
+	"flat-muted-animation",
+	"flat-muted-transition-duration",
+	"flat-muted-transition-timing-function",
+	"flat-muted-gradient",
+	"flat-muted-font-family",
+	"flat-muted-font-size",
+	"flat-muted-font-weight",
+	"flat-muted-letter-spacing",
+	"flat-muted-line-height",
+	"flat-muted-hover-background-color",
+	"flat-muted-hover-opacity",
+	"flat-muted-active-background-color",
+	"flat-muted-active-opacity",
+	"flat-muted-disabled-background-color",
+	"flat-muted-disabled-color",
+	"flat-muted-disabled-opacity",
+	"stark-elevated-background-color",
+	"stark-elevated-border-radius",
+	"stark-elevated-box-shadow",
+	"stark-elevated-color",
+	"stark-elevated-border-color",
+	"stark-elevated-border-width",
+	"stark-elevated-backdrop-filter",
+	"stark-elevated-opacity",
+	"stark-elevated-animation",
+	"stark-elevated-transition-duration",
+	"stark-elevated-transition-timing-function",
+	"stark-elevated-gradient",
+	"stark-elevated-font-family",
+	"stark-elevated-font-size",
+	"stark-elevated-font-weight",
+	"stark-elevated-letter-spacing",
+	"stark-elevated-line-height",
+	"stark-elevated-hover-background-color",
+	"stark-elevated-hover-box-shadow",
+	"stark-elevated-hover-border-color",
+	"stark-elevated-active-background-color",
+	"stark-elevated-active-box-shadow",
+	"stark-elevated-active-border-color",
+	"stark-elevated-disabled-background-color",
+	"stark-elevated-disabled-color",
+	"stark-elevated-disabled-opacity",
+	"stark-elevated-disabled-border-color",
+	"stark-deep-background-color",
+	"stark-deep-border-radius",
+	"stark-deep-box-shadow",
+	"stark-deep-color",
+	"stark-deep-border-color",
+	"stark-deep-border-width",
+	"stark-deep-backdrop-filter",
+	"stark-deep-opacity",
+	"stark-deep-animation",
+	"stark-deep-transition-duration",
+	"stark-deep-transition-timing-function",
+	"stark-deep-gradient",
+	"stark-deep-font-family",
+	"stark-deep-font-size",
+	"stark-deep-font-weight",
+	"stark-deep-letter-spacing",
+	"stark-deep-line-height",
+	"stark-deep-hover-background-color",
+	"stark-deep-hover-box-shadow",
+	"stark-deep-hover-border-color",
+	"stark-deep-active-background-color",
+	"stark-deep-active-box-shadow",
+	"stark-deep-active-border-color",
+	"stark-deep-disabled-background-color",
+	"stark-deep-disabled-color",
+	"stark-deep-disabled-opacity",
+	"stark-deep-disabled-border-color",
+	"stark-minimal-background-color",
+	"stark-minimal-border-radius",
+	"stark-minimal-box-shadow",
+	"stark-minimal-color",
+	"stark-minimal-border-color",
+	"stark-minimal-border-width",
+	"stark-minimal-backdrop-filter",
+	"stark-minimal-opacity",
+	"stark-minimal-animation",
+	"stark-minimal-transition-duration",
+	"stark-minimal-transition-timing-function",
+	"stark-minimal-gradient",
+	"stark-minimal-font-family",
+	"stark-minimal-font-size",
+	"stark-minimal-font-weight",
+	"stark-minimal-letter-spacing",
+	"stark-minimal-line-height",
+	"stark-minimal-hover-background-color",
+	"stark-minimal-hover-border-color",
+	"stark-minimal-active-background-color",
+	"stark-minimal-active-border-color",
+	"stark-minimal-disabled-background-color",
+	"stark-minimal-disabled-color",
+	"stark-minimal-disabled-opacity",
+	"stark-minimal-disabled-border-color",
+	"stark-solid-background-color",
+	"stark-solid-border-radius",
+	"stark-solid-box-shadow",
+	"stark-solid-color",
+	"stark-solid-border-color",
+	"stark-solid-border-width",
+	"stark-solid-backdrop-filter",
+	"stark-solid-opacity",
+	"stark-solid-animation",
+	"stark-solid-transition-duration",
+	"stark-solid-transition-timing-function",
+	"stark-solid-gradient",
+	"stark-solid-font-family",
+	"stark-solid-font-size",
+	"stark-solid-font-weight",
+	"stark-solid-letter-spacing",
+	"stark-solid-line-height",
+	"stark-solid-hover-background-color",
+	"stark-solid-hover-box-shadow",
+	"stark-solid-hover-border-color",
+	"stark-solid-active-background-color",
+	"stark-solid-active-box-shadow",
+	"stark-solid-active-border-color",
+	"stark-solid-disabled-background-color",
+	"stark-solid-disabled-color",
+	"stark-solid-disabled-opacity",
+	"stark-solid-disabled-border-color",
+	"stark-glow-background-color",
+	"stark-glow-border-radius",
+	"stark-glow-box-shadow",
+	"stark-glow-color",
+	"stark-glow-border-color",
+	"stark-glow-border-width",
+	"stark-glow-backdrop-filter",
+	"stark-glow-opacity",
+	"stark-glow-animation",
+	"stark-glow-transition-duration",
+	"stark-glow-transition-timing-function",
+	"stark-glow-gradient",
+	"stark-glow-font-family",
+	"stark-glow-font-size",
+	"stark-glow-font-weight",
+	"stark-glow-letter-spacing",
+	"stark-glow-line-height",
+	"stark-glow-hover-background-color",
+	"stark-glow-hover-box-shadow",
+	"stark-glow-hover-border-color",
+	"stark-glow-active-background-color",
+	"stark-glow-active-box-shadow",
+	"stark-glow-active-border-color",
+	"stark-glow-disabled-background-color",
+	"stark-glow-disabled-color",
+	"stark-glow-disabled-opacity",
+	"stark-glow-disabled-border-color",
+	"stark-glow-disabled-animation",
+	"stark-muted-background-color",
+	"stark-muted-border-radius",
+	"stark-muted-box-shadow",
+	"stark-muted-color",
+	"stark-muted-border-color",
+	"stark-muted-border-width",
+	"stark-muted-backdrop-filter",
+	"stark-muted-opacity",
+	"stark-muted-animation",
+	"stark-muted-transition-duration",
+	"stark-muted-transition-timing-function",
+	"stark-muted-gradient",
+	"stark-muted-font-family",
+	"stark-muted-font-size",
+	"stark-muted-font-weight",
+	"stark-muted-letter-spacing",
+	"stark-muted-line-height",
+	"stark-muted-hover-background-color",
+	"stark-muted-hover-opacity",
+	"stark-muted-hover-border-color",
+	"stark-muted-active-background-color",
+	"stark-muted-active-opacity",
+	"stark-muted-disabled-background-color",
+	"stark-muted-disabled-color",
+	"stark-muted-disabled-opacity",
+	"stark-muted-disabled-border-color",
 ] as const;
-export type StyleToken = (typeof StyleTokens)[number];
+export type PresetToken = (typeof PresetTokens)[number];
 
-export type StyleCSSVar =
-	| "--style-accordion-default-background-color"
-	| "--style-accordion-default-border-radius"
-	| "--style-accordion-default-box-shadow"
-	| "--style-accordion-default-color"
-	| "--style-accordion-default-border-color"
-	| "--style-accordion-default-border-width"
-	| "--style-accordion-default-backdrop-filter"
-	| "--style-accordion-default-opacity"
-	| "--style-accordion-default-animation"
-	| "--style-accordion-default-transition-duration"
-	| "--style-accordion-default-transition-timing-function"
-	| "--style-accordion-default-gradient"
-	| "--style-accordion-default-font-family"
-	| "--style-accordion-default-font-size"
-	| "--style-accordion-default-font-weight"
-	| "--style-accordion-default-letter-spacing"
-	| "--style-accordion-default-line-height"
-	| "--style-accordion-stark-background-color"
-	| "--style-accordion-stark-border-radius"
-	| "--style-accordion-stark-box-shadow"
-	| "--style-accordion-stark-color"
-	| "--style-accordion-stark-border-color"
-	| "--style-accordion-stark-border-width"
-	| "--style-accordion-stark-opacity"
-	| "--style-accordion-stark-animation"
-	| "--style-accordion-stark-transition-duration"
-	| "--style-accordion-stark-transition-timing-function"
-	| "--style-accordion-stark-gradient"
-	| "--style-accordion-stark-font-family"
-	| "--style-accordion-stark-font-size"
-	| "--style-accordion-stark-font-weight"
-	| "--style-accordion-stark-letter-spacing"
-	| "--style-accordion-stark-line-height"
-	| "--style-accordion-glass-background-color"
-	| "--style-accordion-glass-border-radius"
-	| "--style-accordion-glass-box-shadow"
-	| "--style-accordion-glass-color"
-	| "--style-accordion-glass-border-color"
-	| "--style-accordion-glass-border-width"
-	| "--style-accordion-glass-backdrop-filter"
-	| "--style-accordion-glass-opacity"
-	| "--style-accordion-glass-animation"
-	| "--style-accordion-glass-transition-duration"
-	| "--style-accordion-glass-transition-timing-function"
-	| "--style-accordion-glass-gradient"
-	| "--style-accordion-glass-font-family"
-	| "--style-accordion-glass-font-size"
-	| "--style-accordion-glass-font-weight"
-	| "--style-accordion-glass-letter-spacing"
-	| "--style-accordion-glass-line-height"
-	| "--style-accordion-flat-background-color"
-	| "--style-accordion-flat-border-radius"
-	| "--style-accordion-flat-box-shadow"
-	| "--style-accordion-flat-color"
-	| "--style-accordion-flat-border-color"
-	| "--style-accordion-flat-border-width"
-	| "--style-accordion-flat-opacity"
-	| "--style-accordion-flat-animation"
-	| "--style-accordion-flat-transition-duration"
-	| "--style-accordion-flat-transition-timing-function"
-	| "--style-accordion-flat-gradient"
-	| "--style-accordion-flat-font-family"
-	| "--style-accordion-flat-font-size"
-	| "--style-accordion-flat-font-weight"
-	| "--style-accordion-flat-letter-spacing"
-	| "--style-accordion-flat-line-height"
-	| "--style-accordion-matte-background-color"
-	| "--style-accordion-matte-border-radius"
-	| "--style-accordion-matte-box-shadow"
-	| "--style-accordion-matte-color"
-	| "--style-accordion-matte-border-color"
-	| "--style-accordion-matte-border-width"
-	| "--style-accordion-matte-opacity"
-	| "--style-accordion-matte-animation"
-	| "--style-accordion-matte-transition-duration"
-	| "--style-accordion-matte-transition-timing-function"
-	| "--style-accordion-matte-gradient"
-	| "--style-accordion-matte-font-family"
-	| "--style-accordion-matte-font-size"
-	| "--style-accordion-matte-font-weight"
-	| "--style-accordion-matte-letter-spacing"
-	| "--style-accordion-matte-line-height"
-	| "--style-alert-dialog-default-background-color"
-	| "--style-alert-dialog-default-border-radius"
-	| "--style-alert-dialog-default-box-shadow"
-	| "--style-alert-dialog-default-color"
-	| "--style-alert-dialog-default-border-color"
-	| "--style-alert-dialog-default-border-width"
-	| "--style-alert-dialog-default-backdrop-filter"
-	| "--style-alert-dialog-default-opacity"
-	| "--style-alert-dialog-default-animation"
-	| "--style-alert-dialog-default-transition-duration"
-	| "--style-alert-dialog-default-transition-timing-function"
-	| "--style-alert-dialog-default-gradient"
-	| "--style-alert-dialog-default-font-family"
-	| "--style-alert-dialog-default-font-size"
-	| "--style-alert-dialog-default-font-weight"
-	| "--style-alert-dialog-default-letter-spacing"
-	| "--style-alert-dialog-default-line-height"
-	| "--style-alert-dialog-stark-background-color"
-	| "--style-alert-dialog-stark-border-radius"
-	| "--style-alert-dialog-stark-box-shadow"
-	| "--style-alert-dialog-stark-color"
-	| "--style-alert-dialog-stark-border-color"
-	| "--style-alert-dialog-stark-border-width"
-	| "--style-alert-dialog-stark-opacity"
-	| "--style-alert-dialog-stark-animation"
-	| "--style-alert-dialog-stark-transition-duration"
-	| "--style-alert-dialog-stark-transition-timing-function"
-	| "--style-alert-dialog-stark-gradient"
-	| "--style-alert-dialog-stark-font-family"
-	| "--style-alert-dialog-stark-font-size"
-	| "--style-alert-dialog-stark-font-weight"
-	| "--style-alert-dialog-stark-letter-spacing"
-	| "--style-alert-dialog-stark-line-height"
-	| "--style-alert-dialog-glass-background-color"
-	| "--style-alert-dialog-glass-border-radius"
-	| "--style-alert-dialog-glass-box-shadow"
-	| "--style-alert-dialog-glass-color"
-	| "--style-alert-dialog-glass-border-color"
-	| "--style-alert-dialog-glass-border-width"
-	| "--style-alert-dialog-glass-backdrop-filter"
-	| "--style-alert-dialog-glass-opacity"
-	| "--style-alert-dialog-glass-animation"
-	| "--style-alert-dialog-glass-transition-duration"
-	| "--style-alert-dialog-glass-transition-timing-function"
-	| "--style-alert-dialog-glass-gradient"
-	| "--style-alert-dialog-glass-font-family"
-	| "--style-alert-dialog-glass-font-size"
-	| "--style-alert-dialog-glass-font-weight"
-	| "--style-alert-dialog-glass-letter-spacing"
-	| "--style-alert-dialog-glass-line-height"
-	| "--style-alert-dialog-flat-background-color"
-	| "--style-alert-dialog-flat-border-radius"
-	| "--style-alert-dialog-flat-box-shadow"
-	| "--style-alert-dialog-flat-color"
-	| "--style-alert-dialog-flat-border-color"
-	| "--style-alert-dialog-flat-border-width"
-	| "--style-alert-dialog-flat-opacity"
-	| "--style-alert-dialog-flat-animation"
-	| "--style-alert-dialog-flat-transition-duration"
-	| "--style-alert-dialog-flat-transition-timing-function"
-	| "--style-alert-dialog-flat-gradient"
-	| "--style-alert-dialog-flat-font-family"
-	| "--style-alert-dialog-flat-font-size"
-	| "--style-alert-dialog-flat-font-weight"
-	| "--style-alert-dialog-flat-letter-spacing"
-	| "--style-alert-dialog-flat-line-height"
-	| "--style-alert-dialog-matte-background-color"
-	| "--style-alert-dialog-matte-border-radius"
-	| "--style-alert-dialog-matte-box-shadow"
-	| "--style-alert-dialog-matte-color"
-	| "--style-alert-dialog-matte-border-color"
-	| "--style-alert-dialog-matte-border-width"
-	| "--style-alert-dialog-matte-opacity"
-	| "--style-alert-dialog-matte-animation"
-	| "--style-alert-dialog-matte-transition-duration"
-	| "--style-alert-dialog-matte-transition-timing-function"
-	| "--style-alert-dialog-matte-gradient"
-	| "--style-alert-dialog-matte-font-family"
-	| "--style-alert-dialog-matte-font-size"
-	| "--style-alert-dialog-matte-font-weight"
-	| "--style-alert-dialog-matte-letter-spacing"
-	| "--style-alert-dialog-matte-line-height"
-	| "--style-alert-default-background-color"
-	| "--style-alert-default-border-radius"
-	| "--style-alert-default-box-shadow"
-	| "--style-alert-default-color"
-	| "--style-alert-default-border-color"
-	| "--style-alert-default-border-width"
-	| "--style-alert-default-backdrop-filter"
-	| "--style-alert-default-opacity"
-	| "--style-alert-default-animation"
-	| "--style-alert-default-transition-duration"
-	| "--style-alert-default-transition-timing-function"
-	| "--style-alert-default-gradient"
-	| "--style-alert-default-font-family"
-	| "--style-alert-default-font-size"
-	| "--style-alert-default-font-weight"
-	| "--style-alert-default-letter-spacing"
-	| "--style-alert-default-line-height"
-	| "--style-alert-stark-background-color"
-	| "--style-alert-stark-border-radius"
-	| "--style-alert-stark-box-shadow"
-	| "--style-alert-stark-color"
-	| "--style-alert-stark-border-color"
-	| "--style-alert-stark-border-width"
-	| "--style-alert-stark-opacity"
-	| "--style-alert-stark-animation"
-	| "--style-alert-stark-transition-duration"
-	| "--style-alert-stark-transition-timing-function"
-	| "--style-alert-stark-gradient"
-	| "--style-alert-stark-font-family"
-	| "--style-alert-stark-font-size"
-	| "--style-alert-stark-font-weight"
-	| "--style-alert-stark-letter-spacing"
-	| "--style-alert-stark-line-height"
-	| "--style-alert-glass-background-color"
-	| "--style-alert-glass-border-radius"
-	| "--style-alert-glass-box-shadow"
-	| "--style-alert-glass-color"
-	| "--style-alert-glass-border-color"
-	| "--style-alert-glass-border-width"
-	| "--style-alert-glass-backdrop-filter"
-	| "--style-alert-glass-opacity"
-	| "--style-alert-glass-animation"
-	| "--style-alert-glass-transition-duration"
-	| "--style-alert-glass-transition-timing-function"
-	| "--style-alert-glass-gradient"
-	| "--style-alert-glass-font-family"
-	| "--style-alert-glass-font-size"
-	| "--style-alert-glass-font-weight"
-	| "--style-alert-glass-letter-spacing"
-	| "--style-alert-glass-line-height"
-	| "--style-alert-flat-background-color"
-	| "--style-alert-flat-border-radius"
-	| "--style-alert-flat-box-shadow"
-	| "--style-alert-flat-color"
-	| "--style-alert-flat-border-color"
-	| "--style-alert-flat-border-width"
-	| "--style-alert-flat-opacity"
-	| "--style-alert-flat-animation"
-	| "--style-alert-flat-transition-duration"
-	| "--style-alert-flat-transition-timing-function"
-	| "--style-alert-flat-gradient"
-	| "--style-alert-flat-font-family"
-	| "--style-alert-flat-font-size"
-	| "--style-alert-flat-font-weight"
-	| "--style-alert-flat-letter-spacing"
-	| "--style-alert-flat-line-height"
-	| "--style-alert-matte-background-color"
-	| "--style-alert-matte-border-radius"
-	| "--style-alert-matte-box-shadow"
-	| "--style-alert-matte-color"
-	| "--style-alert-matte-border-color"
-	| "--style-alert-matte-border-width"
-	| "--style-alert-matte-opacity"
-	| "--style-alert-matte-animation"
-	| "--style-alert-matte-transition-duration"
-	| "--style-alert-matte-transition-timing-function"
-	| "--style-alert-matte-gradient"
-	| "--style-alert-matte-font-family"
-	| "--style-alert-matte-font-size"
-	| "--style-alert-matte-font-weight"
-	| "--style-alert-matte-letter-spacing"
-	| "--style-alert-matte-line-height"
-	| "--style-avatar-group-default-background-color"
-	| "--style-avatar-group-default-border-radius"
-	| "--style-avatar-group-default-box-shadow"
-	| "--style-avatar-group-default-color"
-	| "--style-avatar-group-default-border-color"
-	| "--style-avatar-group-default-border-width"
-	| "--style-avatar-group-default-backdrop-filter"
-	| "--style-avatar-group-default-opacity"
-	| "--style-avatar-group-default-animation"
-	| "--style-avatar-group-default-transition-duration"
-	| "--style-avatar-group-default-transition-timing-function"
-	| "--style-avatar-group-default-gradient"
-	| "--style-avatar-group-default-font-family"
-	| "--style-avatar-group-default-font-size"
-	| "--style-avatar-group-default-font-weight"
-	| "--style-avatar-group-default-letter-spacing"
-	| "--style-avatar-group-default-line-height"
-	| "--style-avatar-group-stark-background-color"
-	| "--style-avatar-group-stark-border-radius"
-	| "--style-avatar-group-stark-box-shadow"
-	| "--style-avatar-group-stark-color"
-	| "--style-avatar-group-stark-border-color"
-	| "--style-avatar-group-stark-border-width"
-	| "--style-avatar-group-stark-opacity"
-	| "--style-avatar-group-stark-animation"
-	| "--style-avatar-group-stark-transition-duration"
-	| "--style-avatar-group-stark-transition-timing-function"
-	| "--style-avatar-group-stark-gradient"
-	| "--style-avatar-group-stark-font-family"
-	| "--style-avatar-group-stark-font-size"
-	| "--style-avatar-group-stark-font-weight"
-	| "--style-avatar-group-stark-letter-spacing"
-	| "--style-avatar-group-stark-line-height"
-	| "--style-avatar-group-glass-background-color"
-	| "--style-avatar-group-glass-border-radius"
-	| "--style-avatar-group-glass-box-shadow"
-	| "--style-avatar-group-glass-color"
-	| "--style-avatar-group-glass-border-color"
-	| "--style-avatar-group-glass-border-width"
-	| "--style-avatar-group-glass-backdrop-filter"
-	| "--style-avatar-group-glass-opacity"
-	| "--style-avatar-group-glass-animation"
-	| "--style-avatar-group-glass-transition-duration"
-	| "--style-avatar-group-glass-transition-timing-function"
-	| "--style-avatar-group-glass-gradient"
-	| "--style-avatar-group-glass-font-family"
-	| "--style-avatar-group-glass-font-size"
-	| "--style-avatar-group-glass-font-weight"
-	| "--style-avatar-group-glass-letter-spacing"
-	| "--style-avatar-group-glass-line-height"
-	| "--style-avatar-group-flat-background-color"
-	| "--style-avatar-group-flat-border-radius"
-	| "--style-avatar-group-flat-box-shadow"
-	| "--style-avatar-group-flat-color"
-	| "--style-avatar-group-flat-border-color"
-	| "--style-avatar-group-flat-border-width"
-	| "--style-avatar-group-flat-opacity"
-	| "--style-avatar-group-flat-animation"
-	| "--style-avatar-group-flat-transition-duration"
-	| "--style-avatar-group-flat-transition-timing-function"
-	| "--style-avatar-group-flat-gradient"
-	| "--style-avatar-group-flat-font-family"
-	| "--style-avatar-group-flat-font-size"
-	| "--style-avatar-group-flat-font-weight"
-	| "--style-avatar-group-flat-letter-spacing"
-	| "--style-avatar-group-flat-line-height"
-	| "--style-avatar-group-matte-background-color"
-	| "--style-avatar-group-matte-border-radius"
-	| "--style-avatar-group-matte-box-shadow"
-	| "--style-avatar-group-matte-color"
-	| "--style-avatar-group-matte-border-color"
-	| "--style-avatar-group-matte-border-width"
-	| "--style-avatar-group-matte-opacity"
-	| "--style-avatar-group-matte-animation"
-	| "--style-avatar-group-matte-transition-duration"
-	| "--style-avatar-group-matte-transition-timing-function"
-	| "--style-avatar-group-matte-gradient"
-	| "--style-avatar-group-matte-font-family"
-	| "--style-avatar-group-matte-font-size"
-	| "--style-avatar-group-matte-font-weight"
-	| "--style-avatar-group-matte-letter-spacing"
-	| "--style-avatar-group-matte-line-height"
-	| "--style-avatar-default-background-color"
-	| "--style-avatar-default-border-radius"
-	| "--style-avatar-default-box-shadow"
-	| "--style-avatar-default-color"
-	| "--style-avatar-default-border-color"
-	| "--style-avatar-default-border-width"
-	| "--style-avatar-default-backdrop-filter"
-	| "--style-avatar-default-opacity"
-	| "--style-avatar-default-animation"
-	| "--style-avatar-default-transition-duration"
-	| "--style-avatar-default-transition-timing-function"
-	| "--style-avatar-default-gradient"
-	| "--style-avatar-default-font-family"
-	| "--style-avatar-default-font-size"
-	| "--style-avatar-default-font-weight"
-	| "--style-avatar-default-letter-spacing"
-	| "--style-avatar-default-line-height"
-	| "--style-avatar-stark-background-color"
-	| "--style-avatar-stark-border-radius"
-	| "--style-avatar-stark-box-shadow"
-	| "--style-avatar-stark-color"
-	| "--style-avatar-stark-border-color"
-	| "--style-avatar-stark-border-width"
-	| "--style-avatar-stark-opacity"
-	| "--style-avatar-stark-animation"
-	| "--style-avatar-stark-transition-duration"
-	| "--style-avatar-stark-transition-timing-function"
-	| "--style-avatar-stark-gradient"
-	| "--style-avatar-stark-font-family"
-	| "--style-avatar-stark-font-size"
-	| "--style-avatar-stark-font-weight"
-	| "--style-avatar-stark-letter-spacing"
-	| "--style-avatar-stark-line-height"
-	| "--style-avatar-glass-background-color"
-	| "--style-avatar-glass-border-radius"
-	| "--style-avatar-glass-box-shadow"
-	| "--style-avatar-glass-color"
-	| "--style-avatar-glass-border-color"
-	| "--style-avatar-glass-border-width"
-	| "--style-avatar-glass-backdrop-filter"
-	| "--style-avatar-glass-opacity"
-	| "--style-avatar-glass-animation"
-	| "--style-avatar-glass-transition-duration"
-	| "--style-avatar-glass-transition-timing-function"
-	| "--style-avatar-glass-gradient"
-	| "--style-avatar-glass-font-family"
-	| "--style-avatar-glass-font-size"
-	| "--style-avatar-glass-font-weight"
-	| "--style-avatar-glass-letter-spacing"
-	| "--style-avatar-glass-line-height"
-	| "--style-avatar-flat-background-color"
-	| "--style-avatar-flat-border-radius"
-	| "--style-avatar-flat-box-shadow"
-	| "--style-avatar-flat-color"
-	| "--style-avatar-flat-border-color"
-	| "--style-avatar-flat-border-width"
-	| "--style-avatar-flat-opacity"
-	| "--style-avatar-flat-animation"
-	| "--style-avatar-flat-transition-duration"
-	| "--style-avatar-flat-transition-timing-function"
-	| "--style-avatar-flat-gradient"
-	| "--style-avatar-flat-font-family"
-	| "--style-avatar-flat-font-size"
-	| "--style-avatar-flat-font-weight"
-	| "--style-avatar-flat-letter-spacing"
-	| "--style-avatar-flat-line-height"
-	| "--style-avatar-matte-background-color"
-	| "--style-avatar-matte-border-radius"
-	| "--style-avatar-matte-box-shadow"
-	| "--style-avatar-matte-color"
-	| "--style-avatar-matte-border-color"
-	| "--style-avatar-matte-border-width"
-	| "--style-avatar-matte-opacity"
-	| "--style-avatar-matte-animation"
-	| "--style-avatar-matte-transition-duration"
-	| "--style-avatar-matte-transition-timing-function"
-	| "--style-avatar-matte-gradient"
-	| "--style-avatar-matte-font-family"
-	| "--style-avatar-matte-font-size"
-	| "--style-avatar-matte-font-weight"
-	| "--style-avatar-matte-letter-spacing"
-	| "--style-avatar-matte-line-height"
-	| "--style-badge-default-background-color"
-	| "--style-badge-default-border-radius"
-	| "--style-badge-default-box-shadow"
-	| "--style-badge-default-color"
-	| "--style-badge-default-border-color"
-	| "--style-badge-default-border-width"
-	| "--style-badge-default-backdrop-filter"
-	| "--style-badge-default-opacity"
-	| "--style-badge-default-animation"
-	| "--style-badge-default-transition-duration"
-	| "--style-badge-default-transition-timing-function"
-	| "--style-badge-default-gradient"
-	| "--style-badge-default-font-family"
-	| "--style-badge-default-font-size"
-	| "--style-badge-default-font-weight"
-	| "--style-badge-default-letter-spacing"
-	| "--style-badge-default-line-height"
-	| "--style-badge-stark-background-color"
-	| "--style-badge-stark-border-radius"
-	| "--style-badge-stark-box-shadow"
-	| "--style-badge-stark-color"
-	| "--style-badge-stark-border-color"
-	| "--style-badge-stark-border-width"
-	| "--style-badge-stark-opacity"
-	| "--style-badge-stark-animation"
-	| "--style-badge-stark-transition-duration"
-	| "--style-badge-stark-transition-timing-function"
-	| "--style-badge-stark-gradient"
-	| "--style-badge-stark-font-family"
-	| "--style-badge-stark-font-size"
-	| "--style-badge-stark-font-weight"
-	| "--style-badge-stark-letter-spacing"
-	| "--style-badge-stark-line-height"
-	| "--style-badge-glass-background-color"
-	| "--style-badge-glass-border-radius"
-	| "--style-badge-glass-box-shadow"
-	| "--style-badge-glass-color"
-	| "--style-badge-glass-border-color"
-	| "--style-badge-glass-border-width"
-	| "--style-badge-glass-backdrop-filter"
-	| "--style-badge-glass-opacity"
-	| "--style-badge-glass-animation"
-	| "--style-badge-glass-transition-duration"
-	| "--style-badge-glass-transition-timing-function"
-	| "--style-badge-glass-gradient"
-	| "--style-badge-glass-font-family"
-	| "--style-badge-glass-font-size"
-	| "--style-badge-glass-font-weight"
-	| "--style-badge-glass-letter-spacing"
-	| "--style-badge-glass-line-height"
-	| "--style-badge-flat-background-color"
-	| "--style-badge-flat-border-radius"
-	| "--style-badge-flat-box-shadow"
-	| "--style-badge-flat-color"
-	| "--style-badge-flat-border-color"
-	| "--style-badge-flat-border-width"
-	| "--style-badge-flat-opacity"
-	| "--style-badge-flat-animation"
-	| "--style-badge-flat-transition-duration"
-	| "--style-badge-flat-transition-timing-function"
-	| "--style-badge-flat-gradient"
-	| "--style-badge-flat-font-family"
-	| "--style-badge-flat-font-size"
-	| "--style-badge-flat-font-weight"
-	| "--style-badge-flat-letter-spacing"
-	| "--style-badge-flat-line-height"
-	| "--style-badge-matte-background-color"
-	| "--style-badge-matte-border-radius"
-	| "--style-badge-matte-box-shadow"
-	| "--style-badge-matte-color"
-	| "--style-badge-matte-border-color"
-	| "--style-badge-matte-border-width"
-	| "--style-badge-matte-opacity"
-	| "--style-badge-matte-animation"
-	| "--style-badge-matte-transition-duration"
-	| "--style-badge-matte-transition-timing-function"
-	| "--style-badge-matte-gradient"
-	| "--style-badge-matte-font-family"
-	| "--style-badge-matte-font-size"
-	| "--style-badge-matte-font-weight"
-	| "--style-badge-matte-letter-spacing"
-	| "--style-badge-matte-line-height"
-	| "--style-banner-default-background-color"
-	| "--style-banner-default-border-radius"
-	| "--style-banner-default-box-shadow"
-	| "--style-banner-default-color"
-	| "--style-banner-default-border-color"
-	| "--style-banner-default-border-width"
-	| "--style-banner-default-backdrop-filter"
-	| "--style-banner-default-opacity"
-	| "--style-banner-default-animation"
-	| "--style-banner-default-transition-duration"
-	| "--style-banner-default-transition-timing-function"
-	| "--style-banner-default-gradient"
-	| "--style-banner-default-font-family"
-	| "--style-banner-default-font-size"
-	| "--style-banner-default-font-weight"
-	| "--style-banner-default-letter-spacing"
-	| "--style-banner-default-line-height"
-	| "--style-banner-stark-background-color"
-	| "--style-banner-stark-border-radius"
-	| "--style-banner-stark-box-shadow"
-	| "--style-banner-stark-color"
-	| "--style-banner-stark-border-color"
-	| "--style-banner-stark-border-width"
-	| "--style-banner-stark-opacity"
-	| "--style-banner-stark-animation"
-	| "--style-banner-stark-transition-duration"
-	| "--style-banner-stark-transition-timing-function"
-	| "--style-banner-stark-gradient"
-	| "--style-banner-stark-font-family"
-	| "--style-banner-stark-font-size"
-	| "--style-banner-stark-font-weight"
-	| "--style-banner-stark-letter-spacing"
-	| "--style-banner-stark-line-height"
-	| "--style-banner-glass-background-color"
-	| "--style-banner-glass-border-radius"
-	| "--style-banner-glass-box-shadow"
-	| "--style-banner-glass-color"
-	| "--style-banner-glass-border-color"
-	| "--style-banner-glass-border-width"
-	| "--style-banner-glass-backdrop-filter"
-	| "--style-banner-glass-opacity"
-	| "--style-banner-glass-animation"
-	| "--style-banner-glass-transition-duration"
-	| "--style-banner-glass-transition-timing-function"
-	| "--style-banner-glass-gradient"
-	| "--style-banner-glass-font-family"
-	| "--style-banner-glass-font-size"
-	| "--style-banner-glass-font-weight"
-	| "--style-banner-glass-letter-spacing"
-	| "--style-banner-glass-line-height"
-	| "--style-banner-flat-background-color"
-	| "--style-banner-flat-border-radius"
-	| "--style-banner-flat-box-shadow"
-	| "--style-banner-flat-color"
-	| "--style-banner-flat-border-color"
-	| "--style-banner-flat-border-width"
-	| "--style-banner-flat-opacity"
-	| "--style-banner-flat-animation"
-	| "--style-banner-flat-transition-duration"
-	| "--style-banner-flat-transition-timing-function"
-	| "--style-banner-flat-gradient"
-	| "--style-banner-flat-font-family"
-	| "--style-banner-flat-font-size"
-	| "--style-banner-flat-font-weight"
-	| "--style-banner-flat-letter-spacing"
-	| "--style-banner-flat-line-height"
-	| "--style-banner-matte-background-color"
-	| "--style-banner-matte-border-radius"
-	| "--style-banner-matte-box-shadow"
-	| "--style-banner-matte-color"
-	| "--style-banner-matte-border-color"
-	| "--style-banner-matte-border-width"
-	| "--style-banner-matte-opacity"
-	| "--style-banner-matte-animation"
-	| "--style-banner-matte-transition-duration"
-	| "--style-banner-matte-transition-timing-function"
-	| "--style-banner-matte-gradient"
-	| "--style-banner-matte-font-family"
-	| "--style-banner-matte-font-size"
-	| "--style-banner-matte-font-weight"
-	| "--style-banner-matte-letter-spacing"
-	| "--style-banner-matte-line-height"
-	| "--style-button-default-background-color"
-	| "--style-button-default-border-radius"
-	| "--style-button-default-box-shadow"
-	| "--style-button-default-color"
-	| "--style-button-default-border-color"
-	| "--style-button-default-border-width"
-	| "--style-button-default-backdrop-filter"
-	| "--style-button-default-opacity"
-	| "--style-button-default-animation"
-	| "--style-button-default-transition-duration"
-	| "--style-button-default-transition-timing-function"
-	| "--style-button-default-gradient"
-	| "--style-button-default-font-family"
-	| "--style-button-default-font-size"
-	| "--style-button-default-font-weight"
-	| "--style-button-default-letter-spacing"
-	| "--style-button-default-line-height"
-	| "--style-button-stark-background-color"
-	| "--style-button-stark-border-radius"
-	| "--style-button-stark-box-shadow"
-	| "--style-button-stark-color"
-	| "--style-button-stark-border-color"
-	| "--style-button-stark-border-width"
-	| "--style-button-stark-opacity"
-	| "--style-button-stark-animation"
-	| "--style-button-stark-transition-duration"
-	| "--style-button-stark-transition-timing-function"
-	| "--style-button-stark-gradient"
-	| "--style-button-stark-font-family"
-	| "--style-button-stark-font-size"
-	| "--style-button-stark-font-weight"
-	| "--style-button-stark-letter-spacing"
-	| "--style-button-stark-line-height"
-	| "--style-button-glass-background-color"
-	| "--style-button-glass-border-radius"
-	| "--style-button-glass-box-shadow"
-	| "--style-button-glass-color"
-	| "--style-button-glass-border-color"
-	| "--style-button-glass-border-width"
-	| "--style-button-glass-backdrop-filter"
-	| "--style-button-glass-opacity"
-	| "--style-button-glass-animation"
-	| "--style-button-glass-transition-duration"
-	| "--style-button-glass-transition-timing-function"
-	| "--style-button-glass-gradient"
-	| "--style-button-glass-font-family"
-	| "--style-button-glass-font-size"
-	| "--style-button-glass-font-weight"
-	| "--style-button-glass-letter-spacing"
-	| "--style-button-glass-line-height"
-	| "--style-button-flat-background-color"
-	| "--style-button-flat-border-radius"
-	| "--style-button-flat-box-shadow"
-	| "--style-button-flat-color"
-	| "--style-button-flat-border-color"
-	| "--style-button-flat-border-width"
-	| "--style-button-flat-opacity"
-	| "--style-button-flat-animation"
-	| "--style-button-flat-transition-duration"
-	| "--style-button-flat-transition-timing-function"
-	| "--style-button-flat-gradient"
-	| "--style-button-flat-font-family"
-	| "--style-button-flat-font-size"
-	| "--style-button-flat-font-weight"
-	| "--style-button-flat-letter-spacing"
-	| "--style-button-flat-line-height"
-	| "--style-button-matte-background-color"
-	| "--style-button-matte-border-radius"
-	| "--style-button-matte-box-shadow"
-	| "--style-button-matte-color"
-	| "--style-button-matte-border-color"
-	| "--style-button-matte-border-width"
-	| "--style-button-matte-opacity"
-	| "--style-button-matte-animation"
-	| "--style-button-matte-transition-duration"
-	| "--style-button-matte-transition-timing-function"
-	| "--style-button-matte-gradient"
-	| "--style-button-matte-font-family"
-	| "--style-button-matte-font-size"
-	| "--style-button-matte-font-weight"
-	| "--style-button-matte-letter-spacing"
-	| "--style-button-matte-line-height"
-	| "--style-calendar-default-background-color"
-	| "--style-calendar-default-border-radius"
-	| "--style-calendar-default-box-shadow"
-	| "--style-calendar-default-color"
-	| "--style-calendar-default-border-color"
-	| "--style-calendar-default-border-width"
-	| "--style-calendar-default-backdrop-filter"
-	| "--style-calendar-default-opacity"
-	| "--style-calendar-default-animation"
-	| "--style-calendar-default-transition-duration"
-	| "--style-calendar-default-transition-timing-function"
-	| "--style-calendar-default-gradient"
-	| "--style-calendar-default-font-family"
-	| "--style-calendar-default-font-size"
-	| "--style-calendar-default-font-weight"
-	| "--style-calendar-default-letter-spacing"
-	| "--style-calendar-default-line-height"
-	| "--style-calendar-stark-background-color"
-	| "--style-calendar-stark-border-radius"
-	| "--style-calendar-stark-box-shadow"
-	| "--style-calendar-stark-color"
-	| "--style-calendar-stark-border-color"
-	| "--style-calendar-stark-border-width"
-	| "--style-calendar-stark-opacity"
-	| "--style-calendar-stark-animation"
-	| "--style-calendar-stark-transition-duration"
-	| "--style-calendar-stark-transition-timing-function"
-	| "--style-calendar-stark-gradient"
-	| "--style-calendar-stark-font-family"
-	| "--style-calendar-stark-font-size"
-	| "--style-calendar-stark-font-weight"
-	| "--style-calendar-stark-letter-spacing"
-	| "--style-calendar-stark-line-height"
-	| "--style-calendar-glass-background-color"
-	| "--style-calendar-glass-border-radius"
-	| "--style-calendar-glass-box-shadow"
-	| "--style-calendar-glass-color"
-	| "--style-calendar-glass-border-color"
-	| "--style-calendar-glass-border-width"
-	| "--style-calendar-glass-backdrop-filter"
-	| "--style-calendar-glass-opacity"
-	| "--style-calendar-glass-animation"
-	| "--style-calendar-glass-transition-duration"
-	| "--style-calendar-glass-transition-timing-function"
-	| "--style-calendar-glass-gradient"
-	| "--style-calendar-glass-font-family"
-	| "--style-calendar-glass-font-size"
-	| "--style-calendar-glass-font-weight"
-	| "--style-calendar-glass-letter-spacing"
-	| "--style-calendar-glass-line-height"
-	| "--style-calendar-flat-background-color"
-	| "--style-calendar-flat-border-radius"
-	| "--style-calendar-flat-box-shadow"
-	| "--style-calendar-flat-color"
-	| "--style-calendar-flat-border-color"
-	| "--style-calendar-flat-border-width"
-	| "--style-calendar-flat-opacity"
-	| "--style-calendar-flat-animation"
-	| "--style-calendar-flat-transition-duration"
-	| "--style-calendar-flat-transition-timing-function"
-	| "--style-calendar-flat-gradient"
-	| "--style-calendar-flat-font-family"
-	| "--style-calendar-flat-font-size"
-	| "--style-calendar-flat-font-weight"
-	| "--style-calendar-flat-letter-spacing"
-	| "--style-calendar-flat-line-height"
-	| "--style-calendar-matte-background-color"
-	| "--style-calendar-matte-border-radius"
-	| "--style-calendar-matte-box-shadow"
-	| "--style-calendar-matte-color"
-	| "--style-calendar-matte-border-color"
-	| "--style-calendar-matte-border-width"
-	| "--style-calendar-matte-opacity"
-	| "--style-calendar-matte-animation"
-	| "--style-calendar-matte-transition-duration"
-	| "--style-calendar-matte-transition-timing-function"
-	| "--style-calendar-matte-gradient"
-	| "--style-calendar-matte-font-family"
-	| "--style-calendar-matte-font-size"
-	| "--style-calendar-matte-font-weight"
-	| "--style-calendar-matte-letter-spacing"
-	| "--style-calendar-matte-line-height"
-	| "--style-callout-default-background-color"
-	| "--style-callout-default-border-radius"
-	| "--style-callout-default-box-shadow"
-	| "--style-callout-default-color"
-	| "--style-callout-default-border-color"
-	| "--style-callout-default-border-width"
-	| "--style-callout-default-backdrop-filter"
-	| "--style-callout-default-opacity"
-	| "--style-callout-default-animation"
-	| "--style-callout-default-transition-duration"
-	| "--style-callout-default-transition-timing-function"
-	| "--style-callout-default-gradient"
-	| "--style-callout-default-font-family"
-	| "--style-callout-default-font-size"
-	| "--style-callout-default-font-weight"
-	| "--style-callout-default-letter-spacing"
-	| "--style-callout-default-line-height"
-	| "--style-callout-stark-background-color"
-	| "--style-callout-stark-border-radius"
-	| "--style-callout-stark-box-shadow"
-	| "--style-callout-stark-color"
-	| "--style-callout-stark-border-color"
-	| "--style-callout-stark-border-width"
-	| "--style-callout-stark-opacity"
-	| "--style-callout-stark-animation"
-	| "--style-callout-stark-transition-duration"
-	| "--style-callout-stark-transition-timing-function"
-	| "--style-callout-stark-gradient"
-	| "--style-callout-stark-font-family"
-	| "--style-callout-stark-font-size"
-	| "--style-callout-stark-font-weight"
-	| "--style-callout-stark-letter-spacing"
-	| "--style-callout-stark-line-height"
-	| "--style-callout-glass-background-color"
-	| "--style-callout-glass-border-radius"
-	| "--style-callout-glass-box-shadow"
-	| "--style-callout-glass-color"
-	| "--style-callout-glass-border-color"
-	| "--style-callout-glass-border-width"
-	| "--style-callout-glass-backdrop-filter"
-	| "--style-callout-glass-opacity"
-	| "--style-callout-glass-animation"
-	| "--style-callout-glass-transition-duration"
-	| "--style-callout-glass-transition-timing-function"
-	| "--style-callout-glass-gradient"
-	| "--style-callout-glass-font-family"
-	| "--style-callout-glass-font-size"
-	| "--style-callout-glass-font-weight"
-	| "--style-callout-glass-letter-spacing"
-	| "--style-callout-glass-line-height"
-	| "--style-callout-flat-background-color"
-	| "--style-callout-flat-border-radius"
-	| "--style-callout-flat-box-shadow"
-	| "--style-callout-flat-color"
-	| "--style-callout-flat-border-color"
-	| "--style-callout-flat-border-width"
-	| "--style-callout-flat-opacity"
-	| "--style-callout-flat-animation"
-	| "--style-callout-flat-transition-duration"
-	| "--style-callout-flat-transition-timing-function"
-	| "--style-callout-flat-gradient"
-	| "--style-callout-flat-font-family"
-	| "--style-callout-flat-font-size"
-	| "--style-callout-flat-font-weight"
-	| "--style-callout-flat-letter-spacing"
-	| "--style-callout-flat-line-height"
-	| "--style-callout-matte-background-color"
-	| "--style-callout-matte-border-radius"
-	| "--style-callout-matte-box-shadow"
-	| "--style-callout-matte-color"
-	| "--style-callout-matte-border-color"
-	| "--style-callout-matte-border-width"
-	| "--style-callout-matte-opacity"
-	| "--style-callout-matte-animation"
-	| "--style-callout-matte-transition-duration"
-	| "--style-callout-matte-transition-timing-function"
-	| "--style-callout-matte-gradient"
-	| "--style-callout-matte-font-family"
-	| "--style-callout-matte-font-size"
-	| "--style-callout-matte-font-weight"
-	| "--style-callout-matte-letter-spacing"
-	| "--style-callout-matte-line-height"
-	| "--style-card-default-background-color"
-	| "--style-card-default-border-radius"
-	| "--style-card-default-box-shadow"
-	| "--style-card-default-color"
-	| "--style-card-default-border-color"
-	| "--style-card-default-border-width"
-	| "--style-card-default-backdrop-filter"
-	| "--style-card-default-opacity"
-	| "--style-card-default-animation"
-	| "--style-card-default-transition-duration"
-	| "--style-card-default-transition-timing-function"
-	| "--style-card-default-gradient"
-	| "--style-card-default-font-family"
-	| "--style-card-default-font-size"
-	| "--style-card-default-font-weight"
-	| "--style-card-default-letter-spacing"
-	| "--style-card-default-line-height"
-	| "--style-card-stark-background-color"
-	| "--style-card-stark-border-radius"
-	| "--style-card-stark-box-shadow"
-	| "--style-card-stark-color"
-	| "--style-card-stark-border-color"
-	| "--style-card-stark-border-width"
-	| "--style-card-stark-opacity"
-	| "--style-card-stark-animation"
-	| "--style-card-stark-transition-duration"
-	| "--style-card-stark-transition-timing-function"
-	| "--style-card-stark-gradient"
-	| "--style-card-stark-font-family"
-	| "--style-card-stark-font-size"
-	| "--style-card-stark-font-weight"
-	| "--style-card-stark-letter-spacing"
-	| "--style-card-stark-line-height"
-	| "--style-card-glass-background-color"
-	| "--style-card-glass-border-radius"
-	| "--style-card-glass-box-shadow"
-	| "--style-card-glass-color"
-	| "--style-card-glass-border-color"
-	| "--style-card-glass-border-width"
-	| "--style-card-glass-backdrop-filter"
-	| "--style-card-glass-opacity"
-	| "--style-card-glass-animation"
-	| "--style-card-glass-transition-duration"
-	| "--style-card-glass-transition-timing-function"
-	| "--style-card-glass-gradient"
-	| "--style-card-glass-font-family"
-	| "--style-card-glass-font-size"
-	| "--style-card-glass-font-weight"
-	| "--style-card-glass-letter-spacing"
-	| "--style-card-glass-line-height"
-	| "--style-card-flat-background-color"
-	| "--style-card-flat-border-radius"
-	| "--style-card-flat-box-shadow"
-	| "--style-card-flat-color"
-	| "--style-card-flat-border-color"
-	| "--style-card-flat-border-width"
-	| "--style-card-flat-opacity"
-	| "--style-card-flat-animation"
-	| "--style-card-flat-transition-duration"
-	| "--style-card-flat-transition-timing-function"
-	| "--style-card-flat-gradient"
-	| "--style-card-flat-font-family"
-	| "--style-card-flat-font-size"
-	| "--style-card-flat-font-weight"
-	| "--style-card-flat-letter-spacing"
-	| "--style-card-flat-line-height"
-	| "--style-card-matte-background-color"
-	| "--style-card-matte-border-radius"
-	| "--style-card-matte-box-shadow"
-	| "--style-card-matte-color"
-	| "--style-card-matte-border-color"
-	| "--style-card-matte-border-width"
-	| "--style-card-matte-opacity"
-	| "--style-card-matte-animation"
-	| "--style-card-matte-transition-duration"
-	| "--style-card-matte-transition-timing-function"
-	| "--style-card-matte-gradient"
-	| "--style-card-matte-font-family"
-	| "--style-card-matte-font-size"
-	| "--style-card-matte-font-weight"
-	| "--style-card-matte-letter-spacing"
-	| "--style-card-matte-line-height"
-	| "--style-chat-bubble-default-background-color"
-	| "--style-chat-bubble-default-border-radius"
-	| "--style-chat-bubble-default-box-shadow"
-	| "--style-chat-bubble-default-color"
-	| "--style-chat-bubble-default-border-color"
-	| "--style-chat-bubble-default-border-width"
-	| "--style-chat-bubble-default-backdrop-filter"
-	| "--style-chat-bubble-default-opacity"
-	| "--style-chat-bubble-default-animation"
-	| "--style-chat-bubble-default-transition-duration"
-	| "--style-chat-bubble-default-transition-timing-function"
-	| "--style-chat-bubble-default-gradient"
-	| "--style-chat-bubble-default-font-family"
-	| "--style-chat-bubble-default-font-size"
-	| "--style-chat-bubble-default-font-weight"
-	| "--style-chat-bubble-default-letter-spacing"
-	| "--style-chat-bubble-default-line-height"
-	| "--style-chat-bubble-stark-background-color"
-	| "--style-chat-bubble-stark-border-radius"
-	| "--style-chat-bubble-stark-box-shadow"
-	| "--style-chat-bubble-stark-color"
-	| "--style-chat-bubble-stark-border-color"
-	| "--style-chat-bubble-stark-border-width"
-	| "--style-chat-bubble-stark-opacity"
-	| "--style-chat-bubble-stark-animation"
-	| "--style-chat-bubble-stark-transition-duration"
-	| "--style-chat-bubble-stark-transition-timing-function"
-	| "--style-chat-bubble-stark-gradient"
-	| "--style-chat-bubble-stark-font-family"
-	| "--style-chat-bubble-stark-font-size"
-	| "--style-chat-bubble-stark-font-weight"
-	| "--style-chat-bubble-stark-letter-spacing"
-	| "--style-chat-bubble-stark-line-height"
-	| "--style-chat-bubble-glass-background-color"
-	| "--style-chat-bubble-glass-border-radius"
-	| "--style-chat-bubble-glass-box-shadow"
-	| "--style-chat-bubble-glass-color"
-	| "--style-chat-bubble-glass-border-color"
-	| "--style-chat-bubble-glass-border-width"
-	| "--style-chat-bubble-glass-backdrop-filter"
-	| "--style-chat-bubble-glass-opacity"
-	| "--style-chat-bubble-glass-animation"
-	| "--style-chat-bubble-glass-transition-duration"
-	| "--style-chat-bubble-glass-transition-timing-function"
-	| "--style-chat-bubble-glass-gradient"
-	| "--style-chat-bubble-glass-font-family"
-	| "--style-chat-bubble-glass-font-size"
-	| "--style-chat-bubble-glass-font-weight"
-	| "--style-chat-bubble-glass-letter-spacing"
-	| "--style-chat-bubble-glass-line-height"
-	| "--style-chat-bubble-flat-background-color"
-	| "--style-chat-bubble-flat-border-radius"
-	| "--style-chat-bubble-flat-box-shadow"
-	| "--style-chat-bubble-flat-color"
-	| "--style-chat-bubble-flat-border-color"
-	| "--style-chat-bubble-flat-border-width"
-	| "--style-chat-bubble-flat-opacity"
-	| "--style-chat-bubble-flat-animation"
-	| "--style-chat-bubble-flat-transition-duration"
-	| "--style-chat-bubble-flat-transition-timing-function"
-	| "--style-chat-bubble-flat-gradient"
-	| "--style-chat-bubble-flat-font-family"
-	| "--style-chat-bubble-flat-font-size"
-	| "--style-chat-bubble-flat-font-weight"
-	| "--style-chat-bubble-flat-letter-spacing"
-	| "--style-chat-bubble-flat-line-height"
-	| "--style-chat-bubble-matte-background-color"
-	| "--style-chat-bubble-matte-border-radius"
-	| "--style-chat-bubble-matte-box-shadow"
-	| "--style-chat-bubble-matte-color"
-	| "--style-chat-bubble-matte-border-color"
-	| "--style-chat-bubble-matte-border-width"
-	| "--style-chat-bubble-matte-opacity"
-	| "--style-chat-bubble-matte-animation"
-	| "--style-chat-bubble-matte-transition-duration"
-	| "--style-chat-bubble-matte-transition-timing-function"
-	| "--style-chat-bubble-matte-gradient"
-	| "--style-chat-bubble-matte-font-family"
-	| "--style-chat-bubble-matte-font-size"
-	| "--style-chat-bubble-matte-font-weight"
-	| "--style-chat-bubble-matte-letter-spacing"
-	| "--style-chat-bubble-matte-line-height"
-	| "--style-dynamic-background-boot-background-color"
-	| "--style-dynamic-background-boot-border-radius"
-	| "--style-dynamic-background-boot-box-shadow"
-	| "--style-dynamic-background-boot-color"
-	| "--style-dynamic-background-boot-border-color"
-	| "--style-dynamic-background-boot-border-width"
-	| "--style-dynamic-background-boot-opacity"
-	| "--style-dynamic-background-boot-animation"
-	| "--style-dynamic-background-boot-transition-duration"
-	| "--style-dynamic-background-boot-transition-timing-function"
-	| "--style-dynamic-background-boot-gradient"
-	| "--style-dynamic-background-boot-font-family"
-	| "--style-dynamic-background-boot-font-size"
-	| "--style-dynamic-background-boot-font-weight"
-	| "--style-dynamic-background-boot-letter-spacing"
-	| "--style-dynamic-background-boot-line-height"
-	| "--style-dynamic-background-devpulse-background-color"
-	| "--style-dynamic-background-devpulse-border-radius"
-	| "--style-dynamic-background-devpulse-box-shadow"
-	| "--style-dynamic-background-devpulse-color"
-	| "--style-dynamic-background-devpulse-border-color"
-	| "--style-dynamic-background-devpulse-border-width"
-	| "--style-dynamic-background-devpulse-opacity"
-	| "--style-dynamic-background-devpulse-animation"
-	| "--style-dynamic-background-devpulse-transition-duration"
-	| "--style-dynamic-background-devpulse-transition-timing-function"
-	| "--style-dynamic-background-devpulse-gradient"
-	| "--style-dynamic-background-devpulse-font-family"
-	| "--style-dynamic-background-devpulse-font-size"
-	| "--style-dynamic-background-devpulse-font-weight"
-	| "--style-dynamic-background-devpulse-letter-spacing"
-	| "--style-dynamic-background-devpulse-line-height"
-	| "--style-dynamic-background-overmind-background-color"
-	| "--style-dynamic-background-overmind-border-radius"
-	| "--style-dynamic-background-overmind-box-shadow"
-	| "--style-dynamic-background-overmind-color"
-	| "--style-dynamic-background-overmind-border-color"
-	| "--style-dynamic-background-overmind-border-width"
-	| "--style-dynamic-background-overmind-opacity"
-	| "--style-dynamic-background-overmind-animation"
-	| "--style-dynamic-background-overmind-transition-duration"
-	| "--style-dynamic-background-overmind-transition-timing-function"
-	| "--style-dynamic-background-overmind-gradient"
-	| "--style-dynamic-background-overmind-font-family"
-	| "--style-dynamic-background-overmind-font-size"
-	| "--style-dynamic-background-overmind-font-weight"
-	| "--style-dynamic-background-overmind-letter-spacing"
-	| "--style-dynamic-background-overmind-line-height"
-	| "--style-dynamic-background-wiredfront-background-color"
-	| "--style-dynamic-background-wiredfront-border-radius"
-	| "--style-dynamic-background-wiredfront-box-shadow"
-	| "--style-dynamic-background-wiredfront-color"
-	| "--style-dynamic-background-wiredfront-border-color"
-	| "--style-dynamic-background-wiredfront-border-width"
-	| "--style-dynamic-background-wiredfront-opacity"
-	| "--style-dynamic-background-wiredfront-animation"
-	| "--style-dynamic-background-wiredfront-transition-duration"
-	| "--style-dynamic-background-wiredfront-transition-timing-function"
-	| "--style-dynamic-background-wiredfront-gradient"
-	| "--style-dynamic-background-wiredfront-font-family"
-	| "--style-dynamic-background-wiredfront-font-size"
-	| "--style-dynamic-background-wiredfront-font-weight"
-	| "--style-dynamic-background-wiredfront-letter-spacing"
-	| "--style-dynamic-background-wiredfront-line-height"
-	| "--style-dynamic-background-devforge-background-color"
-	| "--style-dynamic-background-devforge-border-radius"
-	| "--style-dynamic-background-devforge-box-shadow"
-	| "--style-dynamic-background-devforge-color"
-	| "--style-dynamic-background-devforge-border-color"
-	| "--style-dynamic-background-devforge-border-width"
-	| "--style-dynamic-background-devforge-opacity"
-	| "--style-dynamic-background-devforge-animation"
-	| "--style-dynamic-background-devforge-transition-duration"
-	| "--style-dynamic-background-devforge-transition-timing-function"
-	| "--style-dynamic-background-devforge-gradient"
-	| "--style-dynamic-background-devforge-font-family"
-	| "--style-dynamic-background-devforge-font-size"
-	| "--style-dynamic-background-devforge-font-weight"
-	| "--style-dynamic-background-devforge-letter-spacing"
-	| "--style-dynamic-background-devforge-line-height"
-	| "--style-dynamic-background-maestro-background-color"
-	| "--style-dynamic-background-maestro-border-radius"
-	| "--style-dynamic-background-maestro-box-shadow"
-	| "--style-dynamic-background-maestro-color"
-	| "--style-dynamic-background-maestro-border-color"
-	| "--style-dynamic-background-maestro-border-width"
-	| "--style-dynamic-background-maestro-opacity"
-	| "--style-dynamic-background-maestro-animation"
-	| "--style-dynamic-background-maestro-transition-duration"
-	| "--style-dynamic-background-maestro-transition-timing-function"
-	| "--style-dynamic-background-maestro-gradient"
-	| "--style-dynamic-background-maestro-font-family"
-	| "--style-dynamic-background-maestro-font-size"
-	| "--style-dynamic-background-maestro-font-weight"
-	| "--style-dynamic-background-maestro-letter-spacing"
-	| "--style-dynamic-background-maestro-line-height"
-	| "--style-chat-context-panel-default-background-color"
-	| "--style-chat-context-panel-default-border-radius"
-	| "--style-chat-context-panel-default-box-shadow"
-	| "--style-chat-context-panel-default-color"
-	| "--style-chat-context-panel-default-border-color"
-	| "--style-chat-context-panel-default-border-width"
-	| "--style-chat-context-panel-default-backdrop-filter"
-	| "--style-chat-context-panel-default-opacity"
-	| "--style-chat-context-panel-default-animation"
-	| "--style-chat-context-panel-default-transition-duration"
-	| "--style-chat-context-panel-default-transition-timing-function"
-	| "--style-chat-context-panel-default-gradient"
-	| "--style-chat-context-panel-default-font-family"
-	| "--style-chat-context-panel-default-font-size"
-	| "--style-chat-context-panel-default-font-weight"
-	| "--style-chat-context-panel-default-letter-spacing"
-	| "--style-chat-context-panel-default-line-height"
-	| "--style-chat-context-panel-stark-background-color"
-	| "--style-chat-context-panel-stark-border-radius"
-	| "--style-chat-context-panel-stark-box-shadow"
-	| "--style-chat-context-panel-stark-color"
-	| "--style-chat-context-panel-stark-border-color"
-	| "--style-chat-context-panel-stark-border-width"
-	| "--style-chat-context-panel-stark-opacity"
-	| "--style-chat-context-panel-stark-animation"
-	| "--style-chat-context-panel-stark-transition-duration"
-	| "--style-chat-context-panel-stark-transition-timing-function"
-	| "--style-chat-context-panel-stark-gradient"
-	| "--style-chat-context-panel-stark-font-family"
-	| "--style-chat-context-panel-stark-font-size"
-	| "--style-chat-context-panel-stark-font-weight"
-	| "--style-chat-context-panel-stark-letter-spacing"
-	| "--style-chat-context-panel-stark-line-height"
-	| "--style-chat-context-panel-glass-background-color"
-	| "--style-chat-context-panel-glass-border-radius"
-	| "--style-chat-context-panel-glass-box-shadow"
-	| "--style-chat-context-panel-glass-color"
-	| "--style-chat-context-panel-glass-border-color"
-	| "--style-chat-context-panel-glass-border-width"
-	| "--style-chat-context-panel-glass-backdrop-filter"
-	| "--style-chat-context-panel-glass-opacity"
-	| "--style-chat-context-panel-glass-animation"
-	| "--style-chat-context-panel-glass-transition-duration"
-	| "--style-chat-context-panel-glass-transition-timing-function"
-	| "--style-chat-context-panel-glass-gradient"
-	| "--style-chat-context-panel-glass-font-family"
-	| "--style-chat-context-panel-glass-font-size"
-	| "--style-chat-context-panel-glass-font-weight"
-	| "--style-chat-context-panel-glass-letter-spacing"
-	| "--style-chat-context-panel-glass-line-height"
-	| "--style-chat-context-panel-flat-background-color"
-	| "--style-chat-context-panel-flat-border-radius"
-	| "--style-chat-context-panel-flat-box-shadow"
-	| "--style-chat-context-panel-flat-color"
-	| "--style-chat-context-panel-flat-border-color"
-	| "--style-chat-context-panel-flat-border-width"
-	| "--style-chat-context-panel-flat-opacity"
-	| "--style-chat-context-panel-flat-animation"
-	| "--style-chat-context-panel-flat-transition-duration"
-	| "--style-chat-context-panel-flat-transition-timing-function"
-	| "--style-chat-context-panel-flat-gradient"
-	| "--style-chat-context-panel-flat-font-family"
-	| "--style-chat-context-panel-flat-font-size"
-	| "--style-chat-context-panel-flat-font-weight"
-	| "--style-chat-context-panel-flat-letter-spacing"
-	| "--style-chat-context-panel-flat-line-height"
-	| "--style-chat-context-panel-matte-background-color"
-	| "--style-chat-context-panel-matte-border-radius"
-	| "--style-chat-context-panel-matte-box-shadow"
-	| "--style-chat-context-panel-matte-color"
-	| "--style-chat-context-panel-matte-border-color"
-	| "--style-chat-context-panel-matte-border-width"
-	| "--style-chat-context-panel-matte-opacity"
-	| "--style-chat-context-panel-matte-animation"
-	| "--style-chat-context-panel-matte-transition-duration"
-	| "--style-chat-context-panel-matte-transition-timing-function"
-	| "--style-chat-context-panel-matte-gradient"
-	| "--style-chat-context-panel-matte-font-family"
-	| "--style-chat-context-panel-matte-font-size"
-	| "--style-chat-context-panel-matte-font-weight"
-	| "--style-chat-context-panel-matte-letter-spacing"
-	| "--style-chat-context-panel-matte-line-height"
-	| "--style-chat-dashboard-default-background-color"
-	| "--style-chat-dashboard-default-border-radius"
-	| "--style-chat-dashboard-default-box-shadow"
-	| "--style-chat-dashboard-default-color"
-	| "--style-chat-dashboard-default-border-color"
-	| "--style-chat-dashboard-default-border-width"
-	| "--style-chat-dashboard-default-backdrop-filter"
-	| "--style-chat-dashboard-default-opacity"
-	| "--style-chat-dashboard-default-animation"
-	| "--style-chat-dashboard-default-transition-duration"
-	| "--style-chat-dashboard-default-transition-timing-function"
-	| "--style-chat-dashboard-default-gradient"
-	| "--style-chat-dashboard-default-font-family"
-	| "--style-chat-dashboard-default-font-size"
-	| "--style-chat-dashboard-default-font-weight"
-	| "--style-chat-dashboard-default-letter-spacing"
-	| "--style-chat-dashboard-default-line-height"
-	| "--style-chat-dashboard-stark-background-color"
-	| "--style-chat-dashboard-stark-border-radius"
-	| "--style-chat-dashboard-stark-box-shadow"
-	| "--style-chat-dashboard-stark-color"
-	| "--style-chat-dashboard-stark-border-color"
-	| "--style-chat-dashboard-stark-border-width"
-	| "--style-chat-dashboard-stark-opacity"
-	| "--style-chat-dashboard-stark-animation"
-	| "--style-chat-dashboard-stark-transition-duration"
-	| "--style-chat-dashboard-stark-transition-timing-function"
-	| "--style-chat-dashboard-stark-gradient"
-	| "--style-chat-dashboard-stark-font-family"
-	| "--style-chat-dashboard-stark-font-size"
-	| "--style-chat-dashboard-stark-font-weight"
-	| "--style-chat-dashboard-stark-letter-spacing"
-	| "--style-chat-dashboard-stark-line-height"
-	| "--style-chat-dashboard-glass-background-color"
-	| "--style-chat-dashboard-glass-border-radius"
-	| "--style-chat-dashboard-glass-box-shadow"
-	| "--style-chat-dashboard-glass-color"
-	| "--style-chat-dashboard-glass-border-color"
-	| "--style-chat-dashboard-glass-border-width"
-	| "--style-chat-dashboard-glass-backdrop-filter"
-	| "--style-chat-dashboard-glass-opacity"
-	| "--style-chat-dashboard-glass-animation"
-	| "--style-chat-dashboard-glass-transition-duration"
-	| "--style-chat-dashboard-glass-transition-timing-function"
-	| "--style-chat-dashboard-glass-gradient"
-	| "--style-chat-dashboard-glass-font-family"
-	| "--style-chat-dashboard-glass-font-size"
-	| "--style-chat-dashboard-glass-font-weight"
-	| "--style-chat-dashboard-glass-letter-spacing"
-	| "--style-chat-dashboard-glass-line-height"
-	| "--style-chat-dashboard-flat-background-color"
-	| "--style-chat-dashboard-flat-border-radius"
-	| "--style-chat-dashboard-flat-box-shadow"
-	| "--style-chat-dashboard-flat-color"
-	| "--style-chat-dashboard-flat-border-color"
-	| "--style-chat-dashboard-flat-border-width"
-	| "--style-chat-dashboard-flat-opacity"
-	| "--style-chat-dashboard-flat-animation"
-	| "--style-chat-dashboard-flat-transition-duration"
-	| "--style-chat-dashboard-flat-transition-timing-function"
-	| "--style-chat-dashboard-flat-gradient"
-	| "--style-chat-dashboard-flat-font-family"
-	| "--style-chat-dashboard-flat-font-size"
-	| "--style-chat-dashboard-flat-font-weight"
-	| "--style-chat-dashboard-flat-letter-spacing"
-	| "--style-chat-dashboard-flat-line-height"
-	| "--style-chat-dashboard-matte-background-color"
-	| "--style-chat-dashboard-matte-border-radius"
-	| "--style-chat-dashboard-matte-box-shadow"
-	| "--style-chat-dashboard-matte-color"
-	| "--style-chat-dashboard-matte-border-color"
-	| "--style-chat-dashboard-matte-border-width"
-	| "--style-chat-dashboard-matte-opacity"
-	| "--style-chat-dashboard-matte-animation"
-	| "--style-chat-dashboard-matte-transition-duration"
-	| "--style-chat-dashboard-matte-transition-timing-function"
-	| "--style-chat-dashboard-matte-gradient"
-	| "--style-chat-dashboard-matte-font-family"
-	| "--style-chat-dashboard-matte-font-size"
-	| "--style-chat-dashboard-matte-font-weight"
-	| "--style-chat-dashboard-matte-letter-spacing"
-	| "--style-chat-dashboard-matte-line-height"
-	| "--style-chat-footer-default-background-color"
-	| "--style-chat-footer-default-border-radius"
-	| "--style-chat-footer-default-box-shadow"
-	| "--style-chat-footer-default-color"
-	| "--style-chat-footer-default-border-color"
-	| "--style-chat-footer-default-border-width"
-	| "--style-chat-footer-default-backdrop-filter"
-	| "--style-chat-footer-default-opacity"
-	| "--style-chat-footer-default-animation"
-	| "--style-chat-footer-default-transition-duration"
-	| "--style-chat-footer-default-transition-timing-function"
-	| "--style-chat-footer-default-gradient"
-	| "--style-chat-footer-default-font-family"
-	| "--style-chat-footer-default-font-size"
-	| "--style-chat-footer-default-font-weight"
-	| "--style-chat-footer-default-letter-spacing"
-	| "--style-chat-footer-default-line-height"
-	| "--style-chat-footer-stark-background-color"
-	| "--style-chat-footer-stark-border-radius"
-	| "--style-chat-footer-stark-box-shadow"
-	| "--style-chat-footer-stark-color"
-	| "--style-chat-footer-stark-border-color"
-	| "--style-chat-footer-stark-border-width"
-	| "--style-chat-footer-stark-opacity"
-	| "--style-chat-footer-stark-animation"
-	| "--style-chat-footer-stark-transition-duration"
-	| "--style-chat-footer-stark-transition-timing-function"
-	| "--style-chat-footer-stark-gradient"
-	| "--style-chat-footer-stark-font-family"
-	| "--style-chat-footer-stark-font-size"
-	| "--style-chat-footer-stark-font-weight"
-	| "--style-chat-footer-stark-letter-spacing"
-	| "--style-chat-footer-stark-line-height"
-	| "--style-chat-footer-glass-background-color"
-	| "--style-chat-footer-glass-border-radius"
-	| "--style-chat-footer-glass-box-shadow"
-	| "--style-chat-footer-glass-color"
-	| "--style-chat-footer-glass-border-color"
-	| "--style-chat-footer-glass-border-width"
-	| "--style-chat-footer-glass-backdrop-filter"
-	| "--style-chat-footer-glass-opacity"
-	| "--style-chat-footer-glass-animation"
-	| "--style-chat-footer-glass-transition-duration"
-	| "--style-chat-footer-glass-transition-timing-function"
-	| "--style-chat-footer-glass-gradient"
-	| "--style-chat-footer-glass-font-family"
-	| "--style-chat-footer-glass-font-size"
-	| "--style-chat-footer-glass-font-weight"
-	| "--style-chat-footer-glass-letter-spacing"
-	| "--style-chat-footer-glass-line-height"
-	| "--style-chat-footer-flat-background-color"
-	| "--style-chat-footer-flat-border-radius"
-	| "--style-chat-footer-flat-box-shadow"
-	| "--style-chat-footer-flat-color"
-	| "--style-chat-footer-flat-border-color"
-	| "--style-chat-footer-flat-border-width"
-	| "--style-chat-footer-flat-opacity"
-	| "--style-chat-footer-flat-animation"
-	| "--style-chat-footer-flat-transition-duration"
-	| "--style-chat-footer-flat-transition-timing-function"
-	| "--style-chat-footer-flat-gradient"
-	| "--style-chat-footer-flat-font-family"
-	| "--style-chat-footer-flat-font-size"
-	| "--style-chat-footer-flat-font-weight"
-	| "--style-chat-footer-flat-letter-spacing"
-	| "--style-chat-footer-flat-line-height"
-	| "--style-chat-footer-matte-background-color"
-	| "--style-chat-footer-matte-border-radius"
-	| "--style-chat-footer-matte-box-shadow"
-	| "--style-chat-footer-matte-color"
-	| "--style-chat-footer-matte-border-color"
-	| "--style-chat-footer-matte-border-width"
-	| "--style-chat-footer-matte-opacity"
-	| "--style-chat-footer-matte-animation"
-	| "--style-chat-footer-matte-transition-duration"
-	| "--style-chat-footer-matte-transition-timing-function"
-	| "--style-chat-footer-matte-gradient"
-	| "--style-chat-footer-matte-font-family"
-	| "--style-chat-footer-matte-font-size"
-	| "--style-chat-footer-matte-font-weight"
-	| "--style-chat-footer-matte-letter-spacing"
-	| "--style-chat-footer-matte-line-height"
-	| "--style-chat-frame-default-background-color"
-	| "--style-chat-frame-default-border-radius"
-	| "--style-chat-frame-default-box-shadow"
-	| "--style-chat-frame-default-color"
-	| "--style-chat-frame-default-border-color"
-	| "--style-chat-frame-default-border-width"
-	| "--style-chat-frame-default-backdrop-filter"
-	| "--style-chat-frame-default-opacity"
-	| "--style-chat-frame-default-animation"
-	| "--style-chat-frame-default-transition-duration"
-	| "--style-chat-frame-default-transition-timing-function"
-	| "--style-chat-frame-default-gradient"
-	| "--style-chat-frame-default-font-family"
-	| "--style-chat-frame-default-font-size"
-	| "--style-chat-frame-default-font-weight"
-	| "--style-chat-frame-default-letter-spacing"
-	| "--style-chat-frame-default-line-height"
-	| "--style-chat-frame-stark-background-color"
-	| "--style-chat-frame-stark-border-radius"
-	| "--style-chat-frame-stark-box-shadow"
-	| "--style-chat-frame-stark-color"
-	| "--style-chat-frame-stark-border-color"
-	| "--style-chat-frame-stark-border-width"
-	| "--style-chat-frame-stark-opacity"
-	| "--style-chat-frame-stark-animation"
-	| "--style-chat-frame-stark-transition-duration"
-	| "--style-chat-frame-stark-transition-timing-function"
-	| "--style-chat-frame-stark-gradient"
-	| "--style-chat-frame-stark-font-family"
-	| "--style-chat-frame-stark-font-size"
-	| "--style-chat-frame-stark-font-weight"
-	| "--style-chat-frame-stark-letter-spacing"
-	| "--style-chat-frame-stark-line-height"
-	| "--style-chat-frame-glass-background-color"
-	| "--style-chat-frame-glass-border-radius"
-	| "--style-chat-frame-glass-box-shadow"
-	| "--style-chat-frame-glass-color"
-	| "--style-chat-frame-glass-border-color"
-	| "--style-chat-frame-glass-border-width"
-	| "--style-chat-frame-glass-backdrop-filter"
-	| "--style-chat-frame-glass-opacity"
-	| "--style-chat-frame-glass-animation"
-	| "--style-chat-frame-glass-transition-duration"
-	| "--style-chat-frame-glass-transition-timing-function"
-	| "--style-chat-frame-glass-gradient"
-	| "--style-chat-frame-glass-font-family"
-	| "--style-chat-frame-glass-font-size"
-	| "--style-chat-frame-glass-font-weight"
-	| "--style-chat-frame-glass-letter-spacing"
-	| "--style-chat-frame-glass-line-height"
-	| "--style-chat-frame-flat-background-color"
-	| "--style-chat-frame-flat-border-radius"
-	| "--style-chat-frame-flat-box-shadow"
-	| "--style-chat-frame-flat-color"
-	| "--style-chat-frame-flat-border-color"
-	| "--style-chat-frame-flat-border-width"
-	| "--style-chat-frame-flat-opacity"
-	| "--style-chat-frame-flat-animation"
-	| "--style-chat-frame-flat-transition-duration"
-	| "--style-chat-frame-flat-transition-timing-function"
-	| "--style-chat-frame-flat-gradient"
-	| "--style-chat-frame-flat-font-family"
-	| "--style-chat-frame-flat-font-size"
-	| "--style-chat-frame-flat-font-weight"
-	| "--style-chat-frame-flat-letter-spacing"
-	| "--style-chat-frame-flat-line-height"
-	| "--style-chat-frame-matte-background-color"
-	| "--style-chat-frame-matte-border-radius"
-	| "--style-chat-frame-matte-box-shadow"
-	| "--style-chat-frame-matte-color"
-	| "--style-chat-frame-matte-border-color"
-	| "--style-chat-frame-matte-border-width"
-	| "--style-chat-frame-matte-opacity"
-	| "--style-chat-frame-matte-animation"
-	| "--style-chat-frame-matte-transition-duration"
-	| "--style-chat-frame-matte-transition-timing-function"
-	| "--style-chat-frame-matte-gradient"
-	| "--style-chat-frame-matte-font-family"
-	| "--style-chat-frame-matte-font-size"
-	| "--style-chat-frame-matte-font-weight"
-	| "--style-chat-frame-matte-letter-spacing"
-	| "--style-chat-frame-matte-line-height"
-	| "--style-chat-sidebar-default-background-color"
-	| "--style-chat-sidebar-default-border-radius"
-	| "--style-chat-sidebar-default-box-shadow"
-	| "--style-chat-sidebar-default-color"
-	| "--style-chat-sidebar-default-border-color"
-	| "--style-chat-sidebar-default-border-width"
-	| "--style-chat-sidebar-default-backdrop-filter"
-	| "--style-chat-sidebar-default-opacity"
-	| "--style-chat-sidebar-default-animation"
-	| "--style-chat-sidebar-default-transition-duration"
-	| "--style-chat-sidebar-default-transition-timing-function"
-	| "--style-chat-sidebar-default-gradient"
-	| "--style-chat-sidebar-default-font-family"
-	| "--style-chat-sidebar-default-font-size"
-	| "--style-chat-sidebar-default-font-weight"
-	| "--style-chat-sidebar-default-letter-spacing"
-	| "--style-chat-sidebar-default-line-height"
-	| "--style-chat-sidebar-stark-background-color"
-	| "--style-chat-sidebar-stark-border-radius"
-	| "--style-chat-sidebar-stark-box-shadow"
-	| "--style-chat-sidebar-stark-color"
-	| "--style-chat-sidebar-stark-border-color"
-	| "--style-chat-sidebar-stark-border-width"
-	| "--style-chat-sidebar-stark-opacity"
-	| "--style-chat-sidebar-stark-animation"
-	| "--style-chat-sidebar-stark-transition-duration"
-	| "--style-chat-sidebar-stark-transition-timing-function"
-	| "--style-chat-sidebar-stark-gradient"
-	| "--style-chat-sidebar-stark-font-family"
-	| "--style-chat-sidebar-stark-font-size"
-	| "--style-chat-sidebar-stark-font-weight"
-	| "--style-chat-sidebar-stark-letter-spacing"
-	| "--style-chat-sidebar-stark-line-height"
-	| "--style-chat-sidebar-glass-background-color"
-	| "--style-chat-sidebar-glass-border-radius"
-	| "--style-chat-sidebar-glass-box-shadow"
-	| "--style-chat-sidebar-glass-color"
-	| "--style-chat-sidebar-glass-border-color"
-	| "--style-chat-sidebar-glass-border-width"
-	| "--style-chat-sidebar-glass-backdrop-filter"
-	| "--style-chat-sidebar-glass-opacity"
-	| "--style-chat-sidebar-glass-animation"
-	| "--style-chat-sidebar-glass-transition-duration"
-	| "--style-chat-sidebar-glass-transition-timing-function"
-	| "--style-chat-sidebar-glass-gradient"
-	| "--style-chat-sidebar-glass-font-family"
-	| "--style-chat-sidebar-glass-font-size"
-	| "--style-chat-sidebar-glass-font-weight"
-	| "--style-chat-sidebar-glass-letter-spacing"
-	| "--style-chat-sidebar-glass-line-height"
-	| "--style-chat-sidebar-flat-background-color"
-	| "--style-chat-sidebar-flat-border-radius"
-	| "--style-chat-sidebar-flat-box-shadow"
-	| "--style-chat-sidebar-flat-color"
-	| "--style-chat-sidebar-flat-border-color"
-	| "--style-chat-sidebar-flat-border-width"
-	| "--style-chat-sidebar-flat-opacity"
-	| "--style-chat-sidebar-flat-animation"
-	| "--style-chat-sidebar-flat-transition-duration"
-	| "--style-chat-sidebar-flat-transition-timing-function"
-	| "--style-chat-sidebar-flat-gradient"
-	| "--style-chat-sidebar-flat-font-family"
-	| "--style-chat-sidebar-flat-font-size"
-	| "--style-chat-sidebar-flat-font-weight"
-	| "--style-chat-sidebar-flat-letter-spacing"
-	| "--style-chat-sidebar-flat-line-height"
-	| "--style-chat-sidebar-matte-background-color"
-	| "--style-chat-sidebar-matte-border-radius"
-	| "--style-chat-sidebar-matte-box-shadow"
-	| "--style-chat-sidebar-matte-color"
-	| "--style-chat-sidebar-matte-border-color"
-	| "--style-chat-sidebar-matte-border-width"
-	| "--style-chat-sidebar-matte-opacity"
-	| "--style-chat-sidebar-matte-animation"
-	| "--style-chat-sidebar-matte-transition-duration"
-	| "--style-chat-sidebar-matte-transition-timing-function"
-	| "--style-chat-sidebar-matte-gradient"
-	| "--style-chat-sidebar-matte-font-family"
-	| "--style-chat-sidebar-matte-font-size"
-	| "--style-chat-sidebar-matte-font-weight"
-	| "--style-chat-sidebar-matte-letter-spacing"
-	| "--style-chat-sidebar-matte-line-height"
-	| "--style-chat-topbar-default-background-color"
-	| "--style-chat-topbar-default-border-radius"
-	| "--style-chat-topbar-default-box-shadow"
-	| "--style-chat-topbar-default-color"
-	| "--style-chat-topbar-default-border-color"
-	| "--style-chat-topbar-default-border-width"
-	| "--style-chat-topbar-default-backdrop-filter"
-	| "--style-chat-topbar-default-opacity"
-	| "--style-chat-topbar-default-animation"
-	| "--style-chat-topbar-default-transition-duration"
-	| "--style-chat-topbar-default-transition-timing-function"
-	| "--style-chat-topbar-default-gradient"
-	| "--style-chat-topbar-default-font-family"
-	| "--style-chat-topbar-default-font-size"
-	| "--style-chat-topbar-default-font-weight"
-	| "--style-chat-topbar-default-letter-spacing"
-	| "--style-chat-topbar-default-line-height"
-	| "--style-chat-topbar-stark-background-color"
-	| "--style-chat-topbar-stark-border-radius"
-	| "--style-chat-topbar-stark-box-shadow"
-	| "--style-chat-topbar-stark-color"
-	| "--style-chat-topbar-stark-border-color"
-	| "--style-chat-topbar-stark-border-width"
-	| "--style-chat-topbar-stark-opacity"
-	| "--style-chat-topbar-stark-animation"
-	| "--style-chat-topbar-stark-transition-duration"
-	| "--style-chat-topbar-stark-transition-timing-function"
-	| "--style-chat-topbar-stark-gradient"
-	| "--style-chat-topbar-stark-font-family"
-	| "--style-chat-topbar-stark-font-size"
-	| "--style-chat-topbar-stark-font-weight"
-	| "--style-chat-topbar-stark-letter-spacing"
-	| "--style-chat-topbar-stark-line-height"
-	| "--style-chat-topbar-glass-background-color"
-	| "--style-chat-topbar-glass-border-radius"
-	| "--style-chat-topbar-glass-box-shadow"
-	| "--style-chat-topbar-glass-color"
-	| "--style-chat-topbar-glass-border-color"
-	| "--style-chat-topbar-glass-border-width"
-	| "--style-chat-topbar-glass-backdrop-filter"
-	| "--style-chat-topbar-glass-opacity"
-	| "--style-chat-topbar-glass-animation"
-	| "--style-chat-topbar-glass-transition-duration"
-	| "--style-chat-topbar-glass-transition-timing-function"
-	| "--style-chat-topbar-glass-gradient"
-	| "--style-chat-topbar-glass-font-family"
-	| "--style-chat-topbar-glass-font-size"
-	| "--style-chat-topbar-glass-font-weight"
-	| "--style-chat-topbar-glass-letter-spacing"
-	| "--style-chat-topbar-glass-line-height"
-	| "--style-chat-topbar-flat-background-color"
-	| "--style-chat-topbar-flat-border-radius"
-	| "--style-chat-topbar-flat-box-shadow"
-	| "--style-chat-topbar-flat-color"
-	| "--style-chat-topbar-flat-border-color"
-	| "--style-chat-topbar-flat-border-width"
-	| "--style-chat-topbar-flat-opacity"
-	| "--style-chat-topbar-flat-animation"
-	| "--style-chat-topbar-flat-transition-duration"
-	| "--style-chat-topbar-flat-transition-timing-function"
-	| "--style-chat-topbar-flat-gradient"
-	| "--style-chat-topbar-flat-font-family"
-	| "--style-chat-topbar-flat-font-size"
-	| "--style-chat-topbar-flat-font-weight"
-	| "--style-chat-topbar-flat-letter-spacing"
-	| "--style-chat-topbar-flat-line-height"
-	| "--style-chat-topbar-matte-background-color"
-	| "--style-chat-topbar-matte-border-radius"
-	| "--style-chat-topbar-matte-box-shadow"
-	| "--style-chat-topbar-matte-color"
-	| "--style-chat-topbar-matte-border-color"
-	| "--style-chat-topbar-matte-border-width"
-	| "--style-chat-topbar-matte-opacity"
-	| "--style-chat-topbar-matte-animation"
-	| "--style-chat-topbar-matte-transition-duration"
-	| "--style-chat-topbar-matte-transition-timing-function"
-	| "--style-chat-topbar-matte-gradient"
-	| "--style-chat-topbar-matte-font-family"
-	| "--style-chat-topbar-matte-font-size"
-	| "--style-chat-topbar-matte-font-weight"
-	| "--style-chat-topbar-matte-letter-spacing"
-	| "--style-chat-topbar-matte-line-height"
-	| "--style-checkbox-default-background-color"
-	| "--style-checkbox-default-border-radius"
-	| "--style-checkbox-default-box-shadow"
-	| "--style-checkbox-default-color"
-	| "--style-checkbox-default-border-color"
-	| "--style-checkbox-default-border-width"
-	| "--style-checkbox-default-backdrop-filter"
-	| "--style-checkbox-default-opacity"
-	| "--style-checkbox-default-animation"
-	| "--style-checkbox-default-transition-duration"
-	| "--style-checkbox-default-transition-timing-function"
-	| "--style-checkbox-default-gradient"
-	| "--style-checkbox-default-font-family"
-	| "--style-checkbox-default-font-size"
-	| "--style-checkbox-default-font-weight"
-	| "--style-checkbox-default-letter-spacing"
-	| "--style-checkbox-default-line-height"
-	| "--style-checkbox-stark-background-color"
-	| "--style-checkbox-stark-border-radius"
-	| "--style-checkbox-stark-box-shadow"
-	| "--style-checkbox-stark-color"
-	| "--style-checkbox-stark-border-color"
-	| "--style-checkbox-stark-border-width"
-	| "--style-checkbox-stark-opacity"
-	| "--style-checkbox-stark-animation"
-	| "--style-checkbox-stark-transition-duration"
-	| "--style-checkbox-stark-transition-timing-function"
-	| "--style-checkbox-stark-gradient"
-	| "--style-checkbox-stark-font-family"
-	| "--style-checkbox-stark-font-size"
-	| "--style-checkbox-stark-font-weight"
-	| "--style-checkbox-stark-letter-spacing"
-	| "--style-checkbox-stark-line-height"
-	| "--style-checkbox-glass-background-color"
-	| "--style-checkbox-glass-border-radius"
-	| "--style-checkbox-glass-box-shadow"
-	| "--style-checkbox-glass-color"
-	| "--style-checkbox-glass-border-color"
-	| "--style-checkbox-glass-border-width"
-	| "--style-checkbox-glass-backdrop-filter"
-	| "--style-checkbox-glass-opacity"
-	| "--style-checkbox-glass-animation"
-	| "--style-checkbox-glass-transition-duration"
-	| "--style-checkbox-glass-transition-timing-function"
-	| "--style-checkbox-glass-gradient"
-	| "--style-checkbox-glass-font-family"
-	| "--style-checkbox-glass-font-size"
-	| "--style-checkbox-glass-font-weight"
-	| "--style-checkbox-glass-letter-spacing"
-	| "--style-checkbox-glass-line-height"
-	| "--style-checkbox-flat-background-color"
-	| "--style-checkbox-flat-border-radius"
-	| "--style-checkbox-flat-box-shadow"
-	| "--style-checkbox-flat-color"
-	| "--style-checkbox-flat-border-color"
-	| "--style-checkbox-flat-border-width"
-	| "--style-checkbox-flat-opacity"
-	| "--style-checkbox-flat-animation"
-	| "--style-checkbox-flat-transition-duration"
-	| "--style-checkbox-flat-transition-timing-function"
-	| "--style-checkbox-flat-gradient"
-	| "--style-checkbox-flat-font-family"
-	| "--style-checkbox-flat-font-size"
-	| "--style-checkbox-flat-font-weight"
-	| "--style-checkbox-flat-letter-spacing"
-	| "--style-checkbox-flat-line-height"
-	| "--style-checkbox-matte-background-color"
-	| "--style-checkbox-matte-border-radius"
-	| "--style-checkbox-matte-box-shadow"
-	| "--style-checkbox-matte-color"
-	| "--style-checkbox-matte-border-color"
-	| "--style-checkbox-matte-border-width"
-	| "--style-checkbox-matte-opacity"
-	| "--style-checkbox-matte-animation"
-	| "--style-checkbox-matte-transition-duration"
-	| "--style-checkbox-matte-transition-timing-function"
-	| "--style-checkbox-matte-gradient"
-	| "--style-checkbox-matte-font-family"
-	| "--style-checkbox-matte-font-size"
-	| "--style-checkbox-matte-font-weight"
-	| "--style-checkbox-matte-letter-spacing"
-	| "--style-checkbox-matte-line-height"
-	| "--style-code-default-background-color"
-	| "--style-code-default-border-radius"
-	| "--style-code-default-box-shadow"
-	| "--style-code-default-color"
-	| "--style-code-default-border-color"
-	| "--style-code-default-border-width"
-	| "--style-code-default-backdrop-filter"
-	| "--style-code-default-opacity"
-	| "--style-code-default-animation"
-	| "--style-code-default-transition-duration"
-	| "--style-code-default-transition-timing-function"
-	| "--style-code-default-gradient"
-	| "--style-code-default-font-family"
-	| "--style-code-default-font-size"
-	| "--style-code-default-font-weight"
-	| "--style-code-default-letter-spacing"
-	| "--style-code-default-line-height"
-	| "--style-code-stark-background-color"
-	| "--style-code-stark-border-radius"
-	| "--style-code-stark-box-shadow"
-	| "--style-code-stark-color"
-	| "--style-code-stark-border-color"
-	| "--style-code-stark-border-width"
-	| "--style-code-stark-opacity"
-	| "--style-code-stark-animation"
-	| "--style-code-stark-transition-duration"
-	| "--style-code-stark-transition-timing-function"
-	| "--style-code-stark-gradient"
-	| "--style-code-stark-font-family"
-	| "--style-code-stark-font-size"
-	| "--style-code-stark-font-weight"
-	| "--style-code-stark-letter-spacing"
-	| "--style-code-stark-line-height"
-	| "--style-code-glass-background-color"
-	| "--style-code-glass-border-radius"
-	| "--style-code-glass-box-shadow"
-	| "--style-code-glass-color"
-	| "--style-code-glass-border-color"
-	| "--style-code-glass-border-width"
-	| "--style-code-glass-backdrop-filter"
-	| "--style-code-glass-opacity"
-	| "--style-code-glass-animation"
-	| "--style-code-glass-transition-duration"
-	| "--style-code-glass-transition-timing-function"
-	| "--style-code-glass-gradient"
-	| "--style-code-glass-font-family"
-	| "--style-code-glass-font-size"
-	| "--style-code-glass-font-weight"
-	| "--style-code-glass-letter-spacing"
-	| "--style-code-glass-line-height"
-	| "--style-code-flat-background-color"
-	| "--style-code-flat-border-radius"
-	| "--style-code-flat-box-shadow"
-	| "--style-code-flat-color"
-	| "--style-code-flat-border-color"
-	| "--style-code-flat-border-width"
-	| "--style-code-flat-opacity"
-	| "--style-code-flat-animation"
-	| "--style-code-flat-transition-duration"
-	| "--style-code-flat-transition-timing-function"
-	| "--style-code-flat-gradient"
-	| "--style-code-flat-font-family"
-	| "--style-code-flat-font-size"
-	| "--style-code-flat-font-weight"
-	| "--style-code-flat-letter-spacing"
-	| "--style-code-flat-line-height"
-	| "--style-code-matte-background-color"
-	| "--style-code-matte-border-radius"
-	| "--style-code-matte-box-shadow"
-	| "--style-code-matte-color"
-	| "--style-code-matte-border-color"
-	| "--style-code-matte-border-width"
-	| "--style-code-matte-opacity"
-	| "--style-code-matte-animation"
-	| "--style-code-matte-transition-duration"
-	| "--style-code-matte-transition-timing-function"
-	| "--style-code-matte-gradient"
-	| "--style-code-matte-font-family"
-	| "--style-code-matte-font-size"
-	| "--style-code-matte-font-weight"
-	| "--style-code-matte-letter-spacing"
-	| "--style-code-matte-line-height"
-	| "--style-collapsible-default-background-color"
-	| "--style-collapsible-default-border-radius"
-	| "--style-collapsible-default-box-shadow"
-	| "--style-collapsible-default-color"
-	| "--style-collapsible-default-border-color"
-	| "--style-collapsible-default-border-width"
-	| "--style-collapsible-default-backdrop-filter"
-	| "--style-collapsible-default-opacity"
-	| "--style-collapsible-default-animation"
-	| "--style-collapsible-default-transition-duration"
-	| "--style-collapsible-default-transition-timing-function"
-	| "--style-collapsible-default-gradient"
-	| "--style-collapsible-default-font-family"
-	| "--style-collapsible-default-font-size"
-	| "--style-collapsible-default-font-weight"
-	| "--style-collapsible-default-letter-spacing"
-	| "--style-collapsible-default-line-height"
-	| "--style-collapsible-stark-background-color"
-	| "--style-collapsible-stark-border-radius"
-	| "--style-collapsible-stark-box-shadow"
-	| "--style-collapsible-stark-color"
-	| "--style-collapsible-stark-border-color"
-	| "--style-collapsible-stark-border-width"
-	| "--style-collapsible-stark-opacity"
-	| "--style-collapsible-stark-animation"
-	| "--style-collapsible-stark-transition-duration"
-	| "--style-collapsible-stark-transition-timing-function"
-	| "--style-collapsible-stark-gradient"
-	| "--style-collapsible-stark-font-family"
-	| "--style-collapsible-stark-font-size"
-	| "--style-collapsible-stark-font-weight"
-	| "--style-collapsible-stark-letter-spacing"
-	| "--style-collapsible-stark-line-height"
-	| "--style-collapsible-glass-background-color"
-	| "--style-collapsible-glass-border-radius"
-	| "--style-collapsible-glass-box-shadow"
-	| "--style-collapsible-glass-color"
-	| "--style-collapsible-glass-border-color"
-	| "--style-collapsible-glass-border-width"
-	| "--style-collapsible-glass-backdrop-filter"
-	| "--style-collapsible-glass-opacity"
-	| "--style-collapsible-glass-animation"
-	| "--style-collapsible-glass-transition-duration"
-	| "--style-collapsible-glass-transition-timing-function"
-	| "--style-collapsible-glass-gradient"
-	| "--style-collapsible-glass-font-family"
-	| "--style-collapsible-glass-font-size"
-	| "--style-collapsible-glass-font-weight"
-	| "--style-collapsible-glass-letter-spacing"
-	| "--style-collapsible-glass-line-height"
-	| "--style-collapsible-flat-background-color"
-	| "--style-collapsible-flat-border-radius"
-	| "--style-collapsible-flat-box-shadow"
-	| "--style-collapsible-flat-color"
-	| "--style-collapsible-flat-border-color"
-	| "--style-collapsible-flat-border-width"
-	| "--style-collapsible-flat-opacity"
-	| "--style-collapsible-flat-animation"
-	| "--style-collapsible-flat-transition-duration"
-	| "--style-collapsible-flat-transition-timing-function"
-	| "--style-collapsible-flat-gradient"
-	| "--style-collapsible-flat-font-family"
-	| "--style-collapsible-flat-font-size"
-	| "--style-collapsible-flat-font-weight"
-	| "--style-collapsible-flat-letter-spacing"
-	| "--style-collapsible-flat-line-height"
-	| "--style-collapsible-matte-background-color"
-	| "--style-collapsible-matte-border-radius"
-	| "--style-collapsible-matte-box-shadow"
-	| "--style-collapsible-matte-color"
-	| "--style-collapsible-matte-border-color"
-	| "--style-collapsible-matte-border-width"
-	| "--style-collapsible-matte-opacity"
-	| "--style-collapsible-matte-animation"
-	| "--style-collapsible-matte-transition-duration"
-	| "--style-collapsible-matte-transition-timing-function"
-	| "--style-collapsible-matte-gradient"
-	| "--style-collapsible-matte-font-family"
-	| "--style-collapsible-matte-font-size"
-	| "--style-collapsible-matte-font-weight"
-	| "--style-collapsible-matte-letter-spacing"
-	| "--style-collapsible-matte-line-height"
-	| "--style-color-area-default-background-color"
-	| "--style-color-area-default-border-radius"
-	| "--style-color-area-default-box-shadow"
-	| "--style-color-area-default-color"
-	| "--style-color-area-default-border-color"
-	| "--style-color-area-default-border-width"
-	| "--style-color-area-default-backdrop-filter"
-	| "--style-color-area-default-opacity"
-	| "--style-color-area-default-animation"
-	| "--style-color-area-default-transition-duration"
-	| "--style-color-area-default-transition-timing-function"
-	| "--style-color-area-default-gradient"
-	| "--style-color-area-default-font-family"
-	| "--style-color-area-default-font-size"
-	| "--style-color-area-default-font-weight"
-	| "--style-color-area-default-letter-spacing"
-	| "--style-color-area-default-line-height"
-	| "--style-color-area-stark-background-color"
-	| "--style-color-area-stark-border-radius"
-	| "--style-color-area-stark-box-shadow"
-	| "--style-color-area-stark-color"
-	| "--style-color-area-stark-border-color"
-	| "--style-color-area-stark-border-width"
-	| "--style-color-area-stark-opacity"
-	| "--style-color-area-stark-animation"
-	| "--style-color-area-stark-transition-duration"
-	| "--style-color-area-stark-transition-timing-function"
-	| "--style-color-area-stark-gradient"
-	| "--style-color-area-stark-font-family"
-	| "--style-color-area-stark-font-size"
-	| "--style-color-area-stark-font-weight"
-	| "--style-color-area-stark-letter-spacing"
-	| "--style-color-area-stark-line-height"
-	| "--style-color-area-glass-background-color"
-	| "--style-color-area-glass-border-radius"
-	| "--style-color-area-glass-box-shadow"
-	| "--style-color-area-glass-color"
-	| "--style-color-area-glass-border-color"
-	| "--style-color-area-glass-border-width"
-	| "--style-color-area-glass-backdrop-filter"
-	| "--style-color-area-glass-opacity"
-	| "--style-color-area-glass-animation"
-	| "--style-color-area-glass-transition-duration"
-	| "--style-color-area-glass-transition-timing-function"
-	| "--style-color-area-glass-gradient"
-	| "--style-color-area-glass-font-family"
-	| "--style-color-area-glass-font-size"
-	| "--style-color-area-glass-font-weight"
-	| "--style-color-area-glass-letter-spacing"
-	| "--style-color-area-glass-line-height"
-	| "--style-color-area-flat-background-color"
-	| "--style-color-area-flat-border-radius"
-	| "--style-color-area-flat-box-shadow"
-	| "--style-color-area-flat-color"
-	| "--style-color-area-flat-border-color"
-	| "--style-color-area-flat-border-width"
-	| "--style-color-area-flat-opacity"
-	| "--style-color-area-flat-animation"
-	| "--style-color-area-flat-transition-duration"
-	| "--style-color-area-flat-transition-timing-function"
-	| "--style-color-area-flat-gradient"
-	| "--style-color-area-flat-font-family"
-	| "--style-color-area-flat-font-size"
-	| "--style-color-area-flat-font-weight"
-	| "--style-color-area-flat-letter-spacing"
-	| "--style-color-area-flat-line-height"
-	| "--style-color-area-matte-background-color"
-	| "--style-color-area-matte-border-radius"
-	| "--style-color-area-matte-box-shadow"
-	| "--style-color-area-matte-color"
-	| "--style-color-area-matte-border-color"
-	| "--style-color-area-matte-border-width"
-	| "--style-color-area-matte-opacity"
-	| "--style-color-area-matte-animation"
-	| "--style-color-area-matte-transition-duration"
-	| "--style-color-area-matte-transition-timing-function"
-	| "--style-color-area-matte-gradient"
-	| "--style-color-area-matte-font-family"
-	| "--style-color-area-matte-font-size"
-	| "--style-color-area-matte-font-weight"
-	| "--style-color-area-matte-letter-spacing"
-	| "--style-color-area-matte-line-height"
-	| "--style-color-field-default-background-color"
-	| "--style-color-field-default-border-radius"
-	| "--style-color-field-default-box-shadow"
-	| "--style-color-field-default-color"
-	| "--style-color-field-default-border-color"
-	| "--style-color-field-default-border-width"
-	| "--style-color-field-default-backdrop-filter"
-	| "--style-color-field-default-opacity"
-	| "--style-color-field-default-animation"
-	| "--style-color-field-default-transition-duration"
-	| "--style-color-field-default-transition-timing-function"
-	| "--style-color-field-default-gradient"
-	| "--style-color-field-default-font-family"
-	| "--style-color-field-default-font-size"
-	| "--style-color-field-default-font-weight"
-	| "--style-color-field-default-letter-spacing"
-	| "--style-color-field-default-line-height"
-	| "--style-color-field-stark-background-color"
-	| "--style-color-field-stark-border-radius"
-	| "--style-color-field-stark-box-shadow"
-	| "--style-color-field-stark-color"
-	| "--style-color-field-stark-border-color"
-	| "--style-color-field-stark-border-width"
-	| "--style-color-field-stark-opacity"
-	| "--style-color-field-stark-animation"
-	| "--style-color-field-stark-transition-duration"
-	| "--style-color-field-stark-transition-timing-function"
-	| "--style-color-field-stark-gradient"
-	| "--style-color-field-stark-font-family"
-	| "--style-color-field-stark-font-size"
-	| "--style-color-field-stark-font-weight"
-	| "--style-color-field-stark-letter-spacing"
-	| "--style-color-field-stark-line-height"
-	| "--style-color-field-glass-background-color"
-	| "--style-color-field-glass-border-radius"
-	| "--style-color-field-glass-box-shadow"
-	| "--style-color-field-glass-color"
-	| "--style-color-field-glass-border-color"
-	| "--style-color-field-glass-border-width"
-	| "--style-color-field-glass-backdrop-filter"
-	| "--style-color-field-glass-opacity"
-	| "--style-color-field-glass-animation"
-	| "--style-color-field-glass-transition-duration"
-	| "--style-color-field-glass-transition-timing-function"
-	| "--style-color-field-glass-gradient"
-	| "--style-color-field-glass-font-family"
-	| "--style-color-field-glass-font-size"
-	| "--style-color-field-glass-font-weight"
-	| "--style-color-field-glass-letter-spacing"
-	| "--style-color-field-glass-line-height"
-	| "--style-color-field-flat-background-color"
-	| "--style-color-field-flat-border-radius"
-	| "--style-color-field-flat-box-shadow"
-	| "--style-color-field-flat-color"
-	| "--style-color-field-flat-border-color"
-	| "--style-color-field-flat-border-width"
-	| "--style-color-field-flat-opacity"
-	| "--style-color-field-flat-animation"
-	| "--style-color-field-flat-transition-duration"
-	| "--style-color-field-flat-transition-timing-function"
-	| "--style-color-field-flat-gradient"
-	| "--style-color-field-flat-font-family"
-	| "--style-color-field-flat-font-size"
-	| "--style-color-field-flat-font-weight"
-	| "--style-color-field-flat-letter-spacing"
-	| "--style-color-field-flat-line-height"
-	| "--style-color-field-matte-background-color"
-	| "--style-color-field-matte-border-radius"
-	| "--style-color-field-matte-box-shadow"
-	| "--style-color-field-matte-color"
-	| "--style-color-field-matte-border-color"
-	| "--style-color-field-matte-border-width"
-	| "--style-color-field-matte-opacity"
-	| "--style-color-field-matte-animation"
-	| "--style-color-field-matte-transition-duration"
-	| "--style-color-field-matte-transition-timing-function"
-	| "--style-color-field-matte-gradient"
-	| "--style-color-field-matte-font-family"
-	| "--style-color-field-matte-font-size"
-	| "--style-color-field-matte-font-weight"
-	| "--style-color-field-matte-letter-spacing"
-	| "--style-color-field-matte-line-height"
-	| "--style-color-slider-default-background-color"
-	| "--style-color-slider-default-border-radius"
-	| "--style-color-slider-default-box-shadow"
-	| "--style-color-slider-default-color"
-	| "--style-color-slider-default-border-color"
-	| "--style-color-slider-default-border-width"
-	| "--style-color-slider-default-backdrop-filter"
-	| "--style-color-slider-default-opacity"
-	| "--style-color-slider-default-animation"
-	| "--style-color-slider-default-transition-duration"
-	| "--style-color-slider-default-transition-timing-function"
-	| "--style-color-slider-default-gradient"
-	| "--style-color-slider-default-font-family"
-	| "--style-color-slider-default-font-size"
-	| "--style-color-slider-default-font-weight"
-	| "--style-color-slider-default-letter-spacing"
-	| "--style-color-slider-default-line-height"
-	| "--style-color-slider-stark-background-color"
-	| "--style-color-slider-stark-border-radius"
-	| "--style-color-slider-stark-box-shadow"
-	| "--style-color-slider-stark-color"
-	| "--style-color-slider-stark-border-color"
-	| "--style-color-slider-stark-border-width"
-	| "--style-color-slider-stark-opacity"
-	| "--style-color-slider-stark-animation"
-	| "--style-color-slider-stark-transition-duration"
-	| "--style-color-slider-stark-transition-timing-function"
-	| "--style-color-slider-stark-gradient"
-	| "--style-color-slider-stark-font-family"
-	| "--style-color-slider-stark-font-size"
-	| "--style-color-slider-stark-font-weight"
-	| "--style-color-slider-stark-letter-spacing"
-	| "--style-color-slider-stark-line-height"
-	| "--style-color-slider-glass-background-color"
-	| "--style-color-slider-glass-border-radius"
-	| "--style-color-slider-glass-box-shadow"
-	| "--style-color-slider-glass-color"
-	| "--style-color-slider-glass-border-color"
-	| "--style-color-slider-glass-border-width"
-	| "--style-color-slider-glass-backdrop-filter"
-	| "--style-color-slider-glass-opacity"
-	| "--style-color-slider-glass-animation"
-	| "--style-color-slider-glass-transition-duration"
-	| "--style-color-slider-glass-transition-timing-function"
-	| "--style-color-slider-glass-gradient"
-	| "--style-color-slider-glass-font-family"
-	| "--style-color-slider-glass-font-size"
-	| "--style-color-slider-glass-font-weight"
-	| "--style-color-slider-glass-letter-spacing"
-	| "--style-color-slider-glass-line-height"
-	| "--style-color-slider-flat-background-color"
-	| "--style-color-slider-flat-border-radius"
-	| "--style-color-slider-flat-box-shadow"
-	| "--style-color-slider-flat-color"
-	| "--style-color-slider-flat-border-color"
-	| "--style-color-slider-flat-border-width"
-	| "--style-color-slider-flat-opacity"
-	| "--style-color-slider-flat-animation"
-	| "--style-color-slider-flat-transition-duration"
-	| "--style-color-slider-flat-transition-timing-function"
-	| "--style-color-slider-flat-gradient"
-	| "--style-color-slider-flat-font-family"
-	| "--style-color-slider-flat-font-size"
-	| "--style-color-slider-flat-font-weight"
-	| "--style-color-slider-flat-letter-spacing"
-	| "--style-color-slider-flat-line-height"
-	| "--style-color-slider-matte-background-color"
-	| "--style-color-slider-matte-border-radius"
-	| "--style-color-slider-matte-box-shadow"
-	| "--style-color-slider-matte-color"
-	| "--style-color-slider-matte-border-color"
-	| "--style-color-slider-matte-border-width"
-	| "--style-color-slider-matte-opacity"
-	| "--style-color-slider-matte-animation"
-	| "--style-color-slider-matte-transition-duration"
-	| "--style-color-slider-matte-transition-timing-function"
-	| "--style-color-slider-matte-gradient"
-	| "--style-color-slider-matte-font-family"
-	| "--style-color-slider-matte-font-size"
-	| "--style-color-slider-matte-font-weight"
-	| "--style-color-slider-matte-letter-spacing"
-	| "--style-color-slider-matte-line-height"
-	| "--style-color-swatch-picker-default-background-color"
-	| "--style-color-swatch-picker-default-border-radius"
-	| "--style-color-swatch-picker-default-box-shadow"
-	| "--style-color-swatch-picker-default-color"
-	| "--style-color-swatch-picker-default-border-color"
-	| "--style-color-swatch-picker-default-border-width"
-	| "--style-color-swatch-picker-default-backdrop-filter"
-	| "--style-color-swatch-picker-default-opacity"
-	| "--style-color-swatch-picker-default-animation"
-	| "--style-color-swatch-picker-default-transition-duration"
-	| "--style-color-swatch-picker-default-transition-timing-function"
-	| "--style-color-swatch-picker-default-gradient"
-	| "--style-color-swatch-picker-default-font-family"
-	| "--style-color-swatch-picker-default-font-size"
-	| "--style-color-swatch-picker-default-font-weight"
-	| "--style-color-swatch-picker-default-letter-spacing"
-	| "--style-color-swatch-picker-default-line-height"
-	| "--style-color-swatch-picker-stark-background-color"
-	| "--style-color-swatch-picker-stark-border-radius"
-	| "--style-color-swatch-picker-stark-box-shadow"
-	| "--style-color-swatch-picker-stark-color"
-	| "--style-color-swatch-picker-stark-border-color"
-	| "--style-color-swatch-picker-stark-border-width"
-	| "--style-color-swatch-picker-stark-opacity"
-	| "--style-color-swatch-picker-stark-animation"
-	| "--style-color-swatch-picker-stark-transition-duration"
-	| "--style-color-swatch-picker-stark-transition-timing-function"
-	| "--style-color-swatch-picker-stark-gradient"
-	| "--style-color-swatch-picker-stark-font-family"
-	| "--style-color-swatch-picker-stark-font-size"
-	| "--style-color-swatch-picker-stark-font-weight"
-	| "--style-color-swatch-picker-stark-letter-spacing"
-	| "--style-color-swatch-picker-stark-line-height"
-	| "--style-color-swatch-picker-glass-background-color"
-	| "--style-color-swatch-picker-glass-border-radius"
-	| "--style-color-swatch-picker-glass-box-shadow"
-	| "--style-color-swatch-picker-glass-color"
-	| "--style-color-swatch-picker-glass-border-color"
-	| "--style-color-swatch-picker-glass-border-width"
-	| "--style-color-swatch-picker-glass-backdrop-filter"
-	| "--style-color-swatch-picker-glass-opacity"
-	| "--style-color-swatch-picker-glass-animation"
-	| "--style-color-swatch-picker-glass-transition-duration"
-	| "--style-color-swatch-picker-glass-transition-timing-function"
-	| "--style-color-swatch-picker-glass-gradient"
-	| "--style-color-swatch-picker-glass-font-family"
-	| "--style-color-swatch-picker-glass-font-size"
-	| "--style-color-swatch-picker-glass-font-weight"
-	| "--style-color-swatch-picker-glass-letter-spacing"
-	| "--style-color-swatch-picker-glass-line-height"
-	| "--style-color-swatch-picker-flat-background-color"
-	| "--style-color-swatch-picker-flat-border-radius"
-	| "--style-color-swatch-picker-flat-box-shadow"
-	| "--style-color-swatch-picker-flat-color"
-	| "--style-color-swatch-picker-flat-border-color"
-	| "--style-color-swatch-picker-flat-border-width"
-	| "--style-color-swatch-picker-flat-opacity"
-	| "--style-color-swatch-picker-flat-animation"
-	| "--style-color-swatch-picker-flat-transition-duration"
-	| "--style-color-swatch-picker-flat-transition-timing-function"
-	| "--style-color-swatch-picker-flat-gradient"
-	| "--style-color-swatch-picker-flat-font-family"
-	| "--style-color-swatch-picker-flat-font-size"
-	| "--style-color-swatch-picker-flat-font-weight"
-	| "--style-color-swatch-picker-flat-letter-spacing"
-	| "--style-color-swatch-picker-flat-line-height"
-	| "--style-color-swatch-picker-matte-background-color"
-	| "--style-color-swatch-picker-matte-border-radius"
-	| "--style-color-swatch-picker-matte-box-shadow"
-	| "--style-color-swatch-picker-matte-color"
-	| "--style-color-swatch-picker-matte-border-color"
-	| "--style-color-swatch-picker-matte-border-width"
-	| "--style-color-swatch-picker-matte-opacity"
-	| "--style-color-swatch-picker-matte-animation"
-	| "--style-color-swatch-picker-matte-transition-duration"
-	| "--style-color-swatch-picker-matte-transition-timing-function"
-	| "--style-color-swatch-picker-matte-gradient"
-	| "--style-color-swatch-picker-matte-font-family"
-	| "--style-color-swatch-picker-matte-font-size"
-	| "--style-color-swatch-picker-matte-font-weight"
-	| "--style-color-swatch-picker-matte-letter-spacing"
-	| "--style-color-swatch-picker-matte-line-height"
-	| "--style-color-swatch-default-background-color"
-	| "--style-color-swatch-default-border-radius"
-	| "--style-color-swatch-default-box-shadow"
-	| "--style-color-swatch-default-color"
-	| "--style-color-swatch-default-border-color"
-	| "--style-color-swatch-default-border-width"
-	| "--style-color-swatch-default-backdrop-filter"
-	| "--style-color-swatch-default-opacity"
-	| "--style-color-swatch-default-animation"
-	| "--style-color-swatch-default-transition-duration"
-	| "--style-color-swatch-default-transition-timing-function"
-	| "--style-color-swatch-default-gradient"
-	| "--style-color-swatch-default-font-family"
-	| "--style-color-swatch-default-font-size"
-	| "--style-color-swatch-default-font-weight"
-	| "--style-color-swatch-default-letter-spacing"
-	| "--style-color-swatch-default-line-height"
-	| "--style-color-swatch-stark-background-color"
-	| "--style-color-swatch-stark-border-radius"
-	| "--style-color-swatch-stark-box-shadow"
-	| "--style-color-swatch-stark-color"
-	| "--style-color-swatch-stark-border-color"
-	| "--style-color-swatch-stark-border-width"
-	| "--style-color-swatch-stark-opacity"
-	| "--style-color-swatch-stark-animation"
-	| "--style-color-swatch-stark-transition-duration"
-	| "--style-color-swatch-stark-transition-timing-function"
-	| "--style-color-swatch-stark-gradient"
-	| "--style-color-swatch-stark-font-family"
-	| "--style-color-swatch-stark-font-size"
-	| "--style-color-swatch-stark-font-weight"
-	| "--style-color-swatch-stark-letter-spacing"
-	| "--style-color-swatch-stark-line-height"
-	| "--style-color-swatch-glass-background-color"
-	| "--style-color-swatch-glass-border-radius"
-	| "--style-color-swatch-glass-box-shadow"
-	| "--style-color-swatch-glass-color"
-	| "--style-color-swatch-glass-border-color"
-	| "--style-color-swatch-glass-border-width"
-	| "--style-color-swatch-glass-backdrop-filter"
-	| "--style-color-swatch-glass-opacity"
-	| "--style-color-swatch-glass-animation"
-	| "--style-color-swatch-glass-transition-duration"
-	| "--style-color-swatch-glass-transition-timing-function"
-	| "--style-color-swatch-glass-gradient"
-	| "--style-color-swatch-glass-font-family"
-	| "--style-color-swatch-glass-font-size"
-	| "--style-color-swatch-glass-font-weight"
-	| "--style-color-swatch-glass-letter-spacing"
-	| "--style-color-swatch-glass-line-height"
-	| "--style-color-swatch-flat-background-color"
-	| "--style-color-swatch-flat-border-radius"
-	| "--style-color-swatch-flat-box-shadow"
-	| "--style-color-swatch-flat-color"
-	| "--style-color-swatch-flat-border-color"
-	| "--style-color-swatch-flat-border-width"
-	| "--style-color-swatch-flat-opacity"
-	| "--style-color-swatch-flat-animation"
-	| "--style-color-swatch-flat-transition-duration"
-	| "--style-color-swatch-flat-transition-timing-function"
-	| "--style-color-swatch-flat-gradient"
-	| "--style-color-swatch-flat-font-family"
-	| "--style-color-swatch-flat-font-size"
-	| "--style-color-swatch-flat-font-weight"
-	| "--style-color-swatch-flat-letter-spacing"
-	| "--style-color-swatch-flat-line-height"
-	| "--style-color-swatch-matte-background-color"
-	| "--style-color-swatch-matte-border-radius"
-	| "--style-color-swatch-matte-box-shadow"
-	| "--style-color-swatch-matte-color"
-	| "--style-color-swatch-matte-border-color"
-	| "--style-color-swatch-matte-border-width"
-	| "--style-color-swatch-matte-opacity"
-	| "--style-color-swatch-matte-animation"
-	| "--style-color-swatch-matte-transition-duration"
-	| "--style-color-swatch-matte-transition-timing-function"
-	| "--style-color-swatch-matte-gradient"
-	| "--style-color-swatch-matte-font-family"
-	| "--style-color-swatch-matte-font-size"
-	| "--style-color-swatch-matte-font-weight"
-	| "--style-color-swatch-matte-letter-spacing"
-	| "--style-color-swatch-matte-line-height"
-	| "--style-color-wheel-default-background-color"
-	| "--style-color-wheel-default-border-radius"
-	| "--style-color-wheel-default-box-shadow"
-	| "--style-color-wheel-default-color"
-	| "--style-color-wheel-default-border-color"
-	| "--style-color-wheel-default-border-width"
-	| "--style-color-wheel-default-backdrop-filter"
-	| "--style-color-wheel-default-opacity"
-	| "--style-color-wheel-default-animation"
-	| "--style-color-wheel-default-transition-duration"
-	| "--style-color-wheel-default-transition-timing-function"
-	| "--style-color-wheel-default-gradient"
-	| "--style-color-wheel-default-font-family"
-	| "--style-color-wheel-default-font-size"
-	| "--style-color-wheel-default-font-weight"
-	| "--style-color-wheel-default-letter-spacing"
-	| "--style-color-wheel-default-line-height"
-	| "--style-color-wheel-stark-background-color"
-	| "--style-color-wheel-stark-border-radius"
-	| "--style-color-wheel-stark-box-shadow"
-	| "--style-color-wheel-stark-color"
-	| "--style-color-wheel-stark-border-color"
-	| "--style-color-wheel-stark-border-width"
-	| "--style-color-wheel-stark-opacity"
-	| "--style-color-wheel-stark-animation"
-	| "--style-color-wheel-stark-transition-duration"
-	| "--style-color-wheel-stark-transition-timing-function"
-	| "--style-color-wheel-stark-gradient"
-	| "--style-color-wheel-stark-font-family"
-	| "--style-color-wheel-stark-font-size"
-	| "--style-color-wheel-stark-font-weight"
-	| "--style-color-wheel-stark-letter-spacing"
-	| "--style-color-wheel-stark-line-height"
-	| "--style-color-wheel-glass-background-color"
-	| "--style-color-wheel-glass-border-radius"
-	| "--style-color-wheel-glass-box-shadow"
-	| "--style-color-wheel-glass-color"
-	| "--style-color-wheel-glass-border-color"
-	| "--style-color-wheel-glass-border-width"
-	| "--style-color-wheel-glass-backdrop-filter"
-	| "--style-color-wheel-glass-opacity"
-	| "--style-color-wheel-glass-animation"
-	| "--style-color-wheel-glass-transition-duration"
-	| "--style-color-wheel-glass-transition-timing-function"
-	| "--style-color-wheel-glass-gradient"
-	| "--style-color-wheel-glass-font-family"
-	| "--style-color-wheel-glass-font-size"
-	| "--style-color-wheel-glass-font-weight"
-	| "--style-color-wheel-glass-letter-spacing"
-	| "--style-color-wheel-glass-line-height"
-	| "--style-color-wheel-flat-background-color"
-	| "--style-color-wheel-flat-border-radius"
-	| "--style-color-wheel-flat-box-shadow"
-	| "--style-color-wheel-flat-color"
-	| "--style-color-wheel-flat-border-color"
-	| "--style-color-wheel-flat-border-width"
-	| "--style-color-wheel-flat-opacity"
-	| "--style-color-wheel-flat-animation"
-	| "--style-color-wheel-flat-transition-duration"
-	| "--style-color-wheel-flat-transition-timing-function"
-	| "--style-color-wheel-flat-gradient"
-	| "--style-color-wheel-flat-font-family"
-	| "--style-color-wheel-flat-font-size"
-	| "--style-color-wheel-flat-font-weight"
-	| "--style-color-wheel-flat-letter-spacing"
-	| "--style-color-wheel-flat-line-height"
-	| "--style-color-wheel-matte-background-color"
-	| "--style-color-wheel-matte-border-radius"
-	| "--style-color-wheel-matte-box-shadow"
-	| "--style-color-wheel-matte-color"
-	| "--style-color-wheel-matte-border-color"
-	| "--style-color-wheel-matte-border-width"
-	| "--style-color-wheel-matte-opacity"
-	| "--style-color-wheel-matte-animation"
-	| "--style-color-wheel-matte-transition-duration"
-	| "--style-color-wheel-matte-transition-timing-function"
-	| "--style-color-wheel-matte-gradient"
-	| "--style-color-wheel-matte-font-family"
-	| "--style-color-wheel-matte-font-size"
-	| "--style-color-wheel-matte-font-weight"
-	| "--style-color-wheel-matte-letter-spacing"
-	| "--style-color-wheel-matte-line-height"
-	| "--style-combobox-default-background-color"
-	| "--style-combobox-default-border-radius"
-	| "--style-combobox-default-box-shadow"
-	| "--style-combobox-default-color"
-	| "--style-combobox-default-border-color"
-	| "--style-combobox-default-border-width"
-	| "--style-combobox-default-backdrop-filter"
-	| "--style-combobox-default-opacity"
-	| "--style-combobox-default-animation"
-	| "--style-combobox-default-transition-duration"
-	| "--style-combobox-default-transition-timing-function"
-	| "--style-combobox-default-gradient"
-	| "--style-combobox-default-font-family"
-	| "--style-combobox-default-font-size"
-	| "--style-combobox-default-font-weight"
-	| "--style-combobox-default-letter-spacing"
-	| "--style-combobox-default-line-height"
-	| "--style-combobox-stark-background-color"
-	| "--style-combobox-stark-border-radius"
-	| "--style-combobox-stark-box-shadow"
-	| "--style-combobox-stark-color"
-	| "--style-combobox-stark-border-color"
-	| "--style-combobox-stark-border-width"
-	| "--style-combobox-stark-opacity"
-	| "--style-combobox-stark-animation"
-	| "--style-combobox-stark-transition-duration"
-	| "--style-combobox-stark-transition-timing-function"
-	| "--style-combobox-stark-gradient"
-	| "--style-combobox-stark-font-family"
-	| "--style-combobox-stark-font-size"
-	| "--style-combobox-stark-font-weight"
-	| "--style-combobox-stark-letter-spacing"
-	| "--style-combobox-stark-line-height"
-	| "--style-combobox-glass-background-color"
-	| "--style-combobox-glass-border-radius"
-	| "--style-combobox-glass-box-shadow"
-	| "--style-combobox-glass-color"
-	| "--style-combobox-glass-border-color"
-	| "--style-combobox-glass-border-width"
-	| "--style-combobox-glass-backdrop-filter"
-	| "--style-combobox-glass-opacity"
-	| "--style-combobox-glass-animation"
-	| "--style-combobox-glass-transition-duration"
-	| "--style-combobox-glass-transition-timing-function"
-	| "--style-combobox-glass-gradient"
-	| "--style-combobox-glass-font-family"
-	| "--style-combobox-glass-font-size"
-	| "--style-combobox-glass-font-weight"
-	| "--style-combobox-glass-letter-spacing"
-	| "--style-combobox-glass-line-height"
-	| "--style-combobox-flat-background-color"
-	| "--style-combobox-flat-border-radius"
-	| "--style-combobox-flat-box-shadow"
-	| "--style-combobox-flat-color"
-	| "--style-combobox-flat-border-color"
-	| "--style-combobox-flat-border-width"
-	| "--style-combobox-flat-opacity"
-	| "--style-combobox-flat-animation"
-	| "--style-combobox-flat-transition-duration"
-	| "--style-combobox-flat-transition-timing-function"
-	| "--style-combobox-flat-gradient"
-	| "--style-combobox-flat-font-family"
-	| "--style-combobox-flat-font-size"
-	| "--style-combobox-flat-font-weight"
-	| "--style-combobox-flat-letter-spacing"
-	| "--style-combobox-flat-line-height"
-	| "--style-combobox-matte-background-color"
-	| "--style-combobox-matte-border-radius"
-	| "--style-combobox-matte-box-shadow"
-	| "--style-combobox-matte-color"
-	| "--style-combobox-matte-border-color"
-	| "--style-combobox-matte-border-width"
-	| "--style-combobox-matte-opacity"
-	| "--style-combobox-matte-animation"
-	| "--style-combobox-matte-transition-duration"
-	| "--style-combobox-matte-transition-timing-function"
-	| "--style-combobox-matte-gradient"
-	| "--style-combobox-matte-font-family"
-	| "--style-combobox-matte-font-size"
-	| "--style-combobox-matte-font-weight"
-	| "--style-combobox-matte-letter-spacing"
-	| "--style-combobox-matte-line-height"
-	| "--style-contextual-help-default-background-color"
-	| "--style-contextual-help-default-border-radius"
-	| "--style-contextual-help-default-box-shadow"
-	| "--style-contextual-help-default-color"
-	| "--style-contextual-help-default-border-color"
-	| "--style-contextual-help-default-border-width"
-	| "--style-contextual-help-default-backdrop-filter"
-	| "--style-contextual-help-default-opacity"
-	| "--style-contextual-help-default-animation"
-	| "--style-contextual-help-default-transition-duration"
-	| "--style-contextual-help-default-transition-timing-function"
-	| "--style-contextual-help-default-gradient"
-	| "--style-contextual-help-default-font-family"
-	| "--style-contextual-help-default-font-size"
-	| "--style-contextual-help-default-font-weight"
-	| "--style-contextual-help-default-letter-spacing"
-	| "--style-contextual-help-default-line-height"
-	| "--style-contextual-help-stark-background-color"
-	| "--style-contextual-help-stark-border-radius"
-	| "--style-contextual-help-stark-box-shadow"
-	| "--style-contextual-help-stark-color"
-	| "--style-contextual-help-stark-border-color"
-	| "--style-contextual-help-stark-border-width"
-	| "--style-contextual-help-stark-opacity"
-	| "--style-contextual-help-stark-animation"
-	| "--style-contextual-help-stark-transition-duration"
-	| "--style-contextual-help-stark-transition-timing-function"
-	| "--style-contextual-help-stark-gradient"
-	| "--style-contextual-help-stark-font-family"
-	| "--style-contextual-help-stark-font-size"
-	| "--style-contextual-help-stark-font-weight"
-	| "--style-contextual-help-stark-letter-spacing"
-	| "--style-contextual-help-stark-line-height"
-	| "--style-contextual-help-glass-background-color"
-	| "--style-contextual-help-glass-border-radius"
-	| "--style-contextual-help-glass-box-shadow"
-	| "--style-contextual-help-glass-color"
-	| "--style-contextual-help-glass-border-color"
-	| "--style-contextual-help-glass-border-width"
-	| "--style-contextual-help-glass-backdrop-filter"
-	| "--style-contextual-help-glass-opacity"
-	| "--style-contextual-help-glass-animation"
-	| "--style-contextual-help-glass-transition-duration"
-	| "--style-contextual-help-glass-transition-timing-function"
-	| "--style-contextual-help-glass-gradient"
-	| "--style-contextual-help-glass-font-family"
-	| "--style-contextual-help-glass-font-size"
-	| "--style-contextual-help-glass-font-weight"
-	| "--style-contextual-help-glass-letter-spacing"
-	| "--style-contextual-help-glass-line-height"
-	| "--style-contextual-help-flat-background-color"
-	| "--style-contextual-help-flat-border-radius"
-	| "--style-contextual-help-flat-box-shadow"
-	| "--style-contextual-help-flat-color"
-	| "--style-contextual-help-flat-border-color"
-	| "--style-contextual-help-flat-border-width"
-	| "--style-contextual-help-flat-opacity"
-	| "--style-contextual-help-flat-animation"
-	| "--style-contextual-help-flat-transition-duration"
-	| "--style-contextual-help-flat-transition-timing-function"
-	| "--style-contextual-help-flat-gradient"
-	| "--style-contextual-help-flat-font-family"
-	| "--style-contextual-help-flat-font-size"
-	| "--style-contextual-help-flat-font-weight"
-	| "--style-contextual-help-flat-letter-spacing"
-	| "--style-contextual-help-flat-line-height"
-	| "--style-contextual-help-matte-background-color"
-	| "--style-contextual-help-matte-border-radius"
-	| "--style-contextual-help-matte-box-shadow"
-	| "--style-contextual-help-matte-color"
-	| "--style-contextual-help-matte-border-color"
-	| "--style-contextual-help-matte-border-width"
-	| "--style-contextual-help-matte-opacity"
-	| "--style-contextual-help-matte-animation"
-	| "--style-contextual-help-matte-transition-duration"
-	| "--style-contextual-help-matte-transition-timing-function"
-	| "--style-contextual-help-matte-gradient"
-	| "--style-contextual-help-matte-font-family"
-	| "--style-contextual-help-matte-font-size"
-	| "--style-contextual-help-matte-font-weight"
-	| "--style-contextual-help-matte-letter-spacing"
-	| "--style-contextual-help-matte-line-height"
-	| "--style-data-table-default-background-color"
-	| "--style-data-table-default-border-radius"
-	| "--style-data-table-default-box-shadow"
-	| "--style-data-table-default-color"
-	| "--style-data-table-default-border-color"
-	| "--style-data-table-default-border-width"
-	| "--style-data-table-default-backdrop-filter"
-	| "--style-data-table-default-opacity"
-	| "--style-data-table-default-animation"
-	| "--style-data-table-default-transition-duration"
-	| "--style-data-table-default-transition-timing-function"
-	| "--style-data-table-default-gradient"
-	| "--style-data-table-default-font-family"
-	| "--style-data-table-default-font-size"
-	| "--style-data-table-default-font-weight"
-	| "--style-data-table-default-letter-spacing"
-	| "--style-data-table-default-line-height"
-	| "--style-data-table-stark-background-color"
-	| "--style-data-table-stark-border-radius"
-	| "--style-data-table-stark-box-shadow"
-	| "--style-data-table-stark-color"
-	| "--style-data-table-stark-border-color"
-	| "--style-data-table-stark-border-width"
-	| "--style-data-table-stark-opacity"
-	| "--style-data-table-stark-animation"
-	| "--style-data-table-stark-transition-duration"
-	| "--style-data-table-stark-transition-timing-function"
-	| "--style-data-table-stark-gradient"
-	| "--style-data-table-stark-font-family"
-	| "--style-data-table-stark-font-size"
-	| "--style-data-table-stark-font-weight"
-	| "--style-data-table-stark-letter-spacing"
-	| "--style-data-table-stark-line-height"
-	| "--style-data-table-glass-background-color"
-	| "--style-data-table-glass-border-radius"
-	| "--style-data-table-glass-box-shadow"
-	| "--style-data-table-glass-color"
-	| "--style-data-table-glass-border-color"
-	| "--style-data-table-glass-border-width"
-	| "--style-data-table-glass-backdrop-filter"
-	| "--style-data-table-glass-opacity"
-	| "--style-data-table-glass-animation"
-	| "--style-data-table-glass-transition-duration"
-	| "--style-data-table-glass-transition-timing-function"
-	| "--style-data-table-glass-gradient"
-	| "--style-data-table-glass-font-family"
-	| "--style-data-table-glass-font-size"
-	| "--style-data-table-glass-font-weight"
-	| "--style-data-table-glass-letter-spacing"
-	| "--style-data-table-glass-line-height"
-	| "--style-data-table-flat-background-color"
-	| "--style-data-table-flat-border-radius"
-	| "--style-data-table-flat-box-shadow"
-	| "--style-data-table-flat-color"
-	| "--style-data-table-flat-border-color"
-	| "--style-data-table-flat-border-width"
-	| "--style-data-table-flat-opacity"
-	| "--style-data-table-flat-animation"
-	| "--style-data-table-flat-transition-duration"
-	| "--style-data-table-flat-transition-timing-function"
-	| "--style-data-table-flat-gradient"
-	| "--style-data-table-flat-font-family"
-	| "--style-data-table-flat-font-size"
-	| "--style-data-table-flat-font-weight"
-	| "--style-data-table-flat-letter-spacing"
-	| "--style-data-table-flat-line-height"
-	| "--style-data-table-matte-background-color"
-	| "--style-data-table-matte-border-radius"
-	| "--style-data-table-matte-box-shadow"
-	| "--style-data-table-matte-color"
-	| "--style-data-table-matte-border-color"
-	| "--style-data-table-matte-border-width"
-	| "--style-data-table-matte-opacity"
-	| "--style-data-table-matte-animation"
-	| "--style-data-table-matte-transition-duration"
-	| "--style-data-table-matte-transition-timing-function"
-	| "--style-data-table-matte-gradient"
-	| "--style-data-table-matte-font-family"
-	| "--style-data-table-matte-font-size"
-	| "--style-data-table-matte-font-weight"
-	| "--style-data-table-matte-letter-spacing"
-	| "--style-data-table-matte-line-height"
-	| "--style-date-field-default-background-color"
-	| "--style-date-field-default-border-radius"
-	| "--style-date-field-default-box-shadow"
-	| "--style-date-field-default-color"
-	| "--style-date-field-default-border-color"
-	| "--style-date-field-default-border-width"
-	| "--style-date-field-default-backdrop-filter"
-	| "--style-date-field-default-opacity"
-	| "--style-date-field-default-animation"
-	| "--style-date-field-default-transition-duration"
-	| "--style-date-field-default-transition-timing-function"
-	| "--style-date-field-default-gradient"
-	| "--style-date-field-default-font-family"
-	| "--style-date-field-default-font-size"
-	| "--style-date-field-default-font-weight"
-	| "--style-date-field-default-letter-spacing"
-	| "--style-date-field-default-line-height"
-	| "--style-date-field-stark-background-color"
-	| "--style-date-field-stark-border-radius"
-	| "--style-date-field-stark-box-shadow"
-	| "--style-date-field-stark-color"
-	| "--style-date-field-stark-border-color"
-	| "--style-date-field-stark-border-width"
-	| "--style-date-field-stark-opacity"
-	| "--style-date-field-stark-animation"
-	| "--style-date-field-stark-transition-duration"
-	| "--style-date-field-stark-transition-timing-function"
-	| "--style-date-field-stark-gradient"
-	| "--style-date-field-stark-font-family"
-	| "--style-date-field-stark-font-size"
-	| "--style-date-field-stark-font-weight"
-	| "--style-date-field-stark-letter-spacing"
-	| "--style-date-field-stark-line-height"
-	| "--style-date-field-glass-background-color"
-	| "--style-date-field-glass-border-radius"
-	| "--style-date-field-glass-box-shadow"
-	| "--style-date-field-glass-color"
-	| "--style-date-field-glass-border-color"
-	| "--style-date-field-glass-border-width"
-	| "--style-date-field-glass-backdrop-filter"
-	| "--style-date-field-glass-opacity"
-	| "--style-date-field-glass-animation"
-	| "--style-date-field-glass-transition-duration"
-	| "--style-date-field-glass-transition-timing-function"
-	| "--style-date-field-glass-gradient"
-	| "--style-date-field-glass-font-family"
-	| "--style-date-field-glass-font-size"
-	| "--style-date-field-glass-font-weight"
-	| "--style-date-field-glass-letter-spacing"
-	| "--style-date-field-glass-line-height"
-	| "--style-date-field-flat-background-color"
-	| "--style-date-field-flat-border-radius"
-	| "--style-date-field-flat-box-shadow"
-	| "--style-date-field-flat-color"
-	| "--style-date-field-flat-border-color"
-	| "--style-date-field-flat-border-width"
-	| "--style-date-field-flat-opacity"
-	| "--style-date-field-flat-animation"
-	| "--style-date-field-flat-transition-duration"
-	| "--style-date-field-flat-transition-timing-function"
-	| "--style-date-field-flat-gradient"
-	| "--style-date-field-flat-font-family"
-	| "--style-date-field-flat-font-size"
-	| "--style-date-field-flat-font-weight"
-	| "--style-date-field-flat-letter-spacing"
-	| "--style-date-field-flat-line-height"
-	| "--style-date-field-matte-background-color"
-	| "--style-date-field-matte-border-radius"
-	| "--style-date-field-matte-box-shadow"
-	| "--style-date-field-matte-color"
-	| "--style-date-field-matte-border-color"
-	| "--style-date-field-matte-border-width"
-	| "--style-date-field-matte-opacity"
-	| "--style-date-field-matte-animation"
-	| "--style-date-field-matte-transition-duration"
-	| "--style-date-field-matte-transition-timing-function"
-	| "--style-date-field-matte-gradient"
-	| "--style-date-field-matte-font-family"
-	| "--style-date-field-matte-font-size"
-	| "--style-date-field-matte-font-weight"
-	| "--style-date-field-matte-letter-spacing"
-	| "--style-date-field-matte-line-height"
-	| "--style-date-picker-default-background-color"
-	| "--style-date-picker-default-border-radius"
-	| "--style-date-picker-default-box-shadow"
-	| "--style-date-picker-default-color"
-	| "--style-date-picker-default-border-color"
-	| "--style-date-picker-default-border-width"
-	| "--style-date-picker-default-backdrop-filter"
-	| "--style-date-picker-default-opacity"
-	| "--style-date-picker-default-animation"
-	| "--style-date-picker-default-transition-duration"
-	| "--style-date-picker-default-transition-timing-function"
-	| "--style-date-picker-default-gradient"
-	| "--style-date-picker-default-font-family"
-	| "--style-date-picker-default-font-size"
-	| "--style-date-picker-default-font-weight"
-	| "--style-date-picker-default-letter-spacing"
-	| "--style-date-picker-default-line-height"
-	| "--style-date-picker-stark-background-color"
-	| "--style-date-picker-stark-border-radius"
-	| "--style-date-picker-stark-box-shadow"
-	| "--style-date-picker-stark-color"
-	| "--style-date-picker-stark-border-color"
-	| "--style-date-picker-stark-border-width"
-	| "--style-date-picker-stark-opacity"
-	| "--style-date-picker-stark-animation"
-	| "--style-date-picker-stark-transition-duration"
-	| "--style-date-picker-stark-transition-timing-function"
-	| "--style-date-picker-stark-gradient"
-	| "--style-date-picker-stark-font-family"
-	| "--style-date-picker-stark-font-size"
-	| "--style-date-picker-stark-font-weight"
-	| "--style-date-picker-stark-letter-spacing"
-	| "--style-date-picker-stark-line-height"
-	| "--style-date-picker-glass-background-color"
-	| "--style-date-picker-glass-border-radius"
-	| "--style-date-picker-glass-box-shadow"
-	| "--style-date-picker-glass-color"
-	| "--style-date-picker-glass-border-color"
-	| "--style-date-picker-glass-border-width"
-	| "--style-date-picker-glass-backdrop-filter"
-	| "--style-date-picker-glass-opacity"
-	| "--style-date-picker-glass-animation"
-	| "--style-date-picker-glass-transition-duration"
-	| "--style-date-picker-glass-transition-timing-function"
-	| "--style-date-picker-glass-gradient"
-	| "--style-date-picker-glass-font-family"
-	| "--style-date-picker-glass-font-size"
-	| "--style-date-picker-glass-font-weight"
-	| "--style-date-picker-glass-letter-spacing"
-	| "--style-date-picker-glass-line-height"
-	| "--style-date-picker-flat-background-color"
-	| "--style-date-picker-flat-border-radius"
-	| "--style-date-picker-flat-box-shadow"
-	| "--style-date-picker-flat-color"
-	| "--style-date-picker-flat-border-color"
-	| "--style-date-picker-flat-border-width"
-	| "--style-date-picker-flat-opacity"
-	| "--style-date-picker-flat-animation"
-	| "--style-date-picker-flat-transition-duration"
-	| "--style-date-picker-flat-transition-timing-function"
-	| "--style-date-picker-flat-gradient"
-	| "--style-date-picker-flat-font-family"
-	| "--style-date-picker-flat-font-size"
-	| "--style-date-picker-flat-font-weight"
-	| "--style-date-picker-flat-letter-spacing"
-	| "--style-date-picker-flat-line-height"
-	| "--style-date-picker-matte-background-color"
-	| "--style-date-picker-matte-border-radius"
-	| "--style-date-picker-matte-box-shadow"
-	| "--style-date-picker-matte-color"
-	| "--style-date-picker-matte-border-color"
-	| "--style-date-picker-matte-border-width"
-	| "--style-date-picker-matte-opacity"
-	| "--style-date-picker-matte-animation"
-	| "--style-date-picker-matte-transition-duration"
-	| "--style-date-picker-matte-transition-timing-function"
-	| "--style-date-picker-matte-gradient"
-	| "--style-date-picker-matte-font-family"
-	| "--style-date-picker-matte-font-size"
-	| "--style-date-picker-matte-font-weight"
-	| "--style-date-picker-matte-letter-spacing"
-	| "--style-date-picker-matte-line-height"
-	| "--style-date-range-field-default-background-color"
-	| "--style-date-range-field-default-border-radius"
-	| "--style-date-range-field-default-box-shadow"
-	| "--style-date-range-field-default-color"
-	| "--style-date-range-field-default-border-color"
-	| "--style-date-range-field-default-border-width"
-	| "--style-date-range-field-default-backdrop-filter"
-	| "--style-date-range-field-default-opacity"
-	| "--style-date-range-field-default-animation"
-	| "--style-date-range-field-default-transition-duration"
-	| "--style-date-range-field-default-transition-timing-function"
-	| "--style-date-range-field-default-gradient"
-	| "--style-date-range-field-default-font-family"
-	| "--style-date-range-field-default-font-size"
-	| "--style-date-range-field-default-font-weight"
-	| "--style-date-range-field-default-letter-spacing"
-	| "--style-date-range-field-default-line-height"
-	| "--style-date-range-field-stark-background-color"
-	| "--style-date-range-field-stark-border-radius"
-	| "--style-date-range-field-stark-box-shadow"
-	| "--style-date-range-field-stark-color"
-	| "--style-date-range-field-stark-border-color"
-	| "--style-date-range-field-stark-border-width"
-	| "--style-date-range-field-stark-opacity"
-	| "--style-date-range-field-stark-animation"
-	| "--style-date-range-field-stark-transition-duration"
-	| "--style-date-range-field-stark-transition-timing-function"
-	| "--style-date-range-field-stark-gradient"
-	| "--style-date-range-field-stark-font-family"
-	| "--style-date-range-field-stark-font-size"
-	| "--style-date-range-field-stark-font-weight"
-	| "--style-date-range-field-stark-letter-spacing"
-	| "--style-date-range-field-stark-line-height"
-	| "--style-date-range-field-glass-background-color"
-	| "--style-date-range-field-glass-border-radius"
-	| "--style-date-range-field-glass-box-shadow"
-	| "--style-date-range-field-glass-color"
-	| "--style-date-range-field-glass-border-color"
-	| "--style-date-range-field-glass-border-width"
-	| "--style-date-range-field-glass-backdrop-filter"
-	| "--style-date-range-field-glass-opacity"
-	| "--style-date-range-field-glass-animation"
-	| "--style-date-range-field-glass-transition-duration"
-	| "--style-date-range-field-glass-transition-timing-function"
-	| "--style-date-range-field-glass-gradient"
-	| "--style-date-range-field-glass-font-family"
-	| "--style-date-range-field-glass-font-size"
-	| "--style-date-range-field-glass-font-weight"
-	| "--style-date-range-field-glass-letter-spacing"
-	| "--style-date-range-field-glass-line-height"
-	| "--style-date-range-field-flat-background-color"
-	| "--style-date-range-field-flat-border-radius"
-	| "--style-date-range-field-flat-box-shadow"
-	| "--style-date-range-field-flat-color"
-	| "--style-date-range-field-flat-border-color"
-	| "--style-date-range-field-flat-border-width"
-	| "--style-date-range-field-flat-opacity"
-	| "--style-date-range-field-flat-animation"
-	| "--style-date-range-field-flat-transition-duration"
-	| "--style-date-range-field-flat-transition-timing-function"
-	| "--style-date-range-field-flat-gradient"
-	| "--style-date-range-field-flat-font-family"
-	| "--style-date-range-field-flat-font-size"
-	| "--style-date-range-field-flat-font-weight"
-	| "--style-date-range-field-flat-letter-spacing"
-	| "--style-date-range-field-flat-line-height"
-	| "--style-date-range-field-matte-background-color"
-	| "--style-date-range-field-matte-border-radius"
-	| "--style-date-range-field-matte-box-shadow"
-	| "--style-date-range-field-matte-color"
-	| "--style-date-range-field-matte-border-color"
-	| "--style-date-range-field-matte-border-width"
-	| "--style-date-range-field-matte-opacity"
-	| "--style-date-range-field-matte-animation"
-	| "--style-date-range-field-matte-transition-duration"
-	| "--style-date-range-field-matte-transition-timing-function"
-	| "--style-date-range-field-matte-gradient"
-	| "--style-date-range-field-matte-font-family"
-	| "--style-date-range-field-matte-font-size"
-	| "--style-date-range-field-matte-font-weight"
-	| "--style-date-range-field-matte-letter-spacing"
-	| "--style-date-range-field-matte-line-height"
-	| "--style-date-range-picker-default-background-color"
-	| "--style-date-range-picker-default-border-radius"
-	| "--style-date-range-picker-default-box-shadow"
-	| "--style-date-range-picker-default-color"
-	| "--style-date-range-picker-default-border-color"
-	| "--style-date-range-picker-default-border-width"
-	| "--style-date-range-picker-default-backdrop-filter"
-	| "--style-date-range-picker-default-opacity"
-	| "--style-date-range-picker-default-animation"
-	| "--style-date-range-picker-default-transition-duration"
-	| "--style-date-range-picker-default-transition-timing-function"
-	| "--style-date-range-picker-default-gradient"
-	| "--style-date-range-picker-default-font-family"
-	| "--style-date-range-picker-default-font-size"
-	| "--style-date-range-picker-default-font-weight"
-	| "--style-date-range-picker-default-letter-spacing"
-	| "--style-date-range-picker-default-line-height"
-	| "--style-date-range-picker-stark-background-color"
-	| "--style-date-range-picker-stark-border-radius"
-	| "--style-date-range-picker-stark-box-shadow"
-	| "--style-date-range-picker-stark-color"
-	| "--style-date-range-picker-stark-border-color"
-	| "--style-date-range-picker-stark-border-width"
-	| "--style-date-range-picker-stark-opacity"
-	| "--style-date-range-picker-stark-animation"
-	| "--style-date-range-picker-stark-transition-duration"
-	| "--style-date-range-picker-stark-transition-timing-function"
-	| "--style-date-range-picker-stark-gradient"
-	| "--style-date-range-picker-stark-font-family"
-	| "--style-date-range-picker-stark-font-size"
-	| "--style-date-range-picker-stark-font-weight"
-	| "--style-date-range-picker-stark-letter-spacing"
-	| "--style-date-range-picker-stark-line-height"
-	| "--style-date-range-picker-glass-background-color"
-	| "--style-date-range-picker-glass-border-radius"
-	| "--style-date-range-picker-glass-box-shadow"
-	| "--style-date-range-picker-glass-color"
-	| "--style-date-range-picker-glass-border-color"
-	| "--style-date-range-picker-glass-border-width"
-	| "--style-date-range-picker-glass-backdrop-filter"
-	| "--style-date-range-picker-glass-opacity"
-	| "--style-date-range-picker-glass-animation"
-	| "--style-date-range-picker-glass-transition-duration"
-	| "--style-date-range-picker-glass-transition-timing-function"
-	| "--style-date-range-picker-glass-gradient"
-	| "--style-date-range-picker-glass-font-family"
-	| "--style-date-range-picker-glass-font-size"
-	| "--style-date-range-picker-glass-font-weight"
-	| "--style-date-range-picker-glass-letter-spacing"
-	| "--style-date-range-picker-glass-line-height"
-	| "--style-date-range-picker-flat-background-color"
-	| "--style-date-range-picker-flat-border-radius"
-	| "--style-date-range-picker-flat-box-shadow"
-	| "--style-date-range-picker-flat-color"
-	| "--style-date-range-picker-flat-border-color"
-	| "--style-date-range-picker-flat-border-width"
-	| "--style-date-range-picker-flat-opacity"
-	| "--style-date-range-picker-flat-animation"
-	| "--style-date-range-picker-flat-transition-duration"
-	| "--style-date-range-picker-flat-transition-timing-function"
-	| "--style-date-range-picker-flat-gradient"
-	| "--style-date-range-picker-flat-font-family"
-	| "--style-date-range-picker-flat-font-size"
-	| "--style-date-range-picker-flat-font-weight"
-	| "--style-date-range-picker-flat-letter-spacing"
-	| "--style-date-range-picker-flat-line-height"
-	| "--style-date-range-picker-matte-background-color"
-	| "--style-date-range-picker-matte-border-radius"
-	| "--style-date-range-picker-matte-box-shadow"
-	| "--style-date-range-picker-matte-color"
-	| "--style-date-range-picker-matte-border-color"
-	| "--style-date-range-picker-matte-border-width"
-	| "--style-date-range-picker-matte-opacity"
-	| "--style-date-range-picker-matte-animation"
-	| "--style-date-range-picker-matte-transition-duration"
-	| "--style-date-range-picker-matte-transition-timing-function"
-	| "--style-date-range-picker-matte-gradient"
-	| "--style-date-range-picker-matte-font-family"
-	| "--style-date-range-picker-matte-font-size"
-	| "--style-date-range-picker-matte-font-weight"
-	| "--style-date-range-picker-matte-letter-spacing"
-	| "--style-date-range-picker-matte-line-height"
-	| "--style-description-list-default-background-color"
-	| "--style-description-list-default-border-radius"
-	| "--style-description-list-default-box-shadow"
-	| "--style-description-list-default-color"
-	| "--style-description-list-default-border-color"
-	| "--style-description-list-default-border-width"
-	| "--style-description-list-default-backdrop-filter"
-	| "--style-description-list-default-opacity"
-	| "--style-description-list-default-animation"
-	| "--style-description-list-default-transition-duration"
-	| "--style-description-list-default-transition-timing-function"
-	| "--style-description-list-default-gradient"
-	| "--style-description-list-default-font-family"
-	| "--style-description-list-default-font-size"
-	| "--style-description-list-default-font-weight"
-	| "--style-description-list-default-letter-spacing"
-	| "--style-description-list-default-line-height"
-	| "--style-description-list-stark-background-color"
-	| "--style-description-list-stark-border-radius"
-	| "--style-description-list-stark-box-shadow"
-	| "--style-description-list-stark-color"
-	| "--style-description-list-stark-border-color"
-	| "--style-description-list-stark-border-width"
-	| "--style-description-list-stark-opacity"
-	| "--style-description-list-stark-animation"
-	| "--style-description-list-stark-transition-duration"
-	| "--style-description-list-stark-transition-timing-function"
-	| "--style-description-list-stark-gradient"
-	| "--style-description-list-stark-font-family"
-	| "--style-description-list-stark-font-size"
-	| "--style-description-list-stark-font-weight"
-	| "--style-description-list-stark-letter-spacing"
-	| "--style-description-list-stark-line-height"
-	| "--style-description-list-glass-background-color"
-	| "--style-description-list-glass-border-radius"
-	| "--style-description-list-glass-box-shadow"
-	| "--style-description-list-glass-color"
-	| "--style-description-list-glass-border-color"
-	| "--style-description-list-glass-border-width"
-	| "--style-description-list-glass-backdrop-filter"
-	| "--style-description-list-glass-opacity"
-	| "--style-description-list-glass-animation"
-	| "--style-description-list-glass-transition-duration"
-	| "--style-description-list-glass-transition-timing-function"
-	| "--style-description-list-glass-gradient"
-	| "--style-description-list-glass-font-family"
-	| "--style-description-list-glass-font-size"
-	| "--style-description-list-glass-font-weight"
-	| "--style-description-list-glass-letter-spacing"
-	| "--style-description-list-glass-line-height"
-	| "--style-description-list-flat-background-color"
-	| "--style-description-list-flat-border-radius"
-	| "--style-description-list-flat-box-shadow"
-	| "--style-description-list-flat-color"
-	| "--style-description-list-flat-border-color"
-	| "--style-description-list-flat-border-width"
-	| "--style-description-list-flat-opacity"
-	| "--style-description-list-flat-animation"
-	| "--style-description-list-flat-transition-duration"
-	| "--style-description-list-flat-transition-timing-function"
-	| "--style-description-list-flat-gradient"
-	| "--style-description-list-flat-font-family"
-	| "--style-description-list-flat-font-size"
-	| "--style-description-list-flat-font-weight"
-	| "--style-description-list-flat-letter-spacing"
-	| "--style-description-list-flat-line-height"
-	| "--style-description-list-matte-background-color"
-	| "--style-description-list-matte-border-radius"
-	| "--style-description-list-matte-box-shadow"
-	| "--style-description-list-matte-color"
-	| "--style-description-list-matte-border-color"
-	| "--style-description-list-matte-border-width"
-	| "--style-description-list-matte-opacity"
-	| "--style-description-list-matte-animation"
-	| "--style-description-list-matte-transition-duration"
-	| "--style-description-list-matte-transition-timing-function"
-	| "--style-description-list-matte-gradient"
-	| "--style-description-list-matte-font-family"
-	| "--style-description-list-matte-font-size"
-	| "--style-description-list-matte-font-weight"
-	| "--style-description-list-matte-letter-spacing"
-	| "--style-description-list-matte-line-height"
-	| "--style-dialog-default-background-color"
-	| "--style-dialog-default-border-radius"
-	| "--style-dialog-default-box-shadow"
-	| "--style-dialog-default-color"
-	| "--style-dialog-default-border-color"
-	| "--style-dialog-default-border-width"
-	| "--style-dialog-default-backdrop-filter"
-	| "--style-dialog-default-opacity"
-	| "--style-dialog-default-animation"
-	| "--style-dialog-default-transition-duration"
-	| "--style-dialog-default-transition-timing-function"
-	| "--style-dialog-default-gradient"
-	| "--style-dialog-default-font-family"
-	| "--style-dialog-default-font-size"
-	| "--style-dialog-default-font-weight"
-	| "--style-dialog-default-letter-spacing"
-	| "--style-dialog-default-line-height"
-	| "--style-dialog-stark-background-color"
-	| "--style-dialog-stark-border-radius"
-	| "--style-dialog-stark-box-shadow"
-	| "--style-dialog-stark-color"
-	| "--style-dialog-stark-border-color"
-	| "--style-dialog-stark-border-width"
-	| "--style-dialog-stark-opacity"
-	| "--style-dialog-stark-animation"
-	| "--style-dialog-stark-transition-duration"
-	| "--style-dialog-stark-transition-timing-function"
-	| "--style-dialog-stark-gradient"
-	| "--style-dialog-stark-font-family"
-	| "--style-dialog-stark-font-size"
-	| "--style-dialog-stark-font-weight"
-	| "--style-dialog-stark-letter-spacing"
-	| "--style-dialog-stark-line-height"
-	| "--style-dialog-glass-background-color"
-	| "--style-dialog-glass-border-radius"
-	| "--style-dialog-glass-box-shadow"
-	| "--style-dialog-glass-color"
-	| "--style-dialog-glass-border-color"
-	| "--style-dialog-glass-border-width"
-	| "--style-dialog-glass-backdrop-filter"
-	| "--style-dialog-glass-opacity"
-	| "--style-dialog-glass-animation"
-	| "--style-dialog-glass-transition-duration"
-	| "--style-dialog-glass-transition-timing-function"
-	| "--style-dialog-glass-gradient"
-	| "--style-dialog-glass-font-family"
-	| "--style-dialog-glass-font-size"
-	| "--style-dialog-glass-font-weight"
-	| "--style-dialog-glass-letter-spacing"
-	| "--style-dialog-glass-line-height"
-	| "--style-dialog-flat-background-color"
-	| "--style-dialog-flat-border-radius"
-	| "--style-dialog-flat-box-shadow"
-	| "--style-dialog-flat-color"
-	| "--style-dialog-flat-border-color"
-	| "--style-dialog-flat-border-width"
-	| "--style-dialog-flat-opacity"
-	| "--style-dialog-flat-animation"
-	| "--style-dialog-flat-transition-duration"
-	| "--style-dialog-flat-transition-timing-function"
-	| "--style-dialog-flat-gradient"
-	| "--style-dialog-flat-font-family"
-	| "--style-dialog-flat-font-size"
-	| "--style-dialog-flat-font-weight"
-	| "--style-dialog-flat-letter-spacing"
-	| "--style-dialog-flat-line-height"
-	| "--style-dialog-matte-background-color"
-	| "--style-dialog-matte-border-radius"
-	| "--style-dialog-matte-box-shadow"
-	| "--style-dialog-matte-color"
-	| "--style-dialog-matte-border-color"
-	| "--style-dialog-matte-border-width"
-	| "--style-dialog-matte-opacity"
-	| "--style-dialog-matte-animation"
-	| "--style-dialog-matte-transition-duration"
-	| "--style-dialog-matte-transition-timing-function"
-	| "--style-dialog-matte-gradient"
-	| "--style-dialog-matte-font-family"
-	| "--style-dialog-matte-font-size"
-	| "--style-dialog-matte-font-weight"
-	| "--style-dialog-matte-letter-spacing"
-	| "--style-dialog-matte-line-height"
-	| "--style-empty-state-default-background-color"
-	| "--style-empty-state-default-border-radius"
-	| "--style-empty-state-default-box-shadow"
-	| "--style-empty-state-default-color"
-	| "--style-empty-state-default-border-color"
-	| "--style-empty-state-default-border-width"
-	| "--style-empty-state-default-backdrop-filter"
-	| "--style-empty-state-default-opacity"
-	| "--style-empty-state-default-animation"
-	| "--style-empty-state-default-transition-duration"
-	| "--style-empty-state-default-transition-timing-function"
-	| "--style-empty-state-default-gradient"
-	| "--style-empty-state-default-font-family"
-	| "--style-empty-state-default-font-size"
-	| "--style-empty-state-default-font-weight"
-	| "--style-empty-state-default-letter-spacing"
-	| "--style-empty-state-default-line-height"
-	| "--style-empty-state-stark-background-color"
-	| "--style-empty-state-stark-border-radius"
-	| "--style-empty-state-stark-box-shadow"
-	| "--style-empty-state-stark-color"
-	| "--style-empty-state-stark-border-color"
-	| "--style-empty-state-stark-border-width"
-	| "--style-empty-state-stark-opacity"
-	| "--style-empty-state-stark-animation"
-	| "--style-empty-state-stark-transition-duration"
-	| "--style-empty-state-stark-transition-timing-function"
-	| "--style-empty-state-stark-gradient"
-	| "--style-empty-state-stark-font-family"
-	| "--style-empty-state-stark-font-size"
-	| "--style-empty-state-stark-font-weight"
-	| "--style-empty-state-stark-letter-spacing"
-	| "--style-empty-state-stark-line-height"
-	| "--style-empty-state-glass-background-color"
-	| "--style-empty-state-glass-border-radius"
-	| "--style-empty-state-glass-box-shadow"
-	| "--style-empty-state-glass-color"
-	| "--style-empty-state-glass-border-color"
-	| "--style-empty-state-glass-border-width"
-	| "--style-empty-state-glass-backdrop-filter"
-	| "--style-empty-state-glass-opacity"
-	| "--style-empty-state-glass-animation"
-	| "--style-empty-state-glass-transition-duration"
-	| "--style-empty-state-glass-transition-timing-function"
-	| "--style-empty-state-glass-gradient"
-	| "--style-empty-state-glass-font-family"
-	| "--style-empty-state-glass-font-size"
-	| "--style-empty-state-glass-font-weight"
-	| "--style-empty-state-glass-letter-spacing"
-	| "--style-empty-state-glass-line-height"
-	| "--style-empty-state-flat-background-color"
-	| "--style-empty-state-flat-border-radius"
-	| "--style-empty-state-flat-box-shadow"
-	| "--style-empty-state-flat-color"
-	| "--style-empty-state-flat-border-color"
-	| "--style-empty-state-flat-border-width"
-	| "--style-empty-state-flat-opacity"
-	| "--style-empty-state-flat-animation"
-	| "--style-empty-state-flat-transition-duration"
-	| "--style-empty-state-flat-transition-timing-function"
-	| "--style-empty-state-flat-gradient"
-	| "--style-empty-state-flat-font-family"
-	| "--style-empty-state-flat-font-size"
-	| "--style-empty-state-flat-font-weight"
-	| "--style-empty-state-flat-letter-spacing"
-	| "--style-empty-state-flat-line-height"
-	| "--style-empty-state-matte-background-color"
-	| "--style-empty-state-matte-border-radius"
-	| "--style-empty-state-matte-box-shadow"
-	| "--style-empty-state-matte-color"
-	| "--style-empty-state-matte-border-color"
-	| "--style-empty-state-matte-border-width"
-	| "--style-empty-state-matte-opacity"
-	| "--style-empty-state-matte-animation"
-	| "--style-empty-state-matte-transition-duration"
-	| "--style-empty-state-matte-transition-timing-function"
-	| "--style-empty-state-matte-gradient"
-	| "--style-empty-state-matte-font-family"
-	| "--style-empty-state-matte-font-size"
-	| "--style-empty-state-matte-font-weight"
-	| "--style-empty-state-matte-letter-spacing"
-	| "--style-empty-state-matte-line-height"
-	| "--style-file-upload-default-background-color"
-	| "--style-file-upload-default-border-radius"
-	| "--style-file-upload-default-box-shadow"
-	| "--style-file-upload-default-color"
-	| "--style-file-upload-default-border-color"
-	| "--style-file-upload-default-border-width"
-	| "--style-file-upload-default-backdrop-filter"
-	| "--style-file-upload-default-opacity"
-	| "--style-file-upload-default-animation"
-	| "--style-file-upload-default-transition-duration"
-	| "--style-file-upload-default-transition-timing-function"
-	| "--style-file-upload-default-gradient"
-	| "--style-file-upload-default-font-family"
-	| "--style-file-upload-default-font-size"
-	| "--style-file-upload-default-font-weight"
-	| "--style-file-upload-default-letter-spacing"
-	| "--style-file-upload-default-line-height"
-	| "--style-file-upload-stark-background-color"
-	| "--style-file-upload-stark-border-radius"
-	| "--style-file-upload-stark-box-shadow"
-	| "--style-file-upload-stark-color"
-	| "--style-file-upload-stark-border-color"
-	| "--style-file-upload-stark-border-width"
-	| "--style-file-upload-stark-opacity"
-	| "--style-file-upload-stark-animation"
-	| "--style-file-upload-stark-transition-duration"
-	| "--style-file-upload-stark-transition-timing-function"
-	| "--style-file-upload-stark-gradient"
-	| "--style-file-upload-stark-font-family"
-	| "--style-file-upload-stark-font-size"
-	| "--style-file-upload-stark-font-weight"
-	| "--style-file-upload-stark-letter-spacing"
-	| "--style-file-upload-stark-line-height"
-	| "--style-file-upload-glass-background-color"
-	| "--style-file-upload-glass-border-radius"
-	| "--style-file-upload-glass-box-shadow"
-	| "--style-file-upload-glass-color"
-	| "--style-file-upload-glass-border-color"
-	| "--style-file-upload-glass-border-width"
-	| "--style-file-upload-glass-backdrop-filter"
-	| "--style-file-upload-glass-opacity"
-	| "--style-file-upload-glass-animation"
-	| "--style-file-upload-glass-transition-duration"
-	| "--style-file-upload-glass-transition-timing-function"
-	| "--style-file-upload-glass-gradient"
-	| "--style-file-upload-glass-font-family"
-	| "--style-file-upload-glass-font-size"
-	| "--style-file-upload-glass-font-weight"
-	| "--style-file-upload-glass-letter-spacing"
-	| "--style-file-upload-glass-line-height"
-	| "--style-file-upload-flat-background-color"
-	| "--style-file-upload-flat-border-radius"
-	| "--style-file-upload-flat-box-shadow"
-	| "--style-file-upload-flat-color"
-	| "--style-file-upload-flat-border-color"
-	| "--style-file-upload-flat-border-width"
-	| "--style-file-upload-flat-opacity"
-	| "--style-file-upload-flat-animation"
-	| "--style-file-upload-flat-transition-duration"
-	| "--style-file-upload-flat-transition-timing-function"
-	| "--style-file-upload-flat-gradient"
-	| "--style-file-upload-flat-font-family"
-	| "--style-file-upload-flat-font-size"
-	| "--style-file-upload-flat-font-weight"
-	| "--style-file-upload-flat-letter-spacing"
-	| "--style-file-upload-flat-line-height"
-	| "--style-file-upload-matte-background-color"
-	| "--style-file-upload-matte-border-radius"
-	| "--style-file-upload-matte-box-shadow"
-	| "--style-file-upload-matte-color"
-	| "--style-file-upload-matte-border-color"
-	| "--style-file-upload-matte-border-width"
-	| "--style-file-upload-matte-opacity"
-	| "--style-file-upload-matte-animation"
-	| "--style-file-upload-matte-transition-duration"
-	| "--style-file-upload-matte-transition-timing-function"
-	| "--style-file-upload-matte-gradient"
-	| "--style-file-upload-matte-font-family"
-	| "--style-file-upload-matte-font-size"
-	| "--style-file-upload-matte-font-weight"
-	| "--style-file-upload-matte-letter-spacing"
-	| "--style-file-upload-matte-line-height"
-	| "--style-form-field-default-background-color"
-	| "--style-form-field-default-border-radius"
-	| "--style-form-field-default-box-shadow"
-	| "--style-form-field-default-color"
-	| "--style-form-field-default-border-color"
-	| "--style-form-field-default-border-width"
-	| "--style-form-field-default-backdrop-filter"
-	| "--style-form-field-default-opacity"
-	| "--style-form-field-default-animation"
-	| "--style-form-field-default-transition-duration"
-	| "--style-form-field-default-transition-timing-function"
-	| "--style-form-field-default-gradient"
-	| "--style-form-field-default-font-family"
-	| "--style-form-field-default-font-size"
-	| "--style-form-field-default-font-weight"
-	| "--style-form-field-default-letter-spacing"
-	| "--style-form-field-default-line-height"
-	| "--style-form-field-stark-background-color"
-	| "--style-form-field-stark-border-radius"
-	| "--style-form-field-stark-box-shadow"
-	| "--style-form-field-stark-color"
-	| "--style-form-field-stark-border-color"
-	| "--style-form-field-stark-border-width"
-	| "--style-form-field-stark-opacity"
-	| "--style-form-field-stark-animation"
-	| "--style-form-field-stark-transition-duration"
-	| "--style-form-field-stark-transition-timing-function"
-	| "--style-form-field-stark-gradient"
-	| "--style-form-field-stark-font-family"
-	| "--style-form-field-stark-font-size"
-	| "--style-form-field-stark-font-weight"
-	| "--style-form-field-stark-letter-spacing"
-	| "--style-form-field-stark-line-height"
-	| "--style-form-field-glass-background-color"
-	| "--style-form-field-glass-border-radius"
-	| "--style-form-field-glass-box-shadow"
-	| "--style-form-field-glass-color"
-	| "--style-form-field-glass-border-color"
-	| "--style-form-field-glass-border-width"
-	| "--style-form-field-glass-backdrop-filter"
-	| "--style-form-field-glass-opacity"
-	| "--style-form-field-glass-animation"
-	| "--style-form-field-glass-transition-duration"
-	| "--style-form-field-glass-transition-timing-function"
-	| "--style-form-field-glass-gradient"
-	| "--style-form-field-glass-font-family"
-	| "--style-form-field-glass-font-size"
-	| "--style-form-field-glass-font-weight"
-	| "--style-form-field-glass-letter-spacing"
-	| "--style-form-field-glass-line-height"
-	| "--style-form-field-flat-background-color"
-	| "--style-form-field-flat-border-radius"
-	| "--style-form-field-flat-box-shadow"
-	| "--style-form-field-flat-color"
-	| "--style-form-field-flat-border-color"
-	| "--style-form-field-flat-border-width"
-	| "--style-form-field-flat-opacity"
-	| "--style-form-field-flat-animation"
-	| "--style-form-field-flat-transition-duration"
-	| "--style-form-field-flat-transition-timing-function"
-	| "--style-form-field-flat-gradient"
-	| "--style-form-field-flat-font-family"
-	| "--style-form-field-flat-font-size"
-	| "--style-form-field-flat-font-weight"
-	| "--style-form-field-flat-letter-spacing"
-	| "--style-form-field-flat-line-height"
-	| "--style-form-field-matte-background-color"
-	| "--style-form-field-matte-border-radius"
-	| "--style-form-field-matte-box-shadow"
-	| "--style-form-field-matte-color"
-	| "--style-form-field-matte-border-color"
-	| "--style-form-field-matte-border-width"
-	| "--style-form-field-matte-opacity"
-	| "--style-form-field-matte-animation"
-	| "--style-form-field-matte-transition-duration"
-	| "--style-form-field-matte-transition-timing-function"
-	| "--style-form-field-matte-gradient"
-	| "--style-form-field-matte-font-family"
-	| "--style-form-field-matte-font-size"
-	| "--style-form-field-matte-font-weight"
-	| "--style-form-field-matte-letter-spacing"
-	| "--style-form-field-matte-line-height"
-	| "--style-form-default-background-color"
-	| "--style-form-default-border-radius"
-	| "--style-form-default-box-shadow"
-	| "--style-form-default-color"
-	| "--style-form-default-border-color"
-	| "--style-form-default-border-width"
-	| "--style-form-default-backdrop-filter"
-	| "--style-form-default-opacity"
-	| "--style-form-default-animation"
-	| "--style-form-default-transition-duration"
-	| "--style-form-default-transition-timing-function"
-	| "--style-form-default-gradient"
-	| "--style-form-default-font-family"
-	| "--style-form-default-font-size"
-	| "--style-form-default-font-weight"
-	| "--style-form-default-letter-spacing"
-	| "--style-form-default-line-height"
-	| "--style-form-stark-background-color"
-	| "--style-form-stark-border-radius"
-	| "--style-form-stark-box-shadow"
-	| "--style-form-stark-color"
-	| "--style-form-stark-border-color"
-	| "--style-form-stark-border-width"
-	| "--style-form-stark-opacity"
-	| "--style-form-stark-animation"
-	| "--style-form-stark-transition-duration"
-	| "--style-form-stark-transition-timing-function"
-	| "--style-form-stark-gradient"
-	| "--style-form-stark-font-family"
-	| "--style-form-stark-font-size"
-	| "--style-form-stark-font-weight"
-	| "--style-form-stark-letter-spacing"
-	| "--style-form-stark-line-height"
-	| "--style-form-glass-background-color"
-	| "--style-form-glass-border-radius"
-	| "--style-form-glass-box-shadow"
-	| "--style-form-glass-color"
-	| "--style-form-glass-border-color"
-	| "--style-form-glass-border-width"
-	| "--style-form-glass-backdrop-filter"
-	| "--style-form-glass-opacity"
-	| "--style-form-glass-animation"
-	| "--style-form-glass-transition-duration"
-	| "--style-form-glass-transition-timing-function"
-	| "--style-form-glass-gradient"
-	| "--style-form-glass-font-family"
-	| "--style-form-glass-font-size"
-	| "--style-form-glass-font-weight"
-	| "--style-form-glass-letter-spacing"
-	| "--style-form-glass-line-height"
-	| "--style-form-flat-background-color"
-	| "--style-form-flat-border-radius"
-	| "--style-form-flat-box-shadow"
-	| "--style-form-flat-color"
-	| "--style-form-flat-border-color"
-	| "--style-form-flat-border-width"
-	| "--style-form-flat-opacity"
-	| "--style-form-flat-animation"
-	| "--style-form-flat-transition-duration"
-	| "--style-form-flat-transition-timing-function"
-	| "--style-form-flat-gradient"
-	| "--style-form-flat-font-family"
-	| "--style-form-flat-font-size"
-	| "--style-form-flat-font-weight"
-	| "--style-form-flat-letter-spacing"
-	| "--style-form-flat-line-height"
-	| "--style-form-matte-background-color"
-	| "--style-form-matte-border-radius"
-	| "--style-form-matte-box-shadow"
-	| "--style-form-matte-color"
-	| "--style-form-matte-border-color"
-	| "--style-form-matte-border-width"
-	| "--style-form-matte-opacity"
-	| "--style-form-matte-animation"
-	| "--style-form-matte-transition-duration"
-	| "--style-form-matte-transition-timing-function"
-	| "--style-form-matte-gradient"
-	| "--style-form-matte-font-family"
-	| "--style-form-matte-font-size"
-	| "--style-form-matte-font-weight"
-	| "--style-form-matte-letter-spacing"
-	| "--style-form-matte-line-height"
-	| "--style-heading-default-background-color"
-	| "--style-heading-default-border-radius"
-	| "--style-heading-default-box-shadow"
-	| "--style-heading-default-color"
-	| "--style-heading-default-border-color"
-	| "--style-heading-default-border-width"
-	| "--style-heading-default-backdrop-filter"
-	| "--style-heading-default-opacity"
-	| "--style-heading-default-animation"
-	| "--style-heading-default-transition-duration"
-	| "--style-heading-default-transition-timing-function"
-	| "--style-heading-default-gradient"
-	| "--style-heading-default-font-family"
-	| "--style-heading-default-font-size"
-	| "--style-heading-default-font-weight"
-	| "--style-heading-default-letter-spacing"
-	| "--style-heading-default-line-height"
-	| "--style-heading-stark-background-color"
-	| "--style-heading-stark-border-radius"
-	| "--style-heading-stark-box-shadow"
-	| "--style-heading-stark-color"
-	| "--style-heading-stark-border-color"
-	| "--style-heading-stark-border-width"
-	| "--style-heading-stark-opacity"
-	| "--style-heading-stark-animation"
-	| "--style-heading-stark-transition-duration"
-	| "--style-heading-stark-transition-timing-function"
-	| "--style-heading-stark-gradient"
-	| "--style-heading-stark-font-family"
-	| "--style-heading-stark-font-size"
-	| "--style-heading-stark-font-weight"
-	| "--style-heading-stark-letter-spacing"
-	| "--style-heading-stark-line-height"
-	| "--style-heading-glass-background-color"
-	| "--style-heading-glass-border-radius"
-	| "--style-heading-glass-box-shadow"
-	| "--style-heading-glass-color"
-	| "--style-heading-glass-border-color"
-	| "--style-heading-glass-border-width"
-	| "--style-heading-glass-backdrop-filter"
-	| "--style-heading-glass-opacity"
-	| "--style-heading-glass-animation"
-	| "--style-heading-glass-transition-duration"
-	| "--style-heading-glass-transition-timing-function"
-	| "--style-heading-glass-gradient"
-	| "--style-heading-glass-font-family"
-	| "--style-heading-glass-font-size"
-	| "--style-heading-glass-font-weight"
-	| "--style-heading-glass-letter-spacing"
-	| "--style-heading-glass-line-height"
-	| "--style-heading-flat-background-color"
-	| "--style-heading-flat-border-radius"
-	| "--style-heading-flat-box-shadow"
-	| "--style-heading-flat-color"
-	| "--style-heading-flat-border-color"
-	| "--style-heading-flat-border-width"
-	| "--style-heading-flat-opacity"
-	| "--style-heading-flat-animation"
-	| "--style-heading-flat-transition-duration"
-	| "--style-heading-flat-transition-timing-function"
-	| "--style-heading-flat-gradient"
-	| "--style-heading-flat-font-family"
-	| "--style-heading-flat-font-size"
-	| "--style-heading-flat-font-weight"
-	| "--style-heading-flat-letter-spacing"
-	| "--style-heading-flat-line-height"
-	| "--style-heading-matte-background-color"
-	| "--style-heading-matte-border-radius"
-	| "--style-heading-matte-box-shadow"
-	| "--style-heading-matte-color"
-	| "--style-heading-matte-border-color"
-	| "--style-heading-matte-border-width"
-	| "--style-heading-matte-opacity"
-	| "--style-heading-matte-animation"
-	| "--style-heading-matte-transition-duration"
-	| "--style-heading-matte-transition-timing-function"
-	| "--style-heading-matte-gradient"
-	| "--style-heading-matte-font-family"
-	| "--style-heading-matte-font-size"
-	| "--style-heading-matte-font-weight"
-	| "--style-heading-matte-letter-spacing"
-	| "--style-heading-matte-line-height"
-	| "--style-inline-message-default-background-color"
-	| "--style-inline-message-default-border-radius"
-	| "--style-inline-message-default-box-shadow"
-	| "--style-inline-message-default-color"
-	| "--style-inline-message-default-border-color"
-	| "--style-inline-message-default-border-width"
-	| "--style-inline-message-default-backdrop-filter"
-	| "--style-inline-message-default-opacity"
-	| "--style-inline-message-default-animation"
-	| "--style-inline-message-default-transition-duration"
-	| "--style-inline-message-default-transition-timing-function"
-	| "--style-inline-message-default-gradient"
-	| "--style-inline-message-default-font-family"
-	| "--style-inline-message-default-font-size"
-	| "--style-inline-message-default-font-weight"
-	| "--style-inline-message-default-letter-spacing"
-	| "--style-inline-message-default-line-height"
-	| "--style-inline-message-stark-background-color"
-	| "--style-inline-message-stark-border-radius"
-	| "--style-inline-message-stark-box-shadow"
-	| "--style-inline-message-stark-color"
-	| "--style-inline-message-stark-border-color"
-	| "--style-inline-message-stark-border-width"
-	| "--style-inline-message-stark-opacity"
-	| "--style-inline-message-stark-animation"
-	| "--style-inline-message-stark-transition-duration"
-	| "--style-inline-message-stark-transition-timing-function"
-	| "--style-inline-message-stark-gradient"
-	| "--style-inline-message-stark-font-family"
-	| "--style-inline-message-stark-font-size"
-	| "--style-inline-message-stark-font-weight"
-	| "--style-inline-message-stark-letter-spacing"
-	| "--style-inline-message-stark-line-height"
-	| "--style-inline-message-glass-background-color"
-	| "--style-inline-message-glass-border-radius"
-	| "--style-inline-message-glass-box-shadow"
-	| "--style-inline-message-glass-color"
-	| "--style-inline-message-glass-border-color"
-	| "--style-inline-message-glass-border-width"
-	| "--style-inline-message-glass-backdrop-filter"
-	| "--style-inline-message-glass-opacity"
-	| "--style-inline-message-glass-animation"
-	| "--style-inline-message-glass-transition-duration"
-	| "--style-inline-message-glass-transition-timing-function"
-	| "--style-inline-message-glass-gradient"
-	| "--style-inline-message-glass-font-family"
-	| "--style-inline-message-glass-font-size"
-	| "--style-inline-message-glass-font-weight"
-	| "--style-inline-message-glass-letter-spacing"
-	| "--style-inline-message-glass-line-height"
-	| "--style-inline-message-flat-background-color"
-	| "--style-inline-message-flat-border-radius"
-	| "--style-inline-message-flat-box-shadow"
-	| "--style-inline-message-flat-color"
-	| "--style-inline-message-flat-border-color"
-	| "--style-inline-message-flat-border-width"
-	| "--style-inline-message-flat-opacity"
-	| "--style-inline-message-flat-animation"
-	| "--style-inline-message-flat-transition-duration"
-	| "--style-inline-message-flat-transition-timing-function"
-	| "--style-inline-message-flat-gradient"
-	| "--style-inline-message-flat-font-family"
-	| "--style-inline-message-flat-font-size"
-	| "--style-inline-message-flat-font-weight"
-	| "--style-inline-message-flat-letter-spacing"
-	| "--style-inline-message-flat-line-height"
-	| "--style-inline-message-matte-background-color"
-	| "--style-inline-message-matte-border-radius"
-	| "--style-inline-message-matte-box-shadow"
-	| "--style-inline-message-matte-color"
-	| "--style-inline-message-matte-border-color"
-	| "--style-inline-message-matte-border-width"
-	| "--style-inline-message-matte-opacity"
-	| "--style-inline-message-matte-animation"
-	| "--style-inline-message-matte-transition-duration"
-	| "--style-inline-message-matte-transition-timing-function"
-	| "--style-inline-message-matte-gradient"
-	| "--style-inline-message-matte-font-family"
-	| "--style-inline-message-matte-font-size"
-	| "--style-inline-message-matte-font-weight"
-	| "--style-inline-message-matte-letter-spacing"
-	| "--style-inline-message-matte-line-height"
-	| "--style-input-group-default-background-color"
-	| "--style-input-group-default-border-radius"
-	| "--style-input-group-default-box-shadow"
-	| "--style-input-group-default-color"
-	| "--style-input-group-default-border-color"
-	| "--style-input-group-default-border-width"
-	| "--style-input-group-default-backdrop-filter"
-	| "--style-input-group-default-opacity"
-	| "--style-input-group-default-animation"
-	| "--style-input-group-default-transition-duration"
-	| "--style-input-group-default-transition-timing-function"
-	| "--style-input-group-default-gradient"
-	| "--style-input-group-default-font-family"
-	| "--style-input-group-default-font-size"
-	| "--style-input-group-default-font-weight"
-	| "--style-input-group-default-letter-spacing"
-	| "--style-input-group-default-line-height"
-	| "--style-input-group-stark-background-color"
-	| "--style-input-group-stark-border-radius"
-	| "--style-input-group-stark-box-shadow"
-	| "--style-input-group-stark-color"
-	| "--style-input-group-stark-border-color"
-	| "--style-input-group-stark-border-width"
-	| "--style-input-group-stark-opacity"
-	| "--style-input-group-stark-animation"
-	| "--style-input-group-stark-transition-duration"
-	| "--style-input-group-stark-transition-timing-function"
-	| "--style-input-group-stark-gradient"
-	| "--style-input-group-stark-font-family"
-	| "--style-input-group-stark-font-size"
-	| "--style-input-group-stark-font-weight"
-	| "--style-input-group-stark-letter-spacing"
-	| "--style-input-group-stark-line-height"
-	| "--style-input-group-glass-background-color"
-	| "--style-input-group-glass-border-radius"
-	| "--style-input-group-glass-box-shadow"
-	| "--style-input-group-glass-color"
-	| "--style-input-group-glass-border-color"
-	| "--style-input-group-glass-border-width"
-	| "--style-input-group-glass-backdrop-filter"
-	| "--style-input-group-glass-opacity"
-	| "--style-input-group-glass-animation"
-	| "--style-input-group-glass-transition-duration"
-	| "--style-input-group-glass-transition-timing-function"
-	| "--style-input-group-glass-gradient"
-	| "--style-input-group-glass-font-family"
-	| "--style-input-group-glass-font-size"
-	| "--style-input-group-glass-font-weight"
-	| "--style-input-group-glass-letter-spacing"
-	| "--style-input-group-glass-line-height"
-	| "--style-input-group-flat-background-color"
-	| "--style-input-group-flat-border-radius"
-	| "--style-input-group-flat-box-shadow"
-	| "--style-input-group-flat-color"
-	| "--style-input-group-flat-border-color"
-	| "--style-input-group-flat-border-width"
-	| "--style-input-group-flat-opacity"
-	| "--style-input-group-flat-animation"
-	| "--style-input-group-flat-transition-duration"
-	| "--style-input-group-flat-transition-timing-function"
-	| "--style-input-group-flat-gradient"
-	| "--style-input-group-flat-font-family"
-	| "--style-input-group-flat-font-size"
-	| "--style-input-group-flat-font-weight"
-	| "--style-input-group-flat-letter-spacing"
-	| "--style-input-group-flat-line-height"
-	| "--style-input-group-matte-background-color"
-	| "--style-input-group-matte-border-radius"
-	| "--style-input-group-matte-box-shadow"
-	| "--style-input-group-matte-color"
-	| "--style-input-group-matte-border-color"
-	| "--style-input-group-matte-border-width"
-	| "--style-input-group-matte-opacity"
-	| "--style-input-group-matte-animation"
-	| "--style-input-group-matte-transition-duration"
-	| "--style-input-group-matte-transition-timing-function"
-	| "--style-input-group-matte-gradient"
-	| "--style-input-group-matte-font-family"
-	| "--style-input-group-matte-font-size"
-	| "--style-input-group-matte-font-weight"
-	| "--style-input-group-matte-letter-spacing"
-	| "--style-input-group-matte-line-height"
-	| "--style-kbd-default-background-color"
-	| "--style-kbd-default-border-radius"
-	| "--style-kbd-default-box-shadow"
-	| "--style-kbd-default-color"
-	| "--style-kbd-default-border-color"
-	| "--style-kbd-default-border-width"
-	| "--style-kbd-default-backdrop-filter"
-	| "--style-kbd-default-opacity"
-	| "--style-kbd-default-animation"
-	| "--style-kbd-default-transition-duration"
-	| "--style-kbd-default-transition-timing-function"
-	| "--style-kbd-default-gradient"
-	| "--style-kbd-default-font-family"
-	| "--style-kbd-default-font-size"
-	| "--style-kbd-default-font-weight"
-	| "--style-kbd-default-letter-spacing"
-	| "--style-kbd-default-line-height"
-	| "--style-kbd-stark-background-color"
-	| "--style-kbd-stark-border-radius"
-	| "--style-kbd-stark-box-shadow"
-	| "--style-kbd-stark-color"
-	| "--style-kbd-stark-border-color"
-	| "--style-kbd-stark-border-width"
-	| "--style-kbd-stark-opacity"
-	| "--style-kbd-stark-animation"
-	| "--style-kbd-stark-transition-duration"
-	| "--style-kbd-stark-transition-timing-function"
-	| "--style-kbd-stark-gradient"
-	| "--style-kbd-stark-font-family"
-	| "--style-kbd-stark-font-size"
-	| "--style-kbd-stark-font-weight"
-	| "--style-kbd-stark-letter-spacing"
-	| "--style-kbd-stark-line-height"
-	| "--style-kbd-glass-background-color"
-	| "--style-kbd-glass-border-radius"
-	| "--style-kbd-glass-box-shadow"
-	| "--style-kbd-glass-color"
-	| "--style-kbd-glass-border-color"
-	| "--style-kbd-glass-border-width"
-	| "--style-kbd-glass-backdrop-filter"
-	| "--style-kbd-glass-opacity"
-	| "--style-kbd-glass-animation"
-	| "--style-kbd-glass-transition-duration"
-	| "--style-kbd-glass-transition-timing-function"
-	| "--style-kbd-glass-gradient"
-	| "--style-kbd-glass-font-family"
-	| "--style-kbd-glass-font-size"
-	| "--style-kbd-glass-font-weight"
-	| "--style-kbd-glass-letter-spacing"
-	| "--style-kbd-glass-line-height"
-	| "--style-kbd-flat-background-color"
-	| "--style-kbd-flat-border-radius"
-	| "--style-kbd-flat-box-shadow"
-	| "--style-kbd-flat-color"
-	| "--style-kbd-flat-border-color"
-	| "--style-kbd-flat-border-width"
-	| "--style-kbd-flat-opacity"
-	| "--style-kbd-flat-animation"
-	| "--style-kbd-flat-transition-duration"
-	| "--style-kbd-flat-transition-timing-function"
-	| "--style-kbd-flat-gradient"
-	| "--style-kbd-flat-font-family"
-	| "--style-kbd-flat-font-size"
-	| "--style-kbd-flat-font-weight"
-	| "--style-kbd-flat-letter-spacing"
-	| "--style-kbd-flat-line-height"
-	| "--style-kbd-matte-background-color"
-	| "--style-kbd-matte-border-radius"
-	| "--style-kbd-matte-box-shadow"
-	| "--style-kbd-matte-color"
-	| "--style-kbd-matte-border-color"
-	| "--style-kbd-matte-border-width"
-	| "--style-kbd-matte-opacity"
-	| "--style-kbd-matte-animation"
-	| "--style-kbd-matte-transition-duration"
-	| "--style-kbd-matte-transition-timing-function"
-	| "--style-kbd-matte-gradient"
-	| "--style-kbd-matte-font-family"
-	| "--style-kbd-matte-font-size"
-	| "--style-kbd-matte-font-weight"
-	| "--style-kbd-matte-letter-spacing"
-	| "--style-kbd-matte-line-height"
-	| "--style-label-default-background-color"
-	| "--style-label-default-border-radius"
-	| "--style-label-default-box-shadow"
-	| "--style-label-default-color"
-	| "--style-label-default-border-color"
-	| "--style-label-default-border-width"
-	| "--style-label-default-backdrop-filter"
-	| "--style-label-default-opacity"
-	| "--style-label-default-animation"
-	| "--style-label-default-transition-duration"
-	| "--style-label-default-transition-timing-function"
-	| "--style-label-default-gradient"
-	| "--style-label-default-font-family"
-	| "--style-label-default-font-size"
-	| "--style-label-default-font-weight"
-	| "--style-label-default-letter-spacing"
-	| "--style-label-default-line-height"
-	| "--style-label-stark-background-color"
-	| "--style-label-stark-border-radius"
-	| "--style-label-stark-box-shadow"
-	| "--style-label-stark-color"
-	| "--style-label-stark-border-color"
-	| "--style-label-stark-border-width"
-	| "--style-label-stark-opacity"
-	| "--style-label-stark-animation"
-	| "--style-label-stark-transition-duration"
-	| "--style-label-stark-transition-timing-function"
-	| "--style-label-stark-gradient"
-	| "--style-label-stark-font-family"
-	| "--style-label-stark-font-size"
-	| "--style-label-stark-font-weight"
-	| "--style-label-stark-letter-spacing"
-	| "--style-label-stark-line-height"
-	| "--style-label-glass-background-color"
-	| "--style-label-glass-border-radius"
-	| "--style-label-glass-box-shadow"
-	| "--style-label-glass-color"
-	| "--style-label-glass-border-color"
-	| "--style-label-glass-border-width"
-	| "--style-label-glass-backdrop-filter"
-	| "--style-label-glass-opacity"
-	| "--style-label-glass-animation"
-	| "--style-label-glass-transition-duration"
-	| "--style-label-glass-transition-timing-function"
-	| "--style-label-glass-gradient"
-	| "--style-label-glass-font-family"
-	| "--style-label-glass-font-size"
-	| "--style-label-glass-font-weight"
-	| "--style-label-glass-letter-spacing"
-	| "--style-label-glass-line-height"
-	| "--style-label-flat-background-color"
-	| "--style-label-flat-border-radius"
-	| "--style-label-flat-box-shadow"
-	| "--style-label-flat-color"
-	| "--style-label-flat-border-color"
-	| "--style-label-flat-border-width"
-	| "--style-label-flat-opacity"
-	| "--style-label-flat-animation"
-	| "--style-label-flat-transition-duration"
-	| "--style-label-flat-transition-timing-function"
-	| "--style-label-flat-gradient"
-	| "--style-label-flat-font-family"
-	| "--style-label-flat-font-size"
-	| "--style-label-flat-font-weight"
-	| "--style-label-flat-letter-spacing"
-	| "--style-label-flat-line-height"
-	| "--style-label-matte-background-color"
-	| "--style-label-matte-border-radius"
-	| "--style-label-matte-box-shadow"
-	| "--style-label-matte-color"
-	| "--style-label-matte-border-color"
-	| "--style-label-matte-border-width"
-	| "--style-label-matte-opacity"
-	| "--style-label-matte-animation"
-	| "--style-label-matte-transition-duration"
-	| "--style-label-matte-transition-timing-function"
-	| "--style-label-matte-gradient"
-	| "--style-label-matte-font-family"
-	| "--style-label-matte-font-size"
-	| "--style-label-matte-font-weight"
-	| "--style-label-matte-letter-spacing"
-	| "--style-label-matte-line-height"
-	| "--style-link-preview-default-background-color"
-	| "--style-link-preview-default-border-radius"
-	| "--style-link-preview-default-box-shadow"
-	| "--style-link-preview-default-color"
-	| "--style-link-preview-default-border-color"
-	| "--style-link-preview-default-border-width"
-	| "--style-link-preview-default-backdrop-filter"
-	| "--style-link-preview-default-opacity"
-	| "--style-link-preview-default-animation"
-	| "--style-link-preview-default-transition-duration"
-	| "--style-link-preview-default-transition-timing-function"
-	| "--style-link-preview-default-gradient"
-	| "--style-link-preview-default-font-family"
-	| "--style-link-preview-default-font-size"
-	| "--style-link-preview-default-font-weight"
-	| "--style-link-preview-default-letter-spacing"
-	| "--style-link-preview-default-line-height"
-	| "--style-link-preview-stark-background-color"
-	| "--style-link-preview-stark-border-radius"
-	| "--style-link-preview-stark-box-shadow"
-	| "--style-link-preview-stark-color"
-	| "--style-link-preview-stark-border-color"
-	| "--style-link-preview-stark-border-width"
-	| "--style-link-preview-stark-opacity"
-	| "--style-link-preview-stark-animation"
-	| "--style-link-preview-stark-transition-duration"
-	| "--style-link-preview-stark-transition-timing-function"
-	| "--style-link-preview-stark-gradient"
-	| "--style-link-preview-stark-font-family"
-	| "--style-link-preview-stark-font-size"
-	| "--style-link-preview-stark-font-weight"
-	| "--style-link-preview-stark-letter-spacing"
-	| "--style-link-preview-stark-line-height"
-	| "--style-link-preview-glass-background-color"
-	| "--style-link-preview-glass-border-radius"
-	| "--style-link-preview-glass-box-shadow"
-	| "--style-link-preview-glass-color"
-	| "--style-link-preview-glass-border-color"
-	| "--style-link-preview-glass-border-width"
-	| "--style-link-preview-glass-backdrop-filter"
-	| "--style-link-preview-glass-opacity"
-	| "--style-link-preview-glass-animation"
-	| "--style-link-preview-glass-transition-duration"
-	| "--style-link-preview-glass-transition-timing-function"
-	| "--style-link-preview-glass-gradient"
-	| "--style-link-preview-glass-font-family"
-	| "--style-link-preview-glass-font-size"
-	| "--style-link-preview-glass-font-weight"
-	| "--style-link-preview-glass-letter-spacing"
-	| "--style-link-preview-glass-line-height"
-	| "--style-link-preview-flat-background-color"
-	| "--style-link-preview-flat-border-radius"
-	| "--style-link-preview-flat-box-shadow"
-	| "--style-link-preview-flat-color"
-	| "--style-link-preview-flat-border-color"
-	| "--style-link-preview-flat-border-width"
-	| "--style-link-preview-flat-opacity"
-	| "--style-link-preview-flat-animation"
-	| "--style-link-preview-flat-transition-duration"
-	| "--style-link-preview-flat-transition-timing-function"
-	| "--style-link-preview-flat-gradient"
-	| "--style-link-preview-flat-font-family"
-	| "--style-link-preview-flat-font-size"
-	| "--style-link-preview-flat-font-weight"
-	| "--style-link-preview-flat-letter-spacing"
-	| "--style-link-preview-flat-line-height"
-	| "--style-link-preview-matte-background-color"
-	| "--style-link-preview-matte-border-radius"
-	| "--style-link-preview-matte-box-shadow"
-	| "--style-link-preview-matte-color"
-	| "--style-link-preview-matte-border-color"
-	| "--style-link-preview-matte-border-width"
-	| "--style-link-preview-matte-opacity"
-	| "--style-link-preview-matte-animation"
-	| "--style-link-preview-matte-transition-duration"
-	| "--style-link-preview-matte-transition-timing-function"
-	| "--style-link-preview-matte-gradient"
-	| "--style-link-preview-matte-font-family"
-	| "--style-link-preview-matte-font-size"
-	| "--style-link-preview-matte-font-weight"
-	| "--style-link-preview-matte-letter-spacing"
-	| "--style-link-preview-matte-line-height"
-	| "--style-list-default-background-color"
-	| "--style-list-default-border-radius"
-	| "--style-list-default-box-shadow"
-	| "--style-list-default-color"
-	| "--style-list-default-border-color"
-	| "--style-list-default-border-width"
-	| "--style-list-default-backdrop-filter"
-	| "--style-list-default-opacity"
-	| "--style-list-default-animation"
-	| "--style-list-default-transition-duration"
-	| "--style-list-default-transition-timing-function"
-	| "--style-list-default-gradient"
-	| "--style-list-default-font-family"
-	| "--style-list-default-font-size"
-	| "--style-list-default-font-weight"
-	| "--style-list-default-letter-spacing"
-	| "--style-list-default-line-height"
-	| "--style-list-stark-background-color"
-	| "--style-list-stark-border-radius"
-	| "--style-list-stark-box-shadow"
-	| "--style-list-stark-color"
-	| "--style-list-stark-border-color"
-	| "--style-list-stark-border-width"
-	| "--style-list-stark-opacity"
-	| "--style-list-stark-animation"
-	| "--style-list-stark-transition-duration"
-	| "--style-list-stark-transition-timing-function"
-	| "--style-list-stark-gradient"
-	| "--style-list-stark-font-family"
-	| "--style-list-stark-font-size"
-	| "--style-list-stark-font-weight"
-	| "--style-list-stark-letter-spacing"
-	| "--style-list-stark-line-height"
-	| "--style-list-glass-background-color"
-	| "--style-list-glass-border-radius"
-	| "--style-list-glass-box-shadow"
-	| "--style-list-glass-color"
-	| "--style-list-glass-border-color"
-	| "--style-list-glass-border-width"
-	| "--style-list-glass-backdrop-filter"
-	| "--style-list-glass-opacity"
-	| "--style-list-glass-animation"
-	| "--style-list-glass-transition-duration"
-	| "--style-list-glass-transition-timing-function"
-	| "--style-list-glass-gradient"
-	| "--style-list-glass-font-family"
-	| "--style-list-glass-font-size"
-	| "--style-list-glass-font-weight"
-	| "--style-list-glass-letter-spacing"
-	| "--style-list-glass-line-height"
-	| "--style-list-flat-background-color"
-	| "--style-list-flat-border-radius"
-	| "--style-list-flat-box-shadow"
-	| "--style-list-flat-color"
-	| "--style-list-flat-border-color"
-	| "--style-list-flat-border-width"
-	| "--style-list-flat-opacity"
-	| "--style-list-flat-animation"
-	| "--style-list-flat-transition-duration"
-	| "--style-list-flat-transition-timing-function"
-	| "--style-list-flat-gradient"
-	| "--style-list-flat-font-family"
-	| "--style-list-flat-font-size"
-	| "--style-list-flat-font-weight"
-	| "--style-list-flat-letter-spacing"
-	| "--style-list-flat-line-height"
-	| "--style-list-matte-background-color"
-	| "--style-list-matte-border-radius"
-	| "--style-list-matte-box-shadow"
-	| "--style-list-matte-color"
-	| "--style-list-matte-border-color"
-	| "--style-list-matte-border-width"
-	| "--style-list-matte-opacity"
-	| "--style-list-matte-animation"
-	| "--style-list-matte-transition-duration"
-	| "--style-list-matte-transition-timing-function"
-	| "--style-list-matte-gradient"
-	| "--style-list-matte-font-family"
-	| "--style-list-matte-font-size"
-	| "--style-list-matte-font-weight"
-	| "--style-list-matte-letter-spacing"
-	| "--style-list-matte-line-height"
-	| "--style-loading-overlay-default-background-color"
-	| "--style-loading-overlay-default-border-radius"
-	| "--style-loading-overlay-default-box-shadow"
-	| "--style-loading-overlay-default-color"
-	| "--style-loading-overlay-default-border-color"
-	| "--style-loading-overlay-default-border-width"
-	| "--style-loading-overlay-default-backdrop-filter"
-	| "--style-loading-overlay-default-opacity"
-	| "--style-loading-overlay-default-animation"
-	| "--style-loading-overlay-default-transition-duration"
-	| "--style-loading-overlay-default-transition-timing-function"
-	| "--style-loading-overlay-default-gradient"
-	| "--style-loading-overlay-default-font-family"
-	| "--style-loading-overlay-default-font-size"
-	| "--style-loading-overlay-default-font-weight"
-	| "--style-loading-overlay-default-letter-spacing"
-	| "--style-loading-overlay-default-line-height"
-	| "--style-loading-overlay-stark-background-color"
-	| "--style-loading-overlay-stark-border-radius"
-	| "--style-loading-overlay-stark-box-shadow"
-	| "--style-loading-overlay-stark-color"
-	| "--style-loading-overlay-stark-border-color"
-	| "--style-loading-overlay-stark-border-width"
-	| "--style-loading-overlay-stark-opacity"
-	| "--style-loading-overlay-stark-animation"
-	| "--style-loading-overlay-stark-transition-duration"
-	| "--style-loading-overlay-stark-transition-timing-function"
-	| "--style-loading-overlay-stark-gradient"
-	| "--style-loading-overlay-stark-font-family"
-	| "--style-loading-overlay-stark-font-size"
-	| "--style-loading-overlay-stark-font-weight"
-	| "--style-loading-overlay-stark-letter-spacing"
-	| "--style-loading-overlay-stark-line-height"
-	| "--style-loading-overlay-glass-background-color"
-	| "--style-loading-overlay-glass-border-radius"
-	| "--style-loading-overlay-glass-box-shadow"
-	| "--style-loading-overlay-glass-color"
-	| "--style-loading-overlay-glass-border-color"
-	| "--style-loading-overlay-glass-border-width"
-	| "--style-loading-overlay-glass-backdrop-filter"
-	| "--style-loading-overlay-glass-opacity"
-	| "--style-loading-overlay-glass-animation"
-	| "--style-loading-overlay-glass-transition-duration"
-	| "--style-loading-overlay-glass-transition-timing-function"
-	| "--style-loading-overlay-glass-gradient"
-	| "--style-loading-overlay-glass-font-family"
-	| "--style-loading-overlay-glass-font-size"
-	| "--style-loading-overlay-glass-font-weight"
-	| "--style-loading-overlay-glass-letter-spacing"
-	| "--style-loading-overlay-glass-line-height"
-	| "--style-loading-overlay-flat-background-color"
-	| "--style-loading-overlay-flat-border-radius"
-	| "--style-loading-overlay-flat-box-shadow"
-	| "--style-loading-overlay-flat-color"
-	| "--style-loading-overlay-flat-border-color"
-	| "--style-loading-overlay-flat-border-width"
-	| "--style-loading-overlay-flat-opacity"
-	| "--style-loading-overlay-flat-animation"
-	| "--style-loading-overlay-flat-transition-duration"
-	| "--style-loading-overlay-flat-transition-timing-function"
-	| "--style-loading-overlay-flat-gradient"
-	| "--style-loading-overlay-flat-font-family"
-	| "--style-loading-overlay-flat-font-size"
-	| "--style-loading-overlay-flat-font-weight"
-	| "--style-loading-overlay-flat-letter-spacing"
-	| "--style-loading-overlay-flat-line-height"
-	| "--style-loading-overlay-matte-background-color"
-	| "--style-loading-overlay-matte-border-radius"
-	| "--style-loading-overlay-matte-box-shadow"
-	| "--style-loading-overlay-matte-color"
-	| "--style-loading-overlay-matte-border-color"
-	| "--style-loading-overlay-matte-border-width"
-	| "--style-loading-overlay-matte-opacity"
-	| "--style-loading-overlay-matte-animation"
-	| "--style-loading-overlay-matte-transition-duration"
-	| "--style-loading-overlay-matte-transition-timing-function"
-	| "--style-loading-overlay-matte-gradient"
-	| "--style-loading-overlay-matte-font-family"
-	| "--style-loading-overlay-matte-font-size"
-	| "--style-loading-overlay-matte-font-weight"
-	| "--style-loading-overlay-matte-letter-spacing"
-	| "--style-loading-overlay-matte-line-height"
-	| "--style-menubar-default-background-color"
-	| "--style-menubar-default-border-radius"
-	| "--style-menubar-default-box-shadow"
-	| "--style-menubar-default-color"
-	| "--style-menubar-default-border-color"
-	| "--style-menubar-default-border-width"
-	| "--style-menubar-default-backdrop-filter"
-	| "--style-menubar-default-opacity"
-	| "--style-menubar-default-animation"
-	| "--style-menubar-default-transition-duration"
-	| "--style-menubar-default-transition-timing-function"
-	| "--style-menubar-default-gradient"
-	| "--style-menubar-default-font-family"
-	| "--style-menubar-default-font-size"
-	| "--style-menubar-default-font-weight"
-	| "--style-menubar-default-letter-spacing"
-	| "--style-menubar-default-line-height"
-	| "--style-menubar-stark-background-color"
-	| "--style-menubar-stark-border-radius"
-	| "--style-menubar-stark-box-shadow"
-	| "--style-menubar-stark-color"
-	| "--style-menubar-stark-border-color"
-	| "--style-menubar-stark-border-width"
-	| "--style-menubar-stark-opacity"
-	| "--style-menubar-stark-animation"
-	| "--style-menubar-stark-transition-duration"
-	| "--style-menubar-stark-transition-timing-function"
-	| "--style-menubar-stark-gradient"
-	| "--style-menubar-stark-font-family"
-	| "--style-menubar-stark-font-size"
-	| "--style-menubar-stark-font-weight"
-	| "--style-menubar-stark-letter-spacing"
-	| "--style-menubar-stark-line-height"
-	| "--style-menubar-glass-background-color"
-	| "--style-menubar-glass-border-radius"
-	| "--style-menubar-glass-box-shadow"
-	| "--style-menubar-glass-color"
-	| "--style-menubar-glass-border-color"
-	| "--style-menubar-glass-border-width"
-	| "--style-menubar-glass-backdrop-filter"
-	| "--style-menubar-glass-opacity"
-	| "--style-menubar-glass-animation"
-	| "--style-menubar-glass-transition-duration"
-	| "--style-menubar-glass-transition-timing-function"
-	| "--style-menubar-glass-gradient"
-	| "--style-menubar-glass-font-family"
-	| "--style-menubar-glass-font-size"
-	| "--style-menubar-glass-font-weight"
-	| "--style-menubar-glass-letter-spacing"
-	| "--style-menubar-glass-line-height"
-	| "--style-menubar-flat-background-color"
-	| "--style-menubar-flat-border-radius"
-	| "--style-menubar-flat-box-shadow"
-	| "--style-menubar-flat-color"
-	| "--style-menubar-flat-border-color"
-	| "--style-menubar-flat-border-width"
-	| "--style-menubar-flat-opacity"
-	| "--style-menubar-flat-animation"
-	| "--style-menubar-flat-transition-duration"
-	| "--style-menubar-flat-transition-timing-function"
-	| "--style-menubar-flat-gradient"
-	| "--style-menubar-flat-font-family"
-	| "--style-menubar-flat-font-size"
-	| "--style-menubar-flat-font-weight"
-	| "--style-menubar-flat-letter-spacing"
-	| "--style-menubar-flat-line-height"
-	| "--style-menubar-matte-background-color"
-	| "--style-menubar-matte-border-radius"
-	| "--style-menubar-matte-box-shadow"
-	| "--style-menubar-matte-color"
-	| "--style-menubar-matte-border-color"
-	| "--style-menubar-matte-border-width"
-	| "--style-menubar-matte-opacity"
-	| "--style-menubar-matte-animation"
-	| "--style-menubar-matte-transition-duration"
-	| "--style-menubar-matte-transition-timing-function"
-	| "--style-menubar-matte-gradient"
-	| "--style-menubar-matte-font-family"
-	| "--style-menubar-matte-font-size"
-	| "--style-menubar-matte-font-weight"
-	| "--style-menubar-matte-letter-spacing"
-	| "--style-menubar-matte-line-height"
-	| "--style-nav-default-background-color"
-	| "--style-nav-default-border-radius"
-	| "--style-nav-default-box-shadow"
-	| "--style-nav-default-color"
-	| "--style-nav-default-border-color"
-	| "--style-nav-default-border-width"
-	| "--style-nav-default-backdrop-filter"
-	| "--style-nav-default-opacity"
-	| "--style-nav-default-animation"
-	| "--style-nav-default-transition-duration"
-	| "--style-nav-default-transition-timing-function"
-	| "--style-nav-default-gradient"
-	| "--style-nav-default-font-family"
-	| "--style-nav-default-font-size"
-	| "--style-nav-default-font-weight"
-	| "--style-nav-default-letter-spacing"
-	| "--style-nav-default-line-height"
-	| "--style-nav-stark-background-color"
-	| "--style-nav-stark-border-radius"
-	| "--style-nav-stark-box-shadow"
-	| "--style-nav-stark-color"
-	| "--style-nav-stark-border-color"
-	| "--style-nav-stark-border-width"
-	| "--style-nav-stark-opacity"
-	| "--style-nav-stark-animation"
-	| "--style-nav-stark-transition-duration"
-	| "--style-nav-stark-transition-timing-function"
-	| "--style-nav-stark-gradient"
-	| "--style-nav-stark-font-family"
-	| "--style-nav-stark-font-size"
-	| "--style-nav-stark-font-weight"
-	| "--style-nav-stark-letter-spacing"
-	| "--style-nav-stark-line-height"
-	| "--style-nav-glass-background-color"
-	| "--style-nav-glass-border-radius"
-	| "--style-nav-glass-box-shadow"
-	| "--style-nav-glass-color"
-	| "--style-nav-glass-border-color"
-	| "--style-nav-glass-border-width"
-	| "--style-nav-glass-backdrop-filter"
-	| "--style-nav-glass-opacity"
-	| "--style-nav-glass-animation"
-	| "--style-nav-glass-transition-duration"
-	| "--style-nav-glass-transition-timing-function"
-	| "--style-nav-glass-gradient"
-	| "--style-nav-glass-font-family"
-	| "--style-nav-glass-font-size"
-	| "--style-nav-glass-font-weight"
-	| "--style-nav-glass-letter-spacing"
-	| "--style-nav-glass-line-height"
-	| "--style-nav-flat-background-color"
-	| "--style-nav-flat-border-radius"
-	| "--style-nav-flat-box-shadow"
-	| "--style-nav-flat-color"
-	| "--style-nav-flat-border-color"
-	| "--style-nav-flat-border-width"
-	| "--style-nav-flat-opacity"
-	| "--style-nav-flat-animation"
-	| "--style-nav-flat-transition-duration"
-	| "--style-nav-flat-transition-timing-function"
-	| "--style-nav-flat-gradient"
-	| "--style-nav-flat-font-family"
-	| "--style-nav-flat-font-size"
-	| "--style-nav-flat-font-weight"
-	| "--style-nav-flat-letter-spacing"
-	| "--style-nav-flat-line-height"
-	| "--style-nav-matte-background-color"
-	| "--style-nav-matte-border-radius"
-	| "--style-nav-matte-box-shadow"
-	| "--style-nav-matte-color"
-	| "--style-nav-matte-border-color"
-	| "--style-nav-matte-border-width"
-	| "--style-nav-matte-opacity"
-	| "--style-nav-matte-animation"
-	| "--style-nav-matte-transition-duration"
-	| "--style-nav-matte-transition-timing-function"
-	| "--style-nav-matte-gradient"
-	| "--style-nav-matte-font-family"
-	| "--style-nav-matte-font-size"
-	| "--style-nav-matte-font-weight"
-	| "--style-nav-matte-letter-spacing"
-	| "--style-nav-matte-line-height"
-	| "--style-navigation-menu-default-background-color"
-	| "--style-navigation-menu-default-border-radius"
-	| "--style-navigation-menu-default-box-shadow"
-	| "--style-navigation-menu-default-color"
-	| "--style-navigation-menu-default-border-color"
-	| "--style-navigation-menu-default-border-width"
-	| "--style-navigation-menu-default-backdrop-filter"
-	| "--style-navigation-menu-default-opacity"
-	| "--style-navigation-menu-default-animation"
-	| "--style-navigation-menu-default-transition-duration"
-	| "--style-navigation-menu-default-transition-timing-function"
-	| "--style-navigation-menu-default-gradient"
-	| "--style-navigation-menu-default-font-family"
-	| "--style-navigation-menu-default-font-size"
-	| "--style-navigation-menu-default-font-weight"
-	| "--style-navigation-menu-default-letter-spacing"
-	| "--style-navigation-menu-default-line-height"
-	| "--style-navigation-menu-stark-background-color"
-	| "--style-navigation-menu-stark-border-radius"
-	| "--style-navigation-menu-stark-box-shadow"
-	| "--style-navigation-menu-stark-color"
-	| "--style-navigation-menu-stark-border-color"
-	| "--style-navigation-menu-stark-border-width"
-	| "--style-navigation-menu-stark-opacity"
-	| "--style-navigation-menu-stark-animation"
-	| "--style-navigation-menu-stark-transition-duration"
-	| "--style-navigation-menu-stark-transition-timing-function"
-	| "--style-navigation-menu-stark-gradient"
-	| "--style-navigation-menu-stark-font-family"
-	| "--style-navigation-menu-stark-font-size"
-	| "--style-navigation-menu-stark-font-weight"
-	| "--style-navigation-menu-stark-letter-spacing"
-	| "--style-navigation-menu-stark-line-height"
-	| "--style-navigation-menu-glass-background-color"
-	| "--style-navigation-menu-glass-border-radius"
-	| "--style-navigation-menu-glass-box-shadow"
-	| "--style-navigation-menu-glass-color"
-	| "--style-navigation-menu-glass-border-color"
-	| "--style-navigation-menu-glass-border-width"
-	| "--style-navigation-menu-glass-backdrop-filter"
-	| "--style-navigation-menu-glass-opacity"
-	| "--style-navigation-menu-glass-animation"
-	| "--style-navigation-menu-glass-transition-duration"
-	| "--style-navigation-menu-glass-transition-timing-function"
-	| "--style-navigation-menu-glass-gradient"
-	| "--style-navigation-menu-glass-font-family"
-	| "--style-navigation-menu-glass-font-size"
-	| "--style-navigation-menu-glass-font-weight"
-	| "--style-navigation-menu-glass-letter-spacing"
-	| "--style-navigation-menu-glass-line-height"
-	| "--style-navigation-menu-flat-background-color"
-	| "--style-navigation-menu-flat-border-radius"
-	| "--style-navigation-menu-flat-box-shadow"
-	| "--style-navigation-menu-flat-color"
-	| "--style-navigation-menu-flat-border-color"
-	| "--style-navigation-menu-flat-border-width"
-	| "--style-navigation-menu-flat-opacity"
-	| "--style-navigation-menu-flat-animation"
-	| "--style-navigation-menu-flat-transition-duration"
-	| "--style-navigation-menu-flat-transition-timing-function"
-	| "--style-navigation-menu-flat-gradient"
-	| "--style-navigation-menu-flat-font-family"
-	| "--style-navigation-menu-flat-font-size"
-	| "--style-navigation-menu-flat-font-weight"
-	| "--style-navigation-menu-flat-letter-spacing"
-	| "--style-navigation-menu-flat-line-height"
-	| "--style-navigation-menu-matte-background-color"
-	| "--style-navigation-menu-matte-border-radius"
-	| "--style-navigation-menu-matte-box-shadow"
-	| "--style-navigation-menu-matte-color"
-	| "--style-navigation-menu-matte-border-color"
-	| "--style-navigation-menu-matte-border-width"
-	| "--style-navigation-menu-matte-opacity"
-	| "--style-navigation-menu-matte-animation"
-	| "--style-navigation-menu-matte-transition-duration"
-	| "--style-navigation-menu-matte-transition-timing-function"
-	| "--style-navigation-menu-matte-gradient"
-	| "--style-navigation-menu-matte-font-family"
-	| "--style-navigation-menu-matte-font-size"
-	| "--style-navigation-menu-matte-font-weight"
-	| "--style-navigation-menu-matte-letter-spacing"
-	| "--style-navigation-menu-matte-line-height"
-	| "--style-notification-center-default-background-color"
-	| "--style-notification-center-default-border-radius"
-	| "--style-notification-center-default-box-shadow"
-	| "--style-notification-center-default-color"
-	| "--style-notification-center-default-border-color"
-	| "--style-notification-center-default-border-width"
-	| "--style-notification-center-default-backdrop-filter"
-	| "--style-notification-center-default-opacity"
-	| "--style-notification-center-default-animation"
-	| "--style-notification-center-default-transition-duration"
-	| "--style-notification-center-default-transition-timing-function"
-	| "--style-notification-center-default-gradient"
-	| "--style-notification-center-default-font-family"
-	| "--style-notification-center-default-font-size"
-	| "--style-notification-center-default-font-weight"
-	| "--style-notification-center-default-letter-spacing"
-	| "--style-notification-center-default-line-height"
-	| "--style-notification-center-stark-background-color"
-	| "--style-notification-center-stark-border-radius"
-	| "--style-notification-center-stark-box-shadow"
-	| "--style-notification-center-stark-color"
-	| "--style-notification-center-stark-border-color"
-	| "--style-notification-center-stark-border-width"
-	| "--style-notification-center-stark-opacity"
-	| "--style-notification-center-stark-animation"
-	| "--style-notification-center-stark-transition-duration"
-	| "--style-notification-center-stark-transition-timing-function"
-	| "--style-notification-center-stark-gradient"
-	| "--style-notification-center-stark-font-family"
-	| "--style-notification-center-stark-font-size"
-	| "--style-notification-center-stark-font-weight"
-	| "--style-notification-center-stark-letter-spacing"
-	| "--style-notification-center-stark-line-height"
-	| "--style-notification-center-glass-background-color"
-	| "--style-notification-center-glass-border-radius"
-	| "--style-notification-center-glass-box-shadow"
-	| "--style-notification-center-glass-color"
-	| "--style-notification-center-glass-border-color"
-	| "--style-notification-center-glass-border-width"
-	| "--style-notification-center-glass-backdrop-filter"
-	| "--style-notification-center-glass-opacity"
-	| "--style-notification-center-glass-animation"
-	| "--style-notification-center-glass-transition-duration"
-	| "--style-notification-center-glass-transition-timing-function"
-	| "--style-notification-center-glass-gradient"
-	| "--style-notification-center-glass-font-family"
-	| "--style-notification-center-glass-font-size"
-	| "--style-notification-center-glass-font-weight"
-	| "--style-notification-center-glass-letter-spacing"
-	| "--style-notification-center-glass-line-height"
-	| "--style-notification-center-flat-background-color"
-	| "--style-notification-center-flat-border-radius"
-	| "--style-notification-center-flat-box-shadow"
-	| "--style-notification-center-flat-color"
-	| "--style-notification-center-flat-border-color"
-	| "--style-notification-center-flat-border-width"
-	| "--style-notification-center-flat-opacity"
-	| "--style-notification-center-flat-animation"
-	| "--style-notification-center-flat-transition-duration"
-	| "--style-notification-center-flat-transition-timing-function"
-	| "--style-notification-center-flat-gradient"
-	| "--style-notification-center-flat-font-family"
-	| "--style-notification-center-flat-font-size"
-	| "--style-notification-center-flat-font-weight"
-	| "--style-notification-center-flat-letter-spacing"
-	| "--style-notification-center-flat-line-height"
-	| "--style-notification-center-matte-background-color"
-	| "--style-notification-center-matte-border-radius"
-	| "--style-notification-center-matte-box-shadow"
-	| "--style-notification-center-matte-color"
-	| "--style-notification-center-matte-border-color"
-	| "--style-notification-center-matte-border-width"
-	| "--style-notification-center-matte-opacity"
-	| "--style-notification-center-matte-animation"
-	| "--style-notification-center-matte-transition-duration"
-	| "--style-notification-center-matte-transition-timing-function"
-	| "--style-notification-center-matte-gradient"
-	| "--style-notification-center-matte-font-family"
-	| "--style-notification-center-matte-font-size"
-	| "--style-notification-center-matte-font-weight"
-	| "--style-notification-center-matte-letter-spacing"
-	| "--style-notification-center-matte-line-height"
-	| "--style-pagination-default-background-color"
-	| "--style-pagination-default-border-radius"
-	| "--style-pagination-default-box-shadow"
-	| "--style-pagination-default-color"
-	| "--style-pagination-default-border-color"
-	| "--style-pagination-default-border-width"
-	| "--style-pagination-default-backdrop-filter"
-	| "--style-pagination-default-opacity"
-	| "--style-pagination-default-animation"
-	| "--style-pagination-default-transition-duration"
-	| "--style-pagination-default-transition-timing-function"
-	| "--style-pagination-default-gradient"
-	| "--style-pagination-default-font-family"
-	| "--style-pagination-default-font-size"
-	| "--style-pagination-default-font-weight"
-	| "--style-pagination-default-letter-spacing"
-	| "--style-pagination-default-line-height"
-	| "--style-pagination-stark-background-color"
-	| "--style-pagination-stark-border-radius"
-	| "--style-pagination-stark-box-shadow"
-	| "--style-pagination-stark-color"
-	| "--style-pagination-stark-border-color"
-	| "--style-pagination-stark-border-width"
-	| "--style-pagination-stark-opacity"
-	| "--style-pagination-stark-animation"
-	| "--style-pagination-stark-transition-duration"
-	| "--style-pagination-stark-transition-timing-function"
-	| "--style-pagination-stark-gradient"
-	| "--style-pagination-stark-font-family"
-	| "--style-pagination-stark-font-size"
-	| "--style-pagination-stark-font-weight"
-	| "--style-pagination-stark-letter-spacing"
-	| "--style-pagination-stark-line-height"
-	| "--style-pagination-glass-background-color"
-	| "--style-pagination-glass-border-radius"
-	| "--style-pagination-glass-box-shadow"
-	| "--style-pagination-glass-color"
-	| "--style-pagination-glass-border-color"
-	| "--style-pagination-glass-border-width"
-	| "--style-pagination-glass-backdrop-filter"
-	| "--style-pagination-glass-opacity"
-	| "--style-pagination-glass-animation"
-	| "--style-pagination-glass-transition-duration"
-	| "--style-pagination-glass-transition-timing-function"
-	| "--style-pagination-glass-gradient"
-	| "--style-pagination-glass-font-family"
-	| "--style-pagination-glass-font-size"
-	| "--style-pagination-glass-font-weight"
-	| "--style-pagination-glass-letter-spacing"
-	| "--style-pagination-glass-line-height"
-	| "--style-pagination-flat-background-color"
-	| "--style-pagination-flat-border-radius"
-	| "--style-pagination-flat-box-shadow"
-	| "--style-pagination-flat-color"
-	| "--style-pagination-flat-border-color"
-	| "--style-pagination-flat-border-width"
-	| "--style-pagination-flat-opacity"
-	| "--style-pagination-flat-animation"
-	| "--style-pagination-flat-transition-duration"
-	| "--style-pagination-flat-transition-timing-function"
-	| "--style-pagination-flat-gradient"
-	| "--style-pagination-flat-font-family"
-	| "--style-pagination-flat-font-size"
-	| "--style-pagination-flat-font-weight"
-	| "--style-pagination-flat-letter-spacing"
-	| "--style-pagination-flat-line-height"
-	| "--style-pagination-matte-background-color"
-	| "--style-pagination-matte-border-radius"
-	| "--style-pagination-matte-box-shadow"
-	| "--style-pagination-matte-color"
-	| "--style-pagination-matte-border-color"
-	| "--style-pagination-matte-border-width"
-	| "--style-pagination-matte-opacity"
-	| "--style-pagination-matte-animation"
-	| "--style-pagination-matte-transition-duration"
-	| "--style-pagination-matte-transition-timing-function"
-	| "--style-pagination-matte-gradient"
-	| "--style-pagination-matte-font-family"
-	| "--style-pagination-matte-font-size"
-	| "--style-pagination-matte-font-weight"
-	| "--style-pagination-matte-letter-spacing"
-	| "--style-pagination-matte-line-height"
-	| "--style-pin-input-default-background-color"
-	| "--style-pin-input-default-border-radius"
-	| "--style-pin-input-default-box-shadow"
-	| "--style-pin-input-default-color"
-	| "--style-pin-input-default-border-color"
-	| "--style-pin-input-default-border-width"
-	| "--style-pin-input-default-backdrop-filter"
-	| "--style-pin-input-default-opacity"
-	| "--style-pin-input-default-animation"
-	| "--style-pin-input-default-transition-duration"
-	| "--style-pin-input-default-transition-timing-function"
-	| "--style-pin-input-default-gradient"
-	| "--style-pin-input-default-font-family"
-	| "--style-pin-input-default-font-size"
-	| "--style-pin-input-default-font-weight"
-	| "--style-pin-input-default-letter-spacing"
-	| "--style-pin-input-default-line-height"
-	| "--style-pin-input-stark-background-color"
-	| "--style-pin-input-stark-border-radius"
-	| "--style-pin-input-stark-box-shadow"
-	| "--style-pin-input-stark-color"
-	| "--style-pin-input-stark-border-color"
-	| "--style-pin-input-stark-border-width"
-	| "--style-pin-input-stark-opacity"
-	| "--style-pin-input-stark-animation"
-	| "--style-pin-input-stark-transition-duration"
-	| "--style-pin-input-stark-transition-timing-function"
-	| "--style-pin-input-stark-gradient"
-	| "--style-pin-input-stark-font-family"
-	| "--style-pin-input-stark-font-size"
-	| "--style-pin-input-stark-font-weight"
-	| "--style-pin-input-stark-letter-spacing"
-	| "--style-pin-input-stark-line-height"
-	| "--style-pin-input-glass-background-color"
-	| "--style-pin-input-glass-border-radius"
-	| "--style-pin-input-glass-box-shadow"
-	| "--style-pin-input-glass-color"
-	| "--style-pin-input-glass-border-color"
-	| "--style-pin-input-glass-border-width"
-	| "--style-pin-input-glass-backdrop-filter"
-	| "--style-pin-input-glass-opacity"
-	| "--style-pin-input-glass-animation"
-	| "--style-pin-input-glass-transition-duration"
-	| "--style-pin-input-glass-transition-timing-function"
-	| "--style-pin-input-glass-gradient"
-	| "--style-pin-input-glass-font-family"
-	| "--style-pin-input-glass-font-size"
-	| "--style-pin-input-glass-font-weight"
-	| "--style-pin-input-glass-letter-spacing"
-	| "--style-pin-input-glass-line-height"
-	| "--style-pin-input-flat-background-color"
-	| "--style-pin-input-flat-border-radius"
-	| "--style-pin-input-flat-box-shadow"
-	| "--style-pin-input-flat-color"
-	| "--style-pin-input-flat-border-color"
-	| "--style-pin-input-flat-border-width"
-	| "--style-pin-input-flat-opacity"
-	| "--style-pin-input-flat-animation"
-	| "--style-pin-input-flat-transition-duration"
-	| "--style-pin-input-flat-transition-timing-function"
-	| "--style-pin-input-flat-gradient"
-	| "--style-pin-input-flat-font-family"
-	| "--style-pin-input-flat-font-size"
-	| "--style-pin-input-flat-font-weight"
-	| "--style-pin-input-flat-letter-spacing"
-	| "--style-pin-input-flat-line-height"
-	| "--style-pin-input-matte-background-color"
-	| "--style-pin-input-matte-border-radius"
-	| "--style-pin-input-matte-box-shadow"
-	| "--style-pin-input-matte-color"
-	| "--style-pin-input-matte-border-color"
-	| "--style-pin-input-matte-border-width"
-	| "--style-pin-input-matte-opacity"
-	| "--style-pin-input-matte-animation"
-	| "--style-pin-input-matte-transition-duration"
-	| "--style-pin-input-matte-transition-timing-function"
-	| "--style-pin-input-matte-gradient"
-	| "--style-pin-input-matte-font-family"
-	| "--style-pin-input-matte-font-size"
-	| "--style-pin-input-matte-font-weight"
-	| "--style-pin-input-matte-letter-spacing"
-	| "--style-pin-input-matte-line-height"
-	| "--style-popover-default-background-color"
-	| "--style-popover-default-border-radius"
-	| "--style-popover-default-box-shadow"
-	| "--style-popover-default-color"
-	| "--style-popover-default-border-color"
-	| "--style-popover-default-border-width"
-	| "--style-popover-default-backdrop-filter"
-	| "--style-popover-default-opacity"
-	| "--style-popover-default-animation"
-	| "--style-popover-default-transition-duration"
-	| "--style-popover-default-transition-timing-function"
-	| "--style-popover-default-gradient"
-	| "--style-popover-default-font-family"
-	| "--style-popover-default-font-size"
-	| "--style-popover-default-font-weight"
-	| "--style-popover-default-letter-spacing"
-	| "--style-popover-default-line-height"
-	| "--style-popover-stark-background-color"
-	| "--style-popover-stark-border-radius"
-	| "--style-popover-stark-box-shadow"
-	| "--style-popover-stark-color"
-	| "--style-popover-stark-border-color"
-	| "--style-popover-stark-border-width"
-	| "--style-popover-stark-opacity"
-	| "--style-popover-stark-animation"
-	| "--style-popover-stark-transition-duration"
-	| "--style-popover-stark-transition-timing-function"
-	| "--style-popover-stark-gradient"
-	| "--style-popover-stark-font-family"
-	| "--style-popover-stark-font-size"
-	| "--style-popover-stark-font-weight"
-	| "--style-popover-stark-letter-spacing"
-	| "--style-popover-stark-line-height"
-	| "--style-popover-glass-background-color"
-	| "--style-popover-glass-border-radius"
-	| "--style-popover-glass-box-shadow"
-	| "--style-popover-glass-color"
-	| "--style-popover-glass-border-color"
-	| "--style-popover-glass-border-width"
-	| "--style-popover-glass-backdrop-filter"
-	| "--style-popover-glass-opacity"
-	| "--style-popover-glass-animation"
-	| "--style-popover-glass-transition-duration"
-	| "--style-popover-glass-transition-timing-function"
-	| "--style-popover-glass-gradient"
-	| "--style-popover-glass-font-family"
-	| "--style-popover-glass-font-size"
-	| "--style-popover-glass-font-weight"
-	| "--style-popover-glass-letter-spacing"
-	| "--style-popover-glass-line-height"
-	| "--style-popover-flat-background-color"
-	| "--style-popover-flat-border-radius"
-	| "--style-popover-flat-box-shadow"
-	| "--style-popover-flat-color"
-	| "--style-popover-flat-border-color"
-	| "--style-popover-flat-border-width"
-	| "--style-popover-flat-opacity"
-	| "--style-popover-flat-animation"
-	| "--style-popover-flat-transition-duration"
-	| "--style-popover-flat-transition-timing-function"
-	| "--style-popover-flat-gradient"
-	| "--style-popover-flat-font-family"
-	| "--style-popover-flat-font-size"
-	| "--style-popover-flat-font-weight"
-	| "--style-popover-flat-letter-spacing"
-	| "--style-popover-flat-line-height"
-	| "--style-popover-matte-background-color"
-	| "--style-popover-matte-border-radius"
-	| "--style-popover-matte-box-shadow"
-	| "--style-popover-matte-color"
-	| "--style-popover-matte-border-color"
-	| "--style-popover-matte-border-width"
-	| "--style-popover-matte-opacity"
-	| "--style-popover-matte-animation"
-	| "--style-popover-matte-transition-duration"
-	| "--style-popover-matte-transition-timing-function"
-	| "--style-popover-matte-gradient"
-	| "--style-popover-matte-font-family"
-	| "--style-popover-matte-font-size"
-	| "--style-popover-matte-font-weight"
-	| "--style-popover-matte-letter-spacing"
-	| "--style-popover-matte-line-height"
-	| "--style-progress-default-background-color"
-	| "--style-progress-default-border-radius"
-	| "--style-progress-default-box-shadow"
-	| "--style-progress-default-color"
-	| "--style-progress-default-border-color"
-	| "--style-progress-default-border-width"
-	| "--style-progress-default-backdrop-filter"
-	| "--style-progress-default-opacity"
-	| "--style-progress-default-animation"
-	| "--style-progress-default-transition-duration"
-	| "--style-progress-default-transition-timing-function"
-	| "--style-progress-default-gradient"
-	| "--style-progress-default-font-family"
-	| "--style-progress-default-font-size"
-	| "--style-progress-default-font-weight"
-	| "--style-progress-default-letter-spacing"
-	| "--style-progress-default-line-height"
-	| "--style-progress-stark-background-color"
-	| "--style-progress-stark-border-radius"
-	| "--style-progress-stark-box-shadow"
-	| "--style-progress-stark-color"
-	| "--style-progress-stark-border-color"
-	| "--style-progress-stark-border-width"
-	| "--style-progress-stark-opacity"
-	| "--style-progress-stark-animation"
-	| "--style-progress-stark-transition-duration"
-	| "--style-progress-stark-transition-timing-function"
-	| "--style-progress-stark-gradient"
-	| "--style-progress-stark-font-family"
-	| "--style-progress-stark-font-size"
-	| "--style-progress-stark-font-weight"
-	| "--style-progress-stark-letter-spacing"
-	| "--style-progress-stark-line-height"
-	| "--style-progress-glass-background-color"
-	| "--style-progress-glass-border-radius"
-	| "--style-progress-glass-box-shadow"
-	| "--style-progress-glass-color"
-	| "--style-progress-glass-border-color"
-	| "--style-progress-glass-border-width"
-	| "--style-progress-glass-backdrop-filter"
-	| "--style-progress-glass-opacity"
-	| "--style-progress-glass-animation"
-	| "--style-progress-glass-transition-duration"
-	| "--style-progress-glass-transition-timing-function"
-	| "--style-progress-glass-gradient"
-	| "--style-progress-glass-font-family"
-	| "--style-progress-glass-font-size"
-	| "--style-progress-glass-font-weight"
-	| "--style-progress-glass-letter-spacing"
-	| "--style-progress-glass-line-height"
-	| "--style-progress-flat-background-color"
-	| "--style-progress-flat-border-radius"
-	| "--style-progress-flat-box-shadow"
-	| "--style-progress-flat-color"
-	| "--style-progress-flat-border-color"
-	| "--style-progress-flat-border-width"
-	| "--style-progress-flat-opacity"
-	| "--style-progress-flat-animation"
-	| "--style-progress-flat-transition-duration"
-	| "--style-progress-flat-transition-timing-function"
-	| "--style-progress-flat-gradient"
-	| "--style-progress-flat-font-family"
-	| "--style-progress-flat-font-size"
-	| "--style-progress-flat-font-weight"
-	| "--style-progress-flat-letter-spacing"
-	| "--style-progress-flat-line-height"
-	| "--style-progress-matte-background-color"
-	| "--style-progress-matte-border-radius"
-	| "--style-progress-matte-box-shadow"
-	| "--style-progress-matte-color"
-	| "--style-progress-matte-border-color"
-	| "--style-progress-matte-border-width"
-	| "--style-progress-matte-opacity"
-	| "--style-progress-matte-animation"
-	| "--style-progress-matte-transition-duration"
-	| "--style-progress-matte-transition-timing-function"
-	| "--style-progress-matte-gradient"
-	| "--style-progress-matte-font-family"
-	| "--style-progress-matte-font-size"
-	| "--style-progress-matte-font-weight"
-	| "--style-progress-matte-letter-spacing"
-	| "--style-progress-matte-line-height"
-	| "--style-prose-default-background-color"
-	| "--style-prose-default-border-radius"
-	| "--style-prose-default-box-shadow"
-	| "--style-prose-default-color"
-	| "--style-prose-default-border-color"
-	| "--style-prose-default-border-width"
-	| "--style-prose-default-backdrop-filter"
-	| "--style-prose-default-opacity"
-	| "--style-prose-default-animation"
-	| "--style-prose-default-transition-duration"
-	| "--style-prose-default-transition-timing-function"
-	| "--style-prose-default-gradient"
-	| "--style-prose-default-font-family"
-	| "--style-prose-default-font-size"
-	| "--style-prose-default-font-weight"
-	| "--style-prose-default-letter-spacing"
-	| "--style-prose-default-line-height"
-	| "--style-prose-stark-background-color"
-	| "--style-prose-stark-border-radius"
-	| "--style-prose-stark-box-shadow"
-	| "--style-prose-stark-color"
-	| "--style-prose-stark-border-color"
-	| "--style-prose-stark-border-width"
-	| "--style-prose-stark-opacity"
-	| "--style-prose-stark-animation"
-	| "--style-prose-stark-transition-duration"
-	| "--style-prose-stark-transition-timing-function"
-	| "--style-prose-stark-gradient"
-	| "--style-prose-stark-font-family"
-	| "--style-prose-stark-font-size"
-	| "--style-prose-stark-font-weight"
-	| "--style-prose-stark-letter-spacing"
-	| "--style-prose-stark-line-height"
-	| "--style-prose-glass-background-color"
-	| "--style-prose-glass-border-radius"
-	| "--style-prose-glass-box-shadow"
-	| "--style-prose-glass-color"
-	| "--style-prose-glass-border-color"
-	| "--style-prose-glass-border-width"
-	| "--style-prose-glass-backdrop-filter"
-	| "--style-prose-glass-opacity"
-	| "--style-prose-glass-animation"
-	| "--style-prose-glass-transition-duration"
-	| "--style-prose-glass-transition-timing-function"
-	| "--style-prose-glass-gradient"
-	| "--style-prose-glass-font-family"
-	| "--style-prose-glass-font-size"
-	| "--style-prose-glass-font-weight"
-	| "--style-prose-glass-letter-spacing"
-	| "--style-prose-glass-line-height"
-	| "--style-prose-flat-background-color"
-	| "--style-prose-flat-border-radius"
-	| "--style-prose-flat-box-shadow"
-	| "--style-prose-flat-color"
-	| "--style-prose-flat-border-color"
-	| "--style-prose-flat-border-width"
-	| "--style-prose-flat-opacity"
-	| "--style-prose-flat-animation"
-	| "--style-prose-flat-transition-duration"
-	| "--style-prose-flat-transition-timing-function"
-	| "--style-prose-flat-gradient"
-	| "--style-prose-flat-font-family"
-	| "--style-prose-flat-font-size"
-	| "--style-prose-flat-font-weight"
-	| "--style-prose-flat-letter-spacing"
-	| "--style-prose-flat-line-height"
-	| "--style-prose-matte-background-color"
-	| "--style-prose-matte-border-radius"
-	| "--style-prose-matte-box-shadow"
-	| "--style-prose-matte-color"
-	| "--style-prose-matte-border-color"
-	| "--style-prose-matte-border-width"
-	| "--style-prose-matte-opacity"
-	| "--style-prose-matte-animation"
-	| "--style-prose-matte-transition-duration"
-	| "--style-prose-matte-transition-timing-function"
-	| "--style-prose-matte-gradient"
-	| "--style-prose-matte-font-family"
-	| "--style-prose-matte-font-size"
-	| "--style-prose-matte-font-weight"
-	| "--style-prose-matte-letter-spacing"
-	| "--style-prose-matte-line-height"
-	| "--style-radio-group-default-background-color"
-	| "--style-radio-group-default-border-radius"
-	| "--style-radio-group-default-box-shadow"
-	| "--style-radio-group-default-color"
-	| "--style-radio-group-default-border-color"
-	| "--style-radio-group-default-border-width"
-	| "--style-radio-group-default-backdrop-filter"
-	| "--style-radio-group-default-opacity"
-	| "--style-radio-group-default-animation"
-	| "--style-radio-group-default-transition-duration"
-	| "--style-radio-group-default-transition-timing-function"
-	| "--style-radio-group-default-gradient"
-	| "--style-radio-group-default-font-family"
-	| "--style-radio-group-default-font-size"
-	| "--style-radio-group-default-font-weight"
-	| "--style-radio-group-default-letter-spacing"
-	| "--style-radio-group-default-line-height"
-	| "--style-radio-group-stark-background-color"
-	| "--style-radio-group-stark-border-radius"
-	| "--style-radio-group-stark-box-shadow"
-	| "--style-radio-group-stark-color"
-	| "--style-radio-group-stark-border-color"
-	| "--style-radio-group-stark-border-width"
-	| "--style-radio-group-stark-opacity"
-	| "--style-radio-group-stark-animation"
-	| "--style-radio-group-stark-transition-duration"
-	| "--style-radio-group-stark-transition-timing-function"
-	| "--style-radio-group-stark-gradient"
-	| "--style-radio-group-stark-font-family"
-	| "--style-radio-group-stark-font-size"
-	| "--style-radio-group-stark-font-weight"
-	| "--style-radio-group-stark-letter-spacing"
-	| "--style-radio-group-stark-line-height"
-	| "--style-radio-group-glass-background-color"
-	| "--style-radio-group-glass-border-radius"
-	| "--style-radio-group-glass-box-shadow"
-	| "--style-radio-group-glass-color"
-	| "--style-radio-group-glass-border-color"
-	| "--style-radio-group-glass-border-width"
-	| "--style-radio-group-glass-backdrop-filter"
-	| "--style-radio-group-glass-opacity"
-	| "--style-radio-group-glass-animation"
-	| "--style-radio-group-glass-transition-duration"
-	| "--style-radio-group-glass-transition-timing-function"
-	| "--style-radio-group-glass-gradient"
-	| "--style-radio-group-glass-font-family"
-	| "--style-radio-group-glass-font-size"
-	| "--style-radio-group-glass-font-weight"
-	| "--style-radio-group-glass-letter-spacing"
-	| "--style-radio-group-glass-line-height"
-	| "--style-radio-group-flat-background-color"
-	| "--style-radio-group-flat-border-radius"
-	| "--style-radio-group-flat-box-shadow"
-	| "--style-radio-group-flat-color"
-	| "--style-radio-group-flat-border-color"
-	| "--style-radio-group-flat-border-width"
-	| "--style-radio-group-flat-opacity"
-	| "--style-radio-group-flat-animation"
-	| "--style-radio-group-flat-transition-duration"
-	| "--style-radio-group-flat-transition-timing-function"
-	| "--style-radio-group-flat-gradient"
-	| "--style-radio-group-flat-font-family"
-	| "--style-radio-group-flat-font-size"
-	| "--style-radio-group-flat-font-weight"
-	| "--style-radio-group-flat-letter-spacing"
-	| "--style-radio-group-flat-line-height"
-	| "--style-radio-group-matte-background-color"
-	| "--style-radio-group-matte-border-radius"
-	| "--style-radio-group-matte-box-shadow"
-	| "--style-radio-group-matte-color"
-	| "--style-radio-group-matte-border-color"
-	| "--style-radio-group-matte-border-width"
-	| "--style-radio-group-matte-opacity"
-	| "--style-radio-group-matte-animation"
-	| "--style-radio-group-matte-transition-duration"
-	| "--style-radio-group-matte-transition-timing-function"
-	| "--style-radio-group-matte-gradient"
-	| "--style-radio-group-matte-font-family"
-	| "--style-radio-group-matte-font-size"
-	| "--style-radio-group-matte-font-weight"
-	| "--style-radio-group-matte-letter-spacing"
-	| "--style-radio-group-matte-line-height"
-	| "--style-range-calendar-default-background-color"
-	| "--style-range-calendar-default-border-radius"
-	| "--style-range-calendar-default-box-shadow"
-	| "--style-range-calendar-default-color"
-	| "--style-range-calendar-default-border-color"
-	| "--style-range-calendar-default-border-width"
-	| "--style-range-calendar-default-backdrop-filter"
-	| "--style-range-calendar-default-opacity"
-	| "--style-range-calendar-default-animation"
-	| "--style-range-calendar-default-transition-duration"
-	| "--style-range-calendar-default-transition-timing-function"
-	| "--style-range-calendar-default-gradient"
-	| "--style-range-calendar-default-font-family"
-	| "--style-range-calendar-default-font-size"
-	| "--style-range-calendar-default-font-weight"
-	| "--style-range-calendar-default-letter-spacing"
-	| "--style-range-calendar-default-line-height"
-	| "--style-range-calendar-stark-background-color"
-	| "--style-range-calendar-stark-border-radius"
-	| "--style-range-calendar-stark-box-shadow"
-	| "--style-range-calendar-stark-color"
-	| "--style-range-calendar-stark-border-color"
-	| "--style-range-calendar-stark-border-width"
-	| "--style-range-calendar-stark-opacity"
-	| "--style-range-calendar-stark-animation"
-	| "--style-range-calendar-stark-transition-duration"
-	| "--style-range-calendar-stark-transition-timing-function"
-	| "--style-range-calendar-stark-gradient"
-	| "--style-range-calendar-stark-font-family"
-	| "--style-range-calendar-stark-font-size"
-	| "--style-range-calendar-stark-font-weight"
-	| "--style-range-calendar-stark-letter-spacing"
-	| "--style-range-calendar-stark-line-height"
-	| "--style-range-calendar-glass-background-color"
-	| "--style-range-calendar-glass-border-radius"
-	| "--style-range-calendar-glass-box-shadow"
-	| "--style-range-calendar-glass-color"
-	| "--style-range-calendar-glass-border-color"
-	| "--style-range-calendar-glass-border-width"
-	| "--style-range-calendar-glass-backdrop-filter"
-	| "--style-range-calendar-glass-opacity"
-	| "--style-range-calendar-glass-animation"
-	| "--style-range-calendar-glass-transition-duration"
-	| "--style-range-calendar-glass-transition-timing-function"
-	| "--style-range-calendar-glass-gradient"
-	| "--style-range-calendar-glass-font-family"
-	| "--style-range-calendar-glass-font-size"
-	| "--style-range-calendar-glass-font-weight"
-	| "--style-range-calendar-glass-letter-spacing"
-	| "--style-range-calendar-glass-line-height"
-	| "--style-range-calendar-flat-background-color"
-	| "--style-range-calendar-flat-border-radius"
-	| "--style-range-calendar-flat-box-shadow"
-	| "--style-range-calendar-flat-color"
-	| "--style-range-calendar-flat-border-color"
-	| "--style-range-calendar-flat-border-width"
-	| "--style-range-calendar-flat-opacity"
-	| "--style-range-calendar-flat-animation"
-	| "--style-range-calendar-flat-transition-duration"
-	| "--style-range-calendar-flat-transition-timing-function"
-	| "--style-range-calendar-flat-gradient"
-	| "--style-range-calendar-flat-font-family"
-	| "--style-range-calendar-flat-font-size"
-	| "--style-range-calendar-flat-font-weight"
-	| "--style-range-calendar-flat-letter-spacing"
-	| "--style-range-calendar-flat-line-height"
-	| "--style-range-calendar-matte-background-color"
-	| "--style-range-calendar-matte-border-radius"
-	| "--style-range-calendar-matte-box-shadow"
-	| "--style-range-calendar-matte-color"
-	| "--style-range-calendar-matte-border-color"
-	| "--style-range-calendar-matte-border-width"
-	| "--style-range-calendar-matte-opacity"
-	| "--style-range-calendar-matte-animation"
-	| "--style-range-calendar-matte-transition-duration"
-	| "--style-range-calendar-matte-transition-timing-function"
-	| "--style-range-calendar-matte-gradient"
-	| "--style-range-calendar-matte-font-family"
-	| "--style-range-calendar-matte-font-size"
-	| "--style-range-calendar-matte-font-weight"
-	| "--style-range-calendar-matte-letter-spacing"
-	| "--style-range-calendar-matte-line-height"
-	| "--style-scroll-area-default-background-color"
-	| "--style-scroll-area-default-border-radius"
-	| "--style-scroll-area-default-box-shadow"
-	| "--style-scroll-area-default-color"
-	| "--style-scroll-area-default-border-color"
-	| "--style-scroll-area-default-border-width"
-	| "--style-scroll-area-default-backdrop-filter"
-	| "--style-scroll-area-default-opacity"
-	| "--style-scroll-area-default-animation"
-	| "--style-scroll-area-default-transition-duration"
-	| "--style-scroll-area-default-transition-timing-function"
-	| "--style-scroll-area-default-gradient"
-	| "--style-scroll-area-default-font-family"
-	| "--style-scroll-area-default-font-size"
-	| "--style-scroll-area-default-font-weight"
-	| "--style-scroll-area-default-letter-spacing"
-	| "--style-scroll-area-default-line-height"
-	| "--style-scroll-area-stark-background-color"
-	| "--style-scroll-area-stark-border-radius"
-	| "--style-scroll-area-stark-box-shadow"
-	| "--style-scroll-area-stark-color"
-	| "--style-scroll-area-stark-border-color"
-	| "--style-scroll-area-stark-border-width"
-	| "--style-scroll-area-stark-opacity"
-	| "--style-scroll-area-stark-animation"
-	| "--style-scroll-area-stark-transition-duration"
-	| "--style-scroll-area-stark-transition-timing-function"
-	| "--style-scroll-area-stark-gradient"
-	| "--style-scroll-area-stark-font-family"
-	| "--style-scroll-area-stark-font-size"
-	| "--style-scroll-area-stark-font-weight"
-	| "--style-scroll-area-stark-letter-spacing"
-	| "--style-scroll-area-stark-line-height"
-	| "--style-scroll-area-glass-background-color"
-	| "--style-scroll-area-glass-border-radius"
-	| "--style-scroll-area-glass-box-shadow"
-	| "--style-scroll-area-glass-color"
-	| "--style-scroll-area-glass-border-color"
-	| "--style-scroll-area-glass-border-width"
-	| "--style-scroll-area-glass-backdrop-filter"
-	| "--style-scroll-area-glass-opacity"
-	| "--style-scroll-area-glass-animation"
-	| "--style-scroll-area-glass-transition-duration"
-	| "--style-scroll-area-glass-transition-timing-function"
-	| "--style-scroll-area-glass-gradient"
-	| "--style-scroll-area-glass-font-family"
-	| "--style-scroll-area-glass-font-size"
-	| "--style-scroll-area-glass-font-weight"
-	| "--style-scroll-area-glass-letter-spacing"
-	| "--style-scroll-area-glass-line-height"
-	| "--style-scroll-area-flat-background-color"
-	| "--style-scroll-area-flat-border-radius"
-	| "--style-scroll-area-flat-box-shadow"
-	| "--style-scroll-area-flat-color"
-	| "--style-scroll-area-flat-border-color"
-	| "--style-scroll-area-flat-border-width"
-	| "--style-scroll-area-flat-opacity"
-	| "--style-scroll-area-flat-animation"
-	| "--style-scroll-area-flat-transition-duration"
-	| "--style-scroll-area-flat-transition-timing-function"
-	| "--style-scroll-area-flat-gradient"
-	| "--style-scroll-area-flat-font-family"
-	| "--style-scroll-area-flat-font-size"
-	| "--style-scroll-area-flat-font-weight"
-	| "--style-scroll-area-flat-letter-spacing"
-	| "--style-scroll-area-flat-line-height"
-	| "--style-scroll-area-matte-background-color"
-	| "--style-scroll-area-matte-border-radius"
-	| "--style-scroll-area-matte-box-shadow"
-	| "--style-scroll-area-matte-color"
-	| "--style-scroll-area-matte-border-color"
-	| "--style-scroll-area-matte-border-width"
-	| "--style-scroll-area-matte-opacity"
-	| "--style-scroll-area-matte-animation"
-	| "--style-scroll-area-matte-transition-duration"
-	| "--style-scroll-area-matte-transition-timing-function"
-	| "--style-scroll-area-matte-gradient"
-	| "--style-scroll-area-matte-font-family"
-	| "--style-scroll-area-matte-font-size"
-	| "--style-scroll-area-matte-font-weight"
-	| "--style-scroll-area-matte-letter-spacing"
-	| "--style-scroll-area-matte-line-height"
-	| "--style-select-default-background-color"
-	| "--style-select-default-border-radius"
-	| "--style-select-default-box-shadow"
-	| "--style-select-default-color"
-	| "--style-select-default-border-color"
-	| "--style-select-default-border-width"
-	| "--style-select-default-backdrop-filter"
-	| "--style-select-default-opacity"
-	| "--style-select-default-animation"
-	| "--style-select-default-transition-duration"
-	| "--style-select-default-transition-timing-function"
-	| "--style-select-default-gradient"
-	| "--style-select-default-font-family"
-	| "--style-select-default-font-size"
-	| "--style-select-default-font-weight"
-	| "--style-select-default-letter-spacing"
-	| "--style-select-default-line-height"
-	| "--style-select-stark-background-color"
-	| "--style-select-stark-border-radius"
-	| "--style-select-stark-box-shadow"
-	| "--style-select-stark-color"
-	| "--style-select-stark-border-color"
-	| "--style-select-stark-border-width"
-	| "--style-select-stark-opacity"
-	| "--style-select-stark-animation"
-	| "--style-select-stark-transition-duration"
-	| "--style-select-stark-transition-timing-function"
-	| "--style-select-stark-gradient"
-	| "--style-select-stark-font-family"
-	| "--style-select-stark-font-size"
-	| "--style-select-stark-font-weight"
-	| "--style-select-stark-letter-spacing"
-	| "--style-select-stark-line-height"
-	| "--style-select-glass-background-color"
-	| "--style-select-glass-border-radius"
-	| "--style-select-glass-box-shadow"
-	| "--style-select-glass-color"
-	| "--style-select-glass-border-color"
-	| "--style-select-glass-border-width"
-	| "--style-select-glass-backdrop-filter"
-	| "--style-select-glass-opacity"
-	| "--style-select-glass-animation"
-	| "--style-select-glass-transition-duration"
-	| "--style-select-glass-transition-timing-function"
-	| "--style-select-glass-gradient"
-	| "--style-select-glass-font-family"
-	| "--style-select-glass-font-size"
-	| "--style-select-glass-font-weight"
-	| "--style-select-glass-letter-spacing"
-	| "--style-select-glass-line-height"
-	| "--style-select-flat-background-color"
-	| "--style-select-flat-border-radius"
-	| "--style-select-flat-box-shadow"
-	| "--style-select-flat-color"
-	| "--style-select-flat-border-color"
-	| "--style-select-flat-border-width"
-	| "--style-select-flat-opacity"
-	| "--style-select-flat-animation"
-	| "--style-select-flat-transition-duration"
-	| "--style-select-flat-transition-timing-function"
-	| "--style-select-flat-gradient"
-	| "--style-select-flat-font-family"
-	| "--style-select-flat-font-size"
-	| "--style-select-flat-font-weight"
-	| "--style-select-flat-letter-spacing"
-	| "--style-select-flat-line-height"
-	| "--style-select-matte-background-color"
-	| "--style-select-matte-border-radius"
-	| "--style-select-matte-box-shadow"
-	| "--style-select-matte-color"
-	| "--style-select-matte-border-color"
-	| "--style-select-matte-border-width"
-	| "--style-select-matte-opacity"
-	| "--style-select-matte-animation"
-	| "--style-select-matte-transition-duration"
-	| "--style-select-matte-transition-timing-function"
-	| "--style-select-matte-gradient"
-	| "--style-select-matte-font-family"
-	| "--style-select-matte-font-size"
-	| "--style-select-matte-font-weight"
-	| "--style-select-matte-letter-spacing"
-	| "--style-select-matte-line-height"
-	| "--style-separator-default-background-color"
-	| "--style-separator-default-border-radius"
-	| "--style-separator-default-box-shadow"
-	| "--style-separator-default-color"
-	| "--style-separator-default-border-color"
-	| "--style-separator-default-border-width"
-	| "--style-separator-default-backdrop-filter"
-	| "--style-separator-default-opacity"
-	| "--style-separator-default-animation"
-	| "--style-separator-default-transition-duration"
-	| "--style-separator-default-transition-timing-function"
-	| "--style-separator-default-gradient"
-	| "--style-separator-default-font-family"
-	| "--style-separator-default-font-size"
-	| "--style-separator-default-font-weight"
-	| "--style-separator-default-letter-spacing"
-	| "--style-separator-default-line-height"
-	| "--style-separator-stark-background-color"
-	| "--style-separator-stark-border-radius"
-	| "--style-separator-stark-box-shadow"
-	| "--style-separator-stark-color"
-	| "--style-separator-stark-border-color"
-	| "--style-separator-stark-border-width"
-	| "--style-separator-stark-opacity"
-	| "--style-separator-stark-animation"
-	| "--style-separator-stark-transition-duration"
-	| "--style-separator-stark-transition-timing-function"
-	| "--style-separator-stark-gradient"
-	| "--style-separator-stark-font-family"
-	| "--style-separator-stark-font-size"
-	| "--style-separator-stark-font-weight"
-	| "--style-separator-stark-letter-spacing"
-	| "--style-separator-stark-line-height"
-	| "--style-separator-glass-background-color"
-	| "--style-separator-glass-border-radius"
-	| "--style-separator-glass-box-shadow"
-	| "--style-separator-glass-color"
-	| "--style-separator-glass-border-color"
-	| "--style-separator-glass-border-width"
-	| "--style-separator-glass-backdrop-filter"
-	| "--style-separator-glass-opacity"
-	| "--style-separator-glass-animation"
-	| "--style-separator-glass-transition-duration"
-	| "--style-separator-glass-transition-timing-function"
-	| "--style-separator-glass-gradient"
-	| "--style-separator-glass-font-family"
-	| "--style-separator-glass-font-size"
-	| "--style-separator-glass-font-weight"
-	| "--style-separator-glass-letter-spacing"
-	| "--style-separator-glass-line-height"
-	| "--style-separator-flat-background-color"
-	| "--style-separator-flat-border-radius"
-	| "--style-separator-flat-box-shadow"
-	| "--style-separator-flat-color"
-	| "--style-separator-flat-border-color"
-	| "--style-separator-flat-border-width"
-	| "--style-separator-flat-opacity"
-	| "--style-separator-flat-animation"
-	| "--style-separator-flat-transition-duration"
-	| "--style-separator-flat-transition-timing-function"
-	| "--style-separator-flat-gradient"
-	| "--style-separator-flat-font-family"
-	| "--style-separator-flat-font-size"
-	| "--style-separator-flat-font-weight"
-	| "--style-separator-flat-letter-spacing"
-	| "--style-separator-flat-line-height"
-	| "--style-separator-matte-background-color"
-	| "--style-separator-matte-border-radius"
-	| "--style-separator-matte-box-shadow"
-	| "--style-separator-matte-color"
-	| "--style-separator-matte-border-color"
-	| "--style-separator-matte-border-width"
-	| "--style-separator-matte-opacity"
-	| "--style-separator-matte-animation"
-	| "--style-separator-matte-transition-duration"
-	| "--style-separator-matte-transition-timing-function"
-	| "--style-separator-matte-gradient"
-	| "--style-separator-matte-font-family"
-	| "--style-separator-matte-font-size"
-	| "--style-separator-matte-font-weight"
-	| "--style-separator-matte-letter-spacing"
-	| "--style-separator-matte-line-height"
-	| "--style-sheet-default-background-color"
-	| "--style-sheet-default-border-radius"
-	| "--style-sheet-default-box-shadow"
-	| "--style-sheet-default-color"
-	| "--style-sheet-default-border-color"
-	| "--style-sheet-default-border-width"
-	| "--style-sheet-default-backdrop-filter"
-	| "--style-sheet-default-opacity"
-	| "--style-sheet-default-animation"
-	| "--style-sheet-default-transition-duration"
-	| "--style-sheet-default-transition-timing-function"
-	| "--style-sheet-default-gradient"
-	| "--style-sheet-default-font-family"
-	| "--style-sheet-default-font-size"
-	| "--style-sheet-default-font-weight"
-	| "--style-sheet-default-letter-spacing"
-	| "--style-sheet-default-line-height"
-	| "--style-sheet-stark-background-color"
-	| "--style-sheet-stark-border-radius"
-	| "--style-sheet-stark-box-shadow"
-	| "--style-sheet-stark-color"
-	| "--style-sheet-stark-border-color"
-	| "--style-sheet-stark-border-width"
-	| "--style-sheet-stark-opacity"
-	| "--style-sheet-stark-animation"
-	| "--style-sheet-stark-transition-duration"
-	| "--style-sheet-stark-transition-timing-function"
-	| "--style-sheet-stark-gradient"
-	| "--style-sheet-stark-font-family"
-	| "--style-sheet-stark-font-size"
-	| "--style-sheet-stark-font-weight"
-	| "--style-sheet-stark-letter-spacing"
-	| "--style-sheet-stark-line-height"
-	| "--style-sheet-glass-background-color"
-	| "--style-sheet-glass-border-radius"
-	| "--style-sheet-glass-box-shadow"
-	| "--style-sheet-glass-color"
-	| "--style-sheet-glass-border-color"
-	| "--style-sheet-glass-border-width"
-	| "--style-sheet-glass-backdrop-filter"
-	| "--style-sheet-glass-opacity"
-	| "--style-sheet-glass-animation"
-	| "--style-sheet-glass-transition-duration"
-	| "--style-sheet-glass-transition-timing-function"
-	| "--style-sheet-glass-gradient"
-	| "--style-sheet-glass-font-family"
-	| "--style-sheet-glass-font-size"
-	| "--style-sheet-glass-font-weight"
-	| "--style-sheet-glass-letter-spacing"
-	| "--style-sheet-glass-line-height"
-	| "--style-sheet-flat-background-color"
-	| "--style-sheet-flat-border-radius"
-	| "--style-sheet-flat-box-shadow"
-	| "--style-sheet-flat-color"
-	| "--style-sheet-flat-border-color"
-	| "--style-sheet-flat-border-width"
-	| "--style-sheet-flat-opacity"
-	| "--style-sheet-flat-animation"
-	| "--style-sheet-flat-transition-duration"
-	| "--style-sheet-flat-transition-timing-function"
-	| "--style-sheet-flat-gradient"
-	| "--style-sheet-flat-font-family"
-	| "--style-sheet-flat-font-size"
-	| "--style-sheet-flat-font-weight"
-	| "--style-sheet-flat-letter-spacing"
-	| "--style-sheet-flat-line-height"
-	| "--style-sheet-matte-background-color"
-	| "--style-sheet-matte-border-radius"
-	| "--style-sheet-matte-box-shadow"
-	| "--style-sheet-matte-color"
-	| "--style-sheet-matte-border-color"
-	| "--style-sheet-matte-border-width"
-	| "--style-sheet-matte-opacity"
-	| "--style-sheet-matte-animation"
-	| "--style-sheet-matte-transition-duration"
-	| "--style-sheet-matte-transition-timing-function"
-	| "--style-sheet-matte-gradient"
-	| "--style-sheet-matte-font-family"
-	| "--style-sheet-matte-font-size"
-	| "--style-sheet-matte-font-weight"
-	| "--style-sheet-matte-letter-spacing"
-	| "--style-sheet-matte-line-height"
-	| "--style-sidebar-default-background-color"
-	| "--style-sidebar-default-border-radius"
-	| "--style-sidebar-default-box-shadow"
-	| "--style-sidebar-default-color"
-	| "--style-sidebar-default-border-color"
-	| "--style-sidebar-default-border-width"
-	| "--style-sidebar-default-backdrop-filter"
-	| "--style-sidebar-default-opacity"
-	| "--style-sidebar-default-animation"
-	| "--style-sidebar-default-transition-duration"
-	| "--style-sidebar-default-transition-timing-function"
-	| "--style-sidebar-default-gradient"
-	| "--style-sidebar-default-font-family"
-	| "--style-sidebar-default-font-size"
-	| "--style-sidebar-default-font-weight"
-	| "--style-sidebar-default-letter-spacing"
-	| "--style-sidebar-default-line-height"
-	| "--style-sidebar-stark-background-color"
-	| "--style-sidebar-stark-border-radius"
-	| "--style-sidebar-stark-box-shadow"
-	| "--style-sidebar-stark-color"
-	| "--style-sidebar-stark-border-color"
-	| "--style-sidebar-stark-border-width"
-	| "--style-sidebar-stark-opacity"
-	| "--style-sidebar-stark-animation"
-	| "--style-sidebar-stark-transition-duration"
-	| "--style-sidebar-stark-transition-timing-function"
-	| "--style-sidebar-stark-gradient"
-	| "--style-sidebar-stark-font-family"
-	| "--style-sidebar-stark-font-size"
-	| "--style-sidebar-stark-font-weight"
-	| "--style-sidebar-stark-letter-spacing"
-	| "--style-sidebar-stark-line-height"
-	| "--style-sidebar-glass-background-color"
-	| "--style-sidebar-glass-border-radius"
-	| "--style-sidebar-glass-box-shadow"
-	| "--style-sidebar-glass-color"
-	| "--style-sidebar-glass-border-color"
-	| "--style-sidebar-glass-border-width"
-	| "--style-sidebar-glass-backdrop-filter"
-	| "--style-sidebar-glass-opacity"
-	| "--style-sidebar-glass-animation"
-	| "--style-sidebar-glass-transition-duration"
-	| "--style-sidebar-glass-transition-timing-function"
-	| "--style-sidebar-glass-gradient"
-	| "--style-sidebar-glass-font-family"
-	| "--style-sidebar-glass-font-size"
-	| "--style-sidebar-glass-font-weight"
-	| "--style-sidebar-glass-letter-spacing"
-	| "--style-sidebar-glass-line-height"
-	| "--style-sidebar-flat-background-color"
-	| "--style-sidebar-flat-border-radius"
-	| "--style-sidebar-flat-box-shadow"
-	| "--style-sidebar-flat-color"
-	| "--style-sidebar-flat-border-color"
-	| "--style-sidebar-flat-border-width"
-	| "--style-sidebar-flat-opacity"
-	| "--style-sidebar-flat-animation"
-	| "--style-sidebar-flat-transition-duration"
-	| "--style-sidebar-flat-transition-timing-function"
-	| "--style-sidebar-flat-gradient"
-	| "--style-sidebar-flat-font-family"
-	| "--style-sidebar-flat-font-size"
-	| "--style-sidebar-flat-font-weight"
-	| "--style-sidebar-flat-letter-spacing"
-	| "--style-sidebar-flat-line-height"
-	| "--style-sidebar-matte-background-color"
-	| "--style-sidebar-matte-border-radius"
-	| "--style-sidebar-matte-box-shadow"
-	| "--style-sidebar-matte-color"
-	| "--style-sidebar-matte-border-color"
-	| "--style-sidebar-matte-border-width"
-	| "--style-sidebar-matte-opacity"
-	| "--style-sidebar-matte-animation"
-	| "--style-sidebar-matte-transition-duration"
-	| "--style-sidebar-matte-transition-timing-function"
-	| "--style-sidebar-matte-gradient"
-	| "--style-sidebar-matte-font-family"
-	| "--style-sidebar-matte-font-size"
-	| "--style-sidebar-matte-font-weight"
-	| "--style-sidebar-matte-letter-spacing"
-	| "--style-sidebar-matte-line-height"
-	| "--style-skeleton-default-background-color"
-	| "--style-skeleton-default-border-radius"
-	| "--style-skeleton-default-box-shadow"
-	| "--style-skeleton-default-color"
-	| "--style-skeleton-default-border-color"
-	| "--style-skeleton-default-border-width"
-	| "--style-skeleton-default-backdrop-filter"
-	| "--style-skeleton-default-opacity"
-	| "--style-skeleton-default-animation"
-	| "--style-skeleton-default-transition-duration"
-	| "--style-skeleton-default-transition-timing-function"
-	| "--style-skeleton-default-gradient"
-	| "--style-skeleton-default-font-family"
-	| "--style-skeleton-default-font-size"
-	| "--style-skeleton-default-font-weight"
-	| "--style-skeleton-default-letter-spacing"
-	| "--style-skeleton-default-line-height"
-	| "--style-skeleton-stark-background-color"
-	| "--style-skeleton-stark-border-radius"
-	| "--style-skeleton-stark-box-shadow"
-	| "--style-skeleton-stark-color"
-	| "--style-skeleton-stark-border-color"
-	| "--style-skeleton-stark-border-width"
-	| "--style-skeleton-stark-opacity"
-	| "--style-skeleton-stark-animation"
-	| "--style-skeleton-stark-transition-duration"
-	| "--style-skeleton-stark-transition-timing-function"
-	| "--style-skeleton-stark-gradient"
-	| "--style-skeleton-stark-font-family"
-	| "--style-skeleton-stark-font-size"
-	| "--style-skeleton-stark-font-weight"
-	| "--style-skeleton-stark-letter-spacing"
-	| "--style-skeleton-stark-line-height"
-	| "--style-skeleton-glass-background-color"
-	| "--style-skeleton-glass-border-radius"
-	| "--style-skeleton-glass-box-shadow"
-	| "--style-skeleton-glass-color"
-	| "--style-skeleton-glass-border-color"
-	| "--style-skeleton-glass-border-width"
-	| "--style-skeleton-glass-backdrop-filter"
-	| "--style-skeleton-glass-opacity"
-	| "--style-skeleton-glass-animation"
-	| "--style-skeleton-glass-transition-duration"
-	| "--style-skeleton-glass-transition-timing-function"
-	| "--style-skeleton-glass-gradient"
-	| "--style-skeleton-glass-font-family"
-	| "--style-skeleton-glass-font-size"
-	| "--style-skeleton-glass-font-weight"
-	| "--style-skeleton-glass-letter-spacing"
-	| "--style-skeleton-glass-line-height"
-	| "--style-skeleton-flat-background-color"
-	| "--style-skeleton-flat-border-radius"
-	| "--style-skeleton-flat-box-shadow"
-	| "--style-skeleton-flat-color"
-	| "--style-skeleton-flat-border-color"
-	| "--style-skeleton-flat-border-width"
-	| "--style-skeleton-flat-opacity"
-	| "--style-skeleton-flat-animation"
-	| "--style-skeleton-flat-transition-duration"
-	| "--style-skeleton-flat-transition-timing-function"
-	| "--style-skeleton-flat-gradient"
-	| "--style-skeleton-flat-font-family"
-	| "--style-skeleton-flat-font-size"
-	| "--style-skeleton-flat-font-weight"
-	| "--style-skeleton-flat-letter-spacing"
-	| "--style-skeleton-flat-line-height"
-	| "--style-skeleton-matte-background-color"
-	| "--style-skeleton-matte-border-radius"
-	| "--style-skeleton-matte-box-shadow"
-	| "--style-skeleton-matte-color"
-	| "--style-skeleton-matte-border-color"
-	| "--style-skeleton-matte-border-width"
-	| "--style-skeleton-matte-opacity"
-	| "--style-skeleton-matte-animation"
-	| "--style-skeleton-matte-transition-duration"
-	| "--style-skeleton-matte-transition-timing-function"
-	| "--style-skeleton-matte-gradient"
-	| "--style-skeleton-matte-font-family"
-	| "--style-skeleton-matte-font-size"
-	| "--style-skeleton-matte-font-weight"
-	| "--style-skeleton-matte-letter-spacing"
-	| "--style-skeleton-matte-line-height"
-	| "--style-skip-link-default-background-color"
-	| "--style-skip-link-default-border-radius"
-	| "--style-skip-link-default-box-shadow"
-	| "--style-skip-link-default-color"
-	| "--style-skip-link-default-border-color"
-	| "--style-skip-link-default-border-width"
-	| "--style-skip-link-default-backdrop-filter"
-	| "--style-skip-link-default-opacity"
-	| "--style-skip-link-default-animation"
-	| "--style-skip-link-default-transition-duration"
-	| "--style-skip-link-default-transition-timing-function"
-	| "--style-skip-link-default-gradient"
-	| "--style-skip-link-default-font-family"
-	| "--style-skip-link-default-font-size"
-	| "--style-skip-link-default-font-weight"
-	| "--style-skip-link-default-letter-spacing"
-	| "--style-skip-link-default-line-height"
-	| "--style-skip-link-stark-background-color"
-	| "--style-skip-link-stark-border-radius"
-	| "--style-skip-link-stark-box-shadow"
-	| "--style-skip-link-stark-color"
-	| "--style-skip-link-stark-border-color"
-	| "--style-skip-link-stark-border-width"
-	| "--style-skip-link-stark-opacity"
-	| "--style-skip-link-stark-animation"
-	| "--style-skip-link-stark-transition-duration"
-	| "--style-skip-link-stark-transition-timing-function"
-	| "--style-skip-link-stark-gradient"
-	| "--style-skip-link-stark-font-family"
-	| "--style-skip-link-stark-font-size"
-	| "--style-skip-link-stark-font-weight"
-	| "--style-skip-link-stark-letter-spacing"
-	| "--style-skip-link-stark-line-height"
-	| "--style-skip-link-glass-background-color"
-	| "--style-skip-link-glass-border-radius"
-	| "--style-skip-link-glass-box-shadow"
-	| "--style-skip-link-glass-color"
-	| "--style-skip-link-glass-border-color"
-	| "--style-skip-link-glass-border-width"
-	| "--style-skip-link-glass-backdrop-filter"
-	| "--style-skip-link-glass-opacity"
-	| "--style-skip-link-glass-animation"
-	| "--style-skip-link-glass-transition-duration"
-	| "--style-skip-link-glass-transition-timing-function"
-	| "--style-skip-link-glass-gradient"
-	| "--style-skip-link-glass-font-family"
-	| "--style-skip-link-glass-font-size"
-	| "--style-skip-link-glass-font-weight"
-	| "--style-skip-link-glass-letter-spacing"
-	| "--style-skip-link-glass-line-height"
-	| "--style-skip-link-flat-background-color"
-	| "--style-skip-link-flat-border-radius"
-	| "--style-skip-link-flat-box-shadow"
-	| "--style-skip-link-flat-color"
-	| "--style-skip-link-flat-border-color"
-	| "--style-skip-link-flat-border-width"
-	| "--style-skip-link-flat-opacity"
-	| "--style-skip-link-flat-animation"
-	| "--style-skip-link-flat-transition-duration"
-	| "--style-skip-link-flat-transition-timing-function"
-	| "--style-skip-link-flat-gradient"
-	| "--style-skip-link-flat-font-family"
-	| "--style-skip-link-flat-font-size"
-	| "--style-skip-link-flat-font-weight"
-	| "--style-skip-link-flat-letter-spacing"
-	| "--style-skip-link-flat-line-height"
-	| "--style-skip-link-matte-background-color"
-	| "--style-skip-link-matte-border-radius"
-	| "--style-skip-link-matte-box-shadow"
-	| "--style-skip-link-matte-color"
-	| "--style-skip-link-matte-border-color"
-	| "--style-skip-link-matte-border-width"
-	| "--style-skip-link-matte-opacity"
-	| "--style-skip-link-matte-animation"
-	| "--style-skip-link-matte-transition-duration"
-	| "--style-skip-link-matte-transition-timing-function"
-	| "--style-skip-link-matte-gradient"
-	| "--style-skip-link-matte-font-family"
-	| "--style-skip-link-matte-font-size"
-	| "--style-skip-link-matte-font-weight"
-	| "--style-skip-link-matte-letter-spacing"
-	| "--style-skip-link-matte-line-height"
-	| "--style-slider-default-background-color"
-	| "--style-slider-default-border-radius"
-	| "--style-slider-default-box-shadow"
-	| "--style-slider-default-color"
-	| "--style-slider-default-border-color"
-	| "--style-slider-default-border-width"
-	| "--style-slider-default-backdrop-filter"
-	| "--style-slider-default-opacity"
-	| "--style-slider-default-animation"
-	| "--style-slider-default-transition-duration"
-	| "--style-slider-default-transition-timing-function"
-	| "--style-slider-default-gradient"
-	| "--style-slider-default-font-family"
-	| "--style-slider-default-font-size"
-	| "--style-slider-default-font-weight"
-	| "--style-slider-default-letter-spacing"
-	| "--style-slider-default-line-height"
-	| "--style-slider-stark-background-color"
-	| "--style-slider-stark-border-radius"
-	| "--style-slider-stark-box-shadow"
-	| "--style-slider-stark-color"
-	| "--style-slider-stark-border-color"
-	| "--style-slider-stark-border-width"
-	| "--style-slider-stark-opacity"
-	| "--style-slider-stark-animation"
-	| "--style-slider-stark-transition-duration"
-	| "--style-slider-stark-transition-timing-function"
-	| "--style-slider-stark-gradient"
-	| "--style-slider-stark-font-family"
-	| "--style-slider-stark-font-size"
-	| "--style-slider-stark-font-weight"
-	| "--style-slider-stark-letter-spacing"
-	| "--style-slider-stark-line-height"
-	| "--style-slider-glass-background-color"
-	| "--style-slider-glass-border-radius"
-	| "--style-slider-glass-box-shadow"
-	| "--style-slider-glass-color"
-	| "--style-slider-glass-border-color"
-	| "--style-slider-glass-border-width"
-	| "--style-slider-glass-backdrop-filter"
-	| "--style-slider-glass-opacity"
-	| "--style-slider-glass-animation"
-	| "--style-slider-glass-transition-duration"
-	| "--style-slider-glass-transition-timing-function"
-	| "--style-slider-glass-gradient"
-	| "--style-slider-glass-font-family"
-	| "--style-slider-glass-font-size"
-	| "--style-slider-glass-font-weight"
-	| "--style-slider-glass-letter-spacing"
-	| "--style-slider-glass-line-height"
-	| "--style-slider-flat-background-color"
-	| "--style-slider-flat-border-radius"
-	| "--style-slider-flat-box-shadow"
-	| "--style-slider-flat-color"
-	| "--style-slider-flat-border-color"
-	| "--style-slider-flat-border-width"
-	| "--style-slider-flat-opacity"
-	| "--style-slider-flat-animation"
-	| "--style-slider-flat-transition-duration"
-	| "--style-slider-flat-transition-timing-function"
-	| "--style-slider-flat-gradient"
-	| "--style-slider-flat-font-family"
-	| "--style-slider-flat-font-size"
-	| "--style-slider-flat-font-weight"
-	| "--style-slider-flat-letter-spacing"
-	| "--style-slider-flat-line-height"
-	| "--style-slider-matte-background-color"
-	| "--style-slider-matte-border-radius"
-	| "--style-slider-matte-box-shadow"
-	| "--style-slider-matte-color"
-	| "--style-slider-matte-border-color"
-	| "--style-slider-matte-border-width"
-	| "--style-slider-matte-opacity"
-	| "--style-slider-matte-animation"
-	| "--style-slider-matte-transition-duration"
-	| "--style-slider-matte-transition-timing-function"
-	| "--style-slider-matte-gradient"
-	| "--style-slider-matte-font-family"
-	| "--style-slider-matte-font-size"
-	| "--style-slider-matte-font-weight"
-	| "--style-slider-matte-letter-spacing"
-	| "--style-slider-matte-line-height"
-	| "--style-spinner-default-background-color"
-	| "--style-spinner-default-border-radius"
-	| "--style-spinner-default-box-shadow"
-	| "--style-spinner-default-color"
-	| "--style-spinner-default-border-color"
-	| "--style-spinner-default-border-width"
-	| "--style-spinner-default-backdrop-filter"
-	| "--style-spinner-default-opacity"
-	| "--style-spinner-default-animation"
-	| "--style-spinner-default-transition-duration"
-	| "--style-spinner-default-transition-timing-function"
-	| "--style-spinner-default-gradient"
-	| "--style-spinner-default-font-family"
-	| "--style-spinner-default-font-size"
-	| "--style-spinner-default-font-weight"
-	| "--style-spinner-default-letter-spacing"
-	| "--style-spinner-default-line-height"
-	| "--style-spinner-stark-background-color"
-	| "--style-spinner-stark-border-radius"
-	| "--style-spinner-stark-box-shadow"
-	| "--style-spinner-stark-color"
-	| "--style-spinner-stark-border-color"
-	| "--style-spinner-stark-border-width"
-	| "--style-spinner-stark-opacity"
-	| "--style-spinner-stark-animation"
-	| "--style-spinner-stark-transition-duration"
-	| "--style-spinner-stark-transition-timing-function"
-	| "--style-spinner-stark-gradient"
-	| "--style-spinner-stark-font-family"
-	| "--style-spinner-stark-font-size"
-	| "--style-spinner-stark-font-weight"
-	| "--style-spinner-stark-letter-spacing"
-	| "--style-spinner-stark-line-height"
-	| "--style-spinner-glass-background-color"
-	| "--style-spinner-glass-border-radius"
-	| "--style-spinner-glass-box-shadow"
-	| "--style-spinner-glass-color"
-	| "--style-spinner-glass-border-color"
-	| "--style-spinner-glass-border-width"
-	| "--style-spinner-glass-backdrop-filter"
-	| "--style-spinner-glass-opacity"
-	| "--style-spinner-glass-animation"
-	| "--style-spinner-glass-transition-duration"
-	| "--style-spinner-glass-transition-timing-function"
-	| "--style-spinner-glass-gradient"
-	| "--style-spinner-glass-font-family"
-	| "--style-spinner-glass-font-size"
-	| "--style-spinner-glass-font-weight"
-	| "--style-spinner-glass-letter-spacing"
-	| "--style-spinner-glass-line-height"
-	| "--style-spinner-flat-background-color"
-	| "--style-spinner-flat-border-radius"
-	| "--style-spinner-flat-box-shadow"
-	| "--style-spinner-flat-color"
-	| "--style-spinner-flat-border-color"
-	| "--style-spinner-flat-border-width"
-	| "--style-spinner-flat-opacity"
-	| "--style-spinner-flat-animation"
-	| "--style-spinner-flat-transition-duration"
-	| "--style-spinner-flat-transition-timing-function"
-	| "--style-spinner-flat-gradient"
-	| "--style-spinner-flat-font-family"
-	| "--style-spinner-flat-font-size"
-	| "--style-spinner-flat-font-weight"
-	| "--style-spinner-flat-letter-spacing"
-	| "--style-spinner-flat-line-height"
-	| "--style-spinner-matte-background-color"
-	| "--style-spinner-matte-border-radius"
-	| "--style-spinner-matte-box-shadow"
-	| "--style-spinner-matte-color"
-	| "--style-spinner-matte-border-color"
-	| "--style-spinner-matte-border-width"
-	| "--style-spinner-matte-opacity"
-	| "--style-spinner-matte-animation"
-	| "--style-spinner-matte-transition-duration"
-	| "--style-spinner-matte-transition-timing-function"
-	| "--style-spinner-matte-gradient"
-	| "--style-spinner-matte-font-family"
-	| "--style-spinner-matte-font-size"
-	| "--style-spinner-matte-font-weight"
-	| "--style-spinner-matte-letter-spacing"
-	| "--style-spinner-matte-line-height"
-	| "--style-stat-default-background-color"
-	| "--style-stat-default-border-radius"
-	| "--style-stat-default-box-shadow"
-	| "--style-stat-default-color"
-	| "--style-stat-default-border-color"
-	| "--style-stat-default-border-width"
-	| "--style-stat-default-backdrop-filter"
-	| "--style-stat-default-opacity"
-	| "--style-stat-default-animation"
-	| "--style-stat-default-transition-duration"
-	| "--style-stat-default-transition-timing-function"
-	| "--style-stat-default-gradient"
-	| "--style-stat-default-font-family"
-	| "--style-stat-default-font-size"
-	| "--style-stat-default-font-weight"
-	| "--style-stat-default-letter-spacing"
-	| "--style-stat-default-line-height"
-	| "--style-stat-stark-background-color"
-	| "--style-stat-stark-border-radius"
-	| "--style-stat-stark-box-shadow"
-	| "--style-stat-stark-color"
-	| "--style-stat-stark-border-color"
-	| "--style-stat-stark-border-width"
-	| "--style-stat-stark-opacity"
-	| "--style-stat-stark-animation"
-	| "--style-stat-stark-transition-duration"
-	| "--style-stat-stark-transition-timing-function"
-	| "--style-stat-stark-gradient"
-	| "--style-stat-stark-font-family"
-	| "--style-stat-stark-font-size"
-	| "--style-stat-stark-font-weight"
-	| "--style-stat-stark-letter-spacing"
-	| "--style-stat-stark-line-height"
-	| "--style-stat-glass-background-color"
-	| "--style-stat-glass-border-radius"
-	| "--style-stat-glass-box-shadow"
-	| "--style-stat-glass-color"
-	| "--style-stat-glass-border-color"
-	| "--style-stat-glass-border-width"
-	| "--style-stat-glass-backdrop-filter"
-	| "--style-stat-glass-opacity"
-	| "--style-stat-glass-animation"
-	| "--style-stat-glass-transition-duration"
-	| "--style-stat-glass-transition-timing-function"
-	| "--style-stat-glass-gradient"
-	| "--style-stat-glass-font-family"
-	| "--style-stat-glass-font-size"
-	| "--style-stat-glass-font-weight"
-	| "--style-stat-glass-letter-spacing"
-	| "--style-stat-glass-line-height"
-	| "--style-stat-flat-background-color"
-	| "--style-stat-flat-border-radius"
-	| "--style-stat-flat-box-shadow"
-	| "--style-stat-flat-color"
-	| "--style-stat-flat-border-color"
-	| "--style-stat-flat-border-width"
-	| "--style-stat-flat-opacity"
-	| "--style-stat-flat-animation"
-	| "--style-stat-flat-transition-duration"
-	| "--style-stat-flat-transition-timing-function"
-	| "--style-stat-flat-gradient"
-	| "--style-stat-flat-font-family"
-	| "--style-stat-flat-font-size"
-	| "--style-stat-flat-font-weight"
-	| "--style-stat-flat-letter-spacing"
-	| "--style-stat-flat-line-height"
-	| "--style-stat-matte-background-color"
-	| "--style-stat-matte-border-radius"
-	| "--style-stat-matte-box-shadow"
-	| "--style-stat-matte-color"
-	| "--style-stat-matte-border-color"
-	| "--style-stat-matte-border-width"
-	| "--style-stat-matte-opacity"
-	| "--style-stat-matte-animation"
-	| "--style-stat-matte-transition-duration"
-	| "--style-stat-matte-transition-timing-function"
-	| "--style-stat-matte-gradient"
-	| "--style-stat-matte-font-family"
-	| "--style-stat-matte-font-size"
-	| "--style-stat-matte-font-weight"
-	| "--style-stat-matte-letter-spacing"
-	| "--style-stat-matte-line-height"
-	| "--style-status-dot-default-background-color"
-	| "--style-status-dot-default-border-radius"
-	| "--style-status-dot-default-box-shadow"
-	| "--style-status-dot-default-color"
-	| "--style-status-dot-default-border-color"
-	| "--style-status-dot-default-border-width"
-	| "--style-status-dot-default-backdrop-filter"
-	| "--style-status-dot-default-opacity"
-	| "--style-status-dot-default-animation"
-	| "--style-status-dot-default-transition-duration"
-	| "--style-status-dot-default-transition-timing-function"
-	| "--style-status-dot-default-gradient"
-	| "--style-status-dot-default-font-family"
-	| "--style-status-dot-default-font-size"
-	| "--style-status-dot-default-font-weight"
-	| "--style-status-dot-default-letter-spacing"
-	| "--style-status-dot-default-line-height"
-	| "--style-status-dot-stark-background-color"
-	| "--style-status-dot-stark-border-radius"
-	| "--style-status-dot-stark-box-shadow"
-	| "--style-status-dot-stark-color"
-	| "--style-status-dot-stark-border-color"
-	| "--style-status-dot-stark-border-width"
-	| "--style-status-dot-stark-opacity"
-	| "--style-status-dot-stark-animation"
-	| "--style-status-dot-stark-transition-duration"
-	| "--style-status-dot-stark-transition-timing-function"
-	| "--style-status-dot-stark-gradient"
-	| "--style-status-dot-stark-font-family"
-	| "--style-status-dot-stark-font-size"
-	| "--style-status-dot-stark-font-weight"
-	| "--style-status-dot-stark-letter-spacing"
-	| "--style-status-dot-stark-line-height"
-	| "--style-status-dot-glass-background-color"
-	| "--style-status-dot-glass-border-radius"
-	| "--style-status-dot-glass-box-shadow"
-	| "--style-status-dot-glass-color"
-	| "--style-status-dot-glass-border-color"
-	| "--style-status-dot-glass-border-width"
-	| "--style-status-dot-glass-backdrop-filter"
-	| "--style-status-dot-glass-opacity"
-	| "--style-status-dot-glass-animation"
-	| "--style-status-dot-glass-transition-duration"
-	| "--style-status-dot-glass-transition-timing-function"
-	| "--style-status-dot-glass-gradient"
-	| "--style-status-dot-glass-font-family"
-	| "--style-status-dot-glass-font-size"
-	| "--style-status-dot-glass-font-weight"
-	| "--style-status-dot-glass-letter-spacing"
-	| "--style-status-dot-glass-line-height"
-	| "--style-status-dot-flat-background-color"
-	| "--style-status-dot-flat-border-radius"
-	| "--style-status-dot-flat-box-shadow"
-	| "--style-status-dot-flat-color"
-	| "--style-status-dot-flat-border-color"
-	| "--style-status-dot-flat-border-width"
-	| "--style-status-dot-flat-opacity"
-	| "--style-status-dot-flat-animation"
-	| "--style-status-dot-flat-transition-duration"
-	| "--style-status-dot-flat-transition-timing-function"
-	| "--style-status-dot-flat-gradient"
-	| "--style-status-dot-flat-font-family"
-	| "--style-status-dot-flat-font-size"
-	| "--style-status-dot-flat-font-weight"
-	| "--style-status-dot-flat-letter-spacing"
-	| "--style-status-dot-flat-line-height"
-	| "--style-status-dot-matte-background-color"
-	| "--style-status-dot-matte-border-radius"
-	| "--style-status-dot-matte-box-shadow"
-	| "--style-status-dot-matte-color"
-	| "--style-status-dot-matte-border-color"
-	| "--style-status-dot-matte-border-width"
-	| "--style-status-dot-matte-opacity"
-	| "--style-status-dot-matte-animation"
-	| "--style-status-dot-matte-transition-duration"
-	| "--style-status-dot-matte-transition-timing-function"
-	| "--style-status-dot-matte-gradient"
-	| "--style-status-dot-matte-font-family"
-	| "--style-status-dot-matte-font-size"
-	| "--style-status-dot-matte-font-weight"
-	| "--style-status-dot-matte-letter-spacing"
-	| "--style-status-dot-matte-line-height"
-	| "--style-steps-default-background-color"
-	| "--style-steps-default-border-radius"
-	| "--style-steps-default-box-shadow"
-	| "--style-steps-default-color"
-	| "--style-steps-default-border-color"
-	| "--style-steps-default-border-width"
-	| "--style-steps-default-backdrop-filter"
-	| "--style-steps-default-opacity"
-	| "--style-steps-default-animation"
-	| "--style-steps-default-transition-duration"
-	| "--style-steps-default-transition-timing-function"
-	| "--style-steps-default-gradient"
-	| "--style-steps-default-font-family"
-	| "--style-steps-default-font-size"
-	| "--style-steps-default-font-weight"
-	| "--style-steps-default-letter-spacing"
-	| "--style-steps-default-line-height"
-	| "--style-steps-stark-background-color"
-	| "--style-steps-stark-border-radius"
-	| "--style-steps-stark-box-shadow"
-	| "--style-steps-stark-color"
-	| "--style-steps-stark-border-color"
-	| "--style-steps-stark-border-width"
-	| "--style-steps-stark-opacity"
-	| "--style-steps-stark-animation"
-	| "--style-steps-stark-transition-duration"
-	| "--style-steps-stark-transition-timing-function"
-	| "--style-steps-stark-gradient"
-	| "--style-steps-stark-font-family"
-	| "--style-steps-stark-font-size"
-	| "--style-steps-stark-font-weight"
-	| "--style-steps-stark-letter-spacing"
-	| "--style-steps-stark-line-height"
-	| "--style-steps-glass-background-color"
-	| "--style-steps-glass-border-radius"
-	| "--style-steps-glass-box-shadow"
-	| "--style-steps-glass-color"
-	| "--style-steps-glass-border-color"
-	| "--style-steps-glass-border-width"
-	| "--style-steps-glass-backdrop-filter"
-	| "--style-steps-glass-opacity"
-	| "--style-steps-glass-animation"
-	| "--style-steps-glass-transition-duration"
-	| "--style-steps-glass-transition-timing-function"
-	| "--style-steps-glass-gradient"
-	| "--style-steps-glass-font-family"
-	| "--style-steps-glass-font-size"
-	| "--style-steps-glass-font-weight"
-	| "--style-steps-glass-letter-spacing"
-	| "--style-steps-glass-line-height"
-	| "--style-steps-flat-background-color"
-	| "--style-steps-flat-border-radius"
-	| "--style-steps-flat-box-shadow"
-	| "--style-steps-flat-color"
-	| "--style-steps-flat-border-color"
-	| "--style-steps-flat-border-width"
-	| "--style-steps-flat-opacity"
-	| "--style-steps-flat-animation"
-	| "--style-steps-flat-transition-duration"
-	| "--style-steps-flat-transition-timing-function"
-	| "--style-steps-flat-gradient"
-	| "--style-steps-flat-font-family"
-	| "--style-steps-flat-font-size"
-	| "--style-steps-flat-font-weight"
-	| "--style-steps-flat-letter-spacing"
-	| "--style-steps-flat-line-height"
-	| "--style-steps-matte-background-color"
-	| "--style-steps-matte-border-radius"
-	| "--style-steps-matte-box-shadow"
-	| "--style-steps-matte-color"
-	| "--style-steps-matte-border-color"
-	| "--style-steps-matte-border-width"
-	| "--style-steps-matte-opacity"
-	| "--style-steps-matte-animation"
-	| "--style-steps-matte-transition-duration"
-	| "--style-steps-matte-transition-timing-function"
-	| "--style-steps-matte-gradient"
-	| "--style-steps-matte-font-family"
-	| "--style-steps-matte-font-size"
-	| "--style-steps-matte-font-weight"
-	| "--style-steps-matte-letter-spacing"
-	| "--style-steps-matte-line-height"
-	| "--style-switch-default-background-color"
-	| "--style-switch-default-border-radius"
-	| "--style-switch-default-box-shadow"
-	| "--style-switch-default-color"
-	| "--style-switch-default-border-color"
-	| "--style-switch-default-border-width"
-	| "--style-switch-default-backdrop-filter"
-	| "--style-switch-default-opacity"
-	| "--style-switch-default-animation"
-	| "--style-switch-default-transition-duration"
-	| "--style-switch-default-transition-timing-function"
-	| "--style-switch-default-gradient"
-	| "--style-switch-default-font-family"
-	| "--style-switch-default-font-size"
-	| "--style-switch-default-font-weight"
-	| "--style-switch-default-letter-spacing"
-	| "--style-switch-default-line-height"
-	| "--style-switch-stark-background-color"
-	| "--style-switch-stark-border-radius"
-	| "--style-switch-stark-box-shadow"
-	| "--style-switch-stark-color"
-	| "--style-switch-stark-border-color"
-	| "--style-switch-stark-border-width"
-	| "--style-switch-stark-opacity"
-	| "--style-switch-stark-animation"
-	| "--style-switch-stark-transition-duration"
-	| "--style-switch-stark-transition-timing-function"
-	| "--style-switch-stark-gradient"
-	| "--style-switch-stark-font-family"
-	| "--style-switch-stark-font-size"
-	| "--style-switch-stark-font-weight"
-	| "--style-switch-stark-letter-spacing"
-	| "--style-switch-stark-line-height"
-	| "--style-switch-glass-background-color"
-	| "--style-switch-glass-border-radius"
-	| "--style-switch-glass-box-shadow"
-	| "--style-switch-glass-color"
-	| "--style-switch-glass-border-color"
-	| "--style-switch-glass-border-width"
-	| "--style-switch-glass-backdrop-filter"
-	| "--style-switch-glass-opacity"
-	| "--style-switch-glass-animation"
-	| "--style-switch-glass-transition-duration"
-	| "--style-switch-glass-transition-timing-function"
-	| "--style-switch-glass-gradient"
-	| "--style-switch-glass-font-family"
-	| "--style-switch-glass-font-size"
-	| "--style-switch-glass-font-weight"
-	| "--style-switch-glass-letter-spacing"
-	| "--style-switch-glass-line-height"
-	| "--style-switch-flat-background-color"
-	| "--style-switch-flat-border-radius"
-	| "--style-switch-flat-box-shadow"
-	| "--style-switch-flat-color"
-	| "--style-switch-flat-border-color"
-	| "--style-switch-flat-border-width"
-	| "--style-switch-flat-opacity"
-	| "--style-switch-flat-animation"
-	| "--style-switch-flat-transition-duration"
-	| "--style-switch-flat-transition-timing-function"
-	| "--style-switch-flat-gradient"
-	| "--style-switch-flat-font-family"
-	| "--style-switch-flat-font-size"
-	| "--style-switch-flat-font-weight"
-	| "--style-switch-flat-letter-spacing"
-	| "--style-switch-flat-line-height"
-	| "--style-switch-matte-background-color"
-	| "--style-switch-matte-border-radius"
-	| "--style-switch-matte-box-shadow"
-	| "--style-switch-matte-color"
-	| "--style-switch-matte-border-color"
-	| "--style-switch-matte-border-width"
-	| "--style-switch-matte-opacity"
-	| "--style-switch-matte-animation"
-	| "--style-switch-matte-transition-duration"
-	| "--style-switch-matte-transition-timing-function"
-	| "--style-switch-matte-gradient"
-	| "--style-switch-matte-font-family"
-	| "--style-switch-matte-font-size"
-	| "--style-switch-matte-font-weight"
-	| "--style-switch-matte-letter-spacing"
-	| "--style-switch-matte-line-height"
-	| "--style-table-of-contents-default-background-color"
-	| "--style-table-of-contents-default-border-radius"
-	| "--style-table-of-contents-default-box-shadow"
-	| "--style-table-of-contents-default-color"
-	| "--style-table-of-contents-default-border-color"
-	| "--style-table-of-contents-default-border-width"
-	| "--style-table-of-contents-default-backdrop-filter"
-	| "--style-table-of-contents-default-opacity"
-	| "--style-table-of-contents-default-animation"
-	| "--style-table-of-contents-default-transition-duration"
-	| "--style-table-of-contents-default-transition-timing-function"
-	| "--style-table-of-contents-default-gradient"
-	| "--style-table-of-contents-default-font-family"
-	| "--style-table-of-contents-default-font-size"
-	| "--style-table-of-contents-default-font-weight"
-	| "--style-table-of-contents-default-letter-spacing"
-	| "--style-table-of-contents-default-line-height"
-	| "--style-table-of-contents-stark-background-color"
-	| "--style-table-of-contents-stark-border-radius"
-	| "--style-table-of-contents-stark-box-shadow"
-	| "--style-table-of-contents-stark-color"
-	| "--style-table-of-contents-stark-border-color"
-	| "--style-table-of-contents-stark-border-width"
-	| "--style-table-of-contents-stark-opacity"
-	| "--style-table-of-contents-stark-animation"
-	| "--style-table-of-contents-stark-transition-duration"
-	| "--style-table-of-contents-stark-transition-timing-function"
-	| "--style-table-of-contents-stark-gradient"
-	| "--style-table-of-contents-stark-font-family"
-	| "--style-table-of-contents-stark-font-size"
-	| "--style-table-of-contents-stark-font-weight"
-	| "--style-table-of-contents-stark-letter-spacing"
-	| "--style-table-of-contents-stark-line-height"
-	| "--style-table-of-contents-glass-background-color"
-	| "--style-table-of-contents-glass-border-radius"
-	| "--style-table-of-contents-glass-box-shadow"
-	| "--style-table-of-contents-glass-color"
-	| "--style-table-of-contents-glass-border-color"
-	| "--style-table-of-contents-glass-border-width"
-	| "--style-table-of-contents-glass-backdrop-filter"
-	| "--style-table-of-contents-glass-opacity"
-	| "--style-table-of-contents-glass-animation"
-	| "--style-table-of-contents-glass-transition-duration"
-	| "--style-table-of-contents-glass-transition-timing-function"
-	| "--style-table-of-contents-glass-gradient"
-	| "--style-table-of-contents-glass-font-family"
-	| "--style-table-of-contents-glass-font-size"
-	| "--style-table-of-contents-glass-font-weight"
-	| "--style-table-of-contents-glass-letter-spacing"
-	| "--style-table-of-contents-glass-line-height"
-	| "--style-table-of-contents-flat-background-color"
-	| "--style-table-of-contents-flat-border-radius"
-	| "--style-table-of-contents-flat-box-shadow"
-	| "--style-table-of-contents-flat-color"
-	| "--style-table-of-contents-flat-border-color"
-	| "--style-table-of-contents-flat-border-width"
-	| "--style-table-of-contents-flat-opacity"
-	| "--style-table-of-contents-flat-animation"
-	| "--style-table-of-contents-flat-transition-duration"
-	| "--style-table-of-contents-flat-transition-timing-function"
-	| "--style-table-of-contents-flat-gradient"
-	| "--style-table-of-contents-flat-font-family"
-	| "--style-table-of-contents-flat-font-size"
-	| "--style-table-of-contents-flat-font-weight"
-	| "--style-table-of-contents-flat-letter-spacing"
-	| "--style-table-of-contents-flat-line-height"
-	| "--style-table-of-contents-matte-background-color"
-	| "--style-table-of-contents-matte-border-radius"
-	| "--style-table-of-contents-matte-box-shadow"
-	| "--style-table-of-contents-matte-color"
-	| "--style-table-of-contents-matte-border-color"
-	| "--style-table-of-contents-matte-border-width"
-	| "--style-table-of-contents-matte-opacity"
-	| "--style-table-of-contents-matte-animation"
-	| "--style-table-of-contents-matte-transition-duration"
-	| "--style-table-of-contents-matte-transition-timing-function"
-	| "--style-table-of-contents-matte-gradient"
-	| "--style-table-of-contents-matte-font-family"
-	| "--style-table-of-contents-matte-font-size"
-	| "--style-table-of-contents-matte-font-weight"
-	| "--style-table-of-contents-matte-letter-spacing"
-	| "--style-table-of-contents-matte-line-height"
-	| "--style-table-default-background-color"
-	| "--style-table-default-border-radius"
-	| "--style-table-default-box-shadow"
-	| "--style-table-default-color"
-	| "--style-table-default-border-color"
-	| "--style-table-default-border-width"
-	| "--style-table-default-backdrop-filter"
-	| "--style-table-default-opacity"
-	| "--style-table-default-animation"
-	| "--style-table-default-transition-duration"
-	| "--style-table-default-transition-timing-function"
-	| "--style-table-default-gradient"
-	| "--style-table-default-font-family"
-	| "--style-table-default-font-size"
-	| "--style-table-default-font-weight"
-	| "--style-table-default-letter-spacing"
-	| "--style-table-default-line-height"
-	| "--style-table-stark-background-color"
-	| "--style-table-stark-border-radius"
-	| "--style-table-stark-box-shadow"
-	| "--style-table-stark-color"
-	| "--style-table-stark-border-color"
-	| "--style-table-stark-border-width"
-	| "--style-table-stark-opacity"
-	| "--style-table-stark-animation"
-	| "--style-table-stark-transition-duration"
-	| "--style-table-stark-transition-timing-function"
-	| "--style-table-stark-gradient"
-	| "--style-table-stark-font-family"
-	| "--style-table-stark-font-size"
-	| "--style-table-stark-font-weight"
-	| "--style-table-stark-letter-spacing"
-	| "--style-table-stark-line-height"
-	| "--style-table-glass-background-color"
-	| "--style-table-glass-border-radius"
-	| "--style-table-glass-box-shadow"
-	| "--style-table-glass-color"
-	| "--style-table-glass-border-color"
-	| "--style-table-glass-border-width"
-	| "--style-table-glass-backdrop-filter"
-	| "--style-table-glass-opacity"
-	| "--style-table-glass-animation"
-	| "--style-table-glass-transition-duration"
-	| "--style-table-glass-transition-timing-function"
-	| "--style-table-glass-gradient"
-	| "--style-table-glass-font-family"
-	| "--style-table-glass-font-size"
-	| "--style-table-glass-font-weight"
-	| "--style-table-glass-letter-spacing"
-	| "--style-table-glass-line-height"
-	| "--style-table-flat-background-color"
-	| "--style-table-flat-border-radius"
-	| "--style-table-flat-box-shadow"
-	| "--style-table-flat-color"
-	| "--style-table-flat-border-color"
-	| "--style-table-flat-border-width"
-	| "--style-table-flat-opacity"
-	| "--style-table-flat-animation"
-	| "--style-table-flat-transition-duration"
-	| "--style-table-flat-transition-timing-function"
-	| "--style-table-flat-gradient"
-	| "--style-table-flat-font-family"
-	| "--style-table-flat-font-size"
-	| "--style-table-flat-font-weight"
-	| "--style-table-flat-letter-spacing"
-	| "--style-table-flat-line-height"
-	| "--style-table-matte-background-color"
-	| "--style-table-matte-border-radius"
-	| "--style-table-matte-box-shadow"
-	| "--style-table-matte-color"
-	| "--style-table-matte-border-color"
-	| "--style-table-matte-border-width"
-	| "--style-table-matte-opacity"
-	| "--style-table-matte-animation"
-	| "--style-table-matte-transition-duration"
-	| "--style-table-matte-transition-timing-function"
-	| "--style-table-matte-gradient"
-	| "--style-table-matte-font-family"
-	| "--style-table-matte-font-size"
-	| "--style-table-matte-font-weight"
-	| "--style-table-matte-letter-spacing"
-	| "--style-table-matte-line-height"
-	| "--style-tabs-default-background-color"
-	| "--style-tabs-default-border-radius"
-	| "--style-tabs-default-box-shadow"
-	| "--style-tabs-default-color"
-	| "--style-tabs-default-border-color"
-	| "--style-tabs-default-border-width"
-	| "--style-tabs-default-backdrop-filter"
-	| "--style-tabs-default-opacity"
-	| "--style-tabs-default-animation"
-	| "--style-tabs-default-transition-duration"
-	| "--style-tabs-default-transition-timing-function"
-	| "--style-tabs-default-gradient"
-	| "--style-tabs-default-font-family"
-	| "--style-tabs-default-font-size"
-	| "--style-tabs-default-font-weight"
-	| "--style-tabs-default-letter-spacing"
-	| "--style-tabs-default-line-height"
-	| "--style-tabs-stark-background-color"
-	| "--style-tabs-stark-border-radius"
-	| "--style-tabs-stark-box-shadow"
-	| "--style-tabs-stark-color"
-	| "--style-tabs-stark-border-color"
-	| "--style-tabs-stark-border-width"
-	| "--style-tabs-stark-opacity"
-	| "--style-tabs-stark-animation"
-	| "--style-tabs-stark-transition-duration"
-	| "--style-tabs-stark-transition-timing-function"
-	| "--style-tabs-stark-gradient"
-	| "--style-tabs-stark-font-family"
-	| "--style-tabs-stark-font-size"
-	| "--style-tabs-stark-font-weight"
-	| "--style-tabs-stark-letter-spacing"
-	| "--style-tabs-stark-line-height"
-	| "--style-tabs-glass-background-color"
-	| "--style-tabs-glass-border-radius"
-	| "--style-tabs-glass-box-shadow"
-	| "--style-tabs-glass-color"
-	| "--style-tabs-glass-border-color"
-	| "--style-tabs-glass-border-width"
-	| "--style-tabs-glass-backdrop-filter"
-	| "--style-tabs-glass-opacity"
-	| "--style-tabs-glass-animation"
-	| "--style-tabs-glass-transition-duration"
-	| "--style-tabs-glass-transition-timing-function"
-	| "--style-tabs-glass-gradient"
-	| "--style-tabs-glass-font-family"
-	| "--style-tabs-glass-font-size"
-	| "--style-tabs-glass-font-weight"
-	| "--style-tabs-glass-letter-spacing"
-	| "--style-tabs-glass-line-height"
-	| "--style-tabs-flat-background-color"
-	| "--style-tabs-flat-border-radius"
-	| "--style-tabs-flat-box-shadow"
-	| "--style-tabs-flat-color"
-	| "--style-tabs-flat-border-color"
-	| "--style-tabs-flat-border-width"
-	| "--style-tabs-flat-opacity"
-	| "--style-tabs-flat-animation"
-	| "--style-tabs-flat-transition-duration"
-	| "--style-tabs-flat-transition-timing-function"
-	| "--style-tabs-flat-gradient"
-	| "--style-tabs-flat-font-family"
-	| "--style-tabs-flat-font-size"
-	| "--style-tabs-flat-font-weight"
-	| "--style-tabs-flat-letter-spacing"
-	| "--style-tabs-flat-line-height"
-	| "--style-tabs-matte-background-color"
-	| "--style-tabs-matte-border-radius"
-	| "--style-tabs-matte-box-shadow"
-	| "--style-tabs-matte-color"
-	| "--style-tabs-matte-border-color"
-	| "--style-tabs-matte-border-width"
-	| "--style-tabs-matte-opacity"
-	| "--style-tabs-matte-animation"
-	| "--style-tabs-matte-transition-duration"
-	| "--style-tabs-matte-transition-timing-function"
-	| "--style-tabs-matte-gradient"
-	| "--style-tabs-matte-font-family"
-	| "--style-tabs-matte-font-size"
-	| "--style-tabs-matte-font-weight"
-	| "--style-tabs-matte-letter-spacing"
-	| "--style-tabs-matte-line-height"
-	| "--style-text-field-default-background-color"
-	| "--style-text-field-default-border-radius"
-	| "--style-text-field-default-box-shadow"
-	| "--style-text-field-default-color"
-	| "--style-text-field-default-border-color"
-	| "--style-text-field-default-border-width"
-	| "--style-text-field-default-backdrop-filter"
-	| "--style-text-field-default-opacity"
-	| "--style-text-field-default-animation"
-	| "--style-text-field-default-transition-duration"
-	| "--style-text-field-default-transition-timing-function"
-	| "--style-text-field-default-gradient"
-	| "--style-text-field-default-font-family"
-	| "--style-text-field-default-font-size"
-	| "--style-text-field-default-font-weight"
-	| "--style-text-field-default-letter-spacing"
-	| "--style-text-field-default-line-height"
-	| "--style-text-field-stark-background-color"
-	| "--style-text-field-stark-border-radius"
-	| "--style-text-field-stark-box-shadow"
-	| "--style-text-field-stark-color"
-	| "--style-text-field-stark-border-color"
-	| "--style-text-field-stark-border-width"
-	| "--style-text-field-stark-opacity"
-	| "--style-text-field-stark-animation"
-	| "--style-text-field-stark-transition-duration"
-	| "--style-text-field-stark-transition-timing-function"
-	| "--style-text-field-stark-gradient"
-	| "--style-text-field-stark-font-family"
-	| "--style-text-field-stark-font-size"
-	| "--style-text-field-stark-font-weight"
-	| "--style-text-field-stark-letter-spacing"
-	| "--style-text-field-stark-line-height"
-	| "--style-text-field-glass-background-color"
-	| "--style-text-field-glass-border-radius"
-	| "--style-text-field-glass-box-shadow"
-	| "--style-text-field-glass-color"
-	| "--style-text-field-glass-border-color"
-	| "--style-text-field-glass-border-width"
-	| "--style-text-field-glass-backdrop-filter"
-	| "--style-text-field-glass-opacity"
-	| "--style-text-field-glass-animation"
-	| "--style-text-field-glass-transition-duration"
-	| "--style-text-field-glass-transition-timing-function"
-	| "--style-text-field-glass-gradient"
-	| "--style-text-field-glass-font-family"
-	| "--style-text-field-glass-font-size"
-	| "--style-text-field-glass-font-weight"
-	| "--style-text-field-glass-letter-spacing"
-	| "--style-text-field-glass-line-height"
-	| "--style-text-field-flat-background-color"
-	| "--style-text-field-flat-border-radius"
-	| "--style-text-field-flat-box-shadow"
-	| "--style-text-field-flat-color"
-	| "--style-text-field-flat-border-color"
-	| "--style-text-field-flat-border-width"
-	| "--style-text-field-flat-opacity"
-	| "--style-text-field-flat-animation"
-	| "--style-text-field-flat-transition-duration"
-	| "--style-text-field-flat-transition-timing-function"
-	| "--style-text-field-flat-gradient"
-	| "--style-text-field-flat-font-family"
-	| "--style-text-field-flat-font-size"
-	| "--style-text-field-flat-font-weight"
-	| "--style-text-field-flat-letter-spacing"
-	| "--style-text-field-flat-line-height"
-	| "--style-text-field-matte-background-color"
-	| "--style-text-field-matte-border-radius"
-	| "--style-text-field-matte-box-shadow"
-	| "--style-text-field-matte-color"
-	| "--style-text-field-matte-border-color"
-	| "--style-text-field-matte-border-width"
-	| "--style-text-field-matte-opacity"
-	| "--style-text-field-matte-animation"
-	| "--style-text-field-matte-transition-duration"
-	| "--style-text-field-matte-transition-timing-function"
-	| "--style-text-field-matte-gradient"
-	| "--style-text-field-matte-font-family"
-	| "--style-text-field-matte-font-size"
-	| "--style-text-field-matte-font-weight"
-	| "--style-text-field-matte-letter-spacing"
-	| "--style-text-field-matte-line-height"
-	| "--style-text-default-background-color"
-	| "--style-text-default-border-radius"
-	| "--style-text-default-box-shadow"
-	| "--style-text-default-color"
-	| "--style-text-default-border-color"
-	| "--style-text-default-border-width"
-	| "--style-text-default-backdrop-filter"
-	| "--style-text-default-opacity"
-	| "--style-text-default-animation"
-	| "--style-text-default-transition-duration"
-	| "--style-text-default-transition-timing-function"
-	| "--style-text-default-gradient"
-	| "--style-text-default-font-family"
-	| "--style-text-default-font-size"
-	| "--style-text-default-font-weight"
-	| "--style-text-default-letter-spacing"
-	| "--style-text-default-line-height"
-	| "--style-text-stark-background-color"
-	| "--style-text-stark-border-radius"
-	| "--style-text-stark-box-shadow"
-	| "--style-text-stark-color"
-	| "--style-text-stark-border-color"
-	| "--style-text-stark-border-width"
-	| "--style-text-stark-opacity"
-	| "--style-text-stark-animation"
-	| "--style-text-stark-transition-duration"
-	| "--style-text-stark-transition-timing-function"
-	| "--style-text-stark-gradient"
-	| "--style-text-stark-font-family"
-	| "--style-text-stark-font-size"
-	| "--style-text-stark-font-weight"
-	| "--style-text-stark-letter-spacing"
-	| "--style-text-stark-line-height"
-	| "--style-text-glass-background-color"
-	| "--style-text-glass-border-radius"
-	| "--style-text-glass-box-shadow"
-	| "--style-text-glass-color"
-	| "--style-text-glass-border-color"
-	| "--style-text-glass-border-width"
-	| "--style-text-glass-backdrop-filter"
-	| "--style-text-glass-opacity"
-	| "--style-text-glass-animation"
-	| "--style-text-glass-transition-duration"
-	| "--style-text-glass-transition-timing-function"
-	| "--style-text-glass-gradient"
-	| "--style-text-glass-font-family"
-	| "--style-text-glass-font-size"
-	| "--style-text-glass-font-weight"
-	| "--style-text-glass-letter-spacing"
-	| "--style-text-glass-line-height"
-	| "--style-text-flat-background-color"
-	| "--style-text-flat-border-radius"
-	| "--style-text-flat-box-shadow"
-	| "--style-text-flat-color"
-	| "--style-text-flat-border-color"
-	| "--style-text-flat-border-width"
-	| "--style-text-flat-opacity"
-	| "--style-text-flat-animation"
-	| "--style-text-flat-transition-duration"
-	| "--style-text-flat-transition-timing-function"
-	| "--style-text-flat-gradient"
-	| "--style-text-flat-font-family"
-	| "--style-text-flat-font-size"
-	| "--style-text-flat-font-weight"
-	| "--style-text-flat-letter-spacing"
-	| "--style-text-flat-line-height"
-	| "--style-text-matte-background-color"
-	| "--style-text-matte-border-radius"
-	| "--style-text-matte-box-shadow"
-	| "--style-text-matte-color"
-	| "--style-text-matte-border-color"
-	| "--style-text-matte-border-width"
-	| "--style-text-matte-opacity"
-	| "--style-text-matte-animation"
-	| "--style-text-matte-transition-duration"
-	| "--style-text-matte-transition-timing-function"
-	| "--style-text-matte-gradient"
-	| "--style-text-matte-font-family"
-	| "--style-text-matte-font-size"
-	| "--style-text-matte-font-weight"
-	| "--style-text-matte-letter-spacing"
-	| "--style-text-matte-line-height"
-	| "--style-textarea-default-background-color"
-	| "--style-textarea-default-border-radius"
-	| "--style-textarea-default-box-shadow"
-	| "--style-textarea-default-color"
-	| "--style-textarea-default-border-color"
-	| "--style-textarea-default-border-width"
-	| "--style-textarea-default-backdrop-filter"
-	| "--style-textarea-default-opacity"
-	| "--style-textarea-default-animation"
-	| "--style-textarea-default-transition-duration"
-	| "--style-textarea-default-transition-timing-function"
-	| "--style-textarea-default-gradient"
-	| "--style-textarea-default-font-family"
-	| "--style-textarea-default-font-size"
-	| "--style-textarea-default-font-weight"
-	| "--style-textarea-default-letter-spacing"
-	| "--style-textarea-default-line-height"
-	| "--style-textarea-stark-background-color"
-	| "--style-textarea-stark-border-radius"
-	| "--style-textarea-stark-box-shadow"
-	| "--style-textarea-stark-color"
-	| "--style-textarea-stark-border-color"
-	| "--style-textarea-stark-border-width"
-	| "--style-textarea-stark-opacity"
-	| "--style-textarea-stark-animation"
-	| "--style-textarea-stark-transition-duration"
-	| "--style-textarea-stark-transition-timing-function"
-	| "--style-textarea-stark-gradient"
-	| "--style-textarea-stark-font-family"
-	| "--style-textarea-stark-font-size"
-	| "--style-textarea-stark-font-weight"
-	| "--style-textarea-stark-letter-spacing"
-	| "--style-textarea-stark-line-height"
-	| "--style-textarea-glass-background-color"
-	| "--style-textarea-glass-border-radius"
-	| "--style-textarea-glass-box-shadow"
-	| "--style-textarea-glass-color"
-	| "--style-textarea-glass-border-color"
-	| "--style-textarea-glass-border-width"
-	| "--style-textarea-glass-backdrop-filter"
-	| "--style-textarea-glass-opacity"
-	| "--style-textarea-glass-animation"
-	| "--style-textarea-glass-transition-duration"
-	| "--style-textarea-glass-transition-timing-function"
-	| "--style-textarea-glass-gradient"
-	| "--style-textarea-glass-font-family"
-	| "--style-textarea-glass-font-size"
-	| "--style-textarea-glass-font-weight"
-	| "--style-textarea-glass-letter-spacing"
-	| "--style-textarea-glass-line-height"
-	| "--style-textarea-flat-background-color"
-	| "--style-textarea-flat-border-radius"
-	| "--style-textarea-flat-box-shadow"
-	| "--style-textarea-flat-color"
-	| "--style-textarea-flat-border-color"
-	| "--style-textarea-flat-border-width"
-	| "--style-textarea-flat-opacity"
-	| "--style-textarea-flat-animation"
-	| "--style-textarea-flat-transition-duration"
-	| "--style-textarea-flat-transition-timing-function"
-	| "--style-textarea-flat-gradient"
-	| "--style-textarea-flat-font-family"
-	| "--style-textarea-flat-font-size"
-	| "--style-textarea-flat-font-weight"
-	| "--style-textarea-flat-letter-spacing"
-	| "--style-textarea-flat-line-height"
-	| "--style-textarea-matte-background-color"
-	| "--style-textarea-matte-border-radius"
-	| "--style-textarea-matte-box-shadow"
-	| "--style-textarea-matte-color"
-	| "--style-textarea-matte-border-color"
-	| "--style-textarea-matte-border-width"
-	| "--style-textarea-matte-opacity"
-	| "--style-textarea-matte-animation"
-	| "--style-textarea-matte-transition-duration"
-	| "--style-textarea-matte-transition-timing-function"
-	| "--style-textarea-matte-gradient"
-	| "--style-textarea-matte-font-family"
-	| "--style-textarea-matte-font-size"
-	| "--style-textarea-matte-font-weight"
-	| "--style-textarea-matte-letter-spacing"
-	| "--style-textarea-matte-line-height"
-	| "--style-toaster-default-background-color"
-	| "--style-toaster-default-border-radius"
-	| "--style-toaster-default-box-shadow"
-	| "--style-toaster-default-color"
-	| "--style-toaster-default-border-color"
-	| "--style-toaster-default-border-width"
-	| "--style-toaster-default-backdrop-filter"
-	| "--style-toaster-default-opacity"
-	| "--style-toaster-default-animation"
-	| "--style-toaster-default-transition-duration"
-	| "--style-toaster-default-transition-timing-function"
-	| "--style-toaster-default-gradient"
-	| "--style-toaster-default-font-family"
-	| "--style-toaster-default-font-size"
-	| "--style-toaster-default-font-weight"
-	| "--style-toaster-default-letter-spacing"
-	| "--style-toaster-default-line-height"
-	| "--style-toaster-stark-background-color"
-	| "--style-toaster-stark-border-radius"
-	| "--style-toaster-stark-box-shadow"
-	| "--style-toaster-stark-color"
-	| "--style-toaster-stark-border-color"
-	| "--style-toaster-stark-border-width"
-	| "--style-toaster-stark-opacity"
-	| "--style-toaster-stark-animation"
-	| "--style-toaster-stark-transition-duration"
-	| "--style-toaster-stark-transition-timing-function"
-	| "--style-toaster-stark-gradient"
-	| "--style-toaster-stark-font-family"
-	| "--style-toaster-stark-font-size"
-	| "--style-toaster-stark-font-weight"
-	| "--style-toaster-stark-letter-spacing"
-	| "--style-toaster-stark-line-height"
-	| "--style-toaster-glass-background-color"
-	| "--style-toaster-glass-border-radius"
-	| "--style-toaster-glass-box-shadow"
-	| "--style-toaster-glass-color"
-	| "--style-toaster-glass-border-color"
-	| "--style-toaster-glass-border-width"
-	| "--style-toaster-glass-backdrop-filter"
-	| "--style-toaster-glass-opacity"
-	| "--style-toaster-glass-animation"
-	| "--style-toaster-glass-transition-duration"
-	| "--style-toaster-glass-transition-timing-function"
-	| "--style-toaster-glass-gradient"
-	| "--style-toaster-glass-font-family"
-	| "--style-toaster-glass-font-size"
-	| "--style-toaster-glass-font-weight"
-	| "--style-toaster-glass-letter-spacing"
-	| "--style-toaster-glass-line-height"
-	| "--style-toaster-flat-background-color"
-	| "--style-toaster-flat-border-radius"
-	| "--style-toaster-flat-box-shadow"
-	| "--style-toaster-flat-color"
-	| "--style-toaster-flat-border-color"
-	| "--style-toaster-flat-border-width"
-	| "--style-toaster-flat-opacity"
-	| "--style-toaster-flat-animation"
-	| "--style-toaster-flat-transition-duration"
-	| "--style-toaster-flat-transition-timing-function"
-	| "--style-toaster-flat-gradient"
-	| "--style-toaster-flat-font-family"
-	| "--style-toaster-flat-font-size"
-	| "--style-toaster-flat-font-weight"
-	| "--style-toaster-flat-letter-spacing"
-	| "--style-toaster-flat-line-height"
-	| "--style-toaster-matte-background-color"
-	| "--style-toaster-matte-border-radius"
-	| "--style-toaster-matte-box-shadow"
-	| "--style-toaster-matte-color"
-	| "--style-toaster-matte-border-color"
-	| "--style-toaster-matte-border-width"
-	| "--style-toaster-matte-opacity"
-	| "--style-toaster-matte-animation"
-	| "--style-toaster-matte-transition-duration"
-	| "--style-toaster-matte-transition-timing-function"
-	| "--style-toaster-matte-gradient"
-	| "--style-toaster-matte-font-family"
-	| "--style-toaster-matte-font-size"
-	| "--style-toaster-matte-font-weight"
-	| "--style-toaster-matte-letter-spacing"
-	| "--style-toaster-matte-line-height"
-	| "--style-toggle-group-default-background-color"
-	| "--style-toggle-group-default-border-radius"
-	| "--style-toggle-group-default-box-shadow"
-	| "--style-toggle-group-default-color"
-	| "--style-toggle-group-default-border-color"
-	| "--style-toggle-group-default-border-width"
-	| "--style-toggle-group-default-backdrop-filter"
-	| "--style-toggle-group-default-opacity"
-	| "--style-toggle-group-default-animation"
-	| "--style-toggle-group-default-transition-duration"
-	| "--style-toggle-group-default-transition-timing-function"
-	| "--style-toggle-group-default-gradient"
-	| "--style-toggle-group-default-font-family"
-	| "--style-toggle-group-default-font-size"
-	| "--style-toggle-group-default-font-weight"
-	| "--style-toggle-group-default-letter-spacing"
-	| "--style-toggle-group-default-line-height"
-	| "--style-toggle-group-stark-background-color"
-	| "--style-toggle-group-stark-border-radius"
-	| "--style-toggle-group-stark-box-shadow"
-	| "--style-toggle-group-stark-color"
-	| "--style-toggle-group-stark-border-color"
-	| "--style-toggle-group-stark-border-width"
-	| "--style-toggle-group-stark-opacity"
-	| "--style-toggle-group-stark-animation"
-	| "--style-toggle-group-stark-transition-duration"
-	| "--style-toggle-group-stark-transition-timing-function"
-	| "--style-toggle-group-stark-gradient"
-	| "--style-toggle-group-stark-font-family"
-	| "--style-toggle-group-stark-font-size"
-	| "--style-toggle-group-stark-font-weight"
-	| "--style-toggle-group-stark-letter-spacing"
-	| "--style-toggle-group-stark-line-height"
-	| "--style-toggle-group-glass-background-color"
-	| "--style-toggle-group-glass-border-radius"
-	| "--style-toggle-group-glass-box-shadow"
-	| "--style-toggle-group-glass-color"
-	| "--style-toggle-group-glass-border-color"
-	| "--style-toggle-group-glass-border-width"
-	| "--style-toggle-group-glass-backdrop-filter"
-	| "--style-toggle-group-glass-opacity"
-	| "--style-toggle-group-glass-animation"
-	| "--style-toggle-group-glass-transition-duration"
-	| "--style-toggle-group-glass-transition-timing-function"
-	| "--style-toggle-group-glass-gradient"
-	| "--style-toggle-group-glass-font-family"
-	| "--style-toggle-group-glass-font-size"
-	| "--style-toggle-group-glass-font-weight"
-	| "--style-toggle-group-glass-letter-spacing"
-	| "--style-toggle-group-glass-line-height"
-	| "--style-toggle-group-flat-background-color"
-	| "--style-toggle-group-flat-border-radius"
-	| "--style-toggle-group-flat-box-shadow"
-	| "--style-toggle-group-flat-color"
-	| "--style-toggle-group-flat-border-color"
-	| "--style-toggle-group-flat-border-width"
-	| "--style-toggle-group-flat-opacity"
-	| "--style-toggle-group-flat-animation"
-	| "--style-toggle-group-flat-transition-duration"
-	| "--style-toggle-group-flat-transition-timing-function"
-	| "--style-toggle-group-flat-gradient"
-	| "--style-toggle-group-flat-font-family"
-	| "--style-toggle-group-flat-font-size"
-	| "--style-toggle-group-flat-font-weight"
-	| "--style-toggle-group-flat-letter-spacing"
-	| "--style-toggle-group-flat-line-height"
-	| "--style-toggle-group-matte-background-color"
-	| "--style-toggle-group-matte-border-radius"
-	| "--style-toggle-group-matte-box-shadow"
-	| "--style-toggle-group-matte-color"
-	| "--style-toggle-group-matte-border-color"
-	| "--style-toggle-group-matte-border-width"
-	| "--style-toggle-group-matte-opacity"
-	| "--style-toggle-group-matte-animation"
-	| "--style-toggle-group-matte-transition-duration"
-	| "--style-toggle-group-matte-transition-timing-function"
-	| "--style-toggle-group-matte-gradient"
-	| "--style-toggle-group-matte-font-family"
-	| "--style-toggle-group-matte-font-size"
-	| "--style-toggle-group-matte-font-weight"
-	| "--style-toggle-group-matte-letter-spacing"
-	| "--style-toggle-group-matte-line-height"
-	| "--style-toggle-default-background-color"
-	| "--style-toggle-default-border-radius"
-	| "--style-toggle-default-box-shadow"
-	| "--style-toggle-default-color"
-	| "--style-toggle-default-border-color"
-	| "--style-toggle-default-border-width"
-	| "--style-toggle-default-backdrop-filter"
-	| "--style-toggle-default-opacity"
-	| "--style-toggle-default-animation"
-	| "--style-toggle-default-transition-duration"
-	| "--style-toggle-default-transition-timing-function"
-	| "--style-toggle-default-gradient"
-	| "--style-toggle-default-font-family"
-	| "--style-toggle-default-font-size"
-	| "--style-toggle-default-font-weight"
-	| "--style-toggle-default-letter-spacing"
-	| "--style-toggle-default-line-height"
-	| "--style-toggle-stark-background-color"
-	| "--style-toggle-stark-border-radius"
-	| "--style-toggle-stark-box-shadow"
-	| "--style-toggle-stark-color"
-	| "--style-toggle-stark-border-color"
-	| "--style-toggle-stark-border-width"
-	| "--style-toggle-stark-opacity"
-	| "--style-toggle-stark-animation"
-	| "--style-toggle-stark-transition-duration"
-	| "--style-toggle-stark-transition-timing-function"
-	| "--style-toggle-stark-gradient"
-	| "--style-toggle-stark-font-family"
-	| "--style-toggle-stark-font-size"
-	| "--style-toggle-stark-font-weight"
-	| "--style-toggle-stark-letter-spacing"
-	| "--style-toggle-stark-line-height"
-	| "--style-toggle-glass-background-color"
-	| "--style-toggle-glass-border-radius"
-	| "--style-toggle-glass-box-shadow"
-	| "--style-toggle-glass-color"
-	| "--style-toggle-glass-border-color"
-	| "--style-toggle-glass-border-width"
-	| "--style-toggle-glass-backdrop-filter"
-	| "--style-toggle-glass-opacity"
-	| "--style-toggle-glass-animation"
-	| "--style-toggle-glass-transition-duration"
-	| "--style-toggle-glass-transition-timing-function"
-	| "--style-toggle-glass-gradient"
-	| "--style-toggle-glass-font-family"
-	| "--style-toggle-glass-font-size"
-	| "--style-toggle-glass-font-weight"
-	| "--style-toggle-glass-letter-spacing"
-	| "--style-toggle-glass-line-height"
-	| "--style-toggle-flat-background-color"
-	| "--style-toggle-flat-border-radius"
-	| "--style-toggle-flat-box-shadow"
-	| "--style-toggle-flat-color"
-	| "--style-toggle-flat-border-color"
-	| "--style-toggle-flat-border-width"
-	| "--style-toggle-flat-opacity"
-	| "--style-toggle-flat-animation"
-	| "--style-toggle-flat-transition-duration"
-	| "--style-toggle-flat-transition-timing-function"
-	| "--style-toggle-flat-gradient"
-	| "--style-toggle-flat-font-family"
-	| "--style-toggle-flat-font-size"
-	| "--style-toggle-flat-font-weight"
-	| "--style-toggle-flat-letter-spacing"
-	| "--style-toggle-flat-line-height"
-	| "--style-toggle-matte-background-color"
-	| "--style-toggle-matte-border-radius"
-	| "--style-toggle-matte-box-shadow"
-	| "--style-toggle-matte-color"
-	| "--style-toggle-matte-border-color"
-	| "--style-toggle-matte-border-width"
-	| "--style-toggle-matte-opacity"
-	| "--style-toggle-matte-animation"
-	| "--style-toggle-matte-transition-duration"
-	| "--style-toggle-matte-transition-timing-function"
-	| "--style-toggle-matte-gradient"
-	| "--style-toggle-matte-font-family"
-	| "--style-toggle-matte-font-size"
-	| "--style-toggle-matte-font-weight"
-	| "--style-toggle-matte-letter-spacing"
-	| "--style-toggle-matte-line-height"
-	| "--style-toolbar-default-background-color"
-	| "--style-toolbar-default-border-radius"
-	| "--style-toolbar-default-box-shadow"
-	| "--style-toolbar-default-color"
-	| "--style-toolbar-default-border-color"
-	| "--style-toolbar-default-border-width"
-	| "--style-toolbar-default-backdrop-filter"
-	| "--style-toolbar-default-opacity"
-	| "--style-toolbar-default-animation"
-	| "--style-toolbar-default-transition-duration"
-	| "--style-toolbar-default-transition-timing-function"
-	| "--style-toolbar-default-gradient"
-	| "--style-toolbar-default-font-family"
-	| "--style-toolbar-default-font-size"
-	| "--style-toolbar-default-font-weight"
-	| "--style-toolbar-default-letter-spacing"
-	| "--style-toolbar-default-line-height"
-	| "--style-toolbar-stark-background-color"
-	| "--style-toolbar-stark-border-radius"
-	| "--style-toolbar-stark-box-shadow"
-	| "--style-toolbar-stark-color"
-	| "--style-toolbar-stark-border-color"
-	| "--style-toolbar-stark-border-width"
-	| "--style-toolbar-stark-opacity"
-	| "--style-toolbar-stark-animation"
-	| "--style-toolbar-stark-transition-duration"
-	| "--style-toolbar-stark-transition-timing-function"
-	| "--style-toolbar-stark-gradient"
-	| "--style-toolbar-stark-font-family"
-	| "--style-toolbar-stark-font-size"
-	| "--style-toolbar-stark-font-weight"
-	| "--style-toolbar-stark-letter-spacing"
-	| "--style-toolbar-stark-line-height"
-	| "--style-toolbar-glass-background-color"
-	| "--style-toolbar-glass-border-radius"
-	| "--style-toolbar-glass-box-shadow"
-	| "--style-toolbar-glass-color"
-	| "--style-toolbar-glass-border-color"
-	| "--style-toolbar-glass-border-width"
-	| "--style-toolbar-glass-backdrop-filter"
-	| "--style-toolbar-glass-opacity"
-	| "--style-toolbar-glass-animation"
-	| "--style-toolbar-glass-transition-duration"
-	| "--style-toolbar-glass-transition-timing-function"
-	| "--style-toolbar-glass-gradient"
-	| "--style-toolbar-glass-font-family"
-	| "--style-toolbar-glass-font-size"
-	| "--style-toolbar-glass-font-weight"
-	| "--style-toolbar-glass-letter-spacing"
-	| "--style-toolbar-glass-line-height"
-	| "--style-toolbar-flat-background-color"
-	| "--style-toolbar-flat-border-radius"
-	| "--style-toolbar-flat-box-shadow"
-	| "--style-toolbar-flat-color"
-	| "--style-toolbar-flat-border-color"
-	| "--style-toolbar-flat-border-width"
-	| "--style-toolbar-flat-opacity"
-	| "--style-toolbar-flat-animation"
-	| "--style-toolbar-flat-transition-duration"
-	| "--style-toolbar-flat-transition-timing-function"
-	| "--style-toolbar-flat-gradient"
-	| "--style-toolbar-flat-font-family"
-	| "--style-toolbar-flat-font-size"
-	| "--style-toolbar-flat-font-weight"
-	| "--style-toolbar-flat-letter-spacing"
-	| "--style-toolbar-flat-line-height"
-	| "--style-toolbar-matte-background-color"
-	| "--style-toolbar-matte-border-radius"
-	| "--style-toolbar-matte-box-shadow"
-	| "--style-toolbar-matte-color"
-	| "--style-toolbar-matte-border-color"
-	| "--style-toolbar-matte-border-width"
-	| "--style-toolbar-matte-opacity"
-	| "--style-toolbar-matte-animation"
-	| "--style-toolbar-matte-transition-duration"
-	| "--style-toolbar-matte-transition-timing-function"
-	| "--style-toolbar-matte-gradient"
-	| "--style-toolbar-matte-font-family"
-	| "--style-toolbar-matte-font-size"
-	| "--style-toolbar-matte-font-weight"
-	| "--style-toolbar-matte-letter-spacing"
-	| "--style-toolbar-matte-line-height"
-	| "--style-tooltip-default-background-color"
-	| "--style-tooltip-default-border-radius"
-	| "--style-tooltip-default-box-shadow"
-	| "--style-tooltip-default-color"
-	| "--style-tooltip-default-border-color"
-	| "--style-tooltip-default-border-width"
-	| "--style-tooltip-default-backdrop-filter"
-	| "--style-tooltip-default-opacity"
-	| "--style-tooltip-default-animation"
-	| "--style-tooltip-default-transition-duration"
-	| "--style-tooltip-default-transition-timing-function"
-	| "--style-tooltip-default-gradient"
-	| "--style-tooltip-default-font-family"
-	| "--style-tooltip-default-font-size"
-	| "--style-tooltip-default-font-weight"
-	| "--style-tooltip-default-letter-spacing"
-	| "--style-tooltip-default-line-height"
-	| "--style-tooltip-stark-background-color"
-	| "--style-tooltip-stark-border-radius"
-	| "--style-tooltip-stark-box-shadow"
-	| "--style-tooltip-stark-color"
-	| "--style-tooltip-stark-border-color"
-	| "--style-tooltip-stark-border-width"
-	| "--style-tooltip-stark-opacity"
-	| "--style-tooltip-stark-animation"
-	| "--style-tooltip-stark-transition-duration"
-	| "--style-tooltip-stark-transition-timing-function"
-	| "--style-tooltip-stark-gradient"
-	| "--style-tooltip-stark-font-family"
-	| "--style-tooltip-stark-font-size"
-	| "--style-tooltip-stark-font-weight"
-	| "--style-tooltip-stark-letter-spacing"
-	| "--style-tooltip-stark-line-height"
-	| "--style-tooltip-glass-background-color"
-	| "--style-tooltip-glass-border-radius"
-	| "--style-tooltip-glass-box-shadow"
-	| "--style-tooltip-glass-color"
-	| "--style-tooltip-glass-border-color"
-	| "--style-tooltip-glass-border-width"
-	| "--style-tooltip-glass-backdrop-filter"
-	| "--style-tooltip-glass-opacity"
-	| "--style-tooltip-glass-animation"
-	| "--style-tooltip-glass-transition-duration"
-	| "--style-tooltip-glass-transition-timing-function"
-	| "--style-tooltip-glass-gradient"
-	| "--style-tooltip-glass-font-family"
-	| "--style-tooltip-glass-font-size"
-	| "--style-tooltip-glass-font-weight"
-	| "--style-tooltip-glass-letter-spacing"
-	| "--style-tooltip-glass-line-height"
-	| "--style-tooltip-flat-background-color"
-	| "--style-tooltip-flat-border-radius"
-	| "--style-tooltip-flat-box-shadow"
-	| "--style-tooltip-flat-color"
-	| "--style-tooltip-flat-border-color"
-	| "--style-tooltip-flat-border-width"
-	| "--style-tooltip-flat-opacity"
-	| "--style-tooltip-flat-animation"
-	| "--style-tooltip-flat-transition-duration"
-	| "--style-tooltip-flat-transition-timing-function"
-	| "--style-tooltip-flat-gradient"
-	| "--style-tooltip-flat-font-family"
-	| "--style-tooltip-flat-font-size"
-	| "--style-tooltip-flat-font-weight"
-	| "--style-tooltip-flat-letter-spacing"
-	| "--style-tooltip-flat-line-height"
-	| "--style-tooltip-matte-background-color"
-	| "--style-tooltip-matte-border-radius"
-	| "--style-tooltip-matte-box-shadow"
-	| "--style-tooltip-matte-color"
-	| "--style-tooltip-matte-border-color"
-	| "--style-tooltip-matte-border-width"
-	| "--style-tooltip-matte-opacity"
-	| "--style-tooltip-matte-animation"
-	| "--style-tooltip-matte-transition-duration"
-	| "--style-tooltip-matte-transition-timing-function"
-	| "--style-tooltip-matte-gradient"
-	| "--style-tooltip-matte-font-family"
-	| "--style-tooltip-matte-font-size"
-	| "--style-tooltip-matte-font-weight"
-	| "--style-tooltip-matte-letter-spacing"
-	| "--style-tooltip-matte-line-height"
-	| "--style-tree-default-background-color"
-	| "--style-tree-default-border-radius"
-	| "--style-tree-default-box-shadow"
-	| "--style-tree-default-color"
-	| "--style-tree-default-border-color"
-	| "--style-tree-default-border-width"
-	| "--style-tree-default-backdrop-filter"
-	| "--style-tree-default-opacity"
-	| "--style-tree-default-animation"
-	| "--style-tree-default-transition-duration"
-	| "--style-tree-default-transition-timing-function"
-	| "--style-tree-default-gradient"
-	| "--style-tree-default-font-family"
-	| "--style-tree-default-font-size"
-	| "--style-tree-default-font-weight"
-	| "--style-tree-default-letter-spacing"
-	| "--style-tree-default-line-height"
-	| "--style-tree-stark-background-color"
-	| "--style-tree-stark-border-radius"
-	| "--style-tree-stark-box-shadow"
-	| "--style-tree-stark-color"
-	| "--style-tree-stark-border-color"
-	| "--style-tree-stark-border-width"
-	| "--style-tree-stark-opacity"
-	| "--style-tree-stark-animation"
-	| "--style-tree-stark-transition-duration"
-	| "--style-tree-stark-transition-timing-function"
-	| "--style-tree-stark-gradient"
-	| "--style-tree-stark-font-family"
-	| "--style-tree-stark-font-size"
-	| "--style-tree-stark-font-weight"
-	| "--style-tree-stark-letter-spacing"
-	| "--style-tree-stark-line-height"
-	| "--style-tree-glass-background-color"
-	| "--style-tree-glass-border-radius"
-	| "--style-tree-glass-box-shadow"
-	| "--style-tree-glass-color"
-	| "--style-tree-glass-border-color"
-	| "--style-tree-glass-border-width"
-	| "--style-tree-glass-backdrop-filter"
-	| "--style-tree-glass-opacity"
-	| "--style-tree-glass-animation"
-	| "--style-tree-glass-transition-duration"
-	| "--style-tree-glass-transition-timing-function"
-	| "--style-tree-glass-gradient"
-	| "--style-tree-glass-font-family"
-	| "--style-tree-glass-font-size"
-	| "--style-tree-glass-font-weight"
-	| "--style-tree-glass-letter-spacing"
-	| "--style-tree-glass-line-height"
-	| "--style-tree-flat-background-color"
-	| "--style-tree-flat-border-radius"
-	| "--style-tree-flat-box-shadow"
-	| "--style-tree-flat-color"
-	| "--style-tree-flat-border-color"
-	| "--style-tree-flat-border-width"
-	| "--style-tree-flat-opacity"
-	| "--style-tree-flat-animation"
-	| "--style-tree-flat-transition-duration"
-	| "--style-tree-flat-transition-timing-function"
-	| "--style-tree-flat-gradient"
-	| "--style-tree-flat-font-family"
-	| "--style-tree-flat-font-size"
-	| "--style-tree-flat-font-weight"
-	| "--style-tree-flat-letter-spacing"
-	| "--style-tree-flat-line-height"
-	| "--style-tree-matte-background-color"
-	| "--style-tree-matte-border-radius"
-	| "--style-tree-matte-box-shadow"
-	| "--style-tree-matte-color"
-	| "--style-tree-matte-border-color"
-	| "--style-tree-matte-border-width"
-	| "--style-tree-matte-opacity"
-	| "--style-tree-matte-animation"
-	| "--style-tree-matte-transition-duration"
-	| "--style-tree-matte-transition-timing-function"
-	| "--style-tree-matte-gradient"
-	| "--style-tree-matte-font-family"
-	| "--style-tree-matte-font-size"
-	| "--style-tree-matte-font-weight"
-	| "--style-tree-matte-letter-spacing"
-	| "--style-tree-matte-line-height"
-	| "--style-widget-default-background-color"
-	| "--style-widget-default-border-radius"
-	| "--style-widget-default-box-shadow"
-	| "--style-widget-default-color"
-	| "--style-widget-default-border-color"
-	| "--style-widget-default-border-width"
-	| "--style-widget-default-backdrop-filter"
-	| "--style-widget-default-opacity"
-	| "--style-widget-default-animation"
-	| "--style-widget-default-transition-duration"
-	| "--style-widget-default-transition-timing-function"
-	| "--style-widget-default-gradient"
-	| "--style-widget-default-font-family"
-	| "--style-widget-default-font-size"
-	| "--style-widget-default-font-weight"
-	| "--style-widget-default-letter-spacing"
-	| "--style-widget-default-line-height"
-	| "--style-widget-stark-background-color"
-	| "--style-widget-stark-border-radius"
-	| "--style-widget-stark-box-shadow"
-	| "--style-widget-stark-color"
-	| "--style-widget-stark-border-color"
-	| "--style-widget-stark-border-width"
-	| "--style-widget-stark-opacity"
-	| "--style-widget-stark-animation"
-	| "--style-widget-stark-transition-duration"
-	| "--style-widget-stark-transition-timing-function"
-	| "--style-widget-stark-gradient"
-	| "--style-widget-stark-font-family"
-	| "--style-widget-stark-font-size"
-	| "--style-widget-stark-font-weight"
-	| "--style-widget-stark-letter-spacing"
-	| "--style-widget-stark-line-height"
-	| "--style-widget-glass-background-color"
-	| "--style-widget-glass-border-radius"
-	| "--style-widget-glass-box-shadow"
-	| "--style-widget-glass-color"
-	| "--style-widget-glass-border-color"
-	| "--style-widget-glass-border-width"
-	| "--style-widget-glass-backdrop-filter"
-	| "--style-widget-glass-opacity"
-	| "--style-widget-glass-animation"
-	| "--style-widget-glass-transition-duration"
-	| "--style-widget-glass-transition-timing-function"
-	| "--style-widget-glass-gradient"
-	| "--style-widget-glass-font-family"
-	| "--style-widget-glass-font-size"
-	| "--style-widget-glass-font-weight"
-	| "--style-widget-glass-letter-spacing"
-	| "--style-widget-glass-line-height"
-	| "--style-widget-flat-background-color"
-	| "--style-widget-flat-border-radius"
-	| "--style-widget-flat-box-shadow"
-	| "--style-widget-flat-color"
-	| "--style-widget-flat-border-color"
-	| "--style-widget-flat-border-width"
-	| "--style-widget-flat-opacity"
-	| "--style-widget-flat-animation"
-	| "--style-widget-flat-transition-duration"
-	| "--style-widget-flat-transition-timing-function"
-	| "--style-widget-flat-gradient"
-	| "--style-widget-flat-font-family"
-	| "--style-widget-flat-font-size"
-	| "--style-widget-flat-font-weight"
-	| "--style-widget-flat-letter-spacing"
-	| "--style-widget-flat-line-height"
-	| "--style-widget-matte-background-color"
-	| "--style-widget-matte-border-radius"
-	| "--style-widget-matte-box-shadow"
-	| "--style-widget-matte-color"
-	| "--style-widget-matte-border-color"
-	| "--style-widget-matte-border-width"
-	| "--style-widget-matte-opacity"
-	| "--style-widget-matte-animation"
-	| "--style-widget-matte-transition-duration"
-	| "--style-widget-matte-transition-timing-function"
-	| "--style-widget-matte-gradient"
-	| "--style-widget-matte-font-family"
-	| "--style-widget-matte-font-size"
-	| "--style-widget-matte-font-weight"
-	| "--style-widget-matte-letter-spacing"
-	| "--style-widget-matte-line-height";
+export type PresetCSSVar =
+	| "--preset-neuro-elevated-background-color"
+	| "--preset-neuro-elevated-border-radius"
+	| "--preset-neuro-elevated-box-shadow"
+	| "--preset-neuro-elevated-color"
+	| "--preset-neuro-elevated-border-color"
+	| "--preset-neuro-elevated-border-width"
+	| "--preset-neuro-elevated-backdrop-filter"
+	| "--preset-neuro-elevated-opacity"
+	| "--preset-neuro-elevated-animation"
+	| "--preset-neuro-elevated-transition-duration"
+	| "--preset-neuro-elevated-transition-timing-function"
+	| "--preset-neuro-elevated-gradient"
+	| "--preset-neuro-elevated-font-family"
+	| "--preset-neuro-elevated-font-size"
+	| "--preset-neuro-elevated-font-weight"
+	| "--preset-neuro-elevated-letter-spacing"
+	| "--preset-neuro-elevated-line-height"
+	| "--preset-neuro-elevated-hover-box-shadow"
+	| "--preset-neuro-elevated-hover-border-color"
+	| "--preset-neuro-elevated-active-background-color"
+	| "--preset-neuro-elevated-active-box-shadow"
+	| "--preset-neuro-elevated-disabled-color"
+	| "--preset-neuro-elevated-disabled-opacity"
+	| "--preset-neuro-deep-background-color"
+	| "--preset-neuro-deep-border-radius"
+	| "--preset-neuro-deep-box-shadow"
+	| "--preset-neuro-deep-color"
+	| "--preset-neuro-deep-border-color"
+	| "--preset-neuro-deep-border-width"
+	| "--preset-neuro-deep-backdrop-filter"
+	| "--preset-neuro-deep-opacity"
+	| "--preset-neuro-deep-animation"
+	| "--preset-neuro-deep-transition-duration"
+	| "--preset-neuro-deep-transition-timing-function"
+	| "--preset-neuro-deep-gradient"
+	| "--preset-neuro-deep-font-family"
+	| "--preset-neuro-deep-font-size"
+	| "--preset-neuro-deep-font-weight"
+	| "--preset-neuro-deep-letter-spacing"
+	| "--preset-neuro-deep-line-height"
+	| "--preset-neuro-deep-hover-background-color"
+	| "--preset-neuro-deep-active-background-color"
+	| "--preset-neuro-deep-disabled-color"
+	| "--preset-neuro-deep-disabled-opacity"
+	| "--preset-neuro-minimal-background-color"
+	| "--preset-neuro-minimal-border-radius"
+	| "--preset-neuro-minimal-box-shadow"
+	| "--preset-neuro-minimal-color"
+	| "--preset-neuro-minimal-border-color"
+	| "--preset-neuro-minimal-border-width"
+	| "--preset-neuro-minimal-backdrop-filter"
+	| "--preset-neuro-minimal-opacity"
+	| "--preset-neuro-minimal-animation"
+	| "--preset-neuro-minimal-transition-duration"
+	| "--preset-neuro-minimal-transition-timing-function"
+	| "--preset-neuro-minimal-gradient"
+	| "--preset-neuro-minimal-font-family"
+	| "--preset-neuro-minimal-font-size"
+	| "--preset-neuro-minimal-font-weight"
+	| "--preset-neuro-minimal-letter-spacing"
+	| "--preset-neuro-minimal-line-height"
+	| "--preset-neuro-minimal-hover-background-color"
+	| "--preset-neuro-minimal-active-background-color"
+	| "--preset-neuro-minimal-disabled-color"
+	| "--preset-neuro-minimal-disabled-opacity"
+	| "--preset-neuro-solid-background-color"
+	| "--preset-neuro-solid-border-radius"
+	| "--preset-neuro-solid-box-shadow"
+	| "--preset-neuro-solid-color"
+	| "--preset-neuro-solid-border-color"
+	| "--preset-neuro-solid-border-width"
+	| "--preset-neuro-solid-backdrop-filter"
+	| "--preset-neuro-solid-opacity"
+	| "--preset-neuro-solid-animation"
+	| "--preset-neuro-solid-transition-duration"
+	| "--preset-neuro-solid-transition-timing-function"
+	| "--preset-neuro-solid-gradient"
+	| "--preset-neuro-solid-font-family"
+	| "--preset-neuro-solid-font-size"
+	| "--preset-neuro-solid-font-weight"
+	| "--preset-neuro-solid-letter-spacing"
+	| "--preset-neuro-solid-line-height"
+	| "--preset-neuro-solid-hover-box-shadow"
+	| "--preset-neuro-solid-active-background-color"
+	| "--preset-neuro-solid-disabled-color"
+	| "--preset-neuro-solid-disabled-opacity"
+	| "--preset-neuro-glow-background-color"
+	| "--preset-neuro-glow-border-radius"
+	| "--preset-neuro-glow-box-shadow"
+	| "--preset-neuro-glow-color"
+	| "--preset-neuro-glow-border-color"
+	| "--preset-neuro-glow-border-width"
+	| "--preset-neuro-glow-backdrop-filter"
+	| "--preset-neuro-glow-opacity"
+	| "--preset-neuro-glow-animation"
+	| "--preset-neuro-glow-transition-duration"
+	| "--preset-neuro-glow-transition-timing-function"
+	| "--preset-neuro-glow-gradient"
+	| "--preset-neuro-glow-font-family"
+	| "--preset-neuro-glow-font-size"
+	| "--preset-neuro-glow-font-weight"
+	| "--preset-neuro-glow-letter-spacing"
+	| "--preset-neuro-glow-line-height"
+	| "--preset-neuro-glow-hover-box-shadow"
+	| "--preset-neuro-glow-hover-border-color"
+	| "--preset-neuro-glow-active-background-color"
+	| "--preset-neuro-glow-active-border-color"
+	| "--preset-neuro-glow-disabled-color"
+	| "--preset-neuro-glow-disabled-opacity"
+	| "--preset-neuro-glow-disabled-animation"
+	| "--preset-neuro-muted-background-color"
+	| "--preset-neuro-muted-border-radius"
+	| "--preset-neuro-muted-box-shadow"
+	| "--preset-neuro-muted-color"
+	| "--preset-neuro-muted-border-color"
+	| "--preset-neuro-muted-border-width"
+	| "--preset-neuro-muted-backdrop-filter"
+	| "--preset-neuro-muted-opacity"
+	| "--preset-neuro-muted-animation"
+	| "--preset-neuro-muted-transition-duration"
+	| "--preset-neuro-muted-transition-timing-function"
+	| "--preset-neuro-muted-gradient"
+	| "--preset-neuro-muted-font-family"
+	| "--preset-neuro-muted-font-size"
+	| "--preset-neuro-muted-font-weight"
+	| "--preset-neuro-muted-letter-spacing"
+	| "--preset-neuro-muted-line-height"
+	| "--preset-neuro-muted-hover-background-color"
+	| "--preset-neuro-muted-hover-opacity"
+	| "--preset-neuro-muted-disabled-color"
+	| "--preset-neuro-muted-disabled-opacity"
+	| "--preset-glass-elevated-background-color"
+	| "--preset-glass-elevated-border-radius"
+	| "--preset-glass-elevated-box-shadow"
+	| "--preset-glass-elevated-color"
+	| "--preset-glass-elevated-border-color"
+	| "--preset-glass-elevated-border-width"
+	| "--preset-glass-elevated-backdrop-filter"
+	| "--preset-glass-elevated-opacity"
+	| "--preset-glass-elevated-animation"
+	| "--preset-glass-elevated-transition-duration"
+	| "--preset-glass-elevated-transition-timing-function"
+	| "--preset-glass-elevated-gradient"
+	| "--preset-glass-elevated-font-family"
+	| "--preset-glass-elevated-font-size"
+	| "--preset-glass-elevated-font-weight"
+	| "--preset-glass-elevated-letter-spacing"
+	| "--preset-glass-elevated-line-height"
+	| "--preset-glass-elevated-hover-background-color"
+	| "--preset-glass-elevated-hover-box-shadow"
+	| "--preset-glass-elevated-hover-border-color"
+	| "--preset-glass-elevated-active-background-color"
+	| "--preset-glass-elevated-active-box-shadow"
+	| "--preset-glass-elevated-disabled-background-color"
+	| "--preset-glass-elevated-disabled-opacity"
+	| "--preset-glass-elevated-disabled-border-color"
+	| "--preset-glass-elevated-disabled-animation"
+	| "--preset-glass-deep-background-color"
+	| "--preset-glass-deep-border-radius"
+	| "--preset-glass-deep-box-shadow"
+	| "--preset-glass-deep-color"
+	| "--preset-glass-deep-border-color"
+	| "--preset-glass-deep-border-width"
+	| "--preset-glass-deep-backdrop-filter"
+	| "--preset-glass-deep-opacity"
+	| "--preset-glass-deep-animation"
+	| "--preset-glass-deep-transition-duration"
+	| "--preset-glass-deep-transition-timing-function"
+	| "--preset-glass-deep-gradient"
+	| "--preset-glass-deep-font-family"
+	| "--preset-glass-deep-font-size"
+	| "--preset-glass-deep-font-weight"
+	| "--preset-glass-deep-letter-spacing"
+	| "--preset-glass-deep-line-height"
+	| "--preset-glass-deep-hover-background-color"
+	| "--preset-glass-deep-hover-box-shadow"
+	| "--preset-glass-deep-hover-border-color"
+	| "--preset-glass-deep-active-background-color"
+	| "--preset-glass-deep-active-box-shadow"
+	| "--preset-glass-deep-disabled-background-color"
+	| "--preset-glass-deep-disabled-opacity"
+	| "--preset-glass-deep-disabled-border-color"
+	| "--preset-glass-minimal-background-color"
+	| "--preset-glass-minimal-border-radius"
+	| "--preset-glass-minimal-box-shadow"
+	| "--preset-glass-minimal-color"
+	| "--preset-glass-minimal-border-color"
+	| "--preset-glass-minimal-border-width"
+	| "--preset-glass-minimal-backdrop-filter"
+	| "--preset-glass-minimal-opacity"
+	| "--preset-glass-minimal-animation"
+	| "--preset-glass-minimal-transition-duration"
+	| "--preset-glass-minimal-transition-timing-function"
+	| "--preset-glass-minimal-gradient"
+	| "--preset-glass-minimal-font-family"
+	| "--preset-glass-minimal-font-size"
+	| "--preset-glass-minimal-font-weight"
+	| "--preset-glass-minimal-letter-spacing"
+	| "--preset-glass-minimal-line-height"
+	| "--preset-glass-minimal-hover-background-color"
+	| "--preset-glass-minimal-hover-border-color"
+	| "--preset-glass-minimal-active-background-color"
+	| "--preset-glass-minimal-disabled-background-color"
+	| "--preset-glass-minimal-disabled-color"
+	| "--preset-glass-minimal-disabled-opacity"
+	| "--preset-glass-solid-background-color"
+	| "--preset-glass-solid-border-radius"
+	| "--preset-glass-solid-box-shadow"
+	| "--preset-glass-solid-color"
+	| "--preset-glass-solid-border-color"
+	| "--preset-glass-solid-border-width"
+	| "--preset-glass-solid-backdrop-filter"
+	| "--preset-glass-solid-opacity"
+	| "--preset-glass-solid-animation"
+	| "--preset-glass-solid-transition-duration"
+	| "--preset-glass-solid-transition-timing-function"
+	| "--preset-glass-solid-gradient"
+	| "--preset-glass-solid-font-family"
+	| "--preset-glass-solid-font-size"
+	| "--preset-glass-solid-font-weight"
+	| "--preset-glass-solid-letter-spacing"
+	| "--preset-glass-solid-line-height"
+	| "--preset-glass-solid-hover-background-color"
+	| "--preset-glass-solid-hover-box-shadow"
+	| "--preset-glass-solid-hover-border-color"
+	| "--preset-glass-solid-active-background-color"
+	| "--preset-glass-solid-active-box-shadow"
+	| "--preset-glass-solid-disabled-background-color"
+	| "--preset-glass-solid-disabled-opacity"
+	| "--preset-glass-solid-disabled-border-color"
+	| "--preset-glass-glow-background-color"
+	| "--preset-glass-glow-border-radius"
+	| "--preset-glass-glow-box-shadow"
+	| "--preset-glass-glow-color"
+	| "--preset-glass-glow-border-color"
+	| "--preset-glass-glow-border-width"
+	| "--preset-glass-glow-backdrop-filter"
+	| "--preset-glass-glow-opacity"
+	| "--preset-glass-glow-animation"
+	| "--preset-glass-glow-transition-duration"
+	| "--preset-glass-glow-transition-timing-function"
+	| "--preset-glass-glow-gradient"
+	| "--preset-glass-glow-font-family"
+	| "--preset-glass-glow-font-size"
+	| "--preset-glass-glow-font-weight"
+	| "--preset-glass-glow-letter-spacing"
+	| "--preset-glass-glow-line-height"
+	| "--preset-glass-glow-hover-background-color"
+	| "--preset-glass-glow-hover-box-shadow"
+	| "--preset-glass-glow-hover-border-color"
+	| "--preset-glass-glow-active-background-color"
+	| "--preset-glass-glow-active-box-shadow"
+	| "--preset-glass-glow-disabled-background-color"
+	| "--preset-glass-glow-disabled-opacity"
+	| "--preset-glass-glow-disabled-border-color"
+	| "--preset-glass-glow-disabled-animation"
+	| "--preset-glass-muted-background-color"
+	| "--preset-glass-muted-border-radius"
+	| "--preset-glass-muted-box-shadow"
+	| "--preset-glass-muted-color"
+	| "--preset-glass-muted-border-color"
+	| "--preset-glass-muted-border-width"
+	| "--preset-glass-muted-backdrop-filter"
+	| "--preset-glass-muted-opacity"
+	| "--preset-glass-muted-animation"
+	| "--preset-glass-muted-transition-duration"
+	| "--preset-glass-muted-transition-timing-function"
+	| "--preset-glass-muted-gradient"
+	| "--preset-glass-muted-font-family"
+	| "--preset-glass-muted-font-size"
+	| "--preset-glass-muted-font-weight"
+	| "--preset-glass-muted-letter-spacing"
+	| "--preset-glass-muted-line-height"
+	| "--preset-glass-muted-hover-background-color"
+	| "--preset-glass-muted-hover-opacity"
+	| "--preset-glass-muted-hover-border-color"
+	| "--preset-glass-muted-active-background-color"
+	| "--preset-glass-muted-active-opacity"
+	| "--preset-glass-muted-disabled-background-color"
+	| "--preset-glass-muted-disabled-color"
+	| "--preset-glass-muted-disabled-opacity"
+	| "--preset-retro-elevated-background-color"
+	| "--preset-retro-elevated-border-radius"
+	| "--preset-retro-elevated-box-shadow"
+	| "--preset-retro-elevated-color"
+	| "--preset-retro-elevated-border-color"
+	| "--preset-retro-elevated-border-width"
+	| "--preset-retro-elevated-backdrop-filter"
+	| "--preset-retro-elevated-opacity"
+	| "--preset-retro-elevated-animation"
+	| "--preset-retro-elevated-transition-duration"
+	| "--preset-retro-elevated-transition-timing-function"
+	| "--preset-retro-elevated-gradient"
+	| "--preset-retro-elevated-font-family"
+	| "--preset-retro-elevated-font-size"
+	| "--preset-retro-elevated-font-weight"
+	| "--preset-retro-elevated-letter-spacing"
+	| "--preset-retro-elevated-line-height"
+	| "--preset-retro-elevated-hover-background-color"
+	| "--preset-retro-elevated-hover-box-shadow"
+	| "--preset-retro-elevated-hover-border-color"
+	| "--preset-retro-elevated-active-background-color"
+	| "--preset-retro-elevated-active-box-shadow"
+	| "--preset-retro-elevated-disabled-color"
+	| "--preset-retro-elevated-disabled-opacity"
+	| "--preset-retro-elevated-disabled-animation"
+	| "--preset-retro-deep-background-color"
+	| "--preset-retro-deep-border-radius"
+	| "--preset-retro-deep-box-shadow"
+	| "--preset-retro-deep-color"
+	| "--preset-retro-deep-border-color"
+	| "--preset-retro-deep-border-width"
+	| "--preset-retro-deep-backdrop-filter"
+	| "--preset-retro-deep-opacity"
+	| "--preset-retro-deep-animation"
+	| "--preset-retro-deep-transition-duration"
+	| "--preset-retro-deep-transition-timing-function"
+	| "--preset-retro-deep-gradient"
+	| "--preset-retro-deep-font-family"
+	| "--preset-retro-deep-font-size"
+	| "--preset-retro-deep-font-weight"
+	| "--preset-retro-deep-letter-spacing"
+	| "--preset-retro-deep-line-height"
+	| "--preset-retro-deep-hover-color"
+	| "--preset-retro-deep-hover-border-color"
+	| "--preset-retro-deep-active-background-color"
+	| "--preset-retro-deep-disabled-color"
+	| "--preset-retro-deep-disabled-opacity"
+	| "--preset-retro-deep-disabled-animation"
+	| "--preset-retro-minimal-background-color"
+	| "--preset-retro-minimal-border-radius"
+	| "--preset-retro-minimal-box-shadow"
+	| "--preset-retro-minimal-color"
+	| "--preset-retro-minimal-border-color"
+	| "--preset-retro-minimal-border-width"
+	| "--preset-retro-minimal-backdrop-filter"
+	| "--preset-retro-minimal-opacity"
+	| "--preset-retro-minimal-animation"
+	| "--preset-retro-minimal-transition-duration"
+	| "--preset-retro-minimal-transition-timing-function"
+	| "--preset-retro-minimal-gradient"
+	| "--preset-retro-minimal-font-family"
+	| "--preset-retro-minimal-font-size"
+	| "--preset-retro-minimal-font-weight"
+	| "--preset-retro-minimal-letter-spacing"
+	| "--preset-retro-minimal-line-height"
+	| "--preset-retro-minimal-hover-background-color"
+	| "--preset-retro-minimal-hover-border-color"
+	| "--preset-retro-minimal-active-background-color"
+	| "--preset-retro-minimal-disabled-color"
+	| "--preset-retro-minimal-disabled-opacity"
+	| "--preset-retro-solid-background-color"
+	| "--preset-retro-solid-border-radius"
+	| "--preset-retro-solid-box-shadow"
+	| "--preset-retro-solid-color"
+	| "--preset-retro-solid-border-color"
+	| "--preset-retro-solid-border-width"
+	| "--preset-retro-solid-backdrop-filter"
+	| "--preset-retro-solid-opacity"
+	| "--preset-retro-solid-animation"
+	| "--preset-retro-solid-transition-duration"
+	| "--preset-retro-solid-transition-timing-function"
+	| "--preset-retro-solid-gradient"
+	| "--preset-retro-solid-font-family"
+	| "--preset-retro-solid-font-size"
+	| "--preset-retro-solid-font-weight"
+	| "--preset-retro-solid-letter-spacing"
+	| "--preset-retro-solid-line-height"
+	| "--preset-retro-solid-hover-background-color"
+	| "--preset-retro-solid-hover-box-shadow"
+	| "--preset-retro-solid-active-background-color"
+	| "--preset-retro-solid-active-box-shadow"
+	| "--preset-retro-solid-disabled-background-color"
+	| "--preset-retro-solid-disabled-opacity"
+	| "--preset-retro-glow-background-color"
+	| "--preset-retro-glow-border-radius"
+	| "--preset-retro-glow-box-shadow"
+	| "--preset-retro-glow-color"
+	| "--preset-retro-glow-border-color"
+	| "--preset-retro-glow-border-width"
+	| "--preset-retro-glow-backdrop-filter"
+	| "--preset-retro-glow-opacity"
+	| "--preset-retro-glow-animation"
+	| "--preset-retro-glow-transition-duration"
+	| "--preset-retro-glow-transition-timing-function"
+	| "--preset-retro-glow-gradient"
+	| "--preset-retro-glow-font-family"
+	| "--preset-retro-glow-font-size"
+	| "--preset-retro-glow-font-weight"
+	| "--preset-retro-glow-letter-spacing"
+	| "--preset-retro-glow-line-height"
+	| "--preset-retro-glow-hover-color"
+	| "--preset-retro-glow-hover-box-shadow"
+	| "--preset-retro-glow-hover-border-color"
+	| "--preset-retro-glow-active-background-color"
+	| "--preset-retro-glow-disabled-color"
+	| "--preset-retro-glow-disabled-opacity"
+	| "--preset-retro-glow-disabled-animation"
+	| "--preset-retro-muted-background-color"
+	| "--preset-retro-muted-border-radius"
+	| "--preset-retro-muted-box-shadow"
+	| "--preset-retro-muted-color"
+	| "--preset-retro-muted-border-color"
+	| "--preset-retro-muted-border-width"
+	| "--preset-retro-muted-backdrop-filter"
+	| "--preset-retro-muted-opacity"
+	| "--preset-retro-muted-animation"
+	| "--preset-retro-muted-transition-duration"
+	| "--preset-retro-muted-transition-timing-function"
+	| "--preset-retro-muted-gradient"
+	| "--preset-retro-muted-font-family"
+	| "--preset-retro-muted-font-size"
+	| "--preset-retro-muted-font-weight"
+	| "--preset-retro-muted-letter-spacing"
+	| "--preset-retro-muted-line-height"
+	| "--preset-retro-muted-hover-color"
+	| "--preset-retro-muted-hover-opacity"
+	| "--preset-retro-muted-disabled-color"
+	| "--preset-retro-muted-disabled-opacity"
+	| "--preset-chrome-elevated-background-color"
+	| "--preset-chrome-elevated-border-radius"
+	| "--preset-chrome-elevated-box-shadow"
+	| "--preset-chrome-elevated-color"
+	| "--preset-chrome-elevated-border-color"
+	| "--preset-chrome-elevated-border-width"
+	| "--preset-chrome-elevated-backdrop-filter"
+	| "--preset-chrome-elevated-opacity"
+	| "--preset-chrome-elevated-animation"
+	| "--preset-chrome-elevated-transition-duration"
+	| "--preset-chrome-elevated-transition-timing-function"
+	| "--preset-chrome-elevated-gradient"
+	| "--preset-chrome-elevated-font-family"
+	| "--preset-chrome-elevated-font-size"
+	| "--preset-chrome-elevated-font-weight"
+	| "--preset-chrome-elevated-letter-spacing"
+	| "--preset-chrome-elevated-line-height"
+	| "--preset-chrome-elevated-hover-background-color"
+	| "--preset-chrome-elevated-hover-gradient"
+	| "--preset-chrome-elevated-hover-box-shadow"
+	| "--preset-chrome-elevated-hover-border-color"
+	| "--preset-chrome-elevated-active-background-color"
+	| "--preset-chrome-elevated-active-gradient"
+	| "--preset-chrome-elevated-active-box-shadow"
+	| "--preset-chrome-elevated-disabled-background-color"
+	| "--preset-chrome-elevated-disabled-opacity"
+	| "--preset-chrome-elevated-disabled-gradient"
+	| "--preset-chrome-elevated-disabled-border-color"
+	| "--preset-chrome-elevated-disabled-animation"
+	| "--preset-chrome-deep-background-color"
+	| "--preset-chrome-deep-border-radius"
+	| "--preset-chrome-deep-box-shadow"
+	| "--preset-chrome-deep-color"
+	| "--preset-chrome-deep-border-color"
+	| "--preset-chrome-deep-border-width"
+	| "--preset-chrome-deep-backdrop-filter"
+	| "--preset-chrome-deep-opacity"
+	| "--preset-chrome-deep-animation"
+	| "--preset-chrome-deep-transition-duration"
+	| "--preset-chrome-deep-transition-timing-function"
+	| "--preset-chrome-deep-gradient"
+	| "--preset-chrome-deep-font-family"
+	| "--preset-chrome-deep-font-size"
+	| "--preset-chrome-deep-font-weight"
+	| "--preset-chrome-deep-letter-spacing"
+	| "--preset-chrome-deep-line-height"
+	| "--preset-chrome-deep-hover-background-color"
+	| "--preset-chrome-deep-hover-box-shadow"
+	| "--preset-chrome-deep-hover-border-color"
+	| "--preset-chrome-deep-active-background-color"
+	| "--preset-chrome-deep-active-box-shadow"
+	| "--preset-chrome-deep-disabled-background-color"
+	| "--preset-chrome-deep-disabled-opacity"
+	| "--preset-chrome-deep-disabled-gradient"
+	| "--preset-chrome-deep-disabled-border-color"
+	| "--preset-chrome-minimal-background-color"
+	| "--preset-chrome-minimal-border-radius"
+	| "--preset-chrome-minimal-box-shadow"
+	| "--preset-chrome-minimal-color"
+	| "--preset-chrome-minimal-border-color"
+	| "--preset-chrome-minimal-border-width"
+	| "--preset-chrome-minimal-backdrop-filter"
+	| "--preset-chrome-minimal-opacity"
+	| "--preset-chrome-minimal-animation"
+	| "--preset-chrome-minimal-transition-duration"
+	| "--preset-chrome-minimal-transition-timing-function"
+	| "--preset-chrome-minimal-gradient"
+	| "--preset-chrome-minimal-font-family"
+	| "--preset-chrome-minimal-font-size"
+	| "--preset-chrome-minimal-font-weight"
+	| "--preset-chrome-minimal-letter-spacing"
+	| "--preset-chrome-minimal-line-height"
+	| "--preset-chrome-minimal-hover-background-color"
+	| "--preset-chrome-minimal-hover-box-shadow"
+	| "--preset-chrome-minimal-hover-border-color"
+	| "--preset-chrome-minimal-active-background-color"
+	| "--preset-chrome-minimal-active-box-shadow"
+	| "--preset-chrome-minimal-disabled-background-color"
+	| "--preset-chrome-minimal-disabled-color"
+	| "--preset-chrome-minimal-disabled-opacity"
+	| "--preset-chrome-minimal-disabled-border-color"
+	| "--preset-chrome-solid-background-color"
+	| "--preset-chrome-solid-border-radius"
+	| "--preset-chrome-solid-box-shadow"
+	| "--preset-chrome-solid-color"
+	| "--preset-chrome-solid-border-color"
+	| "--preset-chrome-solid-border-width"
+	| "--preset-chrome-solid-backdrop-filter"
+	| "--preset-chrome-solid-opacity"
+	| "--preset-chrome-solid-animation"
+	| "--preset-chrome-solid-transition-duration"
+	| "--preset-chrome-solid-transition-timing-function"
+	| "--preset-chrome-solid-gradient"
+	| "--preset-chrome-solid-font-family"
+	| "--preset-chrome-solid-font-size"
+	| "--preset-chrome-solid-font-weight"
+	| "--preset-chrome-solid-letter-spacing"
+	| "--preset-chrome-solid-line-height"
+	| "--preset-chrome-solid-hover-background-color"
+	| "--preset-chrome-solid-hover-box-shadow"
+	| "--preset-chrome-solid-hover-border-color"
+	| "--preset-chrome-solid-active-background-color"
+	| "--preset-chrome-solid-active-box-shadow"
+	| "--preset-chrome-solid-disabled-background-color"
+	| "--preset-chrome-solid-disabled-color"
+	| "--preset-chrome-solid-disabled-opacity"
+	| "--preset-chrome-solid-disabled-border-color"
+	| "--preset-chrome-glow-background-color"
+	| "--preset-chrome-glow-border-radius"
+	| "--preset-chrome-glow-box-shadow"
+	| "--preset-chrome-glow-color"
+	| "--preset-chrome-glow-border-color"
+	| "--preset-chrome-glow-border-width"
+	| "--preset-chrome-glow-backdrop-filter"
+	| "--preset-chrome-glow-opacity"
+	| "--preset-chrome-glow-animation"
+	| "--preset-chrome-glow-transition-duration"
+	| "--preset-chrome-glow-transition-timing-function"
+	| "--preset-chrome-glow-gradient"
+	| "--preset-chrome-glow-font-family"
+	| "--preset-chrome-glow-font-size"
+	| "--preset-chrome-glow-font-weight"
+	| "--preset-chrome-glow-letter-spacing"
+	| "--preset-chrome-glow-line-height"
+	| "--preset-chrome-glow-hover-background-color"
+	| "--preset-chrome-glow-hover-box-shadow"
+	| "--preset-chrome-glow-hover-border-color"
+	| "--preset-chrome-glow-active-background-color"
+	| "--preset-chrome-glow-active-box-shadow"
+	| "--preset-chrome-glow-disabled-background-color"
+	| "--preset-chrome-glow-disabled-opacity"
+	| "--preset-chrome-glow-disabled-gradient"
+	| "--preset-chrome-glow-disabled-border-color"
+	| "--preset-chrome-glow-disabled-animation"
+	| "--preset-chrome-muted-background-color"
+	| "--preset-chrome-muted-border-radius"
+	| "--preset-chrome-muted-box-shadow"
+	| "--preset-chrome-muted-color"
+	| "--preset-chrome-muted-border-color"
+	| "--preset-chrome-muted-border-width"
+	| "--preset-chrome-muted-backdrop-filter"
+	| "--preset-chrome-muted-opacity"
+	| "--preset-chrome-muted-animation"
+	| "--preset-chrome-muted-transition-duration"
+	| "--preset-chrome-muted-transition-timing-function"
+	| "--preset-chrome-muted-gradient"
+	| "--preset-chrome-muted-font-family"
+	| "--preset-chrome-muted-font-size"
+	| "--preset-chrome-muted-font-weight"
+	| "--preset-chrome-muted-letter-spacing"
+	| "--preset-chrome-muted-line-height"
+	| "--preset-chrome-muted-hover-background-color"
+	| "--preset-chrome-muted-hover-opacity"
+	| "--preset-chrome-muted-hover-border-color"
+	| "--preset-chrome-muted-active-background-color"
+	| "--preset-chrome-muted-active-opacity"
+	| "--preset-chrome-muted-disabled-background-color"
+	| "--preset-chrome-muted-disabled-color"
+	| "--preset-chrome-muted-disabled-opacity"
+	| "--preset-flat-elevated-background-color"
+	| "--preset-flat-elevated-border-radius"
+	| "--preset-flat-elevated-box-shadow"
+	| "--preset-flat-elevated-color"
+	| "--preset-flat-elevated-border-color"
+	| "--preset-flat-elevated-border-width"
+	| "--preset-flat-elevated-backdrop-filter"
+	| "--preset-flat-elevated-opacity"
+	| "--preset-flat-elevated-animation"
+	| "--preset-flat-elevated-transition-duration"
+	| "--preset-flat-elevated-transition-timing-function"
+	| "--preset-flat-elevated-gradient"
+	| "--preset-flat-elevated-font-family"
+	| "--preset-flat-elevated-font-size"
+	| "--preset-flat-elevated-font-weight"
+	| "--preset-flat-elevated-letter-spacing"
+	| "--preset-flat-elevated-line-height"
+	| "--preset-flat-elevated-hover-background-color"
+	| "--preset-flat-elevated-active-background-color"
+	| "--preset-flat-elevated-disabled-background-color"
+	| "--preset-flat-elevated-disabled-color"
+	| "--preset-flat-elevated-disabled-opacity"
+	| "--preset-flat-deep-background-color"
+	| "--preset-flat-deep-border-radius"
+	| "--preset-flat-deep-box-shadow"
+	| "--preset-flat-deep-color"
+	| "--preset-flat-deep-border-color"
+	| "--preset-flat-deep-border-width"
+	| "--preset-flat-deep-backdrop-filter"
+	| "--preset-flat-deep-opacity"
+	| "--preset-flat-deep-animation"
+	| "--preset-flat-deep-transition-duration"
+	| "--preset-flat-deep-transition-timing-function"
+	| "--preset-flat-deep-gradient"
+	| "--preset-flat-deep-font-family"
+	| "--preset-flat-deep-font-size"
+	| "--preset-flat-deep-font-weight"
+	| "--preset-flat-deep-letter-spacing"
+	| "--preset-flat-deep-line-height"
+	| "--preset-flat-deep-hover-background-color"
+	| "--preset-flat-deep-active-background-color"
+	| "--preset-flat-deep-disabled-background-color"
+	| "--preset-flat-deep-disabled-color"
+	| "--preset-flat-deep-disabled-opacity"
+	| "--preset-flat-minimal-background-color"
+	| "--preset-flat-minimal-border-radius"
+	| "--preset-flat-minimal-box-shadow"
+	| "--preset-flat-minimal-color"
+	| "--preset-flat-minimal-border-color"
+	| "--preset-flat-minimal-border-width"
+	| "--preset-flat-minimal-backdrop-filter"
+	| "--preset-flat-minimal-opacity"
+	| "--preset-flat-minimal-animation"
+	| "--preset-flat-minimal-transition-duration"
+	| "--preset-flat-minimal-transition-timing-function"
+	| "--preset-flat-minimal-gradient"
+	| "--preset-flat-minimal-font-family"
+	| "--preset-flat-minimal-font-size"
+	| "--preset-flat-minimal-font-weight"
+	| "--preset-flat-minimal-letter-spacing"
+	| "--preset-flat-minimal-line-height"
+	| "--preset-flat-minimal-hover-background-color"
+	| "--preset-flat-minimal-active-background-color"
+	| "--preset-flat-minimal-disabled-color"
+	| "--preset-flat-minimal-disabled-opacity"
+	| "--preset-flat-solid-background-color"
+	| "--preset-flat-solid-border-radius"
+	| "--preset-flat-solid-box-shadow"
+	| "--preset-flat-solid-color"
+	| "--preset-flat-solid-border-color"
+	| "--preset-flat-solid-border-width"
+	| "--preset-flat-solid-backdrop-filter"
+	| "--preset-flat-solid-opacity"
+	| "--preset-flat-solid-animation"
+	| "--preset-flat-solid-transition-duration"
+	| "--preset-flat-solid-transition-timing-function"
+	| "--preset-flat-solid-gradient"
+	| "--preset-flat-solid-font-family"
+	| "--preset-flat-solid-font-size"
+	| "--preset-flat-solid-font-weight"
+	| "--preset-flat-solid-letter-spacing"
+	| "--preset-flat-solid-line-height"
+	| "--preset-flat-solid-hover-background-color"
+	| "--preset-flat-solid-hover-border-color"
+	| "--preset-flat-solid-active-background-color"
+	| "--preset-flat-solid-disabled-background-color"
+	| "--preset-flat-solid-disabled-color"
+	| "--preset-flat-solid-disabled-opacity"
+	| "--preset-flat-solid-disabled-border-color"
+	| "--preset-flat-glow-background-color"
+	| "--preset-flat-glow-border-radius"
+	| "--preset-flat-glow-box-shadow"
+	| "--preset-flat-glow-color"
+	| "--preset-flat-glow-border-color"
+	| "--preset-flat-glow-border-width"
+	| "--preset-flat-glow-backdrop-filter"
+	| "--preset-flat-glow-opacity"
+	| "--preset-flat-glow-animation"
+	| "--preset-flat-glow-transition-duration"
+	| "--preset-flat-glow-transition-timing-function"
+	| "--preset-flat-glow-gradient"
+	| "--preset-flat-glow-font-family"
+	| "--preset-flat-glow-font-size"
+	| "--preset-flat-glow-font-weight"
+	| "--preset-flat-glow-letter-spacing"
+	| "--preset-flat-glow-line-height"
+	| "--preset-flat-glow-hover-background-color"
+	| "--preset-flat-glow-active-background-color"
+	| "--preset-flat-glow-disabled-background-color"
+	| "--preset-flat-glow-disabled-color"
+	| "--preset-flat-glow-disabled-opacity"
+	| "--preset-flat-muted-background-color"
+	| "--preset-flat-muted-border-radius"
+	| "--preset-flat-muted-box-shadow"
+	| "--preset-flat-muted-color"
+	| "--preset-flat-muted-border-color"
+	| "--preset-flat-muted-border-width"
+	| "--preset-flat-muted-backdrop-filter"
+	| "--preset-flat-muted-opacity"
+	| "--preset-flat-muted-animation"
+	| "--preset-flat-muted-transition-duration"
+	| "--preset-flat-muted-transition-timing-function"
+	| "--preset-flat-muted-gradient"
+	| "--preset-flat-muted-font-family"
+	| "--preset-flat-muted-font-size"
+	| "--preset-flat-muted-font-weight"
+	| "--preset-flat-muted-letter-spacing"
+	| "--preset-flat-muted-line-height"
+	| "--preset-flat-muted-hover-background-color"
+	| "--preset-flat-muted-hover-opacity"
+	| "--preset-flat-muted-active-background-color"
+	| "--preset-flat-muted-active-opacity"
+	| "--preset-flat-muted-disabled-background-color"
+	| "--preset-flat-muted-disabled-color"
+	| "--preset-flat-muted-disabled-opacity"
+	| "--preset-stark-elevated-background-color"
+	| "--preset-stark-elevated-border-radius"
+	| "--preset-stark-elevated-box-shadow"
+	| "--preset-stark-elevated-color"
+	| "--preset-stark-elevated-border-color"
+	| "--preset-stark-elevated-border-width"
+	| "--preset-stark-elevated-backdrop-filter"
+	| "--preset-stark-elevated-opacity"
+	| "--preset-stark-elevated-animation"
+	| "--preset-stark-elevated-transition-duration"
+	| "--preset-stark-elevated-transition-timing-function"
+	| "--preset-stark-elevated-gradient"
+	| "--preset-stark-elevated-font-family"
+	| "--preset-stark-elevated-font-size"
+	| "--preset-stark-elevated-font-weight"
+	| "--preset-stark-elevated-letter-spacing"
+	| "--preset-stark-elevated-line-height"
+	| "--preset-stark-elevated-hover-background-color"
+	| "--preset-stark-elevated-hover-box-shadow"
+	| "--preset-stark-elevated-hover-border-color"
+	| "--preset-stark-elevated-active-background-color"
+	| "--preset-stark-elevated-active-box-shadow"
+	| "--preset-stark-elevated-active-border-color"
+	| "--preset-stark-elevated-disabled-background-color"
+	| "--preset-stark-elevated-disabled-color"
+	| "--preset-stark-elevated-disabled-opacity"
+	| "--preset-stark-elevated-disabled-border-color"
+	| "--preset-stark-deep-background-color"
+	| "--preset-stark-deep-border-radius"
+	| "--preset-stark-deep-box-shadow"
+	| "--preset-stark-deep-color"
+	| "--preset-stark-deep-border-color"
+	| "--preset-stark-deep-border-width"
+	| "--preset-stark-deep-backdrop-filter"
+	| "--preset-stark-deep-opacity"
+	| "--preset-stark-deep-animation"
+	| "--preset-stark-deep-transition-duration"
+	| "--preset-stark-deep-transition-timing-function"
+	| "--preset-stark-deep-gradient"
+	| "--preset-stark-deep-font-family"
+	| "--preset-stark-deep-font-size"
+	| "--preset-stark-deep-font-weight"
+	| "--preset-stark-deep-letter-spacing"
+	| "--preset-stark-deep-line-height"
+	| "--preset-stark-deep-hover-background-color"
+	| "--preset-stark-deep-hover-box-shadow"
+	| "--preset-stark-deep-hover-border-color"
+	| "--preset-stark-deep-active-background-color"
+	| "--preset-stark-deep-active-box-shadow"
+	| "--preset-stark-deep-active-border-color"
+	| "--preset-stark-deep-disabled-background-color"
+	| "--preset-stark-deep-disabled-color"
+	| "--preset-stark-deep-disabled-opacity"
+	| "--preset-stark-deep-disabled-border-color"
+	| "--preset-stark-minimal-background-color"
+	| "--preset-stark-minimal-border-radius"
+	| "--preset-stark-minimal-box-shadow"
+	| "--preset-stark-minimal-color"
+	| "--preset-stark-minimal-border-color"
+	| "--preset-stark-minimal-border-width"
+	| "--preset-stark-minimal-backdrop-filter"
+	| "--preset-stark-minimal-opacity"
+	| "--preset-stark-minimal-animation"
+	| "--preset-stark-minimal-transition-duration"
+	| "--preset-stark-minimal-transition-timing-function"
+	| "--preset-stark-minimal-gradient"
+	| "--preset-stark-minimal-font-family"
+	| "--preset-stark-minimal-font-size"
+	| "--preset-stark-minimal-font-weight"
+	| "--preset-stark-minimal-letter-spacing"
+	| "--preset-stark-minimal-line-height"
+	| "--preset-stark-minimal-hover-background-color"
+	| "--preset-stark-minimal-hover-border-color"
+	| "--preset-stark-minimal-active-background-color"
+	| "--preset-stark-minimal-active-border-color"
+	| "--preset-stark-minimal-disabled-background-color"
+	| "--preset-stark-minimal-disabled-color"
+	| "--preset-stark-minimal-disabled-opacity"
+	| "--preset-stark-minimal-disabled-border-color"
+	| "--preset-stark-solid-background-color"
+	| "--preset-stark-solid-border-radius"
+	| "--preset-stark-solid-box-shadow"
+	| "--preset-stark-solid-color"
+	| "--preset-stark-solid-border-color"
+	| "--preset-stark-solid-border-width"
+	| "--preset-stark-solid-backdrop-filter"
+	| "--preset-stark-solid-opacity"
+	| "--preset-stark-solid-animation"
+	| "--preset-stark-solid-transition-duration"
+	| "--preset-stark-solid-transition-timing-function"
+	| "--preset-stark-solid-gradient"
+	| "--preset-stark-solid-font-family"
+	| "--preset-stark-solid-font-size"
+	| "--preset-stark-solid-font-weight"
+	| "--preset-stark-solid-letter-spacing"
+	| "--preset-stark-solid-line-height"
+	| "--preset-stark-solid-hover-background-color"
+	| "--preset-stark-solid-hover-box-shadow"
+	| "--preset-stark-solid-hover-border-color"
+	| "--preset-stark-solid-active-background-color"
+	| "--preset-stark-solid-active-box-shadow"
+	| "--preset-stark-solid-active-border-color"
+	| "--preset-stark-solid-disabled-background-color"
+	| "--preset-stark-solid-disabled-color"
+	| "--preset-stark-solid-disabled-opacity"
+	| "--preset-stark-solid-disabled-border-color"
+	| "--preset-stark-glow-background-color"
+	| "--preset-stark-glow-border-radius"
+	| "--preset-stark-glow-box-shadow"
+	| "--preset-stark-glow-color"
+	| "--preset-stark-glow-border-color"
+	| "--preset-stark-glow-border-width"
+	| "--preset-stark-glow-backdrop-filter"
+	| "--preset-stark-glow-opacity"
+	| "--preset-stark-glow-animation"
+	| "--preset-stark-glow-transition-duration"
+	| "--preset-stark-glow-transition-timing-function"
+	| "--preset-stark-glow-gradient"
+	| "--preset-stark-glow-font-family"
+	| "--preset-stark-glow-font-size"
+	| "--preset-stark-glow-font-weight"
+	| "--preset-stark-glow-letter-spacing"
+	| "--preset-stark-glow-line-height"
+	| "--preset-stark-glow-hover-background-color"
+	| "--preset-stark-glow-hover-box-shadow"
+	| "--preset-stark-glow-hover-border-color"
+	| "--preset-stark-glow-active-background-color"
+	| "--preset-stark-glow-active-box-shadow"
+	| "--preset-stark-glow-active-border-color"
+	| "--preset-stark-glow-disabled-background-color"
+	| "--preset-stark-glow-disabled-color"
+	| "--preset-stark-glow-disabled-opacity"
+	| "--preset-stark-glow-disabled-border-color"
+	| "--preset-stark-glow-disabled-animation"
+	| "--preset-stark-muted-background-color"
+	| "--preset-stark-muted-border-radius"
+	| "--preset-stark-muted-box-shadow"
+	| "--preset-stark-muted-color"
+	| "--preset-stark-muted-border-color"
+	| "--preset-stark-muted-border-width"
+	| "--preset-stark-muted-backdrop-filter"
+	| "--preset-stark-muted-opacity"
+	| "--preset-stark-muted-animation"
+	| "--preset-stark-muted-transition-duration"
+	| "--preset-stark-muted-transition-timing-function"
+	| "--preset-stark-muted-gradient"
+	| "--preset-stark-muted-font-family"
+	| "--preset-stark-muted-font-size"
+	| "--preset-stark-muted-font-weight"
+	| "--preset-stark-muted-letter-spacing"
+	| "--preset-stark-muted-line-height"
+	| "--preset-stark-muted-hover-background-color"
+	| "--preset-stark-muted-hover-opacity"
+	| "--preset-stark-muted-hover-border-color"
+	| "--preset-stark-muted-active-background-color"
+	| "--preset-stark-muted-active-opacity"
+	| "--preset-stark-muted-disabled-background-color"
+	| "--preset-stark-muted-disabled-color"
+	| "--preset-stark-muted-disabled-opacity"
+	| "--preset-stark-muted-disabled-border-color";
 
-export type StyleRecord = {
-	"accordion-default": {
+export type PresetRecord = {
+	"neuro-elevated": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
@@ -14417,13 +2031,26 @@ export type StyleRecord = {
 		"letter-spacing": string;
 		"line-height": string;
 	};
-	"accordion-stark": {
+	"neuro-elevated-hover": {
+		"box-shadow": string;
+		"border-color": string;
+	};
+	"neuro-elevated-active": {
+		"background-color": string;
+		"box-shadow": string;
+	};
+	"neuro-elevated-disabled": {
+		color: string;
+		opacity: string;
+	};
+	"neuro-deep": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
 		color: string;
 		"border-color": string;
 		"border-width": string;
+		"backdrop-filter": string;
 		opacity: string;
 		animation: string;
 		"transition-duration": string;
@@ -14434,8 +2061,18 @@ export type StyleRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+	};
+	"neuro-deep-hover": {
+		"background-color": string;
+	};
+	"neuro-deep-active": {
+		"background-color": string;
+	};
+	"neuro-deep-disabled": {
+		color: string;
+		opacity: string;
 	};
-	"accordion-glass": {
+	"neuro-minimal": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
@@ -14453,14 +2090,25 @@ export type StyleRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+	};
+	"neuro-minimal-hover": {
+		"background-color": string;
+	};
+	"neuro-minimal-active": {
+		"background-color": string;
+	};
+	"neuro-minimal-disabled": {
+		color: string;
+		opacity: string;
 	};
-	"accordion-flat": {
+	"neuro-solid": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
 		color: string;
 		"border-color": string;
 		"border-width": string;
+		"backdrop-filter": string;
 		opacity: string;
 		animation: string;
 		"transition-duration": string;
@@ -14471,14 +2119,25 @@ export type StyleRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+	};
+	"neuro-solid-hover": {
+		"box-shadow": string;
+	};
+	"neuro-solid-active": {
+		"background-color": string;
+	};
+	"neuro-solid-disabled": {
+		color: string;
+		opacity: string;
 	};
-	"accordion-matte": {
+	"neuro-glow": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
 		color: string;
 		"border-color": string;
 		"border-width": string;
+		"backdrop-filter": string;
 		opacity: string;
 		animation: string;
 		"transition-duration": string;
@@ -14489,8 +2148,21 @@ export type StyleRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+	};
+	"neuro-glow-hover": {
+		"box-shadow": string;
+		"border-color": string;
+	};
+	"neuro-glow-active": {
+		"background-color": string;
+		"border-color": string;
+	};
+	"neuro-glow-disabled": {
+		color: string;
+		opacity: string;
+		animation: string;
 	};
-	"alert-dialog-default": {
+	"neuro-muted": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
@@ -14508,14 +2180,23 @@ export type StyleRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+	};
+	"neuro-muted-hover": {
+		"background-color": string;
+		opacity: string;
+	};
+	"neuro-muted-disabled": {
+		color: string;
+		opacity: string;
 	};
-	"alert-dialog-stark": {
+	"glass-elevated": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
 		color: string;
 		"border-color": string;
 		"border-width": string;
+		"backdrop-filter": string;
 		opacity: string;
 		animation: string;
 		"transition-duration": string;
@@ -14526,8 +2207,23 @@ export type StyleRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+	};
+	"glass-elevated-hover": {
+		"background-color": string;
+		"box-shadow": string;
+		"border-color": string;
+	};
+	"glass-elevated-active": {
+		"background-color": string;
+		"box-shadow": string;
+	};
+	"glass-elevated-disabled": {
+		"background-color": string;
+		opacity: string;
+		"border-color": string;
+		animation: string;
 	};
-	"alert-dialog-glass": {
+	"glass-deep": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
@@ -14545,14 +2241,29 @@ export type StyleRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+	};
+	"glass-deep-hover": {
+		"background-color": string;
+		"box-shadow": string;
+		"border-color": string;
+	};
+	"glass-deep-active": {
+		"background-color": string;
+		"box-shadow": string;
+	};
+	"glass-deep-disabled": {
+		"background-color": string;
+		opacity: string;
+		"border-color": string;
 	};
-	"alert-dialog-flat": {
+	"glass-minimal": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
 		color: string;
 		"border-color": string;
 		"border-width": string;
+		"backdrop-filter": string;
 		opacity: string;
 		animation: string;
 		"transition-duration": string;
@@ -14563,14 +2274,27 @@ export type StyleRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+	};
+	"glass-minimal-hover": {
+		"background-color": string;
+		"border-color": string;
+	};
+	"glass-minimal-active": {
+		"background-color": string;
+	};
+	"glass-minimal-disabled": {
+		"background-color": string;
+		color: string;
+		opacity: string;
 	};
-	"alert-dialog-matte": {
+	"glass-solid": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
 		color: string;
 		"border-color": string;
 		"border-width": string;
+		"backdrop-filter": string;
 		opacity: string;
 		animation: string;
 		"transition-duration": string;
@@ -14581,9 +2305,23 @@ export type StyleRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+	};
+	"glass-solid-hover": {
+		"background-color": string;
+		"box-shadow": string;
+		"border-color": string;
 	};
-	"alert-default": {
+	"glass-solid-active": {
 		"background-color": string;
+		"box-shadow": string;
+	};
+	"glass-solid-disabled": {
+		"background-color": string;
+		opacity: string;
+		"border-color": string;
+	};
+	"glass-glow": {
+		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
 		color: string;
@@ -14601,25 +2339,22 @@ export type StyleRecord = {
 		"letter-spacing": string;
 		"line-height": string;
 	};
-	"alert-stark": {
+	"glass-glow-hover": {
 		"background-color": string;
-		"border-radius": string;
 		"box-shadow": string;
-		color: string;
 		"border-color": string;
-		"border-width": string;
+	};
+	"glass-glow-active": {
+		"background-color": string;
+		"box-shadow": string;
+	};
+	"glass-glow-disabled": {
+		"background-color": string;
 		opacity: string;
+		"border-color": string;
 		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
 	};
-	"alert-glass": {
+	"glass-muted": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
@@ -14638,13 +2373,28 @@ export type StyleRecord = {
 		"letter-spacing": string;
 		"line-height": string;
 	};
-	"alert-flat": {
+	"glass-muted-hover": {
 		"background-color": string;
+		opacity: string;
+		"border-color": string;
+	};
+	"glass-muted-active": {
+		"background-color": string;
+		opacity: string;
+	};
+	"glass-muted-disabled": {
+		"background-color": string;
+		color: string;
+		opacity: string;
+	};
+	"retro-elevated": {
+		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
 		color: string;
 		"border-color": string;
 		"border-width": string;
+		"backdrop-filter": string;
 		opacity: string;
 		animation: string;
 		"transition-duration": string;
@@ -14656,25 +2406,21 @@ export type StyleRecord = {
 		"letter-spacing": string;
 		"line-height": string;
 	};
-	"alert-matte": {
+	"retro-elevated-hover": {
 		"background-color": string;
-		"border-radius": string;
 		"box-shadow": string;
-		color: string;
 		"border-color": string;
-		"border-width": string;
+	};
+	"retro-elevated-active": {
+		"background-color": string;
+		"box-shadow": string;
+	};
+	"retro-elevated-disabled": {
+		color: string;
 		opacity: string;
 		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
 	};
-	"avatar-group-default": {
+	"retro-deep": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
@@ -14692,14 +2438,27 @@ export type StyleRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+	};
+	"retro-deep-hover": {
+		color: string;
+		"border-color": string;
+	};
+	"retro-deep-active": {
+		"background-color": string;
+	};
+	"retro-deep-disabled": {
+		color: string;
+		opacity: string;
+		animation: string;
 	};
-	"avatar-group-stark": {
+	"retro-minimal": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
 		color: string;
 		"border-color": string;
 		"border-width": string;
+		"backdrop-filter": string;
 		opacity: string;
 		animation: string;
 		"transition-duration": string;
@@ -14710,8 +2469,19 @@ export type StyleRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+	};
+	"retro-minimal-hover": {
+		"background-color": string;
+		"border-color": string;
+	};
+	"retro-minimal-active": {
+		"background-color": string;
+	};
+	"retro-minimal-disabled": {
+		color: string;
+		opacity: string;
 	};
-	"avatar-group-glass": {
+	"retro-solid": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
@@ -14729,14 +2499,27 @@ export type StyleRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+	};
+	"retro-solid-hover": {
+		"background-color": string;
+		"box-shadow": string;
+	};
+	"retro-solid-active": {
+		"background-color": string;
+		"box-shadow": string;
 	};
-	"avatar-group-flat": {
+	"retro-solid-disabled": {
 		"background-color": string;
+		opacity: string;
+	};
+	"retro-glow": {
+		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
 		color: string;
 		"border-color": string;
 		"border-width": string;
+		"backdrop-filter": string;
 		opacity: string;
 		animation: string;
 		"transition-duration": string;
@@ -14747,14 +2530,28 @@ export type StyleRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+	};
+	"retro-glow-hover": {
+		color: string;
+		"box-shadow": string;
+		"border-color": string;
+	};
+	"retro-glow-active": {
+		"background-color": string;
+	};
+	"retro-glow-disabled": {
+		color: string;
+		opacity: string;
+		animation: string;
 	};
-	"avatar-group-matte": {
+	"retro-muted": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
 		color: string;
 		"border-color": string;
 		"border-width": string;
+		"backdrop-filter": string;
 		opacity: string;
 		animation: string;
 		"transition-duration": string;
@@ -14765,8 +2562,16 @@ export type StyleRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+	};
+	"retro-muted-hover": {
+		color: string;
+		opacity: string;
+	};
+	"retro-muted-disabled": {
+		color: string;
+		opacity: string;
 	};
-	"avatar-default": {
+	"chrome-elevated": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
@@ -14785,25 +2590,25 @@ export type StyleRecord = {
 		"letter-spacing": string;
 		"line-height": string;
 	};
-	"avatar-stark": {
+	"chrome-elevated-hover": {
 		"background-color": string;
-		"border-radius": string;
+		gradient: string;
 		"box-shadow": string;
-		color: string;
 		"border-color": string;
-		"border-width": string;
+	};
+	"chrome-elevated-active": {
+		"background-color": string;
+		gradient: string;
+		"box-shadow": string;
+	};
+	"chrome-elevated-disabled": {
+		"background-color": string;
 		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
 		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
+		"border-color": string;
+		animation: string;
 	};
-	"avatar-glass": {
+	"chrome-deep": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
@@ -14821,14 +2626,30 @@ export type StyleRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+	};
+	"chrome-deep-hover": {
+		"background-color": string;
+		"box-shadow": string;
+		"border-color": string;
+	};
+	"chrome-deep-active": {
+		"background-color": string;
+		"box-shadow": string;
+	};
+	"chrome-deep-disabled": {
+		"background-color": string;
+		opacity: string;
+		gradient: string;
+		"border-color": string;
 	};
-	"avatar-flat": {
+	"chrome-minimal": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
 		color: string;
 		"border-color": string;
 		"border-width": string;
+		"backdrop-filter": string;
 		opacity: string;
 		animation: string;
 		"transition-duration": string;
@@ -14839,14 +2660,30 @@ export type StyleRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+	};
+	"chrome-minimal-hover": {
+		"background-color": string;
+		"box-shadow": string;
+		"border-color": string;
+	};
+	"chrome-minimal-active": {
+		"background-color": string;
+		"box-shadow": string;
+	};
+	"chrome-minimal-disabled": {
+		"background-color": string;
+		color: string;
+		opacity: string;
+		"border-color": string;
 	};
-	"avatar-matte": {
+	"chrome-solid": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
 		color: string;
 		"border-color": string;
 		"border-width": string;
+		"backdrop-filter": string;
 		opacity: string;
 		animation: string;
 		"transition-duration": string;
@@ -14857,8 +2694,23 @@ export type StyleRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+	};
+	"chrome-solid-hover": {
+		"background-color": string;
+		"box-shadow": string;
+		"border-color": string;
+	};
+	"chrome-solid-active": {
+		"background-color": string;
+		"box-shadow": string;
+	};
+	"chrome-solid-disabled": {
+		"background-color": string;
+		color: string;
+		opacity: string;
+		"border-color": string;
 	};
-	"badge-default": {
+	"chrome-glow": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
@@ -14876,14 +2728,31 @@ export type StyleRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+	};
+	"chrome-glow-hover": {
+		"background-color": string;
+		"box-shadow": string;
+		"border-color": string;
+	};
+	"chrome-glow-active": {
+		"background-color": string;
+		"box-shadow": string;
+	};
+	"chrome-glow-disabled": {
+		"background-color": string;
+		opacity: string;
+		gradient: string;
+		"border-color": string;
+		animation: string;
 	};
-	"badge-stark": {
+	"chrome-muted": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
 		color: string;
 		"border-color": string;
 		"border-width": string;
+		"backdrop-filter": string;
 		opacity: string;
 		animation: string;
 		"transition-duration": string;
@@ -14895,6948 +2764,28 @@ export type StyleRecord = {
 		"letter-spacing": string;
 		"line-height": string;
 	};
-	"badge-glass": {
+	"chrome-muted-hover": {
 		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"badge-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"badge-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"banner-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"banner-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"banner-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"banner-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"banner-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"button-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"button-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"button-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"button-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"button-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"calendar-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"calendar-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"calendar-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"calendar-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"calendar-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"callout-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"callout-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"callout-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"callout-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"callout-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"card-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"card-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"card-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"card-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"card-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-bubble-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-bubble-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-bubble-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-bubble-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-bubble-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"dynamic-background-boot": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"dynamic-background-devpulse": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"dynamic-background-overmind": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"dynamic-background-wiredfront": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"dynamic-background-devforge": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"dynamic-background-maestro": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-context-panel-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-context-panel-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-context-panel-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-context-panel-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-context-panel-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-dashboard-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-dashboard-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-dashboard-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-dashboard-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-dashboard-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-footer-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-footer-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-footer-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-footer-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-footer-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-frame-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-frame-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-frame-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-frame-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-frame-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-sidebar-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-sidebar-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-sidebar-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-sidebar-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-sidebar-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-topbar-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-topbar-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-topbar-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-topbar-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"chat-topbar-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"checkbox-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"checkbox-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"checkbox-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"checkbox-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"checkbox-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"code-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"code-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"code-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"code-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"code-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"collapsible-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"collapsible-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"collapsible-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"collapsible-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"collapsible-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-area-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-area-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-area-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-area-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-area-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-field-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-field-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-field-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-field-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-field-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-slider-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-slider-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-slider-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-slider-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-slider-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-swatch-picker-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-swatch-picker-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-swatch-picker-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-swatch-picker-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-swatch-picker-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-swatch-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-swatch-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-swatch-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-swatch-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-swatch-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-wheel-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-wheel-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-wheel-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-wheel-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"color-wheel-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"combobox-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"combobox-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"combobox-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"combobox-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"combobox-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"contextual-help-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"contextual-help-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"contextual-help-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"contextual-help-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"contextual-help-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"data-table-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"data-table-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"data-table-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"data-table-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"data-table-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"date-field-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"date-field-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"date-field-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"date-field-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"date-field-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"date-picker-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"date-picker-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"date-picker-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"date-picker-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"date-picker-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"date-range-field-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"date-range-field-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"date-range-field-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"date-range-field-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"date-range-field-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"date-range-picker-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"date-range-picker-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"date-range-picker-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"date-range-picker-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"date-range-picker-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"description-list-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"description-list-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"description-list-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"description-list-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"description-list-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"dialog-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"dialog-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"dialog-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"dialog-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"dialog-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"empty-state-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"empty-state-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"empty-state-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"empty-state-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"empty-state-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"file-upload-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"file-upload-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"file-upload-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"file-upload-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"file-upload-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"form-field-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"form-field-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"form-field-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"form-field-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"form-field-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"form-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"form-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"form-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"form-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"form-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"heading-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"heading-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"heading-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"heading-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"heading-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"inline-message-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"inline-message-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"inline-message-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"inline-message-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"inline-message-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"input-group-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"input-group-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"input-group-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"input-group-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"input-group-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"kbd-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"kbd-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"kbd-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"kbd-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"kbd-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"label-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"label-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"label-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"label-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"label-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"link-preview-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"link-preview-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"link-preview-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"link-preview-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"link-preview-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"list-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"list-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"list-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"list-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"list-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"loading-overlay-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"loading-overlay-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"loading-overlay-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"loading-overlay-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"loading-overlay-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"menubar-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"menubar-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"menubar-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"menubar-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"menubar-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"nav-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"nav-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"nav-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"nav-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"nav-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"navigation-menu-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"navigation-menu-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"navigation-menu-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"navigation-menu-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"navigation-menu-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"notification-center-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"notification-center-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"notification-center-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"notification-center-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"notification-center-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"pagination-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"pagination-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"pagination-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"pagination-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"pagination-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"pin-input-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"pin-input-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"pin-input-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"pin-input-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"pin-input-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"popover-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"popover-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"popover-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"popover-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"popover-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"progress-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"progress-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"progress-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"progress-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"progress-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"prose-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"prose-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"prose-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"prose-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"prose-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"radio-group-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"radio-group-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"radio-group-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"radio-group-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"radio-group-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"range-calendar-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"range-calendar-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"range-calendar-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"range-calendar-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"range-calendar-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"scroll-area-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"scroll-area-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"scroll-area-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"scroll-area-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"scroll-area-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"select-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"select-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"select-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"select-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"select-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"separator-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"separator-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"separator-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"separator-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"separator-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"sheet-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"sheet-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"sheet-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"sheet-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"sheet-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"sidebar-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"sidebar-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"sidebar-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"sidebar-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"sidebar-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"skeleton-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"skeleton-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"skeleton-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"skeleton-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"skeleton-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"skip-link-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"skip-link-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"skip-link-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"skip-link-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"skip-link-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"slider-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"slider-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"slider-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"slider-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"slider-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"spinner-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"spinner-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"spinner-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"spinner-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"spinner-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"stat-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"stat-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"stat-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"stat-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"stat-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"status-dot-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"status-dot-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"status-dot-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"status-dot-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"status-dot-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"steps-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"steps-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"steps-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"steps-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"steps-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"switch-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"switch-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"switch-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"switch-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"switch-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"table-of-contents-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"table-of-contents-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"table-of-contents-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"table-of-contents-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"table-of-contents-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"table-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"table-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"table-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"table-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"table-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"tabs-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"tabs-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"tabs-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"tabs-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"tabs-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"text-field-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"text-field-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"text-field-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"text-field-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"text-field-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"text-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"text-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"text-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"text-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"text-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"textarea-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"textarea-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"textarea-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"textarea-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"textarea-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"toaster-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"toaster-stark": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"toaster-glass": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"toaster-flat": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"toaster-matte": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
 		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
-	};
-	"toggle-group-default": {
-		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
 		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
 	};
-	"toggle-group-stark": {
+	"chrome-muted-active": {
 		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
 		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
 	};
-	"toggle-group-glass": {
+	"chrome-muted-disabled": {
 		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
 		color: string;
-		"border-color": string;
-		"border-width": string;
-		"backdrop-filter": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
+		opacity: string;
 	};
-	"toggle-group-flat": {
+	"flat-elevated": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
 		color: string;
 		"border-color": string;
 		"border-width": string;
+		"backdrop-filter": string;
 		opacity: string;
 		animation: string;
 		"transition-duration": string;
@@ -21848,25 +2797,18 @@ export type StyleRecord = {
 		"letter-spacing": string;
 		"line-height": string;
 	};
-	"toggle-group-matte": {
+	"flat-elevated-hover": {
 		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
+	};
+	"flat-elevated-active": {
+		"background-color": string;
+	};
+	"flat-elevated-disabled": {
+		"background-color": string;
 		color: string;
-		"border-color": string;
-		"border-width": string;
 		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
 	};
-	"toggle-default": {
+	"flat-deep": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
@@ -21885,25 +2827,18 @@ export type StyleRecord = {
 		"letter-spacing": string;
 		"line-height": string;
 	};
-	"toggle-stark": {
+	"flat-deep-hover": {
 		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
+	};
+	"flat-deep-active": {
+		"background-color": string;
+	};
+	"flat-deep-disabled": {
+		"background-color": string;
 		color: string;
-		"border-color": string;
-		"border-width": string;
 		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
 	};
-	"toggle-glass": {
+	"flat-minimal": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
@@ -21922,31 +2857,24 @@ export type StyleRecord = {
 		"letter-spacing": string;
 		"line-height": string;
 	};
-	"toggle-flat": {
+	"flat-minimal-hover": {
 		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
+	};
+	"flat-minimal-active": {
+		"background-color": string;
+	};
+	"flat-minimal-disabled": {
 		color: string;
-		"border-color": string;
-		"border-width": string;
 		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
 	};
-	"toggle-matte": {
+	"flat-solid": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
 		color: string;
 		"border-color": string;
 		"border-width": string;
+		"backdrop-filter": string;
 		opacity: string;
 		animation: string;
 		"transition-duration": string;
@@ -21957,9 +2885,22 @@ export type StyleRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+	};
+	"flat-solid-hover": {
+		"background-color": string;
+		"border-color": string;
 	};
-	"toolbar-default": {
+	"flat-solid-active": {
 		"background-color": string;
+	};
+	"flat-solid-disabled": {
+		"background-color": string;
+		color: string;
+		opacity: string;
+		"border-color": string;
+	};
+	"flat-glow": {
+		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
 		color: string;
@@ -21977,25 +2918,18 @@ export type StyleRecord = {
 		"letter-spacing": string;
 		"line-height": string;
 	};
-	"toolbar-stark": {
+	"flat-glow-hover": {
 		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
+	};
+	"flat-glow-active": {
+		"background-color": string;
+	};
+	"flat-glow-disabled": {
+		"background-color": string;
 		color: string;
-		"border-color": string;
-		"border-width": string;
 		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
 	};
-	"toolbar-glass": {
+	"flat-muted": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
@@ -22014,43 +2948,20 @@ export type StyleRecord = {
 		"letter-spacing": string;
 		"line-height": string;
 	};
-	"toolbar-flat": {
+	"flat-muted-hover": {
 		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
-		"border-color": string;
-		"border-width": string;
 		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
 	};
-	"toolbar-matte": {
+	"flat-muted-active": {
 		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
+		opacity: string;
+	};
+	"flat-muted-disabled": {
+		"background-color": string;
 		color: string;
-		"border-color": string;
-		"border-width": string;
 		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
 	};
-	"tooltip-default": {
+	"stark-elevated": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
@@ -22069,25 +2980,23 @@ export type StyleRecord = {
 		"letter-spacing": string;
 		"line-height": string;
 	};
-	"tooltip-stark": {
+	"stark-elevated-hover": {
 		"background-color": string;
-		"border-radius": string;
 		"box-shadow": string;
-		color: string;
 		"border-color": string;
-		"border-width": string;
+	};
+	"stark-elevated-active": {
+		"background-color": string;
+		"box-shadow": string;
+		"border-color": string;
+	};
+	"stark-elevated-disabled": {
+		"background-color": string;
+		color: string;
 		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
+		"border-color": string;
 	};
-	"tooltip-glass": {
+	"stark-deep": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
@@ -22106,43 +3015,23 @@ export type StyleRecord = {
 		"letter-spacing": string;
 		"line-height": string;
 	};
-	"tooltip-flat": {
+	"stark-deep-hover": {
 		"background-color": string;
-		"border-radius": string;
 		"box-shadow": string;
-		color: string;
 		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
 	};
-	"tooltip-matte": {
+	"stark-deep-active": {
 		"background-color": string;
-		"border-radius": string;
 		"box-shadow": string;
-		color: string;
 		"border-color": string;
-		"border-width": string;
+	};
+	"stark-deep-disabled": {
+		"background-color": string;
+		color: string;
 		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
+		"border-color": string;
 	};
-	"tree-default": {
+	"stark-minimal": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
@@ -22161,25 +3050,21 @@ export type StyleRecord = {
 		"letter-spacing": string;
 		"line-height": string;
 	};
-	"tree-stark": {
+	"stark-minimal-hover": {
 		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
 		"border-color": string;
-		"border-width": string;
+	};
+	"stark-minimal-active": {
+		"background-color": string;
+		"border-color": string;
+	};
+	"stark-minimal-disabled": {
+		"background-color": string;
+		color: string;
 		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
+		"border-color": string;
 	};
-	"tree-glass": {
+	"stark-solid": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
@@ -22198,43 +3083,23 @@ export type StyleRecord = {
 		"letter-spacing": string;
 		"line-height": string;
 	};
-	"tree-flat": {
+	"stark-solid-hover": {
 		"background-color": string;
-		"border-radius": string;
 		"box-shadow": string;
-		color: string;
 		"border-color": string;
-		"border-width": string;
-		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
 	};
-	"tree-matte": {
+	"stark-solid-active": {
 		"background-color": string;
-		"border-radius": string;
 		"box-shadow": string;
-		color: string;
 		"border-color": string;
-		"border-width": string;
+	};
+	"stark-solid-disabled": {
+		"background-color": string;
+		color: string;
 		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
+		"border-color": string;
 	};
-	"widget-default": {
+	"stark-glow": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
@@ -22253,25 +3118,24 @@ export type StyleRecord = {
 		"letter-spacing": string;
 		"line-height": string;
 	};
-	"widget-stark": {
+	"stark-glow-hover": {
 		"background-color": string;
-		"border-radius": string;
 		"box-shadow": string;
-		color: string;
 		"border-color": string;
-		"border-width": string;
+	};
+	"stark-glow-active": {
+		"background-color": string;
+		"box-shadow": string;
+		"border-color": string;
+	};
+	"stark-glow-disabled": {
+		"background-color": string;
+		color: string;
 		opacity: string;
+		"border-color": string;
 		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
 	};
-	"widget-glass": {
+	"stark-muted": {
 		"background-color": string;
 		"border-radius": string;
 		"box-shadow": string;
@@ -22290,41 +3154,20 @@ export type StyleRecord = {
 		"letter-spacing": string;
 		"line-height": string;
 	};
-	"widget-flat": {
+	"stark-muted-hover": {
 		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
-		color: string;
+		opacity: string;
 		"border-color": string;
-		"border-width": string;
+	};
+	"stark-muted-active": {
+		"background-color": string;
 		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
 	};
-	"widget-matte": {
+	"stark-muted-disabled": {
 		"background-color": string;
-		"border-radius": string;
-		"box-shadow": string;
 		color: string;
-		"border-color": string;
-		"border-width": string;
 		opacity: string;
-		animation: string;
-		"transition-duration": string;
-		"transition-timing-function": string;
-		gradient: string;
-		"font-family": string;
-		"font-size": string;
-		"font-weight": string;
-		"letter-spacing": string;
-		"line-height": string;
+		"border-color": string;
 	};
 };
 

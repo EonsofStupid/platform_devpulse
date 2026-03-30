@@ -74,6 +74,8 @@ const areaPath = $derived.by(() => {
 	class="block {className}"
 	xmlns="http://www.w3.org/2000/svg"
 	style={svg.style}
+	data-kind="spark-line"
+	data-slot="root"
 	data-svg-kind={svg.attrs["data-svg-kind"]}
 	data-svg-intent={svg.attrs["data-svg-intent"]}
 	data-svg-accent={svg.attrs["data-svg-accent"]}

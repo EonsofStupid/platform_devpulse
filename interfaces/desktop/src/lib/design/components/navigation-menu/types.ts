@@ -5,14 +5,14 @@
  *
  * Prop types for all NavigationMenu sub-components.
  * ColdLight-owned — no MeltUI adapter. Native ARIA on semantic HTML elements.
+ * No matching primitive — extends UIBaseProps.
  *
  * WAI-ARIA APG: https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAnchorAttributes, HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
-import type { BaseProps } from "$lib/design/utils/cn.js";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 
 // =============================================================================
 // SIZE
@@ -25,10 +25,8 @@ export type NavigationMenuSize = "sm" | "md" | "lg";
 // =============================================================================
 
 export interface NavigationMenuProps
-	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children">,
-		BaseProps,
-		ComponentProps {
-	children?: Snippet;
+	extends Omit<HTMLAttributes<HTMLElement>, "children">,
+		UIBaseProps {
 	/** Accessible label for the navigation */
 	"aria-label"?: string;
 }
@@ -37,22 +35,22 @@ export interface NavigationMenuProps
 // ITEM PROPS
 // =============================================================================
 
-export interface NavigationMenuItemProps
-	extends Omit<HTMLAttributes<HTMLLIElement>, "style" | "children">,
-		BaseProps {
+export interface NavigationMenuItemProps extends Omit<HTMLAttributes<HTMLLIElement>, "children"> {
 	children?: Snippet;
 	/** Value identifier for this item */
 	value?: string;
+	/** Additional CSS classes */
+	class?: string;
 }
 
 // =============================================================================
 // TRIGGER PROPS
 // =============================================================================
 
-export interface NavigationMenuTriggerProps
-	extends Omit<HTMLButtonAttributes, "style" | "children">,
-		BaseProps {
+export interface NavigationMenuTriggerProps extends Omit<HTMLButtonAttributes, "children"> {
 	children?: Snippet;
+	/** Additional CSS classes */
+	class?: string;
 }
 
 // =============================================================================
@@ -60,21 +58,22 @@ export interface NavigationMenuTriggerProps
 // =============================================================================
 
 export interface NavigationMenuContentProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children">,
-		BaseProps {
+	extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
 	children?: Snippet;
 	/** Size variant */
 	size?: NavigationMenuSize;
+	/** Additional CSS classes */
+	class?: string;
 }
 
 // =============================================================================
 // LINK PROPS
 // =============================================================================
 
-export interface NavigationMenuLinkProps
-	extends Omit<HTMLAnchorAttributes, "style" | "children">,
-		BaseProps {
+export interface NavigationMenuLinkProps extends Omit<HTMLAnchorAttributes, "children"> {
 	children?: Snippet;
 	/** Whether this link is currently active (matches current route) */
 	active?: boolean;
+	/** Additional CSS classes */
+	class?: string;
 }

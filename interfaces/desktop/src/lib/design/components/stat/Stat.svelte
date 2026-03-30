@@ -46,6 +46,7 @@ let {
 	preset = "default",
 	children,
 	class: className,
+	...rest
 }: StatProps = $props();
 
 const sizeClasses = $derived(SIZE[size] ?? SIZE.md);
@@ -55,9 +56,10 @@ const m = $derived(resolveMacro({ kind: "stat", preset }));
 
 <div
 		{...m.dataAttrs}
-		style={cssVarString(m.cssVars)}
 		data-slot="root"
+		style={cssVarString(m.cssVars)}
 		class={cn("flex flex-col gap-1", className)}
+		{...rest}
 	>
 		{#if label}
 			<span

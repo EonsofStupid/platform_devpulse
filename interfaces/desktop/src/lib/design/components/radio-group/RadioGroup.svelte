@@ -23,6 +23,7 @@
 -->
 <script lang="ts">
 import { useRadioGroup } from "$lib/design/behaviors/radio-group/use-radio-group.svelte.js";
+import { radioGroupAnatomy } from "$lib/design/primitives/radio-group/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setRadioGroupContext } from "./context.js";
@@ -70,7 +71,9 @@ const m = $derived(resolveMacro({ kind: "radio-group", preset }));
 </script>
 
 <div
+		{...radioGroupAnatomy.attrs.root}
 		{...hook.root}
+		{...rest}
 		{...m.dataAttrs}
 		style={cssVarString(m.cssVars)}
 		data-orientation={orientation}
@@ -78,7 +81,6 @@ const m = $derived(resolveMacro({ kind: "radio-group", preset }));
 			"flex gap-2",
 			orientation === "horizontal" ? "flex-row" : "flex-col",
 			className)}
-		{...rest}
 	>
 		{@render children?.()}
 	</div>

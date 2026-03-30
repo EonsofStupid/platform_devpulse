@@ -24,6 +24,7 @@
 -->
 <script lang="ts">
 import { useTable } from "$lib/design/behaviors/table/use-table.svelte.js";
+import { tableAnatomy } from "$lib/design/primitives/table/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TableComponentProps } from "./types.js";
@@ -41,7 +42,7 @@ const table = useTable();
 const m = $derived(resolveMacro({ kind: "table", preset }));
 </script>
 <div class="w-full overflow-auto" {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="wrapper">
-		<table {...table.root} aria-label={label} data-kind="table" data-slot="root" data-variant={variant} class={cn("w-full caption-bottom text-sm", className)} {...rest}>
+		<table {...tableAnatomy.attrs.root} {...table.root} aria-label={label} data-variant={variant} class={cn("w-full caption-bottom text-sm", className)} {...rest}>
 			{@render children?.()}
 		</table>
 	</div>

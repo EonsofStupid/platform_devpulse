@@ -195,7 +195,7 @@ const primitiveSchema: FileSchemaRule = {
  * @file primitives/_schema/${ctx.fileName}
  * @package @devpulse/coldlight
  *
- * Primitive schema infrastructure — Zod validation for contracts and types.
+ * Primitive schema infrastructure — ArkType validation for contracts and types.
  * Powers: scanner validation, dev tools, manifest generation.
  */
 

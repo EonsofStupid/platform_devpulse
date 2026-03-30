@@ -24,6 +24,7 @@
 -->
 <script lang="ts">
 import { useAccordion } from "$lib/design/behaviors/accordion/use-accordion.svelte.js";
+import { accordionAnatomy } from "$lib/design/primitives/accordion/index.js";
 import { cssVarString, resolveMacro } from "$lib/design/style-macro";
 import { cn } from "$lib/design/utils/cn.js";
 import { setAccordionContext } from "./context.js";
@@ -83,15 +84,15 @@ const m = $derived(resolveMacro({ kind: "accordion", preset }));
 </script>
 
 <div
+	{...accordionAnatomy.attrs.root}
 	id={ids?.root}
 	{...hook.root}
 	{dir}
+	{...rest}
 	{...m.dataAttrs}
-	data-slot="root"
 	data-orientation={orientation}
 	style={cssVarString(m.cssVars)}
 	class={cn(SIZE[size] ?? SIZE.md, className)}
-	{...rest}
 >
 	{@render children?.()}
 </div>

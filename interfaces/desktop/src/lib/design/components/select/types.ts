@@ -8,7 +8,7 @@
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { SelectPrimitiveProps } from "$lib/design/primitives/select/index.js";
 
 // =============================================================================
 // ROOT
@@ -16,52 +16,40 @@ import type { ComponentProps } from "$lib/design/components/_base/types.js";
 
 export type SelectPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
-export interface SelectProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class">,
-		ComponentProps {
-	/** Style preset preset */
+export interface SelectProps extends SelectPrimitiveProps {
+	/** Visual preset — selects style configuration. Default: "default" */
 	preset?: SelectPreset;
-	children?: Snippet;
-	value?: string;
+	/** Callback when the selected value changes */
 	onValueChange?: (value: string) => void;
-	open?: boolean;
-	onOpenChange?: (open: boolean) => void;
-	placeholder?: string;
-	disabled?: boolean;
 }
 
 // =============================================================================
 // SUB-COMPONENTS
 // =============================================================================
 
-export interface SelectTriggerProps
-	extends Omit<HTMLButtonAttributes, "style" | "children" | "class"> {
+export interface SelectTriggerProps extends Omit<HTMLButtonAttributes, "children"> {
 	children?: Snippet;
 	class?: string;
 }
 
-export interface SelectContentProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class"> {
+export interface SelectContentProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
 	children?: Snippet;
 	class?: string;
 }
 
-export interface SelectItemProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class"> {
+export interface SelectItemProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
 	children?: Snippet;
 	class?: string;
 	value: string;
 	disabled?: boolean;
 }
 
-export interface SelectLabelProps
-	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+export interface SelectLabelProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
 	children?: Snippet;
 	class?: string;
 }
 
-export interface SelectGroupProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class"> {
+export interface SelectGroupProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
 	children?: Snippet;
 	class?: string;
 }

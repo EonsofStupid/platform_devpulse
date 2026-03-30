@@ -11,11 +11,13 @@
  * onChange/onChangeEnd, form association.
  *
  * Color represented as oklch string (matches SD5 token pipeline output).
+ *
+ * No matching primitive — extends UIBaseProps.
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 
 // =============================================================================
 // COLOR TYPES
@@ -65,8 +67,8 @@ export interface ColorAreaIds {
 // =============================================================================
 
 export interface ColorAreaRootProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		ComponentProps {
+	extends Omit<HTMLAttributes<HTMLDivElement>, "children" | "class" | "dir">,
+		UIBaseProps {
 	ids?: Partial<ColorAreaIds>;
 	/** Color space the area operates in. Default: "oklch". */
 	colorSpace?: ColorSpace;
@@ -103,8 +105,7 @@ export interface ColorAreaRootProps
 // SUB-COMPONENTS
 // =============================================================================
 
-interface ColorAreaSlotProps
-	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface ColorAreaSlotProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
 	children?: Snippet;
 	class?: string;
 }

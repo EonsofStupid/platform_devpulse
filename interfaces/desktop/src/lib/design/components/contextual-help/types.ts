@@ -3,16 +3,13 @@
  * @kind contextual-help
  * @layer components
  *
+ * No matching primitive — extends UIBaseProps.
  * Popover triggered by a help/info icon button.
- * Shows extra information about an adjacent component.
- * Compound: Root, Heading, Content, Footer.
- *
- * Behavioral — popover open/close, focus management, dismiss.
  */
 
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
-import type { ComponentProps } from "$lib/design/components/_base/types.js";
+import type { UIBaseProps } from "$lib/design/components/_base/types.js";
 
 export type ContextualHelpPreset = "default" | "stark" | "glass" | "flat" | "matte";
 export type ContextualHelpVariant = "info" | "help";
@@ -43,8 +40,8 @@ export interface ContextualHelpOpenChangeDetails {
 }
 
 export interface ContextualHelpRootProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "style" | "children" | "class" | "dir">,
-		ComponentProps {
+	extends Omit<HTMLAttributes<HTMLDivElement>, "children" | "class" | "dir">,
+		UIBaseProps {
 	ids?: Partial<ContextualHelpIds>;
 	/** Style preset. Default: "default". */
 	preset?: ContextualHelpPreset;
@@ -70,8 +67,7 @@ export interface ContextualHelpRootProps
 	children?: Snippet;
 }
 
-interface ContextualHelpSlotProps
-	extends Omit<HTMLAttributes<HTMLElement>, "style" | "children" | "class"> {
+interface ContextualHelpSlotProps extends Omit<HTMLAttributes<HTMLElement>, "children" | "class"> {
 	children?: Snippet;
 	class?: string;
 }

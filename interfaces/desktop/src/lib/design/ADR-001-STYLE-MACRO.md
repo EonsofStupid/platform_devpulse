@@ -42,7 +42,7 @@ const button = $derived(useButton({ disabled, loading, pressed }));
 components/{kind}/
   {Kind}.svelte           — hook + StyleMacro in ONE file. The product.
   {kind}.types.ts         — extends ComponentProps from _base. Intent + size + behavioral.
-  {kind}.def.ts            — const literal `as const satisfies ComponentDef`. No Zod.
+  {kind}.schema.ts         — ArkType schema. `.toJsonSchema()` feeds A2UI catalog + llguidance.
   index.ts                — barrel (public API, what users import)
 ```
 
