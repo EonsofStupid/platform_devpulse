@@ -2,8 +2,9 @@
 resolver = "2"
 members = [
     "kernel/devpulse-clyffy",
+    "kernel/model-loader",
     "systems/devpulse-engine",
-    "systems/*", 
+    "systems/*",
     "interfaces/desktop/src-tauri",
     "xtask" # The Build Orchestrator
     # EXCLUDED: devpulse_lab (Strictly External)
