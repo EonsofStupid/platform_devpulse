@@ -28,7 +28,7 @@
 /* ── Surface: background, borders, shadows ─────────────── */
 [data-cl-surface] {
   background-color: var(--cl-bg);
-  border-color: var(--cl-border, transparent);
+  border-color: var(--cl-border-color, transparent);
   box-shadow: var(--cl-shadow, none);
   background-image: var(--cl-gradient, none);
 }

@@ -23,7 +23,7 @@
   --chat-width: 25rem; /** Default chat window width */
   --chat-min-width: 20rem; /** Minimum chat window width */
   --chat-max-width: 37.5rem; /** Maximum chat window width */
-  --chat-height: 3.75rem; /** Default chat window height */
+  --chat-height: 60vh; /** Default chat window height */
   --chat-min-height: 25rem; /** Minimum chat window height */
   --chat-topbar-height: 2.5rem; /** Chat topbar row height */
   --chat-footer-height: 3.5rem; /** Chat footer row height */
@@ -77,7 +77,7 @@
   --preset-neuro-elevated-border-width: 0.0625rem;
   --preset-neuro-elevated-backdrop-filter: none;
   --preset-neuro-elevated-opacity: 1;
-  --preset-neuro-elevated-animation: cl-breathe 4s ease-in-out infinite;
+  --preset-neuro-elevated-animation: none;
   --preset-neuro-elevated-transition-duration: 150ms;
   --preset-neuro-elevated-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-neuro-elevated-gradient: none;

@@ -39,7 +39,12 @@ export type SemanticIntent =
 	| "accent"
 	| "info"
 	| "success"
-	| "warning";
+	| "warning"
+	| "default"
+	| "glass"
+	| "matte"
+	| "flat"
+	| "stark";
 
 /** Runtime array for VPB intent picker */
 export const SEMANTIC_INTENTS: readonly SemanticIntent[] = [
@@ -52,6 +57,11 @@ export const SEMANTIC_INTENTS: readonly SemanticIntent[] = [
 	"info",
 	"success",
 	"warning",
+	"default",
+	"glass",
+	"matte",
+	"flat",
+	"stark",
 ] as const;
 
 /** Human-readable variant labels for VPB */

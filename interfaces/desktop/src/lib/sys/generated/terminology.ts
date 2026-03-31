@@ -1,6 +1,6 @@
 /**
  * AUTO-GENERATED from kernel_terms.toml — DO NOT EDIT
- * Generated: 2026-03-30T05:33:41.755Z
+ * Generated: 2026-03-30T15:05:23.828Z
  * Source: systems/devpulse-engine/ip/kernel_terms.toml
  *
  * Regenerate: pnpm generate:terminology
@@ -338,13 +338,6 @@ export const TERMS: Record<string, Term> = {
 		category: "algorithms",
 		context: ["logs","traces"],
 	},
-	"Gus": {
-		engine: "Gus",
-		prod: "Gus",
-		dev: "Clyffy",
-		category: "architecture",
-		context: ["logs","traces","ui-text"],
-	},
 	"knowledge engine": {
 		engine: "knowledge engine",
 		prod: "knowledge engine",
@@ -358,13 +351,6 @@ export const TERMS: Record<string, Term> = {
 		dev: "Trinity",
 		category: "architecture",
 		context: ["logs","traces"],
-	},
-	"sandbox": {
-		engine: "sandbox",
-		prod: "Playground",
-		dev: "OverMind",
-		category: "architecture",
-		context: ["logs","traces","ui-text"],
 	},
 	"Relational store": {
 		engine: "Relational store",

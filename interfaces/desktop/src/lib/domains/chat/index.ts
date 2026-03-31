@@ -1,7 +1,9 @@
 /**
  * @file domains/chat/index.ts
  * @module @devpulse/domains/chat
- * @description Chat engine — message handling, conversation state
+ * @description Chat domain — state, services, types
  */
 
-// Public API — add exports as features are built
+export { chatState } from "./runes/chat.runes.svelte.js";
+export { loadMessages, sendMessage } from "./services/chat.service.js";
+export type { BlockChatMessage, ChatMessage, ChatMode, ChatThread } from "./types/chat.types.js";

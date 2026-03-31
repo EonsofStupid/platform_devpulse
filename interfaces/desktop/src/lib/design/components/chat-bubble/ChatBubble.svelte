@@ -36,7 +36,16 @@ let {
 	...rest
 }: ChatBubbleProps = $props();
 
-const m = $derived(resolveMacro({ kind: "chat-bubble", preset: variant }));
+/** Map bubble variant to distinct presets — AI and user messages look different */
+const VARIANT_PRESETS: Record<string, string> = {
+	ai: "glass-deep",
+	user: "neuro-minimal",
+	system: "flat-minimal",
+};
+
+const m = $derived(
+	resolveMacro({ kind: "chat-bubble", preset: VARIANT_PRESETS[variant] ?? "default" }),
+);
 </script>
 
 <div

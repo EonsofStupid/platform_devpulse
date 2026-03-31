@@ -150,6 +150,7 @@ Create `kernel/devpulse-maestro/src/cortex/inference/candle_provider.rs`:
 - A) `Qwen/Qwen3-0.6B` — Embedding model, not instruction-tuned (fast but not chat)
 - B) `unsloth/Qwen3-4B-Instruct-GGUF` — The actual minion brain (larger, 3GB)
 - C) Any small instruction-tuned GGUF that Candle's Qwen2 impl supports
+or misthril or ollama if they are actually competing with Qw3e
 
 **Impact**: 0.6B downloads in seconds, 4B takes minutes. 0.6B proves the pipeline,
 4B proves the product.

@@ -58,7 +58,8 @@ pub fn run() {
     #[cfg(debug_assertions)]
     builder
         .export(
-            specta_typescript::Typescript::default(),
+            specta_typescript::Typescript::default()
+                .bigint(specta_typescript::BigIntExportBehavior::Number),
             "../src/lib/sys/generated/bindings.ts",
         )
         .expect("Failed to export specta TypeScript bindings");

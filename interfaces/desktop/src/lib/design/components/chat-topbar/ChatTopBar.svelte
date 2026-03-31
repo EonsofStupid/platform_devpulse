@@ -45,6 +45,7 @@ const m = $derived(resolveMacro({ kind: "chat-topbar", preset: "default" }));
 	role="banner"
 	{...m.dataAttrs}
 	data-slot="topbar"
+	data-tauri-drag-region
 	style={cssVarString(m.cssVars)}
 	class={cn("flex items-center justify-between", className)}
 	{...rest}

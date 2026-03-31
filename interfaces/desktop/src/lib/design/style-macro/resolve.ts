@@ -73,11 +73,13 @@ export function resolveMacro(input: MacroInput): ResolvedMacro {
 	const v = (axis: string, fallback: string): string =>
 		`var(${perKind}-${axis}, var(${shared}-${axis}, ${fallback}))`;
 
-	// Assemble CSS var references
+	// Assemble CSS var references — one var per CSS property, NO shorthand
 	const cssVars: Record<`--cl-${string}`, string> = {
 		"--cl-bg": v("background-color", "transparent"),
 		"--cl-shadow": v("box-shadow", "none"),
-		"--cl-border": `${v("border-width", "0")} solid ${v("border-color", "transparent")}`,
+		"--cl-border-color": v("border-color", "transparent"),
+		"--cl-border-width": v("border-width", "0"),
+		"--cl-border-style": "solid",
 		"--cl-color": v("color", "inherit"),
 		"--cl-fg": v("color", "inherit"),
 		"--cl-radius": v("border-radius", "0"),
@@ -88,7 +90,7 @@ export function resolveMacro(input: MacroInput): ResolvedMacro {
 		"--cl-letter-spacing": v("letter-spacing", "0"),
 		"--cl-line-height": v("line-height", "inherit"),
 		"--cl-gradient": v("gradient", "none"),
-		"--cl-backdrop": `blur(${v("backdrop-filter", "0")})`,
+		"--cl-backdrop": v("backdrop-filter", "none"),
 		"--cl-animation": v("animation", "none"),
 		"--cl-transition-duration": v("transition-duration", "150ms"),
 		"--cl-transition-easing": v("transition-timing-function", "ease-out"),
@@ -106,8 +108,8 @@ export function resolveMacro(input: MacroInput): ResolvedMacro {
 		cssVars["--cl-color"] = sv("color", "inherit");
 		cssVars["--cl-fg"] = sv("color", "inherit");
 		cssVars["--cl-opacity"] = sv("opacity", "1");
-		cssVars["--cl-border"] =
-			`${sv("border-width", v("border-width", "0"))} solid ${sv("border-color", v("border-color", "transparent"))}`;
+		cssVars["--cl-border-color"] = sv("border-color", v("border-color", "transparent"));
+		cssVars["--cl-border-width"] = sv("border-width", v("border-width", "0"));
 		cssVars["--cl-animation"] = sv("animation", v("animation", "none"));
 		cssVars["--cl-gradient"] = sv("gradient", v("gradient", "none"));
 	}

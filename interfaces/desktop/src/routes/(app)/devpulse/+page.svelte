@@ -4,16 +4,19 @@
   @domain devpulse
 
   Cyberpunk HUD dashboard with gauges, charts, and glass panels.
-  Visual treatment via v-* utility classes on Widget class prop.
+  ALL containers use ColdLight components with resolveMacro — no box() bypass.
+  Each widget uses a DISTINCT preset for visual hierarchy.
   Matches DASHBOARD-REFERENCE-01.
 -->
 <script lang="ts">
 import { Activity, BarChart3, FolderGit2, Gauge, HeartPulse, TrendingUp } from "lucide-svelte";
 import { Widget } from "$lib/design/blocks/widgets/index.js";
+import { Badge } from "$lib/design/components/badge/index.js";
+import { Button } from "$lib/design/components/button/index.js";
+import Card from "$lib/design/components/card/Card.svelte";
 import { RadialGauge } from "$lib/design/components/radial-gauge/index.js";
 import { SparkLine } from "$lib/design/components/spark-line/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import { box } from "$lib/design/utils/box/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
@@ -44,15 +47,15 @@ $effect(() => {
 
 {#if devpulseState.loading}
 	<div class="flex items-center justify-center py-12">
-		<Text size="sm" color="muted">Loading dashboard data...</Text>
+		<Text size="sm" preset="default">Loading dashboard data...</Text>
 	</div>
 {:else if devpulseState.error}
 	<div class="flex flex-col items-center justify-center gap-2 py-12">
-		<Text size="sm" color="muted">Failed to load dashboard</Text>
-		<Text size="xs" color="muted">{devpulseState.error}</Text>
-		<button class="mt-2 rounded px-3 py-1 text-xs border border-border-soft text-text-secondary hover:text-text-link transition-colors" onclick={() => devpulseState.refresh()}>
+		<Text size="sm" preset="default">Failed to load dashboard</Text>
+		<Text size="xs" preset="default">{devpulseState.error}</Text>
+		<Button preset="ghost" size="sm" onclick={() => devpulseState.refresh()}>
 			Retry
-		</button>
+		</Button>
 	</div>
 {:else}
 <div class="grid grid-cols-12 gap-4" data-page="devpulse-dashboard">
@@ -61,7 +64,7 @@ $effect(() => {
 		<Widget
 			title="Clyffy Control"
 			icon={Gauge}
-			preset="glass"
+			preset="glass-deep"
 		>
 			<div class="flex items-center justify-center py-4">
 				<RadialGauge
@@ -81,7 +84,7 @@ $effect(() => {
 		<Widget
 			title="System Overview"
 			icon={Activity}
-			preset="glass"
+			preset="glass-minimal"
 		>
 			<div class="flex items-center justify-center gap-6 py-2">
 				<RadialGauge
@@ -112,32 +115,28 @@ $effect(() => {
 		<Widget
 			title="Developer Stats"
 			icon={TrendingUp}
-			preset="default"
+			preset="neuro-elevated"
 		>
 			<div class={stack({ gap: "3" })}>
 				<div class={hstack({ justify: "between", align: "baseline" })}>
 					<div class={stack({ gap: "1" })}>
-						<Text size="xs" color="muted">Projects</Text>
-						<span class="text-xl font-bold tabular-nums font-display text-text-link drop-shadow-[0_0_8px_var(--accent-teal-glow)]">{devpulseState.data.user.totalProjects}</span>
+						<Text size="xs" preset="default">Projects</Text>
+						<Text size="xl" weight="bold" preset="default" class="tabular-nums font-display drop-shadow-[0_0_0.5rem_var(--accent-teal-glow)]">{devpulseState.data.user.totalProjects}</Text>
 					</div>
 					<div class={stack({ gap: "1" })}>
-						<Text size="xs" color="muted">Commits</Text>
-						<span class="text-xl font-bold tabular-nums font-display text-text-link drop-shadow-[0_0_8px_var(--accent-teal-glow)]">{devpulseState.data.user.totalCommits}</span>
+						<Text size="xs" preset="default">Commits</Text>
+						<Text size="xl" weight="bold" preset="default" class="tabular-nums font-display drop-shadow-[0_0_0.5rem_var(--accent-teal-glow)]">{devpulseState.data.user.totalCommits}</Text>
 					</div>
 					<div class={stack({ gap: "1" })}>
-						<Text size="xs" color="muted">Branches</Text>
-						<span class="text-xl font-bold tabular-nums font-display text-text-link drop-shadow-[0_0_8px_var(--accent-teal-glow)]">{devpulseState.data.user.activeBranches}</span>
+						<Text size="xs" preset="default">Branches</Text>
+						<Text size="xl" weight="bold" preset="default" class="tabular-nums font-display drop-shadow-[0_0_0.5rem_var(--accent-teal-glow)]">{devpulseState.data.user.activeBranches}</Text>
 					</div>
 				</div>
-				<div
-					class={cn(box({}), "flex items-center gap-2 px-3 py-2")}
-					data-kind="box"
-					data-slot="root"
-				>
-					<span class="inline-block h-2 w-2 rounded-full animate-pulse bg-teal-400 shadow-[0_0_8px_var(--accent-teal-glow)]"></span>
-					<Text size="sm" weight="semibold">{devpulseState.data.user.streak}d streak</Text>
-					<Text size="xs" color="muted">{"\u00B7"} {devpulseState.data.user.lastActivity}</Text>
-				</div>
+				<Card preset="neuro-deep" class="flex items-center gap-2 px-3 py-2">
+					<span class="inline-block h-2 w-2 rounded-full animate-pulse" style="background: var(--accent-teal-main); box-shadow: 0 0 0.5rem var(--accent-teal-glow);"></span>
+					<Text size="sm" weight="semibold" preset="default">{devpulseState.data.user.streak}d streak</Text>
+					<Text size="xs" preset="default">{"\u00B7"} {devpulseState.data.user.lastActivity}</Text>
+				</Card>
 			</div>
 		</Widget>
 	</div>
@@ -147,7 +146,7 @@ $effect(() => {
 		<Widget
 			title="Activity Timeline"
 			icon={BarChart3}
-			preset="glass"
+			preset="glass-deep"
 			tabs={[
 				{ id: "activity", label: "Activity" },
 				{ id: "commits", label: "Commits" },
@@ -166,7 +165,7 @@ $effect(() => {
 				/>
 				<div class="flex gap-4">
 					<div class="flex-1">
-						<Text size="xs" color="muted" class="mb-1">Commit Velocity</Text>
+						<Text size="xs" preset="default" class="mb-1">Commit Velocity</Text>
 						<SparkLine
 							data={[...devpulseState.data.system.commitHistory.data]}
 							accent="purple"
@@ -177,7 +176,7 @@ $effect(() => {
 						/>
 					</div>
 					<div class="flex-1">
-						<Text size="xs" color="muted" class="mb-1">Build Health</Text>
+						<Text size="xs" preset="default" class="mb-1">Build Health</Text>
 						<SparkLine
 							data={[...devpulseState.data.system.buildHealth.data]}
 							accent="cyber"
@@ -196,40 +195,37 @@ $effect(() => {
 		<Widget
 			title="Store Health"
 			icon={HeartPulse}
-			preset="default"
+			preset="neuro-deep"
 		>
 			<div class={stack({ gap: "3" })}>
 				{#if platformState.health}
 					{#each platformState.health.subsystems as sub}
-						<div
-							class={cn(box({}), "flex items-center justify-between px-3 py-2")}
-							data-kind="box"
-							data-slot="root"
-						>
+						<Card preset="neuro-minimal" class="flex items-center justify-between px-3 py-2">
 							<div class={stack({ gap: "0" })}>
-								<Text size="sm" weight="semibold">{sub.name}</Text>
+								<Text size="sm" weight="semibold" preset="default">{sub.name}</Text>
 								{#if sub.latency_us != null}
-									<Text size="xs" color="muted">{sub.latency_us >= 1000 ? `${Math.round(sub.latency_us / 1000)}ms` : `${sub.latency_us}µs`}</Text>
+									<Text size="xs" preset="default">{sub.latency_us >= 1000 ? `${Math.round(sub.latency_us / 1000)}ms` : `${sub.latency_us}µs`}</Text>
 								{/if}
 							</div>
-							<span
-								class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium"
-								style="color: {healthColors[sub.status] ?? 'var(--text-muted)'};"
+							<Badge
+								variant="positive"
+								size="sm"
+								class="gap-1.5"
 							>
 								<span
 									class="inline-block h-1.5 w-1.5 rounded-full"
-									style="background: {healthColors[sub.status] ?? 'var(--text-muted)'}; box-shadow: 0 0 6px {healthColors[sub.status] ?? 'transparent'};"
+									style="background: {healthColors[sub.status] ?? 'var(--text-muted)'}; box-shadow: 0 0 0.375rem {healthColors[sub.status] ?? 'transparent'};"
 								></span>
 								{sub.state ?? sub.status}
-							</span>
-						</div>
+							</Badge>
+						</Card>
 					{/each}
 					<div class={cn(hstack({ justify: "between" }), "px-1")}>
-						<Text size="xs" color="muted">Uptime</Text>
-						<Text size="xs" weight="semibold">{platformState.uptimeFormatted}</Text>
+						<Text size="xs" preset="default">Uptime</Text>
+						<Text size="xs" weight="semibold" preset="default">{platformState.uptimeFormatted}</Text>
 					</div>
 				{:else}
-					<Text size="xs" color="muted">Waiting for health data...</Text>
+					<Text size="xs" preset="default">Waiting for health data...</Text>
 				{/if}
 			</div>
 		</Widget>
@@ -240,7 +236,7 @@ $effect(() => {
 		<Widget
 			title="Recent Projects"
 			icon={FolderGit2}
-			preset="default"
+			preset="neuro-minimal"
 			tabs={[
 				{ id: "all", label: "All" },
 				{ id: "active", label: "Active" },
@@ -251,28 +247,24 @@ $effect(() => {
 			<div class="grid grid-cols-4 gap-3">
 				{#each devpulseState.recentProjects as project (project.id)}
 					{@const accentName = langColors[project.language] ?? "teal"}
-					<div
-						class={cn(box({}), "p-3")}
-						data-kind="box"
-						data-slot="root"
-					>
+					<Card preset="neuro-deep" class="p-3">
 						<div class={stack({ gap: "2" })}>
 							<div class={hstack({ gap: "2", align: "center" })}>
 								<span
 									class="inline-block h-2.5 w-2.5 rounded-full"
-									style="background: var(--accent-{accentName}-main); box-shadow: 0 0 8px var(--accent-{accentName}-glow);"
+									style="background: var(--accent-{accentName}-main); box-shadow: 0 0 0.5rem var(--accent-{accentName}-glow);"
 								></span>
-								<Text weight="semibold" size="sm">{project.name}</Text>
+								<Text weight="semibold" size="sm" preset="default">{project.name}</Text>
 							</div>
 							<div class={hstack({ justify: "between" })}>
-								<Text size="xs" color="muted">{project.language}</Text>
-								<span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs border border-border-subtle text-text-secondary">
+								<Text size="xs" preset="default">{project.language}</Text>
+								<Badge variant="neutral" size="sm">
 									{project.branch}
-								</span>
+								</Badge>
 							</div>
-							<Text size="xs" color="muted">{project.lastModified}</Text>
+							<Text size="xs" preset="default">{project.lastModified}</Text>
 						</div>
-					</div>
+					</Card>
 				{/each}
 			</div>
 		</Widget>

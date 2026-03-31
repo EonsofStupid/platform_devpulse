@@ -45,7 +45,7 @@ function onKey(e: KeyboardEvent): void {
 }
 </script>
 
-<div class="flex w-full items-center justify-between" role="toolbar" tabindex="0" onkeydown={onKey}>
+<div class="flex w-full items-center justify-between" role="toolbar" tabindex="0" onkeydown={onKey} data-tauri-drag-region>
 	<div class="flex items-center" style:font-family="var(--font-display)">
 		<Parasite size="sm" />
 	</div>

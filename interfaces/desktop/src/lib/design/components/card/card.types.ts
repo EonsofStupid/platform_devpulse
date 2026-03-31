@@ -5,18 +5,10 @@
 
 import type { HTMLAnchorAttributes, HTMLAttributes } from "svelte/elements";
 import type { UIBaseProps } from "$lib/design/components/_base/types.js";
+import type { PresetId, SemanticIntent } from "$lib/design/visual/preset-id.js";
 
 export type CardVariant = "default" | "outlined" | "elevated" | "ghost" | "glow";
-export type CardPreset =
-	| "default"
-	| "stark"
-	| "glass"
-	| "flat"
-	| "matte"
-	| "primary"
-	| "secondary"
-	| "ghost"
-	| "danger";
+export type CardPreset = SemanticIntent | PresetId | (string & {});
 export type CardOrientation = "vertical" | "horizontal";
 export type CardAs = "div" | "a" | "button";
 

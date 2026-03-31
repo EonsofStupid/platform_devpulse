@@ -2649,25 +2649,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "abd57806937c9cc163efc8ea3910e00a62e2aeb0b8119f1793a978088f8f6b04"
 
 [[package]]
-name = "devpulse-engine"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.8",
- "base64 0.22.1",
- "chrono",
- "devpulse-clyffy",
- "serde",
- "serde_json",
- "specta",
- "sysinfo 0.33.1",
- "tokio",
- "toml 0.8.2",
- "tracing",
- "uuid",
-]
-
-[[package]]
 name = "devpulse-clyffy"
 version = "0.1.0"
 dependencies = [
@@ -2690,6 +2671,25 @@ dependencies = [
  "thiserror 2.0.18",
  "tokenizers 0.21.4",
  "tokio",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "devpulse-engine"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.8",
+ "base64 0.22.1",
+ "chrono",
+ "devpulse-clyffy",
+ "serde",
+ "serde_json",
+ "specta",
+ "sysinfo 0.33.1",
+ "tokio",
+ "toml 0.8.2",
  "tracing",
  "uuid",
 ]

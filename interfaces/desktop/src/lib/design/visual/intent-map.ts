@@ -20,6 +20,11 @@ export const INTENT_MAP: Record<SemanticIntent, PresetId> = {
 	info: "glass-minimal",
 	success: "neuro-elevated",
 	warning: "stark-elevated",
+	default: "neuro-elevated",
+	glass: "glass-deep",
+	matte: "neuro-solid",
+	flat: "flat-minimal",
+	stark: "stark-glow",
 } as const;
 
 /**

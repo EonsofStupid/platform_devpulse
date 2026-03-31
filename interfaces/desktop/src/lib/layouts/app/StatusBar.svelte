@@ -113,15 +113,25 @@ const subsystems = $derived(platformState.subsystemList());
 			{#if DEV_MODE}
 				{#each subsystems as sub}
 					{@const Icon = getIcon(sub.name)}
-					<div class={hstack({ gap: "1", align: "center" })}>
+					<Badge
+						variant={sub.state === "ready" ? "positive" : sub.state === "failed" ? "negative" : "neutral"}
+						size="sm"
+						class="gap-1"
+					>
+						<span
+							class="status-dot h-1.5 w-1.5 rounded-full"
+							data-subsystem-state={sub.state}
+							aria-hidden="true"
+						></span>
 						{#if Icon}
 							{@const IconComponent = Icon}
-							<IconComponent size={12} class="shrink-0 text-text-muted" />
+							<IconComponent size={12} class="shrink-0" />
 						{/if}
-						<Text size="xs" color="muted">
-							[{devLabel(sub.name)}: {sub.state}{sub.latencyMs !== null ? ` ${sub.latencyMs}ms` : ''}]
-						</Text>
-					</div>
+						<Text size="xs" preset="default">{devLabel(sub.name)}</Text>
+						{#if sub.latencyMs !== null}
+							<Text size="xs" preset="default">{sub.latencyMs}ms</Text>
+						{/if}
+					</Badge>
 				{/each}
 			{/if}
 		</div>

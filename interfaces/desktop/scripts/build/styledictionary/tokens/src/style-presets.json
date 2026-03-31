@@ -34,7 +34,7 @@
 				"$type": "number"
 			},
 			"animation": {
-				"$value": "cl-breathe 4s ease-in-out infinite",
+				"$value": "none",
 				"$type": "string"
 			},
 			"transition-duration": {
