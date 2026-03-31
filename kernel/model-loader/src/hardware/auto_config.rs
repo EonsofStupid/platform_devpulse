@@ -140,6 +140,75 @@ fn rec(
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn metrics_with_vram(vram_mb: Option<u64>) -> HardwareMetrics {
+        HardwareMetrics {
+            cpu_cores: 8,
+            cpu_name: "Test CPU".to_string(),
+            ram_total_mb: 32_000,
+            ram_available_mb: 16_000,
+            gpu_name: vram_mb.map(|_| "Test GPU".to_string()),
+            gpu_vram_total_mb: vram_mb,
+            gpu_vram_free_mb: vram_mb,
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn tier_high() {
+        assert_eq!(detect_tier(&metrics_with_vram(Some(24_000))), HardwareTier::High);
+    }
+
+    #[test]
+    fn tier_medium() {
+        assert_eq!(detect_tier(&metrics_with_vram(Some(8_000))), HardwareTier::Medium);
+    }
+
+    #[test]
+    fn tier_low() {
+        assert_eq!(detect_tier(&metrics_with_vram(Some(6_000))), HardwareTier::Low);
+    }
+
+    #[test]
+    fn tier_minimal() {
+        assert_eq!(detect_tier(&metrics_with_vram(Some(2_000))), HardwareTier::Minimal);
+    }
+
+    #[test]
+    fn tier_cpu_only() {
+        assert_eq!(detect_tier(&metrics_with_vram(None)), HardwareTier::CpuOnly);
+    }
+
+    #[test]
+    fn auto_config_has_recommendations() {
+        let hw = metrics_with_vram(Some(12_000));
+        let downloaded = std::collections::HashSet::new();
+        let config = auto_configure(&hw, &downloaded);
+
+        assert_eq!(config.tier, HardwareTier::Medium);
+        assert!(!config.recommendations.is_empty());
+        assert!(config.total_vram_needed_mb > 0);
+        assert!(config.total_download_size_mb > 0);
+    }
+
+    #[test]
+    fn already_downloaded_reduces_download_size() {
+        let hw = metrics_with_vram(Some(12_000));
+        let mut downloaded = std::collections::HashSet::new();
+        downloaded.insert("Qwen3-4B-Q4_K_M.gguf".to_string());
+
+        let config = auto_configure(&hw, &downloaded);
+
+        // Brain model is already downloaded — total download should exclude it
+        let brain_rec = config.recommendations.iter().find(|r| r.slot_id == "chat.brain");
+        assert!(brain_rec.is_some());
+        assert!(brain_rec.unwrap().already_downloaded);
+    }
+}
+
 impl std::fmt::Display for HardwareTier {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {

@@ -16,6 +16,7 @@
 pub mod chat;
 pub mod devclyffy;
 pub mod devpulse;
+pub mod models;
 pub mod sys;
 pub mod thinkclyffy;
 pub mod window;

@@ -28,6 +28,8 @@ mod boot;
 pub mod config;
 pub mod health;
 pub mod init;
+#[cfg(feature = "inference")]
+pub mod integrations;
 pub mod metrics;
 pub mod server;
 pub mod services;
@@ -59,8 +61,9 @@ use services::relational::RelationalService;
 use services::vector::VectorService;
 #[cfg(feature = "kokoros")]
 use services::voice::VoiceService;
-#[cfg(feature = "outlines")]
-use services::grammar::GrammarService;
+// Grammar (llguidance) — future sprint
+// #[cfg(feature = "outlines")]
+// use services::grammar::GrammarService;
 #[cfg(feature = "candle")]
 use services::embedder::EmbedderService;
 #[cfg(feature = "candle")]
@@ -93,9 +96,7 @@ pub struct Platform {
     // ── Voice (Kokoros) ─────────────────────────────────────────
     #[cfg(feature = "kokoros")]
     voice: Option<Arc<VoiceService>>,
-    // ── Grammar (outlines-core) ─────────────────────────────────
-    #[cfg(feature = "outlines")]
-    grammar: Option<Arc<GrammarService>>,
+    // ── Grammar (llguidance) — future sprint ────────────────────
     // ── Embedder (Candle) ─────────────────────────────────────
     #[cfg(feature = "candle")]
     embedder: Option<Arc<EmbedderService>>,
@@ -147,8 +148,6 @@ impl Platform {
             vector: booted.vector,
             #[cfg(feature = "kokoros")]
             voice: booted.voice,
-            #[cfg(feature = "outlines")]
-            grammar: booted.grammar,
             #[cfg(feature = "candle")]
             embedder: booted.embedder,
             #[cfg(feature = "candle")]
@@ -193,10 +192,7 @@ impl Platform {
         if let Some(svc) = &self.voice {
             subsystems.push(ping_service(svc.as_ref()).await);
         }
-        #[cfg(feature = "outlines")]
-        if let Some(svc) = &self.grammar {
-            subsystems.push(ping_service(svc.as_ref()).await);
-        }
+        // Grammar (llguidance) — future sprint
         #[cfg(feature = "candle")]
         if let Some(svc) = &self.embedder {
             subsystems.push(ping_service(svc.as_ref()).await);
@@ -274,11 +270,7 @@ impl Platform {
         self.voice.as_ref()
     }
 
-    /// Get the grammar service (if enabled and booted).
-    #[cfg(feature = "outlines")]
-    pub fn grammar(&self) -> Option<&Arc<GrammarService>> {
-        self.grammar.as_ref()
-    }
+    // Grammar (llguidance) — getter added in future sprint
 
     // ── User scope accessors ────────────────────────────────────
 

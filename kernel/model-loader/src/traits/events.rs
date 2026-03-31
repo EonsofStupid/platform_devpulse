@@ -102,6 +102,13 @@ pub enum LoaderEvent {
     SlotUnassigned { slot_id: String },
 }
 
+/// Blanket impl for Arc — allows `Arc<dyn LoaderEventSink>` to be used directly.
+impl<T: LoaderEventSink + ?Sized> LoaderEventSink for std::sync::Arc<T> {
+    fn emit(&self, event: LoaderEvent) {
+        (**self).emit(event);
+    }
+}
+
 /// No-op event sink for testing or headless operation.
 #[derive(Debug, Default)]
 pub struct NullEventSink;

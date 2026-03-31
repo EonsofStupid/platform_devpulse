@@ -5,5 +5,5 @@ pub mod metrics;
 pub mod vram;
 
 pub use auto_config::{auto_configure, detect_tier, AutoConfig, HardwareTier, SlotRecommendation};
-pub use metrics::{collect_hardware, HardwareMetrics};
+pub use metrics::{collect_hardware, HardwareMetrics, HardwareMonitor};
 pub use vram::{compute_budget, BudgetStatus, SlotBudgetEntry, VramBudget};

@@ -22,8 +22,8 @@ impl VectorService {
     ///
     /// # Errors
     /// Returns error if the RRO engine fails to initialize.
-    pub fn boot(config_path: Option<String>) -> Result<Self> {
-        let adapter = RroAdapter::boot(config_path)?;
+    pub fn boot(storage_path: &std::path::Path, config_path: Option<String>) -> Result<Self> {
+        let adapter = RroAdapter::boot(storage_path, config_path)?;
         Ok(Self {
             adapter: Arc::new(adapter),
         })

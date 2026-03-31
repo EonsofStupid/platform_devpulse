@@ -22,8 +22,9 @@ pub mod rro;
 pub mod surreal;
 #[cfg(feature = "kokoros")]
 pub mod kokoros;
-#[cfg(feature = "outlines")]
-pub mod outlines;
+// llguidance constrained decoding — wired when fork is ready
+// #[cfg(feature = "outlines")]
+// pub mod llguidance;
 #[cfg(feature = "candle")]
 pub mod embedder;
 #[cfg(feature = "candle")]
@@ -39,8 +40,6 @@ pub use rro::RroAdapter;
 pub use surreal::SurrealAdapter;
 #[cfg(feature = "kokoros")]
 pub use kokoros::KokorosAdapter;
-#[cfg(feature = "outlines")]
-pub use outlines::OutlinesAdapter;
 #[cfg(feature = "candle")]
 pub use embedder::CandleEmbedder;
 #[cfg(feature = "candle")]

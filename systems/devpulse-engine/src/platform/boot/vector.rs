@@ -50,7 +50,7 @@ pub async fn boot(
     #[allow(deprecated)]
     std::env::set_var("QDRANT__STORAGE__STORAGE_PATH", &storage_path);
 
-    let store = match VectorService::boot(None) {
+    let store = match VectorService::boot(&storage_path, None) {
         Ok(s) => Arc::new(s),
         Err(e) => {
             let elapsed_ms = start.elapsed().as_millis() as u64;

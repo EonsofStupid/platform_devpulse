@@ -49,9 +49,18 @@ pub fn run() {
         commands::devpulse::fetch_dashboard,
         commands::thinkclyffy::create_canvas,
         commands::wiredfront::connect_peer,
+        commands::window::open_window,
+        commands::window::close_child_window,
+        commands::window::list_windows,
         commands::window::open_chat_window,
         commands::window::close_window,
         commands::window::focus_window,
+        // Model management
+        commands::models::get_hardware_metrics,
+        commands::models::scan_models,
+        commands::models::get_slots,
+        commands::models::is_first_run,
+        commands::models::inference_generate,
     ]);
 
     // Dev: export typed TS bindings on every build

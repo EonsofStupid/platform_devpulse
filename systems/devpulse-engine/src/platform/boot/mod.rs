@@ -8,7 +8,7 @@
 //! - [`cache`] — Moka
 //! - [`vector`] — RRO (embedded Qdrant)
 //! - [`voice`] — Kokoros TTS
-//! - [`grammar`] — outlines-core
+//! - grammar — llguidance (future sprint, currently skipped)
 //!
 //! # Boot Sequence (strict order)
 //! 1. **Preflight** — validate config, create directory hierarchy
@@ -19,7 +19,7 @@
 //! 6. **User relational** (LibSQL) — sessions, preferences
 //! 7. **Vector store** (RRO) — embeddings, retrieval
 //! 8. **Voice service** (Kokoros) — TTS engine
-//! 9. **Grammar service** (outlines-core) — structured generation
+//! 9. **Grammar service** (llguidance) — constrained decoding (future sprint, skipped)
 //! 10. **Validation** — verify all critical services booted
 //!
 //! Each stage completes and is health-checked BEFORE the next begins.
@@ -39,7 +39,6 @@ mod relational;
 pub mod retry;
 mod vector;
 mod voice;
-mod grammar;
 mod embedder;
 mod whisper;
 mod devforge;
@@ -55,8 +54,6 @@ use crate::platform::services::analytics::SYSTEM_ANALYTICS_SCHEMA;
 use crate::platform::services::vector::VectorService;
 #[cfg(feature = "kokoros")]
 use crate::platform::services::voice::VoiceService;
-#[cfg(feature = "outlines")]
-use crate::platform::services::grammar::GrammarService;
 #[cfg(feature = "candle")]
 use crate::platform::services::embedder::EmbedderService;
 #[cfg(feature = "candle")]
@@ -81,8 +78,6 @@ pub struct BootedServices {
     pub vector: Option<Arc<VectorService>>,
     #[cfg(feature = "kokoros")]
     pub voice: Option<Arc<VoiceService>>,
-    #[cfg(feature = "outlines")]
-    pub grammar: Option<Arc<GrammarService>>,
     #[cfg(feature = "candle")]
     pub embedder: Option<Arc<EmbedderService>>,
     #[cfg(feature = "candle")]
@@ -230,23 +225,9 @@ async fn execute_inner(
         }
     }
 
-    // ── Stage 9: Grammar service (outlines-core) — feature-gated
-    #[cfg(feature = "outlines")]
-    let grammar = grammar::boot(
-        &boot_config.services.system.grammar,
-        on_event,
-        &boot_log,
-    );
-    #[cfg(not(feature = "outlines"))]
-    {
-        if boot_config.services.system.grammar.enabled {
-            boot_log.fail("Grammar service", "enabled in config but 'outlines' feature not compiled");
-            anyhow::bail!(
-                "FATAL: Grammar service (outlines-core) is enabled in config but the 'outlines' feature is not compiled in. \
-                 Add features = [\"outlines\"] to devpulse-engine dependency in src-tauri/Cargo.toml."
-            );
-        }
-    }
+    // ── Stage 9: Grammar (llguidance) — future sprint, skipped ──
+    on_event(InitEvent::skipped("Grammar service"));
+    boot_log.skip("Grammar service", "llguidance not yet wired — future sprint");
 
     // ── Stage 10: Embedder (Candle) — feature-gated ─────────
     #[cfg(feature = "candle")]
@@ -323,14 +304,6 @@ async fn execute_inner(
         anyhow::bail!("FATAL: Voice service (Kokoros) was enabled+critical but failed to boot");
     }
 
-    #[cfg(feature = "outlines")]
-    if grammar.is_none()
-        && boot_config.services.system.grammar.enabled
-        && boot_config.services.system.grammar.critical
-    {
-        boot_log.fail("Grammar service", "enabled+critical but failed to boot");
-        anyhow::bail!("FATAL: Grammar service (outlines-core) was enabled+critical but failed to boot");
-    }
 
     // Check for ANY failures — not just critical ones.
     // SKIP is acceptable (disabled in config). FAIL is not.
@@ -362,8 +335,6 @@ async fn execute_inner(
         vector,
         #[cfg(feature = "kokoros")]
         voice,
-        #[cfg(feature = "outlines")]
-        grammar,
         #[cfg(feature = "candle")]
         embedder,
         #[cfg(feature = "candle")]

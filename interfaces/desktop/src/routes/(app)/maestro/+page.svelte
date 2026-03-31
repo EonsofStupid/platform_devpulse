@@ -13,6 +13,7 @@ import { Text } from "$lib/design/components/text/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
+import { MinionGrid } from "$lib/domains/app/minions/index.js";
 import { DEV_MODE } from "$lib/sys/generated/terminology.js";
 </script>
 
@@ -69,20 +70,7 @@ import { DEV_MODE } from "$lib/sys/generated/terminology.js";
 			]}
 			activeTab="active"
 		>
-			<div class={stack({ gap: "2" })}>
-				<div class={hstack({ justify: "between" })}>
-					<Text color="secondary">Active Minions</Text>
-					<Text>0</Text>
-				</div>
-				<div class={hstack({ justify: "between" })}>
-					<Text color="secondary">Total Spawned</Text>
-					<Text>0</Text>
-				</div>
-				<div class={hstack({ justify: "between" })}>
-					<Text color="secondary">Avg Completion</Text>
-					<Text color="muted">--</Text>
-				</div>
-			</div>
+			<MinionGrid />
 		</Widget>
 	</div>
 

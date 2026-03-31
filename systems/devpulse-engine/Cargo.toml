@@ -9,8 +9,9 @@ kernel = []
 engine = []
 rro = ["devpulse-clyffy/rro"]
 kokoros = ["devpulse-clyffy/kokoros"]
-outlines = ["devpulse-clyffy/outlines"]
+# outlines feature removed — llguidance replaces it in a future sprint
 candle = ["devpulse-clyffy/candle"]
+inference = ["devpulse-clyffy/model-loader"]
 
 [dependencies]
 # Core

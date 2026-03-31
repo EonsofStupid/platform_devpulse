@@ -185,10 +185,102 @@ fn collect_gpu_metrics(metrics: &mut HardwareMetrics) {
         let mb = 1024 * 1024;
         for proc in procs {
             if proc.pid == our_pid {
-                if let Some(mem) = proc.used_gpu_memory {
+                if let nvml_wrapper::enums::device::UsedGpuMemory::Used(mem) =
+                    proc.used_gpu_memory
+                {
                     metrics.process_vram_mb = mem / mb;
                 }
             }
         }
+    }
+}
+
+/// Hardware monitor — caches metrics and manages polling intervals.
+///
+/// The monitor owns a cached snapshot that gets refreshed on demand or
+/// on a timer. Consumers use this to avoid calling `collect_hardware()`
+/// (which sleeps 200ms for CPU accuracy) on every UI frame.
+pub struct HardwareMonitor {
+    /// Last collected metrics.
+    last_metrics: HardwareMetrics,
+    /// When the last collection happened.
+    last_collected: std::time::Instant,
+    /// Minimum interval between collections (prevents thrashing).
+    min_interval: std::time::Duration,
+}
+
+impl HardwareMonitor {
+    /// Create a new monitor. Performs an initial hardware collection.
+    #[must_use]
+    pub fn new() -> Self {
+        Self {
+            last_metrics: collect_hardware(),
+            last_collected: std::time::Instant::now(),
+            min_interval: std::time::Duration::from_secs(2),
+        }
+    }
+
+    /// Create a monitor with a custom minimum poll interval.
+    #[must_use]
+    pub fn with_interval(interval: std::time::Duration) -> Self {
+        Self {
+            last_metrics: collect_hardware(),
+            last_collected: std::time::Instant::now(),
+            min_interval: interval,
+        }
+    }
+
+    /// Get the latest metrics. Refreshes if the minimum interval has elapsed.
+    pub fn metrics(&mut self) -> &HardwareMetrics {
+        if self.last_collected.elapsed() >= self.min_interval {
+            self.refresh();
+        }
+        &self.last_metrics
+    }
+
+    /// Force a refresh regardless of interval.
+    pub fn refresh(&mut self) -> &HardwareMetrics {
+        self.last_metrics = collect_hardware();
+        self.last_collected = std::time::Instant::now();
+        &self.last_metrics
+    }
+
+    /// Get the cached metrics without checking the interval.
+    /// Use when you need the last known values without blocking.
+    #[must_use]
+    pub fn cached(&self) -> &HardwareMetrics {
+        &self.last_metrics
+    }
+
+    /// Set the minimum polling interval.
+    pub fn set_interval(&mut self, interval: std::time::Duration) {
+        self.min_interval = interval;
+    }
+
+    /// How long since the last refresh.
+    #[must_use]
+    pub fn age(&self) -> std::time::Duration {
+        self.last_collected.elapsed()
+    }
+
+    /// Switch to fast polling (500ms) — use during model loading.
+    pub fn enter_loading_mode(&mut self) {
+        self.min_interval = std::time::Duration::from_millis(500);
+    }
+
+    /// Switch to normal polling (2s) — use during idle.
+    pub fn enter_normal_mode(&mut self) {
+        self.min_interval = std::time::Duration::from_secs(2);
+    }
+
+    /// Switch to inference polling (1s) — use during active generation.
+    pub fn enter_inference_mode(&mut self) {
+        self.min_interval = std::time::Duration::from_secs(1);
+    }
+}
+
+impl Default for HardwareMonitor {
+    fn default() -> Self {
+        Self::new()
     }
 }

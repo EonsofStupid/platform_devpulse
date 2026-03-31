@@ -23,14 +23,16 @@ pub use service::ModelLoaderService;
 pub use slots::{DevicePreference, LoadingStrategy, ModelCapability, Slot, SlotRegistry};
 
 // Model types
-pub use models::{BackendType, ModelFormat, ModelMetadata, ModelRegistryEntry, ModelSource};
+pub use models::{
+    BackendType, ModelFormat, ModelMetadata, ModelRegistry, ModelRegistryEntry, ModelSource,
+};
 
 // Loading types
 pub use loading::{LoadParams, LoadingStage, MemoryFootprint, ModelStatus, SlotStatus};
 
 // Hardware types
 pub use hardware::{
-    AutoConfig, HardwareMetrics, HardwareTier, SlotRecommendation, VramBudget,
+    AutoConfig, HardwareMetrics, HardwareMonitor, HardwareTier, SlotRecommendation, VramBudget,
 };
 
 // Trait re-exports

@@ -6,9 +6,12 @@ xtask = "run --package xtask --"
 # DO NOT add env vars here — they belong in the SSOT.
 
 # CRT alignment: DuckDB, ort, aws-lc-sys, and all other C/C++ deps use /MD (dynamic CRT).
-# esaxx-rs (from outlines-core → tokenizers) uses the cc crate which defaults to /MT.
+# esaxx-rs (from tokenizers) uses the cc crate which defaults to /MT.
 # This flag tells Rust to link with the dynamic CRT (/MD), making all cc-crate
 # builds use /MD too. This is NOT a hack — it's the correct way to unify CRT
 # linkage across all native deps in one binary.
 [target.x86_64-pc-windows-msvc]
 rustflags = ["-C", "target-feature=-crt-static"]
+
+[env]
+PYO3_USE_ABI3_FORWARD_COMPATIBILITY = "1"

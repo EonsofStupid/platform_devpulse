@@ -101,3 +101,141 @@ impl std::fmt::Display for BackendType {
         }
     }
 }
+
+/// Manages the collection of discovered models with persistence.
+#[derive(Debug)]
+pub struct ModelRegistry {
+    entries: Vec<ModelRegistryEntry>,
+    models_dir: PathBuf,
+}
+
+impl ModelRegistry {
+    /// Create a new registry for a models directory.
+    #[must_use]
+    pub fn new(models_dir: PathBuf) -> Self {
+        Self {
+            entries: Vec::new(),
+            models_dir,
+        }
+    }
+
+    /// Scan the models directory and rebuild the registry.
+    pub fn scan(&mut self) -> anyhow::Result<usize> {
+        let discovered = crate::models::discovery::discover_models(&self.models_dir)?;
+        let count = discovered.len();
+        self.entries = discovered;
+        self.save()?;
+        Ok(count)
+    }
+
+    /// Add a single entry (e.g. after download).
+    pub fn add(&mut self, entry: ModelRegistryEntry) {
+        // Avoid duplicates by path
+        self.entries.retain(|e| e.path != entry.path);
+        self.entries.push(entry);
+    }
+
+    /// Remove an entry by ID.
+    pub fn remove(&mut self, id: &str) -> Option<ModelRegistryEntry> {
+        if let Some(idx) = self.entries.iter().position(|e| e.id == id) {
+            Some(self.entries.remove(idx))
+        } else {
+            None
+        }
+    }
+
+    /// Find entry by ID.
+    #[must_use]
+    pub fn get(&self, id: &str) -> Option<&ModelRegistryEntry> {
+        self.entries.iter().find(|e| e.id == id)
+    }
+
+    /// Find entry by filename.
+    #[must_use]
+    pub fn get_by_filename(&self, filename: &str) -> Option<&ModelRegistryEntry> {
+        self.entries.iter().find(|e| e.filename == filename)
+    }
+
+    /// All entries.
+    #[must_use]
+    pub fn all(&self) -> &[ModelRegistryEntry] {
+        &self.entries
+    }
+
+    /// Number of models in registry.
+    #[must_use]
+    pub fn len(&self) -> usize {
+        self.entries.len()
+    }
+
+    /// Whether registry is empty.
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.entries.is_empty()
+    }
+
+    /// Filter by capability.
+    #[must_use]
+    pub fn compatible_with_capability(&self, cap: ModelCapability) -> Vec<&ModelRegistryEntry> {
+        self.entries
+            .iter()
+            .filter(|e| e.compatible_capabilities.contains(&cap))
+            .collect()
+    }
+
+    /// Filter by backend support.
+    #[must_use]
+    pub fn compatible_with_backend(&self, backend: BackendType) -> Vec<&ModelRegistryEntry> {
+        self.entries
+            .iter()
+            .filter(|e| e.supported_backends.contains(&backend))
+            .collect()
+    }
+
+    /// All unique filenames (for auto-config dedup).
+    #[must_use]
+    pub fn filenames(&self) -> std::collections::HashSet<String> {
+        self.entries.iter().map(|e| e.filename.clone()).collect()
+    }
+
+    /// Persist registry to `{models_dir}/registry.json`.
+    pub fn save(&self) -> anyhow::Result<()> {
+        let path = self.models_dir.join("registry.json");
+        let json = serde_json::to_string_pretty(&self.entries)?;
+        std::fs::write(&path, json)?;
+        tracing::debug!(path = %path.display(), count = self.entries.len(), "Registry saved");
+        Ok(())
+    }
+
+    /// Load registry from `{models_dir}/registry.json`.
+    pub fn load(models_dir: PathBuf) -> anyhow::Result<Self> {
+        let path = models_dir.join("registry.json");
+        if !path.exists() {
+            return Ok(Self::new(models_dir));
+        }
+
+        let json = std::fs::read_to_string(&path)?;
+        let entries: Vec<ModelRegistryEntry> = serde_json::from_str(&json).unwrap_or_else(|e| {
+            tracing::warn!(error = %e, "Registry JSON corrupt — starting fresh");
+            Vec::new()
+        });
+
+        // Validate: remove entries whose files no longer exist
+        let valid: Vec<ModelRegistryEntry> = entries
+            .into_iter()
+            .filter(|e| {
+                if e.path.exists() {
+                    true
+                } else {
+                    tracing::warn!(file = %e.path.display(), "Model file missing — removing from registry");
+                    false
+                }
+            })
+            .collect();
+
+        Ok(Self {
+            entries: valid,
+            models_dir,
+        })
+    }
+}

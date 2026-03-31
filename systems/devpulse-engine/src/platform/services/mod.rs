@@ -11,8 +11,9 @@ pub mod relational;
 pub mod vector;
 #[cfg(feature = "kokoros")]
 pub mod voice;
-#[cfg(feature = "outlines")]
-pub mod grammar;
+// Grammar service removed — llguidance integration is a future sprint
+// #[cfg(feature = "outlines")]
+// pub mod grammar;
 #[cfg(feature = "candle")]
 pub mod embedder;
 #[cfg(feature = "candle")]
@@ -38,7 +39,7 @@ pub enum ServiceRole {
     Vector,
     /// Voice service (`Kokoros`).
     Voice,
-    /// Grammar service (`outlines-core`).
+    /// Grammar service (llguidance — constrained decoding). Future sprint.
     Grammar,
     /// Embedder service (Candle — dense text embedding).
     Embedder,

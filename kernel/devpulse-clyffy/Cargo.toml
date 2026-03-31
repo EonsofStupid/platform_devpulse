@@ -7,9 +7,10 @@ edition = "2021"
 default = []
 rro = ["dep:rro"]
 kokoros = ["dep:kokoros"]
-# TODO: swap outlines-core → llguidance when fork is cloned to ../deps/llguidance
-outlines = ["dep:outlines-core"]
+# Reserved for llguidance constrained decoding — fork not yet cloned
+# outlines = ["dep:llguidance"]
 candle = ["dep:candle-core", "dep:candle-nn", "dep:candle-transformers", "dep:tokenizers", "dep:hf-hub"]
+model-loader = ["dep:model-loader"]
 
 [dependencies]
 # Core
@@ -28,7 +29,7 @@ surrealdb = { workspace = true }
 moka = { workspace = true }
 rro = { workspace = true, optional = true }
 kokoros = { workspace = true, optional = true }
-outlines-core = { workspace = true, optional = true }
+# llguidance = { workspace = true, optional = true }  # TODO: wire when fork is ready
 
 # Candle inference (CPU-first, burst mode)
 candle-core = { workspace = true, optional = true }
@@ -39,6 +40,9 @@ hf-hub = { version = "0.4", optional = true, default-features = false, features 
 
 # Observability
 tracing = { workspace = true }
+
+# Model Loader (self-enclosed, zero clyffy deps — re-exported for engine)
+model-loader = { path = "../model-loader", optional = true, features = ["candle-backend", "nvml"] }
 
 # Async traits
 async-trait = "0.1"

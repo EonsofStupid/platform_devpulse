@@ -618,26 +618,31 @@ impl VoiceServiceEntry {
     }
 }
 
-/// Configuration for the grammar service (`outlines-core` — structured generation).
+/// Configuration for the grammar service (llguidance — future sprint).
+/// Kept for config deserialization compatibility. Defaults to disabled.
 #[derive(Debug, Clone, Deserialize)]
 pub struct GrammarServiceEntry {
     /// Whether this service is enabled.
-    #[serde(default = "default_true")]
+    #[serde(default)]
     pub enabled: bool,
     /// Whether boot fails if this service fails.
-    #[serde(default = "default_true")]
+    #[serde(default)]
     pub critical: bool,
     /// Service kind identifier.
-    #[serde(default = "default_outlines_kind")]
+    #[serde(default = "default_grammar_kind")]
     pub kind: String,
+}
+
+fn default_grammar_kind() -> String {
+    "llguidance".to_string()
 }
 
 impl Default for GrammarServiceEntry {
     fn default() -> Self {
         Self {
-            enabled: true,
-            critical: true,
-            kind: default_outlines_kind(),
+            enabled: false,
+            critical: false,
+            kind: default_grammar_kind(),
         }
     }
 }
@@ -1008,9 +1013,6 @@ fn default_kokoros_model_path() -> String {
 }
 fn default_kokoros_voices_path() -> String {
     "system/kokoros/voices/voices-v1.0.bin".to_string()
-}
-fn default_outlines_kind() -> String {
-    "outlines".to_string()
 }
 fn default_retry_max() -> u32 {
     5

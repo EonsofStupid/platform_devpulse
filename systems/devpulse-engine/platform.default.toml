@@ -85,10 +85,10 @@ kind = "kokoros"
 model_path = "system/kokoros/model/kokoro-v1.0.onnx"
 voices_path = "system/kokoros/voices/voices-v1.0.bin"
 
-[services.system.grammar]
-enabled = true
-critical = true
-kind = "outlines"
+# [services.system.grammar]
+# Reserved for llguidance constrained decoding — future sprint.
+# enabled = false
+# kind = "llguidance"
 
 [services.system.embedder]
 # Candle-based dense text embedder — CPU burst mode.
