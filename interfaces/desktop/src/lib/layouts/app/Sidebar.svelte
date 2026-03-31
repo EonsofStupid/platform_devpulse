@@ -93,7 +93,7 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 					class={cn(
 						isExpanded
 							? "w-full justify-start gap-3 px-3 py-2"
-							: "h-10 w-10 justify-self-end",
+							: "h-10 w-10 justify-self-center",
 						isActive(hub.href) && "rounded-md",
 					)}
 					aria-label={hub.label}
@@ -115,7 +115,7 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 			size="sm"
 			class={isExpanded
 				? "w-full justify-start gap-3 px-3 py-2"
-				: "h-10 w-10 justify-self-end"}
+				: "h-10 w-10 justify-self-center"}
 			title={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
 			aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
 			onclick={() => globalState.toggleSidebar()}

@@ -58,9 +58,9 @@ $effect(() => {
 		</Button>
 	</div>
 {:else}
-<div class="grid grid-cols-12 gap-4" data-page="devpulse-dashboard">
+<div class="grid grid-cols-12 gap-4 auto-rows-min" data-page="devpulse-dashboard">
 	<!-- Row 1: Gauges + Stats -->
-	<div class="col-span-4">
+	<div class="col-span-12 lg:col-span-4">
 		<Widget
 			title="Clyffy Control"
 			icon={Gauge}
@@ -80,7 +80,7 @@ $effect(() => {
 		</Widget>
 	</div>
 
-	<div class="col-span-4">
+	<div class="col-span-12 lg:col-span-4">
 		<Widget
 			title="System Overview"
 			icon={Activity}
@@ -111,7 +111,7 @@ $effect(() => {
 		</Widget>
 	</div>
 
-	<div class="col-span-4">
+	<div class="col-span-12 lg:col-span-4">
 		<Widget
 			title="Developer Stats"
 			icon={TrendingUp}
@@ -142,7 +142,7 @@ $effect(() => {
 	</div>
 
 	<!-- Row 2: Charts -->
-	<div class="col-span-8">
+	<div class="col-span-12 lg:col-span-8">
 		<Widget
 			title="Activity Timeline"
 			icon={BarChart3}
@@ -159,31 +159,34 @@ $effect(() => {
 					data={[...devpulseState.data.system.activityTimeline.data]}
 					accent="teal"
 					preset="glass"
-					width={600}
-					height={100}
+					width={400}
+					height={80}
 					lineWidth={2}
+					class="w-full"
 				/>
 				<div class="flex gap-4">
-					<div class="flex-1">
+					<div class="flex-1 min-w-0">
 						<Text size="xs" preset="default" class="mb-1">Commit Velocity</Text>
 						<SparkLine
 							data={[...devpulseState.data.system.commitHistory.data]}
 							accent="purple"
 							preset="glass"
-							width={280}
-							height={50}
+							width={200}
+							height={40}
 							lineWidth={1.5}
+							class="w-full"
 						/>
 					</div>
-					<div class="flex-1">
+					<div class="flex-1 min-w-0">
 						<Text size="xs" preset="default" class="mb-1">Build Health</Text>
 						<SparkLine
 							data={[...devpulseState.data.system.buildHealth.data]}
 							accent="cyber"
 							preset="glass"
-							width={280}
-							height={50}
+							width={200}
+							height={40}
 							lineWidth={1.5}
+							class="w-full"
 						/>
 					</div>
 				</div>
@@ -191,7 +194,7 @@ $effect(() => {
 		</Widget>
 	</div>
 
-	<div class="col-span-4">
+	<div class="col-span-12 lg:col-span-4">
 		<Widget
 			title="Store Health"
 			icon={HeartPulse}
@@ -244,7 +247,7 @@ $effect(() => {
 			]}
 			activeTab="all"
 		>
-			<div class="grid grid-cols-4 gap-3">
+			<div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
 				{#each devpulseState.recentProjects as project (project.id)}
 					{@const accentName = langColors[project.language] ?? "teal"}
 					<Card preset="neuro-deep" class="p-3">

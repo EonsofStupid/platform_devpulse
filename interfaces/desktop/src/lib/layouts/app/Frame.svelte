@@ -43,17 +43,17 @@ const SLOTS = {
 	),
 	sidebar: cn(
 		"row-start-2 col-start-1 flex flex-col items-center",
-		"w-12 py-2 gap-2",
+		"w-16 py-3 gap-2",
 		"border-r border-[var(--border-subtle)]",
 		"overflow-y-auto scrollbar-thin",
 	),
 	sidebarExpanded: cn(
 		"row-start-2 col-start-1 flex flex-col",
-		"w-56 py-2",
+		"w-60 py-3 px-2",
 		"border-r border-[var(--border-subtle)]",
 		"overflow-y-auto scrollbar-thin",
 	),
-	content: "row-start-2 col-start-2 overflow-y-auto scrollbar-thin p-6",
+	content: "row-start-2 col-start-2 overflow-y-auto scrollbar-thin p-4 lg:p-6",
 	context: cn(
 		"row-start-2 col-start-3 w-0 overflow-hidden",
 		"border-l border-[var(--border-subtle)]",
@@ -64,9 +64,10 @@ const SLOTS = {
 	),
 	statusbar: cn(
 		"col-span-full flex items-center justify-between",
-		"h-7 px-4",
+		"min-h-8 px-4 py-1",
 		"border-t border-[var(--border-soft)]",
 		"text-xs text-[var(--text-muted)]",
+		"overflow-x-auto scrollbar-thin",
 	),
 	overlay: "fixed inset-0 z-50 bg-transparent pointer-events-none",
 	overlayActive: "fixed inset-0 z-50 bg-[var(--overlay-bg)] pointer-events-auto",
