@@ -17,32 +17,93 @@ These rules exist so that:
 ## The 20 Canonical Axes
 
 ColdLight resolves 20 CSS custom properties per component. No prefix.
-Full CSS property names or design-industry terms. See `var-to-family.ts` AXIS_REGISTRY.
+Full CSS property names or design-industry standard terms.
+SSOT: `var-to-family.ts` AXIS_REGISTRY.
 
-| # | CSS Var | Design Term | CSS Output | Family |
-|---|---------|-------------|-----------|--------|
-| 1 | `--background-color` | Fill | `background-color` | surface |
-| 2 | `--box-shadow` | Elevation | `box-shadow` | surface |
-| 3 | `--border-color` | Stroke Color | `border-color` | surface |
-| 4 | `--gradient` | Gradient Fill | `background-image` | surface |
-| 5 | `--background-image` | Surface Image | `background-image` | surface |
-| 6 | `--background-alpha` | Fill Opacity | alpha channel | surface |
-| 7 | `--border-width` | Stroke Width | `border-width` | frame |
-| 8 | `--border-style` | Stroke Style | `border-style` | frame |
-| 9 | `--border-radius` | Corner Radius | `border-radius` | frame |
-| 10 | `--color` | Foreground | `color` | text |
-| 11 | `--font-family` | Typeface | `font-family` | text |
-| 12 | `--font-size` | Size | `font-size` | text |
-| 13 | `--font-weight` | Weight | `font-weight` | text |
-| 14 | `--tracking` | Tracking | `letter-spacing` | text |
-| 15 | `--leading` | Leading | `line-height` | text |
-| 16 | `--backdrop-filter` | Glass Blur | `backdrop-filter` | overlay |
-| 17 | `--opacity` | Opacity | `opacity` | motion |
-| 18 | `--animation` | Animation | `animation` | motion |
-| 19 | `--transition-duration` | Duration | `transition-duration` | motion |
-| 20 | `--transition-timing` | Easing | `transition-timing-function` | motion |
+### The Formula: DTCG Token → CSS Var → CSS Output
 
-**Layout (positioning, sizing, spacing, grid) is owned by Tailwind — not axes.**
+```
+DTCG JSON token ($type + $value)
+  → Style Dictionary 5 transform
+  → CSS custom property (the var name below)
+  → macro-base.css glue reads var()
+  → browser paints the CSS property
+```
+
+Every column below is a 1:1 mapping. Zero ambiguity.
+
+### SURFACE family — the container's skin
+
+| # | DTCG `$type` | CSS Var (what you write) | CSS Property (what browser paints) | Design Term | Layman Label |
+|---|---|---|---|---|---|
+| 1 | `color` | `--background-color` | `background-color` | Fill | Background Color |
+| 2 | `shadow` | `--box-shadow` | `box-shadow` | Elevation | Shadow & Depth |
+| 3 | `color` | `--border-color` | `border-color` | Stroke Color | Border Color |
+| 4 | `gradient` | `--gradient` | `background-image` | Gradient Fill | Gradient |
+| 5 | `string` | `--background-image` | `background-image` | Surface Image | Background Image |
+| 6 | `number` | `--background-alpha` | oklch alpha channel | Fill Opacity | Background Transparency |
+
+### FRAME family — the container's shape
+
+| # | DTCG `$type` | CSS Var (what you write) | CSS Property (what browser paints) | Design Term | Layman Label |
+|---|---|---|---|---|---|
+| 7 | `dimension` | `--border-width` | `border-width` | Stroke Width | Border Thickness |
+| 8 | `string` | `--border-style` | `border-style` | Stroke Style | Border Style |
+| 9 | `dimension` | `--border-radius` | `border-radius` | Corner Radius | Roundness |
+
+### TEXT family — typography
+
+| # | DTCG `$type` | CSS Var (what you write) | CSS Property (what browser paints) | Design Term | Layman Label |
+|---|---|---|---|---|---|
+| 10 | `color` | `--color` | `color` | Foreground | Text Color |
+| 11 | `string` | `--font-family` | `font-family` | Typeface | Font |
+| 12 | `dimension` | `--font-size` | `font-size` | Size | Text Size |
+| 13 | `number` | `--font-weight` | `font-weight` | Weight | Text Weight |
+| 14 | `dimension` | `--tracking` | `letter-spacing` | Tracking | Letter Spacing |
+| 15 | `dimension` | `--leading` | `line-height` | Leading | Line Height |
+
+### OVERLAY family — layering & glass
+
+| # | DTCG `$type` | CSS Var (what you write) | CSS Property (what browser paints) | Design Term | Layman Label |
+|---|---|---|---|---|---|
+| 16 | `string` | `--backdrop-filter` | `backdrop-filter` | Glass Blur | Glass Effect |
+
+### MOTION — universal, not family-gated
+
+| # | DTCG `$type` | CSS Var (what you write) | CSS Property (what browser paints) | Design Term | Layman Label |
+|---|---|---|---|---|---|
+| 17 | `number` | `--opacity` | `opacity` | Opacity | Transparency |
+| 18 | `string` | `--animation` | `animation` | Animation | Animation |
+| 19 | `duration` | `--transition-duration` | `transition-duration` | Duration | Speed |
+| 20 | `string` | `--transition-timing` | `transition-timing-function` | Easing | Easing |
+
+### Composite DTCG Types (SD5 expands these)
+
+| DTCG Composite | Expands To | Axes Produced |
+|---|---|---|
+| `shadow` | `color` + `offsetX` + `offsetY` + `blur` + `spread` | `--box-shadow` (assembled) |
+| `border` | `color` + `width` + `style` | `--border-color` + `--border-width` + `--border-style` |
+| `typography` | `fontFamily` + `fontSize` + `fontWeight` + `letterSpacing` + `lineHeight` | `--font-family` + `--font-size` + `--font-weight` + `--tracking` + `--leading` |
+| `transition` | `duration` + `timingFunction` + `delay` | `--transition-duration` + `--transition-timing` |
+| `gradient` | array of `{ color, position }` stops | `--gradient` (assembled) |
+
+### What Tailwind Owns (NOT axes — structural layout)
+
+| Concern | Tailwind Class Examples | Why Not an Axis |
+|---|---|---|
+| Display | `flex`, `grid`, `block`, `hidden` | Structural, not visual |
+| Direction | `flex-row`, `flex-col` | Structural |
+| Justify/Align | `justify-center`, `items-center` | Structural |
+| Gap | `gap-2`, `gap-4` | Spacing scale |
+| Padding | `px-3`, `py-2`, `p-4` | Spacing scale |
+| Margin | `mt-4`, `mb-2`, `mx-auto` | Spacing scale |
+| Width/Height | `w-full`, `h-16`, `min-h-screen` | Sizing |
+| Position | `relative`, `absolute`, `fixed` | Structural |
+| Grid | `grid-cols-12`, `col-span-8` | Structural |
+| Aspect Ratio | `aspect-video`, `aspect-square` | Structural |
+| Overflow | `overflow-hidden`, `overflow-y-auto` | Behavioral |
+
+**20 axes own visual appearance. Tailwind owns layout. Zero overlap.**
 
 ---
 
