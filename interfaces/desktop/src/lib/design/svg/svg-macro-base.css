@@ -3,10 +3,10 @@
  * @package @devpulse/coldlight
  *
  * Targets [data-svg-kind] and [data-svg-slot] elements.
- * Reads --cl-svg-* vars set by resolveSvgMacro().
+ * Reads --svg-* vars set by resolveSvgMacro().
  *
  * Unlike HTML macro-base.css, SVG elements read vars directly in their
- * attributes (stroke="var(--cl-svg-stroke)"). This file provides:
+ * attributes (stroke="var(--svg-stroke)"). This file provides:
  *   1. Fallback defaults on the root [data-svg-kind] element
  *   2. Slot-specific targeting for track/value/label sub-elements
  *   3. Glow filter composition via drop-shadow
@@ -16,14 +16,14 @@
 
 /* ── Root defaults ─────────────────────────────────────────── */
 [data-svg-kind] {
-	transition: var(--cl-svg-transition, all 150ms ease-out);
-	animation: var(--cl-svg-animation, none);
+	transition: var(--svg-transition, all 150ms ease-out);
+	animation: var(--svg-animation, none);
 }
 
 /* ── Track slot (background rings, grid lines) ─────────────── */
 [data-svg-slot="track"] {
-	stroke: var(--cl-svg-track-stroke, oklch(1 0 0 / 0.06));
-	stroke-opacity: var(--cl-svg-track-opacity, 1);
+	stroke: var(--svg-track-stroke, oklch(1 0 0 / 0.06));
+	stroke-opacity: var(--svg-track-opacity, 1);
 	fill: none;
 }
 
@@ -31,42 +31,42 @@
 [data-svg-slot="value"],
 [data-svg-slot="line"],
 [data-svg-slot="arc"] {
-	stroke: var(--cl-svg-stroke, currentColor);
-	stroke-width: var(--cl-svg-stroke-width, 0.125rem);
-	stroke-linecap: var(--cl-svg-stroke-linecap, round);
-	stroke-opacity: var(--cl-svg-stroke-opacity, 1);
-	filter: drop-shadow(0 0 var(--cl-svg-glow-blur, 0) var(--cl-svg-glow-color, transparent));
+	stroke: var(--svg-stroke, currentColor);
+	stroke-width: var(--svg-stroke-width, 0.125rem);
+	stroke-linecap: var(--svg-stroke-linecap, round);
+	stroke-opacity: var(--svg-stroke-opacity, 1);
+	filter: drop-shadow(0 0 var(--svg-glow-blur, 0) var(--svg-glow-color, transparent));
 }
 
 /* ── Area slot (filled regions below lines) ────────────────── */
 [data-svg-slot="area"] {
-	fill: var(--cl-svg-fill, none);
-	fill-opacity: var(--cl-svg-fill-opacity, 0.08);
+	fill: var(--svg-fill, none);
+	fill-opacity: var(--svg-fill-opacity, 0.08);
 	stroke: none;
 }
 
 /* ── Dot slot (data point markers) ─────────────────────────── */
 [data-svg-slot="dot"] {
-	fill: var(--cl-svg-stroke, currentColor);
-	filter: drop-shadow(0 0 var(--cl-svg-glow-blur, 0) var(--cl-svg-glow-color, transparent));
+	fill: var(--svg-stroke, currentColor);
+	filter: drop-shadow(0 0 var(--svg-glow-blur, 0) var(--svg-glow-color, transparent));
 }
 
 /* ── Label slot (text labels, values, units) ───────────────── */
 [data-svg-slot="label"],
 [data-svg-slot="text"] {
-	fill: var(--cl-svg-text-color, currentColor);
-	font-family: var(--cl-svg-font-family, inherit);
-	font-size: var(--cl-svg-font-size, inherit);
-	font-weight: var(--cl-svg-font-weight, inherit);
+	fill: var(--svg-text-color, currentColor);
+	font-family: var(--svg-font-family, inherit);
+	font-size: var(--svg-font-size, inherit);
+	font-weight: var(--svg-font-weight, inherit);
 }
 
 /* ── Tick slot (gauge tick marks) ──────────────────────────── */
 [data-svg-slot="tick"] {
-	stroke: var(--cl-svg-track-stroke, oklch(1 0 0 / 0.12));
-	stroke-opacity: var(--cl-svg-track-opacity, 1);
+	stroke: var(--svg-track-stroke, oklch(1 0 0 / 0.12));
+	stroke-opacity: var(--svg-track-opacity, 1);
 }
 
 /* ── SVG filter application ────────────────────────────────── */
-[data-svg-kind][style*="--cl-svg-filter"] {
-	filter: var(--cl-svg-filter, none);
+[data-svg-kind][style*="--svg-filter"] {
+	filter: var(--svg-filter, none);
 }

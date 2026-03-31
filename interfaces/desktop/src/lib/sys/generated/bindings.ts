@@ -135,10 +135,52 @@ async connectPeer() : Promise<void> {
     await TAURI_INVOKE("connect_peer");
 },
 /**
- * Open or focus the Clyffy Chat child window.
+ * Open or focus a window by its role.
+ * 
+ * If already open, focuses it.
+ * Otherwise spawns a new OS child window with role-derived config.
  * 
  * # Errors
- * Returns an error string if the window cannot be focused or created.
+ * Returns an error string if the window cannot be created or focused.
+ */
+async openWindow(role: WindowRole) : Promise<Result<WindowInfo, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("open_window", { role }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Close a window by its role. Main cannot be closed this way.
+ * 
+ * # Errors
+ * Returns an error string if the window cannot be closed.
+ */
+async closeChildWindow(role: WindowRole) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("close_child_window", { role }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Get all window roles and whether they are currently open.
+ */
+async listWindows() : Promise<Result<WindowInfo[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("list_windows") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Legacy: Open or focus the Chat window. Delegates to `open_window`.
+ * 
+ * # Errors
+ * Returns an error string if the window cannot be created or focused.
  */
 async openChatWindow() : Promise<Result<null, string>> {
     try {
@@ -149,7 +191,7 @@ async openChatWindow() : Promise<Result<null, string>> {
 }
 },
 /**
- * Close a window by its label.
+ * Legacy: Close a window by its label string.
  * 
  * # Errors
  * Returns an error string if the window cannot be closed.
@@ -171,6 +213,62 @@ async closeWindow(label: string) : Promise<Result<null, string>> {
 async focusWindow(label: string) : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("focus_window", { label }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Get hardware metrics.
+ */
+async getHardwareMetrics() : Promise<Result<HardwareInfo, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_hardware_metrics") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Scan the models directory for GGUF files.
+ */
+async scanModels() : Promise<Result<ModelInfo[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("scan_models") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Get all registered slots.
+ */
+async getSlots() : Promise<Result<SlotInfo[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_slots") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Check if this is the first run (no models configured).
+ */
+async isFirstRun() : Promise<Result<boolean, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("is_first_run") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Generate text using a loaded model slot.
+ * Streams tokens via Tauri events. Returns the full generated text.
+ */
+async inferenceGenerate(slotId: string, prompt: string, maxTokens: number, temperature: number) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("inference_generate", { slotId, prompt, maxTokens, temperature }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -376,6 +474,10 @@ whisper_enabled: boolean;
  */
 devforge_enabled: boolean }
 /**
+ * Hardware metrics for the frontend.
+ */
+export type HardwareInfo = { cpu_usage_percent: number; cpu_cores: number; cpu_name: string; ram_total_mb: number; ram_used_mb: number; ram_available_mb: number; gpu_name: string | null; gpu_vram_total_mb: number | null; gpu_vram_used_mb: number | null; gpu_vram_free_mb: number | null; gpu_utilization_percent: number | null; gpu_temperature_c: number | null; process_ram_mb: number; process_vram_mb: number }
+/**
  * Health status enum.
  */
 export type HealthStatus = 
@@ -448,6 +550,10 @@ total_messages: number;
  * Distinct sessions (open + closed). A session with 0 messages still counts.
  */
 total_sessions: number }
+/**
+ * Serializable model entry for the frontend.
+ */
+export type ModelInfo = { id: string; filename: string; architecture: string; parameter_count: number | null; quant_level: string | null; context_length: number; size_mb: number; vram_estimate_mb: number; supported_backends: string[]; compatible_capabilities: string[] }
 /**
  * Public platform configuration.
  * 
@@ -548,6 +654,10 @@ export type ServiceState =
  */
 "Failed"
 /**
+ * Serializable slot info for the frontend.
+ */
+export type SlotInfo = { id: string; label: string; capability: string; preferred_device: string; loading_strategy: string; assigned_model_id: string | null; fallback: string | null }
+/**
  * Health of an individual subsystem (database, cache, etc.).
  */
 export type SubsystemHealth = { 
@@ -588,6 +698,43 @@ uptime_secs: number;
  * Per-subsystem health details.
  */
 subsystems: SubsystemHealth[] }
+/**
+ * Tracks an open window's state.
+ */
+export type WindowInfo = { 
+/**
+ * The role of this window.
+ */
+role: WindowRole; 
+/**
+ * Tauri window label (unique per instance).
+ */
+label: string; 
+/**
+ * Whether the window is currently open.
+ */
+is_open: boolean }
+/**
+ * Every spawnable window has a typed role.
+ * Single Svelte build reads this from the URL query param.
+ */
+export type WindowRole = 
+/**
+ * Main app window — always open
+ */
+"Main" | 
+/**
+ * Clyffy Chat — child window
+ */
+"Chat" | 
+/**
+ * Cortex viewer — telemetry / devtools
+ */
+"CortexViewer" | 
+/**
+ * Model loader — slot management
+ */
+"ModelLoader"
 
 /** tauri-specta globals **/
 

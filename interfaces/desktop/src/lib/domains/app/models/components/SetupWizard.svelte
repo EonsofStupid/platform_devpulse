@@ -208,7 +208,7 @@ async function handleSetup() {
 >
 	{#if step === "detecting"}
 		<div class="flex flex-col items-center gap-4 py-8">
-			<div class="h-10 w-10 animate-spin rounded-full border-2 border-t-transparent" style="border-color: var(--cl-color); border-top-color: transparent;"></div>
+			<div class="h-10 w-10 animate-spin rounded-full border-2 border-t-transparent" style="border-color: var(--color); border-top-color: transparent;"></div>
 			<Text size="lg" weight="semibold" color="primary">Checking your hardware...</Text>
 		</div>
 
@@ -232,7 +232,7 @@ async function handleSetup() {
 					style={cssVarString(recM.cssVars)}
 					class="flex items-center gap-3 rounded-lg border-l-4 px-3 py-2"
 				>
-					<div class="h-2.5 w-2.5 shrink-0 rounded-full" style="background: var(--cl-color); box-shadow: var(--cl-shadow);"></div>
+					<div class="h-2.5 w-2.5 shrink-0 rounded-full" style="background: var(--color); box-shadow: var(--box-shadow);"></div>
 					<div class="flex-1">
 						<Text size="sm" weight="medium" color="primary">{rec.name}</Text>
 						<Text size="xs" color="muted">{rec.purpose} · {formatMb(rec.sizeMb)} download · {formatMb(rec.vramMb)} GPU memory</Text>
@@ -274,11 +274,11 @@ async function handleSetup() {
 			style:padding="1rem 0"
 		>
 			<div class={hstack({ gap: "2", align: "center", justify: "center" })}>
-				<Download size={18} style="color: var(--cl-color);" />
+				<Download size={18} style="color: var(--color);" />
 				<Text size="lg" weight="semibold" color="primary">Setting up your AI...</Text>
 			</div>
 			<div class="h-3 w-full overflow-hidden rounded-full opacity-30">
-				<div class="h-full rounded-full transition-all duration-300" style="width: {downloadProgress}%; background: var(--cl-color);"></div>
+				<div class="h-full rounded-full transition-all duration-300" style="width: {downloadProgress}%; background: var(--color);"></div>
 			</div>
 			<Text size="sm" color="muted" as="p" style="text-align: center;">
 				{downloadProgress}% — Downloading models...
@@ -292,7 +292,7 @@ async function handleSetup() {
 				style={cssVarString(mReadyIcon.cssVars)}
 				class="flex h-16 w-16 items-center justify-center rounded-full border-2"
 			>
-				<CircleCheck size={32} style="color: var(--cl-color);" />
+				<CircleCheck size={32} style="color: var(--color);" />
 			</div>
 			<Text size="lg" weight="bold" color="primary">Ready to go!</Text>
 			<button

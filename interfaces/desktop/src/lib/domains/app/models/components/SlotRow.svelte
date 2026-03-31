@@ -82,7 +82,7 @@ async function handleAssign(modelId: string) {
 	<!-- Fit indicator dot -->
 	<div
 		class="h-2.5 w-2.5 shrink-0 rounded-full"
-		style="background: var(--cl-color); box-shadow: var(--cl-shadow);"
+		style="background: var(--color); box-shadow: var(--box-shadow);"
 		title={fit === "green" ? "Fits easily" : fit === "yellow" ? "Tight fit" : fit === "red" ? "Won't fit in VRAM" : "No GPU"}
 	></div>
 
@@ -101,7 +101,7 @@ async function handleAssign(modelId: string) {
 			{#if assigned}
 				<button
 					class="cursor-pointer truncate text-left text-xs transition-colors hover:underline"
-					style="color: var(--cl-color);"
+					style="color: var(--color);"
 					onclick={() => (showPicker = !showPicker)}
 				>
 					{assigned.filename}
@@ -131,7 +131,7 @@ async function handleAssign(modelId: string) {
 			<div class="mt-1 h-1.5 w-full overflow-hidden rounded-full opacity-30">
 				<div
 					class="h-full rounded-full transition-all duration-300"
-					style="width: {status.progressPct}%; background: var(--cl-color);"
+					style="width: {status.progressPct}%; background: var(--color);"
 				></div>
 			</div>
 			<Text size="xs" color="muted">{status.stage.replace("_", " ")} — {Math.round(status.progressPct)}%</Text>
@@ -183,10 +183,10 @@ async function handleAssign(modelId: string) {
 				>
 					<div
 						class="h-2 w-2 shrink-0 rounded-full"
-						style="background: var(--cl-color);"
+						style="background: var(--color);"
 					></div>
 					<div class="flex-1 truncate">
-						<div class="truncate text-xs font-medium" style="color: var(--cl-fg, var(--cl-color));">
+						<div class="truncate text-xs font-medium" style="color: var(--color, var(--color));">
 							{model.filename}
 						</div>
 						<div class="text-xs opacity-50">

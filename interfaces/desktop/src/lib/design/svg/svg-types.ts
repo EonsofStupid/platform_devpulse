@@ -59,7 +59,7 @@ export interface SvgMacroOptions {
 
 /** Single axis mapping entry */
 export interface SvgAxisMapping {
-	/** CSS custom property name (e.g., "--cl-svg-stroke") */
+	/** CSS custom property name (e.g., "--svg-stroke") */
 	cssVar: string;
 	/** DTCG token type */
 	dtcgType: string;

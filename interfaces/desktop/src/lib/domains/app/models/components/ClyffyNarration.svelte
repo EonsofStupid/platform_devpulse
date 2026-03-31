@@ -47,7 +47,7 @@ const icon = $derived.by(() => {
 	style={cssVarString(m.cssVars)}
 	class="flex items-start gap-2 rounded-lg border-l-2 px-3 py-2"
 >
-	<span class="shrink-0 text-sm" style="color: var(--cl-color);">
+	<span class="shrink-0 text-sm" style="color: var(--color);">
 		{icon}
 	</span>
 	<Text size="sm" color="secondary" as="p">

@@ -3,7 +3,7 @@
  * @package @devpulse/coldlight
  *
  * Every axis maps to a real DTCG $type. No invented types.
- * SD5 expands composites. resolveMacro assembles --cl-* vars.
+ * SD5 expands composites. resolveMacro assembles canonical vars.
  * VPB reads these to generate per-axis controls (color picker, slider, etc.).
  */
 

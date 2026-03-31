@@ -157,21 +157,21 @@ Maps `--cl-*` vars to CSS properties on `[data-kind]` elements. StyleMacro assem
 
 ```css
 [data-kind] {
-  background-color: var(--cl-bg);
+  background-color: var(-bg);
   backdrop-filter: blur(var(--cl-blur));
-  box-shadow: var(--cl-shadow);
+  box-shadow: var(--box-shadow);
   border: var(--cl-border);
   animation: var(--cl-animation);
   transition: var(--cl-transition);
-  font-family: var(--cl-font-family);
-  font-size: var(--cl-font-size);
-  font-weight: var(--cl-font-weight);
-  letter-spacing: var(--cl-letter-spacing);
-  line-height: var(--cl-line-height);
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  font-weight: var(--font-weight);
+  letter-spacing: var(--tracking);
+  line-height: var(--tracking);
   background-image: var(--cl-gradient);
   color: var(--cl-color);
-  border-radius: var(--cl-radius);
-  opacity: var(--cl-opacity);
+  border-radius: var(--border-radius);
+  opacity: var(--opacity);
 }
 ```
 

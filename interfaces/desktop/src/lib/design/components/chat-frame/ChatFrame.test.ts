@@ -100,15 +100,15 @@ describe("chat-frame — state attributes", () => {
 });
 
 // ═══════════════════════════════════════════════════════════════
-// STYLE MACRO — --cl-* CSS vars applied
+// STYLE MACRO — canonical CSS vars applied
 // ═══════════════════════════════════════════════════════════════
 
 describe("chat-frame — style macro integration", () => {
-	test("has style attribute with --cl-bg", async () => {
+	test("has style attribute with -bg", async () => {
 		const { getByRole } = render(ChatFrame);
 		const frame = getByRole("dialog");
 		const style = frame.element().getAttribute("style") ?? "";
-		expect(style).toContain("--cl-bg");
+		expect(style).toContain("-bg");
 	});
 
 	test("has data-cl-* family attributes", async () => {

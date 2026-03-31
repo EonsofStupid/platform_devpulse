@@ -89,12 +89,12 @@ const clyffyType = $derived.by(() => {
 	<!-- Header -->
 	<div class={hstack({ justify: "between", align: "center" })}>
 		<div class={hstack({ gap: "2", align: "center" })}>
-			<Zap size={18} style="color: var(--cl-color);" />
+			<Zap size={18} style="color: var(--color);" />
 			<Text size="lg" weight="bold" color="primary">Model Control</Text>
 		</div>
 		<button
 			class="rounded px-2 py-1 text-xs transition-colors hover:brightness-110"
-			style="background: var(--cl-bg); color: var(--cl-color);"
+			style="background: var(-bg); color: var(--color);"
 			onclick={() => (layman = !layman)}
 		>
 			{layman ? "Advanced" : "Simple"}
@@ -122,7 +122,7 @@ const clyffyType = $derived.by(() => {
 						<Text size="xs" color="secondary">{hardwareState.metrics.cpuUsagePercent.toFixed(0)}%</Text>
 					</div>
 					<div class="h-1.5 w-full overflow-hidden rounded-full opacity-30">
-						<div class="h-full rounded-full" style="width: {hardwareState.metrics.cpuUsagePercent}%; background: var(--cl-color);"></div>
+						<div class="h-full rounded-full" style="width: {hardwareState.metrics.cpuUsagePercent}%; background: var(--color);"></div>
 					</div>
 				</div>
 				<div>
@@ -131,7 +131,7 @@ const clyffyType = $derived.by(() => {
 						<Text size="xs" color="secondary">{formatMb(hardwareState.metrics.ramUsedMb)} / {formatMb(hardwareState.metrics.ramTotalMb)}</Text>
 					</div>
 					<div class="h-1.5 w-full overflow-hidden rounded-full opacity-30">
-						<div class="h-full rounded-full" style="width: {(hardwareState.metrics.ramUsedMb / hardwareState.metrics.ramTotalMb) * 100}%; background: var(--cl-color);"></div>
+						<div class="h-full rounded-full" style="width: {(hardwareState.metrics.ramUsedMb / hardwareState.metrics.ramTotalMb) * 100}%; background: var(--color);"></div>
 					</div>
 				</div>
 				{#if hardwareState.hasGpu && hardwareState.metrics.gpuUtilizationPercent !== null}
@@ -141,7 +141,7 @@ const clyffyType = $derived.by(() => {
 							<Text size="xs" color="secondary">{hardwareState.metrics.gpuUtilizationPercent.toFixed(0)}%</Text>
 						</div>
 						<div class="h-1.5 w-full overflow-hidden rounded-full opacity-30">
-							<div class="h-full rounded-full" style="width: {hardwareState.metrics.gpuUtilizationPercent}%; background: var(--cl-color);"></div>
+							<div class="h-full rounded-full" style="width: {hardwareState.metrics.gpuUtilizationPercent}%; background: var(--color);"></div>
 						</div>
 					</div>
 				{/if}
@@ -211,7 +211,7 @@ const clyffyType = $derived.by(() => {
 			style={cssVarString(mError.cssVars)}
 			class="flex flex-col gap-1 rounded-lg border-l-4 px-3 py-2"
 		>
-			<Text size="xs" weight="bold" style="color: var(--cl-color);">HARDWARE ERROR</Text>
+			<Text size="xs" weight="bold" style="color: var(--color);">HARDWARE ERROR</Text>
 			<Text size="xs" color="secondary">{hardwareState.error}</Text>
 		</div>
 	{/if}
@@ -222,7 +222,7 @@ const clyffyType = $derived.by(() => {
 			style={cssVarString(mError.cssVars)}
 			class="flex flex-col gap-1 rounded-lg border-l-4 px-3 py-2"
 		>
-			<Text size="xs" weight="bold" style="color: var(--cl-color);">MODEL LOADER ERROR</Text>
+			<Text size="xs" weight="bold" style="color: var(--color);">MODEL LOADER ERROR</Text>
 			<Text size="xs" color="secondary">{modelsState.error}</Text>
 		</div>
 	{/if}

@@ -60,7 +60,7 @@ export interface StyleMacroProps {
 // =============================================================================
 
 export interface TokenMapping {
-	/** The --cl- CSS custom property name. */
+	/** The CSS custom property name. */
 	varName: string;
 	/** The DTCG $type this axis maps to. */
 	dtcgType: string;
@@ -72,64 +72,64 @@ export interface TokenMapping {
 
 export const propMappings: Record<keyof StyleMacroProps, TokenMapping> = {
 	// ── Simple axes (1 token → 1 CSS property) ──────────────
-	backgroundColor: { varName: "--cl-bg", dtcgType: "color" },
-	backgroundBlur: { varName: "--cl-blur", dtcgType: "dimension" },
-	animation: { varName: "--cl-animation", dtcgType: "duration" },
-	color: { varName: "--cl-color", dtcgType: "color" },
-	borderRadius: { varName: "--cl-radius", dtcgType: "dimension" },
-	opacity: { varName: "--cl-opacity", dtcgType: "number" },
+	backgroundColor: { varName: "-bg", dtcgType: "color" },
+	backgroundBlur: { varName: "--blur", dtcgType: "dimension" },
+	animation: { varName: "--animation", dtcgType: "duration" },
+	color: { varName: "--color", dtcgType: "color" },
+	borderRadius: { varName: "--border-radius", dtcgType: "dimension" },
+	opacity: { varName: "--opacity", dtcgType: "number" },
 
 	// ── Composite axes (1 token → multiple CSS properties) ──
 	shadow: {
-		varName: "--cl-shadow",
+		varName: "--box-shadow",
 		dtcgType: "shadow",
 		composite: true,
 		expandsTo: {
-			color: "--cl-shadow-color",
-			offsetX: "--cl-shadow-offset-x",
-			offsetY: "--cl-shadow-offset-y",
-			blur: "--cl-shadow-blur",
-			spread: "--cl-shadow-spread",
+			color: "--box-shadow-color",
+			offsetX: "--box-shadow-offset-x",
+			offsetY: "--box-shadow-offset-y",
+			blur: "--box-shadow-blur",
+			spread: "--box-shadow-spread",
 		},
 	},
 	border: {
-		varName: "--cl-border",
+		varName: "--border",
 		dtcgType: "border",
 		composite: true,
 		expandsTo: {
-			color: "--cl-border-color",
-			width: "--cl-border-width",
-			style: "--cl-border-style",
+			color: "--border-color",
+			width: "--border-width",
+			style: "--border-style",
 		},
 	},
 	transition: {
-		varName: "--cl-transition",
+		varName: "--transition",
 		dtcgType: "transition",
 		composite: true,
 		expandsTo: {
-			duration: "--cl-transition-duration",
-			delay: "--cl-transition-delay",
-			timingFunction: "--cl-transition-easing",
+			duration: "--transition-duration",
+			delay: "--transition-delay",
+			timingFunction: "--transition-timing",
 		},
 	},
 	typography: {
-		varName: "--cl-typography",
+		varName: "--typography",
 		dtcgType: "typography",
 		composite: true,
 		expandsTo: {
-			fontFamily: "--cl-font-family",
-			fontSize: "--cl-font-size",
-			fontWeight: "--cl-font-weight",
-			letterSpacing: "--cl-letter-spacing",
-			lineHeight: "--cl-line-height",
+			fontFamily: "--font-family",
+			fontSize: "--font-size",
+			fontWeight: "--font-weight",
+			letterSpacing: "--tracking",
+			lineHeight: "--tracking",
 		},
 	},
 	gradient: {
-		varName: "--cl-gradient",
+		varName: "--gradient",
 		dtcgType: "gradient",
 		composite: true,
 		expandsTo: {
-			// Per-stop expansion: --cl-gradient-{index}-color, --cl-gradient-{index}-position
+			// Per-stop expansion: --gradient-{index}-color, --gradient-{index}-position
 			// Glue CSS assembles into linear-gradient()
 		},
 	},

@@ -903,7 +903,7 @@ Scanned: 2026-03-24T19:01:59.547Z
 		var(--glow-teal)` | lib\design\generated\focus.css |
 | `box-shadow: 0 0 0 0 currentColor` | lib\design\generated\keyframes.css |
 | `box-shadow: 0 0 12px 4px currentColor` | lib\design\generated\keyframes.css |
-| `box-shadow: var(--cl-shadow, none)` | lib\design\generated\macro-base.css |
+| `box-shadow: var(--box-shadow, none)` | lib\design\generated\macro-base.css |
 | `box-shadow: var(--shadow-depth), var(--shadow-bevel), var(--shadow-glow), var(--` | lib\design\generated\variants.css |
 | `box-shadow: var(--bevel-raised), var(--shadow-purple-2)` | lib\domains\app\ui-demo\components\GlassButton.svelte |
 | `box-shadow: var(--bevel-raised-deep), var(--shadow-purple-3)` | lib\domains\app\ui-demo\components\GlassButton.svelte |

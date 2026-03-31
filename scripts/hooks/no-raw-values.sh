@@ -61,6 +61,12 @@ for FILE in $FILTERED_FILES; do
   if [ -n "$PX" ]; then
     ERRORS="${ERRORS}\n  ${FILE}:\n${PX}\n"
   fi
+
+  # Check for banned --cl- prefix (replaced by canonical CSS var names)
+  CL_PREFIX=$(echo "$ADDED" | grep -E '\-\-cl-' || true)
+  if [ -n "$CL_PREFIX" ]; then
+    ERRORS="${ERRORS}\n  ${FILE} (BANNED --cl- prefix — use canonical names):\n${CL_PREFIX}\n"
+  fi
 done
 
 if [ -n "$ERRORS" ]; then

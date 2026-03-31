@@ -31,12 +31,12 @@ const m = $derived(resolveMacro({ kind: "subsystem-group", preset: "neutral" }))
 	>
 		<span
 			class="text-xs transition-transform"
-			style="color: var(--cl-color); transform: rotate({collapsed ? '-90deg' : '0deg'});"
+			style="color: var(--color); transform: rotate({collapsed ? '-90deg' : '0deg'});"
 		>
 			▼
 		</span>
 		<Text size="sm" weight="semibold" color="secondary">{label}</Text>
-		<span class="text-xs" style="color: var(--cl-color);">
+		<span class="text-xs" style="color: var(--color);">
 			{slots.length} {slots.length === 1 ? "slot" : "slots"}
 		</span>
 	</button>

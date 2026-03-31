@@ -70,7 +70,7 @@ const fillPath = $derived(
 		<path
 			d={bgPath}
 			fill="none"
-			stroke="var(--cl-border-color, currentColor)"
+			stroke="var(--border-color, currentColor)"
 			stroke-width="8"
 			stroke-linecap="round"
 			opacity="0.3"
@@ -80,7 +80,7 @@ const fillPath = $derived(
 			<path
 				d={fillPath}
 				fill="none"
-				stroke="var(--cl-color, currentColor)"
+				stroke="var(--color, currentColor)"
 				stroke-width="8"
 				stroke-linecap="round"
 			/>
@@ -90,10 +90,10 @@ const fillPath = $derived(
 			x={cx}
 			y={cy - 6}
 			text-anchor="middle"
-			fill="var(--cl-color, currentColor)"
+			fill="var(--color, currentColor)"
 			font-size="18"
 			font-weight="700"
-			font-family="var(--cl-font-family, monospace)"
+			font-family="var(--font-family, monospace)"
 		>
 			{#if hasGpu}
 				{formatMb(usedMb)}
@@ -105,7 +105,7 @@ const fillPath = $derived(
 			x={cx}
 			y={cy + 12}
 			text-anchor="middle"
-			fill="var(--cl-color, currentColor)"
+			fill="var(--color, currentColor)"
 			font-size="11"
 			opacity="0.6"
 		>
@@ -119,7 +119,7 @@ const fillPath = $derived(
 			x={cx}
 			y={cy + 28}
 			text-anchor="middle"
-			fill="var(--cl-color, currentColor)"
+			fill="var(--color, currentColor)"
 			font-size="10"
 			opacity="0.4"
 		>
@@ -128,5 +128,5 @@ const fillPath = $derived(
 			{/if}
 		</text>
 	</svg>
-	<span class="text-xs" style="color: var(--cl-color);">{label}</span>
+	<span class="text-xs" style="color: var(--color);">{label}</span>
 </div>

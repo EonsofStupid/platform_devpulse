@@ -216,8 +216,8 @@ Uses `xshell`, `clap`, `anyhow`. Handles prereq checks, CMake cache cleaning, se
 
 **Color palette from OLD_PROJECTS:**
 ```css
---bg-void: rgba(15, 23, 42, 0.97);     /* Never black — dark blue-slate */
---bg-deep: rgba(30, 41, 59, 0.95);     /* Lighter slate */
+--background-color-void: rgba(15, 23, 42, 0.97);     /* Never black — dark blue-slate */
+--background-color-deep: rgba(30, 41, 59, 0.95);     /* Lighter slate */
 --color-bg-base: 222 84% 5%;           /* ~#0a0a14 deep void */
 --accent-cyan: rgba(65, 240, 219, 1);  /* Primary teal */
 --accent-pink: rgba(255, 10, 190, 1);  /* Secondary pink */

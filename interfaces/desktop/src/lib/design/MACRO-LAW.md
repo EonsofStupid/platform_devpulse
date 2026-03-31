@@ -142,7 +142,7 @@ export function cssVarString(vars: Record<string, string>): string {
 <button style="{cssVarString(m.cssVars)}; {style}">  <!-- NO -->
 
 <!-- FORBIDDEN: arbitrary CSS variable injection -->
-<Button preset="teal" style="--cl-bg: red;">  <!-- NO -->
+<Button preset="teal" style="-bg: red;">  <!-- NO -->
 
 <!-- FORBIDDEN: className override -->
 <Button preset="teal" class="my-custom-bg">  <!-- NO -->
@@ -160,10 +160,10 @@ Nothing else gets in. The system is closed to runtime visual injection.
 The styled element IS the semantic root. No exceptions.
 
 ```
-✓ <button data-kind="button" style="--cl-bg:...">
+✓ <button data-kind="button" style="-bg:...">
 ✓ <a data-kind="link" style="--cl-fg:...">
-✓ <dialog data-kind="dialog" style="--cl-bg:...">
-✓ <nav data-kind="nav-rail" style="--cl-bg:...">
+✓ <dialog data-kind="dialog" style="-bg:...">
+✓ <nav data-kind="nav-rail" style="-bg:...">
 ✓ <input data-kind="input" style="--cl-border:...">
 
 ✗ <div class="button-wrapper"><button>...</button></div>
@@ -379,25 +379,25 @@ build time — never hand-authored per component.
 
 /* ── Surface: background, borders, shadows ─────────────── */
 [data-cl-surface] {
-  background: var(--cl-bg);
+  background: var(-bg);
   border-color: var(--cl-border);
-  box-shadow: var(--cl-shadow);
+  box-shadow: var(--box-shadow);
 }
 
 /* ── Text: typography properties ───────────────────────── */
 [data-cl-text] {
   color: var(--cl-fg);
-  font-family: var(--cl-font-family);
-  font-size: var(--cl-font-size);
+  font-family: var(--font-family);
+  font-size: var(--font-size);
   letter-spacing: var(--cl-tracking);
   line-height: var(--cl-leading);
 }
 
 /* ── Frame: dimensional properties ─────────────────────── */
 [data-cl-frame] {
-  border-radius: var(--cl-radius);
-  border-width: var(--cl-border-width);
-  border-style: var(--cl-border-style, solid);
+  border-radius: var(--border-radius);
+  border-width: var(--border-width);
+  border-style: var(--border-style, solid);
   padding: var(--cl-padding-y) var(--cl-padding-x);
 }
 

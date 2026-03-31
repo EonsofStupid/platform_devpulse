@@ -7,15 +7,47 @@
  *
  * Per MACRO-LAW.md Law 1.
  *
- * Pipeline:
- *   Component: preset="neuro-elevated"
- *   → resolveMacro({ kind: "button", preset: "neuro-elevated" })
- *   → resolves preset → concrete PresetId via visual system
- *   → assembles --cl-* vars as var(--style-button-neuro-elevated-*) references
- *   → returns { kind, dataAttrs, cssVars }
- *   → component applies: style={cssVarString(m.cssVars)} {...m.dataAttrs}
- *   → macro-base.css family selectors paint from --cl-* vars
- *   → browser paints
+ * ═══════════════════════════════════════════════════════════════
+ * CANONICAL AXIS REGISTRY — 20 axes, 6 families
+ * ═══════════════════════════════════════════════════════════════
+ *
+ * Canonical names only. Full CSS property names or design-industry terms.
+ * Each var name here MUST have a matching consumer in macro-base.css.
+ *
+ * SURFACE family:
+ *   --background-color     Fill              background-color
+ *   --box-shadow           Elevation         box-shadow
+ *   --border-color         Stroke Color      border-color
+ *   --gradient             Gradient Fill     background-image
+ *   --background-image     Surface Image     background-image
+ *   --background-alpha     Fill Opacity      oklch alpha channel
+ *
+ * FRAME family:
+ *   --border-width         Stroke Width      border-width
+ *   --border-style         Stroke Style      border-style
+ *   --border-radius        Corner Radius     border-radius
+ *
+ * TEXT family:
+ *   --color                Foreground        color
+ *   --font-family          Typeface          font-family
+ *   --font-size            Size              font-size
+ *   --font-weight          Weight            font-weight
+ *   --tracking             Tracking          letter-spacing
+ *   --leading              Leading           line-height
+ *
+ * OVERLAY family:
+ *   --backdrop-filter      Glass Blur        backdrop-filter
+ *
+ * MOTION (universal, not family-gated):
+ *   --opacity              Opacity           opacity
+ *   --animation            Animation         animation
+ *   --transition-duration  Duration          transition-duration
+ *   --transition-timing    Easing            transition-timing-function
+ *
+ * Resolution chain:
+ *   var(--style-{kind}-{preset}-{axis},    ← per-kind VPB override
+ *       var(--preset-{preset}-{axis},      ← shared preset default
+ *           {fallback}))                    ← absolute fallback
  *
  * @example
  * ```svelte
@@ -31,28 +63,15 @@
  * ```
  */
 
+import { KIND_FAMILIES } from "./generated/kind-families.js";
 import { resolveIntent } from "./intent.js";
 import type { CssFamily, MacroDataAttrs, MacroInput, ResolvedMacro } from "./types.js";
-
-// ═══════════════════════════════════════════════════════════════
-// KIND_FAMILIES — generated at build time by deriveKindFamilies
-// ═══════════════════════════════════════════════════════════════
-
-import { KIND_FAMILIES } from "./generated/kind-families.js";
 
 /** Default families applied when KIND_FAMILIES entry is missing */
 const DEFAULT_FAMILIES: CssFamily[] = ["surface", "text", "frame"];
 
-// ═══════════════════════════════════════════════════════════════
-// RESOLVER
-// ═══════════════════════════════════════════════════════════════
-
 /**
  * Resolve a component's visual state.
- *
- * Reads SD5-generated --style-{kind}-{preset}-{axis} tokens via var() chains.
- * Assembles --cl-* CSS custom properties for macro-base.css to consume.
- * Derives data-cl-* family attributes for targeted glue CSS.
  *
  * @param input - kind, preset, state
  * @returns Sealed ResolvedMacro — dataAttrs + cssVars
@@ -60,12 +79,8 @@ const DEFAULT_FAMILIES: CssFamily[] = ["surface", "text", "frame"];
 export function resolveMacro(input: MacroInput): ResolvedMacro {
 	const { kind, preset = "primary", state = "default" } = input;
 
-	// Resolve preset through typed intent map → concrete PresetId
 	const resolved = resolveIntent(preset);
 
-	// Two-tier var() resolution:
-	//   1. Per-kind override: --style-{kind}-{preset}-{axis} (VPB custom, may not exist)
-	//   2. Shared preset:     --preset-{preset}-{axis} (always exists, default for all kinds)
 	const perKind = `--style-${kind}-${resolved}`;
 	const shared = `--preset-${resolved}`;
 
@@ -73,51 +88,56 @@ export function resolveMacro(input: MacroInput): ResolvedMacro {
 	const v = (axis: string, fallback: string): string =>
 		`var(${perKind}-${axis}, var(${shared}-${axis}, ${fallback}))`;
 
-	// Assemble CSS var references — one var per CSS property, NO shorthand
-	const cssVars: Record<`--cl-${string}`, string> = {
-		"--cl-bg": v("background-color", "transparent"),
-		"--cl-shadow": v("box-shadow", "none"),
-		"--cl-border-color": v("border-color", "transparent"),
-		"--cl-border-width": v("border-width", "0"),
-		"--cl-border-style": "solid",
-		"--cl-color": v("color", "inherit"),
-		"--cl-fg": v("color", "inherit"),
-		"--cl-radius": v("border-radius", "0"),
-		"--cl-opacity": v("opacity", "1"),
-		"--cl-font-family": v("font-family", "inherit"),
-		"--cl-font-size": v("font-size", "inherit"),
-		"--cl-font-weight": v("font-weight", "inherit"),
-		"--cl-letter-spacing": v("letter-spacing", "0"),
-		"--cl-line-height": v("line-height", "inherit"),
-		"--cl-gradient": v("gradient", "none"),
-		"--cl-backdrop": v("backdrop-filter", "none"),
-		"--cl-animation": v("animation", "none"),
-		"--cl-transition-duration": v("transition-duration", "150ms"),
-		"--cl-transition-easing": v("transition-timing-function", "ease-out"),
-		"--cl-bg-image": v("background-image", "none"),
-		"--cl-bg-alpha": v("background-alpha", "1"),
+	// ── 20 Canonical Axes ─────────────────────────────────
+	const cssVars: Record<string, string> = {
+		// SURFACE (6)
+		"--background-color": v("background-color", "transparent"),
+		"--box-shadow": v("box-shadow", "none"),
+		"--border-color": v("border-color", "transparent"),
+		"--gradient": v("gradient", "none"),
+		"--background-image": v("background-image", "none"),
+		"--background-alpha": v("background-alpha", "1"),
+
+		// FRAME (3)
+		"--border-width": v("border-width", "0"),
+		"--border-style": "solid",
+		"--border-radius": v("border-radius", "0"),
+
+		// TEXT (6)
+		"--color": v("color", "inherit"),
+		"--font-family": v("font-family", "inherit"),
+		"--font-size": v("font-size", "inherit"),
+		"--font-weight": v("font-weight", "inherit"),
+		"--tracking": v("letter-spacing", "0"),
+		"--leading": v("line-height", "inherit"),
+
+		// OVERLAY (1)
+		"--backdrop-filter": v("backdrop-filter", "none"),
+
+		// MOTION (4)
+		"--opacity": v("opacity", "1"),
+		"--animation": v("animation", "none"),
+		"--transition-duration": v("transition-duration", "150ms"),
+		"--transition-timing": v("transition-timing-function", "ease-out"),
 	};
 
-	// State overrides — read from shared preset state vars
+	// State overrides
 	if (state !== "default") {
 		const sv = (axis: string, fallback: string): string =>
 			`var(${shared}-${state}-${axis}, ${v(axis, fallback)})`;
 
-		cssVars["--cl-bg"] = sv("background-color", "transparent");
-		cssVars["--cl-shadow"] = sv("box-shadow", cssVars["--cl-shadow"]);
-		cssVars["--cl-color"] = sv("color", "inherit");
-		cssVars["--cl-fg"] = sv("color", "inherit");
-		cssVars["--cl-opacity"] = sv("opacity", "1");
-		cssVars["--cl-border-color"] = sv("border-color", v("border-color", "transparent"));
-		cssVars["--cl-border-width"] = sv("border-width", v("border-width", "0"));
-		cssVars["--cl-animation"] = sv("animation", v("animation", "none"));
-		cssVars["--cl-gradient"] = sv("gradient", v("gradient", "none"));
+		cssVars["--background-color"] = sv("background-color", "transparent");
+		cssVars["--box-shadow"] = sv("box-shadow", cssVars["--box-shadow"]);
+		cssVars["--color"] = sv("color", "inherit");
+		cssVars["--opacity"] = sv("opacity", "1");
+		cssVars["--border-color"] = sv("border-color", v("border-color", "transparent"));
+		cssVars["--border-width"] = sv("border-width", v("border-width", "0"));
+		cssVars["--animation"] = sv("animation", v("animation", "none"));
+		cssVars["--gradient"] = sv("gradient", v("gradient", "none"));
 	}
 
-	// Derive families from KIND_FAMILIES (build-time) or fall back to defaults
 	const families: CssFamily[] = KIND_FAMILIES[kind] ?? DEFAULT_FAMILIES;
 
-	// Build data attributes — data-kind + data-cl-{family} markers
 	const dataAttrs = { "data-kind": kind } as MacroDataAttrs;
 	families.forEach((fam) => {
 		(dataAttrs as unknown as Record<string, string>)[`data-cl-${fam}`] = "";

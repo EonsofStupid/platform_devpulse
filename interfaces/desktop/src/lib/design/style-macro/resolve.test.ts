@@ -61,30 +61,30 @@ describe("resolveMacro — CSS var chains", () => {
 		expect(m.dataAttrs["data-kind"]).toBe("card");
 	});
 
-	test("cssVars contains --cl-bg", () => {
+	test("cssVars contains -bg", () => {
 		const m = resolveMacro({ kind: "button", preset: "primary" });
-		expect(m.cssVars["--cl-bg"]).toBeDefined();
-		expect(m.cssVars["--cl-bg"]).toContain("var(");
+		expect(m.cssVars["-bg"]).toBeDefined();
+		expect(m.cssVars["-bg"]).toContain("var(");
 	});
 
-	test("cssVars contains --cl-shadow", () => {
+	test("cssVars contains --box-shadow", () => {
 		const m = resolveMacro({ kind: "card", preset: "glass" });
-		expect(m.cssVars["--cl-shadow"]).toBeDefined();
+		expect(m.cssVars["--box-shadow"]).toBeDefined();
 	});
 
-	test("cssVars contains --cl-color", () => {
+	test("cssVars contains --color", () => {
 		const m = resolveMacro({ kind: "text", preset: "default" });
-		expect(m.cssVars["--cl-color"]).toBeDefined();
+		expect(m.cssVars["--color"]).toBeDefined();
 	});
 
-	test("cssVars contains --cl-radius", () => {
+	test("cssVars contains --border-radius", () => {
 		const m = resolveMacro({ kind: "card", preset: "default" });
-		expect(m.cssVars["--cl-radius"]).toBeDefined();
+		expect(m.cssVars["--border-radius"]).toBeDefined();
 	});
 
 	test("cssVars uses two-tier var() chain (per-kind → shared → fallback)", () => {
 		const m = resolveMacro({ kind: "button", preset: "primary" });
-		const bg = m.cssVars["--cl-bg"];
+		const bg = m.cssVars["-bg"];
 		// Should contain var(--style-button-glass-deep-..., var(--preset-glass-deep-..., ...))
 		expect(bg).toContain("--style-button-glass-deep");
 		expect(bg).toContain("--preset-glass-deep");
@@ -92,13 +92,13 @@ describe("resolveMacro — CSS var chains", () => {
 
 	test("'default' preset resolves through neuro-elevated tokens", () => {
 		const m = resolveMacro({ kind: "card", preset: "default" });
-		const bg = m.cssVars["--cl-bg"];
+		const bg = m.cssVars["-bg"];
 		expect(bg).toContain("--preset-neuro-elevated");
 	});
 
 	test("'glass' preset resolves through glass-deep tokens", () => {
 		const m = resolveMacro({ kind: "card", preset: "glass" });
-		const bg = m.cssVars["--cl-bg"];
+		const bg = m.cssVars["-bg"];
 		expect(bg).toContain("--preset-glass-deep");
 	});
 });
@@ -110,19 +110,19 @@ describe("resolveMacro — CSS var chains", () => {
 describe("resolveMacro — state overrides", () => {
 	test("state='disabled' applies state-specific vars", () => {
 		const m = resolveMacro({ kind: "button", preset: "primary", state: "disabled" });
-		const bg = m.cssVars["--cl-bg"];
+		const bg = m.cssVars["-bg"];
 		expect(bg).toContain("disabled");
 	});
 
 	test("state='active' applies active-specific vars", () => {
 		const m = resolveMacro({ kind: "button", preset: "primary", state: "active" });
-		const bg = m.cssVars["--cl-bg"];
+		const bg = m.cssVars["-bg"];
 		expect(bg).toContain("active");
 	});
 
 	test("state='default' does NOT apply state overrides", () => {
 		const m = resolveMacro({ kind: "button", preset: "primary", state: "default" });
-		const bg = m.cssVars["--cl-bg"];
+		const bg = m.cssVars["-bg"];
 		expect(bg).not.toContain("default-background");
 	});
 });

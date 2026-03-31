@@ -58,7 +58,7 @@ const statusDot = $derived.by(() => {
 	<Text size="xs" weight="semibold" color="primary">{name}</Text>
 
 	<div class={hstack({ gap: "1", align: "center" })}>
-		<span class="text-xs" style="color: var(--cl-color);">{statusDot}</span>
+		<span class="text-xs" style="color: var(--color);">{statusDot}</span>
 		<Text size="xs" color="muted">{status}</Text>
 	</div>
 
@@ -66,7 +66,7 @@ const statusDot = $derived.by(() => {
 	<Text size="xs" color="muted">{device}</Text>
 
 	{#if escalated}
-		<div class="mt-0.5 rounded px-1.5 py-0.5 text-xs font-medium" style="background: var(--cl-bg); color: var(--cl-color);">
+		<div class="mt-0.5 rounded px-1.5 py-0.5 text-xs font-medium" style="background: var(-bg); color: var(--color);">
 			→ Brain
 		</div>
 	{/if}

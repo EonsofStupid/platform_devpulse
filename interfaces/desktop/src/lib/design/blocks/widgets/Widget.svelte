@@ -66,7 +66,7 @@ const resolvedIntent = $derived(
 			<div class="flex items-center gap-2">
 				{#if icon}
 					{@const Icon = icon}
-					<Icon size={16} class="text-[var(--cl-color,var(--color-teal-400))]" />
+					<Icon size={16} class="text-[var(--color,var(--color-teal-400))]" />
 				{/if}
 				{#if title}
 					<Heading level={3} size="sm" class="font-semibold">{title}</Heading>

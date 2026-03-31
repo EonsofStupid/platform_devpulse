@@ -61,9 +61,9 @@ const displayValue = $derived(Math.round(value));
 			{cy}
 			r={radius}
 			fill="none"
-			stroke="var(--cl-svg-track-stroke)"
+			stroke="var(--svg-track-stroke)"
 			stroke-width={strokeWidth}
-			opacity="var(--cl-svg-track-opacity)"
+			opacity="var(--svg-track-opacity)"
 			data-svg-slot="track"
 		/>
 
@@ -73,13 +73,13 @@ const displayValue = $derived(Math.round(value));
 			{cy}
 			r={radius}
 			fill="none"
-			stroke="var(--cl-svg-stroke)"
+			stroke="var(--svg-stroke)"
 			stroke-width={strokeWidth}
 			stroke-linecap="round"
 			stroke-dasharray={circumference}
 			stroke-dashoffset={dashOffset}
 			transform="rotate(-90 {cx} {cy})"
-			style="filter: drop-shadow(0 0 var(--cl-svg-glow-blur) var(--cl-svg-glow-color)); transition: stroke-dashoffset var(--cl-svg-transition);"
+			style="filter: drop-shadow(0 0 var(--svg-glow-blur) var(--svg-glow-color)); transition: stroke-dashoffset var(--svg-transition);"
 			data-svg-slot="value"
 		/>
 
@@ -89,9 +89,9 @@ const displayValue = $derived(Math.round(value));
 			{cy}
 			r={radius + strokeWidth / 2 + 2}
 			fill="none"
-			stroke="var(--cl-svg-glow-color)"
+			stroke="var(--svg-glow-color)"
 			stroke-width="1"
-			opacity="var(--cl-svg-glow-opacity, 0.3)"
+			opacity="var(--svg-glow-opacity, 0.3)"
 			data-svg-slot="glow-ring"
 		/>
 
@@ -104,7 +104,7 @@ const displayValue = $derived(Math.round(value));
 			{@const y2 = cy + (radius + strokeWidth / 2 + 1) * Math.sin(angle)}
 			<line
 				{x1} {y1} {x2} {y2}
-				stroke="var(--cl-svg-track-stroke)"
+				stroke="var(--svg-track-stroke)"
 				stroke-width="1"
 				data-svg-slot="tick"
 			/>
@@ -115,7 +115,7 @@ const displayValue = $derived(Math.round(value));
 	<div class="absolute inset-0 flex flex-col items-center justify-center">
 		<span
 			class="text-2xl font-bold tabular-nums"
-			style="font-family: var(--cl-svg-font-family); color: var(--cl-svg-text-color); text-shadow: 0 0 var(--cl-svg-text-glow-blur) var(--cl-svg-text-glow-color);"
+			style="font-family: var(--svg-font-family); color: var(--svg-text-color); text-shadow: 0 0 var(--svg-text-glow-blur) var(--svg-text-glow-color);"
 		>
 			{displayValue}{unit}
 		</span>

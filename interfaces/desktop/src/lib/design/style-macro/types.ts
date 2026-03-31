@@ -42,8 +42,8 @@ export interface ResolvedMacro {
 	kind: string;
 	/** Data attributes: data-kind + data-cl-{family} markers */
 	dataAttrs: MacroDataAttrs;
-	/** CSS custom property map — serialized via cssVarString() */
-	cssVars: Record<`--cl-${string}`, string>;
+	/** CSS custom property map — serialized via cssVarString(). Canonical names only. */
+	cssVars: Record<string, string>;
 }
 
 // ═══════════════════════════════════════════════════════════════

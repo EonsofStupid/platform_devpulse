@@ -14,7 +14,7 @@
 /**
  * Serialize a CSS custom property record to an inline style string.
  *
- * @param vars - Record of --cl-* keys to CSS values
+ * @param vars - Record of CSS var keys to CSS values
  * @returns Semicolon-separated CSS declarations
  */
 export function cssVarString(vars: Record<string, string>): string {

@@ -51,14 +51,14 @@ describe("chat-footer — structural attributes", () => {
 });
 
 // ═══════════════════════════════════════════════════════════════
-// STYLE MACRO — --cl-* CSS vars applied
+// STYLE MACRO — canonical CSS vars applied
 // ═══════════════════════════════════════════════════════════════
 
 describe("chat-footer — style macro integration", () => {
-	test("has style attribute with --cl-bg", async () => {
+	test("has style attribute with -bg", async () => {
 		const { getByRole } = render(ChatFooter);
 		const footer = getByRole("form");
 		const style = footer.element().getAttribute("style") ?? "";
-		expect(style).toContain("--cl-bg");
+		expect(style).toContain("-bg");
 	});
 });

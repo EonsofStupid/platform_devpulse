@@ -44,8 +44,8 @@
 
 ```css
 /* Dark backgrounds - NOT BLACK */
---bg-void: rgba(15, 23, 42, 0.97);     /* Dark blue-slate */
---bg-deep: rgba(30, 41, 59, 0.95);     /* Lighter slate */
+--background-color-void: rgba(15, 23, 42, 0.97);     /* Dark blue-slate */
+--background-color-deep: rgba(30, 41, 59, 0.95);     /* Lighter slate */
 
 /* HSL approach from pulseos-tokens */
 --color-bg-base: 222 84% 5%;           /* ~#0a0a14 deep void */

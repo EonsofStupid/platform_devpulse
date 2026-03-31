@@ -116,7 +116,7 @@ Result: `--style-button-default-animation` etc. resolve to empty → `--cl-anima
 - ALL glass effects (backdrop-blur not painting because --cl-blur is empty)
 - ALL glow effects (--glow-teal clobbered by aliases.css)
 - ALL bevel effects (--bevel-* not composed into shorthand)
-- ALL surface tinting (--cl-bg is empty because preset lookup fails)
+- ALL surface tinting (-bg is empty because preset lookup fails)
 - ALL border treatments (--cl-border is empty)
 - Tab active state styling
 - Circuit grid background IS working (app.css uses direct var refs, not StyleMacro)

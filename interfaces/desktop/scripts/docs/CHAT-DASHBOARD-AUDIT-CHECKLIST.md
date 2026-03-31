@@ -18,21 +18,21 @@ The resolver (`resolve.ts` line 80) outputs:
 But `macro-base.css` consumes it as:
 ```css
 [data-cl-surface] { border-color: var(--cl-border, transparent); }  ← expects color only
-[data-cl-frame]   { border-width: var(--cl-border-width, 0); }      ← never set by resolver
+[data-cl-frame]   { border-width: var(--border-width, 0); }      ← never set by resolver
 ```
 
-Result: `border-color` gets an INVALID value (shorthand in a color property) → browser discards it → **no borders anywhere**. And `--cl-border-width` is never set → falls back to `0` → **zero-width borders**.
+Result: `border-color` gets an INVALID value (shorthand in a color property) → browser discards it → **no borders anywhere**. And `--border-width` is never set → falls back to `0` → **zero-width borders**.
 
 **FIX OPTIONS (pick one):**
-1. Split `--cl-border` in resolver into `--cl-border-color`, `--cl-border-width`, `--cl-border-style` and update macro-base.css to consume them
+1. Split `--cl-border` in resolver into `--border-color`, `--border-width`, `--border-style` and update macro-base.css to consume them
 2. Keep `--cl-border` composite but use it as `border: var(--cl-border)` shorthand in macro-base.css (single property)
 
 **Option 1 is correct** — aligns with how CSS properties work. Three separate vars, three separate CSS properties.
 
 Additional resolver issues to audit:
 - [ ] `--cl-backdrop`: resolver wraps in `blur()` but token value might already include `blur()` → double wrapping?
-- [ ] `--cl-bg` on `[data-cl-surface]`: sets `background-color` — verify var() chain resolves to real oklch value
-- [ ] `--cl-shadow` on `[data-cl-surface]`: sets `box-shadow` — verify shadow token has valid CSS value
+- [ ] `-bg` on `[data-cl-surface]`: sets `background-color` — verify var() chain resolves to real oklch value
+- [ ] `--box-shadow` on `[data-cl-surface]`: sets `box-shadow` — verify shadow token has valid CSS value
 - [ ] `--cl-color` vs `--cl-fg`: both set to same value, but `[data-cl-text]` reads `--cl-fg` falling back to `--cl-color` — redundant but not broken
 
 ### A1. Chat Frame Sizing — BROKEN

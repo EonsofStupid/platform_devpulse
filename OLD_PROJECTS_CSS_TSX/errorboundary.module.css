@@ -5,7 +5,7 @@
   align-items: center;
   min-height: 100vh;
   width: 100%;
-  background: var(--bg-body-default);
+  background: var(--background-color-body-default);
   font-family: var(--font-sans);
   color: var(--text-color-primary);
 }
@@ -15,7 +15,7 @@
   padding: var(--spacing-6);
   border-radius: var(--border-radius-xl);
   border: var(--border-default);
-  background-color: var(--bg-card-default);
+  background-color: var(--background-color-card-default);
   box-shadow: var(--shadow-xl);
   max-width: 500px;
 }
@@ -54,7 +54,7 @@
   align-items: center;
   min-height: 100vh;
   width: 100%;
-  background: var(--bg-body-default);
+  background: var(--background-color-body-default);
   font-family: var(--font-sans);
   color: var(--text-color-primary);
 }
@@ -64,7 +64,7 @@
   padding: var(--spacing-6);
   border-radius: var(--border-radius-xl);
   border: var(--border-default);
-  background-color: var(--bg-card-default);
+  background-color: var(--background-color-card-default);
   box-shadow: var(--shadow-xl);
   max-width: 500px;
 }

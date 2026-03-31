@@ -35,9 +35,9 @@ impl RroAdapter {
     /// # Errors
     /// Returns error if the engine fails to initialize (storage path
     /// issues, corrupt data, or config parsing failure).
-    pub fn boot(config_path: Option<String>) -> Result<Self> {
+    pub fn boot(storage_path: &std::path::Path, config_path: Option<String>) -> Result<Self> {
         rro::setup_panic_hook();
-        let client = rro::QdrantInstance::start(config_path)
+        let client = rro::QdrantInstance::start(storage_path, config_path)
             .context("Failed to start RRO vector engine")?;
         Ok(Self { client })
     }
@@ -136,7 +136,7 @@ impl RroAdapter {
     /// Returns error if the engine fails to initialize.
     pub async fn open(path: &Path) -> Result<Self> {
         let config_path = path.to_string_lossy().to_string();
-        Self::boot(Some(config_path))
+        Self::boot(path, Some(config_path))
     }
 }
 

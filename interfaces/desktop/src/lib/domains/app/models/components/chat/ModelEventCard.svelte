@@ -78,7 +78,7 @@ const mNarration = $derived(resolveMacro({ kind: "model-event-narration", preset
 
 	{#if status.type === "loading"}
 		<div class="h-1.5 w-full overflow-hidden rounded-full opacity-30">
-			<div class="h-full rounded-full transition-all duration-500" style="width: {status.progressPct}%; background: var(--cl-color);"></div>
+			<div class="h-full rounded-full transition-all duration-500" style="width: {status.progressPct}%; background: var(--color);"></div>
 		</div>
 	{/if}
 
@@ -95,7 +95,7 @@ const mNarration = $derived(resolveMacro({ kind: "model-event-narration", preset
 		style={cssVarString(mNarration.cssVars)}
 		class="flex items-start gap-1.5 border-t pt-1"
 	>
-		<span class="shrink-0 text-xs" style="color: var(--cl-color);">💬</span>
+		<span class="shrink-0 text-xs" style="color: var(--color);">💬</span>
 		<Text size="xs" color="secondary" as="p" style="font-style: italic;">
 			{clyffyMessage}
 		</Text>

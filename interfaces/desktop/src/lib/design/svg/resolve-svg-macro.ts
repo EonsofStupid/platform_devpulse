@@ -54,7 +54,7 @@ export function resolveSvgPreset(kind: string, intent: string): string {
 
 /**
  * Resolve accent color vars (3 vars).
- * Sets --cl-svg-accent-main, --cl-svg-accent-glow, --cl-svg-accent-fill.
+ * Sets --svg-accent-main, --svg-accent-glow, --svg-accent-fill.
  * Cheap to re-derive — only 3 string lookups.
  *
  * @param accent - Accent hue name

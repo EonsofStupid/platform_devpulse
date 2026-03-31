@@ -92,8 +92,8 @@ const areaPath = $derived.by(() => {
 	{#if area && areaPath}
 		<path
 			d={areaPath}
-			fill="var(--cl-svg-fill)"
-			fill-opacity="var(--cl-svg-fill-opacity)"
+			fill="var(--svg-fill)"
+			fill-opacity="var(--svg-fill-opacity)"
 			data-svg-slot="area"
 		/>
 	{/if}
@@ -103,7 +103,7 @@ const areaPath = $derived.by(() => {
 		<polyline
 			{points}
 			fill="none"
-			stroke="var(--cl-svg-glow-color)"
+			stroke="var(--svg-glow-color)"
 			stroke-width={lineWidth + 4}
 			stroke-linejoin="round"
 			stroke-linecap="round"
@@ -117,7 +117,7 @@ const areaPath = $derived.by(() => {
 		<polyline
 			{points}
 			fill="none"
-			stroke="var(--cl-svg-stroke)"
+			stroke="var(--svg-stroke)"
 			stroke-width={lineWidth}
 			stroke-linejoin="round"
 			stroke-linecap="round"
@@ -136,8 +136,8 @@ const areaPath = $derived.by(() => {
 			cx={lastX}
 			cy={lastY}
 			r="3"
-			fill="var(--cl-svg-stroke)"
-			style="filter: drop-shadow(0 0 var(--cl-svg-glow-blur) var(--cl-svg-glow-color));"
+			fill="var(--svg-stroke)"
+			style="filter: drop-shadow(0 0 var(--svg-glow-blur) var(--svg-glow-color));"
 			data-svg-slot="dot"
 		/>
 	{/if}

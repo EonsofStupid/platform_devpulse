@@ -8,8 +8,8 @@
 :host {
   /* CSS Variables */
   --fg: #f5f5f7;
-  --bg-dark: #0a0a0f;
-  --bg-lighter: #141420;
+  --background-color-dark: #0a0a0f;
+  --background-color-lighter: #141420;
   --glass: hsla(217, 91%, 25%, 0.7);
   --glass-border: rgba(255, 255, 255, 0.1);
   --neon-blue: #38d7ff;
@@ -121,7 +121,7 @@
   bottom: 0;
   width: 480px;
   max-width: 90vw;
-  background: var(--bg-dark);
+  background: var(--background-color-dark);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-left: 1px solid var(--glass-border);
@@ -227,7 +227,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: var(--bg-dark);
+  background: var(--background-color-dark);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
@@ -268,7 +268,7 @@
   justify-content: center;
   padding: var(--space-3) var(--space-6);
   background: var(--neon-blue);
-  color: var(--bg-dark);
+  color: var(--background-color-dark);
   font-weight: 600;
   border-radius: var(--radius-md);
   transition: all 0.2s ease;
@@ -292,14 +292,14 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-lighter);
+  background: var(--background-color-lighter);
   border-radius: var(--radius-sm);
 }
 
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(45deg, var(--neon-blue), var(--neon-pink));
   border-radius: var(--radius-sm);
-  border: 2px solid var(--bg-lighter);
+  border: 2px solid var(--background-color-lighter);
 }
 
 ::-webkit-scrollbar-thumb:hover {
