@@ -1,5 +1,5 @@
 # ColdLight Enterprise Macro Law
-## Final Architectural Specification — March 2026
+## Final Architectural Specification — March 2026 (Updated: Canonical Axis Rename)
 
 This document defines the immutable rules governing how every ColdLight component
 is styled, resolved, and composed. No exceptions. No "v2 migrations." No hedging.
@@ -11,6 +11,38 @@ These rules exist so that:
 - Contributors have zero ambiguity about how styling works
 - The system is inspectable, teachable, and predictable at 145+ components
 - Layman users can learn the system by inspecting the DOM
+
+---
+
+## The 20 Canonical Axes
+
+ColdLight resolves 20 CSS custom properties per component. No prefix.
+Full CSS property names or design-industry terms. See `var-to-family.ts` AXIS_REGISTRY.
+
+| # | CSS Var | Design Term | CSS Output | Family |
+|---|---------|-------------|-----------|--------|
+| 1 | `--background-color` | Fill | `background-color` | surface |
+| 2 | `--box-shadow` | Elevation | `box-shadow` | surface |
+| 3 | `--border-color` | Stroke Color | `border-color` | surface |
+| 4 | `--gradient` | Gradient Fill | `background-image` | surface |
+| 5 | `--background-image` | Surface Image | `background-image` | surface |
+| 6 | `--background-alpha` | Fill Opacity | alpha channel | surface |
+| 7 | `--border-width` | Stroke Width | `border-width` | frame |
+| 8 | `--border-style` | Stroke Style | `border-style` | frame |
+| 9 | `--border-radius` | Corner Radius | `border-radius` | frame |
+| 10 | `--color` | Foreground | `color` | text |
+| 11 | `--font-family` | Typeface | `font-family` | text |
+| 12 | `--font-size` | Size | `font-size` | text |
+| 13 | `--font-weight` | Weight | `font-weight` | text |
+| 14 | `--tracking` | Tracking | `letter-spacing` | text |
+| 15 | `--leading` | Leading | `line-height` | text |
+| 16 | `--backdrop-filter` | Glass Blur | `backdrop-filter` | overlay |
+| 17 | `--opacity` | Opacity | `opacity` | motion |
+| 18 | `--animation` | Animation | `animation` | motion |
+| 19 | `--transition-duration` | Duration | `transition-duration` | motion |
+| 20 | `--transition-timing` | Easing | `transition-timing-function` | motion |
+
+**Layout (positioning, sizing, spacing, grid) is owned by Tailwind — not axes.**
 
 ---
 
@@ -26,7 +58,7 @@ Every component calls `resolveMacro()`. There is no second path.
 // ── Input: what the component provides ──────────────────
 interface MacroInput {
   kind: string;           // scoped kind string (see Law 3)
-  preset?: string;        // defaults to 'default'
+  preset?: string;        // defaults to 'primary'
   state?: MacroState;     // runtime state only
 }
 
@@ -39,10 +71,18 @@ interface ResolvedMacro {
     'data-kind': string;
     [key: `data-cl-${string}`]: '';  // family markers
   };
-  cssVars: Record<`--cl-${string}`, string>;
+  cssVars: Record<string, string>;   // canonical axis names
 }
 
 function resolveMacro(input: MacroInput): ResolvedMacro;
+```
+
+### Resolution Chain
+
+```
+var(--style-{kind}-{preset}-{axis},    ← per-kind VPB override
+    var(--preset-{preset}-{axis},      ← shared preset default
+        {fallback}))                    ← absolute fallback
 ```
 
 ### Why No Axis Props on Components
@@ -62,41 +102,11 @@ The component selects a preset by name. The preset IS the pre-composed recipe.
 <Button>Save</Button>
 ```
 
-The axes don't disappear — they're how you AUTHOR presets in the token layer.
-They move from runtime component concerns to build-time authoring concerns.
-
-### Preset Naming Convention
-
-Composition order: `density-intent-tone` (most significant first)
-
-```
-compact                 → compact sizing, default intent, default tone
-compact-teal            → compact sizing, teal intent, default tone
-compact-teal-glass      → compact sizing, teal intent, glass tone
-teal                    → default sizing, teal intent, default tone
-glass                   → default sizing, default intent, glass tone
-```
-
-Single axis values work as presets — the resolver applies them as partial
-overrides on the kind's default preset.
-
-### Why No Attachment / Action as Public API
-
-Once AI sees two valid patterns, it will use both. Over 145 components:
-~70 use the attachment, ~60 use the function, ~15 use some hybrid.
-That's not theoretical — it's inevitable.
-
-If an internal attachment helper is later created for reducing boilerplate,
-it is INTERNAL ONLY — never documented, never in examples, never in templates
-that AI trains on.
-
 ### Canonical Component Pattern
-
-Every ColdLight component follows this exact structure:
 
 ```svelte
 <script lang="ts">
-  import { resolveMacro, cssVarString } from '$lib/style-macro';
+  import { resolveMacro, cssVarString } from '$lib/design/style-macro';
 
   interface Props {
     preset?: string;
@@ -104,7 +114,7 @@ Every ColdLight component follows this exact structure:
     children: import('svelte').Snippet;
   }
 
-  let { preset = 'default', disabled = false, children }: Props = $props();
+  let { preset = 'primary', disabled = false, children }: Props = $props();
   const state = $derived(disabled ? 'disabled' : 'default');
   const m = $derived(resolveMacro({ kind: 'button', preset, state }));
 </script>
@@ -117,11 +127,6 @@ Every ColdLight component follows this exact structure:
 ### The Format Helper
 
 ```typescript
-/**
- * Serialize a CSS variable map to an inline style string.
- * This is the ONLY bridge between resolver output and the DOM.
- * Pure format function. Not a component. Not an attachment.
- */
 export function cssVarString(vars: Record<string, string>): string {
   let s = '';
   for (const k in vars) {
@@ -136,20 +141,13 @@ export function cssVarString(vars: Record<string, string>): string {
 
 ```svelte
 <!-- FORBIDDEN: style prop passthrough -->
-<script>
-  let { style, ...rest } = $props(); // NO
-</script>
-<button style="{cssVarString(m.cssVars)}; {style}">  <!-- NO -->
+<Button preset="teal" style="--background-color: red;">
 
-<!-- FORBIDDEN: arbitrary CSS variable injection -->
-<Button preset="teal" style="-bg: red;">  <!-- NO -->
-
-<!-- FORBIDDEN: className override -->
-<Button preset="teal" class="my-custom-bg">  <!-- NO -->
+<!-- FORBIDDEN: className override for visual concerns -->
+<Button preset="teal" class="my-custom-bg">
 ```
 
 The component's style attribute contains ONLY what the resolver returned.
-Nothing else gets in. The system is closed to runtime visual injection.
 
 ---
 
@@ -160,56 +158,36 @@ Nothing else gets in. The system is closed to runtime visual injection.
 The styled element IS the semantic root. No exceptions.
 
 ```
-✓ <button data-kind="button" style="-bg:...">
-✓ <a data-kind="link" style="--cl-fg:...">
-✓ <dialog data-kind="dialog" style="-bg:...">
-✓ <nav data-kind="nav-rail" style="-bg:...">
-✓ <input data-kind="input" style="--cl-border:...">
+✓ <button data-kind="button" style="--background-color:...">
+✓ <a data-kind="link" style="--color:...">
+✓ <dialog data-kind="dialog" style="--background-color:...">
+✓ <nav data-kind="nav-rail" style="--background-color:...">
+✓ <input data-kind="input" style="--border-color:...">
 
 ✗ <div class="button-wrapper"><button>...</button></div>
 ✗ <div class="dialog-chrome"><dialog>...</dialog></div>
-✗ <div data-kind="card"><article>...</article></div>
 ```
 
 ### Consequences
 
 - `data-kind` goes on the semantic root
 - `data-cl-*` family markers go on the semantic root
-- CSS custom properties go on the semantic root
+- CSS custom properties go on the semantic root via `style={cssVarString(m.cssVars)}`
 - State selectors (`:hover`, `:focus-visible`, `:disabled`) target the semantic root
 - Layout parent sees the semantic root directly
 
 ### Complex Shells
 
-If a component needs layered chrome, the layers are CHILD elements inside
-the semantic root, not a wrapper around it:
+Layers are CHILD elements inside the semantic root, not a wrapper around it:
 
 ```svelte
-<!-- CORRECT: dialog is the root, chrome is a child -->
 <dialog {...m.dataAttrs} style={cssVarString(m.cssVars)}>
   <div class="dialog-frame">
-    <header class="dialog-header">
-      {@render header?.()}
-    </header>
-    <div class="dialog-body">
-      {@render children()}
-    </div>
+    <header class="dialog-header">{@render header?.()}</header>
+    <div class="dialog-body">{@render children()}</div>
   </div>
 </dialog>
 ```
-
-### Browser Pseudo-Elements
-
-`<dialog>::backdrop`, `<details>::marker`, etc. are handled via CSS selectors
-in the glue layer, not wrapper elements:
-
-```css
-[data-kind="dialog"]::backdrop {
-  background: var(--cl-backdrop-bg, oklch(0 0 0 / 0.5));
-}
-```
-
-These don't violate Law 2 — they're pseudo-elements, not authored DOM nodes.
 
 ---
 
@@ -221,26 +199,8 @@ A component gets one root, one `resolveMacro()` call, one visual contract.
 
 ### Scoped Kind Strings
 
-At 145+ components, flat names collide. Kinds use scoped naming:
-
-- Top-level components: simple name (`button`, `badge`, `separator`)
-- Sub-components: parent/element (`card/header`, `card/body`, `card/footer`)
-
-```typescript
-// Top-level kinds
-type PrimitiveKind =
-  | 'button' | 'badge' | 'link' | 'input' | 'toggle'
-  | 'card' | 'panel' | 'dialog' | 'drawer' | 'popover'
-  | 'nav-rail' | 'toolbar' | 'tab-bar'
-  | 'separator' | 'skeleton' | 'spinner';
-
-// Sub-element kinds (slash separator — unambiguous)
-type SubElementKind = `${string}/${string}`;
-
-type KindString = PrimitiveKind | SubElementKind;
-```
-
-Example in the DOM:
+- Top-level: `button`, `badge`, `separator`
+- Sub-components: `card/header`, `card/body`, `card/footer`
 
 ```html
 <article data-kind="card" data-cl-surface data-cl-frame>
@@ -254,38 +214,14 @@ Example in the DOM:
 
 Each sub-element is independently resolved:
 
-```
-Card          → resolveMacro({ kind: 'card' })
-CardHeader    → resolveMacro({ kind: 'card/header' })
-CardBody      → resolveMacro({ kind: 'card/body' })
-CardFooter    → resolveMacro({ kind: 'card/footer' })
-```
-
-The Card composes them with explicit prop forwarding:
-
 ```svelte
-<script lang="ts">
-  import { resolveMacro, cssVarString } from '$lib/style-macro';
-  import CardHeader from './CardHeader.svelte';
-  import CardBody from './CardBody.svelte';
-
-  let { preset = 'default', header, children }: Props = $props();
-  const m = $derived(resolveMacro({ kind: 'card', preset }));
-</script>
-
 <article {...m.dataAttrs} style={cssVarString(m.cssVars)}>
   {#if header}
-    <CardHeader {preset}>
-      {@render header()}
-    </CardHeader>
+    <CardHeader {preset}>{@render header()}</CardHeader>
   {/if}
-  <CardBody {preset}>
-    {@render children()}
-  </CardBody>
+  <CardBody {preset}>{@render children()}</CardBody>
 </article>
 ```
-
-The resolver NEVER knows internal DOM structure. It resolves one preset at a time.
 
 ---
 
@@ -293,68 +229,20 @@ The resolver NEVER knows internal DOM structure. It resolves one preset at a tim
 
 ### Rule
 
-A parent component NEVER implicitly influences a child's visual resolution.
-Every component resolves itself from its own explicit props.
-
-### What This Forbids
-
-```typescript
-// FORBIDDEN: parent sets visual context children silently read
-setContext('visual-env', { surface: 'glass', density: 'compact' });
-
-// FORBIDDEN: child reads ancestor context for styling
-const env = getContext('visual-env');
-const m = resolveMacro({ kind: 'badge', ...env });
-```
-
-### The Density Pattern — Snippet Parameter Forwarding
-
-Density (and preset generally) flows through snippet parameters, not context:
+A parent NEVER implicitly influences a child's visual resolution.
+Preset flows through snippet parameters, not context:
 
 ```svelte
-<!-- Toolbar.svelte -->
-<script lang="ts">
-  import { resolveMacro, cssVarString } from '$lib/style-macro';
-
-  interface Props {
-    preset?: string;
-    children: import('svelte').Snippet<[{ preset: string }]>;
-  }
-
-  let { preset = 'default', children }: Props = $props();
-  const m = $derived(resolveMacro({ kind: 'toolbar', preset }));
-</script>
-
-<div {...m.dataAttrs} style={cssVarString(m.cssVars)} role="toolbar">
-  {@render children({ preset })}
-</div>
-```
-
-```svelte
-<!-- Usage: preset flows through snippet params — explicit, visible -->
 <Toolbar preset="compact">
   {#snippet children({ preset })}
     <Button {preset}>Cut</Button>
     <Button {preset}>Copy</Button>
-    <Button {preset}>Paste</Button>
     <Separator {preset} />
   {/snippet}
 </Toolbar>
 ```
 
-This is explicit. The preset value is visible in the template. It's not hidden
-in context. It's not cascading through CSS. Each child's appearance is fully
-determined by its own props.
-
-### Context Is Fine For Behavior
-
-Context can carry behavioral concerns:
-
-- Form validation state
-- Disclosure / accordion open state
-- Navigation active route
-- Keyboard navigation scope
-
+Context IS fine for behavioral concerns (form state, navigation, keyboard scope).
 Context must NOT carry visual styling dependencies.
 
 ---
@@ -363,53 +251,56 @@ Context must NOT carry visual styling dependencies.
 
 ### Rule
 
-CSS property binding is split by visual family. Every component receives
-only the families its preset actually uses. Families are derived at
-build time — never hand-authored per component.
+CSS property binding is split by visual family. Components receive
+only the families their preset uses. Families derived at build time.
 
-### The Families
+### The Families (must match macro-base.css and resolve.ts EXACTLY)
 
 ```css
 /* ── Universal: every [data-kind] element ──────────────── */
 [data-kind] {
   box-sizing: border-box;
-  transition-duration: var(--cl-transition-duration, 150ms);
-  transition-timing-function: var(--cl-transition-easing, ease-out);
+  transition-duration: var(--transition-duration, 150ms);
+  transition-timing-function: var(--transition-timing, ease-out);
+  transition-property: background-color, border-color, box-shadow, color, opacity, filter;
+  opacity: var(--opacity, 1);
+  animation: var(--animation, none);
 }
 
 /* ── Surface: background, borders, shadows ─────────────── */
 [data-cl-surface] {
-  background: var(-bg);
-  border-color: var(--cl-border);
-  box-shadow: var(--box-shadow);
+  background-color: var(--background-color, transparent);
+  border-color: var(--border-color, transparent);
+  box-shadow: var(--box-shadow, none);
+  background-image: var(--gradient, none);
 }
 
 /* ── Text: typography properties ───────────────────────── */
 [data-cl-text] {
-  color: var(--cl-fg);
-  font-family: var(--font-family);
-  font-size: var(--font-size);
-  letter-spacing: var(--cl-tracking);
-  line-height: var(--cl-leading);
+  color: var(--color, inherit);
+  font-family: var(--font-family, inherit);
+  font-size: var(--font-size, inherit);
+  font-weight: var(--font-weight, inherit);
+  letter-spacing: var(--tracking, 0);
+  line-height: var(--leading, inherit);
 }
 
 /* ── Frame: dimensional properties ─────────────────────── */
 [data-cl-frame] {
-  border-radius: var(--border-radius);
-  border-width: var(--border-width);
+  border-radius: var(--border-radius, 0);
+  border-width: var(--border-width, 0);
   border-style: var(--border-style, solid);
-  padding: var(--cl-padding-y) var(--cl-padding-x);
 }
 
 /* ── Interactive: behavioral visual properties ─────────── */
 [data-cl-interactive] {
   cursor: pointer;
-  outline-offset: var(--cl-focus-offset, 2px);
+  outline-offset: var(--focus-offset, 2px);
   -webkit-tap-highlight-color: transparent;
 }
 [data-cl-interactive]:focus-visible {
-  outline: 2px solid var(--cl-focus-ring, currentColor);
-  outline-offset: var(--cl-focus-offset, 2px);
+  outline: 2px solid var(--focus-ring, currentColor);
+  outline-offset: var(--focus-offset, 2px);
 }
 [data-cl-interactive]:disabled,
 [data-cl-interactive][aria-disabled="true"] {
@@ -417,24 +308,42 @@ build time — never hand-authored per component.
   pointer-events: none;
 }
 [data-cl-interactive]:hover {
-  filter: var(--cl-hover-filter, brightness(1.1));
+  filter: var(--hover-filter, brightness(1.1));
 }
 [data-cl-interactive]:active {
-  filter: var(--cl-active-filter, brightness(0.9));
+  filter: var(--active-filter, brightness(0.9));
 }
 
 /* ── Layout: spacing and flow ──────────────────────────── */
 [data-cl-layout] {
-  gap: var(--cl-gap);
+  gap: var(--gap);
 }
 
 /* ── Overlay: layering and backdrop ────────────────────── */
 [data-cl-overlay] {
-  backdrop-filter: var(--cl-backdrop);
-  z-index: var(--cl-z);
+  backdrop-filter: var(--backdrop-filter, none);
+  z-index: var(--z, auto);
   isolation: isolate;
 }
 ```
+
+### What Tailwind Owns (NOT in the 20 axes)
+
+| Concern | Tailwind Class Examples |
+|---------|------------------------|
+| Display | `flex`, `grid`, `block`, `hidden` |
+| Direction | `flex-row`, `flex-col` |
+| Justify | `justify-center`, `justify-between` |
+| Align | `items-center`, `items-start` |
+| Gap | `gap-2`, `gap-4` |
+| Padding | `px-3`, `py-2`, `p-4` |
+| Margin | `mt-4`, `mb-2`, `mx-auto` |
+| Width/Height | `w-full`, `h-16`, `min-h-screen` |
+| Position | `relative`, `absolute`, `fixed`, `sticky` |
+| Grid | `grid-cols-12`, `col-span-8` |
+| Aspect Ratio | `aspect-video`, `aspect-square` |
+| Overflow | `overflow-hidden`, `overflow-y-auto` |
+| Z-index (layout) | `z-10`, `z-50` |
 
 ---
 
@@ -445,28 +354,22 @@ build time — never hand-authored per component.
 One `resolveIntent()` function. One `INTENT_MAP`. All renderers import it.
 
 Both HTML and SVG resolvers import from this single module.
-When the pipeline matures, `INTENT_MAP` becomes a generated artifact from
-Style Dictionary — the shape stays the same, the source changes.
 
 ---
 
 ## State Handling
 
-### Split Responsibility
-
 | Concern | Owner | Why |
 |---------|-------|-----|
-| Colors, shadows, glows, borders | Resolver (per-preset, per-state) | Design decisions that vary by intent |
+| Colors, shadows, borders | Resolver (per-preset, per-state) | Design decisions that vary by intent |
 | Cursor, pointer-events, outline | CSS (universal) | Behavioral, identical for all presets |
-| Hover brightness / filter | CSS (with optional var override) | CSS-only state, customizable via --cl-hover-filter |
-| Focus ring | CSS (with var for color) | Browser manages focus, CSS styles it |
-| Disabled appearance | Resolver (authored palette) | NOT opacity: 0.4 — real authored disabled colors |
+| Hover brightness | CSS (with `--hover-filter` var) | CSS-only state |
+| Focus ring | CSS (with `--focus-ring` var) | Browser manages focus |
+| Disabled appearance | Resolver (authored palette) | NOT `opacity: 0.4` — real authored disabled colors |
 
 ---
 
 ## Build Pipeline
-
-### Sequential DAG — One Command
 
 ```bash
 pnpm ds:tokens:build
