@@ -1,17 +1,13 @@
 <!--
   @file src/lib/layouts/app/TopBar.svelte
   @module @devpulse/layouts/app/TopBar
-  @layer lib
 
-  Top navigation bar. Parasite logo left, ColdLight icon buttons + avatar right.
-  All interactive elements use ColdLight components.
+  Top navigation bar. Reference: refernece-dashboard3.png / dashboard4.png
+  Layout: [hamburger + brand] — [center: PULSE FEED pill] — [right: search + notifications + chat + maestro + avatar]
+  Height: 4.125rem (set by Frame.svelte topbar slot)
 
-  @since 1.0.0
-
-	@defaults {
+  @defaults {
 		"background-color": "oklch(0.0901 0.017 224.61 / 0.8)",
-		"border-radius": "0.75rem",
-		"box-shadow": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
 		"color": "oklch(0.9319 0.015 224)",
 		"border-color": "oklch(0.4234 0.081 173.37 / 0.22)",
 		"border-width": "0.0625rem"
@@ -19,14 +15,17 @@
 -->
 <script lang="ts">
 import { invoke } from "@tauri-apps/api/core";
-import { Bell, MessageCircle, Search } from "lucide-svelte";
+import { Bell, Menu, MessageCircle, Search } from "lucide-svelte";
 import { Avatar } from "$lib/design/components/avatar/index.js";
+import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
+import { Text } from "$lib/design/components/text/index.js";
 import { TextField as Input } from "$lib/design/components/text-field/index.js";
 import { Parasite } from "$lib/design/plugins/parasite";
-import { box } from "$lib/design/utils/box/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
+import { globalState } from "$lib/sys/runes/global.svelte";
+import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 
 let searchOpen = $state(false);
 let searchQuery = $state("");
@@ -45,52 +44,49 @@ function onKey(e: KeyboardEvent): void {
 }
 </script>
 
-<div class="flex w-full items-center justify-between" role="toolbar" tabindex="0" onkeydown={onKey} data-tauri-drag-region>
-	<div class="flex items-center" style:font-family="var(--font-display)">
-		<Parasite size="sm" />
-	</div>
-
-	<div class="flex-1"></div>
-
-	<div class={hstack({ gap: "2", align: "center" })}>
+<div class="flex w-full items-center justify-between gap-4" role="toolbar" tabindex="0" onkeydown={onKey} data-tauri-drag-region>
+	<!-- Left: hamburger + brand -->
+	<div class={hstack({ gap: "3", align: "center" })}>
 		<Button
 			preset="ghost"
 			size="sm"
-			class="h-8 w-8 rounded-full"
-			title="Search"
-			aria-label="Search"
-			onclick={toggleSearch}
+			class="h-9 w-9"
+			title="Toggle sidebar"
+			aria-label="Toggle sidebar"
+			onclick={() => globalState.toggleSidebar()}
 		>
+			<Menu size={18} />
+		</Button>
+		<div class="flex items-center gap-2" style:font-family="var(--font-display)">
+			<Parasite size="sm" />
+		</div>
+	</div>
+
+	<!-- Center: PULSE FEED pill -->
+	<div class="flex flex-1 items-center justify-center">
+		<Badge variant="neutral" size="lg" class="gap-2 px-4 py-1.5">
+			<span class="text-xs font-bold uppercase tracking-widest" style="color: var(--color-teal-400, oklch(0.75 0.18 180));">
+				PULSE FEED
+			</span>
+		</Badge>
+	</div>
+
+	<!-- Right: actions + maestro + avatar -->
+	<div class={hstack({ gap: "2", align: "center" })}>
+		<Button preset="ghost" size="sm" class="h-9 w-9 rounded-full" title="Search" aria-label="Search" onclick={toggleSearch}>
 			<Search size={16} />
 		</Button>
 
-		<Button
-			preset="ghost"
-			size="sm"
-			class="h-8 w-8 rounded-full"
-			title="Notifications"
-			aria-label="Notifications"
-		>
+		<Button preset="ghost" size="sm" class="h-9 w-9 rounded-full" title="Notifications" aria-label="Notifications">
 			<Bell size={16} />
 		</Button>
 
-		<Button
-			preset="ghost"
-			size="sm"
-			class="h-8 w-8 rounded-full"
-			title="Open Chat"
-			aria-label="Open Chat"
-			onclick={openChat}
-		>
+		<Button preset="ghost" size="sm" class="h-9 w-9 rounded-full" title="Open Chat" aria-label="Open Chat" onclick={openChat}>
 			<MessageCircle size={16} />
 		</Button>
 
 		{#if searchOpen}
-			<div
-				class={cn(box({}), "absolute right-4 top-12 z-[var(--z-dropdown)] p-2")}
-				data-kind="box"
-				data-slot="root"
-			>
+			<div class={cn("absolute right-4 top-16 z-50 rounded-lg border p-2")} style="background: var(--background-color); border-color: var(--border-color);">
 				<Input
 					size="sm"
 					class="w-64"
@@ -101,6 +97,15 @@ function onKey(e: KeyboardEvent): void {
 				/>
 			</div>
 		{/if}
+
+		<!-- Maestro status badge -->
+		<Badge variant={platformState.isReady ? "positive" : "neutral"} size="sm" class="gap-1.5">
+			<span
+				class="h-2 w-2 rounded-full"
+				style="background: {platformState.isReady ? 'var(--color-teal-400, oklch(0.75 0.18 180))' : 'var(--text-muted)'}; box-shadow: 0 0 0.375rem currentColor;"
+			></span>
+			<Text size="xs" weight="semibold">Maestro</Text>
+		</Badge>
 
 		<Avatar size={32} alt="User avatar" fallback="DP" />
 	</div>

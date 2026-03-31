@@ -53,7 +53,7 @@ const navHubs: NavHub[] = [
 	{ id: "overmind", icon: Brain, label: "OverMind", href: "/overmind" },
 	{ id: "wiredfront", icon: Radio, label: "WiredFront", href: "/wiredfront" },
 	{ id: "devforge", icon: Wrench, label: "DevForge", href: "/devforge" },
-	{ id: "clyffy", icon: Sparkles, label: "Clyffy", href: "/clyffy" },
+	{ id: "maestro", icon: Sparkles, label: "Maestro", href: "/maestro" },
 ];
 
 function isActive(href: string): boolean {
@@ -93,14 +93,14 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 					class={cn(
 						isExpanded
 							? "w-full justify-start gap-3 px-3 py-2"
-							: "h-10 w-10 justify-self-center",
+							: "h-11 w-11 justify-self-center",
 						isActive(hub.href) && "rounded-md",
 					)}
 					aria-label={hub.label}
 					aria-current={isActive(hub.href) ? "page" : undefined}
 					title={hub.label}
 				>
-					<hub.icon size={18} />
+					<hub.icon size={20} />
 					{#if isExpanded}
 						<Text size="sm" color="secondary" class="truncate">{hub.label}</Text>
 					{/if}
@@ -115,7 +115,7 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 			size="sm"
 			class={isExpanded
 				? "w-full justify-start gap-3 px-3 py-2"
-				: "h-10 w-10 justify-self-center"}
+				: "h-11 w-11 justify-self-center"}
 			title={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
 			aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
 			onclick={() => globalState.toggleSidebar()}

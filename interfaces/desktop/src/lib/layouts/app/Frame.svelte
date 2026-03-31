@@ -33,17 +33,23 @@ const isSidebarExpanded = $derived(globalState.sidebar_mode === "expanded");
 const isContextExpanded = $derived(globalState.context_mode === "expanded");
 
 /** Structural layout classes per shell slot — no recipe import */
+/** Layout dimensions — reference: DASHBOARD-REFERENCE-01.png, refernece-dashboard3/4.png
+ *  TopBar:   66px  (h-[4.125rem])  — brand + pulse feed + maestro badge
+ *  Sidebar:  60px collapsed / 240px expanded — icon nav + labels
+ *  StatusBar: 52px (h-[3.25rem])  — service pills, vitals, version
+ *  Context:  400px (w-[25rem])    — chat portal / devtools panel
+ */
 const SLOTS = {
 	frame:
 		"grid h-screen w-screen overflow-hidden grid-rows-[auto_1fr_auto] grid-cols-[auto_1fr_auto] font-sans",
 	topbar: cn(
 		"col-span-full flex items-center justify-between",
-		"h-12 px-4",
+		"h-[4.125rem] px-4",
 		"border-b border-[var(--border-soft)]",
 	),
 	sidebar: cn(
 		"row-start-2 col-start-1 flex flex-col items-center",
-		"w-16 py-3 gap-2",
+		"w-[3.75rem] py-3 gap-2",
 		"border-r border-[var(--border-subtle)]",
 		"overflow-y-auto scrollbar-thin",
 	),
@@ -59,12 +65,12 @@ const SLOTS = {
 		"border-l border-[var(--border-subtle)]",
 	),
 	contextExpanded: cn(
-		"row-start-2 col-start-3 w-72 overflow-y-auto scrollbar-thin",
+		"row-start-2 col-start-3 w-[25rem] overflow-y-auto scrollbar-thin",
 		"border-l border-[var(--border-subtle)]",
 	),
 	statusbar: cn(
 		"col-span-full flex items-center justify-between",
-		"min-h-8 px-4 py-1",
+		"h-[3.25rem] px-4 py-1",
 		"border-t border-[var(--border-soft)]",
 		"text-xs text-[var(--text-muted)]",
 		"overflow-x-auto scrollbar-thin",
