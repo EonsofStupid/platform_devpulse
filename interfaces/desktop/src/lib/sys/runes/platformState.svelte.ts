@@ -102,15 +102,35 @@ class PlatformState {
 	/** Human-readable label for what the boot is currently doing. */
 	bootStepLabel = $state("Connecting to engine...");
 
+	// ── Model readiness (separate from platform boot) ──────────
+	/** Whether AI models are downloaded, assigned, and ready. */
+	modelsReady = $state(false);
+	/** Whether this is the first run (no models configured). */
+	modelsFirstRun = $state(true);
+	/** Number of models in the registry. */
+	modelCount = $state(0);
+	/** Number of slots with assigned models. */
+	assignedCount = $state(0);
+
 	private healthInterval: ReturnType<typeof setInterval> | null = null;
 	private bootTimer: ReturnType<typeof setInterval> | null = null;
 	private unlisteners: Array<() => void> = [];
 	private initialized = false;
 	private destroyed = false;
 
-	// Derived state
+	// Derived state — boot readiness
 	get isReady(): boolean {
 		return this.phase === "ready";
+	}
+
+	/** Platform AND models both ready — the full app can render. */
+	get isFullyReady(): boolean {
+		return this.phase === "ready" && this.modelsReady;
+	}
+
+	/** Platform booted but models need setup — show the wizard. */
+	get needsModelSetup(): boolean {
+		return this.phase === "ready" && !this.modelsReady;
 	}
 
 	get isBooting(): boolean {
@@ -245,6 +265,25 @@ class PlatformState {
 			this.applyPhaseTransition(e.payload);
 		});
 		this.unlisteners.push(unlistenPhase);
+
+		// Listen for model readiness signal from boot_task
+		const unlistenModels = await listen<{
+			ready: boolean;
+			firstRun: boolean;
+			modelCount: number;
+			slotCount: number;
+			assignedCount: number;
+		}>("platform:models-status", (e) => {
+			this.modelsReady = e.payload.ready;
+			this.modelsFirstRun = e.payload.firstRun;
+			this.modelCount = e.payload.modelCount;
+			this.assignedCount = e.payload.assignedCount;
+			logInfo(
+				"boot",
+				`Models status: ready=${e.payload.ready} models=${e.payload.modelCount} assigned=${e.payload.assignedCount}`,
+			);
+		});
+		this.unlisteners.push(unlistenModels);
 
 		if (this.destroyed) {
 			this.cleanupListeners();

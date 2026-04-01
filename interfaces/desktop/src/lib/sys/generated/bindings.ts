@@ -219,7 +219,7 @@ async focusWindow(label: string) : Promise<Result<null, string>> {
 }
 },
 /**
- * Get hardware metrics.
+ * Get hardware metrics from the model loader's hardware monitor.
  */
 async getHardwareMetrics() : Promise<Result<HardwareInfo, string>> {
     try {
@@ -257,6 +257,96 @@ async getSlots() : Promise<Result<SlotInfo[], string>> {
 async isFirstRun() : Promise<Result<boolean, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("is_first_run") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Assign a model to a slot.
+ */
+async assignModelToSlot(slotId: string, modelId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("assign_model_to_slot", { slotId, modelId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Load a slot's assigned model into memory.
+ */
+async loadSlot(slotId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("load_slot", { slotId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Unload a slot's model from memory.
+ */
+async unloadSlot(slotId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("unload_slot", { slotId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Start downloading a model from HuggingFace.
+ * Returns the download ID for progress tracking.
+ */
+async downloadModel(repoId: string, filename: string) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("download_model", { repoId, filename }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Cancel an active model download.
+ */
+async cancelDownload(downloadId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("cancel_download", { downloadId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Search HuggingFace for GGUF models.
+ */
+async searchHuggingface(query: string, limit: number | null) : Promise<Result<HfSearchResultInfo[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("search_huggingface", { query, limit }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Auto-configure model recommendations based on detected hardware.
+ */
+async autoConfigure() : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("auto_configure") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Called when the setup wizard finishes. Verifies models are present,
+ * emits the models-ready signal, and opens the chat window.
+ */
+async completeModelSetup() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("complete_model_setup") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -476,7 +566,63 @@ devforge_enabled: boolean }
 /**
  * Hardware metrics for the frontend.
  */
-export type HardwareInfo = { cpu_usage_percent: number; cpu_cores: number; cpu_name: string; ram_total_mb: number; ram_used_mb: number; ram_available_mb: number; gpu_name: string | null; gpu_vram_total_mb: number | null; gpu_vram_used_mb: number | null; gpu_vram_free_mb: number | null; gpu_utilization_percent: number | null; gpu_temperature_c: number | null; process_ram_mb: number; process_vram_mb: number }
+export type HardwareInfo = { 
+/**
+ * CPU usage percentage (0.0–100.0).
+ */
+cpu_usage_percent: number; 
+/**
+ * Number of logical CPU cores.
+ */
+cpu_cores: number; 
+/**
+ * CPU model name.
+ */
+cpu_name: string; 
+/**
+ * Total system RAM (MB).
+ */
+ram_total_mb: number; 
+/**
+ * Used system RAM (MB).
+ */
+ram_used_mb: number; 
+/**
+ * Available system RAM (MB).
+ */
+ram_available_mb: number; 
+/**
+ * GPU model name (None if no GPU).
+ */
+gpu_name: string | null; 
+/**
+ * Total GPU VRAM (MB).
+ */
+gpu_vram_total_mb: number | null; 
+/**
+ * Used GPU VRAM (MB).
+ */
+gpu_vram_used_mb: number | null; 
+/**
+ * Free GPU VRAM (MB).
+ */
+gpu_vram_free_mb: number | null; 
+/**
+ * GPU utilization percentage.
+ */
+gpu_utilization_percent: number | null; 
+/**
+ * GPU temperature (Celsius).
+ */
+gpu_temperature_c: number | null; 
+/**
+ * DevPulse process RAM usage (MB).
+ */
+process_ram_mb: number; 
+/**
+ * DevPulse process VRAM usage (MB).
+ */
+process_vram_mb: number }
 /**
  * Health status enum.
  */
@@ -497,6 +643,62 @@ export type HealthStatus =
  * Subsystem status is not known (not yet initialized).
  */
 "Unknown"
+/**
+ * A GGUF file in a HuggingFace repo.
+ */
+export type HfFileInfoItem = { 
+/**
+ * Filename (e.g. `"Qwen3-14B-Q4_K_M.gguf"`).
+ */
+filename: string; 
+/**
+ * File size in bytes.
+ */
+size_bytes: number; 
+/**
+ * Inferred quantization level from filename.
+ */
+quant_level: string | null }
+/**
+ * Search result from HuggingFace.
+ */
+export type HfSearchResultInfo = { 
+/**
+ * Repository ID (e.g. `"bartowski/Qwen3-14B-GGUF"`).
+ */
+repo_id: string; 
+/**
+ * Author or organization name.
+ */
+author: string; 
+/**
+ * Model display name.
+ */
+model_name: string; 
+/**
+ * Total download count on HuggingFace.
+ */
+downloads: number; 
+/**
+ * Like count on HuggingFace.
+ */
+likes: number; 
+/**
+ * Pipeline tag (e.g. `"text-generation"`).
+ */
+pipeline_tag: string | null; 
+/**
+ * Model card tags.
+ */
+tags: string[]; 
+/**
+ * GGUF files available in this repo.
+ */
+gguf_files: HfFileInfoItem[]; 
+/**
+ * Last modified timestamp.
+ */
+last_modified: string }
 /**
  * Event emitted during platform initialization.
  */
@@ -551,9 +753,49 @@ total_messages: number;
  */
 total_sessions: number }
 /**
- * Serializable model entry for the frontend.
+ * Serializable model entry for the frontend (maps from model-loader `ModelRegistryEntry`).
  */
-export type ModelInfo = { id: string; filename: string; architecture: string; parameter_count: number | null; quant_level: string | null; context_length: number; size_mb: number; vram_estimate_mb: number; supported_backends: string[]; compatible_capabilities: string[] }
+export type ModelInfo = { 
+/**
+ * Unique model identifier (UUID v7).
+ */
+id: string; 
+/**
+ * Filename on disk.
+ */
+filename: string; 
+/**
+ * Model architecture (e.g. `"llama"`, `"qwen3"`).
+ */
+architecture: string; 
+/**
+ * Total parameter count, if known.
+ */
+parameter_count: number | null; 
+/**
+ * Quantization level (e.g. `"Q4_K_M"`).
+ */
+quant_level: string | null; 
+/**
+ * Maximum context window in tokens.
+ */
+context_length: number; 
+/**
+ * File size on disk in MB.
+ */
+size_mb: number; 
+/**
+ * Estimated VRAM when loaded (MB).
+ */
+vram_estimate_mb: number; 
+/**
+ * Which inference backends can run this model.
+ */
+supported_backends: string[]; 
+/**
+ * Which slot capabilities this model can serve.
+ */
+compatible_capabilities: string[] }
 /**
  * Public platform configuration.
  * 
@@ -654,9 +896,37 @@ export type ServiceState =
  */
 "Failed"
 /**
- * Serializable slot info for the frontend.
+ * Serializable slot info for the frontend (maps from model-loader Slot).
  */
-export type SlotInfo = { id: string; label: string; capability: string; preferred_device: string; loading_strategy: string; assigned_model_id: string | null; fallback: string | null }
+export type SlotInfo = { 
+/**
+ * Slot identifier (e.g. `"chat.brain"`).
+ */
+id: string; 
+/**
+ * Human-readable label (e.g. `"AI Brain"`).
+ */
+label: string; 
+/**
+ * Model capability this slot requires.
+ */
+capability: string; 
+/**
+ * Preferred device placement (GPU/CPU/Auto).
+ */
+preferred_device: string; 
+/**
+ * When to load the model (Hot/Warm/OnDemand/Signal).
+ */
+loading_strategy: string; 
+/**
+ * Currently assigned model registry ID, if any.
+ */
+assigned_model_id: string | null; 
+/**
+ * Fallback slot ID for escalation chains.
+ */
+fallback: string | null }
 /**
  * Health of an individual subsystem (database, cache, etc.).
  */

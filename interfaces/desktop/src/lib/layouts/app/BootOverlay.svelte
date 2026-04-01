@@ -68,13 +68,28 @@ function stateToLabel(state: SubsystemState, latencyMs: number | null): string {
 }
 
 $effect(() => {
-	if (platformState.isReady && !fading) {
+	// Gate on FULL readiness: platform services AND models configured.
+	// If platform is ready but models aren't, the wizard phase takes over
+	// inside this overlay — keeping the gate closed until setup completes.
+	if (platformState.isFullyReady && !fading) {
 		fading = true;
 		setTimeout(() => {
 			visible = false;
 		}, 600);
 	}
 });
+
+/** Called when the BootSetupWizard finishes (models downloaded + assigned). */
+async function handleWizardComplete(): Promise<void> {
+	try {
+		const { invoke } = await import("@tauri-apps/api/core");
+		await invoke("complete_model_setup");
+		// The command emits "platform:models-status" with ready=true,
+		// which updates platformState.modelsReady → isFullyReady → fade.
+	} catch (e) {
+		console.error("[BootOverlay] complete_model_setup failed:", e);
+	}
+}
 </script>
 
 {#if visible}
@@ -170,6 +185,14 @@ $effect(() => {
 			>
 				<Text size="xs" color="accent">{platformState.error}</Text>
 			</div>
+		{/if}
+
+		<!-- Model Setup Wizard Phase -->
+		<!-- Shows when platform is ready but models aren't configured -->
+		{#if platformState.needsModelSetup}
+			{#await import("$lib/domains/app/models/components/BootSetupWizard.svelte") then module}
+				<module.default onComplete={handleWizardComplete} />
+			{/await}
 		{/if}
 	</div>
 </div>

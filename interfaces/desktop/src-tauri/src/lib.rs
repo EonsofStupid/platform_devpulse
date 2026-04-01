@@ -67,6 +67,7 @@ pub fn run() {
         commands::models::cancel_download,
         commands::models::search_huggingface,
         commands::models::auto_configure,
+        commands::models::complete_model_setup,
         commands::models::inference_generate,
     ]);
 
@@ -306,6 +307,59 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
                 }),
             );
 
+            // ── Model readiness check ────────────────────────────
+            // Query the model loader to determine if models are present
+            // and assigned. Frontend uses this to decide: show app or
+            // show the setup wizard.
+            let models_ready = {
+                let guard = state.platform.read().await;
+                if let Some(ref platform) = *guard {
+                    if let Some(loader) = platform.model_loader() {
+                        let registry = loader.get_registry().await;
+                        let slots = loader.list_slots().await;
+                        let first_run = loader.is_first_run().await;
+                        let assigned = slots.iter()
+                            .filter(|s| s.assigned_model.is_some())
+                            .count();
+                        let ready = !registry.is_empty() && assigned > 0;
+                        tracing::info!(
+                            models = registry.len(),
+                            slots = slots.len(),
+                            assigned,
+                            first_run,
+                            ready,
+                            "Model readiness check"
+                        );
+                        let _ = app.emit(
+                            "platform:models-status",
+                            serde_json::json!({
+                                "ready": ready,
+                                "firstRun": first_run,
+                                "modelCount": registry.len(),
+                                "slotCount": slots.len(),
+                                "assignedCount": assigned,
+                            }),
+                        );
+                        ready
+                    } else {
+                        tracing::warn!("Model Loader not available — models not ready");
+                        let _ = app.emit(
+                            "platform:models-status",
+                            serde_json::json!({
+                                "ready": false,
+                                "firstRun": true,
+                                "modelCount": 0,
+                                "slotCount": 0,
+                                "assignedCount": 0,
+                            }),
+                        );
+                        false
+                    }
+                } else {
+                    false
+                }
+            };
+
             // Show main window NOW — all services confirmed
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.show();
@@ -313,10 +367,16 @@ async fn boot_task(app: tauri::AppHandle, data_dir: PathBuf, tracker: BootStateT
                 tracing::info!("Main window now visible — all services confirmed");
             }
 
-            // Open chat window AFTER boot — graceful lazy load
-            tracing::info!("Opening Clyffy Chat window");
-            if let Err(e) = commands::window::open_chat_window(app.clone()).await {
-                tracing::warn!(error = %e, "Chat window failed to open (non-fatal)");
+            // Chat window GATED on model readiness.
+            // If models aren't ready, the BootSetupWizard handles setup
+            // and calls complete_model_setup when done — which opens chat.
+            if models_ready {
+                tracing::info!("Models ready — opening Clyffy Chat window");
+                if let Err(e) = commands::window::open_chat_window(app.clone()).await {
+                    tracing::warn!(error = %e, "Chat window failed to open (non-fatal)");
+                }
+            } else {
+                tracing::info!("Models not ready — wizard will handle setup, chat deferred");
             }
         }
         Err(e) => {

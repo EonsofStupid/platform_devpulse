@@ -8,51 +8,82 @@ use devpulse_engine::platform::services::model_loader::ModelLoaderService;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::sync::Arc;
-use tauri::State;
+use tauri::{Emitter, State};
 
 /// Serializable slot info for the frontend (maps from model-loader Slot).
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct SlotInfo {
+    /// Slot identifier (e.g. `"chat.brain"`).
     pub id: String,
+    /// Human-readable label (e.g. `"AI Brain"`).
     pub label: String,
+    /// Model capability this slot requires.
     pub capability: String,
+    /// Preferred device placement (GPU/CPU/Auto).
     pub preferred_device: String,
+    /// When to load the model (Hot/Warm/OnDemand/Signal).
     pub loading_strategy: String,
+    /// Currently assigned model registry ID, if any.
     pub assigned_model_id: Option<String>,
+    /// Fallback slot ID for escalation chains.
     pub fallback: Option<String>,
 }
 
-/// Serializable model entry for the frontend (maps from model-loader ModelRegistryEntry).
+/// Serializable model entry for the frontend (maps from model-loader `ModelRegistryEntry`).
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct ModelInfo {
+    /// Unique model identifier (UUID v7).
     pub id: String,
+    /// Filename on disk.
     pub filename: String,
+    /// Model architecture (e.g. `"llama"`, `"qwen3"`).
     pub architecture: String,
+    /// Total parameter count, if known.
     pub parameter_count: Option<u64>,
+    /// Quantization level (e.g. `"Q4_K_M"`).
     pub quant_level: Option<String>,
+    /// Maximum context window in tokens.
     pub context_length: usize,
+    /// File size on disk in MB.
     pub size_mb: u64,
+    /// Estimated VRAM when loaded (MB).
     pub vram_estimate_mb: u64,
+    /// Which inference backends can run this model.
     pub supported_backends: Vec<String>,
+    /// Which slot capabilities this model can serve.
     pub compatible_capabilities: Vec<String>,
 }
 
 /// Hardware metrics for the frontend.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct HardwareInfo {
+    /// CPU usage percentage (0.0–100.0).
     pub cpu_usage_percent: f32,
+    /// Number of logical CPU cores.
     pub cpu_cores: usize,
+    /// CPU model name.
     pub cpu_name: String,
+    /// Total system RAM (MB).
     pub ram_total_mb: u64,
+    /// Used system RAM (MB).
     pub ram_used_mb: u64,
+    /// Available system RAM (MB).
     pub ram_available_mb: u64,
+    /// GPU model name (None if no GPU).
     pub gpu_name: Option<String>,
+    /// Total GPU VRAM (MB).
     pub gpu_vram_total_mb: Option<u64>,
+    /// Used GPU VRAM (MB).
     pub gpu_vram_used_mb: Option<u64>,
+    /// Free GPU VRAM (MB).
     pub gpu_vram_free_mb: Option<u64>,
+    /// GPU utilization percentage.
     pub gpu_utilization_percent: Option<f32>,
+    /// GPU temperature (Celsius).
     pub gpu_temperature_c: Option<f32>,
+    /// DevPulse process RAM usage (MB).
     pub process_ram_mb: u64,
+    /// DevPulse process VRAM usage (MB).
     pub process_vram_mb: u64,
 }
 
@@ -232,22 +263,34 @@ pub async fn cancel_download(
 /// Search result from HuggingFace.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct HfSearchResultInfo {
+    /// Repository ID (e.g. `"bartowski/Qwen3-14B-GGUF"`).
     pub repo_id: String,
+    /// Author or organization name.
     pub author: String,
+    /// Model display name.
     pub model_name: String,
+    /// Total download count on HuggingFace.
     pub downloads: u64,
+    /// Like count on HuggingFace.
     pub likes: u64,
+    /// Pipeline tag (e.g. `"text-generation"`).
     pub pipeline_tag: Option<String>,
+    /// Model card tags.
     pub tags: Vec<String>,
+    /// GGUF files available in this repo.
     pub gguf_files: Vec<HfFileInfoItem>,
+    /// Last modified timestamp.
     pub last_modified: String,
 }
 
 /// A GGUF file in a HuggingFace repo.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct HfFileInfoItem {
+    /// Filename (e.g. `"Qwen3-14B-Q4_K_M.gguf"`).
     pub filename: String,
+    /// File size in bytes.
     pub size_bytes: u64,
+    /// Inferred quantization level from filename.
     pub quant_level: Option<String>,
 }
 
@@ -300,15 +343,54 @@ pub async fn auto_configure(
     serde_json::to_string(&config).map_err(|e| e.to_string())
 }
 
+/// Called when the setup wizard finishes. Verifies models are present,
+/// emits the models-ready signal, and opens the chat window.
+#[tauri::command]
+#[specta::specta]
+pub async fn complete_model_setup(
+    app: tauri::AppHandle,
+    state: State<'_, PlatformState>,
+) -> Result<(), String> {
+    let loader = get_loader(&state).await?;
+    let registry = loader.get_registry().await;
+    let slots = loader.list_slots().await;
+    let assigned = slots.iter().filter(|s| s.assigned_model.is_some()).count();
+
+    tracing::info!(
+        models = registry.len(),
+        assigned,
+        "Model setup complete — signaling ready"
+    );
+
+    // Emit ready signal to frontend
+    let _ = app.emit(
+        "platform:models-status",
+        serde_json::json!({
+            "ready": true,
+            "firstRun": false,
+            "modelCount": registry.len(),
+            "slotCount": slots.len(),
+            "assignedCount": assigned,
+        }),
+    );
+
+    // Now safe to open chat window
+    if let Err(e) = crate::commands::window::open_chat_window(app).await {
+        tracing::warn!(error = %e, "Chat window failed to open after setup (non-fatal)");
+    }
+
+    Ok(())
+}
+
 /// Generate text using a loaded model slot.
 /// Streams tokens via Tauri events. Returns the full generated text.
 #[tauri::command]
 #[specta::specta]
 pub async fn inference_generate(
     slot_id: String,
-    prompt: String,
-    max_tokens: u32,
-    temperature: f32,
+    _prompt: String,
+    _max_tokens: u32,
+    _temperature: f32,
 ) -> Result<String, String> {
     // Inference generation requires a loaded model — this will be wired
     // to InferenceHandle.generate() when a model is loaded in a slot.

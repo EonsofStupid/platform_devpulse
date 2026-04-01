@@ -1,0 +1,105 @@
+{
+	"version": 1,
+	"welcome": {
+		"greeting": "Hi! I'm Clyffy, your AI assistant.",
+		"subtitle": "I'll set up your AI tools — no coding needed.",
+		"cta": "Let's Go"
+	},
+	"scanning": {
+		"title": "Checking your computer...",
+		"messages": [
+			"Looking at your hardware...",
+			"Checking GPU memory...",
+			"Figuring out the best setup for you..."
+		],
+		"results": {
+			"gpuFound": "Nice! You have a {gpuName} with {vramGb} GB of GPU memory.",
+			"noGpu": "No dedicated GPU — that's fine! We'll use your CPU instead.",
+			"tierHigh": "That's a powerful setup! You can run the big models.",
+			"tierMedium": "Good setup! Mid-range models will run great.",
+			"tierLow": "Entry-level GPU — smaller models will work well.",
+			"tierCpu": "CPU mode — slower but everything works. No worries."
+		}
+	},
+	"recommendations": {
+		"title": "Here's what I recommend",
+		"subtitle": "These AI models are tailored for your hardware.",
+		"slotLabels": {
+			"chat.brain": { "name": "AI Brain", "desc": "The main AI that thinks and talks" },
+			"minion.shared": { "name": "Quick Worker", "desc": "Fast helper for background tasks" },
+			"rag.embedder": { "name": "Search Engine", "desc": "Finds relevant code and docs" }
+		},
+		"fitLabels": {
+			"green": "Easy fit",
+			"yellow": "Tight fit — might be slow",
+			"red": "Too big for your hardware",
+			"gray": "Will run on CPU"
+		},
+		"cta": "Set Me Up",
+		"manual": "I'll configure manually"
+	},
+	"downloading": {
+		"title": "Getting your AI ready...",
+		"subtitle": "This is a one-time download.",
+		"etaFormat": "About {minutes} minutes left",
+		"messages": [
+			"Pulling AI models from the cloud...",
+			"Once downloaded, everything runs on your machine.",
+			"Your data never leaves your computer.",
+			"Almost there — setting up the final pieces..."
+		]
+	},
+	"knowledgeDrops": [
+		{
+			"title": "Did you know?",
+			"body": "AI models are like specialized brains. Each one is trained for a specific job."
+		},
+		{
+			"title": "Privacy first",
+			"body": "Your code and conversations stay on YOUR computer. Nothing goes to the cloud."
+		},
+		{
+			"title": "How it works",
+			"body": "The AI runs right on your machine using your GPU — that's why it's so fast."
+		},
+		{
+			"title": "Fun fact",
+			"body": "The AI brain has billions of connections — more than stars you can see with your eyes."
+		},
+		{
+			"title": "Hot swap",
+			"body": "You can change AI models anytime. Just open Model Control and swap."
+		},
+		{
+			"title": "Local power",
+			"body": "No internet needed after setup. Your AI works offline, on a plane, anywhere."
+		},
+		{
+			"title": "Your assistant",
+			"body": "Clyffy learns your coding style over time. The more you use it, the better it gets."
+		},
+		{
+			"title": "Built for you",
+			"body": "DevPulse is designed for creators — not just developers. Anyone can use it."
+		}
+	],
+	"verifying": {
+		"title": "Almost there!",
+		"subtitle": "Testing your AI to make sure everything works...",
+		"slotVerifying": "Testing {slotName}...",
+		"slotReady": "{slotName} is online!"
+	},
+	"ready": {
+		"title": "You're all set!",
+		"subtitle": "Your AI is online and ready to help.",
+		"cta": "Start Using DevPulse"
+	},
+	"errors": {
+		"downloadFailed": "Download didn't work. Check your internet and try again.",
+		"vramInsufficient": "Not enough GPU memory. Try a smaller model.",
+		"diskFull": "Your drive is full. Free up some space and try again.",
+		"modelCorrupt": "This file is damaged. I'll try to re-download it.",
+		"noGpuDriver": "No GPU driver found. We'll use CPU mode — slower but works.",
+		"networkTimeout": "Connection timed out. Want to try again?"
+	}
+}
