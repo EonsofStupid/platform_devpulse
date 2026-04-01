@@ -2737,6 +2737,7 @@ dependencies = [
  "anyhow",
  "chrono",
  "devpulse-engine",
+ "flume",
  "serde",
  "serde_json",
  "specta",

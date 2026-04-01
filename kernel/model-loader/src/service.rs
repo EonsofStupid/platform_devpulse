@@ -172,6 +172,38 @@ impl ModelLoaderService {
             });
         }
 
+        // Budget check: will this model fit alongside everything currently loaded?
+        // Uses 10% headroom to avoid OOM at the boundary.
+        let metrics = self.hardware.cached();
+        let total_vram = metrics.gpu_vram_total_mb.unwrap_or(0);
+        if total_vram > 0 {
+            let pool_used = self.pool.total_memory().vram_mb();
+            let model_vram = entry.vram_estimate_mb;
+            let headroom = total_vram / 10; // 10% headroom
+            let available = total_vram.saturating_sub(pool_used + headroom);
+
+            if model_vram > available {
+                // Check if this model is already loaded (shared instance — no new VRAM)
+                if !self.pool.is_loaded(model_id) {
+                    let mut suggestions = Vec::new();
+                    // Suggest unloading the largest loaded model
+                    for loaded_id in self.pool.loaded_model_ids() {
+                        if let Some(mem) = self.pool.memory(&loaded_id) {
+                            suggestions.push(crate::traits::errors::RecoverySuggestion::UnloadSlot {
+                                slot_id: loaded_id.clone(),
+                                frees_mb: mem.vram_mb(),
+                            });
+                        }
+                    }
+                    return Err(LoaderError::VramInsufficient {
+                        needed_mb: model_vram,
+                        available_mb: available,
+                        suggestions,
+                    });
+                }
+            }
+        }
+
         // Persist assignment
         let config_key = format!("slot.{slot_id}.model");
         self.config
@@ -404,12 +436,18 @@ impl ModelLoaderService {
     }
 
     /// Unload the model from a slot.
+    ///
+    /// Retries release twice (500ms between attempts) then hard fails.
+    /// No silent swallowing — every failure is logged and propagated.
     pub async fn unload_slot(&mut self, slot_id: &str) -> Result<(), LoaderError> {
         if !self.slots.contains(slot_id) {
             return Err(LoaderError::SlotNotFound {
                 slot_id: slot_id.to_string(),
             });
         }
+
+        self.slot_statuses
+            .insert(slot_id.to_string(), ModelStatus::Unloading);
 
         // Remove our handle
         self.slot_handles.remove(slot_id);
@@ -421,16 +459,51 @@ impl ModelLoaderService {
             .and_then(|s| s.assigned_model.clone());
 
         if let Some(mid) = model_id {
-            // Release from pool — may unload if ref_count hits 0
-            if let Some(freed) = self.pool.release(&mid).await {
-                self.events.emit(LoaderEvent::UnloadComplete {
-                    slot_id: slot_id.to_string(),
-                    freed,
-                });
-                tracing::info!(slot = %slot_id, model = %mid, "Model unloaded (last reference)");
-            } else {
-                tracing::info!(slot = %slot_id, model = %mid, "Slot handle released (shared instance still active)");
+            // Retry release twice then hard fail
+            let mut last_error = None;
+            for attempt in 1..=2 {
+                match self.pool.release(&mid).await {
+                    Some(freed) => {
+                        self.events.emit(LoaderEvent::UnloadComplete {
+                            slot_id: slot_id.to_string(),
+                            freed,
+                        });
+                        tracing::info!(slot = %slot_id, model = %mid, "Model unloaded (last reference)");
+                        self.slot_statuses
+                            .insert(slot_id.to_string(), ModelStatus::NotLoaded);
+                        return Ok(());
+                    }
+                    None => {
+                        // release() returns None if ref_count > 0 (shared) OR model not found.
+                        // If the model is shared, this is normal — handle was removed, job done.
+                        if self.pool.is_loaded(&mid) {
+                            tracing::info!(slot = %slot_id, model = %mid, "Slot handle released (shared instance still active)");
+                            self.slot_statuses
+                                .insert(slot_id.to_string(), ModelStatus::NotLoaded);
+                            return Ok(());
+                        }
+                        // Model not in pool — shouldn't happen. Retry.
+                        last_error = Some(format!(
+                            "Attempt {attempt}/2: model '{mid}' not found in pool during unload of slot '{slot_id}'"
+                        ));
+                        tracing::warn!(slot = %slot_id, model = %mid, attempt, "Unload retry — model not in pool");
+                        if attempt < 2 {
+                            std::thread::sleep(std::time::Duration::from_millis(500));
+                        }
+                    }
+                }
             }
+
+            // Hard fail after 2 retries
+            let error_msg = last_error.unwrap_or_else(|| format!("Unload failed for slot '{slot_id}'"));
+            tracing::error!(slot = %slot_id, model = %mid, "{error_msg}");
+            self.slot_statuses.insert(
+                slot_id.to_string(),
+                ModelStatus::Failed {
+                    error: error_msg.clone(),
+                },
+            );
+            return Err(LoaderError::Internal { message: error_msg });
         }
 
         self.slot_statuses

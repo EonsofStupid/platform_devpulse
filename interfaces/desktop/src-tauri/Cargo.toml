@@ -33,6 +33,7 @@ tracing-appender = { workspace = true }
 chrono = { workspace = true }
 # kokoros disabled — espeak-rs-sys needs system install support (piper-rs fork sprint)
 devpulse-engine = { path = "../../../systems/devpulse-engine", features = ["rro", "candle", "inference"] }
+flume = "0.11"
 sysinfo = "0.38.4"
 
 [lints]

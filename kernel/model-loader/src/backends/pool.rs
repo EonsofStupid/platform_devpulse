@@ -69,7 +69,7 @@ impl BackendPool {
             candle_core::Device::Cpu
         };
 
-        let bridge = InferenceBridge::spawn_candle(device);
+        let bridge = InferenceBridge::spawn_candle(device)?;
         let handle = bridge.handle();
 
         // Load the model via the bridge

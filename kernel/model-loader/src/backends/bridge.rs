@@ -201,8 +201,12 @@ impl InferenceBridge {
     ///
     /// The backend runs on a dedicated OS thread. All interaction is via
     /// the returned `InferenceHandle`.
+    /// Spawn a new candle inference bridge.
+    ///
+    /// # Errors
+    /// Returns error if the OS thread cannot be spawned.
     #[cfg(feature = "candle-backend")]
-    pub fn spawn_candle(device: candle_core::Device) -> Self {
+    pub fn spawn_candle(device: candle_core::Device) -> anyhow::Result<Self> {
         use crate::backends::candle::CandleBackend;
 
         let (tx, rx) = flume::unbounded::<InferenceRequest>();
@@ -213,12 +217,12 @@ impl InferenceBridge {
             .spawn(move || {
                 inference_thread_loop(&mut backend, rx);
             })
-            .expect("Failed to spawn inference thread");
+            .map_err(|e| anyhow::anyhow!("Failed to spawn inference thread: {e}"))?;
 
-        Self {
+        Ok(Self {
             handle: InferenceHandle { sender: tx },
             thread: Some(thread),
-        }
+        })
     }
 
     /// Get a cloneable handle to this bridge.
@@ -253,6 +257,11 @@ fn inference_thread_loop(
                 reply,
             } => {
                 let result = backend.load(&path, params);
+                if result.is_err() {
+                    // Partial-load cleanup: if load failed mid-way, ensure
+                    // any partially-allocated weights are freed.
+                    let _ = backend.unload();
+                }
                 let _ = reply.send(result);
             }
             InferenceRequest::Unload { reply } => {

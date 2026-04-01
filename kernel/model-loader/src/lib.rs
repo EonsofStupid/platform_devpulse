@@ -19,6 +19,9 @@ pub mod traits;
 // Top-level re-exports for convenience
 pub use service::ModelLoaderService;
 
+// Inference bridge types
+pub use backends::bridge::{InferenceHandle, InferenceResponse};
+
 // Slot types
 pub use slots::{DevicePreference, LoadingStrategy, ModelCapability, Slot, SlotRegistry};
 

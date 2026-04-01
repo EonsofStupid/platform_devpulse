@@ -14,3 +14,7 @@ pub mod events;
 pub mod narration;
 #[cfg(feature = "inference")]
 pub mod slots;
+
+// Re-export inference bridge types for Tauri command layer
+#[cfg(feature = "inference")]
+pub use devpulse_clyffy::model_loader::{InferenceHandle, InferenceResponse};

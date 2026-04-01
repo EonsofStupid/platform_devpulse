@@ -383,19 +383,54 @@ pub async fn complete_model_setup(
 }
 
 /// Generate text using a loaded model slot.
-/// Streams tokens via Tauri events. Returns the full generated text.
+///
+/// Gets an InferenceHandle from the model loader (resolves fallback chain),
+/// streams tokens via Tauri events, returns the full generated text.
+/// Hard fails if no model is loaded — no silent fallback.
 #[tauri::command]
 #[specta::specta]
 pub async fn inference_generate(
+    app: tauri::AppHandle,
+    state: State<'_, PlatformState>,
     slot_id: String,
-    _prompt: String,
-    _max_tokens: u32,
-    _temperature: f32,
+    prompt: String,
+    max_tokens: u32,
+    temperature: f32,
 ) -> Result<String, String> {
-    // Inference generation requires a loaded model — this will be wired
-    // to InferenceHandle.generate() when a model is loaded in a slot.
-    Err(format!(
-        "No model loaded in slot '{}'. Open Model Control to set up your AI.",
-        slot_id
-    ))
+    let loader = get_loader(&state).await?;
+
+    let handle = loader
+        .inference_handle(&slot_id)
+        .await
+        .ok_or_else(|| {
+            format!(
+                "No model loaded in slot '{slot_id}'. Open Model Control to set up your AI."
+            )
+        })?;
+
+    // Start generation — returns a receiver for streaming tokens
+    let token_rx = handle
+        .generate(prompt, max_tokens, temperature)
+        .await
+        .map_err(|e| format!("Inference failed: {e:#}"))?;
+
+    // Stream tokens to frontend via Tauri events, collect full text
+    let mut full_text = String::new();
+    while let Ok(response) = token_rx.recv_async().await {
+        match response {
+            devpulse_engine::platform::integrations::InferenceResponse::Token { text, .. } => {
+                let _ = app.emit("inference-token", &text);
+                full_text.push_str(&text);
+            }
+            devpulse_engine::platform::integrations::InferenceResponse::Done(text) => {
+                full_text = text;
+                break;
+            }
+            devpulse_engine::platform::integrations::InferenceResponse::Error(e) => {
+                return Err(format!("Generation error: {e}"));
+            }
+        }
+    }
+
+    Ok(full_text)
 }

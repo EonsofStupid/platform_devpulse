@@ -18,6 +18,7 @@
 <script lang="ts">
 import type { Snippet } from "svelte";
 import { cn } from "$lib/design/utils/cn.js";
+import { SwapOverlay } from "$lib/domains/app/models/index.js";
 import { globalState } from "$lib/sys/runes/global.svelte";
 import Sidebar from "./Sidebar.svelte";
 import StatusBar from "./StatusBar.svelte";
@@ -118,4 +119,7 @@ const SLOTS = {
 		onkeydown={(e) => { if (e.key === 'Enter' || e.key === 'Escape') globalState.hideOverlay(); }}
 	>
 	</div>
+
+	<!-- Model swap overlay — full-screen block during load/unload only -->
+	<SwapOverlay />
 </div>

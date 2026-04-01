@@ -143,6 +143,18 @@ impl ModelLoaderService {
         inner.get_registry().to_vec()
     }
 
+    /// Get an inference handle for a slot (resolves fallback chain).
+    ///
+    /// Returns a cloned handle — caller can use it without holding the Mutex.
+    /// This is critical: generation is long-running, we must NOT hold the lock.
+    pub async fn inference_handle(
+        &self,
+        slot_id: &str,
+    ) -> Option<devpulse_clyffy::model_loader::InferenceHandle> {
+        let inner = self.inner.lock().await;
+        inner.inference_handle(slot_id)
+    }
+
     /// Search HuggingFace for GGUF models.
     pub async fn search_huggingface(
         &self,

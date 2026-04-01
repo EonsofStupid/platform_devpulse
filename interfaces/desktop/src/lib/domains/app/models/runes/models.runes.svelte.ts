@@ -92,8 +92,10 @@ class ModelsState {
 		}
 	}
 
-	/** Load a slot's model. */
+	/** Load a slot's model. Activates SwapOverlay for full-screen block. */
 	async load(slotId: string): Promise<void> {
+		const { swapState } = await import("./swap.runes.svelte.js");
+		swapState.startLoad(slotId);
 		this.statuses[slotId] = { type: "loading", stage: "verifying", progressPct: 0 };
 		try {
 			await loadSlot(slotId);
@@ -101,25 +103,29 @@ class ModelsState {
 				type: "loaded",
 				footprint: { ramBytes: 0, vramBytes: 0 },
 			};
+			swapState.complete();
 		} catch (e) {
-			this.statuses[slotId] = {
-				type: "failed",
-				error: e instanceof Error ? e.message : String(e),
-			};
+			const msg = e instanceof Error ? e.message : String(e);
+			this.statuses[slotId] = { type: "failed", error: msg };
+			swapState.fail(msg);
 			throw e;
 		}
 	}
 
-	/** Unload a slot's model. Hard fail — error surfaces. */
+	/** Unload a slot's model. Activates SwapOverlay. Hard fail — error surfaces. */
 	async unload(slotId: string): Promise<void> {
+		const { swapState } = await import("./swap.runes.svelte.js");
+		swapState.startUnload(slotId);
 		this.statuses[slotId] = { type: "unloading" };
 		try {
 			await unloadSlot(slotId);
 			this.statuses[slotId] = { type: "not_loaded" };
+			swapState.complete();
 		} catch (e) {
 			const msg = e instanceof Error ? e.message : String(e);
 			this.error = msg;
 			this.statuses[slotId] = { type: "failed", error: msg };
+			swapState.fail(msg);
 			console.error(`[ModelsState] HARD FAIL on unload ${slotId}: ${msg}`);
 			throw e;
 		}

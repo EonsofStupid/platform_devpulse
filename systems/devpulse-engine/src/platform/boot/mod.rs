@@ -361,7 +361,12 @@ async fn execute_inner(
 
     let total_ms = boot_log.elapsed_ms();
     boot_log.ready(total_ms);
-    tracing::info!(path = %boot_log.path().display(), total_ms, "boot.log written — all services confirmed");
+    tracing::info!(
+        total_ms,
+        failures = boot_log.failure_count(),
+        path = %boot_log.path().display(),
+        "Boot complete — all services confirmed ({total_ms}ms)"
+    );
 
     Ok(BootedServices {
         system_relational,
