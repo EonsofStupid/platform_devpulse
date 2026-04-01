@@ -6,14 +6,13 @@
 pub mod analytics;
 pub mod cache;
 pub mod graph;
+pub mod manifest;
 pub mod relational;
 #[cfg(feature = "rro")]
 pub mod vector;
 #[cfg(feature = "kokoros")]
 pub mod voice;
-// Grammar service removed — llguidance integration is a future sprint
-// #[cfg(feature = "outlines")]
-// pub mod grammar;
+// Grammar service — llguidance integration is a future sprint
 #[cfg(feature = "candle")]
 pub mod embedder;
 #[cfg(feature = "candle")]

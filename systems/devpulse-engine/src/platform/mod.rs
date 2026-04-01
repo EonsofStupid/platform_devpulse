@@ -72,6 +72,70 @@ use services::whisper::WhisperService;
 use services::model_loader::ModelLoaderService;
 use services::devforge::DevForgeService;
 
+// ═══════════════════════════════════════════════════════════════
+// Service enumeration macro — THE single point of service listing
+// ═══════════════════════════════════════════════════════════════
+
+/// Enumerate every service field on Platform, applying `$action!(field)`.
+///
+/// This is the **single enumeration point** for all service iteration.
+/// Health, shutdown, and validation all expand this macro. Adding a new
+/// service = add ONE line here. Everything else derives automatically.
+///
+/// The `$action` parameter is a macro that receives `self.field_name`.
+/// Feature gates are handled inline — non-compiled services are skipped.
+macro_rules! for_each_service {
+    ($self:ident, $action:ident) => {
+        // System scope (boot order)
+        $action!($self.system_relational);
+        $action!($self.system_analytics);
+        $action!($self.system_graph);
+        $action!($self.system_cache);
+        // User scope
+        $action!($self.user_relational);
+        $action!($self.user_graph);
+        // Global scope
+        $action!($self.global_graph);
+        // Feature-gated services
+        #[cfg(feature = "rro")]
+        $action!($self.vector);
+        #[cfg(feature = "kokoros")]
+        $action!($self.voice);
+        #[cfg(feature = "candle")]
+        $action!($self.embedder);
+        #[cfg(feature = "candle")]
+        $action!($self.whisper);
+        #[cfg(feature = "inference")]
+        $action!($self.model_loader);
+        // Non-critical
+        $action!($self.devforge);
+    };
+}
+
+/// Reverse enumeration for shutdown (last booted = first shutdown).
+macro_rules! for_each_service_rev {
+    ($self:ident, $action:ident) => {
+        $action!($self.devforge);
+        #[cfg(feature = "inference")]
+        $action!($self.model_loader);
+        #[cfg(feature = "candle")]
+        $action!($self.whisper);
+        #[cfg(feature = "candle")]
+        $action!($self.embedder);
+        #[cfg(feature = "kokoros")]
+        $action!($self.voice);
+        #[cfg(feature = "rro")]
+        $action!($self.vector);
+        $action!($self.global_graph);
+        $action!($self.user_graph);
+        $action!($self.user_relational);
+        $action!($self.system_cache);
+        $action!($self.system_graph);
+        $action!($self.system_analytics);
+        $action!($self.system_relational);
+    };
+}
+
 /// Platform engine — sole public API for persistence, health, config.
 ///
 /// Owns all service lifecycles. Tauri talks to this, never to clyffy directly.
@@ -166,55 +230,23 @@ impl Platform {
         })
     }
 
-    /// Get system health by pinging all enabled services.
+    /// Get system health by pinging all active services.
+    ///
+    /// Uses `for_each_service!` — the single enumeration point for all
+    /// service iteration. Adding a new service = add ONE line to the macro.
     pub async fn health(&self) -> SystemHealth {
-        let mut subsystems = Vec::with_capacity(7);
+        let mut subsystems = Vec::new();
 
-        if let Some(svc) = &self.system_relational {
-            subsystems.push(ping_service(svc.as_ref()).await);
+        // Single enumeration point — health, shutdown, and validation
+        // all expand this same macro with different per-service actions.
+        macro_rules! ping {
+            ($field:expr) => {
+                if let Some(s) = &$field {
+                    subsystems.push(ping_service(s.as_ref()).await);
+                }
+            };
         }
-        if let Some(svc) = &self.system_analytics {
-            subsystems.push(ping_service(svc.as_ref()).await);
-        }
-        if let Some(svc) = &self.system_graph {
-            subsystems.push(ping_service(svc.as_ref()).await);
-        }
-        if let Some(svc) = &self.system_cache {
-            subsystems.push(ping_service(svc.as_ref()).await);
-        }
-        if let Some(svc) = &self.user_relational {
-            subsystems.push(ping_service(svc.as_ref()).await);
-        }
-        if let Some(svc) = &self.user_graph {
-            subsystems.push(ping_service(svc.as_ref()).await);
-        }
-        if let Some(svc) = &self.global_graph {
-            subsystems.push(ping_service(svc.as_ref()).await);
-        }
-        #[cfg(feature = "rro")]
-        if let Some(svc) = &self.vector {
-            subsystems.push(ping_service(svc.as_ref()).await);
-        }
-        #[cfg(feature = "kokoros")]
-        if let Some(svc) = &self.voice {
-            subsystems.push(ping_service(svc.as_ref()).await);
-        }
-        // Grammar (llguidance) — future sprint
-        #[cfg(feature = "inference")]
-        if let Some(svc) = &self.model_loader {
-            subsystems.push(ping_service(svc.as_ref()).await);
-        }
-        #[cfg(feature = "candle")]
-        if let Some(svc) = &self.embedder {
-            subsystems.push(ping_service(svc.as_ref()).await);
-        }
-        #[cfg(feature = "candle")]
-        if let Some(svc) = &self.whisper {
-            subsystems.push(ping_service(svc.as_ref()).await);
-        }
-        if let Some(svc) = &self.devforge {
-            subsystems.push(ping_service(svc.as_ref()).await);
-        }
+        for_each_service!(self, ping);
 
         let status = if subsystems.iter().all(|s| s.status == HealthStatus::Healthy) {
             HealthStatus::Healthy
@@ -333,65 +365,48 @@ impl Platform {
 
     /// Graceful shutdown — close all services in reverse boot order.
     ///
-    /// Flushes WALs, checkpoints databases, and releases file locks so the
-    /// next process can open them immediately (hot-reload, restart).
-    /// Enforces a 5-second deadline — if exceeded, logs a warning and drops.
+    /// Uses `for_each_service_rev!` — the same enumeration point as health,
+    /// but in reverse. Flushes WALs, checkpoints databases, releases file
+    /// locks within a 5-second deadline.
     #[allow(clippy::cast_possible_truncation)]
     pub async fn shutdown(&self) {
         let start = Instant::now();
         tracing::info!("Platform shutting down — closing services");
         let deadline = std::time::Duration::from_secs(5);
 
-        // Reverse boot order: graph → analytics → cache → relational
-        // Graph services share one SurrealKV — close system graph first (owns the adapter)
-        Self::shutdown_service_with_deadline(self.global_graph.as_ref(), &deadline, start).await;
-        Self::shutdown_service_with_deadline(self.user_graph.as_ref(), &deadline, start).await;
-        Self::shutdown_service_with_deadline(self.system_graph.as_ref(), &deadline, start).await;
-        Self::shutdown_service_with_deadline(self.system_analytics.as_ref(), &deadline, start).await;
-        // Cache (Moka) is in-memory — no-op shutdown, but call for consistency
-        Self::shutdown_service_with_deadline(self.system_cache.as_ref(), &deadline, start).await;
-        Self::shutdown_service_with_deadline(self.user_relational.as_ref(), &deadline, start).await;
-        // Model Loader — unload models, release backends
-        #[cfg(feature = "inference")]
-        Self::shutdown_service_with_deadline(self.model_loader.as_ref(), &deadline, start).await;
-        // DevForge (child process) — kill first
-        Self::shutdown_service_with_deadline(self.devforge.as_ref(), &deadline, start).await;
-        Self::shutdown_service_with_deadline(self.system_relational.as_ref(), &deadline, start).await;
+        macro_rules! shutdown_one {
+            ($field:expr) => {
+                if let Some(s) = &$field {
+                    let elapsed = start.elapsed();
+                    if elapsed >= deadline {
+                        tracing::warn!(
+                            service = s.name(),
+                            "Shutdown deadline exceeded — skipping remaining"
+                        );
+                    } else {
+                        let remaining = deadline - elapsed;
+                        match tokio::time::timeout(remaining, s.shutdown()).await {
+                            Ok(Ok(())) => {
+                                tracing::debug!(service = s.name(), "Service shutdown OK");
+                            }
+                            Ok(Err(e)) => {
+                                tracing::warn!(service = s.name(), error = %e, "Service shutdown error");
+                            }
+                            Err(_) => {
+                                tracing::warn!(service = s.name(), "Service shutdown timed out");
+                            }
+                        }
+                    }
+                }
+            };
+        }
+        for_each_service_rev!(self, shutdown_one);
 
         let elapsed = start.elapsed();
         tracing::info!(
             elapsed_ms = elapsed.as_millis() as u64,
             "Platform shutdown complete"
         );
-    }
-
-    /// Shut down a single service, respecting the overall deadline.
-    async fn shutdown_service_with_deadline<S: Service>(
-        service: Option<&Arc<S>>,
-        deadline: &std::time::Duration,
-        start: Instant,
-    ) {
-        let Some(service) = service else { return };
-        let elapsed = start.elapsed();
-        if elapsed >= *deadline {
-            tracing::warn!(
-                service = service.name(),
-                "Shutdown deadline exceeded — skipping"
-            );
-            return;
-        }
-        let remaining = *deadline - elapsed;
-        match tokio::time::timeout(remaining, service.shutdown()).await {
-            Ok(Ok(())) => {
-                tracing::debug!(service = service.name(), "Service shutdown OK");
-            }
-            Ok(Err(e)) => {
-                tracing::warn!(service = service.name(), error = %e, "Service shutdown error");
-            }
-            Err(_) => {
-                tracing::warn!(service = service.name(), "Service shutdown timed out");
-            }
-        }
     }
 
     /// Get the data directory.

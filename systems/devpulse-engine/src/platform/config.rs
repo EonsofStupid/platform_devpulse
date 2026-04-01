@@ -55,7 +55,7 @@ pub struct DatabaseConfig {
     pub vector_enabled: bool,
     /// Voice service enabled (`Kokoros`).
     pub voice_enabled: bool,
-    /// Grammar service enabled (`outlines-core`).
+    /// Grammar service enabled (`llguidance` — future sprint).
     pub grammar_enabled: bool,
     /// Embedder service enabled (Candle).
     pub embedder_enabled: bool,
@@ -65,25 +65,9 @@ pub struct DatabaseConfig {
     pub devforge_enabled: bool,
 }
 
-impl Default for DatabaseConfig {
-    fn default() -> Self {
-        Self {
-            system_relational_enabled: true,
-            system_analytics_enabled: true,
-            system_graph_enabled: true,
-            system_cache_enabled: true,
-            user_relational_enabled: true,
-            user_graph_enabled: true,
-            global_graph_enabled: true,
-            vector_enabled: true,
-            voice_enabled: true,
-            grammar_enabled: true,
-            embedder_enabled: false,
-            whisper_enabled: false,
-            devforge_enabled: false,
-        }
-    }
-}
+// DatabaseConfig has NO Default impl by design.
+// The ONLY way to construct it is via PlatformBootConfig::to_database_config(),
+// which reads real values from the parsed TOML. This prevents config drift.
 
 // ═══════════════════════════════════════════════════════════════
 // Internal boot config (TOML-driven, NOT TS-exported)
@@ -194,7 +178,7 @@ pub struct SystemServicesConfig {
     /// Voice service (`Kokoros`) — embedded TTS engine.
     #[serde(default)]
     pub voice: VoiceServiceEntry,
-    /// Grammar service (`outlines-core`) — structured generation engine.
+    /// Grammar service (`llguidance` — future sprint) — structured generation engine.
     #[serde(default)]
     pub grammar: GrammarServiceEntry,
     /// Embedder service (Candle — dense text embedding, CPU burst).
@@ -601,8 +585,8 @@ pub struct VoiceServiceEntry {
 impl Default for VoiceServiceEntry {
     fn default() -> Self {
         Self {
-            enabled: true,
-            critical: true,
+            enabled: false,
+            critical: false,
             kind: default_kokoros_kind(),
             model_path: default_kokoros_model_path(),
             voices_path: default_kokoros_voices_path(),
@@ -934,6 +918,64 @@ impl PlatformBootConfig {
         } else {
             let config: Self = toml::from_str(DEFAULT_CONFIG)?;
             Ok(config)
+        }
+    }
+
+    /// Check if a service is both enabled AND critical in config.
+    ///
+    /// Used by boot validation to determine which failures are fatal.
+    /// Reads directly from parsed TOML — no hardcoded list.
+    pub fn is_enabled_and_critical(
+        &self,
+        role: crate::platform::services::ServiceRole,
+        scope: DataScope,
+    ) -> bool {
+        use crate::platform::services::ServiceRole;
+        match (role, scope) {
+            (ServiceRole::Relational, DataScope::System) => {
+                self.services.system.relational.enabled && self.services.system.relational.critical
+            }
+            (ServiceRole::Analytics, DataScope::System) => {
+                self.services.system.analytics.enabled && self.services.system.analytics.critical
+            }
+            (ServiceRole::Graph, DataScope::System) => {
+                self.services.system.graph.enabled && self.services.system.graph.critical
+            }
+            (ServiceRole::Cache, DataScope::System) => {
+                self.services.system.cache.enabled && self.services.system.cache.critical
+            }
+            (ServiceRole::Vector, DataScope::System) => {
+                self.services.system.vector.enabled && self.services.system.vector.critical
+            }
+            (ServiceRole::Voice, DataScope::System) => {
+                self.services.system.voice.enabled && self.services.system.voice.critical
+            }
+            (ServiceRole::Grammar, DataScope::System) => {
+                self.services.system.grammar.enabled && self.services.system.grammar.critical
+            }
+            (ServiceRole::Embedder, DataScope::System) => {
+                self.services.system.embedder.enabled && self.services.system.embedder.critical
+            }
+            (ServiceRole::Whisper, DataScope::System) => {
+                self.services.system.whisper.enabled && self.services.system.whisper.critical
+            }
+            (ServiceRole::ModelLoader, DataScope::System) => {
+                self.services.system.model_loader.enabled && self.services.system.model_loader.critical
+            }
+            (ServiceRole::DevForge, DataScope::System) => {
+                self.services.system.devforge.enabled && self.services.system.devforge.critical
+            }
+            (ServiceRole::Relational, DataScope::User) => {
+                self.services.user.relational.enabled && self.services.user.relational.critical
+            }
+            (ServiceRole::Graph, DataScope::User) => {
+                self.services.user.graph.enabled && self.services.user.graph.critical
+            }
+            (ServiceRole::Graph, DataScope::Global) => {
+                self.services.global.graph.enabled && self.services.global.graph.critical
+            }
+            // Project scope doesn't participate in boot validation
+            _ => false,
         }
     }
 

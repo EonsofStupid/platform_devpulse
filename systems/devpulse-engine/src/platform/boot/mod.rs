@@ -8,22 +8,37 @@
 //! - [`cache`] — Moka
 //! - [`vector`] — RRO (embedded Qdrant)
 //! - [`voice`] — Kokoros TTS
+//! - [`embedder`] — Candle dense embedding
+//! - [`whisper`] — Candle speech-to-text
+//! - [`model_loader`] — AI model management + inference
+//! - [`devforge`] — Managed VSCode (code-oss)
 //! - grammar — llguidance (future sprint, currently skipped)
 //!
-//! # Boot Sequence (strict order)
-//! 1. **Preflight** — validate config, create directory hierarchy
-//! 2. **System relational** (LibSQL) — CRITICAL — kernel state, boot records
-//! 3. **System analytics** (DuckDB) — telemetry
-//! 4. **Graph store** (SurrealDB) — CRITICAL — consolidated 3 namespaces + HTTP API
-//! 5. **System cache** (Moka) — in-memory
-//! 6. **User relational** (LibSQL) — sessions, preferences
-//! 7. **Vector store** (RRO) — embeddings, retrieval
-//! 8. **Voice service** (Kokoros) — TTS engine
-//! 9. **Grammar service** (llguidance) — constrained decoding (future sprint, skipped)
-//! 10. **Validation** — verify all critical services booted
+//! # Boot Sequence (14 stages, strict order)
+//!  1. **Preflight** — validate config, create directory hierarchy
+//!  2. **System relational** (LibSQL) — CRITICAL
+//!  3. **System analytics** (DuckDB) — CRITICAL
+//!  4. **Graph store** (SurrealDB) — CRITICAL (system + user + global)
+//!  5. **System cache** (Moka) — CRITICAL
+//!  6. **User relational** (LibSQL) — CRITICAL
+//!  7. **Vector store** (RRO) — feature-gated
+//!  8. **Voice service** (Kokoros) — feature-gated
+//!  9. **Grammar** (llguidance) — SKIPPED (future sprint)
+//! 10. **Embedder** (Candle) — feature-gated
+//! 11. **Whisper** (Candle) — feature-gated
+//! 12. **Model Loader** — feature-gated (inference)
+//! 13. **DevForge** (VSCode) — non-critical
+//! 14. **Validation** — verify all critical services (config-driven)
 //!
 //! Each stage completes and is health-checked BEFORE the next begins.
 //! The boot log writes to file AND stderr in real time.
+//!
+//! # Validation Contract
+//! `validate_critical()` receives a data-driven list of (name, booted, is_critical)
+//! tuples. `is_critical` is read from `PlatformBootConfig::is_enabled_and_critical()`,
+//! which reads the parsed TOML. No hardcoded list — if TOML says critical=true,
+//! the service is validated. See `services/manifest.rs` for the compile-time
+//! service manifest.
 //!
 //! # Failure Policy
 //! - Critical service failure → boot returns `Err`, UI must not render
@@ -272,7 +287,7 @@ async fn execute_inner(
         }
     }
 
-    // ── Stage 12: Model Loader — feature-gated ─────────────────
+    // ── Stage 12: Model Loader (Inference) — feature-gated ──────
     #[cfg(feature = "inference")]
     let model_loader_svc = model_loader::boot(
         data_dir,
@@ -299,35 +314,36 @@ async fn execute_inner(
         &boot_log,
     );
 
-    // ── Stage 13: Validate critical services ──────────────────
-    validate_critical(
-        &system_relational,
-        &system_analytics,
-        &system_graph,
-        &system_cache,
-        &user_relational,
-        boot_config,
-        &boot_log,
-    )?;
-
-    #[cfg(feature = "rro")]
-    if vector.is_none()
-        && boot_config.services.system.vector.enabled
-        && boot_config.services.system.vector.critical
+    // ── Stage 14: Validate critical services ─────────────────
+    // Config-driven: is_enabled_and_critical() reads from parsed TOML.
+    // No hardcoded list — if TOML says critical=true, it's validated.
     {
-        boot_log.fail("Vector store", "enabled+critical but failed to boot");
-        anyhow::bail!("FATAL: Vector store (RRO/Qdrant) was enabled+critical but failed to boot");
-    }
+        use crate::platform::config::DataScope;
+        use crate::platform::services::ServiceRole;
 
-    #[cfg(feature = "kokoros")]
-    if voice.is_none()
-        && boot_config.services.system.voice.enabled
-        && boot_config.services.system.voice.critical
-    {
-        boot_log.fail("Voice service", "enabled+critical but failed to boot");
-        anyhow::bail!("FATAL: Voice service (Kokoros) was enabled+critical but failed to boot");
-    }
+        let mut checks: Vec<(&str, bool, bool)> = vec![
+            ("System Database",  system_relational.is_some(), boot_config.is_enabled_and_critical(ServiceRole::Relational, DataScope::System)),
+            ("Analytics Engine", system_analytics.is_some(),  boot_config.is_enabled_and_critical(ServiceRole::Analytics, DataScope::System)),
+            ("Knowledge Graph",  system_graph.is_some(),      boot_config.is_enabled_and_critical(ServiceRole::Graph, DataScope::System)),
+            ("System Cache",     system_cache.is_some(),      boot_config.is_enabled_and_critical(ServiceRole::Cache, DataScope::System)),
+            ("User Database",    user_relational.is_some(),   boot_config.is_enabled_and_critical(ServiceRole::Relational, DataScope::User)),
+            ("User Knowledge",   user_graph.is_some(),        boot_config.is_enabled_and_critical(ServiceRole::Graph, DataScope::User)),
+            ("Shared Knowledge", global_graph.is_some(),      boot_config.is_enabled_and_critical(ServiceRole::Graph, DataScope::Global)),
+        ];
+        #[cfg(feature = "rro")]
+        checks.push(("Vector Store", vector.is_some(), boot_config.is_enabled_and_critical(ServiceRole::Vector, DataScope::System)));
+        #[cfg(feature = "kokoros")]
+        checks.push(("Voice Engine", voice.is_some(), boot_config.is_enabled_and_critical(ServiceRole::Voice, DataScope::System)));
+        #[cfg(feature = "candle")]
+        checks.push(("Embedding Engine", embedder.is_some(), boot_config.is_enabled_and_critical(ServiceRole::Embedder, DataScope::System)));
+        #[cfg(feature = "candle")]
+        checks.push(("Speech Recognition", whisper.is_some(), boot_config.is_enabled_and_critical(ServiceRole::Whisper, DataScope::System)));
+        #[cfg(feature = "inference")]
+        checks.push(("Model Manager", model_loader_svc.is_some(), boot_config.is_enabled_and_critical(ServiceRole::ModelLoader, DataScope::System)));
+        checks.push(("Code Editor", devforge.is_some(), boot_config.is_enabled_and_critical(ServiceRole::DevForge, DataScope::System)));
 
+        validate_critical(&checks, boot_config, &boot_log)?;
+    }
 
     // Check for ANY failures — not just critical ones.
     // SKIP is acceptable (disabled in config). FAIL is not.
@@ -371,58 +387,25 @@ async fn execute_inner(
 
 /// Validate that all critical services booted successfully.
 ///
+/// Config-driven: receives `(name, booted, is_critical)` tuples built from
+/// `PlatformBootConfig::is_enabled_and_critical()`. No hardcoded list —
+/// every service that TOML marks as critical gets validated automatically.
+///
 /// When `boot_config.boot.require_all_critical` is true (default), any critical
-/// service failure is fatal — boot returns an error and UI never renders.
-/// When false, critical failures are logged as warnings and boot continues
-/// in degraded mode.
+/// service failure is fatal. When false, boot continues in degraded mode.
 fn validate_critical(
-    system_relational: &Option<Arc<RelationalService>>,
-    system_analytics: &Option<Arc<AnalyticsService>>,
-    system_graph: &Option<Arc<GraphService>>,
-    system_cache: &Option<Arc<CacheService>>,
-    user_relational: &Option<Arc<RelationalService>>,
+    checks: &[(&str, bool, bool)],
     boot_config: &PlatformBootConfig,
     boot_log: &BootLog,
 ) -> Result<()> {
     let strict = boot_config.boot.require_all_critical;
-
-    // Collect failures instead of bailing immediately — report all at once
     let mut failures: Vec<&str> = Vec::new();
 
-    if system_relational.is_none()
-        && boot_config.services.system.relational.enabled
-        && boot_config.services.system.relational.critical
-    {
-        boot_log.fail("VALIDATION", "System relational (LibSQL) is critical but failed");
-        failures.push("System relational (LibSQL)");
-    }
-    if system_analytics.is_none()
-        && boot_config.services.system.analytics.enabled
-        && boot_config.services.system.analytics.critical
-    {
-        boot_log.fail("VALIDATION", "System analytics (DuckDB) is critical but failed");
-        failures.push("System analytics (DuckDB)");
-    }
-    if system_graph.is_none()
-        && boot_config.services.system.graph.enabled
-        && boot_config.services.system.graph.critical
-    {
-        boot_log.fail("VALIDATION", "System graph (SurrealDB) is critical but failed");
-        failures.push("System graph (SurrealDB)");
-    }
-    if system_cache.is_none()
-        && boot_config.services.system.cache.enabled
-        && boot_config.services.system.cache.critical
-    {
-        boot_log.fail("VALIDATION", "System cache (Moka) is critical but failed");
-        failures.push("System cache (Moka)");
-    }
-    if user_relational.is_none()
-        && boot_config.services.user.relational.enabled
-        && boot_config.services.user.relational.critical
-    {
-        boot_log.fail("VALIDATION", "User relational (LibSQL) is critical but failed");
-        failures.push("User relational (LibSQL)");
+    for &(name, booted, is_critical) in checks {
+        if !booted && is_critical {
+            boot_log.fail("VALIDATION", &format!("{name} is critical but failed to boot"));
+            failures.push(name);
+        }
     }
 
     if !failures.is_empty() {
@@ -439,7 +422,6 @@ fn validate_critical(
                 failures.join(", ")
             );
         } else {
-            // Degraded mode — log but continue
             tracing::warn!(
                 failures = failures.join(", "),
                 "Critical services failed but require_all_critical=false — degraded mode"
