@@ -30,6 +30,7 @@ pub struct BackendPool {
 }
 
 impl BackendPool {
+    /// Create an empty backend pool.
     #[must_use]
     pub fn new() -> Self {
         Self {

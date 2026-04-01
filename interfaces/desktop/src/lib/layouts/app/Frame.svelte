@@ -34,7 +34,7 @@ const isContextExpanded = $derived(globalState.context_mode === "expanded");
 
 /** Structural layout classes per shell slot — no recipe import */
 /** Layout dimensions — reference: DASHBOARD-REFERENCE-01.png, refernece-dashboard3/4.png
- *  TopBar:   66px  (h-[4.125rem])  — brand + pulse feed + maestro badge
+ *  TopBar:   66px  (h-[4.125rem])  — brand + pulse feed + clyffy badge
  *  Sidebar:  60px collapsed / 240px expanded — icon nav + labels
  *  StatusBar: 52px (h-[3.25rem])  — service pills, vitals, version
  *  Context:  400px (w-[25rem])    — chat portal / devtools panel

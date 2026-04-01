@@ -38,14 +38,14 @@ from REAL backends. No more glass facades with `--` and `0`.
 
 | Component | Description | Blocks |
 |-----------|------------|--------|
-| **ResourceArbiter** | GPU/VRAM detection, allocation planning | Maestro route showing real hardware |
+| **ResourceArbiter** | GPU/VRAM detection, allocation planning | Clyffy route showing real hardware |
 | **InferenceManager** | Model loading/unloading, CandleProvider | Any local inference |
 | **CandleProvider** | Forward pass, KV cache, token generation | Chat with local LLM |
 | **ModelManager** | hf-hub download, cache dir, progress | Model management UI |
 | **Candle feature wiring** | Feature is enabled but no code uses candle-core/nn/transformers | Everything inference |
 | **Kokoro espeak fix** | espeak-rs-sys needs system install support — kokoros feature disabled in Tauri | TTS |
 | **llguidance integration** | Constrained decoding — fork exists but not wired | Structured output |
-| **Minion execution** | factory.rs is 1 line. No spawn, no signal routing, no task execution | Maestro route |
+| **Minion execution** | factory.rs is 1 line. No spawn, no signal routing, no task execution | Clyffy route |
 | **HMM / reasoning** | 1 line stub. No state machine, no context switching | Rumination pipeline |
 
 ### TAURI COMMANDS (What's Registered)
@@ -53,13 +53,13 @@ from REAL backends. No more glass facades with `--` and `0`.
 | Command | Module | Status |
 |---------|--------|--------|
 | `get_boot_state` | sys/boot | REAL — returns boot snapshot |
-| `get_status` | devmaestro | REAL — returns SystemHealth |
+| `get_status` | devclyffy | REAL — returns SystemHealth |
 | `fetch_dashboard` | devpulse | REAL — LibSQL + DuckDB + Moka stats |
 | `get_process_metrics` | devpulse | REAL — OS CPU/memory/PID |
 | `load_recent` | chat | REAL — chat history from LibSQL |
 | `send_message` | chat | REAL — persists to LibSQL |
 | `log` | sys/logger | REAL — frontend→Rust log bridge |
-| `create_canvas` | thinkmaestro | STUB — empty function |
+| `create_canvas` | thinkclyffy | STUB — empty function |
 | `connect_peer` | wiredfront | STUB — empty function |
 
 ### FRONTEND STATE (What's Wired)
@@ -71,7 +71,7 @@ from REAL backends. No more glass facades with `--` and `0`.
 | `devpulseState` | 4 $state | fetch_dashboard, get_process_metrics | REAL |
 | Chat page | 4 $state | load_recent, send_message | REAL |
 | DevForge | — | — | NOTHING |
-| Maestro | — | — | NOTHING |
+| Clyffy | — | — | NOTHING |
 | OverMind | — | — | NOTHING |
 | WiredFront | — | — | NOTHING |
 
@@ -87,7 +87,7 @@ from REAL backends. No more glass facades with `--` and `0`.
 
 ```
 Phase 1: INFERENCE FOUNDATION (Candle loads a model, generates tokens)
-Phase 2: MAESTRO HUB (hardware detection, model status, inference metrics)
+Phase 2: CLYFFY HUB (hardware detection, model status, inference metrics)
 Phase 3: SETTINGS (model management UI, hardware tier display)
 Phase 4: KOKORO TTS (voice output wired to chat)
 Phase 5: DEVFORGE (build pipeline — reads Cargo.toml, pnpm, git status)
@@ -114,7 +114,7 @@ Proof of life. No GPU, no optimization, just "the engine can think."
 
 ### Task 1.1: ModelManager — Download + Cache
 
-Create `kernel/devpulse-maestro/src/cortex/inference/model_manager.rs`:
+Create `kernel/devpulse-clyffy/src/cortex/inference/model_manager.rs`:
 
 ```
 - ModelPaths struct (cache dir: ~/.devpulse/models/)
@@ -128,7 +128,7 @@ Create `kernel/devpulse-maestro/src/cortex/inference/model_manager.rs`:
 
 ### Task 1.2: CandleProvider — Load + Forward Pass
 
-Create `kernel/devpulse-maestro/src/cortex/inference/candle_provider.rs`:
+Create `kernel/devpulse-clyffy/src/cortex/inference/candle_provider.rs`:
 
 ```
 - Load GGUF model via candle-transformers
@@ -157,7 +157,7 @@ or misthril or ollama if they are actually competing with Qw3e
 
 ### Task 1.3: InferenceManager — Orchestrate Models
 
-Create `kernel/devpulse-maestro/src/cortex/inference/mod.rs`:
+Create `kernel/devpulse-clyffy/src/cortex/inference/mod.rs`:
 
 ```
 - InferenceManager struct (owns ModelManager + CandleProvider)
@@ -178,7 +178,7 @@ pub async fn inference_generate(
     max_tokens: u32,
     state: State<'_, PlatformState>,
 ) -> Result<String, String> {
-    // Delegate to engine → maestro → inference manager
+    // Delegate to engine → clyffy → inference manager
 }
 ```
 
@@ -190,13 +190,13 @@ Response streams back token-by-token.
 
 ---
 
-## PHASE 2: Maestro Hub — Real Hardware + Model Status
+## PHASE 2: ClyffyHub — Real Hardware + Model Status
 
-**Goal**: Maestro route shows REAL hardware info, model load status, inference metrics.
+**Goal**: Clyffyroute shows REAL hardware info, model load status, inference metrics.
 
 ### Task 2.1: ResourceArbiter
 
-Create `kernel/devpulse-maestro/src/cortex/inference/arbiter.rs`:
+Create `kernel/devpulse-clyffysrc/cortex/inference/arbiter.rs`:
 
 ```
 - Detect GPU via nvml-wrapper (NVIDIA) or fallback
@@ -212,7 +212,7 @@ Create `kernel/devpulse-maestro/src/cortex/inference/arbiter.rs`:
 **Question**: nvml-wrapper is NOT in Cargo.toml currently. Add it?
 Also: Windows DirectML detection vs CUDA-only for Phase 1?
 
-### Task 2.2: Maestro Tauri Commands
+### Task 2.2: Clyffyauri Commands
 
 Add commands:
 
@@ -222,17 +222,17 @@ get_model_status → { models: [{ id, loaded, device, vram }] }
 get_inference_metrics → { requests, avg_latency, tokens_generated, cache_hits }
 ```
 
-### Task 2.3: Maestro Frontend State + Route
+### Task 2.3: ClyffyFrontend State + Route
 
-Create `domains/app/maestro/runes/maestro.runes.svelte.ts`:
+Create `domains/app/clyffy/runes/clyffy.runes.svelte.ts`:
 
 ```
-- maestroState with $state for hardware, models, metrics
+- clyffytate with $state for hardware, models, metrics
 - Service file with invoke calls
 - Wire route to display REAL data
 ```
 
-Replace every `--` and `0` in the Maestro route with live values.
+Replace every `--` and `0` in the Clyffyte with live values.
 
 ---
 
@@ -353,40 +353,40 @@ Deferred until Phase 1-2 complete — needs a working inference engine.
 ## FILES REFERENCED
 
 ### Rust (Existing)
-- `kernel/devpulse-maestro/src/cortex/persistence/kokoros.rs` — Kokoro adapter (81 lines, complete)
-- `kernel/devpulse-maestro/src/cortex/persistence/whisper.rs` — Whisper adapter (176 lines)
-- `kernel/devpulse-maestro/src/cortex/persistence/embedder.rs` — Embedder adapter (144 lines)
-- `kernel/devpulse-maestro/src/cortex/cag/pipeline.rs` — Full CAG retrieval pipeline (273 lines)
-- `kernel/devpulse-maestro/src/cortex/minions/types.rs` — MinionRole, Persona types (40 lines)
-- `kernel/devpulse-maestro/src/cortex/minions/factory.rs` — STUB (1 line)
-- `kernel/devpulse-maestro/src/cortex/reasoning/hmm.rs` — STUB (1 line)
+- `kernel/devpulse-clyffycortex/persistence/kokoros.rs` — Kokoro adapter (81 lines, complete)
+- `kernel/devpulse-clyffyc/cortex/persistence/whisper.rs` — Whisper adapter (176 lines)
+- `kernel/devpulse-clyffysrc/cortex/persistence/embedder.rs` — Embedder adapter (144 lines)
+- `kernel/devpulse-clyffysrc/cortex/cag/pipeline.rs` — Full CAG retrieval pipeline (273 lines)
+- `kernel/devpulse-clyffy/src/cortex/minions/types.rs` — MinionRole, Persona types (40 lines)
+- `kernel/devpulse-clyffy/src/cortex/minions/factory.rs` — STUB (1 line)
+- `kernel/devpulse-clyffy/src/cortex/reasoning/hmm.rs` — STUB (1 line)
 - `systems/devpulse-engine/src/platform/services/voice.rs` — VoiceService wrapper (50 lines)
 - `systems/devpulse-engine/src/platform/services/embedder.rs` — EmbedderService wrapper (65 lines)
 
 ### Rust (To Create)
-- `kernel/devpulse-maestro/src/cortex/inference/mod.rs` — InferenceManager
-- `kernel/devpulse-maestro/src/cortex/inference/candle_provider.rs` — Candle forward pass
-- `kernel/devpulse-maestro/src/cortex/inference/model_manager.rs` — hf-hub download + cache
-- `kernel/devpulse-maestro/src/cortex/inference/arbiter.rs` — ResourceArbiter (GPU detection)
+- `kernel/devpulse-clyffy/src/cortex/inference/mod.rs` — InferenceManager
+- `kernel/devpulse-clyffy/src/cortex/inference/candle_provider.rs` — Candle forward pass
+- `kernel/devpulse-clyffy/src/cortex/inference/model_manager.rs` — hf-hub download + cache
+- `kernel/devpulse-clyffy/src/cortex/inference/arbiter.rs` — ResourceArbiter (GPU detection)
 
 ### Frontend (Existing)
 - `interfaces/desktop/src/lib/domains/app/devpulse/` — reference pattern for state + service
-- `interfaces/desktop/src/routes/(app)/maestro/+page.svelte` — stub to replace
+- `interfaces/desktop/src/routes/(app)/clyffy/+page.svelte` — stub to replace
 - `interfaces/desktop/src/routes/(app)/devforge/+page.svelte` — stub to replace
 - `interfaces/desktop/src/routes/(app)/wiredfront/+page.svelte` — stub to replace
 - `interfaces/desktop/src/routes/(app)/overmind/+page.svelte` — stub to replace
 - `interfaces/desktop/src/routes/(app)/devpulse/settings/+page.svelte` — stub to replace
 
 ### Frontend (To Create)
-- `interfaces/desktop/src/lib/domains/app/maestro/runes/maestro.runes.svelte.ts`
-- `interfaces/desktop/src/lib/domains/app/maestro/services/maestro.service.ts`
+- `interfaces/desktop/src/lib/domains/app/clyffy/runes/clyffy.runes.svelte.ts`
+- `interfaces/desktop/src/lib/domains/app/clyffy/services/clyffy.service.ts`
 - `interfaces/desktop/src/lib/domains/app/devforge/runes/devforge.runes.svelte.ts`
 - `interfaces/desktop/src/lib/domains/app/devforge/services/devforge.service.ts`
 - `interfaces/desktop/src/lib/domains/app/wiredfront/runes/wiredfront.runes.svelte.ts`
 - `interfaces/desktop/src/lib/domains/app/wiredfront/services/wiredfront.service.ts`
 
 ### Cargo.toml Changes Needed
-- `kernel/devpulse-maestro/Cargo.toml` — add nvml-wrapper (optional, cuda feature)
+- `kernel/devpulse-clyffy/Cargo.toml` — add nvml-wrapper (optional, cuda feature)
 - `interfaces/desktop/src-tauri/Cargo.toml` — enable kokoros feature (after espeak fix)
 
 ---

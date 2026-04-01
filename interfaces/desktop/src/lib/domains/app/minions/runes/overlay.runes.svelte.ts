@@ -3,7 +3,7 @@
  * @module @devpulse/domains/app/minions/runes/overlay
  *
  * Controls which minions appear on screen and their animation states.
- * Listens to MAESTRO signals (future) — for now, expose manual controls.
+ * Listens to CLYFFY signals (future) — for now, expose manual controls.
  */
 
 import type { ActiveMinion, MinionAnimationState } from "$lib/design/overlays/types.js";

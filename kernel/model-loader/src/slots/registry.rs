@@ -6,7 +6,7 @@ use std::collections::HashMap;
 
 /// Manages all registered slots. Consumers register their slots at startup.
 ///
-/// The Model Loader doesn't know about Minions or MAESTRO — it just manages
+/// The Model Loader doesn't know about Minions or CLYFFY — it just manages
 /// named slots with capabilities and strategies.
 #[derive(Debug, Default)]
 pub struct SlotRegistry {
@@ -14,6 +14,7 @@ pub struct SlotRegistry {
 }
 
 impl SlotRegistry {
+    /// Create an empty slot registry.
     #[must_use]
     pub fn new() -> Self {
         Self::default()

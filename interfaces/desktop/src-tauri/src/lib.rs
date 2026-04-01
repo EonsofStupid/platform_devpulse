@@ -60,6 +60,13 @@ pub fn run() {
         commands::models::scan_models,
         commands::models::get_slots,
         commands::models::is_first_run,
+        commands::models::assign_model_to_slot,
+        commands::models::load_slot,
+        commands::models::unload_slot,
+        commands::models::download_model,
+        commands::models::cancel_download,
+        commands::models::search_huggingface,
+        commands::models::auto_configure,
         commands::models::inference_generate,
     ]);
 

@@ -246,6 +246,12 @@ pub fn infer_backends(architecture: &str) -> Vec<BackendType> {
     backends
 }
 
+/// Public accessor for quant inference — used by search module.
+#[must_use]
+pub fn infer_quant_from_filename_pub(filename: &str) -> Option<String> {
+    infer_quant_from_filename(filename)
+}
+
 /// Infer quantization level from filename conventions.
 ///
 /// Common patterns: `q4_k_m`, `q8_0`, `f16`, `q5_k_s`, etc.

@@ -35,6 +35,9 @@ pub use hardware::{
     AutoConfig, HardwareMetrics, HardwareMonitor, HardwareTier, SlotRecommendation, VramBudget,
 };
 
+// Search types
+pub use models::search::{HfFileInfo, HfSearchResult};
+
 // Trait re-exports
 pub use traits::{
     ConfigBackend, InferenceBackend, LoaderError, LoaderEvent, LoaderEventSink,

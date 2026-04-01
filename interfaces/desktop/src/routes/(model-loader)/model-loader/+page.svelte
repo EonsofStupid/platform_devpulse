@@ -5,14 +5,14 @@
 
   Model slot management window.
   Rendered in a separate Tauri child window via open_window(ModelLoader).
-  Scan models, assign to slots, monitor VRAM.
+  Scan models, assign to slots, monitor VRAM, download from HuggingFace.
 -->
 <script lang="ts">
 import { invoke } from "@tauri-apps/api/core";
 import { X } from "lucide-svelte";
 import { Button } from "$lib/design/components/button/index.js";
-import Card from "$lib/design/components/card/Card.svelte";
 import Text from "$lib/design/components/text/Text.svelte";
+import { ModelLoaderPanel } from "$lib/domains/app/models/index.js";
 
 function handleClose(): void {
 	invoke("close_window", { label: "model-loader" });
@@ -31,10 +31,6 @@ function handleClose(): void {
 	</header>
 
 	<main class="flex-1 overflow-y-auto p-4">
-		<Card preset="neuro-elevated" class="p-6 flex flex-col items-center justify-center gap-4 h-full">
-			<Text size="lg" weight="bold" preset="default">Model Slots</Text>
-			<Text size="sm" preset="default">Scan, load, and manage AI models across inference slots.</Text>
-			<Text size="xs" preset="default">First run: scan your models directory to get started.</Text>
-		</Card>
+		<ModelLoaderPanel />
 	</main>
 </div>

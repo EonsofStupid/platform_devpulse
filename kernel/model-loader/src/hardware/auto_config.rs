@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 
 /// Hardware tier — determines which models to recommend.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub enum HardwareTier {
     /// 16 GB+ VRAM — can run 14B models comfortably.
     High,
@@ -24,6 +25,7 @@ pub enum HardwareTier {
 
 /// Complete auto-configuration plan for a hardware tier.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct AutoConfig {
     /// Detected hardware tier.
     pub tier: HardwareTier,
@@ -37,6 +39,7 @@ pub struct AutoConfig {
 
 /// A single slot's recommended model.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct SlotRecommendation {
     /// Target slot ID.
     pub slot_id: String,

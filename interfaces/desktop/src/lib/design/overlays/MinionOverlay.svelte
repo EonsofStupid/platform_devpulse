@@ -1,7 +1,7 @@
 <!--
   @file MinionOverlay — Global transparent overlay for chibi minion animations.
   Renders above all routes. pointer-events: none so it doesn't block interaction.
-  Controlled by MinionOverlayState rune which listens to MAESTRO signals.
+  Controlled by MinionOverlayState rune which listens to CLYFFY signals.
 -->
 <script lang="ts">
 import SpriteAnimator from "./SpriteAnimator.svelte";

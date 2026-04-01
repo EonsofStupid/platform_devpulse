@@ -6,6 +6,7 @@ use std::path::PathBuf;
 
 /// Format of the model file on disk.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub enum ModelFormat {
     /// GGUF quantized format (Phase 1 — launch format).
     Gguf,
@@ -15,6 +16,7 @@ pub enum ModelFormat {
 
 /// Which inference backend can run this model.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub enum BackendType {
     /// Candle (canonical — Rust-native, llguidance integration).
     Candle,
@@ -24,6 +26,7 @@ pub enum BackendType {
 
 /// Where the model was obtained.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub enum ModelSource {
     /// Discovered on local disk.
     Local,
@@ -38,6 +41,7 @@ pub enum ModelSource {
 
 /// Metadata extracted from model file headers (GGUF metadata keys).
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct ModelMetadata {
     /// Architecture identifier (e.g. `"llama"`, `"qwen2"`, `"phi3"`).
     pub architecture: String,
@@ -53,6 +57,7 @@ pub struct ModelMetadata {
 
 /// A single model in the registry — fully described, ready for assignment.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct ModelRegistryEntry {
     /// Unique identifier (UUID v7).
     pub id: String,

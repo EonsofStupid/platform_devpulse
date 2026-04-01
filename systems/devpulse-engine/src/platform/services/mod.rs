@@ -18,6 +18,10 @@ pub mod voice;
 pub mod embedder;
 #[cfg(feature = "candle")]
 pub mod whisper;
+#[cfg(feature = "inference")]
+pub mod model_loader;
+#[cfg(feature = "inference")]
+pub mod model_loader_log;
 pub mod devforge;
 
 use anyhow::Result;
@@ -47,6 +51,8 @@ pub enum ServiceRole {
     Whisper,
     /// DevForge service (managed VSCode process).
     DevForge,
+    /// Model Loader service (AI model management, inference).
+    ModelLoader,
 }
 
 /// Lifecycle state of a platform service.

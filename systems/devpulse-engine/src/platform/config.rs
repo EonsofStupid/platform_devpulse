@@ -203,6 +203,9 @@ pub struct SystemServicesConfig {
     /// Whisper service (Candle — speech-to-text, CPU burst).
     #[serde(default)]
     pub whisper: WhisperServiceEntry,
+    /// Model Loader service (AI model management, inference).
+    #[serde(default)]
+    pub model_loader: ModelLoaderServiceEntry,
     /// DevForge service (managed VSCode process).
     #[serde(default)]
     pub devforge: DevForgeServiceEntry,
@@ -220,6 +223,7 @@ impl Default for SystemServicesConfig {
             grammar: GrammarServiceEntry::default(),
             embedder: EmbedderServiceEntry::default(),
             whisper: WhisperServiceEntry::default(),
+            model_loader: ModelLoaderServiceEntry::default(),
             devforge: DevForgeServiceEntry::default(),
         }
     }
@@ -714,6 +718,26 @@ impl WhisperServiceEntry {
     /// Resolve the model directory from data directory.
     pub fn resolve_model_path(&self, data_dir: &Path) -> PathBuf {
         data_dir.join(&self.model_path)
+    }
+}
+
+/// Configuration for the Model Loader service (AI model management, inference).
+#[derive(Debug, Clone, Deserialize)]
+pub struct ModelLoaderServiceEntry {
+    /// Whether this service is enabled.
+    #[serde(default = "default_true")]
+    pub enabled: bool,
+    /// Whether boot fails if this service fails.
+    #[serde(default)]
+    pub critical: bool,
+}
+
+impl Default for ModelLoaderServiceEntry {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            critical: false,
+        }
     }
 }
 

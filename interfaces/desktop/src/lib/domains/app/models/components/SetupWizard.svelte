@@ -192,11 +192,71 @@ const clyffyMessage = $derived.by((): string => {
 
 async function handleSetup() {
 	step = "downloading";
-	for (let i = 0; i <= 100; i += 2) {
-		downloadProgress = i;
-		await new Promise((r) => setTimeout(r, 50));
+	downloadProgress = 0;
+
+	try {
+		const { downloadModel, onDownloadProgress, onDownloadComplete } = await import(
+			"../services/download.service.js"
+		);
+		const { scanModels } = await import("../services/registry.service.js");
+
+		const totalModels = recommendations.length;
+		let completed = 0;
+
+		// Track per-download progress
+		const unsubProgress = onDownloadProgress((p) => {
+			// Approximate: each model is an equal slice of 100%
+			const modelSlice = 100 / totalModels;
+			const modelProgress = p.totalBytes > 0 ? (p.bytesDownloaded / p.totalBytes) * modelSlice : 0;
+			downloadProgress = Math.min(99, completed * modelSlice + modelProgress);
+		});
+
+		const unsubComplete = onDownloadComplete(() => {
+			completed++;
+			downloadProgress = Math.min(99, (completed / totalModels) * 100);
+		});
+
+		// Download each recommended model sequentially
+		for (const rec of recommendations) {
+			try {
+				// Map friendly name back to HF repo info
+				const repoMap: Record<string, { repo: string; file: string }> = {
+					"Qwen3-14B-Q4_K_M": { repo: "bartowski/Qwen3-14B-GGUF", file: "Qwen3-14B-Q4_K_M.gguf" },
+					"Qwen3-4B-Q4_K_M": { repo: "bartowski/Qwen3-4B-GGUF", file: "Qwen3-4B-Q4_K_M.gguf" },
+					"Qwen3-1.7B-Q4_K_M": {
+						repo: "bartowski/Qwen3-1.7B-GGUF",
+						file: "Qwen3-1.7B-Q4_K_M.gguf",
+					},
+					"Qwen3-0.6B-Q8": { repo: "Qwen/Qwen3-0.6B-GGUF", file: "qwen3-0.6b-q8_0.gguf" },
+					"Qwen3-0.6B-Q4": { repo: "Qwen/Qwen3-0.6B-GGUF", file: "qwen3-0.6b-q4_k_m.gguf" },
+					"nomic-embed-v1.5": {
+						repo: "nomic-ai/nomic-embed-text-v1.5-GGUF",
+						file: "nomic-embed-text-v1.5.Q8_0.gguf",
+					},
+				};
+
+				const mapping = repoMap[rec.name];
+				if (mapping) {
+					await downloadModel(mapping.repo, mapping.file);
+				}
+			} catch (e) {
+				console.error(`[SetupWizard] Download failed for ${rec.name}:`, e);
+				// Continue with remaining models
+			}
+		}
+
+		unsubProgress();
+		unsubComplete();
+
+		// Re-scan to pick up new models
+		await scanModels();
+		downloadProgress = 100;
+		step = "ready";
+	} catch (e) {
+		console.error("[SetupWizard] Setup failed:", e);
+		// Fall back to ready state so user can try manually
+		step = "ready";
 	}
-	step = "ready";
 }
 </script>
 

@@ -1,0 +1,62 @@
+# VENDOR QUIRKS DATABASE
+# Status: LIVING DOCUMENT
+# Version: 1.0.0
+# Created: 2026-03-31
+# Owner: @jesse
+# Part of: DevPulse Platform (.devpulse/ context layer)
+# Purpose: Institutional knowledge of AI coding tool failure modes
+#          Machine-readable for ENFORCER/GUARDIAN ingestion
+#          Human-readable for .claude rules generation
+#
+# STRUCTURE:
+#   [universal.QUIRK_ID]     — Affects ALL AI coding tools
+#   [vendor.TOOL.QUIRK_ID]   — Vendor-specific quirk
+#   [internal.QUIRK_ID]      — DevPulse internal model quirks
+#
+# SEVERITY: critical | high | medium | low
+# CONFIDENCE: confirmed (source-verified) | observed (SME experience) | suspected
+# SOURCE: leak-2026-03-31 | sme-jesse | community | docs
+
+# ============================================================================
+# UNIVERSAL QUIRKS — Affect ALL AI coding tools
+# ============================================================================
+
+[universal.unused_import_deletion]
+id = "UNI-001"
+name = "Unused Import Deletion"
+severity = "high"
+confidence = "observed"
+source = "sme-jesse"description = """
+AI removes imports that 'appear unused' but are needed for type-only imports, \
+side effects, barrel re-exports, or upcoming code in multi-step tasks."""
+affects = ["cursor", "bolt", "lovable", "claude-code", "windsurf", "replit", "v0", "aider", "copilot"]
+mitigation = "Verify all import removals against type-only usage, side-effect imports, and multi-step task plans"
+enforcer_action = "warn"
+examples = [
+  "Removes `import type { User }` because no runtime reference exists",
+  "Strips CSS import with side effects (`import './styles.css'`)",
+  "Deletes barrel re-export that downstream modules depend on",
+]
+
+[universal.premature_completion]
+id = "UNI-002"
+name = "Premature Completion / False 'Done'"
+severity = "critical"
+confidence = "confirmed"
+source = "leak-2026-03-31"
+description = """
+AI reports task as complete when code does not compile, has type errors, or is \
+only partially implemented. Claude Code's internal success metric for file writes \
+is 'did bytes hit disk' — not 'does the code compile'. Internal benchmarks show \
+29-30% false claims rate (Capybara v8, up from 16.7% in v4)."""
+affects = ["claude-code", "cursor", "bolt", "lovable", "windsurf", "replit", "copilot"]
+mitigation = "FORCE verification after every 'done': typecheck, lint, build. Never trust completion claims."
+enforcer_action = "block_until_verified"
+verified_stats = { false_claims_rate = "29-30%", source = "Claude Code v2.1.88 leaked source (Capybara v8)" }
+
+[universal.core_folder_creation]
+id = "UNI-003"
+name = "/core or /utils Dumping Ground"
+severity = "high"
+confidence = "observed"
+source = "sme-jesse"

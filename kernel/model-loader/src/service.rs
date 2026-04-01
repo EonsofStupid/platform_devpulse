@@ -595,4 +595,15 @@ impl ModelLoaderService {
                 message: e.to_string(),
             })
     }
+
+    // ── Search (HuggingFace) ──────────────────────────────────────
+
+    /// Search HuggingFace for GGUF models.
+    pub async fn search_huggingface(
+        &self,
+        query: &str,
+        limit: u32,
+    ) -> anyhow::Result<Vec<crate::models::search::HfSearchResult>> {
+        crate::models::search::search_huggingface(query, limit).await
+    }
 }

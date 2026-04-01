@@ -110,6 +110,13 @@ critical = false
 kind = "candle"
 model_path = "system/candle/whisper"
 
+[services.system.model_loader]
+# AI model management — slot-based model registry, HuggingFace downloads,
+# hardware detection, VRAM budgeting, inference backend routing.
+# Always enabled — DevPulse ships with models, this manages them.
+enabled = true
+critical = false
+
 [services.system.devforge]
 # Managed VSCode/code-oss process — dedicated editor instance.
 # Clone VSCode fork into deps/code-oss/ and build to enable.

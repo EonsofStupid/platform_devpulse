@@ -15,6 +15,7 @@ candle-backend = [
 ]
 nvml = ["dep:nvml-wrapper"]
 cuda = []
+specta = ["dep:specta"]
 
 [dependencies]
 # Core (always)
@@ -27,12 +28,18 @@ tracing = "0.1"
 flume = "0.11"
 sysinfo = "0.33"
 
+# Specta (optional — Tauri TypeScript bindings)
+specta = { version = "=2.0.0-rc.22", optional = true, features = ["derive"] }
+
 # Candle inference (optional)
 candle-core = { workspace = true, optional = true }
 candle-nn = { workspace = true, optional = true }
 candle-transformers = { workspace = true, optional = true }
 tokenizers = { version = "0.21", optional = true, default-features = false, features = ["onig"] }
 hf-hub = { version = "0.4", optional = true }
+
+# HTTP client for HuggingFace API search
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 
 # GPU metrics (optional)
 nvml-wrapper = { version = "0.10", optional = true }

@@ -70,7 +70,7 @@
 - **B) Per-route injection** — each route that wants minion animations imports an `<AnimatedMinion>` component.
 - **C) StatusBar/TopBar integration** — minions animate in the persistent chrome, not over content.
 
-**Recommendation**: Option A. A global overlay layer controlled by MAESTRO signals. Minions appear/disappear based on system state. The overlay is a transparent full-screen canvas with pointer-events:none so it doesn't block interaction. Sprite sheets are static `.webp` assets, animated via CSS `steps()` — zero JS animation overhead.
+**Recommendation**: Option A. A global overlay layer controlled by CLYFFY signals. Minions appear/disappear based on system state. The overlay is a transparent full-screen canvas with pointer-events:none so it doesn't block interaction. Sprite sheets are static `.webp` assets, animated via CSS `steps()` — zero JS animation overhead.
 
 ---
 
@@ -303,7 +303,7 @@ interfaces/desktop/src/lib/design/overlays/
 
 Global overlay component — renders in the root layout, above all routes:
 - `position: fixed; inset: 0; pointer-events: none; z-index: 9999;`
-- Listens to MAESTRO signals for minion activity
+- Listens to CLYFFY signals for minion activity
 - When a minion activates: sprite appears at a random edge, walks/floats to a "work area"
 - When idle: sprite sits, blinks, occasionally looks around
 - When escalated: sprite glows, runs to a different position
@@ -371,7 +371,7 @@ class MinionOverlayState {
   active = $state<ActiveMinion[]>([]);
   enabled = $state(true);  // user can toggle off
 
-  // Called by MAESTRO signal handlers
+  // Called by CLYFFY signal handlers
   activate(minionId: string): void { ... }
   deactivate(minionId: string): void { ... }
   escalate(minionId: string): void { ... }

@@ -145,28 +145,23 @@ function ensureDir(dir: string): void {
 	}
 }
 
-function generateConfig(pkg: PackageJson, entries: EntryPoint[]): object {
+function generateConfig(_pkg: PackageJson, entries: EntryPoint[]): object {
+	// Read the static typedoc.json as the SSOT for all config (tags, validation,
+	// plugins, sort order). Only override entryPoints + output paths.
+	const staticConfigPath = path.join(COLDLIGHT_ROOT.replace(/\//g, path.sep), "typedoc.json");
+	let baseConfig: Record<string, unknown> = {};
+
+	if (fs.existsSync(staticConfigPath)) {
+		baseConfig = JSON.parse(fs.readFileSync(staticConfigPath, "utf-8"));
+	}
+
 	return {
-		$schema: "https://typedoc.org/schema.json",
+		...baseConfig,
 		entryPoints: entries.map((e) => e.absolutePath),
-		entryPointStrategy: "expand",
 		out: TYPEDOC_OUTPUT,
 		json: TYPEDOC_JSON,
-		name: pkg.name,
-		includeVersion: true,
-		excludePrivate: true,
-		excludeInternal: true,
 		exclude: EXCLUDE_PATTERNS,
-		skipErrorChecking: true,
 		readme: toPosix(path.join(COLDLIGHT_ROOT, "README.md")),
-		validation: {
-			notExported: false,
-			invalidLink: true,
-			notDocumented: false,
-		},
-		categorizeByGroup: true,
-		categoryOrder: ["Tokens", "Taxonomy", "Recipes", "Primitives", "Patterns", "Blocks", "*"],
-		sort: ["source-order"],
 	};
 }
 

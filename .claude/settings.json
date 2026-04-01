@@ -23,7 +23,11 @@
       "Bash(rm -rf /*)",
       "Bash(git push --force:*)",
       "Bash(git reset --hard:*)",
-      "Bash(git clean -fd:*)"
+      "Bash(git clean -fd:*)",
+      "Bash(pip install:*)",
+      "Bash(pip3 install:*)",
+      "Bash(python -m pip:*)",
+      "Bash(docker:*)"
     ]
   },
   "hooks": {
@@ -46,6 +50,11 @@
             "command": "node \"d:/localdev/platform_devpulse/.claude/hooks/save-chat.js\"",
             "timeout": 10,
             "async": true
+          },
+          {
+            "type": "command",
+            "command": "node \"d:/localdev/platform_devpulse/.claude/hooks/psych-translator.js\"",
+            "timeout": 5
           }
         ]
       }
@@ -81,6 +90,28 @@
             "command": "node \"d:/localdev/platform_devpulse/.claude/hooks/track-files.js\"",
             "timeout": 10,
             "async": true
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"d:/localdev/platform_devpulse/.claude/hooks/verify-on-stop.js\"",
+            "timeout": 60
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const i=require('fs').readFileSync(0,'utf8');if(/pip install|pip3 install|docker |python -m pip/i.test(i)){process.stderr.write('BLOCKED: prohibited command');process.exit(2)}\""
           }
         ]
       }

@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 /// Memory footprint of a loaded model.
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct MemoryFootprint {
     /// RAM consumed in bytes.
     pub ram_bytes: u64,
@@ -27,6 +28,7 @@ impl MemoryFootprint {
 
 /// Parameters for loading a model.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct LoadParams {
     /// Target device (`"cpu"`, `"cuda:0"`, etc.).
     pub device: String,
@@ -38,24 +40,34 @@ pub struct LoadParams {
 
 /// Lifecycle state of a model in a slot.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub enum ModelStatus {
     /// No model loaded. Ready to accept a load request.
     NotLoaded,
     /// Model is being loaded. Progress tracked by stage.
     Loading {
+        /// Current loading stage (verifying, allocating, weights, tokenizer, warmup).
         stage: LoadingStage,
+        /// Progress percentage (0.0–100.0).
         progress_pct: f32,
     },
     /// Model is loaded and available for inference.
-    Loaded { footprint: MemoryFootprint },
+    Loaded {
+        /// Memory consumed by the loaded model.
+        footprint: MemoryFootprint,
+    },
     /// Model load failed. Error preserved for display.
-    Failed { error: String },
+    Failed {
+        /// Human-readable error description.
+        error: String,
+    },
     /// Model is being unloaded. VRAM/RAM being freed.
     Unloading,
 }
 
 /// Granular loading stages — visible in UI progress bars.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub enum LoadingStage {
     /// Checking file integrity and parsing header metadata.
     Verifying,
@@ -73,6 +85,7 @@ pub enum LoadingStage {
 
 /// Combined slot status for UI display.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct SlotStatus {
     /// The slot this status belongs to.
     pub slot_id: String,

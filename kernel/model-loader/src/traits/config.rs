@@ -25,6 +25,7 @@ pub struct MemoryConfig {
 }
 
 impl MemoryConfig {
+    /// Create an empty in-memory config store.
     #[must_use]
     pub fn new() -> Self {
         Self::default()

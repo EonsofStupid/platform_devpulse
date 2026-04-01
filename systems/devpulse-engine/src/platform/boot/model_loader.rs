@@ -1,0 +1,83 @@
+//! Model Loader boot stage — AI model management service.
+//!
+//! Creates the model loader service, registers default DevPulse slots,
+//! restores saved assignments, and scans the models directory.
+
+#[cfg(feature = "inference")]
+use crate::platform::boot::log::BootLog;
+#[cfg(feature = "inference")]
+use crate::platform::config::ModelLoaderServiceEntry;
+#[cfg(feature = "inference")]
+use crate::platform::init::InitEvent;
+#[cfg(feature = "inference")]
+use crate::platform::integrations::slots::devpulse_default_slots;
+#[cfg(feature = "inference")]
+use crate::platform::services::model_loader::ModelLoaderService;
+
+#[cfg(feature = "inference")]
+use std::path::Path;
+#[cfg(feature = "inference")]
+use std::sync::Arc;
+#[cfg(feature = "inference")]
+use std::time::Instant;
+
+/// Boot the Model Loader service.
+///
+/// Returns `Some(service)` on success, `None` on failure or if disabled.
+#[cfg(feature = "inference")]
+#[allow(clippy::cast_possible_truncation)]
+pub async fn boot(
+    data_dir: &Path,
+    entry: &ModelLoaderServiceEntry,
+    on_event: &(impl Fn(InitEvent) + Send + 'static),
+    boot_log: &BootLog,
+) -> Option<Arc<ModelLoaderService>> {
+    if !entry.enabled {
+        on_event(InitEvent::skipped("Model Loader"));
+        boot_log.skip("Model Loader", "disabled in config");
+        return None;
+    }
+
+    on_event(InitEvent::running("Model Loader", "Initializing model management"));
+    boot_log.running("Model Loader", "booting...");
+    let start = Instant::now();
+
+    let default_slots = devpulse_default_slots();
+    let slot_count = default_slots.len();
+
+    // Boot is sync (file I/O, GGUF parsing) — offload to blocking thread
+    let data_dir_owned = data_dir.to_path_buf();
+    let result = tokio::task::spawn_blocking(move || {
+        ModelLoaderService::boot(&data_dir_owned, default_slots)
+    })
+    .await
+    .map_err(|e| anyhow::anyhow!("Model Loader spawn_blocking failed: {e}"));
+
+    let result = match result {
+        Ok(inner) => inner,
+        Err(e) => Err(e),
+    };
+
+    match result {
+        Ok(service) => {
+            let elapsed_ms = start.elapsed().as_millis() as u64;
+            tracing::info!(
+                step = "Model Loader",
+                status = "ready",
+                slots = slot_count,
+                latency_ms = elapsed_ms,
+                "Model Loader booted"
+            );
+            on_event(InitEvent::ok_with_latency("Model Loader", start.elapsed()));
+            boot_log.ok("Model Loader", &format!("{slot_count} slots ({elapsed_ms}ms)"));
+            Some(Arc::new(service))
+        }
+        Err(e) => {
+            let elapsed_ms = start.elapsed().as_millis() as u64;
+            tracing::error!(step = "Model Loader", error = ?e, "Model Loader failed to boot");
+            on_event(InitEvent::error("Model Loader", &format!("{e:#}")));
+            boot_log.fail("Model Loader", &format!("{e:#} ({elapsed_ms}ms)"));
+            None
+        }
+    }
+}

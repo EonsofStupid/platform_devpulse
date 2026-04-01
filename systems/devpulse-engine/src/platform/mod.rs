@@ -68,6 +68,8 @@ use services::voice::VoiceService;
 use services::embedder::EmbedderService;
 #[cfg(feature = "candle")]
 use services::whisper::WhisperService;
+#[cfg(feature = "inference")]
+use services::model_loader::ModelLoaderService;
 use services::devforge::DevForgeService;
 
 /// Platform engine — sole public API for persistence, health, config.
@@ -103,6 +105,9 @@ pub struct Platform {
     // ── Whisper (Candle) ──────────────────────────────────────
     #[cfg(feature = "candle")]
     whisper: Option<Arc<WhisperService>>,
+    // ── Model Loader (Inference) ──────────────────────────────
+    #[cfg(feature = "inference")]
+    model_loader: Option<Arc<ModelLoaderService>>,
     // ── DevForge (VSCode) ─────────────────────────────────────
     devforge: Option<Arc<DevForgeService>>,
     // ── Meta ────────────────────────────────────────────────────
@@ -152,6 +157,8 @@ impl Platform {
             embedder: booted.embedder,
             #[cfg(feature = "candle")]
             whisper: booted.whisper,
+            #[cfg(feature = "inference")]
+            model_loader: booted.model_loader,
             devforge: booted.devforge,
             boot_config,
             boot_time,
@@ -193,6 +200,10 @@ impl Platform {
             subsystems.push(ping_service(svc.as_ref()).await);
         }
         // Grammar (llguidance) — future sprint
+        #[cfg(feature = "inference")]
+        if let Some(svc) = &self.model_loader {
+            subsystems.push(ping_service(svc.as_ref()).await);
+        }
         #[cfg(feature = "candle")]
         if let Some(svc) = &self.embedder {
             subsystems.push(ping_service(svc.as_ref()).await);
@@ -305,6 +316,14 @@ impl Platform {
         self.whisper.as_ref()
     }
 
+    // ── Model Loader accessor ──────────────────────────────────────
+
+    /// Get the model loader service (if enabled and booted).
+    #[cfg(feature = "inference")]
+    pub fn model_loader(&self) -> Option<&Arc<ModelLoaderService>> {
+        self.model_loader.as_ref()
+    }
+
     // ── DevForge accessor ────────────────────────────────────────
 
     /// Get the DevForge service (if enabled and booted).
@@ -332,6 +351,9 @@ impl Platform {
         // Cache (Moka) is in-memory — no-op shutdown, but call for consistency
         Self::shutdown_service_with_deadline(self.system_cache.as_ref(), &deadline, start).await;
         Self::shutdown_service_with_deadline(self.user_relational.as_ref(), &deadline, start).await;
+        // Model Loader — unload models, release backends
+        #[cfg(feature = "inference")]
+        Self::shutdown_service_with_deadline(self.model_loader.as_ref(), &deadline, start).await;
         // DevForge (child process) — kill first
         Self::shutdown_service_with_deadline(self.devforge.as_ref(), &deadline, start).await;
         Self::shutdown_service_with_deadline(self.system_relational.as_ref(), &deadline, start).await;

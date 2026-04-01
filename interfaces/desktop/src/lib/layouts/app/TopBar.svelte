@@ -3,7 +3,7 @@
   @module @devpulse/layouts/app/TopBar
 
   Top navigation bar. Reference: refernece-dashboard3.png / dashboard4.png
-  Layout: [hamburger + brand] — [center: PULSE FEED pill] — [right: search + notifications + chat + maestro + avatar]
+  Layout: [hamburger + brand] — [center: PULSE FEED pill] — [right: search + notifications + chat + clyffy + avatar]
   Height: 4.125rem (set by Frame.svelte topbar slot)
 
   @defaults {
@@ -71,7 +71,7 @@ function onKey(e: KeyboardEvent): void {
 		</Badge>
 	</div>
 
-	<!-- Right: actions + maestro + avatar -->
+	<!-- Right: actions + clyffy + avatar -->
 	<div class={hstack({ gap: "2", align: "center" })}>
 		<Button preset="ghost" size="sm" class="h-9 w-9 rounded-full" title="Search" aria-label="Search" onclick={toggleSearch}>
 			<Search size={16} />
@@ -98,13 +98,13 @@ function onKey(e: KeyboardEvent): void {
 			</div>
 		{/if}
 
-		<!-- Maestro status badge -->
+		<!-- Clyffy status badge -->
 		<Badge variant={platformState.isReady ? "positive" : "neutral"} size="sm" class="gap-1.5">
 			<span
 				class="h-2 w-2 rounded-full"
 				style="background: {platformState.isReady ? 'var(--color-teal-400, oklch(0.75 0.18 180))' : 'var(--text-muted)'}; box-shadow: 0 0 0.375rem currentColor;"
 			></span>
-			<Text size="xs" weight="semibold">Maestro</Text>
+			<Text size="xs" weight="semibold">Clyffy</Text>
 		</Badge>
 
 		<Avatar size={32} alt="User avatar" fallback="DP" />

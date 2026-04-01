@@ -53,7 +53,7 @@ const navHubs: NavHub[] = [
 	{ id: "overmind", icon: Brain, label: "OverMind", href: "/overmind" },
 	{ id: "wiredfront", icon: Radio, label: "WiredFront", href: "/wiredfront" },
 	{ id: "devforge", icon: Wrench, label: "DevForge", href: "/devforge" },
-	{ id: "maestro", icon: Sparkles, label: "Maestro", href: "/maestro" },
+	{ id: "clyffy", icon: Sparkles, label: "Clyffy", href: "/clyffy" },
 ];
 
 function isActive(href: string): boolean {

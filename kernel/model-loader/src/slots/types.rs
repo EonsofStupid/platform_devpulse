@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 /// A slot is a named position where a model can be assigned.
 /// Slots are hierarchical: `subsystem.purpose` convention.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct Slot {
     /// Unique identifier. Convention: `"subsystem.purpose"`.
     ///
@@ -33,6 +34,7 @@ pub struct Slot {
 
 /// What kind of inference a model supports.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub enum ModelCapability {
     /// LLM — chat, reasoning, translation.
     TextGeneration,
@@ -52,6 +54,7 @@ pub enum ModelCapability {
 
 /// Preferred device for a slot.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub enum DevicePreference {
     /// Must be GPU (generation models).
     Gpu,
@@ -65,6 +68,7 @@ pub enum DevicePreference {
 
 /// When should the model for this slot be loaded?
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub enum LoadingStrategy {
     /// Keep loaded while platform is active.
     Hot,

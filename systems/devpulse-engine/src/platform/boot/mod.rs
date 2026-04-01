@@ -41,6 +41,7 @@ mod vector;
 mod voice;
 mod embedder;
 mod whisper;
+mod model_loader;
 mod devforge;
 
 use crate::platform::config::PlatformBootConfig;
@@ -58,6 +59,8 @@ use crate::platform::services::voice::VoiceService;
 use crate::platform::services::embedder::EmbedderService;
 #[cfg(feature = "candle")]
 use crate::platform::services::whisper::WhisperService;
+#[cfg(feature = "inference")]
+use crate::platform::services::model_loader::ModelLoaderService;
 use crate::platform::services::devforge::DevForgeService;
 
 use anyhow::Result;
@@ -82,6 +85,8 @@ pub struct BootedServices {
     pub embedder: Option<Arc<EmbedderService>>,
     #[cfg(feature = "candle")]
     pub whisper: Option<Arc<WhisperService>>,
+    #[cfg(feature = "inference")]
+    pub model_loader: Option<Arc<ModelLoaderService>>,
     pub devforge: Option<Arc<DevForgeService>>,
 }
 
@@ -267,7 +272,26 @@ async fn execute_inner(
         }
     }
 
-    // ── Stage 12: DevForge (VSCode) ───────────────────────────
+    // ── Stage 12: Model Loader — feature-gated ─────────────────
+    #[cfg(feature = "inference")]
+    let model_loader_svc = model_loader::boot(
+        data_dir,
+        &boot_config.services.system.model_loader,
+        on_event,
+        &boot_log,
+    ).await;
+    #[cfg(not(feature = "inference"))]
+    {
+        if boot_config.services.system.model_loader.enabled {
+            boot_log.fail("Model Loader", "enabled in config but 'inference' feature not compiled");
+            anyhow::bail!(
+                "FATAL: Model Loader is enabled in config but the 'inference' feature is not compiled in. \
+                 Add features = [\"inference\"] to devpulse-engine dependency in src-tauri/Cargo.toml."
+            );
+        }
+    }
+
+    // ── Stage 13: DevForge (VSCode) ───────────────────────────
     let devforge = devforge::boot(
         data_dir,
         &boot_config.services.system.devforge,
@@ -339,6 +363,8 @@ async fn execute_inner(
         embedder,
         #[cfg(feature = "candle")]
         whisper,
+        #[cfg(feature = "inference")]
+        model_loader: model_loader_svc,
         devforge,
     })
 }

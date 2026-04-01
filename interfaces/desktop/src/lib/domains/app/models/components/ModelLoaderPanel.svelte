@@ -12,14 +12,27 @@ import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { hardwareState } from "../runes/hardware.runes.svelte.js";
 import { modelsState } from "../runes/models.runes.svelte.js";
+import { downloadModel } from "../services/download.service.js";
 import { formatMb } from "../types/models.types.js";
 import ClyffyNarration from "./ClyffyNarration.svelte";
+import ModelSearch from "./ModelSearch.svelte";
 import SetupWizard from "./SetupWizard.svelte";
 import SubsystemGroup from "./SubsystemGroup.svelte";
 import VramGauge from "./VramGauge.svelte";
 
 let layman = $state(true);
 let showWizard = $state(true);
+let showSearch = $state(false);
+
+async function handleDownload(repoId: string, filename: string) {
+	try {
+		await downloadModel(repoId, filename);
+		// Re-scan after download starts
+		modelsState.scan();
+	} catch (e) {
+		console.error("[ModelLoaderPanel] Download failed:", e);
+	}
+}
 
 const mPanel = $derived(resolveMacro({ kind: "model-panel", preset: "primary" }));
 const mError = $derived(resolveMacro({ kind: "model-error", preset: "danger" }));
@@ -198,11 +211,17 @@ const clyffyType = $derived.by(() => {
 			{...mActionDownload.dataAttrs}
 			style={cssVarString(mActionDownload.cssVars)}
 			class="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:brightness-110"
+			onclick={() => (showSearch = !showSearch)}
 		>
 			<HardDrive size={14} />
-			Download Model
+			{showSearch ? "Hide Search" : "Download Model"}
 		</button>
 	</div>
+
+	<!-- HuggingFace search (inline, toggled) -->
+	{#if showSearch}
+		<ModelSearch onDownload={handleDownload} onClose={() => (showSearch = false)} />
+	{/if}
 
 	<!-- Hard error display -->
 	{#if hardwareState.error}

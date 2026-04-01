@@ -10,7 +10,7 @@ kokoros = ["dep:kokoros"]
 # Reserved for llguidance constrained decoding — fork not yet cloned
 # outlines = ["dep:llguidance"]
 candle = ["dep:candle-core", "dep:candle-nn", "dep:candle-transformers", "dep:tokenizers", "dep:hf-hub"]
-model-loader = ["dep:model-loader"]
+model-loader = ["dep:model-loader", "model-loader/specta"]
 
 [dependencies]
 # Core

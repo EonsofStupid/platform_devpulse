@@ -9,55 +9,76 @@ use crate::traits::backend::InferenceBackend;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-/// Request sent to the inference thread.
+/// Request sent to the inference thread via flume channel.
 pub enum InferenceRequest {
-    /// Load a model.
+    /// Load a model from disk into the backend.
     Load {
+        /// Path to the model file (GGUF or SafeTensors).
         path: PathBuf,
+        /// Loading parameters (device, context length, GPU layers).
         params: LoadParams,
+        /// Reply channel for the memory footprint result.
         reply: flume::Sender<anyhow::Result<MemoryFootprint>>,
     },
-    /// Unload the current model.
+    /// Unload the current model and free memory.
     Unload {
+        /// Reply channel for the unload result.
         reply: flume::Sender<anyhow::Result<()>>,
     },
-    /// Run a forward pass.
+    /// Run a forward pass on the loaded model.
     Forward {
+        /// Input token IDs.
         tokens: Vec<u32>,
+        /// Position offset in the context window.
         position: usize,
+        /// Reply channel for the logits vector.
         reply: flume::Sender<anyhow::Result<Vec<f32>>>,
     },
-    /// Tokenize text.
+    /// Tokenize a text string into token IDs.
     Tokenize {
+        /// Input text to tokenize.
         text: String,
+        /// Reply channel for the token ID vector.
         reply: flume::Sender<anyhow::Result<Vec<u32>>>,
     },
-    /// Detokenize tokens.
+    /// Detokenize token IDs back into text.
     Detokenize {
+        /// Token IDs to decode.
         tokens: Vec<u32>,
+        /// Reply channel for the decoded text.
         reply: flume::Sender<anyhow::Result<String>>,
     },
-    /// Generate text with streaming.
+    /// Generate text with streaming token output.
     Generate {
+        /// Input prompt text.
         prompt: String,
+        /// Maximum tokens to generate.
         max_tokens: u32,
+        /// Sampling temperature (0.0 = greedy, 1.0 = creative).
         temperature: f32,
+        /// Channel for streaming token responses.
         token_sink: flume::Sender<InferenceResponse>,
     },
-    /// Get memory usage.
+    /// Query current memory usage of the loaded model.
     MemoryUsage {
+        /// Reply channel for the memory footprint.
         reply: flume::Sender<MemoryFootprint>,
     },
-    /// Shutdown the inference thread.
+    /// Shutdown the inference thread gracefully.
     Shutdown,
 }
 
 /// Streaming response from the inference thread.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum InferenceResponse {
-    /// A generated token.
-    Token { id: u32, text: String },
-    /// Generation complete — full text.
+    /// A generated token (streamed one at a time).
+    Token {
+        /// Token ID in the vocabulary.
+        id: u32,
+        /// Decoded text for this token.
+        text: String,
+    },
+    /// Generation complete — full concatenated text.
     Done(String),
     /// Error during generation.
     Error(String),
