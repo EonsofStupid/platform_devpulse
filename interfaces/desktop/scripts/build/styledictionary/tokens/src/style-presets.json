@@ -34,7 +34,7 @@
 				"$type": "number"
 			},
 			"animation": {
-				"$value": "none",
+				"$value": "cl-breathe 4s ease-in-out infinite",
 				"$type": "string"
 			},
 			"transition-duration": {
@@ -67,6 +67,14 @@
 			},
 			"line-height": {
 				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
 				"$type": "number"
 			},
 			"$description": "neuro-elevated: Raised neumorphic surface — carved out of the void with teal accent glow"
@@ -173,6 +181,14 @@
 				"$value": "1.5",
 				"$type": "number"
 			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
 			"$description": "neuro-deep: Deeply recessed surface — sunken into the void with heavy inset shadows"
 		},
 		"neuro-deep-hover": {
@@ -267,6 +283,14 @@
 			},
 			"line-height": {
 				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
 				"$type": "number"
 			},
 			"$description": "neuro-minimal: Subtle neumorphic — barely raised, whisper shadows, restrained"
@@ -365,6 +389,14 @@
 				"$value": "1.5",
 				"$type": "number"
 			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
 			"$description": "neuro-solid: Dense neumorphic — opaque surface, heavy shadows, no translucency"
 		},
 		"neuro-solid-hover": {
@@ -459,6 +491,14 @@
 			},
 			"line-height": {
 				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
 				"$type": "number"
 			},
 			"$description": "neuro-glow: Neumorphic with teal emission — glowing borders and accent shadow layers"
@@ -569,6 +609,14 @@
 				"$value": "1.5",
 				"$type": "number"
 			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
 			"$description": "neuro-muted: Desaturated neumorphic — dimmed surface for secondary/disabled states"
 		},
 		"neuro-muted-hover": {
@@ -660,6 +708,14 @@
 			},
 			"line-height": {
 				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
 				"$type": "number"
 			},
 			"$description": "glass-elevated: Raised frosted glass — bright blur, teal-tinted border, floating"
@@ -778,6 +834,14 @@
 				"$value": "1.5",
 				"$type": "number"
 			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
 			"$description": "glass-deep: Deep frosted glass — heavy blur, dark tint, submerged look"
 		},
 		"glass-deep-hover": {
@@ -890,6 +954,14 @@
 				"$value": "1.5",
 				"$type": "number"
 			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
 			"$description": "glass-minimal: Whisper glass — barely visible surface, light blur, nearly transparent"
 		},
 		"glass-minimal-hover": {
@@ -992,6 +1064,14 @@
 			},
 			"line-height": {
 				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
 				"$type": "number"
 			},
 			"$description": "glass-solid: Opaque glass — frosted texture but no see-through, dense blur"
@@ -1104,6 +1184,14 @@
 			},
 			"line-height": {
 				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
 				"$type": "number"
 			},
 			"$description": "glass-glow: Glowing glass — teal emission through frosted surface, ethereal"
@@ -1222,6 +1310,14 @@
 				"$value": "1.5",
 				"$type": "number"
 			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
 			"$description": "glass-muted: Dimmed glass — faded frost for disabled/secondary states"
 		},
 		"glass-muted-hover": {
@@ -1332,6 +1428,14 @@
 			},
 			"line-height": {
 				"$value": "1.4",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
 				"$type": "number"
 			},
 			"$description": "retro-elevated: Raised retro widget — thick double border, CRT glow, bold color"
@@ -1446,6 +1550,14 @@
 				"$value": "1.6",
 				"$type": "number"
 			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
 			"$description": "retro-deep: Inset retro — sunken pixel well, terminal green on black"
 		},
 		"retro-deep-hover": {
@@ -1550,6 +1662,14 @@
 				"$value": "1.5",
 				"$type": "number"
 			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
 			"$description": "retro-minimal: Clean pixel — single solid border, flat color, no shadows"
 		},
 		"retro-minimal-hover": {
@@ -1648,6 +1768,14 @@
 			},
 			"line-height": {
 				"$value": "1.4",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
 				"$type": "number"
 			},
 			"$description": "retro-solid: Heavy retro block — saturated fill, thick border, hard pixel shadow"
@@ -1752,6 +1880,14 @@
 			},
 			"line-height": {
 				"$value": "1.4",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
 				"$type": "number"
 			},
 			"$description": "retro-glow: Neon CRT — glowing text, buzzing border, scanline energy"
@@ -1862,6 +1998,14 @@
 				"$value": "1.5",
 				"$type": "number"
 			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
 			"$description": "retro-muted: Faded retro — desaturated CRT, ghosted pixels, worn terminal"
 		},
 		"retro-muted-hover": {
@@ -1953,6 +2097,14 @@
 			},
 			"line-height": {
 				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
 				"$type": "number"
 			},
 			"$description": "chrome-elevated: Polished chrome — specular gradient, sharp highlight, steel surface"
@@ -2083,6 +2235,14 @@
 				"$value": "1.5",
 				"$type": "number"
 			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
 			"$description": "chrome-deep: Dark chrome — gunmetal surface, deep reflections, heavy metal"
 		},
 		"chrome-deep-hover": {
@@ -2197,6 +2357,14 @@
 			},
 			"line-height": {
 				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
 				"$type": "number"
 			},
 			"$description": "chrome-minimal: Brushed aluminum — subtle directional grain, matte metal"
@@ -2315,6 +2483,14 @@
 				"$value": "1.5",
 				"$type": "number"
 			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
 			"$description": "chrome-solid: Cast metal — dense, opaque, industrial steel plate"
 		},
 		"chrome-solid-hover": {
@@ -2429,6 +2605,14 @@
 			},
 			"line-height": {
 				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
 				"$type": "number"
 			},
 			"$description": "chrome-glow: Plasma chrome — ice-blue emission, electrified metal edge"
@@ -2551,6 +2735,14 @@
 				"$value": "1.5",
 				"$type": "number"
 			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
 			"$description": "chrome-muted: Tarnished metal — oxidized, desaturated, weathered chrome"
 		},
 		"chrome-muted-hover": {
@@ -2663,6 +2855,14 @@
 				"$value": "1.5",
 				"$type": "number"
 			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
 			"$description": "flat-elevated: Bright flat — solid color fill, no depth, clean edges"
 		},
 		"flat-elevated-hover": {
@@ -2761,6 +2961,14 @@
 			},
 			"line-height": {
 				"$value": "1.6",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
 				"$type": "number"
 			},
 			"$description": "flat-deep: Dark flat — deep solid color, no frills, reading-focused"
@@ -2863,6 +3071,14 @@
 				"$value": "1.5",
 				"$type": "number"
 			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
 			"$description": "flat-minimal: Near-invisible — transparent bg, content only, ghost mode"
 		},
 		"flat-minimal-hover": {
@@ -2957,6 +3173,14 @@
 			},
 			"line-height": {
 				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
 				"$type": "number"
 			},
 			"$description": "flat-solid: Dense flat — opaque fill, strong color, no transparency"
@@ -3067,6 +3291,14 @@
 				"$value": "1.5",
 				"$type": "number"
 			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
 			"$description": "flat-glow: Flat with accent color — tinted fill, no depth but colorful"
 		},
 		"flat-glow-hover": {
@@ -3165,6 +3397,14 @@
 			},
 			"line-height": {
 				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
 				"$type": "number"
 			},
 			"$description": "flat-muted: Dimmed flat — faded background for disabled/secondary states"
@@ -3273,6 +3513,14 @@
 			},
 			"line-height": {
 				"$value": "1.4",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
 				"$type": "number"
 			},
 			"$description": "stark-elevated: Command presence — high contrast, bold border, heavy shadow lift"
@@ -3395,6 +3643,14 @@
 				"$value": "1.4",
 				"$type": "number"
 			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
 			"$description": "stark-deep: Void authority — near-black with bright accent border, severe"
 		},
 		"stark-deep-hover": {
@@ -3515,6 +3771,14 @@
 				"$value": "1.5",
 				"$type": "number"
 			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
 			"$description": "stark-minimal: Clean authority — thin bright border, dark field, precise"
 		},
 		"stark-minimal-hover": {
@@ -3625,6 +3889,14 @@
 			},
 			"line-height": {
 				"$value": "1.4",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
 				"$type": "number"
 			},
 			"$description": "stark-solid: Monolith — dense opaque block, ultra-bold, imposing"
@@ -3745,6 +4017,14 @@
 			},
 			"line-height": {
 				"$value": "1.4",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
 				"$type": "number"
 			},
 			"$description": "stark-glow: Alert presence — danger/warning accent glow, demands attention"
@@ -3869,6 +4149,14 @@
 			},
 			"line-height": {
 				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
 				"$type": "number"
 			},
 			"$description": "stark-muted: Dimmed authority — faded border, reduced contrast, secondary"

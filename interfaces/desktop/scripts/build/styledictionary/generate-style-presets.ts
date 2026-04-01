@@ -21,7 +21,7 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { ALL_PRESETS } from "../../../src/lib/design/visual/presets/index.js";
-import type { AnimationValue, PresetDefinition, ShadowLayer, StateOverrides } from "../../../src/lib/design/visual/preset-definition.js";
+import type { AnimationValue, BackgroundImageValue, PresetDefinition, ShadowLayer, StateOverrides } from "../../../src/lib/design/visual/preset-definition.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUTPUT = path.join(__dirname, "tokens", "src", "style-presets.json");
@@ -44,6 +44,16 @@ function animationToString(anim: AnimationValue | "none"): string {
 
 type TokenEntry = { $value: string; $type: string } | string;
 
+function backgroundImageToString(bg: BackgroundImageValue | undefined): string {
+	if (!bg) return "none";
+	return bg.url;
+}
+
+function backgroundAlphaToString(bg: BackgroundImageValue | undefined): string {
+	if (!bg) return "1";
+	return String(bg.alpha);
+}
+
 function axesToTokenGroup(preset: PresetDefinition): Record<string, TokenEntry> {
 	const { axes } = preset;
 	return {
@@ -64,6 +74,8 @@ function axesToTokenGroup(preset: PresetDefinition): Record<string, TokenEntry> 
 		"font-weight": { $value: String(axes.typography.fontWeight), $type: "fontWeight" },
 		"letter-spacing": { $value: axes.typography.letterSpacing, $type: "dimension" },
 		"line-height": { $value: String(axes.typography.lineHeight), $type: "number" },
+		"background-image": { $value: backgroundImageToString(axes.backgroundImage), $type: "string" },
+		"background-alpha": { $value: backgroundAlphaToString(axes.backgroundImage), $type: "number" },
 		$description: `${preset.family}-${preset.variant}: ${preset.description}`,
 	};
 }
@@ -80,6 +92,10 @@ function stateToTokenGroup(state: StateOverrides, presetId: string, stateName: s
 	if (state.border?.color) group["border-color"] = { $value: state.border.color, $type: "color" };
 	if (state.border?.width) group["border-width"] = { $value: state.border.width, $type: "dimension" };
 	if (state.animation !== undefined) group["animation"] = { $value: animationToString(state.animation), $type: "string" };
+	if (state.backgroundImage) {
+		group["background-image"] = { $value: backgroundImageToString(state.backgroundImage), $type: "string" };
+		group["background-alpha"] = { $value: backgroundAlphaToString(state.backgroundImage), $type: "number" };
+	}
 	return group;
 }
 
@@ -112,4 +128,4 @@ const presetCount = ALL_PRESETS.length;
 const entryCount = Object.keys(preset).length;
 
 console.log(`Generated ${entryCount} shared entries (${presetCount} presets + ${stateCount} state overrides) → ${OUTPUT}`);
-console.log(`CSS vars: ~${entryCount * 17} (${entryCount} entries × 17 axes)`);
+console.log(`CSS vars: ~${entryCount * 19} (${entryCount} entries × 19 axes)`);

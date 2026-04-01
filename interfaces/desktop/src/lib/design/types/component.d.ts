@@ -277,6 +277,8 @@ export const PresetTokens = [
 	"neuro-elevated-font-weight",
 	"neuro-elevated-letter-spacing",
 	"neuro-elevated-line-height",
+	"neuro-elevated-background-image",
+	"neuro-elevated-background-alpha",
 	"neuro-elevated-hover-box-shadow",
 	"neuro-elevated-hover-border-color",
 	"neuro-elevated-active-background-color",
@@ -300,6 +302,8 @@ export const PresetTokens = [
 	"neuro-deep-font-weight",
 	"neuro-deep-letter-spacing",
 	"neuro-deep-line-height",
+	"neuro-deep-background-image",
+	"neuro-deep-background-alpha",
 	"neuro-deep-hover-background-color",
 	"neuro-deep-active-background-color",
 	"neuro-deep-disabled-color",
@@ -321,6 +325,8 @@ export const PresetTokens = [
 	"neuro-minimal-font-weight",
 	"neuro-minimal-letter-spacing",
 	"neuro-minimal-line-height",
+	"neuro-minimal-background-image",
+	"neuro-minimal-background-alpha",
 	"neuro-minimal-hover-background-color",
 	"neuro-minimal-active-background-color",
 	"neuro-minimal-disabled-color",
@@ -342,6 +348,8 @@ export const PresetTokens = [
 	"neuro-solid-font-weight",
 	"neuro-solid-letter-spacing",
 	"neuro-solid-line-height",
+	"neuro-solid-background-image",
+	"neuro-solid-background-alpha",
 	"neuro-solid-hover-box-shadow",
 	"neuro-solid-active-background-color",
 	"neuro-solid-disabled-color",
@@ -363,6 +371,8 @@ export const PresetTokens = [
 	"neuro-glow-font-weight",
 	"neuro-glow-letter-spacing",
 	"neuro-glow-line-height",
+	"neuro-glow-background-image",
+	"neuro-glow-background-alpha",
 	"neuro-glow-hover-box-shadow",
 	"neuro-glow-hover-border-color",
 	"neuro-glow-active-background-color",
@@ -387,6 +397,8 @@ export const PresetTokens = [
 	"neuro-muted-font-weight",
 	"neuro-muted-letter-spacing",
 	"neuro-muted-line-height",
+	"neuro-muted-background-image",
+	"neuro-muted-background-alpha",
 	"neuro-muted-hover-background-color",
 	"neuro-muted-hover-opacity",
 	"neuro-muted-disabled-color",
@@ -408,6 +420,8 @@ export const PresetTokens = [
 	"glass-elevated-font-weight",
 	"glass-elevated-letter-spacing",
 	"glass-elevated-line-height",
+	"glass-elevated-background-image",
+	"glass-elevated-background-alpha",
 	"glass-elevated-hover-background-color",
 	"glass-elevated-hover-box-shadow",
 	"glass-elevated-hover-border-color",
@@ -434,6 +448,8 @@ export const PresetTokens = [
 	"glass-deep-font-weight",
 	"glass-deep-letter-spacing",
 	"glass-deep-line-height",
+	"glass-deep-background-image",
+	"glass-deep-background-alpha",
 	"glass-deep-hover-background-color",
 	"glass-deep-hover-box-shadow",
 	"glass-deep-hover-border-color",
@@ -459,6 +475,8 @@ export const PresetTokens = [
 	"glass-minimal-font-weight",
 	"glass-minimal-letter-spacing",
 	"glass-minimal-line-height",
+	"glass-minimal-background-image",
+	"glass-minimal-background-alpha",
 	"glass-minimal-hover-background-color",
 	"glass-minimal-hover-border-color",
 	"glass-minimal-active-background-color",
@@ -482,6 +500,8 @@ export const PresetTokens = [
 	"glass-solid-font-weight",
 	"glass-solid-letter-spacing",
 	"glass-solid-line-height",
+	"glass-solid-background-image",
+	"glass-solid-background-alpha",
 	"glass-solid-hover-background-color",
 	"glass-solid-hover-box-shadow",
 	"glass-solid-hover-border-color",
@@ -507,6 +527,8 @@ export const PresetTokens = [
 	"glass-glow-font-weight",
 	"glass-glow-letter-spacing",
 	"glass-glow-line-height",
+	"glass-glow-background-image",
+	"glass-glow-background-alpha",
 	"glass-glow-hover-background-color",
 	"glass-glow-hover-box-shadow",
 	"glass-glow-hover-border-color",
@@ -533,6 +555,8 @@ export const PresetTokens = [
 	"glass-muted-font-weight",
 	"glass-muted-letter-spacing",
 	"glass-muted-line-height",
+	"glass-muted-background-image",
+	"glass-muted-background-alpha",
 	"glass-muted-hover-background-color",
 	"glass-muted-hover-opacity",
 	"glass-muted-hover-border-color",
@@ -558,6 +582,8 @@ export const PresetTokens = [
 	"retro-elevated-font-weight",
 	"retro-elevated-letter-spacing",
 	"retro-elevated-line-height",
+	"retro-elevated-background-image",
+	"retro-elevated-background-alpha",
 	"retro-elevated-hover-background-color",
 	"retro-elevated-hover-box-shadow",
 	"retro-elevated-hover-border-color",
@@ -583,6 +609,8 @@ export const PresetTokens = [
 	"retro-deep-font-weight",
 	"retro-deep-letter-spacing",
 	"retro-deep-line-height",
+	"retro-deep-background-image",
+	"retro-deep-background-alpha",
 	"retro-deep-hover-color",
 	"retro-deep-hover-border-color",
 	"retro-deep-active-background-color",
@@ -606,6 +634,8 @@ export const PresetTokens = [
 	"retro-minimal-font-weight",
 	"retro-minimal-letter-spacing",
 	"retro-minimal-line-height",
+	"retro-minimal-background-image",
+	"retro-minimal-background-alpha",
 	"retro-minimal-hover-background-color",
 	"retro-minimal-hover-border-color",
 	"retro-minimal-active-background-color",
@@ -628,6 +658,8 @@ export const PresetTokens = [
 	"retro-solid-font-weight",
 	"retro-solid-letter-spacing",
 	"retro-solid-line-height",
+	"retro-solid-background-image",
+	"retro-solid-background-alpha",
 	"retro-solid-hover-background-color",
 	"retro-solid-hover-box-shadow",
 	"retro-solid-active-background-color",
@@ -651,6 +683,8 @@ export const PresetTokens = [
 	"retro-glow-font-weight",
 	"retro-glow-letter-spacing",
 	"retro-glow-line-height",
+	"retro-glow-background-image",
+	"retro-glow-background-alpha",
 	"retro-glow-hover-color",
 	"retro-glow-hover-box-shadow",
 	"retro-glow-hover-border-color",
@@ -675,6 +709,8 @@ export const PresetTokens = [
 	"retro-muted-font-weight",
 	"retro-muted-letter-spacing",
 	"retro-muted-line-height",
+	"retro-muted-background-image",
+	"retro-muted-background-alpha",
 	"retro-muted-hover-color",
 	"retro-muted-hover-opacity",
 	"retro-muted-disabled-color",
@@ -696,6 +732,8 @@ export const PresetTokens = [
 	"chrome-elevated-font-weight",
 	"chrome-elevated-letter-spacing",
 	"chrome-elevated-line-height",
+	"chrome-elevated-background-image",
+	"chrome-elevated-background-alpha",
 	"chrome-elevated-hover-background-color",
 	"chrome-elevated-hover-gradient",
 	"chrome-elevated-hover-box-shadow",
@@ -725,6 +763,8 @@ export const PresetTokens = [
 	"chrome-deep-font-weight",
 	"chrome-deep-letter-spacing",
 	"chrome-deep-line-height",
+	"chrome-deep-background-image",
+	"chrome-deep-background-alpha",
 	"chrome-deep-hover-background-color",
 	"chrome-deep-hover-box-shadow",
 	"chrome-deep-hover-border-color",
@@ -751,6 +791,8 @@ export const PresetTokens = [
 	"chrome-minimal-font-weight",
 	"chrome-minimal-letter-spacing",
 	"chrome-minimal-line-height",
+	"chrome-minimal-background-image",
+	"chrome-minimal-background-alpha",
 	"chrome-minimal-hover-background-color",
 	"chrome-minimal-hover-box-shadow",
 	"chrome-minimal-hover-border-color",
@@ -777,6 +819,8 @@ export const PresetTokens = [
 	"chrome-solid-font-weight",
 	"chrome-solid-letter-spacing",
 	"chrome-solid-line-height",
+	"chrome-solid-background-image",
+	"chrome-solid-background-alpha",
 	"chrome-solid-hover-background-color",
 	"chrome-solid-hover-box-shadow",
 	"chrome-solid-hover-border-color",
@@ -803,6 +847,8 @@ export const PresetTokens = [
 	"chrome-glow-font-weight",
 	"chrome-glow-letter-spacing",
 	"chrome-glow-line-height",
+	"chrome-glow-background-image",
+	"chrome-glow-background-alpha",
 	"chrome-glow-hover-background-color",
 	"chrome-glow-hover-box-shadow",
 	"chrome-glow-hover-border-color",
@@ -830,6 +876,8 @@ export const PresetTokens = [
 	"chrome-muted-font-weight",
 	"chrome-muted-letter-spacing",
 	"chrome-muted-line-height",
+	"chrome-muted-background-image",
+	"chrome-muted-background-alpha",
 	"chrome-muted-hover-background-color",
 	"chrome-muted-hover-opacity",
 	"chrome-muted-hover-border-color",
@@ -855,6 +903,8 @@ export const PresetTokens = [
 	"flat-elevated-font-weight",
 	"flat-elevated-letter-spacing",
 	"flat-elevated-line-height",
+	"flat-elevated-background-image",
+	"flat-elevated-background-alpha",
 	"flat-elevated-hover-background-color",
 	"flat-elevated-active-background-color",
 	"flat-elevated-disabled-background-color",
@@ -877,6 +927,8 @@ export const PresetTokens = [
 	"flat-deep-font-weight",
 	"flat-deep-letter-spacing",
 	"flat-deep-line-height",
+	"flat-deep-background-image",
+	"flat-deep-background-alpha",
 	"flat-deep-hover-background-color",
 	"flat-deep-active-background-color",
 	"flat-deep-disabled-background-color",
@@ -899,6 +951,8 @@ export const PresetTokens = [
 	"flat-minimal-font-weight",
 	"flat-minimal-letter-spacing",
 	"flat-minimal-line-height",
+	"flat-minimal-background-image",
+	"flat-minimal-background-alpha",
 	"flat-minimal-hover-background-color",
 	"flat-minimal-active-background-color",
 	"flat-minimal-disabled-color",
@@ -920,6 +974,8 @@ export const PresetTokens = [
 	"flat-solid-font-weight",
 	"flat-solid-letter-spacing",
 	"flat-solid-line-height",
+	"flat-solid-background-image",
+	"flat-solid-background-alpha",
 	"flat-solid-hover-background-color",
 	"flat-solid-hover-border-color",
 	"flat-solid-active-background-color",
@@ -944,6 +1000,8 @@ export const PresetTokens = [
 	"flat-glow-font-weight",
 	"flat-glow-letter-spacing",
 	"flat-glow-line-height",
+	"flat-glow-background-image",
+	"flat-glow-background-alpha",
 	"flat-glow-hover-background-color",
 	"flat-glow-active-background-color",
 	"flat-glow-disabled-background-color",
@@ -966,6 +1024,8 @@ export const PresetTokens = [
 	"flat-muted-font-weight",
 	"flat-muted-letter-spacing",
 	"flat-muted-line-height",
+	"flat-muted-background-image",
+	"flat-muted-background-alpha",
 	"flat-muted-hover-background-color",
 	"flat-muted-hover-opacity",
 	"flat-muted-active-background-color",
@@ -990,6 +1050,8 @@ export const PresetTokens = [
 	"stark-elevated-font-weight",
 	"stark-elevated-letter-spacing",
 	"stark-elevated-line-height",
+	"stark-elevated-background-image",
+	"stark-elevated-background-alpha",
 	"stark-elevated-hover-background-color",
 	"stark-elevated-hover-box-shadow",
 	"stark-elevated-hover-border-color",
@@ -1017,6 +1079,8 @@ export const PresetTokens = [
 	"stark-deep-font-weight",
 	"stark-deep-letter-spacing",
 	"stark-deep-line-height",
+	"stark-deep-background-image",
+	"stark-deep-background-alpha",
 	"stark-deep-hover-background-color",
 	"stark-deep-hover-box-shadow",
 	"stark-deep-hover-border-color",
@@ -1044,6 +1108,8 @@ export const PresetTokens = [
 	"stark-minimal-font-weight",
 	"stark-minimal-letter-spacing",
 	"stark-minimal-line-height",
+	"stark-minimal-background-image",
+	"stark-minimal-background-alpha",
 	"stark-minimal-hover-background-color",
 	"stark-minimal-hover-border-color",
 	"stark-minimal-active-background-color",
@@ -1069,6 +1135,8 @@ export const PresetTokens = [
 	"stark-solid-font-weight",
 	"stark-solid-letter-spacing",
 	"stark-solid-line-height",
+	"stark-solid-background-image",
+	"stark-solid-background-alpha",
 	"stark-solid-hover-background-color",
 	"stark-solid-hover-box-shadow",
 	"stark-solid-hover-border-color",
@@ -1096,6 +1164,8 @@ export const PresetTokens = [
 	"stark-glow-font-weight",
 	"stark-glow-letter-spacing",
 	"stark-glow-line-height",
+	"stark-glow-background-image",
+	"stark-glow-background-alpha",
 	"stark-glow-hover-background-color",
 	"stark-glow-hover-box-shadow",
 	"stark-glow-hover-border-color",
@@ -1124,6 +1194,8 @@ export const PresetTokens = [
 	"stark-muted-font-weight",
 	"stark-muted-letter-spacing",
 	"stark-muted-line-height",
+	"stark-muted-background-image",
+	"stark-muted-background-alpha",
 	"stark-muted-hover-background-color",
 	"stark-muted-hover-opacity",
 	"stark-muted-hover-border-color",
@@ -1154,6 +1226,8 @@ export type PresetCSSVar =
 	| "--preset-neuro-elevated-font-weight"
 	| "--preset-neuro-elevated-letter-spacing"
 	| "--preset-neuro-elevated-line-height"
+	| "--preset-neuro-elevated-background-image"
+	| "--preset-neuro-elevated-background-alpha"
 	| "--preset-neuro-elevated-hover-box-shadow"
 	| "--preset-neuro-elevated-hover-border-color"
 	| "--preset-neuro-elevated-active-background-color"
@@ -1177,6 +1251,8 @@ export type PresetCSSVar =
 	| "--preset-neuro-deep-font-weight"
 	| "--preset-neuro-deep-letter-spacing"
 	| "--preset-neuro-deep-line-height"
+	| "--preset-neuro-deep-background-image"
+	| "--preset-neuro-deep-background-alpha"
 	| "--preset-neuro-deep-hover-background-color"
 	| "--preset-neuro-deep-active-background-color"
 	| "--preset-neuro-deep-disabled-color"
@@ -1198,6 +1274,8 @@ export type PresetCSSVar =
 	| "--preset-neuro-minimal-font-weight"
 	| "--preset-neuro-minimal-letter-spacing"
 	| "--preset-neuro-minimal-line-height"
+	| "--preset-neuro-minimal-background-image"
+	| "--preset-neuro-minimal-background-alpha"
 	| "--preset-neuro-minimal-hover-background-color"
 	| "--preset-neuro-minimal-active-background-color"
 	| "--preset-neuro-minimal-disabled-color"
@@ -1219,6 +1297,8 @@ export type PresetCSSVar =
 	| "--preset-neuro-solid-font-weight"
 	| "--preset-neuro-solid-letter-spacing"
 	| "--preset-neuro-solid-line-height"
+	| "--preset-neuro-solid-background-image"
+	| "--preset-neuro-solid-background-alpha"
 	| "--preset-neuro-solid-hover-box-shadow"
 	| "--preset-neuro-solid-active-background-color"
 	| "--preset-neuro-solid-disabled-color"
@@ -1240,6 +1320,8 @@ export type PresetCSSVar =
 	| "--preset-neuro-glow-font-weight"
 	| "--preset-neuro-glow-letter-spacing"
 	| "--preset-neuro-glow-line-height"
+	| "--preset-neuro-glow-background-image"
+	| "--preset-neuro-glow-background-alpha"
 	| "--preset-neuro-glow-hover-box-shadow"
 	| "--preset-neuro-glow-hover-border-color"
 	| "--preset-neuro-glow-active-background-color"
@@ -1264,6 +1346,8 @@ export type PresetCSSVar =
 	| "--preset-neuro-muted-font-weight"
 	| "--preset-neuro-muted-letter-spacing"
 	| "--preset-neuro-muted-line-height"
+	| "--preset-neuro-muted-background-image"
+	| "--preset-neuro-muted-background-alpha"
 	| "--preset-neuro-muted-hover-background-color"
 	| "--preset-neuro-muted-hover-opacity"
 	| "--preset-neuro-muted-disabled-color"
@@ -1285,6 +1369,8 @@ export type PresetCSSVar =
 	| "--preset-glass-elevated-font-weight"
 	| "--preset-glass-elevated-letter-spacing"
 	| "--preset-glass-elevated-line-height"
+	| "--preset-glass-elevated-background-image"
+	| "--preset-glass-elevated-background-alpha"
 	| "--preset-glass-elevated-hover-background-color"
 	| "--preset-glass-elevated-hover-box-shadow"
 	| "--preset-glass-elevated-hover-border-color"
@@ -1311,6 +1397,8 @@ export type PresetCSSVar =
 	| "--preset-glass-deep-font-weight"
 	| "--preset-glass-deep-letter-spacing"
 	| "--preset-glass-deep-line-height"
+	| "--preset-glass-deep-background-image"
+	| "--preset-glass-deep-background-alpha"
 	| "--preset-glass-deep-hover-background-color"
 	| "--preset-glass-deep-hover-box-shadow"
 	| "--preset-glass-deep-hover-border-color"
@@ -1336,6 +1424,8 @@ export type PresetCSSVar =
 	| "--preset-glass-minimal-font-weight"
 	| "--preset-glass-minimal-letter-spacing"
 	| "--preset-glass-minimal-line-height"
+	| "--preset-glass-minimal-background-image"
+	| "--preset-glass-minimal-background-alpha"
 	| "--preset-glass-minimal-hover-background-color"
 	| "--preset-glass-minimal-hover-border-color"
 	| "--preset-glass-minimal-active-background-color"
@@ -1359,6 +1449,8 @@ export type PresetCSSVar =
 	| "--preset-glass-solid-font-weight"
 	| "--preset-glass-solid-letter-spacing"
 	| "--preset-glass-solid-line-height"
+	| "--preset-glass-solid-background-image"
+	| "--preset-glass-solid-background-alpha"
 	| "--preset-glass-solid-hover-background-color"
 	| "--preset-glass-solid-hover-box-shadow"
 	| "--preset-glass-solid-hover-border-color"
@@ -1384,6 +1476,8 @@ export type PresetCSSVar =
 	| "--preset-glass-glow-font-weight"
 	| "--preset-glass-glow-letter-spacing"
 	| "--preset-glass-glow-line-height"
+	| "--preset-glass-glow-background-image"
+	| "--preset-glass-glow-background-alpha"
 	| "--preset-glass-glow-hover-background-color"
 	| "--preset-glass-glow-hover-box-shadow"
 	| "--preset-glass-glow-hover-border-color"
@@ -1410,6 +1504,8 @@ export type PresetCSSVar =
 	| "--preset-glass-muted-font-weight"
 	| "--preset-glass-muted-letter-spacing"
 	| "--preset-glass-muted-line-height"
+	| "--preset-glass-muted-background-image"
+	| "--preset-glass-muted-background-alpha"
 	| "--preset-glass-muted-hover-background-color"
 	| "--preset-glass-muted-hover-opacity"
 	| "--preset-glass-muted-hover-border-color"
@@ -1435,6 +1531,8 @@ export type PresetCSSVar =
 	| "--preset-retro-elevated-font-weight"
 	| "--preset-retro-elevated-letter-spacing"
 	| "--preset-retro-elevated-line-height"
+	| "--preset-retro-elevated-background-image"
+	| "--preset-retro-elevated-background-alpha"
 	| "--preset-retro-elevated-hover-background-color"
 	| "--preset-retro-elevated-hover-box-shadow"
 	| "--preset-retro-elevated-hover-border-color"
@@ -1460,6 +1558,8 @@ export type PresetCSSVar =
 	| "--preset-retro-deep-font-weight"
 	| "--preset-retro-deep-letter-spacing"
 	| "--preset-retro-deep-line-height"
+	| "--preset-retro-deep-background-image"
+	| "--preset-retro-deep-background-alpha"
 	| "--preset-retro-deep-hover-color"
 	| "--preset-retro-deep-hover-border-color"
 	| "--preset-retro-deep-active-background-color"
@@ -1483,6 +1583,8 @@ export type PresetCSSVar =
 	| "--preset-retro-minimal-font-weight"
 	| "--preset-retro-minimal-letter-spacing"
 	| "--preset-retro-minimal-line-height"
+	| "--preset-retro-minimal-background-image"
+	| "--preset-retro-minimal-background-alpha"
 	| "--preset-retro-minimal-hover-background-color"
 	| "--preset-retro-minimal-hover-border-color"
 	| "--preset-retro-minimal-active-background-color"
@@ -1505,6 +1607,8 @@ export type PresetCSSVar =
 	| "--preset-retro-solid-font-weight"
 	| "--preset-retro-solid-letter-spacing"
 	| "--preset-retro-solid-line-height"
+	| "--preset-retro-solid-background-image"
+	| "--preset-retro-solid-background-alpha"
 	| "--preset-retro-solid-hover-background-color"
 	| "--preset-retro-solid-hover-box-shadow"
 	| "--preset-retro-solid-active-background-color"
@@ -1528,6 +1632,8 @@ export type PresetCSSVar =
 	| "--preset-retro-glow-font-weight"
 	| "--preset-retro-glow-letter-spacing"
 	| "--preset-retro-glow-line-height"
+	| "--preset-retro-glow-background-image"
+	| "--preset-retro-glow-background-alpha"
 	| "--preset-retro-glow-hover-color"
 	| "--preset-retro-glow-hover-box-shadow"
 	| "--preset-retro-glow-hover-border-color"
@@ -1552,6 +1658,8 @@ export type PresetCSSVar =
 	| "--preset-retro-muted-font-weight"
 	| "--preset-retro-muted-letter-spacing"
 	| "--preset-retro-muted-line-height"
+	| "--preset-retro-muted-background-image"
+	| "--preset-retro-muted-background-alpha"
 	| "--preset-retro-muted-hover-color"
 	| "--preset-retro-muted-hover-opacity"
 	| "--preset-retro-muted-disabled-color"
@@ -1573,6 +1681,8 @@ export type PresetCSSVar =
 	| "--preset-chrome-elevated-font-weight"
 	| "--preset-chrome-elevated-letter-spacing"
 	| "--preset-chrome-elevated-line-height"
+	| "--preset-chrome-elevated-background-image"
+	| "--preset-chrome-elevated-background-alpha"
 	| "--preset-chrome-elevated-hover-background-color"
 	| "--preset-chrome-elevated-hover-gradient"
 	| "--preset-chrome-elevated-hover-box-shadow"
@@ -1602,6 +1712,8 @@ export type PresetCSSVar =
 	| "--preset-chrome-deep-font-weight"
 	| "--preset-chrome-deep-letter-spacing"
 	| "--preset-chrome-deep-line-height"
+	| "--preset-chrome-deep-background-image"
+	| "--preset-chrome-deep-background-alpha"
 	| "--preset-chrome-deep-hover-background-color"
 	| "--preset-chrome-deep-hover-box-shadow"
 	| "--preset-chrome-deep-hover-border-color"
@@ -1628,6 +1740,8 @@ export type PresetCSSVar =
 	| "--preset-chrome-minimal-font-weight"
 	| "--preset-chrome-minimal-letter-spacing"
 	| "--preset-chrome-minimal-line-height"
+	| "--preset-chrome-minimal-background-image"
+	| "--preset-chrome-minimal-background-alpha"
 	| "--preset-chrome-minimal-hover-background-color"
 	| "--preset-chrome-minimal-hover-box-shadow"
 	| "--preset-chrome-minimal-hover-border-color"
@@ -1654,6 +1768,8 @@ export type PresetCSSVar =
 	| "--preset-chrome-solid-font-weight"
 	| "--preset-chrome-solid-letter-spacing"
 	| "--preset-chrome-solid-line-height"
+	| "--preset-chrome-solid-background-image"
+	| "--preset-chrome-solid-background-alpha"
 	| "--preset-chrome-solid-hover-background-color"
 	| "--preset-chrome-solid-hover-box-shadow"
 	| "--preset-chrome-solid-hover-border-color"
@@ -1680,6 +1796,8 @@ export type PresetCSSVar =
 	| "--preset-chrome-glow-font-weight"
 	| "--preset-chrome-glow-letter-spacing"
 	| "--preset-chrome-glow-line-height"
+	| "--preset-chrome-glow-background-image"
+	| "--preset-chrome-glow-background-alpha"
 	| "--preset-chrome-glow-hover-background-color"
 	| "--preset-chrome-glow-hover-box-shadow"
 	| "--preset-chrome-glow-hover-border-color"
@@ -1707,6 +1825,8 @@ export type PresetCSSVar =
 	| "--preset-chrome-muted-font-weight"
 	| "--preset-chrome-muted-letter-spacing"
 	| "--preset-chrome-muted-line-height"
+	| "--preset-chrome-muted-background-image"
+	| "--preset-chrome-muted-background-alpha"
 	| "--preset-chrome-muted-hover-background-color"
 	| "--preset-chrome-muted-hover-opacity"
 	| "--preset-chrome-muted-hover-border-color"
@@ -1732,6 +1852,8 @@ export type PresetCSSVar =
 	| "--preset-flat-elevated-font-weight"
 	| "--preset-flat-elevated-letter-spacing"
 	| "--preset-flat-elevated-line-height"
+	| "--preset-flat-elevated-background-image"
+	| "--preset-flat-elevated-background-alpha"
 	| "--preset-flat-elevated-hover-background-color"
 	| "--preset-flat-elevated-active-background-color"
 	| "--preset-flat-elevated-disabled-background-color"
@@ -1754,6 +1876,8 @@ export type PresetCSSVar =
 	| "--preset-flat-deep-font-weight"
 	| "--preset-flat-deep-letter-spacing"
 	| "--preset-flat-deep-line-height"
+	| "--preset-flat-deep-background-image"
+	| "--preset-flat-deep-background-alpha"
 	| "--preset-flat-deep-hover-background-color"
 	| "--preset-flat-deep-active-background-color"
 	| "--preset-flat-deep-disabled-background-color"
@@ -1776,6 +1900,8 @@ export type PresetCSSVar =
 	| "--preset-flat-minimal-font-weight"
 	| "--preset-flat-minimal-letter-spacing"
 	| "--preset-flat-minimal-line-height"
+	| "--preset-flat-minimal-background-image"
+	| "--preset-flat-minimal-background-alpha"
 	| "--preset-flat-minimal-hover-background-color"
 	| "--preset-flat-minimal-active-background-color"
 	| "--preset-flat-minimal-disabled-color"
@@ -1797,6 +1923,8 @@ export type PresetCSSVar =
 	| "--preset-flat-solid-font-weight"
 	| "--preset-flat-solid-letter-spacing"
 	| "--preset-flat-solid-line-height"
+	| "--preset-flat-solid-background-image"
+	| "--preset-flat-solid-background-alpha"
 	| "--preset-flat-solid-hover-background-color"
 	| "--preset-flat-solid-hover-border-color"
 	| "--preset-flat-solid-active-background-color"
@@ -1821,6 +1949,8 @@ export type PresetCSSVar =
 	| "--preset-flat-glow-font-weight"
 	| "--preset-flat-glow-letter-spacing"
 	| "--preset-flat-glow-line-height"
+	| "--preset-flat-glow-background-image"
+	| "--preset-flat-glow-background-alpha"
 	| "--preset-flat-glow-hover-background-color"
 	| "--preset-flat-glow-active-background-color"
 	| "--preset-flat-glow-disabled-background-color"
@@ -1843,6 +1973,8 @@ export type PresetCSSVar =
 	| "--preset-flat-muted-font-weight"
 	| "--preset-flat-muted-letter-spacing"
 	| "--preset-flat-muted-line-height"
+	| "--preset-flat-muted-background-image"
+	| "--preset-flat-muted-background-alpha"
 	| "--preset-flat-muted-hover-background-color"
 	| "--preset-flat-muted-hover-opacity"
 	| "--preset-flat-muted-active-background-color"
@@ -1867,6 +1999,8 @@ export type PresetCSSVar =
 	| "--preset-stark-elevated-font-weight"
 	| "--preset-stark-elevated-letter-spacing"
 	| "--preset-stark-elevated-line-height"
+	| "--preset-stark-elevated-background-image"
+	| "--preset-stark-elevated-background-alpha"
 	| "--preset-stark-elevated-hover-background-color"
 	| "--preset-stark-elevated-hover-box-shadow"
 	| "--preset-stark-elevated-hover-border-color"
@@ -1894,6 +2028,8 @@ export type PresetCSSVar =
 	| "--preset-stark-deep-font-weight"
 	| "--preset-stark-deep-letter-spacing"
 	| "--preset-stark-deep-line-height"
+	| "--preset-stark-deep-background-image"
+	| "--preset-stark-deep-background-alpha"
 	| "--preset-stark-deep-hover-background-color"
 	| "--preset-stark-deep-hover-box-shadow"
 	| "--preset-stark-deep-hover-border-color"
@@ -1921,6 +2057,8 @@ export type PresetCSSVar =
 	| "--preset-stark-minimal-font-weight"
 	| "--preset-stark-minimal-letter-spacing"
 	| "--preset-stark-minimal-line-height"
+	| "--preset-stark-minimal-background-image"
+	| "--preset-stark-minimal-background-alpha"
 	| "--preset-stark-minimal-hover-background-color"
 	| "--preset-stark-minimal-hover-border-color"
 	| "--preset-stark-minimal-active-background-color"
@@ -1946,6 +2084,8 @@ export type PresetCSSVar =
 	| "--preset-stark-solid-font-weight"
 	| "--preset-stark-solid-letter-spacing"
 	| "--preset-stark-solid-line-height"
+	| "--preset-stark-solid-background-image"
+	| "--preset-stark-solid-background-alpha"
 	| "--preset-stark-solid-hover-background-color"
 	| "--preset-stark-solid-hover-box-shadow"
 	| "--preset-stark-solid-hover-border-color"
@@ -1973,6 +2113,8 @@ export type PresetCSSVar =
 	| "--preset-stark-glow-font-weight"
 	| "--preset-stark-glow-letter-spacing"
 	| "--preset-stark-glow-line-height"
+	| "--preset-stark-glow-background-image"
+	| "--preset-stark-glow-background-alpha"
 	| "--preset-stark-glow-hover-background-color"
 	| "--preset-stark-glow-hover-box-shadow"
 	| "--preset-stark-glow-hover-border-color"
@@ -2001,6 +2143,8 @@ export type PresetCSSVar =
 	| "--preset-stark-muted-font-weight"
 	| "--preset-stark-muted-letter-spacing"
 	| "--preset-stark-muted-line-height"
+	| "--preset-stark-muted-background-image"
+	| "--preset-stark-muted-background-alpha"
 	| "--preset-stark-muted-hover-background-color"
 	| "--preset-stark-muted-hover-opacity"
 	| "--preset-stark-muted-hover-border-color"
@@ -2030,6 +2174,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"neuro-elevated-hover": {
 		"box-shadow": string;
@@ -2061,6 +2207,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"neuro-deep-hover": {
 		"background-color": string;
@@ -2090,6 +2238,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"neuro-minimal-hover": {
 		"background-color": string;
@@ -2119,6 +2269,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"neuro-solid-hover": {
 		"box-shadow": string;
@@ -2148,6 +2300,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"neuro-glow-hover": {
 		"box-shadow": string;
@@ -2180,6 +2334,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"neuro-muted-hover": {
 		"background-color": string;
@@ -2207,6 +2363,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"glass-elevated-hover": {
 		"background-color": string;
@@ -2241,6 +2399,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"glass-deep-hover": {
 		"background-color": string;
@@ -2274,6 +2434,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"glass-minimal-hover": {
 		"background-color": string;
@@ -2305,6 +2467,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"glass-solid-hover": {
 		"background-color": string;
@@ -2338,6 +2502,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"glass-glow-hover": {
 		"background-color": string;
@@ -2372,6 +2538,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"glass-muted-hover": {
 		"background-color": string;
@@ -2405,6 +2573,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"retro-elevated-hover": {
 		"background-color": string;
@@ -2438,6 +2608,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"retro-deep-hover": {
 		color: string;
@@ -2469,6 +2641,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"retro-minimal-hover": {
 		"background-color": string;
@@ -2499,6 +2673,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"retro-solid-hover": {
 		"background-color": string;
@@ -2530,6 +2706,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"retro-glow-hover": {
 		color: string;
@@ -2562,6 +2740,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"retro-muted-hover": {
 		color: string;
@@ -2589,6 +2769,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"chrome-elevated-hover": {
 		"background-color": string;
@@ -2626,6 +2808,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"chrome-deep-hover": {
 		"background-color": string;
@@ -2660,6 +2844,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"chrome-minimal-hover": {
 		"background-color": string;
@@ -2694,6 +2880,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"chrome-solid-hover": {
 		"background-color": string;
@@ -2728,6 +2916,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"chrome-glow-hover": {
 		"background-color": string;
@@ -2763,6 +2953,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"chrome-muted-hover": {
 		"background-color": string;
@@ -2796,6 +2988,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"flat-elevated-hover": {
 		"background-color": string;
@@ -2826,6 +3020,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"flat-deep-hover": {
 		"background-color": string;
@@ -2856,6 +3052,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"flat-minimal-hover": {
 		"background-color": string;
@@ -2885,6 +3083,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"flat-solid-hover": {
 		"background-color": string;
@@ -2917,6 +3117,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"flat-glow-hover": {
 		"background-color": string;
@@ -2947,6 +3149,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"flat-muted-hover": {
 		"background-color": string;
@@ -2979,6 +3183,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"stark-elevated-hover": {
 		"background-color": string;
@@ -3014,6 +3220,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"stark-deep-hover": {
 		"background-color": string;
@@ -3049,6 +3257,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"stark-minimal-hover": {
 		"background-color": string;
@@ -3082,6 +3292,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"stark-solid-hover": {
 		"background-color": string;
@@ -3117,6 +3329,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"stark-glow-hover": {
 		"background-color": string;
@@ -3153,6 +3367,8 @@ export type PresetRecord = {
 		"font-weight": string;
 		"letter-spacing": string;
 		"line-height": string;
+		"background-image": string;
+		"background-alpha": string;
 	};
 	"stark-muted-hover": {
 		"background-color": string;

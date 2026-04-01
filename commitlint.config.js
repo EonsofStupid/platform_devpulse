@@ -26,6 +26,7 @@ module.exports = {
         'engine',
         'clyffy',
         'desktop',
+        'model-loader',
         
         // Design System
         'coldlight',

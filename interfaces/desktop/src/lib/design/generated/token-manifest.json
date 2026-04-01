@@ -8081,7 +8081,7 @@
 					"animation"
 				],
 				"cssVar": "--preset-neuro-elevated-animation",
-				"value": "none",
+				"value": "cl-breathe 4s ease-in-out infinite",
 				"type": "string",
 				"extensions": null
 			},
@@ -8182,6 +8182,30 @@
 				],
 				"cssVar": "--preset-neuro-elevated-line-height",
 				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-neuro-elevated-background-image",
+				"path": [
+					"preset",
+					"neuro-elevated",
+					"background-image"
+				],
+				"cssVar": "--preset-neuro-elevated-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-neuro-elevated-background-alpha",
+				"path": [
+					"preset",
+					"neuro-elevated",
+					"background-alpha"
+				],
+				"cssVar": "--preset-neuro-elevated-background-alpha",
+				"value": "1",
 				"type": "number",
 				"extensions": null
 			},
@@ -8466,6 +8490,30 @@
 				"extensions": null
 			},
 			{
+				"name": "preset-neuro-deep-background-image",
+				"path": [
+					"preset",
+					"neuro-deep",
+					"background-image"
+				],
+				"cssVar": "--preset-neuro-deep-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-neuro-deep-background-alpha",
+				"path": [
+					"preset",
+					"neuro-deep",
+					"background-alpha"
+				],
+				"cssVar": "--preset-neuro-deep-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
 				"name": "preset-neuro-deep-hover-background-color",
 				"path": [
 					"preset",
@@ -8718,6 +8766,30 @@
 				],
 				"cssVar": "--preset-neuro-minimal-line-height",
 				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-neuro-minimal-background-image",
+				"path": [
+					"preset",
+					"neuro-minimal",
+					"background-image"
+				],
+				"cssVar": "--preset-neuro-minimal-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-neuro-minimal-background-alpha",
+				"path": [
+					"preset",
+					"neuro-minimal",
+					"background-alpha"
+				],
+				"cssVar": "--preset-neuro-minimal-background-alpha",
+				"value": "1",
 				"type": "number",
 				"extensions": null
 			},
@@ -8978,6 +9050,30 @@
 				"extensions": null
 			},
 			{
+				"name": "preset-neuro-solid-background-image",
+				"path": [
+					"preset",
+					"neuro-solid",
+					"background-image"
+				],
+				"cssVar": "--preset-neuro-solid-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-neuro-solid-background-alpha",
+				"path": [
+					"preset",
+					"neuro-solid",
+					"background-alpha"
+				],
+				"cssVar": "--preset-neuro-solid-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
 				"name": "preset-neuro-solid-hover-box-shadow",
 				"path": [
 					"preset",
@@ -9230,6 +9326,30 @@
 				],
 				"cssVar": "--preset-neuro-glow-line-height",
 				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-neuro-glow-background-image",
+				"path": [
+					"preset",
+					"neuro-glow",
+					"background-image"
+				],
+				"cssVar": "--preset-neuro-glow-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-neuro-glow-background-alpha",
+				"path": [
+					"preset",
+					"neuro-glow",
+					"background-alpha"
+				],
+				"cssVar": "--preset-neuro-glow-background-alpha",
+				"value": "1",
 				"type": "number",
 				"extensions": null
 			},
@@ -9526,6 +9646,30 @@
 				"extensions": null
 			},
 			{
+				"name": "preset-neuro-muted-background-image",
+				"path": [
+					"preset",
+					"neuro-muted",
+					"background-image"
+				],
+				"cssVar": "--preset-neuro-muted-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-neuro-muted-background-alpha",
+				"path": [
+					"preset",
+					"neuro-muted",
+					"background-alpha"
+				],
+				"cssVar": "--preset-neuro-muted-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
 				"name": "preset-neuro-muted-hover-background-color",
 				"path": [
 					"preset",
@@ -9778,6 +9922,30 @@
 				],
 				"cssVar": "--preset-glass-elevated-line-height",
 				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-glass-elevated-background-image",
+				"path": [
+					"preset",
+					"glass-elevated",
+					"background-image"
+				],
+				"cssVar": "--preset-glass-elevated-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-glass-elevated-background-alpha",
+				"path": [
+					"preset",
+					"glass-elevated",
+					"background-alpha"
+				],
+				"cssVar": "--preset-glass-elevated-background-alpha",
+				"value": "1",
 				"type": "number",
 				"extensions": null
 			},
@@ -10098,6 +10266,30 @@
 				"extensions": null
 			},
 			{
+				"name": "preset-glass-deep-background-image",
+				"path": [
+					"preset",
+					"glass-deep",
+					"background-image"
+				],
+				"cssVar": "--preset-glass-deep-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-glass-deep-background-alpha",
+				"path": [
+					"preset",
+					"glass-deep",
+					"background-alpha"
+				],
+				"cssVar": "--preset-glass-deep-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
 				"name": "preset-glass-deep-hover-background-color",
 				"path": [
 					"preset",
@@ -10402,6 +10594,30 @@
 				"extensions": null
 			},
 			{
+				"name": "preset-glass-minimal-background-image",
+				"path": [
+					"preset",
+					"glass-minimal",
+					"background-image"
+				],
+				"cssVar": "--preset-glass-minimal-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-glass-minimal-background-alpha",
+				"path": [
+					"preset",
+					"glass-minimal",
+					"background-alpha"
+				],
+				"cssVar": "--preset-glass-minimal-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
 				"name": "preset-glass-minimal-hover-background-color",
 				"path": [
 					"preset",
@@ -10678,6 +10894,30 @@
 				],
 				"cssVar": "--preset-glass-solid-line-height",
 				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-glass-solid-background-image",
+				"path": [
+					"preset",
+					"glass-solid",
+					"background-image"
+				],
+				"cssVar": "--preset-glass-solid-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-glass-solid-background-alpha",
+				"path": [
+					"preset",
+					"glass-solid",
+					"background-alpha"
+				],
+				"cssVar": "--preset-glass-solid-background-alpha",
+				"value": "1",
 				"type": "number",
 				"extensions": null
 			},
@@ -10982,6 +11222,30 @@
 				],
 				"cssVar": "--preset-glass-glow-line-height",
 				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-glass-glow-background-image",
+				"path": [
+					"preset",
+					"glass-glow",
+					"background-image"
+				],
+				"cssVar": "--preset-glass-glow-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-glass-glow-background-alpha",
+				"path": [
+					"preset",
+					"glass-glow",
+					"background-alpha"
+				],
+				"cssVar": "--preset-glass-glow-background-alpha",
+				"value": "1",
 				"type": "number",
 				"extensions": null
 			},
@@ -11302,6 +11566,30 @@
 				"extensions": null
 			},
 			{
+				"name": "preset-glass-muted-background-image",
+				"path": [
+					"preset",
+					"glass-muted",
+					"background-image"
+				],
+				"cssVar": "--preset-glass-muted-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-glass-muted-background-alpha",
+				"path": [
+					"preset",
+					"glass-muted",
+					"background-alpha"
+				],
+				"cssVar": "--preset-glass-muted-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
 				"name": "preset-glass-muted-hover-background-color",
 				"path": [
 					"preset",
@@ -11602,6 +11890,30 @@
 				],
 				"cssVar": "--preset-retro-elevated-line-height",
 				"value": "1.4",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-retro-elevated-background-image",
+				"path": [
+					"preset",
+					"retro-elevated",
+					"background-image"
+				],
+				"cssVar": "--preset-retro-elevated-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-retro-elevated-background-alpha",
+				"path": [
+					"preset",
+					"retro-elevated",
+					"background-alpha"
+				],
+				"cssVar": "--preset-retro-elevated-background-alpha",
+				"value": "1",
 				"type": "number",
 				"extensions": null
 			},
@@ -11910,6 +12222,30 @@
 				"extensions": null
 			},
 			{
+				"name": "preset-retro-deep-background-image",
+				"path": [
+					"preset",
+					"retro-deep",
+					"background-image"
+				],
+				"cssVar": "--preset-retro-deep-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-retro-deep-background-alpha",
+				"path": [
+					"preset",
+					"retro-deep",
+					"background-alpha"
+				],
+				"cssVar": "--preset-retro-deep-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
 				"name": "preset-retro-deep-hover-color",
 				"path": [
 					"preset",
@@ -12190,6 +12526,30 @@
 				"extensions": null
 			},
 			{
+				"name": "preset-retro-minimal-background-image",
+				"path": [
+					"preset",
+					"retro-minimal",
+					"background-image"
+				],
+				"cssVar": "--preset-retro-minimal-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-retro-minimal-background-alpha",
+				"path": [
+					"preset",
+					"retro-minimal",
+					"background-alpha"
+				],
+				"cssVar": "--preset-retro-minimal-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
 				"name": "preset-retro-minimal-hover-background-color",
 				"path": [
 					"preset",
@@ -12454,6 +12814,30 @@
 				],
 				"cssVar": "--preset-retro-solid-line-height",
 				"value": "1.4",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-retro-solid-background-image",
+				"path": [
+					"preset",
+					"retro-solid",
+					"background-image"
+				],
+				"cssVar": "--preset-retro-solid-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-retro-solid-background-alpha",
+				"path": [
+					"preset",
+					"retro-solid",
+					"background-alpha"
+				],
+				"cssVar": "--preset-retro-solid-background-alpha",
+				"value": "1",
 				"type": "number",
 				"extensions": null
 			},
@@ -12734,6 +13118,30 @@
 				],
 				"cssVar": "--preset-retro-glow-line-height",
 				"value": "1.4",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-retro-glow-background-image",
+				"path": [
+					"preset",
+					"retro-glow",
+					"background-image"
+				],
+				"cssVar": "--preset-retro-glow-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-retro-glow-background-alpha",
+				"path": [
+					"preset",
+					"retro-glow",
+					"background-alpha"
+				],
+				"cssVar": "--preset-retro-glow-background-alpha",
+				"value": "1",
 				"type": "number",
 				"extensions": null
 			},
@@ -13030,6 +13438,30 @@
 				"extensions": null
 			},
 			{
+				"name": "preset-retro-muted-background-image",
+				"path": [
+					"preset",
+					"retro-muted",
+					"background-image"
+				],
+				"cssVar": "--preset-retro-muted-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-retro-muted-background-alpha",
+				"path": [
+					"preset",
+					"retro-muted",
+					"background-alpha"
+				],
+				"cssVar": "--preset-retro-muted-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
 				"name": "preset-retro-muted-hover-color",
 				"path": [
 					"preset",
@@ -13282,6 +13714,30 @@
 				],
 				"cssVar": "--preset-chrome-elevated-line-height",
 				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chrome-elevated-background-image",
+				"path": [
+					"preset",
+					"chrome-elevated",
+					"background-image"
+				],
+				"cssVar": "--preset-chrome-elevated-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chrome-elevated-background-alpha",
+				"path": [
+					"preset",
+					"chrome-elevated",
+					"background-alpha"
+				],
+				"cssVar": "--preset-chrome-elevated-background-alpha",
+				"value": "1",
 				"type": "number",
 				"extensions": null
 			},
@@ -13638,6 +14094,30 @@
 				"extensions": null
 			},
 			{
+				"name": "preset-chrome-deep-background-image",
+				"path": [
+					"preset",
+					"chrome-deep",
+					"background-image"
+				],
+				"cssVar": "--preset-chrome-deep-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chrome-deep-background-alpha",
+				"path": [
+					"preset",
+					"chrome-deep",
+					"background-alpha"
+				],
+				"cssVar": "--preset-chrome-deep-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
 				"name": "preset-chrome-deep-hover-background-color",
 				"path": [
 					"preset",
@@ -13950,6 +14430,30 @@
 				],
 				"cssVar": "--preset-chrome-minimal-line-height",
 				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chrome-minimal-background-image",
+				"path": [
+					"preset",
+					"chrome-minimal",
+					"background-image"
+				],
+				"cssVar": "--preset-chrome-minimal-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chrome-minimal-background-alpha",
+				"path": [
+					"preset",
+					"chrome-minimal",
+					"background-alpha"
+				],
+				"cssVar": "--preset-chrome-minimal-background-alpha",
+				"value": "1",
 				"type": "number",
 				"extensions": null
 			},
@@ -14270,6 +14774,30 @@
 				"extensions": null
 			},
 			{
+				"name": "preset-chrome-solid-background-image",
+				"path": [
+					"preset",
+					"chrome-solid",
+					"background-image"
+				],
+				"cssVar": "--preset-chrome-solid-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chrome-solid-background-alpha",
+				"path": [
+					"preset",
+					"chrome-solid",
+					"background-alpha"
+				],
+				"cssVar": "--preset-chrome-solid-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
 				"name": "preset-chrome-solid-hover-background-color",
 				"path": [
 					"preset",
@@ -14582,6 +15110,30 @@
 				],
 				"cssVar": "--preset-chrome-glow-line-height",
 				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-chrome-glow-background-image",
+				"path": [
+					"preset",
+					"chrome-glow",
+					"background-image"
+				],
+				"cssVar": "--preset-chrome-glow-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chrome-glow-background-alpha",
+				"path": [
+					"preset",
+					"chrome-glow",
+					"background-alpha"
+				],
+				"cssVar": "--preset-chrome-glow-background-alpha",
+				"value": "1",
 				"type": "number",
 				"extensions": null
 			},
@@ -14914,6 +15466,30 @@
 				"extensions": null
 			},
 			{
+				"name": "preset-chrome-muted-background-image",
+				"path": [
+					"preset",
+					"chrome-muted",
+					"background-image"
+				],
+				"cssVar": "--preset-chrome-muted-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-chrome-muted-background-alpha",
+				"path": [
+					"preset",
+					"chrome-muted",
+					"background-alpha"
+				],
+				"cssVar": "--preset-chrome-muted-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
 				"name": "preset-chrome-muted-hover-background-color",
 				"path": [
 					"preset",
@@ -15218,6 +15794,30 @@
 				"extensions": null
 			},
 			{
+				"name": "preset-flat-elevated-background-image",
+				"path": [
+					"preset",
+					"flat-elevated",
+					"background-image"
+				],
+				"cssVar": "--preset-flat-elevated-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-flat-elevated-background-alpha",
+				"path": [
+					"preset",
+					"flat-elevated",
+					"background-alpha"
+				],
+				"cssVar": "--preset-flat-elevated-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
 				"name": "preset-flat-elevated-hover-background-color",
 				"path": [
 					"preset",
@@ -15482,6 +16082,30 @@
 				],
 				"cssVar": "--preset-flat-deep-line-height",
 				"value": "1.6",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-flat-deep-background-image",
+				"path": [
+					"preset",
+					"flat-deep",
+					"background-image"
+				],
+				"cssVar": "--preset-flat-deep-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-flat-deep-background-alpha",
+				"path": [
+					"preset",
+					"flat-deep",
+					"background-alpha"
+				],
+				"cssVar": "--preset-flat-deep-background-alpha",
+				"value": "1",
 				"type": "number",
 				"extensions": null
 			},
@@ -15754,6 +16378,30 @@
 				"extensions": null
 			},
 			{
+				"name": "preset-flat-minimal-background-image",
+				"path": [
+					"preset",
+					"flat-minimal",
+					"background-image"
+				],
+				"cssVar": "--preset-flat-minimal-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-flat-minimal-background-alpha",
+				"path": [
+					"preset",
+					"flat-minimal",
+					"background-alpha"
+				],
+				"cssVar": "--preset-flat-minimal-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
 				"name": "preset-flat-minimal-hover-background-color",
 				"path": [
 					"preset",
@@ -16006,6 +16654,30 @@
 				],
 				"cssVar": "--preset-flat-solid-line-height",
 				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-flat-solid-background-image",
+				"path": [
+					"preset",
+					"flat-solid",
+					"background-image"
+				],
+				"cssVar": "--preset-flat-solid-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-flat-solid-background-alpha",
+				"path": [
+					"preset",
+					"flat-solid",
+					"background-alpha"
+				],
+				"cssVar": "--preset-flat-solid-background-alpha",
+				"value": "1",
 				"type": "number",
 				"extensions": null
 			},
@@ -16302,6 +16974,30 @@
 				"extensions": null
 			},
 			{
+				"name": "preset-flat-glow-background-image",
+				"path": [
+					"preset",
+					"flat-glow",
+					"background-image"
+				],
+				"cssVar": "--preset-flat-glow-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-flat-glow-background-alpha",
+				"path": [
+					"preset",
+					"flat-glow",
+					"background-alpha"
+				],
+				"cssVar": "--preset-flat-glow-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
 				"name": "preset-flat-glow-hover-background-color",
 				"path": [
 					"preset",
@@ -16566,6 +17262,30 @@
 				],
 				"cssVar": "--preset-flat-muted-line-height",
 				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-flat-muted-background-image",
+				"path": [
+					"preset",
+					"flat-muted",
+					"background-image"
+				],
+				"cssVar": "--preset-flat-muted-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-flat-muted-background-alpha",
+				"path": [
+					"preset",
+					"flat-muted",
+					"background-alpha"
+				],
+				"cssVar": "--preset-flat-muted-background-alpha",
+				"value": "1",
 				"type": "number",
 				"extensions": null
 			},
@@ -16858,6 +17578,30 @@
 				],
 				"cssVar": "--preset-stark-elevated-line-height",
 				"value": "1.4",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-stark-elevated-background-image",
+				"path": [
+					"preset",
+					"stark-elevated",
+					"background-image"
+				],
+				"cssVar": "--preset-stark-elevated-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-stark-elevated-background-alpha",
+				"path": [
+					"preset",
+					"stark-elevated",
+					"background-alpha"
+				],
+				"cssVar": "--preset-stark-elevated-background-alpha",
+				"value": "1",
 				"type": "number",
 				"extensions": null
 			},
@@ -17190,6 +17934,30 @@
 				"extensions": null
 			},
 			{
+				"name": "preset-stark-deep-background-image",
+				"path": [
+					"preset",
+					"stark-deep",
+					"background-image"
+				],
+				"cssVar": "--preset-stark-deep-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-stark-deep-background-alpha",
+				"path": [
+					"preset",
+					"stark-deep",
+					"background-alpha"
+				],
+				"cssVar": "--preset-stark-deep-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
 				"name": "preset-stark-deep-hover-background-color",
 				"path": [
 					"preset",
@@ -17518,6 +18286,30 @@
 				"extensions": null
 			},
 			{
+				"name": "preset-stark-minimal-background-image",
+				"path": [
+					"preset",
+					"stark-minimal",
+					"background-image"
+				],
+				"cssVar": "--preset-stark-minimal-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-stark-minimal-background-alpha",
+				"path": [
+					"preset",
+					"stark-minimal",
+					"background-alpha"
+				],
+				"cssVar": "--preset-stark-minimal-background-alpha",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
 				"name": "preset-stark-minimal-hover-background-color",
 				"path": [
 					"preset",
@@ -17818,6 +18610,30 @@
 				],
 				"cssVar": "--preset-stark-solid-line-height",
 				"value": "1.4",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-stark-solid-background-image",
+				"path": [
+					"preset",
+					"stark-solid",
+					"background-image"
+				],
+				"cssVar": "--preset-stark-solid-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-stark-solid-background-alpha",
+				"path": [
+					"preset",
+					"stark-solid",
+					"background-alpha"
+				],
+				"cssVar": "--preset-stark-solid-background-alpha",
+				"value": "1",
 				"type": "number",
 				"extensions": null
 			},
@@ -18146,6 +18962,30 @@
 				],
 				"cssVar": "--preset-stark-glow-line-height",
 				"value": "1.4",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-stark-glow-background-image",
+				"path": [
+					"preset",
+					"stark-glow",
+					"background-image"
+				],
+				"cssVar": "--preset-stark-glow-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-stark-glow-background-alpha",
+				"path": [
+					"preset",
+					"stark-glow",
+					"background-alpha"
+				],
+				"cssVar": "--preset-stark-glow-background-alpha",
+				"value": "1",
 				"type": "number",
 				"extensions": null
 			},
@@ -18486,6 +19326,30 @@
 				],
 				"cssVar": "--preset-stark-muted-line-height",
 				"value": "1.5",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-stark-muted-background-image",
+				"path": [
+					"preset",
+					"stark-muted",
+					"background-image"
+				],
+				"cssVar": "--preset-stark-muted-background-image",
+				"value": "none",
+				"type": "string",
+				"extensions": null
+			},
+			{
+				"name": "preset-stark-muted-background-alpha",
+				"path": [
+					"preset",
+					"stark-muted",
+					"background-alpha"
+				],
+				"cssVar": "--preset-stark-muted-background-alpha",
+				"value": "1",
 				"type": "number",
 				"extensions": null
 			},

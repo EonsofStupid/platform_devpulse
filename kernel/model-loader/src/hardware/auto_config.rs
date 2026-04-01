@@ -99,28 +99,37 @@ fn recommendations_for_tier(
     tier: HardwareTier,
     downloaded: &std::collections::HashSet<String>,
 ) -> Vec<SlotRecommendation> {
-    match tier {
+    // Brain + minion models vary by tier
+    let mut recs = match tier {
         HardwareTier::High => vec![
             rec("chat.brain", "bartowski/Qwen3-14B-GGUF", "Qwen3-14B-Q4_K_M.gguf", 8_100, 9_200, DevicePreference::Gpu, downloaded),
             rec("minion.shared", "Qwen/Qwen3-0.6B-GGUF", "qwen3-0.6b-q8_0.gguf", 700, 400, DevicePreference::GpuWithCpuFallback, downloaded),
-            rec("rag.embedder", "nomic-ai/nomic-embed-text-v1.5-GGUF", "nomic-embed-text-v1.5.Q8_0.gguf", 300, 300, DevicePreference::Cpu, downloaded),
         ],
         HardwareTier::Medium => vec![
             rec("chat.brain", "bartowski/Qwen3-4B-GGUF", "Qwen3-4B-Q4_K_M.gguf", 2_600, 3_200, DevicePreference::Gpu, downloaded),
             rec("minion.shared", "Qwen/Qwen3-0.6B-GGUF", "qwen3-0.6b-q4_k_m.gguf", 500, 350, DevicePreference::GpuWithCpuFallback, downloaded),
-            rec("rag.embedder", "nomic-ai/nomic-embed-text-v1.5-GGUF", "nomic-embed-text-v1.5.Q8_0.gguf", 300, 300, DevicePreference::Cpu, downloaded),
         ],
         HardwareTier::Low => vec![
             rec("chat.brain", "bartowski/Qwen3-1.7B-GGUF", "Qwen3-1.7B-Q4_K_M.gguf", 1_200, 1_500, DevicePreference::Gpu, downloaded),
             rec("minion.shared", "Qwen/Qwen3-0.6B-GGUF", "qwen3-0.6b-q4_k_m.gguf", 500, 350, DevicePreference::GpuWithCpuFallback, downloaded),
-            rec("rag.embedder", "nomic-ai/nomic-embed-text-v1.5-GGUF", "nomic-embed-text-v1.5.Q8_0.gguf", 300, 300, DevicePreference::Cpu, downloaded),
         ],
         HardwareTier::Minimal | HardwareTier::CpuOnly => vec![
             rec("chat.brain", "Qwen/Qwen3-0.6B-GGUF", "qwen3-0.6b-q4_k_m.gguf", 500, 350, DevicePreference::Cpu, downloaded),
-            // minion.shared points to same model as brain (handled by shared instance logic)
-            rec("rag.embedder", "nomic-ai/nomic-embed-text-v1.5-GGUF", "nomic-embed-text-v1.5.Q8_0.gguf", 300, 300, DevicePreference::Cpu, downloaded),
         ],
-    }
+    };
+
+    // Supporting models — ALWAYS included regardless of tier.
+    // These are not optional. Every DevPulse install needs search + voice.
+    recs.extend(vec![
+        // RAG: search/embedding
+        rec("rag.embedder", "nomic-ai/nomic-embed-text-v1.5-GGUF", "nomic-embed-text-v1.5.Q8_0.gguf", 300, 300, DevicePreference::Cpu, downloaded),
+        // STT: Whisper for speech-to-text
+        rec("voice.stt", "ggerganov/whisper.cpp", "ggml-small.bin", 466, 500, DevicePreference::Cpu, downloaded),
+        // TTS: Kokoro for text-to-speech
+        rec("voice.tts", "hexgrad/Kokoro-82M-v1.0-GGUF", "kokoro-v1.0.gguf", 82, 100, DevicePreference::Cpu, downloaded),
+    ]);
+
+    recs
 }
 
 fn rec(

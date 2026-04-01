@@ -77,7 +77,7 @@
   --preset-neuro-elevated-border-width: 0.0625rem;
   --preset-neuro-elevated-backdrop-filter: none;
   --preset-neuro-elevated-opacity: 1;
-  --preset-neuro-elevated-animation: none;
+  --preset-neuro-elevated-animation: cl-breathe 4s ease-in-out infinite;
   --preset-neuro-elevated-transition-duration: 150ms;
   --preset-neuro-elevated-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   --preset-neuro-elevated-gradient: none;
@@ -86,6 +86,8 @@
   --preset-neuro-elevated-font-weight: 500;
   --preset-neuro-elevated-letter-spacing: 0em;
   --preset-neuro-elevated-line-height: 1.5;
+  --preset-neuro-elevated-background-image: none;
+  --preset-neuro-elevated-background-alpha: 1;
   --preset-neuro-elevated-hover-box-shadow: 0 0.375rem 1.25rem 0 oklch(0 0 0 / 0.55), 0 0 0.5rem 0 oklch(0.7 0.15 180 / 0.1), inset 0 -0.0625rem 0 0 oklch(1 0 0 / 0.08);
   --preset-neuro-elevated-hover-border-color: oklch(0.6 0.12 180 / 0.3);
   --preset-neuro-elevated-active-background-color: oklch(0.16 0.015 240);
@@ -109,6 +111,8 @@
   --preset-neuro-deep-font-weight: 400;
   --preset-neuro-deep-letter-spacing: 0em;
   --preset-neuro-deep-line-height: 1.5;
+  --preset-neuro-deep-background-image: none;
+  --preset-neuro-deep-background-alpha: 1;
   --preset-neuro-deep-hover-background-color: oklch(0.14 0.014 240);
   --preset-neuro-deep-active-background-color: oklch(0.1 0.01 240);
   --preset-neuro-deep-disabled-color: oklch(0.55 0.005 224);
@@ -130,6 +134,8 @@
   --preset-neuro-minimal-font-weight: 400;
   --preset-neuro-minimal-letter-spacing: 0em;
   --preset-neuro-minimal-line-height: 1.5;
+  --preset-neuro-minimal-background-image: none;
+  --preset-neuro-minimal-background-alpha: 1;
   --preset-neuro-minimal-hover-background-color: oklch(0.18 0.012 240);
   --preset-neuro-minimal-active-background-color: oklch(0.14 0.008 240);
   --preset-neuro-minimal-disabled-color: oklch(0.55 0.005 224);
@@ -151,6 +157,8 @@
   --preset-neuro-solid-font-weight: 500;
   --preset-neuro-solid-letter-spacing: 0.000625rem;
   --preset-neuro-solid-line-height: 1.5;
+  --preset-neuro-solid-background-image: none;
+  --preset-neuro-solid-background-alpha: 1;
   --preset-neuro-solid-hover-box-shadow: 0 0.5rem 1.5rem 0 oklch(0 0 0 / 0.6), inset 0 -0.0625rem 0 0 oklch(1 0 0 / 0.1);
   --preset-neuro-solid-active-background-color: oklch(0.18 0.016 240);
   --preset-neuro-solid-disabled-color: oklch(0.6 0.005 224);
@@ -172,6 +180,8 @@
   --preset-neuro-glow-font-weight: 500;
   --preset-neuro-glow-letter-spacing: 0em;
   --preset-neuro-glow-line-height: 1.5;
+  --preset-neuro-glow-background-image: none;
+  --preset-neuro-glow-background-alpha: 1;
   --preset-neuro-glow-hover-box-shadow: 0 0.25rem 1rem 0 oklch(0 0 0 / 0.4), 0 0 1rem 0.125rem oklch(0.7 0.15 180 / 0.3), 0 0 2rem 0 oklch(0.7 0.15 180 / 0.15);
   --preset-neuro-glow-hover-border-color: oklch(0.75 0.18 180 / 0.5);
   --preset-neuro-glow-active-background-color: oklch(0.14 0.025 220);
@@ -196,6 +206,8 @@
   --preset-neuro-muted-font-weight: 400;
   --preset-neuro-muted-letter-spacing: 0em;
   --preset-neuro-muted-line-height: 1.5;
+  --preset-neuro-muted-background-image: none;
+  --preset-neuro-muted-background-alpha: 1;
   --preset-neuro-muted-hover-background-color: oklch(0.16 0.008 240);
   --preset-neuro-muted-hover-opacity: 0.9;
   --preset-neuro-muted-disabled-color: oklch(0.45 0.003 224);
@@ -217,6 +229,8 @@
   --preset-glass-elevated-font-weight: 500;
   --preset-glass-elevated-letter-spacing: 0em;
   --preset-glass-elevated-line-height: 1.5;
+  --preset-glass-elevated-background-image: none;
+  --preset-glass-elevated-background-alpha: 1;
   --preset-glass-elevated-hover-background-color: oklch(0.28 0.025 220 / 0.45);
   --preset-glass-elevated-hover-box-shadow: 0 0.625rem 2.5rem -0.125rem oklch(0 0 0 / 0.45), 0 0.125rem 0.5rem 0 oklch(0 0 0 / 0.22);
   --preset-glass-elevated-hover-border-color: oklch(0.85 0.1 180 / 0.3);
@@ -243,6 +257,8 @@
   --preset-glass-deep-font-weight: 400;
   --preset-glass-deep-letter-spacing: 0em;
   --preset-glass-deep-line-height: 1.5;
+  --preset-glass-deep-background-image: none;
+  --preset-glass-deep-background-alpha: 1;
   --preset-glass-deep-hover-background-color: oklch(0.15 0.03 220 / 0.65);
   --preset-glass-deep-hover-box-shadow: 0 0.375rem 1.25rem 0 oklch(0 0 0 / 0.55), inset 0 0.0625rem 0.125rem 0 oklch(1 0 0 / 0.06);
   --preset-glass-deep-hover-border-color: oklch(0.55 0.07 200 / 0.22);
@@ -268,6 +284,8 @@
   --preset-glass-minimal-font-weight: 400;
   --preset-glass-minimal-letter-spacing: 0em;
   --preset-glass-minimal-line-height: 1.5;
+  --preset-glass-minimal-background-image: none;
+  --preset-glass-minimal-background-alpha: 1;
   --preset-glass-minimal-hover-background-color: oklch(0.33 0.015 220 / 0.2);
   --preset-glass-minimal-hover-border-color: oklch(1 0 0 / 0.14);
   --preset-glass-minimal-active-background-color: oklch(0.27 0.008 220 / 0.22);
@@ -291,6 +309,8 @@
   --preset-glass-solid-font-weight: 500;
   --preset-glass-solid-letter-spacing: 0em;
   --preset-glass-solid-line-height: 1.5;
+  --preset-glass-solid-background-image: none;
+  --preset-glass-solid-background-alpha: 1;
   --preset-glass-solid-hover-background-color: oklch(0.2 0.025 220 / 0.88);
   --preset-glass-solid-hover-box-shadow: 0 0.375rem 1rem 0 oklch(0 0 0 / 0.4);
   --preset-glass-solid-hover-border-color: oklch(0.65 0.06 200 / 0.28);
@@ -316,6 +336,8 @@
   --preset-glass-glow-font-weight: 500;
   --preset-glass-glow-letter-spacing: 0em;
   --preset-glass-glow-line-height: 1.5;
+  --preset-glass-glow-background-image: none;
+  --preset-glass-glow-background-alpha: 1;
   --preset-glass-glow-hover-background-color: oklch(0.2 0.05 190 / 0.4);
   --preset-glass-glow-hover-box-shadow: 0 0.375rem 1.25rem 0 oklch(0 0 0 / 0.45), 0 0 1.25rem 0 oklch(0.7 0.15 180 / 0.22), 0 0 3rem 0 oklch(0.7 0.15 180 / 0.12);
   --preset-glass-glow-hover-border-color: oklch(0.75 0.18 180 / 0.4);
@@ -342,6 +364,8 @@
   --preset-glass-muted-font-weight: 400;
   --preset-glass-muted-letter-spacing: 0em;
   --preset-glass-muted-line-height: 1.5;
+  --preset-glass-muted-background-image: none;
+  --preset-glass-muted-background-alpha: 1;
   --preset-glass-muted-hover-background-color: oklch(0.22 0.008 220 / 0.25);
   --preset-glass-muted-hover-opacity: 0.8;
   --preset-glass-muted-hover-border-color: oklch(0.55 0.008 220 / 0.15);
@@ -367,6 +391,8 @@
   --preset-retro-elevated-font-weight: 700;
   --preset-retro-elevated-letter-spacing: 0.003125rem;
   --preset-retro-elevated-line-height: 1.4;
+  --preset-retro-elevated-background-image: none;
+  --preset-retro-elevated-background-alpha: 1;
   --preset-retro-elevated-hover-background-color: oklch(0.3 0.1 280);
   --preset-retro-elevated-hover-box-shadow: 0.1875rem 0.1875rem 0 0 oklch(0 0 0 / 0.9), 0 0 1.25rem 0 oklch(0.65 0.2 300 / 0.25);
   --preset-retro-elevated-hover-border-color: oklch(0.85 0.2 300);
@@ -392,6 +418,8 @@
   --preset-retro-deep-font-weight: 400;
   --preset-retro-deep-letter-spacing: 0.005rem;
   --preset-retro-deep-line-height: 1.6;
+  --preset-retro-deep-background-image: none;
+  --preset-retro-deep-background-alpha: 1;
   --preset-retro-deep-hover-color: oklch(0.9 0.25 150);
   --preset-retro-deep-hover-border-color: oklch(0.7 0.25 150);
   --preset-retro-deep-active-background-color: oklch(0.06 0.025 150);
@@ -415,6 +443,8 @@
   --preset-retro-minimal-font-weight: 500;
   --preset-retro-minimal-letter-spacing: 0.001875rem;
   --preset-retro-minimal-line-height: 1.5;
+  --preset-retro-minimal-background-image: none;
+  --preset-retro-minimal-background-alpha: 1;
   --preset-retro-minimal-hover-background-color: oklch(0.25 0.04 260);
   --preset-retro-minimal-hover-border-color: oklch(0.7 0.12 260);
   --preset-retro-minimal-active-background-color: oklch(0.15 0.02 260);
@@ -437,6 +467,8 @@
   --preset-retro-solid-font-weight: 700;
   --preset-retro-solid-letter-spacing: 0.0025rem;
   --preset-retro-solid-line-height: 1.4;
+  --preset-retro-solid-background-image: none;
+  --preset-retro-solid-background-alpha: 1;
   --preset-retro-solid-hover-background-color: oklch(0.6 0.22 160);
   --preset-retro-solid-hover-box-shadow: 0.1875rem 0.1875rem 0 0 oklch(0.1 0.05 160);
   --preset-retro-solid-active-background-color: oklch(0.45 0.18 160);
@@ -460,6 +492,8 @@
   --preset-retro-glow-font-weight: 700;
   --preset-retro-glow-letter-spacing: 0.00375rem;
   --preset-retro-glow-line-height: 1.4;
+  --preset-retro-glow-background-image: none;
+  --preset-retro-glow-background-alpha: 1;
   --preset-retro-glow-hover-color: oklch(0.95 0.25 330);
   --preset-retro-glow-hover-box-shadow: 0.1875rem 0.1875rem 0 0 oklch(0 0 0 / 0.9), 0 0 0.75rem 0.0625rem oklch(0.8 0.28 330 / 0.5), 0 0 2rem 0 oklch(0.8 0.28 330 / 0.2);
   --preset-retro-glow-hover-border-color: oklch(0.85 0.28 330);
@@ -484,6 +518,8 @@
   --preset-retro-muted-font-weight: 400;
   --preset-retro-muted-letter-spacing: 0.0025rem;
   --preset-retro-muted-line-height: 1.5;
+  --preset-retro-muted-background-image: none;
+  --preset-retro-muted-background-alpha: 1;
   --preset-retro-muted-hover-color: oklch(0.65 0.03 200);
   --preset-retro-muted-hover-opacity: 0.85;
   --preset-retro-muted-disabled-color: oklch(0.35 0.01 200);
@@ -505,6 +541,8 @@
   --preset-chrome-elevated-font-weight: 600;
   --preset-chrome-elevated-letter-spacing: 0.00125rem;
   --preset-chrome-elevated-line-height: 1.5;
+  --preset-chrome-elevated-background-image: none;
+  --preset-chrome-elevated-background-alpha: 1;
   --preset-chrome-elevated-hover-background-color: oklch(0.33 0.012 250);
   --preset-chrome-elevated-hover-gradient: linear-gradient(135deg, oklch(0.43 0.012 250) 0%, oklch(0.28 0.01 250) 50%, oklch(0.38 0.012 250) 100%);
   --preset-chrome-elevated-hover-box-shadow: 0 0.375rem 1.25rem 0 oklch(0 0 0 / 0.55), 0 0.0625rem 0.25rem 0 oklch(0 0 0 / 0.28);
@@ -534,6 +572,8 @@
   --preset-chrome-deep-font-weight: 500;
   --preset-chrome-deep-letter-spacing: 0.000625rem;
   --preset-chrome-deep-line-height: 1.5;
+  --preset-chrome-deep-background-image: none;
+  --preset-chrome-deep-background-alpha: 1;
   --preset-chrome-deep-hover-background-color: oklch(0.18 0.01 260);
   --preset-chrome-deep-hover-box-shadow: 0 0.5rem 1.5rem 0 oklch(0 0 0 / 0.65), inset 0 -0.0625rem 0 0 oklch(0.55 0.012 260 / 0.15);
   --preset-chrome-deep-hover-border-color: oklch(0.5 0.012 260 / 0.4);
@@ -560,6 +600,8 @@
   --preset-chrome-minimal-font-weight: 400;
   --preset-chrome-minimal-letter-spacing: 0.000625rem;
   --preset-chrome-minimal-line-height: 1.5;
+  --preset-chrome-minimal-background-image: none;
+  --preset-chrome-minimal-background-alpha: 1;
   --preset-chrome-minimal-hover-background-color: oklch(0.28 0.007 250);
   --preset-chrome-minimal-hover-box-shadow: 0 0.125rem 0.375rem 0 oklch(0 0 0 / 0.35);
   --preset-chrome-minimal-hover-border-color: oklch(0.55 0.007 250 / 0.28);
@@ -586,6 +628,8 @@
   --preset-chrome-solid-font-weight: 600;
   --preset-chrome-solid-letter-spacing: 0.00125rem;
   --preset-chrome-solid-line-height: 1.5;
+  --preset-chrome-solid-background-image: none;
+  --preset-chrome-solid-background-alpha: 1;
   --preset-chrome-solid-hover-background-color: oklch(0.31 0.012 255);
   --preset-chrome-solid-hover-box-shadow: 0 0.375rem 1rem 0 oklch(0 0 0 / 0.55), 0 0.0625rem 0.375rem 0 oklch(0 0 0 / 0.32);
   --preset-chrome-solid-hover-border-color: oklch(0.55 0.018 255 / 0.45);
@@ -612,6 +656,8 @@
   --preset-chrome-glow-font-weight: 600;
   --preset-chrome-glow-letter-spacing: 0.00125rem;
   --preset-chrome-glow-line-height: 1.5;
+  --preset-chrome-glow-background-image: none;
+  --preset-chrome-glow-background-alpha: 1;
   --preset-chrome-glow-hover-background-color: oklch(0.22 0.025 250);
   --preset-chrome-glow-hover-box-shadow: 0 0.375rem 1.25rem 0 oklch(0 0 0 / 0.5), 0 0 1rem 0 oklch(0.7 0.12 240 / 0.28), 0 0 2.5rem 0 oklch(0.7 0.12 240 / 0.12);
   --preset-chrome-glow-hover-border-color: oklch(0.75 0.14 240 / 0.45);
@@ -639,6 +685,8 @@
   --preset-chrome-muted-font-weight: 400;
   --preset-chrome-muted-letter-spacing: 0.000625rem;
   --preset-chrome-muted-line-height: 1.5;
+  --preset-chrome-muted-background-image: none;
+  --preset-chrome-muted-background-alpha: 1;
   --preset-chrome-muted-hover-background-color: oklch(0.22 0.005 250);
   --preset-chrome-muted-hover-opacity: 0.85;
   --preset-chrome-muted-hover-border-color: oklch(0.45 0.005 250 / 0.28);
@@ -664,6 +712,8 @@
   --preset-flat-elevated-font-weight: 500;
   --preset-flat-elevated-letter-spacing: 0em;
   --preset-flat-elevated-line-height: 1.5;
+  --preset-flat-elevated-background-image: none;
+  --preset-flat-elevated-background-alpha: 1;
   --preset-flat-elevated-hover-background-color: oklch(0.38 0.045 220);
   --preset-flat-elevated-active-background-color: oklch(0.32 0.035 220);
   --preset-flat-elevated-disabled-background-color: oklch(0.25 0.01 220);
@@ -686,6 +736,8 @@
   --preset-flat-deep-font-weight: 400;
   --preset-flat-deep-letter-spacing: 0em;
   --preset-flat-deep-line-height: 1.6;
+  --preset-flat-deep-background-image: none;
+  --preset-flat-deep-background-alpha: 1;
   --preset-flat-deep-hover-background-color: oklch(0.18 0.022 240);
   --preset-flat-deep-active-background-color: oklch(0.12 0.018 240);
   --preset-flat-deep-disabled-background-color: oklch(0.12 0.005 240);
@@ -708,6 +760,8 @@
   --preset-flat-minimal-font-weight: 400;
   --preset-flat-minimal-letter-spacing: 0em;
   --preset-flat-minimal-line-height: 1.5;
+  --preset-flat-minimal-background-image: none;
+  --preset-flat-minimal-background-alpha: 1;
   --preset-flat-minimal-hover-background-color: oklch(0.3 0.01 220 / 0.08);
   --preset-flat-minimal-active-background-color: oklch(0.25 0.008 220 / 0.12);
   --preset-flat-minimal-disabled-color: oklch(0.5 0.004 220);
@@ -729,6 +783,8 @@
   --preset-flat-solid-font-weight: 500;
   --preset-flat-solid-letter-spacing: 0em;
   --preset-flat-solid-line-height: 1.5;
+  --preset-flat-solid-background-image: none;
+  --preset-flat-solid-background-alpha: 1;
   --preset-flat-solid-hover-background-color: oklch(0.28 0.033 220);
   --preset-flat-solid-hover-border-color: oklch(0.45 0.025 220 / 0.38);
   --preset-flat-solid-active-background-color: oklch(0.22 0.027 220);
@@ -753,6 +809,8 @@
   --preset-flat-glow-font-weight: 500;
   --preset-flat-glow-letter-spacing: 0em;
   --preset-flat-glow-line-height: 1.5;
+  --preset-flat-glow-background-image: none;
+  --preset-flat-glow-background-alpha: 1;
   --preset-flat-glow-hover-background-color: oklch(0.28 0.065 180);
   --preset-flat-glow-active-background-color: oklch(0.22 0.055 180);
   --preset-flat-glow-disabled-background-color: oklch(0.18 0.015 180);
@@ -775,6 +833,8 @@
   --preset-flat-muted-font-weight: 400;
   --preset-flat-muted-letter-spacing: 0em;
   --preset-flat-muted-line-height: 1.5;
+  --preset-flat-muted-background-image: none;
+  --preset-flat-muted-background-alpha: 1;
   --preset-flat-muted-hover-background-color: oklch(0.2 0.007 220);
   --preset-flat-muted-hover-opacity: 0.7;
   --preset-flat-muted-active-background-color: oklch(0.16 0.004 220);
@@ -799,6 +859,8 @@
   --preset-stark-elevated-font-weight: 700;
   --preset-stark-elevated-letter-spacing: 0.00125rem;
   --preset-stark-elevated-line-height: 1.4;
+  --preset-stark-elevated-background-image: none;
+  --preset-stark-elevated-background-alpha: 1;
   --preset-stark-elevated-hover-background-color: oklch(0.13 0.018 250);
   --preset-stark-elevated-hover-box-shadow: 0 0.625rem 2.5rem 0 oklch(0 0 0 / 0.65), 0 0.125rem 0.625rem 0 oklch(0 0 0 / 0.38);
   --preset-stark-elevated-hover-border-color: oklch(0.9 0.025 250);
@@ -826,6 +888,8 @@
   --preset-stark-deep-font-weight: 600;
   --preset-stark-deep-letter-spacing: 0.000625rem;
   --preset-stark-deep-line-height: 1.4;
+  --preset-stark-deep-background-image: none;
+  --preset-stark-deep-background-alpha: 1;
   --preset-stark-deep-hover-background-color: oklch(0.09 0.013 260);
   --preset-stark-deep-hover-box-shadow: 0 0.5rem 1.75rem 0 oklch(0 0 0 / 0.75), 0 0.125rem 0.5rem 0 oklch(0 0 0 / 0.45);
   --preset-stark-deep-hover-border-color: oklch(0.8 0.12 180);
@@ -853,6 +917,8 @@
   --preset-stark-minimal-font-weight: 500;
   --preset-stark-minimal-letter-spacing: 0.000625rem;
   --preset-stark-minimal-line-height: 1.5;
+  --preset-stark-minimal-background-image: none;
+  --preset-stark-minimal-background-alpha: 1;
   --preset-stark-minimal-hover-background-color: oklch(0.13 0.01 250);
   --preset-stark-minimal-hover-border-color: oklch(0.78 0.015 250 / 0.6);
   --preset-stark-minimal-active-background-color: oklch(0.08 0.006 250);
@@ -878,6 +944,8 @@
   --preset-stark-solid-font-weight: 700;
   --preset-stark-solid-letter-spacing: 0.001875rem;
   --preset-stark-solid-line-height: 1.4;
+  --preset-stark-solid-background-image: none;
+  --preset-stark-solid-background-alpha: 1;
   --preset-stark-solid-hover-background-color: oklch(0.17 0.023 260);
   --preset-stark-solid-hover-box-shadow: 0 0.5rem 1.5rem 0 oklch(0 0 0 / 0.6), 0 0.125rem 0.5rem 0 oklch(0 0 0 / 0.38);
   --preset-stark-solid-hover-border-color: oklch(0.85 0.018 260);
@@ -905,6 +973,8 @@
   --preset-stark-glow-font-weight: 600;
   --preset-stark-glow-letter-spacing: 0.000625rem;
   --preset-stark-glow-line-height: 1.4;
+  --preset-stark-glow-background-image: none;
+  --preset-stark-glow-background-alpha: 1;
   --preset-stark-glow-hover-background-color: oklch(0.15 0.035 25);
   --preset-stark-glow-hover-box-shadow: 0 0.375rem 1.25rem 0 oklch(0 0 0 / 0.55), 0 0 1rem 0 oklch(0.65 0.22 25 / 0.35), 0 0 2.5rem 0 oklch(0.65 0.22 25 / 0.15);
   --preset-stark-glow-hover-border-color: oklch(0.7 0.25 25 / 0.7);
@@ -933,6 +1003,8 @@
   --preset-stark-muted-font-weight: 400;
   --preset-stark-muted-letter-spacing: 0.000625rem;
   --preset-stark-muted-line-height: 1.5;
+  --preset-stark-muted-background-image: none;
+  --preset-stark-muted-background-alpha: 1;
   --preset-stark-muted-hover-background-color: oklch(0.12 0.007 250);
   --preset-stark-muted-hover-opacity: 0.8;
   --preset-stark-muted-hover-border-color: oklch(0.55 0.008 250 / 0.35);

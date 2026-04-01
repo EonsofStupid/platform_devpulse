@@ -76,6 +76,7 @@ export interface StateOverrides {
 	readonly opacity?: number;
 	readonly gradient?: string;
 	readonly animation?: AnimationValue | "none";
+	readonly backgroundImage?: BackgroundImageValue;
 }
 
 /** The complete preset definition — all axes + states */
