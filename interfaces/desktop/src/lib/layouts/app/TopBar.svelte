@@ -102,7 +102,7 @@ function onKey(e: KeyboardEvent): void {
 		<Badge variant={platformState.isReady ? "positive" : "neutral"} size="sm" class="gap-1.5">
 			<span
 				class="h-2 w-2 rounded-full"
-				style="background: {platformState.isReady ? 'var(--color-teal-400, oklch(0.75 0.18 180))' : 'var(--text-muted)'}; box-shadow: 0 0 0.375rem currentColor;"
+				style="background: {platformState.isReady ? 'var(--color-teal-400)' : 'var(--text-muted)'}; box-shadow: var(--glow-dot-sm);"
 			></span>
 			<Text size="xs" weight="semibold">Clyffy</Text>
 		</Badge>

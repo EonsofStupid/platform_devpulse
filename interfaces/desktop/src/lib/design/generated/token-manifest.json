@@ -7060,6 +7060,45 @@
 			}
 		]
 	},
+	"glow-dot": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "glow-dot-sm",
+				"path": [
+					"glow-dot",
+					"sm"
+				],
+				"cssVar": "--glow-dot-sm",
+				"value": {
+					"color": "oklch(0.586 0.0624 164.59 / 0.6)",
+					"offsetX": "0px",
+					"offsetY": "0px",
+					"blur": "6px",
+					"spread": "0px"
+				},
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "glow-dot-md",
+				"path": [
+					"glow-dot",
+					"md"
+				],
+				"cssVar": "--glow-dot-md",
+				"value": {
+					"color": "oklch(0.586 0.0624 164.59 / 0.6)",
+					"offsetX": "0px",
+					"offsetY": "0px",
+					"blur": "8px",
+					"spread": "0px"
+				},
+				"type": "shadow",
+				"extensions": null
+			}
+		]
+	},
 	"glowSpread": {
 		"extensions": {},
 		"tokens": [
@@ -7192,6 +7231,66 @@
 				"cssVar": "--interaction-disabled",
 				"value": "oklch(1.0032 0.0305 28.88 / 0.031)",
 				"type": "color",
+				"extensions": null
+			}
+		]
+	},
+	"layout": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "layout-topbar-height",
+				"path": [
+					"layout",
+					"topbar-height"
+				],
+				"cssVar": "--layout-topbar-height",
+				"value": "4.125rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "layout-sidebar-collapsed",
+				"path": [
+					"layout",
+					"sidebar-collapsed"
+				],
+				"cssVar": "--layout-sidebar-collapsed",
+				"value": "3.75rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "layout-sidebar-expanded",
+				"path": [
+					"layout",
+					"sidebar-expanded"
+				],
+				"cssVar": "--layout-sidebar-expanded",
+				"value": "15rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "layout-context-width",
+				"path": [
+					"layout",
+					"context-width"
+				],
+				"cssVar": "--layout-context-width",
+				"value": "25rem",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "layout-statusbar-height",
+				"path": [
+					"layout",
+					"statusbar-height"
+				],
+				"cssVar": "--layout-statusbar-height",
+				"value": "3.25rem",
+				"type": "dimension",
 				"extensions": null
 			}
 		]
@@ -7982,7 +8081,7 @@
 					"animation"
 				],
 				"cssVar": "--preset-neuro-elevated-animation",
-				"value": "cl-breathe 4s ease-in-out infinite",
+				"value": "none",
 				"type": "string",
 				"extensions": null
 			},

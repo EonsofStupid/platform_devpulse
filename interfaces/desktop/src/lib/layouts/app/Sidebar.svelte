@@ -84,7 +84,7 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 </script>
 
 <nav class="relative grid h-full grid-rows-[1fr_auto] gap-2" aria-label="Primary">
-	<div class={stack({ gap: "1" })} style="padding-top: 0.25rem;">
+	<div class={`${stack({ gap: "1" })} pt-1`}>
 		{#each navHubs as hub (hub.id)}
 			<a href={hub.href} onclick={() => handleHubClick(hub)} class="contents">
 				<Button
@@ -109,7 +109,7 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 		{/each}
 	</div>
 
-	<div class={stack({ gap: "1" })} style="padding-bottom: 0.25rem;">
+	<div class={`${stack({ gap: "1" })} pb-1`}>
 		<Button
 			preset="ghost"
 			size="sm"

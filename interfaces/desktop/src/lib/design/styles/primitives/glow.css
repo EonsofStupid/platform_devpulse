@@ -12,6 +12,8 @@
   --glow-frost: 0 0 1.875rem 0.75rem oklch(0.5844 0.0833 202.74 / 0.6);
   --glow-cyber: 0 0 1.875rem 0.75rem oklch(0.5725 0.0715 136.04 / 0.702);
   --glow-blue: 0 0 1.875rem 0.75rem oklch(0.5412 0.1105 249.72 / 0.702);
+  --glow-dot-sm: 0 0 0.375rem 0 oklch(0.586 0.0624 164.59 / 0.6); /** Small dot glow (6px blur) for status indicators. */
+  --glow-dot-md: 0 0 0.5rem 0 oklch(0.586 0.0624 164.59 / 0.6); /** Medium dot glow (8px blur) for active indicators. */
   --glow-spread-sm: 0.75rem;
   --glow-spread-md: 1.25rem;
   --glow-spread-lg: 1.875rem;

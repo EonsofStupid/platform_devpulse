@@ -149,7 +149,7 @@ const subsystems = $derived(platformState.subsystemList());
 
 <style>
 	.status-dot {
-		box-shadow: 0 0 0.375rem currentColor;
+		box-shadow: var(--glow-dot-sm);
 	}
 	.status-dot[data-status="online"] {
 		background-color: var(--color-teal-400);

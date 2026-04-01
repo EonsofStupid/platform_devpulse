@@ -23,7 +23,7 @@
   --chat-width: 25rem; /** Default chat window width */
   --chat-min-width: 20rem; /** Minimum chat window width */
   --chat-max-width: 37.5rem; /** Maximum chat window width */
-  --chat-height: 60vh; /** Default chat window height */
+  --chat-height: 3.75rem; /** Default chat window height */
   --chat-min-height: 25rem; /** Minimum chat window height */
   --chat-topbar-height: 2.5rem; /** Chat topbar row height */
   --chat-footer-height: 3.5rem; /** Chat footer row height */

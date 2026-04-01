@@ -63,7 +63,14 @@ const INTERACTIVE_KINDS = new Set([
 
 const raw = readFileSync(PRESETS_PATH, "utf-8");
 const data = JSON.parse(raw);
-const style = data.style;
+// style-presets.json uses "preset" as the top-level key (was "style" in earlier format)
+const style = data.style ?? data.preset;
+
+if (!style) {
+	console.error("[derive-kind-families] FATAL: style-presets.json has no 'style' or 'preset' key");
+	console.error("  Keys found:", Object.keys(data).join(", "));
+	process.exit(1);
+}
 
 /** Map of kind → Set<family> */
 const kindFamilies = new Map();
@@ -122,7 +129,9 @@ const lines = [
 
 for (const [kind, families] of Object.entries(sorted)) {
 	const fams = families.map((f) => `"${f}"`).join(", ");
-	lines.push(`\t"${kind}": [${fams}],`);
+	// Biome: unquoted keys for valid JS identifiers (no hyphens)
+	const key = kind.includes("-") ? `"${kind}"` : kind;
+	lines.push(`\t${key}: [${fams}],`);
 }
 
 lines.push("};");

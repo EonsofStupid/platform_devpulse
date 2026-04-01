@@ -3,14 +3,6 @@
 // This page only renders briefly during SSR hydration
 </script>
 
-<div class="loading">Loading...</div>
-
-<style>
-  .loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    color: var(--text-muted);
-  }
-</style>
+<div class="flex h-screen w-screen items-center justify-center text-[var(--text-muted)]">
+	Loading...
+</div>

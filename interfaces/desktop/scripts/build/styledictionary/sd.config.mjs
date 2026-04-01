@@ -67,11 +67,11 @@ const groupExtensions = new Map();
 /** Token tier paths — determines which @layer a token lands in */
 const tiers = {
 	primitive: [
-		'color', 'shadow', 'bevel', 'glow', 'glowSpread', 'blur',
+		'color', 'shadow', 'bevel', 'glow', 'glow-dot', 'glowSpread', 'blur',
 		'glass', 'matte', 'radius', 'space', 'padding', 'size', 'breakpoint',
 		'zIndex', 'font', 'fontFeatureSettings', 'fontVariationSettings',
 		'textSize', 'leading', 'tracking',
-		'motion', 'gradient',
+		'motion', 'gradient', 'layout',
 	],
 	semantic: [
 		'elevation', 'surface', 'border', 'borderPreset', 'transition',
@@ -632,7 +632,7 @@ const config = {
 				cssFile('color.css', pathFilter('color'), layers.primitives),
 				cssFile('shadow.css', pathFilter('shadow'), layers.primitives),
 				cssFile('bevel.css', pathFilter('bevel'), layers.primitives),
-				cssFile('glow.css', pathFilter('glow', 'glowSpread'), layers.primitives),
+				cssFile('glow.css', pathFilter('glow', 'glow-dot', 'glowSpread'), layers.primitives),
 				cssFile('blur.css', pathFilter('blur'), layers.primitives),
 				cssFile('surface.css', pathFilter('glass', 'matte'), layers.primitives),
 				cssFile('radius.css', pathFilter('radius'), layers.primitives),
@@ -640,6 +640,7 @@ const config = {
 				cssFile('typography.css', pathFilter('font', 'fontFeatureSettings', 'fontVariationSettings', 'textSize', 'leading', 'tracking'), layers.primitives),
 				cssFile('motion.css', pathFilter('motion'), layers.primitives),
 				cssFile('gradient.css', pathFilter('gradient'), layers.primitives),
+				cssFile('layout.css', pathFilter('layout'), layers.primitives),
 			],
 		},
 

@@ -133,7 +133,7 @@ $effect(() => {
 					</div>
 				</div>
 				<Card preset="neuro-deep" class="flex items-center gap-2 px-3 py-2">
-					<span class="inline-block h-2 w-2 rounded-full animate-pulse" style="background: var(--accent-teal-main); box-shadow: 0 0 0.5rem var(--accent-teal-glow);"></span>
+					<span class="inline-block h-2 w-2 rounded-full animate-pulse" style="background: var(--accent-teal-main); box-shadow: var(--glow-dot-md);"></span>
 					<Text size="sm" weight="semibold" preset="default">{devpulseState.data.user.streak}d streak</Text>
 					<Text size="xs" preset="default">{"\u00B7"} {devpulseState.data.user.lastActivity}</Text>
 				</Card>
@@ -217,7 +217,7 @@ $effect(() => {
 							>
 								<span
 									class="inline-block h-1.5 w-1.5 rounded-full"
-									style="background: {healthColors[sub.status] ?? 'var(--text-muted)'}; box-shadow: 0 0 0.375rem {healthColors[sub.status] ?? 'transparent'};"
+									style="background: {healthColors[sub.status] ?? 'var(--text-muted)'}; box-shadow: var(--glow-dot-sm);"
 								></span>
 								{sub.state ?? sub.status}
 							</Badge>
@@ -255,7 +255,7 @@ $effect(() => {
 							<div class={hstack({ gap: "2", align: "center" })}>
 								<span
 									class="inline-block h-2.5 w-2.5 rounded-full"
-									style="background: var(--accent-{accentName}-main); box-shadow: 0 0 0.5rem var(--accent-{accentName}-glow);"
+									style="background: var(--accent-{accentName}-main); box-shadow: var(--glow-dot-md);"
 								></span>
 								<Text weight="semibold" size="sm" preset="default">{project.name}</Text>
 							</div>

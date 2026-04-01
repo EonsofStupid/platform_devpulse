@@ -12,6 +12,7 @@
  *   3. Write barrel index files (CSS, theme, types)
  */
 
+import { execSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
 import StyleDictionary from 'style-dictionary';
 import config from './sd.config.mjs';
@@ -37,6 +38,7 @@ const INDEX_CSS = `/* AUTO-GENERATED — DO NOT EDIT */
 @import "./primitives/typography.css";
 @import "./primitives/motion.css";
 @import "./primitives/gradient.css";
+@import "./primitives/layout.css";
 
 /* ── Semantic ────────────────────────────────────────────── */
 @import "./semantic/elevation.css";
@@ -154,7 +156,6 @@ async function build() {
 	writeFileSync(`${OUT}/types/index.d.ts`, INDEX_DTS);
 
 	// Format generated .d.ts files to pass biome checks
-	const { execSync } = await import('node:child_process');
 	try {
 		execSync(`npx biome format --write ${OUT}/types/`, { stdio: 'pipe' });
 	} catch {

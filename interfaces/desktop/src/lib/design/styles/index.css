@@ -15,6 +15,7 @@
 @import "./primitives/typography.css";
 @import "./primitives/motion.css";
 @import "./primitives/gradient.css";
+@import "./primitives/layout.css";
 
 /* ── Semantic ────────────────────────────────────────────── */
 @import "./semantic/elevation.css";

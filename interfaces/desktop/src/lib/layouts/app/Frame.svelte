@@ -44,12 +44,12 @@ const SLOTS = {
 		"grid h-screen w-screen overflow-hidden grid-rows-[auto_1fr_auto] grid-cols-[auto_1fr_auto] font-sans",
 	topbar: cn(
 		"col-span-full flex items-center justify-between",
-		"h-[4.125rem] px-4",
+		"h-[var(--layout-topbar-height)] px-4",
 		"border-b border-[var(--border-soft)]",
 	),
 	sidebar: cn(
 		"row-start-2 col-start-1 flex flex-col items-center",
-		"w-[3.75rem] py-3 gap-2",
+		"w-[var(--layout-sidebar-collapsed)] py-3 gap-2",
 		"border-r border-[var(--border-subtle)]",
 		"overflow-y-auto scrollbar-thin",
 	),
@@ -65,12 +65,12 @@ const SLOTS = {
 		"border-l border-[var(--border-subtle)]",
 	),
 	contextExpanded: cn(
-		"row-start-2 col-start-3 w-[25rem] overflow-y-auto scrollbar-thin",
+		"row-start-2 col-start-3 w-[var(--layout-context-width)] overflow-y-auto scrollbar-thin",
 		"border-l border-[var(--border-subtle)]",
 	),
 	statusbar: cn(
 		"col-span-full flex items-center justify-between",
-		"h-[3.25rem] px-4 py-1",
+		"h-[var(--layout-statusbar-height)] px-4 py-1",
 		"border-t border-[var(--border-soft)]",
 		"text-xs text-[var(--text-muted)]",
 		"overflow-x-auto scrollbar-thin",

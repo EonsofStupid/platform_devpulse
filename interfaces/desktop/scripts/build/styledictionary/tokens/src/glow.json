@@ -75,6 +75,30 @@
 			}
 		}
 	},
+	"glow-dot": {
+		"$type": "shadow",
+		"$description": "Small status-dot indicator glows — used on health badges, status dots, pulse indicators.",
+		"sm": {
+			"$value": {
+				"color": "oklch(0.586 0.0624 164.59 / 0.6)",
+				"offsetX": "0px",
+				"offsetY": "0px",
+				"blur": "6px",
+				"spread": "0px"
+			},
+			"$description": "Small dot glow (6px blur) for status indicators."
+		},
+		"md": {
+			"$value": {
+				"color": "oklch(0.586 0.0624 164.59 / 0.6)",
+				"offsetX": "0px",
+				"offsetY": "0px",
+				"blur": "8px",
+				"spread": "0px"
+			},
+			"$description": "Medium dot glow (8px blur) for active indicators."
+		}
+	},
 	"glowSpread": {
 		"$type": "dimension",
 		"$description": "Glow spread radius scale",

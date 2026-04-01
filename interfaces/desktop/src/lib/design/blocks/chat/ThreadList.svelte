@@ -36,7 +36,7 @@ let { threads, activeId, onSelect, class: className }: ThreadListProps = $props(
 			class={cn(
 				"flex flex-col gap-0.5 px-3 py-2 text-left rounded-md transition-colors",
 				thread.id === activeId
-					? "bg-[var(--glass-deep)] border-l-2 border-l-[var(--accent-teal-main)] shadow-[inset_3px_0_8px_var(--accent-teal-glow)]"
+					? "bg-[var(--glass-deep)] border-l-2 border-l-[var(--accent-teal-main)] shadow-[var(--glow-dot-md)]"
 					: "hover:bg-[var(--interaction-hover)]"
 			)}
 			onclick={() => onSelect?.(thread.id)}
