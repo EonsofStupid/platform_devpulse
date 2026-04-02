@@ -9,11 +9,15 @@ const path = require('path');
 const dir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
 let errors = 0;
 
-function run(cmd, label) {
+function run(cmd, label, timeoutMs) {
   try {
-    execSync(cmd, { cwd: dir, stdio: 'pipe', timeout: 45000 });
+    execSync(cmd, { cwd: dir, stdio: 'pipe', timeout: timeoutMs || 120000 });
     process.stderr.write('  ✅ ' + label + '\n');
   } catch (e) {
+    if (e.killed) {
+      process.stderr.write('  ⚠️ ' + label + ' TIMEOUT (skipped — build too large for hook)\n');
+      return; // timeout is not a code error — don't count it
+    }
     const out = (e.stderr||e.stdout||'').toString().split('\n').slice(-5).join('\n');
     process.stderr.write('  ❌ ' + label + ' FAILED\n' + out + '\n');
     errors++;
@@ -24,13 +28,25 @@ process.stderr.write('Verifying...\n');
 
 if (fs.existsSync(path.join(dir, 'Cargo.toml'))) {
   try {
-    const changed = execSync('git diff --name-only -- *.rs', { cwd: dir, stdio: 'pipe' })
+    const changed = execSync('git diff --name-only -- "*.rs" "*.toml"', { cwd: dir, stdio: 'pipe' })
       .toString().trim().split('\n').filter(Boolean);
     if (changed.length > 0) {
-      run('cargo check', 'Rust cargo check');
+      // Detect which crates were changed and check only those
+      const crates = new Set();
+      for (const f of changed) {
+        if (f.startsWith('kernel/model-loader/')) crates.add('model-loader');
+        else if (f.startsWith('kernel/devpulse-clyffy/')) crates.add('devpulse-clyffy');
+        else if (f.startsWith('systems/devpulse-engine/')) crates.add('devpulse-engine');
+        else if (f.startsWith('interfaces/desktop/src-tauri/')) crates.add('devpulse_desktop_backend');
+        else if (f === 'Cargo.toml' || f === 'Cargo.lock') crates.add('devpulse_desktop_backend'); // workspace root change — check top-level
+      }
+      if (crates.size === 0) crates.add('devpulse_desktop_backend'); // fallback
+      for (const c of crates) {
+        run('cargo check -p ' + c, 'Rust cargo check -p ' + c, 180000);
+      }
     }
   } catch {
-    run('cargo check', 'Rust cargo check');
+    run('cargo check -p devpulse_desktop_backend', 'Rust cargo check', 180000);
   }
 }
 

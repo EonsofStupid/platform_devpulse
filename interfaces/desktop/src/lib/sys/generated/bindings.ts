@@ -899,7 +899,7 @@ export type ServiceState =
  */
 export type SlotInfo = { 
 /**
- * Slot identifier (e.g. `"chat.brain"`).
+ * Slot identifier (e.g. `"chat.brain"`, `"voice.tts.primary"`).
  */
 id: string; 
 /**
@@ -915,7 +915,7 @@ capability: string;
  */
 preferred_device: string; 
 /**
- * When to load the model (Hot/Warm/OnDemand/Signal).
+ * When to load the model (Hot/Warm/OnDemand/Signal/Coupled).
  */
 loading_strategy: string; 
 /**
@@ -925,7 +925,23 @@ assigned_model_id: string | null;
 /**
  * Fallback slot ID for escalation chains.
  */
-fallback: string | null }
+fallback: string | null; 
+/**
+ * Preferred inference backend (Candle/LlamaCpp/Ort/Sherpa).
+ */
+runtime: string | null; 
+/**
+ * Default model filename for auto-assignment.
+ */
+default_model: string | null; 
+/**
+ * Slot IDs that must be co-loaded.
+ */
+requires: string[]; 
+/**
+ * Slot ID this can replace when conditions are met.
+ */
+overrides: string | null }
 /**
  * Health of an individual subsystem (database, cache, etc.).
  */

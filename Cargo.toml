@@ -72,9 +72,9 @@ missing_docs = "warn"
 surrealkv = { git = "https://github.com/surrealdb/surrealkv", rev = "2e58059734567573cf55379325d718ce1889e004" }
 # RRO's fork of tar with set_sync method for snapshot serialization
 tar = { git = "https://github.com/EonsofStupid/tar-rs", branch = "rro-alpha" }
-# ort: local fork pinned to onnxruntime 1.24.3 (crates.io rc.12 has VitisAI compile bug)
-ort = { path = "../deps/ort" }
-ort-sys = { path = "../deps/ort/ort-sys" }
+# ort: fork pinned to onnxruntime 1.24.3 (crates.io rc.12 has VitisAI compile bug)
+ort = { git = "https://github.com/eonsofstupid/ort.git", rev = "f5c1548" }
+ort-sys = { git = "https://github.com/eonsofstupid/ort.git", rev = "f5c1548" }
 
 
 # Dev: fast incremental for your code, optimized deps (candle/ort/surreal run fast)

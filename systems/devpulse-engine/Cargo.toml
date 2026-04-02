@@ -35,6 +35,9 @@ toml = "0.8"
 # Process metrics (real RSS, CPU — no faking)
 sysinfo = "0.33"
 
+# Sync→async channel bridge (audio command queue)
+flume = "0.11"
+
 # Audio playback (TTS output → speakers)
 rodio = "0.19"
 
