@@ -53,8 +53,7 @@ pub struct DatabaseConfig {
     pub global_graph_enabled: bool,
     /// Vector store enabled (`RRO`).
     pub vector_enabled: bool,
-    /// Voice service enabled (`Kokoros`).
-    pub voice_enabled: bool,
+    // voice_enabled removed — slot-managed (SPRINT-VOICE-SLOTS)
     /// Grammar service enabled (`llguidance` — future sprint).
     pub grammar_enabled: bool,
     /// Embedder service enabled (Candle).
@@ -175,9 +174,7 @@ pub struct SystemServicesConfig {
     /// Vector store (`RRO`) — embedded Qdrant for two-tier retrieval.
     #[serde(default)]
     pub vector: VectorServiceEntry,
-    /// Voice service (`Kokoros`) — embedded TTS engine.
-    #[serde(default)]
-    pub voice: VoiceServiceEntry,
+    // Voice removed — slot-managed through Model Loader (SPRINT-VOICE-SLOTS)
     /// Grammar service (`llguidance` — future sprint) — structured generation engine.
     #[serde(default)]
     pub grammar: GrammarServiceEntry,
@@ -203,7 +200,7 @@ impl Default for SystemServicesConfig {
             graph: GraphServiceEntry::system_default(),
             cache: CacheServiceEntry::default(),
             vector: VectorServiceEntry::default(),
-            voice: VoiceServiceEntry::default(),
+            // Voice removed — slot-managed (SPRINT-VOICE-SLOTS)
             grammar: GrammarServiceEntry::default(),
             embedder: EmbedderServiceEntry::default(),
             whisper: WhisperServiceEntry::default(),
@@ -562,49 +559,7 @@ impl VectorServiceEntry {
     }
 }
 
-/// Configuration for the voice service (`Kokoros` — embedded TTS).
-#[derive(Debug, Clone, Deserialize)]
-pub struct VoiceServiceEntry {
-    /// Whether this service is enabled.
-    #[serde(default = "default_true")]
-    pub enabled: bool,
-    /// Whether boot fails if this service fails.
-    #[serde(default = "default_true")]
-    pub critical: bool,
-    /// Service kind identifier.
-    #[serde(default = "default_kokoros_kind")]
-    pub kind: String,
-    /// Relative path from data directory for model storage.
-    #[serde(default = "default_kokoros_model_path")]
-    pub model_path: String,
-    /// Relative path from data directory for voice data.
-    #[serde(default = "default_kokoros_voices_path")]
-    pub voices_path: String,
-}
-
-impl Default for VoiceServiceEntry {
-    fn default() -> Self {
-        Self {
-            enabled: false,
-            critical: false,
-            kind: default_kokoros_kind(),
-            model_path: default_kokoros_model_path(),
-            voices_path: default_kokoros_voices_path(),
-        }
-    }
-}
-
-impl VoiceServiceEntry {
-    /// Resolve the model path from data directory.
-    pub fn resolve_model_path(&self, data_dir: &Path) -> PathBuf {
-        data_dir.join(&self.model_path)
-    }
-
-    /// Resolve the voices path from data directory.
-    pub fn resolve_voices_path(&self, data_dir: &Path) -> PathBuf {
-        data_dir.join(&self.voices_path)
-    }
-}
+// VoiceServiceEntry deleted — voice is slot-managed through Model Loader (SPRINT-VOICE-SLOTS)
 
 /// Configuration for the grammar service (llguidance — future sprint).
 /// Kept for config deserialization compatibility. Defaults to disabled.
@@ -947,9 +902,7 @@ impl PlatformBootConfig {
             (ServiceRole::Vector, DataScope::System) => {
                 self.services.system.vector.enabled && self.services.system.vector.critical
             }
-            (ServiceRole::Voice, DataScope::System) => {
-                self.services.system.voice.enabled && self.services.system.voice.critical
-            }
+            // Voice removed — slot-managed (SPRINT-VOICE-SLOTS)
             (ServiceRole::Grammar, DataScope::System) => {
                 self.services.system.grammar.enabled && self.services.system.grammar.critical
             }
@@ -990,7 +943,7 @@ impl PlatformBootConfig {
             user_graph_enabled: self.services.user.graph.enabled,
             global_graph_enabled: self.services.global.graph.enabled,
             vector_enabled: self.services.system.vector.enabled,
-            voice_enabled: self.services.system.voice.enabled,
+            // voice_enabled removed — slot-managed (SPRINT-VOICE-SLOTS)
             grammar_enabled: self.services.system.grammar.enabled,
             embedder_enabled: self.services.system.embedder.enabled,
             whisper_enabled: self.services.system.whisper.enabled,
@@ -1071,15 +1024,7 @@ fn default_rro_kind() -> String {
 fn default_rro_path() -> String {
     "system/rro/storage".to_string()
 }
-fn default_kokoros_kind() -> String {
-    "kokoros".to_string()
-}
-fn default_kokoros_model_path() -> String {
-    "system/kokoros/model/kokoro-v1.0.onnx".to_string()
-}
-fn default_kokoros_voices_path() -> String {
-    "system/kokoros/voices/voices-v1.0.bin".to_string()
-}
+// kokoros defaults deleted — voice is slot-managed (SPRINT-VOICE-SLOTS)
 fn default_retry_max() -> u32 {
     5
 }

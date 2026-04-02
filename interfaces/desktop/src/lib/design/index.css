@@ -27,10 +27,10 @@
 /* 8. SVG Filters (neumorphism) */
 @import "./svg/filters/filters.css";
 
-/* 9. StyleMacro glue — maps canonical vars to CSS properties on [data-kind] */
-@import "./generated/macro-base.css";
+/* 9. RenderForge glue — maps canonical vars to CSS properties on [data-kind] */
+@import "./generated/render-base.css";
 
-/* 10. SVG StyleMacro glue — maps --svg-* vars to SVG elements on [data-svg-kind] */
+/* 10. SVG RenderForge glue — maps --svg-* vars to SVG elements on [data-svg-kind] */
 @import "./svg/svg-macro-base.css";
 
 /* 11. SVG accent root fallbacks — teal default, overridden per-widget */

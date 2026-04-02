@@ -28,7 +28,7 @@ export interface MCPConfig {
 
 export interface MinionConfig {
 	default_persona: "Architect" | "Engineer" | "Creative";
-	voice_enabled: boolean;
+	// voice_enabled removed — slot-managed (SPRINT-VOICE-SLOTS)
 }
 
 export const clyffyConfig = {
@@ -39,7 +39,7 @@ export const clyffyConfig = {
 	// Kernel Settings
 	minions: {
 		default_persona: "Architect",
-		voice_enabled: false,
+		// voice_enabled removed — slot-managed (SPRINT-VOICE-SLOTS)
 	} as MinionConfig,
 
 	// Connector Settings (MCP)

@@ -89,13 +89,7 @@ pub const SERVICE_MANIFEST: &[ServiceMeta] = &[
         public_name: "Vector Store",
         feature_gate: Some("rro"),
     },
-    ServiceMeta {
-        role: ServiceRole::Voice,
-        scope: DataScope::System,
-        stage: 8,
-        public_name: "Voice Engine",
-        feature_gate: Some("kokoros"),
-    },
+    // Voice is slot-managed through Model Loader (SPRINT-VOICE-SLOTS)
     ServiceMeta {
         role: ServiceRole::Grammar,
         scope: DataScope::System,
@@ -134,7 +128,7 @@ pub const SERVICE_MANIFEST: &[ServiceMeta] = &[
 ];
 
 /// Total number of boot stages (including preflight + validation).
-pub const BOOT_STAGE_COUNT: u8 = 14;
+pub const BOOT_STAGE_COUNT: u8 = 13;
 
 /// Number of services in the manifest (excluding preflight and validation).
 pub const SERVICE_COUNT: usize = SERVICE_MANIFEST.len();
@@ -151,12 +145,11 @@ pub fn meta_for_role(role: ServiceRole) -> &'static ServiceMeta {
         ServiceRole::Graph => 2,       // System graph (first entry)
         ServiceRole::Cache => 3,
         ServiceRole::Vector => 7,
-        ServiceRole::Voice => 8,
-        ServiceRole::Grammar => 9,
-        ServiceRole::Embedder => 10,
-        ServiceRole::Whisper => 11,
-        ServiceRole::ModelLoader => 12,
-        ServiceRole::DevForge => 13,
+        ServiceRole::Grammar => 8,
+        ServiceRole::Embedder => 9,
+        ServiceRole::Whisper => 10,
+        ServiceRole::ModelLoader => 11,
+        ServiceRole::DevForge => 12,
     };
     &SERVICE_MANIFEST[idx]
 }
@@ -169,7 +162,7 @@ pub fn compiled_service_count() -> usize {
         let compiled = match meta.feature_gate {
             None => true,
             Some("rro") => cfg!(feature = "rro"),
-            Some("kokoros") => cfg!(feature = "kokoros"),
+            // kokoros removed — voice is slot-managed (SPRINT-VOICE-SLOTS)
             Some("candle") => cfg!(feature = "candle"),
             Some("inference") => cfg!(feature = "inference"),
             Some(_) => false,

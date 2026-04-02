@@ -10,8 +10,7 @@ pub mod manifest;
 pub mod relational;
 #[cfg(feature = "rro")]
 pub mod vector;
-#[cfg(feature = "kokoros")]
-pub mod voice;
+// Voice is now slot-managed through the Model Loader (SPRINT-VOICE-SLOTS)
 // Grammar service — llguidance integration is a future sprint
 #[cfg(feature = "candle")]
 pub mod embedder;
@@ -40,8 +39,7 @@ pub enum ServiceRole {
     Cache,
     /// Vector service (`RRO`).
     Vector,
-    /// Voice service (`Kokoros`).
-    Voice,
+    // Voice is slot-managed through Model Loader (SPRINT-VOICE-SLOTS)
     /// Grammar service (llguidance — constrained decoding). Future sprint.
     Grammar,
     /// Embedder service (Candle — dense text embedding).

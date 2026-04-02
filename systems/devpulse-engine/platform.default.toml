@@ -77,13 +77,14 @@ critical = true
 kind = "rro"
 path = "system/rro/storage"
 
-[services.system.voice]
-# Disabled until voice stack sprint (SPRINT-VOICE-STACK.md) — espeak-rs-sys needs system install fix
-enabled = false
-critical = false
-kind = "kokoros"
-model_path = "system/kokoros/model/kokoro-v1.0.onnx"
-voices_path = "system/kokoros/voices/voices-v1.0.bin"
+# [services.system.voice] — DELETED
+# Voice is now slot-managed through the Model Loader (SPRINT-VOICE-SLOTS).
+# Voice models live in .userdata/models/voice/ and are registered as slots:
+#   voice.tts.primary  (Orpheus, llama.cpp FFI)
+#   voice.snac         (SNAC decoder, ort)
+#   voice.tts.fallback (Kokoro, sherpa)
+#   voice.stt          (Whisper small, sherpa)
+#   voice.stt.upgrade  (Whisper turbo, sherpa, GPU)
 
 # [services.system.grammar]
 # Reserved for llguidance constrained decoding — future sprint.

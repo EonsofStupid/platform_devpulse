@@ -53,7 +53,7 @@ pub mod preflight;
 mod relational;
 pub mod retry;
 mod vector;
-mod voice;
+// mod voice; — deleted (SPRINT-VOICE-SLOTS)
 mod embedder;
 mod whisper;
 mod model_loader;
@@ -68,8 +68,7 @@ use crate::platform::services::relational::{RelationalService, SYSTEM_SCHEMA, US
 use crate::platform::services::analytics::SYSTEM_ANALYTICS_SCHEMA;
 #[cfg(feature = "rro")]
 use crate::platform::services::vector::VectorService;
-#[cfg(feature = "kokoros")]
-use crate::platform::services::voice::VoiceService;
+// Voice removed — slot-managed (SPRINT-VOICE-SLOTS)
 #[cfg(feature = "candle")]
 use crate::platform::services::embedder::EmbedderService;
 #[cfg(feature = "candle")]
@@ -94,8 +93,7 @@ pub struct BootedServices {
     pub global_graph: Option<Arc<GraphService>>,
     #[cfg(feature = "rro")]
     pub vector: Option<Arc<VectorService>>,
-    #[cfg(feature = "kokoros")]
-    pub voice: Option<Arc<VoiceService>>,
+    // Voice removed — slot-managed (SPRINT-VOICE-SLOTS)
     #[cfg(feature = "candle")]
     pub embedder: Option<Arc<EmbedderService>>,
     #[cfg(feature = "candle")]
@@ -226,24 +224,7 @@ async fn execute_inner(
         }
     }
 
-    // ── Stage 8: Voice service (Kokoros) — feature-gated ──────
-    #[cfg(feature = "kokoros")]
-    let voice = voice::boot(
-        data_dir,
-        &boot_config.services.system.voice,
-        on_event,
-        &boot_log,
-    ).await;
-    #[cfg(not(feature = "kokoros"))]
-    {
-        if boot_config.services.system.voice.enabled {
-            boot_log.fail("Voice service", "enabled in config but 'kokoros' feature not compiled");
-            anyhow::bail!(
-                "FATAL: Voice service (Kokoros) is enabled in config but the 'kokoros' feature is not compiled in. \
-                 Add features = [\"kokoros\"] to devpulse-engine dependency in src-tauri/Cargo.toml."
-            );
-        }
-    }
+    // Voice removed — slot-managed through Model Loader (SPRINT-VOICE-SLOTS)
 
     // ── Stage 9: Grammar (llguidance) — future sprint, skipped ──
     on_event(InitEvent::skipped("Grammar service"));
@@ -332,8 +313,7 @@ async fn execute_inner(
         ];
         #[cfg(feature = "rro")]
         checks.push(("Vector Store", vector.is_some(), boot_config.is_enabled_and_critical(ServiceRole::Vector, DataScope::System)));
-        #[cfg(feature = "kokoros")]
-        checks.push(("Voice Engine", voice.is_some(), boot_config.is_enabled_and_critical(ServiceRole::Voice, DataScope::System)));
+        // Voice removed — slot-managed (SPRINT-VOICE-SLOTS)
         #[cfg(feature = "candle")]
         checks.push(("Embedding Engine", embedder.is_some(), boot_config.is_enabled_and_critical(ServiceRole::Embedder, DataScope::System)));
         #[cfg(feature = "candle")]
@@ -378,8 +358,7 @@ async fn execute_inner(
         global_graph,
         #[cfg(feature = "rro")]
         vector,
-        #[cfg(feature = "kokoros")]
-        voice,
+        // Voice removed — slot-managed (SPRINT-VOICE-SLOTS)
         #[cfg(feature = "candle")]
         embedder,
         #[cfg(feature = "candle")]

@@ -59,8 +59,7 @@ use services::graph::GraphService;
 use services::relational::RelationalService;
 #[cfg(feature = "rro")]
 use services::vector::VectorService;
-#[cfg(feature = "kokoros")]
-use services::voice::VoiceService;
+// Voice is slot-managed through Model Loader (SPRINT-VOICE-SLOTS)
 // Grammar (llguidance) — future sprint
 // #[cfg(feature = "outlines")]
 // use services::grammar::GrammarService;
@@ -99,8 +98,7 @@ macro_rules! for_each_service {
         // Feature-gated services
         #[cfg(feature = "rro")]
         $action!($self.vector);
-        #[cfg(feature = "kokoros")]
-        $action!($self.voice);
+        // Voice removed — slot-managed (SPRINT-VOICE-SLOTS)
         #[cfg(feature = "candle")]
         $action!($self.embedder);
         #[cfg(feature = "candle")]
@@ -122,8 +120,7 @@ macro_rules! for_each_service_rev {
         $action!($self.whisper);
         #[cfg(feature = "candle")]
         $action!($self.embedder);
-        #[cfg(feature = "kokoros")]
-        $action!($self.voice);
+        // Voice removed — slot-managed (SPRINT-VOICE-SLOTS)
         #[cfg(feature = "rro")]
         $action!($self.vector);
         $action!($self.global_graph);
@@ -159,9 +156,7 @@ pub struct Platform {
     // ── Vector (RRO) ──────────────────────────────────────────
     #[cfg(feature = "rro")]
     vector: Option<Arc<VectorService>>,
-    // ── Voice (Kokoros) ─────────────────────────────────────────
-    #[cfg(feature = "kokoros")]
-    voice: Option<Arc<VoiceService>>,
+    // Voice removed — slot-managed through Model Loader (SPRINT-VOICE-SLOTS)
     // ── Grammar (llguidance) — future sprint ────────────────────
     // ── Embedder (Candle) ─────────────────────────────────────
     #[cfg(feature = "candle")]
@@ -215,8 +210,7 @@ impl Platform {
             global_graph: booted.global_graph,
             #[cfg(feature = "rro")]
             vector: booted.vector,
-            #[cfg(feature = "kokoros")]
-            voice: booted.voice,
+            // Voice removed — slot-managed (SPRINT-VOICE-SLOTS)
             #[cfg(feature = "candle")]
             embedder: booted.embedder,
             #[cfg(feature = "candle")]
@@ -307,11 +301,7 @@ impl Platform {
         self.vector.as_ref()
     }
 
-    /// Get the voice service (if enabled and booted).
-    #[cfg(feature = "kokoros")]
-    pub fn voice(&self) -> Option<&Arc<VoiceService>> {
-        self.voice.as_ref()
-    }
+    // Voice removed — slot-managed through Model Loader (SPRINT-VOICE-SLOTS)
 
     // Grammar (llguidance) — getter added in future sprint
 
