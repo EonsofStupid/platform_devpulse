@@ -519,8 +519,8 @@ impl ModelLoaderService {
     /// Find all slots that are coupled to a parent slot.
     fn coupled_children(&self, parent_id: &str) -> Vec<String> {
         self.slots
-            .all_slots()
-            .iter()
+            .list_slots()
+            .into_iter()
             .filter(|s| {
                 matches!(
                     &s.loading,
