@@ -5,7 +5,7 @@
 	@layer components
 -->
 <script lang="ts">
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { getAlertDialogContext } from "./context.js";
 import type { AlertDialogContentProps } from "./types.js";
@@ -13,7 +13,7 @@ import type { AlertDialogContentProps } from "./types.js";
 let { children, class: className, ...rest }: AlertDialogContentProps = $props();
 const ctx = getAlertDialogContext();
 
-const m = $derived(resolveMacro({ kind: "alert-dialog", preset: "default" }));
+const m = $derived(renderForge({ kind: "alert-dialog", preset: "default" }));
 </script>
 
 {#if ctx.hook.open}

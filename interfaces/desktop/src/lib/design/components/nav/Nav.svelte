@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { NavComponentProps } from "./types.js";
 
@@ -36,7 +36,7 @@ let {
 	...rest
 }: NavComponentProps = $props();
 
-const m = $derived(resolveMacro({ kind: "nav", preset }));
+const m = $derived(renderForge({ kind: "nav", preset }));
 </script>
 
 <nav

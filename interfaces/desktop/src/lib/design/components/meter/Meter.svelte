@@ -21,7 +21,7 @@
 <script lang="ts">
 import { useMeter } from "$lib/design/behaviors/meter/index.js";
 import { meterAnatomy } from "$lib/design/primitives/meter/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { MeterProps } from "./types.js";
 
@@ -71,7 +71,7 @@ const hook = useMeter({
 	},
 });
 
-const m = $derived(resolveMacro({ kind: "meter", preset }));
+const m = $derived(renderForge({ kind: "meter", preset }));
 </script>
 
 <div

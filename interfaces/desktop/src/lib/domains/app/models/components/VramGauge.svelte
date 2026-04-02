@@ -1,10 +1,10 @@
 <!--
   @file VramGauge — Arc gauge showing GPU memory usage.
   Preset-driven color: success (<60%) → warning (60-85%) → danger (>85%).
-  Uses resolveMacro for all color resolution.
+  Uses renderForge for all color resolution.
 -->
 <script lang="ts">
-import { cssVarString, resolveMacro } from "$lib/design/style-macro/index.js";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import type { SemanticIntent } from "$lib/design/visual/preset-id.js";
 import { formatMb } from "../types/models.types.js";
 
@@ -28,7 +28,7 @@ const intent: SemanticIntent = $derived.by(() => {
 	return "danger";
 });
 
-const m = $derived(resolveMacro({ kind: "vram-gauge", preset: intent }));
+const m = $derived(renderForge({ kind: "vram-gauge", preset: intent }));
 
 // SVG arc math
 const cx = $derived(size / 2);

@@ -25,7 +25,7 @@
 <script lang="ts">
 import { useAccordion } from "$lib/design/behaviors/accordion/use-accordion.svelte.js";
 import { accordionAnatomy } from "$lib/design/primitives/accordion/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setAccordionContext } from "./context.js";
 import type { AccordionRootProps, AccordionSize } from "./types.js";
@@ -80,7 +80,7 @@ setAccordionContext({
 	},
 });
 
-const m = $derived(resolveMacro({ kind: "accordion", preset }));
+const m = $derived(renderForge({ kind: "accordion", preset }));
 </script>
 
 <div

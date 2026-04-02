@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setDateFieldContext } from "./context.js";
 import type { DateFieldRootProps, DateSegment } from "./types.js";
@@ -53,7 +53,7 @@ let {
 	class: className,
 	...rest
 }: DateFieldRootProps = $props();
-const m = $derived(resolveMacro({ kind: "date-field", preset }));
+const m = $derived(renderForge({ kind: "date-field", preset }));
 
 const autoIds = createIds("date-field", ["root", "label", "description", "errorMessage"] as const);
 const resolvedIds = $derived({

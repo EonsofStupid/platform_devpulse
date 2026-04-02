@@ -24,7 +24,7 @@
 <script lang="ts">
 import type { ProseSize } from "$lib/design/primitives/prose/index.js";
 import { proseAnatomy } from "$lib/design/primitives/prose/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ProseProps } from "./types.js";
 
@@ -42,7 +42,7 @@ let {
 	class: className,
 	...rest
 }: ProseProps = $props();
-const m = $derived(resolveMacro({ kind: "prose", preset }));
+const m = $derived(renderForge({ kind: "prose", preset }));
 </script>
 
 <div

@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { kbdAnatomy } from "$lib/design/primitives/kbd/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { KbdProps, KbdSize } from "./types.js";
 
@@ -34,7 +34,7 @@ const SIZE: Record<KbdSize, string> = {
 
 let { preset = "default", size = "md", children, class: className, ...rest }: KbdProps = $props();
 
-const m = $derived(resolveMacro({ kind: "kbd", preset }));
+const m = $derived(renderForge({ kind: "kbd", preset }));
 </script>
 
 <kbd

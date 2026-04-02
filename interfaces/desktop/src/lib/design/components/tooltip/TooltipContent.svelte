@@ -8,7 +8,7 @@
 -->
 <script lang="ts">
 import { tooltipAnatomy } from "$lib/design/primitives/tooltip/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { getTooltipContext } from "./context.js";
 import type { TooltipContentProps } from "./types.js";
@@ -16,7 +16,7 @@ import type { TooltipContentProps } from "./types.js";
 let { preset = "default", children, class: className, ...rest }: TooltipContentProps = $props();
 const ctx = getTooltipContext();
 
-const m = $derived(resolveMacro({ kind: "tooltip", preset }));
+const m = $derived(renderForge({ kind: "tooltip", preset }));
 </script>
 
 {#if ctx.hook.open}

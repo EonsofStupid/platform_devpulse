@@ -24,7 +24,7 @@
 <script lang="ts">
 import { useSelect } from "$lib/design/behaviors/select/use-select.svelte.js";
 import { selectAnatomy } from "$lib/design/primitives/select/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setSelectContext } from "./context.js";
 import type { SelectProps } from "./types.js";
@@ -68,7 +68,7 @@ setSelectContext({
 	},
 });
 
-const m = $derived(resolveMacro({ kind: "select", preset }));
+const m = $derived(renderForge({ kind: "select", preset }));
 </script>
 
 <div

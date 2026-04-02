@@ -23,7 +23,7 @@
 <script lang="ts">
 import { useBadge } from "$lib/design/behaviors/badge/index.js";
 import { badgeAnatomy } from "$lib/design/primitives/badge/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { BadgeProps, BadgeSize } from "./badge.types.js";
 
@@ -48,7 +48,7 @@ let {
 
 const badge = $derived(useBadge({ variant, fillStyle, size, decorative }));
 
-const m = $derived(resolveMacro({ kind: "badge", preset }));
+const m = $derived(renderForge({ kind: "badge", preset }));
 </script>
 
 <span

@@ -8,8 +8,8 @@
  * - At least one .svelte file exists
  *
  * Macro Law checks (per .svelte file):
- * - Root component: must import resolveMacro + have data-kind
- * - Sub-component with context: exempt from resolveMacro (inherits from parent)
+ * - Root component: must import renderForge + have data-kind
+ * - Sub-component with context: exempt from renderForge (inherits from parent)
  * - Renderless root (no DOM output): exempt from data-kind
  * - No "intent" prop (use "preset" instead)
  */
@@ -90,27 +90,27 @@ function checkMacroLaw(
 	const role = classifyFile(fileName, kind);
 	const renderless = isRenderless(content);
 
-	// Determine if resolveMacro is required for this file
-	// Only ROOT components that render DOM need resolveMacro.
+	// Determine if renderForge is required for this file
+	// Only ROOT components that render DOM need renderForge.
 	// Sub-components either inherit from parent context OR are structural
 	// wrappers (separators, groups, announce regions) — neither needs its own resolver.
 	const needsResolveMacro = role === "root" && !renderless;
 
-	// Law 1: resolveMacro import
-	// Accept style-macro (HTML components) OR svg/index (SVG components)
+	// Law 1: renderForge import
+	// Accept renderforge (HTML components) OR svg/index (SVG components)
 	const hasStyleResolver =
-		content.includes("style-macro") || content.includes("resolveSvgMacro");
+		content.includes("renderforge") || content.includes("resolveSvgMacro");
 
 	if (needsResolveMacro && !hasStyleResolver) {
 		results.push({
 			checkId: "component-structure",
 			status: "fail",
 			severity: "error",
-			message: `${rel} — missing resolveMacro import`,
+			message: `${rel} — missing renderForge import`,
 			file: rel,
 			suggestion: [
-				'Add: import { resolveMacro, cssVarString } from "$lib/design/style-macro";',
-				`Then: const m = $derived(resolveMacro({ kind: "${kind}", preset }));`,
+				'Add: import { renderForge, cssVarString } from "$lib/design/renderforge";',
+				`Then: const m = $derived(renderForge({ kind: "${kind}", preset }));`,
 				"Then: spread {...m.dataAttrs} and style={cssVarString(m.cssVars)} on root element",
 			].join("\n  "),
 		});
@@ -163,7 +163,7 @@ const componentStructureCheck: Check = {
 	id: "component-structure",
 	name: "Component Structure + Macro Law",
 	description:
-		"Every component: types + index.ts + .svelte with resolveMacro + data-kind + preset",
+		"Every component: types + index.ts + .svelte with renderForge + data-kind + preset",
 
 	async run(ctx: CheckContext): Promise<CheckResult[]> {
 		const results: CheckResult[] = [];

@@ -15,7 +15,7 @@
 
 import type { SvgAccent, SvgMacroOptions, SvgMacroResolved } from "./svg-types.js";
 import { SVG_AXIS_MAP, SVG_AXIS_KEYS, SVG_PRESET_PREFIX, SVG_ACCENT_PREFIX } from "./svg-macro-mappings.js";
-import { resolveIntent } from "../style-macro/intent.js";
+import { resolveIntent } from "../renderforge/intent.js";
 
 /**
  * Accent → CSS var mapping.

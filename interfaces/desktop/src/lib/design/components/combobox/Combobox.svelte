@@ -24,7 +24,7 @@
 <script lang="ts">
 import { useComboBox } from "$lib/design/behaviors/combobox/use-combobox.svelte.js";
 import { comboboxAnatomy } from "$lib/design/primitives/combobox/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setComboboxContext } from "./context.js";
 import type { ComboboxProps } from "./types.js";
@@ -75,7 +75,7 @@ setComboboxContext({
 	dir: "ltr",
 });
 
-const m = $derived(resolveMacro({ kind: "combobox", preset }));
+const m = $derived(renderForge({ kind: "combobox", preset }));
 </script>
 
 <div

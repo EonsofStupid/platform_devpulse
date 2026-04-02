@@ -375,7 +375,7 @@ Recommendations via `auto_configure()` Tauri command.
 Downloads via `downloadModel()` with real progress events.
 Verification via `load_slot()` per assigned slot.
 
-Uses ColdLight: `resolveMacro()`, `cssVarString()`, Tailwind layout.
+Uses ColdLight: `renderForge()`, `cssVarString()`, Tailwind layout.
 Uses existing components: `VramGauge`, `ClyffyNarration`, `Badge`, `Text`, `Progress`.
 
 ### Task 3.4: Create KnowledgeDropCard Component
@@ -386,7 +386,7 @@ Rotating card during download phase:
 - Fades in/out every 8-10 seconds
 - Pulls from `knowledgeDrops[]` array
 - Larger than ClyffyNarration — centered, prominent
-- Styled with `resolveMacro({ kind: "knowledge-drop", preset: "info" })`
+- Styled with `renderForge({ kind: "knowledge-drop", preset: "info" })`
 
 ### Task 3.5: Embed in BootOverlay
 

@@ -4,7 +4,7 @@
  *
  * The VPB reads this at runtime to populate preset pickers.
  * SD5 reads this at build time to generate token groups.
- * Components never import this directly — they use resolveMacro.
+ * Components never import this directly — they use renderForge.
  */
 
 import type { PresetDefinition } from "../preset-definition.js";
@@ -36,7 +36,7 @@ export const ALL_PRESETS: readonly PresetDefinition[] = [
 	...STARK_PRESETS,
 ] as const;
 
-/** Lookup by PresetId — O(1) access for resolveMacro and VPB */
+/** Lookup by PresetId — O(1) access for renderForge and VPB */
 export const PRESET_LIBRARY: ReadonlyMap<PresetId, PresetDefinition> = new Map(
 	ALL_PRESETS.map((p) => [p.id, p]),
 );

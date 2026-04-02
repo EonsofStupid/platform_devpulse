@@ -1,8 +1,8 @@
 /**
- * @file ColdLight Style Macro — Type Contracts
+ * @file RenderForge — Type Contracts
  * @package @devpulse/coldlight
  *
- * Immutable types per MACRO-LAW.md.
+ * Immutable types per RenderForge.md.
  * These types are the public API contract. No escape hatches.
  */
 

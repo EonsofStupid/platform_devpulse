@@ -1,11 +1,11 @@
 /**
- * @file resolveMacro — The ONE public styling path
+ * @file renderForge — The ONE public styling path
  * @package @devpulse/coldlight
  *
  * Pure function. Same input → same output, always.
  * No DOM. No context. No side effects. Testable without a browser.
  *
- * Per MACRO-LAW.md Law 1.
+ * Per RenderForge.md Law 1.
  *
  * ═══════════════════════════════════════════════════════════════
  * CANONICAL AXIS REGISTRY — 20 axes, 6 families
@@ -52,10 +52,10 @@
  * @example
  * ```svelte
  * <script lang="ts">
- *   import { resolveMacro, cssVarString } from '$lib/design/style-macro';
+ *   import { renderForge, cssVarString } from '$lib/design/renderforge';
  *   let { preset = 'primary', disabled = false, children } = $props();
  *   const state = $derived(disabled ? 'disabled' : 'default');
- *   const m = $derived(resolveMacro({ kind: 'button', preset, state }));
+ *   const m = $derived(renderForge({ kind: 'button', preset, state }));
  * </script>
  * <button {...m.dataAttrs} style={cssVarString(m.cssVars)} {disabled}>
  *   {@render children()}
@@ -76,7 +76,7 @@ const DEFAULT_FAMILIES: CssFamily[] = ["surface", "text", "frame"];
  * @param input - kind, preset, state
  * @returns Sealed ResolvedMacro — dataAttrs + cssVars
  */
-export function resolveMacro(input: MacroInput): ResolvedMacro {
+export function renderForge(input: MacroInput): ResolvedMacro {
 	const { kind, preset = "primary", state = "default" } = input;
 
 	const resolved = resolveIntent(preset);

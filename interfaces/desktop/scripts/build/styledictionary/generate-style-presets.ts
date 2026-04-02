@@ -11,7 +11,7 @@
  *   PER-KIND overrides: `style.{kind}-{preset}.{axis}` → `--style-{kind}-{preset}-{axis}` (VPB custom only)
  *
  * Default: shared presets (1,332 vars). Per-kind overrides only when VPB saves custom values.
- * resolveMacro reads: var(--style-{kind}-{preset}-{axis}, var(--preset-{preset}-{axis}))
+ * renderForge reads: var(--style-{kind}-{preset}-{axis}, var(--preset-{preset}-{axis}))
  *
  * Run: npx tsx scripts/build/styledictionary/generate-style-presets.ts
  */

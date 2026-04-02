@@ -23,7 +23,7 @@
 <script lang="ts">
 import { usePagination } from "$lib/design/behaviors/pagination/index.js";
 import { paginationAnatomy } from "$lib/design/primitives/pagination/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { PaginationComponentProps } from "./types.js";
 
@@ -39,7 +39,7 @@ let {
 	class: className,
 	...rest
 }: PaginationComponentProps = $props();
-const m = $derived(resolveMacro({ kind: "pagination", preset }));
+const m = $derived(renderForge({ kind: "pagination", preset }));
 const pagination = usePagination();
 function getPageRange(
 	current: number,

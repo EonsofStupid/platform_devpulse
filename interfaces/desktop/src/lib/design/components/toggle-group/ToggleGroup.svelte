@@ -24,7 +24,7 @@
 <script lang="ts">
 import { useToggleGroup } from "$lib/design/behaviors/toggle-group/index.js";
 import { toggleGroupAnatomy } from "$lib/design/primitives/toggle-group/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ToggleGroupComponentProps } from "./types.js";
 
@@ -42,6 +42,6 @@ let {
 	...rest
 }: ToggleGroupComponentProps = $props();
 const tg = $derived(useToggleGroup({ disabled, orientation }));
-const m = $derived(resolveMacro({ kind: "toggle-group", preset }));
+const m = $derived(renderForge({ kind: "toggle-group", preset }));
 </script>
 <div {...toggleGroupAnatomy.attrs.root} {...tg.root as any} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-orientation={orientation} class={cn("inline-flex items-center rounded-md", className)} {...rest}>{@render children?.()}</div>

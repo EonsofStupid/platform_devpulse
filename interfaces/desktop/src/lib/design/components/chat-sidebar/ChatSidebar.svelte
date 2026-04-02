@@ -20,7 +20,7 @@
 -->
 <script lang="ts">
 import { Button } from "$lib/design/components/button/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ChatMode, ChatSidebarProps } from "./types.js";
 
@@ -40,7 +40,7 @@ let {
 	...rest
 }: ChatSidebarProps = $props();
 
-const m = $derived(resolveMacro({ kind: "chat-sidebar", preset: "default" }));
+const m = $derived(renderForge({ kind: "chat-sidebar", preset: "default" }));
 </script>
 
 <nav

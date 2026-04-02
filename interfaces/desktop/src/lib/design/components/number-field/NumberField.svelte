@@ -24,7 +24,7 @@
 <script lang="ts">
 import { useNumberField } from "$lib/design/behaviors/number-field/index.js";
 import { numberFieldAnatomy } from "$lib/design/primitives/number-field/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { NumberFieldProps, NumberFieldSize } from "./types.js";
 
@@ -88,7 +88,7 @@ const hook = useNumberField({
 	},
 });
 
-const m = $derived(resolveMacro({ kind: "number-field", preset }));
+const m = $derived(renderForge({ kind: "number-field", preset }));
 </script>
 
 <div

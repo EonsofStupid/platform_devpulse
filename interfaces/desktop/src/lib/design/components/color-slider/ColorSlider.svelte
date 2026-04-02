@@ -29,7 +29,7 @@ import {
 	roundToStep,
 } from "$lib/design/components/color-area/color-utils.js";
 import { colorSliderAnatomy } from "$lib/design/primitives/color-slider/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setColorSliderContext } from "./context.js";
 import type { ColorSliderRootProps } from "./types.js";
@@ -145,7 +145,7 @@ setColorSliderContext({
 	thumbAction: drag.thumbAction,
 });
 
-const m = $derived(resolveMacro({ kind: "color-slider", preset }));
+const m = $derived(renderForge({ kind: "color-slider", preset }));
 </script>
 
 <div

@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { useInlineMessage } from "$lib/design/behaviors/inline-message/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { InlineMessageProps, InlineMessageTone } from "./types.js";
 
@@ -37,7 +37,7 @@ const TONE_PRESETS: Record<InlineMessageTone, string> = {
 let { tone = "info", children, class: className, ...rest }: InlineMessageProps = $props();
 
 const msg = $derived(useInlineMessage({ tone }));
-const m = $derived(resolveMacro({ kind: "inline-message", preset: "default" }));
+const m = $derived(renderForge({ kind: "inline-message", preset: "default" }));
 </script>
 
 <div

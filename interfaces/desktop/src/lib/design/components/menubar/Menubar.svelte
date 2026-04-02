@@ -23,7 +23,7 @@
 }
 -->
 <script lang="ts">
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { type MenubarRootCtx, setMenubarRootContext } from "./context.js";
 import type { MenubarProps } from "./types.js";
@@ -50,7 +50,7 @@ const ctx: MenubarRootCtx = {
 
 setMenubarRootContext(ctx);
 
-const m = $derived(resolveMacro({ kind: "menubar", preset }));
+const m = $derived(renderForge({ kind: "menubar", preset }));
 </script>
 
 <div

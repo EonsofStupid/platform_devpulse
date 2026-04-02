@@ -25,7 +25,7 @@
 <script lang="ts">
 import { useDataTable } from "$lib/design/behaviors/data-table/index.js";
 import { dataTableAnatomy } from "$lib/design/primitives/data-table/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { DataTableComponentProps } from "./types.js";
 
@@ -41,6 +41,6 @@ let {
 	...rest
 }: DataTableComponentProps = $props();
 const dt = $derived(useDataTable({ label, rowCount, colCount }));
-const m = $derived(resolveMacro({ kind: "data-table", preset }));
+const m = $derived(renderForge({ kind: "data-table", preset }));
 </script>
 <div {...dataTableAnatomy.attrs.root} {...dt.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-variant={variant} class={cn("w-full overflow-auto", className)} {...rest}>{@render children?.()}</div>

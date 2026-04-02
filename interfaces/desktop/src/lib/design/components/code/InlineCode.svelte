@@ -7,7 +7,7 @@
 	No Shiki — just a styled code element.
 -->
 <script lang="ts">
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { InlineCodeProps } from "./types.js";
 
@@ -20,7 +20,7 @@ let {
 	...rest
 }: InlineCodeProps = $props();
 
-const m = $derived(resolveMacro({ kind: "code", preset }));
+const m = $derived(renderForge({ kind: "code", preset }));
 </script>
 
 <code

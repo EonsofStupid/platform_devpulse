@@ -23,7 +23,7 @@
 <script lang="ts">
 import { useTableOfContents } from "$lib/design/behaviors/table-of-contents/index.js";
 import { tableOfContentsAnatomy } from "$lib/design/primitives/table-of-contents/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TableOfContentsProps } from "./types.js";
 
@@ -38,6 +38,6 @@ let {
 	...rest
 }: TableOfContentsProps = $props();
 const toc = $derived(useTableOfContents({ label }));
-const m = $derived(resolveMacro({ kind: "table-of-contents", preset }));
+const m = $derived(renderForge({ kind: "table-of-contents", preset }));
 </script>
 <nav {...tableOfContentsAnatomy.attrs.root} {...toc.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} class={cn("flex flex-col", className)} {...rest}>{@render children?.()}</nav>

@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setAvatarGroupContext } from "./context.js";
 import type { AvatarGroupRootProps } from "./types.js";
@@ -60,7 +60,7 @@ setAvatarGroupContext({
 
 const overlapMargin = $derived(`-${Math.round(size * 0.25)}px`);
 
-const m = $derived(resolveMacro({ kind: "avatar-group", preset }));
+const m = $derived(renderForge({ kind: "avatar-group", preset }));
 </script>
 
 <div

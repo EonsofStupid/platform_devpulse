@@ -25,7 +25,7 @@
 <script lang="ts">
 import { useTable } from "$lib/design/behaviors/table/use-table.svelte.js";
 import { tableAnatomy } from "$lib/design/primitives/table/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TableComponentProps } from "./types.js";
 
@@ -39,7 +39,7 @@ let {
 	...rest
 }: TableComponentProps = $props();
 const table = useTable();
-const m = $derived(resolveMacro({ kind: "table", preset }));
+const m = $derived(renderForge({ kind: "table", preset }));
 </script>
 <div class="w-full overflow-auto" {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="wrapper">
 		<table {...tableAnatomy.attrs.root} {...table.root} aria-label={label} data-variant={variant} class={cn("w-full caption-bottom text-sm", className)} {...rest}>

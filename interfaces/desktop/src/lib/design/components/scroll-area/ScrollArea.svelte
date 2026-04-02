@@ -24,7 +24,7 @@
 <script lang="ts">
 import { useScrollArea } from "$lib/design/behaviors/scroll-area/index.js";
 import { scrollAreaAnatomy } from "$lib/design/primitives/scroll-area/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ScrollAreaComponentProps } from "./types.js";
 
@@ -38,7 +38,7 @@ let {
 	...rest
 }: ScrollAreaComponentProps = $props();
 const scrollArea = $derived(useScrollArea({ label, orientation }));
-const m = $derived(resolveMacro({ kind: "scroll-area", preset }));
+const m = $derived(renderForge({ kind: "scroll-area", preset }));
 </script>
 <div {...scrollAreaAnatomy.attrs.root} {...scrollArea.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} class={cn("relative overflow-hidden", className)} {...rest}>
 		<div data-kind="scroll-area" data-slot="viewport" class="h-full w-full overflow-auto">{@render children?.()}</div>

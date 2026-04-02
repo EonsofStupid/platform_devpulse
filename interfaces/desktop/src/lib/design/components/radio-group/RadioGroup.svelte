@@ -24,7 +24,7 @@
 <script lang="ts">
 import { useRadioGroup } from "$lib/design/behaviors/radio-group/use-radio-group.svelte.js";
 import { radioGroupAnatomy } from "$lib/design/primitives/radio-group/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setRadioGroupContext } from "./context.js";
 import type { RadioGroupProps } from "./types.js";
@@ -67,7 +67,7 @@ setRadioGroupContext({
 	},
 });
 
-const m = $derived(resolveMacro({ kind: "radio-group", preset }));
+const m = $derived(renderForge({ kind: "radio-group", preset }));
 </script>
 
 <div

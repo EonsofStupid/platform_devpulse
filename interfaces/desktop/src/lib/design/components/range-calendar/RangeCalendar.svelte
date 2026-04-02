@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { type RangeCalendarContext, setRangeCalendarContext } from "./context.js";
 import type { RangeCalendarProps } from "./types.js";
@@ -159,7 +159,7 @@ const ctx: RangeCalendarContext = {
 
 setRangeCalendarContext(ctx);
 
-const m = $derived(resolveMacro({ kind: "range-calendar", preset }));
+const m = $derived(renderForge({ kind: "range-calendar", preset }));
 </script>
 
 <div

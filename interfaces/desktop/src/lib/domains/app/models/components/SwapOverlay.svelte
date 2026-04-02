@@ -4,12 +4,12 @@
   Only renders when swapState.active is true.
 -->
 <script lang="ts">
-import { cssVarString, resolveMacro } from "$lib/design/style-macro/index.js";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { swapState } from "../runes/swap.runes.svelte.js";
 import { friendlySlotLabel } from "../types/models.types.js";
 
 const m = $derived(
-	resolveMacro({
+	renderForge({
 		kind: "swap-overlay",
 		preset: swapState.error ? "danger" : "info",
 	}),

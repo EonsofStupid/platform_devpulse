@@ -172,7 +172,7 @@ This is a visual target for the neumorphic aesthetic — liquid metal, chrome re
 ## COMPLETE COMPONENT INVENTORY
 
 ### EXISTS and ready to use (with correct presets)
-| Component | Primitive | Uses StyleMacro |
+| Component | Primitive | Uses RenderForge |
 |-----------|-----------|----------------|
 | Accordion | accordion | YES |
 | Alert | alert | YES |

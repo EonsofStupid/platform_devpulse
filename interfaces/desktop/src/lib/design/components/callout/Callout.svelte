@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { CalloutProps } from "./types.js";
 
@@ -34,7 +34,7 @@ let {
 	...rest
 }: CalloutProps = $props();
 
-const m = $derived(resolveMacro({ kind: "callout", preset }));
+const m = $derived(renderForge({ kind: "callout", preset }));
 </script>
 
 <div

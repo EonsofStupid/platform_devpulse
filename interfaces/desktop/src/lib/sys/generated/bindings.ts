@@ -354,7 +354,10 @@ async completeModelSetup() : Promise<Result<null, string>> {
 },
 /**
  * Generate text using a loaded model slot.
- * Streams tokens via Tauri events. Returns the full generated text.
+ * 
+ * Gets an InferenceHandle from the model loader (resolves fallback chain),
+ * streams tokens via Tauri events, returns the full generated text.
+ * Hard fails if no model is loaded — no silent fallback.
  */
 async inferenceGenerate(slotId: string, prompt: string, maxTokens: number, temperature: number) : Promise<Result<string, string>> {
     try {
@@ -548,7 +551,7 @@ vector_enabled: boolean;
  */
 voice_enabled: boolean; 
 /**
- * Grammar service enabled (`outlines-core`).
+ * Grammar service enabled (`llguidance` — future sprint).
  */
 grammar_enabled: boolean; 
 /**

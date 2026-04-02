@@ -9,7 +9,7 @@
  * Per MACRO-LAW.md Law 5 — families are derived at build time, never hand-authored per component.
  *
  * Pipeline position: after enrich-presets, before SD5.
- * Output: src/lib/design/style-macro/generated/kind-families.ts
+ * Output: src/lib/design/renderforge/generated/kind-families.ts
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PRESETS_PATH = resolve(__dirname, "tokens/src/style-presets.json");
-const OUTPUT_PATH = resolve(__dirname, "../../../src/lib/design/style-macro/generated/kind-families.ts");
+const OUTPUT_PATH = resolve(__dirname, "../../../src/lib/design/renderforge/generated/kind-families.ts");
 
 /**
  * CSS variable → family mapping.

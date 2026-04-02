@@ -8,14 +8,14 @@
 -->
 <script lang="ts">
 import { dialogAnatomy } from "$lib/design/primitives/dialog/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { getDialogContext } from "./context.js";
 import type { DialogContentProps } from "./types.js";
 
 let { children, class: className, ...rest }: DialogContentProps = $props();
 const ctx = getDialogContext();
-const m = $derived(resolveMacro({ kind: "dialog", preset: "default" }));
+const m = $derived(renderForge({ kind: "dialog", preset: "default" }));
 
 const SIZE_CLASSES: Record<string, string> = {
 	sm: "max-w-[var(--size-container-xs)]",

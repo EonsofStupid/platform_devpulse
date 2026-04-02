@@ -24,7 +24,7 @@
 -->
 <script lang="ts">
 import { untrack } from "svelte";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setCollapsibleContext } from "./context.js";
 import type { CollapsibleRootProps } from "./types.js";
@@ -79,7 +79,7 @@ setCollapsibleContext({
 	toggle,
 });
 
-const m = $derived(resolveMacro({ kind: "collapsible", preset: "default" }));
+const m = $derived(renderForge({ kind: "collapsible", preset: "default" }));
 </script>
 
 <div

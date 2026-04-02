@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { untrack } from "svelte";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setCalendarContext } from "./context.js";
 import type { CalendarRootProps } from "./types.js";
@@ -152,7 +152,7 @@ setCalendarContext({
 	},
 });
 
-const m = $derived(resolveMacro({ kind: "calendar", preset }));
+const m = $derived(renderForge({ kind: "calendar", preset }));
 </script>
 
 <div

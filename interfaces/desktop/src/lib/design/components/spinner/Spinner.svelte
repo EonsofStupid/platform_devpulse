@@ -23,7 +23,7 @@
 <script lang="ts">
 import { useSpinner } from "$lib/design/behaviors/spinner/index.js";
 import { spinnerAnatomy } from "$lib/design/primitives/spinner/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SpinnerProps, SpinnerSize } from "./types.js";
 
@@ -42,7 +42,7 @@ let {
 }: SpinnerProps = $props();
 
 const spinner = $derived(useSpinner({ active }));
-const m = $derived(resolveMacro({ kind: "spinner", preset }));
+const m = $derived(renderForge({ kind: "spinner", preset }));
 </script>
 
 {#if active}

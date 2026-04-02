@@ -23,7 +23,7 @@
 <script lang="ts">
 import { useTextarea } from "$lib/design/behaviors/textarea/index.js";
 import { textareaAnatomy } from "$lib/design/primitives/textarea/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TextareaProps } from "./types.js";
 
@@ -49,7 +49,7 @@ let {
 }: TextareaProps = $props();
 
 const textarea = $derived(useTextarea({ disabled, readonly: readOnly, required, invalid }));
-const m = $derived(resolveMacro({ kind: "textarea", preset }));
+const m = $derived(renderForge({ kind: "textarea", preset }));
 </script>
 
 <textarea

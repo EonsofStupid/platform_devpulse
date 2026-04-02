@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { useLinkPreview } from "$lib/design/behaviors/link-preview/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { LinkPreviewProps } from "./types.js";
 
@@ -36,6 +36,6 @@ let {
 	class: className,
 }: LinkPreviewProps = $props();
 const lp = $derived(useLinkPreview({ openDelay, closeDelay }));
-const m = $derived(resolveMacro({ kind: "link-preview", preset }));
+const m = $derived(renderForge({ kind: "link-preview", preset }));
 </script>
 <div {...m.dataAttrs} style={cssVarString(m.cssVars)} data-slot="root" class={cn("relative inline-block", className)}>{@render children?.()}</div>

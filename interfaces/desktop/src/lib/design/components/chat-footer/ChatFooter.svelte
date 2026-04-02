@@ -22,7 +22,7 @@
 import { Mic, Send } from "lucide-svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { TextField } from "$lib/design/components/text-field/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ChatFooterProps } from "./types.js";
 
@@ -52,7 +52,7 @@ function handleKeydown(event: KeyboardEvent) {
 	}
 }
 
-const m = $derived(resolveMacro({ kind: "chat-footer", preset: "default" }));
+const m = $derived(renderForge({ kind: "chat-footer", preset: "default" }));
 </script>
 
 <div

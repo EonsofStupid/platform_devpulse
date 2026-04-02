@@ -24,7 +24,7 @@
 <script lang="ts">
 import { useProgress } from "$lib/design/behaviors/progress/index.js";
 import { progressAnatomy } from "$lib/design/primitives/progress/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ProgressProps, ProgressSize } from "./progress.types.js";
 
@@ -44,7 +44,7 @@ let {
 	class: className,
 	...rest
 }: ProgressProps = $props();
-const m = $derived(resolveMacro({ kind: "progress", preset }));
+const m = $derived(renderForge({ kind: "progress", preset }));
 
 const progress = $derived(
 	useProgress({

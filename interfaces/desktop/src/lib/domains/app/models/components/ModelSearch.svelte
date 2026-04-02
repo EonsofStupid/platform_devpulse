@@ -1,12 +1,12 @@
 <!--
   @file ModelSearch — HuggingFace model search with results.
   Inline search panel toggled from ModelLoaderPanel.
-  ALL styling via resolveMacro + cssVarString.
+  ALL styling via renderForge + cssVarString.
 -->
 <script lang="ts">
 import { LoaderCircle, Search, X } from "lucide-svelte";
 import { Text } from "$lib/design/components/text/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro/index.js";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { searchState } from "../runes/search.runes.svelte.js";
@@ -19,7 +19,7 @@ interface Props {
 
 let { onDownload, onClose }: Props = $props();
 
-const m = $derived(resolveMacro({ kind: "model-search", preset: "neutral" }));
+const m = $derived(renderForge({ kind: "model-search", preset: "neutral" }));
 
 function handleInput(e: Event) {
 	const target = e.target as HTMLInputElement;

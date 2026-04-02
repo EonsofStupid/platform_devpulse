@@ -24,7 +24,7 @@
 <script lang="ts">
 import { useSwitch } from "$lib/design/behaviors/switch/use-switch.svelte.js";
 import { switchAnatomy } from "$lib/design/primitives/switch/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SwitchProps, SwitchSize } from "./types.js";
 
@@ -56,7 +56,7 @@ const sw = useSwitch({
 });
 
 const sizeClasses = $derived(SIZE[size] ?? SIZE.md);
-const m = $derived(resolveMacro({ kind: "switch", preset }));
+const m = $derived(renderForge({ kind: "switch", preset }));
 </script>
 
 <button

@@ -20,7 +20,7 @@
 <script lang="ts">
 import { useField } from "$lib/design/behaviors/field/index.js";
 import { fieldAnatomy } from "$lib/design/primitives/field/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { FieldProps } from "./types.js";
 
@@ -52,7 +52,7 @@ const hook = useField({
 	},
 });
 
-const m = $derived(resolveMacro({ kind: "field", preset }));
+const m = $derived(renderForge({ kind: "field", preset }));
 </script>
 
 <div

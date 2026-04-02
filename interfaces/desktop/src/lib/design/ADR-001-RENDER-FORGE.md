@@ -9,7 +9,7 @@
 
 ## Decision
 
-2-layer enterprise pattern. Primitive hooks for behavior. Components are the product — hook + StyleMacro in one file. No third layer. No dumb middle components. No ui/ folder.
+2-layer enterprise pattern. Primitive hooks for behavior. Components are the product — hook + RenderForge in one file. No third layer. No dumb middle components. No ui/ folder.
 
 ---
 
@@ -18,7 +18,7 @@
 | Layer | Folder | Responsibility |
 |-------|--------|---------------|
 | **Primitive Hook** | `primitives/{kind}/` | Pure behavior. WAI-ARIA APG. ARIA, keyboard, focus, state. Anatomy declares slots. Returns reactive attrs. NO styling. NO schema. |
-| **Component** | `components/{kind}/` | THE PRODUCT. What users import. Uses hook for ARIA + StyleMacro for visual. Prop-driven. Colocated schema for VPB. |
+| **Component** | `components/{kind}/` | THE PRODUCT. What users import. Uses hook for ARIA + RenderForge for visual. Prop-driven. Colocated schema for VPB. |
 
 ### Primitive Hook (Behavior)
 
@@ -40,7 +40,7 @@ const button = $derived(useButton({ disabled, loading, pressed }));
 
 ```
 components/{kind}/
-  {Kind}.svelte           — hook + StyleMacro in ONE file. The product.
+  {Kind}.svelte           — hook + RenderForge in ONE file. The product.
   {kind}.types.ts         — extends ComponentProps from _base. Intent + size + behavioral.
   {kind}.schema.ts         — ArkType schema. `.toJsonSchema()` feeds A2UI catalog + llguidance.
   index.ts                — barrel (public API, what users import)
@@ -49,7 +49,7 @@ components/{kind}/
 ```svelte
 <script lang="ts">
   import { useButton } from "$lib/design/primitives/button/index.js";
-  import { StyleMacro } from "$lib/design/style/index.js";
+  import { renderForge } from "$lib/design/renderforge/index.js";
   import "./button.schema.js";
   import type { ButtonProps, ButtonSize } from "./button.types.js";
 
@@ -67,21 +67,21 @@ components/{kind}/
   const styleId = $derived(`button-${intent}`);
 </script>
 
-<StyleMacro kind="button" style={styleId}>
+<RenderForge kind="button" style={styleId}>
   <button {...button.root} {...rest} class="{SIZE[size] ?? SIZE.md} {className ?? ''}">
     {@render children?.()}
   </button>
-</StyleMacro>
+</RenderForge>
 ```
 
 ### Structural Sizing (NOT a visual axis)
 
-Size is structural (height, padding, font-size). Const map in the component. Not StyleMacro.
+Size is structural (height, padding, font-size). Const map in the component. Not RenderForge.
 
 ### Intent/Variant → Style ID
 
 Component maps intent prop to style ID: `intent="primary"` → `style="button-primary"`.
-StyleMacro resolves the DTCG token group. Component owns this mapping.
+RenderForge resolves the DTCG token group. Component owns this mapping.
 
 ---
 
@@ -107,7 +107,7 @@ Every axis = 1 real DTCG `$type`. No invented types. No gaps.
 
 SD5 expands every composite into named sub-properties. Every sub-value individually addressable by VPB. More readable than shorthand — each value is named.
 
-StyleMacro assembles shorthand in `$derived.by` from expanded sub-vars. Glue CSS consumes assembled values.
+RenderForge assembles shorthand in `$derived.by` from expanded sub-vars. Glue CSS consumes assembled values.
 
 ### DTCG Style Tokens (Recipes)
 
@@ -137,23 +137,23 @@ Each axis = own token with real DTCG `$type`. SD5 expands composites. No invente
 
 ---
 
-## StyleMacro Provider
+## RenderForge Provider
 
-Three files in `design/style/`:
+Three files in `design/renderforge/`:
 
 | File | Purpose |
 |------|---------|
 | `base-state.svelte.ts` | `$state` global reactive theme. VPB pushes updates. |
 | `macro-mappings.ts` | 11 axes → `--cl-*` var names + DTCG types. |
-| `StyleMacro.svelte` | Schema-driven `$derived.by` resolver. Reads component's registered schema. Constructs var() refs to expanded SD5 output. Assembles composite shorthands. |
+| `RenderForge.svelte` | Schema-driven `$derived.by` resolver. Reads component's registered schema. Constructs var() refs to expanded SD5 output. Assembles composite shorthands. |
 
 ### Resolution
 
-StyleMacro constructs `var(--style-{styleId}-{axis})` references from style ID. CSS cascade resolves at paint time.
+RenderForge constructs `var(--style-{styleId}-{axis})` references from style ID. CSS cascade resolves at paint time.
 
 ### Glue CSS (`generated/macro-base.css`)
 
-Maps `--cl-*` vars to CSS properties on `[data-kind]` elements. StyleMacro assembles composites. Glue CSS consumes assembled values.
+Maps `--cl-*` vars to CSS properties on `[data-kind]` elements. RenderForge assembles composites. Glue CSS consumes assembled values.
 
 ```css
 [data-kind] {
@@ -177,7 +177,7 @@ Maps `--cl-*` vars to CSS properties on `[data-kind]` elements. StyleMacro assem
 
 ### VPB Integration
 
-VPB pushes updates via custom event → `platformBase` `$state` reacts → StyleMacro re-resolves → browser repaints. One update, entire app. Or per-instance.
+VPB pushes updates via custom event → `platformBase` `$state` reacts → RenderForge re-resolves → browser repaints. One update, entire app. Or per-instance.
 
 ---
 
@@ -200,7 +200,7 @@ Every component has a colocated `{kind}.def.ts` — const literal `as const sati
 |---------|-----|
 | Token storage | DTCG JSON — structured composite objects |
 | Token → CSS custom properties | SD5 — `expand: true`, each sub-value = own property |
-| Composite assembly → shorthand | StyleMacro `$derived.by` — reads expanded sub-vars, builds CSS shorthand |
+| Composite assembly → shorthand | RenderForge `$derived.by` — reads expanded sub-vars, builds CSS shorthand |
 | Shorthand → paint | Glue CSS — `[data-kind]` consumes `--cl-*` vars |
 | Individual sub-value control | VPB — reads/writes individual expanded sub-values |
 | ARIA + keyboard + focus | Primitive hooks — WAI-ARIA APG compliant |
@@ -213,7 +213,7 @@ Every component has a colocated `{kind}.def.ts` — const literal `as const sati
 | Deleted | Why |
 |---|---|
 | `ui/` folder | Over-engineered third layer. Component IS the product. |
-| `useColdLight()` | Per-component hook. Replaced by StyleMacro. |
+| `useColdLight()` | Per-component hook. Replaced by RenderForge. |
 | `resolveVisual()` | Per-component resolution. |
 | `registerRecipe()` / `recipes/` JS | Recipes are DTCG token groups. |
 | `registry/` folder | Old 8-axis system. |
@@ -246,7 +246,7 @@ Every component has a colocated `{kind}.def.ts` — const literal `as const sati
 - [ ] Anatomy declared (`{kind}.anatomy.ts`)
 - [ ] Primitive types with per-slot typed attrs (`{kind}.types.ts`)
 - [ ] Component extends ComponentProps (`components/{kind}/{kind}.types.ts`)
-- [ ] Component uses hook + StyleMacro in ONE file (`{Kind}.svelte`)
+- [ ] Component uses hook + RenderForge in ONE file (`{Kind}.svelte`)
 - [ ] Intent/variant maps to style ID in component
 - [ ] Structural size as const map in component
 - [ ] ZERO hardcoded colors/backgrounds/shadows in component
@@ -265,7 +265,7 @@ Every component has a colocated `{kind}.def.ts` — const literal `as const sati
 ## Decision Record
 
 **Decided by:** Owner
-**Rationale:** 2-layer pattern (hooks + styled components) is the enterprise standard in 2026. React Spectrum S2, Ark UI, Radix — none use a third layer. The 3-layer split was over-engineering. StyleMacro + primitive hooks give full ARIA compliance + full visual control + VPB integration in the minimum possible architecture. 11 axes cover every visual concern. Every axis = real DTCG type.
+**Rationale:** 2-layer pattern (hooks + styled components) is the enterprise standard in 2026. React Spectrum S2, Ark UI, Radix — none use a third layer. The 3-layer split was over-engineering. RenderForge + primitive hooks give full ARIA compliance + full visual control + VPB integration in the minimum possible architecture. 11 axes cover every visual concern. Every axis = real DTCG type.
 **Irreversible:** Yes.
 
 ---

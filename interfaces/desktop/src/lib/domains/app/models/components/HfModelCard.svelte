@@ -1,7 +1,7 @@
 <!--
   @file HfModelCard — Single HuggingFace search result.
   Shows model info, GGUF files, download buttons.
-  ALL styling via resolveMacro + cssVarString.
+  ALL styling via renderForge + cssVarString.
 -->
 <script lang="ts">
 import {
@@ -20,7 +20,7 @@ import {
 } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro/index.js";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { hardwareState } from "../runes/hardware.runes.svelte.js";
@@ -35,7 +35,7 @@ interface Props {
 let { result, onDownload }: Props = $props();
 let expanded = $state(false);
 
-const m = $derived(resolveMacro({ kind: "hf-model-card", preset: "neutral" }));
+const m = $derived(renderForge({ kind: "hf-model-card", preset: "neutral" }));
 
 /** Map pipeline tag to icon component and label. */
 const capIcon = $derived.by(() => {

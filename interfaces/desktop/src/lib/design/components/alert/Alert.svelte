@@ -24,7 +24,7 @@
 -->
 <script lang="ts">
 import { useAlert } from "$lib/design/behaviors/alert/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setAlertContext } from "./context.js";
 import { ALERT_VARIANT_PRESETS, type AlertRootProps } from "./types.js";
@@ -74,7 +74,7 @@ setAlertContext({
 	},
 });
 
-const m = $derived(resolveMacro({ kind: "alert", preset: variant }));
+const m = $derived(renderForge({ kind: "alert", preset: variant }));
 </script>
 
 {#if isOpen}

@@ -24,7 +24,7 @@
 <script lang="ts">
 import { useButton } from "$lib/design/behaviors/button/index.js";
 import { buttonAnatomy } from "$lib/design/primitives/button/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ButtonProps, ButtonSize } from "./button.types.js";
 
@@ -50,7 +50,7 @@ let {
 
 const button = $derived(useButton({ disabled, loading, pressed, onPressedChange, expanded, type }));
 
-const m = $derived(resolveMacro({ kind: "button", preset }));
+const m = $derived(renderForge({ kind: "button", preset }));
 </script>
 
 <button

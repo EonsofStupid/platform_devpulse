@@ -23,7 +23,7 @@
 <script lang="ts">
 import { useSearchField } from "$lib/design/behaviors/search-field/index.js";
 import { searchFieldAnatomy } from "$lib/design/primitives/search-field/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SearchFieldProps, SearchFieldSize } from "./types.js";
 
@@ -71,7 +71,7 @@ const hook = useSearchField({
 	},
 });
 
-const m = $derived(resolveMacro({ kind: "search-field", preset }));
+const m = $derived(renderForge({ kind: "search-field", preset }));
 </script>
 
 <div

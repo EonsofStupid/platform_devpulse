@@ -25,7 +25,7 @@
 <script lang="ts">
 import { useList } from "$lib/design/behaviors/list/index.js";
 import { listAnatomy } from "$lib/design/primitives/list/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ListProps } from "./types.js";
 
@@ -40,7 +40,7 @@ let {
 	...rest
 }: ListProps = $props();
 const list = $derived(useList({ label }));
-const m = $derived(resolveMacro({ kind: "list", preset }));
+const m = $derived(renderForge({ kind: "list", preset }));
 </script>
 <ul {...listAnatomy.attrs.root} {...list.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-variant={variant} class={cn("flex flex-col", className)} {...rest}>
 	{@render children?.()}

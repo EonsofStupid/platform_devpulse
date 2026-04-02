@@ -24,7 +24,7 @@
 <script lang="ts">
 import { useSidebar } from "$lib/design/behaviors/sidebar/index.js";
 import { sidebarAnatomy } from "$lib/design/primitives/sidebar/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SidebarComponentProps } from "./types.js";
 
@@ -41,7 +41,7 @@ let {
 	...rest
 }: SidebarComponentProps = $props();
 const sidebar = $derived(useSidebar({ label, expanded }));
-const m = $derived(resolveMacro({ kind: "sidebar", preset }));
+const m = $derived(renderForge({ kind: "sidebar", preset }));
 </script>
 <aside {...sidebarAnatomy.attrs.root} {...sidebar.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-state={expanded ? "expanded" : "collapsed"} class={cn("flex flex-col h-full", className)} {...rest}>
 		{#if header}<div data-kind="sidebar" data-slot="header">{@render header()}</div>{/if}

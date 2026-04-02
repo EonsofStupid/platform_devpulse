@@ -23,7 +23,7 @@
 <script lang="ts">
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
 import { colorFieldAnatomy } from "$lib/design/primitives/color-field/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setColorFieldContext } from "./context.js";
 import type { ColorFieldRootProps } from "./types.js";
@@ -166,7 +166,7 @@ setColorFieldContext({
 	registerError,
 });
 
-const m = $derived(resolveMacro({ kind: "color-field", preset }));
+const m = $derived(renderForge({ kind: "color-field", preset }));
 </script>
 
 <div

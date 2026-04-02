@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { CardProps } from "./card.types.js";
 
@@ -50,7 +50,7 @@ const rootClasses = $derived(
 	),
 );
 
-const m = $derived(resolveMacro({ kind: "card", preset }));
+const m = $derived(renderForge({ kind: "card", preset }));
 </script>
 
 {#if as === "a"}

@@ -23,7 +23,7 @@
 <script lang="ts">
 import { useSkeleton } from "$lib/design/behaviors/skeleton/index.js";
 import { skeletonAnatomy } from "$lib/design/primitives/skeleton/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SkeletonProps, SkeletonVariant } from "./types.js";
 
@@ -42,7 +42,7 @@ let {
 }: SkeletonProps = $props();
 
 const skeleton = $derived(useSkeleton({ loading }));
-const m = $derived(resolveMacro({ kind: "skeleton", preset }));
+const m = $derived(renderForge({ kind: "skeleton", preset }));
 </script>
 
 <div

@@ -23,7 +23,7 @@
 <script lang="ts">
 import { useHeading } from "$lib/design/behaviors/heading/index.js";
 import { headingAnatomy } from "$lib/design/primitives/heading/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { HeadingProps, HeadingSize } from "./heading.types.js";
 
@@ -56,7 +56,7 @@ let {
 }: HeadingProps = $props();
 
 const heading = $derived(useHeading({ level }));
-const m = $derived(resolveMacro({ kind: "heading", preset }));
+const m = $derived(renderForge({ kind: "heading", preset }));
 const tag = $derived(`h${level}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6");
 </script>
 

@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setColorWheelContext } from "./context.js";
 import type { ColorWheelRootProps } from "./types.js";
@@ -103,7 +103,7 @@ setColorWheelContext({
 	thumbAction: drag.thumbAction,
 });
 
-const m = $derived(resolveMacro({ kind: "color-wheel", preset }));
+const m = $derived(renderForge({ kind: "color-wheel", preset }));
 </script>
 
 <div

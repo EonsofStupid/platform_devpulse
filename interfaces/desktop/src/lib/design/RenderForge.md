@@ -111,7 +111,7 @@ Every column below is a 1:1 mapping. Zero ambiguity.
 
 ### Rule
 
-Every component calls `resolveMacro()`. There is no second path.
+Every component calls `renderForge()`. There is no second path.
 
 ### Contract
 
@@ -135,7 +135,7 @@ interface ResolvedMacro {
   cssVars: Record<string, string>;   // canonical axis names
 }
 
-function resolveMacro(input: MacroInput): ResolvedMacro;
+function renderForge(input: MacroInput): ResolvedMacro;
 ```
 
 ### Resolution Chain
@@ -167,7 +167,7 @@ The component selects a preset by name. The preset IS the pre-composed recipe.
 
 ```svelte
 <script lang="ts">
-  import { resolveMacro, cssVarString } from '$lib/design/style-macro';
+  import { renderForge, cssVarString } from '$lib/design/renderforge';
 
   interface Props {
     preset?: string;
@@ -177,7 +177,7 @@ The component selects a preset by name. The preset IS the pre-composed recipe.
 
   let { preset = 'primary', disabled = false, children }: Props = $props();
   const state = $derived(disabled ? 'disabled' : 'default');
-  const m = $derived(resolveMacro({ kind: 'button', preset, state }));
+  const m = $derived(renderForge({ kind: 'button', preset, state }));
 </script>
 
 <button {...m.dataAttrs} style={cssVarString(m.cssVars)} {disabled}>
@@ -256,7 +256,7 @@ Layers are CHILD elements inside the semantic root, not a wrapper around it:
 
 ### Rule
 
-A component gets one root, one `resolveMacro()` call, one visual contract.
+A component gets one root, one `renderForge()` call, one visual contract.
 
 ### Scoped Kind Strings
 

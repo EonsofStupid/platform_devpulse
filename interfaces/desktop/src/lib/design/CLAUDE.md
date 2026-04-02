@@ -5,13 +5,13 @@ ColdLight is the SOLE authority for all CSS, components, and UI generation in th
 
 ## Architecture (ADR-001 LOCKED)
 1. **Primitives** (`primitives/{kind}/`) — Pure behavior. WAI-ARIA APG. No styling.
-2. **Components** (`components/{kind}/`) — THE PRODUCT. Hook + StyleMacro. Prop-driven.
+2. **Components** (`components/{kind}/`) — THE PRODUCT. Hook + RenderForge. Prop-driven.
 No `ui/` folder. No middle layer. Component IS the product.
 
 ## Core Systems
 - **Tokens:** DTCG JSON → Style Dictionary v5 pipeline → CSS custom properties
-- **StyleMacro:** Visual provider. 11-axis DTCG. Sets --cl-* vars.
-- **_base:** Styling contract (ComponentProps, 11-axis schema, registry)
+- **RenderForge:** Visual resolver. 20-axis DTCG. Sets CSS vars via `renderForge()`.
+- **_base:** Styling contract (ComponentProps, 20-axis schema, registry)
 - **Blocks:** Page-level compositions (VPB). BlockNodes.
 
 ## Config

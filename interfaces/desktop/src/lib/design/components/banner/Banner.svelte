@@ -25,7 +25,7 @@
 import { untrack } from "svelte";
 import { slide } from "svelte/transition";
 import { useBanner } from "$lib/design/behaviors/banner/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { BannerProps } from "./types.js";
 
@@ -66,7 +66,7 @@ function handleDismiss(_e: MouseEvent) {
 	onOpenChange?.({ open: false });
 }
 
-const m = $derived(resolveMacro({ kind: "banner", preset }));
+const m = $derived(renderForge({ kind: "banner", preset }));
 </script>
 
 {#if isOpen}

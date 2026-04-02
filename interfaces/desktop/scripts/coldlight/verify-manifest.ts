@@ -4,13 +4,13 @@
  * @package @devpulse/coldlight
  *
  * Verifies that components follow Macro Law:
- * 1. Root components that render DOM must import resolveMacro (or resolveSvgMacro)
+ * 1. Root components that render DOM must import renderForge (or resolveSvgMacro)
  * 2. Root components must have data-kind on semantic root
  *
  * Exemptions:
- * - Sub-components (e.g. DialogContent.svelte) inherit from parent — no resolveMacro needed
+ * - Sub-components (e.g. DialogContent.svelte) inherit from parent — no renderForge needed
  * - Renderless roots (only {@render children?.()}) have no DOM to put data-kind on
- * - SVG components use resolveSvgMacro instead of style-macro
+ * - SVG components use resolveSvgMacro instead of renderforge
  *
  * Usage: pnpm coldlight:verify
  */
@@ -87,16 +87,16 @@ function checkFile(filePath: string, kind: string, fileName: string): Violation[
 	// Only root components that render DOM need the macro resolver
 	const needsResolver = role === "root" && !renderless;
 
-	// Rule 1: Must import resolveMacro (HTML) or resolveSvgMacro (SVG)
+	// Rule 1: Must import renderForge (HTML) or resolveSvgMacro (SVG)
 	if (needsResolver) {
-		const hasStyleResolver = content.includes("style-macro") || content.includes("resolveSvgMacro");
+		const hasStyleResolver = content.includes("renderforge") || content.includes("resolveSvgMacro");
 
 		if (!hasStyleResolver) {
 			violations.push({
 				file: rel,
 				rule: "macro-law-1",
 				message:
-					"Missing import from style-macro (resolveMacro). Root components must use resolveMacro().",
+					"Missing import from renderforge (renderForge). Root components must use renderForge().",
 			});
 		}
 	}

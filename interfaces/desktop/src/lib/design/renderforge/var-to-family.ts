@@ -9,7 +9,7 @@
  *   3. CSS Property → what browser paints (background-color, letter-spacing)
  *
  * Canonical names only. Must match resolve.ts and macro-base.css EXACTLY.
- * Per MACRO-LAW.md Law 5.
+ * Per RenderForge.md Law 5.
  * ═══════════════════════════════════════════════════════════════
  */
 

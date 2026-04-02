@@ -1,12 +1,12 @@
 <!--
   @file SetupWizard — First-run guided setup for model configuration.
-  ALL styling via resolveMacro + cssVarString. Zero raw values.
+  ALL styling via renderForge + cssVarString. Zero raw values.
 -->
 <script lang="ts">
 import { CircleCheck, Download, Zap } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro/index.js";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import type { SemanticIntent } from "$lib/design/visual/preset-id.js";
@@ -26,10 +26,10 @@ interface Props {
 
 let { onComplete }: Props = $props();
 
-const mWizard = $derived(resolveMacro({ kind: "setup-wizard", preset: "primary" }));
-const mSetupBtn = $derived(resolveMacro({ kind: "setup-action", preset: "accent" }));
-const mReadyIcon = $derived(resolveMacro({ kind: "setup-ready", preset: "success" }));
-const mProgress = $derived(resolveMacro({ kind: "setup-progress", preset: "info" }));
+const mWizard = $derived(renderForge({ kind: "setup-wizard", preset: "primary" }));
+const mSetupBtn = $derived(renderForge({ kind: "setup-action", preset: "accent" }));
+const mReadyIcon = $derived(renderForge({ kind: "setup-ready", preset: "success" }));
+const mProgress = $derived(renderForge({ kind: "setup-progress", preset: "info" }));
 
 $effect(() => {
 	if (step === "detecting" && hardwareState.metrics && !hardwareState.loading) {
@@ -286,7 +286,7 @@ async function handleSetup() {
 		<div class={stack({ gap: "2" })}>
 			<Text size="sm" weight="semibold" color="secondary">Recommended Models:</Text>
 			{#each recommendations as rec (rec.name)}
-				{@const recM = resolveMacro({ kind: "setup-rec", preset: fitToIntent(rec.fit) })}
+				{@const recM = renderForge({ kind: "setup-rec", preset: fitToIntent(rec.fit) })}
 				<div
 					{...recM.dataAttrs}
 					style={cssVarString(recM.cssVars)}

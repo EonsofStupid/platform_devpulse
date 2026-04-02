@@ -19,7 +19,7 @@
 }
 -->
 <script lang="ts">
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { DynamicBackgroundProps } from "./types.js";
 
@@ -33,7 +33,7 @@ let {
 	...rest
 }: DynamicBackgroundProps = $props();
 
-const m = $derived(resolveMacro({ kind: "dynamic-background", preset: "default" }));
+const m = $derived(renderForge({ kind: "dynamic-background", preset: "default" }));
 const mergedStyle = $derived(
 	[cssVarString(m.cssVars), src ? `background-image: url('${src}');` : ""]
 		.filter(Boolean)

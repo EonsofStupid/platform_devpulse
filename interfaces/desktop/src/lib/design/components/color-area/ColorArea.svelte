@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { buildColorString, getChannelRange, percentToValue } from "./color-utils.js";
 import { setColorAreaContext } from "./context.js";
@@ -119,7 +119,7 @@ setColorAreaContext({
 	thumbAction: drag.thumbAction,
 });
 
-const m = $derived(resolveMacro({ kind: "color-area", preset }));
+const m = $derived(renderForge({ kind: "color-area", preset }));
 </script>
 
 <div

@@ -22,7 +22,7 @@
 }
 -->
 <script lang="ts">
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { type NavigationMenuRootCtx, setNavigationMenuRootContext } from "./context.js";
 import type { NavigationMenuProps } from "./types.js";
@@ -54,7 +54,7 @@ const ctx: NavigationMenuRootCtx = {
 
 setNavigationMenuRootContext(ctx);
 
-const m = $derived(resolveMacro({ kind: "navigation-menu", preset: "default" }));
+const m = $derived(renderForge({ kind: "navigation-menu", preset: "default" }));
 </script>
 
 <nav

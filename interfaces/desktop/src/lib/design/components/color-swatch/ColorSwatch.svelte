@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ColorSwatchProps } from "./types.js";
 
@@ -40,7 +40,7 @@ let {
 
 const accessibleName = $derived(colorName ?? color);
 
-const m = $derived(resolveMacro({ kind: "color-swatch", preset }));
+const m = $derived(renderForge({ kind: "color-swatch", preset }));
 </script>
 
 <div

@@ -24,7 +24,7 @@
 <script lang="ts">
 import { useSlider } from "$lib/design/behaviors/slider/use-slider.svelte.js";
 import { sliderAnatomy } from "$lib/design/primitives/slider/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setSliderContext } from "./context.js";
 import type { SliderProps } from "./types.js";
@@ -68,7 +68,7 @@ setSliderContext({
 	},
 });
 
-const m = $derived(resolveMacro({ kind: "slider", preset }));
+const m = $derived(renderForge({ kind: "slider", preset }));
 </script>
 
 <div

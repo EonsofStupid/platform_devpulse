@@ -24,7 +24,7 @@
 <script lang="ts">
 import { usePopover } from "$lib/design/behaviors/popover/use-popover.svelte.js";
 import { popoverAnatomy } from "$lib/design/primitives/popover/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setPopoverContext } from "./context.js";
 import type { PopoverProps } from "./types.js";
@@ -60,7 +60,7 @@ setPopoverContext({
 	},
 });
 
-const m = $derived(resolveMacro({ kind: "popover", preset }));
+const m = $derived(renderForge({ kind: "popover", preset }));
 </script>
 
 <div data-kind="popover" class={cn("relative inline-block", className)}>

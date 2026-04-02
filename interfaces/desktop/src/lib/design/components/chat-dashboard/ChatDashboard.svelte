@@ -18,13 +18,13 @@
 	}
 -->
 <script lang="ts">
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ChatDashboardProps } from "./types.js";
 
 let { style, children, class: className, ...rest }: ChatDashboardProps = $props();
 
-const m = $derived(resolveMacro({ kind: "chat-dashboard", preset: "default" }));
+const m = $derived(renderForge({ kind: "chat-dashboard", preset: "default" }));
 </script>
 
 <div

@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import Text from "$lib/design/components/text/Text.svelte";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ChatBubbleProps } from "./types.js";
 
@@ -44,7 +44,7 @@ const VARIANT_PRESETS: Record<string, string> = {
 };
 
 const m = $derived(
-	resolveMacro({ kind: "chat-bubble", preset: VARIANT_PRESETS[variant] ?? "default" }),
+	renderForge({ kind: "chat-bubble", preset: VARIANT_PRESETS[variant] ?? "default" }),
 );
 </script>
 

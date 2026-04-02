@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { textAnatomy } from "$lib/design/primitives/text/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TextProps, TextSize, TextWeight } from "./text.types.js";
 
@@ -55,7 +55,7 @@ let {
 }: TextProps = $props();
 
 const classes = $derived(cn(SIZE[size] ?? SIZE.base, WEIGHT[weight] ?? WEIGHT.normal, className));
-const m = $derived(resolveMacro({ kind: "text", preset }));
+const m = $derived(renderForge({ kind: "text", preset }));
 </script>
 
 {#if as === "p"}

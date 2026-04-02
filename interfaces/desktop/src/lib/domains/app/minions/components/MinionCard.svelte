@@ -1,10 +1,10 @@
 <!--
   @file MinionCard — Single minion status card with model context.
-  ALL styling via resolveMacro + cssVarString.
+  ALL styling via renderForge + cssVarString.
 -->
 <script lang="ts">
 import { Text } from "$lib/design/components/text/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro/index.js";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import type { SemanticIntent } from "$lib/design/visual/preset-id.js";
 
@@ -32,7 +32,7 @@ const intent: SemanticIntent = $derived.by(() => {
 	}
 });
 
-const m = $derived(resolveMacro({ kind: "minion-card", preset: intent }));
+const m = $derived(renderForge({ kind: "minion-card", preset: intent }));
 
 const statusDot = $derived.by(() => {
 	switch (status) {

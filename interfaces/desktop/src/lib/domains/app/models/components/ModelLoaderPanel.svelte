@@ -1,13 +1,13 @@
 <!--
   @file ModelLoaderPanel — Main model management UI.
   Layman-friendly by default. Advanced toggle for power users.
-  ALL styling via resolveMacro + cssVarString. Zero raw values.
+  ALL styling via renderForge + cssVarString. Zero raw values.
 -->
 <script lang="ts">
 import { HardDrive, Search, Zap } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro/index.js";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { hardwareState } from "../runes/hardware.runes.svelte.js";
@@ -34,11 +34,11 @@ async function handleDownload(repoId: string, filename: string) {
 	}
 }
 
-const mPanel = $derived(resolveMacro({ kind: "model-panel", preset: "primary" }));
-const mError = $derived(resolveMacro({ kind: "model-error", preset: "danger" }));
-const mMetrics = $derived(resolveMacro({ kind: "model-metrics", preset: "neutral" }));
-const mActionScan = $derived(resolveMacro({ kind: "model-action", preset: "info" }));
-const mActionDownload = $derived(resolveMacro({ kind: "model-action", preset: "success" }));
+const mPanel = $derived(renderForge({ kind: "model-panel", preset: "primary" }));
+const mError = $derived(renderForge({ kind: "model-error", preset: "danger" }));
+const mMetrics = $derived(renderForge({ kind: "model-metrics", preset: "neutral" }));
+const mActionScan = $derived(renderForge({ kind: "model-action", preset: "info" }));
+const mActionDownload = $derived(renderForge({ kind: "model-action", preset: "success" }));
 
 $effect(() => {
 	hardwareState.startPolling(2000);

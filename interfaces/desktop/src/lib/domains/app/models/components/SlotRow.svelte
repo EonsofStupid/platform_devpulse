@@ -1,11 +1,11 @@
 <!--
   @file SlotRow — Single model slot with assignment, status, and preset-driven fit colors.
-  Uses resolveMacro for ALL styling. No raw oklch. No raw px in styles.
+  Uses renderForge for ALL styling. No raw oklch. No raw px in styles.
 -->
 <script lang="ts">
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro/index.js";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import type { SemanticIntent } from "$lib/design/visual/preset-id.js";
@@ -43,8 +43,8 @@ const fitIntent: SemanticIntent = $derived.by(() => {
 	}
 });
 
-const m = $derived(resolveMacro({ kind: "slot-row", preset: fitIntent }));
-const mPicker = $derived(resolveMacro({ kind: "slot-picker", preset: "neutral" }));
+const m = $derived(renderForge({ kind: "slot-row", preset: fitIntent }));
+const mPicker = $derived(renderForge({ kind: "slot-picker", preset: "neutral" }));
 
 const isLoaded = $derived(status.type === "loaded");
 const isLoading = $derived(status.type === "loading");
@@ -148,7 +148,7 @@ async function handleAssign(modelId: string) {
 				Unload
 			</button>
 		{:else if canLoad}
-			{@const loadM = resolveMacro({ kind: "slot-load-btn", preset: "accent" })}
+			{@const loadM = renderForge({ kind: "slot-load-btn", preset: "accent" })}
 			<button
 				{...loadM.dataAttrs}
 				style={cssVarString(loadM.cssVars)}
@@ -174,7 +174,7 @@ async function handleAssign(modelId: string) {
 			{#each compatibleModels as model (model.id)}
 				{@const modelFit = hardwareState.fitForModel(model.vramEstimateMb)}
 				{@const modelIntent = modelFit === "green" ? "success" : modelFit === "yellow" ? "warning" : modelFit === "red" ? "danger" : "neutral"}
-				{@const modelM = resolveMacro({ kind: "model-pick-row", preset: modelIntent })}
+				{@const modelM = renderForge({ kind: "model-pick-row", preset: modelIntent })}
 				<button
 					{...modelM.dataAttrs}
 					style={cssVarString(modelM.cssVars)}

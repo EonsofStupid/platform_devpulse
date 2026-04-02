@@ -23,7 +23,7 @@
 <script lang="ts">
 import { useSeparator } from "$lib/design/behaviors/separator/use-separator.svelte.js";
 import { separatorAnatomy } from "$lib/design/primitives/separator/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SeparatorOrientation, SeparatorProps } from "./types.js";
 
@@ -42,7 +42,7 @@ let {
 }: SeparatorProps = $props();
 
 const separator = $derived(useSeparator({ orientation, decorative }));
-const m = $derived(resolveMacro({ kind: "separator", preset }));
+const m = $derived(renderForge({ kind: "separator", preset }));
 </script>
 
 <hr

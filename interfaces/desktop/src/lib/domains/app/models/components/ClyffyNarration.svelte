@@ -1,10 +1,10 @@
 <!--
   @file ClyffyNarration — Clyffy message bubble for model events.
-  Uses resolveMacro with semantic intent presets for type-based styling.
+  Uses renderForge with semantic intent presets for type-based styling.
 -->
 <script lang="ts">
 import { Text } from "$lib/design/components/text/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro/index.js";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import type { SemanticIntent } from "$lib/design/visual/preset-id.js";
 
 interface Props {
@@ -22,7 +22,7 @@ const intentMap: Record<string, SemanticIntent> = {
 };
 
 const m = $derived(
-	resolveMacro({
+	renderForge({
 		kind: "clyffy-narration",
 		preset: intentMap[type] ?? "info",
 	}),

@@ -24,7 +24,7 @@
 <script lang="ts">
 import { useDescriptionList } from "$lib/design/behaviors/description-list/index.js";
 import { descriptionListAnatomy } from "$lib/design/primitives/description-list/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { DescriptionListProps } from "./types.js";
 
@@ -38,6 +38,6 @@ let {
 	...rest
 }: DescriptionListProps = $props();
 const dl = $derived(useDescriptionList({ label }));
-const m = $derived(resolveMacro({ kind: "description-list", preset }));
+const m = $derived(renderForge({ kind: "description-list", preset }));
 </script>
 <dl {...descriptionListAnatomy.attrs.root} {...dl.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-variant={variant} class={cn(className)} {...rest}>{@render children?.()}</dl>

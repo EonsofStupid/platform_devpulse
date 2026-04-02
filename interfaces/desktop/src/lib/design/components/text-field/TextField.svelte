@@ -23,7 +23,7 @@
 <script lang="ts">
 import { useTextField } from "$lib/design/behaviors/text-field/index.js";
 import { textFieldAnatomy } from "$lib/design/primitives/text-field/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { TextFieldProps, TextFieldSize } from "./text-field.types.js";
 
@@ -67,7 +67,7 @@ const field = $derived(
 	}),
 );
 
-const m = $derived(resolveMacro({ kind: "text-field", preset }));
+const m = $derived(renderForge({ kind: "text-field", preset }));
 </script>
 
 <div {...textFieldAnatomy.attrs.root} {...field.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} class={className}>

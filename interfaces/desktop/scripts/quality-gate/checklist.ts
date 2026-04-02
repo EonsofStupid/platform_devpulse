@@ -179,18 +179,18 @@ const SVELTE_TS_RULES: Rule[] = [
 		return violations;
 	},
 
-	// ── Components must use resolveMacro ────────────────────────
+	// ── Components must use renderForge ─────────────────────────
 	(content, file) => {
 		const violations: Violation[] = [];
 		if (!file.includes("/design/components/") || !file.endsWith(".svelte")) return violations;
 		if (file.includes("_base") || file.includes("_internal")) return violations;
-		if (!content.includes("resolveMacro")) {
+		if (!content.includes("renderForge")) {
 			violations.push({
 				file,
 				line: 1,
-				rule: "must-use-resolve-macro",
-				message: "ColdLight component does not call `resolveMacro()`",
-				fix: "Import `resolveMacro` from `$lib/design/style-macro` and call it with `{ kind, preset }`.",
+				rule: "must-use-render-forge",
+				message: "ColdLight component does not call `renderForge()`",
+				fix: "Import `renderForge` from `$lib/design/renderforge` and call it with `{ kind, preset }`.",
 			});
 		}
 		return violations;
@@ -207,7 +207,7 @@ const SVELTE_TS_RULES: Rule[] = [
 				line: 1,
 				rule: "must-have-data-kind",
 				message: "ColdLight component missing `data-kind` attribute",
-				fix: "Spread `{...m.dataAttrs}` from resolveMacro result on the semantic root element.",
+				fix: "Spread `{...m.dataAttrs}` from renderForge() result on the semantic root element.",
 			});
 		}
 		return violations;

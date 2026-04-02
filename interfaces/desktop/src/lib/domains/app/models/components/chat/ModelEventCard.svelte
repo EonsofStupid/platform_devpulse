@@ -1,11 +1,11 @@
 <!--
   @file ModelEventCard — Renders model events in chat portal.
-  ALL styling via resolveMacro + cssVarString.
+  ALL styling via renderForge + cssVarString.
 -->
 <script lang="ts">
 import { X } from "lucide-svelte";
 import { Text } from "$lib/design/components/text/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro/index.js";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import type { SemanticIntent } from "$lib/design/visual/preset-id.js";
 import type { ModelStatus } from "../../types/models.types.js";
@@ -48,8 +48,8 @@ const intent: SemanticIntent = $derived.by(() => {
 	}
 });
 
-const m = $derived(resolveMacro({ kind: "model-event-card", preset: intent }));
-const mNarration = $derived(resolveMacro({ kind: "model-event-narration", preset: "neutral" }));
+const m = $derived(renderForge({ kind: "model-event-card", preset: intent }));
+const mNarration = $derived(renderForge({ kind: "model-event-narration", preset: "neutral" }));
 </script>
 
 <div

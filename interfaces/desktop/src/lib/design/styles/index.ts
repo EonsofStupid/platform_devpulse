@@ -2,7 +2,7 @@
  * @file ColdLight Styles — Supporting Exports
  * @package @devpulse/coldlight
  *
- * The primary styling API is in $lib/design/style-macro.
+ * The primary styling API is in $lib/design/renderforge.
  * This barrel exports supporting utilities (VPB state, mappings).
  */
 

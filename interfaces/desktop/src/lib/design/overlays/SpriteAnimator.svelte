@@ -2,10 +2,10 @@
   @file SpriteAnimator — Single animated sprite using CSS steps().
   Zero JS animation. Pure CSS keyframes with background-position stepping.
   image-rendering: pixelated for crisp 8-bit scaling.
-  ALL styling via resolveMacro + cssVarString.
+  ALL styling via renderForge + cssVarString.
 -->
 <script lang="ts">
-import { cssVarString, resolveMacro } from "$lib/design/style-macro/index.js";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import type { SemanticIntent } from "$lib/design/visual/preset-id.js";
 import type { MinionAnimationState } from "./types.js";
 
@@ -57,7 +57,7 @@ const intent: SemanticIntent = $derived.by(() => {
 	}
 });
 
-const m = $derived(resolveMacro({ kind: "sprite-animator", preset: intent }));
+const m = $derived(renderForge({ kind: "sprite-animator", preset: intent }));
 const hasSheet = $derived(!!sheet);
 </script>
 

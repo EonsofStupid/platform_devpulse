@@ -24,7 +24,7 @@
 <script lang="ts">
 import { useToggle } from "$lib/design/behaviors/toggle/use-toggle.svelte.js";
 import { toggleAnatomy } from "$lib/design/primitives/toggle/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ToggleProps, ToggleSize } from "./types.js";
 
@@ -55,7 +55,7 @@ const toggle = useToggle({
 	onPressedChange: (v) => onPressedChange?.(v),
 });
 
-const m = $derived(resolveMacro({ kind: "toggle", preset }));
+const m = $derived(renderForge({ kind: "toggle", preset }));
 </script>
 
 <button

@@ -92,7 +92,7 @@ function extractEntryPoints(_pkg: PackageJson): EntryPoint[] {
 	const entries: EntryPoint[] = [];
 
 	// Scan known ColdLight directories for index.ts entry points
-	const SCAN_DIRS = ["style-macro", "behaviors", "components", "blocks", "primitives", "utils"];
+	const SCAN_DIRS = ["renderforge", "behaviors", "components", "blocks", "primitives", "utils"];
 
 	for (const dir of SCAN_DIRS) {
 		const dirPath = path.join(COLDLIGHT_ROOT, dir);

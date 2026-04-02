@@ -25,7 +25,7 @@
 <script lang="ts">
 import { useSheet } from "$lib/design/behaviors/sheet/use-sheet.svelte.js";
 import { sheetAnatomy } from "$lib/design/primitives/sheet/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SheetComponentProps, SheetSide, SheetSize } from "./types.js";
 
@@ -74,7 +74,7 @@ const hook = useSheet({
 	},
 });
 
-const m = $derived(resolveMacro({ kind: "sheet", preset }));
+const m = $derived(renderForge({ kind: "sheet", preset }));
 </script>
 
 {#if trigger}

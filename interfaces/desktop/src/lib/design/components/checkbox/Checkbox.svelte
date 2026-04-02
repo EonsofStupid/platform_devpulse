@@ -24,7 +24,7 @@
 <script lang="ts">
 import { useCheckbox } from "$lib/design/behaviors/checkbox/use-checkbox.svelte.js";
 import { checkboxAnatomy } from "$lib/design/primitives/checkbox/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { CheckboxProps, CheckboxSize } from "./types.js";
 
@@ -59,7 +59,7 @@ const checkbox = useCheckbox({
 	onCheckedChange: (v) => onCheckedChange?.(v),
 });
 
-const m = $derived(resolveMacro({ kind: "checkbox", preset }));
+const m = $derived(renderForge({ kind: "checkbox", preset }));
 </script>
 
 <button

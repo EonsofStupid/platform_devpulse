@@ -15,7 +15,7 @@
 	<Stat label="CPU" value={14} unit="%" accent="teal" size="lg" glow />
 -->
 <script lang="ts">
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { StatProps, StatSize } from "./stat.types.js";
 
@@ -51,7 +51,7 @@ let {
 
 const sizeClasses = $derived(SIZE[size] ?? SIZE.md);
 const colors = $derived(ACCENT_COLOR[accent as AccentName] ?? ACCENT_COLOR.teal);
-const m = $derived(resolveMacro({ kind: "stat", preset }));
+const m = $derived(renderForge({ kind: "stat", preset }));
 </script>
 
 <div

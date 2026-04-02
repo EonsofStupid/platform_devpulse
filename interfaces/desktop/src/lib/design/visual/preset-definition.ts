@@ -7,7 +7,7 @@
  * Available to any component of any kind.
  *
  * SD5 compiles these into CSS custom properties.
- * resolveMacro reads them at runtime via var() chains.
+ * renderForge reads them at runtime via var() chains.
  */
 
 import type { PresetFamily } from "./preset-families.js";

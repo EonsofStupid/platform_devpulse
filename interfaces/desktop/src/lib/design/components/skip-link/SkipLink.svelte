@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { skipLinkAnatomy } from "$lib/design/primitives/skip-link/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { SkipLinkComponentProps } from "./types.js";
 
@@ -35,7 +35,7 @@ let {
 	class: className,
 	...rest
 }: SkipLinkComponentProps = $props();
-const m = $derived(resolveMacro({ kind: "skip-link", preset }));
+const m = $derived(renderForge({ kind: "skip-link", preset }));
 </script>
 
 <a

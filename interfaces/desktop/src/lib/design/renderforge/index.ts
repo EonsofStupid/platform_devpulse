@@ -1,14 +1,14 @@
 /**
- * @file ColdLight Style Macro — Public API
+ * @file RenderForge — Public API
  * @package @devpulse/coldlight
  *
  * The ONE styling path for all ColdLight components.
- * Per MACRO-LAW.md — no second path, no escape hatches.
+ * Per RenderForge.md — no second path, no escape hatches.
  *
  * @example
  * ```svelte
- * import { resolveMacro, cssVarString } from '$lib/design/style-macro';
- * const m = $derived(resolveMacro({ kind: 'button', preset: 'primary' }));
+ * import { renderForge, cssVarString } from '$lib/design/renderforge';
+ * const m = $derived(renderForge({ kind: 'button', preset: 'primary' }));
  * <button {...m.dataAttrs} style={cssVarString(m.cssVars)}>
  * ```
  */
@@ -18,7 +18,7 @@ export { cssVarString } from "./css-var-string.js";
 // Shared intent resolution — Law 6
 export { INTENT_MAP, resolveIntent } from "./intent.js";
 // The resolver — Law 1
-export { resolveMacro } from "./resolve.js";
+export { renderForge } from "./render.js";
 
 // Types — public contract
 export type {

@@ -1,14 +1,14 @@
 <!--
   @file BootSetupWizard — Full-screen first-run experience.
   Lives inside BootOverlay. Zero jargon. Clyffy narrates.
-  ALL styling via resolveMacro + cssVarString + Tailwind layout.
+  ALL styling via renderForge + cssVarString + Tailwind layout.
 -->
 <script lang="ts">
 import { CircleCheck, Download, Scan, Sparkles, Zap } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Progress } from "$lib/design/components/progress/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro/index.js";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { hardwareState } from "../runes/hardware.runes.svelte.js";
@@ -45,9 +45,9 @@ let knowledgeIndex = $state(0);
 let knowledgeTimer: ReturnType<typeof setInterval> | null = null;
 let error = $state<string | null>(null);
 
-const m = $derived(resolveMacro({ kind: "boot-wizard", preset: "primary" }));
-const mBtn = $derived(resolveMacro({ kind: "boot-wizard-btn", preset: "accent" }));
-const mKnowledge = $derived(resolveMacro({ kind: "boot-wizard-knowledge", preset: "info" }));
+const m = $derived(renderForge({ kind: "boot-wizard", preset: "primary" }));
+const mBtn = $derived(renderForge({ kind: "boot-wizard-btn", preset: "accent" }));
+const mKnowledge = $derived(renderForge({ kind: "boot-wizard-knowledge", preset: "info" }));
 
 // Load content on mount
 $effect(() => {

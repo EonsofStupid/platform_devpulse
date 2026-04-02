@@ -14,7 +14,7 @@
 	  - onCopy callback with details
 -->
 <script lang="ts">
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setCodeBlockContext } from "./context.js";
 import type { CodeBlockRootProps } from "./types.js";
@@ -65,7 +65,7 @@ setCodeBlockContext({
 	copyCode,
 });
 
-const m = $derived(resolveMacro({ kind: "code", preset }));
+const m = $derived(renderForge({ kind: "code", preset }));
 </script>
 
 <div

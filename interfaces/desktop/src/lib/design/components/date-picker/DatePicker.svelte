@@ -22,7 +22,7 @@
 -->
 <script lang="ts">
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setDatePickerContext } from "./context.js";
 import type { DatePickerRootProps } from "./types.js";
@@ -60,7 +60,7 @@ let {
 	class: className,
 	...rest
 }: DatePickerRootProps = $props();
-const m = $derived(resolveMacro({ kind: "date-picker", preset }));
+const m = $derived(renderForge({ kind: "date-picker", preset }));
 
 // IDs
 const autoIds = createIds("date-picker", [

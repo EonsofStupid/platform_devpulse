@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { createIds } from "$lib/design/behaviors/_internal/utils/uid.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { setContextualHelpContext } from "./context.js";
 import type { ContextualHelpRootProps } from "./types.js";
@@ -89,7 +89,7 @@ const SIZE_CLASSES: Record<string, string> = {
 	sm: "size-[var(--size-xs)]",
 };
 
-const m = $derived(resolveMacro({ kind: "contextual-help", preset }));
+const m = $derived(renderForge({ kind: "contextual-help", preset }));
 </script>
 
 <div

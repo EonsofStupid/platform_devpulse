@@ -1,10 +1,10 @@
 <!--
   @file SubsystemGroup — Collapsible group of slots for a subsystem.
-  Uses resolveMacro for surface styling.
+  Uses renderForge for surface styling.
 -->
 <script lang="ts">
 import { Text } from "$lib/design/components/text/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro/index.js";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import type { SlotInfo } from "../types/models.types.js";
 import SlotRow from "./SlotRow.svelte";
 
@@ -19,7 +19,7 @@ let { name, label, slots, layman = true }: Props = $props();
 
 let collapsed = $state(false);
 
-const m = $derived(resolveMacro({ kind: "subsystem-group", preset: "neutral" }));
+const m = $derived(renderForge({ kind: "subsystem-group", preset: "neutral" }));
 </script>
 
 <div class="flex flex-col gap-1">

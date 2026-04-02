@@ -23,7 +23,7 @@
 <script lang="ts">
 import { useLoadingOverlay } from "$lib/design/behaviors/loading-overlay/index.js";
 import { loadingOverlayAnatomy } from "$lib/design/primitives/loading-overlay/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { LoadingOverlayComponentProps } from "./types.js";
 
@@ -36,7 +36,7 @@ let {
 }: LoadingOverlayComponentProps = $props();
 
 const overlay = $derived(useLoadingOverlay({ visible }));
-const m = $derived(resolveMacro({ kind: "loading-overlay", preset }));
+const m = $derived(renderForge({ kind: "loading-overlay", preset }));
 </script>
 
 {#if visible}

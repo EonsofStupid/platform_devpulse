@@ -23,7 +23,7 @@
 -->
 <script lang="ts">
 import { emptyStateAnatomy } from "$lib/design/primitives/empty-state/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { EmptyStateProps, EmptyStateSize } from "./types.js";
 
@@ -41,7 +41,7 @@ let {
 	...rest
 }: EmptyStateProps = $props();
 
-const m = $derived(resolveMacro({ kind: "empty-state", preset }));
+const m = $derived(renderForge({ kind: "empty-state", preset }));
 </script>
 
 <div

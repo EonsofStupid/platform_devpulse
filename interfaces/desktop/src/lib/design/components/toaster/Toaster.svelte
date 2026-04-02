@@ -24,7 +24,7 @@
 <script lang="ts">
 import { useToaster } from "$lib/design/behaviors/toaster/index.js";
 import { toasterAnatomy } from "$lib/design/primitives/toaster/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ToasterComponentProps } from "./types.js";
 
@@ -37,6 +37,6 @@ let {
 	...rest
 }: ToasterComponentProps = $props();
 const toaster = $derived(useToaster({ position }));
-const m = $derived(resolveMacro({ kind: "toaster", preset }));
+const m = $derived(renderForge({ kind: "toaster", preset }));
 </script>
 <div {...toasterAnatomy.attrs.root} {...toaster.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-position={position} class={cn("fixed z-50 flex flex-col gap-2", className)} {...rest}>{@render children?.()}</div>

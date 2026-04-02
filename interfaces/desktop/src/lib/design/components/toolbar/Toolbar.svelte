@@ -24,7 +24,7 @@
 -->
 <script lang="ts">
 import { toolbarAnatomy } from "$lib/design/primitives/toolbar/index.js";
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ToolbarComponentProps } from "./types.js";
 
@@ -39,7 +39,7 @@ let {
 	class: className,
 	...rest
 }: ToolbarComponentProps = $props();
-const m = $derived(resolveMacro({ kind: "toolbar", preset }));
+const m = $derived(renderForge({ kind: "toolbar", preset }));
 </script>
 
 <div

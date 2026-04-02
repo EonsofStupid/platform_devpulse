@@ -21,7 +21,7 @@
 }
 -->
 <script lang="ts">
-import { cssVarString, resolveMacro } from "$lib/design/style-macro";
+import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import type { AvatarLoadStatus, AvatarProps } from "./avatar.types.js";
 
@@ -57,7 +57,7 @@ $effect(() => {
 	}
 });
 
-const m = $derived(resolveMacro({ kind: "avatar", preset }));
+const m = $derived(renderForge({ kind: "avatar", preset }));
 </script>
 
 <span
