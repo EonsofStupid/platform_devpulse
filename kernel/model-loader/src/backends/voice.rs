@@ -1,7 +1,11 @@
-//! Voice backend traits — TTS and STT abstraction boundary.
+//! Voice backend traits — TTS, STT, and audio codec abstraction boundary.
 //!
 //! Voice backends produce or consume audio, not text tokens.
 //! Separate from `InferenceBackend` which handles LLM forward passes.
+//!
+//! All ONNX models (SNAC, Whisper, Kokoro) run through the `ort` crate.
+//! Orpheus TTS runs through `InferenceBackend` (llama.cpp) + SNAC decoder.
+//! Audio playback via `rodio`. Microphone capture via `cpal`.
 
 use crate::loading::states::{LoadParams, MemoryFootprint};
 use std::path::Path;
@@ -11,7 +15,7 @@ use std::path::Path;
 pub struct AudioSamples {
     /// Raw PCM samples (f32, mono).
     pub data: Vec<f32>,
-    /// Sample rate in Hz (typically 24000 for Orpheus/SNAC, 22050 for Kokoro).
+    /// Sample rate in Hz (24000 for Orpheus/SNAC, varies for Kokoro/Whisper).
     pub sample_rate: u32,
     /// Number of channels (1 = mono).
     pub channels: u16,
@@ -19,7 +23,9 @@ pub struct AudioSamples {
 
 /// Text-to-Speech backend trait.
 ///
-/// Implementations: Orpheus (llama.cpp → SNAC), Kokoro (sherpa-rs).
+/// Implementations:
+/// - `OrpheusTts` — llama.cpp LLM → audio tokens → SNAC decoder → PCM
+/// - `KokoroTts` — ort ONNX session → PCM
 pub trait TtsBackend: Send {
     /// Load the TTS model from disk.
     fn load(&mut self, path: &Path, params: LoadParams) -> anyhow::Result<MemoryFootprint>;
@@ -29,9 +35,9 @@ pub trait TtsBackend: Send {
 
     /// Synthesize speech from text. Returns raw PCM audio.
     ///
-    /// `text` — input text to speak.
-    /// `voice_profile` — voice style identifier (backend-specific).
-    fn synthesize(&self, text: &str, voice_profile: &str) -> anyhow::Result<AudioSamples>;
+    /// `text` — input text to speak. Supports emotion tags: `<laugh>`, `<sigh>`, etc.
+    /// `voice` — voice name (Orpheus: tara/leah/jess/leo/dan/mia/zac/zoe).
+    fn synthesize(&self, text: &str, voice: &str) -> anyhow::Result<AudioSamples>;
 
     /// Current memory footprint.
     fn memory_usage(&self) -> MemoryFootprint;
@@ -42,7 +48,7 @@ pub trait TtsBackend: Send {
 
 /// Speech-to-Text backend trait.
 ///
-/// Implementations: Whisper (sherpa-rs).
+/// Implementation: `WhisperStt` — ort ONNX session (encoder + decoder).
 pub trait SttBackend: Send {
     /// Load the STT model from disk.
     fn load(&mut self, path: &Path, params: LoadParams) -> anyhow::Result<MemoryFootprint>;
@@ -51,8 +57,6 @@ pub trait SttBackend: Send {
     fn unload(&mut self) -> anyhow::Result<()>;
 
     /// Transcribe audio to text.
-    ///
-    /// `samples` — raw PCM audio input.
     fn transcribe(&self, samples: &AudioSamples) -> anyhow::Result<String>;
 
     /// Current memory footprint.
@@ -62,11 +66,13 @@ pub trait SttBackend: Send {
     fn is_loaded(&self) -> bool;
 }
 
-/// Audio decoder backend trait (SNAC — converts audio tokens to waveform).
+/// SNAC audio decoder — converts LLM audio tokens to PCM waveform.
 ///
-/// SNAC sits between an LLM producing audio tokens and the PCM output.
-/// The LLM (Orpheus) generates token IDs representing audio codes.
-/// SNAC decodes those codes into a raw waveform.
+/// SNAC uses 3 codebook levels at different temporal resolutions.
+/// Each decode window produces ~1.024 seconds of 24kHz audio.
+///
+/// Input: 3 codebook token arrays (12 + 24 + 48 = 84 tokens total)
+/// Output: 24,576 PCM f32 samples at 24kHz
 pub trait AudioDecoderBackend: Send {
     /// Load the decoder model from disk (ONNX format).
     fn load(&mut self, path: &Path, params: LoadParams) -> anyhow::Result<MemoryFootprint>;
@@ -74,10 +80,18 @@ pub trait AudioDecoderBackend: Send {
     /// Unload model and free memory.
     fn unload(&mut self) -> anyhow::Result<()>;
 
-    /// Decode audio tokens into PCM waveform.
+    /// Decode one window of audio tokens into PCM waveform.
     ///
-    /// `audio_tokens` — token IDs from the TTS LLM (Orpheus).
-    fn decode(&self, audio_tokens: &[u32]) -> anyhow::Result<AudioSamples>;
+    /// SNAC expects 3 codebook levels per window:
+    /// - `codes0`: 12 tokens (lowest temporal resolution, 1 per 4 frames)
+    /// - `codes1`: 24 tokens (mid resolution, 1 per 2 frames)
+    /// - `codes2`: 48 tokens (highest resolution, 1 per frame)
+    fn decode(
+        &self,
+        codes0: &[i64],
+        codes1: &[i64],
+        codes2: &[i64],
+    ) -> anyhow::Result<AudioSamples>;
 
     /// Current memory footprint.
     fn memory_usage(&self) -> MemoryFootprint;

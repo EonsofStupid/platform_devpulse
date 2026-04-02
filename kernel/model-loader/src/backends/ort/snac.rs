@@ -3,11 +3,11 @@
 //! SNAC (Speech Neural Audio Codec) converts audio tokens from Orpheus TTS
 //! into raw PCM waveform. Runs via `ort` crate on CPU.
 //!
-//! Pipeline: Orpheus LLM → audio token IDs → SNAC decoder → PCM f32 → speakers
+//! Pipeline: Orpheus LLM → 7-per-frame token groups → redistribute → SNAC → PCM
 //!
-//! Model: `snac_24khz.onnx` (~25MB)
-//! Input: audio token tensor (i64)
-//! Output: PCM waveform tensor (f32, 24kHz mono)
+//! Model: `snac24_int2wav_static.onnx` (~25MB)
+//! Inputs: codes0[1,12] + codes1[1,24] + codes2[1,48] (int64)
+//! Output: audio[1,1,24576] (f32, 24kHz mono, ~1.024s per window)
 
 use crate::backends::voice::{AudioDecoderBackend, AudioSamples};
 use crate::loading::states::{LoadParams, MemoryFootprint};
@@ -15,16 +15,13 @@ use std::path::{Path, PathBuf};
 
 /// SNAC decoder backed by ONNX Runtime.
 pub struct SnacDecoder {
-    /// Path to loaded .onnx file, if loaded.
     model_path: Option<PathBuf>,
-    /// ONNX session — None until load() is called.
-    /// Type is `ort::Session` behind the feature gate.
-    // session: Option<ort::Session>,
     loaded: bool,
+    // TODO: ort::Session stored here once ort crate is wired
+    // session: Option<ort::Session>,
 }
 
 impl SnacDecoder {
-    /// Create a new unloaded SNAC decoder.
     #[must_use]
     pub fn new() -> Self {
         Self {
@@ -60,13 +57,13 @@ impl AudioDecoderBackend for SnacDecoder {
             );
         }
 
-        // TODO: Initialize ort::Session here when ort crate is wired
+        // TODO: Initialize ort::Session
         // let session = ort::Session::builder()?
         //     .with_optimization_level(ort::GraphOptimizationLevel::Level3)?
         //     .commit_from_file(path)?;
+        // self.session = Some(session);
 
         let file_size = std::fs::metadata(path)?.len();
-
         self.model_path = Some(path.to_path_buf());
         self.loaded = true;
 
@@ -78,36 +75,53 @@ impl AudioDecoderBackend for SnacDecoder {
 
         Ok(MemoryFootprint {
             ram_bytes: file_size,
-            vram_bytes: 0, // CPU-only
+            vram_bytes: 0,
         })
     }
 
     fn unload(&mut self) -> anyhow::Result<()> {
         tracing::info!(component = "SNAC", "Unloading SNAC decoder");
+        // self.session = None;
         self.model_path = None;
         self.loaded = false;
         Ok(())
     }
 
-    fn decode(&self, audio_tokens: &[u32]) -> anyhow::Result<AudioSamples> {
+    fn decode(
+        &self,
+        codes0: &[i64],
+        codes1: &[i64],
+        codes2: &[i64],
+    ) -> anyhow::Result<AudioSamples> {
         if !self.loaded {
             anyhow::bail!("SNAC decoder not loaded — call load() first");
         }
 
-        tracing::debug!(
-            component = "SNAC",
-            token_count = audio_tokens.len(),
-            "Decoding audio tokens to waveform"
-        );
+        if codes0.len() != 12 || codes1.len() != 24 || codes2.len() != 48 {
+            anyhow::bail!(
+                "SNAC expects codes0[12] + codes1[24] + codes2[48], got [{}, {}, {}]",
+                codes0.len(),
+                codes1.len(),
+                codes2.len()
+            );
+        }
+
+        tracing::debug!(component = "SNAC", "Decoding 84 tokens → 24576 PCM samples");
 
         // TODO: Run ort session inference
-        // let input = ort::Value::from_array(audio_tokens.iter().map(|&t| t as i64).collect())?;
-        // let outputs = self.session.as_ref().unwrap().run(ort::inputs![input]?)?;
-        // let pcm: Vec<f32> = outputs[0].extract_tensor::<f32>()?.into_owned();
+        // let codes0_arr = ndarray::Array2::<i64>::from_shape_vec((1, 12), codes0.to_vec())?;
+        // let codes1_arr = ndarray::Array2::<i64>::from_shape_vec((1, 24), codes1.to_vec())?;
+        // let codes2_arr = ndarray::Array2::<i64>::from_shape_vec((1, 48), codes2.to_vec())?;
+        // let outputs = self.session.as_ref().unwrap().run(ort::inputs![
+        //     "codes0" => codes0_arr,
+        //     "codes1" => codes1_arr,
+        //     "codes2" => codes2_arr,
+        // ]?)?;
+        // let audio = outputs["audio"].try_extract_tensor::<f32>()?.into_owned();
+        // let pcm = audio.into_raw_vec();
 
-        // Placeholder: return silence until ort is wired
-        let silence_duration_samples = audio_tokens.len() * 320; // rough: ~320 samples per token at 24kHz
-        let pcm = vec![0.0f32; silence_duration_samples];
+        // Placeholder: silence until ort is wired
+        let pcm = vec![0.0f32; 24576];
 
         Ok(AudioSamples {
             data: pcm,

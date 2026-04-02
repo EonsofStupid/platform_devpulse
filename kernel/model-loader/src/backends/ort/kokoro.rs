@@ -1,19 +1,22 @@
-//! Kokoro TTS via sherpa-rs — fallback voice when Orpheus isn't available.
+//! Kokoro TTS via ONNX Runtime — fallback voice.
 //!
-//! Kokoro is a lightweight TTS model that runs via sherpa's GGUF path.
-//! Lower quality than Orpheus but faster and uses less memory.
+//! Runs Kokoro ONNX model directly through ort. No sherpa dependency.
+//! Lower quality than Orpheus but faster and lighter.
 //!
-//! Model: `Kokoro_espeak_Q8.gguf` (~80MB)
-//! Output: PCM f32, 22050Hz mono
+//! Model: kokoro.onnx (~80MB) or Kokoro_espeak_Q8.gguf (sherpa format)
+//! For ort path: needs ONNX export of Kokoro
+//! Output: PCM f32, 24kHz mono
 
 use crate::backends::voice::{AudioSamples, TtsBackend};
 use crate::loading::states::{LoadParams, MemoryFootprint};
 use std::path::{Path, PathBuf};
 
-/// Kokoro TTS backed by sherpa-rs.
+/// Kokoro TTS backed by ort (ONNX Runtime).
 pub struct KokoroTts {
     model_path: Option<PathBuf>,
     loaded: bool,
+    // TODO: ort::Session
+    // session: Option<ort::Session>,
 }
 
 impl KokoroTts {
@@ -44,9 +47,8 @@ impl TtsBackend for KokoroTts {
             anyhow::bail!("Kokoro model not found: {}", path.display());
         }
 
-        // TODO: Initialize sherpa-rs TTS session
-        // let config = sherpa_rs::tts::OfflineTtsConfig { ... };
-        // let tts = sherpa_rs::tts::OfflineTts::new(config)?;
+        // TODO: Create ort::Session
+        // self.session = Some(ort::Session::builder()?.commit_from_file(path)?);
 
         let file_size = std::fs::metadata(path)?.len();
         self.model_path = Some(path.to_path_buf());
@@ -66,14 +68,15 @@ impl TtsBackend for KokoroTts {
 
     fn unload(&mut self) -> anyhow::Result<()> {
         tracing::info!(component = "Kokoro TTS", "Unloading Kokoro TTS");
+        // self.session = None;
         self.model_path = None;
         self.loaded = false;
         Ok(())
     }
 
-    fn synthesize(&self, text: &str, _voice_profile: &str) -> anyhow::Result<AudioSamples> {
+    fn synthesize(&self, text: &str, _voice: &str) -> anyhow::Result<AudioSamples> {
         if !self.loaded {
-            anyhow::bail!("Kokoro TTS not loaded — call load() first");
+            anyhow::bail!("Kokoro TTS not loaded");
         }
 
         tracing::debug!(
@@ -82,14 +85,16 @@ impl TtsBackend for KokoroTts {
             "Synthesizing speech"
         );
 
-        // TODO: Run sherpa TTS inference
-        // let audio = self.tts.generate(text, sid, speed)?;
+        // TODO: Run ort inference
+        // let input_ids = tokenize_kokoro(text)?;
+        // let outputs = self.session.run(ort::inputs!["input_ids" => input_ids]?)?;
+        // let audio = outputs["audio"].try_extract_tensor::<f32>()?.into_owned();
 
         // Placeholder: silence
-        let sample_count = (text.len() * 4000).min(24000 * 30); // rough estimate
+        let sample_count = (text.len() * 4000).min(24000 * 30);
         Ok(AudioSamples {
             data: vec![0.0f32; sample_count],
-            sample_rate: 22050,
+            sample_rate: 24000,
             channels: 1,
         })
     }

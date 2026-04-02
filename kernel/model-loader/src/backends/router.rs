@@ -1,8 +1,13 @@
-//! Backend routing — decide Candle vs llama.cpp for a given model.
+//! Backend routing — decide which inference engine handles a model.
 
 use crate::models::registry::{BackendType, ModelFormat, ModelRegistryEntry};
 
 /// Select the appropriate backend for a model.
+///
+/// GGUF → Candle (if supported) or llama.cpp.
+/// SafeTensors → Candle.
+/// ONNX → ort (SNAC, Kokoro).
+/// SherpaDir → ort (Whisper dirs contain ONNX encoder/decoder).
 pub fn select_backend(
     entry: &ModelRegistryEntry,
     override_backend: Option<BackendType>,
@@ -21,7 +26,7 @@ pub fn select_backend(
         }
         ModelFormat::SafeTensors => BackendType::Candle,
         ModelFormat::Onnx => BackendType::Ort,
-        ModelFormat::SherpaDir => BackendType::Sherpa,
+        ModelFormat::SherpaDir => BackendType::Ort,
     }
 }
 
