@@ -12,7 +12,7 @@
  * ═══════════════════════════════════════════════════════════════
  *
  * Canonical names only. Full CSS property names or design-industry terms.
- * Each var name here MUST have a matching consumer in macro-base.css.
+ * Each var name here MUST have a matching consumer in render-base.css.
  *
  * SURFACE family:
  *   --background-color     Fill              background-color

@@ -8,7 +8,7 @@
  *   2. CSS Var      → what code writes (--background-color, --tracking)
  *   3. CSS Property → what browser paints (background-color, letter-spacing)
  *
- * Canonical names only. Must match resolve.ts and macro-base.css EXACTLY.
+ * Canonical names only. Must match resolve.ts and render-base.css EXACTLY.
  * Per RenderForge.md Law 5.
  * ═══════════════════════════════════════════════════════════════
  */
