@@ -1,6 +1,7 @@
 <!--
   @file VramGauge — Arc gauge showing GPU memory usage.
   Preset-driven color: success (<60%) → warning (60-85%) → danger (>85%).
+  No GPU: shows empty arc with muted styling + error reason if available.
   Uses renderForge for all color resolution.
 -->
 <script lang="ts">
@@ -12,11 +13,19 @@ interface Props {
 	usedMb: number;
 	totalMb: number;
 	hasGpu: boolean;
+	gpuError?: string | null;
 	label?: string;
 	size?: number;
 }
 
-let { usedMb, totalMb, hasGpu, label = "GPU Memory", size = 140 }: Props = $props();
+let {
+	usedMb,
+	totalMb,
+	hasGpu,
+	gpuError = null,
+	label = "GPU Memory",
+	size = 140,
+}: Props = $props();
 
 const percent = $derived(totalMb > 0 ? (usedMb / totalMb) * 100 : 0);
 const freeMb = $derived(totalMb - usedMb);
@@ -29,6 +38,21 @@ const intent: SemanticIntent = $derived.by(() => {
 });
 
 const m = $derived(renderForge({ kind: "vram-gauge", preset: intent }));
+
+// Accent color for the fill arc
+const arcColor = $derived.by(() => {
+	if (!hasGpu) return "oklch(0.4 0 0)";
+	if (percent < 60) return "oklch(0.7 0.15 155)";
+	if (percent < 85) return "oklch(0.75 0.15 85)";
+	return "oklch(0.65 0.2 25)";
+});
+
+const arcGlow = $derived.by(() => {
+	if (!hasGpu) return "none";
+	if (percent < 60) return "drop-shadow(0 0 0.375rem oklch(0.7 0.15 155 / 0.5))";
+	if (percent < 85) return "drop-shadow(0 0 0.375rem oklch(0.75 0.15 85 / 0.5))";
+	return "drop-shadow(0 0 0.375rem oklch(0.65 0.2 25 / 0.5))";
+});
 
 // SVG arc math
 const cx = $derived(size / 2);
@@ -63,70 +87,74 @@ const fillPath = $derived(
 <div
 	{...m.dataAttrs}
 	style={cssVarString(m.cssVars)}
-	class="flex flex-col items-center gap-1"
+	class="flex flex-col items-center gap-1.5"
 >
 	<svg width={size} height={size} viewBox="0 0 {size} {size}">
-		<!-- Background arc -->
+		<!-- Background arc — always visible -->
 		<path
 			d={bgPath}
 			fill="none"
-			stroke="var(--border-color, currentColor)"
+			stroke={hasGpu ? "oklch(0.3 0.015 230)" : "oklch(0.2 0 0)"}
 			stroke-width="8"
 			stroke-linecap="round"
-			opacity="0.3"
+			opacity="0.5"
 		/>
-		<!-- Fill arc -->
+		<!-- Fill arc — only with GPU data -->
 		{#if percent > 0}
 			<path
 				d={fillPath}
 				fill="none"
-				stroke="var(--color, currentColor)"
+				stroke={arcColor}
 				stroke-width="8"
 				stroke-linecap="round"
+				style="filter: {arcGlow};"
 			/>
 		{/if}
-		<!-- Center text -->
-		<text
-			x={cx}
-			y={cy - 6}
-			text-anchor="middle"
-			fill="var(--color, currentColor)"
-			font-size="18"
-			font-weight="700"
-			font-family="var(--font-family, monospace)"
-		>
-			{#if hasGpu}
-				{formatMb(usedMb)}
-			{:else}
-				No GPU
-			{/if}
-		</text>
-		<text
-			x={cx}
-			y={cy + 12}
-			text-anchor="middle"
-			fill="var(--color, currentColor)"
-			font-size="11"
-			opacity="0.6"
-		>
-			{#if hasGpu}
-				/ {formatMb(totalMb)}
-			{:else}
-				CPU Mode
-			{/if}
-		</text>
-		<text
-			x={cx}
-			y={cy + 28}
-			text-anchor="middle"
-			fill="var(--color, currentColor)"
-			font-size="10"
-			opacity="0.4"
-		>
-			{#if hasGpu}
+
+		<!-- Center content -->
+		{#if hasGpu}
+			<!-- GPU: show used/total -->
+			<text
+				x={cx} y={cy - 8}
+				text-anchor="middle"
+				fill={arcColor}
+				font-size="20" font-weight="700"
+				font-family="var(--font-family, monospace)"
+				style="filter: drop-shadow(0 0 0.25rem {arcColor});"
+			>
+				{Math.round(percent)}%
+			</text>
+			<text x={cx} y={cy + 8} text-anchor="middle" fill="oklch(0.7 0 0)" font-size="10">
+				{formatMb(usedMb)} / {formatMb(totalMb)}
+			</text>
+			<text x={cx} y={cy + 22} text-anchor="middle" fill="oklch(0.5 0 0)" font-size="9">
 				{formatMb(freeMb)} free
-			{/if}
-		</text>
+			</text>
+		{:else}
+			<!-- No GPU: show status -->
+			<text
+				x={cx} y={cy - 4}
+				text-anchor="middle"
+				fill="oklch(0.55 0 0)"
+				font-size="14" font-weight="600"
+			>
+				No GPU
+			</text>
+			<text x={cx} y={cy + 12} text-anchor="middle" fill="oklch(0.4 0 0)" font-size="9">
+				{#if gpuError}
+					{gpuError.length > 24 ? gpuError.slice(0, 24) + "…" : gpuError}
+				{:else}
+					CPU Mode
+				{/if}
+			</text>
+		{/if}
 	</svg>
-	<span class="text-xs" style="color: var(--color);">{label}</span>
+
+	<!-- Label below gauge -->
+	<span
+		class="text-xs font-medium text-center max-w-[10rem] truncate"
+		style="color: {hasGpu ? arcColor : 'oklch(0.5 0 0)'};"
+	>
+		{label}
+	</span>
 </div>

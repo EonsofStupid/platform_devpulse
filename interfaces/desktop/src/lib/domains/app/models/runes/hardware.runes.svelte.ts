@@ -3,14 +3,15 @@
  * @module @devpulse/domains/app/models/runes/hardware
  *
  * Reactive hardware metrics with automatic polling.
+ * Uses specta-generated HardwareInfo type (snake_case fields).
  */
 
-import { fetchHardwareMetrics } from "../services/hardware.service.js";
-import type { FitIndicator, HardwareMetrics, HardwareTier } from "../types/models.types.js";
+import { fetchHardwareMetrics, type HardwareInfo } from "../services/hardware.service.js";
+import type { FitIndicator, HardwareTier } from "../types/models.types.js";
 import { calculateFit } from "../types/models.types.js";
 
 class HardwareState {
-	metrics = $state<HardwareMetrics | null>(null);
+	metrics = $state<HardwareInfo | null>(null);
 	loading = $state(false);
 	error = $state<string | null>(null);
 	private intervalId: ReturnType<typeof setInterval> | null = null;
@@ -57,19 +58,24 @@ class HardwareState {
 	// ── Derived Values ──────────────────────────────────
 
 	get hasGpu(): boolean {
-		return this.metrics?.gpuName !== null && this.metrics?.gpuName !== undefined;
+		return this.metrics?.gpu_name !== null && this.metrics?.gpu_name !== undefined;
+	}
+
+	/** Why GPU detection failed, if applicable. */
+	get gpuError(): string | null {
+		return this.metrics?.gpu_error ?? null;
 	}
 
 	get vramUsedMb(): number {
-		return this.metrics?.gpuVramUsedMb ?? 0;
+		return this.metrics?.gpu_vram_used_mb ?? 0;
 	}
 
 	get vramTotalMb(): number {
-		return this.metrics?.gpuVramTotalMb ?? 0;
+		return this.metrics?.gpu_vram_total_mb ?? 0;
 	}
 
 	get vramFreeMb(): number {
-		return this.metrics?.gpuVramFreeMb ?? 0;
+		return this.metrics?.gpu_vram_free_mb ?? 0;
 	}
 
 	get vramPercent(): number {
@@ -99,8 +105,8 @@ class HardwareState {
 	fitForModel(vramEstimateMb: number): FitIndicator {
 		return calculateFit(
 			vramEstimateMb,
-			this.metrics?.gpuVramFreeMb ?? null,
-			this.metrics?.gpuVramTotalMb ?? null,
+			this.metrics?.gpu_vram_free_mb ?? null,
+			this.metrics?.gpu_vram_total_mb ?? null,
 		);
 	}
 }

@@ -1,6 +1,7 @@
 <!--
   @file ClyffyNarration — Clyffy message bubble for model events.
-  Uses renderForge with semantic intent presets for type-based styling.
+  Glass surface with accent border-left. Visible, warm, layman-friendly.
+  Uses renderForge for base resolution, accent colors per type.
 -->
 <script lang="ts">
 import { Text } from "$lib/design/components/text/index.js";
@@ -28,29 +29,48 @@ const m = $derived(
 	}),
 );
 
-const icon = $derived.by(() => {
-	switch (type) {
-		case "success":
-			return "✓";
-		case "warning":
-			return "⚠";
-		case "error":
-			return "✗";
-		default:
-			return "💬";
-	}
-});
+/** Accent colors per type — all via token vars */
+const accentMap: Record<string, { border: string; glow: string; icon: string }> = {
+	info: {
+		border: "var(--accent-teal-main)",
+		glow: "var(--accent-teal-glow)",
+		icon: "var(--accent-teal-main)",
+	},
+	success: {
+		border: "var(--signal-success)",
+		glow: "var(--signal-success)",
+		icon: "var(--signal-success)",
+	},
+	warning: {
+		border: "var(--signal-warning)",
+		glow: "var(--signal-warning)",
+		icon: "var(--signal-warning)",
+	},
+	error: {
+		border: "var(--signal-error)",
+		glow: "var(--signal-error)",
+		icon: "var(--signal-error)",
+	},
+};
+
+const accent = $derived(accentMap[type] ?? accentMap.info);
 </script>
 
 <div
 	{...m.dataAttrs}
-	style={cssVarString(m.cssVars)}
-	class="flex items-start gap-2 rounded-lg border-l-2 px-3 py-2"
+	style="{cssVarString(m.cssVars)} --narration-border: {accent.border}; --narration-glow: {accent.glow};"
+	class="flex items-start gap-3 rounded-lg px-4 py-3"
+	style:border-left="3px solid {accent.border}"
+	style:background="var(--surface-base)"
+	style:box-shadow="inset 3px 0 0.75rem -0.25rem {accent.glow}"
 >
-	<span class="shrink-0 text-sm" style="color: var(--color);">
-		{icon}
+	<span
+		class="mt-0.5 shrink-0 text-base leading-none"
+		style="color: {accent.icon}; filter: drop-shadow(0 0 0.25rem {accent.glow});"
+	>
+		{#if type === "success"}✓{:else if type === "warning"}⚠{:else if type === "error"}✗{:else}💬{/if}
 	</span>
-	<Text size="sm" color="secondary" as="p">
+	<Text size="sm" color="secondary" as="p" class="leading-relaxed">
 		{message}
 	</Text>
 </div>

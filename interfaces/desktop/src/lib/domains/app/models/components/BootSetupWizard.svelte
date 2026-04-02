@@ -47,8 +47,6 @@ let knowledgeTimer: ReturnType<typeof setInterval> | null = null;
 let error = $state<string | null>(null);
 
 const m = $derived(renderForge({ kind: "boot-wizard", preset: "primary" }));
-const mBtn = $derived(renderForge({ kind: "boot-wizard-btn", preset: "accent" }));
-const mKnowledge = $derived(renderForge({ kind: "boot-wizard-knowledge", preset: "info" }));
 
 // Load content on mount
 $effect(() => {
@@ -95,7 +93,7 @@ const clyffyMessage = $derived.by((): string => {
 			if (!hw) return content.scanning.title;
 			if (hardwareState.hasGpu) {
 				return content.scanning.results.gpuFound
-					.replace("{gpuName}", hw.gpuName ?? "GPU")
+					.replace("{gpuName}", hw.gpu_name ?? "GPU")
 					.replace("{vramGb}", formatMb(hardwareState.vramTotalMb));
 			}
 			return content.scanning.results.noGpu;
@@ -327,30 +325,33 @@ function handleManualSetup(): void {
 }
 
 const fitColorMap: Record<string, string> = {
-	green: "oklch(0.75 0.15 145)",
-	yellow: "oklch(0.8 0.15 85)",
-	red: "oklch(0.65 0.2 25)",
-	gray: "oklch(0.6 0 0)",
+	green: "var(--signal-success)",
+	yellow: "var(--signal-warning)",
+	red: "var(--signal-error)",
+	gray: "var(--text-muted)",
 };
 </script>
 
 <div
 	style={cssVarString(m.cssVars)}
-	class={`${stack({ gap: "6" })} w-full max-w-lg mx-auto mt-8`}
+	class={`${stack({ gap: "6" })} w-full`}
 >
 	{#if step === "welcome"}
 		<!-- WELCOME -->
 		<div class="flex flex-col items-center gap-6 py-8">
-			<div class="flex h-20 w-20 items-center justify-center rounded-full border-2 border-[var(--border-color)]">
-				<Sparkles size={36} style="color: var(--color);" />
+			<div
+				class="flex h-20 w-20 items-center justify-center rounded-full"
+				style="border: 2px solid var(--accent-teal-main); box-shadow: 0 0 1.5rem var(--accent-teal-glow);"
+			>
+				<Sparkles size={36} style="color: var(--accent-teal-main);" />
 			</div>
 			<div class={stack({ gap: "2", align: "center" })}>
 				<Text size="xl" weight="bold" color="primary">{content?.welcome.greeting ?? "Hi!"}</Text>
 				<Text size="sm" color="muted">{content?.welcome.subtitle ?? "Let me set up your AI."}</Text>
 			</div>
 			<button
-				class="flex items-center gap-2 rounded-lg border px-8 py-3 text-base font-bold transition-all hover:brightness-110"
-				style={cssVarString(mBtn.cssVars)}
+				class="flex items-center gap-2 rounded-lg px-8 py-3 text-base font-bold transition-all hover:brightness-125"
+				style="background: var(--accent-teal-main); color: var(--surface-base); box-shadow: 0 0 1rem var(--accent-teal-glow);"
 				onclick={startScanning}
 			>
 				<Zap size={18} />
@@ -361,67 +362,76 @@ const fitColorMap: Record<string, string> = {
 	{:else if step === "scanning"}
 		<!-- SCANNING -->
 		<div class="flex flex-col items-center gap-6 py-8">
-			<div class="h-12 w-12 animate-spin rounded-full border-2 border-t-transparent" style="border-color: var(--color); border-top-color: transparent;"></div>
+			<div
+				class="h-12 w-12 animate-spin rounded-full border-2 border-t-transparent"
+				style="border-color: var(--accent-teal-main); border-top-color: transparent;"
+			></div>
 			<Scan size={24} class="animate-pulse opacity-50" />
 			<Text size="lg" weight="semibold" color="primary">{content?.scanning.title ?? "Checking..."}</Text>
 		</div>
 
 	{:else if step === "recommendations"}
-		<!-- RECOMMENDATIONS + SEARCH -->
-		<div class="flex flex-col items-center gap-3">
-			<VramGauge
-				usedMb={hardwareState.vramUsedMb}
-				totalMb={hardwareState.vramTotalMb}
-				hasGpu={hardwareState.hasGpu}
-				label={hardwareState.hasGpu ? hardwareState.metrics?.gpuName ?? "GPU" : "CPU Mode"}
-			/>
-			<Text size="xs" color="muted">{tierMessage}</Text>
-		</div>
+		<!-- RECOMMENDATIONS — Two-column layout: gauge | model cards -->
+		<div class="grid grid-cols-1 md:grid-cols-[12rem_1fr] gap-6 w-full items-start">
+			<!-- Left column: Hardware gauge -->
+			<div class="flex flex-col items-center gap-3 rounded-xl p-4"
+				style="background: var(--surface-base); border: 1px solid var(--border-subtle);"
+			>
+				<VramGauge
+					usedMb={hardwareState.vramUsedMb}
+					totalMb={hardwareState.vramTotalMb}
+					hasGpu={hardwareState.hasGpu}
+					gpuError={hardwareState.gpuError}
+					label={hardwareState.hasGpu ? hardwareState.metrics?.gpu_name ?? "GPU" : "CPU Mode"}
+				/>
+				<Text size="xs" color="muted" class="text-center">{tierMessage}</Text>
+			</div>
 
-		<!-- Suggested models with per-model install buttons -->
-		<div class={stack({ gap: "2" })}>
-			<Text size="sm" weight="semibold" color="secondary">
-				Suggested for your hardware
-			</Text>
-			{#each recommendations as rec (rec.name)}
-				<div
-					class="flex items-center gap-3 rounded-lg border-l-4 px-3 py-2"
-					style="border-left-color: {fitColorMap[rec.fit]};"
-				>
-					<div class="h-2.5 w-2.5 shrink-0 rounded-full" style="background: {fitColorMap[rec.fit]};"></div>
-					<div class="flex-1">
-						<Text size="sm" weight="medium" color="primary">{rec.name}</Text>
-						<Text size="xs" color="muted">
-							{rec.purpose} · {formatMb(rec.sizeMb)} download
-						</Text>
+			<!-- Right column: Model recommendations -->
+			<div class={stack({ gap: "3" })}>
+				<Text size="sm" weight="semibold" color="secondary">
+					Suggested for your hardware
+				</Text>
+				{#each recommendations as rec (rec.name)}
+					<div
+						class="flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors"
+						style="border-left: 4px solid {fitColorMap[rec.fit]}; background: var(--surface-base);"
+					>
+						<div class="h-2.5 w-2.5 shrink-0 rounded-full" style="background: {fitColorMap[rec.fit]};"></div>
+						<div class="flex-1 min-w-0">
+							<Text size="sm" weight="medium" color="primary">{rec.name}</Text>
+							<Text size="xs" color="muted">
+								{rec.purpose} · {formatMb(rec.sizeMb)} download
+							</Text>
+						</div>
+						<Badge
+							variant={rec.fit === "green" ? "positive" : rec.fit === "red" ? "negative" : "neutral"}
+							size="sm"
+						>
+							{content?.recommendations.fitLabels[rec.fit] ?? rec.fit}
+						</Badge>
+						<button
+							class="shrink-0 rounded px-3 py-1.5 text-xs font-semibold transition-all hover:brightness-125"
+							style="background: var(--accent-teal-main, oklch(0.7 0.15 180)); color: oklch(0.1 0 0); box-shadow: 0 0 0.5rem var(--accent-teal-glow, oklch(0.7 0.15 180 / 0.3));"
+							onclick={() => handleSingleDownload(rec)}
+						>
+							Get
+						</button>
 					</div>
-					<Badge
-						variant={rec.fit === "green" ? "positive" : rec.fit === "red" ? "negative" : "neutral"}
-						size="sm"
-					>
-						{content?.recommendations.fitLabels[rec.fit] ?? rec.fit}
-					</Badge>
+				{/each}
+
+				<!-- Install all -->
+				<div class="flex justify-center pt-2">
 					<button
-						class="shrink-0 rounded px-3 py-1 text-xs font-semibold transition-colors hover:brightness-110"
-						style={cssVarString(mBtn.cssVars)}
-						onclick={() => handleSingleDownload(rec)}
+						class="flex items-center gap-2 rounded-lg px-6 py-2.5 text-sm font-bold transition-all hover:brightness-125"
+						style="background: var(--accent-teal-main); color: var(--surface-base); box-shadow: 0 0 1rem var(--accent-teal-glow);"
+						onclick={handleSetup}
 					>
-						Get
+						<Zap size={16} />
+						Install All Suggested
 					</button>
 				</div>
-			{/each}
-		</div>
-
-		<!-- Install all suggested at once -->
-		<div class="flex flex-col items-center gap-2">
-			<button
-				class="flex items-center gap-2 rounded-lg border px-6 py-2 text-sm font-bold transition-all hover:brightness-110"
-				style={cssVarString(mBtn.cssVars)}
-				onclick={handleSetup}
-			>
-				<Zap size={16} />
-				Install All Suggested
-			</button>
+			</div>
 		</div>
 
 		<!-- Divider -->
@@ -431,11 +441,19 @@ const fitColorMap: Record<string, string> = {
 			<div class="flex-1 border-t border-[var(--border-subtle)]"></div>
 		</div>
 
-		<!-- Search — always visible in recommendations step -->
+		<!-- Search — full width below the grid -->
 		<ModelSearch onDownload={handleSearchDownload} />
 
+		<!-- Error from previous download attempt -->
+		{#if error}
+			<ClyffyNarration message={error} type="error" />
+		{/if}
+
 		<!-- Skip option -->
-		<button class="text-xs opacity-50 underline" onclick={handleManualSetup}>
+		<button
+			class="self-center text-xs opacity-50 underline hover:opacity-80 transition-opacity"
+			onclick={handleManualSetup}
+		>
 			Skip setup — I'll configure later
 		</button>
 
@@ -443,7 +461,7 @@ const fitColorMap: Record<string, string> = {
 		<!-- DOWNLOADING -->
 		<div class={`${stack({ gap: "4" })} py-4`}>
 			<div class={hstack({ gap: "2", align: "center", justify: "center" })}>
-				<Download size={18} style="color: var(--color);" />
+				<Download size={18} style="color: var(--accent-teal-main);" />
 				<Text size="lg" weight="semibold" color="primary">
 					{content?.downloading.title ?? "Downloading..."}
 				</Text>
@@ -459,7 +477,7 @@ const fitColorMap: Record<string, string> = {
 			{#if content && content.knowledgeDrops.length > 0}
 				{@const drop = content.knowledgeDrops[knowledgeIndex]}
 				<div class="rounded-lg px-4 py-3 text-center transition-opacity duration-500"
-					style={cssVarString(mKnowledge.cssVars)}
+					style="background: var(--surface-base); border: 1px solid var(--border-subtle);"
 				>
 					<Text size="xs" weight="bold" color="secondary">{drop.title}</Text>
 					<Text size="xs" color="muted">{drop.body}</Text>
@@ -467,20 +485,20 @@ const fitColorMap: Record<string, string> = {
 			{/if}
 
 			{#if error}
-				<div class="rounded-lg border-l-4 border-red-500/50 px-3 py-2">
-					<Text size="xs" weight="bold" color="primary">Something went wrong</Text>
-					<Text size="xs" color="muted">{error}</Text>
-					<button class="mt-1 text-xs underline" onclick={handleSetup}>
-						Try again
-					</button>
-				</div>
+				<ClyffyNarration message={error} type="error" />
+				<button class="self-center text-xs underline opacity-60 hover:opacity-100" onclick={handleSetup}>
+					Try again
+				</button>
 			{/if}
 		</div>
 
 	{:else if step === "verifying"}
 		<!-- VERIFYING -->
 		<div class="flex flex-col items-center gap-4 py-6">
-			<div class="h-10 w-10 animate-spin rounded-full border-2 border-t-transparent" style="border-color: var(--color); border-top-color: transparent;"></div>
+			<div
+				class="h-10 w-10 animate-spin rounded-full border-2 border-t-transparent"
+				style="border-color: var(--accent-teal-main); border-top-color: transparent;"
+			></div>
 			<Text size="lg" weight="semibold" color="primary">
 				{content?.verifying.title ?? "Almost there!"}
 			</Text>
@@ -492,8 +510,11 @@ const fitColorMap: Record<string, string> = {
 	{:else if step === "ready"}
 		<!-- READY -->
 		<div class="flex flex-col items-center gap-6 py-6">
-			<div class="flex h-20 w-20 items-center justify-center rounded-full border-2 border-green-500/40">
-				<CircleCheck size={36} style="color: oklch(0.75 0.15 145);" />
+			<div
+				class="flex h-20 w-20 items-center justify-center rounded-full"
+				style="border: 2px solid var(--signal-success); box-shadow: 0 0 1.5rem var(--signal-success-glow, var(--signal-success));"
+			>
+				<CircleCheck size={36} style="color: var(--signal-success);" />
 			</div>
 			<div class={stack({ gap: "2", align: "center" })}>
 				<Text size="xl" weight="bold" color="primary">
@@ -504,8 +525,8 @@ const fitColorMap: Record<string, string> = {
 				</Text>
 			</div>
 			<button
-				class="flex items-center gap-2 rounded-lg border px-8 py-3 text-base font-bold transition-all hover:brightness-110"
-				style={cssVarString(mBtn.cssVars)}
+				class="flex items-center gap-2 rounded-lg px-8 py-3 text-base font-bold transition-all hover:brightness-125"
+				style="background: var(--accent-teal-main); color: var(--surface-base); box-shadow: 0 0 1rem var(--accent-teal-glow);"
 				onclick={onComplete}
 			>
 				<Sparkles size={18} />

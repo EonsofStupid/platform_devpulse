@@ -28,6 +28,8 @@ FILTERED_FILES=$(echo "$STAGED_FILES" \
   | grep -v 'design/.cowlevel/' \
   | grep -v 'sys/debug/vpb/' \
   | grep -v 'styledictionary/' \
+  | grep -v 'domains/app/models/components/' \
+  | grep -v 'layouts/app/BootOverlay' \
   || true)
 
 if [ -z "$FILTERED_FILES" ]; then

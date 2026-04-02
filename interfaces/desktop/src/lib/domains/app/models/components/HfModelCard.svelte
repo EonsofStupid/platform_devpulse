@@ -2,6 +2,7 @@
   @file HfModelCard — Single HuggingFace search result.
   Shows model info, GGUF files, download buttons.
   ALL styling via renderForge + cssVarString.
+  Types: specta-generated HfSearchResultInfo (snake_case fields).
 -->
 <script lang="ts">
 import {
@@ -24,11 +25,11 @@ import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { hardwareState } from "../runes/hardware.runes.svelte.js";
-import type { HfFileInfo, HfSearchResult } from "../services/search.service.js";
+import type { HfFileInfoItem, HfSearchResultInfo } from "../services/search.service.js";
 import { formatBytes } from "../types/models.types.js";
 
 interface Props {
-	result: HfSearchResult;
+	result: HfSearchResultInfo;
 	onDownload?: (repoId: string, filename: string) => void;
 }
 
@@ -39,7 +40,7 @@ const m = $derived(renderForge({ kind: "hf-model-card", preset: "neutral" }));
 
 /** Map pipeline tag to icon component and label. */
 const capIcon = $derived.by(() => {
-	switch (result.pipelineTag) {
+	switch (result.pipeline_tag) {
 		case "text-generation":
 			return { icon: Brain, label: "Chat / Reasoning" };
 		case "feature-extraction":
@@ -57,7 +58,7 @@ const capIcon = $derived.by(() => {
 		case "zero-shot-classification":
 			return { icon: ArrowUpDown, label: "Classification" };
 		default:
-			return { icon: Brain, label: result.pipelineTag ?? "AI Model" };
+			return { icon: Brain, label: result.pipeline_tag ?? "AI Model" };
 	}
 });
 
@@ -69,9 +70,9 @@ function formatCount(n: number): string {
 }
 
 /** Check if a file fits in VRAM. */
-function fileFits(file: HfFileInfo): "green" | "yellow" | "red" | "gray" {
+function fileFits(file: HfFileInfoItem): "green" | "yellow" | "red" | "gray" {
 	if (!hardwareState.hasGpu) return "gray";
-	const estimateMb = (file.sizeBytes / (1024 * 1024)) * 1.15; // rough VRAM estimate
+	const estimateMb = (file.size_bytes / (1024 * 1024)) * 1.15; // rough VRAM estimate
 	const free = hardwareState.vramFreeMb;
 	const total = hardwareState.vramTotalMb;
 	if (estimateMb > free) return "red";
@@ -100,7 +101,7 @@ const fitColorMap: Record<string, string> = {
 			{/snippet}
 			<div class={hstack({ gap: "2", align: "center" })}>
 				{@render headerIcon()}
-				<Text size="sm" weight="bold" color="primary">{result.modelName}</Text>
+				<Text size="sm" weight="bold" color="primary">{result.model_name}</Text>
 			</div>
 			<Text size="xs" color="muted">{result.author}</Text>
 		</div>
@@ -135,13 +136,13 @@ const fitColorMap: Record<string, string> = {
 		{:else}
 			<ChevronDown size={14} />
 		{/if}
-		<Text size="xs" color="muted">{result.ggufFiles.length} GGUF file{result.ggufFiles.length !== 1 ? "s" : ""}</Text>
+		<Text size="xs" color="muted">{result.gguf_files.length} GGUF file{result.gguf_files.length !== 1 ? "s" : ""}</Text>
 	</button>
 
 	<!-- Expanded file list -->
 	{#if expanded}
 		<div class={stack({ gap: "1" })} style="margin-top: 0.5rem;">
-			{#each result.ggufFiles as file (file.filename)}
+			{#each result.gguf_files as file (file.filename)}
 				{@const fit = fileFits(file)}
 				<div class="flex items-center gap-2 rounded px-2 py-1.5 text-xs hover:brightness-110 transition-colors"
 					style="background: oklch(0.2 0.01 270 / 0.3);"
@@ -150,9 +151,9 @@ const fitColorMap: Record<string, string> = {
 					<div class="flex-1 min-w-0">
 						<div class="truncate font-medium">{file.filename}</div>
 						<div class="flex gap-2 opacity-60">
-							<span>{formatBytes(file.sizeBytes)}</span>
-							{#if file.quantLevel}
-								<span>{file.quantLevel}</span>
+							<span>{formatBytes(file.size_bytes)}</span>
+							{#if file.quant_level}
+								<span>{file.quant_level}</span>
 							{/if}
 							<span class="ml-auto">
 								{fit === "green" ? "Easy fit" : fit === "yellow" ? "Tight fit" : fit === "red" ? "Won't fit" : "CPU mode"}
@@ -162,7 +163,7 @@ const fitColorMap: Record<string, string> = {
 					<button
 						class="shrink-0 flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition-colors hover:brightness-125"
 						style="background: oklch(0.45 0.12 170 / 0.4); color: oklch(0.85 0.1 170);"
-						onclick={() => onDownload?.(result.repoId, file.filename)}
+						onclick={() => onDownload?.(result.repo_id, file.filename)}
 					>
 						<Download size={12} />
 						Get
