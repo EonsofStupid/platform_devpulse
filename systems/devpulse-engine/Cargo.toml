@@ -35,6 +35,9 @@ toml = "0.8"
 # Process metrics (real RSS, CPU — no faking)
 sysinfo = "0.33"
 
+# Audio playback (TTS output → speakers)
+rodio = "0.19"
+
 [build-dependencies]
 toml = "0.8"
 serde = { version = "1.0", features = ["derive"] }

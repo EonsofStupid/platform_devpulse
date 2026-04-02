@@ -3,8 +3,6 @@
 //! SNAC (Speech Neural Audio Codec) converts audio tokens from Orpheus TTS
 //! into raw PCM waveform. Runs via `ort` crate on CPU.
 //!
-//! Pipeline: Orpheus LLM → 7-per-frame token groups → redistribute → SNAC → PCM
-//!
 //! Model: `snac24_int2wav_static.onnx` (~25MB)
 //! Inputs: codes0[1,12] + codes1[1,24] + codes2[1,48] (int64)
 //! Output: audio[1,1,24576] (f32, 24kHz mono, ~1.024s per window)
@@ -13,12 +11,17 @@ use crate::backends::voice::{AudioDecoderBackend, AudioSamples};
 use crate::loading::states::{LoadParams, MemoryFootprint};
 use std::path::{Path, PathBuf};
 
+/// Samples per SNAC decode window (48 frames × 512 samples/frame).
+pub const SAMPLES_PER_WINDOW: usize = 24576;
+/// Sample rate for SNAC 24kHz model.
+pub const SAMPLE_RATE: u32 = 24000;
+
 /// SNAC decoder backed by ONNX Runtime.
 pub struct SnacDecoder {
     model_path: Option<PathBuf>,
     loaded: bool,
-    // TODO: ort::Session stored here once ort crate is wired
-    // session: Option<ort::Session>,
+    #[cfg(feature = "ort-backend")]
+    session: Option<ort::Session>,
 }
 
 impl SnacDecoder {
@@ -27,6 +30,8 @@ impl SnacDecoder {
         Self {
             model_path: None,
             loaded: false,
+            #[cfg(feature = "ort-backend")]
+            session: None,
         }
     }
 }
@@ -57,11 +62,14 @@ impl AudioDecoderBackend for SnacDecoder {
             );
         }
 
-        // TODO: Initialize ort::Session
-        // let session = ort::Session::builder()?
-        //     .with_optimization_level(ort::GraphOptimizationLevel::Level3)?
-        //     .commit_from_file(path)?;
-        // self.session = Some(session);
+        #[cfg(feature = "ort-backend")]
+        {
+            let session = ort::Session::builder()
+                .map_err(|e| anyhow::anyhow!("Failed to create ort SessionBuilder: {e}"))?
+                .commit_from_file(path)
+                .map_err(|e| anyhow::anyhow!("Failed to load SNAC ONNX model: {e}"))?;
+            self.session = Some(session);
+        }
 
         let file_size = std::fs::metadata(path)?.len();
         self.model_path = Some(path.to_path_buf());
@@ -81,7 +89,10 @@ impl AudioDecoderBackend for SnacDecoder {
 
     fn unload(&mut self) -> anyhow::Result<()> {
         tracing::info!(component = "SNAC", "Unloading SNAC decoder");
-        // self.session = None;
+        #[cfg(feature = "ort-backend")]
+        {
+            self.session = None;
+        }
         self.model_path = None;
         self.loaded = false;
         Ok(())
@@ -94,7 +105,7 @@ impl AudioDecoderBackend for SnacDecoder {
         codes2: &[i64],
     ) -> anyhow::Result<AudioSamples> {
         if !self.loaded {
-            anyhow::bail!("SNAC decoder not loaded — call load() first");
+            anyhow::bail!("SNAC decoder not loaded");
         }
 
         if codes0.len() != 12 || codes1.len() != 24 || codes2.len() != 48 {
@@ -108,26 +119,50 @@ impl AudioDecoderBackend for SnacDecoder {
 
         tracing::debug!(component = "SNAC", "Decoding 84 tokens → 24576 PCM samples");
 
-        // TODO: Run ort session inference
-        // let codes0_arr = ndarray::Array2::<i64>::from_shape_vec((1, 12), codes0.to_vec())?;
-        // let codes1_arr = ndarray::Array2::<i64>::from_shape_vec((1, 24), codes1.to_vec())?;
-        // let codes2_arr = ndarray::Array2::<i64>::from_shape_vec((1, 48), codes2.to_vec())?;
-        // let outputs = self.session.as_ref().unwrap().run(ort::inputs![
-        //     "codes0" => codes0_arr,
-        //     "codes1" => codes1_arr,
-        //     "codes2" => codes2_arr,
-        // ]?)?;
-        // let audio = outputs["audio"].try_extract_tensor::<f32>()?.into_owned();
-        // let pcm = audio.into_raw_vec();
+        #[cfg(feature = "ort-backend")]
+        {
+            let session = self
+                .session
+                .as_ref()
+                .ok_or_else(|| anyhow::anyhow!("SNAC session not initialized"))?;
 
-        // Placeholder: silence until ort is wired
-        let pcm = vec![0.0f32; 24576];
+            let c0 = ndarray::Array2::<i64>::from_shape_vec((1, 12), codes0.to_vec())
+                .map_err(|e| anyhow::anyhow!("Failed to create codes0 tensor: {e}"))?;
+            let c1 = ndarray::Array2::<i64>::from_shape_vec((1, 24), codes1.to_vec())
+                .map_err(|e| anyhow::anyhow!("Failed to create codes1 tensor: {e}"))?;
+            let c2 = ndarray::Array2::<i64>::from_shape_vec((1, 48), codes2.to_vec())
+                .map_err(|e| anyhow::anyhow!("Failed to create codes2 tensor: {e}"))?;
 
-        Ok(AudioSamples {
-            data: pcm,
-            sample_rate: 24000,
-            channels: 1,
-        })
+            let outputs = session
+                .run(ort::inputs![
+                    "codes0" => c0,
+                    "codes1" => c1,
+                    "codes2" => c2,
+                ]?)
+                .map_err(|e| anyhow::anyhow!("SNAC inference failed: {e}"))?;
+
+            let audio_tensor = outputs["audio"]
+                .try_extract_tensor::<f32>()
+                .map_err(|e| anyhow::anyhow!("Failed to extract SNAC audio output: {e}"))?;
+
+            let pcm: Vec<f32> = audio_tensor.iter().copied().collect();
+
+            return Ok(AudioSamples {
+                data: pcm,
+                sample_rate: SAMPLE_RATE,
+                channels: 1,
+            });
+        }
+
+        #[cfg(not(feature = "ort-backend"))]
+        {
+            tracing::warn!(component = "SNAC", "ort-backend feature not enabled — returning silence");
+            Ok(AudioSamples {
+                data: vec![0.0f32; SAMPLES_PER_WINDOW],
+                sample_rate: SAMPLE_RATE,
+                channels: 1,
+            })
+        }
     }
 
     fn memory_usage(&self) -> MemoryFootprint {

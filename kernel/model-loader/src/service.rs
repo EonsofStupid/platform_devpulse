@@ -46,11 +46,15 @@ impl ModelLoaderService {
         events: Arc<dyn LoaderEventSink>,
         models_dir: PathBuf,
     ) -> anyhow::Result<Self> {
-        // Ensure models directory exists
+        // Ensure models directory exists — organized by purpose
         if !models_dir.exists() {
-            std::fs::create_dir_all(models_dir.join("gguf"))?;
-            std::fs::create_dir_all(models_dir.join("safetensors"))?;
-            tracing::info!(path = %models_dir.display(), "Created models directory");
+            for subdir in ["chat", "voice", "rag", "vision"] {
+                std::fs::create_dir_all(models_dir.join(subdir))?;
+                tracing::info!(
+                    path = %models_dir.join(subdir).display(),
+                    "Created models/{subdir}/ directory"
+                );
+            }
         }
 
         // Try loading existing registry, fall back to empty
@@ -510,6 +514,83 @@ impl ModelLoaderService {
             .insert(slot_id.to_string(), ModelStatus::NotLoaded);
 
         Ok(())
+    }
+
+    /// Find all slots that are coupled to a parent slot.
+    fn coupled_children(&self, parent_id: &str) -> Vec<String> {
+        self.slots
+            .all_slots()
+            .iter()
+            .filter(|s| {
+                matches!(
+                    &s.loading,
+                    crate::slots::types::LoadingStrategy::Coupled { parent }
+                        if parent == parent_id
+                )
+            })
+            .map(|s| s.id.clone())
+            .collect()
+    }
+
+    /// Load a slot and all its coupled children.
+    ///
+    /// 1. Load required slots first (`requires` field)
+    /// 2. Load the requested slot
+    /// 3. Load any slots with `Coupled { parent: slot_id }`
+    pub async fn load_slot_with_deps(&mut self, slot_id: &str) -> Result<(), LoaderError> {
+        let slot = self.slots.get_slot(slot_id).ok_or(LoaderError::SlotNotFound {
+            slot_id: slot_id.to_string(),
+        })?;
+
+        // Load required dependencies first
+        let requires = slot.requires.clone();
+        for req_id in &requires {
+            if !self.is_slot_loaded(req_id) {
+                tracing::info!(slot = %slot_id, requires = %req_id, "Loading required dependency");
+                // Use load_slot directly — don't recurse deps of deps (one level)
+                self.load_slot(req_id).await?;
+            }
+        }
+
+        // Load the slot itself
+        self.load_slot(slot_id).await?;
+
+        // Load coupled children
+        let children = self.coupled_children(slot_id);
+        for child_id in &children {
+            if !self.is_slot_loaded(child_id) {
+                tracing::info!(slot = %slot_id, coupled = %child_id, "Loading coupled child");
+                self.load_slot(child_id).await?;
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Unload a slot and all its coupled children.
+    ///
+    /// Children unload first, then parent.
+    pub async fn unload_slot_with_deps(&mut self, slot_id: &str) -> Result<(), LoaderError> {
+        // Unload coupled children first
+        let children = self.coupled_children(slot_id);
+        for child_id in &children {
+            if self.is_slot_loaded(child_id) {
+                tracing::info!(slot = %slot_id, coupled = %child_id, "Unloading coupled child");
+                self.unload_slot(child_id).await?;
+            }
+        }
+
+        // Unload the slot itself
+        self.unload_slot(slot_id).await
+    }
+
+    /// Check if a slot is currently loaded.
+    #[must_use]
+    pub fn is_slot_loaded(&self, slot_id: &str) -> bool {
+        matches!(
+            self.slot_statuses.get(slot_id),
+            Some(ModelStatus::Loaded { .. })
+        )
     }
 
     /// Get an inference handle for a slot, resolving fallback chain.
