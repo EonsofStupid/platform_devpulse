@@ -53,7 +53,6 @@ pub mod preflight;
 mod relational;
 pub mod retry;
 mod vector;
-// mod voice; — deleted (SPRINT-VOICE-SLOTS)
 mod embedder;
 mod whisper;
 mod model_loader;
@@ -68,7 +67,6 @@ use crate::platform::services::relational::{RelationalService, SYSTEM_SCHEMA, US
 use crate::platform::services::analytics::SYSTEM_ANALYTICS_SCHEMA;
 #[cfg(feature = "rro")]
 use crate::platform::services::vector::VectorService;
-// Voice removed — slot-managed (SPRINT-VOICE-SLOTS)
 #[cfg(feature = "candle")]
 use crate::platform::services::embedder::EmbedderService;
 #[cfg(feature = "candle")]
@@ -93,7 +91,6 @@ pub struct BootedServices {
     pub global_graph: Option<Arc<GraphService>>,
     #[cfg(feature = "rro")]
     pub vector: Option<Arc<VectorService>>,
-    // Voice removed — slot-managed (SPRINT-VOICE-SLOTS)
     #[cfg(feature = "candle")]
     pub embedder: Option<Arc<EmbedderService>>,
     #[cfg(feature = "candle")]
@@ -224,7 +221,6 @@ async fn execute_inner(
         }
     }
 
-    // Voice removed — slot-managed through Model Loader (SPRINT-VOICE-SLOTS)
 
     // ── Stage 9: Grammar (llguidance) — future sprint, skipped ──
     on_event(InitEvent::skipped("Grammar service"));
@@ -313,7 +309,6 @@ async fn execute_inner(
         ];
         #[cfg(feature = "rro")]
         checks.push(("Vector Store", vector.is_some(), boot_config.is_enabled_and_critical(ServiceRole::Vector, DataScope::System)));
-        // Voice removed — slot-managed (SPRINT-VOICE-SLOTS)
         #[cfg(feature = "candle")]
         checks.push(("Embedding Engine", embedder.is_some(), boot_config.is_enabled_and_critical(ServiceRole::Embedder, DataScope::System)));
         #[cfg(feature = "candle")]
@@ -358,7 +353,6 @@ async fn execute_inner(
         global_graph,
         #[cfg(feature = "rro")]
         vector,
-        // Voice removed — slot-managed (SPRINT-VOICE-SLOTS)
         #[cfg(feature = "candle")]
         embedder,
         #[cfg(feature = "candle")]

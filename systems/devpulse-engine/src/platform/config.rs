@@ -53,7 +53,6 @@ pub struct DatabaseConfig {
     pub global_graph_enabled: bool,
     /// Vector store enabled (`RRO`).
     pub vector_enabled: bool,
-    // voice_enabled removed — slot-managed (SPRINT-VOICE-SLOTS)
     /// Grammar service enabled (`llguidance` — future sprint).
     pub grammar_enabled: bool,
     /// Embedder service enabled (Candle).
@@ -174,7 +173,6 @@ pub struct SystemServicesConfig {
     /// Vector store (`RRO`) — embedded Qdrant for two-tier retrieval.
     #[serde(default)]
     pub vector: VectorServiceEntry,
-    // Voice removed — slot-managed through Model Loader (SPRINT-VOICE-SLOTS)
     /// Grammar service (`llguidance` — future sprint) — structured generation engine.
     #[serde(default)]
     pub grammar: GrammarServiceEntry,
@@ -200,7 +198,6 @@ impl Default for SystemServicesConfig {
             graph: GraphServiceEntry::system_default(),
             cache: CacheServiceEntry::default(),
             vector: VectorServiceEntry::default(),
-            // Voice removed — slot-managed (SPRINT-VOICE-SLOTS)
             grammar: GrammarServiceEntry::default(),
             embedder: EmbedderServiceEntry::default(),
             whisper: WhisperServiceEntry::default(),
@@ -559,8 +556,6 @@ impl VectorServiceEntry {
     }
 }
 
-// VoiceServiceEntry deleted — voice is slot-managed through Model Loader (SPRINT-VOICE-SLOTS)
-
 /// Configuration for the grammar service (llguidance — future sprint).
 /// Kept for config deserialization compatibility. Defaults to disabled.
 #[derive(Debug, Clone, Deserialize)]
@@ -902,7 +897,6 @@ impl PlatformBootConfig {
             (ServiceRole::Vector, DataScope::System) => {
                 self.services.system.vector.enabled && self.services.system.vector.critical
             }
-            // Voice removed — slot-managed (SPRINT-VOICE-SLOTS)
             (ServiceRole::Grammar, DataScope::System) => {
                 self.services.system.grammar.enabled && self.services.system.grammar.critical
             }
@@ -943,7 +937,6 @@ impl PlatformBootConfig {
             user_graph_enabled: self.services.user.graph.enabled,
             global_graph_enabled: self.services.global.graph.enabled,
             vector_enabled: self.services.system.vector.enabled,
-            // voice_enabled removed — slot-managed (SPRINT-VOICE-SLOTS)
             grammar_enabled: self.services.system.grammar.enabled,
             embedder_enabled: self.services.system.embedder.enabled,
             whisper_enabled: self.services.system.whisper.enabled,
@@ -1024,7 +1017,6 @@ fn default_rro_kind() -> String {
 fn default_rro_path() -> String {
     "system/rro/storage".to_string()
 }
-// kokoros defaults deleted — voice is slot-managed (SPRINT-VOICE-SLOTS)
 fn default_retry_max() -> u32 {
     5
 }

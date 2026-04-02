@@ -89,7 +89,6 @@ pub const SERVICE_MANIFEST: &[ServiceMeta] = &[
         public_name: "Vector Store",
         feature_gate: Some("rro"),
     },
-    // Voice is slot-managed through Model Loader (SPRINT-VOICE-SLOTS)
     ServiceMeta {
         role: ServiceRole::Grammar,
         scope: DataScope::System,
@@ -162,7 +161,6 @@ pub fn compiled_service_count() -> usize {
         let compiled = match meta.feature_gate {
             None => true,
             Some("rro") => cfg!(feature = "rro"),
-            // kokoros removed — voice is slot-managed (SPRINT-VOICE-SLOTS)
             Some("candle") => cfg!(feature = "candle"),
             Some("inference") => cfg!(feature = "inference"),
             Some(_) => false,

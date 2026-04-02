@@ -59,7 +59,6 @@ use services::graph::GraphService;
 use services::relational::RelationalService;
 #[cfg(feature = "rro")]
 use services::vector::VectorService;
-// Voice is slot-managed through Model Loader (SPRINT-VOICE-SLOTS)
 // Grammar (llguidance) — future sprint
 // #[cfg(feature = "outlines")]
 // use services::grammar::GrammarService;
@@ -98,7 +97,6 @@ macro_rules! for_each_service {
         // Feature-gated services
         #[cfg(feature = "rro")]
         $action!($self.vector);
-        // Voice removed — slot-managed (SPRINT-VOICE-SLOTS)
         #[cfg(feature = "candle")]
         $action!($self.embedder);
         #[cfg(feature = "candle")]
@@ -120,7 +118,6 @@ macro_rules! for_each_service_rev {
         $action!($self.whisper);
         #[cfg(feature = "candle")]
         $action!($self.embedder);
-        // Voice removed — slot-managed (SPRINT-VOICE-SLOTS)
         #[cfg(feature = "rro")]
         $action!($self.vector);
         $action!($self.global_graph);
@@ -156,7 +153,6 @@ pub struct Platform {
     // ── Vector (RRO) ──────────────────────────────────────────
     #[cfg(feature = "rro")]
     vector: Option<Arc<VectorService>>,
-    // Voice removed — slot-managed through Model Loader (SPRINT-VOICE-SLOTS)
     // ── Grammar (llguidance) — future sprint ────────────────────
     // ── Embedder (Candle) ─────────────────────────────────────
     #[cfg(feature = "candle")]
@@ -210,7 +206,6 @@ impl Platform {
             global_graph: booted.global_graph,
             #[cfg(feature = "rro")]
             vector: booted.vector,
-            // Voice removed — slot-managed (SPRINT-VOICE-SLOTS)
             #[cfg(feature = "candle")]
             embedder: booted.embedder,
             #[cfg(feature = "candle")]
@@ -301,7 +296,6 @@ impl Platform {
         self.vector.as_ref()
     }
 
-    // Voice removed — slot-managed through Model Loader (SPRINT-VOICE-SLOTS)
 
     // Grammar (llguidance) — getter added in future sprint
 
