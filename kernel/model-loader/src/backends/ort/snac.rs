@@ -10,6 +10,7 @@
 use crate::backends::voice::{AudioDecoderBackend, AudioSamples};
 use crate::loading::states::{LoadParams, MemoryFootprint};
 use std::path::{Path, PathBuf};
+use std::sync::Mutex;
 
 /// Samples per SNAC decode window (48 frames × 512 samples/frame).
 pub const SAMPLES_PER_WINDOW: usize = 24576;
@@ -21,7 +22,7 @@ pub struct SnacDecoder {
     model_path: Option<PathBuf>,
     loaded: bool,
     #[cfg(feature = "ort-backend")]
-    session: Option<ort::session::Session>,
+    session: Mutex<Option<ort::session::Session>>,
 }
 
 impl SnacDecoder {
@@ -31,7 +32,7 @@ impl SnacDecoder {
             model_path: None,
             loaded: false,
             #[cfg(feature = "ort-backend")]
-            session: None,
+            session: Mutex::new(None),
         }
     }
 }
@@ -68,7 +69,7 @@ impl AudioDecoderBackend for SnacDecoder {
                 .map_err(|e| anyhow::anyhow!("Failed to create ort SessionBuilder: {e}"))?
                 .commit_from_file(path)
                 .map_err(|e| anyhow::anyhow!("Failed to load SNAC ONNX model: {e}"))?;
-            self.session = Some(session);
+            *self.session.lock().map_err(|e| anyhow::anyhow!("Session mutex poisoned: {e}"))? = Some(session);
         }
 
         let file_size = std::fs::metadata(path)?.len();
@@ -91,7 +92,7 @@ impl AudioDecoderBackend for SnacDecoder {
         tracing::info!(component = "SNAC", "Unloading SNAC decoder");
         #[cfg(feature = "ort-backend")]
         {
-            self.session = None;
+            *self.session.lock().map_err(|e| anyhow::anyhow!("Session mutex poisoned: {e}"))? = None;
         }
         self.model_path = None;
         self.loaded = false;
@@ -123,9 +124,10 @@ impl AudioDecoderBackend for SnacDecoder {
         {
             use ort::value::Value;
 
-            let session = self
-                .session
-                .as_ref()
+            let mut guard = self.session.lock()
+                .map_err(|e| anyhow::anyhow!("Session mutex poisoned: {e}"))?;
+            let session = guard
+                .as_mut()
                 .ok_or_else(|| anyhow::anyhow!("SNAC session not initialized"))?;
 
             let c0 = ndarray::Array2::<i64>::from_shape_vec((1, 12), codes0.to_vec())
@@ -148,7 +150,7 @@ impl AudioDecoderBackend for SnacDecoder {
 
             let audio_value = &outputs[0];
             let audio_tensor = audio_value
-                .try_extract_raw_tensor::<f32>()
+                .try_extract_tensor::<f32>()
                 .map_err(|e| anyhow::anyhow!("Failed to extract SNAC audio output: {e}"))?;
 
             let pcm: Vec<f32> = audio_tensor.1.to_vec();
