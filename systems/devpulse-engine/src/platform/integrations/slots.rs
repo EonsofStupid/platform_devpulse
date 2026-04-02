@@ -1,11 +1,13 @@
-//! Default DevPulse slot configuration — the 8 slots from the spec.
+//! Default DevPulse slot configuration.
 
-use devpulse_clyffy::model_loader::{DevicePreference, LoadingStrategy, ModelCapability, Slot};
+use devpulse_clyffy::model_loader::{
+    BackendType, DevicePreference, LoadingStrategy, ModelCapability, Slot,
+};
+use std::collections::HashMap;
 
 /// Generate the default DevPulse slot configuration.
 ///
-/// These are the 8 slots from MODEL_LOADER_SPEC §2.3.
-/// Other apps using the model-loader crate would register different slots.
+/// 11 slots: chat (1), minions (2), RAG (2), vision (1), voice (5).
 #[must_use]
 pub fn devpulse_default_slots() -> Vec<Slot> {
     vec![
@@ -18,6 +20,11 @@ pub fn devpulse_default_slots() -> Vec<Slot> {
             loading: LoadingStrategy::Hot,
             assigned_model: None,
             fallback: None,
+            runtime: None,
+            default_model: None,
+            requires: Vec::new(),
+            overrides: None,
+            extensions: HashMap::new(),
         },
         // ── Minions ────────────────────────────────────────
         Slot {
@@ -28,6 +35,11 @@ pub fn devpulse_default_slots() -> Vec<Slot> {
             loading: LoadingStrategy::Hot,
             assigned_model: None,
             fallback: None,
+            runtime: None,
+            default_model: None,
+            requires: Vec::new(),
+            overrides: None,
+            extensions: HashMap::new(),
         },
         Slot {
             id: "minion.escalation".into(),
@@ -37,6 +49,11 @@ pub fn devpulse_default_slots() -> Vec<Slot> {
             loading: LoadingStrategy::Warm,
             assigned_model: None,
             fallback: Some("chat.brain".into()),
+            runtime: None,
+            default_model: None,
+            requires: Vec::new(),
+            overrides: None,
+            extensions: HashMap::new(),
         },
         // ── RAG Pipeline ───────────────────────────────────
         Slot {
@@ -47,6 +64,11 @@ pub fn devpulse_default_slots() -> Vec<Slot> {
             loading: LoadingStrategy::OnDemand,
             assigned_model: None,
             fallback: None,
+            runtime: None,
+            default_model: None,
+            requires: Vec::new(),
+            overrides: None,
+            extensions: HashMap::new(),
         },
         Slot {
             id: "rag.reranker".into(),
@@ -56,6 +78,11 @@ pub fn devpulse_default_slots() -> Vec<Slot> {
             loading: LoadingStrategy::OnDemand,
             assigned_model: None,
             fallback: None,
+            runtime: None,
+            default_model: None,
+            requires: Vec::new(),
+            overrides: None,
+            extensions: HashMap::new(),
         },
         // ── Vision ─────────────────────────────────────────
         Slot {
@@ -66,25 +93,82 @@ pub fn devpulse_default_slots() -> Vec<Slot> {
             loading: LoadingStrategy::Signal("screenshot.captured".into()),
             assigned_model: None,
             fallback: None,
+            runtime: None,
+            default_model: None,
+            requires: Vec::new(),
+            overrides: None,
+            extensions: HashMap::new(),
         },
         // ── Voice ──────────────────────────────────────────
+        Slot {
+            id: "voice.tts.primary".into(),
+            label: "Clyffy Voice (Orpheus)".into(),
+            capability: ModelCapability::TextToSpeech,
+            preferred_device: DevicePreference::Cpu,
+            loading: LoadingStrategy::Signal("speech.requested".into()),
+            assigned_model: None,
+            fallback: Some("voice.tts.fallback".into()),
+            runtime: Some(BackendType::LlamaCpp),
+            default_model: Some("orpheus-3b-0.1-ft.Q8_0.gguf".into()),
+            requires: vec!["voice.snac".into()],
+            overrides: None,
+            extensions: HashMap::from([("voice_profile".into(), "default".into())]),
+        },
+        Slot {
+            id: "voice.snac".into(),
+            label: "Audio Decoder".into(),
+            capability: ModelCapability::AudioDecoding,
+            preferred_device: DevicePreference::Cpu,
+            loading: LoadingStrategy::Coupled { parent: "voice.tts.primary".into() },
+            assigned_model: None,
+            fallback: None,
+            runtime: Some(BackendType::Ort),
+            default_model: Some("snac_24khz.onnx".into()),
+            requires: Vec::new(),
+            overrides: None,
+            extensions: HashMap::new(),
+        },
+        Slot {
+            id: "voice.tts.fallback".into(),
+            label: "Backup Voice (Kokoro)".into(),
+            capability: ModelCapability::TextToSpeech,
+            preferred_device: DevicePreference::Cpu,
+            loading: LoadingStrategy::OnDemand,
+            assigned_model: None,
+            fallback: None,
+            runtime: Some(BackendType::Sherpa),
+            default_model: Some("Kokoro_espeak_Q8.gguf".into()),
+            requires: Vec::new(),
+            overrides: None,
+            extensions: HashMap::new(),
+        },
         Slot {
             id: "voice.stt".into(),
             label: "Voice Input".into(),
             capability: ModelCapability::SpeechToText,
-            preferred_device: DevicePreference::GpuWithCpuFallback,
+            preferred_device: DevicePreference::Cpu,
             loading: LoadingStrategy::Signal("voice.activated".into()),
             assigned_model: None,
             fallback: None,
+            runtime: Some(BackendType::Sherpa),
+            default_model: Some("sherpa-onnx-whisper-small".into()),
+            requires: Vec::new(),
+            overrides: None,
+            extensions: HashMap::from([("vad".into(), "silero".into())]),
         },
         Slot {
-            id: "voice.tts".into(),
-            label: "Voice Output".into(),
-            capability: ModelCapability::TextToSpeech,
-            preferred_device: DevicePreference::GpuWithCpuFallback,
-            loading: LoadingStrategy::Signal("speech.requested".into()),
+            id: "voice.stt.upgrade".into(),
+            label: "Enhanced Voice Input".into(),
+            capability: ModelCapability::SpeechToText,
+            preferred_device: DevicePreference::Gpu,
+            loading: LoadingStrategy::OnDemand,
             assigned_model: None,
             fallback: None,
+            runtime: Some(BackendType::Sherpa),
+            default_model: Some("whisper-large-v3-turbo".into()),
+            requires: Vec::new(),
+            overrides: Some("voice.stt".into()),
+            extensions: HashMap::new(),
         },
     ]
 }

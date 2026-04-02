@@ -12,6 +12,10 @@ pub enum ModelFormat {
     Gguf,
     /// SafeTensors format (Phase 2).
     SafeTensors,
+    /// ONNX format (.onnx files — SNAC, small models).
+    Onnx,
+    /// Sherpa model directory (Whisper, Kokoro — contains tokens.txt + config).
+    SherpaDir,
 }
 
 /// Which inference backend can run this model.
@@ -22,6 +26,10 @@ pub enum BackendType {
     Candle,
     /// llama.cpp via FFI (secondary — broader architecture support).
     LlamaCpp,
+    /// ONNX Runtime via ort crate (SNAC, small inference models).
+    Ort,
+    /// sherpa-rs (Whisper STT, Kokoro TTS).
+    Sherpa,
 }
 
 /// Where the model was obtained.
@@ -94,6 +102,8 @@ impl std::fmt::Display for ModelFormat {
         match self {
             Self::Gguf => write!(f, "GGUF"),
             Self::SafeTensors => write!(f, "SafeTensors"),
+            Self::Onnx => write!(f, "ONNX"),
+            Self::SherpaDir => write!(f, "Sherpa Directory"),
         }
     }
 }
@@ -103,6 +113,8 @@ impl std::fmt::Display for BackendType {
         match self {
             Self::Candle => write!(f, "Candle"),
             Self::LlamaCpp => write!(f, "llama.cpp"),
+            Self::Ort => write!(f, "ONNX Runtime"),
+            Self::Sherpa => write!(f, "Sherpa"),
         }
     }
 }

@@ -138,6 +138,11 @@ mod tests {
             loading: LoadingStrategy::Hot,
             assigned_model: None,
             fallback: None,
+            runtime: None,
+            default_model: None,
+            requires: Vec::new(),
+            overrides: None,
+            extensions: std::collections::HashMap::new(),
         }
     }
 

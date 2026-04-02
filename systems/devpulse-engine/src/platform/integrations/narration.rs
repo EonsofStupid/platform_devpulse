@@ -157,8 +157,11 @@ fn friendly_slot_name(slot_id: &str) -> &str {
         "rag.embedder" => "the Search Engine",
         "rag.reranker" => "the Relevance Scorer",
         "vision.embedder" => "the Vision System",
+        "voice.tts.primary" => "Clyffy's Voice",
+        "voice.snac" => "the Audio Decoder",
+        "voice.tts.fallback" => "the Backup Voice",
         "voice.stt" => "Voice Input",
-        "voice.tts" => "Voice Output",
+        "voice.stt.upgrade" => "Enhanced Voice Input",
         _ => slot_id,
     }
 }
@@ -172,8 +175,11 @@ fn friendly_slot_purpose(slot_id: &str) -> &str {
         "rag.embedder" => "finding relevant code and docs",
         "rag.reranker" => "ranking search results",
         "vision.embedder" => "understanding screenshots",
+        "voice.tts.primary" => "speaking to you",
+        "voice.snac" => "converting voice signals to sound",
+        "voice.tts.fallback" => "speaking when the main voice isn't available",
         "voice.stt" => "listening to your voice",
-        "voice.tts" => "speaking responses",
+        "voice.stt.upgrade" => "better voice recognition",
         _ => "its assigned task",
     }
 }

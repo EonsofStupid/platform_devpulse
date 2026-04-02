@@ -30,6 +30,21 @@ pub struct Slot {
     /// Fallback slot ID. If this slot's model isn't loaded,
     /// try the fallback. Enables escalation chains.
     pub fallback: Option<String>,
+
+    /// Which inference backend to use (overrides auto-detection).
+    pub runtime: Option<crate::models::BackendType>,
+
+    /// Default model filename for auto-assignment during setup.
+    pub default_model: Option<String>,
+
+    /// Slot IDs that must be loaded alongside this slot.
+    pub requires: Vec<String>,
+
+    /// Slot ID that this slot can replace when conditions are met.
+    pub overrides: Option<String>,
+
+    /// Backend-specific configuration (voice_profile, vad, sample_rate, etc.).
+    pub extensions: std::collections::HashMap<String, String>,
 }
 
 /// What kind of inference a model supports.
@@ -50,6 +65,8 @@ pub enum ModelCapability {
     SpeechToText,
     /// Text-to-speech.
     TextToSpeech,
+    /// Neural audio codec (SNAC — speech token decoding).
+    AudioDecoding,
 }
 
 /// Preferred device for a slot.
@@ -78,6 +95,8 @@ pub enum LoadingStrategy {
     OnDemand,
     /// Load when a specific signal fires.
     Signal(String),
+    /// Loaded/unloaded alongside a parent slot.
+    Coupled { parent: String },
 }
 
 impl Slot {
@@ -87,11 +106,12 @@ impl Slot {
         self.id.split('.').next().unwrap_or(&self.id)
     }
 
-    /// Validate slot ID format: must contain exactly one `.` separator.
+    /// Validate slot ID format: must contain at least one `.` separator.
+    /// Allows hierarchical IDs like `voice.tts.primary`.
     #[must_use]
     pub fn is_valid_id(id: &str) -> bool {
         let parts: Vec<&str> = id.split('.').collect();
-        parts.len() == 2 && !parts[0].is_empty() && !parts[1].is_empty()
+        parts.len() >= 2 && parts.iter().all(|p| !p.is_empty())
     }
 }
 
@@ -105,6 +125,7 @@ impl std::fmt::Display for ModelCapability {
             Self::VisionEmbedding => write!(f, "Vision Embedding"),
             Self::SpeechToText => write!(f, "Speech to Text"),
             Self::TextToSpeech => write!(f, "Text to Speech"),
+            Self::AudioDecoding => write!(f, "Audio Decoding"),
         }
     }
 }
