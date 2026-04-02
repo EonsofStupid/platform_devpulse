@@ -22,6 +22,7 @@ import {
 import { scanModels } from "../services/registry.service.js";
 import { type FitIndicator, formatMb } from "../types/models.types.js";
 import ClyffyNarration from "./ClyffyNarration.svelte";
+import ModelSearch from "./ModelSearch.svelte";
 import VramGauge from "./VramGauge.svelte";
 
 type WizardStep =
@@ -211,6 +212,65 @@ function startScanning(): void {
 	step = "scanning";
 }
 
+/** Download a single recommended model. */
+async function handleSingleDownload(rec: ModelRec): Promise<void> {
+	try {
+		step = "downloading";
+		downloadProgress = 0;
+
+		const unsubProgress = onDownloadProgress((p) => {
+			if (p.totalBytes > 0) {
+				downloadProgress = Math.min(95, (p.bytesDownloaded / p.totalBytes) * 100);
+			}
+		});
+
+		await downloadModel(rec.repo, rec.file);
+		unsubProgress();
+
+		await scanModels();
+		downloadProgress = 100;
+
+		// Back to recommendations so they can install more or continue
+		step = "recommendations";
+		await modelsState.refresh();
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		error = msg;
+		console.error(`[BootSetupWizard] Download failed for ${rec.name}:`, e);
+		step = "recommendations";
+	}
+}
+
+/** Download a model from HuggingFace search results. */
+async function handleSearchDownload(repoId: string, filename: string): Promise<void> {
+	try {
+		step = "downloading";
+		downloadProgress = 0;
+
+		const unsubProgress = onDownloadProgress((p) => {
+			if (p.totalBytes > 0) {
+				downloadProgress = Math.min(95, (p.bytesDownloaded / p.totalBytes) * 100);
+			}
+		});
+
+		await downloadModel(repoId, filename);
+		unsubProgress();
+
+		await scanModels();
+		downloadProgress = 100;
+
+		// Back to recommendations so they can install more
+		step = "recommendations";
+		await modelsState.refresh();
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		error = msg;
+		console.error(`[BootSetupWizard] Search download failed:`, e);
+		step = "recommendations";
+	}
+}
+
+/** Install all suggested models sequentially. */
 async function handleSetup(): Promise<void> {
 	step = "downloading";
 	downloadProgress = 0;
@@ -307,7 +367,7 @@ const fitColorMap: Record<string, string> = {
 		</div>
 
 	{:else if step === "recommendations"}
-		<!-- RECOMMENDATIONS -->
+		<!-- RECOMMENDATIONS + SEARCH -->
 		<div class="flex flex-col items-center gap-3">
 			<VramGauge
 				usedMb={hardwareState.vramUsedMb}
@@ -318,9 +378,10 @@ const fitColorMap: Record<string, string> = {
 			<Text size="xs" color="muted">{tierMessage}</Text>
 		</div>
 
+		<!-- Suggested models with per-model install buttons -->
 		<div class={stack({ gap: "2" })}>
 			<Text size="sm" weight="semibold" color="secondary">
-				{content?.recommendations.title ?? "Recommended Models"}
+				Suggested for your hardware
 			</Text>
 			{#each recommendations as rec (rec.name)}
 				<div
@@ -340,27 +401,43 @@ const fitColorMap: Record<string, string> = {
 					>
 						{content?.recommendations.fitLabels[rec.fit] ?? rec.fit}
 					</Badge>
+					<button
+						class="shrink-0 rounded px-3 py-1 text-xs font-semibold transition-colors hover:brightness-110"
+						style={cssVarString(mBtn.cssVars)}
+						onclick={() => handleSingleDownload(rec)}
+					>
+						Get
+					</button>
 				</div>
 			{/each}
 		</div>
 
-		<Text size="xs" color="muted" as="p" style="text-align: center;">
-			Total download: ~{formatMb(totalDownloadMb)}
-		</Text>
-
+		<!-- Install all suggested at once -->
 		<div class="flex flex-col items-center gap-2">
 			<button
-				class="flex items-center gap-2 rounded-lg border px-8 py-3 text-base font-bold transition-all hover:brightness-110"
+				class="flex items-center gap-2 rounded-lg border px-6 py-2 text-sm font-bold transition-all hover:brightness-110"
 				style={cssVarString(mBtn.cssVars)}
 				onclick={handleSetup}
 			>
-				<Zap size={18} />
-				{content?.recommendations.cta ?? "Set Me Up"}
-			</button>
-			<button class="text-xs opacity-50 underline" onclick={handleManualSetup}>
-				{content?.recommendations.manual ?? "I'll configure manually"}
+				<Zap size={16} />
+				Install All Suggested
 			</button>
 		</div>
+
+		<!-- Divider -->
+		<div class="flex items-center gap-3 py-1">
+			<div class="flex-1 border-t border-[var(--border-subtle)]"></div>
+			<Text size="xs" color="muted">or find something specific</Text>
+			<div class="flex-1 border-t border-[var(--border-subtle)]"></div>
+		</div>
+
+		<!-- Search — always visible in recommendations step -->
+		<ModelSearch onDownload={handleSearchDownload} />
+
+		<!-- Skip option -->
+		<button class="text-xs opacity-50 underline" onclick={handleManualSetup}>
+			Skip setup — I'll configure later
+		</button>
 
 	{:else if step === "downloading"}
 		<!-- DOWNLOADING -->
