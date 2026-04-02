@@ -21,7 +21,7 @@ pub struct SnacDecoder {
     model_path: Option<PathBuf>,
     loaded: bool,
     #[cfg(feature = "ort-backend")]
-    session: Option<ort::Session>,
+    session: Option<ort::session::Session>,
 }
 
 impl SnacDecoder {
@@ -64,7 +64,7 @@ impl AudioDecoderBackend for SnacDecoder {
 
         #[cfg(feature = "ort-backend")]
         {
-            let session = ort::Session::builder()
+            let session = ort::session::Session::builder()
                 .map_err(|e| anyhow::anyhow!("Failed to create ort SessionBuilder: {e}"))?
                 .commit_from_file(path)
                 .map_err(|e| anyhow::anyhow!("Failed to load SNAC ONNX model: {e}"))?;
@@ -121,6 +121,8 @@ impl AudioDecoderBackend for SnacDecoder {
 
         #[cfg(feature = "ort-backend")]
         {
+            use ort::value::Value;
+
             let session = self
                 .session
                 .as_ref()
@@ -133,15 +135,19 @@ impl AudioDecoderBackend for SnacDecoder {
             let c2 = ndarray::Array2::<i64>::from_shape_vec((1, 48), codes2.to_vec())
                 .map_err(|e| anyhow::anyhow!("Failed to create codes2 tensor: {e}"))?;
 
+            let v0 = Value::from_array(c0)
+                .map_err(|e| anyhow::anyhow!("Failed to create ort Value for codes0: {e}"))?;
+            let v1 = Value::from_array(c1)
+                .map_err(|e| anyhow::anyhow!("Failed to create ort Value for codes1: {e}"))?;
+            let v2 = Value::from_array(c2)
+                .map_err(|e| anyhow::anyhow!("Failed to create ort Value for codes2: {e}"))?;
+
             let outputs = session
-                .run(ort::inputs![
-                    "codes0" => c0,
-                    "codes1" => c1,
-                    "codes2" => c2,
-                ]?)
+                .run(ort::inputs![v0, v1, v2])
                 .map_err(|e| anyhow::anyhow!("SNAC inference failed: {e}"))?;
 
-            let audio_tensor = outputs["audio"]
+            let audio_value = &outputs[0];
+            let audio_tensor = audio_value
                 .try_extract_tensor::<f32>()
                 .map_err(|e| anyhow::anyhow!("Failed to extract SNAC audio output: {e}"))?;
 
