@@ -148,10 +148,10 @@ impl AudioDecoderBackend for SnacDecoder {
 
             let audio_value = &outputs[0];
             let audio_tensor = audio_value
-                .try_extract_tensor::<f32>()
+                .try_extract_raw_tensor::<f32>()
                 .map_err(|e| anyhow::anyhow!("Failed to extract SNAC audio output: {e}"))?;
 
-            let pcm: Vec<f32> = audio_tensor.iter().copied().collect();
+            let pcm: Vec<f32> = audio_tensor.1.to_vec();
 
             return Ok(AudioSamples {
                 data: pcm,
