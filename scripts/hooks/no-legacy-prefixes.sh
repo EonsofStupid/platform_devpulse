@@ -4,7 +4,7 @@
 # ColdLight is first-party. Tokens are --glass-void, NOT --dp-glass-void.
 #
 # Banned prefixes (add new ones here):
-# NOTE: --cl-* is the ColdLight internal namespace (macro-base.css, resolve.ts).
+# NOTE: --cl-* is the ColdLight internal namespace (render-base.css, resolve.ts).
 # It is NOT legacy — it is the active styling system. Only ban external/vendor prefixes.
 BANNED="dp|tw|ui|ds|sx|cx"
 

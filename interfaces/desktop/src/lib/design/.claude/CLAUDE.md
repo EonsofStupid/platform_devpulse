@@ -52,7 +52,7 @@ Motion axes are universal (not family-gated).
 | `renderforge/index.ts` | Public API barrel |
 | `renderforge/intent.ts` | Shared intent resolution (Law 6) |
 | `components/_base/types.ts` | ComponentProps + ComponentDef + SlotAxes |
-| `generated/macro-base.css` | Glue CSS — `[data-kind]` + `[data-cl-*]` consume vars |
+| `generated/render-base.css` | Glue CSS — `[data-kind]` + `[data-cl-*]` consume vars |
 
 ## Banned
 

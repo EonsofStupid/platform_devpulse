@@ -151,7 +151,7 @@ Three files in `design/renderforge/`:
 
 RenderForge constructs `var(--style-{styleId}-{axis})` references from style ID. CSS cascade resolves at paint time.
 
-### Glue CSS (`generated/macro-base.css`)
+### Glue CSS (`generated/render-base.css`)
 
 Maps `--cl-*` vars to CSS properties on `[data-kind]` elements. RenderForge assembles composites. Glue CSS consumes assembled values.
 

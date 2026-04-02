@@ -547,10 +547,6 @@ global_graph_enabled: boolean;
  */
 vector_enabled: boolean; 
 /**
- * Voice service enabled (`Kokoros`).
- */
-voice_enabled: boolean; 
-/**
  * Grammar service enabled (`llguidance` — future sprint).
  */
 grammar_enabled: boolean; 

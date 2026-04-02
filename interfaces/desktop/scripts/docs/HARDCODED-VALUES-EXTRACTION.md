@@ -903,7 +903,7 @@ Scanned: 2026-03-24T19:01:59.547Z
 		var(--glow-teal)` | lib\design\generated\focus.css |
 | `box-shadow: 0 0 0 0 currentColor` | lib\design\generated\keyframes.css |
 | `box-shadow: 0 0 12px 4px currentColor` | lib\design\generated\keyframes.css |
-| `box-shadow: var(--box-shadow, none)` | lib\design\generated\macro-base.css |
+| `box-shadow: var(--box-shadow, none)` | lib\design\generated\render-base.css |
 | `box-shadow: var(--shadow-depth), var(--shadow-bevel), var(--shadow-glow), var(--` | lib\design\generated\variants.css |
 | `box-shadow: var(--bevel-raised), var(--shadow-purple-2)` | lib\domains\app\ui-demo\components\GlassButton.svelte |
 | `box-shadow: var(--bevel-raised-deep), var(--shadow-purple-3)` | lib\domains\app\ui-demo\components\GlassButton.svelte |
@@ -924,7 +924,7 @@ Scanned: 2026-03-24T19:01:59.547Z
 
 | Value | Files |
 |---|---|
-| `backdrop-filter: blur(var(--cl-blur, 0))` | lib\design\generated\macro-base.css |
+| `backdrop-filter: blur(var(--cl-blur, 0))` | lib\design\generated\render-base.css |
 | `backdrop-filter: blur(var(--blur-lg)) saturate(1.5)` | lib\design\generated\variants.css |
 | `backdrop-filter: blur(var(--blur-lg)) saturate(1.3)` | lib\design\generated\variants.css |
 | `backdrop-filter: blur(var(--blur-xl)) saturate(1.2)` | lib\design\generated\variants.css |
@@ -1031,7 +1031,7 @@ export interface StyleMacroProps {
 | `border: var(--color-green-700)` | lib\design\css\components\component.css |
 | `border: var(--interaction-hover)` | lib\design\css\components\component.css |
 | `border: var(--color-red-800)` | lib\design\css\components\component.css |
-| `border: var(--cl-border, none)` | lib\design\generated\macro-base.css |
+| `border: var(--cl-border, none)` | lib\design\generated\render-base.css |
 | `border: 1px solid oklch(from var(--color-teal-700) l c h / 0.22)` | lib\design\generated\variants.css |
 | `border: 1px solid oklch(from var(--color-teal-600) l c h / 0.18)` | lib\design\generated\variants.css |
 | `border: 1px solid oklch(1 0 0 / 0.12)` | lib\design\generated\variants.css |

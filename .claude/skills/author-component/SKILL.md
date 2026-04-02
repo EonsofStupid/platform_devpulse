@@ -201,6 +201,6 @@ When fixing an existing component to align:
 ## Key files
 - `design/ADR-001-STYLE-MACRO.md` — THE architecture
 - `design/style/StyleMacro.svelte` — the provider
-- `design/generated/macro-base.css` — glue CSS, [data-kind] consumes --cl-*
+- `design/generated/render-base.css` — glue CSS, [data-kind] consumes --cl-*
 - `design/components/_base/types.ts` — UIBaseProps
 - `scripts/build/styledictionary/tokens/src/style-presets.json` — DTCG presets SSOT

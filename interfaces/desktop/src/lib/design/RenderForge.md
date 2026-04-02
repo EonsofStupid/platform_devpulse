@@ -26,7 +26,7 @@ SSOT: `var-to-family.ts` AXIS_REGISTRY.
 DTCG JSON token ($type + $value)
   → Style Dictionary 5 transform
   → CSS custom property (the var name below)
-  → macro-base.css glue reads var()
+  → render-base.css glue reads var()
   → browser paints the CSS property
 ```
 
@@ -315,7 +315,7 @@ Context must NOT carry visual styling dependencies.
 CSS property binding is split by visual family. Components receive
 only the families their preset uses. Families derived at build time.
 
-### The Families (must match macro-base.css and resolve.ts EXACTLY)
+### The Families (must match render-base.css and resolve.ts EXACTLY)
 
 ```css
 /* ── Universal: every [data-kind] element ──────────────── */
@@ -441,7 +441,7 @@ Step 1: generate-scales.mjs → fluid clamp DTCG tokens
 Step 2: enrich-presets.mjs → axis defaults + typography per kind
 Step 3: deriveKindFamilies() → kind → family[] mapping
 Step 4: SD5 transforms + platforms → CSS vars, theme, types
-Step 5: Glue CSS generation → macro-base.css with family-split selectors
+Step 5: Glue CSS generation → render-base.css with family-split selectors
 ```
 
 ---

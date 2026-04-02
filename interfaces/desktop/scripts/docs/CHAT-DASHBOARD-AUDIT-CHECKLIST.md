@@ -15,7 +15,7 @@ The resolver (`resolve.ts` line 80) outputs:
 --cl-border: "0.0625rem solid oklch(0.55 0.1 180 / 0.2)"   ← composite shorthand
 ```
 
-But `macro-base.css` consumes it as:
+But `render-base.css` consumes it as:
 ```css
 [data-cl-surface] { border-color: var(--cl-border, transparent); }  ← expects color only
 [data-cl-frame]   { border-width: var(--border-width, 0); }      ← never set by resolver
@@ -24,8 +24,8 @@ But `macro-base.css` consumes it as:
 Result: `border-color` gets an INVALID value (shorthand in a color property) → browser discards it → **no borders anywhere**. And `--border-width` is never set → falls back to `0` → **zero-width borders**.
 
 **FIX OPTIONS (pick one):**
-1. Split `--cl-border` in resolver into `--border-color`, `--border-width`, `--border-style` and update macro-base.css to consume them
-2. Keep `--cl-border` composite but use it as `border: var(--cl-border)` shorthand in macro-base.css (single property)
+1. Split `--cl-border` in resolver into `--border-color`, `--border-width`, `--border-style` and update render-base.css to consume them
+2. Keep `--cl-border` composite but use it as `border: var(--cl-border)` shorthand in render-base.css (single property)
 
 **Option 1 is correct** — aligns with how CSS properties work. Three separate vars, three separate CSS properties.
 
@@ -61,10 +61,10 @@ Additional resolver issues to audit:
 
 ### B1. Token Cascade — Verify End-to-End
 - [ ] `app.css` imports `$lib/design/index.css` — VERIFIED
-- [ ] `design/index.css` imports `styles/index.css` + `theme/index.css` + `generated/macro-base.css` — VERIFIED
+- [ ] `design/index.css` imports `styles/index.css` + `theme/index.css` + `generated/render-base.css` — VERIFIED
 - [ ] `styles/index.css` declares `@layer tokens.primitives, tokens.semantic, tokens.components` — VERIFIED
 - [ ] `components.generated.css` contains `--preset-neuro-elevated-*` tokens on `:root` — VERIFIED
-- [ ] `macro-base.css` paints from `--cl-*` vars via `[data-cl-surface]` etc — VERIFIED
+- [ ] `render-base.css` paints from `--cl-*` vars via `[data-cl-surface]` etc — VERIFIED
 - [ ] **BUT**: Separate Tauri webview for chat loads the SAME SvelteKit app at `/chat` — root layout imports `app.css` — tokens SHOULD load
 - [ ] VERIFY IN BROWSER: Open DevTools in chat window → inspect any element → are `--cl-*` vars resolving to real values or empty?
 - [ ] VERIFY IN BROWSER: Does `[data-cl-surface]` selector match any elements?

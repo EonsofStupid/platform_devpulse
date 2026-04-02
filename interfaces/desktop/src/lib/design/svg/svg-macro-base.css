@@ -5,7 +5,7 @@
  * Targets [data-svg-kind] and [data-svg-slot] elements.
  * Reads --svg-* vars set by resolveSvgMacro().
  *
- * Unlike HTML macro-base.css, SVG elements read vars directly in their
+ * Unlike HTML render-base.css, SVG elements read vars directly in their
  * attributes (stroke="var(--svg-stroke)"). This file provides:
  *   1. Fallback defaults on the root [data-svg-kind] element
  *   2. Slot-specific targeting for track/value/label sub-elements

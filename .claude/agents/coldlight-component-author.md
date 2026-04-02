@@ -84,7 +84,7 @@ Pattern:
 - `components/_base/` — ComponentProps, schema.ts (11-axis Zod), registry.ts
 - `components/{kind}/` — the product (hook + StyleMacro)
 - `style/` — StyleMacro, macro-mappings, base-state
-- `generated/macro-base.css` — glue CSS
+- `generated/render-base.css` — glue CSS
 - DTCG token JSON in `tokens/src/`
 - SD5 pipeline with `expand: true`
 

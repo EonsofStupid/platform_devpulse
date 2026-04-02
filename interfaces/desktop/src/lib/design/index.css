@@ -31,7 +31,7 @@
 @import "./generated/render-base.css";
 
 /* 10. SVG RenderForge glue — maps --svg-* vars to SVG elements on [data-svg-kind] */
-@import "./svg/svg-macro-base.css";
+@import "./svg/svg-render-base.css";
 
 /* 11. SVG accent root fallbacks — teal default, overridden per-widget */
 @import "./svg/svg-accent-defaults.css";
