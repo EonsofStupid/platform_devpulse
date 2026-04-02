@@ -22,6 +22,9 @@ pub use service::ModelLoaderService;
 // Inference bridge types
 pub use backends::bridge::{InferenceHandle, InferenceResponse};
 
+// Voice backend types
+pub use backends::voice::{AudioDecoderBackend, AudioSamples, SttBackend, TtsBackend};
+
 // Slot types
 pub use slots::{DevicePreference, LoadingStrategy, ModelCapability, Slot, SlotRegistry};
 

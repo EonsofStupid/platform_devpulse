@@ -6,42 +6,80 @@ use crate::models::registry::{
 use crate::slots::types::ModelCapability;
 use std::path::Path;
 
-/// Discover all GGUF models in the models directory.
+/// Discover all models in the models directory — GGUF, ONNX, and Sherpa directories.
 ///
-/// Walks `{models_dir}/gguf/` recursively, parses GGUF headers, builds registry entries.
+/// Walks ALL subdirectories recursively. Models organized by purpose:
+/// `chat/`, `voice/`, `rag/`, `vision/` — but discovery doesn't care about folder names.
 pub fn discover_models(models_dir: &Path) -> anyhow::Result<Vec<ModelRegistryEntry>> {
-    let gguf_dir = models_dir.join("gguf");
-    if !gguf_dir.exists() {
-        tracing::debug!(path = %gguf_dir.display(), "GGUF directory does not exist — no models to discover");
+    if !models_dir.exists() {
+        tracing::debug!(path = %models_dir.display(), "Models directory does not exist");
         return Ok(Vec::new());
     }
 
     let mut entries = Vec::new();
-    walk_gguf_dir(&gguf_dir, &mut entries)?;
 
-    tracing::info!(count = entries.len(), path = %gguf_dir.display(), "Model discovery complete");
+    // Walk everything recursively — discover by file type, not folder name
+    walk_all(models_dir, &mut entries)?;
+
+    tracing::info!(
+        count = entries.len(),
+        path = %models_dir.display(),
+        "Model discovery complete"
+    );
     Ok(entries)
 }
 
-/// Recursively walk a directory for .gguf files.
-fn walk_gguf_dir(dir: &Path, entries: &mut Vec<ModelRegistryEntry>) -> anyhow::Result<()> {
-    let read_dir = std::fs::read_dir(dir)?;
+/// Recursively walk a directory, discovering GGUF files, ONNX files, and Sherpa model dirs.
+fn walk_all(dir: &Path, entries: &mut Vec<ModelRegistryEntry>) -> anyhow::Result<()> {
+    let read_dir = match std::fs::read_dir(dir) {
+        Ok(rd) => rd,
+        Err(e) => {
+            tracing::debug!(path = %dir.display(), error = %e, "Cannot read directory — skipping");
+            return Ok(());
+        }
+    };
 
     for entry in read_dir {
         let entry = entry?;
         let path = entry.path();
 
         if path.is_dir() {
-            walk_gguf_dir(&path, entries)?;
-        } else if path.extension().is_some_and(|ext| ext == "gguf") {
-            match parse_gguf_entry(&path) {
-                Ok(registry_entry) => {
-                    tracing::debug!(file = %path.display(), arch = %registry_entry.architecture, "Discovered GGUF model");
-                    entries.push(registry_entry);
+            // Check if this directory is a Sherpa model dir (contains tokens.txt)
+            if is_sherpa_model_dir(&path) {
+                match parse_sherpa_dir_entry(&path) {
+                    Ok(registry_entry) => {
+                        tracing::debug!(dir = %path.display(), "Discovered Sherpa model directory");
+                        entries.push(registry_entry);
+                    }
+                    Err(e) => {
+                        tracing::warn!(dir = %path.display(), error = %e, "Failed to parse Sherpa dir — skipping");
+                    }
                 }
-                Err(e) => {
-                    tracing::warn!(file = %path.display(), error = %e, "Failed to parse GGUF file — skipping");
-                }
+            } else {
+                // Recurse into subdirectories
+                walk_all(&path, entries)?;
+            }
+        } else if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
+            match ext {
+                "gguf" => match parse_gguf_entry(&path) {
+                    Ok(registry_entry) => {
+                        tracing::debug!(file = %path.display(), arch = %registry_entry.architecture, "Discovered GGUF model");
+                        entries.push(registry_entry);
+                    }
+                    Err(e) => {
+                        tracing::warn!(file = %path.display(), error = %e, "Failed to parse GGUF file — skipping");
+                    }
+                },
+                "onnx" => match parse_onnx_entry(&path) {
+                    Ok(registry_entry) => {
+                        tracing::debug!(file = %path.display(), "Discovered ONNX model");
+                        entries.push(registry_entry);
+                    }
+                    Err(e) => {
+                        tracing::warn!(file = %path.display(), error = %e, "Failed to parse ONNX file — skipping");
+                    }
+                },
+                _ => {}
             }
         }
     }
@@ -273,6 +311,114 @@ fn infer_quant_from_filename(filename: &str) -> Option<String> {
     }
 
     None
+}
+
+/// Check if a directory is a Sherpa model directory (contains tokens.txt).
+fn is_sherpa_model_dir(dir: &Path) -> bool {
+    dir.join("tokens.txt").exists()
+}
+
+/// Parse a Sherpa model directory into a registry entry.
+fn parse_sherpa_dir_entry(dir: &Path) -> anyhow::Result<ModelRegistryEntry> {
+    let dir_name = dir
+        .file_name()
+        .map(|f| f.to_string_lossy().to_string())
+        .unwrap_or_default();
+
+    // Infer capability from directory name
+    let capabilities = if dir_name.contains("whisper") {
+        vec![ModelCapability::SpeechToText]
+    } else if dir_name.contains("kokoro") || dir_name.contains("tts") {
+        vec![ModelCapability::TextToSpeech]
+    } else {
+        vec![ModelCapability::SpeechToText] // Default for Sherpa dirs
+    };
+
+    // Sum directory size
+    let size = dir_size_bytes(dir);
+
+    Ok(ModelRegistryEntry {
+        id: uuid::Uuid::now_v7().to_string(),
+        filename: dir_name,
+        path: dir.to_path_buf(),
+        format: ModelFormat::SherpaDir,
+        architecture: "sherpa".to_string(),
+        parameter_count: None,
+        quant_level: None,
+        context_length: 0,
+        size_bytes: size,
+        vram_estimate_mb: size / (1024 * 1024),
+        supported_backends: vec![BackendType::Sherpa],
+        compatible_capabilities: capabilities,
+        source: ModelSource::Local,
+        discovered_at: now_epoch_ms(),
+    })
+}
+
+/// Parse an ONNX file into a registry entry.
+fn parse_onnx_entry(path: &Path) -> anyhow::Result<ModelRegistryEntry> {
+    let file_size = std::fs::metadata(path)?.len();
+    let filename = path
+        .file_name()
+        .map(|f| f.to_string_lossy().to_string())
+        .unwrap_or_default();
+
+    // Infer capability from filename
+    let capabilities = if filename.contains("snac") {
+        vec![ModelCapability::AudioDecoding]
+    } else if filename.contains("whisper") {
+        vec![ModelCapability::SpeechToText]
+    } else if filename.contains("embed") || filename.contains("siglip") {
+        vec![ModelCapability::Embedding]
+    } else {
+        // Unknown ONNX — log and assume generic
+        tracing::debug!(file = %filename, "Unknown ONNX model capability — not auto-assigned");
+        Vec::new()
+    };
+
+    Ok(ModelRegistryEntry {
+        id: uuid::Uuid::now_v7().to_string(),
+        filename,
+        path: path.to_path_buf(),
+        format: ModelFormat::Onnx,
+        architecture: "onnx".to_string(),
+        parameter_count: None,
+        quant_level: None,
+        context_length: 0,
+        size_bytes: file_size,
+        vram_estimate_mb: file_size / (1024 * 1024),
+        supported_backends: vec![BackendType::Ort],
+        compatible_capabilities: capabilities,
+        source: ModelSource::Local,
+        discovered_at: now_epoch_ms(),
+    })
+}
+
+/// Recursively compute directory size in bytes.
+fn dir_size_bytes(path: &Path) -> u64 {
+    std::fs::read_dir(path)
+        .map(|entries| {
+            entries
+                .filter_map(|e| e.ok())
+                .map(|e| {
+                    let p = e.path();
+                    if p.is_dir() {
+                        dir_size_bytes(&p)
+                    } else {
+                        std::fs::metadata(&p).map(|m| m.len()).unwrap_or(0)
+                    }
+                })
+                .sum()
+        })
+        .unwrap_or(0)
+}
+
+/// Current epoch milliseconds.
+fn now_epoch_ms() -> i64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as i64)
+        .unwrap_or(0)
 }
 
 #[cfg(test)]

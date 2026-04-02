@@ -20,6 +20,8 @@ pub fn select_backend(
             }
         }
         ModelFormat::SafeTensors => BackendType::Candle,
+        ModelFormat::Onnx => BackendType::Ort,
+        ModelFormat::SherpaDir => BackendType::Sherpa,
     }
 }
 
