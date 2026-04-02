@@ -25,7 +25,7 @@ specta-typescript = "0.0.9"
 
 # Platform Data (The "Muscle")
 libsql = "0.9"
-duckdb = { version = "1.1", features = ["bundled"] }
+duckdb = { version = "1.10500", features = ["bundled"] }
 surrealdb = { version = "3.0", default-features = false, features = ["kv-mem", "kv-surrealkv"] }
 moka = { version = "0.12", features = ["future"] }
 # fjall deferred — SurrealKV covers persistent KV; re-add if perf demands it
@@ -45,7 +45,6 @@ thiserror = "2.0"
 candle-core = "0.8"
 candle-nn = "0.8"
 candle-transformers = "0.8"
-kokoros = { path = "../deps/kokoros/kokoros" }
 ort = { version = "=2.0.0-rc.12", default-features = false, features = ["std", "ndarray", "load-dynamic"] }
 
 # Ops (xtask Support)
@@ -74,16 +73,6 @@ surrealkv = { git = "https://github.com/surrealdb/surrealkv", rev = "2e580597345
 # RRO's fork of tar with set_sync method for snapshot serialization
 tar = { git = "https://github.com/EonsofStupid/tar-rs", branch = "rro-alpha" }
 
-# ── DevPulse-owned forks (local ../deps/) ───────────────────────
-# All C/C++ deps unified under one CRT. No crates.io at build time.
-esaxx-rs = { path = "../deps/esaxx-rs" }
-tokenizers = { path = "../deps/tokenizers/tokenizers" }
-duckdb = { path = "../deps/duckdb-rs/crates/duckdb" }
-libduckdb-sys = { path = "../deps/duckdb-rs/crates/libduckdb-sys" }
-ort = { path = "../deps/ort" }
-ort-sys = { path = "../deps/ort/ort-sys" }
-espeak-rs = { path = "../deps/piper-rs/crates/espeak-rs" }
-espeak-rs-sys = { path = "../deps/piper-rs/crates/espeak-rs-sys" }
 
 # Dev: fast incremental for your code, optimized deps (candle/ort/surreal run fast)
 [profile.dev]

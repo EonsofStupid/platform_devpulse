@@ -6,7 +6,6 @@ edition = "2021"
 [features]
 default = []
 rro = ["dep:rro"]
-kokoros = ["dep:kokoros"]
 # Reserved for llguidance constrained decoding — fork not yet cloned
 # outlines = ["dep:llguidance"]
 candle = ["dep:candle-core", "dep:candle-nn", "dep:candle-transformers", "dep:tokenizers", "dep:hf-hub"]
@@ -28,7 +27,6 @@ duckdb = { workspace = true }
 surrealdb = { workspace = true }
 moka = { workspace = true }
 rro = { workspace = true, optional = true }
-kokoros = { workspace = true, optional = true }
 # llguidance = { workspace = true, optional = true }  # TODO: wire when fork is ready
 
 # Candle inference (CPU-first, burst mode)
