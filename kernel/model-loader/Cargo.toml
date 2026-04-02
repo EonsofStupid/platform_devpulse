@@ -43,7 +43,7 @@ hf-hub = { version = "0.4", optional = true }
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 
 # ONNX Runtime (optional — SNAC, Whisper, Kokoro)
-ort = { version = "2", optional = true, features = ["load-dynamic"] }
+ort = { version = "2.0.0-rc.12", optional = true, features = ["load-dynamic"] }
 ndarray = { version = "0.16", optional = true }
 
 # GPU metrics (optional)
