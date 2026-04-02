@@ -20,6 +20,7 @@ pub mod model_loader;
 #[cfg(feature = "inference")]
 pub mod model_loader_log;
 pub mod devforge;
+pub mod audio;
 
 use anyhow::Result;
 use serde::Serialize;
